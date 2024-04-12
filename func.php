@@ -67,6 +67,23 @@ function setPermissions($filename)
   }
 }
 
+function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $stringToRemove)
+{
+  // Read content from the source file
+  $sourceContent = file_get_contents($sourceFilePath);
+
+  // Remove the desired string
+  $modifiedContent = str_replace($stringToRemove, '', $sourceContent);
+
+  // Write the modified content back to the source file
+  $writeSrc = file_put_contents($sourceFilePath, $modifiedContent);
+
+  // Append the removed string to the destination file
+  $writeDest = file_put_contents($destinationFilePath,  PHP_EOL . $stringToRemove . PHP_EOL, FILE_APPEND);
+
+  return $writeSrc != false && $writeDest != false;
+}
+
 /**
  * Function to extract IP:PORT combinations from a text file and rewrite the file with only IP:PORT combinations.
  *
