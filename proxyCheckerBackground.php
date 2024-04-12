@@ -20,6 +20,12 @@ $file = __DIR__ . "/proxyChecker.php";
 $outputfile = __DIR__ . '/proxyChecker.txt';
 $pidfile = __DIR__ . '/proxyChecker.pid';
 setFilePermissions([$file, $outputfile, $pidfile]);
+function exitProcess()
+{
+  global $pidfile;
+  if (file_exists($pidfile)) unlink($pidfile);
+}
+register_shutdown_function('exitProcess');
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd = "start /B php $file";
 if (!$isWin) {
