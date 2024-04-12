@@ -223,3 +223,15 @@ function setConfig($user_id, $data)
   // set permission
   setFilePermissions($user_file);
 }
+
+function getRandomItemFromArray($array)
+{
+  // Get a random key from the array
+  $randomKey = array_rand($array);
+
+  // Use the random key to get the random item
+  $randomItem = $array[$randomKey];
+
+  // Return the random item
+  return $randomItem;
+}
