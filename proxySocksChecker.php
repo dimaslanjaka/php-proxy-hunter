@@ -61,6 +61,8 @@ function shuffleChecks()
     echo trim($line) . " " . ($check['result'] ? "working" : "dead") . " latency " . $check['latency'] . " ms" . PHP_EOL;
     if (!$check['result']) {
       removeStringAndMoveToFile($filePath, $deadPath, $line);
+    } else {
+      //
     }
     if (!$isCli && ob_get_level() > 0) {
       // LIVE output buffering on web server
@@ -81,7 +83,7 @@ function checkProxy($proxy)
   // list($ip, $port) = explode(':', $proxy);
 
   $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, "https://www.example.com/"); // Change URL to the one you want to test
+  curl_setopt($ch, CURLOPT_URL, "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1254560890123456"); // Change URL to the one you want to test
   curl_setopt($ch, CURLOPT_PROXY, $proxy);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Timeout in seconds
@@ -91,17 +93,9 @@ function checkProxy($proxy)
   $output = curl_exec($ch);
   $totalTime = microtime(true) - $start;
   $latency = 0;
-  $result = false;
-
-  // Check if cURL request was successful
-  if ($output === false) {
-    // echo "Error: " . curl_error($ch);
-  } else {
-    // If response is received, proxy is working
-    // echo "Proxy is working. Latency: " . round($totalTime * 1000, 2) . " ms";
-    $latency = round($totalTime * 1000, 2);
-    $result = true;
-  }
+  // $output === false is error
+  $result = $output !== false;
+  if ($result) $latency = round($totalTime * 1000, 2);
 
   // Close cURL resource
   curl_close($ch);
