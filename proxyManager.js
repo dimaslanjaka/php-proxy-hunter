@@ -122,25 +122,28 @@ let intervalFrame = setInterval(() => {
 	refreshIframes();
 }, 1000);
 
-// setInterval(() => {
-// 	fetch("proxyChecker.php?isRunning")
-// 		.then((res) => res.text())
-// 		.then((res) => {
-// 			if (res.includes("is running: false")) {
-// 				clearInterval(intervalFrame);
-// 				intervalFrame = null;
-// 			} else {
-// 				if (!intervalFrame) {
-// 					intervalFrame = setInterval(() => {
-// 						refreshIframes();
-// 					}, 2000);
-// 				}
-// 			}
-// 		})
-// 		.catch(() => {
-// 			//
-// 		});
-// }, 10000);
+const checkRuns = () =>
+	fetch("proxyChecker.php?isRunning")
+		.then((res) => res.text())
+		.then((res) => {
+			if (res.includes("is running: false") && intervalFrame) {
+				console.log('stop refreshing');
+				clearInterval(intervalFrame);
+				intervalFrame = null;
+			} else {
+				if (!intervalFrame) {
+					console.log('start refreshing');
+					intervalFrame = setInterval(() => {
+						refreshIframes();
+					}, 2000);
+				}
+			}
+		})
+		.catch(() => {
+			//
+		});
+
+checkRuns().finally(() => setInterval(checkRuns, 10000));
 
 document.getElementById("saveConfig").addEventListener("click", () => {
 	fetch(location.href, {
