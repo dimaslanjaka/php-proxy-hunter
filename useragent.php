@@ -39,26 +39,35 @@ function randomAndroidUa(string $type = 'chrome')
   // echo $androidVersionName . PHP_EOL;
 
   // Random device manufacturer and model
-  $manufacturers = ['Samsung', 'Google', 'Huawei', 'Xiaomi', 'OnePlus', 'LG'];
-  $models = ['Galaxy S20', 'Pixel 4', 'P30 Pro', 'Mi 10', 'OnePlus 8', 'G8 ThinQ'];
+  $manufacturers = ['Samsung', 'Google', 'Huawei', 'Xiaomi', 'LG'];
+  $models = [
+    'Samsung' => array_unique(['Galaxy S20', 'Galaxy Note 10', 'Galaxy A51', 'Galaxy S10', 'Galaxy S9', 'Galaxy Note 9', 'Galaxy S21', 'Galaxy Note 20', 'Galaxy Z Fold 2', 'Galaxy A71', 'Galaxy S20 FE']),
+    'Google' => array_unique(['Pixel 4', 'Pixel 3a', 'Pixel 3', 'Pixel 5', 'Pixel 4a', 'Pixel 4 XL', 'Pixel 3 XL']),
+    'Huawei' => array_unique(['P30 Pro', 'Mate 30', 'P40', 'Mate 40 Pro', 'P40 Pro', 'Mate Xs', 'Nova 7i']),
+    'Xiaomi' => array_unique(['Mi 10', 'Redmi Note 9', 'POCO F2 Pro', 'Mi 11', 'Redmi Note 10 Pro', 'POCO X3', 'Mi 10T Pro', 'Redmi Note 4x', 'Redmi Note 5', 'Redmi 6a', 'Mi 8 Lite']),
+    'LG' => array_unique(['G8 ThinQ', 'V60 ThinQ', 'Stylo 6', 'Velvet', 'Wing', 'K92', 'Q92'])
+  ];
 
   $manufacturer = $manufacturers[array_rand($manufacturers)];
-  $model = $models[array_rand($models)];
+  $model = $models[$manufacturer][array_rand($models[$manufacturer])];
+
+  // echo $manufacturer . PHP_EOL;
+  // echo $model . PHP_EOL;
 
   // Random version numbers for AppleWebKit, Chrome, and Mobile Safari
   $appleWebKitVersion = mt_rand(500, 700) . '.' . mt_rand(0, 99);
   $chromeVersion = mt_rand(70, 99) . '.0.' . mt_rand(1000, 9999);
   $mobileSafariVersion = mt_rand(500, 700) . '.' . mt_rand(0, 99);
 
+  // Generate chrome user-agent string
+  $chrome = "Mozilla/5.0 (Linux; Android $androidVersion; $manufacturer $model) AppleWebKit/$appleWebKitVersion (KHTML, like Gecko) Chrome/$chromeVersion Mobile Safari/$mobileSafariVersion";
+
   // Random Firefox version
   $firefoxVersion = mt_rand(60, 90) . '.0';
 
-  // Generate the user-agent string for Mozilla Firefox on Android with randomized version
+  // Generate firefox user-agent string for Mozilla Firefox on Android with randomized version
   $firefoxModel = getRandomItemFromArray(['Mobile', 'Tablet']);
   $firefox = "Mozilla/5.0 (Android $androidVersion; $firefoxModel; rv:$firefoxVersion) Gecko/$firefoxVersion Firefox/$firefoxVersion";
-
-  // Generate the user-agent string
-  $chrome = "Mozilla/5.0 (Linux; Android $androidVersion; $manufacturer $model) AppleWebKit/$appleWebKitVersion (KHTML, like Gecko) Chrome/$chromeVersion Mobile Safari/$mobileSafariVersion";
 
   return $type == 'chrome' ? $chrome : $firefox;
 }
