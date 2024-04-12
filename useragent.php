@@ -98,6 +98,8 @@ $max = 1;
 if (isset($_REQUEST['max'])) {
   $max = intval($_REQUEST['max']);
 }
+// limit max 50
+if ($max > 50) $max = 50;
 $type = 'random';
 // browser type [firefox, chrome]
 if (isset($_REQUEST['type'])) {
