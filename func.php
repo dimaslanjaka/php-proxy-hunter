@@ -52,14 +52,18 @@ function setFilePermissions($filenames)
  */
 function setPermissions($filename)
 {
-  if (file_exists($filename)) {
-    if (chmod($filename, 0777)) {
-      // echo "File permissions set to 777 for $filename successfully.\n";
+  try {
+    if (file_exists($filename)) {
+      if (chmod($filename, 0777)) {
+        // echo "File permissions set to 777 for $filename successfully.\n";
+      } else {
+        // echo "Failed to set file permissions for $filename.\n";
+      }
     } else {
-      // echo "Failed to set file permissions for $filename.\n";
+      // echo "File $filename does not exist.\n";
     }
-  } else {
-    // echo "File $filename does not exist.\n";
+  } catch (\Throwable $th) {
+    //throw $th;
   }
 }
 
