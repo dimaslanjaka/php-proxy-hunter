@@ -184,9 +184,9 @@ function stripDeadProxy(string $proxy)
  */
 function checkProxyLine($line)
 {
-  global $startTime, $maxExecutionTime, $workingPath, $workingProxies, $isCLI, $checksFor;
+  global $startTime, $maxExecutionTime, $workingPath, $workingProxies, $isCli, $checksFor;
   // Check if the elapsed time exceeds the limit
-  if (microtime(true) - $startTime > $maxExecutionTime && !$isCLI) {
+  if (microtime(true) - $startTime > $maxExecutionTime && !$isCli) {
     echo "maximum execution time excedeed ($maxExecutionTime)\n";
     // Execution time exceeded, break out of the loop
     return "break";
@@ -198,7 +198,7 @@ function checkProxyLine($line)
       echo "$proxy working type CURLPROXY_HTTP";
       $latency = checkProxyLatency($proxy);
       echo " latency $latency ms\n";
-      if (!$isCLI && ob_get_level() > 0) {
+      if (!$isCli && ob_get_level() > 0) {
         // LIVE output buffering on web server
         flush();
         ob_flush();
