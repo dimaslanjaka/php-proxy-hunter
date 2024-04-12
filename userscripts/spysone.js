@@ -5,6 +5,8 @@
 // @description  parse proxy from site page
 // @author       iquaridys
 // @match        http://spys.one/*/
+// @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/spysone.js
+// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/spysone.js
 // ==/UserScript==
 
 (function () {
