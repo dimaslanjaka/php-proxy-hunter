@@ -6,30 +6,41 @@ require_once __DIR__ . "/func.php";
 // merged into proxies-all.txt
 
 $all = __DIR__ . '/proxies-all.txt';
-$untested = __DIR__ . '/proxies.txt';
-$working = __DIR__ . '/working.txt';
-$dead = __DIR__ . '/dead.txt';
 
-setFilePermissions([$all, $untested, $working, $dead]);
+// Define file paths array
+$files = [
+  __DIR__ . '/proxies.txt',
+  __DIR__ . '/working.txt',
+  __DIR__ . '/dead.txt',
+  __DIR__ . '/socks.txt',
+  __DIR__ . '/socks-dead.txt',
+];
+
+setFilePermissions($all);
 
 // Open all files in read mode
-$untested_content = file_get_contents($untested);
-$working_content = file_get_contents($working);
-$dead_content = file_get_contents($dead);
 $all_content = file_get_contents($all);
 
 // Merge contents
-$merged_content = $all_content . PHP_EOL . $untested_content . PHP_EOL . $working_content . PHP_EOL . $dead_content;
+$merged_content = $all_content . PHP_EOL;
+
+// Iterate through the files array and truncate each file
+foreach ($files as $file) {
+  $content = file_get_contents($file);
+  $merged_content = $merged_content . PHP_EOL . $content . PHP_EOL;
+  truncateFile($file);
+}
 
 // Write merged content to $all
 file_put_contents($all, $merged_content);
-
-// Optional: Clear contents of $untested, $working, and $dead files
-file_put_contents($untested, '');
-file_put_contents($working, '');
-file_put_contents($dead, '');
 
 // unique proxies
 rewriteIpPortFile($all);
 
 echo "Contents merged and moved to $all successfully.";
+
+// Function to truncate the content of a file
+function truncateFile($filePath)
+{
+  file_put_contents($filePath, ''); // Write an empty string to truncate the file
+}
