@@ -124,11 +124,13 @@ let intervalFrame = setInterval(() => {
 
 const checkRuns = () =>
 	fetch("proxyChecker.lock").then((res) => {
-		if (res.ok && !intervalFrame) {
-			console.log("start refreshing");
-			intervalFrame = setInterval(() => {
-				refreshIframes();
-			}, 2000);
+		if (res.ok) {
+			if (!intervalFrame) {
+				console.log("start refreshing");
+				intervalFrame = setInterval(() => {
+					refreshIframes();
+				}, 2000);
+			}
 		} else if (intervalFrame) {
 			console.log("stop refreshing");
 			clearInterval(intervalFrame);

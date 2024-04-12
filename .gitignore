@@ -11,3 +11,4 @@
 *.lock
 /proxyChecker.pid
 /proxyChecker.txt
+/webalizer
