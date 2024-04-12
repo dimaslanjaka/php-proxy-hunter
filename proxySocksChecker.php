@@ -66,25 +66,11 @@ function shuffleChecks()
       // Execution time exceeded, break out of the loop
       break;
     }
-    $check = checkProxy(trim($line));
-    echo trim($line) . " " . ($check['result'] ? "working" : "dead") . " latency " . $check['latency'] . " ms" . PHP_EOL;
-    if (!$check['result']) {
-      removeStringAndMoveToFile($filePath, $deadPath, $line);
-    } else {
-      $proxy = trim($line);
-      $latency = $check['latency'];
-      $item = "$proxy|$latency|CURLPROXY_SOCKS5";
-      if (!in_array($item, $workingProxies)) {
-        // If the item doesn't exist, push it into the array
-        $workingProxies[] = $item;
-      }
-      // write working proxy
-      file_put_contents($workingPath, join("\n", $workingProxies));
-    }
-    if (!$isCli && ob_get_level() > 0) {
-      // LIVE output buffering on web server
-      flush();
-      ob_flush();
+    $check5 = parseCheckResult(checkProxy(trim($line), '5'));
+    $check4 = parseCheckResult(checkProxy(trim($line), '4'));
+    if (!$check5['result'] && !$check4['result']) {
+      // delete when both protocol dead
+      removeStringAndMoveToFile($filePath, $deadPath, $check5['proxy']);
     }
   }
 
@@ -92,7 +78,38 @@ function shuffleChecks()
   if (count($workingProxies) > 1) file_put_contents($workingPath, join("\n", $workingProxies));
 }
 
-function checkProxy($proxy)
+function parseCheckResult($check)
+{
+  global $workingPath, $workingProxies, $deadPath, $isCli;
+  $type = "CURLPROXY_SOCKS" . $check['version'];
+  echo trim($check['proxy']) . " $type " . ($check['result'] ? "working" : "dead") . " latency " . $check['latency'] . " ms" . PHP_EOL;
+  if ($check['result']) {
+    $proxy = trim($check['proxy']);
+    $latency = $check['latency'];
+    $item = "$proxy|$latency|$type";
+    if (!in_array($item, $workingProxies)) {
+      // If the item doesn't exist, push it into the array
+      $workingProxies[] = $item;
+    }
+    // write working proxy
+    file_put_contents($workingPath, join("\n", $workingProxies));
+  }
+  if (!$isCli && ob_get_level() > 0) {
+    // LIVE output buffering on web server
+    flush();
+    ob_flush();
+  }
+  return $check;
+}
+
+/**
+ * Checks the accessibility and latency of a proxy server.
+ *
+ * @param string $proxy The proxy address in the format IP:Port.
+ * @param string $version The version of the SOCKS proxy protocol (4 or 5).
+ * @return array An associative array containing the result and latency of the proxy check.
+ */
+function checkProxy(string $proxy, string $version = '5')
 {
   $start = microtime(true);
 
@@ -104,7 +121,7 @@ function checkProxy($proxy)
   curl_setopt($ch, CURLOPT_PROXY, $proxy);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Timeout in seconds
-  curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // Change to CURLPROXY_SOCKS4 if needed
+  curl_setopt($ch, CURLOPT_PROXYTYPE, $version == 5 ? CURLPROXY_SOCKS5 : CURLPROXY_SOCKS4); // Change to CURLPROXY_SOCKS4 if needed
 
   // Execute the request
   $output = curl_exec($ch);
@@ -117,5 +134,5 @@ function checkProxy($proxy)
   // Close cURL resource
   curl_close($ch);
 
-  return ["result" => $result, "latency" => $latency];
+  return ["result" => $result, "latency" => $latency, "proxy" => $proxy, "version" => $version];
 }
