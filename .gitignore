@@ -1,0 +1,10 @@
+/php-obfuscator
+**/node_modules
+**/vendor
+/config
+/dashboard
+/img
+/xampp
+/bitnami.css
+/applications.html
+/xl*

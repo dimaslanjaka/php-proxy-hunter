@@ -1,0 +1,20 @@
+GET https://www.example.net
+User-Agent: Mozilla/5.0 (Android 14; Mobile; wv) AppleWebKit/537.36 (KHTML, like Gecko) WebView/110.0.5481.61 Mobile Safari/537.36
+
+2.47.51.18:8080 not working
+67.43.236.18:5089 not working
+38.51.206.224:999 not working
+82.222.11.212:8080 not working
+13.38.176.104:3128 not working
+49.247.40.126:4000 not working
+203.89.28.106:6060 working type CURLPROXY_HTTP latency 1145 ms
+49.13.66.31:80 not working
+87.76.1.251:8080 not working
+185.105.118.72:80 working type CURLPROXY_HTTP latency -1 ms
+3.68.118.86:55798 not working
+45.149.93.213:8080 not working
+121.151.223.163:1337 working type CURLPROXY_HTTP latency 2519 ms
+122.154.118.66:8083 not working
+103.156.74.154:8080 not working
+98.6.197.202:16099 not working
+maximum execution time excedeed (120)
