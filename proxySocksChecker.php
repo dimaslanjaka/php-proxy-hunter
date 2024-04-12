@@ -24,6 +24,10 @@ if (!$isCli) {
   }
 }
 
+// limit execution time seconds unit
+$maxExecutionTime = 100;
+$startTime = microtime(true);
+
 $filePath = __DIR__ . "/socks.txt";
 $workingPath = __DIR__ . "/socks-working.txt";
 $deadPath = __DIR__ . "/socks-dead.txt";
@@ -39,7 +43,7 @@ shuffleChecks();
  */
 function shuffleChecks()
 {
-  global $filePath, $workingPath, $workingProxies, $deadPath, $isCli;
+  global $startTime, $maxExecutionTime, $filePath, $workingPath, $workingProxies, $deadPath, $isCli;
 
   // Read lines of the file into an array
   $lines = file($filePath, FILE_IGNORE_NEW_LINES);
@@ -56,7 +60,12 @@ function shuffleChecks()
 
   // Iterate through the shuffled lines
   foreach ($lines as $line) {
-    // if (checkProxyLine($line) == "break") break;
+    // Check if the elapsed time exceeds the limit
+    if (((microtime(true) - $startTime) > $maxExecutionTime) && !$isCli) {
+      echo "maximum execution time excedeed ($maxExecutionTime)\n";
+      // Execution time exceeded, break out of the loop
+      break;
+    }
     $check = checkProxy(trim($line));
     echo trim($line) . " " . ($check['result'] ? "working" : "dead") . " latency " . $check['latency'] . " ms" . PHP_EOL;
     if (!$check['result']) {
