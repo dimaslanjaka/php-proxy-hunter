@@ -13,6 +13,7 @@ $files = [
   __DIR__ . '/working.txt',
   __DIR__ . '/dead.txt',
   __DIR__ . '/socks.txt',
+  __DIR__ . '/socks-working.txt',
   __DIR__ . '/socks-dead.txt',
 ];
 

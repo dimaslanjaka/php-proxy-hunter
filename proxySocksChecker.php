@@ -25,7 +25,7 @@ if (!$isCli) {
 }
 
 $filePath = __DIR__ . "/socks.txt";
-$workingPath = __DIR__ . "/working.txt";
+$workingPath = __DIR__ . "/socks-working.txt";
 $deadPath = __DIR__ . "/socks-dead.txt";
 $workingProxies = [];
 
@@ -62,7 +62,15 @@ function shuffleChecks()
     if (!$check['result']) {
       removeStringAndMoveToFile($filePath, $deadPath, $line);
     } else {
-      //
+      $proxy = trim($line);
+      $latency = $check['latency'];
+      $item = "$proxy|$latency|CURLPROXY_SOCKS5";
+      if (!in_array($item, $workingProxies)) {
+        // If the item doesn't exist, push it into the array
+        $workingProxies[] = $item;
+      }
+      // write working proxy
+      file_put_contents($workingPath, join("\n", $workingProxies));
     }
     if (!$isCli && ob_get_level() > 0) {
       // LIVE output buffering on web server
