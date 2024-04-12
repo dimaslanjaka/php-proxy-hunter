@@ -90,13 +90,7 @@ echo "\n";
 
 /// FUNCTIONS (DO NOT EDIT)
 
-$script = md5(__FILE__);
-$lockFilePath = __DIR__ . "/$script.lock";
-
-if (isset($_REQUEST['isRunning'])) {
-  echo "is running: " . (file_exists($lockFilePath) ? 'true' : 'false');
-  exit();
-}
+$lockFilePath = __DIR__ . "/proxyChecker.lock";
 
 if (file_exists($lockFilePath)) {
   echo "another process still running\n";

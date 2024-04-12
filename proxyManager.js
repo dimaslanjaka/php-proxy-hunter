@@ -123,24 +123,21 @@ let intervalFrame = setInterval(() => {
 }, 1000);
 
 const checkRuns = () =>
-	fetch("proxyChecker.php?isRunning")
-		.then((res) => res.text())
-		.then((res) => {
-			if (res.includes("is running: false") && intervalFrame) {
-				console.log('stop refreshing');
-				clearInterval(intervalFrame);
-				intervalFrame = null;
-			} else {
-				if (!intervalFrame) {
-					console.log('start refreshing');
-					intervalFrame = setInterval(() => {
-						refreshIframes();
-					}, 2000);
-				}
+	fetch("proxyChecker.lock")
+		.then(() => {
+			if (!intervalFrame) {
+				console.log("start refreshing");
+				intervalFrame = setInterval(() => {
+					refreshIframes();
+				}, 2000);
 			}
 		})
 		.catch(() => {
-			//
+			if (intervalFrame) {
+				console.log("stop refreshing");
+				clearInterval(intervalFrame);
+				intervalFrame = null;
+			}
 		});
 
 checkRuns().finally(() => setInterval(checkRuns, 10000));
