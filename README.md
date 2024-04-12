@@ -32,3 +32,7 @@ Name: Dimas Lanjaka
 Website: https://www.webmanajemen.com
 Email: dimaslanjaka@gmail.com
 ```
+
+![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/d24b8bbf-0fa0-4394-b9e7-78350bdda67d)
+
+![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/adb9aaaf-2151-44c0-aaf2-b19c1c536bc7)
