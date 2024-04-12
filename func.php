@@ -177,6 +177,10 @@ function getUserId()
   return $user_id;
 }
 
+if (!file_exists(__DIR__ . "/config")) {
+  mkdir(__DIR__ . "/config");
+}
+setFilePermissions(__DIR__ . "/config");
 function getUserFile(string $user_id)
 {
   return __DIR__ . "/config/$user_id.json";
@@ -185,7 +189,10 @@ function getUserFile(string $user_id)
 function getConfig(string $user_id)
 {
   $user_file = getUserFile($user_id);
-  if (!file_exists($user_file)) setUserId($user_id);
+  if (!file_exists($user_file)) {
+    setUserId($user_id);
+    $user_file = getUserFile($user_id);
+  }
   // Read the JSON file into a string
   $jsonString = file_get_contents($user_file);
 
