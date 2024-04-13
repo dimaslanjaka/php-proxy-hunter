@@ -1,0 +1,17 @@
+{
+  "files.autoSave": "off",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.formatOnPaste": false,
+  "editor.formatOnSave": false,
+  "code-runner.clearPreviousOutput": true,
+  "code-runner.ignoreSelection": true,
+  "code-runner.runInTerminal": true,
+  "code-runner.saveAllFilesBeforeRun": true,
+  "code-runner.executorMapByGlob": {
+    "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register"
+  },
+  "code-runner.respectShebang": true
+}

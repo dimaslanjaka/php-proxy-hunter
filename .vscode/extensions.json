@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "bmewburn.vscode-intelephense-client",
+    "dbaeumer.vscode-eslint",
+    "formulahendry.code-runner",
+    "esbenp.prettier-vscode",
+    "k--kato.intellij-idea-keybindings"
+  ]
+}
