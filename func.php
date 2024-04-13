@@ -123,7 +123,7 @@ function curlGetWithProxy($url, $proxy, $cacheTime = 86400 * 360, $cacheDir = __
 
   // Check for errors
   if (curl_errno($ch)) {
-    echo 'Error: ' . curl_error($ch);
+    // echo 'Error: ' . curl_error($ch);
   } else {
     // Save response to cache file
     if ($cacheTime > 0) {
