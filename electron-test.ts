@@ -16,11 +16,13 @@ app.whenReady().then(async () => {
   // console.log(proxies);
   for (let i = 0; i < proxies.length; i++) {
     const proxy = proxies[i];
-    // const geo = await getLocation(proxy).catch((_) => null);
-    // if (geo && geo.length > 0) {
-    //   console.log(geo);
-    // }
-    await checkProxy('http://' + proxy);
+    const check = await checkProxy('http://' + proxy);
+    if (check) {
+      // const geo = await getLocation(proxy).catch((_) => null);
+      // if (geo && geo.length > 0) {
+      //   console.log(geo);
+      // }
+    }
   }
 });
 
@@ -33,10 +35,10 @@ function readFile(filePath: string): string[] {
 }
 
 /**
- *
+ * check proxy using electron
  * @param proxy http://ip:port socks://ip:port
  */
-function checkProxy(proxy: string) {
+function checkProxy(proxy: string): Bluebird<boolean> {
   return new Bluebird((resolve) => {
     const mainWindow = new BrowserWindow({
       width: 800,
@@ -78,20 +80,21 @@ function checkProxy(proxy: string) {
       console.error(proxy, 'not working, fail load page');
       // moveString(path.join(__dirname, 'proxies.txt'), path.join(__dirname, 'dead.txt'), proxy.replace('http://', ''));
       mainWindow.close();
-      resolve();
+      resolve(false);
     });
 
     mainWindow.webContents.on('did-finish-load', () => {
       const title = mainWindow.getTitle();
       if (title.includes('Anonymity check')) {
         console.log(proxy, 'working');
+        resolve(true);
       } else {
         console.error(proxy, 'not working');
         moveString(path.join(__dirname, 'proxies.txt'), path.join(__dirname, 'dead.txt'), proxy.replace('http://', ''));
+        resolve(false);
       }
 
       mainWindow.close();
-      resolve();
     });
   });
 }
