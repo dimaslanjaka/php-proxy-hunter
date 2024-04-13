@@ -12,18 +12,21 @@ app.whenReady().then(async () => {
   const proxies = readFile(path.join(__dirname, 'proxies.txt'))
     .map((s) => s.trim())
     .filter((s) => s.length > 7);
-  // .map((s) => 'http://' + s);
-  // console.log(proxies);
+  const workingProxies = [] as string[];
   for (let i = 0; i < proxies.length; i++) {
     const proxy = proxies[i];
     const check = await checkProxy('http://' + proxy);
-    if (check) {
-      // const geo = await getLocation(proxy).catch((_) => null);
-      // if (geo && geo.length > 0) {
-      //   console.log(geo);
-      // }
-    }
+    if (check) workingProxies.push(proxy);
   }
+
+  console.log('total working proxies', workingProxies.length);
+
+  // if (check) {
+  //   const geo = await getLocation(proxy).catch((_) => null);
+  //   if (geo && geo.length > 0) {
+  //     console.log(geo);
+  //   }
+  // }
 });
 
 function readFile(filePath: string): string[] {
@@ -74,27 +77,36 @@ function checkProxy(proxy: string): Bluebird<boolean> {
     mainWindow.loadURL('https://proxy6.net/en/privacy');
     // mainWindow.loadURL('https://bing.com');
 
-    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-      console.error(`Failed to load URL: ${validatedURL}`);
-      console.error(`Error code: ${errorCode}, Description: ${errorDescription}`);
-      console.error(proxy, 'not working, fail load page');
-      // moveString(path.join(__dirname, 'proxies.txt'), path.join(__dirname, 'dead.txt'), proxy.replace('http://', ''));
-      mainWindow.close();
+    mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+      if (['ERR_PROXY_CONNECTION_FAILED'].includes(errorDescription)) {
+        console.error(proxy, 'not working, proxy failed');
+        moveString(path.join(__dirname, 'proxies.txt'), path.join(__dirname, 'dead.txt'), proxy.replace('http://', ''));
+      } else if (errorDescription == 'ERR_CERT_AUTHORITY_INVALID') {
+        console.error(proxy, 'not working, Non-SSL');
+        moveString(path.join(__dirname, 'proxies.txt'), path.join(__dirname, 'dead.txt'), proxy.replace('http://', ''));
+      } else {
+        console.error(`Failed to load URL: ${validatedURL}`);
+        console.error(`Error code: ${errorCode}, Description: ${errorDescription}`);
+        console.error(proxy, 'not working, fail load page');
+      }
+
+      if (mainWindow.closable) mainWindow.close();
       resolve(false);
     });
 
     mainWindow.webContents.on('did-finish-load', () => {
+      let result = false;
       const title = mainWindow.getTitle();
       if (title.includes('Anonymity check')) {
         console.log(proxy, 'working');
-        resolve(true);
+        result = true;
       } else {
         console.error(proxy, 'not working');
         moveString(path.join(__dirname, 'proxies.txt'), path.join(__dirname, 'dead.txt'), proxy.replace('http://', ''));
-        resolve(false);
       }
 
-      mainWindow.close();
+      if (mainWindow.closable) mainWindow.close();
+      resolve(result);
     });
   });
 }
