@@ -22,45 +22,8 @@ $config = getConfig(getUserId());
   <title>Proxy Manager</title>
   <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
   <link href="//cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-  <style>
-    .embed-container {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      overflow: hidden;
-      max-width: 100%;
-    }
-
-    .embed-container iframe,
-    .embed-container object,
-    .embed-container embed {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    #snackbar {
-      visibility: hidden;
-      min-width: 250px;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 2px;
-      padding: 16px;
-      position: fixed;
-      z-index: 1;
-      left: 50%;
-      bottom: 30px;
-      transform: translateX(-50%);
-    }
-
-    #snackbar.show {
-      visibility: visible;
-    }
-  </style>
   <link rel="stylesheet" href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
+  <link rel="stylesheet" href="proxyManager.css">
 </head>
 
 <body>
@@ -108,23 +71,27 @@ $config = getConfig(getUserId());
     <div class="mb-2 row">
       <div class="col-md-4 mb-2">
         <b>Proxies list</b>
-        <div class='embed-container mt-2'><iframe src='./proxies.txt' frameborder='0' allowfullscreen></iframe></div>
+        <!-- <div class='embed-container mt-2'><iframe src='./proxies.txt' frameborder='0' allowfullscreen></iframe></div> -->
+        <div class="iframe" src="./proxies.txt"></div>
       </div>
       <div class="col-md-4 mb-2">
         <b>Working proxies list</b> <br>
-        <div class='embed-container mt-2'><iframe src='./working.txt' frameborder='0' allowfullscreen></iframe></div>
+        <!-- <div class='embed-container mt-2'><iframe src='./working.txt' frameborder='0' allowfullscreen></iframe></div> -->
+        <div class="iframe" src="./working.txt"></div>
         <kbd>PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE</kbd>
       </div>
       <div class="col-md-4 mb-2">
         <b>Checker result</b>
-        <div class='embed-container mt-2'><iframe src='./proxyChecker.txt' frameborder='0' allowfullscreen></iframe></div>
+        <!-- <div class='embed-container mt-2'><iframe src='./proxyChecker.txt' frameborder='0' allowfullscreen></iframe></div> -->
+        <div class="iframe" src="./proxyChecker.txt"></div>
       </div>
     </div>
 
     <div class="mb-2">
       <b>Dead proxies</b>
       <blockquote>These proxies will be respawned when proxies list empty</blockquote>
-      <div class='embed-container mt-2'><iframe src='./dead.txt' frameborder='0' allowfullscreen></iframe></div>
+      <!-- <div class='embed-container mt-2'><iframe src='./dead.txt' frameborder='0' allowfullscreen></iframe></div> -->
+      <div class="iframe" src="./dead.txt"></div>
     </div>
   </main>
 
