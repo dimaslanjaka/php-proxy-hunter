@@ -85,6 +85,60 @@ function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $strin
 }
 
 /**
+ * Fetches the content of a URL using cURL with a specified proxy, with caching support.
+ *
+ * @param string $url The URL to fetch.
+ * @param string $proxy The proxy IP address and port (e.g., "proxy_ip:proxy_port").
+ * @param int $cacheTime The cache expiration time in seconds. Set to 0 to disable caching.
+ * @param string $cacheDir The directory where cached responses will be stored.
+ * @return string|false The response content or false on failure.
+ */
+function curlGetWithProxy($url, $proxy, $cacheTime = 86400 * 360, $cacheDir = __DIR__ . '/.cache/')
+{
+  // Generate cache file path based on URL
+  if (!file_exists($cacheDir)) mkdir($cacheDir);
+  $cacheFile = $cacheDir . md5($url);
+
+  // Check if cached data exists and is still valid
+  if ($cacheTime > 0 && file_exists($cacheFile) && time() - filemtime($cacheFile) < $cacheTime) {
+    // Return cached response
+    return file_get_contents($cacheFile);
+  }
+
+  // Initialize cURL session
+  $ch = curl_init();
+
+  // Set the URL
+  curl_setopt($ch, CURLOPT_URL, $url);
+
+  // Set proxy details
+  curl_setopt($ch, CURLOPT_PROXY, $proxy);
+  curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); // Change if using a different type of proxy
+
+  // Set to return the transfer as a string
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+  // Execute the request
+  $response = curl_exec($ch);
+
+  // Check for errors
+  if (curl_errno($ch)) {
+    echo 'Error: ' . curl_error($ch);
+  } else {
+    // Save response to cache file
+    if ($cacheTime > 0) {
+      file_put_contents($cacheFile, $response);
+    }
+  }
+
+  // Close cURL session
+  curl_close($ch);
+
+  // Return the response
+  return $response;
+}
+
+/**
  * Function to extract IP:PORT combinations from a text file and rewrite the file with only IP:PORT combinations.
  *
  * @param string $filename The path to the text file.
