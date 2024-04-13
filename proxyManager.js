@@ -22,15 +22,25 @@ function setEventRecursive(element, eventName, eventFunc) {
 //   return url;
 // }
 
-// Function to refresh iframes
+const iframes = Array.from(document.querySelectorAll('div.iframe[src]'));
+let dragging = [];
+for (let i = 0; i < iframes.length; i++) {
+  const iframe = iframes[i];
+  // only apply result when user not dragging texts
+  iframe.onmouseup = () => {
+    const selectedText = String(document.all ? document.selection.createRange().text : document.getSelection());
+
+    if (selectedText.length > 0) {
+      // console.log('User is currently dragging text in the child element.');
+      dragging[iframe.getAttribute('src')] = true;
+    } else {
+      // console.log('User is not dragging text in the child element.');
+      dragging[iframe.getAttribute('src')] = false;
+    }
+  };
+}
+
 function refreshIframes() {
-  // Get all iframes on the page
-  // const iframes = document.getElementsByTagName('iframe');
-  // for (var i = 0; i < iframes.length; i++) {
-  //   const iframe = iframes[i];
-  //   iframe.contentWindow.location.reload();
-  // }
-  const iframes = Array.from(document.querySelectorAll('div.iframe[src]'));
   for (let i = 0; i < iframes.length; i++) {
     const iframe = iframes[i];
     const a = document.createElement('a');
@@ -38,14 +48,17 @@ function refreshIframes() {
     fetch(a.href)
       .then((res) => res.text())
       .then((data) => {
-        const pre = document.createElement('pre');
-        const code = document.createElement('code');
-        code.innerHTML = data;
-        pre.appendChild(code);
-        if (iframe.children.length > 0) {
-          iframe.replaceChild(pre, iframe.firstChild);
-        } else {
-          iframe.appendChild(pre);
+        // only apply result when user not dragging texts
+        if (!dragging[iframe.getAttribute('src')]) {
+          const pre = document.createElement('pre');
+          const code = document.createElement('code');
+          code.innerHTML = data;
+          pre.appendChild(code);
+          if (iframe.children.length > 0) {
+            iframe.replaceChild(pre, iframe.firstChild);
+          } else {
+            iframe.appendChild(pre);
+          }
         }
       });
   }
@@ -75,7 +88,11 @@ function parseProxies(text) {
   const refreshBtn = document.getElementById('refresh');
   if (refreshBtn) {
     const rfcb = () => {
+      // remove dragging indicators
+      dragging = [];
+      // refresh the frames
       refreshIframes();
+      // show toast
       showSnackbar('data refreshed');
     };
     setEventRecursive(refreshBtn, 'click', rfcb);
@@ -143,11 +160,15 @@ function parseProxies(text) {
           intervalFrame = setInterval(() => {
             refreshIframes();
           }, 2000);
+          cekBtn.setAttribute('disabled', 'true');
         }
       } else if (intervalFrame) {
         console.log('stop refreshing');
         clearInterval(intervalFrame);
         intervalFrame = null;
+        if (cekBtn.hasAttribute('disabled')) {
+          cekBtn.removeAttribute('disabled');
+        }
       }
     });
 
