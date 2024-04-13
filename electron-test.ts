@@ -69,15 +69,24 @@ function checkProxy(proxy: string) {
     // Add other command line switches as needed
 
     // Load your app's HTML file
-    // mainWindow.loadURL('https://proxy6.net/en/privacy');
-    mainWindow.loadURL('https://bing.com');
+    mainWindow.loadURL('https://proxy6.net/en/privacy');
+    // mainWindow.loadURL('https://bing.com');
+
+    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+      console.error(`Failed to load URL: ${validatedURL}`);
+      console.error(`Error code: ${errorCode}, Description: ${errorDescription}`);
+      console.error(proxy, 'not working, fail load page');
+      // moveString(path.join(__dirname, 'proxies.txt'), path.join(__dirname, 'dead.txt'), proxy.replace('http://', ''));
+      mainWindow.close();
+      resolve();
+    });
 
     mainWindow.webContents.on('did-finish-load', () => {
       const title = mainWindow.getTitle();
-      if (title.includes('Bing')) {
+      if (title.includes('Anonymity check')) {
         console.log(proxy, 'working');
       } else {
-        console.log(proxy, 'not working');
+        console.error(proxy, 'not working');
         moveString(path.join(__dirname, 'proxies.txt'), path.join(__dirname, 'dead.txt'), proxy.replace('http://', ''));
       }
 
