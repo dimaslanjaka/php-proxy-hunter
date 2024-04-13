@@ -85,6 +85,14 @@ function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $strin
 }
 
 /**
+ * get cache file from `curlGetWithProxy`
+ */
+function curlGetCache($url)
+{
+  return __DIR__ . '/.cache/' . md5($url);
+}
+
+/**
  * Fetches the content of a URL using cURL with a specified proxy, with caching support.
  *
  * @param string $url The URL to fetch.
