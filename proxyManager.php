@@ -42,14 +42,14 @@ $config = getConfig(getUserId());
       <button class="btn btn-primary" id="refresh"><i class="fa-duotone fa-arrows-rotate mr-2"></i> Refresh</button>
     </div>
 
-    <div class="accordion accordion-flush mb-4 border" id="accordionFlushExample">
+    <div class="accordion accordion-flush mb-4 border" id="accordionAdvancedOptions">
       <div class="accordion-item">
-        <h2 class="accordion-header border" id="flush-headingOne">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+        <h2 class="accordion-header border" id="flush-advanceHeading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-advanceCollapse" aria-expanded="false" aria-controls="flush-advanceCollapse">
             Advanced Options
           </button>
         </h2>
-        <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+        <div id="flush-advanceCollapse" class="accordion-collapse collapse" aria-labelledby="flush-advanceHeading" data-bs-parent="#accordionAdvancedOptions">
           <div class="accordion-body">
             <span class="mb-2">Your ID: <b id="uid"><?php echo $user_id ?></b></h2>
               <div class="form-group mb-2">
@@ -88,10 +88,21 @@ $config = getConfig(getUserId());
     </div>
 
     <div class="mb-2">
-      <b>Dead proxies</b>
-      <blockquote>These proxies will be respawned when proxies list empty</blockquote>
-      <!-- <div class='embed-container mt-2'><iframe src='./dead.txt' frameborder='0' allowfullscreen></iframe></div> -->
-      <div class="iframe" src="./dead.txt"></div>
+      <div class="accordion accordion-flush border" id="accordionDead">
+        <div class="accordion-item">
+          <h2 class="accordion-header border" id="flush-deadHeading">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-deadCollapse" aria-expanded="false" aria-controls="flush-deadCollapse">
+              Dead proxies
+            </button>
+          </h2>
+          <div id="flush-deadCollapse" class="accordion-collapse collapse border" aria-labelledby="flush-deadHeading" data-bs-parent="#accordionDead">
+            <div class="accordion-body">
+              <blockquote>These proxies will be respawned when proxies list empty</blockquote>
+              <div class="iframe" src="./dead.txt"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
