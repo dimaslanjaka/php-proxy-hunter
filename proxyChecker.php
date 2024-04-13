@@ -204,6 +204,13 @@ function checkProxyLine($line)
         ob_flush();
       }
       $item = "$proxy|$latency|CURLPROXY_HTTP";
+      // fetch ip info
+      list($ip, $port) = explode(':', $proxy);
+      $LocationArray = json_decode(curlGetWithProxy("http://ip-get-geolocation.com/api/json/$ip", $proxy), true);
+      // Check if JSON decoding was successful
+      if ($LocationArray !== null && json_last_error() === JSON_ERROR_NONE) {
+        $item .= "|" . implode("|", [$LocationArray['region'], $LocationArray['city'], $LocationArray['country'], $LocationArray['timezone']]);
+      }
       if (!in_array($item, $workingProxies)) {
         // If the item doesn't exist, push it into the array
         $workingProxies[] = $item;

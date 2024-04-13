@@ -12,3 +12,4 @@
 /proxyChecker.pid
 /proxyChecker.txt
 /webalizer
+.cache/

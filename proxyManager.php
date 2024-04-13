@@ -107,21 +107,22 @@ $config = getConfig(getUserId());
 
     <div class="mb-2 row">
       <div class="col-md-4 mb-2">
-        Proxies list
+        <b>Proxies list</b>
         <div class='embed-container mt-2'><iframe src='./proxies.txt' frameborder='0' allowfullscreen></iframe></div>
       </div>
       <div class="col-md-4 mb-2">
-        Working proxies list
+        <b>Working proxies list</b> <br>
         <div class='embed-container mt-2'><iframe src='./working.txt' frameborder='0' allowfullscreen></iframe></div>
+        <kbd>PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE</kbd>
       </div>
       <div class="col-md-4 mb-2">
-        Checker result
+        <b>Checker result</b>
         <div class='embed-container mt-2'><iframe src='./proxyChecker.txt' frameborder='0' allowfullscreen></iframe></div>
       </div>
     </div>
 
     <div class="mb-2">
-      Dead proxies
+      <b>Dead proxies</b>
       <blockquote>These proxies will be respawned when proxies list empty</blockquote>
       <div class='embed-container mt-2'><iframe src='./dead.txt' frameborder='0' allowfullscreen></iframe></div>
     </div>
