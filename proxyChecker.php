@@ -206,10 +206,16 @@ function checkProxyLine($line)
       $item = "$proxy|$latency|CURLPROXY_HTTP";
       // fetch ip info
       list($ip, $port) = explode(':', $proxy);
-      $LocationArray = json_decode(curlGetWithProxy("http://ip-get-geolocation.com/api/json/$ip", $proxy), true);
+      $geoUrl = "http://ip-get-geolocation.com/api/json/$ip";
+      $LocationArray = json_decode(curlGetWithProxy($geoUrl, $proxy), true);
       // Check if JSON decoding was successful
       if ($LocationArray !== null && json_last_error() === JSON_ERROR_NONE) {
-        $item .= "|" . implode("|", [$LocationArray['region'], $LocationArray['city'], $LocationArray['country'], $LocationArray['timezone']]);
+        if ($LocationArray['status'] != 'fail') {
+          $item .= "|" . implode("|", [$LocationArray['region'], $LocationArray['city'], $LocationArray['country'], $LocationArray['timezone']]);
+        } else {
+          $cachefile = curlGetCache($geoUrl);
+          if (file_exists($cachefile)) unlink($cachefile);
+        }
       }
       if (!in_array($item, $workingProxies)) {
         // If the item doesn't exist, push it into the array
