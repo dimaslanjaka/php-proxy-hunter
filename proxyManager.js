@@ -5,152 +5,166 @@
  * @param {(...args: any[])=>any} eventFunc
  */
 function setEventRecursive(element, eventName, eventFunc) {
-	element.addEventListener(eventName, eventFunc);
-	element
-		.querySelectorAll("*")
-		.forEach((el) => el.addEventListener(eventName, eventFunc));
+  element.addEventListener(eventName, eventFunc);
+  element.querySelectorAll('*').forEach((el) => el.addEventListener(eventName, eventFunc));
 }
 
-// Get all iframes on the page
-const iframes = document.getElementsByTagName("iframe");
-
-function getCurrentUrlWithoutQueryAndHash() {
-	var url = window.location.href;
-	var index = url.indexOf("?"); // Find the index of the query parameter
-	if (index !== -1) {
-		url = url.substring(0, index); // Remove the query parameter
-	}
-	index = url.indexOf("#"); // Find the index of the hash
-	if (index !== -1) {
-		url = url.substring(0, index); // Remove the hash
-	}
-	return url;
-}
+// function getCurrentUrlWithoutQueryAndHash() {
+//   var url = window.location.href;
+//   var index = url.indexOf('?'); // Find the index of the query parameter
+//   if (index !== -1) {
+//     url = url.substring(0, index); // Remove the query parameter
+//   }
+//   index = url.indexOf('#'); // Find the index of the hash
+//   if (index !== -1) {
+//     url = url.substring(0, index); // Remove the hash
+//   }
+//   return url;
+// }
 
 // Function to refresh iframes
 function refreshIframes() {
-	// Loop through each iframe
-	for (var i = 0; i < iframes.length; i++) {
-		const iframe = iframes[i];
-		iframe.contentWindow.location.reload();
-	}
+  // Get all iframes on the page
+  // const iframes = document.getElementsByTagName('iframe');
+  // for (var i = 0; i < iframes.length; i++) {
+  //   const iframe = iframes[i];
+  //   iframe.contentWindow.location.reload();
+  // }
+  const iframes = Array.from(document.querySelectorAll('div.iframe[src]'));
+  for (let i = 0; i < iframes.length; i++) {
+    const iframe = iframes[i];
+    const a = document.createElement('a');
+    a.href = iframe.getAttribute('src');
+    fetch(a.href)
+      .then((res) => res.text())
+      .then((data) => {
+        const pre = document.createElement('pre');
+        const code = document.createElement('code');
+        code.innerHTML = data;
+        pre.appendChild(code);
+        if (iframe.children.length > 0) {
+          iframe.replaceChild(pre, iframe.firstChild);
+        } else {
+          iframe.appendChild(pre);
+        }
+      });
+  }
 }
 
 function showSnackbar(message, duration = 3000) {
-	var snackbar = document.getElementById("snackbar");
-	snackbar.textContent = message;
-	snackbar.classList.add("show");
-	setTimeout(function () {
-		snackbar.classList.remove("show");
-	}, duration);
-}
-
-const refreshBtn = document.getElementById("refresh");
-if (refreshBtn) {
-	const rfcb = () => {
-		refreshIframes();
-		showSnackbar("data refreshed");
-	};
-	refreshBtn.addEventListener("click", rfcb);
-	refreshBtn
-		.querySelectorAll("*")
-		.forEach((el) => el.addEventListener("click", rfcb));
+  var snackbar = document.getElementById('snackbar');
+  snackbar.textContent = message;
+  snackbar.classList.add('show');
+  setTimeout(function () {
+    snackbar.classList.remove('show');
+  }, duration);
 }
 
 /**
  * @param {string} text
  */
 function parseProxies(text) {
-	const ipPortRegex = /\b(?:\d{1,3}\.){3}\d{1,3}:\d+\b/g;
-	const ipPortArray = text.match(ipPortRegex);
-	return ipPortArray;
+  const ipPortRegex = /\b(?:\d{1,3}\.){3}\d{1,3}:\d+\b/g;
+  const ipPortArray = text.match(ipPortRegex);
+  return ipPortArray;
 }
 
-const addProxyBtn = document.getElementById("addProxy");
-if (addProxyBtn) {
-	const addProxyFun = () => {
-		const proxies = document.getElementById("proxiesData");
-		const ipPortArray = parseProxies(proxies.value);
-		const dataToSend = ipPortArray.join("\n");
-		proxies.value = dataToSend;
-		const url = "./proxyAdd.php";
+(function () {
+  refreshIframes();
 
-		fetch(url, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/x-www-form-urlencoded", // Sending form-urlencoded data
-			},
-			body: `proxies=${encodeURIComponent(dataToSend)}`, // Encode the string for safe transmission
-		})
-			.then((response) => {
-				if (!response.ok) {
-					throw new Error("Network response was not ok");
-				}
-				return response.text(); // assuming you want to read response as text
-			})
-			.then((data) => {
-				showSnackbar(data);
-			})
-			.catch((error) => {
-				showSnackbar(
-					"There was a problem with your fetch operation: " + error.message
-				);
-			});
-		refreshIframes();
-	};
-	setEventRecursive(addProxyBtn, "click", addProxyFun);
-}
+  const refreshBtn = document.getElementById('refresh');
+  if (refreshBtn) {
+    const rfcb = () => {
+      refreshIframes();
+      showSnackbar('data refreshed');
+    };
+    setEventRecursive(refreshBtn, 'click', rfcb);
+  }
 
-const cekBtn = document.getElementById("checkProxy");
-if (cekBtn) {
-	setEventRecursive(cekBtn, "click", () => {
-		const userId = document.getElementById("uid").textContent.trim();
-		fetch("proxyCheckerBackground.php?uid=" + userId)
-			// fetch("proxyChecker.php")
-			.catch(() => {
-				//
-			})
-			.finally(() => {
-				setTimeout(() => {
-					refreshIframes();
-				}, 3000);
-			});
-	});
-}
+  const addProxyBtn = document.getElementById('addProxy');
+  if (addProxyBtn) {
+    const addProxyFun = () => {
+      const proxies = document.getElementById('proxiesData');
+      const ipPortArray = parseProxies(proxies.value);
+      const dataToSend = ipPortArray.join('\n');
+      proxies.value = dataToSend;
+      const url = './proxyAdd.php';
 
-let intervalFrame = setInterval(() => {
-	refreshIframes();
-}, 1000);
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded' // Sending form-urlencoded data
+        },
+        body: `proxies=${encodeURIComponent(dataToSend)}` // Encode the string for safe transmission
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.text(); // assuming you want to read response as text
+        })
+        .then((data) => {
+          showSnackbar(data);
+        })
+        .catch((error) => {
+          showSnackbar('There was a problem with your fetch operation: ' + error.message);
+        });
+      refreshIframes();
+    };
+    setEventRecursive(addProxyBtn, 'click', addProxyFun);
+  }
 
-const checkRuns = () =>
-	fetch("proxyChecker.lock").then((res) => {
-		if (res.ok) {
-			if (!intervalFrame) {
-				console.log("start refreshing");
-				intervalFrame = setInterval(() => {
-					refreshIframes();
-				}, 2000);
-			}
-		} else if (intervalFrame) {
-			console.log("stop refreshing");
-			clearInterval(intervalFrame);
-			intervalFrame = null;
-		}
-	});
+  const cekBtn = document.getElementById('checkProxy');
+  if (cekBtn) {
+    setEventRecursive(cekBtn, 'click', () => {
+      const userId = document.getElementById('uid').textContent.trim();
+      fetch('proxyCheckerBackground.php?uid=' + userId)
+        // fetch("proxyChecker.php")
+        .catch(() => {
+          //
+        })
+        .finally(() => {
+          setTimeout(() => {
+            refreshIframes();
+          }, 3000);
+        });
+    });
+  }
 
-checkRuns().finally(() => setInterval(checkRuns, 10000));
+  let intervalFrame = setInterval(() => {
+    refreshIframes();
+  }, 1000);
 
-document.getElementById("saveConfig").addEventListener("click", () => {
-	fetch(location.href, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			config: {
-				headers: document.getElementById("headers").value.trim().split(/\r?\n/),
-				endpoint: document.getElementById("endpoint").value.trim(),
-			},
-		}),
-	});
-});
+  const checkRuns = () =>
+    fetch('proxyChecker.lock').then((res) => {
+      if (res.ok) {
+        if (!intervalFrame) {
+          console.log('start refreshing');
+          intervalFrame = setInterval(() => {
+            refreshIframes();
+          }, 2000);
+        }
+      } else if (intervalFrame) {
+        console.log('stop refreshing');
+        clearInterval(intervalFrame);
+        intervalFrame = null;
+      }
+    });
+
+  checkRuns().finally(() => setInterval(checkRuns, 10000));
+
+  document.getElementById('saveConfig').addEventListener('click', () => {
+    fetch(location.href, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        config: {
+          headers: document.getElementById('headers').value.trim().split(/\r?\n/),
+          endpoint: document.getElementById('endpoint').value.trim()
+        }
+      })
+    });
+  });
+})();
