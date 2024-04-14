@@ -101,7 +101,7 @@ function curlGetCache($url)
  * @param string $cacheDir The directory where cached responses will be stored.
  * @return string|false The response content or false on failure.
  */
-function curlGetWithProxy($url, $proxy, $cacheTime = 86400 * 360, $cacheDir = __DIR__ . '/.cache/')
+function curlGetWithProxy($url, $proxy, $proxyType = 'http', $cacheTime = 86400 * 360, $cacheDir = __DIR__ . '/.cache/')
 {
   // Generate cache file path based on URL
   if (!file_exists($cacheDir)) mkdir($cacheDir);
@@ -121,7 +121,10 @@ function curlGetWithProxy($url, $proxy, $cacheTime = 86400 * 360, $cacheDir = __
 
   // Set proxy details
   curl_setopt($ch, CURLOPT_PROXY, $proxy);
-  curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); // Change if using a different type of proxy
+  $type = CURLPROXY_HTTP;
+  if ($proxyType == 'socks4') $type = CURLPROXY_SOCKS4;
+  if ($proxyType == 'socks5') $type = CURLPROXY_SOCKS5;
+  curl_setopt($ch, CURLOPT_PROXYTYPE, $type);
 
   // Set to return the transfer as a string
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
