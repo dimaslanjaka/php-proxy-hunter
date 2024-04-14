@@ -321,7 +321,8 @@ function getConfig(string $user_id)
   $defaults = array(
     'endpoint' => 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list',
     'headers' => [],
-    'type' => 'http'
+    'type' => 'http',
+    'user_id' => $user_id
   );
   if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
     // Decoding failed
@@ -335,7 +336,6 @@ function getConfig(string $user_id)
 function setConfig($user_id, $data)
 {
   $user_file = getUserFile($user_id);
-  $data['user_id'] = getUserId();
   $defaults = getConfig($user_id);
   // Encode the data to JSON format
   $newData = json_encode(mergeArrays($defaults, $data));
@@ -385,30 +385,21 @@ function removeDuplicateLines($filePath)
  * Values from the second array override those from the first array if they have the same keys.
  * If a key exists in the second array but not in the first one, it will be added to the merged array.
  *
- * @param array $array1 The first array to merge.
- * @param array $array2 The second array to merge.
+ * @param array $arr1 The first array to merge.
+ * @param array $arr2 The second array to merge.
  * @return array The merged array.
  */
-function mergeArrays($array1, $array2)
+function mergeArrays(array $arr1, array $arr2)
 {
-  $mergedArray = [];
-
-  foreach ($array1 as $key => $value) {
-    if (is_array($value) && isset($array2[$key]) && is_array($array2[$key])) {
-      // Merge the sub-arrays if both keys exist in both arrays
-      $mergedArray[$key] = array_unique(array_merge($value, $array2[$key]));
+  $keys = array_keys($arr2);
+  foreach ($keys as $key) {
+    if (isset($arr1[$key]) && is_numeric($key)) {
+      array_push($arr1, $arr2[$key]);
+    } else if (isset($arr1[$key]) && is_array($arr1[$key]) && is_array($arr2[$key])) {
+      $arr1[$key] = array_unique(mergeArrays((array)$arr1[$key], (array) $arr2[$key]));
     } else {
-      // Otherwise, add the key-value pair to the merged array
-      $mergedArray[$key] = $value;
+      $arr1[$key] = $arr2[$key];
     }
   }
-
-  // Add any additional keys from the second array
-  foreach ($array2 as $key => $value) {
-    if (!isset($mergedArray[$key])) {
-      $mergedArray[$key] = $value;
-    }
-  }
-
-  return $mergedArray;
+  return $arr1;
 }
