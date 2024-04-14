@@ -62,6 +62,22 @@ $config = getConfig(getUserId());
                 <label for="proxiesData">Custom Headers</label>
               </div>
 
+              <b>Proxy Type</b>
+              <div class="form-group mb-2">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="typeHttp" value="http" <?php echo strpos($config['type'], 'http') !== false ? 'checked' : '' ?>>
+                  <label class="form-check-label" for="typeHttp">HTTP/HTTPS</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="typeSocks4" value="socks4" <?php echo strpos($config['type'], 'socks4') !== false ? 'checked' : '' ?>>
+                  <label class="form-check-label" for="typeSocks4">SOCKS4</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="typeSocks5" value="socks5" <?php echo strpos($config['type'], 'socks5') !== false ? 'checked' : '' ?>>
+                  <label class="form-check-label" for="typeSocks5">SOCKS5</label>
+                </div>
+              </div>
+
               <button class="btn btn-primary" id="saveConfig"><i class="fa-duotone fa-save mr-2"></i> Save</button>
           </div>
         </div>

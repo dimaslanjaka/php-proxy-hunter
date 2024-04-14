@@ -156,9 +156,7 @@ function parseProxies(text) {
     });
   }
 
-  let intervalFrame = setInterval(() => {
-    refreshResults();
-  }, 1000);
+  let intervalFrame;
 
   const checkRuns = () =>
     fetch('proxyChecker.lock').then((res) => {
@@ -180,9 +178,12 @@ function parseProxies(text) {
       }
     });
 
-  checkRuns().finally(() => setInterval(checkRuns, 10000));
+  setInterval(checkRuns, 10000);
 
   document.getElementById('saveConfig').addEventListener('click', () => {
+    let type = document.getElementById('typeHttp').checked ? 'http' : '';
+    type += document.getElementById('typeSocks5').checked ? '|' + 'socks5' : '';
+    type += document.getElementById('typeSocks4').checked ? '|' + 'socks4' : '';
     fetch(location.href, {
       method: 'POST',
       headers: {
@@ -191,7 +192,8 @@ function parseProxies(text) {
       body: JSON.stringify({
         config: {
           headers: document.getElementById('headers').value.trim().split(/\r?\n/),
-          endpoint: document.getElementById('endpoint').value.trim()
+          endpoint: document.getElementById('endpoint').value.trim(),
+          type: type.trim()
         }
       })
     });
