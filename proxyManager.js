@@ -40,27 +40,33 @@ for (let i = 0; i < iframes.length; i++) {
   };
 }
 
-function refreshIframes() {
+async function refreshResults() {
   for (let i = 0; i < iframes.length; i++) {
     const iframe = iframes[i];
-    const a = document.createElement('a');
-    a.href = iframe.getAttribute('src');
-    fetch(a.href)
-      .then((res) => res.text())
-      .then((data) => {
-        // only apply result when user not dragging texts
-        if (!dragging[iframe.getAttribute('src')]) {
-          const pre = document.createElement('pre');
-          const code = document.createElement('code');
-          code.innerHTML = data;
-          pre.appendChild(code);
-          if (iframe.children.length > 0) {
-            iframe.replaceChild(pre, iframe.firstChild);
-          } else {
-            iframe.appendChild(pre);
-          }
-        }
-      });
+    const srcs = iframe.getAttribute('src').split('|');
+    let responses = '';
+    for (let ii = 0; ii < srcs.length; ii++) {
+      const src = srcs[ii].trim();
+      const a = document.createElement('a');
+      a.href = src;
+      responses +=
+        '\n' +
+        (await fetch(a.href).then((res) => res.text())).catch(() => {
+          return `failed obtain ${src}\n`;
+        });
+    }
+    // only apply result when user not dragging texts
+    if (!dragging[iframe.getAttribute('src')]) {
+      const pre = document.createElement('pre');
+      const code = document.createElement('code');
+      code.innerHTML = responses.trim();
+      pre.appendChild(code);
+      if (iframe.children.length > 0) {
+        iframe.replaceChild(pre, iframe.firstChild);
+      } else {
+        iframe.appendChild(pre);
+      }
+    }
   }
 }
 
@@ -83,7 +89,7 @@ function parseProxies(text) {
 }
 
 (function () {
-  refreshIframes();
+  refreshResults();
 
   const refreshBtn = document.getElementById('refresh');
   if (refreshBtn) {
@@ -91,7 +97,7 @@ function parseProxies(text) {
       // remove dragging indicators
       dragging = [];
       // refresh the frames
-      refreshIframes();
+      refreshResults();
       // show toast
       showSnackbar('data refreshed');
     };
@@ -126,7 +132,7 @@ function parseProxies(text) {
         .catch((error) => {
           showSnackbar('There was a problem with your fetch operation: ' + error.message);
         });
-      refreshIframes();
+      refreshResults();
     };
     setEventRecursive(addProxyBtn, 'click', addProxyFun);
   }
@@ -142,14 +148,14 @@ function parseProxies(text) {
         })
         .finally(() => {
           setTimeout(() => {
-            refreshIframes();
+            refreshResults();
           }, 3000);
         });
     });
   }
 
   let intervalFrame = setInterval(() => {
-    refreshIframes();
+    refreshResults();
   }, 1000);
 
   const checkRuns = () =>
@@ -158,7 +164,7 @@ function parseProxies(text) {
         if (!intervalFrame) {
           console.log('start refreshing');
           intervalFrame = setInterval(() => {
-            refreshIframes();
+            refreshResults();
           }, 2000);
           cekBtn.setAttribute('disabled', 'true');
         }
