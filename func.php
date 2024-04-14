@@ -348,3 +348,23 @@ function getRandomItemFromArray($array)
   // Return the random item
   return $randomItem;
 }
+
+/**
+ * remove duplicate lines from file
+ */
+function removeDuplicateLines($filePath)
+{
+  // Read the file into an array, each line as an element
+  $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+  // Remove duplicate lines
+  $lines = array_unique($lines);
+
+  // Remove empty strings from the array
+  $lines = array_filter($lines, function ($value) {
+    return trim($value) !== '';
+  });
+
+  // Write the modified lines back to the file
+  file_put_contents($filePath, implode("\n", $lines) . "\n");
+}
