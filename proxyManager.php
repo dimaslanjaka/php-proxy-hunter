@@ -71,18 +71,15 @@ $config = getConfig(getUserId());
     <div class="mb-2 row">
       <div class="col-md-4 mb-2">
         <b>Proxies list</b>
-        <!-- <div class='embed-container mt-2'><iframe src='./proxies.txt' frameborder='0' allowfullscreen></iframe></div> -->
         <div class="iframe" src="./proxies.txt"></div>
       </div>
       <div class="col-md-4 mb-2">
         <b>Working proxies list</b> <br>
-        <!-- <div class='embed-container mt-2'><iframe src='./working.txt' frameborder='0' allowfullscreen></iframe></div> -->
-        <div class="iframe" src="./working.txt"></div>
+        <div class="iframe" src="./working.txt|./socks-working.txt"></div>
         <kbd>PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE</kbd>
       </div>
       <div class="col-md-4 mb-2">
         <b>Checker result</b>
-        <!-- <div class='embed-container mt-2'><iframe src='./proxyChecker.txt' frameborder='0' allowfullscreen></iframe></div> -->
         <div class="iframe" src="./proxyChecker.txt"></div>
       </div>
     </div>
