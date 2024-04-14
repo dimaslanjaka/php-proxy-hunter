@@ -250,7 +250,7 @@ function checkProxyLine($line)
     }
   }
 
-  echo "$proxy not working\n";
+  echo "$proxy not working $checksFor\n";
   if (!$isCli && ob_get_level() > 0) {
     // LIVE output buffering on web server
     flush();
