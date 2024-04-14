@@ -70,6 +70,7 @@ document.addEventListener(
 		"https://whatsmyreferer.com/",
 		"https://proxy6.net/en/privacy",
 		"https://start.adspower.net/?id=jgcs78i&host=127.0.0.1:20725",
+		"https://www.browserscan.net/"
 	];
 
 	// Get the <ul> element from the HTML
