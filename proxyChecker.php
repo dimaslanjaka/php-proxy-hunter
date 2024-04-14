@@ -210,7 +210,7 @@ function checkProxyLine($line)
       $LocationArray = json_decode(curlGetWithProxy($geoUrl, $proxy), true);
       // Check if JSON decoding was successful
       if ($LocationArray !== null && json_last_error() === JSON_ERROR_NONE) {
-        if ($LocationArray['status'] != 'fail') {
+        if (trim($LocationArray['status']) != 'fail') {
           $item .= "|" . implode("|", [$LocationArray['region'], $LocationArray['city'], $LocationArray['country'], $LocationArray['timezone']]);
         } else {
           $cachefile = curlGetCache($geoUrl);

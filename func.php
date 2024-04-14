@@ -150,7 +150,7 @@ function curlGetWithProxy($url, $proxy, $cacheTime = 86400 * 360, $cacheDir = __
  * Function to extract IP:PORT combinations from a text file and rewrite the file with only IP:PORT combinations.
  *
  * @param string $filename The path to the text file.
- * @return void
+ * @return array
  */
 function rewriteIpPortFile($filename)
 {
@@ -185,6 +185,8 @@ function rewriteIpPortFile($filename)
 
   // Close the file
   fclose($file);
+
+  return $ipPortList;
 }
 
 // Function to parse command line arguments
