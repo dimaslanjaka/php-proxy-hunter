@@ -70,9 +70,10 @@ if (!$isCli) {
 
 $config = getConfig(getUserId());
 $endpoint = trim($config['endpoint']);
-$headers = $config['headers'];
+$headers = array_filter($config['headers']);
+$checksFor = $config['type'];
 
-echo "GET $endpoint\n";
+echo "GET $endpoint " . strtoupper($checksFor) . "\n";
 echo implode("\n", $headers) . "\n";
 
 if (!$isCli) {
@@ -114,7 +115,6 @@ $workingPath = __DIR__ . "/working.txt";
 $deadPath = __DIR__ . "/dead.txt";
 $workingProxies = [];
 $socksWorkingProxies = [];
-$checksFor = $config['type'];
 
 setFilePermissions([$filePath, $workingPath, $deadPath]);
 
@@ -250,7 +250,7 @@ function checkProxyLine($line)
     }
   }
 
-  echo "$proxy not working $checksFor\n";
+  echo "$proxy not working\n";
   if (!$isCli && ob_get_level() > 0) {
     // LIVE output buffering on web server
     flush();
