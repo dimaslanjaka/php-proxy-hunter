@@ -51,9 +51,11 @@ async function refreshResults() {
       a.href = src;
       responses +=
         '\n' +
-        (await fetch(a.href).then((res) => res.text())).catch(() => {
-          return `failed obtain ${src}\n`;
-        });
+        (await fetch(a.href)
+          .then((res) => res.text())
+          .catch(() => {
+            return `failed obtain ${src}\n`;
+          }));
     }
     // only apply result when user not dragging texts
     if (!dragging[iframe.getAttribute('src')]) {
