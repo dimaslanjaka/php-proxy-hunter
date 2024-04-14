@@ -12,6 +12,8 @@
 // @exclude        *www.facebook.com*
 // @exclude        *github.com*
 // @exclude        *www.baogiaothong.vn*
+// @downloadURL https://raw.githubusercontent.com/dimaslanjaka/php-proxy-hunter/master/userscripts/shortcut.js
+// @updateURL https://raw.githubusercontent.com/dimaslanjaka/php-proxy-hunter/master/userscripts/shortcut.js
 // @noframes
 // @run-at document-end
 // ==/UserScript==
