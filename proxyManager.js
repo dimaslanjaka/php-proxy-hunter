@@ -53,6 +53,15 @@ async function refreshResults() {
         '\n' +
         (await fetch(a.href)
           .then((res) => res.text())
+          .then((text) => {
+            // Split the text into lines
+            const lines = text.split(/\r?\n/);
+
+            // Get the first 500 lines
+            const filterLines = lines.slice(0, 500).join('\n');
+
+            return filterLines + '\nLIMIT 500 LINES';
+          })
           .catch(() => {
             return `failed obtain ${src}\n`;
           }));
