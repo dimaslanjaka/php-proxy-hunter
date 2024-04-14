@@ -128,11 +128,16 @@ function shuffleChecks()
   // Read lines of the file into an array
   $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
   if (empty(array_filter($lines))) {
-    echo "proxies empty, respawning dead proxies\n\n";
-    // respawn dead proxies
-    rename($deadPath, $filePath);
-    // repeat
-    return shuffleChecks();
+    if (file_exists($deadPath)) {
+      echo "proxies empty, respawning dead proxies\n\n";
+      // respawn dead proxies
+      rename($deadPath, $filePath);
+      // repeat
+      return shuffleChecks();
+    } else {
+      echo "no proxies to respawn";
+      exit();
+    }
   }
 
   // Shuffle the array
