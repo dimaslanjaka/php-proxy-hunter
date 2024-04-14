@@ -108,10 +108,13 @@ register_shutdown_function('exitProcess');
 
 // Specify the file path
 $filePath = __DIR__ . "/proxies.txt";
+$socksPath = __DIR__ . "/socks.txt";
+$socksWorkingPath = __DIR__ . '/socks-working.txt';
 $workingPath = __DIR__ . "/working.txt";
 $deadPath = __DIR__ . "/dead.txt";
 $workingProxies = [];
-$checksFor = "http"; // "socks";
+$socksWorkingProxies = [];
+$checksFor = $config['type'];
 
 setFilePermissions([$filePath, $workingPath, $deadPath]);
 
@@ -123,7 +126,7 @@ function shuffleChecks()
   global $filePath, $workingPath, $workingProxies, $deadPath;
 
   // Read lines of the file into an array
-  $lines = file($filePath, FILE_IGNORE_NEW_LINES);
+  $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
   if (empty(array_filter($lines))) {
     echo "proxies empty, respawning dead proxies\n\n";
     // respawn dead proxies
@@ -136,7 +139,7 @@ function shuffleChecks()
   shuffle($lines);
 
   // Iterate through the shuffled lines
-  foreach ($lines as $line) {
+  foreach (array_unique($lines) as $line) {
     if (checkProxyLine($line) == "break") break;
   }
 
@@ -184,7 +187,7 @@ function stripDeadProxy(string $proxy)
  */
 function checkProxyLine($line)
 {
-  global $startTime, $maxExecutionTime, $workingPath, $workingProxies, $isCli, $checksFor;
+  global $startTime, $maxExecutionTime, $workingPath, $workingProxies, $isCli, $checksFor, $socksWorkingPath, $socksWorkingProxies, $socksPath;
   // Check if the elapsed time exceeds the limit
   if ((microtime(true) - $startTime) > $maxExecutionTime) {
     echo "maximum execution time excedeed ($maxExecutionTime)\n";
@@ -192,22 +195,17 @@ function checkProxyLine($line)
     return "break";
   }
   $proxy = trim($line);
+  list($ip, $port) = explode(':', $proxy);
+  $geoUrl = "http://ip-get-geolocation.com/api/json/$ip";
 
   if (strpos($checksFor, 'http') !== false) {
     if (checkProxy($proxy)) {
-      echo "$proxy working type CURLPROXY_HTTP";
+      echo "$proxy working type HTTP";
       $latency = checkProxyLatency($proxy);
       echo " latency $latency ms\n";
-      if (!$isCli && ob_get_level() > 0) {
-        // LIVE output buffering on web server
-        flush();
-        ob_flush();
-      }
-      $item = "$proxy|$latency|CURLPROXY_HTTP";
+      $item = "$proxy|$latency|HTTP";
       // fetch ip info
-      list($ip, $port) = explode(':', $proxy);
-      $geoUrl = "http://ip-get-geolocation.com/api/json/$ip";
-      $LocationArray = json_decode(curlGetWithProxy($geoUrl, $proxy), true);
+      $LocationArray = json_decode(curlGetWithProxy($geoUrl, $proxy, 'http'), true);
       // Check if JSON decoding was successful
       if ($LocationArray !== null && json_last_error() === JSON_ERROR_NONE) {
         if (trim($LocationArray['status']) != 'fail') {
@@ -227,21 +225,38 @@ function checkProxyLine($line)
     }
   }
 
-  if (strpos($checksFor, 'socks') !== false) {
-    if (checkSocksProxy($proxy)) {
-      echo "$proxy working type CURLPROXY_SOCKS5\n";
-      $latency = measureSocksProxyLatency($proxy);
-      $item = "$proxy|$latency|CURLPROXY_SOCKS5";
-      if (!in_array($item, $workingProxies)) {
-        // If the item doesn't exist, push it into the array
-        $workingProxies[] = $item;
+  if (strpos($checksFor, 'socks5') !== false) {
+    if (checkSocksProxy($proxy, 5)) {
+      echo "$proxy working type SOCKS5\n";
+      $latency = measureSocksProxyLatency($proxy, 5);
+      $item = "$proxy|$latency|SOCKS5";
+      // fetch ip info
+      $LocationArray = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks5'), true);
+      // Check if JSON decoding was successful
+      if ($LocationArray !== null && json_last_error() === JSON_ERROR_NONE) {
+        if (trim($LocationArray['status']) != 'fail') {
+          $item .= "|" . implode("|", [$LocationArray['region'], $LocationArray['city'], $LocationArray['country'], $LocationArray['timezone']]);
+        } else {
+          $cachefile = curlGetCache($geoUrl);
+          if (file_exists($cachefile)) unlink($cachefile);
+        }
       }
-      file_put_contents($workingPath, join("\n", $workingProxies));
+      if (!in_array($item, $socksWorkingProxies)) {
+        // If the item doesn't exist, push it into the array
+        $socksWorkingProxies[] = $item;
+      }
+      file_put_contents($socksWorkingPath, join("\n", $socksWorkingProxies));
       return "success";
     }
   }
 
   echo "$proxy not working\n";
+  if (!$isCli && ob_get_level() > 0) {
+    // LIVE output buffering on web server
+    flush();
+    ob_flush();
+  }
+  // remove dead proxy from check list
   stripDeadProxy($proxy);
   return "failed";
 }
@@ -280,13 +295,13 @@ function extractIpPortFromFile($filePath)
  * @param int $timeout The timeout for the connection attempt, in seconds.
  * @return float|false The latency in seconds if the proxy is reachable, or false if unreachable.
  */
-function measureSocksProxyLatency(string $proxy, $timeout = 5)
+function measureSocksProxyLatency(string $proxy, int $version = 5, $timeout = 5)
 {
   global $endpoint;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint);
   curl_setopt($ch, CURLOPT_PROXY, $proxy);
-  curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // Change to SOCKS4 if necessary
+  curl_setopt($ch, CURLOPT_PROXYTYPE, $version == 4 ? CURLPROXY_SOCKS4 : CURLPROXY_SOCKS5); // Change to SOCKS4 if necessary
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
@@ -319,7 +334,7 @@ function measureSocksProxyLatency(string $proxy, $timeout = 5)
  * @param string $proxy The SOCKS proxy in the format IP:PORT.
  * @return bool True if the proxy is working, false otherwise.
  */
-function checkSocksProxy(string $proxy)
+function checkSocksProxy(string $proxy, int $version = 5)
 {
   global $endpoint, $headers;
   $timeout = 10; // Adjust timeout as needed
@@ -327,7 +342,7 @@ function checkSocksProxy(string $proxy)
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint);
   curl_setopt($ch, CURLOPT_PROXY, $proxy);
-  curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // Change to SOCKS4 if necessary
+  curl_setopt($ch, CURLOPT_PROXYTYPE, $version == 4 ? CURLPROXY_SOCKS4 : CURLPROXY_SOCKS5); // Change to SOCKS4 if necessary
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
