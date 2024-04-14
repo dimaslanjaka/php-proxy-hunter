@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jquery HVT
 // @namespace    https://tranghv.blogspot.com/
-// @version      0.1
+// @version      0.2
 // @description  Add jquery turbolink
 // @author       Tráng Hà Viết
 // @match        http://*/*
