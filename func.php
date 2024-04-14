@@ -189,6 +189,38 @@ function rewriteIpPortFile($filename)
   return $ipPortList;
 }
 
+/**
+ * Reads a file line by line and returns its content as an array.
+ *
+ * @param string $filename The path to the file to be read.
+ * @return array|false An array containing the lines of the file on success, false on failure.
+ */
+function readFileLinesToArray(string $filename)
+{
+  // Check if the file exists and is readable
+  if (!is_readable($filename)) {
+    return false;
+  }
+
+  $lines = [];
+
+  // Open the file for reading
+  $file = fopen($filename, 'r');
+
+  // Read each line until the end of the file
+  while (!feof($file)) {
+    // Read the line
+    $line = fgets($file);
+    // Add the line to the array
+    $lines[] = $line;
+  }
+
+  // Close the file
+  fclose($file);
+
+  return $lines;
+}
+
 // Function to parse command line arguments
 function parseArgs($args)
 {
