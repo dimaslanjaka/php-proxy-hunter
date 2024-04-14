@@ -396,7 +396,7 @@ function mergeArrays($array1, $array2)
   foreach ($array1 as $key => $value) {
     if (is_array($value) && isset($array2[$key]) && is_array($array2[$key])) {
       // Merge the sub-arrays if both keys exist in both arrays
-      $mergedArray[$key] = array_merge($value, $array2[$key]);
+      $mergedArray[$key] = array_unique(array_merge($value, $array2[$key]));
     } else {
       // Otherwise, add the key-value pair to the merged array
       $mergedArray[$key] = $value;
