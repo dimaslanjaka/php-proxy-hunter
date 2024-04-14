@@ -4,6 +4,7 @@
     "dbaeumer.vscode-eslint",
     "formulahendry.code-runner",
     "esbenp.prettier-vscode",
-    "k--kato.intellij-idea-keybindings"
+    "k--kato.intellij-idea-keybindings",
+    "mrmlnc.vscode-apache"
   ]
 }
