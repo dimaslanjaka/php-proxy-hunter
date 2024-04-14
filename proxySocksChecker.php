@@ -2,6 +2,23 @@
 
 require_once __DIR__ . "/func.php";
 
+$config = getConfig(getUserId());
+$lockFilePath = __DIR__ . "/proxySocksChecker.lock";
+
+if (file_exists($lockFilePath)) {
+  echo "another process still running\n";
+  exit();
+} else {
+  file_put_contents($lockFilePath, $config['user_id'] . '=' . json_encode($config));
+}
+
+function exitProcess()
+{
+  global $lockFilePath;
+  if (file_exists($lockFilePath)) unlink($lockFilePath);
+}
+register_shutdown_function('exitProcess');
+
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 if (!$isCli) {
