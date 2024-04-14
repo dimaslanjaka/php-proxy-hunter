@@ -78,7 +78,7 @@ function shuffleChecks()
   // Iterate through the shuffled lines
   foreach ($lines as $line) {
     // Check if the elapsed time exceeds the limit
-    if (((microtime(true) - $startTime) > $maxExecutionTime) && !$isCli) {
+    if (((microtime(true) - $startTime) > $maxExecutionTime)) {
       echo "maximum execution time excedeed ($maxExecutionTime)\n";
       // Execution time exceeded, break out of the loop
       break;
