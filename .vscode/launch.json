@@ -5,12 +5,20 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "command": "php proxyChecker.php && php proxySocksChecker.php",
+      "name": "Check proxies",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
       "name": "Debug index.js",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd",
-      "args": ["."],
+      "args": [
+        "."
+      ],
       "outputCapture": "std"
     }
   ]
