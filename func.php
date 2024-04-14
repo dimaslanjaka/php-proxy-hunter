@@ -279,7 +279,8 @@ function setUserId(string $new_user_id)
       );
       $data = array(
         'endpoint' => 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list',
-        'headers' => $headers
+        'headers' => $headers,
+        'type' => 'http'
       );
       setConfig($new_user_id, $data);
     }
@@ -317,11 +318,17 @@ function getConfig(string $user_id)
   $data = json_decode($jsonString, true); // Use true for associative array, false or omit for object
 
   // Check if decoding was successful
+  $defaults = array(
+    'endpoint' => 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list',
+    'headers' => [],
+    'type' => 'http'
+  );
   if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
     // Decoding failed
     // echo 'Error decoding JSON: ' . json_last_error_msg();
+    return $defaults;
   } else {
-    return $data;
+    return mergeArrays($defaults, $data);
   }
 }
 
@@ -329,10 +336,11 @@ function setConfig($user_id, $data)
 {
   $user_file = getUserFile($user_id);
   $data['user_id'] = getUserId();
+  $defaults = getConfig($user_id);
   // Encode the data to JSON format
-  $jsonData = json_encode($data);
+  $newData = json_encode(mergeArrays($defaults, $data));
   // write data
-  file_put_contents($user_file, $jsonData);
+  file_put_contents($user_file, $newData);
   // set permission
   setFilePermissions($user_file);
 }
@@ -367,4 +375,40 @@ function removeDuplicateLines($filePath)
 
   // Write the modified lines back to the file
   file_put_contents($filePath, implode("\n", $lines) . "\n");
+}
+
+/**
+ * Merges two shallow multidimensional arrays.
+ *
+ * This function merges two multidimensional arrays while preserving the structure.
+ * If a key exists in both arrays, sub-arrays are merged recursively.
+ * Values from the second array override those from the first array if they have the same keys.
+ * If a key exists in the second array but not in the first one, it will be added to the merged array.
+ *
+ * @param array $array1 The first array to merge.
+ * @param array $array2 The second array to merge.
+ * @return array The merged array.
+ */
+function mergeArrays($array1, $array2)
+{
+  $mergedArray = [];
+
+  foreach ($array1 as $key => $value) {
+    if (is_array($value) && isset($array2[$key]) && is_array($array2[$key])) {
+      // Merge the sub-arrays if both keys exist in both arrays
+      $mergedArray[$key] = array_merge($value, $array2[$key]);
+    } else {
+      // Otherwise, add the key-value pair to the merged array
+      $mergedArray[$key] = $value;
+    }
+  }
+
+  // Add any additional keys from the second array
+  foreach ($array2 as $key => $value) {
+    if (!isset($mergedArray[$key])) {
+      $mergedArray[$key] = $value;
+    }
+  }
+
+  return $mergedArray;
 }
