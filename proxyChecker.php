@@ -347,7 +347,7 @@ function checkSocksProxy(string $proxy, int $version = 5)
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint);
   curl_setopt($ch, CURLOPT_PROXY, $proxy);
-  curl_setopt($ch, CURLOPT_PROXYTYPE, $version == 4 ? CURLPROXY_SOCKS4 : CURLPROXY_SOCKS5); // Change to SOCKS4 if necessary
+  curl_setopt($ch, CURLOPT_PROXYTYPE, $version == 4 ? CURLPROXY_SOCKS4 : CURLPROXY_SOCKS5);
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
