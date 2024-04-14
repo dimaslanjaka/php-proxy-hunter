@@ -20,28 +20,27 @@ $file = __DIR__ . "/proxyChecker.php";
 $outputfile = __DIR__ . '/proxyChecker.txt';
 $pidfile = __DIR__ . '/proxyChecker.pid';
 setFilePermissions([$file, $outputfile, $pidfile]);
+$isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+$cmd = "php " . escapeshellarg($file);
+if ($isWin) {
+  $cmd = "start /B \"window_name\" $cmd";
+}
+
+$uid = getUserId();
+$cmd .= " --userId=" . $uid;
+
+// echo $cmd . "\n\n";
+
+$cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($outputfile), escapeshellarg($pidfile));
+if (!file_exists(__DIR__ . '/tmp')) mkdir(__DIR__ . '/tmp');
+$runner = __DIR__ . "/tmp/runner" . ($isWin ? '.bat' : "");
+file_put_contents($runner, $cmd);
+
+exec(escapeshellarg($runner));
+
 function exitProcess()
 {
   global $pidfile;
   if (file_exists($pidfile)) unlink($pidfile);
 }
 register_shutdown_function('exitProcess');
-$isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-$cmd = "start /B php $file";
-if (!$isWin) {
-  $cmd = "php $file";
-}
-$cmd .= " --userId=" . getUserId();
-
-echo $cmd . "\n\n";
-
-// if ($isWin) {
-//   // exec("start /B php $file > proxyChecker.txt 2>&1");
-//   // exec("start /B cmd.exe /C \"php $file > proxyChecker.txt 2>&1\"");
-
-//   exec(sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, $outputfile, $pidfile));
-// } else {
-//   exec("php $file > proxyChecker.txt 2>&1 &");
-// }
-
-exec(sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, $outputfile, $pidfile));
