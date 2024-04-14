@@ -36,7 +36,7 @@ foreach ($files as $file) {
 file_put_contents($all, $merged_content);
 
 // unique proxies
-rewriteIpPortFile($all);
+removeDuplicateLines($all);
 
 echo "Contents merged and moved to $all successfully.";
 
