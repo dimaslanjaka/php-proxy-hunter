@@ -274,7 +274,7 @@ function setUserId(string $new_user_id)
       $headers = array(
         'X-Dynatrace: MT_3_6_2809532683_30-0_24d94a15-af8c-49e7-96a0-1ddb48909564_0_1_619',
         'X-Api-Key: vT8tINqHaOxXbGE7eOWAhA==',
-        'Authorization: Bearer ', // Place your bearer token here
+        'Authorization: Bearer',
         'X-Request-Id: 63337f4c-ec03-4eb8-8caa-4b7cd66337e3',
         'X-Request-At: 2024-04-07T20:57:14.73+07:00',
         'X-Version-App: 5.8.8',
@@ -282,11 +282,12 @@ function setUserId(string $new_user_id)
         'Content-Type: application/json; charset=utf-8'
       );
       $data = array(
-        'endpoint' => 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list',
-        'headers' => $headers,
+        'endpoint' => $new_user_id == 'CLI' ? 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list' : 'https://google.com',
+        'headers' => $new_user_id == 'CLI' ? $headers : ['User-Agent: myXL / 5.8.8(741); StandAloneInstall; (samsung; SM-G955N; SDK 25; Android 7.1.2)'],
         'type' => 'http'
       );
-      setConfig($new_user_id, $data);
+      $file = getUserFile($new_user_id);
+      file_put_contents($file, json_encode($data));
     }
     // replace global user id
     if ($user_id != $new_user_id) $user_id = $new_user_id;
@@ -321,13 +322,14 @@ function getConfig(string $user_id)
   // Decode the JSON string into a PHP array
   $data = json_decode($jsonString, true); // Use true for associative array, false or omit for object
 
-  // Check if decoding was successful
   $defaults = array(
-    'endpoint' => 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list',
+    'endpoint' => 'https://google.com',
     'headers' => [],
     'type' => 'http',
     'user_id' => $user_id
   );
+
+  // Check if decoding was successful
   if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
     // Decoding failed
     // echo 'Error decoding JSON: ' . json_last_error_msg();
