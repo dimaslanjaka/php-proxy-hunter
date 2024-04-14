@@ -97,8 +97,9 @@ function curlGetCache($url)
  *
  * @param string $url The URL to fetch.
  * @param string $proxy The proxy IP address and port (e.g., "proxy_ip:proxy_port").
- * @param int $cacheTime The cache expiration time in seconds. Set to 0 to disable caching.
- * @param string $cacheDir The directory where cached responses will be stored.
+ * @param string $proxyType The type of proxy. Can be 'http', 'socks4', or 'socks5'. Defaults to 'http'.
+ * @param int $cacheTime The cache expiration time in seconds. Set to 0 to disable caching. Defaults to 1 year (86400 * 360 seconds).
+ * @param string $cacheDir The directory where cached responses will be stored. Defaults to './.cache/' in the current directory.
  * @return string|false The response content or false on failure.
  */
 function curlGetWithProxy($url, $proxy, $proxyType = 'http', $cacheTime = 86400 * 360, $cacheDir = __DIR__ . '/.cache/')
