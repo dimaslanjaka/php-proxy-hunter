@@ -138,7 +138,16 @@ function shuffleChecks()
     if (file_exists($deadPath)) {
       echo "proxies empty, respawning dead proxies\n\n";
       // respawn dead proxies
-      rename($deadPath, $filePath);
+      // rename($deadPath, $filePath);
+      $file = __DIR__ . '/dead.txt';
+      $extracted = extractIpPortFromFile($file);
+      foreach (array_unique($extracted) as $proxy) {
+        if (isPortOpen($proxy)) {
+          removeStringAndMoveToFile($file, $filePath, $proxy);
+          echo trim($proxy) . ' respawned' . PHP_EOL;
+        }
+      }
+      include __DIR__ . '/proxyRespawner.php';
       // repeat
       return shuffleChecks();
     } else {
