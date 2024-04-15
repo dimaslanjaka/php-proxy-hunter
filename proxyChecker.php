@@ -37,10 +37,18 @@ require_once __DIR__ . "/func.php";
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 if (!$isCli) {
-  // Allow from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  if (function_exists('header')) {
+    // Allow from any origin
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Headers: *");
+    header("Access-Control-Allow-Methods: *");
+    header('Content-Type: text/plain; charset=utf-8');
+    header('X-Powered-By: L3n4r0x');
+  }
+  // only allow post
+  if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+    exit('direct method disallowed');
+  }
 }
 
 // limit execution time seconds unit
@@ -61,10 +69,6 @@ if (!$isCli) {
   ini_set('output_buffering', 0);
   if (ob_get_level() == 0) {
     ob_start();
-  }
-  if (function_exists('header')) {
-    header('Content-Type: text/plain; charset=utf-8');
-    header('X-Powered-By: L3n4r0x');
   }
 }
 
