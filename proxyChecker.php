@@ -290,7 +290,7 @@ function extractIpPortFromFile($filePath)
 
     // Add matched IP:PORT combinations to the list
     foreach ($matches[0] as $match) {
-      $ipPortList[] = $match;
+      $ipPortList[] = trim($match);
     }
   }
 
