@@ -13,6 +13,10 @@ if (!$isCli) {
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
   }
+  // only allow user with google analystics cookie
+  if (!isset($_COOKIE['_ga'])) {
+    exit('Access Denied');
+  }
 }
 
 // Run a long-running process in the background
