@@ -63,9 +63,9 @@ async function checkerOutput() {
   const filter = info.split(/\r?\n/).join('<br/>');
   const result = document.getElementById('cpresult');
   result.innerHTML = filter;
-  // result.scrollTop = result.scrollHeight;
   // Check if content height exceeds div height
-  if (result.scrollHeight > result.clientHeight) {
+  // Only scroll when checker status is running
+  if (result.scrollHeight > result.clientHeight && checker_status) {
     // Scroll the div to the bottom
     result.scrollTop = result.scrollHeight - result.clientHeight;
   }
@@ -95,6 +95,8 @@ function getCookie(name) {
   return null;
 }
 
+let checker_status;
+
 /**
  * check checker status
  * @returns true=running false=idle
@@ -112,8 +114,10 @@ async function checkerStatus() {
           'class',
           'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'
         );
+        checker_status = true;
         return true;
       } else {
+        checker_status = false;
         cek.classList.remove('disabled');
         status.setAttribute(
           'class',
