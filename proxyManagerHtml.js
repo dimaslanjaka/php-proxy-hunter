@@ -1,7 +1,7 @@
-main();
+let user_info;
 
 async function main() {
-  const user_info = userInfo();
+  user_info = userInfo();
   if (!user_info) {
     console.log('user null');
     return main();
@@ -9,24 +9,35 @@ async function main() {
 
   document.getElementById('recheck').addEventListener('click', () => {
     showSnackbar('proxy checking start...');
-    fetch('./proxyCheckerBackground.php?uid=' + user_info.user_id, { signal: AbortSignal.timeout(5000) })
-      .then(() => {
-        check();
-      })
-      .catch(() => {
-        //
-      });
+    doCheck();
   });
 
-  check();
-  setInterval(() => {
-    check();
+  checkerStatus();
+  let icheck = setInterval(() => {
+    checkerStatus();
   }, 3000);
 
-  checkerInfo();
+  document.getElementById('autoCheckProxy').addEventListener('change', (e) => {
+    clearInterval(icheck);
+    if (e.target.checked) {
+      const callback = () =>
+        checkerStatus().then((result) => {
+          if (!result) doCheck();
+        });
+      callback().then(() => {
+        icheck = setInterval(callback, 3000);
+      });
+    } else {
+      icheck = setInterval(() => {
+        checkerStatus();
+      }, 3000);
+    }
+  });
+
+  checkerOutput();
   setInterval(() => {
-    checkerInfo();
-  }, 1000);
+    checkerOutput();
+  }, 3000);
 
   fetchWorkingProxies();
   setInterval(() => {
@@ -34,7 +45,18 @@ async function main() {
   }, 5000);
 }
 
-async function checkerInfo() {
+function doCheck() {
+  if (user_info)
+    fetch('./proxyCheckerBackground.php?uid=' + user_info.user_id, { signal: AbortSignal.timeout(5000) })
+      .then(() => {
+        checkerStatus();
+      })
+      .catch(() => {
+        //
+      });
+}
+
+async function checkerOutput() {
   const info = await fetch('./proxyChecker.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
     res.text()
   );
@@ -66,11 +88,14 @@ function getCookie(name) {
   return null;
 }
 
-async function check() {
-  console.log('checking status');
+/**
+ * check checker status
+ * @returns true=running false=idle
+ */
+async function checkerStatus() {
   const status = document.querySelector('span#status');
   const cek = document.getElementById('recheck');
-  await fetch('./status.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) })
+  return await fetch('./status.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .then((data) => {
       if (data.trim().includes('running')) {
@@ -80,6 +105,7 @@ async function check() {
           'class',
           'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'
         );
+        return true;
       } else {
         cek.classList.remove('disabled');
         status.setAttribute(
@@ -88,9 +114,10 @@ async function check() {
         );
         status.innerHTML = 'IDLE';
       }
+      return false;
     })
     .catch(() => {
-      //
+      return false;
     });
 }
 
@@ -184,3 +211,7 @@ function copyToClipboard(text) {
     }
   }
 }
+
+(function () {
+  main();
+})();
