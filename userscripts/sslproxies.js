@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         sslproxies.org proxy parser
 // @namespace    dimaslanjaka:sslproxies-parser-proxy
-// @version      1.1
+// @version      1.2
 // @description  parse proxy from site page
 // @author       dimaslanjaka
 // @match        *://*.sslproxies.org/*
 // @match        *://*.socks-proxy.net/*
+// @match        *://*.us-proxy.org/*
+// @match        *://free-proxy-list.net/*
 // @noframes
 // @run-at document-end
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/sslproxies.js
