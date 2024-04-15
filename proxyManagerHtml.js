@@ -4,7 +4,7 @@ async function main() {
   user_info = userInfo();
   if (!user_info) {
     console.log('user null');
-    return main();
+    return await main();
   }
 
   document.getElementById('recheck').addEventListener('click', () => {
@@ -56,19 +56,33 @@ function doCheck() {
       });
 }
 
+/**
+ * get result of proxy checker
+ */
 async function checkerOutput() {
   const info = await fetch('./proxyChecker.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
     res.text()
   );
   const filter = info.split(/\r?\n/).join('<br/>');
-  const result = document.getElementById('cpresult');
-  result.innerHTML = filter;
+  const checkerResult = document.getElementById('cpresult');
+  checkerResult.innerHTML = filter;
   // Check if content height exceeds div height
   // Only scroll when checker status is running
-  if (result.scrollHeight > result.clientHeight && checker_status) {
+  if (checkerResult.scrollHeight > checkerResult.clientHeight && checker_status) {
     // Scroll the div to the bottom
-    result.scrollTop = result.scrollHeight - result.clientHeight;
+    checkerResult.scrollTop = checkerResult.scrollHeight - checkerResult.clientHeight;
   }
+
+  const wrapper = document.querySelector('#countProxy');
+  const proxies = await fetch('./proxies.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
+    res.text()
+  );
+  wrapper.querySelector('#untested').innerText = proxies.split(/\r?\n/).length;
+
+  const dead = await fetch('./dead.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
+    res.text()
+  );
+  wrapper.querySelector('#dead').innerText = dead.split(/\r?\n/).length;
 }
 
 fetch('./info.php?v=' + new Date(), { signal: AbortSignal.timeout(5000) });

@@ -24,8 +24,11 @@
 <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
   <div class="mb-3 flex flex-col md:flex-row border border-gray-600 p-4">
     <div class="flex-1">
-      status <span id="status"
+      <i class="fa-duotone fa-square-info"></i> <span id="status"
         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">IDLE</span>
+    </div>
+    <div class="flex-1" id="countProxy">
+      Untested (<b id="untested" class="text-amber-400">0</b>) Dead (<b id="dead" class="text-red-400">0</b>)
     </div>
     <div class="flex-1 text-amber-400"><a href="./proxyManager.php" class="bracket">modify config</a></div>
     <div class="flex-1 text-amber-400">
