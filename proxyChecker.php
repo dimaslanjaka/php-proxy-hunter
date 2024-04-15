@@ -92,18 +92,21 @@ echo "\n";
 /// FUNCTIONS (DO NOT EDIT)
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
+$statusFile = __DIR__ . "/status.txt";
 
 if (file_exists($lockFilePath)) {
   echo "another process still running\n";
   exit();
 } else {
   file_put_contents($lockFilePath, $config['user_id'] . '=' . json_encode($config));
+  file_put_contents($statusFile, 'running');
 }
 
 function exitProcess()
 {
-  global $lockFilePath;
+  global $lockFilePath, $statusFile;
   if (file_exists($lockFilePath)) unlink($lockFilePath);
+  file_put_contents($statusFile, 'idle');
 }
 register_shutdown_function('exitProcess');
 
