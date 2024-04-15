@@ -35,6 +35,11 @@ $config = getConfig(getUserId());
       </div>
     </div>
 
+    <div class="mb-2">
+      <span class="mb-2">Your ID: <b id="uid"><?php echo $user_id ?></b></span>
+      <a href="./proxyManager.html">[Proxy Manager HTML]</a>
+    </div>
+
     <div class="accordion accordion-flush mb-4 border" id="accordionAdvancedOptions">
       <div class="accordion-item">
         <h2 class="accordion-header border" id="flush-advanceHeading">
@@ -44,34 +49,33 @@ $config = getConfig(getUserId());
         </h2>
         <div id="flush-advanceCollapse" class="accordion-collapse collapse" aria-labelledby="flush-advanceHeading" data-bs-parent="#accordionAdvancedOptions">
           <div class="accordion-body">
-            <span class="mb-2">Your ID: <b id="uid"><?php echo $user_id ?></b></h2>
-              <div class="form-group mb-2">
-                <label for="endpoint">URL target to test</label>
-                <input type="text" class="form-control" id="endpoint" placeholder="URL target to test" value="<?php echo $config['endpoint'] ?>" />
-              </div>
+            <div class="form-group mb-2">
+              <label for="endpoint">URL target to test</label>
+              <input type="text" class="form-control" id="endpoint" placeholder="URL target to test" value="<?php echo $config['endpoint'] ?>" />
+            </div>
 
-              <div class="form-floating mb-2">
-                <textarea class="form-control" style="height: 250px;" id="headers" style="height: 100px"><?php echo implode("\n", $config['headers']); ?></textarea>
-                <label for="proxiesData">Custom Headers</label>
-              </div>
+            <div class="form-floating mb-2">
+              <textarea class="form-control" style="height: 250px;" id="headers" style="height: 100px"><?php echo implode("\n", $config['headers']); ?></textarea>
+              <label for="proxiesData">Custom Headers</label>
+            </div>
 
-              <b>Proxy Type</b>
-              <div class="form-group mb-2">
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="checkbox" id="typeHttp" value="http" <?php echo strpos($config['type'], 'http') !== false ? 'checked' : '' ?>>
-                  <label class="form-check-label" for="typeHttp">HTTP/HTTPS</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="checkbox" id="typeSocks4" value="socks4" <?php echo strpos($config['type'], 'socks4') !== false ? 'checked' : '' ?>>
-                  <label class="form-check-label" for="typeSocks4">SOCKS4</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="checkbox" id="typeSocks5" value="socks5" <?php echo strpos($config['type'], 'socks5') !== false ? 'checked' : '' ?>>
-                  <label class="form-check-label" for="typeSocks5">SOCKS5</label>
-                </div>
+            <b>Proxy Type</b>
+            <div class="form-group mb-2">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="typeHttp" value="http" <?php echo strpos($config['type'], 'http') !== false ? 'checked' : '' ?>>
+                <label class="form-check-label" for="typeHttp">HTTP/HTTPS</label>
               </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="typeSocks4" value="socks4" <?php echo strpos($config['type'], 'socks4') !== false ? 'checked' : '' ?>>
+                <label class="form-check-label" for="typeSocks4">SOCKS4</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="typeSocks5" value="socks5" <?php echo strpos($config['type'], 'socks5') !== false ? 'checked' : '' ?>>
+                <label class="form-check-label" for="typeSocks5">SOCKS5</label>
+              </div>
+            </div>
 
-              <button class="btn btn-primary" id="saveConfig"><i class="fa-duotone fa-save mr-2"></i> Save</button>
+            <button class="btn btn-primary" id="saveConfig"><i class="fa-duotone fa-save mr-2"></i> Save</button>
           </div>
         </div>
       </div>
@@ -81,7 +85,6 @@ $config = getConfig(getUserId());
       <button class="btn btn-warning" id="addProxy"><i class="fa-duotone fa-plus mr-2"></i> Add Proxies</button>
       <button class="btn btn-info" id="checkProxy"><i class="fa-duotone fa-radar mr-2"></i> Check Proxies</button>
       <button class="btn btn-primary" id="refresh"><i class="fa-duotone fa-arrows-rotate mr-2"></i> Refresh</button>
-      <a class="btn btn-primary" href="./proxyManager.html">Proxy Manager HTML</a>
     </div>
 
     <div class="mb-2 row">
