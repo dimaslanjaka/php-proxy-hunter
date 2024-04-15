@@ -94,7 +94,14 @@ async function fetchWorkingProxies() {
   tbody.innerHTML = '';
   proxies.forEach((str) => {
     const tr = document.createElement('tr');
-    str.split('|').forEach((info, i) => {
+    const split = str.split('|');
+    if (split.length < 7) {
+      const remainingLength = 7 - split.length;
+      for (let i = 0; i < remainingLength; i++) {
+        split.push('undefined');
+      }
+    }
+    split.forEach((info, i) => {
       const td = document.createElement('td');
       td.setAttribute(
         'class',
