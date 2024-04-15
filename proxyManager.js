@@ -215,3 +215,5 @@ function parseProxies(text) {
     });
   });
 })();
+
+fetch('./info.php?v=' + new Date(), { signal: AbortSignal.timeout(5000) });
