@@ -10,20 +10,20 @@ async function main() {
   }
 
   document.getElementById('recheck').addEventListener('click', () => {
-    fetch('./proxyCheckerBackground.php?uid=' + user_info.user_id)
+    showSnackbar('proxy checking start...');
+    fetch('./proxyCheckerBackground.php?uid=' + user_info.user_id, { signal: AbortSignal.timeout(5000) })
+      .then(() => {
+        check();
+      })
       .catch(() => {
         //
-      })
-      .finally(() => {
-        check();
-        showSnackbar('proxy checking start...');
       });
   });
 
   check();
   setInterval(() => {
     check();
-  }, 10000);
+  }, 3000);
 
   checkerInfo();
   setInterval(() => {
@@ -32,12 +32,14 @@ async function main() {
 }
 
 async function checkerInfo() {
-  const info = await fetch('./proxyChecker.txt?v=' + new Date()).then((res) => res.text());
+  const info = await fetch('./proxyChecker.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
+    res.text()
+  );
   const filter = info.split(/\r?\n/).join('<br/>');
   document.getElementById('cpresult').innerHTML = filter;
 }
 
-fetch('./info.php?v=' + new Date());
+fetch('./info.php?v=' + new Date(), { signal: AbortSignal.timeout(5000) });
 
 function userInfo() {
   try {
@@ -65,7 +67,7 @@ async function check() {
   console.log('checking status');
   const status = document.querySelector('span#status');
   const cek = document.getElementById('recheck');
-  await fetch('./status.txt?v=' + new Date())
+  await fetch('./status.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .then((data) => {
       if (data.trim().includes('running')) {
@@ -91,10 +93,10 @@ async function check() {
 
 async function fetchWorkingProxies() {
   const date = new Date();
-  const http = await fetch('./working.txt?v=' + date)
+  const http = await fetch('./working.txt?v=' + date, { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .catch(() => '');
-  const socks = await fetch('./socks-working.txt?v=' + date)
+  const socks = await fetch('./socks-working.txt?v=' + date, { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .catch(() => '');
   const proxies = (http + '\n' + socks)
