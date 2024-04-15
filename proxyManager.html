@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            clifford: '#da373d',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet"
+    href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
+</head>
+
+<body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400 w-full">
+  <div class="mb-3">status <span id="status"
+      class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">IDLE</span> <a href="./proxyManager.php">[modify config]</a>
+  </div>
+  <table class="table-fixed w-full">
+    <thead>
+      <tr>
+        <th>Proxy</th>
+        <th>Latency (ms)</th>
+        <th>Type</th>
+        <th>Region</th>
+        <th>City</th>
+        <th>Country</th>
+        <th>Timezone</th>
+      </tr>
+    </thead>
+    <tbody id="wproxy"></tbody>
+  </table>
+
+  <div id="snackbar">Snackbar Message</div>
+
+  <a href="#" class="fab" title="re-check proxies" id="recheck"><i class="fal fa-refresh"></i></a>
+
+  <script>
+    const script = document.createElement('script');
+    script.src = "./proxyManagerHtml.js?v=" + new Date();
+    document.body.appendChild(script);
+
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './proxyManagerHtml.css?v=' + new Date();
+    document.head.appendChild(link);
+  </script>
+</body>
+
+</html>
