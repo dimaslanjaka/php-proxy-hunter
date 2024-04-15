@@ -5,6 +5,7 @@
     "formulahendry.code-runner",
     "esbenp.prettier-vscode",
     "k--kato.intellij-idea-keybindings",
-    "mrmlnc.vscode-apache"
+    "mrmlnc.vscode-apache",
+    "formulahendry.auto-rename-tag"
   ]
 }
