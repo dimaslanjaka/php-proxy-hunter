@@ -231,9 +231,10 @@ function checkProxyLine($line)
   }
 
   if (strpos($checksFor, 'socks5') !== false) {
-    if (checkSocksProxy($proxy, 5)) {
+    $check = checkSocksProxy($proxy, 5);
+    if ($check !== false) {
       echo "$proxy working type SOCKS5\n";
-      $latency = measureSocksProxyLatency($proxy, 5);
+      $latency = $check['latency'];
       $item = "$proxy|$latency|SOCKS5";
       // fetch ip info
       $LocationArray = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks5'), true);
@@ -293,56 +294,18 @@ function extractIpPortFromFile($filePath)
 }
 
 /**
- * Function to measure the latency of a SOCKS proxy by establishing a connection to a specified endpoint.
+ * Function to check the connectivity of a SOCKS proxy by attempting to connect to a specified endpoint.
  *
  * @param string $proxy The SOCKS proxy in the format IP:PORT.
- * @param string $endpoint The URL of the endpoint to connect to for latency measurement.
- * @param int $timeout The timeout for the connection attempt, in seconds.
- * @return float|false The latency in seconds if the proxy is reachable, or false if unreachable.
- */
-function measureSocksProxyLatency(string $proxy, int $version = 5, $timeout = 5)
-{
-  global $endpoint;
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $endpoint);
-  curl_setopt($ch, CURLOPT_PROXY, $proxy);
-  curl_setopt($ch, CURLOPT_PROXYTYPE, $version == 4 ? CURLPROXY_SOCKS4 : CURLPROXY_SOCKS5); // Change to SOCKS4 if necessary
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-  // Start timing
-  $start_time = microtime(true);
-
-  // Execute the request
-  $result = curl_exec($ch);
-
-  // Stop timing
-  $end_time = microtime(true);
-
-  // Check if there was an error
-  if (curl_errno($ch)) {
-    // Error occurred during curl execution
-    curl_close($ch);
-    return false;
-  }
-
-  // Calculate latency
-  $latency = $end_time - $start_time;
-
-  curl_close($ch);
-  return $latency != false ? round($latency, 2) : false;
-}
-
-/**
- * Function to check if a SOCKS proxy is working by attempting to connect to a specified endpoint.
- *
- * @param string $proxy The SOCKS proxy in the format IP:PORT.
- * @return bool True if the proxy is working, false otherwise.
+ * @param int $version The version of SOCKS protocol (4 or 5). Default is 5.
+ * @return array|false An array containing latency and result if successful, false otherwise.
  */
 function checkSocksProxy(string $proxy, int $version = 5)
 {
   global $endpoint, $headers;
-  $timeout = 10; // Adjust timeout as needed
+
+  // Adjust timeout as needed
+  $timeout = 10;
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint);
@@ -354,8 +317,17 @@ function checkSocksProxy(string $proxy, int $version = 5)
   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
   curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // handles compressed response
 
+  // Start timing
+  $start_time = microtime(true);
+
   // Execute the request
   $result = curl_exec($ch);
+
+  // Stop timing
+  $end_time = microtime(true);
+
+  // Calculate latency
+  $latency = round($end_time - $start_time, 2);
 
   // Check if there was an error
   if (curl_errno($ch)) {
@@ -367,7 +339,11 @@ function checkSocksProxy(string $proxy, int $version = 5)
   // Check HTTP status code
   $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
   curl_close($ch);
-  return ($http_code >= 200 && $http_code < 300);
+
+  // Determine if the proxy is working based on HTTP status code
+  $result = ($http_code >= 200 && $http_code < 300);
+
+  return ['latency' => $latency, 'result' => $result];
 }
 
 /**
