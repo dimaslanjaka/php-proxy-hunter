@@ -24,6 +24,17 @@ async function main() {
   setInterval(() => {
     check();
   }, 10000);
+
+  checkerInfo();
+  setInterval(() => {
+    checkerInfo();
+  }, 1000);
+}
+
+async function checkerInfo() {
+  const info = await fetch('./proxyChecker.txt?v=' + new Date()).then((res) => res.text());
+  const filter = info.split(/\r?\n/).join('<br/>');
+  document.getElementById('cpresult').innerHTML = filter;
 }
 
 fetch('./info.php?v=' + new Date());
