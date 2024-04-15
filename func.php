@@ -229,6 +229,42 @@ function readFileLinesToArray(string $filename)
   return $lines;
 }
 
+/**
+ * Extracts IP:PORT combinations from a file.
+ *
+ * @param string $filePath The path to the file containing IP:PORT combinations.
+ * @return array An array containing the extracted IP:PORT combinations.
+ */
+function extractIpPortFromFile($filePath)
+{
+  $ipPortList = array();
+
+  if (file_exists($filePath)) {
+    // Open the file for reading
+    $file = fopen($filePath, "r");
+
+    if (is_resource($file)) {
+      // Read each line from the file
+      while (!feof($file)) {
+        $line = fgets($file);
+
+        // Match IP:PORT pattern using regular expression
+        preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $line, $matches);
+
+        // Add matched IP:PORT combinations to the list
+        foreach ($matches[0] as $match) {
+          $ipPortList[] = trim($match);
+        }
+      }
+
+      // Close the file
+      fclose($file);
+    }
+  }
+
+  return $ipPortList;
+}
+
 // Function to parse command line arguments
 function parseArgs($args)
 {
