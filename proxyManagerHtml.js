@@ -164,6 +164,8 @@ async function fetchWorkingProxies() {
       td.innerText = info;
       if (i == 0) {
         td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}"><i class="fa-duotone fa-copy"></i></button>`;
+      } else {
+        td.classList.add('text-center');
       }
       tr.appendChild(td);
     });
