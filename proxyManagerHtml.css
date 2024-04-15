@@ -44,10 +44,16 @@
   }
 }
 
+/* disabled element */
+
 .disabled {
-  pointer-events: none; /* Disables pointer events on the element */
-  opacity: 0.5; /* Reduces opacity to visually indicate it's disabled */
+  pointer-events: none;
+  /* Disables pointer events on the element */
+  opacity: 0.5;
+  /* Reduces opacity to visually indicate it's disabled */
 }
+
+/* floating button */
 
 .fab {
   position: fixed;
@@ -64,4 +70,16 @@
 
 .fab * {
   margin-top: 22px;
+}
+
+/* bracket element */
+
+.bracket::before {
+  content: "[";
+  padding-right: 8px;
+}
+
+.bracket::after {
+  content: "]";
+  padding-left: 8px;
 }
