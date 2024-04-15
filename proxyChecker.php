@@ -130,7 +130,7 @@ setFilePermissions([$filePath, $workingPath, $deadPath]);
  */
 function shuffleChecks()
 {
-  global $filePath, $workingPath, $workingProxies, $deadPath;
+  global $filePath, $workingPath, $workingProxies, $deadPath, $startTime, $maxExecutionTime;
 
   // Read lines of the file into an array
   $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -142,6 +142,12 @@ function shuffleChecks()
       $file = __DIR__ . '/dead.txt';
       $extracted = extractIpPortFromFile($file);
       foreach (array_unique($extracted) as $proxy) {
+        // Check if the elapsed time exceeds the limit
+        if ((microtime(true) - $startTime) > $maxExecutionTime) {
+          echo "maximum execution time excedeed ($maxExecutionTime)\n";
+          // Execution time exceeded, break out of the loop
+          return "break";
+        }
         if (isPortOpen($proxy)) {
           removeStringAndMoveToFile($file, $filePath, $proxy);
           echo trim($proxy) . ' respawned' . PHP_EOL;
@@ -208,7 +214,7 @@ function stripDeadProxy(string $proxy)
  */
 function checkProxyLine($line)
 {
-  global $startTime, $maxExecutionTime, $workingPath, $workingProxies, $isCli, $checksFor, $socksWorkingPath, $socksWorkingProxies, $socksPath;
+  global $startTime, $maxExecutionTime, $workingPath, $workingProxies, $isCli, $checksFor, $socksWorkingPath, $socksWorkingProxies;
   // Check if the elapsed time exceeds the limit
   if ((microtime(true) - $startTime) > $maxExecutionTime) {
     echo "maximum execution time excedeed ($maxExecutionTime)\n";
