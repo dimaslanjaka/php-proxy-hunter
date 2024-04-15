@@ -1,4 +1,6 @@
 <FilesMatch "\.(css|flv|gif|htm|html|ico|jpe|jpeg|jpg|js|mp3|mp4|png|pdf|swf|txt)$">
+    Order Allow,Deny
+    Allow from all
     <IfModule mod_expires.c>
         ExpiresActive Off
     </IfModule>
@@ -12,4 +14,16 @@
         Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
         Header set Expires "Thu, 1 Jan 1970 00:00:00 GMT"
     </IfModule>
+</FilesMatch>
+
+<FilesMatch "proxyChecker.php">
+    Order Deny,Allow
+    Deny from all
+    Allow from 127.0.0.1
+</FilesMatch>
+
+<FilesMatch "proxySocksChecker.php">
+    Order Deny,Allow
+    Deny from all
+    Allow from 127.0.0.1
 </FilesMatch>
