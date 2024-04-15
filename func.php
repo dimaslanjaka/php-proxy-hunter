@@ -160,35 +160,39 @@ function rewriteIpPortFile($filename)
 {
   $ipPortList = array();
 
-  // Open the file for reading
-  $file = fopen($filename, "r");
+  if (file_exists($filename)) {
+    // Open the file for reading
+    $file = fopen($filename, "r");
 
-  // Read each line from the file and extract IP:PORT combinations
-  while (!feof($file)) {
-    $line = fgets($file);
+    if (is_resource($file)) {
+      // Read each line from the file and extract IP:PORT combinations
+      while (!feof($file)) {
+        $line = fgets($file);
 
-    // Match IP:PORT pattern using regular expression
-    preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $line, $matches);
+        // Match IP:PORT pattern using regular expression
+        preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $line, $matches);
 
-    // Add matched IP:PORT combinations to the list
-    foreach ($matches[0] as $match) {
-      $ipPortList[] = $match;
+        // Add matched IP:PORT combinations to the list
+        foreach ($matches[0] as $match) {
+          $ipPortList[] = $match;
+        }
+      }
+
+      // Close the file
+      fclose($file);
+
+      // Open the file for writing (truncate existing content)
+      $file = fopen($filename, "w");
+
+      // Write extracted IP:PORT combinations to the file
+      foreach (array_unique($ipPortList) as $ipPort) {
+        fwrite($file, $ipPort . "\n");
+      }
+
+      // Close the file
+      fclose($file);
     }
   }
-
-  // Close the file
-  fclose($file);
-
-  // Open the file for writing (truncate existing content)
-  $file = fopen($filename, "w");
-
-  // Write extracted IP:PORT combinations to the file
-  foreach (array_unique($ipPortList) as $ipPort) {
-    fwrite($file, $ipPort . "\n");
-  }
-
-  // Close the file
-  fclose($file);
 
   return $ipPortList;
 }
