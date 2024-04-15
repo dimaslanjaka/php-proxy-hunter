@@ -1,8 +1,6 @@
 main();
 
 async function main() {
-  fetchWorkingProxies();
-
   const user_info = userInfo();
   if (!user_info) {
     console.log('user null');
@@ -29,6 +27,11 @@ async function main() {
   setInterval(() => {
     checkerInfo();
   }, 1000);
+
+  fetchWorkingProxies();
+  setInterval(() => {
+    fetchWorkingProxies();
+  }, 5000);
 }
 
 async function checkerInfo() {
