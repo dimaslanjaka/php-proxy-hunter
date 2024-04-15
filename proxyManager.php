@@ -127,6 +127,18 @@ $config = getConfig(getUserId());
   <script src="//cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
   <!-- <script src="//rawcdn.githack.com/dimaslanjaka/jquery-form-saver/38176c68300c834d6692953a1be7407caed01832/dist/release/autosave.js"></script> -->
   <script src="./proxyManager.js"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'G-BG75CLNJZ1');
+  </script>
 </body>
 
 </html>
