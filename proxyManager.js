@@ -46,7 +46,7 @@ async function refreshResults() {
     const srcs = iframe.getAttribute('src').split('|');
     let responses = '';
     for (let ii = 0; ii < srcs.length; ii++) {
-      const src = srcs[ii].trim();
+      const src = srcs[ii].trim() + '?v=' + new Date();
       const a = document.createElement('a');
       a.href = src;
       responses +=
