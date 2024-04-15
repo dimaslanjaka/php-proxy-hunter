@@ -21,8 +21,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Write IP:PORT pairs into proxy.txt file in append mode
     $file = fopen($filePath, 'a');
-    foreach ($ip_port_array as $ip_port) {
-      fwrite($file, $ip_port . PHP_EOL);
+    foreach (array_unique($ip_port_array) as $ip_port) {
+      if ($ip_port) fwrite($file, $ip_port . PHP_EOL);
     }
     fclose($file);
 
