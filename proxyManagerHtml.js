@@ -61,7 +61,14 @@ async function checkerOutput() {
     res.text()
   );
   const filter = info.split(/\r?\n/).join('<br/>');
-  document.getElementById('cpresult').innerHTML = filter;
+  const result = document.getElementById('cpresult');
+  result.innerHTML = filter;
+  // result.scrollTop = result.scrollHeight;
+  // Check if content height exceeds div height
+  if (result.scrollHeight > result.clientHeight) {
+    // Scroll the div to the bottom
+    result.scrollTop = result.scrollHeight - result.clientHeight;
+  }
 }
 
 fetch('./info.php?v=' + new Date(), { signal: AbortSignal.timeout(5000) });
