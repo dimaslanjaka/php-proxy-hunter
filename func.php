@@ -284,7 +284,7 @@ function setUserId(string $new_user_id)
       $data = array(
         'endpoint' => $new_user_id == 'CLI' ? 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list' : 'https://google.com',
         'headers' => $new_user_id == 'CLI' ? $headers : ['User-Agent: myXL / 5.8.8(741); StandAloneInstall; (samsung; SM-G955N; SDK 25; Android 7.1.2)'],
-        'type' => 'http'
+        'type' => 'http|socks4|socks5'
       );
       $file = getUserFile($new_user_id);
       file_put_contents($file, json_encode($data));
@@ -325,7 +325,7 @@ function getConfig(string $user_id)
   $defaults = array(
     'endpoint' => 'https://google.com',
     'headers' => [],
-    'type' => 'http',
+    'type' => 'http|socks4|socks5',
     'user_id' => $user_id
   );
 
