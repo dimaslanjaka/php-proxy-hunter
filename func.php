@@ -456,3 +456,20 @@ function mergeArrays(array $arr1, array $arr2)
   }
   return $arr1;
 }
+
+function isPortOpen($address)
+{
+  // Separate IP and port
+  list($ip, $port) = explode(':', trim($address));
+
+  // Create a TCP/IP socket
+  $socket = @fsockopen($ip, $port, $errno, $errstr, 1);
+
+  // Check if the socket could be opened
+  if ($socket === false) {
+    return false; // Port is closed
+  } else {
+    fclose($socket);
+    return true; // Port is open
+  }
+}

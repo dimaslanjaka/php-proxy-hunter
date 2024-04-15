@@ -74,27 +74,9 @@ foreach ($proxyPaths as $file) {
         return "break";
       }
       if (isPortOpen($proxy)) {
-        echo trim($proxy) . PHP_EOL;
+        echo trim($proxy) . ' respawned' . PHP_EOL;
         removeStringAndMoveToFile($file, $testPath, trim($proxy));
       }
     }
-  }
-}
-
-
-function isPortOpen($address)
-{
-  // Separate IP and port
-  list($ip, $port) = explode(':', trim($address));
-
-  // Create a TCP/IP socket
-  $socket = @fsockopen($ip, $port, $errno, $errstr, 1);
-
-  // Check if the socket could be opened
-  if ($socket === false) {
-    return false; // Port is closed
-  } else {
-    fclose($socket);
-    return true; // Port is open
   }
 }
