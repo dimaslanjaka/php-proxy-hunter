@@ -278,24 +278,28 @@ function extractIpPortFromFile($filePath)
 {
   $ipPortList = array();
 
-  // Open the file for reading
-  $file = fopen($filePath, "r");
+  if (file_exists($filePath)) {
+    // Open the file for reading
+    $file = fopen($filePath, "r");
 
-  // Read each line from the file
-  while (!feof($file)) {
-    $line = fgets($file);
+    if (is_resource($file)) {
+      // Read each line from the file
+      while (!feof($file)) {
+        $line = fgets($file);
 
-    // Match IP:PORT pattern using regular expression
-    preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $line, $matches);
+        // Match IP:PORT pattern using regular expression
+        preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $line, $matches);
 
-    // Add matched IP:PORT combinations to the list
-    foreach ($matches[0] as $match) {
-      $ipPortList[] = trim($match);
+        // Add matched IP:PORT combinations to the list
+        foreach ($matches[0] as $match) {
+          $ipPortList[] = trim($match);
+        }
+      }
+
+      // Close the file
+      fclose($file);
     }
   }
-
-  // Close the file
-  fclose($file);
 
   return $ipPortList;
 }
