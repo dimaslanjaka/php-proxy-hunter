@@ -51,7 +51,7 @@ async function refreshResults() {
       a.href = src;
       responses +=
         '\n' +
-        (await fetch(a.href)
+        (await fetch(a.href, { signal: AbortSignal.timeout(5000) })
           .then((res) => res.text())
           .then((text) => {
             // Split the text into lines
@@ -125,6 +125,7 @@ function parseProxies(text) {
       const url = './proxyAdd.php';
 
       fetch(url, {
+        signal: AbortSignal.timeout(5000),
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded' // Sending form-urlencoded data
@@ -152,8 +153,7 @@ function parseProxies(text) {
   if (cekBtn) {
     setEventRecursive(cekBtn, 'click', () => {
       const userId = document.getElementById('uid').textContent.trim();
-      fetch('proxyCheckerBackground.php?uid=' + userId)
-        // fetch("proxyChecker.php")
+      fetch('proxyCheckerBackground.php?uid=' + userId, { signal: AbortSignal.timeout(5000) })
         .catch(() => {
           //
         })
@@ -168,24 +168,28 @@ function parseProxies(text) {
   let intervalFrame;
 
   const checkRuns = () =>
-    fetch('proxyChecker.lock').then((res) => {
-      if (res.ok) {
-        if (!intervalFrame) {
-          console.log('start refreshing');
-          intervalFrame = setInterval(() => {
-            refreshResults();
-          }, 2000);
-          cekBtn.setAttribute('disabled', 'true');
+    fetch('proxyChecker.lock', { signal: AbortSignal.timeout(5000) })
+      .then((res) => {
+        if (res.ok) {
+          if (!intervalFrame) {
+            console.log('start refreshing');
+            intervalFrame = setInterval(() => {
+              refreshResults();
+            }, 2000);
+            cekBtn.setAttribute('disabled', 'true');
+          }
+        } else if (intervalFrame) {
+          console.log('stop refreshing');
+          clearInterval(intervalFrame);
+          intervalFrame = null;
+          if (cekBtn.hasAttribute('disabled')) {
+            cekBtn.removeAttribute('disabled');
+          }
         }
-      } else if (intervalFrame) {
-        console.log('stop refreshing');
-        clearInterval(intervalFrame);
-        intervalFrame = null;
-        if (cekBtn.hasAttribute('disabled')) {
-          cekBtn.removeAttribute('disabled');
-        }
-      }
-    });
+      })
+      .catch(() => {
+        //
+      });
 
   setInterval(checkRuns, 10000);
 
@@ -194,6 +198,7 @@ function parseProxies(text) {
     type += document.getElementById('typeSocks5').checked ? '|' + 'socks5' : '';
     type += document.getElementById('typeSocks4').checked ? '|' + 'socks4' : '';
     fetch(location.href, {
+      signal: AbortSignal.timeout(5000),
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -205,6 +210,8 @@ function parseProxies(text) {
           type: type.trim()
         }
       })
+    }).catch(() => {
+      //
     });
   });
 })();
