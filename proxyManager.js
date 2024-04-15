@@ -60,7 +60,7 @@ async function refreshResults() {
             // Get the first 500 lines
             const filterLines = lines.slice(0, 500).join('\n');
 
-            return filterLines + '\nLIMIT 500 LINES';
+            return filterLines + (lines.length > 500 ? '\nLIMIT 500 LINES' : '');
           })
           .catch(() => {
             return `failed obtain ${src}\n`;
