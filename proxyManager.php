@@ -35,12 +35,6 @@ $config = getConfig(getUserId());
       </div>
     </div>
 
-    <div class="mb-4 btn-group text-white">
-      <button class="btn btn-warning" id="addProxy"><i class="fa-duotone fa-plus mr-2"></i> Add Proxies</button>
-      <button class="btn btn-info" id="checkProxy"><i class="fa-duotone fa-radar mr-2"></i> Check Proxies</button>
-      <button class="btn btn-primary" id="refresh"><i class="fa-duotone fa-arrows-rotate mr-2"></i> Refresh</button>
-    </div>
-
     <div class="accordion accordion-flush mb-4 border" id="accordionAdvancedOptions">
       <div class="accordion-item">
         <h2 class="accordion-header border" id="flush-advanceHeading">
@@ -81,6 +75,13 @@ $config = getConfig(getUserId());
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="mb-4 btn-group text-white">
+      <button class="btn btn-warning" id="addProxy"><i class="fa-duotone fa-plus mr-2"></i> Add Proxies</button>
+      <button class="btn btn-info" id="checkProxy"><i class="fa-duotone fa-radar mr-2"></i> Check Proxies</button>
+      <button class="btn btn-primary" id="refresh"><i class="fa-duotone fa-arrows-rotate mr-2"></i> Refresh</button>
+      <a class="btn btn-primary" href="./proxyManager.html">Proxy Manager HTML</a>
     </div>
 
     <div class="mb-2 row">
