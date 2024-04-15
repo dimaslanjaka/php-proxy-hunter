@@ -28,7 +28,7 @@ foreach ($proxyPaths as $file) {
       }
       if (isPortOpen($proxy)) {
         echo trim($proxy) . PHP_EOL;
-        removeStringAndMoveToFile(__DIR__ . '/proxies-all.txt', $testPath, trim($proxy));
+        removeStringAndMoveToFile($file, $testPath, trim($proxy));
       }
     }
   }
