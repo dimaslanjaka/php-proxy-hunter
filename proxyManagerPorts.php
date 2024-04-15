@@ -64,7 +64,8 @@ $proxyPaths = [__DIR__ . '/proxies-all.txt', __DIR__ . '/dead.txt'];
 shuffle($proxyPaths);
 foreach ($proxyPaths as $file) {
   if (file_exists($file)) {
-    $proxies = readFileLinesToArray($file);
+    // extract IP:PORT
+    $proxies = extractIpPortFromFile($file);
     shuffle($proxies);
     foreach (array_unique(array_filter($proxies)) as $proxy) {
       if ((microtime(true) - $startTime) > $maxExecutionTime) {
