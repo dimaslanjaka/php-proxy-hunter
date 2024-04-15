@@ -25,7 +25,7 @@
   <div class="mb-3">status <span id="status"
       class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">IDLE</span> <a href="./proxyManager.php">[modify config]</a>
   </div>
-  <table class="table-fixed w-full">
+  <table class="table-fixed w-full mb-4">
     <thead>
       <tr>
         <th>Proxy</th>
@@ -39,6 +39,11 @@
     </thead>
     <tbody id="wproxy"></tbody>
   </table>
+
+  <div class="mb-2">
+    <b>Checker result</b>
+    <div id="cpresult" class="h-60 overflow-auto bg-white dark:bg-slate-800 dark:text-slate-400"></div>
+  </div>
 
   <div id="snackbar">Snackbar Message</div>
 
