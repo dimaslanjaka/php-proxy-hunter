@@ -1,5 +1,18 @@
 # php-proxy-hunter
+
 PHP proxy hunter
+
+![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/d24b8bbf-0fa0-4394-b9e7-78350bdda67d)
+
+![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/adb9aaaf-2151-44c0-aaf2-b19c1c536bc7)
+
+## Quickstart
+
+- create database files
+
+```bash
+touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-http.txt proxies-socks.txt proxyChecker.txt proxyFetcherSources.txt proxyRange.txt socks.txt socks-dead.txt socks-working.txt status.txt working.txt
+```
 
 ```txt
 ----------------------------------------------------------------------------
@@ -33,6 +46,3 @@ Website: https://www.webmanajemen.com
 Email: dimaslanjaka@gmail.com
 ```
 
-![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/d24b8bbf-0fa0-4394-b9e7-78350bdda67d)
-
-![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/adb9aaaf-2151-44c0-aaf2-b19c1c536bc7)
