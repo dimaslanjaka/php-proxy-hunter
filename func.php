@@ -343,12 +343,16 @@ function setConfig($user_id, $data)
 {
   $user_file = getUserFile($user_id);
   $defaults = getConfig($user_id);
+  // remove conflict data
+  unset($defaults['headers']);
   // Encode the data to JSON format
-  $newData = json_encode(mergeArrays($defaults, $data));
+  $nData = mergeArrays($defaults, $data);
+  $newData = json_encode($nData);
   // write data
   file_put_contents($user_file, $newData);
   // set permission
   setFilePermissions($user_file);
+  return $nData;
 }
 
 function getRandomItemFromArray($array)

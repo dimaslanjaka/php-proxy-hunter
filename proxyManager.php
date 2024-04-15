@@ -4,9 +4,8 @@ require_once __DIR__ . "/func.php";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   header('Content-Type: application/json; charset=utf-8');
   $input = json_decode(file_get_contents('php://input'), true);
-  // var_dump($input);
-  setConfig(getUserId(), $input['config']);
-  echo json_encode(['done' => true]);
+  $set = setConfig(getUserId(), $input['config']);
+  echo json_encode($set);
   exit;
 }
 
