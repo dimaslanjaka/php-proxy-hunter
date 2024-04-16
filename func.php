@@ -184,13 +184,15 @@ function rewriteIpPortFile($filename)
       // Open the file for writing (truncate existing content)
       $file = fopen($filename, "w");
 
-      // Write extracted IP:PORT combinations to the file
-      foreach (array_unique($ipPortList) as $ipPort) {
-        fwrite($file, $ipPort . "\n");
-      }
+      if (is_resource($file)) {
+        // Write extracted IP:PORT combinations to the file
+        foreach (array_unique($ipPortList) as $ipPort) {
+          fwrite($file, $ipPort . "\n");
+        }
 
-      // Close the file
-      fclose($file);
+        // Close the file
+        fclose($file);
+      }
     }
   }
 
