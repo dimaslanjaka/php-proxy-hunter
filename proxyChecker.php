@@ -130,7 +130,7 @@ setFilePermissions([$filePath, $workingPath, $deadPath]);
  */
 function shuffleChecks()
 {
-  global $filePath, $workingPath, $workingProxies, $deadPath, $startTime, $maxExecutionTime;
+  global $filePath, $workingPath, $workingProxies, $deadPath, $startTime, $maxExecutionTime, $isCli;
 
   // Read lines of the file into an array
   $lines = array_filter(file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
@@ -168,6 +168,11 @@ function shuffleChecks()
   // Iterate through the shuffled lines
   foreach (array_unique($lines) as $line) {
     if (checkProxyLine($line) == "break") break;
+    if (!$isCli && ob_get_level() > 0) {
+      // LIVE output buffering on web server
+      flush();
+      ob_flush();
+    }
   }
 
   // rewrite all working proxies
@@ -224,6 +229,13 @@ function checkProxyLine($line)
   $proxy = trim($line);
   list($ip, $port) = explode(':', $proxy);
   $geoUrl = "http://ip-get-geolocation.com/api/json/$ip";
+
+  if (!isPortOpen($proxy)) {
+    echo "$proxy port closed\n";
+    // remove dead proxy from check list
+    stripDeadProxy($proxy);
+    return "failed";
+  }
 
   if (strpos($checksFor, 'http') !== false) {
     if (checkProxy($proxy)) {
@@ -305,11 +317,6 @@ function checkProxyLine($line)
   }
 
   echo "$proxy not working\n";
-  if (!$isCli && ob_get_level() > 0) {
-    // LIVE output buffering on web server
-    flush();
-    ob_flush();
-  }
   // remove dead proxy from check list
   stripDeadProxy($proxy);
   return "failed";
