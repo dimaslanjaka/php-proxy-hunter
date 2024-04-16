@@ -136,7 +136,7 @@ function shuffleChecks()
   $lines = array_filter(file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
   if (empty($lines) || count($lines) < 10) {
     if (file_exists($deadPath)) {
-      echo "proxies empty, respawning dead proxies\n\n";
+      echo "proxies low, respawning dead proxies\n\n";
       // respawn dead proxies
       // rename($deadPath, $filePath);
       $file = __DIR__ . '/dead.txt';
