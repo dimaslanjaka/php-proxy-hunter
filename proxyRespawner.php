@@ -61,14 +61,14 @@ $startTime = microtime(true);
 
 $testPath = __DIR__ . '/proxies.txt';
 $proxyPaths = [__DIR__ . '/proxies-all.txt', __DIR__ . '/dead.txt'];
-shuffle($proxyPaths);
+// shuffle($proxyPaths);
 foreach ($proxyPaths as $file) {
   if (file_exists($file)) {
     // extract IP:PORT
     $proxies = extractIpPortFromFile($file);
     shuffle($proxies);
     foreach (array_unique(array_filter($proxies)) as $proxy) {
-      if ((microtime(true) - $startTime) > $maxExecutionTime) {
+      if ((microtime(true) - $startTime) > $maxExecutionTime && !$isCli) {
         echo "maximum execution time excedeed ($maxExecutionTime)\n";
         // Execution time exceeded, break out of the loop
         return "break";
