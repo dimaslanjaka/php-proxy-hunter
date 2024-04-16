@@ -133,8 +133,8 @@ function shuffleChecks()
   global $filePath, $workingPath, $workingProxies, $deadPath, $startTime, $maxExecutionTime;
 
   // Read lines of the file into an array
-  $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-  if (empty(array_filter($lines))) {
+  $lines = array_filter(file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
+  if (empty($lines) || count($lines) < 10) {
     if (file_exists($deadPath)) {
       echo "proxies empty, respawning dead proxies\n\n";
       // respawn dead proxies
