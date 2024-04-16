@@ -278,6 +278,32 @@ function checkProxyLine($line)
     }
   }
 
+  if (strpos($checksFor, 'socks4') !== false) {
+    $check = checkSocksProxy($proxy, 4);
+    if ($check !== false) {
+      echo "$proxy working type SOCKS4\n";
+      $latency = $check['latency'];
+      $item = "$proxy|$latency|SOCKS4";
+      // fetch ip info
+      $LocationArray = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks4'), true);
+      // Check if JSON decoding was successful
+      if ($LocationArray !== null && json_last_error() === JSON_ERROR_NONE) {
+        if (trim($LocationArray['status']) != 'fail') {
+          $item .= "|" . implode("|", [$LocationArray['region'], $LocationArray['city'], $LocationArray['country'], $LocationArray['timezone']]);
+        } else {
+          $cachefile = curlGetCache($geoUrl);
+          if (file_exists($cachefile)) unlink($cachefile);
+        }
+      }
+      if (!in_array($item, $socksWorkingProxies)) {
+        // If the item doesn't exist, push it into the array
+        $socksWorkingProxies[] = $item;
+      }
+      file_put_contents($socksWorkingPath, join("\n", $socksWorkingProxies));
+      return "success";
+    }
+  }
+
   echo "$proxy not working\n";
   if (!$isCli && ob_get_level() > 0) {
     // LIVE output buffering on web server
