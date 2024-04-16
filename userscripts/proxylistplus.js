@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         list.proxylistplus.com proxy parser
 // @namespace    dimaslanjaka:proxylistplus-parser-proxy
-// @version      1.0
+// @version      1.1
 // @description  parse proxy from site page
 // @author       dimaslanjaka
 // @match        *://list.proxylistplus.com/*
+// @match        *://www.proxynova.com/*
 // @noframes
 // @run-at document-end
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxylistplus.js
