@@ -18,3 +18,5 @@ tmp/
 *.txt
 *.lnk
 *.ink
+!proxyFetcherSources.txt
+!CIDR*.txt
