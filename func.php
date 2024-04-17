@@ -69,6 +69,7 @@ function setPermissions($filename)
 
 function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $stringToRemove)
 {
+  if (!is_writable($sourceFilePath) && !is_writable($destinationFilePath)) return false;
   // Read content from the source file
   $sourceContent = file_get_contents($sourceFilePath);
 
