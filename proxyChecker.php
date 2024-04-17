@@ -356,7 +356,7 @@ function checkSocksProxy(string $proxy, int $version = 5)
   $end_time = microtime(true);
 
   // Calculate latency
-  $latency = round($end_time - $start_time, 2);
+  $latency = round(($end_time - $start_time) * 1000);
 
   // Check if there was an error
   if (curl_errno($ch)) {
