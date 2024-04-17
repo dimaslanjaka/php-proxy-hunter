@@ -49,22 +49,27 @@ async function main() {
     checkerStatus();
   }, 3000);
 
-  document.getElementById('autoCheckProxy').addEventListener('change', (e) => {
-    clearInterval(icheck);
-    if (e.target.checked) {
-      const callback = () =>
-        checkerStatus().then((result) => {
-          if (!result) doCheck();
+  const autoCheck = document.getElementById('autoCheckProxy');
+  if (['dev.webmanajemen.com', 'localhost', '127.0.0.1'].some((str) => new RegExp(str).test(location.host))) {
+    autoCheck.addEventListener('change', (e) => {
+      clearInterval(icheck);
+      if (e.target.checked) {
+        const callback = () =>
+          checkerStatus().then((result) => {
+            if (!result) doCheck();
+          });
+        callback().then(() => {
+          icheck = setInterval(callback, 3000);
         });
-      callback().then(() => {
-        icheck = setInterval(callback, 3000);
-      });
-    } else {
-      icheck = setInterval(() => {
-        checkerStatus();
-      }, 3000);
-    }
-  });
+      } else {
+        icheck = setInterval(() => {
+          checkerStatus();
+        }, 3000);
+      }
+    });
+  } else {
+    autoCheck.parentElement.remove();
+  }
 
   checkerOutput();
   setInterval(() => {
