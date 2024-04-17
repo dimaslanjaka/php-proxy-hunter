@@ -95,7 +95,17 @@ async function checkerOutput() {
   const info = await fetch('./proxyChecker.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
     res.text()
   );
-  const filter = info.split(/\r?\n/).join('<br/>');
+  const filter = info
+    .split(/\r?\n/)
+    .map((str) => {
+      str = str.replace(/port closed/, '<span class="text-red-400">port closed</span>');
+      str = str.replace(/not working/, '<span class="text-red-600">not working</span>');
+      str = str.replace(/working type \w+ latency \w+ ms/, (whole) => {
+        return `<span class="text-green-400">${whole}</span>`;
+      });
+      return str;
+    })
+    .join('<br/>');
   const checkerResult = document.getElementById('cpresult');
   checkerResult.innerHTML = filter;
   // Check if content height exceeds div height
