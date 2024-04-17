@@ -100,8 +100,13 @@ async function checkerOutput() {
     .map((str) => {
       str = str.replace(/port closed/, '<span class="text-red-400">port closed</span>');
       str = str.replace(/not working/, '<span class="text-red-600">not working</span>');
-      str = str.replace(/working type \w+ latency \w+ ms/, (whole) => {
-        return `<span class="text-green-400">${whole}</span>`;
+      str = str.replace(/working type (\w+) latency (-?\d+) ms/, (whole, g1, g2) => {
+        whole = whole.replace(g1, `<b>${g1}</b>`).replace(g2, `<b>${g2}</b>`);
+        if (g2 != '-1') {
+          return `<span class="text-green-400">${whole}</span>`;
+        } else {
+          return `<span class="text-orange-400">${whole}</span>`;
+        }
       });
       return str;
     })
