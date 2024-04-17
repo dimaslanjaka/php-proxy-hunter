@@ -415,7 +415,7 @@ function getRandomItemFromArray($array)
  */
 function removeDuplicateLines($filePath)
 {
-  if (file_exists($filePath)) {
+  if (file_exists($filePath) && is_readable($filePath) && is_writable($filePath)) {
     // Read the file into an array, each line as an element
     $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
