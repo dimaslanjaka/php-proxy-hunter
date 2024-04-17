@@ -1,5 +1,12 @@
 <?php
 
+define('PHP_PROXY_HUNTER', '');
+require_once __DIR__ . '/vendor/autoload.php';
+
+use PhpProxyHunter\ProxyDB;
+
+$db = new ProxyDB();
+
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 // debug all errors
@@ -475,4 +482,39 @@ function isPortOpen($address)
     fclose($socket);
     return true; // Port is open
   }
+}
+
+/**
+ * Removes empty lines from a text file.
+ *
+ * @param string $filePath The path to the text file.
+ * @return void
+ */
+function removeEmptyLinesFromFile($filePath)
+{
+  // Check if the file exists and is readable
+  if (!file_exists($filePath) || !is_readable($filePath)) {
+    echo "Error: The file '$filePath' does not exist or cannot be read." . PHP_EOL;
+    return;
+  }
+
+  // Read the file into an array of lines
+  $lines = file($filePath);
+
+  // Check if the file can be written
+  if (!is_writable($filePath)) {
+    echo "Error: The file '$filePath' is not writable.";
+    return;
+  }
+
+  // Filter out empty lines
+  $lines = array_filter($lines, function ($line) {
+    // Remove leading and trailing whitespace from the line and check if it's empty
+    return trim($line) !== '';
+  });
+
+  // Rewrite the non-empty lines back to the file
+  file_put_contents($filePath, implode('', $lines));
+
+  echo "Empty lines removed successfully from $filePath.";
 }
