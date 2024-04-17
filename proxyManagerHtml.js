@@ -93,6 +93,7 @@ function doCheck() {
       });
 }
 
+let prevOutput = '';
 /**
  * get result of proxy checker
  */
@@ -100,6 +101,9 @@ async function checkerOutput() {
   const info = await fetch('./proxyChecker.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
     res.text()
   );
+  // skip update UI when output when remains same
+  if (prevOutput == info) return;
+  prevOutput = info;
   const filter = info
     .split(/\r?\n/)
     .map((str) => {
