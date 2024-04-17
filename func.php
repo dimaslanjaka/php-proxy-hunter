@@ -53,7 +53,7 @@ function setFilePermissions($filenames)
 function setPermissions($filename)
 {
   try {
-    if (file_exists($filename)) {
+    if (file_exists($filename) && is_readable($filename) && is_writable($filename)) {
       if (chmod($filename, 0777)) {
         // echo "File permissions set to 777 for $filename successfully.\n";
       } else {
@@ -160,7 +160,7 @@ function rewriteIpPortFile($filename)
 {
   $ipPortList = array();
 
-  if (file_exists($filename)) {
+  if (file_exists($filename) && is_readable($filename) && is_writable($filename)) {
     // Open the file for reading
     $file = fopen($filename, "r");
 
