@@ -1,0 +1,17 @@
+{
+    "name": "dimaslanjaka/php-proxy-hunter",
+    "description": "PHP Proxy Hunter",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "PhpProxyHunter\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "dimaslanjaka",
+            "email": "dimaslanjaka@gmail.com"
+        }
+    ]
+}

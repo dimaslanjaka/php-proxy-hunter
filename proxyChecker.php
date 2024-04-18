@@ -34,6 +34,10 @@
 
 require_once __DIR__ . "/func.php";
 
+use PhpProxyHunter\ProxyDB;
+
+$db = new ProxyDB();
+
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 if (!$isCli) {
@@ -130,7 +134,7 @@ setFilePermissions([$filePath, $workingPath, $deadPath]);
  */
 function shuffleChecks()
 {
-  global $filePath, $workingPath, $workingProxies, $deadPath, $startTime, $maxExecutionTime, $isCli;
+  global $filePath, $workingPath, $workingProxies, $deadPath, $startTime, $maxExecutionTime, $isCli, $socksWorkingPath, $db;
 
   // Read lines of the file into an array
   $lines = array_filter(file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
@@ -167,47 +171,18 @@ function shuffleChecks()
 
   // Iterate through the shuffled lines
   foreach (array_unique($lines) as $line) {
-    if (checkProxyLine($line) == "break") break;
     if (!$isCli && ob_get_level() > 0) {
       // LIVE output buffering on web server
       flush();
       ob_flush();
     }
+    if (checkProxyLine($line) == "break") break;
   }
 
   // rewrite all working proxies
-  if (count($workingProxies) > 1) file_put_contents($workingPath, join("\n", $workingProxies));
-}
-
-function stripDeadProxy(string $proxy)
-{
-  global $filePath, $deadPath;
-
-  $sourceFile = fopen($filePath, 'r') or die('Unable to open source file');
-  $destinationFile = fopen($deadPath, 'a') or die('Unable to open destination file');
-  $tempFile = fopen(__DIR__ . '/temp.txt', 'w') or die('Unable to open temporary file');
-
-  // Loop through each line in the source file
-  while (!feof($sourceFile)) {
-    $line = fgets($sourceFile);
-
-    // Check if the line matches the pattern
-    if (trim($line) == $proxy) {
-      // Write the matching line to the destination file on a new line
-      fwrite($destinationFile, $line);
-    } else {
-      // Write non-matching lines to the temporary file
-      fwrite($tempFile, $line);
-    }
+  if (count($workingProxies) > 1) {
+    file_put_contents($workingPath, join("\n", $workingProxies));
   }
-
-  // Close the files
-  fclose($sourceFile);
-  fclose($destinationFile);
-  fclose($tempFile);
-
-  // Replace the source file with the temporary file
-  rename(__DIR__ . '/temp.txt', $filePath);
 }
 
 /**
@@ -219,7 +194,7 @@ function stripDeadProxy(string $proxy)
  */
 function checkProxyLine($line)
 {
-  global $startTime, $maxExecutionTime, $workingPath, $workingProxies, $isCli, $checksFor, $socksWorkingPath, $socksWorkingProxies;
+  global $startTime, $maxExecutionTime, $workingProxies, $checksFor, $socksWorkingProxies, $db, $filePath, $deadPath;
   // Check if the elapsed time exceeds the limit
   if ((microtime(true) - $startTime) > $maxExecutionTime) {
     echo "maximum execution time excedeed ($maxExecutionTime)\n";
@@ -232,23 +207,26 @@ function checkProxyLine($line)
 
   if (!isPortOpen($proxy)) {
     echo "$proxy port closed\n";
-    // remove dead proxy from check list
-    stripDeadProxy($proxy);
+    $db->updateStatus($proxy, 'port-closed');
+    removeStringAndMoveToFile($filePath, $deadPath, trim($proxy));
     return "failed";
   }
 
   if (strpos($checksFor, 'http') !== false) {
-    if (checkProxy($proxy)) {
+    $check = checkProxy($proxy, 'http');
+    if ($check['result'] !== false) {
       echo "$proxy working type HTTP";
-      $latency = checkProxyLatency($proxy);
+      $latency = $check['latency'];
+      $db->update($proxy, 'http', null, null, null, 'active', $latency);
       echo " latency $latency ms\n";
       $item = "$proxy|$latency|HTTP";
       // fetch ip info
-      $LocationArray = json_decode(curlGetWithProxy($geoUrl, $proxy, 'http'), true);
+      $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, 'http'), true);
       // Check if JSON decoding was successful
-      if ($LocationArray !== null && json_last_error() === JSON_ERROR_NONE) {
-        if (trim($LocationArray['status']) != 'fail') {
-          $item .= "|" . implode("|", [$LocationArray['region'], $LocationArray['city'], $LocationArray['country'], $LocationArray['timezone']]);
+      if ($geoIp !== null && json_last_error() === JSON_ERROR_NONE) {
+        if (trim($geoIp['status']) != 'fail') {
+          $item .= "|" . implode("|", [$geoIp['region'], $geoIp['city'], $geoIp['country'], $geoIp['timezone']]);
+          $db->update($proxy, null, $geoIp['region'], $geoIp['city'], $geoIp['country'], null, null, $geoIp['timezone']);
         } else {
           $cachefile = curlGetCache($geoUrl);
           if (file_exists($cachefile)) unlink($cachefile);
@@ -258,24 +236,24 @@ function checkProxyLine($line)
         // If the item doesn't exist, push it into the array
         $workingProxies[] = $item;
       }
-      // write working proxy
-      file_put_contents($workingPath, join("\n", $workingProxies));
       return "success";
     }
   }
 
   if (strpos($checksFor, 'socks5') !== false) {
-    $check = checkSocksProxy($proxy, 5);
-    if ($check !== false) {
+    $check = checkProxy($proxy, 'socks5');
+    if ($check['result'] !== false) {
       echo "$proxy working type SOCKS5\n";
       $latency = $check['latency'];
+      $db->update($proxy, 'socks5', null, null, null, 'active', $latency);
       $item = "$proxy|$latency|SOCKS5";
       // fetch ip info
-      $LocationArray = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks5'), true);
+      $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks5'), true);
       // Check if JSON decoding was successful
-      if ($LocationArray !== null && json_last_error() === JSON_ERROR_NONE) {
-        if (trim($LocationArray['status']) != 'fail') {
-          $item .= "|" . implode("|", [$LocationArray['region'], $LocationArray['city'], $LocationArray['country'], $LocationArray['timezone']]);
+      if ($geoIp !== null && json_last_error() === JSON_ERROR_NONE) {
+        if (trim($geoIp['status']) != 'fail') {
+          $item .= "|" . implode("|", [$geoIp['region'], $geoIp['city'], $geoIp['country'], $geoIp['timezone']]);
+          $db->update($proxy, null, $geoIp['region'], $geoIp['city'], $geoIp['country'], null, null, $geoIp['timezone']);
         } else {
           $cachefile = curlGetCache($geoUrl);
           if (file_exists($cachefile)) unlink($cachefile);
@@ -285,23 +263,24 @@ function checkProxyLine($line)
         // If the item doesn't exist, push it into the array
         $socksWorkingProxies[] = $item;
       }
-      file_put_contents($socksWorkingPath, join("\n", $socksWorkingProxies));
       return "success";
     }
   }
 
   if (strpos($checksFor, 'socks4') !== false) {
-    $check = checkSocksProxy($proxy, 4);
-    if ($check !== false) {
+    $check = checkProxy($proxy, 'socks4');
+    if ($check['result'] !== false) {
       echo "$proxy working type SOCKS4\n";
       $latency = $check['latency'];
+      $db->update($proxy, 'socks4', null, null, null, 'active', $latency);
       $item = "$proxy|$latency|SOCKS4";
       // fetch ip info
-      $LocationArray = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks4'), true);
+      $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks4'), true);
       // Check if JSON decoding was successful
-      if ($LocationArray !== null && json_last_error() === JSON_ERROR_NONE) {
-        if (trim($LocationArray['status']) != 'fail') {
-          $item .= "|" . implode("|", [$LocationArray['region'], $LocationArray['city'], $LocationArray['country'], $LocationArray['timezone']]);
+      if ($geoIp !== null && json_last_error() === JSON_ERROR_NONE) {
+        if (trim($geoIp['status']) != 'fail') {
+          $item .= "|" . implode("|", [$geoIp['region'], $geoIp['city'], $geoIp['country'], $geoIp['timezone']]);
+          $db->update($proxy, null, $geoIp['region'], $geoIp['city'], $geoIp['country'], null, null, $geoIp['timezone']);
         } else {
           $cachefile = curlGetCache($geoUrl);
           if (file_exists($cachefile)) unlink($cachefile);
@@ -311,82 +290,45 @@ function checkProxyLine($line)
         // If the item doesn't exist, push it into the array
         $socksWorkingProxies[] = $item;
       }
-      file_put_contents($socksWorkingPath, join("\n", $socksWorkingProxies));
       return "success";
     }
   }
 
   echo "$proxy not working\n";
   // remove dead proxy from check list
-  stripDeadProxy($proxy);
+  $db->update($proxy, null, null, null, null, 'dead');
+  removeStringAndMoveToFile($filePath, $deadPath, trim($proxy));
   return "failed";
 }
 
 /**
- * Function to check the connectivity of a SOCKS proxy by attempting to connect to a specified endpoint.
+ * Check proxy connectivity.
  *
- * @param string $proxy The SOCKS proxy in the format IP:PORT.
- * @param int $version The version of SOCKS protocol (4 or 5). Default is 5.
- * @return array|false An array containing latency and result if successful, false otherwise.
+ * This function tests the connectivity of a given proxy by making a request to a specified endpoint.
+ *
+ * @param string $proxy The proxy address to test.
+ * @param string $type  (Optional) The type of proxy to use. Supported values: 'http', 'socks4', 'socks5', 'socks4a'.
+ *                      Defaults to 'http' if not specified.
+ * @return array An associative array containing the result of the proxy check:
+ *               - 'result': Boolean indicating if the proxy check was successful.
+ *               - 'latency': The latency (in milliseconds) of the proxy connection. If the connection failed, -1 is returned.
+ *               - 'error': Error message if an error occurred during the connection attempt, null otherwise.
+ *               - 'status': HTTP status code of the response.
  */
-function checkSocksProxy(string $proxy, int $version = 5)
+function checkProxy($proxy, $type = 'http')
 {
   global $endpoint, $headers;
-
-  // Adjust timeout as needed
-  $timeout = 10;
-
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $endpoint);
-  curl_setopt($ch, CURLOPT_PROXY, $proxy);
-  curl_setopt($ch, CURLOPT_PROXYTYPE, $version == 4 ? CURLPROXY_SOCKS4 : CURLPROXY_SOCKS5);
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-  curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // handles compressed response
-
-  // Start timing
-  $start_time = microtime(true);
-
-  // Execute the request
-  $result = curl_exec($ch);
-
-  // Stop timing
-  $end_time = microtime(true);
-
-  // Calculate latency
-  $latency = round(($end_time - $start_time) * 1000);
-
-  // Check if there was an error
-  if (curl_errno($ch)) {
-    // Error occurred during curl execution
-    curl_close($ch);
-    return false;
-  }
-
-  // Check HTTP status code
-  $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  // Determine if the proxy is working based on HTTP status code
-  $result = ($http_code >= 200 && $http_code < 300);
-
-  return ['latency' => $latency, 'result' => $result];
-}
-
-/**
- * check http proxy latency
- */
-function checkProxyLatency($proxy)
-{
-  global $endpoint;
-  $start = microtime(true); // Start time
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint); // URL to test connectivity
   curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
-  curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); // Specify proxy type, adjust accordingly
+
+  // Determine the CURL proxy type based on the specified $type
+  $ptype = CURLPROXY_HTTP;
+  if (strtolower($type) == 'socks5') $ptype = CURLPROXY_SOCKS5;
+  if (strtolower($type) == 'socks4') $ptype = CURLPROXY_SOCKS4;
+  if (strtolower($type) == 'socks4a') $ptype = CURLPROXY_SOCKS4A;
+  curl_setopt($ch, CURLOPT_PROXYTYPE, $ptype); // Specify proxy type
 
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Set maximum connection time
   curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Set maximum response time
@@ -394,52 +336,64 @@ function checkProxyLatency($proxy)
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HEADER, true);
 
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+  curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // Handle compressed response
+
+  $start = microtime(true); // Start time
   $response = curl_exec($ch);
-  $info = curl_getinfo($ch);
-
-  curl_close($ch);
-
   $end = microtime(true); // End time
 
-  if ($response === false || $info['http_code'] != 200) {
-    return -1; // Proxy not working or unable to connect
+  $info = curl_getinfo($ch);
+  $latency = -1;
+
+  // Check for CURL errors or empty response
+  if (curl_errno($ch) || $response === false) {
+    $error_msg = curl_error($ch);
+    return [
+      'result' => false,
+      'latency' => $latency,
+      'error' => $error_msg,
+      'status' => $info['http_code']
+    ];
   }
+
+  curl_close($ch);
 
   $latency = round(($end - $start) * 1000); // Convert to milliseconds
 
-  return $latency; // Latency in milliseconds
+  return [
+    'result' => true,
+    'latency' => $latency,
+    'error' => null,
+    'status' => $info['http_code']
+  ];
 }
 
-/**
- * check http proxy
- */
-function checkProxy($proxy)
+function isPrivateProxy(string $proxy)
 {
-  global $endpoint, $headers;
   $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $endpoint); // URL to test connectivity
-  curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
-  curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); // Specify proxy type, adjust accordingly
+  $url = "http://www.example.com"; // Replace with any URL you want to test
 
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Set maximum connection time
-  curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Set maximum response time
-
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_PROXY, $proxy);
+  curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HEADER, true);
-
-  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-  curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // handles compressed response
+  curl_setopt($ch, CURLOPT_NOBODY, true);
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
   $response = curl_exec($ch);
-  $info = curl_getinfo($ch);
-
+  $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+  $headers = substr($response, 0, $header_size);
   curl_close($ch);
 
-  if ($response === false || $info['http_code'] != 200) {
-    return false; // Proxy not working or unable to connect
+  // Check for private proxy headers
+  if (stripos($headers, 'X-Forwarded-For:') !== false || stripos($headers, 'Proxy-Authorization:') !== false) {
+    return true; // Private proxy detected
+  } else {
+    return false; // Not a private proxy
   }
-
-  return true; // Proxy working
 }
 
 /// FUNCTIONS ENDS

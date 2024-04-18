@@ -14,10 +14,12 @@ $proxies = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 shuffle($proxies);
 // $openPortsOnly = array_filter($proxies, 'isPortOpen');
 // file_put_contents(__DIR__ . '/tmp/test.txt', join(PHP_EOL, $openPortsOnly));
-foreach (array_unique($proxies) as $proxy) {
+foreach (array_unique(array_filter($proxies, function ($value) {
+  return !is_null($value) && $value !== '';
+})) as $proxy) {
   if (!isPortOpen($proxy)) {
     removeStringAndMoveToFile($file, __DIR__ . '/dead.txt', trim($proxy));
-    $db->update(trim($proxy), null, null, null, null, 'port-closed');
+    $db->updateStatus(trim($proxy), 'port-closed');
     echo trim($proxy) . " port closed" . PHP_EOL;
   }
 }
