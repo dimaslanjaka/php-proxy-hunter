@@ -77,8 +77,11 @@ function setPermissions($filename)
 function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $stringToRemove)
 {
   if (!is_writable($sourceFilePath) && !is_writable($destinationFilePath)) return false;
+
   // Read content from the source file
   $sourceContent = file_get_contents($sourceFilePath);
+
+  if (strpos($sourceContent, $stringToRemove) === false) return false;
 
   // Remove the desired string
   $modifiedContent = str_replace($stringToRemove, '', $sourceContent);
@@ -494,7 +497,7 @@ function removeEmptyLinesFromFile($filePath)
 {
   // Check if the file exists and is readable
   if (!file_exists($filePath) || !is_readable($filePath)) {
-    echo "Error: The file '$filePath' does not exist or cannot be read." . PHP_EOL;
+    // echo "Error: The file '$filePath' does not exist or cannot be read." . PHP_EOL;
     return;
   }
 
@@ -503,7 +506,7 @@ function removeEmptyLinesFromFile($filePath)
 
   // Check if the file can be written
   if (!is_writable($filePath)) {
-    echo "Error: The file '$filePath' is not writable.";
+    // echo "Error: The file '$filePath' is not writable.";
     return;
   }
 
@@ -516,5 +519,5 @@ function removeEmptyLinesFromFile($filePath)
   // Rewrite the non-empty lines back to the file
   file_put_contents($filePath, implode('', $lines));
 
-  echo "Empty lines removed successfully from $filePath.";
+  // echo "Empty lines removed successfully from $filePath.";
 }
