@@ -14,6 +14,8 @@ PHP proxy hunter
 touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-http.txt proxies-socks.txt proxyChecker.txt proxyFetcherSources.txt proxyRange.txt socks.txt socks-dead.txt socks-working.txt status.txt working.txt
 ```
 
+- use **WinRAR** to extract **sqlite** database chunks in **src** folder into single **database.sqlite** file
+
 ```txt
 ----------------------------------------------------------------------------
 LICENSE
