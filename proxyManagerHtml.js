@@ -208,15 +208,23 @@ async function checkerStatus() {
     });
 }
 
+let refreshResult;
 async function fetchWorkingProxies() {
   const date = new Date();
+  if (!refreshResult) {
+    refreshResult = true;
+    fetch('./proxyWorking.php')
+      .catch(() => {
+        //
+      })
+      .finally(() => {
+        refreshResult = false;
+      });
+  }
   const http = await fetch('./working.txt?v=' + date, { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .catch(() => '');
-  const socks = await fetch('./socks-working.txt?v=' + date, { signal: AbortSignal.timeout(5000) })
-    .then((res) => res.text())
-    .catch(() => '');
-  const proxies = (http + '\n' + socks)
+  const proxies = http
     .split(/\r?\n/)
     .map((str) => str.trim())
     .filter((str) => str.length > 0);
