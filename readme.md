@@ -22,9 +22,10 @@ touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-ht
 
 ## Troubleshoot
 
-missing php extension
+<!-- missing php extension -->
 
 - To run webserver for nginx needs **php-fpm** install using `sudo apt install php-fpm -y`
+- To disable git indexing when changing permission files using **chmod** run `git config core.fileMode false`
 
 ### Restart php
 
