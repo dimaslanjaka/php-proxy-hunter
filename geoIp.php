@@ -49,7 +49,7 @@ $geoplugin->locate($ip);
 $json = $geoplugin->jsonSerialize();
 unset($json['host']);
 echo json_encode($json);
-$db->update($proxy, null, $geoplugin->region, $geoplugin->city, $geoplugin->countryName);
+$db->update($proxy, null, $geoplugin->region, $geoplugin->city, $geoplugin->countryName, null, null, $geoplugin->timezone);
 
 // echo "Geolocation results for {$geoplugin->ip}\n" .
 //   "City: {$geoplugin->city} \n" .
