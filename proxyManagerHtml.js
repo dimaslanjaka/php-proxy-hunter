@@ -201,67 +201,71 @@ async function checkerStatus() {
     });
 }
 
+let workingProxiesTxt;
 async function fetchWorkingProxies() {
   const date = new Date();
   // fetch update in background
   fetch('./proxyWorking.php', { signal: AbortSignal.timeout(5000) }).catch(() => {
     //
   });
-  const http = await fetch('./working.txt?v=' + date, { signal: AbortSignal.timeout(5000) })
+  let testWorkingProxiesTxt = await fetch('./working.txt?v=' + date, { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .catch(() => '');
-  const proxies = http
-    .split(/\r?\n/)
-    .map((str) => str.trim())
-    .filter((str) => str.length > 0);
-  const tbody = document.getElementById('wproxy');
-  tbody.innerHTML = '';
-  proxies.forEach((str) => {
-    const tr = document.createElement('tr');
-    const split = str.split('|');
-    if (split.length < 7) {
-      const remainingLength = 7 - split.length;
-      for (let i = 0; i < remainingLength; i++) {
-        split.push('undefined');
-      }
-    }
-    split.forEach((info, i) => {
-      const td = document.createElement('td');
-      td.setAttribute(
-        'class',
-        'border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400'
-      );
-      td.innerText = info;
-      if (i == 0) {
-        td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}"><i class="fa-duotone fa-copy"></i></button>`;
-      } else if (i == 7 && info.length > 6) {
-        // last check date
-        td.innerText = timeAgo(info);
-      } else {
-        td.classList.add('text-center');
-      }
-
-      if (i == 5 || i == 6) {
-        if (info.trim() == '-') {
-          console.log(split[0], 'missing geo location');
-          fetch('./geoIp.php?proxy=' + split[0], { signal: AbortSignal.timeout(5000) }).catch(() => {
-            //
-          });
+  if (!workingProxiesTxt || workingProxiesTxt != testWorkingProxiesTxt) {
+    workingProxiesTxt = testWorkingProxiesTxt;
+    const proxies = workingProxiesTxt
+      .split(/\r?\n/)
+      .map((str) => str.trim())
+      .filter((str) => str.length > 0);
+    const tbody = document.getElementById('wproxy');
+    tbody.innerHTML = '';
+    proxies.forEach((str) => {
+      const tr = document.createElement('tr');
+      const split = str.split('|');
+      if (split.length < 7) {
+        const remainingLength = 7 - split.length;
+        for (let i = 0; i < remainingLength; i++) {
+          split.push('undefined');
         }
       }
+      split.forEach((info, i) => {
+        const td = document.createElement('td');
+        td.setAttribute(
+          'class',
+          'border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400'
+        );
+        td.innerText = info;
+        if (i == 0) {
+          td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}"><i class="fa-duotone fa-copy"></i></button>`;
+        } else if (i == 7 && info.length > 6) {
+          // last check date
+          td.innerText = timeAgo(info);
+        } else {
+          td.classList.add('text-center');
+        }
 
-      tr.appendChild(td);
+        if (i == 5 || i == 6) {
+          if (info.trim() == '-') {
+            console.log(split[0], 'missing geo location');
+            fetch('./geoIp.php?proxy=' + split[0], { signal: AbortSignal.timeout(5000) }).catch(() => {
+              //
+            });
+          }
+        }
+
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
     });
-    tbody.appendChild(tr);
-  });
-  document.querySelectorAll('.pcopy').forEach((el) => {
-    if (el.hasAttribute('aria-copy')) return;
-    el.addEventListener('click', () => {
-      copyToClipboard(el.getAttribute('data').trim());
-      showSnackbar('proxy copied');
+    document.querySelectorAll('.pcopy').forEach((el) => {
+      if (el.hasAttribute('aria-copy')) return;
+      el.addEventListener('click', () => {
+        copyToClipboard(el.getAttribute('data').trim());
+        showSnackbar('proxy copied');
+      });
+      el.setAttribute('aria-copy', el.getAttribute('data'));
     });
-    el.setAttribute('aria-copy', el.getAttribute('data'));
-  });
+  }
 }
 
 function timeAgo(dateString) {
