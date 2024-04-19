@@ -21,3 +21,4 @@ tmp/
 !proxyFetcherSources.txt
 !CIDR*.txt
 /vendor/
+/status.json
