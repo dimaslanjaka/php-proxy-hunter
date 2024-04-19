@@ -205,12 +205,12 @@ function checkProxyLine($line)
   list($ip, $port) = explode(':', $proxy);
   $geoUrl = "http://ip-get-geolocation.com/api/json/$ip";
 
-  if (!isPortOpen($proxy)) {
-    echo "$proxy port closed\n";
-    $db->updateStatus($proxy, 'port-closed');
-    removeStringAndMoveToFile($filePath, $deadPath, trim($proxy));
-    return "failed";
-  }
+  // if (!isPortOpen($proxy)) {
+  //   echo "$proxy port closed\n";
+  //   $db->updateStatus($proxy, 'port-closed');
+  //   removeStringAndMoveToFile($filePath, $deadPath, trim($proxy));
+  //   return "failed";
+  // }
 
   if (strpos($checksFor, 'http') !== false) {
     $check = checkProxy($proxy, 'http');
