@@ -241,6 +241,15 @@ async function fetchWorkingProxies() {
         td.classList.add('text-center');
       }
 
+      if (i == 5 || i == 6) {
+        if (info.trim() == '-') {
+          console.log(split[0], 'missing geo location');
+          fetch('./geoIp.php?proxy=' + split[0], { signal: AbortSignal.timeout(5000) }).catch(() => {
+            //
+          });
+        }
+      }
+
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
