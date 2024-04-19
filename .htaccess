@@ -39,3 +39,9 @@
     Deny from all
     Allow from 127.0.0.1
 </FilesMatch>
+
+# Disallow .git access
+<Directorymatch "^/.*/\.git/">
+  Order 'deny,allow'
+  Deny from all
+</Directorymatch>
