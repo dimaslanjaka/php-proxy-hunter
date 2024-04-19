@@ -7,9 +7,9 @@ if (!defined('PHP_PROXY_HUNTER')) exit('access denied');
 class ProxyDB
 {
   private $db;
-  public function __construct()
+  public function __construct($dbLocation = __DIR__ . '/database.sqlite')
   {
-    $this->db = new SQLiteHelper(__DIR__ . '/database.sqlite');
+    $this->db = new SQLiteHelper($dbLocation);
   }
 
   public function select(string $proxy)
