@@ -201,19 +201,12 @@ async function checkerStatus() {
     });
 }
 
-let refreshResult;
 async function fetchWorkingProxies() {
   const date = new Date();
-  if (!refreshResult) {
-    refreshResult = true;
-    fetch('./proxyWorking.php')
-      .catch(() => {
-        //
-      })
-      .finally(() => {
-        refreshResult = false;
-      });
-  }
+  // fetch update in background
+  fetch('./proxyWorking.php', { signal: AbortSignal.timeout(5000) }).catch(() => {
+    //
+  });
   const http = await fetch('./working.txt?v=' + date, { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .catch(() => '');
