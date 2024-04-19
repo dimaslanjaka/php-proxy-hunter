@@ -130,21 +130,13 @@ async function checkerOutput() {
   }
 
   const wrapper = document.querySelector('#countProxy');
-  const proxies = await fetch('./proxies.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
-    res.text()
-  );
-  wrapper.querySelector('#untested').innerText = proxies
-    .split(/\r?\n/)
-    .filter((str) => str.trim().length > 0)
-    .length.toLocaleString();
-
-  const dead = await fetch('./dead.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
-    res.text()
-  );
-  wrapper.querySelector('#dead').innerText = dead
-    .split(/\r?\n/)
-    .filter((str) => str.trim().length > 0)
-    .length.toLocaleString();
+  const statusJson = await fetch('./status.json?v=' + new Date(), { signal: AbortSignal.timeout(5000) })
+    .then((res) => res.json())
+    .catch(() => {
+      return {};
+    });
+  if (statusJson.working) wrapper.querySelector('#untested').innerText = parseInt(statusJson.working).toLocaleString();
+  if (statusJson.dead) wrapper.querySelector('#dead').innerText = parseInt(statusJson.dead).toLocaleString();
 }
 
 fetch('./info.php?v=' + new Date(), { signal: AbortSignal.timeout(5000) });
