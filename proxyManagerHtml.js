@@ -234,9 +234,13 @@ async function fetchWorkingProxies() {
       td.innerText = info;
       if (i == 0) {
         td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}"><i class="fa-duotone fa-copy"></i></button>`;
+      } else if (i == 7 && info.length > 6) {
+        // last check date
+        td.innerText = timeAgo(info);
       } else {
         td.classList.add('text-center');
       }
+
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
@@ -249,6 +253,40 @@ async function fetchWorkingProxies() {
     });
     el.setAttribute('aria-copy', el.getAttribute('data'));
   });
+}
+
+function timeAgo(dateString) {
+  // Convert the provided date string to a Date object
+  const date = new Date(dateString);
+
+  // Get the current time
+  const now = new Date();
+
+  // Calculate the time difference in milliseconds
+  const difference = now - date;
+
+  // Convert milliseconds to seconds, minutes, hours, and days
+  const seconds = Math.floor(difference / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  // Calculate remaining hours, minutes, and seconds
+  const remainingHours = hours % 24;
+  const remainingMinutes = minutes % 60;
+  const remainingSeconds = seconds % 60;
+
+  // Construct the ago time string
+  let agoTime = '';
+  if (days > 0) agoTime += days + ' day' + (days === 1 ? '' : 's') + ' ';
+  if (remainingHours > 0) agoTime += remainingHours + ' hour' + (remainingHours === 1 ? '' : 's') + ' ';
+  if (remainingMinutes > 0) agoTime += remainingMinutes + ' minute' + (remainingMinutes === 1 ? '' : 's') + ' ';
+  if (remainingSeconds > 0) agoTime += remainingSeconds + ' second' + (remainingSeconds === 1 ? '' : 's') + ' ';
+
+  // Append "ago" to the ago time string
+  agoTime += 'ago';
+
+  return agoTime;
 }
 
 function showSnackbar(message) {
