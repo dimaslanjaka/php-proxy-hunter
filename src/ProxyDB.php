@@ -60,4 +60,16 @@ class ProxyDB
     if (!$result) return [];
     return $result;
   }
+
+  /**
+   * get dead proxies including closed port
+   */
+  public function getDeadProxies()
+  {
+    $result = $this->db->select('proxies', '*', 'status = ?', ['dead']);
+    $result2 = $this->db->select('proxies', '*', 'status = ?', ['port-closed']);
+    if (!is_array($result)) $result = [];
+    if (!is_array($result2)) $result2 = [];
+    return array_merge($result, $result2);
+  }
 }
