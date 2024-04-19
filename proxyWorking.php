@@ -29,6 +29,14 @@ $impl = implode(PHP_EOL, array_map(function ($item) {
 $header = 'PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE|LAST CHECK DATE';
 // echo implode(PHP_EOL, [$header, $impl]);
 
+// Explode the input into an array of lines
+$lines = explode("\n", $impl);
+
+// Sort the lines alphabetically
+sort($lines);
+
+$impl = join("\n", $lines);
+
 file_put_contents($workingHttp, $impl);
 // rewrite working proxies to be checked again later
 file_put_contents(__DIR__ . '/proxies.txt', PHP_EOL . $impl . PHP_EOL, FILE_APPEND);
