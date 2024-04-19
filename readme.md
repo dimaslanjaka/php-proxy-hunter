@@ -20,6 +20,19 @@ touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-ht
 
 - use **WinRAR** to extract **sqlite** database chunks in **src** folder into single **database.sqlite** file
 
+## Troubleshoot
+
+missing php extension
+
+- To run webserver for nginx needs **php-fpm** install using `sudo apt install php-fpm -y`
+
+### Restart php
+
+```sh
+systemctl restart php7.2-fpm
+systemctl restart nginx
+```
+
 ```txt
 ----------------------------------------------------------------------------
 LICENSE
