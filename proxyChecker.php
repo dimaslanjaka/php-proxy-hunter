@@ -212,6 +212,8 @@ function checkProxyLine($line)
   //   return "failed";
   // }
 
+  $success = false;
+
   if (strpos($checksFor, 'http') !== false) {
     $check = checkProxy($proxy, 'http');
     if ($check['result'] !== false) {
@@ -236,7 +238,8 @@ function checkProxyLine($line)
         // If the item doesn't exist, push it into the array
         $workingProxies[] = $item;
       }
-      return "success";
+      // return "success";
+      $success = true;
     }
   }
 
@@ -263,7 +266,8 @@ function checkProxyLine($line)
         // If the item doesn't exist, push it into the array
         $socksWorkingProxies[] = $item;
       }
-      return "success";
+      // return "success";
+      $success = true;
     }
   }
 
@@ -290,9 +294,12 @@ function checkProxyLine($line)
         // If the item doesn't exist, push it into the array
         $socksWorkingProxies[] = $item;
       }
-      return "success";
+      // return "success";
+      $success = true;
     }
   }
+
+  if ($success) return "success";
 
   echo "$proxy not working\n";
   // remove dead proxy from check list
