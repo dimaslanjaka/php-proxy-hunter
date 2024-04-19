@@ -5,9 +5,21 @@ require_once __DIR__ . '/func.php';
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\geoPlugin;
 
-header('Content-Type: application/json; charset=UTF-8');
+if (function_exists('header')) header('Content-Type: application/json; charset=UTF-8');
 
-// echo var_export(unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $_SERVER['REMOTE_ADDR'])));
+$lockFilePath = __DIR__ . "/proxyChecker.lock";
+
+if (file_exists($lockFilePath)) {
+  exit(json_encode(['error' => 'another process still running']));
+} else {
+  file_put_contents($lockFilePath, '');
+}
+function exitProcess()
+{
+  global $lockFilePath, $statusFile;
+  if (file_exists($lockFilePath)) unlink($lockFilePath);
+}
+register_shutdown_function('exitProcess');
 
 $geoplugin = new geoPlugin();
 $db = new ProxyDB();
