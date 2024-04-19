@@ -6,6 +6,10 @@ PHP proxy hunter
 ![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/1e52d0f8-6417-41c3-bb75-86009726df7d)
 ![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/adb9aaaf-2151-44c0-aaf2-b19c1c536bc7)
 
+## Requirements
+
+- pdo_sqlite `sudo apt install php7.2-sqlite3`
+
 ## Quickstart
 
 - create database files
