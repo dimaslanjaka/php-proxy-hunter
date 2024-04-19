@@ -135,7 +135,8 @@ async function checkerOutput() {
     .catch(() => {
       return {};
     });
-  if (statusJson.working) wrapper.querySelector('#untested').innerText = parseInt(statusJson.working).toLocaleString();
+  if (statusJson.untested)
+    wrapper.querySelector('#untested').innerText = parseInt(statusJson.untested).toLocaleString();
   if (statusJson.dead) wrapper.querySelector('#dead').innerText = parseInt(statusJson.dead).toLocaleString();
 }
 
