@@ -212,7 +212,7 @@ function checkProxyLine($line)
   //   return "failed";
   // }
 
-  $success = false;
+  $successType = [];
 
   if (strpos($checksFor, 'http') !== false) {
     $check = checkProxy($proxy, 'http');
@@ -239,7 +239,7 @@ function checkProxyLine($line)
         $workingProxies[] = $item;
       }
       // return "success";
-      $success = true;
+      $successType[] = 'http';
     }
   }
 
@@ -267,7 +267,7 @@ function checkProxyLine($line)
         $socksWorkingProxies[] = $item;
       }
       // return "success";
-      $success = true;
+      $successType[] = 'socks5';
     }
   }
 
@@ -295,11 +295,14 @@ function checkProxyLine($line)
         $socksWorkingProxies[] = $item;
       }
       // return "success";
-      $success = true;
+      $successType[] = 'socks4';
     }
   }
 
-  if ($success) return "success";
+  if (!empty($successType)) {
+    $db->update($proxy, implode('-', $successType));
+    return "success";
+  }
 
   echo "$proxy not working\n";
   // remove dead proxy from check list
