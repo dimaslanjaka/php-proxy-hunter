@@ -9,7 +9,7 @@ use PhpProxyHunter\ProxyDB;
 header('Content-Type:text/plain; charset=UTF-8');
 
 $workingHttp = __DIR__ . '/working.txt';
-$workingSocks = __DIR__ . '/socks-working.txt';
+// $workingSocks = __DIR__ . '/socks-working.txt';
 
 if (file_exists(__DIR__ . '/proxyChecker.lock')) {
   exit('another process still running');
