@@ -413,6 +413,16 @@ function setConfig($user_id, $data)
   return $nData;
 }
 
+function generateRandomString($length = 10)
+{
+  $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  $randomString = '';
+  for ($i = 0; $i < $length; $i++) {
+    $randomString .= $characters[rand(0, strlen($characters) - 1)];
+  }
+  return $randomString;
+}
+
 function getRandomItemFromArray($array)
 {
   // Get a random key from the array
@@ -558,4 +568,64 @@ function moveContent($sourceFile, $destinationFile)
   } else {
     return false; // Indicate failure
   }
+}
+
+/**
+ * Moves the specified number of lines from one text file to another in append mode
+ * and removes them from the source file.
+ *
+ * @param string $sourceFile      Path to the source file.
+ * @param string $destinationFile Path to the destination file.
+ * @param int    $linesToMove     Number of lines to move.
+ *
+ * @return bool True if lines are moved and removed successfully, false otherwise.
+ */
+function moveLinesToFile(string $sourceFile, string $destinationFile, int $linesToMove): bool
+{
+  // Open the source file for reading and writing
+  $sourceHandle = fopen($sourceFile, 'r+');
+  if (!$sourceHandle) {
+    return false;
+  }
+
+  // Lock the source file
+  flock($sourceHandle, LOCK_EX);
+
+  // Open or create the destination file for appending
+  $destinationHandle = fopen($destinationFile, 'a');
+  if (!$destinationHandle) {
+    flock($sourceHandle, LOCK_UN);
+    fclose($sourceHandle);
+    return false;
+  }
+
+  // write new line
+  fwrite($destinationHandle, PHP_EOL);
+
+  // Read and write the specified number of lines
+  for ($i = 0; $i < $linesToMove; $i++) {
+    // Read a line from the source file
+    $line = fgets($sourceHandle);
+    if ($line === false) {
+      // End of file reached
+      break;
+    }
+    // Write the line to the destination file
+    fwrite($destinationHandle, $line);
+  }
+
+  // Remove the moved lines from the source file
+  $remainingContent = '';
+  while (!feof($sourceHandle)) {
+    $remainingContent .= fgets($sourceHandle);
+  }
+  ftruncate($sourceHandle, 0); // Clear the file
+  rewind($sourceHandle);
+  fwrite($sourceHandle, $remainingContent);
+
+  // Close the file handles
+  fclose($sourceHandle);
+  fclose($destinationHandle);
+
+  return true;
 }
