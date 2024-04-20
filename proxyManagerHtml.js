@@ -33,7 +33,7 @@
 let user_info;
 
 async function main() {
-  user_info = userInfo();
+  user_info = await userInfo();
   if (!user_info) {
     console.log('user null');
     await main();
@@ -142,11 +142,16 @@ async function checkerOutput() {
   if (statusJson.dead) wrapper.querySelector('#dead').innerText = parseInt(statusJson.dead).toLocaleString();
 }
 
-fetch('./info.php?v=' + new Date(), { signal: AbortSignal.timeout(5000) });
+fetch('./info.php', { signal: AbortSignal.timeout(5000) });
 
-function userInfo() {
+async function userInfo() {
   try {
-    return JSON.parse(atob(decodeURIComponent(getCookie('user_config'))));
+    let cookie = getCookie('user_config');
+    if (!cookie) {
+      await fetch('./info.php', { signal: AbortSignal.timeout(5000) });
+      cookie = getCookie('user_config');
+    }
+    return JSON.parse(atob(decodeURIComponent(cookie)));
   } catch (_) {
     //
   }
