@@ -57,3 +57,13 @@ foreach (array_unique(array_filter($proxies, function ($value) {
     echo trim($proxy) . " port closed" . PHP_EOL;
   }
 }
+
+// remove non IP:PORT from database
+
+$all = $db->getAllProxies();
+foreach ($all as $data) {
+  if (!preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/', $data['proxy'])) {
+    echo $data['proxy'] . " is not in the format of IP:PORT." . PHP_EOL;
+    $db->remove($data['proxy']);
+  }
+}
