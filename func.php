@@ -255,12 +255,15 @@ function extractIpPortFromFile($filePath, bool $unique = false)
 
   if (file_exists($filePath)) {
     // Open the file for reading
-    $file = fopen($filePath, "r");
+    $fp = fopen($filePath, "r");
+    if (!$fp) {
+      throw new Exception('File open failed.');
+    }
 
-    if (is_resource($file)) {
+    if ($fp != false) {
       // Read each line from the file
-      while (!feof($file)) {
-        $line = fgets($file);
+      while (!feof($fp)) {
+        $line = fgets($fp);
 
         // Match IP:PORT pattern using regular expression
         preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $line, $matches);
@@ -272,7 +275,7 @@ function extractIpPortFromFile($filePath, bool $unique = false)
       }
 
       // Close the file
-      fclose($file);
+      fclose($fp);
     }
   }
 
