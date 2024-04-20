@@ -19,7 +19,9 @@ if (file_exists(__DIR__ . '/proxyChecker.lock')) {
 
 $db = new ProxyDB();
 $working = $db->getWorkingProxies();
-$dead = $db->getDeadProxies();
+$dead = file(__DIR__ . '/dead.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+if (!is_array($dead)) $dead = [];
+$dead = array_unique($dead);
 $untested = file(__DIR__ . '/proxies.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 if (!is_array($untested)) $untested = [];
 $untested = array_unique($untested);
@@ -53,7 +55,7 @@ if (!$isCli) {
 }
 
 echo "total working proxies " . count($working) . PHP_EOL;
-echo "total dead proxies " . count($working) . PHP_EOL;
+echo "total dead proxies " . count($dead) . PHP_EOL;
 echo "total untested proxies " . count($untested) . PHP_EOL;
 
 file_put_contents(__DIR__ . '/status.json', json_encode(['working' => count($working), 'dead' => count($dead), 'untested' => count($untested)]));
