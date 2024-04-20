@@ -37,15 +37,14 @@
     RewriteRule ^\.git - [F,L]
 </IfModule>
 
-# Only allow .txt access from spesific referer
 <Files "*.txt">
     <IfModule mod_headers.c>
         Header set Access-Control-Allow-Origin "*"
         Header set Access-Control-Allow-Methods "GET, OPTIONS"
     </IfModule>
     RewriteEngine On
-    RewriteCond %{HTTP_REFERER} !^https?://([a-zA-Z0-9-]+\.)?webmanajemen\.com/.*$ [NC]
-    RewriteCond %{HTTP_REFERER} !^https?://23.94.85.180/.*$ [NC]
+    # Allow access if the _ga cookie is present
+    RewriteCond %{HTTP_COOKIE} !_ga [NC]
     RewriteRule ^ - [F]
 </Files>
 
