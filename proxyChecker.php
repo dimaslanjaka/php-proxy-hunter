@@ -413,6 +413,13 @@ function isPrivateProxy(string $proxy)
 function main()
 {
   global $filePath, $deadPath;
+  // move backup added proxies
+  $backup = __DIR__ . '/proxies-backup.txt';
+  if (file_exists($backup)) {
+    if (moveContent($backup, $filePath)) {
+      unlink($backup);
+    }
+  }
   // filter only IP:PORT each lines
   rewriteIpPortFile($filePath);
   rewriteIpPortFile($deadPath);
