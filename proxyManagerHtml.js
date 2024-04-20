@@ -36,7 +36,9 @@ async function main() {
   user_info = userInfo();
   if (!user_info) {
     console.log('user null');
-    return await main();
+    await main();
+    location.reload();
+    return;
   }
 
   document.getElementById('recheck').addEventListener('click', () => {
