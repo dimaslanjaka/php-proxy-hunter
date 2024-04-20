@@ -77,11 +77,14 @@
   <script>
     const script = document.createElement('script');
     script.src = "./proxyManagerHtml.js?v=" + new Date();
+    script.onload = () => {
+      setTimeout(() => {
+        const myscript = document.createElement('script');
+        myscript.src = "./_myConfig.js?v=" + new Date();
+        document.body.appendChild(myscript);
+      }, 1000);
+    }
     document.body.appendChild(script);
-
-    const myscript = document.createElement('script');
-    myscript.src = "./_myConfig.js?v=" + new Date();
-    document.body.appendChild(myscript);
 
     const link = document.createElement('link');
     link.rel = 'stylesheet';
