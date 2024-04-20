@@ -14,7 +14,12 @@ class ProxyDB
 
   public function select(string $proxy)
   {
-    return $this->db->select('proxies', '*', 'proxy = ?', [trim($proxy)]);;
+    return $this->db->select('proxies', '*', 'proxy = ?', [trim($proxy)]);
+  }
+
+  public function getAllProxies()
+  {
+    return $this->db->select('proxies', '*');
   }
 
   public function add(string $proxy)
