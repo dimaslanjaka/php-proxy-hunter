@@ -104,7 +104,7 @@ async function checkerOutput() {
     res.text()
   );
   // skip update UI when output when remains same
-  if (prevOutput == info) return;
+  if (prevOutput == info || info.trim().length == 0) return;
   prevOutput = info;
   const filter = info
     .split(/\r?\n/)
@@ -218,6 +218,8 @@ async function fetchWorkingProxies() {
   let testWorkingProxiesTxt = await fetch('./working.txt?v=' + date, { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .catch(() => '');
+  // skip update UI when response empty
+  if (testWorkingProxiesTxt.trim().length == 0) return;
   if (!workingProxiesTxt || workingProxiesTxt != testWorkingProxiesTxt) {
     workingProxiesTxt = testWorkingProxiesTxt;
     const proxies = sortLinesByDate(workingProxiesTxt);
