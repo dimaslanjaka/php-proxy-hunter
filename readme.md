@@ -19,12 +19,6 @@ touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-ht
 ```
 
 - use **WinRAR** to extract **sqlite** database chunks in **src** folder into single **database.sqlite** file
-- modify `.htaccess` find below substring, and change to your own domain
-
-```bash
-RewriteCond %{HTTP_REFERER} !^https?://([a-zA-Z0-9-]+\.)?webmanajemen\.com/.*$ [NC]
-RewriteCond %{HTTP_REFERER} !^https?://23.94.85.180/.*$ [NC]
-```
 
 ## Troubleshoot
 
