@@ -283,13 +283,14 @@ function sortLinesByDate(text) {
       city: parts[4],
       country: parts[5],
       timezone: parts[6],
-      date: parts[7]
+      date: (parts[7] || '').trim()
     };
   });
 
   // Parse each line into objects
   let objects = lines.map((line) => {
     const parts = line.split('|');
+    const date = (parts[7] || '').trim();
     return {
       proxy: parts[0],
       latency: parts[1],
@@ -298,7 +299,7 @@ function sortLinesByDate(text) {
       city: parts[4],
       country: parts[5],
       timezone: parts[6],
-      date: parts[7].trim() != '-' ? new Date(parts[7]) : new Date()
+      date: date != '-' ? new Date(date) : new Date()
     };
   });
 
