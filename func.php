@@ -246,9 +246,10 @@ function readFileLinesToArray(string $filename)
  * Extracts IP:PORT combinations from a file.
  *
  * @param string $filePath The path to the file containing IP:PORT combinations.
+ * @param bool $unique (Optional) If set to true, returns only unique IP:PORT combinations. Default is false.
  * @return array An array containing the extracted IP:PORT combinations.
  */
-function extractIpPortFromFile($filePath)
+function extractIpPortFromFile($filePath, bool $unique = false)
 {
   $ipPortList = array();
 
@@ -275,6 +276,7 @@ function extractIpPortFromFile($filePath)
     }
   }
 
+  if ($unique) return array_unique($ipPortList);
   return $ipPortList;
 }
 
