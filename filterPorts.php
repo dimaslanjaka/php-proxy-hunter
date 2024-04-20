@@ -30,6 +30,9 @@ register_shutdown_function('exitProcess');
 $db = new ProxyDB();
 
 $file = __DIR__ . '/proxies.txt';
+// extract only IP:PORT
+extractIpPortFromFile($file);
+// remove empty lines
 removeEmptyLinesFromFile($file);
 $proxies = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 // shuffle proxies
