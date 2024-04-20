@@ -31,10 +31,22 @@
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    # Disallow .sqlite access
     RewriteRule \.sqlite$ proxyManager.php [NC,L]
     # Disallow .git access
     RewriteRule ^\.git - [F,L]
 </IfModule>
+
+<Files "*.txt">
+    <IfModule mod_headers.c>
+        Header set Access-Control-Allow-Origin "*"
+        Header set Access-Control-Allow-Methods "GET, OPTIONS"
+    </IfModule>
+    RewriteEngine On
+    RewriteCond %{HTTP_REFERER} !^https?://([a-zA-Z0-9-]+\.)?webmanajemen\.com/.*$ [NC]
+    RewriteCond %{HTTP_REFERER} !^https?://23.94.85.180/.*$ [NC]
+    RewriteRule ^ - [F]
+</Files>
 
 <FilesMatch "proxySocksChecker.php">
     Order Deny,Allow
