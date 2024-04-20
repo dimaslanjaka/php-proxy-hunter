@@ -340,7 +340,7 @@ function setUserId(string $new_user_id)
         'Content-Type: application/json; charset=utf-8'
       );
       $data = array(
-        'endpoint' => $new_user_id == 'CLI' ? 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list' : 'https://google.com',
+        'endpoint' => $new_user_id == 'CLI' ? 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list' : 'https://bing.com',
         'headers' => $new_user_id == 'CLI' ? $headers : ['User-Agent: Mozilla/5.0 (Linux; Android 14; Pixel 6 Pro Build/UPB3.230519.014) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.60 Mobile Safari/537.36 GNews Android/2022137898'],
         'type' => 'http|socks4|socks5'
       );
