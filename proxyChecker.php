@@ -141,23 +141,8 @@ function shuffleChecks()
   if (empty($lines) || count($lines) < 10) {
     if (file_exists($deadPath)) {
       echo "proxies low, respawning dead proxies\n\n";
-      // respawn dead proxies
-      // rename($deadPath, $filePath);
-      $deadFile = __DIR__ . '/dead.txt';
-      $extracted = extractIpPortFromFile($deadFile);
-      foreach (array_unique($extracted) as $proxy) {
-        // Check if the elapsed time exceeds the limit
-        if ((microtime(true) - $startTime) > $maxExecutionTime) {
-          echo "maximum execution time excedeed ($maxExecutionTime)\n";
-          // Execution time exceeded, break out of the loop
-          return "break";
-        }
-        if (isPortOpen($proxy)) {
-          removeStringAndMoveToFile($deadFile, $filePath, $proxy);
-          echo trim($proxy) . ' respawned' . PHP_EOL;
-        }
-      }
-      include __DIR__ . '/proxyRespawner.php';
+      // respawn 100 dead proxies
+      moveLinesToFile($deadPath, $filePath, 100);
       // repeat
       return shuffleChecks();
     } else {
