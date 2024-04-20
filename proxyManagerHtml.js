@@ -265,6 +265,11 @@ async function fetchWorkingProxies() {
   }
 }
 
+/**
+ * Sorts lines of text by date and reconstructs them.
+ * @param {string} text - The text containing lines to be sorted.
+ * @returns {string[]} The sorted lines of text.
+ */
 function sortLinesByDate(text) {
   /** @type {string[]} */
   const lines = text.split(/\r?\n/).filter((line) => line.trim() !== '');
@@ -300,19 +305,20 @@ function sortLinesByDate(text) {
   // Sort objects based on date
   objects = objects.sort((a, b) => a.date - b.date).reverse();
 
-  // console.log(objects.map((o) => o.date));
-
   // Reconstruct sorted lines
   const sortedLines = objects.map((obj) => {
     const date = original.find((o) => o.proxy == obj.proxy).date;
     return `${obj.proxy}|${obj.latency}|${obj.type}|${obj.region}|${obj.city}|${obj.country}|${obj.timezone}|${date}`;
   });
 
-  // console.log(sortedLines);
-
   return sortedLines;
 }
 
+/**
+ * Converts a given date string to a human-readable "time ago" format.
+ * @param {string} dateString - The date string to be converted.
+ * @returns {string} The time ago format of the provided date string.
+ */
 function timeAgo(dateString) {
   // Convert the provided date string to a Date object
   const date = new Date(dateString);
@@ -350,6 +356,10 @@ function timeAgo(dateString) {
   return agoTime;
 }
 
+/**
+ * Displays a snackbar message for a specified duration.
+ * @param {string} message - The message to be displayed.
+ */
 function showSnackbar(message) {
   // Get the snackbar element
   var snackbar = document.getElementById('snackbar');
