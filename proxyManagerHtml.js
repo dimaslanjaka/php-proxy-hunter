@@ -317,6 +317,9 @@ function timeAgo(dateString) {
   // Convert the provided date string to a Date object
   const date = new Date(dateString);
 
+  // return invalid date to original string
+  if (isNaN(date.getTime())) return dateString;
+
   // Get the current time
   const now = new Date();
 
