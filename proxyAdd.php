@@ -60,6 +60,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $write = rewriteIpPortFile($filePath);
 
+    // check lock files
+    $locks = glob(__DIR__ . '/*.lock');
+
+    if (count($locks) > 0) {
+      // lock exist, backup added proxies
+      file_put_contents(__DIR__ . '/proxies-backup.txt', PHP_EOL . implode(PHP_EOL, array_unique($ip_port_array)) . PHP_EOL, FILE_APPEND | LOCK_EX);
+    }
+
     $total = count($write);
     echo "IP:PORT pairs ($total) written to proxies.txt successfully.";
   } else {
