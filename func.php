@@ -526,3 +526,36 @@ function removeEmptyLinesFromFile($filePath)
 
   // echo "Empty lines removed successfully from $filePath.";
 }
+
+/**
+ * Move content from a source file to a destination file in append mode.
+ *
+ * @param string $sourceFile      The path to the source file.
+ * @param string $destinationFile The path to the destination file.
+ *
+ * @return bool True if the content was moved successfully, false otherwise.
+ */
+function moveContent($sourceFile, $destinationFile)
+{
+  // Open the source file for reading
+  $sourceHandle = fopen($sourceFile, 'r');
+
+  // Open the destination file for appending
+  $destinationHandle = fopen($destinationFile, 'a');
+
+  // Check if both files are opened successfully
+  if ($sourceHandle && $destinationHandle) {
+    // Read content from the source file and write it to the destination file
+    while (($line = fgets($sourceHandle)) !== false) {
+      fwrite($destinationHandle, $line);
+    }
+
+    // Close both files
+    fclose($sourceHandle);
+    fclose($destinationHandle);
+
+    return true; // Indicate success
+  } else {
+    return false; // Indicate failure
+  }
+}
