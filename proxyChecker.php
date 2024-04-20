@@ -134,7 +134,7 @@ setFilePermissions([$filePath, $workingPath, $deadPath]);
  */
 function shuffleChecks()
 {
-  global $filePath, $workingPath, $workingProxies, $deadPath, $startTime, $maxExecutionTime, $isCli, $socksWorkingPath, $db;
+  global $filePath, $workingPath, $workingProxies, $deadPath, $startTime, $maxExecutionTime, $isCli;
 
   // Read lines of the file into an array
   $lines = array_filter(file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
@@ -143,8 +143,8 @@ function shuffleChecks()
       echo "proxies low, respawning dead proxies\n\n";
       // respawn dead proxies
       // rename($deadPath, $filePath);
-      $file = __DIR__ . '/dead.txt';
-      $extracted = extractIpPortFromFile($file);
+      $deadFile = __DIR__ . '/dead.txt';
+      $extracted = extractIpPortFromFile($deadFile);
       foreach (array_unique($extracted) as $proxy) {
         // Check if the elapsed time exceeds the limit
         if ((microtime(true) - $startTime) > $maxExecutionTime) {
@@ -153,7 +153,7 @@ function shuffleChecks()
           return "break";
         }
         if (isPortOpen($proxy)) {
-          removeStringAndMoveToFile($file, $filePath, $proxy);
+          removeStringAndMoveToFile($deadFile, $filePath, $proxy);
           echo trim($proxy) . ' respawned' . PHP_EOL;
         }
       }
@@ -413,8 +413,10 @@ function isPrivateProxy(string $proxy)
 function main()
 {
   global $filePath, $deadPath;
-  // remove duplicate proxies
+  // filter only IP:PORT each lines
   rewriteIpPortFile($filePath);
+  rewriteIpPortFile($deadPath);
+  // remove duplicate proxies
   removeDuplicateLines($filePath);
   removeDuplicateLines($deadPath);
   shuffleChecks();
