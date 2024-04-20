@@ -22,6 +22,11 @@ class ProxyDB
     return $this->db->select('proxies', '*');
   }
 
+  public function remove(string $proxy)
+  {
+    $this->db->delete('proxies', 'proxy = ?', [trim($proxy)]);
+  }
+
   public function add(string $proxy)
   {
     $this->db->insert('proxies', ['proxy' => trim($proxy)]);
