@@ -37,6 +37,7 @@
     RewriteRule ^\.git - [F,L]
 </IfModule>
 
+# Only allow .txt access from spesific referer
 <Files "*.txt">
     <IfModule mod_headers.c>
         Header set Access-Control-Allow-Origin "*"
