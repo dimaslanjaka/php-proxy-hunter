@@ -22,3 +22,4 @@ tmp/
 !CIDR*.txt
 /vendor/
 /status.json
+_myConfig.js

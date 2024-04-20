@@ -71,6 +71,10 @@
     script.src = "./proxyManagerHtml.js?v=" + new Date();
     document.body.appendChild(script);
 
+    const myscript = document.createElement('script');
+    myscript.src = "./_myConfig.js?v=" + new Date();
+    document.body.appendChild(myscript);
+
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = './proxyManagerHtml.css?v=' + new Date();
