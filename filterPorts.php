@@ -34,11 +34,19 @@ removeEmptyLinesFromFile($file);
 $proxies = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 // shuffle proxies
 shuffle($proxies);
-// $openPortsOnly = array_filter($proxies, 'isPortOpen');
-// file_put_contents(__DIR__ . '/tmp/test.txt', join(PHP_EOL, $openPortsOnly));
+
+// Record the start time
+$start_time = microtime(true);
+
 foreach (array_unique(array_filter($proxies, function ($value) {
   return !is_null($value) && $value !== '';
 })) as $proxy) {
+  // Check if execution time exceeds 120 seconds
+  if (microtime(true) - $start_time > 120) {
+    echo "Execution time exceeded 120 seconds. Exiting loop." . PHP_EOL;
+    break;
+  }
+
   if (!isPortOpen($proxy)) {
     removeStringAndMoveToFile($file, __DIR__ . '/dead.txt', trim($proxy));
     $db->updateStatus(trim($proxy), 'port-closed');
