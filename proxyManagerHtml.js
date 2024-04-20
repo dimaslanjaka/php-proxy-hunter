@@ -213,10 +213,7 @@ async function fetchWorkingProxies() {
     .catch(() => '');
   if (!workingProxiesTxt || workingProxiesTxt != testWorkingProxiesTxt) {
     workingProxiesTxt = testWorkingProxiesTxt;
-    const proxies = workingProxiesTxt
-      .split(/\r?\n/)
-      .map((str) => str.trim())
-      .filter((str) => str.length > 0);
+    const proxies = sortLinesByDate(workingProxiesTxt);
     const tbody = document.getElementById('wproxy');
     tbody.innerHTML = '';
     proxies.forEach((str) => {
@@ -266,6 +263,54 @@ async function fetchWorkingProxies() {
       el.setAttribute('aria-copy', el.getAttribute('data'));
     });
   }
+}
+
+function sortLinesByDate(text) {
+  /** @type {string[]} */
+  const lines = text.split(/\r?\n/).filter((line) => line.trim() !== '');
+  const original = lines.map((line) => {
+    const parts = line.split('|');
+    return {
+      proxy: parts[0],
+      latency: parts[1],
+      type: parts[2],
+      region: parts[3],
+      city: parts[4],
+      country: parts[5],
+      timezone: parts[6],
+      date: parts[7]
+    };
+  });
+
+  // Parse each line into objects
+  let objects = lines.map((line) => {
+    const parts = line.split('|');
+    return {
+      proxy: parts[0],
+      latency: parts[1],
+      type: parts[2],
+      region: parts[3],
+      city: parts[4],
+      country: parts[5],
+      timezone: parts[6],
+      date: parts[7].trim() != '-' ? new Date(parts[7]) : new Date()
+    };
+  });
+
+  // Sort objects based on date
+  objects = objects.sort((a, b) => a.date - b.date).reverse();
+
+  // console.log(objects.map((o) => o.date));
+
+  // Reconstruct sorted lines
+  const sortedLines = objects.map((obj) => {
+    const date = original.find((o) => o.proxy == obj.proxy).date;
+    return `${obj.proxy}|${obj.latency}|${obj.type}|${obj.region}|${obj.city}|${obj.country}|${obj.timezone}|${date}`;
+  });
+
+  // console.log(sortedLines);
+
+  return sortedLines;
 }
 
 function timeAgo(dateString) {
