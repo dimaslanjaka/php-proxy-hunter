@@ -341,7 +341,7 @@ function setUserId(string $new_user_id)
       );
       $data = array(
         'endpoint' => $new_user_id == 'CLI' ? 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list' : 'https://google.com',
-        'headers' => $new_user_id == 'CLI' ? $headers : ['User-Agent: myXL / 5.8.8(741); StandAloneInstall; (samsung; SM-G955N; SDK 25; Android 7.1.2)'],
+        'headers' => $new_user_id == 'CLI' ? $headers : ['User-Agent: Mozilla/5.0 (Linux; Android 14; Pixel 6 Pro Build/UPB3.230519.014) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.60 Mobile Safari/537.36 GNews Android/2022137898'],
         'type' => 'http|socks4|socks5'
       );
       $file = getUserFile($new_user_id);
