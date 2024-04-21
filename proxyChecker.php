@@ -338,6 +338,8 @@ function checkProxy($proxy, $type = 'http')
   curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
   curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
 
+  curl_setopt($ch, CURLOPT_USERAGENT, randomAndroidUa());
+
   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
   curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // Handle compressed response
 
