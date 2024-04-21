@@ -183,9 +183,10 @@ async function checkerStatus() {
   return await fetch('./status.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .then((data) => {
-      if (data.trim().includes('running')) {
+      if (!data.trim().includes('idle')) {
+        // another php still processing
         if (!cek.classList.contains('disabled')) cek.classList.add('disabled');
-        status.innerHTML = 'RUNNING';
+        status.innerHTML = data.trim().toUpperCase();
         status.setAttribute(
           'class',
           'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'
