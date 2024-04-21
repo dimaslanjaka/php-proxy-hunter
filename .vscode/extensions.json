@@ -6,6 +6,7 @@
     "esbenp.prettier-vscode",
     "k--kato.intellij-idea-keybindings",
     "mrmlnc.vscode-apache",
-    "formulahendry.auto-rename-tag"
+    "formulahendry.auto-rename-tag",
+    "natizyskunk.sftp"
   ]
 }
