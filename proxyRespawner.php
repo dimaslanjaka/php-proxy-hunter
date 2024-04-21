@@ -69,7 +69,7 @@ foreach ($proxyPaths as $file) {
     $proxies = extractIpPortFromFile($file);
     shuffle($proxies);
     foreach (array_unique(array_filter($proxies)) as $proxy) {
-      if ((microtime(true) - $startTime) > $maxExecutionTime && !$isCli) {
+      if ((microtime(true) - $startTime) > $maxExecutionTime) {
         echo "maximum execution time excedeed ($maxExecutionTime)\n";
         // Execution time exceeded, break out of the loop
         return "break";
