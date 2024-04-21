@@ -179,7 +179,7 @@ function shuffleChecks()
  */
 function checkProxyLine($line)
 {
-  global $startTime, $maxExecutionTime, $workingProxies, $checksFor, $socksWorkingProxies, $db, $filePath, $deadPath;
+  global $startTime, $maxExecutionTime, $workingProxies, $checksFor, $socksWorkingProxies, $db, $filePath, $deadPath, $endpoint, $headers;
   // Check if the elapsed time exceeds the limit
   if ((microtime(true) - $startTime) > $maxExecutionTime) {
     echo "maximum execution time excedeed ($maxExecutionTime)\n";
@@ -200,7 +200,7 @@ function checkProxyLine($line)
   $successType = [];
 
   if (strpos($checksFor, 'http') !== false) {
-    $check = checkProxy($proxy, 'http');
+    $check = checkProxy($proxy, 'http', $endpoint, $headers);
     if ($check['result'] !== false) {
       echo "$proxy working type HTTP";
       $latency = $check['latency'];
@@ -229,7 +229,7 @@ function checkProxyLine($line)
   }
 
   if (strpos($checksFor, 'socks5') !== false) {
-    $check = checkProxy($proxy, 'socks5');
+    $check = checkProxy($proxy, 'socks5', $endpoint, $headers);
     if ($check['result'] !== false) {
       echo "$proxy working type SOCKS5\n";
       $latency = $check['latency'];
@@ -257,7 +257,7 @@ function checkProxyLine($line)
   }
 
   if (strpos($checksFor, 'socks4') !== false) {
-    $check = checkProxy($proxy, 'socks4');
+    $check = checkProxy($proxy, 'socks4', $endpoint, $headers);
     if ($check['result'] !== false) {
       echo "$proxy working type SOCKS4\n";
       $latency = $check['latency'];
@@ -294,97 +294,6 @@ function checkProxyLine($line)
   $db->update($proxy, null, null, null, null, 'dead');
   removeStringAndMoveToFile($filePath, $deadPath, trim($proxy));
   return "failed";
-}
-
-/**
- * Check proxy connectivity.
- *
- * This function tests the connectivity of a given proxy by making a request to a specified endpoint.
- *
- * @param string $proxy The proxy address to test.
- * @param string $type  (Optional) The type of proxy to use. Supported values: 'http', 'socks4', 'socks5', 'socks4a'.
- *                      Defaults to 'http' if not specified.
- * @return array An associative array containing the result of the proxy check:
- *               - 'result': Boolean indicating if the proxy check was successful.
- *               - 'latency': The latency (in milliseconds) of the proxy connection. If the connection failed, -1 is returned.
- *               - 'error': Error message if an error occurred during the connection attempt, null otherwise.
- *               - 'status': HTTP status code of the response.
- */
-function checkProxy($proxy, $type = 'http')
-{
-  global $endpoint, $headers;
-
-  $proxy = trim($proxy);
-
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $endpoint); // URL to test connectivity
-  curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
-
-  // Determine the CURL proxy type based on the specified $type
-  $ptype = CURLPROXY_HTTP;
-  if (strtolower($type) == 'socks5') $ptype = CURLPROXY_SOCKS5;
-  if (strtolower($type) == 'socks4') $ptype = CURLPROXY_SOCKS4;
-  if (strtolower($type) == 'socks4a') $ptype = CURLPROXY_SOCKS4A;
-  curl_setopt($ch, CURLOPT_PROXYTYPE, $ptype); // Specify proxy type
-
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Set maximum connection time
-  curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Set maximum response time
-
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($ch, CURLOPT_HEADER, true);
-
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-
-  $cookies = __DIR__ . '/tmp/cookies/' . sanitizeFilename($proxy) . '.txt';
-  if (!file_exists(dirname($cookies))) mkdir(dirname($cookies), 0777, true);
-  curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
-  curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
-
-  $userAgent = randomAndroidUa();
-
-  foreach ($headers as $header) {
-    if (strpos($header, 'User-Agent:') === 0) {
-      $userAgent = trim(substr($header, strlen('User-Agent:')));
-      break;
-    }
-  }
-
-  if (empty($userAgent)) $userAgent = randomAndroidUa();
-
-  curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
-
-  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-  curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // Handle compressed response
-
-  $start = microtime(true); // Start time
-  $response = curl_exec($ch);
-  $end = microtime(true); // End time
-
-  $info = curl_getinfo($ch);
-  $latency = -1;
-
-  // Check for CURL errors or empty response
-  if (curl_errno($ch) || $response === false) {
-    $error_msg = curl_error($ch);
-    return [
-      'result' => false,
-      'latency' => $latency,
-      'error' => $error_msg,
-      'status' => $info['http_code']
-    ];
-  }
-
-  curl_close($ch);
-
-  $latency = round(($end - $start) * 1000); // Convert to milliseconds
-
-  return [
-    'result' => true,
-    'latency' => $latency,
-    'error' => null,
-    'status' => $info['http_code']
-  ];
 }
 
 function isPrivateProxy(string $proxy)
