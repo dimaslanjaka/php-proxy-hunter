@@ -969,13 +969,16 @@ function scanPort(string $ip, int $port)
  * This function tests the connectivity of a given proxy by making a request to a specified endpoint.
  *
  * @param string $proxy The proxy address to test.
- * @param string $type  (Optional) The type of proxy to use. Supported values: 'http', 'socks4', 'socks5', 'socks4a'.
- *                      Defaults to 'http' if not specified.
+ * @param string $type (Optional) The type of proxy to use. Supported values: 'http', 'socks4', 'socks5', 'socks4a'.
+ *                     Defaults to 'http' if not specified.
+ * @param string $endpoint (Optional) The URL endpoint to test connectivity. Defaults to 'https://bing.com'.
+ * @param array $headers (Optional) Additional HTTP headers to include in the request. Defaults to an empty array.
  * @return array An associative array containing the result of the proxy check:
  *               - 'result': Boolean indicating if the proxy check was successful.
  *               - 'latency': The latency (in milliseconds) of the proxy connection. If the connection failed, -1 is returned.
  *               - 'error': Error message if an error occurred during the connection attempt, null otherwise.
  *               - 'status': HTTP status code of the response.
+ *               - 'private': Boolean indicating if the proxy is private.
  */
 function checkProxy($proxy, $type = 'http', string $endpoint = 'https://bing.com', array $headers = [])
 {
@@ -1026,6 +1029,9 @@ function checkProxy($proxy, $type = 'http', string $endpoint = 'https://bing.com
   $response = curl_exec($ch);
   $end = microtime(true); // End time
 
+  $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+  $response_header = substr($response, 0, $header_size);
+
   $info = curl_getinfo($ch);
   $latency = -1;
 
@@ -1042,12 +1048,16 @@ function checkProxy($proxy, $type = 'http', string $endpoint = 'https://bing.com
 
   curl_close($ch);
 
+  // is private proxy?
+  $isPrivate = stripos($response_header, 'X-Forwarded-For:') !== false || stripos($response_header, 'Proxy-Authorization:') !== false;
+
   $latency = round(($end - $start) * 1000); // Convert to milliseconds
 
   return [
     'result' => true,
     'latency' => $latency,
     'error' => null,
-    'status' => $info['http_code']
+    'status' => $info['http_code'],
+    'private' => $isPrivate
   ];
 }
