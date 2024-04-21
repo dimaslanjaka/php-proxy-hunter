@@ -331,6 +331,13 @@ function checkProxy($proxy, $type = 'http')
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HEADER, true);
 
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+
+  $cookies = tempnam(__DIR__ . '/tmp', 'cookie.txt');
+  curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
+  curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
+
   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
   curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // Handle compressed response
 
