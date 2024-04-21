@@ -23,3 +23,4 @@ tmp/
 /vendor/
 /status.json
 _myConfig.js
+.vscode/sftp.json
