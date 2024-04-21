@@ -29,6 +29,9 @@ ini_set('memory_limit', '128M');
 // start session
 if (!$isCli) session_start();
 
+// create temp folder
+if (!file_exists(__DIR__ . '/tmp')) mkdir(__DIR__ . '/tmp');
+
 /**
  * Sets file permissions to 777 if the file exists.
  *
