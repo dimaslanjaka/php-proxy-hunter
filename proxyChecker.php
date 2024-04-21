@@ -338,7 +338,18 @@ function checkProxy($proxy, $type = 'http')
   curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
   curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
 
-  curl_setopt($ch, CURLOPT_USERAGENT, randomAndroidUa());
+  $userAgent = randomAndroidUa();
+
+  foreach ($headers as $header) {
+    if (strpos($header, 'User-Agent:') === 0) {
+      $userAgent = trim(substr($header, strlen('User-Agent:')));
+      break;
+    }
+  }
+
+  if (empty($userAgent)) $userAgent = randomAndroidUa();
+
+  curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
 
   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
   curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // Handle compressed response
