@@ -20,6 +20,14 @@ touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-ht
 
 - use **WinRAR** to extract **sqlite** database chunks in **src** folder into single **database.sqlite** file
 
+## Crontab
+
+run checker every 10 mins
+
+```bash
+*/10 * * * * php /path/to/proxyChecker.php > /path/to/proxyChecker.txt 2>&1
+```
+
 ## Troubleshoot
 
 <!-- missing php extension -->
