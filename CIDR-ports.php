@@ -31,7 +31,8 @@ foreach ($ipList as $ip) {
   if (!empty($proxies)) {
     // remove checked ip from source
     removeStringFromFile($filePath, trim($ip));
-    // write open IP:PORT into proxies-backup.txt
+    // write open IP:PORT into test files
+    append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . implode(PHP_EOL, $proxies) . PHP_EOL);
     append_content_with_lock(__DIR__ . '/proxies-backup.txt', PHP_EOL . implode(PHP_EOL, $proxies) . PHP_EOL);
   }
 }
