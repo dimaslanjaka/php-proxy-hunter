@@ -336,7 +336,8 @@ function checkProxy($proxy, $type = 'http')
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 
-  $cookies = __DIR__ . '/tmp/cookie-' . sanitizeFilename($proxy) . '.txt';
+  $cookies = __DIR__ . '/tmp/cookies/' . sanitizeFilename($proxy) . '.txt';
+  if (!file_exists(dirname($cookies))) mkdir(dirname($cookies), 0777, true);
   curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
   curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
 
