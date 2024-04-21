@@ -172,51 +172,45 @@ function curlGetWithProxy($url, $proxy, $proxyType = 'http', $cacheTime = 86400 
  */
 function rewriteIpPortFile($filename)
 {
-  $ipPortList = array();
+  if (!file_exists($filename) || !is_readable($filename) || !is_writable($filename)) {
+    throw new Exception("File '$filename' is not readable or writable");
+  }
 
-  if (file_exists($filename) && is_readable($filename) && is_writable($filename)) {
-    // Open the file for reading
-    $file = fopen($filename, "r");
-    if (!$file) {
-      throw new Exception("#1 Error opening $filename", 1);
-    }
+  // Open the file for reading
+  $file = fopen($filename, "r");
+  if (!$file) {
+    throw new Exception("Error opening $filename for reading");
+  }
 
-    if (is_resource($file)) {
-      // Read each line from the file and extract IP:PORT combinations
-      while (!feof($file)) {
-        $line = fgets($file);
+  // Open a temporary file for writing
+  $tempFilename = tempnam(__DIR__ . '/tmp', 'temp_ip_port_file');
+  $tempFile = fopen($tempFilename, "w");
+  if (!$tempFile) {
+    fclose($file); // Close the original file
+    throw new Exception("Error opening temporary file for writing");
+  }
 
-        // Match IP:PORT pattern using regular expression
-        preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $line, $matches);
+  // Read each line from the file and extract IP:PORT combinations
+  while (($line = fgets($file)) !== false) {
+    // Match IP:PORT pattern using regular expression
+    preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $line, $matches);
 
-        // Add matched IP:PORT combinations to the list
-        foreach ($matches[0] as $match) {
-          $ipPortList[] = $match;
-        }
-      }
-
-      // Close the file
-      fclose($file);
-
-      // Open the file for writing (truncate existing content)
-      $file = fopen($filename, "w");
-      if (!$file) {
-        throw new Exception("#2 Error opening $filename", 1);
-      }
-
-      if (is_resource($file)) {
-        // Write extracted IP:PORT combinations to the file
-        foreach (array_unique($ipPortList) as $ipPort) {
-          fwrite($file, $ipPort . "\n");
-        }
-
-        // Close the file
-        fclose($file);
-      }
+    // Write matched IP:PORT combinations to the temporary file
+    foreach ($matches[0] as $match) {
+      fwrite($tempFile, $match . "\n");
     }
   }
 
-  return $ipPortList;
+  // Close both files
+  fclose($file);
+  fclose($tempFile);
+
+  // Replace the original file with the temporary file
+  if (!rename($tempFilename, $filename)) {
+    throw new Exception("Error replacing original file with temporary file");
+  }
+
+  return true;
 }
 
 /**
@@ -871,4 +865,100 @@ function randomIosUa(string $type = 'chrome')
   $firefox = "Mozilla/5.0 (iPhone; CPU iPhone OS $ios_version like Mac OS X) AppleWebKit/$safari_version.1 (KHTML, like Gecko) FxiOS/$firefox_version.0 Mobile/$build_version Safari/$safari_version.1";
 
   return $type == 'chrome' ? $chrome : $firefox;
+}
+
+/**
+ * Get a random file from a folder.
+ *
+ * @param string $folder The path to the folder containing files.
+ * @param string|null $file_extension The optional file extension without dot (.) to filter files by.
+ * @return string|null The name of the randomly selected file, or null if no file found with the specified extension.
+ */
+function getRandomFileFromFolder($folder, $file_extension = null)
+{
+  // Get list of files in the folder
+  $files = scandir($folder);
+
+  // Remove special directories "." and ".." from the list
+  $files = array_diff($files, array('.', '..'));
+
+  // Filter files by extension if provided
+  if ($file_extension !== null) {
+    $files = array_filter($files, function ($file) use ($file_extension) {
+      return pathinfo($file, PATHINFO_EXTENSION) == $file_extension;
+    });
+  }
+
+  // Get number of files
+  $num_files = count($files);
+
+  // Check if there are files with the specified extension
+  if ($num_files === 0) {
+    return null; // No files found with the specified extension
+  }
+
+  // Generate a random index
+  $random_index = mt_rand(0, $num_files - 1);
+
+  // Get the randomly selected file
+  $random_file = $files[$random_index];
+
+  return $folder . '/' . $random_file;
+}
+
+/**
+ * Scans a range of ports on a given IP address and returns an array of proxies.
+ *
+ * @param string $ip The IP address to scan ports on.
+ * @param int $startPort The starting port of the range (default is 1).
+ * @param int $endPort The ending port of the range (default is 65535).
+ * @return array An array containing the proxies found during scanning.
+ */
+function scanRangePorts(string $ip, int $startPort = 1, int $endPort = 65535)
+{
+  $proxies = [];
+  for ($port = $startPort; $port <= $endPort; $port++) {
+    if (scanPort($ip, $port)) {
+      $proxies[] = "$ip:$port";
+    }
+  }
+  return $proxies;
+}
+
+/**
+ * Scans an array of specific ports on a given IP address and returns an array of proxies.
+ *
+ * @param string $ip The IP address to scan ports on.
+ * @param array $ports An array containing the ports to scan.
+ * @return array An array containing the proxies found during scanning.
+ */
+function scanArrayPorts(string $ip, array $ports)
+{
+  $proxies = [];
+  foreach ($ports as $port) {
+    if (scanPort($ip, $port)) {
+      $proxies[] = "$ip:$port";
+    }
+  }
+  return $proxies;
+}
+
+/**
+ * Scans a specific port on a given IP address.
+ *
+ * @param string $ip The IP address to scan the port on.
+ * @param int $port The port to scan.
+ * @return bool Returns true if the port is open, false otherwise.
+ */
+function scanPort(string $ip, int $port)
+{
+  $ip = trim($ip);
+  echo "Scanning port $ip:$port\n";
+  $connection = @fsockopen($ip, $port, $errno, $errstr, 10);
+  if (is_resource($connection)) {
+    echo "Port $port is open.\n";
+    fclose($connection);
+    return true;
+  }
+  return false;
 }
