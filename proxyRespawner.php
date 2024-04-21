@@ -81,3 +81,5 @@ foreach ($proxyPaths as $file) {
     }
   }
 }
+
+rewriteIpPortFile(__DIR__ . '/proxies.txt');
