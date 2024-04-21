@@ -314,6 +314,8 @@ function checkProxy($proxy, $type = 'http')
 {
   global $endpoint, $headers;
 
+  $proxy = trim($proxy);
+
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint); // URL to test connectivity
   curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
@@ -334,7 +336,7 @@ function checkProxy($proxy, $type = 'http')
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 
-  $cookies = tempnam(__DIR__ . '/tmp', 'cookie.txt');
+  $cookies = __DIR__ . '/tmp/cookie-' . sanitizeFilename($proxy) . '.txt';
   curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
   curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
 
