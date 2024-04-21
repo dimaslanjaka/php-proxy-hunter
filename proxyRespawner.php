@@ -37,21 +37,22 @@
 require_once __DIR__ . '/func.php';
 
 // validate lock files
-$locks = [__DIR__ . '/proxyChecker.lock', __DIR__ . '/proxySocksChecker.lock'];
-if (file_exists(__DIR__ . '/proxyChecker.lock') || file_exists(__DIR__ . '/proxySocksChecker.lock')) {
-  exit('Another process still running');
+$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$statusFile = __DIR__ . "/status.txt";
+
+if (file_exists($lockFilePath)) {
+  echo "another process still running\n";
+  exit();
 } else {
-  foreach ($locks as $lock) {
-    file_put_contents($lock, 'RUNNING OPEN PORTS');
-  }
+  file_put_contents($lockFilePath, date(DATE_RFC3339));
+  file_put_contents($statusFile, 'respawn');
 }
 
 function exitProcess()
 {
-  global $locks;
-  foreach ($locks as $file) {
-    if (file_exists($file)) unlink($file);
-  }
+  global $lockFilePath, $statusFile;
+  if (file_exists($lockFilePath)) unlink($lockFilePath);
+  file_put_contents($statusFile, 'idle');
 }
 register_shutdown_function('exitProcess');
 
