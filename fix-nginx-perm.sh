@@ -2,6 +2,8 @@
 
 sudo chown -R www-data:www-data *
 mkdir -p tmp/cookies
+touch tmp/cookies/index.html
+touch tmp/index.html
 sudo chown -R www-data:www-data tmp/*
 sudo chown -R www-data:www-data tmp/cookies/*
 sudo chmod 777 *.txt
