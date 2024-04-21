@@ -5,6 +5,13 @@ require_once __DIR__ . '/func.php';
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\geoPlugin;
 
+// $LocationArray = json_decode(file_get_contents('http://ip-get-geolocation.com/api/json/35.188.125.133'), true);
+
+// echo $LocationArray['country'];
+// echo $LocationArray['city'];
+// echo $LocationArray['region'];
+// echo $LocationArray['timezone'];
+
 if (function_exists('header')) header('Content-Type: application/json; charset=UTF-8');
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
