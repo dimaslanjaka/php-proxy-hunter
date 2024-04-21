@@ -43,6 +43,7 @@ echo $cmd . "\n\n";
 $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($outputfile), escapeshellarg($pidfile));
 if (!file_exists(__DIR__ . '/tmp')) mkdir(__DIR__ . '/tmp');
 $runner = __DIR__ . "/tmp/runner" . ($isWin ? '.bat' : "");
+setFilePermissions($runner);
 file_put_contents($runner, $cmd);
 
 exec(escapeshellarg($runner));
