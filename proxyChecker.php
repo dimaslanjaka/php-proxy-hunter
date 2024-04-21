@@ -296,33 +296,6 @@ function checkProxyLine($line)
   return "failed";
 }
 
-function isPrivateProxy(string $proxy)
-{
-  $ch = curl_init();
-  $url = "http://www.example.com"; // Replace with any URL you want to test
-
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_PROXY, $proxy);
-  curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($ch, CURLOPT_HEADER, true);
-  curl_setopt($ch, CURLOPT_NOBODY, true);
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-  curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-
-  $response = curl_exec($ch);
-  $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-  $headers = substr($response, 0, $header_size);
-  curl_close($ch);
-
-  // Check for private proxy headers
-  if (stripos($headers, 'X-Forwarded-For:') !== false || stripos($headers, 'Proxy-Authorization:') !== false) {
-    return true; // Private proxy detected
-  } else {
-    return false; // Not a private proxy
-  }
-}
-
 /// FUNCTIONS ENDS
 
 // main script
