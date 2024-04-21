@@ -60,7 +60,6 @@ register_shutdown_function('exitProcess');
 $maxExecutionTime = 120;
 $startTime = microtime(true);
 
-$testPath = __DIR__ . '/proxies.txt';
 $proxyPaths = [__DIR__ . '/proxies-all.txt', __DIR__ . '/dead.txt'];
 // shuffle($proxyPaths);
 foreach ($proxyPaths as $file) {
@@ -76,7 +75,8 @@ foreach ($proxyPaths as $file) {
       }
       if (isPortOpen($proxy)) {
         echo trim($proxy) . ' respawned' . PHP_EOL;
-        removeStringAndMoveToFile($file, $testPath, trim($proxy));
+        removeStringAndMoveToFile($file, __DIR__ . '/proxies.txt', trim($proxy));
+        removeStringAndMoveToFile($file, __DIR__ . '/proxies-backup.txt', trim($proxy));
       }
     }
   }
