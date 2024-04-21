@@ -637,3 +637,169 @@ function moveLinesToFile(string $sourceFile, string $destinationFile, int $lines
 
   return true;
 }
+
+/**
+ * Append content to a file with file locking.
+ *
+ * @param string $file The file path.
+ * @param string $content_to_append The content to append.
+ * @return bool True if the content was successfully appended, false otherwise.
+ */
+function append_content_with_lock(string $file, string $content_to_append): bool
+{
+  // Open the file for appending
+  $handle = fopen($file, 'a');
+
+  // Check if file handle is valid
+  if (!$handle) {
+    return false;
+  }
+
+  // Acquire an exclusive lock
+  if (flock($handle, LOCK_EX)) {
+    // Append the content
+    fwrite($handle, $content_to_append);
+
+    // Release the lock
+    flock($handle, LOCK_UN);
+
+    // Close the file handle
+    fclose($handle);
+
+    return true;
+  } else {
+    // Couldn't acquire the lock
+    fclose($handle);
+    return false;
+  }
+}
+
+/**
+ * Removes a specified string from a text file.
+ *
+ * @param string $file_path The path to the text file.
+ * @param string $string_to_remove The string to remove from the file.
+ * @return bool True if the string was successfully removed, false otherwise.
+ */
+function removeStringFromFile($file_path, $string_to_remove)
+{
+  // Read the file
+  $file_content = file_get_contents($file_path);
+
+  // Remove the string
+  $new_content = str_replace($string_to_remove, '', $file_content);
+
+  // Write the modified content back to the file
+  $result = file_put_contents($file_path, $new_content);
+
+  return $result !== false;
+}
+
+function sanitizeFilename($name)
+{
+  $name = str_replace('/', '-', $name);
+  // remove illegal file system characters https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
+  $name = str_replace(array_merge(
+    array_map('chr', range(0, 31)),
+    array('<', '>', ':', '"', '/', '\\', '|', '?', '*')
+  ), '', $name);
+  // maximise filename length to 255 bytes http://serverfault.com/a/9548/44086
+  $ext = pathinfo($name, PATHINFO_EXTENSION);
+  $name = mb_strcut(pathinfo($name, PATHINFO_FILENAME), 0, 255 - ($ext ? strlen($ext) + 1 : 0), mb_detect_encoding($name)) . ($ext ? '.' . $ext : '');
+  return $name;
+}
+
+function sanitizeFilename2($filename)
+{
+  // Remove any character that is not alphanumeric, underscore, dash, or period
+  $filename = preg_replace("/[^\w\-\. ]/", '-', $filename);
+
+  return $filename;
+}
+
+function getIPRange(string $cidr)
+{
+  list($ip, $mask) = explode('/', trim($cidr));
+
+  $ipLong = ip2long($ip);
+  $maskLong = ~((1 << (32 - $mask)) - 1);
+
+  $start = $ipLong & $maskLong;
+  $end = $ipLong | (~$maskLong & 0xFFFFFFFF);
+
+  $ips = array();
+  for ($i = $start; $i <= $end; $i++) {
+    $ips[] = long2ip($i);
+  }
+
+  return $ips;
+}
+
+// Example usage
+// $cidr = "159.21.130.0/24";
+// $ipList = getIPRange($cidr);
+
+// foreach ($ipList as $ip) {
+//   echo $ip . "\n";
+// }
+
+function IPv6CIDRToRange($cidr)
+{
+  list($ip, $prefix) = explode('/', $cidr);
+  $range_start = inet_pton($ip);
+  $range_end = $range_start;
+
+  if ($prefix < 128) {
+    $suffix = 128 - $prefix;
+    for ($i = 0; $i < $suffix; $i++) {
+      $range_start[$i] = chr(ord($range_start[$i]) & (0xFF << ($i % 8)));
+      $range_end[$i] = chr(ord($range_end[$i]) | (0xFF >> (7 - $i % 8)));
+    }
+  }
+
+  return array(
+    'start' => inet_ntop($range_start),
+    'end' => inet_ntop($range_end)
+  );
+}
+
+// function IPv6CIDRToList($cidr)
+// {
+//   $range = IPv6CIDRToRange($cidr);
+//   $start = inet_pton($range['start']);
+//   $end = inet_pton($range['end']);
+//   $ips = array();
+//   while (strcmp($start, $end) <= 0) {
+//     $ips[] = inet_ntop($start);
+//     $start = gmp_add($start, 1);
+//   }
+//   return $ips;
+// }
+
+function IPv6CIDRToList($cidr)
+{
+  $range = IPv6CIDRToRange($cidr);
+  $start = inet_pton($range['start']);
+  $end = inet_pton($range['end']);
+  $ips = array();
+
+  // Increment IP address in binary representation
+  while (strcmp($start, $end) <= 0) {
+    $ips[] = inet_ntop($start);
+    // Increment binary representation of IP address
+    for ($i = strlen($start) - 1; $i >= 0; $i--) {
+      $start[$i] = chr(ord($start[$i]) + 1);
+      if ($start[$i] != chr(0)) {
+        break;
+      }
+    }
+  }
+  return $ips;
+}
+
+// Example usage
+// $cidr = '2404:6800:4000::/36';
+// $ips = IPv6CIDRToList($cidr);
+// foreach ($ips as $ip) {
+//   echo "$ip\n";
+// }
