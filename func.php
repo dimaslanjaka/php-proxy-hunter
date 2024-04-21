@@ -177,6 +177,9 @@ function rewriteIpPortFile($filename)
   if (file_exists($filename) && is_readable($filename) && is_writable($filename)) {
     // Open the file for reading
     $file = fopen($filename, "r");
+    if (!$file) {
+      throw new Exception("#1 Error opening $filename", 1);
+    }
 
     if (is_resource($file)) {
       // Read each line from the file and extract IP:PORT combinations
@@ -197,6 +200,9 @@ function rewriteIpPortFile($filename)
 
       // Open the file for writing (truncate existing content)
       $file = fopen($filename, "w");
+      if (!$file) {
+        throw new Exception("#2 Error opening $filename", 1);
+      }
 
       if (is_resource($file)) {
         // Write extracted IP:PORT combinations to the file
