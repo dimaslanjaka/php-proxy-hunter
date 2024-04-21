@@ -33,12 +33,12 @@ if ($isWin) {
 $uid = getUserId();
 $cmd .= " --userId=" . $uid;
 
-// echo $cmd . "\n\n";
-
 // validate lock files
 if (file_exists(__DIR__ . '/proxyChecker.lock') || file_exists(__DIR__ . '/proxySocksChecker.lock')) {
   exit('Another process still running');
 }
+
+echo $cmd . "\n\n";
 
 $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($outputfile), escapeshellarg($pidfile));
 if (!file_exists(__DIR__ . '/tmp')) mkdir(__DIR__ . '/tmp');
