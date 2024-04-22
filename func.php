@@ -501,8 +501,13 @@ function mergeArrays(array $arr1, array $arr2)
  */
 function isPortOpen(string $proxy, int $timeout = 10)
 {
+  $proxy = trim($proxy);
+
+  // disallow empty proxy
+  if (empty($proxy)) return false;
+
   // Separate IP and port
-  list($ip, $port) = explode(':', trim($proxy));
+  list($ip, $port) = explode(':', $proxy);
 
   // Create a TCP/IP socket with the specified timeout
   $socket = @fsockopen($ip, $port, $errno, $errstr, $timeout);
