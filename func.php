@@ -991,14 +991,14 @@ function filterUniqueLines($inputFile)
   $inputHandle = fopen($inputFile, 'r+');
 
   // Create a temporary file for storing unique lines
-  $tempFile = tempnam(__DIR__ . '/tmp', 'filterUniqueLines');
+  $tempFile = tmpfile();
 
   // Copy unique lines to the temporary file
   while (($line = fgets($inputHandle)) !== false) {
     $line = trim($line);
     if (!empty($line)) {
       // Check if line is unique
-      if (strpos(file_get_contents(stream_get_meta_data($tempFile)['uri']), $line) === false) {
+      if (strpos(stream_get_contents($tempFile), $line) === false) {
         fwrite($tempFile, $line . PHP_EOL);
       }
     }
