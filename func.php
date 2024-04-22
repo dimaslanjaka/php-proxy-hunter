@@ -1054,7 +1054,8 @@ function checkProxy($proxy, $type = 'http', string $endpoint = 'https://bing.com
       'result' => false,
       'latency' => $latency,
       'error' => $error_msg,
-      'status' => $info['http_code']
+      'status' => $info['http_code'],
+      'private' => false
     ];
   }
 

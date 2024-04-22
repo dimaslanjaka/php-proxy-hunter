@@ -47,7 +47,7 @@ $commonPorts = array_unique(array_merge($commonPorts, $ports));
 $startTime = microtime(true);
 
 foreach ($ipList as $ip) {
-  // Check if more than 120 seconds have passed
+  // Check if execution time more than [n] seconds
   if (microtime(true) - $startTime > 120) {
     break; // Exit the loop
   }
@@ -55,6 +55,7 @@ foreach ($ipList as $ip) {
   $ip = trim($ip);
 
   $ip_ports = array_map(function ($port) use ($ip) {
+    $port = trim((string) $port);
     return "$ip:$port";
   }, $commonPorts);
 
