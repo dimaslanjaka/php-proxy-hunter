@@ -69,6 +69,8 @@ if ($fileHandle) {
           echo "$proxy working" . PHP_EOL;
           // Write the proxy to the output file
           fwrite($outputHandle, PHP_EOL . $proxy . PHP_EOL);
+          // Remove the proxy from the input file
+          removeStringFromFile($filePath, $proxy);
         } else {
           echo "$proxy port open, but not proxy" . PHP_EOL;
           // Remove the proxy from the input file
