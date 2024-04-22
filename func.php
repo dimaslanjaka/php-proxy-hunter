@@ -185,7 +185,7 @@ function rewriteIpPortFile($filename)
   }
 
   // Open a temporary file for writing
-  $tempFilename = tempnam(__DIR__ . '/tmp', 'temp_ip_port_file');
+  $tempFilename = tempnam(__DIR__ . '/tmp', 'rewriteIpPortFile');
   $tempFile = fopen($tempFilename, "w");
   if (!$tempFile) {
     fclose($file); // Close the original file
@@ -725,9 +725,10 @@ function getIPRange(string $cidr)
   $start = $ipLong & $maskLong;
   $end = $ipLong | (~$maskLong & 0xFFFFFFFF);
 
-  $ips = array();
+  $ips = [];
   for ($i = $start; $i <= $end; $i++) {
-    $ips[] = long2ip($i);
+    $ip = long2ip($i);
+    if (is_string($ip)) $ips[] = trim($ip);
   }
 
   return $ips;
@@ -973,6 +974,49 @@ function scanPort(string $ip, int $port)
     return true;
   }
   return false;
+}
+
+/**
+ * Filters unique lines in a large file and overwrites the input file with the filtered lines.
+ *
+ * This function reads the input file line by line, removes duplicate lines,
+ * and overwrites the input file with the filtered unique lines.
+ *
+ * @param string $inputFile The path to the input file.
+ * @return void
+ */
+function filterUniqueLines($inputFile)
+{
+  // Open input file for reading and writing
+  $inputHandle = fopen($inputFile, 'r+');
+
+  // Create a temporary file for storing unique lines
+  $tempFile = tempnam(__DIR__ . '/tmp', 'filterUniqueLines');
+
+  // Copy unique lines to the temporary file
+  while (($line = fgets($inputHandle)) !== false) {
+    $line = trim($line);
+    if (!empty($line)) {
+      // Check if line is unique
+      if (strpos(file_get_contents(stream_get_meta_data($tempFile)['uri']), $line) === false) {
+        fwrite($tempFile, $line . PHP_EOL);
+      }
+    }
+  }
+
+  // Rewind both file pointers
+  rewind($inputHandle);
+  rewind($tempFile);
+
+  // Clear the contents of the input file
+  ftruncate($inputHandle, 0);
+
+  // Copy the unique lines back to the input file
+  stream_copy_to_stream($tempFile, $inputHandle);
+
+  // Close file handles
+  fclose($inputHandle);
+  fclose($tempFile);
 }
 
 function buildCurl($proxy, $type = 'http', string $endpoint = 'https://bing.com', array $headers = [])
