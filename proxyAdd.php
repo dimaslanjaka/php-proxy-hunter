@@ -58,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     fclose($file);
 
-    $write = rewriteIpPortFile($filePath);
+    rewriteIpPortFile($filePath);
 
     // check lock files
     $locks = glob(__DIR__ . '/*.lock');
@@ -68,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       file_put_contents(__DIR__ . '/proxies-backup.txt', PHP_EOL . implode(PHP_EOL, array_unique($ip_port_array)) . PHP_EOL, FILE_APPEND | LOCK_EX);
     }
 
-    $total = count($write);
+    $total = count(extractIpPortFromFile($filePath));
     echo "IP:PORT pairs ($total) written to proxies.txt successfully.";
   } else {
     echo "IP:PORT data not found in POST request.";
