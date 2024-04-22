@@ -28,6 +28,18 @@ run checker every 10 mins
 */10 * * * * php /path/to/proxyChecker.php > /path/to/proxyChecker.txt 2>&1
 ```
 
+to run crontab using spesific user
+
+```bash
+crontab -u www-data -e
+```
+
+to list spesific user crontab
+
+```bash
+crontab -u www-data -l
+```
+
 ## Troubleshoot
 
 <!-- missing php extension -->
