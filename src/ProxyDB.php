@@ -71,6 +71,13 @@ class ProxyDB
     return $result;
   }
 
+  public function getPrivateProxies()
+  {
+    $result = $this->db->select('proxies', '*', 'status = ?', ['private']);
+    if (!$result) return [];
+    return $result;
+  }
+
   /**
    * get dead proxies including closed port
    */

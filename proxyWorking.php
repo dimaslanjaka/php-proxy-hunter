@@ -16,6 +16,7 @@ if (file_exists(__DIR__ . '/proxyChecker.lock')) {
 
 $db = new ProxyDB();
 $working = $db->getWorkingProxies();
+$private = $db->getPrivateProxies();
 
 $impl = implode(PHP_EOL, array_map(function ($item) {
   return implode("|", [$item['proxy'], $item['latency'] ? $item['latency'] : '-', strtoupper($item['type']), $item['region'] ? $item['region'] : '-', $item['city'] ? $item['city'] : '-', $item['country'] ? $item['country'] : '-', $item['timezone'] ? $item['timezone'] : '-', $item['last_check'] ? $item['last_check'] : '-']);
@@ -48,7 +49,8 @@ if (!$isCli) {
 $untested = countNonEmptyLines(__DIR__ . '/proxies.txt');
 $dead = countNonEmptyLines(__DIR__ . '/dead.txt');
 echo "total working proxies " . count($working) . PHP_EOL;
+echo "total private proxies " . count($private) . PHP_EOL;
 echo "total dead proxies $dead" . PHP_EOL;
 echo "total untested proxies $untested" . PHP_EOL;
 
-file_put_contents(__DIR__ . '/status.json', json_encode(['working' => count($working), 'dead' => $dead, 'untested' => $untested]));
+file_put_contents(__DIR__ . '/status.json', json_encode(['working' => count($working), 'dead' => $dead, 'untested' => $untested, 'private' => count($private)]));
