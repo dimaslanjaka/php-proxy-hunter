@@ -504,7 +504,7 @@ function isPortOpen(string $proxy, int $timeout = 10)
   $proxy = trim($proxy);
 
   // disallow empty proxy
-  if (empty($proxy)) return false;
+  if (empty($proxy) || strlen($proxy) < 7) return false;
 
   // Separate IP and port
   list($ip, $port) = explode(':', $proxy);
