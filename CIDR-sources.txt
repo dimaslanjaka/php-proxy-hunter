@@ -1,0 +1,2 @@
+find network names from https://dichvusocks.net/sockslist
+find ip ranges from https://ipinfo.io/AS4808 or Google
