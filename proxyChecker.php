@@ -204,7 +204,11 @@ function checkProxyLine($line)
     if ($check['result'] !== false) {
       echo "$proxy working type HTTP";
       $latency = $check['latency'];
-      $db->update($proxy, 'http', null, null, null, 'active', $latency);
+      if ($check['private']) {
+        $db->update($proxy, 'http', null, null, null, 'private', $latency);
+      } else {
+        $db->update($proxy, 'http', null, null, null, 'active', $latency);
+      }
       echo " latency $latency ms\n";
       $item = "$proxy|$latency|HTTP";
       // fetch ip info
@@ -233,7 +237,11 @@ function checkProxyLine($line)
     if ($check['result'] !== false) {
       echo "$proxy working type SOCKS5\n";
       $latency = $check['latency'];
-      $db->update($proxy, 'socks5', null, null, null, 'active', $latency);
+      if ($check['private']) {
+        $db->update($proxy, 'socks5', null, null, null, 'private', $latency);
+      } else {
+        $db->update($proxy, 'socks5', null, null, null, 'active', $latency);
+      }
       $item = "$proxy|$latency|SOCKS5";
       // fetch ip info
       $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks5'), true);
@@ -261,7 +269,11 @@ function checkProxyLine($line)
     if ($check['result'] !== false) {
       echo "$proxy working type SOCKS4\n";
       $latency = $check['latency'];
-      $db->update($proxy, 'socks4', null, null, null, 'active', $latency);
+      if ($check['private']) {
+        $db->update($proxy, 'socks4', null, null, null, 'private', $latency);
+      } else {
+        $db->update($proxy, 'socks4', null, null, null, 'active', $latency);
+      }
       $item = "$proxy|$latency|SOCKS4";
       // fetch ip info
       $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks4'), true);
