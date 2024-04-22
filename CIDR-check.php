@@ -97,3 +97,6 @@ if ($fileHandle) {
 } else {
   echo "Error: Unable to open input file!";
 }
+
+// filter IP:PORT only
+rewriteIpPortFile($outputPath);
