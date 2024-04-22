@@ -61,6 +61,9 @@ if ($fileHandle) {
       }
 
       $proxy = trim($proxy);
+
+      if (empty($proxy)) continue;
+
       if (isPortOpen($proxy)) {
         $http = checkProxy($proxy, 'http');
         $socks5 = checkProxy($proxy, 'socks5');
