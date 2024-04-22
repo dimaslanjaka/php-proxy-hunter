@@ -168,20 +168,20 @@ function curlGetWithProxy($url, $proxy, $proxyType = 'http', $cacheTime = 86400 
  * Function to extract IP:PORT combinations from a text file and rewrite the file with only IP:PORT combinations.
  *
  * @param string $filename The path to the text file.
- * @return array
+ * @return bool True on success, false on failure.
  */
 function rewriteIpPortFile($filename)
 {
   if (!file_exists($filename) || !is_readable($filename) || !is_writable($filename)) {
     echo "File '$filename' is not readable or writable" . PHP_EOL;
-    return;
+    return false;
   }
 
   // Open the file for reading
   $file = fopen($filename, "r");
   if (!$file) {
     echo "Error opening $filename for reading" . PHP_EOL;
-    return;
+    return false;
   }
 
   // Open a temporary file for writing
@@ -190,7 +190,7 @@ function rewriteIpPortFile($filename)
   if (!$tempFile) {
     fclose($file); // Close the original file
     echo "Error opening temporary ($tempFilename) file for writing";
-    return;
+    return false;
   }
 
   // Read each line from the file and extract IP:PORT combinations
@@ -210,7 +210,8 @@ function rewriteIpPortFile($filename)
 
   // Replace the original file with the temporary file
   if (!rename($tempFilename, $filename)) {
-    throw new Exception("Error replacing original file with temporary file");
+    echo "Error replacing original file with temporary file";
+    return false;
   }
 
   return true;
