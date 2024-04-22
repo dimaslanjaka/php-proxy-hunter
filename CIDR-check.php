@@ -54,15 +54,21 @@ if ($fileHandle) {
 
     // Read the file line by line
     while (($proxy = fgets($fileHandle)) !== false) {
-      // Check if the elapsed time is more than 120 seconds
-      if (time() - $startTime > 120) {
-        echo "Execution time exceeded 120 seconds. Stopping execution." . PHP_EOL;
-        break; // Break out of the loop
+      // Check if the elapsed time is more than [n] seconds
+      if (time() - $startTime > 300) {
+        echo "Execution time exceeded. Stopping execution." . PHP_EOL;
+        // Break out of the loop
+        break;
       }
 
       $proxy = trim($proxy);
 
-      if (empty($proxy)) continue;
+      // dont process invalid IP:PORT
+      if (empty($proxy) || !isValidIPPort($proxy)) {
+        // Remove the proxy from the input file
+        removeStringFromFile($filePath, $proxy);
+        continue;
+      }
 
       if (isPortOpen($proxy)) {
         $http = checkProxy($proxy, 'http');
@@ -100,3 +106,4 @@ if ($fileHandle) {
 
 // filter IP:PORT only
 rewriteIpPortFile($outputPath);
+rewriteIpPortFile($filePath);
