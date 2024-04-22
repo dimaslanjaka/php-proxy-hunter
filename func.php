@@ -975,27 +975,8 @@ function scanPort(string $ip, int $port)
   return false;
 }
 
-/**
- * Check proxy connectivity.
- *
- * This function tests the connectivity of a given proxy by making a request to a specified endpoint.
- *
- * @param string $proxy The proxy address to test.
- * @param string $type (Optional) The type of proxy to use. Supported values: 'http', 'socks4', 'socks5', 'socks4a'.
- *                     Defaults to 'http' if not specified.
- * @param string $endpoint (Optional) The URL endpoint to test connectivity. Defaults to 'https://bing.com'.
- * @param array $headers (Optional) Additional HTTP headers to include in the request. Defaults to an empty array.
- * @return array An associative array containing the result of the proxy check:
- *               - 'result': Boolean indicating if the proxy check was successful.
- *               - 'latency': The latency (in milliseconds) of the proxy connection. If the connection failed, -1 is returned.
- *               - 'error': Error message if an error occurred during the connection attempt, null otherwise.
- *               - 'status': HTTP status code of the response.
- *               - 'private': Boolean indicating if the proxy is private.
- */
-function checkProxy($proxy, $type = 'http', string $endpoint = 'https://bing.com', array $headers = [])
+function buildCurl($proxy, $type = 'http', string $endpoint = 'https://bing.com', array $headers = [])
 {
-  $proxy = trim($proxy);
-
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint); // URL to test connectivity
   curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
@@ -1036,7 +1017,30 @@ function checkProxy($proxy, $type = 'http', string $endpoint = 'https://bing.com
 
   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
   curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // Handle compressed response
+  return $ch;
+}
 
+/**
+ * Check proxy connectivity.
+ *
+ * This function tests the connectivity of a given proxy by making a request to a specified endpoint.
+ *
+ * @param string $proxy The proxy address to test.
+ * @param string $type (Optional) The type of proxy to use. Supported values: 'http', 'socks4', 'socks5', 'socks4a'.
+ *                     Defaults to 'http' if not specified.
+ * @param string $endpoint (Optional) The URL endpoint to test connectivity. Defaults to 'https://bing.com'.
+ * @param array $headers (Optional) Additional HTTP headers to include in the request. Defaults to an empty array.
+ * @return array An associative array containing the result of the proxy check:
+ *               - 'result': Boolean indicating if the proxy check was successful.
+ *               - 'latency': The latency (in milliseconds) of the proxy connection. If the connection failed, -1 is returned.
+ *               - 'error': Error message if an error occurred during the connection attempt, null otherwise.
+ *               - 'status': HTTP status code of the response.
+ *               - 'private': Boolean indicating if the proxy is private.
+ */
+function checkProxy($proxy, $type = 'http', string $endpoint = 'https://bing.com', array $headers = [])
+{
+  $proxy = trim($proxy);
+  $ch = buildCurl($proxy, $type, $endpoint, $headers);
   $start = microtime(true); // Start time
   $response = curl_exec($ch);
   $end = microtime(true); // End time
