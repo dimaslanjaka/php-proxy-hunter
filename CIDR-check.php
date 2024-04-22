@@ -29,8 +29,10 @@ foreach ($proxies as $proxy) {
       removeStringAndMoveToFile($filePath, $outputPath, $proxy);
     } else {
       removeStringFromFile($filePath, $proxy);
+      echo "$proxy port open, but not proxy" . PHP_EOL;
     }
   } else {
     removeStringFromFile($filePath, $proxy);
+    echo "$proxy port closed" . PHP_EOL;
   }
 }
