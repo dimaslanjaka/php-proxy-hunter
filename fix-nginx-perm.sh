@@ -1,6 +1,10 @@
 #!/bin/bash
 
 sudo chown -R www-data:www-data *
+sudo chown -R www-data:www-data src/*
+sudo chown -R www-data:www-data config/*
+sudo chown -R www-data:www-data .cache/*
+sudo chown -R www-data:www-data tmp/*
 mkdir -p tmp/cookies
 touch tmp/cookies/index.html
 touch tmp/index.html
