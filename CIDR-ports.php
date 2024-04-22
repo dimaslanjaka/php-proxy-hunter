@@ -54,6 +54,8 @@ foreach ($ipList as $ip) {
 
   $ip = trim($ip);
 
+  if (!filter_var($ip, FILTER_VALIDATE_IP)) continue;
+
   $ip_ports = array_map(function ($port) use ($ip) {
     $port = trim((string) $port);
     return "$ip:$port";
