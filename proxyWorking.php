@@ -10,21 +10,12 @@ $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMO
 
 header('Content-Type:text/plain; charset=UTF-8');
 
-$workingHttp = __DIR__ . '/working.txt';
-// $workingSocks = __DIR__ . '/socks-working.txt';
-
 if (file_exists(__DIR__ . '/proxyChecker.lock')) {
   exit('another process still running');
 }
 
 $db = new ProxyDB();
 $working = $db->getWorkingProxies();
-$dead = file(__DIR__ . '/dead.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-if (!is_array($dead)) $dead = [];
-$dead = array_unique($dead);
-$untested = file(__DIR__ . '/proxies.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-if (!is_array($untested)) $untested = [];
-$untested = array_unique($untested);
 
 $impl = implode(PHP_EOL, array_map(function ($item) {
   return implode("|", [$item['proxy'], $item['latency'] ? $item['latency'] : '-', strtoupper($item['type']), $item['region'] ? $item['region'] : '-', $item['city'] ? $item['city'] : '-', $item['country'] ? $item['country'] : '-', $item['timezone'] ? $item['timezone'] : '-', $item['last_check'] ? $item['last_check'] : '-']);
@@ -41,7 +32,7 @@ sort($lines);
 
 $impl = join("\n", $lines);
 
-file_put_contents($workingHttp, $impl);
+file_put_contents(__DIR__ . '/working.txt', $impl);
 
 if (!$isCli) {
   if (!isset($_COOKIE['rewrite_cookies'])) {
@@ -54,8 +45,10 @@ if (!$isCli) {
   }
 }
 
+$untested = countNonEmptyLines(__DIR__ . '/proxies.txt');
+$dead = countNonEmptyLines(__DIR__ . '/dead.txt');
 echo "total working proxies " . count($working) . PHP_EOL;
-echo "total dead proxies " . count($dead) . PHP_EOL;
-echo "total untested proxies " . count($untested) . PHP_EOL;
+echo "total dead proxies $dead" . PHP_EOL;
+echo "total untested proxies $untested" . PHP_EOL;
 
-file_put_contents(__DIR__ . '/status.json', json_encode(['working' => count($working), 'dead' => count($dead), 'untested' => count($untested)]));
+file_put_contents(__DIR__ . '/status.json', json_encode(['working' => count($working), 'dead' => $dead, 'untested' => $untested]));
