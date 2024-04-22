@@ -1073,3 +1073,40 @@ function checkProxy($proxy, $type = 'http', string $endpoint = 'https://bing.com
     'private' => $isPrivate
   ];
 }
+
+/**
+ * Count the number of non-empty lines in a file.
+ *
+ * This function reads the specified file line by line and counts the number
+ * of non-empty lines.
+ *
+ * @param string $filename The path to the file.
+ * @param int $chunkSize Optional. The size of each chunk to read in bytes. Defaults to 4096.
+ * @return int|false The number of non-empty lines in the file, or false if the file couldn't be opened.
+ */
+function countNonEmptyLines($filename, $chunkSize = 4096)
+{
+  $file = fopen($filename, "r");
+  if (!$file) {
+    return false; // File open failed
+  }
+
+  $count = 0;
+  $buffer = '';
+
+  while (!feof($file)) {
+    $buffer .= fread($file, $chunkSize);
+    $lines = explode("\n", $buffer);
+    $count += count($lines) - 1;
+    $buffer = array_pop($lines);
+  }
+
+  fclose($file);
+
+  // Add 1 for the last line if it's not empty
+  if (trim($buffer) !== '') {
+    $count++;
+  }
+
+  return $count;
+}
