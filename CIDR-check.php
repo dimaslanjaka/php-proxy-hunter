@@ -16,3 +16,21 @@ ini_set('memory_limit', '2024M');
 
 $filePath = getRandomFileFromFolder(__DIR__ . '/tmp/ips-ports', 'txt');
 $outputPath = __DIR__ . '/proxies.txt';
+$proxies = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+foreach ($proxies as $proxy) {
+  $proxy = trim($proxy);
+  if (isPortOpen($proxy)) {
+    $http = checkProxy($proxy, 'http');
+    $socks5 = checkProxy($proxy, 'socks5');
+    $socks4 = checkProxy($proxy, 'socks4');
+    if ($http || $socks4 || $socks5) {
+      echo "$proxy working" . PHP_EOL;
+      removeStringAndMoveToFile($filePath, $outputPath, $proxy);
+    } else {
+      removeStringFromFile($filePath, $proxy);
+    }
+  } else {
+    removeStringFromFile($filePath, $proxy);
+  }
+}
