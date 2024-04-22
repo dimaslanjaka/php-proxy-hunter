@@ -1043,36 +1043,41 @@ function checkProxy($proxy, $type = 'http', string $endpoint = 'https://bing.com
 
   $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
   $response_header = substr($response, 0, $header_size);
+  // is private proxy?
+  $isPrivate = stripos($response_header, 'X-Forwarded-For:') !== false || stripos($response_header, 'Proxy-Authorization:') !== false;
 
   $info = curl_getinfo($ch);
   $latency = -1;
 
+  $result = [];
+
   // Check for CURL errors or empty response
   if (curl_errno($ch) || $response === false) {
     $error_msg = curl_error($ch);
-    return [
+    $result = [
       'result' => false,
       'latency' => $latency,
       'error' => $error_msg,
       'status' => $info['http_code'],
-      'private' => false
+      'private' => $isPrivate
     ];
   }
 
   curl_close($ch);
 
-  // is private proxy?
-  $isPrivate = stripos($response_header, 'X-Forwarded-For:') !== false || stripos($response_header, 'Proxy-Authorization:') !== false;
-
   $latency = round(($end - $start) * 1000); // Convert to milliseconds
 
-  return [
-    'result' => true,
-    'latency' => $latency,
-    'error' => null,
-    'status' => $info['http_code'],
-    'private' => $isPrivate
-  ];
+  if (empty($result)) {
+    $result = [
+      'result' => true,
+      'latency' => $latency,
+      'error' => null,
+      'status' => $info['http_code'],
+      'private' => $isPrivate
+    ];
+  }
+
+  return $result;
 }
 
 /**
