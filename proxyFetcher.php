@@ -12,7 +12,7 @@ if (file_exists($lockFilePath)) {
   exit();
 } else {
   file_put_contents($lockFilePath, date(DATE_RFC3339));
-  file_put_contents($statusFile, 'filter-ports');
+  file_put_contents($statusFile, 'fetching new proxies');
 }
 
 function exitProcess()
