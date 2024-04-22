@@ -1,5 +1,28 @@
 <?php
 
+require __DIR__ . '/func.php';
+
+if (function_exists('header')) header('Content-Type: text/plain; charset=UTF-8');
+
+$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$statusFile = __DIR__ . "/status.txt";
+
+if (file_exists($lockFilePath)) {
+  echo "another process still running\n";
+  exit();
+} else {
+  file_put_contents($lockFilePath, date(DATE_RFC3339));
+  file_put_contents($statusFile, 'filter-ports');
+}
+
+function exitProcess()
+{
+  global $lockFilePath, $statusFile;
+  if (file_exists($lockFilePath)) unlink($lockFilePath);
+  file_put_contents($statusFile, 'idle');
+}
+register_shutdown_function('exitProcess');
+
 // Array of URLs to fetch content from
 $urls = array_unique([
   "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt",
