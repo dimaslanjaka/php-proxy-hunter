@@ -885,6 +885,9 @@ function getRandomFileFromFolder($folder, $file_extension = null)
   // Remove special directories "." and ".." from the list
   $files = array_diff($files, array('.', '..'));
 
+  // Re-index the array
+  $files = array_values($files);
+
   // Filter files by extension if provided
   if ($file_extension !== null) {
     $files = array_filter($files, function ($file) use ($file_extension) {
