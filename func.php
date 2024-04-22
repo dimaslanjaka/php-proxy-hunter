@@ -173,13 +173,15 @@ function curlGetWithProxy($url, $proxy, $proxyType = 'http', $cacheTime = 86400 
 function rewriteIpPortFile($filename)
 {
   if (!file_exists($filename) || !is_readable($filename) || !is_writable($filename)) {
-    throw new Exception("File '$filename' is not readable or writable");
+    echo "File '$filename' is not readable or writable" . PHP_EOL;
+    return;
   }
 
   // Open the file for reading
   $file = fopen($filename, "r");
   if (!$file) {
-    throw new Exception("Error opening $filename for reading");
+    echo "Error opening $filename for reading" . PHP_EOL;
+    return;
   }
 
   // Open a temporary file for writing
@@ -187,7 +189,8 @@ function rewriteIpPortFile($filename)
   $tempFile = fopen($tempFilename, "w");
   if (!$tempFile) {
     fclose($file); // Close the original file
-    throw new Exception("Error opening temporary file for writing");
+    echo "Error opening temporary ($tempFilename) file for writing";
+    return;
   }
 
   // Read each line from the file and extract IP:PORT combinations
