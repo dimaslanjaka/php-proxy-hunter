@@ -134,7 +134,7 @@ setFilePermissions([$filePath, $workingPath, $deadPath]);
  */
 function shuffleChecks()
 {
-  global $filePath, $workingPath, $workingProxies, $deadPath, $startTime, $maxExecutionTime, $isCli;
+  global $filePath, $workingPath, $workingProxies, $deadPath, $isCli;
 
   // Read lines of the file into an array
   $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -162,6 +162,8 @@ function shuffleChecks()
       ob_flush();
     }
     if (checkProxyLine($line) == "break") break;
+    // move to dead.txt checked proxy
+    removeStringAndMoveToFile($filePath, $deadPath, trim($line));
   }
 
   // rewrite all working proxies
@@ -193,7 +195,6 @@ function checkProxyLine($line)
   if (!isPortOpen($proxy)) {
     echo "$proxy port closed\n";
     $db->updateStatus($proxy, 'port-closed');
-    removeStringAndMoveToFile($filePath, $deadPath, trim($proxy));
     return "failed";
   }
 
@@ -304,7 +305,7 @@ function checkProxyLine($line)
   echo "$proxy not working\n";
   // remove dead proxy from check list
   $db->update($proxy, null, null, null, null, 'dead');
-  removeStringAndMoveToFile($filePath, $deadPath, trim($proxy));
+  // removeStringAndMoveToFile($filePath, $deadPath, trim($proxy));
   return "failed";
 }
 
