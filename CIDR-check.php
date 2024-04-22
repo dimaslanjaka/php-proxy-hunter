@@ -11,28 +11,84 @@ if (php_sapi_name() !== 'cli') {
   die('Direct access not allowed');
 }
 
+$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$statusFile = __DIR__ . "/status.txt";
+
+if (file_exists($lockFilePath)) {
+  echo "another process still running\n";
+  exit();
+} else {
+  file_put_contents($lockFilePath, date(DATE_RFC3339));
+  file_put_contents($statusFile, 'scan generated IP:PORT');
+}
+
+function exitProcess()
+{
+  global $lockFilePath, $statusFile;
+  if (file_exists($lockFilePath)) unlink($lockFilePath);
+  file_put_contents($statusFile, 'idle');
+}
+register_shutdown_function('exitProcess');
+
 // set memory
 ini_set('memory_limit', '2024M');
 
 $filePath = getRandomFileFromFolder(__DIR__ . '/tmp/ips-ports', 'txt');
 $outputPath = __DIR__ . '/proxies.txt';
-$proxies = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-foreach ($proxies as $proxy) {
-  $proxy = trim($proxy);
-  if (isPortOpen($proxy)) {
-    $http = checkProxy($proxy, 'http');
-    $socks5 = checkProxy($proxy, 'socks5');
-    $socks4 = checkProxy($proxy, 'socks4');
-    if ($http || $socks4 || $socks5) {
-      echo "$proxy working" . PHP_EOL;
-      removeStringAndMoveToFile($filePath, $outputPath, $proxy);
-    } else {
-      removeStringFromFile($filePath, $proxy);
-      echo "$proxy port open, but not proxy" . PHP_EOL;
+if (!is_file($filePath)) {
+  exit($filePath . ' is not file');
+}
+
+// Open the file for reading
+$fileHandle = fopen($filePath, "r");
+
+// Check if the file opened successfully
+if ($fileHandle) {
+  // Open the output file for appending
+  $outputHandle = fopen($outputPath, "a"); // Changed mode to "a"
+
+  // Check if the output file opened successfully
+  if ($outputHandle) {
+    $startTime = time(); // Get the current timestamp
+
+    // Read the file line by line
+    while (($proxy = fgets($fileHandle)) !== false) {
+      // Check if the elapsed time is more than 120 seconds
+      if (time() - $startTime > 120) {
+        echo "Execution time exceeded 120 seconds. Stopping execution." . PHP_EOL;
+        break; // Break out of the loop
+      }
+
+      $proxy = trim($proxy);
+      if (isPortOpen($proxy)) {
+        $http = checkProxy($proxy, 'http');
+        $socks5 = checkProxy($proxy, 'socks5');
+        $socks4 = checkProxy($proxy, 'socks4');
+        if ($http || $socks4 || $socks5) {
+          echo "$proxy working" . PHP_EOL;
+          // Write the proxy to the output file
+          fwrite($outputHandle, PHP_EOL . $proxy . PHP_EOL);
+        } else {
+          echo "$proxy port open, but not proxy" . PHP_EOL;
+          // Remove the proxy from the input file
+          removeStringFromFile($filePath, $proxy);
+        }
+      } else {
+        echo "$proxy port closed" . PHP_EOL;
+        // Remove the proxy from the input file
+        removeStringFromFile($filePath, $proxy);
+      }
     }
+
+    // Close the output file
+    fclose($outputHandle);
   } else {
-    removeStringFromFile($filePath, $proxy);
-    echo "$proxy port closed" . PHP_EOL;
+    echo "Error: Unable to open output file!";
   }
+
+  // Close the input file
+  fclose($fileHandle);
+} else {
+  echo "Error: Unable to open input file!";
 }
