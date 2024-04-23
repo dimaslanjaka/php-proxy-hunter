@@ -22,7 +22,7 @@ $impl = implode(PHP_EOL, array_map(function ($item) {
   return implode("|", [$item['proxy'], $item['latency'] ? $item['latency'] : '-', strtoupper($item['type']), $item['region'] ? $item['region'] : '-', $item['city'] ? $item['city'] : '-', $item['country'] ? $item['country'] : '-', $item['timezone'] ? $item['timezone'] : '-', $item['last_check'] ? $item['last_check'] : '-']);
 }, $working));
 
-$header = 'PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE|LAST CHECK DATE';
+// $header = 'PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE|LAST CHECK DATE';
 // echo implode(PHP_EOL, [$header, $impl]);
 
 // Explode the input into an array of lines
@@ -54,3 +54,63 @@ echo "total dead proxies $dead" . PHP_EOL;
 echo "total untested proxies $untested" . PHP_EOL;
 
 file_put_contents(__DIR__ . '/status.json', json_encode(['working' => count($working), 'dead' => $dead, 'untested' => $untested, 'private' => count($private)]));
+
+// write for python profiles
+$fileProfiles = __DIR__ . '/profiles-proxy.json';
+$profiles = [];
+if (file_exists($fileProfiles)) {
+  $profiles = json_decode(file_get_contents($fileProfiles), true);
+}
+
+$originalProfiles = array_map(function ($item) {
+  if (!isset($item['useragent'])) $item['useragent'] = randomWindowsUa();
+  return $item;
+}, $working);
+if (empty($profiles)) {
+  // write init
+  file_put_contents($fileProfiles, json_encode($originalProfiles));
+}
+
+// $profiles = mergeArrays(array_map(function ($item) {
+//   if (!isset($item['useragent'])) $item['useragent'] = randomWindowsUa();
+//   return $item;
+// }, $working), $profiles);
+// file_put_contents($fileProfiles, json_encode($profiles));
+
+if (!empty($profiles)) {
+  foreach ($working as $test) {
+    $found = findByProxy($profiles, $test['proxy']);
+    if (!is_null($found)) {
+      $item = $profiles[$found];
+      if (!isset($item['useragent'])) {
+        $item['useragent'] = randomWindowsUa();
+        echo "set useragent " . $item['proxy'] . PHP_EOL;
+        $profiles[$found] = $item;
+      }
+    } else {
+      if (!isset($test['useragent'])) {
+        $test['useragent'] = randomWindowsUa();
+      }
+      $profiles[] = $test;
+    }
+  }
+}
+
+file_put_contents($fileProfiles, json_encode($originalProfiles, JSON_PRETTY_PRINT));
+
+/**
+ * Find the index of an item in an array based on its 'proxy' value.
+ *
+ * @param array $array The array to search through.
+ * @param string $proxy The value of the 'proxy' key to search for.
+ * @return int|null The index of the found item, or null if not found.
+ */
+function findByProxy($array, $proxy)
+{
+  foreach ($array as $key => $item) {
+    if ($item['proxy'] === $proxy) {
+      return $key; // Return the index of the found item
+    }
+  }
+  return null; // Proxy not found
+}
