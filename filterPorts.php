@@ -32,31 +32,22 @@ $db = new ProxyDB();
 $file = __DIR__ . '/proxies.txt';
 // remove empty lines
 removeEmptyLinesFromFile($file);
-// extract only IP:PORT
-$proxies = extractIpPortFromFile($file, true);
-// rewrite parsed IP:PORT
-file_put_contents($file, implode(PHP_EOL, $proxies));
-// shuffle proxies
-shuffle($proxies);
 
 // Record the start time
 $start_time = microtime(true);
 
-foreach (array_unique(array_filter($proxies, function ($value) {
-  return !is_null($value) && $value !== '';
-})) as $proxy) {
-  // Check if execution time exceeds 120 seconds
-  if (microtime(true) - $start_time > 120) {
-    echo "Execution time exceeded 120 seconds. Exiting loop." . PHP_EOL;
-    break;
+extractIpPortFromFileCallback($file, function ($proxy) use ($start_time, $isCli, $file, $db) {
+  // Check if execution time exceeds [n] seconds
+  if (microtime(true) - $start_time > (!$isCli ? 120 : 300)) {
+    // echo "Execution time exceeded 120 seconds. Exiting loop." . PHP_EOL;
+    return;
   }
-
   if (!isPortOpen($proxy)) {
-    removeStringAndMoveToFile($file, __DIR__ . '/dead.txt', trim($proxy));
-    $db->updateStatus(trim($proxy), 'port-closed');
-    echo trim($proxy) . " port closed" . PHP_EOL;
+    removeStringAndMoveToFile($file, __DIR__ . '/dead.txt', $proxy);
+    $db->updateStatus($proxy, 'port-closed');
+    echo $proxy . " port closed" . PHP_EOL;
   }
-}
+});
 
 // remove non IP:PORT from database
 
