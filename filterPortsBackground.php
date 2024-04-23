@@ -20,14 +20,14 @@ if (!$isCli) {
 }
 
 // Run a long-running process in the background
-$file = __DIR__ . "/proxyChecker.php";
+$file = __DIR__ . "/filterPorts.php";
 $outputfile = __DIR__ . '/proxyChecker.txt';
 $pidfile = __DIR__ . '/proxyChecker.pid';
 setFilePermissions([$file, $outputfile, $pidfile]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd = "php " . escapeshellarg($file);
 if ($isWin) {
-  $cmd = "start /B \"proxy_checker\" $cmd";
+  $cmd = "start /B \"filter_ports\" $cmd";
 }
 
 $uid = getUserId();
