@@ -837,6 +837,16 @@ function IPv6CIDRToList($cidr)
 //   echo "$ip\n";
 // }
 
+function randomWindowsUa()
+{
+  $windowsVersions = ['Windows 7', 'Windows 10', 'Windows 11'];
+  $chromeVersions = ['86.0.4240', '98.0.4758', '100.0.4896'];
+  $randomWindows = $windowsVersions[array_rand($windowsVersions)];
+  $randomChrome = $chromeVersions[array_rand($chromeVersions)];
+
+  return "Mozilla/5.0 ($randomWindows) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$randomChrome Safari/537.36";
+}
+
 /**
  * Generates a random Android user-agent string.
  *
