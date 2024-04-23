@@ -2,6 +2,8 @@
 
 require __DIR__ . '/func.php';
 
+if (!$isCli) exit('web server disallowed');
+
 if (function_exists('header')) header('Content-Type: text/plain; charset=UTF-8');
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
