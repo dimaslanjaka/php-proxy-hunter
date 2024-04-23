@@ -258,36 +258,72 @@ function readFileLinesToArray(string $filename)
  */
 function extractIpPortFromFile($filePath, bool $unique = false)
 {
-  $ipPortList = array();
+  $ipPortList = [];
 
   if (file_exists($filePath)) {
-    // Open the file for reading
-    $fp = fopen($filePath, "r");
+    // Open the file for reading in binary mode
+    $fp = fopen($filePath, "rb");
     if (!$fp) {
       throw new Exception('File open failed.');
     }
 
-    if ($fp != false) {
-      // Read each line from the file
-      while (!feof($fp)) {
-        $line = fgets($fp);
+    // Read file line by line
+    while (!feof($fp)) {
+      $line = fgets($fp);
 
-        // Match IP:PORT pattern using regular expression
-        preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $line, $matches);
+      // Match IP:PORT pattern using regular expression
+      preg_match_all('/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+\b/', $line, $matches);
 
-        // Add matched IP:PORT combinations to the list
-        foreach ($matches[0] as $match) {
-          $ipPortList[] = trim($match);
-        }
+      // Add matched IP:PORT combinations to the list
+      foreach ($matches[0] as $match) {
+        $ipPortList[] = trim($match);
       }
-
-      // Close the file
-      fclose($fp);
     }
+
+    // Close the file
+    fclose($fp);
   }
 
-  if ($unique) return array_unique($ipPortList);
+  if ($unique) {
+    $ipPortList = array_unique($ipPortList);
+  }
+
   return $ipPortList;
+}
+
+/**
+ * Extracts IP:PORT combinations from a file and processes each match using a callback function.
+ *
+ * @param string $filePath The path to the file containing IP:PORT combinations.
+ * @param callable $callback The callback function to process each matched IP:PORT combination.
+ */
+function extractIpPortFromFileCallback($filePath, callable $callback)
+{
+  if (file_exists($filePath)) {
+    // Open the file for reading in binary mode
+    $fp = fopen($filePath, "rb");
+    if (!$fp) {
+      throw new Exception('File open failed.');
+    }
+
+    // Read file line by line
+    while (!feof($fp)) {
+      $line = fgets($fp);
+
+      // Match IP:PORT pattern using regular expression
+      preg_match_all('/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+\b/', $line, $matches);
+
+      // Process each matched IP:PORT combination using the callback function
+      foreach ($matches[0] as $match) {
+        $proxy = trim($match);
+        if (empty($proxy) || is_null($proxy)) continue;
+        $callback($proxy);
+      }
+    }
+
+    // Close the file
+    fclose($fp);
+  }
 }
 
 // Function to parse command line arguments
@@ -553,8 +589,6 @@ function removeEmptyLinesFromFile($filePath)
 
   // Rewrite the non-empty lines back to the file
   file_put_contents($filePath, implode('', $lines));
-
-  // echo "Empty lines removed successfully from $filePath.";
 }
 
 /**
