@@ -81,8 +81,9 @@ $endpoint = trim($config['endpoint']);
 $headers = array_filter($config['headers']);
 $checksFor = $config['type'];
 
-echo "GET $endpoint " . strtoupper($checksFor) . "\n";
-echo implode("\n", $headers) . "\n";
+echo $config['user_id'] . ' ' . date("Y-m-d H:i:s") . PHP_EOL;
+echo "GET $endpoint " . strtoupper($checksFor) . PHP_EOL;
+echo implode("\n", $headers) . PHP_EOL;
 
 if (!$isCli) {
   if (isset($_SERVER['HTTP_HOST'])) {
