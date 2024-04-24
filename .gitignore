@@ -24,3 +24,13 @@ tmp/
 /status.json
 _myConfig.js
 .vscode/sftp.json
+
+# python
+!/requirements.txt
+/profiles
+/profiles.json
+/build
+/local_storage.json
+/output
+/error_logs
+__pycache__

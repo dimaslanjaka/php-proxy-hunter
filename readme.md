@@ -54,6 +54,18 @@ systemctl restart php7.2-fpm
 systemctl restart nginx
 ```
 
+## Python
+
+### Requirements
+
+- python v3
+
+### Quick Start
+
+```bash
+python -m pip install -r requirements.txt
+```
+
 ```txt
 ----------------------------------------------------------------------------
 LICENSE
