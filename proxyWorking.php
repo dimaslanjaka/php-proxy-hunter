@@ -84,19 +84,20 @@ if (!empty($profiles)) {
       $item = $profiles[$found];
       if (!isset($item['useragent'])) {
         $item['useragent'] = randomWindowsUa();
-        echo "set useragent " . $item['proxy'] . PHP_EOL;
+        echo "EX: set useragent " . $item['proxy'] . PHP_EOL;
         $profiles[$found] = $item;
       }
     } else {
       if (!isset($test['useragent'])) {
         $test['useragent'] = randomWindowsUa();
+        echo "TEST: set useragent " . $test['proxy'] . PHP_EOL;
       }
       $profiles[] = $test;
     }
   }
 }
 
-file_put_contents($fileProfiles, json_encode($originalProfiles, JSON_PRETTY_PRINT));
+file_put_contents($fileProfiles, json_encode($profiles, JSON_PRETTY_PRINT));
 
 /**
  * Find the index of an item in an array based on its 'proxy' value.
