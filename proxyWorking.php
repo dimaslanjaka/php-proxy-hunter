@@ -5,6 +5,7 @@
 require __DIR__ . '/func.php';
 
 use PhpProxyHunter\ProxyDB;
+use function Annexare\Countries\countries;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
@@ -62,27 +63,22 @@ if (file_exists($fileProfiles)) {
   $profiles = json_decode(file_get_contents($fileProfiles), true);
 }
 
-$originalProfiles = array_map(function ($item) {
-  if (!isset($item['useragent'])) $item['useragent'] = randomWindowsUa();
-  return $item;
-}, $working);
 if (empty($profiles)) {
   // write init
+  $originalProfiles = array_map(function ($item) {
+    if (!isset($item['useragent'])) $item['useragent'] = randomWindowsUa();
+    return $item;
+  }, $working);
   file_put_contents($fileProfiles, json_encode($originalProfiles));
   $profiles = $originalProfiles;
   $count = count($originalProfiles);
   echo "write init profile ($count)";
 }
 
-// $profiles = mergeArrays(array_map(function ($item) {
-//   if (!isset($item['useragent'])) $item['useragent'] = randomWindowsUa();
-//   return $item;
-// }, $working), $profiles);
-// file_put_contents($fileProfiles, json_encode($profiles));
-
 if (!empty($profiles)) {
   foreach ($working as $test) {
     $found = findByProxy($profiles, $test['proxy']);
+    // modify useragent
     if (!is_null($found)) {
       $item = $profiles[$found];
       if (!isset($item['useragent'])) {
@@ -96,6 +92,22 @@ if (!empty($profiles)) {
         echo "TEST: set useragent " . $test['proxy'] . PHP_EOL;
       }
       $profiles[] = $test;
+    }
+  }
+}
+
+// determine IP language from country
+$countries = array_values(countries());
+foreach ($profiles as $item) {
+  $found = findByProxy($profiles, $item['proxy']);
+  if (!isset($item['lang'])) {
+    $filterCountry = array_filter($countries, function ($country) use ($item) {
+      return trim(strtolower($country['name'])) == trim(strtolower($item['country']));
+    });
+    if (!empty($filterCountry)) {
+      $lang = array_values($filterCountry)[0]['languages'][0];
+      $item['lang'] = $lang;
+      $profiles[$found] = $item;
     }
   }
 }
