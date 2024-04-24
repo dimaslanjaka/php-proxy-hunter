@@ -91,15 +91,12 @@ async function main() {
 async function doCheck() {
   try {
     if (user_info) {
-      // Perform fetch with a timeout of 5 seconds
+      await fetchWorkingProxies().catch(() => {});
       await fetch('./proxyCheckerBackground.php?uid=' + user_info.user_id, {
         signal: AbortSignal.timeout(5000)
       }).catch(() => {});
-      await fetch('./proxyWorking.php', {
-        signal: AbortSignal.timeout(5000)
-      }).catch(() => {});
-      // If successful, call checkerStatus
       await checkerStatus().catch(() => {});
+      await fetchWorkingProxies().catch(() => {});
     }
   } catch (error) {
     // Handle errors if needed
@@ -224,7 +221,7 @@ let workingProxiesTxt;
 async function fetchWorkingProxies() {
   const date = new Date();
   // fetch update in background
-  fetch('./proxyWorking.php', { signal: AbortSignal.timeout(5000) }).catch(() => {
+  await fetch('./proxyWorking.php', { signal: AbortSignal.timeout(5000) }).catch(() => {
     //
   });
   let testWorkingProxiesTxt = await fetch('./working.txt?v=' + date, { signal: AbortSignal.timeout(5000) })
