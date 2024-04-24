@@ -25,6 +25,7 @@ tmp/
 _myConfig.js
 .vscode/sftp.json
 /profiles-proxy.json
+!/adspower.txt
 
 # python
 !/requirements.txt
