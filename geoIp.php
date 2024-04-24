@@ -56,7 +56,7 @@ $geoplugin->locate($ip);
 $json = $geoplugin->jsonSerialize();
 unset($json['host']);
 echo json_encode($json);
-$db->update($proxy, null, $geoplugin->region, $geoplugin->city, $geoplugin->countryName, null, null, $geoplugin->timezone);
+$db->updateData($proxy, ['timezone' => $geoplugin->timezone, 'city' => $geoplugin->city, 'country' => $geoplugin->countryName, 'region' => $geoplugin->region, 'lang' => $geoplugin->lang, 'latitude' => $geoplugin->latitude, 'longitude' => $geoplugin->longitude]);
 
 // echo "Geolocation results for {$geoplugin->ip}\n" .
 //   "City: {$geoplugin->city} \n" .
