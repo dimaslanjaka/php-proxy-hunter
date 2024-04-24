@@ -28,6 +28,9 @@
     "bluebird": "^3.7.2",
     "deepmerge-ts": "4",
     "https-proxy-agent": "^7.0.4",
+    "puppeteer": "^22.7.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "sbg-utility": "^1.1.6"
   }
 }
