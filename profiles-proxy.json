@@ -11,7 +11,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Los_Angeles",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "2",
@@ -25,7 +25,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Kolkata",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "20",
@@ -39,7 +39,21 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Paris",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+    },
+    {
+        "id": "57",
+        "proxy": "52.13.248.29:3128",
+        "latency": "3339",
+        "type": "http-socks5-socks4",
+        "region": "Oregon",
+        "city": "Boardman",
+        "country": "United States",
+        "last_check": "2024-04-23T16:26:59+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": "America\/Los_Angeles",
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "82",
@@ -53,7 +67,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Sao_Paulo",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "83",
@@ -67,7 +81,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Dublin",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "108",
@@ -95,7 +109,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Chicago",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "268",
@@ -109,7 +123,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/New_York",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "562",
@@ -123,7 +137,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Kolkata",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "607",
@@ -137,7 +151,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Chicago",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "722",
@@ -165,7 +179,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Berlin",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "1258",
@@ -179,21 +193,21 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/London",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "1286",
         "proxy": "24.249.199.12:4145",
-        "latency": "1154",
+        "latency": "2089",
         "type": "socks5-socks4",
         "region": "FL",
         "city": "Miramar Beach",
         "country": "United States",
-        "last_check": "2024-04-23T03:10:08+07:00",
+        "last_check": "2024-04-23T16:17:13+07:00",
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Chicago",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "1417",
@@ -207,7 +221,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Singapore",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "1438",
@@ -221,7 +235,21 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Chicago",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+    },
+    {
+        "id": "1455",
+        "proxy": "45.81.232.17:5932",
+        "latency": "2260",
+        "type": "socks5-socks4",
+        "region": null,
+        "city": null,
+        "country": null,
+        "last_check": "2024-04-23T16:46:13+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": null,
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "1485",
@@ -235,7 +263,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Los_Angeles",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "1656",
@@ -249,7 +277,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Berlin",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "1946",
@@ -263,7 +291,21 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Chicago",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+    },
+    {
+        "id": "2061",
+        "proxy": "68.1.210.189:4145",
+        "latency": "4496",
+        "type": "socks5-socks4",
+        "region": "AZ",
+        "city": "Mesa",
+        "country": "United States",
+        "last_check": "2024-04-23T16:10:10+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": "America\/Phoenix",
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "2112",
@@ -277,7 +319,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Berlin",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "2144",
@@ -291,21 +333,49 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/New_York",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+    },
+    {
+        "id": "2447",
+        "proxy": "98.170.57.231:4145",
+        "latency": "3435",
+        "type": "socks5-socks4",
+        "region": "GA",
+        "city": "Atlanta",
+        "country": "United States",
+        "last_check": "2024-04-23T16:25:26+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": "America\/New_York",
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+    },
+    {
+        "id": "2466",
+        "proxy": "52.196.1.182:80",
+        "latency": "440",
+        "type": "http-socks5-socks4",
+        "region": null,
+        "city": null,
+        "country": null,
+        "last_check": "2024-04-24T21:18:59+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": null,
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "2865",
         "proxy": "45.81.232.17:14669",
-        "latency": "1536",
+        "latency": "1950",
         "type": "socks5-socks4",
         "region": null,
         "city": null,
         "country": "Germany",
-        "last_check": "2024-04-23T02:01:17+07:00",
+        "last_check": "2024-04-23T16:00:41+07:00",
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Berlin",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "2881",
@@ -319,7 +389,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Kolkata",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "2888",
@@ -333,7 +403,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Shanghai",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "2981",
@@ -347,7 +417,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Los_Angeles",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "3038",
@@ -361,7 +431,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Moscow",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "3320",
@@ -375,7 +445,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Kolkata",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "3325",
@@ -389,7 +459,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Shanghai",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "3411",
@@ -403,7 +473,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Los_Angeles",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "3471",
@@ -417,7 +487,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Los_Angeles",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "3489",
@@ -431,7 +501,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Chicago",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "3500",
@@ -445,7 +515,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Chicago",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "4145",
@@ -459,7 +529,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Amsterdam",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "4154",
@@ -473,7 +543,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Rome",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "4163",
@@ -487,7 +557,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/New_York",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "4178",
@@ -501,7 +571,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Singapore",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "4182",
@@ -515,7 +585,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Singapore",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "4188",
@@ -529,7 +599,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Singapore",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "4193",
@@ -543,7 +613,35 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/New_York",
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+    },
+    {
+        "id": "8945",
+        "proxy": "68.183.100.186:8000",
+        "latency": "2148",
+        "type": "http",
+        "region": null,
+        "city": null,
+        "country": null,
+        "last_check": "2024-04-23T16:41:25+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": null,
         "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+    },
+    {
+        "id": "10780",
+        "proxy": "103.148.192.83:8089",
+        "latency": "2555",
+        "type": "http",
+        "region": null,
+        "city": null,
+        "country": null,
+        "last_check": "2024-04-23T16:42:44+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": null,
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "18264",
@@ -557,7 +655,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/New_York",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "19771",
@@ -571,7 +669,21 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Karachi",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+    },
+    {
+        "id": "20637",
+        "proxy": "8.213.129.20:8080",
+        "latency": "7947",
+        "type": "socks5",
+        "region": null,
+        "city": null,
+        "country": null,
+        "last_check": "2024-04-24T21:21:41+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": null,
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "24140",
@@ -585,7 +697,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/London",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "24903",
@@ -599,7 +711,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Kiev",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "24940",
@@ -613,7 +725,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Berlin",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "25076",
@@ -627,7 +739,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Sao_Paulo",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "25565",
@@ -641,7 +753,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Shanghai",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "25614",
@@ -655,7 +767,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Chicago",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "25653",
@@ -669,7 +781,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/New_York",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "26181",
@@ -683,7 +795,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/New_York",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "26852",
@@ -697,7 +809,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Paris",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "27631",
@@ -711,7 +823,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Chicago",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "29103",
@@ -725,7 +837,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Chicago",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "29116",
@@ -739,7 +851,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Los_Angeles",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "29279",
@@ -753,7 +865,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Paris",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "29460",
@@ -767,7 +879,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Paris",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "29534",
@@ -781,7 +893,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Paris",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "29638",
@@ -795,7 +907,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Paris",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "29640",
@@ -809,7 +921,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Paris",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "29647",
@@ -823,7 +935,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Paris",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "29819",
@@ -837,7 +949,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Paris",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "38644",
@@ -851,7 +963,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/New_York",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "38671",
@@ -865,7 +977,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Bogota",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "39146",
@@ -879,7 +991,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Singapore",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "39264",
@@ -893,7 +1005,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/New_York",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "39506",
@@ -907,7 +1019,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Singapore",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "39668",
@@ -921,7 +1033,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Shanghai",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "39671",
@@ -935,7 +1047,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Shanghai",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "39720",
@@ -949,7 +1061,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "America\/Los_Angeles",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "39749",
@@ -963,7 +1075,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Shanghai",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     },
     {
         "id": "39802",
@@ -977,7 +1089,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Jakarta",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "39821",
@@ -991,7 +1103,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Europe\/Berlin",
-        "useragent": "Mozilla\/5.0 (Windows 10) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
     },
     {
         "id": "39852",
@@ -1005,7 +1117,7 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Shanghai",
-        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
     },
     {
         "id": "39968",
@@ -1019,6 +1131,48 @@
         "anonymity": null,
         "status": "active",
         "timezone": "Asia\/Shanghai",
-        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+    },
+    {
+        "id": "40055",
+        "proxy": "212.102.34.54:8443",
+        "latency": "7447",
+        "type": "http",
+        "region": "NH",
+        "city": "Amsterdam",
+        "country": "The Netherlands",
+        "last_check": "2024-04-23T16:06:06+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": "Europe\/Amsterdam",
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+    },
+    {
+        "id": "40086",
+        "proxy": "212.102.34.52:8443",
+        "latency": "1619",
+        "type": "http",
+        "region": "NH",
+        "city": "Amsterdam",
+        "country": "The Netherlands",
+        "last_check": "2024-04-23T16:23:53+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": "Europe\/Amsterdam",
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+    },
+    {
+        "id": "40140",
+        "proxy": "51.161.131.84:23294",
+        "latency": "6016",
+        "type": "socks5",
+        "region": null,
+        "city": null,
+        "country": null,
+        "last_check": "2024-04-24T19:46:07+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": null,
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     }
 ]
