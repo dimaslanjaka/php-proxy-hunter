@@ -16,6 +16,7 @@
     ],
     "require": {
         "composer-plugin-api": "^2.3",
-        "annexare/countries-list": "^3.1"
+        "annexare/countries-list": "^3.1",
+        "geoip2/geoip2": "^2.13"
     }
 }
