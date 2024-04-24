@@ -69,6 +69,9 @@ $originalProfiles = array_map(function ($item) {
 if (empty($profiles)) {
   // write init
   file_put_contents($fileProfiles, json_encode($originalProfiles));
+  $profiles = $originalProfiles;
+  $count = count($originalProfiles);
+  echo "write init profile ($count)";
 }
 
 // $profiles = mergeArrays(array_map(function ($item) {
