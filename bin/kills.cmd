@@ -15,3 +15,5 @@
 
 call wmic process where "name like 'chrome.exe'" delete
 call wmic process where "name like 'webdriver.exe'" delete
+call wmic process where "name like 'php.exe'" delete
+rm *.lock
