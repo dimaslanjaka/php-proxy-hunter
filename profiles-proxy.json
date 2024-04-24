@@ -1174,5 +1174,47 @@
         "status": "active",
         "timezone": null,
         "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
+    },
+    {
+        "id": "2667",
+        "proxy": "52.67.10.183:80",
+        "latency": "1538",
+        "type": "http-socks5-socks4",
+        "region": null,
+        "city": null,
+        "country": null,
+        "last_check": "2024-04-24T21:44:53+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": null,
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/98.0.4758 Safari\/537.36"
+    },
+    {
+        "id": "6820",
+        "proxy": "189.240.60.163:9090",
+        "latency": "6435",
+        "type": "http",
+        "region": "CMX",
+        "city": "Benito Juarez",
+        "country": "Mexico",
+        "last_check": "2024-04-24T21:43:44+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": "America\/Mexico_City",
+        "useragent": "Mozilla\/5.0 (Windows 11) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/86.0.4240 Safari\/537.36"
+    },
+    {
+        "id": "24136",
+        "proxy": "3.9.71.167:3128",
+        "latency": "1351",
+        "type": "http-socks5-socks4",
+        "region": null,
+        "city": null,
+        "country": null,
+        "last_check": "2024-04-24T21:46:37+07:00",
+        "anonymity": null,
+        "status": "active",
+        "timezone": null,
+        "useragent": "Mozilla\/5.0 (Windows 7) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/100.0.4896 Safari\/537.36"
     }
 ]
