@@ -84,15 +84,26 @@ async function main() {
   }, 5000);
 }
 
-function doCheck() {
-  if (user_info)
-    fetch('./proxyCheckerBackground.php?uid=' + user_info.user_id, { signal: AbortSignal.timeout(5000) })
-      .then(() => {
-        checkerStatus();
-      })
-      .catch(() => {
-        //
-      });
+/**
+ * Performs a check using the proxyCheckerBackground.php endpoint.
+ * @returns {Promise<void>} A promise that resolves when the check is completed.
+ */
+async function doCheck() {
+  try {
+    if (user_info) {
+      // Perform fetch with a timeout of 5 seconds
+      await fetch('./proxyCheckerBackground.php?uid=' + user_info.user_id, {
+        signal: AbortSignal.timeout(5000)
+      }).catch(() => {});
+      await fetch('./proxyWorking.php', {
+        signal: AbortSignal.timeout(5000)
+      }).catch(() => {});
+      // If successful, call checkerStatus
+      await checkerStatus().catch(() => {});
+    }
+  } catch (error) {
+    // Handle errors if needed
+  }
 }
 
 let prevOutput = '';
