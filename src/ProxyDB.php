@@ -51,6 +51,11 @@ class ProxyDB
       $data['status'] = $status;
       $data['last_check'] = date(DATE_RFC3339);
     }
+    if (!empty($data)) $this->updateData($proxy, $data);
+  }
+
+  public function updateData(string $proxy, array $data = [])
+  {
     if (!empty($data)) $this->db->update('proxies', $data, 'proxy = ?', [trim($proxy)]);
   }
 
