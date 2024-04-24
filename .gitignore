@@ -24,6 +24,7 @@ tmp/
 /status.json
 _myConfig.js
 .vscode/sftp.json
+/profiles-proxy.json
 
 # python
 !/requirements.txt
