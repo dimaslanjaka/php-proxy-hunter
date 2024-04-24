@@ -13,5 +13,9 @@
             "name": "dimaslanjaka",
             "email": "dimaslanjaka@gmail.com"
         }
-    ]
+    ],
+    "require": {
+        "composer-plugin-api": "^2.3",
+        "annexare/countries-list": "^3.1"
+    }
 }
