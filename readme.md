@@ -8,7 +8,7 @@ PHP proxy hunter
 
 ## Requirements
 
-- pdo_sqlite `sudo apt install php7.2-sqlite3`
+- pdo_sqlite `sudo apt install php-sqlite3 php-zip unzip`
 
 ## Quickstart
 

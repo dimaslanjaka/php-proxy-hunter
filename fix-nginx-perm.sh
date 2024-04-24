@@ -22,6 +22,9 @@ sudo chmod 644 *.php
 echo "permission sets successful"
 echo ""
 
-php composer.phar install
+su -s /bin/bash -c 'php composer.phar install' www-data
+# php composer.phar install
+sudo chown -R www-data:www-data vendor/*
+sudo chown -R www-data:www-data vendor/composer/*
 
 echo "composer installed"
