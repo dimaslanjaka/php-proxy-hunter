@@ -20,3 +20,8 @@ sudo chmod 644 *.php
 # sudo chown -R www-data:www-data /var/www/html
 
 echo "permission sets successful"
+echo ""
+
+php composer.phar install
+
+echo "composer installed"
