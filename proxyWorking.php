@@ -5,6 +5,7 @@
 require __DIR__ . '/func.php';
 
 use PhpProxyHunter\geoPlugin;
+use PhpProxyHunter\geoPlugin2;
 use PhpProxyHunter\ProxyDB;
 use function Annexare\Countries\countries;
 
@@ -129,6 +130,8 @@ foreach ($profiles as $item) {
           if (isset($decodedData['geoplugin_status']) && isset($decodedData['geoplugin_message']) && $decodedData['geoplugin_status'] == 429 && strpos($decodedData['geoplugin_message'], 'too many request') !== false) {
             // delete cache when response failed
             if (file_exists($geoplugin->cacheFile)) unlink($geoplugin->cacheFile);
+            $geo2 = new geoPlugin2();
+            $geoplugin = $geo2->locate($ip);
           }
         }
         if ($geoplugin->longitude != null) {

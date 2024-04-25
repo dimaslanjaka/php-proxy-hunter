@@ -101,8 +101,21 @@ class geoPlugin implements \JsonSerializable
   /**
    * Initialize geoPlugin variables.
    */
-  function __construct()
+  public function __construct()
   {
+  }
+
+  function fromGeoIp2CityModel(\GeoIp2\Model\City $record = null)
+  {
+    if ($record != null) {
+      $this->city = $record->city->name;
+      $this->countryName = $record->country->name;
+      $this->countryCode = $record->country->isoCode;
+      $this->latitude = $record->location->latitude;
+      $this->longitude = $record->location->longitude;
+      $lang = array_keys($record->country->names);
+      if (!empty($lang)) $this->lang = $lang[0];
+    }
   }
 
   public function jsonSerialize()
