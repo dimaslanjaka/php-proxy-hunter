@@ -86,22 +86,22 @@ if (!empty($profiles)) {
         $item['useragent'] = randomWindowsUa();
         echo "EX: set useragent " . $item['proxy'] . PHP_EOL;
         $profiles[$found] = $item;
-        $db->updateData($item['proxy'], ['useragent' => $item['useragent']]);
+        // $db->updateData($item['proxy'], ['useragent' => $item['useragent']]);
       }
     } else {
       if (!isset($test['useragent'])) {
         $test['useragent'] = randomWindowsUa();
         echo "TEST: set useragent " . $test['proxy'] . PHP_EOL;
-        $db->updateData($test['proxy'], ['useragent' => $test['useragent']]);
+        // $db->updateData($test['proxy'], ['useragent' => $test['useragent']]);
       }
       $profiles[] = $test;
     }
   }
 }
 
-// determine IP language from country
 $countries = array_values(countries());
 foreach ($profiles as $item) {
+  // determine IP language from country
   $found = findByProxy($profiles, $item['proxy']);
   if (!isset($item['lang'])) {
     $filterCountry = array_filter($countries, function ($country) use ($item) {
@@ -114,6 +114,9 @@ foreach ($profiles as $item) {
     }
     $db->updateData($item['proxy'], ['lang' => $item['lang']]);
   }
+  // delete dead proxy
+  $select = $db->select($item['proxy']);
+  var_dump($select['status']);
 }
 
 file_put_contents($fileProfiles, json_encode($profiles, JSON_PRETTY_PRINT));
