@@ -4,6 +4,7 @@
 
 require __DIR__ . '/func.php';
 
+use PhpProxyHunter\geoPlugin;
 use PhpProxyHunter\ProxyDB;
 use function Annexare\Countries\countries;
 
@@ -15,6 +16,7 @@ if (gethostname() !== 'DESKTOP-JVTSJ6I') {
   }
 }
 
+$geoplugin = new geoPlugin();
 $db = new ProxyDB();
 $working = $db->getWorkingProxies();
 $private = $db->getPrivateProxies();
@@ -101,9 +103,10 @@ if (!empty($profiles)) {
 
 $countries = array_values(countries());
 foreach ($profiles as $item) {
-  // determine IP language from country
   $found = findByProxy($profiles, $item['proxy']);
   if (!is_null($found)) {
+    // echo "processing " . $item['proxy'] . PHP_EOL;
+    // determine IP language from country
     if (!isset($item['lang'])) {
       $filterCountry = array_filter($countries, function ($country) use ($item) {
         return trim(strtolower($country['name'])) == trim(strtolower($item['country']));
@@ -115,8 +118,30 @@ foreach ($profiles as $item) {
         $db->updateData($item['proxy'], ['lang' => $item['lang']]);
       }
     }
-    // delete dead proxy
     $select = $db->select($item['proxy']);
+    // determine longitude and latitude
+    if (!isset($item['latitude']) || !isset($item['longitude'])) {
+      list($ip, $port) = explode(':', $item['proxy']);
+      $geo = $geoplugin->locate($ip);
+      if (is_string($geo)) {
+        $decodedData = json_decode($geo, true);
+        if ($decodedData !== null && json_last_error() === JSON_ERROR_NONE) {
+          if (isset($decodedData['geoplugin_status']) && isset($decodedData['geoplugin_message']) && $decodedData['geoplugin_status'] == 429 && strpos($decodedData['geoplugin_message'], 'too many request') !== false) {
+            // delete cache when response failed
+            if (file_exists($geoplugin->cacheFile)) unlink($geoplugin->cacheFile);
+          }
+        }
+        if ($geoplugin->longitude != null) {
+          $item['longitude'] = $geoplugin->longitude;
+          $db->updateData($item['proxy'], ['longitude' => $geoplugin->longitude]);
+        }
+        if ($geoplugin->latitude != null) {
+          $db->updateData($item['proxy'], ['latitude' => $geoplugin->latitude]);
+          $item['latitude'] = $geoplugin->latitude;
+        }
+      }
+    }
+    // delete dead proxy
     if ($select != false && !empty($select)) {
       $status = $select[0]['status'];
       if (trim(strtolower($status)) != 'active') {
