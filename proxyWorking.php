@@ -162,6 +162,10 @@ foreach ($profiles as $item) {
   }
 }
 
+// Reindex the array
+$profiles = array_values($profiles);
+
+// write the modified profiles
 file_put_contents($fileProfiles, json_encode($profiles, JSON_PRETTY_PRINT));
 
 /**
