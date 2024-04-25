@@ -103,20 +103,27 @@ $countries = array_values(countries());
 foreach ($profiles as $item) {
   // determine IP language from country
   $found = findByProxy($profiles, $item['proxy']);
-  if (!isset($item['lang'])) {
-    $filterCountry = array_filter($countries, function ($country) use ($item) {
-      return trim(strtolower($country['name'])) == trim(strtolower($item['country']));
-    });
-    if (!empty($filterCountry)) {
-      $lang = array_values($filterCountry)[0]['languages'][0];
-      $item['lang'] = $lang;
-      $profiles[$found] = $item;
+  if (!is_null($found)) {
+    if (!isset($item['lang'])) {
+      $filterCountry = array_filter($countries, function ($country) use ($item) {
+        return trim(strtolower($country['name'])) == trim(strtolower($item['country']));
+      });
+      if (!empty($filterCountry)) {
+        $lang = array_values($filterCountry)[0]['languages'][0];
+        $item['lang'] = $lang;
+        $profiles[$found] = $item;
+      }
+      $db->updateData($item['proxy'], ['lang' => $item['lang']]);
     }
-    $db->updateData($item['proxy'], ['lang' => $item['lang']]);
+    // delete dead proxy
+    $select = $db->select($item['proxy']);
+    if ($select != false && !empty($select)) {
+      $status = $select[0]['status'];
+      if (trim(strtolower($status)) != 'active') {
+        unset($profiles[$found]);
+      }
+    }
   }
-  // delete dead proxy
-  $select = $db->select($item['proxy']);
-  var_dump($select['status']);
 }
 
 file_put_contents($fileProfiles, json_encode($profiles, JSON_PRETTY_PRINT));
