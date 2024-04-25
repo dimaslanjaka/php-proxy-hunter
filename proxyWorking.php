@@ -152,12 +152,51 @@ foreach ($profiles as $item) {
         if ($geoplugin->longitude != null) {
           $item['longitude'] = $geoplugin->longitude;
           $db->updateData($item['proxy'], ['longitude' => $geoplugin->longitude]);
+          // apply
+          $profiles[$found] = $item;
         }
         if ($geoplugin->latitude != null) {
           $db->updateData($item['proxy'], ['latitude' => $geoplugin->latitude]);
           $item['latitude'] = $geoplugin->latitude;
+          // apply
+          $profiles[$found] = $item;
         }
       }
+    }
+    // determine webgl driver
+    $vendor_data = array(
+      "Google Inc. (Intel)" => array(
+        "renderers" => array("Intel Iris OpenGL Engine", "ANGLE (Intel, Intel(R) HD Graphics 400 Direct3D11 vs_5_0 ps_5_0)", "ANGLE (NVIDIA, NVIDIA GeForce GTX 660 Direct3D11 vs_5_0 ps_5_0, D3D11)"),
+        "webgl_vendors" => array("Intel Inc.")
+      ),
+      "Google Inc. (NVIDIA)" => array(
+        "renderers" => array("NVIDIA GeForce Renderer"),
+        "webgl_vendors" => array("NVIDIA Corporation")
+      ),
+      "Microsoft Corporation" => array(
+        "renderers" => array("AMD Radeon Pro Renderer"),
+        "webgl_vendors" => array("AMD Inc.")
+      ),
+      "Apple Inc." => array(
+        "renderers" => array("Apple Renderer"),
+        "webgl_vendors" => array("Apple Inc.")
+      ),
+      "Mozilla" => array(
+        "renderers" => array("ANGLE (Intel, Intel(R) HD Graphics 400 Direct3D11 vs_5_0 ps_5_0), or similar"),
+        "webgl_vendors" => array("Google Inc. (Intel)")
+      )
+    );
+    if (!isset($item['driver'])) {
+      // Get a random key from the vendor_data array
+      $random_vendor = array_rand($vendor_data);
+
+      // Get the corresponding value for the random key
+      $random_item = $vendor_data[$random_vendor];
+
+      $item['driver'] = $random_item;
+
+      // apply
+      $profiles[$found] = $item;
     }
   }
 }
