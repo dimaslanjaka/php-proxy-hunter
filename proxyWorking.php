@@ -113,7 +113,15 @@ $countries = array_values(countries());
 foreach ($profiles as $item) {
   $found = findByProxy($profiles, $item['proxy']);
   if (!is_null($found)) {
-    // echo "processing " . $item['proxy'] . PHP_EOL;
+    // delete dead proxy
+    if ($select != false && !empty($select)) {
+      $status = $select[0]['status'];
+      if (trim(strtolower($status)) != 'active') {
+        unset($profiles[$found]);
+        echo ($item['proxy'] . ' deleted' . PHP_EOL);
+        continue;
+      }
+    }
     // determine IP language from country
     if (!isset($item['lang'])) {
       $filterCountry = array_filter($countries, function ($country) use ($item) {
@@ -149,14 +157,6 @@ foreach ($profiles as $item) {
           $db->updateData($item['proxy'], ['latitude' => $geoplugin->latitude]);
           $item['latitude'] = $geoplugin->latitude;
         }
-      }
-    }
-    // delete dead proxy
-    if ($select != false && !empty($select)) {
-      $status = $select[0]['status'];
-      if (trim(strtolower($status)) != 'active') {
-        unset($profiles[$found]);
-        echo ($item['proxy'] . ' deleted' . PHP_EOL);
       }
     }
   }
