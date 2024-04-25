@@ -113,15 +113,6 @@ $countries = array_values(countries());
 foreach ($profiles as $item) {
   $found = findByProxy($profiles, $item['proxy']);
   if (!is_null($found)) {
-    // delete dead proxy
-    if ($select != false && !empty($select)) {
-      $status = $select[0]['status'];
-      if (trim(strtolower($status)) != 'active') {
-        unset($profiles[$found]);
-        echo ($item['proxy'] . ' deleted' . PHP_EOL);
-        continue;
-      }
-    }
     // determine IP language from country
     if (!isset($item['lang'])) {
       $filterCountry = array_filter($countries, function ($country) use ($item) {
@@ -135,6 +126,7 @@ foreach ($profiles as $item) {
       }
     }
     $select = $db->select($item['proxy']);
+
     // determine longitude and latitude
     if (!isset($item['latitude']) || !isset($item['longitude'])) {
       list($ip, $port) = explode(':', $item['proxy']);
@@ -163,40 +155,52 @@ foreach ($profiles as $item) {
         }
       }
     }
+
     // determine webgl driver
-    $vendor_data = array(
-      "Google Inc. (Intel)" => array(
-        "renderers" => array("Intel Iris OpenGL Engine", "ANGLE (Intel, Intel(R) HD Graphics 400 Direct3D11 vs_5_0 ps_5_0)", "ANGLE (NVIDIA, NVIDIA GeForce GTX 660 Direct3D11 vs_5_0 ps_5_0, D3D11)"),
-        "webgl_vendors" => array("Intel Inc.")
-      ),
-      "Google Inc. (NVIDIA)" => array(
-        "renderers" => array("NVIDIA GeForce Renderer"),
-        "webgl_vendors" => array("NVIDIA Corporation")
-      ),
-      "Microsoft Corporation" => array(
-        "renderers" => array("AMD Radeon Pro Renderer"),
-        "webgl_vendors" => array("AMD Inc.")
-      ),
-      "Apple Inc." => array(
-        "renderers" => array("Apple Renderer"),
-        "webgl_vendors" => array("Apple Inc.")
-      ),
-      "Mozilla" => array(
-        "renderers" => array("ANGLE (Intel, Intel(R) HD Graphics 400 Direct3D11 vs_5_0 ps_5_0), or similar"),
-        "webgl_vendors" => array("Google Inc. (Intel)")
-      )
-    );
     if (!isset($item['driver'])) {
+      $vendor_data = array(
+        "Google Inc. (Intel)" => array(
+          "renderers" => array("Intel Iris OpenGL Engine", "ANGLE (Intel, Intel(R) HD Graphics 400 Direct3D11 vs_5_0 ps_5_0)", "ANGLE (NVIDIA, NVIDIA GeForce GTX 660 Direct3D11 vs_5_0 ps_5_0, D3D11)"),
+          "webgl_vendors" => array("Intel Inc.")
+        ),
+        "Google Inc. (NVIDIA)" => array(
+          "renderers" => array("NVIDIA GeForce Renderer"),
+          "webgl_vendors" => array("NVIDIA Corporation")
+        ),
+        "Microsoft Corporation" => array(
+          "renderers" => array("AMD Radeon Pro Renderer"),
+          "webgl_vendors" => array("AMD Inc.")
+        ),
+        "Apple Inc." => array(
+          "renderers" => array("Apple Renderer"),
+          "webgl_vendors" => array("Apple Inc.")
+        ),
+        "Mozilla" => array(
+          "renderers" => array("ANGLE (Intel, Intel(R) HD Graphics 400 Direct3D11 vs_5_0 ps_5_0), or similar"),
+          "webgl_vendors" => array("Google Inc. (Intel)")
+        )
+      );
+
       // Get a random key from the vendor_data array
       $random_vendor = array_rand($vendor_data);
 
       // Get the corresponding value for the random key
-      $random_item = $vendor_data[$random_vendor];
-
-      $item['driver'] = $random_item;
+      $random_item = array($random_vendor => $vendor_data[$random_vendor]);
 
       // apply
+      $item['driver'] = $random_item;
       $profiles[$found] = $item;
+    }
+
+    // delete dead proxy
+    if ($select != false && !empty($select)) {
+      $status = $select[0]['status'];
+      if (!is_null($status)) {
+        if (trim(strtolower($status)) !== 'active') {
+          unset($profiles[$found]);
+          echo $item['proxy'] . ' deleted' . PHP_EOL;
+        }
+      }
     }
   }
 }

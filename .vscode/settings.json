@@ -13,5 +13,6 @@
   "code-runner.executorMapByGlob": {
     "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register"
   },
-  "code-runner.respectShebang": true
+  "code-runner.respectShebang": true,
+  "debug.terminal.clearBeforeReusing": true
 }
