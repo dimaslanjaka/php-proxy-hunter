@@ -57,6 +57,7 @@ echo "total untested proxies $untested" . PHP_EOL;
 file_put_contents(__DIR__ . '/status.json', json_encode(['working' => count($working), 'dead' => $dead, 'untested' => $untested, 'private' => count($private)]));
 
 // write for python profiles
+
 $fileProfiles = __DIR__ . '/profiles-proxy.json';
 $profiles = [];
 if (file_exists($fileProfiles)) {
@@ -75,21 +76,23 @@ if (empty($profiles)) {
   echo "write init profile ($count)";
 }
 
+// modify useragent each IP
 if (!empty($profiles)) {
   foreach ($working as $test) {
     $found = findByProxy($profiles, $test['proxy']);
-    // modify useragent
     if (!is_null($found)) {
       $item = $profiles[$found];
       if (!isset($item['useragent'])) {
         $item['useragent'] = randomWindowsUa();
         echo "EX: set useragent " . $item['proxy'] . PHP_EOL;
         $profiles[$found] = $item;
+        $db->updateData($item['proxy'], ['useragent' => $item['useragent']]);
       }
     } else {
       if (!isset($test['useragent'])) {
         $test['useragent'] = randomWindowsUa();
         echo "TEST: set useragent " . $test['proxy'] . PHP_EOL;
+        $db->updateData($test['proxy'], ['useragent' => $test['useragent']]);
       }
       $profiles[] = $test;
     }
@@ -109,6 +112,7 @@ foreach ($profiles as $item) {
       $item['lang'] = $lang;
       $profiles[$found] = $item;
     }
+    $db->updateData($item['proxy'], ['lang' => $item['lang']]);
   }
 }
 
