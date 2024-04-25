@@ -43,6 +43,8 @@
         Header set Access-Control-Allow-Methods "GET, OPTIONS"
     </IfModule>
     RewriteEngine On
+    # Always allow robots.txt
+    RewriteCond %{REQUEST_URI} !/robots\.txt$ [nocase]
     # Allow access if the _ga cookie is present
     RewriteCond %{HTTP_COOKIE} !_ga [NC]
     RewriteRule ^ - [F]
