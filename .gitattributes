@@ -8,25 +8,21 @@
 *.js        text eol=lf filter=tabspace
 *.java      text eol=lf filter=tabspace
 *.kt        text eol=lf filter=tabspace
-
 pre-commit         text eol=lf
 post-commit        text eol=lf
-
 # xml and html are almost always tabsize 2.
 *.xml       text eol=lf filter=tabspace2
 *.html      text eol=lf filter=tabspace2
-
 # python is iffy.  Not sure if it should be spaceonly or tabspace.
 *.py        text eol=lf filter=spaceonly
 *.spaceonly text eol=lf filter=spaceonly
-
 # following types should always be edited as spaces, because of other IDE/toolchain dependencies.
 *.csproj    text eol=crlf filter=spaceonly
 *.props     text eol=crlf filter=spaceonly
 *.vcxproj   text eol=crlf filter=spaceonly
-
 # images
 *.png       binary diff
 *.jpg       binary diff
 *.ico       binary diff
 *.pdf       binary diff
+*.mmdb filter=lfs diff=lfs merge=lfs -text
