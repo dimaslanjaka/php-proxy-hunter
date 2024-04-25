@@ -95,6 +95,9 @@ class geoPlugin implements \JsonSerializable
   /** @var float|null The currency converter */
   var $currencyConverter = null;
 
+  /** @var string|null The cache file location */
+  var $cacheFile = null;
+
   /**
    * Initialize geoPlugin variables.
    */
@@ -126,30 +129,46 @@ class geoPlugin implements \JsonSerializable
 
     $data = array();
 
-    $response = $this->fetch($host);
-
-    $data = unserialize($response);
-
     // Set the geoPlugin vars
     $this->ip = $ip;
-    $this->city = $data['geoplugin_city'];
-    $this->region = $data['geoplugin_region'];
-    $this->regionCode = $data['geoplugin_regionCode'];
-    $this->regionName = $data['geoplugin_regionName'];
-    $this->dmaCode = $data['geoplugin_dmaCode'];
-    $this->countryCode = $data['geoplugin_countryCode'];
-    $this->countryName = $data['geoplugin_countryName'];
-    $this->inEU = $data['geoplugin_inEU'];
-    $this->euVATrate = $data['geoplugin_euVATrate'];
-    $this->continentCode = $data['geoplugin_continentCode'];
-    $this->continentName = $data['geoplugin_continentName'];
-    $this->latitude = $data['geoplugin_latitude'];
-    $this->longitude = $data['geoplugin_longitude'];
-    $this->locationAccuracyRadius = $data['geoplugin_locationAccuracyRadius'];
-    $this->timezone = $data['geoplugin_timezone'];
-    $this->currencyCode = $data['geoplugin_currencyCode'];
-    $this->currencySymbol = $data['geoplugin_currencySymbol'];
-    $this->currencyConverter = $data['geoplugin_currencyConverter'];
+
+    $response = $this->fetch($host);
+
+    if ($response != false) {
+      $decodedData = json_decode($response, true);
+      if ($decodedData !== null && json_last_error() === JSON_ERROR_NONE) {
+        // var_dump($decodedData);
+        if (isset($decodedData['geoplugin_status']) && isset($decodedData['geoplugin_message']) && $decodedData['geoplugin_status'] == 429 && strpos($decodedData['geoplugin_message'], 'too many request') !== false) {
+          // delete cache when response failed
+          if (file_exists($this->cacheFile)) unlink($this->cacheFile);
+        }
+      } else {
+        $data = unserialize($response);
+        if ($data != false) {
+          $this->city = $data['geoplugin_city'];
+          $this->region = $data['geoplugin_region'];
+          $this->regionCode = $data['geoplugin_regionCode'];
+          $this->regionName = $data['geoplugin_regionName'];
+          $this->dmaCode = $data['geoplugin_dmaCode'];
+          $this->countryCode = $data['geoplugin_countryCode'];
+          $this->countryName = $data['geoplugin_countryName'];
+          $this->inEU = $data['geoplugin_inEU'];
+          $this->euVATrate = $data['geoplugin_euVATrate'];
+          $this->continentCode = $data['geoplugin_continentCode'];
+          $this->continentName = $data['geoplugin_continentName'];
+          $this->latitude = $data['geoplugin_latitude'];
+          $this->longitude = $data['geoplugin_longitude'];
+          $this->locationAccuracyRadius = $data['geoplugin_locationAccuracyRadius'];
+          $this->timezone = $data['geoplugin_timezone'];
+          $this->currencyCode = $data['geoplugin_currencyCode'];
+          $this->currencySymbol = $data['geoplugin_currencySymbol'];
+          $this->currencyConverter = $data['geoplugin_currencyConverter'];
+        } else {
+          // echo $ip . ' geo api failed ' . PHP_EOL;
+          // echo $response . PHP_EOL;
+        }
+      }
+    }
 
     return $response;
   }
@@ -158,15 +177,24 @@ class geoPlugin implements \JsonSerializable
    * Fetches data from the provided URL using cURL or fopen.
    *
    * @param string $host The URL to fetch data from.
-   * @return string The fetched data.
+   * @return string|false The fetched data, or false on failure.
    */
   function fetch($host)
   {
-    $cacheFile = getcwd() . '/.cache/' . md5($host);
-    if (!file_exists(dirname($cacheFile))) mkdir(dirname($cacheFile));
-    // return the cache
-    if (file_exists($cacheFile)) return file_get_contents($cacheFile);
+    $cacheDir = getcwd() . '/.cache/';
+    $this->cacheFile = $cacheDir . md5($host);
 
+    // Create cache directory if it doesn't exist
+    if (!file_exists($cacheDir)) {
+      mkdir($cacheDir, 0777, true);
+    }
+
+    // Return cached data if available
+    if (file_exists($this->cacheFile)) {
+      return file_get_contents($this->cacheFile);
+    }
+
+    // Fetch data from URL
     if (function_exists('curl_init')) {
       // Use cURL to fetch data
       $ch = curl_init();
@@ -174,19 +202,24 @@ class geoPlugin implements \JsonSerializable
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
       curl_setopt($ch, CURLOPT_USERAGENT, 'geoPlugin PHP Class v1.1');
       $response = curl_exec($ch);
+      $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
       curl_close($ch);
     } elseif (ini_get('allow_url_fopen')) {
       // Fall back to fopen()
-      $response = file_get_contents($host, 'r');
+      $response = file_get_contents($host);
+      $httpStatus = $http_response_header[0];
     } else {
       trigger_error('geoPlugin class Error: Cannot retrieve data. Either compile PHP with cURL support or enable allow_url_fopen in php.ini ', E_USER_ERROR);
-      return;
+      return false;
     }
 
-    $unserialize = unserialize($response);
-    if ($unserialize['geoplugin_status'] == 200) {
-      // write cache
-      file_put_contents($cacheFile, $response);
+    // Handle HTTP status and caching
+    if ($httpStatus == 200 && $response !== false) {
+      // Write cache
+      file_put_contents($this->cacheFile, $response);
+    } elseif (file_exists($this->cacheFile)) {
+      // Delete cache if HTTP status is not 200 or if response is empty
+      unlink($this->cacheFile);
     }
 
     return $response;
