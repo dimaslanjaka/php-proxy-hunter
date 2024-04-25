@@ -56,6 +56,9 @@ class ProxyDB
 
   public function updateData(string $proxy, array $data = [])
   {
+    if (empty($this->select($proxy))) {
+      $this->add($proxy);
+    }
     if (!empty($data)) $this->db->update('proxies', $data, 'proxy = ?', [trim($proxy)]);
   }
 
