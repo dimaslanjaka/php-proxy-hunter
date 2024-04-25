@@ -24,10 +24,11 @@ tmp/
 /status.json
 _myConfig.js
 .vscode/sftp.json
-/profiles-proxy.json
-!/adspower.txt
+!/robots.txt
 
 # python
+/profiles-proxy.json
+!/adspower.txt
 !/requirements.txt
 /profiles
 /profiles.json
