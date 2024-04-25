@@ -29,6 +29,6 @@ sudo chown -R www-data:www-data vendor/composer/*
 echo "composer installed"
 
 git lfs install
-git lfs track *.mmdb
+git lfs track *.rar
 
 echo "large files tracked"

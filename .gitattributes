@@ -2,6 +2,7 @@
 *.txt       text eol=lf
 *.json      text eol=lf filter=tabspace
 *.sh        text eol=lf
+*.php       text eol=lf filter=spaceonly
 *.ts        text eol=lf filter=tabspace
 *.css       text eol=lf filter=tabspace
 *.scss      text eol=lf filter=tabspace
