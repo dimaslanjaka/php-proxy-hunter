@@ -165,8 +165,14 @@ foreach ($profiles as $item) {
 // Reindex the array
 $profiles = array_values($profiles);
 
+// Remove duplicate objects based on the 'proxy' key
+$uniqueObjects = removeDuplicateObjectsByKey($profiles, 'proxy');
+
+// Encode the uniqueObjects array back to JSON
+$uniqueJsonData = json_encode($uniqueObjects, JSON_PRETTY_PRINT);
+
 // write the modified profiles
-file_put_contents($fileProfiles, json_encode($profiles, JSON_PRETTY_PRINT));
+file_put_contents($fileProfiles, $uniqueJsonData);
 
 /**
  * Find the index of an item in an array based on its 'proxy' value.
@@ -183,4 +189,21 @@ function findByProxy($array, $proxy)
     }
   }
   return null; // Proxy not found
+}
+
+function removeDuplicateObjectsByKey($array, $key)
+{
+  $uniqueValues = [];
+  $uniqueObjects = [];
+
+  foreach ($array as $object) {
+    // Check if the value of the specified key already exists in the uniqueValues array
+    if (!in_array($object[$key], $uniqueValues)) {
+      // If not, add it to the uniqueValues array and add the object to the uniqueObjects array
+      $uniqueValues[] = $object[$key];
+      $uniqueObjects[] = $object;
+    }
+  }
+
+  return $uniqueObjects;
 }
