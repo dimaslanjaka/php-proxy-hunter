@@ -12,6 +12,16 @@ PHP proxy hunter
 
 ## Quickstart
 
+- clone repository
+
+```bash
+sudo apt-get install git git-lfs -y
+git clone https://github.com/dimaslanjaka/php-proxy-hunter foldername
+cd foldername
+git lfs install
+git lfs track *.mmdb
+```
+
 - create database files
 
 ```bash
