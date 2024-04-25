@@ -1,0 +1,20 @@
+User-agent: *
+Disallow: /backend/*
+Disallow: /source/*
+Disallow: /Tests/*
+Disallow: /Test/*
+Disallow: /ads/*
+Disallow: /hexo-theme-unit-test/*
+Disallow: /test-unit/*
+Disallow: /search/label/*
+Disallow: /docs/hexo-renderers/random/*
+Allow: /page/safelink.html
+Allow: /page/bot-detect*
+Allow: /search*
+
+Sitemap: https://www.webmanajemen.com/sitemap.xml
+Sitemap: https://www.webmanajemen.com/chimeraland/sitemap.xml
+Sitemap: https://www.webmanajemen.com/atom.xml
+Sitemap: https://www.webmanajemen.com/rss.xml
+Sitemap: https://www.webmanajemen.com/sitemap.txt
+Sitemap: https://www.webmanajemen.com/chimeraland/sitemap.txt
