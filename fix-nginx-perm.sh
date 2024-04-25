@@ -20,7 +20,6 @@ sudo chmod 644 *.php
 # sudo chown -R www-data:www-data /var/www/html
 
 echo "permission sets successful"
-echo ""
 
 su -s /bin/bash -c 'php composer.phar install' www-data
 # php composer.phar install
@@ -28,3 +27,8 @@ sudo chown -R www-data:www-data vendor/*
 sudo chown -R www-data:www-data vendor/composer/*
 
 echo "composer installed"
+
+git lfs install
+git lfs track *.mmdb
+
+echo "large files tracked"
