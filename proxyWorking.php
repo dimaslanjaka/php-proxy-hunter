@@ -37,7 +37,10 @@ sort($lines);
 
 $impl = join("\n", $lines);
 
+// write working proxies
 file_put_contents(__DIR__ . '/working.txt', $impl);
+
+$fileUntested = __DIR__ . '/proxies.txt';
 
 if (!$isCli) {
   if (!isset($_COOKIE['rewrite_cookies'])) {
@@ -46,11 +49,15 @@ if (!$isCli) {
     setcookie('rewrite_cookies', $cookie_value, time() + 300, '/');
 
     // rewrite working proxies to be checked again later
-    file_put_contents(__DIR__ . '/proxies.txt', PHP_EOL . $impl . PHP_EOL, FILE_APPEND);
+    file_put_contents($fileUntested, PHP_EOL . $impl . PHP_EOL, FILE_APPEND);
+    // filter only IP:PORT each lines
+    rewriteIpPortFile($fileUntested);
+    // remove duplicate proxies
+    removeDuplicateLines($fileUntested);
   }
 }
 
-$untested = countNonEmptyLines(__DIR__ . '/proxies.txt');
+$untested = countNonEmptyLines($fileUntested);
 $dead = countNonEmptyLines(__DIR__ . '/dead.txt');
 echo "total working proxies " . count($working) . PHP_EOL;
 echo "total private proxies " . count($private) . PHP_EOL;
