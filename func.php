@@ -837,14 +837,42 @@ function IPv6CIDRToList($cidr)
 //   echo "$ip\n";
 // }
 
+/**
+ * Generates a random user agent string for Windows operating system.
+ *
+ * @return string Random user agent string.
+ */
 function randomWindowsUa()
 {
-  $windowsVersions = ['Windows 7', 'Windows 10', 'Windows 11'];
-  $chromeVersions = ['86.0.4240', '98.0.4758', '100.0.4896'];
+  // Array of Windows versions
+  $windowsVersions = ['Windows 7', 'Windows 8', 'Windows 10', 'Windows 11'];
+
+  // Array of Chrome versions
+  $chromeVersions = [
+    '86.0.4240',
+    '98.0.4758',
+    '100.0.4896',
+    '105.0.5312',
+    '110.0.5461',
+    '115.0.5623',
+    '120.0.5768',
+    '124.0.6367.78', // Windows and Linux version
+    '124.0.6367.79', // Mac version
+    '124.0.6367.82', // Android version
+  ];
+
+  // Randomly select a Windows version
   $randomWindows = $windowsVersions[array_rand($windowsVersions)];
+
+  // Randomly select a Chrome version
   $randomChrome = $chromeVersions[array_rand($chromeVersions)];
 
-  return "Mozilla/5.0 ($randomWindows) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$randomChrome Safari/537.36";
+  // Generate random Safari version and AppleWebKit version
+  $randomSafariVersion = mt_rand(600, 700) . '.' . mt_rand(0, 99);
+  $randomAppleWebKitVersion = mt_rand(500, 600) . '.' . mt_rand(0, 99);
+
+  // Construct and return the user agent string
+  return "Mozilla/5.0 ($randomWindows) AppleWebKit/$randomAppleWebKitVersion (KHTML, like Gecko) Chrome/$randomChrome Safari/$randomSafariVersion";
 }
 
 /**
