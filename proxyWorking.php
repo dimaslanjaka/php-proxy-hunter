@@ -112,8 +112,8 @@ foreach ($profiles as $item) {
         $lang = array_values($filterCountry)[0]['languages'][0];
         $item['lang'] = $lang;
         $profiles[$found] = $item;
+        $db->updateData($item['proxy'], ['lang' => $item['lang']]);
       }
-      $db->updateData($item['proxy'], ['lang' => $item['lang']]);
     }
     // delete dead proxy
     $select = $db->select($item['proxy']);
@@ -121,6 +121,7 @@ foreach ($profiles as $item) {
       $status = $select[0]['status'];
       if (trim(strtolower($status)) != 'active') {
         unset($profiles[$found]);
+        echo ($item['proxy'] . ' deleted' . PHP_EOL);
       }
     }
   }
