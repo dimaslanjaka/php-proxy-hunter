@@ -59,6 +59,10 @@ class ProxyDB
     if (empty($this->select($proxy))) {
       $this->add($proxy);
     }
+    // Remove null and false values
+    $data = array_filter($data, function ($value) {
+      return $value !== null && $value !== false;
+    });
     if (!empty($data)) $this->db->update('proxies', $data, 'proxy = ?', [trim($proxy)]);
   }
 
