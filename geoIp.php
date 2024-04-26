@@ -4,6 +4,7 @@ require_once __DIR__ . '/func.php';
 
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\geoPlugin;
+use PhpProxyHunter\geoPlugin2;
 
 // $LocationArray = json_decode(file_get_contents('http://ip-get-geolocation.com/api/json/35.188.125.133'), true);
 
@@ -52,10 +53,24 @@ if (isset($_REQUEST['proxy'])) {
 
 list($ip, $port) = explode(':', $proxy);
 
-$geoplugin->locate($ip);
+$geo = $geoplugin->locate($ip);
+
+if (is_string($geo)) {
+  $decodedData = json_decode($geo, true);
+  if ($decodedData !== null && json_last_error() === JSON_ERROR_NONE) {
+    if (isset($decodedData['geoplugin_status']) && isset($decodedData['geoplugin_message']) && $decodedData['geoplugin_status'] == 429 && strpos($decodedData['geoplugin_message'], 'too many request') !== false) {
+      // delete cache when response failed
+      if (file_exists($geoplugin->cacheFile)) unlink($geoplugin->cacheFile);
+      $geo2 = new geoPlugin2();
+      $geoplugin = $geo2->locate($ip);
+    }
+  }
+}
+
 $json = $geoplugin->jsonSerialize();
 unset($json['host']);
 echo json_encode($json);
+
 $db->updateData($proxy, ['timezone' => $geoplugin->timezone, 'city' => $geoplugin->city, 'country' => $geoplugin->countryName, 'region' => $geoplugin->region, 'lang' => $geoplugin->lang, 'latitude' => $geoplugin->latitude, 'longitude' => $geoplugin->longitude]);
 
 // echo "Geolocation results for {$geoplugin->ip}\n" .
