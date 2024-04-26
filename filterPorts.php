@@ -54,7 +54,9 @@ extractIpPortFromFileCallback($file, function ($proxy) use ($start_time, $isCli,
 
 $all = $db->getAllProxies();
 foreach ($all as $data) {
-  if (!preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/', $data['proxy'])) {
+  $invalidIPPORT = !preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/', $data['proxy']);
+  $invalidIP = strpos($data['proxy'], '0.0.0.0') !== false;
+  if ($invalidIPPORT || $invalidIP) {
     echo $data['proxy'] . " is not in the format of IP:PORT." . PHP_EOL;
     $db->remove($data['proxy']);
   }
