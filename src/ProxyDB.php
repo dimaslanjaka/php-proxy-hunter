@@ -63,6 +63,7 @@ class ProxyDB
     $data = array_filter($data, function ($value) {
       return $value !== null && $value !== false;
     });
+    if (isset($data['status'])) $data['last_check'] = date(DATE_RFC3339);
     if (!empty($data)) $this->db->update('proxies', $data, 'proxy = ?', [trim($proxy)]);
   }
 
