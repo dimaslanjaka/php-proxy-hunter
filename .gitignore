@@ -37,3 +37,10 @@ _myConfig.js
 /output
 /error_logs
 __pycache__
+.venv/
+.conda/
+/dist
+/assets/php
+/assets/chrome
+*.egg-info
+/.vs
