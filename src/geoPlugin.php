@@ -113,6 +113,9 @@ class geoPlugin implements \JsonSerializable
       $this->countryCode = $record->country->isoCode;
       $this->latitude = $record->location->latitude;
       $this->longitude = $record->location->longitude;
+      $this->longitude =   $record->location->longitude;
+      $this->latitude = $record->location->latitude;
+      $this->timezone =  $record->location->timeZone;
       $lang = array_keys($record->country->names);
       if (!empty($lang)) $this->lang = $lang[0];
     }
