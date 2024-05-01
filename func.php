@@ -467,6 +467,47 @@ function generateRandomString($length = 10)
 }
 
 /**
+ * Get duplicated lines between two text files.
+ *
+ * This function reads the contents of two text files line by line and
+ * returns an array containing the duplicated lines found in both files.
+ *
+ * @param string $file1 Path to the first text file.
+ * @param string $file2 Path to the second text file.
+ * @return array An array containing the duplicated lines between the two files.
+ */
+function getDuplicatedLines(string $file1, string $file2): array
+{
+  // Open files for reading
+  $handle1 = fopen($file1, "r");
+  $handle2 = fopen($file2, "r");
+
+  // Initialize arrays to store lines
+  $lines1 = [];
+  $lines2 = [];
+
+  // Read lines from first file
+  while (($line = fgets($handle1)) !== false) {
+    $lines1[] = $line;
+  }
+
+  // Read lines from second file
+  while (($line = fgets($handle2)) !== false) {
+    $lines2[] = $line;
+  }
+
+  // Close file handles
+  fclose($handle1);
+  fclose($handle2);
+
+  // Find duplicated lines
+  $duplicatedLines = array_intersect($lines1, $lines2);
+
+  // Return array of duplicated lines
+  return $duplicatedLines;
+}
+
+/**
  * remove duplicate lines from file
  */
 function removeDuplicateLines($filePath)
