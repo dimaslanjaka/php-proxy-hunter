@@ -25,6 +25,10 @@ su -s /bin/bash -c 'php composer.phar install' www-data
 # php composer.phar install
 sudo chown -R www-data:www-data vendor/*
 sudo chown -R www-data:www-data vendor/composer/*
+sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/*
+sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/minimal/*
+sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/cjs/*
+sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/mjs/*
 
 echo "composer installed"
 
