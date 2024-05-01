@@ -35,14 +35,14 @@ let user_info;
 async function main() {
   user_info = await userInfo();
   if (!user_info) {
-    console.log('user null');
+    console.log("user null");
     await main();
     location.reload();
     return;
   }
 
-  document.getElementById('recheck').addEventListener('click', () => {
-    showSnackbar('proxy checking start...');
+  document.getElementById("recheck").addEventListener("click", () => {
+    showSnackbar("proxy checking start...");
     doCheck();
   });
 
@@ -51,9 +51,9 @@ async function main() {
     checkerStatus();
   }, 3000);
 
-  const autoCheck = document.getElementById('autoCheckProxy');
-  if (['dev.webmanajemen.com', 'localhost', '127.0.0.1'].some((str) => new RegExp(str).test(location.host))) {
-    autoCheck.addEventListener('change', (e) => {
+  const autoCheck = document.getElementById("autoCheckProxy");
+  if (["dev.webmanajemen.com", "localhost", "127.0.0.1"].some((str) => new RegExp(str).test(location.host))) {
+    autoCheck.addEventListener("change", (e) => {
       clearInterval(icheck);
       if (e.target.checked) {
         const callback = () =>
@@ -92,7 +92,7 @@ async function doCheck() {
   try {
     if (user_info) {
       await fetchWorkingProxies().catch(() => {});
-      await fetch('./proxyCheckerBackground.php?uid=' + user_info.user_id, {
+      await fetch("./proxyCheckerBackground.php?uid=" + user_info.user_id, {
         signal: AbortSignal.timeout(5000)
       }).catch(() => {});
       await checkerStatus().catch(() => {});
@@ -103,12 +103,12 @@ async function doCheck() {
   }
 }
 
-let prevOutput = '';
+let prevOutput = "";
 /**
  * get result of proxy checker
  */
 async function checkerOutput() {
-  const info = await fetch('./proxyChecker.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
+  const info = await fetch("./proxyChecker.txt?v=" + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
     res.text()
   );
   // skip update UI when output when remains same
@@ -121,7 +121,7 @@ async function checkerOutput() {
       str = str.replace(/not working/, '<span class="text-red-600">not working</span>');
       str = str.replace(/working type (\w+) latency (-?\d+) ms/, (whole, g1, g2) => {
         whole = whole.replace(g1, `<b>${g1}</b>`).replace(g2, `<b>${g2}</b>`);
-        if (g2 != '-1') {
+        if (g2 != "-1") {
           return `<span class="text-green-400">${whole}</span>`;
         } else {
           return `<span class="text-orange-400">${whole}</span>`;
@@ -129,8 +129,8 @@ async function checkerOutput() {
       });
       return str;
     })
-    .join('<br/>');
-  const checkerResult = document.getElementById('cpresult');
+    .join("<br/>");
+  const checkerResult = document.getElementById("cpresult");
   checkerResult.innerHTML = filter;
   // Check if content height exceeds div height
   // Only scroll when checker status is running
@@ -139,25 +139,25 @@ async function checkerOutput() {
     checkerResult.scrollTop = checkerResult.scrollHeight - checkerResult.clientHeight;
   }
 
-  const wrapper = document.querySelector('#countProxy');
-  const statusJson = await fetch('./status.json?v=' + new Date(), { signal: AbortSignal.timeout(5000) })
+  const wrapper = document.querySelector("#countProxy");
+  const statusJson = await fetch("./status.json?v=" + new Date(), { signal: AbortSignal.timeout(5000) })
     .then((res) => res.json())
     .catch(() => {
       return {};
     });
   if (statusJson.untested)
-    wrapper.querySelector('#untested').innerText = parseInt(statusJson.untested).toLocaleString();
-  if (statusJson.dead) wrapper.querySelector('#dead').innerText = parseInt(statusJson.dead).toLocaleString();
+    wrapper.querySelector("#untested").innerText = parseInt(statusJson.untested).toLocaleString();
+  if (statusJson.dead) wrapper.querySelector("#dead").innerText = parseInt(statusJson.dead).toLocaleString();
 }
 
-fetch('./info.php', { signal: AbortSignal.timeout(5000) });
+fetch("./info.php", { signal: AbortSignal.timeout(5000) });
 
 async function userInfo() {
   try {
-    let cookie = getCookie('user_config');
+    let cookie = getCookie("user_config");
     if (!cookie) {
-      await fetch('./info.php', { signal: AbortSignal.timeout(5000) });
-      cookie = getCookie('user_config');
+      await fetch("./info.php", { signal: AbortSignal.timeout(5000) });
+      cookie = getCookie("user_config");
     }
     return JSON.parse(atob(decodeURIComponent(cookie)));
   } catch (_) {
@@ -167,10 +167,10 @@ async function userInfo() {
 
 function getCookie(name) {
   const cookieString = document.cookie;
-  const cookies = cookieString.split('; ');
+  const cookies = cookieString.split("; ");
 
   for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].split('=');
+    const cookie = cookies[i].split("=");
     if (cookie[0] === name) {
       return cookie[1];
     }
@@ -186,29 +186,29 @@ let checker_status;
  * @returns true=running false=idle
  */
 async function checkerStatus() {
-  const status = document.querySelector('span#status');
-  const cek = document.getElementById('recheck');
-  return await fetch('./status.txt?v=' + new Date(), { signal: AbortSignal.timeout(5000) })
+  const status = document.querySelector("span#status");
+  const cek = document.getElementById("recheck");
+  return await fetch("./status.txt?v=" + new Date(), { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .then((data) => {
-      if (!data.trim().includes('idle')) {
+      if (!data.trim().includes("idle")) {
         // another php still processing
-        if (!cek.classList.contains('disabled')) cek.classList.add('disabled');
+        if (!cek.classList.contains("disabled")) cek.classList.add("disabled");
         status.innerHTML = data.trim().toUpperCase();
         status.setAttribute(
-          'class',
-          'inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'
+          "class",
+          "inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
         );
         checker_status = true;
         return true;
       } else {
         checker_status = false;
-        cek.classList.remove('disabled');
+        cek.classList.remove("disabled");
         status.setAttribute(
-          'class',
-          'inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10'
+          "class",
+          "inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
         );
-        status.innerHTML = 'IDLE';
+        status.innerHTML = "IDLE";
       }
       return false;
     })
@@ -221,33 +221,33 @@ let workingProxiesTxt;
 async function fetchWorkingProxies() {
   const date = new Date();
   // fetch update in background
-  await fetch('./proxyWorking.php', { signal: AbortSignal.timeout(5000) }).catch(() => {
+  await fetch("./proxyWorkingBackground.php", { signal: AbortSignal.timeout(5000) }).catch(() => {
     //
   });
-  let testWorkingProxiesTxt = await fetch('./working.txt?v=' + date, { signal: AbortSignal.timeout(5000) })
+  let testWorkingProxiesTxt = await fetch("./working.txt?v=" + date, { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
-    .catch(() => '');
+    .catch(() => "");
   // skip update UI when response empty
   if (testWorkingProxiesTxt.trim().length == 0) return;
   if (!workingProxiesTxt || workingProxiesTxt != testWorkingProxiesTxt) {
     workingProxiesTxt = testWorkingProxiesTxt;
     const proxies = sortLinesByDate(workingProxiesTxt);
-    const tbody = document.getElementById('wproxy');
-    tbody.innerHTML = '';
+    const tbody = document.getElementById("wproxy");
+    tbody.innerHTML = "";
     proxies.forEach((str) => {
-      const tr = document.createElement('tr');
-      const split = str.split('|');
+      const tr = document.createElement("tr");
+      const split = str.split("|");
       if (split.length < 7) {
         const remainingLength = 7 - split.length;
         for (let i = 0; i < remainingLength; i++) {
-          split.push('undefined');
+          split.push("undefined");
         }
       }
       split.forEach((info, i) => {
-        const td = document.createElement('td');
+        const td = document.createElement("td");
         td.setAttribute(
-          'class',
-          'border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400'
+          "class",
+          "border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
         );
         td.innerText = info;
         if (i == 0) {
@@ -256,13 +256,13 @@ async function fetchWorkingProxies() {
           // last check date
           td.innerText = timeAgo(info);
         } else {
-          td.classList.add('text-center');
+          td.classList.add("text-center");
         }
 
         if (i == 5 || i == 6) {
-          if (info.trim() == '-') {
-            console.log(split[0], 'missing geo location');
-            fetch('./geoIp.php?proxy=' + split[0], { signal: AbortSignal.timeout(5000) }).catch(() => {
+          if (info.trim() == "-") {
+            console.log(split[0], "missing geo location");
+            fetch("./geoIp.php?proxy=" + split[0], { signal: AbortSignal.timeout(5000) }).catch(() => {
               //
             });
           }
@@ -272,13 +272,13 @@ async function fetchWorkingProxies() {
       });
       tbody.appendChild(tr);
     });
-    document.querySelectorAll('.pcopy').forEach((el) => {
-      if (el.hasAttribute('aria-copy')) return;
-      el.addEventListener('click', () => {
-        copyToClipboard(el.getAttribute('data').trim());
-        showSnackbar('proxy copied');
+    document.querySelectorAll(".pcopy").forEach((el) => {
+      if (el.hasAttribute("aria-copy")) return;
+      el.addEventListener("click", () => {
+        copyToClipboard(el.getAttribute("data").trim());
+        showSnackbar("proxy copied");
       });
-      el.setAttribute('aria-copy', el.getAttribute('data'));
+      el.setAttribute("aria-copy", el.getAttribute("data"));
     });
   }
 }
@@ -290,9 +290,9 @@ async function fetchWorkingProxies() {
  */
 function sortLinesByDate(text) {
   /** @type {string[]} */
-  const lines = text.split(/\r?\n/).filter((line) => line.trim() !== '');
+  const lines = text.split(/\r?\n/).filter((line) => line.trim() !== "");
   const original = lines.map((line) => {
-    const parts = line.split('|');
+    const parts = line.split("|");
     return {
       proxy: parts[0],
       latency: parts[1],
@@ -301,14 +301,14 @@ function sortLinesByDate(text) {
       city: parts[4],
       country: parts[5],
       timezone: parts[6],
-      date: (parts[7] || '').trim()
+      date: (parts[7] || "").trim()
     };
   });
 
   // Parse each line into objects
   let objects = lines.map((line) => {
-    const parts = line.split('|');
-    const date = (parts[7] || '').trim();
+    const parts = line.split("|");
+    const date = (parts[7] || "").trim();
     return {
       proxy: parts[0],
       latency: parts[1],
@@ -317,7 +317,7 @@ function sortLinesByDate(text) {
       city: parts[4],
       country: parts[5],
       timezone: parts[6],
-      date: date != '-' ? new Date(date) : new Date()
+      date: date != "-" ? new Date(date) : new Date()
     };
   });
 
@@ -363,14 +363,14 @@ function timeAgo(dateString) {
   const remainingSeconds = seconds % 60;
 
   // Construct the ago time string
-  let agoTime = '';
-  if (days > 0) agoTime += days + ' day' + (days === 1 ? '' : 's') + ' ';
-  if (remainingHours > 0) agoTime += remainingHours + ' hour' + (remainingHours === 1 ? '' : 's') + ' ';
-  if (remainingMinutes > 0) agoTime += remainingMinutes + ' minute' + (remainingMinutes === 1 ? '' : 's') + ' ';
-  if (remainingSeconds > 0) agoTime += remainingSeconds + ' second' + (remainingSeconds === 1 ? '' : 's') + ' ';
+  let agoTime = "";
+  if (days > 0) agoTime += days + " day" + (days === 1 ? "" : "s") + " ";
+  if (remainingHours > 0) agoTime += remainingHours + " hour" + (remainingHours === 1 ? "" : "s") + " ";
+  if (remainingMinutes > 0) agoTime += remainingMinutes + " minute" + (remainingMinutes === 1 ? "" : "s") + " ";
+  if (remainingSeconds > 0) agoTime += remainingSeconds + " second" + (remainingSeconds === 1 ? "" : "s") + " ";
 
   // Append "ago" to the ago time string
-  agoTime += 'ago';
+  agoTime += "ago";
 
   return agoTime;
 }
@@ -381,17 +381,17 @@ function timeAgo(dateString) {
  */
 function showSnackbar(message) {
   // Get the snackbar element
-  var snackbar = document.getElementById('snackbar');
+  var snackbar = document.getElementById("snackbar");
 
   // Set the message
   snackbar.textContent = message;
 
   // Add the "show" class to DIV
-  snackbar.className = 'show';
+  snackbar.className = "show";
 
   // Hide the snackbar after 3 seconds
   setTimeout(function () {
-    snackbar.className = snackbar.className.replace('show', '');
+    snackbar.className = snackbar.className.replace("show", "");
   }, 3000);
 }
 
@@ -405,18 +405,18 @@ function showSnackbar(message) {
 function copyToClipboard(text) {
   if (window.clipboardData && window.clipboardData.setData) {
     // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
-    return window.clipboardData.setData('Text', text);
-  } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
-    var textarea = document.createElement('textarea');
+    return window.clipboardData.setData("Text", text);
+  } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+    var textarea = document.createElement("textarea");
     textarea.textContent = text;
-    textarea.style.position = 'fixed'; // Prevent scrolling to bottom of page in Microsoft Edge.
+    textarea.style.position = "fixed"; // Prevent scrolling to bottom of page in Microsoft Edge.
     document.body.appendChild(textarea);
     textarea.select();
     try {
-      return document.execCommand('copy'); // Security exception may be thrown by some browsers.
+      return document.execCommand("copy"); // Security exception may be thrown by some browsers.
     } catch (ex) {
-      console.warn('Copy to clipboard failed.', ex);
-      return prompt('Copy to clipboard: Ctrl+C, Enter', text);
+      console.warn("Copy to clipboard failed.", ex);
+      return prompt("Copy to clipboard: Ctrl+C, Enter", text);
     } finally {
       document.body.removeChild(textarea);
     }
