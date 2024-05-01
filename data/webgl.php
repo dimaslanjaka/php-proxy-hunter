@@ -1,5 +1,17 @@
 <?php
 
+function getRandomItemFromArray($array)
+{
+    // Get a random key from the array
+    $randomKey = array_rand($array);
+
+    // Use the random key to get the random item
+    $randomItem = $array[$randomKey];
+
+    // Return the random item
+    return $randomItem;
+}
+
 function webgl_data()
 {
     return array(
@@ -101,4 +113,13 @@ function webgl_data()
     );
 }
 
-var_dump(webgl_data());
+function random_webgl_data()
+{
+    $data = webgl_data();
+    $outerKey = getRandomItemFromArray(array_keys($data));
+    $innerKey = getRandomItemFromArray(array_keys($data[$outerKey]));
+    $renderers = getRandomItemFromArray(array_values($data[$outerKey][$innerKey]));
+    return ['browser_vendor' => $outerKey, 'webgl_vendor' => $innerKey, 'webgl_renderer' => $renderers];
+}
+
+// var_dump(random_webgl_data());
