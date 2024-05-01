@@ -128,6 +128,8 @@ if (!empty($profiles)) {
 
 foreach ($profiles as $item) {
   $found = findByProxy($profiles, $item['proxy']);
+  list($ip, $port) = explode(':', $item['proxy']);
+  $locate = $geoplugin->locate_recursive($ip);
   if (!is_null($found)) {
     // determine IP language from country
     if (!isset($item['lang'])) {
@@ -143,36 +145,25 @@ foreach ($profiles as $item) {
           $db->updateData($item['proxy'], ['lang' => $item['lang']]);
         }
       } catch (\Throwable $th) {
-        //throw $th;
+        if (!is_null($locate->lang) && !empty($locate->lang)) {
+          $db->updateData($item['proxy'], ['lang' => $locate->lang]);
+        }
       }
     }
 
     // determine longitude and latitude
     if (!isset($item['latitude']) || !isset($item['longitude'])) {
-      list($ip, $port) = explode(':', $item['proxy']);
-      $geo = $geoplugin->locate($ip);
-      if (is_string($geo)) {
-        $decodedData = json_decode($geo, true);
-        if ($decodedData !== null && json_last_error() === JSON_ERROR_NONE) {
-          if (isset($decodedData['geoplugin_status']) && isset($decodedData['geoplugin_message']) && $decodedData['geoplugin_status'] == 429 && strpos($decodedData['geoplugin_message'], 'too many request') !== false) {
-            // delete cache when response failed
-            if (file_exists($geoplugin->cacheFile)) unlink($geoplugin->cacheFile);
-            $geo2 = new geoPlugin2();
-            $geoplugin = $geo2->locate($ip);
-          }
-        }
-        if ($geoplugin->longitude != null) {
-          $item['longitude'] = $geoplugin->longitude;
-          $db->updateData($item['proxy'], ['longitude' => $geoplugin->longitude]);
-          // apply
-          $profiles[$found] = $item;
-        }
-        if ($geoplugin->latitude != null) {
-          $db->updateData($item['proxy'], ['latitude' => $geoplugin->latitude]);
-          $item['latitude'] = $geoplugin->latitude;
-          // apply
-          $profiles[$found] = $item;
-        }
+      if ($locate->longitude != null) {
+        $item['longitude'] = $locate->longitude;
+        $db->updateData($item['proxy'], ['longitude' => $locate->longitude]);
+        // apply
+        $profiles[$found] = $item;
+      }
+      if ($locate->latitude != null) {
+        $db->updateData($item['proxy'], ['latitude' => $locate->latitude]);
+        $item['latitude'] = $locate->latitude;
+        // apply
+        $profiles[$found] = $item;
       }
     }
 
