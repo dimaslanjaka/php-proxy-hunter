@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS "proxies" (
+    "id" INTEGER,
+    "proxy" TEXT NOT NULL UNIQUE,
+    "latency" TEXT,
+    "type" TEXT,
+    "region" TEXT,
+    "city" TEXT,
+    "country" TEXT,
+    "last_check" TEXT,
+    "anonymity" TEXT,
+    "status" TEXT,
+    "timezone" TEXT,
+    "longitude" TEXT,
+    "latitude" TEXT,
+    "lang" TEXT,
+    "useragent" TEXT,
+    "webgl_vendor" TEXT,
+    "webgl_renderer" TEXT,
+    "browser_vendor" INTEGER,
+    PRIMARY KEY("id" AUTOINCREMENT)
+)
