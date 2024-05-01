@@ -1,4 +1,4 @@
-/chrome
 /php
+/chrome*
 /python
-/chrome-profile
+/node
