@@ -466,18 +466,6 @@ function generateRandomString($length = 10)
   return $randomString;
 }
 
-function getRandomItemFromArray($array)
-{
-  // Get a random key from the array
-  $randomKey = array_rand($array);
-
-  // Use the random key to get the random item
-  $randomItem = $array[$randomKey];
-
-  // Return the random item
-  return $randomItem;
-}
-
 /**
  * remove duplicate lines from file
  */
