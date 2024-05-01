@@ -94,8 +94,8 @@ async function refreshResults() {
 
             return filterLines + (lines.length > 500 ? "\nLIMIT 500 LINES" : "");
           })
-          .catch(() => {
-            return `failed obtain ${src}\n`;
+          .catch((e) => {
+            return `${e.message}\n`;
           }));
     }
     // only apply result when user not dragging texts
