@@ -93,37 +93,57 @@ if (!empty($profiles)) {
     $found = findByProxy($profiles, $test['proxy']);
     if (!is_null($found)) {
       $item = $profiles[$found];
+      $select = $db->select($item['proxy']);
       if (!isset($item['useragent'])) {
-        $item['useragent'] = randomWindowsUa();
-        echo "EX: set useragent " . $item['proxy'] . PHP_EOL;
-        $profiles[$found] = $item;
-        $db->updateData($item['proxy'], ['useragent' => $item['useragent']]);
+        if (!empty($select)) {
+          if (isset($select[0]['useragent'])) {
+            $item['useragent'] = $select[0]['useragent'];
+          }
+        }
+
+        if (!isset($item['useragent'])) {
+          $item['useragent'] = randomWindowsUa();
+          echo "EX: set useragent " . $item['proxy'] . PHP_EOL;
+          $profiles[$found] = $item;
+          $db->updateData($item['proxy'], ['useragent' => $item['useragent']]);
+        }
       }
     } else {
       if (!isset($test['useragent'])) {
-        $test['useragent'] = randomWindowsUa();
-        echo "TEST: set useragent " . $test['proxy'] . PHP_EOL;
-        $db->updateData($test['proxy'], ['useragent' => $test['useragent']]);
+        if (!empty($select)) {
+          if (isset($select[0]['useragent'])) {
+            $test['useragent'] = $select[0]['useragent'];
+          }
+        }
+        if (!isset($test['useragent'])) {
+          $test['useragent'] = randomWindowsUa();
+          echo "TEST: set useragent " . $test['proxy'] . PHP_EOL;
+          $db->updateData($test['proxy'], ['useragent' => $test['useragent']]);
+        }
       }
       $profiles[] = $test;
     }
   }
 }
 
-$countries = array_values(countries());
 foreach ($profiles as $item) {
   $found = findByProxy($profiles, $item['proxy']);
   if (!is_null($found)) {
     // determine IP language from country
     if (!isset($item['lang'])) {
-      $filterCountry = array_filter($countries, function ($country) use ($item) {
-        return trim(strtolower($country['name'])) == trim(strtolower($item['country']));
-      });
-      if (!empty($filterCountry)) {
-        $lang = array_values($filterCountry)[0]['languages'][0];
-        $item['lang'] = $lang;
-        $profiles[$found] = $item;
-        $db->updateData($item['proxy'], ['lang' => $item['lang']]);
+      try {
+        $countries = array_values(countries());
+        $filterCountry = array_filter($countries, function ($country) use ($item) {
+          return trim(strtolower($country['name'])) == trim(strtolower($item['country']));
+        });
+        if (!empty($filterCountry)) {
+          $lang = array_values($filterCountry)[0]['languages'][0];
+          $item['lang'] = $lang;
+          $profiles[$found] = $item;
+          $db->updateData($item['proxy'], ['lang' => $item['lang']]);
+        }
+      } catch (\Throwable $th) {
+        //throw $th;
       }
     }
 
