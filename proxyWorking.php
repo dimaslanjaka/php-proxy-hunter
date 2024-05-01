@@ -2,7 +2,8 @@
 
 // proxies writer
 
-require __DIR__ . '/func.php';
+require_once __DIR__ . '/func.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use PhpProxyHunter\geoPlugin;
 use PhpProxyHunter\geoPlugin2;
@@ -96,13 +97,13 @@ if (!empty($profiles)) {
         $item['useragent'] = randomWindowsUa();
         echo "EX: set useragent " . $item['proxy'] . PHP_EOL;
         $profiles[$found] = $item;
-        // $db->updateData($item['proxy'], ['useragent' => $item['useragent']]);
+        $db->updateData($item['proxy'], ['useragent' => $item['useragent']]);
       }
     } else {
       if (!isset($test['useragent'])) {
         $test['useragent'] = randomWindowsUa();
         echo "TEST: set useragent " . $test['proxy'] . PHP_EOL;
-        // $db->updateData($test['proxy'], ['useragent' => $test['useragent']]);
+        $db->updateData($test['proxy'], ['useragent' => $test['useragent']]);
       }
       $profiles[] = $test;
     }
@@ -125,7 +126,6 @@ foreach ($profiles as $item) {
         $db->updateData($item['proxy'], ['lang' => $item['lang']]);
       }
     }
-    $select = $db->select($item['proxy']);
 
     // determine longitude and latitude
     if (!isset($item['latitude']) || !isset($item['longitude'])) {
@@ -192,9 +192,25 @@ foreach ($profiles as $item) {
       $profiles[$found] = $item;
     }
 
-    // delete dead proxy
+    $select = $db->select($item['proxy']);
     if ($select != false && !empty($select)) {
-      $status = $select[0]['status'];
+      $from_db = $select[0];
+      if (!isset($item['browser_vendor']) || is_null($item['browser_vendor'])) {
+        if (isset($from_db['browser_vendor'])) {
+          // update from database
+          $item['browser_vendor'] = $from_db['browser_vendor'];
+          $item['webgl_renderer'] = $from_db['webgl_renderer'];
+          $item['webgl_vendor'] = $from_db['webgl_vendor'];
+        } else {
+          $webgl_data = random_webgl_data();
+          $item['browser_vendor'] = $webgl_data['browser_vendor'];
+          $item['webgl_renderer'] = $webgl_data['webgl_renderer'];
+          $item['webgl_vendor'] = $webgl_data['webgl_vendor'];
+          $db->updateData($item['proxy'], $webgl_data);
+        }
+      }
+      // delete dead proxy
+      $status = $from_db['status'];
       if (!is_null($status)) {
         if (trim(strtolower($status)) !== 'active') {
           unset($profiles[$found]);
@@ -204,6 +220,8 @@ foreach ($profiles as $item) {
     }
   }
 }
+
+echo "re-index profiles";
 
 // Reindex the array
 $profiles = array_values($profiles);
