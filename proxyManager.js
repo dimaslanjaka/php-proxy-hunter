@@ -38,7 +38,7 @@
  */
 function setEventRecursive(element, eventName, eventFunc) {
   element.addEventListener(eventName, eventFunc);
-  element.querySelectorAll('*').forEach((el) => el.addEventListener(eventName, eventFunc));
+  element.querySelectorAll("*").forEach((el) => el.addEventListener(eventName, eventFunc));
 }
 
 // function getCurrentUrlWithoutQueryAndHash() {
@@ -54,7 +54,7 @@ function setEventRecursive(element, eventName, eventFunc) {
 //   return url;
 // }
 
-const iframes = Array.from(document.querySelectorAll('div.iframe[src]'));
+const iframes = Array.from(document.querySelectorAll("div.iframe[src]"));
 let dragging = [];
 for (let i = 0; i < iframes.length; i++) {
   const iframe = iframes[i];
@@ -64,10 +64,10 @@ for (let i = 0; i < iframes.length; i++) {
 
     if (selectedText.length > 0) {
       // console.log('User is currently dragging text in the child element.');
-      dragging[iframe.getAttribute('src')] = true;
+      dragging[iframe.getAttribute("src")] = true;
     } else {
       // console.log('User is not dragging text in the child element.');
-      dragging[iframe.getAttribute('src')] = false;
+      dragging[iframe.getAttribute("src")] = false;
     }
   };
 }
@@ -75,33 +75,33 @@ for (let i = 0; i < iframes.length; i++) {
 async function refreshResults() {
   for (let i = 0; i < iframes.length; i++) {
     const iframe = iframes[i];
-    const srcs = iframe.getAttribute('src').split('|');
-    let responses = '';
+    const srcs = iframe.getAttribute("src").split("|");
+    let responses = "";
     for (let ii = 0; ii < srcs.length; ii++) {
-      const src = srcs[ii].trim() + '?v=' + new Date();
-      const a = document.createElement('a');
+      const src = srcs[ii].trim() + "?v=" + new Date();
+      const a = document.createElement("a");
       a.href = src;
       responses +=
-        '\n' +
-        (await fetch(a.href, { signal: AbortSignal.timeout(5000) })
+        "\n" +
+        (await fetch(a.href, { signal: AbortSignal.timeout(60000) })
           .then((res) => res.text())
           .then((text) => {
             // Split the text into lines
             const lines = text.split(/\r?\n/);
 
             // Get the first 500 lines
-            const filterLines = lines.slice(0, 500).join('\n');
+            const filterLines = lines.slice(0, 500).join("\n");
 
-            return filterLines + (lines.length > 500 ? '\nLIMIT 500 LINES' : '');
+            return filterLines + (lines.length > 500 ? "\nLIMIT 500 LINES" : "");
           })
           .catch(() => {
             return `failed obtain ${src}\n`;
           }));
     }
     // only apply result when user not dragging texts
-    if (!dragging[iframe.getAttribute('src')]) {
-      const pre = document.createElement('pre');
-      const code = document.createElement('code');
+    if (!dragging[iframe.getAttribute("src")]) {
+      const pre = document.createElement("pre");
+      const code = document.createElement("code");
       code.innerHTML = responses.trim();
       pre.appendChild(code);
       if (iframe.children.length > 0) {
@@ -114,11 +114,11 @@ async function refreshResults() {
 }
 
 function showSnackbar(message, duration = 3000) {
-  var snackbar = document.getElementById('snackbar');
+  var snackbar = document.getElementById("snackbar");
   snackbar.textContent = message;
-  snackbar.classList.add('show');
+  snackbar.classList.add("show");
   setTimeout(function () {
-    snackbar.classList.remove('show');
+    snackbar.classList.remove("show");
   }, duration);
 }
 
@@ -134,7 +134,7 @@ function parseProxies(text) {
 (function () {
   refreshResults();
 
-  const refreshBtn = document.getElementById('refresh');
+  const refreshBtn = document.getElementById("refresh");
   if (refreshBtn) {
     const rfcb = () => {
       // remove dragging indicators
@@ -142,31 +142,31 @@ function parseProxies(text) {
       // refresh the frames
       refreshResults();
       // show toast
-      showSnackbar('data refreshed');
+      showSnackbar("data refreshed");
     };
-    setEventRecursive(refreshBtn, 'click', rfcb);
+    setEventRecursive(refreshBtn, "click", rfcb);
   }
 
-  const addProxyBtn = document.getElementById('addProxy');
+  const addProxyBtn = document.getElementById("addProxy");
   if (addProxyBtn) {
     const addProxyFun = () => {
-      const proxies = document.getElementById('proxiesData');
+      const proxies = document.getElementById("proxiesData");
       const ipPortArray = parseProxies(proxies.value);
-      const dataToSend = ipPortArray.join('\n');
+      const dataToSend = ipPortArray.join("\n");
       proxies.value = dataToSend;
-      const url = './proxyAdd.php';
+      const url = "./proxyAdd.php";
 
       fetch(url, {
         signal: AbortSignal.timeout(5000),
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded' // Sending form-urlencoded data
+          "Content-Type": "application/x-www-form-urlencoded" // Sending form-urlencoded data
         },
         body: `proxies=${encodeURIComponent(dataToSend)}` // Encode the string for safe transmission
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error("Network response was not ok");
           }
           return response.text(); // assuming you want to read response as text
         })
@@ -174,18 +174,18 @@ function parseProxies(text) {
           showSnackbar(data);
         })
         .catch((error) => {
-          showSnackbar('There was a problem with your fetch operation: ' + error.message);
+          showSnackbar("There was a problem with your fetch operation: " + error.message);
         });
       refreshResults();
     };
-    setEventRecursive(addProxyBtn, 'click', addProxyFun);
+    setEventRecursive(addProxyBtn, "click", addProxyFun);
   }
 
-  const cekBtn = document.getElementById('checkProxy');
+  const cekBtn = document.getElementById("checkProxy");
   if (cekBtn) {
-    setEventRecursive(cekBtn, 'click', () => {
-      const userId = document.getElementById('uid').textContent.trim();
-      fetch('proxyCheckerBackground.php?uid=' + userId, { signal: AbortSignal.timeout(5000) })
+    setEventRecursive(cekBtn, "click", () => {
+      const userId = document.getElementById("uid").textContent.trim();
+      fetch("proxyCheckerBackground.php?uid=" + userId, { signal: AbortSignal.timeout(5000) })
         .catch(() => {
           //
         })
@@ -200,22 +200,22 @@ function parseProxies(text) {
   let intervalFrame;
 
   const checkRuns = () =>
-    fetch('proxyChecker.lock', { signal: AbortSignal.timeout(5000) })
+    fetch("proxyChecker.lock", { signal: AbortSignal.timeout(5000) })
       .then((res) => {
         if (res.ok) {
           if (!intervalFrame) {
-            console.log('start refreshing');
+            console.log("start refreshing");
             intervalFrame = setInterval(() => {
               refreshResults();
             }, 2000);
-            cekBtn.setAttribute('disabled', 'true');
+            cekBtn.setAttribute("disabled", "true");
           }
         } else if (intervalFrame) {
-          console.log('stop refreshing');
+          console.log("stop refreshing");
           clearInterval(intervalFrame);
           intervalFrame = null;
-          if (cekBtn.hasAttribute('disabled')) {
-            cekBtn.removeAttribute('disabled');
+          if (cekBtn.hasAttribute("disabled")) {
+            cekBtn.removeAttribute("disabled");
           }
         }
       })
@@ -225,20 +225,20 @@ function parseProxies(text) {
 
   setInterval(checkRuns, 10000);
 
-  document.getElementById('saveConfig').addEventListener('click', () => {
-    let type = document.getElementById('typeHttp').checked ? 'http' : '';
-    type += document.getElementById('typeSocks5').checked ? '|' + 'socks5' : '';
-    type += document.getElementById('typeSocks4').checked ? '|' + 'socks4' : '';
+  document.getElementById("saveConfig").addEventListener("click", () => {
+    let type = document.getElementById("typeHttp").checked ? "http" : "";
+    type += document.getElementById("typeSocks5").checked ? "|" + "socks5" : "";
+    type += document.getElementById("typeSocks4").checked ? "|" + "socks4" : "";
     fetch(location.href, {
       signal: AbortSignal.timeout(5000),
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         config: {
-          headers: document.getElementById('headers').value.trim().split(/\r?\n/),
-          endpoint: document.getElementById('endpoint').value.trim(),
+          headers: document.getElementById("headers").value.trim().split(/\r?\n/),
+          endpoint: document.getElementById("endpoint").value.trim(),
           type: type.trim()
         }
       })
@@ -248,4 +248,4 @@ function parseProxies(text) {
   });
 })();
 
-fetch('./info.php?v=' + new Date(), { signal: AbortSignal.timeout(5000) });
+fetch("./info.php?v=" + new Date(), { signal: AbortSignal.timeout(5000) });
