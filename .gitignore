@@ -9,7 +9,7 @@
 /applications.html
 /xl*
 *.lock
-/proxyChecker.pid
+/*.pid
 /proxyChecker.txt
 /webalizer
 .cache/

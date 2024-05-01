@@ -6,11 +6,11 @@ require_once __DIR__ . '/func.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
 use PhpProxyHunter\geoPlugin;
-use PhpProxyHunter\geoPlugin2;
 use PhpProxyHunter\ProxyDB;
 use function Annexare\Countries\countries;
 
-if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
+// if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
+if (!$isCli) exit('web server access disallowed');
 
 if (gethostname() !== 'DESKTOP-JVTSJ6I') {
   if (file_exists(__DIR__ . '/proxyChecker.lock')) {
