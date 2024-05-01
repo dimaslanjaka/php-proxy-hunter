@@ -250,6 +250,8 @@ foreach ($profiles as $item) {
           echo $item['proxy'] . ' deleted' . PHP_EOL;
         }
       }
+      // apply
+      $profiles[$found] = $item;
     }
   }
 }
