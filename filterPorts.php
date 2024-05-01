@@ -6,7 +6,7 @@ require __DIR__ . '/func.php';
 
 use PhpProxyHunter\ProxyDB;
 
-if (function_exists('header')) header('Content-Type: text/plain; charset=UTF-8');
+// if (function_exists('header')) header('Content-Type: text/plain; charset=UTF-8');
 if (!$isCli) exit('web server access disallowed');
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
