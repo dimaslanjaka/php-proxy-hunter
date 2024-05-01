@@ -113,7 +113,6 @@ class geoPlugin implements \JsonSerializable
       $this->countryCode = $record->country->isoCode;
       $this->latitude = $record->location->latitude;
       $this->longitude = $record->location->longitude;
-      $this->longitude =   $record->location->longitude;
       $this->latitude = $record->location->latitude;
       $this->timezone =  $record->location->timeZone;
       $this->regionName = $record->mostSpecificSubdivision->name;
@@ -190,6 +189,34 @@ class geoPlugin implements \JsonSerializable
     }
 
     return $response;
+  }
+
+  /**
+   * locate recursive, fallback to geoPlugin2
+   */
+  function locate_recursive(string $ip)
+  {
+    $geo = $this->locate($ip);
+    $decodedData = json_decode($geo, true);
+    if ($decodedData !== null && json_last_error() === JSON_ERROR_NONE) {
+      if (isset($decodedData['geoplugin_status']) && isset($decodedData['geoplugin_message']) && $decodedData['geoplugin_status'] == 429 && strpos($decodedData['geoplugin_message'], 'too many request') !== false) {
+        // delete cache when response failed
+        if (file_exists($this->cacheFile)) unlink($this->cacheFile);
+      }
+      $geo2 = new geoPlugin2();
+      $geoplugin = $geo2->locate($ip);
+      $this->lang = $geoplugin->lang;
+      $this->latitude = $geoplugin->latitude;
+      $this->longitude = $geoplugin->longitude;
+      $this->timezone = $geoplugin->timezone;
+      $this->city = $geoplugin->city;
+      $this->countryName = $geoplugin->countryName;
+      $this->countryCode = $geoplugin->countryCode;
+      $this->regionName = $geoplugin->regionName;
+      $this->region = $geoplugin->region;
+      $this->regionCode = $geoplugin->regionCode;
+    }
+    return $this;
   }
 
   /**
