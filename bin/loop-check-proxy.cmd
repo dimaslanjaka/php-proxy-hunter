@@ -10,12 +10,22 @@ if not "%~1"=="" (
     set max=%1
 )
 
+set CUSTOM_PHP_PATH=..\assets\php\php.exe
+
+rem Check if custom PHP exists, if yes, set it as PHP_PATH
+if exist "%CUSTOM_PHP_PATH%" (
+    set PHP_PATH="%CUSTOM_PHP_PATH%"
+) else (
+    set PHP_PATH=php
+)
+
 REM Run the scripts for the specified number of times
 for /l %%i in (1, 1, %max%) do (
     echo Running iteration %%i of %max%
-    php proxyCheckerBackground.php
+    %PHP_PATH% proxyCheckerBackground.php
     echo.
-    php proxyWorking.php
+    %PHP_PATH% proxyWorking.php
+    timeout /t 30 /nobreak >nul
 )
 
 exit /b 0

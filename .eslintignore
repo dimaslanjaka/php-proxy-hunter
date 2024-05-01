@@ -1,3 +1,5 @@
 *.md
 **/tmp/**
 *.html
+*.py
+*.txt

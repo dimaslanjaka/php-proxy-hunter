@@ -14,5 +14,21 @@
     "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register"
   },
   "code-runner.respectShebang": true,
-  "debug.terminal.clearBeforeReusing": true
+  "debug.terminal.clearBeforeReusing": true,
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "never"
+    },
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    // "editor.rulers": [
+    //   79,
+    //   120
+    // ],
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "autopep8.args": [
+    "--ignore", "E401,E402,E211,E501"
+  ]
 }
