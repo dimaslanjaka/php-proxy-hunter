@@ -161,14 +161,16 @@ foreach ($profiles as $item) {
         if (!empty($filterCountry)) {
           $lang = array_values($filterCountry)[0]['languages'][0];
           $item['lang'] = $lang;
-          $profiles[$found] = $item;
           $db->updateData($item['proxy'], ['lang' => $item['lang']]);
         }
       } catch (\Throwable $th) {
         if (!is_null($locate->lang) && !empty($locate->lang)) {
+          $item['lang'] = $locate->lang;
           $db->updateData($item['proxy'], ['lang' => $locate->lang]);
         }
       }
+      // apply language modification
+      if (isset($item['lang']) && !empty($item['lang'])) $profiles[$found] = $item;
     }
 
     // determine longitude and latitude
