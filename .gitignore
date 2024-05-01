@@ -40,7 +40,6 @@ __pycache__
 .venv/
 .conda/
 /dist
-/assets/php
-/assets/chrome
 *.egg-info
 /.vs
+nuitka
