@@ -232,7 +232,7 @@ foreach ($profiles as $item) {
   }
 }
 
-echo "re-index profiles";
+echo "re-index profiles" . PHP_EOL;
 
 // Reindex the array
 $profiles = array_values($profiles);
@@ -245,6 +245,26 @@ $uniqueJsonData = json_encode($uniqueObjects, JSON_PRETTY_PRINT);
 
 // write the modified profiles
 file_put_contents($fileProfiles, $uniqueJsonData);
+
+// remove duplicated lines from proxies.txt compare with dead.txt
+$file1 = realpath(__DIR__ . "/proxies.txt");
+$file2 = realpath(__DIR__ . "/dead.txt");
+
+// Get duplicated lines
+$duplicatedLines = getDuplicatedLines($file1, $file2);
+
+if (!empty($duplicatedLines)) {
+  // Output duplicated lines
+  echo "Duplicated lines between $file1 and $file2:\n";
+  foreach ($duplicatedLines as $line) {
+    echo trim($line) . PHP_EOL;
+  }
+
+  // Remove duplicated lines from $file1
+  $lines1 = file($file1);
+  $lines1 = array_diff($lines1, $duplicatedLines);
+  file_put_contents($file1, implode("", $lines1));
+}
 
 /**
  * Find the index of an item in an array based on its 'proxy' value.
