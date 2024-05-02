@@ -1,6 +1,51 @@
 <?php
 
+require_once __DIR__ . '/../func.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->safeLoad();
 $shortHash = exec('git rev-parse --short HEAD');
+
+// init configuration
+$clientID = $_ENV['G_CLIENT_ID'];
+$clientSecret = $_ENV['G_CLIENT_SECRET'];
+// Get the protocol
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
+
+// Get the host
+$host = $_SERVER['HTTP_HOST'];
+
+// Get the path
+$path = strtok($_SERVER['REQUEST_URI'], '?');
+
+// Construct the full URL
+$current_url = $protocol . $host . $path;
+$redirectUri = $current_url;
+
+// create Client Request to access Google API
+$client = new Google_Client();
+$client->setClientId($clientID);
+$client->setClientSecret($clientSecret);
+$client->setRedirectUri($redirectUri);
+$client->addScope("email");
+$client->addScope("profile");
+
+// authenticate code from Google OAuth Flow
+if (isset($_GET['code'])) {
+  $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+  $client->setAccessToken($token['access_token']);
+
+  // get profile info
+  $google_oauth = new Google_Service_Oauth2($client);
+  $google_account_info = $google_oauth->userinfo->get();
+  $email =  $google_account_info->email;
+  $name =  $google_account_info->name;
+
+  if ($email == 'dimaslanjaka@gmail.com') {
+    $_SESSION['admin'] = true;
+  }
+} else if (isset($_REQUEST['login'])) {
+  header('Location: ' . $client->createAuthUrl());
+}
 
 ?>
 
