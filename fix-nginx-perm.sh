@@ -25,6 +25,7 @@ sudo chmod 644 *.php
 echo "permission sets successful"
 
 su -s /bin/bash -c 'php composer.phar install' www-data
+su -s /bin/bash -c 'php composer.phar update' www-data
 # php composer.phar install
 sudo chown -R www-data:www-data vendor/*
 sudo chown -R www-data:www-data vendor/composer/*
