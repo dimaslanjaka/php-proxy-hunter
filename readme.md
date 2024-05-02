@@ -32,10 +32,16 @@ touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-ht
 
 ## Crontab
 
-run checker every 10 mins
+run proxy checker every 10 mins
 
 ```bash
 */10 * * * * php /path/to/proxyChecker.php > /path/to/proxyChecker.txt 2>&1
+```
+
+run proxy fetcher every day once
+
+```bash
+0 0 * * * php /var/www/html/proxyFetcher.php
 ```
 
 to run crontab using spesific user
