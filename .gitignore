@@ -42,4 +42,5 @@ __pycache__
 /dist
 *.egg-info
 /.vs
-nuitka
+/src/nuitka
+/config.yaml
