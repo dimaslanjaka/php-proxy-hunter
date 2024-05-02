@@ -29,7 +29,7 @@ class ProxyDB
 
   public function add(string $proxy)
   {
-    $this->db->insert('proxies', ['proxy' => trim($proxy)]);
+    $this->db->insert('proxies', ['proxy' => trim($proxy), 'status' => 'untested']);
   }
 
   /**
