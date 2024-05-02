@@ -19,7 +19,7 @@ sudo apt-get install git git-lfs -y
 git clone https://github.com/dimaslanjaka/php-proxy-hunter foldername
 cd foldername
 git lfs install
-git lfs track *.mmdb
+git lfs track *.rar
 ```
 
 - create database files
