@@ -2,7 +2,7 @@
 Options -Indexes
 
 # block files which needs to be hidden, specify .example extension of the file
-<Files ~ "\.(env|json|config.js|md|gitignore|gitattributes|lock)$">
+<Files ~ "\.(env|gitignore|gitattributes)$">
     Order allow,deny
     Deny from all
 </Files>
