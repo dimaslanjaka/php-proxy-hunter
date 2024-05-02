@@ -20,10 +20,17 @@ function iterateProxies(array $proxies, int $startIndex = 0, int $maxIterations 
   for ($i = $startIndex; $i < $totalProxies; $i++) {
     $proxy = $proxies[$i];
     if (!is_string($proxy)) continue;
-    echo "$proxy" . PHP_EOL;
+
     $sel  = $db->select($proxy);
     if (empty($sel)) {
+      echo "add $proxy" . PHP_EOL;
+      // add proxy
       $db->add($proxy);
+      // re-select proxy
+      $sel  = $db->select($proxy);
+    }
+    if (is_null($sel[0]['status'])) {
+      $db->updateStatus($proxy, 'untested');
     }
 
     $iterations++;
