@@ -7,6 +7,10 @@ use \PDO;
 if (!defined('PHP_PROXY_HUNTER')) exit('access denied');
 
 /**
+ * Class SQLiteHelper
+ *
+ * Helper class for interacting with SQLite database.
+ *
  * Usage Example:
  *
  * // Create an instance of the SQLiteHelper class
@@ -31,25 +35,45 @@ if (!defined('PHP_PROXY_HUNTER')) exit('access denied');
  *
  * // Delete a record
  * $helper->delete('users', 'name = ?', ['John']);
+ *
+ * @package PhpProxyHunter
  */
 class SQLiteHelper
 {
+  /** @var PDO $pdo */
   private $pdo;
 
-  public function __construct($dbPath)
+  /**
+   * SQLiteHelper constructor.
+   *
+   * @param string $dbPath The path to the SQLite database file.
+   */
+  public function __construct(string $dbPath)
   {
     $this->pdo = new PDO("sqlite:$dbPath");
     $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   }
 
-  public function createTable($tableName, $columns)
+  /**
+   * Creates a table in the database.
+   *
+   * @param string $tableName The name of the table to create.
+   * @param array $columns An array of column definitions.
+   */
+  public function createTable(string $tableName, array $columns): void
   {
     $columnsString = implode(', ', $columns);
     $sql = "CREATE TABLE IF NOT EXISTS $tableName ($columnsString)";
     $this->pdo->exec($sql);
   }
 
-  public function insert($tableName, $data)
+  /**
+   * Inserts a record into the specified table.
+   *
+   * @param string $tableName The name of the table to insert into.
+   * @param array $data An associative array of column names and values.
+   */
+  public function insert(string $tableName, array $data): void
   {
     $columns = implode(', ', array_keys($data));
     $values = implode(', ', array_fill(0, count($data), '?'));
@@ -60,14 +84,15 @@ class SQLiteHelper
   }
 
   /**
-   * select from table
+   * Selects records from the specified table.
    *
-   * ```php
-   * // sample usage
-   * $helper->select('users', '*', 'name = ?', ['John']);
-   * ```
+   * @param string $tableName The name of the table to select from.
+   * @param string $columns The columns to select.
+   * @param string|null $where The WHERE clause.
+   * @param array $params An array of parameters to bind to the query.
+   * @return array An array containing the selected records.
    */
-  public function select(string $tableName, string $columns = '*', string $where = null, array $params = [])
+  public function select(string $tableName, string $columns = '*', ?string $where = null, array $params = []): array
   {
     $sql = "SELECT $columns FROM $tableName";
     if ($where) {
@@ -78,7 +103,15 @@ class SQLiteHelper
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
-  public function update($tableName, array $data, string $where, $params = [])
+  /**
+   * Updates records in the specified table.
+   *
+   * @param string $tableName The name of the table to update.
+   * @param array $data An associative array of column names and values to update.
+   * @param string $where The WHERE clause.
+   * @param array $params An array of parameters to bind to the query.
+   */
+  public function update(string $tableName, array $data, string $where, array $params = []): void
   {
     $setValues = [];
     foreach ($data as $key => $value) {
@@ -90,7 +123,14 @@ class SQLiteHelper
     $stmt->execute(array_merge(array_values($data), $params));
   }
 
-  public function delete($tableName, $where, $params = [])
+  /**
+   * Deletes records from the specified table.
+   *
+   * @param string $tableName The name of the table to delete from.
+   * @param string $where The WHERE clause.
+   * @param array $params An array of parameters to bind to the query.
+   */
+  public function delete(string $tableName, string $where, array $params = []): void
   {
     $sql = "DELETE FROM $tableName WHERE $where";
     $stmt = $this->pdo->prepare($sql);
