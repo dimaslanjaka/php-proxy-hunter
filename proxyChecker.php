@@ -135,7 +135,7 @@ setFilePermissions([$filePath, $workingPath, $deadPath]);
  */
 function shuffleChecks()
 {
-  global $filePath, $workingPath, $workingProxies, $deadPath, $isCli;
+  global $filePath, $workingPath, $workingProxies, $deadPath, $isCli, $db;
 
   // Read lines of the file into an array
   $untested = extractIpPorts(file_get_contents($filePath));
@@ -166,6 +166,15 @@ function shuffleChecks()
       // LIVE output buffering on web server
       flush();
       ob_flush();
+    }
+    $from_db = $db->select($line);
+    if (!empty($from_db)) {
+      $dbproxy = $from_db[0];
+      if (!is_null($dbproxy) && isset($dbproxy['last_check']) && !is_null($dbproxy['last_check']) && !isDateRFC3339OlderThanHours($dbproxy['last_check'], 5)) {
+        // skip proxy already checked less than 5 hours ago
+        echo "$line already checked" . PHP_EOL;
+        continue;
+      }
     }
     if (checkProxyLine($line) == "break") break;
     // move to dead.txt checked proxy
