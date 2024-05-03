@@ -250,6 +250,26 @@ function readFileLinesToArray(string $filename)
 }
 
 /**
+ * Check if a given date string in RFC3339 format is older than the specified number of hours.
+ *
+ * @param string $dateString The date string in DATE_RFC3339 format.
+ * @param int $hoursAgo The number of hours to compare against.
+ * @return bool True if the date is older than the specified number of hours, false otherwise.
+ */
+function isDateRFC3339OlderThanHours(string $dateString, int $hoursAgo): bool
+{
+  // Create a DateTime object from the string
+  $date = new DateTime($dateString);
+
+  // Create a DateTime object representing the specified number of hours ago
+  $hoursAgoDateTime = new DateTime();
+  $hoursAgoDateTime->sub(new DateInterval('PT' . $hoursAgo . 'H'));
+
+  // Compare the date with the specified number of hours ago
+  return $date < $hoursAgoDateTime;
+}
+
+/**
  * Extracts IP:PORT pairs from a string.
  *
  * @param string $string The input string containing IP:PORT pairs.
