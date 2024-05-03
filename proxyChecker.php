@@ -138,7 +138,12 @@ function shuffleChecks()
   global $filePath, $workingPath, $workingProxies, $deadPath, $isCli;
 
   // Read lines of the file into an array
-  $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+  $untested = extractIpPorts(file_get_contents($filePath));
+  $working = extractIpPorts(file_get_contents($workingPath));
+  $lines = array_merge($untested, $working);
+  $lines = array_map('trim', $lines);
+  shuffle($lines);
+
   if (empty($lines) || count($lines) < 100) {
     if (file_exists($deadPath)) {
       echo "proxies low, respawning dead proxies\n\n";
