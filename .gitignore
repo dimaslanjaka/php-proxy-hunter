@@ -44,4 +44,6 @@ __pycache__
 *.egg-info
 /.vs
 /src/nuitka
+/src/undetected-chromedriver
+/src/selenium-dolphin
 /config.yaml
