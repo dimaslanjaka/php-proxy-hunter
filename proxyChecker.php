@@ -144,6 +144,9 @@ function shuffleChecks()
   $lines = array_map('trim', $lines);
   shuffle($lines);
 
+  // rewrite untested proxies
+  file_put_contents($filePath, join("\n", $lines));
+
   if (empty($lines) || count($lines) < 100) {
     if (file_exists($deadPath)) {
       echo "proxies low, respawning dead proxies\n\n";
