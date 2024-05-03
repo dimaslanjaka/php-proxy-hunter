@@ -11,7 +11,7 @@
       "type": "node-terminal"
     },
     {
-      "command": "python main_selenium.py",
+      "command": "python local-selenium.py",
       "name": "Run selenium",
       "request": "launch",
       "type": "node-terminal"

@@ -1,4 +1,2 @@
-/php
-/chrome*
-/python
-/node
+*
+!/database
