@@ -21,7 +21,7 @@ if (!$isCli) {
 
 // Run a long-running process in the background
 $file = __DIR__ . "/proxyWorking.php";
-$outputfile = __DIR__ . '/proxyChecker.txt';
+$outputfile = __DIR__ . '/tmp/proxyWorking.txt';
 $pidfile = __DIR__ . '/proxyWorking.pid';
 setFilePermissions([$file, $outputfile, $pidfile]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
