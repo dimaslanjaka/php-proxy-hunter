@@ -142,6 +142,7 @@ function shuffleChecks()
   $working = extractIpPorts(file_get_contents($workingPath));
   $lines = array_merge($untested, $working);
   $lines = array_map('trim', $lines);
+  $lines = array_unique($lines);
   shuffle($lines);
 
   // rewrite untested proxies
