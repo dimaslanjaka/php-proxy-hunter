@@ -250,6 +250,24 @@ function readFileLinesToArray(string $filename)
 }
 
 /**
+ * Extracts IP:PORT pairs from a string.
+ *
+ * @param string $string The input string containing IP:PORT pairs.
+ * @return array An array containing the extracted IP:PORT pairs.
+ */
+function extractIpPorts(string $string): array
+{
+  // Regular expression pattern to match IP:PORT pairs
+  $pattern = '/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/';
+
+  // Perform the matching
+  preg_match_all($pattern, $string, $matches);
+
+  // Extracted IP:PORT pairs
+  return $matches[0];
+}
+
+/**
  * Extracts IP:PORT combinations from a file.
  *
  * @param string $filePath The path to the file containing IP:PORT combinations.
