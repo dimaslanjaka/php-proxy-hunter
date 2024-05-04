@@ -138,8 +138,8 @@ function shuffleChecks()
   global $filePath, $workingPath, $workingProxies, $deadPath, $isCli, $db;
 
   // Read lines of the file into an array
-  $untested = extractIpPorts(file_get_contents($filePath));
-  $working = extractIpPorts(file_get_contents($workingPath));
+  $untested = extractProxies(file_get_contents($filePath));
+  $working = extractProxies(file_get_contents($workingPath));
   $lines = array_merge($untested, $working);
   $lines = array_map(function ($line) {
     return trim($line->proxy);
