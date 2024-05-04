@@ -143,14 +143,12 @@ function shuffleChecks()
   $lines = array_merge($untested, $working);
   $lines = array_map(function ($line) {
     return trim($line->proxy);
-  }, $lines);
+  }, $working);
   $lines = array_unique($lines);
   shuffle($lines);
 
-  // exit(var_dump($lines));
-
   // rewrite untested proxies
-  // file_put_contents($filePath, join("\n", $lines));
+  file_put_contents($filePath, join("\n", $lines));
 
   if (empty($lines) || count($lines) < 30) {
     if (file_exists($deadPath)) {
