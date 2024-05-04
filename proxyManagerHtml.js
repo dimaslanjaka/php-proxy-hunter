@@ -145,6 +145,9 @@ async function checkerOutput() {
   }
 
   const wrapper = document.querySelector("#countProxy");
+  /**
+   * @type {Record<string, any>}
+   */
   const statusJson = await fetch("./status.json?v=" + new Date(), { signal: AbortSignal.timeout(5000) })
     .then((res) => res.json())
     .catch(() => {
