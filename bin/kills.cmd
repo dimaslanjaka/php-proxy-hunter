@@ -19,4 +19,5 @@ call wmic process where "name like 'chromedriver.exe'" delete
 call wmic process where "name like 'php.exe'" delete
 @REM call wmic process where "name like 'python.exe'" delete
 call wmic process where "name like 'node.exe'" delete
-rm *.lock
+call rm *.lock
+call php composer.phar install
