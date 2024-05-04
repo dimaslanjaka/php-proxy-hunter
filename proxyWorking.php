@@ -2,7 +2,7 @@
 
 // proxies writer
 
-require_once __DIR__ . '/func.php';
+require_once __DIR__ . '/func-proxy.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
 use PhpProxyHunter\geoPlugin;
@@ -244,11 +244,9 @@ foreach ($profiles as $item) {
       }
       // delete dead proxy
       $status = $from_db['status'];
-      if (!is_null($status)) {
-        if (trim(strtolower($status)) !== 'active') {
-          unset($profiles[$found]);
-          echo $item['proxy'] . ' deleted' . PHP_EOL;
-        }
+      if (is_null($status) || trim(strtolower($status)) !== 'active') {
+        unset($profiles[$found]);
+        echo $item['proxy'] . ' '. (string) $status . PHP_EOL;
       }
       // apply
       $profiles[$found] = $item;
