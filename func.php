@@ -588,37 +588,6 @@ function mergeArrays(array $arr1, array $arr2)
 }
 
 /**
- * Check if a port is open on a given IP address.
- *
- * @param string $proxy The IP address and port to check in the format "IP:port".
- * @param int $timeout The timeout value in seconds (default is 10 seconds).
- * @return bool True if the port is open, false otherwise.
- */
-function isPortOpen(string $proxy, int $timeout = 10)
-{
-  $proxy = trim($proxy);
-
-  // disallow empty proxy
-  if (empty($proxy) || strlen($proxy) < 7)
-    return false;
-
-  // Separate IP and port
-  list($ip, $port) = explode(':', $proxy);
-
-  // Create a TCP/IP socket with the specified timeout
-  $socket = @fsockopen($ip, $port, $errno, $errstr, $timeout);
-
-  // Check if the socket could be opened
-  if ($socket === false) {
-    return false; // Port is closed
-  } else {
-    fclose($socket);
-    return true; // Port is open
-  }
-}
-
-
-/**
  * Removes empty lines from a text file.
  *
  * @param string $filePath The path to the text file.
