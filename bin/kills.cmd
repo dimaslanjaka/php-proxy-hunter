@@ -21,3 +21,5 @@ call wmic process where "name like 'php.exe'" delete
 call wmic process where "name like 'node.exe'" delete
 call rm *.lock
 call php composer.phar install
+call touch yarn.lock
+call yarn install
