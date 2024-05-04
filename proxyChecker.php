@@ -157,7 +157,7 @@ if (count($proxies) < 30) {
   }
 }
 
-iterateArray($proxies, 15, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath) {
+iterateArray($proxies, 1, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath) {
   list($ip, $port) = explode(":", $item->proxy);
   if (strlen($item->proxy) > 10 && strlen($port) > 1 && strlen($item->proxy) <= 21) {
     if (!isPortOpen($item->proxy)) {
@@ -238,6 +238,12 @@ iterateArray($proxies, 15, function (Proxy $item) use ($db, $headers, $endpoint,
 // write working proxies to working.txt
 $workingProxies = $db->getWorkingProxies();
 $array_format = array_map(function ($item) {
+  foreach ($item as $key => $value) {
+    if (empty($value)) {
+      $item[$key] = '-';
+    }
+  }
+
   unset($item['id']);
   $item['type'] = strtoupper($item['type']);
   return implode('|', $item);
