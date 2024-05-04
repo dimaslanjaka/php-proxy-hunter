@@ -89,12 +89,12 @@ $fileUntested = __DIR__ . '/proxies.txt';
 //  }
 //}
 
-$untested = countNonEmptyLines($fileUntested);
+$untested = extractProxies(file_get_contents($fileUntested));
 $dead = countNonEmptyLines(__DIR__ . '/dead.txt');
 echo "total working proxies " . count($working) . PHP_EOL;
 echo "total private proxies " . count($private) . PHP_EOL;
 echo "total dead proxies $dead" . PHP_EOL;
-echo "total untested proxies $untested" . PHP_EOL;
+echo "total untested proxies ". count($untested) . PHP_EOL;
 
 file_put_contents(__DIR__ . '/status.json', json_encode(['working' => count($working), 'dead' => $dead, 'untested' => $untested, 'private' => count($private)]));
 
