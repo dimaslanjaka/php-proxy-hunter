@@ -17,10 +17,11 @@ class ProxyDB
   /**
    * ProxyDB constructor.
    *
-   * @param string $dbLocation
+   * @param string|null $dbLocation
    */
-  public function __construct(string $dbLocation = __DIR__ . '/database.sqlite')
+  public function __construct(?string $dbLocation = null)
   {
+    if (!$dbLocation) $dbLocation = realpath(__DIR__ . '/database.sqlite');
     $this->db = new SQLiteHelper($dbLocation);
   }
 
