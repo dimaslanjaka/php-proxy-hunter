@@ -16,8 +16,21 @@ function iterateProxies(array $proxies, int $startIndex = 0, int $maxIterations 
 {
   global $db;
   $totalProxies = count($proxies);
+
+  // Check if $startIndex is within the bounds of the array
+  if ($startIndex < 0 || $startIndex >= $totalProxies) {
+    echo "Invalid startIndex provided. Exiting function.";
+    return;
+  }
+
   $iterations = 0;
   for ($i = $startIndex; $i < $totalProxies; $i++) {
+    // Check if the index $i exists in the array
+    if (!array_key_exists($i, $proxies)) {
+      echo "Index $i does not exist in the array. Exiting loop.";
+      break;
+    }
+
     $proxy = $proxies[$i];
     if (!is_string($proxy)) continue;
 
