@@ -257,13 +257,25 @@ function get_geo_ip(string $proxy, string $proxy_type = 'http')
   // Check if JSON decoding was successful
   if (json_last_error() === JSON_ERROR_NONE) {
     if (trim($geoIp['status']) != 'fail') {
-      $db->update($proxy, null, $geoIp['region'], $geoIp['city'], $geoIp['country'], null, null, $geoIp['timezone']);
+      $data = [];
       if (isset($geoIp['lat'])) {
-        $db->updateData($proxy, ['latitude' => $geoIp['lat']]);
+        $data['latitude'] = $geoIp['lat'];
       }
       if (isset($geoIp['lon'])) {
-        $db->updateData($proxy, ['latitude' => $geoIp['lon']]);
+        $data['longitude'] = $geoIp['lon'];
       }
+      if (isset($geoIp['timezone'])) {
+        $data['timezone'] = $geoIp['timezone'];
+      }
+      if (isset($geoIp['country'])) {
+        $data['country'] = $geoIp['country'];
+      }
+      if (isset($geoIp['region'])) {
+        $region = $geoIp['region'];
+        if (!empty($geoIp['regionName'])) $region = $geoIp['regionName'];
+        $data['region'] = $region;
+      }
+      $db->updateData($proxy, $data);
     } else {
       $cache_file = curlGetCache($geoUrl);
       if (file_exists($cache_file)) unlink($cache_file);
