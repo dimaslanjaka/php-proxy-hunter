@@ -245,3 +245,28 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
 
   return $result;
 }
+
+function get_geo_ip(string $proxy, string $proxy_type = 'http')
+{
+  $proxy = trim($proxy);
+  $db = new ProxyDB();
+  list($ip, $port) = explode(':', $proxy);
+  $geoUrl = "https://ip-get-geolocation.com/api/json/$ip";
+  // fetch ip info
+  $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, $proxy_type), true);
+  // Check if JSON decoding was successful
+  if (json_last_error() === JSON_ERROR_NONE) {
+    if (trim($geoIp['status']) != 'fail') {
+      $db->update($proxy, null, $geoIp['region'], $geoIp['city'], $geoIp['country'], null, null, $geoIp['timezone']);
+      if (isset($geoIp['lat'])) {
+        $db->updateData($proxy, ['latitude' => $geoIp['lat']]);
+      }
+      if (isset($geoIp['lon'])) {
+        $db->updateData($proxy, ['latitude' => $geoIp['lon']]);
+      }
+    } else {
+      $cache_file = curlGetCache($geoUrl);
+      if (file_exists($cache_file)) unlink($cache_file);
+    }
+  }
+}
