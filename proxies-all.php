@@ -28,7 +28,7 @@ function iterateProxies(array $proxies, int $startIndex = 0, int $maxIterations 
     // Check if the index $i exists in the array
     if (!array_key_exists($i, $proxies)) {
       echo "Index $i does not exist in the array. Exiting loop.";
-      break;
+      continue;
     }
 
     $proxy = $proxies[$i];
