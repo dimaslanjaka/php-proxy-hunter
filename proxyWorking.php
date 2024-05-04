@@ -46,7 +46,7 @@ $db = new ProxyDB();
 $working = $db->getWorkingProxies();
 $private = $db->getPrivateProxies();
 
-$impl = implode(PHP_EOL, array_map(function ($item) {
+$impl = implode(PHP_EOL, array_map(function ($item) use($db) {
   foreach ($item as $key => $value) {
     if (empty($value)) {
       $item[$key] = '-';
@@ -55,6 +55,10 @@ $impl = implode(PHP_EOL, array_map(function ($item) {
 
   $item['type'] = strtoupper($item['type']);
   unset($item['id']);
+  if (empty($item['useragent'])) {
+    $item['useragent'] = randomWindowsUa();
+    $db->updateData($item['proxy'], $item);
+  }
   return implode('|', $item);
 }, $working));
 
