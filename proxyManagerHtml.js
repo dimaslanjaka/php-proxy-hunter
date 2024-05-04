@@ -91,12 +91,16 @@ async function main() {
 async function doCheck() {
   try {
     if (user_info) {
-      await fetchWorkingProxies().catch(() => {});
+      await fetchWorkingProxies().catch(() => {
+      });
       await fetch("./proxyCheckerBackground.php?uid=" + user_info.user_id, {
         signal: AbortSignal.timeout(5000)
-      }).catch(() => {});
-      await checkerStatus().catch(() => {});
-      await fetchWorkingProxies().catch(() => {});
+      }).catch(() => {
+      });
+      await checkerStatus().catch(() => {
+      });
+      await fetchWorkingProxies().catch(() => {
+      });
     }
   } catch (error) {
     // Handle errors if needed
@@ -104,6 +108,7 @@ async function doCheck() {
 }
 
 let prevOutput = "";
+
 /**
  * get result of proxy checker
  */
@@ -112,13 +117,13 @@ async function checkerOutput() {
     res.text()
   );
   // skip update UI when output when remains same
-  if (prevOutput == info || info.trim().length == 0) return;
+  if (prevOutput === info || info.trim().length === 0) return;
   prevOutput = info;
   const filter = info
     .split(/\r?\n/)
     .map((str) => {
-      str = str.replace(/port closed/, '<span class="text-red-400">port closed</span>');
-      str = str.replace(/not working/, '<span class="text-red-600">not working</span>');
+      str = str.replace(/port closed/, "<span class=\"text-red-400\">port closed</span>");
+      str = str.replace(/not working/, "<span class=\"text-red-600\">not working</span>");
       str = str.replace(/working type (\w+) latency (-?\d+) ms/, (whole, g1, g2) => {
         whole = whole.replace(g1, `<b>${g1}</b>`).replace(g2, `<b>${g2}</b>`);
         if (g2 != "-1") {
@@ -218,6 +223,7 @@ async function checkerStatus() {
 }
 
 let workingProxiesTxt;
+
 async function fetchWorkingProxies() {
   const date = new Date();
   // fetch update in background
@@ -228,21 +234,16 @@ async function fetchWorkingProxies() {
     .then((res) => res.text())
     .catch(() => "");
   // skip update UI when response empty
-  if (testWorkingProxiesTxt.trim().length == 0) return;
-  if (!workingProxiesTxt || workingProxiesTxt != testWorkingProxiesTxt) {
+  if (testWorkingProxiesTxt.trim().length === 0) return;
+  if (!workingProxiesTxt || workingProxiesTxt !== testWorkingProxiesTxt) {
     workingProxiesTxt = testWorkingProxiesTxt;
-    const proxies = sortLinesByDate(workingProxiesTxt);
+    // const proxies = sortLinesByDate(workingProxiesTxt);
+    const proxies = workingProxiesTxt.split(/\r?\n/).filter((line) => line.trim() !== "");
     const tbody = document.getElementById("wproxy");
     tbody.innerHTML = "";
     proxies.forEach((str) => {
       const tr = document.createElement("tr");
       const split = str.split("|");
-      if (split.length < 7) {
-        const remainingLength = 7 - split.length;
-        for (let i = 0; i < remainingLength; i++) {
-          split.push("undefined");
-        }
-      }
       split.forEach((info, i) => {
         const td = document.createElement("td");
         td.setAttribute(
@@ -250,23 +251,24 @@ async function fetchWorkingProxies() {
           "border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
         );
         td.innerText = info;
-        if (i == 0) {
+        if (i === 0) {
+          td.classList.add("w-4/12");
           td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}"><i class="fa-duotone fa-copy"></i></button>`;
-        } else if (i == 7 && info.length > 6) {
+        } else if (i === 2 && info.length > 6) {
           // last check date
           td.innerText = timeAgo(info);
         } else {
           td.classList.add("text-center");
         }
 
-        if (i == 5 || i == 6) {
-          if (info.trim() == "-") {
-            console.log(split[0], "missing geo location");
-            fetch("./geoIp.php?proxy=" + split[0], { signal: AbortSignal.timeout(5000) }).catch(() => {
-              //
-            });
-          }
-        }
+        // if (i === 5 || i === 6) {
+        //   if (info.trim() === "-") {
+        //     console.log(split[0], "missing geo location");
+        //     fetch("./geoIp.php?proxy=" + split[0], { signal: AbortSignal.timeout(5000) }).catch(() => {
+        //       //
+        //     });
+        //   }
+        // }
 
         tr.appendChild(td);
       });
@@ -301,14 +303,22 @@ function sortLinesByDate(text) {
       city: parts[4],
       country: parts[5],
       timezone: parts[6],
-      date: (parts[7] || "").trim()
+      latitude: parts[7] || "-",
+      longitude: parts[8] || "-",
+      date: (parts[9] || "-").trim(),
+      status: parts[10],
+      lang: parts[11],
+      useragent: parts[12],
+      webgl_vendor: parts[13],
+      webgl_renderer: parts[14],
+      browser_vendor: parts[15]
     };
   });
 
   // Parse each line into objects
   let objects = lines.map((line) => {
     const parts = line.split("|");
-    const date = (parts[7] || "").trim();
+    const date = (parts[9] || "").trim();
     return {
       proxy: parts[0],
       latency: parts[1],
@@ -317,7 +327,15 @@ function sortLinesByDate(text) {
       city: parts[4],
       country: parts[5],
       timezone: parts[6],
-      date: date != "-" ? new Date(date) : new Date()
+      latitude: parts[7] || "-",
+      longitude: parts[8] || "-",
+      date: date !== "-" ? new Date(date) : new Date(),
+      status: parts[10],
+      lang: parts[11],
+      useragent: parts[12],
+      webgl_vendor: parts[13],
+      webgl_renderer: parts[14],
+      browser_vendor: parts[15]
     };
   });
 
@@ -325,12 +343,10 @@ function sortLinesByDate(text) {
   objects = objects.sort((a, b) => a.date - b.date).reverse();
 
   // Reconstruct sorted lines
-  const sortedLines = objects.map((obj) => {
-    const date = original.find((o) => o.proxy == obj.proxy).date;
-    return `${obj.proxy}|${obj.latency}|${obj.type}|${obj.region}|${obj.city}|${obj.country}|${obj.timezone}|${date}`;
+  return objects.map((obj) => {
+    obj.date = original.find((o) => o.proxy === obj.proxy).date;
+    return obj;
   });
-
-  return sortedLines;
 }
 
 /**
@@ -390,7 +406,7 @@ function showSnackbar(message) {
   snackbar.className = "show";
 
   // Hide the snackbar after 3 seconds
-  setTimeout(function () {
+  setTimeout(function() {
     snackbar.className = snackbar.className.replace("show", "");
   }, 3000);
 }
@@ -423,6 +439,6 @@ function copyToClipboard(text) {
   }
 }
 
-(function () {
+(function() {
   main();
 })();
