@@ -26,6 +26,7 @@
     "google/apiclient": "^2.0",
     "vlucas/phpdotenv": "^5.6",
     "ext-curl": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-pdo": "*"
   }
 }
