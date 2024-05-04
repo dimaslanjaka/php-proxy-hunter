@@ -182,9 +182,9 @@ iterateArray($proxies, 50, function (Proxy $item) use ($db, $headers, $endpoint,
     if ($check_http['result']) $proxy_types[] = 'http';
     if ($check_socks5['result']) $proxy_types[] = 'socks5';
     if ($check_socks4['result']) $proxy_types[] = 'socks4';
+    $latencies = [$check_http['latency'], $check_socks5['latency'], $check_socks4['latency']];
     if (!empty($proxy_types)) {
-      $latencies = [$check_http['latency'], $check_socks5['latency'], $check_socks4['latency']];
-      echo $item->proxy . ' working ' . strtoupper(implode('-', $proxy_types)) . PHP_EOL;
+      echo $item->proxy . ' working ' . strtoupper(implode('-', $proxy_types)) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
       $db->updateData($item->proxy, ['type' => implode('-', $proxy_types), 'status' => 'active', 'latency' => max($latencies)]);
       if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
         $webgl = random_webgl_data();
