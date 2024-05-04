@@ -32,7 +32,7 @@
   Email: dimaslanjaka@gmail.com
 */
 
-require_once __DIR__ . "/func.php";
+require_once __DIR__ . "/func-proxy.php";
 
 use PhpProxyHunter\ProxyDB;
 
@@ -141,7 +141,9 @@ function shuffleChecks()
   $untested = extractIpPorts(file_get_contents($filePath));
   $working = extractIpPorts(file_get_contents($workingPath));
   $lines = array_merge($untested, $working);
-  $lines = array_map('trim', $lines);
+  $lines = array_map(function ($line) {
+    return trim($line->proxy);
+  }, $working);
   $lines = array_unique($lines);
   shuffle($lines);
 
