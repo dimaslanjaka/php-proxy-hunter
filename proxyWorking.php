@@ -47,6 +47,12 @@ $working = $db->getWorkingProxies();
 $private = $db->getPrivateProxies();
 
 $impl = implode(PHP_EOL, array_map(function ($item) {
+  foreach ($item as $key => $value) {
+    if (empty($value)) {
+      $item[$key] = '-';
+    }
+  }
+
   $item['type'] = strtoupper($item['type']);
   unset($item['id']);
   return implode('|', $item);
