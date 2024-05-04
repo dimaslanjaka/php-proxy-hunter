@@ -9,6 +9,8 @@ use PhpProxyHunter\geoPlugin;
 use PhpProxyHunter\ProxyDB;
 use function Annexare\Countries\countries;
 
+global $isCli;
+
 // if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
 if (!$isCli)
   exit('web server access disallowed');
@@ -64,20 +66,20 @@ file_put_contents(__DIR__ . '/working.txt', $impl);
 
 $fileUntested = __DIR__ . '/proxies.txt';
 
-if (!$isCli) {
-  if (!isset($_COOKIE['rewrite_cookies'])) {
-    // Set the cookie to expire in 5 minutes (300 seconds)
-    $cookie_value = md5(date(DATE_RFC3339));
-    setcookie('rewrite_cookies', $cookie_value, time() + 300, '/');
-
-    // rewrite working proxies to be checked again later
-    file_put_contents($fileUntested, PHP_EOL . $impl . PHP_EOL, FILE_APPEND);
-    // filter only IP:PORT each lines
-    rewriteIpPortFile($fileUntested);
-    // remove duplicate proxies
-    removeDuplicateLines($fileUntested);
-  }
-}
+//if (!$isCli) {
+//  if (!isset($_COOKIE['rewrite_cookies'])) {
+//    // Set the cookie to expire in 5 minutes (300 seconds)
+//    $cookie_value = md5(date(DATE_RFC3339));
+//    setcookie('rewrite_cookies', $cookie_value, time() + 300, '/');
+//
+//    // rewrite working proxies to be checked again later
+//    file_put_contents($fileUntested, PHP_EOL . $impl . PHP_EOL, FILE_APPEND);
+//    // filter only IP:PORT each lines
+//    rewriteIpPortFile($fileUntested);
+//    // remove duplicate proxies
+//    removeDuplicateLines($fileUntested);
+//  }
+//}
 
 $untested = countNonEmptyLines($fileUntested);
 $dead = countNonEmptyLines(__DIR__ . '/dead.txt');
@@ -195,26 +197,26 @@ foreach ($profiles as $item) {
     // determine webgl driver
     if (!isset($item['driver'])) {
       $vendor_data = array(
-        "Google Inc. (Intel)" => array(
-          "renderers" => array("Intel Iris OpenGL Engine", "ANGLE (Intel, Intel(R) HD Graphics 400 Direct3D11 vs_5_0 ps_5_0)", "ANGLE (NVIDIA, NVIDIA GeForce GTX 660 Direct3D11 vs_5_0 ps_5_0, D3D11)"),
-          "webgl_vendors" => array("Intel Inc.")
-        ),
-        "Google Inc. (NVIDIA)" => array(
-          "renderers" => array("NVIDIA GeForce Renderer"),
-          "webgl_vendors" => array("NVIDIA Corporation")
-        ),
-        "Microsoft Corporation" => array(
-          "renderers" => array("AMD Radeon Pro Renderer"),
-          "webgl_vendors" => array("AMD Inc.")
-        ),
-        "Apple Inc." => array(
-          "renderers" => array("Apple Renderer"),
-          "webgl_vendors" => array("Apple Inc.")
-        ),
-        "Mozilla" => array(
-          "renderers" => array("ANGLE (Intel, Intel(R) HD Graphics 400 Direct3D11 vs_5_0 ps_5_0), or similar"),
-          "webgl_vendors" => array("Google Inc. (Intel)")
-        )
+          "Google Inc. (Intel)" => array(
+              "renderers" => array("Intel Iris OpenGL Engine", "ANGLE (Intel, Intel(R) HD Graphics 400 Direct3D11 vs_5_0 ps_5_0)", "ANGLE (NVIDIA, NVIDIA GeForce GTX 660 Direct3D11 vs_5_0 ps_5_0, D3D11)"),
+              "webgl_vendors" => array("Intel Inc.")
+          ),
+          "Google Inc. (NVIDIA)" => array(
+              "renderers" => array("NVIDIA GeForce Renderer"),
+              "webgl_vendors" => array("NVIDIA Corporation")
+          ),
+          "Microsoft Corporation" => array(
+              "renderers" => array("AMD Radeon Pro Renderer"),
+              "webgl_vendors" => array("AMD Inc.")
+          ),
+          "Apple Inc." => array(
+              "renderers" => array("Apple Renderer"),
+              "webgl_vendors" => array("Apple Inc.")
+          ),
+          "Mozilla" => array(
+              "renderers" => array("ANGLE (Intel, Intel(R) HD Graphics 400 Direct3D11 vs_5_0 ps_5_0), or similar"),
+              "webgl_vendors" => array("Google Inc. (Intel)")
+          )
       );
 
       // Get a random key from the vendor_data array
@@ -249,7 +251,7 @@ foreach ($profiles as $item) {
       $status = $from_db['status'];
       if (is_null($status) || trim(strtolower($status)) !== 'active') {
         unset($profiles[$found]);
-        echo $item['proxy'] . ' ' . (string) $status . PHP_EOL;
+        echo $item['proxy'] . ' ' . (string)$status . PHP_EOL;
       }
       // apply
       $profiles[$found] = $item;
