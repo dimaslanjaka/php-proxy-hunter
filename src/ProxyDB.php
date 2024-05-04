@@ -172,11 +172,6 @@ class ProxyDB
     $result2 = $this->db->select('proxies', '*', 'status = ?', ['port-closed']);
     return array_merge($result, $result2);
   }
-
-  public function close()
-  {
-//
-  }
 }
 
 /**
