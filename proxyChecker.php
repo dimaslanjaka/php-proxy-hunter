@@ -157,7 +157,15 @@ if (count($proxies) < 30) {
   }
 }
 
-iterateArray($proxies, 1, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath) {
+iterateArray($proxies, 50, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime) {
+  // Check if execution time has exceeded the maximum allowed time
+  $elapsedTime = microtime(true) - $startTime;
+  if ($elapsedTime > $maxExecutionTime) {
+    // Execution time exceeded
+    echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
+    // Handle the situation appropriately, like exiting the script or logging an error.
+    exit;
+  }
   list($ip, $port) = explode(":", $item->proxy);
   if (strlen($item->proxy) > 10 && strlen($port) > 1 && strlen($item->proxy) <= 21) {
     if (!isPortOpen($item->proxy)) {
