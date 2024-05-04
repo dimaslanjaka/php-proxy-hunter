@@ -113,13 +113,28 @@ function webgl_data()
     );
 }
 
+class WebGLData
+{
+    public $browser_vendor;
+    public $webgl_vendor;
+    public $webgl_renderer;
+
+    public function __construct($browser_vendor, $webgl_vendor, $webgl_renderer)
+    {
+        $this->browser_vendor = $browser_vendor;
+        $this->webgl_vendor = $webgl_vendor;
+        $this->webgl_renderer = $webgl_renderer;
+    }
+}
+
 function random_webgl_data()
 {
     $data = webgl_data();
     $outerKey = getRandomItemFromArray(array_keys($data));
     $innerKey = getRandomItemFromArray(array_keys($data[$outerKey]));
     $renderers = getRandomItemFromArray(array_values($data[$outerKey][$innerKey]));
-    return ['browser_vendor' => $outerKey, 'webgl_vendor' => $innerKey, 'webgl_renderer' => $renderers];
+    // return ['browser_vendor' => $outerKey, 'webgl_vendor' => $innerKey, 'webgl_renderer' => $renderers];
+    return new WebGLData($outerKey, $innerKey, $renderers);
 }
 
 // var_dump(random_webgl_data());
