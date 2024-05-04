@@ -154,6 +154,7 @@ function buildCurl($proxy, $type = 'http', string $endpoint = 'https://bing.com'
 
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, FALSE);
 
   $cookies = __DIR__ . '/tmp/cookies/' . sanitizeFilename($proxy) . '.txt';
   if (!file_exists(dirname($cookies)))

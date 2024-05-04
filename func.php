@@ -62,7 +62,7 @@ function setFilePermissions($filenames)
  *
  * @return void
  */
-function setPermissions($filename)
+function setPermissions(string $filename)
 {
   try {
     if (file_exists($filename) && is_readable($filename) && is_writable($filename)) {
@@ -79,7 +79,7 @@ function setPermissions($filename)
   }
 }
 
-function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $stringToRemove)
+function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $stringToRemove): bool
 {
   if (!is_writable($sourceFilePath) && !is_writable($destinationFilePath))
     return false;
