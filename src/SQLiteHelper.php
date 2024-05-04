@@ -100,7 +100,9 @@ class SQLiteHelper
     }
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($result) return $result;
+    return [];
   }
 
   /**
