@@ -236,20 +236,20 @@ iterateArray($proxies, 1, function (Proxy $item) use ($db, $headers, $endpoint, 
 });
 
 // write working proxies to working.txt
-$workingProxies = $db->getWorkingProxies();
-$array_format = array_map(function ($item) {
-  foreach ($item as $key => $value) {
-    if (empty($value)) {
-      $item[$key] = '-';
-    }
-  }
-
-  unset($item['id']);
-  $item['type'] = strtoupper($item['type']);
-  return implode('|', $item);
-}, $workingProxies);
-$string_format = implode(PHP_EOL, $array_format);
-file_put_contents($workingPath, $string_format);
+//$workingProxies = $db->getWorkingProxies();
+//$array_format = array_map(function ($item) {
+//  foreach ($item as $key => $value) {
+//    if (empty($value)) {
+//      $item[$key] = '-';
+//    }
+//  }
+//
+//  unset($item['id']);
+//  $item['type'] = strtoupper($item['type']);
+//  return implode('|', $item);
+//}, $workingProxies);
+//$string_format = implode(PHP_EOL, $array_format);
+//file_put_contents($workingPath, $string_format);
 
 function uniqueObjectsByProperty($array, $property): array
 {
