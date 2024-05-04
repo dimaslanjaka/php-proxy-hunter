@@ -224,7 +224,14 @@ iterateArray($proxies, 15, function (Proxy $item) use ($db, $headers, $endpoint,
     // always move checked proxy into dead.txt
     removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
   } else {
-     $db->remove($item->proxy);
+    try {
+      $db->remove($item->proxy);
+      echo $item->proxy . ' invalid proxy -> deleted' . PHP_EOL;
+    } catch (Exception $e) {
+      $errorMessage = $e->getMessage();
+      // Handle or display the error message
+      echo "fail delete " . $item->proxy . ' : ' . $errorMessage . PHP_EOL;
+    }
   }
 });
 
