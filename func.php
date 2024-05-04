@@ -27,10 +27,12 @@ date_default_timezone_set('Asia/Jakarta');
 ini_set('memory_limit', '128M');
 
 // start session
-if (!$isCli) session_start();
+if (!$isCli)
+  session_start();
 
 // create temp folder
-if (!file_exists(__DIR__ . '/tmp')) mkdir(__DIR__ . '/tmp');
+if (!file_exists(__DIR__ . '/tmp'))
+  mkdir(__DIR__ . '/tmp');
 
 /**
  * Sets file permissions to 777 if the file exists.
@@ -79,12 +81,14 @@ function setPermissions($filename)
 
 function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $stringToRemove)
 {
-  if (!is_writable($sourceFilePath) && !is_writable($destinationFilePath)) return false;
+  if (!is_writable($sourceFilePath) && !is_writable($destinationFilePath))
+    return false;
 
   // Read content from the source file
   $sourceContent = file_get_contents($sourceFilePath);
 
-  if (strpos($sourceContent, $stringToRemove) === false) return false;
+  if (strpos($sourceContent, $stringToRemove) === false)
+    return false;
 
   // Remove the desired string
   $modifiedContent = str_replace($stringToRemove, '', $sourceContent);
@@ -93,7 +97,7 @@ function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $strin
   $writeSrc = file_put_contents($sourceFilePath, $modifiedContent);
 
   // Append the removed string to the destination file
-  $writeDest = file_put_contents($destinationFilePath,  PHP_EOL . $stringToRemove . PHP_EOL, FILE_APPEND);
+  $writeDest = file_put_contents($destinationFilePath, PHP_EOL . $stringToRemove . PHP_EOL, FILE_APPEND);
 
   return $writeSrc != false && $writeDest != false;
 }
@@ -119,7 +123,8 @@ function curlGetCache($url)
 function curlGetWithProxy($url, $proxy, $proxyType = 'http', $cacheTime = 86400 * 360, $cacheDir = __DIR__ . '/.cache/')
 {
   // Generate cache file path based on URL
-  if (!file_exists($cacheDir)) mkdir($cacheDir);
+  if (!file_exists($cacheDir))
+    mkdir($cacheDir);
   $cacheFile = $cacheDir . md5($url);
 
   // Check if cached data exists and is still valid
@@ -137,8 +142,10 @@ function curlGetWithProxy($url, $proxy, $proxyType = 'http', $cacheTime = 86400 
   // Set proxy details
   curl_setopt($ch, CURLOPT_PROXY, $proxy);
   $type = CURLPROXY_HTTP;
-  if ($proxyType == 'socks4') $type = CURLPROXY_SOCKS4;
-  if ($proxyType == 'socks5') $type = CURLPROXY_SOCKS5;
+  if ($proxyType == 'socks4')
+    $type = CURLPROXY_SOCKS4;
+  if ($proxyType == 'socks5')
+    $type = CURLPROXY_SOCKS5;
   curl_setopt($ch, CURLOPT_PROXYTYPE, $type);
 
   // Set to return the transfer as a string
@@ -336,7 +343,8 @@ function extractIpPortFromFileCallback($filePath, callable $callback)
       // Process each matched IP:PORT combination using the callback function
       foreach ($matches[0] as $match) {
         $proxy = trim($match);
-        if (empty($proxy) || is_null($proxy)) continue;
+        if (empty($proxy) || is_null($proxy))
+          continue;
         $callback($proxy);
       }
     }
@@ -389,7 +397,8 @@ function setUserId(string $new_user_id)
   global $user_id;
   $user_file = !empty($new_user_id) ? getUserFile($new_user_id) : null;
   if ($user_file != null) {
-    if (!file_exists(dirname($user_file))) mkdir(dirname($user_file), 0777, true);
+    if (!file_exists(dirname($user_file)))
+      mkdir(dirname($user_file), 0777, true);
     // write default user config
     if (!file_exists($user_file)) {
       $headers = array(
@@ -411,7 +420,8 @@ function setUserId(string $new_user_id)
       file_put_contents($file, json_encode($data));
     }
     // replace global user id
-    if ($user_id != $new_user_id) $user_id = $new_user_id;
+    if ($user_id != $new_user_id)
+      $user_id = $new_user_id;
   }
 }
 
@@ -569,7 +579,7 @@ function mergeArrays(array $arr1, array $arr2)
     if (isset($arr1[$key]) && is_numeric($key)) {
       array_push($arr1, $arr2[$key]);
     } else if (isset($arr1[$key]) && is_array($arr1[$key]) && is_array($arr2[$key])) {
-      $arr1[$key] = array_unique(mergeArrays((array)$arr1[$key], (array) $arr2[$key]));
+      $arr1[$key] = array_unique(mergeArrays((array) $arr1[$key], (array) $arr2[$key]));
     } else {
       $arr1[$key] = $arr2[$key];
     }
@@ -589,7 +599,8 @@ function isPortOpen(string $proxy, int $timeout = 10)
   $proxy = trim($proxy);
 
   // disallow empty proxy
-  if (empty($proxy) || strlen($proxy) < 7) return false;
+  if (empty($proxy) || strlen($proxy) < 7)
+    return false;
 
   // Separate IP and port
   list($ip, $port) = explode(':', $proxy);
@@ -811,7 +822,8 @@ function getIPRange(string $cidr)
   $ips = [];
   for ($i = $start; $i <= $end; $i++) {
     $ip = long2ip($i);
-    if (is_string($ip)) $ips[] = trim($ip);
+    if (is_string($ip))
+      $ips[] = trim($ip);
   }
 
   return $ips;
@@ -1140,113 +1152,30 @@ function filterUniqueLines($inputFile)
   fclose($tempFile);
 }
 
-function buildCurl($proxy, $type = 'http', string $endpoint = 'https://bing.com', array $headers = [])
-{
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $endpoint); // URL to test connectivity
-  curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
-
-  // Determine the CURL proxy type based on the specified $type
-  $ptype = CURLPROXY_HTTP;
-  if (strtolower($type) == 'socks5') $ptype = CURLPROXY_SOCKS5;
-  if (strtolower($type) == 'socks4') $ptype = CURLPROXY_SOCKS4;
-  if (strtolower($type) == 'socks4a') $ptype = CURLPROXY_SOCKS4A;
-  curl_setopt($ch, CURLOPT_PROXYTYPE, $ptype); // Specify proxy type
-
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Set maximum connection time
-  curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Set maximum response time
-
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($ch, CURLOPT_HEADER, true);
-
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-
-  $cookies = __DIR__ . '/tmp/cookies/' . sanitizeFilename($proxy) . '.txt';
-  if (!file_exists(dirname($cookies))) mkdir(dirname($cookies), 0777, true);
-  curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
-  curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
-
-  $userAgent = randomAndroidUa();
-
-  foreach ($headers as $header) {
-    if (strpos($header, 'User-Agent:') === 0) {
-      $userAgent = trim(substr($header, strlen('User-Agent:')));
-      break;
-    }
-  }
-
-  if (empty($userAgent)) $userAgent = randomAndroidUa();
-
-  curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
-
-  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-  curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // Handle compressed response
-  return $ch;
-}
 
 /**
- * Check proxy connectivity.
+ * Iterate over the array, limiting the number of iterations to the specified limit.
  *
- * This function tests the connectivity of a given proxy by making a request to a specified endpoint.
+ * If the length of the array is greater than the limit, only the first `$limit` items will be iterated over.
  *
- * @param string $proxy The proxy address to test.
- * @param string $type (Optional) The type of proxy to use. Supported values: 'http', 'socks4', 'socks5', 'socks4a'.
- *                     Defaults to 'http' if not specified.
- * @param string $endpoint (Optional) The URL endpoint to test connectivity. Defaults to 'https://bing.com'.
- * @param array $headers (Optional) Additional HTTP headers to include in the request. Defaults to an empty array.
- * @return array An associative array containing the result of the proxy check:
- *               - 'result': Boolean indicating if the proxy check was successful.
- *               - 'latency': The latency (in milliseconds) of the proxy connection. If the connection failed, -1 is returned.
- *               - 'error': Error message if an error occurred during the connection attempt, null otherwise.
- *               - 'status': HTTP status code of the response.
- *               - 'private': Boolean indicating if the proxy is private.
+ * @param array $array The array to iterate over.
+ * @param int $limit The maximum number of items to iterate over. Default is 50.
+ * @param callable|null $callback A callback function to be called for each item during iteration.
+ * @return void
  */
-function checkProxy($proxy, $type = 'http', string $endpoint = 'https://bing.com', array $headers = [])
+function iterateArray(array $array, int $limit = 50, ?callable $callback = null): void
 {
-  $proxy = trim($proxy);
-  $ch = buildCurl($proxy, $type, $endpoint, $headers);
-  $start = microtime(true); // Start time
-  $response = curl_exec($ch);
-  $end = microtime(true); // End time
-
-  $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-  $response_header = substr($response, 0, $header_size);
-  // is private proxy?
-  $isPrivate = stripos($response_header, 'X-Forwarded-For:') !== false || stripos($response_header, 'Proxy-Authorization:') !== false;
-
-  $info = curl_getinfo($ch);
-  $latency = -1;
-
-  $result = [];
-
-  // Check for CURL errors or empty response
-  if (curl_errno($ch) || $response === false) {
-    $error_msg = curl_error($ch);
-    $result = [
-      'result' => false,
-      'latency' => $latency,
-      'error' => $error_msg,
-      'status' => $info['http_code'],
-      'private' => $isPrivate
-    ];
+  $arrayLength = count($array);
+  $limit = min($arrayLength, $limit); // Get the minimum of array length and $limit
+  for ($i = 0; $i < $limit; $i++) {
+    // Access array element at index $i and perform desired operations
+    $item = $array[$i];
+    if ($callback !== null && is_callable($callback)) {
+      call_user_func($callback, $item);
+    } else {
+      echo $item . "\n";
+    }
   }
-
-  curl_close($ch);
-
-  $latency = round(($end - $start) * 1000); // Convert to milliseconds
-
-  if (empty($result)) {
-    $result = [
-      'result' => true,
-      'latency' => $latency,
-      'error' => null,
-      'status' => $info['http_code'],
-      'private' => $isPrivate
-    ];
-  }
-
-  return $result;
 }
 
 /**
