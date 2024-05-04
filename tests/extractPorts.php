@@ -22,7 +22,7 @@ XXXXX192.198.1.100:80XXX
 188.166.231.51:7497
 hello 8.213.129.15:2 *x';
 
-$extract = extractIpPorts($str);
+$extract = extractProxies($str);
 var_dump($extract);
 
 
