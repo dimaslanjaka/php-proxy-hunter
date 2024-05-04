@@ -11,11 +11,14 @@ CREATE TABLE IF NOT EXISTS "proxies" (
     "status" TEXT,
     "timezone" TEXT,
     "longitude" TEXT,
+    "private" TEXT,
     "latitude" TEXT,
     "lang" TEXT,
     "useragent" TEXT,
     "webgl_vendor" TEXT,
     "webgl_renderer" TEXT,
-    "browser_vendor" INTEGER,
+    "browser_vendor" TEXT,
+    "username" TEXT,
+    "password" TEXT,
     PRIMARY KEY("id" AUTOINCREMENT)
 )
