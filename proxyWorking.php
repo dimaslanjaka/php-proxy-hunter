@@ -45,7 +45,9 @@ $geo_plugin = new geoPlugin();
 $db = new ProxyDB();
 $working = $db->getWorkingProxies();
 $private = $db->getPrivateProxies();
-
+usort($working, function($a, $b) {
+  return strtotime($b['last_check']) - strtotime($a['last_check']);
+});
 $impl = implode(PHP_EOL, array_map(function ($item) use($db) {
   foreach ($item as $key => $value) {
     if (empty($value)) {
