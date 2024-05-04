@@ -10,7 +10,8 @@ use PhpProxyHunter\ProxyDB;
 use function Annexare\Countries\countries;
 
 // if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
-if (!$isCli) exit('web server access disallowed');
+if (!$isCli)
+  exit('web server access disallowed');
 
 if (gethostname() !== 'DESKTOP-JVTSJ6I') {
   if (file_exists(__DIR__ . '/proxyChecker.lock')) {
@@ -98,7 +99,8 @@ if (file_exists($fileProfiles)) {
 if (empty($profiles)) {
   // write init
   $originalProfiles = array_map(function ($item) {
-    if (!isset($item['useragent'])) $item['useragent'] = randomWindowsUa();
+    if (!isset ($item['useragent']))
+      $item['useragent'] = randomWindowsUa();
     return $item;
   }, $working);
   file_put_contents($fileProfiles, json_encode($originalProfiles));
@@ -170,7 +172,8 @@ foreach ($profiles as $item) {
         }
       }
       // apply language modification
-      if (isset($item['lang']) && !empty($item['lang'])) $profiles[$found] = $item;
+      if (isset($item['lang']) && !empty($item['lang']))
+        $profiles[$found] = $item;
     }
 
     // determine longitude and latitude
@@ -236,17 +239,17 @@ foreach ($profiles as $item) {
           $item['webgl_vendor'] = $from_db['webgl_vendor'];
         } else {
           $webgl_data = random_webgl_data();
-          $item['browser_vendor'] = $webgl_data['browser_vendor'];
-          $item['webgl_renderer'] = $webgl_data['webgl_renderer'];
-          $item['webgl_vendor'] = $webgl_data['webgl_vendor'];
-          $db->updateData($item['proxy'], $webgl_data);
+          $item['browser_vendor'] = $webgl_data->browser_vendor;
+          $item['webgl_renderer'] = $webgl_data->webgl_renderer;
+          $item['webgl_vendor'] = $webgl_data->webgl_vendor;
+          $db->updateData($item['proxy'], $item);
         }
       }
       // delete dead proxy
       $status = $from_db['status'];
       if (is_null($status) || trim(strtolower($status)) !== 'active') {
         unset($profiles[$found]);
-        echo $item['proxy'] . ' '. (string) $status . PHP_EOL;
+        echo $item['proxy'] . ' ' . (string) $status . PHP_EOL;
       }
       // apply
       $profiles[$found] = $item;
