@@ -148,7 +148,9 @@ $proxies = array_filter($proxies, function (Proxy $item) {
 });
 shuffle($proxies);
 
-if (count($proxies) < 30) {
+$max_checks = 50;
+
+if (count($proxies) < $max_checks) {
   if (file_exists($deadPath)) {
     echo "proxies low, respawning dead proxies\n\n";
     // respawn 100 dead proxies
@@ -157,7 +159,7 @@ if (count($proxies) < 30) {
   }
 }
 
-iterateArray($proxies, 50, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime) {
+iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime) {
   // Check if execution time has exceeded the maximum allowed time
   $elapsedTime = microtime(true) - $startTime;
   if ($elapsedTime > $maxExecutionTime) {
