@@ -45,10 +45,10 @@ $geo_plugin = new geoPlugin();
 $db = new ProxyDB();
 $working = $db->getWorkingProxies();
 $private = $db->getPrivateProxies();
-usort($working, function($a, $b) {
+usort($working, function ($a, $b) {
   return strtotime($b['last_check']) - strtotime($a['last_check']);
 });
-$impl = implode(PHP_EOL, array_map(function ($item) use($db) {
+$array_mapper = array_map(function ($item) use ($db) {
   foreach ($item as $key => $value) {
     if (empty($value)) {
       $item[$key] = '-';
@@ -61,19 +61,16 @@ $impl = implode(PHP_EOL, array_map(function ($item) use($db) {
     $item['useragent'] = randomWindowsUa();
     $db->updateData($item['proxy'], $item);
   }
+  return $item;
+}, $working);
+$impl = array_map(function ($item) {
   return implode('|', $item);
-}, $working));
-
-// Explode the input into an array of lines
-$lines = explode("\n", $impl);
-
-// Sort the lines alphabetically
-sort($lines);
-
-$impl = join("\n", $lines);
+}, $array_mapper);
+$impl = implode(PHP_EOL, $impl);
 
 // write working proxies
 file_put_contents(__DIR__ . '/working.txt', $impl);
+file_put_contents(__DIR__ . '/working.json', json_encode($array_mapper));
 
 $fileUntested = __DIR__ . '/proxies.txt';
 

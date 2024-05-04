@@ -26,6 +26,7 @@ _myConfig.js
 .vscode/sftp.json
 !/robots.txt
 /.env
+/working.json
 
 # python
 /profiles-proxy.json
