@@ -47,11 +47,10 @@ $working = $db->getWorkingProxies();
 $private = $db->getPrivateProxies();
 
 $impl = implode(PHP_EOL, array_map(function ($item) {
-  return implode("|", [$item['proxy'], $item['latency'] ? $item['latency'] : '-', strtoupper($item['type']), $item['region'] ? $item['region'] : '-', $item['city'] ? $item['city'] : '-', $item['country'] ? $item['country'] : '-', $item['timezone'] ? $item['timezone'] : '-', $item['last_check'] ? $item['last_check'] : '-']);
+  $item['type'] = strtoupper($item['type']);
+  unset($item['id']);
+  return implode('|', $item);
 }, $working));
-
-// $header = 'PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE|LAST CHECK DATE';
-// echo implode(PHP_EOL, [$header, $impl]);
 
 // Explode the input into an array of lines
 $lines = explode("\n", $impl);
