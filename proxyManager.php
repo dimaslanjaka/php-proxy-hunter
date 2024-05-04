@@ -128,7 +128,7 @@ $config = getConfig(getUserId());
       <div class="col-md-4 mb-2">
         <b>Working proxies list</b> <br>
         <div class="iframe" src="./working.txt"></div>
-        <kbd>PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE</kbd>
+<!--        <kbd>PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE</kbd>-->
       </div>
       <div class="col-md-4 mb-2">
         <b>Checker result</b>
