@@ -27,6 +27,7 @@ function extractProxies(string $string): array
   // $ipPorts = [];
   $db = new ProxyDB();
   foreach ($matches as $match) {
+    if (empty($match)) continue;
     $username = $password = $proxy = null;
     if (!empty($match[1]) && strpos($match[1], '@') !== false) {
       list($proxy, $login) = explode('@', $match[1]);
