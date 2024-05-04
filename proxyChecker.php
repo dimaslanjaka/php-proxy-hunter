@@ -35,8 +35,7 @@
 require_once __DIR__ . "/func-proxy.php";
 
 use PhpProxyHunter\ProxyDB;
-
-$db = new ProxyDB();
+use PhpProxyHunter\Proxy;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
@@ -60,11 +59,7 @@ $maxExecutionTime = 120;
 $startTime = microtime(true);
 // ignore limitation if exists
 if (function_exists('set_time_limit')) {
-  if (gethostname() == "DESKTOP-JVTSJ6I") {
-    call_user_func('set_time_limit', 0);
-  } else {
-    call_user_func('set_time_limit', $maxExecutionTime);
-  }
+  call_user_func('set_time_limit', gethostname() == "DESKTOP-JVTSJ6I" ? 0 : $maxExecutionTime);
 }
 
 // set output buffering to zero
@@ -103,7 +98,7 @@ echo "\n";
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 
-if (file_exists($lockFilePath)) {
+if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
   echo "another process still running\n";
   exit();
 } else {
@@ -114,246 +109,145 @@ if (file_exists($lockFilePath)) {
 function exitProcess()
 {
   global $lockFilePath, $statusFile;
-  if (file_exists($lockFilePath)) unlink($lockFilePath);
+  if (file_exists($lockFilePath))
+    unlink($lockFilePath);
   file_put_contents($statusFile, 'idle');
 }
+
 register_shutdown_function('exitProcess');
 
 // Specify the file path
 $filePath = __DIR__ . "/proxies.txt";
-$socksPath = __DIR__ . "/socks.txt";
-$socksWorkingPath = __DIR__ . '/socks-working.txt';
-$workingPath = __DIR__ . "/working.txt";
 $deadPath = __DIR__ . "/dead.txt";
-$workingProxies = [];
-$socksWorkingProxies = [];
+$workingPath = __DIR__ . "/working.txt";
 
-setFilePermissions([$filePath, $workingPath, $deadPath]);
+// move backup added proxies
+$backup = __DIR__ . '/proxies-backup.txt';
+if (file_exists($backup)) {
+  if (moveContent($backup, $filePath)) {
+    unlink($backup);
+  }
+}
 
-/**
- * run proxies check shuffled
- */
-function shuffleChecks()
-{
-  global $filePath, $workingPath, $workingProxies, $deadPath, $isCli, $db;
+$db = new ProxyDB();
+$untested = extractProxies(file_get_contents($filePath));
+$working = array_map(function ($item) {
+  $wrap = new Proxy($item['proxy']);
+  foreach ($item as $key => $value) {
+    if (property_exists($wrap, $key)) {
+      $wrap->$key = $value;
+    }
+  }
+  return $wrap;
+}, $db->getWorkingProxies());
+$proxies = array_merge($untested, $working);
+$proxies = uniqueObjectsByProperty($proxies, 'proxy');
+$proxies = array_filter($proxies, function (Proxy $item) {
+  if (is_null($item->last_check)) return true;
+  return isDateRFC3339OlderThanHours($item->last_check, 5);
+});
+shuffle($proxies);
 
-  // Read lines of the file into an array
-  $untested = extractProxies(file_get_contents($filePath));
-  $working = extractProxies(file_get_contents($workingPath));
-  $lines = array_merge($untested, $working);
-  $lines = array_map(function ($line) {
-    return trim($line->proxy);
-  }, $lines);
-  $lines = array_unique($lines);
-  shuffle($lines);
+if (count($proxies) < 30) {
+  if (file_exists($deadPath)) {
+    echo "proxies low, respawning dead proxies\n\n";
+    // respawn 100 dead proxies
+    moveLinesToFile($deadPath, $filePath, 100);
+    exit;
+  }
+}
 
-  // exit(var_dump($lines));
+iterateArray($proxies, 15, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath) {
+  list($ip, $port) = explode(":", $item->proxy);
+  if (strlen($item->proxy) > 10 && strlen($port) > 1 && strlen($item->proxy) <= 21) {
+    if (!isPortOpen($item->proxy)) {
+      $db->updateStatus($item->proxy, 'port-closed');
+      echo $item->proxy . ' port closed' . PHP_EOL;
+      return;
+    }
+    $raw_proxy = $item->proxy;
+    if (!is_null($item->username) && !is_null($item->password)) $raw_proxy .= '@' . $item->username . ':' . $item->password;
+    $proxy_types = [];
+    $check_http = checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password);
+    $check_socks5 = checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password);
+    $check_socks4 = checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password);
+    if ($check_http['result']) $proxy_types[] = 'http';
+    if ($check_socks5['result']) $proxy_types[] = 'socks5';
+    if ($check_socks4['result']) $proxy_types[] = 'socks4';
+    if (!empty($proxy_types)) {
+      $latencies = [$check_http['latency'], $check_socks5['latency'], $check_socks4['latency']];
+      echo $item->proxy . ' working ' . strtoupper(implode('-', $proxy_types)) . PHP_EOL;
+      $db->updateData($item->proxy, ['type' => implode('-', $proxy_types), 'status' => 'active', 'latency' => max($latencies)]);
+      if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
+        $webgl = random_webgl_data();
+        $db->updateData($item->proxy, ['webgl_renderer' => $webgl->webgl_renderer, 'webgl_vendor' => $webgl->webgl_vendor, 'browser_vendor' => $webgl->browser_vendor]);
+      }
+      // get geolocation
+      if (empty($item->timezone) || empty($item->country)) {
+        if (in_array('http', $proxy_types)) get_geo_ip($item->proxy);
+        if (in_array('socks5', $proxy_types)) get_geo_ip($item->proxy, 'socks5');
+        if (in_array('socks4', $proxy_types)) get_geo_ip($item->proxy, 'socks4');
+      }
 
-  // rewrite untested proxies
-  // file_put_contents($filePath, join("\n", $lines));
+      // update proxy useragent
+      if (empty($item->useragent)) {
+        $item->useragent = randomWindowsUa();
+      }
 
-  if (empty($lines) || count($lines) < 30) {
-    if (file_exists($deadPath)) {
-      echo "proxies low, respawning dead proxies\n\n";
-      // respawn 100 dead proxies
-      moveLinesToFile($deadPath, $filePath, 100);
-      // repeat
-      return shuffleChecks();
+      // update proxy language
+      if (empty($item->lang)) {
+        try {
+          /** @noinspection PhpFullyQualifiedNameUsageInspection */
+          $countries = array_values(\Annexare\Countries\countries());
+          $filterCountry = array_filter($countries, function ($country) use ($item) {
+            return trim(strtolower($country['name'])) == trim(strtolower($item->country));
+          });
+          if (!empty($filterCountry)) {
+            $lang = array_values($filterCountry)[0]['languages'][0];
+            $item->lang = $lang;
+            $db->updateData($item->proxy, ['lang' => $item->lang]);
+          }
+        } catch (\Throwable $th) {
+          /** @noinspection PhpFullyQualifiedNameUsageInspection */
+          $geo_plugin = new \PhpProxyHunter\geoPlugin();
+          $locate = $geo_plugin->locate_recursive($ip);
+          if (!empty($locate->lang)) {
+            $item->lang = $locate->lang;
+            $db->updateData($item->proxy, ['lang' => $locate->lang]);
+          }
+        }
+      }
     } else {
-      echo "no proxies to respawn";
-      exit();
+      $db->updateStatus($item->proxy, 'dead');
+      echo $item->proxy . ' dead' . PHP_EOL;
     }
+    // always move checked proxy into dead.txt
+    removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
+  } else {
+     $db->remove($item->proxy);
   }
+});
 
-  // Shuffle the array
-  shuffle($lines);
+// write working proxies to working.txt
+$workingProxies = $db->getWorkingProxies();
+$array_format = array_map(function ($item) {
+  unset($item['id']);
+  $item['type'] = strtoupper($item['type']);
+  return implode('|', $item);
+}, $workingProxies);
+$string_format = implode(PHP_EOL, $array_format);
+file_put_contents($workingPath, $string_format);
 
-  // Iterate through the shuffled lines
-  foreach (array_unique($lines) as $line) {
-    if (!$isCli && ob_get_level() > 0) {
-      // LIVE output buffering on web server
-      flush();
-      ob_flush();
-    }
-    $from_db = $db->select($line);
-    if (!empty($from_db)) {
-      $dbproxy = $from_db[0];
-      if (!is_null($dbproxy) && isset($dbproxy['last_check']) && !is_null($dbproxy['last_check']) && !isDateRFC3339OlderThanHours($dbproxy['last_check'], 5)) {
-        // skip proxy already checked less than 5 hours ago
-        echo "$line already checked" . PHP_EOL;
-        continue;
-      }
-    }
-    if (checkProxyLine($line) == "break") break;
-    // move to dead.txt checked proxy
-    removeStringAndMoveToFile($filePath, $deadPath, trim($line));
-  }
-
-  // rewrite all working proxies
-  if (count($workingProxies) > 1) {
-    file_put_contents($workingPath, join("\n", $workingProxies));
-  }
-}
-
-/**
- * check single proxy and append into global working proxies
- * @return string break, success, failed
- * * break: the execution time excedeed
- * * success: proxy working
- * * failed: proxy not working
- */
-function checkProxyLine($line)
+function uniqueObjectsByProperty($array, $property): array
 {
-  global $startTime, $maxExecutionTime, $workingProxies, $checksFor, $socksWorkingProxies, $db, $filePath, $deadPath, $endpoint, $headers;
-  // Check if the elapsed time exceeds the limit
-  if ((microtime(true) - $startTime) > $maxExecutionTime) {
-    echo "maximum execution time excedeed ($maxExecutionTime)\n";
-    // Execution time exceeded, break out of the loop
-    return "break";
-  }
-  $proxy = trim($line);
-  list($ip, $port) = explode(':', $proxy);
-  $geoUrl = "http://ip-get-geolocation.com/api/json/$ip";
-
-  if (!isPortOpen($proxy)) {
-    echo "$proxy port closed\n";
-    $db->updateStatus($proxy, 'port-closed');
-    return "failed";
-  }
-
-  $successType = [];
-
-  if (strpos($checksFor, 'http') !== false) {
-    $check = checkProxy($proxy, 'http', $endpoint, $headers);
-    if ($check['result'] !== false) {
-      echo "$proxy working type HTTP";
-      $latency = $check['latency'];
-      if ($check['private']) {
-        $db->update($proxy, 'http', null, null, null, 'private', $latency);
-      } else {
-        $db->update($proxy, 'http', null, null, null, 'active', $latency);
-      }
-      echo " latency $latency ms\n";
-      $item = "$proxy|$latency|HTTP";
-      // fetch ip info
-      $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, 'http'), true);
-      // Check if JSON decoding was successful
-      if ($geoIp !== null && json_last_error() === JSON_ERROR_NONE) {
-        if (trim($geoIp['status']) != 'fail') {
-          $item .= "|" . implode("|", [$geoIp['region'], $geoIp['city'], $geoIp['country'], $geoIp['timezone']]);
-          $db->update($proxy, null, $geoIp['region'], $geoIp['city'], $geoIp['country'], null, null, $geoIp['timezone']);
-        } else {
-          $cachefile = curlGetCache($geoUrl);
-          if (file_exists($cachefile)) unlink($cachefile);
-        }
-      }
-      if (!in_array($item, $workingProxies)) {
-        // If the item doesn't exist, push it into the array
-        $workingProxies[] = $item;
-      }
-      // return "success";
-      $successType[] = 'http';
+  $tempArray = [];
+  $result = [];
+  foreach ($array as $item) {
+    $value = $item->$property;
+    if (!isset($tempArray[$value])) {
+      $tempArray[$value] = true;
+      $result[] = $item;
     }
   }
-
-  if (strpos($checksFor, 'socks5') !== false) {
-    $check = checkProxy($proxy, 'socks5', $endpoint, $headers);
-    if ($check['result'] !== false) {
-      echo "$proxy working type SOCKS5\n";
-      $latency = $check['latency'];
-      if ($check['private']) {
-        $db->update($proxy, 'socks5', null, null, null, 'private', $latency);
-      } else {
-        $db->update($proxy, 'socks5', null, null, null, 'active', $latency);
-      }
-      $item = "$proxy|$latency|SOCKS5";
-      // fetch ip info
-      $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks5'), true);
-      // Check if JSON decoding was successful
-      if ($geoIp !== null && json_last_error() === JSON_ERROR_NONE) {
-        if (trim($geoIp['status']) != 'fail') {
-          $item .= "|" . implode("|", [$geoIp['region'], $geoIp['city'], $geoIp['country'], $geoIp['timezone']]);
-          $db->update($proxy, null, $geoIp['region'], $geoIp['city'], $geoIp['country'], null, null, $geoIp['timezone']);
-        } else {
-          $cachefile = curlGetCache($geoUrl);
-          if (file_exists($cachefile)) unlink($cachefile);
-        }
-      }
-      if (!in_array($item, $socksWorkingProxies)) {
-        // If the item doesn't exist, push it into the array
-        $socksWorkingProxies[] = $item;
-      }
-      // return "success";
-      $successType[] = 'socks5';
-    }
-  }
-
-  if (strpos($checksFor, 'socks4') !== false) {
-    $check = checkProxy($proxy, 'socks4', $endpoint, $headers);
-    if ($check['result'] !== false) {
-      echo "$proxy working type SOCKS4\n";
-      $latency = $check['latency'];
-      if ($check['private']) {
-        $db->update($proxy, 'socks4', null, null, null, 'private', $latency);
-      } else {
-        $db->update($proxy, 'socks4', null, null, null, 'active', $latency);
-      }
-      $item = "$proxy|$latency|SOCKS4";
-      // fetch ip info
-      $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, 'socks4'), true);
-      // Check if JSON decoding was successful
-      if ($geoIp !== null && json_last_error() === JSON_ERROR_NONE) {
-        if (trim($geoIp['status']) != 'fail') {
-          $item .= "|" . implode("|", [$geoIp['region'], $geoIp['city'], $geoIp['country'], $geoIp['timezone']]);
-          $db->update($proxy, null, $geoIp['region'], $geoIp['city'], $geoIp['country'], null, null, $geoIp['timezone']);
-        } else {
-          $cachefile = curlGetCache($geoUrl);
-          if (file_exists($cachefile)) unlink($cachefile);
-        }
-      }
-      if (!in_array($item, $socksWorkingProxies)) {
-        // If the item doesn't exist, push it into the array
-        $socksWorkingProxies[] = $item;
-      }
-      // return "success";
-      $successType[] = 'socks4';
-    }
-  }
-
-  if (!empty($successType)) {
-    $db->update($proxy, implode('-', $successType));
-    return "success";
-  }
-
-  echo "$proxy not working\n";
-  // remove dead proxy from check list
-  $db->update($proxy, null, null, null, null, 'dead');
-  // removeStringAndMoveToFile($filePath, $deadPath, trim($proxy));
-  return "failed";
+  return $result;
 }
-
-/// FUNCTIONS ENDS
-
-// main script
-
-function main()
-{
-  global $filePath, $deadPath;
-  // move backup added proxies
-  $backup = __DIR__ . '/proxies-backup.txt';
-  if (file_exists($backup)) {
-    if (moveContent($backup, $filePath)) {
-      unlink($backup);
-    }
-  }
-  // filter only IP:PORT each lines
-  rewriteIpPortFile($filePath);
-  rewriteIpPortFile($deadPath);
-  // remove duplicate proxies
-  removeDuplicateLines($filePath);
-  removeDuplicateLines($deadPath);
-  shuffleChecks();
-  // sequentalChecks();
-}
-
-main();
