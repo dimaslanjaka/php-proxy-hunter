@@ -11,7 +11,7 @@ use PhpProxyHunter\ProxyDB;
  * @param string $string The input string containing IP:PORT pairs.
  * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractIpPorts(string $string): array
+function extractProxies(string $string): array
 {
   // Regular expression pattern to match IP:PORT pairs along with optional username and password
   $pattern = '/((?:(?:\d{1,3}\.){3}\d{1,3})\:\d{2,5}(?:@(\w+):(\w+))?|(?:(?:\w+)\:\w+@\d{1,3}(?:\.\d{1,3}){3}\:\d{2,5}))/';
