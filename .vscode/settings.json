@@ -22,13 +22,12 @@
     "editor.formatOnSave": true,
     "editor.tabSize": 4,
     "editor.insertSpaces": true,
-    // "editor.rulers": [
-    //   79,
-    //   120
-    // ],
     "editor.defaultFormatter": "ms-python.autopep8"
   },
   "autopep8.args": [
     "--ignore", "E401,E402,E211,E501"
-  ]
+  ],
+  "intelephense.completion.maxItems": 100,
+  "intelephense.diagnostics.run": "onSave",
+  "eslint.debug": true
 }
