@@ -13,20 +13,32 @@ use PhpProxyHunter\ProxyDB;
  */
 function extractProxies(string $string): array
 {
-  // Regular expression pattern to match IP:PORT pairs along with optional username and password
-  $pattern = '/((?:(?:\d{1,3}\.){3}\d{1,3})\:\d{2,5}(?:@(\w+):(\w+))?|(?:(?:\w+)\:\w+@\d{1,3}(?:\.\d{1,3}){3}\:\d{2,5}))/';
 
-  // Perform the matching
+  // Regular expression pattern to match IP:PORT pairs along with optional username and password
+  $pattern = '/((?:(?:\d{1,3}\.){3}\d{1,3})\:\d{2,5}(?:@\w+:\w+)?|(?:(?:\w+)\:\w+@\d{1,3}(?:\.\d{1,3}){3}\:\d{2,5}))/';
+
+  // // Perform the matching
   preg_match_all($pattern, $string, $matches, PREG_SET_ORDER);
 
   // Extracted IP:PORT pairs along with optional username and password
-  $ipPorts = [];
+  // $ipPorts = [];
   $db = new ProxyDB();
   foreach ($matches as $match) {
-    $ipPort = $match[1];
-    $username = isset($match[2]) ? $match[2] : null;
-    $password = isset($match[3]) ? $match[3] : null;
-    $select = $db->select($ipPort);
+    $username = $password = null;
+    if (isset($match[1]) && !empty($match[1]) && strpos($match[1], '@') !== false) {
+      list($proxy, $login) = explode('@', $match[1]);
+      $_login = $login;
+      if (!isValidIPPort($proxy)) {
+        $login = $proxy;
+        $proxy = $_login;
+      }
+      // var_dump("$proxy@$login");
+      list($username, $password) = explode(":", $login);
+    } else {
+      $proxy = $match[0];
+    }
+    // var_dump("$username and $password");
+    $select = $db->select($proxy);
     if (!empty($select)) {
       $result = array_map(function ($item) use ($username, $password) {
         $wrap = new Proxy($item['proxy']);
@@ -56,4 +68,24 @@ function extractProxies(string $string): array
   }
 
   return $ipPorts;
+}
+
+/**
+ * Checks if a string is in the format of an IP address followed by a port number.
+ *
+ * @param string $str The string to check.
+ * @return bool Returns true if the string is in the format of IP:PORT, otherwise false.
+ */
+function isValidIPPort($str)
+{
+  $str = trim($str);
+  // Regular expression to match IP:PORT format
+  $pattern = '/^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(?:\d{1,5})$/';
+
+  // Check if the string matches the pattern
+  if (preg_match($pattern, $str)) {
+    return true;
+  } else {
+    return false;
+  }
 }

@@ -1285,23 +1285,3 @@ function countNonEmptyLines($filename, $chunkSize = 4096)
 
   return $count;
 }
-
-/**
- * Checks if a string is in the format of an IP address followed by a port number.
- *
- * @param string $str The string to check.
- * @return bool Returns true if the string is in the format of IP:PORT, otherwise false.
- */
-function isValidIPPort($str)
-{
-  $str = trim($str);
-  // Regular expression to match IP:PORT format
-  $pattern = '/^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(?:\d{1,5})$/';
-
-  // Check if the string matches the pattern
-  if (preg_match($pattern, $str)) {
-    return true;
-  } else {
-    return false;
-  }
-}

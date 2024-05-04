@@ -2,13 +2,15 @@
 
 require_once __DIR__ . '/../func-proxy.php';
 
+use PhpProxyHunter\Proxy;
+
 $dead = extractIpPortFromFile(__DIR__ . '/../dead.txt', true);
 $untested = extractIpPortFromFile(__DIR__ . '/../proxies.txt', true);
 $proxies = array_merge($dead, $untested);
 $str = 'username:password@103.48.68.34:83
 45.236.31.160:999
 84.241.8.234:8080
-84.241.8.234:8080@username:password
+84.241.8.234:8080@username1:1password
 XXXXX192.198.1.100:80XXX
 138.118.104.166:999
 62.27.108.174:8080
@@ -23,7 +25,14 @@ XXXXX192.198.1.100:80XXX
 hello 8.213.129.15:2 *x';
 
 $extract = extractProxies($str);
-var_dump($extract);
+$format = array_map(function (Proxy $item) {
+  if (!is_null($item->username) && !is_null($item->password)) {
+    // var_dump($item->proxy);
+    return $item->proxy . '@' . $item->username . ':' . $item->password;
+  }
+  return $item->proxy;
+}, $extract);
+var_dump($format);
 
 
 function get_ports()
