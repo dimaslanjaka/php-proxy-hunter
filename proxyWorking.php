@@ -51,7 +51,7 @@ $array_mapper = array_map(function ($item) use ($db) {
 
   $item['type'] = strtoupper($item['type']);
   unset($item['id']);
-  if (empty($item['useragent'])) {
+  if (empty($item['useragent']) && strlen(trim($item['useragent'])) <= 5) {
     $item['useragent'] = randomWindowsUa();
     $db->updateData($item['proxy'], $item);
     get_geo_ip($item['proxy']);
