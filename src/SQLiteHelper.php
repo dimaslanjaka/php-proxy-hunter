@@ -116,13 +116,20 @@ class SQLiteHelper
   public function update(string $tableName, array $data, string $where, array $params = []): void
   {
     $setValues = [];
+    $setParams = [];
     foreach ($data as $key => $value) {
-      $setValues[] = "$key = ?";
+      if (empty($value)) {
+        $setValues[] = "$key = NULL";
+      } else {
+        $setValues[] = "$key = ?";
+        $setParams[] = $value;
+      }
     }
     $setString = implode(', ', $setValues);
     $sql = "UPDATE $tableName SET $setString WHERE $where";
+//    echo $sql . PHP_EOL;
     $stmt = $this->pdo->prepare($sql);
-    $stmt->execute(array_merge(array_values($data), $params));
+    $stmt->execute(array_merge($setParams, $params));
   }
 
   /**
