@@ -54,6 +54,9 @@ if (!$isCli) {
   }
 }
 
+// remove duplicate lines from proxies.txt
+removeDuplicateLines(__DIR__ . '/proxies.txt');
+
 // limit execution time seconds unit
 $maxExecutionTime = 120;
 $startTime = microtime(true);
