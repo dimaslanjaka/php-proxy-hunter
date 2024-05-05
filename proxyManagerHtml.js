@@ -91,12 +91,16 @@ async function main() {
 async function doCheck() {
   try {
     if (user_info) {
-      await fetchWorkingProxies().catch(() => {});
+      await fetchWorkingProxies().catch(() => {
+      });
       await fetch("./proxyCheckerBackground.php?uid=" + user_info.user_id, {
         signal: AbortSignal.timeout(5000)
-      }).catch(() => {});
-      await checkerStatus().catch(() => {});
-      await fetchWorkingProxies().catch(() => {});
+      }).catch(() => {
+      });
+      await checkerStatus().catch(() => {
+      });
+      await fetchWorkingProxies().catch(() => {
+      });
     }
   } catch (error) {
     // Handle errors if needed
@@ -118,9 +122,9 @@ async function checkerOutput() {
   const filter = info
     .split(/\r?\n/)
     .map((str) => {
-      str = str.replace(/port closed/, '<span class="text-red-400">port closed</span>');
-      str = str.replace(/not working/, '<span class="text-red-600">not working</span>');
-      str = str.replace(/dead/, '<span class="text-red-600">dead</span>');
+      str = str.replace(/port closed/, "<span class=\"text-red-400\">port closed</span>");
+      str = str.replace(/not working/, "<span class=\"text-red-600\">not working</span>");
+      str = str.replace(/dead/, "<span class=\"text-red-600\">dead</span>");
       str = str.replace(/working.*/, (whole) => {
         if (whole.includes("-1")) return `<span class="text-orange-400">${whole}</span>`;
         return `<span class="text-green-400">${whole}</span>`;
@@ -151,7 +155,8 @@ async function checkerOutput() {
   if (statusJson.dead) wrapper.querySelector("#dead").innerText = parseInt(statusJson.dead).toLocaleString();
 }
 
-fetch("./info.php", { signal: AbortSignal.timeout(5000) });
+fetch("./info.php", { signal: AbortSignal.timeout(5000) }).catch(() => {
+});
 
 async function userInfo() {
   try {
@@ -247,8 +252,8 @@ async function fetchWorkingProxies() {
           "border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
         );
         td.innerText = info;
-        if (i === 0) {
-          td.classList.add("w-4/12");
+        if (i === 0 || i > 12) {
+          // td.classList.add("w-4/12");
           td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}"><i class="fa-duotone fa-copy"></i></button>`;
         } else if (i === 2 && info.length > 6) {
           // last check date
@@ -402,7 +407,7 @@ function showSnackbar(message) {
   snackbar.className = "show";
 
   // Hide the snackbar after 3 seconds
-  setTimeout(function () {
+  setTimeout(function() {
     snackbar.className = snackbar.className.replace("show", "");
   }, 3000);
 }
@@ -435,6 +440,6 @@ function copyToClipboard(text) {
   }
 }
 
-(function () {
+(function() {
   main();
 })();
