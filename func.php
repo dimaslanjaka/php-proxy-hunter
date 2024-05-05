@@ -1,6 +1,10 @@
 <?php
 
-define('PHP_PROXY_HUNTER', '');
+define('PHP_PROXY_HUNTER', date(DATE_RFC3339));
+if (!defined('JSON_THROW_ON_ERROR')) {
+  define('JSON_THROW_ON_ERROR', 4194304);
+}
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 use PhpProxyHunter\ProxyDB;
