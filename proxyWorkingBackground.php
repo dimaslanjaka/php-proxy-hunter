@@ -13,7 +13,7 @@ if (!$isCli) {
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
   }
-  // only allow user with google analystics cookie
+  // only allow user with Google Analytics cookie
   if (!isset($_COOKIE['_ga'])) {
     exit('Access Denied');
   }
@@ -21,9 +21,9 @@ if (!$isCli) {
 
 // Run a long-running process in the background
 $file = __DIR__ . "/proxyWorking.php";
-$outputfile = __DIR__ . '/tmp/proxyWorking.txt';
-$pidfile = __DIR__ . '/proxyWorking.pid';
-setFilePermissions([$file, $outputfile, $pidfile]);
+$output_file = __DIR__ . '/tmp/proxyWorking.txt';
+$pid_file = __DIR__ . '/proxyWorking.pid';
+setFilePermissions([$file, $output_file, $pid_file]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd = "php " . escapeshellarg($file);
 if ($isWin) {
@@ -40,9 +40,9 @@ if (file_exists(__DIR__ . '/proxyChecker.lock') || file_exists(__DIR__ . '/proxy
 
 echo $cmd . "\n\n";
 
-$cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($outputfile), escapeshellarg($pidfile));
+$cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
 if (!file_exists(__DIR__ . '/tmp')) mkdir(__DIR__ . '/tmp');
-$runner = __DIR__ . "/tmp/runner" . ($isWin ? '.bat' : "");
+$runner = __DIR__ . "/tmp/runner_" . md5(__FILE__) . ($isWin ? '.bat' : "");
 setFilePermissions($runner);
 file_put_contents($runner, $cmd);
 
@@ -50,8 +50,8 @@ exec(escapeshellarg($runner));
 
 function exitProcess()
 {
-  global $pidfile;
-  if (file_exists($pidfile)) unlink($pidfile);
+  global $pid_file;
+  if (file_exists($pid_file)) unlink($pid_file);
 }
 
 register_shutdown_function('exitProcess');

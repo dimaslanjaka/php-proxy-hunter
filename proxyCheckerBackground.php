@@ -50,8 +50,8 @@ exec(escapeshellarg($runner));
 
 function exitProcess()
 {
-  global $pidfile;
-  if (file_exists($pidfile)) unlink($pidfile);
+  global $pid_file;
+  if (file_exists($pid_file)) unlink($pid_file);
 }
 
 register_shutdown_function('exitProcess');
