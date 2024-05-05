@@ -54,9 +54,21 @@ if (!$isCli) {
   }
 }
 
-// remove duplicate lines from proxies.txt
-removeDuplicateLines(__DIR__ . '/proxies.txt');
-removeDuplicateLinesInUntestedProxies();
+try {
+  // remove duplicate lines from proxies.txt
+  removeDuplicateLines(__DIR__ . '/proxies.txt');
+} catch (Exception $e) {
+  // Handle any exceptions that occur during the execution of removeDuplicateLines
+  echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
+}
+
+try {
+  // Call the function to remove duplicate lines in untested proxies
+  removeDuplicateLinesInUntestedProxies();
+} catch (Exception $e) {
+  // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
+  echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
+}
 
 // limit execution time seconds unit
 $maxExecutionTime = 120;
