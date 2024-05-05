@@ -50,3 +50,8 @@ git lfs install
 git lfs track *.rar
 
 echo "large files tracked"
+
+systemctl restart php7.2-fpm
+systemctl restart nginx
+
+echo "nginx and php-fpm restarted"
