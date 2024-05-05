@@ -2,7 +2,7 @@
 
 // index all proxies into database
 
-require_once __DIR__ . "/func.php";
+require_once __DIR__ . "/func-proxy.php";
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
@@ -40,13 +40,13 @@ function iterateProxies(array $proxies, int $startIndex = 0, int $maxIterations 
     $proxy = $proxies[$i];
     if (!is_string($proxy)) continue;
 
-    $sel  = $db->select($proxy);
+    $sel = $db->select($proxy);
     if (empty($sel)) {
       echo "add $proxy" . PHP_EOL;
       // add proxy
       $db->add($proxy);
       // re-select proxy
-      $sel  = $db->select($proxy);
+      $sel = $db->select($proxy);
     }
     if (is_null($sel[0]['status'])) {
       $db->updateStatus($proxy, 'untested');
