@@ -569,10 +569,8 @@ function getDuplicatedLines(string $file1, string $file2): array
   fclose($handle2);
 
   // Find duplicated lines
-  $duplicatedLines = array_intersect($lines1, $lines2);
-
   // Return array of duplicated lines
-  return $duplicatedLines;
+  return array_intersect($lines1, $lines2);
 }
 
 /**
