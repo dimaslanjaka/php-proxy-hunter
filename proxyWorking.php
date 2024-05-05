@@ -54,6 +54,7 @@ $array_mapper = array_map(function ($item) use ($db) {
   if (empty($item['useragent'])) {
     $item['useragent'] = randomWindowsUa();
     $db->updateData($item['proxy'], $item);
+    get_geo_ip($item['proxy']);
   }
   return $item;
 }, $working);
@@ -72,10 +73,10 @@ $untested = extractProxies(file_get_contents($fileUntested));
 $untested = uniqueClassObjectsByProperty($untested, 'proxy');
 $dead = countNonEmptyLines(__DIR__ . '/dead.txt');
 $arr = [
-    'working' => count($working),
-    'dead' => $dead,
-    'untested' => count($untested),
-    'private' => count($private)
+  'working' => count($working),
+  'dead' => $dead,
+  'untested' => count($untested),
+  'private' => count($private)
 ];
 
 foreach ($arr as $key => $value) {
@@ -118,4 +119,3 @@ function removeDuplicateObjectsByKey($array, $key)
 
   return $uniqueObjects;
 }
-
