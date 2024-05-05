@@ -2,6 +2,10 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
+if (function_exists('set_time_limit')) {
+  call_user_func('set_time_limit', 120);
+}
+
 if (function_exists('header')) header('Content-Type: application/json; charset=UTF-8');
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
