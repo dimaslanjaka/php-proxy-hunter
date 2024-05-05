@@ -271,6 +271,30 @@ function get_geo_ip(string $proxy, string $proxy_type = 'http')
       if (isset($geoIp['country'])) {
         $data['country'] = $geoIp['country'];
       }
+
+      try {
+        /** @noinspection PhpFullyQualifiedNameUsageInspection */
+        $countries = array_values(\Annexare\Countries\countries());
+        $filterCountry = array_filter($countries, function ($country) use ($geoIp, $proxy) {
+          return trim(strtolower($country['name'])) == trim(strtolower($geoIp['country']));
+        });
+        if (!empty($filterCountry)) {
+          $lang = array_values($filterCountry)[0]['languages'][0];
+          if (!empty($lang)) {
+            $db->updateData($proxy, ['lang' => $lang]);
+          } else {
+            echo "language $proxy is empty, country " . $geoIp['country'];
+          }
+        }
+      } catch (\Throwable $th) {
+        /** @noinspection PhpFullyQualifiedNameUsageInspection */
+        $geo_plugin = new \PhpProxyHunter\geoPlugin();
+        $locate = $geo_plugin->locate_recursive($ip);
+        if (!empty($locate->lang)) {
+          $db->updateData($proxy, ['lang' => $locate->lang]);
+        }
+      }
+
       if (isset($geoIp['region'])) {
         $region = $geoIp['region'];
         if (!empty($geoIp['regionName'])) $region = $geoIp['regionName'];

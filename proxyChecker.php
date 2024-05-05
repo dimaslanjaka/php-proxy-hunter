@@ -198,7 +198,7 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
         $db->updateData($item->proxy, ['webgl_renderer' => $webgl->webgl_renderer, 'webgl_vendor' => $webgl->webgl_vendor, 'browser_vendor' => $webgl->browser_vendor]);
       }
       // get geolocation
-      if (empty($item->timezone) || empty($item->country)) {
+      if (empty($item->timezone) || empty($item->country) || empty($item->lang)) {
         if (in_array('http', $proxy_types)) get_geo_ip($item->proxy);
         if (in_array('socks5', $proxy_types)) get_geo_ip($item->proxy, 'socks5');
         if (in_array('socks4', $proxy_types)) get_geo_ip($item->proxy, 'socks4');
@@ -207,30 +207,7 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
       // update proxy useragent
       if (empty($item->useragent)) {
         $item->useragent = randomWindowsUa();
-      }
-
-      // update proxy language
-      if (empty($item->lang)) {
-        try {
-          /** @noinspection PhpFullyQualifiedNameUsageInspection */
-          $countries = array_values(\Annexare\Countries\countries());
-          $filterCountry = array_filter($countries, function ($country) use ($item) {
-            return trim(strtolower($country['name'])) == trim(strtolower($item->country));
-          });
-          if (!empty($filterCountry)) {
-            $lang = array_values($filterCountry)[0]['languages'][0];
-            $item->lang = $lang;
-            $db->updateData($item->proxy, ['lang' => $item->lang]);
-          }
-        } catch (\Throwable $th) {
-          /** @noinspection PhpFullyQualifiedNameUsageInspection */
-          $geo_plugin = new \PhpProxyHunter\geoPlugin();
-          $locate = $geo_plugin->locate_recursive($ip);
-          if (!empty($locate->lang)) {
-            $item->lang = $locate->lang;
-            $db->updateData($item->proxy, ['lang' => $locate->lang]);
-          }
-        }
+        $db->updateData($item->proxy, ['useragent' => $item->useragent]);
       }
     } else {
       $db->updateStatus($item->proxy, 'dead');
