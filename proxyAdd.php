@@ -32,45 +32,53 @@
   Email: dimaslanjaka@gmail.com
 */
 
-require_once __DIR__ . '/func.php';
+require_once __DIR__ . '/func-proxy.php';
 
-// Allow from any origin
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
-header("Access-Control-Allow-Methods: *");
-header('Content-Type: text/plain; charset=utf-8');
+$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+$strings = '';
 
-$filePath = __DIR__ . '/proxies.txt';
-
-// Check if the form was submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  if (isset($_POST['proxies'])) {
-    $ip_port = $_POST['proxies'];
-
-    // Extract IP:PORT pairs into an array
-    preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $ip_port, $matches);
-    $ip_port_array = $matches[0];
-
-    // Write IP:PORT pairs into proxy.txt file in append mode
-    $file = fopen($filePath, 'a');
-    foreach (array_unique($ip_port_array) as $ip_port) {
-      if ($ip_port) fwrite($file, $ip_port . PHP_EOL);
+if (!$isCli) {
+  // Allow from any origin
+  header("Access-Control-Allow-Origin: *");
+  header("Access-Control-Allow-Headers: *");
+  header("Access-Control-Allow-Methods: *");
+  header('Content-Type: text/plain; charset=utf-8');
+  // Check if the form was submitted
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['proxies'])) {
+      $strings = $_POST['proxies'];
     }
-    fclose($file);
-
-    rewriteIpPortFile($filePath);
-
-    // check lock files
-    $locks = glob(__DIR__ . '/*.lock');
-
-    if (count($locks) > 0) {
-      // lock exist, backup added proxies
-      file_put_contents(__DIR__ . '/proxies-backup.txt', PHP_EOL . implode(PHP_EOL, array_unique($ip_port_array)) . PHP_EOL, FILE_APPEND | LOCK_EX);
-    }
-
-    $total = count(extractIpPortFromFile($filePath));
-    echo "IP:PORT pairs ($total) written to proxies.txt successfully.";
-  } else {
-    echo "IP:PORT data not found in POST request.";
   }
 }
+
+$proxies = extractProxies($strings);
+$proxies = array_filter($proxies, function (\PhpProxyHunter\Proxy $item) {
+  if (empty($item->status)) return true;
+  if (empty($item->last_check)) return true;
+  return isDateRFC3339OlderThanHours($item->last_check, 5);
+});
+$proxies_txt_array = array_map(function (\PhpProxyHunter\Proxy $item) {
+  $raw_proxy = $item->proxy;
+  if (!empty($item->username) && !empty($item->password)) {
+    $raw_proxy .= "@" . $item->username . ":" . $item->password;
+  }
+  return $raw_proxy;
+}, $proxies);
+$proxies_txt_array = implode(PHP_EOL, $proxies_txt_array);
+
+$filePath = __DIR__ . '/proxies.txt';
+// write proxies into proxies.txt or proxies-backup.txt when checker still running
+if (file_exists(__DIR__ . '/proxyChecker.lock')) {
+  // lock exist, backup added proxies
+  append_content_with_lock(__DIR__ . '/proxies-backup.txt', PHP_EOL . $proxies_txt_array);
+} else {
+  append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . $proxies_txt_array);
+}
+
+$count = count($proxies);
+if ($count > 0) {
+  echo $count . " proxies added successfully." . PHP_EOL;
+} else {
+  echo "Proxy added successfully." . PHP_EOL;
+}
+
