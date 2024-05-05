@@ -5,7 +5,6 @@
 require_once __DIR__ . '/func-proxy.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
-use PhpProxyHunter\geoPlugin;
 use PhpProxyHunter\ProxyDB;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
@@ -16,28 +15,6 @@ if (!$isCli)
 if (file_exists(__DIR__ . '/proxyChecker.lock') && gethostname() !== 'DESKTOP-JVTSJ6I') {
   exit('another process still running');
 }
-
-$lockFilePath = __DIR__ . "/proxyChecker.lock";
-$statusFile = __DIR__ . "/status.txt";
-
-if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
-  echo "another process still running\n";
-  exit();
-} else {
-  $config = getConfig(getUserId());
-  file_put_contents($lockFilePath, $config['user_id'] . '=' . json_encode($config));
-  file_put_contents($statusFile, 'parse working proxies');
-}
-
-function exitProcess()
-{
-  global $lockFilePath, $statusFile;
-  if (file_exists($lockFilePath))
-    unlink($lockFilePath);
-  file_put_contents($statusFile, 'idle');
-}
-
-register_shutdown_function('exitProcess');
 
 // remove duplicated lines from proxies.txt compare with dead.txt
 $file1 = realpath(__DIR__ . "/proxies.txt");
@@ -59,7 +36,6 @@ if (!empty($duplicatedLines)) {
   file_put_contents($file1, implode("", $lines1));
 }
 
-$geo_plugin = new geoPlugin();
 $db = new ProxyDB();
 $working = $db->getWorkingProxies();
 $private = $db->getPrivateProxies();
@@ -97,7 +73,7 @@ $dead = countNonEmptyLines(__DIR__ . '/dead.txt');
 echo "total working proxies " . count($working) . PHP_EOL;
 echo "total private proxies " . count($private) . PHP_EOL;
 echo "total dead proxies $dead" . PHP_EOL;
-echo "total untested proxies ". count($untested) . PHP_EOL;
+echo "total untested proxies " . count($untested) . PHP_EOL;
 
 file_put_contents(__DIR__ . '/status.json', json_encode(['working' => count($working), 'dead' => $dead, 'untested' => count($untested), 'private' => count($private)]));
 
