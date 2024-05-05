@@ -258,7 +258,7 @@ async function fetchWorkingProxies() {
           td.classList.add("text-center");
         }
 
-        if (i === 7 || i === 6) {
+        if (i === 7 || i === 6 || (i > 12 && i <= 17)) {
           if (info.trim() === "-") {
             console.log(split[0], "missing geo location");
             fetch("./geoIp.php?proxy=" + split[0], { signal: AbortSignal.timeout(5000) }).catch(() => {
