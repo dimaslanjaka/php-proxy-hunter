@@ -1,8 +1,6 @@
 <?php
 
 require_once __DIR__ . '/../func.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->safeLoad();
 
 header('Content-Type: application/json');
 // header('Content-Type: text/plain');

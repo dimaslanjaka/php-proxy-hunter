@@ -9,6 +9,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use PhpProxyHunter\ProxyDB;
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad();
+
 $db = new ProxyDB();
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));

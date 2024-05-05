@@ -1,8 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../func.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->safeLoad();
+
 $shortHash = exec('git rev-parse --short HEAD');
 
 // init configuration
