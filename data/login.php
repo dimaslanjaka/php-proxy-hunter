@@ -29,6 +29,8 @@ $client->setRedirectUri($redirectUri);
 $client->addScope("email");
 $client->addScope("profile");
 
+$message = '';
+
 // authenticate code from Google OAuth Flow
 if (isset($_GET['code'])) {
   $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
@@ -36,12 +38,15 @@ if (isset($_GET['code'])) {
 
   // get profile info
   $google_oauth = new Google_Service_Oauth2($client);
-  $google_account_info = $google_oauth->userinfo->get();
-  $email =  $google_account_info->email;
-  $name =  $google_account_info->name;
-
-  if ($email == 'dimaslanjaka@gmail.com') {
-    $_SESSION['admin'] = true;
+  try {
+    $google_account_info = $google_oauth->userinfo->get();
+    $email =  $google_account_info->email;
+    $name =  $google_account_info->name;
+    if ($email == 'dimaslanjaka@gmail.com') {
+      $_SESSION['admin'] = true;
+    }
+  } catch (\Google\Service\Exception $e) {
+    $message = $e->getMessage();
   }
 } else if (isset($_REQUEST['login'])) {
   header('Location: ' . $client->createAuthUrl());
@@ -63,7 +68,7 @@ if (isset($_GET['code'])) {
   <!-- <div id="g_id_onload" data-client_id="435643304043-alt6ls25k6c41qb76kfk34dpbc8t9c07.apps.googleusercontent.com" data-callback="handleCredentialResponse">
   </div>
   <div class="g_id_signin" data-type="standard"></div> -->
-  <div id="mybtn"></div>
+  <div id="my_button" class="mb-3"></div>
   <script>
     function handleCredentialResponse(response) {
       // console.log("Encoded JWT ID token: " + response.credential);
@@ -93,7 +98,7 @@ if (isset($_GET['code'])) {
         callback: handleCredentialResponse
       });
       google.accounts.id.renderButton(
-        document.getElementById("mybtn"), {
+        document.getElementById("my_button"), {
           theme: "outline",
           size: "large"
         } // customization attributes
