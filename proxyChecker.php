@@ -76,7 +76,7 @@ $endpoint = trim($config['endpoint']);
 $headers = array_filter($config['headers']);
 $checksFor = $config['type'];
 
-echo $config['user_id'] . ' ' . date("Y-m-d H:i:s") . PHP_EOL;
+echo "User " . $config['user_id'] . ' at ' . date("Y-m-d H:i:s") . PHP_EOL;
 echo "GET $endpoint " . strtoupper($checksFor) . PHP_EOL;
 echo implode("\n", $headers) . PHP_EOL;
 
@@ -129,26 +129,29 @@ if (file_exists($backup)) {
   }
 }
 
+$max_checks = 50;
 $db = new ProxyDB();
 $untested = extractProxies(file_get_contents($filePath));
-$working = array_map(function ($item) {
-  $wrap = new Proxy($item['proxy']);
-  foreach ($item as $key => $value) {
-    if (property_exists($wrap, $key)) {
-      $wrap->$key = $value;
+if (count($untested) < $max_checks) {
+  $working = array_map(function ($item) {
+    $wrap = new Proxy($item['proxy']);
+    foreach ($item as $key => $value) {
+      if (property_exists($wrap, $key)) {
+        $wrap->$key = $value;
+      }
     }
-  }
-  return $wrap;
-}, $db->getWorkingProxies());
-$proxies = array_merge($untested, $working);
+    return $wrap;
+  }, $db->getWorkingProxies());
+  $proxies = array_merge($untested, $working);
+} else {
+  $proxies = $untested;
+}
 $proxies = uniqueObjectsByProperty($proxies, 'proxy');
 $proxies = array_filter($proxies, function (Proxy $item) {
   if (is_null($item->last_check)) return true;
   return isDateRFC3339OlderThanHours($item->last_check, 5);
 });
 shuffle($proxies);
-
-$max_checks = 50;
 
 if (count($proxies) < $max_checks) {
   if (file_exists($deadPath)) {
@@ -158,6 +161,8 @@ if (count($proxies) < $max_checks) {
     exit;
   }
 }
+
+echo "total proxies to be tested " . count($proxies);
 
 iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime) {
   // Check if execution time has exceeded the maximum allowed time
