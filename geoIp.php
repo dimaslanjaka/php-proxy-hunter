@@ -1,18 +1,8 @@
 <?php
 
-require_once __DIR__ . '/func.php';
+require_once __DIR__ . '/func-proxy.php';
 
-use PhpProxyHunter\ProxyDB;
-use PhpProxyHunter\geoPlugin;
-use PhpProxyHunter\geoPlugin2;
-
-// $LocationArray = json_decode(file_get_contents('http://ip-get-geolocation.com/api/json/35.188.125.133'), true);
-
-// echo $LocationArray['country'];
-// echo $LocationArray['city'];
-// echo $LocationArray['region'];
-// echo $LocationArray['timezone'];
-
+if (strtolower(php_sapi_name()) === 'cli') exit("CLI access disallowed");
 if (function_exists('header')) header('Content-Type: application/json; charset=UTF-8');
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
@@ -24,93 +14,18 @@ if (file_exists($lockFilePath)) {
 }
 function exitProcess()
 {
-  global $lockFilePath, $statusFile;
+  global $lockFilePath;
   if (file_exists($lockFilePath)) unlink($lockFilePath);
 }
-register_shutdown_function('exitProcess');
 
-$geoplugin = new geoPlugin();
-$db = new ProxyDB();
+register_shutdown_function('exitProcess');
 
 $proxy = '112.30.155.83:12792';
 if (isset($_REQUEST['proxy'])) {
-  $string = trim($_REQUEST['proxy']);
-  // Regular expression to match IP:PORT pattern
-  $pattern = '/(\d+\.\d+\.\d+\.\d+):(\d+)/';
-
-  // Match the pattern in the string
-  preg_match($pattern, $string, $matches);
-
-  if (count($matches) === 3) {
-    $ip = $matches[1];
-    $port = $matches[2];
-    // echo "IP: $ip, Port: $port \n";
-    if (!empty(trim($ip)) && !empty(trim($port))) {
-      $proxy = preg_replace('/\s+/', '', "$ip:$port");
-    }
-  }
+  $proxy = $_REQUEST['proxy'];
 }
 
-list($ip, $port) = explode(':', $proxy);
-
-$geo = $geoplugin->locate($ip);
-
-if (is_string($geo)) {
-  $decodedData = json_decode($geo, true);
-  if ($decodedData !== null && json_last_error() === JSON_ERROR_NONE) {
-    if (isset($decodedData['geoplugin_status']) && isset($decodedData['geoplugin_message']) && $decodedData['geoplugin_status'] == 429 && strpos($decodedData['geoplugin_message'], 'too many request') !== false) {
-      // delete cache when response failed
-      if (file_exists($geoplugin->cacheFile)) unlink($geoplugin->cacheFile);
-      $geo2 = new geoPlugin2();
-      $geoplugin = $geo2->locate($ip);
-    }
-  }
+$extract = extractProxies($proxy);
+foreach ($extract as $item) {
+  get_geo_ip($item->proxy);
 }
-
-$json = $geoplugin->jsonSerialize();
-unset($json['host']);
-echo json_encode($json);
-
-$db->updateData($proxy, ['timezone' => $geoplugin->timezone, 'city' => $geoplugin->city, 'country' => $geoplugin->countryName, 'region' => $geoplugin->region, 'lang' => $geoplugin->lang, 'latitude' => $geoplugin->latitude, 'longitude' => $geoplugin->longitude]);
-
-// echo "Geolocation results for {$geoplugin->ip}\n" .
-//   "City: {$geoplugin->city} \n" .
-//   "Region: {$geoplugin->region} \n" .
-//   "Region Code: {$geoplugin->regionCode} \n" .
-//   "Region Name: {$geoplugin->regionName} \n" .
-//   "DMA Code: {$geoplugin->dmaCode} \n" .
-//   "Country Name: {$geoplugin->countryName} \n" .
-//   "Country Code: {$geoplugin->countryCode} \n" .
-//   "In the EU?: {$geoplugin->inEU} \n" .
-//   "EU VAT Rate: {$geoplugin->euVATrate} \n" .
-//   "Latitude: {$geoplugin->latitude} \n" .
-//   "Longitude: {$geoplugin->longitude} \n" .
-//   "Radius of Accuracy (Miles): {$geoplugin->locationAccuracyRadius} \n" .
-//   "Timezone: {$geoplugin->timezone}  \n" .
-//   "Currency Code: {$geoplugin->currencyCode} \n" .
-//   "Currency Symbol: {$geoplugin->currencySymbol} \n" .
-//   "Exchange Rate: {$geoplugin->currencyConverter} \n";
-
-// if ($geoplugin->currency != $geoplugin->currencyCode) {
-//   //our visitor is not using the same currency as the base currency
-//   echo "At todays rate, US$100 will cost you " . $geoplugin->convert(100) . " \n";
-// }
-
-// /* find places nearby */
-// $nearby = $geoplugin->nearby();
-// if (isset($nearby[0]['geoplugin_place'])) {
-//   echo "Some places you may wish to visit near " . $geoplugin->city . ": \n";
-//   foreach ($nearby as $key => $array) {
-
-//     echo ($key + 1) . ":";
-//     echo "\t Place: " . $array['geoplugin_place'] . "";
-//     echo "\t Country Code: " . $array['geoplugin_countryCode'] . "";
-//     echo "\t Region: " . $array['geoplugin_region'] . "";
-//     echo "\t County: " . $array['geoplugin_county'] . "";
-//     echo "\t Latitude: " . $array['geoplugin_latitude'] . "";
-//     echo "\t Longitude: " . $array['geoplugin_longitude'] . "";
-//     echo "\t Distance (miles): " . $array['geoplugin_distanceMiles'] . "";
-//     echo "\t Distance (km): " . $array['geoplugin_distanceKilometers'] . "";
-//   }
-//   echo "\n";
-// }
