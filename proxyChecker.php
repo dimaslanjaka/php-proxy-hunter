@@ -56,6 +56,7 @@ if (!$isCli) {
 
 // remove duplicate lines from proxies.txt
 removeDuplicateLines(__DIR__ . '/proxies.txt');
+removeDuplicateLinesInUntestedProxies();
 
 // limit execution time seconds unit
 $maxExecutionTime = 120;
@@ -260,4 +261,23 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
 //$string_format = implode(PHP_EOL, $array_format);
 //file_put_contents($workingPath, $string_format);
 
+/**
+ * remove duplicated lines from proxies.txt compare with dead.txt
+ * @return void
+ */
+function removeDuplicateLinesInUntestedProxies()
+{
+  $file1 = realpath(__DIR__ . "/proxies.txt");
+  $file2 = realpath(__DIR__ . "/dead.txt");
 
+  // Get duplicated lines
+  $duplicatedLines = getDuplicatedLines($file1, $file2);
+
+  if (!empty($duplicatedLines)) {
+    echo "Duplicated lines between \$file1 and \$file2 is (" . count($duplicatedLines) . ")" . PHP_EOL;
+    // Remove duplicated lines from $file1
+    $lines1 = file($file1);
+    $lines1 = array_diff($lines1, $duplicatedLines);
+    file_put_contents($file1, implode("", $lines1));
+  }
+}
