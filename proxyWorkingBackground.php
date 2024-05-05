@@ -31,7 +31,7 @@ if ($isWin) {
 }
 
 $uid = getUserId();
-$cmd .= " --userId=" . $uid;
+$cmd .= " --userId=" . escapeshellarg($uid);
 
 // validate lock files
 if (file_exists(__DIR__ . '/proxyChecker.lock') || file_exists(__DIR__ . '/proxySocksChecker.lock')) {

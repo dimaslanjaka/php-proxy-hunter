@@ -30,7 +30,7 @@ if ($isWin) {
 }
 
 $uid = getUserId();
-$cmd .= " --userId=" . $uid;
+$cmd .= " --userId=" . escapeshellarg($uid);
 
 if (isset($_REQUEST['proxy'])) {
   $cmd .= " --str=" . escapeshellarg(rawurldecode($_REQUEST['proxy']));
