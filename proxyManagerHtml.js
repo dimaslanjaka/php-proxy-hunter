@@ -30,13 +30,16 @@
   Email: dimaslanjaka@gmail.com
 */
 
+/**
+ * @type {Record<string, any>|undefined}
+ */
 let user_info;
 
 async function main() {
   user_info = await userInfo();
   if (!user_info) {
     console.log("user null");
-    await main();
+    // await main();
     location.reload();
     return;
   }
@@ -261,7 +264,9 @@ async function fetchWorkingProxies() {
         if (i === 7 || i === 6 || (i > 12 && i <= 17)) {
           if (info.trim() === "-") {
             console.log(split[0], "missing geo location");
-            fetch("./geoIp.php?proxy=" + split[0], { signal: AbortSignal.timeout(5000) }).catch(() => {
+            fetch("./geoIpBackground.php?proxy=" + encodeURIComponent(split[0]) + "&uid=" + user_info.user_id, {
+              signal: AbortSignal.timeout(5000)
+            }).catch(() => {
               //
             });
           }
