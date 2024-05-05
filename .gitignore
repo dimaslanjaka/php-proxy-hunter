@@ -22,7 +22,6 @@ tmp/
 !CIDR*.txt
 /vendor/
 /status.json
-_myConfig.js
 .vscode/sftp.json
 !/robots.txt
 /.env
