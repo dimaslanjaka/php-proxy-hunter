@@ -173,6 +173,7 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
     // Handle the situation appropriately, like exiting the script or logging an error.
     exit;
   }
+//  get_geo_ip($item->proxy); // just test
   list($ip, $port) = explode(":", $item->proxy);
   if (strlen($item->proxy) > 10 && strlen($port) > 1 && strlen($item->proxy) <= 21) {
     $raw_proxy = $item->proxy;

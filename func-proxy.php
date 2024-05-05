@@ -303,9 +303,6 @@ function get_geo_ip(string $proxy, string $proxy_type = 'http')
     }
   } else {
     $locate = $geo_plugin->locate_recursive($ip);
-    if (!empty($locate->lang)) {
-      $data['lang'] = $locate->lang;
-    }
     if (!empty($locate->countryName)) {
       $data['country'] = $locate->countryName;
     }
@@ -321,7 +318,35 @@ function get_geo_ip(string $proxy, string $proxy_type = 'http')
     if (!empty($locate->timezone)) {
       $data['timezone'] = $locate->timezone;
     }
-    echo "$ip country $locate->countryName language is $locate->lang" . PHP_EOL;
+    $ext_intl = ext_intl_getLanguage($locate->countryCode);
+    if (empty($ext_intl) && !empty($locate->lang)) $ext_intl  = $locate->lang;
+    if (!empty($ext_intl)) {
+      $data['lang'] = $ext_intl;
+    }
+    echo "$ip country $locate->countryName language is $ext_intl" . PHP_EOL;
   }
   $db->updateData($proxy, $data);
+}
+
+/**
+ * Retrieves the primary language based on the provided country code using the ext-intl extension.
+ *
+ * This function requires the PHP ext-intl extension to be enabled.
+ *
+ * @param string $country The country code.
+ * @return string|null The primary language code or null if an error occurs or the language is not found.
+ */
+function ext_intl_getLanguage(string $country): ?string {
+  if (empty($country)) return null;
+  try {
+    $subtags = \ResourceBundle::create('likelySubtags', 'ICUDATA', false);
+    $country = \Locale::canonicalize('und_'.$country);
+    if (($country[0] ?? null) === '_') {
+      $country = 'und'.$country;
+    }
+    $locale = $subtags->get($country) ?: $subtags->get('und');
+    return \Locale::getPrimaryLanguage($locale);
+  } catch (Exception $e) {
+    return null;
+  }
 }
