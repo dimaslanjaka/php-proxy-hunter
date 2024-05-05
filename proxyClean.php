@@ -33,9 +33,11 @@ $merged_content = $all_content . PHP_EOL;
 
 // Iterate through the files array and truncate each file
 foreach ($files as $file) {
-  $content = file_get_contents($file);
-  $merged_content = $merged_content . PHP_EOL . $content . PHP_EOL;
-  truncateFile($file);
+  if (file_exists($file)) {
+    $content = file_get_contents($file);
+    $merged_content = $merged_content . PHP_EOL . $content . PHP_EOL;
+    truncateFile($file);
+  }
 }
 
 // Write merged content to $all
