@@ -64,15 +64,15 @@ $proxies_txt_array = array_map(function (\PhpProxyHunter\Proxy $item) {
   }
   return $raw_proxy;
 }, $proxies);
-$proxies_txt_array = implode(PHP_EOL, $proxies_txt_array);
+$proxies_txt = implode(PHP_EOL, $proxies_txt_array);
 
 $filePath = __DIR__ . '/proxies.txt';
 // write proxies into proxies.txt or proxies-backup.txt when checker still running
 if (file_exists(__DIR__ . '/proxyChecker.lock')) {
   // lock exist, backup added proxies
-  append_content_with_lock(__DIR__ . '/proxies-backup.txt', PHP_EOL . $proxies_txt_array);
+  append_content_with_lock(__DIR__ . '/proxies-backup.txt', PHP_EOL . $proxies_txt);
 } else {
-  append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . $proxies_txt_array);
+  append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . $proxies_txt);
 }
 
 $count = count($proxies);
