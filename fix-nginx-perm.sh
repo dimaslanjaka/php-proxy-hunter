@@ -20,10 +20,11 @@ sudo chmod 755 *.js
 sudo chmod 755 *.css
 sudo chmod 755 js/*.js
 sudo chmod 777 config
+sudo chmod 755 config/*
 sudo chmod 777 tmp
 sudo chmod 777 .cache
 sudo chmod 777 data
-sudo chmod 777 data/*.pem
+sudo chmod 755 data/*.pem
 sudo chmod 644 *.php
 sudo chmod 644 .env
 # sudo chown -R www-data:www-data /var/www/html
