@@ -731,8 +731,8 @@ function moveLinesToFile(string $sourceFile, string $destinationFile, int $lines
  */
 function append_content_with_lock(string $file, string $content_to_append): bool
 {
-  // Open the file for appending
-  $handle = fopen($file, 'a');
+  // Open the file for appending, create it if it doesn't exist
+  $handle = fopen($file, 'a+');
 
   // Check if file handle is valid
   if (!$handle) {
