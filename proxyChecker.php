@@ -175,13 +175,17 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
   }
   list($ip, $port) = explode(":", $item->proxy);
   if (strlen($item->proxy) > 10 && strlen($port) > 1 && strlen($item->proxy) <= 21) {
+    $raw_proxy = $item->proxy;
+    if (!is_null($item->username) && !is_null($item->password)) $raw_proxy .= '@' . $item->username . ':' . $item->password;
+
     if (!isPortOpen($item->proxy)) {
       $db->updateStatus($item->proxy, 'port-closed');
       echo $item->proxy . ' port closed' . PHP_EOL;
+      // always move checked proxy into dead.txt
+      removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
       return;
     }
-    $raw_proxy = $item->proxy;
-    if (!is_null($item->username) && !is_null($item->password)) $raw_proxy .= '@' . $item->username . ':' . $item->password;
+
     $proxy_types = [];
     $check_http = checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password);
     $check_socks5 = checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password);
