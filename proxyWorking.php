@@ -3,13 +3,12 @@
 // proxies writer
 
 require_once __DIR__ . '/func-proxy.php';
-require_once __DIR__ . '/vendor/autoload.php';
 
 use PhpProxyHunter\ProxyDB;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
-// if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
+if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
 if (!$isCli)
   exit('web server access disallowed');
 if (file_exists(__DIR__ . '/proxyChecker.lock') && gethostname() !== 'DESKTOP-JVTSJ6I') {
