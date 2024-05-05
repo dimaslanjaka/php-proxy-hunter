@@ -250,6 +250,7 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
 function get_geo_ip(string $proxy, string $proxy_type = 'http')
 {
   $proxy = trim($proxy);
+  if (empty($proxy)) return;
   $db = new ProxyDB();
   list($ip, $port) = explode(':', $proxy);
   /** @noinspection PhpFullyQualifiedNameUsageInspection */
