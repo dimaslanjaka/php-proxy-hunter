@@ -34,8 +34,13 @@ date_default_timezone_set('Asia/Jakarta');
 ini_set('memory_limit', '128M');
 
 // start session
-if (!$isCli)
-  session_start();
+if (!$isCli) {
+  // Check if session is not already started
+  if (session_status() === PHP_SESSION_NONE) {
+    // Start the session
+    session_start();
+  }
+}
 
 // create temp folder
 if (!file_exists(__DIR__ . '/tmp'))
