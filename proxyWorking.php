@@ -15,26 +15,6 @@ if (file_exists(__DIR__ . '/proxyChecker.lock') && gethostname() !== 'DESKTOP-JV
   exit('another process still running');
 }
 
-// remove duplicated lines from proxies.txt compare with dead.txt
-$file1 = realpath(__DIR__ . "/proxies.txt");
-$file2 = realpath(__DIR__ . "/dead.txt");
-
-// Get duplicated lines
-$duplicatedLines = getDuplicatedLines($file1, $file2);
-
-if (!empty($duplicatedLines)) {
-  // Output duplicated lines
-  echo "Duplicated lines between $file1 and $file2:\n";
-  foreach ($duplicatedLines as $line) {
-    echo trim($line) . PHP_EOL;
-  }
-
-  // Remove duplicated lines from $file1
-  $lines1 = file($file1);
-  $lines1 = array_diff($lines1, $duplicatedLines);
-  file_put_contents($file1, implode("", $lines1));
-}
-
 $db = new ProxyDB();
 $working = $db->getWorkingProxies();
 $private = $db->getPrivateProxies();
@@ -109,4 +89,27 @@ function removeDuplicateObjectsByKey($array, $key)
   }
 
   return $uniqueObjects;
+}
+
+function removeDuplicateLinesInUntestedProxies()
+{
+  // remove duplicated lines from proxies.txt compare with dead.txt
+  $file1 = realpath(__DIR__ . "/proxies.txt");
+  $file2 = realpath(__DIR__ . "/dead.txt");
+
+  // Get duplicated lines
+  $duplicatedLines = getDuplicatedLines($file1, $file2);
+
+  if (!empty($duplicatedLines)) {
+    // Output duplicated lines
+    echo "Duplicated lines between $file1 and $file2:\n";
+    foreach ($duplicatedLines as $line) {
+      echo trim($line) . PHP_EOL;
+    }
+
+    // Remove duplicated lines from $file1
+    $lines1 = file($file1);
+    $lines1 = array_diff($lines1, $duplicatedLines);
+    file_put_contents($file1, implode("", $lines1));
+  }
 }
