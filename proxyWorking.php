@@ -13,13 +13,15 @@ $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMO
 if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
 if (!$isCli)
   exit('web server access disallowed');
+
 if (file_exists(__DIR__ . '/proxyChecker.lock') && gethostname() !== 'DESKTOP-JVTSJ6I') {
-  exit('another process still running');
+  exit('proxy checker process still running');
 }
+
 $lockFilePath = __DIR__ . "/proxyWorking.lock";
 
 if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
-  echo "another process still running\n";
+  echo "another process still running" . PHP_EOL;
   exit();
 } else {
   file_put_contents($lockFilePath, date(DATE_RFC3339));
