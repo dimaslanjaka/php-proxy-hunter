@@ -154,7 +154,7 @@ if (file_exists($backup)) {
 }
 
 $max_checks = 50;
-$db = new ProxyDB();
+$db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 $untested = extractProxies(file_get_contents($filePath));
 
 if (count($untested) < $max_checks) {
