@@ -17,6 +17,7 @@ set_cookie("user_id", getUserId());
 $config = getConfig(getUserId());
 // admin info from 'data/login.php'
 $config['admin'] = isset($_SESSION['admin']) && $_SESSION['admin'] == true;
+$config['pid'] = $_ENV['CPID'];
 $config_json = json_encode($config);
 
 set_cookie("user_config", base64_encode($config_json));
