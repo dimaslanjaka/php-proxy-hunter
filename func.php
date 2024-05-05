@@ -143,7 +143,7 @@ function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $strin
 /**
  * get cache file from `curlGetWithProxy`
  */
-function curlGetCache($url)
+function curlGetCache($url): string
 {
   return __DIR__ . '/.cache/' . md5($url);
 }
@@ -215,7 +215,7 @@ function curlGetWithProxy($url, $proxy, $proxyType = 'http', $cacheTime = 86400 
  * @param string $filename The path to the text file.
  * @return bool True on success, false on failure.
  */
-function rewriteIpPortFile($filename)
+function rewriteIpPortFile($filename): bool
 {
   if (!file_exists($filename) || !is_readable($filename) || !is_writable($filename)) {
     echo "File '$filename' is not readable or writable" . PHP_EOL;
@@ -321,7 +321,7 @@ function isDateRFC3339OlderThanHours(string $dateString, int $hoursAgo): bool
  * @param bool $unique (Optional) If set to true, returns only unique IP:PORT combinations. Default is false.
  * @return array An array containing the extracted IP:PORT combinations.
  */
-function extractIpPortFromFile($filePath, bool $unique = false)
+function extractIpPortFromFile($filePath, bool $unique = false): array
 {
   $ipPortList = [];
 
@@ -393,7 +393,7 @@ function extractIpPortFromFileCallback($filePath, callable $callback)
 }
 
 // Function to parse command line arguments
-function parseArgs($args)
+function parseArgs($args): array
 {
   $parsedArgs = [];
   $currentKey = null;
@@ -463,7 +463,7 @@ function setUserId(string $new_user_id)
   }
 }
 
-function getUserId()
+function getUserId(): string
 {
   global $user_id;
   return $user_id;
@@ -473,12 +473,12 @@ if (!file_exists(__DIR__ . "/config")) {
   mkdir(__DIR__ . "/config");
 }
 setFilePermissions(__DIR__ . "/config");
-function getUserFile(string $user_id)
+function getUserFile(string $user_id): string
 {
   return __DIR__ . "/config/$user_id.json";
 }
 
-function getConfig(string $user_id)
+function getConfig(string $user_id): array
 {
   $user_file = getUserFile($user_id);
   if (!file_exists($user_file)) {
@@ -508,7 +508,7 @@ function getConfig(string $user_id)
   }
 }
 
-function setConfig($user_id, $data)
+function setConfig($user_id, $data): array
 {
   $user_file = getUserFile($user_id);
   $defaults = getConfig($user_id);
@@ -524,7 +524,7 @@ function setConfig($user_id, $data)
   return $nData;
 }
 
-function generateRandomString($length = 10)
+function generateRandomString($length = 10): string
 {
   $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   $randomString = '';
@@ -635,7 +635,7 @@ function removeDuplicateLines(string $filePath): void
  * @param array $arr2 The second array to merge.
  * @return array The merged array.
  */
-function mergeArrays(array $arr1, array $arr2)
+function mergeArrays(array $arr1, array $arr2): array
 {
   $keys = array_keys($arr2);
   foreach ($keys as $key) {
@@ -691,7 +691,7 @@ function removeEmptyLinesFromFile($filePath)
  *
  * @return bool True if the content was moved successfully, false otherwise.
  */
-function moveContent($sourceFile, $destinationFile)
+function moveContent($sourceFile, $destinationFile): bool
 {
   // Open the source file for reading
   $sourceHandle = fopen($sourceFile, 'r');
@@ -819,7 +819,7 @@ function append_content_with_lock(string $file, string $content_to_append): bool
  * @param string $string_to_remove The string to remove from the file.
  * @return bool True if the string was successfully removed, false otherwise.
  */
-function removeStringFromFile($file_path, $string_to_remove)
+function removeStringFromFile($file_path, $string_to_remove): bool
 {
   // Read the file
   $file_content = file_get_contents($file_path);
@@ -841,7 +841,7 @@ function sanitizeFilename($filename)
   return $filename;
 }
 
-function getIPRange(string $cidr)
+function getIPRange(string $cidr): array
 {
   list($ip, $mask) = explode('/', trim($cidr));
 
@@ -869,7 +869,7 @@ function getIPRange(string $cidr)
 //   echo $ip . "\n";
 // }
 
-function IPv6CIDRToRange($cidr)
+function IPv6CIDRToRange($cidr): array
 {
   list($ip, $prefix) = explode('/', $cidr);
   $range_start = inet_pton($ip);
@@ -902,7 +902,7 @@ function IPv6CIDRToRange($cidr)
 //   return $ips;
 // }
 
-function IPv6CIDRToList($cidr)
+function IPv6CIDRToList($cidr): array
 {
   $range = IPv6CIDRToRange($cidr);
   $start = inet_pton($range['start']);
@@ -935,7 +935,7 @@ function IPv6CIDRToList($cidr)
  *
  * @return string Random user agent string.
  */
-function randomWindowsUa()
+function randomWindowsUa(): string
 {
   // Array of Windows versions
   $windowsVersions = ['Windows 7', 'Windows 8', 'Windows 10', 'Windows 11'];
@@ -974,7 +974,7 @@ function randomWindowsUa()
  * @param string $type The type of browser user-agent to generate. Default is 'chrome'.
  * @return string The generated user-agent string.
  */
-function randomAndroidUa(string $type = 'chrome')
+function randomAndroidUa(string $type = 'chrome'): string
 {
   // Android version array
   $androidVersions = [
@@ -1050,7 +1050,7 @@ function randomAndroidUa(string $type = 'chrome')
  * @param string $type The type of browser user-agent to generate. Default is 'chrome'.
  * @return string The generated user-agent string.
  */
-function randomIosUa(string $type = 'chrome')
+function randomIosUa(string $type = 'chrome'): string
 {
   $chrome_version = rand(70, 100);
   $ios_version = rand(9, 15);
@@ -1073,7 +1073,7 @@ function randomIosUa(string $type = 'chrome')
  * @param string|null $file_extension The optional file extension without dot (.) to filter files by.
  * @return string|null The name of the randomly selected file, or null if no file found with the specified extension.
  */
-function getRandomFileFromFolder($folder, $file_extension = null)
+function getRandomFileFromFolder($folder, $file_extension = null): ?string
 {
   // Get list of files in the folder
   $files = scandir($folder);
@@ -1116,7 +1116,7 @@ function getRandomFileFromFolder($folder, $file_extension = null)
  * @param int $endPort The ending port of the range (default is 65535).
  * @return array An array containing the proxies found during scanning.
  */
-function scanRangePorts(string $ip, int $startPort = 1, int $endPort = 65535)
+function scanRangePorts(string $ip, int $startPort = 1, int $endPort = 65535): array
 {
   $proxies = [];
   for ($port = $startPort; $port <= $endPort; $port++) {
@@ -1134,7 +1134,7 @@ function scanRangePorts(string $ip, int $startPort = 1, int $endPort = 65535)
  * @param array $ports An array containing the ports to scan.
  * @return array An array containing the proxies found during scanning.
  */
-function scanArrayPorts(string $ip, array $ports)
+function scanArrayPorts(string $ip, array $ports): array
 {
   $proxies = [];
   foreach ($ports as $port) {
@@ -1152,7 +1152,7 @@ function scanArrayPorts(string $ip, array $ports)
  * @param int $port The port to scan.
  * @return bool Returns true if the port is open, false otherwise.
  */
-function scanPort(string $ip, int $port)
+function scanPort(string $ip, int $port): bool
 {
   $ip = trim($ip);
   echo "Scanning port $ip:$port\n";
