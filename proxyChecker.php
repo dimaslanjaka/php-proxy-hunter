@@ -54,30 +54,6 @@ if (!$isCli) {
   }
 }
 
-try {
-  // remove duplicate lines from proxies.txt
-  removeDuplicateLines(__DIR__ . '/proxies.txt');
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLines
-  echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
-}
-
-try {
-  // remove duplicate lines from dead.txt
-  removeDuplicateLines(__DIR__ . '/dead.txt');
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLines
-  echo 'Error removing duplicate lines from dead.txt: ' . $e->getMessage() . PHP_EOL;
-}
-
-try {
-  // Call the function to remove duplicate lines in untested proxies
-  removeDuplicateLinesInUntestedProxies();
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
-  echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
-}
-
 // limit execution time seconds unit
 $maxExecutionTime = 120;
 $startTime = microtime(true);
@@ -136,6 +112,30 @@ function exitProcess()
   if (file_exists($lockFilePath))
     unlink($lockFilePath);
   file_put_contents($statusFile, 'idle');
+
+  try {
+    // remove duplicate lines from proxies.txt
+    removeDuplicateLines(__DIR__ . '/proxies.txt');
+  } catch (Exception $e) {
+    // Handle any exceptions that occur during the execution of removeDuplicateLines
+    echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
+  }
+
+  try {
+    // remove duplicate lines from dead.txt
+    removeDuplicateLines(__DIR__ . '/dead.txt');
+  } catch (Exception $e) {
+    // Handle any exceptions that occur during the execution of removeDuplicateLines
+    echo 'Error removing duplicate lines from dead.txt: ' . $e->getMessage() . PHP_EOL;
+  }
+
+  try {
+    // Call the function to remove duplicate lines in untested proxies
+    removeDuplicateLinesInUntestedProxies();
+  } catch (Exception $e) {
+    // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
+    echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
+  }
 }
 
 register_shutdown_function('exitProcess');
