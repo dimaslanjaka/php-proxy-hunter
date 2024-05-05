@@ -148,7 +148,7 @@ if (count($untested) < $max_checks) {
 }
 $proxies = uniqueObjectsByProperty($proxies, 'proxy');
 $proxies = array_filter($proxies, function (Proxy $item) {
-  if (is_null($item->last_check)) return true;
+  if (empty($item->last_check)) return true;
   return isDateRFC3339OlderThanHours($item->last_check, 5);
 });
 shuffle($proxies);
@@ -162,7 +162,7 @@ if (count($proxies) < $max_checks) {
   }
 }
 
-echo "total proxies to be tested " . count($proxies);
+echo "total proxies to be tested " . count($proxies) . PHP_EOL;
 
 iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime) {
   // Check if execution time has exceeded the maximum allowed time
