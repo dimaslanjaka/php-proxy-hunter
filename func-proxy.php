@@ -252,13 +252,15 @@ function get_geo_ip(string $proxy, string $proxy_type = 'http')
   $proxy = trim($proxy);
   $db = new ProxyDB();
   list($ip, $port) = explode(':', $proxy);
+  /** @noinspection PhpFullyQualifiedNameUsageInspection */
+  $geo_plugin = new \PhpProxyHunter\geoPlugin();
   $geoUrl = "https://ip-get-geolocation.com/api/json/$ip";
   // fetch ip info
   $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, $proxy_type), true);
+  $data = [];
   // Check if JSON decoding was successful
   if (json_last_error() === JSON_ERROR_NONE) {
     if (trim($geoIp['status']) != 'fail') {
-      $data = [];
       if (isset($geoIp['lat'])) {
         $data['latitude'] = $geoIp['lat'];
       }
@@ -287,12 +289,7 @@ function get_geo_ip(string $proxy, string $proxy_type = 'http')
           }
         }
       } catch (\Throwable $th) {
-        /** @noinspection PhpFullyQualifiedNameUsageInspection */
-        $geo_plugin = new \PhpProxyHunter\geoPlugin();
-        $locate = $geo_plugin->locate_recursive($ip);
-        if (!empty($locate->lang)) {
-          $db->updateData($proxy, ['lang' => $locate->lang]);
-        }
+        //
       }
 
       if (isset($geoIp['region'])) {
@@ -300,10 +297,31 @@ function get_geo_ip(string $proxy, string $proxy_type = 'http')
         if (!empty($geoIp['regionName'])) $region = $geoIp['regionName'];
         $data['region'] = $region;
       }
-      $db->updateData($proxy, $data);
     } else {
       $cache_file = curlGetCache($geoUrl);
       if (file_exists($cache_file)) unlink($cache_file);
     }
+  } else {
+    $locate = $geo_plugin->locate_recursive($ip);
+    if (!empty($locate->lang)) {
+      $data['lang'] = $locate->lang;
+    }
+    if (!empty($locate->countryName)) {
+      $data['country'] = $locate->countryName;
+    }
+    if (!empty($locate->regionName)) {
+      $data['region'] = $locate->regionName;
+    }
+    if (!empty($locate->latitude)) {
+      $data['latitude'] = $locate->latitude;
+    }
+    if (!empty($locate->longitude)) {
+      $data['longitude'] = $locate->longitude;
+    }
+    if (!empty($locate->timezone)) {
+      $data['timezone'] = $locate->timezone;
+    }
+    echo "$ip country $locate->countryName language is $locate->lang" . PHP_EOL;
   }
+  $db->updateData($proxy, $data);
 }
