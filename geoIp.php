@@ -2,13 +2,25 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
+if (file_exists(__DIR__ . '/proxyChecker.lock') && gethostname() !== 'DESKTOP-JVTSJ6I') {
+  exit('proxy checker process still running');
+}
+
 if (function_exists('set_time_limit')) {
   call_user_func('set_time_limit', 120);
 }
 
 if (function_exists('header')) header('Content-Type: application/json; charset=UTF-8');
 
-$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$string_data = '112.30.155.83:12792';
+if (strtolower(php_sapi_name()) === 'cli') {
+  $string_data = file_get_contents(__DIR__ . '/proxies.txt');
+} else if (isset($_REQUEST['proxy'])) {
+  $string_data = $_REQUEST['proxy'];
+}
+
+$lockFolder = realpath(__DIR__ . '/tmp');
+$lockFilePath = $lockFolder . "/" . md5($string_data) . ".lock";
 
 if (file_exists($lockFilePath) && gethostname() !== "DESKTOP-JVTSJ6I") {
   exit(json_encode(['error' => 'another process still running']));
@@ -23,14 +35,7 @@ function exitProcess()
 
 register_shutdown_function('exitProcess');
 
-$proxy = '112.30.155.83:12792';
-if (strtolower(php_sapi_name()) === 'cli') {
-  $proxy = file_get_contents(__DIR__ . '/proxies.txt');
-} else if (isset($_REQUEST['proxy'])) {
-  $proxy = $_REQUEST['proxy'];
-}
-
-$extract = extractProxies($proxy);
+$extract = extractProxies($string_data);
 shuffle($extract);
 
 $db = new \PhpProxyHunter\ProxyDB(__DIR__ . '/src/database.sqlite');
