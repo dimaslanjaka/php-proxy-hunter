@@ -69,6 +69,7 @@ file_put_contents(__DIR__ . '/working.json', json_encode($array_mapper));
 $fileUntested = __DIR__ . '/proxies.txt';
 
 $untested = extractProxies(file_get_contents($fileUntested));
+$untested = uniqueClassObjectsByProperty($untested, 'proxy');
 $dead = countNonEmptyLines(__DIR__ . '/dead.txt');
 echo "total working proxies " . count($working) . PHP_EOL;
 echo "total private proxies " . count($private) . PHP_EOL;

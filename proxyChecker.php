@@ -155,7 +155,7 @@ if (count($untested) < $max_checks) {
 } else {
   $proxies = $untested;
 }
-$proxies = uniqueObjectsByProperty($proxies, 'proxy');
+$proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
 $proxies = array_filter($proxies, function (Proxy $item) {
   if (empty($item->last_check)) return true;
   return isDateRFC3339OlderThanHours($item->last_check, 5);
@@ -198,10 +198,18 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
     if (!empty($proxy_types)) {
       $merged_proxy_types = implode('-', $proxy_types);
       echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
-      $db->updateData($item->proxy, ['type' => $merged_proxy_types, 'status' => 'active', 'latency' => max($latencies)]);
+      $db->updateData($item->proxy, [
+          'type' => $merged_proxy_types,
+          'status' => 'active',
+          'latency' => max($latencies)
+      ]);
       if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
         $webgl = random_webgl_data();
-        $db->updateData($item->proxy, ['webgl_renderer' => $webgl->webgl_renderer, 'webgl_vendor' => $webgl->webgl_vendor, 'browser_vendor' => $webgl->browser_vendor]);
+        $db->updateData($item->proxy, [
+            'webgl_renderer' => $webgl->webgl_renderer,
+            'webgl_vendor' => $webgl->webgl_vendor,
+            'browser_vendor' => $webgl->browser_vendor
+        ]);
       }
       // get geolocation
       if (empty($item->timezone) || empty($item->country) || empty($item->lang)) {
@@ -249,16 +257,4 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
 //$string_format = implode(PHP_EOL, $array_format);
 //file_put_contents($workingPath, $string_format);
 
-function uniqueObjectsByProperty($array, $property): array
-{
-  $tempArray = [];
-  $result = [];
-  foreach ($array as $item) {
-    $value = $item->$property;
-    if (!isset($tempArray[$value])) {
-      $tempArray[$value] = true;
-      $result[] = $item;
-    }
-  }
-  return $result;
-}
+
