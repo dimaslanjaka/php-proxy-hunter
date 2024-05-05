@@ -291,12 +291,16 @@ async function fetchWorkingProxies() {
  * @type {string[]}
  */
 const ajax_url_schedule = [];
+
 /**
  * ajax schedule runner indicator
  * @type {boolean}
  */
 let ajax_schedule_running = false;
 
+/**
+ * Runs the AJAX schedule.
+ */
 function run_ajax_schedule() {
   if (!ajax_schedule_running) {
     ajax_schedule_running = true;
@@ -316,8 +320,14 @@ function run_ajax_schedule() {
   }
 }
 
+/**
+ * Adds a URL to the AJAX schedule if it's not already present.
+ * @param {string} url - The URL to add.
+ */
 function add_ajax_schedule(url) {
-  ajax_url_schedule.push(url);
+  if (!ajax_url_schedule.includes(url)) {
+    ajax_url_schedule.push(url);
+  }
 }
 
 /**
