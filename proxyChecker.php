@@ -63,6 +63,14 @@ try {
 }
 
 try {
+  // remove duplicate lines from dead.txt
+  removeDuplicateLines(__DIR__ . '/dead.txt');
+} catch (Exception $e) {
+  // Handle any exceptions that occur during the execution of removeDuplicateLines
+  echo 'Error removing duplicate lines from dead.txt: ' . $e->getMessage() . PHP_EOL;
+}
+
+try {
   // Call the function to remove duplicate lines in untested proxies
   removeDuplicateLinesInUntestedProxies();
 } catch (Exception $e) {
