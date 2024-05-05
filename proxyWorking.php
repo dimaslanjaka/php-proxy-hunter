@@ -16,6 +16,23 @@ if (!$isCli)
 if (file_exists(__DIR__ . '/proxyChecker.lock') && gethostname() !== 'DESKTOP-JVTSJ6I') {
   exit('another process still running');
 }
+$lockFilePath = __DIR__ . "/proxyWorking.lock";
+
+if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
+  echo "another process still running\n";
+  exit();
+} else {
+  file_put_contents($lockFilePath, date(DATE_RFC3339));
+}
+
+function exitProcess()
+{
+  global $lockFilePath;
+  if (file_exists($lockFilePath))
+    unlink($lockFilePath);
+}
+
+register_shutdown_function('exitProcess');
 
 $db = new ProxyDB();
 $working = $db->getWorkingProxies();
