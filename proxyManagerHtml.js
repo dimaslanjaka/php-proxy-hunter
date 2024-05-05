@@ -263,12 +263,11 @@ async function fetchWorkingProxies() {
 
         if (i === 7 || i === 6 || (i > 12 && i <= 17)) {
           if (info.trim() === "-") {
-            console.log(split[0], "missing geo location");
-            fetch("./geoIpBackground.php?proxy=" + encodeURIComponent(split[0]) + "&uid=" + user_info.user_id, {
-              signal: AbortSignal.timeout(5000)
-            }).catch(() => {
-              //
-            });
+            // console.log(split[0], "missing geo location");
+            add_ajax_schedule(
+              "./geoIpBackground.php?proxy=" + encodeURIComponent(split[0]) + "&uid=" + user_info.user_id
+            );
+            run_ajax_schedule();
           }
         }
 
@@ -285,6 +284,40 @@ async function fetchWorkingProxies() {
       el.setAttribute("aria-copy", el.getAttribute("data"));
     });
   }
+}
+
+/**
+ * list url to be executed
+ * @type {string[]}
+ */
+const ajax_url_schedule = [];
+/**
+ * ajax schedule runner indicator
+ * @type {boolean}
+ */
+let ajax_schedule_running = false;
+
+function run_ajax_schedule() {
+  if (!ajax_schedule_running) {
+    ajax_schedule_running = true;
+    const url = ajax_url_schedule.shift();
+    fetch(url, {
+      signal: AbortSignal.timeout(5000)
+    })
+      .catch(() => {
+        // re-push the url when error
+        add_ajax_schedule(url);
+      })
+      .finally(() => {
+        ajax_schedule_running = false;
+        // repeat
+        if (ajax_url_schedule.length > 0) run_ajax_schedule();
+      });
+  }
+}
+
+function add_ajax_schedule(url) {
+  ajax_url_schedule.push(url);
 }
 
 /**
