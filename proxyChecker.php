@@ -189,7 +189,7 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
     // Handle the situation appropriately, like exiting the script or logging an error.
     exit;
   }
-//  get_geo_ip($item->proxy); // just test
+  //  get_geo_ip($item->proxy); // just test
   list($ip, $port) = explode(":", $item->proxy);
   if (strlen($item->proxy) > 10 && strlen($port) > 1 && strlen($item->proxy) <= 21) {
     $raw_proxy = $item->proxy;
@@ -215,16 +215,16 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
       $merged_proxy_types = implode('-', $proxy_types);
       echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
       $db->updateData($item->proxy, [
-          'type' => $merged_proxy_types,
-          'status' => 'active',
-          'latency' => max($latencies)
+        'type' => $merged_proxy_types,
+        'status' => 'active',
+        'latency' => max($latencies)
       ]);
       if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
         $webgl = random_webgl_data();
         $db->updateData($item->proxy, [
-            'webgl_renderer' => $webgl->webgl_renderer,
-            'webgl_vendor' => $webgl->webgl_vendor,
-            'browser_vendor' => $webgl->browser_vendor
+          'webgl_renderer' => $webgl->webgl_renderer,
+          'webgl_vendor' => $webgl->webgl_vendor,
+          'browser_vendor' => $webgl->browser_vendor
         ]);
       }
       // get geolocation
