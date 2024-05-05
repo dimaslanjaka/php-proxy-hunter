@@ -14,6 +14,9 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor" />
       <excludeFolder url="file://$MODULE_DIR$/webalizer" />
       <excludeFolder url="file://$MODULE_DIR$/xampp" />
+      <excludeFolder url="file://$MODULE_DIR$/src/nuitka" />
+      <excludeFolder url="file://$MODULE_DIR$/src/selenium-dolphin" />
+      <excludeFolder url="file://$MODULE_DIR$/src/undetected-chromedriver" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="inheritedJdk" />
