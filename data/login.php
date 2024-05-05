@@ -44,6 +44,8 @@ if (isset($_GET['code'])) {
       $name = $google_account_info->name;
       if ($email == 'dimaslanjaka@gmail.com') {
         $_SESSION['admin'] = true;
+      } else {
+        if (isset($_SESSION['admin'])) unset($_SESSION['admin']);
       }
     } catch (\Google\Service\Exception $e) {
       $message = $e->getMessage();
