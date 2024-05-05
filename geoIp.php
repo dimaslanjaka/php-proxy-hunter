@@ -10,7 +10,20 @@ if (function_exists('set_time_limit')) {
   call_user_func('set_time_limit', 120);
 }
 
-if (function_exists('header')) header('Content-Type: application/json; charset=UTF-8');
+if (function_exists('header')) {
+  header('Content-Type: application/json; charset=UTF-8');
+
+  // Allow from any origin
+  header("Access-Control-Allow-Origin: *");
+  header("Access-Control-Allow-Headers: *");
+  header("Access-Control-Allow-Methods: *");
+  header('Content-Type: application/json; charset=utf-8');
+
+  // Set cache control headers to instruct the browser to cache the content for [n] hour
+  $hour = 1;
+  header('Cache-Control: max-age=3600, must-revalidate');
+  header('Expires: ' . gmdate('D, d M Y H:i:s', time() + ($hour * 3600)) . ' GMT');
+}
 
 $string_data = '112.30.155.83:12792';
 if (strtolower(php_sapi_name()) === 'cli') {
