@@ -576,25 +576,52 @@ function getDuplicatedLines(string $file1, string $file2): array
 }
 
 /**
- * remove duplicate lines from file
+ * Remove duplicate lines from a file.
+ *
+ * @param string $filePath The path to the file.
+ * @return void
  */
-function removeDuplicateLines($filePath)
+function removeDuplicateLines(string $filePath): void
 {
-  if (file_exists($filePath) && is_readable($filePath) && is_writable($filePath)) {
-    // Read the file into an array, each line as an element
-    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+  // Open the file for reading and writing
+  $fileHandle = fopen($filePath, 'r+');
 
-    if (is_array($lines)) {
-      // Remove duplicate lines
-      $lines = array_unique($lines);
+  if ($fileHandle !== false && flock($fileHandle, LOCK_EX)) { // Acquire an exclusive lock
+    // Initialize an array to store unique lines
+    $uniqueLines = [];
 
-      // Remove empty strings from the array
-      $lines = array_filter($lines, function ($value) {
-        return trim($value) !== '';
-      });
-      // Write the modified lines back to the file
-      file_put_contents($filePath, implode("\n", $lines) . "\n");
+    // Read the file line by line
+    while (!feof($fileHandle)) {
+      $line = fgets($fileHandle);
+
+      // Trim whitespace and remove empty lines
+      $trimmedLine = trim($line);
+      if ($trimmedLine !== '') {
+        // If the line is not already in the unique lines array, add it
+        if (!in_array($trimmedLine, $uniqueLines, true)) {
+          $uniqueLines[] = $trimmedLine;
+        }
+      }
     }
+
+    // Rewind the file pointer to the beginning of the file
+    rewind($fileHandle);
+
+    // Truncate the file (clear its contents)
+    ftruncate($fileHandle, 0);
+
+    // Write the unique lines back to the file
+    foreach ($uniqueLines as $uniqueLine) {
+      fwrite($fileHandle, $uniqueLine . PHP_EOL);
+    }
+
+    // Release the lock and close the file handle
+    flock($fileHandle, LOCK_UN);
+    fclose($fileHandle);
+  } else {
+    // Handle error opening or locking the file
+    // You can log an error or throw an exception here
+    echo "Failed remove duplicated lines from $filePath" . PHP_EOL;
   }
 }
 
