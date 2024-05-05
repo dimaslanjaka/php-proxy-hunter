@@ -6,8 +6,11 @@ require __DIR__ . '/func.php';
 
 use PhpProxyHunter\ProxyDB;
 
-// if (function_exists('header')) header('Content-Type: text/plain; charset=UTF-8');
-if (!$isCli) exit('web server access disallowed');
+$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+
+if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
+if (!$isCli)
+  exit('web server access disallowed');
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
