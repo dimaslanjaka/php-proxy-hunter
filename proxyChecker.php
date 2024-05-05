@@ -155,7 +155,7 @@ shuffle($proxies);
 
 if (count($proxies) < $max_checks) {
   if (file_exists($deadPath)) {
-    echo "proxies low, respawning dead proxies\n\n";
+    echo "proxies low, respawning dead proxies" . PHP_EOL;
     // respawn 100 dead proxies
     moveLinesToFile($deadPath, $filePath, 100);
     exit;
