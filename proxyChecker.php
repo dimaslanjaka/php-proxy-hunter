@@ -249,7 +249,7 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
         }
 
         // update proxy useragent
-        if (empty($item->useragent)) {
+        if (empty($item->useragent) && strlen(trim($item->useragent)) <= 5) {
           $item->useragent = randomWindowsUa();
           $db->updateData($item->proxy, ['useragent' => $item->useragent]);
         }
