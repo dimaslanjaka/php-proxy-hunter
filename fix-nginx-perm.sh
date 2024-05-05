@@ -3,20 +3,14 @@
 
 rm *.lock
 
-sudo chown -R www-data:www-data *
-sudo chown -R www-data:www-data src/*
-sudo chown -R www-data:www-data config/*
-sudo chown -R www-data:www-data .cache/*
-sudo chown -R www-data:www-data tmp/*
+
 mkdir -p tmp/cookies
 touch tmp/cookies/index.html
 touch tmp/index.html
 mkdir -p config
 touch config/index.html
-sudo chown -R www-data:www-data data/*
-sudo chown -R www-data:www-data tmp/*
-sudo chown -R www-data:www-data js/*
-sudo chown -R www-data:www-data tmp/cookies/*
+
+sudo chown -R www-data:www-data *
 sudo chmod 777 *.txt
 sudo chmod 644 *.html
 sudo chmod 644 *.js
@@ -24,10 +18,10 @@ sudo chmod 644 *.css
 sudo chmod 644 js/*.js
 sudo chmod 777 config
 sudo chmod 755 config/*
-sudo chmod 644 tmp
+sudo chmod 777 tmp
 sudo chmod 777 .cache
-sudo chmod 644 data
-sudo chmod 644 data/*.pem
+sudo chmod 777 data
+sudo chmod 644 data/*
 sudo chmod 644 *.php
 sudo chmod 644 .env
 # sudo chown -R www-data:www-data /var/www/html
