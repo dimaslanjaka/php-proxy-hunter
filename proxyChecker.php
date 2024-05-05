@@ -132,6 +132,7 @@ if (file_exists($backup)) {
 $max_checks = 50;
 $db = new ProxyDB();
 $untested = extractProxies(file_get_contents($filePath));
+
 if (count($untested) < $max_checks) {
   $working = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
@@ -142,6 +143,14 @@ if (count($untested) < $max_checks) {
     }
     return $wrap;
   }, $db->getWorkingProxies());
+  if (count($working) < $max_checks || count($untested) < $max_checks) {
+    if (file_exists($deadPath)) {
+      echo "proxies low, respawning dead proxies" . PHP_EOL;
+      // respawn 100 dead proxies
+      moveLinesToFile($deadPath, $filePath, 100);
+      exit;
+    }
+  }
   $proxies = array_merge($untested, $working);
 } else {
   $proxies = $untested;
@@ -152,15 +161,6 @@ $proxies = array_filter($proxies, function (Proxy $item) {
   return isDateRFC3339OlderThanHours($item->last_check, 5);
 });
 shuffle($proxies);
-
-if (count($proxies) < $max_checks) {
-  if (file_exists($deadPath)) {
-    echo "proxies low, respawning dead proxies" . PHP_EOL;
-    // respawn 100 dead proxies
-    moveLinesToFile($deadPath, $filePath, 100);
-    exit;
-  }
-}
 
 echo "total proxies to be tested " . count($proxies) . PHP_EOL;
 
