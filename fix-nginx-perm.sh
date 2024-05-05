@@ -12,8 +12,13 @@ mkdir -p config
 touch config/index.html
 sudo chown -R www-data:www-data data/*
 sudo chown -R www-data:www-data tmp/*
+sudo chown -R www-data:www-data js/*
 sudo chown -R www-data:www-data tmp/cookies/*
 sudo chmod 777 *.txt
+sudo chmod 755 *.html
+sudo chmod 755 *.js
+sudo chmod 755 *.css
+sudo chmod 755 js/*.js
 sudo chmod 777 config
 sudo chmod 777 tmp
 sudo chmod 777 .cache
