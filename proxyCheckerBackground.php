@@ -13,7 +13,7 @@ if (!$isCli) {
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
   }
-  // only allow user with google analystics cookie
+  // only allow user with Google Analytics cookie
   if (!isset($_COOKIE['_ga'])) {
     exit('Access Denied');
   }
@@ -53,4 +53,5 @@ function exitProcess()
   global $pidfile;
   if (file_exists($pidfile)) unlink($pidfile);
 }
+
 register_shutdown_function('exitProcess');

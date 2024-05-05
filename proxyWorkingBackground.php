@@ -53,4 +53,5 @@ function exitProcess()
   global $pidfile;
   if (file_exists($pidfile)) unlink($pidfile);
 }
+
 register_shutdown_function('exitProcess');
