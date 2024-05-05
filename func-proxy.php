@@ -318,12 +318,18 @@ function get_geo_ip(string $proxy, string $proxy_type = 'http')
     if (!empty($locate->timezone)) {
       $data['timezone'] = $locate->timezone;
     }
+    $lang = $locate->lang;
+    $locale = country_code_to_locale($locate->countryCode);
     $ext_intl = ext_intl_get_lang_country_code($locate->countryCode);
-    if (empty($ext_intl) && !empty($locate->lang)) $ext_intl = $locate->lang;
-    if (!empty($ext_intl)) {
-      $data['lang'] = $ext_intl;
+    if (!empty($locale)) {
+      $lang = $locale;
+    } else if (!empty($ext_intl)) {
+      $lang = $ext_intl;
     }
-    echo "$ip country $locate->countryName language is $ext_intl" . PHP_EOL;
+    if (!empty($lang)) {
+      $data['lang'] = $lang;
+    }
+    echo "$ip country $locate->countryName language is $lang" . PHP_EOL;
   }
   $db->updateData($proxy, $data);
 }
@@ -353,14 +359,16 @@ function ext_intl_get_lang_country_code(string $country): ?string
 }
 
 /**
- * /* Returns a locale from a country code that is provided.
- * /*
- * /* @param $country_code  ISO 3166-2-alpha 2 country code
- * /* @param $language_code ISO 639-1-alpha 2 language code
- * /* @returns  a locale, formatted like en_US, or null if not found
- * /**/
-function country_code_to_locale($country_code, $language_code = '')
+ * Returns a locale from a provided country code.
+ *
+ * @param string $country_code ISO 3166-2-alpha 2 country code
+ * @param string $language_code ISO 639-1-alpha 2 language code (optional)
+ * @return string|null A locale, formatted like en_US, or null if not found
+ */
+function country_code_to_locale(string $country_code, string $language_code = '')
 {
+  if (empty($country_code)) return null;
+
   // Locale list taken from:
   // http://stackoverflow.com/questions/3191664/
   // list-of-all-locales-and-their-short-codes
