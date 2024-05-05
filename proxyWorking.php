@@ -13,12 +13,31 @@ $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMO
 // if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
 if (!$isCli)
   exit('web server access disallowed');
-
-if (gethostname() !== 'DESKTOP-JVTSJ6I') {
-  if (file_exists(__DIR__ . '/proxyChecker.lock')) {
-    exit('another process still running');
-  }
+if (file_exists(__DIR__ . '/proxyChecker.lock') && gethostname() !== 'DESKTOP-JVTSJ6I') {
+  exit('another process still running');
 }
+
+$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$statusFile = __DIR__ . "/status.txt";
+
+if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
+  echo "another process still running\n";
+  exit();
+} else {
+  $config = getConfig(getUserId());
+  file_put_contents($lockFilePath, $config['user_id'] . '=' . json_encode($config));
+  file_put_contents($statusFile, 'running');
+}
+
+function exitProcess()
+{
+  global $lockFilePath, $statusFile;
+  if (file_exists($lockFilePath))
+    unlink($lockFilePath);
+  file_put_contents($statusFile, 'idle');
+}
+
+register_shutdown_function('exitProcess');
 
 // remove duplicated lines from proxies.txt compare with dead.txt
 $file1 = realpath(__DIR__ . "/proxies.txt");
@@ -72,21 +91,6 @@ file_put_contents(__DIR__ . '/working.txt', $impl);
 file_put_contents(__DIR__ . '/working.json', json_encode($array_mapper));
 
 $fileUntested = __DIR__ . '/proxies.txt';
-
-//if (!$isCli) {
-//  if (!isset($_COOKIE['rewrite_cookies'])) {
-//    // Set the cookie to expire in 5 minutes (300 seconds)
-//    $cookie_value = md5(date(DATE_RFC3339));
-//    setcookie('rewrite_cookies', $cookie_value, time() + 300, '/');
-//
-//    // rewrite working proxies to be checked again later
-//    file_put_contents($fileUntested, PHP_EOL . $impl . PHP_EOL, FILE_APPEND);
-//    // filter only IP:PORT each lines
-//    rewriteIpPortFile($fileUntested);
-//    // remove duplicate proxies
-//    removeDuplicateLines($fileUntested);
-//  }
-//}
 
 $untested = extractProxies(file_get_contents($fileUntested));
 $dead = countNonEmptyLines(__DIR__ . '/dead.txt');
