@@ -34,19 +34,21 @@ $message = '';
 // authenticate code from Google OAuth Flow
 if (isset($_GET['code'])) {
   $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-  $client->setAccessToken($token['access_token']);
+  if (isset($token['access_token'])) {
+    $client->setAccessToken($token['access_token']);
 
-  // get profile info
-  $google_oauth = new Google_Service_Oauth2($client);
-  try {
-    $google_account_info = $google_oauth->userinfo->get();
-    $email = $google_account_info->email;
-    $name = $google_account_info->name;
-    if ($email == 'dimaslanjaka@gmail.com') {
-      $_SESSION['admin'] = true;
+    // get profile info
+    $google_oauth = new Google_Service_Oauth2($client);
+    try {
+      $google_account_info = $google_oauth->userinfo->get();
+      $email = $google_account_info->email;
+      $name = $google_account_info->name;
+      if ($email == 'dimaslanjaka@gmail.com') {
+        $_SESSION['admin'] = true;
+      }
+    } catch (\Google\Service\Exception $e) {
+      $message = $e->getMessage();
     }
-  } catch (\Google\Service\Exception $e) {
-    $message = $e->getMessage();
   }
 } else if (isset($_REQUEST['login'])) {
   header('Location: ' . $client->createAuthUrl());
