@@ -203,7 +203,12 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
   if ($proxyLength > 10 && $proxyLength <= 21) {
     list($ip, $port) = explode(":", $item->proxy, 2);
     $ipValid = strlen($ip) >= 7 && strlen($ip) <= 15 && filter_var($ip, FILTER_VALIDATE_IP);
-    $portValid = filter_var($port, FILTER_VALIDATE_INT, array("options" => array("min_range" => 1, "max_range" => 65535)));
+    $portValid = filter_var($port, FILTER_VALIDATE_INT, array(
+        "options" => array(
+            "min_range" => 1,
+            "max_range" => 65535
+        )
+    ));
     if ($ipValid && $portValid) {
       $proxyValid = true;
       $raw_proxy = $item->proxy;
@@ -226,19 +231,22 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
       if ($check_socks4['result']) $proxy_types[] = 'socks4';
       $latencies = [$check_http['latency'], $check_socks5['latency'], $check_socks4['latency']];
       if (!empty($proxy_types)) {
+        // proxy working
         $merged_proxy_types = implode('-', $proxy_types);
         echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
         $db->updateData($item->proxy, [
-          'type' => $merged_proxy_types,
-          'status' => 'active',
-          'latency' => max($latencies)
+            'type' => $merged_proxy_types,
+            'status' => 'active',
+            'latency' => max($latencies),
+            'username' => $item->username,
+            'password' => $item->password
         ]);
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item->proxy, [
-            'webgl_renderer' => $webgl->webgl_renderer,
-            'webgl_vendor' => $webgl->webgl_vendor,
-            'browser_vendor' => $webgl->browser_vendor
+              'webgl_renderer' => $webgl->webgl_renderer,
+              'webgl_vendor' => $webgl->webgl_vendor,
+              'browser_vendor' => $webgl->browser_vendor
           ]);
         }
         // get geolocation
