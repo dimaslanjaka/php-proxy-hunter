@@ -9,8 +9,8 @@ $shortHash = exec('git rev-parse --short HEAD');
 $clientID = $_ENV['G_CLIENT_ID'];
 $clientSecret = $_ENV['G_CLIENT_SECRET'];
 // Get the protocol
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
-
+//$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
+$protocol = 'https://';
 // Get the host
 $host = $_SERVER['HTTP_HOST'];
 
@@ -29,7 +29,7 @@ $client->setRedirectUri($redirectUri);
 $client->addScope("email");
 $client->addScope("profile");
 
-$message = '';
+$message = $authUri = $client->createAuthUrl();
 
 // authenticate code from Google OAuth Flow
 if (isset($_GET['code'])) {
@@ -51,7 +51,7 @@ if (isset($_GET['code'])) {
     }
   }
 } else if (isset($_REQUEST['login'])) {
-  header('Location: ' . $client->createAuthUrl());
+  header('Location: ' . $authUri);
 }
 
 ?>
@@ -77,63 +77,76 @@ if (isset($_GET['code'])) {
       }
     };
   </script>
-  <link rel="stylesheet"
-        href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
+  <style>
+    pre {
+      white-space: pre-wrap;
+      /* css-3 */
+      white-space: -moz-pre-wrap;
+      /* Mozilla, since 1999 */
+      white-space: -pre-wrap;
+      /* Opera 4-6 */
+      white-space: -o-pre-wrap;
+      /* Opera 7 */
+      word-wrap: break-word;
+      /* Internet Explorer 5.5+ */
+    }
+  </style>
+  <link rel="stylesheet" href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
 </head>
 
 <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<div class="inline-flex rounded-md shadow-sm mb-3" role="group">
-  <button id="my_button"
-          class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-  </button>
-  <button type="button"
-          class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white"
-          onclick="location.href='login.php?login=true'">
-    Login server
-  </button>
-</div>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <div class="inline-flex rounded-md shadow-sm mb-3" role="group">
+    <button id="my_button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+    </button>
+    <button type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white" onclick="location.href='login.php?login=true'">
+      Login server
+    </button>
+  </div>
 
-<div><?php echo $message; ?></div>
+<!--  <div class="w-full">-->
+<!--    <pre class="mb-3"><code>--><?php //echo $message; ?><!--</code></pre>-->
+<!--    <pre class="mb-3"><code>--><?php //echo json_encode($_ENV); ?><!--</code></pre>-->
+<!--  </div>-->
 
-<script>
-  function handleCredentialResponse(response) {
-    // console.log("Encoded JWT ID token: " + response.credential);
-    const tokens = response.credential.split(".");
-    const responsePayload = JSON.parse(atob(tokens[1]));
-    console.log("ID: " + responsePayload.sub);
-    console.log("Full Name: " + responsePayload.name);
-    console.log("Given Name: " + responsePayload.given_name);
-    console.log("Family Name: " + responsePayload.family_name);
-    console.log("Image URL: " + responsePayload.picture);
-    console.log("Email: " + responsePayload.email);
-    // Get current time
-    var now = new Date();
+  <script>
+    function handleCredentialResponse(response) {
+      // console.log("Encoded JWT ID token: " + response.credential);
+      const tokens = response.credential.split(".");
+      const responsePayload = JSON.parse(atob(tokens[1]));
+      console.log("ID: " + responsePayload.sub);
+      console.log("Full Name: " + responsePayload.name);
+      console.log("Given Name: " + responsePayload.given_name);
+      console.log("Family Name: " + responsePayload.family_name);
+      console.log("Image URL: " + responsePayload.picture);
+      console.log("Email: " + responsePayload.email);
+      // Get current time
+      var now = new Date();
 
-    // Set expiration time to 1 hour from now
-    var expirationTime = new Date(now.getTime() + 1 * 3600 * 1000); // 1 hour = 3600 seconds * 1000 milliseconds
+      // Set expiration time to 1 hour from now
+      var expirationTime = new Date(now.getTime() + 1 * 3600 * 1000); // 1 hour = 3600 seconds * 1000 milliseconds
 
-    // Construct the cookie string
-    var cookieString = "<?php echo $shortHash; ?>=" + encodeURIComponent(tokens[1]) + "; expires=" + expirationTime.toUTCString() + "; path=/";
+      // Construct the cookie string
+      var cookieString = "<?php echo $shortHash; ?>=" + encodeURIComponent(tokens[1]) + "; expires=" + expirationTime.toUTCString() + "; path=/";
 
-    // Set the cookie
-    document.cookie = cookieString;
-  }
+      // Set the cookie
+      document.cookie = cookieString;
+    }
 
-  window.onload = function() {
-    google.accounts.id.initialize({
-      client_id: "435643304043-alt6ls25k6c41qb76kfk34dpbc8t9c07.apps.googleusercontent.com",
-      callback: handleCredentialResponse
-    });
-    google.accounts.id.renderButton(
-      document.getElementById("my_button"), {
-        theme: "outline",
-        size: "large"
-      } // customization attributes
-    );
-    google.accounts.id.prompt(); // also display the One Tap dialog
-  };
-</script>
+    window.onload = function() {
+      google.accounts.id.initialize({
+        client_id: "435643304043-alt6ls25k6c41qb76kfk34dpbc8t9c07.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.renderButton(
+        document.getElementById("my_button"), {
+          theme: "outline",
+          size: "large"
+        } // customization attributes
+      );
+      // google.accounts.id.prompt(); // also display the One Tap dialog
+    };
+  </script>
 </body>
 
 </html>
