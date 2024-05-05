@@ -26,7 +26,7 @@ if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
 } else {
   $config = getConfig(getUserId());
   file_put_contents($lockFilePath, $config['user_id'] . '=' . json_encode($config));
-  file_put_contents($statusFile, 'running');
+  file_put_contents($statusFile, 'parse working proxies');
 }
 
 function exitProcess()
