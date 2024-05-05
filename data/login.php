@@ -2,7 +2,13 @@
 
 require_once __DIR__ . '/../func.php';
 
-$shortHash = exec('git rev-parse --short HEAD');
+// Check if session is not already started
+if (session_status() === PHP_SESSION_NONE) {
+  // Start the session
+  session_start();
+}
+
+$shortHash = $_ENV['CPID'];
 
 // init configuration
 $clientID = $_ENV['G_CLIENT_ID'];
@@ -47,6 +53,8 @@ if (isset($_GET['code'])) {
       } else {
         if (isset($_SESSION['admin'])) unset($_SESSION['admin']);
       }
+//      header('Content-Type:text/plain; charset=UTF-8');
+//      exit(var_dump($_SESSION));
     } catch (\Google\Service\Exception $e) {
       $message = $e->getMessage();
     }
