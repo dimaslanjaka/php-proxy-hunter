@@ -249,7 +249,8 @@ async function fetchWorkingProxies() {
         td.innerText = info;
         if (i === 0 || i > 12) {
           // td.classList.add("w-4/12");
-          td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}"><i class="fa-duotone fa-copy"></i></button>`;
+          if (td.innerText !== "-")
+            td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}"><i class="fa-duotone fa-copy"></i></button>`;
         } else if (i === 2 && info.length > 6) {
           // last check date
           td.innerText = timeAgo(info);
