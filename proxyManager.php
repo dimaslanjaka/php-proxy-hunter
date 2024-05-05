@@ -52,6 +52,16 @@ $config = getConfig(getUserId());
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Proxy Manager</title>
+  <meta name="description" content="PHP Proxy Hunter By L3n4r0x">
+  <link rel="icon" href="https://webmanajemen.com/favicon.ico">
+  <meta property="og:image" content="https://opengraph.githubassets.com/b479073cb4e65f3fdcd4500e9358cd784795e6b3e2ff49bd5be14411cf85e2ab/dimaslanjaka/php-proxy-hunter">
+  <meta name="keywords" content="proxy, php proxy">
+  <meta name="robots" content="index, follow">
+  <!-- Twitter meta tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Proxy Manager">
+  <meta name="twitter:description" content="PHP Proxy Hunter By L3n4r0x">
+  <meta name="twitter:image" content="https://opengraph.githubassets.com/b479073cb4e65f3fdcd4500e9358cd784795e6b3e2ff49bd5be14411cf85e2ab/dimaslanjaka/php-proxy-hunter">
   <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
   <link href="//cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
   <link rel="stylesheet" href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
