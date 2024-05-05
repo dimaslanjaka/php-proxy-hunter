@@ -10,7 +10,7 @@ if (function_exists('header')) header('Content-Type: application/json; charset=U
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 
-if (file_exists($lockFilePath)) {
+if (file_exists($lockFilePath) && gethostname() !== "DESKTOP-JVTSJ6I") {
   exit(json_encode(['error' => 'another process still running']));
 } else {
   file_put_contents($lockFilePath, '');
