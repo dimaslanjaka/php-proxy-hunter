@@ -31,6 +31,7 @@ if (strtolower(php_sapi_name()) === 'cli') {
 }
 
 $extract = extractProxies($proxy);
+shuffle($extract);
 foreach ($extract as $item) {
   get_geo_ip($item->proxy);
 }
