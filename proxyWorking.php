@@ -1,6 +1,8 @@
 <?php
 
-// proxies writer
+/** @noinspection DuplicatedCode */
+
+// working proxies writer
 
 require_once __DIR__ . '/func-proxy.php';
 
@@ -54,7 +56,12 @@ echo "total private proxies " . count($private) . PHP_EOL;
 echo "total dead proxies $dead" . PHP_EOL;
 echo "total untested proxies " . count($untested) . PHP_EOL;
 
-file_put_contents(__DIR__ . '/status.json', json_encode(['working' => count($working), 'dead' => $dead, 'untested' => count($untested), 'private' => count($private)]));
+file_put_contents(__DIR__ . '/status.json', json_encode([
+    'working' => count($working),
+    'dead' => $dead,
+    'untested' => count($untested),
+    'private' => count($private)
+]));
 
 
 /**

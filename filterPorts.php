@@ -29,6 +29,7 @@ function exitProcess()
   if (file_exists($lockFilePath)) unlink($lockFilePath);
   file_put_contents($statusFile, 'idle');
 }
+
 register_shutdown_function('exitProcess');
 
 $db = new ProxyDB();

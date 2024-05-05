@@ -938,10 +938,34 @@ function randomAndroidUa(string $type = 'chrome')
   // Random device manufacturer and model
   $manufacturers = ['Samsung', 'Google', 'Huawei', 'Xiaomi', 'LG'];
   $models = [
-      'Samsung' => ['Galaxy S20', 'Galaxy Note 10', 'Galaxy A51', 'Galaxy S10', 'Galaxy S9', 'Galaxy Note 9', 'Galaxy S21', 'Galaxy Note 20', 'Galaxy Z Fold 2', 'Galaxy A71', 'Galaxy S20 FE'],
+      'Samsung' => [
+          'Galaxy S20',
+          'Galaxy Note 10',
+          'Galaxy A51',
+          'Galaxy S10',
+          'Galaxy S9',
+          'Galaxy Note 9',
+          'Galaxy S21',
+          'Galaxy Note 20',
+          'Galaxy Z Fold 2',
+          'Galaxy A71',
+          'Galaxy S20 FE'
+      ],
       'Google' => ['Pixel 4', 'Pixel 3a', 'Pixel 3', 'Pixel 5', 'Pixel 4a', 'Pixel 4 XL', 'Pixel 3 XL'],
       'Huawei' => ['P30 Pro', 'Mate 30', 'P40', 'Mate 40 Pro', 'P40 Pro', 'Mate Xs', 'Nova 7i'],
-      'Xiaomi' => ['Mi 10', 'Redmi Note 9', 'POCO F2 Pro', 'Mi 11', 'Redmi Note 10 Pro', 'POCO X3', 'Mi 10T Pro', 'Redmi Note 4x', 'Redmi Note 5', 'Redmi 6a', 'Mi 8 Lite'],
+      'Xiaomi' => [
+          'Mi 10',
+          'Redmi Note 9',
+          'POCO F2 Pro',
+          'Mi 11',
+          'Redmi Note 10 Pro',
+          'POCO X3',
+          'Mi 10T Pro',
+          'Redmi Note 4x',
+          'Redmi Note 5',
+          'Redmi 6a',
+          'Mi 8 Lite'
+      ],
       'LG' => ['G8 ThinQ', 'V60 ThinQ', 'Stylo 6', 'Velvet', 'Wing', 'K92', 'Q92'],
   ];
 

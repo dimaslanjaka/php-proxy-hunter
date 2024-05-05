@@ -6,9 +6,9 @@
 function is_proxy(string $proxy_server): string
 {
   $proxyDict = array(
-    "http" => $proxy_server,
-    "https" => $proxy_server,
-    "socks" => $proxy_server
+      "http" => $proxy_server,
+      "https" => $proxy_server,
+      "socks" => $proxy_server
   );
 
   $test_site = "http://api.ipify.org/?format=json";
