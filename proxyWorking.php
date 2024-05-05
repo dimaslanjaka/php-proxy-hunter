@@ -71,17 +71,18 @@ $fileUntested = __DIR__ . '/proxies.txt';
 $untested = extractProxies(file_get_contents($fileUntested));
 $untested = uniqueClassObjectsByProperty($untested, 'proxy');
 $dead = countNonEmptyLines(__DIR__ . '/dead.txt');
-echo "total working proxies " . count($working) . PHP_EOL;
-echo "total private proxies " . count($private) . PHP_EOL;
-echo "total dead proxies $dead" . PHP_EOL;
-echo "total untested proxies " . count($untested) . PHP_EOL;
-
-file_put_contents(__DIR__ . '/status.json', json_encode([
+$arr = [
     'working' => count($working),
     'dead' => $dead,
     'untested' => count($untested),
     'private' => count($private)
-]));
+];
+
+foreach ($arr as $key => $value) {
+  echo "working $key $value proxies" . PHP_EOL;
+}
+
+file_put_contents(__DIR__ . '/status.json', json_encode($arr));
 
 
 /**
