@@ -1,4 +1,7 @@
 #!/bin/bash
+# shellcheck disable=SC2035
+
+rm *.lock
 
 sudo chown -R www-data:www-data *
 sudo chown -R www-data:www-data src/*
