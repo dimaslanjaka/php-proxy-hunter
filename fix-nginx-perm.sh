@@ -20,6 +20,7 @@ sudo chmod 777 .cache
 sudo chmod 777 data
 sudo chmod 777 data/*.pem
 sudo chmod 644 *.php
+sudo chmod 644 .env
 # sudo chown -R www-data:www-data /var/www/html
 
 echo "permission sets successful"
