@@ -47,6 +47,27 @@ if (!file_exists(__DIR__ . '/tmp'))
   mkdir(__DIR__ . '/tmp');
 
 /**
+ * Returns an array of unique objects from the provided array based on a specific property.
+ *
+ * @param array $array An array of objects
+ * @param string $property The property name to compare
+ * @return array An array of unique objects
+ */
+function uniqueClassObjectsByProperty(array $array, string $property): array
+{
+  $tempArray = [];
+  $result = [];
+  foreach ($array as $item) {
+    $value = $item->$property;
+    if (!isset($tempArray[$value])) {
+      $tempArray[$value] = true;
+      $result[] = $item;
+    }
+  }
+  return $result;
+}
+
+/**
  * Sets file permissions to 777 if the file exists.
  *
  * @param string|array $filenames The filename(s) to set permissions for.
