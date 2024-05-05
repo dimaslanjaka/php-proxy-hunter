@@ -39,6 +39,7 @@ tmp/
 /error_logs
 __pycache__
 .venv/
+venv/
 .conda/
 /dist
 *.egg-info
