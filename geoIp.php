@@ -2,7 +2,6 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
-if (strtolower(php_sapi_name()) === 'cli') exit("CLI access disallowed");
 if (function_exists('header')) header('Content-Type: application/json; charset=UTF-8');
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
@@ -21,7 +20,9 @@ function exitProcess()
 register_shutdown_function('exitProcess');
 
 $proxy = '112.30.155.83:12792';
-if (isset($_REQUEST['proxy'])) {
+if (strtolower(php_sapi_name()) === 'cli') {
+  $proxy = file_get_contents(__DIR__ . '/proxies.txt');
+} else if (isset($_REQUEST['proxy'])) {
   $proxy = $_REQUEST['proxy'];
 }
 
