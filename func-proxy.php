@@ -1,5 +1,9 @@
 <?php
 
+if (!defined('JSON_THROW_ON_ERROR')) {
+  define('JSON_THROW_ON_ERROR', 4194304);
+}
+
 require_once __DIR__ . '/func.php';
 
 use PhpProxyHunter\Proxy;
