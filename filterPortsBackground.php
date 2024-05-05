@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/func.php";
+require_once __DIR__ . "/func-proxy.php";
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
@@ -13,7 +13,7 @@ if (!$isCli) {
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
   }
-  // only allow user with google analystics cookie
+  // only allow user with Google Analytics cookie
   if (!isset($_COOKIE['_ga'])) {
     exit('Access Denied');
   }
