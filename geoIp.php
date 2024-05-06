@@ -25,10 +25,6 @@ if (function_exists('header')) {
   header('Expires: ' . gmdate('D, d M Y H:i:s', time() + ($hour * 3600)) . ' GMT');
 }
 
-if (function_exists('set_time_limit')) {
-  call_user_func('set_time_limit', 120);
-}
-
 $config = getConfig(getUserId());
 $options = getopt("", ["str:"]); // php geoIp.php --str "xsdsd dfdfd"
 
