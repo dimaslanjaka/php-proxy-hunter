@@ -165,6 +165,14 @@ $max_checks = 50;
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 $untested = extractProxies(file_get_contents($filePath));
 
+// add untested proxies from database
+try {
+  $db_untested = $db->getUntestedProxies(1000);
+  $untested =  array_merge($untested, $db_untested);
+} catch (\Throwable $th) {
+  echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
+}
+
 if (count($untested) < $max_checks) {
   $working = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
