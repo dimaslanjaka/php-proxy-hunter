@@ -87,7 +87,15 @@ if (!$isCli) {
   }
 }
 
-echo "\n";
+echo PHP_EOL;
+
+try {
+  // remove duplicate lines from proxies.txt
+  removeDuplicateLines(__DIR__ . '/proxies.txt');
+} catch (Exception $e) {
+  // Handle any exceptions that occur during the execution of removeDuplicateLines
+  echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
+}
 
 /// FUNCTIONS (DO NOT EDIT)
 
@@ -108,14 +116,6 @@ function exitProcess()
   if (file_exists($lockFilePath))
     unlink($lockFilePath);
   file_put_contents($statusFile, 'idle');
-
-  try {
-    // remove duplicate lines from proxies.txt
-    removeDuplicateLines(__DIR__ . '/proxies.txt');
-  } catch (Exception $e) {
-    // Handle any exceptions that occur during the execution of removeDuplicateLines
-    echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
-  }
 
   try {
     // remove duplicate lines from dead.txt
@@ -164,17 +164,17 @@ if (count($untested) < $max_checks) {
     }
     return $wrap;
   }, $db->getWorkingProxies());
-  if (count($working) < $max_checks || count($untested) < $max_checks) {
-    if (file_exists($deadPath)) {
-      echo "proxies low, respawning dead proxies" . PHP_EOL;
-      // respawn 100 dead proxies
-      moveLinesToFile($deadPath, $filePath, 100);
-      exit;
-    }
-  }
   $proxies = array_merge($untested, $working);
 } else {
   $proxies = $untested;
+}
+if (count($proxies) < $max_checks) {
+  if (file_exists($deadPath)) {
+    echo "proxies low, respawning dead proxies" . PHP_EOL;
+    // respawn 100 dead proxies
+    moveLinesToFile($deadPath, $filePath, 100);
+    exit;
+  }
 }
 $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
 $proxies = array_filter($proxies, function (Proxy $item) {
