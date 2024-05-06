@@ -25,9 +25,29 @@
     "editor.defaultFormatter": "ms-python.autopep8"
   },
   "autopep8.args": [
-    "--ignore", "E401,E402,E211,E501"
+    "--ignore",
+    "E401,E402,E211,E501"
   ],
   "intelephense.completion.maxItems": 100,
   "intelephense.diagnostics.run": "onSave",
-  "eslint.debug": true
+  "eslint.debug": true,
+  "intelephense.files.exclude": [
+    "**/.git/**",
+    "**/.idea/**",
+    "**/.svn/**",
+    "**/.hg/**",
+    "**/CVS/**",
+    "**/.DS_Store/**",
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**/{Tests,tests}/**",
+    "**/.history/**",
+    "**/vendor/**/vendor/**",
+    "**/tmp/**",
+    "/assets/**/*",
+    "**/.yarn/**",
+    "/config/**/*",
+    "**/.venv/**",
+    "**/venv/**"
+  ]
 }
