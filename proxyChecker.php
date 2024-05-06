@@ -161,12 +161,26 @@ if (file_exists($backup)) {
 
 $max_checks = 50;
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
+$untested_str = file_get_contents($filePath);
 $untested = extractProxies(file_get_contents($filePath));
 
 // add untested proxies from database
 try {
   $db_untested = $db->getUntestedProxies(1000);
-  $untested =  array_merge($untested, $db_untested);
+  $db_untested_map = array_map(function ($item) {
+    $wrap = new Proxy($item['proxy']);
+    foreach ($item as $key => $value) {
+      if (property_exists($wrap, $key)) {
+        $wrap->$key = $value;
+      }
+    }
+    if (!empty($item['username']) && !empty($item['password'])) {
+      $wrap->username = $item['username'];
+      $wrap->password = $item['password'];
+    }
+    return $wrap;
+  }, $db_untested);
+  $untested = array_merge($untested, $db_untested_map);
 } catch (\Throwable $th) {
   echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
 }
@@ -217,10 +231,10 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
     list($ip, $port) = explode(":", $item->proxy, 2);
     $ipValid = strlen($ip) >= 7 && strlen($ip) <= 15 && filter_var($ip, FILTER_VALIDATE_IP);
     $portValid = filter_var($port, FILTER_VALIDATE_INT, array(
-      "options" => array(
-        "min_range" => 1,
-        "max_range" => 65535
-      )
+        "options" => array(
+            "min_range" => 1,
+            "max_range" => 65535
+        )
     ));
     if ($ipValid && $portValid) {
       $proxyValid = true;
@@ -248,18 +262,18 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
         $merged_proxy_types = implode('-', $proxy_types);
         echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
         $db->updateData($item->proxy, [
-          'type' => $merged_proxy_types,
-          'status' => 'active',
-          'latency' => max($latencies),
-          'username' => $item->username,
-          'password' => $item->password
+            'type' => $merged_proxy_types,
+            'status' => 'active',
+            'latency' => max($latencies),
+            'username' => $item->username,
+            'password' => $item->password
         ]);
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item->proxy, [
-            'webgl_renderer' => $webgl->webgl_renderer,
-            'webgl_vendor' => $webgl->webgl_vendor,
-            'browser_vendor' => $webgl->browser_vendor
+              'webgl_renderer' => $webgl->webgl_renderer,
+              'webgl_vendor' => $webgl->webgl_vendor,
+              'browser_vendor' => $webgl->browser_vendor
           ]);
         }
         // get geolocation
