@@ -173,6 +173,21 @@ class ProxyDB
     $result2 = $this->db->select('proxies', '*', 'status = ?', ['port-closed']);
     return array_merge($result, $result2);
   }
+
+  public function countDeadProxies(): int
+  {
+    $closed = $this->db->count('proxies', 'status = ?', ['port-closed']);
+    $dead = $this->db->count('proxies', 'status = ?', ['dead']);
+    return $closed + $dead;
+  }
+
+  public function countWorkingProxies(): int
+  {
+    return $this->db->count('proxies', "(status = ?) AND (private = ? OR private IS NULL OR private = '')", [
+        'active',
+        'false'
+    ]);
+  }
 }
 
 /**
