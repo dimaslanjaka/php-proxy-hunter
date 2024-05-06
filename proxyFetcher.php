@@ -77,4 +77,12 @@ foreach ($urls as $url) {
   file_put_contents($outputFile, "\n" . join(PHP_EOL, $ipPortList), FILE_APPEND | LOCK_EX);
 }
 
-echo "Content appended to $outputFile";
+echo "Content appended to $outputFile" . PHP_EOL;
+
+try {
+  // remove duplicate lines from proxies.txt
+  removeDuplicateLines(__DIR__ . '/proxies.txt');
+} catch (Exception $e) {
+  // Handle any exceptions that occur during the execution of removeDuplicateLines
+  echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
+}
