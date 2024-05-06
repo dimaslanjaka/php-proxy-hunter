@@ -14,6 +14,9 @@
     <Python>
       <option name="SPACE_AROUND_EQ_IN_NAMED_PARAMETER" value="true" />
       <option name="SPACE_AROUND_EQ_IN_KEYWORD_ARGUMENT" value="true" />
+      <option name="DICT_NEW_LINE_AFTER_LEFT_BRACE" value="true" />
+      <option name="DICT_NEW_LINE_BEFORE_RIGHT_BRACE" value="true" />
+      <option name="FROM_IMPORT_WRAPPING" value="0" />
     </Python>
     <TypeScriptCodeStyleSettings version="0">
       <option name="FORCE_SEMICOLON_STYLE" value="true" />
@@ -53,7 +56,7 @@
       </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="Python">
-      <option name="RIGHT_MARGIN" value="180" />
+      <option name="RIGHT_MARGIN" value="120" />
       <option name="CALL_PARAMETERS_WRAP" value="5" />
       <option name="WRAP_ON_TYPING" value="0" />
     </codeStyleSettings>
