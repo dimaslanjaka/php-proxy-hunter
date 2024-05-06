@@ -74,7 +74,7 @@ $untested = uniqueClassObjectsByProperty($untested, 'proxy');
 $arr = [
     'working' => $db->countWorkingProxies(),
     'dead' => $db->countDeadProxies(),
-    'untested' => count($untested),
+    'untested' => count($untested) + $db->countUntestedProxies(),
     'private' => count($private)
 ];
 
