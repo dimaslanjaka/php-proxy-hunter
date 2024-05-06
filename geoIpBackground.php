@@ -37,7 +37,7 @@ if (isset($_REQUEST['proxy'])) {
 }
 
 // validate lock files
-if (file_exists(__DIR__ . '/proxyChecker.lock') || file_exists(__DIR__ . '/proxySocksChecker.lock')) {
+if (file_exists(__DIR__ . '/proxyChecker.lock')) {
   exit('Another process still running');
 }
 
