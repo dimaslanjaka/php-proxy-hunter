@@ -140,6 +140,7 @@ register_shutdown_function('exitProcess');
 $filePath = __DIR__ . "/proxies.txt";
 $deadPath = __DIR__ . "/dead.txt";
 $workingPath = __DIR__ . "/working.txt";
+setFilePermissions([$filePath, $workingPath, $deadPath]);
 
 // move backup added proxies
 $backup = __DIR__ . '/proxies-backup.txt';
