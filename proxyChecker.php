@@ -190,9 +190,8 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
   $elapsedTime = microtime(true) - $startTime;
   if ($elapsedTime > $maxExecutionTime) {
     // Execution time exceeded
-    echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
-    // Handle the situation appropriately, like exiting the script or logging an error.
-    exit;
+//    echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
+    return;
   }
   //  get_geo_ip($item->proxy); // just test
   $proxyValid = false;
