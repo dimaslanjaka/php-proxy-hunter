@@ -57,10 +57,6 @@ if (!$isCli) {
 // limit execution time seconds unit
 $maxExecutionTime = 120;
 $startTime = microtime(true);
-// ignore limitation if exists
-if (function_exists('set_time_limit')) {
-  call_user_func('set_time_limit', gethostname() == "DESKTOP-JVTSJ6I" ? 0 : $maxExecutionTime);
-}
 
 // set output buffering to zero
 // avoid error while running on CLI
@@ -204,10 +200,10 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
     list($ip, $port) = explode(":", $item->proxy, 2);
     $ipValid = strlen($ip) >= 7 && strlen($ip) <= 15 && filter_var($ip, FILTER_VALIDATE_IP);
     $portValid = filter_var($port, FILTER_VALIDATE_INT, array(
-        "options" => array(
-            "min_range" => 1,
-            "max_range" => 65535
-        )
+      "options" => array(
+        "min_range" => 1,
+        "max_range" => 65535
+      )
     ));
     if ($ipValid && $portValid) {
       $proxyValid = true;
@@ -235,18 +231,18 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
         $merged_proxy_types = implode('-', $proxy_types);
         echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
         $db->updateData($item->proxy, [
-            'type' => $merged_proxy_types,
-            'status' => 'active',
-            'latency' => max($latencies),
-            'username' => $item->username,
-            'password' => $item->password
+          'type' => $merged_proxy_types,
+          'status' => 'active',
+          'latency' => max($latencies),
+          'username' => $item->username,
+          'password' => $item->password
         ]);
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item->proxy, [
-              'webgl_renderer' => $webgl->webgl_renderer,
-              'webgl_vendor' => $webgl->webgl_vendor,
-              'browser_vendor' => $webgl->browser_vendor
+            'webgl_renderer' => $webgl->webgl_renderer,
+            'webgl_vendor' => $webgl->webgl_vendor,
+            'browser_vendor' => $webgl->browser_vendor
           ]);
         }
         // get geolocation
