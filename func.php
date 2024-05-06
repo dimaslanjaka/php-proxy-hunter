@@ -66,10 +66,12 @@ function uniqueClassObjectsByProperty(array $array, string $property): array
   $tempArray = [];
   $result = [];
   foreach ($array as $item) {
-    $value = $item->$property;
-    if (!isset($tempArray[$value])) {
-      $tempArray[$value] = true;
-      $result[] = $item;
+    if (property_exists($item, $property)) {
+      $value = $item->$property;
+      if (!isset($tempArray[$value])) {
+        $tempArray[$value] = true;
+        $result[] = $item;
+      }
     }
   }
   return $result;
