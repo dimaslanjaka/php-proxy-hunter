@@ -12,10 +12,10 @@ touch config/index.html
 
 sudo chown -R www-data:www-data *
 sudo chmod 777 *.txt
-sudo chmod 644 *.html
-sudo chmod 644 *.js
-sudo chmod 644 *.css
-sudo chmod 644 js/*.js
+sudo chmod 755 *.html
+sudo chmod 755 *.js
+sudo chmod 755 *.css
+sudo chmod 755 js/*.js
 sudo chmod 777 config
 sudo chmod 755 config/*
 sudo chmod 777 tmp
