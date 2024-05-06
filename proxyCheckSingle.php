@@ -1,9 +1,20 @@
-<?php
+<?php /** @noinspection PhpFullyQualifiedNameUsageInspection */
+
+require_once __DIR__ . '/func-proxy.php';
+
+$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+
+if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
+if (!$isCli)
+  exit('web server access disallowed');
+
+$db = new \PhpProxyHunter\ProxyDB();
+$db->getDeadProxies();
 
 /**
  * Proxy server checker for proxyscan.php
  */
-function is_proxy(string $proxy_server): string
+function is_proxy(string $proxy_server)
 {
   $proxyDict = array(
       "http" => $proxy_server,
@@ -32,7 +43,8 @@ function is_proxy(string $proxy_server): string
         return $type;
       }
     } catch (Exception $e) {
-      // Handle exceptions if needed
+      return false;
     }
   }
+  return false;
 }

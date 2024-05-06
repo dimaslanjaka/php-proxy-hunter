@@ -126,6 +126,12 @@ function exitProcess()
   }
 
   try {
+    fixFile(__DIR__ . "/proxies.txt");
+  } catch (\Throwable $th) {
+    echo 'Error fix bad contents from proxies.txt: ' . $e->getMessage() . PHP_EOL;
+  }
+
+  try {
     // remove duplicate lines in untested proxies
     $file1 = realpath(__DIR__ . "/proxies.txt");
     $file2 = realpath(__DIR__ . "/dead.txt");
@@ -195,7 +201,7 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
   $elapsedTime = microtime(true) - $startTime;
   if ($elapsedTime > $maxExecutionTime) {
     // Execution time exceeded
-//    echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
+    //    echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
     return;
   }
   //  get_geo_ip($item->proxy); // just test
@@ -297,4 +303,3 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
 //}, $workingProxies);
 //$string_format = implode(PHP_EOL, $array_format);
 //file_put_contents($workingPath, $string_format);
-
