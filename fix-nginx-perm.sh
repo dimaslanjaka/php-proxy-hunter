@@ -28,8 +28,15 @@ sudo chmod 644 .env
 
 echo "permission sets successful"
 
-su -s /bin/bash -c 'php composer.phar install' www-data
-su -s /bin/bash -c 'php composer.phar update' www-data
+COMPOSER_LOCK="/var/www/html/composer.lock"
+COMPOSER_PHAR="/var/www/html/composer.phar"
+
+if [ ! -f "$COMPOSER_LOCK" ]; then
+    su -s /bin/bash -c "php $COMPOSER_PHAR install" www-data
+else
+    su -s /bin/bash -c "php $COMPOSER_PHAR update" www-data
+fi
+
 su -s /bin/bash -c 'nohup php /var/www/html/proxies-all.php &' www-data
 
 sudo chown -R www-data:www-data vendor/*
