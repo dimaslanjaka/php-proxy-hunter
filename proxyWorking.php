@@ -71,10 +71,9 @@ $fileUntested = __DIR__ . '/proxies.txt';
 
 $untested = extractProxies(file_get_contents($fileUntested));
 $untested = uniqueClassObjectsByProperty($untested, 'proxy');
-$dead = countNonEmptyLines(__DIR__ . '/dead.txt');
 $arr = [
-    'working' => count($working),
-    'dead' => $dead,
+    'working' => $db->countWorkingProxies(),
+    'dead' => $db->countDeadProxies(),
     'untested' => count($untested),
     'private' => count($private)
 ];
