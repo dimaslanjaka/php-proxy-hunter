@@ -86,3 +86,16 @@ try {
   // Handle any exceptions that occur during the execution of removeDuplicateLines
   echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
 }
+
+try {
+  // remove duplicate lines in untested proxies
+  $file1 = realpath(__DIR__ . "/proxies.txt");
+  $file2 = realpath(__DIR__ . "/dead.txt");
+
+  if (removeDuplicateLinesFromSource($file1, $file2)) {
+    echo "Duplicated lines between $file1 and $file2 removed successful from $file1" . PHP_EOL;
+  }
+} catch (Exception $e) {
+  // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
+  echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
+}
