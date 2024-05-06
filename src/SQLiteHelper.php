@@ -106,6 +106,34 @@ class SQLiteHelper
   }
 
   /**
+   * Counts the records in the specified table.
+   *
+   * ```php
+   * $count = $db->count('your_table_name');
+   * $count = $db->count('your_table_name', 'column_name = ?', [$value]);
+   * ```
+   *
+   * @param string $tableName The name of the table to count records from.
+   * @param string|null $where The WHERE clause.
+   * @param array $params An array of parameters to bind to the query.
+   * @return int The count of records.
+   */
+  public function count(string $tableName, ?string $where = null, array $params = []): int
+  {
+    $sql = "SELECT COUNT(*) as count FROM $tableName";
+    if ($where) {
+      $sql .= " WHERE $where";
+    }
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($params);
+    $result = $stmt->fetchColumn();
+    if ($result !== false) {
+      return (int)$result;
+    }
+    return 0;
+  }
+
+  /**
    * Updates records in the specified table.
    *
    * @param string $tableName The name of the table to update.
