@@ -12,8 +12,6 @@ if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
 if (!$isCli)
   exit('web server access disallowed');
 
-$untested = file(__DIR__ . '/proxies.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-$dead = file(__DIR__ . '/dead.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $db = new ProxyDB();
 
 /**
@@ -29,6 +27,7 @@ function iterateFilesLineByLine(array $filePaths, callable $callback)
       // Handle file not found or not readable
       continue;
     }
+    fixFile($filePath);
 
     $file = fopen($filePath, 'r');
     if ($file) {
