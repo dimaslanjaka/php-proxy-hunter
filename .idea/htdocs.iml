@@ -18,6 +18,7 @@
       <excludeFolder url="file://$MODULE_DIR$/src/selenium-dolphin" />
       <excludeFolder url="file://$MODULE_DIR$/src/undetected-chromedriver" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/.vscode" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
