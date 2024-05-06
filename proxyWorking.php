@@ -73,10 +73,10 @@ $untested = extractProxies(file_get_contents($fileUntested));
 $untested = uniqueClassObjectsByProperty($untested, 'proxy');
 $dead = countNonEmptyLines(__DIR__ . '/dead.txt');
 $arr = [
-  'working' => count($working),
-  'dead' => $dead,
-  'untested' => count($untested),
-  'private' => count($private)
+    'working' => count($working),
+    'dead' => $dead,
+    'untested' => count($untested),
+    'private' => count($private)
 ];
 
 foreach ($arr as $key => $value) {
@@ -84,6 +84,14 @@ foreach ($arr as $key => $value) {
 }
 
 file_put_contents(__DIR__ . '/status.json', json_encode($arr));
+
+setFilePermissions([
+    __DIR__ . '/status.json',
+    __DIR__ . '/proxies.txt',
+    __DIR__ . '/dead.txt',
+    __DIR__ . '/working.txt',
+    __DIR__ . '/working.json'
+]);
 
 
 /**
