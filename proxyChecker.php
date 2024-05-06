@@ -87,8 +87,6 @@ if (!$isCli) {
   }
 }
 
-echo PHP_EOL;
-
 /// FUNCTIONS (DO NOT EDIT)
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
@@ -202,7 +200,7 @@ $proxies = array_filter($proxies, function (Proxy $item) {
 });
 shuffle($proxies);
 
-echo "total proxies to be tested " . count($proxies) . PHP_EOL;
+echo "total proxies to be tested " . count($proxies) . PHP_EOL . PHP_EOL;
 
 iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime) {
   // Check if execution time has exceeded the maximum allowed time
