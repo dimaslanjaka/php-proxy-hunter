@@ -89,14 +89,6 @@ if (!$isCli) {
 
 echo PHP_EOL;
 
-try {
-  // remove duplicate lines from proxies.txt
-  removeDuplicateLines(__DIR__ . '/proxies.txt');
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLines
-  echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
-}
-
 /// FUNCTIONS (DO NOT EDIT)
 
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
@@ -118,6 +110,14 @@ function exitProcess()
   file_put_contents($statusFile, 'idle');
 
   try {
+    // remove duplicate lines from proxies.txt
+    removeDuplicateLines(__DIR__ . '/proxies.txt');
+  } catch (Exception $e) {
+    // Handle any exceptions that occur during the execution of removeDuplicateLines
+    echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
+  }
+
+  try {
     // remove duplicate lines from dead.txt
     removeDuplicateLines(__DIR__ . '/dead.txt');
   } catch (Exception $e) {
@@ -126,8 +126,13 @@ function exitProcess()
   }
 
   try {
-    // Call the function to remove duplicate lines in untested proxies
-    removeDuplicateLinesInUntestedProxies();
+    // remove duplicate lines in untested proxies
+    $file1 = realpath(__DIR__ . "/proxies.txt");
+    $file2 = realpath(__DIR__ . "/dead.txt");
+
+    if (removeDuplicateLinesFromSource($file1, $file2)) {
+      echo "Duplicated lines between $file1 and $file2 removed successful from $file1" . PHP_EOL;
+    }
   } catch (Exception $e) {
     // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
     echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
@@ -293,23 +298,3 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
 //$string_format = implode(PHP_EOL, $array_format);
 //file_put_contents($workingPath, $string_format);
 
-/**
- * remove duplicated lines from proxies.txt compare with dead.txt
- * @return void
- */
-function removeDuplicateLinesInUntestedProxies()
-{
-  $file1 = realpath(__DIR__ . "/proxies.txt");
-  $file2 = realpath(__DIR__ . "/dead.txt");
-
-  // Get duplicated lines
-  $duplicatedLines = getDuplicatedLines($file1, $file2);
-
-  if (!empty($duplicatedLines)) {
-    echo "Duplicated lines between \$file1 and \$file2 is (" . count($duplicatedLines) . ")" . PHP_EOL;
-    // Remove duplicated lines from $file1
-    $lines1 = file($file1);
-    $lines1 = array_diff($lines1, $duplicatedLines);
-    file_put_contents($file1, implode("", $lines1));
-  }
-}

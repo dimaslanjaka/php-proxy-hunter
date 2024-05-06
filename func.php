@@ -543,6 +543,58 @@ function generateRandomString($length = 10): string
 }
 
 /**
+ * Remove duplicated lines from source file that exist in destination file.
+ *
+ * This function reads the contents of two text files line by line. If a line
+ * from the source file exists in the destination file, it will be removed
+ * from the source file.
+ *
+ * @param string $sourceFile Path to the source text file.
+ * @param string $destinationFile Path to the destination text file.
+ * @return bool True if operation is successful, false otherwise.
+ */
+function removeDuplicateLinesFromSource(string $sourceFile, string $destinationFile): bool
+{
+  // Read destination file into an array
+  $destinationLines = file($destinationFile, FILE_IGNORE_NEW_LINES);
+
+  // Open source file for reading and writing
+  $sourceHandle = fopen($sourceFile, "r+");
+  if (!$sourceHandle) {
+    return false; // Unable to open source file
+  }
+
+  // Create a temporary file to store non-duplicated lines
+  $tempFile = tmpfile();
+
+  // Read lines from source file
+  while (($line = fgets($sourceHandle)) !== false) {
+    // Check if the line exists in the destination file
+    if (!in_array(trim($line), $destinationLines)) {
+      // If not, write the line to the temporary file
+      fwrite($tempFile, $line);
+    }
+  }
+
+  // Rewind the temporary file pointer
+  rewind($tempFile);
+
+  // Truncate the source file
+  ftruncate($sourceHandle, 0);
+
+  // Copy contents from the temporary file to the source file
+  while (!feof($tempFile)) {
+    fwrite($sourceHandle, fgets($tempFile));
+  }
+
+  // Close file handles
+  fclose($sourceHandle);
+  fclose($tempFile);
+
+  return true;
+}
+
+/**
  * Get duplicated lines between two text files.
  *
  * This function reads the contents of two text files line by line and
