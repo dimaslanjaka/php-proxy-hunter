@@ -30,7 +30,8 @@ echo "permission sets successful"
 
 su -s /bin/bash -c 'php composer.phar install' www-data
 su -s /bin/bash -c 'php composer.phar update' www-data
-# php composer.phar install
+su -s /bin/bash -c 'nohup php /var/www/html/proxies-all.php &' www-data
+
 sudo chown -R www-data:www-data vendor/*
 sudo chown -R www-data:www-data vendor/composer/*
 sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/*
