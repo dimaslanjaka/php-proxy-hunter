@@ -174,6 +174,23 @@ class ProxyDB
     return array_merge($result, $result2);
   }
 
+  /**
+   * Retrieves untested proxies from the database.
+   *
+   * @param int|null $limit The maximum number of untested proxies to retrieve. Default is null (no limit).
+   * @return array An array containing the untested proxies.
+   */
+  public function getUntestedProxies(?int $limit = null): array
+  {
+    $whereClause = 'status IS NULL OR status = "" OR status NOT IN (?, ?, ?)';
+    $params = ['active', 'port-closed', 'dead'];
+
+    // Append the limit clause if the $limit parameter is provided
+    $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
+
+    return $this->db->select('proxies', '*', $whereClause . ' ' . $limitClause, $params);
+  }
+
   public function countDeadProxies(): int
   {
     $closed = $this->db->count('proxies', 'status = ?', ['port-closed']);
@@ -189,8 +206,8 @@ class ProxyDB
   public function countWorkingProxies(): int
   {
     return $this->db->count('proxies', "(status = ?) AND (private = ? OR private IS NULL OR private = '')", [
-        'active',
-        'false'
+      'active',
+      'false'
     ]);
   }
 }
@@ -288,29 +305,28 @@ class Proxy
    * @param int|null $id
    */
   public function __construct(
-      string  $proxy,
-      ?string $latency = null,
-      ?string $type = null,
-      ?string $region = null,
-      ?string $city = null,
-      ?string $country = null,
-      ?string $last_check = null,
-      ?string $anonymity = null,
-      ?string $status = null,
-      ?string $timezone = null,
-      ?string $longitude = null,
-      ?string $private = null,
-      ?string $latitude = null,
-      ?string $lang = null,
-      ?string $useragent = null,
-      ?string $webgl_vendor = null,
-      ?string $webgl_renderer = null,
-      ?string $browser_vendor = null,
-      ?string $username = null,
-      ?string $password = null,
-      ?int    $id = null
-  )
-  {
+    string  $proxy,
+    ?string $latency = null,
+    ?string $type = null,
+    ?string $region = null,
+    ?string $city = null,
+    ?string $country = null,
+    ?string $last_check = null,
+    ?string $anonymity = null,
+    ?string $status = null,
+    ?string $timezone = null,
+    ?string $longitude = null,
+    ?string $private = null,
+    ?string $latitude = null,
+    ?string $lang = null,
+    ?string $useragent = null,
+    ?string $webgl_vendor = null,
+    ?string $webgl_renderer = null,
+    ?string $browser_vendor = null,
+    ?string $username = null,
+    ?string $password = null,
+    ?int    $id = null
+  ) {
     $this->id = $id;
     $this->proxy = $proxy;
     $this->latency = $latency;
