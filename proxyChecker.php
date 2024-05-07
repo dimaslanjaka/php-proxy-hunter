@@ -247,76 +247,64 @@ function execute_single_proxy(Proxy $item)
     return;
   }
   //  get_geo_ip($item->proxy); // just test
-  $proxyValid = false;
-  $proxyLength = strlen($item->proxy);
-  if ($proxyLength > 10 && $proxyLength <= 21) {
-    list($ip, $port) = explode(":", $item->proxy, 2);
-    $ipValid = strlen($ip) >= 7 && strlen($ip) <= 15 && filter_var($ip, FILTER_VALIDATE_IP);
-    $portValid = filter_var($port, FILTER_VALIDATE_INT, array(
-        "options" => array(
-            "min_range" => 1,
-            "max_range" => 65535
-        )
-    ));
-    if ($ipValid && $portValid) {
-      $proxyValid = true;
-      $raw_proxy = $item->proxy;
-      if (!is_null($item->username) && !is_null($item->password)) $raw_proxy .= '@' . $item->username . ':' . $item->password;
+  $proxyValid = isValidProxy($item->proxy);
+  if ($proxyValid) {
+    $raw_proxy = $item->proxy;
+    if (!is_null($item->username) && !is_null($item->password)) $raw_proxy .= '@' . $item->username . ':' . $item->password;
 
-      if (!isPortOpen($item->proxy)) {
-        $db->updateStatus($item->proxy, 'port-closed');
-        echo $item->proxy . ' port closed' . PHP_EOL;
-        // always move checked proxy into dead.txt
-        removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
-        return;
-      }
-
-      $proxy_types = [];
-      $check_http = checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password);
-      $check_socks5 = checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password);
-      $check_socks4 = checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password);
-      if ($check_http['result']) $proxy_types[] = 'http';
-      if ($check_socks5['result']) $proxy_types[] = 'socks5';
-      if ($check_socks4['result']) $proxy_types[] = 'socks4';
-      $latencies = [$check_http['latency'], $check_socks5['latency'], $check_socks4['latency']];
-      if (!empty($proxy_types)) {
-        // proxy working
-        $merged_proxy_types = implode('-', $proxy_types);
-        echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
-        $db->updateData($item->proxy, [
-            'type' => $merged_proxy_types,
-            'status' => 'active',
-            'latency' => max($latencies),
-            'username' => $item->username,
-            'password' => $item->password
-        ]);
-        if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
-          $webgl = random_webgl_data();
-          $db->updateData($item->proxy, [
-              'webgl_renderer' => $webgl->webgl_renderer,
-              'webgl_vendor' => $webgl->webgl_vendor,
-              'browser_vendor' => $webgl->browser_vendor
-          ]);
-        }
-        // get geolocation
-        if (empty($item->timezone) || empty($item->country) || empty($item->lang)) {
-          if (in_array('http', $proxy_types)) get_geo_ip($item->proxy);
-          if (in_array('socks5', $proxy_types)) get_geo_ip($item->proxy, 'socks5');
-          if (in_array('socks4', $proxy_types)) get_geo_ip($item->proxy, 'socks4');
-        }
-
-        // update proxy useragent
-        if (empty($item->useragent) && strlen(trim($item->useragent)) <= 5) {
-          $item->useragent = randomWindowsUa();
-          $db->updateData($item->proxy, ['useragent' => $item->useragent]);
-        }
-      } else {
-        $db->updateStatus($item->proxy, 'dead');
-        echo $item->proxy . ' dead' . PHP_EOL;
-      }
+    if (!isPortOpen($item->proxy)) {
+      $db->updateStatus($item->proxy, 'port-closed');
+      echo $item->proxy . ' port closed' . PHP_EOL;
       // always move checked proxy into dead.txt
       removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
+      return;
     }
+
+    $proxy_types = [];
+    $check_http = checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password);
+    $check_socks5 = checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password);
+    $check_socks4 = checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password);
+    if ($check_http['result']) $proxy_types[] = 'http';
+    if ($check_socks5['result']) $proxy_types[] = 'socks5';
+    if ($check_socks4['result']) $proxy_types[] = 'socks4';
+    $latencies = [$check_http['latency'], $check_socks5['latency'], $check_socks4['latency']];
+    if (!empty($proxy_types)) {
+      // proxy working
+      $merged_proxy_types = implode('-', $proxy_types);
+      echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
+      $db->updateData($item->proxy, [
+          'type' => $merged_proxy_types,
+          'status' => 'active',
+          'latency' => max($latencies),
+          'username' => $item->username,
+          'password' => $item->password
+      ]);
+      if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
+        $webgl = random_webgl_data();
+        $db->updateData($item->proxy, [
+            'webgl_renderer' => $webgl->webgl_renderer,
+            'webgl_vendor' => $webgl->webgl_vendor,
+            'browser_vendor' => $webgl->browser_vendor
+        ]);
+      }
+      // get geolocation
+      if (empty($item->timezone) || empty($item->country) || empty($item->lang)) {
+        if (in_array('http', $proxy_types)) get_geo_ip($item->proxy);
+        if (in_array('socks5', $proxy_types)) get_geo_ip($item->proxy, 'socks5');
+        if (in_array('socks4', $proxy_types)) get_geo_ip($item->proxy, 'socks4');
+      }
+
+      // update proxy useragent
+      if (empty($item->useragent) && strlen(trim($item->useragent)) <= 5) {
+        $item->useragent = randomWindowsUa();
+        $db->updateData($item->proxy, ['useragent' => $item->useragent]);
+      }
+    } else {
+      $db->updateStatus($item->proxy, 'dead');
+      echo $item->proxy . ' dead' . PHP_EOL;
+    }
+    // always move checked proxy into dead.txt
+    removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
   }
   if (!$proxyValid) {
     try {
