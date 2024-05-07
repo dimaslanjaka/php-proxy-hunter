@@ -102,15 +102,6 @@ try {
   echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
 }
 
-//echo "fixing files encoding" . PHP_EOL;
-//
-//try {
-//  fixFile(__DIR__ . "/proxies.txt");
-//  fixFile(__DIR__ . "/dead.txt");
-//} catch (\Throwable $th) {
-//  echo 'Error fix bad contents from proxies.txt: ' . $e->getMessage() . PHP_EOL;
-//}
-
 echo "remove lines not contains IP:PORT" . PHP_EOL;
 
 try {
@@ -118,5 +109,14 @@ try {
   filterIpPortLines(__DIR__ . "/dead.txt");
 } catch (InvalidArgumentException $e) {
   echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
+}
+
+echo "remove empty lines" . PHP_EOL;
+
+try {
+  removeEmptyLinesFromFile(__DIR__ . "/proxies.txt");
+  removeEmptyLinesFromFile(__DIR__ . "/dead.txt");
+} catch (\Throwable $th) {
+  echo 'Error fix bad contents from proxies.txt: ' . $th->getMessage() . PHP_EOL;
 }
 
