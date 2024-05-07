@@ -173,7 +173,7 @@ $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 
 iterateBigFilesLineByLine([$filePath], $max_checks, function (string $line) {
   global $db, $max_checks, $filePath;
-  if (strlen($line) < 10) {
+  if (!empty($line) && strlen($line) < 10) {
     // invalid proxy string, remove from source
     removeStringFromFile($filePath, trim($line));
     echo "$line is invalid, removed." . PHP_EOL;
@@ -181,49 +181,27 @@ iterateBigFilesLineByLine([$filePath], $max_checks, function (string $line) {
   }
   $untested = extractProxies($line);
   // add untested proxies from database
-//  try {
-//    $db_untested = $db->getUntestedProxies(1000);
-//    $db_untested_map = array_map(function ($item) {
-//      $wrap = new Proxy($item['proxy']);
-//      foreach ($item as $key => $value) {
-//        if (property_exists($wrap, $key)) {
-//          $wrap->$key = $value;
-//        }
-//      }
-//      if (!empty($item['username']) && !empty($item['password'])) {
-//        $wrap->username = $item['username'];
-//        $wrap->password = $item['password'];
-//      }
-//      return $wrap;
-//    }, $db_untested);
-//    $untested = array_merge($untested, $db_untested_map);
-//  } catch (\Throwable $th) {
-//    echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
-//  }
+  try {
+    $db_untested = $db->getUntestedProxies($max_checks);
+    $db_untested_map = array_map(function ($item) {
+      $wrap = new Proxy($item['proxy']);
+      foreach ($item as $key => $value) {
+        if (property_exists($wrap, $key)) {
+          $wrap->$key = $value;
+        }
+      }
+      if (!empty($item['username']) && !empty($item['password'])) {
+        $wrap->username = $item['username'];
+        $wrap->password = $item['password'];
+      }
+      return $wrap;
+    }, $db_untested);
+    $untested = array_merge($untested, $db_untested_map);
+  } catch (\Throwable $th) {
+    echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
+  }
 
-//  if (count($untested) < $max_checks) {
-//    $working = array_map(function ($item) {
-//      $wrap = new Proxy($item['proxy']);
-//      foreach ($item as $key => $value) {
-//        if (property_exists($wrap, $key)) {
-//          $wrap->$key = $value;
-//        }
-//      }
-//      return $wrap;
-//    }, $db->getWorkingProxies());
-//    $proxies = array_merge($untested, $working);
-//  } else {
   $proxies = $untested;
-//  }
-//
-//  if (count($proxies) < $max_checks) {
-//    if (file_exists($deadPath)) {
-//      echo "proxies low, respawning dead proxies" . PHP_EOL;
-//      // respawn 100 dead proxies
-//      moveLinesToFile($deadPath, $filePath, 100);
-//      exit;
-//    }
-//  }
 
   $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
   $proxies = array_filter($proxies, function (Proxy $item) {
@@ -231,8 +209,6 @@ iterateBigFilesLineByLine([$filePath], $max_checks, function (string $line) {
     return isDateRFC3339OlderThanHours($item->last_check, 5);
   });
   shuffle($proxies);
-
-//  echo "total proxies to be tested " . count($proxies) . PHP_EOL . PHP_EOL;
 
   iterateArray($proxies, $max_checks, 'execute_single_proxy');
 });
