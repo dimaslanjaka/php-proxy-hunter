@@ -24,7 +24,11 @@ sudo chmod 777 data
 sudo chmod 644 data/*
 sudo chmod 644 *.php
 sudo chmod 644 .env
-# sudo chown -R www-data:www-data /var/www/html
+
+if [ -d "assets/proxies" ]; then
+    sudo chmod 777 "assets/proxies"
+    sudo chmod 777 "assets/proxies/*.txt"
+fi
 
 echo "permission sets successful"
 
