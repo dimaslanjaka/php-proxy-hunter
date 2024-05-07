@@ -1281,16 +1281,11 @@ function randomIosUa(string $type = 'chrome'): string
  */
 function fixFile(string $inputFile): void
 {
-  // Read input file
-  $content = file_get_contents($inputFile);
-
-  // Remove NUL characters
-  $cleanedContent = str_replace("\x00", '', $content);
+  // Read input file and remove NUL characters
+  $cleanedContent = str_replace("\x00", '', file_get_contents($inputFile));
 
   // Write cleaned content back to input file
-  if (file_put_contents($inputFile, $cleanedContent) === false) {
-    echo "Failed to fix $inputFile.";
-  }
+  file_put_contents($inputFile, $cleanedContent);
 }
 
 /**
