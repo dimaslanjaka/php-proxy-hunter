@@ -28,6 +28,7 @@ sudo chmod 644 .env
 if [ -d "assets/proxies" ]; then
     sudo chmod 777 "assets/proxies"
     sudo chmod 777 "assets/proxies/*.txt"
+    touch "assets/proxies/index.html"
 fi
 
 echo "permission sets successful"
