@@ -145,6 +145,13 @@ function exitProcess()
   }
 
   try {
+    filterIpPortLines(__DIR__ . "/proxies.txt");
+    filterIpPortLines(__DIR__ . "/dead.txt");
+  } catch (InvalidArgumentException $e) {
+    echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
+  }
+
+  try {
     fixFile(__DIR__ . "/proxies.txt");
     fixFile(__DIR__ . "/dead.txt");
   } catch (\Throwable $th) {
