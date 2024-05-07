@@ -109,17 +109,48 @@ function setPermissions(string $filename)
 {
   try {
     if (file_exists($filename) && is_readable($filename) && is_writable($filename)) {
-      if (chmod($filename, 0777)) {
-        // echo "File permissions set to 777 for $filename successfully.\n";
-      } else {
-        // echo "Failed to set file permissions for $filename.\n";
-      }
-    } else {
-      // echo "File $filename does not exist.\n";
+      chmod($filename, 0777);
     }
   } catch (\Throwable $th) {
     //throw $th;
   }
+}
+
+/**
+ * Remove lines from a file that do not contain IP:PORT format.
+ *
+ * @param string $filename The path to the file.
+ * @throws InvalidArgumentException If the file cannot be opened or written.
+ */
+function filterIpPortLines(string $filename): void
+{
+  // Open the file for reading and writing
+  $fileHandle = fopen($filename, 'r+');
+  if ($fileHandle === false) {
+    throw new InvalidArgumentException("Unable to open file: $filename");
+  }
+
+  // Temporary file to store filtered lines
+  $tempFile = tmpfile();
+
+  // Read each line from the file
+  while (($line = fgets($fileHandle)) !== false) {
+    // Check if the line contains IP:PORT format
+    if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/', $line)) {
+      fwrite($tempFile, $line); // If it does, write it to the temporary file
+    }
+  }
+
+  // Move the pointer to the beginning of both files
+  rewind($fileHandle);
+  rewind($tempFile);
+
+  // Copy the contents of the temporary file back to the original file
+  stream_copy_to_stream($tempFile, $fileHandle);
+
+  // Close both files
+  fclose($fileHandle);
+  fclose($tempFile);
 }
 
 function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $stringToRemove): bool
