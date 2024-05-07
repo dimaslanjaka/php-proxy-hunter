@@ -117,12 +117,12 @@ function isValidProxy(string $proxy, bool $validate_credential = false): bool
 
   // Extract username and password if credentials are present
   if ($hasCredential) {
-    list($proxy, $credential) = explode("@", trim($proxy));
-    list($username, $password) = explode(":", trim($credential));
+    list($proxy, $credential) = explode("@", trim($proxy), 2);
+    list($username, $password) = explode(":", trim($credential), 2);
   }
 
   // Extract IP address and port
-  list($ip, $port) = explode(":", trim($proxy));
+  list($ip, $port) = explode(":", trim($proxy), 2);
 
   // Validate IP address
   $is_ip_valid = filter_var($ip, FILTER_VALIDATE_IP) !== false;
@@ -136,7 +136,8 @@ function isValidProxy(string $proxy, bool $validate_credential = false): bool
       ));
 
   // Check if proxy is valid
-  $is_proxy_valid = $is_ip_valid && $is_port_valid;
+  $proxyLength = strlen($item->proxy);
+  $is_proxy_valid = $is_ip_valid && $is_port_valid && $proxyLength >= 10 && $proxyLength <= 21;
 
   // Validate credentials if required
   if ($hasCredential && $validate_credential) {
