@@ -878,23 +878,48 @@ function removeEmptyLinesFromFile($filePath)
     return;
   }
 
-  // Read the file into an array of lines
-  $lines = file($filePath);
-
-  // Check if the file can be written
-  if (!is_writable($filePath)) {
-    // echo "Error: The file '$filePath' is not writable.";
+  // Open the file for reading
+  $inputFile = fopen($filePath, 'r');
+  if (!$inputFile) {
+    // echo "Error: Unable to open file for reading: $filePath" . PHP_EOL;
     return;
   }
 
-  // Filter out empty lines
-  $lines = array_filter($lines, function ($line) {
-    // Remove leading and trailing whitespace from the line and check if it's empty
-    return trim($line) !== '';
-  });
+  // Open a temporary file for writing
+  $tempFile = tmpfile();
+  if (!$tempFile) {
+    // echo "Error: Unable to create temporary file." . PHP_EOL;
+    fclose($inputFile);
+    return;
+  }
 
-  // Rewrite the non-empty lines back to the file
-  file_put_contents($filePath, implode('', $lines));
+  // Read the input file line by line, remove empty lines, and write non-empty lines to the temporary file
+  while (($line = fgets($inputFile)) !== false) {
+    if (trim($line) !== '') {
+      fwrite($tempFile, $line);
+    }
+  }
+
+  // Close both files
+  fclose($inputFile);
+  rewind($tempFile);
+
+  // Rewrite the content of the input file with the content of the temporary file
+  $outputFile = fopen($filePath, 'w');
+  if (!$outputFile) {
+    // echo "Error: Unable to open file for writing: $filePath" . PHP_EOL;
+    fclose($tempFile);
+    return;
+  }
+
+  // Copy content from temporary file to input file
+  while (($line = fgets($tempFile)) !== false) {
+    fwrite($outputFile, $line);
+  }
+
+  // Close the temporary file and the output file
+  fclose($tempFile);
+  fclose($outputFile);
 }
 
 /**
