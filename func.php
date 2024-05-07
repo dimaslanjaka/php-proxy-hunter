@@ -132,6 +132,7 @@ function setPermissions(string $filename)
  */
 function filterIpPortLines(string $filename): void
 {
+  $db = new ProxyDB();
   // Open the file for reading and writing
   $fileHandle = fopen($filename, 'r+');
   if ($fileHandle === false) {
@@ -144,9 +145,21 @@ function filterIpPortLines(string $filename): void
   // Read each line from the file
   while (($line = fgets($fileHandle)) !== false) {
     // Check if the line contains IP:PORT format
-    $containsProxy = preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}/', $line);
+    $re = '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}/';
+    $containsProxy = preg_match($re, $line);
     $proxyLengthValid = strlen($line) >= 10;
-    if ($containsProxy && $proxyLengthValid) {
+    $validIpPort = false;
+    preg_match_all($re, $line, $matches, PREG_SET_ORDER, 0);
+    foreach ($matches as $match) {
+      $proxy_str = $match[0];
+      if (isValidProxy($proxy_str)) {
+        $validIpPort = true;
+      } else {
+        echo "$proxy_str invalid" . PHP_EOL;
+        $db->remove($proxy_str);
+      }
+    }
+    if ($containsProxy && $proxyLengthValid && $validIpPort) {
       fwrite($tempFile, $line); // If it does, write it to the temporary file
     }
   }
