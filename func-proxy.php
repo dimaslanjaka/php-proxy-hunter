@@ -44,15 +44,7 @@ function extractProxies(string $string): array
     // var_dump("$username and $password");
 
     if (!empty($proxy) && is_string($proxy) && strlen($proxy) >= 10) {
-      list($ip, $port) = explode(":", trim($proxy));
-      $is_port_valid = strlen($port) >= 2 && filter_var($port, FILTER_VALIDATE_INT, array(
-              "options" => array(
-                  "min_range" => 1,
-                  "max_range" => 65535
-              )
-          ));
-      $is_ip_valid = filter_var($ip, FILTER_VALIDATE_IP) !== false;
-      if ($is_ip_valid && $is_port_valid) {
+      if (isValidProxy(trim($proxy))) {
         $select = $db->select($proxy);
         if (!empty($select)) {
           $result = array_map(function ($item) use ($username, $password) {
@@ -109,6 +101,49 @@ function isValidIPPort(string $str): bool
   } else {
     return false;
   }
+}
+
+/**
+ * Validates a proxy string.
+ *
+ * @param string $proxy The proxy string to validate.
+ * @param bool $validate_credential Whether to validate credentials if present.
+ * @return bool True if the proxy is valid, false otherwise.
+ */
+function isValidProxy(string $proxy, bool $validate_credential = false): bool
+{
+  $username = $ip = $port = $password = null;
+  $hasCredential = strpos($proxy, '@') !== false;
+
+  // Extract username and password if credentials are present
+  if ($hasCredential) {
+    list($proxy, $credential) = explode("@", trim($proxy));
+    list($username, $password) = explode(":", trim($credential));
+  }
+
+  // Extract IP address and port
+  list($ip, $port) = explode(":", trim($proxy));
+
+  // Validate IP address
+  $is_ip_valid = filter_var($ip, FILTER_VALIDATE_IP) !== false;
+
+  // Validate port number
+  $is_port_valid = strlen($port) >= 2 && filter_var($port, FILTER_VALIDATE_INT, array(
+          "options" => array(
+              "min_range" => 1,
+              "max_range" => 65535
+          )
+      ));
+
+  // Check if proxy is valid
+  $is_proxy_valid = $is_ip_valid && $is_port_valid;
+
+  // Validate credentials if required
+  if ($hasCredential && $validate_credential) {
+    return $is_proxy_valid && !empty($username) && !empty($password);
+  }
+
+  return $is_proxy_valid;
 }
 
 /**
