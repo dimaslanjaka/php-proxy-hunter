@@ -1273,25 +1273,25 @@ function randomIosUa(string $type = 'chrome'): string
   return $type == 'chrome' ? $chrome : $firefox;
 }
 
-///**
-// * Fixes a text file containing NUL characters by removing them.
-// *
-// * @param string $inputFile The path to the input file.
-// * @return void
-// */
-//function fixFile(string $inputFile): void
-//{
-//  // Read input file
-//  $content = file_get_contents($inputFile);
-//
-//  // Remove NUL characters
-//  $cleanedContent = str_replace("\x00", '', $content);
-//
-//  // Write cleaned content back to input file
-//  if (file_put_contents($inputFile, $cleanedContent) === false) {
-//    echo "Failed to fix $inputFile.";
-//  }
-//}
+/**
+ * Fixes a text file containing NUL characters by removing them.
+ *
+ * @param string $inputFile The path to the input file.
+ * @return void
+ */
+function fixFile(string $inputFile): void
+{
+  // Read input file
+  $content = file_get_contents($inputFile);
+
+  // Remove NUL characters
+  $cleanedContent = str_replace("\x00", '', $content);
+
+  // Write cleaned content back to input file
+  if (file_put_contents($inputFile, $cleanedContent) === false) {
+    echo "Failed to fix $inputFile.";
+  }
+}
 
 /**
  * Get a random file from a folder.
