@@ -34,7 +34,9 @@
 
 // check open port and move to test file
 
-require_once __DIR__ . '/func.php';
+use PhpProxyHunter\ProxyDB;
+
+require_once __DIR__ . '/func-proxy.php';
 
 // validate lock files
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
@@ -58,29 +60,33 @@ function exitProcess()
 register_shutdown_function('exitProcess');
 
 // limit execution time seconds unit
-$maxExecutionTime = 120;
 $startTime = microtime(true);
 
-$proxyPaths = [__DIR__ . '/proxies-all.txt', __DIR__ . '/dead.txt'];
-// shuffle($proxyPaths);
-foreach ($proxyPaths as $file) {
-  if (file_exists($file)) {
-    // extract IP:PORT
-    $proxies = extractIpPortFromFile($file);
-    shuffle($proxies);
-    foreach (array_unique(array_filter($proxies)) as $proxy) {
-      if ((microtime(true) - $startTime) > $maxExecutionTime) {
-        echo "maximum execution time excedeed ($maxExecutionTime)\n";
-        // Execution time exceeded, break out of the loop
-        return "break";
-      }
-      if (isPortOpen($proxy)) {
-        echo trim($proxy) . ' respawned' . PHP_EOL;
-        removeStringAndMoveToFile($file, __DIR__ . '/proxies.txt', trim($proxy));
-        removeStringAndMoveToFile($file, __DIR__ . '/proxies-backup.txt', trim($proxy));
+$proxyPaths = [__DIR__ . '/proxies-all.txt', __DIR__ . '/dead.txt', __DIR__ . '/proxies-backup.txt'];
+$db = new ProxyDB();
+iterateBigFilesLineByLine($proxyPaths, function (string $line) use ($startTime, $proxyPaths, $db) {
+  $maxExecutionTime = 120;
+  $is_execution_exceeded = (microtime(true) - $startTime) > $maxExecutionTime;
+  if (!$is_execution_exceeded) {
+    $proxies = extractProxies($line);
+    foreach ($proxies as $item) {
+      $proxy = trim($item->proxy);
+      if (!empty($proxy) && isValidProxy($proxy)) {
+        if (isPortOpen($proxy)) {
+          echo $proxy . ' respawned' . PHP_EOL;
+          foreach ($proxyPaths as $file) {
+            removeStringAndMoveToFile($file, __DIR__ . '/proxies.txt', trim($proxy));
+          }
+        }
+      } else if (!empty($proxy)) {
+        try {
+          $db->remove($proxy);
+          echo "deleted $proxy is invalid" . PHP_EOL;
+        } catch (\Throwable $e) {
+          echo "fail delete $proxy " . trim($e->getMessage()) . PHP_EOL;
+        }
       }
     }
   }
-}
+});
 
-rewriteIpPortFile(__DIR__ . '/proxies.txt');
