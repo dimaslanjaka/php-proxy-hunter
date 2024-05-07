@@ -81,6 +81,7 @@ function extractProxies(string $string): array
           $results[] = $result;
         }
       } else {
+        echo "extractProxies: delete invalid $proxy" . PHP_EOL;
         $db->remove($proxy);
       }
     }
