@@ -134,7 +134,8 @@ function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $strin
   $sourceContent = file_get_contents($sourceFilePath);
 
   if (strpos($sourceContent, $stringToRemove) === false) {
-    echo "$stringToRemove in $sourceContent not found" . PHP_EOL;
+//    $truncatedContent = substr($sourceContent, 0, 100);
+    echo "$stringToRemove in sourceContent not found" . PHP_EOL;
     return false;
   }
 
