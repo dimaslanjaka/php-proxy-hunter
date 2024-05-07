@@ -545,6 +545,34 @@ function generateRandomString($length = 10): string
 }
 
 /**
+ * Iterate over multiple big files line by line and execute a callback for each line.
+ *
+ * @param array $filePaths Array of file paths to iterate over.
+ * @param callable $callback Callback function to execute for each line.
+ */
+function iterateBigFilesLineByLine(array $filePaths, callable $callback)
+{
+  foreach ($filePaths as $filePath) {
+    if (!file_exists($filePath) || !is_readable($filePath)) {
+      // Handle file not found or not readable
+      continue;
+    }
+    fixFile($filePath);
+
+    $file = fopen($filePath, 'r');
+    if ($file) {
+      while (($line = fgets($file)) !== false) {
+        // Execute callback for each line
+        call_user_func($callback, $line);
+      }
+      fclose($file);
+    } else {
+      echo "failed open $filePath" . PHP_EOL;
+    }
+  }
+}
+
+/**
  * Remove duplicated lines from source file that exist in destination file.
  *
  * This function reads the contents of two text files line by line. If a line
