@@ -548,22 +548,33 @@ function generateRandomString($length = 10): string
  * Iterate over multiple big files line by line and execute a callback for each line.
  *
  * @param array $filePaths Array of file paths to iterate over.
- * @param callable $callback Callback function to execute for each line.
+ * @param callable|int $callbackOrMax Callback function or maximum number of lines to read.
+ * @param callable|null $callback Callback function to execute for each line.
  */
-function iterateBigFilesLineByLine(array $filePaths, callable $callback)
+function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MAX, ?callable $callback = null)
 {
   foreach ($filePaths as $filePath) {
     if (!file_exists($filePath) || !is_readable($filePath)) {
-      // Handle file not found or not readable
+      print("$filePath not found" . PHP_EOL);
       continue;
     }
     fixFile($filePath);
 
     $file = fopen($filePath, 'r');
     if ($file) {
-      while (($line = fgets($file)) !== false) {
-        // Execute callback for each line
-        call_user_func($callback, $line);
+      $maxLines = is_callable($callbackOrMax) ? PHP_INT_MAX : $callbackOrMax;
+      $linesRead = 0;
+
+      while (($line = fgets($file)) !== false && $linesRead < $maxLines) {
+        // Execute callback for each line if $callbackOrMax is a callback
+        if (is_callable($callbackOrMax)) {
+          call_user_func($callbackOrMax, $line);
+        } elseif (is_callable($callback)) {
+          // Execute callback for each line if $callback is provided
+          call_user_func($callback, $line);
+        }
+
+        $linesRead++;
       }
       fclose($file);
     } else {
