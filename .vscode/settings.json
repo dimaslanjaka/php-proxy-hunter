@@ -30,7 +30,6 @@
   ],
   "intelephense.completion.maxItems": 100,
   "intelephense.diagnostics.run": "onSave",
-  "eslint.debug": true,
   "intelephense.files.exclude": [
     "**/.git/**",
     "**/.idea/**",
@@ -49,5 +48,21 @@
     "/config/**/*",
     "**/.venv/**",
     "**/venv/**"
-  ]
+  ],
+  "eslint.debug": true,
+  "python.createEnvironment.contentButton": "show",
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "files.watcherExclude": {
+    "**/.cache/**": true,
+    "**/.idea/**": true,
+    "**/.venv/**": true,
+    "**/.yarn/**": true,
+    "**/*.txt": true,
+    "**/assets/**": true,
+    "**/dist/**": true,
+    "**/profiles/**": true,
+    "**/tmp/**": true,
+    "**/vendor/**": true,
+    "**/venv/**": true
+  }
 }
