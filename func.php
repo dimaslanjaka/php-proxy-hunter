@@ -1461,7 +1461,7 @@ function scanPort(string $ip, int $port): bool
  * @param string $inputFile The path to the input file.
  * @return void
  */
-function filterUniqueLines($inputFile)
+function filterUniqueLines(string $inputFile)
 {
   // Open input file for reading and writing
   $inputHandle = fopen($inputFile, 'r+');
@@ -1493,6 +1493,14 @@ function filterUniqueLines($inputFile)
   // Close file handles
   fclose($inputHandle);
   fclose($tempFile);
+}
+
+/**
+ * Function to truncate the content of a file
+ */
+function truncateFile(string $filePath)
+{
+  file_put_contents($filePath, ''); // Write an empty string to truncate the file
 }
 
 /**
