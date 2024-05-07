@@ -161,62 +161,70 @@ if (file_exists($backup)) {
 
 $max_checks = 50;
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
-$untested_str = file_get_contents($filePath);
-$untested = extractProxies(file_get_contents($filePath));
 
-// add untested proxies from database
-try {
-  $db_untested = $db->getUntestedProxies(1000);
-  $db_untested_map = array_map(function ($item) {
-    $wrap = new Proxy($item['proxy']);
-    foreach ($item as $key => $value) {
-      if (property_exists($wrap, $key)) {
-        $wrap->$key = $value;
-      }
-    }
-    if (!empty($item['username']) && !empty($item['password'])) {
-      $wrap->username = $item['username'];
-      $wrap->password = $item['password'];
-    }
-    return $wrap;
-  }, $db_untested);
-  $untested = array_merge($untested, $db_untested_map);
-} catch (\Throwable $th) {
-  echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
-}
+iterateBigFilesLineByLine([$filePath], function (string $line) {
+  global $db, $max_checks;
+  $untested = extractProxies($line);
+  // add untested proxies from database
+//  try {
+//    $db_untested = $db->getUntestedProxies(1000);
+//    $db_untested_map = array_map(function ($item) {
+//      $wrap = new Proxy($item['proxy']);
+//      foreach ($item as $key => $value) {
+//        if (property_exists($wrap, $key)) {
+//          $wrap->$key = $value;
+//        }
+//      }
+//      if (!empty($item['username']) && !empty($item['password'])) {
+//        $wrap->username = $item['username'];
+//        $wrap->password = $item['password'];
+//      }
+//      return $wrap;
+//    }, $db_untested);
+//    $untested = array_merge($untested, $db_untested_map);
+//  } catch (\Throwable $th) {
+//    echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
+//  }
 
-if (count($untested) < $max_checks) {
-  $working = array_map(function ($item) {
-    $wrap = new Proxy($item['proxy']);
-    foreach ($item as $key => $value) {
-      if (property_exists($wrap, $key)) {
-        $wrap->$key = $value;
-      }
-    }
-    return $wrap;
-  }, $db->getWorkingProxies());
-  $proxies = array_merge($untested, $working);
-} else {
+//  if (count($untested) < $max_checks) {
+//    $working = array_map(function ($item) {
+//      $wrap = new Proxy($item['proxy']);
+//      foreach ($item as $key => $value) {
+//        if (property_exists($wrap, $key)) {
+//          $wrap->$key = $value;
+//        }
+//      }
+//      return $wrap;
+//    }, $db->getWorkingProxies());
+//    $proxies = array_merge($untested, $working);
+//  } else {
   $proxies = $untested;
-}
-if (count($proxies) < $max_checks) {
-  if (file_exists($deadPath)) {
-    echo "proxies low, respawning dead proxies" . PHP_EOL;
-    // respawn 100 dead proxies
-    moveLinesToFile($deadPath, $filePath, 100);
-    exit;
-  }
-}
-$proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
-$proxies = array_filter($proxies, function (Proxy $item) {
-  if (empty($item->last_check)) return true;
-  return isDateRFC3339OlderThanHours($item->last_check, 5);
+//  }
+//
+//  if (count($proxies) < $max_checks) {
+//    if (file_exists($deadPath)) {
+//      echo "proxies low, respawning dead proxies" . PHP_EOL;
+//      // respawn 100 dead proxies
+//      moveLinesToFile($deadPath, $filePath, 100);
+//      exit;
+//    }
+//  }
+
+  $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
+  $proxies = array_filter($proxies, function (Proxy $item) {
+    if (empty($item->last_check)) return true;
+    return isDateRFC3339OlderThanHours($item->last_check, 5);
+  });
+  shuffle($proxies);
+
+//  echo "total proxies to be tested " . count($proxies) . PHP_EOL . PHP_EOL;
+
+  iterateArray($proxies, $max_checks, 'execute_single_proxy');
 });
-shuffle($proxies);
 
-echo "total proxies to be tested " . count($proxies) . PHP_EOL . PHP_EOL;
-
-iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime) {
+function execute_single_proxy(Proxy $item)
+{
+  global $db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime;
   // Check if execution time has exceeded the maximum allowed time
   $elapsedTime = microtime(true) - $startTime;
   if ($elapsedTime > $maxExecutionTime) {
@@ -306,7 +314,7 @@ iterateArray($proxies, $max_checks, function (Proxy $item) use ($db, $headers, $
       echo "fail delete " . $item->proxy . ' : ' . $errorMessage . PHP_EOL;
     }
   }
-});
+}
 
 // write working proxies to working.txt
 //$workingProxies = $db->getWorkingProxies();
