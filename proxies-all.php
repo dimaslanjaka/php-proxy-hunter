@@ -12,7 +12,7 @@ if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
 if (!$isCli)
   exit('web server access disallowed');
 
-$lockFile = __DIR__ . "/tmp/" . md5(__FILE) . ".lock";
+$lockFile = __DIR__ . "/tmp/" . md5(__FILE__) . ".lock";
 
 // Attempt to acquire a lock
 $lockHandle = fopen($lockFile, 'w');
