@@ -2,16 +2,8 @@
 
 require_once __DIR__ . '/func.php';
 
-// Allow from any origin
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
-header("Access-Control-Allow-Methods: *");
 header('Content-Type: application/json; charset=utf-8');
-
-// Set cache control headers to instruct the browser to cache the content for [n] hour
-$hour = 1;
-header('Cache-Control: max-age=3600, must-revalidate');
-header('Expires: ' . gmdate('D, d M Y H:i:s', time() + ($hour * 3600)) . ' GMT');
+setCacheHeaders(5);
 
 set_cookie("user_id", getUserId());
 $config = getConfig(getUserId());

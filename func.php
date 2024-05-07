@@ -1300,6 +1300,31 @@ function read_file(string $inputFile)
 }
 
 /**
+ * Set Cache-Control and Expires headers for HTTP caching.
+ *
+ * @param int|float $max_age_minutes The maximum age of the cache in minutes.
+ * @param bool $cors Whether to include CORS headers. Default is true.
+ * @return void
+ */
+function setCacheHeaders($max_age_minutes, bool $cors = true): void
+{
+  if ($cors) {
+    // Allow from any origin
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Headers: *");
+    header("Access-Control-Allow-Methods: *");
+  }
+
+  // Set the Cache-Control header to specify the maximum age in minutes and must-revalidate
+  $max_age_seconds = $max_age_minutes * 60;
+  header('Cache-Control: max-age=' . $max_age_seconds . ', must-revalidate');
+
+  // Set the Expires header to the calculated expiration time
+  $expiration_time = time() + $max_age_seconds;
+  header('Expires: ' . gmdate('D, d M Y H:i:s', $expiration_time) . ' GMT');
+}
+
+/**
  * Prompts the user for confirmation with a message.
  *
  * @param string $message The confirmation message.
