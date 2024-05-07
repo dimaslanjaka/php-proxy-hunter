@@ -116,6 +116,14 @@ function exitProcess()
   }
 
   try {
+    // remove lines less than 10 size
+    removeShortLines(__DIR__ . '/proxies.txt', 10);
+  } catch (Exception $e) {
+    // Handle any exceptions that occur during the execution of removeDuplicateLines
+    echo 'Error removing short lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
+  }
+
+  try {
     // remove duplicate lines from dead.txt
     removeDuplicateLines(__DIR__ . '/dead.txt');
   } catch (Exception $e) {
