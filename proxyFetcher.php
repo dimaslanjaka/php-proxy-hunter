@@ -13,7 +13,7 @@ if (function_exists('header')) header('Content-Type: text/plain; charset=UTF-8')
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 
-if (file_exists($lockFilePath)) {
+if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
   echo "another process still running\n";
   exit();
 } else {
@@ -102,6 +102,15 @@ try {
   echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
 }
 
+//echo "fixing files encoding" . PHP_EOL;
+//
+//try {
+//  fixFile(__DIR__ . "/proxies.txt");
+//  fixFile(__DIR__ . "/dead.txt");
+//} catch (\Throwable $th) {
+//  echo 'Error fix bad contents from proxies.txt: ' . $e->getMessage() . PHP_EOL;
+//}
+
 echo "remove lines not contains IP:PORT" . PHP_EOL;
 
 try {
@@ -111,11 +120,3 @@ try {
   echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
 }
 
-echo "fixing files encoding" . PHP_EOL;
-
-try {
-  fixFile(__DIR__ . "/proxies.txt");
-  fixFile(__DIR__ . "/dead.txt");
-} catch (\Throwable $th) {
-  echo 'Error fix bad contents from proxies.txt: ' . $e->getMessage() . PHP_EOL;
-}
