@@ -199,13 +199,13 @@ function curlGetCache($url): string
  * Fetches the content of a URL using cURL with a specified proxy, with caching support.
  *
  * @param string $url The URL to fetch.
- * @param string $proxy The proxy IP address and port (e.g., "proxy_ip:proxy_port").
- * @param string $proxyType The type of proxy. Can be 'http', 'socks4', or 'socks5'. Defaults to 'http'.
- * @param int $cacheTime The cache expiration time in seconds. Set to 0 to disable caching. Defaults to 1 year (86400 * 360 seconds).
+ * @param string|null $proxy The proxy IP address and port (e.g., "proxy_ip:proxy_port").
+ * @param string|null $proxyType The type of proxy. Can be 'http', 'socks4', or 'socks5'. Defaults to 'http'.
+ * @param float|int $cacheTime The cache expiration time in seconds. Set to 0 to disable caching. Defaults to 1 year (86400 * 360 seconds).
  * @param string $cacheDir The directory where cached responses will be stored. Defaults to './.cache/' in the current directory.
  * @return string|false The response content or false on failure.
  */
-function curlGetWithProxy(string $url, string $proxy, string $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/')
+function curlGetWithProxy(string $url, string $proxy = null, ?string $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/')
 {
   // Generate cache file path based on URL
   if (!file_exists($cacheDir))
@@ -225,13 +225,15 @@ function curlGetWithProxy(string $url, string $proxy, string $proxyType = 'http'
   curl_setopt($ch, CURLOPT_URL, $url);
 
   // Set proxy details
-  curl_setopt($ch, CURLOPT_PROXY, $proxy);
-  $type = CURLPROXY_HTTP;
-  if ($proxyType == 'socks4')
-    $type = CURLPROXY_SOCKS4;
-  if ($proxyType == 'socks5')
-    $type = CURLPROXY_SOCKS5;
-  curl_setopt($ch, CURLOPT_PROXYTYPE, $type);
+  if (!empty($proxy)) {
+    curl_setopt($ch, CURLOPT_PROXY, $proxy);
+    $type = CURLPROXY_HTTP;
+    if ($proxyType == 'socks4')
+      $type = CURLPROXY_SOCKS4;
+    if ($proxyType == 'socks5')
+      $type = CURLPROXY_SOCKS5;
+    curl_setopt($ch, CURLOPT_PROXYTYPE, $type);
+  }
 
   // Set to return the transfer as a string
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
