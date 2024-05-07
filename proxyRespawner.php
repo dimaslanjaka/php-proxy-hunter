@@ -34,6 +34,7 @@
 
 // check open port and move to test file
 
+use PhpProxyHunter\Proxy;
 use PhpProxyHunter\ProxyDB;
 
 require_once __DIR__ . '/func-proxy.php';
@@ -64,6 +65,26 @@ $startTime = microtime(true);
 $maxExecutionTime = 120;
 $proxyPaths = [__DIR__ . '/proxies-all.txt', __DIR__ . '/dead.txt', __DIR__ . '/proxies-backup.txt'];
 $db = new ProxyDB();
+
+$working = array_map(function ($item) {
+  $wrap = new Proxy($item['proxy']);
+  foreach ($item as $key => $value) {
+    if (property_exists($wrap, $key)) {
+      $wrap->$key = $value;
+    }
+  }
+  return $wrap;
+}, $db->getWorkingProxies());
+
+if (count($working) < 100) {
+  if (file_exists(__DIR__ . '/dead.txt')) {
+    echo "proxies low, respawning dead proxies" . PHP_EOL;
+    // respawn 100 dead proxies
+    moveLinesToFile(__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', 100);
+    exit;
+  }
+}
+
 iterateBigFilesLineByLine($proxyPaths, function (string $line) use ($startTime, $proxyPaths, $db, $maxExecutionTime) {
   $is_execution_exceeded = (microtime(true) - $startTime) > $maxExecutionTime;
   if (!$is_execution_exceeded) {
