@@ -1300,13 +1300,32 @@ function read_file(string $inputFile)
 }
 
 /**
+ * Prompts the user for confirmation with a message.
+ *
+ * @param string $message The confirmation message.
+ * @return bool True if user confirms (y/yes), false otherwise (n/no).
+ */
+function confirmAction(string $message = "Are you sure? (y/n): "): bool
+{
+  $validResponses = ['y', 'yes', 'n', 'no'];
+  $response = '';
+
+  while (!in_array($response, $validResponses)) {
+    echo $message;
+    $response = strtolower(trim(fgets(STDIN)));
+  }
+
+  return in_array($response, ['y', 'yes']);
+}
+
+/**
  * Get a random file from a folder.
  *
  * @param string $folder The path to the folder containing files.
  * @param string|null $file_extension The optional file extension without dot (.) to filter files by.
  * @return string|null The name of the randomly selected file, or null if no file found with the specified extension.
  */
-function getRandomFileFromFolder($folder, $file_extension = null): ?string
+function getRandomFileFromFolder(string $folder, string $file_extension = null): ?string
 {
   // Get list of files in the folder
   $files = scandir($folder);
