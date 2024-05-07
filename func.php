@@ -1282,10 +1282,21 @@ function randomIosUa(string $type = 'chrome'): string
 function fixFile(string $inputFile): void
 {
   // Read input file and remove NUL characters
-  $cleanedContent = str_replace("\x00", '', file_get_contents($inputFile));
+  $cleanedContent = str_replace("\x00", '', read_file($inputFile));
 
   // Write cleaned content back to input file
   file_put_contents($inputFile, $cleanedContent);
+}
+
+/**
+ * Reads a file as UTF-8 encoded text.
+ *
+ * @param string $inputFile The path to the input file.
+ * @return string|false The content of the file or false on failure.
+ */
+function read_file(string $inputFile)
+{
+  return file_get_contents($inputFile, false, stream_context_create(['http' => ['header' => 'Content-Type: text/plain; charset=UTF-8']]));
 }
 
 /**
