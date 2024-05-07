@@ -144,7 +144,7 @@ function filterIpPortLines(string $filename): void
   // Read each line from the file
   while (($line = fgets($fileHandle)) !== false) {
     // Check if the line contains IP:PORT format
-    if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/', $line)) {
+    if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}$/', $line)) {
       fwrite($tempFile, $line); // If it does, write it to the temporary file
     }
   }
@@ -205,7 +205,7 @@ function curlGetCache($url): string
  * @param string $cacheDir The directory where cached responses will be stored. Defaults to './.cache/' in the current directory.
  * @return string|false The response content or false on failure.
  */
-function curlGetWithProxy($url, $proxy, $proxyType = 'http', $cacheTime = 86400 * 360, $cacheDir = __DIR__ . '/.cache/')
+function curlGetWithProxy(string $url, string $proxy, string $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/')
 {
   // Generate cache file path based on URL
   if (!file_exists($cacheDir))
