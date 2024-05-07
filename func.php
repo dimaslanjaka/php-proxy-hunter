@@ -144,7 +144,9 @@ function filterIpPortLines(string $filename): void
   // Read each line from the file
   while (($line = fgets($fileHandle)) !== false) {
     // Check if the line contains IP:PORT format
-    if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}$/', $line)) {
+    $containsProxy = preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}/', $line);
+    $proxyLengthValid = strlen($line) >= 10;
+    if ($containsProxy && $proxyLengthValid) {
       fwrite($tempFile, $line); // If it does, write it to the temporary file
     }
   }
