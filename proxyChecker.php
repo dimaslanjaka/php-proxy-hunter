@@ -170,8 +170,13 @@ if (file_exists($backup)) {
 $max_checks = 50;
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 
-iterateBigFilesLineByLine([$filePath], function (string $line) {
-  global $db, $max_checks;
+iterateBigFilesLineByLine([$filePath], 55, function (string $line) {
+  global $db, $max_checks, $filePath;
+  if (strlen($line) < 10) {
+    // invalid proxy string, remove from source
+    removeStringFromFile($filePath, trim($line));
+    return;
+  }
   $untested = extractProxies($line);
   // add untested proxies from database
 //  try {
