@@ -1380,6 +1380,34 @@ function filterUniqueLines($inputFile)
   fclose($tempFile);
 }
 
+/**
+ * Remove lines from a string or file with a length less than a specified minimum length.
+ *
+ * @param string $inputStringOrFilePath The input string or file path.
+ * @param int $minLength The minimum length for lines to be retained.
+ * @return string The resulting string with lines removed.
+ */
+function removeShortLines(string $inputStringOrFilePath, int $minLength): string
+{
+  if (is_file($inputStringOrFilePath)) {
+    // If the input is a file, read its contents
+    $inputString = file_get_contents($inputStringOrFilePath);
+  } else {
+    // If the input is a string, use it directly
+    $inputString = $inputStringOrFilePath;
+  }
+
+  // Split the string into an array of lines
+  $lines = explode("\n", $inputString);
+
+  // Filter out lines with less than the minimum length
+  $filteredLines = array_filter($lines, function ($line) use ($minLength) {
+    return strlen($line) >= $minLength;
+  });
+
+  // Join the filtered lines back into a string
+  return implode("\n", $filteredLines);
+}
 
 /**
  * Iterate over the array, limiting the number of iterations to the specified limit.
