@@ -133,22 +133,19 @@ function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $strin
   // Read content from the source file
   $sourceContent = file_get_contents($sourceFilePath);
 
-  if (strpos($sourceContent, $stringToRemove) === false) {
-//    $truncatedContent = substr($sourceContent, 0, 100);
-    echo "$stringToRemove in sourceContent not found" . PHP_EOL;
-    return false;
+  if (strpos($sourceContent, $stringToRemove) !== false) {
+    // Remove the desired string
+    $modifiedContent = str_replace($stringToRemove, '', $sourceContent);
+
+    // Write the modified content back to the source file
+    $writeSrc = file_put_contents($sourceFilePath, $modifiedContent);
+
+    // Append the removed string to the destination file
+    $writeDest = file_put_contents($destinationFilePath, PHP_EOL . $stringToRemove . PHP_EOL, FILE_APPEND);
+
+    return $writeSrc != false && $writeDest != false;
   }
-
-  // Remove the desired string
-  $modifiedContent = str_replace($stringToRemove, '', $sourceContent);
-
-  // Write the modified content back to the source file
-  $writeSrc = file_put_contents($sourceFilePath, $modifiedContent);
-
-  // Append the removed string to the destination file
-  $writeDest = file_put_contents($destinationFilePath, PHP_EOL . $stringToRemove . PHP_EOL, FILE_APPEND);
-
-  return $writeSrc != false && $writeDest != false;
+  return false;
 }
 
 /**
