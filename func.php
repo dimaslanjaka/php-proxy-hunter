@@ -125,7 +125,7 @@ function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $strin
   }
 
   // Read content from the source file
-  $sourceContent = file_get_contents($sourceFilePath);
+  $sourceContent = read_file($sourceFilePath);
 
   if (strpos($sourceContent, $stringToRemove) !== false) {
     // Remove the desired string
@@ -170,7 +170,7 @@ function curlGetWithProxy(string $url, string $proxy = null, ?string $proxyType 
   // Check if cached data exists and is still valid
   if ($cacheTime > 0 && file_exists($cacheFile) && time() - filemtime($cacheFile) < $cacheTime) {
     // Return cached response
-    return file_get_contents($cacheFile);
+    return read_file($cacheFile);
   }
 
   // Initialize cURL session
@@ -490,7 +490,7 @@ function getConfig(string $user_id): array
     $user_file = getUserFile($user_id);
   }
   // Read the JSON file into a string
-  $jsonString = file_get_contents($user_file);
+  $jsonString = read_file($user_file);
 
   // Decode the JSON string into a PHP array
   $data = json_decode($jsonString, true); // Use true for associative array, false or omit for object
@@ -1460,7 +1460,7 @@ function removeShortLines(string $inputStringOrFilePath, int $minLength): string
 {
   if (is_file($inputStringOrFilePath)) {
     // If the input is a file, read its contents
-    $inputString = file_get_contents($inputStringOrFilePath);
+    $inputString = read_file($inputStringOrFilePath);
   } else {
     // If the input is a string, use it directly
     $inputString = $inputStringOrFilePath;
