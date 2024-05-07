@@ -132,12 +132,6 @@ function exitProcess()
   }
 
   try {
-    fixFile(__DIR__ . "/proxies.txt");
-  } catch (\Throwable $th) {
-    echo 'Error fix bad contents from proxies.txt: ' . $e->getMessage() . PHP_EOL;
-  }
-
-  try {
     // remove duplicate lines in untested proxies
     $file1 = realpath(__DIR__ . "/proxies.txt");
     $file2 = realpath(__DIR__ . "/dead.txt");
@@ -148,6 +142,13 @@ function exitProcess()
   } catch (Exception $e) {
     // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
     echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
+  }
+
+  try {
+    fixFile(__DIR__ . "/proxies.txt");
+    fixFile(__DIR__ . "/dead.txt");
+  } catch (\Throwable $th) {
+    echo 'Error fix bad contents from proxies.txt: ' . $e->getMessage() . PHP_EOL;
   }
 }
 
