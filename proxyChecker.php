@@ -176,6 +176,7 @@ iterateBigFilesLineByLine([$filePath], $max_checks, function (string $line) {
   if (strlen($line) < 10) {
     // invalid proxy string, remove from source
     removeStringFromFile($filePath, trim($line));
+    echo "$line is invalid, removed." . PHP_EOL;
     return;
   }
   $untested = extractProxies($line);
