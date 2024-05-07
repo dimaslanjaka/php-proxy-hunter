@@ -143,20 +143,6 @@ function exitProcess()
     // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
     echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
   }
-
-  try {
-    filterIpPortLines(__DIR__ . "/proxies.txt");
-    filterIpPortLines(__DIR__ . "/dead.txt");
-  } catch (InvalidArgumentException $e) {
-    echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
-  }
-
-  try {
-    fixFile(__DIR__ . "/proxies.txt");
-    fixFile(__DIR__ . "/dead.txt");
-  } catch (\Throwable $th) {
-    echo 'Error fix bad contents from proxies.txt: ' . $e->getMessage() . PHP_EOL;
-  }
 }
 
 register_shutdown_function('exitProcess');
