@@ -138,7 +138,8 @@ function isValidProxy(string $proxy, bool $validate_credential = false): bool
 
   // Check if proxy is valid
   $proxyLength = strlen($proxy);
-  $is_proxy_valid = $is_ip_valid && $is_port_valid && $proxyLength >= 10 && $proxyLength <= 21;
+  $re = '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}/';
+  $is_proxy_valid = $is_ip_valid && $is_port_valid && $proxyLength >= 10 && $proxyLength <= 21 && preg_match($re, $proxy);
 
   // Validate credentials if required
   if ($hasCredential && $validate_credential) {
