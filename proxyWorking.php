@@ -68,13 +68,16 @@ file_put_contents(__DIR__ . '/working.txt', $impl);
 file_put_contents(__DIR__ . '/working.json', json_encode($array_mapper));
 
 $fileUntested = __DIR__ . '/proxies.txt';
+$counterUntested = $db->countUntestedProxies();
+iterateBigFilesLineByLine([$fileUntested], function (string $line) {
+  global $counterUntested;
+  $counterUntested += count(extractProxies($line));
+});
 
-$untested = extractProxies(file_get_contents($fileUntested));
-$untested = uniqueClassObjectsByProperty($untested, 'proxy');
 $arr = [
   'working' => $db->countWorkingProxies(),
   'dead' => $db->countDeadProxies(),
-  'untested' => count($untested) + $db->countUntestedProxies(),
+    'untested' => $counterUntested,
   'private' => count($private)
 ];
 
