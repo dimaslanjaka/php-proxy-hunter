@@ -136,7 +136,7 @@ function isValidProxy(string $proxy, bool $validate_credential = false): bool
       ));
 
   // Check if proxy is valid
-  $proxyLength = strlen($item->proxy);
+  $proxyLength = strlen($proxy);
   $is_proxy_valid = $is_ip_valid && $is_port_valid && $proxyLength >= 10 && $proxyLength <= 21;
 
   // Validate credentials if required
