@@ -45,6 +45,8 @@ sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/*
 sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/minimal/*
 sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/cjs/*
 sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/mjs/*
+chmod 777 vendor
+touch vendor/index.html
 
 echo "composer installed"
 
