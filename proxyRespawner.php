@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpVariableIsUsedOnlyInClosureInspection */
 
 /*
   ----------------------------------------------------------------------------
@@ -61,11 +61,10 @@ register_shutdown_function('exitProcess');
 
 // limit execution time seconds unit
 $startTime = microtime(true);
-
+$maxExecutionTime = 120;
 $proxyPaths = [__DIR__ . '/proxies-all.txt', __DIR__ . '/dead.txt', __DIR__ . '/proxies-backup.txt'];
 $db = new ProxyDB();
-iterateBigFilesLineByLine($proxyPaths, function (string $line) use ($startTime, $proxyPaths, $db) {
-  $maxExecutionTime = 120;
+iterateBigFilesLineByLine($proxyPaths, function (string $line) use ($startTime, $proxyPaths, $db, $maxExecutionTime) {
   $is_execution_exceeded = (microtime(true) - $startTime) > $maxExecutionTime;
   if (!$is_execution_exceeded) {
     $proxies = extractProxies($line);
