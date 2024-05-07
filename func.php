@@ -119,6 +119,14 @@ function setPermissions(string $filename)
 /**
  * Remove lines from a file that do not contain IP:PORT format.
  *
+ * ```
+ * try {
+ *  filterIpPortLines(__DIR__ . "/proxies.txt");
+ * } catch (InvalidArgumentException $e) {
+ *  echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
+ * }
+ * ```
+ *
  * @param string $filename The path to the file.
  * @throws InvalidArgumentException If the file cannot be opened or written.
  */

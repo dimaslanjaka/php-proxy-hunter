@@ -108,7 +108,7 @@ class SQLiteHelper
   /**
    * Counts the records in the specified table.
    *
-   * ```php
+   * ```
    * $count = $db->count('your_table_name');
    * $count = $db->count('your_table_name', 'column_name = ?', [$value]);
    * ```
