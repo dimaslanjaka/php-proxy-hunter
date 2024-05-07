@@ -62,7 +62,8 @@ $outputFile = __DIR__ . "/proxies.txt";
 // Loop through each URL
 foreach ($urls as $url) {
   // Fetch content from URL
-  $content = file_get_contents($url);
+  $content = curlGetWithProxy($url, null, null, 0);
+  if (!$content) $content = '';
   $ipPortList = [];
 
   // Match IP:PORT pattern using regular expression
@@ -87,8 +88,9 @@ try {
   echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
 }
 
+echo 'remove duplicate lines in untested proxies' . PHP_EOL;
+
 try {
-  // remove duplicate lines in untested proxies
   $file1 = realpath(__DIR__ . "/proxies.txt");
   $file2 = realpath(__DIR__ . "/dead.txt");
 
@@ -100,12 +102,16 @@ try {
   echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
 }
 
+echo "remove lines not contains IP:PORT" . PHP_EOL;
+
 try {
   filterIpPortLines(__DIR__ . "/proxies.txt");
   filterIpPortLines(__DIR__ . "/dead.txt");
 } catch (InvalidArgumentException $e) {
   echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
 }
+
+echo "fixing files encoding" . PHP_EOL;
 
 try {
   fixFile(__DIR__ . "/proxies.txt");
