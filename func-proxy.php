@@ -126,7 +126,7 @@ function isValidProxy(string $proxy, bool $validate_credential = false): bool
   list($ip, $port) = explode(":", trim($proxy), 2);
 
   // Validate IP address
-  $is_ip_valid = filter_var($ip, FILTER_VALIDATE_IP) !== false;
+  $is_ip_valid = filter_var($ip, FILTER_VALIDATE_IP) !== false && strlen($ip) >= 7 && strpos($ip, '..') === false;
 
   // Validate port number
   $is_port_valid = strlen($port) >= 2 && filter_var($port, FILTER_VALIDATE_INT, array(
