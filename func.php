@@ -134,6 +134,9 @@ function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFi
   if (!is_writable($sourceFilePath) || !is_writable($destinationFilePath)) {
     echo "$sourceFilePath or $destinationFilePath not writable" . PHP_EOL;
     return false;
+  } else if (is_file_locked($sourceFilePath) || is_file_locked($destinationFilePath)) {
+    echo "$sourceFilePath or $destinationFilePath locked" . PHP_EOL;
+    return false;
   }
 
   // Open source file for reading and writing
@@ -341,14 +344,24 @@ function readFileLinesToArray(string $filename)
  * @param int $hoursAgo The number of hours to compare against.
  * @return bool True if the date is older than the specified number of hours, false otherwise.
  */
-function isDateRFC3339OlderThanHours(string $dateString, int $hoursAgo): bool
+function isDateRFC3339OlderThanHours(string $dateString, int $hoursAgo = 5): bool
 {
-  // Create a DateTime object from the string
-  $date = new DateTime($dateString);
+  try {
+    // Create a DateTime object from the string
+    $date = new DateTime($dateString);
+  } catch (Exception $e) {
+    // Handle exception if DateTime creation fails
+    return false;
+  }
 
-  // Create a DateTime object representing the specified number of hours ago
-  $hoursAgoDateTime = new DateTime();
-  $hoursAgoDateTime->sub(new DateInterval('PT' . $hoursAgo . 'H'));
+  try {
+    // Create a DateTime object representing the specified number of hours ago
+    $hoursAgoDateTime = new DateTime();
+    $hoursAgoDateTime->sub(new DateInterval('PT' . $hoursAgo . 'H'));
+  } catch (Exception $e) {
+    // Handle exception if DateTime creation fails
+    return false;
+  }
 
   // Compare the date with the specified number of hours ago
   return $date < $hoursAgoDateTime;
@@ -360,8 +373,9 @@ function isDateRFC3339OlderThanHours(string $dateString, int $hoursAgo): bool
  * @param string $filePath The path to the file containing IP:PORT combinations.
  * @param bool $unique (Optional) If set to true, returns only unique IP:PORT combinations. Default is false.
  * @return array An array containing the extracted IP:PORT combinations.
+ * @throws Exception
  */
-function extractIpPortFromFile($filePath, bool $unique = false): array
+function extractIpPortFromFile(string $filePath, bool $unique = false): array
 {
   $ipPortList = [];
 
@@ -1640,6 +1654,38 @@ function removeShortLines(string $inputStringOrFilePath, int $minLength): string
 
   // Join the filtered lines back into a string
   return implode("\n", $filteredLines);
+}
+
+/**
+ * Read the first N lines from a file.
+ *
+ * @param string $filename The path to the file.
+ * @param int $lines_to_read The number of lines to read.
+ * @return array|false An array containing the first N lines from the file, or false on failure.
+ */
+function read_first_lines(string $filename, int $lines_to_read): array
+{
+  $lines = [];
+  $handle = fopen($filename, 'r');
+  if (!$handle) {
+    // Handle error opening the file
+    return false;
+  }
+
+  // Obtain a lock on the file
+  flock($handle, LOCK_SH);
+
+  $count = 0;
+  while (($line = fgets($handle)) !== false && $count < $lines_to_read) {
+    $lines[] = $line;
+    $count++;
+  }
+
+  // Release the lock and close the file
+  flock($handle, LOCK_UN);
+  fclose($handle);
+
+  return $lines;
 }
 
 /**
