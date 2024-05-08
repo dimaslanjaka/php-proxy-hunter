@@ -29,9 +29,11 @@
     "countries-list": "^3.1.0",
     "deepmerge-ts": "4",
     "https-proxy-agent": "^7.0.4",
+    "proxies-grabber": "^1.1.2",
     "puppeteer": "^22.7.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "sbg-utility": "^1.1.6"
-  }
+  },
+  "packageManager": "yarn@4.2.1"
 }
