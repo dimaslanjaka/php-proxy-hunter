@@ -66,18 +66,9 @@ foreach ($urls as $url) {
   // Fetch content from URL
   $content = curlGetWithProxy($url, null, null, 0);
   if (!$content) $content = '';
-  $ipPortList = [];
-
-  // Match IP:PORT pattern using regular expression
-  preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $content, $matches);
-
-  // Add matched IP:PORT combinations to the list
-  foreach ($matches[0] as $match) {
-    $ipPortList[] = trim($match);
-  }
 
   // Append content to output file
-  file_put_contents($outputFile, "\n" . join(PHP_EOL, $ipPortList), FILE_APPEND | LOCK_EX);
+  file_put_contents($outputFile, "\n" . $content . "\n", FILE_APPEND | LOCK_EX);
 }
 
-echo "Content appended to $outputFile" . PHP_EOL;
+//echo "Content appended to $outputFile" . PHP_EOL;
