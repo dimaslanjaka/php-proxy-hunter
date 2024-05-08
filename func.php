@@ -1862,12 +1862,19 @@ function fixFile(string $inputFile): void
 
   // Attempt to acquire an exclusive lock on the file
   if (flock($fileHandle, LOCK_EX)) {
-    // Read input file and remove NUL characters
+    // Iterate through the file and remove NUL characters
     while (!feof($fileHandle)) {
+      // Read a chunk of data
       $chunk = fread($fileHandle, 500 * 1024); // Read in 500KB chunks
+
+      // Remove NUL characters directly from the chunk
       $cleanedChunk = str_replace("\x00", '', $chunk);
-      fseek($fileHandle, -strlen($chunk), SEEK_CUR); // Move back to the current position
-      fwrite($fileHandle, $cleanedChunk); // Write the cleaned chunk back to the file
+
+      // Rewind to the current position
+      fseek($fileHandle, -strlen($chunk), SEEK_CUR);
+
+      // Write the cleaned chunk back to the file
+      fwrite($fileHandle, $cleanedChunk);
     }
 
     // Truncate the file to remove any extra content after cleaning
