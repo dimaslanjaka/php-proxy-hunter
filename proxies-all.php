@@ -40,7 +40,7 @@ iterateBigFilesLineByLine($files, function ($line) {
       // re-select proxy
       $sel = $db->select($item->proxy);
     }
-    if (is_null($sel[0]['status'])) {
+    if (empty($sel[0]['status'])) {
       $db->updateStatus($item->proxy, 'untested');
     }
     if (!empty($sel[0]['proxy'])) {
