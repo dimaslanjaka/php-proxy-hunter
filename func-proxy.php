@@ -152,68 +152,6 @@ function isValidProxy(string $proxy, bool $validate_credential = false): bool
   return $is_proxy_valid;
 }
 
-
-/**
- * Remove lines from a file that do not contain IP:PORT format.
- *
- * ```
- * try {
- *  filterIpPortLines(__DIR__ . "/proxies.txt");
- * } catch (InvalidArgumentException $e) {
- *  echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
- * }
- * ```
- *
- * @param string $filename The path to the file.
- * @throws InvalidArgumentException If the file cannot be opened or written.
- */
-function filterIpPortLines(string $filename): void
-{
-  $db = new ProxyDB();
-  // Open the file for reading and writing
-  $fileHandle = fopen($filename, 'r+');
-  if ($fileHandle === false) {
-    throw new InvalidArgumentException("Unable to open file: $filename");
-  }
-
-  // Temporary file to store filtered lines
-  $tempFile = tmpfile();
-
-  // Read each line from the file
-  while (($line = fgets($fileHandle)) !== false) {
-    // Check if the line contains IP:PORT format
-    $re = '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}/';
-    $containsProxy = preg_match($re, $line);
-    $proxyLengthValid = strlen($line) >= 10;
-    $validIpPort = false;
-    preg_match_all($re, $line, $matches, PREG_SET_ORDER, 0);
-    foreach ($matches as $match) {
-      $proxy_str = $match[0];
-      if (isValidProxy($proxy_str)) {
-        $validIpPort = true;
-      } else {
-        echo "$proxy_str invalid" . PHP_EOL;
-        $db->remove($proxy_str);
-      }
-    }
-    if ($containsProxy && $proxyLengthValid && $validIpPort) {
-      fwrite($tempFile, $line); // If it does, write it to the temporary file
-    }
-  }
-
-  // Move the pointer to the beginning of both files
-  rewind($fileHandle);
-  rewind($tempFile);
-
-  // Copy the contents of the temporary file back to the original file
-  stream_copy_to_stream($tempFile, $fileHandle);
-
-  // Close both files
-  fclose($fileHandle);
-  fclose($tempFile);
-}
-
-
 /**
  * Check if a port is open on a given IP address.
  *
@@ -725,4 +663,88 @@ function country_code_to_locale(string $country_code, string $language_code = ''
   }
 
   return null;
+}
+
+/**
+ * Remove lines from a file that do not contain IP:PORT format.
+ *
+ * ```
+ * try {
+ *  filterIpPortLines(__DIR__ . "/proxies.txt");
+ * } catch (InvalidArgumentException $e) {
+ *  echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
+ * }
+ * ```
+ *
+ * @param string $filePath The path to the file.
+ * @throws InvalidArgumentException If the file cannot be opened or written.
+ */
+function filterIpPortLines(string $filePath)
+{
+  $db = new ProxyDB();
+  // Open the file for reading and writing, create if not exist, and place a write lock.
+  $fileHandle = fopen($filePath, 'r+');
+  if ($fileHandle === false) {
+    echo "Unable to open file: $filePath" . PHP_EOL;
+    return;
+  }
+
+  // Acquire an exclusive lock on the file
+  if (!flock($fileHandle, LOCK_EX)) {
+    echo "Unable to acquire lock on file: $filePath" . PHP_EOL;
+    fclose($fileHandle);
+    return;
+  }
+
+  $str_to_remove = [];
+
+  // Temporary file to store filtered lines
+  $tempFile = tmpfile();
+
+  // Read each line from the file
+  while (($line = fgets($fileHandle)) !== false) {
+    if (empty($line)) continue;
+    // Check if the line contains IP:PORT format
+    $re = '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}/';
+    $containsProxy = preg_match($re, $line);
+    $proxyLengthValid = strlen($line) >= 10;
+    $validIpPort = false;
+    $test = preg_match_all($re, $line, $matches, PREG_SET_ORDER, 0);
+    foreach ($matches as $match) {
+      $proxy_str = $match[0];
+      if (isValidProxy($proxy_str)) {
+        $validIpPort = true;
+      } else {
+        echo "$proxy_str invalid" . PHP_EOL;
+        $db->remove($proxy_str);
+      }
+    }
+    if ($containsProxy && $proxyLengthValid && $validIpPort) {
+      fwrite($tempFile, $line); // If it does, write it to the temporary file
+    } else {
+      $str_to_remove[] = $line;
+      echo "str(" . strlen(trim($line)) . ") no proxy" . PHP_EOL;
+    }
+  }
+
+  // Move the pointer to the beginning of both files
+  rewind($fileHandle);
+  rewind($tempFile);
+
+  // Copy the contents of the temporary file back to the original file
+  stream_copy_to_stream($tempFile, $fileHandle);
+
+  // Close the temporary file
+  fclose($tempFile);
+
+  // Release the lock
+  flock($fileHandle, LOCK_UN);
+
+  // Close the original file handle
+  fclose($fileHandle);
+
+  // remove strings that not contains IP:PORT
+  foreach ($str_to_remove as $str) {
+    removeStringFromFile($filePath, $str);
+  }
 }
