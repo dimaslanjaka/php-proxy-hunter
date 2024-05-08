@@ -2,6 +2,9 @@
 
 require_once __DIR__ . "/func-proxy.php";
 
+use PhpProxyHunter\Proxy;
+use PhpProxyHunter\ProxyDB;
+
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
@@ -100,6 +103,24 @@ foreach ($files as $file) {
     echo 'Error fix bad contents from proxies.txt: ' . $th->getMessage() . PHP_EOL;
   }
 }
+
+//echo "removing dead proxies from untested file" . PHP_EOL;
+//
+//iterateBigFilesLineByLine([__DIR__ . '/proxies.txt'], function (string $line) {
+//  $db = new ProxyDB();
+//  $proxies = extractProxies(trim($line));
+//  foreach ($proxies as $item) {
+//    if (empty(trim($item->proxy))) continue;
+//    $sel = $db->select($item->proxy);
+//    if (!empty($sel)) {
+//      $status = $sel[0]['status'];
+//      if ($status == 'dead') {
+//        removeStringFromFile(__DIR__ . '/proxies.txt', trim($item->proxy));
+//        echo $item->proxy . " removed" . PHP_EOL;
+//      }
+//    }
+//  }
+//});
 
 //  if (confirmAction("Are you want move $file content into $all:\t")) {
 //    $content = read_file($file);

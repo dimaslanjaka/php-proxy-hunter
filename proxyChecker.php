@@ -127,33 +127,43 @@ if (file_exists($backup)) {
 
 $max_checks = 50;
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
-
-iterateBigFilesLineByLine([$filePath], $max_checks, function (string $line) {
-  global $db, $max_checks, $filePath;
-  if (!empty($line) && strlen($line) < 10) return;
-  $untested = extractProxies($line);
-  // add 1 untested proxy from database
-  try {
-    $db_untested = $db->getUntestedProxies(1);
-    $db_untested_map = array_map(function ($item) {
-      $wrap = new Proxy($item['proxy']);
-      foreach ($item as $key => $value) {
-        if (property_exists($wrap, $key)) {
-          $wrap->$key = $value;
-        }
+$untested = [];
+try {
+  $db_untested = $db->getUntestedProxies(50);
+  $db_untested_map = array_map(function ($item) {
+    $wrap = new Proxy($item['proxy']);
+    foreach ($item as $key => $value) {
+      if (property_exists($wrap, $key)) {
+        $wrap->$key = $value;
       }
-      if (!empty($item['username']) && !empty($item['password'])) {
-        $wrap->username = $item['username'];
-        $wrap->password = $item['password'];
-      }
-      return $wrap;
-    }, $db_untested);
-    $untested = array_merge($untested, $db_untested_map);
-  } catch (\Throwable $th) {
-    echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
-  }
+    }
+    if (!empty($item['username']) && !empty($item['password'])) {
+      $wrap->username = $item['username'];
+      $wrap->password = $item['password'];
+    }
+    return $wrap;
+  }, $db_untested);
+  $untested = array_merge($untested, $db_untested_map);
+} catch (\Throwable $th) {
+  echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
+}
 
+$str_untested_from_file = read_first_lines($filePath, 50);
+if (empty($str_untested_from_file)) $str_untested_from_file = 'NO PROXY';
+$untested_from_file = extractProxies(implode("\n", $str_untested_from_file));
+$untested_from_file = filter_proxies($untested_from_file);
+
+$untested = array_merge($untested, $untested_from_file);
+
+echo 'queue ' . count($untested) . " proxies\n\n";
+
+execute_array_proxies();
+
+function execute_array_proxies()
+{
+  global $untested, $max_checks;
   $proxies = $untested;
+  echo "total queue: " . count($proxies) . " proxies" . PHP_EOL . PHP_EOL;
   // unique proxies
   $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
   // skip already checked proxy
@@ -167,13 +177,35 @@ iterateBigFilesLineByLine([$filePath], $max_checks, function (string $line) {
   shuffle($proxies);
 
   iterateArray($proxies, $max_checks, 'execute_single_proxy');
-});
+}
 
-$dead_proxies_arr = [];
+function filter_proxies(array $proxies)
+{
+  global $db;
+  // unique proxies
+  $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
+  // skip already checked proxy
+  $proxies = array_filter($proxies, function (Proxy $item) use ($db) {
+    $sel = $db->select($item->proxy);
+    if (empty($sel)) {
+      echo "add $item->proxy" . PHP_EOL;
+      // add proxy
+      $db->add($item->proxy);
+      // re-select proxy
+      $sel = $db->select($item->proxy);
+    }
+    if (empty($sel[0]['status'])) {
+      $db->updateStatus($item->proxy, 'untested');
+    }
+    if (empty($item->last_check)) return true;
+    return isDateRFC3339OlderThanHours($item->last_check, 5);
+  });
+  return $proxies;
+}
 
 function execute_single_proxy(Proxy $item)
 {
-  global $db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime, $dead_proxies_arr;
+  global $db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime;
   // Check if execution time has exceeded the maximum allowed time
   $elapsedTime = microtime(true) - $startTime;
   if ($elapsedTime > $maxExecutionTime) {
@@ -236,14 +268,12 @@ function execute_single_proxy(Proxy $item)
         echo $item->proxy . ' dead' . PHP_EOL;
       }
     }
-    $dead_proxies_arr[] = $raw_proxy;
+
     // always move checked proxy into dead.txt
-    \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $dead_proxies_arr) {
-      foreach ($dead_proxies_arr as $raw_proxy) {
-        $remove = removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
-        echo "move $raw_proxy from $filePath -> $deadPath " . ($remove ? 'success' : 'failed') . PHP_EOL;
-      }
-    }, "move dead proxy");
+    \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $raw_proxy) {
+      $remove = removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
+      echo "moving $raw_proxy from $filePath -> $deadPath" . PHP_EOL . "\t> $remove";
+    }, "move dead proxy $raw_proxy");
   }
   if (!$proxyValid) {
     try {
