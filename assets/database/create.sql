@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS "proxies" (
 	"latitude"	TEXT,
 	"longitude"	TEXT,
 	"anonymity"	TEXT,
+	"https"	TEXT,
 	"status"	TEXT,
 	"private"	TEXT,
 	"lang"	TEXT,
