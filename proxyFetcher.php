@@ -27,7 +27,7 @@ function exitProcess()
   if (file_exists($lockFilePath)) unlink($lockFilePath);
   file_put_contents($statusFile, 'idle');
   // run cleaner
-  require_once __DIR__ . '/proxyClean.php';
+  runPhpInBackground(__DIR__ . '/proxyClean.php');
 }
 
 register_shutdown_function('exitProcess');
