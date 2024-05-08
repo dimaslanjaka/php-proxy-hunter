@@ -1864,7 +1864,7 @@ function fixFile(string $inputFile): void
   if (flock($fileHandle, LOCK_EX)) {
     // Read input file and remove NUL characters
     while (!feof($fileHandle)) {
-      $chunk = fread($fileHandle, 4096); // Read in 4KB chunks
+      $chunk = fread($fileHandle, 500 * 1024); // Read in 500KB chunks
       $cleanedChunk = str_replace("\x00", '', $chunk);
       fseek($fileHandle, -strlen($chunk), SEEK_CUR); // Move back to the current position
       fwrite($fileHandle, $cleanedChunk); // Write the cleaned chunk back to the file
