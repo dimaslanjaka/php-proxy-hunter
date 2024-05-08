@@ -80,43 +80,5 @@ foreach ($urls as $url) {
 
 echo "Content appended to $outputFile" . PHP_EOL;
 
-try {
-  // remove duplicate lines from proxies.txt
-  removeDuplicateLines(__DIR__ . '/proxies.txt');
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLines
-  echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
-}
-
-echo 'remove duplicate lines in untested proxies' . PHP_EOL;
-
-try {
-  $file1 = realpath(__DIR__ . "/proxies.txt");
-  $file2 = realpath(__DIR__ . "/dead.txt");
-
-  if (removeDuplicateLinesFromSource($file1, $file2)) {
-    echo "Duplicated lines between $file1 and $file2 removed successful from $file1" . PHP_EOL;
-  }
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
-  echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
-}
-
-echo "remove lines not contains IP:PORT" . PHP_EOL;
-
-try {
-  filterIpPortLines(__DIR__ . "/proxies.txt");
-  filterIpPortLines(__DIR__ . "/dead.txt");
-} catch (InvalidArgumentException $e) {
-  echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
-}
-
-echo "remove empty lines" . PHP_EOL;
-
-try {
-  removeEmptyLinesFromFile(__DIR__ . "/proxies.txt");
-  removeEmptyLinesFromFile(__DIR__ . "/dead.txt");
-} catch (\Throwable $th) {
-  echo 'Error fix bad contents from proxies.txt: ' . $th->getMessage() . PHP_EOL;
-}
-
+// run cleaner
+require_once __DIR__ . '/proxyClean.php';
