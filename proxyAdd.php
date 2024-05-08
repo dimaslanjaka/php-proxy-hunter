@@ -70,7 +70,9 @@ $filePath = __DIR__ . '/proxies.txt';
 // write proxies into proxies.txt or proxies-backup.txt when checker still running
 if (file_exists(__DIR__ . '/proxyChecker.lock')) {
   // lock exist, backup added proxies
-  append_content_with_lock(__DIR__ . '/proxies-backup.txt', PHP_EOL . $proxies_txt);
+  $output = __DIR__ . '/assets/proxies/added-' . date("Y-m-d-H-i-s") . '.txt';
+  createParentFolders($output);
+  append_content_with_lock($output, PHP_EOL . $proxies_txt);
 } else {
   append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . $proxies_txt);
 }
