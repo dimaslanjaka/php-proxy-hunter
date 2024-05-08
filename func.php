@@ -116,30 +116,65 @@ function setPermissions(string $filename)
   }
 }
 
-function removeStringAndMoveToFile($sourceFilePath, $destinationFilePath, $stringToRemove): bool
+/**
+ * Remove specified string from source file and move it to destination file.
+ *
+ * This function reads the source file line by line, removes the specified string,
+ * and writes the modified content back to the source file. It also appends the removed
+ * string to the destination file.
+ *
+ * @param string $sourceFilePath Path to the source file.
+ * @param string $destinationFilePath Path to the destination file.
+ * @param string $stringToRemove The string to remove from the source file.
+ * @return bool True if the operation is successful, false otherwise.
+ */
+function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFilePath, string $stringToRemove): bool
 {
-  //  echo "moving $stringToRemove from $sourceFilePath to $destinationFilePath" . PHP_EOL;
-  if (!is_writable($sourceFilePath) && !is_writable($destinationFilePath)) {
+  // Check if both source and destination files are writable
+  if (!is_writable($sourceFilePath) || !is_writable($destinationFilePath)) {
     echo "$sourceFilePath or $destinationFilePath not writable" . PHP_EOL;
     return false;
   }
 
-  // Read content from the source file
-  $sourceContent = read_file($sourceFilePath);
+  // Open source file for reading and writing
+  $sourceHandle = fopen($sourceFilePath, 'r+');
+  if (!$sourceHandle) {
+    return false; // Unable to open source file
+  }
 
-  if (strpos($sourceContent, $stringToRemove) !== false) {
-    // Remove the desired string
-    $modifiedContent = str_replace($stringToRemove, '', $sourceContent);
+  // Open destination file for appending
+  $destinationHandle = fopen($destinationFilePath, 'a');
+  if (!$destinationHandle) {
+    fclose($sourceHandle);
+    return false; // Unable to open destination file
+  }
 
-    // Write the modified content back to the source file
-    $writeSrc = file_put_contents($sourceFilePath, $modifiedContent);
+  // Acquire an exclusive lock on the source file
+  if (flock($sourceHandle, LOCK_EX)) {
+    // Iterate through each line in the source file
+    while (($line = fgets($sourceHandle)) !== false) {
+      // Remove the string from the current line
+      $modifiedLine = str_replace($stringToRemove, '', $line);
+      // Write the modified line back to the source file
+      if (!empty(trim($modifiedLine))) {
+        fwrite($sourceHandle, $modifiedLine);
+      }
+    }
 
     // Append the removed string to the destination file
-    $writeDest = file_put_contents($destinationFilePath, PHP_EOL . $stringToRemove . PHP_EOL, FILE_APPEND);
+    fwrite($destinationHandle, PHP_EOL . $stringToRemove . PHP_EOL);
 
-    return $writeSrc != false && $writeDest != false;
+    // Release the lock and close file handles
+    flock($sourceHandle, LOCK_UN);
+    fclose($sourceHandle);
+    fclose($destinationHandle);
+
+    return true;
+  } else {
+    fclose($sourceHandle);
+    fclose($destinationHandle);
+    return false; // Failed to acquire lock on the source file
   }
-  return false;
 }
 
 /**
