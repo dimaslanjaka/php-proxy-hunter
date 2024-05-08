@@ -219,7 +219,7 @@ function curlGetWithProxy(string $url, string $proxy = null, ?string $proxyType 
  * @param string $filename The path to the text file.
  * @return bool True on success, false on failure.
  */
-function rewriteIpPortFile($filename): bool
+function rewriteIpPortFile(string $filename): bool
 {
   if (!file_exists($filename) || !is_readable($filename) || !is_writable($filename)) {
     echo "File '$filename' is not readable or writable" . PHP_EOL;
@@ -249,7 +249,8 @@ function rewriteIpPortFile($filename): bool
 
     // Write matched IP:PORT combinations to the temporary file
     foreach ($matches[0] as $match) {
-      fwrite($tempFile, $match . "\n");
+      if (!empty(trim($match)))
+        fwrite($tempFile, $match . "\n");
     }
   }
 
@@ -612,7 +613,7 @@ function removeDuplicateLinesFromSource(string $sourceFile, string $destinationF
   // Read lines from source file
   while (($line = fgets($sourceHandle)) !== false) {
     // Check if the line exists in the destination file
-    if (!in_array(trim($line), $destinationLines)) {
+    if (!in_array(trim($line), $destinationLines) && !empty(trim($line))) {
       // If not, write the line to the temporary file
       fwrite($tempFile, $line);
     }
@@ -666,7 +667,8 @@ function splitLargeFile(string $largeFilePath, int $maxLinesPerFile, string $out
     $line = fgets($handle);
 
     // Write the line to the current small file
-    fwrite($smallFile, $line);
+    if (!empty(trim($line)))
+      fwrite($smallFile, $line);
 
     // Increment the line count
     $lineCount++;
@@ -772,7 +774,8 @@ function removeDuplicateLines(string $filePath): void
 
     // Write the unique lines back to the file
     foreach ($uniqueLines as $uniqueLine) {
-      fwrite($fileHandle, $uniqueLine . PHP_EOL);
+      if (!empty(trim($uniqueLine)))
+        fwrite($fileHandle, $uniqueLine . PHP_EOL);
     }
 
     // Release the lock and close the file handle
@@ -818,7 +821,7 @@ function mergeArrays(array $arr1, array $arr2): array
  * @param string $filePath The path to the text file.
  * @return void
  */
-function removeEmptyLinesFromFile($filePath)
+function removeEmptyLinesFromFile(string $filePath)
 {
   // Check if the file exists and is readable
   if (!file_exists($filePath) || !is_readable($filePath)) {
@@ -843,7 +846,7 @@ function removeEmptyLinesFromFile($filePath)
 
   // Read the input file line by line, remove empty lines, and write non-empty lines to the temporary file
   while (($line = fgets($inputFile)) !== false) {
-    if (trim($line) !== '') {
+    if (!empty(trim($line))) {
       fwrite($tempFile, $line);
     }
   }
@@ -862,7 +865,7 @@ function removeEmptyLinesFromFile($filePath)
 
   // Copy content from temporary file to input file
   while (($line = fgets($tempFile)) !== false) {
-    fwrite($outputFile, $line);
+    if (!empty(trim($line))) fwrite($outputFile, $line);
   }
 
   // Close the temporary file and the output file
@@ -878,7 +881,7 @@ function removeEmptyLinesFromFile($filePath)
  *
  * @return bool True if the content was moved successfully, false otherwise.
  */
-function moveContent($sourceFile, $destinationFile): bool
+function moveContent(string $sourceFile, string $destinationFile): bool
 {
   // Open the source file for reading
   $sourceHandle = fopen($sourceFile, 'r');
@@ -890,7 +893,7 @@ function moveContent($sourceFile, $destinationFile): bool
   if ($sourceHandle && $destinationHandle) {
     // Read content from the source file and write it to the destination file
     while (($line = fgets($sourceHandle)) !== false) {
-      fwrite($destinationHandle, $line);
+      if (!empty(trim($line))) fwrite($destinationHandle, $line);
     }
 
     // Close both files
@@ -944,7 +947,7 @@ function moveLinesToFile(string $sourceFile, string $destinationFile, int $lines
       break;
     }
     // Write the line to the destination file
-    fwrite($destinationHandle, $line);
+    if (!empty(trim($line))) fwrite($destinationHandle, $line);
   }
 
   // Remove the moved lines from the source file
@@ -954,7 +957,8 @@ function moveLinesToFile(string $sourceFile, string $destinationFile, int $lines
   }
   ftruncate($sourceHandle, 0); // Clear the file
   rewind($sourceHandle);
-  fwrite($sourceHandle, $remainingContent);
+  if (!empty(trim($remainingContent)))
+    fwrite($sourceHandle, $remainingContent);
 
   // Close the file handles
   fclose($sourceHandle);
@@ -983,7 +987,8 @@ function append_content_with_lock(string $file, string $content_to_append): bool
   // Acquire an exclusive lock
   if (flock($handle, LOCK_EX)) {
     // Append the content
-    fwrite($handle, $content_to_append);
+    if (!empty(trim($content_to_append)))
+      fwrite($handle, $content_to_append);
 
     // Release the lock
     flock($handle, LOCK_UN);
@@ -1031,7 +1036,8 @@ function removeStringFromFile(string $file_path, string $string_to_remove): bool
     // Remove the string from the current line
     $modified_line = str_replace($string_to_remove, '', $line);
     // Write the modified line to the temporary file
-    fwrite($temp_file_handle, $modified_line);
+    if (!empty(trim($modified_line)))
+      fwrite($temp_file_handle, $modified_line);
   }
 
   // Close the file handles
@@ -1512,7 +1518,8 @@ function filterUniqueLines(string $inputFile)
     if (!empty($line)) {
       // Check if line is unique
       if (strpos(stream_get_contents($tempFile), $line) === false) {
-        fwrite($tempFile, $line . PHP_EOL);
+        if (!empty(trim($line)))
+          fwrite($tempFile, $line . PHP_EOL);
       }
     }
   }
