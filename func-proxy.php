@@ -705,11 +705,16 @@ function filterIpPortLines(string $inputFile)
   while (($line = fgets($fileHandle)) !== false) {
     if (empty($line)) continue;
     // Check if the line contains IP:PORT format
-    $re = '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}/';
+    $re = '/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}/';
     $containsProxy = preg_match($re, $line);
     $proxyLengthValid = strlen($line) >= 10;
     $validIpPort = false;
     $test = preg_match_all($re, $line, $matches, PREG_SET_ORDER, 0);
+//    if (trim($line) == '182.106:999') {
+//      echo $line . PHP_EOL;
+//      var_dump($test);
+//      exit;
+//    }
     foreach ($matches as $match) {
       $proxy_str = $match[0];
       if (isValidProxy($proxy_str)) {
