@@ -165,9 +165,11 @@ iterateBigFilesLineByLine([$filePath], $max_checks, function (string $line) {
   iterateArray($proxies, $max_checks, 'execute_single_proxy');
 });
 
+$dead_proxies_arr = [];
+
 function execute_single_proxy(Proxy $item)
 {
-  global $db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime;
+  global $db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime, $dead_proxies_arr;
   // Check if execution time has exceeded the maximum allowed time
   $elapsedTime = microtime(true) - $startTime;
   if ($elapsedTime > $maxExecutionTime) {
@@ -230,12 +232,14 @@ function execute_single_proxy(Proxy $item)
         echo $item->proxy . ' dead' . PHP_EOL;
       }
     }
-
+    $dead_proxies_arr[] = $raw_proxy;
     // always move checked proxy into dead.txt
-    \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $raw_proxy) {
-      echo "move $raw_proxy from $filePath -> $deadPath" . PHP_EOL;
-      removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
-    }, "move $raw_proxy from $filePath -> $deadPath");
+    \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $dead_proxies_arr) {
+      foreach ($dead_proxies_arr as $raw_proxy) {
+        echo "move $raw_proxy from $filePath -> $deadPath" . PHP_EOL;
+        removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
+      }
+    }, "move dead proxy");
   }
   if (!$proxyValid) {
     try {
