@@ -252,18 +252,18 @@ function execute_single_proxy(Proxy $item)
         $merged_proxy_types = implode('-', $proxy_types);
         echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
         $db->updateData($item->proxy, [
-            'type' => $merged_proxy_types,
-            'status' => 'active',
-            'latency' => max($latencies),
-            'username' => $item->username,
-            'password' => $item->password
+          'type' => $merged_proxy_types,
+          'status' => 'active',
+          'latency' => max($latencies),
+          'username' => $item->username,
+          'password' => $item->password
         ]);
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item->proxy, [
-              'webgl_renderer' => $webgl->webgl_renderer,
-              'webgl_vendor' => $webgl->webgl_vendor,
-              'browser_vendor' => $webgl->browser_vendor
+            'webgl_renderer' => $webgl->webgl_renderer,
+            'webgl_vendor' => $webgl->webgl_vendor,
+            'browser_vendor' => $webgl->browser_vendor
           ]);
         }
         // get geolocation
