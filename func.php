@@ -598,32 +598,55 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
  */
 function removeDuplicateLinesFromSource(string $sourceFile, string $destinationFile): bool
 {
-  // Read destination file into an array
-  $destinationLines = file($destinationFile, FILE_IGNORE_NEW_LINES);
-
-  // Open source file for reading and writing
-  $sourceHandle = fopen($sourceFile, "r+");
+  // Open source file for reading
+  $sourceHandle = fopen($sourceFile, "r");
   if (!$sourceHandle) {
     return false; // Unable to open source file
   }
 
+  // Open destination file for reading
+  $destinationHandle = fopen($destinationFile, "r");
+  if (!$destinationHandle) {
+    fclose($sourceHandle);
+    return false; // Unable to open destination file
+  }
+
   // Create a temporary file to store non-duplicated lines
   $tempFile = tmpfile();
+  if (!$tempFile) {
+    fclose($sourceHandle);
+    fclose($destinationHandle);
+    return false; // Unable to create temporary file
+  }
+
+  // Store destination lines in a hash set for faster lookup
+  $destinationLines = [];
+  while (($line = fgets($destinationHandle)) !== false) {
+    $destinationLines[trim($line)] = true;
+  }
 
   // Read lines from source file
   while (($line = fgets($sourceHandle)) !== false) {
     // Check if the line exists in the destination file
-    if (!in_array(trim($line), $destinationLines) && !empty(trim($line))) {
+    if (!isset($destinationLines[trim($line)]) && !empty(trim($line))) {
       // If not, write the line to the temporary file
       fwrite($tempFile, $line);
     }
   }
 
+  // Close file handles
+  fclose($sourceHandle);
+  fclose($destinationHandle);
+
   // Rewind the temporary file pointer
   rewind($tempFile);
 
-  // Truncate the source file
-  ftruncate($sourceHandle, 0);
+  // Open source file for writing
+  $sourceHandle = fopen($sourceFile, "w");
+  if (!$sourceHandle) {
+    fclose($tempFile);
+    return false; // Unable to open source file for writing
+  }
 
   // Copy contents from the temporary file to the source file
   while (!feof($tempFile)) {
