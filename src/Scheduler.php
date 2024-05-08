@@ -21,8 +21,10 @@ class Scheduler
   public static function register(callable $func, ?string $identifier = null): void
   {
     global $shutdown_functions;
+    /** @noinspection RegExpRedundantEscape */
+    $id = preg_replace('/[^\w\-\._\s]/u', '', $identifier);
     if (is_string($identifier) && !empty($identifier)) {
-      $shutdown_functions[md5($identifier)] = $func;
+      $shutdown_functions[$id] = $func;
     } else {
       $shutdown_functions[self::rand_str()] = $func;
     }
