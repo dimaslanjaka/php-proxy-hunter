@@ -112,15 +112,15 @@ function exitProcess()
 register_shutdown_function('exitProcess');
 
 // Specify the file path
-$filePath = __DIR__ . "/proxies.txt";
+$untestedFilePath = __DIR__ . "/proxies.txt";
 $deadPath = __DIR__ . "/dead.txt";
 $workingPath = __DIR__ . "/working.txt";
-setFilePermissions([$filePath, $workingPath, $deadPath]);
+setFilePermissions([$untestedFilePath, $workingPath, $deadPath]);
 
 // move backup added proxies
 $backup = __DIR__ . '/proxies-backup.txt';
 if (file_exists($backup)) {
-  if (moveContent($backup, $filePath)) {
+  if (moveContent($backup, $untestedFilePath)) {
     unlink($backup);
   }
 }
@@ -150,8 +150,8 @@ try {
 }
 
 // get proxy from proxies.txt
-if (countNonEmptyLines($filePath) > 0) {
-  $str_untested_from_file = read_first_lines($filePath, 50);
+if (countNonEmptyLines($untestedFilePath) > 0) {
+  $str_untested_from_file = read_first_lines($untestedFilePath, 50);
   if (empty($str_untested_from_file)) $str_untested_from_file = [];
   $untested_from_file = extractProxies(implode("\n", $str_untested_from_file));
   $untested_from_file = filter_proxies($untested_from_file);
@@ -177,12 +177,12 @@ function execute_array_proxies()
 
 function filter_proxies(array $proxies)
 {
-  global $db;
+  global $db, $untestedFilePath, $deadPath;
   if (empty($proxies)) return [];
   // unique proxies
   $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
   // skip already checked proxy
-  $proxies = array_filter($proxies, function (Proxy $item) use ($db) {
+  $proxies = array_filter($proxies, function (Proxy $item) use ($db, $untestedFilePath, $deadPath) {
     $sel = $db->select($item->proxy);
     if (empty($sel)) {
       echo "add $item->proxy" . PHP_EOL;
@@ -194,6 +194,15 @@ function filter_proxies(array $proxies)
     if (empty($sel[0]['status'])) {
       $db->updateStatus($item->proxy, 'untested');
     }
+    $raw_proxy = $item->proxy;
+    if (!empty($raw_proxy)) {
+      // remove invalid proxy from proxies.txt
+      \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
+        $remove1 = removeStringFromFile($untestedFilePath, $raw_proxy);
+        $remove2 = removeStringFromFile($deadPath, $raw_proxy);
+        echo "remove indexed $raw_proxy from $untestedFilePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove1" . PHP_EOL;
+      }, "remove indexed $raw_proxy");
+    }
     if (empty($item->last_check)) return true;
     return isDateRFC3339OlderThanHours($item->last_check, 5);
   });
@@ -202,7 +211,7 @@ function filter_proxies(array $proxies)
 
 function execute_single_proxy(Proxy $item)
 {
-  global $db, $headers, $endpoint, $filePath, $deadPath, $startTime, $maxExecutionTime;
+  global $db, $headers, $endpoint, $untestedFilePath, $deadPath, $startTime, $maxExecutionTime;
   // Check if execution time has exceeded the maximum allowed time
   $elapsedTime = microtime(true) - $startTime;
   if ($elapsedTime > $maxExecutionTime) {
@@ -267,7 +276,7 @@ function execute_single_proxy(Proxy $item)
     }
     if (!empty($raw_proxy)) {
       // move proxy into dead.txt
-      \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $raw_proxy) {
+      \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
         $remove = removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
         echo "moving $raw_proxy from $filePath -> $deadPath" . PHP_EOL . "\t> $remove" . PHP_EOL;
       }, "move dead proxy $raw_proxy");
@@ -284,7 +293,7 @@ function execute_single_proxy(Proxy $item)
     }
     if (!empty($raw_proxy)) {
       // remove invalid proxy from proxies.txt
-      \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $raw_proxy) {
+      \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
         $remove1 = removeStringFromFile($filePath, $raw_proxy);
         $remove2 = removeStringFromFile($deadPath, $raw_proxy);
         echo "remove invalid $raw_proxy from $filePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove1" . PHP_EOL;
