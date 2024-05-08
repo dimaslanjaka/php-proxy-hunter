@@ -227,10 +227,12 @@ function fetchWorkingData() {
   });
 }
 
+const fetchWorkingEveryMinutes = 1;
+
 function setLastExecutionTime() {
   const now = new Date();
-  now.setTime(now.getTime() + 5 * 60 * 1000); // Set expiration time 5 minutes from now
-  document.cookie = "lastExecutionTime=" + now.toUTCString() + "; path=/";
+  now.setTime(now.getTime() + fetchWorkingEveryMinutes * 60 * 1000); // Set expiration time 5 minutes from now
+  document.cookie = "lastExecutionTime=" + now.toUTCString() + "; path=" + location.pathname;
 }
 
 function getLastExecutionTime() {
@@ -252,8 +254,7 @@ function getLastExecutionTime() {
 function updateWorkingProxies() {
   const lastExecutionTime = getLastExecutionTime();
   const currentTime = new Date();
-
-  if (!lastExecutionTime || currentTime.getTime() - lastExecutionTime.getTime() >= 5 * 60 * 1000) {
+  if (!lastExecutionTime || currentTime.getTime() - lastExecutionTime.getTime() >= fetchWorkingEveryMinutes * 60 * 1000) {
     fetchWorkingData();
     setLastExecutionTime();
   }
