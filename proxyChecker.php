@@ -210,7 +210,7 @@ function execute_single_proxy(Proxy $item)
     exit(0);
     return;
   }
-  //  get_geo_ip($item->proxy); // just test
+  $raw_proxy = '';
   $proxyValid = isValidProxy($item->proxy);
   if ($proxyValid) {
     $raw_proxy = $item->proxy;
@@ -264,14 +264,15 @@ function execute_single_proxy(Proxy $item)
         echo $item->proxy . ' dead' . PHP_EOL;
       }
     }
-
-    // always move checked proxy into dead.txt
-    \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $raw_proxy) {
-      $remove = removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
-      echo "moving $raw_proxy from $filePath -> $deadPath" . PHP_EOL . "\t> $remove" . PHP_EOL;
-    }, "move dead proxy $raw_proxy");
-  }
-  if (!$proxyValid) {
+    if (!empty($raw_proxy)) {
+      // move proxy into dead.txt
+      \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $raw_proxy) {
+        $remove = removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
+        echo "moving $raw_proxy from $filePath -> $deadPath" . PHP_EOL . "\t> $remove" . PHP_EOL;
+      }, "move dead proxy $raw_proxy");
+    }
+  } else {
+    $raw_proxy = $item->proxy;
     try {
       $db->remove($item->proxy);
       echo $item->proxy . ' invalid proxy -> deleted' . PHP_EOL;
@@ -279,6 +280,14 @@ function execute_single_proxy(Proxy $item)
       $errorMessage = $e->getMessage();
       // Handle or display the error message
       echo "fail delete " . $item->proxy . ' : ' . $errorMessage . PHP_EOL;
+    }
+    if (!empty($raw_proxy)) {
+      // remove invalid proxy from proxies.txt
+      \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $raw_proxy) {
+        $remove1 = removeStringFromFile($filePath, $raw_proxy);
+        $remove2 = removeStringFromFile($deadPath, $raw_proxy);
+        echo "remove invalid $raw_proxy from $filePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove1" . PHP_EOL;
+      }, "move dead proxy $raw_proxy");
     }
   }
 }
