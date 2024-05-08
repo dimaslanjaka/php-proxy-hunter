@@ -28,7 +28,7 @@ class Scheduler
   {
     global $shutdown_functions;
     foreach ($shutdown_functions as $key => $shutdown_function) {
-      echo "Scheduler: executing $key";
+      echo "Scheduler: executing $key:" . PHP_EOL;
       if (is_callable($shutdown_function)) {
         call_user_func($shutdown_function);
       }
