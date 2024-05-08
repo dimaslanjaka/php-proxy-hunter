@@ -153,7 +153,7 @@ fixFile($filePath);
 
 // get proxy from proxies.txt
 $str_untested_from_file = read_first_lines($filePath, 50);
-if (empty($str_untested_from_file)) $str_untested_from_file = 'NO PROXY';
+if (empty($str_untested_from_file)) $str_untested_from_file = [];
 $untested_from_file = extractProxies(implode("\n", $str_untested_from_file));
 $untested_from_file = filter_proxies($untested_from_file);
 
