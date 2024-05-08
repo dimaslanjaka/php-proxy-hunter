@@ -27,7 +27,8 @@ class Scheduler
   public static function execute()
   {
     global $shutdown_functions;
-    foreach ($shutdown_functions as $shutdown_function) {
+    foreach ($shutdown_functions as $key => $shutdown_function) {
+      echo "Scheduler: executing $key";
       if (is_callable($shutdown_function)) {
         call_user_func($shutdown_function);
       }
