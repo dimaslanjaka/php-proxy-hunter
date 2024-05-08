@@ -1044,7 +1044,7 @@ function removeStringFromFile(string $file_path, string $string_to_remove): bool
   }
 
   // Create a temporary file to write modified content
-  $temp_file_path = tempnam(sys_get_temp_dir(), 'tempfile');
+  $temp_file_path = tempnam(__DIR__ . '/tmp', 'removeStringFromFile');
 
   // Open the temporary file in write mode
   $temp_file_handle = fopen($temp_file_path, 'w');
@@ -1344,7 +1344,7 @@ function read_file(string $inputFile)
     $callerClass = $caller['class'] ?? 'non class';
     $callerFunction = $caller['function'] ?? 'non function';
 
-    echo "Called by $callerClass->$callerFunction in {$callerFile}:{$callerLine}" . PHP_EOL;
+    echo "Called by $callerClass->$callerFunction in {$callerFile} on line {$callerLine}" . PHP_EOL;
     return false;
   }
 
