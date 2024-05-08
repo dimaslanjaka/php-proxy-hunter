@@ -48,3 +48,4 @@ venv/
 /src/undetected-chromedriver
 /src/selenium-dolphin
 /config.yaml
+*.out
