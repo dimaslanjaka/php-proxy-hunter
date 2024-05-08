@@ -1490,23 +1490,6 @@ function randomIosUa(string $type = 'chrome'): string
 }
 
 /**
- * Fixes a text file containing NUL characters by removing them.
- *
- * @param string $inputFile The path to the input file.
- * @return void
- */
-function fixFile(string $inputFile): void
-{
-  if (!is_file_locked($inputFile) && is_writable($inputFile)) {
-    // Read input file and remove NUL characters
-    $cleanedContent = str_replace("\x00", '', read_file($inputFile));
-
-    // Write cleaned content back to input file
-    file_put_contents($inputFile, $cleanedContent);
-  }
-}
-
-/**
  * Reads a file as UTF-8 encoded text.
  *
  * @param string $inputFile The path to the input file.
@@ -1876,4 +1859,38 @@ function countNonEmptyLines($filename, $chunkSize = 4096)
   }
 
   return $count;
+}
+
+/**
+ * Fixes a text file containing NUL characters by removing them.
+ *
+ * @param string $inputFile The path to the input file.
+ * @return void
+ */
+function fixFile(string $inputFile): void
+{
+  // Open the file for reading and writing (binary mode)
+  $fileHandle = fopen($inputFile, 'r+');
+
+  // Attempt to acquire an exclusive lock on the file
+  if (flock($fileHandle, LOCK_EX)) {
+    // Read input file and remove NUL characters
+    while (!feof($fileHandle)) {
+      $chunk = fread($fileHandle, 4096); // Read in 4KB chunks
+      $cleanedChunk = str_replace("\x00", '', $chunk);
+      fseek($fileHandle, -strlen($chunk), SEEK_CUR); // Move back to the current position
+      fwrite($fileHandle, $cleanedChunk); // Write the cleaned chunk back to the file
+    }
+
+    // Truncate the file to remove any extra content after cleaning
+    ftruncate($fileHandle, ftell($fileHandle));
+
+    // Release the lock
+    flock($fileHandle, LOCK_UN);
+
+    // Close the file handle
+    fclose($fileHandle);
+  } else {
+    echo "fixFile: Unable to acquire lock." . PHP_EOL;
+  }
 }
