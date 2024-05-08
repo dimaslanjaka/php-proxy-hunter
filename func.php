@@ -428,13 +428,17 @@ function readFileLinesToArray(string $filename)
  * Get all files with a specific extension in a folder.
  *
  * @param string $folder The folder path to search for files.
- * @param string $extension The file extension to filter files by.
+ * @param string|null $extension The file extension to filter files by.
  *
  * @return array An array containing full paths of files with the specified extension.
  */
-function getFilesByExtension(string $folder, string $extension = 'txt'): array
+function getFilesByExtension(string $folder, ?string $extension = 'txt'): array
 {
-  if (!file_exists($folder)) return [];
+  if (!file_exists($folder)) {
+    echo "$folder not exist" . PHP_EOL;
+    return [];
+  }
+
   $files = [];
   $folder = rtrim($folder, '/') . '/'; // Ensure folder path ends with a slash
 
@@ -444,15 +448,19 @@ function getFilesByExtension(string $folder, string $extension = 'txt'): array
     while (false !== ($entry = readdir($handle))) {
       $file = $folder . $entry;
 
-      // Exclude '.' and '..' and ensure it's a file
+      // ensure it's a file
       if ($entry != "." && $entry != ".." && is_file($file)) {
-        // Check if file has the specified extension
-        if (pathinfo($file, PATHINFO_EXTENSION) === $extension) {
-          $files[] = $file;
+        if (!empty($extension)) {
+          // Check if file has the specified extension
+          if (pathinfo($file, PATHINFO_EXTENSION) === $extension) {
+            $files[] = realpath($file);
+          }
         }
       }
     }
     closedir($handle);
+  } else {
+    echo "cannot open $folder\n";
   }
 
   return $files;
@@ -1067,39 +1075,6 @@ function removeEmptyLinesFromFile(string $filePath)
   // Close the temporary file and the output file
   fclose($tempFile);
   fclose($outputFile);
-}
-
-/**
- * Move content from a source file to a destination file in append mode.
- *
- * @param string $sourceFile The path to the source file.
- * @param string $destinationFile The path to the destination file.
- *
- * @return bool True if the content was moved successfully, false otherwise.
- */
-function moveContent(string $sourceFile, string $destinationFile): bool
-{
-  // Open the source file for reading
-  $sourceHandle = fopen($sourceFile, 'r');
-
-  // Open the destination file for appending
-  $destinationHandle = fopen($destinationFile, 'a');
-
-  // Check if both files are opened successfully
-  if ($sourceHandle && $destinationHandle) {
-    // Read content from the source file and write it to the destination file
-    while (($line = fgets($sourceHandle)) !== false) {
-      if (!empty(trim($line))) fwrite($destinationHandle, $line);
-    }
-
-    // Close both files
-    fclose($sourceHandle);
-    fclose($destinationHandle);
-
-    return true; // Indicate success
-  } else {
-    return false; // Indicate failure
-  }
 }
 
 /**
@@ -1894,3 +1869,67 @@ function fixFile(string $inputFile): void
     echo "fixFile: Unable to acquire lock." . PHP_EOL;
   }
 }
+
+/**
+ * Move content from a source file to a destination file in append mode.
+ *
+ * @param string $sourceFile The path to the source file.
+ * @param string $destinationFile The path to the destination file.
+ *
+ * @return string An error message if there's an issue, otherwise an empty string for success.
+ */
+function moveContent(string $sourceFile, string $destinationFile): string
+{
+  // Check if source file is writable
+  if (!is_writable($sourceFile)) {
+    return "$sourceFile not writable";
+  }
+
+  // Check if destination file is writable
+  if (!is_writable($destinationFile)) {
+    return "$destinationFile not writable";
+  }
+
+  // Check if source file is locked
+  if (is_file_locked($sourceFile)) {
+    return "$sourceFile locked";
+  }
+
+  // Check if destination file is locked
+  if (is_file_locked($destinationFile)) {
+    return "$destinationFile locked";
+  }
+
+  // Open the source file for reading
+  $sourceHandle = fopen($sourceFile, 'r');
+
+  // Open the destination file for appending
+  $destinationHandle = fopen($destinationFile, 'a');
+
+  // Attempt to acquire exclusive locks on both files
+  $lockSource = flock($sourceHandle, LOCK_SH);
+  $lockDestination = flock($destinationHandle, LOCK_EX);
+
+  // Check if both files are opened and locked successfully
+  if ($sourceHandle && $destinationHandle && $lockSource && $lockDestination) {
+    // Read content from the source file and write it to the destination file
+    while (($line = fgets($sourceHandle)) !== false) {
+      if (!empty(trim($line))) fwrite($destinationHandle, $line);
+    }
+
+    // Close both files and release locks
+    flock($sourceHandle, LOCK_UN);
+    flock($destinationHandle, LOCK_UN);
+    fclose($sourceHandle);
+    fclose($destinationHandle);
+
+    return ""; // Success, so return an empty string
+  } else {
+    // Close both files if they were opened
+    if ($sourceHandle) fclose($sourceHandle);
+    if ($destinationHandle) fclose($destinationHandle);
+
+    return "Failed to move content"; // Indicate failure
+  }
+}
+
