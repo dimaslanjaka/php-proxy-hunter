@@ -1834,7 +1834,7 @@ function iterateArray(array $array, int $limit = 50, ?callable $callback = null)
  * @param int $chunkSize Optional. The size of each chunk to read in bytes. Defaults to 4096.
  * @return int|false The number of non-empty lines in the file, or false if the file couldn't be opened.
  */
-function countNonEmptyLines($filename, $chunkSize = 4096)
+function countNonEmptyLines(string $filename, int $chunkSize = 4096)
 {
   $file = fopen($filename, "r");
   if (!$file) {
