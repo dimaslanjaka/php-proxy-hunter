@@ -8,8 +8,28 @@ if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
 if (!$isCli)
   exit('web server access disallowed');
 
+$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$statusFile = __DIR__ . "/status.txt";
+
+if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
+  echo "another process still running\n";
+  exit();
+} else {
+  file_put_contents($lockFilePath, date(DATE_RFC3339));
+  file_put_contents($statusFile, 'cleaning proxies');
+}
+
+function exitProcess()
+{
+  global $lockFilePath, $statusFile;
+  if (file_exists($lockFilePath))
+    unlink($lockFilePath);
+  file_put_contents($statusFile, 'idle');
+}
+
+register_shutdown_function('exitProcess');
+
 // clean all proxies
-// merged into proxies-all.txt
 
 $all = __DIR__ . '/proxies-all.txt';
 
@@ -24,6 +44,23 @@ setFilePermissions(array_merge($files, [$all]));
 
 foreach ($files as $file) {
   echo "processing $file" . PHP_EOL;
+
+  try {
+    // remove duplicate lines from proxies.txt
+    removeDuplicateLines($file);
+  } catch (Exception $e) {
+    // Handle any exceptions that occur during the execution of removeDuplicateLines
+    echo 'Error removing duplicate lines ' . $e->getMessage() . PHP_EOL;
+  }
+
+  try {
+    // remove lines less than 10 size
+    removeShortLines($file, 10);
+  } catch (Exception $e) {
+    // Handle any exceptions that occur during the execution of removeDuplicateLines
+    echo 'Error removing short lines ' . $e->getMessage() . PHP_EOL;
+  }
+
   echo "remove lines not contains IP:PORT" . PHP_EOL;
 
   try {
@@ -47,41 +84,14 @@ foreach ($files as $file) {
   } catch (\Throwable $th) {
     echo 'Error fix bad contents from proxies.txt: ' . $th->getMessage() . PHP_EOL;
   }
-
-//  if (confirmAction("Are you want move $file content into $all:\t")) {
-//    $content = read_file($file);
-//    append_content_with_lock($all, $content);
-//  }
 }
 
-try {
-  // remove duplicate lines from proxies.txt
-  removeDuplicateLines(__DIR__ . '/proxies.txt');
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLines
-  echo 'Error removing duplicate lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
-}
-
-try {
-  // remove lines less than 10 size
-  removeShortLines(__DIR__ . '/proxies.txt', 10);
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLines
-  echo 'Error removing short lines from proxies.txt: ' . $e->getMessage() . PHP_EOL;
-}
-
-try {
-  // remove duplicate lines from dead.txt
-  removeDuplicateLines(__DIR__ . '/dead.txt');
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLines
-  echo 'Error removing duplicate lines from dead.txt: ' . $e->getMessage() . PHP_EOL;
-}
+echo "removing duplicated lines from proxies.txt which exist in dead.txt" . PHP_EOL;
 
 try {
   // remove duplicate lines in untested proxies
-  $file1 = realpath(__DIR__ . "/proxies.txt");
-  $file2 = realpath(__DIR__ . "/dead.txt");
+  $file1 = __DIR__ . "/proxies.txt";
+  $file2 = __DIR__ . "/dead.txt";
 
   if (removeDuplicateLinesFromSource($file1, $file2)) {
     echo "Duplicated lines between $file1 and $file2 removed successful from $file1" . PHP_EOL;
@@ -91,3 +101,7 @@ try {
   echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
 }
 
+//  if (confirmAction("Are you want move $file content into $all:\t")) {
+//    $content = read_file($file);
+//    append_content_with_lock($all, $content);
+//  }
