@@ -1749,13 +1749,13 @@ function removeShortLines(string $inputStringOrFilePath, int $minLength): string
 }
 
 /**
- * Read the first N lines from a file.
+ * Read the first N non-empty lines from a file.
  *
  * @param string $filename The path to the file.
  * @param int $lines_to_read The number of lines to read.
- * @return array|false An array containing the first N lines from the file, or false on failure.
+ * @return array|false An array containing the first N non-empty lines from the file, or false on failure.
  */
-function read_first_lines(string $filename, int $lines_to_read): array
+function read_first_lines(string $filename, int $lines_to_read): array|false
 {
   $lines = [];
   $handle = fopen($filename, 'r');
@@ -1769,8 +1769,11 @@ function read_first_lines(string $filename, int $lines_to_read): array
 
   $count = 0;
   while (($line = fgets($handle)) !== false && $count < $lines_to_read) {
-    $lines[] = $line;
-    $count++;
+    // Skip empty lines
+    if (!empty(trim($line))) {
+      $lines[] = $line;
+      $count++;
+    }
   }
 
   // Release the lock and close the file
