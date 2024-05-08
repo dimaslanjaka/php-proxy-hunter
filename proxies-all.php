@@ -43,11 +43,11 @@ iterateBigFilesLineByLine($files, function ($line) {
     if (empty($sel[0]['status'])) {
       $db->updateStatus($item->proxy, 'untested');
     }
-    if (!empty($sel[0]['proxy'])) {
-      Scheduler::register(function () use ($db, $item) {
-        echo "removing " . $item->proxy . PHP_EOL;
-        $db->remove($item->proxy);
-      }, "remove " . $item->proxy);
+    if (!empty($sel[0]['proxy']) && !isValidProxy($sel[0]['proxy'])) {
+      Scheduler::register(function () use ($db, $item, $sel) {
+        echo "removing " . $sel[0]['proxy'] . PHP_EOL;
+        $db->remove($sel[0]['proxy']);
+      }, "remove " . $sel[0]['proxy']);
     }
   }
 });
