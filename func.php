@@ -1128,10 +1128,10 @@ function append_content_with_lock(string $file, string $content_to_append): bool
  * Removes a specified string from a text file.
  *
  * @param string $file_path The path to the text file.
- * @param string $string_to_remove The string to remove from the file.
+ * @param string|array $string_to_remove The string to remove from the file.
  * @return bool True if the string was successfully removed, false otherwise.
  */
-function removeStringFromFile(string $file_path, string $string_to_remove): bool
+function removeStringFromFile(string $file_path, $string_to_remove): bool
 {
   // Open the file in read mode
   $file_handle = fopen($file_path, 'r+');
