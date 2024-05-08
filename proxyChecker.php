@@ -154,12 +154,16 @@ iterateBigFilesLineByLine([$filePath], $max_checks, function (string $line) {
   }
 
   $proxies = $untested;
-
+  // unique proxies
   $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
+  // skip already checked proxy
   $proxies = array_filter($proxies, function (Proxy $item) {
     if (empty($item->last_check)) return true;
     return isDateRFC3339OlderThanHours($item->last_check, 5);
   });
+  // skip empty array
+  if (empty($proxies)) return;
+  // shuffle array
   shuffle($proxies);
 
   iterateArray($proxies, $max_checks, 'execute_single_proxy');
