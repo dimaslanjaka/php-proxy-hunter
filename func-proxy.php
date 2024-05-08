@@ -13,6 +13,8 @@ use PhpProxyHunter\ProxyDB;
  */
 function extractProxies(string $string): array
 {
+  if (empty(trim($string))) return [];
+
   $results = [];
 
   // Regular expression pattern to match IP:PORT pairs along with optional username and password
