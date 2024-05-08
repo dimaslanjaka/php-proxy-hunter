@@ -555,23 +555,31 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
 
     $file = fopen($filePath, 'r');
     if ($file) {
-      $maxLines = is_callable($callbackOrMax) ? PHP_INT_MAX : $callbackOrMax;
-      $linesRead = 0;
+      // Acquire an exclusive lock on the file
+      if (flock($file, LOCK_EX)) {
+        $maxLines = is_callable($callbackOrMax) ? PHP_INT_MAX : $callbackOrMax;
+        $linesRead = 0;
 
-      while (($line = fgets($file)) !== false && $linesRead < $maxLines) {
-        // Execute callback for each line if $callbackOrMax is a callback
-        if (is_callable($callbackOrMax)) {
-          call_user_func($callbackOrMax, $line);
-        } elseif (is_callable($callback)) {
-          // Execute callback for each line if $callback is provided
-          call_user_func($callback, $line);
+        while (($line = fgets($file)) !== false && $linesRead < $maxLines) {
+          // Execute callback for each line if $callbackOrMax is a callback
+          if (is_callable($callbackOrMax)) {
+            call_user_func($callbackOrMax, $line);
+          } elseif (is_callable($callback)) {
+            // Execute callback for each line if $callback is provided
+            call_user_func($callback, $line);
+          }
+
+          $linesRead++;
         }
 
-        $linesRead++;
+        // Release the lock and close the file
+        flock($file, LOCK_UN);
+        fclose($file);
+      } else {
+        echo "Failed to acquire lock for $filePath" . PHP_EOL;
       }
-      fclose($file);
     } else {
-      echo "failed open $filePath" . PHP_EOL;
+      echo "Failed to open $filePath" . PHP_EOL;
     }
   }
 }
