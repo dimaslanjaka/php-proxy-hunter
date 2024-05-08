@@ -1814,7 +1814,8 @@ function fixFile(string $inputFile): void
     // Iterate through the file and remove NUL characters
     while (!feof($fileHandle)) {
       // Read a chunk of data
-      $chunk = fread($fileHandle, 500 * 1024); // Read in 500KB chunks
+      $chunk = fread($fileHandle, 1024 * 1024); // Read in 500KB chunks
+      if (!$chunk) continue;
 
       // Remove NUL characters directly from the chunk
       $cleanedChunk = str_replace("\x00", '', $chunk);
