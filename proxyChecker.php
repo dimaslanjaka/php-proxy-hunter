@@ -236,8 +236,8 @@ function execute_single_proxy(Proxy $item)
     // always move checked proxy into dead.txt
     \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $dead_proxies_arr) {
       foreach ($dead_proxies_arr as $raw_proxy) {
-        echo "move $raw_proxy from $filePath -> $deadPath" . PHP_EOL;
-        removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
+        $remove = removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
+        echo "move $raw_proxy from $filePath -> $deadPath " . ($remove ? 'success' : 'failed') . PHP_EOL;
       }
     }, "move dead proxy");
   }
