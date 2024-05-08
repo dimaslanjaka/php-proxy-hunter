@@ -52,6 +52,12 @@ run proxy fetcher every day once
 0 0 * * * php /var/www/html/proxyFetcher.php
 ```
 
+run proxy indexing every day once
+
+```bash
+0 0 * * * php /var/www/html/proxies-all.php
+```
+
 to run crontab using spesific user
 
 ```bash
