@@ -8,11 +8,12 @@ use PhpProxyHunter\ProxyDB;
 /**
  * Extracts IP:PORT pairs from a string, along with optional username and password.
  *
- * @param string $string The input string containing IP:PORT pairs.
+ * @param string|null $string The input string containing IP:PORT pairs.
  * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies(string $string): array
+function extractProxies(?string $string): array
 {
+  if (is_null($string)) return [];
   if (empty(trim($string))) return [];
 
   $results = [];
