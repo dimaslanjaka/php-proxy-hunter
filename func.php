@@ -78,6 +78,29 @@ function uniqueClassObjectsByProperty(array $array, string $property): array
 }
 
 /**
+ * Create parent folders for a file path if they don't exist.
+ *
+ * @param string $filePath The file path for which to create parent folders.
+ *
+ * @return bool True if all parent folders were created successfully or already exist, false otherwise.
+ */
+function createParentFolders(string $filePath): bool
+{
+  $parentDir = dirname($filePath);
+
+  // Check if the parent directory already exists
+  if (!is_dir($parentDir)) {
+    // Attempt to create the parent directory and any necessary intermediate directories
+    if (!mkdir($parentDir, 0755, true)) {
+      // Failed to create the directory
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
  * Sets file permissions to 777 if the file exists.
  *
  * @param string|array $filenames The filename(s) to set permissions for.
@@ -115,7 +138,6 @@ function setPermissions(string $filename)
     //throw $th;
   }
 }
-
 /**
  * Remove specified string from source file and move it to destination file.
  *
@@ -126,57 +148,91 @@ function setPermissions(string $filename)
  * @param string $sourceFilePath Path to the source file.
  * @param string $destinationFilePath Path to the destination file.
  * @param string $stringToRemove The string to remove from the source file.
- * @return bool True if the operation is successful, false otherwise.
+ * @return string Message indicating success or failure.
  */
-function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFilePath, string $stringToRemove): bool
+function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFilePath, string $stringToRemove): string
 {
-  // Check if both source and destination files are writable
-  if (!is_writable($sourceFilePath) || !is_writable($destinationFilePath)) {
-    echo "$sourceFilePath or $destinationFilePath not writable" . PHP_EOL;
-    return false;
-  } else if (is_file_locked($sourceFilePath) || is_file_locked($destinationFilePath)) {
-    echo "$sourceFilePath or $destinationFilePath locked" . PHP_EOL;
-    return false;
+  // Check if $stringToRemove is empty or contains only whitespace characters
+  if (empty(trim($stringToRemove))) {
+    return "Empty string to remove";
   }
 
-  // Open source file for reading and writing
-  $sourceHandle = fopen($sourceFilePath, 'r+');
+  // Check if source file is writable
+  if (!is_writable($sourceFilePath)) {
+    return "$sourceFilePath not writable";
+  }
+
+  // Check if destination file is writable
+  if (!is_writable($destinationFilePath)) {
+    return "$destinationFilePath not writable";
+  }
+
+  // Check if source file is locked
+  if (is_file_locked($sourceFilePath)) {
+    return "$sourceFilePath locked";
+  }
+
+  // Check if destination file is locked
+  if (is_file_locked($destinationFilePath)) {
+    return "$destinationFilePath locked";
+  }
+
+  // Open source file for reading
+  $sourceHandle = fopen($sourceFilePath, 'r');
   if (!$sourceHandle) {
-    return false; // Unable to open source file
+    return "Failed to open source file";
   }
 
   // Open destination file for appending
   $destinationHandle = fopen($destinationFilePath, 'a');
   if (!$destinationHandle) {
     fclose($sourceHandle);
-    return false; // Unable to open destination file
+    return "Failed to open destination file";
+  }
+
+  // Open a temporary file for writing
+  $tempFilePath = tempnam(sys_get_temp_dir(), 'source_temp');
+  $tempHandle = fopen($tempFilePath, 'w');
+  if (!$tempHandle) {
+    fclose($sourceHandle);
+    fclose($destinationHandle);
+    return "Failed to create temporary file";
   }
 
   // Acquire an exclusive lock on the source file
-  if (flock($sourceHandle, LOCK_EX)) {
+  if (flock($sourceHandle, LOCK_SH)) {
     // Iterate through each line in the source file
     while (($line = fgets($sourceHandle)) !== false) {
       // Remove the string from the current line
       $modifiedLine = str_replace($stringToRemove, '', $line);
-      // Write the modified line back to the source file
-      if (!empty(trim($modifiedLine))) {
-        fwrite($sourceHandle, $modifiedLine);
-      }
+      // Write the modified line to the temporary file
+      fwrite($tempHandle, $modifiedLine);
+    }
+
+    // Close file handles
+    flock($sourceHandle, LOCK_UN);
+    fclose($sourceHandle);
+    fclose($tempHandle);
+    fclose($destinationHandle);
+
+    // Replace the source file with the temporary file
+    if (!rename($tempFilePath, $sourceFilePath)) {
+      unlink($tempFilePath);
+      return "Failed to replace source file";
     }
 
     // Append the removed string to the destination file
-    fwrite($destinationHandle, PHP_EOL . $stringToRemove . PHP_EOL);
+    if (file_put_contents($destinationFilePath, PHP_EOL . $stringToRemove . PHP_EOL, FILE_APPEND) === false) {
+      return "Failed to append removed string to destination file";
+    }
 
-    // Release the lock and close file handles
-    flock($sourceHandle, LOCK_UN);
-    fclose($sourceHandle);
-    fclose($destinationHandle);
-
-    return true;
+    return "Success";
   } else {
     fclose($sourceHandle);
     fclose($destinationHandle);
-    return false; // Failed to acquire lock on the source file
+    fclose($tempHandle);
+    unlink($tempFilePath);
+    return "Failed to acquire lock on source file";
   }
 }
 
@@ -1659,7 +1715,8 @@ function filterUniqueLines(string $inputFile)
  */
 function truncateFile(string $filePath)
 {
-  file_put_contents($filePath, ''); // Write an empty string to truncate the file
+  if (file_exists($filePath))
+    file_put_contents($filePath, ''); // Write an empty string to truncate the file
 }
 
 /**
