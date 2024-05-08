@@ -166,14 +166,7 @@ execute_array_proxies();
 function execute_array_proxies()
 {
   global $untested, $max_checks;
-  $proxies = $untested;
-  // unique proxies
-  $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
-  // skip already checked proxy
-  $proxies = array_filter($proxies, function (Proxy $item) {
-    if (empty($item->last_check)) return true;
-    return isDateRFC3339OlderThanHours($item->last_check, 5);
-  });
+  $proxies = filter_proxies($untested);
   // skip empty array
   if (empty($proxies)) return;
   // shuffle array
