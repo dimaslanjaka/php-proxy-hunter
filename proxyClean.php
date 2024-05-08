@@ -42,6 +42,21 @@ $files = [
 
 setFilePermissions(array_merge($files, [$all]));
 
+echo "removing duplicated lines from proxies.txt which exist in dead.txt" . PHP_EOL;
+
+try {
+  // remove duplicate lines in untested proxies
+  $file1 = __DIR__ . "/proxies.txt";
+  $file2 = __DIR__ . "/dead.txt";
+
+  if (removeDuplicateLinesFromSource($file1, $file2)) {
+    echo "Duplicated lines between $file1 and $file2 removed successful from $file1" . PHP_EOL;
+  }
+} catch (Exception $e) {
+  // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
+  echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
+}
+
 foreach ($files as $file) {
   echo "processing $file" . PHP_EOL;
 
@@ -84,21 +99,6 @@ foreach ($files as $file) {
   } catch (\Throwable $th) {
     echo 'Error fix bad contents from proxies.txt: ' . $th->getMessage() . PHP_EOL;
   }
-}
-
-echo "removing duplicated lines from proxies.txt which exist in dead.txt" . PHP_EOL;
-
-try {
-  // remove duplicate lines in untested proxies
-  $file1 = __DIR__ . "/proxies.txt";
-  $file2 = __DIR__ . "/dead.txt";
-
-  if (removeDuplicateLinesFromSource($file1, $file2)) {
-    echo "Duplicated lines between $file1 and $file2 removed successful from $file1" . PHP_EOL;
-  }
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
-  echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
 }
 
 //  if (confirmAction("Are you want move $file content into $all:\t")) {
