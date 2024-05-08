@@ -178,13 +178,13 @@ function runPhpInBackground(string $phpFilePath): bool
  *
  * @param string $sourceFilePath Path to the source file.
  * @param string $destinationFilePath Path to the destination file.
- * @param string $stringToRemove The string to remove from the source file.
+ * @param string|null $stringToRemove The string to remove from the source file.
  * @return string Message indicating success or failure.
  */
-function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFilePath, string $stringToRemove): string
+function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFilePath, ?string $stringToRemove): string
 {
   // Check if $stringToRemove is empty or contains only whitespace characters
-  if (empty(trim($stringToRemove))) {
+  if (is_null($stringToRemove) || empty(trim($stringToRemove))) {
     return "Empty string to remove";
   }
 
