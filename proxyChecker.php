@@ -198,8 +198,8 @@ function filter_proxies(array $proxies)
     if (!empty($raw_proxy)) {
       // remove invalid proxy from proxies.txt
       \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
-        $remove1 = removeStringFromFile($untestedFilePath, $raw_proxy);
-        $remove2 = removeStringFromFile($deadPath, $raw_proxy);
+        $remove1 = removeStringFromFile($untestedFilePath, $raw_proxy) ? 'success' : 'failed';
+        $remove2 = removeStringFromFile($deadPath, $raw_proxy) ? 'success' : 'failed';
         echo "remove indexed $raw_proxy from $untestedFilePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove1" . PHP_EOL;
       }, "remove indexed $raw_proxy");
     }
@@ -294,8 +294,8 @@ function execute_single_proxy(Proxy $item)
     if (!empty($raw_proxy)) {
       // remove invalid proxy from proxies.txt
       \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
-        $remove1 = removeStringFromFile($filePath, $raw_proxy);
-        $remove2 = removeStringFromFile($deadPath, $raw_proxy);
+        $remove1 = removeStringFromFile($filePath, $raw_proxy) ? 'success' : 'failed';
+        $remove2 = removeStringFromFile($deadPath, $raw_proxy) ? 'success' : 'failed';
         echo "remove invalid $raw_proxy from $filePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove1" . PHP_EOL;
       }, "move dead proxy $raw_proxy");
     }
