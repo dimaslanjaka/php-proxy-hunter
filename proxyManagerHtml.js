@@ -254,7 +254,10 @@ function getLastExecutionTime() {
 function updateWorkingProxies() {
   const lastExecutionTime = getLastExecutionTime();
   const currentTime = new Date();
-  if (!lastExecutionTime || currentTime.getTime() - lastExecutionTime.getTime() >= fetchWorkingEveryMinutes * 60 * 1000) {
+  if (
+    !lastExecutionTime ||
+    currentTime.getTime() - lastExecutionTime.getTime() >= fetchWorkingEveryMinutes * 60 * 1000
+  ) {
     fetchWorkingData();
     setLastExecutionTime();
   }
@@ -372,7 +375,7 @@ function add_ajax_schedule(url) {
  * @param {string} text - The text containing lines to be sorted.
  * @returns {string[]} The sorted lines of text.
  */
-function sortLinesByDate(text) {
+function _sortLinesByDate(text) {
   /** @type {string[]} */
   const lines = text.split(/\r?\n/).filter((line) => line.trim() !== "");
   const original = lines.map((line) => {
