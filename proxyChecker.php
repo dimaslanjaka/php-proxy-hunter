@@ -209,7 +209,7 @@ function filter_proxies(array $proxies)
       \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
         $remove1 = removeStringFromFile($untestedFilePath, $raw_proxy) ? 'success' : 'failed';
         $remove2 = removeStringFromFile($deadPath, $raw_proxy) ? 'success' : 'failed';
-        echo "remove indexed $raw_proxy from $untestedFilePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove1" . PHP_EOL;
+        echo "remove indexed $raw_proxy from $untestedFilePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove2" . PHP_EOL;
       }, "remove indexed $raw_proxy");
     }
     if (empty($item->last_check)) return true;
@@ -252,18 +252,18 @@ function execute_single_proxy(Proxy $item)
         $merged_proxy_types = implode('-', $proxy_types);
         echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
         $db->updateData($item->proxy, [
-            'type' => $merged_proxy_types,
-            'status' => 'active',
-            'latency' => max($latencies),
-            'username' => $item->username,
-            'password' => $item->password
+          'type' => $merged_proxy_types,
+          'status' => 'active',
+          'latency' => max($latencies),
+          'username' => $item->username,
+          'password' => $item->password
         ]);
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item->proxy, [
-              'webgl_renderer' => $webgl->webgl_renderer,
-              'webgl_vendor' => $webgl->webgl_vendor,
-              'browser_vendor' => $webgl->browser_vendor
+            'webgl_renderer' => $webgl->webgl_renderer,
+            'webgl_vendor' => $webgl->webgl_vendor,
+            'browser_vendor' => $webgl->browser_vendor
           ]);
         }
         // get geolocation
