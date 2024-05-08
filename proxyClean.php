@@ -48,10 +48,10 @@ foreach ($files as $file) {
     echo 'Error fix bad contents from proxies.txt: ' . $th->getMessage() . PHP_EOL;
   }
 
-  if (confirmAction("Are you want move $file content into $all:\t")) {
-    $content = read_file($file);
-    append_content_with_lock($all, $content);
-  }
+//  if (confirmAction("Are you want move $file content into $all:\t")) {
+//    $content = read_file($file);
+//    append_content_with_lock($all, $content);
+//  }
 }
 
 
