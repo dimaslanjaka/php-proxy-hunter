@@ -35,18 +35,19 @@ iterateBigFilesLineByLine($files, function ($line) {
   $items = extractProxies($line);
   foreach ($items as $item) {
     if (empty($item->proxy) || !isValidProxy($item->proxy)) {
-      echo $item->proxy . 'invalid' . PHP_EOL;
+      echo $item->proxy . ' invalid' . PHP_EOL;
       continue;
     }
     $sel = $db->select($item->proxy);
     if (empty($sel)) {
-      echo "add $item->proxy" . PHP_EOL;
+      echo "add " . $item->proxy . PHP_EOL;
       // add proxy
       $db->add($item->proxy);
       // re-select proxy
       $sel = $db->select($item->proxy);
     }
     if (empty($sel[0]['status'])) {
+      echo "treat as untested " . $item->proxy . PHP_EOL;
       $db->updateStatus($item->proxy, 'untested');
     }
     if (!empty($sel[0]['proxy']) && !isValidProxy($sel[0]['proxy'])) {
