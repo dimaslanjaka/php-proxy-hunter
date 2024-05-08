@@ -26,6 +26,8 @@ function exitProcess()
   global $lockFilePath, $statusFile;
   if (file_exists($lockFilePath)) unlink($lockFilePath);
   file_put_contents($statusFile, 'idle');
+  // run cleaner
+  require_once __DIR__ . '/proxyClean.php';
 }
 
 register_shutdown_function('exitProcess');
@@ -79,6 +81,3 @@ foreach ($urls as $url) {
 }
 
 echo "Content appended to $outputFile" . PHP_EOL;
-
-// run cleaner
-require_once __DIR__ . '/proxyClean.php';
