@@ -47,61 +47,30 @@ setFilePermissions(array_merge($files, [$all]));
 
 echo "removing duplicated lines from proxies.txt which exist in dead.txt" . PHP_EOL;
 
-try {
-  // remove duplicate lines in untested proxies
-  $file1 = __DIR__ . "/proxies.txt";
-  $file2 = __DIR__ . "/dead.txt";
-
-  if (removeDuplicateLinesFromSource($file1, $file2)) {
-    echo "Duplicated lines between $file1 and $file2 removed successful from $file1" . PHP_EOL;
-  }
-} catch (Exception $e) {
-  // Handle any exceptions that occur during the execution of removeDuplicateLinesInUntestedProxies
-  echo 'Error removing duplicate lines in untested proxies: ' . $e->getMessage() . PHP_EOL;
-}
+removeDuplicateLinesFromSource(__DIR__ . "/proxies.txt", __DIR__ . "/dead.txt");
 
 foreach ($files as $file) {
   echo "processing $file" . PHP_EOL;
 
-  try {
-    // remove duplicate lines from proxies.txt
-    removeDuplicateLines($file);
-  } catch (Exception $e) {
-    // Handle any exceptions that occur during the execution of removeDuplicateLines
-    echo 'Error removing duplicate lines ' . $e->getMessage() . PHP_EOL;
-  }
+  echo "remove duplicate lines" . PHP_EOL;
 
-  try {
-    // remove lines less than 10 size
-    removeShortLines($file, 10);
-  } catch (Exception $e) {
-    // Handle any exceptions that occur during the execution of removeDuplicateLines
-    echo 'Error removing short lines ' . $e->getMessage() . PHP_EOL;
-  }
+  removeDuplicateLines($file);
+
+  echo "remove lines less than 10 size" . PHP_EOL;
+
+  removeShortLines($file, 10);
 
   echo "remove lines not contains IP:PORT" . PHP_EOL;
 
-  try {
-    filterIpPortLines($file);
-  } catch (InvalidArgumentException $e) {
-    echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
-  }
+  filterIpPortLines($file);
 
   echo "remove empty lines" . PHP_EOL;
 
-  try {
-    removeEmptyLinesFromFile($file);
-  } catch (\Throwable $th) {
-    echo 'Error fix bad contents from proxies.txt: ' . $th->getMessage() . PHP_EOL;
-  }
+  removeEmptyLinesFromFile($file);
 
   echo "fix file NUL" . PHP_EOL;
 
-  try {
-    fixFile($file);
-  } catch (\Throwable $th) {
-    echo 'Error fix bad contents from proxies.txt: ' . $th->getMessage() . PHP_EOL;
-  }
+  fixFile($file);
 }
 
 //echo "removing dead proxies from untested file" . PHP_EOL;
