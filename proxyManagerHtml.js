@@ -221,14 +221,50 @@ async function checkerStatus() {
     });
 }
 
+function fetchWorkingData() {
+  fetch("./proxyWorkingBackground.php", { signal: AbortSignal.timeout(5000) }).catch(() => {
+    // Handle errors if needed
+  });
+}
+
+function setLastExecutionTime() {
+  const now = new Date();
+  now.setTime(now.getTime() + 5 * 60 * 1000); // Set expiration time 5 minutes from now
+  document.cookie = "lastExecutionTime=" + now.toUTCString() + "; path=/";
+}
+
+function getLastExecutionTime() {
+  const name = "lastExecutionTime=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const cookieArray = decodedCookie.split(";");
+  for (let i = 0; i < cookieArray.length; i++) {
+    let cookie = cookieArray[i];
+    while (cookie.charAt(0) === " ") {
+      cookie = cookie.substring(1);
+    }
+    if (cookie.indexOf(name) === 0) {
+      return new Date(cookie.substring(name.length, cookie.length));
+    }
+  }
+  return null;
+}
+
+function updateWorkingProxies() {
+  const lastExecutionTime = getLastExecutionTime();
+  const currentTime = new Date();
+
+  if (!lastExecutionTime || currentTime.getTime() - lastExecutionTime.getTime() >= 5 * 60 * 1000) {
+    fetchWorkingData();
+    setLastExecutionTime();
+  }
+}
+
 let workingProxiesTxt;
 
 async function fetchWorkingProxies() {
   const date = new Date();
   // fetch update in background
-  await fetch("./proxyWorkingBackground.php", { signal: AbortSignal.timeout(5000) }).catch(() => {
-    //
-  });
+  updateWorkingProxies();
   let testWorkingProxiesTxt = await fetch("./working.txt?v=" + date, { signal: AbortSignal.timeout(5000) })
     .then((res) => res.text())
     .catch(() => "");
@@ -442,7 +478,7 @@ function timeAgo(dateString) {
  */
 function showSnackbar(message) {
   // Get the snackbar element
-  var snackbar = document.getElementById("snackbar");
+  const snackbar = document.getElementById("snackbar");
 
   // Set the message
   snackbar.textContent = message;
@@ -468,7 +504,7 @@ function copyToClipboard(text) {
     // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
     return window.clipboardData.setData("Text", text);
   } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
-    var textarea = document.createElement("textarea");
+    const textarea = document.createElement("textarea");
     textarea.textContent = text;
     textarea.style.position = "fixed"; // Prevent scrolling to bottom of page in Microsoft Edge.
     document.body.appendChild(textarea);
