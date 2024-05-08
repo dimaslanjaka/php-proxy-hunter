@@ -5,6 +5,7 @@
 require_once __DIR__ . "/func-proxy.php";
 
 use PhpProxyHunter\ProxyDB;
+use PhpProxyHunter\Scheduler;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
@@ -29,18 +30,24 @@ $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-a
 iterateBigFilesLineByLine($files, function ($line) {
   global $db;
   $items = extractProxies($line);
-  foreach ($items as $proxy) {
-    if (empty($proxy->proxy)) continue;
-    $sel = $db->select($proxy->proxy);
+  foreach ($items as $item) {
+    if (empty($item->proxy)) continue;
+    $sel = $db->select($item->proxy);
     if (empty($sel)) {
-      echo "add $proxy->proxy" . PHP_EOL;
+      echo "add $item->proxy" . PHP_EOL;
       // add proxy
-      $db->add($proxy->proxy);
+      $db->add($item->proxy);
       // re-select proxy
-      $sel = $db->select($proxy->proxy);
+      $sel = $db->select($item->proxy);
     }
     if (is_null($sel[0]['status'])) {
-      $db->updateStatus($proxy->proxy, 'untested');
+      $db->updateStatus($item->proxy, 'untested');
+    }
+    if (!empty($sel[0]['proxy'])) {
+      Scheduler::register(function () use ($db, $item) {
+        echo "removing " . $item->proxy . PHP_EOL;
+        $db->remove($item->proxy);
+      }, "remove " . $item->proxy);
     }
   }
 });

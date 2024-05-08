@@ -1304,7 +1304,46 @@ function fixFile(string $inputFile): void
  */
 function read_file(string $inputFile)
 {
+  // Check if file is readable
+  if (!is_readable($inputFile) || is_file_locked($inputFile)) {
+    echo "$inputFile is not readable." . PHP_EOL;
+    $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+    $caller = $trace[1];
+
+    $callerFile = $caller['file'] ?? 'unknown';
+    $callerLine = $caller['line'] ?? 'unknown';
+    $callerClass = $caller['class'] ?? 'non class';
+    $callerFunction = $caller['function'] ?? 'non function';
+
+    echo "Called by $callerClass->$callerFunction in {$callerFile}:{$callerLine}" . PHP_EOL;
+    return false;
+  }
+
   return file_get_contents($inputFile, false, stream_context_create(['http' => ['header' => 'Content-Type: text/plain; charset=UTF-8']]));
+}
+
+/**
+ * Checks if a file is locked by another PHP process.
+ *
+ * @param string $filePath The path to the file.
+ * @return bool True if the file is locked, false otherwise.
+ */
+function is_file_locked(string $filePath): bool
+{
+  $handle = fopen($filePath, "r");
+  if ($handle === false) {
+    // Unable to open file
+    return true;
+  }
+
+  // Attempt to acquire an exclusive lock
+  $isLocked = flock($handle, LOCK_EX | LOCK_NB);
+
+  // Release the lock
+  flock($handle, LOCK_UN);
+  fclose($handle);
+
+  return !$isLocked;
 }
 
 /**
