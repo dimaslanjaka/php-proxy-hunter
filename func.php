@@ -597,6 +597,8 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
         $linesRead = 0;
 
         while (($line = fgets($file)) !== false && $linesRead < $maxLines) {
+          // skip empty line
+          if (empty(trim($line))) continue;
           // Execute callback for each line if $callbackOrMax is a callback
           if (is_callable($callbackOrMax)) {
             call_user_func($callbackOrMax, $line);
