@@ -1844,6 +1844,19 @@ function countNonEmptyLines(string $filename, int $chunkSize = 4096)
  */
 function fixFile(string $inputFile): void
 {
+  if (!file_exists($inputFile)) {
+    echo "fixFile: $inputFile is not found" . PHP_EOL;
+    return;
+  }
+  if (is_file_locked($inputFile)) {
+    echo "fixFile: $inputFile is locked" . PHP_EOL;
+    return;
+  }
+  if (!is_writable($inputFile)) {
+    echo "fixFile: $inputFile is not writable" . PHP_EOL;
+    return;
+  }
+
   // Open the file for reading and writing (binary mode)
   $fileHandle = fopen($inputFile, 'r+');
 
