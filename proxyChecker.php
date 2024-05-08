@@ -119,15 +119,20 @@ setFilePermissions([$untestedFilePath, $workingPath, $deadPath]);
 
 // move backup added proxies
 
-//$assets = getFilesByExtension(__DIR__, '/assets/proxies', 'txt');
-//$assets[] = __DIR__ . '/proxies-backup.txt';
-//foreach ($assets as $asset) {
-//  if (file_exists($asset)) {
-//    if (moveContent($asset, $untestedFilePath)) {
-//      unlink($asset);
-//    }
-//  }
-//}
+$assets = getFilesByExtension(__DIR__ . '/assets/proxies', 'txt');
+$assets[] = __DIR__ . '/proxies-backup.txt';
+foreach ($assets as $asset) {
+  echo $asset . ' - ' . (file_exists($asset) ? 'true' : 'false') . PHP_EOL;
+  if (file_exists($asset)) {
+    $move = moveContent($asset, $untestedFilePath);
+    if ($move === '') {
+      unlink($asset);
+      exit('copied assets');
+    } else {
+      echo $move . PHP_EOL;
+    }
+  }
+}
 
 $max_checks = 50;
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
