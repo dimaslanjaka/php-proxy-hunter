@@ -676,22 +676,22 @@ function country_code_to_locale(string $country_code, string $language_code = ''
  * }
  * ```
  *
- * @param string $filePath The path to the file.
+ * @param string $inputFile The path to the file.
  * @throws InvalidArgumentException If the file cannot be opened or written.
  */
-function filterIpPortLines(string $filePath)
+function filterIpPortLines(string $inputFile)
 {
   $db = new ProxyDB();
   // Open the file for reading and writing, create if not exist, and place a write lock.
-  $fileHandle = fopen($filePath, 'r+');
+  $fileHandle = fopen($inputFile, 'r+');
   if ($fileHandle === false) {
-    echo "Unable to open file: $filePath" . PHP_EOL;
+    echo "Unable to open file: $inputFile" . PHP_EOL;
     return;
   }
 
   // Acquire an exclusive lock on the file
   if (!flock($fileHandle, LOCK_EX)) {
-    echo "Unable to acquire lock on file: $filePath" . PHP_EOL;
+    echo "Unable to acquire lock on file: $inputFile" . PHP_EOL;
     fclose($fileHandle);
     return;
   }
@@ -717,6 +717,13 @@ function filterIpPortLines(string $filePath)
       } else {
         echo "$proxy_str invalid" . PHP_EOL;
         $db->remove($proxy_str);
+        if (!empty($proxy_str)) {
+          // remove invalid proxy from proxies.txt
+          \PhpProxyHunter\Scheduler::register(function () use ($inputFile, $proxy_str) {
+            $remove1 = removeStringFromFile($inputFile, $proxy_str) ? 'success' : 'failed';
+            echo "filterIpPortLines: remove invalid $proxy_str from $inputFile" . PHP_EOL . "\t> $remove1" . PHP_EOL;
+          }, "filterIpPortLines: remove invalid $proxy_str");
+        }
       }
     }
     if ($containsProxy && $proxyLengthValid && $validIpPort) {
@@ -745,6 +752,6 @@ function filterIpPortLines(string $filePath)
 
   // remove strings that not contains IP:PORT
   foreach ($str_to_remove as $str) {
-    removeStringFromFile($filePath, $str);
+    removeStringFromFile($inputFile, $str);
   }
 }
