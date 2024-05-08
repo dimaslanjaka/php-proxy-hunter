@@ -1497,11 +1497,13 @@ function randomIosUa(string $type = 'chrome'): string
  */
 function fixFile(string $inputFile): void
 {
-  // Read input file and remove NUL characters
-  $cleanedContent = str_replace("\x00", '', read_file($inputFile));
+  if (!is_file_locked($inputFile) && is_writable($inputFile)) {
+    // Read input file and remove NUL characters
+    $cleanedContent = str_replace("\x00", '', read_file($inputFile));
 
-  // Write cleaned content back to input file
-  file_put_contents($inputFile, $cleanedContent);
+    // Write cleaned content back to input file
+    file_put_contents($inputFile, $cleanedContent);
+  }
 }
 
 /**
