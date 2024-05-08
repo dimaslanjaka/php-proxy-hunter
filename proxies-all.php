@@ -26,12 +26,18 @@ if ($lockHandle === false || !flock($lockHandle, LOCK_EX | LOCK_NB)) {
 
 $db = new ProxyDB();
 $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
+$assets = getFilesByExtension(__DIR__ . '/assets/proxies');
+//exit(var_dump($assets));
+if (!empty($assets)) $file = array_merge($files, $assets);
 
 iterateBigFilesLineByLine($files, function ($line) {
   global $db;
   $items = extractProxies($line);
   foreach ($items as $item) {
-    if (empty($item->proxy)) continue;
+    if (empty($item->proxy) || !isValidProxy($item->proxy)) {
+      echo $item->proxy . 'invalid' . PHP_EOL;
+      continue;
+    }
     $sel = $db->select($item->proxy);
     if (empty($sel)) {
       echo "add $item->proxy" . PHP_EOL;

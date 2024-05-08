@@ -338,6 +338,41 @@ function readFileLinesToArray(string $filename)
 }
 
 /**
+ * Get all files with a specific extension in a folder.
+ *
+ * @param string $folder The folder path to search for files.
+ * @param string $extension The file extension to filter files by.
+ *
+ * @return array An array containing full paths of files with the specified extension.
+ */
+function getFilesByExtension(string $folder, string $extension = 'txt'): array
+{
+  if (!file_exists($folder)) return [];
+  $files = [];
+  $folder = rtrim($folder, '/') . '/'; // Ensure folder path ends with a slash
+
+  // Open the directory
+  if ($handle = opendir($folder)) {
+    // Loop through directory contents
+    while (false !== ($entry = readdir($handle))) {
+      $file = $folder . $entry;
+
+      // Exclude '.' and '..' and ensure it's a file
+      if ($entry != "." && $entry != ".." && is_file($file)) {
+        // Check if file has the specified extension
+        if (pathinfo($file, PATHINFO_EXTENSION) === $extension) {
+          $files[] = $file;
+        }
+      }
+    }
+    closedir($handle);
+  }
+
+  return $files;
+}
+
+
+/**
  * Check if a given date string in RFC3339 format is older than the specified number of hours.
  *
  * @param string $dateString The date string in DATE_RFC3339 format.
