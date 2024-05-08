@@ -13,16 +13,26 @@ if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
 if (!$isCli)
   exit('web server access disallowed');
 
-$lockFile = __DIR__ . "/tmp/" . md5(__FILE__) . ".lock";
+$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$statusFile = __DIR__ . "/status.txt";
 
-// Attempt to acquire a lock
-$lockHandle = fopen($lockFile, 'w');
-
-if ($lockHandle === false || !flock($lockHandle, LOCK_EX | LOCK_NB)) {
-  // Failed to acquire lock, another instance is running
-  echo "Another instance is already running.\n";
-  exit(1);
+if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
+  echo "another process still running\n";
+  exit();
+} else {
+  file_put_contents($lockFilePath, date(DATE_RFC3339));
+  file_put_contents($statusFile, 'indexing proxies');
 }
+
+function exitProcess()
+{
+  global $lockFilePath, $statusFile;
+  if (file_exists($lockFilePath))
+    unlink($lockFilePath);
+  file_put_contents($statusFile, 'idle');
+}
+
+register_shutdown_function('exitProcess');
 
 $db = new ProxyDB();
 $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
@@ -59,7 +69,3 @@ iterateBigFilesLineByLine($files, function ($line) {
   }
 });
 
-// Release the lock
-flock($lockHandle, LOCK_UN);
-fclose($lockHandle);
-unlink($lockFile);
