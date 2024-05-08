@@ -39,8 +39,8 @@ $all = __DIR__ . '/proxies-all.txt';
 // Define file paths array
 $files = [
     __DIR__ . '/proxies.txt',
-    __DIR__ . '/working.txt',
-    __DIR__ . '/dead.txt'
+//    __DIR__ . '/working.txt',
+//    __DIR__ . '/dead.txt'
 ];
 
 setFilePermissions(array_merge($files, [$all]));
@@ -50,25 +50,23 @@ echo "removing duplicated lines from proxies.txt which exist in dead.txt" . PHP_
 removeDuplicateLinesFromSource(__DIR__ . "/proxies.txt", __DIR__ . "/dead.txt");
 
 foreach ($files as $file) {
-  echo "processing $file" . PHP_EOL;
-
-  echo "remove duplicate lines" . PHP_EOL;
+  echo "remove duplicate lines $file" . PHP_EOL;
 
   removeDuplicateLines($file);
 
-  echo "remove lines less than 10 size" . PHP_EOL;
+  echo "remove lines less than 10 size $file" . PHP_EOL;
 
   removeShortLines($file, 10);
 
-  echo "remove lines not contains IP:PORT" . PHP_EOL;
+  echo "remove lines not contains IP:PORT $file" . PHP_EOL;
 
   filterIpPortLines($file);
 
-  echo "remove empty lines" . PHP_EOL;
+  echo "remove empty lines $file" . PHP_EOL;
 
   removeEmptyLinesFromFile($file);
 
-  echo "fix file NUL" . PHP_EOL;
+  echo "fix file NUL $file" . PHP_EOL;
 
   fixFile($file);
 }
