@@ -67,12 +67,12 @@ $impl = implode(PHP_EOL, $impl);
 file_put_contents(__DIR__ . '/working.txt', $impl);
 file_put_contents(__DIR__ . '/working.json', json_encode($array_mapper));
 
-$fileUntested = __DIR__ . '/proxies.txt';
 $counterUntested = $db->countUntestedProxies();
-iterateBigFilesLineByLine([$fileUntested], function (string $line) {
-  global $counterUntested;
-  $counterUntested += count(extractProxies($line));
-});
+//$fileUntested = __DIR__ . '/proxies.txt';
+//iterateBigFilesLineByLine([$fileUntested], function (string $line) {
+//  global $counterUntested;
+//  $counterUntested += count(extractProxies($line));
+//});
 
 $arr = [
     'working' => $db->countWorkingProxies(),
@@ -82,7 +82,7 @@ $arr = [
 ];
 
 foreach ($arr as $key => $value) {
-  echo "working $key $value proxies" . PHP_EOL;
+  echo "total $key $value proxies" . PHP_EOL;
 }
 
 file_put_contents(__DIR__ . '/status.json', json_encode($arr));
