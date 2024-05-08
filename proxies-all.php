@@ -24,9 +24,9 @@ if ($lockHandle === false || !flock($lockHandle, LOCK_EX | LOCK_NB)) {
 }
 
 $db = new ProxyDB();
+$files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
 
-function processLine($line)
-{
+iterateBigFilesLineByLine($files, function ($line) {
   global $db;
   $items = extractProxies($line);
   foreach ($items as $proxy) {
@@ -43,19 +43,7 @@ function processLine($line)
       $db->updateStatus($proxy->proxy, 'untested');
     }
   }
-}
-
-$files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
-
-foreach ($files as $file) {
-  try {
-    filterIpPortLines($file);
-  } catch (InvalidArgumentException $e) {
-    echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
-  }
-}
-
-iterateBigFilesLineByLine($files, 'processLine');
+});
 
 // Release the lock
 flock($lockHandle, LOCK_UN);
