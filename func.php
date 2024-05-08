@@ -942,57 +942,6 @@ function getDuplicatedLines(string $file1, string $file2): array
 }
 
 /**
- * Remove duplicate lines from a file.
- *
- * @param string $filePath The path to the file.
- * @return void
- */
-function removeDuplicateLines(string $filePath): void
-{
-  // Open the file for reading and writing
-  $fileHandle = fopen($filePath, 'r+');
-
-  if ($fileHandle !== false && flock($fileHandle, LOCK_EX)) { // Acquire an exclusive lock
-    // Initialize an array to store unique lines
-    $uniqueLines = [];
-
-    // Read the file line by line
-    while (!feof($fileHandle)) {
-      $line = fgets($fileHandle);
-
-      // Trim whitespace and remove empty lines
-      $trimmedLine = trim($line);
-      if ($trimmedLine !== '') {
-        // If the line is not already in the unique lines array, add it
-        if (!in_array($trimmedLine, $uniqueLines, true)) {
-          $uniqueLines[] = $trimmedLine;
-        }
-      }
-    }
-
-    // Rewind the file pointer to the beginning of the file
-    rewind($fileHandle);
-
-    // Truncate the file (clear its contents)
-    ftruncate($fileHandle, 0);
-
-    // Write the unique lines back to the file
-    foreach ($uniqueLines as $uniqueLine) {
-      if (!empty(trim($uniqueLine)))
-        fwrite($fileHandle, $uniqueLine . PHP_EOL);
-    }
-
-    // Release the lock and close the file handle
-    flock($fileHandle, LOCK_UN);
-    fclose($fileHandle);
-  } else {
-    // Handle error opening or locking the file
-    // You can log an error or throw an exception here
-    echo "Failed remove duplicated lines from $filePath" . PHP_EOL;
-  }
-}
-
-/**
  * Merges two shallow multidimensional arrays.
  *
  * This function merges two multidimensional arrays while preserving the structure.
@@ -1953,3 +1902,50 @@ function moveContent(string $sourceFile, string $destinationFile): string
   }
 }
 
+/**
+ * Remove duplicate lines from a file in-place.
+ *
+ * @param string $inputFile The path to the file.
+ * @return void
+ */
+function removeDuplicateLines(string $inputFile): void
+{
+  if (!file_exists($inputFile)) {
+    echo "removeDuplicateLines: $inputFile is not found" . PHP_EOL;
+    return;
+  }
+  if (is_file_locked($inputFile)) {
+    echo "removeDuplicateLines: $inputFile is locked" . PHP_EOL;
+    return;
+  }
+  if (!is_writable($inputFile)) {
+    echo "removeDuplicateLines: $inputFile is not writable" . PHP_EOL;
+    return;
+  }
+  $lines = array();
+  $fd = fopen($inputFile, "r");
+  if ($fd === false) {
+    echo "removeDuplicateLines: Failed to open $inputFile" . PHP_EOL;
+    return;
+  }
+  if (flock($fd, LOCK_EX)) { // Acquire an exclusive lock
+    while ($line = fgets($fd)) {
+      $line = rtrim($line, "\r\n"); // ignore the newline
+      $lines[$line] = 1;
+    }
+    flock($fd, LOCK_UN); // Release the lock
+  }
+  fclose($fd);
+  $fd = fopen($inputFile, "w");
+  if ($fd === false) {
+    echo "removeDuplicateLines: Failed to open $inputFile" . PHP_EOL;
+    return;
+  }
+  if (flock($fd, LOCK_EX)) { // Acquire an exclusive lock
+    foreach ($lines as $line => $count) {
+      fputs($fd, "$line" . PHP_EOL); // add the newlines back
+    }
+    flock($fd, LOCK_UN); // Release the lock
+  }
+  fclose($fd);
+}
