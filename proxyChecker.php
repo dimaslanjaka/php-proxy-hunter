@@ -149,17 +149,17 @@ try {
   echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
 }
 
-fixFile($filePath);
-
 // get proxy from proxies.txt
-$str_untested_from_file = read_first_lines($filePath, 50);
-if (empty($str_untested_from_file)) $str_untested_from_file = [];
-$untested_from_file = extractProxies(implode("\n", $str_untested_from_file));
-$untested_from_file = filter_proxies($untested_from_file);
+if (countNonEmptyLines($filePath) > 0) {
+  $str_untested_from_file = read_first_lines($filePath, 50);
+  if (empty($str_untested_from_file)) $str_untested_from_file = [];
+  $untested_from_file = extractProxies(implode("\n", $str_untested_from_file));
+  $untested_from_file = filter_proxies($untested_from_file);
+  echo "[FILE] queue: " . count($untested_from_file) . " proxies" . PHP_EOL . PHP_EOL;
+}
 
+// merge
 $untested = array_merge($untested, $untested_from_file);
-
-echo "[FILE] queue: " . count($untested_from_file) . " proxies" . PHP_EOL . PHP_EOL;
 
 execute_array_proxies();
 
@@ -178,6 +178,7 @@ function execute_array_proxies()
 function filter_proxies(array $proxies)
 {
   global $db;
+  if (empty($proxies)) return [];
   // unique proxies
   $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
   // skip already checked proxy
