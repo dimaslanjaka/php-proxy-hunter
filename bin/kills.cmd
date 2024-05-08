@@ -17,9 +17,9 @@ call wmic process where "name like 'chrome.exe'" delete
 call wmic process where "name like 'webdriver.exe'" delete
 call wmic process where "name like 'chromedriver.exe'" delete
 call wmic process where "name like 'php.exe'" delete
-@REM call wmic process where "name like 'python.exe'" delete
+call wmic process where "name like 'python.exe'" delete
 call wmic process where "name like 'node.exe'" delete
-call rm *.lock
-call php composer.phar install
-call touch yarn.lock
-call yarn install
+@REM call rm *.lock
+@REM call php composer.phar install
+@REM call touch yarn.lock
+@REM call yarn install
