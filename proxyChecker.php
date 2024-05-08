@@ -118,12 +118,16 @@ $workingPath = __DIR__ . "/working.txt";
 setFilePermissions([$untestedFilePath, $workingPath, $deadPath]);
 
 // move backup added proxies
-$backup = __DIR__ . '/proxies-backup.txt';
-if (file_exists($backup)) {
-  if (moveContent($backup, $untestedFilePath)) {
-    unlink($backup);
-  }
-}
+
+//$assets = getFilesByExtension(__DIR__, '/assets/proxies', 'txt');
+//$assets[] = __DIR__ . '/proxies-backup.txt';
+//foreach ($assets as $asset) {
+//  if (file_exists($asset)) {
+//    if (moveContent($asset, $untestedFilePath)) {
+//      unlink($asset);
+//    }
+//  }
+//}
 
 $max_checks = 50;
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
@@ -277,8 +281,8 @@ function execute_single_proxy(Proxy $item)
     if (!empty($raw_proxy)) {
       // move proxy into dead.txt
       \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
-        $remove = removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
-        echo "moving $raw_proxy from $filePath -> $deadPath" . PHP_EOL . "\t> $remove" . PHP_EOL;
+        $remove = removeStringAndMoveToFile($untestedFilePath, $deadPath, $raw_proxy);
+        echo "moving $raw_proxy from $untestedFilePath -> $deadPath" . PHP_EOL . "\t> $remove" . PHP_EOL;
       }, "move dead proxy $raw_proxy");
     }
   } else {
@@ -294,9 +298,9 @@ function execute_single_proxy(Proxy $item)
     if (!empty($raw_proxy)) {
       // remove invalid proxy from proxies.txt
       \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
-        $remove1 = removeStringFromFile($filePath, $raw_proxy) ? 'success' : 'failed';
+        $remove1 = removeStringFromFile($untestedFilePath, $raw_proxy) ? 'success' : 'failed';
         $remove2 = removeStringFromFile($deadPath, $raw_proxy) ? 'success' : 'failed';
-        echo "remove invalid $raw_proxy from $filePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove1" . PHP_EOL;
+        echo "remove invalid $raw_proxy from $untestedFilePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove1" . PHP_EOL;
       }, "move dead proxy $raw_proxy");
     }
   }
