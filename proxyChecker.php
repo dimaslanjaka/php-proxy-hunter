@@ -144,6 +144,7 @@ try {
     return $wrap;
   }, $db_untested);
   $untested = array_merge($untested, $db_untested_map);
+  echo "[DB] queue: " . count($db_untested_map) . " proxies" . PHP_EOL;
 } catch (\Throwable $th) {
   echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
 }
@@ -158,7 +159,7 @@ $untested_from_file = filter_proxies($untested_from_file);
 
 $untested = array_merge($untested, $untested_from_file);
 
-echo 'queue ' . count($untested) . " proxies\n\n";
+echo "[FILE] queue: " . count($untested_from_file) . " proxies" . PHP_EOL . PHP_EOL;
 
 execute_array_proxies();
 
@@ -166,7 +167,6 @@ function execute_array_proxies()
 {
   global $untested, $max_checks;
   $proxies = $untested;
-  echo "total queue: " . count($proxies) . " proxies" . PHP_EOL . PHP_EOL;
   // unique proxies
   $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
   // skip already checked proxy
