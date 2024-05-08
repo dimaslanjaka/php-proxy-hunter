@@ -138,6 +138,37 @@ function setPermissions(string $filename)
     //throw $th;
   }
 }
+
+/**
+ * Helper function to run a PHP script in the background.
+ *
+ * @param string $phpFilePath The path to the PHP file to run.
+ *
+ * @return bool True if the script was successfully started, false otherwise.
+ *
+ * @throws InvalidArgumentException If the provided file path is not valid.
+ */
+function runPhpInBackground(string $phpFilePath): bool
+{
+  // Validate PHP file path
+  if (!file_exists($phpFilePath)) {
+    throw new InvalidArgumentException("PHP file '$phpFilePath' not found.");
+  }
+
+  // Prepare command to run PHP script in background based on OS
+  $command = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? "start /B php $phpFilePath" : "nohup php $phpFilePath > /dev/null 2>&1 & echo $!";
+
+  // Execute command
+  exec($command, $output, $returnVar);
+
+  // Check if the command executed successfully
+  if ($returnVar !== 0) {
+    return false;
+  }
+
+  return true;
+}
+
 /**
  * Remove specified string from source file and move it to destination file.
  *
