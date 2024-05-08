@@ -118,8 +118,8 @@ $workingPath = __DIR__ . "/working.txt";
 setFilePermissions([$untestedFilePath, $workingPath, $deadPath]);
 
 // move backup added proxies
-
-if (gethostname() !== 'DESKTOP-JVTSJ6I') {
+$countLinesUntestedProxies = countNonEmptyLines($untestedFilePath);
+if (gethostname() !== 'DESKTOP-JVTSJ6I' && $countLinesUntestedProxies < 100) {
   $assets = getFilesByExtension(__DIR__ . '/assets/proxies', 'txt');
   $assets[] = __DIR__ . '/proxies-backup.txt';
   foreach ($assets as $asset) {
@@ -163,16 +163,16 @@ try {
 }
 
 // get proxy from proxies.txt
-if (countNonEmptyLines($untestedFilePath) > 0) {
+if ($countLinesUntestedProxies > 0) {
   $str_untested_from_file = read_first_lines($untestedFilePath, 50);
   if (empty($str_untested_from_file)) $str_untested_from_file = [];
   $untested_from_file = extractProxies(implode("\n", $str_untested_from_file));
   $untested_from_file = filter_proxies($untested_from_file);
   echo "[FILE] queue: " . count($untested_from_file) . " proxies" . PHP_EOL . PHP_EOL;
-}
 
-// merge
-$untested = array_merge($untested, $untested_from_file);
+  // merge
+  $untested = array_merge($untested, $untested_from_file);
+}
 
 execute_array_proxies();
 
