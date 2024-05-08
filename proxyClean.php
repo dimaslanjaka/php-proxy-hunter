@@ -39,8 +39,8 @@ $all = __DIR__ . '/proxies-all.txt';
 // Define file paths array
 $files = [
     __DIR__ . '/proxies.txt',
-//    __DIR__ . '/working.txt',
-//    __DIR__ . '/dead.txt'
+    __DIR__ . '/working.txt',
+    __DIR__ . '/dead.txt'
 ];
 
 setFilePermissions(array_merge($files, [$all]));
