@@ -722,13 +722,6 @@ function filterIpPortLines(string $inputFile)
       } else {
         echo "$proxy_str invalid" . PHP_EOL;
         $db->remove($proxy_str);
-        if (!empty($proxy_str)) {
-          // remove invalid proxy from proxies.txt
-          \PhpProxyHunter\Scheduler::register(function () use ($inputFile, $proxy_str) {
-            $remove1 = removeStringFromFile($inputFile, $proxy_str) ? 'success' : 'failed';
-            echo "filterIpPortLines: remove invalid $proxy_str from $inputFile" . PHP_EOL . "\t> $remove1" . PHP_EOL;
-          }, "filterIpPortLines: remove invalid $proxy_str");
-        }
       }
     }
     if ($containsProxy && $proxyLengthValid && $validIpPort) {
@@ -754,9 +747,6 @@ function filterIpPortLines(string $inputFile)
 
   // Close the original file handle
   fclose($fileHandle);
-
-  // remove strings that not contains IP:PORT
-  foreach ($str_to_remove as $str) {
-    removeStringFromFile($inputFile, $str);
-  }
+  if (!empty($str_to_remove))
+    echo "removed non-contains IP:PORT (" . count($str_to_remove) . ") lines" . PHP_EOL;
 }
