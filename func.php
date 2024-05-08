@@ -1037,44 +1037,50 @@ function append_content_with_lock(string $file, string $content_to_append): bool
 function removeStringFromFile(string $file_path, string $string_to_remove): bool
 {
   // Open the file in read mode
-  $file_handle = fopen($file_path, 'r');
+  $file_handle = fopen($file_path, 'r+');
 
   if (!$file_handle) {
     return false; // Unable to open file
   }
 
-  // Create a temporary file to write modified content
-  $temp_file_path = tempnam(__DIR__ . '/tmp', 'removeStringFromFile');
+  // Acquire an exclusive lock on the file
+  if (flock($file_handle, LOCK_EX)) {
+    // Create a temporary file to write modified content
+    $temp_file_path = tempnam(sys_get_temp_dir(), 'removeStringFromFile');
 
-  // Open the temporary file in write mode
-  $temp_file_handle = fopen($temp_file_path, 'w');
+    // Open the temporary file in write mode
+    $temp_file_handle = fopen($temp_file_path, 'w');
 
-  if (!$temp_file_handle) {
+    if (!$temp_file_handle) {
+      fclose($file_handle);
+      return false; // Unable to create temporary file
+    }
+
+    // Iterate through each line in the file
+    while (($line = fgets($file_handle)) !== false) {
+      // Remove the string from the current line
+      $modified_line = str_replace($string_to_remove, '', $line);
+      // Write the modified line to the temporary file
+      if (!empty(trim($modified_line))) {
+        fwrite($temp_file_handle, $modified_line);
+      }
+    }
+
+    // Close the file handles
     fclose($file_handle);
-    return false; // Unable to create temporary file
+    fclose($temp_file_handle);
+
+    // Replace the original file with the modified content
+    if (!rename($temp_file_path, $file_path)) {
+      // Failed to rename temporary file to original file path
+      unlink($temp_file_path); // Delete the temporary file
+      return false;
+    }
+
+    return true;
+  } else {
+    return false; // Failed to acquire lock on the file
   }
-
-  // Iterate through each line in the file
-  while (($line = fgets($file_handle)) !== false) {
-    // Remove the string from the current line
-    $modified_line = str_replace($string_to_remove, '', $line);
-    // Write the modified line to the temporary file
-    if (!empty(trim($modified_line)))
-      fwrite($temp_file_handle, $modified_line);
-  }
-
-  // Close the file handles
-  fclose($file_handle);
-  fclose($temp_file_handle);
-
-  // Replace the original file with the modified content
-  if (!rename($temp_file_path, $file_path)) {
-    // Failed to rename temporary file to original file path
-    unlink($temp_file_path); // Delete the temporary file
-    return false;
-  }
-
-  return true;
 }
 
 function sanitizeFilename($filename)
