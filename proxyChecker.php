@@ -36,6 +36,7 @@ require_once __DIR__ . "/func-proxy.php";
 
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Proxy;
+use PhpProxyHunter\Scheduler;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
@@ -167,9 +168,11 @@ $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 iterateBigFilesLineByLine([$filePath], $max_checks, function (string $line) {
   global $db, $max_checks, $filePath;
   if (!empty($line) && strlen($line) < 10) {
-    // invalid proxy string, remove from source
-    removeStringFromFile($filePath, trim($line));
-    echo "$line is invalid, removed." . PHP_EOL;
+    Scheduler::register(function () use ($line, $filePath) {
+      // invalid proxy string, remove from source
+      removeStringFromFile($filePath, trim($line));
+      echo "$line is invalid, removed." . PHP_EOL;
+    });
     return;
   }
   $untested = extractProxies($line);
@@ -213,9 +216,13 @@ function execute_single_proxy(Proxy $item)
   $elapsedTime = microtime(true) - $startTime;
   if ($elapsedTime > $maxExecutionTime) {
     // Execution time exceeded
-    //    echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
+    echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
+    exit(0);
     return;
   }
+  Scheduler::register(function () use ($item) {
+    echo "Hello $item->proxy" . PHP_EOL;
+  });
   //  get_geo_ip($item->proxy); // just test
   $proxyValid = isValidProxy($item->proxy);
   if ($proxyValid) {
@@ -225,56 +232,57 @@ function execute_single_proxy(Proxy $item)
     if (!isPortOpen($item->proxy)) {
       $db->updateStatus($item->proxy, 'port-closed');
       echo $item->proxy . ' port closed' . PHP_EOL;
-      // always move checked proxy into dead.txt
-      removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
-      return;
-    }
-
-    $proxy_types = [];
-    $check_http = checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password);
-    $check_socks5 = checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password);
-    $check_socks4 = checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password);
-    if ($check_http['result']) $proxy_types[] = 'http';
-    if ($check_socks5['result']) $proxy_types[] = 'socks5';
-    if ($check_socks4['result']) $proxy_types[] = 'socks4';
-    $latencies = [$check_http['latency'], $check_socks5['latency'], $check_socks4['latency']];
-    if (!empty($proxy_types)) {
-      // proxy working
-      $merged_proxy_types = implode('-', $proxy_types);
-      echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
-      $db->updateData($item->proxy, [
-          'type' => $merged_proxy_types,
-          'status' => 'active',
-          'latency' => max($latencies),
-          'username' => $item->username,
-          'password' => $item->password
-      ]);
-      if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
-        $webgl = random_webgl_data();
-        $db->updateData($item->proxy, [
-            'webgl_renderer' => $webgl->webgl_renderer,
-            'webgl_vendor' => $webgl->webgl_vendor,
-            'browser_vendor' => $webgl->browser_vendor
-        ]);
-      }
-      // get geolocation
-      if (empty($item->timezone) || empty($item->country) || empty($item->lang)) {
-        if (in_array('http', $proxy_types)) get_geo_ip($item->proxy);
-        if (in_array('socks5', $proxy_types)) get_geo_ip($item->proxy, 'socks5');
-        if (in_array('socks4', $proxy_types)) get_geo_ip($item->proxy, 'socks4');
-      }
-
-      // update proxy useragent
-      if (empty($item->useragent) && strlen(trim($item->useragent)) <= 5) {
-        $item->useragent = randomWindowsUa();
-        $db->updateData($item->proxy, ['useragent' => $item->useragent]);
-      }
     } else {
-      $db->updateStatus($item->proxy, 'dead');
-      echo $item->proxy . ' dead' . PHP_EOL;
+      $proxy_types = [];
+      $check_http = checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password);
+      $check_socks5 = checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password);
+      $check_socks4 = checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password);
+      if ($check_http['result']) $proxy_types[] = 'http';
+      if ($check_socks5['result']) $proxy_types[] = 'socks5';
+      if ($check_socks4['result']) $proxy_types[] = 'socks4';
+      $latencies = [$check_http['latency'], $check_socks5['latency'], $check_socks4['latency']];
+      if (!empty($proxy_types)) {
+        // proxy working
+        $merged_proxy_types = implode('-', $proxy_types);
+        echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
+        $db->updateData($item->proxy, [
+            'type' => $merged_proxy_types,
+            'status' => 'active',
+            'latency' => max($latencies),
+            'username' => $item->username,
+            'password' => $item->password
+        ]);
+        if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
+          $webgl = random_webgl_data();
+          $db->updateData($item->proxy, [
+              'webgl_renderer' => $webgl->webgl_renderer,
+              'webgl_vendor' => $webgl->webgl_vendor,
+              'browser_vendor' => $webgl->browser_vendor
+          ]);
+        }
+        // get geolocation
+        if (empty($item->timezone) || empty($item->country) || empty($item->lang)) {
+          if (in_array('http', $proxy_types)) get_geo_ip($item->proxy);
+          if (in_array('socks5', $proxy_types)) get_geo_ip($item->proxy, 'socks5');
+          if (in_array('socks4', $proxy_types)) get_geo_ip($item->proxy, 'socks4');
+        }
+
+        // update proxy useragent
+        if (empty($item->useragent) && strlen(trim($item->useragent)) <= 5) {
+          $item->useragent = randomWindowsUa();
+          $db->updateData($item->proxy, ['useragent' => $item->useragent]);
+        }
+      } else {
+        $db->updateStatus($item->proxy, 'dead');
+        echo $item->proxy . ' dead' . PHP_EOL;
+      }
     }
+
     // always move checked proxy into dead.txt
-    removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
+    \PhpProxyHunter\Scheduler::register(function () use ($filePath, $deadPath, $raw_proxy) {
+      echo "move $raw_proxy from $filePath -> $deadPath" . PHP_EOL;
+      removeStringAndMoveToFile($filePath, $deadPath, $raw_proxy);
+    }, "move $raw_proxy from $filePath -> $deadPath");
   }
   if (!$proxyValid) {
     try {
@@ -287,19 +295,3 @@ function execute_single_proxy(Proxy $item)
     }
   }
 }
-
-// write working proxies to working.txt
-//$workingProxies = $db->getWorkingProxies();
-//$array_format = array_map(function ($item) {
-//  foreach ($item as $key => $value) {
-//    if (empty($value)) {
-//      $item[$key] = '-';
-//    }
-//  }
-//
-//  unset($item['id']);
-//  $item['type'] = strtoupper($item['type']);
-//  return implode('|', $item);
-//}, $workingProxies);
-//$string_format = implode(PHP_EOL, $array_format);
-//file_put_contents($workingPath, $string_format);
