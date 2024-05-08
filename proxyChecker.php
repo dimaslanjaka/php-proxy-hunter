@@ -130,18 +130,11 @@ $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 
 iterateBigFilesLineByLine([$filePath], $max_checks, function (string $line) {
   global $db, $max_checks, $filePath;
-  if (!empty($line) && strlen($line) < 10) {
-    Scheduler::register(function () use ($line, $filePath) {
-      // invalid proxy string, remove from source
-      removeStringFromFile($filePath, trim($line));
-      echo "$line is invalid, removed." . PHP_EOL;
-    });
-    return;
-  }
+  if (!empty($line) && strlen($line) < 10) return;
   $untested = extractProxies($line);
-  // add untested proxies from database
+  // add 1 untested proxy from database
   try {
-    $db_untested = $db->getUntestedProxies($max_checks);
+    $db_untested = $db->getUntestedProxies(1);
     $db_untested_map = array_map(function ($item) {
       $wrap = new Proxy($item['proxy']);
       foreach ($item as $key => $value) {
@@ -183,9 +176,6 @@ function execute_single_proxy(Proxy $item)
     exit(0);
     return;
   }
-  Scheduler::register(function () use ($item) {
-    echo "Hello $item->proxy" . PHP_EOL;
-  });
   //  get_geo_ip($item->proxy); // just test
   $proxyValid = isValidProxy($item->proxy);
   if ($proxyValid) {
