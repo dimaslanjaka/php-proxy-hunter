@@ -1108,7 +1108,8 @@ function removeStringFromFile(string $file_path, $string_to_remove): bool
   $content = read_file($file_path);
   $regex_pattern = string_to_regex($string_to_remove);
   $new_string = preg_replace($regex_pattern, '', $content);
-  return file_put_contents($file_path, $new_string) !== false ? 'success' : false;
+  if ($new_string) return file_put_contents($file_path, $new_string) !== false ? 'success' : 'failed';
+  return 'failed -> preg_replace is null';
 }
 
 /**
