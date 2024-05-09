@@ -2,7 +2,7 @@
 
 // filter open ports only
 
-require __DIR__ . '/func.php';
+require __DIR__ . '/func-proxy.php';
 
 use PhpProxyHunter\ProxyDB;
 
