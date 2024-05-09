@@ -215,12 +215,12 @@ function execute_array_proxies()
 
 function filter_proxies(array $proxies)
 {
-  global $db, $untestedFilePath, $deadPath, $str_to_remove;
+  global $db, $str_to_remove;
   if (empty($proxies)) return [];
   // unique proxies
   $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
   // skip already checked proxy
-  $proxies = array_filter($proxies, function (Proxy $item) use ($db, $untestedFilePath, $deadPath) {
+  $proxies = array_filter($proxies, function (Proxy $item) use ($db) {
     $sel = $db->select($item->proxy);
     if (empty($sel)) {
       echo "add $item->proxy" . PHP_EOL;
