@@ -4,6 +4,10 @@
 // @version      1.1
 // @description  parse proxy from site page
 // @author       dimaslanjaka
+// @supportURL   https://github.com/dimaslanjaka/php-proxy-hunter/issues
+// @homepageURL         https://dimaslanjaka.github.io/
+// @contributionURL     https://github.com/dimaslanjaka/php-proxy-hunter
+// @license             MIT
 // @match        https://hidemy.name/*/proxy-list/*
 // @match        https://hidemy.io/*/proxy-list/*
 // @match        https://hidemyna.me/*/proxy-list/*

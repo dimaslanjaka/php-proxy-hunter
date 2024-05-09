@@ -4,6 +4,10 @@
 // @version      1.1
 // @description  parse proxy from site page
 // @author       dimaslanjaka
+// @supportURL   https://github.com/dimaslanjaka/php-proxy-hunter/issues
+// @homepageURL         https://dimaslanjaka.github.io/
+// @contributionURL     https://github.com/dimaslanjaka/php-proxy-hunter
+// @license             MIT
 // @match        *://proxyscrape.com/*
 // @noframes
 // @run-at document-end
