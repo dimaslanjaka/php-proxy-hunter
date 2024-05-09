@@ -62,6 +62,8 @@
     "**/profiles/**": true,
     "**/tmp/**": true,
     "**/vendor/**": true,
-    "**/venv/**": true
+    "**/venv/**": true,
+    "**/config/**": true,
+    "**/databases/**": true
   }
 }
