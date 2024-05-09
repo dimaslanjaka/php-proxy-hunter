@@ -102,11 +102,12 @@ if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
 }
 
 Scheduler::register(function () use ($lockFilePath, $statusFile) {
+  // clean proxies.txt
+  clean_proxies_file(__DIR__ . '/proxies.txt');
+  // clean lock files
   if (file_exists($lockFilePath))
     unlink($lockFilePath);
   file_put_contents($statusFile, 'idle');
-  // clean proxies.txt
-  clean_proxies_file(__DIR__ . '/proxies.txt');
 }, 'z_onExit' . __FILE__);
 
 // Specify the file path
