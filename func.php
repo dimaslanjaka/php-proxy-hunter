@@ -188,6 +188,7 @@ function runPhpInBackground(string $phpFilePath): bool
  */
 function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFilePath, ?string $stringToRemove): string
 {
+  if (!file_exists($destinationFilePath)) file_put_contents($destinationFilePath, '');
   // Check if $stringToRemove is empty or contains only whitespace characters
   if (is_null($stringToRemove) || empty(trim($stringToRemove))) {
     return "Empty string to remove";
