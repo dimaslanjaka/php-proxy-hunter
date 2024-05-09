@@ -174,7 +174,7 @@ if ($countLinesUntestedProxies > 0) {
   if (empty($str_untested_from_file)) $str_untested_from_file = [];
   $untested_from_file = extractProxies(implode("\n", $str_untested_from_file));
   $untested_from_file = filter_proxies($untested_from_file);
-  echo "[FILE] queue: " . count($untested_from_file) . " proxies" . PHP_EOL . PHP_EOL;
+  echo "[FILE] queue: " . count($untested_from_file) . " proxies" . PHP_EOL;
 
   // prior to check from file
   if (count($untested_from_file) > 100) {
@@ -185,6 +185,8 @@ if ($countLinesUntestedProxies > 0) {
     echo "using data from [DB] and [FILE]\n";
   }
 }
+
+echo str_repeat('=', 50) . PHP_EOL;
 
 /**
  * Array of strings to remove.
