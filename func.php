@@ -1754,13 +1754,16 @@ function iterateArray(array $array, int $limit = 50, ?callable $callback = null)
  * This function reads the specified file line by line and counts the number
  * of non-empty lines.
  *
- * @param string $filename The path to the file.
+ * @param string $filePath The path to the file.
  * @param int $chunkSize Optional. The size of each chunk to read in bytes. Defaults to 4096.
  * @return int|false The number of non-empty lines in the file, or false if the file couldn't be opened.
  */
-function countNonEmptyLines(string $filename, int $chunkSize = 4096)
+function countNonEmptyLines(string $filePath, int $chunkSize = 4096)
 {
-  $file = fopen($filename, "r");
+  if (!file_exists($filePath)) return 0;
+  if (!is_readable($filePath)) return 0;
+  if (is_file_locked($filePath)) return 0;
+  $file = fopen($filePath, "r");
   if (!$file) {
     return false; // File open failed
   }
