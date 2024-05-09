@@ -301,7 +301,7 @@ async function fetchWorkingProxies() {
           td.classList.add("text-center");
         }
 
-        if (i === 7 || i === 6 || (i > 12 && i <= 17)) {
+        if (i === 7 || i === 6 || (i > 13 && i <= 18)) {
           if (info.trim() === "-") {
             // console.log(split[0], "missing geo location");
             add_ajax_schedule(

@@ -39,7 +39,7 @@ if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
   file_put_contents($statusFile, "geolocation $string_data");
 }
 
-Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
+\PhpProxyHunter\Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
   echo "releasing lock" . PHP_EOL;
   // clean lock files
   if (file_exists($lockFilePath))
