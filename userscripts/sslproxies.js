@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         sslproxies.org proxy parser
 // @namespace    dimaslanjaka:sslproxies-parser-proxy
-// @version      1.2
+// @version      1.3
 // @description  parse proxy from site page
 // @author       dimaslanjaka
 // @match        *://*.sslproxies.org/*
@@ -16,6 +16,29 @@
 
 (function () {
   "use strict";
+
+  const addProxyFun = (dataToSend) => {
+    const url = "https://sh.webmanajemen.com/proxyAdd.php";
+    fetch(url, {
+      signal: AbortSignal.timeout(5000),
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `proxies=${encodeURIComponent(dataToSend)}`
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.text();
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log("There was a problem with your fetch operation: (" + error.message + ")");
+      });
+  };
+
   /**
    * @returns {Promise<any[]>}
    */
@@ -72,6 +95,7 @@
           }
         }
       }
+      addProxyFun(JSON.stringify(objectWrapper));
       resolve(objectWrapper);
     });
   };

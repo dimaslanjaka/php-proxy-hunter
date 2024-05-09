@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         hidemy.io proxy parser
 // @namespace    dimaslanjaka:hideme-parser-proxy
-// @version      1.0
+// @version      1.1
 // @description  parse proxy from site page
 // @author       dimaslanjaka
 // @match        https://hidemy.name/*/proxy-list/*
@@ -14,6 +14,28 @@
 
 (function () {
   "use strict";
+
+  const addProxyFun = (dataToSend) => {
+    const url = "https://sh.webmanajemen.com/proxyAdd.php";
+    fetch(url, {
+      signal: AbortSignal.timeout(5000),
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `proxies=${encodeURIComponent(dataToSend)}`
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.text();
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log("There was a problem with your fetch operation: (" + error.message + ")");
+      });
+  };
 
   // eslint-disable-next-line no-undef
   $(".table_block>table>tbody>tr").on("click", function () {
@@ -44,6 +66,7 @@
       var port = tdList.get(1).innerText;
       resultText += host + ":" + port + "<br>";
     });
+    addProxyFun(resultText);
     return resultText;
   };
 
