@@ -37,48 +37,19 @@ function exitProcess()
 register_shutdown_function('exitProcess');
 
 $db = new ProxyDB();
-$working = $db->getWorkingProxies();
-$private = $db->getPrivateProxies();
-usort($working, function ($a, $b) {
-  return strtotime($b['last_check']) - strtotime($a['last_check']);
-});
-$array_mapper = array_map(function ($item) use ($db) {
-  foreach ($item as $key => $value) {
-    if (empty($value)) {
-      $item[$key] = '-';
-    }
-  }
-
-  $item['type'] = strtoupper($item['type']);
-  unset($item['id']);
-  if (empty($item['useragent']) && strlen(trim($item['useragent'])) <= 5) {
-    $item['useragent'] = randomWindowsUa();
-    $db->updateData($item['proxy'], $item);
-    get_geo_ip($item['proxy']);
-  }
-  return $item;
-}, $working);
-$impl = array_map(function ($item) {
-  return implode('|', $item);
-}, $array_mapper);
-$impl = implode(PHP_EOL, $impl);
+$data = parse_working_proxies($db);
 
 // write working proxies
-file_put_contents(__DIR__ . '/working.txt', $impl);
-file_put_contents(__DIR__ . '/working.json', json_encode($array_mapper));
+file_put_contents(__DIR__ . '/working.txt', $data['txt']);
+file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
 
 $counterUntested = $db->countUntestedProxies();
-//$fileUntested = __DIR__ . '/proxies.txt';
-//iterateBigFilesLineByLine([$fileUntested], function (string $line) {
-//  global $counterUntested;
-//  $counterUntested += count(extractProxies($line));
-//});
 
 $arr = [
     'working' => $db->countWorkingProxies(),
     'dead' => $db->countDeadProxies(),
     'untested' => $counterUntested,
-    'private' => count($private)
+    'private' => $db->countPrivateProxies()
 ];
 
 foreach ($arr as $key => $value) {

@@ -773,3 +773,55 @@ function clean_proxies_file(string $file)
 
   fixFile($file);
 }
+
+/**
+ * Parses working proxies data retrieved from the provided ProxyDB object.
+ *
+ * @param \PhpProxyHunter\ProxyDB $db The ProxyDB object containing the working proxies data.
+ * @return array An array containing two elements:
+ *               - 'txt': A string representation of working proxies, separated by newline characters and formatted as "proxy|port|type|country|last_check|useragent".
+ *               - 'array': An array of associative arrays representing the working proxies data, with keys 'proxy', 'port', 'type', 'country', 'last_check', and 'useragent'.
+ */
+function parse_working_proxies(\PhpProxyHunter\ProxyDB $db)
+{
+  // Retrieve working proxies from the provided ProxyDB object
+  $working = $db->getWorkingProxies();
+
+  // Sort working proxies by the newest last_check column
+  usort($working, function ($a, $b) {
+    return strtotime($b['last_check']) - strtotime($a['last_check']);
+  });
+
+  // Map proxies data
+  $array_mapper = array_map(function ($item) use ($db) {
+    // Fill empty values with '-'
+    foreach ($item as $key => $value) {
+      if (empty($value)) {
+        $item[$key] = '-';
+      }
+    }
+
+    // Remove unneeded property
+    unset($item['id']);
+
+    // Uppercase proxy type
+    $item['type'] = strtoupper($item['type']);
+
+    // Update metadata info
+    if (empty($item['useragent']) && strlen(trim($item['useragent'])) <= 5) {
+      $item['useragent'] = randomWindowsUa();
+      $db->updateData($item['proxy'], $item);
+      // Re-fetch geolocation IP
+      get_geo_ip($item['proxy']);
+    }
+
+    return $item;
+  }, $working);
+
+  // Format proxies data for working.txt file, separating each proxy by '|'
+  $workingTxt = implode(PHP_EOL, array_map(function ($item) {
+    return implode('|', $item);
+  }, $array_mapper));
+
+  return ['txt' => $workingTxt, 'array' => $array_mapper];
+}
