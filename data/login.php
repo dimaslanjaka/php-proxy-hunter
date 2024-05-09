@@ -64,7 +64,7 @@ if (isset($_GET['code'])) {
   }
 } else {
   $token = json_decode(read_file($credentialsPath), true);
-  $client->setAccessToken($token['access_token']);
+  if ($token) $client->setAccessToken($token['access_token']);
 }
 
 if ($client->getAccessToken() && $client->isAccessTokenExpired()) {
@@ -128,7 +128,7 @@ if ($client->getAccessToken() && $client->isAccessTokenExpired()) {
 
 <div class="w-full">
   <pre class="mb-3"><code><?php echo $message; ?></code></pre>
-<!--    <pre class="mb-3"><code>--><?php //echo json_encode($_ENV); ?><!--</code></pre>-->
+  <!--    <pre class="mb-3"><code>--><?php //echo json_encode($_ENV); ?><!--</code></pre>-->
 </div>
 
 <script>
