@@ -14,9 +14,39 @@ if (function_exists('header')) {
   header('Content-Type: application/json; charset=utf-8');
 }
 
-if (file_exists(__DIR__ . '/proxyChecker.lock') && gethostname() !== 'DESKTOP-JVTSJ6I') {
-  exit('proxy checker process still running');
+$db = new ProxyDB(__DIR__ . '/src/database.sqlite');
+$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$statusFile = __DIR__ . "/status.txt";
+$config = getConfig(getUserId());
+$options = getopt("", ["str:"]); // php geoIp.php --str "xsdsd dfdfd"
+
+$string_data = '112.30.155.83:12792';
+if ($isCli) {
+  if (isset($options['str'])) {
+    $string_data = rawurldecode(trim($options['str']));
+  } else {
+    $string_data = file_get_contents(__DIR__ . '/proxies.txt');
+  }
+} else if (isset($_REQUEST['proxy'])) {
+  $string_data = rawurldecode(trim($_REQUEST['proxy']));
 }
+
+if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
+  echo "proxy checker process still running\n";
+  exit();
+} else {
+  file_put_contents($lockFilePath, date(DATE_RFC3339));
+  file_put_contents($statusFile, "geolocation $string_data");
+}
+
+Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
+  echo "releasing lock" . PHP_EOL;
+  // clean lock files
+  if (file_exists($lockFilePath))
+    unlink($lockFilePath);
+  echo "update status to IDLE" . PHP_EOL;
+  file_put_contents($statusFile, 'idle');
+}, 'z_onExit' . __FILE__);
 
 if (function_exists('header')) {
   // Set cache control headers to instruct the browser to cache the content for [n] hour
@@ -24,36 +54,6 @@ if (function_exists('header')) {
   header('Cache-Control: max-age=3600, must-revalidate');
   header('Expires: ' . gmdate('D, d M Y H:i:s', time() + ($hour * 3600)) . ' GMT');
 }
-
-$config = getConfig(getUserId());
-$options = getopt("", ["str:"]); // php geoIp.php --str "xsdsd dfdfd"
-
-$string_data = '112.30.155.83:12792';
-if ($isCli) {
-  if (isset($options['str'])) {
-    $string_data = $options['str'];
-  } else {
-    $string_data = file_get_contents(__DIR__ . '/proxies.txt');
-  }
-} else if (isset($_REQUEST['proxy'])) {
-  $string_data = $_REQUEST['proxy'];
-}
-
-$lockFolder = realpath(__DIR__ . '/tmp');
-$lockFilePath = $lockFolder . "/" . md5($string_data) . ".lock";
-
-if (file_exists($lockFilePath) && gethostname() !== "DESKTOP-JVTSJ6I") {
-  exit(json_encode(['error' => 'another process still running']));
-} else {
-  file_put_contents($lockFilePath, '');
-}
-function exitProcess()
-{
-  global $lockFilePath;
-  if (file_exists($lockFilePath)) unlink($lockFilePath);
-}
-
-register_shutdown_function('exitProcess');
 
 $extract = extractProxies($string_data);
 shuffle($extract);
