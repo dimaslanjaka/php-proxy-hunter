@@ -76,9 +76,9 @@ function extractProxies(?string $string): array
           $results[] = $result;
         }
       } else {
-        echo "extractProxies: delete invalid $proxy" . PHP_EOL;
+        echo "[SQLite]: delete invalid $proxy" . PHP_EOL;
         $db->remove($proxy);
-        removeStringFromFile(__DIR__ . '/proxies.txt', $proxy);
+//        removeStringFromFile(__DIR__ . '/proxies.txt', $proxy);
       }
     }
   }
