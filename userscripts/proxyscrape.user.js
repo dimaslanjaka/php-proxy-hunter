@@ -12,7 +12,7 @@
 // @noframes
 // @run-at document-end
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxyscrape.user.js
-// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxyscrape.user.js
+// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxyscrape.meta.js
 // ==/UserScript==
 
 (function () {
