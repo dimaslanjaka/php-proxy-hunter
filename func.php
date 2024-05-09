@@ -1103,12 +1103,12 @@ function append_content_with_lock(string $file, string $content_to_append): bool
  */
 function removeStringFromFile(string $file_path, $string_to_remove): bool
 {
-  if (is_file_locked($file_path)) return false;
-  if (!is_writable($file_path)) return false;
+  if (is_file_locked($file_path)) return "locked";
+  if (!is_writable($file_path)) return "non-writable";
   $content = read_file($file_path);
   $regex_pattern = string_to_regex($string_to_remove);
   $new_string = preg_replace($regex_pattern, '', $content);
-  return file_put_contents($file_path, $new_string) !== false;
+  return file_put_contents($file_path, $new_string) !== false ? 'success' : false;
 }
 
 /**
