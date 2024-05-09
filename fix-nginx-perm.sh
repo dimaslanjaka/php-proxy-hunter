@@ -3,7 +3,6 @@
 
 rm *.lock
 
-
 mkdir -p tmp/cookies
 touch tmp/cookies/index.html
 touch tmp/index.html
@@ -43,7 +42,7 @@ else
     su -s /bin/bash -c "php $COMPOSER_PHAR update >> $OUTPUT_FILE 2>&1" www-data
 fi
 
-su -s /bin/bash -c "nohup php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
+su -s /bin/bash -c "php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
 
 sudo chown -R www-data:www-data vendor/*
 sudo chown -R www-data:www-data vendor/composer/*
