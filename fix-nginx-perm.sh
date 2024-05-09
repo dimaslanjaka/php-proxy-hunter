@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # shellcheck disable=SC2035
 
 rm *.lock
@@ -33,23 +33,25 @@ echo "permission sets successful"
 
 OUTPUT_FILE="/var/www/html/proxyChecker.txt"
 
-read -r -p "Are you want to re-install composer? [Y/n]" response
-response=${response,,}
-if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
+printf "Are you want to re-install composer? [Y/n] "
+read -r response
+response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
+if [ "$response" = "y" ] || [ -z "$response" ]; then
   COMPOSER_LOCK="/var/www/html/composer.lock"
   COMPOSER_PHAR="/var/www/html/composer.phar"
 
   if [ ! -f "$COMPOSER_LOCK" ]; then
-      su -s /bin/bash -c "php $COMPOSER_PHAR install >> $OUTPUT_FILE 2>&1" www-data
+      su -s /bin/sh -c "php $COMPOSER_PHAR install >> $OUTPUT_FILE 2>&1" www-data
   else
-      su -s /bin/bash -c "php $COMPOSER_PHAR update >> $OUTPUT_FILE 2>&1" www-data
+      su -s /bin/sh -c "php $COMPOSER_PHAR update >> $OUTPUT_FILE 2>&1" www-data
   fi
 fi
 
-read -r -p "Are you want to re-index all proxies? [Y/n]" response
-response=${response,,}
-if [[ $response =~ ^(y| ) ]] || [[ -z $response ]]; then
-  su -s /bin/bash -c "php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
+printf "Are you want to re-index all proxies? [Y/n] "
+read -r response
+response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
+if [ "$response" = "y" ] || [ -z "$response" ]; then
+  su -s /bin/sh -c "php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
 fi
 
 chmod 777 vendor
