@@ -146,6 +146,13 @@ if (gethostname() !== 'DESKTOP-JVTSJ6I' && $countLinesUntestedProxies < 100) {
 
 $max_checks = 50;
 $untested = [];
+/**
+ * Array of strings to remove.
+ *
+ * @var string[]
+ */
+$str_to_remove = [];
+
 try {
   $db_untested = $db->getUntestedProxies(50);
   $db_working = $db->getWorkingProxies(50);
@@ -170,30 +177,23 @@ try {
 
 // get proxy from proxies.txt
 if ($countLinesUntestedProxies > 0) {
-  $str_untested_from_file = read_first_lines($untestedFilePath, 300);
-  if (empty($str_untested_from_file)) $str_untested_from_file = [];
-  $untested_from_file = extractProxies(implode("\n", $str_untested_from_file));
-  $untested_from_file = filter_proxies($untested_from_file);
-  echo "[FILE] queue: " . count($untested_from_file) . " proxies" . PHP_EOL;
+  $file_untested_str = read_first_lines($untestedFilePath, 300);
+  if (empty($file_untested_str)) $file_untested_str = [];
+  $file_untested = extractProxies(implode("\n", $file_untested_str));
+  $file_untested = filter_proxies($file_untested);
+  echo "[FILE] queue: " . count($file_untested) . " proxies" . PHP_EOL;
 
   // prior to check from file
-  if (count($untested_from_file) > 100) {
-    $untested = $untested_from_file;
+  if (count($file_untested) > 100) {
+    $untested = $file_untested;
     echo "using data from [FILE]\n";
   } else {
-    $untested = array_merge($untested, $untested_from_file);
+    $untested = array_merge($untested, $file_untested);
     echo "using data from [DB] and [FILE]\n";
   }
 }
 
 echo str_repeat('=', 50) . PHP_EOL;
-
-/**
- * Array of strings to remove.
- *
- * @var string[]
- */
-$str_to_remove = [];
 
 execute_array_proxies();
 
@@ -238,6 +238,7 @@ function filter_proxies(array $proxies)
       $sel = $db->select($item->proxy);
     }
     if (empty($sel[0]['status'])) {
+      echo "[SQLite] untested $item->proxy" . PHP_EOL;
       $db->updateStatus($item->proxy, 'untested');
     }
     $str_to_remove[] = $item->proxy;
