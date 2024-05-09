@@ -4,6 +4,10 @@
 // @version      1.2
 // @description  parse proxy from site page
 // @author       dimaslanjaka
+// @supportURL   https://github.com/dimaslanjaka/php-proxy-hunter/issues
+// @homepageURL         https://dimaslanjaka.github.io/
+// @contributionURL     https://github.com/dimaslanjaka/php-proxy-hunter
+// @license             MIT
 // @match        *://spys.one/*/
 // @match        *://premiumproxy.net/squid-proxy-list
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/spysone.user.js

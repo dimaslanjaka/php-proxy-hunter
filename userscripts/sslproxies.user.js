@@ -4,14 +4,18 @@
 // @version      1.3
 // @description  parse proxy from site page
 // @author       dimaslanjaka
+// @supportURL   https://github.com/dimaslanjaka/php-proxy-hunter/issues
+// @homepageURL         https://dimaslanjaka.github.io/
+// @contributionURL     https://github.com/dimaslanjaka/php-proxy-hunter
+// @license             MIT
 // @match        *://*.sslproxies.org/*
 // @match        *://*.socks-proxy.net/*
 // @match        *://*.us-proxy.org/*
 // @match        *://free-proxy-list.net/*
 // @noframes
 // @run-at document-end
-// @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/sslproxies.user.js
-// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/sslproxies.user.js
+// @downloadURL  https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/sslproxies.user.js
+// @updateURL    https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/sslproxies.user.js
 // ==/UserScript==
 
 (function () {

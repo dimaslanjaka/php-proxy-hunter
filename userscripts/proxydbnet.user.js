@@ -4,6 +4,10 @@
 // @version      1.1
 // @description  parse proxy from site page
 // @author       dimaslanjaka
+// @supportURL   https://github.com/dimaslanjaka/php-proxy-hunter/issues
+// @homepageURL         https://dimaslanjaka.github.io/
+// @contributionURL     https://github.com/dimaslanjaka/php-proxy-hunter
+// @license             MIT
 // @match        https://proxydb.net/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxydbnet.user.js
