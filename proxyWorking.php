@@ -43,20 +43,11 @@ $data = parse_working_proxies($db);
 file_put_contents(__DIR__ . '/working.txt', $data['txt']);
 file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
 
-$counterUntested = $db->countUntestedProxies();
-
-$arr = [
-    'working' => $db->countWorkingProxies(),
-    'dead' => $db->countDeadProxies(),
-    'untested' => $counterUntested,
-    'private' => $db->countPrivateProxies()
-];
-
-foreach ($arr as $key => $value) {
+foreach ($data['counter'] as $key => $value) {
   echo "total $key $value proxies" . PHP_EOL;
 }
 
-file_put_contents(__DIR__ . '/status.json', json_encode($arr));
+file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
 
 setFilePermissions([
     __DIR__ . '/status.json',
@@ -65,38 +56,3 @@ setFilePermissions([
     __DIR__ . '/working.txt',
     __DIR__ . '/working.json'
 ]);
-
-
-/**
- * Find the index of an item in an array based on its 'proxy' value.
- *
- * @param array $array The array to search through.
- * @param string $proxy The value of the 'proxy' key to search for.
- * @return int|null The index of the found item, or null if not found.
- */
-function findByProxy($array, $proxy)
-{
-  foreach ($array as $key => $item) {
-    if ($item['proxy'] === $proxy) {
-      return $key; // Return the index of the found item
-    }
-  }
-  return null; // Proxy not found
-}
-
-function removeDuplicateObjectsByKey($array, $key)
-{
-  $uniqueValues = [];
-  $uniqueObjects = [];
-
-  foreach ($array as $object) {
-    // Check if the value of the specified key already exists in the uniqueValues array
-    if (!in_array($object[$key], $uniqueValues)) {
-      // If not, add it to the uniqueValues array and add the object to the uniqueObjects array
-      $uniqueValues[] = $object[$key];
-      $uniqueObjects[] = $object;
-    }
-  }
-
-  return $uniqueObjects;
-}

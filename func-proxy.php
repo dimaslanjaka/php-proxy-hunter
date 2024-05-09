@@ -778,9 +778,10 @@ function clean_proxies_file(string $file)
  * Parses working proxies data retrieved from the provided ProxyDB object.
  *
  * @param \PhpProxyHunter\ProxyDB $db The ProxyDB object containing the working proxies data.
- * @return array An array containing two elements:
+ * @return array An array containing three elements:
  *               - 'txt': A string representation of working proxies, separated by newline characters and formatted as "proxy|port|type|country|last_check|useragent".
  *               - 'array': An array of associative arrays representing the working proxies data, with keys 'proxy', 'port', 'type', 'country', 'last_check', and 'useragent'.
+ *               - 'counter': An array containing counts of different types of proxies in the database, including 'working', 'dead', 'untested', and 'private'.
  */
 function parse_working_proxies(\PhpProxyHunter\ProxyDB $db)
 {
@@ -823,5 +824,13 @@ function parse_working_proxies(\PhpProxyHunter\ProxyDB $db)
     return implode('|', $item);
   }, $array_mapper));
 
-  return ['txt' => $workingTxt, 'array' => $array_mapper];
+  $count = [
+      'working' => $db->countWorkingProxies(),
+      'dead' => $db->countDeadProxies(),
+      'untested' => $db->countUntestedProxies(),
+      'private' => $db->countPrivateProxies()
+  ];
+
+  return ['txt' => $workingTxt, 'array' => $array_mapper, 'counter' => $count];
 }
+
