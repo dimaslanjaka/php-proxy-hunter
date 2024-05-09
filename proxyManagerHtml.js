@@ -290,7 +290,7 @@ async function fetchWorkingProxies() {
           "border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
         );
         td.innerText = info;
-        if (i === 0 || i > 12) {
+        if (i === 0 || i > 13) {
           // td.classList.add("w-4/12");
           if (td.innerText !== "-")
             td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}"><i class="fa-duotone fa-copy"></i></button>`;
