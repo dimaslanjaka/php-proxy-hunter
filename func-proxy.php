@@ -301,17 +301,19 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
   return $result;
 }
 
-function get_geo_ip(string $proxy, string $proxy_type = 'http')
+function get_geo_ip(string $the_proxy, string $proxy_type = 'http', ?\PhpProxyHunter\ProxyDB $db = null)
 {
-  $proxy = trim($proxy);
+  $proxy = trim($the_proxy);
   if (empty($proxy)) return;
-  $db = new ProxyDB();
+  if (empty($db)) $db = new \PhpProxyHunter\ProxyDB();
   list($ip, $port) = explode(':', $proxy);
   /** @noinspection PhpFullyQualifiedNameUsageInspection */
   $geo_plugin = new \PhpProxyHunter\geoPlugin();
   $geoUrl = "https://ip-get-geolocation.com/api/json/$ip";
   // fetch ip info
-  $geoIp = json_decode(curlGetWithProxy($geoUrl, $proxy, $proxy_type), true);
+  $content = curlGetWithProxy($geoUrl, $proxy, $proxy_type);
+  if (!$content) $content = '';
+  $geoIp = json_decode($content, true);
   $data = [];
   // Check if JSON decoding was successful
   if (json_last_error() === JSON_ERROR_NONE) {

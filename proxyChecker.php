@@ -289,9 +289,9 @@ function execute_single_proxy(Proxy $item)
         }
         // get geolocation
         if (empty($item->timezone) || empty($item->country) || empty($item->lang)) {
-          if (in_array('http', $proxy_types)) get_geo_ip($item->proxy);
-          if (in_array('socks5', $proxy_types)) get_geo_ip($item->proxy, 'socks5');
-          if (in_array('socks4', $proxy_types)) get_geo_ip($item->proxy, 'socks4');
+          if (in_array('http', $proxy_types)) get_geo_ip($item->proxy, 'http', $db);
+          if (in_array('socks5', $proxy_types)) get_geo_ip($item->proxy, 'socks5', $db);
+          if (in_array('socks4', $proxy_types)) get_geo_ip($item->proxy, 'socks4', $db);
         }
 
         // update proxy useragent

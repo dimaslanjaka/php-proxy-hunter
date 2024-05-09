@@ -61,7 +61,7 @@ shuffle($extract);
 $db = new \PhpProxyHunter\ProxyDB(__DIR__ . '/src/database.sqlite');
 
 foreach ($extract as $item) {
-  get_geo_ip($item->proxy);
+  get_geo_ip($item->proxy, 'http', $db);
   if (empty($item->useragent)) {
     $item->useragent = randomWindowsUa();
     $db->updateData($item->proxy, ['useragent' => $item->useragent]);
