@@ -49,3 +49,4 @@ venv/
 /src/selenium-dolphin
 /config.yaml
 *.out
+/databases
