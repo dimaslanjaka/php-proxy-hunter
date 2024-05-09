@@ -14,7 +14,7 @@ if (function_exists('header')) {
   header('Content-Type: application/json; charset=utf-8');
 }
 
-$db = new ProxyDB(__DIR__ . '/src/database.sqlite');
+$db = new \PhpProxyHunter\ProxyDB(__DIR__ . '/src/database.sqlite');
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 $config = getConfig(getUserId());
@@ -57,8 +57,6 @@ if (function_exists('header')) {
 
 $extract = extractProxies($string_data);
 shuffle($extract);
-
-$db = new \PhpProxyHunter\ProxyDB(__DIR__ . '/src/database.sqlite');
 
 foreach ($extract as $item) {
   get_geo_ip($item->proxy, 'http', $db);
