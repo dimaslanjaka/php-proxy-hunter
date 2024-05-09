@@ -57,7 +57,6 @@
     "**/.idea/**": true,
     "**/.venv/**": true,
     "**/.yarn/**": true,
-    "**/*.txt": true,
     "**/assets/**": true,
     "**/dist/**": true,
     "**/profiles/**": true,
