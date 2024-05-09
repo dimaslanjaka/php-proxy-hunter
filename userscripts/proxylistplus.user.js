@@ -4,6 +4,10 @@
 // @version      1.4
 // @description  parse proxy from site page
 // @author       dimaslanjaka
+// @supportURL   https://github.com/dimaslanjaka/php-proxy-hunter/issues
+// @homepageURL         https://dimaslanjaka.github.io/
+// @contributionURL     https://github.com/dimaslanjaka/php-proxy-hunter
+// @license             MIT
 // @match        *://list.proxylistplus.com/*
 // @match        *://www.proxynova.com/*
 // @match        *://www.freeproxy.world/*
