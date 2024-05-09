@@ -139,7 +139,8 @@ $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 $untested = [];
 try {
   $db_untested = $db->getUntestedProxies(50);
-  $db_untested_map = array_map(function ($item) {
+  $db_working = $db->getWorkingProxies(50);
+  $db_data_map = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
     foreach ($item as $key => $value) {
       if (property_exists($wrap, $key)) {
@@ -151,9 +152,9 @@ try {
       $wrap->password = $item['password'];
     }
     return $wrap;
-  }, $db_untested);
-  $untested = array_merge($untested, $db_untested_map);
-  echo "[DB] queue: " . count($db_untested_map) . " proxies" . PHP_EOL;
+  }, array_merge($db_untested, $db_working));
+  $untested = array_merge($untested, $db_data_map);
+  echo "[DB] queue: " . count($db_data_map) . " proxies" . PHP_EOL;
 } catch (\Throwable $th) {
   echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
 }
