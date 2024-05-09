@@ -170,11 +170,18 @@ if ($countLinesUntestedProxies > 0) {
   $untested = array_merge($untested, $untested_from_file);
 }
 
+/**
+ * Array of strings to remove.
+ *
+ * @var string[]
+ */
+$str_to_remove = [];
+
 execute_array_proxies();
 
 function execute_array_proxies()
 {
-  global $untested, $max_checks;
+  global $untested, $max_checks, $str_to_remove;
   $proxies = filter_proxies($untested);
   // skip empty array
   if (empty($proxies)) return;
@@ -182,11 +189,23 @@ function execute_array_proxies()
   shuffle($proxies);
 
   iterateArray($proxies, $max_checks, 'execute_single_proxy');
+
+  if (!empty($str_to_remove)) {
+    // remove already indexed proxies
+    \PhpProxyHunter\Scheduler::register(function () use ($str_to_remove) {
+      $files = [__DIR__ . '/proxies.txt', __DIR__ . '/dead.txt'];
+      foreach ($files as $file) {
+        echo "remove indexed proxies from " . basename($file) . PHP_EOL;
+        $remove = removeStringFromFile($file, $str_to_remove) ? 'success' : 'failed';
+        echo "\t> $remove" . PHP_EOL;
+      }
+    }, "remove indexed proxies");
+  }
 }
 
 function filter_proxies(array $proxies)
 {
-  global $db, $untestedFilePath, $deadPath;
+  global $db, $untestedFilePath, $deadPath, $str_to_remove;
   if (empty($proxies)) return [];
   // unique proxies
   $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
@@ -203,15 +222,7 @@ function filter_proxies(array $proxies)
     if (empty($sel[0]['status'])) {
       $db->updateStatus($item->proxy, 'untested');
     }
-    $raw_proxy = $item->proxy;
-    if (!empty($raw_proxy)) {
-      // remove invalid proxy from proxies.txt
-      \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
-        $remove1 = removeStringFromFile($untestedFilePath, $raw_proxy) ? 'success' : 'failed';
-        $remove2 = removeStringFromFile($deadPath, $raw_proxy) ? 'success' : 'failed';
-        echo "remove indexed $raw_proxy from $untestedFilePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove2" . PHP_EOL;
-      }, "remove indexed $raw_proxy");
-    }
+    $str_to_remove[] = $item->proxy;
     if (empty($item->last_check)) return true;
     return isDateRFC3339OlderThanHours($item->last_check, 5);
   });
@@ -220,7 +231,7 @@ function filter_proxies(array $proxies)
 
 function execute_single_proxy(Proxy $item)
 {
-  global $db, $headers, $endpoint, $untestedFilePath, $deadPath, $startTime, $maxExecutionTime;
+  global $db, $headers, $endpoint, $startTime, $maxExecutionTime, $str_to_remove;
   // Check if execution time has exceeded the maximum allowed time
   $elapsedTime = microtime(true) - $startTime;
   if ($elapsedTime > $maxExecutionTime) {
@@ -252,18 +263,18 @@ function execute_single_proxy(Proxy $item)
         $merged_proxy_types = implode('-', $proxy_types);
         echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
         $db->updateData($item->proxy, [
-          'type' => $merged_proxy_types,
-          'status' => 'active',
-          'latency' => max($latencies),
-          'username' => $item->username,
-          'password' => $item->password
+            'type' => $merged_proxy_types,
+            'status' => 'active',
+            'latency' => max($latencies),
+            'username' => $item->username,
+            'password' => $item->password
         ]);
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item->proxy, [
-            'webgl_renderer' => $webgl->webgl_renderer,
-            'webgl_vendor' => $webgl->webgl_vendor,
-            'browser_vendor' => $webgl->browser_vendor
+              'webgl_renderer' => $webgl->webgl_renderer,
+              'webgl_vendor' => $webgl->webgl_vendor,
+              'browser_vendor' => $webgl->browser_vendor
           ]);
         }
         // get geolocation
@@ -283,13 +294,6 @@ function execute_single_proxy(Proxy $item)
         echo $item->proxy . ' dead' . PHP_EOL;
       }
     }
-    if (!empty($raw_proxy)) {
-      // move proxy into dead.txt
-      \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
-        $remove = removeStringAndMoveToFile($untestedFilePath, $deadPath, $raw_proxy);
-        echo "moving $raw_proxy from $untestedFilePath -> $deadPath" . PHP_EOL . "\t> $remove" . PHP_EOL;
-      }, "move dead proxy $raw_proxy");
-    }
   } else {
     $raw_proxy = $item->proxy;
     try {
@@ -300,13 +304,7 @@ function execute_single_proxy(Proxy $item)
       // Handle or display the error message
       echo "fail delete " . $item->proxy . ' : ' . $errorMessage . PHP_EOL;
     }
-    if (!empty($raw_proxy)) {
-      // remove invalid proxy from proxies.txt
-      \PhpProxyHunter\Scheduler::register(function () use ($untestedFilePath, $deadPath, $raw_proxy) {
-        $remove1 = removeStringFromFile($untestedFilePath, $raw_proxy) ? 'success' : 'failed';
-        $remove2 = removeStringFromFile($deadPath, $raw_proxy) ? 'success' : 'failed';
-        echo "remove invalid $raw_proxy from $untestedFilePath and $deadPath" . PHP_EOL . "\t> $remove1" . PHP_EOL . "\t> $remove1" . PHP_EOL;
-      }, "move dead proxy $raw_proxy");
-    }
   }
+  // add to remover scheduler
+  if (!empty($raw_proxy)) $str_to_remove[] = $raw_proxy;
 }
