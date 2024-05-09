@@ -36,12 +36,22 @@ register_shutdown_function('exitProcess');
 
 $db = new ProxyDB();
 $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
-$assets = getFilesByExtension(__DIR__ . '/assets/proxies');
-//exit(var_dump($assets));
-if (!empty($assets)) $file = array_merge($files, $assets);
+$assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
+  return strpos($fn, 'added-') !== false;
+});
+if (!empty($assets)) {
+  $files = array_filter(array_merge($files, $assets), 'file_exists');
+  $files = array_map('realpath', $files);
+}
+
+$str_to_remove = [];
+
+foreach ($files as $file) {
+  echo filterIpPortLines($file) . PHP_EOL;
+}
 
 iterateBigFilesLineByLine($files, function ($line) {
-  global $db;
+  global $db, $str_to_remove;
   $items = extractProxies($line);
   foreach ($items as $item) {
     if (empty($item->proxy) || !isValidProxy($item->proxy)) {
@@ -61,11 +71,21 @@ iterateBigFilesLineByLine($files, function ($line) {
       $db->updateStatus($item->proxy, 'untested');
     }
     if (!empty($sel[0]['proxy']) && !isValidProxy($sel[0]['proxy'])) {
-      Scheduler::register(function () use ($db, $item, $sel) {
-        echo "removing " . $sel[0]['proxy'] . PHP_EOL;
-        $db->remove($sel[0]['proxy']);
-      }, "remove " . $sel[0]['proxy']);
+      if (count($str_to_remove) < 5000) $str_to_remove[] = $sel[0]['proxy'];
     }
   }
 });
+
+//if (!empty($str_to_remove)) {
+//  foreach ($files as $file) {
+//    Scheduler::register(function () use ($db, $str_to_remove, $file) {
+//      echo "[FILE] removing proxies " . count($str_to_remove) . PHP_EOL;
+//      echo "remove indexed proxies from " . basename($file) . PHP_EOL;
+//      $remove = removeStringFromFile($file, $str_to_remove) ? 'success' : 'failed';
+//      echo "\t> $remove" . PHP_EOL;
+//    }, "remove " . $file);
+//  }
+//} else {
+//  echo "No proxies to remove" . PHP_EOL;
+//}
 

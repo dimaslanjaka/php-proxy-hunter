@@ -714,10 +714,7 @@ function filterIpPortLines(string $inputFile)
   }
 
   file_put_contents($inputFile, implode("\n", $results));
-//    if (!empty($str_to_remove)) \PhpProxyHunter\Scheduler::register(function () use ($inputFile, $str_to_remove) {
-//      $remove = removeStringFromFile($inputFile, $str_to_remove);
-//      echo "removing non IP:PORT lines from $inputFile " . ($remove ? 'success' : 'failed') . PHP_EOL;
-//    }, "filter ip port lines $inputFile");
+  return "non IP:PORT lines removed from $inputFile";
 }
 
 function clean_proxies_file(string $file)
