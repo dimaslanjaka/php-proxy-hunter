@@ -1133,50 +1133,29 @@ function append_content_with_lock(string $file, string $content_to_append): bool
  */
 function removeStringFromFile(string $file_path, $string_to_remove): bool
 {
-  // Open the file in read mode
-  $file_handle = fopen($file_path, 'r+');
+  if (is_file_locked($file_path)) return false;
+  if (!is_writable($file_path)) return false;
+  $content = read_file($file_path);
+  $regex_pattern = string_to_regex($string_to_remove);
+  $new_string = preg_replace($regex_pattern, '', $content);
+  return file_put_contents($file_path, $new_string) !== false;
+}
 
-  if (!$file_handle) {
-    return false; // Unable to open file
-  }
-
-  // Acquire an exclusive lock on the file
-  if (flock($file_handle, LOCK_EX)) {
-    // Create a temporary file to write modified content
-    $temp_file_path = tempnam(sys_get_temp_dir(), 'removeStringFromFile');
-
-    // Open the temporary file in write mode
-    $temp_file_handle = fopen($temp_file_path, 'w');
-
-    if (!$temp_file_handle) {
-      fclose($file_handle);
-      return false; // Unable to create temporary file
-    }
-
-    // Iterate through each line in the file
-    while (($line = fgets($file_handle)) !== false) {
-      // Remove the string from the current line
-      $modified_line = str_replace($string_to_remove, '', $line);
-      // Write the modified line to the temporary file
-      if (!empty(trim($modified_line))) {
-        fwrite($temp_file_handle, $modified_line);
-      }
-    }
-
-    // Close the file handles
-    fclose($file_handle);
-    fclose($temp_file_handle);
-
-    // Replace the original file with the modified content
-    if (!rename($temp_file_path, $file_path)) {
-      // Failed to rename temporary file to original file path
-      unlink($temp_file_path); // Delete the temporary file
-      return false;
-    }
-
-    return true;
-  } else {
-    return false; // Failed to acquire lock on the file
+/**
+ * Converts a string or an array of strings into regex patterns.
+ *
+ * @param string|array $input The input string or array of strings.
+ * @return string|array The regex pattern(s) corresponding to the input.
+ */
+function string_to_regex($input)
+{
+  // If $input is an array, process each string
+  if (is_array($input)) {
+    return array_map(function ($string) {
+      return '/\b' . preg_quote($string, '/') . '\b/';
+    }, $input);
+  } else { // If $input is a single string, process it
+    return '/\b' . preg_quote($input, '/') . '\b/';
   }
 }
 
