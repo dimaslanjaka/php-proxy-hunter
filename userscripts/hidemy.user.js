@@ -8,8 +8,8 @@
 // @match        https://hidemy.io/*/proxy-list/*
 // @match        https://hidemyna.me/*/proxy-list/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
-// @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/hidemy.js
-// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/hidemy.js
+// @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/hidemy.user.js
+// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/hidemy.user.js
 // ==/UserScript==
 
 (function () {
