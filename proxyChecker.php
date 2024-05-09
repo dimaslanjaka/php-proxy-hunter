@@ -90,6 +90,7 @@ if (!$isCli) {
 
 /// FUNCTIONS (DO NOT EDIT)
 
+$db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 
@@ -101,12 +102,18 @@ if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
   file_put_contents($statusFile, 'running');
 }
 
-Scheduler::register(function () use ($lockFilePath, $statusFile) {
+Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
   // clean proxies.txt
   clean_proxies_file(__DIR__ . '/proxies.txt');
+  echo "writing working proxies" . PHP_EOL;
+  $data = parse_working_proxies($db);
+  file_put_contents(__DIR__ . '/working.txt', $data['txt']);
+  file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
+  echo "releasing lock" . PHP_EOL;
   // clean lock files
   if (file_exists($lockFilePath))
     unlink($lockFilePath);
+  echo "update status to IDLE" . PHP_EOL;
   file_put_contents($statusFile, 'idle');
 }, 'z_onExit' . __FILE__);
 
@@ -120,7 +127,6 @@ setFilePermissions([$untestedFilePath, $workingPath, $deadPath]);
 $countLinesUntestedProxies = countNonEmptyLines($untestedFilePath);
 if (gethostname() !== 'DESKTOP-JVTSJ6I' && $countLinesUntestedProxies < 100) {
   $assets = getFilesByExtension(__DIR__ . '/assets/proxies', 'txt');
-  $assets[] = __DIR__ . '/proxies-backup.txt';
   foreach ($assets as $asset) {
     if (strpos($asset, 'added-') !== false) {
       echo $asset . ' - ' . (file_exists($asset) ? 'true' : 'false') . PHP_EOL;
@@ -138,7 +144,6 @@ if (gethostname() !== 'DESKTOP-JVTSJ6I' && $countLinesUntestedProxies < 100) {
 }
 
 $max_checks = 50;
-$db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 $untested = [];
 try {
   $db_untested = $db->getUntestedProxies(50);
