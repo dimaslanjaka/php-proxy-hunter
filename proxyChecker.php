@@ -105,6 +105,8 @@ Scheduler::register(function () use ($lockFilePath, $statusFile) {
   if (file_exists($lockFilePath))
     unlink($lockFilePath);
   file_put_contents($statusFile, 'idle');
+  // clean proxies.txt
+  clean_proxies_file(__DIR__ . '/proxies.txt');
 }, 'z_onExit' . __FILE__);
 
 // Specify the file path
