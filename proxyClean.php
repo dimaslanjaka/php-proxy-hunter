@@ -50,25 +50,7 @@ echo "removing duplicated lines from proxies.txt which exist in dead.txt" . PHP_
 removeDuplicateLinesFromSource(__DIR__ . "/proxies.txt", __DIR__ . "/dead.txt");
 
 foreach ($files as $file) {
-  echo "remove duplicate lines $file" . PHP_EOL;
-
-  removeDuplicateLines($file);
-
-  echo "remove lines less than 10 size $file" . PHP_EOL;
-
-  removeShortLines($file, 10);
-
-  echo "remove lines not contains IP:PORT $file" . PHP_EOL;
-
-  filterIpPortLines($file);
-
-  echo "remove empty lines $file" . PHP_EOL;
-
-  removeEmptyLinesFromFile($file);
-
-  echo "fix file NUL $file" . PHP_EOL;
-
-  fixFile($file);
+  clean_proxies_file($file);
 }
 
 //echo "removing dead proxies from untested file" . PHP_EOL;

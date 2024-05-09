@@ -750,3 +750,26 @@ function filterIpPortLines(string $inputFile)
   if (!empty($str_to_remove))
     echo "removed non-contains IP:PORT (" . count($str_to_remove) . ") lines" . PHP_EOL;
 }
+
+function clean_proxies_file(string $file)
+{
+  echo "remove duplicate lines $file" . PHP_EOL;
+
+  removeDuplicateLines($file);
+
+  echo "remove lines less than 10 size $file" . PHP_EOL;
+
+  removeShortLines($file, 10);
+
+  echo "remove lines not contains IP:PORT $file" . PHP_EOL;
+
+  filterIpPortLines($file);
+
+  echo "remove empty lines $file" . PHP_EOL;
+
+  removeEmptyLinesFromFile($file);
+
+  echo "fix file NUL $file" . PHP_EOL;
+
+  fixFile($file);
+}
