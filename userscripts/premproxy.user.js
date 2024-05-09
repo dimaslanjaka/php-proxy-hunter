@@ -1,18 +1,14 @@
 // ==UserScript==
-// @name         list.proxylistplus.com proxy parser
-// @namespace    dimaslanjaka:proxylistplus-parser-proxy
-// @version      1.4
+// @name         premproxy proxy parser
+// @namespace    dimaslanjaka:premproxy-parser-proxy
+// @version      1.3
 // @description  parse proxy from site page
 // @author       dimaslanjaka
-// @match        *://list.proxylistplus.com/*
-// @match        *://www.proxynova.com/*
-// @match        *://www.freeproxy.world/*
-// @match        *://squidproxyserver.com/*
-// @match        *://geonode.com/free-proxy-list
+// @match        *://premproxy.com/*
 // @noframes
 // @run-at document-end
-// @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxylistplus.js
-// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxylistplus.js
+// @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/premproxy.user.js
+// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/premproxy.user.js
 // ==/UserScript==
 
 (function () {
@@ -62,9 +58,9 @@
           if (ipOnly.test(texts.join(" "))) {
             // console.log(texts);
             objectWrapper.push({
-              raw: texts[0] + ":" + texts[1],
-              ip: texts[0],
-              port: texts[1],
+              raw: texts[0],
+              ip: texts[0].split(":")[0],
+              port: texts[0].split(":")[1],
               type: texts[2],
               country: texts[3],
               anonymity: texts[4],
@@ -77,10 +73,6 @@
       resolve(objectWrapper);
     });
   };
-
-  // setTimeout(() => {
-  //   parse();
-  // }, 3000);
 
   const btn = document.createElement("button");
   btn.id = "php-proxy-hunter-grab-proxy";

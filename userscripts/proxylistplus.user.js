@@ -1,17 +1,18 @@
 // ==UserScript==
-// @name         sslproxies.org proxy parser
-// @namespace    dimaslanjaka:sslproxies-parser-proxy
-// @version      1.3
+// @name         list.proxylistplus.com proxy parser
+// @namespace    dimaslanjaka:proxylistplus-parser-proxy
+// @version      1.4
 // @description  parse proxy from site page
 // @author       dimaslanjaka
-// @match        *://*.sslproxies.org/*
-// @match        *://*.socks-proxy.net/*
-// @match        *://*.us-proxy.org/*
-// @match        *://free-proxy-list.net/*
+// @match        *://list.proxylistplus.com/*
+// @match        *://www.proxynova.com/*
+// @match        *://www.freeproxy.world/*
+// @match        *://squidproxyserver.com/*
+// @match        *://geonode.com/free-proxy-list
 // @noframes
 // @run-at document-end
-// @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/sslproxies.js
-// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/sslproxies.js
+// @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxylistplus.user.js
+// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxylistplus.user.js
 // ==/UserScript==
 
 (function () {
@@ -56,42 +57,19 @@
 
         for (let j = 0; j < rows.length; j++) {
           const row = rows[j];
-          const buildObject = {
-            proxy: null,
-            code: null,
-            anonymity: null,
-            ssl: null,
-            google: null,
-            alert: null,
-            type: "http",
-            test: null
-          };
-          const td = row.querySelectorAll("td");
-          const proxy = td[0];
-          const port = td[1];
-          const countryCode = td[2];
-          const anonymity = td[4];
-          const google = td[5];
-          const ssl = td[6];
-          if (proxy && ipOnly.test(proxy.innerText)) {
-            // console.log(proxy.innerText, port.innerText, countryCode.innerText, anonymity.innerText, google.innerText, ssl.innerText);
-            buildObject.proxy = `${proxy.innerText.trim()}:${port.innerText.trim()}`;
-            buildObject.google = /^yes/.test(google.innerText.trim()) ? true : false;
-            buildObject.ssl = /^yes/.test(ssl.innerText.trim()) ? true : false;
-            buildObject.code = countryCode.innerText.trim();
-            switch (anonymity.innerText.trim()) {
-              case "elite proxy":
-                buildObject.anonymity = "H";
-                break;
-              case "anonymous":
-                buildObject.anonymity = "A";
-                break;
-
-              default:
-                buildObject.anonymity = "N";
-                break;
-            }
-            objectWrapper.push(buildObject);
+          const td = Array.from(row.querySelectorAll("td"));
+          const texts = td.map((el) => el.innerText).filter((str) => typeof str == "string" && str.trim().length > 0);
+          if (ipOnly.test(texts.join(" "))) {
+            // console.log(texts);
+            objectWrapper.push({
+              raw: texts[0] + ":" + texts[1],
+              ip: texts[0],
+              port: texts[1],
+              type: texts[2],
+              country: texts[3],
+              anonymity: texts[4],
+              https: texts[5]
+            });
           }
         }
       }
@@ -99,6 +77,10 @@
       resolve(objectWrapper);
     });
   };
+
+  // setTimeout(() => {
+  //   parse();
+  // }, 3000);
 
   const btn = document.createElement("button");
   btn.id = "php-proxy-hunter-grab-proxy";
