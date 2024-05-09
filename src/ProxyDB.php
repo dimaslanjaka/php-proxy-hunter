@@ -139,39 +139,58 @@ class ProxyDB
   }
 
   /**
-   * Gets all working proxies from the database.
+   * Gets working proxies from the database.
    *
-   * @return array
+   * @param int|null $limit The maximum number of working proxies to retrieve. Default is null (no limit).
+   * @return array An array containing the working proxies.
    */
-  public function getWorkingProxies(): array
+  public function getWorkingProxies(?int $limit = null): array
   {
-    $result = $this->db->select('proxies', '*', 'status = ?', ['active']);
+    $whereClause = 'status = ?';
+    $params = ['active'];
+
+    // Append the limit clause if the $limit parameter is provided
+    $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
+
+    $result = $this->db->select('proxies', '*', $whereClause . ' ' . $limitClause, $params);
     if (!$result) return [];
     return $result;
   }
 
   /**
-   * Gets all private proxies from the database.
+   * Gets private proxies from the database.
    *
-   * @return array
+   * @param int|null $limit The maximum number of private proxies to retrieve. Default is null (no limit).
+   * @return array An array containing the private proxies.
    */
-  public function getPrivateProxies(): array
+  public function getPrivateProxies(?int $limit = null): array
   {
-    $result = $this->db->select('proxies', '*', 'status = ?', ['private']);
+    $whereClause = 'status = ?';
+    $params = ['private'];
+
+    // Append the limit clause if the $limit parameter is provided
+    $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
+
+    $result = $this->db->select('proxies', '*', $whereClause . ' ' . $limitClause, $params);
     if (!$result) return [];
     return $result;
   }
 
   /**
-   * Gets all dead proxies from the database, including those with closed ports.
+   * Gets dead proxies from the database, including those with closed ports.
    *
-   * @return array
+   * @param int|null $limit The maximum number of dead proxies to retrieve. Default is null (no limit).
+   * @return array An array containing the dead proxies.
    */
-  public function getDeadProxies(): array
+  public function getDeadProxies(?int $limit = null): array
   {
-    $result = $this->db->select('proxies', '*', 'status = ?', ['dead']);
-    $result2 = $this->db->select('proxies', '*', 'status = ?', ['port-closed']);
-    return array_merge($result, $result2);
+    $whereClause = 'status = ? OR status = ?';
+    $params = ['dead', 'port-closed'];
+
+    // Append the limit clause if the $limit parameter is provided
+    $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
+
+    return $this->db->select('proxies', '*', $whereClause . ' ' . $limitClause, $params);
   }
 
   /**
@@ -198,7 +217,7 @@ class ProxyDB
     return $closed + $dead;
   }
 
-  public function countUntestedProxies()
+  public function countUntestedProxies(): int
   {
     return $this->db->count('proxies', 'status = ? OR status IS NULL OR status = ""', ['']);
   }
