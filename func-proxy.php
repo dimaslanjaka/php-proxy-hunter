@@ -76,9 +76,10 @@ function extractProxies(?string $string): array
           $results[] = $result;
         }
       } else {
-        echo "[SQLite]: delete invalid $proxy" . PHP_EOL;
-        $db->remove($proxy);
+//        echo "[SQLite]: delete invalid $proxy" . PHP_EOL;
+//        $db->remove($proxy);
 //        removeStringFromFile(__DIR__ . '/proxies.txt', $proxy);
+//        echo "$proxy invalid" . PHP_EOL;
       }
     }
   }
@@ -679,78 +680,44 @@ function country_code_to_locale(string $country_code, string $language_code = ''
  * ```
  *
  * @param string $inputFile The path to the file.
- * @throws InvalidArgumentException If the file cannot be opened or written.
  */
 function filterIpPortLines(string $inputFile)
 {
-  $db = new ProxyDB();
-  // Open the file for reading and writing, create if not exist, and place a write lock.
-  $fileHandle = fopen($inputFile, 'r+');
-  if ($fileHandle === false) {
-    echo "Unable to open file: $inputFile" . PHP_EOL;
-    return;
+  // Check if destination file is writable
+  if (!is_writable($inputFile)) {
+    return "$inputFile not writable";
   }
 
-  // Acquire an exclusive lock on the file
-  if (!flock($fileHandle, LOCK_EX)) {
-    echo "Unable to acquire lock on file: $inputFile" . PHP_EOL;
-    fclose($fileHandle);
-    return;
+  // Check if source file is locked
+  if (is_file_locked($inputFile)) {
+    return "$inputFile locked";
   }
 
   $str_to_remove = [];
-
-  // Temporary file to store filtered lines
-  $tempFile = tmpfile();
-
-  // Read each line from the file
-  while (($line = fgets($fileHandle)) !== false) {
-    if (empty($line)) continue;
-    // Check if the line contains IP:PORT format
+  $content = read_file($inputFile);
+  $split = array_filter(split_by_line($content));
+  $results = [];
+  foreach ($split as $line) {
+//    if (count($str_to_remove) > 5000) break;
+    if (empty(trim($line)) || strlen(trim($line)) < 10) {
+      $str_to_remove[] = trim($line);
+      continue;
+    }
     $re = '/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}/';
     $containsProxy = preg_match($re, $line);
-    $proxyLengthValid = strlen($line) >= 10;
-    $validIpPort = false;
-    $test = preg_match_all($re, $line, $matches, PREG_SET_ORDER, 0);
-//    if (trim($line) == '182.106:999') {
-//      echo $line . PHP_EOL;
-//      var_dump($test);
-//      exit;
-//    }
-    foreach ($matches as $match) {
-      $proxy_str = $match[0];
-      if (isValidProxy($proxy_str)) {
-        $validIpPort = true;
-      } else {
-        echo "$proxy_str invalid" . PHP_EOL;
-        $db->remove($proxy_str);
-      }
+    if (!$containsProxy) {
+      $str_to_remove[] = trim($line);
+      echo trim($line) . " no proxy" . PHP_EOL;
+      continue;
     }
-    if ($containsProxy && $proxyLengthValid && $validIpPort) {
-      fwrite($tempFile, $line); // If it does, write it to the temporary file
-    } else {
-      $str_to_remove[] = $line;
-      echo "str(" . strlen(trim($line)) . ") no proxy" . PHP_EOL;
-    }
+    $results[] = trim($line);
   }
 
-  // Move the pointer to the beginning of both files
-  rewind($fileHandle);
-  rewind($tempFile);
-
-  // Copy the contents of the temporary file back to the original file
-  stream_copy_to_stream($tempFile, $fileHandle);
-
-  // Close the temporary file
-  fclose($tempFile);
-
-  // Release the lock
-  flock($fileHandle, LOCK_UN);
-
-  // Close the original file handle
-  fclose($fileHandle);
-  if (!empty($str_to_remove))
-    echo "removed non-contains IP:PORT (" . count($str_to_remove) . ") lines" . PHP_EOL;
+  file_put_contents($inputFile, implode("\n", $results));
+//    if (!empty($str_to_remove)) \PhpProxyHunter\Scheduler::register(function () use ($inputFile, $str_to_remove) {
+//      $remove = removeStringFromFile($inputFile, $str_to_remove);
+//      echo "removing non IP:PORT lines from $inputFile " . ($remove ? 'success' : 'failed') . PHP_EOL;
+//    }, "filter ip port lines $inputFile");
 }
 
 function clean_proxies_file(string $file)
@@ -765,7 +732,7 @@ function clean_proxies_file(string $file)
 
   echo "remove lines not contains IP:PORT $file" . PHP_EOL;
 
-  filterIpPortLines($file);
+//  filterIpPortLines($file);
 
   echo "remove empty lines $file" . PHP_EOL;
 
