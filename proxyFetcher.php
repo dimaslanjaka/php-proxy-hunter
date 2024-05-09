@@ -55,7 +55,8 @@ $urls = array_unique([
     "https://raw.githubusercontent.com/rdavydov/proxy-list/main/proxies/http.txt",
     "https://raw.githubusercontent.com/UptimerBot/proxy-list/main/proxies/http.txt",
     "https://api.openproxylist.xyz/http.txt",
-    "https://cyber-hub.pw/statics/proxy.txt"
+    "https://cyber-hub.pw/statics/proxy.txt",
+    "https://spys.me/proxy.txt"
 ]);
 
 // File to append the content
