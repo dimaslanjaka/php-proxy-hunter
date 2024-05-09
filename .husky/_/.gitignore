@@ -1,3 +1,5 @@
 *
 !/post-merge
 !/.gitignore
+!/h
+!/husky.sh
