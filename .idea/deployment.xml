@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="php-proxy-hunter" useTempFile="true" exclude=".svn;.cvs;.idea;.DS_Store;.git;.hg;*.hprof;*.pyc;__pycache__;tmp;venv;.venv;" remoteFilesAllowedToDisappearOnAutoupload="false" showExcludedInSync="true">
+  <component name="PublishConfigData" serverName="php-proxy-hunter" useTempFile="true" exclude=".svn;.cvs;.idea;.DS_Store;.git;.hg;*.hprof;*.pyc;__pycache__;tmp;venv;.venv;" remoteFilesAllowedToDisappearOnAutoupload="false" showDifferentInSync="false" showNewOnSourceInSync="false" showExcludedInSync="true">
     <serverData>
       <paths name="php-proxy-hunter">
         <serverdata>
