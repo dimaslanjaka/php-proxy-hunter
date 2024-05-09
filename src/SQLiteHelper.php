@@ -41,7 +41,7 @@ if (!defined('PHP_PROXY_HUNTER')) exit('access denied');
 class SQLiteHelper
 {
   /** @var PDO $pdo */
-  private $pdo;
+  public $pdo;
 
   /**
    * SQLiteHelper constructor.
