@@ -1417,9 +1417,10 @@ function randomIosUa(string $type = 'chrome'): string
  * Reads a file as UTF-8 encoded text.
  *
  * @param string $inputFile The path to the input file.
+ * @param int $chunkSize The size of each chunk to read in bytes. Default is 1 MB = 1048576 bytes.
  * @return string|false The content of the file or false on failure.
  */
-function read_file(string $inputFile)
+function read_file(string $inputFile, int $chunkSize = 1048576)
 {
   // Check if file is readable
   if (!is_readable($inputFile) || is_file_locked($inputFile)) {
@@ -1436,7 +1437,26 @@ function read_file(string $inputFile)
     return false;
   }
 
-  return file_get_contents($inputFile, false, stream_context_create(['http' => ['header' => 'Content-Type: text/plain; charset=UTF-8']]));
+  $content = '';
+  $handle = fopen($inputFile, 'rb');
+
+  if ($handle === false) {
+    echo "Failed to open $inputFile for reading." . PHP_EOL;
+    return false;
+  }
+
+  while (!feof($handle)) {
+    $chunk = fread($handle, $chunkSize);
+    if ($chunk === false) {
+      echo "Error reading from $inputFile." . PHP_EOL;
+      fclose($handle);
+      return false;
+    }
+    $content .= $chunk;
+  }
+
+  fclose($handle);
+  return $content;
 }
 
 /**
