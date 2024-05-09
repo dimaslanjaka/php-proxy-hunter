@@ -1864,6 +1864,28 @@ function fixFile(string $inputFile): void
 }
 
 /**
+ * Split a string into an array of lines. Support CRLF
+ *
+ * @param string|null $str The input string to split.
+ * @return array An array of lines, or an empty array if the split fails.
+ */
+function split_by_line(?string $str): array
+{
+  if (!$str) {
+    return [];
+  }
+
+  $lines = preg_split('/\r?\n/', $str);
+
+  // Check if preg_split succeeded
+  if ($lines === false) {
+    return [];
+  }
+
+  return $lines;
+}
+
+/**
  * Move content from a source file to a destination file in append mode.
  *
  * @param string $sourceFile The path to the source file.
