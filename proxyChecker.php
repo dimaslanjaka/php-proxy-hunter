@@ -109,6 +109,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
   $data = parse_working_proxies($db);
   file_put_contents(__DIR__ . '/working.txt', $data['txt']);
   file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
+  file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
   echo "releasing lock" . PHP_EOL;
   // clean lock files
   if (file_exists($lockFilePath))
