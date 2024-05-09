@@ -225,9 +225,14 @@ class ProxyDB
   public function countWorkingProxies(): int
   {
     return $this->db->count('proxies', "(status = ?) AND (private = ? OR private IS NULL OR private = '')", [
-      'active',
-      'false'
+        'active',
+        'false'
     ]);
+  }
+
+  public function countPrivateProxies(): int
+  {
+    return $this->db->count('proxies', "private = ?", ['true']);
   }
 }
 
@@ -324,28 +329,29 @@ class Proxy
    * @param int|null $id
    */
   public function __construct(
-    string  $proxy,
-    ?string $latency = null,
-    ?string $type = null,
-    ?string $region = null,
-    ?string $city = null,
-    ?string $country = null,
-    ?string $last_check = null,
-    ?string $anonymity = null,
-    ?string $status = null,
-    ?string $timezone = null,
-    ?string $longitude = null,
-    ?string $private = null,
-    ?string $latitude = null,
-    ?string $lang = null,
-    ?string $useragent = null,
-    ?string $webgl_vendor = null,
-    ?string $webgl_renderer = null,
-    ?string $browser_vendor = null,
-    ?string $username = null,
-    ?string $password = null,
-    ?int    $id = null
-  ) {
+      string  $proxy,
+      ?string $latency = null,
+      ?string $type = null,
+      ?string $region = null,
+      ?string $city = null,
+      ?string $country = null,
+      ?string $last_check = null,
+      ?string $anonymity = null,
+      ?string $status = null,
+      ?string $timezone = null,
+      ?string $longitude = null,
+      ?string $private = null,
+      ?string $latitude = null,
+      ?string $lang = null,
+      ?string $useragent = null,
+      ?string $webgl_vendor = null,
+      ?string $webgl_renderer = null,
+      ?string $browser_vendor = null,
+      ?string $username = null,
+      ?string $password = null,
+      ?int    $id = null
+  )
+  {
     $this->id = $id;
     $this->proxy = $proxy;
     $this->latency = $latency;
