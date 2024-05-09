@@ -12,6 +12,29 @@
 
 (function () {
   "use strict";
+  const addProxyFun = (dataToSend) => {
+    const url = "https://sh.webmanajemen.com/proxyAdd.php";
+    fetch(url, {
+      signal: AbortSignal.timeout(5000),
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `proxies=${encodeURIComponent(dataToSend)}`,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.text();
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log(
+          "There was a problem with your fetch operation: " + error.message,
+        );
+      });
+  };
 
   const regex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})$/;
 
@@ -38,13 +61,26 @@
     return resultText;
   };
 
+  document.addEventListener("DOMContentLoaded", function (event) {
+    setTimeout(() => {
+      let proxies_str = parse();
+      while (!proxies_str || proxies_str.trim().length == 0) {
+        proxies_str = parse();
+      }
+      addProxyFun(proxies_str);
+    }, 10000);
+  });
+
   const btn = document.createElement("button");
   btn.id = "php-proxy-hunter-grab-proxy";
   btn.setAttribute("style", "position: fixed;bottom: 2em;right: 2em;");
   btn.innerText = "PARSE PROXIES";
   btn.classList.add("btn", "button", "btn-primary");
   btn.onclick = () => {
-    window.open(URL.createObjectURL(new Blob([parse()], { type: "text/html" })), "width=800,height=600");
+    window.open(
+      URL.createObjectURL(new Blob([parse()], { type: "text/html" })),
+      "width=800,height=600",
+    );
   };
   document.body.appendChild(btn);
 })();
