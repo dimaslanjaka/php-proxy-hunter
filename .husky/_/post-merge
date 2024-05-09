@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "${0%/*}/h"
+
+if [ "$(uname -s)" != "Windows" ]; then
+    echo "Not Windows"
+    chown -R www-data:www-data *
+else
+    echo "Windows"
+fi
