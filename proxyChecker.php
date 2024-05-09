@@ -108,7 +108,7 @@ if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
 
 Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
   // clean proxies.txt
-  clean_proxies_file(__DIR__ . '/proxies.txt');
+  // clean_proxies_file(__DIR__ . '/proxies.txt');
   echo "writing working proxies" . PHP_EOL;
   $data = parse_working_proxies($db);
   file_put_contents(__DIR__ . '/working.txt', $data['txt']);
@@ -211,18 +211,6 @@ function execute_array_proxies()
   shuffle($proxies);
 
   iterateArray($proxies, $max_checks, 'execute_single_proxy');
-
-  if (!empty($str_to_remove)) {
-    // remove already indexed proxies
-    \PhpProxyHunter\Scheduler::register(function () use ($str_to_remove) {
-      $files = [__DIR__ . '/proxies.txt', __DIR__ . '/dead.txt'];
-      foreach ($files as $file) {
-        echo "remove indexed proxies from " . basename($file) . PHP_EOL;
-        $remove = removeStringFromFile($file, $str_to_remove);
-        echo "\t> $remove" . PHP_EOL;
-      }
-    }, "remove indexed proxies");
-  }
 }
 
 function filter_proxies(array $proxies)
@@ -330,4 +318,15 @@ function execute_single_proxy(Proxy $item)
   }
   // add to remover scheduler
   if (!empty($raw_proxy)) $str_to_remove[] = $raw_proxy;
+  if (!empty($str_to_remove)) {
+    // remove already indexed proxies
+    \PhpProxyHunter\Scheduler::register(function () use ($str_to_remove) {
+      $files = [__DIR__ . '/proxies.txt', __DIR__ . '/dead.txt'];
+      foreach ($files as $file) {
+        echo "remove indexed proxies from " . basename($file) . PHP_EOL;
+        $remove = removeStringFromFile($file, $str_to_remove);
+        echo "\t> $remove" . PHP_EOL;
+      }
+    }, "remove indexed proxies");
+  }
 }
