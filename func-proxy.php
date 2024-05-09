@@ -384,7 +384,7 @@ function get_geo_ip(string $proxy, string $proxy_type = 'http')
     if (!empty($lang)) {
       $data['lang'] = $lang;
     }
-    echo "$ip country $locate->countryName language is $lang" . PHP_EOL;
+    // echo "$ip country $locate->countryName language is $lang" . PHP_EOL;
   }
 
   $db->updateData($proxy, $data);
