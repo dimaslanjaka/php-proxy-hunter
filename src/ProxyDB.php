@@ -41,9 +41,9 @@ class ProxyDB
    *
    * @return array
    */
-  public function getAllProxies(): array
+  public function getAllProxies(?int $limit = PHP_INT_MAX): array
   {
-    return $this->db->select('proxies', '*');
+    return $this->db->select('proxies', '*', "LIMIT $limit");
   }
 
   /**

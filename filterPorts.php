@@ -67,7 +67,7 @@ function processProxy($proxy)
 
 // remove non IP:PORT from database
 
-$all = $db->getAllProxies();
+$all = $db->getAllProxies(500);
 foreach ($all as $data) {
   $invalidIPPORT = !preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/', $data['proxy']);
   $invalidIP = strpos($data['proxy'], '0.0.0.0') !== false;
