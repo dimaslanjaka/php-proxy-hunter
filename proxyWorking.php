@@ -21,7 +21,7 @@ if (file_exists(__DIR__ . '/proxyChecker.lock') && gethostname() !== 'DESKTOP-JV
 $lockFilePath = __DIR__ . "/proxyWorking.lock";
 
 if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
-  echo "another process still running" . PHP_EOL;
+  echo "another process still running\n";
   exit();
 } else {
   file_put_contents($lockFilePath, date(DATE_RFC3339));
