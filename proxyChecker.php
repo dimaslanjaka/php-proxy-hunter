@@ -58,6 +58,10 @@ if (!$isCli) {
 // limit execution time seconds unit
 $maxExecutionTime = 120;
 $startTime = microtime(true);
+if (function_exists('set_time_limit')) {
+  // Set the PHP maximum execution time to 5 minutes (300 seconds)
+  set_time_limit(300);
+}
 
 // set output buffering to zero
 // avoid error while running on CLI
