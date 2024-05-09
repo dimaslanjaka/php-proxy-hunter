@@ -56,7 +56,9 @@ $urls = array_unique([
     "https://raw.githubusercontent.com/UptimerBot/proxy-list/main/proxies/http.txt",
     "https://api.openproxylist.xyz/http.txt",
     "https://cyber-hub.pw/statics/proxy.txt",
-    "https://spys.me/proxy.txt"
+    "https://spys.me/proxy.txt",
+    "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text&timeout=20000",
+    "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text"
 ]);
 
 // File to append the content
