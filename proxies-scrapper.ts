@@ -1,5 +1,6 @@
 import axios from "axios";
 import { proxyGrabber } from "proxies-grabber";
+import { fs, path } from "sbg-utility";
 
 const grabber = new proxyGrabber();
 grabber.get().then(function (proxies) {
@@ -28,4 +29,6 @@ grabber.get().then(function (proxies) {
     .catch(() => {
       //
     });
+
+  fs.appendFileSync(path.join(__dirname, "proxies.txt"), "\n" + result);
 });
