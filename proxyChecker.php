@@ -218,7 +218,7 @@ function execute_array_proxies()
       $files = [__DIR__ . '/proxies.txt', __DIR__ . '/dead.txt'];
       foreach ($files as $file) {
         echo "remove indexed proxies from " . basename($file) . PHP_EOL;
-        $remove = removeStringFromFile($file, $str_to_remove) ? 'success' : 'failed';
+        $remove = removeStringFromFile($file, $str_to_remove);
         echo "\t> $remove" . PHP_EOL;
       }
     }, "remove indexed proxies");
@@ -247,7 +247,7 @@ function filter_proxies(array $proxies)
     }
     $str_to_remove[] = $item->proxy;
     if (empty($item->last_check)) return true;
-    return isDateRFC3339OlderThanHours($item->last_check, 5);
+    return isDateRFC3339OlderThanHours($item->last_check, 24);
   });
   return $proxies;
 }
