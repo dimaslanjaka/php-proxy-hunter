@@ -1099,17 +1099,26 @@ function append_content_with_lock(string $file, string $content_to_append): bool
  *
  * @param string $file_path The path to the text file.
  * @param string|array $string_to_remove The string to remove from the file.
- * @return bool True if the string was successfully removed, false otherwise.
+ * @return string Result message indicating success or failure.
  */
-function removeStringFromFile(string $file_path, $string_to_remove): bool
+function removeStringFromFile(string $file_path, $string_to_remove): string
 {
-  if (is_file_locked($file_path)) return "locked";
-  if (!is_writable($file_path)) return "non-writable";
+  if (is_file_locked($file_path)) return "$file_path locked";
+  if (!is_writable($file_path)) return "$file_path non-writable";
+
   $content = read_file($file_path);
+  if ($content === false) return "$file_path failed to read file";
+
   $regex_pattern = string_to_regex($string_to_remove);
+  if (!$regex_pattern) return "$string_to_remove invalid regex pattern";
+
   $new_string = preg_replace($regex_pattern, '', $content);
-  if ($new_string) return file_put_contents($file_path, $new_string) !== false ? 'success' : 'failed';
-  return 'failed -> preg_replace is null';
+  if ($new_string === null) return "removeStringFromFile: preg_replace failed";
+
+  $result = file_put_contents($file_path, $new_string);
+  if ($result === false) return 'removeStringFromFile: failed to write to file';
+
+  return 'success';
 }
 
 /**
