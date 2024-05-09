@@ -16,7 +16,7 @@
 // @noframes
 // @run-at document-end
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxylistplus.user.js
-// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxylistplus.user.js
+// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxylistplus.meta.js
 // ==/UserScript==
 
 (function () {

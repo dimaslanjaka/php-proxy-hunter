@@ -11,7 +11,7 @@
 // @match        *://spys.one/*/
 // @match        *://premiumproxy.net/squid-proxy-list
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/spysone.user.js
-// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/spysone.user.js
+// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/spysone.meta.js
 // ==/UserScript==
 
 (function () {
