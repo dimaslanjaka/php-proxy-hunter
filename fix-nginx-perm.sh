@@ -9,7 +9,6 @@ touch tmp/index.html
 mkdir -p config
 touch config/index.html
 
-sudo chown -R www-data:www-data *
 sudo chmod 777 *.txt
 sudo chmod 755 *.html
 sudo chmod 755 *.js
@@ -44,16 +43,14 @@ fi
 
 su -s /bin/bash -c "php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
 
-sudo chown -R www-data:www-data vendor/*
-sudo chown -R www-data:www-data vendor/composer/*
-sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/*
-sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/minimal/*
-sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/cjs/*
-sudo chown -R www-data:www-data vendor/annexare/countries-list/dist/mjs/*
 chmod 777 vendor
 touch vendor/index.html
 
 echo "composer installed"
+
+sudo chown -R www-data:www-data *
+
+echo "ownership fixed"
 
 git lfs install
 git lfs track *.rar
