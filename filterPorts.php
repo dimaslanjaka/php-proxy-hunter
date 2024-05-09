@@ -41,18 +41,22 @@ removeEmptyLinesFromFile($file);
 // Record the start time
 $start_time = microtime(true);
 
-extractIpPortFromFileCallback($file, function ($proxy) use ($start_time, $isCli, $file, $db) {
-  // Check if execution time exceeds [n] seconds
-  if (microtime(true) - $start_time > (!$isCli ? 120 : 300)) {
-    // echo "Execution time exceeded 120 seconds. Exiting loop." . PHP_EOL;
-    return;
-  }
-  if (!isPortOpen($proxy)) {
-    removeStringAndMoveToFile($file, __DIR__ . '/dead.txt', $proxy);
-    $db->updateStatus($proxy, 'port-closed');
-    echo $proxy . " port closed" . PHP_EOL;
-  }
-});
+try {
+  extractIpPortFromFileCallback($file, function ($proxy) use ($start_time, $isCli, $file, $db) {
+    // Check if execution time exceeds [n] seconds
+    if (microtime(true) - $start_time > (!$isCli ? 120 : 300)) {
+      // echo "Execution time exceeded 120 seconds. Exiting loop." . PHP_EOL;
+      return;
+    }
+    if (!isPortOpen($proxy)) {
+      removeStringAndMoveToFile($file, __DIR__ . '/dead.txt', $proxy);
+      $db->updateStatus($proxy, 'port-closed');
+      echo $proxy . " port closed" . PHP_EOL;
+    }
+  });
+} catch (Exception $e) {
+  echo "fail extracting proxies" . PHP_EOL;
+}
 
 // remove non IP:PORT from database
 
