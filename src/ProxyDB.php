@@ -39,11 +39,35 @@ class ProxyDB
   /**
    * Get all proxies from the database.
    *
-   * @return array
+   * @param int|null $limit The maximum number of proxies to retrieve. Default is PHP_INT_MAX (no limit).
+   * @return array An array containing the proxies.
    */
-  public function getAllProxies(?int $limit = PHP_INT_MAX): array
+  public function getAllProxies(?int $limit = null): array
   {
-    return $this->db->select('proxies', '*', "LIMIT $limit");
+    // Construct the SQL query string
+    $sql = 'SELECT * FROM proxies';
+
+    // Append the limit clause if the $limit parameter is provided
+    if ($limit !== null) {
+      $sql .= ' LIMIT ?';
+    }
+
+    // Prepare the statement
+    $stmt = $this->db->pdo->prepare($sql);
+
+    // Bind the limit parameter if provided
+    if ($limit !== null) {
+      $stmt->bindParam(1, $limit, \PDO::PARAM_INT);
+    }
+
+    // Execute the query
+    $stmt->execute();
+
+    // Fetch the result
+    $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+    // Check for result and return
+    return $result ?: [];
   }
 
   /**
