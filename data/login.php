@@ -2,12 +2,6 @@
 
 require_once __DIR__ . '/../func.php';
 
-// Check if session is not already started
-if (session_status() === PHP_SESSION_NONE) {
-  // Start the session
-  session_start();
-}
-
 $shortHash = $_ENV['CPID'];
 
 // init configuration
@@ -38,7 +32,7 @@ if (isset($_REQUEST['login'])) {
   header('Location: ' . $authUri);
 }
 
-$credentialsPath = __DIR__ . '/../config/login_' . (!$isCli ? $_SESSION['visitor_id'] : 'CLI');
+$credentialsPath = __DIR__ . '/../config/login_' . (!$isCli ? $_COOKIE['visitor_id'] : 'CLI');
 
 // authenticate code from Google OAuth Flow
 if (isset($_GET['code'])) {
@@ -62,7 +56,7 @@ if (isset($_GET['code'])) {
       $message = $e->getMessage();
     }
   }
-} else {
+} else if (file_exists($credentialsPath)) {
   $token = json_decode(read_file($credentialsPath), true);
   if ($token) $client->setAccessToken($token['access_token']);
 }
