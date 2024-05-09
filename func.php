@@ -12,6 +12,12 @@ ini_set("log_errors", 1); // Enable error logging
 ini_set("error_log", __DIR__ . "/tmp/php-error.log"); // set error path
 error_reporting(E_ALL);
 
+// set default timezone
+date_default_timezone_set('Asia/Jakarta');
+
+// allocate memory
+ini_set('memory_limit', '128M');
+
 // ignore limitation if exists
 if (function_exists('set_time_limit')) {
   call_user_func('set_time_limit', 0);
@@ -35,18 +41,17 @@ if (function_exists('ignore_user_abort')) {
   call_user_func('ignore_user_abort', false);
 }
 
-// set default timezone
-date_default_timezone_set('Asia/Jakarta');
-
-// allocate memory
-ini_set('memory_limit', '128M');
-
 // start session
 if (!$isCli) {
   // Check if session is not already started
   if (session_status() === PHP_SESSION_NONE) {
     // Start the session
     session_start();
+  }
+  // set cookie visitor id for 30 days
+  // for /data/login.php
+  if (!isset($_COOKIE['visitor_id'])) {
+    setcookie('visitor_id', uniqid('user_'), time() + 60 * 60 * 24 * 30);
   }
 }
 
