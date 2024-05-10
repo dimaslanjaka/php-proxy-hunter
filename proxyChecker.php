@@ -174,6 +174,7 @@ try {
     }
     return $wrap;
   }, array_merge($db_untested, $db_working));
+  $db_data_map = filter_proxies($db_data_map);
   $untested = array_merge($untested, $db_data_map);
   echo "[DB] queue: " . count($db_data_map) . " proxies" . PHP_EOL;
 } catch (\Throwable $th) {
