@@ -280,7 +280,8 @@ function execute_single_proxy(Proxy $item)
             'status' => 'active',
             'latency' => max($latencies),
             'username' => $item->username,
-            'password' => $item->password
+            'password' => $item->password,
+            'https' => strpos($endpoint, 'https') !== false ? 'true' : 'false'
         ]);
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
           $webgl = random_webgl_data();
