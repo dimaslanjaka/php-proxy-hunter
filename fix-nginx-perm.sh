@@ -25,9 +25,12 @@ sudo chmod 644 .env
 
 if [ -d "assets/proxies" ]; then
     sudo chmod 777 "assets/proxies"
-    sudo chmod 777 "assets/proxies/*.txt"
+    # sudo chmod 777 "assets/proxies/*.txt"
     touch "assets/proxies/index.html"
 fi
+
+# to allow composer and indexing proxies work
+sudo chown -R www-data:www-data *.php *.phar
 
 echo "permission sets successful"
 
