@@ -33,10 +33,12 @@ git lfs track *.rar
 - create database files
 
 ```bash
-touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-http.txt proxies-socks.txt proxyChecker.txt proxyFetcherSources.txt proxyRange.txt socks.txt socks-dead.txt socks-working.txt status.txt working.txt
+touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-http.txt proxies-socks.txt proxyChecker.txt proxyFetcherSources.txt proxyRange.txt status.txt working.txt
 ```
 
 - use **WinRAR** to extract **sqlite** database chunks in **src** folder into single **database.sqlite** file
+
+- modify `.htaccess` or `nginx.conf` with your domain
 
 ## Crontab
 
