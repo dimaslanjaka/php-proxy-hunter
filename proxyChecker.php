@@ -234,6 +234,7 @@ function filter_proxies(array $proxies)
       $db->updateStatus($item->proxy, 'untested');
     }
     $str_to_remove[] = $item->proxy;
+    schedule_remover();
     if (empty($item->last_check)) return true;
     return isDateRFC3339OlderThanHours($item->last_check, 24);
   });
@@ -318,14 +319,27 @@ function execute_single_proxy(Proxy $item)
   }
   // add to remover scheduler
   if (!empty($raw_proxy)) $str_to_remove[] = $raw_proxy;
+  schedule_remover();
+}
+
+function schedule_remover()
+{
+  global $str_to_remove;
   if (!empty($str_to_remove)) {
     // remove already indexed proxies
     \PhpProxyHunter\Scheduler::register(function () use ($str_to_remove) {
-      $files = [__DIR__ . '/proxies.txt', __DIR__ . '/dead.txt'];
+      $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
+      $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
+        return strpos($fn, 'added-') !== false;
+      });
+      if (!empty($assets)) {
+        $files = array_filter(array_merge($files, $assets), 'file_exists');
+        $files = array_map('realpath', $files);
+      }
       foreach ($files as $file) {
         echo "remove indexed proxies from " . basename($file) . PHP_EOL;
         $remove = removeStringFromFile($file, $str_to_remove);
-        echo "\t> $remove" . PHP_EOL;
+        echo "  > $remove" . PHP_EOL;
       }
     }, "remove indexed proxies");
   }
