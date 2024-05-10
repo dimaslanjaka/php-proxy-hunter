@@ -26,6 +26,7 @@ if (function_exists('set_time_limit')) {
 require_once __DIR__ . '/vendor/autoload.php';
 
 use PhpProxyHunter\ProxyDB;
+use PhpProxyHunter\Session;
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
@@ -43,11 +44,8 @@ if (function_exists('ignore_user_abort')) {
 
 // start session
 if (!$isCli) {
-  // Check if session is not already started
-  if (session_status() === PHP_SESSION_NONE) {
-    // Start the session
-    session_start();
-  }
+  /** @noinspection PhpUnhandledExceptionInspection */
+  new Session(86400, __DIR__ . '/tmp/sessions');
   // set cookie visitor id for 30 days
   // for /data/login.php
   if (!isset($_COOKIE['visitor_id'])) {
