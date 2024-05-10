@@ -1682,14 +1682,17 @@ function removeShortLines(string $inputStringOrFilePath, int $minLength): string
 /**
  * Read the first N non-empty lines from a file.
  *
- * @param string $filename The path to the file.
+ * @param string $filePath The path to the file.
  * @param int $lines_to_read The number of lines to read.
  * @return array|false An array containing the first N non-empty lines from the file, or false on failure.
  */
-function read_first_lines(string $filename, int $lines_to_read): array
+function read_first_lines(string $filePath, int $lines_to_read): array
 {
+  if (is_file_locked($filePath)) return false;
+  if (!is_writable($filePath)) return false;
+  if (!file_exists($filePath)) return false;
   $lines = [];
-  $handle = fopen($filename, 'r');
+  $handle = fopen($filePath, 'r');
   if (!$handle) {
     // Handle error opening the file
     return false;
