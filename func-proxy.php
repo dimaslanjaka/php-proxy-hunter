@@ -9,28 +9,31 @@ use PhpProxyHunter\ProxyDB;
  * Extracts IP:PORT pairs from a string, along with optional username and password.
  *
  * @param string|null $string The input string containing IP:PORT pairs.
+ * @param \PhpProxyHunter\ProxyDB|null $db An optional ProxyDB instance for database operations.
  * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies(?string $string): array
+function extractProxies(?string $string, ?\PhpProxyHunter\ProxyDB $db = null): array
 {
-  if (is_null($string)) return [];
-  if (empty(trim($string))) return [];
+  if (is_null($string) || empty(trim($string))) {
+    return [];
+  }
 
   $results = [];
 
   // Regular expression pattern to match IP:PORT pairs along with optional username and password
-  /** @noinspection RegExpUnnecessaryNonCapturingGroup */
-  /** @noinspection RegExpRedundantEscape */
   $pattern = '/((?:(?:\d{1,3}\.){3}\d{1,3})\:\d{2,5}(?:@\w+:\w+)?|(?:(?:\w+)\:\w+@\d{1,3}(?:\.\d{1,3}){3}\:\d{2,5}))/';
 
   // Perform the matching
   preg_match_all($pattern, $string, $matches, PREG_SET_ORDER);
 
-  // Extracted IP:PORT pairs along with optional username and password
-  // $ipPorts = [];
-  $db = new ProxyDB();
+  if (!$db) {
+    $db = new \PhpProxyHunter\ProxyDB();
+  }
+
   foreach ($matches as $match) {
-    if (empty($match)) continue;
+    if (empty($match)) {
+      continue;
+    }
     $username = $password = $proxy = null;
     if (!empty($match[1]) && strpos($match[1], '@') !== false) {
       list($proxy, $login) = explode('@', $match[1]);
@@ -39,12 +42,10 @@ function extractProxies(?string $string): array
         $login = $proxy;
         $proxy = $_login;
       }
-      // var_dump("$proxy@$login");
       list($username, $password) = explode(":", $login);
     } else {
       $proxy = $match[0];
     }
-    // var_dump("$username and $password");
 
     if (!empty($proxy) && is_string($proxy) && strlen($proxy) >= 10) {
       if (isValidProxy(trim($proxy))) {
@@ -76,10 +77,8 @@ function extractProxies(?string $string): array
           $results[] = $result;
         }
       } else {
-//        echo "[SQLite]: delete invalid $proxy" . PHP_EOL;
-//        $db->remove($proxy);
-//        removeStringFromFile(__DIR__ . '/proxies.txt', $proxy);
-//        echo "$proxy invalid" . PHP_EOL;
+        echo "[SQLite] extractProxies delete invalid $proxy" . PHP_EOL;
+        $db->remove($proxy);
       }
     }
   }
@@ -713,7 +712,8 @@ function filterIpPortLines(string $inputFile)
     $results[] = trim($line);
   }
   // remove empty lines
-  $clean_result = preg_replace("/\n+/", "\n", implode("\n", $results));
+//  $clean_result = preg_replace("/\n+/", "\n", implode("\n", $results));
+  $clean_result = implode("\n", $results);
   file_put_contents($inputFile, $clean_result);
   return "non IP:PORT lines removed from $inputFile";
 }
