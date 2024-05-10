@@ -210,7 +210,7 @@ function buildCurl($proxy, $type = 'http', string $endpoint = 'https://bing.com'
 
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, FALSE);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
 
   $cookies = __DIR__ . '/tmp/cookies/' . sanitizeFilename($proxy) . '.txt';
   if (!file_exists(dirname($cookies)))
@@ -264,11 +264,18 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
 
   $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
   $response_header = substr($response, 0, $header_size);
+  $info = curl_getinfo($ch);
+  $latency = -1;
+
   // is private proxy?
   $isPrivate = stripos($response_header, 'X-Forwarded-For:') !== false || stripos($response_header, 'Proxy-Authorization:') !== false;
 
-  $info = curl_getinfo($ch);
-  $latency = -1;
+  // check proxy private by redirected to gateway url
+  if (!$isPrivate) {
+    $finalUrl = $info['url'];
+    $pattern = '/^https?:\/\/(www\.gstatic\.com|gateway\.(zs\w+)\.net\/.*(origurl)=)/i';
+    $isPrivate = preg_match($pattern, $finalUrl) !== false;
+  }
 
   $result = [];
 
