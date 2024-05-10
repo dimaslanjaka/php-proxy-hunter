@@ -61,7 +61,8 @@ touch vendor/index.html
 
 echo "composer installed"
 
-sudo chown -R www-data:www-data *.php *.txt *.json *.js *.html src data tmp vendor assets .cache config *.css *.lock js
+sudo chown -R www-data:www-data *.php *.txt *.json *.js *.html src data tmp vendor assets
+sudo chown -R www-data:www-data .cache config *.css *.lock js .htaccess .env
 
 echo "ownership fixed"
 
