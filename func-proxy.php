@@ -10,9 +10,10 @@ use PhpProxyHunter\ProxyDB;
  *
  * @param string|null $string The input string containing IP:PORT pairs.
  * @param \PhpProxyHunter\ProxyDB|null $db An optional ProxyDB instance for database operations.
- * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
+ * @param bool $debug Flag indicating whether debug information should be displayed. Default is true.
+ * @return \PhpProxyHunter\Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies(?string $string, ?\PhpProxyHunter\ProxyDB $db = null): array
+function extractProxies(?string $string, ?\PhpProxyHunter\ProxyDB $db = null, bool $debug = true): array
 {
   if (is_null($string) || empty(trim($string))) {
     return [];
@@ -77,7 +78,7 @@ function extractProxies(?string $string, ?\PhpProxyHunter\ProxyDB $db = null): a
           $results[] = $result;
         }
       } else {
-        echo "[SQLite] extractProxies delete invalid $proxy" . PHP_EOL;
+        if ($debug) echo "[SQLite] extractProxies delete invalid $proxy" . PHP_EOL;
         $db->remove($proxy);
       }
     }

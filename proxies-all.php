@@ -54,7 +54,7 @@ foreach ($files as $file) {
 
 iterateBigFilesLineByLine($files, function ($line) {
   global $db, $str_to_remove;
-  $items = extractProxies($line);
+  $items = extractProxies($line, $db, false);
   foreach ($items as $item) {
     if (empty($item->proxy) || !isValidProxy($item->proxy)) {
       if (count($str_to_remove) < 5000) $str_to_remove[] = $item->proxy;
