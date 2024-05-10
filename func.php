@@ -963,10 +963,17 @@ function removeEmptyLinesFromFile(string $filePath)
     return;
   }
 
-  // Open the file for reading
+  // Open the file for reading with shared lock
   $inputFile = fopen($filePath, 'r');
   if (!$inputFile) {
     // echo "Error: Unable to open file for reading: $filePath" . PHP_EOL;
+    return;
+  }
+
+  // Attempt to acquire an exclusive lock on the file
+  if (!flock($inputFile, LOCK_EX)) {
+    // echo "Error: Unable to acquire exclusive lock on file: $filePath" . PHP_EOL;
+    fclose($inputFile);
     return;
   }
 
@@ -985,6 +992,9 @@ function removeEmptyLinesFromFile(string $filePath)
     }
   }
 
+  // Release the lock on the input file
+  flock($inputFile, LOCK_UN);
+
   // Close both files
   fclose($inputFile);
   rewind($tempFile);
@@ -997,10 +1007,21 @@ function removeEmptyLinesFromFile(string $filePath)
     return;
   }
 
+  // Acquire an exclusive lock on the output file
+  if (!flock($outputFile, LOCK_EX)) {
+    // echo "Error: Unable to acquire exclusive lock on file: $filePath" . PHP_EOL;
+    fclose($tempFile);
+    fclose($outputFile);
+    return;
+  }
+
   // Copy content from temporary file to input file
   while (($line = fgets($tempFile)) !== false) {
     if (!empty(trim($line))) fwrite($outputFile, $line);
   }
+
+  // Release the lock on the output file
+  flock($outputFile, LOCK_UN);
 
   // Close the temporary file and the output file
   fclose($tempFile);
