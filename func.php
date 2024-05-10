@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection RegExpRedundantEscape */
 
 define('PHP_PROXY_HUNTER', date(DATE_RFC3339));
 if (!defined('JSON_THROW_ON_ERROR')) {
@@ -548,22 +548,14 @@ function extractIpPortFromFile(string $filePath, bool $unique = false): array
 function parseArgs($args): array
 {
   $parsedArgs = [];
-  $currentKey = null;
 
   foreach ($args as $arg) {
     if (substr($arg, 0, 2) === '--') {
       // Argument is in the format --key=value
       $parts = explode('=', substr($arg, 2), 2);
       $key = $parts[0];
-      $value = isset($parts[1]) ? $parts[1] : true; // If value is not provided, set it to true
+      $value = $parts[1] ?? true; // If value is not provided, set it to true
       $parsedArgs[$key] = $value;
-    } elseif (substr($arg, 0, 1) === '-') {
-      // Handle other types of arguments if needed
-      // For example, arguments in the format -k value
-      // Add your implementation here if needed
-    } else {
-      // Argument is not prefixed with -- or -, treat it as a value
-      // You can handle this case if needed
     }
   }
 
@@ -1175,9 +1167,7 @@ function string_to_regex($input)
 function sanitizeFilename($filename)
 {
   // Remove any character that is not alphanumeric, underscore, dash, or period
-  $filename = preg_replace("/[^\w\-\. ]/", '-', $filename);
-
-  return $filename;
+  return preg_replace("/[^\w\-\. ]/", '-', $filename);
 }
 
 function getIPRange(string $cidr): array
