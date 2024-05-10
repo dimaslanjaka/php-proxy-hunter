@@ -1110,10 +1110,11 @@ function removeStringFromFile(string $file_path, $string_to_remove): string
   if ($content === false) return "$file_path failed to read file";
 
   $regex_pattern = string_to_regex($string_to_remove);
-  if (!$regex_pattern) return "$string_to_remove invalid regex pattern";
+  if ($regex_pattern === null) return "$string_to_remove invalid regex pattern";
 
-  $new_string = preg_replace($regex_pattern, '', $content);
+  $new_string = preg_replace($regex_pattern, '', $content, 1, $count);
   if ($new_string === null) return "removeStringFromFile: preg_replace failed";
+  if ($count === 0) return "removeStringFromFile: no string replaced";
 
   $result = file_put_contents($file_path, $new_string);
   if ($result === false) return 'removeStringFromFile: failed to write to file';
