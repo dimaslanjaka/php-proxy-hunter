@@ -29,6 +29,7 @@ class Session
    */
   public function __construct($timeout = 3600, $session_folder = null)
   {
+    if (!empty($session_folder) && !file_exists($session_folder)) mkdir($session_folder, 755, true);
     if (!$this->is_session_started()) {
       //$this->configure($timeout, $session_folder);
       //$this->start_timeout($timeout);
