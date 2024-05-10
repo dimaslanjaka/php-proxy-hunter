@@ -34,6 +34,7 @@ function exitProcess()
 register_shutdown_function('exitProcess');
 
 $db = new ProxyDB();
+
 //$files = [__DIR__ . '/proxies.txt'];
 $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
 $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
@@ -57,7 +58,6 @@ foreach ($files as $file) {
     echo "Deleted empty file: " . basename($file) . PHP_EOL;
   }
 }
-
 
 iterateBigFilesLineByLine($files, function ($line) {
   global $db, $str_to_remove;
@@ -83,6 +83,14 @@ iterateBigFilesLineByLine($files, function ($line) {
     if (!empty($sel[0]['proxy']) && !isValidProxy($sel[0]['proxy'])) {
       if (count($str_to_remove) < 5000) $str_to_remove[] = $sel[0]['proxy'];
     }
+  }
+});
+
+echo "iterating all proxies" . PHP_EOL;
+$db->iterateAllProxies(function ($item) use ($db) {
+  if (!isValidProxy($item['proxy'])) {
+    echo '[SQLite] remove invalid proxy (' . $item['proxy'] . ')' . PHP_EOL;
+    $db->remove($item['proxy']);
   }
 });
 
