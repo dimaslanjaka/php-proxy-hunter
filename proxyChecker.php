@@ -343,7 +343,7 @@ function schedule_remover()
           // remove empty lines
           $read = read_file($file);
           $clean_read = preg_replace("/\n+/", "\n", $read);
-          file_put_content($file, $clean_read);
+          file_put_contents($file, $clean_read);
         }
       }
     }, "remove indexed proxies");
