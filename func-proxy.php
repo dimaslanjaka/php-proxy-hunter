@@ -261,7 +261,7 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
   $start = microtime(true); // Start time
   $response = curl_exec($ch);
   $end = microtime(true); // End time
-
+  $isHttps = strpos($endpoint, 'https') !== false;
   $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
   $response_header = substr($response, 0, $header_size);
   $info = curl_getinfo($ch);
@@ -287,7 +287,8 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
         'latency' => $latency,
         'error' => $error_msg,
         'status' => $info['http_code'],
-        'private' => $isPrivate
+        'private' => $isPrivate,
+        'https' => $isHttps
     ];
   }
 
@@ -302,7 +303,8 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
         'latency' => $latency,
         'error' => null,
         'status' => $info['http_code'],
-        'private' => $isPrivate
+        'private' => $isPrivate,
+        'https' => $isHttps
     ];
   }
 
