@@ -77,10 +77,6 @@ $endpoint = trim($config['endpoint']);
 $headers = array_filter($config['headers']);
 $checksFor = $config['type'];
 
-echo "User " . $config['user_id'] . ' at ' . date("Y-m-d H:i:s") . PHP_EOL;
-echo "GET $endpoint " . strtoupper($checksFor) . PHP_EOL;
-echo implode("\n", $headers) . PHP_EOL;
-
 if (!$isCli) {
   if (isset($_SERVER['HTTP_HOST'])) {
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
@@ -121,6 +117,11 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
   echo "update status to IDLE" . PHP_EOL;
   file_put_contents($statusFile, 'idle');
 }, 'z_onExit' . __FILE__);
+
+// print cURL informations
+echo "User " . $config['user_id'] . ' at ' . date("Y-m-d H:i:s") . PHP_EOL;
+echo "GET $endpoint " . strtoupper($checksFor) . PHP_EOL;
+echo implode("\n", $headers) . PHP_EOL;
 
 // Specify the file path
 $untestedFilePath = __DIR__ . "/proxies.txt";
