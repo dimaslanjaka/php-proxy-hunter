@@ -343,8 +343,8 @@ function schedule_remover()
           // remove empty lines
           $read = read_file($file);
           if (!empty($read)) {
-            $clean_read = preg_replace("/\n+/", "\n", $read);
-            file_put_contents($file, $clean_read);
+            $clean_read = preg_replace("/\n+/", "\n", $read, 1, $count);
+            if ($count > 0) file_put_contents($file, $clean_read);
           }
         }
       }
