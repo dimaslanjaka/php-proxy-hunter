@@ -1112,7 +1112,7 @@ function removeStringFromFile(string $file_path, $string_to_remove): string
   $regex_pattern = string_to_regex($string_to_remove);
   if ($regex_pattern === null) return "$string_to_remove invalid regex pattern";
 
-  $new_string = preg_replace($regex_pattern, '', $content, 1, $count);
+  $new_string = preg_replace($regex_pattern, ' ', $content, 1, $count);
   if ($new_string === null) return "removeStringFromFile: preg_replace failed";
   if ($count === 0) return "removeStringFromFile: no string replaced";
 
