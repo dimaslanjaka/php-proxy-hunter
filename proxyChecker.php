@@ -340,6 +340,10 @@ function schedule_remover()
         $remove = removeStringFromFile($file, $str_to_remove);
         if ($remove == 'success') {
           echo "removed indexed proxies from " . basename($file) . PHP_EOL;
+          // remove empty lines
+          $read = read_file($file);
+          $clean_read = preg_replace("/\n+/", "\n", $read);
+          file_put_content($file, $clean_read);
         }
       }
     }, "remove indexed proxies");
