@@ -2,6 +2,9 @@
 
 namespace PhpProxyHunter;
 
+use PDO;
+use PDOException;
+
 if (!defined('PHP_PROXY_HUNTER')) exit('access denied');
 
 /**
@@ -23,6 +26,30 @@ class ProxyDB
   {
     if (!$dbLocation) $dbLocation = realpath(__DIR__ . '/database.sqlite');
     $this->db = new SQLiteHelper($dbLocation);
+  }
+
+  /**
+   * Iterate over all proxies in the database and apply a callback to each.
+   *
+   * @param callable $callback The callback function to apply to each proxy row.
+   *                           The callback should accept a single parameter which represents a row from the proxies table.
+   * @return void
+   */
+  public function iterateAllProxies(callable $callback): void
+  {
+    try {
+      // Execute a query to fetch large rows
+      $stmt = $this->db->pdo->query('SELECT * FROM proxies');
+
+      // Iterate over the result set using a while loop
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        // Process each row using the callback function
+        call_user_func($callback, $row);
+      }
+    } catch (PDOException $e) {
+      // Handle database connection errors
+      echo 'Error: ' . $e->getMessage();
+    }
   }
 
   /**
