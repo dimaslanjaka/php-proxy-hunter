@@ -183,14 +183,14 @@ try {
 
 // get proxy from proxies.txt
 if ($countLinesUntestedProxies > 0) {
-  $file_untested_str = read_first_lines($untestedFilePath, 300);
+  $file_untested_str = read_first_lines($untestedFilePath, 150);
   if (empty($file_untested_str)) $file_untested_str = [];
   $file_untested = extractProxies(implode("\n", $file_untested_str));
   $file_untested = filter_proxies($file_untested);
   echo "[FILE] queue: " . count($file_untested) . " proxies" . PHP_EOL;
 
   // prior to check from file
-  if (count($file_untested) > 100) {
+  if (count($file_untested) > 50) {
     $untested = $file_untested;
     echo "using data from [FILE]\n";
   } else {
