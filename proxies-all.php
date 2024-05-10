@@ -35,6 +35,7 @@ function exitProcess()
 register_shutdown_function('exitProcess');
 
 $db = new ProxyDB();
+//$files = [__DIR__ . '/proxies.txt'];
 $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
 $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
   return strpos($fn, 'added-') !== false;
@@ -50,11 +51,13 @@ foreach ($files as $file) {
   echo filterIpPortLines($file) . PHP_EOL;
 }
 
+
 iterateBigFilesLineByLine($files, function ($line) {
   global $db, $str_to_remove;
   $items = extractProxies($line);
   foreach ($items as $item) {
     if (empty($item->proxy) || !isValidProxy($item->proxy)) {
+      if (count($str_to_remove) < 5000) $str_to_remove[] = $item->proxy;
       echo $item->proxy . ' invalid' . PHP_EOL;
       continue;
     }
