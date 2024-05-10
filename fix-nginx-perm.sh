@@ -36,7 +36,7 @@ OUTPUT_FILE="/var/www/html/proxyChecker.txt"
 printf "Are you want to re-install composer? [Y/n] "
 read -r response
 response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
-if [ "$response" = "y" ] || [ -z "$response" ]; then
+if [ "$response" = "y" ]; then
   COMPOSER_LOCK="/var/www/html/composer.lock"
   COMPOSER_PHAR="/var/www/html/composer.phar"
 
@@ -50,7 +50,7 @@ fi
 printf "Are you want to re-index all proxies? [Y/n] "
 read -r response
 response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
-if [ "$response" = "y" ] || [ -z "$response" ]; then
+if [ "$response" = "y" ]; then
   su -s /bin/sh -c "php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
 fi
 
@@ -63,8 +63,8 @@ sudo chown -R www-data:www-data *.php *.txt *.json *.js *.html src data tmp vend
 
 echo "ownership fixed"
 
-git lfs install
-git lfs track *.rar
+#git lfs install
+#git lfs track *.rar
 
 echo "large files tracked"
 
