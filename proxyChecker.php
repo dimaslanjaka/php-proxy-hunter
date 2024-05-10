@@ -337,9 +337,10 @@ function schedule_remover()
         $files = array_map('realpath', $files);
       }
       foreach ($files as $file) {
-        echo "remove indexed proxies from " . basename($file) . PHP_EOL;
         $remove = removeStringFromFile($file, $str_to_remove);
-        echo "  > $remove" . PHP_EOL;
+        if ($remove == 'success') {
+          echo "removed indexed proxies from " . basename($file) . PHP_EOL;
+        }
       }
     }, "remove indexed proxies");
   }
