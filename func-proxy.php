@@ -714,7 +714,7 @@ function filterIpPortLines(string $inputFile)
   }
   // remove empty lines
   $clean_result = preg_replace("/\n+/", "\n", implode("\n", $results));
-  file_put_contents($inputFile, implode("\n", $clean_result));
+  file_put_contents($inputFile, $clean_result);
   return "non IP:PORT lines removed from $inputFile";
 }
 
