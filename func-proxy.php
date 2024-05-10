@@ -712,8 +712,9 @@ function filterIpPortLines(string $inputFile)
     }
     $results[] = trim($line);
   }
-
-  file_put_contents($inputFile, implode("\n", $results));
+  // remove empty lines
+  $clean_result = preg_replace("/\n+/", "\n", implode("\n", $results));
+  file_put_contents($inputFile, implode("\n", $clean_result));
   return "non IP:PORT lines removed from $inputFile";
 }
 
@@ -729,7 +730,7 @@ function clean_proxies_file(string $file)
 
   echo "remove lines not contains IP:PORT $file" . PHP_EOL;
 
-//  filterIpPortLines($file);
+  filterIpPortLines($file);
 
   echo "remove empty lines $file" . PHP_EOL;
 
