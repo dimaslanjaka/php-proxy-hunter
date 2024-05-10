@@ -24,8 +24,7 @@ sudo chmod 644 *.php
 sudo chmod 644 .env
 
 if [ -d "assets/proxies" ]; then
-    sudo chmod 777 "assets/proxies"
-    # sudo chmod 777 "assets/proxies/*.txt"
+    sudo chmod 755 "assets/proxies"
     touch "assets/proxies/index.html"
 fi
 
