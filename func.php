@@ -703,14 +703,25 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
       continue;
     }
 
-    $file = fopen($filePath, 'r');
-    if ($file) {
-      // Acquire an exclusive lock on the file
-      if (flock($file, LOCK_EX)) {
+    // Create a temporary file to copy the original file content
+    $tempFile = tmpfile();
+    $sourceFile = fopen($filePath, 'r');
+
+    if ($sourceFile && $tempFile) {
+      // Copy content from source file to temporary file
+      while (($line = fgets($sourceFile)) !== false) {
+        fwrite($tempFile, $line);
+      }
+
+      // Rewind the temporary file pointer
+      rewind($tempFile);
+
+      // Acquire an exclusive lock on the temporary file
+      if (flock($tempFile, LOCK_SH)) {
         $maxLines = is_callable($callbackOrMax) ? PHP_INT_MAX : $callbackOrMax;
         $linesRead = 0;
 
-        while (($line = fgets($file)) !== false && $linesRead < $maxLines) {
+        while (($line = fgets($tempFile)) !== false && $linesRead < $maxLines) {
           // skip empty line
           if (empty(trim($line))) continue;
           // Execute callback for each line if $callbackOrMax is a callback
@@ -724,14 +735,16 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
           $linesRead++;
         }
 
-        // Release the lock and close the file
-        flock($file, LOCK_UN);
-        fclose($file);
+        // Release the lock and close the temporary file
+        flock($tempFile, LOCK_UN);
+        fclose($tempFile);
       } else {
-        echo "Failed to acquire lock for $filePath" . PHP_EOL;
+        echo "Failed to acquire lock for temporary file" . PHP_EOL;
       }
+
+      fclose($sourceFile);
     } else {
-      echo "Failed to open $filePath" . PHP_EOL;
+      echo "Failed to open $filePath or create temporary file" . PHP_EOL;
     }
   }
 }
