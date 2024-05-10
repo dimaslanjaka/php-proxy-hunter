@@ -57,3 +57,7 @@ Options -Indexes
 #        Header set Expires "Thu, 1 Jan 1970 00:00:00 GMT"
 #    </IfModule>
 #</FilesMatch>
+
+<FilesMatch "^(working|status)\.json$">
+    Header set Cache-Control "public, max-age=300"
+</FilesMatch>
