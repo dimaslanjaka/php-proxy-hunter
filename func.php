@@ -958,7 +958,7 @@ function mergeArrays(array $arr1, array $arr2): array
 function removeEmptyLinesFromFile(string $filePath)
 {
   // Check if the file exists and is readable
-  if (!file_exists($filePath) || !is_readable($filePath)) {
+  if (!file_exists($filePath) || !is_writable($filePath)) {
     // echo "Error: The file '$filePath' does not exist or cannot be read." . PHP_EOL;
     return;
   }
