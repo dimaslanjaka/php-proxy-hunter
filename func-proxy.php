@@ -237,6 +237,36 @@ function buildCurl($proxy, $type = 'http', string $endpoint = 'https://bing.com'
   return $ch;
 }
 
+/*
+ * Obtain the anonymity of the proxy
+ * Return: Transparent, Anonymous or Elite
+ */
+function parse_anonymity(string $response_ip_info, string $response_judges)
+{
+  if (strpos($response_judges, $response_ip_info) !== false) {
+    return 'Transparent';
+  }
+
+  $privacy_headers = [
+      'VIA',
+      'X-FORWARDED-FOR',
+      'X-FORWARDED',
+      'FORWARDED-FOR',
+      'FORWARDED-FOR-IP',
+      'FORWARDED',
+      'CLIENT-IP',
+      'PROXY-CONNECTION'
+  ];
+
+  foreach ($privacy_headers as $header) {
+    if (strpos($response_judges, $header) !== false) {
+      return 'Anonymous';
+    }
+  }
+
+  return 'Elite';
+}
+
 /**
  * Check proxy connectivity.
  *
@@ -277,6 +307,7 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
     $isPrivate = preg_match($pattern, $finalUrl) !== false;
   }
 
+  // non-empty array = error result
   $result = [];
 
   // Check for CURL errors or empty response
@@ -288,7 +319,8 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
         'error' => $error_msg,
         'status' => $info['http_code'],
         'private' => $isPrivate,
-        'https' => $isHttps
+        'https' => $isHttps,
+        'anonymity' => null
     ];
   }
 
@@ -297,6 +329,7 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
   // Convert to milliseconds
   $latency = round(($end - $start) * 1000);
 
+  // result is empty = no error
   if (empty($result)) {
     $result = [
         'result' => true,
@@ -304,8 +337,38 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
         'error' => null,
         'status' => $info['http_code'],
         'private' => $isPrivate,
-        'https' => $isHttps
+        'https' => $isHttps,
+        'anonymity' => null
     ];
+    $proxy_judges = [
+        'https://wfuchs.de/azenv.php',
+        'http://mojeip.net.pl/asdfa/azenv.php',
+        'http://httpheader.net/azenv.php',
+        'http://pascal.hoez.free.fr/azenv.php',
+        'https://www.cooleasy.com/azenv.php',
+        'https://httpbin.org/headers'
+    ];
+    $ip_infos = [
+        'https://api.ipify.org/',
+        'https://httpbin.org/ip',
+        'https://cloudflare.com/cdn-cgi/trace'
+    ];
+    $content_judges = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
+      $ch = buildCurl($proxy, $type, $url, [], $username, $password);
+      $content = curl_exec($ch);
+      curl_close($ch);
+      if ($content) return $content;
+      return '';
+    }, $proxy_judges);
+    $content_ip = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
+      $ch = buildCurl($proxy, $type, $url, [], $username, $password);
+      $content = curl_exec($ch);
+      curl_close($ch);
+      if ($content) return $content;
+      return '';
+    }, $ip_infos);
+    $anonymity = parse_anonymity($content_ip, $content_judges);
+    $result['anonymity'] = strtolower($anonymity);
   }
 
   return $result;
