@@ -60,11 +60,11 @@ foreach ($files as $file) {
   }
 }
 
-iterateBigFilesLineByLine($files, function ($line) {
-  global $db, $str_to_remove;
+iterateBigFilesLineByLine($files, function ($line) use ($db, &$str_to_remove) {
   $items = extractProxies($line, $db, false);
   foreach ($items as $item) {
-    if (empty($item->proxy) || !isValidProxy($item->proxy)) {
+    if (empty($item->proxy)) continue;
+    if (!isValidProxy($item->proxy)) {
       if (count($str_to_remove) < 5000) $str_to_remove[] = $item->proxy;
       echo $item->proxy . ' invalid' . PHP_EOL;
       continue;
@@ -88,10 +88,10 @@ iterateBigFilesLineByLine($files, function ($line) {
 });
 
 echo "iterating all proxies" . PHP_EOL;
-$db->iterateAllProxies(function ($item) {
-  global $db, $str_to_remove;
-  if (!empty($sel[0]['proxy'])) {
+$db->iterateAllProxies(function ($item) use ($db, &$str_to_remove) {
+  if (!empty($item['proxy'])) {
     if (!isValidProxy($item['proxy'])) {
+      // remove invalid proxy from database
       echo '[SQLite] remove invalid proxy (' . $item['proxy'] . ')' . PHP_EOL;
       $db->remove($item['proxy']);
     } else {
@@ -104,7 +104,7 @@ $db->iterateAllProxies(function ($item) {
 
 if (!empty($str_to_remove)) {
   foreach ($files as $file) {
-    Scheduler::register(function () use ($str_to_remove, $file) {
+    Scheduler::register(function () use (&$str_to_remove, $file) {
       if (removeStringFromFile($file, $str_to_remove) == 'success') {
         echo "[FILE] removed indexed proxies from " . basename($file) . ' ' . count($str_to_remove) . PHP_EOL;
       }
