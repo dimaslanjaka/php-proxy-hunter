@@ -1449,6 +1449,8 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
  */
 function is_file_locked(string $filePath): bool
 {
+  // not found file treat as locked
+  if (!file_exists($filePath)) return true;
   $handle = fopen($filePath, "r");
   if ($handle === false) {
     // Unable to open file
