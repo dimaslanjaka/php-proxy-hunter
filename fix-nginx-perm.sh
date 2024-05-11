@@ -1,7 +1,21 @@
 #!/bin/sh
+
 # shellcheck disable=SC2035
 
-rm *.lock
+# Array of files to remove
+lock_files=("proxyWorking.lock" "proxyChecker.lock")
+
+# Loop through the array
+for file in "${lock_files[@]}"; do
+    # Check if the file exists
+    if [ -e "$file" ]; then
+        # Remove the file
+        rm "$file"
+        echo "Removed $file"
+    else
+        echo "$file does not exist"
+    fi
+done
 
 mkdir -p tmp/cookies
 touch tmp/cookies/index.html
