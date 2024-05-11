@@ -1,0 +1,4 @@
+[submodule "packages/proxy-checker-python"]
+	path = packages/proxy-checker-python
+	url = https://github.com/dimaslanjaka/proxy-checker-python.git
+	branch = master
