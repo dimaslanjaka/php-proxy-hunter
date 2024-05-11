@@ -43,11 +43,13 @@ $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), functio
 });
 if (!empty($assets)) {
   $files = array_filter(array_merge($files, $assets), 'file_exists');
+  $files = array_filter($files, 'is_file');
   $files = array_map('realpath', $files);
 }
 
 $str_to_remove = [];
-$str_limit_to_remove = 10001;
+$str_limit_to_remove = 10000;
+$files_to_merge = [];
 
 foreach ($files as $file) {
   echo filterIpPortLines($file) . PHP_EOL;
@@ -58,6 +60,32 @@ foreach ($files as $file) {
     // Delete the file
     unlink($file);
     echo "Deleted empty file: " . basename($file) . PHP_EOL;
+  } else if (filesize($file) < 30000) {
+    // merge and delete if the file is small (under 30kb)
+    $files_to_merge[] = $file;
+  }
+}
+
+if (!empty($files_to_merge)) {
+  // merge and delete if the file is small (under 30kb)
+  $contents = array_map(function (string $file) {
+    if (file_exists($file)) return read_file($file);
+    return '';
+  }, $files_to_merge);
+  $contents = array_filter($contents, function (string $content) {
+    return !empty($content);
+  });
+  $content = implode(PHP_EOL, $contents);
+  $directory = __DIR__ . '/assets/proxies';
+  $mergedFileName = $directory . '/added-' . date("Y-m-d_H-i-s") . '_merged_file.txt';
+  $mergedFileHandle = fopen($mergedFileName, 'w+');
+  $write = fwrite($mergedFileHandle, $content);
+  fclose($mergedFileHandle);
+  if ($write) {
+    array_map(function (string $file) {
+      if (file_exists($file)) unlink($file);
+    }, $files_to_merge);
+    echo "small files merged into " . basename($mergedFileName) . PHP_EOL;
   }
 }
 
