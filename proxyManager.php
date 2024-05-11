@@ -63,160 +63,136 @@ $config = getConfig(getUserId());
   <meta name="twitter:description" content="PHP Proxy Hunter By L3n4r0x">
   <meta name="twitter:image" content="https://i.ytimg.com/vi/BF4Kf3GjADs/maxresdefault.jpg">
   <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-  <link href="//cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-  <link rel="stylesheet"
-        href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
+  <link href="//cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <link rel="stylesheet" href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
   <link rel="stylesheet" href="proxyManager.css">
 </head>
 
 <body>
 
-<main class="m-2">
-  <div class="form-group mb-2">
-    <div class="form-floating">
-      <textarea class="form-control" placeholder="Add proxies here" id="proxiesData"
-                style="height: 250px"></textarea>
-      <label for="proxiesData">Add Proxies</label>
-    </div>
-  </div>
-
-  <div class="mb-2">
-    <span class="mb-2">Your ID: <b id="uid"><?php echo $user_id ?></b></span>
-    <a href="./proxyManager.html">[Proxy Manager HTML]</a>
-  </div>
-
-  <ins class="adsbygoogle mb-2"
-       style="display:block"
-       data-ad-client="ca-pub-2188063137129806"
-       data-ad-slot="2667720583"
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
-
-  <div class="accordion accordion-flush mb-2 border" id="accordionAdvancedOptions">
-    <div class="accordion-item">
-      <h2 class="accordion-header border" id="flush-advanceHeading">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#flush-advanceCollapse" aria-expanded="false" aria-controls="flush-advanceCollapse">
-          Advanced Options
-        </button>
-      </h2>
-      <div id="flush-advanceCollapse" class="accordion-collapse collapse" aria-labelledby="flush-advanceHeading"
-           data-bs-parent="#accordionAdvancedOptions">
-        <div class="accordion-body">
-          <div class="form-group mb-2">
-            <label for="endpoint">URL target to test</label>
-            <input type="text" class="form-control" id="endpoint" placeholder="URL target to test"
-                   value="<?php echo $config['endpoint'] ?>" />
-          </div>
-
-          <div class="form-floating mb-2">
-            <textarea class="form-control" id="headers"
-                      style="height: 250px"><?php echo implode("\n", $config['headers']); ?></textarea>
-            <label for="proxiesData">Custom Headers</label>
-          </div>
-
-          <b>Proxy Type</b>
-          <div class="form-group mb-2">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="typeHttp"
-                     value="http" <?php echo strpos($config['type'], 'http') !== false ? 'checked' : '' ?>>
-              <label class="form-check-label" for="typeHttp">HTTP/HTTPS</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="typeSocks4"
-                     value="socks4" <?php echo strpos($config['type'], 'socks4') !== false ? 'checked' : '' ?>>
-              <label class="form-check-label" for="typeSocks4">SOCKS4</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="typeSocks5"
-                     value="socks5" <?php echo strpos($config['type'], 'socks5') !== false ? 'checked' : '' ?>>
-              <label class="form-check-label" for="typeSocks5">SOCKS5</label>
-            </div>
-          </div>
-
-          <button class="btn btn-primary" id="saveConfig"><i class="fa-duotone fa-save mr-2"></i> Save</button>
-        </div>
+  <main class="m-2">
+    <div class="form-group mb-2">
+      <div class="form-floating">
+        <textarea class="form-control" placeholder="Add proxies here" id="proxiesData" style="height: 250px"></textarea>
+        <label for="proxiesData">Add Proxies</label>
       </div>
     </div>
-  </div>
 
-  <ins class="adsbygoogle mb-2"
-       style="display:block"
-       data-ad-client="ca-pub-2188063137129806"
-       data-ad-slot="2450061646"
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
-
-  <div class="mb-4 btn-group text-white">
-    <button class="btn btn-warning" id="addProxy"><i class="fa-duotone fa-plus mr-2"></i> Add Proxies</button>
-    <button class="btn btn-info" id="checkProxy"><i class="fa-duotone fa-radar mr-2"></i> Check Proxies</button>
-    <button class="btn btn-primary" id="refresh"><i class="fa-duotone fa-arrows-rotate mr-2"></i> Refresh</button>
-  </div>
-
-  <div class="mb-2 row">
-    <div class="col-md-4 mb-2">
-      <b>Proxies list</b>
-      <div class="iframe" src="./proxies.txt"></div>
+    <div class="mb-2">
+      <span class="mb-2">Your ID: <b id="uid"><?php echo $user_id ?></b></span>
+      <a href="./proxyManager.html">[Proxy Manager HTML]</a>
     </div>
-    <div class="col-md-4 mb-2">
-      <b>Working proxies list</b> <br>
-      <div class="iframe" src="./working.txt"></div>
-      <!--        <kbd>PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE</kbd>-->
-    </div>
-    <div class="col-md-4 mb-2">
-      <b>Checker result</b>
-      <div class="iframe" src="./proxyChecker.txt"></div>
-    </div>
-  </div>
 
-  <div class="mb-2">
-    <div class="accordion accordion-flush border" id="accordionDead">
+    <ins class="adsbygoogle mb-2" style="display:block" data-ad-client="ca-pub-2188063137129806" data-ad-slot="2667720583" data-ad-format="auto" data-full-width-responsive="true"></ins>
+
+    <div class="accordion accordion-flush mb-2 border" id="accordionAdvancedOptions">
       <div class="accordion-item">
-        <h2 class="accordion-header border" id="flush-deadHeading">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#flush-deadCollapse" aria-expanded="false" aria-controls="flush-deadCollapse">
-            Dead proxies
+        <h2 class="accordion-header border" id="flush-advanceHeading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-advanceCollapse" aria-expanded="false" aria-controls="flush-advanceCollapse">
+            Advanced Options
           </button>
         </h2>
-        <div id="flush-deadCollapse" class="accordion-collapse collapse border" aria-labelledby="flush-deadHeading"
-             data-bs-parent="#accordionDead">
+        <div id="flush-advanceCollapse" class="accordion-collapse collapse" aria-labelledby="flush-advanceHeading" data-bs-parent="#accordionAdvancedOptions">
           <div class="accordion-body">
-            <blockquote>These proxies will be respawned when proxies list empty</blockquote>
-            <div class="iframe" src="./dead.txt"></div>
+            <div class="form-group mb-2">
+              <label for="endpoint">URL target to test</label>
+              <input type="text" class="form-control" id="endpoint" placeholder="URL target to test" value="<?php echo $config['endpoint'] ?>" />
+            </div>
+
+            <div class="form-floating mb-2">
+              <textarea class="form-control" id="headers" style="height: 250px"><?php echo implode("\n", $config['headers']); ?></textarea>
+              <label for="proxiesData">Custom Headers</label>
+            </div>
+
+            <b>Proxy Type</b>
+            <div class="form-group mb-2">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="typeHttp" value="http" <?php echo strpos($config['type'], 'http') !== false ? 'checked' : '' ?>>
+                <label class="form-check-label" for="typeHttp">HTTP/HTTPS</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="typeSocks4" value="socks4" <?php echo strpos($config['type'], 'socks4') !== false ? 'checked' : '' ?>>
+                <label class="form-check-label" for="typeSocks4">SOCKS4</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="typeSocks5" value="socks5" <?php echo strpos($config['type'], 'socks5') !== false ? 'checked' : '' ?>>
+                <label class="form-check-label" for="typeSocks5">SOCKS5</label>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="saveConfig"><i class="fa-duotone fa-save mr-2"></i> Save</button>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</main>
 
-<div id="snackbar">Snackbar Message</div>
+    <ins class="adsbygoogle mb-2" style="display:block" data-ad-client="ca-pub-2188063137129806" data-ad-slot="2450061646" data-ad-format="auto" data-full-width-responsive="true"></ins>
 
-<script src="//cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
-        crossorigin="anonymous"></script>
-<!-- <script src="//rawcdn.githack.com/dimaslanjaka/jquery-form-saver/38176c68300c834d6692953a1be7407caed01832/dist/release/autosave.js"></script> -->
-<script src="./proxyManager.js"></script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
+    <div class="mb-4 btn-group text-white">
+      <button class="btn btn-warning" id="addProxy"><i class="fa-duotone fa-plus mr-2"></i> Add Proxies</button>
+      <button class="btn btn-info" id="checkProxy"><i class="fa-duotone fa-radar mr-2"></i> Check Proxies</button>
+      <button class="btn btn-primary" id="refresh"><i class="fa-duotone fa-arrows-rotate mr-2"></i> Refresh</button>
+    </div>
 
-  function gtag() {
-    dataLayer.push(arguments);
-  }
+    <div class="mb-2 row">
+      <div class="col-md-4 mb-2">
+        <b>Proxies list</b>
+        <div class="iframe" src="./embed.php?file=proxies.txt"></div>
+      </div>
+      <div class="col-md-4 mb-2">
+        <b>Working proxies list</b> <br>
+        <div class="iframe" src="./embed.php?file=working.txt"></div>
+        <!--        <kbd>PROXY|LATENCY|TYPE|REGION|CITY|COUNTRY|TIMEZONE</kbd>-->
+      </div>
+      <div class="col-md-4 mb-2">
+        <b>Checker result</b>
+        <div class="iframe" src="./embed.php?file=proxyChecker.txt"></div>
+      </div>
+    </div>
 
-  gtag("js", new Date());
+    <div class="mb-2">
+      <div class="accordion accordion-flush border" id="accordionDead">
+        <div class="accordion-item">
+          <h2 class="accordion-header border" id="flush-deadHeading">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-deadCollapse" aria-expanded="false" aria-controls="flush-deadCollapse">
+              Dead proxies
+            </button>
+          </h2>
+          <div id="flush-deadCollapse" class="accordion-collapse collapse border" aria-labelledby="flush-deadHeading" data-bs-parent="#accordionDead">
+            <div class="accordion-body">
+              <blockquote>These proxies will be respawned when proxies list empty</blockquote>
+              <div class="iframe" src="./embed.php?file=dead.txt"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 
-  gtag("config", "G-BG75CLNJZ1");
+  <div id="snackbar">Snackbar Message</div>
 
-  window.onload = function() {
-    const myscript = document.createElement("script");
-    myscript.src = "./js/site.js?v=<?php echo $_ENV['CPID']; ?>";
-    document.body.appendChild(myscript);
-  };
-</script>
+  <script src="//cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  <!-- <script src="//rawcdn.githack.com/dimaslanjaka/jquery-form-saver/38176c68300c834d6692953a1be7407caed01832/dist/release/autosave.js"></script> -->
+  <script src="./proxyManager.js"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag("js", new Date());
+
+    gtag("config", "G-BG75CLNJZ1");
+
+    window.onload = function() {
+      const myscript = document.createElement("script");
+      myscript.src = "./js/site.js?v=<?php echo $_ENV['CPID']; ?>";
+      document.body.appendChild(myscript);
+    };
+  </script>
 </body>
 
 </html>
