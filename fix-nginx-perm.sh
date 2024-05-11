@@ -48,27 +48,16 @@ sudo chown -R www-data:www-data *.php *.phar
 echo "permission sets successful"
 
 OUTPUT_FILE="/var/www/html/proxyChecker.txt"
+COMPOSER_LOCK="/var/www/html/composer.lock"
+COMPOSER_PHAR="/var/www/html/composer.phar"
 
-printf "Are you want to re-install composer? [Y/n] "
-read -r response
-response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
-if [ "$response" = "y" ]; then
-  COMPOSER_LOCK="/var/www/html/composer.lock"
-  COMPOSER_PHAR="/var/www/html/composer.phar"
-
-  if [ ! -f "$COMPOSER_LOCK" ]; then
-      su -s /bin/sh -c "php $COMPOSER_PHAR install >> $OUTPUT_FILE 2>&1" www-data
-  else
-      su -s /bin/sh -c "php $COMPOSER_PHAR update >> $OUTPUT_FILE 2>&1" www-data
-  fi
+if [ ! -f "$COMPOSER_LOCK" ]; then
+  su -s /bin/sh -c "php $COMPOSER_PHAR install >> $OUTPUT_FILE 2>&1" www-data
+else
+  su -s /bin/sh -c "php $COMPOSER_PHAR update >> $OUTPUT_FILE 2>&1" www-data
 fi
 
-printf "Are you want to re-index all proxies? [Y/n] "
-read -r response
-response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
-if [ "$response" = "y" ]; then
-  su -s /bin/sh -c "php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
-fi
+su -s /bin/sh -c "php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
 
 chmod 777 vendor
 touch vendor/index.html
