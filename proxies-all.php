@@ -47,6 +47,7 @@ if (!empty($assets)) {
 }
 
 $str_to_remove = [];
+$str_limit_to_remove = 10001;
 
 foreach ($files as $file) {
   echo filterIpPortLines($file) . PHP_EOL;
@@ -60,12 +61,12 @@ foreach ($files as $file) {
   }
 }
 
-iterateBigFilesLineByLine($files, function ($line) use ($db, &$str_to_remove) {
+iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remove, &$str_to_remove) {
   $items = extractProxies($line, $db, false);
   foreach ($items as $item) {
     if (empty($item->proxy)) continue;
     if (!isValidProxy($item->proxy)) {
-      if (count($str_to_remove) < 5000) $str_to_remove[] = $item->proxy;
+      if (count($str_to_remove) < $str_limit_to_remove) $str_to_remove[] = $item->proxy;
       echo $item->proxy . ' invalid' . PHP_EOL;
       continue;
     }
@@ -82,13 +83,13 @@ iterateBigFilesLineByLine($files, function ($line) use ($db, &$str_to_remove) {
       $db->updateStatus($item->proxy, 'untested');
     }
     if (!empty($sel[0]['proxy']) && !isValidProxy($sel[0]['proxy'])) {
-      if (count($str_to_remove) < 5000) $str_to_remove[] = $sel[0]['proxy'];
+      if (count($str_to_remove) < $str_limit_to_remove) $str_to_remove[] = $sel[0]['proxy'];
     }
   }
 });
 
 echo "iterating all proxies" . PHP_EOL;
-$db->iterateAllProxies(function ($item) use ($db, &$str_to_remove) {
+$db->iterateAllProxies(function ($item) use ($db, $str_limit_to_remove, &$str_to_remove) {
   if (!empty($item['proxy'])) {
     if (!isValidProxy($item['proxy'])) {
       // remove invalid proxy from database
@@ -97,7 +98,7 @@ $db->iterateAllProxies(function ($item) use ($db, &$str_to_remove) {
     } else {
       $sel = $db->select($item['proxy']);
       // push indexed proxies to be removed from files
-      if (count($str_to_remove) < 5000) $str_to_remove[] = $sel[0]['proxy'];
+      if (count($str_to_remove) < $str_limit_to_remove) $str_to_remove[] = $sel[0]['proxy'];
     }
   }
 });
