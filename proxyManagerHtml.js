@@ -112,9 +112,10 @@ let prevOutput = "";
  * get result of proxy checker
  */
 async function checkerOutput() {
-  const info = await fetch("./proxyChecker.txt?v=" + new Date(), { signal: AbortSignal.timeout(5000) }).then((res) =>
-    res.text()
-  );
+  const info = await fetch("./proxyChecker.txt?v=" + new Date(), {
+    signal: AbortSignal.timeout(5000),
+    mode: "cors"
+  }).then((res) => res.text());
   // skip update UI when output when remains same
   if (prevOutput === info || info.trim().length === 0) return;
   prevOutput = info;
@@ -144,7 +145,7 @@ async function checkerOutput() {
   /**
    * @type {Record<string, any>}
    */
-  const statusJson = await fetch("./status.json?v=" + new Date(), { signal: AbortSignal.timeout(5000) })
+  const statusJson = await fetch("./status.json?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" })
     .then((res) => res.json())
     .catch(() => {
       return {};
@@ -154,13 +155,13 @@ async function checkerOutput() {
   if (statusJson.dead) wrapper.querySelector("#dead").innerText = parseInt(statusJson.dead).toLocaleString();
 }
 
-fetch("./info.php", { signal: AbortSignal.timeout(5000) }).catch(() => {});
+fetch("./info.php", { signal: AbortSignal.timeout(5000), mode: "cors" }).catch(() => {});
 
 async function userInfo() {
   try {
     let cookie = getCookie("user_config");
     if (!cookie) {
-      await fetch("./info.php", { signal: AbortSignal.timeout(5000) });
+      await fetch("./info.php", { signal: AbortSignal.timeout(5000), mode: "cors" });
       cookie = getCookie("user_config");
     }
     return JSON.parse(atob(decodeURIComponent(cookie)));
@@ -192,7 +193,7 @@ let checker_status;
 async function checkerStatus() {
   const status = document.querySelector("span#status");
   const cek = document.getElementById("recheck");
-  return await fetch("./status.txt?v=" + new Date(), { signal: AbortSignal.timeout(5000) })
+  return await fetch("./status.txt?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" })
     .then((res) => res.text())
     .then((data) => {
       if (!data.trim().includes("idle")) {
@@ -222,7 +223,7 @@ async function checkerStatus() {
 }
 
 function fetchWorkingData() {
-  fetch("./proxyWorkingBackground.php", { signal: AbortSignal.timeout(5000) }).catch(() => {
+  fetch("./proxyWorkingBackground.php", { signal: AbortSignal.timeout(5000), mode: "cors" }).catch(() => {
     // Handle errors if needed
   });
 }
@@ -269,7 +270,10 @@ async function fetchWorkingProxies() {
   const date = new Date();
   // fetch update in background
   updateWorkingProxies();
-  let testWorkingProxiesTxt = await fetch("./working.txt?v=" + date, { signal: AbortSignal.timeout(5000) })
+  let testWorkingProxiesTxt = await fetch("./working.txt?v=" + date, {
+    signal: AbortSignal.timeout(5000),
+    mode: "cors"
+  })
     .then((res) => res.text())
     .catch(() => "");
   // skip update UI when response empty
