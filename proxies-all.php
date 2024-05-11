@@ -101,15 +101,14 @@ $db->iterateAllProxies(function ($item) {
   }
 });
 
-//if (!empty($str_to_remove)) {
-//  foreach ($files as $file) {
-//    Scheduler::register(function () use ($db, $str_to_remove, $file) {
-//      echo "[FILE] removing proxies " . count($str_to_remove) . PHP_EOL;
-//      echo "remove indexed proxies from " . basename($file) . PHP_EOL;
-//      $remove = removeStringFromFile($file, $str_to_remove) ? 'success' : 'failed';
-//      echo "\t> $remove" . PHP_EOL;
-//    }, "remove " . $file);
-//  }
-//} else {
-//  echo "No proxies to remove" . PHP_EOL;
-//}
+if (!empty($str_to_remove)) {
+  foreach ($files as $file) {
+    Scheduler::register(function () use ($str_to_remove, $file) {
+      if (removeStringFromFile($file, $str_to_remove) == 'success') {
+        echo "[FILE] removed indexed proxies from " . basename($file) . ' ' . count($str_to_remove) . PHP_EOL;
+      }
+    }, "[FILE] remove indexed " . $file);
+  }
+} else {
+  echo "No proxies to remove" . PHP_EOL;
+}
