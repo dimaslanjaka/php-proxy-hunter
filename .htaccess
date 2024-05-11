@@ -1,63 +1,42 @@
-# Disable Directory listing
 Options -Indexes
 
-<Files ~ "\.(env|gitignore|gitattributes|gitmodules|sqlite|git)$">
-    Order allow,deny
+# Ignore access to specific file patterns
+<FilesMatch "(\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess)$)">
     Deny from all
-</Files>
+</FilesMatch>
 
-# <IfModule mod_rewrite.c>
-#     RewriteEngine On
-#     # Disallow .sqlite access
-#     RewriteRule \.sqlite$ proxyManager.php [NC,L]
-#     # Disallow .git access
-#     RewriteRule ^\.git - [F,L]
-# </IfModule>
-
-# Protect the htaccess file
-<Files .htaccess>
-    Order Allow,Deny
-    Deny from all
-</Files>
-
-# only allow access txt files from current server only
+# Only allow access to .txt files under certain conditions
 <FilesMatch "\.txt$">
     <IfModule mod_rewrite.c>
         RewriteEngine On
-        # Block requests from specific origin
-        RewriteCond %{HTTP_ORIGIN} (https?://.*\.?webmanajemen\.com(:[0-9]+)?$) [NC]
+
+        # Always allow these patterns
+        RewriteRule ^(robots|sitemap)\.txt$ - [L]
+
+        # Block access if conditions are not met
+        # RewriteCond %{HTTP_ORIGIN} !webmanajemen\.com [NC]
+        # RewriteRule ^ - [F]
+
+        RewriteCond %{HTTP_REFERER} !webmanajemen\.com [NC]
         RewriteRule ^ - [F]
-        # Allow CORS headers
-        <IfModule mod_headers.c>
-            Header set Access-Control-Allow-Origin "*"
-            Header set Access-Control-Allow-Methods "GET, OPTIONS"
-        </IfModule>
-        # Always allow these pattern
-        RewriteCond %{REQUEST_URI} !/(robots|sitemap)\.txt$ [nocase]
-        # Allow access if the _ga cookie is present
+
         RewriteCond %{HTTP_COOKIE} !_ga [NC]
         RewriteRule ^ - [F]
+
+        # Allow CORS from specific origin
+        Header set Access-Control-Allow-Origin "https://webmanajemen.com"
+        Header set Access-Control-Allow-Methods "GET, OPTIONS"
     </IfModule>
 </FilesMatch>
 
-#<FilesMatch "\.(css|flv|gif|htm|html|ico|jpe|jpeg|jpg|js|mp3|mp4|png|pdf|swf|txt)$">
-#    Order Allow,Deny
-#    Allow from all
-#    <IfModule mod_expires.c>
-#        ExpiresActive Off
-#    </IfModule>
-#    <IfModule mod_headers.c>
-#        FileETag None
-#        Header unset ETag
-#        Header unset Pragma
-#        Header unset Cache-Control
-#        Header unset Last-Modified
-#        Header set Pragma "no-cache"
-#        Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
-#        Header set Expires "Thu, 1 Jan 1970 00:00:00 GMT"
-#    </IfModule>
-#</FilesMatch>
-
-<FilesMatch "^(working|status)\.json$">
+# Set cache control for .json files
+<FilesMatch "\.(working|status)\.json$">
     Header set Cache-Control "public, max-age=300"
+</FilesMatch>
+
+# Skip caching on .html files
+<FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
 </FilesMatch>
