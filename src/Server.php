@@ -26,19 +26,19 @@ class Server
   public static function _cloudflare_CheckIP($ip): bool
   {
     $cf_ips = [
-        '199.27.128.0/21',
-        '173.245.48.0/20',
-        '103.21.244.0/22',
-        '103.22.200.0/22',
-        '103.31.4.0/22',
-        '141.101.64.0/18',
-        '108.162.192.0/18',
-        '190.93.240.0/20',
-        '188.114.96.0/20',
-        '197.234.240.0/22',
-        '198.41.128.0/17',
-        '162.158.0.0/15',
-        '104.16.0.0/12',
+      '199.27.128.0/21',
+      '173.245.48.0/20',
+      '103.21.244.0/22',
+      '103.22.200.0/22',
+      '103.31.4.0/22',
+      '141.101.64.0/18',
+      '108.162.192.0/18',
+      '190.93.240.0/20',
+      '188.114.96.0/20',
+      '197.234.240.0/22',
+      '198.41.128.0/17',
+      '162.158.0.0/15',
+      '104.16.0.0/12',
     ];
     $is_cf_ip = false;
     foreach ($cf_ips as $cf_ip) {
@@ -130,10 +130,10 @@ class Server
   /**
    * Get Useragent.
    *
-   * @return string
+   * @return string empty when $_SERVER['HTTP_USER_AGENT'] is not set/empty
    */
   public static function useragent(): string
   {
-    return $_SERVER['HTTP_USER_AGENT'];
+    return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
   }
 }
