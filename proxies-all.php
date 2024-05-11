@@ -130,7 +130,7 @@ if (!empty($str_to_remove)) {
   foreach ($files as $file) {
     Scheduler::register(function () use (&$str_to_remove, $file) {
       if (removeStringFromFile($file, $str_to_remove) == 'success') {
-        echo "[FILE] removed indexed proxies from " . basename($file) . ' ' . count($str_to_remove) . PHP_EOL;
+        echo "[FILE] removed indexed proxies from " . basename($file) . ' (' . count($str_to_remove) . ')' . PHP_EOL;
       }
     }, "[FILE] remove indexed " . $file);
   }
