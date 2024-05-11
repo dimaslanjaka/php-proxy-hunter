@@ -96,9 +96,8 @@ $db->iterateAllProxies(function ($item) use ($db, $str_limit_to_remove, &$str_to
       echo '[SQLite] remove invalid proxy (' . $item['proxy'] . ')' . PHP_EOL;
       $db->remove($item['proxy']);
     } else {
-      $sel = $db->select($item['proxy']);
       // push indexed proxies to be removed from files
-      if (count($str_to_remove) < $str_limit_to_remove) $str_to_remove[] = $sel[0]['proxy'];
+      if (count($str_to_remove) < $str_limit_to_remove) $str_to_remove[] = $item['proxy'];
     }
   }
 });
