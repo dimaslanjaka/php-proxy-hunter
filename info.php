@@ -3,8 +3,7 @@
 require_once __DIR__ . '/func.php';
 
 header('Content-Type: application/json; charset=utf-8');
-setCacheHeaders(5);
-
+//setCacheHeaders(5);
 set_cookie("user_id", getUserId());
 $config = getConfig(getUserId());
 // admin info from 'data/login.php'
