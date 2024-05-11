@@ -57,7 +57,13 @@ else
   su -s /bin/sh -c "php $COMPOSER_PHAR update >> $OUTPUT_FILE 2>&1" www-data
 fi
 
-su -s /bin/sh -c "php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
+# validate proxies-all.php not running before indexing proxies
+if pgrep -f "proxies-all.php" >/dev/null; then
+    echo "proxies indexing is still running."
+else
+    # If proxies-all.php is not running, execute the command
+    su -s /bin/sh -c "php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
+fi
 
 chmod 777 vendor
 touch vendor/index.html
