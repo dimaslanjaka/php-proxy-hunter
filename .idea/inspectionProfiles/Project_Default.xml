@@ -64,6 +64,9 @@
         </list>
       </option>
     </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="false">
+      <scope name="Open Files" level="WEAK WARNING" enabled="true" />
+    </inspection_tool>
     <inspection_tool class="PyShadowingNamesInspection" enabled="true" level="INFORMATION" enabled_by_default="true" />
   </profile>
 </component>
