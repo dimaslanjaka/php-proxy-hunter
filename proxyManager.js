@@ -185,7 +185,7 @@ function parseProxies(text) {
   if (cekBtn) {
     setEventRecursive(cekBtn, "click", () => {
       const userId = document.getElementById("uid").textContent.trim();
-      fetch("proxyCheckerBackground.php?uid=" + userId, { signal: AbortSignal.timeout(5000) })
+      fetch("proxyCheckerBackground.php?uid=" + userId, { signal: AbortSignal.timeout(5000), mode: "cors" })
         .catch(() => {
           //
         })
@@ -200,7 +200,7 @@ function parseProxies(text) {
   let intervalFrame;
 
   const checkRuns = () =>
-    fetch("proxyChecker.lock", { signal: AbortSignal.timeout(5000) })
+    fetch("proxyChecker.lock", { signal: AbortSignal.timeout(5000), mode: "cors" })
       .then((res) => {
         if (res.ok) {
           if (!intervalFrame) {
@@ -248,4 +248,4 @@ function parseProxies(text) {
   });
 })();
 
-fetch("./info.php?v=" + new Date(), { signal: AbortSignal.timeout(5000) });
+fetch("./info.php?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" });
