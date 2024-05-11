@@ -24,15 +24,11 @@ if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
   file_put_contents($statusFile, 'indexing proxies');
 }
 
-function exitProcess()
-{
-  global $lockFilePath, $statusFile;
+Scheduler::register(function () use ($lockFilePath, $statusFile) {
   if (file_exists($lockFilePath))
     unlink($lockFilePath);
   file_put_contents($statusFile, 'idle');
-}
-
-register_shutdown_function('exitProcess');
+}, 'z_onExit' . __FILE__);
 
 $db = new ProxyDB();
 
