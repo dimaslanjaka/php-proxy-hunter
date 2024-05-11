@@ -13,19 +13,28 @@ Options -Indexes
         # Always allow these patterns
         RewriteRule ^(robots|sitemap)\.txt$ - [L]
 
-        # Block access if conditions are not met
+        # Block access to text files
+        # This section is commented out to block access to all text files
+        # Uncomment the following lines if you want to allow specific conditions
+
+        # Block access if the request origin is not webmanajemen.com
         # RewriteCond %{HTTP_ORIGIN} !webmanajemen\.com [NC]
         # RewriteRule ^ - [F]
 
-        RewriteCond %{HTTP_REFERER} !webmanajemen\.com [NC]
-        RewriteRule ^ - [F]
+        # Validate Referer header
+        # RewriteCond %{HTTP_REFERER} !webmanajemen\.com [NC]
+        # RewriteRule ^ - [F]
 
-        RewriteCond %{HTTP_COOKIE} !_ga [NC]
-        RewriteRule ^ - [F]
+        # Allow access if the _ga cookie is present
+        # RewriteCond %{HTTP_COOKIE} !_ga [NC]
+        # RewriteRule ^ - [F]
 
         # Allow CORS from specific origin
-        Header set Access-Control-Allow-Origin "https://webmanajemen.com"
-        Header set Access-Control-Allow-Methods "GET, OPTIONS"
+        # Header set Access-Control-Allow-Origin "https://webmanajemen.com"
+        # Header set Access-Control-Allow-Methods "GET, OPTIONS"
+
+        # Return 403 Forbidden for all other cases
+        RewriteRule ^ - [F]
     </IfModule>
 </FilesMatch>
 
