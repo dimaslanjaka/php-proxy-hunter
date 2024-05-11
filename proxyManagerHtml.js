@@ -112,7 +112,7 @@ let prevOutput = "";
  * get result of proxy checker
  */
 async function checkerOutput() {
-  const info = await fetch("./proxyChecker.txt?v=" + new Date(), {
+  const info = await fetch("./embed.php?file=proxyChecker.txt", {
     signal: AbortSignal.timeout(5000),
     mode: "cors"
   }).then((res) => res.text());
@@ -145,7 +145,7 @@ async function checkerOutput() {
   /**
    * @type {Record<string, any>}
    */
-  const statusJson = await fetch("./status.json?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" })
+  const statusJson = await fetch("./status.json", { signal: AbortSignal.timeout(5000), mode: "cors" })
     .then((res) => res.json())
     .catch(() => {
       return {};
@@ -193,7 +193,7 @@ let checker_status;
 async function checkerStatus() {
   const status = document.querySelector("span#status");
   const cek = document.getElementById("recheck");
-  return await fetch("./status.txt?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" })
+  return await fetch("./embed.php?file=status.txt", { signal: AbortSignal.timeout(5000), mode: "cors" })
     .then((res) => res.text())
     .then((data) => {
       if (!data.trim().includes("idle")) {
@@ -267,10 +267,9 @@ function updateWorkingProxies() {
 let workingProxiesTxt;
 
 async function fetchWorkingProxies() {
-  const date = new Date();
   // fetch update in background
   updateWorkingProxies();
-  let testWorkingProxiesTxt = await fetch("./working.txt?v=" + date, {
+  let testWorkingProxiesTxt = await fetch("./embed.php?file=working.txt", {
     signal: AbortSignal.timeout(5000),
     mode: "cors"
   })

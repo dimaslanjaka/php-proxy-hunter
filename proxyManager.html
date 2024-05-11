@@ -29,141 +29,142 @@
     };
   </script>
   <link rel="stylesheet"
-        href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
+    href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
 </head>
 
 <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
-<div class="mb-3 flex flex-col md:flex-row border border-gray-600 p-4">
-  <div class="flex-1">
-    <i class="fa-duotone fa-square-info"></i> <span id="status"
-                                                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">IDLE</span>
-  </div>
-  <div class="flex-1" id="countProxy">
-    <span>Untested (<b id="untested" class="text-amber-400">0</b>) Dead (<b id="dead" class="text-red-400">0</b>)</span>
-  </div>
-  <div class="flex-1 text-amber-400">
-    <a href="./proxyManager.php" class="bracket">modify config</a>
-    <a href="./data/login.php" class="bracket">login</a>
-  </div>
-  <div class="flex-1 text-amber-400">
-    <div class="bracket"><input id="autoCheckProxy" type="checkbox" value=""
-                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-      <label for="autoCheckProxy" class="ms-2 text-sm font-medium text-amber-400">Auto Check</label>
+  <div class="mb-3 flex flex-col md:flex-row border border-gray-600 p-4">
+    <div class="flex-1">
+      <i class="fa-duotone fa-square-info"></i> <span id="status"
+        class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">IDLE</span>
+    </div>
+    <div class="flex-1" id="countProxy">
+      <span>Untested (<b id="untested" class="text-amber-400">0</b>) Dead (<b id="dead"
+          class="text-red-400">0</b>)</span>
+    </div>
+    <div class="flex-1 text-amber-400">
+      <a href="./proxyManager.php" class="bracket">modify config</a>
+      <a href="./data/login.php" class="bracket">login</a>
+    </div>
+    <div class="flex-1 text-amber-400">
+      <div class="bracket"><input id="autoCheckProxy" type="checkbox" value=""
+          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+        <label for="autoCheckProxy" class="ms-2 text-sm font-medium text-amber-400">Auto Check</label>
+      </div>
     </div>
   </div>
-</div>
 
-<ins class="adsbygoogle mb-3" style="display:block" data-ad-client="ca-pub-2188063137129806" data-ad-slot="6233018586"
-     data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <ins class="adsbygoogle mb-3" style="display:block" data-ad-client="ca-pub-2188063137129806" data-ad-slot="6233018586"
+    data-ad-format="auto" data-full-width-responsive="true"></ins>
 
-<div class="relative overflow-auto max-h-[500px] mb-3" id="tbl-wrapper">
-  <table class="table-fixed w-full mb-4">
-    <thead>
-    <tr>
-      <th class="w-64">Proxy</th>
-      <th class="w-32">Latency (ms)</th>
-      <th class="w-64">Last checked</th>
-      <th class="w-60">Type</th>
-      <th class="w-40">Region</th>
-      <th class="w-40">City</th>
-      <th class="w-40">Country</th>
-      <th class="w-64">Timezone</th>
-      <th class="w-32">Latitude</th>
-      <th class="w-32">Longitude</th>
-      <th class="w-24">Anonymity</th>
-      <th class="w-24">HTTPS</th>
-      <th class="w-24">Status</th>
-      <th class="w-24">Private</th>
-      <th class="w-24">Language</th>
-      <th class="w-96">Useragent</th>
-      <th class="w-96">WebGL vendor</th>
-      <th class="w-96">WebGL renderer</th>
-      <th class="w-40">Browser vendor</th>
-      <th class="w-24">Username</th>
-      <th class="w-24">Password</th>
-    </tr>
-    </thead>
-    <tbody id="wproxy"></tbody>
-  </table>
-</div>
+  <div class="relative overflow-auto max-h-[500px] mb-3" id="tbl-wrapper">
+    <table class="table-fixed w-full mb-4">
+      <thead>
+        <tr>
+          <th class="w-64">Proxy</th>
+          <th class="w-32">Latency (ms)</th>
+          <th class="w-64">Last checked</th>
+          <th class="w-60">Type</th>
+          <th class="w-40">Region</th>
+          <th class="w-40">City</th>
+          <th class="w-40">Country</th>
+          <th class="w-64">Timezone</th>
+          <th class="w-32">Latitude</th>
+          <th class="w-32">Longitude</th>
+          <th class="w-24">Anonymity</th>
+          <th class="w-24">HTTPS</th>
+          <th class="w-24">Status</th>
+          <th class="w-24">Private</th>
+          <th class="w-24">Language</th>
+          <th class="w-96">Useragent</th>
+          <th class="w-96">WebGL vendor</th>
+          <th class="w-96">WebGL renderer</th>
+          <th class="w-40">Browser vendor</th>
+          <th class="w-24">Username</th>
+          <th class="w-24">Password</th>
+        </tr>
+      </thead>
+      <tbody id="wproxy"></tbody>
+    </table>
+  </div>
 
-<ins class="adsbygoogle mb-2" style="display:block" data-ad-client="ca-pub-2188063137129806" data-ad-slot="6873696468"
-     data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <ins class="adsbygoogle mb-2" style="display:block" data-ad-client="ca-pub-2188063137129806" data-ad-slot="6873696468"
+    data-ad-format="auto" data-full-width-responsive="true"></ins>
 
-<div class="mb-2">
-  <b>Checker result</b>
-  <div id="cpresult" class="h-60 overflow-auto bg-white dark:bg-slate-800 dark:text-slate-400"></div>
-</div>
+  <div class="mb-2">
+    <b>Checker result</b>
+    <div id="cpresult" class="h-60 overflow-auto bg-white dark:bg-slate-800 dark:text-slate-400"></div>
+  </div>
 
-<div id="snackbar">Snackbar Message</div>
+  <div id="snackbar">Snackbar Message</div>
 
-<a href="#" class="fab" title="re-check proxies" id="recheck"><i class="fal fa-refresh"></i></a>
+  <a href="#" class="fab" title="re-check proxies" id="recheck"><i class="fal fa-refresh"></i></a>
 
-<script>
-  const script = document.createElement("script");
-  script.src = "./proxyManagerHtml.js?v=" + new Date();
-  script.onload = () => {
-    setTimeout(() => {
-      const myscript = document.createElement("script");
-      myscript.src = "./js/site.js?v=" + new Date();
-      document.body.appendChild(myscript);
-    }, 1000);
-  };
-  document.body.appendChild(script);
+  <script>
+    const script = document.createElement("script");
+    script.src = "./proxyManagerHtml.js?v=" + new Date();
+    script.onload = () => {
+      setTimeout(() => {
+        const myscript = document.createElement("script");
+        myscript.src = "./js/site.js?v=" + new Date();
+        document.body.appendChild(myscript);
+      }, 1000);
+    };
+    document.body.appendChild(script);
 
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "./proxyManagerHtml.css?v=" + new Date();
-  document.head.appendChild(link);
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "./proxyManagerHtml.css?v=" + new Date();
+    document.head.appendChild(link);
 
-  function doubleScroll(element) {
-    const scrollbar = document.createElement("div");
-    scrollbar.appendChild(document.createElement("div"));
-    scrollbar.style.overflow = "auto";
-    scrollbar.style.overflowY = "hidden";
-    scrollbar.firstChild.style.width = element.scrollWidth + "px";
-    scrollbar.firstChild.style.paddingTop = "1px";
-    scrollbar.firstChild.appendChild(document.createTextNode("\xA0"));
-    let running = false;
-    // Keep scrollbar in sync when element size changes
-    new ResizeObserver(() => {
+    function doubleScroll(element) {
+      const scrollbar = document.createElement("div");
+      scrollbar.appendChild(document.createElement("div"));
+      scrollbar.style.overflow = "auto";
+      scrollbar.style.overflowY = "hidden";
       scrollbar.firstChild.style.width = element.scrollWidth + "px";
-    }).observe(element);
-    scrollbar.onscroll = function() {
-      if (running) {
-        running = false;
-        return;
-      }
-      running = true;
-      element.scrollLeft = scrollbar.scrollLeft;
-    };
-    element.onscroll = function() {
-      if (running) {
-        running = false;
-        return;
-      }
-      running = true;
-      scrollbar.scrollLeft = element.scrollLeft;
-    };
-    element.parentNode.insertBefore(scrollbar, element);
-  }
+      scrollbar.firstChild.style.paddingTop = "1px";
+      scrollbar.firstChild.appendChild(document.createTextNode("\xA0"));
+      let running = false;
+      // Keep scrollbar in sync when element size changes
+      new ResizeObserver(() => {
+        scrollbar.firstChild.style.width = element.scrollWidth + "px";
+      }).observe(element);
+      scrollbar.onscroll = function () {
+        if (running) {
+          running = false;
+          return;
+        }
+        running = true;
+        element.scrollLeft = scrollbar.scrollLeft;
+      };
+      element.onscroll = function () {
+        if (running) {
+          running = false;
+          return;
+        }
+        running = true;
+        scrollbar.scrollLeft = element.scrollLeft;
+      };
+      element.parentNode.insertBefore(scrollbar, element);
+    }
 
-  doubleScroll(document.getElementById("tbl-wrapper"));
-</script>
+    doubleScroll(document.getElementById("tbl-wrapper"));
+  </script>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
 
-  function gtag() {
-    dataLayer.push(arguments);
-  }
+    function gtag() {
+      dataLayer.push(arguments);
+    }
 
-  gtag("js", new Date());
+    gtag("js", new Date());
 
-  gtag("config", "G-BG75CLNJZ1");
-</script>
+    gtag("config", "G-BG75CLNJZ1");
+  </script>
 </body>
 
 </html>
