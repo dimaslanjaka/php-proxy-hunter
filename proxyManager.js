@@ -83,7 +83,7 @@ async function refreshResults() {
       a.href = src;
       responses +=
         "\n" +
-        (await fetch(a.href, { signal: AbortSignal.timeout(60000) })
+        (await fetch(a.href, { signal: AbortSignal.timeout(60000), mode: "cors", credentials: "include" })
           .then((res) => res.text())
           .then((text) => {
             // Split the text into lines
