@@ -87,10 +87,17 @@ iterateBigFilesLineByLine($files, function ($line) {
 });
 
 echo "iterating all proxies" . PHP_EOL;
-$db->iterateAllProxies(function ($item) use ($db) {
-  if (!isValidProxy($item['proxy'])) {
-    echo '[SQLite] remove invalid proxy (' . $item['proxy'] . ')' . PHP_EOL;
-    $db->remove($item['proxy']);
+$db->iterateAllProxies(function ($item) {
+  global $db, $str_to_remove;
+  if (!empty($sel[0]['proxy'])) {
+    if (!isValidProxy($item['proxy'])) {
+      echo '[SQLite] remove invalid proxy (' . $item['proxy'] . ')' . PHP_EOL;
+      $db->remove($item['proxy']);
+    } else {
+      $sel = $db->select($item['proxy']);
+      // push indexed proxies to be removed from files
+      if (count($str_to_remove) < 5000) $str_to_remove[] = $sel[0]['proxy'];
+    }
   }
 });
 
@@ -106,4 +113,3 @@ $db->iterateAllProxies(function ($item) use ($db) {
 //} else {
 //  echo "No proxies to remove" . PHP_EOL;
 //}
-
