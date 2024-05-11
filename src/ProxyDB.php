@@ -200,10 +200,10 @@ class ProxyDB
     $whereClause = 'status = ?';
     $params = ['active'];
 
-    // Append the limit clause if the $limit parameter is provided
+    $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
     $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
 
-    $result = $this->db->select('proxies', '*', $whereClause . ' ' . $limitClause, $params);
+    $result = $this->db->select('proxies', '*', $whereClause . ' ' . $orderByRandom . ' ' . $limitClause, $params);
     if (!$result) return [];
     return $result;
   }
