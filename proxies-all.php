@@ -5,6 +5,7 @@
 require_once __DIR__ . "/func-proxy.php";
 
 use PhpProxyHunter\ProxyDB;
+use PhpProxyHunter\Scheduler;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
