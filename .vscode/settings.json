@@ -64,6 +64,7 @@
     "**/vendor/**": true,
     "**/venv/**": true,
     "**/config/**": true,
-    "**/databases/**": true
+    "**/databases/**": true,
+    "**/node_modules/**": true
   }
 }
