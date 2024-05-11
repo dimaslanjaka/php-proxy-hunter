@@ -11,30 +11,28 @@ if (!$isCli)
   exit('web server access disallowed');
 
 // Directory where JSON files are located
-$directories = [__DIR__ . '/config/', __DIR__ . '/tmp/'];
+$directories = [__DIR__ . '/config/', __DIR__ . '/.cache/', __DIR__ . '/tmp/', __DIR__ . '/tmp/cookies/', __DIR__ . '/tmp/sessions/'];
 
 // Get the current timestamp
 $current_time = time();
 
 // Calculate the timestamp for 1 week ago
-$one_week_ago = $current_time - (7 * 24 * 60 * 60); // 7 days * 24 hours * 60 minutes * 60 seconds
+$oneWeekAgo = strtotime('-1 week');
 
 foreach ($directories as $directory) {
   // Open the directory
   if ($handle = opendir($directory)) {
     // Loop through each file in the directory
     while (false !== ($file = readdir($handle))) {
-      // Check if the file is a JSON file
-      if (pathinfo($file, PATHINFO_EXTENSION) === 'json') {
-        // Get the last modification time of the file
-        $file_mtime = filemtime($directory . $file);
+      $filePath = realpath($directory . '/' . $file);
+      if (!is_file($filePath)) continue;
 
-        // Check if the file was created exactly 1 week ago
-        if ($file_mtime === $one_week_ago) {
-          // Remove the file
-          unlink($directory . $file);
-          echo "File $file removed.\n";
-        }
+      // Get the last modification time of the file
+      $file_mtime = filemtime($filePath);
+      // File was last modified more than 1 week ago.
+      if ($file_mtime < $oneWeekAgo) {
+        // Remove the file
+        echo "File $file removed (" . (unlink($filePath) ? 'success' : 'failed') . ")" . PHP_EOL;
       }
     }
     // Close the directory handle
