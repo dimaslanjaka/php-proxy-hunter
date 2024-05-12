@@ -3,6 +3,9 @@
 require_once __DIR__ . '/func.php';
 
 header('Content-Type: application/json; charset=utf-8');
+if (isset($_REQUEST['txt']))
+  header('Content-Type: text/plain; charset=utf-8');
+
 //setCacheHeaders(5);
 set_cookie("user_id", getUserId());
 $config = getConfig(getUserId());

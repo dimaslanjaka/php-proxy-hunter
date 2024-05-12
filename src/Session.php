@@ -65,7 +65,7 @@ class Session
     // Now enable strict session mode
     ini_set('session.use_strict_mode', 1);
 
-    $handler = new FileSessionHandler($folder, 'PHP_PROXY_HUNTER');
+    $handler = new FileSessionHandler($folder, $this->session_prefix_name);
 //    session_set_save_handler(
 //        [$handler, 'open'],
 //        [$handler, 'close'],
