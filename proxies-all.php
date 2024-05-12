@@ -108,7 +108,8 @@ iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remov
       echo "treat as untested " . $item->proxy . PHP_EOL;
       $db->updateStatus($item->proxy, 'untested');
     }
-    if (!empty($sel[0]['proxy']) && !isValidProxy($sel[0]['proxy'])) {
+    // re-check if proxy already indexed
+    if (!empty($db->select($item->proxy))) {
       if (count($str_to_remove) < $str_limit_to_remove) $str_to_remove[] = $sel[0]['proxy'];
     }
   }
