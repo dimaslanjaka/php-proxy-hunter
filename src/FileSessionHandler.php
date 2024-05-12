@@ -29,7 +29,7 @@ class FileSessionHandler implements SessionHandlerInterface
     $this->postfix = $postfix;
   }
 
-  public function open($save_path, $sess_name): bool
+  public function open($path, $name): bool
   {
     return true;
   }
@@ -39,19 +39,19 @@ class FileSessionHandler implements SessionHandlerInterface
     return true;
   }
 
-  public function read($sess_id): string
+  public function read($id): string
   {
-    return (string)@file_get_contents("{$this->sess_path}/{$this->prefix}{$sess_id}{$this->postfix}");
+    return (string)@file_get_contents("{$this->sess_path}/{$this->prefix}{$id}{$this->postfix}");
   }
 
-  public function write($sess_id, $data): bool
+  public function write($id, $data): bool
   {
-    return !(false === file_put_contents("{$this->sess_path}/{$this->prefix}{$sess_id}{$this->postfix}", $data));
+    return !(false === file_put_contents("{$this->sess_path}/{$this->prefix}{$id}{$this->postfix}", $data));
   }
 
-  public function destroy($sess_id): bool
+  public function destroy($id): bool
   {
-    $file = "{$this->sess_path}/{$this->prefix}{$sess_id}{$this->postfix}";
+    $file = "{$this->sess_path}/{$this->prefix}{$id}{$this->postfix}";
 
     if (file_exists($file)) {
       unlink($file);
@@ -60,10 +60,10 @@ class FileSessionHandler implements SessionHandlerInterface
     return true;
   }
 
-  public function gc($lifetime): bool
+  public function gc($max_lifetime): bool
   {
     foreach (glob("{$this->sess_path}/{$this->prefix}*") as $file) {
-      if (filemtime($file) + $lifetime < time() && file_exists($file)) {
+      if (filemtime($file) + $max_lifetime < time() && file_exists($file)) {
         unlink($file);
       }
     }
