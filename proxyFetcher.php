@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
+use \PhpProxyHunter\Scheduler;
+
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
@@ -21,16 +23,14 @@ if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
   file_put_contents($statusFile, 'fetching new proxies');
 }
 
-function exitProcess()
-{
-  global $lockFilePath, $statusFile;
-  if (file_exists($lockFilePath)) unlink($lockFilePath);
+Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
+  echo "releasing lock" . PHP_EOL;
+  // clean lock files
+  if (file_exists($lockFilePath))
+    unlink($lockFilePath);
+  echo "update status to IDLE" . PHP_EOL;
   file_put_contents($statusFile, 'idle');
-  // run cleaner
-  runPhpInBackground(__DIR__ . '/proxyClean.php');
-}
-
-register_shutdown_function('exitProcess');
+}, 'z_onExit' . __FILE__);
 
 // Array of URLs to fetch content from
 $urls = array_unique([
@@ -55,7 +55,8 @@ $urls = array_unique([
     "https://raw.githubusercontent.com/UptimerBot/proxy-list/main/proxies/http.txt",
     "https://api.openproxylist.xyz/http.txt",
     "https://cyber-hub.pw/statics/proxy.txt",
-    "https://spys.me/proxy.txt", "https://spys.me/socks.txt",
+    "https://spys.me/proxy.txt",
+    "https://spys.me/socks.txt",
     "https://proxylist.geonode.com/api/proxy-list?limit=500&page=1&sort_by=lastChecked&sort_type=desc",
     "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text&timeout=20000",
     "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text"
@@ -67,11 +68,45 @@ $outputFile = __DIR__ . "/proxies.txt";
 // Loop through each URL
 foreach ($urls as $url) {
   // Fetch content from URL
-  $content = curlGetWithProxy($url, null, null, 0);
+  $content = curlGetWithProxy($url, null, null, 3600);
   if (!$content) $content = '';
+  $json = json_decode(trim($content), true);
+  if (json_last_error() === JSON_ERROR_NONE) {
+    $content = '';
+    if (isset($json['data'])) {
+      if (is_array($json['data'])) {
+        foreach ($json['data'] as $item) {
+          if (isset($item['ip']) && isset($item['port'])) {
+            $proxy = trim($item['ip']) . ":" . trim($item['port']);
+            $content .= $proxy . PHP_EOL;
+          } else {
+            var_dump($item);
+          }
+        }
+      }
+    } else {
+      var_dump($json);
+    }
+  }
 
   // Append content to output file
-  file_put_contents($outputFile, "\n" . $content . "\n", FILE_APPEND | LOCK_EX);
+  Scheduler::register(function () use ($outputFile, $content, $url) {
+    $fallback_file = __DIR__ . '/assets/proxies/added-fetch-' . md5($url) . '.txt';
+    $append = append_content_with_lock($outputFile, "\n" . $content . "\n", FILE_APPEND | LOCK_EX);
+    if (!$append) {
+      $outputFile = $fallback_file;
+      $append = append_content_with_lock($fallback_file, "\n" . $content . "\n", FILE_APPEND | LOCK_EX);
+    }
+    if ($append) {
+      $filter = filterIpPortLines($outputFile);
+      if ($filter == 'success') {
+        echo 'non proxy lines removed from ' . basename($outputFile) . PHP_EOL;
+        removeDuplicateLines($outputFile);
+      } else {
+        echo $filter . PHP_EOL;
+      }
+    }
+  }, "append content " . md5($url));
 }
 
 //echo "Content appended to $outputFile" . PHP_EOL;
