@@ -296,7 +296,7 @@ function execute_single_proxy(Proxy $item)
             'username' => $item->username,
             'password' => $item->password,
             'https' => strpos($endpoint, 'https') !== false ? 'true' : 'false',
-            'anonymity' => implode('-', array_unique(array_filter($anonymities)))
+            'anonymity' => implode('-', array_unique($anonymities))
         ]);
 
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
