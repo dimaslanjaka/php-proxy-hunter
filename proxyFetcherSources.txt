@@ -18,6 +18,7 @@ https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_
 https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text
 https://proxylist.geonode.com/api/proxy-list?limit=500&page=1&sort_by=lastChecked&sort_type=desc
 https://spys.me/proxy.txt
+https://spys.me/socks.txt
 https://www.proxy-list.download/HTTP
 https://www.proxy-list.download/HTTPS
 https://www.proxy-list.download/SOCKS4
