@@ -788,7 +788,7 @@ function filterIpPortLines(string $inputFile)
 //  $clean_result = preg_replace("/\n+/", "\n", implode("\n", $results));
   $clean_result = implode("\n", $results);
   file_put_contents($inputFile, $clean_result);
-  return "non IP:PORT lines removed from " . basename($inputFile);
+  return 'success';
 }
 
 function clean_proxies_file(string $file)
