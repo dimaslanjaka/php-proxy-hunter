@@ -43,14 +43,20 @@ class Session
   }
 
   /**
-   * @throws Exception
+   * @param int $timeout Session timeout in seconds.
+   * @param string|null $folder Optional session folder path.
+   * @throws Exception If unable to create session folder.
    */
-  public function handle($timeout, $folder = null)
+  public function handle(int $timeout, ?string $folder = null): void
   {
     $name = '_' . $timeout . md5(Server::getRequestIP() . Server::useragent());
-    if (empty(trim($folder)) || !$folder) {
+    if (empty(trim($folder))) {
       $folder = __DIR__ . '/../tmp/sessions';
-      if (!file_exists($folder)) mkdir($folder, 755, true);
+      if (!file_exists($folder)) {
+        if (!mkdir($folder, 0755, true)) {
+          throw new Exception('Unable to create session folder.');
+        }
+      }
     }
     session_save_path($folder);
 
@@ -62,9 +68,12 @@ class Session
     ini_set('session.gc_divisor', 100);
 
     session_id($name);
-    ini_set('session.use_strict_mode', 0);
 
+    // Ensure strict session mode is disabled before setting session name
+    ini_set('session.use_strict_mode', 0);
     session_name($name);
+
+    // Now enable strict session mode
     ini_set('session.use_strict_mode', 1);
 
     $handler = new FileSessionHandler($folder, 'PHP_PROXY_HUNTER');
@@ -76,6 +85,7 @@ class Session
         [$handler, 'destroy'],
         [$handler, 'gc']
     );
+
     register_shutdown_function('session_write_close');
     session_start();
 
@@ -86,8 +96,8 @@ class Session
 
     if (!isset($_SESSION['session_started'])) {
       $_SESSION['session_started'] = $this->now();
-      $_SESSION['session_timeout'] = ini_get('session.gc_maxlifetime');
-      $_SESSION['cookie_timeout'] = ini_get('session.cookie_lifetime');
+      $_SESSION['session_timeout'] = $timeout;
+      $_SESSION['cookie_timeout'] = $timeout;
     }
   }
 
