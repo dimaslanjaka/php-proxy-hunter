@@ -5,7 +5,7 @@ namespace PhpProxyHunter;
 use Exception;
 use SessionHandlerInterface;
 
-class FileSessionHandler implements SessionHandlerInterface
+class SessionFileHandler implements SessionHandlerInterface
 {
   protected $sess_path;
   protected $prefix;
@@ -67,6 +67,7 @@ class FileSessionHandler implements SessionHandlerInterface
   {
     // Sanitize session ID to prevent directory traversal attacks
     $id = preg_replace('/[^a-zA-Z0-9_]/', '', $id);
+    $id = str_replace($this->prefix, '', $id);
     return "{$this->sess_path}/{$this->prefix}{$id}{$this->postfix}";
   }
 
