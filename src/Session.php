@@ -65,15 +65,15 @@ class Session
     // Now enable strict session mode
     ini_set('session.use_strict_mode', 1);
 
-//    $handler = new FileSessionHandler($folder, 'PHP_PROXY_HUNTER');
-//    session_set_save_handler(
-//        [$handler, 'open'],
-//        [$handler, 'close'],
-//        [$handler, 'read'],
-//        [$handler, 'write'],
-//        [$handler, 'destroy'],
-//        [$handler, 'gc']
-//    );
+    $handler = new FileSessionHandler($folder, 'PHP_PROXY_HUNTER');
+    session_set_save_handler(
+        [$handler, 'open'],
+        [$handler, 'close'],
+        [$handler, 'read'],
+        [$handler, 'write'],
+        [$handler, 'destroy'],
+        [$handler, 'gc']
+    );
 
     register_shutdown_function('session_write_close');
     session_start();
