@@ -48,7 +48,9 @@ $str_limit_to_remove = 10000;
 $files_to_merge = [];
 
 foreach ($files as $file) {
-  echo filterIpPortLines($file) . PHP_EOL;
+  if (filterIpPortLines($file) == 'success') {
+    echo "non IP:PORT lines removed from " . basename($file);
+  }
   $read = read_file($file);
   $isFileEmpty = (is_string($read) && empty(trim($read))) || filesize($file) == 0;
   // Check if file is empty
