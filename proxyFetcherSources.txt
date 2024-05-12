@@ -15,6 +15,9 @@ https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=100
 https://api.proxyscrape.com/v2/?request=displayproxies&protocol=socks4&timeout=10000&country=all
 https://api.proxyscrape.com/v2/?request=displayproxies&protocol=socks5&timeout=10000&country=all
 https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text&timeout=20000
+https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text
+https://proxylist.geonode.com/api/proxy-list?limit=500&page=1&sort_by=lastChecked&sort_type=desc
+https://spys.me/proxy.txt
 https://www.proxy-list.download/HTTP
 https://www.proxy-list.download/HTTPS
 https://www.proxy-list.download/SOCKS4
