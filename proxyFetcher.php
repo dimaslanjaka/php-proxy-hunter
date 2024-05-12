@@ -55,7 +55,7 @@ $urls = array_unique([
     "https://raw.githubusercontent.com/UptimerBot/proxy-list/main/proxies/http.txt",
     "https://api.openproxylist.xyz/http.txt",
     "https://cyber-hub.pw/statics/proxy.txt",
-    "https://spys.me/proxy.txt",
+    "https://spys.me/proxy.txt", "https://spys.me/socks.txt",
     "https://proxylist.geonode.com/api/proxy-list?limit=500&page=1&sort_by=lastChecked&sort_type=desc",
     "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text&timeout=20000",
     "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text"
