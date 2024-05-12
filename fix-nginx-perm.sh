@@ -39,6 +39,8 @@ touch tmp/cookies/index.html
 touch tmp/index.html
 mkdir -p config
 touch config/index.html
+mkdir .cache
+touch .cache/index.html
 
 # Additional permissions for specific directories
 if [ -d "assets/proxies" ]; then
