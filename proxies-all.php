@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpVariableIsUsedOnlyInClosureInspection */
 
 // index all proxies into database
 
@@ -114,19 +114,28 @@ iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remov
   }
 });
 
-echo "iterating all proxies" . PHP_EOL;
-$db->iterateAllProxies(function ($item) use ($db, $str_limit_to_remove, &$str_to_remove) {
-  if (!empty($item['proxy'])) {
-    if (!isValidProxy($item['proxy'])) {
-      // remove invalid proxy from database
-      echo '[SQLite] remove invalid proxy (' . $item['proxy'] . ')' . PHP_EOL;
-      $db->remove($item['proxy']);
-    } else {
-      // push indexed proxies to be removed from files
-      if (count($str_to_remove) < $str_limit_to_remove) $str_to_remove[] = $item['proxy'];
+$indicator_all = __DIR__ . '/tmp/proxies-all-should-iterating-database.txt';
+$indicator_all_not_found = !file_exists($indicator_all);
+$indicator_all_expired = isFileCreatedAgo($indicator_all, 24);
+$can_do_iterate = $indicator_all_not_found || $indicator_all_expired;
+
+if ($can_do_iterate) {
+  echo "iterating all proxies" . PHP_EOL;
+  $db->iterateAllProxies(function ($item) use ($db, $str_limit_to_remove, &$str_to_remove) {
+    if (!empty($item['proxy'])) {
+      if (!isValidProxy($item['proxy'])) {
+        // remove invalid proxy from database
+        echo '[SQLite] remove invalid proxy (' . $item['proxy'] . ')' . PHP_EOL;
+        $db->remove($item['proxy']);
+      } else {
+        // push indexed proxies to be removed from files
+        if (count($str_to_remove) < $str_limit_to_remove) $str_to_remove[] = $item['proxy'];
+      }
     }
-  }
-});
+  });
+  if (!$indicator_all_not_found) unlink($indicator_all);
+  append_content_with_lock($indicator_all, date(DATE_RFC3339));
+}
 
 if (!empty($str_to_remove)) {
   foreach ($files as $file) {
