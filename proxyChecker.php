@@ -277,6 +277,8 @@ function execute_single_proxy(Proxy $item)
       foreach ($checks as $type => $check) {
         if ($check['result']) {
           $proxy_types[] = $type;
+        } else {
+          echo "$type://{$item->proxy} error: {$check['error']}" . PHP_EOL;
         }
         if ($check['anonymity']) {
           $anonymities[] = $check['anonymity'];

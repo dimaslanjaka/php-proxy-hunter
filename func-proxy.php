@@ -293,6 +293,9 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
   $end = microtime(true); // End time
   $isHttps = strpos($endpoint, 'https') !== false;
   $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+  $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 ||
+      $http_status == 301 || $http_status == 302 || $http_status == 304;
   $response_header = substr($response, 0, $header_size);
   $info = curl_getinfo($ch);
   $latency = -1;
@@ -340,6 +343,10 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
         'https' => $isHttps,
         'anonymity' => null
     ];
+    if (!$http_status_valid) {
+      $result['result'] = false;
+      $result['error'] = "http response status code invalid $http_status";
+    }
     $proxy_judges = [
         'https://wfuchs.de/azenv.php',
         'http://mojeip.net.pl/asdfa/azenv.php',
