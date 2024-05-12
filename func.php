@@ -45,7 +45,7 @@ if (function_exists('ignore_user_abort')) {
 // start session
 if (!$isCli) {
   /** @noinspection PhpUnhandledExceptionInspection */
-  new Session(86400, __DIR__ . '/tmp/sessions');
+  new Session(100 * 3600, __DIR__ . '/tmp/sessions');
   // set cookie visitor id for 30 days
   // for /data/login.php
   if (!isset($_COOKIE['visitor_id'])) {
