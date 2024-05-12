@@ -284,7 +284,8 @@ function parse_anonymity($response_ip_info, $response_judges)
  *               - 'status': HTTP status code of the response.
  *               - 'private': Boolean indicating if the proxy is private.
  */
-function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'https://bing.com', array $headers = [], ?string $username = null, ?string $password = null): array
+function checkProxy(string  $proxy, string $type = 'http', string $endpoint = 'https://bing.com', array $headers = [],
+                    ?string $username = null, ?string $password = null): array
 {
   $proxy = trim($proxy);
   $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password);
