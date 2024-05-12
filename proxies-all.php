@@ -49,7 +49,7 @@ $files_to_merge = [];
 
 foreach ($files as $file) {
   if (filterIpPortLines($file) == 'success') {
-    echo "non IP:PORT lines removed from " . basename($file);
+    echo "non IP:PORT lines removed from " . basename($file) . PHP_EOL;
   }
   $read = read_file($file);
   $isFileEmpty = (is_string($read) && empty(trim($read))) || filesize($file) == 0;
