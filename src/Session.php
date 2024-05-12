@@ -44,6 +44,8 @@ class Session
           throw new Exception('Unable to create session folder.');
         }
       }
+      // set sessions folder permission
+      chmod($folder, 0777);
     }
     session_save_path($folder);
 
