@@ -8,6 +8,8 @@ use Exception;
 
 class Session
 {
+  private $session_prefix_name = "PHP_PROXY_HUNTER";
+
   /**
    * @throws Exception
    */
@@ -33,7 +35,8 @@ class Session
    */
   public function handle(int $timeout, ?string $folder = null): void
   {
-    $name = '_' . $timeout . md5(Server::getRequestIP() . Server::useragent());
+    // filename session file
+    $name = $this->session_prefix_name . '_' . $timeout . md5(Server::getRequestIP() . Server::useragent());
     if (empty(trim($folder))) {
       $folder = __DIR__ . '/../tmp/sessions';
       if (!file_exists($folder)) {
