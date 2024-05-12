@@ -265,15 +265,26 @@ function execute_single_proxy(Proxy $item)
       echo $item->proxy . ' port closed' . PHP_EOL;
     } else {
       $proxy_types = [];
-      $check_http = checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password);
-      $check_socks5 = checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password);
-      $check_socks4 = checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password);
-      if ($check_http['result']) $proxy_types[] = 'http';
-      if ($check_socks5['result']) $proxy_types[] = 'socks5';
-      if ($check_socks4['result']) $proxy_types[] = 'socks4';
-      $latencies = [$check_http['latency'], $check_socks5['latency'], $check_socks4['latency']];
+      $anonymities = [];
+      $latencies = [];
+
+      $checks = [
+          'http' => checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password),
+          'socks5' => checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password),
+          'socks4' => checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password)
+      ];
+
+      foreach ($checks as $type => $check) {
+        if ($check['result']) {
+          $proxy_types[] = $type;
+        }
+        if ($check['anonymity']) {
+          $anonymities[] = $check['anonymity'];
+        }
+        $latencies[] = $check['latency'];
+      }
+
       if (!empty($proxy_types)) {
-        // proxy working
         $merged_proxy_types = implode('-', $proxy_types);
         echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
         $db->updateData($item->proxy, [
@@ -282,8 +293,10 @@ function execute_single_proxy(Proxy $item)
             'latency' => max($latencies),
             'username' => $item->username,
             'password' => $item->password,
-            'https' => strpos($endpoint, 'https') !== false ? 'true' : 'false'
+            'https' => strpos($endpoint, 'https') !== false ? 'true' : 'false',
+            'anonymity' => implode('-', array_unique(array_filter($anonymities)))
         ]);
+
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item->proxy, [
@@ -292,14 +305,13 @@ function execute_single_proxy(Proxy $item)
               'browser_vendor' => $webgl->browser_vendor
           ]);
         }
-        // get geolocation
+
         if (empty($item->timezone) || empty($item->country) || empty($item->lang)) {
-          if (in_array('http', $proxy_types)) get_geo_ip($item->proxy, 'http', $db);
-          if (in_array('socks5', $proxy_types)) get_geo_ip($item->proxy, 'socks5', $db);
-          if (in_array('socks4', $proxy_types)) get_geo_ip($item->proxy, 'socks4', $db);
+          foreach ($proxy_types as $type) {
+            get_geo_ip($item->proxy, $type, $db);
+          }
         }
 
-        // update proxy useragent
         if (empty($item->useragent) && strlen(trim($item->useragent)) <= 5) {
           $item->useragent = randomWindowsUa();
           $db->updateData($item->proxy, ['useragent' => $item->useragent]);
