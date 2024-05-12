@@ -2,28 +2,12 @@
 
 namespace PhpProxyHunter;
 
+use DateTime;
+use DateTimeZone;
 use Exception;
 
 class Session
 {
-  private static $_instance = null;
-  public $sessionCookieName = 'uf';
-  public $cookiePath = '/';
-  public $cookieDomain = '';
-  private $path_defined = null;
-  /**
-   * Cookie will only be set if a secure HTTPS connection exists.
-   *
-   * @var bool
-   */
-  private $cookieSecure = false;
-  /**
-   * sid regex expression.
-   *
-   * @var string
-   */
-  private $sidRegexp;
-
   /**
    * @throws Exception
    */
@@ -104,8 +88,8 @@ class Session
   /**
    * @throws Exception
    */
-  public function now(): \DateTime
+  public function now(): DateTime
   {
-    return new \DateTime(null, new \DateTimeZone('Asia/Jakarta'));
+    return new DateTime(null, new DateTimeZone('Asia/Jakarta'));
   }
 }
