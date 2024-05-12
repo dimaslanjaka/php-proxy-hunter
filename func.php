@@ -1152,9 +1152,9 @@ function removeStringFromFile(string $file_path, $string_to_remove): string
  *
  * @param string $filePath The path to the file.
  * @param int $hours The number of hours ago to check against.
- * @return bool True if the file was created within the specified number of hours, otherwise false.
+ * @return bool True if the file was created more than the specified number of hours ago, otherwise false.
  */
-function isFileCreatedAgo(string $filePath, int $hours): bool
+function isFileCreatedMoreThanHours(string $filePath, int $hours): bool
 {
   // Check if the file exists
   if (!file_exists($filePath)) {
@@ -1170,8 +1170,8 @@ function isFileCreatedAgo(string $filePath, int $hours): bool
   // Calculate the time threshold in seconds
   $thresholdInSeconds = $hours * 60 * 60;
 
-  // Check if the file was created within the specified time frame
-  return $differenceInSeconds <= $thresholdInSeconds;
+  // Check if the file was created more than the specified time frame
+  return $differenceInSeconds > $thresholdInSeconds;
 }
 
 /**

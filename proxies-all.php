@@ -116,7 +116,7 @@ iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remov
 
 $indicator_all = __DIR__ . '/tmp/proxies-all-should-iterating-database.txt';
 $indicator_all_not_found = !file_exists($indicator_all);
-$indicator_all_expired = isFileCreatedAgo($indicator_all, 24);
+$indicator_all_expired = isFileCreatedMoreThanHours($indicator_all, 24);
 $can_do_iterate = $indicator_all_not_found || $indicator_all_expired;
 
 if ($can_do_iterate) {
@@ -140,8 +140,11 @@ if ($can_do_iterate) {
 if (!empty($str_to_remove)) {
   foreach ($files as $file) {
     Scheduler::register(function () use (&$str_to_remove, $file) {
-      if (removeStringFromFile($file, $str_to_remove) == 'success') {
+      $remove = removeStringFromFile($file, $str_to_remove);
+      if ($remove == 'success') {
         echo "[FILE] removed indexed proxies from " . basename($file) . ' (' . count($str_to_remove) . ')' . PHP_EOL;
+      } else {
+        echo $remove . PHP_EOL;
       }
     }, "[FILE] remove indexed " . $file);
   }
