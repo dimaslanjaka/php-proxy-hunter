@@ -241,7 +241,7 @@ function buildCurl($proxy, $type = 'http', string $endpoint = 'https://bing.com'
  * Obtain the anonymity of the proxy
  * Return: Transparent, Anonymous or Elite
  */
-function parse_anonymity(string $response_ip_info, string $response_judges)
+function parse_anonymity($response_ip_info, $response_judges)
 {
   if (strpos($response_judges, $response_ip_info) !== false) {
     return 'Transparent';
@@ -367,7 +367,7 @@ function checkProxy(string $proxy, string $type = 'http', string $endpoint = 'ht
       if ($content) return $content;
       return '';
     }, $ip_infos);
-    $anonymity = parse_anonymity($content_ip, $content_judges);
+    $anonymity = parse_anonymity(implode("\n", $content_ip), implode("\n", $content_judges));
     $result['anonymity'] = strtolower($anonymity);
   }
 
