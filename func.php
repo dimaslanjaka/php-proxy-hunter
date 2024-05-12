@@ -1091,6 +1091,10 @@ function moveLinesToFile(string $sourceFile, string $destinationFile, int $lines
 function append_content_with_lock(string $file, string $content_to_append): bool
 {
   createParentFolders($file);
+  if (file_exists($file)) {
+    if (is_file_locked($file)) return false;
+    if (!is_writable($file)) return false;
+  }
   // Open the file for appending, create it if it doesn't exist
   $handle = fopen($file, 'a+');
 
