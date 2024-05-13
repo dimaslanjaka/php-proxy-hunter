@@ -57,20 +57,21 @@
 
 .fab {
   position: fixed;
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   bottom: 40px;
-  right: 40px;
+  left: 40px;
   background-color: #0C9;
   color: #FFF;
   border-radius: 50px;
-  text-align: center;
-  /* box-shadow: 2px 2px 3px #999; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.fab * {
+/* .fab * {
   margin-top: 22px;
-}
+} */
 
 /* bracket element */
 
