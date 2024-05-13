@@ -43,7 +43,7 @@ $files = [
     __DIR__ . '/dead.txt'
 ];
 
-setFilePermissions(array_merge($files, [$all]));
+setMultiPermissions(array_merge($files, [$all]));
 
 echo "removing duplicated lines from proxies.txt which exist in dead.txt" . PHP_EOL;
 
