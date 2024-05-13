@@ -150,7 +150,7 @@ async function checkerOutput() {
     checkerResult.scrollTop = checkerResult.scrollHeight - checkerResult.clientHeight;
   }
 
-  const wrapper = document.querySelector("#countProxy");
+  const wrapper = document.querySelector("#nav-info");
   /**
    * @type {Record<string, any>}
    */
@@ -159,13 +159,13 @@ async function checkerOutput() {
     .catch(() => {
       return {};
     });
-  if (statusJson.untested) {
+  if (statusJson.untested && statusJson.untested > 0) {
     wrapper.querySelector("#untested").innerText = parseInt(statusJson.untested).toLocaleString();
   }
-  if (statusJson.dead) {
+  if (statusJson.dead && statusJson.dead > 0) {
     wrapper.querySelector("#dead").innerText = parseInt(statusJson.dead).toLocaleString();
   }
-  if (statusJson.working) {
+  if (statusJson.working && statusJson.working > 0) {
     wrapper.querySelector("#working").innerText = parseInt(statusJson.working).toLocaleString();
   }
 }
