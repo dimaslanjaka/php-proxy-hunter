@@ -1221,8 +1221,15 @@ function string_to_regex($input)
   }
 }
 
-function sanitizeFilename($filename)
+/**
+ * Sanitize a filename by removing any character that is not alphanumeric, underscore, dash, or period.
+ *
+ * @param string|null $filename The filename to sanitize.
+ * @return string The sanitized filename.
+ */
+function sanitizeFilename(?string $filename)
 {
+  if (empty($filename)) $filename = '';
   // Remove any character that is not alphanumeric, underscore, dash, or period
   return preg_replace("/[^\w\-\. ]/", '-', $filename);
 }
