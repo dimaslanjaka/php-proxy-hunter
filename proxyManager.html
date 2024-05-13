@@ -33,16 +33,14 @@
 </head>
 
 <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
-  <div class="mb-3 flex flex-col md:flex-row border border-gray-600 p-4">
+  <div class="mb-3 flex flex-col md:flex-row border border-gray-600 p-4" id="nav-info">
     <div class="flex-1">
       <i class="fa-duotone fa-square-info"></i> <span id="status"
         class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">IDLE</span>
     </div>
-    <div class="flex-1" id="countProxy">
-      <span>Untested (<b id="untested" class="text-amber-400">0</b>) Dead (<b id="dead"
-          class="text-red-400">0</b>) Working (<b id="working"
-          class="text-green-400">0</b>)</span>
-    </div>
+    <div class="flex-1"><span>Untested (<b id="untested" class="text-amber-400">0</b>)</span></div>
+    <div class="flex-1"><span>Dead (<b id="dead" class="text-red-400">0</b>)</span></div>
+    <div class="flex-1"><span>Working (<b id="working" class="text-green-400">0</b>)</span></div>
     <div class="flex-1 text-amber-400">
       <a href="#modify_config_section" class="bracket">modify config</a>
       <a href="./data/login.php" class="bracket">login</a>
