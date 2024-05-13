@@ -110,17 +110,18 @@ function createParentFolders(string $filePath): bool
  *
  * @param string|array $filenames The filename(s) to set permissions for.
  *                                Can be a single filename or an array of filenames.
+ * @param bool $autoCreate (optional) Whether to automatically create the file if it doesn't exist. Default is false.
  *
  * @return void
  */
-function setFilePermissions($filenames)
+function setMultiPermissions($filenames, bool $autoCreate = false)
 {
   if (is_array($filenames)) {
     foreach ($filenames as $filename) {
-      setPermissions($filename);
+      setPermissions($filename, $autoCreate);
     }
   } elseif (is_string($filenames)) {
-    setPermissions($filenames);
+    setPermissions($filenames, $autoCreate);
   } else {
     echo "Invalid parameter type. Expected string or array.\n";
   }
@@ -130,18 +131,24 @@ function setFilePermissions($filenames)
  * Sets file permissions to 777 if the file exists.
  *
  * @param string $filename The filename to set permissions for.
+ * @param bool $autoCreate (optional) Whether to automatically create the file if it doesn't exist. Default is false.
  *
- * @return void
+ * @return bool Returns true if the permissions were successfully set, false otherwise.
  */
-function setPermissions(string $filename)
+function setPermissions(string $filename, bool $autoCreate = false): bool
 {
   try {
+    if (!file_exists($filename) && $autoCreate) {
+      createParentFolders($filename);
+      file_put_contents($filename, '');
+    }
     if (file_exists($filename) && is_readable($filename) && is_writable($filename)) {
-      chmod($filename, 0777);
+      return chmod($filename, 0777);
     }
   } catch (\Throwable $th) {
-    //throw $th;
+    return false;
   }
+  return false;
 }
 
 /**
@@ -586,19 +593,19 @@ function setUserId(string $new_user_id)
     // write default user config
     if (!file_exists($user_file)) {
       $headers = array(
-        'X-Dynatrace: MT_3_6_2809532683_30-0_24d94a15-af8c-49e7-96a0-1ddb48909564_0_1_619',
-        'X-Api-Key: vT8tINqHaOxXbGE7eOWAhA==',
-        'Authorization: Bearer',
-        'X-Request-Id: 63337f4c-ec03-4eb8-8caa-4b7cd66337e3',
-        'X-Request-At: 2024-04-07T20:57:14.73+07:00',
-        'X-Version-App: 5.8.8',
-        'User-Agent: myXL / 5.8.8(741); StandAloneInstall; (samsung; SM-G955N; SDK 25; Android 7.1.2)',
-        'Content-Type: application/json; charset=utf-8'
+          'X-Dynatrace: MT_3_6_2809532683_30-0_24d94a15-af8c-49e7-96a0-1ddb48909564_0_1_619',
+          'X-Api-Key: vT8tINqHaOxXbGE7eOWAhA==',
+          'Authorization: Bearer',
+          'X-Request-Id: 63337f4c-ec03-4eb8-8caa-4b7cd66337e3',
+          'X-Request-At: 2024-04-07T20:57:14.73+07:00',
+          'X-Version-App: 5.8.8',
+          'User-Agent: myXL / 5.8.8(741); StandAloneInstall; (samsung; SM-G955N; SDK 25; Android 7.1.2)',
+          'Content-Type: application/json; charset=utf-8'
       );
       $data = array(
-        'endpoint' => $new_user_id == 'CLI' ? 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list' : 'https://bing.com',
-        'headers' => $new_user_id == 'CLI' ? $headers : ['User-Agent: Mozilla/5.0 (Linux; Android 14; Pixel 6 Pro Build/UPB3.230519.014) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.60 Mobile Safari/537.36 GNews Android/2022137898'],
-        'type' => 'http|socks4|socks5'
+          'endpoint' => $new_user_id == 'CLI' ? 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list' : 'https://bing.com',
+          'headers' => $new_user_id == 'CLI' ? $headers : ['User-Agent: Mozilla/5.0 (Linux; Android 14; Pixel 6 Pro Build/UPB3.230519.014) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.60 Mobile Safari/537.36 GNews Android/2022137898'],
+          'type' => 'http|socks4|socks5'
       );
       $file = getUserFile($new_user_id);
       file_put_contents($file, json_encode($data));
@@ -618,7 +625,7 @@ function getUserId(): string
 if (!file_exists(__DIR__ . "/config")) {
   mkdir(__DIR__ . "/config");
 }
-setFilePermissions(__DIR__ . "/config");
+setMultiPermissions(__DIR__ . "/config");
 function getUserFile(string $user_id): string
 {
   return __DIR__ . "/config/$user_id.json";
@@ -638,10 +645,10 @@ function getConfig(string $user_id): array
   $data = json_decode($jsonString, true); // Use true for associative array, false or omit for object
 
   $defaults = array(
-    'endpoint' => 'https://google.com',
-    'headers' => [],
-    'type' => 'http|socks4|socks5',
-    'user_id' => $user_id
+      'endpoint' => 'https://google.com',
+      'headers' => [],
+      'type' => 'http|socks4|socks5',
+      'user_id' => $user_id
   );
 
   // Check if decoding was successful
@@ -666,7 +673,7 @@ function setConfig($user_id, $data): array
   // write data
   file_put_contents($user_file, $newData);
   // set permission
-  setFilePermissions($user_file);
+  setMultiPermissions($user_file);
   return $nData;
 }
 
@@ -1277,8 +1284,8 @@ function IPv6CIDRToRange($cidr): array
   }
 
   return array(
-    'start' => inet_ntop($range_start),
-    'end' => inet_ntop($range_end)
+      'start' => inet_ntop($range_start),
+      'end' => inet_ntop($range_end)
   );
 }
 
@@ -1335,16 +1342,16 @@ function randomWindowsUa(): string
 
   // Array of Chrome versions
   $chromeVersions = [
-    '86.0.4240',
-    '98.0.4758',
-    '100.0.4896',
-    '105.0.5312',
-    '110.0.5461',
-    '115.0.5623',
-    '120.0.5768',
-    '124.0.6367.78', // Windows and Linux version
-    '124.0.6367.79', // Mac version
-    '124.0.6367.82', // Android version
+      '86.0.4240',
+      '98.0.4758',
+      '100.0.4896',
+      '105.0.5312',
+      '110.0.5461',
+      '115.0.5623',
+      '120.0.5768',
+      '124.0.6367.78', // Windows and Linux version
+      '124.0.6367.79', // Mac version
+      '124.0.6367.82', // Android version
   ];
 
   // Randomly select a Windows version
@@ -1371,12 +1378,12 @@ function randomAndroidUa(string $type = 'chrome'): string
 {
   // Android version array
   $androidVersions = [
-    '10.0' => 'Android Q',
-    '11.0' => 'Red Velvet Cake',
-    '12.0' => 'Snow Cone',
-    '12.1' => 'Snow Cone v2',
-    '13.0' => 'Tiramisu',
-    '14.0' => 'Upside Down Cake',
+      '10.0' => 'Android Q',
+      '11.0' => 'Red Velvet Cake',
+      '12.0' => 'Snow Cone',
+      '12.1' => 'Snow Cone v2',
+      '13.0' => 'Tiramisu',
+      '14.0' => 'Upside Down Cake',
   ];
 
   // Random Android version
@@ -1385,35 +1392,35 @@ function randomAndroidUa(string $type = 'chrome'): string
   // Random device manufacturer and model
   $manufacturers = ['Samsung', 'Google', 'Huawei', 'Xiaomi', 'LG'];
   $models = [
-    'Samsung' => [
-      'Galaxy S20',
-      'Galaxy Note 10',
-      'Galaxy A51',
-      'Galaxy S10',
-      'Galaxy S9',
-      'Galaxy Note 9',
-      'Galaxy S21',
-      'Galaxy Note 20',
-      'Galaxy Z Fold 2',
-      'Galaxy A71',
-      'Galaxy S20 FE'
-    ],
-    'Google' => ['Pixel 4', 'Pixel 3a', 'Pixel 3', 'Pixel 5', 'Pixel 4a', 'Pixel 4 XL', 'Pixel 3 XL'],
-    'Huawei' => ['P30 Pro', 'Mate 30', 'P40', 'Mate 40 Pro', 'P40 Pro', 'Mate Xs', 'Nova 7i'],
-    'Xiaomi' => [
-      'Mi 10',
-      'Redmi Note 9',
-      'POCO F2 Pro',
-      'Mi 11',
-      'Redmi Note 10 Pro',
-      'POCO X3',
-      'Mi 10T Pro',
-      'Redmi Note 4x',
-      'Redmi Note 5',
-      'Redmi 6a',
-      'Mi 8 Lite'
-    ],
-    'LG' => ['G8 ThinQ', 'V60 ThinQ', 'Stylo 6', 'Velvet', 'Wing', 'K92', 'Q92'],
+      'Samsung' => [
+          'Galaxy S20',
+          'Galaxy Note 10',
+          'Galaxy A51',
+          'Galaxy S10',
+          'Galaxy S9',
+          'Galaxy Note 9',
+          'Galaxy S21',
+          'Galaxy Note 20',
+          'Galaxy Z Fold 2',
+          'Galaxy A71',
+          'Galaxy S20 FE'
+      ],
+      'Google' => ['Pixel 4', 'Pixel 3a', 'Pixel 3', 'Pixel 5', 'Pixel 4a', 'Pixel 4 XL', 'Pixel 3 XL'],
+      'Huawei' => ['P30 Pro', 'Mate 30', 'P40', 'Mate 40 Pro', 'P40 Pro', 'Mate Xs', 'Nova 7i'],
+      'Xiaomi' => [
+          'Mi 10',
+          'Redmi Note 9',
+          'POCO F2 Pro',
+          'Mi 11',
+          'Redmi Note 10 Pro',
+          'POCO X3',
+          'Mi 10T Pro',
+          'Redmi Note 4x',
+          'Redmi Note 5',
+          'Redmi 6a',
+          'Mi 8 Lite'
+      ],
+      'LG' => ['G8 ThinQ', 'V60 ThinQ', 'Stylo 6', 'Velvet', 'Wing', 'K92', 'Q92'],
   ];
 
   $manufacturer = $manufacturers[array_rand($manufacturers)];

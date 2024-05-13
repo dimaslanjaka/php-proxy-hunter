@@ -127,7 +127,7 @@ echo implode("\n", $headers) . PHP_EOL;
 $untestedFilePath = __DIR__ . "/proxies.txt";
 $deadPath = __DIR__ . "/dead.txt";
 $workingPath = __DIR__ . "/working.txt";
-setFilePermissions([$untestedFilePath, $workingPath, $deadPath]);
+setMultiPermissions([$untestedFilePath, $workingPath, $deadPath], true);
 
 // move backup added proxies
 $countLinesUntestedProxies = countNonEmptyLines($untestedFilePath);
