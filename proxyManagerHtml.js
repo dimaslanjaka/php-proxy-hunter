@@ -613,35 +613,42 @@ async function init_config_editor() {
   });
 }
 
-function addProxy(proxies) {
+async function addProxy(proxies) {
+  const send = async function (dataToSend) {
+    const url = `//${location.host}/proxyAdd.php`;
+
+    try {
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(5000),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded" // Sending form-urlencoded data
+        },
+        body: `proxies=${encodeURIComponent(dataToSend)}` // Encode the string for safe transmission
+      });
+      if (!response.ok) {
+        showSnackbar("Network response was not ok");
+      } else {
+        const data = await response.text();
+        showSnackbar(data);
+      }
+    } catch (error) {
+      showSnackbar("There was a problem with your fetch operation: " + error.message);
+    }
+  };
   const ipPortArray = proxies
     .trim()
     .split(/\r?\n/)
     .filter((text) => text.match(/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}/gim));
-  const dataToSend = ipPortArray.join("\n");
-  proxies.value = dataToSend;
-  const url = "./proxyAdd.php";
 
-  fetch(url, {
-    signal: AbortSignal.timeout(5000),
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded" // Sending form-urlencoded data
-    },
-    body: `proxies=${encodeURIComponent(dataToSend)}` // Encode the string for safe transmission
-  })
-    .then((response) => {
-      if (!response.ok) {
-        showSnackbar("Network response was not ok");
-      }
-      return response.text(); // assuming you want to read response as text
-    })
-    .then((data) => {
-      showSnackbar(data);
-    })
-    .catch((error) => {
-      showSnackbar("There was a problem with your fetch operation: " + error.message);
-    });
+  const chunkSize = 1000;
+  const chunkedArrays = [];
+  for (let i = 0; i < ipPortArray.length; i += chunkSize) {
+    chunkedArrays.push(ipPortArray.slice(i, i + chunkSize));
+  }
+  for (const arr of chunkedArrays) {
+    await send(arr.join("\n"));
+  }
 }
 
 function modify_config() {
