@@ -2,11 +2,19 @@
 
 require_once __DIR__ . '/func.php';
 
+// modify config
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  header('Content-Type: application/json; charset=utf-8');
+  $input = parsePostData();
+  if (isset($input['config']))
+    $set = setConfig(getUserId(), $input['config']);
+}
+
 header('Content-Type: application/json; charset=utf-8');
 if (isset($_REQUEST['txt']))
   header('Content-Type: text/plain; charset=utf-8');
 
-//setCacheHeaders(5);
+// get config
 set_cookie("user_id", getUserId());
 $config = getConfig(getUserId());
 // admin info from 'data/login.php'
