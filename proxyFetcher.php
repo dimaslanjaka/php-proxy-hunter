@@ -62,7 +62,8 @@ $urls = array_unique([
     "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text",
     "https://github.com/roosterkid/openproxylist/blob/main/HTTPS_RAW.txt",
     "https://github.com/roosterkid/openproxylist/blob/main/SOCKS4_RAW.txt",
-    "https://github.com/roosterkid/openproxylist/blob/main/SOCKS5_RAW.txt"
+    "https://github.com/roosterkid/openproxylist/blob/main/SOCKS5_RAW.txt",
+    "https://github.com/proxifly/free-proxy-list/blob/main/proxies/all/data.txt"
 ]);
 
 // File to append the content
