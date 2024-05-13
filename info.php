@@ -18,7 +18,7 @@ if (isset($_REQUEST['txt']))
 set_cookie("user_id", getUserId());
 $config = getConfig(getUserId());
 // admin info from 'data/login.php'
-$config['admin'] = isset($_SESSION['admin']) && $_SESSION['admin'] == true;
+$config['admin'] = isset($_SESSION['admin']) && $_SESSION['admin'];
 $config['pid'] = $_ENV['CPID'];
 $config_json = json_encode($config);
 
