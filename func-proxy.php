@@ -260,13 +260,17 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
   return $ch;
 }
 
-
-/*
- * Obtain the anonymity of the proxy
- * Return: Transparent, Anonymous or Elite
+/**
+ * Obtain the anonymity of the proxy.
+ *
+ * @param string $response_ip_info The response containing IP information.
+ * @param string $response_judges  The response containing headers to judge anonymity.
+ * @return string Anonymity level: Transparent, Anonymous, or Elite. And Empty is failed
  */
 function parse_anonymity($response_ip_info, $response_judges)
 {
+  if (empty(trim($response_ip_info)) || empty(trim($response_judges)))
+    return "";
   if (strpos($response_judges, $response_ip_info) !== false) {
     return 'Transparent';
   }
@@ -309,7 +313,7 @@ function parse_anonymity($response_ip_info, $response_judges)
  *               - 'private': Boolean indicating if the proxy is private.
  */
 function checkProxy(
-  string  $proxy,
+  string $proxy,
   string $type = 'http',
   string $endpoint = 'https://bing.com',
   array $headers = [],
@@ -409,7 +413,12 @@ function checkProxy(
       return '';
     }, $ip_infos);
     $anonymity = parse_anonymity(implode("\n", $content_ip), implode("\n", $content_judges));
-    $result['anonymity'] = strtolower($anonymity);
+    if (!empty($anonymity)) {
+      $result['anonymity'] = strtolower($anonymity);
+    } else {
+      $result['result'] = false;
+      $result['error'] = 'failed obtain proxy anonymity';
+    }
   }
 
   return $result;
