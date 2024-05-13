@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection RegExpRedundantEscape */
+/** @noinspection RegExpUnnecessaryNonCapturingGroup */
 
 require_once __DIR__ . '/func.php';
 
@@ -9,11 +10,11 @@ use PhpProxyHunter\ProxyDB;
  * Extracts IP:PORT pairs from a string, along with optional username and password.
  *
  * @param string|null $string The input string containing IP:PORT pairs.
- * @param \PhpProxyHunter\ProxyDB|null $db An optional ProxyDB instance for database operations.
+ * @param ProxyDB|null $db An optional ProxyDB instance for database operations.
  * @param bool $debug Flag indicating whether debug information should be displayed. Default is true.
- * @return \PhpProxyHunter\Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
+ * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies(?string $string, ?\PhpProxyHunter\ProxyDB $db = null, bool $debug = true): array
+function extractProxies(?string $string, ?ProxyDB $db = null, bool $debug = true): array
 {
   if (is_null($string) || empty(trim($string))) {
     return [];
@@ -28,7 +29,7 @@ function extractProxies(?string $string, ?\PhpProxyHunter\ProxyDB $db = null, bo
   preg_match_all($pattern, $string, $matches, PREG_SET_ORDER);
 
   if (!$db) {
-    $db = new \PhpProxyHunter\ProxyDB();
+    $db = new ProxyDB();
   }
 
   foreach ($matches as $match) {
@@ -431,11 +432,11 @@ function checkProxy(
   return $result;
 }
 
-function get_geo_ip(string $the_proxy, string $proxy_type = 'http', ?\PhpProxyHunter\ProxyDB $db = null)
+function get_geo_ip(string $the_proxy, string $proxy_type = 'http', ?ProxyDB $db = null)
 {
   $proxy = trim($the_proxy);
   if (empty($proxy)) return;
-  if (empty($db)) $db = new \PhpProxyHunter\ProxyDB();
+  if (empty($db)) $db = new ProxyDB();
   list($ip, $port) = explode(':', $proxy);
   /** @noinspection PhpFullyQualifiedNameUsageInspection */
   $geo_plugin = new \PhpProxyHunter\geoPlugin();
@@ -475,7 +476,7 @@ function get_geo_ip(string $the_proxy, string $proxy_type = 'http', ?\PhpProxyHu
             echo "language $proxy is empty, country " . $geoIp['country'];
           }
         }
-      } catch (\Throwable $th) {
+      } catch (Throwable $th) {
         //
       }
 
@@ -534,13 +535,13 @@ function ext_intl_get_lang_country_code(string $country): ?string
 {
   if (empty($country)) return null;
   try {
-    $subtags = \ResourceBundle::create('likelySubtags', 'ICUDATA', false);
-    $country = \Locale::canonicalize('und_' . $country);
+    $subtags = ResourceBundle::create('likelySubtags', 'ICUDATA', false);
+    $country = Locale::canonicalize('und_' . $country);
     if (($country[0] ?? null) === '_') {
       $country = 'und' . $country;
     }
     $locale = $subtags->get($country) ?: $subtags->get('und');
-    return \Locale::getPrimaryLanguage($locale);
+    return Locale::getPrimaryLanguage($locale);
   } catch (Exception $e) {
     return null;
   }
@@ -874,13 +875,13 @@ function clean_proxies_file(string $file)
 /**
  * Parses working proxies data retrieved from the provided ProxyDB object.
  *
- * @param \PhpProxyHunter\ProxyDB $db The ProxyDB object containing the working proxies data.
+ * @param ProxyDB $db The ProxyDB object containing the working proxies data.
  * @return array An array containing three elements:
  *               - 'txt': A string representation of working proxies, separated by newline characters and formatted as "proxy|port|type|country|last_check|useragent".
  *               - 'array': An array of associative arrays representing the working proxies data, with keys 'proxy', 'port', 'type', 'country', 'last_check', and 'useragent'.
  *               - 'counter': An array containing counts of different types of proxies in the database, including 'working', 'dead', 'untested', and 'private'.
  */
-function parse_working_proxies(\PhpProxyHunter\ProxyDB $db)
+function parse_working_proxies(ProxyDB $db)
 {
   // Retrieve working proxies from the provided ProxyDB object
   $working = $db->getWorkingProxies();
