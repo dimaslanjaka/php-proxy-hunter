@@ -481,52 +481,202 @@ function timeAgo(dateString) {
 
 /**
  * Displays a snackbar message for a specified duration.
- * @param {string} message - The message to be displayed.
+ * @param {...string|Error} messages - The messages to be displayed, which can also be an Error object.
  */
-function showSnackbar(message) {
+function showSnackbar(...messages) {
   // Get the snackbar element
   const snackbar = document.getElementById("snackbar");
 
+  // Combine all messages into one string
+  let combinedMessage = messages
+    .map((msg) => {
+      if (msg instanceof Error) {
+        // If message is an Error object, extract the error message
+        return `Error: ${msg.message}`;
+      } else if (typeof msg !== "string") {
+        // If message is not a string, stringify it
+        return JSON.stringify(msg);
+      } else {
+        return msg;
+      }
+    })
+    .join(" ");
+
   // Set the message
-  snackbar.textContent = message;
+  snackbar.textContent = combinedMessage;
 
   // Add the "show" class to DIV
-  snackbar.className = "show";
+  snackbar.classList.add("show");
 
   // Hide the snackbar after 3 seconds
   setTimeout(function () {
-    snackbar.className = snackbar.className.replace("show", "");
+    snackbar.classList.remove("show");
   }, 3000);
 }
 
-// Copies a string to the clipboard. Must be called from within an
-// event handler such as click. May return false if it failed, but
-// this is not always possible. Browser support for Chrome 43+,
-// Firefox 42+, Safari 10+, Edge and Internet Explorer 10+.
-// Internet Explorer: The clipboard feature may be disabled by
-// an administrator. By default a prompt is shown the first
-// time the clipboard is used (per session).
+/**
+ * Copies a string to the clipboard. Must be called from within an
+ * event handler such as click. May return false if it failed, but
+ * this is not always possible. Browser support for Chrome 43+,
+ * Firefox 42+, Safari 10+, Edge and Internet Explorer 10+.
+ * Internet Explorer: The clipboard feature may be disabled by
+ * an administrator. By default a prompt is shown the first
+ * time the clipboard is used (per session).
+ * @param {string} text - The text to be copied to the clipboard.
+ * @returns {boolean} - Returns true if the operation succeeds, otherwise returns false.
+ */
 function copyToClipboard(text) {
-  if (window.clipboardData && window.clipboardData.setData) {
-    // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
-    return window.clipboardData.setData("Text", text);
-  } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
-    const textarea = document.createElement("textarea");
-    textarea.textContent = text;
-    textarea.style.position = "fixed"; // Prevent scrolling to bottom of page in Microsoft Edge.
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-      return document.execCommand("copy"); // Security exception may be thrown by some browsers.
-    } catch (ex) {
-      console.warn("Copy to clipboard failed.", ex);
-      return prompt("Copy to clipboard: Ctrl+C, Enter", text);
-    } finally {
-      document.body.removeChild(textarea);
+  try {
+    if (navigator.clipboard) {
+      return navigator.clipboard
+        .writeText(text)
+        .then(() => true)
+        .catch((err) => {
+          showSnackbar("Error copying to clipboard:", err);
+          return false;
+        });
+    } else if (window.clipboardData && window.clipboardData.setData) {
+      // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
+      return window.clipboardData.setData("Text", text);
+    } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+      const textarea = document.createElement("textarea");
+      textarea.textContent = text;
+      textarea.style.position = "fixed"; // Prevent scrolling to bottom of page in Microsoft Edge.
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        return document.execCommand("copy"); // Security exception may be thrown by some browsers.
+      } catch (ex) {
+        showSnackbar("Copy to clipboard failed.", ex);
+        return false;
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    } else {
+      showSnackbar("Copying to clipboard not supported.");
+      return false;
     }
+  } catch (err) {
+    showSnackbar("Error copying to clipboard:", err);
+    return false;
   }
 }
 
+/**
+ * @returns {Promise<T|{}>}
+ */
+async function getUserInfo() {
+  return await fetch("./info.php")
+    .then((r) => r.json())
+    .catch(() => {
+      return {};
+    });
+}
+
+async function init_config_editor() {
+  /**
+   * @type {Record<string, any>}
+   */
+  const info = await getUserInfo();
+  const endpoint = document.querySelector("input[name=endpoint]");
+  const headers = document.querySelector("textarea[name=headers]");
+  const checkbox_http = document.querySelector("input[name=http]");
+  const checkbox_socks4 = document.querySelector("input[name=socks4]");
+  const checkbox_socks5 = document.querySelector("input[name=socks5]");
+  if (Object.prototype.hasOwnProperty.call(info, "endpoint")) {
+    endpoint.value = info.endpoint;
+  }
+  if (Object.prototype.hasOwnProperty.call(info, "headers")) {
+    headers.value = info.headers.join("\n");
+  }
+  if (Object.prototype.hasOwnProperty.call(info, "type")) {
+    info.type.split("|").map((protocol) => {
+      document.querySelector(`input[name=${protocol}]`).checked = true;
+    });
+  }
+
+  let sending_config, sending_proxies;
+
+  [endpoint, headers, checkbox_http, checkbox_socks4, checkbox_socks5].forEach((el) => {
+    el.addEventListener("change", (e) => {
+      e.preventDefault();
+      clearTimeout(sending_config); // Clear the previous timeout
+      sending_config = setTimeout(modify_config, 1000); // Set a new timeout
+    });
+  });
+
+  document.getElementById("add_proxies").addEventListener("change", (e) => {
+    e.preventDefault();
+    clearTimeout(sending_proxies); // Clear the previous timeout
+    sending_proxies = setTimeout(() => addProxy(e.target.value), 1000); // Set a new timeout
+  });
+}
+
+function addProxy(proxies) {
+  const ipPortArray = proxies
+    .trim()
+    .split(/\r?\n/)
+    .filter((text) => text.match(/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}/gim));
+  const dataToSend = ipPortArray.join("\n");
+  proxies.value = dataToSend;
+  const url = "./proxyAdd.php";
+
+  fetch(url, {
+    signal: AbortSignal.timeout(5000),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded" // Sending form-urlencoded data
+    },
+    body: `proxies=${encodeURIComponent(dataToSend)}` // Encode the string for safe transmission
+  })
+    .then((response) => {
+      if (!response.ok) {
+        showSnackbar("Network response was not ok");
+      }
+      return response.text(); // assuming you want to read response as text
+    })
+    .then((data) => {
+      showSnackbar(data);
+    })
+    .catch((error) => {
+      showSnackbar("There was a problem with your fetch operation: " + error.message);
+    });
+}
+
+function modify_config() {
+  let type = document.querySelector("[name=http]").checked ? "http" : "";
+  type += document.querySelector("[name=socks5]").checked ? "|" + "socks5" : "";
+  type += document.querySelector("[name=socks4]").checked ? "|" + "socks4" : "";
+  fetch("./info.php", {
+    signal: AbortSignal.timeout(5000),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      config: {
+        headers: document.querySelector("[name=headers]").value.trim().split(/\r?\n/),
+        endpoint: document.querySelector("[name=endpoint]").value.trim(),
+        type: type.trim()
+      }
+    })
+  })
+    .then((response) => {
+      if (!response.ok) {
+        showSnackbar("Modify config error: Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((_data) => {
+      showSnackbar("Modify config success");
+      console.log("response", _data);
+    })
+    .catch((error) => {
+      showSnackbar("Modify config", error);
+    });
+}
+
 (function () {
-  main();
+  main().then((_) => {});
+  init_config_editor().then((_) => {});
 })();
