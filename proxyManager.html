@@ -59,7 +59,7 @@
       function send_token(token, callback) {
         if (typeof callback !== "function") callback = () => {
         };
-        fetch("./login.php", {
+        fetch(`//${location.hostname}/data/login.php`, {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
