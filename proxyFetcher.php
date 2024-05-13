@@ -63,7 +63,11 @@ $urls = array_unique([
     "https://github.com/roosterkid/openproxylist/blob/main/HTTPS_RAW.txt",
     "https://github.com/roosterkid/openproxylist/blob/main/SOCKS4_RAW.txt",
     "https://github.com/roosterkid/openproxylist/blob/main/SOCKS5_RAW.txt",
-    "https://github.com/proxifly/free-proxy-list/blob/main/proxies/all/data.txt"
+    "https://github.com/proxifly/free-proxy-list/blob/main/proxies/all/data.txt".
+    "https://github.com/officialputuid/KangProxy/raw/KangProxy/http/http.txt",
+    "https://github.com/officialputuid/KangProxy/raw/KangProxy/https/https.txt",
+    "https://github.com/officialputuid/KangProxy/raw/KangProxy/socks4/socks4.txt",
+    "https://github.com/officialputuid/KangProxy/raw/KangProxy/socks5/socks5.txt"
 ]);
 
 // File to append the content
