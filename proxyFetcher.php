@@ -67,7 +67,12 @@ $urls = array_unique([
     "https://github.com/officialputuid/KangProxy/raw/KangProxy/http/http.txt",
     "https://github.com/officialputuid/KangProxy/raw/KangProxy/https/https.txt",
     "https://github.com/officialputuid/KangProxy/raw/KangProxy/socks4/socks4.txt",
-    "https://github.com/officialputuid/KangProxy/raw/KangProxy/socks5/socks5.txt"
+    "https://github.com/officialputuid/KangProxy/raw/KangProxy/socks5/socks5.txt",
+    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/http_proxies.txt",
+    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/https_proxies.txt",
+    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/proxies_dump.json",
+    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks4_proxies.txt",
+    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks5_proxies.txt"
 ]);
 
 // File to append the content
