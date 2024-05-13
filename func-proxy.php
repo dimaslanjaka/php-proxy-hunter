@@ -216,7 +216,11 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
   }
 
   if (strpos($endpoint, 'https') !== false) {
-    curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3);
+    if (defined('CURL_SSLVERSION_TLSv1_3')) {
+      curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3); // CURL_SSLVERSION_TLSv1_3 = 7
+    } else {
+      curl_setopt($ch, CURLOPT_SSLVERSION, 4); // CURL_SSLVERSION_TLSv1_0 = 4
+    }
     // curl_setopt($ch, CURLOPT_VERBOSE, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
