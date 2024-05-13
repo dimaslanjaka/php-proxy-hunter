@@ -317,6 +317,10 @@ function checkProxy(string  $proxy, string $type = 'http', string $endpoint = 'h
   // Check for CURL errors or empty response
   if (curl_errno($ch) || $response === false) {
     $error_msg = curl_error($ch);
+    if (strpos($error_msg, 'no authentication method was acceptable') !== false) {
+      $isPrivate = true;
+      $error_msg = "Need credentials";
+    }
     $result = [
         'result' => false,
         'latency' => $latency,
