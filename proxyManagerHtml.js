@@ -44,7 +44,8 @@ async function main() {
     return;
   }
 
-  document.getElementById("recheck").addEventListener("click", () => {
+  document.getElementById("recheck").addEventListener("click", (e) => {
+    e.preventDefault();
     showSnackbar("proxy checking start...");
     doCheck();
   });
