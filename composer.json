@@ -28,6 +28,7 @@
     "ext-curl": "*",
     "ext-json": "*",
     "ext-pdo": "*",
-    "ext-intl": "*"
+    "ext-intl": "*",
+    "ext-fileinfo": "*"
   }
 }

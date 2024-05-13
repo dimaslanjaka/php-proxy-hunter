@@ -2,15 +2,15 @@
 
 require_once __DIR__ . '/func.php';
 
+header('Content-Type: application/json; charset=utf-8');
+
 // modify config
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  header('Content-Type: application/json; charset=utf-8');
   $input = parsePostData();
   if (isset($input['config']))
     $set = setConfig(getUserId(), $input['config']);
 }
 
-header('Content-Type: application/json; charset=utf-8');
 if (isset($_REQUEST['txt']))
   header('Content-Type: text/plain; charset=utf-8');
 
@@ -20,6 +20,8 @@ $config = getConfig(getUserId());
 // admin info from 'data/login.php'
 $config['admin'] = isset($_SESSION['admin']) && $_SESSION['admin'];
 $config['pid'] = $_ENV['CPID'];
+$config['captcha'] = isset($_SESSION['captcha']) && $_SESSION['captcha'];
+$config['captcha-site-key'] = $_ENV['G_RECAPTCHA_SITE_KEY'];
 $config_json = json_encode($config);
 
 set_cookie("user_config", base64_encode($config_json));
