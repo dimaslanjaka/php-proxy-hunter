@@ -267,6 +267,7 @@ function execute_single_proxy(Proxy $item)
       $proxy_types = [];
       $anonymities = [];
       $latencies = [];
+      $errors = [];
 
       $checks = [
           'http' => checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password),
@@ -279,6 +280,7 @@ function execute_single_proxy(Proxy $item)
           $proxy_types[] = $type;
         } else {
           echo "$type://{$item->proxy} error: {$check['error']}" . PHP_EOL;
+          $errors[] = "$type {$check['error']}";
         }
         if ($check['anonymity']) {
           $anonymities[] = $check['anonymity'];
@@ -319,8 +321,14 @@ function execute_single_proxy(Proxy $item)
           $db->updateData($item->proxy, ['useragent' => $item->useragent]);
         }
       } else {
-        $db->updateStatus($item->proxy, 'dead');
-        echo $item->proxy . ' dead' . PHP_EOL;
+        $error = join(" ", $errors);
+        if (strpos($error, 'anonymity') !== false) {
+          $db->updateStatus($item->proxy, 'untested');
+          echo $item->proxy . ' failed obtain anoymity' . PHP_EOL;
+        } else {
+          $db->updateStatus($item->proxy, 'dead');
+          echo $item->proxy . ' dead' . PHP_EOL;
+        }
       }
     }
   } else {
