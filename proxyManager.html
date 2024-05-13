@@ -132,12 +132,12 @@
     <ins class="adsbygoogle mb-2" style="display:block" data-ad-client="ca-pub-2188063137129806"
       data-ad-slot="6873696468" data-ad-format="auto" data-full-width-responsive="true"></ins>
 
-    <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1">
-      <div class="mb-3">
+    <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1 max-w-full">
+      <div class="relative mb-3 z-0 h-60 overflow-auto bg-white dark:bg-slate-800 dark:text-slate-400">
         <b>Checker result</b>
-        <div id="cpresult" class="h-60 overflow-auto bg-white dark:bg-slate-800 dark:text-slate-400"></div>
+        <div id="cpresult"></div>
       </div>
-      <div class="relative z-0 group">
+      <div class="relative z-0 group mb-3">
         <b>Add proxies</b>
         <textarea id="add_proxies" rows="11" name="add_proxies"
           class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
@@ -196,7 +196,7 @@
       </div>
 
       <div class="relative z-0 w-full mb-5 group">
-        <textarea id="floating_headers" rows="5" name="headers"
+        <textarea id="floating_headers" rows="10" name="headers"
           class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
           placeholder="User-Agent: Your User Agent&#10;Referer: https://google.com"></textarea>
         <label for="floating_headers"
