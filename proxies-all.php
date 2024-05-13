@@ -39,9 +39,9 @@ $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), functio
 });
 if (!empty($assets)) {
   $files = array_filter(array_merge($files, $assets), 'file_exists');
-  $files = array_filter($files, 'is_file');
-  $files = array_map('realpath', $files);
 }
+$files = array_filter($files, 'is_file');
+$files = array_map('realpath', $files);
 
 $str_to_remove = [];
 $str_limit_to_remove = 10000;
