@@ -2,6 +2,20 @@
 
 require_once __DIR__ . '/../func.php';
 
+if (!empty($_POST['g-recaptcha-response'])) {
+  header('Content-Type: application/json; charset=utf-8');
+  $secret = $_ENV['G_RECAPTCHA_SECRET'];
+  $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $_POST['g-recaptcha-response']);
+  $responseData = json_decode($verifyResponse);
+  if ($responseData->success) {
+    $_SESSION['captcha'] = true;
+    $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
+    exit(json_encode(['message' => "g-recaptcha varified successfully", "success" => true]));
+  } else {
+    exit(json_encode(['message' => "Some error in vrifying g-recaptcha", "success" => false]));
+  }
+}
+
 $shortHash = $_ENV['CPID'];
 
 // init configuration
@@ -79,6 +93,10 @@ if ($client->getAccessToken()) {
   }
 }
 
+if (!isset($_SESSION['captcha'])) {
+  $message[] = "please resolve captcha challenge";
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -133,10 +151,51 @@ if ($client->getAccessToken()) {
   </button>
 </div>
 
+<div id="recaptcha"></div>
+
 <div class="w-full">
   <pre class="mb-3"><code><?php var_dump($message); ?></code></pre>
-  <!--    <pre class="mb-3"><code>--><?php //echo json_encode($_ENV); ?><!--</code></pre>-->
 </div>
+
+<script>
+  function send_token(token, callback) {
+    if (typeof callback !== "function") callback = () => {
+    };
+    fetch("./login.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+      },
+      body: new URLSearchParams({
+        "g-recaptcha-response": token
+      })
+        .toString()
+    })
+      .then(res => res.json())
+      .then(callback);
+  }
+
+  function recaptcha_execute(siteKey) {
+    grecaptcha.execute(siteKey, { action: "submit" }).then(send_token);
+  }
+
+  fetch(`//${location.hostname}/info.php`).then(r => r.json()).then(res => {
+    const siteKey = res["captcha-site-key"];
+    const embedder = document.createElement("div");
+    embedder.classList.add("g-recaptcha");
+    embedder.setAttribute("data-sitekey", "X");
+    embedder.setAttribute("data-callback", "send_token");
+    embedder.setAttribute("data-action", "submit");
+    document.getElementById("recaptcha").appendChild(embedder);
+    const script = document.createElement("script");
+    script.src = "https://www.google.com/recaptcha/api.js?render=" + siteKey;
+    script.onload = function() {
+      grecaptcha.ready(() => recaptcha_execute(siteKey));
+    };
+    document.body.appendChild(script);
+  });
+</script>
+
 
 <script>
   function handleCredentialResponse(response) {
