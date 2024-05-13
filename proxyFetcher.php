@@ -63,7 +63,7 @@ $urls = array_unique([
     "https://github.com/roosterkid/openproxylist/blob/main/HTTPS_RAW.txt",
     "https://github.com/roosterkid/openproxylist/blob/main/SOCKS4_RAW.txt",
     "https://github.com/roosterkid/openproxylist/blob/main/SOCKS5_RAW.txt",
-    "https://github.com/proxifly/free-proxy-list/blob/main/proxies/all/data.txt".
+    "https://github.com/proxifly/free-proxy-list/blob/main/proxies/all/data.txt" .
     "https://github.com/officialputuid/KangProxy/raw/KangProxy/http/http.txt",
     "https://github.com/officialputuid/KangProxy/raw/KangProxy/https/https.txt",
     "https://github.com/officialputuid/KangProxy/raw/KangProxy/socks4/socks4.txt",
@@ -72,7 +72,8 @@ $urls = array_unique([
     "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/https_proxies.txt",
     "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/proxies_dump.json",
     "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks4_proxies.txt",
-    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks5_proxies.txt"
+    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks5_proxies.txt",
+    "https://github.com/prxchk/proxy-list/raw/main/all.txt"
 ]);
 
 // File to append the content
@@ -105,10 +106,10 @@ foreach ($urls as $url) {
   // Append content to output file
   Scheduler::register(function () use ($outputFile, $content, $url) {
     $fallback_file = __DIR__ . '/assets/proxies/added-fetch-' . md5($url) . '.txt';
-    $append = append_content_with_lock($outputFile, "\n" . $content . "\n", FILE_APPEND | LOCK_EX);
+    $append = append_content_with_lock($outputFile, "\n" . $content . "\n");
     if (!$append) {
       $outputFile = $fallback_file;
-      $append = append_content_with_lock($fallback_file, "\n" . $content . "\n", FILE_APPEND | LOCK_EX);
+      $append = append_content_with_lock($fallback_file, "\n" . $content . "\n");
     }
     if ($append) {
       $filter = filterIpPortLines($outputFile);
