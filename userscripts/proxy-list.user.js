@@ -13,7 +13,7 @@
 // @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/proxy-list.meta.js
 // ==/UserScript==
 
-(function() {
+(function () {
   "use strict";
 
   const addProxyFun = (dataToSend) => {

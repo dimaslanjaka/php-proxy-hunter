@@ -146,7 +146,7 @@ async function checkerOutput() {
   /**
    * @type {Record<string, any>}
    */
-  const statusJson = await fetch("./status.json", { signal: AbortSignal.timeout(5000), mode: "cors" })
+  const statusJson = await fetch("./embed.php?file=status.json", { signal: AbortSignal.timeout(5000), mode: "cors" })
     .then((res) => res.json())
     .catch(() => {
       return {};
