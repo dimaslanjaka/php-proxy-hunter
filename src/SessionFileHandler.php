@@ -126,12 +126,11 @@ class SessionFileHandler implements SessionHandlerInterface
   public function gc($max_lifetime): bool
   {
     $globs = array_merge(glob("{$this->sess_path}/sess_*"),
-        glob("{$this->sess_path}/{$this->prefix}*"),
         glob("{$this->sess_path}/{$this->prefix}*{$this->postfix}"));
     $now = time();
     $three_days_ago = $now - (3 * 24 * 60 * 60); // 3 days in seconds
 
-    foreach ($globs as $file) {
+    foreach (array_unique($globs) as $file) {
       if (file_exists($file) && (filectime($file) < $three_days_ago)) {
         unlink($file);
       }
