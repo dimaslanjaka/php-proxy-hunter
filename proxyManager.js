@@ -131,8 +131,7 @@ function parseProxies(text) {
 }
 
 (function () {
-  refreshResults().then((_) => {
-  });
+  refreshResults().then((_) => {});
 
   const refreshBtn = document.getElementById("refresh");
   if (refreshBtn) {
@@ -140,8 +139,7 @@ function parseProxies(text) {
       // remove dragging indicators
       dragging = [];
       // refresh the frames
-      refreshResults().then((_) => {
-      });
+      refreshResults().then((_) => {});
       // show toast
       showSnackbar("data refreshed");
     };
@@ -177,8 +175,7 @@ function parseProxies(text) {
         .catch((error) => {
           showSnackbar("There was a problem with your fetch operation: " + error.message);
         });
-      refreshResults().then((_) => {
-      });
+      refreshResults().then((_) => {});
     };
     setEventRecursive(addProxyBtn, "click", addProxyFun);
   }
@@ -193,8 +190,7 @@ function parseProxies(text) {
         })
         .finally(() => {
           setTimeout(() => {
-            refreshResults().then((_) => {
-            });
+            refreshResults().then((_) => {});
           }, 3000);
         });
     });
@@ -209,8 +205,7 @@ function parseProxies(text) {
           if (!intervalFrame) {
             console.log("start refreshing");
             intervalFrame = setInterval(() => {
-              refreshResults().then((_) => {
-              });
+              refreshResults().then((_) => {});
             }, 2000);
             cekBtn.setAttribute("disabled", "true");
           }
@@ -252,5 +247,4 @@ function parseProxies(text) {
   });
 })();
 
-fetch("./info.php?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" }).then((_) => {
-});
+fetch("./info.php?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" }).then((_) => {});
