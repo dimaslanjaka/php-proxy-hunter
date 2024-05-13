@@ -151,9 +151,15 @@ async function checkerOutput() {
     .catch(() => {
       return {};
     });
-  if (statusJson.untested)
+  if (statusJson.untested) {
     wrapper.querySelector("#untested").innerText = parseInt(statusJson.untested).toLocaleString();
-  if (statusJson.dead) wrapper.querySelector("#dead").innerText = parseInt(statusJson.dead).toLocaleString();
+  }
+  if (statusJson.dead) {
+    wrapper.querySelector("#dead").innerText = parseInt(statusJson.dead).toLocaleString();
+  }
+  if (statusJson.working) {
+    wrapper.querySelector("#working").innerText = parseInt(statusJson.working).toLocaleString();
+  }
 }
 
 fetch("./info.php", { signal: AbortSignal.timeout(5000), mode: "cors" }).catch(() => {});

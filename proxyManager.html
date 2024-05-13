@@ -40,7 +40,8 @@
     </div>
     <div class="flex-1" id="countProxy">
       <span>Untested (<b id="untested" class="text-amber-400">0</b>) Dead (<b id="dead"
-          class="text-red-400">0</b>)</span>
+          class="text-red-400">0</b>) Working (<b id="working"
+          class="text-green-400">0</b>)</span>
     </div>
     <div class="flex-1 text-amber-400">
       <a href="#modify_config_section" class="bracket">modify config</a>
@@ -87,7 +88,7 @@
         document.getElementById("recaptcha").appendChild(embedder);
         const script = document.createElement("script");
         script.src = "https://www.google.com/recaptcha/api.js?render=" + siteKey;
-        script.onload = function() {
+        script.onload = function () {
           grecaptcha.ready(() => recaptcha_execute(siteKey));
         };
         document.body.appendChild(script);
