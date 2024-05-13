@@ -30,7 +30,7 @@ if (!isset($_SESSION['captcha'])) {
 if ($forbidden) {
   header("Content-type: application/json; charset=utf-8");
   http_response_code(403);
-  exit(json_encode(['error' => 'unauthorized']));
+  exit(json_encode(['error' => 'unauthorized, try login first']));
 }
 
 $file = 'proxies.txt';
