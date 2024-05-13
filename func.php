@@ -573,7 +573,7 @@ function parseArgs($args): array
 
 $user_id = "CLI";
 if (!$isCli) {
-  $user_id = $_COOKIE['visitor_id'];
+  $user_id = $_COOKIE['visitor_id'] ?? session_id();
 } else {
   $parsedArgs = parseArgs($argv);
   if (isset($parsedArgs['userId']) && !empty(trim($parsedArgs['userId']))) {
