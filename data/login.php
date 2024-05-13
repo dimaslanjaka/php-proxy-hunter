@@ -5,8 +5,6 @@ require_once __DIR__ . '/../func.php';
 $shortHash = $_ENV['CPID'];
 
 // init configuration
-$clientID = $_ENV['G_CLIENT_ID'];
-$clientSecret = $_ENV['G_CLIENT_SECRET'];
 $protocol = 'https://';
 $host = !$isCli ? $_SERVER['HTTP_HOST'] : 'sh.webmanajemen.com';
 $path = !$isCli ? strtok($_SERVER['REQUEST_URI'], '?') : '/data/login.php';
@@ -16,31 +14,53 @@ $current_url = $protocol . $host . $path;
 $redirectUri = $current_url;
 
 // create Client Request to access Google API
-$client = new Google_Client();
-$client->setClientId($clientID);
-$client->setClientSecret($clientSecret);
+$client = new \Google\client();
+$client->setClientId($_ENV['G_CLIENT_ID']);
+$client->setClientSecret($_ENV['G_CLIENT_SECRET']);
+$client->setDeveloperKey($_ENV['G_API']);
 $client->setRedirectUri($redirectUri);
-$client->addScope("email");
-$client->addScope("profile");
+$client->addScope("https://www.googleapis.com/auth/userinfo.email");
+$client->addScope("https://www.googleapis.com/auth/userinfo.profile");
 $client->setAccessType('offline');
 $client->setApprovalPrompt('force');
+$client->setApplicationName('PHP PROXY HUNTER');
+$client->setIncludeGrantedScopes(true);
 
 $authUri = $client->createAuthUrl();
-$message = '{}';
+$message = [];
 
 if (isset($_REQUEST['login'])) {
   header('Location: ' . $authUri);
 }
 
-$credentialsPath = __DIR__ . '/../config/login_' . (!$isCli ? $_COOKIE['visitor_id'] : 'CLI');
+$credentialsPath = __DIR__ . '/../tmp/logins/login_' . (!$isCli ? $_COOKIE['visitor_id'] : 'CLI') . '.json';
+createParentFolders($credentialsPath);
+
+// authenticate using saved
+if (file_exists($credentialsPath)) {
+  $token = json_decode(read_file($credentialsPath), true);
+  if ($token) $client->setAccessToken($token);
+}
 
 // authenticate code from Google OAuth Flow
 if (isset($_GET['code'])) {
   $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
   if (isset($token['access_token'])) {
-    $client->setAccessToken($token['access_token']);
-    file_put_contents($credentialsPath, json_encode($token));
+    $client->setAccessToken($token);
+    file_put_contents($credentialsPath, json_encode($token, JSON_PRETTY_PRINT));
+  }
+}
 
+if ($client->getAccessToken()) {
+  if ($client->isAccessTokenExpired()) {
+    $message[] = 'access token expired';
+    if ($client->getRefreshToken()) {
+      $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+      file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
+      $token_data = $client->verifyIdToken();
+      $message['token_data'] = $token_data;
+    }
+  } else {
     // get profile info
     $google_oauth = new Google_Service_Oauth2($client);
     try {
@@ -52,20 +72,13 @@ if (isset($_GET['code'])) {
       } else {
         if (isset($_SESSION['admin'])) unset($_SESSION['admin']);
       }
+      $message['email'] = $email;
     } catch (\Google\Service\Exception $e) {
-      $message = $e->getMessage();
+      $message[] = $e->getMessage();
     }
   }
-} else if (file_exists($credentialsPath)) {
-  $token = json_decode(read_file($credentialsPath), true);
-  if ($token) $client->setAccessToken($token['access_token']);
 }
 
-if ($client->getAccessToken() && $client->isAccessTokenExpired()) {
-  $message = 'access token expired';
-//  $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-//  file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
-}
 ?>
 
 <!DOCTYPE html>
@@ -121,7 +134,7 @@ if ($client->getAccessToken() && $client->isAccessTokenExpired()) {
 </div>
 
 <div class="w-full">
-  <pre class="mb-3"><code><?php echo $message; ?></code></pre>
+  <pre class="mb-3"><code><?php var_dump($message); ?></code></pre>
   <!--    <pre class="mb-3"><code>--><?php //echo json_encode($_ENV); ?><!--</code></pre>-->
 </div>
 
@@ -161,6 +174,8 @@ if ($client->getAccessToken() && $client->isAccessTokenExpired()) {
       } // customization attributes
     );
     // google.accounts.id.prompt(); // also display the One Tap dialog
+    // redirect to non-code query string
+    // if (location.href.includes('?code=')) location.href = 'login.php';
   };
 </script>
 </body>
