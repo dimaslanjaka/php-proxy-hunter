@@ -2,6 +2,37 @@
 
 require_once __DIR__ . '/func.php';
 
+$forbidden = false;
+
+// return 403 forbidden when captcha not resolved
+if (!isset($_SESSION['captcha'])) {
+  $forbidden = true;
+} else {
+  $last_check_captcha = $_SESSION['last_captcha_check'];
+
+  // Convert RFC 3339 date string to a Unix timestamp
+  $last_check_timestamp = strtotime($last_check_captcha);
+
+  // Get the current Unix timestamp
+  $current_timestamp = time();
+
+  // Calculate the Unix timestamp for 1 hour ago
+  $one_hour_ago = $current_timestamp - 3600;
+
+  // Compare if the last check captcha was 1 hour ago
+  if ($last_check_timestamp <= $one_hour_ago) {
+    // The last check captcha was more than 1 hour ago
+    $forbidden = true;
+    unset($_SESSION['captcha']);
+  }
+}
+
+if ($forbidden) {
+  header("Content-type: application/json; charset=utf-8");
+  http_response_code(403);
+  exit(json_encode(['error' => 'unauthorized']));
+}
+
 $file = 'proxies.txt';
 
 if (isset($_REQUEST['file'])) {
