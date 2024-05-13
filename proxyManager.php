@@ -34,6 +34,8 @@
 
 require_once __DIR__ . "/func.php";
 
+header("Location: proxyManager.html", true, 302);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   header('Content-Type: application/json; charset=utf-8');
   $input = json_decode(file_get_contents('php://input'), true);

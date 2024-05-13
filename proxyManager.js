@@ -127,24 +127,25 @@ function showSnackbar(message, duration = 3000) {
  */
 function parseProxies(text) {
   const ipPortRegex = /\b(?:\d{1,3}\.){3}\d{1,3}:\d+\b/g;
-  const ipPortArray = text.match(ipPortRegex);
-  return ipPortArray;
+  return text.match(ipPortRegex);
 }
 
 (function () {
-  refreshResults();
+  refreshResults().then((_) => {
+  });
 
   const refreshBtn = document.getElementById("refresh");
   if (refreshBtn) {
-    const rfcb = () => {
+    const refreshCallback = () => {
       // remove dragging indicators
       dragging = [];
       // refresh the frames
-      refreshResults();
+      refreshResults().then((_) => {
+      });
       // show toast
       showSnackbar("data refreshed");
     };
-    setEventRecursive(refreshBtn, "click", rfcb);
+    setEventRecursive(refreshBtn, "click", refreshCallback);
   }
 
   const addProxyBtn = document.getElementById("addProxy");
@@ -176,7 +177,8 @@ function parseProxies(text) {
         .catch((error) => {
           showSnackbar("There was a problem with your fetch operation: " + error.message);
         });
-      refreshResults();
+      refreshResults().then((_) => {
+      });
     };
     setEventRecursive(addProxyBtn, "click", addProxyFun);
   }
@@ -191,7 +193,8 @@ function parseProxies(text) {
         })
         .finally(() => {
           setTimeout(() => {
-            refreshResults();
+            refreshResults().then((_) => {
+            });
           }, 3000);
         });
     });
@@ -206,7 +209,8 @@ function parseProxies(text) {
           if (!intervalFrame) {
             console.log("start refreshing");
             intervalFrame = setInterval(() => {
-              refreshResults();
+              refreshResults().then((_) => {
+              });
             }, 2000);
             cekBtn.setAttribute("disabled", "true");
           }
@@ -248,4 +252,5 @@ function parseProxies(text) {
   });
 })();
 
-fetch("./info.php?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" });
+fetch("./info.php?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" }).then((_) => {
+});
