@@ -59,7 +59,7 @@ echo "total untested proxies from file " . $untested . PHP_EOL;
 $data['counter']['untested'] += $untested;
 file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
 
-setFilePermissions([
+setMultiPermissions([
     __DIR__ . '/status.json',
     __DIR__ . '/proxies.txt',
     __DIR__ . '/dead.txt',

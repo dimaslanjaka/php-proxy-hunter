@@ -22,7 +22,7 @@ if (function_exists('header')) {
 $file = __DIR__ . "/geoIp.php";
 $output_file = __DIR__ . '/proxyChecker.txt';
 $pid_file = __DIR__ . '/filterPorts.pid';
-setFilePermissions([$file, $output_file, $pid_file]);
+setMultiPermissions([$file, $output_file, $pid_file]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd = "php " . escapeshellarg($file);
 if ($isWin) {
@@ -46,7 +46,7 @@ echo $cmd . "\n\n";
 $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
 if (!file_exists(__DIR__ . '/tmp')) mkdir(__DIR__ . '/tmp');
 $runner = __DIR__ . "/tmp/runner_" . md5(__FILE__) . ($isWin ? '.bat' : "");
-setFilePermissions($runner);
+setMultiPermissions($runner);
 file_put_contents($runner, $cmd);
 
 exec(escapeshellarg($runner));

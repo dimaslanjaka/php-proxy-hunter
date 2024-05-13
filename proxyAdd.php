@@ -74,7 +74,7 @@ if (file_exists(__DIR__ . '/proxyChecker.lock')) {
   $output = __DIR__ . '/assets/proxies/added-' . $id . '.txt';
   createParentFolders($output);
   append_content_with_lock($output, PHP_EOL . $proxies_txt);
-  setFilePermissions($output);
+  setMultiPermissions($output);
 } else {
   append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . $proxies_txt);
 }
