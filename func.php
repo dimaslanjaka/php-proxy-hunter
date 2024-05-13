@@ -1475,6 +1475,7 @@ function randomIosUa(string $type = 'chrome'): string
  */
 function read_file(string $inputFile, int $chunkSize = 1048576)
 {
+  if (!file_exists($inputFile)) return false;
   // Check if file is readable
   if (!is_readable($inputFile) || is_file_locked($inputFile)) {
     echo "$inputFile is not readable." . PHP_EOL;
