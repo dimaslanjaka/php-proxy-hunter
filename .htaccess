@@ -38,10 +38,17 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
-# Set cache control for .json files
-<FilesMatch "\.(working|status)\.json$">
-    Header set Cache-Control "public, max-age=300"
-</FilesMatch>
+# Set cache-control for 5 mins for working.json and status.json
+<IfModule mod_headers.c>
+    <FilesMatch "^(working|status)\.json$">
+        Header set Cache-Control "public, max-age=300"
+    </FilesMatch>
+</IfModule>
+
+# Disallow access to working.json
+<Files "working.json">
+    Require all denied
+</Files>
 
 # Skip caching on .html files
 <FilesMatch "\.html$">
