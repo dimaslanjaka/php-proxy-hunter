@@ -73,7 +73,8 @@ $urls = array_unique([
     "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/proxies_dump.json",
     "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks4_proxies.txt",
     "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks5_proxies.txt",
-    "https://github.com/prxchk/proxy-list/raw/main/all.txt"
+    "https://github.com/prxchk/proxy-list/raw/main/all.txt",
+    "https://github.com/clarketm/proxy-list/raw/master/proxy-list.txt"
 ]);
 
 // File to append the content
