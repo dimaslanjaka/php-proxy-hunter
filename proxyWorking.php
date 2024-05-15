@@ -50,14 +50,14 @@ foreach ($data['counter'] as $key => $value) {
 file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
 
 // set limitation for below codes only
-if (function_exists('set_time_limit')) set_time_limit(30);
-
-$untested = extractProxies(read_file(__DIR__ . '/proxies.txt'));
-$untested = uniqueClassObjectsByProperty($untested, 'proxy');
-$untested = count($untested);
-echo "total untested proxies from file " . $untested . PHP_EOL;
-$data['counter']['untested'] += $untested;
-file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
+//if (function_exists('set_time_limit')) set_time_limit(30);
+//
+//$untested = extractProxies(read_file(__DIR__ . '/proxies.txt'));
+//$untested = uniqueClassObjectsByProperty($untested, 'proxy');
+//$untested = count($untested);
+//echo "total untested proxies from file " . $untested . PHP_EOL;
+//$data['counter']['untested'] += $untested;
+//file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
 
 setMultiPermissions([
     __DIR__ . '/status.json',
