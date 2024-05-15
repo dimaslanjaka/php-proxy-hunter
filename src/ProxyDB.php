@@ -255,10 +255,10 @@ class ProxyDB
     $whereClause = 'status IS NULL OR status = "" OR status NOT IN (?, ?, ?)';
     $params = ['active', 'port-closed', 'dead'];
 
-    // Append the limit clause if the $limit parameter is provided
+    $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
     $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
 
-    return $this->db->select('proxies', '*', $whereClause . ' ' . $limitClause, $params);
+    return $this->db->select('proxies', '*', $whereClause . ' ' . $orderByRandom . ' ' . $limitClause, $params);
   }
 
   public function countDeadProxies(): int
