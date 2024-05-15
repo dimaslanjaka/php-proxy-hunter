@@ -11,6 +11,12 @@
       "type": "node-terminal"
     },
     {
+      "command": "python main_proxy_manager.py",
+      "name": "Run proxy manager",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
       "command": "python local-selenium.py",
       "name": "Run selenium",
       "request": "launch",
