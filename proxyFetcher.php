@@ -79,7 +79,7 @@ $urls = array_unique([
 
 // File to append the content
 $outputFile = __DIR__ . "/proxies.txt";
-$maxFileSize = 1 * 1024 * 1024; // 1MB in bytes
+$maxFileSize = 500 * 1024; // 500KB in bytes
 
 // Check if the file exceeds the maximum size
 if (filesize($outputFile) > $maxFileSize) {
