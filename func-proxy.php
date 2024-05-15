@@ -881,7 +881,7 @@ function clean_proxies_file(string $file)
  *               - 'array': An array of associative arrays representing the working proxies data, with keys 'proxy', 'port', 'type', 'country', 'last_check', and 'useragent'.
  *               - 'counter': An array containing counts of different types of proxies in the database, including 'working', 'dead', 'untested', and 'private'.
  */
-function parse_working_proxies(ProxyDB $db)
+function parse_working_proxies(ProxyDB $db): array
 {
   // Retrieve working proxies from the provided ProxyDB object
   $working = $db->getWorkingProxies();
