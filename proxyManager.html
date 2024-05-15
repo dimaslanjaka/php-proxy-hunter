@@ -29,254 +29,263 @@
     };
   </script>
   <link rel="stylesheet"
-    href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
+        href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
 </head>
 
 <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
-  <div class="mb-3 flex flex-col md:flex-row border border-gray-600 p-4" id="nav-info">
-    <div class="flex-1">
-      <i class="fa-duotone fa-square-info"></i> <span id="status"
-        class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">IDLE</span>
+<div class="mb-3 flex flex-col md:flex-row border border-gray-600 p-4" id="nav-info">
+  <div class="flex-1">
+    <i class="fa-duotone fa-square-info"></i> <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
+                                                    id="status">IDLE</span>
+  </div>
+  <div class="flex-1"><span>Untested (<b class="text-amber-400" id="untested">0</b>)</span></div>
+  <div class="flex-1"><span>Dead (<b class="text-red-400" id="dead">0</b>)</span></div>
+  <div class="flex-1"><span>Working (<b class="text-green-400" id="working">0</b>)</span></div>
+  <div class="flex-1 text-amber-400">
+    <a class="bracket" href="#modify_config_section">modify config</a>
+    <a class="bracket" href="./data/login.php">login</a>
+  </div>
+  <div class="flex-1 text-amber-400">
+    <div class="bracket"><input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" id="autoCheckProxy" type="checkbox"
+                                value="">
+      <label class="ms-2 text-sm font-medium text-amber-400" for="autoCheckProxy">Auto Check</label>
     </div>
-    <div class="flex-1"><span>Untested (<b id="untested" class="text-amber-400">0</b>)</span></div>
-    <div class="flex-1"><span>Dead (<b id="dead" class="text-red-400">0</b>)</span></div>
-    <div class="flex-1"><span>Working (<b id="working" class="text-green-400">0</b>)</span></div>
-    <div class="flex-1 text-amber-400">
-      <a href="#modify_config_section" class="bracket">modify config</a>
-      <a href="./data/login.php" class="bracket">login</a>
+  </div>
+</div>
+
+<section id="recaptcha">
+  <script>
+    function send_token(token, callback) {
+      if (typeof callback !== "function") callback = () => {
+      };
+      fetch(`//${location.hostname}/data/login.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        },
+        body: new URLSearchParams({
+          "g-recaptcha-response": token
+        })
+          .toString()
+      })
+        .then(res => res.json())
+        .then(callback);
+    }
+
+    function recaptcha_execute(siteKey) {
+      grecaptcha.execute(siteKey, { action: "submit" }).then(send_token);
+    }
+
+    fetch(`//${location.hostname}/info.php`).then(r => r.json()).then(res => {
+      const siteKey = res["captcha-site-key"];
+      const embedder = document.createElement("div");
+      embedder.classList.add("g-recaptcha");
+      embedder.setAttribute("data-sitekey", "X");
+      embedder.setAttribute("data-callback", "send_token");
+      embedder.setAttribute("data-action", "submit");
+      document.getElementById("recaptcha").appendChild(embedder);
+      const script = document.createElement("script");
+      script.src = "https://www.google.com/recaptcha/api.js?render=" + siteKey;
+      script.onload = function() {
+        grecaptcha.ready(() => recaptcha_execute(siteKey));
+      };
+      document.body.appendChild(script);
+    });
+  </script>
+</section>
+
+<section class="mb-5" id="proxies-list">
+  <ins class="adsbygoogle mb-3" data-ad-client="ca-pub-2188063137129806" data-ad-format="auto"
+       data-ad-slot="6233018586" data-full-width-responsive="true" style="display:block"></ins>
+
+  <div class="relative overflow-auto max-h-[500px] mb-3" id="tbl-wrapper">
+    <table class="table-fixed w-full mb-4">
+      <thead>
+      <tr>
+        <th class="w-64">Proxy</th>
+        <th class="w-32">Latency (ms)</th>
+        <th class="w-64">Last checked</th>
+        <th class="w-60">Type</th>
+        <th class="w-40">Region</th>
+        <th class="w-40">City</th>
+        <th class="w-40">Country</th>
+        <th class="w-64">Timezone</th>
+        <th class="w-32">Latitude</th>
+        <th class="w-32">Longitude</th>
+        <th class="w-24">Anonymity</th>
+        <th class="w-24">HTTPS</th>
+        <th class="w-24">Status</th>
+        <th class="w-24">Private</th>
+        <th class="w-24">Language</th>
+        <th class="w-96">Useragent</th>
+        <th class="w-96">WebGL vendor</th>
+        <th class="w-96">WebGL renderer</th>
+        <th class="w-40">Browser vendor</th>
+        <th class="w-24">Username</th>
+        <th class="w-24">Password</th>
+      </tr>
+      </thead>
+      <tbody id="wproxy"></tbody>
+    </table>
+  </div>
+
+  <ins class="adsbygoogle mb-2" data-ad-client="ca-pub-2188063137129806" data-ad-format="auto"
+       data-ad-slot="6873696468" data-full-width-responsive="true" style="display:block"></ins>
+
+  <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1 max-w-full">
+    <div class="relative mb-3 z-0 h-60 overflow-auto bg-white dark:bg-slate-800 dark:text-slate-400">
+      <b>Checker result</b>
+      <div id="cpresult"></div>
     </div>
-    <div class="flex-1 text-amber-400">
-      <div class="bracket"><input id="autoCheckProxy" type="checkbox" value=""
-          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-        <label for="autoCheckProxy" class="ms-2 text-sm font-medium text-amber-400">Auto Check</label>
-      </div>
+    <div class="relative z-0 group mb-3">
+      <b>Add proxies</b>
+      <textarea class="mb-2 block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" id="add_proxies" name="proxies"
+                placeholder="18.133.16.21:1080@username:password&#10;18.133.16.21:1080&#10;OR ANY TEXTS THAT CONTAINS PROXY"
+                rows="11"></textarea>
+      <button
+        class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+        id="submit-new-proxies">Submit new proxies
+      </button>
     </div>
   </div>
 
-  <section id="recaptcha">
-    <script>
-      function send_token(token, callback) {
-        if (typeof callback !== "function") callback = () => {
-        };
-        fetch(`//${location.hostname}/data/login.php`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-          },
-          body: new URLSearchParams({
-            "g-recaptcha-response": token
-          })
-            .toString()
-        })
-          .then(res => res.json())
-          .then(callback);
-      }
+  <ins class="adsbygoogle" data-ad-client="ca-pub-2188063137129806" data-ad-format="auto" data-ad-slot="6077317677"
+       data-full-width-responsive="true" style="display:block"></ins>
+</section>
 
-      function recaptcha_execute(siteKey) {
-        grecaptcha.execute(siteKey, { action: "submit" }).then(send_token);
-      }
-
-      fetch(`//${location.hostname}/info.php`).then(r => r.json()).then(res => {
-        const siteKey = res["captcha-site-key"];
-        const embedder = document.createElement("div");
-        embedder.classList.add("g-recaptcha");
-        embedder.setAttribute("data-sitekey", "X");
-        embedder.setAttribute("data-callback", "send_token");
-        embedder.setAttribute("data-action", "submit");
-        document.getElementById("recaptcha").appendChild(embedder);
-        const script = document.createElement("script");
-        script.src = "https://www.google.com/recaptcha/api.js?render=" + siteKey;
-        script.onload = function () {
-          grecaptcha.ready(() => recaptcha_execute(siteKey));
-        };
-        document.body.appendChild(script);
-      });
-    </script>
-  </section>
-
-  <section id="proxies-list" class="mb-5">
-    <ins class="adsbygoogle mb-3" style="display:block" data-ad-client="ca-pub-2188063137129806"
-      data-ad-slot="6233018586" data-ad-format="auto" data-full-width-responsive="true"></ins>
-
-    <div class="relative overflow-auto max-h-[500px] mb-3" id="tbl-wrapper">
-      <table class="table-fixed w-full mb-4">
-        <thead>
-          <tr>
-            <th class="w-64">Proxy</th>
-            <th class="w-32">Latency (ms)</th>
-            <th class="w-64">Last checked</th>
-            <th class="w-60">Type</th>
-            <th class="w-40">Region</th>
-            <th class="w-40">City</th>
-            <th class="w-40">Country</th>
-            <th class="w-64">Timezone</th>
-            <th class="w-32">Latitude</th>
-            <th class="w-32">Longitude</th>
-            <th class="w-24">Anonymity</th>
-            <th class="w-24">HTTPS</th>
-            <th class="w-24">Status</th>
-            <th class="w-24">Private</th>
-            <th class="w-24">Language</th>
-            <th class="w-96">Useragent</th>
-            <th class="w-96">WebGL vendor</th>
-            <th class="w-96">WebGL renderer</th>
-            <th class="w-40">Browser vendor</th>
-            <th class="w-24">Username</th>
-            <th class="w-24">Password</th>
-          </tr>
-        </thead>
-        <tbody id="wproxy"></tbody>
-      </table>
-    </div>
-
-    <ins class="adsbygoogle mb-2" style="display:block" data-ad-client="ca-pub-2188063137129806"
-      data-ad-slot="6873696468" data-ad-format="auto" data-full-width-responsive="true"></ins>
-
-    <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1 max-w-full">
-      <div class="relative mb-3 z-0 h-60 overflow-auto bg-white dark:bg-slate-800 dark:text-slate-400">
-        <b>Checker result</b>
-        <div id="cpresult"></div>
+<section class="mb-5" id="modify_config_section">
+  <h2 class="text-center mb-3">Proxy Checker Config</h2>
+  <form class="mb-3" id="config_ui">
+    <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1 mb-5">
+      <div class="relative z-0 w-full group">
+        <input class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" id="floating_endpoint" name="endpoint"
+               placeholder=" "
+               required type="text" />
+        <label class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+               for="floating_endpoint">Endpoint</label>
       </div>
-      <div class="relative z-0 group mb-3">
-        <b>Add proxies</b>
-        <textarea id="add_proxies" rows="11" name="add_proxies"
-          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder="18.133.16.21:1080@username:password&#10;18.133.16.21:1080&#10;OR ANY TEXTS THAT CONTAINS PROXY"></textarea>
+
+      <div>
+        <!-- <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">Protocols</h3> -->
+        <ul
+          class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+            <div class="flex items-center ps-3">
+              <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" id="http-checkbox-list" name="http" type="checkbox"
+                     value="">
+              <label class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                     for="http-checkbox-list">
+                HTTP/HTTPS
+              </label>
+            </div>
+          </li>
+          <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+            <div class="flex items-center ps-3">
+              <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" id="socks4-checkbox-list" name="socks4" type="checkbox"
+                     value="">
+              <label class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                     for="socks4-checkbox-list">SOCKS 4</label>
+            </div>
+          </li>
+          <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+            <div class="flex items-center ps-3">
+              <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" id="socks5-checkbox-list" name="socks5" type="checkbox"
+                     value="">
+              <label class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                     for="socks5-checkbox-list">SOCKS 5</label>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
 
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2188063137129806" data-ad-slot="6077317677"
-      data-ad-format="auto" data-full-width-responsive="true"></ins>
-  </section>
-
-  <section class="mb-5" id="modify_config_section">
-    <h2 class="text-center mb-3">Proxy Checker Config</h2>
-    <form class="mb-3" id="config_ui">
-      <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1 mb-5">
-        <div class="relative z-0 w-full group">
-          <input type="text" name="endpoint" id="floating_endpoint"
-            class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" " required />
-          <label for="floating_endpoint"
-            class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Endpoint</label>
-        </div>
-
-        <div>
-          <!-- <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">Protocols</h3> -->
-          <ul
-            class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
-              <div class="flex items-center ps-3">
-                <input id="http-checkbox-list" type="checkbox" value="" name="http"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                <label for="http-checkbox-list"
-                  class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                  HTTP/HTTPS
-                </label>
-              </div>
-            </li>
-            <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
-              <div class="flex items-center ps-3">
-                <input id="socks4-checkbox-list" type="checkbox" value="" name="socks4"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                <label for="socks4-checkbox-list"
-                  class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">SOCKS 4</label>
-              </div>
-            </li>
-            <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
-              <div class="flex items-center ps-3">
-                <input id="socks5-checkbox-list" type="checkbox" value="" name="socks5"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                <label for="socks5-checkbox-list"
-                  class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">SOCKS 5</label>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="relative z-0 w-full mb-5 group">
+    <div class="relative z-0 w-full mb-5 group">
         <textarea id="floating_headers" rows="10" name="headers"
-          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder="User-Agent: Your User Agent&#10;Referer: https://google.com"></textarea>
-        <label for="floating_headers"
-          class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Headers</label>
-      </div>
-    </form>
-  </section>
+                  class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                  placeholder="User-Agent: Your User Agent&#10;Referer: https://google.com"></textarea>
+      <label class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+             for="floating_headers">Headers</label>
+    </div>
 
-  <ins class="adsbygoogle" style="display:block" data-ad-format="autorelaxed" data-ad-client="ca-pub-2188063137129806"
-    data-ad-slot="5041245242"></ins>
+    <button
+      class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+      id="submit-config">Save config
+    </button>
+  </form>
+</section>
 
-  <div id="snackbar">Snackbar Message</div>
+<ins class="adsbygoogle" data-ad-client="ca-pub-2188063137129806" data-ad-format="autorelaxed" data-ad-slot="5041245242"
+     style="display:block"></ins>
 
-  <a href="#" class="fab" title="re-check proxies" id="recheck"><i class="fal fa-refresh"></i></a>
+<div id="snackbar">Snackbar Message</div>
 
-  <script>
-    const script = document.createElement("script");
-    script.src = "./proxyManagerHtml.js?v=" + new Date();
-    script.onload = () => {
-      setTimeout(() => {
-        const myscript = document.createElement("script");
-        myscript.src = "./js/site.js?v=" + new Date();
-        document.body.appendChild(myscript);
-      }, 1000);
-    };
-    document.body.appendChild(script);
+<a class="fab" href="#" id="recheck" title="re-check proxies"><i class="fal fa-refresh"></i></a>
 
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "./proxyManagerHtml.css?v=" + new Date();
-    document.head.appendChild(link);
+<script>
+  const script = document.createElement("script");
+  script.src = "./proxyManagerHtml.js?v=" + new Date();
+  script.onload = () => {
+    setTimeout(() => {
+      const myscript = document.createElement("script");
+      myscript.src = "./js/site.js?v=" + new Date();
+      document.body.appendChild(myscript);
+    }, 1000);
+  };
+  document.body.appendChild(script);
 
-    function doubleScroll(element) {
-      const scrollbar = document.createElement("div");
-      scrollbar.appendChild(document.createElement("div"));
-      scrollbar.style.overflow = "auto";
-      scrollbar.style.overflowY = "hidden";
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "./proxyManagerHtml.css?v=" + new Date();
+  document.head.appendChild(link);
+
+  function doubleScroll(element) {
+    const scrollbar = document.createElement("div");
+    scrollbar.appendChild(document.createElement("div"));
+    scrollbar.style.overflow = "auto";
+    scrollbar.style.overflowY = "hidden";
+    scrollbar.firstChild.style.width = element.scrollWidth + "px";
+    scrollbar.firstChild.style.paddingTop = "1px";
+    scrollbar.firstChild.appendChild(document.createTextNode("\xA0"));
+    let running = false;
+    // Keep scrollbar in sync when element size changes
+    new ResizeObserver(() => {
       scrollbar.firstChild.style.width = element.scrollWidth + "px";
-      scrollbar.firstChild.style.paddingTop = "1px";
-      scrollbar.firstChild.appendChild(document.createTextNode("\xA0"));
-      let running = false;
-      // Keep scrollbar in sync when element size changes
-      new ResizeObserver(() => {
-        scrollbar.firstChild.style.width = element.scrollWidth + "px";
-      }).observe(element);
-      scrollbar.onscroll = function () {
-        if (running) {
-          running = false;
-          return;
-        }
-        running = true;
-        element.scrollLeft = scrollbar.scrollLeft;
-      };
-      element.onscroll = function () {
-        if (running) {
-          running = false;
-          return;
-        }
-        running = true;
-        scrollbar.scrollLeft = element.scrollLeft;
-      };
-      element.parentNode.insertBefore(scrollbar, element);
-    }
+    }).observe(element);
+    scrollbar.onscroll = function() {
+      if (running) {
+        running = false;
+        return;
+      }
+      running = true;
+      element.scrollLeft = scrollbar.scrollLeft;
+    };
+    element.onscroll = function() {
+      if (running) {
+        running = false;
+        return;
+      }
+      running = true;
+      scrollbar.scrollLeft = element.scrollLeft;
+    };
+    element.parentNode.insertBefore(scrollbar, element);
+  }
 
-    doubleScroll(document.getElementById("tbl-wrapper"));
-  </script>
+  doubleScroll(document.getElementById("tbl-wrapper"));
+</script>
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-      dataLayer.push(arguments);
-    }
+  function gtag() {
+    dataLayer.push(arguments);
+  }
 
-    gtag("js", new Date());
+  gtag("js", new Date());
 
-    gtag("config", "G-BG75CLNJZ1");
-  </script>
+  gtag("config", "G-BG75CLNJZ1");
+</script>
 </body>
 
 </html>

@@ -503,7 +503,8 @@ function showSnackbar(...messages) {
   const snackbar = document.getElementById("snackbar");
 
   // Combine all messages into one string
-  let combinedMessage = messages
+  // Set the message
+  snackbar.textContent = messages
     .map((msg) => {
       if (msg instanceof Error) {
         // If message is an Error object, extract the error message
@@ -516,9 +517,6 @@ function showSnackbar(...messages) {
       }
     })
     .join(" ");
-
-  // Set the message
-  snackbar.textContent = combinedMessage;
 
   // Add the "show" class to DIV
   snackbar.classList.add("show");
@@ -535,7 +533,7 @@ function showSnackbar(...messages) {
  * this is not always possible. Browser support for Chrome 43+,
  * Firefox 42+, Safari 10+, Edge and Internet Explorer 10+.
  * Internet Explorer: The clipboard feature may be disabled by
- * an administrator. By default a prompt is shown the first
+ * an administrator. By default, a prompt is shown the first
  * time the clipboard is used (per session).
  * @param {string} text - The text to be copied to the clipboard.
  * @returns {boolean} - Returns true if the operation succeeds, otherwise returns false.
@@ -612,19 +610,26 @@ async function init_config_editor() {
 
   let sending_config, sending_proxies;
 
+  const submit_config = (e) => {
+    e.preventDefault();
+    clearTimeout(sending_config); // Clear the previous timeout
+    sending_config = setTimeout(modify_config, 1000); // Set a new timeout
+  };
+
+  document.getElementById("submit-config").addEventListener("click", submit_config);
+
   [endpoint, headers, checkbox_http, checkbox_socks4, checkbox_socks5].forEach((el) => {
-    el.addEventListener("change", (e) => {
-      e.preventDefault();
-      clearTimeout(sending_config); // Clear the previous timeout
-      sending_config = setTimeout(modify_config, 1000); // Set a new timeout
-    });
+    el.addEventListener("change", submit_config);
   });
 
-  document.getElementById("add_proxies").addEventListener("change", (e) => {
+  const submit_proxies = (e) => {
     e.preventDefault();
     clearTimeout(sending_proxies); // Clear the previous timeout
-    sending_proxies = setTimeout(() => addProxy(e.target.value), 1000); // Set a new timeout
-  });
+    sending_proxies = setTimeout(() => addProxy(document.getElementById("add_proxies").value), 1000); // Set a new timeout
+  };
+
+  document.getElementById("add_proxies").addEventListener("change", submit_proxies);
+  document.getElementById("submit-new-proxies").addEventListener("click", submit_proxies);
 }
 
 async function addProxy(proxies) {
