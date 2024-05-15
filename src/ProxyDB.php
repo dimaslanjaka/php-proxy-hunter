@@ -268,7 +268,7 @@ class ProxyDB
 
   public function countUntestedProxies(): int
   {
-    return $this->db->count('proxies', 'status = ? OR status IS NULL OR status = ""', ['']);
+    return $this->db->count('proxies', 'status = ? OR status IS NULL OR status = "" OR status = "untested"', ['']);
   }
 
   public function countWorkingProxies(): int
