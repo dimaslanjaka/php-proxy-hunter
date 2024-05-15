@@ -357,10 +357,9 @@ function schedule_remover()
       $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
         return strpos($fn, 'added-') !== false;
       });
-      if (!empty($assets)) {
-        $files = array_filter(array_merge($files, $assets), 'file_exists');
-        $files = array_map('realpath', $files);
-      }
+      $files = array_merge($files, $assets);
+      $files = array_filter($files, 'file_exists');
+      $files = array_map('realpath', $files);
       foreach ($files as $file) {
         $remove = removeStringFromFile($file, $str_to_remove);
         if ($remove == 'success') {
