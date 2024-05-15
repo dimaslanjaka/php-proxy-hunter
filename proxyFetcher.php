@@ -79,6 +79,13 @@ $urls = array_unique([
 
 // File to append the content
 $outputFile = __DIR__ . "/proxies.txt";
+$maxFileSize = 1 * 1024 * 1024; // 1MB in bytes
+
+// Check if the file exceeds the maximum size
+if (filesize($outputFile) > $maxFileSize) {
+    // Generate a new file name
+    $outputFile = __DIR__ . "/assets/proxies/added-" . date("Ymd_His") . ".txt";
+}
 
 // Loop through each URL
 foreach ($urls as $url) {
