@@ -216,8 +216,8 @@ class ProxyDB
    */
   public function getPrivateProxies(?int $limit = null): array
   {
-    $whereClause = 'status = ?';
-    $params = ['private'];
+    $whereClause = 'status = ? OR private = ?';
+    $params = ['private', 'true'];
 
     $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
     $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
