@@ -74,12 +74,19 @@ foreach ($combinedIterable as $index => $item) {
       $protocols[$handle_index] = $protocol;
       curl_multi_add_handle($mh, $handle);
     }
+    // Record the start time
+    $startTime = microtime(true);
     $running = null;
     do {
       curl_multi_exec($mh, $running);
       // Wait a short time before continuing to avoid consuming too much CPU
       curl_multi_select($mh);
     } while ($running > 0);
+    // Record the end time
+    $endTime = microtime(true);
+
+    // Calculate the total latency
+    $latency = round(($endTime - $startTime) * 1000);
     $isPrivate = false;
     $isWorking = false;
     foreach ($ch as $handle_index => $handle) {
@@ -126,7 +133,8 @@ foreach ($combinedIterable as $index => $item) {
       $data = [
           'type' => implode('-', $protocols),
           'status' => 'active',
-          'private' => $isPrivate ? 'true' : 'false'
+          'private' => $isPrivate ? 'true' : 'false',
+          'latency' => $latency
       ];
       $db->updateData($item[0]->proxy, $data);
       if (empty($item[0]->timezone) || empty($item[0]->country) || empty($item[0]->lang)) {
