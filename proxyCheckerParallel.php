@@ -77,6 +77,8 @@ foreach ($combinedIterable as $index => $item) {
     $running = null;
     do {
       curl_multi_exec($mh, $running);
+      // Wait a short time before continuing to avoid consuming too much CPU
+      curl_multi_select($mh);
     } while ($running > 0);
     $isPrivate = false;
     $isWorking = false;
