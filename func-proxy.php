@@ -312,7 +312,7 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
  * @param string $response_judges The response containing headers to judge anonymity.
  * @return string Anonymity level: Transparent, Anonymous, or Elite. And Empty is failed
  */
-function parse_anonymity($response_ip_info, $response_judges): string
+function parse_anonymity(string $response_ip_info, string $response_judges): string
 {
   if (empty(trim($response_ip_info)) || empty(trim($response_judges)))
     return "";
@@ -381,13 +381,14 @@ function checkProxy(
   $latency = -1;
 
   // is private proxy?
-  $isPrivate = stripos($response_header, 'X-Forwarded-For:') !== false || stripos($response_header, 'Proxy-Authorization:') !== false;
+  $isPrivate = stripos($response_header, 'Proxy-Authorization:') !== false;
 
   // check proxy private by redirected to gateway url
   if (!$isPrivate) {
     $finalUrl = $info['url'];
     $pattern = '/^https?:\/\/(www\.gstatic\.com|gateway\.(zs\w+)\.net\/.*(origurl)=)/i';
-    $isPrivate = preg_match($pattern, $finalUrl) !== false;
+    $is_private_match = preg_match($pattern, $finalUrl);
+    $isPrivate = $is_private_match !== false && $is_private_match > 0;
   }
 
   // non-empty array = error result
@@ -555,7 +556,7 @@ function get_geo_ip(string $the_proxy, string $proxy_type = 'http', ?ProxyDB $db
     if (!empty($lang)) {
       $data['lang'] = $lang;
     }
-    echo "$ip country $locate->countryName language is $lang" . PHP_EOL;
+    // echo "$ip country $locate->countryName language is $lang" . PHP_EOL;
   }
 
   $db->updateData($proxy, $data);
