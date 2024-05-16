@@ -104,8 +104,10 @@ foreach ($combinedIterable as $index => $item) {
 
     // close
     foreach ($ch as $handle) {
-      curl_multi_remove_handle($mh, $handle);
-      curl_close($handle);
+      if (is_resource($ch)) {
+        curl_multi_remove_handle($mh, $handle);
+        curl_close($handle);
+      }
     }
     curl_multi_close($mh);
 
