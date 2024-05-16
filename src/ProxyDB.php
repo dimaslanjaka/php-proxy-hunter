@@ -76,7 +76,7 @@ class ProxyDB
 
     // Append the limit clause if the $limit parameter is provided
     if ($limit !== null) {
-      $sql .= ' LIMIT ?';
+      $sql .= ' ORDER BY RANDOM() LIMIT ?';
     }
 
     // Prepare the statement
