@@ -4,6 +4,7 @@
 
 require __DIR__ . '/func-proxy.php';
 
+use PhpProxyHunter\Proxy;
 use PhpProxyHunter\ProxyDB;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
@@ -43,7 +44,7 @@ $start_time = microtime(true);
 
 try {
   $proxies = extractProxies(implode("\n", read_first_lines($file, 500)));
-  array_filter($proxies, function ($item) {
+  array_filter($proxies, function (Proxy $item) {
     processProxy($item->proxy);
   });
 } catch (Exception $e) {
