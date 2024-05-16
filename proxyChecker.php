@@ -189,14 +189,8 @@ if ($countLinesUntestedProxies > 0) {
   $file_untested = filter_proxies($file_untested);
   echo "[FILE] queue: " . count($file_untested) . " proxies" . PHP_EOL;
 
-  // prior to check from file
-  if (count($file_untested) > 50) {
-    $untested = $file_untested;
-    echo "using data from [FILE]\n";
-  } else {
-    $untested = array_merge($untested, $file_untested);
-    echo "using data from [DB] and [FILE]\n";
-  }
+  $untested = array_merge($untested, $file_untested);
+  shuffle($untested);
 }
 
 echo str_repeat('=', 50) . PHP_EOL;
