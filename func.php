@@ -222,13 +222,13 @@ function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFi
   }
 
   // Open source file for reading
-  $sourceHandle = fopen($sourceFilePath, 'r');
+  $sourceHandle = @fopen($sourceFilePath, 'r');
   if (!$sourceHandle) {
     return "Failed to open source file";
   }
 
   // Open destination file for appending
-  $destinationHandle = fopen($destinationFilePath, 'a');
+  $destinationHandle = @fopen($destinationFilePath, 'a');
   if (!$destinationHandle) {
     fclose($sourceHandle);
     return "Failed to open destination file";
@@ -236,7 +236,7 @@ function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFi
 
   // Open a temporary file for writing
   $tempFilePath = tempnam(sys_get_temp_dir(), 'source_temp');
-  $tempHandle = fopen($tempFilePath, 'w');
+  $tempHandle = @fopen($tempFilePath, 'w');
   if (!$tempHandle) {
     fclose($sourceHandle);
     fclose($destinationHandle);
@@ -365,7 +365,7 @@ function rewriteIpPortFile(string $filename): bool
   }
 
   // Open the file for reading
-  $file = fopen($filename, "r");
+  $file = @fopen($filename, "r");
   if (!$file) {
     echo "Error opening $filename for reading" . PHP_EOL;
     return false;
@@ -373,7 +373,7 @@ function rewriteIpPortFile(string $filename): bool
 
   // Open a temporary file for writing
   $tempFilename = tempnam(__DIR__ . '/tmp', 'rewriteIpPortFile');
-  $tempFile = fopen($tempFilename, "w");
+  $tempFile = @fopen($tempFilename, "w");
   if (!$tempFile) {
     fclose($file); // Close the original file
     echo "Error opening temporary ($tempFilename) file for writing";
@@ -421,7 +421,7 @@ function readFileLinesToArray(string $filename)
   $lines = [];
 
   // Open the file for reading
-  $file = fopen($filename, 'r');
+  $file = @fopen($filename, 'r');
 
   // Read each line until the end of the file
   while (!feof($file)) {
@@ -524,7 +524,7 @@ function extractIpPortFromFile(string $filePath, bool $unique = false): array
 
   if (file_exists($filePath)) {
     // Open the file for reading in binary mode
-    $fp = fopen($filePath, "rb");
+    $fp = @fopen($filePath, "rb");
     if (!$fp) {
       throw new Exception('File open failed.');
     }
@@ -727,7 +727,7 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
 
     // Create a temporary file to copy the original file content
     $tempFile = tmpfile();
-    $sourceFile = fopen($filePath, 'r');
+    $sourceFile = @fopen($filePath, 'r');
 
     if ($sourceFile && $tempFile) {
       // Copy content from source file to temporary file
@@ -785,13 +785,13 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
 function removeDuplicateLinesFromSource(string $sourceFile, string $destinationFile): bool
 {
   // Open source file for reading
-  $sourceHandle = fopen($sourceFile, "r");
+  $sourceHandle = @fopen($sourceFile, "r");
   if (!$sourceHandle) {
     return false; // Unable to open source file
   }
 
   // Open destination file for reading
-  $destinationHandle = fopen($destinationFile, "r");
+  $destinationHandle = @fopen($destinationFile, "r");
   if (!$destinationHandle) {
     fclose($sourceHandle);
     return false; // Unable to open destination file
@@ -828,7 +828,7 @@ function removeDuplicateLinesFromSource(string $sourceFile, string $destinationF
   rewind($tempFile);
 
   // Open source file for writing
-  $sourceHandle = fopen($sourceFile, "w");
+  $sourceHandle = @fopen($sourceFile, "w");
   if (!$sourceHandle) {
     fclose($tempFile);
     return false; // Unable to open source file for writing
@@ -860,7 +860,7 @@ function splitLargeFile(string $largeFilePath, int $maxLinesPerFile, string $out
   $filename = pathinfo($largeFilePath, PATHINFO_FILENAME);
 
   // Open the large file for reading
-  $handle = fopen($largeFilePath, 'r');
+  $handle = @fopen($largeFilePath, 'r');
 
   // Counter for the lines read
   $lineCount = 0;
@@ -869,7 +869,7 @@ function splitLargeFile(string $largeFilePath, int $maxLinesPerFile, string $out
   $fileIndex = 1;
 
   // Create the first small file
-  $smallFile = fopen($outputDirectory . '/' . $filename . '_part_' . $fileIndex . '.txt', 'w');
+  $smallFile = @fopen($outputDirectory . '/' . $filename . '_part_' . $fileIndex . '.txt', 'w');
 
   // Loop through the large file line by line
   while (!feof($handle)) {
@@ -891,7 +891,7 @@ function splitLargeFile(string $largeFilePath, int $maxLinesPerFile, string $out
       $fileIndex++;
 
       // Open a new small file
-      $smallFile = fopen($outputDirectory . '/' . $filename . '_part_' . $fileIndex . '.txt', 'w');
+      $smallFile = @fopen($outputDirectory . '/' . $filename . '_part_' . $fileIndex . '.txt', 'w');
 
       // Reset the line count
       $lineCount = 0;
@@ -920,8 +920,8 @@ function splitLargeFile(string $largeFilePath, int $maxLinesPerFile, string $out
 function getDuplicatedLines(string $file1, string $file2): array
 {
   // Open files for reading
-  $handle1 = fopen($file1, "r");
-  $handle2 = fopen($file2, "r");
+  $handle1 = @fopen($file1, "r");
+  $handle2 = @fopen($file2, "r");
 
   // Initialize arrays to store lines
   $lines1 = [];
@@ -988,7 +988,7 @@ function removeEmptyLinesFromFile(string $filePath)
   }
 
   // Open the file for reading with shared lock
-  $inputFile = fopen($filePath, 'r');
+  $inputFile = @fopen($filePath, 'r');
   if (!$inputFile) {
     // echo "Error: Unable to open file for reading: $filePath" . PHP_EOL;
     return;
@@ -1024,7 +1024,7 @@ function removeEmptyLinesFromFile(string $filePath)
   rewind($tempFile);
 
   // Rewrite the content of the input file with the content of the temporary file
-  $outputFile = fopen($filePath, 'w');
+  $outputFile = @fopen($filePath, 'w');
   if (!$outputFile) {
     // echo "Error: Unable to open file for writing: $filePath" . PHP_EOL;
     fclose($tempFile);
@@ -1065,7 +1065,7 @@ function removeEmptyLinesFromFile(string $filePath)
 function moveLinesToFile(string $sourceFile, string $destinationFile, int $linesToMove): bool
 {
   // Open the source file for reading and writing
-  $sourceHandle = fopen($sourceFile, 'r+');
+  $sourceHandle = @fopen($sourceFile, 'r+');
   if (!$sourceHandle) {
     return false;
   }
@@ -1074,7 +1074,7 @@ function moveLinesToFile(string $sourceFile, string $destinationFile, int $lines
   flock($sourceHandle, LOCK_EX);
 
   // Open or create the destination file for appending
-  $destinationHandle = fopen($destinationFile, 'a');
+  $destinationHandle = @fopen($destinationFile, 'a');
   if (!$destinationHandle) {
     flock($sourceHandle, LOCK_UN);
     fclose($sourceHandle);
@@ -1128,7 +1128,7 @@ function append_content_with_lock(string $file, string $content_to_append): bool
     if (!is_writable($file)) return false;
   }
   // Open the file for appending, create it if it doesn't exist
-  $handle = fopen($file, 'a+');
+  $handle = @fopen($file, 'a+');
 
   // Check if file handle is valid
   if (!$handle) {
@@ -1492,7 +1492,7 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
   }
 
   $content = '';
-  $handle = fopen($inputFile, 'rb');
+  $handle = @fopen($inputFile, 'rb');
 
   if ($handle === false) {
     echo "Failed to open $inputFile for reading." . PHP_EOL;
@@ -1553,7 +1553,7 @@ function is_file_locked(string $filePath): bool
 {
   // not found file treat as locked
   if (!file_exists($filePath)) return true;
-  $handle = fopen($filePath, "r");
+  $handle = @fopen($filePath, "r");
   if ($handle === false) {
     // Unable to open file
     return true;
@@ -1724,7 +1724,7 @@ function scanPort(string $ip, int $port): bool
 function filterUniqueLines(string $inputFile)
 {
   // Open input file for reading and writing
-  $inputHandle = fopen($inputFile, 'r+');
+  $inputHandle = @fopen($inputFile, 'r+');
 
   // Create a temporary file for storing unique lines
   $tempFile = tmpfile();
@@ -1807,7 +1807,7 @@ function read_first_lines(string $filePath, int $lines_to_read)
   if (!is_writable($filePath)) return false;
   if (!file_exists($filePath)) return false;
   $lines = [];
-  $handle = fopen($filePath, 'r');
+  $handle = @fopen($filePath, 'r');
   if (!$handle) {
     // Handle error opening the file
     return false;
@@ -1872,7 +1872,7 @@ function countNonEmptyLines(string $filePath, int $chunkSize = 4096)
   if (!file_exists($filePath)) return 0;
   if (!is_readable($filePath)) return 0;
   if (is_file_locked($filePath)) return 0;
-  $file = fopen($filePath, "r");
+  $file = @fopen($filePath, "r");
   if (!$file) {
     return false; // File open failed
   }
@@ -1919,7 +1919,7 @@ function fixFile(string $inputFile): void
   }
 
   // Open the file for reading and writing (binary mode)
-  $fileHandle = fopen($inputFile, 'r+');
+  $fileHandle = @fopen($inputFile, 'r+');
 
   // Attempt to acquire an exclusive lock on the file
   if (flock($fileHandle, LOCK_EX)) {
@@ -2005,10 +2005,10 @@ function moveContent(string $sourceFile, string $destinationFile): string
   }
 
   // Open the source file for reading
-  $sourceHandle = fopen($sourceFile, 'r');
+  $sourceHandle = @fopen($sourceFile, 'r');
 
   // Open the destination file for appending
-  $destinationHandle = fopen($destinationFile, 'a');
+  $destinationHandle = @fopen($destinationFile, 'a');
 
   // Attempt to acquire exclusive locks on both files
   $lockSource = flock($sourceHandle, LOCK_SH);
@@ -2058,7 +2058,7 @@ function removeDuplicateLines(string $inputFile): void
     return;
   }
   $lines = array();
-  $fd = fopen($inputFile, "r");
+  $fd = @fopen($inputFile, "r");
   if ($fd === false) {
     echo "removeDuplicateLines: Failed to open $inputFile" . PHP_EOL;
     return;
@@ -2071,7 +2071,7 @@ function removeDuplicateLines(string $inputFile): void
     flock($fd, LOCK_UN); // Release the lock
   }
   fclose($fd);
-  $fd = fopen($inputFile, "w");
+  $fd = @fopen($inputFile, "w");
   if ($fd === false) {
     echo "removeDuplicateLines: Failed to open $inputFile" . PHP_EOL;
     return;
