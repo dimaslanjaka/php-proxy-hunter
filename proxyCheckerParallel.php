@@ -40,6 +40,7 @@ $iterator = new ArrayIterator($proxies);
 $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
 $combinedIterable->attachIterator($iterator);
 $counter = 0;
+$output_log = __DIR__ . '/proxyChecker.txt';
 foreach ($combinedIterable as $index => $item) {
   $run_file = __DIR__ . '/tmp/runners/' . md5($item[0]->proxy) . '.txt';
   if (file_exists($run_file)) continue;
@@ -48,6 +49,7 @@ foreach ($combinedIterable as $index => $item) {
   if (!isPortOpen($item[0]->proxy)) {
     $db->updateStatus($item[0]->proxy, 'port-closed');
     echo "$counter. {$item[0]->proxy} port closed" . PHP_EOL;
+    append_content_with_lock($output_log, "$counter. {$item[0]->proxy} port closed\n");
   } else {
     $ch = [
         buildCurl($item[0]->proxy, 'http', 'https://example.net', [
@@ -101,6 +103,7 @@ foreach ($combinedIterable as $index => $item) {
           }
         }
         echo "$counter. $protocol://{$item[0]->proxy} is working\n";
+        append_content_with_lock($output_log, "$counter. $protocol://{$item[0]->proxy} is working\n");
         $isWorking = true;
       }
     }
@@ -124,6 +127,7 @@ foreach ($combinedIterable as $index => $item) {
     } else {
       $db->updateStatus($item[0]->proxy, 'dead');
       echo "$counter. {$item[0]->proxy} dead" . PHP_EOL;
+      append_content_with_lock($output_log, "$counter. {$item[0]->proxy} dead\n");
     }
   }
   if (file_exists($run_file)) unlink($run_file);
