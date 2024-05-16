@@ -39,13 +39,15 @@ shuffle($proxies);
 $iterator = new ArrayIterator($proxies);
 $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
 $combinedIterable->attachIterator($iterator);
+$counter = 0;
 foreach ($combinedIterable as $index => $item) {
   $run_file = __DIR__ . '/tmp/runners/' . md5($item[0]->proxy) . '.txt';
   if (file_exists($run_file)) continue;
   write_file($run_file, '');
+  $counter++;
   if (!isPortOpen($item[0]->proxy)) {
     $db->updateStatus($item[0]->proxy, 'port-closed');
-    echo $item[0]->proxy . ' port closed' . PHP_EOL;
+    echo "$counter. {$item[0]->proxy} port closed" . PHP_EOL;
   } else {
     $ch = [
         buildCurl($item[0]->proxy, 'http', 'https://example.net', [
@@ -98,7 +100,7 @@ foreach ($combinedIterable as $index => $item) {
             $isPrivate = preg_match($pattern, $finalUrl) !== false;
           }
         }
-        echo "$protocol://{$item[0]->proxy} is working\n";
+        echo "$counter. $protocol://{$item[0]->proxy} is working\n";
         $isWorking = true;
       }
     }
@@ -121,7 +123,7 @@ foreach ($combinedIterable as $index => $item) {
         get_geo_ip($item[0]->proxy, $protocol, $db);
     } else {
       $db->updateStatus($item[0]->proxy, 'dead');
-      echo $item[0]->proxy . ' dead' . PHP_EOL;
+      echo "$counter. {$item[0]->proxy} dead" . PHP_EOL;
     }
   }
   if (file_exists($run_file)) unlink($run_file);
