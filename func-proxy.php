@@ -474,7 +474,7 @@ function get_geo_ip(string $the_proxy, string $proxy_type = 'http', ?ProxyDB $db
           }
         }
       } catch (Throwable $th) {
-        //
+        echo $th->getMessage() . PHP_EOL;
       }
 
       if (isset($geoIp['region'])) {
@@ -514,7 +514,7 @@ function get_geo_ip(string $the_proxy, string $proxy_type = 'http', ?ProxyDB $db
     if (!empty($lang)) {
       $data['lang'] = $lang;
     }
-    // echo "$ip country $locate->countryName language is $lang" . PHP_EOL;
+    echo "$ip country $locate->countryName language is $lang" . PHP_EOL;
   }
 
   $db->updateData($proxy, $data);
