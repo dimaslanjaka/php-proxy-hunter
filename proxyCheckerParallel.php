@@ -17,7 +17,7 @@ $options = getopt($short_opts, $long_opts);
 $str = implode("\n", array_values($options));
 $proxies = extractProxies($str);
 if (empty($proxies)) {
-  $db_untested = $db->getUntestedProxies(11);
+  $db_untested = $db->getUntestedProxies(50);
   $db_data_map = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
     foreach ($item as $key => $value) {
