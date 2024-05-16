@@ -82,7 +82,7 @@ $outputFile = __DIR__ . "/proxies.txt";
 $maxFileSize = 500 * 1024; // 500KB in bytes
 
 // Check if the file exceeds the maximum size
-if (filesize($outputFile) > $maxFileSize) {
+if (file_exists($outputFile) && filesize($outputFile) > $maxFileSize) {
     // Generate a new file name
     $outputFile = __DIR__ . "/assets/proxies/added-" . date("Ymd_His") . ".txt";
 }
