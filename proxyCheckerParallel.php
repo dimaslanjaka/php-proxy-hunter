@@ -17,7 +17,7 @@ $options = getopt($short_opts, $long_opts);
 $str = implode("\n", array_values($options));
 $proxies = extractProxies($str);
 if (empty($proxies)) {
-  $db_untested = $db->getUntestedProxies(50);
+  $db_untested = $db->getUntestedProxies(10);
   $db_data_map = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
     foreach ($item as $key => $value) {
@@ -55,9 +55,11 @@ foreach ($combinedIterable as $index => $item) {
             'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
         ], $item[0]->username, $item[0]->password)
     ];
+
     $mh = curl_multi_init();
     foreach ($ch as $handle) {
-      curl_multi_add_handle($mh, $handle);
+      if (is_resource($ch))
+        curl_multi_add_handle($mh, $handle);
     }
     $running = null;
     do {
