@@ -3,11 +3,39 @@
 # Number of instances to run in parallel
 NUM_INSTANCES=5
 
+# Function to run the PHP script based on the operating system
+run_php_script() {
+    if [[ "$(uname -s)" == *"CYGWIN"* || "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"MSYS"* ]]; then
+        # Running on Windows
+        php proxyCheckerParallel.php &
+    elif [[ "$(uname -s)" == "Linux" ]]; then
+        if command -v lsb_release &> /dev/null; then
+            if [[ "$(lsb_release -is)" == "Ubuntu" ]]; then
+                if command -v nginx &> /dev/null; then
+                    # Running on Ubuntu with Nginx installed
+                    su -s /bin/sh -c "php proxyCheckerParallel.php" www-data &
+                else
+                    echo "Nginx is not installed, running PHP script without su"
+                    php proxyCheckerParallel.php &
+                fi
+            else
+                echo "Linux distribution is not Ubuntu: $(lsb_release -is)"
+                exit 1
+            fi
+        else
+            echo "lsb_release command not found, unable to determine distribution"
+            exit 1
+        fi
+    else
+        echo "Unsupported operating system"
+        exit 1
+    fi
+}
+
 # Loop to start multiple instances
+# shellcheck disable=SC2034
 for i in $(seq 1 $NUM_INSTANCES); do
-    echo "running instance $i"
-    # Start each instance in the background
-    php proxyCheckerParallel.php &
+    run_php_script
 done
 
 # Wait for all background processes to finish
