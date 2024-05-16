@@ -2,7 +2,7 @@
 
 // write ip ranges from CIDR
 
-require_once __DIR__ . '/func.php';
+require_once __DIR__ . '/../func.php';
 
 // disallow web server access
 if (php_sapi_name() !== 'cli') {
