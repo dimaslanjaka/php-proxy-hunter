@@ -78,9 +78,6 @@ function extractProxies(?string $string, ?ProxyDB $db = null, bool $debug = true
           }
           $results[] = $result;
         }
-      } else {
-        if ($debug) echo "[SQLite] extractProxies delete invalid $proxy" . PHP_EOL;
-        $db->remove($proxy);
       }
     }
   }
