@@ -15,7 +15,7 @@ if (function_exists('header')) header('Content-Type: text/plain; charset=UTF-8')
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 
-if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
+if (file_exists($lockFilePath) && is_debug()) {
   echo "another process still running\n";
   exit();
 } else {
