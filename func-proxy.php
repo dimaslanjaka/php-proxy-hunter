@@ -182,6 +182,37 @@ function isPortOpen(string $proxy, int $timeout = 10): bool
 }
 
 /**
+ * Merge two arrays of HTTP headers while ensuring uniqueness based on the keys.
+ *
+ * @param array $defaultHeaders The array of default headers.
+ * @param array $additionalHeaders The array of additional headers to merge.
+ * @return array The merged array of headers with unique keys.
+ */
+function mergeHeaders(array $defaultHeaders, array $additionalHeaders): array
+{
+  // Convert the arrays into associative arrays with header keys as keys
+  $convertToAssocArray = function ($headers) {
+    $assocArray = [];
+    foreach ($headers as $header) {
+      $parts = explode(': ', $header, 2);
+      $assocArray[$parts[0]] = $parts[1];
+    }
+    return $assocArray;
+  };
+
+  // Merge two associative arrays while overwriting duplicates
+  $mergedHeaders = array_merge($convertToAssocArray($defaultHeaders), $convertToAssocArray($additionalHeaders));
+
+  // Convert the merged associative array back into a sequential array
+  $finalHeaders = [];
+  foreach ($mergedHeaders as $key => $value) {
+    $finalHeaders[] = "$key: $value";
+  }
+
+  return $finalHeaders;
+}
+
+/**
  * Build a cURL handle for making HTTP requests.
  *
  * @param string|null $proxy Proxy address. Default is null.
@@ -205,7 +236,7 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
       'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0',
       'Cookie: _ga=GA1.2.1930472056.1715805698; _gid=GA1.2.777058512.1715805698; _ga_VL41109FEB=GS1.2.1715805698.1.0.1715805698.0.0.0; PHPSESSID=a306a1ddaf437f0058b5355d5c205daa'
   ];
-  $headers = array_merge($default_headers, $headers);
+  $headers = mergeHeaders($default_headers, $headers);
 
   if (!empty($proxy)) {
     curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
