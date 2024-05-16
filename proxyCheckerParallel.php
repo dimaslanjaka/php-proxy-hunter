@@ -56,22 +56,26 @@ foreach ($combinedIterable as $index => $item) {
         ], $item[0]->username, $item[0]->password)
     ];
 
+    $protocols = [];
     $mh = curl_multi_init();
-    foreach ($ch as $handle) {
-      if (is_resource($ch))
+    foreach ($ch as $handle_index => $handle) {
+      if (is_resource($ch)) {
+        $protocol = $handle_index === 0 ? 'http' : ($handle_index === 1 ? 'socks4' : ($handle_index === 2 ? 'socks5' : ''));
+        $protocols[$handle_index] = $protocol;
         curl_multi_add_handle($mh, $handle);
+      }
     }
     $running = null;
     do {
       curl_multi_exec($mh, $running);
     } while ($running > 0);
-    $protocols = [];
     $isPrivate = false;
+    $isWorking = false;
     foreach ($ch as $handle_index => $handle) {
       $http_status = curl_getinfo($handle, CURLINFO_HTTP_CODE);
       $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 ||
           $http_status == 301 || $http_status == 302 || $http_status == 304;
-      $protocol = $handle_index === 0 ? 'http' : ($handle_index === 1 ? 'socks4' : ($handle_index === 2 ? 'socks5' : ''));
+      $protocol = $protocols[$handle_index];
       if ($http_status_valid) {
         $info = curl_getinfo($handle);
         $response = curl_multi_getcontent($handle);
@@ -94,7 +98,7 @@ foreach ($combinedIterable as $index => $item) {
           }
         }
         echo "$protocol://{$item[0]->proxy} is working\n";
-        $protocols[] = $protocol;
+        $isWorking = true;
       }
     }
 
@@ -105,7 +109,7 @@ foreach ($combinedIterable as $index => $item) {
     }
     curl_multi_close($mh);
 
-    if (!empty($protocols)) {
+    if ($isWorking) {
       $data = [
           'type' => implode('-', $protocols),
           'status' => 'active',
