@@ -603,7 +603,7 @@ function ext_intl_get_lang_country_code(string $country): ?string
  * @param string $language_code ISO 639-1-alpha 2 language code (optional)
  * @return string|null A locale, formatted like en_US, or null if not found
  */
-function country_code_to_locale(string $country_code, string $language_code = '')
+function country_code_to_locale(string $country_code, string $language_code = ''): ?string
 {
   if (empty($country_code)) return null;
 
@@ -860,7 +860,7 @@ function country_code_to_locale(string $country_code, string $language_code = ''
  *
  * @param string $inputFile The path to the file.
  */
-function filterIpPortLines(string $inputFile)
+function filterIpPortLines(string $inputFile): string
 {
   // Check if destination file is writable
   if (!is_writable($inputFile)) {
@@ -1017,4 +1017,48 @@ function extractIpPortFromFileCallback(string $filePath, callable $callback)
     // Close the file
     fclose($fp);
   }
+}
+
+
+/**
+ * Extracts IP:PORT combinations from a file.
+ *
+ * @param string $filePath The path to the file containing IP:PORT combinations.
+ * @param bool $unique (Optional) If set to true, returns only unique IP:PORT combinations. Default is false.
+ * @return array An array containing the extracted IP:PORT combinations.
+ * @throws Exception
+ */
+function extractIpPortFromFile(string $filePath, bool $unique = false): array
+{
+  $ipPortList = [];
+
+  if (file_exists($filePath)) {
+    // Open the file for reading in binary mode
+    $fp = @fopen($filePath, "rb");
+    if (!$fp) {
+      throw new Exception('File open failed.');
+    }
+
+    // Read file line by line
+    while (!feof($fp)) {
+      $line = fgets($fp);
+
+      // Match IP:PORT pattern using regular expression
+      preg_match_all('/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+\b/', $line, $matches);
+
+      // Add matched IP:PORT combinations to the list
+      foreach ($matches[0] as $match) {
+        $ipPortList[] = trim($match);
+      }
+    }
+
+    // Close the file
+    fclose($fp);
+  }
+
+  if ($unique) {
+    $ipPortList = array_unique($ipPortList);
+  }
+
+  return $ipPortList;
 }

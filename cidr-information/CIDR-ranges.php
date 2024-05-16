@@ -1,8 +1,8 @@
 <?php
 
-// write ip ranges from CIDR
+// write ip ranges from CIDR into temp_folder/ips/
 
-require_once __DIR__ . '/../func.php';
+require_once __DIR__ . '/../func-proxy.php';
 
 // disallow web server access
 if (php_sapi_name() !== 'cli') {
@@ -17,7 +17,7 @@ ini_set('memory_limit', '1024M');
 // CIDR source
 $filePath = __DIR__ . "/CIDR.txt";
 
-$outputDir = __DIR__ . '/tmp/ips';
+$outputDir = tmp() . '/ips';
 if (!file_exists($outputDir)) mkdir($outputDir, 0777, true);
 
 // Read lines of the file into an array
