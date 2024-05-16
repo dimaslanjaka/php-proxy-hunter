@@ -1514,6 +1514,36 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
 }
 
 /**
+ * Write data to a file and create the parent folder if it doesn't exist.
+ *
+ * @param string $filePath The path to the file.
+ * @param string $data The data to write to the file.
+ * @return bool True on success, false on failure.
+ */
+function write_file(string $filePath, string $data): bool
+{
+  // Get the directory name from the file path
+  $dir = dirname($filePath);
+
+  // Create the parent folder if it doesn't exist
+  if (!is_dir($dir)) {
+    if (!mkdir($dir, 0777, true)) {
+      // Failed to create the directory
+      return false;
+    }
+  }
+
+  // Write data to the file
+  if (file_put_contents($filePath, $data) !== false) {
+    // Successfully wrote the file
+    return true;
+  } else {
+    // Failed to write the file
+    return false;
+  }
+}
+
+/**
  * Checks if a file is locked by another PHP process.
  *
  * @param string $filePath The path to the file.
