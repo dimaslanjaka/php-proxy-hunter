@@ -38,8 +38,6 @@ if (empty($proxies)) {
 
 shuffle($proxies);
 
-echo "total proxies " . count($proxies) . PHP_EOL;
-
 $iterator = new ArrayIterator($proxies);
 $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
 $combinedIterable->attachIterator($iterator);
@@ -127,8 +125,19 @@ foreach ($combinedIterable as $index => $item) {
           'private' => $isPrivate ? 'true' : 'false'
       ];
       $db->updateData($item[0]->proxy, $data);
-      foreach ($protocols as $protocol)
-        get_geo_ip($item[0]->proxy, $protocol, $db);
+      if (empty($item[0]->timezone) || empty($item[0]->country) || empty($item[0]->lang)) {
+        foreach ($protocols as $protocol) {
+          get_geo_ip($item[0]->proxy, $protocol, $db);
+        }
+      }
+      if (empty($item[0]->webgl_renderer) || empty($item[0]->browser_vendor) || empty($item[0]->webgl_vendor)) {
+        $webgl = random_webgl_data();
+        $db->updateData($item[0]->proxy, [
+            'webgl_renderer' => $webgl->webgl_renderer,
+            'webgl_vendor' => $webgl->webgl_vendor,
+            'browser_vendor' => $webgl->browser_vendor
+        ]);
+      }
     } else {
       $db->updateStatus($item[0]->proxy, 'dead');
       echo "$counter. {$item[0]->proxy} dead" . PHP_EOL;
