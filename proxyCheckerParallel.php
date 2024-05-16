@@ -110,6 +110,8 @@ foreach ($combinedIterable as $index => $item) {
           'private' => $isPrivate ? 'true' : 'false'
       ];
       $db->updateData($item[0]->proxy, $data);
+      foreach ($protocols as $protocol)
+        get_geo_ip($item[0]->proxy, $protocol, $db);
     }
   }
 }
