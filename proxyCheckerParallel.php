@@ -40,6 +40,9 @@ $iterator = new ArrayIterator($proxies);
 $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
 $combinedIterable->attachIterator($iterator);
 foreach ($combinedIterable as $index => $item) {
+  $run_file = __DIR__ . '/tmp/runners/' . md5($item[0]->proxy) . '.txt';
+  if (file_exists($run_file)) continue;
+  write_file($run_file, '');
   if (!isPortOpen($item[0]->proxy)) {
     $db->updateStatus($item[0]->proxy, 'port-closed');
     echo $item[0]->proxy . ' port closed' . PHP_EOL;
@@ -121,6 +124,7 @@ foreach ($combinedIterable as $index => $item) {
       echo $item[0]->proxy . ' dead' . PHP_EOL;
     }
   }
+  if (file_exists($run_file)) unlink($run_file);
 }
 
 echo "writing working proxies" . PHP_EOL;
