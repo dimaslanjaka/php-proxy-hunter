@@ -271,7 +271,7 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
  * @param string $response_judges The response containing headers to judge anonymity.
  * @return string Anonymity level: Transparent, Anonymous, or Elite. And Empty is failed
  */
-function parse_anonymity($response_ip_info, $response_judges)
+function parse_anonymity($response_ip_info, $response_judges): string
 {
   if (empty(trim($response_ip_info)) || empty(trim($response_judges)))
     return "";
