@@ -2,7 +2,7 @@
 
 // scan ports from generated ip ranges ports
 
-require_once __DIR__ . '/func.php';
+require_once __DIR__ . '/../func.php';
 
 // disallow web server access
 if (php_sapi_name() !== 'cli') {
