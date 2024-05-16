@@ -34,6 +34,8 @@ if (empty($proxies)) {
   $proxies = $db_data_map;
 }
 
+shuffle($proxies);
+
 $iterator = new ArrayIterator($proxies);
 $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
 $combinedIterable->attachIterator($iterator);
