@@ -16,7 +16,7 @@ if (!$isCli)
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 
-if (file_exists($lockFilePath) && is_debug()) {
+if (file_exists($lockFilePath) && !is_debug()) {
   echo "another process still running\n";
   exit();
 } else {
