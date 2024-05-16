@@ -86,9 +86,9 @@ try {
 
 function processProxy($proxy)
 {
-  global $start_time, $isCli, $file, $db;
+  global $start_time, $file, $db;
   // Check if execution time exceeds [n] seconds
-  if (microtime(true) - $start_time > (!$isCli ? 120 : 300)) {
+  if (microtime(true) - $start_time > 120) {
     // echo "Execution time exceeded 120 seconds. Exiting loop." . PHP_EOL;
     return;
   }
