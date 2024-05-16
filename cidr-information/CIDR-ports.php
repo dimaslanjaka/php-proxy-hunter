@@ -14,10 +14,12 @@ if (php_sapi_name() !== 'cli') {
 // set memory
 ini_set('memory_limit', '2024M');
 
-$filePath = getRandomFileFromFolder(__DIR__ . '/tmp/ips', 'txt');
-$outputPath = __DIR__ . '/tmp/ips-ports/' . basename($filePath);
-if (!file_exists(dirname($outputPath))) mkdir(dirname($outputPath));
+$filePath = getRandomFileFromFolder(tmp() . '/ips', 'txt');
 $ipList = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+$outputPath = tmp() . '/ips-ports/' . basename($filePath);
+createParentFolders($outputPath);
+if (file_exists($outputPath)) exit("cannot rewrite already generated proxy, please remove $outputPath");
 
 if (empty($ipList)) {
   unlink($filePath);
@@ -31,8 +33,8 @@ $commonPorts = [
 ];
 
 // extract ports from existing proxies
-$dead = extractIpPortFromFile(__DIR__ . '/dead.txt', true);
-$untested = extractIpPortFromFile(__DIR__ . '/proxies.txt', true);
+$dead = extractIpPortFromFile(__DIR__ . '/../dead.txt', true);
+$untested = extractIpPortFromFile(__DIR__ . '/../proxies.txt', true);
 $proxies = array_merge($dead, $untested);
 
 $ports = array_map(function ($proxy) {
@@ -80,6 +82,6 @@ foreach ($ipList as $ip) {
   // }
 }
 
-rewriteIpPortFile($outputPath);
+//rewriteIpPortFile($outputPath);
 
 // rewriteIpPortFile(__DIR__ . '/proxies.txt');
