@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Number of instances to run in parallel
+NUM_INSTANCES=5
+
+# Loop to start multiple instances
+for i in $(seq 1 $NUM_INSTANCES); do
+    echo "running instance $i"
+    # Start each instance in the background
+    php proxyCheckerParallel.php &
+done
+
+# Wait for all background processes to finish
+wait
