@@ -524,49 +524,6 @@ function isDateRFC3339OlderThanHours(string $dateString, int $hoursAgo = 5): boo
   return $date < $hoursAgoDateTime;
 }
 
-/**
- * Extracts IP:PORT combinations from a file.
- *
- * @param string $filePath The path to the file containing IP:PORT combinations.
- * @param bool $unique (Optional) If set to true, returns only unique IP:PORT combinations. Default is false.
- * @return array An array containing the extracted IP:PORT combinations.
- * @throws Exception
- */
-function extractIpPortFromFile(string $filePath, bool $unique = false): array
-{
-  $ipPortList = [];
-
-  if (file_exists($filePath)) {
-    // Open the file for reading in binary mode
-    $fp = @fopen($filePath, "rb");
-    if (!$fp) {
-      throw new Exception('File open failed.');
-    }
-
-    // Read file line by line
-    while (!feof($fp)) {
-      $line = fgets($fp);
-
-      // Match IP:PORT pattern using regular expression
-      preg_match_all('/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+\b/', $line, $matches);
-
-      // Add matched IP:PORT combinations to the list
-      foreach ($matches[0] as $match) {
-        $ipPortList[] = trim($match);
-      }
-    }
-
-    // Close the file
-    fclose($fp);
-  }
-
-  if ($unique) {
-    $ipPortList = array_unique($ipPortList);
-  }
-
-  return $ipPortList;
-}
-
 // Function to parse command line arguments
 function parseArgs($args): array
 {
