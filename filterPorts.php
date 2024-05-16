@@ -65,14 +65,13 @@ function processProxy($proxy)
   }
 }
 
-// remove non IP:PORT from database
+// filter open port from untested proxies
 
-$all = $db->getAllProxies(500);
+$all = $db->getUntestedProxies(500);
 foreach ($all as $data) {
-  $invalidIPPORT = !preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/', $data['proxy']);
-  $invalidIP = strpos($data['proxy'], '0.0.0.0') !== false;
-  if ($invalidIPPORT || $invalidIP) {
-    echo $data['proxy'] . " is not in the format of IP:PORT." . PHP_EOL;
+  if (!isValidProxy($data['proxy'])) {
     $db->remove($data['proxy']);
+  } else {
+    processProxy($data['proxy']);
   }
 }
