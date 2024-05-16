@@ -216,7 +216,7 @@ function filter_proxies(array $proxies, bool $skip_dead_proxies = false)
   // unique proxies
   $proxies = uniqueClassObjectsByProperty($proxies, 'proxy');
   // skip already checked proxy
-  $proxies = array_filter($proxies, function (Proxy $item) use ($db) {
+  $proxies = array_filter($proxies, function (Proxy $item) use ($db, $skip_dead_proxies) {
     $sel = $db->select($item->proxy);
     if (empty($sel)) {
       echo "add $item->proxy" . PHP_EOL;
