@@ -17,7 +17,7 @@ $options = getopt($short_opts, $long_opts);
 $str = implode("\n", array_values($options));
 $proxies = extractProxies($str);
 if (empty($proxies)) {
-  $db_untested = $db->getUntestedProxies(500);
+  $db_untested = $db->getUntestedProxies(11);
   $db_data_map = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
     foreach ($item as $key => $value) {
@@ -120,6 +120,8 @@ foreach ($combinedIterable as $index => $item) {
       $db->updateStatus($item[0]->proxy, 'dead');
       echo $item[0]->proxy . ' dead' . PHP_EOL;
     }
+
+    $str_to_remove[] = $item[0]->proxy;
   }
 }
 
@@ -128,3 +130,21 @@ $data = parse_working_proxies($db);
 file_put_contents(__DIR__ . '/working.txt', $data['txt']);
 file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
 file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
+
+if (!empty($str_to_remove)) {
+  // remove already indexed proxies
+  $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
+  $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
+    return strpos($fn, 'added-') !== false;
+  });
+  $files = array_merge($files, $assets);
+  $files = array_filter($files, 'file_exists');
+  $files = array_map('realpath', $files);
+  foreach ($files as $file) {
+    $remove = removeStringFromFile($file, $str_to_remove);
+    if ($remove == 'success') {
+      echo "removed indexed proxies from " . basename($file) . PHP_EOL;
+      removeEmptyLinesFromFile($file);
+    }
+  }
+}
