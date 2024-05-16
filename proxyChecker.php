@@ -209,7 +209,7 @@ function execute_array_proxies()
   iterateArray($proxies, $max_checks, 'execute_single_proxy');
 }
 
-function filter_proxies(array $proxies)
+function filter_proxies(array $proxies, bool $skip_dead_proxies = false)
 {
   global $db, $str_to_remove;
   if (empty($proxies)) return [];
@@ -231,7 +231,10 @@ function filter_proxies(array $proxies)
     }
     $str_to_remove[] = $item->proxy;
     schedule_remover();
-    if (empty($item->last_check)) return true;
+    if (empty($item->last_check) || empty($item->status)) return true;
+    if ($skip_dead_proxies) {
+      if ($item->status == 'dead' || $item->status == 'port-closed') return false;
+    }
     return isDateRFC3339OlderThanHours($item->last_check, 24);
   });
   return $proxies;
