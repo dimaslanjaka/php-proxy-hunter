@@ -1026,7 +1026,6 @@ function extractIpPortFromFileCallback(string $filePath, callable $callback)
  * @param string $filePath The path to the file containing IP:PORT combinations.
  * @param bool $unique (Optional) If set to true, returns only unique IP:PORT combinations. Default is false.
  * @return array An array containing the extracted IP:PORT combinations.
- * @throws Exception
  */
 function extractIpPortFromFile(string $filePath, bool $unique = false): array
 {
@@ -1036,7 +1035,7 @@ function extractIpPortFromFile(string $filePath, bool $unique = false): array
     // Open the file for reading in binary mode
     $fp = @fopen($filePath, "rb");
     if (!$fp) {
-      throw new Exception('File open failed.');
+      return [];
     }
 
     // Read file line by line
