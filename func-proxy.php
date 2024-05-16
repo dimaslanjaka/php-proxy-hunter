@@ -205,7 +205,7 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
       'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0',
       'Cookie: _ga=GA1.2.1930472056.1715805698; _gid=GA1.2.777058512.1715805698; _ga_VL41109FEB=GS1.2.1715805698.1.0.1715805698.0.0.0; PHPSESSID=a306a1ddaf437f0058b5355d5c205daa'
   ];
-  $headers = array_merge($headers, $default_headers);
+  $headers = array_merge($default_headers, $headers);
 
   if (!empty($proxy)) {
     curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
