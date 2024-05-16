@@ -20,12 +20,13 @@ $statusFile = __DIR__ . "/status.txt";
 $config = getConfig(getUserId());
 $options = getopt("", ["str:"]); // php geoIp.php --str "xsdsd dfdfd"
 
-$string_data = '112.30.155.83:12792';
+$string_data = '89.58.45.94:45729';
 if ($isCli) {
   if (isset($options['str'])) {
     $string_data = rawurldecode(trim($options['str']));
   } else {
-    $string_data = file_get_contents(__DIR__ . '/proxies.txt');
+    $read_data = read_file(__DIR__ . '/proxies.txt');
+    if (!empty($read_data)) $string_data = $read_data;
   }
 } else if (isset($_REQUEST['proxy'])) {
   $string_data = rawurldecode(trim($_REQUEST['proxy']));
