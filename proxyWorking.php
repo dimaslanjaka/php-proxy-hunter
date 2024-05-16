@@ -14,13 +14,13 @@ if (!$isCli) header('Content-Type:text/plain; charset=UTF-8');
 if (!$isCli)
   exit('web server access disallowed');
 
-if (file_exists(__DIR__ . '/proxyChecker.lock') && is_debug()) {
+if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug()) {
   exit('proxy checker process still running');
 }
 
 $lockFilePath = __DIR__ . "/proxyWorking.lock";
 
-if (file_exists($lockFilePath) && is_debug()) {
+if (file_exists($lockFilePath) && !is_debug()) {
   echo "another process still running\n";
   exit();
 } else {
