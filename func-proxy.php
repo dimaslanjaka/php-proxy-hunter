@@ -82,7 +82,17 @@ function extractProxies(?string $string, ?ProxyDB $db = null, bool $debug = true
     }
   }
 
-  return $results;
+  return array_map(function (Proxy $item) use ($db) {
+    $select = $db->select($item->proxy);
+    if (!empty ($select)) {
+      foreach ($select[0] as $key => $value) {
+        if (property_exists($item, $key)) {
+          $item->$key = $value;
+        }
+      }
+    }
+    return $item;
+  }, $results);
 }
 
 /**
