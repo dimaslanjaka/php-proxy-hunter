@@ -17,7 +17,7 @@ $options = getopt($short_opts, $long_opts);
 $str = implode("\n", array_values($options));
 $proxies = extractProxies($str);
 if (empty($proxies)) {
-  $db_untested = $db->getUntestedProxies(10);
+  $db_untested = $db->getUntestedProxies(500);
   $db_data_map = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
     foreach ($item as $key => $value) {
@@ -35,6 +35,8 @@ if (empty($proxies)) {
 }
 
 shuffle($proxies);
+
+$str_to_remove = [];
 
 $iterator = new ArrayIterator($proxies);
 $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
@@ -114,6 +116,9 @@ foreach ($combinedIterable as $index => $item) {
       $db->updateData($item[0]->proxy, $data);
       foreach ($protocols as $protocol)
         get_geo_ip($item[0]->proxy, $protocol, $db);
+    } else {
+      $db->updateStatus($item[0]->proxy, 'dead');
+      echo $item[0]->proxy . ' dead' . PHP_EOL;
     }
   }
 }
