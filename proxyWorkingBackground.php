@@ -31,7 +31,7 @@ $uid = getUserId();
 $cmd .= " --userId=" . escapeshellarg($uid);
 
 // validate lock files
-if (file_exists(__DIR__ . '/proxyChecker.lock')) {
+if (file_exists(__DIR__ . '/proxyChecker.lock') && gethostname() !== 'DESKTOP-JVTSJ6I') {
   exit('Another process still running');
 }
 
