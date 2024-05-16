@@ -174,7 +174,7 @@ try {
     }
     return $wrap;
   }, array_merge($db_untested, $db_working));
-  $db_data_map = filter_proxies($db_data_map);
+  $db_data_map = filter_proxies($db_data_map, date('i') % 3 == 0);
   $untested = array_merge($untested, $db_data_map);
   echo "[DB] queue: " . count($db_data_map) . " proxies" . PHP_EOL;
 } catch (\Throwable $th) {
@@ -186,7 +186,7 @@ if ($countLinesUntestedProxies > 0) {
   $file_untested_str = read_first_lines($untestedFilePath, 150);
   if (empty($file_untested_str)) $file_untested_str = [];
   $file_untested = extractProxies(implode("\n", $file_untested_str));
-  $file_untested = filter_proxies($file_untested);
+  $file_untested = filter_proxies($file_untested, date('i') % 3 == 0);
   echo "[FILE] queue: " . count($file_untested) . " proxies" . PHP_EOL;
 
   $untested = array_merge($untested, $file_untested);
@@ -200,7 +200,7 @@ execute_array_proxies();
 function execute_array_proxies()
 {
   global $untested, $max_checks, $str_to_remove;
-  $proxies = filter_proxies($untested);
+  $proxies = filter_proxies($untested, date('i') % 3 == 0);
   // skip empty array
   if (empty($proxies)) return;
   // shuffle array
