@@ -48,11 +48,6 @@ if (function_exists('ignore_user_abort')) {
 if (!$isCli) {
   /** @noinspection PhpUnhandledExceptionInspection */
   new Session(100 * 3600, __DIR__ . '/tmp/sessions');
-  // set cookie visitor id for 30 days
-  // for /data/login.php
-  if (!isset($_COOKIE['visitor_id'])) {
-    setcookie('visitor_id', uniqid('user_'), time() + 60 * 60 * 24 * 30);
-  }
 }
 
 // create temp folder
@@ -573,7 +568,7 @@ function parseArgs($args): array
 
 $user_id = "CLI";
 if (!$isCli) {
-  $user_id = $_COOKIE['visitor_id'] ?? session_id();
+  $user_id = session_id();
 } else {
   $parsedArgs = parseArgs($argv);
   if (isset($parsedArgs['userId']) && !empty(trim($parsedArgs['userId']))) {
