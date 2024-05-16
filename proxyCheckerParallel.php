@@ -10,14 +10,14 @@ if (!$isCli) exit("only CLI allowed");
 
 $db = new ProxyDB();
 
-$short_opts = "p:";
-$long_opts = ["proxy::"];
+$short_opts = "p:m::";
+$long_opts = ["proxy::max::"];
 $options = getopt($short_opts, $long_opts);
 
 $str = implode("\n", array_values($options));
 $proxies = extractProxies($str);
 if (empty($proxies)) {
-  $db_untested = $db->getUntestedProxies(50);
+  $db_untested = $db->getUntestedProxies(100);
   $db_data_map = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
     foreach ($item as $key => $value) {
@@ -59,11 +59,9 @@ foreach ($combinedIterable as $index => $item) {
     $protocols = [];
     $mh = curl_multi_init();
     foreach ($ch as $handle_index => $handle) {
-      if (is_resource($ch)) {
-        $protocol = $handle_index === 0 ? 'http' : ($handle_index === 1 ? 'socks4' : ($handle_index === 2 ? 'socks5' : ''));
-        $protocols[$handle_index] = $protocol;
-        curl_multi_add_handle($mh, $handle);
-      }
+      $protocol = $handle_index === 0 ? 'http' : ($handle_index === 1 ? 'socks4' : ($handle_index === 2 ? 'socks5' : ''));
+      $protocols[$handle_index] = $protocol;
+      curl_multi_add_handle($mh, $handle);
     }
     $running = null;
     do {
@@ -104,10 +102,8 @@ foreach ($combinedIterable as $index => $item) {
 
     // close
     foreach ($ch as $handle) {
-      if (is_resource($ch)) {
-        curl_multi_remove_handle($mh, $handle);
-        curl_close($handle);
-      }
+      curl_multi_remove_handle($mh, $handle);
+      curl_close($handle);
     }
     curl_multi_close($mh);
 
