@@ -54,38 +54,47 @@ async function main() {
     doCheck();
   });
 
+  document.getElementById("filter-ports").addEventListener("click", (e) => {
+    e.preventDefault();
+    showSnackbar("filter open ports start...");
+    fetch("./filterPortsBackground.php", { signal: AbortSignal.timeout(5000) }).catch((e) => showSnackbar(e.message));
+  });
+
+  // noinspection ES6MissingAwait
   checkerStatus();
-  let icheck = setInterval(() => {
+  let interval_check = setInterval(() => {
     checkerStatus();
   }, 3000);
 
   const autoCheck = document.getElementById("autoCheckProxy");
   if (["dev.webmanajemen.com", "localhost", "127.0.0.1"].some((str) => new RegExp(str).test(location.host))) {
-    autoCheck.addEventListener("change", (e) => {
-      clearInterval(icheck);
-      if (e.target.checked) {
+    autoCheck.addEventListener("change", (_e) => {
+      clearInterval(interval_check);
+      if (autoCheck.checked) {
         const callback = () =>
           checkerStatus().then((result) => {
             if (!result) doCheck();
           });
         callback().then(() => {
-          icheck = setInterval(callback, 3000);
+          interval_check = setInterval(callback, 3000);
         });
       } else {
-        icheck = setInterval(() => {
+        interval_check = setInterval(() => {
           checkerStatus();
         }, 3000);
       }
     });
   } else {
-    autoCheck.parentElement.remove();
+    document.getElementById("autoCheckProxy-wrapper").remove();
   }
 
+  // noinspection ES6MissingAwait
   checkerOutput();
   setInterval(() => {
     checkerOutput();
   }, 3000);
 
+  // noinspection ES6MissingAwait
   fetchWorkingProxies();
   setInterval(() => {
     fetchWorkingProxies();
@@ -106,8 +115,8 @@ async function doCheck() {
       await checkerStatus().catch(noop);
       await fetchWorkingProxies().catch(noop);
     }
-  } catch (error) {
-    // Handle errors if needed
+  } catch (e) {
+    showSnackbar(e.message);
   }
 }
 
@@ -400,6 +409,7 @@ function add_ajax_schedule(url) {
     ajax_url_schedule.push(url);
   }
 }
+
 /**
  * Converts a given date string to a human-readable "time ago" format.
  * @param {string} dateString - The date string to be converted.

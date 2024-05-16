@@ -35,8 +35,9 @@
 <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
 <div class="mb-3 flex flex-col md:flex-row border border-gray-600 p-4" id="nav-info">
   <div class="flex-1">
-    <i class="fa-duotone fa-square-info"></i> <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
-                                                    id="status">IDLE</span>
+    <i class="fa-duotone fa-square-info"></i> <span
+    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
+    id="status">IDLE</span>
   </div>
   <div class="flex-1"><span>Untested (<b class="text-amber-400" id="untested">0</b>)</span></div>
   <div class="flex-1"><span>Dead (<b class="text-red-400" id="dead">0</b>)</span></div>
@@ -45,9 +46,11 @@
     <a class="bracket" href="#modify_config_section">modify config</a>
     <a class="bracket" href="./data/login.php">login</a>
   </div>
-  <div class="flex-1 text-amber-400">
-    <div class="bracket"><input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" id="autoCheckProxy" type="checkbox"
-                                value="">
+  <div class="flex-1 text-amber-400" id="autoCheckProxy-wrapper">
+    <div class="bracket"><input
+      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+      id="autoCheckProxy" type="checkbox"
+      value="">
       <label class="ms-2 text-sm font-medium text-amber-400" for="autoCheckProxy">Auto Check</label>
     </div>
   </div>
@@ -133,15 +136,21 @@
        data-ad-slot="6873696468" data-full-width-responsive="true" style="display:block"></ins>
 
   <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1 max-w-full">
-    <div class="relative mb-3 z-0 h-60 overflow-auto bg-white dark:bg-slate-800 dark:text-slate-400">
+    <div class="mb-3 bg-white dark:bg-slate-800 dark:text-slate-400">
       <b>Checker result</b>
-      <div id="cpresult"></div>
+      <div class="relative overflow-auto z-0 h-60 mb-5" id="cpresult"></div>
+      <button
+        class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+        id="filter-ports">Filter open ports
+      </button>
     </div>
     <div class="relative z-0 group mb-3">
       <b>Add proxies</b>
-      <textarea class="mb-2 block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" id="add_proxies" name="proxies"
-                placeholder="18.133.16.21:1080@username:password&#10;18.133.16.21:1080&#10;OR ANY TEXTS THAT CONTAINS PROXY"
-                rows="11"></textarea>
+      <textarea
+        class="mb-5 h-60 block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+        id="add_proxies" name="proxies"
+        placeholder="18.133.16.21:1080@username:password&#10;18.133.16.21:1080&#10;OR ANY TEXTS THAT CONTAINS PROXY"
+      ></textarea>
       <button
         class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
         id="submit-new-proxies">Submit new proxies
@@ -158,11 +167,14 @@
   <form class="mb-3" id="config_ui">
     <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1 mb-5">
       <div class="relative z-0 w-full group">
-        <input class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" id="floating_endpoint" name="endpoint"
-               placeholder=" "
-               required type="text" />
-        <label class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-               for="floating_endpoint">Endpoint</label>
+        <input
+          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+          id="floating_endpoint" name="endpoint"
+          placeholder=" "
+          required type="text" />
+        <label
+          class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+          for="floating_endpoint">Endpoint</label>
       </div>
 
       <div>
@@ -171,8 +183,10 @@
           class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-gray-700 dark:border-gray-600 dark:text-white">
           <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
             <div class="flex items-center ps-3">
-              <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" id="http-checkbox-list" name="http" type="checkbox"
-                     value="">
+              <input
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                id="http-checkbox-list" name="http" type="checkbox"
+                value="">
               <label class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                      for="http-checkbox-list">
                 HTTP/HTTPS
@@ -181,16 +195,20 @@
           </li>
           <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
             <div class="flex items-center ps-3">
-              <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" id="socks4-checkbox-list" name="socks4" type="checkbox"
-                     value="">
+              <input
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                id="socks4-checkbox-list" name="socks4" type="checkbox"
+                value="">
               <label class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                      for="socks4-checkbox-list">SOCKS 4</label>
             </div>
           </li>
           <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
             <div class="flex items-center ps-3">
-              <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" id="socks5-checkbox-list" name="socks5" type="checkbox"
-                     value="">
+              <input
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                id="socks5-checkbox-list" name="socks5" type="checkbox"
+                value="">
               <label class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                      for="socks5-checkbox-list">SOCKS 5</label>
             </div>
@@ -203,8 +221,9 @@
         <textarea id="floating_headers" rows="10" name="headers"
                   class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                   placeholder="User-Agent: Your User Agent&#10;Referer: https://google.com"></textarea>
-      <label class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-             for="floating_headers">Headers</label>
+      <label
+        class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+        for="floating_headers">Headers</label>
     </div>
 
     <button
