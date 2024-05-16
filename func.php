@@ -55,6 +55,16 @@ if (!file_exists(__DIR__ . '/tmp'))
   mkdir(__DIR__ . '/tmp');
 
 /**
+ * is debug indicator
+ * @return bool
+ */
+function is_debug(): bool
+{
+  $debug_pc = ['DESKTOP-JVTSJ6I'];
+  return in_array(gethostname(), $debug_pc);
+}
+
+/**
  * Returns an array of unique objects from the provided array based on a specific property.
  *
  * @param array $array An array of objects

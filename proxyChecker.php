@@ -94,7 +94,7 @@ $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 
-if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
+if (file_exists($lockFilePath) && is_debug()) {
   echo "another process still running\n";
   exit();
 } else {
@@ -131,7 +131,7 @@ setMultiPermissions([$untestedFilePath, $workingPath, $deadPath], true);
 
 // move backup added proxies
 $countLinesUntestedProxies = countNonEmptyLines($untestedFilePath);
-if (gethostname() !== 'DESKTOP-JVTSJ6I' && $countLinesUntestedProxies < 100) {
+if (is_debug() && $countLinesUntestedProxies < 100) {
   $assets = getFilesByExtension(__DIR__ . '/assets/proxies', 'txt');
   foreach ($assets as $asset) {
     if (strpos($asset, 'added-') !== false) {

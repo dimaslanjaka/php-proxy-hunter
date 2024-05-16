@@ -32,7 +32,7 @@ if ($isCli) {
   $string_data = rawurldecode(trim($_REQUEST['proxy']));
 }
 
-if (file_exists($lockFilePath) && gethostname() !== 'DESKTOP-JVTSJ6I') {
+if (file_exists($lockFilePath) && is_debug()) {
   echo "proxy checker process still running\n";
   exit();
 } else {
