@@ -50,9 +50,18 @@ if (!$isCli) {
   new Session(100 * 3600, __DIR__ . '/tmp/sessions');
 }
 
-// create temp folder
-if (!file_exists(__DIR__ . '/tmp'))
-  mkdir(__DIR__ . '/tmp');
+/**
+ * get project temp folder
+ * @return string
+ */
+function tmp(): string
+{
+  // create temp folder
+  if (!file_exists(__DIR__ . '/tmp'))
+    mkdir(__DIR__ . '/tmp', 777, true);
+  return __DIR__ . '/tmp';
+}
+
 
 /**
  * is debug indicator
