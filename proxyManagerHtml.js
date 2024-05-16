@@ -60,7 +60,11 @@ async function main() {
   }, 3000);
 
   const autoCheck = document.getElementById("autoCheckProxy");
-  if (["dev.webmanajemen.com", "localhost", "127.0.0.1"].some((str) => new RegExp(str).test(location.host))) {
+  if (
+    ["dev.webmanajemen.com", "localhost", "127.0.0.1"].some((str) =>
+      new RegExp(str).test(location.host),
+    )
+  ) {
     autoCheck.addEventListener("change", (e) => {
       clearInterval(icheck);
       if (e.target.checked) {
@@ -101,7 +105,7 @@ async function doCheck() {
     if (user_info) {
       await fetchWorkingProxies().catch(noop);
       await fetch("./proxyCheckerBackground.php?uid=" + user_info.user_id, {
-        signal: AbortSignal.timeout(5000)
+        signal: AbortSignal.timeout(5000),
       }).catch(noop);
       await checkerStatus().catch(noop);
       await fetchWorkingProxies().catch(noop);
@@ -119,7 +123,7 @@ let prevOutput = "";
 async function checkerOutput() {
   const info = await fetch("./embed.php?file=proxyChecker.txt", {
     signal: AbortSignal.timeout(5000),
-    mode: "cors"
+    mode: "cors",
   })
     .then((res) => res.text())
     .catch(noop);
@@ -131,11 +135,18 @@ async function checkerOutput() {
   const filter = (info || "")
     .split(/\r?\n/)
     .map((str) => {
-      str = str.replace(/port closed/, '<span class="text-red-400">port closed</span>');
-      str = str.replace(/not working/, '<span class="text-red-600">not working</span>');
+      str = str.replace(
+        /port closed/,
+        '<span class="text-red-400">port closed</span>',
+      );
+      str = str.replace(
+        /not working/,
+        '<span class="text-red-600">not working</span>',
+      );
       str = str.replace(/dead/, '<span class="text-red-600">dead</span>');
       str = str.replace(/working.*/, (whole) => {
-        if (whole.includes("-1")) return `<span class="text-orange-400">${whole}</span>`;
+        if (whole.includes("-1"))
+          return `<span class="text-orange-400">${whole}</span>`;
         return `<span class="text-green-400">${whole}</span>`;
       });
       return str;
@@ -145,38 +156,57 @@ async function checkerOutput() {
   checkerResult.innerHTML = filter;
   // Check if content height exceeds div height
   // Only scroll when checker status is running
-  if (checkerResult.scrollHeight > checkerResult.clientHeight && checker_status) {
+  if (
+    checkerResult.scrollHeight > checkerResult.clientHeight &&
+    checker_status
+  ) {
     // Scroll the div to the bottom
-    checkerResult.scrollTop = checkerResult.scrollHeight - checkerResult.clientHeight;
+    checkerResult.scrollTop =
+      checkerResult.scrollHeight - checkerResult.clientHeight;
   }
 
   const wrapper = document.querySelector("#nav-info");
   /**
    * @type {Record<string, any>}
    */
-  const statusJson = await fetch("./embed.php?file=status.json", { signal: AbortSignal.timeout(5000), mode: "cors" })
+  const statusJson = await fetch("./embed.php?file=status.json", {
+    signal: AbortSignal.timeout(5000),
+    mode: "cors",
+    cache: "no-cache",
+  })
     .then((res) => res.json())
     .catch(() => {
       return {};
     });
   if (statusJson.untested && statusJson.untested > 0) {
-    wrapper.querySelector("#untested").innerText = parseInt(statusJson.untested).toLocaleString();
+    wrapper.querySelector("#untested").innerText = parseInt(
+      statusJson.untested,
+    ).toLocaleString();
   }
   if (statusJson.dead && statusJson.dead > 0) {
-    wrapper.querySelector("#dead").innerText = parseInt(statusJson.dead).toLocaleString();
+    wrapper.querySelector("#dead").innerText = parseInt(
+      statusJson.dead,
+    ).toLocaleString();
   }
   if (statusJson.working && statusJson.working > 0) {
-    wrapper.querySelector("#working").innerText = parseInt(statusJson.working).toLocaleString();
+    wrapper.querySelector("#working").innerText = parseInt(
+      statusJson.working,
+    ).toLocaleString();
   }
 }
 
-fetch("./info.php", { signal: AbortSignal.timeout(5000), mode: "cors" }).catch(noop);
+fetch("./info.php", { signal: AbortSignal.timeout(5000), mode: "cors" }).catch(
+  noop,
+);
 
 async function userInfo() {
   try {
     let cookie = getCookie("user_config");
     if (!cookie) {
-      await fetch("./info.php", { signal: AbortSignal.timeout(5000), mode: "cors" });
+      await fetch("./info.php", {
+        signal: AbortSignal.timeout(5000),
+        mode: "cors",
+      });
       cookie = getCookie("user_config");
     }
     return JSON.parse(atob(decodeURIComponent(cookie)));
@@ -208,7 +238,10 @@ let checker_status;
 async function checkerStatus() {
   const status = document.querySelector("span#status");
   const cek = document.getElementById("recheck");
-  return await fetch("./embed.php?file=status.txt", { signal: AbortSignal.timeout(5000), mode: "cors" })
+  return await fetch("./embed.php?file=status.txt", {
+    signal: AbortSignal.timeout(5000),
+    mode: "cors",
+  })
     .then((res) => res.text())
     .then((data) => {
       if (!data.trim().includes("idle")) {
@@ -217,7 +250,7 @@ async function checkerStatus() {
         status.innerHTML = data.trim().toUpperCase();
         status.setAttribute(
           "class",
-          "inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
+          "inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20",
         );
         checker_status = true;
         return true;
@@ -226,7 +259,7 @@ async function checkerStatus() {
         cek.classList.remove("disabled");
         status.setAttribute(
           "class",
-          "inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
+          "inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10",
         );
         status.innerHTML = "IDLE";
       }
@@ -238,7 +271,10 @@ async function checkerStatus() {
 }
 
 function fetchWorkingData() {
-  fetch("./proxyWorkingBackground.php", { signal: AbortSignal.timeout(5000), mode: "cors" }).catch(() => {
+  fetch("./proxyWorkingBackground.php", {
+    signal: AbortSignal.timeout(5000),
+    mode: "cors",
+  }).catch(() => {
     // Handle errors if needed
   });
 }
@@ -248,7 +284,8 @@ const fetchWorkingEveryMinutes = 1;
 function setLastExecutionTime() {
   const now = new Date();
   now.setTime(now.getTime() + fetchWorkingEveryMinutes * 60 * 1000); // Set expiration time 5 minutes from now
-  document.cookie = "lastExecutionTime=" + now.toUTCString() + "; path=" + location.pathname;
+  document.cookie =
+    "lastExecutionTime=" + now.toUTCString() + "; path=" + location.pathname;
 }
 
 function getLastExecutionTime() {
@@ -272,7 +309,8 @@ function updateWorkingProxies() {
   const currentTime = new Date();
   if (
     !lastExecutionTime ||
-    currentTime.getTime() - lastExecutionTime.getTime() >= fetchWorkingEveryMinutes * 60 * 1000
+    currentTime.getTime() - lastExecutionTime.getTime() >=
+      fetchWorkingEveryMinutes * 60 * 1000
   ) {
     fetchWorkingData();
     setLastExecutionTime();
@@ -286,7 +324,7 @@ async function fetchWorkingProxies() {
   updateWorkingProxies();
   let testWorkingProxiesTxt = await fetch("./embed.php?file=working.txt", {
     signal: AbortSignal.timeout(5000),
-    mode: "cors"
+    mode: "cors",
   })
     .then((res) => res.text())
     .catch(() => "");
@@ -295,7 +333,9 @@ async function fetchWorkingProxies() {
   if (!workingProxiesTxt || workingProxiesTxt !== testWorkingProxiesTxt) {
     workingProxiesTxt = testWorkingProxiesTxt;
     // const proxies = sortLinesByDate(workingProxiesTxt);
-    const proxies = workingProxiesTxt.split(/\r?\n/).filter((line) => line.trim() !== "");
+    const proxies = workingProxiesTxt
+      .split(/\r?\n/)
+      .filter((line) => line.trim() !== "");
     const tbody = document.getElementById("wproxy");
     tbody.innerHTML = "";
     proxies.forEach((str) => {
@@ -305,7 +345,7 @@ async function fetchWorkingProxies() {
         const td = document.createElement("td");
         td.setAttribute(
           "class",
-          "border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"
+          "border-b border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400",
         );
         td.innerText = info;
         if (i === 0 || i > 13 || (i >= 7 && i <= 9)) {
@@ -323,7 +363,10 @@ async function fetchWorkingProxies() {
           if (info.trim() === "-") {
             // console.log(split[0], "missing geo location");
             add_ajax_schedule(
-              "./geoIpBackground.php?proxy=" + encodeURIComponent(split[0]) + "&uid=" + user_info.user_id
+              "./geoIpBackground.php?proxy=" +
+                encodeURIComponent(split[0]) +
+                "&uid=" +
+                user_info.user_id,
             );
             run_ajax_schedule();
           }
@@ -364,7 +407,7 @@ function run_ajax_schedule() {
     ajax_schedule_running = true;
     const url = ajax_url_schedule.shift();
     fetch(url, {
-      signal: AbortSignal.timeout(5000)
+      signal: AbortSignal.timeout(5000),
     })
       .catch(() => {
         // re-push the url when error
@@ -414,7 +457,7 @@ function _sortLinesByDate(text) {
       useragent: parts[12],
       webgl_vendor: parts[13],
       webgl_renderer: parts[14],
-      browser_vendor: parts[15]
+      browser_vendor: parts[15],
     };
   });
 
@@ -438,7 +481,7 @@ function _sortLinesByDate(text) {
       useragent: parts[12],
       webgl_vendor: parts[13],
       webgl_renderer: parts[14],
-      browser_vendor: parts[15]
+      browser_vendor: parts[15],
     };
   });
 
@@ -484,9 +527,15 @@ function timeAgo(dateString) {
   // Construct the ago time string
   let agoTime = "";
   if (days > 0) agoTime += days + " day" + (days === 1 ? "" : "s") + " ";
-  if (remainingHours > 0) agoTime += remainingHours + " hour" + (remainingHours === 1 ? "" : "s") + " ";
-  if (remainingMinutes > 0) agoTime += remainingMinutes + " minute" + (remainingMinutes === 1 ? "" : "s") + " ";
-  if (remainingSeconds > 0) agoTime += remainingSeconds + " second" + (remainingSeconds === 1 ? "" : "s") + " ";
+  if (remainingHours > 0)
+    agoTime +=
+      remainingHours + " hour" + (remainingHours === 1 ? "" : "s") + " ";
+  if (remainingMinutes > 0)
+    agoTime +=
+      remainingMinutes + " minute" + (remainingMinutes === 1 ? "" : "s") + " ";
+  if (remainingSeconds > 0)
+    agoTime +=
+      remainingSeconds + " second" + (remainingSeconds === 1 ? "" : "s") + " ";
 
   // Append "ago" to the ago time string
   agoTime += "ago";
@@ -551,7 +600,10 @@ function copyToClipboard(text) {
     } else if (window.clipboardData && window.clipboardData.setData) {
       // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
       return window.clipboardData.setData("Text", text);
-    } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+    } else if (
+      document.queryCommandSupported &&
+      document.queryCommandSupported("copy")
+    ) {
       const textarea = document.createElement("textarea");
       textarea.textContent = text;
       textarea.style.position = "fixed"; // Prevent scrolling to bottom of page in Microsoft Edge.
@@ -616,20 +668,31 @@ async function init_config_editor() {
     sending_config = setTimeout(modify_config, 1000); // Set a new timeout
   };
 
-  document.getElementById("submit-config").addEventListener("click", submit_config);
+  document
+    .getElementById("submit-config")
+    .addEventListener("click", submit_config);
 
-  [endpoint, headers, checkbox_http, checkbox_socks4, checkbox_socks5].forEach((el) => {
-    el.addEventListener("change", submit_config);
-  });
+  [endpoint, headers, checkbox_http, checkbox_socks4, checkbox_socks5].forEach(
+    (el) => {
+      el.addEventListener("change", submit_config);
+    },
+  );
 
   const submit_proxies = (e) => {
     e.preventDefault();
     clearTimeout(sending_proxies); // Clear the previous timeout
-    sending_proxies = setTimeout(() => addProxy(document.getElementById("add_proxies").value), 1000); // Set a new timeout
+    sending_proxies = setTimeout(
+      () => addProxy(document.getElementById("add_proxies").value),
+      1000,
+    ); // Set a new timeout
   };
 
-  document.getElementById("add_proxies").addEventListener("change", submit_proxies);
-  document.getElementById("submit-new-proxies").addEventListener("click", submit_proxies);
+  document
+    .getElementById("add_proxies")
+    .addEventListener("change", submit_proxies);
+  document
+    .getElementById("submit-new-proxies")
+    .addEventListener("click", submit_proxies);
 }
 
 async function addProxy(proxies) {
@@ -641,9 +704,9 @@ async function addProxy(proxies) {
         signal: AbortSignal.timeout(5000),
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded" // Sending form-urlencoded data
+          "Content-Type": "application/x-www-form-urlencoded", // Sending form-urlencoded data
         },
-        body: `proxies=${encodeURIComponent(dataToSend)}` // Encode the string for safe transmission
+        body: `proxies=${encodeURIComponent(dataToSend)}`, // Encode the string for safe transmission
       });
       if (!response.ok) {
         showSnackbar("Network response was not ok");
@@ -652,13 +715,17 @@ async function addProxy(proxies) {
         showSnackbar(data);
       }
     } catch (error) {
-      showSnackbar("There was a problem with your fetch operation: " + error.message);
+      showSnackbar(
+        "There was a problem with your fetch operation: " + error.message,
+      );
     }
   };
   const ipPortArray = proxies
     .trim()
     .split(/\r?\n/)
-    .filter((text) => text.match(/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}/gim));
+    .filter((text) =>
+      text.match(/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}/gim),
+    );
 
   const chunkSize = 1000;
   const chunkedArrays = [];
@@ -678,15 +745,18 @@ function modify_config() {
     signal: AbortSignal.timeout(5000),
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       config: {
-        headers: document.querySelector("[name=headers]").value.trim().split(/\r?\n/),
+        headers: document
+          .querySelector("[name=headers]")
+          .value.trim()
+          .split(/\r?\n/),
         endpoint: document.querySelector("[name=endpoint]").value.trim(),
-        type: type.trim()
-      }
-    })
+        type: type.trim(),
+      },
+    }),
   })
     .then((response) => {
       if (!response.ok) {
