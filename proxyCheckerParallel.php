@@ -17,10 +17,12 @@ $options = getopt($short_opts, $long_opts);
 $str = implode("\n", array_values($options));
 $proxies = extractProxies($str);
 if (empty($proxies)) {
-  $db_untested = $db->getUntestedProxies(100);
-  $db_private = $db->getPrivateProxies(100);
-  $db_data = array_merge($db_untested, $db_private);
+//  $db_untested = $db->getUntestedProxies(100);
+//  $db_private = $db->getPrivateProxies(100);
+//  $db_data = array_merge($db_untested, $db_private);
+  $db_data = $db->getUntestedProxies(100);
   $db_data_map = array_map(function ($item) {
+    // transform array into Proxy instance same as extractProxies result
     $wrap = new Proxy($item['proxy']);
     foreach ($item as $key => $value) {
       if (property_exists($wrap, $key)) {
