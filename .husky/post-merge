@@ -1,9 +1,20 @@
 #!/usr/bin/env sh
 . "$(dirname "$0")/_/husky.sh"
 
-if [ "$(uname -s)" != "Windows" ]; then
-    echo "Not Windows"
-    chown -R www-data:www-data *
+if [[ "$(uname -s)" == *"CYGWIN"* || "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"MSYS"* ]]; then
+    echo "WINDOWS"
+elif [[ "$(uname -s)" == "Linux" ]]; then
+    if command -v lsb_release &> /dev/null; then
+        if command -v nginx &> /dev/null; then
+            chown -R www-data:www-data *
+        else
+            echo "Nginx is not installed"
+        fi
+    else
+        echo "lsb_release command not found, unable to determine distribution"
+        exit 1
+    fi
 else
-    echo "Windows"
+    echo "Unsupported operating system"
+    exit 1
 fi
