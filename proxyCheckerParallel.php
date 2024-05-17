@@ -175,7 +175,7 @@ foreach ($combinedIterable as $index => $item) {
     }
   }
   // release current proxy thread lock
-  if (file_exists($run_file)) unlink($run_file);
+  delete_path($run_file);
 }
 
 echo "writing working proxies" . PHP_EOL;
@@ -185,5 +185,5 @@ file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
 file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
 
 // release main lock files
-unlink($lockFile);
+delete_path($lockFile);
 write_file($statusFile, 'idle');
