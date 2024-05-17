@@ -116,7 +116,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
     unlink($lockFilePath);
   echo "update status to IDLE" . PHP_EOL;
   file_put_contents($statusFile, 'idle');
-}, 'z_onExit' . __FILE__);
+}, 'z_onExit' . basename(__FILE__));
 
 // print cURL informations
 echo "User " . $config['user_id'] . ' at ' . date("Y-m-d H:i:s") . PHP_EOL;
