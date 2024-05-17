@@ -1,0 +1,12 @@
+{
+  "*.js": "eslint --fix",
+  "*.ts": "eslint --fix",
+  "*.jsx": "eslint --fix",
+  "*.tsx": "eslint --fix",
+  "*.json": "prettier --list-different --write",
+  "*.css": "prettier --list-different --write",
+  "*.scss": "prettier --list-different --write",
+  "*.less": "prettier --list-different --write",
+  "*.yml": "prettier --list-different --write",
+  "*.yaml": "prettier --list-different --write"
+}
