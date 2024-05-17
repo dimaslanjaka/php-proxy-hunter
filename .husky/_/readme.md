@@ -7,7 +7,7 @@ git config --get core.hooksPath
 enable or change git hooks directory
 
 ```bash
-git config core.hooksPath .husky
+git config core.hooksPath .husky/_
 ```
 
 to uninstall
