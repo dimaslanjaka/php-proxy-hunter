@@ -140,8 +140,8 @@ async function checkerOutput() {
   const filter = (info || "")
     .split(/\r?\n/)
     .map((str) => {
-      str = str.replace(/port closed/, "<span class=\"text-red-400\">port closed</span>");
-      str = str.replace(/not working/, "<span class=\"text-red-600\">not working</span>");
+      str = str.replace(/port closed/, '<span class="text-red-400">port closed</span>');
+      str = str.replace(/not working/, '<span class="text-red-600">not working</span>');
       str = str.replace(/dead/, '<span class="text-red-600">dead</span>');
       str = str.replace(/working.*/, (whole) => {
         if (whole.includes("-1")) return `<span class="text-orange-400">${whole}</span>`;
@@ -174,6 +174,9 @@ async function checkerOutput() {
     });
   if (statusJson.untested && statusJson.untested > 0) {
     wrapper.querySelector("#untested").innerText = parseInt(statusJson.untested).toLocaleString();
+  }
+  if (statusJson.all && statusJson.all > 0) {
+    wrapper.querySelector("#all-total").innerText = parseInt(statusJson.all).toLocaleString();
   }
   if (statusJson.dead && statusJson.dead > 0) {
     wrapper.querySelector("#dead").innerText = parseInt(statusJson.dead).toLocaleString();

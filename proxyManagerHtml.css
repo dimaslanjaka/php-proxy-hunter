@@ -84,3 +84,9 @@
   content: "]";
   padding-left: 8px;
 }
+
+.rainbow-text {
+  background-image: linear-gradient(to left, violet, rgb(176, 36, 211), rgb(84, 84, 231), green, #d2d20f, #eb9c0b, red);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
