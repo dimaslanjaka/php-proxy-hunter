@@ -159,7 +159,7 @@ function setPermissions(string $filename, bool $autoCreate = false): bool
     if (file_exists($filename) && is_readable($filename) && is_writable($filename)) {
       return chmod($filename, 0777);
     }
-  } catch (\Throwable $th) {
+  } catch (Throwable $th) {
     return false;
   }
   return false;
@@ -1512,6 +1512,62 @@ function write_file(string $filePath, string $data): bool
     // Failed to write the file
     return false;
   }
+}
+
+/**
+ * Deletes a file or directory. Supports deleting multiple files or directories.
+ *
+ * @param string|array $path The path(s) to the file(s) or directory(ies) to be deleted.
+ * @return array An associative array with 'deleted' and 'errors' keys indicating the paths deleted and any errors encountered.
+ */
+function delete_path($path): array
+{
+  $result = [
+      'deleted' => [],
+      'errors' => []
+  ];
+
+  // Convert single path to an array for uniform handling
+  if (is_string($path)) {
+    $paths = [$path];
+  } elseif (is_array($path)) {
+    $paths = $path;
+  } else {
+    $result['errors'][] = 'Path must be a string or an array of strings.';
+    return $result;
+  }
+
+  foreach ($paths as $p) {
+    // Check if the path exists
+    if (file_exists($p)) {
+      if (is_dir($p)) {
+        // Recursively delete directory contents before deleting the directory
+        $files = array_diff(scandir($p), ['.', '..']);
+        foreach ($files as $file) {
+          $sub_result = delete_path("$p/$file");
+          $result['deleted'] = array_merge($result['deleted'], $sub_result['deleted']);
+          $result['errors'] = array_merge($result['errors'], $sub_result['errors']);
+        }
+        // Remove the directory
+        if (rmdir($p)) {
+          $result['deleted'][] = $p;
+        } else {
+          $result['errors'][] = "Failed to delete directory: $p";
+        }
+      } else {
+        // Delete the file
+        if (unlink($p)) {
+          $result['deleted'][] = $p;
+        } else {
+          $result['errors'][] = "Failed to delete file: $p";
+        }
+      }
+    } else {
+      $result['errors'][] = "Path does not exist: $p";
+    }
+  }
+
+  return $result;
 }
 
 /**
