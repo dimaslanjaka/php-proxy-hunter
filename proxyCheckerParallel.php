@@ -8,6 +8,9 @@ use PhpProxyHunter\ProxyDB;
 
 if (!$isCli) exit("only CLI allowed");
 
+$lockFile = __DIR__ . '/proxyChecker.lock';
+$statusFile = __DIR__ . "/status.txt";
+
 $db = new ProxyDB();
 
 $short_opts = "p:m::";
@@ -17,10 +20,9 @@ $options = getopt($short_opts, $long_opts);
 $str = implode("\n", array_values($options));
 $proxies = extractProxies($str);
 if (empty($proxies)) {
-//  $db_untested = $db->getUntestedProxies(100);
-//  $db_private = $db->getPrivateProxies(100);
-//  $db_data = array_merge($db_untested, $db_private);
-  $db_data = $db->getUntestedProxies(100);
+  $db_untested = $db->getUntestedProxies(100);
+  $db_dead = $db->getDeadProxies(100);
+  $db_data = array_merge($db_untested, $db_dead);
   $db_data_map = array_map(function ($item) {
     // transform array into Proxy instance same as extractProxies result
     $wrap = new Proxy($item['proxy']);
@@ -48,7 +50,10 @@ $output_log = __DIR__ . '/proxyChecker.txt';
 foreach ($combinedIterable as $index => $item) {
   $run_file = __DIR__ . '/tmp/runners/' . md5($item[0]->proxy) . '.txt';
   if (file_exists($run_file)) continue;
+  // write lock
   write_file($run_file, '');
+  write_file($statusFile, 'running in parallel');
+  write_file($lockFile, 'running in parallel');
   $counter++;
   if (!isPortOpen($item[0]->proxy)) {
     $db->updateStatus($item[0]->proxy, 'port-closed');
@@ -156,6 +161,7 @@ foreach ($combinedIterable as $index => $item) {
       append_content_with_lock($output_log, "$counter. {$item[0]->proxy} dead\n");
     }
   }
+  // release current proxy thread lock
   if (file_exists($run_file)) unlink($run_file);
 }
 
@@ -164,3 +170,7 @@ $data = parse_working_proxies($db);
 file_put_contents(__DIR__ . '/working.txt', $data['txt']);
 file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
 file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
+
+// release main lock files
+unlink($lockFile);
+write_file($statusFile, 'idle');
