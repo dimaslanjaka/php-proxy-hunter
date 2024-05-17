@@ -283,6 +283,11 @@ class ProxyDB
   {
     return $this->db->count('proxies', "private = ?", ['true']);
   }
+
+  public function countAllProxies(): int
+  {
+    return $this->db->count('proxies');
+  }
 }
 
 /**
