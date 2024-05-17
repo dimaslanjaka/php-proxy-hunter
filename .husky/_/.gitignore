@@ -3,3 +3,4 @@
 !/.gitignore
 !/h
 !/husky.sh
+!/post-commit
