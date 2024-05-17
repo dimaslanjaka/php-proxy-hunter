@@ -89,7 +89,7 @@ if (!empty($files_to_merge)) {
 }
 
 iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remove, &$str_to_remove) {
-  $items = extractProxies($line, $db, false);
+  $items = extractProxies($line, $db);
   foreach ($items as $item) {
     if (empty($item->proxy)) continue;
     if (!isValidProxy($item->proxy)) {

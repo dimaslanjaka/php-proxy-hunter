@@ -11,10 +11,10 @@ use PhpProxyHunter\ProxyDB;
  *
  * @param string|null $string The input string containing IP:PORT pairs.
  * @param ProxyDB|null $db An optional ProxyDB instance for database operations.
- * @param bool $debug Flag indicating whether debug information should be displayed. Default is true.
+ * @param bool|null $write_database An optional flag to determine if the results should be written to the database.
  * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies(?string $string, ?ProxyDB $db = null, bool $debug = true): array
+function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = true): array
 {
   if (is_null($string) || empty(trim($string))) {
     return [];
@@ -60,7 +60,7 @@ function extractProxies(?string $string, ?ProxyDB $db = null, bool $debug = true
                 $wrap->$key = $value;
               }
             }
-            if (!is_null($username) && !is_null($password)) {
+            if (!empty($username) && !empty($password)) {
               $wrap->username = $username;
               $wrap->password = $password;
             }
@@ -69,12 +69,15 @@ function extractProxies(?string $string, ?ProxyDB $db = null, bool $debug = true
           $results[] = $result[0];
         } else {
           $result = new Proxy($proxy);
-          if (!is_null($username) && !is_null($password)) {
-            $result->username = $username;
-            $result->password = $password;
-            $db->updateData($proxy, ['username' => $username, 'password' => $password]);
-          } else {
-            $db->add($proxy);
+          if ($write_database) {
+            // update database
+            if (!empty($username) && !empty($password)) {
+              $result->username = $username;
+              $result->password = $password;
+              $db->updateData($proxy, ['username' => $username, 'password' => $password, 'private' => 'true']);
+            } else {
+              $db->add($proxy);
+            }
           }
           $results[] = $result;
         }
