@@ -60,7 +60,8 @@ $extract = extractProxies($string_data);
 shuffle($extract);
 
 foreach ($extract as $item) {
-  get_geo_ip($item->proxy, 'http', $db);
+  if (empty($item->lang) || empty($item->country) || empty($item->timezone) || empty($item->longitude) || empty($item->latitude))
+    get_geo_ip($item->proxy, 'http', $db);
   if (empty($item->useragent)) {
     $item->useragent = randomWindowsUa();
     $db->updateData($item->proxy, ['useragent' => $item->useragent]);
