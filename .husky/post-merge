@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-. "${0%/*}/h"
+. "$(dirname "$0")/_/husky.sh"
 
 if [ "$(uname -s)" != "Windows" ]; then
     echo "Not Windows"
