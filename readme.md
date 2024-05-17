@@ -51,19 +51,19 @@ run proxy checker every 10 mins
 run proxy fetcher every day once
 
 ```bash
-0 0 * * * php /var/www/html/proxyFetcher.php > /path/to/proxyChecker.txt 2>&1
+0 0 * * * php /var/www/html/proxyFetcher.php
 ```
 
 run proxy indexing every day once
 
 ```bash
-0 0 * * * php /var/www/html/proxies-all.php > /path/to/proxyChecker.txt 2>&1
+0 0 * * * php /var/www/html/proxies-all.php
 ```
 
 run proxy checker parallel every 1 hour 17 minutes
 
 ```bash
-17 */1 * * * php /var/www/html/proxyCheckerParallel.php > /path/to/proxyChecker.txt 2>&1
+17 */1 * * * php /var/www/html/proxyCheckerParallel.php
 ```
 
 to run crontab using spesific user
