@@ -978,7 +978,8 @@ function parse_working_proxies(ProxyDB $db): array
       'working' => $db->countWorkingProxies(),
       'dead' => $db->countDeadProxies(),
       'untested' => $db->countUntestedProxies(),
-      'private' => $db->countPrivateProxies()
+      'private' => $db->countPrivateProxies(),
+      'all' => $db->countAllProxies()
   ];
 
   return ['txt' => $workingTxt, 'array' => $array_mapper, 'counter' => $count];
