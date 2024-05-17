@@ -22,7 +22,8 @@ $proxies = extractProxies($str);
 if (empty($proxies)) {
   $db_untested = $db->getUntestedProxies(100);
   $db_dead = $db->getDeadProxies(100);
-  $db_data = array_merge($db_untested, $db_dead);
+  $db_working = $db->getWorkingProxies(100);
+  $db_data = array_merge($db_untested, $db_dead, $db_working);
   $db_data_map = array_map(function ($item) {
     // transform array into Proxy instance same as extractProxies result
     $wrap = new Proxy($item['proxy']);
@@ -154,6 +155,10 @@ foreach ($combinedIterable as $index => $item) {
         foreach ($protocols as $protocol) {
           get_geo_ip($item[0]->proxy, $protocol, $db);
         }
+      }
+      if (empty($item[0]->useragent)) {
+        $item[0]->useragent = randomWindowsUa();
+        $db->updateData($item[0]->proxy, ['useragent' => $item[0]->useragent]);
       }
       if (empty($item[0]->webgl_renderer) || empty($item[0]->browser_vendor) || empty($item[0]->webgl_vendor)) {
         $webgl = random_webgl_data();
