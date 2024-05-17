@@ -30,7 +30,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
     unlink($lockFilePath);
   echo "update status to IDLE" . PHP_EOL;
   file_put_contents($statusFile, 'idle');
-}, 'z_onExit' . __FILE__);
+}, 'z_onExit' . basename(__FILE__));
 
 // Array of URLs to fetch content from
 $urls = array_unique([
