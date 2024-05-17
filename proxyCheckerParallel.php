@@ -37,7 +37,15 @@ if (empty($proxies)) {
     }
     return $wrap;
   }, $db_data);
-  $proxies = $db_data_map;
+  $proxies = array_filter($db_data_map, function ($item) use ($db) {
+    if (!isValidProxy($item->proxy)) {
+      if (!empty($item->proxy)) $db->remove($item->proxy);
+      return false;
+    }
+    if (empty($item->last_check)) return true;
+    if (isDateRFC3339OlderThanHours($item->last_check, 24)) return true;
+    return false;
+  });
 }
 
 shuffle($proxies);
