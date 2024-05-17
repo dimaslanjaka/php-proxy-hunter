@@ -20,10 +20,9 @@ $options = getopt($short_opts, $long_opts);
 $str = implode("\n", array_values($options));
 $proxies = extractProxies($str);
 if (empty($proxies)) {
-  $db_untested = $db->getUntestedProxies(100);
-  $db_dead = $db->getDeadProxies(100);
-  $db_working = $db->getWorkingProxies(100);
-  $db_data = array_merge($db_untested, $db_dead, $db_working);
+  $db_data = $db->getUntestedProxies(100);
+  if (count($db_data) < 100) $db_data = $db->getDeadProxies(100);
+  $db_data = array_merge($db_data, $db->getWorkingProxies(100));
   $db_data_map = array_map(function ($item) {
     // transform array into Proxy instance same as extractProxies result
     $wrap = new Proxy($item['proxy']);
