@@ -47,7 +47,7 @@ if (file_exists($lockFilePath) && !is_debug()) {
     unlink($lockFilePath);
   echo "update status to IDLE" . PHP_EOL;
   file_put_contents($statusFile, 'idle');
-}, 'z_onExit' . __FILE__);
+}, 'z_onExit' . basename(__FILE__));
 
 if (function_exists('header')) {
   // Set cache control headers to instruct the browser to cache the content for [n] hour
