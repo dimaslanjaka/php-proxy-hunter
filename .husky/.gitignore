@@ -5,4 +5,4 @@
 !/husky.sh
 !/post-commit
 !/readme.md
-!/_
+!*.py
