@@ -136,19 +136,19 @@
   <ins class="adsbygoogle mb-2" data-ad-client="ca-pub-2188063137129806" data-ad-format="auto"
        data-ad-slot="6873696468" data-full-width-responsive="true" style="display:block"></ins>
 
-  <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1 max-w-full">
+  <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1">
     <div class="mb-3 bg-white dark:bg-slate-800 dark:text-slate-400">
       <b>Checker result</b>
-      <div class="relative overflow-auto z-0 h-60 mb-5" id="cpresult"></div>
+      <div class="relative overflow-auto break-all z-0 h-60 mb-5" id="cpresult"></div>
       <button
         class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
         id="filter-ports">Filter open ports
       </button>
     </div>
     <div class="relative z-0 group mb-3">
-      <b>Add proxies</b>
+      <label for="add_proxies" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Add Proxies</label>
       <textarea
-        class="mb-5 h-60 block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+        class="w-full mb-5 h-60 block py-2.5 px-0 text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
         id="add_proxies" name="proxies"
         placeholder="18.133.16.21:1080@username:password&#10;18.133.16.21:1080&#10;OR ANY TEXTS THAT CONTAINS PROXY"
       ></textarea>
