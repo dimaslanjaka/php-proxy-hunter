@@ -544,7 +544,7 @@ function parseArgs($args): array
 
 $user_id = "CLI";
 if (!$isCli) {
-  $user_id = session_id();
+  $user_id = $_SESSION['user_id'] ?? session_id();
 } else {
   $parsedArgs = parseArgs($argv);
   if (isset($parsedArgs['userId']) && !empty(trim($parsedArgs['userId']))) {
@@ -646,6 +646,24 @@ function setConfig($user_id, $data): array
   // set permission
   setMultiPermissions($user_file);
   return $nData;
+}
+
+/**
+ * Anonymize an email address by masking the username.
+ *
+ * @param string $email The email address to anonymize.
+ * @return string The anonymized email address.
+ */
+function anonymizeEmail(string $email): string
+{
+  // Split the email into username and domain
+  list($username, $domain) = explode('@', $email);
+
+  // Anonymize the username (keep only the first and the last character)
+  $username_anon = substr($username, 0, 1) . str_repeat('*', strlen($username) - 2) . substr($username, -1);
+
+  // Reconstruct the anonymized email
+  return $username_anon . '@' . $domain;
 }
 
 /**
