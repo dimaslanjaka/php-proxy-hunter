@@ -288,6 +288,12 @@ class ProxyDB
   {
     return $this->db->count('proxies');
   }
+
+  public function close()
+  {
+    $this->db->close();
+    $this->db = null;
+  }
 }
 
 /**
