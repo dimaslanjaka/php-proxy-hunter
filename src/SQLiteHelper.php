@@ -173,4 +173,9 @@ class SQLiteHelper
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
   }
+
+  public function close()
+  {
+    $this->pdo = null;
+  }
 }
