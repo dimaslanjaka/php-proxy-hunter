@@ -2,7 +2,7 @@
 
 namespace PhpProxyHunter;
 
-use \PDO;
+use PDO;
 
 if (!defined('PHP_PROXY_HUNTER')) exit('access denied');
 
@@ -11,47 +11,50 @@ if (!defined('PHP_PROXY_HUNTER')) exit('access denied');
  *
  * Helper class for interacting with SQLite database.
  *
- * Usage Example:
- *
- * // Create an instance of the SQLiteHelper class
- * $helper = new SQLiteHelper('path/to/your/database.sqlite');
- *
- * // Create a table
- * $helper->createTable('users', [
- *     'id INTEGER PRIMARY KEY',
- *     'name TEXT',
- *     'email TEXT'
- * ]);
- *
- * // Insert a record
- * $helper->insert('users', ['name' => 'John', 'email' => 'john@example.com']);
- *
- * // Select records
- * $users = $helper->select('users', '*', 'name = ?', ['John']);
- * print_r($users);
- *
- * // Update a record
- * $helper->update('users', ['email' => 'john.doe@example.com'], 'name = ?', ['John']);
- *
- * // Delete a record
- * $helper->delete('users', 'name = ?', ['John']);
- *
  * @package PhpProxyHunter
  */
 class SQLiteHelper
 {
-  /** @var PDO $pdo */
+  /** @var PDO|null $pdo */
   public $pdo;
+
+  /** @var PDO[] Static property to hold PDO instances. */
+  private static $_databases = [];
+
+  /** @var string The unique key for the current PDO instance. */
+  private $uniqueKey;
 
   /**
    * SQLiteHelper constructor.
    *
    * @param string $dbPath The path to the SQLite database file.
+   * @param bool $unique Whether to use a unique key based on caller location.
    */
-  public function __construct(string $dbPath)
+  public function __construct(string $dbPath, bool $unique = false)
   {
-    $this->pdo = new PDO("sqlite:$dbPath");
-    $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $trace = debug_backtrace();
+    // Unique key is based on the last caller if $unique is true
+    $caller = $unique ? end($trace) : $trace[0];
+    $callerFile = $caller['file'] ?? 'unknown';
+    $callerLine = $caller['line'] ?? 'unknown';
+    $this->uniqueKey = md5($dbPath . $callerFile . $callerLine);
+
+    if (isset(self::$_databases[$this->uniqueKey])) {
+      $this->pdo = self::$_databases[$this->uniqueKey];
+    } else {
+      $this->pdo = new PDO("sqlite:$dbPath");
+      $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      self::$_databases[$this->uniqueKey] = $this->pdo;
+    }
+  }
+
+  /**
+   * Closes the database connection.
+   */
+  public function close(): void
+  {
+    unset(self::$_databases[$this->uniqueKey]);
+    $this->pdo = null;
   }
 
   /**
@@ -101,17 +104,11 @@ class SQLiteHelper
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    if ($result) return $result;
-    return [];
+    return $result ?: [];
   }
 
   /**
    * Counts the records in the specified table.
-   *
-   * ```
-   * $count = $db->count('your_table_name');
-   * $count = $db->count('your_table_name', 'column_name = ?', [$value]);
-   * ```
    *
    * @param string $tableName The name of the table to count records from.
    * @param string|null $where The WHERE clause.
@@ -127,10 +124,7 @@ class SQLiteHelper
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
     $result = $stmt->fetchColumn();
-    if ($result !== false) {
-      return (int)$result;
-    }
-    return 0;
+    return $result !== false ? (int)$result : 0;
   }
 
   /**
@@ -155,7 +149,6 @@ class SQLiteHelper
     }
     $setString = implode(', ', $setValues);
     $sql = "UPDATE $tableName SET $setString WHERE $where";
-//    echo $sql . PHP_EOL;
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute(array_merge($setParams, $params));
   }
@@ -172,10 +165,5 @@ class SQLiteHelper
     $sql = "DELETE FROM $tableName WHERE $where";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
-  }
-
-  public function close()
-  {
-    $this->pdo = null;
   }
 }
