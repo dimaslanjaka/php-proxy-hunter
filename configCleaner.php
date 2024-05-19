@@ -11,7 +11,14 @@ if (!$isCli)
   exit('web server access disallowed');
 
 // Directory where JSON files are located
-$directories = [__DIR__ . '/config/', __DIR__ . '/.cache/', __DIR__ . '/tmp/', __DIR__ . '/tmp/cookies/', __DIR__ . '/tmp/sessions/'];
+$directories = [
+    __DIR__ . '/config/',
+    __DIR__ . '/.cache/',
+    __DIR__ . '/tmp/',
+    __DIR__ . '/tmp/cookies/',
+    __DIR__ . '/tmp/sessions/',
+    __DIR__ . '/tmp/runners/'
+];
 
 // Get the current timestamp
 $current_time = time();
