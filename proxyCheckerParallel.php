@@ -189,6 +189,7 @@ delete_path($lockFile);
 write_file($statusFile, 'idle');
 
 function write_working() {
+  global $db;
   echo "writing working proxies" . PHP_EOL;
   $data = parse_working_proxies($db);
   file_put_contents(__DIR__ . '/working.txt', $data['txt']);
