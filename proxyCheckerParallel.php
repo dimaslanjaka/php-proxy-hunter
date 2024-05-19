@@ -169,6 +169,8 @@ foreach ($combinedIterable as $index => $item) {
             'browser_vendor' => $webgl->browser_vendor
         ]);
       }
+      // write working proxies
+      write_working();
     } else {
       $db->updateStatus($item[0]->proxy, 'dead');
       echo "$counter. {$item[0]->proxy} dead" . PHP_EOL;
@@ -179,12 +181,17 @@ foreach ($combinedIterable as $index => $item) {
   delete_path($run_file);
 }
 
-echo "writing working proxies" . PHP_EOL;
-$data = parse_working_proxies($db);
-file_put_contents(__DIR__ . '/working.txt', $data['txt']);
-file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
-file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
+// write working proxies
+write_working();
 
 // release main lock files
 delete_path($lockFile);
 write_file($statusFile, 'idle');
+
+function write_working() {
+  echo "writing working proxies" . PHP_EOL;
+  $data = parse_working_proxies($db);
+  file_put_contents(__DIR__ . '/working.txt', $data['txt']);
+  file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
+  file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
+}
