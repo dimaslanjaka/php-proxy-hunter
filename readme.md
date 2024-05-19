@@ -66,6 +66,12 @@ run proxy checker parallel every 1 hour 17 minutes
 17 */1 * * * php /var/www/html/proxyCheckerParallel.php
 ```
 
+run cleaner every week
+
+```
+0 0 * * 0 php /var/www/html/configCleaner.php
+```
+
 to run crontab using spesific user
 
 ```bash
