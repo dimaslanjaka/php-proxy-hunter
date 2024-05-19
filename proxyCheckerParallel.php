@@ -48,7 +48,9 @@ if (empty($proxies)) {
   });
 }
 
-shuffle($proxies);
+for ($i = 0; $i < rand(1, 4); $i++) {
+    shuffle($proxies);
+}
 
 $iterator = new ArrayIterator($proxies);
 $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
