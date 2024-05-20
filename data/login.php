@@ -47,7 +47,7 @@ if (isset($_REQUEST['login'])) {
   header('Location: ' . $authUri);
 }
 
-$credentialsPath = __DIR__ . '/../tmp/logins/login_' . (!$isCli ? $_COOKIE['visitor_id'] : 'CLI') . '.json';
+$credentialsPath = __DIR__ . '/../tmp/logins/login_' . (!$isCli && !empty($_COOKIE['visitor_id']) ? $_COOKIE['visitor_id'] : 'CLI') . '.json';
 createParentFolders($credentialsPath);
 
 // authenticate using saved
