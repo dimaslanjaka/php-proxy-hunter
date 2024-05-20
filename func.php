@@ -579,7 +579,7 @@ function setUserId(string $new_user_id)
           'type' => 'http|socks4|socks5'
       );
       $file = getUserFile($new_user_id);
-      file_put_contents($file, json_encode($data));
+      write_file($file, json_encode($data));
     }
     // replace global user id
     if ($user_id != $new_user_id)
@@ -1456,6 +1456,31 @@ function randomIosUa(string $type = 'chrome'): string
 }
 
 /**
+ * Sanitize the filename in a given full path.
+ *
+ * This function will remove or replace unsafe characters in the filename part of the full path
+ * while keeping the rest of the path intact. Unsafe characters that are typically sanitized include
+ * spaces, special characters, and other non-alphanumeric characters that might cause issues in
+ * file handling.
+ *
+ * @param string $fullPath The full path string containing the filename to sanitize.
+ * @return string The full path with the sanitized filename.
+ */
+function sanitizeFilenameFromPath(string $fullPath): string
+{
+  // Extract the directory path and filename
+  $pathParts = pathinfo($fullPath);
+
+  // Define the sanitized filename using a regular expression to remove unsafe characters
+  $sanitizedFilename = preg_replace('/[^A-Za-z0-9._-]/', '_', $pathParts['basename']);
+
+  // Reconstruct the full path with the sanitized filename
+  $sanitizedPath = $pathParts['dirname'] . DIRECTORY_SEPARATOR . $sanitizedFilename;
+
+  return $sanitizedPath;
+}
+
+/**
  * Reads a file as UTF-8 encoded text.
  *
  * @param string $inputFile The path to the input file.
@@ -1464,6 +1489,7 @@ function randomIosUa(string $type = 'chrome'): string
  */
 function read_file(string $inputFile, int $chunkSize = 1048576)
 {
+  $inputFile = sanitizeFilenameFromPath($inputFile);
   if (!file_exists($inputFile)) return false;
   // Check if file is readable
   if (!is_readable($inputFile) || is_file_locked($inputFile)) {
@@ -1505,14 +1531,15 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
 /**
  * Write data to a file and create the parent folder if it doesn't exist.
  *
- * @param string $filePath The path to the file.
+ * @param string $inputFile The path to the file.
  * @param string $data The data to write to the file.
  * @return bool True on success, false on failure.
  */
-function write_file(string $filePath, string $data): bool
+function write_file(string $inputFile, string $data): bool
 {
+  $inputFile = sanitizeFilenameFromPath($inputFile);
   // Get the directory name from the file path
-  $dir = dirname($filePath);
+  $dir = dirname($inputFile);
 
   // Create the parent folder if it doesn't exist
   if (!is_dir($dir)) {
@@ -1523,7 +1550,7 @@ function write_file(string $filePath, string $data): bool
   }
 
   // Write data to the file
-  if (file_put_contents($filePath, $data) !== false) {
+  if (file_put_contents($inputFile, $data) !== false) {
     // Successfully wrote the file
     return true;
   } else {
