@@ -17,7 +17,7 @@
       "type": "node-terminal"
     },
     {
-      "command": "python local-selenium.py",
+      "command": "python dl_traffic.py",
       "name": "Run selenium",
       "request": "launch",
       "type": "node-terminal"
