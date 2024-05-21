@@ -26,6 +26,7 @@ tmp/
 !/robots.txt
 /.env
 /working.json
+.idea/.name
 
 # python
 /profiles-proxy.json
