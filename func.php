@@ -1775,7 +1775,7 @@ function scanPort(string $ip, int $port): bool
 {
   $ip = trim($ip);
   echo "Scanning port $ip:$port\n";
-  $connection = @fsockopen($ip, $port, $errno, $errstr, 10);
+  $connection = @fsockopen($ip, $port, $errno, $error_string, 10);
   if (is_resource($connection)) {
     echo "Port $port is open.\n";
     fclose($connection);
