@@ -107,6 +107,10 @@ function checkProxyInParallel(array $proxies)
   $output_log = __DIR__ . '/proxyChecker.txt';
   foreach ($combinedIterable as $index => $item) {
     $run_file = __DIR__ . '/tmp/runners/' . md5($item[0]->proxy) . '.txt';
+    // schedule release current proxy thread lock
+    Scheduler::register(function () use ($run_file) {
+      delete_path($run_file);
+    }, md5($run_file));
     if (file_exists($run_file)) continue;
     // write lock
     write_file($run_file, '');
@@ -224,8 +228,6 @@ function checkProxyInParallel(array $proxies)
         append_content_with_lock($output_log, "$counter. {$item[0]->proxy} dead\n");
       }
     }
-    // release current proxy thread lock
-    delete_path($run_file);
   }
 
   // write working proxies
