@@ -42,8 +42,19 @@ $proxies = extractProxies($str);
 
 if (empty($proxies)) {
   $db_data = $db->getUntestedProxies(100);
-  if (count($db_data) < 100) $db_data = $db->getDeadProxies(100);
-  $db_data = array_merge($db_data, $db->getWorkingProxies(100));
+  if (count($db_data) < 100) {
+    // get dead proxies last checked more than 24 hours ago
+    $dead_data = array_filter($db->getDeadProxies(100), function ($item) {
+      if (empty($item['last_check'])) return true;
+      return isDateRFC3339OlderThanHours($item['last_check'], 24);
+    });
+    $db_data = array_merge($db_data, $dead_data);
+  }
+  $working_data = array_filter($db->getWorkingProxies(100), function ($item) {
+    if (empty($item['last_check'])) return true;
+    return isDateRFC3339OlderThanHours($item['last_check'], 24);
+  });
+  $db_data = array_merge($db_data, $working_data);
   $db_data_map = array_map(function ($item) {
     // transform array into Proxy instance same as extractProxies result
     $wrap = new Proxy($item['proxy']);
@@ -63,9 +74,10 @@ if (empty($proxies)) {
       if (!empty($item->proxy)) $db->remove($item->proxy);
       return false;
     }
-    if (empty($item->last_check)) return true;
-    if (isDateRFC3339OlderThanHours($item->last_check, 24)) return true;
-    return false;
+//    if (empty($item->last_check)) return true;
+//    if (isDateRFC3339OlderThanHours($item->last_check, 24)) return true;
+//    return false;
+    return true;
   });
   // run immediately
 //  checkProxyInParallel($proxies);
