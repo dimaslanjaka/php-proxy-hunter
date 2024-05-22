@@ -143,12 +143,16 @@ if (!isset($_SESSION['captcha'])) {
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <div class="inline-flex rounded-md shadow-sm mb-3" role="group">
   <button id="my_button"
-          class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-700 rounded-l-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+    My Button
   </button>
-  <button type="button"
-          class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white"
-          onclick="location.href='login.php?login=true'">
+  <button type="button" onclick="location.href='login.php?login=true'"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-l-0 border-blue-700 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
     Login server
+  </button>
+  <button type="button" onclick="location.href='/proxyManager.html'"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-l-0 border-blue-700 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+    Goto Proxy Manager
   </button>
 </div>
 
