@@ -122,12 +122,13 @@ function isValidIPPort(string $str): bool
 /**
  * Validates a proxy string.
  *
- * @param string $proxy The proxy string to validate.
+ * @param string|null $proxy The proxy string to validate.
  * @param bool $validate_credential Whether to validate credentials if present.
  * @return bool True if the proxy is valid, false otherwise.
  */
-function isValidProxy(string $proxy, bool $validate_credential = false): bool
+function isValidProxy(?string $proxy, bool $validate_credential = false): bool
 {
+  if (empty($proxy)) return false;
   $username = $ip = $port = $password = null;
   $hasCredential = strpos($proxy, '@') !== false;
 
