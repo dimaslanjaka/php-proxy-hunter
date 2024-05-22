@@ -129,7 +129,7 @@ function isValidIPPort(string $str): bool
 function isValidProxy(?string $proxy, bool $validate_credential = false): bool
 {
   if (empty($proxy)) return false;
-  $username = $ip = $port = $password = null;
+  $username = $password = null;
   $hasCredential = strpos($proxy, '@') !== false;
 
   // Extract username and password if credentials are present
@@ -154,7 +154,7 @@ function isValidProxy(?string $proxy, bool $validate_credential = false): bool
 
   // Check if proxy is valid
   $proxyLength = strlen($proxy);
-  $re = '/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}/';
+  $re = '/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}/';
   $is_proxy_valid = $is_ip_valid && $is_port_valid && $proxyLength >= 10 && $proxyLength <= 21 && preg_match($re, $proxy);
 
   // Validate credentials if required
