@@ -119,7 +119,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
 }, 'z_onExit' . basename(__FILE__));
 
 // print cURL informations
-echo "User " . $config['user_id'] . ' at ' . date("Y-m-d H:i:s") . PHP_EOL;
+echo "User " . anonymizeEmail($config['user_id']) . ' at ' . date("Y-m-d H:i:s") . PHP_EOL;
 echo "GET $endpoint " . strtoupper($checksFor) . PHP_EOL;
 echo implode("\n", $headers) . PHP_EOL;
 
