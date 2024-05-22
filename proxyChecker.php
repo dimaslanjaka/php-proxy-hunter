@@ -161,6 +161,11 @@ $str_to_remove = [];
 try {
   $db_untested = $db->getUntestedProxies(50);
   $db_working = $db->getWorkingProxies(50);
+  // include dead proxies when current date (minute unit) can be divided by 3
+  // or if untested proxies less than 100 items
+  $include_dead_proxies = date('i') % 3 == 0 || count($db_untested) < 100 || empty($db_untested);
+  $db_dead = $include_dead_proxies ? $db->getDeadProxies(50) : [];
+  $db_data = array_merge($db_untested, $db_working, $db_dead);
   $db_data_map = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
     foreach ($item as $key => $value) {
@@ -173,8 +178,8 @@ try {
       $wrap->password = $item['password'];
     }
     return $wrap;
-  }, array_merge($db_untested, $db_working));
-  $db_data_map = filter_proxies($db_data_map, date('i') % 3 == 0);
+  }, $db_data);
+  $db_data_map = filter_proxies($db_data_map, $include_dead_proxies);
   $untested = array_merge($untested, $db_data_map);
   echo "[DB] queue: " . count($db_data_map) . " proxies" . PHP_EOL;
 } catch (\Throwable $th) {
@@ -209,6 +214,11 @@ function execute_array_proxies()
   iterateArray($proxies, $max_checks, 'execute_single_proxy');
 }
 
+/**
+ * @param Proxy[] $proxies
+ * @param bool $skip_dead_proxies
+ * @return Proxy[]
+ */
 function filter_proxies(array $proxies, bool $skip_dead_proxies = false)
 {
   global $db, $str_to_remove;
