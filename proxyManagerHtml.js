@@ -186,7 +186,43 @@ async function checkerOutput() {
   }
 }
 
-fetch("./info.php", { signal: AbortSignal.timeout(5000), mode: "cors" }).catch(noop);
+fetch("./info.php?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" })
+  .then((_) => {})
+  .catch(() => {})
+  .finally(() => {
+    printCurlCommand("curl-command");
+  });
+
+function printCurlCommand(preElementId) {
+  console.log("print");
+  // Get the current URL
+  const currentUrl = window.location.href;
+
+  // Extract protocol and domain
+  const url = new URL(currentUrl);
+  const protocol = url.protocol;
+  const domain = url.hostname;
+
+  // Define the endpoint and proxy
+  const endpoint = "/proxyCheckerParallel.php";
+  const proxy = "72.10.160.171:24049";
+
+  // Create the curl command
+  const curlCommand = `curl -X POST ${protocol}//${domain}${endpoint}\n     -d "proxy=${proxy}"`;
+
+  console.log(curlCommand);
+
+  // Find the <pre> element by its ID
+  const preElement = document.getElementById(preElementId);
+
+  // Check if the element exists
+  if (preElement) {
+    // Set the text content of the <pre> element
+    preElement.textContent = curlCommand;
+  } else {
+    console.error(`Element with id "${preElementId}" not found.`);
+  }
+}
 
 async function userInfo() {
   try {
