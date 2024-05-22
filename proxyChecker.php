@@ -110,7 +110,9 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
   file_put_contents(__DIR__ . '/working.txt', $data['txt']);
   file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
   file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
-  $countsString = implode("\n", array_map(fn($key, $value) => "$key proxies $value", array_keys($data['counter']), $data['counter']));
+  $countsString = implode("\n", array_map(function ($key, $value) {
+    return "$key proxies $value";
+  }, array_keys($data['counter']), $data['counter']));
   echo $countsString;
   echo "releasing lock" . PHP_EOL;
   // clean lock files
