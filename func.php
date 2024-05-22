@@ -544,7 +544,7 @@ function parseArgs($args): array
 
 $user_id = "CLI";
 if (!$isCli) {
-  $user_id = $_SESSION['user_id'] ?? session_id();
+  $user_id = md5($_SESSION['user_id'] ?? session_id());
 } else {
   $parsedArgs = parseArgs($argv);
   if (isset($parsedArgs['userId']) && !empty(trim($parsedArgs['userId']))) {
@@ -1475,9 +1475,7 @@ function sanitizeFilenameFromPath(string $fullPath): string
   $sanitizedFilename = preg_replace('/[^A-Za-z0-9._-]/', '_', $pathParts['basename']);
 
   // Reconstruct the full path with the sanitized filename
-  $sanitizedPath = $pathParts['dirname'] . DIRECTORY_SEPARATOR . $sanitizedFilename;
-
-  return $sanitizedPath;
+  return $pathParts['dirname'] . DIRECTORY_SEPARATOR . $sanitizedFilename;
 }
 
 /**
@@ -1489,7 +1487,7 @@ function sanitizeFilenameFromPath(string $fullPath): string
  */
 function read_file(string $inputFile, int $chunkSize = 1048576)
 {
-  $inputFile = sanitizeFilenameFromPath($inputFile);
+//  $inputFile = sanitizeFilenameFromPath($inputFile);
   if (!file_exists($inputFile)) return false;
   // Check if file is readable
   if (!is_readable($inputFile) || is_file_locked($inputFile)) {
@@ -1537,7 +1535,7 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
  */
 function write_file(string $inputFile, string $data): bool
 {
-  $inputFile = sanitizeFilenameFromPath($inputFile);
+//  $inputFile = sanitizeFilenameFromPath($inputFile);
   // Get the directory name from the file path
   $dir = dirname($inputFile);
 
