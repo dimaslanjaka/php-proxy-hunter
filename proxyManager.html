@@ -245,7 +245,7 @@
 
   <script>
     const script = document.createElement("script");
-    script.src = "./proxyManagerHtml.js?v=" + new Date();
+    script.src = "./proxyManager.js?v=" + new Date();
     script.onload = () => {
       setTimeout(() => {
         const myscript = document.createElement("script");
@@ -257,7 +257,7 @@
 
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "./proxyManagerHtml.css?v=" + new Date();
+    link.href = "./proxyManager.css?v=" + new Date();
     document.head.appendChild(link);
 
     function doubleScroll(element) {
