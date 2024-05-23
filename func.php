@@ -2,6 +2,8 @@
 
 /** @noinspection RegExpRedundantEscape */
 
+$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+
 define('PHP_PROXY_HUNTER', date(DATE_RFC3339));
 if (!defined('JSON_THROW_ON_ERROR')) {
   define('JSON_THROW_ON_ERROR', 4194304);
@@ -11,7 +13,19 @@ if (!defined('JSON_THROW_ON_ERROR')) {
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 ini_set("log_errors", 1); // Enable error logging
-ini_set("error_log", __DIR__ . "/tmp/php-error.log"); // set error path
+$error_file = __DIR__ . "/tmp/php-error.txt";
+if (!$isCli) {
+  // Sanitize the user agent string
+  $user_agent = preg_replace('/[^a-zA-Z0-9-_\.]/', '_', $_SERVER['HTTP_USER_AGENT']);
+
+  // Check if the sanitized user agent is empty
+  if (empty($user_agent)) {
+    $error_file = __DIR__ . "/tmp/php-error.txt";
+  } else {
+    $error_file = __DIR__ . "/tmp/php-error-" . $user_agent . ".txt";
+  }
+}
+ini_set("error_log", $error_file); // set error path
 error_reporting(E_ALL);
 
 // set default timezone
@@ -34,8 +48,6 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
 $db = new ProxyDB();
-
-$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 // keep running when user closed the connection (true)
 // ignore_user_abort(true);
