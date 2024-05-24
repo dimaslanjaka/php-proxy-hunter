@@ -65,9 +65,9 @@ COMPOSER_PHAR="composer.phar"
 
 # Install or update composer packages
 if [ ! -f "$COMPOSER_LOCK" ]; then
-  su -s /bin/sh -c "php $COMPOSER_PHAR install --no-dev >> $OUTPUT_FILE 2>&1" www-data
+  su -s /bin/sh -c "php $COMPOSER_PHAR install --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" www-data
 else
-  su -s /bin/sh -c "php $COMPOSER_PHAR update --no-dev >> $OUTPUT_FILE 2>&1" www-data
+  su -s /bin/sh -c "php $COMPOSER_PHAR update --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" www-data
 fi
 
 # Validate proxies-all.php not running before indexing proxies
