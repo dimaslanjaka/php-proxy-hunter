@@ -22,14 +22,18 @@ for file in "${lock_files[@]}"; do
 done
 
 # Set permissions
+# shellcheck disable=SC2035
 chmod 777 *.txt
+# shellcheck disable=SC2035
 chmod 755 *.html *.js
+# shellcheck disable=SC2035
 chmod 755 *.css
 chmod 755 js/*.js
 chmod 777 config
 chmod 755 config/*
 chmod 777 tmp .cache data
-chmod 644 data/*
+chmod 644 data/*.php
+# shellcheck disable=SC2035
 chmod 644 *.php
 chmod 644 .env
 
@@ -44,11 +48,13 @@ touch .cache/index.html
 
 # Additional permissions for specific directories
 if [ -d "assets/proxies" ]; then
-    chmod 755 "assets/proxies"
-    touch "assets/proxies/index.html"
+    chmod 777 assets/proxies
+    chmod 755 assets/proxies/*
+    touch assets/proxies/index.html
 fi
 
 # Allow composer and indexing proxies to work
+# shellcheck disable=SC2035
 chown -R www-data:www-data *.php *.phar
 
 echo "Permission sets successful"
@@ -79,13 +85,16 @@ touch vendor/index.html
 echo "Composer installed"
 
 # Fix ownership
+# shellcheck disable=SC2035
 chown -R www-data:www-data *.php *.txt *.json *.js *.html src data tmp vendor assets
+# shellcheck disable=SC2035
 chown -R www-data:www-data .cache config *.css *.lock js .htaccess .env
 
 echo "Ownership fixed"
 
 # Enable Git LFS and track large files
 git lfs install
+# shellcheck disable=SC2035
 git lfs track *.rar
 
 echo "Large files tracked"
