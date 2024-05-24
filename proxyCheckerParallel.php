@@ -20,7 +20,7 @@ if ($isCli) {
 } else {
   header('Content-Type: text/plain; charset=UTF-8');
   if (file_exists($webLockFile)) {
-    exit('another process still running');
+    exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
   } else {
     write_file($webLockFile, date(DATE_RFC3339));
   }

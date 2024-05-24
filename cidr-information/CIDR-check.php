@@ -18,7 +18,7 @@ $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 
 if (file_exists($lockFilePath) && !is_debug()) {
-  echo "another process still running\n";
+  echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
   exit();
 } else {
   file_put_contents($lockFilePath, date(DATE_RFC3339));
