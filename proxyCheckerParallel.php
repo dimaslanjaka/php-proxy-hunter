@@ -10,6 +10,7 @@ use PhpProxyHunter\Scheduler;
 $db = new ProxyDB();
 $str = '';
 $webLockFile = __DIR__ . '/tmp/parallel-web.lock';
+$output_log = __DIR__ . '/proxyChecker.txt';
 
 if ($isCli) {
   $short_opts = "p:m::";
@@ -18,6 +19,8 @@ if ($isCli) {
 
   $str = implode("\n", array_values($options));
 } else {
+  // truncate output log file
+  truncateFile($output_log);
   header('Content-Type: text/plain; charset=UTF-8');
   if (file_exists($webLockFile)) {
     exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
@@ -97,6 +100,7 @@ if (!empty($proxies)) {
  */
 function checkProxyInParallel(array $proxies)
 {
+  global $output_log;
   $db = new ProxyDB();
   $lockFile = __DIR__ . '/proxyChecker.lock';
   $statusFile = __DIR__ . "/status.txt";
@@ -107,7 +111,6 @@ function checkProxyInParallel(array $proxies)
   $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
   $combinedIterable->attachIterator($iterator);
   $counter = 0;
-  $output_log = __DIR__ . '/proxyChecker.txt';
   foreach ($combinedIterable as $index => $item) {
     $run_file = __DIR__ . '/tmp/runners/' . md5($item[0]->proxy) . '.txt';
     // schedule release current proxy thread lock
