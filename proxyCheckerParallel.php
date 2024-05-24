@@ -19,8 +19,11 @@ if ($isCli) {
   $str = implode("\n", array_values($options));
 } else {
   header('Content-Type: text/plain; charset=UTF-8');
-  if (file_exists($webLockFile))
+  if (file_exists($webLockFile)) {
     exit('another process still running');
+  } else {
+    write_file($webLockFile, date(DATE_RFC3339));
+  }
   Scheduler::register(function () use ($webLockFile) {
     delete_path($webLockFile);
   }, 'webserver-close-' . md5(__FILE__));
