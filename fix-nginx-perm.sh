@@ -53,9 +53,9 @@ chown -R www-data:www-data *.php *.phar
 
 echo "Permission sets successful"
 
-OUTPUT_FILE="/var/www/html/proxyChecker.txt"
-COMPOSER_LOCK="/var/www/html/composer.lock"
-COMPOSER_PHAR="/var/www/html/composer.phar"
+OUTPUT_FILE="proxyChecker.txt"
+COMPOSER_LOCK="composer.lock"
+COMPOSER_PHAR="composer.phar"
 
 # Install or update composer packages
 if [ ! -f "$COMPOSER_LOCK" ]; then
@@ -69,7 +69,7 @@ if pgrep -f "proxies-all.php" >/dev/null; then
     echo "Proxies indexing is still running."
 else
     # If proxies-all.php is not running, execute the command
-    su -s /bin/sh -c "php /var/www/html/proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
+    su -s /bin/sh -c "php proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
 fi
 
 # Set permissions for vendor directory
