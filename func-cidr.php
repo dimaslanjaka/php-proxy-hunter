@@ -10,19 +10,19 @@ require __DIR__ . '/func-proxy.php';
  */
 function generateRandomIP(string $cidr): string
 {
-    list($ip, $subnet) = explode('/', $cidr);
+  list($ip, $subnet) = explode('/', $cidr);
 
-    // Convert IP to binary format
-    $ipBinary = ip2long($ip);
+  // Convert IP to binary format
+  $ipBinary = ip2long($ip);
 
-    // Calculate the number of available IP addresses in the subnet
-    $subnetSize = pow(2, (32 - $subnet));
+  // Calculate the number of available IP addresses in the subnet
+  $subnetSize = pow(2, (32 - $subnet));
 
-    // Generate a random offset within the subnet
-    $offset = mt_rand(1, $subnetSize - 2); // Exclude network address and broadcast address
+  // Generate a random offset within the subnet
+  $offset = mt_rand(1, $subnetSize - 2); // Exclude network address and broadcast address
 
-    // Calculate the resulting IP
-    return long2ip($ipBinary + $offset);
+  // Calculate the resulting IP
+  return long2ip($ipBinary + $offset);
 }
 
 /**
@@ -32,5 +32,5 @@ function generateRandomIP(string $cidr): string
  */
 function generateRandomPort(): int
 {
-    return mt_rand(1024, 65535);
+  return mt_rand(1024, 65535);
 }

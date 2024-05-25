@@ -6,9 +6,9 @@ require_once __DIR__ . '/../func-proxy.php';
 
 // disallow web server access
 if (php_sapi_name() !== 'cli') {
-    // Redirect the user away or show an error message
-    header('HTTP/1.1 403 Forbidden');
-    die('Direct access not allowed');
+  // Redirect the user away or show an error message
+  header('HTTP/1.1 403 Forbidden');
+  die('Direct access not allowed');
 }
 
 // set memory
@@ -20,12 +20,12 @@ $ipList = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $outputPath = tmp() . '/ips-ports/' . basename($filePath);
 createParentFolders($outputPath);
 if (file_exists($outputPath)) {
-    exit("cannot rewrite already generated proxy, please remove $outputPath");
+  exit("cannot rewrite already generated proxy, please remove $outputPath");
 }
 
 if (empty($ipList)) {
-    unlink($filePath);
-    exit('ips empty');
+  unlink($filePath);
+  exit('ips empty');
 }
 
 $commonPorts = [
@@ -40,9 +40,9 @@ $untested = extractIpPortFromFile(__DIR__ . '/../proxies.txt', true);
 $proxies = array_merge($dead, $untested);
 
 $ports = array_map(function ($proxy) {
-    // Split the proxy string by ":" and get the port part
-    $parts = explode(":", $proxy);
-    return end($parts); // Get the last element of the array which is the port
+  // Split the proxy string by ":" and get the port part
+  $parts = explode(":", $proxy);
+  return end($parts); // Get the last element of the array which is the port
 }, $proxies);
 
 $commonPorts = array_unique(array_merge($commonPorts, $ports));
@@ -51,39 +51,39 @@ $commonPorts = array_unique(array_merge($commonPorts, $ports));
 $startTime = microtime(true);
 
 foreach ($ipList as $ip) {
-    // Check if execution time more than [n] seconds
-    if (microtime(true) - $startTime > 120) {
-        break; // Exit the loop
-    }
+  // Check if execution time more than [n] seconds
+  if (microtime(true) - $startTime > 120) {
+    break; // Exit the loop
+  }
 
-    $ip = trim($ip);
+  $ip = trim($ip);
 
-    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-        continue;
-    }
+  if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+    continue;
+  }
 
-    $ip_ports = array_map(function ($port) use ($ip) {
-        $port = trim((string) $port);
-        return "$ip:$port";
-    }, $commonPorts);
+  $ip_ports = array_map(function ($port) use ($ip) {
+    $port = trim((string) $port);
+    return "$ip:$port";
+  }, $commonPorts);
 
-    // write generated IP:PORT
-    append_content_with_lock($outputPath, PHP_EOL . implode(PHP_EOL, $ip_ports) . PHP_EOL);
-    // remove ip
-    removeStringFromFile($filePath, trim($ip));
+  // write generated IP:PORT
+  append_content_with_lock($outputPath, PHP_EOL . implode(PHP_EOL, $ip_ports) . PHP_EOL);
+  // remove ip
+  removeStringFromFile($filePath, trim($ip));
 
-    // echo "scan ports $ip" . PHP_EOL;
-    // scan common proxy ports
-    // $proxies = scanArrayPorts($ip, $commonPorts);
-    // scan all ports
-    // $proxies = array_unique(array_merge($proxies, scanRangePorts($ip, 80, 65535)));
-    // if (!empty($proxies)) {
-    //   // remove checked ip from source
-    //   removeStringFromFile($filePath, trim($ip));
-    //   // write open IP:PORT into test files
-    //   append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . implode(PHP_EOL, $proxies) . PHP_EOL);
-    //   append_content_with_lock(__DIR__ . '/proxies-backup.txt', PHP_EOL . implode(PHP_EOL, $proxies) . PHP_EOL);
-    // }
+  // echo "scan ports $ip" . PHP_EOL;
+  // scan common proxy ports
+  // $proxies = scanArrayPorts($ip, $commonPorts);
+  // scan all ports
+  // $proxies = array_unique(array_merge($proxies, scanRangePorts($ip, 80, 65535)));
+  // if (!empty($proxies)) {
+  //   // remove checked ip from source
+  //   removeStringFromFile($filePath, trim($ip));
+  //   // write open IP:PORT into test files
+  //   append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . implode(PHP_EOL, $proxies) . PHP_EOL);
+  //   append_content_with_lock(__DIR__ . '/proxies-backup.txt', PHP_EOL . implode(PHP_EOL, $proxies) . PHP_EOL);
+  // }
 }
 
 //rewriteIpPortFile($outputPath);

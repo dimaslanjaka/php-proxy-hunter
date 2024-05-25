@@ -6,14 +6,14 @@ header('Content-Type: application/json; charset=utf-8');
 
 // modify config
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = parsePostData();
-    if (isset($input['config'])) {
-        $set = setConfig(getUserId(), $input['config']);
-    }
+  $input = parsePostData();
+  if (isset($input['config'])) {
+    $set = setConfig(getUserId(), $input['config']);
+  }
 }
 
 if (isset($_REQUEST['txt'])) {
-    header('Content-Type: text/plain; charset=utf-8');
+  header('Content-Type: text/plain; charset=utf-8');
 }
 
 // get config
@@ -32,14 +32,14 @@ echo $config_json;
 
 function set_cookie($name, $value, $expiration_days = 1, $path = "/", $domain = null)
 {
-    // Calculate the expiration time (in seconds)
-    $expiration_time = time() + ($expiration_days * 24 * 60 * 60);
+  // Calculate the expiration time (in seconds)
+  $expiration_time = time() + ($expiration_days * 24 * 60 * 60);
 
-    // Set the domain to current domain if not provided
-    if ($domain === null) {
-        $domain = $_SERVER['HTTP_HOST'];
-    }
+  // Set the domain to current domain if not provided
+  if ($domain === null) {
+    $domain = $_SERVER['HTTP_HOST'];
+  }
 
-    // Set the cookie
-    setcookie($name, $value, $expiration_time, $path, $domain);
+  // Set the cookie
+  setcookie($name, $value, $expiration_time, $path, $domain);
 }

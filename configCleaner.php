@@ -7,10 +7,10 @@ require_once __DIR__ . '/func.php';
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 if (!$isCli) {
-    header('Content-Type:text/plain; charset=UTF-8');
+  header('Content-Type:text/plain; charset=UTF-8');
 }
 if (!$isCli) {
-    exit('web server access disallowed');
+  exit('web server access disallowed');
 }
 
 // Directory where JSON files are located
@@ -30,24 +30,24 @@ $current_time = time();
 $oneWeekAgo = strtotime('-1 week');
 
 foreach ($directories as $directory) {
-    // Open the directory
-    if ($handle = opendir($directory)) {
-        // Loop through each file in the directory
-        while (false !== ($file = readdir($handle))) {
-            $filePath = realpath($directory . '/' . $file);
-            if (!is_file($filePath)) {
-                continue;
-            }
+  // Open the directory
+  if ($handle = opendir($directory)) {
+    // Loop through each file in the directory
+    while (false !== ($file = readdir($handle))) {
+      $filePath = realpath($directory . '/' . $file);
+      if (!is_file($filePath)) {
+        continue;
+      }
 
-            // Get the last modification time of the file
-            $file_mtime = filemtime($filePath);
-            // File was last modified more than 1 week ago.
-            if ($file_mtime < $oneWeekAgo) {
-                // Remove the file
-                echo "File $file removed (" . (unlink($filePath) ? 'success' : 'failed') . ")" . PHP_EOL;
-            }
-        }
-        // Close the directory handle
-        closedir($handle);
+      // Get the last modification time of the file
+      $file_mtime = filemtime($filePath);
+      // File was last modified more than 1 week ago.
+      if ($file_mtime < $oneWeekAgo) {
+        // Remove the file
+        echo "File $file removed (" . (unlink($filePath) ? 'success' : 'failed') . ")" . PHP_EOL;
+      }
     }
+    // Close the directory handle
+    closedir($handle);
+  }
 }
