@@ -13,6 +13,7 @@
 /proxyChecker.txt
 /webalizer
 .cache/
+*.cache
 .yarn/*.gz
 tmp/
 *.txt
