@@ -3,17 +3,17 @@
 require_once __DIR__ . '/../func.php';
 
 if (!empty($_POST['g-recaptcha-response'])) {
-    header('Content-Type: application/json; charset=utf-8');
-    $secret = $_ENV['G_RECAPTCHA_SECRET'];
-    $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $_POST['g-recaptcha-response']);
-    $responseData = json_decode($verifyResponse);
-    if ($responseData->success) {
-        $_SESSION['captcha'] = true;
-        $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
-        exit(json_encode(['message' => "g-recaptcha varified successfully", "success" => true]));
-    } else {
-        exit(json_encode(['message' => "Some error in vrifying g-recaptcha", "success" => false]));
-    }
+  header('Content-Type: application/json; charset=utf-8');
+  $secret = $_ENV['G_RECAPTCHA_SECRET'];
+  $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $_POST['g-recaptcha-response']);
+  $responseData = json_decode($verifyResponse);
+  if ($responseData->success) {
+    $_SESSION['captcha'] = true;
+    $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
+    exit(json_encode(['message' => "g-recaptcha varified successfully", "success" => true]));
+  } else {
+    exit(json_encode(['message' => "Some error in vrifying g-recaptcha", "success" => false]));
+  }
 }
 
 $shortHash = $_ENV['CPID'];
@@ -44,7 +44,7 @@ $authUri = $client->createAuthUrl();
 $message = [];
 
 if (isset($_REQUEST['login'])) {
-    header('Location: ' . $authUri);
+  header('Location: ' . $authUri);
 }
 
 $credentialsPath = __DIR__ . '/../tmp/logins/login_' . (!$isCli && !empty($_COOKIE['visitor_id']) ? $_COOKIE['visitor_id'] : 'CLI') . '.json';
@@ -52,54 +52,54 @@ createParentFolders($credentialsPath);
 
 // authenticate using saved
 if (file_exists($credentialsPath)) {
-    $token = json_decode(read_file($credentialsPath), true);
-    if ($token) {
-        $client->setAccessToken($token);
-    }
+  $token = json_decode(read_file($credentialsPath), true);
+  if ($token) {
+    $client->setAccessToken($token);
+  }
 }
 
 // authenticate code from Google OAuth Flow
 if (isset($_GET['code'])) {
-    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-    if (isset($token['access_token'])) {
-        $client->setAccessToken($token);
-        file_put_contents($credentialsPath, json_encode($token, JSON_PRETTY_PRINT));
-    }
+  $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+  if (isset($token['access_token'])) {
+    $client->setAccessToken($token);
+    file_put_contents($credentialsPath, json_encode($token, JSON_PRETTY_PRINT));
+  }
 }
 
 if ($client->getAccessToken()) {
-    if ($client->isAccessTokenExpired()) {
-        $message[] = 'access token expired';
-        if ($client->getRefreshToken()) {
-            $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-            file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
-            $token_data = $client->verifyIdToken();
-            $message['token_data'] = $token_data;
-        }
-    } else {
-        // get profile info
-        $google_oauth = new Google_Service_Oauth2($client);
-        try {
-            $google_account_info = $google_oauth->userinfo->get();
-            $email = $google_account_info->email;
-            $name = $google_account_info->name;
-            $_SESSION['user_id'] = $email;
-            if ($email == 'dimaslanjaka@gmail.com') {
-                $_SESSION['admin'] = true;
-            } else {
-                if (isset($_SESSION['admin'])) {
-                    unset($_SESSION['admin']);
-                }
-            }
-            $message['email'] = $email;
-        } catch (\Google\Service\Exception $e) {
-            $message[] = $e->getMessage();
-        }
+  if ($client->isAccessTokenExpired()) {
+    $message[] = 'access token expired';
+    if ($client->getRefreshToken()) {
+      $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+      file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
+      $token_data = $client->verifyIdToken();
+      $message['token_data'] = $token_data;
     }
+  } else {
+    // get profile info
+    $google_oauth = new Google_Service_Oauth2($client);
+    try {
+      $google_account_info = $google_oauth->userinfo->get();
+      $email = $google_account_info->email;
+      $name = $google_account_info->name;
+      $_SESSION['user_id'] = $email;
+      if ($email == 'dimaslanjaka@gmail.com') {
+        $_SESSION['admin'] = true;
+      } else {
+        if (isset($_SESSION['admin'])) {
+          unset($_SESSION['admin']);
+        }
+      }
+      $message['email'] = $email;
+    } catch (\Google\Service\Exception $e) {
+      $message[] = $e->getMessage();
+    }
+  }
 }
 
 if (!isset($_SESSION['captcha'])) {
-    $message[] = "please resolve captcha challenge";
+  $message[] = "please resolve captcha challenge";
 }
 
 ?>
