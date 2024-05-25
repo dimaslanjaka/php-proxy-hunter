@@ -1682,6 +1682,20 @@ function delete_path($path): array
 }
 
 /**
+ * Converts a file path to use Unix path separators (/).
+ *
+ * This function replaces all backslashes (\) with forward slashes (/)
+ * in the given file path, ensuring it uses Unix-style separators.
+ *
+ * @param string $path The file path to convert.
+ * @return string The file path with Unix separators.
+ */
+function unixPath(string $path): string
+{
+  return str_replace('\\', '/', $path);
+}
+
+/**
  * Checks if a file is locked by another PHP process.
  *
  * @param string $filePath The path to the file.
