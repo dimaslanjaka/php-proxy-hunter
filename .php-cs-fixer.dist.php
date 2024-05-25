@@ -7,8 +7,7 @@ use PhpCsFixer\Finder;
 
 $finder = Finder::create()
     ->in(__DIR__)
-    ->exclude('vendor')
-    ->exclude('node_modules');
+    ->exclude(['vendor', 'node_modules']);
 
 $config = new Config();
 return $config->setRules([

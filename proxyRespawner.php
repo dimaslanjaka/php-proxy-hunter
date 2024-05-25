@@ -44,18 +44,20 @@ $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 
 if (file_exists($lockFilePath)) {
-  echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
-  exit();
+    echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
+    exit();
 } else {
-  file_put_contents($lockFilePath, date(DATE_RFC3339));
-  file_put_contents($statusFile, 'respawn');
+    file_put_contents($lockFilePath, date(DATE_RFC3339));
+    file_put_contents($statusFile, 'respawn');
 }
 
 function exitProcess()
 {
-  global $lockFilePath, $statusFile;
-  if (file_exists($lockFilePath)) unlink($lockFilePath);
-  file_put_contents($statusFile, 'idle');
+    global $lockFilePath, $statusFile;
+    if (file_exists($lockFilePath)) {
+        unlink($lockFilePath);
+    }
+    file_put_contents($statusFile, 'idle');
 }
 
 register_shutdown_function('exitProcess');
@@ -67,46 +69,45 @@ $proxyPaths = [__DIR__ . '/proxies-all.txt', __DIR__ . '/dead.txt', __DIR__ . '/
 $db = new ProxyDB();
 
 $working = array_map(function ($item) {
-  $wrap = new Proxy($item['proxy']);
-  foreach ($item as $key => $value) {
-    if (property_exists($wrap, $key)) {
-      $wrap->$key = $value;
+    $wrap = new Proxy($item['proxy']);
+    foreach ($item as $key => $value) {
+        if (property_exists($wrap, $key)) {
+            $wrap->$key = $value;
+        }
     }
-  }
-  return $wrap;
+    return $wrap;
 }, $db->getWorkingProxies());
 
 if (count($working) < 100) {
-  if (file_exists(__DIR__ . '/dead.txt')) {
-    echo "proxies low, respawning dead proxies" . PHP_EOL;
-    // respawn 100 dead proxies
-    moveLinesToFile(__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', 100);
-    exit;
-  }
+    if (file_exists(__DIR__ . '/dead.txt')) {
+        echo "proxies low, respawning dead proxies" . PHP_EOL;
+        // respawn 100 dead proxies
+        moveLinesToFile(__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', 100);
+        exit;
+    }
 }
 
 iterateBigFilesLineByLine($proxyPaths, function (string $line) use ($startTime, $proxyPaths, $db, $maxExecutionTime) {
-  $is_execution_exceeded = (microtime(true) - $startTime) > $maxExecutionTime;
-  if (!$is_execution_exceeded) {
-    $proxies = extractProxies($line);
-    foreach ($proxies as $item) {
-      $proxy = trim($item->proxy);
-      if (!empty($proxy) && isValidProxy($proxy)) {
-        if (isPortOpen($proxy)) {
-          echo $proxy . ' respawned' . PHP_EOL;
-          foreach ($proxyPaths as $file) {
-            removeStringAndMoveToFile($file, __DIR__ . '/proxies.txt', trim($proxy));
-          }
+    $is_execution_exceeded = (microtime(true) - $startTime) > $maxExecutionTime;
+    if (!$is_execution_exceeded) {
+        $proxies = extractProxies($line);
+        foreach ($proxies as $item) {
+            $proxy = trim($item->proxy);
+            if (!empty($proxy) && isValidProxy($proxy)) {
+                if (isPortOpen($proxy)) {
+                    echo $proxy . ' respawned' . PHP_EOL;
+                    foreach ($proxyPaths as $file) {
+                        removeStringAndMoveToFile($file, __DIR__ . '/proxies.txt', trim($proxy));
+                    }
+                }
+            } elseif (!empty($proxy)) {
+                try {
+                    $db->remove($proxy);
+                    echo "deleted $proxy is invalid" . PHP_EOL;
+                } catch (\Throwable $e) {
+                    echo "fail delete $proxy " . trim($e->getMessage()) . PHP_EOL;
+                }
+            }
         }
-      } else if (!empty($proxy)) {
-        try {
-          $db->remove($proxy);
-          echo "deleted $proxy is invalid" . PHP_EOL;
-        } catch (\Throwable $e) {
-          echo "fail delete $proxy " . trim($e->getMessage()) . PHP_EOL;
-        }
-      }
     }
-  }
 });
-
