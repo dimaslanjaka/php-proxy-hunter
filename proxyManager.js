@@ -229,6 +229,21 @@ function listenCurlCommandBuilder() {
   document.getElementById("proxyForm").addEventListener("submit", function (event) {
     event.preventDefault(); // Prevent the form from submitting
 
+    const target = document.getElementById("cpresult");
+    const offset = 100; // Adjust this value to change the offset
+
+    // Scroll to the element
+    target.scrollIntoView({ behavior: "smooth" });
+
+    // Adjust the scroll position
+    setTimeout(() => {
+      window.scrollBy({
+        top: -offset, // Move up by the offset
+        left: 0,
+        behavior: "smooth"
+      });
+    }, 1000);
+
     // Get the form data
     const formData = new FormData(this);
 
