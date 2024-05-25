@@ -44,9 +44,6 @@ if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug()) {
 echo $cmd . "\n\n";
 
 $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
-if (!file_exists(__DIR__ . '/tmp')) {
-  mkdir(__DIR__ . '/tmp');
-}
 $runner = __DIR__ . "/tmp/runners/" . md5(__FILE__) . ($isWin ? '.bat' : "");
 setMultiPermissions($runner);
 write_file($runner, $cmd);
