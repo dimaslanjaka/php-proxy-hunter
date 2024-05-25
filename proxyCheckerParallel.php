@@ -119,7 +119,7 @@ if (!empty($proxies)) {
  */
 function checkProxyInParallel(array $proxies)
 {
-  global $output_log;
+  global $output_log, $isCli;
   $db = new ProxyDB();
   $lockFile = __DIR__ . '/proxyChecker.lock';
   $statusFile = __DIR__ . "/status.txt";
@@ -130,7 +130,17 @@ function checkProxyInParallel(array $proxies)
   $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
   $combinedIterable->attachIterator($iterator);
   $counter = 0;
+  $startTime = microtime(true);
   foreach ($combinedIterable as $index => $item) {
+    if (!$isCli) {
+      // Check if execution time has exceeded the maximum allowed time
+      $elapsedTime = microtime(true) - $startTime;
+      if ($elapsedTime > 60) {
+        // Execution time exceeded
+        echo "Execution time exceeded maximum allowed time of 60 seconds." . PHP_EOL;
+        break;
+      }
+    }
     $run_file = __DIR__ . '/tmp/runners/' . md5($item[0]->proxy) . '.txt';
     // schedule release current proxy thread lock
     Scheduler::register(function () use ($run_file) {
@@ -150,15 +160,15 @@ function checkProxyInParallel(array $proxies)
       append_content_with_lock($output_log, "$counter. {$item[0]->proxy} port closed\n");
     } else {
       $ch = [
-        buildCurl($item[0]->proxy, 'http', 'https://example.net', [
-          'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
-        ], $item[0]->username, $item[0]->password),
-        buildCurl($item[0]->proxy, 'socks4', 'https://example.net', [
-          'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
-        ], $item[0]->username, $item[0]->password),
-        buildCurl($item[0]->proxy, 'socks5', 'https://example.net', [
-          'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
-        ], $item[0]->username, $item[0]->password)
+          buildCurl($item[0]->proxy, 'http', 'https://example.net', [
+              'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+          ], $item[0]->username, $item[0]->password),
+          buildCurl($item[0]->proxy, 'socks4', 'https://example.net', [
+              'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+          ], $item[0]->username, $item[0]->password),
+          buildCurl($item[0]->proxy, 'socks5', 'https://example.net', [
+              'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+          ], $item[0]->username, $item[0]->password)
       ];
 
       $protocols = [];
@@ -186,7 +196,7 @@ function checkProxyInParallel(array $proxies)
       foreach ($ch as $handle_index => $handle) {
         $http_status = curl_getinfo($handle, CURLINFO_HTTP_CODE);
         $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 ||
-          $http_status == 301 || $http_status == 302 || $http_status == 304;
+            $http_status == 301 || $http_status == 302 || $http_status == 304;
         $protocol = $protocols[$handle_index];
         if ($http_status_valid) {
           $info = curl_getinfo($handle);
@@ -224,10 +234,10 @@ function checkProxyInParallel(array $proxies)
 
       if ($isWorking) {
         $data = [
-          'type' => implode('-', $protocols),
-          'status' => 'active',
-          'private' => $isPrivate ? 'true' : 'false',
-          'latency' => $latency
+            'type' => implode('-', $protocols),
+            'status' => 'active',
+            'private' => $isPrivate ? 'true' : 'false',
+            'latency' => $latency
         ];
         $db->updateData($item[0]->proxy, $data);
         if (empty($item[0]->timezone) || empty($item[0]->country) || empty($item[0]->lang)) {
@@ -242,9 +252,9 @@ function checkProxyInParallel(array $proxies)
         if (empty($item[0]->webgl_renderer) || empty($item[0]->browser_vendor) || empty($item[0]->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item[0]->proxy, [
-            'webgl_renderer' => $webgl->webgl_renderer,
-            'webgl_vendor' => $webgl->webgl_vendor,
-            'browser_vendor' => $webgl->browser_vendor
+              'webgl_renderer' => $webgl->webgl_renderer,
+              'webgl_vendor' => $webgl->webgl_vendor,
+              'browser_vendor' => $webgl->browser_vendor
           ]);
         }
         // write working proxies
