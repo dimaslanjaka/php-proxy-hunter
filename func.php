@@ -1235,11 +1235,34 @@ function string_to_regex($input)
  * @param string|null $filename The filename to sanitize.
  * @return string The sanitized filename.
  */
-function sanitizeFilename(?string $filename)
+function sanitizeFilename(?string $filename): string
 {
   if (empty($filename)) $filename = '';
   // Remove any character that is not alphanumeric, underscore, dash, or period
   return preg_replace("/[^\w\-\. ]/", '-', $filename);
+}
+
+/**
+ * Sanitize the filename in a given full path.
+ *
+ * This function will remove or replace unsafe characters in the filename part of the full path
+ * while keeping the rest of the path intact. Unsafe characters that are typically sanitized include
+ * spaces, special characters, and other non-alphanumeric characters that might cause issues in
+ * file handling.
+ *
+ * @param string $fullPath The full path string containing the filename to sanitize.
+ * @return string The full path with the sanitized filename.
+ */
+function sanitizeFilePath(string $fullPath): string
+{
+  // Extract the directory path and filename
+  $pathParts = pathinfo($fullPath);
+
+  // Define the sanitized filename using a regular expression to remove unsafe characters
+  $sanitizedFilename = sanitizeFilename($pathParts['basename']);
+
+  // Reconstruct the full path with the sanitized filename
+  return $pathParts['dirname'] . DIRECTORY_SEPARATOR . $sanitizedFilename;
 }
 
 function getIPRange(string $cidr): array
@@ -1468,29 +1491,6 @@ function randomIosUa(string $type = 'chrome'): string
 }
 
 /**
- * Sanitize the filename in a given full path.
- *
- * This function will remove or replace unsafe characters in the filename part of the full path
- * while keeping the rest of the path intact. Unsafe characters that are typically sanitized include
- * spaces, special characters, and other non-alphanumeric characters that might cause issues in
- * file handling.
- *
- * @param string $fullPath The full path string containing the filename to sanitize.
- * @return string The full path with the sanitized filename.
- */
-function sanitizeFilenameFromPath(string $fullPath): string
-{
-  // Extract the directory path and filename
-  $pathParts = pathinfo($fullPath);
-
-  // Define the sanitized filename using a regular expression to remove unsafe characters
-  $sanitizedFilename = preg_replace('/[^A-Za-z0-9._-]/', '_', $pathParts['basename']);
-
-  // Reconstruct the full path with the sanitized filename
-  return $pathParts['dirname'] . DIRECTORY_SEPARATOR . $sanitizedFilename;
-}
-
-/**
  * Reads a file as UTF-8 encoded text.
  *
  * @param string $inputFile The path to the input file.
@@ -1499,7 +1499,6 @@ function sanitizeFilenameFromPath(string $fullPath): string
  */
 function read_file(string $inputFile, int $chunkSize = 1048576)
 {
-//  $inputFile = sanitizeFilenameFromPath($inputFile);
   if (!file_exists($inputFile)) return false;
   // Check if file is readable
   if (!is_readable($inputFile) || is_file_locked($inputFile)) {
@@ -1547,7 +1546,6 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
  */
 function write_file(string $inputFile, string $data): bool
 {
-//  $inputFile = sanitizeFilenameFromPath($inputFile);
   // Get the directory name from the file path
   $dir = dirname($inputFile);
 
