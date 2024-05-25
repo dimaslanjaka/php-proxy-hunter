@@ -11,20 +11,26 @@ use PhpProxyHunter\Server;
 $db = new ProxyDB();
 $str = '';
 $output_log = __DIR__ . '/proxyChecker.txt';
+truncateFile($output_log);
 
 if ($isCli) {
   $short_opts = "p:m::";
-  $long_opts = ["proxy::max::"];
+  $long_opts = ["proxy:", "max::"];
   $options = getopt($short_opts, $long_opts);
+  //  append_content_with_lock($output_log, "\$argv => " . json_encode($argv, JSON_PRETTY_PRINT) . PHP_EOL);
+  //  append_content_with_lock($output_log, "parsed \$argv => " . json_encode($options, JSON_PRETTY_PRINT) . PHP_EOL);
 
   $str = implode("\n", array_values($options));
+  //  append_content_with_lock($output_log, $str . PHP_EOL);
 } else {
   // set output buffering to zero
   ini_set('output_buffering', 0);
   if (ob_get_level() == 0) {
     ob_start();
   }
-  // header text/plain
+  header("Access-Control-Allow-Origin: *");
+  header("Access-Control-Allow-Headers: *");
+  header("Access-Control-Allow-Methods: *");
   header('Content-Type: text/plain; charset=UTF-8');
   // setup lock file
   $id = Server::get_client_ip();
@@ -55,11 +61,37 @@ if ($isCli) {
       $str = rawurldecode($_REQUEST['proxy']);
     }
   }
+
+  // web server run parallel in background
+  // avoid bad response or hangs whole web server
+  $file = __FILE__;
+  $output_file = __DIR__ . '/proxyChecker.txt';
+  $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+  $cmd = "php " . escapeshellarg($file);
+  if ($isWin) {
+    $cmd = "start /B \"filter_ports\" $cmd";
+  }
+
+  $runner = __DIR__ . "/tmp/runners/" . md5($webLockFile) . ($isWin ? '.bat' : "");
+  $uid = getUserId();
+  $cmd .= " --userId=" . escapeshellarg($uid);
+  $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
+  $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
+  $cmd .= " --proxy=" . escapeshellarg($str);
+
+  echo $cmd . "\n\n";
+
+  setMultiPermissions($runner);
+  write_file($runner, $cmd);
+
+  exec(escapeshellarg($runner));
+  exit;
 }
 
 $proxies = extractProxies($str, $db);
 
 if (empty($proxies)) {
+  // append_content_with_lock($output_log, 'proxies empty' . PHP_EOL);
   $db_data = $db->getUntestedProxies(100);
   if (count($db_data) < 100) {
     // get dead proxies last checked more than 24 hours ago
@@ -281,10 +313,10 @@ function checkProxyInParallel(array $proxies)
     }
   }
 
-// write working proxies
+  // write working proxies
   write_working();
 
-// End buffering and send the buffer
+  // End buffering and send the buffer
   if (ob_get_level() > 0) {
     ob_end_flush();
   }
