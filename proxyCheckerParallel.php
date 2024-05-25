@@ -11,14 +11,40 @@ use PhpProxyHunter\Server;
 $db = new ProxyDB();
 $str = '';
 $output_log = __DIR__ . '/proxyChecker.txt';
-truncateFile($output_log);
+$max = PHP_INT_MAX;
 
 if ($isCli) {
   $short_opts = "p:m::";
-  $long_opts = ["proxy:", "max::"];
+  $long_opts = [
+      "proxy:",
+      "max::",
+      "userId::",
+      "lockFile::",
+      "runner::"
+  ];
   $options = getopt($short_opts, $long_opts);
   //  append_content_with_lock($output_log, "\$argv => " . json_encode($argv, JSON_PRETTY_PRINT) . PHP_EOL);
   //  append_content_with_lock($output_log, "parsed \$argv => " . json_encode($options, JSON_PRETTY_PRINT) . PHP_EOL);
+
+  if (!empty($options['lockFile'])) {
+    if (file_exists($options['lockFile'])) {
+      exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
+    }
+    write_file($options['lockFile'], '');
+    Scheduler::register(function () use ($options) {
+      delete_path($options['lockFile']);
+    }, 'release-cli-lock');
+  }
+
+  if (!empty($options['runner'])) {
+    Scheduler::register(function () use ($options) {
+      delete_path($options['runner']);
+    }, 'release-runner-script');
+  }
+
+  if (!empty($options['max'])) {
+    $max = intval($options['max']);
+  }
 
   $str = implode("\n", array_values($options));
   //  append_content_with_lock($output_log, $str . PHP_EOL);
