@@ -162,16 +162,9 @@
       data-full-width-responsive="true" style="display:block"></ins>
   </section>
 
-  <section class="mb-5">
-    <h2 class="text-center">using proxy checker service</h2>
-
-    <div class="bg-gray-800 p-2 rounded shadow-md w-full">
-      <pre id="curl-command" class="text-sm bg-gray-700 p-4 rounded overflow-auto"></pre>
-    </div>
-  </section>
-
   <section class="mb-5" id="modify_config_section">
-    <h2 class="text-center mb-3">Proxy Checker Config</h2>
+    <h2 class="text-center font-bold mb-5">Proxy Checker Config</h2>
+
     <form class="mb-3" id="config_ui">
       <div class="grid gap-4 md:grid-cols-2 md:grid-rows-1 mb-5">
         <div class="relative z-0 w-full group">
@@ -234,10 +227,35 @@
         id="submit-config">Save config
       </button>
     </form>
+
+    <ins class="adsbygoogle" data-ad-client="ca-pub-2188063137129806" data-ad-format="autorelaxed"
+    data-ad-slot="5041245242" style="display:block"></ins>
   </section>
 
-  <ins class="adsbygoogle" data-ad-client="ca-pub-2188063137129806" data-ad-format="autorelaxed"
-    data-ad-slot="5041245242" style="display:block"></ins>
+  <section class="mb-5" id="curl-command-builder">
+    <h2 class="text-center font-bold mb-5">Using proxy checker service</h2>
+
+    <div class="bg-gray-800 rounded shadow-md w-full mb-5">
+      <pre id="curl-command" class="text-sm bg-gray-700 p-4 rounded overflow-auto"></pre>
+    </div>
+
+    <div class="w-full mx-auto bg-gray-800 rounded-md shadow-md mb-5">
+      <form id="proxyForm" action="proxyCheckerParallel.php" method="POST">
+        <label for="proxy" class="block text-sm font-medium text-gray-300 mb-2 font-bold">Proxy Addresses</label>
+        <textarea placeholder="18.133.16.21:1080@username:password&#10;18.133.16.21:1080&#10;OR ANY TEXTS THAT CONTAINS PROXY" id="proxy" name="proxy" rows="10" class="form-textarea block w-full px-3 py-2 border rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 bg-gray-700 text-white border-gray-600"></textarea>
+        <button type="submit" class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4">Submit</button>
+      </form>
+    </div>
+
+    <h2 class="font-bold text-center"><a href="https://reqbin.com/curl" target="_cURL_online">run cURL online here</a></h2>
+
+    <div id="result" class="mt-4 w-full mx-auto bg-gray-800 p-6 rounded-md shadow-md">
+      <!-- Result will be displayed here -->
+    </div>
+    <div id="result-curl" class="mt-4 w-full mx-auto bg-gray-800 p-6 rounded-md shadow-md">
+      cURL command result will be displayed here
+    </div>
+  </section>
 
   <div id="snackbar">Snackbar Message</div>
 

@@ -186,14 +186,15 @@ async function checkerOutput() {
   }
 }
 
-fetch("./info.php?v=" + new Date(), { signal: AbortSignal.timeout(5000), mode: "cors" })
+userInfo()
   .then((_) => {})
   .catch(() => {})
   .finally(() => {
-    printCurlCommand("curl-command");
+    printBasicCurlCommand("curl-command");
+    listenCurlCommandBuilder();
   });
 
-function printCurlCommand(preElementId) {
+function printBasicCurlCommand(preElementId) {
   console.log("print");
   // Get the current URL
   const currentUrl = window.location.href;
@@ -222,6 +223,74 @@ function printCurlCommand(preElementId) {
   } else {
     console.error(`Element with id "${preElementId}" not found.`);
   }
+}
+
+function listenCurlCommandBuilder() {
+  document.getElementById("proxyForm").addEventListener("submit", function (event) {
+    event.preventDefault(); // Prevent the form from submitting
+
+    // Get the form data
+    const formData = new FormData(this);
+
+    // Construct the fetch options
+    const options = {
+      method: "POST",
+      body: formData
+    };
+
+    // Send the POST request
+    fetch("proxyCheckerParallel.php", options)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.text();
+      })
+      .then((data) => {
+        // Display the response in the result div
+        document.getElementById("result").innerHTML =
+          `<p class="text-green-600 font-semibold">POST request successful!</p>
+          <pre class="mt-2 bg-gray-100 p-2 rounded">${data}</pre>`;
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        document.getElementById("result").innerHTML = `
+                        <p class="text-red-600 font-semibold">Error: ${error.message}</p>
+                    `;
+      });
+  });
+
+  document.querySelector("textarea#proxy").addEventListener("change", function (e) {
+    const value = e.target.value;
+    const encoded = encodeURI(value);
+    const resultCurl = document.getElementById("result-curl");
+    const origin = window.location.origin;
+
+    // Add the pre element with the copy button
+    resultCurl.innerHTML = `
+    <div class="relative">
+      <pre class="dark:bg-gray-800 dark:text-white whitespace-pre-wrap break-words p-4"><code class="dark:text-white">curl -X POST ${origin}/proxyCheckerParallel.php -d "${encoded}"</code></pre>
+      <button id="copyButton" class="absolute top-2 right-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Copy</button>
+    </div>
+  `;
+
+    // Add event listener to the copy button
+    document.getElementById("copyButton").addEventListener("click", function () {
+      const codeElement = resultCurl.querySelector("code");
+      const textToCopy = codeElement.innerText;
+
+      navigator.clipboard.writeText(textToCopy).then(
+        function () {
+          console.log("Text copied to clipboard");
+          // Optionally, provide feedback to the user that the text was copied
+          alert("Copied to clipboard");
+        },
+        function (err) {
+          console.error("Could not copy text: ", err);
+        }
+      );
+    });
+  });
 }
 
 async function userInfo() {
