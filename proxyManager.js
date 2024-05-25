@@ -250,13 +250,12 @@ function listenCurlCommandBuilder() {
         // Display the response in the result div
         document.getElementById("result").innerHTML =
           `<p class="text-green-600 font-semibold">POST request successful!</p>
-          <pre class="mt-2 bg-gray-100 p-2 rounded">${data}</pre>`;
+          <pre class="mt-2 bg-gray-100 p-2 rounded text-black">${data}</pre>`;
       })
       .catch((error) => {
         console.error("Error:", error);
-        document.getElementById("result").innerHTML = `
-                        <p class="text-red-600 font-semibold">Error: ${error.message}</p>
-                    `;
+        document.getElementById("result").innerHTML =
+          `<p class="text-red-600 font-semibold">Error: ${error.message}</p>`;
       });
   });
 
