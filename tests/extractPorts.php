@@ -26,25 +26,25 @@ hello 8.213.129.15:2 *x';
 
 $extract = extractProxies($str);
 $format = array_map(function (Proxy $item) {
-  if (!is_null($item->username) && !is_null($item->password)) {
-    // var_dump($item->proxy);
-    return $item->proxy . '@' . $item->username . ':' . $item->password;
-  }
-  return $item->proxy;
+    if (!is_null($item->username) && !is_null($item->password)) {
+        // var_dump($item->proxy);
+        return $item->proxy . '@' . $item->username . ':' . $item->password;
+    }
+    return $item->proxy;
 }, $extract);
 var_dump($format);
 
 
 function get_ports()
 {
-  global $proxies;
-  $ports = array_map(function ($proxy) {
-    // Split the proxy string by ":" and get the port part
-    $parts = explode(":", $proxy);
-    return end($parts); // Get the last element of the array which is the port
-  }, $proxies);
+    global $proxies;
+    $ports = array_map(function ($proxy) {
+        // Split the proxy string by ":" and get the port part
+        $parts = explode(":", $proxy);
+        return end($parts); // Get the last element of the array which is the port
+    }, $proxies);
 
-  $unique_ports = array_unique($ports);
+    $unique_ports = array_unique($ports);
 
-  echo json_encode($unique_ports);
+    echo json_encode($unique_ports);
 }
