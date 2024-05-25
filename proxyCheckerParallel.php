@@ -19,7 +19,14 @@ if ($isCli) {
 
   $str = implode("\n", array_values($options));
 } else {
+  // set output buffering to zero
+  ini_set('output_buffering', 0);
+  if (ob_get_level() == 0) {
+    ob_start();
+  }
+  // header text/plain
   header('Content-Type: text/plain; charset=UTF-8');
+  // setup lock file
   $id = Server::get_client_ip();
   if (empty($id)) {
     $id = Server::useragent();
@@ -35,6 +42,7 @@ if ($isCli) {
   Scheduler::register(function () use ($webLockFile) {
     delete_path($webLockFile);
   }, 'webserver-close-' . md5(__FILE__));
+  // parse post data
   if (isset($_REQUEST['proxy'])) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // post data with body key/name proxy
@@ -247,6 +255,14 @@ function checkProxyInParallel(array $proxies)
         append_content_with_lock($output_log, "$counter. {$item[0]->proxy} dead\n");
       }
     }
+
+    // flush for live echo
+    if (ob_get_level() > 0) {
+      // Flush the buffer to the client
+      ob_flush();
+      // Optionally, you can also flush the PHP internal buffer
+      flush();
+    }
   }
 
   // write working proxies
@@ -255,6 +271,11 @@ function checkProxyInParallel(array $proxies)
   // release main lock files
   delete_path($lockFile);
   write_file($statusFile, 'idle');
+
+  // End buffering and send the buffer
+  if (ob_get_level() > 0) {
+    ob_end_flush();
+  }
 }
 
 function write_working()
