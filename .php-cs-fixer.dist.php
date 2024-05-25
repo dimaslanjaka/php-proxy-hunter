@@ -13,6 +13,7 @@ $finder = Finder::create()
 
 $config = new Config();
 $config->setParallelConfig(ParallelConfigFactory::detect());
+$config->setIndent(str_pad('', 2));
 
 return $config->setRules([
     '@PSR2' => true,

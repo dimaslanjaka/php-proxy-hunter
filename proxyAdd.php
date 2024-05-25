@@ -38,54 +38,54 @@ $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMO
 $strings = '';
 
 if (!$isCli) {
-    // Allow from any origin
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Headers: *");
-    header("Access-Control-Allow-Methods: *");
-    header('Content-Type: text/plain; charset=utf-8');
-    // Check if the form was submitted
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        if (isset($_POST['proxies'])) {
-            $strings = $_POST['proxies'];
-        }
+  // Allow from any origin
+  header("Access-Control-Allow-Origin: *");
+  header("Access-Control-Allow-Headers: *");
+  header("Access-Control-Allow-Methods: *");
+  header('Content-Type: text/plain; charset=utf-8');
+  // Check if the form was submitted
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['proxies'])) {
+      $strings = $_POST['proxies'];
     }
+  }
 }
 
 $proxies = extractProxies($strings);
 $proxies = array_filter($proxies, function (\PhpProxyHunter\Proxy $item) {
-    if (empty($item->status)) {
-        return true;
-    }
-    if (empty($item->last_check)) {
-        return true;
-    }
-    return isDateRFC3339OlderThanHours($item->last_check, 5);
+  if (empty($item->status)) {
+    return true;
+  }
+  if (empty($item->last_check)) {
+    return true;
+  }
+  return isDateRFC3339OlderThanHours($item->last_check, 5);
 });
 $proxies_txt_array = array_map(function (\PhpProxyHunter\Proxy $item) {
-    $raw_proxy = $item->proxy;
-    if (!empty($item->username) && !empty($item->password)) {
-        $raw_proxy .= "@" . $item->username . ":" . $item->password;
-    }
-    return $raw_proxy;
+  $raw_proxy = $item->proxy;
+  if (!empty($item->username) && !empty($item->password)) {
+    $raw_proxy .= "@" . $item->username . ":" . $item->password;
+  }
+  return $raw_proxy;
 }, $proxies);
 $proxies_txt = implode(PHP_EOL, $proxies_txt_array);
 
 $filePath = __DIR__ . '/proxies.txt';
 // write proxies into proxies.txt or proxies-backup.txt when checker still running
 if (file_exists(__DIR__ . '/proxyChecker.lock')) {
-    // lock exist, backup added proxies
-    $id = sanitizeFilename(\PhpProxyHunter\Server::useragent() . \PhpProxyHunter\Server::getRequestIP());
-    $output = __DIR__ . '/assets/proxies/added-' . $id . '.txt';
-    createParentFolders($output);
-    append_content_with_lock($output, PHP_EOL . $proxies_txt);
-    setMultiPermissions($output);
+  // lock exist, backup added proxies
+  $id = sanitizeFilename(\PhpProxyHunter\Server::useragent() . \PhpProxyHunter\Server::getRequestIP());
+  $output = __DIR__ . '/assets/proxies/added-' . $id . '.txt';
+  createParentFolders($output);
+  append_content_with_lock($output, PHP_EOL . $proxies_txt);
+  setMultiPermissions($output);
 } else {
-    append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . $proxies_txt);
+  append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . $proxies_txt);
 }
 
 $count = count($proxies);
 if ($count > 0) {
-    echo $count . " proxies added successfully." . PHP_EOL;
+  echo $count . " proxies added successfully." . PHP_EOL;
 } else {
-    echo "Proxy added successfully." . PHP_EOL;
+  echo "Proxy added successfully." . PHP_EOL;
 }
