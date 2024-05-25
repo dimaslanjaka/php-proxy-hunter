@@ -46,7 +46,7 @@ if (!file_exists(__DIR__ . '/tmp')) {
 }
 $runner = __DIR__ . "/tmp/runners/proxyChecker" . ($isWin ? '.bat' : "");
 setMultiPermissions($runner);
-file_put_contents($runner, $cmd);
+write_file($runner, $cmd);
 
 exec(escapeshellarg($runner));
 
