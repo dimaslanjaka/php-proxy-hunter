@@ -23,8 +23,8 @@ if ($isCli) {
     "runner::"
   ];
   $options = getopt($short_opts, $long_opts);
-  //  append_content_with_lock($output_log, "\$argv => " . json_encode($argv, JSON_PRETTY_PRINT) . PHP_EOL);
-  //  append_content_with_lock($output_log, "parsed \$argv => " . json_encode($options, JSON_PRETTY_PRINT) . PHP_EOL);
+  // append_content_with_lock($output_log, "\$argv => " . json_encode($argv, JSON_PRETTY_PRINT) . PHP_EOL);
+  // append_content_with_lock($output_log, "parsed \$argv => " . json_encode($options, JSON_PRETTY_PRINT) . PHP_EOL);
 
   if (!empty($options['lockFile'])) {
     if (file_exists($options['lockFile']) && !is_debug()) {
@@ -47,7 +47,7 @@ if ($isCli) {
   }
 
   $str = implode("\n", array_values($options));
-  //  append_content_with_lock($output_log, $str . PHP_EOL);
+  // append_content_with_lock($output_log, "string => " . $str . PHP_EOL);
 } else {
   // set output buffering to zero
   ini_set('output_buffering', 0);
@@ -107,12 +107,22 @@ if ($isCli) {
 
   echo $cmd . "\n\n";
 
-  //  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
+  // Generate the command to run in the background
+  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
 
+  // Ensure runner script has executable permissions
   setMultiPermissions($runner);
+
+  // Write the command to the runner script
   write_file($runner, $cmd);
 
+  // Output the runner script path for debugging
+  echo escapeshellarg($runner) . PHP_EOL;
+
+  // Execute the runner script in the background
   exec(escapeshellarg($runner));
+
+  // Exit the PHP script
   exit;
 }
 
