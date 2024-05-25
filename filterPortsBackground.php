@@ -44,7 +44,7 @@ $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file
 if (!file_exists(__DIR__ . '/tmp')) {
   mkdir(__DIR__ . '/tmp');
 }
-$runner = __DIR__ . "/tmp/runner_" . md5(__FILE__) . ($isWin ? '.bat' : "");
+$runner = __DIR__ . "/tmp/runners/" . md5(__FILE__) . ($isWin ? '.bat' : "");
 setMultiPermissions($runner);
 file_put_contents($runner, $cmd);
 
