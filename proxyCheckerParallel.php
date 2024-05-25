@@ -6,10 +6,10 @@ global $isCli;
 use PhpProxyHunter\Proxy;
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
+use PhpProxyHunter\Server;
 
 $db = new ProxyDB();
 $str = '';
-$webLockFile = __DIR__ . '/tmp/parallel-web.lock';
 $output_log = __DIR__ . '/proxyChecker.txt';
 
 if ($isCli) {
@@ -19,13 +19,16 @@ if ($isCli) {
 
   $str = implode("\n", array_values($options));
 } else {
-  // truncate output log file
-  truncateFile($output_log);
   header('Content-Type: text/plain; charset=UTF-8');
+  $id = Server::get_client_ip();
+  if (empty($id)) $id = Server::useragent();
+  $webLockFile = __DIR__ . '/tmp/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
   if (file_exists($webLockFile)) {
     exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
   } else {
     write_file($webLockFile, date(DATE_RFC3339));
+    // truncate output log file
+    truncateFile($output_log);
   }
   Scheduler::register(function () use ($webLockFile) {
     delete_path($webLockFile);
