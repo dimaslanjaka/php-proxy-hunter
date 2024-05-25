@@ -14,9 +14,9 @@ function getRandomItemFromArray($array)
 
 function webgl_data()
 {
-    return array(
-        "Google Inc." => array(
-            "Intel Inc." => array(
+    return [
+        "Google Inc." => [
+            "Intel Inc." => [
                 "ANGLE (Intel(R) HD Graphics 530 Direct3D11 vs_5_0 ps_5_0)",
                 "Intel Iris OpenGL Engine",
                 "Intel Iris Pro OpenGL Engine",
@@ -40,8 +40,8 @@ function webgl_data()
                 "ANGLE (Intel(R) HD Graphics Direct3D11 vs_5_0 ps_5_0, D3D11-27.21.14.6589)",
                 "ANGLE (Intel(R) UHD Graphics 620 Direct3D11 vs_5_0 ps_5_0, D3D11-27.20.100.9126)",
                 "ANGLE (Intel, Mesa Intel(R) UHD Graphics 620 (KBL GT2), OpenGL 4.6 (Core Profile) Mesa 21.2.2)"
-            ),
-            "NVIDIA Corporation" => array(
+            ],
+            "NVIDIA Corporation" => [
                 "ANGLE (NVIDIA, NVIDIA GeForce GTX 1650 Direct3D11 vs_5_0 ps_5_0, D3D11)",
                 "ANGLE (NVIDIA, NVIDIA GeForce GTX 660 Direct3D11 vs_5_0 ps_5_0, D3D11)",
                 "ANGLE (NVIDIA, NVIDIA GeForce GTX 1050 Ti Direct3D11 vs_5_0 ps_5_0, D3D11-25.21.14.1917)",
@@ -81,8 +81,8 @@ function webgl_data()
                 "ANGLE (NVIDIA Quadro P4000 Direct3D11 vs_5_0 ps_5_0)",
                 "ANGLE (NVIDIA Quadro P600 Direct3D11 vs_5_0 ps_5_0)",
                 "ANGLE (NVIDIA Quadro P620 Direct3D11 vs_5_0 ps_5_0)"
-            ),
-            "ATI Technologies Inc." => array(
+            ],
+            "ATI Technologies Inc." => [
                 "ATI Radeon HD 5870",
                 "ATI FirePro V8800",
                 "AMD Radeon R9 290X",
@@ -95,8 +95,8 @@ function webgl_data()
                 "ANGLE (ATI Mobility Radeon HD 4500 Series Direct3D11 vs_4_1 ps_4_1)",
                 "ANGLE (ATI Mobility Radeon HD 5000 Series Direct3D11 vs_5_0 ps_5_0)",
                 "ANGLE (ATI Mobility Radeon HD 5400 Series Direct3D11 vs_5_0 ps_5_0)"
-            ),
-            "Advanced Micro Devices, Inc." => array(
+            ],
+            "Advanced Micro Devices, Inc." => [
                 "AMD Radeon HD 7970",
                 "AMD Radeon RX 5700 XT",
                 "AMD Radeon Vega Frontier Edition",
@@ -108,9 +108,9 @@ function webgl_data()
                 "ANGLE (AMD, AMD Radeon RX 5700 XT Direct3D11 vs_5_0 ps_5_0, D3D11-30.0.13025.1000)",
                 "ANGLE (AMD, AMD Radeon RX 6900 XT Direct3D11 vs_5_0 ps_5_0, D3D11-30.0.13011.1004)",
                 "ANGLE (AMD, AMD Radeon(TM) Graphics Direct3D11 vs_5_0 ps_5_0, D3D11-30.0.13002.23)"
-            )
-        )
-    );
+            ]
+        ]
+    ];
 }
 
 class WebGLData

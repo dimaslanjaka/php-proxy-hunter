@@ -37,44 +37,46 @@ require_once __DIR__ . "/func.php";
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 if (!$isCli) {
-  // Allow from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
-  header('Content-Type: text/plain; charset=utf-8');
+    // Allow from any origin
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Headers: *");
+    header("Access-Control-Allow-Methods: *");
+    header('Content-Type: text/plain; charset=utf-8');
 }
 
 $max = 1;
 if (isset($_REQUEST['max'])) {
-  $max = intval($_REQUEST['max']);
+    $max = intval($_REQUEST['max']);
 }
 // limit max 50
-if ($max > 50) $max = 50;
+if ($max > 50) {
+    $max = 50;
+}
 $type = 'random';
 // browser type [firefox, chrome]
 if (isset($_REQUEST['type'])) {
-  $type = $_REQUEST['type'];
+    $type = $_REQUEST['type'];
 }
 $os = 'random';
 if (isset($_REQUEST['os'])) {
-  $os = $_REQUEST['os'];
+    $os = $_REQUEST['os'];
 }
 
 for ($i = 0; $i < $max; $i++) {
-  if ($type == 'random') {
-    $uaType = getRandomItemFromArray(['chrome', 'firefox']);
-  } else {
-    $uaType = $type;
-  }
-  $android = randomAndroidUa($uaType);
-  $ios = randomIosUa($uaType);
-  if ($os == 'random') {
-    echo getRandomItemFromArray([$ios, $android]) . PHP_EOL;
-  } else if ($os == 'android') {
-    echo $android . PHP_EOL;
-  } else if ($os == 'ios') {
-    echo $ios . PHP_EOL;
-  }
+    if ($type == 'random') {
+        $uaType = getRandomItemFromArray(['chrome', 'firefox']);
+    } else {
+        $uaType = $type;
+    }
+    $android = randomAndroidUa($uaType);
+    $ios = randomIosUa($uaType);
+    if ($os == 'random') {
+        echo getRandomItemFromArray([$ios, $android]) . PHP_EOL;
+    } elseif ($os == 'android') {
+        echo $android . PHP_EOL;
+    } elseif ($os == 'ios') {
+        echo $ios . PHP_EOL;
+    }
 }
 
 // http://dev.webmanajemen.com/useragent.php?type=[chrome,firefox]&max=[n]&os=[android,ios]
