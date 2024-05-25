@@ -124,6 +124,11 @@ function checkProxyInParallel(array $proxies)
   $db = new ProxyDB();
   $lockFile = __DIR__ . '/proxyChecker.lock';
   $statusFile = __DIR__ . "/status.txt";
+  Scheduler::register(function () use ($lockFile, $statusFile) {
+    // release main lock files
+    delete_path($lockFile);
+    write_file($statusFile, 'idle');
+  }, 'release-main-lock');
   for ($i = 0; $i < rand(1, 4); $i++) {
     shuffle($proxies);
   }
@@ -276,14 +281,10 @@ function checkProxyInParallel(array $proxies)
     }
   }
 
-  // write working proxies
+// write working proxies
   write_working();
 
-  // release main lock files
-  delete_path($lockFile);
-  write_file($statusFile, 'idle');
-
-  // End buffering and send the buffer
+// End buffering and send the buffer
   if (ob_get_level() > 0) {
     ob_end_flush();
   }
