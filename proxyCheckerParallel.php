@@ -16,11 +16,11 @@ $max = PHP_INT_MAX;
 if ($isCli) {
   $short_opts = "p:m::";
   $long_opts = [
-      "proxy:",
-      "max::",
-      "userId::",
-      "lockFile::",
-      "runner::"
+    "proxy:",
+    "max::",
+    "userId::",
+    "lockFile::",
+    "runner::"
   ];
   $options = getopt($short_opts, $long_opts);
   //  append_content_with_lock($output_log, "\$argv => " . json_encode($argv, JSON_PRETTY_PRINT) . PHP_EOL);
@@ -107,7 +107,7 @@ if ($isCli) {
 
   echo $cmd . "\n\n";
 
-//  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
+  //  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
 
   setMultiPermissions($runner);
   write_file($runner, $cmd);
@@ -226,15 +226,15 @@ function checkProxyInParallel(array $proxies)
       append_content_with_lock($output_log, "$counter. {$item[0]->proxy} port closed\n");
     } else {
       $ch = [
-          buildCurl($item[0]->proxy, 'http', 'https://example.net', [
-              'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
-          ], $item[0]->username, $item[0]->password),
-          buildCurl($item[0]->proxy, 'socks4', 'https://example.net', [
-              'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
-          ], $item[0]->username, $item[0]->password),
-          buildCurl($item[0]->proxy, 'socks5', 'https://example.net', [
-              'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
-          ], $item[0]->username, $item[0]->password)
+        buildCurl($item[0]->proxy, 'http', 'https://example.net', [
+          'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+        ], $item[0]->username, $item[0]->password),
+        buildCurl($item[0]->proxy, 'socks4', 'https://example.net', [
+          'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+        ], $item[0]->username, $item[0]->password),
+        buildCurl($item[0]->proxy, 'socks5', 'https://example.net', [
+          'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+        ], $item[0]->username, $item[0]->password)
       ];
 
       $protocols = [];
@@ -262,7 +262,7 @@ function checkProxyInParallel(array $proxies)
       foreach ($ch as $handle_index => $handle) {
         $http_status = curl_getinfo($handle, CURLINFO_HTTP_CODE);
         $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 ||
-            $http_status == 301 || $http_status == 302 || $http_status == 304;
+          $http_status == 301 || $http_status == 302 || $http_status == 304;
         $protocol = $protocols[$handle_index];
         if ($http_status_valid) {
           $info = curl_getinfo($handle);
@@ -300,10 +300,10 @@ function checkProxyInParallel(array $proxies)
 
       if ($isWorking) {
         $data = [
-            'type' => implode('-', $protocols),
-            'status' => 'active',
-            'private' => $isPrivate ? 'true' : 'false',
-            'latency' => $latency
+          'type' => implode('-', $protocols),
+          'status' => 'active',
+          'private' => $isPrivate ? 'true' : 'false',
+          'latency' => $latency
         ];
         $db->updateData($item[0]->proxy, $data);
         if (empty($item[0]->timezone) || empty($item[0]->country) || empty($item[0]->lang)) {
@@ -318,9 +318,9 @@ function checkProxyInParallel(array $proxies)
         if (empty($item[0]->webgl_renderer) || empty($item[0]->browser_vendor) || empty($item[0]->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item[0]->proxy, [
-              'webgl_renderer' => $webgl->webgl_renderer,
-              'webgl_vendor' => $webgl->webgl_vendor,
-              'browser_vendor' => $webgl->browser_vendor
+            'webgl_renderer' => $webgl->webgl_renderer,
+            'webgl_vendor' => $webgl->webgl_vendor,
+            'browser_vendor' => $webgl->browser_vendor
           ]);
         }
         // write working proxies
@@ -359,3 +359,43 @@ function write_working()
   file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
   file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
 }
+
+function cleanUp()
+{
+  $directory = __DIR__ . '/tmp/runners/';
+
+  // Get the current time
+  $current_time = time();
+
+  // Define the time threshold (10 minutes = 600 seconds)
+  $time_threshold = 600;
+
+  // Check if the directory exists
+  if (is_dir($directory)) {
+    // Open the directory
+    if ($handle = opendir($directory)) {
+      // Loop through the directory contents
+      while (false !== ($entry = readdir($handle))) {
+        // Skip the current (.) and parent (..) directories
+        if ($entry != '.' && $entry != '..') {
+          $full_path = $directory . $entry;
+
+          // Check the file/folder creation time
+          $creation_time = filectime($full_path);
+
+          // Calculate the age of the file/folder
+          $age = $current_time - $creation_time;
+
+          // Delete if older than the threshold
+          if ($age > $time_threshold) {
+            delete_path($full_path);
+          }
+        }
+      }
+      // Close the directory handle
+      closedir($handle);
+    }
+  }
+}
+
+Scheduler::register('cleanUp', 'clean up');
