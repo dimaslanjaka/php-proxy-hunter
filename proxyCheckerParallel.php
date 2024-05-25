@@ -57,7 +57,7 @@ if ($isCli) {
   }
 }
 
-$proxies = extractProxies($str);
+$proxies = extractProxies($str, $db);
 
 if (empty($proxies)) {
   $db_data = $db->getUntestedProxies(100);
@@ -108,6 +108,7 @@ if (empty($proxies)) {
   //  checkProxyInParallel($proxies);
 }
 
+// perform checks
 if (!empty($proxies)) {
   set_time_limit(0);
   checkProxyInParallel($proxies);
