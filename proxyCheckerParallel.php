@@ -27,7 +27,7 @@ if ($isCli) {
   //  append_content_with_lock($output_log, "parsed \$argv => " . json_encode($options, JSON_PRETTY_PRINT) . PHP_EOL);
 
   if (!empty($options['lockFile'])) {
-    if (file_exists($options['lockFile'])) {
+    if (file_exists($options['lockFile']) && !is_debug()) {
       exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
     }
     write_file($options['lockFile'], '');
@@ -106,6 +106,8 @@ if ($isCli) {
   $cmd .= " --proxy=" . escapeshellarg($str);
 
   echo $cmd . "\n\n";
+
+//  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
 
   setMultiPermissions($runner);
   write_file($runner, $cmd);
