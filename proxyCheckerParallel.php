@@ -110,11 +110,11 @@ if ($isCli) {
   // Generate the command to run in the background
   $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
 
-  // Ensure runner script has executable permissions
-  setMultiPermissions($runner);
-
   // Write the command to the runner script
   write_file($runner, $cmd);
+
+  // Ensure runner script has executable permissions
+  setMultiPermissions($runner);
 
   // Output the runner script path for debugging
   echo escapeshellarg($runner) . PHP_EOL;
