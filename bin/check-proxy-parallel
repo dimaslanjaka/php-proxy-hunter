@@ -7,16 +7,16 @@ NUM_INSTANCES=5
 run_php_script() {
     if [[ "$(uname -s)" == *"CYGWIN"* || "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"MSYS"* ]]; then
         # Running on Windows
-        php proxyCheckerParallel.php &
+        php proxyCheckerParallel.php --max=400 &
     elif [[ "$(uname -s)" == "Linux" ]]; then
         if command -v lsb_release &> /dev/null; then
             if [[ "$(lsb_release -is)" == "Ubuntu" ]]; then
                 if command -v nginx &> /dev/null; then
                     # Running on Ubuntu with Nginx installed
-                    su -s /bin/sh -c "php proxyCheckerParallel.php" www-data &
+                    su -s /bin/sh -c "php proxyCheckerParallel.php --max=400" www-data &
                 else
                     echo "Nginx is not installed, running PHP script without su"
-                    php proxyCheckerParallel.php &
+                    php proxyCheckerParallel.php --max=400 &
                 fi
             else
                 echo "Linux distribution is not Ubuntu: $(lsb_release -is)"
