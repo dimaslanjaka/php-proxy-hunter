@@ -11,7 +11,8 @@ use PhpProxyHunter\Server;
 $db = new ProxyDB();
 $str = '';
 $output_log = __DIR__ . '/proxyChecker.txt';
-$max = PHP_INT_MAX;
+// default limit proxy to check
+$max = 100;
 
 if ($isCli) {
   $short_opts = "p:m::";
@@ -190,7 +191,7 @@ if (!empty($proxies)) {
  */
 function checkProxyInParallel(array $proxies)
 {
-  global $output_log, $isCli;
+  global $output_log, $isCli, $max;
   $db = new ProxyDB();
   $lockFile = __DIR__ . '/proxyChecker.lock';
   $statusFile = __DIR__ . "/status.txt";
@@ -202,6 +203,8 @@ function checkProxyInParallel(array $proxies)
   for ($i = 0; $i < rand(1, 4); $i++) {
     shuffle($proxies);
   }
+  // limit proxies by $max
+  $proxies = array_slice($proxies, 0, $max);
   $iterator = new ArrayIterator($proxies);
   $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
   $combinedIterable->attachIterator($iterator);
