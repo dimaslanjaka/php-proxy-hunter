@@ -105,6 +105,7 @@ if ($isCli) {
   $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
   $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
   $cmd .= " --proxy=" . escapeshellarg($str);
+  $cmd .= " --max=" . escapeshellarg("30");
 
   echo $cmd . "\n\n";
 
