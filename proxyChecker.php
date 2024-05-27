@@ -392,6 +392,9 @@ function schedule_remover()
           echo "removed indexed proxies from " . basename($file) . PHP_EOL;
           removeEmptyLinesFromFile($file);
         }
+        if (filterIpPortLines($file) == 'success') {
+          echo "non IP:PORT lines removed from " . basename($file) . PHP_EOL;
+        }
       }
     }, "remove indexed proxies");
   }
