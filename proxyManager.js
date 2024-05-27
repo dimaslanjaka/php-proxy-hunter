@@ -283,7 +283,7 @@ function listenCurlCommandBuilder() {
     // Add the pre element with the copy button
     resultCurl.innerHTML = `
     <div class="relative">
-      <pre class="dark:bg-gray-800 dark:text-white whitespace-pre-wrap break-words p-4"><code class="dark:text-white">curl -X POST ${origin}/proxyCheckerParallel.php -d "proxy=${encoded}"</code></pre>
+      <pre class="dark:bg-gray-800 dark:text-white whitespace-pre-wrap break-words p-4"><code class="dark:text-white">curl -X POST ${origin}/proxyCheckerParallel.php \\\n\t-d "proxy=${encoded}"</code></pre>
       <button id="copyButton" class="absolute top-2 right-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Copy</button>
     </div>
   `;
