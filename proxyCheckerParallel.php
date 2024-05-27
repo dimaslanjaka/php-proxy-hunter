@@ -12,7 +12,7 @@ $db = new ProxyDB();
 $str = '';
 $output_log = __DIR__ . '/proxyChecker.txt';
 // default limit proxy to check
-$max = 100;
+$max = 100 + $db->countWorkingProxies();
 
 if ($isCli) {
   $short_opts = "p:m::";
