@@ -390,11 +390,14 @@ function schedule_remover()
         $remove = removeStringFromFile($file, $str_to_remove);
         if ($remove == 'success') {
           echo "removed indexed proxies from " . basename($file) . PHP_EOL;
+          sleep(1);
           removeEmptyLinesFromFile($file);
         }
+        sleep(1);
         if (filterIpPortLines($file) == 'success') {
           echo "non IP:PORT lines removed from " . basename($file) . PHP_EOL;
         }
+        sleep(1);
       }
     }, "remove indexed proxies");
   }
