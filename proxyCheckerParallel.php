@@ -129,6 +129,7 @@ if ($isCli) {
 }
 
 $proxies = extractProxies($str, $db);
+$str_to_remove = [];
 
 if (empty($proxies)) {
   // append_content_with_lock($output_log, 'proxies empty' . PHP_EOL);
@@ -192,7 +193,7 @@ if (!empty($proxies)) {
  */
 function checkProxyInParallel(array $proxies)
 {
-  global $output_log, $isCli, $max;
+  global $output_log, $isCli, $max, $str_to_remove;
   $db = new ProxyDB();
   $lockFile = __DIR__ . '/proxyChecker.lock';
   $statusFile = __DIR__ . "/status.txt";
@@ -212,6 +213,7 @@ function checkProxyInParallel(array $proxies)
   $counter = 0;
   $startTime = microtime(true);
   foreach ($combinedIterable as $index => $item) {
+    if (empty($item[0]->proxy)) continue;
     if (!$isCli) {
       // Check if execution time has exceeded the maximum allowed time
       $elapsedTime = microtime(true) - $startTime;
@@ -344,6 +346,10 @@ function checkProxyInParallel(array $proxies)
         echo "$counter. {$item[0]->proxy} dead" . PHP_EOL;
         append_content_with_lock($output_log, "$counter. {$item[0]->proxy} dead\n");
       }
+
+      // push proxy to be removed
+      $str_to_remove[] = $item[0]->proxy;
+      schedule_remover();
     }
 
     // flush for live echo
@@ -412,4 +418,33 @@ function cleanUp()
   }
 }
 
-Scheduler::register('cleanUp', 'clean up');
+function schedule_remover()
+{
+  global $str_to_remove;
+  if (!empty($str_to_remove)) {
+    // remove already indexed proxies
+    Scheduler::register(function () use ($str_to_remove) {
+      $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
+      $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
+        return strpos($fn, 'added-') !== false;
+      });
+      $files = array_merge($files, $assets);
+      $files = array_filter($files, 'file_exists');
+      $files = array_map('realpath', $files);
+      foreach ($files as $file) {
+        $remove = removeStringFromFile($file, $str_to_remove);
+        if ($remove == 'success') {
+          echo "removed indexed proxies from " . basename($file) . PHP_EOL;
+          sleep(1);
+          removeEmptyLinesFromFile($file);
+        }
+        sleep(1);
+        if (filterIpPortLines($file) == 'success') {
+          echo "non IP:PORT lines removed from " . basename($file) . PHP_EOL;
+        }
+        sleep(1);
+      }
+      cleanUp();
+    }, "remove indexed proxies");
+  }
+}
