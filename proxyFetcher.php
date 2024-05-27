@@ -90,7 +90,7 @@ $maxFileSize = 500 * 1024; // 500KB in bytes
 // Check if the file exceeds the maximum size
 if (file_exists($outputFile) && filesize($outputFile) > $maxFileSize) {
   // Generate a new file name
-  $outputFile = __DIR__ . "/assets/proxies/added-fetch-" . date("Ymd_His") . ".txt";
+  $outputFile = __DIR__ . "/assets/proxies/added-fetch-" . date("Ymd") . ".txt";
 }
 
 // Loop through each URL
