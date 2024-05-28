@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpVariableIsUsedOnlyInClosureInspection */
+<?php
+
+/** @noinspection PhpVariableIsUsedOnlyInClosureInspection */
 
 // index all proxies into database
 
@@ -173,3 +175,35 @@ if (!empty($str_to_remove)) {
 } else {
   echo "No proxies to remove" . PHP_EOL;
 }
+
+function countFilesAndRepeatScriptIfNeeded()
+{
+  $directory = __DIR__ . '/assets/proxies';
+  $fileCount = 0;
+
+  // Open the directory
+  if ($handle = opendir($directory)) {
+    // Count the files in the directory
+    while (false !== ($entry = readdir($handle))) {
+      if ($entry != "." && $entry != "..") {
+        $fileCount++;
+      }
+    }
+    closedir($handle);
+  }
+
+  // Check if the file count is greater than 5
+  if ($fileCount > 5) {
+    // Get the current script path and arguments
+    $currentScript = __FILE__;
+    global $argv;
+    $args = implode(' ', array_slice($argv, 1)); // Get all arguments except the script name
+
+    // Execute the current script again with the same arguments
+    exec("php $currentScript $args");
+  }
+
+  echo "File count in directory '$directory': $fileCount\n";
+}
+
+Scheduler::register('countFilesAndRepeatScriptIfNeeded', 'zz_repeat');
