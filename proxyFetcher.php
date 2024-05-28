@@ -124,10 +124,12 @@ foreach ($urls as $url) {
       $filter = filterIpPortLines($outputFile);
       if ($filter == 'success') {
         echo 'non proxy lines removed from ' . basename($outputFile) . PHP_EOL;
+        sleep(1);
         removeDuplicateLines($outputFile);
       } else {
         echo $filter . PHP_EOL;
       }
+      sleep(1);
     }
   }, "append content " . md5($url));
 }
