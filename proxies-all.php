@@ -23,6 +23,9 @@ $statusFile = __DIR__ . "/status.txt";
 
 if (file_exists($lockFilePath) && !is_debug()) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
+  // wait 30s before restart script
+  sleep(30);
+  restart_script();
   exit();
 } else {
   file_put_contents($lockFilePath, date(DATE_RFC3339));
@@ -194,16 +197,21 @@ function countFilesAndRepeatScriptIfNeeded()
 
   // Check if the file count is greater than 5
   if ($fileCount > 5) {
-    // Get the current script path and arguments
-    $currentScript = __FILE__;
-    global $argv;
-    $args = implode(' ', array_slice($argv, 1)); // Get all arguments except the script name
-
-    // Execute the current script again with the same arguments
-    exec("php $currentScript $args");
+    restart_script();
   }
 
   echo "File count in directory '$directory': $fileCount\n";
+}
+
+function restart_script()
+{
+  // Get the current script path and arguments
+  $currentScript = __FILE__;
+  global $argv;
+  $args = implode(' ', array_slice($argv, 1)); // Get all arguments except the script name
+
+  // Execute the current script again with the same arguments
+  exec("php $currentScript $args");
 }
 
 Scheduler::register('countFilesAndRepeatScriptIfNeeded', 'zz_repeat');
