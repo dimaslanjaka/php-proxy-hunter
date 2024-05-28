@@ -908,6 +908,10 @@ function filterIpPortLines(string $inputFile): string
 
   $str_to_remove = [];
   $content = read_file($inputFile);
+  $is_content = is_string($content) && !empty(trim($content));
+  if (!$content || !$is_content) {
+    return "$inputFile could not be read or has empty content";
+  }
   $split = array_filter(split_by_line($content));
   $results = [];
   foreach ($split as $line) {
