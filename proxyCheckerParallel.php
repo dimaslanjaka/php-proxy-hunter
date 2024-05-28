@@ -322,6 +322,13 @@ function checkProxyInParallel(array $proxies)
           'latency' => $latency
         ];
         $db->updateData($item[0]->proxy, $data);
+        foreach (['http', 'socks5', 'socks4'] as $proxy_type) {
+          $anonymity = get_anonymity($item[0]->proxy, $proxy_type, $item[0]->username, $item[0]->password);
+          if (!empty($anonymity)) {
+            $db->updateData($item[0]->proxy, ['anonymity' => $anonymity]);
+            break;
+          }
+        }
         if (empty($item[0]->timezone) || empty($item[0]->country) || empty($item[0]->lang)) {
           foreach ($protocols as $protocol) {
             get_geo_ip($item[0]->proxy, $protocol, $db);
