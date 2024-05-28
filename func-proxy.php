@@ -368,6 +368,51 @@ function parse_anonymity(string $response_ip_info, string $response_judges): str
 }
 
 /**
+ * Get the anonymity level of a proxy using multiple judgment sources.
+ *
+ * @param string $proxy The proxy server address.
+ * @param string $type The type of proxy (e.g., 'http', 'https').
+ * @param string|null $username Optional username for proxy authentication.
+ * @param string|null $password Optional password for proxy authentication.
+ * @return string Anonymity level: Transparent, Anonymous, Elite, or Empty if failed.
+ */
+function get_anonymity(string $proxy, string $type, ?string $username = null, ?string $password = null)
+{
+  $proxy_judges = [
+    'https://wfuchs.de/azenv.php',
+    'http://mojeip.net.pl/asdfa/azenv.php',
+    'http://httpheader.net/azenv.php',
+    'http://pascal.hoez.free.fr/azenv.php',
+    'https://www.cooleasy.com/azenv.php',
+    'https://httpbin.org/headers'
+  ];
+  $ip_infos = [
+    'https://api.ipify.org/',
+    'https://httpbin.org/ip',
+    'https://cloudflare.com/cdn-cgi/trace'
+  ];
+  $content_judges = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
+    $ch = buildCurl($proxy, $type, $url, [], $username, $password);
+    $content = curl_exec($ch);
+    curl_close($ch);
+    if (is_string($content)) {
+      return $content;
+    }
+    return '';
+  }, $proxy_judges);
+  $content_ip = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
+    $ch = buildCurl($proxy, $type, $url, [], $username, $password);
+    $content = curl_exec($ch);
+    curl_close($ch);
+    if ($content) {
+      return $content;
+    }
+    return '';
+  }, $ip_infos);
+  return parse_anonymity(implode("\n", $content_ip), implode("\n", $content_judges));
+}
+
+/**
  * Check proxy connectivity.
  *
  * This function tests the connectivity of a given proxy by making a request to a specified endpoint.
@@ -458,38 +503,7 @@ function checkProxy(
       $result['result'] = false;
       $result['error'] = "http response status code invalid $http_status";
     }
-    $proxy_judges = [
-      'https://wfuchs.de/azenv.php',
-      'http://mojeip.net.pl/asdfa/azenv.php',
-      'http://httpheader.net/azenv.php',
-      'http://pascal.hoez.free.fr/azenv.php',
-      'https://www.cooleasy.com/azenv.php',
-      'https://httpbin.org/headers'
-    ];
-    $ip_infos = [
-      'https://api.ipify.org/',
-      'https://httpbin.org/ip',
-      'https://cloudflare.com/cdn-cgi/trace'
-    ];
-    $content_judges = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
-      $ch = buildCurl($proxy, $type, $url, [], $username, $password);
-      $content = curl_exec($ch);
-      curl_close($ch);
-      if ($content) {
-        return $content;
-      }
-      return '';
-    }, $proxy_judges);
-    $content_ip = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
-      $ch = buildCurl($proxy, $type, $url, [], $username, $password);
-      $content = curl_exec($ch);
-      curl_close($ch);
-      if ($content) {
-        return $content;
-      }
-      return '';
-    }, $ip_infos);
-    $anonymity = parse_anonymity(implode("\n", $content_ip), implode("\n", $content_judges));
+    $anonymity = get_anonymity($proxy, $type, $username, $password);
     if (!empty($anonymity)) {
       $result['anonymity'] = strtolower($anonymity);
     } else {
