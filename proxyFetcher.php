@@ -40,58 +40,51 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
 
 // Array of URLs to fetch content from
 $urls = array_unique([
-    "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt",
-    "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt",
-    "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt",
-    "https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt",
-    "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/http.txt",
-    "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/http.txt",
-    "https://raw.githubusercontent.com/RX4096/proxy-list/main/online/http.txt",
-    "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-http.txt",
-    "https://raw.githubusercontent.com/mmpx12/proxy-list/master/http.txt",
-    "https://raw.githubusercontent.com/sunny9577/proxy-scraper/master/proxies.txt",
-    "https://raw.githubusercontent.com/proxy4parsing/proxy-list/main/http.txt",
-    "https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW.txt",
-    "https://raw.githubusercontent.com/mertguvencli/http-proxy-list/main/proxy-list/data.txt",
-    "https://raw.githubusercontent.com/hendrikbgr/Free-Proxy-Repo/master/proxy_list.txt",
-    "https://raw.githubusercontent.com/almroot/proxylist/master/list.txt",
-    "https://www.proxy-list.download/api/v1/get?type=http",
-    "https://www.proxyscan.io/download?type=http",
-    "https://raw.githubusercontent.com/rdavydov/proxy-list/main/proxies/http.txt",
-    "https://raw.githubusercontent.com/UptimerBot/proxy-list/main/proxies/http.txt",
-    "https://api.openproxylist.xyz/http.txt",
-    "https://cyber-hub.pw/statics/proxy.txt",
-    "https://spys.me/proxy.txt",
-    "https://spys.me/socks.txt",
-    "https://proxylist.geonode.com/api/proxy-list?limit=500&page=1&sort_by=lastChecked&sort_type=desc",
-    "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text&timeout=20000",
-    "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text",
-    "https://github.com/roosterkid/openproxylist/blob/main/HTTPS_RAW.txt",
-    "https://github.com/roosterkid/openproxylist/blob/main/SOCKS4_RAW.txt",
-    "https://github.com/roosterkid/openproxylist/blob/main/SOCKS5_RAW.txt",
-    "https://github.com/proxifly/free-proxy-list/blob/main/proxies/all/data.txt" .
+  "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt",
+  "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt",
+  "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt",
+  "https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt",
+  "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/http.txt",
+  "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/http.txt",
+  "https://raw.githubusercontent.com/RX4096/proxy-list/main/online/http.txt",
+  "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-http.txt",
+  "https://raw.githubusercontent.com/mmpx12/proxy-list/master/http.txt",
+  "https://raw.githubusercontent.com/sunny9577/proxy-scraper/master/proxies.txt",
+  "https://raw.githubusercontent.com/proxy4parsing/proxy-list/main/http.txt",
+  "https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW.txt",
+  "https://raw.githubusercontent.com/mertguvencli/http-proxy-list/main/proxy-list/data.txt",
+  "https://raw.githubusercontent.com/hendrikbgr/Free-Proxy-Repo/master/proxy_list.txt",
+  "https://raw.githubusercontent.com/almroot/proxylist/master/list.txt",
+  "https://www.proxy-list.download/api/v1/get?type=http",
+  "https://www.proxyscan.io/download?type=http",
+  "https://raw.githubusercontent.com/rdavydov/proxy-list/main/proxies/http.txt",
+  "https://raw.githubusercontent.com/UptimerBot/proxy-list/main/proxies/http.txt",
+  "https://api.openproxylist.xyz/http.txt",
+  "https://cyber-hub.pw/statics/proxy.txt",
+  "https://spys.me/proxy.txt",
+  "https://spys.me/socks.txt",
+  "https://proxylist.geonode.com/api/proxy-list?limit=500&page=1&sort_by=lastChecked&sort_type=desc",
+  "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text&timeout=20000",
+  "https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text",
+  "https://github.com/roosterkid/openproxylist/blob/main/HTTPS_RAW.txt",
+  "https://github.com/roosterkid/openproxylist/blob/main/SOCKS4_RAW.txt",
+  "https://github.com/roosterkid/openproxylist/blob/main/SOCKS5_RAW.txt",
+  "https://github.com/proxifly/free-proxy-list/blob/main/proxies/all/data.txt" .
     "https://github.com/officialputuid/KangProxy/raw/KangProxy/http/http.txt",
-    "https://github.com/officialputuid/KangProxy/raw/KangProxy/https/https.txt",
-    "https://github.com/officialputuid/KangProxy/raw/KangProxy/socks4/socks4.txt",
-    "https://github.com/officialputuid/KangProxy/raw/KangProxy/socks5/socks5.txt",
-    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/http_proxies.txt",
-    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/https_proxies.txt",
-    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/proxies_dump.json",
-    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks4_proxies.txt",
-    "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks5_proxies.txt",
-    "https://github.com/prxchk/proxy-list/raw/main/all.txt",
-    "https://github.com/clarketm/proxy-list/raw/master/proxy-list.txt"
+  "https://github.com/officialputuid/KangProxy/raw/KangProxy/https/https.txt",
+  "https://github.com/officialputuid/KangProxy/raw/KangProxy/socks4/socks4.txt",
+  "https://github.com/officialputuid/KangProxy/raw/KangProxy/socks5/socks5.txt",
+  "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/http_proxies.txt",
+  "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/https_proxies.txt",
+  "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/proxies_dump.json",
+  "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks4_proxies.txt",
+  "https://github.com/Anonym0usWork1221/Free-Proxies/raw/main/proxy_files/socks5_proxies.txt",
+  "https://github.com/prxchk/proxy-list/raw/main/all.txt",
+  "https://github.com/clarketm/proxy-list/raw/master/proxy-list.txt"
 ]);
 
 // File to append the content
-$outputFile = __DIR__ . "/proxies.txt";
-$maxFileSize = 500 * 1024; // 500KB in bytes
-
-// Check if the file exceeds the maximum size
-if (file_exists($outputFile) && filesize($outputFile) > $maxFileSize) {
-  // Generate a new file name
-  $outputFile = __DIR__ . "/assets/proxies/added-fetch-" . date("Ymd") . ".txt";
-}
+$outputFile = __DIR__ . "/assets/proxies/added-fetch-" . date("Ymd") . ".txt";
 
 // Loop through each URL
 foreach ($urls as $url) {
