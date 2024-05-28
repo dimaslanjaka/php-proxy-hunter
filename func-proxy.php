@@ -304,7 +304,8 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-  $cookies = __DIR__ . '/tmp/cookies/' . sanitizeFilename($proxy) . '.txt';
+  // $cookies = __DIR__ . '/tmp/cookies/' . sanitizeFilename($proxy) . '.txt';
+  $cookies = __DIR__ . '/tmp/cookies.txt';
   if (!file_exists(dirname($cookies))) {
     mkdir(dirname($cookies), 0777, true);
   }
