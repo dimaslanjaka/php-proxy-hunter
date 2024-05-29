@@ -344,26 +344,7 @@ function curlGetWithProxy(string $url, string $proxy = null, ?string $proxyType 
   }
 
   // Initialize cURL session
-  $ch = curl_init();
-
-  // Set the URL
-  curl_setopt($ch, CURLOPT_URL, $url);
-
-  // Set proxy details
-  if (!empty($proxy)) {
-    curl_setopt($ch, CURLOPT_PROXY, $proxy);
-    $type = CURLPROXY_HTTP;
-    if ($proxyType == 'socks4') {
-      $type = CURLPROXY_SOCKS4;
-    }
-    if ($proxyType == 'socks5') {
-      $type = CURLPROXY_SOCKS5;
-    }
-    curl_setopt($ch, CURLOPT_PROXYTYPE, $type);
-  }
-
-  // Set to return the transfer as a string
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  $ch = buildCurl($proxy, $proxyType, $url);
 
   // Execute the request
   $response = curl_exec($ch);
