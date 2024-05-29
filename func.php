@@ -168,8 +168,7 @@ function setPermissions(string $filename, bool $autoCreate = false): bool
 {
   try {
     if (!file_exists($filename) && $autoCreate) {
-      createParentFolders($filename);
-      file_put_contents($filename, '');
+      write_file($filename, '');
     }
     if (file_exists($filename) && is_readable($filename) && is_writable($filename)) {
       return chmod($filename, 0777);
@@ -2132,13 +2131,13 @@ function split_by_line(?string $str): array
  * @param string $sourceFile The path to the source file.
  * @param string $destinationFile The path to the destination file.
  *
- * @return string An error message if there's an issue, otherwise an empty string for success.
+ * @return string An error message if there's an issue, otherwise "success" for success.
  */
 function moveContent(string $sourceFile, string $destinationFile): string
 {
-  // Check if source file is writable
-  if (!is_writable($sourceFile)) {
-    return "$sourceFile not writable";
+  // Check if source file is readable
+  if (!is_readable($sourceFile)) {
+    return "$sourceFile not readable";
   }
 
   // Check if destination file is writable
@@ -2162,17 +2161,15 @@ function moveContent(string $sourceFile, string $destinationFile): string
   // Open the destination file for appending
   $destinationHandle = @fopen($destinationFile, 'a');
 
-  // Attempt to acquire exclusive locks on both files
-  $lockSource = flock($sourceHandle, LOCK_SH);
-  $lockDestination = flock($destinationHandle, LOCK_EX);
+  // Attempt to acquire locks on both files
+  $lockSource = $sourceHandle && flock($sourceHandle, LOCK_SH);
+  $lockDestination = $destinationHandle && flock($destinationHandle, LOCK_EX);
 
   // Check if both files are opened and locked successfully
   if ($sourceHandle && $destinationHandle && $lockSource && $lockDestination) {
     // Read content from the source file and write it to the destination file
     while (($line = fgets($sourceHandle)) !== false) {
-      if (!empty(trim($line))) {
-        fwrite($destinationHandle, $line);
-      }
+      fwrite($destinationHandle, $line);
     }
 
     // Close both files and release locks
@@ -2181,7 +2178,7 @@ function moveContent(string $sourceFile, string $destinationFile): string
     fclose($sourceHandle);
     fclose($destinationHandle);
 
-    return ""; // Success, so return an empty string
+    return "success"; // Success, so return "success"
   } else {
     // Close both files if they were opened
     if ($sourceHandle) {
