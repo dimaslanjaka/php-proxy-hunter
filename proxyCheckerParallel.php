@@ -194,6 +194,19 @@ if (!empty($proxies)) {
 function checkProxyInParallel(array $proxies)
 {
   global $output_log, $isCli, $max, $str_to_remove;
+  $user_id = getUserId();
+  $config = getConfig($user_id);
+  $endpoint = 'https://www.example.com';
+  $headers = [
+    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+  ];
+  if (strtolower($user_id) != 'cli') {
+    $endpoint = trim($config['endpoint']);
+    $headers = array_filter($config['headers']);
+  }
+  echo "User $user_id " . date(DATE_RFC3339) . PHP_EOL;
+  echo "GET $endpoint" . PHP_EOL;
+  echo implode(PHP_EOL, $headers) . PHP_EOL . PHP_EOL;
   $db = new ProxyDB();
   $lockFile = __DIR__ . '/proxyChecker.lock';
   $statusFile = __DIR__ . "/status.txt";
@@ -242,15 +255,9 @@ function checkProxyInParallel(array $proxies)
       append_content_with_lock($output_log, "$counter. {$item[0]->proxy} port closed\n");
     } else {
       $ch = [
-        buildCurl($item[0]->proxy, 'http', 'https://example.net', [
-          'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
-        ], $item[0]->username, $item[0]->password),
-        buildCurl($item[0]->proxy, 'socks4', 'https://example.net', [
-          'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
-        ], $item[0]->username, $item[0]->password),
-        buildCurl($item[0]->proxy, 'socks5', 'https://example.net', [
-          'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
-        ], $item[0]->username, $item[0]->password)
+        buildCurl($item[0]->proxy, 'http', $endpoint, $headers, $item[0]->username, $item[0]->password),
+        buildCurl($item[0]->proxy, 'socks4', $endpoint, $headers, $item[0]->username, $item[0]->password),
+        buildCurl($item[0]->proxy, 'socks5', $endpoint, $headers, $item[0]->username, $item[0]->password)
       ];
 
       $protocols = [];
