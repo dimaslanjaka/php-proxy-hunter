@@ -2,8 +2,6 @@
 
 require_once __DIR__ . '/func.php';
 
-session_start();
-
 $forbidden = false;
 
 // Return 403 forbidden when captcha not resolved
