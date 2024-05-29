@@ -205,7 +205,7 @@ if ($countLinesUntestedProxies > 0) {
   shuffle($untested);
 }
 
-echo str_repeat('=', 50) . PHP_EOL;
+echo PHP_EOL;
 
 execute_array_proxies();
 
@@ -294,9 +294,9 @@ function execute_single_proxy(Proxy $item)
       $errors = [];
 
       $checks = [
-          'http' => checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password),
-          'socks5' => checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password),
-          'socks4' => checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password)
+        'http' => checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password),
+        'socks5' => checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password),
+        'socks4' => checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password)
       ];
 
       foreach ($checks as $type => $check) {
@@ -316,21 +316,21 @@ function execute_single_proxy(Proxy $item)
         $merged_proxy_types = implode('-', $proxy_types);
         echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
         $db->updateData($item->proxy, [
-            'type' => $merged_proxy_types,
-            'status' => 'active',
-            'latency' => max($latencies),
-            'username' => $item->username,
-            'password' => $item->password,
-            'https' => strpos($endpoint, 'https') !== false ? 'true' : 'false',
-            'anonymity' => implode('-', array_unique($anonymities))
+          'type' => $merged_proxy_types,
+          'status' => 'active',
+          'latency' => max($latencies),
+          'username' => $item->username,
+          'password' => $item->password,
+          'https' => strpos($endpoint, 'https') !== false ? 'true' : 'false',
+          'anonymity' => implode('-', array_unique($anonymities))
         ]);
 
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item->proxy, [
-              'webgl_renderer' => $webgl->webgl_renderer,
-              'webgl_vendor' => $webgl->webgl_vendor,
-              'browser_vendor' => $webgl->browser_vendor
+            'webgl_renderer' => $webgl->webgl_renderer,
+            'webgl_vendor' => $webgl->webgl_vendor,
+            'browser_vendor' => $webgl->browser_vendor
           ]);
         }
 
