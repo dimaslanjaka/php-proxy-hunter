@@ -306,9 +306,7 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
   $cookies = __DIR__ . '/tmp/cookies.txt';
-  if (!file_exists($cookies)) {
-    write_file($cookies, '');
-  }
+  setPermissions($cookies, true);
   curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
   curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
 
