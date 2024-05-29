@@ -250,12 +250,14 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
   $default_headers = [
     'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
     'Accept-Language: en-US,en;q=0.5',
-    'Accept-Encoding: gzip, deflate, br, zstd',
     'Referer: https://www.google.com/',
-    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0',
-    'Cookie: _ga=GA1.2.1930472056.1715805698; _gid=GA1.2.777058512.1715805698; _ga_VL41109FEB=GS1.2.1715805698.1.0.1715805698.0.0.0; PHPSESSID=a306a1ddaf437f0058b5355d5c205daa'
+    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
   ];
+
   $headers = mergeHeaders($default_headers, $headers);
+  // remove Accept-Encoding header
+  $pattern = '/^(?:accept-?encoding:|Accept-?Encoding:).*/i';
+  $headers = preg_grep($pattern, $default_headers, PREG_GREP_INVERT);
 
   if (!empty($proxy)) {
     curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
@@ -282,7 +284,6 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
     } else {
       curl_setopt($ch, CURLOPT_SSLVERSION, 4); // CURL_SSLVERSION_TLSv1_0 = 4
     }
-    // curl_setopt($ch, CURLOPT_VERBOSE, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     curl_setopt($ch, CURLOPT_SSL_VERIFYSTATUS, 0);
@@ -299,12 +300,11 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
 
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Set maximum connection time
   curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Set maximum response time
-
+  curl_setopt($ch, CURLOPT_VERBOSE, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-  // $cookies = __DIR__ . '/tmp/cookies/' . sanitizeFilename($proxy) . '.txt';
   $cookies = __DIR__ . '/tmp/cookies.txt';
   if (!file_exists($cookies)) {
     write_file($cookies, '');
@@ -312,25 +312,26 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
   curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
   curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
 
+  // Set a random Android User-Agent if none is specified
   $userAgent = randomAndroidUa();
-
   foreach ($headers as $header) {
-    if (strpos($header, 'User-Agent:') === 0) {
-      $userAgent = trim(substr($header, strlen('User-Agent:')));
+    if (preg_match('/^(?:user-agent|User-Agent):\s*(.*)$/i', $header, $matches)) {
+      $userAgent = trim($matches[1]);
       break;
     }
   }
-
-  if (empty($userAgent)) {
-    $userAgent = randomAndroidUa();
-  }
-
   curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
 
   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-  curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate'); // Handle compressed response
+
+  // Handle compressed response
+  // curl_setopt($ch, CURLOPT_ENCODING, 'deflate, gzip, br');
+  curl_setopt($ch, CURLOPT_ENCODING, '');
+
   return $ch;
 }
+
+
 
 /**
  * Obtain the anonymity of the proxy.
