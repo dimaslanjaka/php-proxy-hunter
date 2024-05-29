@@ -300,7 +300,7 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
 
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Set maximum connection time
   curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Set maximum response time
-  curl_setopt($ch, CURLOPT_VERBOSE, true);
+  // curl_setopt($ch, CURLOPT_VERBOSE, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
