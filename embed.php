@@ -2,9 +2,11 @@
 
 require_once __DIR__ . '/func.php';
 
+session_start();
+
 $forbidden = false;
 
-// return 403 forbidden when captcha not resolved
+// Return 403 forbidden when captcha not resolved
 if (!isset($_SESSION['captcha'])) {
   $forbidden = true;
 } else {
@@ -28,7 +30,7 @@ if (!isset($_SESSION['captcha'])) {
 }
 
 if ($forbidden) {
-  header("Content-type: application/json; charset=utf-8");
+  header("Content-Type: application/json; charset=utf-8");
   http_response_code(403);
   exit(json_encode(['error' => 'unauthorized, try login first']));
 }
@@ -45,10 +47,14 @@ if ($real_file && file_exists($real_file)) {
   // Determine the file extension
   $fileExtension = pathinfo($real_file, PATHINFO_EXTENSION);
 
-  // Check if the file extension is allowed (json or txt)
-  if ($fileExtension === 'json' || $fileExtension === 'txt') {
-    // Determine the Content-Type based on the file extension
-    $contentType = mime_content_type($real_file);
+  // Check if the file extension is allowed (json, txt, or log)
+  if ($fileExtension === 'json' || $fileExtension === 'txt' || $fileExtension === 'log') {
+    // Explicitly set the Content-Type based on the file extension
+    if ($fileExtension === 'json') {
+      $contentType = 'application/json';
+    } else {
+      $contentType = 'text/plain';
+    }
 
     // Set the appropriate Content-Type header
     header("Content-Type: $contentType");
@@ -58,7 +64,7 @@ if ($real_file && file_exists($real_file)) {
   } else {
     // Invalid file type
     http_response_code(400);
-    echo "Invalid file type. Only JSON and text files are allowed.";
+    echo "Invalid file type. Only JSON, text, and log files are allowed.";
   }
 } else {
   // File not found or inaccessible
