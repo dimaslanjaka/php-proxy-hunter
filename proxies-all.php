@@ -89,7 +89,7 @@ if (!empty($files_to_merge)) {
   });
   $content = implode(PHP_EOL, $contents);
   $directory = __DIR__ . '/assets/proxies';
-  $mergedFileName = $directory . '/added-' . date("Y-m-d_H-i-s") . '_merged_file.txt';
+  $mergedFileName = $directory . '/added-' . date("Ymd") . '_merged_file.txt';
   $mergedFileHandle = fopen($mergedFileName, 'w+');
   $write = fwrite($mergedFileHandle, $content);
   fclose($mergedFileHandle);
