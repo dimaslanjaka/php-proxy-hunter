@@ -8,15 +8,44 @@ PHP proxy hunter
 
 ## Requirements
 
-- php extensions
-  - pdo_sqlite
-  - php_zip
-  - php_intl
+### php extensions
+
+- pdo_sqlite
+- php_zip
+- php_intl
+
 ```bash
 sudo apt install php-sqlite3 php-zip unzip libicu-dev php-intl
 ```
 
-> for spesific php version using ex: `php7.2-intl`
+> for specific php version using ex: `php7.2-intl`
+
+### php functions
+
+ensure these functions are activated on your server
+
+- shell_exec
+- exec
+
+### php.ini configuration
+
+```ini
+;suppress inspection "DuplicateKeyInSection" for whole file
+; uncomment below codes from php.ini
+extension_dir = "ext"
+extension = pdo_sqlite
+extension = curl
+extension = openssl
+extension = mbstring
+extension = intl
+extension = xmlrpc
+extension = fileinfo
+extension = sockets
+extension = xsl
+extension = exif
+extension = gettext
+extension = ftp
+```
 
 ## Quickstart
 
@@ -24,8 +53,8 @@ sudo apt install php-sqlite3 php-zip unzip libicu-dev php-intl
 
 ```bash
 sudo apt-get install git git-lfs -y
-git clone https://github.com/dimaslanjaka/php-proxy-hunter foldername
-cd foldername
+git clone https://github.com/dimaslanjaka/php-proxy-hunter folder_name
+cd folder_name
 git lfs install
 git lfs track *.rar
 ```
