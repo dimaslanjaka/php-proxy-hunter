@@ -410,9 +410,9 @@ function parse_anonymity(string $response_ip_info, string $response_judges): str
   if (strpos($mergedResponse, $deviceIp) !== false) {
     return 'Transparent';
   }
-  if (strpos($response_judges, $response_ip_info) !== false) {
-    return 'Transparent';
-  }
+//  if (strpos($response_judges, $response_ip_info) !== false) {
+//    return 'Transparent';
+//  }
 
   $privacy_headers = [
       'VIA',
