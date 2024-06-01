@@ -443,7 +443,7 @@ function parse_anonymity(string $response_ip_info, string $response_judges): str
  * @param string|null $password Optional password for proxy authentication.
  * @return string Anonymity level: Transparent, Anonymous, Elite, or Empty if failed.
  */
-function get_anonymity(string $proxy, string $type, ?string $username = null, ?string $password = null)
+function get_anonymity(string $proxy, string $type, ?string $username = null, ?string $password = null): string
 {
   $proxy_judges = [
       'https://wfuchs.de/azenv.php',

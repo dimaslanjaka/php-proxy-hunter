@@ -332,7 +332,7 @@ function checkProxyInParallel(array $proxies)
         foreach (['http', 'socks5', 'socks4'] as $proxy_type) {
           $anonymity = get_anonymity($item[0]->proxy, $proxy_type, $item[0]->username, $item[0]->password);
           if (!empty($anonymity)) {
-            $db->updateData($item[0]->proxy, ['anonymity' => $anonymity]);
+            $db->updateData($item[0]->proxy, ['anonymity' => strtolower($anonymity)]);
             break;
           }
         }
