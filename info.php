@@ -24,6 +24,7 @@ $config['admin'] = isset($_SESSION['admin']) && $_SESSION['admin'];
 $config['pid'] = $_ENV['CPID'];
 $config['captcha'] = isset($_SESSION['captcha']) && $_SESSION['captcha'];
 $config['captcha-site-key'] = $_ENV['G_RECAPTCHA_SITE_KEY'];
+$config['server-ip'] = getServerIp();
 $config_json = json_encode($config);
 
 set_cookie("user_config", base64_encode($config_json));
