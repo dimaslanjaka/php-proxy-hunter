@@ -337,14 +337,28 @@ function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoi
  * This function attempts to retrieve the server's IP address using both PHP's
  * built-in global variables and system commands, ensuring compatibility with
  * both Linux and Windows operating systems.
+ * If successful, it saves the IP address to a file. If the file already
+ * exists and contains an IP address, it loads the IP address from the file.
  *
  * @return string|false The IP address as a string if found, or false if not found.
  */
 function getServerIp()
 {
+  $filePath = __DIR__ . '/tmp/server-ip.txt';
+
+  // Try to load IP from file if it exists and is not empty
+  if (file_exists($filePath) && filesize($filePath) > 0) {
+    $ipFromFile = trim(file_get_contents($filePath));
+    if (!empty($ipFromFile)) {
+      return $ipFromFile;
+    }
+  }
+
   // Check for server address
   if (!empty($_SERVER['SERVER_ADDR'])) {
-    return $_SERVER['SERVER_ADDR'];
+    $serverIp = $_SERVER['SERVER_ADDR'];
+    file_put_contents($filePath, $serverIp);
+    return $serverIp;
   }
 
   // If the above fails, try to get the IP address from the system
@@ -355,7 +369,9 @@ function getServerIp()
       // Use regex to find all IPv4 addresses in the output
       preg_match_all('/IPv4 Address[^\d]*([\d\.]+)/i', $output, $matches);
       if (!empty($matches[1][0])) {
-        return trim($matches[1][0]);
+        $serverIp = trim($matches[1][0]);
+        write_file($filePath, $serverIp);
+        return $serverIp;
       }
     }
   } else {
@@ -366,7 +382,9 @@ function getServerIp()
       $ipParts = explode(' ', $ip);
       foreach ($ipParts as $part) {
         if (filter_var($part, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-          return trim($part);
+          $serverIp = trim($part);
+          file_put_contents($filePath, $serverIp);
+          return $serverIp;
         }
       }
     }
