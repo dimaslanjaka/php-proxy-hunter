@@ -70,7 +70,7 @@ foreach ($files as $file) {
     // Delete the file
     unlink($file);
     echo "Deleted empty file: " . basename($file) . PHP_EOL;
-  } elseif (filesize($file) < 30000 && strpos($file, 'merged') === false) {
+  } elseif (filesize($file) < 30000) {
     // merge and delete if the file is small (under 30kb)
     $files_to_merge[] = $file;
   }
