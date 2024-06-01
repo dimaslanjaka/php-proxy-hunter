@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/func.php';
+require_once __DIR__ . '/func-proxy.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
