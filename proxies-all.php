@@ -18,7 +18,7 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
-$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$lockFilePath = __DIR__ . "/tmp/proxies-all.lock";
 $statusFile = __DIR__ . "/status.txt";
 
 if (file_exists($lockFilePath) && !is_debug()) {
