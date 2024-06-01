@@ -405,6 +405,11 @@ function parse_anonymity(string $response_ip_info, string $response_judges): str
   if (empty(trim($response_ip_info)) || empty(trim($response_judges))) {
     return "";
   }
+  $mergedResponse = $response_ip_info . $response_judges;
+  $deviceIp = getServerIp();
+  if (strpos($mergedResponse, $deviceIp) !== false) {
+    return 'Transparent';
+  }
   if (strpos($response_judges, $response_ip_info) !== false) {
     return 'Transparent';
   }
