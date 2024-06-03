@@ -39,7 +39,7 @@
     "**/.DS_Store/**",
     "**/node_modules/**",
     "**/bower_components/**",
-    "**/vendor/**/{Tests,tests}/**",
+    "**/vendor/**/{Tests,tests,test}/**",
     "**/.history/**",
     "**/vendor/**/vendor/**",
     "**/tmp/**",
@@ -47,7 +47,8 @@
     "**/.yarn/**",
     "/config/**/*",
     "**/.venv/**",
-    "**/venv/**"
+    "**/venv/**",
+    "**/packages/**"
   ],
   "eslint.debug": true,
   "python.createEnvironment.contentButton": "show",
