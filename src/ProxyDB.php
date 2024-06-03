@@ -27,9 +27,10 @@ class ProxyDB
   public function __construct(?string $dbLocation = null)
   {
     if (!$dbLocation) {
-      $dbLocation = realpath(__DIR__ . '/database.sqlite');
+      $dbLocation = __DIR__ . '/database.sqlite';
     }
     $this->db = new SQLiteHelper($dbLocation);
+    $this->db->pdo->exec(file_get_contents(__DIR__. '/../assets/database/create.sql'));
   }
 
   /**
