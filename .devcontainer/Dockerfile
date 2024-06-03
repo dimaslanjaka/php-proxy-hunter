@@ -1,5 +1,8 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
+# Set environment variable
+ENV NODE_OPTIONS="--max_old_space_size=4096"
+
 # Update Ubuntu packages and install necessary tools
 RUN apt-get update \
     && apt-get install -y \
