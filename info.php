@@ -20,7 +20,7 @@ if (isset($_REQUEST['txt'])) {
 set_cookie("user_id", getUserId());
 $config = getConfig(getUserId());
 // admin info from 'data/login.php'
-$config['admin'] = isset($_SESSION['admin']) && $_SESSION['admin'];
+$config['admin'] = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
 $config['pid'] = $_ENV['CPID'];
 $config['captcha'] = isset($_SESSION['captcha']) && $_SESSION['captcha'];
 $config['captcha-site-key'] = $_ENV['G_RECAPTCHA_SITE_KEY'];
