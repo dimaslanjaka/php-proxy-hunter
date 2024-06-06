@@ -30,7 +30,17 @@ class ProxyDB
       $dbLocation = __DIR__ . '/database.sqlite';
     }
     $this->db = new SQLiteHelper($dbLocation);
-    $this->db->pdo->exec(file_get_contents(__DIR__. '/../assets/database/create.sql'));
+    $this->db->pdo->exec(file_get_contents(__DIR__ . '/../assets/database/create.sql'));
+    // Enable Write-Ahead Logging mode
+    $this->db->pdo->exec('PRAGMA journal_mode = WAL');
+    // Optional: Verify if WAL mode is enabled
+    // $result = $this->db->pdo->query('PRAGMA journal_mode')->fetch(PDO::FETCH_ASSOC);
+    // echo 'Journal Mode: ' . $result['journal_mode'] . PHP_EOL;
+
+    // Enable auto-vacuum mode
+    $this->db->pdo->exec('PRAGMA auto_vacuum = FULL');
+    // Execute the VACUUM command to reclaim unused space
+    $this->db->pdo->exec('VACUUM');
   }
 
   /**
@@ -299,8 +309,8 @@ class ProxyDB
   public function countWorkingProxies(): int
   {
     return $this->db->count('proxies', "(status = ?) AND (private = ? OR private IS NULL OR private = '')", [
-        'active',
-        'false'
+      'active',
+      'false'
     ]);
   }
 
