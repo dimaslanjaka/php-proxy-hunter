@@ -150,11 +150,11 @@ function isValidProxy(?string $proxy, bool $validate_credential = false): bool
 
   // Validate port number
   $is_port_valid = strlen($port) >= 2 && filter_var($port, FILTER_VALIDATE_INT, [
-          "options" => [
-              "min_range" => 1,
-              "max_range" => 65535
-          ]
-      ]);
+    "options" => [
+      "min_range" => 1,
+      "max_range" => 65535
+    ]
+  ]);
 
   // Check if proxy is valid
   $proxyLength = strlen($proxy);
@@ -243,17 +243,22 @@ function mergeHeaders(array $defaultHeaders, array $additionalHeaders): array
  * @return CurlHandle|false|resource Returns a cURL handle on success, false on failure.
  * @noinspection PhpReturnDocTypeMismatchInspection
  */
-function buildCurl(?string $proxy = null, ?string $type = 'http', string $endpoint = 'https://bing.com',
-                   array   $headers = [], ?string $username = null, ?string $password = null)
-{
+function buildCurl(
+  ?string $proxy = null,
+  ?string $type = 'http',
+  string $endpoint = 'https://bing.com',
+  array   $headers = [],
+  ?string $username = null,
+  ?string $password = null
+) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint); // URL to test connectivity
 
   $default_headers = [
-      'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-      'Accept-Language: en-US,en;q=0.5',
-      'Referer: https://www.google.com/',
-      'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+    'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Accept-Language: en-US,en;q=0.5',
+    'Referer: https://www.google.com/',
+    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
   ];
 
   $headers = mergeHeaders($default_headers, $headers);
@@ -410,19 +415,19 @@ function parse_anonymity(string $response_ip_info, string $response_judges): str
   if (strpos($mergedResponse, $deviceIp) !== false) {
     return 'Transparent';
   }
-//  if (strpos($response_judges, $response_ip_info) !== false) {
-//    return 'Transparent';
-//  }
+  //  if (strpos($response_judges, $response_ip_info) !== false) {
+  //    return 'Transparent';
+  //  }
 
   $privacy_headers = [
-      'VIA',
-      'X-FORWARDED-FOR',
-      'X-FORWARDED',
-      'FORWARDED-FOR',
-      'FORWARDED-FOR-IP',
-      'FORWARDED',
-      'CLIENT-IP',
-      'PROXY-CONNECTION'
+    'VIA',
+    'X-FORWARDED-FOR',
+    'X-FORWARDED',
+    'FORWARDED-FOR',
+    'FORWARDED-FOR-IP',
+    'FORWARDED',
+    'CLIENT-IP',
+    'PROXY-CONNECTION'
   ];
 
   foreach ($privacy_headers as $header) {
@@ -446,17 +451,17 @@ function parse_anonymity(string $response_ip_info, string $response_judges): str
 function get_anonymity(string $proxy, string $type, ?string $username = null, ?string $password = null): string
 {
   $proxy_judges = [
-      'https://wfuchs.de/azenv.php',
-      'http://mojeip.net.pl/asdfa/azenv.php',
-      'http://httpheader.net/azenv.php',
-      'http://pascal.hoez.free.fr/azenv.php',
-      'https://www.cooleasy.com/azenv.php',
-      'https://httpbin.org/headers'
+    'https://wfuchs.de/azenv.php',
+    'http://mojeip.net.pl/asdfa/azenv.php',
+    'http://httpheader.net/azenv.php',
+    'http://pascal.hoez.free.fr/azenv.php',
+    'https://www.cooleasy.com/azenv.php',
+    'https://httpbin.org/headers'
   ];
   $ip_infos = [
-      'https://api.ipify.org/',
-      'https://httpbin.org/ip',
-      'https://cloudflare.com/cdn-cgi/trace'
+    'https://api.ipify.org/',
+    'https://httpbin.org/ip',
+    'https://cloudflare.com/cdn-cgi/trace'
   ];
   $content_judges = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
     $ch = buildCurl($proxy, $type, $url, [], $username, $password);
@@ -497,14 +502,13 @@ function get_anonymity(string $proxy, string $type, ?string $username = null, ?s
  *               - 'private': Boolean indicating if the proxy is private.
  */
 function checkProxy(
-    string  $proxy,
-    string  $type = 'http',
-    string  $endpoint = 'https://bing.com',
-    array   $headers = [],
-    ?string $username = null,
-    ?string $password = null
-): array
-{
+  string  $proxy,
+  string  $type = 'http',
+  string  $endpoint = 'https://bing.com',
+  array   $headers = [],
+  ?string $username = null,
+  ?string $password = null
+): array {
   $proxy = trim($proxy);
   $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password);
   $start = microtime(true); // Start time
@@ -514,7 +518,7 @@ function checkProxy(
   $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
   $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
   $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 ||
-      $http_status == 301 || $http_status == 302 || $http_status == 304;
+    $http_status == 301 || $http_status == 302 || $http_status == 304;
   $response_header = substr($response, 0, $header_size);
   $info = curl_getinfo($ch);
   $latency = -1;
@@ -541,13 +545,13 @@ function checkProxy(
       $error_msg = "Need credentials";
     }
     $result = [
-        'result' => false,
-        'latency' => $latency,
-        'error' => $error_msg,
-        'status' => $info['http_code'],
-        'private' => $isPrivate,
-        'https' => $isHttps,
-        'anonymity' => null
+      'result' => false,
+      'latency' => $latency,
+      'error' => $error_msg,
+      'status' => $info['http_code'],
+      'private' => $isPrivate,
+      'https' => $isHttps,
+      'anonymity' => null
     ];
   }
 
@@ -559,13 +563,13 @@ function checkProxy(
   // result is empty = no error
   if (empty($result)) {
     $result = [
-        'result' => true,
-        'latency' => $latency,
-        'error' => null,
-        'status' => $info['http_code'],
-        'private' => $isPrivate,
-        'https' => $isHttps,
-        'anonymity' => null
+      'result' => true,
+      'latency' => $latency,
+      'error' => null,
+      'status' => $info['http_code'],
+      'private' => $isPrivate,
+      'https' => $isHttps,
+      'anonymity' => null
     ];
     if (!$http_status_valid) {
       $result['result'] = false;
@@ -727,234 +731,234 @@ function country_code_to_locale(string $country_code, string $language_code = ''
   // http://stackoverflow.com/questions/3191664/
   // list-of-all-locales-and-their-short-codes
   $locales = [
-      'af-ZA',
-      'am-ET',
-      'ar-AE',
-      'ar-BH',
-      'ar-DZ',
-      'ar-EG',
-      'ar-IQ',
-      'ar-JO',
-      'ar-KW',
-      'ar-LB',
-      'ar-LY',
-      'ar-MA',
-      'arn-CL',
-      'ar-OM',
-      'ar-QA',
-      'ar-SA',
-      'ar-SY',
-      'ar-TN',
-      'ar-YE',
-      'as-IN',
-      'az-Cyrl-AZ',
-      'az-Latn-AZ',
-      'ba-RU',
-      'be-BY',
-      'bg-BG',
-      'bn-BD',
-      'bn-IN',
-      'bo-CN',
-      'br-FR',
-      'bs-Cyrl-BA',
-      'bs-Latn-BA',
-      'ca-ES',
-      'co-FR',
-      'cs-CZ',
-      'cy-GB',
-      'da-DK',
-      'de-AT',
-      'de-CH',
-      'de-DE',
-      'de-LI',
-      'de-LU',
-      'dsb-DE',
-      'dv-MV',
-      'el-GR',
-      'en-029',
-      'en-AU',
-      'en-BZ',
-      'en-CA',
-      'en-GB',
-      'en-IE',
-      'en-IN',
-      'en-JM',
-      'en-MY',
-      'en-NZ',
-      'en-PH',
-      'en-SG',
-      'en-TT',
-      'en-US',
-      'en-ZA',
-      'en-ZW',
-      'es-AR',
-      'es-BO',
-      'es-CL',
-      'es-CO',
-      'es-CR',
-      'es-DO',
-      'es-EC',
-      'es-ES',
-      'es-GT',
-      'es-HN',
-      'es-MX',
-      'es-NI',
-      'es-PA',
-      'es-PE',
-      'es-PR',
-      'es-PY',
-      'es-SV',
-      'es-US',
-      'es-UY',
-      'es-VE',
-      'et-EE',
-      'eu-ES',
-      'fa-IR',
-      'fi-FI',
-      'fil-PH',
-      'fo-FO',
-      'fr-BE',
-      'fr-CA',
-      'fr-CH',
-      'fr-FR',
-      'fr-LU',
-      'fr-MC',
-      'fy-NL',
-      'ga-IE',
-      'gd-GB',
-      'gl-ES',
-      'gsw-FR',
-      'gu-IN',
-      'ha-Latn-NG',
-      'he-IL',
-      'hi-IN',
-      'hr-BA',
-      'hr-HR',
-      'hsb-DE',
-      'hu-HU',
-      'hy-AM',
-      'id-ID',
-      'ig-NG',
-      'ii-CN',
-      'is-IS',
-      'it-CH',
-      'it-IT',
-      'iu-Cans-CA',
-      'iu-Latn-CA',
-      'ja-JP',
-      'ka-GE',
-      'kk-KZ',
-      'kl-GL',
-      'km-KH',
-      'kn-IN',
-      'kok-IN',
-      'ko-KR',
-      'ky-KG',
-      'lb-LU',
-      'lo-LA',
-      'lt-LT',
-      'lv-LV',
-      'mi-NZ',
-      'mk-MK',
-      'ml-IN',
-      'mn-MN',
-      'mn-Mong-CN',
-      'moh-CA',
-      'mr-IN',
-      'ms-BN',
-      'ms-MY',
-      'mt-MT',
-      'nb-NO',
-      'ne-NP',
-      'nl-BE',
-      'nl-NL',
-      'nn-NO',
-      'nso-ZA',
-      'oc-FR',
-      'or-IN',
-      'pa-IN',
-      'pl-PL',
-      'prs-AF',
-      'ps-AF',
-      'pt-BR',
-      'pt-PT',
-      'qut-GT',
-      'quz-BO',
-      'quz-EC',
-      'quz-PE',
-      'rm-CH',
-      'ro-RO',
-      'ru-RU',
-      'rw-RW',
-      'sah-RU',
-      'sa-IN',
-      'se-FI',
-      'se-NO',
-      'se-SE',
-      'si-LK',
-      'sk-SK',
-      'sl-SI',
-      'sma-NO',
-      'sma-SE',
-      'smj-NO',
-      'smj-SE',
-      'smn-FI',
-      'sms-FI',
-      'sq-AL',
-      'sr-Cyrl-BA',
-      'sr-Cyrl-CS',
-      'sr-Cyrl-ME',
-      'sr-Cyrl-RS',
-      'sr-Latn-BA',
-      'sr-Latn-CS',
-      'sr-Latn-ME',
-      'sr-Latn-RS',
-      'sv-FI',
-      'sv-SE',
-      'sw-KE',
-      'syr-SY',
-      'ta-IN',
-      'te-IN',
-      'tg-Cyrl-TJ',
-      'th-TH',
-      'tk-TM',
-      'tn-ZA',
-      'tr-TR',
-      'tt-RU',
-      'tzm-Latn-DZ',
-      'ug-CN',
-      'uk-UA',
-      'ur-PK',
-      'uz-Cyrl-UZ',
-      'uz-Latn-UZ',
-      'vi-VN',
-      'wo-SN',
-      'xh-ZA',
-      'yo-NG',
-      'zh-CN',
-      'zh-HK',
-      'zh-MO',
-      'zh-SG',
-      'zh-TW',
-      'zu-ZA',
+    'af-ZA',
+    'am-ET',
+    'ar-AE',
+    'ar-BH',
+    'ar-DZ',
+    'ar-EG',
+    'ar-IQ',
+    'ar-JO',
+    'ar-KW',
+    'ar-LB',
+    'ar-LY',
+    'ar-MA',
+    'arn-CL',
+    'ar-OM',
+    'ar-QA',
+    'ar-SA',
+    'ar-SY',
+    'ar-TN',
+    'ar-YE',
+    'as-IN',
+    'az-Cyrl-AZ',
+    'az-Latn-AZ',
+    'ba-RU',
+    'be-BY',
+    'bg-BG',
+    'bn-BD',
+    'bn-IN',
+    'bo-CN',
+    'br-FR',
+    'bs-Cyrl-BA',
+    'bs-Latn-BA',
+    'ca-ES',
+    'co-FR',
+    'cs-CZ',
+    'cy-GB',
+    'da-DK',
+    'de-AT',
+    'de-CH',
+    'de-DE',
+    'de-LI',
+    'de-LU',
+    'dsb-DE',
+    'dv-MV',
+    'el-GR',
+    'en-029',
+    'en-AU',
+    'en-BZ',
+    'en-CA',
+    'en-GB',
+    'en-IE',
+    'en-IN',
+    'en-JM',
+    'en-MY',
+    'en-NZ',
+    'en-PH',
+    'en-SG',
+    'en-TT',
+    'en-US',
+    'en-ZA',
+    'en-ZW',
+    'es-AR',
+    'es-BO',
+    'es-CL',
+    'es-CO',
+    'es-CR',
+    'es-DO',
+    'es-EC',
+    'es-ES',
+    'es-GT',
+    'es-HN',
+    'es-MX',
+    'es-NI',
+    'es-PA',
+    'es-PE',
+    'es-PR',
+    'es-PY',
+    'es-SV',
+    'es-US',
+    'es-UY',
+    'es-VE',
+    'et-EE',
+    'eu-ES',
+    'fa-IR',
+    'fi-FI',
+    'fil-PH',
+    'fo-FO',
+    'fr-BE',
+    'fr-CA',
+    'fr-CH',
+    'fr-FR',
+    'fr-LU',
+    'fr-MC',
+    'fy-NL',
+    'ga-IE',
+    'gd-GB',
+    'gl-ES',
+    'gsw-FR',
+    'gu-IN',
+    'ha-Latn-NG',
+    'he-IL',
+    'hi-IN',
+    'hr-BA',
+    'hr-HR',
+    'hsb-DE',
+    'hu-HU',
+    'hy-AM',
+    'id-ID',
+    'ig-NG',
+    'ii-CN',
+    'is-IS',
+    'it-CH',
+    'it-IT',
+    'iu-Cans-CA',
+    'iu-Latn-CA',
+    'ja-JP',
+    'ka-GE',
+    'kk-KZ',
+    'kl-GL',
+    'km-KH',
+    'kn-IN',
+    'kok-IN',
+    'ko-KR',
+    'ky-KG',
+    'lb-LU',
+    'lo-LA',
+    'lt-LT',
+    'lv-LV',
+    'mi-NZ',
+    'mk-MK',
+    'ml-IN',
+    'mn-MN',
+    'mn-Mong-CN',
+    'moh-CA',
+    'mr-IN',
+    'ms-BN',
+    'ms-MY',
+    'mt-MT',
+    'nb-NO',
+    'ne-NP',
+    'nl-BE',
+    'nl-NL',
+    'nn-NO',
+    'nso-ZA',
+    'oc-FR',
+    'or-IN',
+    'pa-IN',
+    'pl-PL',
+    'prs-AF',
+    'ps-AF',
+    'pt-BR',
+    'pt-PT',
+    'qut-GT',
+    'quz-BO',
+    'quz-EC',
+    'quz-PE',
+    'rm-CH',
+    'ro-RO',
+    'ru-RU',
+    'rw-RW',
+    'sah-RU',
+    'sa-IN',
+    'se-FI',
+    'se-NO',
+    'se-SE',
+    'si-LK',
+    'sk-SK',
+    'sl-SI',
+    'sma-NO',
+    'sma-SE',
+    'smj-NO',
+    'smj-SE',
+    'smn-FI',
+    'sms-FI',
+    'sq-AL',
+    'sr-Cyrl-BA',
+    'sr-Cyrl-CS',
+    'sr-Cyrl-ME',
+    'sr-Cyrl-RS',
+    'sr-Latn-BA',
+    'sr-Latn-CS',
+    'sr-Latn-ME',
+    'sr-Latn-RS',
+    'sv-FI',
+    'sv-SE',
+    'sw-KE',
+    'syr-SY',
+    'ta-IN',
+    'te-IN',
+    'tg-Cyrl-TJ',
+    'th-TH',
+    'tk-TM',
+    'tn-ZA',
+    'tr-TR',
+    'tt-RU',
+    'tzm-Latn-DZ',
+    'ug-CN',
+    'uk-UA',
+    'ur-PK',
+    'uz-Cyrl-UZ',
+    'uz-Latn-UZ',
+    'vi-VN',
+    'wo-SN',
+    'xh-ZA',
+    'yo-NG',
+    'zh-CN',
+    'zh-HK',
+    'zh-MO',
+    'zh-SG',
+    'zh-TW',
+    'zu-ZA',
   ];
 
   foreach ($locales as $locale) {
     $locale_region = locale_get_region($locale);
     $locale_language = locale_get_primary_language($locale);
     $locale_array = [
-        'language' => $locale_language,
-        'region' => $locale_region
+      'language' => $locale_language,
+      'region' => $locale_region
     ];
 
     if (
-        strtoupper($country_code) == $locale_region &&
-        $language_code == ''
+      strtoupper($country_code) == $locale_region &&
+      $language_code == ''
     ) {
       return locale_compose($locale_array);
     } elseif (
-        strtoupper($country_code) == $locale_region &&
-        strtolower($language_code) == $locale_language
+      strtoupper($country_code) == $locale_region &&
+      strtolower($language_code) == $locale_language
     ) {
       return locale_compose($locale_array);
     }
@@ -1092,11 +1096,11 @@ function parse_working_proxies(ProxyDB $db): array
   }, $array_mapper));
 
   $count = [
-      'working' => $db->countWorkingProxies(),
-      'dead' => $db->countDeadProxies(),
-      'untested' => $db->countUntestedProxies(),
-      'private' => $db->countPrivateProxies(),
-      'all' => $db->countAllProxies()
+    'working' => $db->countWorkingProxies(),
+    'dead' => $db->countDeadProxies(),
+    'untested' => $db->countUntestedProxies(),
+    'private' => $db->countPrivateProxies(),
+    'all' => $db->countAllProxies()
   ];
 
   return ['txt' => $workingTxt, 'array' => $array_mapper, 'counter' => $count];
