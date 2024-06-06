@@ -39,7 +39,7 @@
     "**/.DS_Store/**",
     "**/node_modules/**",
     "**/bower_components/**",
-    "**/vendor/**/{Tests,tests,test}/**",
+    "**/vendor/**/{Tests,tests}/**",
     "**/.history/**",
     "**/vendor/**/vendor/**",
     "**/tmp/**",
@@ -47,8 +47,7 @@
     "**/.yarn/**",
     "/config/**/*",
     "**/.venv/**",
-    "**/venv/**",
-    "**/packages/**"
+    "**/venv/**"
   ],
   "eslint.debug": true,
   "python.createEnvironment.contentButton": "show",
@@ -67,5 +66,21 @@
     "**/config/**": true,
     "**/databases/**": true,
     "**/node_modules/**": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/dist": true,
+    "**/tmp": true,
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/.venv": true,
+    "**/venv": true,
+    "**/config": true,
+    "**/.yarn": true
   }
 }
