@@ -68,8 +68,9 @@ if ($isCli) {
   if (empty($id)) {
     $id = Server::useragent();
   }
+  $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
   $webLockFile = __DIR__ . '/tmp/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
-  if (file_exists($webLockFile) && !is_debug()) {
+  if (file_exists($webLockFile) && !is_debug() && !$isAdmin) {
     exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
   } else {
     write_file($webLockFile, date(DATE_RFC3339));
@@ -109,7 +110,6 @@ if ($isCli) {
   $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
   $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
   $cmd .= " --proxy=" . escapeshellarg($str);
-  $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
   $cmd .= " --max=" . escapeshellarg("30");
   $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
 
