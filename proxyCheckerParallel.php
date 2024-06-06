@@ -226,7 +226,9 @@ function checkProxyInParallel(array $proxies)
   $counter = 0;
   $startTime = microtime(true);
   foreach ($combinedIterable as $index => $item) {
-    if (empty($item[0]->proxy)) continue;
+    if (empty($item[0]->proxy)) {
+      continue;
+    }
     if (!$isCli) {
       // Check if execution time has exceeded the maximum allowed time
       $elapsedTime = microtime(true) - $startTime;
