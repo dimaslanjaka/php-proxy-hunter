@@ -86,7 +86,7 @@ if ($isCli) {
       // post data with body key/name proxy
       $parse = parsePostData();
       if ($parse) {
-        $str = json_encode($parse);
+        $str = rawurldecode(json_encode($parse));
       }
     } else {
       // proxyCheckerParallel.php?proxy=ANY_STRING_CONTAINS_PROXY
