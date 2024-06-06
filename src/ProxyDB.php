@@ -30,17 +30,78 @@ class ProxyDB
       $dbLocation = __DIR__ . '/database.sqlite';
     }
     $this->db = new SQLiteHelper($dbLocation);
-    $this->db->pdo->exec(file_get_contents(__DIR__ . '/../assets/database/create.sql'));
-    // Enable Write-Ahead Logging mode
-    $this->db->pdo->exec('PRAGMA journal_mode = WAL');
-    // Optional: Verify if WAL mode is enabled
-    // $result = $this->db->pdo->query('PRAGMA journal_mode')->fetch(PDO::FETCH_ASSOC);
-    // echo 'Journal Mode: ' . $result['journal_mode'] . PHP_EOL;
 
-    // Enable auto-vacuum mode
-    $this->db->pdo->exec('PRAGMA auto_vacuum = FULL');
-    // Execute the VACUUM command to reclaim unused space
-    $this->db->pdo->exec('VACUUM');
+    // Create meta table if it does not exist
+    $this->db->pdo->exec("
+    CREATE TABLE IF NOT EXISTS meta (
+        key TEXT PRIMARY KEY,
+        value TEXT
+    );
+  ");
+
+    // Check if WAL mode has been enabled
+    $walEnabled = $this->getMetaValue('wal_enabled');
+    if (!$walEnabled) {
+      // Enable Write-Ahead Logging mode
+      $this->db->pdo->exec('PRAGMA journal_mode = WAL');
+      $this->setMetaValue('wal_enabled', '1');
+    }
+
+    // Check if auto-vacuum mode has been enabled
+    $autoVacuumEnabled = $this->getMetaValue('auto_vacuum_enabled');
+    if (!$autoVacuumEnabled) {
+      // Enable auto-vacuum mode
+      $this->db->pdo->exec('PRAGMA auto_vacuum = FULL');
+      $this->setMetaValue('auto_vacuum_enabled', '1');
+    }
+
+    // Check if VACUUM needs to be run
+    $this->runDailyVacuum();
+
+    // Initialize the database schema
+    $this->db->pdo->exec(file_get_contents(__DIR__ . '/../assets/database/create.sql'));
+  }
+
+  /**
+   * Get a meta value from the meta table.
+   *
+   * @param string $key
+   * @return string|null
+   */
+  private function getMetaValue(string $key): ?string
+  {
+    $stmt = $this->db->pdo->prepare('SELECT value FROM meta WHERE key = :key');
+    $stmt->execute(['key' => $key]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['value'] : null;
+  }
+
+  /**
+   * Set a meta value in the meta table.
+   *
+   * @param string $key
+   * @param string $value
+   */
+  private function setMetaValue(string $key, string $value): void
+  {
+    $stmt = $this->db->pdo->prepare('REPLACE INTO meta (key, value) VALUES (:key, :value)');
+    $stmt->execute(['key' => $key, 'value' => $value]);
+  }
+
+  /**
+   * Run VACUUM if it has not been run in the last 24 hours.
+   */
+  private function runDailyVacuum(): void
+  {
+    $lastVacuumTime = $this->getMetaValue('last_vacuum_time');
+    $currentTime = time();
+    $oneDayInSeconds = 86400;
+
+    if (!$lastVacuumTime || ($currentTime - (int)$lastVacuumTime > $oneDayInSeconds)) {
+      // Execute the VACUUM command to reclaim unused space
+      $this->db->pdo->exec('VACUUM');
+      $this->setMetaValue('last_vacuum_time', (string)$currentTime);
+    }
   }
 
   /**
