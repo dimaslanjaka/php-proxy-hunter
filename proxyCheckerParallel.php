@@ -111,7 +111,7 @@ if ($isCli) {
   $cmd .= " --proxy=" . escapeshellarg($str);
   $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
   $cmd .= " --max=" . escapeshellarg("30");
-  $cmd .= " --admin=" . $isAdmin ? 'true' : 'false';
+  $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
 
   echo $cmd . "\n\n";
 
