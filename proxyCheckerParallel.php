@@ -21,20 +21,24 @@ if ($isCli) {
     "max::",
     "userId::",
     "lockFile::",
-    "runner::"
+    "runner::",
+    "admin::"
   ];
   $options = getopt($short_opts, $long_opts);
   // append_content_with_lock($output_log, "\$argv => " . json_encode($argv, JSON_PRETTY_PRINT) . PHP_EOL);
   // append_content_with_lock($output_log, "parsed \$argv => " . json_encode($options, JSON_PRETTY_PRINT) . PHP_EOL);
 
-  if (!empty($options['lockFile'])) {
-    if (file_exists($options['lockFile']) && !is_debug()) {
-      exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
+  if (empty($options['admin']) || $options['admin'] === 'false') {
+    // only apply lock file for non-admin command
+    if (!empty($options['lockFile'])) {
+      if (file_exists($options['lockFile']) && !is_debug()) {
+        exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
+      }
+      write_file($options['lockFile'], '');
+      Scheduler::register(function () use ($options) {
+        delete_path($options['lockFile']);
+      }, 'release-cli-lock');
     }
-    write_file($options['lockFile'], '');
-    Scheduler::register(function () use ($options) {
-      delete_path($options['lockFile']);
-    }, 'release-cli-lock');
   }
 
   if (!empty($options['runner'])) {
@@ -105,7 +109,9 @@ if ($isCli) {
   $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
   $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
   $cmd .= " --proxy=" . escapeshellarg($str);
+  $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
   $cmd .= " --max=" . escapeshellarg("30");
+  $cmd .= " --admin=" . $isAdmin ? 'true' : 'false';
 
   echo $cmd . "\n\n";
 
