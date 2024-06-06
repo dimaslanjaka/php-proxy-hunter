@@ -45,6 +45,12 @@
         "."
       ],
       "outputCapture": "std"
-    }
+    },
+    {
+      "command": "composer exec php-cs-fixer fix",
+      "name": "php-cs-fixer",
+      "request": "launch",
+      "type": "node-terminal"
+    },
   ]
 }
