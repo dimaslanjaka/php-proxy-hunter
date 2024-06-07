@@ -57,7 +57,6 @@
     "**/node_modules/**",
     "**/tmp",
     "**/tmp/**",
-    "**/vendor",
     "**/venv"
   ],
   "eslint.debug": true,
