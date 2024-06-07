@@ -1002,7 +1002,8 @@ function filterIpPortLines(string $inputFile): string
   $results = [];
   foreach ($split as $line) {
     //    if (count($str_to_remove) > 5000) break;
-    if (empty(trim($line)) || strlen(trim($line)) < 10) {
+    if (!$line || empty(trim($line))) continue;
+    if (strlen(trim($line)) < 10) {
       $str_to_remove[] = trim($line);
       continue;
     }
