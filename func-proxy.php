@@ -970,15 +970,8 @@ function country_code_to_locale(string $country_code, string $language_code = ''
 /**
  * Remove lines from a file that do not contain IP:PORT format.
  *
- * ```
- * try {
- *  filterIpPortLines(__DIR__ . "/proxies.txt");
- * } catch (InvalidArgumentException $e) {
- *  echo "Lines not containing IP:PORT format remove failed. " . $e->getMessage() . PHP_EOL;
- * }
- * ```
- *
  * @param string $inputFile The path to the file.
+ * @return string 'success' on successful filtering, or an error message on failure.
  */
 function filterIpPortLines(string $inputFile): string
 {
@@ -992,34 +985,34 @@ function filterIpPortLines(string $inputFile): string
     return "$inputFile locked";
   }
 
-  $str_to_remove = [];
+  // Read content from file
   $content = read_file($inputFile);
-  $is_content = is_string($content) && !empty(trim($content));
-  if (!$content || !$is_content) {
+  if (!is_string($content) || empty(trim($content))) {
     return "$inputFile could not be read or has empty content";
   }
-  $split = array_filter(split_by_line($content));
-  $results = [];
-  foreach ($split as $line) {
-    //    if (count($str_to_remove) > 5000) break;
-    if (!$line || empty(trim($line))) continue;
-    if (strlen(trim($line)) < 10) {
-      $str_to_remove[] = trim($line);
-      continue;
-    }
-    $re = '/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}/';
-    $containsProxy = preg_match($re, $line);
-    if (!$containsProxy) {
-      $str_to_remove[] = trim($line);
-      echo trim($line) . " no proxy" . PHP_EOL;
-      continue;
-    }
-    $results[] = trim($line);
+
+  // Regex pattern for IP:PORT format
+  $re = '/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}\b/';
+
+  // Split content into lines
+  $lines = split_by_line($content);
+  if (!$lines) {
+    return "Failed to split content into lines";
   }
-  // remove empty lines
-  //  $clean_result = preg_replace("/\n+/", "\n", implode("\n", $results));
-  $clean_result = implode("\n", $results);
-  file_put_contents($inputFile, $clean_result);
+
+  // Filter lines based on regex pattern
+  $filteredLines = [];
+  foreach ($lines as $line) {
+    if (preg_match($re, $line)) {
+      $filteredLines[] = $line;
+    }
+  }
+
+  // Write filtered lines back to the file
+  if (file_put_contents($inputFile, implode("\n", $filteredLines)) === false) {
+    return "Failed to write filtered content to $inputFile";
+  }
+
   return 'success';
 }
 
