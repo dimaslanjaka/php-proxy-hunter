@@ -1,6 +1,5 @@
 {
   "recommendations": [
-    "bmewburn.vscode-intelephense-client",
     "dbaeumer.vscode-eslint",
     "formulahendry.code-runner",
     "esbenp.prettier-vscode",
@@ -8,6 +7,7 @@
     "mrmlnc.vscode-apache",
     "formulahendry.auto-rename-tag",
     "natizyskunk.sftp",
-    "ms-python.autopep8"
+    "ms-python.autopep8",
+    "foxundermoon.shell-format"
   ]
 }
