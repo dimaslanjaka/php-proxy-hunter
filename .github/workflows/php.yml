@@ -99,6 +99,8 @@ jobs:
         mkdir -p tmp
         mkdir -p tmp/runners
         mkdir -p tmp/cookies
+        echo "dump proxies.txt"
+        cat proxies.txt
         if [ -f "proxies.txt" ]; then
           cat proxies.txt
         else
