@@ -75,19 +75,20 @@ jobs:
           four_hours=$((4 * 60 * 60))  # 4 hours in seconds
 
           if [ $elapsed_time -ge $four_hours ]; then
-            echo "::set-output name=run_fetcher::true"
+            echo "run_fetcher=true" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=run_fetcher::false"
+            echo "run_fetcher=false" >> $GITHUB_OUTPUT
           fi
         else
-          echo "::set-output name=run_fetcher::true"  # Run if file doesn't exist
+          echo "run_fetcher=true" >> $GITHUB_OUTPUT  # Run if file doesn't exist
         fi
 
     - name: Fetch proxies if needed
-      if: steps.check_last_run.outputs.run_fetcher == 'true'
+      if: env.GITHUB_OUTPUT == 'run_fetcher=true'
       run: |
         php proxyFetcher.php --admin='true'
         date +%s > tmp/last_run_timestamp.txt  # Update last run timestamp
+        echo "last_run_timestamp=$(date +%s)" >> $GITHUB_STATE
 
     - name: check proxies
       run: php proxyChecker.php --max='500' --admin='true'
