@@ -101,6 +101,9 @@ jobs:
         mkdir -p tmp/cookies
         if [ -f "proxies.txt" ]; then
           cat proxies.txt
+        else
+          php proxyFetcher.php --admin='true'
+          php proxyChecker.php --max='500' --admin='true'
         fi
         php proxyChecker.php --max='500' --admin='true'
 
