@@ -99,6 +99,9 @@ jobs:
         mkdir -p tmp
         mkdir -p tmp/runners
         mkdir -p tmp/cookies
+        if [ -f "proxies.txt" ]; then
+          cat proxies.txt
+        fi
         php proxyChecker.php --max='500' --admin='true'
 
     - name: Print working proxies
