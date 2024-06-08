@@ -94,7 +94,12 @@ jobs:
         echo "last_run_timestamp=$(date +%s)" >> $GITHUB_STATE
 
     - name: check proxies
-      run: php proxyChecker.php --max='500' --admin='true'
+      run: |
+        mkdir -p assets/proxies
+        mkdir -p tmp
+        mkdir -p tmp/runners
+        mkdir -p tmp/cookies
+        php proxyChecker.php --max='500' --admin='true'
 
     - name: print working proxies
       run: |
