@@ -162,14 +162,35 @@ $untested = [];
  * @var string[]
  */
 $str_to_remove = [];
+$isAdmin = false;
+
+if ($isCli) {
+  $short_opts = "p:m::";
+  $long_opts = [
+    "proxy:",
+    "max::",
+    "userId::",
+    "lockFile::",
+    "runner::",
+    "admin::"
+  ];
+  $options = getopt($short_opts, $long_opts);
+  if (!empty($options['max'])) {
+    $max = intval($options['max']);
+    if ($max > 0) $max_checks = $max;
+  }
+  if (!empty($options['admin']) || $options['admin'] !== 'false') {
+    $isAdmin = true;
+  }
+}
 
 try {
-  $db_untested = $db->getUntestedProxies(50);
-  $db_working = $db->getWorkingProxies(50);
+  $db_untested = $db->getUntestedProxies($max_checks);
+  $db_working = $db->getWorkingProxies($max_checks);
   // include dead proxies when current date (minute unit) can be divided by 3
-  // or if untested proxies less than 100 items
-  $include_dead_proxies = date('i') % 3 == 0 || count($db_untested) < 100 || empty($db_untested);
-  $db_dead = $include_dead_proxies ? $db->getDeadProxies(50) : [];
+  // or if untested proxies less than $max_checks items
+  $include_dead_proxies = date('i') % 3 == 0 || count($db_untested) < $max_checks || empty($db_untested);
+  $db_dead = $include_dead_proxies ? $db->getDeadProxies($max_checks) : [];
   $db_data = array_merge($db_untested, $db_working, $db_dead);
   $db_data_map = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
@@ -211,7 +232,8 @@ execute_array_proxies();
 
 function execute_array_proxies()
 {
-  global $untested, $max_checks, $str_to_remove;
+  global $untested, $max_checks;
+  // filter proxies and skip dead proxies when current minute can be divided by 3
   $proxies = filter_proxies($untested, date('i') % 3 == 0);
   // skip empty array
   if (empty($proxies)) {
@@ -224,6 +246,7 @@ function execute_array_proxies()
 }
 
 /**
+ * filter empty proxy, last checked only yesterday or empty
  * @param Proxy[] $proxies
  * @param bool $skip_dead_proxies
  * @return Proxy[]
@@ -267,10 +290,10 @@ function filter_proxies(array $proxies, bool $skip_dead_proxies = false)
 
 function execute_single_proxy(Proxy $item)
 {
-  global $db, $headers, $endpoint, $startTime, $maxExecutionTime, $str_to_remove;
+  global $db, $headers, $endpoint, $startTime, $maxExecutionTime, $str_to_remove, $isAdmin;
   // Check if execution time has exceeded the maximum allowed time
   $elapsedTime = microtime(true) - $startTime;
-  if ($elapsedTime > $maxExecutionTime) {
+  if ($elapsedTime > $maxExecutionTime && !$isAdmin) {
     // Execution time exceeded
     echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
     exit(0);
