@@ -67,6 +67,28 @@ awk '
 ' "$SCRIPT_DIR/cacert.pem" > "$SCRIPT_DIR/cacert_clean.pem" && \
 mv "$SCRIPT_DIR/cacert_clean.pem" "$SCRIPT_DIR/cacert.pem"
 
+# remove duplicate certificates
+
+awk '
+/-----BEGIN CERTIFICATE-----/ {
+    cert = "";
+    in_cert = 1;
+}
+in_cert {
+    cert = cert $0 "\n";
+    if (/-----END CERTIFICATE-----/) {
+        if (!seen[cert]) {
+            print cert;
+            seen[cert] = 1;
+        }
+        in_cert = 0;
+    }
+    next;
+}
+!in_cert
+' < "$SCRIPT_DIR/cacert.pem" > "$SCRIPT_DIR/cacert_clean.pem" && \
+mv "$SCRIPT_DIR/cacert_clean.pem" "$SCRIPT_DIR/cacert.pem"
+
 # validate merged certificate
 
 openssl x509 -in "$SCRIPT_DIR/cacert.pem" -text -noout
