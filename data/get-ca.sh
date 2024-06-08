@@ -31,6 +31,11 @@ create "graph.facebook.com"
 create "graph.beta.facebook.com"
 create "developers.facebook.com"
 create "facebook.com"
+create "bing.com"
+create "webmanajemen.com"
+create "dash.cloudflare.com"
+create "www.cloudflare.com"
+create "cloudflare.com"
 
 # Concatenate all *.pem files except cacert.pem into cacert.pem
 find "$SCRIPT_DIR" -maxdepth 1 -name '*.pem' ! -name 'cacert.pem' -exec cat {} + > "$SCRIPT_DIR/cacert.pem"
