@@ -44,7 +44,7 @@ jobs:
         path: |
           vendor/
           tmp/
-          config
+          config/
           .cache/
           assets/proxies/
           proxies.txt
