@@ -113,7 +113,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
   $countsString = implode("\n", array_map(function ($key, $value) {
     return "$key proxies $value";
   }, array_keys($data['counter']), $data['counter']));
-  echo $countsString;
+  echo $countsString . PHP_EOL;
   echo "releasing lock" . PHP_EOL;
   // clean lock files
   if (file_exists($lockFilePath)) {
