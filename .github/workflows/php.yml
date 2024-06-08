@@ -101,15 +101,23 @@ jobs:
         mkdir -p tmp/cookies
         php proxyChecker.php --max='500' --admin='true'
 
-    - name: print working proxies
+    - name: Print working proxies
       run: |
         # Read the JSON file content
         json_content=$(cat working.json)
-        escaped_content=$(printf '%q' "$json_content")
 
-        # Send the JSON content to the specified URL
-        curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}" > /dev/null 2>&1
-        echo $json_content
+        # Check if json_content is not empty, null, [], or {}
+        if [ -n "$json_content" ] && [ "$json_content" != "null" ] && [ "$json_content" != "[]" ] && [ "$json_content" != "{}" ]; then
+          # Escape the JSON content
+          escaped_content=$(printf '%q' "$json_content")
+
+          # Send the JSON content to the specified URL
+          curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}" > /dev/null 2>&1
+          echo "$json_content"
+        else
+          echo "working.json is empty or does not contain valid JSON data."
+        fi
+
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
