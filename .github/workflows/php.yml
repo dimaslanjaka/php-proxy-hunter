@@ -54,8 +54,11 @@ jobs:
           working.json
           src/database.sqlite
           composer.lock
+          yarn.lock
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
         restore-keys: |
+          ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
+          ${{ runner.os }}-php-${{ hashFiles('**/yarn.lock') }}
           ${{ runner.os }}-php-
 
     - name: Install dependencies
