@@ -63,9 +63,11 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: composer install --prefer-dist --no-progress
 
+    - name: Clean temp files
+      run: php configCleaner.php
+
     - name: Fetch proxies
-      run: |
-        php proxyFetcher.php --admin='true'
+      run: php proxyFetcher.php --admin='true'
 
     - name: Check proxies
       run: |
