@@ -66,8 +66,17 @@ jobs:
     - name: check proxies
       run: php proxyChecker.php --max='500' --admin='true'
 
+    - run: upload working proxies
+
     - name: print working proxies
-      run: cat working.json
+      run: |
+        # Read the JSON file content
+        json_content=$(cat working.json)
+        escaped_content=$(printf '%q' "$json_content")
+
+        # Send the JSON content to the specified URL
+        curl -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}"
+        echo $json_content
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
