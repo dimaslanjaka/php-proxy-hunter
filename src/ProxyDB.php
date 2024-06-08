@@ -30,6 +30,8 @@ class ProxyDB
       $dbLocation = __DIR__ . '/database.sqlite';
     }
     $this->db = new SQLiteHelper($dbLocation);
+    // Initialize the database schema
+    $this->db->pdo->exec(file_get_contents(__DIR__ . '/../assets/database/create.sql'));
 
     // Create meta table if it does not exist
     $this->db->pdo->exec("
@@ -57,9 +59,6 @@ class ProxyDB
 
     // Check if VACUUM needs to be run
     $this->runDailyVacuum();
-
-    // Initialize the database schema
-    $this->db->pdo->exec(file_get_contents(__DIR__ . '/../assets/database/create.sql'));
   }
 
   /**
