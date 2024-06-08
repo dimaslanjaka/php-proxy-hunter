@@ -32,8 +32,8 @@ create "graph.beta.facebook.com"
 create "developers.facebook.com"
 create "facebook.com"
 
-# Concatenate all *.pem files into cacert.pem
-cat "$SCRIPT_DIR"/*.pem > "$SCRIPT_DIR/cacert.pem"
+# Concatenate all *.pem files except cacert.pem into cacert.pem
+find "$SCRIPT_DIR" -maxdepth 1 -name '*.pem' ! -name 'cacert.pem' -exec cat {} + > "$SCRIPT_DIR/cacert.pem"
 
 # Remove all .pem files except specific ones
 for file in "$SCRIPT_DIR"/*.pem; do
@@ -42,3 +42,7 @@ for file in "$SCRIPT_DIR"/*.pem; do
     rm "$file"
   fi
 done
+
+# validate merged certificate
+
+openssl x509 -in "$SCRIPT_DIR/cacert.pem" -text -noout
