@@ -57,6 +57,9 @@ jobs:
     - name: fetch proxies
       run: php proxyFetcher.php
 
+    - name: check proxies
+      run: php proxyChecker.php --max='500' --admin='true'
+
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
