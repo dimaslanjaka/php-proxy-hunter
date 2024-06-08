@@ -2,19 +2,33 @@ name: Proxy Checker
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches:
+      - master
+    paths-ignore:
+      - '**/*.tgz'
+      - '**/*.gz'
+      - '**/release/**'
+      - '.github/codeql/*'
+      - '**codeql**'
+      - '**clean-caches**'
+      - '**/yarn.lock'
+      - '!**/.git*'
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      ACCESS_TOKEN:
+        required: true
   schedule:
     # https://crontab.guru/#30_5_*_*_*
     - cron: '0 * * * *'
 
-permissions:
-  contents: read-all
+concurrency:
+  group: build
+  # cancel-in-progress: true
 
 jobs:
   build:
-
+    permissions: read-all
     runs-on: ubuntu-latest
 
     steps:
