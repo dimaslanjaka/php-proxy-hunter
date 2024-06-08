@@ -103,7 +103,7 @@ jobs:
         escaped_content=$(printf '%q' "$json_content")
 
         # Send the JSON content to the specified URL
-        curl -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}"
+        curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}"
         echo $json_content
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
