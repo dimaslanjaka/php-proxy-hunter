@@ -47,6 +47,12 @@ jobs:
           config
           .cache
           assets/proxies
+          proxies.txt
+          dead.txt
+          proxyChecker.txt
+          working.txt
+          working.json
+          src/database.sqlite
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
