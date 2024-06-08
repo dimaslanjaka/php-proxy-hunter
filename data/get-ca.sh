@@ -43,6 +43,30 @@ for file in "$SCRIPT_DIR"/*.pem; do
   fi
 done
 
+# Remove invalid certificate blocks from cacert.pem
+awk '
+  BEGIN {
+    cert = ""
+    in_cert = 0
+  }
+  /^-----BEGIN CERTIFICATE-----$/ {
+    in_cert = 1
+    cert = ""
+  }
+  in_cert {
+    cert = cert $0 "\n"
+  }
+  /^-----END CERTIFICATE-----$/ {
+    in_cert = 0
+    if (length(cert) > 0) {
+      if (index(cert, "BEGIN RSA PRIVATE KEY") == 0 && index(cert, "BEGIN DSA PRIVATE KEY") == 0) {
+        print cert
+      }
+    }
+  }
+' "$SCRIPT_DIR/cacert.pem" > "$SCRIPT_DIR/cacert_clean.pem" && \
+mv "$SCRIPT_DIR/cacert_clean.pem" "$SCRIPT_DIR/cacert.pem"
+
 # validate merged certificate
 
 openssl x509 -in "$SCRIPT_DIR/cacert.pem" -text -noout
