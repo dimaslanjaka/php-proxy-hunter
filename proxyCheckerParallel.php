@@ -48,7 +48,8 @@ if ($isCli) {
   }
 
   if (!empty($options['max'])) {
-    $max = intval($options['max']);
+    $max_test = intval($options['max']);
+    if ($maxx > 0) $max = $max_test;
   }
 
   $str = implode("\n", array_values($options));
