@@ -54,7 +54,7 @@ jobs:
           working.json
           src/database.sqlite
           composer.lock
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
         restore-keys: |
           ${{ runner.os }}-php-
 
