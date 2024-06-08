@@ -177,7 +177,9 @@ if ($isCli) {
   $options = getopt($short_opts, $long_opts);
   if (!empty($options['max'])) {
     $max = intval($options['max']);
-    if ($max > 0) $max_checks = $max;
+    if ($max > 0) {
+      $max_checks = $max;
+    }
   }
   if (!empty($options['admin']) || $options['admin'] !== 'false') {
     $isAdmin = true;
