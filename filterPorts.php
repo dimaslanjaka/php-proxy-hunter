@@ -16,8 +16,9 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
-$isAdmin = false;
-$max_checks = 500;
+$isAdmin = false; // admin indicator
+$max_checks = 500; // max proxies to be checked
+$maxExecutionTime = 120; // max 120s execution time
 
 if ($isCli) {
   $short_opts = "p:m::";
@@ -38,8 +39,8 @@ if ($isCli) {
   }
   if (!empty($options['admin']) && $options['admin'] !== 'false') {
     $isAdmin = true;
-    // set time limit 30 minutes for admin
-    $maxExecutionTime = 30 * 60;
+    // set time limit 10 minutes for admin
+    $maxExecutionTime = 10 * 60;
     // disable execution limit
     set_time_limit(0);
   }
@@ -122,10 +123,10 @@ try {
 
 function processProxy($proxy)
 {
-  global $start_time, $file, $db;
+  global $start_time, $file, $db, $maxExecutionTime;
   // Check if execution time exceeds [n] seconds
-  if (microtime(true) - $start_time > 120) {
-    // echo "Execution time exceeded 120 seconds. Exiting loop." . PHP_EOL;
+  if (microtime(true) - $start_time > $maxExecutionTime) {
+    // echo "Execution time exceeded $maxExecutionTime seconds. Exiting loop." . PHP_EOL;
     return;
   }
   if (!isPortOpen($proxy)) {
