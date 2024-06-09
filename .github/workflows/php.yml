@@ -91,6 +91,8 @@ jobs:
             config/
             .cache/
             assets/proxies/
+            node_modules/
+            .yarn/caches/
             proxies.txt
             dead.txt
             proxyChecker.txt
