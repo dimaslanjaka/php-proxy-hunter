@@ -200,6 +200,7 @@ jobs:
             # print working proxies
             echo "$json_content"
             # copy working proxies into public folder
+            mkdir -p public/proxies
             cat working.json > public/proxies/working.json
             echo "success=true" >> $GITHUB_OUTPUT
           else
