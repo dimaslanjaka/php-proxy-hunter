@@ -28,6 +28,8 @@ concurrency:
 
 jobs:
   build:
+    # only apply for repository has substring `proxy` like `php-proxy-hunter`
+    if: contains(github.repository, 'proxy')
     permissions: read-all
     runs-on: ubuntu-latest
 
