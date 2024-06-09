@@ -19,7 +19,7 @@ on:
       ACCESS_TOKEN:
         required: true
   schedule:
-    # https://crontab.guru/#30_5_*_*_*
+    # Run every hour
     - cron: "0 * * * *"
 
 concurrency:
@@ -63,23 +63,17 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist --no-progress
 
-      - name: Clean temp files
-        run: php configCleaner.php
-
-      # - name: Fetch proxies
-      #   run: php proxyFetcher.php --admin='true'
-
       - name: Check last execution timestamp
         id: check_last_run
         run: |
           # Check if tmp directory exists
           mkdir -p tmp
 
-          # Check if last run timestamp file exists
-          if [ -f tmp/last_run_timestamp.txt ]; then
-            last_run=$(cat tmp/last_run_timestamp.txt)
+          # Check if last fetch timestamp file exists
+          if [ -f tmp/last_fetch_timestamp.txt ]; then
+            last_fetch=$(cat tmp/last_fetch_timestamp.txt)
             current_time=$(date +%s)
-            elapsed_time=$((current_time - last_run))
+            elapsed_time=$((current_time - last_fetch))
             four_hours=$((4 * 60 * 60))  # 4 hours in seconds
 
             if [ $elapsed_time -ge $four_hours ]; then
@@ -95,8 +89,8 @@ jobs:
         if: steps.check_last_run.outputs.run_fetcher == 'true'
         run: |
           php proxyFetcher.php --admin='true'
-          date +%s > tmp/last_run_timestamp.txt  # Update last run timestamp
-          echo "last_run_timestamp=$(date +%s)" >> $GITHUB_STATE
+          date +%s > tmp/last_fetch_timestamp.txt  # Update last fetch timestamp
+          echo "last_fetch_timestamp=$(date +%s)" >> $GITHUB_STATE
 
       - name: Check proxies
         run: |
@@ -105,6 +99,35 @@ jobs:
           mkdir -p tmp/runners
           mkdir -p tmp/cookies
           php proxyChecker.php --max='500' --admin='true'
+
+      - name: Clean temp files
+        id: clean_temp_files
+        run: |
+          # Check if tmp directory exists
+          mkdir -p tmp
+
+          # Check if last clean timestamp file exists
+          if [ -f tmp/last_clean_timestamp.txt ]; then
+            last_clean=$(cat tmp/last_clean_timestamp.txt)
+            current_time=$(date +%s)
+            elapsed_time=$((current_time - last_clean))
+            one_week=$((7 * 24 * 60 * 60))  # 1 week in seconds
+
+            if [ $elapsed_time -ge $one_week ]; then
+              echo "clean_temp=true" >> $GITHUB_OUTPUT
+            else
+              echo "clean_temp=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "clean_temp=true" >> $GITHUB_OUTPUT  # Clean if file doesn't exist
+          fi
+
+      - name: Clean temp files if needed
+        if: steps.clean_temp_files.outputs.clean_temp == 'true'
+        run: |
+          php configCleaner.php
+          date +%s > tmp/last_clean_timestamp.txt  # Update last clean timestamp
+          echo "last_clean_timestamp=$(date +%s)" >> $GITHUB_STATE
 
       - name: Print working proxies
         run: |
