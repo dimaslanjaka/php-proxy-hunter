@@ -337,7 +337,8 @@ function checkProxyInParallel(array $proxies)
           'type' => implode('-', $protocols),
           'status' => 'active',
           'private' => $isPrivate ? 'true' : 'false',
-          'latency' => $latency
+          'latency' => $latency,
+          'https' => strpos($endpoint, "https://") === 0 ? 'true' : 'false'
         ];
         $db->updateData($item[0]->proxy, $data);
         foreach (['http', 'socks5', 'socks4'] as $proxy_type) {
