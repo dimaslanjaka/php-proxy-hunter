@@ -49,7 +49,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && npm uninstall -g yarn pnpm \
     && npm install -g corepack \
     && corepack prepare yarn --activate \
-    && apt-get clean
+    && apt-get clean \
+    && corepack enable \
+    && npm i -g yarn --force
 
 # Install Python 3.11
 RUN add-apt-repository -y ppa:deadsnakes/ppa \
