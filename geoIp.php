@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
-$isCli = strtolower(php_sapi_name()) === 'cli';
+$isAdmin = false;
 
 if (function_exists('header')) {
   header('Content-Type: application/json; charset=UTF-8');
@@ -12,6 +12,9 @@ if (function_exists('header')) {
   header("Access-Control-Allow-Headers: *");
   header("Access-Control-Allow-Methods: *");
   header('Content-Type: application/json; charset=utf-8');
+
+  // check admin
+  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === 'true';
 }
 
 $db = new \PhpProxyHunter\ProxyDB(__DIR__ . '/src/database.sqlite');
@@ -34,12 +37,12 @@ if ($isCli) {
   $string_data = rawurldecode(trim($_REQUEST['proxy']));
 }
 
-if (file_exists($lockFilePath) && !is_debug()) {
-  echo "proxy checker process still running\n";
+if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
+  echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
   exit();
 } else {
-  file_put_contents($lockFilePath, date(DATE_RFC3339));
-  file_put_contents($statusFile, "geolocation $string_data");
+  write_file($lockFilePath, date(DATE_RFC3339));
+  write_file($statusFile, "geolocation $string_data");
 }
 
 \PhpProxyHunter\Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
@@ -49,7 +52,7 @@ if (file_exists($lockFilePath) && !is_debug()) {
     unlink($lockFilePath);
   }
   echo "update status to IDLE" . PHP_EOL;
-  file_put_contents($statusFile, 'idle');
+  write_file($statusFile, 'idle');
 }, 'z_onExit' . basename(__FILE__));
 
 if (function_exists('header')) {
@@ -74,9 +77,9 @@ foreach ($extract as $item) {
   if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
     $webgl = random_webgl_data();
     $db->updateData($item->proxy, [
-        'webgl_renderer' => $webgl->webgl_renderer,
-        'webgl_vendor' => $webgl->webgl_vendor,
-        'browser_vendor' => $webgl->browser_vendor
+      'webgl_renderer' => $webgl->webgl_renderer,
+      'webgl_vendor' => $webgl->webgl_vendor,
+      'browser_vendor' => $webgl->browser_vendor
     ]);
     echo $item->proxy . " missing WebGL fix" . PHP_EOL;
   }
