@@ -2,7 +2,7 @@
 
 require_once __DIR__ . "/func-proxy.php";
 
-$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+$isAdmin = false;
 
 if (!$isCli) {
   // Allow from any origin
@@ -17,6 +17,8 @@ if (!$isCli) {
   if (!isset($_COOKIE['_ga'])) {
     exit('Access Denied');
   }
+  // check admin
+  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === 'true';
 }
 
 // Run a long-running process in the background
@@ -32,6 +34,8 @@ if ($isWin) {
 
 $uid = getUserId();
 $cmd .= " --userId=" . escapeshellarg($uid);
+$cmd .= " --max=" . escapeshellarg("30");
+$cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
 
 // validate lock files
 if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug()) {
