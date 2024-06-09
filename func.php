@@ -344,6 +344,7 @@ function curlGetWithProxy(string $url, string $proxy = null, ?string $proxyType 
 
   // Initialize cURL session
   $ch = buildCurl($proxy, $proxyType, $url);
+  if ($ch) curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
   // Execute the request
   $response = curl_exec($ch);
@@ -354,7 +355,7 @@ function curlGetWithProxy(string $url, string $proxy = null, ?string $proxyType 
   } else {
     // Save response to cache file
     if ($cacheTime > 0) {
-      file_put_contents($cacheFile, $response);
+      write_file($cacheFile, $response);
     }
   }
 
