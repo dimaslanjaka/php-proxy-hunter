@@ -122,7 +122,7 @@ if ($isCli) {
   if (!empty($options['admin']) && $options['admin'] !== 'false') {
     $isAdmin = true;
     // set time limit 30 minutes for admin
-    $maxExecutionTime = 30 * 60 * 1000;
+    $maxExecutionTime = 30 * 60;
   }
 }
 
