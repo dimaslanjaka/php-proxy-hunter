@@ -155,7 +155,7 @@ jobs:
           mkdir -p tmp
           mkdir -p tmp/runners
           mkdir -p tmp/cookies
-          php proxyChecker.php --max='${{ github.event.inputs.max }}' --admin='true'
+          php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
 
       - name: Check last run clean temp files
         id: clean_temp_files
