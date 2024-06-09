@@ -45,8 +45,8 @@ jobs:
         env:
           fail-fast: true
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate --strict
+      - name: Validate composer
+        run: php composer.phar validate --strict
 
       - name: Cache Composer packages
         id: cache
@@ -72,7 +72,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: composer install --prefer-dist --no-progress
+        run: php composer.phar install --prefer-dist --no-progress
 
       - name: Check last execution timestamp
         id: check_last_run
