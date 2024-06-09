@@ -332,7 +332,7 @@ function execute_single_proxy(Proxy $item)
         if ($check['result']) {
           $proxy_types[] = $type;
         } else {
-          echo "$type://{$item->proxy} error: {$check['error']}" . PHP_EOL;
+          // echo "$type://{$item->proxy} error: {$check['error']}" . PHP_EOL;
           $errors[] = "$type {$check['error']}";
         }
         if ($check['anonymity']) {
