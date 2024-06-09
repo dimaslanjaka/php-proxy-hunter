@@ -72,7 +72,14 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: php composer.phar install --prefer-dist --no-progress
+        run: |
+          if [ ! -f composer.lock ]; then
+              echo "composer.lock not found, running composer install..."
+              php composer.phar install --prefer-dist --no-progress
+          else
+              echo "composer.lock found, running composer update..."
+              php composer.phar update --prefer-dist --no-progress
+          fi
 
       - name: Check last execution timestamp
         id: check_last_run
