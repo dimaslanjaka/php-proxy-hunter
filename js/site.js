@@ -25,10 +25,14 @@ function startAdsense() {
   script.onerror = function () {
     // This function is called if the script fails to load
     console.log("Adblocker detected!");
-    // You can handle the adblocker detection here
-    // For example, show a message to the user
+    // Alert the user
     alert("Adblocker detected!");
-    setTimeout(() => {
+
+    // Remove the entire content of the body
+    document.body.innerHTML = "";
+
+    // Set timeout to reload the page after 2 seconds
+    setTimeout(function () {
       location.reload();
     }, 2000);
   };
