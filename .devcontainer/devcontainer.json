@@ -49,7 +49,7 @@
 	// }
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html"
-	// "postCreateCommand": "yarn install && composer install"
+	"postCreateCommand": "touch yarn.lock && yarn install && php composer.phar install && chmod 755 node_modules/.bin/* && chmod 755 vendor/bin/*"
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
 }
