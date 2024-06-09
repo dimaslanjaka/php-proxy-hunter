@@ -76,7 +76,6 @@ if (file_exists(__DIR__ . '/proxyChecker.lock')) {
   // lock exist, backup added proxies
   $id = sanitizeFilename(\PhpProxyHunter\Server::useragent() . '-' . \PhpProxyHunter\Server::getRequestIP());
   $output = __DIR__ . '/assets/proxies/added-' . $id . '.txt';
-  createParentFolders($output);
   append_content_with_lock($output, PHP_EOL . $proxies_txt);
   setMultiPermissions($output);
 } else {
