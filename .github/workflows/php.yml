@@ -14,6 +14,11 @@ on:
       - "**/yarn.lock"
       - "!**/.git*"
   workflow_dispatch:
+    inputs:
+      max:
+        description: 'The maximum proxies to be checked.'
+        required: true
+        default: 500
   workflow_call:
     secrets:
       ACCESS_TOKEN:
@@ -148,7 +153,7 @@ jobs:
           mkdir -p tmp
           mkdir -p tmp/runners
           mkdir -p tmp/cookies
-          php proxyChecker.php --max='500' --admin='true'
+          php proxyChecker.php --max='${{ github.event.inputs.max }}' --admin='true'
 
       - name: Clean temp files
         id: clean_temp_files
