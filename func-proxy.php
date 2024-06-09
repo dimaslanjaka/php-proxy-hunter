@@ -414,6 +414,9 @@ function parse_anonymity(string $response_ip_info, string $response_judges): str
   }
   $mergedResponse = $response_ip_info . $response_judges;
   $deviceIp = getServerIp();
+  if (empty($deviceIp) || $deviceIp === null || $deviceIp === false || $deviceIp === 0) {
+    throw new Exception('Device IP is empty, null, false, or 0');
+  }
   if (strpos($mergedResponse, $deviceIp) !== false) {
     return 'Transparent';
   }
