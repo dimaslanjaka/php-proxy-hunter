@@ -38,7 +38,7 @@ $cmd .= " --max=" . escapeshellarg("30");
 $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
 
 // validate lock files
-if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug()) {
+if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug() && !$isAdmin) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 }
 
