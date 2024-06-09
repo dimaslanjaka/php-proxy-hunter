@@ -2,3 +2,7 @@
 	path = packages/proxy-checker-python
 	url = https://github.com/dimaslanjaka/proxy-checker-python.git
 	branch = master
+[submodule "public"]
+	path = public
+	url = https://github.com/dimaslanjaka/data
+	branch = master
