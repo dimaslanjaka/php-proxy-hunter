@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Load the .env file
-export $(grep -v '^#' .env | xargs)
+if [ -f .env ]; then
+    # Load the .env file
+    export $(grep -v '^#' .env | xargs)
+    echo ".env file loaded"
+fi
 
 # Get the remote URL
 REMOTE_URL=$(git remote get-url origin)
