@@ -239,9 +239,9 @@ jobs:
             last_clean=$(cat tmp/last_ci_cache_clean_timestamp.txt)
             current_time=$(date +%s)
             elapsed_time=$((current_time - last_clean))
-            one_week=$((7 * 24 * 60 * 60))  # 1 week in seconds
+            elapsed_time_target=$((1 * 24 * 60 * 60))  # 1 day in seconds
 
-            if [ $elapsed_time -ge $one_week ]; then
+            if [ $elapsed_time -ge $elapsed_time_target ]; then
               echo "clean_temp=true" >> $GITHUB_OUTPUT
             else
               echo "clean_temp=false" >> $GITHUB_OUTPUT
