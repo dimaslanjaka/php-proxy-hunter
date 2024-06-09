@@ -49,7 +49,7 @@ if ($isCli) {
 
   if (!empty($options['max'])) {
     $max_test = intval($options['max']);
-    if ($maxx > 0) {
+    if ($max_test > 0) {
       $max = $max_test;
     }
   }
