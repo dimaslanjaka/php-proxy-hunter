@@ -30,7 +30,7 @@ function startAdsense() {
     alert("Adblocker detected!");
     setTimeout(() => {
       location.reload();
-    }, 3000);
+    }, 2000);
   };
   script.onload = () => {
     // const tables = Array.from(document.querySelectorAll('table'));
