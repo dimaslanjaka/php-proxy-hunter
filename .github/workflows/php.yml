@@ -32,13 +32,41 @@ jobs:
     if: contains(github.repository, 'proxy')
     permissions: read-all
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: '--max_old_space_size=4096' #8192 4096 --expose-gc
+      YARN_ENABLE_IMMUTABLE_INSTALLS: false
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      node_version: 18.x
+      php_version: 7.4
+      YARN_CHECKSUM_BEHAVIOR: update
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: '${{ secrets.ACCESS_TOKEN }}'
+          lfs: ''
+      - name: update submodules
+        run: |
+          echo "init submodules"
+          git submodule init
+          git submodule foreach "git submodule init"
+          echo "sync submodules"
+          git submodule sync
+          git submodule foreach "git submodule sync"
+          echo "update submodules"
+          mkdir -p bin >/dev/null 2>&1
+          curl -L https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install > bin/submodule-install
+          rm -rf .git/modules
+          bash ./bin/submodule-install
+        shell: bash
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node_version }}
+      - run: corepack enable
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ env.php_version }}
           extensions: imagick, swoole, mbstring, intl, pecl_http, curl
           tools: php-cs-fixer, phpunit, composer:v2
           coverage: none
@@ -80,6 +108,10 @@ jobs:
               echo "composer.lock found, running composer update..."
               php composer.phar update --prefer-dist --no-progress
           fi
+          if [ ! -f yarn.lock ]; then
+              touch yarn.lock
+          fi
+          yarn install
 
       - name: Check last execution timestamp
         id: check_last_run
