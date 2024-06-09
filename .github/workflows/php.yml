@@ -35,6 +35,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: imagick, swoole, mbstring, intl, pecl_http, curl
+          tools: php-cs-fixer, phpunit, composer:v2
+          coverage: none
+        env:
+          fail-fast: true
 
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
