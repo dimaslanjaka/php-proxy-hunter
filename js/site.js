@@ -11,7 +11,7 @@ if (location.host.includes("webmanajemen.com")) {
         startAdsense();
       }
     })
-    .catch((e) => {
+    .catch((_e) => {
       console.log("failed get info.php");
     });
 }
