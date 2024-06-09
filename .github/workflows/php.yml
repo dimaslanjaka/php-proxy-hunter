@@ -33,7 +33,7 @@ jobs:
     permissions: read-all
     runs-on: ubuntu-latest
     env:
-      NODE_OPTIONS: '--max_old_space_size=4096' #8192 4096 --expose-gc
+      NODE_OPTIONS: "--max_old_space_size=4096" #8192 4096 --expose-gc
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
       ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       node_version: 18.x
@@ -43,8 +43,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: '${{ secrets.ACCESS_TOKEN }}'
-          lfs: ''
+          token: "${{ secrets.ACCESS_TOKEN }}"
+          lfs: ""
       - name: update submodules
         run: |
           echo "init submodules"
@@ -67,7 +67,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.php_version }}
-          extensions: imagick, swoole, mbstring, intl, pecl_http, curl, redis, pdo_mysql, pdo_sqlite
+          extensions: imagick, swoole, mbstring, intl, pecl_http, curl, redis, pdo_mysql, pdo_sqlite, dom, zip, phalcon4, pgsql
           tools: php-cs-fixer, phpunit, composer:v2
           coverage: none
         env:
