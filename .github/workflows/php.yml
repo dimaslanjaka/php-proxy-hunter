@@ -120,7 +120,7 @@ jobs:
           fi
           yarn install
 
-      - name: Check last execution timestamp
+      - name: Check last execution proxy fetcher
         id: check_last_run
         run: |
           # Check if tmp directory exists
@@ -157,7 +157,7 @@ jobs:
           mkdir -p tmp/cookies
           php proxyChecker.php --max='${{ github.event.inputs.max }}' --admin='true'
 
-      - name: Clean temp files
+      - name: Check last run clean temp files
         id: clean_temp_files
         run: |
           # Check if tmp directory exists
@@ -227,3 +227,32 @@ jobs:
           git add proxies
           git commit -m "update working proxies" -m "commit hash: ${{ env.GITHUB_SHA_SHORT }}" -m "commit url: ${{ env.GITHUB_COMMIT_URL }}" -m "runner: ${{ env.GITHUB_RUNNER_URL }}"
           git push
+
+      - name: Check last run clean github actions cache
+        id: clean_github_actions_cache
+        run: |
+          # Check if tmp directory exists
+          mkdir -p tmp
+
+          # Check if last clean timestamp file exists
+          if [ -f tmp/last_ci_cache_clean_timestamp.txt ]; then
+            last_clean=$(cat tmp/last_ci_cache_clean_timestamp.txt)
+            current_time=$(date +%s)
+            elapsed_time=$((current_time - last_clean))
+            one_week=$((7 * 24 * 60 * 60))  # 1 week in seconds
+
+            if [ $elapsed_time -ge $one_week ]; then
+              echo "clean_temp=true" >> $GITHUB_OUTPUT
+            else
+              echo "clean_temp=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "clean_temp=true" >> $GITHUB_OUTPUT  # Clean if file doesn't exist
+          fi
+
+      - name: Clean github caches if needed
+        if: steps.clean_github_actions_cache.outputs.clean_temp == 'true'
+        run: |
+          bash bin/clear-github-actions-cache
+          date +%s > tmp/last_ci_cache_clean_timestamp.txt  # Update last clean timestamp
+          echo "last_ci_cache_clean_timestamp=$(date +%s)" >> $GITHUB_STATE
