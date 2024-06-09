@@ -121,6 +121,8 @@ if ($isCli) {
   }
   if (!empty($options['admin']) || $options['admin'] !== 'false') {
     $isAdmin = true;
+    // set time limit 30 minutes for admin
+    $maxExecutionTime = 30 * 60 * 1000;
   }
 }
 
@@ -292,10 +294,10 @@ function filter_proxies(array $proxies, bool $skip_dead_proxies = false)
 
 function execute_single_proxy(Proxy $item)
 {
-  global $db, $headers, $endpoint, $startTime, $maxExecutionTime, $str_to_remove, $isAdmin;
+  global $db, $headers, $endpoint, $startTime, $maxExecutionTime, $str_to_remove;
   // Check if execution time has exceeded the maximum allowed time
   $elapsedTime = microtime(true) - $startTime;
-  if ($elapsedTime > $maxExecutionTime && !$isAdmin) {
+  if ($elapsedTime > $maxExecutionTime) {
     // Execution time exceeded
     echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
     exit(0);
