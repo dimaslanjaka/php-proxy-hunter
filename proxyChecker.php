@@ -93,8 +93,38 @@ if (!$isCli) {
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
+$max_checks = 50;
+/**
+ * Array of strings to remove.
+ *
+ * @var string[]
+ */
+$str_to_remove = [];
+$isAdmin = false;
 
-if (file_exists($lockFilePath) && !is_debug()) {
+if ($isCli) {
+  $short_opts = "p:m::";
+  $long_opts = [
+    "proxy:",
+    "max::",
+    "userId::",
+    "lockFile::",
+    "runner::",
+    "admin::"
+  ];
+  $options = getopt($short_opts, $long_opts);
+  if (!empty($options['max'])) {
+    $max = intval($options['max']);
+    if ($max > 0) {
+      $max_checks = $max;
+    }
+  }
+  if (!empty($options['admin']) || $options['admin'] !== 'false') {
+    $isAdmin = true;
+  }
+}
+
+if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
   exit();
 } else {
@@ -154,37 +184,7 @@ if ($countLinesUntestedProxies < 100 && filesize($untestedFilePath) === 0) {
   }
 }
 
-$max_checks = 50;
 $untested = [];
-/**
- * Array of strings to remove.
- *
- * @var string[]
- */
-$str_to_remove = [];
-$isAdmin = false;
-
-if ($isCli) {
-  $short_opts = "p:m::";
-  $long_opts = [
-    "proxy:",
-    "max::",
-    "userId::",
-    "lockFile::",
-    "runner::",
-    "admin::"
-  ];
-  $options = getopt($short_opts, $long_opts);
-  if (!empty($options['max'])) {
-    $max = intval($options['max']);
-    if ($max > 0) {
-      $max_checks = $max;
-    }
-  }
-  if (!empty($options['admin']) || $options['admin'] !== 'false') {
-    $isAdmin = true;
-  }
-}
 
 try {
   $db_untested = $db->getUntestedProxies($max_checks);
