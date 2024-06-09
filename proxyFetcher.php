@@ -85,7 +85,9 @@ $urls = array_unique(
     "https://www.proxy-list.download/api/v1/get?type=http",
     "https://www.proxyscan.io/download?type=http",
     "https://yakumo.rei.my.id/ALL",
-    "https://github.com/hookzof/socks5_list/raw/master/proxy.txt"
+    "https://github.com/hookzof/socks5_list/raw/master/proxy.txt",
+    "https://sunny9577.github.io/proxy-scraper/proxies.txt",
+    "https://github.com/sunny9577/proxy-scraper/raw/master/proxies.txt"
   ]
 );
 
