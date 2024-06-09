@@ -30,7 +30,9 @@ $current_time = time();
 $oneWeekAgo = strtotime('-1 week');
 
 foreach ($directories as $directory) {
-  if (!file_exists($directory)) continue;
+  if (!file_exists($directory)) {
+    continue;
+  }
   // Open the directory
   if ($handle = opendir($directory)) {
     // Loop through each file in the directory

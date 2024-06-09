@@ -288,7 +288,7 @@ function buildCurl(
   if (strpos($endpoint, 'https') !== false) {
     if (defined('CURL_SSLVERSION_TLSv1_3')) {
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3); // CURL_SSLVERSION_TLSv1_3 = 7
-    } else if (defined('CURL_SSLVERSION_TLSv1_0')) {
+    } elseif (defined('CURL_SSLVERSION_TLSv1_0')) {
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_0); // CURL_SSLVERSION_TLSv1_0 = 4
     } else {
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_DEFAULT);
