@@ -22,6 +22,16 @@ function startAdsense() {
   script.async = true;
   script.src = "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2188063137129806";
   script.setAttribute("crossorigin", "anonymous");
+  script.onerror = function () {
+    // This function is called if the script fails to load
+    console.log("Adblocker detected!");
+    // You can handle the adblocker detection here
+    // For example, show a message to the user
+    alert("Adblocker detected!");
+    setTimeout(() => {
+      location.reload();
+    }, 3000);
+  };
   script.onload = () => {
     // const tables = Array.from(document.querySelectorAll('table'));
     // const ads = [
