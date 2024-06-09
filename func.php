@@ -344,7 +344,9 @@ function curlGetWithProxy(string $url, string $proxy = null, ?string $proxyType 
 
   // Initialize cURL session
   $ch = buildCurl($proxy, $proxyType, $url);
-  if ($ch) curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+  if ($ch) {
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+  }
 
   // Execute the request
   $response = curl_exec($ch);
