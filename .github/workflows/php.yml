@@ -5,14 +5,14 @@ on:
     branches:
       - master
     paths-ignore:
-      - '**/*.tgz'
-      - '**/*.gz'
-      - '**/release/**'
-      - '.github/codeql/*'
-      - '**codeql**'
-      - '**clean-caches**'
-      - '**/yarn.lock'
-      - '!**/.git*'
+      - "**/*.tgz"
+      - "**/*.gz"
+      - "**/release/**"
+      - ".github/codeql/*"
+      - "**codeql**"
+      - "**clean-caches**"
+      - "**/yarn.lock"
+      - "!**/.git*"
   workflow_dispatch:
   workflow_call:
     secrets:
@@ -20,7 +20,7 @@ on:
         required: true
   schedule:
     # https://crontab.guru/#30_5_*_*_*
-    - cron: '0 * * * *'
+    - cron: "0 * * * *"
 
 concurrency:
   group: build
@@ -32,68 +32,96 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
 
-    - name: Cache Composer packages
-      id: cache
-      uses: actions/cache@v3
-      with:
-        path: |
-          vendor/
-          tmp/
-          config/
-          .cache/
-          assets/proxies/
-          proxies.txt
-          dead.txt
-          proxyChecker.txt
-          working.txt
-          working.json
-          src/database.sqlite
-          composer.lock
-          yarn.lock
-        key: ${{ runner.os }}-php-${{ github.run_id }}
-        restore-keys: |
-          ${{ runner.os }}-php-
+      - name: Cache Composer packages
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            vendor/
+            tmp/
+            config/
+            .cache/
+            assets/proxies/
+            proxies.txt
+            dead.txt
+            proxyChecker.txt
+            working.txt
+            working.json
+            src/database.sqlite
+            composer.lock
+            yarn.lock
+          key: ${{ runner.os }}-php-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
-    - name: Install dependencies
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: composer install --prefer-dist --no-progress
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress
 
-    - name: Clean temp files
-      run: php configCleaner.php
+      - name: Clean temp files
+        run: php configCleaner.php
 
-    - name: Fetch proxies
-      run: php proxyFetcher.php --admin='true'
+      # - name: Fetch proxies
+      #   run: php proxyFetcher.php --admin='true'
 
-    - name: Check proxies
-      run: |
-        mkdir -p assets/proxies
-        mkdir -p tmp
-        mkdir -p tmp/runners
-        mkdir -p tmp/cookies
-        php proxyChecker.php --max='500' --admin='true'
+      - name: Check last execution timestamp
+        id: check_last_run
+        run: |
+          # Check if tmp directory exists
+          mkdir -p tmp
 
-    - name: Print working proxies
-      run: |
-        # Read the JSON file content
-        json_content=$(cat working.json)
+          # Check if last run timestamp file exists
+          if [ -f tmp/last_run_timestamp.txt ]; then
+            last_run=$(cat tmp/last_run_timestamp.txt)
+            current_time=$(date +%s)
+            elapsed_time=$((current_time - last_run))
+            four_hours=$((4 * 60 * 60))  # 4 hours in seconds
 
-        # Check if json_content is not empty, null, [], or {}
-        if [ -n "$json_content" ] && [ "$json_content" != "null" ] && [ "$json_content" != "[]" ] && [ "$json_content" != "{}" ]; then
-          # Escape the JSON content
-          escaped_content=$(printf '%q' "$json_content")
+            if [ $elapsed_time -ge $four_hours ]; then
+              echo "run_fetcher=true" >> $GITHUB_OUTPUT
+            else
+              echo "run_fetcher=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "run_fetcher=true" >> $GITHUB_OUTPUT  # Run if file doesn't exist
+          fi
 
-          # Send the JSON content to the specified URL
-          curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}" > /dev/null 2>&1
-          echo "$json_content"
-        else
-          echo "working.json is empty or does not contain valid JSON data."
-        fi
+      - name: Fetch proxies if needed
+        if: steps.check_last_run.outputs.run_fetcher == 'true'
+        run: |
+          php proxyFetcher.php --admin='true'
+          date +%s > tmp/last_run_timestamp.txt  # Update last run timestamp
+          echo "last_run_timestamp=$(date +%s)" >> $GITHUB_STATE
 
+      - name: Check proxies
+        run: |
+          mkdir -p assets/proxies
+          mkdir -p tmp
+          mkdir -p tmp/runners
+          mkdir -p tmp/cookies
+          php proxyChecker.php --max='500' --admin='true'
+
+      - name: Print working proxies
+        run: |
+          # Read the JSON file content
+          json_content=$(cat working.json)
+
+          # Check if json_content is not empty, null, [], or {}
+          if [ -n "$json_content" ] && [ "$json_content" != "null" ] && [ "$json_content" != "[]" ] && [ "$json_content" != "{}" ]; then
+            # Escape the JSON content
+            escaped_content=$(printf '%q' "$json_content")
+
+            # Send the JSON content to the specified URL
+            curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}" > /dev/null 2>&1
+            echo "$json_content"
+          else
+            echo "working.json is empty or does not contain valid JSON data."
+          fi
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
