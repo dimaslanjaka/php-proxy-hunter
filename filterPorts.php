@@ -17,6 +17,7 @@ if (!$isCli) {
 }
 
 $isAdmin = false;
+$max_checks = 500;
 
 if ($isCli) {
   $short_opts = "p:m::";
@@ -29,6 +30,12 @@ if ($isCli) {
     "admin::"
   ];
   $options = getopt($short_opts, $long_opts);
+  if (!empty($options['max'])) {
+    $max = intval($options['max']);
+    if ($max > 0) {
+      $max_checks = $max;
+    }
+  }
   if (!empty($options['admin']) && $options['admin'] !== 'false') {
     $isAdmin = true;
     // set time limit 30 minutes for admin
@@ -70,7 +77,7 @@ removeEmptyLinesFromFile($file);
 $start_time = microtime(true);
 
 try {
-  $read = read_first_lines($file, 500);
+  $read = read_first_lines($file, $max_checks);
   if (!$read) {
     $read = [];
   }
