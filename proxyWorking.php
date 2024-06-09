@@ -64,9 +64,9 @@ file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
 //file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
 
 setMultiPermissions([
-    __DIR__ . '/status.json',
-    __DIR__ . '/proxies.txt',
-    __DIR__ . '/dead.txt',
-    __DIR__ . '/working.txt',
-    __DIR__ . '/working.json'
+  __DIR__ . '/status.json',
+  __DIR__ . '/proxies.txt',
+  __DIR__ . '/dead.txt',
+  __DIR__ . '/working.txt',
+  __DIR__ . '/working.json'
 ]);
