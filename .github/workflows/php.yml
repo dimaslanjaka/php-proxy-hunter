@@ -235,6 +235,7 @@ jobs:
           git add proxies
           git commit -m "update working proxies" -m "commit hash: ${{ env.GITHUB_SHA_SHORT }}" -m "commit url: ${{ env.GITHUB_COMMIT_URL }}" -m "runner: ${{ env.GITHUB_RUNNER_URL }}"
           git push
+          echo "Working proxies deployed at https://github.com/dimaslanjaka/data/raw/master/proxies/working.json"
 
       - name: Check last run clean github actions cache
         id: clean_github_actions_cache
