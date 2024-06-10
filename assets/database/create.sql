@@ -25,3 +25,5 @@ CREATE TABLE IF NOT EXISTS "proxies" (
 );
 
 CREATE TABLE IF NOT EXISTS "meta" (key TEXT PRIMARY KEY, value TEXT);
+
+PRAGMA integrity_check;
