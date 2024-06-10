@@ -140,6 +140,13 @@ function createParentFolders(string $filePath): bool
     // Attempt to create the parent directory and any necessary intermediate directories
     if (!mkdir($parentDir, 0755, true)) {
       // Failed to create the directory
+      error_log("Failed to create directory: $parentDir");
+      return false;
+    }
+
+    // Set permissions for the parent directory
+    if (!chmod($parentDir, 0755)) {
+      error_log("Failed to set permissions for directory: $parentDir");
       return false;
     }
   }
