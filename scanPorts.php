@@ -16,7 +16,7 @@ if (!$isCli) {
   $web_data = null;
   if ($_REQUEST['REQUEST_METHOD'] === 'POST') {
     $web_data = parsePostData();
-  } else if (!empty($_REQUEST['proxy'])) {
+  } elseif (!empty($_REQUEST['proxy'])) {
     $web_data = $_REQUEST['proxy'];
   }
   if ($web_data && !is_string($web_data)) {
@@ -44,7 +44,9 @@ if (empty($str)) {
   if (file_exists(__DIR__ . '/proxies.txt')) {
     $str = implode("\n", read_first_lines(__DIR__ . '/proxies.txt', 500));
   }
-  if (!$str) $str = '';
+  if (!$str) {
+    $str = '';
+  }
   $db->iterateAllProxies(function ($item) use (&$str) {
     $str .= $item['proxy'] . PHP_EOL;
   });
