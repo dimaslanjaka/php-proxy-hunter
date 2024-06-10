@@ -16,6 +16,9 @@ if (!$isCli) {
   die('Direct access not allowed');
 }
 
+$max = 500; // default max proxies to be checked
+$maxExecutionTime = 2 * 60; // 2 mins
+$isAdmin = false;
 $basename = basename(__FILE__, '.php');
 $lockFilePath = __DIR__ . "/tmp/$basename.lock";
 $statusFile = __DIR__ . "/status.txt";
@@ -32,8 +35,21 @@ $options = getopt($short_opts, $long_opts);
 if (!empty($options['lockFile'])) {
   $lockFilePath = $options['lockFile'];
 }
+if (!empty($options['max'])) {
+  $max = intval($options['max']);
+  if ($max > 0) {
+    $max_checks = $max;
+  }
+}
+if (!empty($options['admin']) && $options['admin'] !== 'false') {
+  $isAdmin = true;
+  // set time limit 10 minutes for admin
+  $maxExecutionTime = 10 * 60;
+  // disable execution limit
+  set_time_limit(0);
+}
 
-if (file_exists($lockFilePath) && !is_debug()) {
+if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
   exit();
 } else {
@@ -55,7 +71,8 @@ register_shutdown_function('exitProcess');
 // set memory
 ini_set('memory_limit', '2024M');
 
-$filePath = getRandomFileFromFolder(tmp() . '/ips-ports', 'txt');
+$folder = tmp() . '/ips-ports';
+$filePath = getRandomFileFromFolder($folder, 'txt');
 $outputPath = __DIR__ . '/../proxies.txt';
 $startTime = time();
 $str_to_remove = [];
@@ -64,18 +81,19 @@ if (filesize($filePath) == 0) {
   exit("$filePath size 0");
 }
 
-iterateBigFilesLineByLine([$filePath], 55, function (string $line) use (&$str_to_remove, $startTime, $filePath) {
+iterateBigFilesLineByLine([$filePath], $max, function (string $line) use (&$str_to_remove, $startTime, $filePath, $maxExecutionTime) {
   $db = new ProxyDB();
   $proxies = extractProxies($line, null, false);
   for ($i = 0; $i < count($proxies); $i++) {
     if (!is_debug()) {
-      if (time() - $startTime > 300) {
+      if (time() - $startTime > $maxExecutionTime) {
         echo "Execution time exceeded. Stopping execution." . PHP_EOL;
         break;
       }
     }
     $item = $proxies[$i];
     if (isPortOpen($item->proxy)) {
+      // add to database on port open
       $db->updateData($item->proxy, ['status' => 'untested']);
       //      $http = checkProxy($item->proxy);
       //      $socks5 = checkProxy($item->proxy, 'socks5');
@@ -90,8 +108,8 @@ iterateBigFilesLineByLine([$filePath], 55, function (string $line) use (&$str_to
     }
     $str_to_remove[] = $item->proxy;
     Scheduler::register(function () use ($filePath, $str_to_remove) {
-      echo 'removing ' . count($str_to_remove) . ' lines' . PHP_EOL;
-      removeStringFromFile($filePath, $str_to_remove);
+      // echo 'removing ' . count($str_to_remove) . ' lines' . PHP_EOL;
+      echo removeStringFromFile($filePath, $str_to_remove) . PHP_EOL;
     }, 'clean-up-' . basename(__FILE__));
   }
 });
