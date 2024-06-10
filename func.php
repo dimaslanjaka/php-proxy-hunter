@@ -65,16 +65,29 @@ if (!$isCli) {
 }
 
 /**
- * get project temp folder
+ * Get project temp folder.
+ *
  * @return string
  */
 function tmp(): string
 {
-  // create temp folder
-  if (!file_exists(__DIR__ . '/tmp')) {
-    mkdir(__DIR__ . '/tmp', 777, true);
+  $tmpDir = __DIR__ . '/tmp';
+
+  // Create temp folder if it doesn't exist
+  if (!file_exists($tmpDir)) {
+    if (!mkdir($tmpDir, 0777, true)) {
+      error_log("Failed to create directory: $tmpDir");
+      return '';
+    }
   }
-  return __DIR__ . '/tmp';
+
+  // Set permissions for the directory
+  if (!chmod($tmpDir, 0777)) {
+    error_log("Failed to set permissions for directory: $tmpDir");
+    return '';
+  }
+
+  return $tmpDir;
 }
 
 
