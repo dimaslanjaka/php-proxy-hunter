@@ -266,5 +266,6 @@ jobs:
         if: steps.clean_github_actions_cache.outputs.clean_temp == 'true'
         run: |
           bash bin/clear-github-actions-cache
+          php proxies-all.php --admin='true'
           date +%s > tmp/last_ci_cache_clean_timestamp.txt  # Update last clean timestamp
           echo "last_ci_cache_clean_timestamp=$(date +%s)" >> $GITHUB_STATE
