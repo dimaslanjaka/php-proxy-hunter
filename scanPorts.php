@@ -10,6 +10,7 @@ use PhpProxyHunter\Server;
 $db = new ProxyDB();
 
 $str = '';
+$isAdmin = false;
 
 if (!$isCli) {
   // parse data from web server
@@ -22,6 +23,7 @@ if (!$isCli) {
   if ($web_data && !is_string($web_data)) {
     $str = rawurldecode(json_encode($web_data));
   }
+  $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
 } else {
   // parse data from CLI
   $short_opts = "p:m::";
@@ -36,6 +38,9 @@ if (!$isCli) {
   $options = getopt($short_opts, $long_opts);
   if (!empty($options['proxy'])) {
     $str = $options['proxy'];
+  }
+  if (!empty($options['admin']) && $options['admin'] === 'true') {
+    $isAdmin = true;
   }
 }
 
@@ -70,7 +75,7 @@ foreach ($proxies as $index => $item) {
 
 function do_check($filePath, $background = false)
 {
-  global $isCli;
+  global $isCli, $isAdmin;
   $file =  __DIR__ . '/cidr-information/CIDR-check.php';
   $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
   $cmd = "php " . escapeshellarg($file);
@@ -86,7 +91,6 @@ function do_check($filePath, $background = false)
     if (empty($id)) {
       $id = Server::useragent();
     }
-    $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
     $webLockFile = __DIR__ . '/tmp/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
     $runner = __DIR__ . "/tmp/runners/" . md5($webLockFile) . ($isWin ? '.bat' : "");
     $uid = getUserId();
