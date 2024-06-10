@@ -50,6 +50,12 @@ jobs:
         with:
           token: "${{ secrets.ACCESS_TOKEN }}"
           lfs: ""
+      - uses: actions/checkout@v4
+        with:
+          token: "${{ secrets.ACCESS_TOKEN }}"
+          lfs: ""
+          path: "public"
+          repository: "dimaslanjaka/data"
       - name: update submodules
         run: |
           echo "init submodules"
