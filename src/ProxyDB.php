@@ -114,7 +114,8 @@ class ProxyDB
    * Iterate over all proxies in the database and apply a callback to each.
    *
    * @param callable $callback The callback function to apply to each proxy row.
-   *                           The callback should accept a single parameter which represents a row from the proxies table.
+   *                           The callback should accept a single parameter, which is an associative array representing a row from the proxies table:
+   *                           function(array $row): void
    * @return void
    */
   public function iterateAllProxies(callable $callback): void
