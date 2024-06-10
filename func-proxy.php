@@ -336,7 +336,7 @@ function buildCurl(
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-  $cookies = __DIR__ . '/tmp/cookies.txt';
+  $cookies = __DIR__ . '/tmp/cookies/default.txt';
   setPermissions($cookies, true);
   curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
   curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
