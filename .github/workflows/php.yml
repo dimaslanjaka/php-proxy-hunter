@@ -203,14 +203,14 @@ jobs:
 
           # Check if json_content is not empty, null, [], or {}
           if [ -n "$json_content" ] && [ "$json_content" != "null" ] && [ "$json_content" != "[]" ] && [ "$json_content" != "{}" ]; then
-            # Escape the JSON content
-            escaped_content=$(echo -n "$json_content" | base64)
+            # Extract the proxy value from json_content (assuming it's in the format "ip:port")
+            proxy_value=$(echo "$json_content" | jq -r '.proxy')
 
-            # Save the escaped content to a temporary file
-            echo "$escaped_content" > /tmp/escaped_content.txt
+            # First curl command to proxyAdd.php (send proxy value directly)
+            sudo curl -s -X POST https://sh.webmanajemen.com/proxyAdd.php --data-urlencode "proxy=$proxy_value" > /dev/null 2>&1
 
-            # Send the JSON content to the specified URL using the file
-            sudo curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php --data-binary @/tmp/escaped_content.txt > /dev/null 2>&1
+            # Second curl command to proxyCheckerParallel.php (send proxy value directly)
+            sudo curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php --data-urlencode "proxy=$proxy_value" > /dev/null 2>&1
 
             # print working proxies
             echo "$json_content"
