@@ -128,7 +128,7 @@ if ($isCli) {
   setMultiPermissions($runner);
 
   // Output the runner script path for debugging
-  echo escapeshellarg($runner) . PHP_EOL;
+  // echo escapeshellarg($runner) . PHP_EOL;
 
   // Execute the runner script in the background
   exec(escapeshellarg($runner));
