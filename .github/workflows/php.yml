@@ -126,7 +126,7 @@ jobs:
           fi
           yarn install
 
-      - name: Check last execution proxy fetcher
+      - name: Check last run proxy fetcher
         id: check_last_run
         run: |
           # Check if tmp directory exists
@@ -237,7 +237,7 @@ jobs:
           git push
           echo "Working proxies deployed at https://github.com/dimaslanjaka/data/raw/master/proxies/working.json"
 
-      - name: Check last run clean github actions cache
+      - name: Check last run clean GitHub Actions cache
         id: clean_github_actions_cache
         run: |
           # Check if tmp directory exists
@@ -259,7 +259,7 @@ jobs:
             echo "clean_temp=true" >> $GITHUB_OUTPUT  # Clean if file doesn't exist
           fi
 
-      - name: Clean github caches if needed
+      - name: Clean GitHub caches if needed
         if: steps.clean_github_actions_cache.outputs.clean_temp == 'true'
         run: |
           bash bin/clear-github-actions-cache
