@@ -199,10 +199,10 @@ jobs:
         id: working
         run: |
           # Read the JSON file content
-          json_content=$(cat working.json)
+          json_content=$(php proxyWorking.php)
 
           # Check if json_content is not empty, null, [], or {}
-          if [ -n "$json_content" ] && [ "$json_content" != "null" ] && [ "$json_content" != "[]" ] && [ "$json_content" != "{}" ]; then
+          if [ -n "$json_content" ]; then
             # First curl command to proxyAdd.php (send JSON content directly)
             sudo curl -s -X POST https://sh.webmanajemen.com/proxyAdd.php -d "$json_content" > /dev/null 2>&1
 
