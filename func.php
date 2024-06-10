@@ -200,33 +200,25 @@ function setPermissions(string $filename, bool $autoCreate = false): bool
 }
 
 /**
- * Helper function to run a PHP script in the background.
+ * Checks if a given string is base64 encoded.
  *
- * @param string $phpFilePath The path to the PHP file to run.
- *
- * @return bool True if the script was successfully started, false otherwise.
- *
- * @throws InvalidArgumentException If the provided file path is not valid.
+ * @param string $string The string to check.
+ * @return bool True if the string is base64 encoded, false otherwise.
  */
-function runPhpInBackground(string $phpFilePath): bool
+function isBase64Encoded(string $string): bool
 {
-  // Validate PHP file path
-  if (!file_exists($phpFilePath)) {
-    throw new InvalidArgumentException("PHP file '$phpFilePath' not found.");
+  // Check if the string matches the base64 format
+  if (preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $string)) {
+    // Decode the string and then re-encode it
+    $decoded = base64_decode($string, true);
+    if ($decoded !== false) {
+      // Compare the re-encoded string to the original
+      if (base64_encode($decoded) === $string) {
+        return true;
+      }
+    }
   }
-
-  // Prepare command to run PHP script in background based on OS
-  $command = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? "start /B php $phpFilePath" : "nohup php $phpFilePath > /dev/null 2>&1 & echo $!";
-
-  // Execute command
-  exec($command, $output, $returnVar);
-
-  // Check if the command executed successfully
-  if ($returnVar !== 0) {
-    return false;
-  }
-
-  return true;
+  return false;
 }
 
 /**
