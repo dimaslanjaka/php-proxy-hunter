@@ -44,14 +44,29 @@ $db = new ProxyDB();
 $data = parse_working_proxies($db);
 
 // write working proxies
-file_put_contents(__DIR__ . '/working.txt', $data['txt']);
-file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
+write_file(__DIR__ . '/working.txt', $data['txt']);
+write_file(__DIR__ . '/working.json', json_encode($data['array']));
 
 foreach ($data['counter'] as $key => $value) {
   echo "total $key $value proxies" . PHP_EOL;
 }
 
-file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
+// write status
+write_file(__DIR__ . '/status.json', json_encode($data['counter']));
+
+echo PHP_EOL;
+
+// print working proxies [protocols]://IP:PORT@username:password
+$proxies = $db->getWorkingProxies();
+$proxies = array_map(function ($item) {
+  $raw = $item['type'] . "://" . $item['proxy'];
+  if (!empty($raw['username']) && !empty($raw['password'])) {
+    $raw .= "@" . $raw['username'] . ":" . $raw['password'];
+  }
+  return $raw;
+}, $proxies);
+
+echo implode(PHP_EOL, $proxies);
 
 // set limitation for below codes only
 //if (function_exists('set_time_limit')) set_time_limit(30);

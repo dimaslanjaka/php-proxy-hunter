@@ -65,7 +65,9 @@ shuffle($proxies);
 foreach ($proxies as $index => $item) {
   $generatedProxies = saveRangePorts($item->proxy);
   do_check($generatedProxies, true);
-  if ($index > 30) break;
+  if ($index > 30) {
+    break;
+  }
 }
 
 // execute random proxies
