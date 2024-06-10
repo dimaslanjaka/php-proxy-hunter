@@ -201,7 +201,7 @@ jobs:
           # Check if json_content is not empty, null, [], or {}
           if [ -n "$json_content" ] && [ "$json_content" != "null" ] && [ "$json_content" != "[]" ] && [ "$json_content" != "{}" ]; then
             # Escape the JSON content
-            escaped_content=$(printf '%q' "$json_content")
+            escaped_content=$(echo -n "$json_content" | base64)
 
             # Send the JSON content to the specified URL
             curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}" > /dev/null 2>&1
