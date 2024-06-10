@@ -59,6 +59,8 @@ git lfs install
 git lfs track *.rar
 ```
 
+- rename `.env_sample` into `.env`
+
 - create database files
 
 ```bash
