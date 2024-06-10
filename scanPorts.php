@@ -54,11 +54,19 @@ if (empty($str)) {
 
 // extract IPs and generate ports
 $proxies = extractProxies($str);
-// foreach ($proxies as $item) {
-//   $generatedProxies = saveRangePorts($item->proxy);
-// }
-$generatedProxies = saveRangePorts($proxies[0]->proxy);
-do_check($generatedProxies);
+shuffle($proxies);
+
+// execute all proxies
+foreach ($proxies as $index => $item) {
+  $generatedProxies = saveRangePorts($item->proxy);
+  do_check($generatedProxies, true);
+  if ($index > 30) break;
+}
+
+// execute random proxies
+// $item = $proxies[array_rand($proxies)];
+// $generatedProxies = saveRangePorts($item->proxy);
+// do_check($generatedProxies);
 
 function do_check($filePath, $background = false)
 {
@@ -89,7 +97,7 @@ function do_check($filePath, $background = false)
 
   $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
   $cmd .= " --path=" . escapeshellarg($filePath);
-  $cmd .= " --max=" . escapeshellarg("30");
+  $cmd .= " --max=" . escapeshellarg("500");
 
   echo $cmd . "\n\n";
 
