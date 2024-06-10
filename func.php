@@ -90,14 +90,18 @@ function tmp(): string
   return $tmpDir;
 }
 
-
 /**
  * is debug indicator
  * @return bool
  */
 function is_debug(): bool
 {
+  // my device lists
   $debug_pc = ['DESKTOP-JVTSJ6I'];
+  $hostname = gethostname();
+  if (str_starts_with($hostname, 'codespaces-')) {
+    return true;
+  }
   return in_array(gethostname(), $debug_pc);
 }
 
