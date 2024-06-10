@@ -60,7 +60,7 @@ $proxies = extractProxies($str);
 $generatedProxies = saveRangePorts($proxies[0]->proxy);
 do_check($generatedProxies);
 
-function do_check($filePath)
+function do_check($filePath, $background = false)
 {
   global $isCli;
   $file =  __DIR__ . '/cidr-information/CIDR-check.php';
@@ -93,8 +93,10 @@ function do_check($filePath)
 
   echo $cmd . "\n\n";
 
-  // Generate the command to run in the background
-  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
+  if ($background) {
+    // Generate the command to run in the background
+    $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
+  }
 
   // Write the command to the runner script
   write_file($runner, $cmd);
