@@ -207,7 +207,7 @@ jobs:
             escaped_content=$(echo -n "$json_content" | base64)
 
             # Send the JSON content to the specified URL
-            curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}" > /dev/null 2>&1
+            curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}" # > /dev/null 2>&1
             # print working proxies
             echo "$json_content"
             # copy working proxies into public folder
