@@ -98,12 +98,12 @@ function do_check($filePath, $background = false)
     $uid = getUserId();
     $cmd .= " --userId=" . escapeshellarg($uid);
     $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
-    $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
   }
 
   $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
   $cmd .= " --path=" . escapeshellarg($filePath);
   $cmd .= " --max=" . escapeshellarg("500");
+  $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
 
   echo $cmd . "\n\n";
 
