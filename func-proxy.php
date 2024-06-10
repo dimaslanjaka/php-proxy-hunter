@@ -170,6 +170,28 @@ function isValidProxy(?string $proxy, bool $validate_credential = false): bool
 }
 
 /**
+ * Validate a given proxy IP address.
+ *
+ * @param string|null $proxy The proxy IP address to validate. Can be null.
+ * @return bool True if the proxy IP address is valid, false otherwise.
+ */
+function isValidIp(?string $proxy): bool
+{
+  if (!$proxy) {
+    return false;
+  }
+
+  $split = explode(":", trim($proxy), 2);
+  $ip = $split[0];
+  $is_ip_valid = filter_var($ip, FILTER_VALIDATE_IP) !== false
+    && strlen($ip) >= 7
+    && strpos($ip, '..') === false;
+  $re = '/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/';
+
+  return $is_ip_valid && preg_match($re, $ip);
+}
+
+/**
  * Check if a port is open on a given IP address.
  *
  * @param string $proxy The IP address and port to check in the format "IP:port".
