@@ -97,6 +97,11 @@ if ($isCli) {
     }
   }
 
+  // check base64 encoded post data
+  if (isBase64Encoded($str)) {
+    $str = base64_decode($str);
+  }
+
   // web server run parallel in background
   // avoid bad response or hangs whole web server
   $file = __FILE__;
