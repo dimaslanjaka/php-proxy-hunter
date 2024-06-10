@@ -155,6 +155,9 @@ jobs:
           date +%s > tmp/last_fetch_timestamp.txt  # Update last fetch timestamp
           echo "last_fetch_timestamp=$(date +%s)" >> $GITHUB_STATE
 
+      - name: Scan ports
+        run: php scanPorts.php --admin='true'
+
       - name: Check proxies
         run: |
           mkdir -p assets/proxies
