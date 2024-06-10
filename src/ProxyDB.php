@@ -106,6 +106,8 @@ class ProxyDB
     if (!$lastVacuumTime || ($currentTime - (int)$lastVacuumTime > $oneDayInSeconds)) {
       // Execute the VACUUM command to reclaim unused space
       $this->db->pdo->exec('VACUUM');
+      // check pragma
+      $this->db->pdo->exec('PRAGMA integrity_check');
       $this->setMetaValue('last_vacuum_time', (string)$currentTime);
     }
   }
