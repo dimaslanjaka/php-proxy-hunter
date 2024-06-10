@@ -109,8 +109,6 @@ function do_check($filePath, $background = false)
 
   // Execute the runner script in the background
   exec(escapeshellarg($runner));
-
-  exit;
 }
 
 function saveRangePorts(string $ip)
