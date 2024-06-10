@@ -46,7 +46,10 @@ if (!$isCli) {
   // Check if the form was submitted
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['proxies'])) {
-      $strings = $_POST['proxies'];
+      $strings = rawurldecode($_POST['proxies']);
+      if (isBase64Encoded($strings)) {
+        $strings = base64_decode($strings);
+      }
     }
   }
 }
