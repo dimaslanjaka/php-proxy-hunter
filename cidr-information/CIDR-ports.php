@@ -14,18 +14,21 @@ if (php_sapi_name() !== 'cli') {
 // set memory
 ini_set('memory_limit', '2024M');
 
-$filePath = getRandomFileFromFolder(tmp() . '/ips', 'txt');
-$ipList = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$ipList = [];
 
-$outputPath = tmp() . '/ips-ports/' . basename($filePath);
-createParentFolders($outputPath);
-if (file_exists($outputPath)) {
-  exit("cannot rewrite already generated proxy, please remove $outputPath");
-}
-
-if (empty($ipList)) {
-  unlink($filePath);
-  exit('ips empty');
+$ips_folder = tmp() . '/ips';
+if (file_exists($ips_folder)) {
+  $filePath = getRandomFileFromFolder($ips_folder, 'txt');
+  $ipList = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+  $outputPath = tmp() . '/ips-ports/' . basename($filePath);
+  createParentFolders($outputPath);
+  if (file_exists($outputPath)) {
+    exit("cannot rewrite already generated proxy, please remove $outputPath");
+  }
+  if (empty($ipList)) {
+    unlink($filePath);
+    exit('ips empty');
+  }
 }
 
 $commonPorts = [
