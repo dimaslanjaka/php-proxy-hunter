@@ -5,7 +5,14 @@ require_once __DIR__ . '/func-proxy.php';
 global $isCli;
 
 if (!$isCli) {
+  // Set response content header json
   header('Content-Type: application/json; charset=utf-8');
+
+  // Set the Cache-Control header to cache the response for 1 hour (3600 seconds)
+  header("Cache-Control: max-age=3600, must-revalidate");
+
+  // Optionally, set the Expires header to a timestamp 1 hour in the future
+  header("Expires: " . gmdate("D, d M Y H:i:s", time() + 3600) . " GMT");
 
   // modify config
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
