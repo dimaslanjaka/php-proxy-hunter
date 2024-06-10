@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       max:
-        description: 'The maximum proxies to be checked.'
+        description: "The maximum proxies to be checked."
         required: true
         default: 500
   workflow_call:
@@ -206,13 +206,19 @@ jobs:
             # Escape the JSON content
             escaped_content=$(echo -n "$json_content" | base64)
 
-            # Send the JSON content to the specified URL
-            curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "proxy=${escaped_content}" # > /dev/null 2>&1
+            # Save the escaped content to a temporary file
+            echo "$escaped_content" > /tmp/escaped_content.txt
+
+            # Send the JSON content to the specified URL using the file
+            sudo curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php --data-binary @/tmp/escaped_content.txt > /dev/null 2>&1
+
             # print working proxies
             echo "$json_content"
+
             # copy working proxies into public folder
             mkdir -p public/proxies
             cat working.json > public/proxies/working.json
+
             echo "success=true" >> $GITHUB_OUTPUT
           else
             echo "working.json is empty or does not contain valid JSON data."
