@@ -39,7 +39,9 @@ $config['captcha-site-key'] = $_ENV['G_RECAPTCHA_SITE_KEY'];
 $config['server-ip'] = getServerIp();
 $config_json = json_encode($config);
 
-if (!$isCli) set_cookie("user_config", base64_encode($config_json));
+if (!$isCli) {
+  set_cookie("user_config", base64_encode($config_json));
+}
 
 echo $config_json;
 
