@@ -249,12 +249,21 @@ jobs:
           # Check if tmp directory exists
           mkdir -p tmp
 
+          # Debug: Print current directory and list files
+          echo "Current Directory: $(pwd)"
+          echo "Files in tmp:"
+          ls -la tmp
+
           # Check if last clean timestamp file exists
           if [ -f tmp/last_ci_cache_clean_timestamp.txt ]; then
             last_clean=$(cat tmp/last_ci_cache_clean_timestamp.txt)
             current_time=$(date +%s)
             elapsed_time=$((current_time - last_clean))
             elapsed_time_target=$((1 * 24 * 60 * 60))  # 1 day in seconds
+
+            # Debug: Print elapsed time and target
+            echo "Elapsed Time: $elapsed_time"
+            echo "Elapsed Time Target: $elapsed_time_target"
 
             if [ $elapsed_time -ge $elapsed_time_target ]; then
               echo "clean_temp=true" >> $GITHUB_OUTPUT
@@ -266,7 +275,7 @@ jobs:
           fi
 
       - name: Clean GitHub caches if needed
-        if: steps.clean_github_actions_cache.outputs.clean_temp == 'true'
+        # if: steps.clean_github_actions_cache.outputs.clean_temp == 'true'
         run: |
           bash bin/clear-github-actions-cache
           php proxies-all.php --admin='true'
