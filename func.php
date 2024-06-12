@@ -740,10 +740,11 @@ function generateRandomString($length = 10): string
  * Iterate over each line in a string, supporting LF, CRLF, and CR line endings.
  *
  * @param string $string The input string.
- * @param callable $callback The callback function to execute for each line.
+ * @param callable|bool $shuffle_or_callback If true, shuffle lines; if callable, callback function.
+ * @param callable|null $callback The callback function to execute for each line.
  * @return void
  */
-function iterateLines(string $string, callable $callback): void
+function iterateLines(string $string, $shuffle_or_callback, ?callable $callback = null): void
 {
   // Normalize all newlines to LF (\n)
   $normalizedString = preg_replace('/\r?\n/', "\n", $string);
@@ -751,9 +752,26 @@ function iterateLines(string $string, callable $callback): void
   // Split the string by LF
   $lines = explode("\n", $normalizedString);
 
+  if (is_callable($shuffle_or_callback)) {
+    $callback = $shuffle_or_callback;
+    $shuffleLines = false;
+  } elseif ($shuffle_or_callback === true) {
+    $shuffleLines = true;
+  } else {
+    $shuffleLines = false;
+  }
+
+  if ($shuffleLines) {
+    shuffle($lines);
+  }
+
   // Iterate over each line and execute the callback
   foreach ($lines as $index => $line) {
-    $callback($line, $index);
+    if (trim($line) !== '') { // Skip empty lines
+      if ($callback !== null) {
+        $callback($line, $index);
+      }
+    }
   }
 }
 
