@@ -36,10 +36,7 @@ if (!empty($options['lockFile'])) {
   $lockFilePath = $options['lockFile'];
 }
 if (!empty($options['max'])) {
-  $max = intval($options['max']);
-  if ($max > 0) {
-    $max_checks = $max;
-  }
+  $max = intval($options['max']) > 0 ? intval($options['max']) : $max;
 }
 if (!empty($options['admin']) && $options['admin'] !== 'false') {
   $isAdmin = true;
