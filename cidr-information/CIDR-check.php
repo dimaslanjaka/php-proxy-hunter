@@ -88,7 +88,7 @@ if (file_exists($filePath)) {
 
   iterateBigFilesLineByLine([$filePath], $max, function (string $line) use (&$str_to_remove, $startTime, $filePath, $maxExecutionTime) {
     $db = new ProxyDB();
-    echo $line . PHP_EOL;
+    // echo $line . PHP_EOL;
     $proxies = extractProxies($line, null, false);
     for ($i = 0; $i < count($proxies); $i++) {
       if (!is_debug()) {
