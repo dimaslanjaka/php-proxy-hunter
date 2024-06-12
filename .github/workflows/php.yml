@@ -111,7 +111,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-php-
 
-      - name: Install dependencies
+      - name: Install NodeJS dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           if [ ! -f composer.lock ]; then
@@ -125,6 +125,13 @@ jobs:
               touch yarn.lock
           fi
           yarn install
+
+      - name: Create folder
+        run: |
+          mkdir -p assets/proxies
+          mkdir -p tmp
+          mkdir -p tmp/runners
+          mkdir -p tmp/cookies
 
       - name: Check last run proxy fetcher
         id: check_last_run
@@ -155,17 +162,9 @@ jobs:
           date +%s > tmp/last_fetch_timestamp.txt  # Update last fetch timestamp
           echo "last_fetch_timestamp=$(date +%s)" >> $GITHUB_STATE
 
-      - name: Scan ports
+      - name: Check proxies and scan ports
         run: |
-          php scanPorts.php --admin='true'
-          php cidr-information/CIDR-check.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
-
-      - name: Check proxies
-        run: |
-          mkdir -p assets/proxies
-          mkdir -p tmp
-          mkdir -p tmp/runners
-          mkdir -p tmp/cookies
+          php scanPorts.php --admin='true' --max='${{ github.event.inputs.max || 500 }}' --admin='true'
           php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
           php proxyCheckerParallel.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
 
