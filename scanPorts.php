@@ -57,23 +57,28 @@ if (empty($str)) {
   });
 }
 
-// extract IPs and generate ports
-$proxies = extractProxies($str);
-shuffle($proxies);
+iterateLines($str, 'execute_line');
 
-// execute all proxies
-foreach ($proxies as $index => $item) {
-  $generatedProxies = saveRangePorts($item->proxy);
-  do_check($generatedProxies, true);
-  if ($index > 30) {
-    break;
+function execute_line($line)
+{
+  // extract IPs and generate ports
+  $proxies = extractProxies($line);
+  shuffle($proxies);
+
+  // execute all proxies
+  foreach ($proxies as $index => $item) {
+    $generatedProxies = saveRangePorts($item->proxy);
+    do_check($generatedProxies, true);
+    if ($index > 30) {
+      break;
+    }
   }
-}
 
-// execute random proxies
-// $item = $proxies[array_rand($proxies)];
-// $generatedProxies = saveRangePorts($item->proxy);
-// do_check($generatedProxies);
+  // execute random proxies
+  // $item = $proxies[array_rand($proxies)];
+  // $generatedProxies = saveRangePorts($item->proxy);
+  // do_check($generatedProxies);
+}
 
 function do_check($filePath, $background = false)
 {
