@@ -737,6 +737,27 @@ function generateRandomString($length = 10): string
 }
 
 /**
+ * Iterate over each line in a string, supporting LF, CRLF, and CR line endings.
+ *
+ * @param string $string The input string.
+ * @param callable $callback The callback function to execute for each line.
+ * @return void
+ */
+function iterateLines(string $string, callable $callback): void
+{
+  // Normalize all newlines to LF (\n)
+  $normalizedString = preg_replace('/\r?\n/', "\n", $string);
+
+  // Split the string by LF
+  $lines = explode("\n", $normalizedString);
+
+  // Iterate over each line and execute the callback
+  foreach ($lines as $line) {
+    $callback($line);
+  }
+}
+
+/**
  * Iterate over multiple big files line by line and execute a callback for each line.
  *
  * @param array $filePaths Array of file paths to iterate over.
