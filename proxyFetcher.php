@@ -138,6 +138,7 @@ foreach ($chunks as $index => $chunk) {
           echo 'non proxy lines removed from ' . basename($outputFile) . PHP_EOL;
           sleep(1);
           removeDuplicateLines($outputFile);
+          echo 'duplicate lines removed from ' . basename($outputFile) . PHP_EOL;
         } else {
           echo $filter . PHP_EOL;
         }
