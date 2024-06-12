@@ -89,7 +89,7 @@ function do_check($filePath, $background = false)
   if ($isWin) {
     $cmd = "start /B \"filter_ports\" $cmd";
   }
-  $runner = __DIR__ . "/tmp/runners/CIDR-port-checker" . ($isWin ? '.bat' : ".sh");
+  $runner = __DIR__ . "/tmp/runners/CIDR-port-checker-" . md5($filePath) . ($isWin ? '.bat' : ".sh");
   $webLockFile = __DIR__ . '/tmp/' . basename(__FILE__, '.php') . '.lock';
   $output_file = __DIR__ . '/proxyChecker.txt';
 
