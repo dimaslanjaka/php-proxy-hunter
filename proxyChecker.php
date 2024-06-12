@@ -236,6 +236,14 @@ if (empty($untested)) {
   // re-check dead proxies when both data (db & file) is empty
   $db_dead = $db->getDeadProxies(10000);
   $db_data_map = array_map(function ($item) {
+    // check if dead proxy checked less than 1 hour ago
+    if (!empty($item['last_check'])) {
+      if (!isDateRFC3339OlderThanHours($item['last_check'], 1)) {
+        // drop dead proxy when last checked less than 1 hour ago
+        return null;
+      }
+    }
+    // process transform to Proxy class
     $wrap = new Proxy($item['proxy']);
     foreach ($item as $key => $value) {
       if (property_exists($wrap, $key)) {
@@ -248,7 +256,8 @@ if (empty($untested)) {
     }
     return $wrap;
   }, $db_dead);
-  $untested = $db_data_map;
+  // assign untested
+  $untested = array_filter(array_merge($untested, $db_data_map));
 }
 
 echo PHP_EOL;
