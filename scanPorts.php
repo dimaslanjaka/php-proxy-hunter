@@ -57,7 +57,7 @@ if (empty($str)) {
   });
 }
 
-iterateLines($str, 'execute_line');
+iterateLines($str, true, 'execute_line');
 
 $background_running = 0;
 
