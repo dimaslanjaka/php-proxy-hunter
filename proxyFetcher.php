@@ -91,55 +91,58 @@ $urls = array_unique(
   ]
 );
 
-// File to append the content
-$outputFile = __DIR__ . "/assets/proxies/added-fetch-" . date("Ymd") . ".txt";
+// Split the $urls array into chunks of 5 items each
+$chunks = array_chunk($urls, 5);
 
-// Loop through each URL
-foreach ($urls as $url) {
-  // Fetch content from URL
-  $content = curlGetWithProxy($url, null, null, 3600);
-  if (!$content) {
-    $content = '';
-  }
-  $json = json_decode(trim($content), true);
-  if (json_last_error() === JSON_ERROR_NONE) {
-    $content = '';
-    if (isset($json['data'])) {
-      if (is_array($json['data'])) {
-        foreach ($json['data'] as $item) {
-          if (isset($item['ip']) && isset($item['port'])) {
-            $proxy = trim($item['ip']) . ":" . trim($item['port']);
-            $content .= $proxy . PHP_EOL;
-          } else {
-            var_dump($item);
+// Loop through each chunk with an index
+foreach ($chunks as $index => $chunk) {
+  // Create a unique filename for each chunk
+  $outputFile = __DIR__ . "/assets/proxies/added-fetch-" . date("Ymd") . "-chunk-" . ($index + 1) . ".txt";
+
+  foreach ($chunk as $url) {
+    // Fetch content from URL
+    $content = curlGetWithProxy($url, null, null, 3600);
+    if (!$content) {
+      $content = '';
+    }
+    $json = json_decode(trim($content), true);
+    if (json_last_error() === JSON_ERROR_NONE) {
+      $content = '';
+      if (isset($json['data'])) {
+        if (is_array($json['data'])) {
+          foreach ($json['data'] as $item) {
+            if (isset($item['ip']) && isset($item['port'])) {
+              $proxy = trim($item['ip']) . ":" . trim($item['port']);
+              $content .= $proxy . PHP_EOL;
+            } else {
+              var_dump($item);
+            }
           }
         }
-      }
-    } else {
-      var_dump($json);
-    }
-  }
-
-  // Append content to output file
-  Scheduler::register(function () use ($outputFile, $content, $url) {
-    $fallback_file = __DIR__ . '/assets/proxies/added-fetch-' . md5($url) . '.txt';
-    $append = append_content_with_lock($outputFile, "\n" . $content . "\n");
-    if (!$append) {
-      $outputFile = $fallback_file;
-      $append = append_content_with_lock($fallback_file, "\n" . $content . "\n");
-    }
-    if ($append) {
-      $filter = filterIpPortLines($outputFile);
-      if ($filter == 'success') {
-        echo 'non proxy lines removed from ' . basename($outputFile) . PHP_EOL;
-        sleep(1);
-        removeDuplicateLines($outputFile);
       } else {
-        echo $filter . PHP_EOL;
+        var_dump($json);
       }
-      sleep(1);
     }
-  }, "append content " . md5($url));
-}
 
-//echo "Content appended to $outputFile" . PHP_EOL;
+    // Append content to output file
+    Scheduler::register(function () use ($outputFile, $content, $url) {
+      $fallback_file = __DIR__ . '/assets/proxies/added-fetch-' . md5($url) . '.txt';
+      $append = append_content_with_lock($outputFile, "\n" . $content . "\n");
+      if (!$append) {
+        $outputFile = $fallback_file;
+        $append = append_content_with_lock($fallback_file, "\n" . $content . "\n");
+      }
+      if ($append) {
+        $filter = filterIpPortLines($outputFile);
+        if ($filter == 'success') {
+          echo 'non proxy lines removed from ' . basename($outputFile) . PHP_EOL;
+          sleep(1);
+          removeDuplicateLines($outputFile);
+        } else {
+          echo $filter . PHP_EOL;
+        }
+        sleep(1);
+      }
+    }, "append content " . md5($url));
+  }
+}
