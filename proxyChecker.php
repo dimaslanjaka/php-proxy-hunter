@@ -232,6 +232,25 @@ if ($countLinesUntestedProxies > 0) {
   shuffle($untested);
 }
 
+if (empty($untested)) {
+  // re-check dead proxies when both data (db & file) is empty
+  $db_dead = $db->getDeadProxies(10000);
+  $db_data_map = array_map(function ($item) {
+    $wrap = new Proxy($item['proxy']);
+    foreach ($item as $key => $value) {
+      if (property_exists($wrap, $key)) {
+        $wrap->$key = $value;
+      }
+    }
+    if (!empty($item['username']) && !empty($item['password'])) {
+      $wrap->username = $item['username'];
+      $wrap->password = $item['password'];
+    }
+    return $wrap;
+  }, $db_dead);
+  $untested = $db_data_map;
+}
+
 echo PHP_EOL;
 
 execute_array_proxies();
