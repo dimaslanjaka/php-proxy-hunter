@@ -752,8 +752,8 @@ function iterateLines(string $string, callable $callback): void
   $lines = explode("\n", $normalizedString);
 
   // Iterate over each line and execute the callback
-  foreach ($lines as $line) {
-    $callback($line);
+  foreach ($lines as $index => $line) {
+    $callback($line, $index);
   }
 }
 
