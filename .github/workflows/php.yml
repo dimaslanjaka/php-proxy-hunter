@@ -28,8 +28,8 @@ on:
     - cron: "0 * * * *"
 
 concurrency:
-  group: build
-  # cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event_name }}
+  cancel-in-progress: false
 
 jobs:
   build:
