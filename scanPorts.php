@@ -59,19 +59,26 @@ if (empty($str)) {
 
 iterateLines($str, 'execute_line');
 
-function execute_line($line)
+$background_running = 0;
+
+function execute_line($line, $line_index)
 {
+  global $background_running;
+  if ($background_running > 30) {
+    // skip iterate index 30
+    return;
+  }
   // extract IPs and generate ports
   $proxies = extractProxies($line);
   shuffle($proxies);
 
   // execute all proxies
   foreach ($proxies as $index => $item) {
-    $generatedProxies = saveRangePorts($item->proxy);
-    do_check($generatedProxies, true);
-    if ($index > 30) {
+    if ($index > 30 || $background_running > 30) {
       break;
     }
+    $generatedProxies = saveRangePorts($item->proxy);
+    do_check($generatedProxies, true);
   }
 
   // execute random proxies
@@ -82,7 +89,7 @@ function execute_line($line)
 
 function do_check($filePath, $background = false)
 {
-  global $isCli, $isAdmin;
+  global $isCli, $isAdmin, $background_running;
   $file =  __DIR__ . '/cidr-information/CIDR-check.php';
   $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
   $cmd = "php " . escapeshellarg($file);
@@ -115,6 +122,7 @@ function do_check($filePath, $background = false)
   if ($background) {
     // Generate the command to run in the background
     $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
+    $background_running += 1;
   }
 
   // Write the command to the runner script
