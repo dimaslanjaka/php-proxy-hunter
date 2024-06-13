@@ -21,7 +21,35 @@ if (!$isCli) {
 $lockFilePath = __DIR__ . "/tmp/proxies-all.lock";
 $statusFile = __DIR__ . "/status.txt";
 
-if (file_exists($lockFilePath) && !is_debug()) {
+$isAdmin = false;
+
+if ($isCli) {
+  $short_opts = "p:m::";
+  $long_opts = [
+    "proxy:",
+    "max::",
+    "userId::",
+    "lockFile::",
+    "runner::",
+    "admin::"
+  ];
+  $options = getopt($short_opts, $long_opts);
+  if (!empty($options['max'])) {
+    $max = intval($options['max']);
+    if ($max > 0) {
+      $max_checks = $max;
+    }
+  }
+  if (!empty($options['admin']) && $options['admin'] !== 'false') {
+    $isAdmin = true;
+    // set time limit 30 minutes for admin
+    $maxExecutionTime = 30 * 60;
+    // disable execution limit
+    set_time_limit(0);
+  }
+}
+
+if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
   // wait 30s before restart script
   sleep(30);
