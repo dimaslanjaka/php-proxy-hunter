@@ -127,12 +127,13 @@ jobs:
           fi
           yarn install
 
-      - name: Create folder
+      - name: Initialize Github Actions
         run: |
           mkdir -p assets/proxies
           mkdir -p tmp
           mkdir -p tmp/runners
           mkdir -p tmp/cookies
+          php github-actions-init.php
 
       - name: Check last run proxy fetcher
         id: check_last_run
