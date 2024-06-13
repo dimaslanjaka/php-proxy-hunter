@@ -18,7 +18,7 @@ on:
       max:
         description: "The maximum proxies to be checked."
         required: true
-        default: 500
+        default: "500"
   workflow_call:
     secrets:
       ACCESS_TOKEN:
