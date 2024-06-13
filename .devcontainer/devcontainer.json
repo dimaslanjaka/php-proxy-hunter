@@ -17,19 +17,16 @@
 		// }
 	},
 	// Configure tool-specific properties.
-	// "customizations": {
-	// 	// Configure properties specific to VS Code.
-	// 	"vscode": {
-	// 		"settings": {},
-	// 		"extensions": [
-	// 			"ms-vscode.vscode-typescript-next",
-	// 			"bmewburn.vscode-intelephense-client",
-	// 			"esbenp.prettier-vscode",
-	// 			"dbaeumer.vscode-eslint"
-	// 		]
-	// 	}
-	// },
 	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// "settings": {},
+			"extensions": [
+				"bmewburn.vscode-intelephense-client",
+				"esbenp.prettier-vscode",
+				"dbaeumer.vscode-eslint"
+			]
+		},
     "codespaces": {
       "repositories": {
         "dimaslanjaka/php-proxy-hunter": {
