@@ -1,18 +1,18 @@
 name: Proxy Checker
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - "**/*.tgz"
-      - "**/*.gz"
-      - "**/release/**"
-      - ".github/codeql/*"
-      - "**codeql**"
-      - "**clean-caches**"
-      - "**/yarn.lock"
-      - "!**/.git*"
+  # push:
+  #   branches:
+  #     - master
+  #   paths-ignore:
+  #     - "**/*.tgz"
+  #     - "**/*.gz"
+  #     - "**/release/**"
+  #     - ".github/codeql/*"
+  #     - "**codeql**"
+  #     - "**clean-caches**"
+  #     - "**/yarn.lock"
+  #     - "!**/.git*"
   workflow_dispatch:
     inputs:
       max:
