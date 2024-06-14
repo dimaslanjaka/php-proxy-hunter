@@ -144,12 +144,23 @@ jobs:
           yarn install
 
       - name: Initialize Github Actions
+        id: php-github-actions-init
+        env:
+          GITHUB_OUTPUT: $GITHUB_OUTPUT
         run: |
           mkdir -p assets/proxies
           mkdir -p tmp
           mkdir -p tmp/runners
           mkdir -p tmp/cookies
           php github-actions-init.php
+
+      - name: Display output
+        run: |
+          echo "Total working proxies: ${{ steps.php-github-actions-init.outputs.total_working }}"
+          echo "Total dead proxies: ${{ steps.php-github-actions-init.outputs.total_dead }}"
+          echo "Total untested proxies: ${{ steps.php-github-actions-init.outputs.total_untested }}"
+          echo "Total private proxies: ${{ steps.php-github-actions-init.outputs.total_private }}"
+          echo "Total all proxies: ${{ steps.php-github-actions-init.outputs.total_all }}"
 
       - name: Check last run proxy fetcher
         id: check_last_run
