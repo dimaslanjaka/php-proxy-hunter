@@ -254,6 +254,7 @@ jobs:
           git filter-repo --path proxies --invert-paths --force
           git reflog expire --expire=now --all
           git gc --prune=now --aggressive
+          git remote add origin https://github.com/dimaslanjaka/data
           git push --force --all
           git push --force --tags
 
