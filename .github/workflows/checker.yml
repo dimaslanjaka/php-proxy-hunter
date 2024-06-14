@@ -225,10 +225,11 @@ jobs:
       - name: Init deployment repository
         working-directory: public
         run: |
-          pip install git-filter-repo
-          git filter-repo --path proxies/working.txt --invert-paths --force
           git config --global user.email "dimaslanjaka@gmail.com"
           git config --global user.name "dimaslanjaka"
+          git pull
+          pip install git-filter-repo
+          git filter-repo --path proxies/working.txt --invert-paths --force
 
       - name: Print working proxies
         id: working
