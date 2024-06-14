@@ -47,6 +47,10 @@ jobs:
       YARN_CHECKSUM_BEHAVIOR: update
 
     steps:
+      - name: Set timezone
+        uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: "Asia/Jakarta"
       - uses: actions/checkout@v4
         with:
           token: "${{ secrets.ACCESS_TOKEN }}"
