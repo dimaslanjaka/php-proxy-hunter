@@ -30,7 +30,8 @@
 			"extensions": [
 				"bmewburn.vscode-intelephense-client",
 				"esbenp.prettier-vscode",
-				"dbaeumer.vscode-eslint"
+				"dbaeumer.vscode-eslint",
+				"formulahendry.code-runner"
 			]
 		},
 		"codespaces": {
