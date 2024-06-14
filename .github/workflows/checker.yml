@@ -279,7 +279,7 @@ jobs:
         continue-on-error: true
         run: |
           git add proxies
-          git commit -m "update working proxies" -m "commit hash: ${{ env.GITHUB_SHA_SHORT }}" -m "commit url: ${{ env.GITHUB_COMMIT_URL }}" -m "runner: ${{ env.GITHUB_RUNNER_URL }}"
+          git commit -m "update working proxies - ${{ env.GITHUB_COMMIT_URL }}" -m "runner: ${{ env.GITHUB_RUNNER_URL }}"
           git push --force --all
           echo "Working proxies deployed at https://github.com/dimaslanjaka/data/raw/master/proxies/working.json"
 
