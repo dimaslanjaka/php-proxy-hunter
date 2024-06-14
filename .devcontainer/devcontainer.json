@@ -4,7 +4,9 @@
 	"name": "Github Dev Container",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	// "image": "mcr.microsoft.com/devcontainers/universal:2",
-	"build": { "dockerfile": "Dockerfile" },
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {},
@@ -15,6 +17,10 @@
 		// "ghcr.io/devcontainers/features/node:1": {
 		// 	"version": "18"
 		// }
+	},
+	"remoteEnv": {
+		// set timezone to Asia/Jakarta
+		"TZ": "Asia/Jakarta"
 	},
 	// Configure tool-specific properties.
 	"customizations": {
@@ -27,14 +33,14 @@
 				"dbaeumer.vscode-eslint"
 			]
 		},
-    "codespaces": {
-      "repositories": {
-        "dimaslanjaka/php-proxy-hunter": {
-          "permissions": "write-all"
-        }
-      }
-    }
-  },
+		"codespaces": {
+			"repositories": {
+				"dimaslanjaka/php-proxy-hunter": {
+					"permissions": "write-all"
+				}
+			}
+		}
+	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [8000],
 	// Use 'portsAttributes' to set default properties for specific forwarded ports. More info: https://code.visualstudio.com/docs/remote/devcontainerjson-reference.
