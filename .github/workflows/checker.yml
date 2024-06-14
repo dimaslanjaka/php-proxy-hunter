@@ -251,7 +251,9 @@ jobs:
           git config --global user.name "dimaslanjaka"
           git pull
           pip install git-filter-repo
-          git filter-repo --path proxies/working.json --invert-paths --force
+          git filter-repo --path proxies --invert-paths --force
+          git push --force --all
+          git push --force --tags
 
       - name: Print working proxies
         id: working
