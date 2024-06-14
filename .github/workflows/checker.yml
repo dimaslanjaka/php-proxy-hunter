@@ -250,7 +250,7 @@ jobs:
           git config --global user.email "dimaslanjaka@gmail.com"
           git config --global user.name "dimaslanjaka"
           git pull
-          pip install git-filter-repo git-filter-branch
+          pip install git-filter-repo
           git filter-repo --path proxies --invert-paths --force
           git reflog expire --expire=now --all
           git gc --prune=now --aggressive
