@@ -223,7 +223,6 @@ jobs:
           echo "GITHUB_RUNNER_URL=https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV
 
       - name: Init deployment repository
-        if: steps.working.outputs.success == 'true'
         working-directory: public
         run: |
           pip install git-filter-repo
