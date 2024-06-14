@@ -162,6 +162,13 @@ jobs:
           echo "Total private proxies: ${{ steps.php-github-actions-init.outputs.total_private }}"
           echo "Total all proxies: ${{ steps.php-github-actions-init.outputs.total_all }}"
 
+      - name: Run another PHP script if no dead proxies
+        if: ${{ steps.php-github-actions-init.outputs.total_dead == '0' }}
+        run: |
+          php cidr-information/CIDR-ports.php
+          php cidr-information/CIDR-ranges.php
+          php cidr-information/CIDR-check.php
+
       - name: Check last run proxy fetcher
         id: check_last_run
         run: |
