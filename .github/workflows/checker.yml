@@ -279,7 +279,7 @@ jobs:
           fi
 
       - name: Clean GitHub caches if needed
-        # if: steps.clean_github_actions_cache.outputs.clean_temp == 'true'
+        if: steps.clean_github_actions_cache.outputs.clean_temp == 'true'
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
