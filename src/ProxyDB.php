@@ -17,7 +17,7 @@ if (!defined('PHP_PROXY_HUNTER')) {
 class ProxyDB
 {
   /** @var SQLiteHelper $db */
-  private $db;
+  public $db;
 
   /**
    * ProxyDB constructor.
