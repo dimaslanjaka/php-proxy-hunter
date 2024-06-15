@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname "$0")/_/husky.sh"
 
+# fix PHP permissions
 if [[ "$(uname -s)" == *"CYGWIN"* || "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"MSYS"* ]]; then
     echo "WINDOWS"
 elif [[ "$(uname -s)" == "Linux" ]]; then
