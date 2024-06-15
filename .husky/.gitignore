@@ -6,3 +6,5 @@
 !/post-commit
 !/readme.md
 !*.py
+!/post-checkout
+!/pre-push
