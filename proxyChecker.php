@@ -238,8 +238,8 @@ if (empty($untested)) {
   $db_data_map = array_map(function ($item) {
     // check if dead proxy checked less than 1 hour ago
     if (!empty($item['last_check'])) {
-      if (!isDateRFC3339OlderThanHours($item['last_check'], 1)) {
-        // drop dead proxy when last checked less than 1 hour ago
+      if (!isDateRFC3339OlderThanHours($item['last_check'], 24)) {
+        // drop dead proxy when last checked less than 24 hour ago
         return null;
       }
     }
