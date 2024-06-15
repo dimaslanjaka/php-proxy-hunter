@@ -333,5 +333,6 @@ jobs:
         run: |
           bash bin/clear-github-actions-cache
           php proxies-all.php --admin='true'
+          php filterPortsDuplicate.php --admin='true'
           date +%s > tmp/last_ci_cache_clean_timestamp.txt  # Update last clean timestamp
           echo "last_ci_cache_clean_timestamp=$(date +%s)" >> $GITHUB_STATE
