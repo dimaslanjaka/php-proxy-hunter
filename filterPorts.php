@@ -71,6 +71,7 @@ register_shutdown_function('exitProcess');
 $db = new ProxyDB();
 
 $file = __DIR__ . '/proxies.txt';
+
 // remove empty lines
 removeEmptyLinesFromFile($file);
 
