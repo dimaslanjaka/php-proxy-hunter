@@ -72,6 +72,7 @@ do {
   $stmt->bindParam(':batchSize', $batchSize, PDO::PARAM_INT);
   $stmt->execute();
   $duplicateIpCounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $startTime = microtime(true);
 
   // Display the results
   foreach ($duplicateIpCounts as $ipInfo) {
@@ -79,6 +80,13 @@ do {
     // Skip invalid IP
     if (!isValidIp($ip)) {
       continue;
+    }
+    // Check if execution time has exceeded the maximum allowed time
+    $elapsedTime = microtime(true) - $startTime;
+    if ($elapsedTime > $maxExecutionTime) {
+      // Execution time exceeded
+      echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
+      exit(0);
     }
 
     // Re-count the same IP
