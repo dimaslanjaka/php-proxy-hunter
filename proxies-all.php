@@ -23,6 +23,8 @@ $statusFile = __DIR__ . "/status.txt";
 
 $isAdmin = false;
 $maxExecutionTime = 2 * 60;
+// disable execution limit
+set_time_limit(0);
 
 if ($isCli) {
   $short_opts = "p:m::";
@@ -45,8 +47,6 @@ if ($isCli) {
     $isAdmin = true;
     // set time limit 30 minutes for admin
     $maxExecutionTime = 30 * 60;
-    // disable execution limit
-    set_time_limit(0);
   }
 }
 
