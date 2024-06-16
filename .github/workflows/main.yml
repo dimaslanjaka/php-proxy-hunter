@@ -1,4 +1,4 @@
-name: Proxy Checker
+name: Main CI
 
 on:
   workflow_dispatch:
