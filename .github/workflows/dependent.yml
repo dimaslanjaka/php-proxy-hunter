@@ -1,0 +1,27 @@
+name: Dependent Workflow
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  dependent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up jq
+        run: sudo apt-get install -y jq
+
+      - name: Wait for `checker.yml` Workflow to Complete
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x ./.github/workflows/check_workflow_status.sh
+          bash ./.github/workflows/check_workflow_status.sh
+
+      - name: Run dependent job
+        run: echo "Running dependent job after `checker.yml` workflow has completed"
