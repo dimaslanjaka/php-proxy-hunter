@@ -1,18 +1,53 @@
 #!/bin/bash
 
+# Function to display usage
+usage() {
+  echo "Usage: $0 --repo-owner=<repo_owner> --repo-name=<repo_name> --branch=<branch> --workflow-path=<workflow_path>"
+  exit 1
+}
+
+# Parse arguments
+for arg in "$@"; do
+  case $arg in
+    --repo-owner=*)
+      REPO_OWNER="${arg#*=}"
+      shift
+      ;;
+    --repo-name=*)
+      REPO_NAME="${arg#*=}"
+      shift
+      ;;
+    --branch=*)
+      BRANCH="${arg#*=}"
+      shift
+      ;;
+    --workflow-path=*)
+      WORKFLOW_FILE_NAME="${arg#*=}"
+      shift
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+
+# Validate arguments
+if [ -z "$REPO_OWNER" ] || [ -z "$REPO_NAME" ] || [ -z "$BRANCH" ] || [ -z "$WORKFLOW_FILE_NAME" ]; then
+  usage
+fi
+
 # GitHub API URL
 GITHUB_API_URL="https://api.github.com"
-
-# Repository information
-REPO_OWNER="dimaslanjaka"
-REPO_NAME="php-proxy-hunter"
-WORKFLOW_FILE_NAME="checker.yml"
-BRANCH="master"
 
 # Get the workflow ID based on the workflow file name
 WORKFLOW_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
   "$GITHUB_API_URL/repos/$REPO_OWNER/$REPO_NAME/actions/workflows" | \
-  jq -r ".workflows[] | select(.path==\".github/workflows/$WORKFLOW_FILE_NAME\") | .id")
+  jq -r ".workflows[] | select(.path==\"$WORKFLOW_FILE_NAME\") | .id")
+
+if [ -z "$WORKFLOW_ID" ]; then
+  echo "Workflow not found!"
+  exit 1
+fi
 
 # Check the status of the latest run
 check_workflow_status() {
