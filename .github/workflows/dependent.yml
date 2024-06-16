@@ -21,7 +21,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           chmod +x ./.github/workflows/check_workflow_status.sh
-          bash ./.github/workflows/check_workflow_status.sh
+          ./.github/workflows/check_workflow_status.sh --repo-owner="dimaslanjaka" --repo-name="php-proxy-hunter" --branch="master" --workflow-path=".github/workflows/checker.yml"
 
       - name: Run dependent job
         run: echo "Running dependent job after `checker.yml` workflow has completed"
