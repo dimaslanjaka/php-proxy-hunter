@@ -1,18 +1,6 @@
 name: Proxy Checker
 
 on:
-  # push:
-  #   branches:
-  #     - master
-  #   paths-ignore:
-  #     - "**/*.tgz"
-  #     - "**/*.gz"
-  #     - "**/release/**"
-  #     - ".github/codeql/*"
-  #     - "**codeql**"
-  #     - "**clean-caches**"
-  #     - "**/yarn.lock"
-  #     - "!**/.git*"
   workflow_dispatch:
     inputs:
       max:
@@ -20,15 +8,17 @@ on:
         required: true
         default: "500"
   workflow_call:
+    inputs:
+      max:
+        description: "The maximum proxies to be checked."
+        required: true
+        default: "500"
     secrets:
       ACCESS_TOKEN:
         required: true
-  schedule:
-    # Run every hour
-    - cron: "0 * * * *"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}
+  group: checker-${{ github.workflow }}-${{ github.event_name }}
   cancel-in-progress: false
 
 jobs:
