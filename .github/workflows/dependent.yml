@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+concurrency:
+  group: dependent-${{ github.workflow }}-${{ github.event_name }}
+  cancel-in-progress: true
+
 jobs:
   dependent:
     runs-on: ubuntu-latest
