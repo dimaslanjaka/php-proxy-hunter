@@ -22,7 +22,7 @@ $lockFilePath = __DIR__ . "/tmp/proxies-all.lock";
 $statusFile = __DIR__ . "/status.txt";
 
 $isAdmin = false;
-$maxExecutionTime = 2 * 60;
+$maxExecutionTime = 10 * 60;
 // disable execution limit
 set_time_limit(0);
 
