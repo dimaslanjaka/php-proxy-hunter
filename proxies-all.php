@@ -22,6 +22,7 @@ $lockFilePath = __DIR__ . "/tmp/proxies-all.lock";
 $statusFile = __DIR__ . "/status.txt";
 
 $isAdmin = false;
+$maxExecutionTime = 2 * 60;
 
 if ($isCli) {
   $short_opts = "p:m::";
@@ -131,11 +132,20 @@ if (!empty($files_to_merge)) {
   }
 }
 
-iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remove, &$str_to_remove) {
+$startTime = microtime(true);
+
+iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remove, &$str_to_remove, $startTime, $maxExecutionTime) {
   $items = extractProxies($line, $db);
   foreach ($items as $item) {
     if (empty($item->proxy)) {
       continue;
+    }
+    // Check if execution time has exceeded the maximum allowed time
+    $elapsedTime = microtime(true) - $startTime;
+    if ($elapsedTime > $maxExecutionTime) {
+      // Execution time exceeded
+      echo "Execution time exceeded maximum allowed time of {$maxExecutionTime} seconds." . PHP_EOL;
+      exit(0);
     }
     if (!isValidProxy($item->proxy)) {
       if (count($str_to_remove) < $str_limit_to_remove) {
