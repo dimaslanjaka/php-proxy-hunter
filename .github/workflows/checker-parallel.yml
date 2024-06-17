@@ -226,6 +226,7 @@ jobs:
         id: set-env
         shell: bash
         run: |
+          git config --global pull.rebase false
           git config --global user.email "dimaslanjaka@gmail.com"
           git config --global user.name "dimaslanjaka"
           echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
