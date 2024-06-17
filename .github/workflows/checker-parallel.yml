@@ -245,8 +245,7 @@ jobs:
           git reflog expire --expire=now --all
           git gc --prune=now --aggressive
           git remote add origin https://github.com/dimaslanjaka/data
-          git push --force --all
-          git push --force --tags
+          git push --force --all --allow-unrelated-histories
 
       - name: Print working proxies
         id: working
@@ -282,7 +281,7 @@ jobs:
         run: |
           git add proxies
           git commit -m "update working proxies - ${{ env.GITHUB_COMMIT_URL }}" -m "runner: ${{ env.GITHUB_RUNNER_URL }}"
-          git push --force --all
+          git push --force --all --allow-unrelated-histories
           echo "Working proxies deployed at https://github.com/dimaslanjaka/data/raw/master/proxies/working.json"
 
       - name: Check last run clean GitHub Actions cache
