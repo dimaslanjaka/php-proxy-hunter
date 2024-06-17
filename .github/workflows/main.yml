@@ -19,6 +19,6 @@ jobs:
   build:
     if: contains(github.repository, 'proxy')
     permissions: read-all
-    uses: ./.github/workflows/reusable-checker.yml
+    uses: dimaslanjaka/php-proxy-hunter/.github/workflows/checker.yml@master
     with:
       max: ${{ github.event.inputs.max || 500 }}
