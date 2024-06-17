@@ -236,16 +236,18 @@ jobs:
 
       - name: Init deployment repository
         working-directory: public
+        if: ${{ false }}
         run: |
           git config --global user.email "dimaslanjaka@gmail.com"
           git config --global user.name "dimaslanjaka"
-          git pull
+          git fetch origin
+          git pull origin master
           pip install git-filter-repo
           git filter-repo --path proxies --invert-paths --force
           git reflog expire --expire=now --all
           git gc --prune=now --aggressive
           git remote add origin https://github.com/dimaslanjaka/data
-          git push --force --all --allow-unrelated-histories
+          git push origin master -f --allow-unrelated-histories
 
       - name: Print working proxies
         id: working

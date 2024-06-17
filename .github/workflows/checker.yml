@@ -238,6 +238,7 @@ jobs:
 
       - name: Init deployment repository
         working-directory: public
+        if: ${{ false }}
         run: |
           git config --global user.email "dimaslanjaka@gmail.com"
           git config --global user.name "dimaslanjaka"
