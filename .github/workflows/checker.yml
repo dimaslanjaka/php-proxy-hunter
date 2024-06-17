@@ -7,12 +7,14 @@ on:
         description: "The maximum proxies to be checked."
         required: true
         default: "500"
+        type: string
   workflow_call:
     inputs:
       max:
         description: "The maximum proxies to be checked."
         required: true
         default: "500"
+        type: string
     secrets:
       ACCESS_TOKEN:
         required: true

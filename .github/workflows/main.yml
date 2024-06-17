@@ -1,6 +1,7 @@
 name: Main CI
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       max:
