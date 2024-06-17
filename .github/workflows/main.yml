@@ -22,3 +22,5 @@ jobs:
     uses: dimaslanjaka/php-proxy-hunter/.github/workflows/checker.yml@master
     with:
       max: ${{ github.event.inputs.max || 500 }}
+    secrets:
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
