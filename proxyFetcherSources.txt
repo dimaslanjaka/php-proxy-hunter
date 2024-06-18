@@ -27,7 +27,6 @@ https://www.freeproxy.world/
 https://free-proxy-list.net/
 https://smallseotools.com/de/free-proxy-list/
 https://pastebin.com/u/privacyproxies
-https://advanced.name/freeproxy
 
 
 MULTIPLE PAGES: ([page] for automatic Sitenumber, [0-999] for max crawled pages)
