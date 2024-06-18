@@ -371,7 +371,7 @@
   };
 
   function monitorBodyChanges() {
-    let lastHtml = document.body.innerHTML;
+    let lastHtml = "";
 
     setInterval(() => {
       const currentHtml = document.body.innerHTML;
