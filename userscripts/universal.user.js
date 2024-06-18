@@ -72,9 +72,34 @@
 (function () {
   "use strict";
 
+  /**
+   * Split a string into chunks of lines.
+   * @param {string} input - The input string to split.
+   * @param {number} linesPerChunk - Maximum number of lines per chunk.
+   * @returns {string[]} An array of chunks, where each chunk is a string with up to `linesPerChunk` lines.
+   */
+  const splitStringByLines = function (input, linesPerChunk) {
+    // Split the input string by lines
+    const lines = input.split("\n");
+
+    // Initialize an array to hold chunks of lines
+    const chunks = [];
+
+    // Loop through lines and group into chunks
+    for (let i = 0; i < lines.length; i += linesPerChunk) {
+      // Slice the array to get the chunk of lines
+      const chunk = lines.slice(i, i + linesPerChunk);
+
+      // Join the chunk back into a single string and push it to the array
+      chunks.push(chunk.join("\n"));
+    }
+
+    return chunks;
+  };
+
   const addProxyFun = (dataToSend) => {
     if (!dataToSend) return;
-    if (typeof dataToSend != "string") dataToSend = JSON.stringify(dataToSend);
+    if (typeof dataToSend != "string") dataToSend = JSON.stringify(dataToSend, null, 2);
     const services = [
       "https://sh.webmanajemen.com/proxyAdd.php",
       "https://sh.webmanajemen.com/proxyCheckerParallel.php"
@@ -100,22 +125,34 @@
         });
     };
     services.forEach((url) => {
-      cb(
-        fetch(url, {
-          signal: AbortSignal.timeout(5000),
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: `proxies=${encodeURIComponent(dataToSend)}`
-        })
-      ).then(() => {
+      const split_body = splitStringByLines(dataToSend, 100);
+      split_body.forEach((str_data) => {
         cb(
           fetch(url, {
             signal: AbortSignal.timeout(5000),
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `proxy=${encodeURIComponent(dataToSend)}`
+            body: `proxies=${encodeURIComponent(str_data)}`
           })
-        );
+        ).then(() => {
+          cb(
+            fetch(url, {
+              signal: AbortSignal.timeout(5000),
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: `proxy=${encodeURIComponent(str_data)}`
+            })
+          ).then(() => {
+            cb(
+              fetch(url, {
+                signal: AbortSignal.timeout(5000),
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `proxy=${encodeURIComponent(str_data)}`
+              })
+            );
+          });
+        });
       });
     });
   };
