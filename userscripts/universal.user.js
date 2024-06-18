@@ -17,7 +17,7 @@
 // @match        *://*.socks-proxy.net/*
 // @match        *://*.us-proxy.org/*
 // @match   		 *://www.proxydocker.com/*
-// @match        *://spys.one/*/
+// @match        *://spys.one/*
 // @match        *://proxypremium.top/*
 // @match        *://proxyscrape.com/*
 // @match        *://squidproxyserver.com/*
