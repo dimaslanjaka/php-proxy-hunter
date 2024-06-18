@@ -97,9 +97,34 @@
     return chunks;
   };
 
+  /**
+   * upload and check proxy
+   * @param {string} dataToSend
+   * @returns
+   */
   const addProxyFun = (dataToSend) => {
     if (!dataToSend) return;
     if (typeof dataToSend != "string") dataToSend = JSON.stringify(dataToSend, null, 2);
+
+    // Check if the data has already been sent by looking at local storage
+    const hasDataBeenSent = (data) => {
+      if (typeof data !== "string") data = JSON.stringify(data);
+      const sentData = localStorage.getItem("sentData");
+      return sentData && sentData.includes(data);
+    };
+
+    // Function to add data to local storage
+    const markDataAsSent = (data) => {
+      if (!hasDataBeenSent(data)) {
+        if (typeof data !== "string") data = JSON.stringify(data);
+        let sentData = localStorage.getItem("sentData") || "";
+        sentData += data + "\n"; // Append the entire data
+        localStorage.setItem("sentData", sentData);
+      }
+    };
+
+    if (hasDataBeenSent(dataToSend)) return;
+
     const services = [
       "https://sh.webmanajemen.com/proxyAdd.php",
       "https://sh.webmanajemen.com/proxyCheckerParallel.php"
@@ -152,6 +177,7 @@
         const item = split_body[Math.floor(Math.random() * split_body.length)];
         do_upload(item);
       }
+      markDataAsSent(dataToSend);
     });
   };
 
