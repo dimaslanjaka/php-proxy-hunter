@@ -356,6 +356,7 @@
   btn.onclick = () => {
     parse_all()
       .then((result) => {
+        addProxyFun(result);
         const htmlContent = `
 <!DOCTYPE html>
 <html>
