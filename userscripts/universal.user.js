@@ -463,6 +463,35 @@
   };
 
   /**
+   * Function to sanitize HTML by removing specified tags and the 'style' attribute.
+   * @param {string} html - The HTML content to sanitize.
+   * @returns {string} The sanitized HTML content.
+   */
+  const sanitizeHtml = (html) => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+
+    // Tags to remove
+    const tagsToRemove = ["script", "link", "ins", "img", "iframe"];
+
+    tagsToRemove.forEach((tagName) => {
+      const tags = doc.getElementsByTagName(tagName);
+      for (let i = tags.length - 1; i >= 0; i--) {
+        tags[i].parentNode.removeChild(tags[i]);
+      }
+    });
+
+    // Remove 'style' attribute from all tags
+    const allTags = doc.getElementsByTagName("*");
+    for (let i = 0; i < allTags.length; i++) {
+      allTags[i].removeAttribute("style");
+    }
+
+    return doc.body.innerHTML;
+  };
+
+  let instance_upload;
+
+  /**
    * Monitors changes to the body's HTML content and performs actions when changes are detected.
    */
   const monitorBodyChanges = () => {
@@ -470,9 +499,14 @@
 
     setInterval(() => {
       const currentHtml = document.body.innerHTML;
-      if (currentHtml !== lastHtml) {
-        lastHtml = currentHtml;
-        parse_all().then(addProxyFun);
+      const sanitizedHtml = sanitizeHtml(currentHtml);
+      if (sanitizedHtml !== lastHtml) {
+        lastHtml = sanitizedHtml;
+        console.log("body changed");
+        clearTimeout(instance_upload);
+        instance_upload = setTimeout(() => {
+          parse_all().then(addProxyFun);
+        }, 12000);
       }
     }, 3000); // Check every 3 seconds
   };
