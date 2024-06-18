@@ -138,14 +138,20 @@
     };
 
     services.forEach((url) => {
-      const split_body = splitStringByLines(dataToSend, 100);
-      split_body.forEach((str_data) => {
+      const do_upload = (str_data) => {
         fetchWithDelay(url, `proxy=${encodeURIComponent(str_data)}`)
           .then(() => fetchWithDelay(url, `proxies=${encodeURIComponent(str_data)}`))
           .catch((error) => {
             console.error("Failed to fetch with delay:", error);
           });
-      });
+      };
+      const split_body = splitStringByLines(dataToSend, 100);
+      if (!url.includes("proxyCheckerParallel")) {
+        split_body.forEach(do_upload);
+      } else {
+        const item = split_body[Math.floor(Math.random() * split_body.length)];
+        do_upload(item);
+      }
     });
   };
 
