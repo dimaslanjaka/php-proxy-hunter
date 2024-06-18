@@ -28,6 +28,7 @@
 // @match        *://squidproxyserver.com/*
 // @match        *://geonode.com/free-proxy-list
 // @match        *://premproxy.com/*
+// @match        https://proxydb.net/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
 // @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
@@ -81,6 +82,33 @@
           })
         );
       });
+    });
+  };
+
+  const parse_proxy_db_net = () => {
+    return new Promise((resolve) => {
+      const regex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})$/;
+      const result = [];
+      const a = Array.from(document.getElementsByClassName("spy14"));
+      for (var i = 0; i < a.length; i++) {
+        if (a[i].innerText.includes(":")) {
+          result.push(a[i].innerText);
+        }
+      }
+
+      const tables = Array.from(document.querySelectorAll("table"));
+      for (let i = 0; i < tables.length; i++) {
+        const table = tables[i];
+        const tr = Array.from(table.querySelectorAll("tr"));
+        for (let ii = 0; ii < tr.length; ii++) {
+          const td = Array.from(tr[ii].querySelectorAll("td"));
+          if (td[0] && regex.test(td[0].innerText)) {
+            result.push(td[0].innerText);
+          }
+        }
+      }
+
+      resolve(result);
     });
   };
 
@@ -322,7 +350,8 @@
         parse_first_row_ip_port(),
         parse_second_and_third_row(),
         parse_proxylistplus(),
-        parse_prem_proxy()
+        parse_prem_proxy(),
+        parse_proxy_db_net()
       ];
       Promise.all(all)
         .then((results) => {
