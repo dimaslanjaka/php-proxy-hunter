@@ -341,9 +341,19 @@
     });
   };
 
-  setTimeout(() => {
-    parse_all().then(addProxyFun);
-  }, 3000);
+  function monitorBodyChanges() {
+    let lastHtml = document.body.innerHTML;
+
+    setInterval(() => {
+      const currentHtml = document.body.innerHTML;
+      if (currentHtml !== lastHtml) {
+        lastHtml = currentHtml;
+        parse_all().then(addProxyFun);
+      }
+    }, 3000); // Check every 3 seconds
+  }
+
+  setTimeout(monitorBodyChanges, 3000);
 
   const btn = document.createElement("button");
   btn.id = "php-proxy-hunter-grab-proxy";
