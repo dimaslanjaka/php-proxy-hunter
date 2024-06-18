@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         spys.one proxy parser
 // @namespace    dimaslanjaka:spysone-parser-proxy
-// @version      1.2
+// @version      1.3
 // @description  parse proxy from site page
 // @author       dimaslanjaka
 // @supportURL   https://github.com/dimaslanjaka/php-proxy-hunter/issues
 // @homepageURL         https://dimaslanjaka.github.io/
 // @contributionURL     https://github.com/dimaslanjaka/php-proxy-hunter
 // @license             MIT
-// @match        *://spys.one/*/
+// @match        *://spys.one/*
 // @match        *://premiumproxy.net/*
 // @match        *://proxypremium.top/*
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/spysone.user.js
