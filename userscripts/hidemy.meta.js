@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         hidemy.io proxy parser
+// @name         hidemy proxy parser
 // @namespace    dimaslanjaka:hideme-parser-proxy
-// @version      1.2
+// @version      1.3
 // ==/UserScript==
