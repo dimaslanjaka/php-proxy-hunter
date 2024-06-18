@@ -104,55 +104,47 @@
       "https://sh.webmanajemen.com/proxyAdd.php",
       "https://sh.webmanajemen.com/proxyCheckerParallel.php"
     ];
+
     /**
-     * fetch callback
-     * @param {Promise<any>} obj
-     * @returns {Promise<any>}
+     * Function to perform fetch with delay
+     * @param {string} url
+     * @param {string} dataToSend
      */
-    const cb = (obj) => {
-      return obj
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.text();
-        })
-        .then((data) => {
-          console.log(data);
-        })
-        .catch((error) => {
-          console.log("There was a problem with your fetch operation: (" + error.message + ")");
-        });
-    };
-    services.forEach((url) => {
-      const split_body = splitStringByLines(dataToSend, 100);
-      split_body.forEach((str_data) => {
-        cb(
+    const fetchWithDelay = (url, dataToSend) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
           fetch(url, {
             signal: AbortSignal.timeout(5000),
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `proxies=${encodeURIComponent(str_data)}`
+            body: dataToSend
           })
-        ).then(() => {
-          cb(
-            fetch(url, {
-              signal: AbortSignal.timeout(5000),
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: `proxy=${encodeURIComponent(str_data)}`
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              return response.text();
             })
-          ).then(() => {
-            cb(
-              fetch(url, {
-                signal: AbortSignal.timeout(5000),
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `proxy=${encodeURIComponent(str_data)}`
-              })
-            );
+            .then((data) => {
+              console.log(data);
+              resolve();
+            })
+            .catch((error) => {
+              console.log(`There was a problem with your fetch operation: (${error.message})`);
+              reject(error);
+            });
+        }, 1000); // 1 second delay
+      });
+    };
+
+    services.forEach((url) => {
+      const split_body = splitStringByLines(dataToSend, 100);
+      split_body.forEach((str_data) => {
+        fetchWithDelay(url, `proxy=${encodeURIComponent(str_data)}`)
+          .then(() => fetchWithDelay(url, `proxies=${encodeURIComponent(str_data)}`))
+          .catch((error) => {
+            console.error("Failed to fetch with delay:", error);
           });
-        });
       });
     });
   };
