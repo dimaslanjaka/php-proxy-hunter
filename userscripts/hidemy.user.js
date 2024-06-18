@@ -1,20 +1,21 @@
 // ==UserScript==
-// @name         hidemy.io proxy parser
+// @name         hidemy proxy parser
 // @namespace    dimaslanjaka:hideme-parser-proxy
-// @version      1.2
+// @version      1.3
 // @description  parse proxy from site page
 // @author       dimaslanjaka
 // @supportURL   https://github.com/dimaslanjaka/php-proxy-hunter/issues
 // @homepageURL         https://dimaslanjaka.github.io/
 // @contributionURL     https://github.com/dimaslanjaka/php-proxy-hunter
 // @license             MIT
-// @match        https://hidemy.name/*/proxy-list/*
-// @match        https://hidemy.io/*/proxy-list/*
-// @match        https://hidemyna.me/*/proxy-list/*
-// @match        https://hidemyname.io/*/proxy-list/*
+// @match        *://hidemy.name/*/proxy-list/*
+// @match        *://hidemy.io/*/proxy-list/*
+// @match        *://hide.mn/*/proxy-list/*
+// @match        *://hidemyna.me/*/proxy-list/*
+// @match        *://hidemyname.io/*/proxy-list/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/hidemy.user.js
-// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/hidemy.meta.js
+// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/hidemy.user.js
 // ==/UserScript==
 
 (function () {
