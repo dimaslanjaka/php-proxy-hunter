@@ -9,7 +9,8 @@
 // @contributionURL     https://github.com/dimaslanjaka/php-proxy-hunter
 // @license             MIT
 // @match        *://spys.one/*/
-// @match        *://premiumproxy.net/squid-proxy-list
+// @match        *://premiumproxy.net/*
+// @match        *://proxypremium.top/*
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/spysone.user.js
 // @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/spysone.meta.js
 // ==/UserScript==
@@ -39,9 +40,8 @@
       });
   };
 
-  const regex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})$/;
-
   const parse = () => {
+    const regex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})$/;
     let resultText = "";
     const a = Array.from(document.getElementsByClassName("spy14"));
     for (var i = 0; i < a.length; i++) {
