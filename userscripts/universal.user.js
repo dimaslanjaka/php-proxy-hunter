@@ -16,19 +16,54 @@
 // @match        *://*.sslproxies.org/*
 // @match        *://*.socks-proxy.net/*
 // @match        *://*.us-proxy.org/*
-// @match        *://free-proxy-list.net/*
 // @match   		 *://www.proxydocker.com/*
 // @match        *://spys.one/*/
-// @match        *://premiumproxy.net/*
 // @match        *://proxypremium.top/*
 // @match        *://proxyscrape.com/*
-// @match        *://list.proxylistplus.com/*
-// @match        *://www.proxynova.com/*
-// @match        *://www.freeproxy.world/*
 // @match        *://squidproxyserver.com/*
 // @match        *://geonode.com/free-proxy-list
+// @match        *://aliveproxy.com/*
+// @match        *://free-proxy-list.net/*
+// @match        *://free-proxy.cz/*
+// @match        *://www.blackhatworld.com/*
+// @match        *://www.cool-proxy.net/*
+// @match        *://www.cybersyndrome.net/*
+// @match        *://www.echolink.org/*
+// @match        *://www.gatherproxy.com/*
+// @match        *://www.idcloak.com/*
+// @match        *://www.ip-adress.com/*
+// @match        *://www.mrhinkydink.com/*
+// @match        *://www.samair.ru/*
+// @match        *://www.ultraproxies.com/*
+// @match        *://www.us-proxy.org/*
+// @match        *://www.xroxy.com/*
+// @match        *://advanced.name/*
+// @match        *://api.openproxylist.xyz/*
+// @match        *://api.proxyscrape.com/*
+// @match        *://apiproxyfree.com/*
+// @match        *://cyber-hub.pw/*
+// @match        *://free-proxy-list.com/*
+// @match        *://hidemy.name/*
+// @match        *://list.proxylistplus.com/*
+// @match        *://openproxy.space/*
+// @match        *://pastebin.com/*
+// @match        *://premiumproxy.net/*
 // @match        *://premproxy.com/*
-// @match        https://proxydb.net/*
+// @match        *://proxy-daily.com/*
+// @match        *://proxy-list.org/*
+// @match        *://proxylist.geonode.com/*
+// @match        *://proxyservers.pro/*
+// @match        *://raw.githubusercontent.com/*
+// @match        *://smallseotools.com/*
+// @match        *://spys.me/*
+// @match        *://vpnoverview.com/*
+// @match        *://www.freeproxy.world/*
+// @match        *://www.netzwelt.de/*
+// @match        *://www.proxy-list.download/*
+// @match        *://www.proxydocker.com/*
+// @match        *://www.proxynova.com/*
+// @match        *://www.proxyscan.io/*
+// @match        *://proxydb.net/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
 // @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
@@ -342,6 +377,27 @@
     });
   };
 
+  /**
+   * Extracts IP:PORT pairs from a given input string.
+   *
+   * @param {string} input - The input string containing IP:PORT pairs.
+   * @returns {string[]} An array of IP:PORT pairs found in the input string.
+   */
+  const extractIpPortPairs = (input) => {
+    // Regular expression to match IP:PORT
+    const regex = /(?:[0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}/g;
+    return input.match(regex) || [];
+  };
+
+  const extractIpPortFromBody = () => {
+    const area = document.querySelectorAll("textarea,td");
+    let currentHtml = document.body.innerHTML;
+    area.forEach((el) => {
+      currentHtml += "\n" + el.value + "\n";
+    });
+    return Promise.resolve(extractIpPortPairs(currentHtml));
+  };
+
   const parse_all = () => {
     return new Promise((resolve) => {
       const all = [
@@ -351,7 +407,8 @@
         parse_second_and_third_row(),
         parse_proxylistplus(),
         parse_prem_proxy(),
-        parse_proxy_db_net()
+        parse_proxy_db_net(),
+        extractIpPortFromBody()
       ];
       Promise.all(all)
         .then((results) => {
@@ -370,7 +427,10 @@
     });
   };
 
-  function monitorBodyChanges() {
+  /**
+   * Monitors changes to the body's HTML content and performs actions when changes are detected.
+   */
+  const monitorBodyChanges = () => {
     let lastHtml = "";
 
     setInterval(() => {
@@ -380,7 +440,7 @@
         parse_all().then(addProxyFun);
       }
     }, 3000); // Check every 3 seconds
-  }
+  };
 
   setTimeout(monitorBodyChanges, 3000);
 
