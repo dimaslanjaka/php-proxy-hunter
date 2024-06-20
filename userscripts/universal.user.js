@@ -117,9 +117,15 @@
     const markDataAsSent = (data) => {
       if (!hasDataBeenSent(data)) {
         if (typeof data !== "string") data = JSON.stringify(data);
-        let sentData = localStorage.getItem("sentData") || "";
-        sentData += data + "\n"; // Append the entire data
-        localStorage.setItem("sentData", sentData);
+        try {
+          let sentData = localStorage.getItem("sentData") || "";
+          sentData += data + "\n"; // Append the entire data
+          localStorage.setItem("sentData", sentData);
+        } catch (_e) {
+          console.log("RESET LOCAL STORAGE DATA");
+          // reset local storage
+          localStorage.setItem("sentData", data);
+        }
       }
     };
 
