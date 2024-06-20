@@ -225,7 +225,9 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null)
     $headers = array_filter($config['headers']);
   }
   // prioritize custom endpoint
-  if (!empty($custom_endpoint)) $endpoint = $custom_endpoint;
+  if (!empty($custom_endpoint)) {
+    $endpoint = $custom_endpoint;
+  }
   echo "User $user_id " . date(DATE_RFC3339) . PHP_EOL;
   echo "GET $endpoint" . PHP_EOL;
   echo implode(PHP_EOL, $headers) . PHP_EOL . PHP_EOL;
