@@ -353,7 +353,6 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null)
           'latency' => $latency,
           'https' => str_starts_with($endpoint, "https://") ? 'true' : 'false'
         ];
-        exit;
         $db->updateData($item[0]->proxy, $data);
         foreach (['http', 'socks5', 'socks4'] as $proxy_type) {
           $anonymity = get_anonymity($item[0]->proxy, $proxy_type, $item[0]->username, $item[0]->password);
@@ -385,6 +384,8 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null)
         $db->updateStatus($item[0]->proxy, 'dead');
         echo "$counter. {$item[0]->proxy} dead" . PHP_EOL;
         append_content_with_lock($output_log, "$counter. {$item[0]->proxy} dead\n");
+        // re-check with non-https endpoint
+        checkProxyInParallel([$item[0]->proxy], 'http://httpforever.com/');
       }
 
       // push proxy to be removed
