@@ -207,9 +207,10 @@ if (!empty($proxies)) {
 
 /**
  * @param Proxy[] $proxies
+ * @param string|null $custom_endpoint
  * @return void
  */
-function checkProxyInParallel(array $proxies)
+function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null)
 {
   global $output_log, $isCli, $max, $str_to_remove;
   $user_id = getUserId();
@@ -219,9 +220,12 @@ function checkProxyInParallel(array $proxies)
     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
   ];
   if (strtolower($user_id) != 'cli') {
+    // get endpoint from user data
     $endpoint = trim($config['endpoint']);
     $headers = array_filter($config['headers']);
   }
+  // prioritize custom endpoint
+  if (!empty($custom_endpoint)) $endpoint = $custom_endpoint;
   echo "User $user_id " . date(DATE_RFC3339) . PHP_EOL;
   echo "GET $endpoint" . PHP_EOL;
   echo implode(PHP_EOL, $headers) . PHP_EOL . PHP_EOL;
