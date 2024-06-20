@@ -347,8 +347,9 @@ function checkProxyInParallel(array $proxies)
           'status' => 'active',
           'private' => $isPrivate ? 'true' : 'false',
           'latency' => $latency,
-          'https' => str_starts_with($endpoint, "https://") === 0 ? 'true' : 'false'
+          'https' => str_starts_with($endpoint, "https://") ? 'true' : 'false'
         ];
+        exit;
         $db->updateData($item[0]->proxy, $data);
         foreach (['http', 'socks5', 'socks4'] as $proxy_type) {
           $anonymity = get_anonymity($item[0]->proxy, $proxy_type, $item[0]->username, $item[0]->password);
