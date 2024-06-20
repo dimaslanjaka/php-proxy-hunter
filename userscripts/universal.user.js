@@ -528,8 +528,6 @@
     return elements.join("\n");
   };
 
-  let instance_upload;
-
   /**
    * Monitors changes to the body's HTML content and performs actions when changes are detected.
    */
@@ -542,10 +540,7 @@
       if (sanitizedHtml !== lastHtml) {
         lastHtml = sanitizedHtml;
         console.log("body changed");
-        clearTimeout(instance_upload);
-        instance_upload = setTimeout(() => {
-          parse_all().then(addProxyFun);
-        }, 12000);
+        parse_all().then(addProxyFun);
       }
     }, 3000); // Check every 3 seconds
   };
