@@ -29,7 +29,10 @@
     "ext-json": "*",
     "ext-pdo": "*",
     "ext-intl": "*",
-    "ext-fileinfo": "*"
+    "ext-fileinfo": "*",
+    "phpseclib/phpseclib": "^2.0",
+    "guzzlehttp/guzzle": "^6.0",
+    "ramsey/uuid": "^4.0"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.0 | ^2.0"
