@@ -67,6 +67,7 @@ do {
   FROM proxies
   GROUP BY ip
   HAVING COUNT(*) > 1
+  ORDER BY RANDOM()
   LIMIT :start, :batchSize");
   $stmt->bindParam(':start', $start, PDO::PARAM_INT);
   $stmt->bindParam(':batchSize', $batchSize, PDO::PARAM_INT);
@@ -101,7 +102,7 @@ do {
 
     echo "Count of proxies with IP $ip: $count\n";
     // Fetch all rows matching the IP address (including port)
-    $stmt = $pdo->prepare("SELECT \"_rowid_\",* FROM \"main\".\"proxies\" WHERE SUBSTR(proxy, 0, INSTR(proxy, ':')) = :ip LIMIT 0, 49999;");
+    $stmt = $pdo->prepare("SELECT \"_rowid_\",* FROM \"main\".\"proxies\" WHERE SUBSTR(proxy, 0, INSTR(proxy, ':')) = :ip ORDER BY RANDOM() LIMIT 0, 49999;");
     $stmt->bindParam(':ip', $ip, PDO::PARAM_STR);
     $stmt->execute();
     $ipRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
