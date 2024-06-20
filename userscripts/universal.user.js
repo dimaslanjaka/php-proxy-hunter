@@ -503,7 +503,7 @@
     const doc = new DOMParser().parseFromString(html, "text/html");
 
     // Tags to remove
-    const tagsToRemove = ["script", "link", "ins", "img", "iframe"];
+    const tagsToRemove = ["img", "script", "iframe", "link", "ins"];
 
     tagsToRemove.forEach((tagName) => {
       const tags = doc.getElementsByTagName(tagName);
@@ -518,7 +518,14 @@
       allTags[i].removeAttribute("style");
     }
 
-    return doc.body.innerHTML;
+    const filteredHtml = doc.documentElement.outerHTML;
+
+    const doc2 = new DOMParser().parseFromString(filteredHtml, "text/html");
+    const elements = [];
+    doc2.querySelectorAll("textarea,table").forEach((el) => {
+      elements.push(el.outerHTML);
+    });
+    return elements.join("\n");
   };
 
   let instance_upload;
