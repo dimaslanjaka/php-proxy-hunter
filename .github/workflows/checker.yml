@@ -285,7 +285,6 @@ jobs:
       - name: Upload working proxies
         continue-on-error: true
         run: |
-          run: |
           # Read the JSON file content
           json_content=$(php proxyWorking.php)
 
