@@ -111,6 +111,9 @@ do {
       $keepRow = null;
       foreach ($ipRows as $row) {
         $proxy = $row['proxy'];
+        if ($row['status'] == 'active') {
+          continue;
+        }
         if (!isValidProxy(trim($proxy))) {
           // Proxy is invalid, delete the row
           $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE \"_rowid_\" = :id AND \"proxy\" = :proxy");
