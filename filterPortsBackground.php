@@ -45,8 +45,9 @@ foreach ($files as $file) {
   // validate lock files
   $lock_file = __DIR__ . '/tmp/runners/' . md5($file) . '.lock';
   $lock_files[] = $lock_file;
-  if (file_exists($lock_file) && !is_debug() && !$isAdmin) {
-    exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
+  if (file_exists($lock_file) && !is_debug()) {
+    echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
+    continue;
   }
 
   echo $cmd . "\n\n";
