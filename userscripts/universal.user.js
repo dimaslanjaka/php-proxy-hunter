@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         universal proxy parser
 // @namespace    dimaslanjaka:universal-parser-proxy
-// @version      1.0
+// @version      1.1
 // @description  parse proxy from site page
 // @author       dimaslanjaka
 // @supportURL   https://github.com/dimaslanjaka/php-proxy-hunter/issues
@@ -65,12 +65,24 @@
 // @match        *://www.proxyscan.io/*
 // @match        *://proxydb.net/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
 // @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
 // ==/UserScript==
 
 (function () {
   "use strict";
+
+  const md5 = function (text) {
+    // eslint-disable-next-line no-undef
+    return CryptoJS.MD5(text).toString();
+  };
+
+  const isMD5Format = function (str) {
+    // Regular expression to check if a string is a valid MD5 hash
+    const md5Regex = /^[a-f0-9]{32}$/i;
+    return md5Regex.test(str);
+  };
 
   /**
    * Split a string into chunks of lines.
@@ -108,15 +120,21 @@
 
     // Check if the data has already been sent by looking at local storage
     const hasDataBeenSent = (data) => {
-      if (typeof data !== "string") data = JSON.stringify(data);
+      if (typeof data !== "string") data = md5(JSON.stringify(data));
+      if (!isMD5Format(data)) data = md5(data);
       const sentData = localStorage.getItem("sentData");
-      return sentData && sentData.includes(data);
+      const result = sentData && sentData.includes(data);
+      console.log(data, "is same", result);
+      return result;
     };
 
     // Function to add data to local storage
     const markDataAsSent = (data) => {
+      // skip null data
+      if (!data) return;
       if (!hasDataBeenSent(data)) {
-        if (typeof data !== "string") data = JSON.stringify(data);
+        if (typeof data !== "string") data = md5(JSON.stringify(data));
+        if (!isMD5Format(data)) data = md5(data);
         try {
           let sentData = localStorage.getItem("sentData") || "";
           sentData += data + "\n"; // Append the entire data
