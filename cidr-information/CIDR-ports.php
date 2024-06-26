@@ -61,7 +61,7 @@ foreach ($ipList as $ip) {
 
   $ip = trim($ip);
 
-  if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+  if (!isValidIp($ip)) {
     continue;
   }
 
