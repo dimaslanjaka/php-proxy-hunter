@@ -24,13 +24,13 @@ foreach ($ips as $ip) {
   }
 }
 
-function generateIPWithPorts($ip, $maxPort = 65535)
+function generateIPWithPorts($ip, $minPort = 10, $maxPort = 65535)
 {
   // Initialize an empty array to hold the IP:PORT values
   $ipPorts = [];
 
   // Loop from port 80 to the maximum port value
-  for ($port = 80; $port <= $maxPort; $port++) {
+  for ($port = $minPort; $port <= $maxPort; $port++) {
     // Add the IP:PORT value to the array
     $ipPorts[] = $ip . ':' . $port;
   }
