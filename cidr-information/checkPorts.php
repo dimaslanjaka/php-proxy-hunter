@@ -5,6 +5,8 @@
 
 require_once __DIR__ . "/../func-proxy.php";
 
+use PhpProxyHunter\Server;
+
 global $isCli, $isWin;
 
 header('Content-Type: text/plain; charset=UTF-8');
@@ -72,6 +74,13 @@ $output_file = __DIR__ . '/../proxyChecker.txt';
 setPermissions($output_file, true);
 truncateFile($output_file);
 $pid_file = tmp() . '/runners/' . md5($file) . '.pid';
+
+$main_lock_file = tmp() . '/runners/' . sanitizeFilename(Server::getRequestIP()) . ".lock";
+$lock_files[] = $main_lock_file;
+
+if (file_exists($main_lock_file)) {
+  exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
+}
 
 foreach ($ips as $ip) {
   if (isValidIp($ip)) {
