@@ -1266,5 +1266,8 @@ function extractPorts($inputString)
     $result = array_merge($result, $matches[1]);
   }
 
-  return array_unique(array_filter($result));
+  return array_filter(array_unique(array_filter($result)), function ($str) {
+    if (empty($str)) return false;
+    return strlen($str) > 1;
+  });
 }
