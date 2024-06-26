@@ -20,8 +20,8 @@ $max = 500; // default max proxies to be checked
 $maxExecutionTime = 2 * 60; // 2 mins
 $isAdmin = false;
 $basename = basename(__FILE__, '.php');
-$lockFilePath = tmp() . "/$basename.lock";
-$statusFile = tmp() . "/status.txt";
+$lockFilePath = tmp() . "/runners/$basename.lock";
+$statusFile = __DIR__ . "/../status.txt";
 $short_opts = "p:m::";
 $long_opts = [
   "path:",
@@ -89,7 +89,7 @@ if (file_exists($filePath)) {
   iterateBigFilesLineByLine([$filePath], $max, function (string $line) use (&$str_to_remove, $startTime, $filePath, $maxExecutionTime) {
     $timedout = time() - $startTime > $maxExecutionTime;
     if ($timedout) {
-      echo "Execution time exceeded. Stopping execution." . PHP_EOL;
+      // echo "Execution time exceeded. Stopping execution." . PHP_EOL;
       return;
     }
     $db = new ProxyDB();
@@ -97,7 +97,7 @@ if (file_exists($filePath)) {
     $proxies = extractProxies($line, null, false);
     for ($i = 0; $i < count($proxies); $i++) {
       if ($timedout) {
-        echo "Execution time exceeded. Stopping execution." . PHP_EOL;
+        // echo "Execution time exceeded. Stopping execution." . PHP_EOL;
         break;
       }
       $item = $proxies[$i];
