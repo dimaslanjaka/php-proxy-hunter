@@ -60,7 +60,6 @@ chown -R www-data:www-data *.php *.phar
 if [ -d "xl" ]; then
     chown -R www-data:www-data xl
     chown -R www-data:www-data xl/*
-    chmod 644 xl/*.php
     touch xl/index.html
 fi
 
