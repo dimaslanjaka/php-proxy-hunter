@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
-$isAdmin = false;
+$isAdmin = is_debug();
 
 if (function_exists('header')) {
   header('Content-Type: application/json; charset=UTF-8');
@@ -14,7 +14,7 @@ if (function_exists('header')) {
   header('Content-Type: application/json; charset=utf-8');
 
   // check admin
-  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === 'true';
+  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
 $db = new \PhpProxyHunter\ProxyDB(__DIR__ . '/src/database.sqlite');
