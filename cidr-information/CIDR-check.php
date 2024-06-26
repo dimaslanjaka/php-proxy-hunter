@@ -103,7 +103,9 @@ if (file_exists($filePath)) {
       $item = $proxies[$i];
       if (isPortOpen($item->proxy)) {
         // add to database on port open
-        $db->updateData($item->proxy, ['status' => 'untested']);
+        $date = new DateTime('2014-01-21');
+        $format_date = $date->format(DATE_RFC3339);
+        $db->updateData($item->proxy, ['status' => 'untested', 'last_check' => $format_date]);
         //      $http = checkProxy($item->proxy);
         //      $socks5 = checkProxy($item->proxy, 'socks5');
         //      $socks4 = checkProxy($item->proxy, 'socks4');
