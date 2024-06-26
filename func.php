@@ -785,13 +785,17 @@ function parsePostData(): array
  */
 function parseQueryOrPostBody(): array
 {
-  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    return parsePostData();
-  } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    return $_GET;
-  } else {
-    return $_REQUEST;
+  global $isCli;
+  if (!$isCli) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+      return parsePostData();
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+      return $_GET;
+    } else {
+      return $_REQUEST;
+    }
   }
+  return [];
 }
 
 function generateRandomString($length = 10): string
