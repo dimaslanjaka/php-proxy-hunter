@@ -42,13 +42,22 @@ if (!$isCli) {
 $parseData = parseQueryOrPostBody();
 
 $ips = [];
-$ports = [];
+$ports = [
+  80, 81, 83, 88, 3128, 3129, 3654, 4444, 5800, 6588, 6666,
+  6800, 7004, 8080, 8081, 8082, 8083, 8088, 8118, 8123, 8888,
+  9000, 8084, 8085, 9999, 45454, 45554, 53281, 8443
+];
 
 if (!empty($parseData['ip'])) {
   // ?ip=IP:PORT
   // OR post body ip with content contains proxies (IP:PORT)
   $ips = extractIPs($parseData['ip']);
-  $ports = extractPorts($parseData['ip']);
+  $ports = array_merge($ports, extractPorts($parseData['ip']));
+}
+
+shuffle($ports);
+if (!empty($ips)) {
+  shuffle($ips);
 }
 
 $file = realpath(__DIR__ . '/CIDR-check.php');
@@ -58,17 +67,13 @@ setPermissions($output_file, true);
 truncateFile($output_file);
 $pid_file = tmp() . '/runners/' . md5($file) . '.pid';
 
-$ports = array_merge($ports, [
-  80, 81, 83, 88, 3128, 3129, 3654, 4444, 5800, 6588, 6666,
-  6800, 7004, 8080, 8081, 8082, 8083, 8088, 8118, 8123, 8888,
-  9000, 8084, 8085, 9999, 45454, 45554, 53281, 8443
-]);
-shuffle($ports);
-
 foreach ($ips as $ip) {
   if (isValidIp($ip)) {
     foreach (array_unique($ports) as $port) {
-      $port = is_string($port) ? intval($port) : $port;
+      $port =  intval("$port");
+      if (strlen("$port") < 2) {
+        continue;
+      }
       $timedout = time() - $startTime > $maxExecutionTime;
       if ($timedout) {
         // echo "Execution time exceeded. Stopping execution." . PHP_EOL;
