@@ -22,7 +22,7 @@ if (!$isCli) {
 // Run a long-running process in the background
 $file = __DIR__ . "/proxyChecker.php";
 $output_file = __DIR__ . '/proxyChecker.txt';
-$pid_file = __DIR__ . '/proxyChecker.pid';
+$pid_file = __DIR__ . '/tmp/runner/proxyChecker.pid';
 setMultiPermissions([$file, $output_file, $pid_file]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd = "php " . escapeshellarg($file);
