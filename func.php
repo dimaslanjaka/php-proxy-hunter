@@ -691,7 +691,7 @@ function anonymizeEmail(string $email): string
 /**
  * Parse incoming POST request data based on Content-Type.
  *
- * @return array|null The parsed POST data or null if unsupported content type.
+ * @return array|null The parsed POST data or null if unsupported content type or parsing fails.
  */
 function parsePostData(): ?array
 {
@@ -715,14 +715,31 @@ function parsePostData(): ?array
     return $post_data;
   } elseif ($contentType === "application/json") {
     // Request data is JSON
-    return json_decode(file_get_contents('php://input'), true);
+    $json_data = json_decode(file_get_contents('php://input'), true);
+    return ($json_data === null) ? null : $json_data;
   } elseif ($contentType === "application/x-www-form-urlencoded") {
     // Request data is URL encoded
     return $_POST;
   } else {
     // Unsupported content type
-    http_response_code(415); // Unsupported Media Type
-    exit("Unsupported Media Type");
+    // http_response_code(415); // Unsupported Media Type
+    return null;
+  }
+}
+
+/**
+ * Get the request parameters either from POST data, GET parameters, or a combination.
+ *
+ * @return array The request parameters array.
+ */
+function parseQueryOrPostBody(): array
+{
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    return parsePostData();
+  } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    return $_GET;
+  } else {
+    return $_REQUEST;
   }
 }
 
