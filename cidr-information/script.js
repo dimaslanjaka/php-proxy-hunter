@@ -55,9 +55,7 @@ class CidrCalc {
       for (let index = 0; index < 4; index++) {
         this.networkAddress[index] = uint32NetAddr[index];
       }
-      const uint32BroadcastAddr = shiftU32ToU8Array(
-        netAddr + this.hostsMax + 1
-      );
+      const uint32BroadcastAddr = shiftU32ToU8Array(netAddr + this.hostsMax + 1);
       for (let index = 0; index < 4; index++) {
         this.broadcastAddress[index] = uint32BroadcastAddr[index];
       }
@@ -67,9 +65,7 @@ class CidrCalc {
 
   setWildcard(shiftU32ToU8Array) {
     return new Promise((resolve) => {
-      const uint32SubnetMask = new DataView(this.subnetMask.buffer).getUint32(
-        0
-      );
+      const uint32SubnetMask = new DataView(this.subnetMask.buffer).getUint32(0);
       const wildcard = shiftU32ToU8Array(~uint32SubnetMask >>> 0);
       for (let index = 0; index < 4; index++) {
         this.wildcardMask[index] = wildcard[index];
@@ -80,20 +76,11 @@ class CidrCalc {
 
   getResults() {
     return {
-      networkAddrUInt32: new DataView(this.networkAddress.buffer)
-        .getUint32(0)
-        .toString(16)
-        .toUpperCase(),
+      networkAddrUInt32: new DataView(this.networkAddress.buffer).getUint32(0).toString(16).toUpperCase(),
       networkAddr: this.networkAddress.join("."),
-      broadcastAddrUInt32: new DataView(this.broadcastAddress.buffer)
-        .getUint32(0)
-        .toString(16)
-        .toUpperCase(),
+      broadcastAddrUInt32: new DataView(this.broadcastAddress.buffer).getUint32(0).toString(16).toUpperCase(),
       broadcastAddr: this.broadcastAddress.join("."),
-      subnetMaskUInt32: new DataView(this.subnetMask.buffer)
-        .getUint32(0)
-        .toString(16)
-        .toUpperCase(),
+      subnetMaskUInt32: new DataView(this.subnetMask.buffer).getUint32(0).toString(16).toUpperCase(),
       subnetMask: this.subnetMask.join("."),
       subnetBitmap: this.subnetBitmap,
       wildcard: this.wildcardMask.join("."),
@@ -102,16 +89,9 @@ class CidrCalc {
   }
 
   mask() {
-    let shiftU32ToU8Array = (digit) => [
-      0xff & (digit >> 24),
-      0xff & (digit >> 16),
-      0xff & (digit >> 8),
-      0xff & digit
-    ];
+    let shiftU32ToU8Array = (digit) => [0xff & (digit >> 24), 0xff & (digit >> 16), 0xff & (digit >> 8), 0xff & digit];
     this.setSubnetMask(shiftU32ToU8Array);
-    this.onBits = Math.clz32(
-      ~new DataView(this.subnetMask.buffer).getUint32(0)
-    );
+    this.onBits = Math.clz32(~new DataView(this.subnetMask.buffer).getUint32(0));
     this.offBits = 0x20 - this.onBits;
     this.setMaxHosts();
 
@@ -169,10 +149,46 @@ function setStatus(msg) {
   document.getElementById("statusMessage").innerHTML = msg;
 }
 
+// in js how to schedule one by one fetch with url from array
+/**
+ * @type {string[]}
+ */
+const schedule_gen_ports = [];
+
+function generatePorts(ip) {
+  schedule_gen_ports.push(`genPorts.php?ip=${ip}`);
+}
+
+let schedule_gen_ports_running = false;
+const noop = () => {
+  //
+};
+
+setInterval(() => {
+  if (schedule_gen_ports.length > 0) {
+    if (!schedule_gen_ports_running) {
+      schedule_gen_ports_running = true;
+      const url = schedule_gen_ports.shift();
+      if (url)
+        fetch(url)
+          .then(noop)
+          .catch(noop)
+          .finally(() => {
+            // set indicator to false
+            schedule_gen_ports_running = false;
+          });
+    }
+  }
+}, 1000);
+
 function calculateCIDR() {
   const cidr = document.getElementById("cidrBlock").value;
+  // generate ip list from CIDR
   const ip_list = cidrToIpList(cidr);
+  // display ip list
   document.getElementById("ip-list").value = ip_list.join("\n");
+  // generate ports
+  ip_list.forEach(generatePorts);
   const addr = cidr.split("/");
   let argErr = null;
   let ipOctets;
@@ -217,10 +233,7 @@ function cidrToIpList(cidr) {
   const numHosts = Math.pow(2, 32 - maskBits);
 
   // Calculate the network address as a number
-  const networkAddress = ipArray.reduce(
-    (acc, octet, index) => acc | (octet << (24 - index * 8)),
-    0
-  );
+  const networkAddress = ipArray.reduce((acc, octet, index) => acc | (octet << (24 - index * 8)), 0);
 
   // Generate IP addresses
   const ipList = [];
