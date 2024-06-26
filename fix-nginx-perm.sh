@@ -57,6 +57,13 @@ fi
 # shellcheck disable=SC2035
 chown -R www-data:www-data *.php *.phar
 
+if [ -d "xl" ]; then
+    chown -R www-data:www-data xl
+    chown -R www-data:www-data xl/*
+    chmod 644 xl/*.php
+    touch xl/index.html
+fi
+
 echo "Permission sets successful"
 
 OUTPUT_FILE="proxyChecker.txt"
