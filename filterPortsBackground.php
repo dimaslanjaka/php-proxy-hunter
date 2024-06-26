@@ -28,7 +28,7 @@ $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
 foreach ($files as $file) {
   $output_file = __DIR__ . '/proxyChecker.txt';
-  $pid_file = __DIR__ . '/tmp/' . md5($file) . '.pid';
+  $pid_file = __DIR__ . '/tmp/runners/' . md5($file) . '.pid';
   $lock_files[] = $pid_file;
   setMultiPermissions([$file, $output_file, $pid_file]);
   $cmd = "php " . escapeshellarg($file);
@@ -43,7 +43,7 @@ foreach ($files as $file) {
   $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
 
   // validate lock files
-  $lock_file = __DIR__ . '/tmp/' . md5($file) . '.lock';
+  $lock_file = __DIR__ . '/tmp/runners/' . md5($file) . '.lock';
   $lock_files[] = $lock_file;
   if (file_exists($lock_file) && !is_debug() && !$isAdmin) {
     exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
