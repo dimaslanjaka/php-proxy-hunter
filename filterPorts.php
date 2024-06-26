@@ -49,9 +49,8 @@ if ($isCli) {
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 
-if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
-  echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
-  exit();
+if (file_exists($lockFilePath) && !is_debug()) {
+  exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 } else {
   file_put_contents($lockFilePath, date(DATE_RFC3339));
   file_put_contents($statusFile, 'filter-ports');
