@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
+use PhpProxyHunter\Server;
+
 global $isCli;
 
 if (!$isCli) {
@@ -37,6 +39,7 @@ $config['pid'] = $_ENV['CPID'];
 $config['captcha'] = isset($_SESSION['captcha']) && $_SESSION['captcha'];
 $config['captcha-site-key'] = $_ENV['G_RECAPTCHA_SITE_KEY'];
 $config['server-ip'] = getServerIp();
+$config['your-ip'] = Server::getRequestIP();
 $config_json = json_encode($config);
 
 if (!$isCli) {
