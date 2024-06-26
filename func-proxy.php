@@ -1267,7 +1267,9 @@ function extractPorts($inputString)
   }
 
   return array_filter(array_unique(array_filter($result)), function ($str) {
-    if (empty($str)) return false;
+    if (empty($str)) {
+      return false;
+    }
     return strlen($str) > 1;
   });
 }
