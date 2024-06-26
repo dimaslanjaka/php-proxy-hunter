@@ -11,6 +11,40 @@ if (!defined('JSON_THROW_ON_ERROR')) {
   define('JSON_THROW_ON_ERROR', 4194304);
 }
 
+// Detect if the system is Windows
+$isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+
+// Get the current PATH
+$currentPath = getenv('PATH');
+
+// Specify the new directories to add
+$paths = [__DIR__ . '/venv/Scripts'];
+$PathSeparator = $isWin ? ";" : ":";
+$newDirectory = implode($PathSeparator, $paths);
+
+// Combine the current PATH with the new directory
+$newPath = $newDirectory . $PathSeparator . $currentPath;
+$explodePath = array_filter(array_unique(explode($PathSeparator, $newPath)));
+$explodePath = array_map(function ($str) {
+  return realpath($str);
+}, $explodePath);
+// var_dump($explodePath);
+// echo '<br><br>';
+$newPath = implode($PathSeparator, $explodePath);
+
+// Add the new directory to the PATH
+putenv("PATH=$newPath");
+
+// Verify the change
+// $updatedPath = getenv('PATH');
+// var_dump($updatedPath);
+// echo '<br><br>';
+
+// $output = shell_exec("echo %PATH%");
+// echo $output;
+
+// exit;
+
 // debug all errors
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
