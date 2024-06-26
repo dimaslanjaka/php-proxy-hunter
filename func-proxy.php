@@ -1244,6 +1244,8 @@ function extractIPs($string)
  */
 function extractPorts($inputString)
 {
+  $result = [];
+
   // Define the regular expression pattern to match IP:PORT format
   $pattern = '/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(\d{1,5})\b/';
 
@@ -1251,5 +1253,18 @@ function extractPorts($inputString)
   preg_match_all($pattern, $inputString, $matches);
 
   // Return the array of ports (capture group 1)
-  return $matches[1];
+  $result = $matches[1];
+
+  if (strpos($inputString, ',') !== false) {
+    // Define the regular expression pattern to match IP:PORT format or comma-separated port numbers
+    $pattern = '/(?<!\d)(\d{1,5})(?!\d)/';
+
+    // Use preg_match_all to find all matches
+    preg_match_all($pattern, $inputString, $matches);
+
+    // Return the array of ports (capture group 1)
+    $result = array_merge($result, $matches[1]);
+  }
+
+  return array_unique(array_filter($result));
 }
