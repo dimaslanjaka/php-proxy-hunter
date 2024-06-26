@@ -15,6 +15,9 @@ if (!$isCli) {
   }
 }
 
+$max = 500; // default max proxies to be checked
+$maxExecutionTime = 2 * 60; // 2 mins
+$startTime = time();
 $isAdmin = is_debug();
 
 if (!$isCli) {
@@ -47,6 +50,8 @@ if (!empty($parseData['ip'])) {
 $file = realpath(__DIR__ . '/CIDR-check.php');
 $lock_files = [];
 $output_file = __DIR__ . '/../proxyChecker.txt';
+setPermissions($output_file, true);
+truncateFile($output_file);
 $pid_file = tmp() . '/runners/' . md5($file) . '.pid';
 
 $commonPorts = [
@@ -54,10 +59,16 @@ $commonPorts = [
   6800, 7004, 8080, 8081, 8082, 8083, 8088, 8118, 8123, 8888,
   9000, 8084, 8085, 9999, 45454, 45554, 53281, 8443
 ];
+shuffle($commonPorts);
 
 foreach ($ips as $ip) {
   if (isValidIp($ip)) {
     foreach ($commonPorts as $port) {
+      $timedout = time() - $startTime > $maxExecutionTime;
+      if ($timedout) {
+        // echo "Execution time exceeded. Stopping execution." . PHP_EOL;
+        break;
+      }
       $proxy = "$ip:$port";
       if (isPortOpen($proxy)) {
         // add to database on port open
@@ -65,10 +76,10 @@ foreach ($ips as $ip) {
         $format_date = $date->format(DATE_RFC3339);
         $db->updateData($proxy, ['status' => 'untested', 'last_check' => $format_date]);
         echo "$proxy port open" . PHP_EOL;
-        append_content_with_lock($output_file, "$proxy port open");
+        append_content_with_lock($output_file, "$proxy port open" . PHP_EOL);
       } else {
         echo "$proxy port closed" . PHP_EOL;
-        append_content_with_lock($output_file, "$proxy port closed");
+        append_content_with_lock($output_file, "$proxy port closed" . PHP_EOL);
       }
       // flush for live echo
       if (ob_get_level() > 0) {
