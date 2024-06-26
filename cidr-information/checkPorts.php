@@ -51,8 +51,14 @@ $ports = [
 if (!empty($parseData['ip'])) {
   // ?ip=IP:PORT
   // OR post body ip with content contains proxies (IP:PORT)
+  // checkPorts.php?ip=13.56.192.187:80&ports=440,443,4444,5678
   $ips = extractIPs($parseData['ip']);
   $ports = array_merge($ports, extractPorts($parseData['ip']));
+  $customPorts = !empty($parseData['ports']) ? $parseData['ports'] : (!empty($parseData['port']) ? $parseData['port'] : '');
+  if (!empty($customPorts)) {
+    // force using custom ports
+    $ports = extractPorts($customPorts);
+  }
 }
 
 shuffle($ports);
