@@ -1235,3 +1235,21 @@ function extractIPs($string)
     return []; // Return empty array if no IP addresses are found
   }
 }
+
+/**
+ * Extracts port numbers from a string containing multiple proxy addresses in the format IP:PORT.
+ *
+ * @param string $inputString The input string containing proxy addresses.
+ * @return array An array of port numbers extracted from the input string.
+ */
+function extractPorts($inputString)
+{
+  // Define the regular expression pattern to match IP:PORT format
+  $pattern = '/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(\d{1,5})\b/';
+
+  // Use preg_match_all to find all matches
+  preg_match_all($pattern, $inputString, $matches);
+
+  // Return the array of ports (capture group 1)
+  return $matches[1];
+}
