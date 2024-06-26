@@ -17,33 +17,50 @@ $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 // Get the current PATH
 $currentPath = getenv('PATH');
 
-// Specify the new directories to add
-$paths = [__DIR__ . '/venv/Scripts'];
-$PathSeparator = $isWin ? ";" : ":";
-$newDirectory = implode($PathSeparator, $paths);
+if ($currentPath === false) {
+  // Set a default PATH value (customize as needed)
+  $defaultPath = $isWin ? 'C:\Windows\System32' : '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin';
+  $currentPath = $defaultPath;
+  // var_dump("Setting default PATH", $currentPath);
+}
 
-// Combine the current PATH with the new directory
-$newPath = $newDirectory . $PathSeparator . $currentPath;
-$explodePath = array_filter(array_unique(explode($PathSeparator, $newPath)));
-$explodePath = array_map(function ($str) {
-  return realpath($str);
-}, $explodePath);
-// var_dump($explodePath);
-// echo '<br><br>';
-$newPath = implode($PathSeparator, $explodePath);
+if ($currentPath) {
+  // var_dump("original PATH", $currentPath);
 
-// Add the new directory to the PATH
-putenv("PATH=$newPath");
+  // Specify the new directories to add
+  $paths = [__DIR__ . '/venv/Scripts'];
+  $PathSeparator = $isWin ? ";" : ":";
+  $newDirectory = implode($PathSeparator, $paths);
 
-// Verify the change
-// $updatedPath = getenv('PATH');
-// var_dump($updatedPath);
-// echo '<br><br>';
+  // Combine the current PATH with the new directory
+  $newPath = $newDirectory . $PathSeparator . $currentPath;
+  $explodePath = array_filter(array_unique(explode($PathSeparator, $newPath)));
+  $explodePath = array_map(function ($str) {
+    // Only apply realpath if the directory exists
+    $realPath = realpath($str);
+    if ($realPath === false) {
+      return $str;
+    }
+    return $realPath;
+  }, $explodePath);
 
-// $output = shell_exec("echo %PATH%");
-// echo $output;
+  // Additional logging for debugging
+  // var_dump("Directories before filtering", $explodePath);
 
-// exit;
+  $newPath = implode($PathSeparator, $explodePath);
+
+  // Add the new directory to the PATH
+  putenv("PATH=$newPath");
+
+  // Verify the change
+  // $updatedPath = getenv('PATH');
+  // var_dump("modified PATH", $updatedPath);
+
+  // $output = shell_exec("echo %PATH%");
+  // echo $output;
+
+  // exit;
+}
 
 // debug all errors
 ini_set('display_errors', 1);
