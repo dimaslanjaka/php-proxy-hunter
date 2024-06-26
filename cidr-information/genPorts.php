@@ -9,6 +9,8 @@ $parseData = parseQueryOrPostBody();
 $ips = [];
 
 if (!empty($parseData['ip'])) {
+  // ?ip=IP:PORT
+  // OR post body ip with content contains proxies (IP:PORT)
   $ips = extractIPs($parseData['ip']);
 }
 
