@@ -2,6 +2,8 @@
 
 require_once __DIR__ . "/func.php";
 
+use PhpProxyHunter\Scheduler;
+
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 if (!$isCli) {
@@ -20,10 +22,10 @@ if (!$isCli) {
 }
 
 // Run a long-running process in the background
-$file = __DIR__ . "/proxyChecker.php";
+$file = realpath(__DIR__ . "/proxyChecker.php");
 $output_file = __DIR__ . '/proxyChecker.txt';
 $pid_file = __DIR__ . '/tmp/runner/proxyChecker.pid';
-setMultiPermissions([$file, $output_file, $pid_file]);
+setMultiPermissions([$file, $output_file, $pid_file], true);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd = "php " . escapeshellarg($file);
 if ($isWin) {
@@ -38,22 +40,20 @@ if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug()) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 }
 
+$cmd = trim($cmd);
+
 echo $cmd . "\n\n";
 
 $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
 $runner = __DIR__ . "/tmp/runners/proxyChecker" . ($isWin ? '.bat' : "");
 
 write_file($runner, $cmd);
-setMultiPermissions($runner);
 
 exec(escapeshellarg($runner));
 
-function exitProcess()
-{
+Scheduler::register(function () {
   global $pid_file;
   if (file_exists($pid_file)) {
     unlink($pid_file);
   }
-}
-
-register_shutdown_function('exitProcess');
+}, 'zExit');
