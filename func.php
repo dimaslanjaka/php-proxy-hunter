@@ -691,9 +691,9 @@ function anonymizeEmail(string $email): string
 /**
  * Parse incoming POST request data based on Content-Type.
  *
- * @return array|null The parsed POST data or null if unsupported content type or parsing fails.
+ * @return array The parsed POST data or null if unsupported content type or parsing fails.
  */
-function parsePostData(): ?array
+function parsePostData(): array
 {
   // Get the Content-Type header of the request
   $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
@@ -723,7 +723,7 @@ function parsePostData(): ?array
   } else {
     // Unsupported content type
     // http_response_code(415); // Unsupported Media Type
-    return null;
+    return [];
   }
 }
 
