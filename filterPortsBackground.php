@@ -2,7 +2,7 @@
 
 require_once __DIR__ . "/func-proxy.php";
 
-$isAdmin = false;
+$isAdmin = is_debug();
 
 if (!$isCli) {
   // Allow from any origin
@@ -18,7 +18,7 @@ if (!$isCli) {
     exit('Access Denied');
   }
   // check admin
-  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === 'true';
+  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
 // Run a long-running process in the background
@@ -32,10 +32,10 @@ foreach ($files as $file) {
   $lock_files[] = $pid_file;
   setMultiPermissions([$file, $output_file, $pid_file]);
   $cmd = "php " . escapeshellarg($file);
-  if ($isWin) {
-    $window_name = md5($file);
-    $cmd = "start /B \"filter_ports_$window_name\" $cmd";
-  }
+  // if ($isWin) {
+  //   $window_name = md5($file);
+  //   $cmd = "start /B \"filter_ports_$window_name\" $cmd";
+  // }
 
   $uid = getUserId();
   $cmd .= " --userId=" . escapeshellarg($uid);
@@ -55,7 +55,7 @@ foreach ($files as $file) {
 
   $runner = __DIR__ . "/tmp/runners/" . md5(__FILE__) . ($isWin ? '.bat' : "");
   write_file($runner, $cmd);
-  setMultiPermissions($runner);
+  write_file($lock_file, '');
 
   exec(escapeshellarg($runner));
 }
