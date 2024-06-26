@@ -18,9 +18,6 @@ ini_set('memory_limit', '1024M');
 $filePath = __DIR__ . "/CIDR.txt";
 
 $outputDir = tmp() . '/ips';
-if (!file_exists($outputDir)) {
-  mkdir($outputDir, 0777, true);
-}
 
 // Read lines of the file into an array
 $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -30,6 +27,6 @@ foreach ($lines as $cidr) {
   if (!file_exists($output)) {
     // write the ip ranges when file output not exist
     $ipList = getIPRange($cidr);
-    file_put_contents($output, implode(PHP_EOL, $ipList));
+    write_file($output, implode(PHP_EOL, $ipList));
   }
 }
