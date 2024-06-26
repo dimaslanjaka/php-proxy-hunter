@@ -117,8 +117,7 @@ if (file_exists($filePath)) {
       }
       $str_to_remove[] = $item->proxy;
       Scheduler::register(function () use ($filePath, $str_to_remove) {
-        // echo 'removing ' . count($str_to_remove) . ' lines' . PHP_EOL;
-        echo removeStringFromFile($filePath, $str_to_remove) . PHP_EOL;
+        echo 'removing ' . count($str_to_remove) . ' lines ' . removeStringFromFile($filePath, $str_to_remove) . PHP_EOL;
       }, 'clean-up-' . basename(__FILE__));
     }
   });
