@@ -1208,3 +1208,30 @@ function extractIpPortFromFile(string $filePath, bool $unique = false): array
 
   return $ipPortList;
 }
+
+function generateIPWithPorts($ip, $minPort = 10, $maxPort = 65535)
+{
+  // Initialize an empty array to hold the IP:PORT values
+  $ipPorts = [];
+
+  // Loop from port 80 to the maximum port value
+  for ($port = $minPort; $port <= $maxPort; $port++) {
+    // Add the IP:PORT value to the array
+    $ipPorts[] = $ip . ':' . $port;
+  }
+
+  return $ipPorts;
+}
+
+function extractIPs($string)
+{
+  // Regular expression to match an IP address
+  $ipPattern = '/\b(?:\d{1,3}\.){3}\d{1,3}\b/';
+
+  // Use preg_match_all to find all IP addresses in the string
+  if (preg_match_all($ipPattern, $string, $matches)) {
+    return $matches[0]; // Return all matched IP addresses
+  } else {
+    return []; // Return empty array if no IP addresses are found
+  }
+}
