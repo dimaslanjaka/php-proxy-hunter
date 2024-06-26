@@ -42,8 +42,9 @@ echo $cmd . "\n\n";
 
 $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
 $runner = __DIR__ . "/tmp/runners/proxyChecker" . ($isWin ? '.bat' : "");
-setMultiPermissions($runner);
+
 write_file($runner, $cmd);
+setMultiPermissions($runner);
 
 exec(escapeshellarg($runner));
 
