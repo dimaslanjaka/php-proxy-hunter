@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         universal proxy parser
 // @namespace    dimaslanjaka:universal-parser-proxy
-// @version      1.1
+// @version      1.2
 // @description  parse proxy from site page
 // @author       dimaslanjaka
 // @supportURL   https://github.com/dimaslanjaka/php-proxy-hunter/issues
@@ -64,6 +64,7 @@
 // @match        *://www.proxynova.com/*
 // @match        *://www.proxyscan.io/*
 // @match        *://proxydb.net/*
+// @match 			 *://proxyhub.me/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
