@@ -69,6 +69,7 @@
 // @match  			 *://iptotal.io/*
 // @match  			 *://www.lumiproxy.com/*
 // @match  			 *://free.proxy-sale.com/*
+// @match  			 *://freeproxylist.cc/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
@@ -514,6 +515,9 @@
           if (ips.length > 0) {
             ips.forEach((ip) => {
               result.push(`${ip}:80`);
+              result.push(`${ip}:443`);
+              result.push(`${ip}:8080`);
+              result.push(`${ip}:8000`);
             });
           }
         });
