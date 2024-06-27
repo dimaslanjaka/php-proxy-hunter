@@ -68,6 +68,7 @@
 // @match 			 *://www.ditatompel.com/*
 // @match  			 *://iptotal.io/*
 // @match  			 *://www.lumiproxy.com/*
+// @match  			 *://free.proxy-sale.com/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
@@ -487,9 +488,44 @@
     return Promise.resolve(extractIpPortPairs(currentHtml));
   };
 
+  /**
+   * extract IPs from string
+   * @param {string} str
+   * @returns
+   */
+  const findIPv4Addresses = function (str) {
+    const ipv4Pattern =
+      /\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/g;
+    return str.match(ipv4Pattern) || [];
+  };
+
+  /**
+   * free.proxy-sale.com parser
+   * * extract only IP
+   * @returns {Promise<string[]>}
+   */
+  const freeProxySale = () => {
+    return new Promise((resolve) => {
+      const result = [];
+      const proxyTable = document.querySelectorAll(".proxy__table");
+      proxyTable.forEach((wrapper) => {
+        Array.from(wrapper.querySelectorAll("[class^=css-]")).forEach((el) => {
+          const ips = findIPv4Addresses(el.textContent);
+          if (ips.length > 0) {
+            ips.forEach((ip) => {
+              result.push(`${ip}:80`);
+            });
+          }
+        });
+      });
+      resolve(result);
+    });
+  };
+
   const parse_all = () => {
     return new Promise((resolve) => {
       const all = [
+        freeProxySale(),
         parse_first_and_second_row(),
         parse_hideme_jquery(),
         parse_first_row_ip_port(),
