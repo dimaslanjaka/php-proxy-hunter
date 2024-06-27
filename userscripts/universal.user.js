@@ -66,6 +66,8 @@
 // @match        *://proxydb.net/*
 // @match 			 *://proxyhub.me/*
 // @match 			 *://www.ditatompel.com/*
+// @match  			 *://iptotal.io/*
+// @match  			 *://www.lumiproxy.com/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
@@ -571,7 +573,7 @@
   btn.id = "php-proxy-hunter-grab-proxy";
   btn.setAttribute(
     "style",
-    "position: fixed; top: 50%; left: 0; transform: translateY(-50%); opacity: 0.6; margin-left: 1.2em;"
+    "position: fixed; top: 50%; left: 0; transform: translateY(-50%); opacity: 0.6; margin-left: 1.2em; color: white; background-color: black;"
   );
   btn.innerText = "PARSE PROXIES";
   btn.classList.add("btn", "button", "btn-primary");
