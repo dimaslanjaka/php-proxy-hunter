@@ -46,7 +46,7 @@ foreach ($files as $file) {
   $lock_file = __DIR__ . '/tmp/runners/' . md5($file) . '.lock';
   $lock_files[] = $lock_file;
   if (file_exists($lock_file) && !is_debug()) {
-    echo date(DATE_RFC3339) . ' another process still running '  . basename(__FILE__, '.php') . PHP_EOL;
+    echo date(DATE_RFC3339) . ' another process still running '  . basename($file, '.php') . PHP_EOL;
     continue;
   }
 

@@ -42,7 +42,7 @@ if ($isCli) {
   }
 }
 
-$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$lockFilePath = tmp() . "/runners/" . basename(__FILE__) . ".lock";
 $statusFile = __DIR__ . "/status.txt";
 
 if (file_exists($lockFilePath) && !is_debug()) {
