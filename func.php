@@ -2053,9 +2053,14 @@ function filterUniqueLines(string $inputFile)
  */
 function truncateFile(string $filePath)
 {
-  if (file_exists($filePath)) {
-    file_put_contents($filePath, '');
-  } // Write an empty string to truncate the file
+  if (!file_exists($filePath)) {
+    return;
+  }
+  if (!is_file_locked($filePath)) {
+    return;
+  }
+  // Write an empty string to truncate the file
+  write_file($filePath, '');
 }
 
 /**
