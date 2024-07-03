@@ -113,7 +113,7 @@ if ($isCli) {
   $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
   $cmd = "php " . escapeshellarg($file);
   if ($isWin) {
-    $cmd = "start /B \"filter_ports\" $cmd";
+    $cmd = "start /B \"check_proxy_parallel\" $cmd";
   }
 
   $runner = __DIR__ . "/tmp/runners/" . md5($webLockFile) . ($isWin ? '.bat' : "");
