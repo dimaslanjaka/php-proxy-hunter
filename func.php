@@ -798,6 +798,16 @@ function parseQueryOrPostBody(): array
   return [];
 }
 
+/**
+ * Check if output buffering is active.
+ *
+ * @return bool Returns true if output buffering is active, false otherwise.
+ */
+function is_output_buffering_active()
+{
+  return ob_get_length() !== false;
+}
+
 function generateRandomString($length = 10): string
 {
   $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
