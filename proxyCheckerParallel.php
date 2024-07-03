@@ -72,7 +72,7 @@ if ($isCli) {
     $id = Server::useragent();
   }
   $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
-  $webLockFile = __DIR__ . '/tmp/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
+  $webLockFile = tmp() . '/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
   if (file_exists($webLockFile) && !is_debug() && !$isAdmin) {
     exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
   } else {
@@ -116,7 +116,7 @@ if ($isCli) {
     $cmd = "start /B \"check_proxy_parallel\" $cmd";
   }
 
-  $runner = __DIR__ . "/tmp/runners/" . md5($webLockFile) . ($isWin ? '.bat' : "");
+  $runner = tmp() . "/runners/" . md5($webLockFile) . ($isWin ? '.bat' : "");
   $uid = getUserId();
   $cmd .= " --userId=" . escapeshellarg($uid);
   $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
@@ -262,7 +262,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null)
         break;
       }
     }
-    $run_file = __DIR__ . '/tmp/runners/' . md5($item[0]->proxy) . '.txt';
+    $run_file = tmp() . '/runners/' . md5($item[0]->proxy) . '.txt';
     // schedule release current proxy thread lock
     Scheduler::register(function () use ($run_file) {
       delete_path($run_file);
@@ -425,7 +425,7 @@ function write_working()
 
 function cleanUp()
 {
-  $directory = __DIR__ . '/tmp/runners/';
+  $directory = tmp() . '/runners/';
 
   // Get the current time
   $current_time = time();
