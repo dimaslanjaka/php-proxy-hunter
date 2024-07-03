@@ -11,7 +11,8 @@
   "code-runner.runInTerminal": true,
   "code-runner.saveAllFilesBeforeRun": true,
   "code-runner.executorMapByGlob": {
-    "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register"
+    "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
+    "*.py": "python -u",
   },
   "code-runner.respectShebang": true,
   "debug.terminal.clearBeforeReusing": true,
