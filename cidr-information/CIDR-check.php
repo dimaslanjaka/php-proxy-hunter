@@ -29,7 +29,9 @@ $long_opts = [
   "userId::",
   "lockFile::",
   "runner::",
-  "admin::"
+  "admin::",
+  "ip::",
+  "ports::"
 ];
 $options = getopt($short_opts, $long_opts);
 if (!empty($options['lockFile'])) {
@@ -52,10 +54,38 @@ if (!empty($options['path']) && file_exists($options['path'])) {
 } else {
   $filePath = getRandomFileFromFolder($folder, 'txt');
 }
+$ips = [];
+$ports = [80, 8080, 8000, 3128, 443, 8888];
+if (!empty($options['ip'])) {
+  $ips = extractIPs($options['ip']);
+  sort($ips);
+}
+if (!empty($options['ports'])) {
+  $ports = extractPorts($options['ports']);
+  sort($ports);
+}
+if (!empty($ips)) {
+  // prioritize custom path
+  $id = md5(implode("", $ips));
+  $filePath = join(PATH_SEPARATOR, [$folder, "custom-$id.txt"]);
+  foreach ($ips as $ip) {
+    if (!isValidIp($ip)) {
+      continue;
+    }
+    foreach ($ports as $port) {
+      $proxy = "$ip:$port";
+      append_content_with_lock($filePath, $proxy . PHP_EOL);
+    }
+  }
+  removeEmptyLinesFromFile($filePath);
+} else {
+  // no custom ip
+  // set memory
+  ini_set('memory_limit', '2024M');
+}
 
 if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
-  echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
-  exit();
+  exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 } else {
   write_file($lockFilePath, date(DATE_RFC3339));
   write_file($statusFile, 'scan generated IP:PORT');
@@ -71,9 +101,6 @@ function exitProcess()
 }
 
 register_shutdown_function('exitProcess');
-
-// set memory
-ini_set('memory_limit', '2024M');
 
 // main script start
 
