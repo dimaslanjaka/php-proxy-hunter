@@ -71,18 +71,80 @@ if (!empty($ips)) {
 $file = realpath(__DIR__ . '/CIDR-check.php');
 $lock_files = [];
 $output_file = __DIR__ . '/../proxyChecker.txt';
+if (file_exists($output_file)) $output_file = realpath($output_file);
 setPermissions($output_file, true);
 truncateFile($output_file);
 $pid_file = tmp() . '/runners/' . md5($file) . '.pid';
+if (file_exists($pid_file)) $pid_file = realpath($pid_file);
 
-$main_lock_file = tmp() . '/runners/' . sanitizeFilename(Server::getRequestIP()) . ".lock";
-$lock_files[] = $main_lock_file;
+if (!$isCli) {
+  $main_lock_file = tmp() . '/runners/' . sanitizeFilename(Server::getRequestIP()) . ".lock";
+  $lock_files[] = $main_lock_file;
 
-if (file_exists($main_lock_file)) {
+  if (file_exists($main_lock_file)) {
+    exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
+  }
+}
+
+$cmd = "php " . escapeshellarg($file);
+if ($isWin) {
+  $cmd = "start /B \"check_ports\" $cmd";
+}
+$uid = getUserId();
+$cmd .= " --userId=" . escapeshellarg($uid);
+$cmd .= " --max=" . escapeshellarg("30");
+$cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
+
+if (!empty($ips)) {
+  sort($ips);
+  sort($ports);
+  $cmd .= " --ip=" . escapeshellarg(implode(",", array_unique($ips)));
+  $cmd .= " --ports=" . escapeshellarg(implode(",", array_unique($ports)));
+}
+
+// validate lock files
+$lock_file = tmp() . '/runners/' . md5($file) . '.lock';
+$lock_files[] = $lock_file;
+if (file_exists($lock_file) && !is_debug()) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 }
 
-foreach ($ips as $ip) {
+echo $cmd . "\n\n";
+
+if (!$isCli) {
+  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
+
+  $runner = tmp() . "/runners/" . md5(__FILE__) . ($isWin ? '.bat' : "");
+  write_file($runner, $cmd);
+  write_file($lock_file, '');
+  exec(escapeshellarg($runner));
+} else {
+  // Open the process file pointer
+  $process = popen($cmd, 'r');
+
+  // Check if the process was opened successfully
+  if (is_resource($process)) {
+    // Read and output the command's output in real-time
+    while (!feof($process)) {
+      $buffer = fgets($process);
+      echo $buffer;
+      if (is_output_buffering_active()) {
+        // Flush the output buffer to ensure it is displayed immediately
+        flush();
+        ob_flush();
+      }
+    }
+
+    // Close the process file pointer
+    pclose($process);
+  } else {
+    echo "Unable to execute command.";
+  }
+}
+
+function checkIp($ip)
+{
+  global $ports, $startTime, $maxExecutionTime, $db, $output_file;
   if (isValidIp($ip)) {
     foreach (array_unique($ports) as $port) {
       $port =  intval("$port");
@@ -115,31 +177,6 @@ foreach ($ips as $ip) {
       }
     }
   }
-}
-
-if (empty($ips)) {
-  $cmd = "php " . escapeshellarg($file);
-  $uid = getUserId();
-  $cmd .= " --userId=" . escapeshellarg($uid);
-  $cmd .= " --max=" . escapeshellarg("30");
-  $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
-
-  // validate lock files
-  $lock_file = tmp() . '/runners/' . md5($file) . '.lock';
-  $lock_files[] = $lock_file;
-  if (file_exists($lock_file) && !is_debug()) {
-    exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
-  }
-
-  echo $cmd . "\n\n";
-
-  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
-
-  $runner = tmp() . "/runners/" . md5(__FILE__) . ($isWin ? '.bat' : "");
-  write_file($runner, $cmd);
-  write_file($lock_file, '');
-
-  exec(escapeshellarg($runner));
 }
 
 // remove lock files on exit
