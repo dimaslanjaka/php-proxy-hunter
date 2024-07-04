@@ -2,6 +2,8 @@
 
 require_once __DIR__ . "/func-proxy.php";
 
+$isAdmin = is_debug();
+
 if (function_exists('header')) {
   // Allow from any origin
   header("Access-Control-Allow-Origin: *");
@@ -16,6 +18,9 @@ if (function_exists('header')) {
   if (!isset($_COOKIE['_ga'])) {
     exit('Access Denied');
   }
+
+  // check admin
+  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
 // Run a long-running process in the background
@@ -26,7 +31,7 @@ setMultiPermissions([$file, $output_file, $pid_file]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd = "php " . escapeshellarg($file);
 if ($isWin) {
-  $cmd = "start /B \"filter_ports\" $cmd";
+  $cmd = "start /B \"geoIp\" $cmd";
 }
 
 $uid = getUserId();
@@ -37,7 +42,7 @@ if (isset($_REQUEST['proxy'])) {
 }
 
 // validate lock files
-if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug()) {
+if (file_exists(__DIR__ . '/proxyChecker.lock') && !$isAdmin) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 }
 
