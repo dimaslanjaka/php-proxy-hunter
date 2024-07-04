@@ -30,8 +30,21 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
   // Regular expression pattern to match IP:PORT pairs along with optional username and password
   $pattern = '/((?:(?:\d{1,3}\.){3}\d{1,3})\:\d{2,5}(?:@\w+:\w+)?|(?:(?:\w+)\:\w+@\d{1,3}(?:\.\d{1,3}){3}\:\d{2,5}))/';
 
-  // Perform the matching
-  preg_match_all($pattern, $string, $matches, PREG_SET_ORDER);
+  // Initialize $matches array
+  $matches = [];
+
+  // Perform the matching IP:PORT
+  preg_match_all($pattern, $string, $matches1, PREG_SET_ORDER);
+
+  // Perform the matching IP PORT (whitespaces)
+  $re = '/((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+((?!0)\d{2,5})/m';
+  preg_match_all($re, $string, $matches2, PREG_SET_ORDER);
+
+  // Merge $matches1 and $matches2 into $matches
+  $matches = array_merge($matches1, $matches2);
+
+  // Check if there were matches with whitespaces
+  $matched_whitespaces = !empty($matches2);
 
   if (!$db) {
     $db = new ProxyDB();
@@ -41,7 +54,20 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
     if (empty($match)) {
       continue;
     }
-    // var_dump($match);
+    // var_dump($match, count($match));
+    if ($matched_whitespaces) {
+      if (count($match) === 3) {
+        if (!isValidIp($match[1])) {
+          continue;
+        }
+        $proxy = $match[1] . ":" . $match[2];
+        $result = new Proxy($proxy);
+        if (isValidProxy($proxy)) {
+          $results[] = $result;
+        }
+        continue;
+      }
+    }
     $username = $password = $proxy = null;
     if (!empty($match[1]) && strpos($match[1], '@') !== false) {
       // list($proxy, $login) = explode('@', $match[1]);
