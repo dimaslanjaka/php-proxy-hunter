@@ -18,7 +18,10 @@ use PhpProxyHunter\ProxyDB;
  */
 function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = true): array
 {
-  if (is_null($string) || empty(trim($string))) {
+  if (!$string) {
+    return [];
+  }
+  if (empty(trim($string))) {
     return [];
   }
 
