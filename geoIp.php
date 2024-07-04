@@ -2,9 +2,15 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
+global $isCli, $isWin;
+
+if (!$isCli) {
+  exit('web server access disallowed');
+}
+
 $isAdmin = is_debug();
 
-if (function_exists('header')) {
+if (function_exists('header') && !$isCli) {
   header('Content-Type: application/json; charset=UTF-8');
 
   // Allow from any origin
