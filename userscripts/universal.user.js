@@ -222,7 +222,7 @@
       const a = Array.from(document.getElementsByClassName("spy14"));
       for (var i = 0; i < a.length; i++) {
         if (a[i].innerText.includes(":")) {
-          result.push(a[i].innerText);
+          result.push({ raw: a[i].innerText });
         }
       }
 
@@ -233,7 +233,7 @@
         for (let ii = 0; ii < tr.length; ii++) {
           const td = Array.from(tr[ii].querySelectorAll("td"));
           if (td[0] && regex.test(td[0].innerText)) {
-            result.push(td[0].innerText);
+            result.push({ raw: td[0].innerText });
           }
         }
       }
@@ -256,7 +256,7 @@
         var tdList = tr.children("td");
         var host = tdList.get(0).innerText;
         var port = tdList.get(1).innerText;
-        result.push(host + ":" + port);
+        result.push({ raw: host + ":" + port });
       });
 
       resolve(result);
@@ -398,7 +398,7 @@
         for (let j = 0; j < rows.length; j++) {
           const row = rows[j];
           const buildObject = {
-            proxy: null,
+            raw: null,
             code: null,
             anonymity: null,
             ssl: null,
@@ -416,7 +416,7 @@
           const ssl = td[6];
           if (proxy && ssl && ipOnly.test(proxy.innerText)) {
             // console.log(proxy.innerText, port.innerText, countryCode.innerText, anonymity.innerText, google.innerText, ssl.innerText);
-            buildObject.proxy = `${proxy.innerText.trim()}:${port.innerText.trim()}`;
+            buildObject.raw = `${proxy.innerText.trim()}:${port.innerText.trim()}`;
             buildObject.google = /^yes/.test(google.innerText.trim()) ? true : false;
             buildObject.ssl = /^yes/.test(ssl.innerText.trim()) ? true : false;
             buildObject.code = countryCode.innerText.trim();
@@ -452,7 +452,7 @@
       const a = Array.from(document.getElementsByClassName("spy14"));
       for (var i = 0; i < a.length; i++) {
         if (a[i].innerText.includes(":")) {
-          result.push(a[i].innerText);
+          result.push({ raw: a[i].innerText });
         }
       }
 
@@ -463,7 +463,7 @@
         for (let ii = 0; ii < tr.length; ii++) {
           const td = Array.from(tr[ii].querySelectorAll("td"));
           if (td.length > 0 && regex.test(td[0].innerText)) {
-            result.push(td[0].innerText);
+            result.push({ raw: td[0].innerText });
           }
         }
       }
@@ -518,10 +518,10 @@
           const ips = findIPv4Addresses(el.textContent);
           if (ips.length > 0) {
             ips.forEach((ip) => {
-              result.push(`${ip}:80`);
-              result.push(`${ip}:443`);
-              result.push(`${ip}:8080`);
-              result.push(`${ip}:8000`);
+              result.push({ raw: `${ip}:80` });
+              result.push({ raw: `${ip}:443` });
+              result.push({ raw: `${ip}:8080` });
+              result.push({ raw: `${ip}:8000` });
             });
           }
         });
