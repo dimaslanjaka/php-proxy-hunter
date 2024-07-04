@@ -345,7 +345,17 @@ let checker_status;
  */
 async function checkerStatus() {
   const status = document.querySelector("span#status");
-  const cek = document.getElementById("recheck");
+  const buttons = [document.getElementById("filter-ports"), document.getElementById("recheck")];
+  const enable_buttons = () => {
+    buttons.forEach((el) => {
+      el.classList.remove("disabled");
+    });
+  };
+  const disable_buttons = () => {
+    buttons.forEach((el) => {
+      if (!el.classList.contains("disabled")) el.classList.add("disabled");
+    });
+  };
   return await fetch("./embed.php?file=status.txt", {
     signal: AbortSignal.timeout(5000),
     mode: "cors"
@@ -354,7 +364,7 @@ async function checkerStatus() {
     .then((data) => {
       if (!data.trim().includes("idle")) {
         // another php still processing
-        if (!cek.classList.contains("disabled")) cek.classList.add("disabled");
+        disable_buttons();
         status.innerHTML = data.trim().toUpperCase();
         status.setAttribute(
           "class",
@@ -364,7 +374,7 @@ async function checkerStatus() {
         return true;
       } else {
         checker_status = false;
-        cek.classList.remove("disabled");
+        enable_buttons();
         status.setAttribute(
           "class",
           "inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
