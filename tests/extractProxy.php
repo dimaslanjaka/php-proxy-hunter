@@ -10,16 +10,19 @@ $db = new ProxyDB(__DIR__ . '/../tmp/database.sqlite');
 $dead = extractIpPortFromFile(__DIR__ . '/../dead.txt', true);
 $untested = extractIpPortFromFile(__DIR__ . '/../proxies.txt', true);
 $proxies = array_merge($dead, $untested);
-$str = 'username1:password1@1.1.1.1:83
+$str = '
+username1:password1@1.1.1.1:83
 1.1.1.1:8080@username2:password2
 XXXXX192.198.1.100:80XXX
 138.118.104.166:999
 45.4.253.133:999
 185.26.197.13:8080
 8.213.129.15:2
-hello 8.213.129.15:2 *x';
+hello 8.213.129.15:2 *x
+';
 
 $extract = extractProxies($str, $db);
+// var_dump($extract[0]);
 $format = array_map(function (Proxy $item) {
   if (!is_null($item->username) && !is_null($item->password)) {
     // var_dump($item->proxy);
@@ -27,7 +30,7 @@ $format = array_map(function (Proxy $item) {
   }
   return $item->proxy;
 }, $extract);
-var_dump($format);
+echo implode(PHP_EOL, $format);
 
 
 function get_ports()
