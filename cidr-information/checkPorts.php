@@ -71,11 +71,15 @@ if (!empty($ips)) {
 $file = realpath(__DIR__ . '/CIDR-check.php');
 $lock_files = [];
 $output_file = __DIR__ . '/../proxyChecker.txt';
-if (file_exists($output_file)) $output_file = realpath($output_file);
+if (file_exists($output_file)) {
+  $output_file = realpath($output_file);
+}
 setPermissions($output_file, true);
 truncateFile($output_file);
 $pid_file = tmp() . '/runners/' . md5($file) . '.pid';
-if (file_exists($pid_file)) $pid_file = realpath($pid_file);
+if (file_exists($pid_file)) {
+  $pid_file = realpath($pid_file);
+}
 
 if (!$isCli) {
   $main_lock_file = tmp() . '/runners/' . sanitizeFilename(Server::getRequestIP()) . ".lock";
