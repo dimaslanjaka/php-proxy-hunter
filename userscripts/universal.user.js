@@ -532,6 +532,9 @@
 
   const parse_all = () => {
     return new Promise((resolve) => {
+      /**
+       * @type {Promise<{ raw: string }[]>[]}
+       */
       const all = [
         freeProxySale(),
         parse_first_and_second_row(),
@@ -545,13 +548,56 @@
       ];
       Promise.all(all)
         .then((results) => {
+          // flatting
           const flat = results.flat().filter((item) => {
             if (!item) return false;
             const str = typeof item == "string" ? item : JSON.stringify(item);
             const regex = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})/gm;
             return regex.test(str);
           });
-          resolve(flat.map((obj) => JSON.stringify(obj, null, 2)).join("\n"));
+          // remove non IP:PORT
+          const filterMap = flat.map((item) => {
+            let valid = false;
+            const regex_ip = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gm;
+            const regex_port = /(\d{1,5})/gm;
+            const regex_proxy = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})/gm;
+            if (typeof item == "object") {
+              if (item.raw) {
+                valid = regex_proxy.test(item.raw);
+              }
+              if (!valid) {
+                if (item.ip) {
+                  if (regex_proxy.test(item.ip)) {
+                    item.raw = item.ip;
+                    item.ip = item.raw.split(":")[0];
+                  }
+                }
+              }
+              if (item.raw) {
+                // fix IP:PORT
+                const split = item.raw.split(":");
+                let build_proxy = [];
+                if (split.length > 1) {
+                  split.forEach((str) => {
+                    if (regex_ip.test(str)) {
+                      build_proxy[0] = str;
+                    } else if (regex_port.test(str)) {
+                      build_proxy[1] = str;
+                    }
+                  });
+                  if (regex_proxy.test(build_proxy.join(":"))) {
+                    item.raw = build_proxy.join(":");
+                  }
+                }
+              }
+            }
+            return item;
+          });
+          // unique
+          const uniqueArray = filterMap.filter(
+            (obj, index, self) => index === self.findIndex((t) => t.raw === obj.raw)
+          );
+          resolve(uniqueArray.map((obj) => JSON.stringify(obj, null, 2)).join("\n"));
         })
         .catch((error) => {
           console.error(error);
