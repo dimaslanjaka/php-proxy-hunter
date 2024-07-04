@@ -2,24 +2,30 @@ import json
 from src.func_proxy import build_request, upload_proxy
 from src.ProxyDB import ProxyDB
 
-db = ProxyDB()
 
-data_list = db.get_all_proxies()
+def upload_all_proxies():
+    db = ProxyDB()
 
-# List comprehension to transform the list of dictionaries into a list of strings
-result = [
-    f"{item['proxy']}@{item['username']}:{item['password']}" if item['username'] and item['password']
-    else item['proxy']
-    for item in data_list
-]
+    data_list = db.get_all_proxies()
 
-# Assuming 'result' is your list of strings that you want to chunk
-chunk_size = 100
-chunked_list = []
+    # List comprehension to transform the list of dictionaries into a list of strings
+    result = [
+        f"{item['proxy']}@{item['username']}:{item['password']}" if item['username'] and item['password']
+        else item['proxy']
+        for item in data_list
+    ]
 
-for i in range(0, len(result), chunk_size):
-    chunk = result[i:i + chunk_size]
-    chunked_list.append(chunk)
+    # Assuming 'result' is your list of strings that you want to chunk
+    chunk_size = 100
+    chunked_list = []
 
-for chunk in chunked_list:
-    upload_proxy(json.dumps(chunk))
+    for i in range(0, len(result), chunk_size):
+        chunk = result[i:i + chunk_size]
+        chunked_list.append(chunk)
+
+    for chunk in chunked_list:
+        upload_proxy(json.dumps(chunk))
+
+
+if __name__ == '__main__':
+    upload_all_proxies()
