@@ -47,10 +47,6 @@ $data = parse_working_proxies($db);
 write_file(__DIR__ . '/working.txt', $data['txt']);
 write_file(__DIR__ . '/working.json', json_encode($data['array']));
 
-foreach ($data['counter'] as $key => $value) {
-  echo "total $key $value proxies" . PHP_EOL;
-}
-
 // write status
 write_file(__DIR__ . '/status.json', json_encode($data['counter']));
 
@@ -66,7 +62,13 @@ $proxies = array_map(function ($item) {
   return $raw;
 }, $proxies);
 
-echo implode(PHP_EOL, $proxies);
+// print proxies
+
+echo implode(PHP_EOL, $proxies) . PHP_EOL . PHP_EOL;
+
+foreach ($data['counter'] as $key => $value) {
+  echo "total $key $value proxies" . PHP_EOL;
+}
 
 // set limitation for below codes only
 //if (function_exists('set_time_limit')) set_time_limit(30);
