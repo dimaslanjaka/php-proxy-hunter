@@ -12,7 +12,7 @@ if (!$isCli) {
   exit('only CLI allowed');
 }
 
-$isAdmin = false; // admin indicator
+$isAdmin = is_debug(); // admin indicator
 $max_checks = 500; // max proxies to be checked
 $maxExecutionTime = 120; // max 120s execution time
 
@@ -35,11 +35,14 @@ if ($isCli) {
   }
   if (!empty($options['admin']) && $options['admin'] !== 'false') {
     $isAdmin = true;
-    // set time limit 10 minutes for admin
-    $maxExecutionTime = 10 * 60;
-    // disable execution limit
-    set_time_limit(0);
   }
+}
+
+if ($isAdmin) {
+  // set time limit 10 minutes for admin
+  $maxExecutionTime = 10 * 60;
+  // disable execution limit
+  set_time_limit(0);
 }
 
 $lockFilePath = tmp() . "/runners/" . basename(__FILE__) . ".lock";
@@ -48,8 +51,8 @@ $statusFile = __DIR__ . "/status.txt";
 if (file_exists($lockFilePath) && !is_debug()) {
   exit(date(DATE_RFC3339) . ' another process still running '  . basename(__FILE__, '.php') . PHP_EOL);
 } else {
-  file_put_contents($lockFilePath, date(DATE_RFC3339));
-  file_put_contents($statusFile, 'filter-ports');
+  write_file($lockFilePath, date(DATE_RFC3339));
+  write_file($statusFile, 'filter-ports');
 }
 
 $db = new ProxyDB();
