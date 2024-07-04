@@ -41,53 +41,70 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
     if (empty($match)) {
       continue;
     }
+    // var_dump($match);
     $username = $password = $proxy = null;
     if (!empty($match[1]) && strpos($match[1], '@') !== false) {
-      list($proxy, $login) = explode('@', $match[1]);
-      $_login = $login;
-      if (!isValidIPPort($proxy)) {
-        $login = $proxy;
-        $proxy = $_login;
+      // list($proxy, $login) = explode('@', $match[1]);
+      $exploded = explode('@', $match[1]);
+      if (isValidProxy($exploded[0])) {
+        $proxy = $exploded[0];
+        $login = $exploded[1];
+      } else {
+        $proxy = $exploded[1];
+        $login = $exploded[0];
       }
       list($username, $password) = explode(":", $login);
+      if (isValidProxy($proxy)) {
+        $result = new Proxy($proxy);
+        if (!empty($username) && !empty($password)) {
+          $result->username = $username;
+          $result->password = $password;
+          $db->updateData($proxy, ['username' => $username, 'password' => $password, 'private' => 'true']);
+        }
+        $results[] = $result;
+      }
     } else {
       $proxy = $match[0];
+      $result = new Proxy($proxy);
+      $results[] = $result;
     }
 
-    if (!empty($proxy) && is_string($proxy) && strlen($proxy) >= 10) {
-      if (isValidProxy(trim($proxy))) {
-        $select = $db->select($proxy);
-        if (!empty($select)) {
-          $result = array_map(function ($item) use ($username, $password) {
-            $wrap = new Proxy($item['proxy']);
-            foreach ($item as $key => $value) {
-              if (property_exists($wrap, $key)) {
-                $wrap->$key = $value;
-              }
-            }
-            if (!empty($username) && !empty($password)) {
-              $wrap->username = $username;
-              $wrap->password = $password;
-            }
-            return $wrap;
-          }, $select);
-          $results[] = $result[0];
-        } else {
-          $result = new Proxy($proxy);
-          if ($write_database) {
-            // update database
-            if (!empty($username) && !empty($password)) {
-              $result->username = $username;
-              $result->password = $password;
-              $db->updateData($proxy, ['username' => $username, 'password' => $password, 'private' => 'true']);
-            } else {
-              $db->add($proxy);
-            }
-          }
-          $results[] = $result;
-        }
-      }
-    }
+    // if (!empty($proxy) && is_string($proxy) && strlen($proxy) >= 10) {
+    //   if (isValidProxy(trim($proxy))) {
+    //     $select = $db->select($proxy);
+    //     if (!empty($select)) {
+    //       // echo "DB EXIST" . PHP_EOL;
+    //       // var_dump(!empty($username) && !empty($password));
+    //       $result = array_map(function ($item) use ($username, $password) {
+    //         $wrap = new Proxy($item['proxy']);
+    //         foreach ($item as $key => $value) {
+    //           if (property_exists($wrap, $key)) {
+    //             $wrap->$key = $value;
+    //           }
+    //         }
+    //         if (!empty($username) && !empty($password)) {
+    //           $wrap->username = $username;
+    //           $wrap->password = $password;
+    //         }
+    //         return $wrap;
+    //       }, $select);
+    //       $results[] = $result[0];
+    //     } else {
+    //       $result = new Proxy($proxy);
+    //       if ($write_database) {
+    //         // update database
+    //         if (!empty($username) && !empty($password)) {
+    //           $result->username = $username;
+    //           $result->password = $password;
+    //           $db->updateData($proxy, ['username' => $username, 'password' => $password, 'private' => 'true']);
+    //         } else {
+    //           $db->add($proxy);
+    //         }
+    //       }
+    //       $results[] = $result;
+    //     }
+    //   }
+    // }
   }
 
   return array_map(function (Proxy $item) use ($db) {
