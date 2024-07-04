@@ -2,7 +2,13 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
+global $isCli, $isWin;
+
 use PhpProxyHunter\ProxyDB;
+
+if ($isCli) {
+  exit('CLI access disallowed');
+}
 
 // Set headers to inform the client that the response is JSON and allow CORS (optional)
 header('Content-Type: application/json');
