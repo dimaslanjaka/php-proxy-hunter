@@ -39,12 +39,15 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
   // Perform the matching IP PORT (whitespaces)
   $re = '/((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+((?!0)\d{2,5})/m';
   preg_match_all($re, $string, $matches2, PREG_SET_ORDER);
+  $matched_whitespaces = !empty($matches2);
+
+  // Perform the matching IP PORT (json) to match "ip":"x.x.x.x","port":"xxxxx"
+  $pattern = '/"ip":"((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})".*?"port":"((?!0)\d{2,5})/m';
+  preg_match_all($pattern, $string, $matches3, PREG_SET_ORDER);
+  $matched_json = !empty($matches3);
 
   // Merge $matches1 and $matches2 into $matches
-  $matches = array_merge($matches1, $matches2);
-
-  // Check if there were matches with whitespaces
-  $matched_whitespaces = !empty($matches2);
+  $matches = array_merge($matches1, $matches2, $matches3);
 
   if (!$db) {
     $db = new ProxyDB();
@@ -55,18 +58,28 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
       continue;
     }
     // var_dump($match, count($match));
-    if ($matched_whitespaces) {
-      if (count($match) === 3) {
-        if (!isValidIp($match[1])) {
-          continue;
-        }
-        $proxy = $match[1] . ":" . $match[2];
+    if ($matched_whitespaces && count($match) === 3) {
+      if (!isValidIp($match[1])) {
+        continue;
+      }
+      $proxy = $match[1] . ":" . $match[2];
+      $result = new Proxy($proxy);
+      if (isValidProxy($proxy)) {
+        $results[] = $result;
+      }
+      continue;
+    }
+    if ($matched_json && count($match) === 3) {
+      $ip = $match[1];   // IP address
+      $port = $match[2]; // Port number
+      if (isValidIp($ip)) {
+        $proxy = $ip . ":" . $port;
         $result = new Proxy($proxy);
         if (isValidProxy($proxy)) {
           $results[] = $result;
         }
-        continue;
       }
+      continue;
     }
     $username = $password = $proxy = null;
     if (!empty($match[1]) && strpos($match[1], '@') !== false) {
