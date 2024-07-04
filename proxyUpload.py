@@ -1,10 +1,11 @@
 import json
-from src.func_proxy import build_request, upload_proxy
+from src.func_proxy import upload_proxy
 from src.ProxyDB import ProxyDB
+from src.func import get_relative_path
 
 
 def upload_all_proxies():
-    db = ProxyDB()
+    db = ProxyDB(get_relative_path('src/database.sqlite'))
 
     data_list = db.get_all_proxies()
 
@@ -16,7 +17,7 @@ def upload_all_proxies():
     ]
 
     # Assuming 'result' is your list of strings that you want to chunk
-    chunk_size = 100
+    chunk_size = 500
     chunked_list = []
 
     for i in range(0, len(result), chunk_size):
