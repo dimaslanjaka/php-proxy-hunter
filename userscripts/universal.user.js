@@ -73,6 +73,7 @@
 // @match  			 *://proxy-tools.com/*
 // @match  			 *://fineproxy.org/*
 // @match  			 *://proxy-spider.com/*
+// @match  			 *://vakhov.github.io/fresh-proxy-list*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
