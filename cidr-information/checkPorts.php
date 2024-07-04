@@ -48,7 +48,8 @@ $ports = [
   80, 81, 83, 88, 3128, 3129, 3654, 4444, 5800, 6588, 6666,
   6800, 7004, 8080, 8081, 8082, 8083, 8088, 8118, 8123, 8888,
   9000, 8084, 8085, 9999, 45454, 45554, 53281, 8443
-];
+]);
+shuffle($ports);
 
 if (!empty($parseData['ip'])) {
   // ?ip=IP:PORT
@@ -113,7 +114,12 @@ if (file_exists($lock_file) && !is_debug()) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 }
 
-echo $cmd . "\n\n";
+if (empty($ips)) {
+  $cmd = "php " . escapeshellarg($file);
+  $uid = getUserId();
+  $cmd .= " --userId=" . escapeshellarg($uid);
+  $cmd .= " --max=" . escapeshellarg("30");
+  $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
 
 if (!$isCli) {
   $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
