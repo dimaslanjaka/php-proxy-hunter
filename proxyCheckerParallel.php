@@ -190,13 +190,14 @@ if (empty($proxies)) {
       }
       return false;
     }
-    //    if (empty($item->last_check)) return true;
-    //    if (isDateRFC3339OlderThanHours($item->last_check, 24)) return true;
-    //    return false;
+    // skip already checked proxy today
+    if ($item->last_check) {
+      if (isDateRFC3339OlderThanHours($item->last_check, 24)) {
+        return true;
+      }
+    }
     return true;
   });
-  // run immediately
-  //  checkProxyInParallel($proxies);
 }
 
 // perform checks
