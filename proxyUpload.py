@@ -1,5 +1,5 @@
 import json
-from src.func_proxy import upload_proxy
+from src.func_proxy import upload_proxy, is_port_open
 from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 
@@ -25,6 +25,8 @@ def upload_all_proxies():
         chunked_list.append(chunk)
 
     for chunk in chunked_list:
+        # open_ports = list(filter(is_port_open, chunk))
+        # upload_proxy(json.dumps(open_ports))
         upload_proxy(json.dumps(chunk))
 
 
