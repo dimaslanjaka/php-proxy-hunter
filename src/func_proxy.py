@@ -610,6 +610,7 @@ def is_port_open(address: str) -> bool:
         s.settimeout(10)
         # Try to connect to the host and port
         s.connect((host, port))
+        debug_log(f"{address} {green('port open')}")
         # If successful, the port is open
         return True
     except Exception as e:
