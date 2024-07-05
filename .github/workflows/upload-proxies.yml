@@ -170,6 +170,25 @@ jobs:
           echo "Total untested proxies: ${{ steps.php-github-actions-init.outputs.total_untested }}"
           echo "Total private proxies: ${{ steps.php-github-actions-init.outputs.total_private }}"
           echo "Total all proxies: ${{ steps.php-github-actions-init.outputs.total_all }}"
+
+      - name: Check if database.sqlite exists
+        id: check_sqlite
+        run: |
+          if [ -f "src/database.sqlite" ]; then
+            echo "sqlite_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "sqlite_exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Extract src/database.rar
+        if: ${{ steps.php-github-actions-init.outputs.total_dead == '0' || steps.check_sqlite.outputs.sqlite_exists == 'false' }}
+        run: |
+          # php cidr-information/CIDR-ports.php
+          # php cidr-information/CIDR-ranges.php
+          # php cidr-information/CIDR-check.php
+          sudo apt-get update -y
+          sudo apt-get install -y unrar
+          unrar x src/database.rar src/
+
       - name: Check last run
         id: check_last_run
         run: |
@@ -198,12 +217,7 @@ jobs:
         if: steps.check_last_run.outputs.run_the_job == 'true'
         run: |
           php proxyFetcher.php --admin='true'
-      - name: Run another PHP script if no dead proxies
-        if: ${{ steps.php-github-actions-init.outputs.total_dead == '0' }}
-        run: |
-          php cidr-information/CIDR-ports.php
-          php cidr-information/CIDR-ranges.php
-          php cidr-information/CIDR-check.php
+
       - name: Indexing proxies
         if: steps.check_last_run.outputs.run_the_job == 'true'
         run: php proxies-all.php
