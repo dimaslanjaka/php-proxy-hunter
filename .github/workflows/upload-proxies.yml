@@ -120,7 +120,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-php-
 
-      - name: Install NodeJS dependencies
+      - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           if [ ! -f composer.lock ]; then
@@ -134,6 +134,7 @@ jobs:
               touch yarn.lock
           fi
           yarn install
+          python -m pip install -r requirements.txt
 
       - name: Initialize Github Actions
         id: php-github-actions-init
