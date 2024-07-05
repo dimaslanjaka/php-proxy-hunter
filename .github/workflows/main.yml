@@ -22,7 +22,7 @@ jobs:
   upload:
     if: contains(github.repository, 'proxy')
     permissions: read-all
-    uses: dimaslanjaka/php-proxy-hunter/.github/workflows/upload-proxies.yml@master
+    uses: dimaslanjaka/php-proxy-hunter/.github/workflows/upload.yml@master
     with:
       max: ${{ github.event.inputs.max || 500 }}
     secrets:
