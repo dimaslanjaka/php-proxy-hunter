@@ -187,7 +187,7 @@ jobs:
           # sudo apt-get install -y unrar
           # unrar x src/database.rar src/
           sudo apt-get install -y p7zip-full
-          7z x src/database.rar -o src/
+          7z x src/database.rar -osrc/ -aoa
 
       - name: Check last run
         id: check_last_run
