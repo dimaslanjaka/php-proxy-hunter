@@ -182,7 +182,7 @@ jobs:
             echo "sqlite_exists=false" >> $GITHUB_OUTPUT
           fi
       - name: Extract src/database.rar
-        if: ${{ steps.php-github-actions-init.outputs.total_dead == '0' || steps.check_sqlite.outputs.sqlite_exists == 'false' }}
+        if: ${{ steps.php-github-actions-init.outputs.total_all == '0' || steps.check_sqlite.outputs.sqlite_exists == 'false' }}
         working-directory: src
         run: |
           # unrar x src/database.rar src/
