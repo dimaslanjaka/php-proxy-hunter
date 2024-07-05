@@ -208,6 +208,9 @@ jobs:
             # Current timestamp
             current_time=$(date +%s)
 
+            # Print unique variable
+            echo "Unique var: run_the_job_$file_name"
+
             # Check if last fetch timestamp file exists
             if [ -f tmp/$file_name ]; then
               last_fetch=$(cat tmp/$file_name)
