@@ -4,7 +4,7 @@ PHP proxy hunter and PHP proxy checker
 
 ## Features
 
-- Lightweight [x]
+- Lightweight
 - HTTP/HTTPS/SSL supported
 - SOCKS4/5 supported
 - CIDR ranges scanner
