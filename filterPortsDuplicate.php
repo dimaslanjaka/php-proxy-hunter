@@ -48,7 +48,7 @@ if ($isAdmin) {
 $lockFilePath = tmp() . "/runners/" . basename(__FILE__) . ".lock";
 $statusFile = __DIR__ . "/status.txt";
 
-if (file_exists($lockFilePath) && !is_debug()) {
+if (file_exists($lockFilePath) && !$isAdmin) {
   exit(date(DATE_RFC3339) . ' another process still running '  . basename(__FILE__, '.php') . PHP_EOL);
 } else {
   write_file($lockFilePath, date(DATE_RFC3339));
