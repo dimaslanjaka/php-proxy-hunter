@@ -76,7 +76,10 @@ $query = "SELECT * FROM proxies";
 if ($whereClause) {
   $query .= " WHERE $whereClause";
 }
-$query .= " $orderByRandom LIMIT $max OFFSET $offset";
+if (isset($parseQueries['random'])) {
+  $query .= " $orderByRandom";
+}
+$query .= " ORDER BY last_check DESC LIMIT $max OFFSET $offset";
 
 $data = $db->db->executeCustomQuery($query, $params);
 
