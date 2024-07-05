@@ -1,0 +1,170 @@
+name: Proxy Checker
+
+on:
+  workflow_dispatch:
+    inputs:
+      max:
+        description: "The maximum proxies to be checked."
+        required: true
+        default: "500"
+        type: string
+  workflow_call:
+    inputs:
+      max:
+        description: "The maximum proxies to be checked."
+        required: true
+        default: "500"
+        type: string
+    secrets:
+      ACCESS_TOKEN:
+        required: true
+
+concurrency:
+  group: checker-${{ github.workflow }}-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # only apply for repository has substring `proxy` like `php-proxy-hunter`
+    if: contains(github.repository, 'proxy')
+    permissions: read-all
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096" #8192 4096 --expose-gc
+      YARN_ENABLE_IMMUTABLE_INSTALLS: false
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      node_version: 18.x
+      php_version: 7.4
+      YARN_CHECKSUM_BEHAVIOR: update
+
+    steps:
+      - name: Set timezone
+        uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: "Asia/Jakarta"
+      - uses: actions/checkout@v4
+        with:
+          token: "${{ secrets.ACCESS_TOKEN }}"
+          lfs: ""
+      - uses: actions/checkout@v4
+        with:
+          token: "${{ secrets.ACCESS_TOKEN }}"
+          lfs: ""
+          path: "public"
+          repository: "dimaslanjaka/data"
+      - name: update submodules
+        run: |
+          echo "init submodules"
+          git submodule init
+          git submodule foreach "git submodule init"
+          echo "sync submodules"
+          git submodule sync
+          git submodule foreach "git submodule sync"
+          echo "update submodules"
+          mkdir -p bin >/dev/null 2>&1
+          curl -L https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install > bin/submodule-install
+          rm -rf .git/modules
+          bash ./bin/submodule-install
+        shell: bash
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node_version }}
+
+      - run: corepack enable
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install python dependencies
+        run: python -m pip install --upgrade pip setuptools wheel
+
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.php_version }}
+          extensions: imagick, swoole, mbstring, intl, pecl_http, curl, redis, pdo_mysql, pdo_sqlite, dom, zip, phalcon4, pgsql
+          tools: php-cs-fixer, phpunit, composer:v2
+          coverage: none
+        env:
+          fail-fast: true
+
+      - name: Validate composer
+        run: php composer.phar validate --strict
+
+      - name: Cache Composer packages
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            vendor/
+            tmp/
+            config/
+            .cache/
+            assets/proxies/
+            node_modules/
+            .yarn/caches/
+            proxies.txt
+            dead.txt
+            proxyChecker.txt
+            working.txt
+            working.json
+            src/database.sqlite
+            composer.lock
+            yarn.lock
+          key: ${{ runner.os }}-php-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install NodeJS dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          if [ ! -f composer.lock ]; then
+              echo "composer.lock not found, running composer install..."
+              php composer.phar install --prefer-dist --no-progress
+          else
+              echo "composer.lock found, running composer update..."
+              php composer.phar update --prefer-dist --no-progress
+          fi
+          if [ ! -f yarn.lock ]; then
+              touch yarn.lock
+          fi
+          yarn install
+
+      - name: Initialize Github Actions
+        id: php-github-actions-init
+        env:
+          GITHUB_OUTPUT: $GITHUB_OUTPUT
+        run: |
+          mkdir -p assets/proxies
+          mkdir -p tmp
+          mkdir -p tmp/runners
+          mkdir -p tmp/cookies
+          php github-actions-init.php
+
+      - name: Display output
+        run: |
+          echo "Total working proxies: ${{ steps.php-github-actions-init.outputs.total_working }}"
+          echo "Total dead proxies: ${{ steps.php-github-actions-init.outputs.total_dead }}"
+          echo "Total untested proxies: ${{ steps.php-github-actions-init.outputs.total_untested }}"
+          echo "Total private proxies: ${{ steps.php-github-actions-init.outputs.total_private }}"
+          echo "Total all proxies: ${{ steps.php-github-actions-init.outputs.total_all }}"
+
+      - name: Run another PHP script if no dead proxies
+        if: ${{ steps.php-github-actions-init.outputs.total_dead == '0' }}
+        run: |
+          php cidr-information/CIDR-ports.php
+          php cidr-information/CIDR-ranges.php
+          php cidr-information/CIDR-check.php
+      - name: Indexing proxies
+        run: php proxies-all.php
+      - name: Scan ports
+        run: php scanPorts.php --admin='true' --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+      - name: Filter duplicate ports
+        run: php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+      - name: Upload proxies
+        run: python proxyUpload.py

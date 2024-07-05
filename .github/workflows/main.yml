@@ -19,7 +19,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  upload:
+    if: contains(github.repository, 'proxy')
+    permissions: read-all
+    uses: dimaslanjaka/php-proxy-hunter/.github/workflows/upload-proxies.yml@master
+    with:
+      max: ${{ github.event.inputs.max || 500 }}
+    secrets:
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+  check:
     if: contains(github.repository, 'proxy')
     permissions: read-all
     uses: dimaslanjaka/php-proxy-hunter/.github/workflows/checker.yml@master
