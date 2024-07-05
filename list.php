@@ -83,6 +83,12 @@ $query .= " ORDER BY last_check DESC LIMIT $max OFFSET $offset";
 
 $data = $db->db->executeCustomQuery($query, $params);
 
+// Convert last_check to human-readable format
+foreach ($data as &$item) {
+  $dateTime = new DateTime($item['last_check']);
+  $item['last_check'] = $dateTime->format('Y-m-d H:i:s');
+}
+
 $response = [
   "query" => $isAdmin ? $query : '',
   "current_page" => $page,
