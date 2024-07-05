@@ -132,7 +132,7 @@ jobs:
               touch yarn.lock
           fi
           yarn install
-          python -m pip install -r requirements.txt
+          python requirements_install.py
 
       - name: Initialize Github Actions
         id: php-github-actions-init
