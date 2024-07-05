@@ -97,9 +97,6 @@ jobs:
       - name: Install xvfb
         run: sudo apt-get install xvfb
 
-      - name: Init selenium
-        run: python github-actions-init.py
-
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
         with:
@@ -166,6 +163,7 @@ jobs:
           mkdir -p tmp/runners
           mkdir -p tmp/cookies
           php github-actions-init.php
+          python github-actions-init.py
 
       - name: Display output
         run: |
