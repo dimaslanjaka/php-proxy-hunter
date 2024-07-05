@@ -239,7 +239,9 @@ jobs:
 
       - name: Indexing proxies
         if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
-        run: php proxies-all.php
+        run: |
+          php proxies-all.php
+          php configCleaner.php
       - name: Scan ports
         run: |
           php scanPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
@@ -258,7 +260,9 @@ jobs:
         run: |
           date +%s > tmp/last_4_hours_run_timestamp  # Update last run timestamp
           echo "last_4_hours_run_timestamp=$(date +%s)" >> $GITHUB_STATE
-      - run: php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+      - run: |
+          php scanPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+          php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
         name: Check proxies
       - name: Print working proxies
         id: working
