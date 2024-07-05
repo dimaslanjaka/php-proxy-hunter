@@ -46,11 +46,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: "${{ secrets.ACCESS_TOKEN }}"
-          lfs: ""
+          lfs: true
       - uses: actions/checkout@v4
         with:
           token: "${{ secrets.ACCESS_TOKEN }}"
-          lfs: ""
+          lfs: true
           path: "public"
           repository: "dimaslanjaka/data"
       - name: update submodules
@@ -66,6 +66,7 @@ jobs:
           curl -L https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install > bin/submodule-install
           rm -rf .git/modules
           bash ./bin/submodule-install
+          git lfs track "*.rar"
         shell: bash
 
       - name: Setup NodeJS
@@ -81,7 +82,9 @@ jobs:
           python-version: 3.11
 
       - name: Installing package list
-        run: apt list --installed
+        run: |
+          apt list --installed
+          sudo apt-get install -y p7zip-full p7zip-rar unrar rar
 
       - name: Removing previous chrome instances on runner
         run: sudo apt purge google-chrome-stable
@@ -93,9 +96,6 @@ jobs:
 
       - name: Install xvfb
         run: sudo apt-get install xvfb
-
-      - name: Init selenium
-        run: python github-actions-init.py
 
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
@@ -163,6 +163,7 @@ jobs:
           mkdir -p tmp/runners
           mkdir -p tmp/cookies
           php github-actions-init.php
+          python github-actions-init.py
 
       - name: Display output
         run: |
@@ -181,13 +182,18 @@ jobs:
             echo "sqlite_exists=false" >> $GITHUB_OUTPUT
           fi
       - name: Extract src/database.rar
-        if: ${{ steps.php-github-actions-init.outputs.total_dead == '0' || steps.check_sqlite.outputs.sqlite_exists == 'false' }}
+        if: ${{ steps.php-github-actions-init.outputs.total_all == '0' || steps.check_sqlite.outputs.sqlite_exists == 'false' }}
+        working-directory: src
         run: |
-          sudo apt-get update -y
-          # sudo apt-get install -y unrar
           # unrar x src/database.rar src/
-          sudo apt-get install -y p7zip-full p7zip-rar
-          7z x src/database.rar -osrc/ -aoa
+          # 7z x ./src/database.rar -osrc/ -aoa
+          # rar x src/database.rar src/
+          # 7z x database.rar -y
+          echo "List RAR file"
+          ls -l database.rar
+          echo "Print RAR file size"
+          du -h database.rar
+          unrar e database.rar -y -r
 
       - run: php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
         name: Check proxies
