@@ -190,8 +190,15 @@ jobs:
           # 7z x ./src/database.rar -osrc/ -aoa
           # rar x src/database.rar src/
           # 7z x database.rar -y
+          echo "List RAR file"
+          ls -l database.rar
+          echo "Print RAR file size"
+          du -h database.rar
+          echo "Verify RAR file content (hex dump)"
+          hexdump -C database.rar | head -n 20
+          echo "Verify RAR file"
           rar t database.rar
-          unrar e database.r -y
+          unrar e database.r -y -r
 
       - name: Check last run
         id: check_last_run
