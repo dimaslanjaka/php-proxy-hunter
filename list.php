@@ -71,15 +71,16 @@ if ($status !== 'all') {
 $totalItems = $db->db->count('proxies', $whereClause, $params);
 $totalPages = ceil($totalItems / $max);
 
-$orderByRandom = $max > 0 ? 'ORDER BY RANDOM()' : '';
 $query = "SELECT * FROM proxies";
 if ($whereClause) {
   $query .= " WHERE $whereClause";
 }
 if (isset($parseQueries['random'])) {
-  $query .= " $orderByRandom";
+  $query .= " ORDER BY RANDOM()";
+} else {
+  $query .= " ORDER BY last_check DESC";
 }
-$query .= " ORDER BY last_check DESC LIMIT $max OFFSET $offset";
+$query .= " LIMIT $max OFFSET $offset";
 
 $data = $db->db->executeCustomQuery($query, $params);
 
@@ -89,13 +90,27 @@ foreach ($data as &$item) {
   $item['last_check'] = $dateTime->format('Y-m-d H:i:s');
 }
 
+$full_url = strtok((empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]", '?');
+
 $response = [
-  "query" => $isAdmin ? $query : '',
   "current_page" => $page,
   "total_pages" => $totalPages,
   "total_items" => $totalItems,
   "items_per_page" => $max,
-  "items" => $data
+  "items" => $data,
+  "tips" => [
+    "statuses" => "(pick one) status=" . implode(", ", $allowed_status),
+    "randomize" => "(randomize result) random=true",
+    "limit" => "(increase limit per page) max=10",
+    "page" => "(pagination) page=1",
+    "example" => $full_url . "?page=4&max=30&status=active&random=true"
+  ]
 ];
+
+if ($isAdmin) {
+  $response['query'] = $query;
+}
+
+ksort($response);
 
 echo json_encode($response, JSON_PRETTY_PRINT);
