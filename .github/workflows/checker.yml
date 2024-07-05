@@ -230,6 +230,7 @@ jobs:
             fi
           }
           check_run_status "last_4_hours_run_timestamp" 4
+          check_run_status "last_week_run_timestamp" 168
 
       - name: Fetch proxies
         if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
@@ -244,8 +245,8 @@ jobs:
           php scanPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
           php filterPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
           php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
-      - name: Upload proxies
-        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
+      - name: Upload all proxies
+        if: steps.check_last_run.outputs.run_the_job_last_week_run_timestamp == 'true'
         run: python proxyUpload.py
       - name: Clean github actions cache
         if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
