@@ -128,7 +128,7 @@ class ProxyDB:
         if data is None:
             data = {}
         data = {key: value for key, value in data.items() if value is not None and value is not False}
-        if 'status' in data:
+        if 'status' in data and data['status'] != 'untested':
             data['last_check'] = get_current_rfc3339_time()
         if data:
             data = self.clean_type(data)
