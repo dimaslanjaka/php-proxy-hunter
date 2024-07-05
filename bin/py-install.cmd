@@ -3,7 +3,7 @@
 :: Activate the virtual environment
 call venv\Scripts\activate
 
-call python -m pip install -r requirements.txt
+call python requirements_install.py
 
 :: Deactivate the virtual environment
 call venv\Scripts\deactivate

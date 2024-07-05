@@ -42,5 +42,3 @@ setuptools
 pycurl
 rarfile
 pycryptodome
-pywin32
-wmi
