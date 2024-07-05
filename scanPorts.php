@@ -13,15 +13,26 @@ $str = '';
 $isAdmin = false;
 
 if (!$isCli) {
+  header("Access-Control-Allow-Origin: *");
+  header("Access-Control-Allow-Headers: *");
+  header("Access-Control-Allow-Methods: *");
+  header('Content-Type: text/plain; charset=utf-8');
+
   // parse data from web server
   $web_data = null;
-  if ($_REQUEST['REQUEST_METHOD'] === 'POST') {
-    $web_data = parsePostData();
-  } elseif (!empty($_REQUEST['proxy'])) {
-    $web_data = $_REQUEST['proxy'];
+  $parseQuery = parseQueryOrPostBody();
+  // custom IP
+  // ?proxy=123.123.132.123 or Post body key proxy
+  if (!empty($parseQuery['proxy'])) {
+    $web_data = $parseQuery['proxy'];
   }
-  if ($web_data && !is_string($web_data)) {
-    $str = rawurldecode(json_encode($web_data));
+  if ($web_data) {
+    if (is_array($web_data) || is_object($web_data)) {
+      $web_data = json_encode($web_data);
+    }
+  }
+  if (is_string($web_data)) {
+    $str = rawurldecode($web_data);
   }
   $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
 } else {
