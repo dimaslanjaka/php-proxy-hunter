@@ -154,7 +154,31 @@ jobs:
           echo "Total untested proxies: ${{ steps.php-github-actions-init.outputs.total_untested }}"
           echo "Total private proxies: ${{ steps.php-github-actions-init.outputs.total_private }}"
           echo "Total all proxies: ${{ steps.php-github-actions-init.outputs.total_all }}"
+      - name: Check last run
+        id: check_last_run
+        run: |
+          # Check if tmp directory exists
+          mkdir -p tmp
 
+          # Check if last fetch timestamp file exists
+          if [ -f tmp/last_upload_run_timestamp.txt ]; then
+            last_fetch=$(cat tmp/last_upload_run_timestamp.txt)
+            current_time=$(date +%s)
+            elapsed_time=$((current_time - last_fetch))
+            four_hours=$((4 * 60 * 60))  # 4 hours in seconds
+
+            if [ $elapsed_time -ge $four_hours ]; then
+              echo "run_the_job=true" >> $GITHUB_OUTPUT
+            else
+              echo "run_the_job=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "run_the_job=true" >> $GITHUB_OUTPUT  # Run if file doesn't exist
+          fi
+      - name: Fetch proxies
+        if: steps.check_last_run.outputs.run_the_job == 'true'
+        run: |
+          php proxyFetcher.php --admin='true'
       - name: Run another PHP script if no dead proxies
         if: ${{ steps.php-github-actions-init.outputs.total_dead == '0' }}
         run: |
@@ -162,10 +186,17 @@ jobs:
           php cidr-information/CIDR-ranges.php
           php cidr-information/CIDR-check.php
       - name: Indexing proxies
+        if: steps.check_last_run.outputs.run_the_job == 'true'
         run: php proxies-all.php
       - name: Scan ports
         run: php scanPorts.php --admin='true' --max='${{ github.event.inputs.max || 500 }}' --admin='true'
       - name: Filter duplicate ports
         run: php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
       - name: Upload proxies
+        if: steps.check_last_run.outputs.run_the_job == 'true'
         run: python proxyUpload.py
+      - name: Write last check
+        if: steps.check_last_run.outputs.run_the_job == 'true'
+        run: |
+          date +%s > tmp/last_upload_run_timestamp.txt  # Update last run timestamp
+          echo "last_upload_run_timestamp=$(date +%s)" >> $GITHUB_STATE
