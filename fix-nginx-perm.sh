@@ -84,6 +84,14 @@ else
     su -s /bin/sh -c "php proxies-all.php >> $OUTPUT_FILE 2>&1 &" www-data
 fi
 
+# Validate filterPortsDuplicate.php not running before indexing proxies
+if pgrep -f "filterPortsDuplicate.php" >/dev/null; then
+    echo "Filter ports duplicate is still running."
+else
+    # If filterPortsDuplicate.php is not running, execute the command
+    su -s /bin/sh -c "php filterPortsDuplicate.php >> $OUTPUT_FILE 2>&1 &" www-data
+fi
+
 # Set permissions for vendor directory
 chmod 777 vendor
 touch vendor/index.html
