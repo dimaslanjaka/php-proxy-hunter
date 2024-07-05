@@ -149,8 +149,8 @@ async function checkerOutput() {
         '$1 <span class="text-red-600">invalid</span>'
       );
       str = str.replace(
-        /(\badd\b\s+\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})/g,
-        '<span class="text-green-400">add</span> $1'
+        /(\badd\b)\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})/g,
+        '<span class="text-green-400">add</span> $2'
       );
       str = str.replace(/working.*/, (whole) => {
         if (whole.includes("-1")) return `<span class="text-orange-400">${whole}</span>`;
