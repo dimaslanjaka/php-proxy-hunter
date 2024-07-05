@@ -150,7 +150,7 @@ async function checkerOutput() {
       );
       str = str.replace(
         /(\badd\b\s+\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})/g,
-        '<span class="text-green-400">add</span> $2'
+        '<span class="text-green-400">add</span> $1'
       );
       str = str.replace(/working.*/, (whole) => {
         if (whole.includes("-1")) return `<span class="text-orange-400">${whole}</span>`;
