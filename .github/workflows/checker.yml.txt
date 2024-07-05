@@ -210,7 +210,7 @@ jobs:
 
       - name: Check proxies and scan ports
         run: |
-          php scanPorts.php --admin='true' --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+          php scanPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
           php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
 
       - name: Check last run clean temp files
