@@ -240,7 +240,9 @@ class ProxyDB
     }
     if ($status) {
       $data['status'] = $status;
-      $data['last_check'] = date(DATE_RFC3339);
+      if ($status != 'untested') {
+        $data['last_check'] = date(DATE_RFC3339);
+      }
     }
     if (!empty($data)) {
       $this->updateData($proxy, $data);
