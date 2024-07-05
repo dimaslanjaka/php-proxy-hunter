@@ -186,7 +186,7 @@ jobs:
           sudo apt-get update -y
           # sudo apt-get install -y unrar
           # unrar x src/database.rar src/
-          sudo apt-get install -y p7zip-full
+          sudo apt-get install -y p7zip-full p7zip-rar
           7z x src/database.rar -osrc/ -aoa
 
       - run: php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
