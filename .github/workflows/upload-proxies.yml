@@ -195,6 +195,11 @@ jobs:
       - name: Upload proxies
         if: steps.check_last_run.outputs.run_the_job == 'true'
         run: python proxyUpload.py
+      - name: Clean github actions cache
+        if: steps.check_last_run.outputs.run_the_job == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: bash bin/clear-github-actions-cache
       - name: Write last check
         if: steps.check_last_run.outputs.run_the_job == 'true'
         run: |
