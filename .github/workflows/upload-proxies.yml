@@ -183,12 +183,11 @@ jobs:
       - name: Extract src/database.rar
         if: ${{ steps.php-github-actions-init.outputs.total_dead == '0' || steps.check_sqlite.outputs.sqlite_exists == 'false' }}
         run: |
-          # php cidr-information/CIDR-ports.php
-          # php cidr-information/CIDR-ranges.php
-          # php cidr-information/CIDR-check.php
           sudo apt-get update -y
-          sudo apt-get install -y unrar
-          unrar x src/database.rar src/
+          # sudo apt-get install -y unrar
+          # unrar x src/database.rar src/
+          sudo apt-get install -y p7zip-full
+          7z x src/database.rar -o src/
 
       - name: Check last run
         id: check_last_run
