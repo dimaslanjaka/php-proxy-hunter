@@ -19,8 +19,8 @@ if (isset($_REQUEST['uid'])) {
   setUserId($_REQUEST['uid']);
 }
 // only allow user with Google Analytics cookie
-if (!isset($_COOKIE['_ga'])) {
-  exit('Access Denied');
+if (empty($_COOKIE['_ga']) || empty($_SESSION['user_id'])) {
+  exit(json_encode(['error' => 'Access Denied']));
 }
 // check admin
 $isAdmin = (!empty($_SESSION['admin']) && $_SESSION['admin'] === true) || is_debug();
