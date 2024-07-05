@@ -83,7 +83,7 @@ jobs:
       - name: Installing package list
         run: |
           apt list --installed
-          sudo apt-get install -y p7zip-full p7zip-rar unrar
+          sudo apt-get install -y p7zip-full p7zip-rar unrar rar
 
       - name: Removing previous chrome instances on runner
         run: sudo apt purge google-chrome-stable
@@ -186,7 +186,9 @@ jobs:
         if: ${{ steps.php-github-actions-init.outputs.total_dead == '0' || steps.check_sqlite.outputs.sqlite_exists == 'false' }}
         run: |
           # unrar x src/database.rar src/
-          7z x src/database.rar -osrc/ -aoa
+          # 7z x src/database.rar -osrc/ -aoa
+          ls src
+          rar x src/database.rar src/
 
       - name: Check last run
         id: check_last_run
