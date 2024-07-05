@@ -184,12 +184,15 @@ jobs:
             four_hours=$((4 * 60 * 60))  # 4 hours in seconds
 
             if [ $elapsed_time -ge $four_hours ]; then
+              echo "last run is more than 4 hours ago"
               echo "run_the_job=true" >> $GITHUB_OUTPUT
             else
+              echo "last run is less than 4 hours"
               echo "run_the_job=false" >> $GITHUB_OUTPUT
             fi
           else
-            echo "run_the_job=true" >> $GITHUB_OUTPUT  # Run if file doesn't exist
+            echo "tmp/last_upload_run_timestamp.txt not found"
+            echo "run_the_job=true" >> $GITHUB_OUTPUT
           fi
       - name: Fetch proxies
         if: steps.check_last_run.outputs.run_the_job == 'true'
