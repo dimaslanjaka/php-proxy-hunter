@@ -1,6 +1,27 @@
 # php-proxy-hunter
 
-PHP proxy hunter
+PHP proxy hunter and PHP proxy checker
+
+## Features
+
+- Lightweight [x]
+- HTTP/HTTPS/SSL supported
+- SOCKS4/5 supported
+- CIDR ranges scanner
+- Proxy extractor
+- Single thread proxy checker
+- Multi thread proxy checker
+- Open port scanner
+- Artisan supported
+- Web server supported
+- Nginx supported
+- Apache supported
+- Proxy finder
+- Proxy hunter
+- Proxy checker
+- Python proxy checker available (Converted)
+- Bash available
+- Batch available
 
 ![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/d24b8bbf-0fa0-4394-b9e7-78350bdda67d)
 ![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/1e52d0f8-6417-41c3-bb75-86009726df7d)
