@@ -101,6 +101,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
+            ~/.cache/pip
+            venv/
             vendor/
             tmp/
             config/
