@@ -189,7 +189,9 @@ jobs:
           # unrar x src/database.rar src/
           # 7z x ./src/database.rar -osrc/ -aoa
           # rar x src/database.rar src/
-          7z x database.rar -y
+          # 7z x database.rar -y
+          rar t database.rar
+          unrar e database.r -y
 
       - name: Check last run
         id: check_last_run
