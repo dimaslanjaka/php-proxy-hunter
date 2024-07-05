@@ -156,6 +156,7 @@ async function checkerOutput() {
         if (whole.includes("-1")) return `<span class="text-orange-400">${whole}</span>`;
         return `<span class="text-green-400">${whole}</span>`;
       });
+      str = str.replace(/\[DELETED\]/, '<i class="fal fa-trash text-red-400"></i>');
       return str;
     })
     .join("<br/>");
