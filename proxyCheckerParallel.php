@@ -72,6 +72,7 @@ if ($isCli) {
     $id = Server::useragent();
   }
   $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
+  // lock file same as scanPorts.php
   $webLockFile = tmp() . '/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
   if (file_exists($webLockFile) && !is_debug() && !$isAdmin) {
     exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
