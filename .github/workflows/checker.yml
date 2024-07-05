@@ -110,7 +110,7 @@ jobs:
       - name: Validate composer
         run: php composer.phar validate --strict
 
-      - name: Cache Composer packages
+      - name: Cache initialize
         id: cache
         uses: actions/cache@v4
         with:
