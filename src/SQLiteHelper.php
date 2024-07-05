@@ -110,6 +110,21 @@ class SQLiteHelper
   }
 
   /**
+   * Executes a custom SQL query and returns the result.
+   *
+   * @param string $sql The SQL query to execute.
+   * @param array $params An array of parameters to bind to the query.
+   * @return array The queried result.
+   */
+  public function executeCustomQuery(string $sql, array $params = []): array
+  {
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($params);
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $result ?: [];
+  }
+
+  /**
    * Counts the records in the specified table.
    *
    * @param string $tableName The name of the table to count records from.
