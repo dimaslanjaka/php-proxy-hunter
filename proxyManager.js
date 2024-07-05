@@ -144,6 +144,14 @@ async function checkerOutput() {
       str = str.replace(/port open/, '<span class="text-green-400">port open</span>');
       str = str.replace(/not working/, '<span class="text-red-600">not working</span>');
       str = str.replace(/dead/, '<span class="text-red-600">dead</span>');
+      str = str.replace(
+        /(\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}\b)\s+invalid/g,
+        '$1 <span class="text-red-600">invalid</span>'
+      );
+      str = str.replace(
+        /(\badd\b\s+\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})/g,
+        '<span class="text-green-400">add</span> $2'
+      );
       str = str.replace(/working.*/, (whole) => {
         if (whole.includes("-1")) return `<span class="text-orange-400">${whole}</span>`;
         return `<span class="text-green-400">${whole}</span>`;
