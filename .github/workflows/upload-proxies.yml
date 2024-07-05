@@ -129,7 +129,8 @@ jobs:
             proxyChecker.txt
             working.txt
             working.json
-            src/database.sqlite
+            src/*.sqlite*
+            src/*.mmdb
             composer.lock
             yarn.lock
           key: ${{ runner.os }}-php-${{ github.run_id }}

@@ -1,4 +1,4 @@
-name: Checker Parallel
+name: Proxy Checker
 
 on:
   workflow_dispatch:
@@ -7,12 +7,14 @@ on:
         description: "The maximum proxies to be checked."
         required: true
         default: "500"
+        type: string
   workflow_call:
     inputs:
       max:
         description: "The maximum proxies to be checked."
         required: true
         default: "500"
+        type: string
     secrets:
       ACCESS_TOKEN:
         required: true
@@ -202,13 +204,14 @@ jobs:
         if: steps.check_last_run.outputs.run_fetcher == 'true'
         run: |
           php proxyFetcher.php --admin='true'
+          php proxies-all.php --admin='true'
           date +%s > tmp/last_fetch_timestamp.txt  # Update last fetch timestamp
           echo "last_fetch_timestamp=$(date +%s)" >> $GITHUB_STATE
 
       - name: Check proxies and scan ports
         run: |
           php scanPorts.php --admin='true' --max='${{ github.event.inputs.max || 500 }}' --admin='true'
-          php proxyCheckerParallel.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+          php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
 
       - name: Check last run clean temp files
         id: clean_temp_files
@@ -272,14 +275,8 @@ jobs:
           # Read the JSON file content
           json_content=$(php proxyWorking.php)
 
-          # Check if json_content is not empty, null, [], or {}
+          # Check if json_content is not empty
           if [ -n "$json_content" ]; then
-            # First curl command to proxyAdd.php (send JSON content directly)
-            sudo curl -s -X POST https://sh.webmanajemen.com/proxyAdd.php -d "$json_content" > /dev/null 2>&1
-
-            # Second curl command to proxyCheckerParallel.php (send JSON content directly)
-            sudo curl -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "$json_content" > /dev/null 2>&1
-
             # print working proxies
             echo "$json_content"
 
@@ -300,8 +297,23 @@ jobs:
         run: |
           git add proxies
           git commit -m "update working proxies - ${{ env.GITHUB_COMMIT_URL }}" -m "runner: ${{ env.GITHUB_RUNNER_URL }}"
-          git push --force --all --allow-unrelated-histories
+          git push origin master -f
           echo "Working proxies deployed at https://github.com/dimaslanjaka/data/raw/master/proxies/working.json"
+
+      - name: Upload working proxies
+        continue-on-error: true
+        run: |
+          # Read the JSON file content
+          json_content=$(php proxyWorking.php)
+
+          # Check if json_content is not empty, null, [], or {}
+          if [ -n "$json_content" ]; then
+            # First curl command to proxyAdd.php (send JSON content directly)
+            curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyAdd.php -d "$json_content" > /dev/null 2>&1
+
+            # Second curl command to proxyCheckerParallel.php (send JSON content directly)
+            curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "$json_content" > /dev/null 2>&1
+          fi
 
       - name: Check last run clean GitHub Actions cache
         id: clean_github_actions_cache
@@ -340,7 +352,6 @@ jobs:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
           bash bin/clear-github-actions-cache
-          php proxies-all.php --admin='true'
           php filterPortsDuplicate.php --admin='true'
           date +%s > tmp/last_ci_cache_clean_timestamp.txt  # Update last clean timestamp
           echo "last_ci_cache_clean_timestamp=$(date +%s)" >> $GITHUB_STATE
