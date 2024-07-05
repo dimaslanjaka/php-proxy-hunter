@@ -34,9 +34,16 @@ $parseQueries = parseQueryOrPostBody();
 
 // Retrieve 'max' and 'page' parameters from the request, with default values
 $max = isset($parseQueries['max']) ? intval($parseQueries['max']) : 10; // default to 10 items per page
-if ($max <= 0) $max = 10;
+if ($max <= 0) {
+  $max = 10;
+}
+if ($max > 100) {
+  $max = 100;
+}
 $page = isset($parseQueries['page']) ? intval($parseQueries['page']) : 1; // default to page 1
-if ($page <= 0) $page = 1;
+if ($page <= 0) {
+  $page = 1;
+}
 if (!empty($parseQueries['status']) && in_array($parseQueries['status'], $allowed_status)) {
   $status = $parseQueries['status'];
 }
@@ -66,7 +73,9 @@ $totalPages = ceil($totalItems / $max);
 
 $orderByRandom = $max > 0 ? 'ORDER BY RANDOM()' : '';
 $query = "SELECT * FROM proxies";
-if ($whereClause) $query .= " WHERE $whereClause";
+if ($whereClause) {
+  $query .= " WHERE $whereClause";
+}
 $query .= " $orderByRandom LIMIT $max OFFSET $offset";
 
 $data = $db->db->executeCustomQuery($query, $params);
