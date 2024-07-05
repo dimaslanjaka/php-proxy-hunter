@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../func.php';
 
 header('Content-Type: application/json');
-// header('Content-Type: text/plain');
+// header('Content-Type: text/plain; charset=utf-8');
 
 if (isset($_REQUEST['uid'])) {
   $uid = urldecode(trim($_REQUEST['uid']));
