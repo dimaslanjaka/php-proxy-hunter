@@ -111,6 +111,8 @@ do {
 
     if (!empty($ipRows)) {
       $keepRow = null;
+      // shuffle ips
+      shuffle($ipRows);
       foreach ($ipRows as $row) {
         $proxy = $row['proxy'];
         if ($row['status'] == 'active') {
