@@ -28,6 +28,7 @@ jobs:
     secrets:
       ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
   check:
+    needs: upload
     if: contains(github.repository, 'proxy')
     permissions: read-all
     uses: dimaslanjaka/php-proxy-hunter/.github/workflows/checker.yml@master
