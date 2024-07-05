@@ -1,4 +1,4 @@
-name: Check proxies
+name: Upload proxies
 
 on:
   workflow_dispatch:
@@ -195,5 +195,88 @@ jobs:
           du -h database.rar
           unrar e database.rar -y -r
 
+      - name: Check last run
+        id: check_last_run
+        run: |
+          # Check if tmp directory exists
+          mkdir -p tmp
+
+          # Check if last fetch timestamp file exists
+          if [ -f tmp/last_upload_run_timestamp.txt ]; then
+            last_fetch=$(cat tmp/last_upload_run_timestamp.txt)
+            current_time=$(date +%s)
+            elapsed_time=$((current_time - last_fetch))
+            four_hours=$((4 * 60 * 60))  # 4 hours in seconds
+
+            if [ $elapsed_time -ge $four_hours ]; then
+              echo "last run is more than 4 hours ago"
+              echo "run_the_job=true" >> $GITHUB_OUTPUT
+            else
+              echo "last run is less than 4 hours"
+              echo "run_the_job=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "tmp/last_upload_run_timestamp.txt not found"
+            echo "run_the_job=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Fetch proxies
+        if: steps.check_last_run.outputs.run_the_job == 'true'
+        run: |
+          php proxyFetcher.php --admin='true'
+
+      - name: Indexing proxies
+        if: steps.check_last_run.outputs.run_the_job == 'true'
+        run: php proxies-all.php
+      - name: Scan ports
+        run: php scanPorts.php --admin='true' --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+      - name: Filter duplicate ports
+        run: php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+      - name: Upload proxies
+        if: steps.check_last_run.outputs.run_the_job == 'true'
+        run: python proxyUpload.py
+      - name: Clean github actions cache
+        if: steps.check_last_run.outputs.run_the_job == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: bash bin/clear-github-actions-cache
+      - name: Write last check
+        if: steps.check_last_run.outputs.run_the_job == 'true'
+        run: |
+          date +%s > tmp/last_upload_run_timestamp.txt  # Update last run timestamp
+          echo "last_upload_run_timestamp=$(date +%s)" >> $GITHUB_STATE
       - run: php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
         name: Check proxies
+      - name: Print working proxies
+        id: working
+        run: |
+          # Read the JSON file content
+          json_content=$(php proxyWorking.php)
+
+          # Check if json_content is not empty
+          if [ -n "$json_content" ]; then
+            # print working proxies
+            echo "$json_content"
+
+            # copy working proxies into public folder
+            mkdir -p public/proxies
+            cat working.json > public/proxies/working.json
+
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "working.json is empty or does not contain valid JSON data."
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Upload working proxies
+        continue-on-error: true
+        run: |
+          # Read the JSON file content
+          json_content=$(php proxyWorking.php)
+
+          # Check if json_content is not empty, null, [], or {}
+          if [ -n "$json_content" ]; then
+            # First curl command to proxyAdd.php (send JSON content directly)
+            curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyAdd.php -d "$json_content" > /dev/null 2>&1
+
+            # Second curl command to proxyCheckerParallel.php (send JSON content directly)
+            curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "$json_content" > /dev/null 2>&1
+          fi
