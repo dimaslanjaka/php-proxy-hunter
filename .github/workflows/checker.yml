@@ -83,8 +83,8 @@ jobs:
 
       - name: Installing package list
         run: |
-          apt list --installed
-          apt install -y p7zip-full p7zip-rar unrar rar jq
+          sudo apt list --installed
+          sudo apt-get install -y p7zip-full p7zip-rar unrar rar jq
 
       - name: Removing previous chrome instances on runner
         run: sudo apt purge google-chrome-stable
