@@ -14,4 +14,6 @@ for /l %%i in (1, 1, %NUM_INSTANCES%) do (
     start "Check proxy %%i" php "%cwd%proxyCheckerParallel.php" --max=400
 )
 
-start "Filter ports" php "%cwd%filterPortsDuplicate.php"
+for /l %%i in (1, 1, %NUM_INSTANCES%) do (
+    start "Filter ports %%i" php "%cwd%filterPortsDuplicate.php"
+)
