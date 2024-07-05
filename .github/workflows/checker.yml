@@ -198,34 +198,43 @@ jobs:
       - name: Check last run
         id: check_last_run
         run: |
-          # Check if tmp directory exists
-          mkdir -p tmp
+          check_run_status() {
+            local file_name=$1
+            local hours=$2
 
-          # Check if last fetch timestamp file exists
-          if [ -f tmp/last_upload_run_timestamp.txt ]; then
-            last_fetch=$(cat tmp/last_upload_run_timestamp.txt)
+            # Check if tmp directory exists
+            mkdir -p tmp
+
+            # Current timestamp
             current_time=$(date +%s)
-            elapsed_time=$((current_time - last_fetch))
-            four_hours=$((4 * 60 * 60))  # 4 hours in seconds
 
-            if [ $elapsed_time -ge $four_hours ]; then
-              echo "last run is more than 4 hours ago"
-              echo "run_the_job=true" >> $GITHUB_OUTPUT
+            # Check if last fetch timestamp file exists
+            if [ -f tmp/$file_name ]; then
+              last_fetch=$(cat tmp/$file_name)
+              elapsed_time=$((current_time - last_fetch))
+              interval_seconds=$((hours * 60 * 60))  # Convert hours to seconds
+
+              if [ $elapsed_time -ge $interval_seconds ]; then
+                echo "last run is more than $hours hours ago"
+                echo "run_the_job_$file_name=true" >> $GITHUB_OUTPUT
+              else
+                echo "last run is less than $hours hours"
+                echo "run_the_job_$file_name=false" >> $GITHUB_OUTPUT
+              fi
             else
-              echo "last run is less than 4 hours"
-              echo "run_the_job=false" >> $GITHUB_OUTPUT
+              echo "tmp/$file_name not found"
+              echo "run_the_job_$file_name=true" >> $GITHUB_OUTPUT
             fi
-          else
-            echo "tmp/last_upload_run_timestamp.txt not found"
-            echo "run_the_job=true" >> $GITHUB_OUTPUT
-          fi
+          }
+          check_run_status "last_4_hours_run_timestamp" 4
+
       - name: Fetch proxies
-        if: steps.check_last_run.outputs.run_the_job == 'true'
+        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
         run: |
           php proxyFetcher.php --admin='true'
 
       - name: Indexing proxies
-        if: steps.check_last_run.outputs.run_the_job == 'true'
+        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
         run: php proxies-all.php
       - name: Scan ports
         run: |
@@ -233,18 +242,18 @@ jobs:
           php filterPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
           php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
       - name: Upload proxies
-        if: steps.check_last_run.outputs.run_the_job == 'true'
+        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
         run: python proxyUpload.py
       - name: Clean github actions cache
-        if: steps.check_last_run.outputs.run_the_job == 'true'
+        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: bash bin/clear-github-actions-cache
       - name: Write last check
-        if: steps.check_last_run.outputs.run_the_job == 'true'
+        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
         run: |
-          date +%s > tmp/last_upload_run_timestamp.txt  # Update last run timestamp
-          echo "last_upload_run_timestamp=$(date +%s)" >> $GITHUB_STATE
+          date +%s > tmp/last_4_hours_run_timestamp  # Update last run timestamp
+          echo "last_4_hours_run_timestamp=$(date +%s)" >> $GITHUB_STATE
       - run: php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
         name: Check proxies
       - name: Print working proxies
