@@ -183,7 +183,7 @@ if (empty($proxies)) {
     }
     return $wrap;
   }, $db_data);
-  $proxies = array_filter($db_data_map, function ($item) use ($db) {
+  $proxies = array_filter($db_data_map, function (Proxy $item) use ($db) {
     if (!isValidProxy($item->proxy)) {
       if (!empty($item->proxy)) {
         $db->remove($item->proxy);
@@ -191,7 +191,7 @@ if (empty($proxies)) {
       return false;
     }
     // skip already checked proxy today
-    if ($item->last_check) {
+    if ($item->last_check && !empty($item->status) && $item->status != 'untested') {
       if (isDateRFC3339OlderThanHours($item->last_check, 24)) {
         return true;
       }
