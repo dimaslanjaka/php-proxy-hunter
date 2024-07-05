@@ -65,7 +65,10 @@ if (!$isAdmin) {
 if (empty($str)) {
   // iterate database and file proxies.txt
   if (file_exists(__DIR__ . '/proxies.txt')) {
-    $str = implode("\n", read_first_lines(__DIR__ . '/proxies.txt', 500));
+    $read = read_first_lines(__DIR__ . '/proxies.txt', 500);
+    if ($read) {
+      $str = implode("\n", $read);
+    }
   }
   if (!$str) {
     $str = '';
@@ -167,7 +170,7 @@ function saveRangePorts(string $ip)
   if (!file_exists($outputPath)) {
     $proxies = genRangePorts($ip);
     write_file($outputPath, implode("\n", $proxies));
-    echo $outputPath . PHP_EOL;
+    echo "generated ports written to $outputPath" . PHP_EOL . PHP_EOL;
   }
 
   // Check if the file size is 0 or if the file contains only whitespace
