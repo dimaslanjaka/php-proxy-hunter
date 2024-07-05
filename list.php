@@ -10,9 +10,20 @@ if ($isCli) {
   exit('CLI access disallowed');
 }
 
-// Set headers to inform the client that the response is JSON and allow CORS (optional)
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+// Set headers to inform the client and allow CORS (optional)
+header('Content-Type: application/json; charset=utf-8');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: *");
+header("Access-Control-Allow-Methods: *");
+if (isset($_REQUEST['uid'])) {
+  setUserId($_REQUEST['uid']);
+}
+// only allow user with Google Analytics cookie
+if (!isset($_COOKIE['_ga'])) {
+  exit('Access Denied');
+}
+// check admin
+$isAdmin = (!empty($_SESSION['admin']) && $_SESSION['admin'] === true) || is_debug();
 
 $max = 10;
 $page = 1;
@@ -31,7 +42,7 @@ if (!empty($parseQueries['status']) && in_array($parseQueries['status'], $allowe
 }
 if (!empty($parseQueries['format'])) {
   if ($parseQueries['format'] == 'txt') {
-    header('Content-Type: text/plain');
+    header('Content-Type: text/plain; charset=utf-8');
   }
 }
 $offset = ($page - 1) * $max;
@@ -61,7 +72,7 @@ $query .= " $orderByRandom LIMIT $max OFFSET $offset";
 $data = $db->db->executeCustomQuery($query, $params);
 
 $response = [
-  "query" => is_debug() ? $query : '',
+  "query" => $isAdmin ? $query : '',
   "current_page" => $page,
   "total_pages" => $totalPages,
   "total_items" => $totalItems,
