@@ -228,9 +228,10 @@ jobs:
         if: steps.check_last_run.outputs.run_the_job == 'true'
         run: php proxies-all.php
       - name: Scan ports
-        run: php scanPorts.php --admin='true' --max='${{ github.event.inputs.max || 500 }}' --admin='true'
-      - name: Filter duplicate ports
-        run: php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+        run: |
+          php scanPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+          php filterPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+          php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
       - name: Upload proxies
         if: steps.check_last_run.outputs.run_the_job == 'true'
         run: python proxyUpload.py
