@@ -38,7 +38,8 @@ $output = "";
 foreach ($data['counter'] as $key => $value) {
   // Append each key-value pair to the output string
   $output .= "total_$key=$value\n";
-  echo "total $key $value proxies" . PHP_EOL; // This line can be kept if you still want to see the output in the log
+  // Output log
+  echo "total $key $value proxies" . PHP_EOL;
 }
 
 // Write the output to the GITHUB_OUTPUT file
