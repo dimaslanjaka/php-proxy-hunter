@@ -95,7 +95,7 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
       list($username, $password) = explode(":", $login);
       if (isValidProxy($proxy)) {
         $result = new Proxy($proxy);
-        if (!empty($username) && !empty($password)) {
+        if (!empty($username) && !empty($password) && $write_database === true) {
           $result->username = $username;
           $result->password = $password;
           $db->updateData($proxy, ['username' => $username, 'password' => $password, 'private' => 'true']);
