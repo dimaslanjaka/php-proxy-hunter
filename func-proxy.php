@@ -160,27 +160,6 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
 }
 
 /**
- * Checks if a string is in the format of an IP address followed by a port number.
- *
- * @param string $str The string to check.
- * @return bool Returns true if the string is in the format of IP:PORT, otherwise false.
- */
-function isValidIPPort(string $str): bool
-{
-  $str = trim($str);
-  // Regular expression to match IP:PORT format
-  /** @noinspection RegExpUnnecessaryNonCapturingGroup */
-  $pattern = '/^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(?:\d{1,5})$/';
-
-  // Check if the string matches the pattern
-  if (preg_match($pattern, $str)) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-/**
  * Validates a proxy string.
  *
  * @param string|null $proxy The proxy string to validate.
