@@ -5,7 +5,7 @@ from typing import Union, Optional
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as WebdriverOptions
 
-from src.func import read_file, write_file
+from src.func import get_relative_path, read_file, write_file
 
 
 def get_pc_useragent() -> Union[str, None]:
@@ -15,7 +15,7 @@ def get_pc_useragent() -> Union[str, None]:
     Returns:
         Union[str, None]: The user agent string if available, otherwise None.
     """
-    cache_file = os.path.normpath(os.path.join(tempfile.gettempdir(), '.config/device_useragent.txt'))
+    cache_file = get_relative_path('tmp/pc_useragent.txt')
     result = None
     if os.path.exists(cache_file):
         result = read_file(cache_file)
