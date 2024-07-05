@@ -14,43 +14,59 @@ if ($isCli) {
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-if (!$isCli) {
-  // Retrieve 'max' and 'page' parameters from the request, with default values
-  $max = isset($_GET['max']) ? (int)$_GET['max'] : 10; // default to 10 items per page
-  $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // default to page 1
-} else {
-  $max = 999;
-  $page = 1;
+$max = 10;
+$page = 1;
+$status = 'all';
+$allowed_status = ['all', 'untested', 'private', 'dead', 'active'];
+
+$parseQueries = parseQueryOrPostBody();
+
+// Retrieve 'max' and 'page' parameters from the request, with default values
+$max = isset($parseQueries['max']) ? intval($parseQueries['max']) : 10; // default to 10 items per page
+if ($max <= 0) $max = 10;
+$page = isset($parseQueries['page']) ? intval($parseQueries['page']) : 1; // default to page 1
+if ($page <= 0) $page = 1;
+if (!empty($parseQueries['status']) && in_array($parseQueries['status'], $allowed_status)) {
+  $status = $parseQueries['status'];
 }
-
-$db = new ProxyDB();
-$data = $db->getUntestedProxies(10000);
-
-// Calculate the total number of items and pages
-$totalItems = count($data);
-$totalPages = ceil($totalItems / $max);
-
-// Validate 'page' parameter
-if ($page < 1) {
-  $page = 1;
-} elseif ($page > $totalPages) {
-  $page = $totalPages;
+if (!empty($parseQueries['format'])) {
+  if ($parseQueries['format'] == 'txt') {
+    header('Content-Type: text/plain');
+  }
 }
-
-// Calculate the offset for the current page
 $offset = ($page - 1) * $max;
 
-// Slice the data array to get the items for the current page
-$pageData = array_slice($data, $offset, $max);
+$db = new ProxyDB();
 
-// Prepare the response
+$params = [];
+$whereClause = '';
+
+if ($status !== 'all') {
+  $whereClause = 'status = ?';
+  $params = [$status];
+} elseif ($status == 'private') {
+  $whereClause = 'status = ? OR private = ?';
+  $params = ['private', 'true'];
+}
+
+// Fetch total items for pagination calculation
+$totalItems = $db->db->count('proxies', $whereClause, $params);
+$totalPages = ceil($totalItems / $max);
+
+$orderByRandom = $max > 0 ? 'ORDER BY RANDOM()' : '';
+$query = "SELECT * FROM proxies";
+if ($whereClause) $query .= " WHERE $whereClause";
+$query .= " $orderByRandom LIMIT $max OFFSET $offset";
+
+$data = $db->db->executeCustomQuery($query, $params);
+
 $response = [
+  "query" => is_debug() ? $query : '',
   "current_page" => $page,
   "total_pages" => $totalPages,
   "total_items" => $totalItems,
   "items_per_page" => $max,
-  "items" => $pageData
+  "items" => $data
 ];
 
-// Output the response as JSON
-echo json_encode($response);
+echo json_encode($response, JSON_PRETTY_PRINT);
