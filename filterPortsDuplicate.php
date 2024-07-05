@@ -140,7 +140,7 @@ do {
             $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
             $deleteStmt->execute();
 
-            echo "Deleted closed port: $proxy\n";
+            echo "$proxy port closed [DELETED]" . PHP_EOL;
           }
         }
       }
