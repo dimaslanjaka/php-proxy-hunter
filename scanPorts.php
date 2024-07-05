@@ -90,7 +90,7 @@ function execute_line($line, $line_index)
     return;
   }
   // extract IPs and generate ports
-  $proxies = extractProxies($line);
+  $proxies = extractProxies($line, null, false);
   shuffle($proxies);
 
   // execute all proxies
