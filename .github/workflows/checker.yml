@@ -1,4 +1,4 @@
-name: Upload proxies
+name: Check proxies
 
 on:
   workflow_dispatch:
