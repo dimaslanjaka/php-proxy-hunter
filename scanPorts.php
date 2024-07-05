@@ -44,6 +44,13 @@ if (!$isCli) {
   }
 }
 
+if (!$isAdmin) {
+  // validate lock files
+  if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug()) {
+    exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
+  }
+}
+
 if (empty($str)) {
   // iterate database and file proxies.txt
   if (file_exists(__DIR__ . '/proxies.txt')) {
