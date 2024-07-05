@@ -82,7 +82,7 @@ try {
   if (!$read) {
     $read = [];
   }
-  $proxies = extractProxies(implode("\n", $read));
+  $proxies = extractProxies(implode("\n", $read), $db, false);
   $db_data = $db->getUntestedProxies(100);
   $db_data_map = array_map(function ($item) {
     // transform array into Proxy instance same as extractProxies result
