@@ -188,7 +188,8 @@ jobs:
           # unrar x src/database.rar src/
           # 7z x src/database.rar -osrc/ -aoa
           ls src
-          rar x src/database.rar src/
+          # rar x src/database.rar src/
+          unrar e ./src/database.rar ./src
 
       - name: Check last run
         id: check_last_run
