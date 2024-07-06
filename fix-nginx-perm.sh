@@ -89,7 +89,7 @@ if pgrep -f "filterPortsDuplicate.php" >/dev/null; then
     echo "Filter ports duplicate is still running."
 else
     # If filterPortsDuplicate.php is not running, execute the command
-    su -s /bin/sh -c "php filterPortsDuplicate.php --admin=true >> $OUTPUT_FILE 2>&1 &" www-data
+    su -s /bin/sh -c "php filterPortsDuplicate.php --admin=true --endless=true >> $OUTPUT_FILE 2>&1 &" www-data
 fi
 
 # Set permissions for vendor directory
