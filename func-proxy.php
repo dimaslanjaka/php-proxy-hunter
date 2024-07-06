@@ -300,16 +300,19 @@ function mergeHeaders(array $defaultHeaders, array $additionalHeaders): array
  * @param array $headers An array of HTTP header strings to send with the request. Default is an empty array.
  * @param string|null $username Proxy authentication username. Default is null.
  * @param string|null $password Proxy authentication password. Default is null.
- * @return CurlHandle|false|resource Returns a cURL handle on success, false on failure.
- * @noinspection PhpReturnDocTypeMismatchInspection
+ * @param string $method HTTP method for the request. Default is 'GET'.
+ * @param array|string|null $post_data Data to be sent in the request body for POST, PUT, etc. Default is null.
+ * @return \CurlHandle Returns a cURL handle on success, false on failure.
  */
 function buildCurl(
-  ?string $proxy = null,
-  ?string $type = 'http',
-  string $endpoint = 'https://bing.com',
-  array   $headers = [],
-  ?string $username = null,
-  ?string $password = null
+  $proxy = null,
+  $type = 'http',
+  $endpoint = 'https://bing.com',
+  $headers = [],
+  $username = null,
+  $password = null,
+  $method = 'GET',
+  $post_data = null
 ) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint); // URL to test connectivity
@@ -321,10 +324,11 @@ function buildCurl(
     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
   ];
 
-  $headers = mergeHeaders($default_headers, $headers);
-  // remove Accept-Encoding header
+  $headers = array_merge($default_headers, $headers);
+
+  // Remove Accept-Encoding header
   $pattern = '/^(?:accept-?encoding:|Accept-?Encoding:).*/i';
-  $headers = preg_grep($pattern, $default_headers, PREG_GREP_INVERT);
+  $headers = preg_grep($pattern, $headers, PREG_GREP_INVERT);
 
   if (!empty($proxy)) {
     curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
@@ -335,11 +339,9 @@ function buildCurl(
     $proxy_type = CURLPROXY_HTTP;
     if (strtolower($type) == 'socks5') {
       $proxy_type = CURLPROXY_SOCKS5;
-    }
-    if (strtolower($type) == 'socks4') {
+    } elseif (strtolower($type) == 'socks4') {
       $proxy_type = CURLPROXY_SOCKS4;
-    }
-    if (strtolower($type) == 'socks4a') {
+    } elseif (strtolower($type) == 'socks4a') {
       $proxy_type = CURLPROXY_SOCKS4A;
     }
     curl_setopt($ch, CURLOPT_PROXYTYPE, $proxy_type); // Specify proxy type
@@ -371,7 +373,7 @@ function buildCurl(
   curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Set maximum response time
   // curl_setopt($ch, CURLOPT_VERBOSE, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($ch, CURLOPT_HEADER, true);
+  // curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
   $cookies = __DIR__ . '/tmp/cookies/default.txt';
@@ -394,6 +396,23 @@ function buildCurl(
   // Handle compressed response
   // curl_setopt($ch, CURLOPT_ENCODING, 'deflate, gzip, br');
   curl_setopt($ch, CURLOPT_ENCODING, '');
+
+  // Set the request method and data if needed
+  switch (strtoupper($method)) {
+    case 'POST':
+    case 'PUT':
+    case 'PATCH':
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+      if (!empty($post_data)) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+      }
+      break;
+    case 'DELETE':
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+      break;
+    default:
+      curl_setopt($ch, CURLOPT_HTTPGET, true);
+  }
 
   return $ch;
 }
