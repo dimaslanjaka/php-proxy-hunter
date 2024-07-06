@@ -118,3 +118,7 @@ systemctl restart php7.2-fpm
 systemctl restart nginx
 
 echo "nginx and php-fpm restarted"
+
+# install python requirements
+sudo -u www-data -H bash -c "python3.11 -m venv /var/www/html/venv"
+sudo -u www-data -H bash -c "source /var/www/html/venv/bin/activate && python /var/www/html/requirements_install.py"
