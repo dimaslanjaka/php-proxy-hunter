@@ -365,7 +365,7 @@ function buildCurl(
     } elseif (defined('CURL_SSLVERSION_TLSv1_0') && $ssl === 1) {
       // var_dump("using TLSv1");
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_0); // CURL_SSLVERSION_TLSv1_0 = 4
-    } else {
+    } elseif (defined('CURL_SSLVERSION_MAX_DEFAULT')) {
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_DEFAULT);
     }
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
