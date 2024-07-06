@@ -23,7 +23,6 @@ maxminddb
 geoip2
 python-dateutil
 joblib
-tensorflow
 numpy
 socks
 pyyaml
