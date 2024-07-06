@@ -29,6 +29,8 @@ PHP proxy hunter and PHP proxy checker
 
 ## Requirements
 
+> Before all, run `git submodule update -i -r`
+
 ### php extensions
 
 - pdo_sqlite
@@ -100,6 +102,22 @@ cd /root/Python-3.11.9
 ./configure
 make
 sudo make install
+```
+
+### Initialize virtual environtment python 3.11 on ubuntu
+
+#### Install
+
+```bash
+python3.11 -m venv venv
+```
+
+#### Usage
+
+```bash
+source venv/bin/activate
+pip install --upgrade pip
+python requirements_install.py
 ```
 
 ## Quickstart
