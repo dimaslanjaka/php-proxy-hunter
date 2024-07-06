@@ -15,6 +15,7 @@ if (!$isCli) {
 $isAdmin = is_debug(); // admin indicator
 $max_checks = 500; // max proxies to be checked
 $maxExecutionTime = 120; // max 120s execution time
+$endless = false;
 
 if ($isCli) {
   $short_opts = "p:m::";
@@ -24,7 +25,8 @@ if ($isCli) {
     "userId::",
     "lockFile::",
     "runner::",
-    "admin::"
+    "admin::",
+    "endless::"
   ];
   $options = getopt($short_opts, $long_opts);
   if (!empty($options['max'])) {
@@ -36,11 +38,14 @@ if ($isCli) {
   if (!empty($options['admin']) && $options['admin'] !== 'false') {
     $isAdmin = true;
   }
+  if (!empty($options['endless'])) {
+    $endless = true;
+  }
 }
 
-if ($isAdmin) {
-  // set time limit 10 minutes for admin
-  $maxExecutionTime = 10 * 60;
+if ($isAdmin || $endless) {
+  // set time limit 10 minutes for admin and 600 minutes for endless mode
+  $maxExecutionTime = $endless ? 600 * 60 :  10 * 60;
   // disable execution limit
   set_time_limit(0);
 }
@@ -125,7 +130,7 @@ do {
           $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
           $deleteStmt->execute();
 
-          echo "Deleted invalid proxy: $proxy\n";
+          echo "$proxy invalid proxy [DELETED]\n";
         } else {
           if (!$keepRow) {
             // initialize keep row
