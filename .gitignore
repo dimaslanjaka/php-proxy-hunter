@@ -33,6 +33,7 @@ package-lock.json
 /profiles-proxy.json
 !/adspower.txt
 !/requirements_base.txt
+/requirements.txt
 /profiles
 /profiles.json
 /build
