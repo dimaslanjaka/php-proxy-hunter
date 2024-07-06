@@ -1,19 +1,21 @@
 #!/bin/bash
 
-# Check if user is root
+# Ensure script runs as root
 if [ "$EUID" -ne 0 ]; then
     echo "Please run this script as root"
     exit 1
 fi
 
+# Set www-data user for subsequent commands
+# Your PHP user on ubuntu
+USER="www-data"
+
 # Array of files to remove
 lock_files=("proxyWorking.lock" "proxyChecker.lock")
 
-# Loop through the array
+# Loop through the array to remove lock files
 for file in "${lock_files[@]}"; do
-    # Check if the file exists
     if [ -e "$file" ]; then
-        # Remove the file
         rm "$file"
         echo "Removed $file"
     else
@@ -21,23 +23,19 @@ for file in "${lock_files[@]}"; do
     fi
 done
 
-# Set permissions
-# shellcheck disable=SC2035
+# Set permissions on files and directories
 chmod 777 *.txt
-# shellcheck disable=SC2035
 chmod 755 *.html *.js
-# shellcheck disable=SC2035
 chmod 755 *.css
 chmod 755 js/*.js
 chmod 777 config
 chmod 755 config/*
 chmod 777 tmp .cache data
 chmod 644 data/*.php
-# shellcheck disable=SC2035
 chmod 644 *.php
 chmod 644 .env
 
-# Create necessary directories and files
+# Create necessary directories and index.html files
 mkdir -p tmp/cookies
 touch tmp/cookies/index.html
 touch tmp/index.html
@@ -53,17 +51,16 @@ if [ -d "assets/proxies" ]; then
     touch assets/proxies/index.html
 fi
 if [ -d "packages" ]; then
-    chown -R www-data:www-data packages
-    chown -R www-data:www-data packages/*
+    chown -R "$USER":"$USER" packages
+    chown -R "$USER":"$USER" packages/*
 fi
 
 # Allow composer and indexing proxies to work
-# shellcheck disable=SC2035
-chown -R www-data:www-data *.php *.phar
+chown -R "$USER":"$USER" *.php *.phar
 
 if [ -d "xl" ]; then
-    chown -R www-data:www-data xl
-    chown -R www-data:www-data xl/*
+    chown -R "$USER":"$USER" xl
+    chown -R "$USER":"$USER" xl/*
     touch xl/index.html
 fi
 
@@ -75,25 +72,23 @@ COMPOSER_PHAR="composer.phar"
 
 # Install or update composer packages
 if [ ! -f "$COMPOSER_LOCK" ]; then
-  su -s /bin/sh -c "php $COMPOSER_PHAR install --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" www-data
+  su -s /bin/sh -c "php $COMPOSER_PHAR install --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" "$USER"
 else
-  su -s /bin/sh -c "php $COMPOSER_PHAR update --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" www-data
+  su -s /bin/sh -c "php $COMPOSER_PHAR update --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" "$USER"
 fi
 
 # Validate proxies-all.php not running before indexing proxies
 if pgrep -f "proxies-all.php" >/dev/null; then
     echo "Proxies indexing is still running."
 else
-    # If proxies-all.php is not running, execute the command
-    su -s /bin/sh -c "php proxies-all.php --admin=true >> $OUTPUT_FILE 2>&1 &" www-data
+    su -s /bin/sh -c "php proxies-all.php --admin=true >> $OUTPUT_FILE 2>&1 &" "$USER"
 fi
 
 # Validate filterPortsDuplicate.php not running before indexing proxies
 if pgrep -f "filterPortsDuplicate.php" >/dev/null; then
     echo "Filter ports duplicate is still running."
 else
-    # If filterPortsDuplicate.php is not running, execute the command
-    su -s /bin/sh -c "php filterPortsDuplicate.php --admin=true --endless=true >> $OUTPUT_FILE 2>&1 &" www-data
+    su -s /bin/sh -c "php filterPortsDuplicate.php --admin=true --endless=true >> $OUTPUT_FILE 2>&1 &" "$USER"
 fi
 
 # Set permissions for vendor directory
@@ -102,17 +97,14 @@ touch vendor/index.html
 
 echo "Composer installed"
 
-# Fix ownership
-# shellcheck disable=SC2035
-chown -R www-data:www-data *.php *.txt *.json *.js *.html src data tmp vendor assets
-# shellcheck disable=SC2035
-chown -R www-data:www-data .cache config *.css *.lock js .htaccess .env
+# Fix ownership for various directories and file types
+chown -R "$USER":"$USER" *.php *.txt *.json *.js *.html src data tmp vendor assets
+chown -R "$USER":"$USER" .cache config *.css *.lock js .htaccess .env
 
 echo "Ownership fixed"
 
 # Enable Git LFS and track large files
 git lfs install
-# shellcheck disable=SC2035
 git lfs track *.rar
 
 echo "Large files tracked"
@@ -123,6 +115,6 @@ systemctl restart nginx
 
 echo "nginx and php-fpm restarted"
 
-# install python requirements
-sudo -u www-data -H bash -c "python3.11 -m venv /var/www/html/venv"
-sudo -u www-data -H bash -c "source /var/www/html/venv/bin/activate && python /var/www/html/requirements_install.py"
+# Install python requirements
+sudo -u "$USER" -H bash -c "python3.11 -m venv /var/www/html/venv"
+sudo -u "$USER" -H bash -c "source /var/www/html/venv/bin/activate && python /var/www/html/requirements_install.py"
