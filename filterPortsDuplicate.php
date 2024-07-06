@@ -51,12 +51,22 @@ if ($isAdmin || $endless) {
 }
 
 $lockFilePath = tmp() . "/runners/" . basename(__FILE__) . ".lock";
+if ($endless) {
+  $lockFilePath = tmp() . "/" . basename(__FILE__) . "-endless.lock";
+}
+
 $statusFile = __DIR__ . "/status.txt";
 
-if (file_exists($lockFilePath) && !$isAdmin) {
-  exit(date(DATE_RFC3339) . ' another process still running '  . basename(__FILE__, '.php') . PHP_EOL);
+// Check if the lock file exists
+if (file_exists($lockFilePath)) {
+  if ($endless || !$isAdmin) {
+    // Exit with a message if another process is running and the conditions are met
+    exit(date(DATE_RFC3339) . ' another process still running ' . basename(__FILE__, '.php') . PHP_EOL);
+  }
 } else {
+  // Create the lock file and write the current date
   write_file($lockFilePath, date(DATE_RFC3339));
+  // Create or update the status file with the message 'filter-ports'
   write_file($statusFile, 'filter-ports');
 }
 
