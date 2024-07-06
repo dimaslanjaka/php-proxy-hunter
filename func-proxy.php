@@ -296,13 +296,18 @@ function mergeHeaders(array $defaultHeaders, array $additionalHeaders): array
  *
  * @param string|null $proxy Proxy address. Default is null.
  * @param string|null $type Type of proxy. Default is 'http'. Possible values are 'http', 'socks4', 'socks5', 'socks4a', or null.
- * @param string $endpoint The URL to test connectivity. Default is 'https://bing.com'.
+ * @param string $endpoint The URL to send the HTTP request to. Default is 'https://bing.com'.
  * @param array $headers An array of HTTP header strings to send with the request. Default is an empty array.
  * @param string|null $username Proxy authentication username. Default is null.
  * @param string|null $password Proxy authentication password. Default is null.
- * @param string $method HTTP method for the request. Default is 'GET'.
- * @param array|string|null $post_data Data to be sent in the request body for POST, PUT, etc. Default is null.
- * @return \CurlHandle Returns a cURL handle on success, false on failure.
+ * @param string $method HTTP method for the request. Default is 'GET'. Possible values are 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'.
+ * @param array|string|null $post_data Data to be sent in the request body for POST, PUT, PATCH requests. Default is null.
+ * @param int $ssl SSL/TLS version to use. Default is 0 (auto-detect).
+ *              - 0: Auto-detect highest available version.
+ *              - 1: Force TLS v1.0.
+ *              - 2: Force TLS v1.2.
+ *              - 3: Force TLS v1.3.
+ * @return resource|false Returns a cURL handle on success, false on failure.
  */
 function buildCurl(
   $proxy = null,
@@ -312,7 +317,8 @@ function buildCurl(
   $username = null,
   $password = null,
   $method = 'GET',
-  $post_data = null
+  $post_data = null,
+  $ssl = 0
 ) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint); // URL to test connectivity
@@ -348,9 +354,16 @@ function buildCurl(
   }
 
   if (strpos($endpoint, 'https') !== false) {
-    if (defined('CURL_SSLVERSION_TLSv1_3')) {
+    // curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, 'TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-SHA');
+    // Check for TLS 1.3 support first (if available)
+    if (defined('CURL_SSLVERSION_TLSv1_3') && $ssl === 3) {
+      // var_dump("using TLSv3");
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3); // CURL_SSLVERSION_TLSv1_3 = 7
-    } elseif (defined('CURL_SSLVERSION_TLSv1_0')) {
+    } // Check for TLS 1.2 support
+    elseif (defined('CURL_SSLVERSION_TLSv1_2') && $ssl === 2) {
+      curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+    } elseif (defined('CURL_SSLVERSION_TLSv1_0') && $ssl === 1) {
+      // var_dump("using TLSv1");
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_0); // CURL_SSLVERSION_TLSv1_0 = 4
     } else {
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_DEFAULT);
@@ -377,7 +390,9 @@ function buildCurl(
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
   $cookies = __DIR__ . '/tmp/cookies/default.txt';
-  setPermissions($cookies, true);
+  if (!file_exists($cookies)) {
+    write_file($cookies, '');
+  }
   curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
   curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
 
