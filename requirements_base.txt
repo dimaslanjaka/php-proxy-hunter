@@ -28,7 +28,6 @@ tensorflow
 numpy
 socks
 pyyaml
-PySide6
 # proxy-checker @ git+https://github.com/dimaslanjaka/proxy-checker-python@master
 -e file:packages/proxy-checker-python
 -e file:packages/proxy-hunter-python
