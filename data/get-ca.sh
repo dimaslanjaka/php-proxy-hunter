@@ -37,6 +37,9 @@ create "dash.cloudflare.com"
 create "www.cloudflare.com"
 create "cloudflare.com"
 create "api.myxl.xlaxiata.co.id"
+create "otp.api.axis.co.id"
+create "nq.api.axis.co.id"
+create "axis.co.id"
 
 # Concatenate all *.pem files except cacert.pem into cacert.pem
 find "$SCRIPT_DIR" -maxdepth 1 -name '*.pem' ! -name 'cacert.pem' -exec cat {} + > "$SCRIPT_DIR/cacert.pem"
