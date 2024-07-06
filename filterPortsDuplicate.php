@@ -7,6 +7,7 @@ require __DIR__ . '/func-proxy.php';
 global $isCli;
 
 use PhpProxyHunter\ProxyDB;
+use PhpProxyHunter\Scheduler;
 
 if (!$isCli) {
   exit('only CLI allowed');
@@ -69,6 +70,13 @@ if (file_exists($lockFilePath)) {
   // Create or update the status file with the message 'filter-ports'
   write_file($statusFile, 'filter-ports');
 }
+
+Scheduler::register(function () use ($lockFilePath, $statusFile) {
+  if (file_exists($lockFilePath)) {
+    unlink($lockFilePath);
+  }
+  file_put_contents($statusFile, 'idle');
+}, "z_Exit");
 
 $db = new ProxyDB();
 $pdo = $db->db->pdo;
