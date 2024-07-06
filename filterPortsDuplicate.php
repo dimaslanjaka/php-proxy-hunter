@@ -70,8 +70,12 @@ $duplicateIds = [];
 
 do {
   // Fetch a batch of duplicate proxies
-  $stmt = $pdo->prepare("SELECT SUBSTR(proxy, 0, INSTR(proxy, ':')) AS ip, COUNT(*) AS count_duplicates
-  FROM proxies
+  $stmt = $pdo->prepare("SELECT ip, COUNT(*) AS count_duplicates
+  FROM (
+    SELECT SUBSTR(proxy, 0, INSTR(proxy, ':')) AS ip
+    FROM proxies
+    WHERE status != 'active'
+  ) AS filtered_proxies
   GROUP BY ip
   HAVING COUNT(*) > 1
   ORDER BY RANDOM()
@@ -98,7 +102,10 @@ do {
     }
 
     // Re-count the same IP
-    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM proxies WHERE SUBSTR(proxy, 0, INSTR(proxy, ':')) = :ip");
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count
+                       FROM proxies
+                       WHERE SUBSTR(proxy, 0, INSTR(proxy, ':')) = :ip
+                       AND status != 'active'");
     $stmt->bindParam(':ip', $ip, PDO::PARAM_STR);
     $stmt->execute();
     $count = $stmt->fetchColumn();
