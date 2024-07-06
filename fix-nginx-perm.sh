@@ -10,6 +10,14 @@ fi
 # Your PHP user on ubuntu
 USER="www-data"
 
+# Check if the current directory is a Git repository
+if [ -d ".git" ] || git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Current directory is a Git repository."
+    git submodule update -i -r
+else
+    echo "Current directory is not a Git repository."
+fi
+
 # Array of files to remove
 lock_files=("proxyWorking.lock" "proxyChecker.lock")
 
