@@ -54,25 +54,24 @@ touch "$SCRIPT_DIR/config/index.html"
 mkdir -p "$SCRIPT_DIR/.cache"
 touch "$SCRIPT_DIR/.cache/index.html"
 
-# Additional permissions for specific directories
+# Additional permissions for specific directories if they exist
 if [ -d "$SCRIPT_DIR/assets/proxies" ]; then
     chmod 777 "$SCRIPT_DIR/assets/proxies"
-    chmod 755 "$SCRIPT_DIR/assets/proxies/*"
+    chmod 755 "$SCRIPT_DIR/assets/proxies"/*
     touch "$SCRIPT_DIR/assets/proxies/index.html"
 fi
 if [ -d "$SCRIPT_DIR/packages" ]; then
     chown -R "$USER":"$USER" "$SCRIPT_DIR/packages"
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/packages/*"
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/packages"/*
+fi
+if [ -d "$SCRIPT_DIR/xl" ]; then
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"/*
+    touch "$SCRIPT_DIR/xl/index.html"
 fi
 
 # Allow composer and indexing proxies to work
 chown -R "$USER":"$USER" "$SCRIPT_DIR"/*.php "$SCRIPT_DIR"/*.phar
-
-if [ -d "$SCRIPT_DIR/xl" ]; then
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl/*"
-    touch "$SCRIPT_DIR/xl/index.html"
-fi
 
 echo "Permission sets successful"
 
@@ -108,8 +107,8 @@ touch "$SCRIPT_DIR/vendor/index.html"
 echo "Composer installed"
 
 # Fix ownership for various directories and file types
-chown -R "$USER":"$USER" "$SCRIPT_DIR"/*.php "$SCRIPT_DIR"/*.txt "$SCRIPT_DIR"/*.json "$SCRIPT_DIR"/*.js "$SCRIPT_DIR"/*.html "$SCRIPT_DIR/src" "$SCRIPT_DIR/data" "$SCRIPT_DIR/tmp" "$SCRIPT_DIR/vendor" "$SCRIPT_DIR/assets"
-chown -R "$USER":"$USER" "$SCRIPT_DIR"/.cache "$SCRIPT_DIR"/config "$SCRIPT_DIR"/*.css "$SCRIPT_DIR"/*.lock "$SCRIPT_DIR/js" "$SCRIPT_DIR"/.htaccess "$SCRIPT_DIR"/.env
+chown -R "$USER":"$USER" "$SCRIPT_DIR"/*.php "$SCRIPT_DIR"/*.txt "$SCRIPT_DIR"/*.json "$SCRIPT_DIR"/*.js "$SCRIPT_DIR"/*.html "$SCRIPT_DIR"/src "$SCRIPT_DIR"/data "$SCRIPT_DIR"/tmp "$SCRIPT_DIR"/vendor "$SCRIPT_DIR"/assets
+chown -R "$USER":"$USER" "$SCRIPT_DIR"/.cache "$SCRIPT_DIR"/config "$SCRIPT_DIR"/*.css "$SCRIPT_DIR"/*.lock "$SCRIPT_DIR"/js "$SCRIPT_DIR"/.htaccess "$SCRIPT_DIR"/.env
 
 echo "Ownership fixed"
 
