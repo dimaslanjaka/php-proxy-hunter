@@ -76,7 +76,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile) {
     unlink($lockFilePath);
   }
   file_put_contents($statusFile, 'idle');
-}, "z_Exit");
+}, "z_Exit_" . md5(__FILE__));
 
 $db = new ProxyDB();
 $pdo = $db->db->pdo;
