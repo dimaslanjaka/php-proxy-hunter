@@ -52,6 +52,10 @@ if [ -d "assets/proxies" ]; then
     chmod 755 assets/proxies/*
     touch assets/proxies/index.html
 fi
+if [ -d "packages" ]; then
+    chown -R www-data:www-data packages
+    chown -R www-data:www-data packages/*
+fi
 
 # Allow composer and indexing proxies to work
 # shellcheck disable=SC2035
