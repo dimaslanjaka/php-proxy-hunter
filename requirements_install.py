@@ -4,7 +4,7 @@ import platform
 
 def generate_requirements():
     base_requirements = "requirements_base.txt"
-    windows_specific = ["pywin32", "wmi", "PySide6", "nuitka", "pyinstaller", "tensorflow"]
+    windows_specific = ["pywin32", "wmi", "PySide6", "nuitka", "pyinstaller", "tensorflow", "pyqtgraph", "pyqtdarktheme"]
     linux_specific = []
 
     try:
