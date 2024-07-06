@@ -110,6 +110,8 @@ sudo make install
 
 ```bash
 python3.11 -m venv venv
+# OR run using spesific user
+sudo -u www-data -H bash -c "python3.11 -m venv /var/www/html/venv"
 ```
 
 #### Usage
@@ -118,6 +120,12 @@ python3.11 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 python requirements_install.py
+
+# OR run using spesific user
+sudo -u www-data -H bash -c "source /var/www/html/venv/bin/activate && bash"
+sudo chown www-data:www-data /var/www/venv
+sudo -u www-data -H bash -c "source /var/www/html/venv/bin/activate && pip install --upgrade pip"
+sudo -u www-data -H bash -c "source /var/www/html/venv/bin/activate && python /var/www/html/requirements_install.py"
 ```
 
 ## Quickstart
