@@ -307,7 +307,7 @@ function mergeHeaders(array $defaultHeaders, array $additionalHeaders): array
  *              - 1: Force TLS v1.0.
  *              - 2: Force TLS v1.2.
  *              - 3: Force TLS v1.3.
- * @return resource|false Returns a cURL handle on success, false on failure.
+ * @return \CurlHandle Returns a cURL handle on success, false on failure.
  */
 function buildCurl(
   $proxy = null,
