@@ -262,9 +262,10 @@ jobs:
         run: bash bin/clear-github-actions-cache
       - name: Write last check
         if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
-        run: |
-          date +%s > tmp/last_4_hours_run_timestamp  # Update last run timestamp
-          echo "last_4_hours_run_timestamp=$(date +%s)" >> $GITHUB_STATE
+        run: date +%s > tmp/last_4_hours_run_timestamp
+      - name: Write last check
+        if: steps.check_last_run.outputs.run_the_job_last_week_run_timestamp == 'true'
+        run: date +%s > tmp/last_week_run_timestamp
       - run: |
           php scanPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
           php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
