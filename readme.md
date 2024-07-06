@@ -72,7 +72,7 @@ extension = ftp
 
 ## Python requirements
 
-### Install python 3.11 in ubuntu
+> major packages needed
 
 ```bash
 sudo apt-get update -y
@@ -80,6 +80,11 @@ sudo apt-get install build-essential gdb lcov pkg-config libcurl4-openssl-dev \
       libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
       libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev curl \
       lzma lzma-dev tk-dev uuid-dev zlib1g-dev software-properties-common -y
+```
+
+### Install python 3.11 in ubuntu
+
+```bash
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt update -y
 sudo apt install python3.11
@@ -89,12 +94,7 @@ when above not working try
 
 ### Install python 3.11 from source in ubuntu
 
-```
-sudo apt-get update -y
-sudo apt-get install build-essential gdb lcov pkg-config libcurl4-openssl-dev \
-      libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
-      libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev curl \
-      lzma lzma-dev tk-dev uuid-dev zlib1g-dev software-properties-common -y
+```bash
 cd /root
 curl -L https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tar.xz -o python3.11.tar.xz
 tar -xf python3.11.tar.xz
