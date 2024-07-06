@@ -4,7 +4,7 @@ import platform
 
 def generate_requirements():
     base_requirements = "requirements_base.txt"
-    windows_specific = ["pywin32", "wmi", "PySide6"]
+    windows_specific = ["pywin32", "wmi", "PySide6", "nuitka", "pyinstaller"]
     linux_specific = []
 
     with open(base_requirements, 'r') as base_file:

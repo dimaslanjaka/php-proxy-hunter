@@ -1,6 +1,5 @@
 # undetected-chromedriver
 # nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip
-nuitka
 # botasaurus
 # selenium-wire
 # chromedriver_autoinstaller_fix
@@ -31,7 +30,6 @@ pyyaml
 # proxy-checker @ git+https://github.com/dimaslanjaka/proxy-checker-python@master
 -e file:packages/proxy-checker-python
 -e file:packages/proxy-hunter-python
-pyinstaller
 autopep8
 pycodestyle
 black
