@@ -3,20 +3,26 @@
 # Number of instances to run in parallel
 NUM_INSTANCES=5
 
+# Get the absolute path of the current script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 # Function to run the PHP script based on the operating system
 run_php_script() {
     if [[ "$(uname -s)" == *"CYGWIN"* || "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"MSYS"* ]]; then
         # Running on Windows
-        php proxyCheckerParallel.php --max=400 &
+        php "$SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 &
+        php "$SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 &
     elif [[ "$(uname -s)" == "Linux" ]]; then
         if command -v lsb_release &> /dev/null; then
             if [[ "$(lsb_release -is)" == "Ubuntu" ]]; then
                 if command -v nginx &> /dev/null; then
                     # Running on Ubuntu with Nginx installed
-                    su -s /bin/sh -c "php proxyCheckerParallel.php --max=400" www-data &
+                    su -s /bin/sh -c "php $SCRIPT_DIR/../proxyCheckerParallel.php --max=400" www-data &
+                    su -s /bin/sh -c "php $SCRIPT_DIR/../filterPortsDuplicate.php --max=400" www-data &
                 else
                     echo "Nginx is not installed, running PHP script without su"
-                    php proxyCheckerParallel.php --max=400 &
+                    php "$SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 &
+                    php "$SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 &
                 fi
             else
                 echo "Linux distribution is not Ubuntu: $(lsb_release -is)"
