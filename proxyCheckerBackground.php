@@ -28,9 +28,6 @@ $pid_file = __DIR__ . '/tmp/runners/proxyChecker.pid';
 setMultiPermissions([$file, $output_file, $pid_file], true);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd = "php " . escapeshellarg($file);
-if ($isWin) {
-  $cmd = "start /B \"proxy_checker\" $cmd";
-}
 
 $uid = getUserId();
 $cmd .= " --userId=" . escapeshellarg($uid);
