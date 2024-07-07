@@ -165,18 +165,30 @@ do {
             // initialize keep row
             $keepRow = $row;
           }
-          if (isPortOpen($proxy)) {
-            echo "$proxy port open\n";
-            // keep open port
-            $keepRow = $row;
-          } elseif ($keepRow['proxy'] !== $proxy) {
-            // Delete closed port
-            $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE \"_rowid_\" = :id AND \"proxy\" = :proxy");
-            $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
-            $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
-            $deleteStmt->execute();
+          // Check if the proxy was already checked this month
+          if (!wasCheckedThisMonth($pdo, $proxy)) {
+            if (isPortOpen($proxy)) {
+              echo "$proxy port open\n";
+              $db->updateData($proxy, ['status' => 'untested']);
+              // Update the last_check timestamp
+              $lastCheck = date(DATE_RFC3339); // Assign date to a variable
+              $updateStmt = $pdo->prepare("UPDATE proxies SET last_check = :last_check WHERE proxy = :proxy");
+              $updateStmt->bindParam(':last_check', $lastCheck, PDO::PARAM_STR); // Use variable here
+              $updateStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+              $updateStmt->execute();
+              // keep open port
+              $keepRow = $row;
+            } elseif ($keepRow['proxy'] !== $proxy) {
+              // Delete closed port
+              $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id AND proxy = :proxy");
+              $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
+              $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+              $deleteStmt->execute();
 
-            echo "$proxy port closed [DELETED]" . PHP_EOL;
+              echo "$proxy port closed [DELETED]" . PHP_EOL;
+            }
+          } else {
+            echo "$proxy [SKIPPED]" . PHP_EOL;
           }
         }
       }
@@ -189,3 +201,23 @@ do {
 
 // Close connection
 $pdo = null;
+
+// Function to check if the proxy was checked this month
+function wasCheckedThisMonth(\PDO $pdo, string $proxy)
+{
+  $stmt = $pdo->prepare("SELECT COUNT(*) FROM proxies WHERE proxy = :proxy AND strftime('%Y-%m', last_check) = strftime('%Y-%m', 'now')");
+  $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+  $stmt->execute();
+  return $stmt->fetchColumn() > 0;
+}
+
+// Function to check if the proxy was checked this week
+function wasCheckedThisWeek($pdo, $proxy)
+{
+  $startOfWeek = date('Y-m-d', strtotime('last sunday'));
+  $stmt = $pdo->prepare("SELECT COUNT(*) FROM proxies WHERE proxy = :proxy AND last_check >= :start_of_week");
+  $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+  $stmt->bindParam(':start_of_week', $startOfWeek, PDO::PARAM_STR);
+  $stmt->execute();
+  return $stmt->fetchColumn() > 0;
+}
