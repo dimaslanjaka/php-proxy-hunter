@@ -215,13 +215,13 @@ function printBasicCurlCommand(preElementId) {
   const domain = url.hostname;
 
   // Define the endpoint and proxy
-  const endpoint = "/proxyCheckerParallel.php";
   const proxy = "72.10.160.171:24049";
 
   // Create the curl command
-  const curlCommand = `curl -X POST ${protocol}//${domain}${endpoint}\n     -d "proxy=${proxy}"`;
-
-  console.log(curlCommand);
+  let curlCommand = `# Check proxies immediately`;
+  curlCommand += `\ncurl -X POST ${protocol}//${domain}/proxyCheckerParallel.php\n     -d "proxy=${proxy}"`;
+  curlCommand += "\n# Check open ports";
+  curlCommand += `\ncurl -X POST ${protocol}//${domain}/scanPorts.php\n     -d "proxy=${proxy}`;
 
   // Find the <pre> element by its ID
   const preElement = document.getElementById(preElementId);
