@@ -114,10 +114,7 @@ function do_check($filePath, $background = false)
   $file =  __DIR__ . '/cidr-information/CIDR-check.php';
   $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
   $cmd = "php " . escapeshellarg($file);
-  if ($isWin) {
-    $cmd = "start /B \"filter_ports\" $cmd";
-  }
-  $runner = __DIR__ . "/tmp/runners/CIDR-port-checker-" . md5($filePath) . ($isWin ? '.bat' : ".sh");
+  $runner = __DIR__ . "/tmp/runners/CIDR-port-checker-" . basename($filePath, '.php') . ($isWin ? '.bat' : ".sh");
   $webLockFile = __DIR__ . '/tmp/' . basename(__FILE__, '.php') . '.lock';
   $output_file = __DIR__ . '/proxyChecker.txt';
 
