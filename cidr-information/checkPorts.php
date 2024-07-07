@@ -163,9 +163,7 @@ function checkIp($ip)
       $proxy = "$ip:$port";
       if (isPortOpen($proxy)) {
         // add to database on port open
-        $date = new DateTime('2014-01-21');
-        $format_date = $date->format(DATE_RFC3339);
-        $db->updateData($proxy, ['status' => 'untested', 'last_check' => $format_date]);
+        $db->updateData($proxy, ['status' => 'untested']);
         echo "$proxy port open" . PHP_EOL;
         append_content_with_lock($output_file, "$proxy port open" . PHP_EOL);
       } else {
