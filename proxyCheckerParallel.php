@@ -113,11 +113,8 @@ if ($isCli) {
   $output_file = __DIR__ . '/proxyChecker.txt';
   $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
   $cmd = "php " . escapeshellarg($file);
-  if ($isWin) {
-    $cmd = "start /B \"check_proxy_parallel\" $cmd";
-  }
 
-  $runner = tmp() . "/runners/" . md5($webLockFile) . ($isWin ? '.bat' : "");
+  $runner = tmp() . "/runners/" . basename($webLockFile, '.lock') . ($isWin ? '.bat' : "");
   $uid = getUserId();
   $cmd .= " --userId=" . escapeshellarg($uid);
   $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
@@ -264,7 +261,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null)
         break;
       }
     }
-    $run_file = tmp() . '/runners/' . md5($item[0]->proxy) . '.txt';
+    $run_file = tmp() . '/runners/' . sanitizeFilename($item[0]->proxy) . '.txt';
     // schedule release current proxy thread lock
     Scheduler::register(function () use ($run_file) {
       delete_path($run_file);

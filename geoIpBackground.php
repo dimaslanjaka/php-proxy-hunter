@@ -30,9 +30,6 @@ $pid_file = __DIR__ . '/filterPorts.pid';
 setMultiPermissions([$file, $output_file, $pid_file]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd = "php " . escapeshellarg($file);
-if ($isWin) {
-  $cmd = "start /B \"geoIp\" $cmd";
-}
 
 $uid = getUserId();
 $cmd .= " --userId=" . escapeshellarg($uid);
@@ -49,7 +46,7 @@ if (file_exists(__DIR__ . '/proxyChecker.lock') && !$isAdmin) {
 echo $cmd . "\n\n";
 
 $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
-$runner = __DIR__ . "/tmp/runners/" . md5(__FILE__) . ($isWin ? '.bat' : "");
+$runner = __DIR__ . "/tmp/runners/" . basename(__FILE__, '.php') . ($isWin ? '.bat' : "");
 setMultiPermissions($runner);
 write_file($runner, $cmd);
 

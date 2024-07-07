@@ -46,7 +46,7 @@ if ($isCli) {
   }
 }
 
-$lockFilePath = tmp() . "/runners/" . basename(__FILE__) . ".lock";
+$lockFilePath = tmp() . "/runners/" . basename(__FILE__, '.php') . ".lock";
 $statusFile = __DIR__ . "/status.txt";
 
 if (file_exists($lockFilePath) && !is_debug()) {
