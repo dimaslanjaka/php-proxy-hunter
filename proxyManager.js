@@ -205,7 +205,6 @@ userInfo()
   });
 
 function printBasicCurlCommand(preElementId) {
-  console.log("print");
   // Get the current URL
   const currentUrl = window.location.href;
 
