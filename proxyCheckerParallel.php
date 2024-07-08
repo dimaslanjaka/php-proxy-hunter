@@ -321,6 +321,8 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
           if (is_string($response) && !checkRawHeadersKeywords($response)) {
             $header_size = curl_getinfo($handle, CURLINFO_HEADER_SIZE);
             $response_header = substr($response, 0, $header_size);
+            $match_private = [];
+
             // is private proxy?
             $isPrivate = stripos($response_header, 'Proxy-Authorization:') !== false;
 
@@ -334,11 +336,14 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
               if (!$isPrivate) {
                 $finalUrl = $info['url'];
                 $pattern = '/^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)=/i';
-                $isPrivate = preg_match($pattern, $finalUrl) !== false;
+                $mP = preg_match($pattern, $finalUrl, $match_private);
+                $isPrivate = $mP > 0;
               }
             }
-            echo "$counter. $protocol://{$item[0]->proxy} is working (private " . ($isPrivate ? 'true' : 'false') . ")\n";
-            append_content_with_lock($output_log, "$counter. $protocol://{$item[0]->proxy} is working (private " . ($isPrivate ? 'true' : 'false') . ")\n");
+            $priv_msg = $isPrivate ? "true " . implode("|", $match_private) : "false";
+            $log_msg =  "$counter. $protocol://{$item[0]->proxy} is working (private $priv_msg)\n";
+            echo $log_msg;
+            append_content_with_lock($output_log, $log_msg);
             $isWorking = !$isPrivate;
           }
         }
