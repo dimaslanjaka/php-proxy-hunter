@@ -701,7 +701,13 @@ function checkRawHeadersKeywords($input)
     "REQUEST_METHOD =",
     "REQUEST_URI =",
     'HTTP_ACCEPT-LANGUAGE =',
-    'HTTP_ACCEPT-ENCODING ='
+    'HTTP_ACCEPT-ENCODING =',
+    'HTTP_USER-AGENT =',
+    'HTTP_ACCEPT =',
+    'REQUEST_TIME =',
+    'HTTP_UPGRADE-INSECURE-REQUESTS =',
+    'HTTP_CONNECTION =',
+    'HTTP_PRIORITY ='
   );
 
   $foundCount = 0;
