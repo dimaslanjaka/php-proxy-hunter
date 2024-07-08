@@ -317,27 +317,29 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
         if ($http_status_valid) {
           $info = curl_getinfo($handle);
           $response = curl_multi_getcontent($handle);
-          $header_size = curl_getinfo($handle, CURLINFO_HEADER_SIZE);
-          $response_header = substr($response, 0, $header_size);
-          // is private proxy?
-          $isPrivate = stripos($response_header, 'Proxy-Authorization:') !== false;
+          if (is_string($response)) {
+            $header_size = curl_getinfo($handle, CURLINFO_HEADER_SIZE);
+            $response_header = substr($response, 0, $header_size);
+            // is private proxy?
+            $isPrivate = stripos($response_header, 'Proxy-Authorization:') !== false;
 
-          if (curl_errno($handle) || $response === false) {
-            $error_msg = curl_error($handle);
-            if (preg_match('/no authentication method was acceptable/mi', $error_msg)) {
-              $isPrivate = true;
+            if (curl_errno($handle) || $response === false) {
+              $error_msg = curl_error($handle);
+              if (preg_match('/no authentication method was acceptable/mi', $error_msg)) {
+                $isPrivate = true;
+              }
+            } else {
+              // check proxy private by redirected to gateway url
+              if (!$isPrivate) {
+                $finalUrl = $info['url'];
+                $pattern = '/^https?:\/\/(www\.gstatic\.com|gateway\.(zs\w+)\.net\/.*(origurl)=)/i';
+                $isPrivate = preg_match($pattern, $finalUrl) > 0;
+              }
             }
-          } else {
-            // check proxy private by redirected to gateway url
-            if (!$isPrivate) {
-              $finalUrl = $info['url'];
-              $pattern = '/^https?:\/\/(www\.gstatic\.com|gateway\.(zs\w+)\.net\/.*(origurl)=)/i';
-              $isPrivate = preg_match($pattern, $finalUrl) > 0;
-            }
+            echo "$counter. $protocol://{$item[0]->proxy} is working (private " . ($isPrivate ? 'true' : 'false') . ")\n";
+            append_content_with_lock($output_log, "$counter. $protocol://{$item[0]->proxy} is working\n");
+            $isWorking = true;
           }
-          echo "$counter. $protocol://{$item[0]->proxy} is working (private " . ($isPrivate ? 'true' : 'false') . ")\n";
-          append_content_with_lock($output_log, "$counter. $protocol://{$item[0]->proxy} is working\n");
-          $isWorking = true;
         }
       }
 
