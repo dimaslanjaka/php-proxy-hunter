@@ -71,7 +71,6 @@ if ($isCli) {
   if (empty($id)) {
     $id = Server::useragent();
   }
-  $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
   // lock file same as scanPorts.php
   $webLockFile = tmp() . '/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
   if (file_exists($webLockFile) && !is_debug() && !$isAdmin) {
@@ -111,7 +110,6 @@ if ($isCli) {
   // avoid bad response or hangs whole web server
   $file = __FILE__;
   $output_file = __DIR__ . '/proxyChecker.txt';
-  $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
   $cmd = "php " . escapeshellarg($file);
 
   $runner = tmp() . "/runners/" . basename($webLockFile, '.lock') . ($isWin ? '.bat' : "");
@@ -130,12 +128,6 @@ if ($isCli) {
 
   // Write the command to the runner script
   write_file($runner, $cmd);
-
-  // Ensure runner script has executable permissions
-  setMultiPermissions($runner);
-
-  // Output the runner script path for debugging
-  // echo escapeshellarg($runner) . PHP_EOL;
 
   // Execute the runner script in the background
   exec(escapeshellarg($runner));
