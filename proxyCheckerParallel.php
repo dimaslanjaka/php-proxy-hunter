@@ -333,13 +333,13 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
               // check proxy private by redirected to gateway url
               if (!$isPrivate) {
                 $finalUrl = $info['url'];
-                $pattern = '/^https?:\/\/(www\.gstatic\.com|gateway\.(zs\w+)\.net\/.*(origurl)=)/i';
-                $isPrivate = preg_match($pattern, $finalUrl) > 0;
+                $pattern = '/^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)=/i';
+                $isPrivate = preg_match($pattern, $finalUrl) !== false;
               }
             }
             echo "$counter. $protocol://{$item[0]->proxy} is working (private " . ($isPrivate ? 'true' : 'false') . ")\n";
             append_content_with_lock($output_log, "$counter. $protocol://{$item[0]->proxy} is working\n");
-            $isWorking = true;
+            $isWorking = !$isPrivate;
           }
         }
       }
