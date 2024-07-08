@@ -79,5 +79,8 @@ foreach ($proxies as $item) {
   append_content_with_lock(__DIR__ . '/proxyChecker.txt', $log);
   if ($open) {
     $db->updateStatus($item['proxy'], 'untested');
+  } else {
+    // update last_check column
+    $db->updateData($item['proxy'], ['last_check' => date(DATE_RFC3339)]);
   }
 }
