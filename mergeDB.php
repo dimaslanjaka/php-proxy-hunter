@@ -1,4 +1,13 @@
 <?php
+
+require_once __DIR__ . '/func-proxy.php';
+
+global $isCli;
+
+if (!$isCli) {
+  exit('web server disallowed');
+}
+
 ini_set('memory_limit', '1024M'); // Increase memory limit if needed
 
 // put *.sqlite in tmp/ folder
