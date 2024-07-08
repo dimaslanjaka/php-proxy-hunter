@@ -46,6 +46,23 @@ $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
 $isAdmin = is_debug();
 
+if (!$isCli) {
+  // Allow from any origin
+  header("Access-Control-Allow-Origin: *");
+  header("Access-Control-Allow-Headers: *");
+  header("Access-Control-Allow-Methods: *");
+  header('Content-Type: text/plain; charset=utf-8');
+  if (isset($_REQUEST['uid'])) {
+    setUserId($_REQUEST['uid']);
+  }
+  // only allow user with Google Analytics cookie
+  if (!isset($_COOKIE['_ga'])) {
+    exit('Access Denied');
+  }
+  // check admin
+  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
+}
+
 if (file_exists($lockFilePath) && !$isAdmin) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
   exit();
