@@ -338,7 +338,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
               }
             }
             echo "$counter. $protocol://{$item[0]->proxy} is working (private " . ($isPrivate ? 'true' : 'false') . ")\n";
-            append_content_with_lock($output_log, "$counter. $protocol://{$item[0]->proxy} is working\n");
+            append_content_with_lock($output_log, "$counter. $protocol://{$item[0]->proxy} is working (private " . ($isPrivate ? 'true' : 'false') . ")\n");
             $isWorking = !$isPrivate;
           }
         }
