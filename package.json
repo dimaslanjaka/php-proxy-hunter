@@ -45,5 +45,5 @@
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "sbg-utility": "^1.1.6"
   },
-  "packageManager": "yarn@4.2.2"
+  "packageManager": "yarn@4.3.1"
 }
