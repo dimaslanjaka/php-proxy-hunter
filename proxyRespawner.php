@@ -38,14 +38,13 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
-use PhpProxyHunter\Proxy;
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Server;
 
 global $isCli, $isWin;
 
 // validate lock files
-$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$lockFilePath = tmp() . "/runners/respawner.lock";
 $statusFile = __DIR__ . "/status.txt";
 $isAdmin = is_debug();
 
