@@ -683,7 +683,36 @@ function checkProxy(
     }
   }
 
+  // check if proxy not raw header
+  if (is_string($response) && checkRawHeadersKeywords($response)) {
+    // contains azenv headers
+    $result['result'] = false;
+    $result['error'] = 'azenv raw headers found';
+  }
+
   return $result;
+}
+
+function checkRawHeadersKeywords($input)
+{
+  $keywords = array(
+    "REMOTE_ADDR =",
+    "REMOTE_PORT =",
+    "REQUEST_METHOD =",
+    "REQUEST_URI =",
+    'HTTP_ACCEPT-LANGUAGE =',
+    'HTTP_ACCEPT-ENCODING ='
+  );
+
+  $foundCount = 0;
+
+  foreach ($keywords as $keyword) {
+    if (strpos($input, $keyword) !== false) {
+      $foundCount++;
+    }
+  }
+
+  return $foundCount >= 4;
 }
 
 function get_geo_ip(string $the_proxy, string $proxy_type = 'http', ?ProxyDB $db = null)
