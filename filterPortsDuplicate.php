@@ -169,7 +169,7 @@ do {
           if (!wasCheckedThisMonth($pdo, $proxy)) {
             if (isPortOpen($proxy)) {
               echo "$proxy port open\n";
-              $db->updateData($proxy, ['status' => 'untested']);
+              $db->updateStatus($proxy, 'untested');
               // Update the last_check timestamp
               $lastCheck = date(DATE_RFC3339); // Assign date to a variable
               $updateStmt = $pdo->prepare("UPDATE proxies SET last_check = :last_check WHERE proxy = :proxy");
@@ -180,12 +180,13 @@ do {
               $keepRow = $row;
             } elseif ($keepRow['proxy'] !== $proxy) {
               // Delete closed port
-              $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id AND proxy = :proxy");
-              $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
-              $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
-              $deleteStmt->execute();
+              // $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id AND proxy = :proxy");
+              // $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
+              // $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+              // $deleteStmt->execute();
+              $db->updateStatus($proxy, 'port-closed');
 
-              echo "$proxy port closed [DELETED]" . PHP_EOL;
+              echo "$proxy port closed" . PHP_EOL;
             }
           } else {
             echo "$proxy [SKIPPED]" . PHP_EOL;
