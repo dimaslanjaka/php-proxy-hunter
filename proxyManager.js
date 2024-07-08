@@ -157,6 +157,7 @@ async function checkerOutput() {
         return `<span class="text-green-400">${whole}</span>`;
       });
       str = str.replace(/\[DELETED\]/, '<i class="fal fa-trash text-red-400"></i>');
+      str = str.replace(/\[SKIPPED\]/, '<i class="fal fa-forward text-gray-400"></i>');
       return str;
     })
     .join("<br/>");
