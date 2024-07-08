@@ -17,6 +17,7 @@ $isAdmin = is_debug(); // admin indicator
 $max_checks = 500; // max proxies to be checked
 $maxExecutionTime = 120; // max 120s execution time
 $endless = false;
+$perform_delete = false;
 
 if ($isCli) {
   $short_opts = "p:m::";
@@ -27,19 +28,21 @@ if ($isCli) {
     "lockFile::",
     "runner::",
     "admin::",
-    "endless::"
+    "endless::",
+    "delete::"
   ];
   $options = getopt($short_opts, $long_opts);
-  if (!empty($options['max'])) {
+  $perform_delete = !empty($options['delete']); // --delete=true
+  if (!empty($options['max'])) { // --max=100
     $max = intval($options['max']);
     if ($max > 0) {
       $max_checks = $max;
     }
   }
-  if (!empty($options['admin']) && $options['admin'] !== 'false') {
+  if (!empty($options['admin']) && $options['admin'] !== 'false') { // --admin=true
     $isAdmin = true;
   }
-  if (!empty($options['endless'])) {
+  if (!empty($options['endless'])) { // --endless=true
     $endless = true;
   }
 }
@@ -92,7 +95,7 @@ do {
   FROM (
     SELECT SUBSTR(proxy, 0, INSTR(proxy, ':')) AS ip
     FROM proxies
-    WHERE status != 'active'
+    WHERE status != 'active' AND status != 'untested'
   ) AS filtered_proxies
   GROUP BY ip
   HAVING COUNT(*) > 1
@@ -123,7 +126,7 @@ do {
     $stmt = $pdo->prepare("SELECT COUNT(*) as count
                        FROM proxies
                        WHERE SUBSTR(proxy, 0, INSTR(proxy, ':')) = :ip
-                       AND status != 'active'");
+                       AND status != 'active' AND status != 'untested'");
     $stmt->bindParam(':ip', $ip, PDO::PARAM_STR);
     $stmt->execute();
     $count = $stmt->fetchColumn();
@@ -137,7 +140,7 @@ do {
     // Exclude active proxies
     $stmt = $pdo->prepare("SELECT \"_rowid_\", * FROM \"main\".\"proxies\"
                        WHERE SUBSTR(proxy, 0, INSTR(proxy, ':')) = :ip
-                       AND status != 'active'
+                       AND status != 'active' AND status != 'untested'
                        ORDER BY RANDOM() LIMIT 0, 49999;");
     $stmt->bindParam(':ip', $ip, PDO::PARAM_STR);
     $stmt->execute();
@@ -179,12 +182,15 @@ do {
               // keep open port
               $keepRow = $row;
             } elseif ($keepRow['proxy'] !== $proxy) {
-              // Delete closed port
-              // $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id AND proxy = :proxy");
-              // $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
-              // $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
-              // $deleteStmt->execute();
-              $db->updateStatus($proxy, 'port-closed');
+              if ($perform_delete) {
+                // Delete closed port
+                $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id AND proxy = :proxy");
+                $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
+                $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+                $deleteStmt->execute();
+              } else {
+                $db->updateStatus($proxy, 'port-closed');
+              }
 
               echo "$proxy port closed" . PHP_EOL;
             }
