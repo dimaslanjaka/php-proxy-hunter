@@ -28,6 +28,7 @@ del uninstall.txt
 
 :: Reinstall packages from requirements.txt
 echo Reinstalling packages from requirements.txt...
+
 python requirements_install.py
 
 :: Deactivate the virtual environment

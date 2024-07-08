@@ -1,5 +1,8 @@
 *           text=auto
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
 *.txt       text eol=lf
+*.sql       text eol=lf
 *.json      text eol=lf filter=tabspace
 *.sh        text eol=lf
 *.php       text eol=lf filter=spaceonly
