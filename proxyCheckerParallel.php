@@ -209,7 +209,7 @@ if (!empty($proxies)) {
  * @param string|null $custom_endpoint
  * @return void
  */
-function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null)
+function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?bool $print_headers = true)
 {
   global $output_log, $isCli, $max, $str_to_remove;
   $user_id = getUserId();
@@ -227,9 +227,11 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null)
   if (!empty($custom_endpoint)) {
     $endpoint = $custom_endpoint;
   }
-  echo "User $user_id " . date(DATE_RFC3339) . PHP_EOL;
-  echo "GET $endpoint" . PHP_EOL;
-  echo implode(PHP_EOL, $headers) . PHP_EOL . PHP_EOL;
+  if ($print_headers) {
+    echo "User $user_id " . date(DATE_RFC3339) . PHP_EOL;
+    echo "GET $endpoint" . PHP_EOL;
+    echo implode(PHP_EOL, $headers) . PHP_EOL . PHP_EOL;
+  }
   $db = new ProxyDB();
   $lockFile = __DIR__ . '/proxyChecker.lock';
   $statusFile = __DIR__ . "/status.txt";
@@ -386,7 +388,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null)
         echo "$counter. {$item[0]->proxy} dead" . PHP_EOL;
         append_content_with_lock($output_log, "$counter. {$item[0]->proxy} dead\n");
         // re-check with non-https endpoint
-        checkProxyInParallel([$item[0]->proxy], 'http://httpforever.com/');
+        checkProxyInParallel([$item[0]->proxy], 'http://httpforever.com/', false);
       }
 
       // push proxy to be removed
