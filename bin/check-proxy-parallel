@@ -10,19 +10,19 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 run_php_script() {
     if [[ "$(uname -s)" == *"CYGWIN"* || "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"MSYS"* ]]; then
         # Running on Windows
-        php "$SCRIPT_DIR/../proxyCheckerParallel.php --max=400 --admin=true" &
-        php "$SCRIPT_DIR/../filterPortsDuplicate.php --max=400 --admin=true" &
+        php "$SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 --admin=true &
+        php "$SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 --admin=true &
     elif [[ "$(uname -s)" == "Linux" ]]; then
         if command -v lsb_release &> /dev/null; then
             if [[ "$(lsb_release -is)" == "Ubuntu" ]]; then
                 if command -v nginx &> /dev/null; then
                     # Running on Ubuntu with Nginx installed
-                    su -s /bin/sh -c "php $SCRIPT_DIR/../proxyCheckerParallel.php --max=400 --admin=true" www-data &
-                    su -s /bin/sh -c "php $SCRIPT_DIR/../filterPortsDuplicate.php --max=400 --admin=true" www-data &
+                    su -s /bin/sh -c "php $SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 --admin=true www-data &
+                    su -s /bin/sh -c "php $SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 --admin=true www-data &
                 else
                     echo "Nginx is not installed, running PHP script without su"
-                    php "$SCRIPT_DIR/../proxyCheckerParallel.php --admin=true --max=400" &
-                    php "$SCRIPT_DIR/../filterPortsDuplicate.php --admin=true --max=400" &
+                    php "$SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 --admin=true &
+                    php "$SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 --admin=true &
                 fi
             else
                 echo "Linux distribution is not Ubuntu: $(lsb_release -is)"
