@@ -625,16 +625,23 @@ function checkProxy(
   // is private proxy?
   $isPrivate = stripos($response_header, 'Proxy-Authorization:') !== false;
 
+  // non-empty array = error result
+  $result = [];
+
   // check proxy private by redirected to gateway url
   if (!$isPrivate) {
     $finalUrl = $info['url'];
-    $pattern = '/^https?:\/\/(www\.gstatic\.com|gateway\.(zs\w+)\.net\/.*(origurl)=)/i';
-    $is_private_match = preg_match($pattern, $finalUrl);
+    $pattern = '/^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)=/i';
+    $is_private_match = preg_match($pattern, $finalUrl, $matches);
     $isPrivate = $is_private_match !== false && $is_private_match > 0;
+    // mark as private dead
+    if ($is_private_match) {
+      $result['result'] = false;
+      $result['status'] = trim($info['http_code']);
+      $result['error'] = 'Private proxy ' . json_encode($matches);
+      $result['private'] = true;
+    }
   }
-
-  // non-empty array = error result
-  $result = [];
 
   // Check for CURL errors or empty response
   if (curl_errno($ch) || $response === false) {
@@ -643,15 +650,15 @@ function checkProxy(
       $isPrivate = true;
       $error_msg = "Need credentials";
     }
-    $result = [
+    $result = array_merge($result, [
       'result' => false,
       'latency' => $latency,
       'error' => $error_msg,
-      'status' => $info['http_code'],
+      'status' => trim($info['http_code']),
       'private' => $isPrivate,
       'https' => $isHttps,
       'anonymity' => null
-    ];
+    ]);
   }
 
   curl_close($ch);
@@ -665,7 +672,7 @@ function checkProxy(
       'result' => true,
       'latency' => $latency,
       'error' => null,
-      'status' => $info['http_code'],
+      'status' => trim($info['http_code']),
       'private' => $isPrivate,
       'https' => $isHttps,
       'anonymity' => null
