@@ -704,7 +704,7 @@ function checkProxy(
 
 function checkRawHeadersKeywords($input)
 {
-  $keywords = array(
+  $keywords = [
     "REMOTE_ADDR =",
     "REMOTE_PORT =",
     "REQUEST_METHOD =",
@@ -717,7 +717,7 @@ function checkRawHeadersKeywords($input)
     'HTTP_UPGRADE-INSECURE-REQUESTS =',
     'HTTP_CONNECTION =',
     'HTTP_PRIORITY ='
-  );
+  ];
 
   $foundCount = 0;
 
