@@ -36,10 +36,13 @@
 
 // check open port and move to test file
 
+require_once __DIR__ . '/func-proxy.php';
+
 use PhpProxyHunter\Proxy;
 use PhpProxyHunter\ProxyDB;
+use PhpProxyHunter\Server;
 
-require_once __DIR__ . '/func-proxy.php';
+global $isCli, $isWin;
 
 // validate lock files
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
@@ -87,17 +90,51 @@ $startTime = microtime(true);
 $maxExecutionTime = 120;
 $db = new ProxyDB();
 
-$proxies = $db->getDeadProxies(100);
+if ($isCli) {
+  $proxies = $db->getDeadProxies(100);
 
-foreach ($proxies as $item) {
-  $open = isPortOpen($item['proxy']);
-  $log = $item['proxy'] . ' port ' . ($open ? 'open' : 'closed') . PHP_EOL;
-  echo $log;
-  append_content_with_lock(__DIR__ . '/proxyChecker.txt', $log);
-  if ($open) {
-    $db->updateStatus($item['proxy'], 'untested');
-  } else {
-    // update last_check column
-    $db->updateData($item['proxy'], ['last_check' => date(DATE_RFC3339)]);
+  foreach ($proxies as $item) {
+    $open = isPortOpen($item['proxy']);
+    $log = $item['proxy'] . ' port ' . ($open ? 'open' : 'closed') . PHP_EOL;
+    echo $log;
+    append_content_with_lock(__DIR__ . '/proxyChecker.txt', $log);
+    if ($open) {
+      $db->updateStatus($item['proxy'], 'untested');
+    } else {
+      // update last_check column
+      $db->updateData($item['proxy'], ['last_check' => date(DATE_RFC3339)]);
+    }
   }
+} else {
+  // restart using CLI
+  $file = __FILE__;
+  $output_file = __DIR__ . '/proxyChecker.txt';
+  $cmd = "php " . escapeshellarg($file);
+  // setup lock file
+  $id = Server::get_client_ip();
+  if (empty($id)) {
+    $id = Server::useragent();
+  }
+  // lock file same as scanPorts.php
+  $webLockFile = tmp() . '/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
+
+  $runner = tmp() . "/runners/" . basename($webLockFile, '.lock') . ($isWin ? '.bat' : "");
+  $uid = getUserId();
+  $cmd .= " --userId=" . escapeshellarg($uid);
+  $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
+  $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
+  $cmd .= " --proxy=" . escapeshellarg($str);
+  $cmd .= " --max=" . escapeshellarg("30");
+  $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
+
+  echo $cmd . "\n\n";
+
+  // Generate the command to run in the background
+  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
+
+  // Write the command to the runner script
+  write_file($runner, $cmd);
+
+  // Execute the runner script in the background
+  exec(escapeshellarg($runner));
 }
