@@ -1,5 +1,10 @@
 <?php
 
+// access https://sh.webmanajemen.com/data/cookies.html
+// put your admin cookie into tmp/cookies/default.txt
+// curl -b tmp/cookies/default.txt -o tmp/database.sqlite https://sh.webmanajemen.com/backup.php
+// change sh.webmanajemen.com with your own domain
+
 require_once __DIR__ . '/func.php';
 
 global $isCli;
