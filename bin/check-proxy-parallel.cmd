@@ -11,9 +11,9 @@ echo "CWD %cwd%"
 
 REM Loop to start multiple instances
 for /l %%i in (1, 1, %NUM_INSTANCES%) do (
-    start "Check proxy %%i" php "%cwd%proxyCheckerParallel.php --admin=true" --max=400
+    start "Check proxy %%i" php "%cwd%proxyCheckerParallel.php" --max=400 --admin=true
 )
 
 for /l %%i in (1, 1, %NUM_INSTANCES%) do (
-    start "Filter ports %%i" php "%cwd%filterPortsDuplicate.php --admin=true"
+    start "Filter ports %%i" php "%cwd%filterPortsDuplicate.php" --max=400 --admin=true
 )
