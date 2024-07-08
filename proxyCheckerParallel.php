@@ -317,7 +317,8 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
         if ($http_status_valid) {
           $info = curl_getinfo($handle);
           $response = curl_multi_getcontent($handle);
-          if (is_string($response)) {
+          // check if not azenv proxy
+          if (is_string($response) && !checkRawHeadersKeywords($response)) {
             $header_size = curl_getinfo($handle, CURLINFO_HEADER_SIZE);
             $response_header = substr($response, 0, $header_size);
             // is private proxy?
