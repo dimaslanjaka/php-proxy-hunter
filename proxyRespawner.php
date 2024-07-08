@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpVariableIsUsedOnlyInClosureInspection */
+<?php
+
+/** @noinspection PhpVariableIsUsedOnlyInClosureInspection */
 
 /*
   ----------------------------------------------------------------------------
@@ -42,8 +44,9 @@ require_once __DIR__ . '/func-proxy.php';
 // validate lock files
 $lockFilePath = __DIR__ . "/proxyChecker.lock";
 $statusFile = __DIR__ . "/status.txt";
+$isAdmin = is_debug();
 
-if (file_exists($lockFilePath)) {
+if (file_exists($lockFilePath) && !$isAdmin) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
   exit();
 } else {
@@ -65,49 +68,16 @@ register_shutdown_function('exitProcess');
 // limit execution time seconds unit
 $startTime = microtime(true);
 $maxExecutionTime = 120;
-$proxyPaths = [__DIR__ . '/proxies-all.txt', __DIR__ . '/dead.txt', __DIR__ . '/proxies-backup.txt'];
 $db = new ProxyDB();
 
-$working = array_map(function ($item) {
-  $wrap = new Proxy($item['proxy']);
-  foreach ($item as $key => $value) {
-    if (property_exists($wrap, $key)) {
-      $wrap->$key = $value;
-    }
-  }
-  return $wrap;
-}, $db->getWorkingProxies());
+$proxies = $db->getDeadProxies(100);
 
-if (count($working) < 100) {
-  if (file_exists(__DIR__ . '/dead.txt')) {
-    echo "proxies low, respawning dead proxies" . PHP_EOL;
-    // respawn 100 dead proxies
-    moveLinesToFile(__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', 100);
-    exit;
+foreach ($proxies as $item) {
+  $open = isPortOpen($item['proxy']);
+  $log = $item['proxy'] . ' port ' . ($open ? 'open' : 'closed') . PHP_EOL;
+  echo $log;
+  append_content_with_lock(__DIR__ . '/proxyChecker.txt', $log);
+  if ($open) {
+    $db->updateStatus($item['proxy'], 'untested');
   }
 }
-
-iterateBigFilesLineByLine($proxyPaths, function (string $line) use ($startTime, $proxyPaths, $db, $maxExecutionTime) {
-  $is_execution_exceeded = (microtime(true) - $startTime) > $maxExecutionTime;
-  if (!$is_execution_exceeded) {
-    $proxies = extractProxies($line);
-    foreach ($proxies as $item) {
-      $proxy = trim($item->proxy);
-      if (!empty($proxy) && isValidProxy($proxy)) {
-        if (isPortOpen($proxy)) {
-          echo $proxy . ' respawned' . PHP_EOL;
-          foreach ($proxyPaths as $file) {
-            removeStringAndMoveToFile($file, __DIR__ . '/proxies.txt', trim($proxy));
-          }
-        }
-      } elseif (!empty($proxy)) {
-        try {
-          $db->remove($proxy);
-          echo "deleted $proxy is invalid" . PHP_EOL;
-        } catch (\Throwable $e) {
-          echo "fail delete $proxy " . trim($e->getMessage()) . PHP_EOL;
-        }
-      }
-    }
-  }
-});
