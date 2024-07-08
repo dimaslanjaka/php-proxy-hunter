@@ -123,7 +123,6 @@ if ($isCli) {
   $cmd .= " --userId=" . escapeshellarg($uid);
   $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
   $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
-  $cmd .= " --proxy=" . escapeshellarg($str);
   $cmd .= " --max=" . escapeshellarg("30");
   $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
 
