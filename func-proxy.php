@@ -640,6 +640,8 @@ function checkProxy(
       $result['status'] = trim($info['http_code']);
       $result['error'] = 'Private proxy ' . json_encode($matches);
       $result['private'] = true;
+      $result['https'] = true; // private proxy always support HTTPS
+      $result['anonymity'] = null;
     }
   }
 
