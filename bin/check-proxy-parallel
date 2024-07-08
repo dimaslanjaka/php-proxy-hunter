@@ -4,7 +4,7 @@
 NUM_INSTANCES=5
 
 # Get the absolute path of the current script directory
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
 # Function to run the PHP script based on the operating system
 run_php_script() {
@@ -17,10 +17,10 @@ run_php_script() {
             if [[ "$(lsb_release -is)" == "Ubuntu" ]]; then
                 if command -v nginx &> /dev/null; then
                     # Running on Ubuntu with Nginx installed
-                    su -s /bin/sh -c "php $SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 --admin=true www-data &
-                    su -s /bin/sh -c "php $SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 --admin=true www-data &
+                    sudo -u www-data php "$SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 --admin=true &
+                    sudo -u www-data php "$SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 --admin=true &
                 else
-                    echo "Nginx is not installed, running PHP script without su"
+                    echo "Nginx is not installed, running PHP script without sudo"
                     php "$SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 --admin=true &
                     php "$SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 --admin=true &
                 fi
@@ -39,8 +39,7 @@ run_php_script() {
 }
 
 # Loop to start multiple instances
-# shellcheck disable=SC2034
-for i in $(seq 1 $NUM_INSTANCES); do
+for ((i=1; i<=$NUM_INSTANCES; i++)); do
     run_php_script
 done
 
