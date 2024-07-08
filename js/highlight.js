@@ -15,31 +15,94 @@ function startHighlighter(block) {
   if (block.hasAttribute("data-highlight")) {
     if (block.getAttribute("data-highlight") != "false") {
       // highlight on data-highlight="true"
-      hljs.highlightBlock(block);
+      if (hljs.highlightElement) {
+        hljs.highlightElement(block);
+      } else {
+        hljs.highlightBlock(block);
+      }
     }
   } else {
     // highlight no attribute data-highlight
-    hljs.highlightBlock(block);
+    if (hljs.highlightElement) {
+      hljs.highlightElement(block);
+    } else {
+      hljs.highlightBlock(block);
+    }
   }
 }
 
 function loadScript(url, callback) {
   const script = document.createElement("script");
   script.src = url;
-  if (typeof callback == "function") script.onload = callback;
+  script.onload = callback;
 
   const referenceNode = document.querySelectorAll("script").item(0);
   referenceNode.parentNode.insertBefore(script, referenceNode.nextSibling);
+}
+
+function loadScriptsSequentially(urls, finalCallback) {
+  function loadNext(index) {
+    if (index >= urls.length) {
+      // All scripts loaded
+      if (typeof finalCallback === "function") {
+        finalCallback();
+      }
+      return;
+    }
+
+    loadScript(urls[index], function () {
+      // Load the next script in the array
+      loadNext(index + 1);
+    });
+  }
+
+  // Start loading the first script
+  loadNext(0);
+}
+
+function loadStyles(urls, callback) {
+  if (typeof urls === "string") {
+    urls = [urls];
+  }
+
+  function loadNext(index) {
+    if (index >= urls.length) {
+      // All CSS loaded
+      if (typeof callback === "function") {
+        callback();
+      }
+      return;
+    }
+
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = urls[index] + "?v=" + new Date().getTime();
+    link.onload = () => {
+      // Load the next CSS in the array
+      loadNext(index + 1);
+    };
+
+    document.head.appendChild(link);
+  }
+
+  // Start loading the first CSS
+  loadNext(0);
 }
 
 function loadHljs() {
   // validate hljs already imported
   if ("hljs" in window === true) return;
   // otherwise create one
-  loadScript("//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js", initHljs);
-  loadScript("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/languages/bash.min.js");
-  loadScript("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/languages/shell.min.js");
-  loadCss("//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/androidstudio.min.css");
+  loadStyles("//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/androidstudio.min.css");
+  loadScriptsSequentially(["//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"], function () {
+    loadScriptsSequentially(
+      [
+        "//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/languages/bash.min.js",
+        "//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/languages/shell.min.js"
+      ],
+      initHljs
+    );
+  });
 }
 
 function initHljs() {
