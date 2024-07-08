@@ -152,10 +152,12 @@ async function checkerOutput() {
         /(\badd\b)\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})/g,
         '<span class="text-green-400">add</span> $2'
       );
-      str = str.replace(/working.*/, (whole) => {
-        if (whole.includes("-1")) return `<span class="text-orange-400">${whole}</span>`;
-        return `<span class="text-green-400">${whole}</span>`;
-      });
+      if (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}/.test(str)) {
+        str = str.replace(/working.*/, (whole) => {
+          if (whole.includes("-1")) return `<span class="text-orange-400">${whole}</span>`;
+          return `<span class="text-green-400">${whole}</span>`;
+        });
+      }
       str = str.replace(/\[DELETED\]/, '<i class="fal fa-trash text-red-400"></i>');
       str = str.replace(/\[SKIPPED\]/, '<i class="fal fa-forward text-gray-400"></i>');
       return str;
