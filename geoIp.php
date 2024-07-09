@@ -43,7 +43,7 @@ if ($isCli) {
   $string_data = rawurldecode(trim($_REQUEST['proxy']));
 }
 
-if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
+if (file_exists($lockFilePath) && !$isAdmin) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
   exit();
 } else {
