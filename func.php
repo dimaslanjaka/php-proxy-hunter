@@ -29,13 +29,6 @@ if (!defined('JSON_THROW_ON_ERROR')) {
 // Detect if the system is Windows
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
-// Detect admin
-$isAdmin = is_debug();
-if (!$isCli) {
-  // web server admin
-  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
-}
-
 // Get the current PATH
 $currentPath = getenv('PATH');
 
@@ -164,6 +157,13 @@ if (function_exists('ignore_user_abort')) {
 if (!$isCli) {
   /** @noinspection PhpUnhandledExceptionInspection */
   new Session(100 * 3600, __DIR__ . '/tmp/sessions');
+}
+
+// Detect admin
+$isAdmin = is_debug();
+if (!$isCli) {
+  // web server admin
+  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
 /**
