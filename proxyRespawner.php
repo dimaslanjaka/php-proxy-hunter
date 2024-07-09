@@ -110,6 +110,8 @@ if ($isCli) {
     $elapsedTime = microtime(true) - $startTime;
     if ($elapsedTime > $maxExecutionTime) {
       break;
+    } else {
+      write_file($statusFile, "respawn");
     }
     $open = isPortOpen($item['proxy']);
     $log = $item['proxy'] . ' port ' . ($open ? 'open' : 'closed') . PHP_EOL;
