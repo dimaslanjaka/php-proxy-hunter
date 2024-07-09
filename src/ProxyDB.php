@@ -264,7 +264,7 @@ class ProxyDB
     $data = array_filter($data, function ($value) {
       return $value !== null && $value !== false;
     });
-    if (isset($data['status'])) {
+    if (!empty($data['status']) && $data['status'] != 'untested') {
       $data['last_check'] = date(DATE_RFC3339);
     }
     if (!empty($data)) {
