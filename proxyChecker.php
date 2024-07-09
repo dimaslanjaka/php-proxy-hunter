@@ -170,7 +170,7 @@ setMultiPermissions([$untestedFilePath, $workingPath, $deadPath], true);
 
 // move backup added proxies
 $countLinesUntestedProxies = countNonEmptyLines($untestedFilePath);
-if ($countLinesUntestedProxies < 100 && filesize($untestedFilePath) === 0) {
+if ($countLinesUntestedProxies < 100 && file_exists($untestedFilePath) && filesize($untestedFilePath) === 0) {
   $assets = getFilesByExtension(__DIR__ . '/assets/proxies', 'txt');
   foreach ($assets as $asset) {
     if (strpos($asset, 'added-') !== false) {
