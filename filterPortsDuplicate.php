@@ -157,6 +157,7 @@ do {
       // shuffle ips
       shuffle($ipRows);
       foreach ($ipRows as $row) {
+        $log = '';
         $proxy = $row['proxy'];
         if ($row['status'] == 'active') {
           continue;
@@ -168,7 +169,7 @@ do {
           $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
           $deleteStmt->execute();
 
-          echo "$proxy invalid proxy [DELETED]\n";
+          $log = "[FILTER-PORT] $proxy invalid proxy [DELETED]\n";
         } else {
           if (!$keepRow) {
             // initialize keep row
@@ -198,10 +199,16 @@ do {
                 $db->updateStatus($proxy, 'port-closed');
               }
 
-              echo "$proxy port closed" . PHP_EOL;
+              $log = "[FILTER-PORT] $proxy port closed" . PHP_EOL;
             }
           } else {
-            echo "$proxy [SKIPPED]" . PHP_EOL;
+            $log = "[FILTER-PORT] $proxy [SKIPPED]" . PHP_EOL;
+          }
+        }
+        if (!empty($log)) {
+          echo $log;
+          if (count($argv) == 1) {
+            append_content_with_lock(__DIR__ . '/proxyChecker.txt', $log);
           }
         }
       }
