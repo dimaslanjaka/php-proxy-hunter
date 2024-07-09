@@ -204,7 +204,7 @@ if (!empty($proxies)) {
  */
 function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?bool $print_headers = true)
 {
-  global $output_log, $isCli, $max, $str_to_remove;
+  global $output_log, $isCli, $max, $str_to_remove, $argv;
   $user_id = getUserId();
   $config = getConfig($user_id);
   $endpoint = 'https://www.example.com';
