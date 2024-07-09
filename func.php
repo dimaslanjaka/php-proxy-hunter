@@ -1765,13 +1765,17 @@ function write_file(string $inputFile, string $data): bool
     }
   }
 
-  // Write data to the file
-  if (file_put_contents($inputFile, $data) !== false) {
-    setMultiPermissions($inputFile);
-    // Successfully wrote the file
-    return true;
-  } else {
-    // Failed to write the file
+  try {
+    // Write data to the file
+    if (file_put_contents($inputFile, $data) !== false) {
+      setMultiPermissions($inputFile);
+      // Successfully wrote the file
+      return true;
+    } else {
+      // Failed to write the file
+      return false;
+    }
+  } catch (\Throwable $th) {
     return false;
   }
 }
