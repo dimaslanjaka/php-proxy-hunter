@@ -44,7 +44,11 @@ use PhpProxyHunter\Server;
 global $isCli, $isWin;
 
 // validate lock files
-$lockFilePath = tmp() . "/runners/respawner.lock";
+$id = Server::get_client_ip();
+if (empty($id)) {
+  $id = Server::useragent();
+}
+$lockFilePath = tmp() . "/runners/respawner-" . sanitizeFilename($id) . ".lock";
 $statusFile = __DIR__ . "/status.txt";
 $isAdmin = is_debug();
 
@@ -65,7 +69,7 @@ if (!$isCli) {
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
-if (file_exists($lockFilePath) && !$isAdmin) {
+if (file_exists($lockFilePath)) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 } else {
   write_file($lockFilePath, date(DATE_RFC3339));
@@ -78,7 +82,7 @@ function exitProcess()
   if (file_exists($lockFilePath)) {
     unlink($lockFilePath);
   }
-  file_put_contents($statusFile, 'idle');
+  write_file($statusFile, 'idle');
 }
 
 register_shutdown_function('exitProcess');
@@ -87,6 +91,7 @@ register_shutdown_function('exitProcess');
 $startTime = microtime(true);
 $maxExecutionTime = 120;
 $db = new ProxyDB();
+$pdo = $db->db->pdo;
 
 if ($isCli) {
   $proxies = $db->getDeadProxies(100);
