@@ -124,7 +124,7 @@ function do_check($filePath, $background = false)
       $id = Server::useragent();
     }
     // lock file same as proxyCheckerParallel.php
-    $webLockFile = __DIR__ . '/tmp/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
+    $webLockFile = __DIR__ . '/tmp/runners/scan-port-web-' . sanitizeFilename($id) . '.lock';
     // not admin: skip when existing runner still running
     if (!$isAdmin && file_exists($webLockFile)) {
       echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
