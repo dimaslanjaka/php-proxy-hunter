@@ -1,0 +1,30 @@
+import sys
+import traceback
+import argparse
+from time import sleep
+from typing import Optional
+from src.func import get_relative_path, truncate_file_content
+from src.func_proxy import check_all_proxies
+
+
+def run_proxy_checker(max_proxies: Optional[int] = None):
+    if not max_proxies:
+        max_proxies = sys.maxsize
+    truncate_file_content(get_relative_path('proxyChecker.txt'))
+    try:
+        check_all_proxies(max_proxies)
+    except Exception as e:
+        print("fail checking all proxies", e)
+        traceback.print_exc()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Proxy Checker')
+    parser.add_argument('--max', type=int, help='Maximum number of proxies to check')
+    args = parser.parse_args()
+    if args.max:
+        max_proxies = args.max
+    else:
+        max_proxies = sys.maxsize
+    run_proxy_checker(max_proxies)
+    sleep(3)  # Wait 3 seconds before exit
