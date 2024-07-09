@@ -7,7 +7,9 @@ global $isCli, $isWin, $isAdmin;
 if (!$isCli) {
   header('Content-Type: text/plain; charset=UTF-8');
 }
-if (!$isAdmin) exit('Access denied');
+if (!$isAdmin) {
+  exit('Access denied');
+}
 
 $scriptPath = realpath(__DIR__ . '/../proxyChecker.py');
 $commandArgs = [
