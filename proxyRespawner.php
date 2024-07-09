@@ -90,13 +90,21 @@ register_shutdown_function('exitProcess');
 // limit execution time seconds unit
 $startTime = microtime(true);
 $maxExecutionTime = 120;
+if ($isAdmin) {
+  $maxExecutionTime = 10 * 60;
+}
 $db = new ProxyDB();
 $pdo = $db->db->pdo;
 
 if ($isCli) {
-  $proxies = $db->getDeadProxies(100);
+
 
   foreach ($proxies as $item) {
+    // Check if execution time has exceeded the maximum allowed time
+    $elapsedTime = microtime(true) - $startTime;
+    if ($elapsedTime > $maxExecutionTime) {
+      break;
+    }
     $open = isPortOpen($item['proxy']);
     $log = $item['proxy'] . ' port ' . ($open ? 'open' : 'closed') . PHP_EOL;
     echo $log;
