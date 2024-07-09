@@ -95,7 +95,9 @@ do {
   FROM (
     SELECT SUBSTR(proxy, 0, INSTR(proxy, ':')) AS ip
     FROM proxies
-    WHERE status != 'active' AND status != 'untested'
+    WHERE status != 'active'
+    AND status != 'untested'
+    AND last_check < datetime('now', '-7 days')
   ) AS filtered_proxies
   GROUP BY ip
   HAVING COUNT(*) > 1
@@ -126,7 +128,9 @@ do {
     $stmt = $pdo->prepare("SELECT COUNT(*) as count
                        FROM proxies
                        WHERE SUBSTR(proxy, 0, INSTR(proxy, ':')) = :ip
-                       AND status != 'active' AND status != 'untested'");
+                       AND status != 'active'
+                       AND status != 'untested'
+                       AND last_check < datetime('now', '-7 days')");
     $stmt->bindParam(':ip', $ip, PDO::PARAM_STR);
     $stmt->execute();
     $count = $stmt->fetchColumn();
@@ -140,7 +144,9 @@ do {
     // Exclude active proxies
     $stmt = $pdo->prepare("SELECT \"_rowid_\", * FROM \"main\".\"proxies\"
                        WHERE SUBSTR(proxy, 0, INSTR(proxy, ':')) = :ip
-                       AND status != 'active' AND status != 'untested'
+                       AND status != 'active'
+                       AND status != 'untested'
+                       AND last_check < datetime('now', '-7 days')
                        ORDER BY RANDOM() LIMIT 0, 49999;");
     $stmt->bindParam(':ip', $ip, PDO::PARAM_STR);
     $stmt->execute();
