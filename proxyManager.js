@@ -56,8 +56,14 @@ async function main() {
 
   document.getElementById("filter-ports").addEventListener("click", (e) => {
     e.preventDefault();
-    showSnackbar("filter open ports start...");
+    showSnackbar("Filter open ports requested");
     fetch("./filterPortsBackground.php", { signal: AbortSignal.timeout(5000) }).catch((e) => showSnackbar(e.message));
+  });
+
+  document.getElementById("respawn-proxies").addEventListener("click", (e) => {
+    e.preventDefault();
+    showSnackbar("Proxy respawner requested");
+    fetch("./proxyRespawner.php", { signal: AbortSignal.timeout(5000) }).catch((e) => showSnackbar(e.message));
   });
 
   // noinspection ES6MissingAwait
@@ -358,7 +364,11 @@ let checker_status;
  */
 async function checkerStatus() {
   const status = document.querySelector("span#status");
-  const buttons = [document.getElementById("filter-ports"), document.getElementById("recheck")];
+  const buttons = [
+    document.getElementById("filter-ports"),
+    document.getElementById("respawn-proxies"),
+    document.getElementById("recheck")
+  ];
   const enable_buttons = () => {
     buttons.forEach((el) => {
       el.classList.remove("disabled");

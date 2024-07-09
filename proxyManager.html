@@ -154,10 +154,20 @@
       <div class="mb-3 bg-white dark:bg-slate-800 dark:text-slate-400">
         <b>Checker result</b>
         <div class="relative overflow-auto break-all z-0 h-60 mb-5" id="cpresult"></div>
-        <button
-          class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-          id="filter-ports">Filter open ports
-        </button>
+        <div class="grid gap-4 md:grid-cols-2">
+          <div>
+            <button
+              class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+              id="filter-ports">Filter open ports
+            </button>
+          </div>
+          <div>
+            <button
+              class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+              id="respawn-proxies">Respawn proxies
+            </button>
+          </div>
+        </div>
       </div>
       <div class="relative z-0 group mb-3">
         <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="add_proxies">Add
