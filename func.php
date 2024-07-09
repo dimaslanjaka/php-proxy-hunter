@@ -90,12 +90,17 @@ if ($currentPath) {
  */
 function is_debug(): bool
 {
-  // my device lists
-  $debug_pc = ['DESKTOP-JVTSJ6I'];
-  $hostname = gethostname();
+  $isGitHubCI = getenv('CI') !== false && getenv('GITHUB_ACTIONS') === 'true';
+  $isGitHubCodespaces = getenv('CODESPACES') === 'true';
+  if ($isGitHubCI || $isGitHubCodespaces) {
+    return true;
+  }
   if (str_starts_with($hostname, 'codespaces-')) {
     return true;
   }
+  // my device lists
+  $debug_pc = ['DESKTOP-JVTSJ6I'];
+  $hostname = gethostname();
   return in_array(gethostname(), $debug_pc);
 }
 
