@@ -28,6 +28,8 @@ tmp/
 /.env
 /working.json
 package-lock.json
+/_env.json
+/_config.json
 
 # python
 /profiles-proxy.json
