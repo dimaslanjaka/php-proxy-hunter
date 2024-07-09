@@ -1764,7 +1764,7 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
 function write_file(string $inputFile, string $data): bool
 {
   // skip writing locked file
-  if (is_file_locked($inputFile)) {
+  if (file_exists($inputFile) && is_file_locked($inputFile)) {
     return false;
   }
 
