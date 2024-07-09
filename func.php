@@ -95,12 +95,12 @@ function is_debug(): bool
   if ($isGitHubCI || $isGitHubCodespaces) {
     return true;
   }
-  if (str_starts_with($hostname, 'codespaces-')) {
-    return true;
-  }
   // my device lists
   $debug_pc = ['DESKTOP-JVTSJ6I'];
   $hostname = gethostname();
+  if (str_starts_with($hostname, 'codespaces-')) {
+    return true;
+  }
   return in_array(gethostname(), $debug_pc);
 }
 
