@@ -159,7 +159,12 @@ do {
       foreach ($ipRows as $row) {
         $log = '';
         $proxy = $row['proxy'];
-        $isAlreadyDead = $row['status'] == 'port-closed' || $row['status'] == 'dead';
+        $isAlreadyDead = false;
+        if (!empty($row['last_check'])) {
+          $deadStatus = $row['status'] == 'port-closed' || $row['status'] == 'dead';
+          // treat already dead proxy more than 1 month
+          $isAlreadyDead = $deadStatus && isDateRFC3339OlderThanHours($row['last_check'], 73000);
+        }
         if ($row['status'] == 'active') {
           continue;
         }
