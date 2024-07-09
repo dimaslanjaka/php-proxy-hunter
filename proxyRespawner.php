@@ -97,8 +97,14 @@ $db = new ProxyDB();
 $pdo = $db->db->pdo;
 
 if ($isCli) {
-
-
+  $stmt = $pdo->prepare("SELECT *
+    FROM proxies
+    WHERE (status = 'port-closed' OR status = 'dead')
+    AND last_check < datetime('now', '-7 days')
+    ORDER BY RANDOM()
+    LIMIT 100");
+  $stmt->execute();
+  $proxies = $stmt->fetchAll(PDO::FETCH_ASSOC);
   foreach ($proxies as $item) {
     // Check if execution time has exceeded the maximum allowed time
     $elapsedTime = microtime(true) - $startTime;
