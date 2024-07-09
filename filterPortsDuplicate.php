@@ -196,11 +196,11 @@ do {
                 $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
                 $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
                 $deleteStmt->execute();
+                $log = "[FILTER-PORT] $proxy port closed [DELETED]" . PHP_EOL;
               } else {
                 $db->updateStatus($proxy, 'port-closed');
+                $log = "[FILTER-PORT] $proxy port closed" . PHP_EOL;
               }
-
-              $log = "[FILTER-PORT] $proxy port closed" . PHP_EOL;
             }
           } else {
             $log = "[FILTER-PORT] $proxy [SKIPPED]" . PHP_EOL;
