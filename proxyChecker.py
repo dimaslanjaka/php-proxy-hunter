@@ -9,7 +9,7 @@ from src.func_proxy import check_all_proxies
 
 def run_proxy_checker(max_proxies: Optional[int] = None):
     if not max_proxies:
-        max_proxies = sys.maxsize
+        max_proxies = 100
     truncate_file_content(get_relative_path('proxyChecker.txt'))
     try:
         check_all_proxies(max_proxies)
@@ -25,6 +25,6 @@ if __name__ == "__main__":
     if args.max:
         max_proxies = args.max
     else:
-        max_proxies = sys.maxsize
+        max_proxies = 100
     run_proxy_checker(max_proxies)
     sleep(3)  # Wait 3 seconds before exit
