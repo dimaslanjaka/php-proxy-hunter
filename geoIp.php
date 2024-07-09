@@ -24,7 +24,7 @@ if (function_exists('header') && !$isCli) {
 }
 
 $db = new \PhpProxyHunter\ProxyDB(__DIR__ . '/src/database.sqlite');
-$lockFilePath = __DIR__ . "/proxyChecker.lock";
+$lockFilePath = tmp() . "/runners/geoIp.lock";
 $statusFile = __DIR__ . "/status.txt";
 $config = getConfig(getUserId());
 $options = getopt("", ["str:"]); // php geoIp.php --str "xsdsd dfdfd"
