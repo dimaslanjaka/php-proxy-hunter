@@ -4,8 +4,6 @@ require_once __DIR__ . '/../func-proxy.php';
 
 global $isCli, $isWin, $isAdmin;
 
-use PhpProxyHunter\Scheduler;
-
 if (!$isCli) {
   // Allow from any origin
   header("Access-Control-Allow-Origin: *");

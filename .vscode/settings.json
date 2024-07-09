@@ -112,22 +112,22 @@
   //   "**/databases/**": true,
   //   "**/node_modules/**": true
   // },
-  // "files.exclude": {
-  //   "**/.cache/**": true,
-  //   "**/.idea/**": true,
-  //   "**/.git": true,
-  //   "**/.svn": true,
-  //   "**/.hg": true,
-  //   "**/CVS": true,
-  //   "**/.DS_Store": true,
-  //   "**/Thumbs.db": true,
-  //   "**/dist": true,
-  //   "**/tmp": true,
-  //   "**/node_modules": true,
-  //   "**/vendor": true,
-  //   "**/.venv": true,
-  //   "**/venv": true,
-  //   "**/config": true,
-  //   "**/.yarn": true
-  // }
+  "files.exclude": {
+    "**/.cache/**": true,
+    "**/.idea/**": true,
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/dist": true,
+    "**/tmp": true,
+    "**/node_modules": true,
+    // "**/vendor": true,
+    "**/.venv": true,
+    "**/venv": true,
+    "**/config": true,
+    "**/.yarn": true
+  }
 }
