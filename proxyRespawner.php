@@ -69,7 +69,7 @@ if (!$isCli) {
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
-if (file_exists($lockFilePath)) {
+if (file_exists($lockFilePath) && !$isAdmin) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 } else {
   write_file($lockFilePath, date(DATE_RFC3339));
@@ -114,7 +114,7 @@ if ($isCli) {
       write_file($statusFile, "respawn");
     }
     $open = isPortOpen($item['proxy']);
-    $log = $item['proxy'] . ' port ' . ($open ? 'open' : 'closed') . PHP_EOL;
+    $log = "[RESPAWN] " . $item['proxy'] . ' port ' . ($open ? 'open' : 'closed') . PHP_EOL;
     echo $log;
     append_content_with_lock(__DIR__ . '/proxyChecker.txt', $log);
     if ($open) {

@@ -159,7 +159,8 @@ async function checkerOutput() {
         });
       }
       str = str.replace(/\[DELETED\]/, '<i class="fal fa-trash text-red-400"></i>');
-      str = str.replace(/\[SKIPPED\]/, '<i class="fal fa-forward text-gray-400"></i>');
+      str = str.replace(/\[SKIPPED\]/, '<i class="fal fa-forward text-silver-400"></i>');
+      str = str.replace(/\[RESPAWN\]/, '<i class="fa-solid fa-user-magnifying-glass text-magenta-400"></i>');
       return str;
     })
     .join("<br/>");
