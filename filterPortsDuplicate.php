@@ -159,6 +159,7 @@ do {
       foreach ($ipRows as $row) {
         $log = '';
         $proxy = $row['proxy'];
+        $isAlreadyDead = $row['status'] == 'port-closed' || $row['status'] == 'dead';
         if ($row['status'] == 'active') {
           continue;
         }
@@ -189,7 +190,7 @@ do {
               // keep open port
               $keepRow = $row;
             } elseif ($keepRow['proxy'] !== $proxy) {
-              if ($perform_delete) {
+              if ($perform_delete || $isAlreadyDead) {
                 // Delete closed port
                 $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id AND proxy = :proxy");
                 $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
