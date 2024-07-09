@@ -1749,6 +1749,11 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
  */
 function write_file(string $inputFile, string $data): bool
 {
+  // skip writing locked file
+  if (is_file_locked($inputFile)) {
+    return false;
+  }
+
   // Get the directory name from the file path
   $dir = dirname($inputFile);
 
