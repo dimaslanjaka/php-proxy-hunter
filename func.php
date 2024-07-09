@@ -157,6 +157,8 @@ if (function_exists('ignore_user_abort')) {
 if (!$isCli) {
   /** @noinspection PhpUnhandledExceptionInspection */
   new Session(100 * 3600, __DIR__ . '/tmp/sessions');
+  // Define $argv for web server context
+  $argv = isset($argv) ? $argv : [];
 }
 
 // Detect admin
@@ -2437,7 +2439,7 @@ function removeDuplicateLines(string $inputFile): void
 
 function isCygwinInstalled()
 {
-  $cygwinExecutables = array('bash', 'ls'); // List of Cygwin executables to check
+  $cygwinExecutables = ['bash', 'ls']; // List of Cygwin executables to check
 
   foreach ($cygwinExecutables as $executable) {
     $output = shell_exec("where $executable 2>&1");
