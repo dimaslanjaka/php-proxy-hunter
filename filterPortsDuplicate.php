@@ -221,6 +221,9 @@ do {
     }
   }
 
+  // write working proxies
+  write_working();
+
   // Increment start for the next batch
   $start += $batchSize;
 } while (!empty($duplicateIpCounts));
@@ -246,4 +249,15 @@ function wasCheckedThisWeek($pdo, $proxy)
   $stmt->bindParam(':start_of_week', $startOfWeek, PDO::PARAM_STR);
   $stmt->execute();
   return $stmt->fetchColumn() > 0;
+}
+
+function write_working()
+{
+  global $db;
+  echo "[FILTER-PORT] writing working proxies" . PHP_EOL;
+  $data = parse_working_proxies($db);
+  file_put_contents(__DIR__ . '/working.txt', $data['txt']);
+  file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
+  file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
+  return $data;
 }
