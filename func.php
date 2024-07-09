@@ -2432,3 +2432,17 @@ function removeDuplicateLines(string $inputFile): void
   }
   fclose($fd);
 }
+
+function isCygwinInstalled()
+{
+  $cygwinExecutables = array('bash', 'ls'); // List of Cygwin executables to check
+
+  foreach ($cygwinExecutables as $executable) {
+    $output = shell_exec("where $executable 2>&1");
+    if (strpos($output, 'not found') === false) {
+      return true; // Found at least one Cygwin executable
+    }
+  }
+
+  return false; // None of the Cygwin executables found
+}
