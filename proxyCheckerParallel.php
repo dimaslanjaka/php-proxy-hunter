@@ -424,11 +424,12 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
 function write_working()
 {
   global $db;
-  echo "writing working proxies" . PHP_EOL;
+  echo "[CHECKER-PARALLEL] writing working proxies" . PHP_EOL;
   $data = parse_working_proxies($db);
   file_put_contents(__DIR__ . '/working.txt', $data['txt']);
   file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
   file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
+  return $data;
 }
 
 function cleanUp()
