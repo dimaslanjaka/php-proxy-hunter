@@ -1453,7 +1453,9 @@ function sanitizeFilename(?string $filename): string
     $filename = '';
   }
   // Remove any character that is not alphanumeric, underscore, dash, or period
-  return preg_replace("/[^\w\-\. ]/", '-', $filename);
+  $filename = preg_replace("/[^a-zA-Z0-9_-]+/", '-', $filename);
+  $filename = preg_replace("/-+/", '-', $filename);
+  return $filename;
 }
 
 /**
