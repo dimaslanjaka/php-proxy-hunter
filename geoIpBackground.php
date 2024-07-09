@@ -24,9 +24,11 @@ if (function_exists('header')) {
 }
 
 // Run a long-running process in the background
+$lock_files = [];
 $file = __DIR__ . "/geoIp.php";
 $output_file = __DIR__ . '/proxyChecker.txt';
 $pid_file = __DIR__ . '/filterPorts.pid';
+$lock_files[] = $pid_file;
 setMultiPermissions([$file, $output_file, $pid_file]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd = "php " . escapeshellarg($file);
@@ -39,7 +41,9 @@ if (isset($_REQUEST['proxy'])) {
 }
 
 // validate lock files
-if (file_exists(__DIR__ . '/proxyChecker.lock') && !$isAdmin) {
+$lock_file = tmp() . '/runners/geoIp.lock';
+$lock_files[] = $lock_file;
+if (file_exists($lock_file) && !$isAdmin) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 }
 
@@ -54,9 +58,9 @@ exec(escapeshellarg($runner));
 
 function exitProcess()
 {
-  global $pid_file;
-  if (file_exists($pid_file)) {
-    unlink($pid_file);
+  global $lock_files;
+  foreach ($lock_files as $file) {
+    delete_path($file);
   }
 }
 
