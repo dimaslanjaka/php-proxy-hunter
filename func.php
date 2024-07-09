@@ -84,9 +84,29 @@ if ($currentPath) {
   // exit;
 }
 
+/**
+ * is debug indicator
+ * @return bool
+ */
+function is_debug(): bool
+{
+  // my device lists
+  $debug_pc = ['DESKTOP-JVTSJ6I'];
+  $hostname = gethostname();
+  if (str_starts_with($hostname, 'codespaces-')) {
+    return true;
+  }
+  return in_array(gethostname(), $debug_pc);
+}
+
 // debug all errors
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+if (is_debug()) {
+  ini_set('display_errors', 1);
+  ini_set('display_startup_errors', 1);
+} else {
+  ini_set('display_errors', 0);
+  ini_set('display_startup_errors', 0);
+}
 ini_set("log_errors", 1); // Enable error logging
 $error_file = __DIR__ . "/tmp/php-error.txt";
 if (!$isCli) {
@@ -101,7 +121,11 @@ if (!$isCli) {
   }
 }
 ini_set("error_log", $error_file); // set error path
-error_reporting(E_ALL);
+if (is_debug()) {
+  error_reporting(E_ALL);
+} else {
+  error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR);
+}
 
 // set default timezone
 date_default_timezone_set('Asia/Jakarta');
@@ -161,21 +185,6 @@ function tmp(): string
   }
 
   return $tmpDir;
-}
-
-/**
- * is debug indicator
- * @return bool
- */
-function is_debug(): bool
-{
-  // my device lists
-  $debug_pc = ['DESKTOP-JVTSJ6I'];
-  $hostname = gethostname();
-  if (str_starts_with($hostname, 'codespaces-')) {
-    return true;
-  }
-  return in_array(gethostname(), $debug_pc);
 }
 
 /**
