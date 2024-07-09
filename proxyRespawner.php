@@ -66,11 +66,10 @@ if (!$isCli) {
 }
 
 if (file_exists($lockFilePath) && !$isAdmin) {
-  echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
-  exit();
+  exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 } else {
-  file_put_contents($lockFilePath, date(DATE_RFC3339));
-  file_put_contents($statusFile, 'respawn');
+  write_file($lockFilePath, date(DATE_RFC3339));
+  write_file($statusFile, 'respawn');
 }
 
 function exitProcess()
