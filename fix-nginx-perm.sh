@@ -100,7 +100,7 @@ fi
 if pgrep -f "filterPortsDuplicate.php" >/dev/null; then
     echo "Filter ports duplicate is still running."
 else
-    su -s /bin/sh -c "php $SCRIPT_DIR/filterPortsDuplicate.php --admin=true --endless=true >> $OUTPUT_FILE 2>&1 &" "$USER"
+    su -s /bin/sh -c "php $SCRIPT_DIR/filterPortsDuplicate.php --admin=true --endless=true --delete=true >> $OUTPUT_FILE 2>&1 &" "$USER"
 fi
 
 # Set permissions for vendor directory
