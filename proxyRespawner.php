@@ -139,7 +139,7 @@ if ($isCli) {
     $id = Server::useragent();
   }
   // lock file same as scanPorts.php
-  $webLockFile = tmp() . '/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
+  $webLockFile = tmp() . '/runners/respawner-web-' . sanitizeFilename($id) . '.lock';
 
   $runner = tmp() . "/runners/" . basename($webLockFile, '.lock') . ($isWin ? '.bat' : "");
   $uid = getUserId();
