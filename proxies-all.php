@@ -300,6 +300,10 @@ function isAddedProxy(string $proxy): bool
 {
   global $db;
   $pdo = $db->db->pdo;
+  // mark empty proxy as added proxy (invalid)
+  if (empty($proxy)) {
+    return true;
+  }
   $pdo->exec("CREATE TABLE IF NOT EXISTS added_proxies (proxy TEXT PRIMARY KEY)");
   $stmt = $pdo->prepare("SELECT COUNT(*) FROM added_proxies WHERE proxy = :proxy");
   $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
