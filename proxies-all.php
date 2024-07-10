@@ -202,6 +202,8 @@ if ($can_do_iterate) {
   append_content_with_lock($indicator_all, date(DATE_RFC3339));
 }
 
+blacklist_remover();
+
 if (!empty($str_to_remove)) {
   foreach ($files as $file) {
     Scheduler::register(function () use (&$str_to_remove, $file) {
@@ -262,6 +264,32 @@ function restart_script()
 
   // Exit the current script to avoid any further execution
   exit();
+}
+
+function blacklist_remover()
+{
+  global $db, $str_to_remove;
+  $pdo = $db->db->pdo;
+  $r_blacklist = read_file(__DIR__ . '/data/blacklist.conf');
+  if ($r_blacklist) {
+    $blacklist = extractIPs($r_blacklist);
+    foreach ($blacklist as $ip) {
+      // Prepare the query
+      $query = 'DELETE FROM "main"."proxies" WHERE "proxy" LIKE :proxy';
+      $stmt = $pdo->prepare($query);
+
+      // Bind parameter (assuming you want to search for '%3.140.243.225%')
+      $proxy = "%$ip%";
+      $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+
+      // Execute the query
+      $stmt->execute();
+
+      // Check affected rows if needed
+      $affectedRows = $stmt->rowCount();
+      echo "[BLACKLIST] $ip deleted $affectedRows row(s).\n";
+    }
+  }
 }
 
 Scheduler::register('countFilesAndRepeatScriptIfNeeded', 'zz_repeat');
