@@ -34,24 +34,24 @@ class helper
    * @return HtmlDocument
    */
   public static function str_get_html(
-        $str,
-        $lowercase = true,
-        $forceTagsClosed = true,
-        $target_charset = DEFAULT_TARGET_CHARSET,
-        $stripRN = true,
-        $defaultBRText = DEFAULT_BR_TEXT,
-        $defaultSpanText = DEFAULT_SPAN_TEXT
-    ) {
+    $str,
+    $lowercase = true,
+    $forceTagsClosed = true,
+    $target_charset = DEFAULT_TARGET_CHARSET,
+    $stripRN = true,
+    $defaultBRText = DEFAULT_BR_TEXT,
+    $defaultSpanText = DEFAULT_SPAN_TEXT
+  ) {
     $domx = new simple_html_dom();
 
     return $domx->str_get_html(
-            $str,
-            $lowercase,
-            $forceTagsClosed,
-            $target_charset,
-            $stripRN,
-            $defaultBRText,
-            $defaultSpanText
-        );
+      $str,
+      $lowercase,
+      $forceTagsClosed,
+      $target_charset,
+      $stripRN,
+      $defaultBRText,
+      $defaultSpanText
+    );
   }
 }

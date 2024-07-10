@@ -81,30 +81,30 @@ class HtmlNode
   {
     // Allow users to call methods with lower_case syntax
     switch ($func) {
-            case 'children':
-                $actual_function = 'childNodes';
-                break;
-            case 'first_child':
-                $actual_function = 'firstChild';
-                break;
-            case 'has_child':
-                $actual_function = 'hasChildNodes';
-                break;
-            case 'last_child':
-                $actual_function = 'lastChild';
-                break;
-            case 'next_sibling':
-                $actual_function = 'nextSibling';
-                break;
-            case 'prev_sibling':
-                $actual_function = 'previousSibling';
-                break;
-            default:
-                trigger_error(
-                    'Call to undefined method ' . __CLASS__ . '::' . $func . '()',
-                    E_USER_ERROR
-                );
-        }
+      case 'children':
+        $actual_function = 'childNodes';
+        break;
+      case 'first_child':
+        $actual_function = 'firstChild';
+        break;
+      case 'has_child':
+        $actual_function = 'hasChildNodes';
+        break;
+      case 'last_child':
+        $actual_function = 'lastChild';
+        break;
+      case 'next_sibling':
+        $actual_function = 'nextSibling';
+        break;
+      case 'prev_sibling':
+        $actual_function = 'previousSibling';
+        break;
+      default:
+        trigger_error(
+          'Call to undefined method ' . __CLASS__ . '::' . $func . '()',
+          E_USER_ERROR
+        );
+    }
 
     // phpcs:ignore Generic.Files.LineLength
     Debug::log(__CLASS__ . '->' . $func . '() has been deprecated and will be removed in the next major version of simplehtmldom. Use ' . __CLASS__ . '->' . $actual_function . '() instead.');
@@ -116,25 +116,25 @@ class HtmlNode
   {
     // Translate node type to human-readable form
     switch ($this->nodetype) {
-            case self::HDOM_TYPE_ELEMENT:
-                $nodetype = "HDOM_TYPE_ELEMENT ($this->nodetype)";
-                break;
-            case self::HDOM_TYPE_COMMENT:
-                $nodetype = "HDOM_TYPE_COMMENT ($this->nodetype)";
-                break;
-            case self::HDOM_TYPE_TEXT:
-                $nodetype = "HDOM_TYPE_TEXT ($this->nodetype)";
-                break;
-            case self::HDOM_TYPE_ROOT:
-                $nodetype = "HDOM_TYPE_ROOT ($this->nodetype)";
-                break;
-            case self::HDOM_TYPE_CDATA:
-                $nodetype = "HDOM_TYPE_CDATA ($this->nodetype)";
-                break;
-            case self::HDOM_TYPE_UNKNOWN:
-            default:
-                $nodetype = "HDOM_TYPE_UNKNOWN ($this->nodetype)";
-        }
+      case self::HDOM_TYPE_ELEMENT:
+        $nodetype = "HDOM_TYPE_ELEMENT ($this->nodetype)";
+        break;
+      case self::HDOM_TYPE_COMMENT:
+        $nodetype = "HDOM_TYPE_COMMENT ($this->nodetype)";
+        break;
+      case self::HDOM_TYPE_TEXT:
+        $nodetype = "HDOM_TYPE_TEXT ($this->nodetype)";
+        break;
+      case self::HDOM_TYPE_ROOT:
+        $nodetype = "HDOM_TYPE_ROOT ($this->nodetype)";
+        break;
+      case self::HDOM_TYPE_CDATA:
+        $nodetype = "HDOM_TYPE_CDATA ($this->nodetype)";
+        break;
+      case self::HDOM_TYPE_UNKNOWN:
+      default:
+        $nodetype = "HDOM_TYPE_UNKNOWN ($this->nodetype)";
+    }
 
     return [
       'nodetype' => $nodetype,
@@ -321,18 +321,18 @@ class HtmlNode
         }
 
         switch ($quote_type) {
-                    case self::HDOM_QUOTE_SINGLE:
-                        $quote = '\'';
-                        $val = htmlentities($val, ENT_QUOTES, $this->dom->target_charset);
-                        break;
-                    case self::HDOM_QUOTE_NO:
-                        $quote = '';
-                        break;
-                    case self::HDOM_QUOTE_DOUBLE:
-                    default:
-                        $quote = '"';
-                        $val = htmlentities($val, ENT_COMPAT, $this->dom->target_charset);
-                }
+          case self::HDOM_QUOTE_SINGLE:
+            $quote = '\'';
+            $val = htmlentities($val, ENT_QUOTES, $this->dom->target_charset);
+            break;
+          case self::HDOM_QUOTE_NO:
+            $quote = '';
+            break;
+          case self::HDOM_QUOTE_DOUBLE:
+          default:
+            $quote = '"';
+            $val = htmlentities($val, ENT_COMPAT, $this->dom->target_charset);
+        }
 
         $ret .= $key
                     . (isset($this->_[self::HDOM_INFO_SPACE][$key]) ? $this->_[self::HDOM_INFO_SPACE][$key][1] : '')
@@ -354,7 +354,7 @@ class HtmlNode
   public function clear()
   {
     unset($this->dom, $this->parent); // Break link to origin
-        // Break link to branch
+    // Break link to branch
   }
 
   /** @codeCoverageIgnore */
@@ -594,11 +594,11 @@ class HtmlNode
     $pattern = "/(?:\:(\w+)\()?([\w:\*-]*)(?:\:(\w+)\()?(?:\#([\w-]+))?(?:|\.([\w\.-]+))?((?:\[@?(?:!?[\w:-]+)(?:(?:[!*^$|~]?=)[\"']?(?:.*?)[\"']?)?(?:\s*?(?:[iIsS])?)?\])+)?(?:\))?(?:\))?([\/, >+~]+)/is";
 
     preg_match_all(
-            $pattern,
-            trim($selector_string) . ' ', // Add final ' ' as pseudo separator
-            $matches,
-            PREG_SET_ORDER
-        );
+      $pattern,
+      trim($selector_string) . ' ', // Add final ' ' as pseudo separator
+      $matches,
+      PREG_SET_ORDER
+    );
 
     $selectors = [];
     $result = [];
@@ -635,11 +635,11 @@ class HtmlNode
        */
       if ('' !== $m[5]) {
         preg_match_all(
-                    "/\[@?(!?[\w:-]+)(?:([!*^$|~]?=)[\"']?(.*?)[\"']?)?(?:\s+?([iIsS])?)?\]/is",
-                    trim($m[5]),
-                    $attributes,
-                    PREG_SET_ORDER
-                );
+          "/\[@?(!?[\w:-]+)(?:([!*^$|~]?=)[\"']?(.*?)[\"']?)?(?:\s+?([iIsS])?)?\]/is",
+          trim($m[5]),
+          $attributes,
+          PREG_SET_ORDER
+        );
 
         // Replace element by array
         $m[5] = [];
@@ -662,11 +662,11 @@ class HtmlNode
       }
 
       // Sanitize Separator
-            if ('' !== $m[6] && '' === trim($m[6])) { // Descendant Separator
-                $m[6] = ' ';
-            } else { // Other Separator
-              $m[6] = trim($m[6]);
-            }
+      if ('' !== $m[6] && '' === trim($m[6])) { // Descendant Separator
+        $m[6] = ' ';
+      } else { // Other Separator
+        $m[6] = trim($m[6]);
+      }
 
       // Clear Separator if it's a Selector List
       if ($is_list = (',' === $m[6])) {
@@ -695,15 +695,15 @@ class HtmlNode
     }
 
     switch ($name) {
-            case 'outertext':
-                return $this->outertext();
-            case 'innertext':
-                return $this->innertext();
-            case 'plaintext':
-                return $this->text();
-            case 'xmltext':
-                return $this->xmltext();
-        }
+      case 'outertext':
+        return $this->outertext();
+      case 'innertext':
+        return $this->innertext();
+      case 'plaintext':
+        return $this->text();
+      case 'xmltext':
+        return $this->xmltext();
+    }
 
     return false;
   }
@@ -711,18 +711,18 @@ class HtmlNode
   public function __set($name, $value)
   {
     switch ($name) {
-            case 'outertext':
-                $this->_[self::HDOM_INFO_OUTER] = $value;
-                break;
-            case 'innertext':
-                if (isset($this->_[self::HDOM_INFO_TEXT])) {
-                  $this->_[self::HDOM_INFO_TEXT] = '';
-                }
-                $this->_[self::HDOM_INFO_INNER] = $value;
-                break;
-            default:
-                $this->attr[$name] = $value;
+      case 'outertext':
+        $this->_[self::HDOM_INFO_OUTER] = $value;
+        break;
+      case 'innertext':
+        if (isset($this->_[self::HDOM_INFO_TEXT])) {
+          $this->_[self::HDOM_INFO_TEXT] = '';
         }
+        $this->_[self::HDOM_INFO_INNER] = $value;
+        break;
+      default:
+        $this->attr[$name] = $value;
+    }
   }
 
   public function text($trim = true)
@@ -836,13 +836,13 @@ class HtmlNode
   public function __isset($name)
   {
     switch ($name) {
-            case 'outertext':
-                return true;
-            case 'innertext':
-                return true;
-            case 'plaintext':
-                return true;
-        }
+      case 'outertext':
+        return true;
+      case 'innertext':
+        return true;
+      case 'plaintext':
+        return true;
+    }
 
     return isset($this->attr[$name]);
   }
@@ -878,11 +878,11 @@ class HtmlNode
       $attributes = [];
 
       preg_match_all(
-                '/([\w-]+)\s*:\s*([^;]+)\s*;?/',
-                $this->attr['style'],
-                $matches,
-                PREG_SET_ORDER
-            );
+        '/([\w-]+)\s*:\s*([^;]+)\s*;?/',
+        $this->attr['style'],
+        $matches,
+        PREG_SET_ORDER
+      );
 
       foreach ($matches as $match) {
         $attributes[$match[1]] = $match[2];
@@ -1248,25 +1248,25 @@ class HtmlNode
 
       // remove() makes $this->dom->nodes non-contiguous; use what is left.
       $nodes = array_intersect_key(
-                $this->dom->nodes,
-                array_flip(range($nodes_start, $end))
-            );
+        $this->dom->nodes,
+        array_flip(range($nodes_start, $end))
+      );
     } elseif ('>' === $parent_cmd) { // Child Combinator
       $nodes = $this->children;
     } elseif (
-            '+' === $parent_cmd
-            && $this->parent
-            && in_array($this, $this->parent->children)
-        ) { // Next-Sibling Combinator
+      '+' === $parent_cmd
+      && $this->parent
+      && in_array($this, $this->parent->children)
+    ) { // Next-Sibling Combinator
       $index = array_search($this, $this->parent->children, true) + 1;
       if ($index < count($this->parent->children)) {
         $nodes[] = $this->parent->children[$index];
       }
     } elseif (
-            '~' === $parent_cmd
-            && $this->parent
-            && in_array($this, $this->parent->children)
-        ) { // Subsequent Sibling Combinator
+      '~' === $parent_cmd
+      && $this->parent
+      && in_array($this, $this->parent->children)
+    ) { // Subsequent Sibling Combinator
       $index = array_search($this, $this->parent->children, true);
       $nodes = array_slice($this->parent->children, $index);
     }
@@ -1369,19 +1369,19 @@ class HtmlNode
 
       // Check attributes
       if (
-                $pass
-                && '' !== $attributes
-                && is_array($attributes)
-                && !empty($attributes)
-            ) {
+        $pass
+        && '' !== $attributes
+        && is_array($attributes)
+        && !empty($attributes)
+      ) {
         foreach ($attributes as $a) {
           list(
-                        $att_name,
-                        $att_expr,
-                        $att_val,
-                        $att_inv,
-                        $att_case_sensitivity
-                        ) = $a;
+            $att_name,
+            $att_expr,
+            $att_val,
+            $att_inv,
+            $att_case_sensitivity
+          ) = $a;
 
           // Handle indexing attributes (i.e. "[2]")
           /*
@@ -1393,10 +1393,10 @@ class HtmlNode
            * doesn't work on numeric attributes anyway.
            */
           if (
-                        is_numeric($att_name)
-                        && '' === $att_expr
-                        && '' === $att_val
-                    ) {
+            is_numeric($att_name)
+            && '' === $att_expr
+            && '' === $att_val
+          ) {
             $count = 0;
 
             // Find index of current element in parent
@@ -1417,21 +1417,21 @@ class HtmlNode
           }
 
           // Check attribute availability
-                    if ($att_inv) { // Attribute should NOT be set
-                        if (isset($node->attr[$att_name])) {
-                          $pass = false;
-                          break;
-                        }
-                    } else { // Attribute should be set
-                      // todo: "plaintext" is not a valid CSS selector!
-                      if (
-                            'plaintext' !== $att_name
-                            && !isset($node->attr[$att_name])
-                        ) {
-                        $pass = false;
-                        break;
-                      }
-                    }
+          if ($att_inv) { // Attribute should NOT be set
+            if (isset($node->attr[$att_name])) {
+              $pass = false;
+              break;
+            }
+          } else { // Attribute should be set
+            // todo: "plaintext" is not a valid CSS selector!
+            if (
+              'plaintext' !== $att_name
+              && !isset($node->attr[$att_name])
+            ) {
+              $pass = false;
+              break;
+            }
+          }
 
           // Continue with next attribute if expression isn't defined
           if ('' === $att_expr) {
@@ -1451,18 +1451,18 @@ class HtmlNode
           // the value of the selector.
           if ($lowercase) {
             $check = $this->match(
-                            $att_expr,
-                            strtolower($att_val),
-                            strtolower($nodeKeyValue),
-                            $att_case_sensitivity
-                        );
+              $att_expr,
+              strtolower($att_val),
+              strtolower($nodeKeyValue),
+              $att_case_sensitivity
+            );
           } else {
             $check = $this->match(
-                            $att_expr,
-                            $att_val,
-                            $nodeKeyValue,
-                            $att_case_sensitivity
-                        );
+              $att_expr,
+              $att_val,
+              $nodeKeyValue,
+              $att_case_sensitivity
+            );
           }
 
           $check = 'not' === $ps_element ? !$check : $check;
@@ -1502,37 +1502,37 @@ class HtmlNode
     $value = trim($value);
 
     switch ($exp) {
-            case '=':
-                return $value === $pattern;
-            case '!=':
-                return $value !== $pattern;
-            case '^=':
-                return preg_match('/^' . preg_quote($pattern, '/') . '/', $value);
-            case '$=':
-                return preg_match('/' . preg_quote($pattern, '/') . '$/', $value);
-            case '*=':
-                return preg_match('/' . preg_quote($pattern, '/') . '/', $value);
-            case '|=':
-                /*
-                 * [att|=val]
-                 *
-                 * Represents an element with the att attribute, its value
-                 * either being exactly "val" or beginning with "val"
-                 * immediately followed by "-" (U+002D).
-                 */
-                return 0 === strpos($value, $pattern);
-            case '~=':
-                /*
-                 * [att~=val]
-                 *
-                 * Represents an element with the att attribute whose value is a
-                 * whitespace-separated list of words, one of which is exactly
-                 * "val". If "val" contains whitespace, it will never represent
-                 * anything (since the words are separated by spaces). Also if
-                 * "val" is the empty string, it will never represent anything.
-                 */
-                return in_array($pattern, explode(' ', trim($value)), true);
-        }
+      case '=':
+        return $value === $pattern;
+      case '!=':
+        return $value !== $pattern;
+      case '^=':
+        return preg_match('/^' . preg_quote($pattern, '/') . '/', $value);
+      case '$=':
+        return preg_match('/' . preg_quote($pattern, '/') . '$/', $value);
+      case '*=':
+        return preg_match('/' . preg_quote($pattern, '/') . '/', $value);
+      case '|=':
+        /*
+         * [att|=val]
+         *
+         * Represents an element with the att attribute, its value
+         * either being exactly "val" or beginning with "val"
+         * immediately followed by "-" (U+002D).
+         */
+        return 0 === strpos($value, $pattern);
+      case '~=':
+        /*
+         * [att~=val]
+         *
+         * Represents an element with the att attribute whose value is a
+         * whitespace-separated list of words, one of which is exactly
+         * "val". If "val" contains whitespace, it will never represent
+         * anything (since the words are separated by spaces). Also if
+         * "val" is the empty string, it will never represent anything.
+         */
+        return in_array($pattern, explode(' ', trim($value)), true);
+    }
 
     Debug::log('Unhandled attribute selector: ' . $exp . '!');
 

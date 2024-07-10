@@ -101,27 +101,27 @@ class HtmlDocument
   ];
 
   public function __construct(
-        $str = null,
-        $lowercase = true,
-        $forceTagsClosed = true,
-        $target_charset = DEFAULT_TARGET_CHARSET,
-        $stripRN = true,
-        $defaultBRText = DEFAULT_BR_TEXT,
-        $defaultSpanText = DEFAULT_SPAN_TEXT,
-        $options = 0
-    ) {
+    $str = null,
+    $lowercase = true,
+    $forceTagsClosed = true,
+    $target_charset = DEFAULT_TARGET_CHARSET,
+    $stripRN = true,
+    $defaultBRText = DEFAULT_BR_TEXT,
+    $defaultSpanText = DEFAULT_SPAN_TEXT,
+    $options = 0
+  ) {
     if ($str) {
       if (preg_match('/^http:\/\//i', $str) || is_file($str)) {
         $this->load_file($str);
       } else {
         $this->load(
-                    $str,
-                    $lowercase,
-                    $stripRN,
-                    $defaultBRText,
-                    $defaultSpanText,
-                    $options
-                );
+          $str,
+          $lowercase,
+          $stripRN,
+          $defaultBRText,
+          $defaultSpanText,
+          $options
+        );
       }
     } else {
       $this->prepare($str, $lowercase, $defaultBRText, $defaultSpanText);
@@ -136,13 +136,13 @@ class HtmlDocument
   }
 
   public function load(
-        $str,
-        $lowercase = true,
-        $stripRN = true,
-        $defaultBRText = DEFAULT_BR_TEXT,
-        $defaultSpanText = DEFAULT_SPAN_TEXT,
-        $options = 0
-    ) {
+    $str,
+    $lowercase = true,
+    $stripRN = true,
+    $defaultBRText = DEFAULT_BR_TEXT,
+    $defaultSpanText = DEFAULT_SPAN_TEXT,
+    $options = 0
+  ) {
     // prepare
     $this->prepare($str, $lowercase, $defaultBRText, $defaultSpanText);
 
@@ -190,11 +190,11 @@ class HtmlDocument
   }
 
   protected function prepare(
-        $str,
-        $lowercase = true,
-        $defaultBRText = DEFAULT_BR_TEXT,
-        $defaultSpanText = DEFAULT_SPAN_TEXT
-    ) {
+    $str,
+    $lowercase = true,
+    $defaultBRText = DEFAULT_BR_TEXT,
+    $defaultSpanText = DEFAULT_SPAN_TEXT
+  ) {
     $this->clear();
 
     $this->doc = trim($str);
@@ -220,11 +220,11 @@ class HtmlDocument
   protected function remove_noise($pattern, $remove_tag = false)
   {
     $count = preg_match_all(
-            $pattern,
-            $this->doc,
-            $matches,
-            PREG_SET_ORDER | PREG_OFFSET_CAPTURE
-        );
+      $pattern,
+      $this->doc,
+      $matches,
+      PREG_SET_ORDER | PREG_OFFSET_CAPTURE
+    );
 
     for ($i = $count - 1; $i > -1; --$i) {
       $key = '___noise___' . sprintf('% 5d', count($this->noise) + 1000);
@@ -460,86 +460,86 @@ class HtmlDocument
     $tag = $this->copy_until($this->token_slash);
 
     if (isset($tag[0]) && '!' === $tag[0]) { // Doctype, CData, Comment
-            if (isset($tag[2]) && '-' === $tag[1] && '-' === $tag[2]) { // Comment ("<!--")
-                // Go back until $tag only contains start of comment "!--".
-                while (strlen($tag) > 3) {
-                  $this->char = $this->doc[--$this->pos]; // previous
-                  $tag = substr($tag, 0, strlen($tag) - 1);
-                }
+      if (isset($tag[2]) && '-' === $tag[1] && '-' === $tag[2]) { // Comment ("<!--")
+        // Go back until $tag only contains start of comment "!--".
+        while (strlen($tag) > 3) {
+          $this->char = $this->doc[--$this->pos]; // previous
+          $tag = substr($tag, 0, strlen($tag) - 1);
+        }
 
-              $node->nodetype = HtmlNode::HDOM_TYPE_COMMENT;
-              $node->tag = 'comment';
+        $node->nodetype = HtmlNode::HDOM_TYPE_COMMENT;
+        $node->tag = 'comment';
 
-              $data = '';
+        $data = '';
 
-              // There is a rare chance of empty comment: "<!---->"
-              // In which case the current char is the first "-" of the end tag
-              // But the comment could also just be a dash: "<!----->"
-              while (true) {
-                // Copy until first char of end tag
-                $data .= $this->copy_until_char('-');
+        // There is a rare chance of empty comment: "<!---->"
+        // In which case the current char is the first "-" of the end tag
+        // But the comment could also just be a dash: "<!----->"
+        while (true) {
+          // Copy until first char of end tag
+          $data .= $this->copy_until_char('-');
 
-                // Look ahead in the document, maybe we are at the end
-                    if (($this->pos + 3) > $this->size) { // End of document
-                        Debug::log('Source document ended unexpectedly!');
-                      break;
-                    } elseif ('-->' === substr($this->doc, $this->pos, 3)) { // end
-                      $data .= $this->copy_until_char('>');
-                      break;
-                    }
+          // Look ahead in the document, maybe we are at the end
+          if (($this->pos + 3) > $this->size) { // End of document
+            Debug::log('Source document ended unexpectedly!');
+            break;
+          } elseif ('-->' === substr($this->doc, $this->pos, 3)) { // end
+            $data .= $this->copy_until_char('>');
+            break;
+          }
 
-                $data .= $this->char;
-                $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
-              }
+          $data .= $this->char;
+          $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
+        }
 
-              $tag .= $data;
-              $tag = $this->restore_noise($tag);
+        $tag .= $data;
+        $tag = $this->restore_noise($tag);
 
-              // Comment starts after "!--" and ends before "--" (5 chars total)
-              $node->_[HtmlNode::HDOM_INFO_INNER] = substr($tag, 3, strlen($tag) - 5);
-            } elseif ('[CDATA[' === substr($tag, 1, 7)) {
-              // Go back until $tag only contains start of cdata "![CDATA[".
-              while (strlen($tag) > 8) {
-                $this->char = $this->doc[--$this->pos]; // previous
-                $tag = substr($tag, 0, strlen($tag) - 1);
-              }
+        // Comment starts after "!--" and ends before "--" (5 chars total)
+        $node->_[HtmlNode::HDOM_INFO_INNER] = substr($tag, 3, strlen($tag) - 5);
+      } elseif ('[CDATA[' === substr($tag, 1, 7)) {
+        // Go back until $tag only contains start of cdata "![CDATA[".
+        while (strlen($tag) > 8) {
+          $this->char = $this->doc[--$this->pos]; // previous
+          $tag = substr($tag, 0, strlen($tag) - 1);
+        }
 
-              // CDATA can contain HTML stuff, need to find closing tags first
-              $node->nodetype = HtmlNode::HDOM_TYPE_CDATA;
-              $node->tag = 'cdata';
+        // CDATA can contain HTML stuff, need to find closing tags first
+        $node->nodetype = HtmlNode::HDOM_TYPE_CDATA;
+        $node->tag = 'cdata';
 
-              $data = '';
+        $data = '';
 
-              // There is a rare chance of empty CDATA: "<[CDATA[]]>"
-              // In which case the current char is the first "[" of the end tag
-              // But the CDATA could also just be a bracket: "<[CDATA[]]]>"
-              while (true) {
-                // Copy until first char of end tag
-                $data .= $this->copy_until_char(']');
+        // There is a rare chance of empty CDATA: "<[CDATA[]]>"
+        // In which case the current char is the first "[" of the end tag
+        // But the CDATA could also just be a bracket: "<[CDATA[]]]>"
+        while (true) {
+          // Copy until first char of end tag
+          $data .= $this->copy_until_char(']');
 
-                // Look ahead in the document, maybe we are at the end
-                    if (($this->pos + 3) > $this->size) { // End of document
-                        Debug::log('Source document ended unexpectedly!');
-                      break;
-                    } elseif (']]>' === substr($this->doc, $this->pos, 3)) { // end
-                      $data .= $this->copy_until_char('>');
-                      break;
-                    }
+          // Look ahead in the document, maybe we are at the end
+          if (($this->pos + 3) > $this->size) { // End of document
+            Debug::log('Source document ended unexpectedly!');
+            break;
+          } elseif (']]>' === substr($this->doc, $this->pos, 3)) { // end
+            $data .= $this->copy_until_char('>');
+            break;
+          }
 
-                $data .= $this->char;
-                $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
-              }
+          $data .= $this->char;
+          $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
+        }
 
-              $tag .= $data;
-              $tag = $this->restore_noise($tag);
+        $tag .= $data;
+        $tag = $this->restore_noise($tag);
 
-              // CDATA starts after "![CDATA[" and ends before "]]" (10 chars total)
-              $node->_[HtmlNode::HDOM_INFO_INNER] = substr($tag, 8, strlen($tag) - 10);
-            } else { // Unknown
-              Debug::log('Source document contains unknown declaration: <' . $tag);
-              $node->nodetype = HtmlNode::HDOM_TYPE_UNKNOWN;
-              $node->tag = 'unknown';
-            }
+        // CDATA starts after "![CDATA[" and ends before "]]" (10 chars total)
+        $node->_[HtmlNode::HDOM_INFO_INNER] = substr($tag, 8, strlen($tag) - 10);
+      } else { // Unknown
+        Debug::log('Source document contains unknown declaration: <' . $tag);
+        $node->nodetype = HtmlNode::HDOM_TYPE_UNKNOWN;
+        $node->tag = 'unknown';
+      }
 
       $node->_[HtmlNode::HDOM_INFO_TEXT] = '<' . $tag . $this->copy_until_char('>');
 
@@ -594,8 +594,8 @@ class HtmlDocument
       }
 
       if ($guard === $this->pos) { // Escape infinite loop
-                $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
-                continue;
+        $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
+        continue;
       }
 
       $guard = $this->pos;
@@ -625,10 +625,10 @@ class HtmlDocument
       }
 
       if ('=' === $this->char) { // Attribute with value
-                $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
-                $this->parse_attr($node, $name, $space, $trim); // get attribute value
+        $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
+        $this->parse_attr($node, $name, $space, $trim); // get attribute value
       } else { // Attribute without value
-                $node->_[HtmlNode::HDOM_INFO_QUOTE][$name] = HtmlNode::HDOM_QUOTE_NO;
+        $node->_[HtmlNode::HDOM_INFO_QUOTE][$name] = HtmlNode::HDOM_QUOTE_NO;
         $node->attr[$name] = true;
         if ('>' !== $this->char) {
           $this->char = $this->doc[--$this->pos];
@@ -694,13 +694,13 @@ class HtmlDocument
         $data .= $this->copy_until_char('<');
 
         // Look ahead in the document, maybe we are at the end
-                if (($this->pos + 9) > $this->size) { // End of document
-                    Debug::log('Source document ended unexpectedly!');
-                  break;
-                } elseif ('</script' === substr($this->doc, $this->pos, 8)) { // end
-                    $this->skip('>'); // don't include the end tag
-                    break;
-                }
+        if (($this->pos + 9) > $this->size) { // End of document
+          Debug::log('Source document ended unexpectedly!');
+          break;
+        } elseif ('</script' === substr($this->doc, $this->pos, 8)) { // end
+          $this->skip('>'); // don't include the end tag
+          break;
+        }
 
         // Note: A script tag may contain any other tag except </script>
         // which needs to be escaped as <\/script>
@@ -767,26 +767,26 @@ class HtmlDocument
     }
 
     switch ($this->char) {
-            case '"':
-                $quote_type = HtmlNode::HDOM_QUOTE_DOUBLE;
-                $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
-                $value = $this->copy_until_char('"');
-                $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
-                break;
-            case '\'':
-                // phpcs:ignore Generic.Files.LineLength
-                Debug::log_once('Source document contains attribute values with single quotes (<e attribute=\'value\'>). Use double quotes for best performance.');
-                $quote_type = HtmlNode::HDOM_QUOTE_SINGLE;
-                $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
-                $value = $this->copy_until_char('\'');
-                $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
-                break;
-            default:
-                // phpcs:ignore Generic.Files.LineLength
-                Debug::log_once('Source document contains attribute values without quotes (<e attribute=value>). Use double quotes for best performance');
-                $quote_type = HtmlNode::HDOM_QUOTE_NO;
-                $value = $this->copy_until($this->token_attr);
-        }
+      case '"':
+        $quote_type = HtmlNode::HDOM_QUOTE_DOUBLE;
+        $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
+        $value = $this->copy_until_char('"');
+        $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
+        break;
+      case '\'':
+        // phpcs:ignore Generic.Files.LineLength
+        Debug::log_once('Source document contains attribute values with single quotes (<e attribute=\'value\'>). Use double quotes for best performance.');
+        $quote_type = HtmlNode::HDOM_QUOTE_SINGLE;
+        $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
+        $value = $this->copy_until_char('\'');
+        $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
+        break;
+      default:
+        // phpcs:ignore Generic.Files.LineLength
+        Debug::log_once('Source document contains attribute values without quotes (<e attribute=value>). Use double quotes for best performance');
+        $quote_type = HtmlNode::HDOM_QUOTE_NO;
+        $value = $this->copy_until($this->token_attr);
+    }
 
     $value = $this->restore_noise($value);
 
@@ -831,10 +831,10 @@ class HtmlDocument
 
         if (!empty($fullvalue)) {
           $success = preg_match(
-                        '/charset=(.+)/i',
-                        $fullvalue,
-                        $matches
-                    );
+            '/charset=(.+)/i',
+            $fullvalue,
+            $matches
+          );
 
           if ($success) {
             $charset = $matches[1];
@@ -869,9 +869,9 @@ class HtmlDocument
          * to stay compatible.
          */
         $encoding = mb_detect_encoding(
-                    $this->doc,
-                    ['UTF-8', 'CP1252', 'ISO-8859-1']
-                );
+          $this->doc,
+          ['UTF-8', 'CP1252', 'ISO-8859-1']
+        );
 
         if ('CP1252' === $encoding || 'ISO-8859-1' === $encoding) {
           // Due to a limitation of mb_detect_encoding
@@ -899,7 +899,7 @@ class HtmlDocument
     if (('iso-8859-1' == strtolower($charset))
             || ('latin1' == strtolower($charset))
             || ('latin-1' == strtolower($charset))
-        ) {
+    ) {
       $charset = 'CP1252';
     }
 
@@ -911,17 +911,17 @@ class HtmlDocument
     foreach ($this->nodes as $node) {
       if (isset($node->_[HtmlNode::HDOM_INFO_TEXT])) {
         $node->_[HtmlNode::HDOM_INFO_TEXT] = html_entity_decode(
-                    $this->restore_noise($node->_[HtmlNode::HDOM_INFO_TEXT]),
-                    ENT_QUOTES | ENT_HTML5,
-                    $this->_target_charset
-                );
+          $this->restore_noise($node->_[HtmlNode::HDOM_INFO_TEXT]),
+          ENT_QUOTES | ENT_HTML5,
+          $this->_target_charset
+        );
       }
       if (isset($node->_[HtmlNode::HDOM_INFO_INNER])) {
         $node->_[HtmlNode::HDOM_INFO_INNER] = html_entity_decode(
-                    $this->restore_noise($node->_[HtmlNode::HDOM_INFO_INNER]),
-                    ENT_QUOTES | ENT_HTML5,
-                    $this->_target_charset
-                );
+          $this->restore_noise($node->_[HtmlNode::HDOM_INFO_INNER]),
+          ENT_QUOTES | ENT_HTML5,
+          $this->_target_charset
+        );
       }
       if (isset($node->attr) && is_array($node->attr)) {
         foreach ($node->attr as $a => $v) {
@@ -929,10 +929,10 @@ class HtmlDocument
             continue;
           }
           $node->attr[$a] = html_entity_decode(
-                        $v,
-                        ENT_QUOTES | ENT_HTML5,
-                        $this->_target_charset
-                    );
+            $v,
+            ENT_QUOTES | ENT_HTML5,
+            $this->_target_charset
+          );
         }
       }
     }
@@ -942,17 +942,17 @@ class HtmlDocument
   {
     // Allow users to call methods with lower_case syntax
     switch ($func) {
-            case 'load_file':
-                $actual_function = 'loadFile';
-                break;
-            case 'clear':
-                return; /* no-op */
-            default:
-                trigger_error(
-                    'Call to undefined method ' . __CLASS__ . '::' . $func . '()',
-                    E_USER_ERROR
-                );
-        }
+      case 'load_file':
+        $actual_function = 'loadFile';
+        break;
+      case 'clear':
+        return; /* no-op */
+      default:
+        trigger_error(
+          'Call to undefined method ' . __CLASS__ . '::' . $func . '()',
+          E_USER_ERROR
+        );
+    }
 
     // phpcs:ignore Generic.Files.LineLength
     Debug::log(__CLASS__ . '->' . $func . '() has been deprecated and will be removed in the next major version of simplehtmldom. Use ' . __CLASS__ . '->' . $actual_function . '() instead.');
@@ -1054,17 +1054,17 @@ class HtmlDocument
   public function __get($name)
   {
     switch ($name) {
-            case 'outertext':
-                return $this->root->innertext();
-            case 'innertext':
-                return $this->root->innertext();
-            case 'plaintext':
-                return $this->root->text();
-            case 'charset':
-                return $this->_charset;
-            case 'target_charset':
-                return $this->_target_charset;
-        }
+      case 'outertext':
+        return $this->root->innertext();
+      case 'innertext':
+        return $this->root->innertext();
+      case 'plaintext':
+        return $this->root->text();
+      case 'charset':
+        return $this->_charset;
+      case 'target_charset':
+        return $this->_target_charset;
+    }
   }
 
   public function childNodes($idx = -1)
