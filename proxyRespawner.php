@@ -44,7 +44,7 @@ use PhpProxyHunter\Server;
 global $isCli, $isWin;
 
 // validate lock files
-$id = Server::get_client_ip();
+$id = Server::getRequestIP();
 if (empty($id)) {
   $id = Server::useragent();
 }
@@ -133,7 +133,7 @@ if ($isCli) {
   $output_file = __DIR__ . '/proxyChecker.txt';
   $cmd = "php " . escapeshellarg($file);
   // setup lock file
-  $id = Server::get_client_ip();
+  $id = Server::getRequestIP();
   if (empty($id)) {
     $id = Server::useragent();
   }

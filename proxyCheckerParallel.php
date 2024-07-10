@@ -67,7 +67,7 @@ if ($isCli) {
   header("Access-Control-Allow-Methods: *");
   header('Content-Type: text/plain; charset=UTF-8');
   // setup lock file
-  $id = Server::get_client_ip();
+  $id = Server::getRequestIP();
   if (empty($id)) {
     $id = Server::useragent();
   }
