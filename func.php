@@ -2452,7 +2452,7 @@ function isCygwinInstalled()
   return false; // None of the Cygwin executables found
 }
 
-function runPythonInBackground($scriptPath, $commandArgs = [], $identifier)
+function runPythonInBackground($scriptPath, $commandArgs = [], $identifier = null)
 {
   global $isWin;
 
@@ -2475,7 +2475,6 @@ function runPythonInBackground($scriptPath, $commandArgs = [], $identifier)
   truncateFile($output_file);
 
   // Construct the command
-  $cwd = __DIR__; // Adjusted to match the working code
   $venv = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
   $venvCall = $isWin ? "call $venv" : "source $venv";
 
@@ -2507,7 +2506,7 @@ function runPythonInBackground($scriptPath, $commandArgs = [], $identifier)
   ];
 }
 
-function runScriptInBacgrkround($command, $scriptPath, $commandArgs = [], $identifier)
+function runScriptInBacgrkround($command, $scriptPath, $commandArgs = [], $identifier = null)
 {
   global $isWin;
   // Convert arguments to command line string
@@ -2529,11 +2528,69 @@ function runScriptInBacgrkround($command, $scriptPath, $commandArgs = [], $ident
   truncateFile($output_file);
 
   // Construct the command
-  $cwd = __DIR__; // Adjusted to match the working code
   $venv = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
   $venvCall = $isWin ? "call $venv" : "source $venv";
 
   $cmd = "$venvCall && $command $scriptPath $commandArgsString > $output_file 2>&1 & echo $! > $pid_file";
+  $cmd = trim($cmd);
+
+  // Write command to runner script
+  $write = write_file($runner, $cmd);
+  if (!$write) {
+    return ['error' => 'Failed writing shell script ' . $runner];
+  }
+
+  // Change current working directory
+  chdir($cwd);
+
+  // Execute the runner script
+  if ($isWin) {
+    $runner_win = "start /B \"window_name\" " . escapeshellarg(unixPath($runner));
+    pclose(popen($runner_win, 'r'));
+  } else {
+    exec("bash " . escapeshellarg($runner) . " > /dev/null 2>&1 &");
+  }
+
+  return [
+    'output' => unixPath($output_file),
+    'cwd' => unixPath($cwd),
+    'relative' => str_replace(unixPath($cwd), '', unixPath($output_file)),
+    'runner' => $runner
+  ];
+}
+
+function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
+{
+  global $isWin;
+
+  // Convert arguments to command line string
+  $commandArgsString = '';
+  foreach ($commandArgs as $key => $value) {
+    $escapedValue = escapeshellarg($value);
+    $commandArgsString .= "--$key=$escapedValue ";
+  }
+  $commandArgsString = trim($commandArgsString);
+
+  // Determine paths and commands
+  $cwd = __DIR__;
+  $filename = !empty($identifier) ? sanitizeFilename($identifier) : sanitizeFilename(unixPath("$scriptPath/$commandArgsString"));
+  $runner = unixPath(tmp() . "/runners/$filename" . ($isWin ? ".bat" : ".sh"));
+  $output_file = unixPath(tmp() . "/logs/$filename.txt");
+  $pid_file = unixPath(tmp() . "/runners/$filename.pid");
+
+  // Truncate output file
+  truncateFile($output_file);
+
+  // Construct the command
+  $venv = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
+  $venvCall = $isWin ? "call $venv" : "source $venv";
+
+  $cmd = $venvCall;
+  if ($isWin) {
+    $cmd .= " && call $scriptPath";
+  } else {
+    $cmd .= " && bash $scriptPath";
+  }
   $cmd = trim($cmd);
 
   // Write command to runner script
