@@ -37,12 +37,12 @@ class HtmlWeb
 
     if ($scheme = parse_url($url, PHP_URL_SCHEME)) {
       switch (strtolower($scheme)) {
-                case 'http':
-                case 'https':
-                    break;
-                default:
-                    return null;
-            }
+        case 'http':
+        case 'https':
+          break;
+        default:
+          return null;
+      }
 
       if (extension_loaded('curl')) {
         return $this->load_curl($url);
