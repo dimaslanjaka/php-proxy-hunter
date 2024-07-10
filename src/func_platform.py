@@ -1,5 +1,7 @@
-import platform
 import importlib
+import os
+import platform
+import socket
 
 
 def import_windows_packages():
@@ -16,6 +18,26 @@ def import_windows_packages():
 def import_linux_packages():
     print("No specific packages to import for Linux.")
     # Your Linux-specific code here
+
+
+def is_debug() -> bool:
+    """
+    Check current device is debug or not
+    """
+    is_github_ci = os.getenv('CI') is not None and os.getenv('GITHUB_ACTIONS') == 'true'
+    is_github_codespaces = os.getenv('CODESPACES') == 'true'
+
+    if is_github_ci or is_github_codespaces:
+        return True
+
+    # My device lists
+    debug_pc = ['DESKTOP-JVTSJ6I']
+    hostname = socket.gethostname()
+
+    if hostname.startswith('codespaces-'):
+        return True
+
+    return hostname in debug_pc
 
 
 def main():
