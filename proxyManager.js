@@ -168,6 +168,8 @@ async function checkerOutput() {
       str = str.replace(/\[SKIPPED\]/, '<i class="fal fa-forward text-silver"></i>');
       str = str.replace(/\[RESPAWN\]/, '<i class="fa-solid fa-user-magnifying-glass text-magenta"></i>');
       str = str.replace(/\[FILTER-PORT\]/, '<i class="fa-thin fa-filter-list text-berry"></i>');
+      str = str.replace(/\[CHECKER-PARALLEL\]/, '<i class="fa-thin fa-list-check text-polkador"></i>');
+      str = str.replace(/\[CHECKER\]/, '<i class="fa-thin fa-check-to-slot text-polkador"></i>');
       return str;
     })
     .join("<br/>");

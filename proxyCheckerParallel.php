@@ -335,7 +335,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
               }
             }
             $priv_msg = $isPrivate ? "true " . implode("|", $match_private) : "false";
-            $log_msg =  "$counter. $protocol://{$item[0]->proxy} is working (private $priv_msg)\n";
+            $log_msg =  "[CHECKER-PARALLEL] $counter. $protocol://{$item[0]->proxy} is working (private $priv_msg)\n";
             echo $log_msg;
             if (count($argv) == 0) {
               append_content_with_lock($output_log, $log_msg);
