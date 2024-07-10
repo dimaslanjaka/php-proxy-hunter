@@ -52,7 +52,7 @@ foreach ($files as $file) {
   write_file($runner, $cmd);
   write_file($lock_file, '');
 
-  exec(escapeshellarg($runner));
+  runBashOrBatch($runner);
 }
 
 function exitProcess()

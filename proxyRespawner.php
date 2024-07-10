@@ -157,5 +157,5 @@ if ($isCli) {
   write_file($runner, $cmd);
 
   // Execute the runner script in the background
-  exec(escapeshellarg($runner));
+  runBashOrBatch($runner);
 }

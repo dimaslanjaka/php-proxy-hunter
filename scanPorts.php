@@ -159,7 +159,7 @@ function do_check($filePath, $background = false)
   // echo escapeshellarg($runner) . PHP_EOL;
 
   // Execute the runner script in the background
-  exec(escapeshellarg($runner));
+  runBashOrBatch($runner);
 }
 
 function saveRangePorts(string $ip)
