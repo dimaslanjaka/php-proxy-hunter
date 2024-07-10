@@ -71,6 +71,7 @@ if ($isCli) {
   if (empty($id)) {
     $id = Server::useragent();
   }
+  $id .=  '-' . md5($str);
   // lock file same as scanPorts.php
   $webLockFile = tmp() . '/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
   if (file_exists($webLockFile) && !$isAdmin) {
