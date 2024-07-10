@@ -13,7 +13,6 @@ if (!$isCli) {
   exit('only CLI allowed');
 }
 
-$isAdmin = is_debug(); // admin indicator
 $max_checks = 500; // max proxies to be checked
 $maxExecutionTime = 120; // max 120s execution time
 $endless = false;

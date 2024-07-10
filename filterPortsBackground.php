@@ -2,8 +2,6 @@
 
 require_once __DIR__ . "/func-proxy.php";
 
-$isAdmin = is_debug();
-
 if (!$isCli) {
   // Allow from any origin
   header("Access-Control-Allow-Origin: *");

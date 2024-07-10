@@ -13,7 +13,6 @@ $str = '';
 $output_log = __DIR__ . '/proxyChecker.txt';
 // default limit proxy to check
 $max = 100 + $db->countWorkingProxies();
-$isAdmin = is_debug();
 
 if ($isCli) {
   $short_opts = "p:m::";
