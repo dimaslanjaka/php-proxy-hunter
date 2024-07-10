@@ -247,24 +247,28 @@ function printBasicCurlCommand(preElementId) {
   }
 }
 
+function scrollToResult() {
+  const target = document.getElementById("cpresult");
+  const offset = 100; // Adjust this value to change the offset
+
+  // Scroll to the element
+  target.scrollIntoView({ behavior: "smooth" });
+
+  // Adjust the scroll position
+  setTimeout(() => {
+    window.scrollBy({
+      top: -offset, // Move up by the offset
+      left: 0,
+      behavior: "smooth"
+    });
+  }, 1000);
+}
+
 function listenCurlCommandBuilder() {
   document.getElementById("proxyForm").addEventListener("submit", function (event) {
     event.preventDefault(); // Prevent the form from submitting
 
-    const target = document.getElementById("cpresult");
-    const offset = 100; // Adjust this value to change the offset
-
-    // Scroll to the element
-    target.scrollIntoView({ behavior: "smooth" });
-
-    // Adjust the scroll position
-    setTimeout(() => {
-      window.scrollBy({
-        top: -offset, // Move up by the offset
-        left: 0,
-        behavior: "smooth"
-      });
-    }, 1000);
+    scrollToResult();
 
     // Get the form data
     const formData = new FormData(this);
@@ -490,8 +494,10 @@ async function fetchWorkingProxies() {
         td.innerText = info;
         if (i === 0 || i > 13 || (i >= 7 && i <= 9)) {
           // td.classList.add("w-4/12");
-          if (td.innerText !== "-")
-            td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}"><i class="fa-duotone fa-copy"></i></button>`;
+          if (td.innerText !== "-") {
+            td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}" title="copy ${info}"><i class="fa-duotone fa-copy"></i></button>`;
+            td.innerHTML += `<button class="rounded-full ml-2 recheck" data="${info}" title="re-check ${info}"><i class="fa-duotone fa-rotate-right"></i></button>`;
+          }
         } else if (i === 2 && info.length > 6) {
           // last check date
           td.innerText = timeAgo(info);
@@ -516,8 +522,18 @@ async function fetchWorkingProxies() {
     document.querySelectorAll(".pcopy").forEach((el) => {
       if (el.hasAttribute("aria-copy")) return;
       el.addEventListener("click", () => {
-        copyToClipboard(el.getAttribute("data").trim());
-        showSnackbar("proxy copied");
+        const proxy = el.getAttribute("data").trim();
+        copyToClipboard(proxy);
+        showSnackbar(`${proxy} Copied`);
+      });
+      el.setAttribute("aria-copy", el.getAttribute("data"));
+    });
+    document.querySelectorAll(".recheck").forEach((el) => {
+      if (el.hasAttribute("aria-copy")) return;
+      el.addEventListener("click", () => {
+        const proxy = el.getAttribute("data").trim();
+        fetch(`./proxyCheckerParallel.php?proxy=${proxy}`).then(() => showSnackbar(`Re-check ${proxy} requested`));
+        scrollToResult();
       });
       el.setAttribute("aria-copy", el.getAttribute("data"));
     });
