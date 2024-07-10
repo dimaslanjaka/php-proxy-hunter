@@ -50,7 +50,6 @@ if (empty($id)) {
 }
 $lockFilePath = tmp() . "/runners/respawner-" . sanitizeFilename($id) . ".lock";
 $statusFile = __DIR__ . "/status.txt";
-$isAdmin = is_debug();
 
 if (!$isCli) {
   // Allow from any origin

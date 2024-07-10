@@ -2,7 +2,6 @@
 
 require_once __DIR__ . "/func-proxy.php";
 
-$isAdmin = is_debug();
 
 if (function_exists('header')) {
   // Allow from any origin
