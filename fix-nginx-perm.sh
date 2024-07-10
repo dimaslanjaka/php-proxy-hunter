@@ -76,6 +76,9 @@ fi
 # Allow composer and indexing proxies to work
 chown -R "$USER":"$USER" "$SCRIPT_DIR"/*.php "$SCRIPT_DIR"/*.phar
 
+chown -R "$USER":"$USER" "$SCRIPT_DIR/bin"
+chmod 755 "$SCRIPT_DIR/bin"/*
+
 echo "Permission sets successful"
 
 OUTPUT_FILE="$SCRIPT_DIR/proxyChecker.txt"
