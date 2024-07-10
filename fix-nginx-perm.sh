@@ -130,3 +130,6 @@ echo "nginx and php-fpm restarted"
 # Install python requirements
 sudo -u "$USER" -H bash -c "python3.11 -m venv $SCRIPT_DIR/venv"
 sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && python $SCRIPT_DIR/requirements_install.py"
+
+chown -R "$USER":"$USER" "$SCRIPT_DIR/venv"
+chmod 755 "$SCRIPT_DIR/venv/bin"/*
