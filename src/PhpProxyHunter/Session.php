@@ -23,7 +23,7 @@ class Session
 
       $name = md5($this->session_prefix_name . $timeout . Server::getRequestIP() . Server::useragent());
       if (empty(trim($session_folder))) {
-        $session_folder = __DIR__ . '/../tmp/sessions';
+        $session_folder = __DIR__ . '/../../tmp/sessions';
         if (!file_exists($session_folder)) {
           if (!mkdir($session_folder, 0755, true)) {
             throw new Exception('Unable to create session folder.');
@@ -62,16 +62,16 @@ class Session
   public static function dump(): array
   {
     return [
-        'sessions' => [
-            'active' => PHP_SESSION_NONE == session_status(),
-            'id' => session_id(),
-            'folder' => realpath(ini_get('session.save_path')),
-            'session.gc_maxlifetime' => ini_get('session.gc_maxlifetime'),
-            'session.cookie_lifetime' => ini_get('session.cookie_lifetime'),
-            'session.gc_probability' => ini_get('session.gc_probability'),
-            'session.gc_divisor' => ini_get('session.gc_divisor'),
-            'session.hash_function' => ini_get('session.hash_function'),
-        ],
+      'sessions' => [
+        'active' => PHP_SESSION_NONE == session_status(),
+        'id' => session_id(),
+        'folder' => realpath(ini_get('session.save_path')),
+        'session.gc_maxlifetime' => ini_get('session.gc_maxlifetime'),
+        'session.cookie_lifetime' => ini_get('session.cookie_lifetime'),
+        'session.gc_probability' => ini_get('session.gc_probability'),
+        'session.gc_divisor' => ini_get('session.gc_divisor'),
+        'session.hash_function' => ini_get('session.hash_function'),
+      ],
     ];
   }
 
@@ -80,6 +80,6 @@ class Session
    */
   public function now(): DateTime
   {
-    return new DateTime(null, new DateTimeZone('Asia/Jakarta'));
+    return new DateTime('now', new DateTimeZone('Asia/Jakarta'));
   }
 }

@@ -27,12 +27,12 @@ class ProxyDB
   public function __construct(?string $dbLocation = null)
   {
     if (!$dbLocation) {
-      $dbLocation = __DIR__ . '/database.sqlite';
+      $dbLocation = __DIR__ . '/../database.sqlite';
     }
     $this->db = new SQLiteHelper($dbLocation);
 
     // Initialize the database schema
-    $sqlFileContents = file_get_contents(__DIR__ . '/../assets/database/create.sql');
+    $sqlFileContents = file_get_contents(__DIR__ . '/../../assets/database/create.sql');
     if ($sqlFileContents === false) {
       die('Error reading SQL file.');
     }

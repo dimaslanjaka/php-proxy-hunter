@@ -6,7 +6,8 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "PhpProxyHunter\\": "src/"
+      "simplehtmldom\\": "src/simplehtmldom/",
+      "PhpProxyHunter\\": "src/PhpProxyHunter"
     },
     "files": [
       "data/webgl.php"
@@ -32,7 +33,8 @@
     "ext-fileinfo": "*",
     "phpseclib/phpseclib": "~3.0",
     "guzzlehttp/guzzle": "^6.0 || ^7.0",
-    "ramsey/uuid": "^4.0"
+    "ramsey/uuid": "^4.0",
+    "php-curl-class/php-curl-class": "^9.19"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.0 || ^2.0"
