@@ -120,7 +120,7 @@ if (!$isCli) {
   $runner = tmp() . "/runners/" . basename(__FILE__, '.php') . ($isWin ? '.bat' : "");
   write_file($runner, $cmd);
   write_file($lock_file, '');
-  exec(escapeshellarg($runner));
+  runBashOrBatch($runner);
 } else {
   // Open the process file pointer
   $process = popen($cmd, 'r');
