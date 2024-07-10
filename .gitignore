@@ -8,6 +8,7 @@
 /bitnami.css
 /applications.html
 /xl*
+/django_*
 *.lock
 /*.pid
 /proxyChecker.txt
@@ -28,8 +29,8 @@ tmp/
 /.env
 /working.json
 package-lock.json
-/_env.json
 /_config.json
+/_env.json
 
 # python
 /profiles-proxy.json

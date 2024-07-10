@@ -5,16 +5,16 @@ import platform
 def generate_requirements():
     base_requirements = "requirements_base.txt"
     windows_specific = ["pywin32", "wmi", "PySide6", "nuitka", "pyinstaller", "tensorflow", "pyqtgraph", "pyqtdarktheme"]
-    linux_specific = []
+    linux_specific = ['uwsgi']
 
     try:
         with open(base_requirements, 'r') as base_file:
             lines = base_file.readlines()
 
         if platform.system() == 'Windows':
-            lines.extend([f"{package}\n" for package in windows_specific])
+            lines.extend([f"\n{package}\n" for package in windows_specific])
         else:
-            lines.extend([f"{package}\n" for package in linux_specific])
+            lines.extend([f"\n{package}\n" for package in linux_specific])
 
         with open('requirements.txt', 'w') as req_file:
             req_file.writelines(lines)
