@@ -119,7 +119,7 @@ function do_check($filePath, $background = false)
   $output_file = __DIR__ . '/proxyChecker.txt';
 
   if (!$isCli) {
-    $id = Server::get_client_ip();
+    $id = Server::getRequestIP();
     if (empty($id)) {
       $id = Server::useragent();
     }
