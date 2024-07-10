@@ -46,7 +46,7 @@ $runner = __DIR__ . "/tmp/runners/proxyChecker" . ($isWin ? '.bat' : "");
 
 write_file($runner, $cmd);
 
-exec(escapeshellarg($runner));
+runBashOrBatch($runner);
 
 Scheduler::register(function () {
   global $pid_file;

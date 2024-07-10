@@ -53,7 +53,7 @@ $runner = __DIR__ . "/tmp/runners/" . basename(__FILE__, '.php') . ($isWin ? '.b
 setMultiPermissions($runner);
 write_file($runner, $cmd);
 
-exec(escapeshellarg($runner));
+runBashOrBatch($runner);
 
 function exitProcess()
 {
