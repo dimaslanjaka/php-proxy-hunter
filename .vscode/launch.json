@@ -17,7 +17,19 @@
       "type": "node-terminal"
     },
     {
-      "command": "python dl_traffic.py",
+      "command": "python main_proxy_add.py",
+      "name": "Run proxy add",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "python proxyCheckerMultiThreading.py",
+      "name": "Run proxy checker",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "python runner.py",
       "name": "Run selenium",
       "request": "launch",
       "type": "node-terminal"
@@ -30,8 +42,8 @@
       "console": "integratedTerminal"
     },
     {
-      "command": "php proxyChecker.php && php proxySocksChecker.php",
-      "name": "Check proxies",
+      "command": "python manage.py runserver",
+      "name": "Run django",
       "request": "launch",
       "type": "node-terminal"
     },
