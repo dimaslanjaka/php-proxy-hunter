@@ -123,6 +123,7 @@ function do_check($filePath, $background = false)
     if (empty($id)) {
       $id = Server::useragent();
     }
+    $id .= '-' . sanitizeFilename($filePath);
     // lock file same as proxyCheckerParallel.php
     $webLockFile = __DIR__ . '/tmp/runners/scan-port-web-' . sanitizeFilename($id) . '.lock';
     // not admin: skip when existing runner still running
