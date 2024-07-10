@@ -78,11 +78,6 @@ removeEmptyLinesFromFile($file);
 $start_time = microtime(true);
 
 try {
-  $read = read_first_lines($file, $max_checks);
-  if (!$read) {
-    $read = [];
-  }
-  $proxies = extractProxies(implode("\n", $read), $db, false);
   $db_data = $db->getUntestedProxies(100);
   $db_data_map = array_map(function ($item) {
     // transform array into Proxy instance same as extractProxies result
@@ -98,7 +93,18 @@ try {
     }
     return $wrap;
   }, $db_data);
-  $proxies = array_merge($proxies, $db_data_map);
+  if (empty($db_data_map)) {
+    $read = read_first_lines($file, $max_checks);
+    if (!$read) {
+      $read = [];
+    }
+    $proxies = extractProxies(implode("\n", $read), $db, false);
+    $proxies = array_merge($proxies, $db_data_map);
+  } else {
+    // prioritize untested proxies from database
+    $proxies = $db_data_map;
+  }
+
   shuffle($proxies);
 
   // Convert the array of Proxy objects into an iterator
