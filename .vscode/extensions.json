@@ -8,6 +8,8 @@
     "formulahendry.auto-rename-tag",
     "natizyskunk.sftp",
     "ms-python.autopep8",
-    "foxundermoon.shell-format"
+    "foxundermoon.shell-format",
+    "teclado.vscode-nginx-format",
+    "william-voyek.vscode-nginx"
   ]
 }
