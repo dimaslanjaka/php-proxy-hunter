@@ -33,9 +33,9 @@ class geoPlugin2
 
   public function __construct()
   {
-    $this->city = new Reader(__DIR__ . '/GeoLite2-City.mmdb');
-    $this->asn = new Reader(__DIR__ . '/GeoLite2-ASN.mmdb');
-    $this->country = new Reader(__DIR__ . '/GeoLite2-Country.mmdb');
+    $this->city = new Reader(__DIR__ . '/../GeoLite2-City.mmdb');
+    $this->asn = new Reader(__DIR__ . '/../GeoLite2-ASN.mmdb');
+    $this->country = new Reader(__DIR__ . '/../GeoLite2-Country.mmdb');
   }
 
   public function locate(string $ip)
