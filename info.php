@@ -40,6 +40,7 @@ $config['captcha'] = isset($_SESSION['captcha']) && $_SESSION['captcha'];
 $config['captcha-site-key'] = $_ENV['G_RECAPTCHA_SITE_KEY'];
 $config['server-ip'] = getServerIp();
 $config['your-ip'] = Server::getRequestIP();
+$config['processed'] = listProcesses();
 $config_json = json_encode($config);
 
 if (!$isCli) {
@@ -60,4 +61,33 @@ function set_cookie($name, $value, $expiration_days = 1, $path = "/", $domain = 
 
   // Set the cookie
   setcookie($name, $value, $expiration_time, $path, $domain);
+}
+
+function listProcesses()
+{
+  $phpProcesses = [];
+  $pythonProcesses = [];
+  $processes = [];
+
+  if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+    // Windows
+    exec("tasklist /fi \"imagename eq php.exe\"", $phpProcesses);
+    exec("tasklist /fi \"imagename eq python.exe\"", $pythonProcesses);
+  } else {
+    // Linux
+    exec("ps aux | grep '[p]hp'", $phpProcesses);
+    exec("ps aux | grep '[p]ython'", $pythonProcesses);
+  }
+
+  // Collect PHP processes
+  foreach ($phpProcesses as $process) {
+    $processes['php'][] = $process;
+  }
+
+  // Collect Python processes
+  foreach ($pythonProcesses as $process) {
+    $processes['python'][] = $process;
+  }
+
+  return $processes;
 }
