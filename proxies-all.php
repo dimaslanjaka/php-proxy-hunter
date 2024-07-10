@@ -135,9 +135,9 @@ if (!empty($files_to_merge)) {
 $startTime = microtime(true);
 
 iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remove, &$str_to_remove, $startTime, $maxExecutionTime) {
-  $items = extractProxies($line, $db);
+  $items = extractProxies($line, $db, false);
   foreach ($items as $item) {
-    if (empty($item->proxy)) {
+    if (empty($item->proxy) || isAddedProxy($item->proxy)) {
       continue;
     }
     // Check if execution time has exceeded the maximum allowed time
@@ -172,6 +172,8 @@ iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remov
         $str_to_remove[] = $sel[0]['proxy'];
       }
     }
+    // mark proxy as added
+    markAddedProxy($item->proxy);
   }
 });
 
@@ -268,7 +270,7 @@ function restart_script()
 
 function blacklist_remover()
 {
-  global $db, $str_to_remove;
+  global $db;
   $pdo = $db->db->pdo;
   $r_blacklist = read_file(__DIR__ . '/data/blacklist.conf');
   if ($r_blacklist) {
@@ -293,3 +295,23 @@ function blacklist_remover()
 }
 
 Scheduler::register('countFilesAndRepeatScriptIfNeeded', 'zz_repeat');
+
+function isAddedProxy(string $proxy): bool
+{
+  global $db;
+  $pdo = $db->db->pdo;
+  $pdo->exec("CREATE TABLE IF NOT EXISTS added_proxies (proxy TEXT PRIMARY KEY)");
+  $stmt = $pdo->prepare("SELECT COUNT(*) FROM added_proxies WHERE proxy = :proxy");
+  $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+  $stmt->execute();
+  return $stmt->fetchColumn() > 0;
+}
+
+function markAddedProxy(string $proxy)
+{
+  global $db;
+  $pdo = $db->db->pdo;
+  $stmt = $pdo->prepare('INSERT INTO processed_proxies (proxy) VALUES (:proxy)');
+  $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+  $stmt->execute();
+}
