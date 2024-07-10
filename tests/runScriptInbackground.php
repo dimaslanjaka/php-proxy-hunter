@@ -16,7 +16,7 @@ $commandArgs = [
   'max' => '5'
 ];
 
-$result = runScriptInBackground($scriptPath, $commandArgs, "proxy-checker-python");
+$result = runPythonInBackground($scriptPath, $commandArgs, "proxy-checker-python");
 
 if (isset($result['error'])) {
   echo json_encode(['error' => $result['error']]);
