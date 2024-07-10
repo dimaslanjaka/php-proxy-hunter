@@ -22,7 +22,6 @@ if (!$isCli) {
 $max = 500; // default max proxies to be checked
 $maxExecutionTime = 2 * 60; // 2 mins
 $startTime = time();
-$isAdmin = is_debug();
 
 if (!$isCli) {
   // Allow from any origin

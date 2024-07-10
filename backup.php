@@ -7,13 +7,11 @@
 
 require_once __DIR__ . '/func.php';
 
-global $isCli;
+global $isCli, $isAdmin;
 
 if ($isCli) {
   exit('CLI access disallowed');
 }
-
-$isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 
 if (!$isAdmin) {
   exit('Access denied');
