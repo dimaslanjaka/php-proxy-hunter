@@ -40,7 +40,6 @@ $config['captcha'] = isset($_SESSION['captcha']) && $_SESSION['captcha'];
 $config['captcha-site-key'] = $_ENV['G_RECAPTCHA_SITE_KEY'];
 $config['server-ip'] = getServerIp();
 $config['your-ip'] = Server::getRequestIP();
-$config['processed'] = listProcesses();
 $config_json = json_encode($config);
 
 if (!$isCli) {
@@ -68,6 +67,7 @@ function listProcesses()
   $phpProcesses = [];
   $pythonProcesses = [];
   $processes = [];
+  $cmd = '';
 
   if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
     // Windows
