@@ -270,9 +270,9 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
     $counter++;
     if (!isPortOpen($item[0]->proxy)) {
       $db->updateStatus($item[0]->proxy, 'port-closed');
-      echo "$counter. {$item[0]->proxy} port closed" . PHP_EOL;
+      echo "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} port closed" . PHP_EOL;
       if (count($argv) == 0) {
-        append_content_with_lock($output_log, "$counter. {$item[0]->proxy} port closed\n");
+        append_content_with_lock($output_log, "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} port closed\n");
       }
     } else {
       $ch = [
@@ -389,9 +389,9 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
         write_working();
       } else {
         $db->updateStatus($item[0]->proxy, 'dead');
-        echo "$counter. {$item[0]->proxy} dead" . PHP_EOL;
+        echo "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} dead" . PHP_EOL;
         if (count($argv) == 0) {
-          append_content_with_lock($output_log, "$counter. {$item[0]->proxy} dead\n");
+          append_content_with_lock($output_log, "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} dead\n");
         }
         // re-check with non-https endpoint
         checkProxyInParallel([$item[0]->proxy], 'http://httpforever.com/', false);
