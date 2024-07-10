@@ -610,39 +610,32 @@ function checkProxy(
 ): array {
   $proxy = trim($proxy);
   $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password);
+  curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+  curl_setopt($ch, CURLOPT_HEADER, true);
   $start = microtime(true); // Start time
   $response = curl_exec($ch);
   $end = microtime(true); // End time
+  $request_headers = curl_getinfo($ch, CURLINFO_HEADER_OUT);
   $isHttps = strpos($endpoint, 'https') !== false;
   $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
   $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
   $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 ||
     $http_status == 301 || $http_status == 302 || $http_status == 304;
   $response_header = substr($response, 0, $header_size);
+  $body = substr($response, $header_size);
   $info = curl_getinfo($ch);
   $latency = -1;
 
   // is private proxy?
   $isPrivate = stripos($response_header, 'Proxy-Authorization:') !== false;
 
-  // non-empty array = error result
-  $result = [];
+  $result = ['result' => false, 'body' => $response, 'response-headers' => $response_header, 'request-headers' => $request_headers];
 
-  // check proxy private by redirected to gateway url
-  if (!$isPrivate) {
-    $finalUrl = $info['url'];
-    $pattern = '/^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)=/i';
-    $is_private_match = preg_match($pattern, $finalUrl, $matches);
-    $isPrivate = $is_private_match !== false && $is_private_match > 0;
-    // mark as private dead
-    if ($is_private_match) {
-      $result['result'] = false;
-      $result['status'] = trim($info['http_code']);
-      $result['error'] = 'Private proxy ' . json_encode($matches);
-      $result['private'] = true;
-      $result['https'] = true; // private proxy always support HTTPS
-      $result['anonymity'] = null;
-    }
+  // check if proxy not raw header
+  if (is_string($body) && checkRawHeadersKeywords($body)) {
+    // contains azenv headers
+    $result['result'] = false;
+    $result['error'] = 'azenv raw headers found';
   }
 
   // Check for CURL errors or empty response
@@ -663,14 +656,42 @@ function checkProxy(
     ]);
   }
 
+  // var_dump('final url ' . $info['url']);
+
+  // check proxy private by redirected to gateway url
+  if (!$isPrivate && empty($result['error'])) {
+    $finalUrl = $info['url'];
+    $pattern = '/^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)=/i';
+    $is_private_match = preg_match($pattern, $finalUrl, $matches);
+    $isPrivate = $is_private_match !== false && $is_private_match > 0;
+    // mark as private dead
+    if ($is_private_match) {
+      $result['result'] = false;
+      $result['status'] = trim($info['http_code']);
+      $result['error'] = 'Private proxy ' . json_encode($matches);
+      $result['private'] = true;
+      $result['https'] = true; // private proxy always support HTTPS
+      $result['anonymity'] = null;
+    }
+  }
+
+  // if (empty($result['error'])) {
+  //   if (!empty($body)) {
+  //     $dom = \simplehtmldom\helper::str_get_html($body);
+  //     echo "title: " . $dom->title() . PHP_EOL . PHP_EOL;
+  //   }
+  // }
+
+  $result['curl'] = $ch;
+
   curl_close($ch);
 
   // Convert to milliseconds
   $latency = round(($end - $start) * 1000);
 
   // result is empty = no error
-  if (empty($result)) {
-    $result = [
+  if (empty($result['error'])) {
+    $result = array_merge($result, [
       'result' => true,
       'latency' => $latency,
       'error' => null,
@@ -678,7 +699,7 @@ function checkProxy(
       'private' => $isPrivate,
       'https' => $isHttps,
       'anonymity' => null
-    ];
+    ]);
     if (!$http_status_valid) {
       $result['result'] = false;
       $result['error'] = "http response status code invalid $http_status";
@@ -690,13 +711,6 @@ function checkProxy(
       $result['result'] = false;
       $result['error'] = 'failed obtain proxy anonymity';
     }
-  }
-
-  // check if proxy not raw header
-  if (is_string($response) && checkRawHeadersKeywords($response)) {
-    // contains azenv headers
-    $result['result'] = false;
-    $result['error'] = 'azenv raw headers found';
   }
 
   return $result;
