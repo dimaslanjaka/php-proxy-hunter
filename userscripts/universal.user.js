@@ -74,6 +74,11 @@
 // @match  			 *://fineproxy.org/*
 // @match  			 *://proxy-spider.com/*
 // @match  			 *://vakhov.github.io/fresh-proxy-list*
+// @match        *://www.kxdaili.com/*
+// @match        *://www.kuaidaili.com/*
+// @match        *://www.ip3366.net/*
+// @match        *://www.my-proxy.com/*
+// @match        *://www.89ip.cn/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
@@ -479,18 +484,28 @@
    * @returns {string[]} An array of IP:PORT pairs found in the input string.
    */
   const extractIpPortPairs = (input) => {
+    if (!input) return [];
     // Regular expression to match IP:PORT
     const regex = /(?:[0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}/g;
     return input.match(regex) || [];
   };
 
   const extractIpPortFromBody = () => {
+    const result = [];
     const area = document.querySelectorAll("textarea,td");
-    let currentHtml = document.body.innerHTML;
+    result.push(...extractIpPortPairs(document.body.innerHTML));
     area.forEach((el) => {
-      currentHtml += "\n" + el.value + "\n";
+      result.push(...extractIpPortPairs(el.value));
     });
-    return Promise.resolve(extractIpPortPairs(currentHtml));
+    const divList = document.querySelectorAll("div.list");
+    divList.forEach((el) => {
+      result.push(...extractIpPortPairs(el.innerHTML));
+    });
+    const unique = result.filter((str, index, self) => index === self.findIndex((t) => t === str));
+    const map = unique.map((str) => {
+      return { raw: str };
+    });
+    return Promise.resolve(map);
   };
 
   /**
