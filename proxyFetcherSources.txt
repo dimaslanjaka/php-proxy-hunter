@@ -27,7 +27,26 @@ https://www.freeproxy.world/
 https://free-proxy-list.net/
 https://smallseotools.com/de/free-proxy-list/
 https://pastebin.com/u/privacyproxies
-
+http://www.kxdaili.com/dailiip.html
+https://www.kuaidaili.com/free/inha
+https://www.kuaidaili.com/free/intr
+http://www.ip3366.net/free/?stype=1
+http://www.ip3366.net/free/?stype=2
+https://proxy-spider.com/proxies/locations/id-indonesia
+https://www.my-proxy.com/free-anonymous-proxy.html
+https://www.my-proxy.com/free-transparent-proxy.html
+https://www.my-proxy.com/free-proxy-list.html
+https://www.my-proxy.com/free-proxy-list-2.html
+https://www.my-proxy.com/free-proxy-list-3.html
+https://www.my-proxy.com/free-proxy-list-4.html
+https://www.my-proxy.com/free-proxy-list-5.html
+https://www.my-proxy.com/free-proxy-list-6.html
+https://www.my-proxy.com/free-proxy-list-7.html
+https://www.my-proxy.com/free-proxy-list-8.html
+https://www.my-proxy.com/free-proxy-list-9.html
+https://www.my-proxy.com/free-proxy-list-10.html
+https://www.freeproxychecker.com/proxy-lists/#results
+https://www.89ip.cn/
 
 MULTIPLE PAGES: ([page] for automatic Sitenumber, [0-999] for max crawled pages)
 [25]https://www.freeproxy.world/?type=&anonymity=&country=&speed=&port=&page=[page]
@@ -51,6 +70,8 @@ NEED JS:
 [js]https://vpnoverview.com/privacy/anonymous-browsing/free-proxy-servers/
 
 HTTP RAW:
+http://rootjazz.com/proxies/proxies.txt
+https://raw.githubusercontent.com/B4RC0DE-TM/proxy-list/main/HTTP.txt
 https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt
 https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt
 https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/http.txt
@@ -70,6 +91,11 @@ https://raw.githubusercontent.com/rdavydov/proxy-list/main/proxies/http.txt
 https://raw.githubusercontent.com/UptimerBot/proxy-list/main/proxies/http.txt
 https://api.openproxylist.xyz/http.txt
 https://cyber-hub.pw/statics/proxy.txt
+http://alexa.lr2b.com/proxylist.txt
+https://multiproxy.org/txt_all/proxy.txt
+https://multiproxy.org/txt_anon/proxy.txt
+https://proxyspace.pro/http.txt
+https://proxyspace.pro/https.txt
 
 HTTPS RAW:
 https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/https.txt
