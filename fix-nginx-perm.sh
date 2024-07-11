@@ -10,13 +10,13 @@ fi
 USER="www-data"
 
 # Get the absolute path of the current script directory
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # Add custom paths to PATH
 export PATH="${SCRIPT_DIR}/node_modules/.bin:${SCRIPT_DIR}/bin:${SCRIPT_DIR}/vendor/bin:$PATH"
 
 # Check if the current directory is a Git repository
-if [ -d "$SCRIPT_DIR/.git" ] || git -C "$SCRIPT_DIR" rev-parse --git-dir > /dev/null 2>&1; then
+if [ -d "$SCRIPT_DIR/.git" ] || git -C "$SCRIPT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
     echo "Current directory is a Git repository."
     git -C "$SCRIPT_DIR" submodule update -i -r
 else
@@ -67,11 +67,6 @@ if [ -d "$SCRIPT_DIR/packages" ]; then
     chown -R "$USER":"$USER" "$SCRIPT_DIR/packages"
     chown -R "$USER":"$USER" "$SCRIPT_DIR/packages"/*
 fi
-if [ -d "$SCRIPT_DIR/xl" ]; then
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"/*
-    touch "$SCRIPT_DIR/xl/index.html"
-fi
 
 # Allow composer and indexing proxies to work
 chown -R "$USER":"$USER" "$SCRIPT_DIR"/*.php "$SCRIPT_DIR"/*.phar
@@ -87,9 +82,9 @@ COMPOSER_PHAR="$SCRIPT_DIR/composer.phar"
 
 # Install or update composer packages
 if [ ! -f "$COMPOSER_LOCK" ]; then
-  su -s /bin/sh -c "php $COMPOSER_PHAR install --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" "$USER"
+    su -s /bin/sh -c "php $COMPOSER_PHAR install --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" "$USER"
 else
-  su -s /bin/sh -c "php $COMPOSER_PHAR update --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" "$USER"
+    su -s /bin/sh -c "php $COMPOSER_PHAR update --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" "$USER"
 fi
 
 # Validate proxies-all.php not running before indexing proxies
@@ -132,7 +127,21 @@ echo "nginx and php-fpm restarted"
 
 # Install python requirements
 sudo -u "$USER" -H bash -c "python3.11 -m venv $SCRIPT_DIR/venv"
-sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && python $SCRIPT_DIR/requirements_install.py"
+sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && python3 $SCRIPT_DIR/requirements_install.py"
 
-chown -R "$USER":"$USER" "$SCRIPT_DIR/venv"
-chmod 755 "$SCRIPT_DIR/venv/bin"/*
+if [ -d "$SCRIPT_DIR/venv" ]; then
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/venv"
+    chmod 755 "$SCRIPT_DIR/venv/bin"/*
+fi
+
+if [ -d "$SCRIPT_DIR/django_backend" ]; then
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/django_backend"
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/django_backend"/*
+    touch "$SCRIPT_DIR/django_backend/index.html"
+fi
+
+if [ -d "$SCRIPT_DIR/xl" ]; then
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"/*
+    touch "$SCRIPT_DIR/xl/index.html"
+fi
