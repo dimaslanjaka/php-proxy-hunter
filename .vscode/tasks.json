@@ -34,7 +34,7 @@
     {
       "label": "django-server",
       "type": "shell",
-      "command": "python manage.py runserver",
+      "command": "python manage.py makemigrations && python manage.py migrate && python manage.py runserver",
       "presentation": {
         "panel": "dedicated"
       }
