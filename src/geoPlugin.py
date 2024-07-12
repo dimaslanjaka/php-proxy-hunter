@@ -9,7 +9,7 @@ import requests
 from geoip2 import database
 from requests.exceptions import RequestException
 
-from src.func import get_message_exception, get_nuitka_file
+from src.func import get_message_exception, get_nuitka_file, get_relative_path
 from src.func_certificate import output_pem
 
 
@@ -236,9 +236,7 @@ def fetch_and_save_data(url, filename):
 # Load the countries JSON data from the URL
 url = "https://raw.githubusercontent.com/annexare/Countries/main/dist/countries.min.json"
 
-filename = f"countries_data.json"
-temp_dir = tempfile.gettempdir()
-countries_data_path = os.path.join(temp_dir, filename)
+countries_data_path = get_relative_path('tmp/countries_data.json')
 
 # Check if file exists and if it's not expired
 if os.path.exists(countries_data_path):

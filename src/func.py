@@ -6,6 +6,7 @@ import random
 import re
 import shutil
 import socket
+import string
 import subprocess
 import sys
 import tempfile
@@ -574,7 +575,10 @@ def remove_string_from_file(file_path: str, strings_to_remove: Union[str, List[s
     regex = re.compile(pattern)
 
     # Create a temporary file
-    temp_file = tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', delete=False)
+    random_string = ''.join(random.choice(string.ascii_letters) for _ in range(5))
+    temp_file = get_relative_path(f'tmp/runners/{random_string}.txt')
+    if not os.path.exists(temp_file):
+        write_file(temp_file, '')
 
     # Read the original file and write to the temporary file with the strings removed
     with open(file_path, 'r', encoding='utf-8') as file, temp_file:
