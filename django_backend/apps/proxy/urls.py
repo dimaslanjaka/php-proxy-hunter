@@ -5,5 +5,6 @@ from . import views
 
 # app_name = 'firstapp'
 urlpatterns = [
+    path('test-celery/', views.test_celery, name='test_celery'),
     path('', views.proxies_list, name='proxy_list')
 ]
