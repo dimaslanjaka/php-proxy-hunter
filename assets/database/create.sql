@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS "proxies" (
   PRIMARY KEY ("id" AUTOINCREMENT)
 );
 
-CREATE TABLE IF NOT EXISTS "processed_proxies" ("proxy" TEXT NOT NULL UNIQUE);
+CREATE TABLE IF NOT EXISTS "processed_proxies" ("updated" TEXT, "proxy" TEXT NOT NULL UNIQUE);
 
-CREATE TABLE IF NOT EXISTS "added_proxies" ("proxy" TEXT NOT NULL UNIQUE);
+CREATE TABLE IF NOT EXISTS "added_proxies" ("updated" TEXT, "proxy" TEXT NOT NULL UNIQUE);
 
 CREATE TABLE IF NOT EXISTS "meta" (key TEXT PRIMARY KEY, value TEXT);
