@@ -39,6 +39,7 @@ pycryptodome
 django
 django-filter
 djangorestframework
+djangorestframework_simplejwt
 django-cors-middleware
 django-extensions
 PyJWT
