@@ -158,6 +158,8 @@ jobs:
         env:
           GITHUB_OUTPUT: $GITHUB_OUTPUT
         run: |
+          python manage.py makemigrations
+          python manage.py migrate
           mkdir -p assets/proxies
           mkdir -p tmp
           mkdir -p tmp/runners
