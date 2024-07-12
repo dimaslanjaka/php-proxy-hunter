@@ -240,9 +240,6 @@ class ProxyDB
     }
     if ($status) {
       $data['status'] = $status;
-      if ($status != 'untested') {
-        $data['last_check'] = date(DATE_RFC3339);
-      }
     }
     if (!empty($data)) {
       $this->updateData($proxy, $data);
@@ -254,8 +251,9 @@ class ProxyDB
    *
    * @param string $proxy
    * @param array $data
+   * @param bool $update_time
    */
-  public function updateData(string $proxy, array $data = []): void
+  public function updateData(string $proxy, array $data = [], bool $update_time = true): void
   {
     if (empty($this->select($proxy))) {
       $this->add($proxy);
@@ -264,7 +262,7 @@ class ProxyDB
     $data = array_filter($data, function ($value) {
       return $value !== null && $value !== false;
     });
-    if (!empty($data['status']) && $data['status'] != 'untested') {
+    if (!empty($data['status']) && $data['status'] != 'untested' && $update_time) {
       $data['last_check'] = date(DATE_RFC3339);
     }
     if (!empty($data)) {
