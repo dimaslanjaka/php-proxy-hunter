@@ -120,6 +120,31 @@ git -C "$SCRIPT_DIR" lfs track "*.rar"
 echo "Large files tracked"
 
 # Restart services
+touch "$SCRIPT_DIR/assets/index.html"
+touch "$SCRIPT_DIR/assets/systemctl/index.html"
+chmod 777 "$SCRIPT_DIR/assets/systemctl"
+# Function to copy file if it exists
+copy_if_exists() {
+    local source_file="$1"
+    local dest_file="$2"
+
+    if [ -f "$source_file" ]; then
+        if [ -f "$dest_file" ]; then
+            echo "Destination file $dest_file already exists. Skipping."
+        else
+            cp "$source_file" "$dest_file"
+            echo "Copied $source_file to $dest_file"
+        fi
+    else
+        echo "Source file $source_file does not exist. Skipping."
+    fi
+}
+
+# Copy gunicorn.service to /etc/systemd/system/gunicorn.service
+copy_if_exists "$SCRIPT_DIR/assets/systemctl/gunicorn.service" "/etc/systemd/system/gunicorn.service"
+
+# Copy .htaccess_nginx.conf to /etc/nginx/sites-available/default
+copy_if_exists "$SCRIPT_DIR/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
 
 # Check and restart PHP 7.2 FPM if installed
 if systemctl is-active --quiet php7.2-fpm; then
@@ -144,8 +169,6 @@ if systemctl is-active --quiet spring; then
     sudo systemctl restart spring
     echo "Restarted Spring Boot"
 fi
-
-echo "nginx and php-fpm restarted"
 
 # Install python requirements
 sudo -u "$USER" -H bash -c "python3.11 -m venv $SCRIPT_DIR/venv"
