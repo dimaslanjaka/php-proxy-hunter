@@ -2,11 +2,13 @@ import datetime
 import http.client as http_client
 import logging
 import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import random
 import re
 import socket
 import ssl
-import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from http.cookiejar import Cookie, LWPCookieJar, MozillaCookieJar
@@ -26,8 +28,6 @@ from src.func import (debug_log, file_append_str, file_remove_empty_lines,
                       remove_string_and_move_to_file, write_file)
 from src.func_certificate import output_pem
 from src.func_console import get_caller_info, green, log_proxy, red
-# Add parent directory to the Python path
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.func_useragent import get_pc_useragent
 from src.Proxy import Proxy
 from src.ProxyDB import ProxyDB
@@ -646,6 +646,7 @@ def check_proxy_new(proxy: str):
     status = None
     working = False
     protocols = []
+    print(f"check_proxy_new -> {proxy}")
     if not is_port_open(proxy):
         log_proxy(f"{proxy} {red('port closed')}")
         status = "port-closed"

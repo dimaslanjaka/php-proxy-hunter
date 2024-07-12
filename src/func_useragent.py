@@ -1,12 +1,13 @@
 import os
-import random
-import tempfile
-from typing import Union, Optional
-import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options as WebdriverOptions
+import sys
 
-from src.func import get_relative_path, read_file, write_file
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import random
+from typing import Union
+
+import requests
+
+from src.func import get_relative_path, read_file
 
 
 def get_pc_useragent() -> Union[str, None]:

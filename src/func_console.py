@@ -1,7 +1,10 @@
 import inspect
 import re
 import subprocess
+import os
 import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from colorama import just_fix_windows_console, Style, Fore
 
