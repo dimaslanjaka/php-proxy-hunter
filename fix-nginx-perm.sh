@@ -120,8 +120,30 @@ git -C "$SCRIPT_DIR" lfs track "*.rar"
 echo "Large files tracked"
 
 # Restart services
-systemctl restart php7.2-fpm
-systemctl restart nginx
+
+# Check and restart PHP 7.2 FPM if installed
+if systemctl is-active --quiet php7.2-fpm; then
+    sudo systemctl restart php7.2-fpm
+    echo "Restarted PHP 7.2 FPM"
+fi
+
+# Check and restart Nginx if installed
+if systemctl is-active --quiet nginx; then
+    sudo systemctl restart nginx
+    echo "Restarted Nginx"
+fi
+
+# Check and restart Gunicorn if installed
+if systemctl is-active --quiet gunicorn; then
+    sudo systemctl restart gunicorn
+    echo "Restarted Gunicorn"
+fi
+
+# Check and restart Spring Boot if installed
+if systemctl is-active --quiet spring; then
+    sudo systemctl restart spring
+    echo "Restarted Spring Boot"
+fi
 
 echo "nginx and php-fpm restarted"
 
