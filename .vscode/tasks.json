@@ -4,6 +4,18 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "runDevelopment",
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "celery-beat",
+        "celery-worker",
+        "django-server"
+      ]
+    },
+    {
       "label": "celery-worker",
       "type": "shell",
       "command": "celery -A django_backend worker --loglevel=info",
@@ -26,17 +38,6 @@
       "presentation": {
         "panel": "dedicated"
       }
-    },
-    {
-      "dependsOrder": "parallel",
-      "dependsOn": [
-        "celery-beat",
-        "celery-worker",
-        "django-server"
-      ],
-      "label": "Run django server",
-      "type": "shell",
-      "command": "echo done"
     }
   ]
 }
