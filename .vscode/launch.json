@@ -45,7 +45,7 @@
       "command": "python manage.py runserver",
       "name": "Run django",
       "request": "launch",
-      "type": "node-terminal"
+      "type": "node-terminal",
     },
     {
       "name": "Debug index.js",
