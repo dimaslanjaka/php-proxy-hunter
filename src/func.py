@@ -2,6 +2,9 @@ import hashlib
 import inspect
 import json
 import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import random
 import re
 import shutil
@@ -12,7 +15,7 @@ import sys
 import tempfile
 import time
 from datetime import datetime, timedelta, timezone
-from typing import TypeVar, Union, List, Optional, Dict, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
 # determine if application is a script file or frozen exe
 if getattr(sys, 'frozen', False):
