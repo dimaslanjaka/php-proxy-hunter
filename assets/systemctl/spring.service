@@ -1,0 +1,19 @@
+# upload to /etc/systemd/system
+# systemctl daemon-reload && sudo systemctl [start,restart,stop,status] spring
+# systemctl daemon-reload && sudo systemctl restart spring
+# "C:\Program Files\Java\jdk-19\bin\java" --add-modules=ALL-SYSTEM --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/sun.nio.fs=ALL-UNNAMED -Declipse.application=org.eclipse.jdt.ls.core.id1 -Dosgi.bundles.defaultStartLevel=4 -Declipse.product=org.eclipse.jdt.ls.core.product -Djava.import.generatesMetadataFilesAtProjectRoot=true -DDetectVMInstallationsJob.disabled=true -Dfile.encoding=utf8 -XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m -Xlog:disable -javaagent:c:\Users\dimas\.vscode\extensions\redhat.java-1.26.0-win32-x64\lombok\lombok-1.18.31-3454.jar -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=c:\Users\dimas\AppData\Roaming\Code\User\workspaceStorage\319278b86a47129afb34e69e973419b8\redhat.java -Daether.dependencyCollector.impl=bf -jar c:\Users\dimas\.vscode\extensions\redhat.java-1.26.0-win32-x64\server\plugins\org.eclipse.equinox.launcher_1.6.700.v20231214-2017.jar -configuration c:\Users\dimas\AppData\Roaming\Code\User\globalStorage\redhat.java\1.26.0\config_win -data c:\Users\dimas\AppData\Roaming\Code\User\workspaceStorage\319278b86a47129afb34e69e973419b8\redhat.java\jdt_ws --stdio
+
+[Unit]
+Description=Spring Boot Web Server
+After=syslog.target
+
+[Service]
+WorkingDirectory=/root
+User=root
+ExecStart=/usr/bin/java -jar server.jar -Dfile.encoding=utf8 -XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m
+Restart=on-failure
+TimeoutStopSec=10
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -2,3 +2,7 @@
 !/database
 !/database/*.sql
 !/.gitignore
+!/chrome-extensions
+!/chrome-extensions/**/*
+!/systemctl
+!/systemctl/*

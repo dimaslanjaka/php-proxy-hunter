@@ -10,6 +10,7 @@
     "ms-python.autopep8",
     "foxundermoon.shell-format",
     "teclado.vscode-nginx-format",
-    "william-voyek.vscode-nginx"
+    "william-voyek.vscode-nginx",
+    "coolbear.systemd-unit-file"
   ]
 }
