@@ -72,6 +72,31 @@ def get_relative_path(*args: Union[str, bytes]) -> str:
     return result
 
 
+def resolve_relative_path(data: Optional[str] = None, *args: Union[str, bytes]) -> str:
+    """
+    Get relative path and optionally create if it does not exist.
+
+    Args:
+        data (Optional[str]): Optional data to write if the file does not exist.
+        *args (Union[str, bytes]): Variable number of path components.
+
+    Returns:
+        str: The normalized relative path.
+    """
+    relative = get_relative_path(*args)
+
+    if not os.path.exists(relative):
+        if not data:
+            data = ''  # Default empty data if not provided
+        if relative.endswith('.json'):
+            data = '{}'  # Default empty JSON object if it's a .json file
+
+        # Write the file with the provided or default data
+        write_file(relative, data)
+
+    return relative
+
+
 def get_pc_name():
     return socket.gethostname()
 
