@@ -1,0 +1,22 @@
+# upload to /etc/systemd/system
+# sudo systemctl enable django.service
+# sudo systemctl disable django.service
+# systemctl daemon-reload && sudo systemctl [start,restart,stop,status] django
+# systemctl daemon-reload && sudo systemctl restart django
+
+[Unit]
+Description=Django Web Server
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/html
+ExecStart=/var/www/html/venv/bin/python /var/www/html/manage.py runserver 0.0.0.0:8000
+Restart=always
+Restart=on-failure
+TimeoutStopSec=10
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
