@@ -43,6 +43,9 @@ ALLOWED_HOSTS = ['localhost', 'sh.webmanajemen.com', 'dev.webmanajemen.com', '23
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    'django_celery_results',
+    'django_celery_beat',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,7 +59,7 @@ INSTALLED_APPS = [
     'django_backend.apps.core'
 ]
 
-if os.path.exists(get_relative_path('django_backend/apps/axis')):
+if os.path.exists(get_relative_path('django_backend/apps/axis/urls.py')):
     INSTALLED_APPS.append('django_backend.apps.axis')
 
 REST_FRAMEWORK = {
@@ -94,8 +97,19 @@ TEMPLATES = [
     },
 ]
 
+# gunicorn --workers 4 --threads 2 django_backend.wsgi:application
 WSGI_APPLICATION = 'django_backend.wsgi.application'
+ASGI_APPLICATION = 'django_backend.asgi.application'
 
+# Celery configuration
+# run below command on separate terminal
+# celery -A django_backend worker --loglevel=info
+# celery -A django_backend beat --loglevel=info
+# python manage.py runserver
+CELERY_BROKER_URL = 'sqla+sqlite:///src/database.sqlite'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
