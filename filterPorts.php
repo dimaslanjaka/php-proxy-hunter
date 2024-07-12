@@ -137,7 +137,7 @@ function processProxy($proxy)
   }
   if (!isPortOpen($proxy)) {
     removeStringAndMoveToFile($file, __DIR__ . '/dead.txt', $proxy);
-    $db->updateStatus($proxy, 'port-closed');
+    $db->updateData($proxy, ['status' => 'port-closed'], false);
     echo $proxy . " port closed" . PHP_EOL;
   }
 }
