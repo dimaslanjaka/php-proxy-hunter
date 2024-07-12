@@ -8,7 +8,6 @@
 /bitnami.css
 /applications.html
 /xl*
-/django_*
 *.lock
 /*.pid
 /proxyChecker.txt
