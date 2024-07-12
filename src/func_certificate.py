@@ -1,10 +1,15 @@
 import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import re
-from typing import List
-import requests
-from src.func import get_nuitka_file
 import ssl
+from typing import List
+
 import certifi
+import requests
+
+from src.func import get_nuitka_file
 
 output_pem = get_nuitka_file('data/cacert.pem')
 # Set the certificate file in environment variables

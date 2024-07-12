@@ -2,7 +2,10 @@ import subprocess
 import threading
 from typing import Callable, List, Any
 import concurrent.futures
+import os
 import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
 def kill_processes(process_names: List[str]) -> None:
@@ -80,7 +83,7 @@ def background_function_decorator(func):
             *args: Positional arguments to pass to the function.
             **kwargs: Keyword arguments to pass to the function.
         """
-        thread = threading.Thread(target = func, args = args, kwargs = kwargs)
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
         thread.daemon = True
         thread.start()
 

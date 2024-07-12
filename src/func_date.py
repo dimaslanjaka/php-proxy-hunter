@@ -2,6 +2,10 @@ from datetime import datetime, timezone
 from typing import Optional
 from dateutil import parser
 from tzlocal import get_localzone
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
 def is_current_time_more_than_rfc3339(given_datetime_str: str) -> Optional[bool]:
