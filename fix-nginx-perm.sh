@@ -123,28 +123,24 @@ echo "Large files tracked"
 touch "$SCRIPT_DIR/assets/index.html"
 touch "$SCRIPT_DIR/assets/systemctl/index.html"
 chmod 777 "$SCRIPT_DIR/assets/systemctl"
-# Function to copy file if it exists
-copy_if_exists() {
+# Function to copy file if both source and destination exist
+copy_if_both_exist() {
     local source_file="$1"
     local dest_file="$2"
 
-    if [ -f "$source_file" ]; then
-        if [ -f "$dest_file" ]; then
-            echo "Destination file $dest_file already exists. Skipping."
-        else
-            cp "$source_file" "$dest_file"
-            echo "Copied $source_file to $dest_file"
-        fi
+    if [ -f "$source_file" ] && [ -f "$dest_file" ]; then
+        cp "$source_file" "$dest_file"
+        echo "Copied $source_file to $dest_file"
     else
-        echo "Source file $source_file does not exist. Skipping."
+        echo "Skipping. Source file $source_file or destination file $dest_file does not exist."
     fi
 }
 
 # Copy gunicorn.service to /etc/systemd/system/gunicorn.service
-copy_if_exists "$SCRIPT_DIR/assets/systemctl/gunicorn.service" "/etc/systemd/system/gunicorn.service"
+copy_if_both_exist "$SCRIPT_DIR/assets/systemctl/gunicorn.service" "/etc/systemd/system/gunicorn.service"
 
 # Copy .htaccess_nginx.conf to /etc/nginx/sites-available/default
-copy_if_exists "$SCRIPT_DIR/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
+copy_if_both_exist "$SCRIPT_DIR/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
 
 # Check and restart PHP 7.2 FPM if installed
 if systemctl is-active --quiet php7.2-fpm; then
