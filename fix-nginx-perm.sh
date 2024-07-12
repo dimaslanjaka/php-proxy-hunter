@@ -142,6 +142,9 @@ copy_if_both_exist "$SCRIPT_DIR/assets/systemctl/gunicorn.service" "/etc/systemd
 # Copy .htaccess_nginx.conf to /etc/nginx/sites-available/default
 copy_if_both_exist "$SCRIPT_DIR/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
 
+# reload daemon
+sudo systemctl daemon-reload
+
 # Check and restart PHP 7.2 FPM if installed
 if systemctl is-active --quiet php7.2-fpm; then
     sudo systemctl restart php7.2-fpm
