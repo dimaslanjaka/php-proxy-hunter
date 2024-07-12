@@ -29,6 +29,6 @@ urlpatterns = [
     path('js/<path:path>/', serve, {'document_root': os.path.join(settings.BASE_DIR, 'js')})
 ]
 
-if os.path.exists(get_relative_path('django_backend/apps/axis')):
+if os.path.exists(get_relative_path('django_backend/apps/axis/urls.py')):
     urlpatterns.append(path('axis/', include('django_backend.apps.axis.urls')))
     # path('axis/static/<path:path>/', serve, {'document_root': os.path.join(settings.BASE_DIR, 'xl/axisnet')}),
