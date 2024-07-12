@@ -18,7 +18,7 @@
     {
       "label": "celery-worker",
       "type": "shell",
-      "command": "celery -A django_backend worker --loglevel=info",
+      "command": "celery -A django_backend worker --loglevel=info -E",
       "presentation": {
         "panel": "dedicated"
       }
