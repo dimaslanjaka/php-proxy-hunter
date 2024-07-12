@@ -314,7 +314,14 @@ function markAddedProxy(string $proxy)
 {
   global $db;
   $pdo = $db->db->pdo;
-  $stmt = $pdo->prepare('INSERT INTO processed_proxies (proxy) VALUES (:proxy)');
+
+  // Check if the proxy already exists in added_proxies table
+  if (isAddedProxy($proxy)) {
+    return; // Proxy already exists, so we don't insert again
+  }
+
+  // Proxy doesn't exist, so insert it
+  $stmt = $pdo->prepare('INSERT INTO added_proxies (proxy) VALUES (:proxy)');
   $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
   $stmt->execute();
 }
