@@ -2,16 +2,14 @@ import os
 import sys
 
 from django.http import JsonResponse
-from django.shortcuts import render
 
-from .tasks import debug_task
+from .tasks import check_proxy_async, check_proxy_task, debug_task
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 from django.http import JsonResponse
 
 from . import models
 from . import serializers as cserializer
-from .tasks import doCrawl
 
 
 def proxies_list(request):
@@ -42,3 +40,17 @@ def test_celery(request):
         }
 
     return JsonResponse(response_data)
+
+
+def trigger_check_proxy(request):
+    # Get the proxy parameter from the query string
+    proxy = request.GET.get('proxy', None)
+
+    if proxy is None:
+        return JsonResponse({'error': 'Proxy parameter missing'}, status=400)
+
+    # Call the Celery task asynchronously
+    result = check_proxy_async.delay(proxy)
+
+    # Return a JSON response with the task ID
+    return JsonResponse({'task_id': result.id})
