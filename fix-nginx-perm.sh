@@ -175,11 +175,18 @@ run_as_user_in_venv "python $SCRIPT_DIR/manage.py migrate"
 # reload daemon
 sudo systemctl daemon-reload
 
-# Check and restart PHP 7.2 FPM if installed
-if systemctl is-active --quiet php7.2-fpm; then
-    sudo systemctl restart php7.2-fpm
-    echo "Restarted PHP 7.2 FPM"
-fi
+# Check and restart PHP-FPM if installed
+# Array of PHP versions to check
+php_versions=("7.2" "7.4" "8.0")
+
+# Iterate over each PHP version
+for version in "${php_versions[@]}"; do
+    # Check if PHP FPM service is active
+    if systemctl is-active --quiet php${version}-fpm; then
+        sudo systemctl restart php${version}-fpm
+        echo "Restarted PHP ${version} FPM"
+    fi
+done
 
 # Check and restart Nginx if installed
 if systemctl is-active --quiet nginx; then
