@@ -6,7 +6,7 @@ from typing import Set
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 from django.db.models import Q
 from django.http import HttpRequest, JsonResponse
-from datetime import timedelta, timezone
+from datetime import timedelta, timezone, datetime
 from .models import Proxy
 from .serializers import ProxySerializer
 from .tasks import *
@@ -49,7 +49,7 @@ def trigger_check_proxy(request: HttpRequest):
         count_proxies_to_check = 10
         proxies = Proxy.objects.filter(status='untested')[:count_proxies_to_check]
         if len(proxies) == 0:
-            now = timezone.now()
+            now = datetime.now()
             one_week_ago = now - timedelta(weeks=1)
             # Query to filter proxies where last_check is more than 1 week ago
             proxies = Proxy.objects.filter(last_check__lte=one_week_ago)[:count_proxies_to_check]
