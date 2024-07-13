@@ -161,6 +161,49 @@ extension = gettext
 extension = ftp
 ```
 
+### Troubleshoot pdo_sqlite.so error
+
+> change **php-7.2.24** to your php version (`php -v`)
+
+1. rebuild
+
+```bash
+mkdir ~/php-src
+cd ~/php-src
+wget https://www.php.net/distributions/php-7.2.24.tar.gz
+tar -zxvf php-7.2.24.tar.gz
+cd php-7.2.24
+cd ext/pdo_sqlite
+phpize
+./configure
+make
+```
+
+2. get destination directory
+
+> get your existing `extension directory`
+
+```bash
+php -i | grep "extension_dir"
+```
+
+3. copy extension
+
+copy the destination folder. eg: **/usr/lib/php/20170718/**
+
+```bash
+cd ~/php-src/php-7.2.24/ext/pdo_sqlite/modules/
+sudo cp pdo_sqlite.so /usr/lib/php/20170718/
+```
+
+4. restart
+
+```bash
+ls -l /usr/lib/php/20170718/pdo_sqlite.so
+sudo systemctl restart php7.2-fpm  # Replace with your PHP-FPM version
+sudo systemctl restart nginx # for nginx
+```
+
 ## Python requirements
 
 > major packages needed
