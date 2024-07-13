@@ -204,6 +204,32 @@ sudo systemctl restart php7.2-fpm  # Replace with your PHP-FPM version
 sudo systemctl restart nginx # for nginx
 ```
 
+### Troubleshoot php-fpm immediate restart
+
+> when your php-fpm immediately shutdown you can fix with this
+
+Edit `/etc/php/7.2/fpm/php-fpm.conf` or `/etc/php/7.2/fpm/pool.d/www.conf`:
+
+```ini
+emergency_restart_threshold = 10
+emergency_restart_interval = 1m
+```
+
+### Troubleshoot nginx with php-fpm
+
+> fix unrecognized sock listen
+
+```ini
+# pass PHP scripts to FastCGI server
+#
+location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+
+    # changa path value from `/etc/php/7.2/fpm/php-fpm.conf` or `/etc/php/7.2/fpm/pool.d/www.conf`
+    fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+}
+```
+
 ## Python requirements
 
 > major packages needed
