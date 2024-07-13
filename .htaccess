@@ -1,110 +1,41 @@
 Options -Indexes
 
-# Ignore access to specific file patterns
-<FilesMatch "(\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess)$)">
-    Deny from all
-</FilesMatch>
+<IfModule mod_rewrite.c>
+    RewriteEngine On
 
-# Only allow access to .txt files under certain conditions
-<FilesMatch "\.txt$">
-    <IfModule mod_rewrite.c>
-        RewriteEngine On
+    # Ignore access to specific file patterns
+    <FilesMatch "(\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess)$)">
+        Deny from all
+    </FilesMatch>
 
-        # Allow access to robots.txt and sitemap.txt
-        RewriteRule ^(robots|sitemap)\.txt$ - [L]
+    # Allow access to robots.txt and sitemap.txt
+    RewriteRule ^(robots|sitemap)\.txt$ - [L]
 
-        # Block access to all other text files by default
-        RewriteCond %{REQUEST_URI} !^/(robots|sitemap)\.txt$
-        RewriteRule ^ - [F]
-    </IfModule>
-</FilesMatch>
+    # Block access to all other text files by default
+    RewriteRule \.txt$ - [F]
 
-# Set cache-control for 5 mins for working.json and status.json
-<IfModule mod_headers.c>
+    # Set cache-control for 5 mins for working.json and status.json
     <FilesMatch "^(working|status)\.json$">
         Header set Cache-Control "public, max-age=300"
     </FilesMatch>
+
+    # Disallow access to working.json
+    <Files "working.json">
+        Require all denied
+    </Files>
+
+    # Skip caching on .html files
+    <FilesMatch "\.html$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
 </IfModule>
 
-# Disallow access to working.json
-<Files "working.json">
-    Require all denied
-</Files>
-
+# Allow access to sitemap.txt explicitly
 <Files "sitemap.txt">
     Allow from all
-    ErrorDocument 404 "Not Found"
-    ErrorDocument 403 "Forbidden"
-    ErrorLog /dev/null
-    CustomLog /dev/null combined
 </Files>
-
-# Restrict access to other .txt files
-<FilesMatch "\.txt$">
-    <IfModule mod_rewrite.c>
-        RewriteEngine On
-
-        # Allow access to robots.txt and sitemap.txt
-        RewriteRule ^(robots|sitemap)\.txt$ - [L]
-
-        # Block access to all other text files by default
-        RewriteCond %{REQUEST_URI} !^/(robots|sitemap)\.txt$
-        RewriteRule ^ - [F]
-    </IfModule>
-</FilesMatch>
-
-# Set cache-control for 5 mins for working.json and status.json
-<IfModule mod_headers.c>
-    <FilesMatch "^(working|status)\.json$">
-        Header set Cache-Control "public, max-age=300"
-    </FilesMatch>
-</IfModule>
-
-# Disallow access to working.json
-<Files "working.json">
-    Require all denied
-</Files>
-
-<Files "sitemap.txt">
-    Allow from all
-    ErrorDocument 404 "Not Found"
-    ErrorDocument 403 "Forbidden"
-    ErrorLog /dev/null
-    CustomLog /dev/null combined
-</Files>
-
-# Restrict access to other .txt files
-<FilesMatch "\.txt$">
-    <IfModule mod_rewrite.c>
-        RewriteEngine On
-
-        # Allow access to robots.txt and sitemap.txt
-        RewriteRule ^(robots|sitemap)\.txt$ - [L]
-
-        # Block access to all other text files by default
-        RewriteCond %{REQUEST_URI} !^/(robots|sitemap)\.txt$
-        RewriteRule ^ - [F]
-    </IfModule>
-</FilesMatch>
-
-# Set cache-control for 5 mins for working.json and status.json
-<IfModule mod_headers.c>
-    <FilesMatch "^(working|status)\.json$">
-        Header set Cache-Control "public, max-age=300"
-    </FilesMatch>
-</IfModule>
-
-# Disallow access to working.json
-<Files "working.json">
-    Require all denied
-</Files>
-
-# Skip caching on .html files
-<FilesMatch "\.html$">
-    Header set Cache-Control "no-cache, no-store, must-revalidate"
-    Header set Pragma "no-cache"
-    Header set Expires "0"
-</FilesMatch>
 
 # Temporary directory restrictions
 <If "%{HTTP_HOST} == 'sh.webmanajemen.com'">
