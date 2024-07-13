@@ -1,16 +1,16 @@
 [Unit]
 Description=The PHP 7.4 FastCGI Process Manager
-Documentation=man:php-fpm7.4(8)
 After=network.target
 
 [Service]
 Type=notify
 PIDFile=/run/php/php7.4-fpm.pid
-ExecStart=/usr/local/php7.4/sbin/php-fpm --nodaemonize --fpm-config /etc/php/7.4/fpm/php-fpm.conf
+ExecStart=/usr/local/php7.4/sbin/php-fpm --nodaemonize --fpm-config /usr/local/php7.4/etc/php-fpm.conf
 ExecReload=/bin/kill -USR2 $MAINPID
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=php-fpm
+TimeoutStartSec=300
 Restart=always
 
 [Install]
