@@ -6,7 +6,7 @@ After=network.target
 [Service]
 Type=notify
 PIDFile=/run/php/php7.4-fpm.pid
-ExecStart=/usr/sbin/php-fpm7.4 --nodaemonize --fpm-config /etc/php/7.4/fpm/php-fpm.conf
+ExecStart=/usr/local/php7.4/sbin/php-fpm --nodaemonize --fpm-config /etc/php/7.4/fpm/php-fpm.conf
 ExecReload=/bin/kill -USR2 $MAINPID
 
 [Install]
