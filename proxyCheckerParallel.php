@@ -71,7 +71,6 @@ if ($isCli) {
   if (empty($id)) {
     $id = Server::useragent();
   }
-  $id .=  '-' . md5($str);
   // lock file same as scanPorts.php
   $webLockFile = tmp() . '/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
   if (file_exists($webLockFile) && !$isAdmin) {
@@ -113,7 +112,7 @@ if ($isCli) {
   $output_file = __DIR__ . '/proxyChecker.txt';
   $cmd = "php " . escapeshellarg($file);
 
-  $runner = tmp() . "/runners/" . basename($webLockFile, '.lock') . ($isWin ? '.bat' : "");
+  $runner = tmp() . "/runners/" . basename($webLockFile . '-' . md5($str), '.lock') . ($isWin ? '.bat' : "");
   $uid = getUserId();
   $cmd .= " --userId=" . escapeshellarg($uid);
   $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
