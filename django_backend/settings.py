@@ -40,15 +40,13 @@ ALLOWED_HOSTS = ['localhost', 'sh.webmanajemen.com', 'dev.webmanajemen.com', '23
 
 INSTALLED_APPS = [
     'channels',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # 'corsheaders',
+    'corsheaders',
     'django_extensions',
     'rest_framework',
     'django_backend.apps.authentication',
@@ -67,6 +65,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
