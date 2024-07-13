@@ -43,6 +43,18 @@ def is_debug() -> bool:
     return hostname in debug_pc
 
 
+def is_django_environment():
+    try:
+        if os.environ.get('DJANGO_SETTINGS_MODULE') is not None:
+            return True
+        from django.conf import settings
+        # Check if Django settings are configured
+        settings.DEBUG
+        return True
+    except Exception:
+        return False
+
+
 def main():
     if platform.system() == 'Windows':
         import_windows_packages()
