@@ -67,6 +67,34 @@ sqlite3 --version
 
 ### Install php7.4 in ubuntu
 
+1.  Open the `sources.list` file with a text editor (for example `nano`):
+
+```bash
+sudo nano /etc/apt/sources.list
+```
+
+2.  Add the following lines to the file:
+
+```bash
+deb https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main
+# deb-src https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main
+```
+
+3.  Add the repository signing key:
+
+```bash
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4f4ea0aae5267a6c
+```
+4. Install PHP
+
+```bash
+sudo rm -rf /var/lib/apt/lists/*
+sudo apt update
+sudo apt install -y php7.4 php7.4-common php7.4-opcache php7.4-cli php7.4-gd php7.4-curl php7.3-mysql php7.4-sqlite3
+```
+
+### Install php7.4 in ubuntu (from source - advanced)
+
 - pdo_sqlite
 - php_zip
 - php_intl
@@ -99,30 +127,6 @@ sudo make install
 
 # bind to system
 sudo ln -sf /usr/local/php7.4/bin/php /usr/bin/php
-```
-
-### Setup php-fpm
-
-```bash
-cd /path/to/php-proxy-hunter
-sudo mkdir -p /etc/php/7.4/fpm/pool.d
-sudo mkdir -p /var/run/php/
-sudo chown www-data:www-data /var/run/php/
-sudo mkdir -p /var/log/
-sudo chown www-data:www-data /var/log/
-
-sudo systemctl daemon-reload
-sudo systemctl stop nginx
-sudo systemctl stop php7.4-fpm
-
-cp -r assets/systemctl/php7.4-fpm-pool.ini /etc/php/7.4/fpm/pool.d/www.conf
-cp -r assets/systemctl/php7.4-conf.ini /etc/php/7.4/fpm/php-fpm.conf
-cp -r assets/systemctl/php7.4-conf.ini /usr/local/php7.4/etc/php-fpm.conf
-cp -r assets/systemctl/php7.4-fpm.service /etc/systemd/system/php7.4-fpm.service
-sudo systemctl daemon-reload
-sudo systemctl enable php7.4-fpm
-sudo systemctl restart php7.4-fpm
-sudo systemctl status php7.4-fpm
 ```
 
 ### php functions
