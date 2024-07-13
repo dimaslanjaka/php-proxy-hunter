@@ -12,7 +12,7 @@ import ssl
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from http.cookiejar import Cookie, LWPCookieJar, MozillaCookieJar
-from typing import Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 from urllib.parse import urlparse
 
 import requests
@@ -621,7 +621,7 @@ def is_port_open(address: str) -> bool:
         s.close()
 
 
-def upload_proxy(proxy: str) -> None:
+def upload_proxy(proxy: Any) -> None:
     """
     Uploads a proxy to a specific URL.
 
@@ -631,6 +631,8 @@ def upload_proxy(proxy: str) -> None:
     Returns:
         None: No return value.
     """
+    if not isinstance(proxy, str):
+        proxy = str(proxy)
     if len(proxy.strip()) > 10:
         cookies = {"__ga": "GA1.2.1234567890.1234567890", "_ga": "GA1.3.9876543210.9876543210"}
         response = send_post(url="https://sh.webmanajemen.com/proxyAdd.php",
