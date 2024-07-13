@@ -89,19 +89,35 @@ cd php-src-php-7.4.33
 ./buildconf --force
 
 # configuring makefile
-./configure --prefix=/usr/local/php7.4 --with-config-file-path=/usr/local/php7.4/etc --enable-bcmath --enable-calendar --enable-exif --enable-ftp=shared --enable-intl --enable-mbstring --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm --with-curl --with-libdir=/lib/x86_64-linux-gnu --with-mysqli --with-openssl --with-pdo-mysql --with-pdo-sqlite --with-sqlite3 --with-readline --with-libxml --with-zlib --with-sodium --with-zip --with-bz2
+./configure --prefix=/usr/local/php7.4 --with-config-file-path=/usr/local/php7.4/etc --enable-bcmath --enable-calendar --enable-exif --enable-ftp=shared --enable-intl --enable-mbstring --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm --with-curl --with-libdir=/lib/x86_64-linux-gnu --with-mysqli --with-openssl --with-pdo-mysql --with-pdo-sqlite --with-sqlite3 --with-readline --with-libxml --with-zlib --with-sodium --with-zip --with-bz2 --enable-fpm
 make -j $(nproc)
 sudo make install
+
+# verify installation
+/usr/local/php7.4/bin/php -v
+/usr/local/php7.4/sbin/php-fpm -v
+```
+
+### Setup php-fpm
+
+```bash
+mkdir -p /etc/php/7.4/fpm/pool.d
+cp -r .php-fpm.conf /etc/php/7.4/fpm/pool.d/www.conf
 ```
 
 ### php functions
 
-ensure these functions are activated on your server
+> ensure these functions are activated on your server
+>
+> **Required for background tasking**
 
 - shell_exec
 - exec
+- popen
 
 ### php.ini configuration
+
+> When you running on **windows** you'll need configure **php.ini** file
 
 ```ini
 ;suppress inspection "DuplicateKeyInSection" for whole file
