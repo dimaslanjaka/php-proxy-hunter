@@ -2,7 +2,8 @@
 
 PHP proxy hunter | PHP proxy checker | Python proxy hunter | Python proxy checker
 
-[![](https://img.shields.io/badge/MAINTENANCE-DEPLOYMENT%20STATUS-blue?style=for-the-badge&labelColor=%23b81220&color=blue&label=MAINTENANCE)](https://sh.webmanajemen.com)
+[![](https://img.shields.io/badge/MAINTENANCE-DEPLOYMENT%20STATUS-blue?style=for-the-badge&labelColor=green&color=blue&label=RUNNING)](https://sh.webmanajemen.com)
+<!-- red %23b81220 -->
 
 ## Features
 
