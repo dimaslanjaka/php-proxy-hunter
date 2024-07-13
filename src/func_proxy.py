@@ -4,6 +4,8 @@ import logging
 import os
 import sys
 
+from src.func_platform import is_debug, is_django_environment
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import random
 import re
@@ -631,6 +633,11 @@ def upload_proxy(proxy: Any) -> None:
     Returns:
         None: No return value.
     """
+    if not is_debug():
+        # production mode
+        if is_django_environment():
+            # skip called by django
+            return
     if not isinstance(proxy, str):
         proxy = str(proxy)
     if len(proxy.strip()) > 10:
