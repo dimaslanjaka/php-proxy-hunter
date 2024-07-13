@@ -112,7 +112,7 @@ cp -r assets/systemctl/php7.4-conf.ini /etc/php/7.4/fpm/php-fpm.conf
 cp -r assets/systemctl/php7.4-fpm.service /etc/systemd/system/php7.4-fpm.service
 sudo systemctl daemon-reload
 sudo systemctl enable php7.4-fpm
-sudo systemctl start php7.4-fpm
+sudo systemctl restart php7.4-fpm
 sudo systemctl status php7.4-fpm
 ```
 
