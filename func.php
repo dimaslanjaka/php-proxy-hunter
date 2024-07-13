@@ -99,7 +99,7 @@ function is_debug(): bool
 
 // Detect admin
 $isAdmin = is_debug();
-if (!is_debug()) {
+if (!$isAdmin) {
   if ($isCli) {
     $short_opts = "p::m::";
     $long_opts = [
@@ -116,7 +116,8 @@ if (!is_debug()) {
 }
 
 // debug all errors
-if ($isAdmin) {
+$enable_debug = $isAdmin;
+if ($enable_debug) {
   ini_set('display_errors', 1);
   ini_set('display_startup_errors', 1);
 } else {
@@ -138,7 +139,7 @@ if (!$isCli) {
 }
 ini_set("error_log", $error_file); // set error path
 
-if ($isAdmin) {
+if ($enable_debug) {
   error_reporting(E_ALL);
 } else {
   error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR);
