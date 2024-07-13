@@ -82,6 +82,34 @@ sudo apt-get install build-essential gdb lcov pkg-config libcurl4-openssl-dev \
       lzma lzma-dev tk-dev uuid-dev zlib1g-dev software-properties-common -y
 ```
 
+### Install sqlite 3.46 in ubuntu
+
+```bash
+cd /tmp
+curl -L -O https://www.sqlite.org/2024/sqlite-autoconf-3460000.tar.gz
+tar -xzf sqlite-autoconf-3460000.tar.gz
+cd sqlite-autoconf-3460000
+./configure
+make
+sudo make install
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/lib:$LD_RUN_PATH
+# Check if /usr/local/lib is in /etc/ld.so.conf
+if ! grep -q "/usr/local/lib" /etc/ld.so.conf; then
+    echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf
+    sudo ldconfig
+    echo "/usr/local/lib added to /etc/ld.so.conf and ldconfig updated."
+else
+    echo "/usr/local/lib already exists in /etc/ld.so.conf"
+    sudo ldconfig
+fi
+sudo ln -sf /usr/local/bin/sqlite3 /usr/bin/sqlite3
+ls -l /usr/bin/sqlite3
+
+which sqlite3
+sqlite3 --version
+```
+
 ### Install python 3.11 in ubuntu
 
 ```bash
@@ -95,10 +123,10 @@ when above not working try
 ### Install python 3.11 from source in ubuntu
 
 ```bash
-cd /root
+cd /tmp
 curl -L https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tar.xz -o python3.11.tar.xz
 tar -xf python3.11.tar.xz
-cd /root/Python-3.11.9
+cd /tmp/Python-3.11.9
 ./configure
 make
 sudo make install
