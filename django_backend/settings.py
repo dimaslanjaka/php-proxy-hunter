@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'django_backend.apps.authentication',
-    'django_backend.apps.core'
+    'django_backend.apps.core',
+    'django_backend.apps.proxy'
 ]
 
 if os.path.exists(get_relative_path('django_backend/apps/axis/urls.py')):
