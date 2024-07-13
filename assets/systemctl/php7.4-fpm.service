@@ -8,6 +8,10 @@ Type=notify
 PIDFile=/run/php/php7.4-fpm.pid
 ExecStart=/usr/local/php7.4/sbin/php-fpm --nodaemonize --fpm-config /etc/php/7.4/fpm/php-fpm.conf
 ExecReload=/bin/kill -USR2 $MAINPID
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=php-fpm
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
