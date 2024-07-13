@@ -45,6 +45,3 @@ django-extensions
 PyJWT
 six
 channels
-celery
-django-celery-results
-django-celery-beat

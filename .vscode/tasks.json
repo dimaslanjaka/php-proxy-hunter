@@ -3,34 +3,16 @@
   // for the documentation about the tasks.json format
   "version": "2.0.0",
   "tasks": [
-    {
-      "label": "runDevelopment",
-      "runOptions": {
-        "runOn": "folderOpen"
-      },
-      "dependsOrder": "parallel",
-      "dependsOn": [
-        "celery-beat",
-        "celery-worker",
-        "django-server"
-      ]
-    },
-    {
-      "label": "celery-worker",
-      "type": "shell",
-      "command": "celery -A django_backend worker --loglevel=info -E",
-      "presentation": {
-        "panel": "dedicated"
-      }
-    },
-    {
-      "label": "celery-beat",
-      "type": "shell",
-      "command": "celery -A django_backend beat --loglevel=info",
-      "presentation": {
-        "panel": "dedicated"
-      }
-    },
+    // {
+    //   "label": "runDevelopment",
+    //   "runOptions": {
+    //     "runOn": "folderOpen"
+    //   },
+    //   "dependsOrder": "parallel",
+    //   "dependsOn": [
+    //     "django-server"
+    //   ]
+    // },
     {
       "label": "django-server",
       "type": "shell",

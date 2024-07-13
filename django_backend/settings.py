@@ -12,22 +12,18 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import sys
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.func_platform import is_debug
 from src.func import get_relative_path
-
-# import django_heroku
-# import dj_database_url
-# import dotenv
+import dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # # load environment variables from .env
-# dotenv_file = os.path.join(BASE_DIR, ".env")
-# if os.path.isfile(dotenv_file):
-#     dotenv.load_dotenv(dotenv_file)
+dotenv_file = os.path.join(BASE_DIR, ".env")
+if os.path.isfile(dotenv_file):
+    dotenv.load_dotenv(dotenv_file)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -44,14 +40,14 @@ ALLOWED_HOSTS = ['localhost', 'sh.webmanajemen.com', 'dev.webmanajemen.com', '23
 
 INSTALLED_APPS = [
     'channels',
-    'django_celery_results',
-    'django_celery_beat',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     # 'corsheaders',
     'django_extensions',
     'rest_framework',
@@ -101,16 +97,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'django_backend.wsgi.application'
 ASGI_APPLICATION = 'django_backend.asgi.application'
 
-# Celery configuration
-# run below command on separate terminal
-# celery -A django_backend worker --loglevel=info
-# celery -A django_backend beat --loglevel=info
-# python manage.py runserver
-CELERY_BROKER_URL = 'sqla+sqlite:///src/database.sqlite'
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_CACHE_BACKEND = 'django-cache'
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
@@ -128,6 +114,7 @@ DATABASES = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
