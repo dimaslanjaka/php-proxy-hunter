@@ -4,10 +4,9 @@ from threading import Thread, active_count
 from urllib.parse import unquote
 from typing import Set
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
-
+from django.db.models import Q
 from django.http import HttpRequest, JsonResponse
-from django.conf import settings
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta, timezone
 from .models import Proxy
 from .serializers import ProxySerializer
 from .tasks import *
@@ -94,6 +93,18 @@ def trigger_check_proxy(request: HttpRequest):
 def view_status(request: HttpRequest):
     data = {
         'is_django_env': is_django_environment(),
-        'total_threads': active_count()
+        "total": {
+            'threads': {
+                'all': active_count(),
+                'proxy_checker': len(active_proxy_check_threads)
+            },
+            'proxies': {
+                'all': Proxy.objects.all().count(),
+                'untested': Proxy.objects.filter(status='untested').count(),
+                'dead': Proxy.objects.filter(status='dead').count(),
+                'port-closed': Proxy.objects.filter(status='port-closed').count(),
+                'private': Proxy.objects.filter(Q(status='private') | Q(status='true')).count()
+            }
+        }
     }
     return JsonResponse(data)
