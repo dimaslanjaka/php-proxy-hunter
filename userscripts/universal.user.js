@@ -649,7 +649,7 @@
 
     const doc2 = new DOMParser().parseFromString(filteredHtml, "text/html");
     const elements = [];
-    doc2.querySelectorAll("textarea,table").forEach((el) => {
+    doc2.querySelectorAll("textarea,table,.list").forEach((el) => {
       elements.push(el.outerHTML);
     });
     return elements.join("\n");
