@@ -109,7 +109,6 @@ sudo systemctl daemon-reload
 sudo systemctl enable php7.4-fpm
 sudo systemctl start php7.4-fpm
 sudo systemctl status php7.4-fpm
-
 ```
 
 ### php functions
