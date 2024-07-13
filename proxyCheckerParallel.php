@@ -25,14 +25,12 @@ if ($isCli) {
     "admin::"
   ];
   $options = getopt($short_opts, $long_opts);
-  // append_content_with_lock($output_log, "\$argv => " . json_encode($argv, JSON_PRETTY_PRINT) . PHP_EOL);
-  // append_content_with_lock($output_log, "parsed \$argv => " . json_encode($options, JSON_PRETTY_PRINT) . PHP_EOL);
   $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
   if (!$isAdmin) {
     // only apply lock file for non-admin command
     if (!empty($options['lockFile'])) {
       if (file_exists($options['lockFile'])) {
-        exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
+        exit(date(DATE_RFC3339) . ' another process still running (--lockFile is locked) ' . basename(__FILE__, '.php') . PHP_EOL);
       }
       write_file($options['lockFile'], '');
       Scheduler::register(function () use ($options) {
@@ -74,7 +72,7 @@ if ($isCli) {
   // lock file same as scanPorts.php
   $webLockFile = tmp() . '/runners/parallel-web-' . sanitizeFilename($id) . '.lock';
   if (file_exists($webLockFile) && !$isAdmin) {
-    exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
+    exit(date(DATE_RFC3339) . ' another process still running (web lock file is locked) ' . basename(__FILE__, '.php') . PHP_EOL);
   } else {
     write_file($webLockFile, date(DATE_RFC3339));
     // truncate output log file
