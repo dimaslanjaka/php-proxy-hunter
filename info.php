@@ -4,7 +4,7 @@ require_once __DIR__ . '/func-proxy.php';
 
 use PhpProxyHunter\Server;
 
-global $isCli;
+global $isCli, $isAdmin;
 
 if (!$isCli) {
   // Set response content header json
@@ -34,7 +34,7 @@ if (!$isCli) {
 
 $config = getConfig(getUserId());
 // admin info from 'data/login.php'
-$config['admin'] = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
+$config['admin'] = $isAdmin; // isset($_SESSION['admin']) && $_SESSION['admin'] === true;
 $config['pid'] = $_ENV['CPID'];
 $config['captcha'] = isset($_SESSION['captcha']) && $_SESSION['captcha'];
 $config['captcha-site-key'] = $_ENV['G_RECAPTCHA_SITE_KEY'];

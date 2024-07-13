@@ -99,9 +99,23 @@ function is_debug(): bool
 
 // Detect admin
 $isAdmin = is_debug();
-if (!$isCli) {
-  // web server admin
-  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
+if (!is_debug()) {
+  if (!$isCli) {
+    // web server admin
+    $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
+  } else {
+    $short_opts = "p::m::";
+    $long_opts = [
+      "proxy::",
+      "max::",
+      "userId::",
+      "lockFile::",
+      "runner::",
+      "admin::"
+    ];
+    $options = getopt($short_opts, $long_opts);
+    $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
+  }
 }
 
 // debug all errors
@@ -126,19 +140,7 @@ if (!$isCli) {
   }
 }
 ini_set("error_log", $error_file); // set error path
-if ($isCli) {
-  $short_opts = "p::m::";
-  $long_opts = [
-    "proxy::",
-    "max::",
-    "userId::",
-    "lockFile::",
-    "runner::",
-    "admin::"
-  ];
-  $options = getopt($short_opts, $long_opts);
-  $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
-}
+
 if ($isAdmin) {
   error_reporting(E_ALL);
 } else {
