@@ -103,7 +103,7 @@ ASGI_APPLICATION = 'django_backend.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'src/database.sqlite'),
+        'NAME': os.path.join(BASE_DIR, 'tmp/database.sqlite'),
         # 'ENGINE': 'django.db.backends.mysql',
         # 'NAME': 'djangodatabase',
         # 'USER': 'root',
