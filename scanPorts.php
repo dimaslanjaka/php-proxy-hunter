@@ -123,7 +123,6 @@ function do_check($filePath, $background = false)
     if (empty($id)) {
       $id = Server::useragent();
     }
-    $id .= '-' . sanitizeFilename($filePath);
     // lock file same as proxyCheckerParallel.php
     $webLockFile = __DIR__ . '/tmp/runners/scan-port-web-' . sanitizeFilename($id) . '.lock';
     // not admin: skip when existing runner still running
@@ -131,7 +130,7 @@ function do_check($filePath, $background = false)
       echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
       return;
     }
-    $runner = __DIR__ . "/tmp/runners/" . md5($webLockFile) . ($isWin ? '.bat' : "");
+    $runner = __DIR__ . "/tmp/runners/" . sanitizeFilename(basename($filePath, '.php') . '-' . basename($webLockFile, '.lock')) . ($isWin ? '.bat' : "");
     $uid = getUserId();
     $cmd .= " --userId=" . escapeshellarg($uid);
     $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
