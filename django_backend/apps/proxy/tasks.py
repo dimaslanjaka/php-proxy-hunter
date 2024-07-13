@@ -7,6 +7,7 @@ import string
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
+from typing import Any
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 
@@ -15,6 +16,11 @@ from src.func import (file_append_str, file_remove_empty_lines,
 from src.func_console import green, red
 from src.func_proxy import check_proxy, is_port_open, log_proxy, upload_proxy
 from src.ProxyDB import ProxyDB
+
+
+def get_runner_id(identifier: Any):
+    id = str(identifier)
+    return get_relative_path(f'tmp/runner/{id}.lock')
 
 
 def check_proxy_async(proxy_data: str):
