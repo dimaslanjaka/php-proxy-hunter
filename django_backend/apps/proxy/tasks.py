@@ -12,7 +12,7 @@ from typing import Any
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 
 from src.func import (file_append_str, file_remove_empty_lines,
-                      get_relative_path, remove_string_and_move_to_file, write_file)
+                      get_relative_path, remove_string_and_move_to_file, write_file, truncate_file_content)
 from src.func_console import green, red
 from src.func_proxy import check_proxy, is_port_open, log_proxy, upload_proxy
 from src.ProxyDB import ProxyDB
@@ -26,6 +26,7 @@ def get_runner_id(identifier: Any):
 def check_proxy_async(proxy_data: str):
     db = ProxyDB()
     logfile = get_relative_path('proxyChecker.txt')
+    truncate_file_content(logfile)
     status = None
     working = False
     protocols = []
