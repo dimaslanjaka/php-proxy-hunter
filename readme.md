@@ -96,6 +96,9 @@ sudo make install
 # verify installation
 /usr/local/php7.4/bin/php -v
 /usr/local/php7.4/sbin/php-fpm -v
+
+# bind to system
+sudo ln -sf /usr/local/php7.4/bin/php /usr/bin/php
 ```
 
 ### Setup php-fpm
@@ -107,8 +110,14 @@ sudo mkdir -p /var/run/php/
 sudo chown www-data:www-data /var/run/php/
 sudo mkdir -p /var/log/
 sudo chown www-data:www-data /var/log/
+
+sudo systemctl daemon-reload
+sudo systemctl stop nginx
+sudo systemctl stop php7.4-fpm
+
 cp -r assets/systemctl/php7.4-fpm-pool.ini /etc/php/7.4/fpm/pool.d/www.conf
 cp -r assets/systemctl/php7.4-conf.ini /etc/php/7.4/fpm/php-fpm.conf
+cp -r assets/systemctl/php7.4-conf.ini /usr/local/php7.4/etc/php-fpm.conf
 cp -r assets/systemctl/php7.4-fpm.service /etc/systemd/system/php7.4-fpm.service
 sudo systemctl daemon-reload
 sudo systemctl enable php7.4-fpm
