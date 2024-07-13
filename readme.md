@@ -1,6 +1,8 @@
 # php-proxy-hunter
 
-PHP proxy hunter and PHP proxy checker
+PHP proxy hunter | PHP proxy checker | Python proxy hunter | Python proxy checker
+
+[![](https://img.shields.io/badge/MAINTENANCE-DEPLOYMENT%20STATUS-blue?style=for-the-badge&labelColor=%23b81220&color=blue&label=MAINTENANCE)](https://sh.webmanajemen.com)
 
 ## Features
 
@@ -29,19 +31,68 @@ PHP proxy hunter and PHP proxy checker
 
 ## Requirements
 
-> Before all, run `git submodule update -i -r`
+> Before all, run
+```bash
+git submodule update -i -r
+sudo apt install build-essential autoconf libtool bison re2c pkg-config -y
+```
 
-### php extensions
+### Install sqlite 3.46 in ubuntu
+
+```bash
+cd /tmp
+curl -L -O https://www.sqlite.org/2024/sqlite-autoconf-3460000.tar.gz
+tar -xzf sqlite-autoconf-3460000.tar.gz
+cd sqlite-autoconf-3460000
+./configure
+make
+sudo make install
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/lib:$LD_RUN_PATH
+# Check if /usr/local/lib is in /etc/ld.so.conf
+if ! grep -q "/usr/local/lib" /etc/ld.so.conf; then
+    echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf
+    sudo ldconfig
+    echo "/usr/local/lib added to /etc/ld.so.conf and ldconfig updated."
+else
+    echo "/usr/local/lib already exists in /etc/ld.so.conf"
+    sudo ldconfig
+fi
+sudo ln -sf /usr/local/bin/sqlite3 /usr/bin/sqlite3
+ls -l /usr/bin/sqlite3
+# verify installation
+which sqlite3
+sqlite3 --version
+```
+
+### Install php7.4 in ubuntu
 
 - pdo_sqlite
 - php_zip
 - php_intl
 
 ```bash
-sudo apt install php-sqlite3 php-zip unzip libicu-dev php-intl
-```
+cd /tmp
+sudo apt install -y unzip libicu-dev wget build-essential libxml2-dev libssl-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libzip-dev libonig-dev libsqlite3-dev libbz2-dev libreadline-dev pkg-config autoconf bison re2c zlib1g-dev libxslt1-dev libwebp-dev
+export LD_LIBRARY_PATH=/usr/local/lib:/usr/lib/x86_64-linux-gnu
 
-> for specific php version using ex: `php7.2-intl`
+# Install from dist
+# wget https://www.php.net/distributions/php-7.4.30.tar.gz
+# tar -zxvf php-7.4.30.tar.gz
+# cd php-7.4.30
+
+# Install from github
+# git clone --depth 1 --branch=master https://github.com/php/php-src php-src
+wget https://github.com/php/php-src/archive/refs/tags/php-7.4.33.tar.gz
+tar -zxvf php-7.4.33.tar.gz
+cd php-src-php-7.4.33
+./buildconf --force
+
+# configuring makefile
+./configure --prefix=/usr/local/php7.4 --with-config-file-path=/usr/local/php7.4/etc --enable-bcmath --enable-calendar --enable-exif --enable-ftp --enable-zip --enable-intl --enable-mbstring --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm --with-curl --with-libdir=/lib/x86_64-linux-gnu --with-mysqli --with-openssl --with-pdo-mysql --with-pdo-sqlite --with-sqlite3 --with-readline --with-libxml --with-zlib
+make -j $(nproc)
+sudo make install
+```
 
 ### php functions
 
@@ -76,38 +127,7 @@ extension = ftp
 
 ```bash
 sudo apt-get update -y
-sudo apt-get install build-essential gdb lcov pkg-config libcurl4-openssl-dev \
-      libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
-      libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev curl \
-      lzma lzma-dev tk-dev uuid-dev zlib1g-dev software-properties-common -y
-```
-
-### Install sqlite 3.46 in ubuntu
-
-```bash
-cd /tmp
-curl -L -O https://www.sqlite.org/2024/sqlite-autoconf-3460000.tar.gz
-tar -xzf sqlite-autoconf-3460000.tar.gz
-cd sqlite-autoconf-3460000
-./configure
-make
-sudo make install
-export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/lib:$LD_RUN_PATH
-# Check if /usr/local/lib is in /etc/ld.so.conf
-if ! grep -q "/usr/local/lib" /etc/ld.so.conf; then
-    echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf
-    sudo ldconfig
-    echo "/usr/local/lib added to /etc/ld.so.conf and ldconfig updated."
-else
-    echo "/usr/local/lib already exists in /etc/ld.so.conf"
-    sudo ldconfig
-fi
-sudo ln -sf /usr/local/bin/sqlite3 /usr/bin/sqlite3
-ls -l /usr/bin/sqlite3
-
-which sqlite3
-sqlite3 --version
+sudo apt-get install build-essential gdb lcov pkg-config libcurl4-openssl-dev libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev curl lzma tk-dev uuid-dev zlib1g-dev software-properties-common -y
 ```
 
 ### Install python 3.11 in ubuntu
@@ -248,6 +268,32 @@ systemctl restart nginx
 
 ```bash
 python -m pip install -r requirements.txt
+```
+
+## Production
+
+- [download php here](https://windows.php.net/downloads/releases/archives/)
+- [download chrome and webdriver here](https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json)
+- extract [php zip](https://windows.php.net/downloads/releases/archives/php-7.4.3-nts-Win32-vc15-x86.zip) into **assets/php**. The file structure should be **assets/php/php.exe**
+- extract [chrome zip](https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.91/win32/chrome-win32.zip) into **assets/chrome**. The file structure should be **assets/chrome/chrome.exe**
+- extract [chrome driver zip](https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.91/win32/chromedriver-win32.zip) into **assets/chrome**. The file structure should be **assets/chrome/chromedriver.exe**
+- rename **php.ini-production** to **php.ini**, then modify **php.ini**
+
+```ini
+; uncomment below codes from php.ini
+extension_dir = "ext"
+extension=pdo_sqlite
+extension=curl
+extension=openssl
+extension=mbstring
+extension=intl
+extension=xmlrpc
+extension=fileinfo
+extension=sockets
+extension=xsl
+extension=exif
+extension=gettext
+extension=ftp
 ```
 
 ```txt
