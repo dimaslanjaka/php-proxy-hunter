@@ -165,8 +165,8 @@ fi
 
 # reload django
 function run_as_user_in_venv() {
-  local COMMAND=$1
-  sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && $COMMAND"
+    local COMMAND=$1
+    sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && $COMMAND"
 }
 
 run_as_user_in_venv "python $SCRIPT_DIR/manage.py makemigrations"
@@ -183,6 +183,7 @@ fi
 
 # Check and restart Nginx if installed
 if systemctl is-active --quiet nginx; then
+    sudo nginx -t
     sudo systemctl restart nginx
     echo "Restarted Nginx"
 fi
