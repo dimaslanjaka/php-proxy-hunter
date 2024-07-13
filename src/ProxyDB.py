@@ -7,7 +7,7 @@ from typing import Callable, Dict, Optional, List, Union
 from data.webgl import random_webgl_data
 from src.func_date import get_current_rfc3339_time
 from src.geoPlugin import get_geo_ip2
-from src.func import get_nuitka_file, get_relative_path, read_file, delete_path, file_append_str
+from src.func import get_nuitka_file, get_relative_path, read_file, file_append_str
 from src.func_useragent import random_windows_ua
 from src.SQLiteHelper import SQLiteHelper
 from src.Proxy import Proxy
