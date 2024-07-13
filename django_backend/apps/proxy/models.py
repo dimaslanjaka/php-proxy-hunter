@@ -1,3 +1,4 @@
+import json
 from django.db import models
 
 
@@ -28,6 +29,47 @@ class Proxy(models.Model):
     class Meta:
         db_table = 'proxies'
         app_label = 'django_backend.apps.proxy'
+
+    def __str__(self) -> str:
+        """
+        Return a JSON string representation of the object.
+        """
+        return self.to_json()
+
+    def __repr__(self) -> str:
+        """
+        Return a JSON string representation of the object.
+        """
+        return self.to_json()
+
+    def to_json(self):
+        """
+        Return a JSON string representation of the object.
+        """
+        return json.dumps({
+            'id': self.id,
+            'proxy': self.proxy,
+            'latency': self.latency,
+            'last_check': self.last_check,
+            'type': self.type,
+            'region': self.region,
+            'city': self.city,
+            'country': self.country,
+            'timezone': self.timezone,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'anonymity': self.anonymity,
+            'https': self.https,
+            'status': self.status,
+            'private': self.private,
+            'lang': self.lang,
+            'useragent': self.useragent,
+            'webgl_vendor': self.webgl_vendor,
+            'webgl_renderer': self.webgl_renderer,
+            'browser_vendor': self.browser_vendor,
+            'username': self.username,
+            'password': self.password
+        })
 
 
 class Meta(models.Model):
