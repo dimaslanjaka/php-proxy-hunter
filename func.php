@@ -97,8 +97,15 @@ function is_debug(): bool
   return in_array(gethostname(), $debug_pc);
 }
 
+// Detect admin
+$isAdmin = is_debug();
+if (!$isCli) {
+  // web server admin
+  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
+}
+
 // debug all errors
-if (is_debug()) {
+if ($isAdmin) {
   ini_set('display_errors', 1);
   ini_set('display_startup_errors', 1);
 } else {
@@ -119,7 +126,20 @@ if (!$isCli) {
   }
 }
 ini_set("error_log", $error_file); // set error path
-if (is_debug()) {
+if ($isCli) {
+  $short_opts = "p::m::";
+  $long_opts = [
+    "proxy::",
+    "max::",
+    "userId::",
+    "lockFile::",
+    "runner::",
+    "admin::"
+  ];
+  $options = getopt($short_opts, $long_opts);
+  $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
+}
+if ($isAdmin) {
   error_reporting(E_ALL);
 } else {
   error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR);
@@ -161,13 +181,6 @@ if (!$isCli) {
 
 // Define $argv for web server context
 $argv = isset($argv) ? $argv : [];
-
-// Detect admin
-$isAdmin = is_debug();
-if (!$isCli) {
-  // web server admin
-  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
-}
 
 /**
  * Get project temp folder.
