@@ -45,3 +45,4 @@ django-extensions
 PyJWT
 six
 channels
+python-dotenv
