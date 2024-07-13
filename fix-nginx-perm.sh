@@ -142,6 +142,36 @@ copy_if_both_exist "$SCRIPT_DIR/assets/systemctl/gunicorn.service" "/etc/systemd
 # Copy .htaccess_nginx.conf to /etc/nginx/sites-available/default
 copy_if_both_exist "$SCRIPT_DIR/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
 
+# Install python requirements
+sudo -u "$USER" -H bash -c "python3.11 -m venv $SCRIPT_DIR/venv"
+sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && python3 $SCRIPT_DIR/requirements_install.py"
+
+if [ -d "$SCRIPT_DIR/venv" ]; then
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/venv"
+    chmod 755 "$SCRIPT_DIR/venv/bin"/*
+fi
+
+if [ -d "$SCRIPT_DIR/django_backend" ]; then
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/django_backend"
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/django_backend"/*
+    touch "$SCRIPT_DIR/django_backend/index.html"
+fi
+
+if [ -d "$SCRIPT_DIR/xl" ]; then
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"/*
+    touch "$SCRIPT_DIR/xl/index.html"
+fi
+
+# reload django
+function run_as_user_in_venv() {
+  local COMMAND=$1
+  sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && $COMMAND"
+}
+
+run_as_user_in_venv "python $SCRIPT_DIR/manage.py makemigrations"
+run_as_user_in_venv "python $SCRIPT_DIR/manage.py migrate"
+
 # reload daemon
 sudo systemctl daemon-reload
 
@@ -167,25 +197,4 @@ fi
 if systemctl is-active --quiet spring; then
     sudo systemctl restart spring
     echo "Restarted Spring Boot"
-fi
-
-# Install python requirements
-sudo -u "$USER" -H bash -c "python3.11 -m venv $SCRIPT_DIR/venv"
-sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && python3 $SCRIPT_DIR/requirements_install.py"
-
-if [ -d "$SCRIPT_DIR/venv" ]; then
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/venv"
-    chmod 755 "$SCRIPT_DIR/venv/bin"/*
-fi
-
-if [ -d "$SCRIPT_DIR/django_backend" ]; then
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/django_backend"
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/django_backend"/*
-    touch "$SCRIPT_DIR/django_backend/index.html"
-fi
-
-if [ -d "$SCRIPT_DIR/xl" ]; then
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"/*
-    touch "$SCRIPT_DIR/xl/index.html"
 fi
