@@ -100,10 +100,7 @@ function is_debug(): bool
 // Detect admin
 $isAdmin = is_debug();
 if (!is_debug()) {
-  if (!$isCli) {
-    // web server admin
-    $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
-  } else {
+  if ($isCli) {
     $short_opts = "p::m::";
     $long_opts = [
       "proxy::",
@@ -179,6 +176,8 @@ if (function_exists('ignore_user_abort')) {
 if (!$isCli) {
   /** @noinspection PhpUnhandledExceptionInspection */
   new Session(100 * 3600, __DIR__ . '/tmp/sessions');
+  // web server admin
+  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
 // Define $argv for web server context
