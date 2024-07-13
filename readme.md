@@ -102,10 +102,13 @@ sudo make install
 
 ```bash
 cd /path/to/php-proxy-hunter
-mkdir -p /etc/php/7.4/fpm/pool.d
+sudo mkdir -p /etc/php/7.4/fpm/pool.d
 sudo mkdir -p /var/run/php/
 sudo chown www-data:www-data /var/run/php/
-cp -r assets/systemctl/.php-fpm.ini /etc/php/7.4/fpm/pool.d/www.conf
+sudo mkdir -p /var/log/
+sudo chown www-data:www-data /var/log/
+cp -r assets/systemctl/php7.4-fpm-pool.ini /etc/php/7.4/fpm/pool.d/www.conf
+cp -r assets/systemctl/php7.4-conf.ini /etc/php/7.4/fpm/php-fpm.conf
 cp -r assets/systemctl/php7.4-fpm.service /etc/systemd/system/php7.4-fpm.service
 sudo systemctl daemon-reload
 sudo systemctl enable php7.4-fpm
