@@ -50,9 +50,16 @@ def trigger_check_proxy(request: HttpRequest):
         proxies = Proxy.objects.filter(status='untested')[:count_proxies_to_check]
         if len(proxies) == 0:
             now = datetime.now()
-            one_week_ago = now - timedelta(weeks=1)
-            # Query to filter proxies where last_check is more than 1 week ago
-            proxies = Proxy.objects.filter(last_check__lte=one_week_ago)[:count_proxies_to_check]
+            # loop when proxies length 0
+            while len(proxies) == 0:
+                # Generate a random timedelta
+                random_days = random.randint(1, 30)  # Random days between 1 and 30
+                random_hours = random.randint(1, 24)  # Random hours between 1 and 24
+
+                # Adjust the timedelta accordingly
+                date_ago = now - timedelta(days=random_days, hours=random_hours)
+
+                proxies = Proxy.objects.filter(last_check__lte=date_ago)[:count_proxies_to_check]
         proxies = [proxy.to_json() for proxy in proxies]
         decoded_proxy = '|'.join(proxies)
     else:
