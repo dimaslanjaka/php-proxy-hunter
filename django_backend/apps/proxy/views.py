@@ -6,7 +6,7 @@ from typing import Set
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 from django.db.models import Q
 from django.http import HttpRequest, JsonResponse
-from datetime import timedelta, timezone, datetime
+from datetime import timedelta, datetime
 from .models import Proxy
 from .serializers import ProxySerializer
 from .tasks import *
@@ -14,7 +14,29 @@ from src.func_platform import is_django_environment
 
 
 def proxies_list(request: HttpRequest):
-    proxies = Proxy.objects.all()[:10]  # Fetch first 10 proxies
+    max = 10
+    status = 'all'
+    proxies = None
+    if request.method == 'GET':
+        max = int(request.GET.get('max', '10'))
+        status = request.GET.get('status', 'all')
+    elif request.method == 'POST':
+        max = int(request.POST.get('max', '10'))
+        status = request.POST.get('status', 'all')
+    else:
+        return JsonResponse({'error': True, 'message': 'Unsupported request method'}, status=405)
+
+    if max == 0:
+        max = 10
+    if status == 'all':
+        proxies = Proxy.objects.all()[:max]
+    elif status in ['active', 'dead', 'port-closed']:
+        proxies = Proxy.objects.filter(status=status)[:max]
+    elif status == 'private':
+        proxies = Proxy.objects.filter(Q(status='private') | Q(status='true'))[:max]
+    print(f"status={status} max={max} result={len(proxies)}")
+    if not proxies:
+        return JsonResponse({'error': 'no data'})
     serializer = ProxySerializer(proxies, many=True)  # Serialize queryset
 
     # Alternatively, if not using DRF:
