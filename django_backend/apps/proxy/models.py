@@ -28,19 +28,7 @@ class Proxy(models.Model):
 
     class Meta:
         db_table = 'proxies'
-        app_label = 'django_backend.apps.proxy'
-
-    def __str__(self) -> str:
-        """
-        Return a JSON string representation of the object.
-        """
-        return self.to_json()
-
-    def __repr__(self) -> str:
-        """
-        Return a JSON string representation of the object.
-        """
-        return self.to_json()
+        # app_label = 'django_backend.apps.proxy'
 
     def to_json(self):
         """
@@ -78,4 +66,4 @@ class Meta(models.Model):
 
     class Meta:
         db_table = 'meta'
-        app_label = 'django_backend.apps.proxy'
+        # app_label = 'django_backend.apps.proxy'
