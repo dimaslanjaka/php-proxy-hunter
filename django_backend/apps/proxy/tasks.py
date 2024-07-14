@@ -31,7 +31,7 @@ def check_proxy_async(proxy_data: Optional[str] = None):
     working = False
     protocols = []
     if not proxy_data:
-        proxy_data = ''
+        proxy_data = str(db.get_untested_proxies(30))
     if len(proxy_data.strip()) < 11:
         php_results = [
             read_file(get_relative_path('working.json')),
