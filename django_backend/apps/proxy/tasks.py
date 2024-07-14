@@ -40,7 +40,7 @@ def check_proxy_async(proxy_data: Optional[str] = None):
         ]
         for php_result in php_results:
             proxy_data = f"{php_result} {proxy_data}"
-    proxies = db.extract_proxies(proxy_data)
+    proxies = db.extract_proxies(proxy_data, False)
     for proxyClass in proxies:
         if not is_port_open(proxyClass.proxy):
             log_proxy(f"{proxyClass.proxy} {red('port closed')}")
@@ -86,7 +86,10 @@ def check_proxy_async(proxy_data: Optional[str] = None):
             data = {"status": status}
             if len(protocols) > 0:
                 data['type'] = "-".join(protocols).upper()
-            db.update_data(proxyClass.proxy, data)
+            try:
+                db.update_data(proxyClass.proxy, data)
+            except Exception as e:
+                print(f"{proxyClass.proxy} fail update {e}")
 
         remove_string_and_move_to_file(
             get_relative_path('proxies.txt'),
