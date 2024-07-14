@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
+from datetime import timedelta
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -34,7 +35,7 @@ SECRET_KEY = '-)ir)&2lz9o41=qsd7pbzl+uv%1tgf+$%ddvz9bbw6_(exk)(f'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = is_debug()
 
-ALLOWED_HOSTS = ['localhost', 'sh.webmanajemen.com', 'dev.webmanajemen.com', '23.94.85.180']
+ALLOWED_HOSTS = ['localhost', 'sh.webmanajemen.com', 'dev.webmanajemen.com', '23.94.85.180', '127.0.0.1']
 
 # Application definition
 
@@ -60,9 +61,20 @@ if os.path.exists(get_relative_path('django_backend/apps/axis/urls.py')):
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        # other authentication classes
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+LOGIN_URL = '/auth/login'
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
