@@ -7,8 +7,7 @@ class ProxyConfig(AppConfig):
     verbose_name = 'Proxy'
 
     def ready(self):
-        # pylint: disable=unused-argument
-        import django_backend.apps.proxy.signals  # unused: auto enable WAL journal mode
+        from . import signals
 
 
 default_app_config = 'django_backend.apps.proxy.ProxyConfig'
