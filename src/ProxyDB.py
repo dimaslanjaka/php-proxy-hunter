@@ -270,7 +270,7 @@ class ProxyDB:
                     for single_data in parsed_data:
                         callback(single_data)
 
-    def extract_proxies(self, line: Optional[str]) -> List[Proxy]:
+    def extract_proxies(self, line: Optional[str], update_db: Optional[bool] = True) -> List[Proxy]:
         """
         Parse a line to extract IP, port, username, and password.
 
@@ -308,10 +308,12 @@ class ProxyDB:
                     if username and password:
                         result.username = username
                         result.password = password
-                        self.update_data(select[0]['proxy'], {'username': username, 'password': password})
+                        if update_db:
+                            self.update_data(select[0]['proxy'], {'username': username, 'password': password})
                 else:
                     result = Proxy(ip_port, username=username, password=password)
-                    self.update_data(ip_port, {'username': username, 'password': password})
+                    if update_db:
+                        self.update_data(ip_port, {'username': username, 'password': password})
                 proxies.append(result)
 
         return proxies
