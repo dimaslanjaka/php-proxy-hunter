@@ -24,7 +24,7 @@ def get_runner_id(identifier: Any):
 
 
 def check_proxy_async(proxy_data: str):
-    db = ProxyDB()
+    db = ProxyDB(get_relative_path('tmp/database.sqlite'))
     logfile = get_relative_path('proxyChecker.txt')
     truncate_file_content(logfile)
     status = None
