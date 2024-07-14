@@ -12,7 +12,7 @@ babel
 colorama
 pynput
 SQLAlchemy
-beautifulsoup4
+BeautifulSoup4
 requests
 tzlocal
 urllib3
