@@ -1,26 +1,61 @@
 # django_backend/apps/proxy/tasks.py
 
-from datetime import datetime
 import os
 import random
 import string
 import sys
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 from typing import Any, Optional
+
+import requests
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 
+from bs4 import BeautifulSoup
+
 from src.func import (file_append_str, file_remove_empty_lines,
-                      get_relative_path, read_file, remove_string_and_move_to_file, write_file, truncate_file_content)
+                      get_relative_path, read_file,
+                      remove_string_and_move_to_file, truncate_file_content,
+                      write_file, get_message_exception)
 from src.func_console import green, red
-from src.func_proxy import check_proxy, is_port_open, log_proxy, upload_proxy
+from src.func_proxy import (ProxyCheckResult, build_request, is_port_open,
+                            log_proxy, upload_proxy)
 from src.ProxyDB import ProxyDB
 
 
 def get_runner_id(identifier: Any):
     id = str(identifier)
     return get_relative_path(f'tmp/runner/{id}.lock')
+
+
+def real_check_proxy(proxy: str, type: str):
+    result = False
+    status_code = 0
+    response = None
+    latency = -1
+    error = ''
+    # format = f"{type}://{proxy}"
+    try:
+        response: requests.Response = build_request(proxy=proxy, proxy_type=type, endpoint='https://www.djangoproject.com/', headers={
+            'Connection': 'Keep-Alive',
+            'Accept-Language': 'en-US'
+        })
+        latency = response.elapsed.total_seconds() * 1000  # in milliseconds
+        status_code = response.status_code
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            title = soup.title.string if soup.title else ''
+            result = 'django' in title.lower() if title else False
+            # print(f"{green(format)} working")
+        # else:
+        #     print(f"{red(format)} dead (status {status_code})")
+    except Exception as e:
+        # print(f"fail check {red(format)}: {e}")
+        error = get_message_exception(e)
+        pass
+    return ProxyCheckResult(result, latency=latency, error=error, private=False, status=status_code, response=response, proxy=proxy, type=type)
 
 
 def check_proxy_async(proxy_data: Optional[str] = None):
@@ -47,16 +82,16 @@ def check_proxy_async(proxy_data: Optional[str] = None):
             status = "port-closed"
         else:
             # Define a function to handle check_proxy with the correct arguments
-            def handle_check(protocol, url):
-                return check_proxy(proxyClass.proxy, protocol, url)
+            def handle_check(protocol):
+                return real_check_proxy(proxyClass.proxy, protocol)
 
             # Create a ThreadPoolExecutor
             with ThreadPoolExecutor(max_workers=3) as executor:
                 # Submit the tasks
                 checks = [
-                    executor.submit(handle_check, 'http', "http://httpbin.org/ip"),
-                    executor.submit(handle_check, 'socks4', "http://httpbin.org/ip"),
-                    executor.submit(handle_check, 'socks5', "http://httpbin.org/ip")
+                    executor.submit(handle_check, 'http'),
+                    executor.submit(handle_check, 'socks4'),
+                    executor.submit(handle_check, 'socks5')
                 ]
 
                 # Iterate through the completed tasks
