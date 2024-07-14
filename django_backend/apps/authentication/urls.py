@@ -1,9 +1,11 @@
-# urls.py
 from django.urls import path
-from .views import UserLoginAPIView, user_logout_api, user_login_api
+from . import views
 
 urlpatterns = [
-    path('login', UserLoginAPIView.as_view(), name='login'),
-    path('register', user_login_api, name='register'),
-    path('logout', user_logout_api, name='logout'),
+    path('create', views.CreateUserAPIView.as_view(), name='create-user'),
+    path('login', views.LoginUserAPIView.as_view(), name='login-user'),
+    # fallback login/?next=
+    path('login/', views.LoginUserAPIView.as_view(), name='login-user'),
+    path('logout', views.LogoutUserAPIView.as_view(), name='logout-user'),
+    path('status', views.current_user_status_view, name='current_user_status')
 ]
