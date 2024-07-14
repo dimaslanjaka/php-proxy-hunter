@@ -49,9 +49,13 @@ def trigger_check_proxy(request: HttpRequest):
         count_proxies_to_check = 10
         proxies = Proxy.objects.filter(status='untested')[:count_proxies_to_check]
         if len(proxies) == 0:
+            counter = 0
             now = datetime.now()
             # loop when proxies length 0
-            while len(proxies) == 0:
+            while len(proxies) == 0 and counter < 20:
+                # increase counter
+                counter += 1
+
                 # Generate a random timedelta
                 random_days = random.randint(1, 30)  # Random days between 1 and 30
                 random_hours = random.randint(1, 24)  # Random hours between 1 and 24
