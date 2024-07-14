@@ -181,7 +181,8 @@ do {
             $keepRow = $row;
           }
           // Check if the proxy was already checked this month
-          if (!wasCheckedThisMonth($pdo, $proxy)) {
+          // always check when execute with --delete=true
+          if (!wasCheckedThisMonth($pdo, $proxy) || $perform_delete) {
             if (isPortOpen($proxy)) {
               echo "$proxy port open\n";
               $db->updateData($proxy, ['status' => 'untested'], false);
