@@ -22,7 +22,7 @@ import socks
 import urllib3
 from proxy_checker import ProxyChecker
 from requests.adapters import HTTPAdapter
-
+import http.cookiejar as cookiejar
 from src.func import (debug_log, file_append_str, file_remove_empty_lines,
                       find_substring_from_regex, get_relative_path,
                       get_unique_dicts_by_key_in_list,
@@ -118,25 +118,28 @@ def build_request(
             )
 
     # Load cookies from the specified cookie file
-    cookie_str = ""
-    cookie_jar = None
-    cookie_header = None
-    if os.path.exists(cookie_file):
-        cookie_str = read_file(cookie_file)
-    if cookie_str != "":
-        if "Netscape HTTP Cookie File" in cookie_str:
-            cookie_jar = MozillaCookieJar(cookie_file)
-            cookie_header = """\
+    if cookie_file is not None:
+        cookie_str = ""
+        cookie_jar = None
+        cookie_header = None
+        if not os.path.exists(cookie_file):
+            generate_netscape_cookie_jar(cookie_file)
+        if os.path.exists(cookie_file):
+            cookie_str = read_file(cookie_file)
+        if cookie_str != "":
+            if "Netscape HTTP Cookie File" in cookie_str:
+                cookie_jar = MozillaCookieJar(cookie_file)
+                cookie_header = """\
 # Netscape HTTP Cookie File
 # http://curl.haxx.se/rfc/cookie_spec.html
 # This is a generated file!  Do not edit.
-"""
-        else:
-            cookie_jar = LWPCookieJar(cookie_file)
-            cookie_header = "#LWP-Cookies-2.0"
-        cookie_jar.load(ignore_discard=True,
-                        ignore_expires=True, filename=cookie_file)
-        session.cookies.update(cookie_jar)
+    """
+            else:
+                cookie_jar = LWPCookieJar(cookie_file)
+                cookie_header = "#LWP-Cookies-2.0"
+            cookie_jar.load(ignore_discard=True,
+                            ignore_expires=True, filename=cookie_file)
+            session.cookies.update(cookie_jar)
 
     # setup browser headers
     if headers is None:
@@ -166,11 +169,11 @@ def build_request(
     method_upper = method.upper()
     if method_upper in request_methods:
         if method_upper in ["POST", "PUT", "PATCH"]:
-            response = request_methods[method_upper](
+            response: requests.Response = request_methods[method_upper](
                 endpoint, data=post_data, timeout=10, verify=output_pem
             )
         else:
-            response = request_methods[method_upper](
+            response: requests.Response = request_methods[method_upper](
                 endpoint, timeout=10, verify=output_pem
             )
     else:
@@ -222,6 +225,45 @@ def build_request(
         time.sleep(1)
 
     return response
+
+
+def generate_netscape_cookie_jar(file_path):
+    # Create a MozillaCookieJar instance
+    cookie_jar = cookiejar.MozillaCookieJar(file_path)
+
+    # Example: Add some cookies to the jar
+    cookie1 = cookiejar.Cookie(
+        version=0, name='session_id', value='12345',
+        port=None, port_specified=False,
+        domain='example.com', domain_specified=False, domain_initial_dot=False,
+        path='/', path_specified=True,
+        secure=False,
+        expires=None,
+        discard=True,
+        comment=None,
+        comment_url=None,
+        rest={'HttpOnly': None},  # Optional: Set non-standard attribute
+        rfc2109=False,
+    )
+    cookie_jar.set_cookie(cookie1)
+
+    cookie2 = cookiejar.Cookie(
+        version=0, name='user_id', value='67890',
+        port=None, port_specified=False,
+        domain='example.com', domain_specified=False, domain_initial_dot=False,
+        path='/', path_specified=True,
+        secure=False,
+        expires=None,
+        discard=True,
+        comment=None,
+        comment_url=None,
+        rest={'HttpOnly': None},  # Optional: Set non-standard attribute
+        rfc2109=False,
+    )
+    cookie_jar.set_cookie(cookie2)
+
+    # Save cookies to file
+    cookie_jar.save(ignore_discard=True, ignore_expires=True)
 
 
 def update_cookie_jar(
