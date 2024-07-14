@@ -7,12 +7,12 @@ import string
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
-from typing import Any
+from typing import Any, Optional
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 
 from src.func import (file_append_str, file_remove_empty_lines,
-                      get_relative_path, remove_string_and_move_to_file, write_file, truncate_file_content)
+                      get_relative_path, read_file, remove_string_and_move_to_file, write_file, truncate_file_content)
 from src.func_console import green, red
 from src.func_proxy import check_proxy, is_port_open, log_proxy, upload_proxy
 from src.ProxyDB import ProxyDB
@@ -23,13 +23,23 @@ def get_runner_id(identifier: Any):
     return get_relative_path(f'tmp/runner/{id}.lock')
 
 
-def check_proxy_async(proxy_data: str):
+def check_proxy_async(proxy_data: Optional[str] = None):
     db = ProxyDB(get_relative_path('tmp/database.sqlite'))
     logfile = get_relative_path('proxyChecker.txt')
     truncate_file_content(logfile)
     status = None
     working = False
     protocols = []
+    if not proxy_data:
+        proxy_data = ''
+    if len(proxy_data.strip()) < 11:
+        php_results = [
+            read_file(get_relative_path('working.json')),
+            read_file(get_relative_path('proxies.txt')),
+            read_file(get_relative_path('dead.txt'))
+        ]
+        for php_result in php_results:
+            proxy_data = f"{php_result} {proxy_data}"
     proxies = db.extract_proxies(proxy_data)
     for proxyClass in proxies:
         if not is_port_open(proxyClass.proxy):
