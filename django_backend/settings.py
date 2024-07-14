@@ -122,6 +122,9 @@ DATABASES = {
         # 'PASSWORD': '',
         # 'HOST': '127.0.0.1',
         # 'PORT': '80',
+        'OPTIONS': {
+            'timeout': 120,  # Adjust timeout value as needed
+        },
     }
 }
 
