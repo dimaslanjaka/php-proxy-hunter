@@ -38,6 +38,7 @@ rarfile
 pycryptodome
 django
 django-filter
+django-environ
 djangorestframework
 djangorestframework_simplejwt
 django-cors-middleware
