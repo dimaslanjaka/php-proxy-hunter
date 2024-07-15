@@ -12,7 +12,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import CustomUserSerializer
+from .serializers import UserRegistrationSerializer
 
 UserModel = get_user_model()
 
@@ -80,18 +80,17 @@ class CreateUserAPIView(APIView):
     permission_classes = [IsAdminUser]  # Only admin can create users
 
     def post(self, request):
-        serializer = CustomUserSerializer(data=request.data)
+        serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_304_NOT_MODIFIED)
+            return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request: HttpRequest, username: Optional[str] = None, password: Optional[str] = None):
-        serializer = CustomUserSerializer(data={'username': username, 'password': password})
-        print(f"user creation is valid={serializer.is_valid()}")
+        serializer = UserRegistrationSerializer(data={'username': username, 'password': password})
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
