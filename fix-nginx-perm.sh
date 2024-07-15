@@ -184,7 +184,7 @@ function run_as_user_in_venv() {
     sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && $COMMAND"
 }
 
-run_as_user_in_venv "python $SCRIPT_DIR/manage.py makemigrations"
+# run_as_user_in_venv "python $SCRIPT_DIR/manage.py makemigrations"
 run_as_user_in_venv "python $SCRIPT_DIR/manage.py migrate"
 
 # reload daemon
