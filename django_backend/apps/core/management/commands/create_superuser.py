@@ -18,15 +18,15 @@ class Command(BaseCommand):
         password = env('DJANGO_SUPERUSER_PASSWORD')
         email = env('DJANGO_SUPERUSER_EMAIL')
 
-        User = get_user_model()
+        UserModel = get_user_model()
 
         # Check if the user already exists
-        if User.objects.filter(username=username).exists():
-            user = User.objects.get(username=username)
+        if UserModel.objects.filter(username=username).exists():
+            user = UserModel.objects.get(username=username)
             user.email = email
             user.set_password(password)
             user.save()
             self.stdout.write(self.style.SUCCESS(f'Successfully updated superuser "{username}"'))
         else:
-            User.objects.create_superuser(username=username, password=password, email=email)
+            UserModel.objects.create_superuser(username=username, password=password, email=email)
             self.stdout.write(self.style.SUCCESS(f'Successfully created superuser "{username}"'))
