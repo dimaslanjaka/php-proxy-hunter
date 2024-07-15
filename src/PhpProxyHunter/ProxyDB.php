@@ -196,12 +196,15 @@ class ProxyDB
    * Adds a proxy to the database.
    *
    * @param string|null $proxy The proxy string to add to the database.
+   * @param bool $force Whether to force add the proxy even if it's already added.
    */
-  public function add(?string $proxy): void
+  public function add(?string $proxy, bool $force = false): void
   {
-    if (!$this->isAlreadyAdded($proxy)) {
+    if (!$this->isAlreadyAdded($proxy) || $force) {
       $this->db->insert('proxies', ['proxy' => trim($proxy), 'status' => 'untested']);
-      $this->markAsAdded($proxy);
+      if (!$force) {
+        $this->markAsAdded($proxy);
+      }
     }
   }
 
