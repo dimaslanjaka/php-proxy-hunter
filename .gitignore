@@ -30,6 +30,7 @@ tmp/
 package-lock.json
 /_config.json
 /_env.json
+!/.crontab.txt
 
 # python
 /profiles-proxy.json
