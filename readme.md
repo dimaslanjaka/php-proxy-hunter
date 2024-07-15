@@ -357,8 +357,8 @@ backup database everyday at midnight
 sudo crontab -u www-data -e
 # list crontab
 sudo crontab -u www-data -l
-# apply crontab from file (.crontab)
-sudo crontab -u www-data .crontab
+# apply crontab from file (.crontab.txt)
+sudo crontab -u www-data .crontab.txt
 ```
 
 ## Troubleshoot
