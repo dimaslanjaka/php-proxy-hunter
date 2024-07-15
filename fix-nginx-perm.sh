@@ -67,6 +67,10 @@ if [ -d "$SCRIPT_DIR/packages" ]; then
     chown -R "$USER":"$USER" "$SCRIPT_DIR/packages"
     chown -R "$USER":"$USER" "$SCRIPT_DIR/packages"/*
 fi
+if [ -d "$SCRIPT_DIR/public" ]; then
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/public"
+    chown -R "$USER":"$USER" "$SCRIPT_DIR/public"/*
+fi
 
 # Allow composer and indexing proxies to work
 chown -R "$USER":"$USER" "$SCRIPT_DIR"/*.php "$SCRIPT_DIR"/*.phar
