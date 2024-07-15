@@ -137,7 +137,7 @@ $startTime = microtime(true);
 iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remove, &$str_to_remove, $startTime, $maxExecutionTime) {
   $items = extractProxies($line, $db, false);
   foreach ($items as $item) {
-    if (empty($item->proxy) || isAddedProxy($item->proxy)) {
+    if (empty($item->proxy) || $db->isAlreadyAdded($item->proxy)) {
       continue;
     }
     // Check if execution time has exceeded the maximum allowed time
@@ -173,7 +173,7 @@ iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remov
       }
     }
     // mark proxy as added
-    markAddedProxy($item->proxy);
+    $db->markAsAdded($item->proxy);
   }
 });
 
@@ -295,33 +295,3 @@ function blacklist_remover()
 }
 
 Scheduler::register('countFilesAndRepeatScriptIfNeeded', 'zz_repeat');
-
-function isAddedProxy(string $proxy): bool
-{
-  global $db;
-  $pdo = $db->db->pdo;
-  // mark empty proxy as added proxy (invalid)
-  if (empty($proxy)) {
-    return true;
-  }
-  $stmt = $pdo->prepare("SELECT COUNT(*) FROM added_proxies WHERE proxy = :proxy");
-  $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
-  $stmt->execute();
-  return $stmt->fetchColumn() > 0;
-}
-
-function markAddedProxy(string $proxy)
-{
-  global $db;
-  $pdo = $db->db->pdo;
-
-  // Check if the proxy already exists in added_proxies table
-  if (isAddedProxy($proxy)) {
-    return; // Proxy already exists, so we don't insert again
-  }
-
-  // Proxy doesn't exist, so insert it
-  $stmt = $pdo->prepare('INSERT INTO added_proxies (proxy) VALUES (:proxy)');
-  $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
-  $stmt->execute();
-}
