@@ -342,16 +342,23 @@ run cleaner every week
 0 0 * * 0 php /var/www/html/configCleaner.php
 ```
 
-to run crontab using spesific user
+backup database everyday at midnight
 
 ```bash
-crontab -u www-data -e
+0 0 * * * sqlite3 /var/www/html/src/database.sqlite .dump > /var/www/html/backups/database_backup_$(date +\%Y-\%m-\%d).sql
 ```
 
-to list spesific user crontab
+### crontab using spesific user
+
+> edit `www-data` with your username
 
 ```bash
-crontab -u www-data -l
+# edit crontab
+sudo crontab -u www-data -e
+# list crontab
+sudo crontab -u www-data -l
+# apply crontab from file (.crontab)
+sudo crontab -u www-data .crontab
 ```
 
 ## Troubleshoot
