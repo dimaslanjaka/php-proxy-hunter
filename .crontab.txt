@@ -1,0 +1,6 @@
+*/10 * * * * php /var/www/html/proxyChecker.php > /var/www/html/proxyChecker.txt 2>&1
+7 */4 * * * php /var/www/html/proxyFetcher.php
+0 0 * * * bash /var/www/html/fix-nginx-perm.sh
+17 */1 * * * php /var/www/html/proxyCheckerParallel.php
+0 0 * * 0 php /var/www/html/configCleaner.php
+0 0 * * * sqlite3 /var/www/html/src/database.sqlite .dump > /var/www/html/backups/database_backup_$(date +\%Y-\%m-\%d).sql
