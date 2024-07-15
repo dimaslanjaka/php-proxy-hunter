@@ -165,7 +165,6 @@ jobs:
           chmod 777 tmp
           chmod 777 tmp/runners
           chmod 777 tmp/cookies
-          python manage.py makemigrations
           python manage.py migrate
           php github-actions-init.php
           python github-actions-init.py
