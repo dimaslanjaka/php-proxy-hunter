@@ -31,6 +31,7 @@ package-lock.json
 /_config.json
 /_env.json
 !/.crontab.txt
+/backups
 
 # python
 /profiles-proxy.json
