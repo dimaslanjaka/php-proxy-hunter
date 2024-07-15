@@ -1,7 +1,9 @@
 from typing import Optional
+
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, JsonResponse
+from django.utils.decorators import method_decorator
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -10,18 +12,21 @@ from rest_framework.views import APIView
 from .serializers import CustomUserSerializer
 
 
-@login_required
-def current_user_status_view(request: HttpRequest):
-    user = request.user
-    user_data = {
-        'username': user.username,
-        'email': user.email,
-        'first_name': user.first_name,
-        'last_name': user.last_name,
-        'is_active': user.is_active,
-        'date_joined': user.date_joined.strftime('%Y-%m-%d %H:%M:%S')
-    }
-    return JsonResponse(user_data)
+class CurrentUserStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @method_decorator(login_required)
+    def get(self, request: HttpRequest):
+        user = request.user
+        user_data = {
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'is_active': user.is_active,
+            'date_joined': user.date_joined.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        return JsonResponse(user_data)
 
 
 class CreateUserAPIView(APIView):
@@ -60,6 +65,10 @@ class LoginUserAPIView(APIView):
 class LogoutUserAPIView(APIView):
     permission_classes = [IsAuthenticated]  # Only authenticated users can logout
 
-    def post(self, request):
+    def post(self, request: HttpRequest):
+        logout(request)
+        return Response({'message': 'Logout successful.'}, status=status.HTTP_200_OK)
+
+    def get(self, request: HttpRequest):
         logout(request)
         return Response({'message': 'Logout successful.'}, status=status.HTTP_200_OK)
