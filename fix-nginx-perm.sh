@@ -91,25 +91,22 @@ else
     su -s /bin/sh -c "php $COMPOSER_PHAR update --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" "$USER"
 fi
 
-# Validate proxies-all.php not running before indexing proxies
-if pgrep -f "proxies-all.php" >/dev/null; then
-    echo "Proxies indexing is still running."
-else
-    su -s /bin/sh -c "php $SCRIPT_DIR/proxies-all.php --admin=true >> $OUTPUT_FILE 2>&1 &" "$USER"
-fi
+# Function to check if a process is running and start it if not
+run_php_if_not_running() {
+    local script_name="$1"
+    local script_args="$2"
 
-# Validate filterPortsDuplicate.php not running before indexing proxies
-if pgrep -f "filterPortsDuplicate.php" >/dev/null; then
-    echo "Filter ports duplicate is still running."
-else
-    su -s /bin/sh -c "php $SCRIPT_DIR/filterPortsDuplicate.php --admin=true --delete=true >> $OUTPUT_FILE 2>&1 &" "$USER"
-fi
+    if pgrep -f "$script_name" >/dev/null; then
+        echo "$script_name is still running."
+    else
+        su -s /bin/sh -c "php $SCRIPT_DIR/$script_name $script_args >> $OUTPUT_FILE 2>&1 &" "$USER"
+    fi
+}
 
-if pgrep -f "filterPorts.php" >/dev/null; then
-    echo "Filter ports is still running."
-else
-    su -s /bin/sh -c "php $SCRIPT_DIR/filterPorts.php --admin=true >> $OUTPUT_FILE 2>&1 &" "$USER"
-fi
+# Validate and run scripts if not already running
+run_php_if_not_running "proxies-all.php" "--admin=true"
+run_php_if_not_running "filterPortsDuplicate.php" "--admin=true --delete=true"
+run_php_if_not_running "filterPorts.php" "--admin=true"
 
 # Set permissions for vendor directory
 chmod 777 "$SCRIPT_DIR/vendor"
