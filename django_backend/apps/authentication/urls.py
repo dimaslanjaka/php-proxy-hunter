@@ -7,5 +7,5 @@ urlpatterns = [
     # fallback login/?next=
     path('login/', views.LoginUserAPIView.as_view(), name='login-user'),
     path('logout', views.LogoutUserAPIView.as_view(), name='logout-user'),
-    path('status', views.current_user_status_view, name='current_user_status')
+    path('status', views.CurrentUserStatusView.as_view(), name='current_user_status')
 ]
