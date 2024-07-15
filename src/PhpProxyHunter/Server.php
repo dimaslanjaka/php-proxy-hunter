@@ -23,28 +23,30 @@ class Server
     return $ipCheck && $requestCheck;
   }
 
-  public static function _cloudflare_CheckIP($ip): bool
+  public static function _cloudflare_CheckIP(?string $ip): bool
   {
     $cf_ips = [
-        '199.27.128.0/21',
-        '173.245.48.0/20',
-        '103.21.244.0/22',
-        '103.22.200.0/22',
-        '103.31.4.0/22',
-        '141.101.64.0/18',
-        '108.162.192.0/18',
-        '190.93.240.0/20',
-        '188.114.96.0/20',
-        '197.234.240.0/22',
-        '198.41.128.0/17',
-        '162.158.0.0/15',
-        '104.16.0.0/12',
+      '199.27.128.0/21',
+      '173.245.48.0/20',
+      '103.21.244.0/22',
+      '103.22.200.0/22',
+      '103.31.4.0/22',
+      '141.101.64.0/18',
+      '108.162.192.0/18',
+      '190.93.240.0/20',
+      '188.114.96.0/20',
+      '197.234.240.0/22',
+      '198.41.128.0/17',
+      '162.158.0.0/15',
+      '104.16.0.0/12',
     ];
     $is_cf_ip = false;
-    foreach ($cf_ips as $cf_ip) {
-      if (self::ip_in_range($ip, $cf_ip)) {
-        $is_cf_ip = true;
-        break;
+    if (is_string($ip)) {
+      foreach ($cf_ips as $cf_ip) {
+        if (self::ip_in_range($ip, $cf_ip)) {
+          $is_cf_ip = true;
+          break;
+        }
       }
     }
 
@@ -56,13 +58,16 @@ class Server
    *
    * @see https://gist.github.com/ryanwinchester/578c5b50647df3541794
    *
-   * @param string $ip IP to check in IPV4 format eg. 127.0.0.1
+   * @param string|null $ip IP to check in IPV4 format eg. 127.0.0.1
    * @param string $range IP/CIDR netmask e.g. 127.0.0.0/24, also 127.0.0.1 is accepted and /32 assumed
    *
    * @return bool true if the ip is in this range / false if not
    */
-  public static function ip_in_range(string $ip, string $range): bool
+  public static function ip_in_range(?string $ip, string $range): bool
   {
+    if (!is_string($ip)) {
+      return false;
+    }
     if (!strpos($range, '/')) {
       $range .= '/32';
     }
