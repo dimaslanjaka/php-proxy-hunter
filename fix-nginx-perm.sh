@@ -91,13 +91,20 @@ else
     su -s /bin/sh -c "php $COMPOSER_PHAR update --no-dev --no-interaction >> $OUTPUT_FILE 2>&1" "$USER"
 fi
 
-# Function to check if a process is running and start it if not
+# Function to check if a process is running and start it if not, or force run it
 run_php_if_not_running() {
     local script_name="$1"
     local script_args="$2"
+    local force="${3:-false}" # Default to false if not provided
 
     if pgrep -f "$script_name" >/dev/null; then
-        echo "$script_name is still running."
+        if [ "$force" = "true" ]; then
+            echo "$script_name is running but will be forcefully restarted."
+            pkill -f "$script_name"
+            su -s /bin/sh -c "php $SCRIPT_DIR/$script_name $script_args >> $OUTPUT_FILE 2>&1 &" "$USER"
+        else
+            echo "$script_name is still running."
+        fi
     else
         su -s /bin/sh -c "php $SCRIPT_DIR/$script_name $script_args >> $OUTPUT_FILE 2>&1 &" "$USER"
     fi
@@ -107,6 +114,7 @@ run_php_if_not_running() {
 run_php_if_not_running "proxies-all.php" "--admin=true"
 run_php_if_not_running "filterPortsDuplicate.php" "--admin=true --delete=true"
 run_php_if_not_running "filterPorts.php" "--admin=true"
+run_php_if_not_running "proxyChecker.php" "--admin=true --max=1000" "true"
 
 # Set permissions for vendor directory
 chmod 777 "$SCRIPT_DIR/vendor"
