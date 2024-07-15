@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# A script to run Django management commands easily
+
+CWD=$(dirname "$(realpath "$0")")
+PROJECT_DIR=$(dirname "$CWD")
+
+if [ -z "$VIRTUAL_ENV" ]; then
+    source "$PROJECT_DIR/venv/bin/activate"
+fi
+
+python "$PROJECT_DIR/manage.py" "$@"
