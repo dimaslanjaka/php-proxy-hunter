@@ -105,6 +105,12 @@ else
     su -s /bin/sh -c "php $SCRIPT_DIR/filterPortsDuplicate.php --admin=true --delete=true >> $OUTPUT_FILE 2>&1 &" "$USER"
 fi
 
+if pgrep -f "filterPorts.php" >/dev/null; then
+    echo "Filter ports is still running."
+else
+    su -s /bin/sh -c "php $SCRIPT_DIR/filterPorts.php --admin=true >> $OUTPUT_FILE 2>&1 &" "$USER"
+fi
+
 # Set permissions for vendor directory
 chmod 777 "$SCRIPT_DIR/vendor"
 touch "$SCRIPT_DIR/vendor/index.html"
