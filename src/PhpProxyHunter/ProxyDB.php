@@ -195,11 +195,46 @@ class ProxyDB
   /**
    * Adds a proxy to the database.
    *
-   * @param string $proxy
+   * @param string|null $proxy The proxy string to add to the database.
    */
-  public function add(string $proxy): void
+  public function add(?string $proxy): void
   {
-    $this->db->insert('proxies', ['proxy' => trim($proxy), 'status' => 'untested']);
+    if (!$this->isAlreadyAdded($proxy)) {
+      $this->db->insert('proxies', ['proxy' => trim($proxy), 'status' => 'untested']);
+      $this->markAsAdded($proxy);
+    }
+  }
+
+  /**
+   * Checks if a proxy is already added to the database.
+   *
+   * @param string|null $proxy The proxy string to check.
+   * @return bool Returns true if the proxy is already added, false otherwise.
+   */
+  public function isAlreadyAdded(?string $proxy): bool
+  {
+    if (empty($proxy)) {
+      return false;
+    }
+    $stmt = $this->db->pdo->prepare("SELECT COUNT(*) FROM added_proxies WHERE proxy = :proxy");
+    $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+    $stmt->execute();
+    return $stmt->fetchColumn() > 0;
+  }
+
+  /**
+   * Marks a proxy as added in the database.
+   *
+   * @param string|null $proxy The proxy string to mark as added.
+   */
+  public function markAsAdded(?string $proxy): void
+  {
+    if ($this->isAlreadyAdded($proxy)) {
+      return;
+    }
+    $stmt = $this->db->pdo->prepare('INSERT INTO added_proxies (proxy) VALUES (:proxy)');
+    $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+    $stmt->execute();
   }
 
   /**
