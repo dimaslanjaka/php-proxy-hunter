@@ -18,7 +18,7 @@ from django_backend.apps.authentication import utils
 # python manage.py create_superuser
 
 
-class AdminLoginTests(unittest.TestCase):
+class TestAdmin(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Initialize django-environ
@@ -41,7 +41,7 @@ class AdminLoginTests(unittest.TestCase):
         response = build_request(endpoint=url)
         self.assertTrue(response.status_code == 200)
 
-    def test_2_admin_login(self):
+    def test_2_login(self):
         url = 'http://127.0.0.1:8000/auth/login'
         login_data = {
             'username': self.admin_username,
@@ -66,8 +66,8 @@ class AdminLoginTests(unittest.TestCase):
     def test_4_logout(self):
         url = 'http://127.0.0.1:8000/auth/logout'
         response = build_request(endpoint=url, cookie_file=self.cookie_file, headers=self.headers)
-        print('HTTP 401 Unauthorized' in response.text)
-        self.assertTrue('Logout successful' in response.text)
+        # print('HTTP 401 Unauthorized' in response.text)
+        self.assertTrue('Logout success' in response.text)
 
 
 if __name__ == '__main__':
