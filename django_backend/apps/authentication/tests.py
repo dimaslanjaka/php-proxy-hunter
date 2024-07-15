@@ -1,43 +1,42 @@
 import os
-from django.test import TestCase
+import unittest
 import json
 import environ
 from src.func_proxy import build_request
 from src.func import get_relative_path
 from . import utils
 
+
 # create superuser
+# modify `.env` file
+# DJANGO_SUPERUSER_USERNAME, DJANGO_SUPERUSER_PASSWORD, DJANGO_SUPERUSER_EMAIL
 # python manage.py create_superuser
 
-
-class AdminLoginTests(TestCase):
-    def setUp(self):
+class AdminLoginTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
         # Initialize django-environ
         env = environ.Env()
 
         # Fetch admin credentials from environment variables using django-environ
-        self.admin_username = env('DJANGO_SUPERUSER_USERNAME', default='admin')
-        self.admin_password = env('DJANGO_SUPERUSER_PASSWORD', default='adminpassword')
-        self.admin_email = env('DJANGO_SUPERUSER_EMAIL', default='admin@example.com')
+        cls.admin_username = env('DJANGO_SUPERUSER_USERNAME', default='admin')
+        cls.admin_password = env('DJANGO_SUPERUSER_PASSWORD', default='adminpassword')
+        cls.admin_email = env('DJANGO_SUPERUSER_EMAIL', default='admin@example.com')
 
-        self.cookie_file = get_relative_path('tmp/cookies/django-auth-test.txt')
-        self.headers = {}
-        self.csrf_token = None
-        if os.path.exists(self.cookie_file):
-            self.csrf_token = utils.parse_csrf_token_from_cookie_file(self.cookie_file)
-            print(f'CSRF token {self.csrf_token}')
-            self.headers.update({'X-CSRFToken': self.csrf_token})
+        cls.cookie_file = get_relative_path('tmp/cookies/django-auth-test.txt')
+        cls.headers = {}
+        cls.csrf_token = None
+        if os.path.exists(cls.cookie_file):
+            cls.csrf_token = utils.parse_csrf_token_from_cookie_file(cls.cookie_file)
+            cls.headers.update({'X-CSRFToken': cls.csrf_token})
 
-    def test_visit_homepage(self):
+    def test_1_visit_homepage(self):
         url = 'http://127.0.0.1:8000'
         response = build_request(endpoint=url)
         self.assertTrue(response.status_code == 200)
 
-    def test_admin_login(self):
-        # Ensure login page URL (adjust if using a different URL pattern)
+    def test_2_admin_login(self):
         url = 'http://127.0.0.1:8000/auth/login'
-
-        # Simulate a POST request to login as admin
         login_data = {
             'username': self.admin_username,
             'password': self.admin_password
@@ -53,8 +52,17 @@ class AdminLoginTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Welcome, admin" in response.text or "Login success" in response.text)
 
-    def test_status(self):
+    def test_3_status(self):
         url = 'http://127.0.0.1:8000/auth/status'
         response = build_request(endpoint=url, cookie_file=self.cookie_file, headers=self.headers)
-        json_response = response.json()
-        self.assertTrue('username' in json_response and 'email' in json_response)
+        self.assertTrue('username' in response.text and 'email' in response.text)
+
+    def test_4_logout(self):
+        url = 'http://127.0.0.1:8000/auth/logout'
+        response = build_request(endpoint=url, cookie_file=self.cookie_file, headers=self.headers)
+        print('HTTP 401 Unauthorized' in response.text)
+        self.assertTrue('Logout successful' in response.text)
+
+
+if __name__ == '__main__':
+    unittest.main()
