@@ -1741,12 +1741,12 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
   if (!is_readable($inputFile) || is_file_locked($inputFile)) {
     echo "$inputFile is not readable." . PHP_EOL;
     $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-    $caller = $trace[1];
+    $caller = isset($trace[1]) ? $trace[1] : (isset($trace[0]) ? $trace[0] : []);
 
-    $callerFile = $caller['file'] ?? 'unknown';
-    $callerLine = $caller['line'] ?? 'unknown';
-    $callerClass = $caller['class'] ?? 'non class';
-    $callerFunction = $caller['function'] ?? 'non function';
+    $callerFile = isset($caller['file']) ? $caller['file'] : 'unknown';
+    $callerLine = isset($caller['line']) ? $caller['line'] : 'unknown';
+    $callerClass = isset($caller['class']) ? $caller['class'] : 'non class';
+    $callerFunction = isset($caller['function']) ? $caller['function'] : 'non function';
 
     echo "Called by $callerClass->$callerFunction in {$callerFile} on line {$callerLine}" . PHP_EOL;
     return false;
