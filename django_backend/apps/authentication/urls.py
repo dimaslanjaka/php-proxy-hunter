@@ -7,11 +7,13 @@ from src.func import is_debug
 
 urlpatterns = [
     path('create', views.CreateUserAPIView.as_view(), name='create-user'),
-    path('login', views.LoginUserAPIView.as_view(), name='login-user'),
+    path('login', views.LoginUserAPIView.as_view(), name='login-user-post'),
     # fallback login/?next=
     path('login/', views.LoginUserAPIView.as_view(), name='login-user'),
     path('logout', views.LogoutUserAPIView.as_view(), name='logout-user'),
-    path('status', views.CurrentUserStatusView.as_view(), name='current_user_status')
+    path('status', views.CurrentUserStatusView.as_view(), name='current_user_status'),
+    path('delete/<identifier>', views.UserDeleteView.as_view(), name='user_delete'),
+    path('delete', views.UserDeleteView.as_view(), name='user_delete_post'),
 ]
 
 if is_debug():

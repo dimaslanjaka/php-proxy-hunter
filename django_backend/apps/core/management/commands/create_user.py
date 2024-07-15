@@ -1,5 +1,5 @@
-from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand, CommandError
 
 User = get_user_model()
 
@@ -18,6 +18,7 @@ class Command(BaseCommand):
         email = options.get('email') or 'default@example.com'  # Default email if not provided
         username = options['username']
         password = options['password']
+        print(f"create user {username} {password} {email}")
 
         try:
             if User.objects.filter(username=username).exists():
@@ -27,7 +28,9 @@ class Command(BaseCommand):
                 user.save()
                 self.stdout.write(self.style.SUCCESS(f'Successfully updated user "{username}"'))
             else:
-                User.objects.create_user(email=email, username=username, password=password)
+                user = User.objects.create_user(email=email, username=username, password=password)
+                user.set_password(password)
+                user.save()
                 self.stdout.write(self.style.SUCCESS(f'Successfully created user: {username}'))
         except Exception as e:
             raise CommandError(f'Failed to create user: {username}. Error: {str(e)}')

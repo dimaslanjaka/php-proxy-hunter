@@ -154,6 +154,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# AUTH_USER_MODEL = 'authentication.CustomUser'
+
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default session backend
 SESSION_COOKIE_NAME = 'nix'  # Default cookie name
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Session expires on browser close
