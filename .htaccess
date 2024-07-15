@@ -46,3 +46,8 @@ Options -Indexes
 <If "%{HTTP_HOST} == 'sh.webmanajemen.com'">
     Redirect 404 /tests
 </If>
+
+# Backups directory restrictions
+<If "%{HTTP_HOST} == 'sh.webmanajemen.com'">
+    Redirect 404 /backups
+</If>
