@@ -185,6 +185,7 @@ STATIC_ROOT = os.path.join(PROJECT_DIR, 'public')
 # Define multiple directories for static files
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'django_backend/apps/axis/statics'),
+    os.path.join(BASE_DIR, 'django_backend/apps/authentication/statics'),
     os.path.join(BASE_DIR, 'js'),
     os.path.join(BASE_DIR, 'public'),
 ]
