@@ -44,9 +44,13 @@ use PhpProxyHunter\Server;
 global $isCli, $isWin;
 
 // validate lock files
-$id = Server::getRequestIP();
-if (empty($id)) {
-  $id = Server::useragent();
+if (!$isCli) {
+  $id = Server::getRequestIP();
+  if (empty($id)) {
+    $id = Server::useragent();
+  }
+} else {
+  $id = 'CLI';
 }
 $lockFilePath = tmp() . "/runners/respawner-" . sanitizeFilename($id) . ".lock";
 $statusFile = __DIR__ . "/status.txt";
@@ -128,7 +132,7 @@ if ($isCli) {
     }
   }
 } else {
-  // restart using CLI
+  // restart using CLI from web server
   $file = __FILE__;
   $output_file = __DIR__ . '/proxyChecker.txt';
   $cmd = "php " . escapeshellarg($file);
