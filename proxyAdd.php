@@ -77,7 +77,11 @@ $filePath = __DIR__ . '/proxies.txt';
 // write proxies into proxies.txt or proxies-backup.txt when checker still running
 if (file_exists(__DIR__ . '/proxyChecker.lock')) {
   // lock exist, backup added proxies
-  $id = sanitizeFilename(\PhpProxyHunter\Server::useragent() . '-' . \PhpProxyHunter\Server::getRequestIP());
+  if (!$isCli) {
+    $id = sanitizeFilename(\PhpProxyHunter\Server::useragent() . '-' . \PhpProxyHunter\Server::getRequestIP());
+  } else {
+    $id = 'CLI';
+  }
   $output = __DIR__ . '/assets/proxies/added-' . $id . '.txt';
   append_content_with_lock($output, PHP_EOL . $proxies_txt);
   setMultiPermissions($output);
