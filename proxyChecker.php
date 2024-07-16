@@ -370,10 +370,10 @@ function execute_single_proxy(Proxy $item)
           // echo "$type://{$item->proxy} error: {$check['error']}" . PHP_EOL;
           $errors[] = "$type {$check['error']}";
         }
-        if ($check['anonymity']) {
+        if (!empty($check['anonymity'])) {
           $anonymities[] = $check['anonymity'];
         }
-        $latencies[] = $check['latency'];
+        $latencies[] = !empty($check['latency']) ? $check['latency'] : -1;
       }
 
       if (!empty($proxy_types)) {
