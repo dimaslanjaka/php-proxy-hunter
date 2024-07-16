@@ -1,17 +1,16 @@
 from typing import Optional
 
 from django.contrib.auth import authenticate, get_user_model, login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
-from django.utils.decorators import method_decorator
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .models import UserBalance
 from .serializers import UserRegistrationSerializer
 
 UserModel = get_user_model()
@@ -20,17 +19,30 @@ UserModel = get_user_model()
 class CurrentUserStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @method_decorator(login_required)
-    def get(self, request: HttpRequest):
+    def get(self, request):
         user = request.user
-        user_data = {
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'is_active': user.is_active,
-            'date_joined': user.date_joined.strftime('%Y-%m-%d %H:%M:%S')
-        }
+        try:
+            user_balance = UserBalance.objects.get(user=user)
+            user_data = {
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'is_active': user.is_active,
+                'date_joined': user.date_joined.strftime('%Y-%m-%d %H:%M:%S'),
+                'saldo': float(user_balance.saldo)  # Convert DecimalField to float for JSON response
+            }
+        except UserBalance.DoesNotExist:
+            user_data = {
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'is_active': user.is_active,
+                'date_joined': user.date_joined.strftime('%Y-%m-%d %H:%M:%S'),
+                'saldo': 0.0  # Default balance if not found
+            }
+
         return JsonResponse(user_data)
 
 
