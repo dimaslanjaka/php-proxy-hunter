@@ -1,0 +1,74 @@
+/* Styles for the snackbar */
+#snackbar {
+  visibility: hidden;
+  min-width: 250px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 10px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#snackbar.show {
+  visibility: visible;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+
+/* disabled element */
+
+.disabled {
+  pointer-events: none;
+  /* Disables pointer events on the element */
+  opacity: 0.5;
+  /* Reduces opacity to visually indicate it's disabled */
+}
+
+/* floating button */
+
+.fab {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  bottom: 40px;
+  left: 40px;
+  background-color: #0C9;
+  color: #FFF;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* .fab * {
+  margin-top: 22px;
+} */
