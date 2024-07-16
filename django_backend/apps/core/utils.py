@@ -1,6 +1,10 @@
 import locale
+import os
 import random
 import string
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 
 DEFAULT_CHAR_STRING = string.ascii_lowercase + string.digits
 
