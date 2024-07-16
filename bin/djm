@@ -4,9 +4,24 @@
 
 CWD=$(dirname "$(realpath "$0")")
 PROJECT_DIR=$(dirname "$CWD")
+COMMAND="python $PROJECT_DIR/manage.py $@"
 
+# Activate virtual environment if not already activated
 if [ -z "$VIRTUAL_ENV" ]; then
     source "$PROJECT_DIR/venv/bin/activate"
 fi
 
-python "$PROJECT_DIR/manage.py" "$@"
+# Determine user based on OS and run command accordingly
+if [[ "$(uname)" == "Linux" ]]; then
+    if [[ -x "$(command -v nginx)" ]]; then
+        # When nginx is installed, run as www-data user
+        USER="www-data"
+        sudo -u "$USER" -H bash -c "source $PROJECT_DIR/venv/bin/activate && $COMMAND"
+    else
+        # When nginx is not installed, run as usual user
+        source "$PROJECT_DIR/venv/bin/activate" && eval "$COMMAND"
+    fi
+else
+    # For non-Linux systems, run as usual user
+    source "$PROJECT_DIR/venv/Scripts/activate" && eval "$COMMAND"
+fi
