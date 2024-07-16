@@ -10,8 +10,8 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import UserBalance
 from .serializers import UserRegistrationSerializer
+from .utils import get_user_with_fields
 
 UserModel = get_user_model()
 
@@ -19,31 +19,9 @@ UserModel = get_user_model()
 class CurrentUserStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request: HttpRequest):
         user = request.user
-        try:
-            user_balance = UserBalance.objects.get(user=user)
-            user_data = {
-                'username': user.username,
-                'email': user.email,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'is_active': user.is_active,
-                'date_joined': user.date_joined.strftime('%Y-%m-%d %H:%M:%S'),
-                'saldo': float(user_balance.saldo)  # Convert DecimalField to float for JSON response
-            }
-        except UserBalance.DoesNotExist:
-            user_data = {
-                'username': user.username,
-                'email': user.email,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'is_active': user.is_active,
-                'date_joined': user.date_joined.strftime('%Y-%m-%d %H:%M:%S'),
-                'saldo': 0.0  # Default balance if not found
-            }
-
-        return JsonResponse(user_data)
+        return JsonResponse(get_user_with_fields(user))
 
 
 class UserDeleteView(APIView):
