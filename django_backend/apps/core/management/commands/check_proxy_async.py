@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 
 # Assuming this script is located in django_backend/apps/core/management/commands/check_proxy_async.py
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../../'))
@@ -6,7 +7,9 @@ SRC_DIR = os.path.join(BASE_DIR, 'src')
 sys.path.append(SRC_DIR)
 
 from django.core.management.base import BaseCommand
-from src.func_proxy import check_proxy_new  # Adjust import path as per your actual function location
+
+from src.func_proxy import \
+    check_proxy_new  # Adjust import path as per your actual function location
 
 
 class Command(BaseCommand):
