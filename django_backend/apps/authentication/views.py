@@ -84,14 +84,14 @@ class CreateUserAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_304_NOT_MODIFIED)
 
     def get(self, request: HttpRequest, username: Optional[str] = None, password: Optional[str] = None):
         serializer = UserRegistrationSerializer(data={'username': username, 'password': password})
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_304_NOT_MODIFIED)
 
 
 class LoginUserAPIView(APIView):
