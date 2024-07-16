@@ -5,3 +5,6 @@ from .models import UserBalance
 @admin.register(UserBalance)
 class UserBalanceAdmin(admin.ModelAdmin):
     list_display = ('user', 'saldo')
+
+    def __str__(self):
+        return "User Balance"
