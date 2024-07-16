@@ -181,11 +181,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'public')
-# django_heroku.settings(locals())
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'django_backend/static/media')
-# MEDIA_URL = '/static/media/'
+
 # Define multiple directories for static files
-# STATICFILES_DIRS = [
-#     BASE_DIR + "/js",
-#     BASE_DIR + "/xl/static",
-# ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'django_backend/apps/axis/statics'),
+    os.path.join(BASE_DIR, 'js'),
+    os.path.join(BASE_DIR, 'public'),
+]
+# Filter only existing directories
+existing_static_dirs = [path for path in STATICFILES_DIRS if os.path.exists(path)]
+
+# Assign the filtered list back to STATICFILES_DIRS
+STATICFILES_DIRS = existing_static_dirs
