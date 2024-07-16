@@ -2,13 +2,133 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
+global $isCli;
+
 use PhpProxyHunter\ProxyDB;
+use PhpProxyHunter\Scheduler;
+use PhpProxyHunter\Server;
 
 // re-check working proxies
 // real check whether actual title same
 
+$output_log = __DIR__ . '/proxyChecker.txt';
 $max = 100;
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
+
+// environment checks
+if (!$isCli) {
+  // set output buffering to zero
+  ini_set('output_buffering', 0);
+  if (ob_get_level() == 0) {
+    ob_start();
+  }
+  header("Access-Control-Allow-Origin: *");
+  header("Access-Control-Allow-Headers: *");
+  header("Access-Control-Allow-Methods: *");
+  header('Content-Type: text/plain; charset=UTF-8');
+  // setup lock file
+  $id = Server::getRequestIP();
+  if (empty($id)) {
+    $id = Server::useragent();
+  }
+  // lock file same as scanPorts.php
+  $webLockFile = tmp() . '/runners/real-web-' . sanitizeFilename($id) . '.lock';
+  if (file_exists($webLockFile) && !$isAdmin) {
+    exit(date(DATE_RFC3339) . ' another process still running (web lock file is locked) ' . basename(__FILE__, '.php') . PHP_EOL);
+  } else {
+    write_file($webLockFile, date(DATE_RFC3339));
+    // truncate output log file
+    truncateFile($output_log);
+  }
+  // delete web lock file after webserver closed
+  Scheduler::register(function () use ($webLockFile) {
+    delete_path($webLockFile);
+  }, 'webserver-close-' . md5(__FILE__));
+  // parse post data
+  if (isset($_REQUEST['proxy'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+      // post data with body key/name proxy
+      $parse = parsePostData();
+      if ($parse) {
+        if (isset($parse['proxy'])) {
+          $str = rawurldecode($parse['proxy']);
+        } else {
+          $str = rawurldecode(json_encode($parse));
+        }
+      }
+    } else {
+      // proxyCheckerParallel.php?proxy=ANY_STRING_CONTAINS_PROXY
+      $str = rawurldecode($_REQUEST['proxy']);
+    }
+  }
+
+  // web server run parallel in background
+  // avoid bad response or hangs whole web server
+  $file = __FILE__;
+  $output_file = __DIR__ . '/proxyChecker.txt';
+  $cmd = "php " . escapeshellarg($file);
+
+  $runner = tmp() . "/runners/" . basename($webLockFile . '.lock') . ($isWin ? '.bat' : "");
+  $uid = getUserId();
+  $cmd .= " --userId=" . escapeshellarg($uid);
+  $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
+  $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
+  $cmd .= " --max=" . escapeshellarg("30");
+  $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
+
+  echo $cmd . "\n\n";
+
+  // Generate the command to run in the background
+  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
+
+  // Write the command to the runner script
+  write_file($runner, $cmd);
+
+  // Execute the runner script in the background
+  runBashOrBatch($runner);
+
+  // Exit the PHP script
+  exit;
+} else {
+  $short_opts = "p:m::";
+  $long_opts = [
+    "max::",
+    "userId::",
+    "lockFile::",
+    "runner::",
+    "admin::"
+  ];
+  $options = getopt($short_opts, $long_opts);
+  $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
+  if (!$isAdmin) {
+    // only apply lock file for non-admin command
+    if (!empty($options['lockFile'])) {
+      if (file_exists($options['lockFile'])) {
+        exit(date(DATE_RFC3339) . ' another process still running (--lockFile is locked) ' . basename(__FILE__, '.php') . PHP_EOL);
+      }
+      write_file($options['lockFile'], '');
+      Scheduler::register(function () use ($options) {
+        delete_path($options['lockFile']);
+      }, 'release-cli-lock');
+    }
+  }
+
+  if (!empty($options['runner'])) {
+    // remove web server runner after finish
+    Scheduler::register(function () use ($options) {
+      delete_path($options['runner']);
+    }, 'release-runner-script');
+  }
+
+  if (!empty($options['max'])) {
+    $max_test = intval($options['max']);
+    if ($max_test > 0) {
+      $max = $max_test;
+    }
+  }
+}
+
+// process
 $proxies = $db->getWorkingProxies($max);
 if (count($proxies) < 10) {
   $proxies = array_merge($proxies, $db->getUntestedProxies($max));

@@ -40,6 +40,7 @@ if ($isCli) {
   }
 
   if (!empty($options['runner'])) {
+    // remove web server runner after finish
     Scheduler::register(function () use ($options) {
       delete_path($options['runner']);
     }, 'release-runner-script');
@@ -78,6 +79,7 @@ if ($isCli) {
     // truncate output log file
     truncateFile($output_log);
   }
+  // delete web lock file after webserver closed
   Scheduler::register(function () use ($webLockFile) {
     delete_path($webLockFile);
   }, 'webserver-close-' . md5(__FILE__));
