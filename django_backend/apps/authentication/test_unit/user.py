@@ -30,15 +30,17 @@ class TestUser(unittest.TestCase):
             'X-CSRFToken': utils.parse_csrf_token_from_cookie_file(self.admin.cookie_file)
         })
         response = build_request(endpoint=url, headers=self.headers, post_data=json.dumps(self.login_data), method='POST', cookie_file=self.admin.cookie_file)
-        # print(response.text, response.status_code)
-        self.assertTrue(response.status_code == 200 or response.status_code == 304)
+        if response.status_code != 201 and response.status_code != 304:
+            print('test_1_create', response.text, response.status_code)
+        self.assertTrue(response.status_code == 201 or response.status_code == 304)
+        self.assertTrue('created success' in response.text)
 
     def test_2_login(self):
         self.admin.test_4_logout()
         url = 'http://127.0.0.1:8000/auth/login'
         response = build_request(endpoint=url, headers=self.headers, post_data=json.dumps(self.login_data), method='POST', cookie_file=self.admin.cookie_file)
         if response.status_code != 200:
-            print(response.text)
+            print('test_2_login', response.text)
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Login success" in response.text)
 
