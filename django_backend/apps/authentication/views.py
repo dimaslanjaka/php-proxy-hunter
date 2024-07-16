@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpRequest, JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -108,7 +108,7 @@ class LoginUserAPIView(APIView):
 
     def get(self, request: HttpRequest, username: Optional[str] = None, password: Optional[str] = None):
         if not username or not password:
-            return JsonResponse({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+            return render(request, 'login.html')
 
         if not UserModel.objects.filter(username=username):
             return JsonResponse({'error': 'User not found'}, status=status.HTTP_401_UNAUTHORIZED)
