@@ -92,9 +92,11 @@ fi
 script_name="$1"
 script_args="${2:-}"
 force="${3:-false}"
+background="${4:-false}"
+OUTPUT_FILE="${5:-$CWD/proxyChecker.txt}"
 
 # Call the function with the provided arguments
-run_php_if_not_running "$script_name" "$script_args" "$force"
+run_php_if_not_running "$script_name" "$script_args" "$force" "$background" "$OUTPUT_FILE"
 
 # to run this script
 # bash bin/run-php path/to/filename.php
