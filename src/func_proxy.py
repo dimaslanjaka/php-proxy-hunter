@@ -510,20 +510,21 @@ def check_proxy(proxy: str, proxy_type: str, endpoint: str = None, headers: Dict
     status = None
     error = None
     response = None
-    # if is_port_open(proxy):
-    try:
-        response = build_request(proxy, proxy_type, method="GET", endpoint=endpoint, headers=default_headers)
-        latency = response.elapsed.total_seconds() * 1000  # in milliseconds
-        is_private = 'X-Forwarded-For:' in response.headers or 'Proxy-Authorization:' in response.headers
-        status = response.status_code
-        valid_status_codes = [200, 201, 202, 204, 301, 302, 304]
-        result = response.status_code in valid_status_codes
-    except Exception as e:
-        error = get_requests_error(e)
-        pass
-    # else:
-    #     proxy_ip, proxy_port = proxy.split(":")
-    #     error = f"{proxy_ip} port {proxy_port} closed"
+
+    if is_port_open(proxy):
+        try:
+            response = build_request(proxy, proxy_type, method="GET", endpoint=endpoint, headers=default_headers)
+            latency = response.elapsed.total_seconds() * 1000  # in milliseconds
+            is_private = 'X-Forwarded-For:' in response.headers or 'Proxy-Authorization:' in response.headers
+            status = response.status_code
+            valid_status_codes = [200, 201, 202, 204, 301, 302, 304]
+            result = response.status_code in valid_status_codes
+        except Exception as e:
+            error = get_requests_error(e)
+            pass
+    else:
+        proxy_ip, proxy_port = proxy.split(":")
+        error = f"{proxy_ip} port {proxy_port} closed"
 
     if response is not None:
         current = urlparse(response.url)
