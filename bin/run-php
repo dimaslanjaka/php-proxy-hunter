@@ -1,0 +1,101 @@
+#!/bin/bash
+
+USER="www-data"
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+# Set current working directory to parent directory of bin/
+CWD=$(dirname "$SCRIPT_DIR")
+
+# Function to check if a process is running and start it if not, or force run it
+run_php_if_not_running() {
+  local script_name="$1"
+  local script_args="$2"
+  local force="${3:-false}" # Default to false if not provided
+  local background="${4:-false}"
+  local OUTPUT_FILE="${5:-$CWD/proxyChecker.txt}" # Default output file path
+  local is_running=false
+
+  # check script is running
+  if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
+    # Use ps for Windows (Cygwin)
+    if ps aux | grep -v grep | grep "php $CWD/$script_name" >/dev/null; then
+      is_running=true
+    fi
+    # wmic process where "name='php.exe'" get commandline /format:list | findstr /i ".php"
+    # wmic process where "name='php.exe'" get commandline /format:list | grep -i "\.php"
+    if wmic process where "name='php.exe'" get commandline /format:list | grep -i "$script_name" >/dev/null; then
+      is_running=true
+    fi
+  else
+    # Use pgrep for Unix-like systems
+    if pgrep -f "php $CWD/$script_name" >/dev/null; then
+      is_running=true
+    fi
+  fi
+
+  # echo "$script_name is running $is_running"
+
+  if $is_running; then
+    if [ "$force" = "true" ]; then
+      echo "$script_name is running but will be forcefully restarted."
+      if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
+        # Use ps and kill for Windows (Cygwin)
+        ps aux | grep -v grep | grep "php $CWD/$script_name" | awk '{print $2}' | xargs kill
+        if [ "$background" = "true" ]; then
+          cd $CWD && php $script_name $script_args >>$OUTPUT_FILE 2>&1 &
+        else
+          cd $CWD && php $script_name $script_args
+        fi
+      else
+        # Use pkill and su for Unix-like systems
+        pkill -f "php $CWD/$script_name"
+        if [ "$background" = "true" ]; then
+          su -s /bin/sh -c "cd $CWD && php $script_name $script_args >> $OUTPUT_FILE 2>&1 &" "$USER"
+        else
+          su -s /bin/sh -c "cd $CWD && php $script_name $script_args" "$USER"
+        fi
+      fi
+    else
+      echo "$script_name is still running."
+    fi
+  else
+    if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
+      # Run directly for Windows (Cygwin)
+      if [ "$background" = "true" ]; then
+        cd $CWD && php $script_name $script_args >>$OUTPUT_FILE 2>&1 &
+      else
+        cd $CWD && php $script_name $script_args
+      fi
+    else
+      # Use su for Unix-like systems
+      if [ "$background" = "true" ]; then
+        su -s /bin/sh -c "cd $CWD && php $script_name $script_args >> $OUTPUT_FILE 2>&1 &" "$USER"
+        else
+        su -s /bin/sh -c "cd $CWD && php $script_name $script_args" "$USER"
+      fi
+    fi
+  fi
+}
+
+# Validate and run scripts if not already running
+# run_php_if_not_running "proxies-all.php" "--admin=true"
+# run_php_if_not_running "filterPortsDuplicate.php" "--admin=true --delete=true"
+# run_php_if_not_running "filterPorts.php" "--admin=true"
+# run_php_if_not_running "proxyChecker.php" "--admin=true --max=1000" "true"
+
+# Check if at least one argument is provided
+if [ "$#" -lt 1 ]; then
+  echo "Usage: $0 <filename.php> [script_args] [force]"
+  exit 1
+fi
+
+# Extract arguments
+script_name="$1"
+script_args="${2:-}"
+force="${3:-false}"
+
+# Call the function with the provided arguments
+run_php_if_not_running "$script_name" "$script_args" "$force"
+
+# to run this script
+# bash bin/run-php path/to/filename.php
+# ./bin/run-php.sh filename.php "arg1 arg2" true
