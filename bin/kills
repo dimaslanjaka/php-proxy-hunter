@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Check the operating system type
+if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
+    echo "Running in Cygwin or MSYS environment"
+    # Terminate Windows processes using taskkill
+    taskkill //F //IM python.exe
+    wmic process where "name like '%chrome.exe%'" delete
+    wmic process where "name like '%webdriver.exe%'" delete
+    wmic process where "name like '%chromedriver.exe%'" delete
+    wmic process where "name like '%php.exe%'" delete
+    wmic process where "name like '%python.exe%'" delete
+    wmic process where "name like '%node.exe%'" delete
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo "Running in Linux environment"
+    # Terminate POSIX-compatible processes using ps and kill
+    # Example: terminate Python processes
+    ps -ef | grep python | grep -v grep | awk '{print $2}' | xargs kill -9
+
+    # Example: terminate Chrome-related processes
+    ps -ef | grep chrome | grep -v grep | awk '{print $2}' | xargs kill -9
+    ps -ef | grep webdriver | grep -v grep | awk '{print $2}' | xargs kill -9
+    ps -ef | grep chromedriver | grep -v grep | awk '{print $2}' | xargs kill -9
+
+    # Example: terminate PHP processes
+    ps -ef | grep php | grep -v grep | awk '{print $2}' | xargs kill -9
+
+    # Example: terminate Node.js processes
+    ps -ef | grep node | grep -v grep | awk '{print $2}' | xargs kill -9
+else
+    echo "Unknown environment: $OSTYPE"
+fi
+
+# Additional commands (commented out in original batch script)
+# rm -f *.lock
+# php composer.phar install
+# touch yarn.lock
+# yarn install
