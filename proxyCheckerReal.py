@@ -87,7 +87,8 @@ def worker(item: Dict[str, str]):
         if test['result']:
             db.update_data(item['proxy'], {
                 'status': 'active',
-                'https': str(test['https']).lower()
+                'https': 'true' if test['https'] else 'false',
+                'protocols': '-'.join(test['protocols']).lower()
             })
         else:
             db.update_status(item['proxy'], 'dead')
