@@ -32,6 +32,7 @@ package-lock.json
 /_env.json
 !/.crontab.txt
 /backups
+!**/*.php.txt
 
 # python
 /profiles-proxy.json

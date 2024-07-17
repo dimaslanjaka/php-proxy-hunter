@@ -18,6 +18,7 @@ $output_log = __DIR__ . '/proxyChecker.txt';
 $max = 100;
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
 $str = '';
+$str = '8.220.136.174:9080';
 
 // environment checks
 if (!$isCli) {
@@ -169,6 +170,12 @@ function getPageTitle($html)
 function realCheck($proxy)
 {
   global $db;
+
+  echo str_repeat('=', 27);
+  echo "\nCHECKING $proxy\n";
+  echo str_repeat('=', 27);
+  echo PHP_EOL;
+
   /**
    * @var string[]
    */
