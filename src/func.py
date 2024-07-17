@@ -17,6 +17,9 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
+# set Timezone
+os.environ['TZ'] = 'Asia/Jakarta'
+
 # determine if application is a script file or frozen exe
 if getattr(sys, 'frozen', False):
     __CWD__ = os.path.dirname(os.path.realpath(sys.executable))
