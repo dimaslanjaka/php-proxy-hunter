@@ -209,7 +209,7 @@ function realCheck($proxy)
   if (!empty($protocols)) {
     $db->updateData($proxy, ['status' => 'active', 'type' => strtolower(implode('-', $protocols))]);
   } else {
-    $db->updateStatus($proxy, 'dead');
+    $db->updateData($proxy, ['status' => 'dead'], false);
   }
 }
 
