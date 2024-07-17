@@ -3,7 +3,7 @@ from src.ProxyDB import ProxyDB
 from src.func import get_relative_path, file_append_str, sanitize_filename, truncate_file_content
 from src.func_console import red, green
 from src.func_proxy import check_proxy
-import random
+import random, os
 
 
 def real_check(proxy: str, url: str, title_should_be: str):
@@ -43,7 +43,9 @@ def real_check(proxy: str, url: str, title_should_be: str):
                 if title_should_be.lower() in title.lower():
                     protocols.append(proxy_type.lower())
             file_append_str(output_file, log)
-    print(f"result writen {output_file}")
+
+    if os.path.exists(output_file):
+        print(f"logs writen {output_file}")
 
     result = {
         'result': False,
