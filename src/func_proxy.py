@@ -837,6 +837,30 @@ def is_valid_ip_port(s: str) -> bool:
     return bool(re.match(pattern, s))
 
 
+def is_valid_ip(proxy: Optional[str]) -> bool:
+    """
+    Validate a given proxy IP address.
+
+    Args:
+        proxy (Optional[str]): The proxy IP address to validate. Can be None.
+
+    Returns:
+        bool: True if the proxy IP address is valid, False otherwise.
+    """
+    if not proxy:
+        return False
+
+    split = proxy.strip().split(":", 1)
+    ip = split[0]
+
+    is_ip_valid = (re.match(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$', ip) is not None
+                   and len(ip) >= 7
+                   and '..' not in ip)
+    re_pattern = re.compile(r'(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
+
+    return is_ip_valid and re_pattern.match(ip) is not None
+
+
 def is_post_length_within_limit(data_string: str, limit_mb: float = 8.0) -> bool:
     """
     Check if the length of the given string when encoded in UTF-8 is within the specified limit in megabytes.
