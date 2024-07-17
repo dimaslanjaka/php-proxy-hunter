@@ -838,18 +838,19 @@ def is_file_larger_than_kb(file_path, size_in_kb=5):
 
 
 def truncate_file_content(file_path, max_length=0):
-    try:
-        with open(file_path, 'r+', encoding='utf-8') as file:
-            content = file.read()
-            if len(content) > max_length:
-                file.seek(0)
-                file.truncate(max_length)
-                file.write(content[:max_length])
-                # print(f"Content truncated to {max_length} characters.")
-            else:
-                pass
-    except Exception:
-        pass
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r+', encoding='utf-8') as file:
+                content = file.read()
+                if len(content) > max_length:
+                    file.seek(0)
+                    file.truncate(max_length)
+                    file.write(content[:max_length])
+                    # print(f"Content truncated to {max_length} characters.")
+                else:
+                    pass
+        except Exception:
+            pass
 
 
 def sanitize_filename(filename):
