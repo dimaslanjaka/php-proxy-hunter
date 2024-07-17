@@ -612,6 +612,7 @@ function checkProxy(
   $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password);
   curl_setopt($ch, CURLINFO_HEADER_OUT, true);
   curl_setopt($ch, CURLOPT_HEADER, true);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 60); // Timeout in seconds
   $start = microtime(true); // Start time
   $response = curl_exec($ch);
   $end = microtime(true); // End time
