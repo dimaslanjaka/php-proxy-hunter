@@ -606,10 +606,27 @@ function checkProxy(
   string  $endpoint = 'https://bing.com',
   array   $headers = [],
   ?string $username = null,
-  ?string $password = null
-): array {
+  ?string $password = null,
+  bool $multiSSL = false
+) {
   $proxy = trim($proxy);
-  $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password);
+  if (!$multiSSL) {
+    $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password, "GET", null, 0);
+    return processCheckProxy($ch, $proxy, $type, $username, $password);
+  } else {
+    $chs = [
+      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, "GET", null, 0),
+      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, "GET", null, 1),
+      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, "GET", null, 2),
+      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, "GET", null, 3)
+    ];
+    return array_map('processCheckProxy', $chs);
+  }
+}
+
+function processCheckProxy($ch, $proxy, $type, $username, $password): array
+{
+  $endpoint = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
   curl_setopt($ch, CURLINFO_HEADER_OUT, true);
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60); // Timeout for connection phase in seconds
@@ -631,7 +648,14 @@ function checkProxy(
   // is private proxy?
   $isPrivate = stripos($response_header, 'Proxy-Authorization:') !== false;
 
-  $result = ['result' => false, 'body' => $response, 'response-headers' => $response_header, 'request-headers' => $request_headers, 'proxy' => $proxy, 'type' => $type];
+  $result = [
+    'result' => false,
+    'body' => $response,
+    'response-headers' => $response_header,
+    'request-headers' => $request_headers,
+    'proxy' => $proxy,
+    'type' => $type
+  ];
 
   // check if proxy not raw header
   if (is_string($body) && checkRawHeadersKeywords($body)) {
