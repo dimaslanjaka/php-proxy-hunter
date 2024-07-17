@@ -114,7 +114,7 @@ def worker(item: Dict[str, str]):
                 })
             https = 'true' if test['https'] else 'false'
             protocols = '-'.join(test['protocols']).lower()
-            sql_exec(f"UPDATE proxies SET status = 'active', type = '{protocols}', https = '{https}' WHERE proxy = '{item['proxy']}';")
+            sql_exec(f"UPDATE proxies SET status = 'active', type = '{protocols}', https = '{https}', last_check = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE proxy = '{item['proxy']}';")
         else:
             if db:
                 db.update_status(item['proxy'], 'dead')
