@@ -20,6 +20,7 @@ def real_check(proxy: str, url: str, title_should_be: str):
     protocols = []
     output_file = get_relative_path(f"tmp/logs/{sanitize_filename(proxy)}.txt")
     truncate_file_content(output_file)
+    response_title = ''
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -44,9 +45,9 @@ def real_check(proxy: str, url: str, title_should_be: str):
                 log += f"  {key}: {value}\n"
             if check.response.text:
                 soup = BeautifulSoup(check.response.text, 'html.parser')
-                title = soup.title.string.strip() if soup.title else ''
-                log += f"TITLE: {title}\n"
-                if title_should_be.lower() in title.lower():
+                response_title = soup.title.string.strip() if soup.title else ''
+                log += f"TITLE: {response_title}\n"
+                if title_should_be.lower() in response_title.lower():
                     protocols.append(proxy_type.lower())
             file_append_str(output_file, log)
 
@@ -61,10 +62,10 @@ def real_check(proxy: str, url: str, title_should_be: str):
         'protocols': protocols
     }
     if protocols:
-        print(f"{proxy} {green('working')} -> {url}")
+        print(f"{proxy} {green('working')} -> {url} ({response_title})")
         result['result'] = True
     else:
-        print(f"{proxy} {red('dead')} -> {url}")
+        print(f"{proxy} {red('dead')} -> {url} ({response_title})")
         result['result'] = False
     return result
 
