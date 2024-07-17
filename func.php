@@ -1891,17 +1891,19 @@ function unixPath($path)
 }
 
 /**
- * Checks if a file is locked by another PHP process.
+ * Checks if a file is locked by another PHP process or is temporarily unavailable.
  *
  * @param string $filePath The path to the file.
- * @return bool True if the file is locked, false otherwise.
+ * @return bool True if the file is locked or temporarily unavailable, false otherwise.
  */
 function is_file_locked(string $filePath): bool
 {
-  // not found file treat as locked
-  if (!file_exists($filePath)) {
+  // Check if the file exists
+  if (!file_exists($filePath) || !is_readable($filePath) || !is_writable($filePath)) {
     return true;
   }
+
+  // Check if the file is locked
   $handle = @fopen($filePath, "r");
   if ($handle === false) {
     // Unable to open file
@@ -1909,13 +1911,13 @@ function is_file_locked(string $filePath): bool
   }
 
   // Attempt to acquire an exclusive lock
-  $isLocked = flock($handle, LOCK_EX | LOCK_NB);
+  $isLocked = !flock($handle, LOCK_EX | LOCK_NB);
 
   // Release the lock
   flock($handle, LOCK_UN);
   fclose($handle);
 
-  return !$isLocked;
+  return $isLocked;
 }
 
 /**
