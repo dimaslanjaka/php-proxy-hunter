@@ -535,10 +535,13 @@ def check_proxy(proxy: str, proxy_type: str, endpoint: str = None, headers: Dict
             is_private = True
 
     if not result:
-        checker = ProxyChecker()
-        lib_result = checker.check_proxy(proxy)
-        if lib_result and proxy_type in lib_result['protocols']:
-            result = True
+        try:
+            checker = ProxyChecker()
+            lib_result = checker.check_proxy(proxy)
+            if lib_result and proxy_type in lib_result['protocols']:
+                result = True
+        except Exception:
+            pass
 
     c_result = ProxyCheckResult(
         result=result,
