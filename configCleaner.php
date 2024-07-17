@@ -20,7 +20,9 @@ $directories = [
   __DIR__ . '/tmp/',
   __DIR__ . '/tmp/cookies/',
   __DIR__ . '/tmp/sessions/',
-  __DIR__ . '/tmp/runners/'
+  __DIR__ . '/tmp/runners/',
+  __DIR__ . '/tmp/logs/',
+  __DIR__ . '/backups/'
 ];
 
 // Get the current timestamp
