@@ -47,9 +47,11 @@ if ($page <= 0) {
 if (!empty($parseQueries['status']) && in_array($parseQueries['status'], $allowed_status)) {
   $status = $parseQueries['status'];
 }
+$response_format = 'json';
 if (!empty($parseQueries['format'])) {
   if ($parseQueries['format'] == 'txt') {
     header('Content-Type: text/plain; charset=utf-8');
+    $response_format = 'txt';
   }
 }
 $offset = ($page - 1) * $max;
@@ -92,25 +94,38 @@ foreach ($data as &$item) {
 
 $full_url = strtok((empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]", '?');
 
-$response = [
-  "current_page" => $page,
-  "total_pages" => $totalPages,
-  "total_items" => $totalItems,
-  "items_per_page" => $max,
-  "items" => $data,
-  "tips" => [
-    "statuses" => "(pick one) status=" . implode(", ", $allowed_status),
-    "randomize" => "(randomize result) random=true",
-    "limit" => "(increase limit per page) max=10",
-    "page" => "(pagination) page=1",
-    "example" => $full_url . "?page=4&max=30&status=active&random=true"
-  ]
-];
+if ($response_format == 'json') {
+  $response = [
+    "current_page" => $page,
+    "total_pages" => $totalPages,
+    "total_items" => $totalItems,
+    "items_per_page" => $max,
+    "items" => $data,
+    "tips" => [
+      "statuses" => "(pick one) status=" . implode(", ", $allowed_status),
+      "randomize" => "(randomize result) random=true",
+      "limit" => "(increase limit per page) max=10",
+      "page" => "(pagination) page=1",
+      "example" => $full_url . "?page=4&max=30&status=active&random=true&format=json"
+    ]
+  ];
 
-if ($isAdmin) {
-  $response['query'] = $query;
+  if ($isAdmin) {
+    $response['query'] = $query;
+  }
+
+  ksort($response);
+  echo json_encode($response, JSON_PRETTY_PRINT);
+} else {
+  echo "Total pages $totalPages\n";
+  echo "Total items $totalItems\n";
+  echo "Total items per page $max\n";
+  echo "Current page $page\n";
+  echo PHP_EOL;
+  foreach ($data as $item) {
+    echo implode("|", array_map(function ($str) {
+      if (empty($str)) return '-';
+      return $str;
+    }, array_values($item))) . PHP_EOL;
+  }
 }
-
-ksort($response);
-
-echo json_encode($response, JSON_PRETTY_PRINT);
