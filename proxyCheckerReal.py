@@ -75,7 +75,13 @@ def worker(item: Dict[str, str]):
         test = real_check(item['proxy'], 'https://www.axis.co.id/bantuan', 'pusat layanan')
 
         if not test['result']:
+            test = real_check(item['proxy'], 'https://www.example.com/', 'example')
+
+        if not test['result']:
             test = real_check(item['proxy'], 'http://azenv.net/', 'AZ Environment')
+
+        if not test['result']:
+            test = real_check(item['proxy'], 'http://httpforever.com/', 'HTTP Forever')
 
         if test['result']:
             db.update_data(item['proxy'], {
