@@ -1,22 +1,39 @@
 import os
+import sys
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../../'))
+SRC_DIR = os.path.join(BASE_DIR, 'src')
+sys.path.append(SRC_DIR)
+
 import random
 from multiprocessing.pool import ThreadPool as Pool
 from typing import Dict, List
-from joblib import Parallel, delayed
+
 from bs4 import BeautifulSoup
+from django.conf import settings
+from django.core.management.base import BaseCommand
+from joblib import Parallel, delayed
 
 from src.func import (file_append_str, get_relative_path, sanitize_filename,
                       truncate_file_content)
 from src.func_console import green, red
 from src.func_proxy import check_proxy
 from src.ProxyDB import ProxyDB
+from django.db import connection
+from django_backend.apps.proxy.models import Proxy
+
+
+def sql_exec(sql: str):
+    # Get a cursor object using the connection
+    with connection.cursor() as cursor:
+        # Write your raw SQL query
+        sql_query = sql
+
+        # Execute the raw SQL query
+        cursor.execute(sql_query)
 
 
 def real_check(proxy: str, url: str, title_should_be: str):
-    # print('=' * 30)
-    # print(f"CHECKING {proxy}")
-    # print('=' * 30)
-
     protocols = []
     output_file = get_relative_path(f"tmp/logs/{sanitize_filename(proxy)}.txt")
     truncate_file_content(output_file)
@@ -52,7 +69,7 @@ def real_check(proxy: str, url: str, title_should_be: str):
             file_append_str(output_file, log)
 
     if os.path.exists(output_file):
-        print(f"logs writen {output_file}")
+        print(f"logs written {output_file}")
 
     result = {
         'result': False,
@@ -71,8 +88,12 @@ def real_check(proxy: str, url: str, title_should_be: str):
 
 
 def worker(item: Dict[str, str]):
+    db = None
     try:
         db = ProxyDB(get_relative_path('src/database.sqlite'))
+    except Exception:
+        pass
+    try:
         test = real_check(item['proxy'], 'https://www.axis.co.id/bantuan', 'pusat layanan')
 
         if not test['result']:
@@ -85,24 +106,31 @@ def worker(item: Dict[str, str]):
             test = real_check(item['proxy'], 'http://httpforever.com/', 'HTTP Forever')
 
         if test['result']:
-            db.update_data(item['proxy'], {
-                'status': 'active',
-                'https': 'true' if test['https'] else 'false',
-                'type': '-'.join(test['protocols']).lower() if 'protocols' in test else ''
-            })
+            if db:
+                db.update_data(item['proxy'], {
+                    'status': 'active',
+                    'https': 'true' if test['https'] else 'false',
+                    'type': '-'.join(test['protocols']).lower()
+                })
+            https = 'true' if test['https'] else 'false'
+            protocols = '-'.join(test['protocols']).lower()
+            sql_exec(f"UPDATE proxies SET status = 'active', type = '{protocols}', https = '{https}' WHERE proxy = '{item['proxy']}';")
         else:
-            db.update_status(item['proxy'], 'dead')
+            if db:
+                db.update_status(item['proxy'], 'dead')
+            sql_exec(f"UPDATE proxies SET status = 'dead' WHERE proxy = '{item['proxy']}';")
 
     except Exception as e:
         print(f'Error processing item {item}: {str(e)}')
 
     finally:
-        db.close()
+        if db:
+            db.close()
 
 
 def using_pool(proxies: List[Dict[str, str]], pool_size: int = 5):
     """
-    multi threading using pool
+    Multi-threading using pool
     """
     pool = Pool(pool_size)
     for item in proxies[:100]:
@@ -117,12 +145,24 @@ def using_joblib(proxies: List[Dict[str, str]], pool_size: int = 5):
     Parallel(n_jobs=pool_size)(delayed(worker)(item) for item in proxies)
 
 
-if __name__ == "__main__":
-    db = ProxyDB(get_relative_path('src/database.sqlite'))
-    proxies: List[Dict[str, str | None]] = db.get_all_proxies()
-    random.shuffle(proxies)
+class Command(BaseCommand):
+    help = 'Check the status of proxies and update the database.'
 
-    # using_pool(proxies, 5)
-    using_joblib(proxies, 5)
+    def handle(self, *args, **kwargs):
+        proxies = list(Proxy.objects.all().values())
+        random.shuffle(proxies)
+        using_pool(proxies, 5)
+        try:
+            self.handle1(*args, **kwargs)
+        except Exception:
+            pass
 
-    db.close()
+    def handle1(self, *args, **kwargs):
+        db = ProxyDB(get_relative_path('src/database.sqlite'))
+        proxies: List[Dict[str, str | None]] = db.get_all_proxies()
+        random.shuffle(proxies)
+
+        # using_pool(proxies, 5)
+        using_joblib(proxies, 5)
+
+        db.close()
