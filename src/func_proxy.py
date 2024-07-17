@@ -512,7 +512,7 @@ def check_proxy(proxy: str, proxy_type: str, endpoint: str = None, headers: Dict
     response = None
     # if is_port_open(proxy):
     try:
-        response = build_request(proxy, proxy_type, endpoint, default_headers)
+        response = build_request(proxy, proxy_type, method="GET", endpoint=endpoint, headers=default_headers)
         latency = response.elapsed.total_seconds() * 1000  # in milliseconds
         is_private = 'X-Forwarded-For:' in response.headers or 'Proxy-Authorization:' in response.headers
         status = response.status_code
