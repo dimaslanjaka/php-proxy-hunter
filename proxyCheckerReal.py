@@ -1,15 +1,21 @@
+import os
+import random
+from multiprocessing.pool import ThreadPool as Pool
+from typing import Dict, List
+from joblib import Parallel, delayed
 from bs4 import BeautifulSoup
-from src.ProxyDB import ProxyDB
-from src.func import get_relative_path, file_append_str, sanitize_filename, truncate_file_content
-from src.func_console import red, green
+
+from src.func import (file_append_str, get_relative_path, sanitize_filename,
+                      truncate_file_content)
+from src.func_console import green, red
 from src.func_proxy import check_proxy
-import random, os
+from src.ProxyDB import ProxyDB
 
 
 def real_check(proxy: str, url: str, title_should_be: str):
-    print('=' * 30)
-    print(f"CHECKING {proxy}")
-    print('=' * 30)
+    # print('=' * 30)
+    # print(f"CHECKING {proxy}")
+    # print('=' * 30)
 
     protocols = []
     output_file = get_relative_path(f"tmp/logs/{sanitize_filename(proxy)}.txt")
@@ -63,16 +69,14 @@ def real_check(proxy: str, url: str, title_should_be: str):
     return result
 
 
-if __name__ == "__main__":
-    db = ProxyDB(get_relative_path('src/database.sqlite'))
-    proxies = db.get_all_proxies()
-    random.shuffle(proxies)
-    for item in proxies[:100]:
-        if not item:
-            continue
+def worker(item: Dict[str, str]):
+    try:
+        db = ProxyDB(get_relative_path('src/database.sqlite'))
         test = real_check(item['proxy'], 'https://www.axis.co.id/bantuan', 'pusat layanan')
+
         if not test['result']:
             test = real_check(item['proxy'], 'http://azenv.net/', 'AZ Environment')
+
         if test['result']:
             db.update_data(item['proxy'], {
                 'status': 'active',
@@ -80,3 +84,37 @@ if __name__ == "__main__":
             })
         else:
             db.update_status(item['proxy'], 'dead')
+
+    except Exception as e:
+        print(f'Error processing item {item}: {str(e)}')
+
+    finally:
+        db.close()
+
+
+def using_pool(proxies: List[Dict[str, str]], pool_size: int = 5):
+    """
+    multi threading using pool
+    """
+    pool = Pool(pool_size)
+    for item in proxies[:100]:
+        if not item:
+            continue
+        pool.apply_async(worker, (item,))
+    pool.close()
+    pool.join()
+
+
+def using_joblib(proxies: List[Dict[str, str]], pool_size: int = 5):
+    Parallel(n_jobs=pool_size)(delayed(worker)(item) for item in proxies)
+
+
+if __name__ == "__main__":
+    db = ProxyDB(get_relative_path('src/database.sqlite'))
+    proxies: List[Dict[str, str | None]] = db.get_all_proxies()
+    random.shuffle(proxies)
+
+    # using_pool(proxies, 5)
+    using_joblib(proxies, 5)
+
+    db.close()
