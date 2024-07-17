@@ -1,7 +1,6 @@
 import os
 import sys
 
-# Assuming this script is located in django_backend/apps/core/management/commands/check_proxy_async.py
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../../'))
 SRC_DIR = os.path.join(BASE_DIR, 'src')
 sys.path.append(SRC_DIR)
