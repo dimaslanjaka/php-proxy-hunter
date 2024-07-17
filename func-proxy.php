@@ -855,8 +855,8 @@ function get_geo_ip(string $the_proxy, string $proxy_type = 'http', ?ProxyDB $db
       $data['timezone'] = $locate->timezone;
     }
     $lang = $locate->lang;
-    $locale = country_code_to_locale($locate->countryCode);
-    $ext_intl = ext_intl_get_lang_country_code($locate->countryCode);
+    $locale = $locate->countryCode ? country_code_to_locale($locate->countryCode) : '';
+    $ext_intl = $locate->countryCode ? ext_intl_get_lang_country_code($locate->countryCode) : '';
     if (!empty($locale)) {
       $lang = $locale;
     } elseif (!empty($ext_intl)) {
