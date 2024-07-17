@@ -140,17 +140,21 @@ if (!$isCli) {
 if (!empty($str)) {
   $proxies = extractProxies($str, $db, true);
   $proxies = array_map(function (Proxy $item) {
-    return ['proxy' => $item->proxy, 'username' => $item->username, 'password' => $item->password];
+    return [
+      'proxy' => $item->proxy,
+      'username' => $item->username,
+      'password' => $item->password,
+      'last_check' => $item->last_check
+    ];
   }, $proxies);
 } else {
-  $proxies = $db->getWorkingProxies($max);
-  if (count($proxies) < 10) {
-    $proxies = array_merge($proxies, $db->getUntestedProxies($max));
-  }
-  if (count($proxies) < 10) {
-    $proxies = array_merge($proxies, $db->getDeadProxies($max));
-  }
+  $proxies = array_merge(
+    $db->getWorkingProxies($max),
+    $db->getUntestedProxies($max),
+    $db->getDeadProxies($max)
+  );
 }
+shuffle($proxies);
 
 foreach ($proxies as $proxy) {
   realCheck($proxy['proxy']);
