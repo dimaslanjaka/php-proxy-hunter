@@ -43,9 +43,16 @@ foreach ($directories as $directory) {
       if (!is_file($filePath)) {
         continue;
       }
+      // skip database deletion
+      $pattern = '/\.(db|sqlite|sqlite3)$/i';
+      if (preg_match($pattern, $filePath)) {
+        echo "$filePath excluded";
+        continue;
+      }
 
       // Get the last modification time of the file
       $file_mtime = filemtime($filePath);
+
       // File was last modified more than 1 week ago.
       if ($file_mtime < $oneWeekAgo) {
         // Remove the file
