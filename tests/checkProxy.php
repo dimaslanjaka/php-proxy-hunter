@@ -4,6 +4,7 @@ require __DIR__ . '/../func-proxy.php';
 
 $proxy = '184.168.124.233:5402';
 $proxy = '3.140.243.225:1342';
+$proxy = '72.10.160.172:1889';
 
 // try access proxy directly
 $ch = buildCurl(null, null, 'http://' . $proxy);
