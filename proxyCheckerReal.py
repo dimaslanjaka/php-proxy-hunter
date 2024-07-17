@@ -61,10 +61,10 @@ def real_check(proxy: str, url: str, title_should_be: str):
         'protocols': protocols
     }
     if protocols:
-        print(f"{proxy} {green('working')}")
+        print(f"{proxy} {green('working')} -> {url}")
         result['result'] = True
     else:
-        print(f"{proxy} {red('dead')}")
+        print(f"{proxy} {red('dead')} -> {url}")
         result['result'] = False
     return result
 
