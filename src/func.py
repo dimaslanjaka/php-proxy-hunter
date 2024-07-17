@@ -582,6 +582,26 @@ def delete_path(path: str) -> None:
         print(f"Error deleting '{path}': {e}")
 
 
+def sanitize_filename(filename):
+    """
+    Sanitize a filename by removing any character that is not alphanumeric, underscore, dash, or period.
+
+    Args:
+        filename (str or None): The filename to sanitize.
+
+    Returns:
+        str: The sanitized filename.
+    """
+    if not filename:
+        filename = ''
+
+    # Remove any character that is not alphanumeric, underscore, dash, or period
+    filename = re.sub(r"[^a-zA-Z0-9_-]+", '-', filename)
+    filename = re.sub(r"-+", '-', filename)
+
+    return filename
+
+
 def remove_string_from_file(file_path: str, strings_to_remove: Union[str, List[str]]) -> None:
     """
     Removes all occurrences of specified strings from a file.
