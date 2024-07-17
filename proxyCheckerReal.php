@@ -4,6 +4,7 @@ require_once __DIR__ . '/func-proxy.php';
 
 global $isCli;
 
+use PhpProxyHunter\Proxy;
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
@@ -16,6 +17,7 @@ Scheduler::$debug = false;
 $output_log = __DIR__ . '/proxyChecker.txt';
 $max = 100;
 $db = new ProxyDB(__DIR__ . '/src/database.sqlite');
+$str = '';
 
 // environment checks
 if (!$isCli) {
@@ -98,9 +100,13 @@ if (!$isCli) {
     "userId::",
     "lockFile::",
     "runner::",
-    "admin::"
+    "admin::",
+    "proxy::"
   ];
   $options = getopt($short_opts, $long_opts);
+  if (!empty($options['proxy'])) {
+    $str = rawurldecode($options['proxy']);
+  }
   $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
   if (!$isAdmin) {
     // only apply lock file for non-admin command
@@ -131,12 +137,19 @@ if (!$isCli) {
 }
 
 // process
-$proxies = $db->getWorkingProxies($max);
-if (count($proxies) < 10) {
-  $proxies = array_merge($proxies, $db->getUntestedProxies($max));
-}
-if (count($proxies) < 10) {
-  $proxies = array_merge($proxies, $db->getDeadProxies($max));
+if (!empty($str)) {
+  $proxies = extractProxies($str, $db, true);
+  $proxies = array_map(function (Proxy $item) {
+    return ['proxy' => $item->proxy, 'username' => $item->username, 'password' => $item->password];
+  }, $proxies);
+} else {
+  $proxies = $db->getWorkingProxies($max);
+  if (count($proxies) < 10) {
+    $proxies = array_merge($proxies, $db->getUntestedProxies($max));
+  }
+  if (count($proxies) < 10) {
+    $proxies = array_merge($proxies, $db->getDeadProxies($max));
+  }
 }
 
 foreach ($proxies as $proxy) {
@@ -152,6 +165,10 @@ function getPageTitle($html)
 function realCheck($proxy)
 {
   global $db;
+  /**
+   * @var string[]
+   */
+  $protocols = [];
 
   $headers = [
     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -159,58 +176,31 @@ function realCheck($proxy)
     'Accept-Language: en-US,en;q=0.9',
   ];
 
-  /**
-   * List of cURL handles for different proxy types
-   * @var {\CurlHandle[]}
-   */
-  $chs = [
-    'socks4' => buildCurl($proxy, 'socks4', 'https://bing.com', $headers),
-    'http'   => buildCurl($proxy, 'http', 'https://bing.com', $headers),
-    'socks5' => buildCurl($proxy, 'socks5', 'https://bing.com', $headers),
+  $checks = [
+    'socks4' => checkProxy($proxy, 'socks4', 'https://bing.com', $headers),
+    'http'   => checkProxy($proxy, 'http', 'https://bing.com', $headers),
+    'socks5' => checkProxy($proxy, 'socks5', 'https://bing.com', $headers),
   ];
 
-  // Initiate the multi-cURL handler
-  $mh = curl_multi_init();
-
-  // Add the handles to the multi-cURL handler
-  foreach ($chs as $ch) {
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_multi_add_handle($mh, $ch);
-  }
-
-  $active = null;
-  $protocols = [];
-
-  // Execute the multi-cURL requests
-  do {
-    curl_multi_exec($mh, $active);
-    curl_multi_select($mh);
-  } while ($active > 0);
-
-  // Retrieve and output the results for each proxy type
-  foreach ($chs as $proxyType => $ch) {
-    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $html = curl_multi_getcontent($ch);
-    $title = getPageTitle($html);
-
-    // Example logic to determine proxy status
-    if (strpos(strtolower($title), 'bing') !== false) {
-      echo "$proxyType://$proxy working. Status code: $statusCode\n";
-      $protocols[] = $proxyType;
-    } else if (!empty($title)) {
-      echo "$proxyType://$proxy dead. Status code: $statusCode. Title: $title\n";
-    } else {
-      echo "$proxyType://$proxy dead. Status code: $statusCode\n";
+  foreach ($checks as $proxyType => $cek) {
+    // $ch = $cek['curl'];
+    $log = "" . strtoupper($cek['type']) . "://" . $cek['proxy'] . "\n";
+    $log .= "RESULT: " . ($cek['result'] ? 'true' : 'false') . "\n";
+    if (!$cek['result']) {
+      $log .= 'ERROR: ' . trim("" . $cek['error']) . "\n";
     }
-
-    // Remove the handle from the multi-cURL handler
-    curl_multi_remove_handle($mh, $ch);
-    curl_close($ch);
+    $log .= trim($cek['response-headers']) . "\n";
+    $body = trim($cek['body']);
+    if (!empty($body)) {
+      $dom = \simplehtmldom\helper::str_get_html($body);
+      $title = trim("" . $dom->title());
+      $log .= "TITLE: $title\n";
+      if (strpos(strtolower($title), 'bing') !== false) {
+        $protocols[] = strtolower($cek['type']);
+      }
+    }
+    echo $log;
   }
-
-  // Close the multi-cURL handler
-  curl_multi_close($mh);
 
   if (!empty($protocols)) {
     $db->updateData($proxy, ['status' => 'active', 'type' => strtolower(implode('-', $protocols))]);

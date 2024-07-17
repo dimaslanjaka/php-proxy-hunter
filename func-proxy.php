@@ -16,7 +16,7 @@ use PhpProxyHunter\ProxyDB;
  * @param bool|null $write_database An optional flag to determine if the results should be written to the database.
  * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = true): array
+function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = true)
 {
   if (!$string) {
     return [];
@@ -629,7 +629,7 @@ function checkProxy(
   // is private proxy?
   $isPrivate = stripos($response_header, 'Proxy-Authorization:') !== false;
 
-  $result = ['result' => false, 'body' => $response, 'response-headers' => $response_header, 'request-headers' => $request_headers];
+  $result = ['result' => false, 'body' => $response, 'response-headers' => $response_header, 'request-headers' => $request_headers, 'proxy' => $proxy, 'type' => $type];
 
   // check if proxy not raw header
   if (is_string($body) && checkRawHeadersKeywords($body)) {
