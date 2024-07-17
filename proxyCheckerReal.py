@@ -1,8 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 from src.ProxyDB import ProxyDB
-from src.func import *
-from src.func_console import *
+from src.func import get_relative_path
+from src.func_console import red, green
+import random
 
 
 def real_check(proxy):
