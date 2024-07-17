@@ -36,7 +36,7 @@ def real_check(proxy: str, url: str, title_should_be: str):
     for proxy_type, check in checks.items():
         log = f"{check.type}://{check.proxy}\n"
         log += f"RESULT: {'true' if check.result else 'false'}\n"
-        if not check.result:
+        if not check.result and check.error:
             log += f"ERROR: {check.error.strip()}\n"
         if check.response:
             log += "RESPONSE HEADERS:\n"
