@@ -8,6 +8,8 @@ use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
 
+Scheduler::$debug = false;
+
 // re-check working proxies
 // real check whether actual title same
 
@@ -57,7 +59,7 @@ if (!$isCli) {
         }
       }
     } else {
-      // proxyCheckerParallel.php?proxy=ANY_STRING_CONTAINS_PROXY
+      // proxyCheckerReal.php.php?proxy=ANY_STRING_CONTAINS_PROXY
       $str = rawurldecode($_REQUEST['proxy']);
     }
   }
@@ -216,3 +218,16 @@ function realCheck($proxy)
     $db->updateStatus($proxy, 'dead');
   }
 }
+
+function write_working()
+{
+  global $db;
+  echo "[CHECKER-PARALLEL] writing working proxies" . PHP_EOL;
+  $data = parse_working_proxies($db);
+  file_put_contents(__DIR__ . '/working.txt', $data['txt']);
+  file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
+  file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
+  return $data;
+}
+
+Scheduler::register('write_working', 'z_writing_working_proxies');
