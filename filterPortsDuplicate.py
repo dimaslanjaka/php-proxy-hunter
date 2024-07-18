@@ -170,15 +170,19 @@ def worker_check_open_ports(item: Dict[str, str]):
         if not test["result"]:
             test = real_check(item["proxy"], "http://httpforever.com/", "HTTP Forever")
 
+        last_check = datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
         if test["result"]:
-            last_check = datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
             cursor.execute(
                 "UPDATE proxies SET last_check = ?, status = ? WHERE proxy = ?",
                 (last_check, "active", item["proxy"]),
             )
             conn.commit()
         else:
-            cursor.execute("DELETE FROM proxies WHERE proxy = ?", (item["proxy"],))
+            # cursor.execute("DELETE FROM proxies WHERE proxy = ?", (item["proxy"],))
+            cursor.execute(
+                "UPDATE proxies SET last_check = ?, status = ? WHERE proxy = ?",
+                (last_check, "dead", item["proxy"]),
+            )
             conn.commit()
 
     except sqlite3.Error as e:
