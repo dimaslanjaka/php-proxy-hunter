@@ -93,21 +93,9 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
         db = ProxyDB(get_relative_path("src/database.sqlite"), True)
         conn = db.db.conn
         cursor = conn.cursor()
+        print(f"{ip} has {len(ip_proxies)} duplicates\n")
 
-        # Re-count the same IP
-        cursor.execute(
-            """
-            SELECT COUNT(*) as count
-            FROM proxies
-            WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) = ?
-            AND status != 'active'
-            AND status != 'port-open';
-            """,
-            (ip,),
-        )
-        count = int(cursor.fetchone()[0])
-
-        if count >= 3 or len(ip_proxies) >= 3:
+        if len(ip_proxies) > 1:
             # Fetch all rows matching the IP address (excluding active and port-open proxies)
             cursor.execute(
                 """
@@ -120,8 +108,6 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
             )
             ip_rows = cursor.fetchall()
 
-            print(f"{ip} has {count} duplicates, fetched {len(ip_rows)}")
-
             if len(ip_rows) > 1:
                 keep_row = ip_rows[0]
                 random.shuffle(ip_rows)
@@ -129,7 +115,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                 for row in ip_rows:
                     proxy = row["proxy"]
                     if is_port_open(proxy):
-                        print(f"{proxy} {green('port open')}")
+                        print(f"{proxy} {green('port open')}\n")
                         # keep open port
                         keep_row = row
                         # set status to port-open
@@ -140,7 +126,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                         )
                         conn.commit()
                     else:
-                        print(f"{proxy} {red('port closed')}")
+                        print(f"{proxy} {red('port closed')}\n")
                         if keep_row["proxy"] != proxy:
                             cursor.execute(
                                 "DELETE FROM proxies WHERE proxy = ?", (proxy,)
