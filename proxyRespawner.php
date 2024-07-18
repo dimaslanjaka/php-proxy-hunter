@@ -98,8 +98,6 @@ if ($isAdmin) {
 }
 $db = new ProxyDB();
 $pdo = $db->db->pdo;
-$output_file = __DIR__ . '/proxyChecker.txt';
-truncateFile($output_file);
 
 if ($isCli) {
   $stmt = $pdo->prepare("SELECT *
@@ -121,9 +119,6 @@ if ($isCli) {
     $open = isPortOpen($item['proxy']);
     $log = "[RESPAWN] " . $item['proxy'] . ' port ' . ($open ? 'open' : 'closed') . PHP_EOL;
     echo $log;
-    if (count($argv) == 1) {
-      append_content_with_lock($output_file, $log);
-    }
     if ($open) {
       $db->updateData($item['proxy'], ['status' => 'untested']);
     } else {

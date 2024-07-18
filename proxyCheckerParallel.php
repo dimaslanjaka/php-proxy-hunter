@@ -10,7 +10,6 @@ use PhpProxyHunter\Server;
 
 $db = new ProxyDB();
 $str = '';
-$output_log = __DIR__ . '/proxyChecker.txt';
 // default limit proxy to check
 $max = 100 + $db->countWorkingProxies();
 
@@ -54,7 +53,6 @@ if ($isCli) {
   }
 
   $str = implode("\n", array_values($options));
-  // append_content_with_lock($output_log, "string => " . $str . PHP_EOL);
 } else {
   // set output buffering to zero
   ini_set('output_buffering', 0);
@@ -76,8 +74,6 @@ if ($isCli) {
     exit(date(DATE_RFC3339) . ' another process still running (web lock file is locked) ' . basename(__FILE__, '.php') . PHP_EOL);
   } else {
     write_file($webLockFile, date(DATE_RFC3339));
-    // truncate output log file
-    truncateFile($output_log);
   }
   // delete web lock file after webserver closed
   Scheduler::register(function () use ($webLockFile) {
@@ -109,7 +105,7 @@ if ($isCli) {
   // web server run parallel in background
   // avoid bad response or hangs whole web server
   $file = __FILE__;
-  $output_file = __DIR__ . '/proxyChecker.txt';
+  $runner_output_file = __DIR__ . '/proxyChecker.txt';
   $cmd = "php " . escapeshellarg($file);
 
   $runner = tmp() . "/runners/" . basename($webLockFile . '-' . md5($str), '.lock') . ($isWin ? '.bat' : "");
@@ -124,7 +120,7 @@ if ($isCli) {
   echo $cmd . "\n\n";
 
   // Generate the command to run in the background
-  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
+  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($runner_output_file), escapeshellarg($webLockFile));
 
   // Write the command to the runner script
   write_file($runner, $cmd);
@@ -140,7 +136,6 @@ $proxies = extractProxies($str, $db);
 $str_to_remove = [];
 
 if (empty($proxies)) {
-  // append_content_with_lock($output_log, 'proxies empty' . PHP_EOL);
   $db_data = $db->getUntestedProxies(100);
   if (count($db_data) < 100) {
     // get dead proxies last checked more than 24 hours ago
@@ -203,7 +198,7 @@ if (!empty($proxies)) {
  */
 function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?bool $print_headers = true)
 {
-  global $output_log, $isCli, $max, $str_to_remove, $argv;
+  global $isCli, $max, $str_to_remove, $argv;
   $user_id = getUserId();
   $config = getConfig($user_id);
   $endpoint = 'https://www.example.com';
@@ -271,9 +266,6 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
     if (!isPortOpen($item[0]->proxy)) {
       $db->updateStatus($item[0]->proxy, 'port-closed');
       echo "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} port closed" . PHP_EOL;
-      if (count($argv) == 0) {
-        append_content_with_lock($output_log, "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} port closed\n");
-      }
     } else {
       $ch = [
         buildCurl($item[0]->proxy, 'http', $endpoint, $headers, $item[0]->username, $item[0]->password),
@@ -337,9 +329,6 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
             $priv_msg = $isPrivate ? "true " . implode("|", $match_private) : "false";
             $log_msg =  "[CHECKER-PARALLEL] $counter. $protocol://{$item[0]->proxy} is working (private $priv_msg)\n";
             echo $log_msg;
-            if (count($argv) == 0) {
-              append_content_with_lock($output_log, $log_msg);
-            }
             $isWorking = !$isPrivate;
           }
         }
@@ -390,9 +379,6 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
       } else {
         $db->updateStatus($item[0]->proxy, 'dead');
         echo "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} dead" . PHP_EOL;
-        if (count($argv) == 0) {
-          append_content_with_lock($output_log, "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} dead\n");
-        }
         // re-check with non-https endpoint
         checkProxyInParallel([$item[0]->proxy], 'http://httpforever.com/', false);
       }

@@ -164,10 +164,8 @@ function checkIp($ip)
         // add to database on port open
         $db->updateData($proxy, ['status' => 'untested']);
         echo "$proxy port open" . PHP_EOL;
-        append_content_with_lock($output_file, "$proxy port open" . PHP_EOL);
       } else {
         echo "$proxy port closed" . PHP_EOL;
-        append_content_with_lock($output_file, "$proxy port closed" . PHP_EOL);
       }
       // flush for live echo
       if (ob_get_level() > 0) {
