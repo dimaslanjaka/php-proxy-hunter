@@ -12,6 +12,8 @@ StandardError=syslog
 SyslogIdentifier=php-fpm
 TimeoutStartSec=300
 Restart=always
+User=www-data
+Group=www-data
 
 [Install]
 WantedBy=multi-user.target
