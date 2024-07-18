@@ -11,6 +11,7 @@
     "foxundermoon.shell-format",
     "teclado.vscode-nginx-format",
     "william-voyek.vscode-nginx",
-    "coolbear.systemd-unit-file"
+    "coolbear.systemd-unit-file",
+    "ms-python.black-formatter"
   ]
 }
