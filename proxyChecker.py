@@ -1,4 +1,3 @@
-import sys
 import traceback
 import argparse
 from time import sleep
@@ -10,7 +9,7 @@ from src.func_proxy import check_all_proxies
 def run_proxy_checker(max_proxies: Optional[int] = None):
     if not max_proxies:
         max_proxies = 100
-    truncate_file_content(get_relative_path('proxyChecker.txt'))
+    truncate_file_content(get_relative_path("proxyChecker.txt"))
     try:
         check_all_proxies(max_proxies)
     except Exception as e:
@@ -19,8 +18,8 @@ def run_proxy_checker(max_proxies: Optional[int] = None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Proxy Checker')
-    parser.add_argument('--max', type=int, help='Maximum number of proxies to check')
+    parser = argparse.ArgumentParser(description="Proxy Checker")
+    parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
     args = parser.parse_args()
     if args.max:
         max_proxies = args.max
