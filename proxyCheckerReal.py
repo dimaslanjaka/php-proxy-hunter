@@ -1,9 +1,11 @@
+import argparse
 import os
 import random
 from multiprocessing.pool import ThreadPool as Pool
 from typing import Dict, List
-from joblib import Parallel, delayed
+
 from bs4 import BeautifulSoup
+from joblib import Parallel, delayed
 
 from src.func import (
     file_append_str,
@@ -14,6 +16,8 @@ from src.func import (
 from src.func_console import green, red
 from src.func_proxy import check_proxy
 from src.ProxyDB import ProxyDB
+
+# check proxy with matching the title of response
 
 
 def real_check(proxy: str, url: str, title_should_be: str):
@@ -132,11 +136,19 @@ def using_joblib(proxies: List[Dict[str, str]], pool_size: int = 5):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Proxy Tool")
+    parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
+    args = parser.parse_args()
+    max = 100
+    if args.max:
+        max = args.max
+
     db = ProxyDB(get_relative_path("src/database.sqlite"))
-    proxies: List[Dict[str, str | None]] = db.get_all_proxies()
+    proxies: List[Dict[str, str | None]] = db.get_all_proxies()[:max]
     random.shuffle(proxies)
 
     # using_pool(proxies, 5)
     using_joblib(proxies, 5)
 
+    # close database
     db.close()

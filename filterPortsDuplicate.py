@@ -1,15 +1,19 @@
 import argparse
 import random
+import sqlite3
 from datetime import datetime, timedelta
 from sqlite3 import Cursor
-import sqlite3
 from typing import Dict, List, Union
+
 from joblib import Parallel, delayed
+
 from proxyCheckerReal import real_check
 from src.func import get_relative_path
+from src.func_console import green, red
 from src.func_proxy import is_port_open
-from src.func_console import red, green
 from src.ProxyDB import ProxyDB
+
+# remove duplicate ip's more than 3 proxies
 
 db = ProxyDB(get_relative_path("src/database.sqlite"), True)
 conn = db.db.conn
