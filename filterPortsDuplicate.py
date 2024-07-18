@@ -52,21 +52,36 @@ max_execution_time = 60  # Define maximum execution time
 perform_delete = True
 
 
-def fetch_proxies_same_ip():
-    # Query to fetch proxies with the same IP but different ports
-    query = """
+def fetch_proxies_same_ip(
+    status: List[str] = ["dead", "port-closed", "untested"]
+) -> Dict[str, List[str]]:
+    """
+    Fetch proxies that share the same IP but have different ports and match any of the given statuses.
+
+    Args:
+        status (List[str]): List of statuses to filter proxies. Defaults to ["dead", "port-closed", "untested"].
+
+    Returns:
+        Dict[str, List[str]]: A dictionary where keys are IP addresses and values are lists of proxies with different ports.
+    """
+    # Create a condition string from the status list
+    condition = " OR ".join([f"status = '{s}'" for s in status])
+
+    # Define the query to find proxies with the same IP but different ports
+    query = f"""
     SELECT proxy
     FROM proxies
     WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) IN (
         SELECT SUBSTR(proxy, 1, INSTR(proxy, ':') - 1)
         FROM proxies
-        WHERE status != 'active'
-        AND status != 'port-open'
+        WHERE {condition}
         GROUP BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1)
         HAVING COUNT(*) > 1
     )
     ORDER BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1)
     """
+
+    # Execute the query
     cursor.execute(query)
 
     # Fetch the results
@@ -80,6 +95,7 @@ def fetch_proxies_same_ip():
         if ip not in result:
             result[ip] = []
         result[ip].append(proxy)
+
     return result
 
 
