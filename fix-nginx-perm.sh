@@ -52,6 +52,7 @@ chmod 777 "$SCRIPT_DIR"/tmp "$SCRIPT_DIR"/.cache "$SCRIPT_DIR"/data
 chmod 644 "$SCRIPT_DIR"/data/*.php
 chmod 644 "$SCRIPT_DIR"/*.php
 chmod 644 "$SCRIPT_DIR"/.env
+chmod 755 "$SCRIPT_DIR"/.crontab.sh
 
 # Create necessary directories and index.html files
 mkdir -p "$SCRIPT_DIR/tmp/cookies"
