@@ -4,7 +4,7 @@ import sqlite3
 from datetime import datetime, timedelta
 from sqlite3 import Cursor
 from typing import Callable, Dict, List, Optional, Union
-
+import concurrent.futures
 from joblib import Parallel, delayed
 
 from proxyCheckerReal import real_check
@@ -85,41 +85,37 @@ def fetch_proxies_same_ip():
 
 def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
     """
-    filter duplicated ips by port open checks
+    Filter duplicated IPs by port open checks using multithreading.
     """
     duplicates_ips = fetch_proxies_same_ip()
-    for index, (ip, ip_proxies) in enumerate(duplicates_ips.items()):
-        if index >= max:
-            # only check [n] ips
-            break
-        # Loop each ip
+
+    def process_ip(ip, ip_proxies):
+        db = ProxyDB(get_relative_path("src/database.sqlite"), True)
+        conn = db.db.conn
+        cursor = conn.cursor()
 
         # Re-count the same IP
         cursor.execute(
             """
-        SELECT COUNT(*) as count
-        FROM proxies
-        WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) = ?
-        AND status != 'active'
-        AND status != 'port-open'
-        ORDER BY RANDOM() LIMIT 0, 49999;
-        """,
+            SELECT COUNT(*) as count
+            FROM proxies
+            WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) = ?
+            AND status != 'active'
+            AND status != 'port-open';
+            """,
             (ip,),
         )
-        count = cursor.fetchone()[0]
+        count = int(cursor.fetchone()[0])
 
-        if count < 3 and len(ip_proxies) < 3:
-            continue
-        else:
-            # Fetch all rows matching the IP address (including port)
-            # Exclude active proxies
+        if count >= 3 or len(ip_proxies) >= 3:
+            # Fetch all rows matching the IP address (excluding active and port-open proxies)
             cursor.execute(
                 """
-            SELECT rowid, * FROM proxies
-            WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) = ?
-            AND status != 'active' AND status != 'port-open'
-            ORDER BY RANDOM() LIMIT 0, 49999;
-            """,
+                SELECT rowid, * FROM proxies
+                WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) = ?
+                AND status != 'active' AND status != 'port-open'
+                ORDER BY RANDOM() LIMIT 0, 49999;
+                """,
                 (ip,),
             )
             ip_rows = cursor.fetchall()
@@ -137,9 +133,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                         # keep open port
                         keep_row = row
                         # set status to port-open
-                        last_check = datetime.now().strftime(
-                            "%Y-%m-%dT%H:%M:%S%z"
-                        )  # Assign date to a variable
+                        last_check = datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
                         cursor.execute(
                             "UPDATE proxies SET last_check = ?, status = ? WHERE proxy = ?",
                             (last_check, "port-open", proxy),
@@ -152,6 +146,22 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                                 "DELETE FROM proxies WHERE proxy = ?", (proxy,)
                             )
                             conn.commit()
+
+        db.close()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        futures = []
+        for index, (ip, ip_proxies) in enumerate(duplicates_ips.items()):
+            if index >= max:
+                break
+            futures.append(executor.submit(process_ip, ip, ip_proxies))
+
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()  # Ensure all threads complete
+            except Exception as e:
+                print(f"Error processing IP: {e}")
+
     if callable(callback):
         callback()
 
@@ -195,10 +205,8 @@ def worker_check_open_ports(item: Dict[str, str]):
         # Handle other exceptions if needed
 
     finally:
-        if "cursor" in locals():
-            cursor.close()
-        if "conn" in locals():
-            conn.close()
+        if "db" in locals():
+            db.close()
 
 
 def fetch_open_ports(max: int = 10) -> List[Dict[str, Union[str, None]]]:
