@@ -1,14 +1,17 @@
+# apply this crontab
+# sudo crontab -u www-data .crontab.txt
+
 # run proxy checker php every 10 minutes
 */10 * * * * php /var/www/html/proxyChecker.php > /var/www/html/proxyChecker.txt 2>&1
 # fetch proxies every 4 hours
-7 */4 * * * php /var/www/html/proxyFetcher.php
+7 */4 * * * php /var/www/html/proxyFetcher.php > /var/www/html/proxyChecker.txt 2>&1
 # restart server every day at midnight
 0 0 * * * bash /var/www/html/fix-nginx-perm.sh
 # run proxy checker parallel 17 past every hour
-17 */1 * * * php /var/www/html/proxyCheckerParallel.php
+17 */1 * * * php /var/www/html/proxyCheckerParallel.php > /var/www/html/proxyChecker.txt 2>&1
 # run config cleaner every week
-0 0 * * 0 php /var/www/html/configCleaner.php
+0 0 * * 0 php /var/www/html/configCleaner.php > /var/www/html/proxyChecker.txt 2>&1
 # backup database every day at midnight
 0 0 * * * sqlite3 /var/www/html/src/database.sqlite .dump > /var/www/html/backups/database_backup_$(date +\%Y-\%m-\%d).sql
 # run custom crontab script every hours
-0 * * * * bash /var/www/html/.crontab.sh
+0 * * * * bash /var/www/html/.crontab.sh > /var/www/html/proxyChecker.txt 2>&1
