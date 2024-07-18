@@ -3,7 +3,7 @@ import random
 import sqlite3
 from datetime import datetime, timedelta
 from sqlite3 import Cursor
-from typing import Dict, List, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from joblib import Parallel, delayed
 
@@ -83,7 +83,7 @@ def fetch_proxies_same_ip():
     return result
 
 
-def filter_duplicates_ips(max: int = 10):
+def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
     """
     filter duplicated ips by port open checks
     """
@@ -152,6 +152,8 @@ def filter_duplicates_ips(max: int = 10):
                                 "DELETE FROM proxies WHERE proxy = ?", (proxy,)
                             )
                             conn.commit()
+    if callable(callback):
+        callback()
 
 
 def worker_check_open_ports(item: Dict[str, str]):
@@ -216,7 +218,7 @@ def fetch_open_ports(max: int = 10) -> List[Dict[str, Union[str, None]]]:
     return proxies_dict
 
 
-def check_open_ports(max: int = 10):
+def check_open_ports(max: int = 10, callback: Optional[Callable] = None):
     """
     check proxy WHERE status = 'port-open'
     """
@@ -225,6 +227,8 @@ def check_open_ports(max: int = 10):
         Parallel(n_jobs=10)(
             delayed(worker_check_open_ports)(item) for item in proxies_dict
         )
+    if callable(callback):
+        callback()
 
 
 if __name__ == "__main__":
@@ -235,8 +239,7 @@ if __name__ == "__main__":
     if args.max:
         max = args.max
 
-    filter_duplicates_ips(max)
-    check_open_ports(max)
+    filter_duplicates_ips(max, lambda: check_open_ports(max))
 
     # Close connection
     conn.close()
