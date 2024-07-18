@@ -1,3 +1,4 @@
+import argparse
 import random
 from datetime import datetime, timedelta
 from sqlite3 import Cursor
@@ -78,12 +79,15 @@ def fetch_proxies_same_ip():
     return result
 
 
-def filter_duplicates_ips():
+def filter_duplicates_ips(max: int = 10):
     """
     filter duplicated ips by port open checks
     """
     duplicates_ips = fetch_proxies_same_ip()
-    for ip in duplicates_ips:
+    for index, (ip, ip_proxies) in enumerate(duplicates_ips.items()):
+        if index >= max:
+            # only check [n] ips
+            break
         # Loop each ip
 
         # Re-count the same IP
@@ -100,7 +104,7 @@ def filter_duplicates_ips():
         )
         count = cursor.fetchone()[0]
 
-        if count < 3:
+        if count < 3 and len(ip_proxies) < 3:
             continue
         else:
             # Fetch all rows matching the IP address (including port)
@@ -191,7 +195,7 @@ def worker_check_open_ports(item: Dict[str, str]):
             conn.close()
 
 
-def fetch_open_ports() -> List[Dict[str, Union[str, None]]]:
+def fetch_open_ports(max: int = 10) -> List[Dict[str, Union[str, None]]]:
     global cursor
     # Execute your query using the global cursor
     cursor.execute("SELECT proxy FROM proxies WHERE status = 'port-open'")
@@ -203,16 +207,16 @@ def fetch_open_ports() -> List[Dict[str, Union[str, None]]]:
     # Convert the result into a list of dictionaries
     proxies_dict: List[Dict[str, Union[str, None]]] = [
         dict(zip(column_names, proxy)) for proxy in proxies
-    ]
+    ][:max]
 
     return proxies_dict
 
 
-def check_open_ports():
+def check_open_ports(max: int = 10):
     """
     check proxy WHERE status = 'port-open'
     """
-    proxies_dict = fetch_open_ports()
+    proxies_dict = fetch_open_ports(max)
     if len(proxies_dict) > 0:
         Parallel(n_jobs=10)(
             delayed(worker_check_open_ports)(item) for item in proxies_dict
@@ -220,8 +224,15 @@ def check_open_ports():
 
 
 if __name__ == "__main__":
-    filter_duplicates_ips()
-    check_open_ports()
+    parser = argparse.ArgumentParser(description="Proxy Tool")
+    parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
+    args = parser.parse_args()
+    max = 100
+    if args.max:
+        max = args.max
+
+    filter_duplicates_ips(max)
+    check_open_ports(max)
 
     # Close connection
     conn.close()
