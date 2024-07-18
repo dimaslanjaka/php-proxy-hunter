@@ -81,6 +81,9 @@ Scheduler::register(function () use ($lockFilePath, $statusFile) {
 }, "z_Exit_" . md5(__FILE__));
 
 $db = new ProxyDB();
+/**
+ * @var PDO
+ */
 $pdo = $db->db->pdo;
 
 // Step 1: Identify and process duplicates based on IP address in batches
