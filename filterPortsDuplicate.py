@@ -1,11 +1,13 @@
 import random
 from datetime import datetime, timedelta
 from sqlite3 import Cursor
+import sqlite3
 from typing import Dict, List, Union
 from joblib import Parallel, delayed
 from proxyCheckerReal import real_check
 from src.func import get_relative_path
 from src.func_proxy import is_port_open
+from src.func_console import red, green
 from src.ProxyDB import ProxyDB
 
 db = ProxyDB(get_relative_path("src/database.sqlite"), True)
@@ -123,7 +125,7 @@ def filter_duplicates_ips():
                 for row in ip_rows:
                     proxy = row["proxy"]
                     if is_port_open(proxy):
-                        print(f"{proxy} port open")
+                        print(f"{proxy} {green('port open')}")
                         # keep open port
                         keep_row = row
                         # set status to port-open
@@ -136,7 +138,7 @@ def filter_duplicates_ips():
                         )
                         conn.commit()
                     else:
-                        print(f"{proxy} port closed")
+                        print(f"{proxy} {red('port closed')}")
                         if keep_row["proxy"] != proxy:
                             cursor.execute(
                                 "DELETE FROM proxies WHERE proxy = ?", (proxy,)
@@ -145,32 +147,48 @@ def filter_duplicates_ips():
 
 
 def worker_check_open_ports(item: Dict[str, str]):
-    db = ProxyDB(get_relative_path("src/database.sqlite"), True)
-    conn = db.db.conn
-    cursor = conn.cursor()
+    try:
+        db = ProxyDB(get_relative_path("src/database.sqlite"), True)
+        conn = db.db.conn
+        cursor = conn.cursor()
 
-    test = real_check(item["proxy"], "https://www.axis.co.id/bantuan", "pusat layanan")
-    if not test["result"]:
-        test = real_check(item["proxy"], "https://www.example.com/", "example")
-
-    if not test["result"]:
-        test = real_check(item["proxy"], "http://azenv.net/", "AZ Environment")
-
-    if not test["result"]:
-        test = real_check(item["proxy"], "http://httpforever.com/", "HTTP Forever")
-
-    if test["result"]:
-        last_check = datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
-        cursor.execute(
-            "UPDATE proxies SET last_check = ?, status = ? WHERE proxy = ?",
-            (last_check, "active", item["proxy"]),
+        test = real_check(
+            item["proxy"], "https://www.axis.co.id/bantuan", "pusat layanan"
         )
-        conn.commit()
-    else:
-        cursor.execute("DELETE FROM proxies WHERE proxy = ?", (item["proxy"],))
-        conn.commit()
+        if not test["result"]:
+            test = real_check(item["proxy"], "https://www.example.com/", "example")
 
-    cursor.close()
+        if not test["result"]:
+            test = real_check(item["proxy"], "http://azenv.net/", "AZ Environment")
+
+        if not test["result"]:
+            test = real_check(item["proxy"], "http://httpforever.com/", "HTTP Forever")
+
+        if test["result"]:
+            last_check = datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
+            cursor.execute(
+                "UPDATE proxies SET last_check = ?, status = ? WHERE proxy = ?",
+                (last_check, "active", item["proxy"]),
+            )
+            conn.commit()
+        else:
+            cursor.execute("DELETE FROM proxies WHERE proxy = ?", (item["proxy"],))
+            conn.commit()
+
+    except sqlite3.Error as e:
+        print(f"SQLite error occurred: {e}")
+        # Handle the error as per your application's requirements
+        # Example: Log the error, rollback transactions, etc.
+
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        # Handle other exceptions if needed
+
+    finally:
+        if "cursor" in locals():
+            cursor.close()
+        if "conn" in locals():
+            conn.close()
 
 
 def fetch_open_ports() -> List[Dict[str, Union[str, None]]]:
