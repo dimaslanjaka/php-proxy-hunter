@@ -6,7 +6,7 @@ import sys
 
 from src.func_platform import is_debug, is_django_environment
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import random
 import re
 import socket
@@ -23,11 +23,18 @@ import urllib3
 from proxy_checker import ProxyChecker
 from requests.adapters import HTTPAdapter
 import http.cookiejar as cookiejar
-from src.func import (debug_log, file_append_str, file_remove_empty_lines,
-                      find_substring_from_regex, get_relative_path,
-                      get_unique_dicts_by_key_in_list,
-                      is_date_rfc3339_hour_more_than, read_file,
-                      remove_string_and_move_to_file, write_file)
+from src.func import (
+    debug_log,
+    file_append_str,
+    file_remove_empty_lines,
+    find_substring_from_regex,
+    get_relative_path,
+    get_unique_dicts_by_key_in_list,
+    is_date_rfc3339_hour_more_than,
+    read_file,
+    remove_string_and_move_to_file,
+    write_file,
+)
 from src.func_certificate import output_pem
 from src.func_console import get_caller_info, green, log_proxy, red
 from src.func_useragent import get_pc_useragent
@@ -39,7 +46,9 @@ os.environ["REQUESTS_CA_BUNDLE"] = output_pem
 os.environ["SSL_CERT_FILE"] = output_pem
 
 # Replace create default https context method
-ssl._create_default_https_context = lambda: ssl.create_default_context(cafile=output_pem)
+ssl._create_default_https_context = lambda: ssl.create_default_context(
+    cafile=output_pem
+)
 
 # Suppress InsecureRequestWarning
 requests.packages.urllib3.disable_warnings()
@@ -67,7 +76,7 @@ def build_request(
     headers: Optional[Dict[str, str]] = None,
     no_cache: Optional[bool] = False,
     cookie_file: Optional[str] = "tmp/cookies/default.txt",
-    session: Optional[requests.Session] = None
+    session: Optional[requests.Session] = None,
 ) -> requests.Response:
     """
     Builds and sends an HTTP request using the provided settings.
@@ -137,8 +146,9 @@ def build_request(
             else:
                 cookie_jar = LWPCookieJar(cookie_file)
                 cookie_header = "#LWP-Cookies-2.0"
-            cookie_jar.load(ignore_discard=True,
-                            ignore_expires=True, filename=cookie_file)
+            cookie_jar.load(
+                ignore_discard=True, ignore_expires=True, filename=cookie_file
+            )
             session.cookies.update(cookie_jar)
 
     # setup browser headers
@@ -215,8 +225,7 @@ def build_request(
                     name = cookie.name
                     value = cookie.value
                 cookie_raw = "\t".join(
-                    [domain, initial_dot, cookie.path,
-                        secure, expires, name, value]
+                    [domain, initial_dot, cookie.path, secure, expires, name, value]
                 )
             else:
                 cookie_raw = "Set-Cookie3: %s" % lwp_cookie_str(cookie)
@@ -233,31 +242,43 @@ def generate_netscape_cookie_jar(file_path):
 
     # Example: Add some cookies to the jar
     cookie1 = cookiejar.Cookie(
-        version=0, name='session_id', value='12345',
-        port=None, port_specified=False,
-        domain='example.com', domain_specified=False, domain_initial_dot=False,
-        path='/', path_specified=True,
+        version=0,
+        name="session_id",
+        value="12345",
+        port=None,
+        port_specified=False,
+        domain="example.com",
+        domain_specified=False,
+        domain_initial_dot=False,
+        path="/",
+        path_specified=True,
         secure=False,
         expires=None,
         discard=True,
         comment=None,
         comment_url=None,
-        rest={'HttpOnly': None},  # Optional: Set non-standard attribute
+        rest={"HttpOnly": None},  # Optional: Set non-standard attribute
         rfc2109=False,
     )
     cookie_jar.set_cookie(cookie1)
 
     cookie2 = cookiejar.Cookie(
-        version=0, name='user_id', value='67890',
-        port=None, port_specified=False,
-        domain='example.com', domain_specified=False, domain_initial_dot=False,
-        path='/', path_specified=True,
+        version=0,
+        name="user_id",
+        value="67890",
+        port=None,
+        port_specified=False,
+        domain="example.com",
+        domain_specified=False,
+        domain_initial_dot=False,
+        path="/",
+        path_specified=True,
         secure=False,
         expires=None,
         discard=True,
         comment=None,
         comment_url=None,
-        rest={'HttpOnly': None},  # Optional: Set non-standard attribute
+        rest={"HttpOnly": None},  # Optional: Set non-standard attribute
         rfc2109=False,
     )
     cookie_jar.set_cookie(cookie2)
@@ -358,8 +379,7 @@ def lwp_cookie_str(cookie: Cookie):
     Actually, the format is extended a bit -- see module docstring.
 
     """
-    h = [(cookie.name, cookie.value),
-         ("path", cookie.path), ("domain", cookie.domain)]
+    h = [(cookie.name, cookie.value), ("path", cookie.path), ("domain", cookie.domain)]
     if cookie.port is not None:
         h.append(("port", cookie.port))
     if cookie.path_specified:
@@ -390,14 +410,14 @@ def lwp_cookie_str(cookie: Cookie):
 
 def get_device_ip() -> Union[None, str]:
     ip_services = [
-        'https://api64.ipify.org',
-        'https://ipinfo.io/ip',
-        'https://api.myip.com',
-        'https://ip.42.pl/raw',
-        'https://ifconfig.me/ip',
-        'https://cloudflare.com/cdn-cgi/trace',
-        'https://httpbin.org/ip',
-        'https://api.ipify.org'
+        "https://api64.ipify.org",
+        "https://ipinfo.io/ip",
+        "https://api.myip.com",
+        "https://ip.42.pl/raw",
+        "https://ifconfig.me/ip",
+        "https://cloudflare.com/cdn-cgi/trace",
+        "https://httpbin.org/ip",
+        "https://api.ipify.org",
     ]
     for url in ip_services:
         response = build_request(endpoint=url)
@@ -405,15 +425,25 @@ def get_device_ip() -> Union[None, str]:
             # parse IP using regex
             ip_address_match = re.search(
                 r"(?!0)(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)",
-                response.text)
+                response.text,
+            )
             if ip_address_match:
                 return ip_address_match.group(0)
     return None
 
 
 class ProxyCheckResult:
-    def __init__(self, result: bool, latency: Union[float, int], error: str, status: Union[int, None], private: bool,
-                 response: requests.Response = None, proxy: str = None, type: str = None):
+    def __init__(
+        self,
+        result: bool,
+        latency: Union[float, int],
+        error: str,
+        status: Union[int, None],
+        private: bool,
+        response: requests.Response = None,
+        proxy: str = None,
+        type: str = None,
+    ):
         self.result = result
         self.latency = latency
         self.error = error
@@ -433,7 +463,9 @@ class ProxyCheckResult:
         return f"Proxy({attributes})"
 
 
-def get_requests_error(e: Union[Dict, Exception], return_default_error_message: bool = True) -> Optional[str]:
+def get_requests_error(
+    e: Union[Dict, Exception], return_default_error_message: bool = True
+) -> Optional[str]:
     """
     Parses and extracts error information from requests-related exceptions.
 
@@ -447,17 +479,32 @@ def get_requests_error(e: Union[Dict, Exception], return_default_error_message: 
             and return_default_error_message is False.
     """
 
-    get_socks = find_substring_from_regex(r"SOCKS\d proxy server sent invalid data", str(e))
-    proxy_timed_out = find_substring_from_regex(r"\b(?:\d{1,3}\.){3}\d{1,3}\b timed out", str(e))
+    get_socks = find_substring_from_regex(
+        r"SOCKS\d proxy server sent invalid data", str(e)
+    )
+    proxy_timed_out = find_substring_from_regex(
+        r"\b(?:\d{1,3}\.){3}\d{1,3}\b timed out", str(e)
+    )
     domain_timed_out = find_substring_from_regex(r"\b(?:\w+\.)+\w+\b timed out", str(e))
-    connection_refused = find_substring_from_regex(r"the target machine actively refused it", str(e))
+    connection_refused = find_substring_from_regex(
+        r"the target machine actively refused it", str(e)
+    )
     connection_read_timeout = find_substring_from_regex(r"Read timed out", str(e))
-    connection_closed = find_substring_from_regex(r"Connection closed unexpectedly", str(e))
-    connection_remote_closed = find_substring_from_regex(r"connection was forcibly closed by the remote host",
-                                                         str(e))
-    socks_credential_missing = find_substring_from_regex(r"SOCKS\d authentication methods were rejected", str(e))
-    connection_proxy_failed = find_substring_from_regex(r"Cannot connect to proxy", str(e))
-    connection_aborted = find_substring_from_regex(r"Connection aborted.*BadStatusLine", str(e))
+    connection_closed = find_substring_from_regex(
+        r"Connection closed unexpectedly", str(e)
+    )
+    connection_remote_closed = find_substring_from_regex(
+        r"connection was forcibly closed by the remote host", str(e)
+    )
+    socks_credential_missing = find_substring_from_regex(
+        r"SOCKS\d authentication methods were rejected", str(e)
+    )
+    connection_proxy_failed = find_substring_from_regex(
+        r"Cannot connect to proxy", str(e)
+    )
+    connection_aborted = find_substring_from_regex(
+        r"Connection aborted.*BadStatusLine", str(e)
+    )
     if get_socks:
         error = get_socks
     elif socks_credential_missing:
@@ -485,8 +532,13 @@ def get_requests_error(e: Union[Dict, Exception], return_default_error_message: 
     return error
 
 
-def check_proxy(proxy: str, proxy_type: str, endpoint: str = None, headers: Dict[str, str] = None,
-                callback: Callable[[ProxyCheckResult], None] = None) -> ProxyCheckResult:
+def check_proxy(
+    proxy: str,
+    proxy_type: str,
+    endpoint: str = None,
+    headers: Dict[str, str] = None,
+    callback: Callable[[ProxyCheckResult], None] = None,
+) -> ProxyCheckResult:
     """
     Checks if the provided proxy is working by sending a request.
 
@@ -503,7 +555,7 @@ def check_proxy(proxy: str, proxy_type: str, endpoint: str = None, headers: Dict
     default_headers = {"User-Agent": get_pc_useragent()}
     if headers is not None:
         default_headers.update(headers)
-    endpoint = endpoint or 'https://httpbin.org/headers'
+    endpoint = endpoint or "https://httpbin.org/headers"
     latency = -1
     result = False
     is_private = False
@@ -513,9 +565,18 @@ def check_proxy(proxy: str, proxy_type: str, endpoint: str = None, headers: Dict
 
     if is_port_open(proxy):
         try:
-            response = build_request(proxy, proxy_type, method="GET", endpoint=endpoint, headers=default_headers)
+            response = build_request(
+                proxy,
+                proxy_type,
+                method="GET",
+                endpoint=endpoint,
+                headers=default_headers,
+            )
             latency = response.elapsed.total_seconds() * 1000  # in milliseconds
-            is_private = 'X-Forwarded-For:' in response.headers or 'Proxy-Authorization:' in response.headers
+            is_private = (
+                "X-Forwarded-For:" in response.headers
+                or "Proxy-Authorization:" in response.headers
+            )
             status = response.status_code
             valid_status_codes = [200, 201, 202, 204, 301, 302, 304]
             result = response.status_code in valid_status_codes
@@ -538,7 +599,7 @@ def check_proxy(proxy: str, proxy_type: str, endpoint: str = None, headers: Dict
         try:
             checker = ProxyChecker()
             lib_result = checker.check_proxy(proxy)
-            if lib_result and proxy_type in lib_result['protocols']:
+            if lib_result and proxy_type in lib_result["protocols"]:
                 result = True
         except Exception:
             pass
@@ -551,7 +612,7 @@ def check_proxy(proxy: str, proxy_type: str, endpoint: str = None, headers: Dict
         private=is_private,
         response=response,
         proxy=proxy,
-        type=proxy_type
+        type=proxy_type,
     )
 
     # Execute the callback before returning the result
@@ -563,7 +624,9 @@ def check_proxy(proxy: str, proxy_type: str, endpoint: str = None, headers: Dict
 
 def check_http_proxy(proxy: str):
     try:
-        response = requests.get("http://httpbin.org/ip", proxies={"http": proxy}, timeout=5)
+        response = requests.get(
+            "http://httpbin.org/ip", proxies={"http": proxy}, timeout=5
+        )
         if response.status_code == 200:
             return True
         else:
@@ -581,8 +644,7 @@ def check_socks_proxy(proxy: str, version: int):
         elif version == 5:
             socks.set_default_proxy(socks.SOCKS5, proxy_ip, int(proxy_port))
         else:
-            raise ValueError(
-                "Invalid SOCKS version. Supported versions are 4 and 5.")
+            raise ValueError("Invalid SOCKS version. Supported versions are 4 and 5.")
 
         socket.socket = socks.socksocket
         response = requests.get("http://httpbin.org/ip", timeout=5)
@@ -605,7 +667,7 @@ def parse_ip_port(line: str) -> tuple[Optional[str], Optional[str]]:
     Returns:
         Tuple[str, str]: A tuple containing the IP address and port.
     """
-    pattern = r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})'
+    pattern = r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})"
     match = re.search(pattern, line)
     if match:
         ip = match.group(1)
@@ -628,7 +690,7 @@ def extract_proxies_from_file(filename: str) -> List[Proxy]:
     proxies = []
     db = ProxyDB()
     try:
-        with open(filename, 'r', encoding='utf-8') as file:
+        with open(filename, "r", encoding="utf-8") as file:
             for line in file:
                 proxies.extend(db.extract_proxies(line))
     except Exception as e:
@@ -650,7 +712,7 @@ def is_port_open(address: str) -> bool:
     """
     try:
         # Split the address into IP and port
-        host, port = address.split(':')
+        host, port = address.split(":")
         port = int(port)  # Convert port to an integer
         # Create a new socket
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -687,17 +749,22 @@ def upload_proxy(proxy: Any) -> None:
     if not isinstance(proxy, str):
         proxy = str(proxy)
     if len(proxy.strip()) > 10:
-        cookies = {"__ga": "GA1.2.1234567890.1234567890", "_ga": "GA1.3.9876543210.9876543210"}
-        response = send_post(url="https://sh.webmanajemen.com/proxyAdd.php",
-                             data={"proxies": proxy},
-                             cookies=cookies)
+        cookies = {
+            "__ga": "GA1.2.1234567890.1234567890",
+            "_ga": "GA1.3.9876543210.9876543210",
+        }
+        response = send_post(
+            url="https://sh.webmanajemen.com/proxyAdd.php",
+            data={"proxies": proxy},
+            cookies=cookies,
+        )
         debug_log(f"{proxy} uploaded -> {response}".strip())
         time.sleep(1)
 
 
 def check_proxy_new(proxy: str):
     db = ProxyDB()
-    logfile = get_relative_path('proxyChecker.txt')
+    logfile = get_relative_path("proxyChecker.txt")
     status = None
     working = False
     protocols = []
@@ -714,14 +781,14 @@ def check_proxy_new(proxy: str):
         with ThreadPoolExecutor(max_workers=3) as executor:
             # Submit the tasks
             checks = [
-                executor.submit(handle_check, proxy, 'http', "http://httpbin.org/ip"),
-                executor.submit(handle_check, proxy, 'socks4', "http://httpbin.org/ip"),
-                executor.submit(handle_check, proxy, 'socks5', "http://httpbin.org/ip")
+                executor.submit(handle_check, proxy, "http", "http://httpbin.org/ip"),
+                executor.submit(handle_check, proxy, "socks4", "http://httpbin.org/ip"),
+                executor.submit(handle_check, proxy, "socks5", "http://httpbin.org/ip"),
             ]
 
             # Iterate through the completed tasks
             for i, future in enumerate(as_completed(checks)):
-                protocol = ['HTTP', 'SOCKS4', 'SOCKS5'][i]
+                protocol = ["HTTP", "SOCKS4", "SOCKS5"][i]
                 check = future.result()
 
                 if check.result:
@@ -737,31 +804,31 @@ def check_proxy_new(proxy: str):
                     working = False
 
             if not working:
-                status = 'dead'
+                status = "dead"
             else:
-                status = 'active'
+                status = "active"
                 upload_proxy(proxy)
 
     if db is not None and status is not None:
         data = {"status": status}
         if len(protocols) > 0:
-            data['type'] = "-".join(protocols).upper()
+            data["type"] = "-".join(protocols).upper()
         db.update_data(proxy, data)
 
     remove_string_and_move_to_file(
-        get_relative_path('proxies.txt'),
-        get_relative_path('dead.txt'),
-        proxy
+        get_relative_path("proxies.txt"), get_relative_path("dead.txt"), proxy
     )
     file_remove_empty_lines(logfile)
 
 
-def get_proxies(working_only: Optional[bool] = False, untested_only: Optional[bool] = False) -> List[Dict[str, str]]:
+def get_proxies(
+    working_only: Optional[bool] = False, untested_only: Optional[bool] = False
+) -> List[Dict[str, str]]:
     """
     get proxies without dead proxies
     """
     proxies: List[Dict[str, str]] = []
-    db = ProxyDB()
+    db = ProxyDB(get_relative_path("src/database.sqlite"))
 
     if not working_only or untested_only:
         proxies.extend(db.get_untested_proxies())
@@ -770,6 +837,7 @@ def get_proxies(working_only: Optional[bool] = False, untested_only: Optional[bo
         proxies.extend(db.get_working_proxies())
 
     if not working_only or not untested_only:
+
         def parse(item: Proxy):
             proxies.append(item.to_dict())
 
@@ -779,7 +847,7 @@ def get_proxies(working_only: Optional[bool] = False, untested_only: Optional[bo
 
     # Filter proxies
     proxies = list(filter(lambda proxy: not is_private_or_dead(proxy), proxies))
-    proxies = get_unique_dicts_by_key_in_list(proxies, 'proxy')
+    proxies = get_unique_dicts_by_key_in_list(proxies, "proxy")
 
     # close database
     db.close()
@@ -795,13 +863,16 @@ def get_proxies(working_only: Optional[bool] = False, untested_only: Optional[bo
 
 
 def is_proxy_recently_checked(proxy: Dict[str, Union[None, str]]) -> bool:
-    if proxy['last_check'] is None:
+    if proxy["last_check"] is None:
         return True
-    return is_date_rfc3339_hour_more_than(proxy['last_check'], 24)
+    return is_date_rfc3339_hour_more_than(proxy["last_check"], 24)
 
 
 def is_private_or_dead(proxy: Dict[str, str]) -> bool:
-    return proxy.get('private') == 'true' or proxy.get('status') in ('port-closed', 'dead')
+    return proxy.get("private") == "true" or proxy.get("status") in (
+        "port-closed",
+        "dead",
+    )
 
 
 def check_all_proxies(count: int = 10):
@@ -810,8 +881,9 @@ def check_all_proxies(count: int = 10):
 
     # Filter out invalid proxies
     valid_proxies = [
-        item['proxy'] for item in proxies[:count]
-        if item and item['proxy'].strip() and len(item['proxy'].strip()) >= 10
+        item["proxy"]
+        for item in proxies[:count]
+        if item and item["proxy"].strip() and len(item["proxy"].strip()) >= 10
     ]
 
     with ThreadPoolExecutor() as executor:
@@ -831,7 +903,7 @@ def is_valid_ip_port(s: str) -> bool:
     """
     s = s.strip()
     # Regular expression to match IP:PORT format
-    pattern = r'^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(?:\d{1,5})$'
+    pattern = r"^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(?:\d{1,5})$"
 
     # Check if the string matches the pattern
     return bool(re.match(pattern, s))
@@ -853,10 +925,12 @@ def is_valid_ip(proxy: Optional[str]) -> bool:
     split = proxy.strip().split(":", 1)
     ip = split[0]
 
-    is_ip_valid = (re.match(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$', ip) is not None
-                   and len(ip) >= 7
-                   and '..' not in ip)
-    re_pattern = re.compile(r'(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
+    is_ip_valid = (
+        re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip) is not None
+        and len(ip) >= 7
+        and ".." not in ip
+    )
+    re_pattern = re.compile(r"(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
 
     return is_ip_valid and re_pattern.match(ip) is not None
 
@@ -873,7 +947,7 @@ def is_post_length_within_limit(data_string: str, limit_mb: float = 8.0) -> bool
         bool: True if the length is within the limit, False otherwise.
     """
     # Convert string to bytes
-    data_bytes = data_string.encode('utf-8')
+    data_bytes = data_string.encode("utf-8")
 
     # Calculate the size in MB
     size_mb = len(data_bytes) / (1024 * 1024)  # 1 MB = 1024 * 1024 bytes
@@ -894,7 +968,7 @@ def truncate_string_size(data_string: str, max_size_mb: float = 2.0) -> str:
         str: The truncated string.
     """
     # Convert string to bytes
-    data_bytes = data_string.encode('utf-8')
+    data_bytes = data_string.encode("utf-8")
 
     # Calculate the maximum number of bytes allowed for the specified size in MB
     max_bytes = int(max_size_mb * 1024 * 1024)
@@ -905,17 +979,19 @@ def truncate_string_size(data_string: str, max_size_mb: float = 2.0) -> str:
         truncated_bytes = data_bytes[:max_bytes]
 
         # Decode the truncated bytes back to string
-        truncated_string = truncated_bytes.decode('utf-8')
+        truncated_string = truncated_bytes.decode("utf-8")
 
         return truncated_string
 
     return data_string
 
 
-def send_post(url: str,
-              data: Dict[str, Union[str, int]],
-              cookies: Optional[Dict[str, str]] = None,
-              headers: Optional[Dict[str, str]] = None) -> Union[str, None]:
+def send_post(
+    url: str,
+    data: Dict[str, Union[str, int]],
+    cookies: Optional[Dict[str, str]] = None,
+    headers: Optional[Dict[str, str]] = None,
+) -> Union[str, None]:
     """
     Make a POST request with SSL verification.
 
@@ -928,12 +1004,14 @@ def send_post(url: str,
     Returns:
         Union[str, None]: The response text if the request is successful, otherwise None.
     """
-    default_headers = {'User-Agent': get_pc_useragent()}
+    default_headers = {"User-Agent": get_pc_useragent()}
     if headers is not None:
         default_headers.update(headers)
     try:
         session = requests.Session()
-        response = session.post(url=url, data=data, cookies=cookies, headers=default_headers)
+        response = session.post(
+            url=url, data=data, cookies=cookies, headers=default_headers
+        )
         if response.status_code == 200:
             return response.text
         else:
