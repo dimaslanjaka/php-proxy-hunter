@@ -216,9 +216,6 @@ do {
         }
         if (!empty($log)) {
           echo $log;
-          if (count($argv) == 1) {
-            append_content_with_lock(__DIR__ . '/proxyChecker.txt', $log);
-          }
         }
       }
     }
