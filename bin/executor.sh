@@ -23,4 +23,4 @@ else
   eval "source $CWD/venv/Scripts/activate && $COMMAND"
 fi
 
-# Example usage: bash bin/executor.sh python proxyChecker.py
+# Example usage: bash bin/executor.sh python filterPortsDuplicate.py --max=30
