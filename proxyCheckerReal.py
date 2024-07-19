@@ -68,7 +68,7 @@ def real_check(proxy: str, url: str, title_should_be: str):
         "url": url,
         "https": url.startswith("https://"),
         "proxy": proxy,
-        "protocols": protocols,
+        "type": protocols,
     }
     if protocols:
         print(f"{proxy} {green('working')} -> {url} ({response_title})")
@@ -101,11 +101,7 @@ def worker(item: Dict[str, str]):
                 {
                     "status": "active",
                     "https": "true" if test["https"] else "false",
-                    "type": (
-                        "-".join(test["protocols"]).lower()
-                        if "protocols" in test
-                        else ""
-                    ),
+                    "type": ("-".join(test["type"]).lower() if "type" in test else ""),
                 },
             )
         else:
