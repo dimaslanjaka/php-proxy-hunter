@@ -2,6 +2,7 @@ import argparse
 import os
 import random
 from multiprocessing.pool import ThreadPool as Pool
+import time
 from typing import Dict, List
 
 from bs4 import BeautifulSoup
@@ -87,12 +88,22 @@ def real_anonymity(proxy: str):
     checker = ProxyChecker(60000, False)
     result = None
     for url in checker.proxy_judges:
-        response = build_request(proxy, "http", endpoint=url)
-        if not response.ok:
-            response = build_request(proxy, "socks4", endpoint=url)
-        if not response.ok:
-            response = build_request(proxy, "socks5", endpoint=url)
-        if response.ok:
+        response = None
+        try:
+            response = build_request(proxy, "http", endpoint=url)
+        except Exception:
+            pass
+        if response and not response.ok:
+            try:
+                response = build_request(proxy, "socks4", endpoint=url)
+            except Exception:
+                pass
+        if response and not response.ok:
+            try:
+                response = build_request(proxy, "socks5", endpoint=url)
+            except Exception:
+                pass
+        if response and response.ok:
             soup = BeautifulSoup(response.text, "html.parser")
             response_title = soup.title.string.strip() if soup.title else ""
             if "AZ Environment".lower() in response_title.lower():
@@ -101,6 +112,57 @@ def real_anonymity(proxy: str):
                 # break when success
                 break
     return result
+
+
+def real_latency(proxy: str):
+    """
+    get proxy latency
+    """
+    latency = None
+    configs = [
+        ["https://bing.com", "bing"],
+        ["https://github.com/", "github"],
+        ["http://httpforever.com/", "http forever"],
+        ["http://www.example.net/", "example domain"],
+    ]
+    for config in configs:
+        url, title_should_be = tuple(config)
+        response = None
+        start_time = 0
+        end_time = 0
+
+        try:
+            start_time = time.time()
+            response = build_request(proxy, "http", endpoint=url)
+            end_time = time.time()
+        except Exception:
+            pass
+
+        if response and not response.ok:
+            try:
+                start_time = time.time()
+                response = build_request(proxy, "socks4", endpoint=url)
+                end_time = time.time()
+            except Exception:
+                pass
+
+        if response and not response.ok:
+            try:
+                start_time = time.time()
+                response = build_request(proxy, "socks5", endpoint=url)
+                end_time = time.time()
+            except Exception:
+                pass
+
+        if response and response.ok:
+            latency = int(end_time - start_time)
+            soup = BeautifulSoup(response.text, "html.parser")
+            response_title = soup.title.string.strip() if soup.title else ""
+            if title_should_be.lower() in response_title.lower():
+                print(f"{proxy} latency is {green(latency)} seconds")
+                # break when success
+                break
+    return latency
 
 
 def worker(item: Dict[str, str]):
@@ -155,6 +217,17 @@ def using_joblib(proxies: List[Dict[str, str]], pool_size: int = 5):
     Parallel(n_jobs=pool_size)(delayed(worker)(item) for item in proxies)
 
 
+def test():
+    proxy = "45.138.87.238:1080"  # 35.185.196.38:3128
+    cek = real_check(proxy, "https://bing.com", "bing")
+    if not cek["result"]:
+        print(f"{proxy} dead")
+    if not real_anonymity(proxy):
+        print(f"{proxy} fail get anonymity")
+    if not real_latency(proxy):
+        print(f"{proxy} fail get latency")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Proxy Tool")
     parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
@@ -169,6 +242,7 @@ if __name__ == "__main__":
 
     # using_pool(proxies, 5)
     using_joblib(proxies, 5)
+    # test()
 
     # close database
     db.close()
