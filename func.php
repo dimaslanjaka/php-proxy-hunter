@@ -2590,7 +2590,7 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
 
   // Determine paths and commands
   $cwd = __DIR__;
-  $filename = !empty($identifier) ? sanitizeFilename($identifier) : sanitizeFilename(unixPath("$scriptPath/$commandArgsString"));
+  $filename = sanitizeFilename(!empty($identifier) ? $identifier : unixPath("$scriptPath/$commandArgsString"));
   $runner = unixPath(tmp() . "/runners/$filename" . ($isWin ? ".bat" : ".sh"));
   $output_file = unixPath(tmp() . "/logs/$filename.txt");
   $pid_file = unixPath(tmp() . "/runners/$filename.pid");
