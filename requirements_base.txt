@@ -50,3 +50,4 @@ channels
 python-dotenv
 htmlmin
 html5lib
+psutil
