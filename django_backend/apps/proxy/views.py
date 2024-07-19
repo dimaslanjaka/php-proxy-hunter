@@ -1,19 +1,24 @@
 import os
 import sys
 from threading import Thread, active_count
-from urllib.parse import unquote
 from typing import Set
+from urllib.parse import unquote
+
+from django.db.models import Case, IntegerField, Value, When
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
+from datetime import datetime, timedelta
+
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpRequest, JsonResponse
-from datetime import timedelta, datetime
+from django.shortcuts import render
+
+from src.func_platform import is_django_environment
+
 from .models import Proxy
 from .serializers import ProxySerializer
 from .tasks import *
-from src.func_platform import is_django_environment
-from django.shortcuts import render
-from django.core.paginator import Paginator
 
 
 def index(request: HttpRequest):
@@ -37,8 +42,16 @@ def index(request: HttpRequest):
     elif city:
         proxy_list = proxy_list.filter(city=city)
 
-    # Sort by last_check in descending order
-    proxy_list = proxy_list.order_by("-last_check")
+    # Annotate the queryset with a custom field for sorting
+    proxy_list = proxy_list.annotate(
+        is_active=Case(
+            When(status="active", then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    ).order_by(
+        "-is_active", "-last_check"
+    )  # First by is_active, then by last_check
 
     # Paginate the results
     paginator = Paginator(proxy_list, 30)  # Show 30 proxies per page
