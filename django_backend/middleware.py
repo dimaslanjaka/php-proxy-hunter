@@ -32,7 +32,7 @@ class MinifyHTMLMiddleware(MiddlewareMixin):
         if cached_response and not settings.DEBUG:
             # return cache only for production mode
             response.content = cached_response
-        elif allowed:
+        elif allowed and not settings.DEBUG:
             minified_content = html_minify(
                 response.content, ignore_comments=not keep_comments, parser=parser
             )
