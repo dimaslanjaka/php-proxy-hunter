@@ -1,0 +1,9 @@
+.proxy-active {
+  background-color: rgb(19, 51, 19);
+  color: white;
+}
+
+.proxy-dead {
+  background-color: rgb(41, 9, 9);
+  color: white;
+}

@@ -1,0 +1,124 @@
+{% extends 'base_generic.html' %}
+
+{% load static %}
+{% load custom_filters %}
+{% load proxy_filters %}
+
+{% block title %}Proxy List{% endblock %}
+{% block nav_title %}Proxy List{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'proxy_index.css' %}">
+<div class="container mx-auto">
+  <h1 class="text-2xl font-bold mb-4">Proxy List</h1>
+  <div class="shadow-md rounded my-6 overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 table-auto">
+      <thead class="bg-gray-600 text-white uppercase text-sm leading-normal">
+        <tr>
+          <th class="py-3 px-6 text-left">Badge</th>
+          <th class="py-3 px-6 text-left">Proxy</th>
+          <th class="py-3 px-6 text-left">Latency</th>
+          <th class="py-3 px-6 text-left">Last Check</th>
+          <th class="py-3 px-6 text-left">Type</th>
+          <th class="py-3 px-6 text-left">Region</th>
+          <th class="py-3 px-6 text-left">City</th>
+          <th class="py-3 px-6 text-left">Country</th>
+          <th class="py-3 px-6 text-left">Timezone</th>
+          <th class="py-3 px-6 text-left">Latitude</th>
+          <th class="py-3 px-6 text-left">Longitude</th>
+          <th class="py-3 px-6 text-left">Anonymity</th>
+          <th class="py-3 px-6 text-left">HTTPS</th>
+          <th class="py-3 px-6 text-left">Status</th>
+          <th class="py-3 px-6 text-left">Private</th>
+          <th class="py-3 px-6 text-left">Language</th>
+          <th class="py-3 px-6 text-left">User Agent</th>
+          <th class="py-3 px-6 text-left">WebGL Vendor</th>
+          <th class="py-3 px-6 text-left">WebGL Renderer</th>
+          <th class="py-3 px-6 text-left">Browser Vendor</th>
+          <th class="py-3 px-6 text-left">Username</th>
+          <th class="py-3 px-6 text-left">Password</th>
+        </tr>
+      </thead>
+      <tbody class="text-gray-100 text-sm font-light">
+        {% for proxy in proxies %}
+        <tr
+          class="border-b border-gray-200 {% if proxy.status == 'active' %}proxy-active{% else %}proxy-dead{% endif %}">
+          <td class="py-3 px-6 text-left whitespace-nowrap">{{ proxy|proxy_label }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.proxy|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.latency|default:"-" }} ms</td>
+          <!-- format time ago with django_backend/apps/proxy/templatetags/custom_filters.py -->
+          <td class="py-3 px-6 text-left">{{ proxy.last_check|time_ago }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.type|default:"-"|upper }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.region|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">
+            {% if proxy.city|default:"-" != "-" %}
+            <a href="/proxy?city={{ proxy.city }}" class="hover:underline">{{ proxy.city }}</a>
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          <td class="py-3 px-6 text-left">
+            {% if proxy.country|default:"-" != "-" %}
+            <a href="/proxy?country={{ proxy.country }}" class="hover:underline">{{ proxy.country }}</a>
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          <td class="py-3 px-6 text-left">{{ proxy.timezone|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">
+            {% if proxy.latitude %}
+            <a href="https://www.google.com/maps/search/?api=1&query={{ proxy.latitude }},{{ proxy.longitude }}"
+              rel="nofollow noopener" target="_blank" class="text-blue-500 hover:underline">{{ proxy.latitude }}</a>
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          <td class="py-3 px-6 text-left">
+            {% if proxy.longitude %}
+            <a href="https://www.google.com/maps/search/?api=1&query={{ proxy.latitude }},{{ proxy.longitude }}"
+              rel="nofollow noopener" target="_blank" class="text-blue-500 hover:underline">{{ proxy.longitude }}</a>
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          <td class="py-3 px-6 text-left">{{ proxy.anonymity|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.https|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.status|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.private|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.lang|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.useragent|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.webgl_vendor|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.webgl_renderer|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.browser_vendor|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.username|default:"-" }}</td>
+          <td class="py-3 px-6 text-left">{{ proxy.password|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="21" class="py-3 px-6 text-center">No proxies found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="py-4 px-6 flex justify-between items-center">
+    <div>
+      {% if proxies.has_previous %}
+      <a href="?page={{ proxies.previous_page_number }}"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Previous</a>
+      {% endif %}
+    </div>
+    <div class="text-gray-100">
+      Page {{ proxies.number }} of {{ proxies.paginator.num_pages }}
+    </div>
+    <div>
+      {% if proxies.has_next %}
+      <a href="?page={{ proxies.next_page_number }}"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Next</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
