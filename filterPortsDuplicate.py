@@ -109,7 +109,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
         db = ProxyDB(get_relative_path("src/database.sqlite"), True)
         conn = db.db.conn
         cursor = conn.cursor()
-        print(f"{ip} has {len(ip_proxies)} duplicates\n")
+        print(f"{ip} has {len(ip_proxies)} duplicates")
 
         if len(ip_proxies) > 1:
             # Fetch all rows matching the IP address (excluding active and port-open proxies)
@@ -131,7 +131,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                 for row in ip_rows:
                     proxy = row["proxy"]
                     if is_port_open(proxy):
-                        print(f"{proxy} {green('port open')}\n")
+                        print(f"{proxy} {green('port open')}")
                         # keep open port
                         keep_row = row
                         # set status to port-open
@@ -142,7 +142,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                         )
                         conn.commit()
                     else:
-                        print(f"{proxy} {red('port closed')}\n")
+                        print(f"{proxy} {red('port closed')}")
                         if keep_row["proxy"] != proxy:
                             cursor.execute(
                                 "DELETE FROM proxies WHERE proxy = ?", (proxy,)
@@ -245,15 +245,48 @@ def check_open_ports(max: int = 10, callback: Optional[Callable] = None):
         callback()
 
 
+def remove_duplicates_dead_proxies(max: int = 10, callback: Optional[Callable] = None):
+    duplicates_ips: Dict[str, List[str]] = fetch_proxies_same_ip(
+        ["dead", "port-closed"]
+    )
+
+    def process_ip(ip: str, ip_proxies: List[str]):
+        print(f"Processing ip: {ip}")
+        db = ProxyDB(get_relative_path("src/database.sqlite"), True)
+        # keep first row (dont delete first row)
+        ip_proxies_excluding_first = ip_proxies[1:]
+        for proxy in ip_proxies_excluding_first:
+            db.remove(proxy)
+            print(f"{proxy} {red('removed')}")
+        db.close()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        futures = []
+        for index, (ip, ip_proxies) in enumerate(duplicates_ips.items()):
+            if index >= max:
+                break
+            futures.append(executor.submit(process_ip, ip, ip_proxies))
+
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()  # Ensure all threads complete
+            except Exception as e:
+                print(f"Error processing IP: {e}")
+    if callable(callback):
+        callback()
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Proxy Tool")
     parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
     args = parser.parse_args()
-    max = 100
+    max = 1
     if args.max:
         max = args.max
 
-    filter_duplicates_ips(max, lambda: check_open_ports(max))
+    filter_duplicates_ips(
+        max, lambda: check_open_ports(max, lambda: remove_duplicates_dead_proxies(max))
+    )
 
     # Close connection
-    conn.close()
+    db.close()
