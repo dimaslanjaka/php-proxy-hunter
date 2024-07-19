@@ -14,8 +14,9 @@ from src.func import (
     truncate_file_content,
 )
 from src.func_console import green, red
-from src.func_proxy import check_proxy
+from src.func_proxy import check_proxy, build_request
 from src.ProxyDB import ProxyDB
+from proxy_checker import ProxyChecker
 
 # check proxy with matching the title of response
 
@@ -76,6 +77,29 @@ def real_check(proxy: str, url: str, title_should_be: str):
     else:
         print(f"{proxy} {red('dead')} -> {url} ({response_title})")
         result["result"] = False
+    return result
+
+
+def real_anonymity(proxy: str):
+    """
+    get proxy anonymity
+    """
+    checker = ProxyChecker(60000, False)
+    result = None
+    for url in checker.proxy_judges:
+        response = build_request(proxy, "http", endpoint=url)
+        if not response.ok:
+            response = build_request(proxy, "socks4", endpoint=url)
+        if not response.ok:
+            response = build_request(proxy, "socks5", endpoint=url)
+        if response.ok:
+            soup = BeautifulSoup(response.text, "html.parser")
+            response_title = soup.title.string.strip() if soup.title else ""
+            if "AZ Environment".lower() in response_title.lower():
+                result = checker.parse_anonymity(response.text)
+                print(f"{proxy} anonymity is {green(result)}")
+                # break when success
+                break
     return result
 
 
