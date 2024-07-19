@@ -280,7 +280,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Proxy Tool")
     parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
     args = parser.parse_args()
-    max = 1
+    max = 10
     if args.max:
         max = args.max
 
