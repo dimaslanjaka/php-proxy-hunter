@@ -134,7 +134,7 @@ if (!empty($files_to_merge)) {
 
 $startTime = microtime(true);
 
-iterateBigFilesLineByLine($files, function ($line) use ($db, $str_limit_to_remove, &$str_to_remove, $startTime, $maxExecutionTime) {
+iterateBigFilesLineByLine($files, 500, function ($line) use ($db, $str_limit_to_remove, &$str_to_remove, $startTime, $maxExecutionTime) {
   $items = extractProxies($line, $db, false);
   foreach ($items as $item) {
     if (empty($item->proxy) || $db->isAlreadyAdded($item->proxy)) {
@@ -240,6 +240,7 @@ function countFilesAndRepeatScriptIfNeeded()
   // Check if the file count is greater than 5
   if ($fileCount > 5) {
     restart_script();
+    echo __FILE__ . " restarted\n";
   }
 
   echo "File count in directory '$directory': $fileCount\n";
@@ -294,4 +295,4 @@ function blacklist_remover()
   }
 }
 
-Scheduler::register('countFilesAndRepeatScriptIfNeeded', 'zz_repeat');
+Scheduler::register('countFilesAndRepeatScriptIfNeeded', 'zz_restart_' . basename(__FILE__));
