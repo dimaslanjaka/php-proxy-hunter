@@ -14,18 +14,23 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # Load .env file
 if [ -f "$SCRIPT_DIR/.env" ]; then
-  source "$SCRIPT_DIR/.env"
+    source "$SCRIPT_DIR/.env"
 fi
 
 # Add custom paths to PATH
 export PATH="${SCRIPT_DIR}/node_modules/.bin:${SCRIPT_DIR}/bin:${SCRIPT_DIR}/vendor/bin:$PATH"
 
-# Check if the current directory is a Git repository
-if [ -d "$SCRIPT_DIR/.git" ] || git -C "$SCRIPT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
-    echo "Current directory is a Git repository. Updating submodules..."
-    bash "$SCRIPT_DIR/submodule-update"
+# Check if Git is installed
+if command -v git >/dev/null 2>&1; then
+    # Check if the current directory is a Git repository
+    if [ -d "$SCRIPT_DIR/.git" ] || git -C "$SCRIPT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+        echo "Current directory is a Git repository. Updating submodules..."
+        bash "$SCRIPT_DIR/bin/submodule-update"
+    else
+        echo "Current directory is not a Git repository."
+    fi
 else
-    echo "Current directory is not a Git repository."
+    echo "Git is not installed. Please install Git to proceed."
 fi
 
 # Array of files to remove
