@@ -499,7 +499,9 @@ async function fetchWorkingProxies() {
           // td.classList.add("w-4/12");
           if (td.innerText !== "-") {
             td.innerHTML += `<button class="rounded-full ml-2 pcopy" data="${info}" title="copy ${info}"><i class="fa-duotone fa-copy"></i></button>`;
-            td.innerHTML += `<button class="rounded-full ml-2 recheck" data="${info}" title="re-check ${info}"><i class="fa-duotone fa-rotate-right"></i></button>`;
+            if (i === 0) {
+              td.innerHTML += `<button class="rounded-full ml-2 recheck" data="${info}" title="re-check ${info}"><i class="fa-duotone fa-rotate-right"></i></button>`;
+            }
           }
         } else if (i === 2 && info.length > 6) {
           // last check date
