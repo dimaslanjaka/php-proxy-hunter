@@ -25,6 +25,8 @@ def index(request: HttpRequest):
     country = request.GET.get("country")
     city = request.GET.get("city")
     status = request.GET.get("status")
+    timezone = request.GET.get("timezone")
+    region = request.GET.get("region")
 
     # Start with the base queryset
     proxy_list = Proxy.objects.all()
@@ -35,12 +37,20 @@ def index(request: HttpRequest):
             proxy_list = proxy_list.filter(status=status, country=country)
         elif city:
             proxy_list = proxy_list.filter(status=status, city=city)
+        elif timezone:
+            proxy_list = proxy_list.filter(status=status, timezone=timezone)
+        elif region:
+            proxy_list = proxy_list.filter(status=status, region=region)
         else:
             proxy_list = proxy_list.filter(status=status)
     elif country:
         proxy_list = proxy_list.filter(country=country)
     elif city:
         proxy_list = proxy_list.filter(city=city)
+    elif timezone:
+        proxy_list = proxy_list.filter(timezone=timezone)
+    elif region:
+        proxy_list = proxy_list.filter(region=region)
 
     # Annotate the queryset with a custom field for sorting
     proxy_list = proxy_list.annotate(
