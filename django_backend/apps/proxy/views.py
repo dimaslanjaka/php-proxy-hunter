@@ -3,7 +3,6 @@ import sys
 from threading import Thread, active_count
 from urllib.parse import unquote
 from typing import Set
-from django.views.decorators.cache import cache_page
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 from django.db.models import Q
@@ -17,7 +16,6 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 
 
-@cache_page(60 * 15)  # Cache for 15 minutes
 def index(request: HttpRequest):
     country = request.GET.get("country")
     city = request.GET.get("city")
