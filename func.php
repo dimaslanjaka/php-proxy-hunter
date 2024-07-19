@@ -2523,57 +2523,44 @@ function runPythonInBackground($scriptPath, $commandArgs = [], $identifier = nul
   ];
 }
 
-function runScriptInBacgrkround($command, $scriptPath, $commandArgs = [], $identifier = null)
+function runShellCommandLive($command)
 {
-  global $isWin;
-  // Convert arguments to command line string
-  $commandArgsString = '';
-  foreach ($commandArgs as $key => $value) {
-    $escapedValue = escapeshellarg($value);
-    $commandArgsString .= "--$key=$escapedValue ";
-  }
-  $commandArgsString = trim($commandArgsString);
-
-  // Determine paths and commands
-  $cwd = __DIR__;
-  $filename = !empty($identifier) ? sanitizeFilename($identifier) : sanitizeFilename(unixPath("$scriptPath/$commandArgsString"));
-  $runner = unixPath(tmp() . "/runners/$filename" . ($isWin ? ".bat" : ".sh"));
-  $output_file = unixPath(tmp() . "/logs/$filename.txt");
-  $pid_file = unixPath(tmp() . "/runners/$filename.pid");
-
-  // Truncate output file
-  truncateFile($output_file);
-
-  // Construct the command
-  $venv = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
-  $venvCall = $isWin ? "call $venv" : "source $venv";
-
-  $cmd = "$venvCall && $command $scriptPath $commandArgsString > $output_file 2>&1 & echo $! > $pid_file";
-  $cmd = trim($cmd);
-
-  // Write command to runner script
-  $write = write_file($runner, $cmd);
-  if (!$write) {
-    return ['error' => 'Failed writing shell script ' . $runner];
+  if (!is_string($command)) {
+    throw new InvalidArgumentException('Command must be a string');
   }
 
-  // Change current working directory
-  chdir($cwd);
+  // Open a process for the command
+  $process = proc_open($command, [
+    1 => ['pipe', 'w'], // stdout
+    2 => ['pipe', 'w']  // stderr
+  ], $pipes);
 
-  // Execute the runner script
-  if ($isWin) {
-    $runner_win = "start /B \"window_name\" " . escapeshellarg(unixPath($runner));
-    pclose(popen($runner_win, 'r'));
+  if (is_resource($process)) {
+    // Get the stdout pipe
+    $stdout = $pipes[1];
+    $stderr = $pipes[2];
+
+    // Close stderr pipe
+    fclose($stderr);
+
+    // Read stdout line by line
+    while (($line = fgets($stdout)) !== false) {
+      echo htmlspecialchars($line) . "\n";
+      flush(); // Make sure the output is sent to the browser immediately
+    }
+
+    fclose($stdout);
+
+    // Wait for the process to finish
+    $return_value = proc_close($process);
+
+    // Check for errors if necessary
+    if ($return_value !== 0) {
+      echo "Command failed with return code $return_value";
+    }
   } else {
-    exec("bash " . escapeshellarg($runner) . " > /dev/null 2>&1 &");
+    throw new RuntimeException('Failed to open process');
   }
-
-  return [
-    'output' => unixPath($output_file),
-    'cwd' => unixPath($cwd),
-    'relative' => str_replace(unixPath($cwd), '', unixPath($output_file)),
-    'runner' => $runner
-  ];
 }
 
 function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
