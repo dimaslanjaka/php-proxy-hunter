@@ -187,10 +187,12 @@ def worker_check_open_ports(item: Dict[str, str]):
             test = real_check(item["proxy"], "http://httpforever.com/", "HTTP Forever")
 
         last_check = datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
+        https = "true" if test["https"] else "false"
+        protocols = "-".join(test["type"]).lower() if "type" in test else ""
         if test["result"]:
             cursor.execute(
-                "UPDATE proxies SET last_check = ?, status = ? WHERE proxy = ?",
-                (last_check, "active", item["proxy"]),
+                "UPDATE proxies SET last_check = ?, status = ?, https = ?, type = ? WHERE proxy = ?",
+                (last_check, "active", https, protocols, item["proxy"]),
             )
             conn.commit()
         else:
