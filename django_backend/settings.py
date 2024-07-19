@@ -102,12 +102,19 @@ MIDDLEWARE = [
 ]
 
 # file-based caching
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": get_relative_path("tmp/django_cache"),
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': get_relative_path('tmp/django_cache'),
+        }
+    }
 
 ROOT_URLCONF = "django_backend.urls"
 
