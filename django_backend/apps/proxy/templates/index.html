@@ -13,59 +13,76 @@
   <h1 class="text-2xl font-bold mb-4">Proxy List</h1>
   <div class="shadow-md rounded my-6 overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200 table-fixed">
-      <thead class="bg-gray-600 text-white uppercase text-sm leading-normal">
+      <thead class="bg-gray-600 text-white uppercase text-sm">
         <tr>
-          <th class="py-3 px-6 text-left">Badge</th>
-          <th class="py-3 px-6 text-left">Proxy</th>
-          <th class="py-3 px-6 text-left">Latency</th>
-          <th class="py-3 px-6 text-left">Last Check</th>
-          <th class="py-3 px-6 text-left">Type</th>
-          <th class="py-3 px-6 text-left">Region</th>
-          <th class="py-3 px-6 text-left">City</th>
-          <th class="py-3 px-6 text-left">Country</th>
-          <th class="py-3 px-6 text-left">Timezone</th>
-          <th class="py-3 px-6 text-left">Latitude</th>
-          <th class="py-3 px-6 text-left">Longitude</th>
-          <th class="py-3 px-6 text-left">Anonymity</th>
-          <th class="py-3 px-6 text-left">HTTPS</th>
-          <th class="py-3 px-6 text-left">Status</th>
-          <th class="py-3 px-6 text-left">Private</th>
-          <th class="py-3 px-6 text-left">Language</th>
-          <th class="py-3 px-6 text-left">User Agent</th>
-          <th class="py-3 px-6 text-left">WebGL Vendor</th>
-          <th class="py-3 px-6 text-left">WebGL Renderer</th>
-          <th class="py-3 px-6 text-left">Browser Vendor</th>
-          <th class="py-3 px-6 text-left">Username</th>
-          <th class="py-3 px-6 text-left">Password</th>
+          <th class="py-3 px-6 text-left w-32">Badge</th>
+          <th class="py-3 px-6 text-left w-32">Proxy</th>
+          <th class="py-3 px-6 text-left w-32">Latency</th>
+          <th class="py-3 px-6 text-left w-64">Last Check</th>
+          <!-- <th class="py-3 px-6 text-left w-32">Type</th> -->
+          <th class="py-3 px-6 text-left w-32">Region</th>
+          <th class="py-3 px-6 text-left w-32">City</th>
+          <th class="py-3 px-6 text-left w-32">Country</th>
+          <th class="py-3 px-6 text-left w-32">Timezone</th>
+          <th class="py-3 px-6 text-left w-32">Latitude</th>
+          <th class="py-3 px-6 text-left w-32">Longitude</th>
+          <th class="py-3 px-6 text-left w-32">Anonymity</th>
+          <!-- <th class="py-3 px-6 text-left w-32">HTTPS</th> -->
+          <!-- <th class="py-3 px-6 text-left w-32">Status</th> -->
+          <th class="py-3 px-6 text-left w-32">Private</th>
+          <th class="py-3 px-6 text-left w-32">Language</th>
+          <th class="py-3 px-6 text-left w-32">User Agent</th>
+          <th class="py-3 px-6 text-left w-32">WebGL Vendor</th>
+          <th class="py-3 px-6 text-left w-32">WebGL Renderer</th>
+          <th class="py-3 px-6 text-left w-32">Browser Vendor</th>
+          <th class="py-3 px-6 text-left w-32">Username</th>
+          <th class="py-3 px-6 text-left w-32">Password</th>
         </tr>
       </thead>
       <tbody class="text-gray-100 text-sm font-light">
         {% for proxy in proxies %}
-        <tr
-          class="border-b border-gray-200 {% if proxy.status == 'active' %}proxy-active{% else %}proxy-dead{% endif %}">
-          <td class="py-3 px-6 text-left whitespace-nowrap">{{ proxy|proxy_label }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.proxy|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.latency|default:"-" }} ms</td>
+        <tr class="border-b border-gray-200 {% if proxy.status == 'active' %}proxy-active{% else %}proxy-dead{% endif %}">
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy|proxy_label }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.proxy|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {% if proxy.latency|default:"-" != "-" %}
+            {{ proxy.latency|default:"0" }} ms
+            {% else %}
+            -
+            {% endif %}
+          </td>
           <!-- format time ago with django_backend/apps/proxy/templatetags/custom_filters.py -->
-          <td class="py-3 px-6 text-left">{{ proxy.last_check|time_ago }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.type|default:"-"|upper }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.region|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.last_check|time_ago }}</td>
+          <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.type|default:"-"|upper }}</td> -->
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {% if proxy.region|default:"-" != "-" %}
+            <a href="/proxy?region={{ proxy.region }}" class="hover:underline">{{ proxy.region }}</a>
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {% if proxy.city|default:"-" != "-" %}
             <a href="/proxy?city={{ proxy.city }}" class="hover:underline">{{ proxy.city }}</a>
             {% else %}
             -
             {% endif %}
           </td>
-          <td class="py-3 px-6 text-left">
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {% if proxy.country|default:"-" != "-" %}
             <a href="/proxy?country={{ proxy.country }}" class="hover:underline">{{ proxy.country }}</a>
             {% else %}
             -
             {% endif %}
           </td>
-          <td class="py-3 px-6 text-left">{{ proxy.timezone|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {% if proxy.timezone|default:"-" != "-" %}
+            <a href="/proxy?timezone={{ proxy.timezone }}" class="hover:underline">{{ proxy.timezone }}</a>
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {% if proxy.latitude %}
             <a href="https://www.google.com/maps/search/?api=1&query={{ proxy.latitude }},{{ proxy.longitude }}"
               rel="nofollow noopener" target="_blank" class="text-blue-500 hover:underline">{{ proxy.latitude }}</a>
@@ -73,7 +90,7 @@
             -
             {% endif %}
           </td>
-          <td class="py-3 px-6 text-left">
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {% if proxy.longitude %}
             <a href="https://www.google.com/maps/search/?api=1&query={{ proxy.latitude }},{{ proxy.longitude }}"
               rel="nofollow noopener" target="_blank" class="text-blue-500 hover:underline">{{ proxy.longitude }}</a>
@@ -81,17 +98,17 @@
             -
             {% endif %}
           </td>
-          <td class="py-3 px-6 text-left">{{ proxy.anonymity|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.https|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.status|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.private|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.lang|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.useragent|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.webgl_vendor|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.webgl_renderer|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.browser_vendor|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.username|default:"-" }}</td>
-          <td class="py-3 px-6 text-left">{{ proxy.password|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.anonymity|default:"-" }}</td>
+          <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.https|default:"-" }}</td> -->
+          <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.status|default:"-" }}</td> -->
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.private|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.lang|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.useragent|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.webgl_vendor|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.webgl_renderer|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.browser_vendor|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.username|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.password|default:"-" }}</td>
         </tr>
         {% empty %}
         <tr>
