@@ -97,7 +97,7 @@ if (!$isCli) {
     // Execute the runner script in the background
     runBashOrBatch($runner);
   } else {
-    echo "failed writing $runner\n\n";
+    echo "[CHECKER-PARALLEL] failed writing $runner\n\n";
   }
 }
 
@@ -155,7 +155,7 @@ if ($isCli) {
   }
 
   $proxies = extractProxies($str, $db);
-  echo "check in parallel " . count($proxies) . " proxies\n";
+  echo "[CHECKER-PARALLEL] checking " . count($proxies) . " proxies\n";
   $str_to_remove = [];
 
   if (empty($proxies)) {
@@ -239,6 +239,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
     $endpoint = $custom_endpoint;
   }
   if ($print_headers) {
+    echo "[CHECKER-PARALLEL] CONFIG" . PHP_EOL;
     echo "User $user_id " . date(DATE_RFC3339) . PHP_EOL;
     echo "GET $endpoint" . PHP_EOL;
     echo implode(PHP_EOL, $headers) . PHP_EOL . PHP_EOL;
@@ -494,13 +495,13 @@ function schedule_remover()
       foreach ($files as $file) {
         $remove = removeStringFromFile($file, $str_to_remove);
         if ($remove == 'success') {
-          echo "removed indexed proxies from " . basename($file) . PHP_EOL;
+          echo "[CHECKER-PARALLEL] removed indexed proxies from " . basename($file) . PHP_EOL;
           sleep(1);
           removeEmptyLinesFromFile($file);
         }
         sleep(1);
         if (filterIpPortLines($file) == 'success') {
-          echo "non IP:PORT lines removed from " . basename($file) . PHP_EOL;
+          echo "[CHECKER-PARALLEL] non IP:PORT lines removed from " . basename($file) . PHP_EOL;
         }
         sleep(1);
       }
