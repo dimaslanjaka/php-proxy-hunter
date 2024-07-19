@@ -33,7 +33,7 @@
     }
   },
   "terminal.integrated.defaultProfile.windows": "Command Prompt",
-  "files.autoSave": "off",
+  "files.autoSave": "onWindowChange",
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit"
