@@ -6,10 +6,10 @@
 
 require_once __DIR__ . "/func-proxy.php";
 
+global $isWin, $isCli;
+
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
-
-$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 if (!$isCli) {
   header('Content-Type:text/plain; charset=UTF-8');
@@ -248,25 +248,12 @@ function countFilesAndRepeatScriptIfNeeded()
 
 function restart_script()
 {
-  // Get the current script path and arguments
-  $currentScript = __FILE__;
   global $argv;
+  $currentScript = __FILE__;
   $args = implode(' ', array_slice($argv, 1)); // Get all arguments except the script name
 
-  // Determine the command based on the operating system
-  if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-    // Windows
-    $command = "start /B php $currentScript $args > NUL 2>&1";
-  } else {
-    // Linux, Unix, MacOS
-    $command = "php $currentScript $args > /dev/null 2>&1 &";
-  }
-
   // Execute the command
-  exec($command);
-
-  // Exit the current script to avoid any further execution
-  exit();
+  runShellCommandLive("php $currentScript $args");
 }
 
 function blacklist_remover()
