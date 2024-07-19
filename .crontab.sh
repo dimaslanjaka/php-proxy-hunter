@@ -52,5 +52,6 @@ r_cmd() {
 # r_cmd "python" "manage.py" "runserver"
 # r_cmd "php" "path/to/script.php" "arg1 arg2"
 
+r_cmd "python" "filterPortsDuplicate.py" "--max=10"
 r_cmd "python" "proxyCheckerReal.py" "--max=10"
-r_cmd "python" "proxyCheckerReal.py" "--max=10"
+
