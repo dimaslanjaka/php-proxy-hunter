@@ -49,3 +49,4 @@ six
 channels
 python-dotenv
 htmlmin
+html5lib
