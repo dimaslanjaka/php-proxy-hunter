@@ -311,11 +311,14 @@ function setPermissions(string $filename, bool $autoCreate = false): bool
 /**
  * Checks if a given string is base64 encoded.
  *
- * @param string $string The string to check.
+ * @param string|null $string The string to check.
  * @return bool True if the string is base64 encoded, false otherwise.
  */
-function isBase64Encoded(string $string): bool
+function isBase64Encoded(?string $string): bool
 {
+  if (empty($string)) {
+    return false;
+  }
   // Check if the string matches the base64 format
   if (preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $string)) {
     // Decode the string and then re-encode it
