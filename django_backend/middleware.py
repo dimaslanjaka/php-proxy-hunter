@@ -29,7 +29,8 @@ class MinifyHTMLMiddleware(MiddlewareMixin):
         cache_key = f"minified_{request.get_full_path()}"
         cached_response = cache.get(cache_key)
 
-        if cached_response:
+        if cached_response and not settings.DEBUG:
+            # return cache only for production mode
             response.content = cached_response
         elif allowed:
             minified_content = html_minify(
