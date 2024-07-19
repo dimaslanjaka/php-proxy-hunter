@@ -2,11 +2,12 @@ import re
 from django.utils.deprecation import MiddlewareMixin
 from django.http import HttpRequest, HttpResponse
 from django.conf import settings
+from django.core.cache import cache
 from htmlmin.minify import html_minify
 
 
 class MinifyHTMLMiddleware(MiddlewareMixin):
-    def can_minify_response(self, request: HttpRequest, response: HttpResponse):
+    def can_minify_response(self, request: HttpRequest, response: HttpResponse) -> bool:
         result = "text/html" in response.get("Content-Type", "")
 
         if hasattr(settings, "EXCLUDE_FROM_MINIFYING"):
@@ -18,14 +19,26 @@ class MinifyHTMLMiddleware(MiddlewareMixin):
 
         return result
 
-    def process_response(self, request: HttpRequest, response: HttpResponse):
-        # enable_minify = getattr(settings, "HTML_MINIFY", not settings.DEBUG)
+    def process_response(
+        self, request: HttpRequest, response: HttpResponse
+    ) -> HttpResponse:
         keep_comments = getattr(settings, "KEEP_COMMENTS_ON_MINIFYING", False)
         parser = getattr(settings, "HTML_MIN_PARSER", "html5lib")
-        allowed = self.can_minify_response(request, response)  # and enable_minify
-        if allowed:
-            response.content = html_minify(
+        allowed = self.can_minify_response(request, response)
+
+        cache_key = f"minified_{request.get_full_path()}"
+        cached_response = cache.get(cache_key)
+
+        if cached_response:
+            response.content = cached_response
+        elif allowed:
+            minified_content = html_minify(
                 response.content, ignore_comments=not keep_comments, parser=parser
             )
+            response.content = minified_content
             response["Content-Length"] = len(response.content)
+            cache.set(
+                cache_key, minified_content, timeout=60 * 15
+            )  # Cache for 15 minutes
+
         return response
