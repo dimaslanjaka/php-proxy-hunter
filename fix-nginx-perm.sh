@@ -22,8 +22,8 @@ export PATH="${SCRIPT_DIR}/node_modules/.bin:${SCRIPT_DIR}/bin:${SCRIPT_DIR}/ven
 
 # Check if the current directory is a Git repository
 if [ -d "$SCRIPT_DIR/.git" ] || git -C "$SCRIPT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
-    echo "Current directory is a Git repository."
-    git -C "$SCRIPT_DIR" submodule update -i -r
+    echo "Current directory is a Git repository. Updating submodules..."
+    bash "$SCRIPT_DIR/submodule-update"
 else
     echo "Current directory is not a Git repository."
 fi
