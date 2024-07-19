@@ -146,10 +146,13 @@ async function checkerOutput() {
   const filter = (info || "")
     .split(/\r?\n/)
     .map((str) => {
-      str = str.replace(/port closed/, '<span class="text-red-400">port closed</span>');
-      str = str.replace(/port open/, '<span class="text-green-400">port open</span>');
-      str = str.replace(/not working/, '<span class="text-red-600">not working</span>');
-      str = str.replace(/dead/, '<span class="text-red-600">dead</span>');
+      // remove ANSI codes
+      // eslint-disable-next-line no-control-regex
+      str = str.replace(/\x1b\[[0-9;]*m/g, "");
+      str = str.replace(/port closed/gm, '<span class="text-red-400">port closed</span>');
+      str = str.replace(/port open/gm, '<span class="text-green-400">port open</span>');
+      str = str.replace(/not working/gm, '<span class="text-red-600">not working</span>');
+      str = str.replace(/dead/gm, '<span class="text-red-600">dead</span>');
       str = str.replace(
         /(\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}\b)\s+invalid/g,
         '$1 <span class="text-red-600">invalid</span>'
