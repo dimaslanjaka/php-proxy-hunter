@@ -124,7 +124,9 @@ if ($response_format == 'json') {
   echo PHP_EOL;
   foreach ($data as $item) {
     echo implode("|", array_map(function ($str) {
-      if (empty($str)) return '-';
+      if (empty($str)) {
+        return '-';
+      }
       return $str;
     }, array_values($item))) . PHP_EOL;
   }
