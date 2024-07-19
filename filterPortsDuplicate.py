@@ -218,18 +218,21 @@ def worker_check_open_ports(item: Dict[str, str]):
 
 
 def fetch_open_ports(max: int = 10) -> List[Dict[str, Union[str, None]]]:
-    global cursor
+    db = ProxyDB(get_relative_path("src/database.sqlite"), True)
+
     # Execute your query using the global cursor
-    cursor.execute("SELECT proxy FROM proxies WHERE status = 'port-open'")
-    proxies = cursor.fetchall()
+    db.db.cursor.execute("SELECT proxy FROM proxies WHERE status = 'port-open'")
+    proxies = db.db.cursor.fetchall()
 
     # Fetch column names
-    column_names = [description[0] for description in cursor.description]
+    column_names = [description[0] for description in db.db.cursor.description]
 
     # Convert the result into a list of dictionaries
     proxies_dict: List[Dict[str, Union[str, None]]] = [
         dict(zip(column_names, proxy)) for proxy in proxies
     ][:max]
+
+    db.close()
 
     return proxies_dict
 
