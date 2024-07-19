@@ -21,6 +21,7 @@ def proxy_label(row):
             proxy_types = row.type.split("-")
 
             for s in proxy_types:
+                badge = None
                 if s == "http":
                     badge = (
                         '<span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400 mb-1">'
@@ -36,7 +37,8 @@ def proxy_label(row):
                         '<span class="bg-red-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-400 mb-1">'
                         "SOCKS5</span>"
                     )
-                result.append(badge)
+                if badge:
+                    result.append(badge)
     else:
         badge = (
             '<span class="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-400 mb-1">'
