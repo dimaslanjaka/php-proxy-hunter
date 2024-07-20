@@ -4,7 +4,7 @@ import subprocess
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from colorama import just_fix_windows_console, Style, Fore
 
@@ -18,19 +18,19 @@ class ConsoleColor:
 
     # ANSI escape codes for text colors
     COLORS = {
-        'reset': '\033[0m',
-        'black': '\033[30m',
-        'red': '\033[31m',
-        'green': '\033[32m',
-        'yellow': '\033[33m',
-        'blue': '\033[34m',
-        'purple': '\033[35m',
-        'cyan': '\033[36m',
-        'white': '\033[37m'
+        "reset": "\033[0m",
+        "black": "\033[30m",
+        "red": "\033[31m",
+        "green": "\033[32m",
+        "yellow": "\033[33m",
+        "blue": "\033[34m",
+        "purple": "\033[35m",
+        "cyan": "\033[36m",
+        "white": "\033[37m",
     }
 
     @classmethod
-    def colorize(cls, text: str, color: str = 'reset') -> str:
+    def colorize(cls, text: str, color: str = "reset") -> str:
         """Colorize the specified text.
 
         Args:
@@ -40,8 +40,8 @@ class ConsoleColor:
         Returns:
             str: The colorized text.
         """
-        color_code = cls.COLORS.get(color, cls.COLORS['reset'])
-        reset_code = cls.COLORS['reset']
+        color_code = cls.COLORS.get(color, cls.COLORS["reset"])
+        reset_code = cls.COLORS["reset"]
         return f"{color_code}{text}{reset_code}"
 
 
@@ -64,12 +64,12 @@ def green(text: str):
 
 
 def orange(text: str):
-    orange_color = '\033[38;5;208m'
+    orange_color = "\033[38;5;208m"
     return Style.BRIGHT + orange_color + text + Style.RESET_ALL
 
 
 def restart_script():
-    print('restarting....', end=' ')
+    print("restarting....", end=" ")
     python_executable = sys.executable
     script_path = sys.argv[0]
     command = [python_executable, script_path] + sys.argv[1:]
@@ -95,14 +95,14 @@ def get_caller_info():
 
 def remove_color_codes(text):
     # Define the regex pattern for ANSI color codes
-    ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
+    ansi_escape = re.compile(r"\x1B[@-_][0-?]*[ -/]*[@-~]")
     # Remove the ANSI color codes
-    return ansi_escape.sub('', text)
+    return ansi_escape.sub("", text)
 
 
 def log_proxy(*args, **kwargs):
     # Convert all arguments to string and join them with a space
-    message = ' '.join(map(str, args))
+    message = " ".join(map(str, args))
 
     # Print to console (with color codes)
     print(message, **kwargs)
@@ -111,13 +111,13 @@ def log_proxy(*args, **kwargs):
     cleaned_message = remove_color_codes(message)
 
     # Log to file
-    with open(get_relative_path('proxyChecker.txt'), 'a', encoding='utf-8') as f:
-        f.write(cleaned_message + '\n')
+    with open(get_relative_path("proxyChecker.txt"), "a", encoding="utf-8") as f:
+        f.write(cleaned_message + "\n")
 
 
 def log_file(filename: str, *args, **kwargs):
     # Convert all arguments to string and join them with a space
-    message = ' '.join(map(str, args))
+    message = " ".join(map(str, args))
 
     # Print to console (with color codes)
     print(message, **kwargs)
@@ -126,5 +126,5 @@ def log_file(filename: str, *args, **kwargs):
     cleaned_message = remove_color_codes(message)
 
     # Log to file
-    with open(filename, 'a', encoding='utf-8') as f:
-        f.write(cleaned_message + '\n')
+    with open(filename, "a", encoding="utf-8") as f:
+        f.write(cleaned_message + "\n")

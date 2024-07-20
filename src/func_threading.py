@@ -5,7 +5,7 @@ import concurrent.futures
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 def kill_processes(process_names: List[str]) -> None:
@@ -19,15 +19,29 @@ def kill_processes(process_names: List[str]) -> None:
         None
     """
     for name in process_names:
-        subprocess.run(['wmic', 'process', 'where', f'name like "{name}"', 'delete'], check=True)
+        subprocess.run(
+            ["wmic", "process", "where", f'name like "{name}"', "delete"], check=True
+        )
 
 
 def kills():
-    process_names = ['chrome.exe', 'webdriver.exe', 'chromedriver.exe', 'php.exe', 'python.exe', 'node.exe', 'dl-runner.exe', 'dl-traffic.exe', sys.argv[0]]
+    process_names = [
+        "chrome.exe",
+        "webdriver.exe",
+        "chromedriver.exe",
+        "php.exe",
+        "python.exe",
+        "node.exe",
+        "dl-runner.exe",
+        "dl-traffic.exe",
+        sys.argv[0],
+    ]
     kill_processes(process_names)
 
 
-def process_in_parallel(items: List, process_function: Callable, max_threads: int = 5) -> None:
+def process_in_parallel(
+    items: List, process_function: Callable, max_threads: int = 5
+) -> None:
     """
     Process items in parallel using ThreadPoolExecutor.
 

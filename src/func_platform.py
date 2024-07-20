@@ -2,7 +2,7 @@ import importlib
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import platform
 import socket
 
@@ -11,8 +11,8 @@ def import_windows_packages():
     try:
         global win32api
         global wmi
-        win32api = importlib.import_module('win32api')
-        wmi = importlib.import_module('wmi')
+        win32api = importlib.import_module("win32api")
+        wmi = importlib.import_module("wmi")
         print("Windows-specific packages imported successfully.")
     except ImportError as e:
         print(f"Failed to import Windows-specific packages: {e}")
@@ -27,17 +27,17 @@ def is_debug() -> bool:
     """
     Check current device is debug or not
     """
-    is_github_ci = os.getenv('CI') is not None and os.getenv('GITHUB_ACTIONS') == 'true'
-    is_github_codespaces = os.getenv('CODESPACES') == 'true'
+    is_github_ci = os.getenv("CI") is not None and os.getenv("GITHUB_ACTIONS") == "true"
+    is_github_codespaces = os.getenv("CODESPACES") == "true"
 
     if is_github_ci or is_github_codespaces:
         return True
 
     # My device lists
-    debug_pc = ['DESKTOP-JVTSJ6I']
+    debug_pc = ["DESKTOP-JVTSJ6I"]
     hostname = socket.gethostname()
 
-    if hostname.startswith('codespaces-'):
+    if hostname.startswith("codespaces-"):
         return True
 
     return hostname in debug_pc
@@ -45,9 +45,10 @@ def is_debug() -> bool:
 
 def is_django_environment():
     try:
-        if os.environ.get('DJANGO_SETTINGS_MODULE') is not None:
+        if os.environ.get("DJANGO_SETTINGS_MODULE") is not None:
             return True
         from django.conf import settings
+
         # Check if Django settings are configured
         settings.DEBUG
         return True
@@ -56,7 +57,7 @@ def is_django_environment():
 
 
 def main():
-    if platform.system() == 'Windows':
+    if platform.system() == "Windows":
         import_windows_packages()
         # Now you can use wmi and win32api functions here
         # Example usage of wmi
