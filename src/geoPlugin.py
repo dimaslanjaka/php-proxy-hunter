@@ -13,7 +13,13 @@ from src.func import get_message_exception, get_nuitka_file, get_relative_path
 from src.func_certificate import output_pem
 
 
-def get_with_proxy(url, proxy_type: Optional[str] = 'http', proxy_raw: Optional[str] = None, timeout=10, debug: Optional[bool] = False):
+def get_with_proxy(
+    url,
+    proxy_type: Optional[str] = "http",
+    proxy_raw: Optional[str] = None,
+    timeout=10,
+    debug: Optional[bool] = False,
+):
     """
     Perform a GET request using a proxy of the specified type.
 
@@ -29,30 +35,23 @@ def get_with_proxy(url, proxy_type: Optional[str] = 'http', proxy_raw: Optional[
     proxies = None
 
     if proxy_raw:
-        split = proxy_raw.split('@')
+        split = proxy_raw.split("@")
         proxy = split[0]
         auth = None
         if len(split) > 1:
             auth = split[1]
-        if proxy_type == 'socks4':
-            proxies = {
-                'http': f'socks4://{proxy}',
-                'https': f'socks4://{proxy}'
-            }
-        elif proxy_type == 'socks5':
-            proxies = {
-                'http': f'socks5://{proxy}',
-                'https': f'socks5://{proxy}'
-            }
+        if proxy_type == "socks4":
+            proxies = {"http": f"socks4://{proxy}", "https": f"socks4://{proxy}"}
+        elif proxy_type == "socks5":
+            proxies = {"http": f"socks5://{proxy}", "https": f"socks5://{proxy}"}
         else:
-            proxies = {
-                'http': proxy,
-                'https': proxy
-            }
+            proxies = {"http": proxy, "https": proxy}
 
     try:
         if proxies:
-            response = requests.get(url, proxies=proxies, timeout=timeout, verify=output_pem)
+            response = requests.get(
+                url, proxies=proxies, timeout=timeout, verify=output_pem
+            )
         else:
             response = requests.get(url, timeout=timeout, verify=output_pem)
 
@@ -70,8 +69,19 @@ class GeoIpResult:
     Represents a result from a GeoIP lookup.
     """
 
-    def __init__(self, city: str, country_name: str, country_code: str, latitude: float, longitude: float,
-                 timezone: str, region_name: Union[str, int], region: str, region_code: str, lang: str):
+    def __init__(
+        self,
+        city: str,
+        country_name: str,
+        country_code: str,
+        latitude: float,
+        longitude: float,
+        timezone: str,
+        region_name: Union[str, int],
+        region: str,
+        region_code: str,
+        lang: str,
+    ):
         """
         Initialize a GeoIpResult object.
 
@@ -110,7 +120,7 @@ class GeoIpResult:
         """
         return json.dumps(self.__dict__)
 
-    def from_dict(self, **kwargs: Any) -> 'GeoIpResult':
+    def from_dict(self, **kwargs: Any) -> "GeoIpResult":
         """
         Proxy class constructor.
 
@@ -148,21 +158,27 @@ def get_geo_ip(proxy: str):
     if split:
         ip = split[0]
     try:
-        with maxminddb.open_database(get_nuitka_file('src/GeoLite2-City.mmdb')) as reader:
+        with maxminddb.open_database(
+            get_nuitka_file("src/GeoLite2-City.mmdb")
+        ) as reader:
             data = reader.get(ip)
             return data
     except Exception as e:
         print("Error in geoIp:", e)
 
 
-def get_geo_ip2(proxy: str, proxy_username: Optional[str] = None, proxy_password: Optional[str] = None):
+def get_geo_ip2(
+    proxy: str,
+    proxy_username: Optional[str] = None,
+    proxy_password: Optional[str] = None,
+):
     ip = proxy
     split = proxy.split(":")
     if split:
         ip = split[0]
     reader = None
     try:
-        reader = database.Reader(get_nuitka_file('src/GeoLite2-City.mmdb'))
+        reader = database.Reader(get_nuitka_file("src/GeoLite2-City.mmdb"))
         response = reader.city(ip)
         city = response.city.name
         country_name = response.country.name
@@ -186,30 +202,59 @@ def get_geo_ip2(proxy: str, proxy_username: Optional[str] = None, proxy_password
         reader.close()
         # fetch region name when maxmind fail
         if not region_name or not city or not timezone or not region or not region_code:
-            for protocol in ['http', 'socks5', 'socks4']:
+            for protocol in ["http", "socks5", "socks4"]:
                 try:
-                    url = 'https://ip-get-geolocation.com/api/json'
-                    proxy_url = f'{proxy}@{proxy_username}:{proxy_password}'
+                    url = "https://ip-get-geolocation.com/api/json"
+                    proxy_url = f"{proxy}@{proxy_username}:{proxy_password}"
                     response = get_with_proxy(url, protocol, proxy_url)
                     if response and response.ok:
                         new_data = response.json()
-                        if 'status' in new_data and str(new_data['status']).lower() == 'success':
+                        if (
+                            "status" in new_data
+                            and str(new_data["status"]).lower() == "success"
+                        ):
                             print(new_data)
-                            if 'city' in new_data and new_data['city'] and not city:
-                                city = new_data['city']
-                            if 'timezone' in new_data and new_data['timezone'] and not timezone:
-                                timezone = new_data['timezone']
-                            if 'regionName' in new_data and new_data['regionName'] and not region_name:
-                                region_name = new_data['regionName']
-                            if 'region' in new_data and new_data['region'] and not region:
-                                region = new_data['region']
-                            if 'regionCode' in new_data and new_data['regionCode'] and not region_code:
-                                region_code = new_data['regionCode']
+                            if "city" in new_data and new_data["city"] and not city:
+                                city = new_data["city"]
+                            if (
+                                "timezone" in new_data
+                                and new_data["timezone"]
+                                and not timezone
+                            ):
+                                timezone = new_data["timezone"]
+                            if (
+                                "regionName" in new_data
+                                and new_data["regionName"]
+                                and not region_name
+                            ):
+                                region_name = new_data["regionName"]
+                            if (
+                                "region" in new_data
+                                and new_data["region"]
+                                and not region
+                            ):
+                                region = new_data["region"]
+                            if (
+                                "regionCode" in new_data
+                                and new_data["regionCode"]
+                                and not region_code
+                            ):
+                                region_code = new_data["regionCode"]
                             break
                 except Exception:
                     pass
-        return GeoIpResult(city, country_name, country_code, latitude, longitude, timezone,
-                           region_name, region, region_code, lang)
+        return GeoIpResult(
+            city,
+            country_name,
+            country_code,
+            latitude,
+            longitude,
+            timezone,
+            region_name,
+            region,
+            region_code,
+            lang,
+        )
     except Exception as e:
         print("Error in geoIp2:", get_message_exception(e))
         if reader is not None:
@@ -223,7 +268,7 @@ def fetch_and_save_data(url, filename):
         countries_data = response.json()
 
         # Save data to file
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             json.dump(countries_data, f)
 
         return countries_data
@@ -234,9 +279,11 @@ def fetch_and_save_data(url, filename):
 
 
 # Load the countries JSON data from the URL
-url = "https://raw.githubusercontent.com/annexare/Countries/main/dist/countries.min.json"
+url = (
+    "https://raw.githubusercontent.com/annexare/Countries/main/dist/countries.min.json"
+)
 
-countries_data_path = get_relative_path('tmp/countries_data.json')
+countries_data_path = get_relative_path("tmp/countries_data.json")
 
 # Check if file exists and if it's not expired
 if os.path.exists(countries_data_path):
@@ -245,7 +292,7 @@ if os.path.exists(countries_data_path):
     # Compare file modification time with the current time
     if (datetime.now() - file_mod_time) < timedelta(days=1):
         # File is not expired, load data from file
-        with open(countries_data_path, 'r') as f:
+        with open(countries_data_path, "r") as f:
             countries_data = json.load(f)
     else:
         # File is expired, fetch new data and save to file
@@ -260,7 +307,7 @@ else:
 def get_locale_from_country_code(country_code: str):
     if country_code in countries_data:
         country_info = countries_data[country_code]
-        languages = country_info['languages']
+        languages = country_info["languages"]
         language_code = languages[0]  # Take the first language as primary language code
         return f"{language_code}_{country_code.upper()}"
     else:

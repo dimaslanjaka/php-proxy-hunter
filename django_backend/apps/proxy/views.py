@@ -1,4 +1,5 @@
 import os
+import random
 import sys
 from threading import Thread, active_count
 from typing import Set
@@ -18,7 +19,10 @@ from src.func_platform import is_django_environment
 
 from .models import Proxy
 from .serializers import ProxySerializer
-from .tasks import *
+from .tasks import (
+    fetch_details_in_thread,
+    run_check_proxy_async_in_thread,
+)
 
 
 def index(request: HttpRequest):
@@ -67,6 +71,9 @@ def index(request: HttpRequest):
     paginator = Paginator(proxy_list, 30)  # Show 30 proxies per page
     page_number = request.GET.get("page")
     proxies = paginator.get_page(page_number)
+
+    # Fetch missing details in a background thread
+    fetch_details_in_thread(proxies.object_list)
 
     return render(request, "index.html", {"proxies": proxies})
 
