@@ -1,6 +1,6 @@
+from django.db import connection, transaction
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver
-from django.db import connection, transaction
 
 
 @transaction.atomic
@@ -12,6 +12,6 @@ def activate_wal_mode2():
 @receiver(connection_created)
 def activate_wal_mode(sender, connection, **kwargs):
     # print('activating journal mode')
-    if connection.vendor == 'sqlite':
+    if connection.vendor == "sqlite":
         with connection.cursor() as cursor:
-            cursor.execute('PRAGMA journal_mode = WAL;')
+            cursor.execute("PRAGMA journal_mode = WAL;")
