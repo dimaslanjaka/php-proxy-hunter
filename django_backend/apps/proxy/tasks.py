@@ -223,11 +223,19 @@ def real_check_proxy_async(proxy_data: Optional[str] = None):
                     upload_proxy(proxyClass)
 
         if db is not None and status is not None:
-            data = {"status": status}
+            data = {"status": status, "type": None}
             if len(protocols) > 0:
                 data["type"] = "-".join(protocols).upper()
             try:
                 db.update_data(proxyClass.proxy, data)
+                # update django database
+                check_model = Proxy.objects.filter(proxy=proxyClass.proxy)
+                if check_model:
+                    check_model.update(status=data["status"], type=data["type"])
+                else:
+                    Proxy.objects.create(
+                        proxy=proxyClass.proxy, status=data["status"], type=data["type"]
+                    )
             except Exception as e:
                 print(f"{proxyClass.proxy} fail update {e}")
 
@@ -237,6 +245,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = None):
             proxyClass.proxy,
         )
     file_remove_empty_lines(logfile)
+    db.close()
 
 
 def run_check_proxy_async_in_thread(proxy):
