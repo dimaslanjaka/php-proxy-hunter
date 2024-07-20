@@ -47,7 +47,9 @@ django-extensions
 PyJWT
 six
 channels
+daphne
 python-dotenv
 htmlmin
 html5lib
 psutil
+django-htmlmin
