@@ -121,7 +121,15 @@ ROOT_URLCONF = "django_backend.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            path
+            for path in [
+                os.path.join(BASE_DIR, "django_backend/apps/core/templates"),
+                os.path.join(BASE_DIR, "django_backend/apps/axis/templates"),
+                os.path.join(BASE_DIR, "django_backend/apps/proxy/templates"),
+            ]
+            if os.path.exists(path)
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -252,6 +260,7 @@ STATIC_ROOT = os.path.join(PROJECT_DIR, "public")
 
 # Define multiple directories for static files
 STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "django_backend/statics"),
     os.path.join(BASE_DIR, "django_backend/apps/axis/statics"),
     os.path.join(BASE_DIR, "django_backend/apps/authentication/statics"),
     os.path.join(BASE_DIR, "django_backend/apps/proxy/statics"),
