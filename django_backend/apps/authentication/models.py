@@ -11,4 +11,4 @@ class UserBalance(models.Model):
         return f"User Balance {self.user.username}"
 
     class Meta:
-        db_table = 'user_balance'
+        db_table = "user_balance"
