@@ -399,6 +399,21 @@ def is_directory_created_days_ago_or_more(directory_path: str, days: int) -> boo
         return False
 
 
+def remove_ansi(input_string):
+    """
+    Remove ANSI escape sequences from the input string.
+    """
+    ansi_escape = re.compile(r"(?:\x1B[@-_][0-?]*[ -/]*[@-~])")
+    return ansi_escape.sub("", input_string)
+
+
+def remove_non_ascii(input_string):
+    """
+    Remove non-ASCII characters from the input string.
+    """
+    return re.sub(r"[^\x00-\x7F]+", "", input_string)
+
+
 def is_matching_regex(pattern: str, text: str):
     """
     Check if the given text matches the provided regular expression pattern.
@@ -546,8 +561,8 @@ def file_append_str(filename: str, string_to_add: str) -> None:
     """
     try:
         with open(filename, "a+", encoding="utf-8") as file:
-            # file.write(string_to_add.encode('utf-8').decode('utf-8', 'ignore'))
-            file.write(f"{string_to_add}\n")
+            # file.write(string_to_add.encode("utf-8").decode("utf-8", "ignore"))
+            file.write(f"{remove_ansi(remove_non_ascii(string_to_add))}\n")
     except Exception as e:
         print(f"Fail append new line {filename} {e.args[0]}")
         pass
