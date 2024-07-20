@@ -12,7 +12,8 @@ After=network.target
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/html
-ExecStart=/var/www/html/venv/bin/gunicorn --workers 3 --bind unix:/var/www/html/tmp/gunicorn.sock django_backend.wsgi:application
+ExecStart=/var/www/html/assets/systemctl/start_gunicorn.sh
+# ExecStart=/var/www/html/venv/bin/gunicorn --workers 3 --bind unix:/var/www/html/tmp/gunicorn.sock django_backend.wsgi:application --access-logfile /var/www/html/tmp/logs/gunicorn-access.log --error-logfile /var/www/html/tmp/logs/gunicorn-error.log
 # --keyfile /etc/letsencrypt/live/sh.webmanajemen.com/privkey.pem --certfile /etc/letsencrypt/live/sh.webmanajemen.com/fullchain.pem
 
 [Install]

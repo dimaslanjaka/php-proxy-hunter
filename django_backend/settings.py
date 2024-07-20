@@ -104,15 +104,15 @@ MIDDLEWARE = [
 # file-based caching
 if DEBUG:
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
         }
     }
 else:
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-            'LOCATION': get_relative_path('tmp/django_cache'),
+        "default": {
+            "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+            "LOCATION": get_relative_path("tmp/django_cache"),
         }
     }
 
@@ -137,6 +137,47 @@ TEMPLATES = [
 # gunicorn --workers 4 --threads 2 django_backend.wsgi:application
 WSGI_APPLICATION = "django_backend.wsgi.application"
 ASGI_APPLICATION = "django_backend.asgi.application"
+
+# Logging settings
+# dont remove `from logging.handlers import TimedRotatingFileHandler`
+from logging.handlers import TimedRotatingFileHandler
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": os.path.join(BASE_DIR, "tmp/logs/django.log"),
+            "when": "midnight",  # Rotate logs every midnight
+            "interval": 1,
+            "backupCount": 7,  # Keep the last 7 days of logs
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+        "": {
+            "handlers": ["file"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
