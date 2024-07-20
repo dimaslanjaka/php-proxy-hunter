@@ -42,7 +42,7 @@ from data.webgl import random_webgl_data
 
 def fetch_details(model: Proxy):
     save = False
-    if not model.timezone and not model.country:
+    if not model.timezone or not model.country or not model.lang:
         detail = get_geo_ip2(model.proxy, model.username, model.password)
         if detail:
             model.city = detail.city
@@ -51,6 +51,8 @@ def fetch_details(model: Proxy):
             model.latitude = detail.latitude
             model.longitude = detail.longitude
             model.region = detail.region_name
+            if not detail.lang:
+                detail.lang = "en"
             model.lang = detail.lang
             save = True
         else:
