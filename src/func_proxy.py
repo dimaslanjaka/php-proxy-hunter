@@ -442,6 +442,8 @@ class ProxyCheckResult:
         response: requests.Response = None,
         proxy: str = None,
         type: str = None,
+        url: str = None,
+        https: bool = None
     ):
         self.result = result
         self.latency = latency
@@ -452,6 +454,8 @@ class ProxyCheckResult:
         self.response = response
         self.proxy = proxy
         self.type = type
+        self.https = https
+        self.url = url
 
     def __str__(self):
         attributes = ", ".join(f"{key}: {value}" for key, value in vars(self).items())
