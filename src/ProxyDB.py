@@ -10,7 +10,7 @@ from src.geoPlugin import get_geo_ip2
 from src.func import get_nuitka_file, get_relative_path, read_file, file_append_str
 from src.func_useragent import random_windows_ua
 from src.SQLiteHelper import SQLiteHelper
-from src.Proxy import Proxy
+from proxy_hunter import Proxy
 
 
 class ProxyDB:

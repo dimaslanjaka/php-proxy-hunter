@@ -196,6 +196,7 @@ def trigger_check_proxy(request: HttpRequest):
             "error": False,
             "message": "Proxy check started in thread",
             "thread": thread_details,
+            "data": decoded_proxy,
         }
     )
 

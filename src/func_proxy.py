@@ -3,6 +3,7 @@ import http.client as http_client
 import logging
 import os
 import sys
+from proxy_hunter import Proxy
 
 from src.func_platform import is_debug, is_django_environment
 
@@ -18,7 +19,6 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from urllib.parse import urlparse
 
 import requests
-import socks
 import urllib3
 from proxy_checker import ProxyChecker
 from requests.adapters import HTTPAdapter
@@ -38,7 +38,6 @@ from src.func import (
 from src.func_certificate import output_pem
 from src.func_console import get_caller_info, green, log_proxy, red
 from src.func_useragent import get_pc_useragent
-from src.Proxy import Proxy
 from src.ProxyDB import ProxyDB
 
 # Set the certificate file in environment variables
@@ -622,41 +621,6 @@ def check_proxy(
     return c_result
 
 
-def check_http_proxy(proxy: str):
-    try:
-        response = requests.get(
-            "http://httpbin.org/ip", proxies={"http": proxy}, timeout=5
-        )
-        if response.status_code == 200:
-            return True
-        else:
-            return False
-    except Exception as e:
-        print("Error:", e)
-        return False
-
-
-def check_socks_proxy(proxy: str, version: int):
-    try:
-        proxy_ip, proxy_port = proxy.split(":")
-        if version == 4:
-            socks.set_default_proxy(socks.SOCKS4, proxy_ip, int(proxy_port))
-        elif version == 5:
-            socks.set_default_proxy(socks.SOCKS5, proxy_ip, int(proxy_port))
-        else:
-            raise ValueError("Invalid SOCKS version. Supported versions are 4 and 5.")
-
-        socket.socket = socks.socksocket
-        response = requests.get("http://httpbin.org/ip", timeout=5)
-        if response.status_code == 200:
-            return True
-        else:
-            return False
-    except Exception as e:
-        print("Error:", e)
-        return False
-
-
 def parse_ip_port(line: str) -> tuple[Optional[str], Optional[str]]:
     """
     Parse an IP:PORT pair from a string.
@@ -889,50 +853,6 @@ def check_all_proxies(count: int = 10):
     with ThreadPoolExecutor() as executor:
         # Map each proxy to check_proxy_new function
         executor.map(check_proxy_new, valid_proxies)
-
-
-def is_valid_ip_port(s: str) -> bool:
-    """
-    Checks if a string is in the format of an IP address followed by a port number.
-
-    Args:
-        s (str): The string to check.
-
-    Returns:
-        bool: True if the string is in the format of IP:PORT, otherwise False.
-    """
-    s = s.strip()
-    # Regular expression to match IP:PORT format
-    pattern = r"^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(?:\d{1,5})$"
-
-    # Check if the string matches the pattern
-    return bool(re.match(pattern, s))
-
-
-def is_valid_ip(proxy: Optional[str]) -> bool:
-    """
-    Validate a given proxy IP address.
-
-    Args:
-        proxy (Optional[str]): The proxy IP address to validate. Can be None.
-
-    Returns:
-        bool: True if the proxy IP address is valid, False otherwise.
-    """
-    if not proxy:
-        return False
-
-    split = proxy.strip().split(":", 1)
-    ip = split[0]
-
-    is_ip_valid = (
-        re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip) is not None
-        and len(ip) >= 7
-        and ".." not in ip
-    )
-    re_pattern = re.compile(r"(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
-
-    return is_ip_valid and re_pattern.match(ip) is not None
 
 
 def is_post_length_within_limit(data_string: str, limit_mb: float = 8.0) -> bool:
