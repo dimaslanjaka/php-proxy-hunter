@@ -41,9 +41,11 @@
       </thead>
       <tbody class="text-gray-100 text-sm font-light">
         {% for proxy in proxies %}
-        <tr class="border-b border-gray-200 {% if proxy.status == 'active' %}proxy-active{% else %}proxy-dead{% endif %}">
+        <tr
+          class="border-b border-gray-200 {% if proxy.status == 'active' %}proxy-active{% else %}proxy-dead{% endif %}">
           <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy|proxy_label }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.proxy|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.proxy|default:"-" }}
+          </td>
           <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {% if proxy.latency|default:"-" != "-" %}
             {{ proxy.latency|default:"0" }} ms
@@ -52,7 +54,8 @@
             {% endif %}
           </td>
           <!-- format time ago with django_backend/apps/proxy/templatetags/custom_filters.py -->
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.last_check|time_ago }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {{ proxy.last_check|time_ago }}</td>
           <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.type|default:"-"|upper }}</td> -->
           <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {% if proxy.region|default:"-" != "-" %}
@@ -98,17 +101,26 @@
             -
             {% endif %}
           </td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.anonymity|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {{ proxy.anonymity|default:"-" }}</td>
           <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.https|default:"-" }}</td> -->
           <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.status|default:"-" }}</td> -->
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.private|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.lang|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.useragent|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.webgl_vendor|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.webgl_renderer|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.browser_vendor|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.username|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.password|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {{ proxy.private|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.lang|default:"-" }}
+          </td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {{ proxy.useragent|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {{ proxy.webgl_vendor|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {{ proxy.webgl_renderer|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {{ proxy.browser_vendor|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {{ proxy.username|default:"-" }}</td>
+          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            {{ proxy.password|default:"-" }}</td>
         </tr>
         {% empty %}
         <tr>
@@ -123,7 +135,7 @@
   <div class="py-4 px-6 flex justify-between items-center">
     <div>
       {% if proxies.has_previous %}
-      <a href="?page={{ proxies.previous_page_number }}"
+      <a href="?page={{ proxies.previous_page_number }}{% if request.GET %}&{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}"
         class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Previous</a>
       {% endif %}
     </div>
@@ -132,7 +144,7 @@
     </div>
     <div>
       {% if proxies.has_next %}
-      <a href="?page={{ proxies.next_page_number }}"
+      <a href="?page={{ proxies.next_page_number }}{% if request.GET %}&{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}"
         class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Next</a>
       {% endif %}
     </div>
