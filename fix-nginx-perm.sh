@@ -148,7 +148,8 @@ echo "Large files tracked"
 # Restart services
 touch "$SCRIPT_DIR/assets/index.html"
 touch "$SCRIPT_DIR/assets/systemctl/index.html"
-chmod 777 "$SCRIPT_DIR/assets/systemctl"
+sudo chmod +x "$SCRIPT_DIR/assets/systemctl"/*
+
 # Function to copy file if both source and destination exist
 copy_if_both_exist() {
     local source_file="$1"
