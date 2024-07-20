@@ -30,7 +30,7 @@ class Proxy:
         browser_vendor: str = None,
         username: str = None,
         password: str = None,
-        https: str = None  # Optional HTTPS protocol
+        https: str = None,  # Optional HTTPS protocol
     ) -> None:
         """
         Proxy constructor.
@@ -102,7 +102,7 @@ class Proxy:
                 raw = f"{self.proxy}@{self.username}:{self.password}"
         return raw
 
-    def from_dict(self, **kwargs: Any) -> 'Proxy':
+    def from_dict(self, **kwargs: Any) -> "Proxy":
         """
         Proxy class constructor.
 
@@ -144,27 +144,27 @@ def dict_to_proxy_list(dict_list: List[Dict[str, Any]]) -> List[Proxy]:
     proxy_list = []
     for item in dict_list:
         proxy = Proxy(
-            proxy=item.get('proxy'),
-            id=item.get('id'),
-            latency=item.get('latency'),
-            type=item.get('type'),
-            region=item.get('region'),
-            city=item.get('city'),
-            country=item.get('country'),
-            last_check=item.get('last_check'),
-            anonymity=item.get('anonymity'),
-            status=item.get('status'),
-            timezone=item.get('timezone'),
-            longitude=item.get('longitude'),
-            private=item.get('private'),
-            latitude=item.get('latitude'),
-            lang=item.get('lang'),
-            useragent=item.get('useragent'),
-            webgl_vendor=item.get('webgl_vendor'),
-            webgl_renderer=item.get('webgl_renderer'),
-            browser_vendor=item.get('browser_vendor'),
-            username=item.get('username'),
-            password=item.get('password')
+            proxy=item.get("proxy"),
+            id=item.get("id"),
+            latency=item.get("latency"),
+            type=item.get("type"),
+            region=item.get("region"),
+            city=item.get("city"),
+            country=item.get("country"),
+            last_check=item.get("last_check"),
+            anonymity=item.get("anonymity"),
+            status=item.get("status"),
+            timezone=item.get("timezone"),
+            longitude=item.get("longitude"),
+            private=item.get("private"),
+            latitude=item.get("latitude"),
+            lang=item.get("lang"),
+            useragent=item.get("useragent"),
+            webgl_vendor=item.get("webgl_vendor"),
+            webgl_renderer=item.get("webgl_renderer"),
+            browser_vendor=item.get("browser_vendor"),
+            username=item.get("username"),
+            password=item.get("password"),
         )
         proxy_list.append(proxy)
     return proxy_list
