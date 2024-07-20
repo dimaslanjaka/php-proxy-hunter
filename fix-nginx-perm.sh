@@ -145,11 +145,6 @@ git -C "$SCRIPT_DIR" lfs track "*.rar"
 
 echo "Large files tracked"
 
-# Restart services
-touch "$SCRIPT_DIR/assets/index.html"
-touch "$SCRIPT_DIR/assets/systemctl/index.html"
-sudo chmod +x "$SCRIPT_DIR/assets/systemctl"/*
-
 # Function to copy file if both source and destination exist
 copy_if_both_exist() {
     local source_file="$1"
@@ -199,7 +194,16 @@ function run_as_user_in_venv() {
 # run_as_user_in_venv "python $SCRIPT_DIR/manage.py makemigrations"
 run_as_user_in_venv "python $SCRIPT_DIR/manage.py migrate"
 
-# reload daemon
+# Restart services
+touch "$SCRIPT_DIR/assets/index.html"
+touch "$SCRIPT_DIR/assets/systemctl/index.html"
+
+# Fix permission for gunicorn services
+chmod 755 "$SCRIPT_DIR/assets/systemctl"
+chown root:root "$SCRIPT_DIR/assets/systemctl/start_gunicorn.sh"
+chmod 755 "$SCRIPT_DIR/assets/systemctl/start_gunicorn.sh"
+
+# Reload daemon
 sudo systemctl daemon-reload
 
 # Check and restart PHP-FPM if installed
