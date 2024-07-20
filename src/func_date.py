@@ -5,7 +5,7 @@ from tzlocal import get_localzone
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 def is_current_time_more_than_rfc3339(given_datetime_str: str) -> Optional[bool]:
@@ -41,9 +41,9 @@ def get_current_rfc3339_time(use_utc=False):
     """
     if use_utc:
         now = datetime.now(timezone.utc)
-        rfc3339_timestamp = now.strftime('%Y-%m-%dT%H:%M:%SZ')
+        rfc3339_timestamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     else:
         now = datetime.now(get_localzone())
-        rfc3339_timestamp = now.strftime('%Y-%m-%dT%H:%M:%S%z')
+        rfc3339_timestamp = now.strftime("%Y-%m-%dT%H:%M:%S%z")
 
     return rfc3339_timestamp
