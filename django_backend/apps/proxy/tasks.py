@@ -9,7 +9,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from typing import Any, List, Optional
-
+from src.func_useragent import random_windows_ua
 import requests
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
@@ -60,6 +60,9 @@ def fetch_details(model: Proxy):
         model.webgl_renderer = webgl_data.webgl_renderer
         model.webgl_vendor = webgl_data.webgl_vendor
         model.browser_vendor = webgl_data.browser_vendor
+        save = True
+    if not model.useragent:
+        model.useragent = random_windows_ua()
         save = True
     if save:
         model.save()
