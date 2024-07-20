@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="{% static 'proxy_index.css' %}">
 <div class="container mx-auto">
   <h1 class="text-2xl font-bold mb-4">Proxy List</h1>
+
   <div class="shadow-md rounded my-6 overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200 table-fixed">
       <thead class="bg-gray-600 text-white uppercase text-sm">
@@ -132,22 +133,49 @@
   </div>
 
   <!-- Pagination Controls -->
-  <div class="py-4 px-6 flex justify-between items-center">
-    <div>
+  <div class="py-4 px-6 flex justify-center items-center bg-gray-800 dark:bg-gray-900 text-gray-200 dark:text-gray-300">
+    <div class="inline-flex shadow-sm rounded-md" role="group">
       {% if proxies.has_previous %}
+      <a href="?page=1{% if request.GET %}&{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
+        First
+      </a>
       <a href="?page={{ proxies.previous_page_number }}{% if request.GET %}&{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}"
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Previous</a>
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
+        Previous
+      </a>
+      {% else %}
+      <button
+        class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-200 rounded-l-md cursor-not-allowed dark:text-gray-500 dark:bg-gray-800 dark:border-gray-700"
+        disabled>First</button>
+      <button
+        class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-100 border-t border-b border-gray-200 cursor-not-allowed dark:text-gray-500 dark:bg-gray-800 dark:border-gray-700"
+        disabled>Previous</button>
       {% endif %}
-    </div>
-    <div class="text-gray-100">
-      Page {{ proxies.number }} of {{ proxies.paginator.num_pages }}
-    </div>
-    <div>
+      <a href="/proxy"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
+        Page {{ proxies.number }} of {{ proxies.paginator.num_pages }}
+      </a>
       {% if proxies.has_next %}
       <a href="?page={{ proxies.next_page_number }}{% if request.GET %}&{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}"
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Next</a>
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
+        Next
+      </a>
+      <a href="?page={{ proxies.paginator.num_pages }}{% if request.GET %}&{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
+        Last
+      </a>
+      {% else %}
+      <button
+        class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-100 border-t border-b border-gray-200 cursor-not-allowed dark:text-gray-500 dark:bg-gray-800 dark:border-gray-700"
+        disabled>Next</button>
+      <button
+        class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-200 rounded-r-md cursor-not-allowed dark:text-gray-500 dark:bg-gray-800 dark:border-gray-700"
+        disabled>Last</button>
       {% endif %}
     </div>
   </div>
+
+
 </div>
 {% endblock %}
