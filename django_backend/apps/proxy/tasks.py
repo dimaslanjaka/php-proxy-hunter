@@ -1,21 +1,19 @@
-# django_backend/apps/proxy/tasks.py
-
-import atexit
 import os
 import random
-import string
 import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
 from typing import Any, List, Optional
-from src.func_useragent import random_windows_ua
+
 import requests
 
+from src.func_useragent import random_windows_ua
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
-
 from bs4 import BeautifulSoup
+from proxy_hunter import extract_proxies
 
+from data.webgl import random_webgl_data
 from src.func import (
     file_append_str,
     file_remove_empty_lines,
@@ -24,9 +22,9 @@ from src.func import (
     read_file,
     remove_string_and_move_to_file,
     truncate_file_content,
-    write_file,
 )
 from src.func_console import green, red
+from src.func_date import get_current_rfc3339_time
 from src.func_proxy import (
     ProxyCheckResult,
     build_request,
@@ -35,12 +33,14 @@ from src.func_proxy import (
     upload_proxy,
 )
 from src.ProxyDB import ProxyDB
+
 from .models import Proxy
 from .utils import get_geo_ip2
-from data.webgl import random_webgl_data
+
+logfile = get_relative_path("proxyChecker.txt")
 
 
-def fetch_details(model: Proxy):
+def fetch_geo_ip(model: Proxy):
     save = False
 
     # Fetch geo IP details if necessary
@@ -100,12 +100,12 @@ def fetch_details(model: Proxy):
         model.save()
 
 
-def fetch_details_list(proxies: List[Proxy]):
+def fetch_geo_ip_list(proxies: List[Proxy]):
     try:
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = []
             for item in proxies:
-                futures.append(executor.submit(fetch_details, item))
+                futures.append(executor.submit(fetch_geo_ip, item))
             # Ensure all threads complete before returning
             for future in futures:
                 future.result()
@@ -113,8 +113,8 @@ def fetch_details_list(proxies: List[Proxy]):
         print(f"RuntimeError during fetch_details_list execution: {e}")
 
 
-def fetch_details_in_thread(proxies):
-    thread = threading.Thread(target=fetch_details_list, args=(proxies,))
+def fetch_geo_ip_in_thread(proxies):
+    thread = threading.Thread(target=fetch_geo_ip_list, args=(proxies,))
     thread.daemon = True  # Allow thread to be killed when main program exits
     thread.start()
 
@@ -125,62 +125,103 @@ def get_runner_id(identifier: Any):
 
 
 def real_check_proxy(proxy: str, type: str):
-    result = False
-    status_code = 0
-    response = None
-    latency = -1
-    error = ""
-    # format = f"{type}://{proxy}"
-    try:
-        response: requests.Response = build_request(
+    from urllib.parse import urlparse
+
+    def is_https(url):
+        parsed_url = urlparse(url)
+        return parsed_url.scheme == "https"
+
+    def inner_check(url: str, title_should_be: str):
+        result = False
+        status_code = 0
+        response = None
+        latency = -1
+        error = ""
+        try:
+            response: requests.Response = build_request(
+                proxy=proxy,
+                proxy_type=type,
+                endpoint=url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                    "Accept-Language": "en-US,en;q=0.5",
+                    "Connection": "keep-alive",
+                    "Upgrade-Insecure-Requests": "1",
+                },
+            )
+            latency = response.elapsed.total_seconds() * 1000  # in milliseconds
+            status_code = response.status_code
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, "html.parser")
+                title = soup.title.string if soup.title else ""
+                result = title_should_be.lower() in title.lower() if title else False
+        except Exception as e:
+            error = get_message_exception(e)
+            pass
+        return ProxyCheckResult(
+            result,
+            latency=latency,
+            error=error,
+            private=False,
+            status=status_code,
+            response=response,
             proxy=proxy,
-            proxy_type=type,
-            endpoint="https://www.djangoproject.com/",
-            headers={"Connection": "Keep-Alive", "Accept-Language": "en-US"},
+            type=type,
+            https=is_https(url),
+            url=url,
         )
-        latency = response.elapsed.total_seconds() * 1000  # in milliseconds
-        status_code = response.status_code
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, "html.parser")
-            title = soup.title.string if soup.title else ""
-            result = "django" in title.lower() if title else False
-            # print(f"{green(format)} working")
-        # else:
-        #     print(f"{red(format)} dead (status {status_code})")
-    except Exception as e:
-        # print(f"fail check {red(format)}: {e}")
-        error = get_message_exception(e)
-        pass
-    return ProxyCheckResult(
-        result,
-        latency=latency,
-        error=error,
-        private=False,
-        status=status_code,
-        response=response,
-        proxy=proxy,
-        type=type,
-    )
+
+    for url, name in [
+        ("https://bing.com", "bing"),
+        ("https://google.com/", "google"),
+        ("https://github.com/", "github"),
+        ("http://httpforever.com/", "http forever"),
+        ("http://www.example.com/", "example domain"),
+        ("http://www.example.net/", "example domain"),
+    ]:
+        test = inner_check(url, name)
+        if test.result:
+            break
+    return test
 
 
 def real_check_proxy_async(proxy_data: Optional[str] = None):
-    db = ProxyDB(get_relative_path("tmp/database.sqlite"))
-    logfile = get_relative_path("proxyChecker.txt")
-    truncate_file_content(logfile)
+    db = None
+    try:
+        db = ProxyDB(get_relative_path("tmp/database.sqlite"), True)
+    except Exception:
+        pass
     status = None
     working = False
     protocols = []
+    proxies: List[Proxy] = []
+    https = False
     if not proxy_data:
-        proxy_data = str(db.get_untested_proxies(30))
+        if db is not None:
+            proxy_data = str(db.get_untested_proxies(30))
     if len(proxy_data.strip()) < 11:
         php_results = [
             read_file(get_relative_path("working.json")),
             read_file(get_relative_path("proxies.txt")),
-            read_file(get_relative_path("dead.txt")),
         ]
         for php_result in php_results:
             proxy_data = f"{php_result} {proxy_data}"
-    proxies = db.extract_proxies(proxy_data, False)
+    if proxy_data:
+        if db is not None:
+            extract = db.extract_proxies(proxy_data)
+        else:
+            extract = extract_proxies(proxy_data)
+        for item in extract:
+            find = Proxy.objects.filter(proxy=item.proxy)
+            if not find:
+                Proxy.objects.create(
+                    proxy=item.proxy, username=item.username, password=item.password
+                )
+                find = Proxy.objects.filter(proxy=item.proxy)
+            if find:
+                proxies.append(find[0])
+                random.shuffle(proxies)
     for proxyClass in proxies:
         if not is_port_open(proxyClass.proxy):
             log_proxy(f"{proxyClass.proxy} {red('port closed')}")
@@ -205,13 +246,14 @@ def real_check_proxy_async(proxy_data: Optional[str] = None):
                     check = future.result()
 
                     if check.result:
-                        log = f"> {proxyClass.proxy} ✓ {protocol}"
+                        log = f"> {protocol.lower()}://{proxyClass.proxy} working"
                         protocols.append(protocol.lower())
                         file_append_str(logfile, log)
                         print(green(log))
                         working = True
+                        https = check.https
                     else:
-                        log = f"> {proxyClass.proxy} 🗙 {protocol}"
+                        log = f"> {protocol.lower()}://{proxyClass.proxy} dead"
                         file_append_str(logfile, f"{log} -> {check.error}")
                         print(f"{red(log)} -> {check.error}")
                         working = False
@@ -220,45 +262,44 @@ def real_check_proxy_async(proxy_data: Optional[str] = None):
                     status = "dead"
                 else:
                     status = "active"
-                    upload_proxy(proxyClass)
+                    if proxyClass.username and proxyClass.password:
+                        upload_proxy(
+                            f"{proxyClass.proxy}@{proxyClass.username}:{proxyClass.password}"
+                        )
+                    else:
+                        upload_proxy(proxyClass.proxy)
 
-        if db is not None and status is not None:
-            data = {"status": status, "type": None}
-            if len(protocols) > 0:
-                data["type"] = "-".join(protocols).upper()
+        if status is not None:
+            last_check = get_current_rfc3339_time()
+            # print(f"{proxyClass.proxy} last check {last_check}")
+            data = {
+                "status": status,
+                "type": "-".join(protocols).upper() if len(protocols) > 0 else None,
+                "last_check": last_check,
+                "https": "true" if https else "false",
+            }
             try:
-                db.update_data(proxyClass.proxy, data)
-                # update django database
-                check_model = Proxy.objects.filter(proxy=proxyClass.proxy)
-                if check_model:
-                    check_model.update(status=data["status"], type=data["type"])
-                else:
-                    Proxy.objects.create(
-                        proxy=proxyClass.proxy, status=data["status"], type=data["type"]
-                    )
-            except Exception as e:
-                print(f"{proxyClass.proxy} fail update {e}")
+                if db is not None:
+                    db.update_data(proxyClass.proxy, data)
 
+                # Update Django database
+                check_model, created = Proxy.objects.update_or_create(
+                    proxy=proxyClass.proxy,  # Field to match
+                    defaults=data,  # Fields to update
+                )
+            except Exception as e:
+                print(f"{proxyClass.proxy} failed to update: {e}")
         remove_string_and_move_to_file(
             get_relative_path("proxies.txt"),
             get_relative_path("dead.txt"),
             proxyClass.proxy,
         )
     file_remove_empty_lines(logfile)
-    db.close()
+    if db is not None:
+        db.close()
 
 
-def run_check_proxy_async_in_thread(proxy):
+def real_check_proxy_async_in_thread(proxy):
     thread = threading.Thread(target=real_check_proxy_async, args=(proxy,))
     thread.start()
     return thread
-
-
-def debug_task():
-    date_time = datetime.now()
-    allowed_chars = string.ascii_letters + string.punctuation
-    unique = "".join(random.choice(allowed_chars) for x in range(100))
-    log = f"Debug task executed. ({date_time} - {unique})"
-    print(log)
-    write_file(get_relative_path("tmp/runner/x.txt"), log)
-    return {"result": "Task completed successfully", "message": log}
