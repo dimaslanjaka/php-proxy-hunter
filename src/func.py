@@ -2,9 +2,6 @@ import hashlib
 import inspect
 import json
 import os
-import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import random
 import re
 import shutil
@@ -17,11 +14,13 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 # set Timezone
-os.environ['TZ'] = 'Asia/Jakarta'
+os.environ["TZ"] = "Asia/Jakarta"
 
 # determine if application is a script file or frozen exe
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     __CWD__ = os.path.dirname(os.path.realpath(sys.executable))
 elif __file__:
     __CWD__ = os.getcwd()
@@ -70,7 +69,9 @@ def get_relative_path(*args: Union[str, bytes]) -> str:
     join_path = str(os.path.join(*args))
     result = os.path.normpath(str(os.path.join(__CWD__, join_path)))
     if is_nuitka():
-        result = os.path.normpath(str(os.path.join(os.path.dirname(sys.argv[0]), join_path)))
+        result = os.path.normpath(
+            str(os.path.join(os.path.dirname(sys.argv[0]), join_path))
+        )
         # debug_log(os.path.dirname(sys.argv[0]), os.path.join(*args))
     return result
 
@@ -90,9 +91,9 @@ def resolve_relative_path(data: Optional[str] = None, *args: Union[str, bytes]) 
 
     if not os.path.exists(relative):
         if not data:
-            data = ''  # Default empty data if not provided
-        if relative.endswith('.json'):
-            data = '{}'  # Default empty JSON object if it's a .json file
+            data = ""  # Default empty data if not provided
+        if relative.endswith(".json"):
+            data = "{}"  # Default empty JSON object if it's a .json file
 
         # Write the file with the provided or default data
         write_file(relative, data)
@@ -158,18 +159,23 @@ def debug_exception(e: Union[Exception, Any, Dict]) -> str:
         trace = []
         tb = e.__traceback__
         while tb is not None:
-            trace.append({
-                "filename": tb.tb_frame.f_code.co_filename,
-                "name": tb.tb_frame.f_code.co_name,
-                "lineno": tb.tb_lineno
-            })
+            trace.append(
+                {
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno,
+                }
+            )
             tb = tb.tb_next
-        return str({
-            'type': type(e).__name__,
-            'message': get_message_exception(e),
-            'trace': trace
-        })
+        return str(
+            {
+                "type": type(e).__name__,
+                "message": get_message_exception(e),
+                "trace": trace,
+            }
+        )
     return f"Not exception {str(e)}"
+
 
 # debug_log(f"PC name: {get_pc_name()}")
 # debug_log(f"current CWD {__CWD__}")
@@ -189,7 +195,7 @@ def run_php_script(php_script_path: str, *args: str) -> None:
     Returns:
         None
     """
-    php_executable = 'php'
+    php_executable = "php"
 
     # Construct the command to execute the PHP script
     command: List[str] = [php_executable, php_script_path]
@@ -201,7 +207,7 @@ def run_php_script(php_script_path: str, *args: str) -> None:
 
 def serialize(obj):
     """Serialize an object to a dictionary."""
-    if hasattr(obj, '__dict__'):
+    if hasattr(obj, "__dict__"):
         return obj.__dict__
     elif isinstance(obj, (int, float, str, bool, type(None))):
         return obj
@@ -215,7 +221,7 @@ def write_json(filePath: str, data: Any):
     """
     if not data:
         return
-    with open(filePath, 'w', encoding='utf-8') as file:
+    with open(filePath, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=2, ensure_ascii=False, default=serialize)
 
 
@@ -270,7 +276,9 @@ def copy_file(source_file: str, destination_file: str) -> None:
         print(f"Error: {e}")
 
 
-def copy_folder(source_folder: str, destination_folder: str, overwrite: Optional[bool] = False) -> None:
+def copy_folder(
+    source_folder: str, destination_folder: str, overwrite: Optional[bool] = False
+) -> None:
     """
     Copy a folder and its contents recursively from the source location to the destination location.
 
@@ -308,13 +316,13 @@ def file_move_lines(source_file: str, destination_file: str, n: int) -> None:
     Returns:
     - None
     """
-    with open(source_file, 'r+', encoding='utf-8') as source:
+    with open(source_file, "r+", encoding="utf-8") as source:
         lines = source.readlines()
 
-    with open(destination_file, 'a+', encoding='utf-8') as destination:
+    with open(destination_file, "a+", encoding="utf-8") as destination:
         destination.writelines(lines[:n])
 
-    with open(source_file, 'w+', encoding='utf-8') as source:
+    with open(source_file, "w+", encoding="utf-8") as source:
         source.writelines(lines[n:])
 
 
@@ -350,7 +358,7 @@ def count_lines_in_file(file_path: str) -> int:
         int: The total number of lines in the file.
     """
     # Open the file in read mode
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         # Use a loop to iterate through each line and count them
         line_count = sum(1 for line in file)
 
@@ -408,10 +416,10 @@ def is_matching_regex(pattern: str, text: str):
 
 def remove_trailing_hyphens(string: Optional[str]) -> str:
     if not string:
-        return ''
-    if string == '-' or not string.strip():
-        return ''
-    return re.sub(r'-+$', '', string)
+        return ""
+    if string == "-" or not string.strip():
+        return ""
+    return re.sub(r"-+$", "", string)
 
 
 def get_random_folder(directory: str) -> str:
@@ -430,8 +438,11 @@ def get_random_folder(directory: str) -> str:
     if not os.path.isdir(directory):
         raise ValueError("The specified directory does not exist.")
 
-    folders: List[str] = [os.path.join(directory, folder) for folder in os.listdir(directory) if
-                          os.path.isdir(os.path.join(directory, folder))]
+    folders: List[str] = [
+        os.path.join(directory, folder)
+        for folder in os.listdir(directory)
+        if os.path.isdir(os.path.join(directory, folder))
+    ]
 
     if not folders:
         raise ValueError("There are no subdirectories in the specified directory.")
@@ -494,7 +505,7 @@ def read_file(file_path: str) -> Optional[str]:
         Optional[str]: The content of the file if successful, None otherwise.
     """
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             content = file.read()
         return content
     except FileNotFoundError:
@@ -515,7 +526,7 @@ def write_file(file_path: str, content: str) -> None:
     """
     try:
         resolve_parent_folder(file_path)
-        with open(file_path, 'w', encoding='utf-8') as file:
+        with open(file_path, "w", encoding="utf-8") as file:
             file.write(content)
         # print(f"File '{file_path}' has been successfully written.")
     except Exception as e:
@@ -534,7 +545,7 @@ def file_append_str(filename: str, string_to_add: str) -> None:
         None
     """
     try:
-        with open(filename, 'a+', encoding='utf-8') as file:
+        with open(filename, "a+", encoding="utf-8") as file:
             # file.write(string_to_add.encode('utf-8').decode('utf-8', 'ignore'))
             file.write(f"{string_to_add}\n")
     except Exception as e:
@@ -593,16 +604,18 @@ def sanitize_filename(filename):
         str: The sanitized filename.
     """
     if not filename:
-        filename = ''
+        filename = ""
 
     # Remove any character that is not alphanumeric, underscore, dash, or period
-    filename = re.sub(r"[^a-zA-Z0-9_-]+", '-', filename)
-    filename = re.sub(r"-+", '-', filename)
+    filename = re.sub(r"[^a-zA-Z0-9_-]+", "-", filename)
+    filename = re.sub(r"-+", "-", filename)
 
     return filename
 
 
-def remove_string_from_file(file_path: str, strings_to_remove: Union[str, List[str]]) -> None:
+def remove_string_from_file(
+    file_path: str, strings_to_remove: Union[str, List[str]]
+) -> None:
     """
     Removes all occurrences of specified strings from a file.
 
@@ -626,13 +639,13 @@ def remove_string_from_file(file_path: str, strings_to_remove: Union[str, List[s
     regex = re.compile(pattern)
 
     # Create a temporary file
-    random_string = ''.join(random.choice(string.ascii_letters) for _ in range(5))
-    temp_file = get_relative_path(f'tmp/runners/{random_string}.txt')
+    random_string = "".join(random.choice(string.ascii_letters) for _ in range(5))
+    temp_file = get_relative_path(f"tmp/runners/{random_string}.txt")
     if not os.path.exists(temp_file):
-        write_file(temp_file, '')
+        write_file(temp_file, "")
 
     # Read the original file and write to the temporary file with the strings removed
-    with open(file_path, 'r', encoding='utf-8') as file, temp_file:
+    with open(file_path, "r", encoding="utf-8") as file, temp_file:
         for line in file:
             # Replace all occurrences of the pattern with an empty string
             modified_line = regex.sub("", line)
@@ -653,10 +666,10 @@ def keep_alphanumeric_and_remove_spaces(input_string: str) -> str:
     - str: The cleaned string containing only alphanumeric characters.
     """
     # Remove spaces
-    input_string = input_string.replace(' ', '')
+    input_string = input_string.replace(" ", "")
 
     # Keep only alphanumeric characters using regular expression
-    input_string = re.sub(r'[^a-zA-Z0-9]', '', input_string)
+    input_string = re.sub(r"[^a-zA-Z0-9]", "", input_string)
 
     return input_string
 
@@ -674,7 +687,11 @@ def remove_duplicate_line_from_file(filename: str) -> None:
     if not os.path.exists(filename):
         return
     # Copy content to a temporary file
-    with open(filename, 'r', encoding='utf-8') as original_file, tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False) as temp_file:
+    with open(
+        filename, "r", encoding="utf-8"
+    ) as original_file, tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", delete=False
+    ) as temp_file:
         lines_seen = set()  # Set to store unique lines
         for line in original_file:
             if line not in lines_seen:
@@ -684,10 +701,13 @@ def remove_duplicate_line_from_file(filename: str) -> None:
     # Replace original file with cleaned content
     temp_filename = temp_file.name
     import shutil
+
     shutil.move(temp_filename, filename)
 
 
-def get_unique_dicts_by_key_in_list(dicts: List[Dict[str, str]], key: str) -> List[Dict[str, str]]:
+def get_unique_dicts_by_key_in_list(
+    dicts: List[Dict[str, str]], key: str
+) -> List[Dict[str, str]]:
     """
     Returns a list of unique dictionaries from the input list of dictionaries based on a specified key.
 
@@ -717,16 +737,18 @@ def get_unique_dicts_by_key_in_list(dicts: List[Dict[str, str]], key: str) -> Li
     return unique_dicts
 
 
-def remove_string_and_move_to_file(source_file_path, destination_file_path, string_to_remove):
+def remove_string_and_move_to_file(
+    source_file_path, destination_file_path, string_to_remove
+):
     if not source_file_path or not destination_file_path or not string_to_remove:
         return False
     if not os.path.exists(destination_file_path):
-        write_file(destination_file_path, '')
+        write_file(destination_file_path, "")
     if not os.path.exists(source_file_path):
-        write_file(source_file_path, '')
+        write_file(source_file_path, "")
     try:
         # Read content from the source file
-        with open(source_file_path, 'r', encoding='utf-8') as source:
+        with open(source_file_path, "r", encoding="utf-8") as source:
             source_content = source.read()
 
         # Check if the string to remove exists in the source content
@@ -734,15 +756,15 @@ def remove_string_and_move_to_file(source_file_path, destination_file_path, stri
             return False
 
         # Remove the desired string
-        modified_content = source_content.replace(string_to_remove, '')
+        modified_content = source_content.replace(string_to_remove, "")
 
         # Write the modified content back to the source file
-        with open(source_file_path, 'w', encoding='utf-8') as source:
+        with open(source_file_path, "w", encoding="utf-8") as source:
             source.write(modified_content)
 
         # Append the removed string to the destination file
-        with open(destination_file_path, 'a', encoding='utf-8') as destination:
-            destination.write('\n' + string_to_remove + '\n')
+        with open(destination_file_path, "a", encoding="utf-8") as destination:
+            destination.write("\n" + string_to_remove + "\n")
 
         return True
     except FileNotFoundError as e:
@@ -753,7 +775,9 @@ def remove_string_and_move_to_file(source_file_path, destination_file_path, stri
         return False
 
 
-def is_date_rfc3339_hour_more_than(date_string: Optional[str], hours: int) -> Optional[bool]:
+def is_date_rfc3339_hour_more_than(
+    date_string: Optional[str], hours: int
+) -> Optional[bool]:
     """
     Check if the given date string is more than specified hours ago.
 
@@ -784,7 +808,9 @@ def is_date_rfc3339_hour_more_than(date_string: Optional[str], hours: int) -> Op
 
     except ValueError:
         # Handle invalid date string format
-        raise ValueError("Invalid date string format. Please provide a date string in RFC3339 format.")
+        raise ValueError(
+            "Invalid date string format. Please provide a date string in RFC3339 format."
+        )
 
 
 def size_of_list_in_mb(list_of_strings: List[str]) -> float:
@@ -812,9 +838,11 @@ def file_remove_empty_lines(file_path: str) -> None:
     Returns:
         None
     """
-    temp_file = get_relative_path('tmp', md5(file_path) + ".tmp")
+    temp_file = get_relative_path("tmp", md5(file_path) + ".tmp")
     try:
-        with open(file_path, 'r', encoding='utf-8') as f_in, open(temp_file, 'w', encoding='utf-8') as f_out:
+        with open(file_path, "r", encoding="utf-8") as f_in, open(
+            temp_file, "w", encoding="utf-8"
+        ) as f_out:
             for line in f_in:
                 if line.strip():  # Check if the line is not empty
                     f_out.write(line)
@@ -840,7 +868,7 @@ def is_file_larger_than_kb(file_path, size_in_kb=5):
 def truncate_file_content(file_path, max_length=0):
     if os.path.exists(file_path):
         try:
-            with open(file_path, 'r+', encoding='utf-8') as file:
+            with open(file_path, "r+", encoding="utf-8") as file:
                 content = file.read()
                 if len(content) > max_length:
                     file.seek(0)
@@ -859,7 +887,7 @@ def sanitize_filename(filename):
     invalid_chars = r'[\\/:\*\?"<>\|]'
 
     # Replace invalid characters with underscores
-    sanitized_filename = re.sub(invalid_chars, '-', filename)
+    sanitized_filename = re.sub(invalid_chars, "-", filename)
     return remove_trailing_hyphens(sanitized_filename)
 
 
@@ -868,7 +896,7 @@ def md5(input_string):
     return md5_hash
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def get_random_item_list(arr: List[T]) -> T:
@@ -886,12 +914,11 @@ def get_random_http_profile(json_file):
     Returns:
         dict: A dictionary containing a random proxy and useragent.
     """
-    with open(json_file, 'r', encoding='utf-8') as file:
+    with open(json_file, "r", encoding="utf-8") as file:
         data = json.load(file)
 
     # Filter profiles where 'type' is 'http'
-    http_profiles = [
-        profile for profile in data if profile['type'].lower() == 'http']
+    http_profiles = [profile for profile in data if profile["type"].lower() == "http"]
     # profile for profile in data if 'http' in profile['type'].lower()]
 
     # Check if there are any http_profiles
@@ -915,7 +942,7 @@ def get_random_profile(json_file):
     Returns:
         dict: A dictionary containing a random proxy and useragent.
     """
-    with open(json_file, 'r', encoding='utf-8') as file:
+    with open(json_file, "r", encoding="utf-8") as file:
         data = json.load(file)
 
     # Get a random index within the range of the list

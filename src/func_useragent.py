@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import random
 from typing import Union
 
@@ -17,7 +17,7 @@ def get_pc_useragent() -> Union[str, None]:
     Returns:
         Union[str, None]: The user agent string if available, otherwise None.
     """
-    cache_file = get_relative_path('tmp/pc_useragent.txt')
+    cache_file = get_relative_path("tmp/pc_useragent.txt")
     result = None
     if os.path.exists(cache_file):
         result = read_file(cache_file)
@@ -41,8 +41,8 @@ def get_pc_useragent() -> Union[str, None]:
     #         driver.quit()
     # return result
     headers = requests.get("https://www.example.com").headers
-    user_agent = headers.get('User-Agent')
-    default_user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    user_agent = headers.get("User-Agent")
+    default_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     return user_agent or default_user_agent
 
 
@@ -54,20 +54,20 @@ def random_windows_ua() -> str:
         str: Random user agent string.
     """
     # Array of Windows versions
-    windows_versions = ['Windows 7', 'Windows 8', 'Windows 10', 'Windows 11']
+    windows_versions = ["Windows 7", "Windows 8", "Windows 10", "Windows 11"]
 
     # Array of Chrome versions
     chrome_versions = [
-        '86.0.4240',
-        '98.0.4758',
-        '100.0.4896',
-        '105.0.5312',
-        '110.0.5461',
-        '115.0.5623',
-        '120.0.5768',
-        '124.0.6367.78',  # Windows and Linux version
-        '124.0.6367.79',  # Mac version
-        '124.0.6367.82',  # Android version
+        "86.0.4240",
+        "98.0.4758",
+        "100.0.4896",
+        "105.0.5312",
+        "110.0.5461",
+        "115.0.5623",
+        "120.0.5768",
+        "124.0.6367.78",  # Windows and Linux version
+        "124.0.6367.79",  # Mac version
+        "124.0.6367.82",  # Android version
     ]
 
     # Randomly select a Windows version
