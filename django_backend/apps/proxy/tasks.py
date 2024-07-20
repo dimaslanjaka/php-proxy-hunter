@@ -7,8 +7,6 @@ from typing import Any, List, Optional
 
 import requests
 
-from src.func_useragent import random_windows_ua
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 from bs4 import BeautifulSoup
 from proxy_hunter import extract_proxies
@@ -21,7 +19,6 @@ from src.func import (
     get_relative_path,
     read_file,
     remove_string_and_move_to_file,
-    truncate_file_content,
 )
 from src.func_console import green, red
 from src.func_date import get_current_rfc3339_time
@@ -32,6 +29,7 @@ from src.func_proxy import (
     log_proxy,
     upload_proxy,
 )
+from src.func_useragent import random_windows_ua
 from src.ProxyDB import ProxyDB
 
 from .models import Proxy
@@ -107,8 +105,11 @@ def fetch_geo_ip_list(proxies: List[Proxy]):
             for item in proxies:
                 futures.append(executor.submit(fetch_geo_ip, item))
             # Ensure all threads complete before returning
-            for future in futures:
-                future.result()
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    print(f"Exception in future: {e}")
     except RuntimeError as e:
         print(f"RuntimeError during fetch_details_list execution: {e}")
 
@@ -241,22 +242,27 @@ def real_check_proxy_async(proxy_data: Optional[str] = None):
                 ]
 
                 # Iterate through the completed tasks
-                for i, future in enumerate(as_completed(checks)):
-                    protocol = ["HTTP", "SOCKS4", "SOCKS5"][i]
-                    check = future.result()
-
-                    if check.result:
-                        log = f"> {protocol.lower()}://{proxyClass.proxy} working"
-                        protocols.append(protocol.lower())
-                        file_append_str(logfile, log)
-                        print(green(log))
-                        working = True
-                        https = check.https
-                    else:
-                        log = f"> {protocol.lower()}://{proxyClass.proxy} dead"
-                        file_append_str(logfile, f"{log} -> {check.error}")
-                        print(f"{red(log)} -> {check.error}")
-                        working = False
+                for future in as_completed(checks):
+                    try:
+                        check = future.result()
+                        protocol = checks.index(
+                            future
+                        )  # Index the protocol list by order of completion
+                        protocol = ["HTTP", "SOCKS4", "SOCKS5"][protocol]
+                        if check.result:
+                            log = f"> {protocol.lower()}://{proxyClass.proxy} working"
+                            protocols.append(protocol.lower())
+                            file_append_str(logfile, log)
+                            print(green(log))
+                            working = True
+                            https = check.https
+                        else:
+                            log = f"> {protocol.lower()}://{proxyClass.proxy} dead"
+                            file_append_str(logfile, f"{log} -> {check.error}")
+                            print(f"{red(log)} -> {check.error}")
+                            working = False
+                    except Exception as e:
+                        print(f"Exception in future: {e}")
 
                 if not working:
                     status = "dead"
