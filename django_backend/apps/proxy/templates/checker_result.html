@@ -1,0 +1,22 @@
+{% extends 'base_generic.html' %}
+
+{% load static %}
+{% load custom_filters %}
+{% load proxy_filters %}
+
+{% block title %}Proxy Checker Result{% endblock %}
+{% block nav_title %}Proxy Checker Result{% endblock %}
+
+{% block content %}
+<div class="mx-auto">
+  <div class="ml-5"><button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" id="re-check-random">
+    Re-check random proxies
+  </button></div>
+  <div class="w-full p-4 rounded shadow bg-gray-700 dark:bg-gray-800">
+    <textarea id="resultTextarea"
+      class="w-full p-2 border rounded resize-none h-64 bg-gray-800 dark:bg-gray-900 text-gray-200 border-gray-600 dark:border-gray-700"
+      readonly></textarea>
+  </div>
+</div>
+<script src="{% static 'checker_result.js' %}"></script>
+{% endblock %}
