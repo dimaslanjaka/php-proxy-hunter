@@ -31,30 +31,38 @@ def index(request: HttpRequest):
     status = request.GET.get("status")
     timezone = request.GET.get("timezone")
     region = request.GET.get("region")
-
-    # Start with the base queryset
-    proxy_list = Proxy.objects.all()
+    search_query = request.GET.get("search")
 
     # Apply filters based on provided parameters
     if status:
         if country:
-            proxy_list = proxy_list.filter(status=status, country=country)
+            proxy_list = Proxy.objects.filter(status=status, country=country)
         elif city:
-            proxy_list = proxy_list.filter(status=status, city=city)
+            proxy_list = Proxy.objects.filter(status=status, city=city)
         elif timezone:
-            proxy_list = proxy_list.filter(status=status, timezone=timezone)
+            proxy_list = Proxy.objects.filter(status=status, timezone=timezone)
         elif region:
-            proxy_list = proxy_list.filter(status=status, region=region)
+            proxy_list = Proxy.objects.filter(status=status, region=region)
         else:
-            proxy_list = proxy_list.filter(status=status)
+            proxy_list = Proxy.objects.filter(status=status)
     elif country:
-        proxy_list = proxy_list.filter(country=country)
+        proxy_list = Proxy.objects.filter(country=country)
     elif city:
-        proxy_list = proxy_list.filter(city=city)
+        proxy_list = Proxy.objects.filter(city=city)
     elif timezone:
-        proxy_list = proxy_list.filter(timezone=timezone)
+        proxy_list = Proxy.objects.filter(timezone=timezone)
     elif region:
-        proxy_list = proxy_list.filter(region=region)
+        proxy_list = Proxy.objects.filter(region=region)
+    elif search_query:
+        proxy_list = Proxy.objects.filter(
+            Q(proxy__icontains=search_query)
+            | Q(region__icontains=search_query)
+            | Q(city__icontains=search_query)
+            | Q(country__icontains=search_query)
+            | Q(timezone__icontains=search_query)
+        )
+    else:
+        proxy_list = Proxy.objects.all()
 
     # Annotate the queryset with a custom field for sorting
     proxy_list = proxy_list.annotate(

@@ -83,4 +83,8 @@ window.onload = function () {
     // e.target.setAttribute("disabled", "true");
     // e.target.classList.add("disabled");
   });
+  const searchInput = document.getElementById("searchInput");
+  searchInput.addEventListener("keyup", () => {
+    searchInput.form.submit();
+  });
 };
