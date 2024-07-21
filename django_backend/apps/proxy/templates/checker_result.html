@@ -1,7 +1,7 @@
 {% extends 'base_generic.html' %}
 
 {% load static %}
-{% load custom_filters %}
+{% load time_filters %}
 {% load proxy_filters %}
 
 {% block title %}Proxy Checker Result{% endblock %}
@@ -16,7 +16,7 @@
     </button>
     <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" id="filter-duplicates">
       Filter duplicated proxies
-    </button> 
+    </button>
   </div>
   <div class="w-full p-4 rounded shadow bg-gray-700 dark:bg-gray-800">
     <div id="resultTextarea"
