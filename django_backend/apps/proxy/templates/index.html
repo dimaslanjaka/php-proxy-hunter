@@ -12,6 +12,15 @@
 <div class="container mx-auto">
   <h1 class="text-2xl font-bold mb-4">Proxy List</h1>
 
+  <!-- Search Input -->
+  <div class="mb-4">
+    <form method="get" action="">
+      <input type="text" id="searchInput" name="search" class="p-2 w-full border rounded" placeholder="Search..."
+        value="{{ request.GET.search }}">
+    </form>
+  </div>
+
+  <!-- Table -->
   <div class="shadow-md rounded my-6 overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200 table-fixed">
       <thead class="bg-gray-600 text-white uppercase text-sm">
@@ -154,7 +163,7 @@
       {% endif %}
       <a href="/proxy"
         class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
-        Page {{ proxies.number }} of {{ proxies.paginator.num_pages }}
+        Page {{ proxies.number }} of {{ proxies.paginator.num_pages }} (Click to reset filters)
       </a>
       {% if proxies.has_next %}
       <a href="?page={{ proxies.next_page_number }}{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
