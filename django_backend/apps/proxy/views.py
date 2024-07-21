@@ -1,5 +1,4 @@
 import os
-import pprint
 import random
 import sys
 from threading import Thread, active_count
@@ -18,7 +17,7 @@ from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 from src.func_platform import is_django_environment
-from src.func import file_append_str, get_relative_path, truncate_file_content
+from src.func import file_append_str, truncate_file_content
 from .models import Proxy
 from .serializers import ProxySerializer
 from .tasks import (
@@ -118,15 +117,15 @@ def proxies_list(request: HttpRequest):
 def proxy_checker_result(request: HttpRequest):
     if request.GET.get("format") == "txt":
         # Construct the full file path
-        full_file_path = os.path.join(settings.BASE_DIR, "proxyChecker.txt")
+        full_file_path = os.path.join(settings.BASE_DIR, task_log_file)
 
         # Check if the file exists
         if not os.path.exists(full_file_path):
-            raise Http404("File not found")
-
-        # Read the file content
-        with open(full_file_path, "r") as file:
-            file_content = file.read()
+            file_content = f"File not found {full_file_path}"
+        else:
+            # Read the file content
+            with open(full_file_path, "r") as file:
+                file_content = file.read()
 
         # Return the file content in the response with the correct MIME type
         return HttpResponse(file_content, content_type="text/plain")
@@ -160,30 +159,8 @@ def trigger_check_proxy(request: HttpRequest):
             {"error": True, "message": "Unsupported request method"}
         )
 
-    if not proxy:
-        count_proxies_to_check = 10
-        proxies = Proxy.objects.filter(status="untested")[:count_proxies_to_check]
-        if len(proxies) == 0:
-            counter = 0
-            now = datetime.now()
-            # loop when proxies length 0
-            while len(proxies) == 0 and counter < 20:
-                # increase counter
-                counter += 1
-
-                # Generate a random timedelta
-                random_days = random.randint(1, 30)  # Random days between 1 and 30
-                random_hours = random.randint(1, 24)  # Random hours between 1 and 24
-
-                # Adjust the timedelta accordingly
-                date_ago = now - timedelta(days=random_days, hours=random_hours)
-
-                proxies = Proxy.objects.filter(last_check__lte=date_ago)[
-                    :count_proxies_to_check
-                ]
-        proxies = [proxy.to_json() for proxy in proxies]
-        decoded_proxy = "|".join(proxies)
-    else:
+    decoded_proxy = None
+    if proxy:
         # Decode the URL-encoded proxy parameter
         decoded_proxy = unquote(proxy)
 
