@@ -44,7 +44,10 @@ function processText(info) {
 
 // Scroll to the bottom if the content is already at the bottom
 function scrollToBottomIfNeeded(scrollable_element) {
-  if (scrollable_element.scrollHeight - scrollable_element.scrollTop === scrollable_element.clientHeight) {
+  const top = scrollable_element.scrollHeight - scrollable_element.scrollTop - 50;
+  const height = scrollable_element.clientHeight;
+  console.log({ top, height });
+  if (top <= height) {
     scrollable_element.scrollTop = scrollable_element.scrollHeight;
   }
 }
