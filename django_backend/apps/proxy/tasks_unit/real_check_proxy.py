@@ -120,8 +120,12 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             & ~Q(status="untested")  # `status` is not 'untested'
             & ~Q(status="dead")  # `status` is not 'dead'
             & ~Q(status="port-closed")  # `status` is not 'port-closed'
+            & ~Q(status="port-open")  # `status` is not 'port-open' (for filter ports)
         )
-        print(f"source proxy from Model: got {len(queryset)} proxies from type=None")
+        if queryset:
+            print(
+                f"source proxy from Model: got {len(queryset)} proxies from type=None"
+            )
         if not queryset:
             queryset = Proxy.objects.filter(status="untested")[:30]
             print(
