@@ -41,8 +41,12 @@ from .utils import get_geo_ip2
 logfile = get_relative_path("tmp/logs/proxyChecker.txt")
 
 
-def fetch_geo_ip(model: Proxy):
+def fetch_geo_ip(proxy: str):
     save = False
+    queryset = Proxy.objects.filter(proxy=proxy)
+    if not queryset:
+        return
+    model = queryset[0]
 
     # Fetch geo IP details if necessary
     if model.timezone is None or model.country is None or model.lang is None:
@@ -98,7 +102,10 @@ def fetch_geo_ip(model: Proxy):
             save = True
 
     if save:
-        model.save()
+        try:
+            model.save()
+        except Exception as e:
+            print(f"fetch_geo_ip fail update proxy model {model.to_json()}. {e}")
 
 
 def fetch_geo_ip_list(proxies: List[Proxy]):
@@ -106,7 +113,7 @@ def fetch_geo_ip_list(proxies: List[Proxy]):
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = []
             for item in proxies:
-                futures.append(executor.submit(fetch_geo_ip, item))
+                futures.append(executor.submit(fetch_geo_ip, item.proxy))
             # Ensure all threads complete before returning
             for future in as_completed(futures):
                 try:
@@ -230,10 +237,13 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             proxy_data += str([obj.to_json() for obj in queryset])
         # get 30 untested proxies
         if db is not None and not proxy_data:
-            proxy_data += str(db.get_untested_proxies(30))
-            print(
-                f"source proxy from ProxyDB: got {len(queryset)} proxies from status=untested"
-            )
+            try:
+                proxy_data += str(db.get_untested_proxies(30))
+                print(
+                    f"source proxy from ProxyDB: got {len(queryset)} proxies from status=untested"
+                )
+            except Exception:
+                pass
     if len(proxy_data.strip()) < 11:
         php_results = [
             read_file(get_relative_path("working.json")),
@@ -243,9 +253,13 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             proxy_data = f"{php_result} {proxy_data}"
         print(f"source proxy from reading {len(php_result)} files")
     if proxy_data:
+        extract = []
         if db is not None:
-            extract = db.extract_proxies(proxy_data)
-        else:
+            try:
+                extract = db.extract_proxies(proxy_data)
+            except Exception:
+                pass
+        if not extract:
             extract = extract_proxies(proxy_data)
         for item in extract:
             find = Proxy.objects.filter(proxy=item.proxy)
@@ -260,7 +274,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         # shuffle items
         random.shuffle(proxies)
     # iterate 30 proxies
-    for proxyClass in proxies[:30]:
+    for proxyClass in proxies:
         # reset status each item
         status = None
         if not is_port_open(proxyClass.proxy):
@@ -320,27 +334,34 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                     # executor.shutdown(wait=True, cancel_futures=True)
             except Exception as e:
                 print(f"real_check_proxy_async failed create thread {e}")
-                traceback.print_exc()
+                if "cannot schedule new futures" not in str(e).lower():
+                    traceback.print_exc()
 
         if status is not None:
             last_check = get_current_rfc3339_time()
             # print(f"{proxyClass.proxy} last check {last_check}")
             data = {
                 "status": status,
-                "type": "-".join(protocols).upper() if len(protocols) > 0 else None,
+                "type": "-".join(protocols).lower() if len(protocols) > 0 else None,
                 "last_check": last_check,
                 "https": "true" if https else "false",
             }
-            # print(data)
             try:
                 if db is not None:
-                    db.update_data(proxyClass.proxy, data)
+                    try:
+                        # update data and avoid database locked
+                        db.update_data(proxyClass.proxy, data)
+                    except Exception:
+                        pass
 
                 # Update Django database
                 check_model, created = Proxy.objects.update_or_create(
                     proxy=proxyClass.proxy,  # Field to match
                     defaults=data,  # Fields to update
                 )
+                if status == "active":
+                    print(data)
+                    print(check_model.to_json(), created)
             except Exception as e:
                 print(f"{proxyClass.proxy} failed to update: {e}")
         remove_string_and_move_to_file(
@@ -350,7 +371,10 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         )
 
     if db is not None:
-        db.close()
+        try:
+            db.close()
+        except Exception:
+            pass
     file_append_str(logfile, f"\n{len(proxies)} proxies checked done.\n")
 
 
