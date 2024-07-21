@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import sys
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import sys
@@ -170,7 +170,9 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": os.path.join(BASE_DIR, "tmp/logs/django.log"),
+            "filename": os.path.join(
+                BASE_DIR, f"tmp/logs/django-{datetime.now().strftime('%Y-%m-%d')}.log"
+            ),
             "when": "midnight",  # Rotate logs every midnight
             "interval": 1,
             "backupCount": 7,  # Keep the last 7 days of logs
