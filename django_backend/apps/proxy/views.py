@@ -1,30 +1,28 @@
 import os
-import random
 import sys
 from threading import Thread, active_count
 from typing import Set
 from urllib.parse import unquote
 
 from django.conf import settings
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Case, IntegerField, Value, When
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
-from datetime import datetime, timedelta
 
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.shortcuts import redirect, render
 
-from src.func_platform import is_django_environment
 from src.func import file_append_str, truncate_file_content
+from src.func_platform import is_django_environment
+
 from .models import Proxy
 from .serializers import ProxySerializer
-from .tasks import (
-    fetch_geo_ip_in_thread,
-    real_check_proxy_async_in_thread,
-    logfile as task_log_file,
-)
+from .tasks import fetch_geo_ip_in_thread
+from .tasks import logfile as task_log_file
+from .tasks import real_check_proxy_async_in_thread
 
 
 def index(request: HttpRequest):
@@ -72,7 +70,13 @@ def index(request: HttpRequest):
     # Paginate the results
     paginator = Paginator(proxy_list, 30)  # Show 30 proxies per page
     page_number = request.GET.get("page")
-    proxies = paginator.get_page(page_number)
+
+    try:
+        proxies = paginator.page(page_number)
+    except PageNotAnInteger:
+        proxies = paginator.page(1)
+    except EmptyPage:
+        proxies = paginator.page(paginator.num_pages)
 
     # Fetch missing details in a background thread
     fetch_geo_ip_in_thread(proxies.object_list)

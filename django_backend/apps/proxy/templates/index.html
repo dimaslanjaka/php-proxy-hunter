@@ -136,11 +136,11 @@
   <div class="py-4 px-6 flex justify-center items-center bg-gray-800 dark:bg-gray-900 text-gray-200 dark:text-gray-300">
     <div class="inline-flex shadow-sm rounded-md" role="group">
       {% if proxies.has_previous %}
-      <a href="?page=1{% if request.GET %}&{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}"
+      <a href="?page=1{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
         class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
         First
       </a>
-      <a href="?page={{ proxies.previous_page_number }}{% if request.GET %}&{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}"
+      <a href="?page={{ proxies.previous_page_number }}{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
         class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
         Previous
       </a>
@@ -157,11 +157,11 @@
         Page {{ proxies.number }} of {{ proxies.paginator.num_pages }}
       </a>
       {% if proxies.has_next %}
-      <a href="?page={{ proxies.next_page_number }}{% if request.GET %}&{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}"
+      <a href="?page={{ proxies.next_page_number }}{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
         class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
         Next
       </a>
-      <a href="?page={{ proxies.paginator.num_pages }}{% if request.GET %}&{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}"
+      <a href="?page={{ proxies.paginator.num_pages }}{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
         class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
         Last
       </a>
@@ -175,7 +175,6 @@
       {% endif %}
     </div>
   </div>
-
 
 </div>
 {% endblock %}
