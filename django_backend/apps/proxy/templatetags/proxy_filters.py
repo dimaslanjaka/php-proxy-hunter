@@ -18,7 +18,7 @@ def proxy_label(row):
             )
             result.append(badge)
         if row.type:
-            proxy_types = row.type.split("-")
+            proxy_types = set(row.type.split("-"))
 
             for s in proxy_types:
                 badge = None
