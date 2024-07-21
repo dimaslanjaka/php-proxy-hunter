@@ -443,7 +443,8 @@ class ProxyCheckResult:
         proxy: str = None,
         type: str = None,
         url: str = None,
-        https: bool = None
+        https: bool = None,
+        additional: Dict[str, Any] = {},
     ):
         self.result = result
         self.latency = latency
@@ -456,6 +457,7 @@ class ProxyCheckResult:
         self.type = type
         self.https = https
         self.url = url
+        self.additional = additional
 
     def __str__(self):
         attributes = ", ".join(f"{key}: {value}" for key, value in vars(self).items())
