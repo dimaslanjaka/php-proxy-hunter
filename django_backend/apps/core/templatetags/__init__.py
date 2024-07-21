@@ -1,1 +1,1 @@
-print("authentication templatetags module loaded")
+print("core templatetags module loaded")
