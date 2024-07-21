@@ -217,7 +217,9 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     https = False
     if not proxy_data:
         queryset = Proxy.objects.filter(
-            (Q(type__isnull=True) | Q(type="-"))  # `type` is None or '-'
+            (
+                Q(type__isnull=True) | Q(last_check__isnull=True) | Q(type="-")
+            )  # `type` is None or '-'
             & ~Q(status="untested")  # `status` is not 'untested'
             & ~Q(status="dead")  # `status` is not 'dead'
             & ~Q(status="port-closed")  # `status` is not 'port-closed'
