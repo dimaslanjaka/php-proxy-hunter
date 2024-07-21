@@ -1,7 +1,7 @@
 {% extends 'base_generic.html' %}
 
 {% load static %}
-{% load custom_filters %}
+{% load time_filters %}
 {% load proxy_filters %}
 
 {% block title %}Proxy List{% endblock %}
@@ -63,7 +63,7 @@
             -
             {% endif %}
           </td>
-          <!-- format time ago with django_backend/apps/proxy/templatetags/custom_filters.py -->
+          <!-- format time ago with django_backend/apps/proxy/templatetags/time_filters.py -->
           <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {{ proxy.last_check|time_ago }}</td>
           <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.type|default:"-"|upper }}</td> -->
