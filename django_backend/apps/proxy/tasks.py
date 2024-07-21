@@ -215,7 +215,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     protocols = []
     proxies: List[Proxy] = []
     https = False
-    if not proxy_data:
+    if len(proxy_data.strip()) < 11:
         queryset = Proxy.objects.filter(
             (
                 Q(type__isnull=True) | Q(last_check__isnull=True) | Q(type="-")
@@ -238,7 +238,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         if queryset:
             proxy_data += str([obj.to_json() for obj in queryset])
         # get 30 untested proxies
-        if db is not None and not proxy_data:
+        if db is not None and len(proxy_data.strip()) < 11:
             try:
                 proxy_data += str(db.get_untested_proxies(30))
                 print(
@@ -276,18 +276,25 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         # shuffle items
         random.shuffle(proxies)
     # iterate 30 proxies
-    for proxyClass in proxies:
+    for proxy_obj in proxies[:30]:
         # reset status each item
         status = None
-        if not is_port_open(proxyClass.proxy):
-            log = f"> {proxyClass.proxy} {red('port closed')}"
+        # check if proxy exist in database model
+        if not Proxy.objects.filter(proxy=proxy_obj.proxy):
+            Proxy.objects.create(
+                proxy=proxy_obj.proxy,
+                username=proxy_obj.username,
+                password=proxy_obj.password,
+            )
+        if not is_port_open(proxy_obj.proxy):
+            log = f"> {proxy_obj.proxy} {red('port closed')}"
             file_append_str(logfile, log)
             print(log)
             status = "port-closed"
         else:
             # Define a function to handle check_proxy with the correct arguments
             def handle_check(protocol):
-                return real_check_proxy(proxyClass.proxy, protocol)
+                return real_check_proxy(proxy_obj.proxy, protocol)
 
             try:
                 # Create a ThreadPoolExecutor
@@ -308,14 +315,14 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                             )  # Index the protocol list by order of completion
                             protocol = ["HTTP", "SOCKS4", "SOCKS5"][protocol]
                             if check.result:
-                                log = f"> {protocol.lower()}://{proxyClass.proxy} working. Title: {check.additional['title']}. Url: {check.url}"
+                                log = f"> {protocol.lower()}://{proxy_obj.proxy} working. Title: {check.additional['title']}. Url: {check.url}"
                                 protocols.append(protocol.lower())
                                 file_append_str(logfile, log)
                                 print(green(log))
                                 working = True
                                 https = check.https
                             else:
-                                log = f"> {protocol.lower()}://{proxyClass.proxy} dead"
+                                log = f"> {protocol.lower()}://{proxy_obj.proxy} dead"
                                 file_append_str(logfile, f"{log} -> {check.error}")
                                 print(f"{red(log)} -> {check.error}")
                                 working = False
@@ -327,12 +334,12 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                     else:
                         status = "active"
                         if is_debug():
-                            if proxyClass.username and proxyClass.password:
+                            if proxy_obj.username and proxy_obj.password:
                                 upload_proxy(
-                                    f"{proxyClass.proxy}@{proxyClass.username}:{proxyClass.password}"
+                                    f"{proxy_obj.proxy}@{proxy_obj.username}:{proxy_obj.password}"
                                 )
                             else:
-                                upload_proxy(proxyClass.proxy)
+                                upload_proxy(proxy_obj.proxy)
                     # executor.shutdown(wait=True, cancel_futures=True)
             except Exception as e:
                 print(f"real_check_proxy_async failed create thread {e}")
@@ -352,24 +359,24 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 if db is not None:
                     try:
                         # update data and avoid database locked
-                        db.update_data(proxyClass.proxy, data)
+                        db.update_data(proxy_obj.proxy, data)
                     except Exception:
                         pass
 
                 # Update Django database
                 check_model, created = Proxy.objects.update_or_create(
-                    proxy=proxyClass.proxy,  # Field to match
+                    proxy=proxy_obj.proxy,  # Field to match
                     defaults=data,  # Fields to update
                 )
                 if status == "active":
                     print(data)
                     print(check_model.to_json(), created)
             except Exception as e:
-                print(f"{proxyClass.proxy} failed to update: {e}")
+                print(f"{proxy_obj.proxy} failed to update: {e}")
         remove_string_and_move_to_file(
             get_relative_path("proxies.txt"),
             get_relative_path("dead.txt"),
-            proxyClass.proxy,
+            proxy_obj.proxy,
         )
 
     if db is not None:
