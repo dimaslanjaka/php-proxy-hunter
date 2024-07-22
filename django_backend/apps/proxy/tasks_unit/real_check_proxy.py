@@ -90,6 +90,7 @@ def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
             additional={"title": title},
         )
 
+    test = ProxyCheckResult(None, 0, "", None, False, None, proxy, None)
     for url, name in [
         ("https://bing.com", "bing"),
         ("https://google.com/", "google"),
