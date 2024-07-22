@@ -1,3 +1,4 @@
+from typing import Optional
 from django import template
 from django.utils import timezone
 from dateutil.parser import parse
@@ -27,7 +28,7 @@ register = template.Library()
 
 
 @register.filter
-def time_ago(date_string):
+def time_ago(date_str: Optional[str] = None):
     """
     Converts a given date string to a human-readable "time ago" format.
 
@@ -37,9 +38,11 @@ def time_ago(date_string):
     Returns:
     str: The time ago format of the provided date string.
     """
+    if not date_str:
+        return "-"
     try:
         # Convert the provided date string to a datetime object
-        date = datetime.fromisoformat(date_string)
+        date = datetime.fromisoformat(date_str)
 
         # If date is naive (no timezone info), assume it is in the local timezone
         if date.tzinfo is None:
@@ -47,7 +50,7 @@ def time_ago(date_string):
             date = local_tz.localize(date)
     except ValueError:
         # Return invalid date to original string
-        return date_string
+        return date_str
 
     # Get the current time in the local timezone
     now = timezone.now()
