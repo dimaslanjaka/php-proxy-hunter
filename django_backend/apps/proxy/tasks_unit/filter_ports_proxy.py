@@ -5,15 +5,11 @@ import sys
 import threading
 from typing import Callable, Dict, List, Optional, Union
 
-from joblib import Parallel, delayed
-
-from django_backend.apps.core.management.commands.check_proxy_real import real_check
-
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
 from django.db import connection
-
+from django_backend.apps.core.management.commands.check_proxy_real import real_check
 # result_log_file = get_relative_path("tmp/logs/filter-ports.txt")
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import result_log_file
 from src.func_console import green, log_file, red
