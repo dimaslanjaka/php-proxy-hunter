@@ -106,8 +106,11 @@ SIMPLE_JWT = {
 
 LOGIN_URL = "/auth/login"
 
+# middleware classes based on priority
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    "django_backend.middleware.CustomCsrfExemptMiddleware",  # allow greasemonkey
+    "django_backend.middleware.CsrfExemptCsrfViewMiddleware",  # allow greasemonkey
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
