@@ -81,7 +81,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                     """
                     SELECT rowid, * FROM proxies
                     WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) = %s
-                    AND status != 'active' AND status != 'port-open'
+                    AND (status != 'active' AND status != 'port-open' OR status IS NULL)
                     ORDER BY RANDOM() LIMIT 49999;
                     """,
                     [ip],
