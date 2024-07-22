@@ -1,8 +1,8 @@
 function init_search() {
   const searchInput = document.getElementById("searchInput");
-  searchInput.addEventListener("keyup", () => {
-    searchInput.form.submit();
-  });
+  // searchInput.addEventListener("keyup", () => {
+  //   searchInput.form.submit();
+  // });
   // Get the URL parameters
   const urlParams = new URLSearchParams(window.location.search);
 
