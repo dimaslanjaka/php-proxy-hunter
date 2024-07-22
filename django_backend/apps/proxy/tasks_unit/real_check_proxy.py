@@ -147,7 +147,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 f"source proxy from Model: got {len(queryset)} proxies from type=None",
             )
         if not queryset:
-            queryset = Proxy.objects.filter(status="untested")[:30]
+            queryset = Proxy.objects.filter(status="untested")
             log_file(
                 result_log_file,
                 f"source proxy from Model: got {len(queryset)} proxies from status=untested",
