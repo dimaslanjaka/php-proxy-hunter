@@ -1,4 +1,5 @@
 import gzip
+import ipaddress
 import re
 import zlib
 from io import BytesIO
@@ -42,6 +43,20 @@ def decompress_requests_response(response: requests.Response) -> str:
     return content
 
 
+def is_valid_ip_connection(proxy: Optional[str]) -> bool:
+    if not proxy:
+        return False
+
+    split = proxy.strip().split(":", 1)
+    ip = split[0]
+
+    try:
+        ipaddress.ip_address(ip)
+        return True
+    except ValueError:
+        return False
+
+
 def is_valid_ip(proxy: Optional[str]) -> bool:
     """
     Validate a given proxy IP address.
@@ -58,14 +73,16 @@ def is_valid_ip(proxy: Optional[str]) -> bool:
     split = proxy.strip().split(":", 1)
     ip = split[0]
 
+    # Regex to validate IPv4 addresses
     is_ip_valid = (
-        re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip) is not None
-        and len(ip) >= 7
-        and ".." not in ip
+        re.match(
+            r"^(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$",
+            ip,
+        )
+        is not None
     )
-    re_pattern = re.compile(r"(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
 
-    return is_ip_valid and re_pattern.match(ip) is not None
+    return is_ip_valid
 
 
 def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bool:
@@ -110,16 +127,14 @@ def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bo
 
     # Check if proxy is valid
     proxy_length = len(proxy)
-    pattern = r"(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}"
-    is_proxy_valid = (
-        is_ip_valid
-        and is_port_valid
-        and 10 <= proxy_length <= 21
-        and re.fullmatch(pattern, proxy)
-    )
+    is_proxy_valid = is_ip_valid and is_port_valid and 10 <= proxy_length <= 21
 
     # Validate credentials if required
     if has_credential and validate_credential:
         return is_proxy_valid and bool(username) and bool(password)
 
     return is_proxy_valid
+
+
+if __name__ == "__main__":
+    print(is_valid_proxy("801.0.0.10:801"))
