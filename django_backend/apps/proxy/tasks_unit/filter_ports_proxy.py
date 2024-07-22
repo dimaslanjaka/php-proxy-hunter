@@ -57,9 +57,15 @@ def fetch_proxies_same_ip(
     # log_file(result_log_file, f"got duplicated {len(result)} ips")
     # Filtering dictionary to include only key-value pairs where the list has more than 2 items
     filtered_result = {k: v for k, v in result.items() if len(v) > 2}
-    random.shuffle(filtered_result)
 
-    return filtered_result
+    # Shuffle the items in the filtered_result
+    items = list(filtered_result.items())  # Convert to a list of tuples
+    random.shuffle(items)  # Shuffle the list of tuples
+
+    # Reconstruct the dictionary with shuffled items
+    shuffled_result = dict(items)
+
+    return shuffled_result
 
 
 def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
