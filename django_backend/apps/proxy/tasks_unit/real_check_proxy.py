@@ -244,7 +244,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                                 log_file(result_log_file, log)
                                 working = True
                                 https = check.https
-                                if check.latency > latency:
+                                if int(check.latency) > latency:
                                     latency = int(check.latency)
                             else:
                                 log = f"> {protocol.lower()}://{proxy_obj.proxy} dead -> {check.error}"
