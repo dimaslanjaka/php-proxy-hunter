@@ -7,9 +7,9 @@ import sys
 import threading
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
-import requests
+import requests, sqlite3
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
@@ -31,6 +31,8 @@ from src.func_date import get_current_rfc3339_time
 from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
 from src.ProxyDB import ProxyDB
+from django.conf import settings
+from django.db import connection
 
 result_log_file = get_relative_path("tmp/logs/proxyChecker.txt")
 
@@ -106,6 +108,78 @@ def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
     return test
 
 
+def get_proxies_query(
+    connection: sqlite3.Connection,
+    status: List[str] = ["dead", "port-closed", "untested"],
+    limit: Optional[int] = None,
+):
+    # Create a condition string from the status list
+    condition = " OR ".join([f"status = '{s}'" for s in status])
+
+    # Define the query to find proxies with specific status
+    query = f"""
+    SELECT *
+    FROM proxies
+    WHERE {condition} OR status IS NULL OR type IS NULL
+    ORDER BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1), RANDOM()
+    """
+
+    # Add LIMIT clause if limit is provided
+    if limit is not None:
+        query += f" LIMIT {limit}"
+
+    # Debug: Print the final query
+    # print(f"Constructed Query: {query}")
+
+    result: List[Dict[str, Any]] = []
+
+    # Execute the query
+    cursor = connection.cursor()
+    try:
+        cursor.execute(query)
+        proxies = cursor.fetchall()
+
+        # Fetch column names
+        columns = [desc[0] for desc in cursor.description]
+
+        # Print column names
+        # print(f"Columns: {columns}")
+
+        # Print each row with all columns
+        for row in proxies:
+            result.append(dict(zip(columns, row)))
+    finally:
+        cursor.close()
+
+    return result
+
+
+def get_proxies(status: List[str] = ["dead", "port-closed", "untested"]):
+    db = None
+    try:
+        db = ProxyDB(get_relative_path("src/database.sqlite"), True)
+    except Exception:
+        pass
+
+    result: List[Dict[str, Any]] = []
+    # Fetch proxies from db if available
+    if db:
+        result.extend(get_proxies_query(db.db.conn, status, 30))
+
+    # Fetch proxies from connection
+    result.extend(get_proxies_query(connection, status, 30))
+
+    # Create a set of unique proxies based on a unique key (e.g., 'proxy_id')
+    unique_proxies = {proxy["proxy"]: proxy for proxy in result}.values()
+
+    print(f"get_proxies status={' OR '.join(status)} got {len(unique_proxies)} proxies")
+
+    if db:
+        db.close()
+
+    return list(unique_proxies)
+
+
 def real_check_proxy_async(proxy_data: Optional[str] = ""):
     global result_log_file
     if not proxy_data:
@@ -124,50 +198,18 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         queryset = Proxy.objects.filter(
             Q(last_check__lt=time_threshold) & Q(status="active")
         )
-        log_file(
-            result_log_file,
-            f"source proxy from Model: got {len(queryset)} proxies from status=active more than 12 hours ago",
-        )
-        if not queryset:
-            queryset = Proxy.objects.filter(
-                (
-                    Q(type__isnull=True) | Q(last_check__isnull=True) | Q(type="-")
-                )  # `type` is None or '-'
-                & ~Q(status="untested")  # `status` is not 'untested'
-                & ~Q(status="dead")  # `status` is not 'dead'
-                & ~Q(status="port-closed")  # `status` is not 'port-closed'
-                & ~Q(
-                    status="port-open"
-                )  # `status` is not 'port-open' (for filter ports)
-            )
-            log_file(
-                result_log_file,
-                f"source proxy from Model: got {len(queryset)} proxies from type=None",
-            )
-        if not queryset:
-            queryset = Proxy.objects.filter(status="untested")
-            log_file(
-                result_log_file,
-                f"source proxy from Model: got {len(queryset)} proxies from status=untested",
-            )
-        if not queryset:
-            queryset = Proxy.objects.filter(Q(status__isnull=True) | Q(status="-"))
-            log_file(
-                result_log_file,
-                f"source proxy from Model: got {len(queryset)} proxies from status=None",
-            )
         if queryset:
+            log_file(
+                result_log_file,
+                f"source proxy from Model: got {len(queryset)} proxies from status=active more than 12 hours ago",
+            )
             proxy_data += str([obj.to_json() for obj in queryset.order_by("?")])
-        # get 30 untested proxies
-        if db is not None and len(proxy_data.strip()) < 11:
-            try:
-                proxy_data += str(db.get_untested_proxies(30))
-                log_file(
-                    result_log_file,
-                    f"source proxy from ProxyDB: got {len(queryset)} proxies from status=untested",
-                )
-            except Exception:
-                pass
+        else:
+            for item in get_proxies(["untested"]):
+                format = item['proxy']
+                if item['username'] and item['password']:
+                    format += f"@{item['username']}:{item['password']}"
+                proxy_data += format
     if len(proxy_data.strip()) < 11:
         php_results = [
             read_file(get_relative_path("working.json")),
@@ -320,5 +362,6 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
 
 def real_check_proxy_async_in_thread(proxy):
     thread = threading.Thread(target=real_check_proxy_async, args=(proxy,))
+    # thread = threading.Thread(target=get_proxies, args=(["untested"],))
     thread.start()
     return thread
