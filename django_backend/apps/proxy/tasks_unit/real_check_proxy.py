@@ -5,7 +5,7 @@ import threading
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Optional
-
+from urllib.parse import urlparse
 import requests
 
 sys.path.append(
@@ -23,17 +23,17 @@ from src.func import (
     read_file,
     remove_string_and_move_to_file,
 )
-from src.func_console import green, red
+from src.func_console import green, red, log_file
 from src.func_date import get_current_rfc3339_time
 from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
 from src.ProxyDB import ProxyDB
 
-logfile = get_relative_path("tmp/logs/proxyChecker.txt")
+result_log_file = get_relative_path("tmp/logs/proxyChecker.txt")
 
 
 def real_check_proxy(proxy: str, type: str):
-    from urllib.parse import urlparse
+    global result_log_file
 
     def is_https(url):
         parsed_url = urlparse(url)
@@ -100,6 +100,7 @@ def real_check_proxy(proxy: str, type: str):
 
 
 def real_check_proxy_async(proxy_data: Optional[str] = ""):
+    global result_log_file
     if not proxy_data:
         proxy_data = ""
     db = None
@@ -123,18 +124,21 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             & ~Q(status="port-open")  # `status` is not 'port-open' (for filter ports)
         )
         if queryset:
-            print(
-                f"source proxy from Model: got {len(queryset)} proxies from type=None"
+            log_file(
+                result_log_file,
+                f"source proxy from Model: got {len(queryset)} proxies from type=None",
             )
         if not queryset:
             queryset = Proxy.objects.filter(status="untested")[:30]
-            print(
-                f"source proxy from Model: got {len(queryset)} proxies from status=untested"
+            log_file(
+                result_log_file,
+                f"source proxy from Model: got {len(queryset)} proxies from status=untested",
             )
         if not queryset:
             queryset = Proxy.objects.filter(Q(status__isnull=True) | Q(status="-"))
-            print(
-                f"source proxy from Model: got {len(queryset)} proxies from status=None"
+            log_file(
+                result_log_file,
+                f"source proxy from Model: got {len(queryset)} proxies from status=None",
             )
         if queryset:
             proxy_data += str([obj.to_json() for obj in queryset])
@@ -142,8 +146,9 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         if db is not None and len(proxy_data.strip()) < 11:
             try:
                 proxy_data += str(db.get_untested_proxies(30))
-                print(
-                    f"source proxy from ProxyDB: got {len(queryset)} proxies from status=untested"
+                log_file(
+                    result_log_file,
+                    f"source proxy from ProxyDB: got {len(queryset)} proxies from status=untested",
                 )
             except Exception:
                 pass
@@ -154,7 +159,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         ]
         for php_result in php_results:
             proxy_data = f"{php_result} {proxy_data}"
-        print(f"source proxy from reading {len(php_result)} files")
+        log_file(result_log_file, f"source proxy from reading {len(php_result)} files")
     if proxy_data:
         extract = []
         if db is not None:
@@ -189,8 +194,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             )
         if not is_port_open(proxy_obj.proxy):
             log = f"> {proxy_obj.proxy} {red('port closed')}"
-            file_append_str(logfile, log)
-            print(log)
+            log_file(result_log_file, log)
             status = "port-closed"
         else:
             # Define a function to handle check_proxy with the correct arguments
@@ -216,19 +220,17 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                             )  # Index the protocol list by order of completion
                             protocol = ["HTTP", "SOCKS4", "SOCKS5"][protocol]
                             if check.result:
-                                log = f"> {protocol.lower()}://{proxy_obj.proxy} working. Title: {check.additional['title']}. Url: {check.url}"
+                                log = f"> {protocol.lower()}://{proxy_obj.proxy} {green('working')}. Title: {check.additional['title']}. Url: {check.url}"
                                 protocols.append(protocol.lower())
-                                file_append_str(logfile, log)
-                                print(green(log))
+                                log_file(result_log_file, log)
                                 working = True
                                 https = check.https
                             else:
-                                log = f"> {protocol.lower()}://{proxy_obj.proxy} dead"
-                                file_append_str(logfile, f"{log} -> {check.error}")
-                                print(f"{red(log)} -> {check.error}")
+                                log = f"> {protocol.lower()}://{proxy_obj.proxy} dead -> {check.error}"
+                                log_file(result_log_file, log)
                                 working = False
                         except Exception as e:
-                            print(f"Exception in future: {e}")
+                            log_file(result_log_file, f"Exception in future: {e}")
 
                     if not working:
                         status = "dead"
@@ -243,13 +245,15 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                                 upload_proxy(proxy_obj.proxy)
                     # executor.shutdown(wait=True, cancel_futures=True)
             except Exception as e:
-                print(f"real_check_proxy_async failed create thread {e}")
+                log_file(
+                    result_log_file, f"real_check_proxy_async failed create thread {e}"
+                )
                 if "cannot schedule new futures" not in str(e).lower():
                     traceback.print_exc()
 
         if status is not None:
             last_check = get_current_rfc3339_time()
-            # print(f"{proxyClass.proxy} last check {last_check}")
+            # log_file(result_log_file, f"{proxyClass.proxy} last check {last_check}")
             data = {
                 "status": status,
                 "type": "-".join(protocols).lower() if len(protocols) > 0 else None,
@@ -270,10 +274,10 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                     defaults=data,  # Fields to update
                 )
                 if status == "active":
-                    print(data)
-                    print(check_model.to_json(), created)
+                    log_file(result_log_file, data)
+                    log_file(result_log_file, check_model.to_json(), created)
             except Exception as e:
-                print(f"{proxy_obj.proxy} failed to update: {e}")
+                log_file(result_log_file, f"{proxy_obj.proxy} failed to update: {e}")
         remove_string_and_move_to_file(
             get_relative_path("proxies.txt"),
             get_relative_path("dead.txt"),
@@ -285,7 +289,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             db.close()
         except Exception:
             pass
-    file_append_str(logfile, f"\n{len(proxies)} proxies checked done.\n")
+    file_append_str(result_log_file, f"\n{len(proxies)} proxies checked done.\n")
 
 
 def real_check_proxy_async_in_thread(proxy):
