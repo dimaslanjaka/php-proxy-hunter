@@ -1,9 +1,24 @@
 import re
-from django.utils.deprecation import MiddlewareMixin
-from django.http import HttpRequest, HttpResponse
+
 from django.conf import settings
 from django.core.cache import cache
+from django.http import HttpRequest, HttpResponse
+from django.middleware.csrf import CsrfViewMiddleware
+from django.utils.deprecation import MiddlewareMixin
 from htmlmin.minify import html_minify
+
+
+class CustomCsrfExemptMiddleware(MiddlewareMixin):
+    def process_request(self, request):
+        if request.headers.get("X-Greasemonkey-Script"):
+            request.csrf_processing_done = True
+
+
+class CsrfExemptCsrfViewMiddleware(CsrfViewMiddleware):
+    def process_view(self, request, callback, callback_args, callback_kwargs):
+        if request.headers.get("X-Greasemonkey-Script"):
+            return None
+        return super().process_view(request, callback, callback_args, callback_kwargs)
 
 
 class MinifyHTMLMiddleware(MiddlewareMixin):
