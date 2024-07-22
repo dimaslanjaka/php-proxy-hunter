@@ -17,37 +17,21 @@ from src.ProxyDB import ProxyDB
 def get_db_connections() -> List[sqlite3.Connection]:
     """
     Attempts to retrieve database connections.
-
-    This function tries to create a connection to a SQLite database
-    using the ProxyDB class. If successful, it returns a list of
-    connections including the ProxyDB connection and the default
-    Django database connection. If the ProxyDB connection fails,
-    only the default Django database connection is included in the
-    returned list.
-
-    Returns:
-        List[sqlite3.Connection]: A list containing the SQLite
-        connections. The list includes the ProxyDB connection (if
-        successfully created) and the Django database connection.
-
-    Note:
-        The function assumes that `ProxyDB` and `connection` are
-        accessible within the scope. `ProxyDB` should have a `db`
-        attribute with a `conn` property that represents an SQLite
-        connection. The `connection` refers to the default Django
-        database connection.
     """
     db = None
     try:
         db = ProxyDB(get_relative_path("src/database.sqlite"), True)
+        # print("ProxyDB connection created.")
     except Exception as e:
-        # Log the exception for debugging purposes
         print(f"Error creating ProxyDB connection: {e}")
 
-    # Return a list with the ProxyDB connection (if created) and the Django connection
     connections = [db.db.conn if db else None, connection]
     # Filter out None values
-    return [conn for conn in connections if conn]
+    active_connections = [conn for conn in connections if conn]
+
+    # print(f"Active connections: {len(active_connections)}")
+
+    return active_connections
 
 
 def execute_sql_query(
@@ -74,26 +58,6 @@ def execute_sql_query(
         the result of the SQL query execution on a respective connection.
         `None` indicates that the query failed on that connection.
 
-    Examples:
-        # Example 1: Execute a SELECT query
-        select_query = "SELECT * FROM proxies WHERE status = ?"
-        results = execute_sql_query(select_query, ('active',))
-        for result in results:
-            if result is not None:
-                print("Query results:", result)
-            else:
-                print("Query failed on one of the connections.")
-
-        # Example 2: Execute a DELETE query
-        proxy = '192.168.1.1:8080'
-        delete_query = "DELETE FROM proxies WHERE proxy = ?"
-        results = execute_sql_query(delete_query, (proxy,))
-        for result in results:
-            if result is not None:
-                print("Query executed successfully.")
-            else:
-                print("Query failed on one of the connections.")
-
     Note:
         The function assumes that `ProxyDB` and `connection` are
         accessible within the scope. `ProxyDB` should have a `db`
@@ -108,8 +72,11 @@ def execute_sql_query(
         if conn:
             try:
                 cursor = conn.cursor()
+                # print(f"Executing query on connection: {conn}")
                 cursor.execute(sql, params or ())
-                results.append(cursor.fetchall())
+                query_results = cursor.fetchall()
+                # print(f"Query results: {query_results}")
+                results.append(query_results)
                 cursor.close()
             except Exception as e:
                 # Log the exception for debugging purposes
@@ -120,5 +87,9 @@ def execute_sql_query(
                 conn.close()
         else:
             results.append(None)
+
+    # Debug
+    # print(f"Total active connections {len(connections)}")
+    # print(f"Results from all connections: {results}")
 
     return results
