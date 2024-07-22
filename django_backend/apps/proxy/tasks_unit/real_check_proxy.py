@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.conf import settings
 from django.utils import timezone
 import os
 import random
@@ -223,7 +224,9 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
 
             try:
                 # Create a ThreadPoolExecutor
-                with ThreadPoolExecutor(max_workers=3) as executor:
+                with ThreadPoolExecutor(
+                    max_workers=settings.WORKER_THREADS
+                ) as executor:
                     # Submit the tasks
                     checks = [
                         executor.submit(handle_check, "http"),

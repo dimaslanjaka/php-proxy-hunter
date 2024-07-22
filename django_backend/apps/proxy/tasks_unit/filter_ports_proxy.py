@@ -8,6 +8,7 @@ from typing import Callable, Dict, List, Optional, Union
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
+from django.conf import settings
 from django.db import connection
 
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
@@ -114,7 +115,9 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                                 connection.commit()
 
     try:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=settings.WORKER_THREADS
+        ) as executor:
             futures = []
             for index, (ip, ip_proxies) in enumerate(duplicates_ips.items()):
                 if index >= max:
@@ -228,7 +231,9 @@ def check_open_ports(max: int = 10, callback: Optional[Callable] = None):
             1:
         ]  # Exclude the first item (when dead will be deleted in worker_check_open_ports)
         try:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=settings.WORKER_THREADS
+            ) as executor:
                 futures = []
                 for index, item in enumerate(proxies_dict):
                     if index >= max:
