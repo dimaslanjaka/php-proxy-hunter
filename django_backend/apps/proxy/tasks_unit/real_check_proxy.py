@@ -113,11 +113,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         db = ProxyDB(get_relative_path("tmp/database.sqlite"), True)
     except Exception:
         pass
-    status = None
-    working = False
-    protocols = []
     proxies: List[Proxy] = []
-    https = False
 
     if len(proxy_data.strip()) < 11:
         # Calculate the time threshold for 12 hours ago
@@ -201,8 +197,13 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         random.shuffle(proxies)
     # iterate 30 proxies
     for proxy_obj in proxies[:30]:
-        # reset status each item
+        # reset indicator each item
         status = None
+        working = False
+        protocols = []
+        https = False
+        status = None
+        latency = 0
         # check if proxy exist in database model
         if not Proxy.objects.filter(proxy=proxy_obj.proxy):
             Proxy.objects.create(
@@ -291,9 +292,9 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                     proxy=proxy_obj.proxy,  # Field to match
                     defaults=data,  # Fields to update
                 )
-                if status == "active":
-                    log_file(result_log_file, data)
-                    log_file(result_log_file, check_model.to_json(), created)
+                # if status == "active":
+                #     log_file(result_log_file, data)
+                #     log_file(result_log_file, check_model.to_json(), created)
             except Exception as e:
                 log_file(result_log_file, f"{proxy_obj.proxy} failed to update: {e}")
         remove_string_and_move_to_file(
