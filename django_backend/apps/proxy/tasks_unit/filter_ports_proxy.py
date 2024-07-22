@@ -174,8 +174,11 @@ def worker_check_open_ports(item: Dict[str, str]):
             }
             protocols = "-".join(filtered_tests.keys()).lower()
             has_https = any(value.https for value in filtered_tests.values())
-            highest_latency_entry = max(
-                filtered_tests.values(), key=lambda x: x.latency, default=None
+            highest_latency_entry = (
+                max(
+                    filtered_tests.values(), key=lambda x: x.latency, default=None
+                ).latency
+                or -1
             )
 
             if filtered_tests:
