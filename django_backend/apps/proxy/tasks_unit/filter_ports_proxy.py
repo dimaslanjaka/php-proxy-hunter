@@ -9,10 +9,12 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
 from django.db import connection
-from django_backend.apps.core.management.commands.check_proxy_real import real_check
-# result_log_file = get_relative_path("tmp/logs/filter-ports.txt")
-from django_backend.apps.proxy.tasks_unit.real_check_proxy import result_log_file
-from src.func_console import green, log_file, red
+
+from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
+    real_check_proxy,
+    result_log_file,
+)
+from src.func_console import green, log_file, magenta, orange, red
 from src.func_date import get_current_rfc3339_time
 from src.func_proxy import is_port_open
 
@@ -75,6 +77,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                     [ip],
                 )
                 ip_rows = cursor.fetchall()
+                # print(ip_rows)
 
                 if len(ip_rows) > 1:
                     keep_row = ip_rows[0]
@@ -82,9 +85,11 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
 
                     for row in ip_rows:
                         proxy = row[2]  # Adjust index based on column position
+                        # print(f"xxxx {proxy} yyy {row}")
                         if is_port_open(proxy):
-                            log_file(result_log_file, f"{proxy} {green('port open')}")
-                            # Keep open port
+                            log_file(
+                                result_log_file, f"{proxy} \t {green('port open')}"
+                            )
                             keep_row = row
                             # Set status to port-open
                             cursor.execute(
@@ -93,7 +98,15 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                             )
                             connection.commit()
                         else:
-                            log_file(result_log_file, f"{proxy} {red('port closed')}")
+                            removed = (
+                                orange("removed")
+                                if keep_row[2] == proxy
+                                else magenta("keep")
+                            )
+                            log_file(
+                                result_log_file,
+                                f"{proxy} \t {red('port closed')} \t {removed}",
+                            )
                             if keep_row[2] != proxy:
                                 cursor.execute(
                                     "DELETE FROM proxies WHERE proxy = %s", [proxy]
@@ -147,29 +160,30 @@ def fetch_open_ports(max: int = 10) -> List[Dict[str, Union[str, None]]]:
 
 def worker_check_open_ports(item: Dict[str, str]):
     try:
+        # log_file(result_log_file, f"testing {item} status=port-open")
         # Use Django's database connection to create a cursor
         with connection.cursor() as cursor:
-            test = real_check(
-                item["proxy"], "https://www.axis.co.id/bantuan", "pusat layanan"
+            tests = {
+                "http": real_check_proxy(item["proxy"], "http"),
+                "socks4": real_check_proxy(item["proxy"], "socks4"),
+                "socks5": real_check_proxy(item["proxy"], "socks5"),
+            }
+            # Filter dictionary to include only entries where `result` is True
+            filtered_tests = {
+                key: value for key, value in tests.items() if value.result
+            }
+            protocols = "-".join(filtered_tests.keys()).lower()
+            has_https = any(value.https for value in filtered_tests.values())
+            highest_latency_entry = max(
+                filtered_tests.values(), key=lambda x: x.latency, default=None
             )
-            if not test["result"]:
-                test = real_check(item["proxy"], "https://www.example.com/", "example")
 
-            if not test["result"]:
-                test = real_check(item["proxy"], "http://azenv.net/", "AZ Environment")
-
-            if not test["result"]:
-                test = real_check(
-                    item["proxy"], "http://httpforever.com/", "HTTP Forever"
-                )
-
-            https = "true" if test["https"] else "false"
-            protocols = "-".join(test["type"]).lower() if "type" in test else ""
-            if test["result"]:
+            if filtered_tests:
+                https = "true" if has_https else "false"
                 cursor.execute(
                     """
                     UPDATE proxies
-                    SET last_check = %s, status = %s, https = %s, type = %s
+                    SET last_check = %s, status = %s, https = %s, type = %s, latency = %s
                     WHERE proxy = %s
                     """,
                     (
@@ -177,6 +191,7 @@ def worker_check_open_ports(item: Dict[str, str]):
                         "active",
                         https,
                         protocols,
+                        str(highest_latency_entry),
                         item["proxy"],
                     ),
                 )
@@ -185,14 +200,6 @@ def worker_check_open_ports(item: Dict[str, str]):
                     f"{item['proxy']} from status=port-open {green('working')}",
                 )
             else:
-                # cursor.execute(
-                #     """
-                #     UPDATE proxies
-                #     SET last_check = %s, status = %s
-                #     WHERE proxy = %s
-                #     """,
-                #     (get_current_rfc3339_time(), "dead", item["proxy"]),
-                # )
                 cursor.execute("DELETE FROM proxies WHERE proxy = %s", [item["proxy"]])
                 log_file(
                     result_log_file,

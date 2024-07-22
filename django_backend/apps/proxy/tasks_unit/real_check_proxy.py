@@ -32,7 +32,7 @@ from src.ProxyDB import ProxyDB
 result_log_file = get_relative_path("tmp/logs/proxyChecker.txt")
 
 
-def real_check_proxy(proxy: str, type: str):
+def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
     global result_log_file
 
     def is_https(url):
@@ -64,12 +64,15 @@ def real_check_proxy(proxy: str, type: str):
             soup = BeautifulSoup(response.text, "html.parser")
             title = soup.title.string if soup.title else ""
             if status_code == 200:
+                # print(f"testing {type}://{proxy} to {url}: {green('working')}")
                 result = title_should_be.lower() in title.lower() if title else False
             else:
+                # print(f"testing {type}://{proxy} to {url}: {red('failed')}")
                 result = False
                 error = f"Status code: {status_code}. Title: {title}."
         except Exception as e:
             error = get_message_exception(e)
+            # print(f"testing {type}://{proxy} to {url}: {red('failed')} {error}")
             pass
         return ProxyCheckResult(
             result,
