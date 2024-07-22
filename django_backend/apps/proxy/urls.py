@@ -9,10 +9,11 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("list", views.proxies_list, name="proxy_list"),
     path("check", views.trigger_check_proxy, name="check_proxy"),
-    path("status", views.view_status, name="check_proxy"),
+    path("status", views.view_status, name="checker_status"),
     path(
         "result",
         views.proxy_checker_result,
         name="proxy_checker_result",
     ),
+    path("filter", views.trigger_filter_ports_proxy, name="filter_duplicate_ports"),
 ]

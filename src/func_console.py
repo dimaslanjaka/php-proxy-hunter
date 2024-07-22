@@ -93,7 +93,7 @@ def get_caller_info():
     return caller_file, caller_line
 
 
-def remove_color_codes(text):
+def ansi_remover(text):
     # Define the regex pattern for ANSI color codes
     ansi_escape = re.compile(r"\x1B[@-_][0-?]*[ -/]*[@-~]")
     # Remove the ANSI color codes
@@ -108,7 +108,7 @@ def log_proxy(*args, **kwargs):
     print(message, **kwargs)
 
     # Remove color codes before logging to file
-    cleaned_message = remove_color_codes(message)
+    cleaned_message = ansi_remover(message)
 
     # Log to file
     with open(get_relative_path("proxyChecker.txt"), "a", encoding="utf-8") as f:
@@ -123,7 +123,7 @@ def log_file(filename: str, *args, **kwargs):
     print(message, **kwargs)
 
     # Remove color codes before logging to file
-    cleaned_message = remove_color_codes(message)
+    cleaned_message = ansi_remover(message)
 
     # Log to file
     with open(filename, "a", encoding="utf-8") as f:

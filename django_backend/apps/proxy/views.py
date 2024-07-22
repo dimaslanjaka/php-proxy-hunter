@@ -1,7 +1,7 @@
 import os
 import sys
 from threading import Thread, active_count
-from typing import Set
+from typing import Any, Dict, Set
 from urllib.parse import unquote
 
 from django.conf import settings
@@ -15,14 +15,16 @@ from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 
-from src.func import file_append_str, truncate_file_content
+from src.func import truncate_file_content
 from src.func_platform import is_django_environment
+from src.func_console import log_file
 
 from .models import Proxy
 from .serializers import ProxySerializer
 from .tasks import fetch_geo_ip_in_thread
-from .tasks import logfile as task_log_file
+from .tasks import result_log_file as proxy_checker_task_log_file
 from .tasks import real_check_proxy_async_in_thread
+from .tasks import start_filter_duplicates_ips, start_check_open_ports
 
 
 def index(request: HttpRequest):
@@ -129,7 +131,7 @@ def proxies_list(request: HttpRequest):
 def proxy_checker_result(request: HttpRequest):
     if request.GET.get("format") == "txt":
         # Construct the full file path
-        full_file_path = os.path.join(settings.BASE_DIR, task_log_file)
+        full_file_path = os.path.join(settings.BASE_DIR, proxy_checker_task_log_file)
 
         # Check if the file exists
         if not os.path.exists(full_file_path):
@@ -154,6 +156,25 @@ def cleanup_finished_threads():
     active_proxy_check_threads = {
         thread for thread in active_proxy_check_threads if thread.is_alive()
     }
+
+
+def print_dict(data: Dict[str, Any]):
+    def pretty_print(val, indent=0):
+        if isinstance(val, dict):
+            for k, v in val.items():
+                log_file(proxy_checker_task_log_file, "\t" * indent + f"{k}:")
+                pretty_print(v, indent + 1)
+        elif isinstance(val, list):
+            for item in val:
+                log_file(proxy_checker_task_log_file, "\t" * indent + f"{item}")
+                if isinstance(item, (dict, list)):
+                    pretty_print(item, indent + 1)
+        else:
+            log_file(proxy_checker_task_log_file, "\t" * indent + str(val))
+
+    for key, val in data.items():
+        log_file(proxy_checker_task_log_file, f"{key}:")
+        pretty_print(val, 1)
 
 
 def trigger_check_proxy(request: HttpRequest):
@@ -211,28 +232,8 @@ def trigger_check_proxy(request: HttpRequest):
         }
     )
 
-    truncate_file_content(task_log_file)
-
-    def pretty_print(val, indent=0):
-        if isinstance(val, dict):
-            for k, v in val.items():
-                print("\t" * indent + f"{k}:")
-                file_append_str(task_log_file, "\t" * indent + f"{k}:")
-                pretty_print(v, indent + 1)
-        elif isinstance(val, list):
-            for item in val:
-                print("\t" * indent + f"{item}")
-                file_append_str(task_log_file, "\t" * indent + f"{item}")
-                if isinstance(item, (dict, list)):
-                    pretty_print(item, indent + 1)
-        else:
-            print("\t" * indent + str(val))
-            file_append_str(task_log_file, "\t" * indent + str(val))
-
-    for key, val in render_data.items():
-        print(f"{key}:")
-        file_append_str(task_log_file, f"{key}:")
-        pretty_print(val, 1)
+    truncate_file_content(proxy_checker_task_log_file)
+    print_dict(render_data)
 
     # return render(request, "checker_result.html", {"data": render_data})
     return redirect("/proxy/result", permanent=False)
@@ -258,3 +259,41 @@ def view_status(request: HttpRequest):
         },
     }
     return JsonResponse(data)
+
+
+filter_ports_threads: Set[Thread] = set()
+
+
+def trigger_filter_ports_proxy(request: HttpRequest):
+    global filter_ports_threads
+    # clean up threads
+    filter_ports_threads = {
+        thread for thread in filter_ports_threads if thread.is_alive()
+    }
+    truncate_file_content(proxy_checker_task_log_file)
+    if len(filter_ports_threads) > 4:
+        log_file(proxy_checker_task_log_file, "thread to filter ports no slot left")
+    else:
+        thread1 = start_filter_duplicates_ips()
+        filter_ports_threads.add(thread1)
+        thread2 = start_check_open_ports()
+        filter_ports_threads.add(thread2)
+
+        def get_thread_details(thread: Thread):
+            return {
+                "id": thread.ident,
+                "name": thread.name,
+                "daemon": thread.daemon,
+                "is_alive": thread.is_alive(),
+            }
+
+        print_dict(
+            {
+                "messages": "filter duplicate ips thread started",
+                "thread": {
+                    "filter-open-ports": get_thread_details(thread1),
+                    "check-open-ports": get_thread_details(thread2),
+                },
+            }
+        )
+    return redirect("/proxy/result", permanent=False)
