@@ -18,7 +18,7 @@ from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
 from src.func_console import green, log_file, magenta, orange, red
 from src.func_date import get_current_rfc3339_time
 from src.func_proxy import is_port_open
-from proxy_hunter import *
+from proxy_hunter import is_valid_proxy
 
 
 def fetch_proxies_same_ip(
