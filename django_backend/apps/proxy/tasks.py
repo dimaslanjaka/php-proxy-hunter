@@ -4,6 +4,8 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List
 
+from django.conf import settings
+
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 from data.webgl import random_webgl_data
@@ -84,7 +86,7 @@ def fetch_geo_ip(proxy: str):
 
 def fetch_geo_ip_list(proxies: List[Proxy]):
     try:
-        with ThreadPoolExecutor(max_workers=10) as executor:
+        with ThreadPoolExecutor(max_workers=settings.WORKER_THREADS) as executor:
             futures = []
             for item in proxies:
                 futures.append(executor.submit(fetch_geo_ip, item.proxy))
