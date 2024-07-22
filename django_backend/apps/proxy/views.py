@@ -152,14 +152,6 @@ def proxy_checker_result(request: HttpRequest):
 proxy_checker_threads: Set[Thread] = set()
 
 
-def cleanup_finished_threads():
-    # Clean up finished threads from the active set
-    global proxy_checker_threads
-    proxy_checker_threads = {
-        thread for thread in proxy_checker_threads if thread.is_alive()
-    }
-
-
 def print_dict(data: Dict[str, Any]):
     def pretty_print(val, indent=0):
         if isinstance(val, dict):
@@ -210,8 +202,10 @@ def trigger_check_proxy(request: HttpRequest):
         # Decode the URL-encoded proxy parameter
         decoded_proxy = unquote(proxy)
 
-    # Clean up finished threads before starting a new one
-    cleanup_finished_threads()
+    # Clean up finished threads from the active set before starting a new one
+    proxy_checker_threads = {
+        thread for thread in proxy_checker_threads if thread.is_alive()
+    }
 
     # Check if there are already 4 threads running
     number_threads = 4
@@ -253,9 +247,13 @@ def trigger_filter_ports_proxy(request: HttpRequest):
         thread for thread in filter_ports_threads if thread.is_alive()
     }
     render_data = {"running": len(filter_ports_threads)}
-    if len(filter_ports_threads) > 4:
+    number_threads = 4
+    if len(filter_ports_threads) > number_threads:
         render_data.update(
-            {"error": True, "messages": "thread to filter ports no slot left"}
+            {
+                "error": True,
+                "messages": f"Maximum number of filter duplicated ports threads ({number_threads}) already running",
+            }
         )
     else:
         truncate_file_content(proxy_checker_task_log_file)
@@ -263,7 +261,6 @@ def trigger_filter_ports_proxy(request: HttpRequest):
         filter_ports_threads.add(thread1)
         thread2 = start_check_open_ports()
         filter_ports_threads.add(thread2)
-
         render_data.update(
             {
                 "error": False,
@@ -279,6 +276,7 @@ def trigger_filter_ports_proxy(request: HttpRequest):
 
 
 def view_status(request: HttpRequest):
+    global proxy_checker_threads, filter_ports_threads
     data = {
         "is_django_env": is_django_environment(),
         "total": {
