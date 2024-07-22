@@ -151,7 +151,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
 
 
 def start_filter_duplicates_ips():
-    thread = threading.Thread(target=filter_duplicates_ips, args=(sys.maxsize,))
+    thread = threading.Thread(target=filter_duplicates_ips, args=(10,))
     thread.start()
     return thread
 
