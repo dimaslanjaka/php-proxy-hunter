@@ -141,6 +141,9 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                     future.result()  # Ensure all threads complete
                 except Exception as e:
                     log_file(result_log_file, f"Error processing IP: {e}")
+            log_file(
+                result_log_file, f"Processing {ip} with {len(ip_proxies)} proxies done"
+            )
     except Exception as e:
         log_file(result_log_file, f"filter_duplicates_ips fail create thread: {e}")
     if callable(callback):
