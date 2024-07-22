@@ -58,3 +58,4 @@ venv/
 /config.yaml
 *.out
 /databases
+/public/static
