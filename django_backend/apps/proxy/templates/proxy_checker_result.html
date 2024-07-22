@@ -14,7 +14,8 @@
     <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" id="re-check-random">
       Re-check random proxies
     </button>
-    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" id="filter-ports-duplicate">
+    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+      id="filter-ports-duplicate">
       Filter duplicated proxies
     </button>
   </div>
@@ -23,6 +24,8 @@
       class="w-full p-2 border rounded resize-none bg-gray-800 dark:bg-gray-900 text-gray-200 border-gray-600 dark:border-gray-700 whitespace-pre-wrap overflow-auto">
     </div>
   </div>
+
+  {% include "proxy_status.html" %}
 </div>
 <script src="{% static 'checker_result.js' %}"></script>
 {% endblock %}

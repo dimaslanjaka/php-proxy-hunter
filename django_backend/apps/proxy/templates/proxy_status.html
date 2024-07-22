@@ -1,0 +1,74 @@
+<div class="container p-6">
+  <h1 class="text-3xl font-bold mb-6">Proxy Status</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Threads Section -->
+    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-semibold mb-4">Threads</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-medium">All Threads</h3>
+          <p id="threads-all" class="text-xl font-mono"></p>
+        </div>
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-medium">Proxy Checker</h3>
+          <p id="threads-proxy-checker" class="text-xl font-mono"></p>
+        </div>
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-medium">Filter Duplicates</h3>
+          <p id="threads-filter-duplicates" class="text-xl font-mono"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proxies Section -->
+    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-semibold mb-4">Proxies</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-medium">All Proxies</h3>
+          <p id="proxies-all" class="text-xl font-mono"></p>
+        </div>
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-medium">Untested</h3>
+          <p id="proxies-untested" class="text-xl font-mono"></p>
+        </div>
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-medium">Dead</h3>
+          <p id="proxies-dead" class="text-xl font-mono"></p>
+        </div>
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-medium">Port Closed</h3>
+          <p id="proxies-port-closed" class="text-xl font-mono"></p>
+        </div>
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-medium">Private</h3>
+          <p id="proxies-private" class="text-xl font-mono"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function fetchStatus() {
+    try {
+      const response = await fetch('/proxy/status');
+      const data = await response.json();
+
+      document.getElementById('threads-all').textContent = data.total.threads.all;
+      document.getElementById('threads-proxy-checker').textContent = data.total.threads.proxy_checker;
+      document.getElementById('threads-filter-duplicates').textContent = data.total.threads.filter_duplicates;
+
+      document.getElementById('proxies-all').textContent = data.total.proxies.all;
+      document.getElementById('proxies-untested').textContent = data.total.proxies.untested;
+      document.getElementById('proxies-dead').textContent = data.total.proxies.dead;
+      document.getElementById('proxies-port-closed').textContent = data.total.proxies['port-closed'];
+      document.getElementById('proxies-private').textContent = data.total.proxies.private;
+    } catch (error) {
+      console.error('Error fetching proxy status:', error);
+    }
+  }
+
+  // Fetch status when the page loads
+  document.addEventListener('DOMContentLoaded', fetchStatus);
+</script>

@@ -149,14 +149,14 @@ def proxy_checker_result(request: HttpRequest):
 
 
 # Set to track active proxy check threads
-active_proxy_check_threads: Set[Thread] = set()
+proxy_checker_threads: Set[Thread] = set()
 
 
 def cleanup_finished_threads():
     # Clean up finished threads from the active set
-    global active_proxy_check_threads
-    active_proxy_check_threads = {
-        thread for thread in active_proxy_check_threads if thread.is_alive()
+    global proxy_checker_threads
+    proxy_checker_threads = {
+        thread for thread in proxy_checker_threads if thread.is_alive()
     }
 
 
@@ -189,9 +189,9 @@ def get_thread_details(thread: Thread):
 
 
 def trigger_check_proxy(request: HttpRequest):
-    global active_proxy_check_threads
+    global proxy_checker_threads
     render_data = {
-        "running": len(active_proxy_check_threads),
+        "running": len(proxy_checker_threads),
     }
 
     if request.method == "GET":
@@ -215,7 +215,7 @@ def trigger_check_proxy(request: HttpRequest):
 
     # Check if there are already 4 threads running
     number_threads = 4
-    if len(active_proxy_check_threads) >= number_threads:
+    if len(proxy_checker_threads) >= number_threads:
         render_data.update(
             {
                 "error": True,
@@ -225,7 +225,7 @@ def trigger_check_proxy(request: HttpRequest):
     else:
         # Start the proxy check in a separate thread
         thread = real_check_proxy_async_in_thread(decoded_proxy)
-        active_proxy_check_threads.add(thread)
+        proxy_checker_threads.add(thread)
 
         render_data.update(
             {
@@ -241,28 +241,6 @@ def trigger_check_proxy(request: HttpRequest):
 
     # return render(request, "checker_result.html", {"data": render_data})
     return redirect("/proxy/result", permanent=False)
-
-
-def view_status(request: HttpRequest):
-    data = {
-        "is_django_env": is_django_environment(),
-        "total": {
-            "threads": {
-                "all": active_count(),
-                "proxy_checker": len(active_proxy_check_threads),
-            },
-            "proxies": {
-                "all": Proxy.objects.all().count(),
-                "untested": Proxy.objects.filter(status="untested").count(),
-                "dead": Proxy.objects.filter(status="dead").count(),
-                "port-closed": Proxy.objects.filter(status="port-closed").count(),
-                "private": Proxy.objects.filter(
-                    Q(status="private") | Q(status="true")
-                ).count(),
-            },
-        },
-    }
-    return JsonResponse(data)
 
 
 filter_ports_threads: Set[Thread] = set()
@@ -298,3 +276,26 @@ def trigger_filter_ports_proxy(request: HttpRequest):
         )
     print_dict(render_data)
     return redirect("/proxy/result", permanent=False)
+
+
+def view_status(request: HttpRequest):
+    data = {
+        "is_django_env": is_django_environment(),
+        "total": {
+            "threads": {
+                "all": active_count(),
+                "proxy_checker": len(proxy_checker_threads),
+                "filter_duplicates": len(filter_ports_threads),
+            },
+            "proxies": {
+                "all": Proxy.objects.all().count(),
+                "untested": Proxy.objects.filter(status="untested").count(),
+                "dead": Proxy.objects.filter(status="dead").count(),
+                "port-closed": Proxy.objects.filter(status="port-closed").count(),
+                "private": Proxy.objects.filter(
+                    Q(status="private") | Q(status="true")
+                ).count(),
+            },
+        },
+    }
+    return JsonResponse(data)
