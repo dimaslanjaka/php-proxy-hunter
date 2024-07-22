@@ -56,7 +56,7 @@
 <script>
   async function fetchStatus() {
     try {
-      const response = await fetch('/proxy/status');
+      const response = await fetch('/proxy/status?date=' + new Date());
       const data = await response.json();
 
       document.getElementById('threads-all').textContent = data.total.threads.all;
