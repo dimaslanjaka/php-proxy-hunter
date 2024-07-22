@@ -142,7 +142,9 @@ def fetch_open_ports(max: int = 10) -> List[Dict[str, Union[str, None]]]:
     # Use Django's connection to create a cursor
     with connection.cursor() as cursor:
         # Execute the query to fetch proxies with status 'port-open'
-        cursor.execute("SELECT proxy FROM proxies WHERE status = 'port-open'")
+        cursor.execute(
+            "SELECT proxy FROM proxies WHERE status = 'port-open' ORDER BY RANDOM()"
+        )
 
         # Fetch all results
         proxies = cursor.fetchall()

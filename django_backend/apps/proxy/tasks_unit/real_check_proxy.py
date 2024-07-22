@@ -159,7 +159,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 f"source proxy from Model: got {len(queryset)} proxies from status=None",
             )
         if queryset:
-            proxy_data += str([obj.to_json() for obj in queryset])
+            proxy_data += str([obj.to_json() for obj in queryset.order_by("?")])
         # get 30 untested proxies
         if db is not None and len(proxy_data.strip()) < 11:
             try:
