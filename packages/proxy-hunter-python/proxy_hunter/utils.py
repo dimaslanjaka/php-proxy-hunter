@@ -7,7 +7,7 @@ from typing import Optional
 import requests
 
 
-def decompress_requests_response(response: requests.Response):
+def decompress_requests_response(response: requests.Response) -> str:
     """
     Decompresses the content of a requests response object if it's compressed.
 
@@ -20,19 +20,24 @@ def decompress_requests_response(response: requests.Response):
     # Check if the response has content encoding
     encoding = response.headers.get("Content-Encoding")
 
-    if encoding == "gzip":
-        # Handle gzip encoding
-        buf = BytesIO(response.content)
-        with gzip.GzipFile(fileobj=buf) as f:
-            content = f.read().decode("utf-8")  # Adjust encoding if necessary
-    elif encoding == "deflate":
-        # Handle deflate encoding
-        content = zlib.decompress(response.content, zlib.MAX_WBITS | 16).decode(
-            "utf-8"
-        )  # Adjust encoding if necessary
-    else:
-        # No encoding or unsupported encoding
-        content = response.text  # Handles non-compressed responses
+    try:
+        if encoding == "gzip":
+            # Handle gzip encoding
+            buf = BytesIO(response.content)
+            with gzip.GzipFile(fileobj=buf) as f:
+                content = f.read().decode("utf-8")  # Adjust encoding if necessary
+        elif encoding == "deflate":
+            # Handle deflate encoding
+            content = zlib.decompress(response.content, -zlib.MAX_WBITS).decode(
+                "utf-8"
+            )  # Adjust encoding if necessary
+        else:
+            # No encoding or unsupported encoding
+            content = response.text  # Handles non-compressed responses
+    except (OSError, zlib.error) as e:
+        # Handle errors in decompression
+        print(f"Decompression error: {e}")
+        content = response.text  # Fallback to non-compressed response
 
     return content
 
