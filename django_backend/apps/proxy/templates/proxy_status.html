@@ -44,6 +44,10 @@
           <h3 class="text-lg font-medium">Private</h3>
           <p id="proxies-private" class="text-xl font-mono"></p>
         </div>
+        <div class="bg-gray-700 p-4 rounded-lg text-green-500">
+          <h3 class="text-lg font-medium">Active</h3>
+          <p id="proxies-active" class="text-xl font-mono"></p>
+        </div>
       </div>
     </div>
   </div>
@@ -64,6 +68,7 @@
       document.getElementById('proxies-dead').textContent = data.total.proxies.dead;
       document.getElementById('proxies-port-closed').textContent = data.total.proxies['port-closed'];
       document.getElementById('proxies-private').textContent = data.total.proxies.private;
+      document.getElementById('proxies-active').textContent = data.total.proxies.active;
     } catch (error) {
       console.error('Error fetching proxy status:', error);
     }
