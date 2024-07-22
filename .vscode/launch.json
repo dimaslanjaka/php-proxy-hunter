@@ -48,6 +48,12 @@
       "type": "node-terminal",
     },
     {
+      "command": "python manage.py test django_backend.apps.proxy",
+      "name": "Django test proxy",
+      "request": "launch",
+      "type": "node-terminal",
+    },
+    {
       "name": "Debug index.js",
       "type": "node",
       "request": "launch",
