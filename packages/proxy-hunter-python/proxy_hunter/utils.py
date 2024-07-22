@@ -1,5 +1,40 @@
+import gzip
 import re
+import zlib
+from io import BytesIO
 from typing import Optional
+
+import requests
+
+
+def decompress_requests_response(response: requests.Response):
+    """
+    Decompresses the content of a requests response object if it's compressed.
+
+    Args:
+        response (requests.Response): The response object from a requests call.
+
+    Returns:
+        str: The decompressed response content as a string.
+    """
+    # Check if the response has content encoding
+    encoding = response.headers.get("Content-Encoding")
+
+    if encoding == "gzip":
+        # Handle gzip encoding
+        buf = BytesIO(response.content)
+        with gzip.GzipFile(fileobj=buf) as f:
+            content = f.read().decode("utf-8")  # Adjust encoding if necessary
+    elif encoding == "deflate":
+        # Handle deflate encoding
+        content = zlib.decompress(response.content, zlib.MAX_WBITS | 16).decode(
+            "utf-8"
+        )  # Adjust encoding if necessary
+    else:
+        # No encoding or unsupported encoding
+        content = response.text  # Handles non-compressed responses
+
+    return content
 
 
 def is_valid_ip(proxy: Optional[str]) -> bool:
