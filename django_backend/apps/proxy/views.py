@@ -177,9 +177,20 @@ def print_dict(data: Dict[str, Any]):
         pretty_print(val, 1)
 
 
+def get_thread_details(thread: Thread):
+    return {
+        "id": thread.ident,
+        "name": thread.name,
+        "daemon": thread.daemon,
+        "is_alive": thread.is_alive(),
+    }
+
+
 def trigger_check_proxy(request: HttpRequest):
     global active_proxy_check_threads
-    render_data = {}
+    render_data = {
+        "running": len(active_proxy_check_threads),
+    }
 
     if request.method == "GET":
         # Get the proxy parameter from the query string
@@ -207,32 +218,23 @@ def trigger_check_proxy(request: HttpRequest):
             {
                 "error": True,
                 "message": f"Maximum number of proxy check threads ({number_threads}) already running",
-                "running": len(active_proxy_check_threads),
+            }
+        )
+    else:
+        # Start the proxy check in a separate thread
+        thread = real_check_proxy_async_in_thread(decoded_proxy)
+        active_proxy_check_threads.add(thread)
+
+        render_data.update(
+            {
+                "error": False,
+                "message": "Proxy check started in thread",
+                "thread": get_thread_details(thread),
+                # "data": decoded_proxy,
             }
         )
 
-    # Start the proxy check in a separate thread
-    thread = real_check_proxy_async_in_thread(decoded_proxy)
-    active_proxy_check_threads.add(thread)
-
-    # Gather thread details
-    thread_details = {
-        "id": thread.ident,
-        "name": thread.name,
-        "daemon": thread.daemon,
-        "is_alive": thread.is_alive(),
-    }
-
-    render_data.update(
-        {
-            "error": False,
-            "message": "Proxy check started in thread",
-            "thread": thread_details,
-            # "data": decoded_proxy,
-        }
-    )
-
-    truncate_file_content(proxy_checker_task_log_file)
+        truncate_file_content(proxy_checker_task_log_file)
     print_dict(render_data)
 
     # return render(request, "checker_result.html", {"data": render_data})
@@ -270,25 +272,21 @@ def trigger_filter_ports_proxy(request: HttpRequest):
     filter_ports_threads = {
         thread for thread in filter_ports_threads if thread.is_alive()
     }
-    truncate_file_content(proxy_checker_task_log_file)
+    render_data = {"running": len(filter_ports_threads)}
     if len(filter_ports_threads) > 4:
-        log_file(proxy_checker_task_log_file, "thread to filter ports no slot left")
+        render_data.update(
+            {"error": True, "messages": "thread to filter ports no slot left"}
+        )
     else:
+        truncate_file_content(proxy_checker_task_log_file)
         thread1 = start_filter_duplicates_ips()
         filter_ports_threads.add(thread1)
         thread2 = start_check_open_ports()
         filter_ports_threads.add(thread2)
 
-        def get_thread_details(thread: Thread):
-            return {
-                "id": thread.ident,
-                "name": thread.name,
-                "daemon": thread.daemon,
-                "is_alive": thread.is_alive(),
-            }
-
-        print_dict(
+        render_data.update(
             {
+                "error": False,
                 "messages": "filter duplicate ips thread started",
                 "thread": {
                     "filter-open-ports": get_thread_details(thread1),
@@ -296,4 +294,5 @@ def trigger_filter_ports_proxy(request: HttpRequest):
                 },
             }
         )
+    print_dict(render_data)
     return redirect("/proxy/result", permanent=False)
