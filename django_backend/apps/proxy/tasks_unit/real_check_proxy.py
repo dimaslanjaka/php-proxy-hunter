@@ -16,7 +16,7 @@ sys.path.append(
 )
 from bs4 import BeautifulSoup
 from django.db.models import Q
-from proxy_hunter import extract_proxies
+from proxy_hunter import extract_proxies, decompress_requests_response
 
 from django_backend.apps.proxy.models import Proxy
 from src.func import (
@@ -64,7 +64,7 @@ def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
             )
             latency = response.elapsed.total_seconds() * 1000  # in milliseconds
             status_code = response.status_code
-            soup = BeautifulSoup(response.text, "html.parser")
+            soup = BeautifulSoup(decompress_requests_response(response), "html.parser")
             title = soup.title.string if soup.title else ""
             if status_code == 200:
                 # print(f"testing {type}://{proxy} to {url}: {green('working')}")
