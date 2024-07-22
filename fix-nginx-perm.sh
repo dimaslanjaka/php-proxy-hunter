@@ -194,7 +194,7 @@ function run_as_user_in_venv() {
 # migrate database (when changed)
 run_as_user_in_venv "python $SCRIPT_DIR/manage.py migrate"
 # collect static files (to sync with nginx config)
-run_as_user_in_venv "python $SCRIPT_DIR/manage.py collectstatic"
+run_as_user_in_venv "python $SCRIPT_DIR/manage.py collectstatic --noinput"
 
 # Restart services
 touch "$SCRIPT_DIR/assets/index.html"
