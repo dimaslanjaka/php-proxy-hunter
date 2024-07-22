@@ -295,6 +295,7 @@ def view_status(request: HttpRequest):
                 "private": Proxy.objects.filter(
                     Q(status="private") | Q(status="true")
                 ).count(),
+                "active": Proxy.objects.filter(status="active").count(),
             },
         },
     }
