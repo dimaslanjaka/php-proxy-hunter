@@ -268,7 +268,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = os.path.join(PROJECT_DIR, "public")
+
+# Define the root directory for collected static files
+STATIC_ROOT = os.path.join(BASE_DIR, "public/static")
 
 # Define multiple directories for static files
 STATICFILES_DIRS = [
@@ -279,8 +281,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "js"),
     os.path.join(BASE_DIR, "public"),
 ]
-# Filter only existing directories
-existing_static_dirs = [path for path in STATICFILES_DIRS if os.path.exists(path)]
 
-# Assign the filtered list back to STATICFILES_DIRS
-STATICFILES_DIRS = existing_static_dirs
+# Filter only existing directories
+STATICFILES_DIRS = [path for path in STATICFILES_DIRS if os.path.exists(path)]
