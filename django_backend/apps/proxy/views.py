@@ -91,7 +91,7 @@ def index(request: HttpRequest):
     # Fetch missing details in a background thread
     fetch_geo_ip_in_thread(proxies.object_list)
 
-    return render(request, "index.html", {"proxies": proxies})
+    return render(request, "index.html", {"request": request, "proxies": proxies})
 
 
 def proxies_list(request: HttpRequest):
