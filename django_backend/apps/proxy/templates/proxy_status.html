@@ -71,4 +71,6 @@
 
   // Fetch status when the page loads
   document.addEventListener('DOMContentLoaded', fetchStatus);
+  // Repeat status fetcher for [n] seconds
+  setInterval(fetchStatus, 10000);
 </script>
