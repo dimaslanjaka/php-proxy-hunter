@@ -32,7 +32,7 @@ def fetch_proxies_same_ip(
     WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) IN (
         SELECT SUBSTR(proxy, 1, INSTR(proxy, ':') - 1)
         FROM proxies
-        WHERE {condition}
+        WHERE {condition} OR status IS NULL
         GROUP BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1)
         HAVING COUNT(*) > 1
     )
