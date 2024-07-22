@@ -19,7 +19,7 @@ import sys
 
 import dotenv
 
-from src.func import get_relative_path
+from src.func import get_relative_path, write_file
 from src.func_platform import is_debug
 
 
@@ -191,6 +191,13 @@ LOGGING = {
         },
     },
 }
+
+write_file(
+    os.path.join(
+        os.path.dirname(LOGGING["handlers"]["file"]["filename"]), "index.html"
+    ),
+    "",
+)
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
