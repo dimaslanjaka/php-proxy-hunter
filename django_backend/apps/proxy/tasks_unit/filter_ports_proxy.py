@@ -174,12 +174,13 @@ def worker_check_open_ports(item: Dict[str, str]):
             }
             protocols = "-".join(filtered_tests.keys()).lower()
             has_https = any(value.https for value in filtered_tests.values())
-            highest_latency_entry = (
-                max(
-                    filtered_tests.values(), key=lambda x: x.latency, default=None
-                ).latency
-                or -1
+            highest_latency_entry = max(
+                filtered_tests.values(), key=lambda x: x.latency, default=None
             )
+            if highest_latency_entry:
+                latency = highest_latency_entry.latency
+            else:
+                latency = 0
 
             if filtered_tests:
                 https = "true" if has_https else "false"
@@ -194,7 +195,7 @@ def worker_check_open_ports(item: Dict[str, str]):
                         "active",
                         https,
                         protocols,
-                        str(highest_latency_entry),
+                        str(latency),
                         item["proxy"],
                     ),
                 )
