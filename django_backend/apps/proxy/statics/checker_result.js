@@ -43,10 +43,11 @@ function processText(info) {
 }
 
 // Scroll to the bottom if the content is already at the bottom
-function scrollToBottomIfNeeded(scrollable_element) {
+function scrollToBottomIfNeeded(css_selector) {
+  const scrollable_element = document.querySelector(css_selector);
   const top = scrollable_element.scrollHeight - scrollable_element.scrollTop - 50;
   const height = scrollable_element.clientHeight;
-  console.log({ top, height });
+  // console.log({ top, height });
   if (top <= height) {
     scrollable_element.scrollTop = scrollable_element.scrollHeight;
   }
@@ -62,10 +63,10 @@ async function fetchDataAndUpdateTextarea() {
     if (new_data) el.innerHTML = new_data;
 
     // Call the function on content update
-    scrollToBottomIfNeeded(el);
+    scrollToBottomIfNeeded("#resultTextarea");
 
     // Optional: Handle window resize events
-    window.addEventListener("resize", () => scrollToBottomIfNeeded(el));
+    window.addEventListener("resize", () => scrollToBottomIfNeeded("#resultTextarea"));
   } catch (error) {
     console.error("Error fetching data:", error);
   }
@@ -77,14 +78,14 @@ setInterval(fetchDataAndUpdateTextarea, 3 * 1000);
 // Optional: Fetch data immediately on page load
 window.onload = function () {
   fetchDataAndUpdateTextarea();
-  document.getElementById("re-check-random").addEventListener("click", (e) => {
-    e.preventDefault();
-    fetch("/proxy/check?date=" + new Date());
-    // e.target.setAttribute("disabled", "true");
-    // e.target.classList.add("disabled");
-  });
-  const searchInput = document.getElementById("searchInput");
-  searchInput.addEventListener("keyup", () => {
-    searchInput.form.submit();
-  });
 };
+
+document.getElementById("filter-ports-duplicate").addEventListener("click", (e) => {
+  e.preventDefault();
+  fetch("/proxy/filter?date=" + new Date());
+});
+
+document.getElementById("re-check-random").addEventListener("click", (e) => {
+  e.preventDefault();
+  fetch("/proxy/check?date=" + new Date());
+});

@@ -12,6 +12,7 @@ from src.func_useragent import random_windows_ua
 from .models import Proxy
 from .utils import get_geo_ip2
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import *
+from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import *
 
 
 def fetch_geo_ip(proxy: str):
