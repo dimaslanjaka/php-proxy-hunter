@@ -126,7 +126,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         )
         log_file(
             result_log_file,
-            f"source proxy from Model: got {len(queryset)} proxies from type=active more than 12 hours ago",
+            f"source proxy from Model: got {len(queryset)} proxies from status=active more than 12 hours ago",
         )
         if not queryset:
             queryset = Proxy.objects.filter(
