@@ -22,7 +22,8 @@ def get_db_connections() -> List[sqlite3.Connection]:
     using the ProxyDB class. If successful, it returns a list of
     connections including the ProxyDB connection and the default
     Django database connection. If the ProxyDB connection fails,
-    only the default Django connection is returned.
+    only the default Django database connection is included in the
+    returned list.
 
     Returns:
         List[sqlite3.Connection]: A list containing the SQLite
@@ -39,9 +40,14 @@ def get_db_connections() -> List[sqlite3.Connection]:
     db = None
     try:
         db = ProxyDB(get_relative_path("src/database.sqlite"), True)
-    except Exception:
-        pass
-    return [db.db.conn, connection]
+    except Exception as e:
+        # Log the exception for debugging purposes
+        print(f"Error creating ProxyDB connection: {e}")
+
+    # Return a list with the ProxyDB connection (if created) and the Django connection
+    connections = [db.db.conn if db else None, connection]
+    # Filter out None values
+    return [conn for conn in connections if conn]
 
 
 def execute_sql_query(
