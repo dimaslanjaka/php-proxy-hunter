@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 import os
 import random
 import sys
@@ -116,17 +118,30 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     protocols = []
     proxies: List[Proxy] = []
     https = False
+
     if len(proxy_data.strip()) < 11:
+        # Calculate the time threshold for 12 hours ago
+        time_threshold = timezone.now() - timedelta(hours=12)
+        # Filter by last_check more than 12 hours ago
         queryset = Proxy.objects.filter(
-            (
-                Q(type__isnull=True) | Q(last_check__isnull=True) | Q(type="-")
-            )  # `type` is None or '-'
-            & ~Q(status="untested")  # `status` is not 'untested'
-            & ~Q(status="dead")  # `status` is not 'dead'
-            & ~Q(status="port-closed")  # `status` is not 'port-closed'
-            & ~Q(status="port-open")  # `status` is not 'port-open' (for filter ports)
+            Q(last_check__lt=time_threshold) & Q(status="active")
         )
-        if queryset:
+        log_file(
+            result_log_file,
+            f"source proxy from Model: got {len(queryset)} proxies from type=active more than 12 hours ago",
+        )
+        if not queryset:
+            queryset = Proxy.objects.filter(
+                (
+                    Q(type__isnull=True) | Q(last_check__isnull=True) | Q(type="-")
+                )  # `type` is None or '-'
+                & ~Q(status="untested")  # `status` is not 'untested'
+                & ~Q(status="dead")  # `status` is not 'dead'
+                & ~Q(status="port-closed")  # `status` is not 'port-closed'
+                & ~Q(
+                    status="port-open"
+                )  # `status` is not 'port-open' (for filter ports)
+            )
             log_file(
                 result_log_file,
                 f"source proxy from Model: got {len(queryset)} proxies from type=None",
