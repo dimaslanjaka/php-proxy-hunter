@@ -282,4 +282,4 @@ function blacklist_remover()
   }
 }
 
-Scheduler::register('countFilesAndRepeatScriptIfNeeded', 'zz_restart_' . basename(__FILE__));
+// Scheduler::register('countFilesAndRepeatScriptIfNeeded', 'zz_restart_' . basename(__FILE__));
