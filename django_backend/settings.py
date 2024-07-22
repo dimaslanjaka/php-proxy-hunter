@@ -61,6 +61,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://23.94.85.180:8000",
     "http://23.94.85.180:8880",
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
