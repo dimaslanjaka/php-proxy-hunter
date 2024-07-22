@@ -55,7 +55,7 @@ CSRF_COOKIE_SAMESITE = (
     "None"  # 'Lax' is often suitable, 'None' for cross-domain requests
 )
 CSRF_TRUSTED_ORIGINS = [
-    "127.0.0.1:8000",
+    "http://127.0.0.1:8000",
     "https://sh.webmanajemen.com:8880",
     "http://sh.webmanajemen.com:8880",
     "http://23.94.85.180:8000",
