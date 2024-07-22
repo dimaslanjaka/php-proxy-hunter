@@ -191,8 +191,10 @@ function run_as_user_in_venv() {
     sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && $COMMAND"
 }
 
-# run_as_user_in_venv "python $SCRIPT_DIR/manage.py makemigrations"
+# migrate database (when changed)
 run_as_user_in_venv "python $SCRIPT_DIR/manage.py migrate"
+# collect static files (to sync with nginx config)
+run_as_user_in_venv "python $SCRIPT_DIR/manage.py collectstatic"
 
 # Restart services
 touch "$SCRIPT_DIR/assets/index.html"
