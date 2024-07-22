@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 from threading import Thread, active_count
@@ -189,9 +190,21 @@ def trigger_check_proxy(request: HttpRequest):
     if request.method == "GET":
         # Get the proxy parameter from the query string
         proxy = request.GET.get("proxy", None)
+
     elif request.method == "POST":
-        # Get the proxy parameter from the request body
-        proxy = request.POST.get("proxy", None)
+        content_type = request.content_type
+
+        if content_type == "application/json":
+            try:
+                # Parse JSON data from the request body
+                data = json.loads(request.body)
+                proxy = data.get("proxy", None)
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        elif content_type == "application/x-www-form-urlencoded":
+            # Parse form data
+            proxy = request.POST.get("proxy", None)
     else:
         return render_data.update(
             {"error": True, "message": "Unsupported request method"}
