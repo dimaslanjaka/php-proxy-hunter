@@ -18,6 +18,7 @@ from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
 from src.func_console import green, log_file, magenta, orange, red
 from src.func_date import get_current_rfc3339_time
 from src.func_proxy import is_port_open
+from proxy_hunter import *
 
 
 def fetch_proxies_same_ip(
@@ -98,8 +99,8 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
 
                     for row in ip_rows:
                         proxy = row[2]  # Adjust index based on column position
-                        # print(f"xxxx {proxy} yyy {row}")
-                        if is_port_open(proxy):
+                        valid = is_valid_proxy(proxy)
+                        if is_port_open(proxy) and valid:
                             log_file(
                                 result_log_file, f"{proxy} \t {green('port open')}"
                             )
@@ -111,16 +112,17 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                             )
                             connection.commit()
                         else:
-                            removed = (
-                                orange("removed")
-                                if keep_row[2] != proxy
-                                else magenta("keep")
-                            )
+                            if not valid:
+                                removed = red("invalid removed")
+                            elif keep_row[2] != proxy:
+                                removed = orange("removed")
+                            else:
+                                removed = magenta("keep")
                             log_file(
                                 result_log_file,
                                 f"{proxy} \t {red('port closed')} \t {removed}",
                             )
-                            if keep_row[2] != proxy:
+                            if keep_row[2] != proxy or not valid:
                                 cursor.execute(
                                     "DELETE FROM proxies WHERE proxy = %s", [proxy]
                                 )
