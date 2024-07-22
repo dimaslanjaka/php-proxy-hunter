@@ -195,6 +195,8 @@ function run_as_user_in_venv() {
 run_as_user_in_venv "python $SCRIPT_DIR/manage.py migrate"
 # collect static files (to sync with nginx config)
 run_as_user_in_venv "python $SCRIPT_DIR/manage.py collectstatic --noinput"
+# clear django caches (from django_backend/apps/core/management/commands/clear_cache.py)
+run_as_user_in_venv "python $SCRIPT_DIR/manage.py clear_cache"
 
 # Restart services
 touch "$SCRIPT_DIR/assets/index.html"
