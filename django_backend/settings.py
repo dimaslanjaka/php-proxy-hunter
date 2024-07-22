@@ -48,6 +48,20 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
 ]
 
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access if needed
+CSRF_COOKIE_SECURE = True  # Ensure this is set to True if you are using HTTPS
+CSRF_COOKIE_SAMESITE = (
+    "None"  # 'Lax' is often suitable, 'None' for cross-domain requests
+)
+CSRF_TRUSTED_ORIGINS = [
+    "127.0.0.1:8000",
+    "https://sh.webmanajemen.com:8880",
+    "http://sh.webmanajemen.com:8880",
+    "http://23.94.85.180:8000",
+    "http://23.94.85.180:8880",
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -104,13 +118,6 @@ MIDDLEWARE = [
     "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.cache.FetchFromCacheMiddleware",
 ]
-
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access if needed
-CSRF_COOKIE_SECURE = True  # Ensure this is set to True if you are using HTTPS
-CSRF_COOKIE_SAMESITE = (
-    "None"  # 'Lax' is often suitable, 'None' for cross-domain requests
-)
 
 # file-based caching
 if DEBUG:
