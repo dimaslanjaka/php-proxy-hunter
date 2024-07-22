@@ -91,7 +91,9 @@ def index(request: HttpRequest):
     # Fetch missing details in a background thread
     fetch_geo_ip_in_thread(proxies.object_list)
 
-    return render(request, "index.html", {"request": request, "proxies": proxies})
+    return render(
+        request, "proxy_list_index.html", {"request": request, "proxies": proxies}
+    )
 
 
 def proxies_list(request: HttpRequest):
@@ -143,7 +145,7 @@ def proxy_checker_result(request: HttpRequest):
 
         # Return the file content in the response with the correct MIME type
         return HttpResponse(file_content, content_type="text/plain")
-    return render(request, "checker_result.html")
+    return render(request, "proxy_checker_result.html")
 
 
 # Set to track active proxy check threads
