@@ -65,7 +65,7 @@
   };
 
   document.addEventListener("DOMContentLoaded", function (_event) {
-    setTimeout(parse, 10000);
+    setTimeout(parse, 3000);
     document.body.addEventListener("click", function (event) {
       var clickedElement = event.target;
 
