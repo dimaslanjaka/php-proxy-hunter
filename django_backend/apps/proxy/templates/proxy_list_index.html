@@ -16,7 +16,7 @@
   <div class="mb-4">
     <form method="get" action="">
       <input type="text" id="searchInput" name="search" class="p-2 w-full border rounded" placeholder="Search..."
-        value="{{ request.GET.search }}">
+        value="{{ request.GET.search|default:'' }}">
     </form>
   </div>
 
