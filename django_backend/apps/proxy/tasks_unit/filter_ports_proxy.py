@@ -113,7 +113,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                         else:
                             removed = (
                                 orange("removed")
-                                if keep_row[2] == proxy
+                                if keep_row[2] != proxy
                                 else magenta("keep")
                             )
                             log_file(
