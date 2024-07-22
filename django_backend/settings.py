@@ -224,10 +224,7 @@ delete_path(LOGGING["handlers"]["file"]["filename"])
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        # development using src/database.sqlite without running php
-        "NAME": os.path.join(
-            BASE_DIR, "tmp/database.sqlite" if not is_debug() else "src/database.sqlite"
-        ),
+        "NAME": os.path.join(BASE_DIR, "tmp/database.sqlite"),
         # 'ENGINE': 'django.db.backends.mysql',
         # 'NAME': 'djangodatabase',
         # 'USER': 'root',
