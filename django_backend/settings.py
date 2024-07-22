@@ -105,6 +105,13 @@ MIDDLEWARE = [
     "django.middleware.cache.FetchFromCacheMiddleware",
 ]
 
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access if needed
+CSRF_COOKIE_SECURE = True  # Ensure this is set to True if you are using HTTPS
+CSRF_COOKIE_SAMESITE = (
+    "None"  # 'Lax' is often suitable, 'None' for cross-domain requests
+)
+
 # file-based caching
 if DEBUG:
     CACHES = {
