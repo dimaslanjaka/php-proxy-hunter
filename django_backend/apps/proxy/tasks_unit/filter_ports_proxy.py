@@ -178,7 +178,7 @@ def worker_check_open_ports(item: Dict[str, str]):
                 filtered_tests.values(), key=lambda x: x.latency, default=None
             )
             if highest_latency_entry:
-                latency = highest_latency_entry.latency
+                latency = int(highest_latency_entry.latency)
             else:
                 latency = 0
 
