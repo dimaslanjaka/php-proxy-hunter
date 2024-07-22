@@ -37,7 +37,7 @@ def fetch_proxies_same_ip(
         GROUP BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1)
         HAVING COUNT(*) > 1
     )
-    ORDER BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1)
+    ORDER BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1), RANDOM()
     """
 
     # Execute the query
@@ -54,18 +54,21 @@ def fetch_proxies_same_ip(
             result[ip] = []
         result[ip].append(proxy)
 
-    log_file(result_log_file, f"got duplicated {len(result)} ips")
+    # log_file(result_log_file, f"got duplicated {len(result)} ips")
+    # Filtering dictionary to include only key-value pairs where the list has more than 2 items
+    filtered_result = {k: v for k, v in result.items() if len(v) > 2}
+    random.shuffle(filtered_result)
 
-    return result
+    return filtered_result
 
 
 def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
     duplicates_ips = fetch_proxies_same_ip()
 
-    def process_ip(ip, ip_proxies):
+    def process_ip(ip: str, ip_proxies: List[str]):
+        # log_file(result_log_file, f"{ip} has {len(ip_proxies)} duplicates")
+        random.shuffle(ip_proxies)
         with connection.cursor() as cursor:
-            log_file(result_log_file, f"{ip} has {len(ip_proxies)} duplicates")
-
             if len(ip_proxies) > 1:
                 # Fetch all rows matching the IP address (excluding active and port-open proxies)
                 cursor.execute(
@@ -78,7 +81,10 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                     [ip],
                 )
                 ip_rows = cursor.fetchall()
-                # print(ip_rows)
+                log_file(
+                    result_log_file,
+                    f"{ip} has {len(ip_proxies)} duplicates, total inactive rows {len(ip_rows)}",
+                )
 
                 if len(ip_rows) > 1:
                     keep_row = ip_rows[0]
