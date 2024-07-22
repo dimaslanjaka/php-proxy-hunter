@@ -3,14 +3,14 @@ import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List
-
+from proxy_hunter import is_valid_proxy
 from django.conf import settings
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 from data.webgl import random_webgl_data
 from src.func_useragent import random_windows_ua
-
+from django.shortcuts import get_object_or_404
 from .models import Proxy
 from .utils import get_geo_ip2
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import *
@@ -18,6 +18,14 @@ from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import *
 
 
 def fetch_geo_ip(proxy: str):
+    # validate proxy
+    valid = is_valid_proxy(proxy)
+    if not valid:
+        model = get_object_or_404(Proxy, proxy=proxy)
+        model.delete()
+        print(f"{proxy} invalid - removed")
+        return
+
     save = False
     queryset = Proxy.objects.filter(proxy=proxy)
     if not queryset:
