@@ -12,16 +12,16 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import sys
-from datetime import datetime, timedelta
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import sys
+
+from datetime import datetime, timedelta
 
 import dotenv
+import environ
 
 from src.func import delete_path, get_relative_path, write_file
 from src.func_platform import is_debug
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,6 +33,8 @@ if os.path.isfile(dotenv_file):
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
+
+env = environ.Env(DEBUG=(bool, False))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "-)ir)&2lz9o41=qsd7pbzl+uv%1tgf+$%ddvz9bbw6_(exk)(f"
@@ -49,19 +51,26 @@ ALLOWED_HOSTS = [
 ]
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access if needed
-CSRF_COOKIE_SECURE = True  # Ensure this is set to True if you are using HTTPS
+
+# Determine if the environment is secure (HTTPS)
+IS_SECURE = False  # os.getenv("SECURE_ENV", "false") == "true"
+
+# Use Secure Cookies only if in a secure (HTTPS) environment
+SESSION_COOKIE_SECURE = IS_SECURE
+CSRF_COOKIE_SECURE = IS_SECURE
+CSRF_COOKIE_HTTPONLY = not IS_SECURE
+
 CSRF_COOKIE_SAMESITE = (
     "None"  # 'Lax' is often suitable, 'None' for cross-domain requests
 )
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
-    "https://sh.webmanajemen.com:8880",
-    "http://sh.webmanajemen.com:8880",
-    "https://dev.webmanajemen.com:8880",
-    "http://dev.webmanajemen.com:8880",
-    "http://23.94.85.180:8000",
-    "http://23.94.85.180:8880",
+    *[
+        f"{protocol}://{domain}:{port}"
+        for domain in ALLOWED_HOSTS
+        for protocol in ["http", "https"]
+        for port in [8000, 8880]
+    ],
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
