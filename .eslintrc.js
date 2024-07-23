@@ -24,6 +24,10 @@ const config = {
   overrides: [
     {
       files: ["*.js"],
+      global: {
+        jQuery,
+        $: jQuery
+      },
       rules: {
         "@typescript-eslint/no-var-requires": "off" // disable require warning on js files
       }
