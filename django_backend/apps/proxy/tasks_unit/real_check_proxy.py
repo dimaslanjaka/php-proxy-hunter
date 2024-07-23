@@ -9,6 +9,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
+from proxy_hunter.utils import is_valid_proxy
 import requests, sqlite3
 
 sys.path.append(
@@ -248,6 +249,12 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         https = False
         status = None
         latency = 0
+        # validate proxy
+        valid = is_valid_proxy(proxy_obj.proxy)
+        if not valid:
+            execute_sql_query("DELETE FROM proxies WHERE proxy = ?", (proxy_obj.proxy,))
+            log_file(result_log_file, f"> {proxy_obj.proxy} invalid - removed")
+            continue
         # check if proxy exist in database model
         if not Proxy.objects.filter(proxy=proxy_obj.proxy):
             Proxy.objects.create(
