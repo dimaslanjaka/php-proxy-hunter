@@ -131,11 +131,11 @@ class Proxy(models.Model):
                 for field in fields
             ]
         )
-        sql = f"UPDATE proxies SET {updates} WHERE id = {self.id};"
+        sql = f"UPDATE proxies SET {updates} WHERE proxy = {self.proxy};"
         return sql
 
     def to_delete_sql(self):
-        sql = f"DELETE FROM proxies WHERE id = {self.id};"
+        sql = f"DELETE FROM proxies WHERE proxy = {self.proxy};"
         return sql
 
     def to_json(self):
