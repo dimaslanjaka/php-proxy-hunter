@@ -167,7 +167,7 @@
     const services = [
       "https://sh.webmanajemen.com/proxyAdd.php",
       "https://sh.webmanajemen.com/proxyCheckerParallel.php",
-      "https://sh.webmanajemen.com:8443/proxy/result"
+      "https://sh.webmanajemen.com:8443/proxy/check"
     ];
 
     /**
