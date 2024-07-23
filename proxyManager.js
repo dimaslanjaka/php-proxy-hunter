@@ -510,9 +510,44 @@ async function fetchWorkingProxies() {
           td.classList.add("text-center");
         }
 
+        // badges
+        if (i === 3) {
+          const badges = [
+            { text: "HTTP", className: "bg-blue-500 text-white" },
+            { text: "HTTPS", className: "bg-green-500 text-white" },
+            { text: "SOCKS4", className: "bg-yellow-500 text-black" },
+            { text: "SOCKS5", className: "bg-red-500 text-white" }
+          ];
+
+          // Get the text content, split, and filter
+          const labels = td.innerText
+            .split("-")
+            .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+            .filter((str) => str.trim().length > 0); // Remove empty strings
+          if (split[11] == "true") {
+            // add https when SSL active
+            labels.push("HTTPS");
+          }
+
+          // Reset td inner
+          td.innerHTML = "";
+
+          // Iterate through the labels
+          labels.forEach((label) => {
+            badges.forEach((badge) => {
+              if (label.trim() === badge.text) {
+                const badgeElement = document.createElement("span");
+                badgeElement.textContent = badge.text;
+                badgeElement.className = `inline-block px-2 py-1 text-xs font-semibold rounded-full mr-2 ${badge.className}`;
+                td.appendChild(badgeElement);
+              }
+            });
+          });
+        }
+
+        // missing geolocation
         if (i === 7 || i === 6 || (i > 13 && i <= 18)) {
           if (info.trim() === "-") {
-            // console.log(split[0], "missing geo location");
             add_ajax_schedule(
               "./geoIpBackground.php?proxy=" + encodeURIComponent(split[0]) + "&uid=" + user_info.user_id
             );
