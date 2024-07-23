@@ -17,7 +17,7 @@ sys.path.append(
 from bs4 import BeautifulSoup
 from django.db.models import Q
 from proxy_hunter import extract_proxies, decompress_requests_response
-
+from django_backend.apps.proxy.utils import execute_sql_query, get_db_connections
 from django_backend.apps.proxy.models import Proxy
 from src.func import (
     file_append_str,
@@ -206,8 +206,8 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             proxy_data += str([obj.to_json() for obj in queryset.order_by("?")])
         else:
             for item in get_proxies(["untested"]):
-                format = item['proxy']
-                if item['username'] and item['password']:
+                format = item["proxy"]
+                if item["username"] and item["password"]:
                     format += f"@{item['username']}:{item['password']}"
                 proxy_data += format
     if len(proxy_data.strip()) < 11:
