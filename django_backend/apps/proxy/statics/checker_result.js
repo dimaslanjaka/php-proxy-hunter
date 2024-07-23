@@ -1,3 +1,5 @@
+console.log("checker result start");
+
 let prevOutput = "";
 let processedOutput = "";
 function processText(info) {
@@ -86,10 +88,9 @@ document.getElementById("filter-ports-duplicate").addEventListener("click", (e) 
 
 document.getElementById("re-check-random").addEventListener("click", (e) => {
   e.preventDefault();
+  console.log("re-checking");
   fetch("/proxy/check?date=" + new Date());
 });
 
 // Optional: Fetch data immediately on page load
-window.onload = function () {
-  fetchDataAndUpdateTextarea();
-};
+fetchDataAndUpdateTextarea();
