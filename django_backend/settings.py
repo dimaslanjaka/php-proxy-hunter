@@ -53,7 +53,7 @@ ALLOWED_HOSTS = [
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Determine if the environment is secure (HTTPS)
-IS_SECURE = False  # os.getenv("SECURE_ENV", "false") == "true"
+IS_SECURE = not is_debug()  # os.getenv("SECURE_ENV", "false") == "true"
 
 # Use Secure Cookies only if in a secure (HTTPS) environment
 SESSION_COOKIE_SECURE = IS_SECURE
@@ -63,14 +63,12 @@ CSRF_COOKIE_HTTPONLY = not IS_SECURE
 CSRF_COOKIE_SAMESITE = (
     "None"  # 'Lax' is often suitable, 'None' for cross-domain requests
 )
+# Generate CSRF_TRUSTED_ORIGINS by combining protocols, domains, and ports
 CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:8000",
-    *[
-        f"{protocol}://{domain}:{port}"
-        for domain in ALLOWED_HOSTS
-        for protocol in ["http", "https"]
-        for port in [8000, 8880]
-    ],
+    f"{protocol}://{domain}:{port}"
+    for domain in ALLOWED_HOSTS
+    for protocol in ["http", "https"]
+    for port in [8000, 8880]
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
