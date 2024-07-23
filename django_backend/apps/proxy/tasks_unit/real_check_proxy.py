@@ -253,7 +253,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         valid = is_valid_proxy(proxy_obj.proxy)
         if not valid:
             execute_sql_query("DELETE FROM proxies WHERE proxy = ?", (proxy_obj.proxy,))
-            log_file(result_log_file, f"> {proxy_obj.proxy} invalid - removed")
+            log_file(result_log_file, f"> {proxy_obj.proxy} invalid [DELETED]")
             continue
         # check if proxy exist in database model
         if not Proxy.objects.filter(proxy=proxy_obj.proxy):
