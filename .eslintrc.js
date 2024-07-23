@@ -57,7 +57,8 @@ const config = {
   },
   globals: {
     $: "readonly", // jQuery is assigned to $
-    jQuery: "readonly" // jQuery is also available as jQuery
+    jQuery: "readonly", // jQuery is also available as jQuery
+    adsbygoogle: "writable"
   }
 };
 
