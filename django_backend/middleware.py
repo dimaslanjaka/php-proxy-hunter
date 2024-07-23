@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import re
 
 from django.conf import settings
@@ -58,3 +63,16 @@ class MinifyHTMLMiddleware(MiddlewareMixin):
             )  # Cache for 15 minutes
 
         return response
+
+
+class FaviconMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.path == "/favicon.ico":
+            favicon_path = os.path.join(settings.BASE_DIR, "public", "favicon.ico")
+            if os.path.exists(favicon_path):
+                with open(favicon_path, "rb") as f:
+                    return HttpResponse(f.read(), content_type="image/x-icon")
+        return self.get_response(request)
