@@ -132,6 +132,7 @@ MIDDLEWARE = [
     "django_backend.middleware.MinifyHTMLMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.cache.FetchFromCacheMiddleware",
+    "django_backend.middleware.FaviconMiddleware",
 ]
 
 # file-based caching
