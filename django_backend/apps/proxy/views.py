@@ -307,6 +307,12 @@ def trigger_filter_ports_proxy(request: HttpRequest):
 
 def view_status(request: HttpRequest):
     global proxy_checker_threads, filter_ports_threads
+    proxy_checker_threads = {
+        thread for thread in proxy_checker_threads if thread.is_alive()
+    }
+    filter_ports_threads = {
+        thread for thread in filter_ports_threads if thread.is_alive()
+    }
     data = {
         "is_django_env": is_django_environment(),
         "total": {
