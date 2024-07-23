@@ -215,7 +215,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 format = item["proxy"]
                 if item["username"] and item["password"]:
                     format += f"@{item['username']}:{item['password']}"
-                proxy_data += format
+                proxy_data += f"\n{format}\n"
     if len(proxy_data.strip()) < 11:
         php_results = [
             read_file(get_relative_path("working.json")),
