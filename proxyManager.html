@@ -46,6 +46,21 @@
 </head>
 
 <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
+  <div class="w-full text-center mb-4">
+    <a href="#" onclick="redirectToProxy()" class="block text-blue-500 text-lg hover:underline">
+      Python Web Server [Here]
+    </a>
+  </div>
+  <script>
+    function redirectToProxy() {
+      const currentHost = window.location.hostname;
+      const port = 8880;
+      const pathname = '/proxy';
+      const url = `http://${currentHost}:${port}${pathname}`;
+      window.location.href = url;
+    }
+  </script>
+
   <div class="mb-3 flex flex-col md:flex-row border border-gray-600 p-4" id="nav-info">
     <div class="flex-1">
       <i class="fa-duotone fa-square-info"></i> <span
