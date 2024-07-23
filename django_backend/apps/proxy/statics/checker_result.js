@@ -98,16 +98,18 @@ async function fetchDataAndUpdateTextarea() {
 // Set interval to fetch data every [n] seconds
 setInterval(fetchDataAndUpdateTextarea, 3 * 1000);
 
-document.getElementById("filter-ports-duplicate").addEventListener("click", (e) => {
-  e.preventDefault();
-  fetch("/proxy/filter?date=" + new Date());
-});
-
-document.getElementById("re-check-random").addEventListener("click", (e) => {
-  e.preventDefault();
-  console.log("re-checking");
-  fetch("/proxy/check?date=" + new Date());
-});
-
 // Optional: Fetch data immediately on page load
 fetchDataAndUpdateTextarea();
+
+setTimeout(() => {
+  console.log("listen button start");
+  document.getElementById("filter-ports-duplicate").addEventListener("click", (e) => {
+    e.preventDefault();
+    fetch("/proxy/filter?date=" + new Date());
+  });
+
+  document.getElementById("re-check-random").addEventListener("click", (e) => {
+    e.preventDefault();
+    fetch("/proxy/check?date=" + new Date());
+  });
+}, 3000);
