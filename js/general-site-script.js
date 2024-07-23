@@ -1,30 +1,32 @@
 /* eslint-disable no-undef */
-const port = location.port || "";
-if (location.host == "23.94.85.180") {
-  if (port.length > 0) {
-    location.href = `http://sh.webmanajemen.com:${port}/proxy`;
-  } else {
-    location.href = `https://sh.webmanajemen.com/proxyManager.html`;
+setTimeout(() => {
+  const port = location.port || "";
+  if (location.host == "23.94.85.180") {
+    if (port.length > 0) {
+      location.href = `http://sh.webmanajemen.com:${port}/proxy`;
+    } else {
+      location.href = `https://sh.webmanajemen.com/proxyManager.html`;
+    }
   }
-}
 
-if (location.host.includes("webmanajemen.com")) {
-  if (port.length === 0) {
-    fetch("info.php")
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.admin) {
-          startAdsense();
-        }
-      })
-      .catch((_e) => {
-        console.log("failed get info.php");
-      });
-  } else if (port.length === 4) {
-    // django server
-    startAdsense();
+  if (location.host.includes("webmanajemen.com")) {
+    if (port.length === 0) {
+      fetch("info.php")
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.admin) {
+            startAdsense();
+          }
+        })
+        .catch((_e) => {
+          console.log("failed get info.php");
+        });
+    } else if (port.length === 4) {
+      // django server
+      startAdsense();
+    }
   }
-}
+}, 5000);
 
 function startAdsense() {
   // Create script element
@@ -78,7 +80,7 @@ function startAdsense() {
     //   table.rows[randomIndex].insertAdjacentElement('afterend', insElement);
     // }
 
-    const ins = Array.from(document.querySelectorAll("ins"));
+    const ins = Array.from(document.querySelectorAll("ins.adsbygoogle"));
     for (let i = 0; i < ins.length; i++) {
       const el = ins[i];
       if (el.children.length == 0) (adsbygoogle = window.adsbygoogle || []).push({});
