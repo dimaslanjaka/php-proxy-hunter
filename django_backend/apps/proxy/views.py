@@ -157,19 +157,32 @@ def print_dict(data: Dict[str, Any]):
     def pretty_print(val, indent=0):
         if isinstance(val, dict):
             for k, v in val.items():
-                log_file(proxy_checker_task_log_file, "\t" * indent + f"{k}:")
-                pretty_print(v, indent + 1)
+                # Print the key and its value if not a dict or list
+                if isinstance(v, (dict, list)):
+                    log_file(proxy_checker_task_log_file, "\t" * indent + f"{k}:")
+                    pretty_print(v, indent + 1)
+                else:
+                    log_file(proxy_checker_task_log_file, "\t" * indent + f"{k}: {v}")
         elif isinstance(val, list):
             for item in val:
-                log_file(proxy_checker_task_log_file, "\t" * indent + f"{item}")
+                # Handle list items
                 if isinstance(item, (dict, list)):
+                    log_file(proxy_checker_task_log_file, "\t" * indent + "-")
                     pretty_print(item, indent + 1)
+                else:
+                    log_file(
+                        proxy_checker_task_log_file, "\t" * indent + "- " + str(item)
+                    )
         else:
             log_file(proxy_checker_task_log_file, "\t" * indent + str(val))
 
+    # Start with the top-level items
     for key, val in data.items():
-        log_file(proxy_checker_task_log_file, f"{key}:")
-        pretty_print(val, 1)
+        if isinstance(val, (dict, list)):
+            log_file(proxy_checker_task_log_file, f"{key}:")
+            pretty_print(val, 1)
+        else:
+            log_file(proxy_checker_task_log_file, f"{key}: {val}")
 
 
 def get_thread_details(thread: Thread):
