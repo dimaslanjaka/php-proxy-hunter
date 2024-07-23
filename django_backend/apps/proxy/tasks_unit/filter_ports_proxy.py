@@ -112,9 +112,9 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                             )
                         else:
                             if not valid:
-                                removed = red("invalid removed")
+                                removed = red("invalid [DELETED]")
                             elif keep_row[2] != proxy:
-                                removed = orange("removed")
+                                removed = orange("[DELETED]")
                             else:
                                 removed = magenta("keep")
                             log_file(
