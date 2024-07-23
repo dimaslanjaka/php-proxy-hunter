@@ -258,7 +258,10 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         valid = is_valid_proxy(proxy_obj.proxy)
         if not valid:
             execute_sql_query("DELETE FROM proxies WHERE proxy = ?", (proxy_obj.proxy,))
-            log_file(result_log_file, f"> {proxy_obj.proxy} invalid [DELETED]")
+            log_file(
+                result_log_file,
+                f"[CHECKER-PARALLEL] {proxy_obj.proxy} invalid [DELETED]",
+            )
             continue
         # check if proxy exist in database model
         if not Proxy.objects.filter(proxy=proxy_obj.proxy):
@@ -268,7 +271,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 password=proxy_obj.password,
             )
         if not is_port_open(proxy_obj.proxy):
-            log = f"> {proxy_obj.proxy} {red('port closed')}"
+            log = f"[CHECKER-PARALLEL] {proxy_obj.proxy} {red('port closed')}"
             log_file(result_log_file, log)
             status = "port-closed"
         else:
@@ -297,7 +300,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                             )  # Index the protocol list by order of completion
                             protocol = ["HTTP", "SOCKS4", "SOCKS5"][protocol]
                             if check.result:
-                                log = f"> {protocol.lower()}://{proxy_obj.proxy} {green('working')}. Title: {check.additional['title']}. Url: {check.url}"
+                                log = f"[CHECKER-PARALLEL] {protocol.lower()}://{proxy_obj.proxy} {green('working')}. Title: {check.additional['title']}. Url: {check.url}"
                                 protocols.append(protocol.lower())
                                 log_file(result_log_file, log)
                                 working = True
@@ -305,7 +308,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                                 if int(check.latency) > latency:
                                     latency = int(check.latency)
                             else:
-                                log = f"> {protocol.lower()}://{proxy_obj.proxy} dead -> {check.error}"
+                                log = f"[CHECKER-PARALLEL] {protocol.lower()}://{proxy_obj.proxy} dead -> {check.error}"
                                 log_file(result_log_file, log)
                                 working = False
                         except Exception as e:
