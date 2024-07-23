@@ -90,7 +90,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                 ip_rows = cursor.fetchall()
                 log_file(
                     result_log_file,
-                    f"{ip} has {len(ip_proxies)} duplicates, total inactive rows {len(ip_rows)}",
+                    f"[FILTER-PORT] {ip} has {len(ip_proxies)} duplicates, inactive rows {len(ip_rows)}",
                 )
 
                 if len(ip_rows) > 1:
@@ -102,7 +102,8 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                         valid = is_valid_proxy(proxy)
                         if is_port_open(proxy) and valid:
                             log_file(
-                                result_log_file, f"{proxy} \t {green('port open')}"
+                                result_log_file,
+                                f"[FILTER-PORT] {proxy} \t {green('port open')}",
                             )
                             keep_row = row
                             # Set status to port-open
@@ -119,7 +120,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                                 removed = magenta("keep")
                             log_file(
                                 result_log_file,
-                                f"{proxy} \t {red('port closed')} \t {removed}",
+                                f"[FILTER-PORT] {proxy} \t {red('port closed')} \t {removed}",
                             )
                             if keep_row[2] != proxy or not valid:
                                 execute_sql_query(
@@ -140,12 +141,13 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                 try:
                     future.result()  # Ensure all threads complete
                 except Exception as e:
-                    log_file(result_log_file, f"Error processing IP: {e}")
+                    log_file(result_log_file, f"[FILTER-PORT] Error processing IP: {e}")
             log_file(
-                result_log_file, f"Processing {ip} with {len(ip_proxies)} proxies done"
+                result_log_file,
+                f"[FILTER-PORT] Processing {ip} with {len(ip_proxies)} proxies done",
             )
     except Exception as e:
-        log_file(result_log_file, f"filter_duplicates_ips fail create thread: {e}")
+        log_file(result_log_file, f"[FILTER-PORT] fail create thread: {e}")
     if callable(callback):
         callback()
 
@@ -221,7 +223,7 @@ def worker_check_open_ports(item: Dict[str, str]):
                 )
                 log_file(
                     result_log_file,
-                    f"{item['proxy']} from status=port-open {green('working')}",
+                    f"[FILTER-PORT] {item['proxy']} from status=port-open {green('working')}",
                 )
             else:
                 execute_sql_query(
@@ -229,13 +231,13 @@ def worker_check_open_ports(item: Dict[str, str]):
                 )
                 log_file(
                     result_log_file,
-                    f"{item['proxy']} from status=port-open {red('dead')}",
+                    f"[FILTER-PORT] {item['proxy']} from status=port-open {red('dead')}",
                 )
 
             connection.commit()
 
     except Exception as e:
-        log_file(result_log_file, f"worker_check_open_ports Error occurred: {e}")
+        log_file(result_log_file, f"[FILTER-PORT] Error occurred: {e}")
 
 
 def check_open_ports(max: int = 10, callback: Optional[Callable] = None):
@@ -261,9 +263,12 @@ def check_open_ports(max: int = 10, callback: Optional[Callable] = None):
                     try:
                         future.result()  # Ensure all threads complete
                     except Exception as e:
-                        log_file(result_log_file, f"Error processing {item}: {e}")
+                        log_file(
+                            result_log_file,
+                            f"[FILTER-PORT] Error processing {item}: {e}",
+                        )
         except Exception as e:
-            log_file(result_log_file, f"check_open_ports fail create thread: {e}")
+            log_file(result_log_file, f"[FILTER-PORT] fail create thread: {e}")
     if callable(callback):
         callback()
 
