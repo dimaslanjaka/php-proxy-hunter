@@ -14,7 +14,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 
 from src.func import file_append_str, get_relative_path, truncate_file_content
 from src.func_platform import is_django_environment
@@ -262,8 +262,7 @@ def trigger_check_proxy(request: HttpRequest):
 
     print_dict(render_data)
 
-    # return render(request, "checker_result.html", {"data": render_data})
-    return redirect("/proxy/result", permanent=False)
+    return JsonResponse(render_data)
 
 
 filter_ports_threads: Set[Thread] = set()
@@ -302,7 +301,7 @@ def trigger_filter_ports_proxy(request: HttpRequest):
             }
         )
     print_dict(render_data)
-    return redirect("/proxy/result", permanent=False)
+    return JsonResponse(render_data)
 
 
 def view_status(request: HttpRequest):
