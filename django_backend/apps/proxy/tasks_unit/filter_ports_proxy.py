@@ -160,6 +160,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
 
 
 def start_filter_duplicates_ips():
+    # start checking [n] open ports from duplicated ips
     thread = threading.Thread(target=filter_duplicates_ips, args=(10,))
     thread.start()
     return thread
@@ -281,6 +282,7 @@ def check_open_ports(max: int = 10, callback: Optional[Callable] = None):
 
 
 def start_check_open_ports():
-    thread = threading.Thread(target=check_open_ports, args=(10,))
+    # start checking [n] proxies with status=port-open
+    thread = threading.Thread(target=check_open_ports, args=(100,))
     thread.start()
     return thread
