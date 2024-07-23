@@ -183,6 +183,9 @@ def get_thread_details(thread: Thread):
 
 def trigger_check_proxy(request: HttpRequest):
     global proxy_checker_threads
+
+    truncate_file_content(proxy_checker_task_log_file)
+
     render_data = {
         "running": len(proxy_checker_threads),
     }
@@ -244,7 +247,6 @@ def trigger_check_proxy(request: HttpRequest):
             }
         )
 
-        truncate_file_content(proxy_checker_task_log_file)
     print_dict(render_data)
 
     # return render(request, "checker_result.html", {"data": render_data})
@@ -256,6 +258,8 @@ filter_ports_threads: Set[Thread] = set()
 
 def trigger_filter_ports_proxy(request: HttpRequest):
     global filter_ports_threads
+    truncate_file_content(proxy_checker_task_log_file)
+
     # clean up threads
     filter_ports_threads = {
         thread for thread in filter_ports_threads if thread.is_alive()
@@ -270,7 +274,6 @@ def trigger_filter_ports_proxy(request: HttpRequest):
             }
         )
     else:
-        truncate_file_content(proxy_checker_task_log_file)
         thread1 = start_filter_duplicates_ips()
         filter_ports_threads.add(thread1)
         thread2 = start_check_open_ports()
