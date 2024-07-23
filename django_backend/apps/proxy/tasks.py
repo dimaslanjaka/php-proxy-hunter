@@ -88,7 +88,7 @@ def fetch_geo_ip(proxy: str):
         try:
             model.save()
         except Exception as e:
-            print(f"fetch_geo_ip fail update proxy model {model.to_json()}. {e}")
+            print(f"fetch_geo_ip fail update proxy {model.proxy}. {e}")
 
 
 def fetch_geo_ip_list(proxies: List[Proxy]):
