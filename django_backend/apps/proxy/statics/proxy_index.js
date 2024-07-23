@@ -15,4 +15,4 @@ function init_search() {
   }
 }
 
-window.onload = init_search;
+init_search();

@@ -122,6 +122,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django_backend.middleware.CustomCsrfExemptMiddleware",  # allow greasemonkey
     "django_backend.middleware.CsrfExemptCsrfViewMiddleware",  # allow greasemonkey
+    "django_backend.middleware.FaviconMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -130,16 +131,18 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_backend.middleware.MinifyHTMLMiddleware",
-    "django.middleware.cache.UpdateCacheMiddleware",
-    "django.middleware.cache.FetchFromCacheMiddleware",
-    "django_backend.middleware.FaviconMiddleware",
 ]
+if not DEBUG:
+    MIDDLEWARE += [
+        "django.middleware.cache.UpdateCacheMiddleware",
+        "django.middleware.cache.FetchFromCacheMiddleware",
+    ]
 
 # file-based caching
 if DEBUG:
     CACHES = {
         "default": {
-            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         }
     }
 else:
@@ -202,21 +205,21 @@ LOGGING = {
     },
     "handlers": {
         "file": {
-            "level": "DEBUG",
+            "level": "INFO",  # Change from DEBUG to INFO
             "class": "logging.handlers.TimedRotatingFileHandler",
             "filename": os.path.join(
                 BASE_DIR, f"tmp/logs/django-{datetime.now().strftime('%Y-%m-%d')}.log"
             ),
-            "when": "midnight",  # Rotate logs every midnight
+            "when": "midnight",
             "interval": 1,
-            "backupCount": 7,  # Keep the last 7 days of logs
+            "backupCount": 7,
             "formatter": "verbose",
         },
     },
     "loggers": {
         "django": {
             "handlers": ["file"],
-            "level": "DEBUG",
+            "level": "INFO",  # Change from DEBUG to INFO
             "propagate": True,
         },
         "": {

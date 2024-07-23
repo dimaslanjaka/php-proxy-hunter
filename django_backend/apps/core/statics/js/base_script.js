@@ -1,3 +1,5 @@
+console.log("base script start");
+
 function django_get_cookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
