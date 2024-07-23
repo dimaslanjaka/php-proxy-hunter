@@ -155,7 +155,9 @@ def get_proxies_query(
     return result
 
 
-def get_proxies(status: List[str] = ["dead", "port-closed", "untested"]):
+def get_proxies(
+    status: List[str] = ["dead", "port-closed", "untested"], limit: Optional[int] = 100
+):
     db = None
     try:
         db = ProxyDB(get_relative_path("src/database.sqlite"), True)
@@ -165,10 +167,10 @@ def get_proxies(status: List[str] = ["dead", "port-closed", "untested"]):
     result: List[Dict[str, Any]] = []
     # Fetch proxies from db if available
     if db:
-        result.extend(get_proxies_query(db.db.conn, status, 30))
+        result.extend(get_proxies_query(db.db.conn, status, limit))
 
     # Fetch proxies from connection
-    result.extend(get_proxies_query(connection, status, 30))
+    result.extend(get_proxies_query(connection, status, limit))
 
     # Create a set of unique proxies based on a unique key (e.g., 'proxy_id')
     unique_proxies = {proxy["proxy"]: proxy for proxy in result}.values()
@@ -206,7 +208,10 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             )
             proxy_data += str([obj.to_json() for obj in queryset.order_by("?")])
         else:
-            for item in get_proxies(["untested"]):
+            items = get_proxies(["untested"], 30)
+            if not items:
+                items.extend(get_proxies(["dead", "port-closed"]), 30)
+            for item in get_proxies(["untested"], 30):
                 format = item["proxy"]
                 if item["username"] and item["password"]:
                     format += f"@{item['username']}:{item['password']}"
