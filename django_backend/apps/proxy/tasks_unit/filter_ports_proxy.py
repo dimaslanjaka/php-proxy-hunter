@@ -10,7 +10,7 @@ sys.path.append(
 )
 from django.conf import settings
 from django.db import connection
-
+from django_backend.apps.proxy.utils import execute_sql_query, get_db_connections
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
     real_check_proxy,
     result_log_file,
@@ -106,11 +106,10 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                             )
                             keep_row = row
                             # Set status to port-open
-                            cursor.execute(
-                                "UPDATE proxies SET last_check = %s, status = %s WHERE proxy = %s",
+                            execute_sql_query(
+                                "UPDATE proxies SET last_check = ?, status = ? WHERE proxy = ?",
                                 (get_current_rfc3339_time(), "port-open", proxy),
                             )
-                            connection.commit()
                         else:
                             if not valid:
                                 removed = red("invalid removed")
@@ -123,10 +122,9 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                                 f"{proxy} \t {red('port closed')} \t {removed}",
                             )
                             if keep_row[2] != proxy or not valid:
-                                cursor.execute(
-                                    "DELETE FROM proxies WHERE proxy = %s", [proxy]
+                                execute_sql_query(
+                                    "DELETE FROM proxies WHERE proxy = ?", (proxy,)
                                 )
-                                connection.commit()
 
     try:
         with concurrent.futures.ThreadPoolExecutor(
@@ -206,11 +204,11 @@ def worker_check_open_ports(item: Dict[str, str]):
 
             if filtered_tests:
                 https = "true" if has_https else "false"
-                cursor.execute(
+                execute_sql_query(
                     """
                     UPDATE proxies
-                    SET last_check = %s, status = %s, https = %s, type = %s, latency = %s
-                    WHERE proxy = %s
+                    SET last_check = ?, status = ?, https = ?, type = ?, latency = ?
+                    WHERE proxy = ?
                     """,
                     (
                         get_current_rfc3339_time(),
@@ -226,7 +224,9 @@ def worker_check_open_ports(item: Dict[str, str]):
                     f"{item['proxy']} from status=port-open {green('working')}",
                 )
             else:
-                cursor.execute("DELETE FROM proxies WHERE proxy = %s", [item["proxy"]])
+                execute_sql_query(
+                    "DELETE FROM proxies WHERE proxy = ?", (item["proxy"],)
+                )
                 log_file(
                     result_log_file,
                     f"{item['proxy']} from status=port-open {red('dead')}",
