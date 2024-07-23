@@ -36,7 +36,11 @@ function processText(info) {
       str = str.replace(/\[FILTER-PORT\]/, '<i class="fa-thin fa-filter-list text-berry"></i>');
       str = str.replace(/\[CHECKER-PARALLEL\]/, '<i class="fa-thin fa-list-check text-polkador"></i>');
       str = str.replace(/\[CHECKER\]/, '<i class="fa-thin fa-check-to-slot text-polkador"></i>');
-      return `<span class="relative block w-full border-gray-300 after:absolute after:content-[''] after:block after:w-1/2 after:h-px after:bg-gray-300 after:right-0 after:bottom-0 after:translate-x-1/2 pb-1">${str}</span>`;
+      if (str.trim().length > 0) {
+        return `<span class="relative block w-full border-gray-300 after:absolute after:content-[''] after:block after:w-1/2 after:h-px after:bg-gray-300 after:right-0 after:bottom-0 after:translate-x-1/2 pb-1">${str}</span>`;
+      } else {
+        return str;
+      }
     })
     .join("");
   return processedOutput;
