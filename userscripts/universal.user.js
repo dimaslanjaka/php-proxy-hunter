@@ -166,7 +166,8 @@
 
     const services = [
       "https://sh.webmanajemen.com/proxyAdd.php",
-      "https://sh.webmanajemen.com/proxyCheckerParallel.php"
+      "https://sh.webmanajemen.com/proxyCheckerParallel.php",
+      "http://sh.webmanajemen.com:8880/proxy/check"
     ];
 
     /**
@@ -180,12 +181,24 @@
           fetch(url, {
             signal: AbortSignal.timeout(5000),
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Greasemonkey-Script": "1" },
             body: dataToSend
           })
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Network response was not ok");
+                // Log all response headers
+                const headers = [];
+                response.headers.forEach((value, name) => {
+                  headers.push({ name, value });
+                });
+                return response.text().then((body) => {
+                  return reject({
+                    status: `${response.status} ${response.statusText}`,
+                    message: `Network response to ${url} was not ok`,
+                    headers,
+                    body
+                  });
+                });
               }
               return response.text();
             })
@@ -194,8 +207,9 @@
               resolve();
             })
             .catch((error) => {
-              console.log(`There was a problem with your fetch operation: (${error.message})`);
-              reject(error);
+              reject({
+                message: `There was a problem with your fetch operation: (${error.message})`
+              });
             });
         }, 1000); // 1 second delay
       });
