@@ -1,8 +1,12 @@
 /* eslint-disable no-undef */
-if (location.host == "23.94.85.180") {
-  location.href = "https://sh.webmanajemen.com/proxyManager.html";
-}
 const port = location.port || "";
+if (location.host == "23.94.85.180") {
+  if (port.length > 0) {
+    location.href = `http://sh.webmanajemen.com:${port}/proxy`;
+  } else {
+    location.href = `https://sh.webmanajemen.com/proxyManager.html`;
+  }
+}
 
 if (location.host.includes("webmanajemen.com")) {
   if (port.length === 0) {
