@@ -353,6 +353,11 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                     proxy=proxy_obj.proxy,  # Field to match
                     defaults=data,  # Fields to update
                 )
+                if created:
+                    print(f"new proxy {proxy_obj.proxy}")
+                if check_model:
+                    execute_sql_query(check_model.to_insert_or_ignore_sql())
+                    execute_sql_query(check_model.to_update_sql())
                 # if status == "active":
                 #     log_file(result_log_file, data)
                 #     log_file(result_log_file, check_model.to_json(), created)
