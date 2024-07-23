@@ -46,20 +46,17 @@ def fetch_proxies_same_ip(
     """
 
     # Execute the query
-    with connection.cursor() as cursor:
-        cursor.execute(query)
-        proxies = cursor.fetchall()
+    proxies = execute_select_query(query)
 
     # Process the results
     result: Dict[str, List[str]] = {}
     for row in proxies:
-        proxy = row[0]
+        proxy = row["proxy"]
         ip = proxy.split(":")[0]
         if ip not in result:
             result[ip] = []
         result[ip].append(proxy)
 
-    # log_file(result_log_file, f"got duplicated {len(result)} ips")
     # Filtering dictionary to include only key-value pairs where the list has more than 2 items
     filtered_result = {k: v for k, v in result.items() if len(v) > 2}
 
@@ -134,27 +131,30 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                                     "DELETE FROM proxies WHERE proxy = ?", (proxy,)
                                 )
 
-    try:
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=settings.WORKER_THREADS
-        ) as executor:
-            futures = []
-            for index, (ip, ip_proxies) in enumerate(duplicates_ips.items()):
-                if index >= max:
-                    break
-                futures.append(executor.submit(process_ip, ip, ip_proxies))
+    if len(duplicates_ips) > 0:
+        try:
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=settings.WORKER_THREADS
+            ) as executor:
+                futures = []
+                for index, (ip, ip_proxies) in enumerate(duplicates_ips.items()):
+                    if index >= max:
+                        break
+                    futures.append(executor.submit(process_ip, ip, ip_proxies))
 
-            for future in concurrent.futures.as_completed(futures):
-                try:
-                    future.result()  # Ensure all threads complete
-                except Exception as e:
-                    log_file(result_log_file, f"[FILTER-PORT] Error processing IP: {e}")
-            log_file(
-                result_log_file,
-                f"[FILTER-PORT] Processing {ip} with {len(ip_proxies)} proxies done",
-            )
-    except Exception as e:
-        log_file(result_log_file, f"[FILTER-PORT] fail create thread: {e}")
+                for future in concurrent.futures.as_completed(futures):
+                    try:
+                        future.result()  # Ensure all threads complete
+                    except Exception as e:
+                        log_file(
+                            result_log_file, f"[FILTER-PORT] Error processing IP: {e}"
+                        )
+                log_file(
+                    result_log_file,
+                    f"[FILTER-PORT] Processing {ip} with {len(ip_proxies)} proxies done",
+                )
+        except Exception as e:
+            log_file(result_log_file, f"[FILTER-PORT] fail create thread: {e}")
     if callable(callback):
         callback()
 
