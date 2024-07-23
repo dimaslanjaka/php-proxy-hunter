@@ -67,6 +67,77 @@ class Proxy(models.Model):
         db_table = "proxies"
         # app_label = 'django_backend.apps.proxy'
 
+    def to_insert_sql(self):
+        fields = [
+            "proxy",
+            "latency",
+            "last_check",
+            "type",
+            "region",
+            "city",
+            "country",
+            "timezone",
+            "latitude",
+            "longitude",
+            "anonymity",
+            "https",
+            "status",
+            "private",
+            "lang",
+            "useragent",
+            "webgl_vendor",
+            "webgl_renderer",
+            "browser_vendor",
+            "username",
+            "password",
+        ]
+        values = [getattr(self, field) for field in fields]
+        values_str = ", ".join([f"'{v}'" if v is not None else "NULL" for v in values])
+        fields_str = ", ".join(fields)
+        sql = f"INSERT INTO proxies ({fields_str}) VALUES ({values_str});"
+        return sql
+
+    def to_update_sql(self):
+        fields = [
+            "proxy",
+            "latency",
+            "last_check",
+            "type",
+            "region",
+            "city",
+            "country",
+            "timezone",
+            "latitude",
+            "longitude",
+            "anonymity",
+            "https",
+            "status",
+            "private",
+            "lang",
+            "useragent",
+            "webgl_vendor",
+            "webgl_renderer",
+            "browser_vendor",
+            "username",
+            "password",
+        ]
+        updates = ", ".join(
+            [
+                (
+                    f"{field} = '{getattr(self, field)}'"
+                    if getattr(self, field) is not None
+                    else f"{field} = NULL"
+                )
+                for field in fields
+            ]
+        )
+        sql = f"UPDATE proxies SET {updates} WHERE id = {self.id};"
+        return sql
+
+    def to_delete_sql(self):
+        sql = f"DELETE FROM proxies WHERE id = {self.id};"
+        return sql
+
     def to_json(self):
         """
         Return a JSON string representation of the object.
