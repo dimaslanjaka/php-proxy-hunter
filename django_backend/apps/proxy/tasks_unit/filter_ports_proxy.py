@@ -10,7 +10,11 @@ sys.path.append(
 )
 from django.conf import settings
 from django.db import connection
-from django_backend.apps.proxy.utils import execute_sql_query, get_db_connections
+from django_backend.apps.proxy.utils import (
+    execute_select_query,
+    execute_sql_query,
+    get_db_connections,
+)
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
     real_check_proxy,
     result_log_file,
@@ -78,34 +82,37 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
         with connection.cursor() as cursor:
             if len(ip_proxies) > 1:
                 # Fetch all rows matching the IP address (excluding active and port-open proxies)
-                cursor.execute(
+                ip_rows = execute_select_query(
                     """
                     SELECT rowid, * FROM proxies
-                    WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) = %s
+                    WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) = ?
                     AND (status != 'active' AND status != 'port-open' OR status IS NULL)
                     ORDER BY RANDOM() LIMIT 49999;
                     """,
-                    [ip],
+                    (ip,),
                 )
-                ip_rows = cursor.fetchall()
                 log_file(
                     result_log_file,
                     f"[FILTER-PORT] {ip} has {len(ip_proxies)} duplicates, inactive rows {len(ip_rows)}",
                 )
 
                 if len(ip_rows) > 1:
-                    keep_row = ip_rows[0]
+                    keep_proxy = None
                     random.shuffle(ip_rows)
 
                     for row in ip_rows:
-                        proxy = row[2]  # Adjust index based on column position
+                        proxy = row["proxy"]
+                        if not proxy:
+                            continue
+                        if not keep_proxy:
+                            keep_proxy = proxy
                         valid = is_valid_proxy(proxy)
                         if is_port_open(proxy) and valid:
                             log_file(
                                 result_log_file,
                                 f"[FILTER-PORT] {proxy} \t {green('port open')}",
                             )
-                            keep_row = row
+                            keep_proxy = proxy
                             # Set status to port-open
                             execute_sql_query(
                                 "UPDATE proxies SET last_check = ?, status = ? WHERE proxy = ?",
@@ -114,15 +121,15 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
                         else:
                             if not valid:
                                 removed = red("invalid [DELETED]")
-                            elif keep_row[2] != proxy:
+                            elif keep_proxy != proxy:
                                 removed = orange("[DELETED]")
                             else:
-                                removed = magenta("keep")
+                                removed = magenta("[SKIPPED]")
                             log_file(
                                 result_log_file,
                                 f"[FILTER-PORT] {proxy} \t {red('port closed')} \t {removed}",
                             )
-                            if keep_row[2] != proxy or not valid:
+                            if keep_proxy != proxy or not valid:
                                 execute_sql_query(
                                     "DELETE FROM proxies WHERE proxy = ?", (proxy,)
                                 )
