@@ -169,6 +169,8 @@ WSGI_APPLICATION = "django_backend.wsgi.application"
 ASGI_APPLICATION = "django_backend.asgi.application"
 # number threads will be used in django
 WORKER_THREADS = 4 if not is_debug() else 10
+# limit threads to operate django_backend\apps\proxy\views.py
+LIMIT_THREADS = 4 if not is_debug() else 10
 
 # Logging settings
 # dont remove `from logging.handlers import TimedRotatingFileHandler`
