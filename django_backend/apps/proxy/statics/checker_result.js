@@ -1,5 +1,19 @@
 console.log("checker result start");
 
+function isStringLargerThan1MB(str) {
+  // Create a Blob from the string
+  const blob = new Blob([str]);
+
+  // Get the size of the Blob in bytes
+  const sizeInBytes = blob.size;
+
+  // Convert 1MB to bytes (1MB = 1,048,576 bytes)
+  const oneMBInBytes = 1048576;
+
+  // Check if the size exceeds 1MB
+  return sizeInBytes > oneMBInBytes;
+}
+
 let prevOutput = "";
 let processedOutput = "";
 function processText(info) {
@@ -7,6 +21,9 @@ function processText(info) {
   if (prevOutput === info) return processedOutput;
   if (typeof info !== "string") return processedOutput;
   if (info.trim().length === 0) return processedOutput;
+  // skip update UI when output more than 1 MB
+  if (isStringLargerThan1MB(info))
+    return `${processedOutput}<br><span class="text-center font-medium">STRING SIZE EXCEDEED</span>`;
   prevOutput = info || "";
   processedOutput = (info || "")
     .split(/\r?\n/)
