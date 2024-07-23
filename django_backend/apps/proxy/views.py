@@ -215,20 +215,19 @@ def trigger_check_proxy(request: HttpRequest):
         # Decode the URL-encoded proxy parameter
         decoded_proxy = unquote(proxy)
         # save uploaded proxies
-        file_append_str(get_relative_path('proxies.txt'), f"\n{decoded_proxy}\n")
+        file_append_str(get_relative_path("proxies.txt"), f"\n{decoded_proxy}\n")
 
     # Clean up finished threads from the active set before starting a new one
     proxy_checker_threads = {
         thread for thread in proxy_checker_threads if thread.is_alive()
     }
 
-    # Check if there are already 4 threads running
-    number_threads = 4
-    if len(proxy_checker_threads) >= number_threads:
+    # Check if there are already [n] threads running
+    if len(proxy_checker_threads) >= settings.LIMIT_THREADS:
         render_data.update(
             {
                 "error": True,
-                "message": f"Maximum number of proxy check threads ({number_threads}) already running",
+                "message": f"Maximum number of proxy check threads ({settings.LIMIT_THREADS}) already running",
             }
         )
     else:
@@ -262,12 +261,12 @@ def trigger_filter_ports_proxy(request: HttpRequest):
         thread for thread in filter_ports_threads if thread.is_alive()
     }
     render_data = {"running": len(filter_ports_threads)}
-    number_threads = 4
-    if len(filter_ports_threads) > number_threads:
+    # limit threads to filter duplicate ports
+    if len(filter_ports_threads) > settings.LIMIT_THREADS:
         render_data.update(
             {
                 "error": True,
-                "messages": f"Maximum number of filter duplicated ports threads ({number_threads}) already running",
+                "messages": f"Maximum number of filter duplicated ports threads ({settings.LIMIT_THREADS}) already running",
             }
         )
     else:
