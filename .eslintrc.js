@@ -24,10 +24,6 @@ const config = {
   overrides: [
     {
       files: ["*.js"],
-      global: {
-        jQuery,
-        $: jQuery
-      },
       rules: {
         "@typescript-eslint/no-var-requires": "off" // disable require warning on js files
       }
@@ -58,6 +54,10 @@ const config = {
     // "arrow-body-style" and "prefer-arrow-callback" are two ESLint core rules that can cause issues with prettier/prettier plugin, so turn them off.
     "arrow-body-style": "off",
     "prefer-arrow-callback": "off"
+  },
+  globals: {
+    $: "readonly", // jQuery is assigned to $
+    jQuery: "readonly" // jQuery is also available as jQuery
   }
 };
 
