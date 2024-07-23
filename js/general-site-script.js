@@ -133,16 +133,14 @@ function notificationShow() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  document.body.innerHTML += `<!-- Notification Div -->
-  <div id="notification" class="fixed top-4 right-4 bg-gray-800 text-white p-4 rounded-lg shadow-lg flex items-center space-x-4">
-    <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i> <!-- Warning Icon -->
-    <p class="flex-1">Server will restart every 4 hours.</p>
-    <button id="close-btn" class="ml-auto text-gray-400 hover:text-white focus:outline-none">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>`;
-  setTimeout(() => {
-    notificationShow();
-  }, 500);
-});
+document.body.innerHTML += `<!-- Notification Div -->
+<div id="notification" class="fixed top-4 right-4 bg-gray-800 text-white p-4 rounded-lg shadow-lg flex items-center space-x-4">
+  <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i> <!-- Warning Icon -->
+  <p class="flex-1">Server will restart every 4 hours.</p>
+  <button id="close-btn" class="ml-auto text-gray-400 hover:text-white focus:outline-none">
+    <i class="fas fa-times"></i>
+  </button>
+</div>`;
+setTimeout(() => {
+  notificationShow();
+}, 500);
