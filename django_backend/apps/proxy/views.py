@@ -16,7 +16,7 @@ from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 
-from src.func import truncate_file_content
+from src.func import file_append_str, get_relative_path, truncate_file_content
 from src.func_platform import is_django_environment
 from src.func_console import log_file
 
@@ -214,6 +214,8 @@ def trigger_check_proxy(request: HttpRequest):
     if proxy:
         # Decode the URL-encoded proxy parameter
         decoded_proxy = unquote(proxy)
+        # save uploaded proxies
+        file_append_str(get_relative_path('proxies.txt'), f"\n{decoded_proxy}\n")
 
     # Clean up finished threads from the active set before starting a new one
     proxy_checker_threads = {
