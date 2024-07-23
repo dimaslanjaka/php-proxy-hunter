@@ -82,3 +82,57 @@ def execute_sql_query(
             results.append(None)
 
     return results
+
+
+def execute_select_query(
+    sql: str, params: Optional[Tuple] = None
+) -> List[Dict[str, Union[str, int, float, None]]]:
+    """
+    Executes a SELECT SQL query on all available database connections and
+    returns the results as a list of dictionaries.
+
+    Args:
+        sql (str): The SQL SELECT query to be executed. Use `?` as placeholders for
+                   parameters when working with SQLite.
+        params (Optional[Tuple]): Optional parameters for the SQL query. This
+                                  should be a tuple of values to be inserted
+                                  into the placeholders in the SQL query.
+
+    Returns:
+        List[Dict[str, Union[str, int, float, None]]]: A list of dictionaries where
+        each dictionary represents a row in the result set. The keys are the
+        column names, and the values are the corresponding data in the row.
+    """
+    connections = get_db_connections()
+    results = []
+
+    for conn in connections:
+        if conn:
+            try:
+                cursor = conn.cursor()
+                # Detect if the connection is from Django
+                if isinstance(conn, connection.__class__):
+                    # For Django connection, use %s placeholders
+                    sql_django = sql.replace("?", "%s")
+                    cursor.execute(sql_django, params or ())
+                else:
+                    # For SQLite connection, use ? placeholders
+                    cursor.execute(sql, params or ())
+
+                # Fetch the results and convert them into a list of dictionaries
+                columns = [desc[0] for desc in cursor.description]
+                rows = cursor.fetchall()
+                for row in rows:
+                    row_dict = dict(zip(columns, row))
+                    results.append(row_dict)
+
+                cursor.close()
+            except Exception as e:
+                print(f"Error executing query {sql} on connection {conn}: {e}")
+            finally:
+                if isinstance(conn, sqlite3.Connection):
+                    conn.close()
+        else:
+            print(f"Connection {conn} is None")
+
+    return results
