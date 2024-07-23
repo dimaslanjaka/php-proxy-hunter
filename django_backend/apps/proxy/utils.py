@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import List, Optional, Tuple, Union
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
@@ -14,37 +15,26 @@ from src.geoPlugin import *
 from src.ProxyDB import ProxyDB
 
 
-def get_db_connections() -> List[sqlite3.Connection]:
+def get_db_connections() -> List[Union[sqlite3.Connection]]:
     """
     Attempts to retrieve database connections.
     """
     db = None
     try:
         db = ProxyDB(get_relative_path("src/database.sqlite"), True)
-        # print("ProxyDB connection created.")
     except Exception as e:
         print(f"Error creating ProxyDB connection: {e}")
 
     connections = [db.db.conn if db else None, connection]
-    # Filter out None values
     active_connections = [conn for conn in connections if conn]
-
-    # print(f"Active connections: {len(active_connections)}")
-
     return active_connections
 
 
 def execute_sql_query(
-    sql: str, params: Optional[tuple] = None
+    sql: str, params: Optional[Tuple] = None
 ) -> List[Union[List[tuple], None]]:
     """
     Executes an SQL query on all available database connections.
-
-    This function uses the connections retrieved from `get_db_connections`
-    to execute the provided SQL query. It returns the results from each
-    connection. If a query execution fails on any connection, it logs the
-    exception and continues with the next connection. After executing the
-    query, all connections are closed.
 
     Args:
         sql (str): The SQL query to be executed. Use `?` as placeholders for
@@ -57,13 +47,6 @@ def execute_sql_query(
         List[Union[List[tuple], None]]: A list where each element represents
         the result of the SQL query execution on a respective connection.
         `None` indicates that the query failed on that connection.
-
-    Note:
-        The function assumes that `ProxyDB` and `connection` are
-        accessible within the scope. `ProxyDB` should have a `db`
-        attribute with a `conn` property that represents an SQLite
-        connection. The `connection` refers to the default Django
-        database connection.
     """
     connections = get_db_connections()
     results = []
@@ -72,24 +55,30 @@ def execute_sql_query(
         if conn:
             try:
                 cursor = conn.cursor()
-                # print(f"Executing query on connection: {conn}")
-                cursor.execute(sql, params or ())
-                query_results = cursor.fetchall()
-                # print(f"Query results: {query_results}")
-                results.append(query_results)
+                # Detect if the connection is from Django
+                if isinstance(conn, connection.__class__):
+                    # For Django connection, use %s placeholders
+                    sql_django = sql.replace("?", "%s")
+                    cursor.execute(sql_django, params or ())
+                else:
+                    # For SQLite connection, use ? placeholders
+                    cursor.execute(sql, params or ())
+
+                if sql.strip().upper().startswith("SELECT"):
+                    query_results = cursor.fetchall()
+                    results.append(query_results)
+                else:
+                    conn.commit()
+                    results.append(cursor.rowcount)
+
                 cursor.close()
             except Exception as e:
-                # Log the exception for debugging purposes
-                print(f"Error executing query on connection: {e}")
+                print(f"Error executing query {sql} on connection {conn}: {e}")
                 results.append(None)
             finally:
-                # Ensure the connection is closed
-                conn.close()
+                if isinstance(conn, sqlite3.Connection):
+                    conn.close()
         else:
             results.append(None)
-
-    # Debug
-    # print(f"Total active connections {len(connections)}")
-    # print(f"Results from all connections: {results}")
 
     return results
