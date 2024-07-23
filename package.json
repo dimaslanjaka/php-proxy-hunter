@@ -36,7 +36,7 @@
     "axios": "^1.6.8",
     "bluebird": "^3.7.2",
     "countries-list": "^3.1.0",
-    "crypto-js": "4.1.1",
+    "crypto-js": "4.2.0",
     "deepmerge-ts": "4",
     "highlight.js": "^11.10.0",
     "https-proxy-agent": "^7.0.4",
