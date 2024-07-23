@@ -34,10 +34,10 @@ if os.path.isfile(dotenv_file):
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
-env = environ.Env(DEBUG=(bool, False))
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "-)ir)&2lz9o41=qsd7pbzl+uv%1tgf+$%ddvz9bbw6_(exk)(f"
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY", "-)ir)&2lz9o41=qsd7pbzl+uv%1tgf+$%ddvz9bbw6_(exk)(f"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = is_debug()
