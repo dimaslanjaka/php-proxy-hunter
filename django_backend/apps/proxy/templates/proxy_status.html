@@ -1,8 +1,14 @@
 <!-- Ad container -->
 <div class="p-4 rounded-lg shadow-md mx-auto my-4 w-full max-w-md">
   <div class="w-full ad-container">
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2188063137129806"
-      data-ad-slot="2667720583" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <ins
+      class="adsbygoogle"
+      style="display: block"
+      data-ad-client="ca-pub-2188063137129806"
+      data-ad-slot="2667720583"
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    ></ins>
   </div>
 </div>
 
@@ -64,26 +70,26 @@
 <script>
   async function fetchStatus() {
     try {
-      const response = await fetch('/proxy/status?date=' + new Date());
+      const response = await fetch("/proxy/status?date=" + new Date());
       const data = await response.json();
 
-      document.getElementById('threads-all').textContent = data.total.threads.all;
-      document.getElementById('threads-proxy-checker').textContent = data.total.threads.proxy_checker;
-      document.getElementById('threads-filter-duplicates').textContent = data.total.threads.filter_duplicates;
+      document.getElementById("threads-all").textContent = data.total.threads.all;
+      document.getElementById("threads-proxy-checker").textContent = data.total.threads.proxy_checker;
+      document.getElementById("threads-filter-duplicates").textContent = data.total.threads.filter_duplicates;
 
-      document.getElementById('proxies-all').textContent = data.total.proxies.all;
-      document.getElementById('proxies-untested').textContent = data.total.proxies.untested;
-      document.getElementById('proxies-dead').textContent = data.total.proxies.dead;
-      document.getElementById('proxies-port-closed').textContent = data.total.proxies['port-closed'];
-      document.getElementById('proxies-private').textContent = data.total.proxies.private;
-      document.getElementById('proxies-active').textContent = data.total.proxies.active;
+      document.getElementById("proxies-all").textContent = data.total.proxies.all;
+      document.getElementById("proxies-untested").textContent = data.total.proxies.untested;
+      document.getElementById("proxies-dead").textContent = data.total.proxies.dead;
+      document.getElementById("proxies-port-closed").textContent = data.total.proxies["port-closed"];
+      document.getElementById("proxies-private").textContent = data.total.proxies.private;
+      document.getElementById("proxies-active").textContent = data.total.proxies.active;
     } catch (error) {
-      console.error('Error fetching proxy status:', error);
+      console.error("Error fetching proxy status:", error);
     }
   }
 
   // Fetch status when the page loads
-  document.addEventListener('DOMContentLoaded', fetchStatus);
+  document.addEventListener("DOMContentLoaded", fetchStatus);
   // Repeat status fetcher for [n] seconds
   setInterval(fetchStatus, 10000);
 </script>
