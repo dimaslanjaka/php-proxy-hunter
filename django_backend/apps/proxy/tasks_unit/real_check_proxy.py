@@ -121,7 +121,7 @@ def get_proxies_query(
     query = f"""
     SELECT *
     FROM proxies
-    WHERE {condition} OR status IS NULL OR type IS NULL
+    WHERE {condition} OR status IS NULL
     ORDER BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1), RANDOM()
     """
 
