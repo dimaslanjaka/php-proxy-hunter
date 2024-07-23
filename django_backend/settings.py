@@ -58,6 +58,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "https://sh.webmanajemen.com:8880",
     "http://sh.webmanajemen.com:8880",
+    "https://dev.webmanajemen.com:8880",
+    "http://dev.webmanajemen.com:8880",
     "http://23.94.85.180:8000",
     "http://23.94.85.180:8880",
 ]
