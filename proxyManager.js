@@ -514,7 +514,7 @@ async function fetchWorkingProxies() {
         if (i === 3) {
           const badges = [
             { text: "HTTP", className: "bg-blue-500 text-white" },
-            { text: "HTTPS", className: "bg-green-500 text-white" },
+            { text: "SSL", className: "bg-green-500 text-white" },
             { text: "SOCKS4", className: "bg-yellow-500 text-black" },
             { text: "SOCKS5", className: "bg-red-500 text-white" }
           ];
@@ -526,7 +526,7 @@ async function fetchWorkingProxies() {
             .filter((str) => str.trim().length > 0); // Remove empty strings
           if (split[11] == "true") {
             // add https when SSL active
-            labels.push("HTTPS");
+            labels.push("SSL");
           }
 
           // Reset td inner
