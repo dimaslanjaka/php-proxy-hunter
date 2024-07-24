@@ -1,4 +1,4 @@
-''' proxyscan v1 - scan random networks for proxys '''
+""" proxyscan v1 - scan random networks for proxys """
 
 import time
 from socket import *
@@ -26,11 +26,11 @@ proxy_list = []
 # Get the directory of the current script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-pfile = os.path.join(script_dir, 'tmp/proxy.lst')
+pfile = os.path.join(script_dir, "tmp/proxy.lst")
 
 
 def write_result():
-    with open(pfile, 'a+') as pf:
+    with open(pfile, "a+") as pf:
         for proxy in proxy_list:
             pf.write(proxy)
 
@@ -41,9 +41,18 @@ def scan(network):
     """
     hcount = 0
     hosts = IPNetwork(network)
-    print("[{}{}{}{}]: {}{}{}{} available IPs".format(bold, blue, network, reset, bold, green, len(hosts), reset), flush=True)
+    print(
+        "[{}{}{}{}]: {}{}{}{} available IPs".format(
+            bold, blue, network, reset, bold, green, len(hosts), reset
+        ),
+        flush=True,
+    )
     for host in map(str, hosts):
-        print("Scanning: [{}{}{}{}]".format(bold, yellow, host, reset), end="\r", flush=True)
+        print(
+            "Scanning: [{}{}{}{}]".format(bold, yellow, host, reset),
+            end="\r",
+            flush=True,
+        )
         target(host)
         hcount += 1
         sys.stdout.flush()
@@ -51,21 +60,57 @@ def scan(network):
             write_result()
 
         if len(proxy_list) == 25:
-            print("Proxies have been saved to {}{}\'{}\'{}".format(bold, yellow, pfile, reset))
+            print(
+                "Proxies have been saved to {}{}'{}'{}".format(
+                    bold, yellow, pfile, reset
+                )
+            )
             end = time.clock()
             elapsed = end - start
             from datetime import timedelta
+
             total_time = str(timedelta(hours=elapsed))
             print("Time elapsed: {}{}{}{}".format(bold, green, total_time, reset))
-            print("Scanned {}{}{}{} hosts".format(bold, yellow, hcount, reset), end="\r", flush=True)
+            print(
+                "Scanned {}{}{}{} hosts".format(bold, yellow, hcount, reset),
+                end="\r",
+                flush=True,
+            )
             sys.exit(0)
 
 
 def target(ip: str):
     # scan most used proxy ports. more can be added, note: more ports = longer scan time.
-    pports = [80, 81, 83, 88, 3128, 3129, 3654, 4444, 5800, 6588, 6666,
-              6800, 7004, 8080, 8081, 8082, 8083, 8088, 8118, 8123, 8888,
-              9000, 8084, 8085, 9999, 45454, 45554, 53281]
+    pports = [
+        80,
+        81,
+        83,
+        88,
+        3128,
+        3129,
+        3654,
+        4444,
+        5800,
+        6588,
+        6666,
+        6800,
+        7004,
+        8080,
+        8081,
+        8082,
+        8083,
+        8088,
+        8118,
+        8123,
+        8888,
+        9000,
+        8084,
+        8085,
+        9999,
+        45454,
+        45554,
+        53281,
+    ]
     # scount = 0
     for port in pports:
         # Attempt to connect to socket
@@ -76,48 +121,102 @@ def target(ip: str):
         result = s.connect_ex((ip, port))
         if result == 0:
             print("", flush=True)
-            print("\n{}{}{}{}:{} [{}{}OPEN{}]".format(bold, yellow, ip, reset, port, bold, green, reset), flush=True)
+            print(
+                "\n{}{}{}{}:{} [{}{}OPEN{}]".format(
+                    bold, yellow, ip, reset, port, bold, green, reset
+                ),
+                flush=True,
+            )
             # Check for SQUID service
-            message = bytes("GET / HTTP/1.1\r\n\r\n", 'utf-8')
+            message = bytes("GET / HTTP/1.1\r\n\r\n", "utf-8")
             s.sendall(message)
             # Set the timeout for connecting to test site. Can be adjusted but lower time will
             # drastically reduce accuracy
             s.settimeout(0.08)
             try:
                 reply = s.recv(100)
-                data = reply.decode(encoding='utf-8')
+                data = reply.decode(encoding="utf-8")
                 p = re.compile("Server: (.*)/")
                 service = p.search(data)
             except Exception:
                 pass
             try:
-                if service.group(1) == 'squid':
+                if service.group(1) == "squid":
                     stype = service.group(1)
-                    print("Service: [{}{}{}{}]".format(bold, green, str(stype).capitalize(), reset))
-                    with open(pfile, 'a') as f:
+                    print(
+                        "Service: [{}{}{}{}]".format(
+                            bold, green, str(stype).capitalize(), reset
+                        )
+                    )
+                    with open(pfile, "a") as f:
                         print("Saving..\n")
-                        proxy_list.append("[" + stype.upper() + "] - http " + str(ip) + " " + str(port) + "\n")
-                        print("{}{}Proxy Count: {}[{}{}{}{}{}]".format(bold, yellow, reset, bold, len(proxy_list), bold, yellow, reset))
+                        proxy_list.append(
+                            "["
+                            + stype.upper()
+                            + "] - http "
+                            + str(ip)
+                            + " "
+                            + str(port)
+                            + "\n"
+                        )
+                        print(
+                            "{}{}Proxy Count: {}[{}{}{}{}{}]".format(
+                                bold,
+                                yellow,
+                                reset,
+                                bold,
+                                len(proxy_list),
+                                bold,
+                                yellow,
+                                reset,
+                            )
+                        )
                         sys.stdout.flush()
                 else:
                     # Check for SOCKS services
                     try:
-                        from prox_check import is_prox
+                        from .prox_check import is_prox
+
                         p_str = "http://" + str(ip) + ":" + str(port)
                         prox = is_prox(p_str)
-                        if prox == 'socks':
-                            print("Service: [{}{}{}{}]".format(bold, green, prox.capitalize(), reset))
-                            with open(pfile, 'a') as f:
+                        if prox == "socks":
+                            print(
+                                "Service: [{}{}{}{}]".format(
+                                    bold, green, prox.capitalize(), reset
+                                )
+                            )
+                            with open(pfile, "a") as f:
                                 print("Saving..\n")
-                                proxy_list.append("[" + prox.upper() + "] - http " + str(ip) + " " + str(port) + "\n")
-                                print("{}{}Proxy Count: {}[{}{}{}{}]".format(bold, yellow, reset, bold, len(proxy_list), yellow, reset))
+                                proxy_list.append(
+                                    "["
+                                    + prox.upper()
+                                    + "] - http "
+                                    + str(ip)
+                                    + " "
+                                    + str(port)
+                                    + "\n"
+                                )
+                                print(
+                                    "{}{}Proxy Count: {}[{}{}{}{}]".format(
+                                        bold,
+                                        yellow,
+                                        reset,
+                                        bold,
+                                        len(proxy_list),
+                                        yellow,
+                                        reset,
+                                    )
+                                )
                                 sys.stdout.flush()
                         else:
                             pass
                     except Exception as e:
                         print(str(e))
             except (NameError, AttributeError) as e:
-                print("[{}{}No Proxy{}]\nSkipping..\n".format(bold, red, reset), flush=True)
+                print(
+                    "[{}{}No Proxy{}]\nSkipping..\n".format(bold, red, reset),
+                    flush=True,
+                )
         else:
             pass
         s.close()
@@ -125,14 +224,14 @@ def target(ip: str):
         # print("{}Proxy Count {}{}{}".format(bold, yellow, len(proxy_list), reset))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Construct the full file path
-    file_path = os.path.join(script_dir, 'ip_ranges_US.txt')
+    file_path = os.path.join(script_dir, "ip_ranges_US.txt")
 
     print(f"reading {file_path}")
     print(f"output {pfile}")
 
-    with open(file_path, 'r') as f:
+    with open(file_path, "r") as f:
         subnets = f.readlines()
 
         netlist = []
@@ -147,9 +246,13 @@ if __name__ == '__main__':
 
     # os.system("clear")
     print("{}{}  ProxyHunter v1.1       {}".format(bold, yellow, reset))
-    print("\n{}{}Initializing scanner..\nThis may take some time.\n{}".format(bold, blue, reset))
+    print(
+        "\n{}{}Initializing scanner..\nThis may take some time.\n{}".format(
+            bold, blue, reset
+        )
+    )
     for net in netlist:
-        ip = net.lstrip().strip('\n')
+        ip = net.lstrip().strip("\n")
         try:
             scan(ip)
         except KeyboardInterrupt:
