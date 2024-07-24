@@ -1,0 +1,56 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Login{% endblock %}
+{% block nav_title %}Login{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center text-white">
+    <div class="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="username" class="block text-sm font-medium text-gray-300">Username</label>
+                <input type="text" name="username" id="username"
+                    class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    required>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+                <input type="password" name="password" id="password"
+                    class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    required>
+            </div>
+            <div class="flex items-center justify-between">
+                <button type="submit"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Login</button>
+                <a type="button" href="#" id="g-login"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    title="Login using google"><i class="fa-brands fa-google"></i></a>
+                <a href="#"
+                    class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-700">Forgot
+                    Password?</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    setTimeout(() => {
+        const loginButton = document.querySelector("#g-login");
+        if (loginButton) {
+            loginButton.addEventListener("click", (e) => {
+                e.preventDefault();
+                const url = "/auth/google-login?date=" + new Date().toISOString();
+                const newWindow = window.open(url, 'g-login');
+                if (newWindow) {
+                    newWindow.focus();
+                } else {
+                    console.error("Failed to open window. Popup blocked?");
+                }
+            });
+        } else {
+            console.error("Element with id 'g-login' not found.");
+        }
+    }, 600);
+</script>
+{% endblock %}

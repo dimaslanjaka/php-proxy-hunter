@@ -116,6 +116,11 @@ SIMPLE_JWT = {
 
 LOGIN_URL = "/auth/login"
 
+# Google OAuth2 configuration
+G_CLIENT_ID = os.getenv("G_CLIENT_ID")
+G_CLIENT_SECRET = os.getenv("G_CLIENT_SECRET")
+G_PROJECT_ID = os.getenv("G_PROJECT_ID")
+
 # middleware classes based on priority
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -163,6 +168,7 @@ TEMPLATES = [
                 os.path.join(BASE_DIR, "django_backend/apps/core/templates"),
                 os.path.join(BASE_DIR, "django_backend/apps/axis/templates"),
                 os.path.join(BASE_DIR, "django_backend/apps/proxy/templates"),
+                os.path.join(BASE_DIR, "django_backend/apps/authentication/templates"),
             ]
             if os.path.exists(path)
         ],
