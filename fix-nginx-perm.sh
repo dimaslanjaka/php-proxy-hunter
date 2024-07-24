@@ -197,6 +197,8 @@ run_as_user_in_venv "python $SCRIPT_DIR/manage.py migrate"
 run_as_user_in_venv "python $SCRIPT_DIR/manage.py collectstatic --noinput"
 # clear django caches (from django_backend/apps/core/management/commands/clear_cache.py)
 run_as_user_in_venv "python $SCRIPT_DIR/manage.py clear_cache"
+# sync proxies between php and django python databases
+run_as_user_in_venv "python $SCRIPT_DIR/manage.py sync_proxies"
 
 # Restart services
 touch "$SCRIPT_DIR/assets/index.html"
