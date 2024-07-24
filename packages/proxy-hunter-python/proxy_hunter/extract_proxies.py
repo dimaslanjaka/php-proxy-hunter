@@ -4,9 +4,7 @@ from .Proxy import Proxy
 from .utils import *
 
 
-def extract_proxies(
-    string: Optional[str], write_database: Optional[bool] = True
-) -> List[Proxy]:
+def extract_proxies(string: Optional[str]) -> List[Proxy]:
     """
     Extracts IP:PORT pairs from a string, along with optional username and password.
 
@@ -48,6 +46,7 @@ def extract_proxies(
             match = match[0]
 
         if matched_whitespaces and len(match.split(":")) == 2:
+            # print("matches whitespaces")
             ip, port = match.split(":")
             if is_valid_ip(ip):
                 proxy = f"{ip}:{port}"
@@ -56,6 +55,7 @@ def extract_proxies(
             continue
 
         if matched_json and len(match.split(":")) == 2:
+            # print("matches json")
             ip, port = match.split(":")
             if is_valid_ip(ip):
                 proxy = f"{ip}:{port}"
@@ -65,15 +65,22 @@ def extract_proxies(
 
         if "@" in match:
             proxy, login = match.split("@")
+            # print("has username and password")
             if is_valid_proxy(proxy):
                 username, password = (login.split(":") + [None, None])[:2]
-                result = Proxy(proxy, username, password)
-                if write_database and username and password:
-                    # Replace with actual database update logic if needed
-                    pass
+                result = Proxy(proxy=proxy, username=username, password=password)
                 results.append(result)
         else:
             result = Proxy(match)
             results.append(result)
 
     return results
+
+
+if __name__ == "__main__":
+    proxies = extract_proxies(
+        """
+162.223.116.54:80@u:s
+"""
+    )
+    print(proxies)
