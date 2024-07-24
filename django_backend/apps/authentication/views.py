@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 
 from .serializers import UserRegistrationSerializer
 from .utils import get_user_with_fields
+from .services import google_views
 
 UserModel = get_user_model()
 
