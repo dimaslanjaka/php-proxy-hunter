@@ -84,7 +84,7 @@
     </div>
   </div>
 
-  <section id="recaptcha">
+  <section id="recaptcha" class="border p-2">
     <script>
       function send_token(token, callback) {
         if (typeof callback !== "function") callback = () => {
@@ -107,23 +107,38 @@
         grecaptcha.execute(siteKey, { action: "submit" }).then(send_token);
       }
 
-      fetch(`//${location.hostname}/info.php`).then(r => r.json()).then(res => {
-        const siteKey = res["captcha-site-key"];
-        const embedder = document.createElement("div");
-        embedder.classList.add("g-recaptcha");
-        embedder.setAttribute("data-sitekey", "X");
-        embedder.setAttribute("data-callback", "send_token");
-        embedder.setAttribute("data-action", "submit");
-        document.getElementById("recaptcha").appendChild(embedder);
-        const script = document.createElement("script");
-        script.src = "https://www.google.com/recaptcha/api.js?render=" + siteKey;
-        script.onload = function () {
-          grecaptcha.ready(() => recaptcha_execute(siteKey));
-        };
-        document.body.appendChild(script);
-      }).catch(() => {
-        alert("failed obtain captcha site key");
-      });
+      function start_recaptcha() {
+        fetch(`//${location.hostname}/info.php`).then(r => r.json()).then(res => {
+          const siteKey = res["captcha-site-key"];
+          const embedder = document.createElement("div");
+          embedder.classList.add("g-recaptcha");
+          embedder.setAttribute("data-sitekey", siteKey);
+          embedder.setAttribute("data-callback", "send_token");
+          embedder.setAttribute("data-action", "submit");
+          document.getElementById("recaptcha").appendChild(embedder);
+          setTimeout(() => {
+            const script = document.createElement("script");
+            script.src = "https://www.google.com/recaptcha/api.js?render=" + siteKey;
+            script.onload = function () {
+              grecaptcha.ready(() => recaptcha_execute(siteKey));
+            };
+            document.body.appendChild(script);
+          }, 1000);
+        }).catch((e) => {
+          const message = "failed obtain captcha site key " + e.message;
+
+          // Create alert container
+          const alertBox = document.createElement('div');
+          alertBox.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 alert';
+
+          // Create alert message
+          const alertMessage = document.createElement('span');
+          alertMessage.textContent = message;
+          alertBox.appendChild(alertMessage);
+
+          document.getElementById("recaptcha").appendChild(alertBox);
+        });
+      }
     </script>
   </section>
 
