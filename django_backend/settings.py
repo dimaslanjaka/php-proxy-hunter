@@ -121,6 +121,7 @@ LOGIN_URL = "/auth/login"
 G_CLIENT_ID = os.getenv("G_CLIENT_ID")
 G_CLIENT_SECRET = os.getenv("G_CLIENT_SECRET")
 G_PROJECT_ID = os.getenv("G_PROJECT_ID")
+G_REDIRECT_URI = os.getenv("G_REDIRECT_URI")
 
 # middleware classes based on priority
 MIDDLEWARE = [
