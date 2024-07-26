@@ -4,7 +4,7 @@ import sys
 from threading import Thread, active_count
 from typing import Any, Dict, Set
 from urllib.parse import unquote
-
+from django.views.decorators.cache import never_cache
 from django.conf import settings
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Case, IntegerField, Value, When
@@ -304,6 +304,7 @@ def trigger_filter_ports_proxy(request: HttpRequest):
     return JsonResponse(render_data)
 
 
+@never_cache
 def view_status(request: HttpRequest):
     global proxy_checker_threads, filter_ports_threads
     proxy_checker_threads = {
@@ -332,4 +333,8 @@ def view_status(request: HttpRequest):
             },
         },
     }
-    return JsonResponse(data)
+    response = JsonResponse(data)
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate"  # HTTP 1.1.
+    response["Pragma"] = "no-cache"  # HTTP 1.0.
+    response["Expires"] = "0"  # Proxies.
+    return response
