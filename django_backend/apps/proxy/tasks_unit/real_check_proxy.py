@@ -35,7 +35,7 @@ from src.ProxyDB import ProxyDB
 from django.conf import settings
 from django.db import connection
 
-result_log_file = get_relative_path("tmp/logs/proxyChecker.txt")
+result_log_file = get_relative_path("proxyChecker.txt")
 
 
 def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
