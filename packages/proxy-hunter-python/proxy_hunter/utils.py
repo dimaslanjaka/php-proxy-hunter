@@ -4,7 +4,8 @@ import re
 import zlib
 from io import BytesIO
 from typing import Optional
-
+import brotli
+import chardet
 import requests
 
 
@@ -26,21 +27,36 @@ def decompress_requests_response(response: requests.Response) -> str:
             # Handle gzip encoding
             buf = BytesIO(response.content)
             with gzip.GzipFile(fileobj=buf) as f:
-                content = f.read().decode("utf-8")  # Adjust encoding if necessary
+                content = f.read()
         elif encoding == "deflate":
             # Handle deflate encoding
-            content = zlib.decompress(response.content, -zlib.MAX_WBITS).decode(
-                "utf-8"
-            )  # Adjust encoding if necessary
+            content = zlib.decompress(response.content, -zlib.MAX_WBITS)
+        elif encoding == "br":
+            # Handle Brotli encoding
+            content = brotli.decompress(response.content)
         else:
             # No encoding or unsupported encoding
-            content = response.text  # Handles non-compressed responses
-    except (OSError, zlib.error) as e:
-        # Handle errors in decompression
+            content = response.content
+    except (OSError, zlib.error, Exception) as e:
+        # Handle errors in decompression (including Brotli errors)
         print(f"Decompression error: {e}")
-        content = response.text  # Fallback to non-compressed response
+        content = response.content  # Fallback to raw content
 
-    return content
+    # Detect encoding if not specified or incorrectly detected
+    detected_encoding = chardet.detect(content).get("encoding")
+
+    if detected_encoding is None:
+        detected_encoding = "utf-8"  # Fallback to a default encoding
+
+    # Decode the content with detected encoding
+    try:
+        return content.decode(detected_encoding)
+    except (UnicodeDecodeError, TypeError) as e:
+        # Handle decoding errors
+        print(f"Decoding error: {e}")
+        return content.decode(
+            "utf-8", errors="replace"
+        )  # Fallback to utf-8 with error handling
 
 
 def is_valid_ip_connection(proxy: Optional[str]) -> bool:
