@@ -158,28 +158,22 @@ class Command(BaseCommand):
         start_filter_duplicates_ips()
         start_check_open_ports()
 
-        def t1():
-            proxies = self.select_proxies(
-                "SELECT * FROM proxies WHERE status = 'untested' ORDER BY RANDOM() LIMIT 100;"
-            )
-            using_joblib(proxies, 5)
+        proxies = self.select_proxies(
+            "SELECT * FROM proxies WHERE status = 'untested' ORDER BY RANDOM() LIMIT 100"
+        )
 
-        threading.Thread(target=t1).start()
+        proxies += self.select_proxies(
+            """
+            SELECT *
+            FROM proxies
+            WHERE status = 'active'
+            AND datetime(last_check) < datetime('now', '-4 hours')
+            ORDER BY RANDOM()
+            LIMIT 100;
+            """
+        )
 
-        def t2():
-            active_proxies = self.select_proxies(
-                """
-                SELECT *
-                FROM proxies
-                WHERE status = 'active'
-                AND datetime(last_check) < datetime('now', '-4 hours')
-                ORDER BY RANDOM()
-                LIMIT 100;
-                """
-            )
-            using_pool(active_proxies, 5)
-
-        threading.Thread(target=t2).start()
+        using_joblib(proxies, 5)
 
     def select_proxies(self, sql: str):
         from django_backend.apps.proxy.utils import execute_select_query
