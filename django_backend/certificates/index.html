@@ -1,0 +1,8 @@
+<pre>
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout localhost.key -out localhost.crt
+</pre>
+
+<h2>With custom config</h2>
+<pre>
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout localhost.key -out localhost.crt -config openssl.cnf
+</pre>
