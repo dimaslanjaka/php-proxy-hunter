@@ -282,6 +282,8 @@ def check_open_ports(max: int = 10, callback: Optional[Callable] = None):
 
 def start_check_open_ports():
     # start checking [n] proxies with status=port-open
-    thread = threading.Thread(target=check_open_ports, args=(100,))
+    thread = threading.Thread(
+        target=check_open_ports, args=(settings.LIMIT_FILTER_CHECK,)
+    )
     thread.start()
     return thread
