@@ -54,3 +54,4 @@ html5lib
 psutil
 django-htmlmin
 oauthlib
+ipaddress
