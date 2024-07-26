@@ -431,17 +431,18 @@ def is_matching_regex(pattern: str, text: str):
 
 def remove_trailing_hyphens(string: Optional[str]) -> str:
     """
-    Remove trailing hyphens from the filename.
+    Remove trailing hyphens from the given string.
 
     Args:
-        filename (str): The filename with potential trailing hyphens.
+        string (Optional[str]): The string with potential trailing hyphens.
 
     Returns:
-        str: The filename with trailing hyphens removed.
+        str: The string with trailing hyphens removed.
     """
-    if not string or string == "-" or not string.strip():
+    if not string:
         return ""
-    return re.sub(r"-+$", "", string)
+    # Remove trailing hyphens, accounting for spaces and empty strings
+    return re.sub(r"[-\s]+$", "", string).strip()
 
 
 def get_random_folder(directory: str) -> str:
@@ -903,13 +904,32 @@ def truncate_file_content(file_path, max_length=0):
             pass
 
 
-def sanitize_filename(filename):
-    # Define a regular expression to match invalid characters in filenames
-    # Add any other characters you want to disallow
-    invalid_chars = r'[\\/:\*\?"<>\|]'
+def sanitize_filename(filename: str, extra_chars: Optional[str] = None) -> str:
+    """
+    Sanitize the given filename by replacing invalid characters with hyphens.
 
-    # Replace invalid characters with underscores
+    Args:
+        filename (str): The original filename to be sanitized.
+        extra_chars (Optional[str]): Additional characters to be replaced with hyphens.
+                                      If None, defaults to the standard set of invalid characters.
+
+    Returns:
+        str: The sanitized filename with invalid characters replaced by hyphens.
+    """
+    # Define a regular expression to match invalid characters in filenames
+    # All non-word and non-digit characters except - _ space and .
+    invalid_chars = r"[^\w\s.\-]"
+
+    # Replace invalid characters with hyphens
     sanitized_filename = re.sub(invalid_chars, "-", filename)
+
+    # If extra_chars is provided, add them to the invalid_chars pattern
+    if extra_chars:
+        extra_chars_pattern = re.escape(extra_chars)
+        invalid_chars = f"[{extra_chars_pattern}]"
+        # Re-replace invalid characters with hyphens
+        sanitized_filename = re.sub(invalid_chars, "-", sanitized_filename)
+
     return remove_trailing_hyphens(sanitized_filename)
 
 
