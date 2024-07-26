@@ -218,7 +218,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 proxy_data += f"\n{format}\n"
     if len(proxy_data.strip()) < 11:
         php_results = [
-            read_file(get_relative_path("working.json")),
+            # read_file(get_relative_path("working.json")),
             read_file(get_relative_path("proxies.txt")),
         ]
         for php_result in php_results:
@@ -245,8 +245,8 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     if proxies:
         # shuffle items
         random.shuffle(proxies)
-    # iterate 30 proxies
-    for proxy_obj in proxies[:30]:
+    # iterate [n] proxies
+    for proxy_obj in proxies[: settings.LIMIT_PROXIES_CHECK]:
         # reset indicator each item
         status = None
         working = False

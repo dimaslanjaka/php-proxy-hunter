@@ -192,6 +192,10 @@ ASGI_APPLICATION = "django_backend.asgi.application"
 WORKER_THREADS = 4 if not is_debug() else 10
 # limit threads to operate django_backend\apps\proxy\views.py
 LIMIT_THREADS = 4 if not is_debug() else 10
+# limit proxies to be checked in 1 thread
+LIMIT_PROXIES_CHECK = 100
+# limit duplicated ips to be checked in 1 thread
+LIMIT_FILTER_CHECK = 100
 
 # Logging settings
 # dont remove `from logging.handlers import TimedRotatingFileHandler`
