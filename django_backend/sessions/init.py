@@ -1,70 +1,21 @@
 import logging
-import socket
 import time
 from importlib import import_module
 from django.conf import settings
 from django.contrib.sessions.backends.base import UpdateError
-from django.contrib.sessions.backends.file import SessionStore as FileSessionStore
-from django.contrib.sessions.backends.db import SessionStore as DBSessionStore
+from .SessionStore import SessionStore as FileSessionStore
 from django.core.exceptions import SuspiciousOperation
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.utils.cache import patch_vary_headers
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.http import http_date
 from django_backend.ServerUtils import ServerUtils
-
-
-class session_encryption:
-    def __init__(self, key=socket.gethostname()):
-        self.key = key
-        self.f9939a = list(range(256))
-
-    def a(self, text):
-        self.f9939a = list(range(256))
-        i_arr = [ord(self.key[i % len(self.key)]) for i in range(256)]
-
-        # Initialization phase
-        i2 = 0
-        for i3 in range(256):
-            i4 = self.f9939a[i3]
-            i2 = (i2 + i4 + i_arr[i3]) % 256
-            self.f9939a[i3], self.f9939a[i2] = self.f9939a[i2], self.f9939a[i3]
-
-        # Processing phase
-        sb = []
-        i5 = 0
-        i6 = 0
-        for i7 in range(len(text)):
-            i5 = (i5 + 1) % 256
-            i8 = self.f9939a[i5]
-            i6 = (i6 + i8) % 256
-            self.f9939a[i5], self.f9939a[i6] = self.f9939a[i6], self.f9939a[i5]
-            sb.append(chr(self.f9939a[(self.f9939a[i5] + i8) % 256] ^ ord(text[i7])))
-
-        return "".join(sb)
-
-    def decrypt(self, encrypted):
-        sb = []
-        i = 0
-        while i < len(encrypted):
-            try:
-                i2 = i + 2
-                sb.append(chr(int(encrypted[i:i2], 16)))
-                i = i2
-            except ValueError:
-                break
-
-        return self.a("".join(sb))
-
-    def encrypt(self, text):
-        encrypted = self.a(text)
-        return "".join(f"{ord(c):02x}" for c in encrypted)
-
+from django_backend.sessions.session_encryption import session_encryption
 
 encryptor = session_encryption()
 
 
-class SessionStore(DBSessionStore):
+class SessionStore(FileSessionStore):
     def create(self):
         # Generate a custom session key
         self._session_key = self._generate_custom_session_key()
@@ -72,24 +23,19 @@ class SessionStore(DBSessionStore):
 
     def _generate_custom_session_key(self):
         global encryptor
-        # Retrieve user agent and IP from custom attributes
-        user_agent = getattr(self, "user_agent", "")
-        user_ip = getattr(self, "user_ip", "")
-
-        # Create a unique string using user agent and IP
-        unique_string = f"{user_agent}-{user_ip}"
+        _session_unique_key = getattr(self, "_session_unique_key", "")
 
         # Generate MD5 hash of the unique string
-        # return encryptor.encrypt(unique_string)
-        return unique_string
+        return encryptor.encrypt(_session_unique_key)
 
 
 logger = logging.getLogger(__name__)
 
 
-class SessionMiddlewareWithRequest(MiddlewareMixin):
+class SessionMiddleware(MiddlewareMixin):
     def __init__(self, get_response=None):
         self.get_response = get_response
+        self.SessionStore = FileSessionStore
         engine = import_module(settings.SESSION_ENGINE)
         self.SessionStore = engine.SessionStore
 
@@ -100,13 +46,12 @@ class SessionMiddlewareWithRequest(MiddlewareMixin):
         # Set user agent and IP in the session store
         client_ip = ServerUtils.get_request_ip(request)
         user_agent = ServerUtils.user_agent(request)
-        request.session.user_agent = user_agent
-        request.session.user_ip = client_ip
+        request.session._session_unique_key = f"{user_agent}-{client_ip}"
 
         response = self.get_response(request)
         return response
 
-    def process_response(self, request, response):
+    def process_response(self, request: HttpRequest, response: HttpResponse):
         """
         If request.session was modified, or if the configuration is to save the
         session every time, save the changes and set a session cookie or delete
