@@ -143,14 +143,8 @@ if not DEBUG:
         "django.middleware.cache.FetchFromCacheMiddleware",
     ]
 
-# file-based caching
-if DEBUG:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        }
-    }
-else:
+# file-based caching only for production
+if not DEBUG:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
