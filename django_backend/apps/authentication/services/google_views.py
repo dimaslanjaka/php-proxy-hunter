@@ -1,24 +1,38 @@
+import json
 from urllib.parse import urlencode
 import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.http import HttpRequest, JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 
 
 def google_login(request: HttpRequest):
     auth_url = "https://accounts.google.com/o/oauth2/auth"
     params = {
         "client_id": settings.G_CLIENT_ID,
-        "redirect_uri": request.build_absolute_uri("/auth/redirect"),
+        "redirect_uri": settings.G_REDIRECT_URI,
         "response_type": "code",
         "scope": "profile email",
         "access_type": "offline",
         "prompt": "consent",
     }
     url = f"{auth_url}?{urlencode(params)}"
-    return redirect(url)
+    return render(
+        request,
+        "login-google-outbound.html",
+        {
+            "params": json.dumps(
+                {
+                    "scope": params["scope"],
+                    "redirect": params["redirect_uri"],
+                },
+                indent=2,
+            ),
+            "url": url,
+        },
+    )
 
 
 def oauth2callback(request: HttpRequest):
@@ -28,7 +42,7 @@ def oauth2callback(request: HttpRequest):
 
     # Exchange code for access token
     token_url = "https://oauth2.googleapis.com/token"
-    redirect_uri = request.build_absolute_uri("/auth/redirect")
+    redirect_uri = settings.G_REDIRECT_URI
     data = {
         "code": code,
         "client_id": settings.G_CLIENT_ID,
