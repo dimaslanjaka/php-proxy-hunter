@@ -96,6 +96,7 @@ https://multiproxy.org/txt_all/proxy.txt
 https://multiproxy.org/txt_anon/proxy.txt
 https://proxyspace.pro/http.txt
 https://proxyspace.pro/https.txt
+https://proxies.lat/proxy.txt
 
 HTTPS RAW:
 https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/https.txt
