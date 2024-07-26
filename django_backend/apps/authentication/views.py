@@ -1,5 +1,6 @@
 from typing import Optional
 
+from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -23,6 +24,11 @@ class CurrentUserStatusView(APIView):
         user = request.user
         data = get_user_with_fields(user)
         data["SID"] = request.session.session_key
+        data["is_admin"] = (
+            request.user.is_authenticated
+            and request.user.is_staff
+            and settings.UNLIMITED_FOR_ADMIN
+        )
         return JsonResponse(data)
 
 
