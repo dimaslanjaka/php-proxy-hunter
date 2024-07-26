@@ -327,6 +327,7 @@ def view_status(request: HttpRequest):
     }
     data = {
         "is_django_env": is_django_environment(),
+        "SID": request.session.session_key,
         "total": {
             "threads": {
                 "all": active_count(),
