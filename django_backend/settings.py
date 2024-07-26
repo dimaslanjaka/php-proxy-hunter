@@ -133,7 +133,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",  # Default session middleware
-    "django_backend.custom_session.SessionMiddlewareWithRequest",  # Custom session middleware
+    "django_backend.sessions.init.SessionMiddleware",  # Custom session middleware
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -301,10 +301,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # AUTH_USER_MODEL = 'authentication.CustomUser'
 
 # SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Default session backend
-SESSION_ENGINE = "django_backend.custom_session"
+SESSION_ENGINE = "django_backend.sessions.init"
 SESSION_COOKIE_NAME = "nix"  # Default cookie name
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Session expires on browser close
 SESSION_COOKIE_AGE = 5 * 60 * 60  # Session cookie age in seconds
+SESSION_FILE_PATH = get_relative_path("tmp/sessions")
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
