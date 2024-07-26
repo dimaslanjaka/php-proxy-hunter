@@ -5,29 +5,35 @@ from typing import List, Optional, Tuple, Union
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
 import sqlite3
-
-from django.db import connection
 from proxy_checker import *
 from proxy_hunter import *
 
 from src.func_proxy import *
 from src.geoPlugin import *
 from src.ProxyDB import ProxyDB
+from django.db import connection
 
 
-def get_db_connections() -> List[Union[sqlite3.Connection]]:
+def get_db_connections() -> List[sqlite3.Connection]:
     """
-    Attempts to retrieve database connections.
+    Retrieves database connections, ensuring that Django connections are only accessed
+    when Django is fully initialized.
     """
-    db = None
+    connections = []
     try:
+        # Obtain Django connection
+        connections.append(connection)
+    except Exception as e:
+        print(f"Error accessing Django connection: {e}")
+
+    try:
+        # Obtain SQLite connection
         db = ProxyDB(get_relative_path("src/database.sqlite"), True)
+        connections.append(db.db.conn if db else None)
     except Exception as e:
         print(f"Error creating ProxyDB connection: {e}")
 
-    connections = [db.db.conn if db else None, connection]
-    active_connections = [conn for conn in connections if conn]
-    return active_connections
+    return connections
 
 
 def execute_sql_query(
