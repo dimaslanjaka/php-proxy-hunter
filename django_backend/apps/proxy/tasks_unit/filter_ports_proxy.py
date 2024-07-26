@@ -13,7 +13,6 @@ from django.db import connection
 from django_backend.apps.proxy.utils import (
     execute_select_query,
     execute_sql_query,
-    get_db_connections,
 )
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
     real_check_proxy,
