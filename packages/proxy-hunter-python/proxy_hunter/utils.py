@@ -136,5 +136,35 @@ def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bo
     return is_proxy_valid
 
 
+def check_raw_headers_keywords(input_string: str) -> bool:
+    """
+    Check if at least 4 specific keywords are present in requests response.text.
+
+    Parameters:
+    input_string (str): The input string to be checked.
+
+    Returns:
+    bool: True if at least 4 of the specified keywords are found in the input string, False otherwise.
+    """
+    keywords = [
+        "REMOTE_ADDR =",
+        "REMOTE_PORT =",
+        "REQUEST_METHOD =",
+        "REQUEST_URI =",
+        "HTTP_ACCEPT-LANGUAGE =",
+        "HTTP_ACCEPT-ENCODING =",
+        "HTTP_USER-AGENT =",
+        "HTTP_ACCEPT =",
+        "REQUEST_TIME =",
+        "HTTP_UPGRADE-INSECURE-REQUESTS =",
+        "HTTP_CONNECTION =",
+        "HTTP_PRIORITY =",
+    ]
+
+    found_count = sum(1 for keyword in keywords if keyword in input_string)
+
+    return found_count >= 4
+
+
 if __name__ == "__main__":
     print(is_valid_proxy("801.0.0.10:801"))
