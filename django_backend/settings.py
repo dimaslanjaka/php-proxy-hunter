@@ -48,6 +48,7 @@ ALLOWED_HOSTS = [
     "dev.webmanajemen.com",
     "23.94.85.180",
     "127.0.0.1",
+    "192.168.1.75",
 ]
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

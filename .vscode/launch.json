@@ -42,7 +42,7 @@
       "console": "integratedTerminal"
     },
     {
-      "command": "python manage.py runserver",
+      "command": "python manage.py runserver 0.0.0.0:8000",
       "name": "Run django",
       "request": "launch",
       "type": "node-terminal",
