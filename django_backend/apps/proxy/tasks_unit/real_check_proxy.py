@@ -1,4 +1,5 @@
 from datetime import timedelta
+import re
 from django.conf import settings
 from django.utils import timezone
 import os
@@ -9,7 +10,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
-from proxy_hunter.utils import is_valid_proxy
+from proxy_hunter.utils import check_raw_headers_keywords, is_valid_proxy
 import requests, sqlite3
 
 sys.path.append(
@@ -67,13 +68,24 @@ def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
             )
             latency = response.elapsed.total_seconds() * 1000  # in milliseconds
             status_code = response.status_code
-            soup = BeautifulSoup(decompress_requests_response(response), "html.parser")
+            body = decompress_requests_response(response)
+            soup = BeautifulSoup(body, "html.parser")
             title = soup.title.string if soup.title else ""
+            final_url = response.url
+            pattern = r"^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)="
+            regex_private_gateway = re.compile(pattern, re.IGNORECASE)
             if status_code == 200:
-                # print(f"testing {type}://{proxy} to {url}: {green('working')}")
-                result = title_should_be.lower() in title.lower() if title else False
+                if regex_private_gateway.match(final_url):
+                    result = False
+                    error = f"Private proxy {final_url}"
+                elif check_raw_headers_keywords(body):
+                    result = False
+                    error = f"Private proxy Raw headers (Azenv) found in body from {final_url}"
+                else:
+                    result = (
+                        title_should_be.lower() in title.lower() if title else False
+                    )
             else:
-                # print(f"testing {type}://{proxy} to {url}: {red('failed')}")
                 result = False
                 error = f"Status code: {status_code}. Title: {title}."
         except Exception as e:
