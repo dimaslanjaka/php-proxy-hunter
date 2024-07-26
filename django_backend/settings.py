@@ -211,8 +211,13 @@ LOGGING = {
         },
     },
     "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
         "file": {
-            "level": "INFO",  # Change from DEBUG to INFO
+            "level": "INFO",  # Adjust log level as needed
             "class": "logging.handlers.TimedRotatingFileHandler",
             "filename": os.path.join(
                 BASE_DIR, f"tmp/logs/django-{datetime.now().strftime('%Y-%m-%d')}.log"
@@ -226,8 +231,13 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["file"],
-            "level": "INFO",  # Change from DEBUG to INFO
+            "level": "INFO",  # Adjust log level as needed
             "propagate": True,
+        },
+        "django.server": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": False,
         },
         "": {
             "handlers": ["file"],
