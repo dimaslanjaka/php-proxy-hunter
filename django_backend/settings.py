@@ -190,6 +190,8 @@ LIMIT_THREADS = 4 if not is_debug() else 10
 LIMIT_PROXIES_CHECK = 100
 # limit duplicated ips to be checked in 1 thread
 LIMIT_FILTER_CHECK = 100
+# skip limitation for admin
+UNLIMITED_FOR_ADMIN = True
 
 # Logging settings
 # dont remove `from logging.handlers import TimedRotatingFileHandler`
