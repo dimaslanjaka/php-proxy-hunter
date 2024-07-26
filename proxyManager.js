@@ -173,6 +173,7 @@ async function checkerOutput() {
       str = str.replace(/\[FILTER-PORT\]/, '<i class="fa-thin fa-filter-list text-berry"></i>');
       str = str.replace(/\[CHECKER-PARALLEL\]/, '<i class="fa-thin fa-list-check text-polkador"></i>');
       str = str.replace(/\[CHECKER\]/, '<i class="fa-thin fa-check-to-slot text-polkador"></i>');
+      str = str.replace(/\[SQLite\]/, '<i class="fa-thin fa-database text-polkador"></i>');
       return str;
     })
     .join("<br/>");
