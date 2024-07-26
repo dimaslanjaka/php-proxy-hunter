@@ -6,6 +6,9 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import redirect, render
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def google_login(request: HttpRequest):
@@ -53,6 +56,8 @@ def oauth2callback(request: HttpRequest):
     response = requests.post(token_url, data=data)
     token_info = response.json()
 
+    logger.debug(f"Token Response: {token_info}")
+
     # Check if token exchange was successful
     if response.status_code != 200:
         return JsonResponse(
@@ -74,6 +79,8 @@ def oauth2callback(request: HttpRequest):
     user_info_response = requests.get(user_info_url, headers=headers)
     user_info = user_info_response.json()
 
+    logger.debug(f"User Info Response: {user_info}")
+
     # Check if user info request was successful
     if user_info_response.status_code != 200:
         return JsonResponse(
@@ -88,12 +95,10 @@ def oauth2callback(request: HttpRequest):
     # Extract user info
     email = user_info.get("email")
     name = user_info.get("name")
-    # picture = user_info.get("picture")
 
     if not email:
         return JsonResponse({"error": "No email provided by Google"}, status=400)
 
-    # Handle cases where name might be None
     if name:
         name_parts = name.split()
         first_name = name_parts[0] if len(name_parts) > 0 else email.split("@")[0]
@@ -117,7 +122,7 @@ def oauth2callback(request: HttpRequest):
     # Authenticate user
     if user:
         login(request, user)
-        return redirect("/")  # Redirect to the home page or wherever needed
+        return redirect("/auth/status")  # Redirect to the home page or wherever needed
 
     return JsonResponse(
         {"error": f"Authentication failed for user with email {email}."},
