@@ -48,6 +48,12 @@
       "type": "node-terminal",
     },
     {
+      "command": "python manage.py runserver_plus 0.0.0.0:8000 --cert-file django_backend/certificates/localhost.crt --key-file django_backend/certificates/localhost.key",
+      "name": "Run django SSL",
+      "request": "launch",
+      "type": "node-terminal",
+    },
+    {
       "command": "python manage.py test django_backend.apps.proxy",
       "name": "Django test proxy",
       "request": "launch",
