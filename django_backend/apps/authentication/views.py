@@ -12,7 +12,6 @@ from rest_framework.views import APIView
 
 from .serializers import UserRegistrationSerializer
 from .utils import get_user_with_fields
-from .services import google_views
 
 UserModel = get_user_model()
 
@@ -22,7 +21,9 @@ class CurrentUserStatusView(APIView):
 
     def get(self, request: HttpRequest):
         user = request.user
-        return JsonResponse(get_user_with_fields(user))
+        data = get_user_with_fields(user)
+        data["SID"] = request.session.session_key
+        return JsonResponse(data)
 
 
 class UserDeleteView(APIView):
