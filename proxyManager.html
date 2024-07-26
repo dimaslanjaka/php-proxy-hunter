@@ -43,6 +43,7 @@
   </script>
   <link rel="stylesheet"
     href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
+  <link rel="stylesheet" href="./proxyManager.css">
 </head>
 
 <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
@@ -326,29 +327,9 @@
 
   <div id="snackbar">Snackbar Message</div>
 
-  <a class="fab" href="#" id="recheck" title="re-check proxies"><i class="fal fa-refresh"></i></a>
+  <a class="fab" href="#" id="start-proxy-check" title="re-check proxies"><i class="fal fa-refresh"></i></a>
 
   <script>
-    const script = document.createElement("script");
-    script.src = "./proxyManager.js?v=" + new Date();
-    script.onload = () => {
-      setTimeout(() => {
-        const myscript = document.createElement("script");
-        myscript.src = "./js/general-site-script.js?v=" + new Date();
-        document.body.appendChild(myscript);
-      }, 1000);
-    };
-    document.body.appendChild(script);
-
-    loadCss("./proxyManager.css");
-
-    function loadCss(url) {
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = url + "?v=" + new Date().getTime();
-      document.head.appendChild(link);
-    }
-
     function doubleScroll(element) {
       const scrollbar = document.createElement("div");
       scrollbar.appendChild(document.createElement("div"));
@@ -381,7 +362,9 @@
       element.parentNode.insertBefore(scrollbar, element);
     }
 
-    doubleScroll(document.getElementById("tbl-wrapper"));
+    setTimeout(() => {
+      doubleScroll(document.getElementById("tbl-wrapper"));
+    }, 2300);
   </script>
 
   <!-- Google tag (gtag.js) -->
@@ -399,6 +382,8 @@
   </script>
 
   <script src="./js/highlight.js"></script>
+  <script src="./js/general-site-script.js"></script>
+  <script src="./proxyManager.js"></script>
 </body>
 
 </html>

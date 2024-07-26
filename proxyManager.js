@@ -48,7 +48,7 @@ async function main() {
     return;
   }
 
-  document.getElementById("recheck").addEventListener("click", (e) => {
+  document.getElementById("start-proxy-check").addEventListener("click", (e) => {
     e.preventDefault();
     showSnackbar("proxy checking start...");
     doCheck();
@@ -876,6 +876,11 @@ function modify_config() {
 }
 
 (function () {
-  main().then((_) => {});
-  init_config_editor().then((_) => {});
+  main()
+    .then((_) => {
+      init_config_editor()
+        .then((_) => {})
+        .catch(console.error);
+    })
+    .catch(console.error);
 })();
