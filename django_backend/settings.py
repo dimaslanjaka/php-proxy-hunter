@@ -126,18 +126,20 @@ G_REDIRECT_URI = os.getenv("G_REDIRECT_URI")
 # middleware classes based on priority
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
-    "django_backend.middleware.CustomCsrfExemptMiddleware",  # allow greasemonkey
-    "django_backend.middleware.CsrfExemptCsrfViewMiddleware",  # allow greasemonkey
+    "django_backend.middleware.CustomCsrfExemptMiddleware",
+    "django_backend.middleware.CsrfExemptCsrfViewMiddleware",
     "django_backend.middleware.FaviconMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",  # Default session middleware
+    "django_backend.custom_session.SessionMiddlewareWithRequest",  # Custom session middleware
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_backend.middleware.MinifyHTMLMiddleware",
 ]
+
 if not DEBUG:
     MIDDLEWARE += [
         "django.middleware.cache.UpdateCacheMiddleware",
@@ -298,7 +300,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # AUTH_USER_MODEL = 'authentication.CustomUser'
 
-SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Default session backend
+# SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Default session backend
+SESSION_ENGINE = "django_backend.custom_session"
 SESSION_COOKIE_NAME = "nix"  # Default cookie name
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Session expires on browser close
 SESSION_COOKIE_AGE = 5 * 60 * 60  # Session cookie age in seconds
