@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Set current working directory to parent directory of bin/
+# Set current directory as working directory
 CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # Load .env file
@@ -52,6 +52,7 @@ r_cmd() {
 # r_cmd "python" "manage.py" "runserver"
 # r_cmd "php" "path/to/script.php" "arg1 arg2"
 
+bash "$CWD/bin/check-proxy-parallel"
 r_cmd "python" "filterPortsDuplicate.py" "--max=10"
 r_cmd "python" "proxyCheckerReal.py" "--max=10"
 
