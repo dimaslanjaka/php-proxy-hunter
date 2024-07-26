@@ -64,6 +64,7 @@ def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
                     "Accept-Language": "en-US,en;q=0.5",
                     "Connection": "keep-alive",
                     "Upgrade-Insecure-Requests": "1",
+                    "Accept-Encoding": "gzip, deflate, br",
                 },
             )
             latency = response.elapsed.total_seconds() * 1000  # in milliseconds
