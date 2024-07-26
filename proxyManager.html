@@ -84,7 +84,8 @@
     </div>
   </div>
 
-  <section id="recaptcha" class="border p-2">
+  <!-- recaptcha - unlock proxy list -->
+  <section id="recaptcha">
     <script>
       function send_token(token, callback) {
         if (typeof callback !== "function") callback = () => {
@@ -110,12 +111,12 @@
       function start_recaptcha() {
         fetch(`//${location.hostname}/info.php`).then(r => r.json()).then(res => {
           const siteKey = res["captcha-site-key"];
-          const embedder = document.createElement("div");
-          embedder.classList.add("g-recaptcha");
-          embedder.setAttribute("data-sitekey", siteKey);
-          embedder.setAttribute("data-callback", "send_token");
-          embedder.setAttribute("data-action", "submit");
-          document.getElementById("recaptcha").appendChild(embedder);
+          // const embedder = document.createElement("div");
+          // embedder.classList.add("g-recaptcha");
+          // embedder.setAttribute("data-sitekey", siteKey);
+          // embedder.setAttribute("data-callback", "send_token");
+          // embedder.setAttribute("data-action", "submit");
+          // document.getElementById("recaptcha").appendChild(embedder);
           setTimeout(() => {
             const script = document.createElement("script");
             script.src = "https://www.google.com/recaptcha/api.js?render=" + siteKey;
@@ -139,6 +140,8 @@
           document.getElementById("recaptcha").appendChild(alertBox);
         });
       }
+
+      setTimeout(start_recaptcha, 1000);
     </script>
   </section>
 
