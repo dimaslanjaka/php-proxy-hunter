@@ -430,9 +430,16 @@ def is_matching_regex(pattern: str, text: str):
 
 
 def remove_trailing_hyphens(string: Optional[str]) -> str:
-    if not string:
-        return ""
-    if string == "-" or not string.strip():
+    """
+    Remove trailing hyphens from the filename.
+
+    Args:
+        filename (str): The filename with potential trailing hyphens.
+
+    Returns:
+        str: The filename with trailing hyphens removed.
+    """
+    if not string or string == "-" or not string.strip():
         return ""
     return re.sub(r"-+$", "", string)
 
