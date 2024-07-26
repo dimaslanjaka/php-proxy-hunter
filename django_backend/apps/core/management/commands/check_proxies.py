@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import threading
@@ -10,7 +11,11 @@ sys.path.append(SRC_DIR)
 import random
 from multiprocessing.pool import ThreadPool as Pool
 from typing import Dict, List
-
+from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
+    check_open_ports,
+    filter_duplicates_ips,
+)
+from django_backend.apps.proxy.tasks_unit.real_check_proxy import real_check_proxy_async
 from bs4 import BeautifulSoup
 from django.core.management.base import BaseCommand
 from joblib import Parallel, delayed
@@ -149,15 +154,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.wait_for_app_ready("django_backend.apps.proxy")
 
-        from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
-            start_filter_duplicates_ips,
-            start_check_open_ports,
-        )
-
-        # filter duplicated ips
-        start_filter_duplicates_ips()
-        start_check_open_ports()
-
         proxies = self.select_proxies(
             "SELECT * FROM proxies WHERE status = 'untested' ORDER BY RANDOM() LIMIT 100"
         )
@@ -172,8 +168,23 @@ class Command(BaseCommand):
             LIMIT 100;
             """
         )
+        proxy = json.dumps(proxies)
 
-        using_joblib(proxies, 5)
+        # Start threads
+        threads: List[threading.Thread] = []
+        threads.append(
+            threading.Thread(target=filter_duplicates_ips, args=(sys.maxsize,))
+        )
+        threads.append(threading.Thread(target=check_open_ports, args=(sys.maxsize,)))
+        threads.append(threading.Thread(target=real_check_proxy_async, args=(proxy,)))
+
+        # Start all threads
+        for thread in threads:
+            thread.start()
+
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
 
     def select_proxies(self, sql: str):
         from django_backend.apps.proxy.utils import execute_select_query
@@ -187,7 +198,7 @@ class Command(BaseCommand):
         max_retries = 10
         interval = 1  # seconds
 
-        for attempt in range(max_retries):
+        for _attempt in range(max_retries):
             try:
                 # Check if the app is ready
                 if apps.is_installed(app_name):

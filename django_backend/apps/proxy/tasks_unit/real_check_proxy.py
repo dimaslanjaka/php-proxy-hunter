@@ -328,7 +328,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                     # executor.shutdown(wait=True, cancel_futures=True)
             except Exception as e:
                 log_file(
-                    result_log_file, f"real_check_proxy_async failed create thread {e}"
+                    result_log_file, f"[CHECKER-PARALLEL] failed create thread {e}"
                 )
                 if "cannot schedule new futures" not in str(e).lower():
                     traceback.print_exc()
