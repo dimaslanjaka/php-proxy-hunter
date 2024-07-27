@@ -54,17 +54,21 @@ ALLOWED_HOSTS = [
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Determine if the environment is secure (HTTPS)
-IS_SECURE = not DEBUG
-SECURE_SSL_REDIRECT = False
+IS_SECURE = (
+    True  # Set to True if using HTTPS (runserver_plus), False otherwise (runserver)
+)
+
+# Redirect all HTTP requests to HTTPS
+SECURE_SSL_REDIRECT = IS_SECURE
 
 # Use Secure Cookies only if in a secure (HTTPS) environment
 SESSION_COOKIE_SECURE = IS_SECURE
 CSRF_COOKIE_SECURE = IS_SECURE
-CSRF_COOKIE_HTTPONLY = not IS_SECURE
+CSRF_COOKIE_HTTPONLY = True  # Recommended for better security
 
-CSRF_COOKIE_SAMESITE = (
-    "None"  # 'Lax' is often suitable, 'None' for cross-domain requests
-)
+# Allow cookies to be sent with cross-site requests
+SESSION_COOKIE_SAMESITE = "None"
+
 # Generate CSRF_TRUSTED_ORIGINS by combining protocols, domains, and ports
 CSRF_TRUSTED_ORIGINS = [
     f"{protocol}://{domain}:{port}"
