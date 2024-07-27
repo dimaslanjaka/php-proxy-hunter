@@ -129,7 +129,7 @@ class SitemapMiddleware(MiddlewareMixin):
         print(f"sitemap {result}")
         return result
 
-    def is_valid_url(url: str) -> bool:
+    def is_valid_url(self, url: str) -> bool:
         """Check if the URL is valid."""
         try:
             parsed = urlparse(url)
