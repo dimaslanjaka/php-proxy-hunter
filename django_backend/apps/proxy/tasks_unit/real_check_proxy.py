@@ -200,11 +200,6 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     global result_log_file
     if not proxy_data:
         proxy_data = ""
-    db = None
-    try:
-        db = ProxyDB(get_relative_path("tmp/database.sqlite"), True)
-    except Exception:
-        pass
     proxies: List[Proxy] = []
 
     if len(proxy_data.strip()) < 11:
@@ -238,14 +233,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             proxy_data = f"{php_result} {proxy_data}"
         log_file(result_log_file, f"source proxy from reading {len(php_result)} files")
     if proxy_data:
-        extract = []
-        if db is not None:
-            try:
-                extract = db.extract_proxies(proxy_data)
-            except Exception:
-                pass
-        if not extract:
-            extract = extract_proxies(proxy_data)
+        extract = extract_proxies(proxy_data)
         for item in extract:
             find = Proxy.objects.filter(proxy=item.proxy)
             if not find:
@@ -356,27 +344,23 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 "https": "true" if https else "false",
                 "latency": latency,
             }
-            try:
-                if db is not None:
-                    try:
-                        # update data and avoid database locked
-                        db.update_data(proxy_obj.proxy, data)
-                    except Exception:
-                        pass
+            # Table name
+            table_name = "proxies"
 
-                # Update Django database
-                check_model, created = Proxy.objects.update_or_create(
-                    proxy=proxy_obj.proxy,  # Field to match
-                    defaults=data,  # Fields to update
-                )
-                if created:
-                    print(f"new proxy {proxy_obj.proxy}")
-                if check_model:
-                    execute_sql_query(check_model.to_insert_or_ignore_sql())
-                    execute_sql_query(check_model.to_update_sql())
-                # if status == "active":
-                #     log_file(result_log_file, data)
-                #     log_file(result_log_file, check_model.to_json(), created)
+            # Generating the SQL query
+            columns = ", ".join(data.keys())
+            placeholders = ", ".join("?" for _ in data)
+            update_clause = ", ".join(f"{key} = excluded.{key}" for key in data)
+
+            sql_query = f"""
+            INSERT OR REPLACE INTO {table_name} ({columns})
+            VALUES ({placeholders})
+            """
+            try:
+                exec = execute_sql_query(sql_query)
+                if "error" in exec:
+                    for err in exec["error"]:
+                        log_file(result_log_file, err)
             except Exception as e:
                 log_file(result_log_file, f"{proxy_obj.proxy} failed to update: {e}")
         remove_string_and_move_to_file(
@@ -385,11 +369,6 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             proxy_obj.proxy,
         )
 
-    if db is not None:
-        try:
-            db.close()
-        except Exception:
-            pass
     file_append_str(result_log_file, f"\n{len(proxies)} proxies checked done.\n")
 
 
