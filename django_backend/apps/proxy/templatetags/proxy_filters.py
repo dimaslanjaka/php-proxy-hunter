@@ -12,7 +12,7 @@ def proxy_label(row):
     result = []
     if row.status == "active":
         if row.https == "true":
-            badge = '<span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-400 mb-1">SSL</span>'
+            badge = '<a href="/proxy?https=true" class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-400 mb-1">SSL</a>'
             result.append(badge)
         if row.type:
             proxy_types = set(row.type.split("-"))
@@ -20,11 +20,11 @@ def proxy_label(row):
             for s in proxy_types:
                 badge = None
                 if s.lower() == "http":
-                    badge = '<span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400 mb-1">HTTP</span>'
+                    badge = '<a href="/proxy?type=http" class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400 mb-1">HTTP</a>'
                 elif s.lower() == "socks4":
-                    badge = '<span class="bg-green-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-400 mb-1">SOCKS4</span>'
+                    badge = '<a href="/proxy?type=socks4" class="bg-green-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-400 mb-1">SOCKS4</a>'
                 elif s.lower() == "socks5":
-                    badge = '<span class="bg-red-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-400 mb-1">SOCKS5</span>'
+                    badge = '<a href="/proxy?type=socks5" class="bg-red-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-400 mb-1">SOCKS5</a>'
                 if badge:
                     result.append(badge)
     else:
