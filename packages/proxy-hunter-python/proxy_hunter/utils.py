@@ -89,6 +89,9 @@ def is_valid_ip(proxy: Optional[str]) -> bool:
     split = proxy.strip().split(":", 1)
     ip = split[0]
 
+    if ip.startswith("0"):
+        return False
+
     # Regex to validate IPv4 addresses
     is_ip_valid = (
         re.match(
@@ -115,14 +118,16 @@ def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bo
     if not proxy:
         return False
 
-    username = None
-    password = None
+    # Handle credentials if present
     has_credential = "@" in proxy
-
-    # Extract username and password if credentials are present
     if has_credential:
-        proxy, credential = proxy.strip().split("@", 1)
-        username, password = (credential.strip().split(":", 1) + [None, None])[:2]
+        try:
+            proxy, credential = proxy.strip().split("@", 1)
+            username, password = (credential.strip().split(":", 1) + [None, None])[:2]
+            if validate_credential and (not username or not password):
+                return False
+        except ValueError:
+            return False  # Invalid credentials format
 
     # Extract IP address and port
     parts = proxy.strip().split(":", 1)
@@ -131,25 +136,24 @@ def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bo
 
     ip, port = parts
 
-    # Validate IP address
-    is_ip_valid = is_valid_ip(ip)
+    # Validate IP address (using provided function)
+    if not is_valid_ip(ip):
+        return False
 
     # Validate port number
     try:
         port_int = int(port)
-        is_port_valid = 1 <= port_int <= 65535
+        if not (1 <= port_int <= 65535):
+            return False
     except ValueError:
-        is_port_valid = False
+        return False
 
-    # Check if proxy is valid
+    # Check if the proxy string length is appropriate (if applicable)
     proxy_length = len(proxy)
-    is_proxy_valid = is_ip_valid and is_port_valid and 10 <= proxy_length <= 21
+    if not (7 <= proxy_length <= 21):  # Adjust based on valid range
+        return False
 
-    # Validate credentials if required
-    if has_credential and validate_credential:
-        return is_proxy_valid and bool(username) and bool(password)
-
-    return is_proxy_valid
+    return True
 
 
 def check_raw_headers_keywords(input_string: str) -> bool:
@@ -183,4 +187,21 @@ def check_raw_headers_keywords(input_string: str) -> bool:
 
 
 if __name__ == "__main__":
-    print(is_valid_proxy("801.0.0.10:801"))
+    print(f"Is valid: {is_valid_proxy('801.0.0.10:801')}")  # Invalid IP
+    print(f"Is valid: {is_valid_proxy('0.228.156.97:80')}")  # Check this case
+    print(
+        f"Is valid: {is_valid_proxy('192.168.1.1:8080')}"
+    )  # Local IP with a standard port
+    print(
+        f"Is valid: {is_valid_proxy('255.255.255.255:65535')}"
+    )  # Max values for IP and port
+    print(f"Is valid: {is_valid_proxy('999.999.999.999:80')}")  # Invalid IP
+    print(f"Is valid: {is_valid_proxy('192.168.1.1:99999')}")  # Invalid port
+    print(f"Is valid: {is_valid_proxy('192.168.1.1')}")  # Missing port
+    print(f"Is valid: {is_valid_proxy('0.0.0.0:0')}")  # Port out of valid range
+    print(
+        f"Is valid: {is_valid_proxy('192.168.1.1:80@user:pass')}"
+    )  # Valid proxy with credentials
+    print(
+        f"Is valid: {is_valid_proxy('192.168.1.1:80@user:')}"
+    )  # Invalid proxy with incomplete credentials
