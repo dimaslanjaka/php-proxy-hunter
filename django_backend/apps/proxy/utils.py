@@ -83,7 +83,7 @@ def execute_sql_query(sql: str, params: Optional[Tuple] = None) -> dict:
                 print(error_message)  # Optional: Print the error message
                 results["error"].append(error_message)
             finally:
-                if isinstance(conn, sqlite3.Connection):
+                if hasattr(conn, "close"):
                     conn.close()
         else:
             results["error"].append(f"{conn_info} has no connection")
