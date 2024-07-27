@@ -41,6 +41,7 @@ SECRET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = is_debug()
 
+# production and development hosts/domains
 ALLOWED_HOSTS = [
     "localhost",
     "sh.webmanajemen.com",
@@ -49,6 +50,9 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "192.168.1.75",
 ]
+
+# production port
+PRODUCTION_PORT = 8443
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -73,7 +77,7 @@ CSRF_TRUSTED_ORIGINS = [
     f"{protocol}://{domain}:{port}"
     for domain in ALLOWED_HOSTS
     for protocol in ["http", "https"]
-    for port in [8000, 8880, 8443]
+    for port in [8000, 8880, PRODUCTION_PORT]
 ]
 userscript_path = get_relative_path("userscripts/universal.user.js")
 # Extract domains from the userscript

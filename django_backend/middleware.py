@@ -100,12 +100,30 @@ class SitemapMiddleware(MiddlewareMixin):
 
         return response
 
-    def get_full_url(self, request):
-        # Construct the full URL including scheme and host
+    def get_full_url(self, request: HttpRequest) -> str:
+        # Construct the full URL including scheme and host with port
         scheme = request.scheme
         host = request.get_host()
+
+        # Split host and port
+        host_parts = host.split(":")
+        if len(host_parts) > 1:
+            # Explicitly include port if present
+            host = f"{host_parts[0]}:{host_parts[1]}"
+        else:
+            # If no port is present, check if it should be appended
+            if scheme == "https" and host in settings.ALLOWED_HOSTS:
+                # validate production port not 80 and 443
+                if settings.PRODUCTION_PORT != 80 and settings.PRODUCTION_PORT != 443:
+                    host = f"{host}:{settings.PRODUCTION_PORT}"
+
+        # Get the path including query parameters
         path = request.get_full_path()
-        return urlunparse((scheme, host, path, "", "", ""))
+
+        # Construct the full URL
+        result = urlunparse((scheme, host, path, "", "", ""))
+        print(f"sitemap {result}")
+        return result
 
     def merge_and_deduplicate_sitemaps(self, file1, file2, output_file):
         # Initialize a set to store unique lines
