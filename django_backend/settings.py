@@ -73,6 +73,7 @@ CSRF_TRUSTED_ORIGINS = [
     for port in [8000, 8880, 8443]
 ]
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
