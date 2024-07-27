@@ -223,7 +223,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         else:
             items = get_proxies(["untested"], 30)
             if not items:
-                items.extend(get_proxies(["dead", "port-closed"]), 30)
+                items.extend(get_proxies(["dead", "port-closed"], 30))
             for item in get_proxies(["untested"], 30):
                 format = item["proxy"]
                 if item["username"] and item["password"]:
