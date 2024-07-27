@@ -89,9 +89,6 @@ def is_valid_ip(proxy: Optional[str]) -> bool:
     split = proxy.strip().split(":", 1)
     ip = split[0]
 
-    if ip.startswith("0"):
-        return False
-
     # Regex to validate IPv4 addresses
     is_ip_valid = (
         re.match(
@@ -101,7 +98,7 @@ def is_valid_ip(proxy: Optional[str]) -> bool:
         is not None
     )
 
-    return is_ip_valid
+    return is_ip_valid and not ip.startswith("0")
 
 
 def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bool:
