@@ -233,10 +233,8 @@ def trigger_check_proxy(request: HttpRequest):
         # save uploaded proxies
         file_append_str(get_relative_path("proxies.txt"), f"\n{decoded_proxy}\n")
 
-    # Clean up finished threads from the active set before starting a new one
-    proxy_checker_threads = {
-        thread for thread in proxy_checker_threads if thread.is_alive()
-    }
+    # Clean up finished threads
+    cleanup_threads()
 
     # Check if there are already [n] threads running
     # skip limitation for admin
@@ -289,9 +287,7 @@ def trigger_filter_ports_proxy(request: HttpRequest):
     truncate_file_content(proxy_checker_task_log_file)
 
     # clean up threads
-    filter_ports_threads = {
-        thread for thread in filter_ports_threads if thread.is_alive()
-    }
+    cleanup_threads()
     render_data = {"running": len(filter_ports_threads)}
     # limit threads to filter duplicate ports
     # skip limitation for admin
@@ -336,8 +332,7 @@ def trigger_filter_ports_proxy(request: HttpRequest):
     return JsonResponse(render_data)
 
 
-@never_cache
-def view_status(request: HttpRequest):
+def cleanup_threads():
     global proxy_checker_threads, filter_ports_threads
     proxy_checker_threads = {
         thread for thread in proxy_checker_threads if thread.is_alive()
@@ -345,6 +340,12 @@ def view_status(request: HttpRequest):
     filter_ports_threads = {
         thread for thread in filter_ports_threads if thread.is_alive()
     }
+
+
+@never_cache
+def view_status(request: HttpRequest):
+    global proxy_checker_threads, filter_ports_threads
+    cleanup_threads()
     data = {
         "is_django_env": is_django_environment(),
         "SID": request.session.session_key,
