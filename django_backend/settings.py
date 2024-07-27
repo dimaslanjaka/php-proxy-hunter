@@ -148,6 +148,7 @@ MIDDLEWARE = [
     "django_backend.middleware.CustomCsrfExemptMiddleware",
     "django_backend.middleware.CsrfExemptCsrfViewMiddleware",
     "django_backend.middleware.FaviconMiddleware",
+    "django_backend.middleware.SitemapMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
