@@ -40,22 +40,29 @@ def index(request: HttpRequest):
         "https": request.GET.get("https"),
     }
     search_query = request.GET.get("search")
+    page_title = "Free Premium Proxy Lists"
 
     # Build the query
     query = Q()
     if filters["status"]:
         query &= Q(status=filters["status"])
     if filters["country"]:
+        page_title = f"{filters['country']} Proxy List"
         query &= Q(country=filters["country"])
     if filters["city"]:
+        page_title = f"{filters['city']} Proxy List"
         query &= Q(city=filters["city"])
     if filters["timezone"]:
+        page_title = f"Proxy List Timezone {filters['timezone']}"
         query &= Q(timezone=filters["timezone"])
     if filters["region"]:
+        page_title = f"{filters['region']} Proxy List"
         query &= Q(region=filters["region"])
     if filters["type"]:
+        page_title = f"{filters['type'].upper()} Proxy List"
         query &= Q(type__icontains=filters["type"])
     if filters["https"]:
+        page_title = "HTTPS/SSL Proxy List"
         query &= Q(https__icontains="true")
     if search_query:
         query &= Q(
@@ -84,6 +91,8 @@ def index(request: HttpRequest):
     page_number = request.GET.get("page")
 
     try:
+        if page_number:
+            page_title += f" Page {page_number}"
         proxies = paginator.page(page_number)
     except PageNotAnInteger:
         proxies = paginator.page(1)
@@ -94,7 +103,9 @@ def index(request: HttpRequest):
     fetch_geo_ip_in_thread(proxies.object_list)
 
     return render(
-        request, "proxy_list_index.html", {"request": request, "proxies": proxies}
+        request,
+        "proxy_list_index.html",
+        {"request": request, "proxies": proxies, "page_title": page_title},
     )
 
 
