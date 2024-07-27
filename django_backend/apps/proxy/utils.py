@@ -36,9 +36,7 @@ def get_db_connections() -> List[sqlite3.Connection]:
     return connections
 
 
-def execute_sql_query(
-    sql: str, params: Optional[Tuple] = None
-) -> List[Union[List[tuple], None]]:
+def execute_sql_query(sql: str, params: Optional[Tuple] = None) -> dict:
     """
     Executes an SQL query on all available database connections.
 
@@ -50,14 +48,16 @@ def execute_sql_query(
                                   into the placeholders in the SQL query.
 
     Returns:
-        List[Union[List[tuple], None]]: A list where each element represents
-        the result of the SQL query execution on a respective connection.
-        `None` indicates that the query failed on that connection.
+        dict: A dictionary with two keys: 'error' and 'items'.
+              'error' contains a list of error messages, and 'items' contains
+              a list of results from successful query executions.
     """
     connections = get_db_connections()
-    results = []
+    results = {"error": [], "items": []}
 
-    for conn in connections:
+    for index, conn in enumerate(connections):
+        conn_info = f"Connection {index}: {conn}" if conn else f"Connection {index}"
+
         if conn:
             try:
                 cursor = conn.cursor()
@@ -72,20 +72,21 @@ def execute_sql_query(
 
                 if sql.strip().upper().startswith("SELECT"):
                     query_results = cursor.fetchall()
-                    results.append(query_results)
+                    results["items"].append(query_results)
                 else:
                     conn.commit()
-                    results.append(cursor.rowcount)
+                    results["items"].append(cursor.rowcount)
 
                 cursor.close()
             except Exception as e:
-                print(f"Error executing query {sql} on connection {conn}: {e}")
-                results.append(None)
+                error_message = f"Error executing query {sql} on {conn_info}: {e}"
+                print(error_message)  # Optional: Print the error message
+                results["error"].append(error_message)
             finally:
                 if isinstance(conn, sqlite3.Connection):
                     conn.close()
         else:
-            results.append(None)
+            results["error"].append(f"{conn_info} has no connection")
 
     return results
 
