@@ -344,20 +344,15 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 "https": "true" if https else "false",
                 "latency": latency,
             }
-            # Table name
-            table_name = "proxies"
-
-            # Generating the SQL query
-            columns = ", ".join(data.keys())
-            placeholders = ", ".join("?" for _ in data)
-            update_clause = ", ".join(f"{key} = excluded.{key}" for key in data)
-
-            sql_query = f"""
-            INSERT OR REPLACE INTO {table_name} ({columns})
-            VALUES ({placeholders})
-            """
+            model, created = Proxy.objects.get_or_create(
+                proxy=proxy_obj.proxy, defaults=data
+            )
             try:
-                exec = execute_sql_query(sql_query)
+                exec = execute_sql_query(model.to_insert_or_ignore_sql())
+                if "error" in exec:
+                    for err in exec["error"]:
+                        log_file(result_log_file, err)
+                exec = execute_sql_query(model.to_update_sql())
                 if "error" in exec:
                     for err in exec["error"]:
                         log_file(result_log_file, err)
