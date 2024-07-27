@@ -21,6 +21,14 @@ urlpatterns = [
     path("proxy/", include("django_backend.apps.proxy.urls")),
     path("admin/", admin.site.urls),
     path("", index, name="index"),
+    path(
+        "sitemap.txt",
+        serve,
+        {
+            "path": "sitemap.txt",
+            "document_root": os.path.join(settings.BASE_DIR, "public/static"),
+        },
+    ),
 ]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if os.path.exists(get_relative_path("django_backend/apps/axis/urls.py")):

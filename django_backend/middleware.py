@@ -1,5 +1,6 @@
 import os
 import sys
+from urllib.parse import parse_qs, urlparse, urlunparse
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -76,3 +77,60 @@ class FaviconMiddleware:
                 with open(favicon_path, "rb") as f:
                     return HttpResponse(f.read(), content_type="image/x-icon")
         return self.get_response(request)
+
+
+class SitemapMiddleware(MiddlewareMixin):
+    ignore_paths = ["/proxy/check", "/proxy/filter", "/sitemap", "/rss", "/atom"]
+
+    def process_response(self, request: HttpRequest, response):
+        # Check if it's a GET request and the response status is 200
+        if request.method == "GET" and response.status_code == 200:
+            # Get the current URL with query parameters
+            url = self.get_full_url(request)
+            # Append to sitemap.txt
+            self.append_to_sitemap(url)
+        return response
+
+    def get_full_url(self, request: HttpRequest) -> str:
+        # Construct the full URL including scheme and host
+        scheme = request.scheme
+        host = request.get_host()
+        path = request.get_full_path()
+        return urlunparse((scheme, host, path, "", "", ""))
+
+    def append_to_sitemap(self, url: str):
+        # Parse the URL and check if it contains the `date` query parameter
+        parsed_url = urlparse(url)
+        query_params = parse_qs(parsed_url.query)
+        if "date" in query_params:
+            return  # Ignore URLs with `date` query parameter
+
+        # Check if the URL path is in the ignore_paths list
+        path = parsed_url.path
+        if any(path.startswith(ignore_path) for ignore_path in self.ignore_paths):
+            return  # Ignore URLs matching ignore_paths
+
+        # Define the path to sitemap.txt
+        sitemap_path = os.path.join(
+            settings.BASE_DIR, "public", "static", "sitemap.txt"
+        )
+
+        # Ensure the directory exists
+        sitemap_dir = os.path.dirname(sitemap_path)
+        if not os.path.exists(sitemap_dir):
+            os.makedirs(sitemap_dir)  # Create the directory if it doesn't exist
+
+        # Read the current contents of the file
+        existing_urls = set()
+        if os.path.exists(sitemap_path):
+            with open(sitemap_path, "r") as file:
+                existing_urls = set(line.strip() for line in file if line.strip())
+
+        # Add the new URL if it's not already in the set
+        if url.strip() and url not in existing_urls:
+            existing_urls.add(url.strip())
+
+        # Write the updated URLs to the file
+        with open(sitemap_path, "w") as file:
+            for line in sorted(existing_urls):
+                file.write(line + "\n")
