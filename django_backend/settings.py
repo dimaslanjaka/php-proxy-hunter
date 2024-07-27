@@ -18,8 +18,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from datetime import datetime, timedelta
 
 import dotenv
-import environ
-
+from userscripts.parse_userscript import extract_domains_from_userscript
 from src.func import delete_path, get_relative_path, write_file
 from src.func_platform import is_debug
 
@@ -76,7 +75,22 @@ CSRF_TRUSTED_ORIGINS = [
     for protocol in ["http", "https"]
     for port in [8000, 8880, 8443]
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+userscript_path = get_relative_path("userscripts/universal.user.js")
+# Extract domains from the userscript
+userscript_domains = extract_domains_from_userscript(userscript_path)
+
+# Prefix each domain with both http and https
+userscript_origins = [f"http://{domain}" for domain in userscript_domains] + [
+    f"https://{domain}" for domain in userscript_domains
+]
+
+# Remove duplicates if you want only unique origins
+userscript_origins = list(set(userscript_origins))
+CSRF_TRUSTED_ORIGINS += userscript_origins
+CORS_ALLOWED_ORIGINS = userscript_origins
+
+# CORS
+# CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
