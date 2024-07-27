@@ -351,11 +351,11 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 exec = execute_sql_query(model.to_insert_or_ignore_sql())
                 if "error" in exec:
                     for err in exec["error"]:
-                        log_file(result_log_file, err)
+                        log_file(result_log_file, f"[CHECKER-PARALLEL] {err}")
                 exec = execute_sql_query(model.to_update_sql())
                 if "error" in exec:
                     for err in exec["error"]:
-                        log_file(result_log_file, err)
+                        log_file(result_log_file, f"[CHECKER-PARALLEL] {err}")
             except Exception as e:
                 log_file(result_log_file, f"{proxy_obj.proxy} failed to update: {e}")
         remove_string_and_move_to_file(
