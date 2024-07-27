@@ -148,7 +148,6 @@ MIDDLEWARE = [
     "django_backend.middleware.CustomCsrfExemptMiddleware",
     "django_backend.middleware.CsrfExemptCsrfViewMiddleware",
     "django_backend.middleware.FaviconMiddleware",
-    "django_backend.middleware.SitemapMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -157,7 +156,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_backend.middleware.MinifyHTMLMiddleware",
+    "django_backend.middleware.MinifyHTMLMiddleware",  # minify html
+    "django_backend.middleware.SitemapMiddleware",  # write sitemap.txt
 ]
 
 if not DEBUG:
