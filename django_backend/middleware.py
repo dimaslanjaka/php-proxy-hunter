@@ -129,6 +129,14 @@ class SitemapMiddleware(MiddlewareMixin):
         print(f"sitemap {result}")
         return result
 
+    def is_valid_url(url: str) -> bool:
+        """Check if the URL is valid."""
+        try:
+            parsed = urlparse(url)
+            return all([parsed.scheme, parsed.netloc])
+        except Exception:
+            return False
+
     def merge_and_deduplicate_sitemaps(self, file1, file2, output_file):
         # Initialize a set to store unique lines
         unique_lines: Set[str] = set(self.initial_url)
@@ -137,13 +145,17 @@ class SitemapMiddleware(MiddlewareMixin):
         if os.path.exists(file1):
             with open(file1, "r") as f1:
                 for line in f1:
-                    unique_lines.add(line.strip())
+                    url = line.strip()
+                    if self.is_valid_url(url):
+                        unique_lines.add(url)
 
         # Read lines from the second file if it exists
         if os.path.exists(file2):
             with open(file2, "r") as f2:
                 for line in f2:
-                    unique_lines.add(line.strip())
+                    url = line.strip()
+                    if self.is_valid_url(url):
+                        unique_lines.add(url)
 
         # Write unique lines to the output file
         with open(output_file, "w") as f_out:
