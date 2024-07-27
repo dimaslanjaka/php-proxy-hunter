@@ -145,6 +145,7 @@ async function checkerOutput() {
   prevOutput = info || "";
   const filter = (info || "")
     .split(/\r?\n/)
+    .slice(-1000)
     .map((str) => {
       // remove ANSI codes
       // eslint-disable-next-line no-control-regex

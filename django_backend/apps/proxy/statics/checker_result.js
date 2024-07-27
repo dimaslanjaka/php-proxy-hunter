@@ -27,6 +27,7 @@ function processText(info) {
   prevOutput = info || "";
   processedOutput = (info || "")
     .split(/\r?\n/)
+    .slice(-1000)
     .map((str) => {
       // remove ANSI codes
       // eslint-disable-next-line no-control-regex
