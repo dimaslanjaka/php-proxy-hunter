@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 from urllib.parse import parse_qs, urlparse, urlunparse
 
@@ -82,7 +83,7 @@ class FaviconMiddleware:
 class SitemapMiddleware(MiddlewareMixin):
     ignore_paths = ["/proxy/check", "/proxy/filter", "/sitemap", "/rss", "/atom"]
 
-    def process_response(self, request: HttpRequest, response):
+    def process_response(self, request, response):
         # Check if it's a GET request and the response status is 200
         if request.method == "GET" and response.status_code == 200:
             # Get the current URL with query parameters
@@ -91,14 +92,35 @@ class SitemapMiddleware(MiddlewareMixin):
             self.append_to_sitemap(url)
         return response
 
-    def get_full_url(self, request: HttpRequest) -> str:
+    def get_full_url(self, request):
         # Construct the full URL including scheme and host
         scheme = request.scheme
         host = request.get_host()
         path = request.get_full_path()
         return urlunparse((scheme, host, path, "", "", ""))
 
-    def append_to_sitemap(self, url: str):
+    def merge_and_deduplicate_sitemaps(self, file1, file2, output_file):
+        # Initialize a set to store unique lines
+        unique_lines = set()
+
+        # Read lines from the first file if it exists
+        if os.path.exists(file1):
+            with open(file1, "r") as f1:
+                for line in f1:
+                    unique_lines.add(line.strip())
+
+        # Read lines from the second file if it exists
+        if os.path.exists(file2):
+            with open(file2, "r") as f2:
+                for line in f2:
+                    unique_lines.add(line.strip())
+
+        # Write unique lines to the output file
+        with open(output_file, "w") as f_out:
+            for line in sorted(unique_lines):
+                f_out.write(f"{line}\n")
+
+    def append_to_sitemap(self, url):
         # Parse the URL and check if it contains the `date` query parameter
         parsed_url = urlparse(url)
         query_params = parse_qs(parsed_url.query)
@@ -134,3 +156,10 @@ class SitemapMiddleware(MiddlewareMixin):
         with open(sitemap_path, "w") as file:
             for line in sorted(existing_urls):
                 file.write(line + "\n")
+
+        # Merge and deduplicate sitemaps
+        self.merge_and_deduplicate_sitemaps(
+            sitemap_path,
+            os.path.join(settings.BASE_DIR, "sitemap.txt"),
+            os.path.join(settings.BASE_DIR, "sitemap.txt"),
+        )

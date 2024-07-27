@@ -34,6 +34,7 @@ package-lock.json
 /backups
 !**/*.php.txt
 !**/*.py.txt
+/sitemap.txt
 
 # python
 /profiles-proxy.json
