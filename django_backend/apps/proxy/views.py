@@ -35,6 +35,8 @@ def index(request: HttpRequest):
     timezone = request.GET.get("timezone")
     region = request.GET.get("region")
     search_query = request.GET.get("search")
+    type = request.GET.get("type")
+    https = request.GET.get("https")
 
     # Apply filters based on provided parameters
     if status:
@@ -46,6 +48,10 @@ def index(request: HttpRequest):
             proxy_list = Proxy.objects.filter(status=status, timezone=timezone)
         elif region:
             proxy_list = Proxy.objects.filter(status=status, region=region)
+        elif type:
+            proxy_list = Proxy.objects.filter(status=status, type__icontains=type)
+        elif https:
+            proxy_list = Proxy.objects.filter(status=status, https__icontains="true")
         else:
             proxy_list = Proxy.objects.filter(status=status)
     elif country:
@@ -56,6 +62,10 @@ def index(request: HttpRequest):
         proxy_list = Proxy.objects.filter(timezone=timezone)
     elif region:
         proxy_list = Proxy.objects.filter(region=region)
+    elif https:
+        proxy_list = Proxy.objects.filter(https__icontains="true")
+    elif type:
+        proxy_list = Proxy.objects.filter(type__icontains=type)
     elif search_query:
         proxy_list = Proxy.objects.filter(
             Q(proxy__icontains=search_query)
