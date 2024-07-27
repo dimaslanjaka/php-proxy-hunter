@@ -101,27 +101,31 @@ class SitemapMiddleware(MiddlewareMixin):
         return response
 
     def get_full_url(self, request: HttpRequest) -> str:
-        # Construct the full URL including scheme and host with port
+        # Get scheme and host from the request
         scheme = request.scheme
         host = request.get_host()
 
-        # Split host and port
+        # Determine if port should be included
         host_parts = host.split(":")
-        if len(host_parts) > 1:
-            # Explicitly include port if present
-            host = f"{host_parts[0]}:{host_parts[1]}"
+        if len(host_parts) == 2:
+            # Host already includes port
+            host_with_port = f"{host_parts[0]}:{host_parts[1]}"
         else:
-            # If no port is present, check if it should be appended
+            # Host does not include port
             if scheme == "https" and host in settings.ALLOWED_HOSTS:
-                # validate production port not 80 and 443
-                if settings.PRODUCTION_PORT != 80 and settings.PRODUCTION_PORT != 443:
-                    host = f"{host}:{settings.PRODUCTION_PORT}"
+                prod_port = int(settings.PRODUCTION_PORT)
+                if prod_port not in (80, 443) and prod_port > 443:
+                    host_with_port = f"{host}:{prod_port}"
+                else:
+                    host_with_port = host
+            else:
+                host_with_port = host
 
-        # Get the path including query parameters
+        # Get the full path including query parameters
         path = request.get_full_path()
 
         # Construct the full URL
-        result = urlunparse((scheme, host, path, "", "", ""))
+        result = urlunparse((scheme, host_with_port, path, "", "", ""))
         print(f"sitemap {result}")
         return result
 
