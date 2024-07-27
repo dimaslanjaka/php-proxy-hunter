@@ -240,7 +240,7 @@ def trigger_check_proxy(request: HttpRequest):
 
     # Check if there are already [n] threads running
     # skip limitation for admin
-    is_admin = (
+    is_admin = bool(
         request.user.is_authenticated
         and request.user.is_staff
         and settings.UNLIMITED_FOR_ADMIN
@@ -285,7 +285,7 @@ def trigger_filter_ports_proxy(request: HttpRequest):
     render_data = {"running": len(filter_ports_threads)}
     # limit threads to filter duplicate ports
     # skip limitation for admin
-    is_admin = (
+    is_admin = bool(
         request.user.is_authenticated
         and request.user.is_staff
         and settings.UNLIMITED_FOR_ADMIN
