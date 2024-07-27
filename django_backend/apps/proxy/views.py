@@ -245,6 +245,16 @@ def trigger_check_proxy(request: HttpRequest):
         and request.user.is_staff
         and settings.UNLIMITED_FOR_ADMIN
     )
+    # Debug logs
+    render_data.update(
+        {
+            "user": {
+                "authenticated": request.user.is_authenticated,
+                "staff": request.user.is_staff,
+                "unlimited": settings.UNLIMITED_FOR_ADMIN,
+            }
+        }
+    )
     if len(proxy_checker_threads) >= settings.LIMIT_THREADS and not is_admin:
         render_data.update(
             {
@@ -289,6 +299,16 @@ def trigger_filter_ports_proxy(request: HttpRequest):
         request.user.is_authenticated
         and request.user.is_staff
         and settings.UNLIMITED_FOR_ADMIN
+    )
+    # Debug logs
+    render_data.update(
+        {
+            "user": {
+                "authenticated": request.user.is_authenticated,
+                "staff": request.user.is_staff,
+                "unlimited": settings.UNLIMITED_FOR_ADMIN,
+            }
+        }
     )
     if len(filter_ports_threads) > settings.LIMIT_THREADS and not is_admin:
         render_data.update(
