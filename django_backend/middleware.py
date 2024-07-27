@@ -1,6 +1,6 @@
 import os
-import shutil
 import sys
+from typing import Set
 from urllib.parse import parse_qs, urlparse, urlunparse
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -82,6 +82,7 @@ class FaviconMiddleware:
 
 class SitemapMiddleware(MiddlewareMixin):
     ignore_paths = ["/proxy/check", "/proxy/filter", "/sitemap", "/rss", "/atom"]
+    initial_url = ["https://sh.webmanajemen.com/proxyManager.html"]
 
     def process_response(self, request, response):
         # Check if it's a GET request and the response status is 200
@@ -90,6 +91,13 @@ class SitemapMiddleware(MiddlewareMixin):
             url = self.get_full_url(request)
             # Append to sitemap.txt
             self.append_to_sitemap(url)
+            # Merge and deduplicate sitemaps
+            self.merge_and_deduplicate_sitemaps(
+                os.path.join(settings.BASE_DIR, "public", "static", "sitemap.txt"),
+                os.path.join(settings.BASE_DIR, "sitemap.txt"),
+                os.path.join(settings.BASE_DIR, "sitemap.txt"),
+            )
+
         return response
 
     def get_full_url(self, request):
@@ -101,7 +109,7 @@ class SitemapMiddleware(MiddlewareMixin):
 
     def merge_and_deduplicate_sitemaps(self, file1, file2, output_file):
         # Initialize a set to store unique lines
-        unique_lines = set()
+        unique_lines: Set[str] = set(self.initial_url)
 
         # Read lines from the first file if it exists
         if os.path.exists(file1):
@@ -143,7 +151,7 @@ class SitemapMiddleware(MiddlewareMixin):
             os.makedirs(sitemap_dir)  # Create the directory if it doesn't exist
 
         # Read the current contents of the file
-        existing_urls = set()
+        existing_urls: Set[str] = set(self.initial_url)
         if os.path.exists(sitemap_path):
             with open(sitemap_path, "r") as file:
                 existing_urls = set(line.strip() for line in file if line.strip())
@@ -156,10 +164,3 @@ class SitemapMiddleware(MiddlewareMixin):
         with open(sitemap_path, "w") as file:
             for line in sorted(existing_urls):
                 file.write(line + "\n")
-
-        # Merge and deduplicate sitemaps
-        self.merge_and_deduplicate_sitemaps(
-            sitemap_path,
-            os.path.join(settings.BASE_DIR, "sitemap.txt"),
-            os.path.join(settings.BASE_DIR, "sitemap.txt"),
-        )
