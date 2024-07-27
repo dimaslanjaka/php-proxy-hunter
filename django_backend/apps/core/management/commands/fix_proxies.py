@@ -8,16 +8,16 @@ sys.path.append(SRC_DIR)
 from django.core.management.base import BaseCommand
 from django_backend.apps.proxy.models import Proxy
 from proxy_hunter.utils import is_valid_proxy
-from django_backend.apps.proxy.utils import execute_sql_query
+from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 
 
 class Command(BaseCommand):
     help = "Iterate over all items in the Proxy model and validate each proxy"
 
     def handle(self, *args, **kwargs):
-        items = execute_sql_query("SELECT * FROM proxies LIMIT 1")
+        items = execute_select_query("SELECT * FROM proxies LIMIT 1")
         for item in items:
-            proxy = item[0][1]
+            proxy = item["proxy"]
             if not is_valid_proxy(proxy):
                 self.stdout.write(f"Invalid Proxy: {item.proxy}")
                 execute_sql_query("DELETE FROM proxies WHERE proxy = ?", (proxy,))
