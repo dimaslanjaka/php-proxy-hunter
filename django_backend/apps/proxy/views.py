@@ -29,67 +29,58 @@ from .tasks import start_filter_duplicates_ips, start_check_open_ports
 
 
 def index(request: HttpRequest):
-    country = request.GET.get("country")
-    city = request.GET.get("city")
-    status = request.GET.get("status")
-    timezone = request.GET.get("timezone")
-    region = request.GET.get("region")
+    # Get query parameters
+    filters = {
+        "country": request.GET.get("country"),
+        "city": request.GET.get("city"),
+        "status": request.GET.get("status"),
+        "timezone": request.GET.get("timezone"),
+        "region": request.GET.get("region"),
+        "type": request.GET.get("type"),
+        "https": request.GET.get("https"),
+    }
     search_query = request.GET.get("search")
-    type = request.GET.get("type")
-    https = request.GET.get("https")
 
-    # Apply filters based on provided parameters
-    if status:
-        if country:
-            proxy_list = Proxy.objects.filter(status=status, country=country)
-        elif city:
-            proxy_list = Proxy.objects.filter(status=status, city=city)
-        elif timezone:
-            proxy_list = Proxy.objects.filter(status=status, timezone=timezone)
-        elif region:
-            proxy_list = Proxy.objects.filter(status=status, region=region)
-        elif type:
-            proxy_list = Proxy.objects.filter(status=status, type__icontains=type)
-        elif https:
-            proxy_list = Proxy.objects.filter(status=status, https__icontains="true")
-        else:
-            proxy_list = Proxy.objects.filter(status=status)
-    elif country:
-        proxy_list = Proxy.objects.filter(country=country)
-    elif city:
-        proxy_list = Proxy.objects.filter(city=city)
-    elif timezone:
-        proxy_list = Proxy.objects.filter(timezone=timezone)
-    elif region:
-        proxy_list = Proxy.objects.filter(region=region)
-    elif https:
-        proxy_list = Proxy.objects.filter(https__icontains="true")
-    elif type:
-        proxy_list = Proxy.objects.filter(type__icontains=type)
-    elif search_query:
-        proxy_list = Proxy.objects.filter(
+    # Build the query
+    query = Q()
+    if filters["status"]:
+        query &= Q(status=filters["status"])
+    if filters["country"]:
+        query &= Q(country=filters["country"])
+    if filters["city"]:
+        query &= Q(city=filters["city"])
+    if filters["timezone"]:
+        query &= Q(timezone=filters["timezone"])
+    if filters["region"]:
+        query &= Q(region=filters["region"])
+    if filters["type"]:
+        query &= Q(type__icontains=filters["type"])
+    if filters["https"]:
+        query &= Q(https__icontains="true")
+    if search_query:
+        query &= Q(
             Q(proxy__icontains=search_query)
             | Q(region__icontains=search_query)
             | Q(city__icontains=search_query)
             | Q(country__icontains=search_query)
             | Q(timezone__icontains=search_query)
         )
-    else:
-        proxy_list = Proxy.objects.all()
 
-    # Annotate the queryset with a custom field for sorting
-    proxy_list = proxy_list.annotate(
-        is_active=Case(
-            When(status="active", then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
+    # Apply filters and annotations
+    proxy_list = (
+        Proxy.objects.filter(query)
+        .annotate(
+            is_active=Case(
+                When(status="active", then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
         )
-    ).order_by(
-        "-is_active", "-last_check"
-    )  # First by is_active, then by last_check
+        .order_by("-is_active", "-last_check")
+    )
 
     # Paginate the results
-    paginator = Paginator(proxy_list, 30)  # Show 30 proxies per page
+    paginator = Paginator(proxy_list, 30)
     page_number = request.GET.get("page")
 
     try:
