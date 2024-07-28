@@ -217,10 +217,14 @@ def serialize(obj):
 
 def write_json(filePath: str, data: Any):
     """
-    write json file
+    Write JSON data to a file. Creates parent directories if they do not exist.
     """
     if not data:
         return
+
+    # Ensure parent directories exist
+    os.makedirs(os.path.dirname(filePath), exist_ok=True)
+
     with open(filePath, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=2, ensure_ascii=False, default=serialize)
 
