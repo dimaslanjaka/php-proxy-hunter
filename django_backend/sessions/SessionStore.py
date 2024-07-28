@@ -36,6 +36,8 @@ class SessionStore(SessionBase):
                 getattr(settings, "SESSION_FILE_PATH", None) or tempfile.gettempdir()
             )
             # Make sure the storage path is valid.
+            if not os.path.exists(storage_path):
+                os.makedirs(storage_path, 777, True)
             if not os.path.isdir(storage_path):
                 raise ImproperlyConfigured(
                     "The session storage path %r doesn't exist. Please set your"
