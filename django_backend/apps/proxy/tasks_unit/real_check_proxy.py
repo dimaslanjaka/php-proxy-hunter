@@ -213,8 +213,11 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             read_file(get_relative_path("proxies.txt")),
         ]
         for php_result in php_results:
-            proxy_data = f"{php_result} {proxy_data}"
-        log_file(result_log_file, f"source proxy from reading {len(php_result)} files")
+            proxy_data = f"[CHECKER-PARALLEL] {php_result} {proxy_data}"
+        log_file(
+            result_log_file,
+            f"[CHECKER-PARALLEL] source proxy from reading {len(php_result)} files",
+        )
     if proxy_data:
         extract = extract_proxies(proxy_data)
         for item in extract:
@@ -231,6 +234,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     if proxies:
         # shuffle items
         random.shuffle(proxies)
+        log_file(result_log_file, f"[CHECKER-PARALLEL] checking {len(proxies)} proxies")
     # iterate [n] proxies
     for proxy_obj in proxies[: settings.LIMIT_PROXIES_CHECK]:
         # reset indicator each item
