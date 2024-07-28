@@ -97,6 +97,15 @@ CORS_ALLOWED_ORIGINS = userscript_origins
 # CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
+# Set the session cookie age to 1 week (7 days)
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7
+
+# Keep the session active even after the browser is closed
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# Save the session data on every request
+SESSION_SAVE_EVERY_REQUEST = True
+
 # Application definition
 
 INSTALLED_APPS = [
