@@ -63,7 +63,7 @@ done
 chmod 777 "$CWD"/*.txt
 chmod 755 "$CWD"/*.html "$CWD"/*.js
 chmod 755 "$CWD"/*.css
-chmod 755 "$CWD"/js/*.js
+chmod 755 "$CWD"/js/*.js "$CWD"/userscripts/*.js
 chmod 777 "$CWD"/config
 chmod 755 "$CWD"/config/*
 chmod 777 "$CWD"/tmp "$CWD"/.cache "$CWD"/data
