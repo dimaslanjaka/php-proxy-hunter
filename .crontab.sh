@@ -3,6 +3,9 @@
 # Set current directory as working directory
 CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
+# Set www-data user for subsequent commands
+USER="www-data"
+
 # Load .env file
 if [ -f "$CWD/.env" ]; then
   source "$CWD/.env"
@@ -52,7 +55,8 @@ r_cmd() {
 # r_cmd "python" "manage.py" "runserver"
 # r_cmd "php" "path/to/script.php" "arg1 arg2"
 
+# su -s /bin/sh -c "php $CWD/send_curl.php --url=https://dev.webmanajemen.com:8000/proxy/filter" "$USER"
+su -s /bin/sh -c "php $CWD/send_curl.php --url=https://dev.webmanajemen.com:8000/proxy/check" "$USER"
 bash "$CWD/bin/check-proxy-parallel"
 r_cmd "python" "filterPortsDuplicate.py" "--max=10"
 r_cmd "python" "proxyCheckerReal.py" "--max=10"
-
