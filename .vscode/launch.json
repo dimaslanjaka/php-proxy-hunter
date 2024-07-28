@@ -29,7 +29,7 @@
       "type": "node-terminal"
     },
     {
-      "command": "python runner.py",
+      "command": "python runner.main.py",
       "name": "Run selenium",
       "request": "launch",
       "type": "node-terminal"
