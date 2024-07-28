@@ -161,10 +161,10 @@ def get_proxies(
     # Create a set of unique proxies based on a unique key (e.g., 'proxy_id')
     unique_proxies = {proxy["proxy"]: proxy for proxy in result}.values()
 
-    log_file(
-        result_log_file,
-        f"get_proxies status={' OR '.join(status)} got {len(unique_proxies)} proxies",
-    )
+    # log_file(
+    #     result_log_file,
+    #     f"get_proxies status={' OR '.join(status)} got {len(unique_proxies)} proxies",
+    # )
 
     return list(unique_proxies)
 
