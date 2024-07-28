@@ -170,43 +170,43 @@ def get_proxies(
 
 
 def real_check_proxy_async(proxy_data: Optional[str] = ""):
+    from django_backend.apps.proxy.models import Proxy as ProxyModel
+
     global result_log_file
     if not proxy_data:
         proxy_data = ""
-    proxies: List[Proxy] = []
+    proxies: List[ProxyModel] = []
 
     if len(proxy_data.strip()) < 11:
         # Filter by last_check more than 12 hours ago
-        outdated = get_proxies(["active"], sys.maxsize)
-        outdated = [
+        db_items = get_proxies(["active"], sys.maxsize)
+        db_items = [
             item
-            for item in outdated
+            for item in db_items
             if is_date_rfc3339_older_than(item["last_check"], 12)
         ]
-        if outdated:
+        log_file(
+            result_log_file,
+            f"[CHECKER-PARALLEL] got {len(db_items)} outdated proxies",
+        )
+        if not db_items:
+            db_items = get_proxies(["untested"], 30)
+            if db_items:
+                log_file(
+                    result_log_file,
+                    f"[CHECKER-PARALLEL] got {len(db_items)} untested proxies",
+                )
+        if not db_items:
+            db_items.extend(get_proxies(["dead", "port-closed"], 30))
             log_file(
                 result_log_file,
-                f"[CHECKER-PARALLEL] got {len(outdated)} outdated proxies",
+                f"[CHECKER-PARALLEL] got {len(db_items)} dead proxies",
             )
-            proxy_data += str([obj.to_json() for obj in outdated.order_by("?")])
-        else:
-            items = get_proxies(["untested"], 30)
-            if items:
-                log_file(
-                    result_log_file,
-                    f"[CHECKER-PARALLEL] got {len(items)} untested proxies",
-                )
-            else:
-                items.extend(get_proxies(["dead", "port-closed"], 30))
-                log_file(
-                    result_log_file,
-                    f"[CHECKER-PARALLEL] got {len(items)} dead proxies",
-                )
-            for item in items:
-                format = item["proxy"]
-                if item["username"] and item["password"]:
-                    format += f"@{item['username']}:{item['password']}"
-                proxy_data += f"\n{format}\n"
+        for item in db_items:
+            format = item["proxy"]
+            if item["username"] and item["password"]:
+                format += f"@{item['username']}:{item['password']}"
+            proxy_data += f"\n{format}\n"
     if len(proxy_data.strip()) < 11:
         php_results = [
             # read_file(get_relative_path("working.json")),
@@ -218,12 +218,16 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     if proxy_data:
         extract = extract_proxies(proxy_data)
         for item in extract:
-            find, created = Proxy.objects.get_or_create(
+            find, created = ProxyModel.objects.get_or_create(
                 proxy=item.proxy,
-                defaults={"password": item.password, "username": item.username},
+                defaults=(
+                    {"password": item.password, "username": item.username}
+                    if item.password and item.username
+                    else {}
+                ),
             )
             if find:
-                proxies.append(find[0])
+                proxies.append(find)
     if proxies:
         # shuffle items
         random.shuffle(proxies)
