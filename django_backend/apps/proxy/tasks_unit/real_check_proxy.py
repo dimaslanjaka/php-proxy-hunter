@@ -7,18 +7,16 @@ sys.path.append(
 
 import random
 import re
-import sqlite3
 import threading
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import timedelta
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.db.models import Q
 from django.utils import timezone
 from proxy_hunter import decompress_requests_response, extract_proxies
 from proxy_hunter.utils import check_raw_headers_keywords, is_valid_proxy
@@ -27,7 +25,6 @@ from django_backend.apps.proxy.models import Proxy
 from django_backend.apps.proxy.utils import (
     execute_select_query,
     execute_sql_query,
-    get_db_connections,
 )
 from src.func import (
     file_append_str,
@@ -37,7 +34,7 @@ from src.func import (
     remove_string_and_move_to_file,
 )
 from src.func_console import green, log_file, red
-from src.func_date import get_current_rfc3339_time
+from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
 
@@ -135,12 +132,20 @@ def get_proxies_query(
     condition = " OR ".join([f"status = '{s}'" for s in status])
 
     # Define the query to find proxies with specific status
-    query = f"""
-    SELECT *
-    FROM proxies
-    WHERE {condition} OR status IS NULL
-    ORDER BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1), RANDOM()
-    """
+    if "active" in status or "untested" in status or "port-open" in status:
+        query = f"""
+        SELECT *
+        FROM proxies
+        WHERE {condition}
+        ORDER BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1), RANDOM()
+        """
+    else:
+        query = f"""
+        SELECT *
+        FROM proxies
+        WHERE {condition} OR status IS NULL
+        ORDER BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1), RANDOM()
+        """
 
     # Add LIMIT clause if limit is provided
     if limit is not None:
@@ -171,30 +176,31 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     proxies: List[Proxy] = []
 
     if len(proxy_data.strip()) < 11:
-        # Calculate the time threshold for 12 hours ago
-        time_threshold = timezone.now() - timedelta(hours=12)
         # Filter by last_check more than 12 hours ago
-        queryset = Proxy.objects.filter(
-            Q(last_check__lt=time_threshold) & Q(status="active")
-        )
-        if queryset:
+        outdated = get_proxies(["active"], sys.maxsize)
+        outdated = [
+            item
+            for item in outdated
+            if is_date_rfc3339_older_than(item["last_check"], 12)
+        ]
+        if outdated:
             log_file(
                 result_log_file,
-                f"source proxy from Model: got {len(queryset)} proxies from status=active more than 12 hours ago",
+                f"[CHECKER-PARALLEL] got {len(outdated)} outdated proxies",
             )
-            proxy_data += str([obj.to_json() for obj in queryset.order_by("?")])
+            proxy_data += str([obj.to_json() for obj in outdated.order_by("?")])
         else:
             items = get_proxies(["untested"], 30)
             if items:
                 log_file(
                     result_log_file,
-                    f"source proxy from Model: got {len(items)} proxies from status=untested",
+                    f"[CHECKER-PARALLEL] got {len(items)} untested proxies",
                 )
             else:
                 items.extend(get_proxies(["dead", "port-closed"], 30))
                 log_file(
                     result_log_file,
-                    f"source proxy from Model: got {len(items)} proxies from dead proxies",
+                    f"[CHECKER-PARALLEL] got {len(items)} dead proxies",
                 )
             for item in items:
                 format = item["proxy"]

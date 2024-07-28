@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from dateutil import parser
 from tzlocal import get_localzone
@@ -29,6 +29,36 @@ def is_current_time_more_than_rfc3339(given_datetime_str: str) -> Optional[bool]
         return None
 
 
+def is_date_rfc3339_older_than(date_str: str, hours: int = 1) -> bool:
+    """
+    Check if the given RFC 3339 timestamp is older than a specified number of hours.
+
+    Args:
+        date_str (str): The RFC 3339 timestamp string with timezone offset.
+        hours (int): The number of hours to check against.
+
+    Returns:
+        bool: True if the timestamp is older than the specified number of hours, False otherwise.
+    """
+    # Get the current UTC time
+    now = datetime.now(timezone.utc)
+    # Calculate the time threshold
+    time_threshold = now - timedelta(hours=hours)
+
+    try:
+        # Parse the timestamp and ensure it is timezone-aware
+        timestamp_dt = parser.isoparse(date_str)
+    except ValueError:
+        raise ValueError(f"Invalid timestamp format: {date_str}")
+
+    # Ensure both times are compared in UTC
+    if timestamp_dt.tzinfo is None:
+        # If the timestamp is naive (has no timezone), assume UTC
+        timestamp_dt = timestamp_dt.replace(tzinfo=timezone.utc)
+
+    return timestamp_dt < time_threshold
+
+
 def get_current_rfc3339_time(use_utc=False):
     """
     Returns the current date and time formatted according to RFC 3339.
@@ -47,3 +77,13 @@ def get_current_rfc3339_time(use_utc=False):
         rfc3339_timestamp = now.strftime("%Y-%m-%dT%H:%M:%S%z")
 
     return rfc3339_timestamp
+
+
+if __name__ == "__main__":
+    date_str = "2024-07-29T10:36:02+0700"
+    hours_to_check = 1
+
+    if is_date_rfc3339_older_than(date_str, hours_to_check):
+        print(f"The timestamp {date_str} is older than {hours_to_check} hour(s).")
+    else:
+        print(f"The timestamp {date_str} is not older than {hours_to_check} hour(s).")
