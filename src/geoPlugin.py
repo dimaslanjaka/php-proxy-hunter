@@ -1,6 +1,9 @@
-import json
 import os
-import tempfile
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+import json
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
@@ -9,7 +12,12 @@ import requests
 from geoip2 import database
 from requests.exceptions import RequestException
 
-from src.func import get_message_exception, get_nuitka_file, get_relative_path
+from src.func import (
+    get_message_exception,
+    get_nuitka_file,
+    get_relative_path,
+    write_file,
+)
 from src.func_certificate import output_pem
 
 
@@ -268,8 +276,7 @@ def fetch_and_save_data(url, filename):
         countries_data = response.json()
 
         # Save data to file
-        with open(filename, "w") as f:
-            json.dump(countries_data, f)
+        write_file(filename, json.dumps(countries_data))
 
         return countries_data
 
