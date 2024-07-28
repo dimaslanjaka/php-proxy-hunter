@@ -190,7 +190,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     proxies: List[ProxyModel] = []
     string_to_remove: List[str] = []
 
-    if len(proxy_data.strip()) < 11:
+    if not proxy_data:
         # Filter by last_check more than 12 hours ago
         db_items = get_proxies(["active"], sys.maxsize)
         db_items = [
@@ -220,7 +220,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             if item["username"] and item["password"]:
                 format += f"@{item['username']}:{item['password']}"
             proxy_data += f"\n{format}\n"
-    if len(proxy_data.strip()) < 11:
+    if not proxy_data:
         php_results = [
             # read_file(get_relative_path("working.json")),
             read_file(get_relative_path("proxies.txt")),

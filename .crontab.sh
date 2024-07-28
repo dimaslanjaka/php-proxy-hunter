@@ -76,4 +76,4 @@ su -s /bin/sh -c "php $CWD/send_curl.php --url=https://dev.webmanajemen.com:8000
 # bash "$CWD/bin/check-proxy-parallel"
 # r_cmd "python" "filterPortsDuplicate.py" "--max=10"
 # r_cmd "python" "proxyCheckerReal.py" "--max=10"
-# djm check_proxies --max=10
+djm check_proxies --max=10

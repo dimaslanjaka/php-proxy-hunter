@@ -69,7 +69,7 @@ def fetch_proxies_same_ip(
     return shuffled_result
 
 
-def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
+def filter_duplicates_ips(limit: int = 10, callback: Optional[Callable] = None):
     duplicates_ips = fetch_proxies_same_ip()
 
     def process_ip(ip: str, ip_proxies: List[str]):
@@ -137,7 +137,7 @@ def filter_duplicates_ips(max: int = 10, callback: Optional[Callable] = None):
             ) as executor:
                 futures = []
                 for index, (ip, ip_proxies) in enumerate(duplicates_ips.items()):
-                    if index >= max:
+                    if index >= limit:
                         break
                     futures.append(executor.submit(process_ip, ip, ip_proxies))
 
@@ -165,7 +165,7 @@ def start_filter_duplicates_ips():
     return thread
 
 
-def fetch_open_ports(max: int = 10) -> List[Dict[str, Union[str, None]]]:
+def fetch_open_ports(limit: int = 10) -> List[Dict[str, Union[str, None]]]:
     # Use Django's connection to create a cursor
     with connection.cursor() as cursor:
         # Execute the query to fetch proxies with status 'port-open'
@@ -182,7 +182,7 @@ def fetch_open_ports(max: int = 10) -> List[Dict[str, Union[str, None]]]:
         # Convert the result into a list of dictionaries
         proxies_dict: List[Dict[str, Union[str, None]]] = [
             dict(zip(column_names, proxy)) for proxy in proxies
-        ][:max]
+        ][:limit]
 
     return proxies_dict
 
@@ -247,11 +247,11 @@ def worker_check_open_ports(item: Dict[str, str]):
         log_file(result_log_file, f"[FILTER-PORT] Error occurred: {e}")
 
 
-def check_open_ports(max: int = 10, callback: Optional[Callable] = None):
+def check_open_ports(limit: int = 10, callback: Optional[Callable] = None):
     """
     check proxy WHERE status = 'port-open'
     """
-    proxies_dict = fetch_open_ports(max)
+    proxies_dict = fetch_open_ports(limit)
     if proxies_dict:
         proxies_dict = proxies_dict[
             1:
@@ -262,7 +262,7 @@ def check_open_ports(max: int = 10, callback: Optional[Callable] = None):
             ) as executor:
                 futures = []
                 for index, item in enumerate(proxies_dict):
-                    if index >= max:
+                    if index >= limit:
                         break
                     futures.append(executor.submit(worker_check_open_ports, item))
 
