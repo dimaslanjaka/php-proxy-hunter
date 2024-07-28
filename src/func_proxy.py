@@ -135,22 +135,28 @@ def build_request(
         if os.path.exists(cookie_file):
             cookie_str = read_file(cookie_file)
         if cookie_str != "":
-            if "Netscape HTTP Cookie File" in cookie_str:
-                cookie_jar = MozillaCookieJar(cookie_file)
-                cookie_header = """\
-# Netscape HTTP Cookie File
+            try:
+                if "Netscape HTTP Cookie File" in cookie_str:
+                    cookie_jar = MozillaCookieJar(cookie_file)
+                    cookie_header = """# Netscape HTTP Cookie File
 # http://curl.haxx.se/rfc/cookie_spec.html
 # This is a generated file!  Do not edit.
-    """
-            else:
-                cookie_jar = LWPCookieJar(cookie_file)
-                cookie_header = "#LWP-Cookies-2.0"
-            cookie_jar.load(
-                ignore_discard=True, ignore_expires=True, filename=cookie_file
-            )
-            session.cookies.update(cookie_jar)
+"""
+                else:
+                    cookie_jar = LWPCookieJar(cookie_file)
+                    cookie_header = "#LWP-Cookies-2.0"
 
-    # setup browser headers
+                cookie_jar.load(
+                    ignore_discard=True, ignore_expires=True, filename=cookie_file
+                )
+                session.cookies.update(cookie_jar)
+            except Exception as e:
+                print(f"Error loading cookies from file: {e}")
+                # Skip using cookies if loading fails
+                cookie_jar = None
+                cookie_header = None
+
+    # Setup browser headers
     if headers is None:
         headers = {}
     default_headers = {
@@ -165,7 +171,7 @@ def build_request(
     default_headers.update(headers)
     session.headers.update(default_headers)
 
-    # setup request method
+    # Setup request method
     request_methods = {
         "POST": session.post,
         "PUT": session.put,
@@ -190,39 +196,16 @@ def build_request(
 
     # Save cookies back to file
     if cookie_jar is not None and cookie_header is not None:
-        # now = time.time()
         cookies_to_be_saved = [cookie_header]
         update_cookie_jar(cookie_jar, response.cookies)
         for cookie in cookie_jar:
-            # skip removed cookie
-            # if cookie.discard:
-            #     continue
-            # skip expired cookie
-            # if cookie.is_expired(now):
-            #     continue
             if isinstance(cookie_jar, MozillaCookieJar):
                 domain = cookie.domain
-                if cookie.secure:
-                    secure = "TRUE"
-                else:
-                    secure = "FALSE"
-                if domain.startswith("."):
-                    initial_dot = "TRUE"
-                else:
-                    initial_dot = "FALSE"
-                if cookie.expires is not None:
-                    expires = str(cookie.expires)
-                else:
-                    expires = ""
-                if cookie.value is None:
-                    # cookies.txt regards 'Set-Cookie: foo' as a cookie
-                    # with no name, whereas http.cookiejar regards it as a
-                    # cookie with no value.
-                    name = ""
-                    value = cookie.name
-                else:
-                    name = cookie.name
-                    value = cookie.value
+                secure = "TRUE" if cookie.secure else "FALSE"
+                initial_dot = "TRUE" if domain.startswith(".") else "FALSE"
+                expires = str(cookie.expires) if cookie.expires is not None else ""
+                name = "" if cookie.value is None else cookie.name
+                value = cookie.value if cookie.value is not None else cookie.name
                 cookie_raw = "\t".join(
                     [domain, initial_dot, cookie.path, secure, expires, name, value]
                 )
