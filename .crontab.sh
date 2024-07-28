@@ -6,6 +6,22 @@ CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 # Set www-data user for subsequent commands
 USER="www-data"
 
+# Detect operating system
+if [ "$(uname -s)" = "Darwin" ] || [ "$(uname -s)" = "Linux" ]; then
+    # Unix-based systems (Linux, macOS)
+    VENV_BIN="$CWD/venv/bin"
+else
+    # Assume Windows
+    VENV_BIN="$CWD/venv/Scripts"
+fi
+
+# Check if PATH is set
+if [ -z "$PATH" ]; then
+    export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
+else
+    export PATH=$PATH:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
+fi
+
 # Load .env file
 if [ -f "$CWD/.env" ]; then
   source "$CWD/.env"
