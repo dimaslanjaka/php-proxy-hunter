@@ -219,6 +219,14 @@ def build_request(
 
 
 def generate_netscape_cookie_jar(file_path):
+    if not os.path.exists(file_path):
+        write_file(
+            file_path,
+            """# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file!  Do not edit.
+""",
+        )
     # Create a MozillaCookieJar instance
     cookie_jar = cookiejar.MozillaCookieJar(file_path)
 
