@@ -32,7 +32,7 @@ from src.func import (
     get_unique_dicts_by_key_in_list,
     is_date_rfc3339_hour_more_than,
     read_file,
-    remove_string_and_move_to_file,
+    move_string_between,
     write_file,
 )
 from src.func_certificate import output_pem
@@ -776,7 +776,7 @@ def check_proxy_new(proxy: str):
             data["type"] = "-".join(protocols).upper()
         db.update_data(proxy, data)
 
-    remove_string_and_move_to_file(
+    move_string_between(
         get_relative_path("proxies.txt"), get_relative_path("dead.txt"), proxy
     )
     file_remove_empty_lines(logfile)
