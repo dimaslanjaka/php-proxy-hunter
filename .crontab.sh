@@ -71,8 +71,7 @@ r_cmd() {
 # r_cmd "python" "manage.py" "runserver"
 # r_cmd "php" "path/to/script.php" "arg1 arg2"
 
-# su -s /bin/sh -c "php $CWD/send_curl.php --url=https://dev.webmanajemen.com:8000/proxy/filter" "$USER"
-su -s /bin/sh -c "php $CWD/send_curl.php --url=https://dev.webmanajemen.com:8000/proxy/check" "$USER"
+php "$CWD/send_curl.php" --url=https://dev.webmanajemen.com:8000/proxy/check
 # bash "$CWD/bin/check-proxy-parallel"
 # r_cmd "python" "filterPortsDuplicate.py" "--max=10"
 # r_cmd "python" "proxyCheckerReal.py" "--max=10"
