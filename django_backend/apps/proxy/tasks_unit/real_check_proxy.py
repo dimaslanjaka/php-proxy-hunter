@@ -1,26 +1,34 @@
-from datetime import timedelta
-import re
-from django.conf import settings
-from django.utils import timezone
 import os
-import random
 import sys
-import threading
-import traceback
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict, List, Optional
-from urllib.parse import urlparse
-from proxy_hunter.utils import check_raw_headers_keywords, is_valid_proxy
-import requests, sqlite3
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
+
+import random
+import re
+import sqlite3
+import threading
+import traceback
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import timedelta
+from typing import Any, Dict, List, Optional
+from urllib.parse import urlparse
+
+import requests
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.db.models import Q
-from proxy_hunter import extract_proxies, decompress_requests_response
-from django_backend.apps.proxy.utils import execute_sql_query, get_db_connections
+from django.utils import timezone
+from proxy_hunter import decompress_requests_response, extract_proxies
+from proxy_hunter.utils import check_raw_headers_keywords, is_valid_proxy
+
 from django_backend.apps.proxy.models import Proxy
+from django_backend.apps.proxy.utils import (
+    execute_select_query,
+    execute_sql_query,
+    get_db_connections,
+)
 from src.func import (
     file_append_str,
     get_message_exception,
@@ -28,13 +36,10 @@ from src.func import (
     read_file,
     remove_string_and_move_to_file,
 )
-from src.func_console import green, red, log_file
+from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time
 from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
-from src.ProxyDB import ProxyDB
-from django.conf import settings
-from django.db import connection
 
 result_log_file = get_relative_path("proxyChecker.txt")
 
@@ -123,7 +128,6 @@ def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
 
 
 def get_proxies_query(
-    connection: sqlite3.Connection,
     status: List[str] = ["dead", "port-closed", "untested"],
     limit: Optional[int] = None,
 ):
@@ -141,57 +145,21 @@ def get_proxies_query(
     # Add LIMIT clause if limit is provided
     if limit is not None:
         query += f" LIMIT {limit}"
-
-    # Debug: Print the final query
-    # print(f"Constructed Query: {query}")
-
-    result: List[Dict[str, Any]] = []
-
-    # Execute the query
-    cursor = connection.cursor()
-    try:
-        cursor.execute(query)
-        proxies = cursor.fetchall()
-
-        # Fetch column names
-        columns = [desc[0] for desc in cursor.description]
-
-        # Print column names
-        # print(f"Columns: {columns}")
-
-        # Print each row with all columns
-        for row in proxies:
-            result.append(dict(zip(columns, row)))
-    finally:
-        cursor.close()
-
-    return result
+    return execute_select_query(query)
 
 
 def get_proxies(
     status: List[str] = ["dead", "port-closed", "untested"], limit: Optional[int] = 100
 ):
-    db = None
-    try:
-        db = ProxyDB(get_relative_path("src/database.sqlite"), True)
-    except Exception:
-        pass
-
-    result: List[Dict[str, Any]] = []
-    # Fetch proxies from db if available
-    if db:
-        result.extend(get_proxies_query(db.db.conn, status, limit))
-
-    # Fetch proxies from connection
-    result.extend(get_proxies_query(connection, status, limit))
+    result = get_proxies_query(status, limit)
 
     # Create a set of unique proxies based on a unique key (e.g., 'proxy_id')
     unique_proxies = {proxy["proxy"]: proxy for proxy in result}.values()
 
-    print(f"get_proxies status={' OR '.join(status)} got {len(unique_proxies)} proxies")
-
-    if db:
-        db.close()
+    log_file(
+        result_log_file,
+        f"get_proxies status={' OR '.join(status)} got {len(unique_proxies)} proxies",
+    )
 
     return list(unique_proxies)
 
@@ -217,9 +185,18 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             proxy_data += str([obj.to_json() for obj in queryset.order_by("?")])
         else:
             items = get_proxies(["untested"], 30)
-            if not items:
+            if items:
+                log_file(
+                    result_log_file,
+                    f"source proxy from Model: got {len(items)} proxies from status=untested",
+                )
+            else:
                 items.extend(get_proxies(["dead", "port-closed"], 30))
-            for item in get_proxies(["untested"], 30):
+                log_file(
+                    result_log_file,
+                    f"source proxy from Model: got {len(items)} proxies from dead proxies",
+                )
+            for item in items:
                 format = item["proxy"]
                 if item["username"] and item["password"]:
                     format += f"@{item['username']}:{item['password']}"
