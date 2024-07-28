@@ -2,6 +2,8 @@ import os
 import sys
 from typing import List, Optional, Tuple, Union
 
+from django.conf import settings
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
 import sqlite3
@@ -21,14 +23,17 @@ def get_db_connections() -> List[sqlite3.Connection]:
     """
     connections = []
     try:
-        # Obtain Django connection
-        connections.append(connection)
+        # Obtain Django SQLite connection
+        database_path = settings.DATABASES["default"]["NAME"]
+        db = ProxyDB(database_path, True)
+        connections.append(db.db.conn if db else None)
     except Exception as e:
-        print(f"Error accessing Django connection: {e}")
+        print(f"Error accessing {database_path} connection: {e}")
 
     try:
-        # Obtain SQLite connection
-        db = ProxyDB(get_relative_path("src/database.sqlite"), True)
+        # Obtain PHP Proxy Hunter SQLite connection
+        database_path = get_relative_path("src/database.sqlite")
+        db = ProxyDB(database_path, True)
         connections.append(db.db.conn if db else None)
     except Exception as e:
         print(f"Error creating ProxyDB connection: {e}")
