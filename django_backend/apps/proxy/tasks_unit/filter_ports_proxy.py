@@ -25,7 +25,7 @@ from proxy_hunter import is_valid_proxy
 
 
 def fetch_proxies_same_ip(
-    status: List[str] = ["dead", "port-closed", "untested"]
+    status: List[str] = ["dead", "port-closed", "untested"], limit: int = sys.maxsize
 ) -> Dict[str, List[str]]:
     # Create a condition string from the status list
     condition = " OR ".join([f"status = '{s}'" for s in status])
@@ -42,6 +42,7 @@ def fetch_proxies_same_ip(
         HAVING COUNT(*) > 1
     )
     ORDER BY SUBSTR(proxy, 1, INSTR(proxy, ':') - 1), RANDOM()
+    LIMIT {limit}
     """
 
     # Execute the query
@@ -70,65 +71,65 @@ def fetch_proxies_same_ip(
 
 
 def filter_duplicates_ips(limit: int = 10, callback: Optional[Callable] = None):
-    duplicates_ips = fetch_proxies_same_ip()
+    duplicates_ips = fetch_proxies_same_ip(limit=limit)
 
     def process_ip(ip: str, ip_proxies: List[str]):
         # log_file(result_log_file, f"{ip} has {len(ip_proxies)} duplicates")
         random.shuffle(ip_proxies)
-        with connection.cursor() as cursor:
-            if len(ip_proxies) > 1:
-                # Fetch all rows matching the IP address (excluding active and port-open proxies)
-                ip_rows = execute_select_query(
-                    """
-                    SELECT rowid, * FROM proxies
-                    WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) = ?
-                    AND (status != 'active' AND status != 'port-open' OR status IS NULL)
-                    ORDER BY RANDOM() LIMIT 49999;
-                    """,
-                    (ip,),
-                )
-                log_file(
-                    result_log_file,
-                    f"[FILTER-PORT] {ip} has {len(ip_proxies)} duplicates, inactive rows {len(ip_rows)}",
-                )
+        if len(ip_proxies) > 1:
+            # Fetch all rows matching the IP address (excluding active and port-open proxies)
+            # Set duplicated limit [n]
+            ip_rows = execute_select_query(
+                f"""
+                SELECT rowid, * FROM proxies
+                WHERE SUBSTR(proxy, 1, INSTR(proxy, ':') - 1) = ?
+                AND (status != 'active' AND status != 'port-open' OR status IS NULL)
+                ORDER BY RANDOM() LIMIT 50;
+                """,
+                (ip,),
+            )
+            log_file(
+                result_log_file,
+                f"[FILTER-PORT] {ip} has {len(ip_proxies)} duplicates, inactive rows {len(ip_rows)}",
+            )
 
-                if len(ip_rows) > 1:
-                    keep_proxy = None
-                    random.shuffle(ip_rows)
+            if len(ip_rows) > 1:
+                keep_proxy = None
+                random.shuffle(ip_rows)
 
-                    for row in ip_rows:
-                        proxy = row["proxy"]
-                        if not proxy:
-                            continue
-                        if not keep_proxy:
-                            keep_proxy = proxy
-                        valid = is_valid_proxy(proxy)
-                        if is_port_open(proxy) and valid:
-                            log_file(
-                                result_log_file,
-                                f"[FILTER-PORT] {proxy} \t {green('port open')}",
-                            )
-                            keep_proxy = proxy
-                            # Set status to port-open
-                            execute_sql_query(
-                                "UPDATE proxies SET last_check = ?, status = ? WHERE proxy = ?",
-                                (get_current_rfc3339_time(), "port-open", proxy),
-                            )
+                for row in ip_rows:
+                    proxy = row["proxy"]
+                    if not proxy:
+                        continue
+                    if not keep_proxy:
+                        keep_proxy = proxy
+                    valid = is_valid_proxy(proxy)
+                    if is_port_open(proxy) and valid:
+                        log_file(
+                            result_log_file,
+                            f"[FILTER-PORT] {proxy} \t {green('port open')}",
+                        )
+                        keep_proxy = proxy
+                        # Set status to port-open
+                        execute_sql_query(
+                            "UPDATE proxies SET last_check = ?, status = ? WHERE proxy = ?",
+                            (get_current_rfc3339_time(), "port-open", proxy),
+                        )
+                    else:
+                        if not valid:
+                            removed = red("invalid [DELETED]")
+                        elif keep_proxy != proxy:
+                            removed = orange("[DELETED]")
                         else:
-                            if not valid:
-                                removed = red("invalid [DELETED]")
-                            elif keep_proxy != proxy:
-                                removed = orange("[DELETED]")
-                            else:
-                                removed = magenta("[SKIPPED]")
-                            log_file(
-                                result_log_file,
-                                f"[FILTER-PORT] {proxy} \t {red('port closed')} \t {removed}",
+                            removed = magenta("[SKIPPED]")
+                        log_file(
+                            result_log_file,
+                            f"[FILTER-PORT] {proxy} \t {red('port closed')} \t {removed}",
+                        )
+                        if keep_proxy != proxy or not valid:
+                            execute_sql_query(
+                                "DELETE FROM proxies WHERE proxy = ?", (proxy,)
                             )
-                            if keep_proxy != proxy or not valid:
-                                execute_sql_query(
-                                    "DELETE FROM proxies WHERE proxy = ?", (proxy,)
-                                )
 
     if len(duplicates_ips) > 0:
         try:
@@ -170,7 +171,7 @@ def fetch_open_ports(limit: int = 10) -> List[Dict[str, Union[str, None]]]:
     with connection.cursor() as cursor:
         # Execute the query to fetch proxies with status 'port-open'
         cursor.execute(
-            "SELECT proxy FROM proxies WHERE status = 'port-open' ORDER BY RANDOM()"
+            f"SELECT proxy FROM proxies WHERE status = 'port-open' ORDER BY RANDOM() LIMIT {limit}"
         )
 
         # Fetch all results
