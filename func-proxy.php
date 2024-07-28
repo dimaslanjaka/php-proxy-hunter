@@ -393,8 +393,8 @@ function buildCurl(
   if (!file_exists($cookies)) {
     write_file($cookies, '');
   }
-  curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
-  curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
+  curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies); // Save cookies to file
+  curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies); // Use cookies from file
 
   // Set a random Android User-Agent if none is specified
   $userAgent = randomAndroidUa();
