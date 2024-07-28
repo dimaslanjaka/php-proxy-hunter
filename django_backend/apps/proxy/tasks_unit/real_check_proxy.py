@@ -218,12 +218,10 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     if proxy_data:
         extract = extract_proxies(proxy_data)
         for item in extract:
-            find = Proxy.objects.filter(proxy=item.proxy)
-            if not find:
-                Proxy.objects.create(
-                    proxy=item.proxy, username=item.username, password=item.password
-                )
-                find = Proxy.objects.filter(proxy=item.proxy)
+            find, created = Proxy.objects.get_or_create(
+                proxy=item.proxy,
+                defaults={"password": item.password, "username": item.username},
+            )
             if find:
                 proxies.append(find[0])
     if proxies:
