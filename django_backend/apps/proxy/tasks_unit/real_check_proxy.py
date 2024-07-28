@@ -25,7 +25,7 @@ from src.func import (
     get_message_exception,
     get_relative_path,
     read_file,
-    remove_string_and_move_to_file,
+    move_string_between,
     write_json,
 )
 from src.func_console import green, log_file, red
@@ -367,7 +367,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
 
             except Exception as e:
                 log_file(result_log_file, f"{proxy_obj.proxy} failed to update: {e}")
-        remove_string_and_move_to_file(
+        move_string_between(
             get_relative_path("proxies.txt"),
             get_relative_path("dead.txt"),
             proxy_obj.proxy,

@@ -764,41 +764,63 @@ def get_unique_dicts_by_key_in_list(
     return unique_dicts
 
 
-def remove_string_and_move_to_file(
-    source_file_path, destination_file_path, string_to_remove
-):
-    if not source_file_path or not destination_file_path or not string_to_remove:
+def move_string_between(
+    source_file_path: str,
+    destination_file_path: str,
+    string_to_remove: Optional[Union[str, List[str]]] = None,
+) -> bool:
+    """
+    Move specified strings from the source file to the destination file and remove them from the source file.
+
+    Parameters:
+    - source_file_path: Path to the source file.
+    - destination_file_path: Path to the destination file.
+    - string_to_remove: String or list of strings to remove from the source file.
+
+    Returns:
+    - True if operation is successful, False otherwise.
+    """
+    if not source_file_path or not destination_file_path:
         return False
+
     if not os.path.exists(destination_file_path):
         write_file(destination_file_path, "")
+
     if not os.path.exists(source_file_path):
         write_file(source_file_path, "")
+
     try:
         # Read content from the source file
         with open(source_file_path, "r", encoding="utf-8") as source:
             source_content = source.read()
 
-        # Check if the string to remove exists in the source content
-        if string_to_remove not in source_content:
+        if not string_to_remove:
             return False
 
-        # Remove the desired string
-        modified_content = source_content.replace(string_to_remove, "")
+        # Ensure string_to_remove is a list
+        if isinstance(string_to_remove, str):
+            string_to_remove = [string_to_remove]
+
+        # Check and remove each string in the list
+        for string in string_to_remove:
+            if string in source_content:
+                source_content = source_content.replace(string, "")
+
+                # Append the removed string to the destination file
+                with open(destination_file_path, "a", encoding="utf-8") as destination:
+                    destination.write("\n" + string + "\n")
 
         # Write the modified content back to the source file
         with open(source_file_path, "w", encoding="utf-8") as source:
-            source.write(modified_content)
-
-        # Append the removed string to the destination file
-        with open(destination_file_path, "a", encoding="utf-8") as destination:
-            destination.write("\n" + string_to_remove + "\n")
+            source.write(source_content)
 
         return True
+
     except FileNotFoundError as e:
-        print(str(e))
+        print(f"File not found: {e}")
         return False
     except Exception as e:
-        print("An error occurred:", str(e))
+        print(f"An error occurred: {e}")
         return False
 
 
