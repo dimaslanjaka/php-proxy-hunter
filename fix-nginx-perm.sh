@@ -10,22 +10,35 @@ fi
 USER="www-data"
 
 # Get the absolute path of the current script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # Load .env file
-if [ -f "$SCRIPT_DIR/.env" ]; then
-    source "$SCRIPT_DIR/.env"
+if [ -f "$CWD/.env" ]; then
+    source "$CWD/.env"
 fi
 
-# Add custom paths to PATH
-export PATH="${SCRIPT_DIR}/node_modules/.bin:${SCRIPT_DIR}/bin:${SCRIPT_DIR}/vendor/bin:$PATH"
+# Detect python virtual bin by operating system
+if [ "$(uname -s)" = "Darwin" ] || [ "$(uname -s)" = "Linux" ]; then
+    # Unix-based systems (Linux, macOS)
+    VENV_BIN="$CWD/venv/bin"
+else
+    # Assume Windows
+    VENV_BIN="$CWD/venv/Scripts"
+fi
+
+# Check if PATH is set
+if [ -z "$PATH" ]; then
+    export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
+else
+    export PATH=$PATH:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
+fi
 
 # Check if Git is installed
 if command -v git >/dev/null 2>&1; then
     # Check if the current directory is a Git repository
-    if [ -d "$SCRIPT_DIR/.git" ] || git -C "$SCRIPT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+    if [ -d "$CWD/.git" ] || git -C "$CWD" rev-parse --git-dir >/dev/null 2>&1; then
         echo "Current directory is a Git repository. Updating submodules..."
-        bash "$SCRIPT_DIR/bin/submodule-update"
+        bash "$CWD/bin/submodule-update"
     else
         echo "Current directory is not a Git repository."
     fi
@@ -34,7 +47,7 @@ else
 fi
 
 # Array of files to remove
-lock_files=("$SCRIPT_DIR/proxyWorking.lock" "$SCRIPT_DIR/proxyChecker.lock")
+lock_files=("$CWD/proxyWorking.lock" "$CWD/proxyChecker.lock")
 
 # Loop through the array to remove lock files
 for file in "${lock_files[@]}"; do
@@ -47,53 +60,53 @@ for file in "${lock_files[@]}"; do
 done
 
 # Set permissions on files and directories
-chmod 777 "$SCRIPT_DIR"/*.txt
-chmod 755 "$SCRIPT_DIR"/*.html "$SCRIPT_DIR"/*.js
-chmod 755 "$SCRIPT_DIR"/*.css
-chmod 755 "$SCRIPT_DIR"/js/*.js
-chmod 777 "$SCRIPT_DIR"/config
-chmod 755 "$SCRIPT_DIR"/config/*
-chmod 777 "$SCRIPT_DIR"/tmp "$SCRIPT_DIR"/.cache "$SCRIPT_DIR"/data
-chmod 644 "$SCRIPT_DIR"/data/*.php
-chmod 644 "$SCRIPT_DIR"/*.php
-chmod 644 "$SCRIPT_DIR"/.env
-chmod 755 "$SCRIPT_DIR"/*.sh
+chmod 777 "$CWD"/*.txt
+chmod 755 "$CWD"/*.html "$CWD"/*.js
+chmod 755 "$CWD"/*.css
+chmod 755 "$CWD"/js/*.js
+chmod 777 "$CWD"/config
+chmod 755 "$CWD"/config/*
+chmod 777 "$CWD"/tmp "$CWD"/.cache "$CWD"/data
+chmod 644 "$CWD"/data/*.php
+chmod 644 "$CWD"/*.php
+chmod 644 "$CWD"/.env
+chmod 755 "$CWD"/*.sh
 
 # Create necessary directories and index.html files
-mkdir -p "$SCRIPT_DIR/tmp/cookies"
-touch "$SCRIPT_DIR/tmp/cookies/index.html"
-touch "$SCRIPT_DIR/tmp/index.html"
-mkdir -p "$SCRIPT_DIR/config"
-touch "$SCRIPT_DIR/config/index.html"
-mkdir -p "$SCRIPT_DIR/.cache"
-touch "$SCRIPT_DIR/.cache/index.html"
+mkdir -p "$CWD/tmp/cookies"
+touch "$CWD/tmp/cookies/index.html"
+touch "$CWD/tmp/index.html"
+mkdir -p "$CWD/config"
+touch "$CWD/config/index.html"
+mkdir -p "$CWD/.cache"
+touch "$CWD/.cache/index.html"
 
 # Additional permissions for specific directories if they exist
-if [ -d "$SCRIPT_DIR/assets/proxies" ]; then
-    chmod 777 "$SCRIPT_DIR/assets/proxies"
-    chmod 755 "$SCRIPT_DIR/assets/proxies"/*
-    touch "$SCRIPT_DIR/assets/proxies/index.html"
+if [ -d "$CWD/assets/proxies" ]; then
+    chmod 777 "$CWD/assets/proxies"
+    chmod 755 "$CWD/assets/proxies"/*
+    touch "$CWD/assets/proxies/index.html"
 fi
-if [ -d "$SCRIPT_DIR/packages" ]; then
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/packages"
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/packages"/*
+if [ -d "$CWD/packages" ]; then
+    chown -R "$USER":"$USER" "$CWD/packages"
+    chown -R "$USER":"$USER" "$CWD/packages"/*
 fi
-if [ -d "$SCRIPT_DIR/public" ]; then
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/public"
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/public"/*
+if [ -d "$CWD/public" ]; then
+    chown -R "$USER":"$USER" "$CWD/public"
+    chown -R "$USER":"$USER" "$CWD/public"/*
 fi
 
 # Allow composer and indexing proxies to work
-chown -R "$USER":"$USER" "$SCRIPT_DIR"/*.php "$SCRIPT_DIR"/*.phar
+chown -R "$USER":"$USER" "$CWD"/*.php "$CWD"/*.phar
 
-chown -R "$USER":"$USER" "$SCRIPT_DIR/bin"
-chmod 755 "$SCRIPT_DIR/bin"/*
+chown -R "$USER":"$USER" "$CWD/bin"
+chmod 755 "$CWD/bin"/*
 
 echo "Permission sets successful"
 
-OUTPUT_FILE="$SCRIPT_DIR/proxyChecker.txt"
-COMPOSER_LOCK="$SCRIPT_DIR/composer.lock"
-COMPOSER_PHAR="$SCRIPT_DIR/composer.phar"
+OUTPUT_FILE="$CWD/proxyChecker.txt"
+COMPOSER_LOCK="$CWD/composer.lock"
+COMPOSER_PHAR="$CWD/composer.phar"
 
 # Install or update composer packages
 if [ ! -f "$COMPOSER_LOCK" ]; then
@@ -112,12 +125,12 @@ run_php_if_not_running() {
         if [ "$force" = "true" ]; then
             echo "$script_name is running but will be forcefully restarted."
             pkill -f "$script_name"
-            su -s /bin/sh -c "php $SCRIPT_DIR/$script_name $script_args >> $OUTPUT_FILE 2>&1 &" "$USER"
+            su -s /bin/sh -c "php $CWD/$script_name $script_args >> $OUTPUT_FILE 2>&1 &" "$USER"
         else
             echo "$script_name is still running."
         fi
     else
-        su -s /bin/sh -c "php $SCRIPT_DIR/$script_name $script_args >> $OUTPUT_FILE 2>&1 &" "$USER"
+        su -s /bin/sh -c "php $CWD/$script_name $script_args >> $OUTPUT_FILE 2>&1 &" "$USER"
     fi
 }
 
@@ -128,20 +141,20 @@ run_php_if_not_running "filterPorts.php" "--admin=true"
 run_php_if_not_running "proxyChecker.php" "--admin=true --max=1000" "true"
 
 # Set permissions for vendor directory
-chmod 777 "$SCRIPT_DIR/vendor"
-touch "$SCRIPT_DIR/vendor/index.html"
+chmod 777 "$CWD/vendor"
+touch "$CWD/vendor/index.html"
 
 echo "Composer installed"
 
 # Fix ownership for various directories and file types
-chown -R "$USER":"$USER" "$SCRIPT_DIR"/*.php "$SCRIPT_DIR"/*.txt "$SCRIPT_DIR"/*.json "$SCRIPT_DIR"/*.js "$SCRIPT_DIR"/*.html "$SCRIPT_DIR"/src "$SCRIPT_DIR"/data "$SCRIPT_DIR"/tmp "$SCRIPT_DIR"/vendor "$SCRIPT_DIR"/assets
-chown -R "$USER":"$USER" "$SCRIPT_DIR"/.cache "$SCRIPT_DIR"/config "$SCRIPT_DIR"/*.css "$SCRIPT_DIR"/*.lock "$SCRIPT_DIR"/js "$SCRIPT_DIR"/.htaccess "$SCRIPT_DIR"/.env
+chown -R "$USER":"$USER" "$CWD"/*.php "$CWD"/*.txt "$CWD"/*.json "$CWD"/*.js "$CWD"/*.html "$CWD"/src "$CWD"/data "$CWD"/tmp "$CWD"/vendor "$CWD"/assets
+chown -R "$USER":"$USER" "$CWD"/.cache "$CWD"/config "$CWD"/*.css "$CWD"/*.lock "$CWD"/js "$CWD"/.htaccess "$CWD"/.env
 
 echo "Ownership fixed"
 
 # Enable Git LFS and track large files
-git -C "$SCRIPT_DIR" lfs install
-git -C "$SCRIPT_DIR" lfs track "*.rar"
+git -C "$CWD" lfs install
+git -C "$CWD" lfs track "*.rar"
 
 echo "Large files tracked"
 
@@ -159,55 +172,55 @@ copy_if_both_exist() {
 }
 
 # Copy gunicorn.service to /etc/systemd/system/gunicorn.service
-copy_if_both_exist "$SCRIPT_DIR/assets/systemctl/gunicorn.service" "/etc/systemd/system/gunicorn.service"
+copy_if_both_exist "$CWD/assets/systemctl/gunicorn.service" "/etc/systemd/system/gunicorn.service"
 
 # Copy .htaccess_nginx.conf to /etc/nginx/sites-available/default
-copy_if_both_exist "$SCRIPT_DIR/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
+copy_if_both_exist "$CWD/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
 
 # Install python requirements
-sudo -u "$USER" -H bash -c "python3.11 -m venv $SCRIPT_DIR/venv"
-sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && python3 $SCRIPT_DIR/requirements_install.py"
+sudo -u "$USER" -H bash -c "python3.11 -m venv $CWD/venv"
+sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && python3 $CWD/requirements_install.py"
 
-if [ -d "$SCRIPT_DIR/venv" ]; then
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/venv"
-    chmod 755 "$SCRIPT_DIR/venv/bin"/*
+if [ -d "$CWD/venv" ]; then
+    chown -R "$USER":"$USER" "$CWD/venv"
+    chmod 755 "$CWD/venv/bin"/*
 fi
 
-if [ -d "$SCRIPT_DIR/django_backend" ]; then
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/django_backend"
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/django_backend"/*
-    touch "$SCRIPT_DIR/django_backend/index.html"
+if [ -d "$CWD/django_backend" ]; then
+    chown -R "$USER":"$USER" "$CWD/django_backend"
+    chown -R "$USER":"$USER" "$CWD/django_backend"/*
+    touch "$CWD/django_backend/index.html"
 fi
 
-if [ -d "$SCRIPT_DIR/xl" ]; then
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"
-    chown -R "$USER":"$USER" "$SCRIPT_DIR/xl"/*
-    touch "$SCRIPT_DIR/xl/index.html"
+if [ -d "$CWD/xl" ]; then
+    chown -R "$USER":"$USER" "$CWD/xl"
+    chown -R "$USER":"$USER" "$CWD/xl"/*
+    touch "$CWD/xl/index.html"
 fi
 
 # reload django
 function run_as_user_in_venv() {
     local COMMAND=$1
-    sudo -u "$USER" -H bash -c "source $SCRIPT_DIR/venv/bin/activate && $COMMAND"
+    sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && $COMMAND"
 }
 
 # migrate database (when changed)
-run_as_user_in_venv "python $SCRIPT_DIR/manage.py migrate"
+run_as_user_in_venv "python $CWD/manage.py migrate"
 # collect static files (to sync with nginx config)
-run_as_user_in_venv "python $SCRIPT_DIR/manage.py collectstatic --noinput"
+run_as_user_in_venv "python $CWD/manage.py collectstatic --noinput"
 # clear django caches (from django_backend/apps/core/management/commands/clear_cache.py)
-run_as_user_in_venv "python $SCRIPT_DIR/manage.py clear_cache"
+run_as_user_in_venv "python $CWD/manage.py clear_cache"
 # sync proxies between php and django python databases
-run_as_user_in_venv "python $SCRIPT_DIR/manage.py sync_proxies"
+run_as_user_in_venv "python $CWD/manage.py sync_proxies"
 
 # Restart services
-touch "$SCRIPT_DIR/assets/index.html"
-touch "$SCRIPT_DIR/assets/systemctl/index.html"
+touch "$CWD/assets/index.html"
+touch "$CWD/assets/systemctl/index.html"
 
 # Fix permission for gunicorn services
-chmod 755 "$SCRIPT_DIR/assets/systemctl"
-chown root:root "$SCRIPT_DIR/assets/systemctl/start_gunicorn.sh"
-chmod 755 "$SCRIPT_DIR/assets/systemctl/start_gunicorn.sh"
+chmod 755 "$CWD/assets/systemctl"
+chown root:root "$CWD/assets/systemctl/start_gunicorn.sh"
+chmod 755 "$CWD/assets/systemctl/start_gunicorn.sh"
 
 # Reload daemon
 sudo systemctl daemon-reload
