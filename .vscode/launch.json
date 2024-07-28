@@ -17,8 +17,8 @@
       "type": "node-terminal"
     },
     {
-      "command": "python main_proxy_add.py",
-      "name": "Run proxy add",
+      "command": "python profile_manager.py",
+      "name": "Run profile manager",
       "request": "launch",
       "type": "node-terminal"
     },
