@@ -1,5 +1,16 @@
-#!/usr/bin/env sh
-. "$(dirname "$0")/_/husky.sh"
+#!/bin/sh
+
+# Path to the Husky script
+HUSKY_SH="$(dirname "$0")/_/husky.sh"
+
+# Check if the Husky script exists
+if [ -f "$HUSKY_SH" ]; then
+  # Source the Husky script to run Husky hooks
+  . "$HUSKY_SH"
+else
+  echo "Husky script not found: $HUSKY_SH"
+  exit 1
+fi
 
 # fix PHP permissions
 if [[ "$(uname -s)" == *"CYGWIN"* || "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"MSYS"* ]]; then
