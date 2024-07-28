@@ -151,31 +151,53 @@ def using_pool(proxies: List[Dict[str, str]], pool_size: int = 5):
 class Command(BaseCommand):
     help = "Check the status of proxies and update the database."
 
-    def handle(self, *args, **kwargs):
-        self.wait_for_app_ready("django_backend.apps.proxy")
-
-        proxies = self.select_proxies(
-            "SELECT * FROM proxies WHERE status = 'untested' ORDER BY RANDOM() LIMIT 100"
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--max",
+            type=int,
+            default=100,
+            help="Maximum number of proxies to process (default: 100)",
         )
 
-        proxies += self.select_proxies(
-            """
+    def handle(self, *args, **options):
+        max_proxies = options["max"]
+        self.wait_for_app_ready("django_backend.apps.proxy")
+
+        proxies = []
+
+        untested_proxies = self.select_proxies(
+            f"SELECT * FROM proxies WHERE status = 'untested' ORDER BY RANDOM() LIMIT {max_proxies}"
+        )
+        if untested_proxies:
+            proxies.extend(untested_proxies)
+
+        active_proxies = self.select_proxies(
+            f"""
             SELECT *
             FROM proxies
             WHERE status = 'active'
             AND datetime(last_check) < datetime('now', '-4 hours')
             ORDER BY RANDOM()
-            LIMIT 100;
+            LIMIT {max_proxies};
             """
         )
+        if active_proxies:
+            proxies.extend(active_proxies)
+
+        undefined_proxies = self.select_proxies(
+            f"SELECT * FROM proxies WHERE status IS NULL ORDER BY RANDOM() LIMIT {max_proxies}"
+        )
+        if undefined_proxies:
+            proxies.extend(undefined_proxies)
+
         proxy = json.dumps(proxies)
 
         # Start threads
         threads: List[threading.Thread] = []
         threads.append(
-            threading.Thread(target=filter_duplicates_ips, args=(sys.maxsize,))
+            threading.Thread(target=filter_duplicates_ips, args=(max_proxies,))
         )
-        threads.append(threading.Thread(target=check_open_ports, args=(sys.maxsize,)))
+        threads.append(threading.Thread(target=check_open_ports, args=(max_proxies,)))
         threads.append(threading.Thread(target=real_check_proxy_async, args=(proxy,)))
 
         # Start all threads
