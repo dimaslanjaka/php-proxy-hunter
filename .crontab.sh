@@ -6,7 +6,7 @@ CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 # Set www-data user for subsequent commands
 USER="www-data"
 
-# Detect operating system
+# Detect python virtual bin by operating system
 if [ "$(uname -s)" = "Darwin" ] || [ "$(uname -s)" = "Linux" ]; then
     # Unix-based systems (Linux, macOS)
     VENV_BIN="$CWD/venv/bin"
