@@ -1,19 +1,24 @@
 import os
+import sys
 
-# import sys
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from django.conf import settings
 from django.contrib import admin
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpRequest
+from django.shortcuts import render
 from django.urls import include, path
 from django.views.static import serve
+
 from src.func import get_relative_path
 
 
 def index(request: HttpRequest):
-    index_file_path = os.path.join(settings.BASE_DIR, "public", "index.html")
-    with open(index_file_path, "r") as file:
-        return HttpResponse(file.read(), content_type="text/html")
+    index_file_path = os.path.join(
+        settings.BASE_DIR, "django_backend", "apps", "core", "templates", "index.html"
+    )
+    return render(request=request, template_name=index_file_path)
 
 
 urlpatterns = [
