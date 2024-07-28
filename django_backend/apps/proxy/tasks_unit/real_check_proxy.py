@@ -188,6 +188,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     if not proxy_data:
         proxy_data = ""
     proxies: List[ProxyModel] = []
+    string_to_remove: List[str] = []
 
     if len(proxy_data.strip()) < 11:
         # Filter by last_check more than 12 hours ago
@@ -364,14 +365,15 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 t.start()
                 global_tasks.append(t)
                 cleanup_threads()
+                string_to_remove.append(proxy_obj.proxy)
 
             except Exception as e:
                 log_file(result_log_file, f"{proxy_obj.proxy} failed to update: {e}")
-        move_string_between(
-            get_relative_path("proxies.txt"),
-            get_relative_path("dead.txt"),
-            proxy_obj.proxy,
-        )
+    move_string_between(
+        get_relative_path("proxies.txt"),
+        get_relative_path("dead.txt"),
+        string_to_remove,
+    )
 
     file_append_str(result_log_file, f"\n{len(proxies)} proxies checked done.\n")
 
