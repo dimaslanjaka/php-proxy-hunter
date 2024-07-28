@@ -9,29 +9,24 @@ import random
 import re
 import threading
 import traceback
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import timedelta
-from typing import List, Optional
+from concurrent.futures import ThreadPoolExecutor, as_completed, Future
+from typing import List, Optional, Union
 from urllib.parse import urlparse
-
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.utils import timezone
 from proxy_hunter import decompress_requests_response, extract_proxies
 from proxy_hunter.utils import check_raw_headers_keywords, is_valid_proxy
 
 from django_backend.apps.proxy.models import Proxy
-from django_backend.apps.proxy.utils import (
-    execute_select_query,
-    execute_sql_query,
-)
+from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 from src.func import (
     file_append_str,
     get_message_exception,
     get_relative_path,
     read_file,
     remove_string_and_move_to_file,
+    write_json,
 )
 from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
@@ -39,6 +34,22 @@ from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
 
 result_log_file = get_relative_path("proxyChecker.txt")
+global_tasks: List[Union[threading.Thread, Future]] = []
+
+
+def cleanup_threads():
+    global global_tasks
+    global_tasks = [
+        task
+        for task in global_tasks
+        if (isinstance(task, threading.Thread) and not task.is_alive())
+        or (isinstance(task, Future) and task.done())
+    ]
+
+
+def parse_working_proxies():
+    data = execute_select_query("SELECT * FROM proxies WHERE status = ?", ("active",))
+    write_json(get_relative_path("working.json"), data)
 
 
 def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
@@ -172,7 +183,8 @@ def get_proxies(
 def real_check_proxy_async(proxy_data: Optional[str] = ""):
     from django_backend.apps.proxy.models import Proxy as ProxyModel
 
-    global result_log_file
+    global result_log_file, global_tasks
+
     if not proxy_data:
         proxy_data = ""
     proxies: List[ProxyModel] = []
@@ -280,6 +292,8 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                         executor.submit(handle_check, "socks4"),
                         executor.submit(handle_check, "socks5"),
                     ]
+                    # register to global threads
+                    global_tasks.extend(checks)
 
                     # Iterate through the completed tasks
                     for future in as_completed(checks):
@@ -345,6 +359,12 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 if "error" in exec:
                     for err in exec["error"]:
                         log_file(result_log_file, f"[CHECKER-PARALLEL] {err}")
+                # Writing working.json
+                t = threading.Thread(target=parse_working_proxies)
+                t.start()
+                global_tasks.append(t)
+                cleanup_threads()
+
             except Exception as e:
                 log_file(result_log_file, f"{proxy_obj.proxy} failed to update: {e}")
         remove_string_and_move_to_file(
@@ -360,4 +380,5 @@ def real_check_proxy_async_in_thread(proxy):
     thread = threading.Thread(target=real_check_proxy_async, args=(proxy,))
     # thread = threading.Thread(target=get_proxies, args=(["untested"],))
     thread.start()
+    global_tasks.append(thread)
     return thread
