@@ -468,6 +468,69 @@ function updateWorkingProxies() {
   }
 }
 
+// proxies list
+
+class Pagination {
+  constructor(items, itemsPerPage) {
+    this.items = items;
+    this.itemsPerPage = itemsPerPage;
+    this.currentPage = this.getCurrentPage();
+    this.totalPages = Math.ceil(this.items.length / this.itemsPerPage);
+  }
+
+  getCurrentPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return parseInt(urlParams.get("page")) || 1;
+  }
+
+  getPaginatedItems() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = Math.min(startIndex + this.itemsPerPage, this.items.length);
+    return this.items.slice(startIndex, endIndex);
+  }
+
+  getPaginationControls() {
+    const controls = [];
+
+    // First button
+    controls.push({
+      type: this.currentPage > 1 ? "link" : "disabled",
+      label: "First",
+      page: 1
+    });
+
+    // Previous button
+    controls.push({
+      type: this.currentPage > 1 ? "link" : "disabled",
+      label: "Previous",
+      page: this.currentPage - 1
+    });
+
+    // Next button
+    controls.push({
+      type: this.currentPage < this.totalPages ? "link" : "disabled",
+      label: "Next",
+      page: this.currentPage + 1
+    });
+
+    // Last button
+    controls.push({
+      type: this.currentPage < this.totalPages ? "link" : "disabled",
+      label: "Last",
+      page: this.totalPages
+    });
+
+    return controls;
+  }
+
+  getPaginationData() {
+    return {
+      items: this.getPaginatedItems(),
+      pagination: this.getPaginationControls()
+    };
+  }
+}
+
 let workingProxiesTxt;
 
 async function fetchWorkingProxies() {
@@ -483,10 +546,16 @@ async function fetchWorkingProxies() {
   if (testWorkingProxiesTxt.trim().length === 0) return;
   if (!workingProxiesTxt || workingProxiesTxt !== testWorkingProxiesTxt) {
     workingProxiesTxt = testWorkingProxiesTxt;
-    // const proxies = sortLinesByDate(workingProxiesTxt);
-    const proxies = workingProxiesTxt.split(/\r?\n/).filter((line) => line.trim() !== "");
     const tbody = document.getElementById("wproxy");
     tbody.innerHTML = "";
+
+    const items = workingProxiesTxt.split(/\r?\n/).filter((line) => line.trim() !== "");
+    const itemsPerPage = 30;
+    const pagination = new Pagination(items, itemsPerPage);
+    const paginationData = pagination.getPaginationData();
+    const proxies = paginationData.items;
+
+    // display proxy list of current page
     proxies.forEach((str) => {
       const tr = document.createElement("tr");
       const split = str.split("|");
@@ -561,6 +630,20 @@ async function fetchWorkingProxies() {
       });
       tbody.appendChild(tr);
     });
+
+    // Render pagination controls
+    const paginationControls = document.getElementById("pagination-controls");
+    paginationControls.innerHTML = paginationData.pagination
+      .map((control) => {
+        if (control.type === "link") {
+          return `<a href="?page=${control.page}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">${control.label}</a>`;
+        } else if (control.type === "disabled") {
+          return `<span class="px-4 py-2 bg-gray-500 text-gray-300 rounded cursor-not-allowed">${control.label}</span>`;
+        }
+      })
+      .join("");
+
+    // copy button listener
     document.querySelectorAll(".pcopy").forEach((el) => {
       if (el.hasAttribute("aria-copy")) return;
       el.addEventListener("click", () => {
@@ -570,6 +653,8 @@ async function fetchWorkingProxies() {
       });
       el.setAttribute("aria-copy", el.getAttribute("data"));
     });
+
+    // re-check button listener
     document.querySelectorAll(".recheck").forEach((el) => {
       if (el.hasAttribute("aria-copy")) return;
       el.addEventListener("click", () => {
