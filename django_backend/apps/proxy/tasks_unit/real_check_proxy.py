@@ -364,10 +364,18 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 if "error" in exec:
                     for err in exec["error"]:
                         log_file(result_log_file, f"[CHECKER-PARALLEL] {err}")
+                else:
+                    log_file(
+                        result_log_file, f"[CHECKER-PARALLEL] {exec['query']} [DONE]"
+                    )
                 exec = execute_sql_query(model.to_update_sql())
                 if "error" in exec:
                     for err in exec["error"]:
                         log_file(result_log_file, f"[CHECKER-PARALLEL] {err}")
+                else:
+                    log_file(
+                        result_log_file, f"[CHECKER-PARALLEL] {exec['query']} [DONE]"
+                    )
                 # fetch geo location
                 fetch_geo_ip_in_thread([proxy_obj])
                 # Writing working.json
@@ -378,7 +386,10 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 string_to_remove.append(proxy_obj.proxy)
 
             except Exception as e:
-                log_file(result_log_file, f"{proxy_obj.proxy} failed to update: {e}")
+                log_file(
+                    result_log_file,
+                    f"[CHECKER-PARALLEL] failed to update {proxy_obj.proxy}: {e}",
+                )
     move_string_between(
         get_relative_path("proxies.txt"),
         get_relative_path("dead.txt"),
