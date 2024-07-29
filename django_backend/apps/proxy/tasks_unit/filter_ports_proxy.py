@@ -286,5 +286,6 @@ def start_check_open_ports():
     thread = threading.Thread(
         target=check_open_ports, args=(settings.LIMIT_FILTER_CHECK,)
     )
+    thread.daemon = True  # Allow thread to be killed when main program exits
     thread.start()
     return thread
