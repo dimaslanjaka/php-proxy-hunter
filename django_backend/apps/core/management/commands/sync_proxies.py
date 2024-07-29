@@ -9,12 +9,15 @@ SRC_DIR = os.path.join(BASE_DIR, "src")
 sys.path.append(SRC_DIR)
 
 from src.func import delete_path, get_relative_path, read_file
+from src.geoPlugin import download_databases
 
 
 class Command(BaseCommand):
     help = "Sync proxies table from src/database.sqlite to tmp/database.sqlite"
 
     def handle(self, *args, **kwargs):
+        download_databases(get_relative_path("src"))
+
         db1 = get_relative_path("src/database.sqlite")
         db2 = get_relative_path("tmp/database.sqlite")
 
