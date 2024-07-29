@@ -39,20 +39,17 @@ def install_requirements():
     try:
         # Upgrade to the latest version
         subprocess.check_call(["python", "-m", "pip", "install", "--upgrade", "pip"])
+        subprocess.check_call(["pip", "install", "--upgrade", "pip"])
         # subprocess.check_call(
         #     ["python", "-m", "pip", "install", "--upgrade", "setuptools"]
         # )
         # subprocess.check_call(["python", "-m", "pip", "install", "--upgrade", "wheel"])
 
         # Install requirements from requirements.txt
-        subprocess.check_call(
-            ["python", "-m", "pip", "install", "-r", "requirements.txt"]
-        )
+        subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
 
         # Install the socks package using PEP 517
-        subprocess.check_call(
-            ["python", "-m", "pip", "install", "socks", "--use-pep517"]
-        )
+        subprocess.check_call(["pip", "install", "socks", "--use-pep517"])
 
     except subprocess.CalledProcessError as e:
         print(f"Error installing requirements: {e}")
