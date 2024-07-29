@@ -3,6 +3,9 @@
 # Set current directory as working directory
 CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
+# Change to the directory stored in CWD
+cd "$CWD"
+
 # Set www-data user for subsequent commands
 USER="www-data"
 
