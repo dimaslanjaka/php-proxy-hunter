@@ -39,7 +39,7 @@ def install_requirements():
     try:
         # Upgrade to the latest version
         subprocess.check_call(["python", "-m", "pip", "install", "--upgrade", "pip"])
-        subprocess.check_call(["pip", "install", "--upgrade", "pip"])
+        # subprocess.check_call(["pip", "install", "--upgrade", "pip"])
         # subprocess.check_call(
         #     ["python", "-m", "pip", "install", "--upgrade", "setuptools"]
         # )
@@ -47,6 +47,8 @@ def install_requirements():
 
         # Install requirements from requirements.txt
         subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
+        # Install without caches
+        # pip install --no-cache-dir -r requirements.txt
 
         # Install the socks package using PEP 517
         subprocess.check_call(["pip", "install", "socks", "--use-pep517"])
