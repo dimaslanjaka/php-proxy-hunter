@@ -15,6 +15,7 @@ from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
     check_open_ports,
     filter_duplicates_ips,
 )
+from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import real_check_proxy_async
 from bs4 import BeautifulSoup
 from django.core.management.base import BaseCommand
@@ -117,6 +118,7 @@ def worker(item: Dict[str, str]):
                 execute_sql_query(
                     f"UPDATE proxies SET status = 'active', type = '{protocols}', https = '{https}', last_check = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE proxy = '{proxy}';"
                 )
+                fetch_geo_ip(proxy)
                 break
         else:
             execute_sql_query(
