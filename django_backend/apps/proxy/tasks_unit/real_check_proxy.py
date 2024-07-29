@@ -368,14 +368,14 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 if "error" in exec:
                     for err in exec["error"]:
                         log_file(result_log_file, f"[CHECKER-PARALLEL] {err}")
+                # fetch geo location
+                fetch_geo_ip_in_thread([proxy_obj])
                 # Writing working.json
                 t = threading.Thread(target=parse_working_proxies)
                 t.start()
                 global_tasks.append(t)
                 cleanup_threads()
                 string_to_remove.append(proxy_obj.proxy)
-                # fetch geo location
-                fetch_geo_ip_in_thread([proxy_obj])
 
             except Exception as e:
                 log_file(result_log_file, f"{proxy_obj.proxy} failed to update: {e}")
