@@ -365,7 +365,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             )
             params = tuple(data.values())
             try:
-                exec_sql = execute_sql_query(query, params)
+                exec_sql = execute_sql_query(query, params, True)
                 if "error" in exec_sql:
                     # Filter out empty strings
                     errors = [e for e in exec_sql["error"] if e]
