@@ -23,12 +23,12 @@ global_tasks: Set[Union[threading.Thread, Future]] = set()
 
 def cleanup_threads():
     global global_tasks
-    global_tasks = [
+    global_tasks = {
         task
         for task in global_tasks
-        if (isinstance(task, threading.Thread) and not task.is_alive())
-        or (isinstance(task, Future) and task.done())
-    ]
+        if (isinstance(task, threading.Thread) and task.is_alive())
+        or (isinstance(task, Future) and not task.done())
+    }
 
 
 def fetch_geo_ip(proxy: str):
