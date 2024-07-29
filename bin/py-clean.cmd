@@ -40,11 +40,13 @@ python -m pip cache purge
 
 :: Freeze current packages to uninstall.txt
 echo Freezing current packages to uninstall.txt...
-python -m pip freeze > "%CWD%\uninstall.txt"
+@REM call python -m pip freeze > "%CWD%\uninstall.txt"
+call pip freeze > "%CWD%\uninstall.txt"
 
 :: Uninstall all packages listed in uninstall.txt
 echo Uninstalling all packages...
-python -m pip uninstall -r "%CWD%\uninstall.txt" -y
+@REM call python -m pip uninstall -r "%CWD%\uninstall.txt" -y
+call pip uninstall -r "%CWD%\uninstall.txt" -y
 
 :: Remove the uninstall.txt file
 echo Removing uninstall.txt...
@@ -52,7 +54,7 @@ del "%CWD%\uninstall.txt"
 
 :: Reinstall packages from requirements.txt
 echo Reinstalling packages from requirements.txt...
-python "%CWD%\requirements_install.py"
+call python "%CWD%\requirements_install.py"
 
 :: Deactivate the virtual environment
 call "%CWD%\venv\Scripts\deactivate"
