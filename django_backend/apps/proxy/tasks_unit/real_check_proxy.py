@@ -9,23 +9,29 @@ import random
 import re
 import threading
 import traceback
-from concurrent.futures import ThreadPoolExecutor, as_completed, Future
+from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from typing import List, Optional, Union
 from urllib.parse import urlparse
+
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
-from proxy_hunter import decompress_requests_response, extract_proxies
-from proxy_hunter import check_raw_headers_keywords, is_valid_proxy
+from proxy_hunter import (
+    check_raw_headers_keywords,
+    decompress_requests_response,
+    extract_proxies,
+    is_valid_proxy,
+)
 
 from django_backend.apps.proxy.models import Proxy
+from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip_in_thread
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 from src.func import (
     file_append_str,
     get_message_exception,
     get_relative_path,
-    read_file,
     move_string_between,
+    read_file,
     write_json,
 )
 from src.func_console import green, log_file, red
@@ -83,8 +89,10 @@ def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
             latency = response.elapsed.total_seconds() * 1000  # in milliseconds
             status_code = response.status_code
             body = decompress_requests_response(response)
-            soup = BeautifulSoup(body, "html.parser")
-            title = soup.title.string if soup.title else ""
+            soup = None
+            if body:
+                soup = BeautifulSoup(body, "html.parser")
+            title = soup.title.string if soup and soup.title else ""
             final_url = response.url
             pattern = r"^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)="
             regex_private_gateway = re.compile(pattern, re.IGNORECASE)
@@ -366,6 +374,8 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 global_tasks.append(t)
                 cleanup_threads()
                 string_to_remove.append(proxy_obj.proxy)
+                # fetch geo location
+                fetch_geo_ip_in_thread([proxy_obj])
 
             except Exception as e:
                 log_file(result_log_file, f"{proxy_obj.proxy} failed to update: {e}")
