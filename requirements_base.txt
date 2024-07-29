@@ -33,7 +33,6 @@ black
 zstandard
 selenium
 setuptools
-pycurl
 rarfile
 pycryptodome
 django
