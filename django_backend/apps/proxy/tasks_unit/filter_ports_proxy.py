@@ -16,14 +16,14 @@ from proxy_hunter import is_valid_proxy
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
     real_check_proxy,
     result_log_file,
-    global_tasks as tasks_checker,
+    global_tasks as proxy_checker_threads,
 )
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 from src.func_console import green, log_file, magenta, orange, red
 from src.func_date import get_current_rfc3339_time
 from src.func_proxy import is_port_open
 
-global_tasks: List[Union[threading.Thread, concurrent.futures.Future]] = []
+global_tasks: List[Union[threading.Thread, concurrent.futures.Future]] = set()
 
 
 def cleanup_threads():
@@ -278,7 +278,7 @@ def check_open_ports(limit: int = 10, callback: Optional[Callable] = None):
                 futures = []
                 for item in proxies_dict[:limit]:
                     futures.append(executor.submit(worker_check_open_ports, item))
-                tasks_checker.extend(futures)
+                proxy_checker_threads.extend(futures)
 
                 for future in concurrent.futures.as_completed(futures):
                     try:

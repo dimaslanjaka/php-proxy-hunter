@@ -40,7 +40,7 @@ from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
 
 result_log_file = get_relative_path("proxyChecker.txt")
-global_tasks: List[Union[threading.Thread, Future]] = []
+global_tasks: List[Union[threading.Thread, Future]] = set()
 
 
 def cleanup_threads():
