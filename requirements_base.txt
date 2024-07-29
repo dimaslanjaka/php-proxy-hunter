@@ -1,5 +1,6 @@
 # undetected-chromedriver
-nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip
+# nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip
+nuitka
 # botasaurus
 # selenium-wire
 # chromedriver_autoinstaller_fix
