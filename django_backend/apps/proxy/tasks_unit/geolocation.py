@@ -107,10 +107,12 @@ def fetch_geo_ip(proxy: str):
 
 def fetch_geo_ip_list(proxies: List[Proxy]):
     global global_tasks
+
     try:
         with ThreadPoolExecutor(max_workers=settings.WORKER_THREADS) as executor:
             futures = []
             for item in proxies:
+                print(f"geolocation {item.proxy}")
                 futures.append(executor.submit(fetch_geo_ip, item.proxy))
             # register to global tasks
             global_tasks.update(futures)
@@ -128,5 +130,5 @@ def fetch_geo_ip_in_thread(proxies: List[Proxy]):
     thread = threading.Thread(target=fetch_geo_ip_list, args=(proxies,))
     thread.daemon = True  # Allow thread to be killed when main program exits
     thread.start()
-    global_tasks.append(thread)
+    global_tasks.add(thread)
     return thread
