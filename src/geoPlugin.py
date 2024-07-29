@@ -13,7 +13,6 @@ from geoip2 import database
 from requests.exceptions import RequestException
 
 from src.func import (
-    get_message_exception,
     get_nuitka_file,
     get_relative_path,
     write_file,
@@ -264,7 +263,7 @@ def get_geo_ip2(
             lang,
         )
     except Exception as e:
-        print("Error in geoIp2:", get_message_exception(e))
+        print(f"Error in geoIp2: {e}")
         if reader is not None:
             reader.close()
 
