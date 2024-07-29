@@ -1,27 +1,39 @@
-import concurrent.futures
 import os
-import random
 import sys
-import threading
-from typing import Callable, Dict, List, Optional, Union
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
+import concurrent.futures
+import random
+import threading
+from typing import Callable, Dict, List, Optional, Union
+
 from django.conf import settings
 from django.db import connection
-from django_backend.apps.proxy.utils import (
-    execute_select_query,
-    execute_sql_query,
-)
+from proxy_hunter import is_valid_proxy
+
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
     real_check_proxy,
     result_log_file,
+    global_tasks as tasks_checker,
 )
+from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 from src.func_console import green, log_file, magenta, orange, red
 from src.func_date import get_current_rfc3339_time
 from src.func_proxy import is_port_open
-from proxy_hunter import is_valid_proxy
+
+global_tasks: List[Union[threading.Thread, concurrent.futures.Future]] = []
+
+
+def cleanup_threads():
+    global global_tasks
+    global_tasks = [
+        task
+        for task in global_tasks
+        if (isinstance(task, threading.Thread) and not task.is_alive())
+        or (isinstance(task, concurrent.futures.Future) and task.done())
+    ]
 
 
 def fetch_proxies_same_ip(
@@ -161,7 +173,9 @@ def filter_duplicates_ips(limit: int = 10, callback: Optional[Callable] = None):
 
 def start_filter_duplicates_ips():
     # start checking [n] open ports from duplicated ips
-    thread = threading.Thread(target=filter_duplicates_ips, args=(1000,))
+    thread = threading.Thread(
+        target=filter_duplicates_ips, args=(settings.LIMIT_FILTER_CHECK,)
+    )
     thread.start()
     return thread
 
@@ -262,10 +276,9 @@ def check_open_ports(limit: int = 10, callback: Optional[Callable] = None):
                 max_workers=settings.WORKER_THREADS
             ) as executor:
                 futures = []
-                for index, item in enumerate(proxies_dict):
-                    if index >= limit:
-                        break
+                for item in proxies_dict[:limit]:
                     futures.append(executor.submit(worker_check_open_ports, item))
+                tasks_checker.extend(futures)
 
                 for future in concurrent.futures.as_completed(futures):
                     try:
