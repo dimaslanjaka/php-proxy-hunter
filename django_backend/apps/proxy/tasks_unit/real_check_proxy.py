@@ -355,33 +355,35 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 "last_check": last_check,
                 "https": "true" if https else "false",
                 "latency": latency,
+                "proxy": proxy_obj.proxy,
             }
-            model, created = Proxy.objects.get_or_create(
-                proxy=proxy_obj.proxy, defaults=data
+            # Dynamically create SQL query based on the dictionary keys
+            columns = ", ".join(data.keys())
+            placeholders = ", ".join("?" for _ in data)
+            query = (
+                f"INSERT OR REPLACE INTO proxies ({columns}) VALUES ({placeholders});"
             )
+            params = tuple(data.values())
             try:
-                exec = execute_sql_query(model.to_insert_or_ignore_sql())
-                if "error" in exec:
-                    for err in exec["error"]:
-                        log_file(result_log_file, f"[CHECKER-PARALLEL] {err}")
+                exec_sql = execute_sql_query(query, params)
+                if "error" in exec_sql:
+                    # Filter out empty strings
+                    errors = [e for e in exec_sql["error"] if e]
+
+                    if len(errors) > 0:
+                        error_message = "\n".join(errors)
+                        raise ValueError(f"SQL execution error(s):\n{error_message}")
                 else:
                     log_file(
-                        result_log_file, f"[CHECKER-PARALLEL] {exec['query']} [DONE]"
+                        result_log_file,
+                        f"[CHECKER-PARALLEL] {exec_sql['query']} [DONE]",
                     )
-                exec = execute_sql_query(model.to_update_sql())
-                if "error" in exec:
-                    for err in exec["error"]:
-                        log_file(result_log_file, f"[CHECKER-PARALLEL] {err}")
-                else:
-                    log_file(
-                        result_log_file, f"[CHECKER-PARALLEL] {exec['query']} [DONE]"
-                    )
-                # fetch geo location
-                fetch_geo_ip_in_thread([proxy_obj])
-                # Writing working.json
-                t = threading.Thread(target=parse_working_proxies)
-                t.start()
-                global_tasks.append(t)
+                    # fetch geo location
+                    fetch_geo_ip_in_thread([proxy_obj])
+                    # Writing working.json
+                    t = threading.Thread(target=parse_working_proxies)
+                    t.start()
+                    global_tasks.append(t)
                 cleanup_threads()
                 string_to_remove.append(proxy_obj.proxy)
 
