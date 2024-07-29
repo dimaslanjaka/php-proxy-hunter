@@ -4,19 +4,28 @@ import platform
 
 def generate_requirements():
     base_requirements = "requirements_base.txt"
-    windows_specific = ["pywin32", "wmi", "PySide6", "nuitka", "pyinstaller", "tensorflow", "pyqtgraph", "pyqtdarktheme"]
-    linux_specific = ['uwsgi', 'gunicorn']
+    windows_specific = [
+        "pywin32",
+        "wmi",
+        "PySide6",
+        "nuitka",
+        "pyinstaller",
+        "tensorflow",
+        "pyqtgraph",
+        "pyqtdarktheme",
+    ]
+    linux_specific = ["uwsgi", "gunicorn"]
 
     try:
-        with open(base_requirements, 'r') as base_file:
+        with open(base_requirements, "r") as base_file:
             lines = base_file.readlines()
 
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             lines.extend([f"\n{package}\n" for package in windows_specific])
         else:
             lines.extend([f"\n{package}\n" for package in linux_specific])
 
-        with open('requirements.txt', 'w') as req_file:
+        with open("requirements.txt", "w") as req_file:
             req_file.writelines(lines)
 
     except IOError as e:
@@ -28,7 +37,8 @@ def generate_requirements():
 
 def install_requirements():
     try:
-        subprocess.check_call(['pip', 'install', '-r', 'requirements.txt'])
+        subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
+        subprocess.check_call(["pip", "install", "--upgrade", "pip"])
     except subprocess.CalledProcessError as e:
         print(f"Error installing requirements: {e}")
         return False
