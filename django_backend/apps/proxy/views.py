@@ -22,10 +22,22 @@ from src.func_console import log_file
 
 from .models import Proxy
 from .serializers import ProxySerializer
-from .tasks import fetch_geo_ip_in_thread
-from .tasks import result_log_file as proxy_checker_task_log_file
-from .tasks import real_check_proxy_async_in_thread
-from .tasks import start_filter_duplicates_ips, start_check_open_ports
+from django_backend.apps.proxy.tasks_unit.geolocation import (
+    global_tasks as tasks_geolocation,
+    fetch_geo_ip_in_thread,
+    cleanup_threads as tasks_geolocation_cleanup,
+)
+from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
+    start_filter_duplicates_ips,
+    start_check_open_ports,
+    global_tasks as filter_ports_threads,
+)
+from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
+    real_check_proxy_async_in_thread,
+    result_log_file as proxy_checker_task_log_file,
+    global_tasks as proxy_checker_threads,
+    cleanup_threads as tasks_checker_cleanup,
+)
 
 
 def index(request: HttpRequest):
@@ -161,10 +173,6 @@ def proxy_checker_result(request: HttpRequest):
     return render(request, "proxy_checker_result.html")
 
 
-# Set to track active proxy check threads
-proxy_checker_threads: Set[Thread] = set()
-
-
 def print_dict(data: Dict[str, Any]):
     def pretty_print(val, indent=0):
         if isinstance(val, dict):
@@ -291,9 +299,6 @@ def trigger_check_proxy(request: HttpRequest):
     return JsonResponse(render_data)
 
 
-filter_ports_threads: Set[Thread] = set()
-
-
 def trigger_filter_ports_proxy(request: HttpRequest):
     global filter_ports_threads
     truncate_file_content(proxy_checker_task_log_file)
@@ -346,6 +351,8 @@ def trigger_filter_ports_proxy(request: HttpRequest):
 
 def cleanup_threads():
     global proxy_checker_threads, filter_ports_threads
+    tasks_checker_cleanup()
+    tasks_geolocation_cleanup()
     proxy_checker_threads = {
         thread for thread in proxy_checker_threads if thread.is_alive()
     }
@@ -366,6 +373,7 @@ def view_status(request: HttpRequest):
                 "all": active_count(),
                 "proxy_checker": len(proxy_checker_threads),
                 "filter_duplicates": len(filter_ports_threads),
+                "geolocation": len(tasks_geolocation),
             },
             "proxies": {
                 "all": Proxy.objects.all().count(),
