@@ -1,56 +1,49 @@
 # undetected-chromedriver
 # nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip
-nuitka
-# botasaurus
-# selenium-wire
-# chromedriver_autoinstaller_fix
-selenium-stealth
-webdriver-manager
-# selenium-authenticated-proxy
-datetime
-pytz
+autopep8
 babel
-colorama
-pynput
-SQLAlchemy
 BeautifulSoup4
+black
+channels
+certifi
+django
+django-cors-headers
+django-cors-middleware
+django-environ
+django-extensions
+django-filter
+django-htmlmin
+djangorestframework
+djangorestframework_simplejwt
+daphne
+datetime
+geoip2
+html5lib
+htmlmin
+ipaddress
+joblib
+maxminddb
+numpy
+oauthlib
+pycodestyle
+pycryptodome
+pynput
+python-dateutil
+python-dotenv
+pytz
+pyyaml
 requests
+rarfile
+selenium
+selenium-stealth
+setuptools
+six
+sqlalchemy
 tzlocal
 urllib3
-certifi
-maxminddb
-geoip2
-python-dateutil
-joblib
-numpy
-pyyaml
+Werkzeug
+webdriver-manager
+zstandard
 # proxy-checker @ git+https://github.com/dimaslanjaka/proxy-checker-python@master
 -e file:packages/proxy-checker-python
 -e file:packages/proxy-hunter-python
-autopep8
-pycodestyle
-black
-zstandard
-selenium
-setuptools
-rarfile
-pycryptodome
-django
-django-filter
-django-environ
-djangorestframework
-djangorestframework_simplejwt
-django-cors-middleware
-django-cors-headers
-django-extensions
-PyJWT
-six
-channels
-daphne
-python-dotenv
-htmlmin
-html5lib
-psutil
-django-htmlmin
-oauthlib
-ipaddress
