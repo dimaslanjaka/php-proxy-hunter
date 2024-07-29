@@ -6,8 +6,8 @@ sys.path.append(
 )
 
 import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List
+from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+from typing import List, Union
 
 from django.conf import settings
 from proxy_hunter import is_valid_proxy
@@ -17,6 +17,18 @@ from django_backend.apps.proxy.models import Proxy
 from django_backend.apps.proxy.utils import execute_sql_query
 from src.func_useragent import random_windows_ua
 from src.geoPlugin import get_geo_ip2
+
+global_tasks: List[Union[threading.Thread, Future]] = []
+
+
+def cleanup_threads():
+    global global_tasks
+    global_tasks = [
+        task
+        for task in global_tasks
+        if (isinstance(task, threading.Thread) and not task.is_alive())
+        or (isinstance(task, Future) and task.done())
+    ]
 
 
 def fetch_geo_ip(proxy: str):
@@ -94,11 +106,14 @@ def fetch_geo_ip(proxy: str):
 
 
 def fetch_geo_ip_list(proxies: List[Proxy]):
+    global global_tasks
     try:
         with ThreadPoolExecutor(max_workers=settings.WORKER_THREADS) as executor:
             futures = []
             for item in proxies:
                 futures.append(executor.submit(fetch_geo_ip, item.proxy))
+            # register to global tasks
+            global_tasks.extend(futures)
             # Ensure all threads complete before returning
             for future in as_completed(futures):
                 try:
@@ -109,7 +124,9 @@ def fetch_geo_ip_list(proxies: List[Proxy]):
         print(f"RuntimeError during fetch_details_list execution: {e}")
 
 
-def fetch_geo_ip_in_thread(proxies):
+def fetch_geo_ip_in_thread(proxies: List[Proxy]):
     thread = threading.Thread(target=fetch_geo_ip_list, args=(proxies,))
     thread.daemon = True  # Allow thread to be killed when main program exits
     thread.start()
+    global_tasks.append(thread)
+    return thread
