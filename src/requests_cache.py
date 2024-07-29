@@ -55,34 +55,37 @@ def load_cached_response(url: str) -> Optional[requests.Response]:
         os.remove(cache_file_path)
         return None
 
-    # Create a mock response object
-    class MockResponse:
-        def __init__(self, data):
-            self.status_code = data["status_code"]
-            self.headers = data["headers"]
-            self._content = data["content"].encode(
-                "utf-8"
-            )  # Convert content back to bytes
-
-        @property
-        def text(self):
-            return self._content.decode("utf-8")
-
-        @property
-        def content(self):
-            return self._content
-
-        def raise_for_status(self):
-            if self.status_code != 200:
-                raise RequestException(f"HTTP error: {self.status_code}")
-
-        def json(self):
-            try:
-                return json.loads(self.text)
-            except json.JSONDecodeError:
-                return {}
-
     return MockResponse(cache_data)
+
+
+class MockResponse(requests.Response):
+    def __init__(self, data):
+        super().__init__()
+        self.status_code = data["status_code"]
+        self.headers = data["headers"]
+        self._content = data["content"].encode("utf-8")  # Convert content back to bytes
+
+    @property
+    def text(self):
+        return self._content.decode("utf-8")
+
+    @property
+    def content(self):
+        return self._content
+
+    @property
+    def ok(self):
+        return 200 <= self.status_code < 300
+
+    def raise_for_status(self):
+        if not self.ok:
+            raise RequestException(f"HTTP error: {self.status_code}")
+
+    def json(self):
+        try:
+            return json.loads(self.text)
+        except json.JSONDecodeError:
+            return {}
 
 
 def get_with_proxy(
@@ -154,3 +157,8 @@ def clear_cache(url: Optional[str] = None) -> None:
                 file_path = os.path.join(CACHE_DIR, filename)
                 if os.path.isfile(file_path):
                     os.remove(file_path)
+
+
+if __name__ == "__main__":
+    response = get_with_proxy("https://bing.com")
+    print(response.headers)
