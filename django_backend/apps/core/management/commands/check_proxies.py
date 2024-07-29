@@ -165,7 +165,7 @@ class Command(BaseCommand):
         max_proxies = options["max"]
         self.wait_for_app_ready("django_backend.apps.proxy")
 
-        proxies = []
+        proxies: List[Dict[str, str | int | float | None]] = []
 
         untested_proxies = self.select_proxies(
             f"SELECT * FROM proxies WHERE status = 'untested' ORDER BY RANDOM() LIMIT {max_proxies}"
@@ -196,6 +196,8 @@ class Command(BaseCommand):
 
         # Start threads
         threads: List[threading.Thread] = []
+        for item in proxies:
+            threads.append(threading.Thread(target=fetch_geo_ip, args=(item["proxy"],)))
         threads.append(
             threading.Thread(target=filter_duplicates_ips, args=(max_proxies,))
         )
