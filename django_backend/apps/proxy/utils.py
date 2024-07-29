@@ -41,6 +41,45 @@ def get_db_connections() -> List[sqlite3.Connection]:
     return connections
 
 
+def format_query(query: str, params: Optional[Tuple] = None) -> str:
+    """
+    Formats an SQL query by substituting placeholders with actual parameter values.
+
+    Args:
+        query (str): The SQL query string containing placeholders (e.g., '?').
+        params (Optional[Tuple]): A tuple of parameters to substitute into the query.
+                                  If None, the original query is returned unchanged.
+
+    Returns:
+        str: The SQL query with placeholders replaced by actual parameter values.
+
+    Example:
+        >>> query = "SELECT * FROM my_table WHERE column1 = ? AND column2 = ?"
+        >>> params = ('value1', 'value2')
+        >>> format_query(query, params)
+        "SELECT * FROM my_table WHERE column1 = 'value1' AND column2 = 'value2'"
+    """
+    if params is None:
+        return query
+
+    # Create a list of parameters, ensuring correct formatting
+    formatted_params = []
+    for param in params:
+        if isinstance(param, str):
+            formatted_params.append(f"'{param}'")
+        elif param is None:
+            formatted_params.append("NULL")
+        else:
+            formatted_params.append(str(param))
+
+    # Replace ? placeholders with actual parameters
+    formatted_query = re.sub(
+        r"\?", lambda _: formatted_params.pop(0), query, count=len(params)
+    )
+
+    return formatted_query
+
+
 def execute_sql_query(sql: str, params: Optional[Tuple] = None) -> dict:
     """
     Executes an SQL query on all available database connections.
@@ -58,7 +97,7 @@ def execute_sql_query(sql: str, params: Optional[Tuple] = None) -> dict:
               a list of results from successful query executions.
     """
     connections = get_db_connections()
-    results = {"error": [], "items": []}
+    results = {"error": [], "items": [], "query": format_query(sql, params)}
 
     for index, conn in enumerate(connections):
         conn_info = f"Connection {index}: {conn}" if conn else f"Connection {index}"
