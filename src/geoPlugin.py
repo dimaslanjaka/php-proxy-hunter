@@ -1,6 +1,9 @@
 import os
+import sqlite3
 import sys
+import traceback
 from urllib.parse import urlparse
+
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -8,68 +11,12 @@ import json
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
-import maxminddb
 import requests
 from geoip2 import database
-from requests.exceptions import RequestException
 
-from src.func import (
-    get_nuitka_file,
-    get_relative_path,
-    write_file,
-)
-from src.func_certificate import output_pem
-
-
-def get_with_proxy(
-    url,
-    proxy_type: Optional[str] = "http",
-    proxy_raw: Optional[str] = None,
-    timeout=10,
-    debug: Optional[bool] = False,
-):
-    """
-    Perform a GET request using a proxy of the specified type.
-
-    Parameters:
-    - url (str): The URL to perform the GET request on.
-    - proxy_type (str): The type of the proxy. Possible values: 'http', 'socks4', 'socks5', 'https'.
-    - proxy_url (str): The URL of the proxy to use (e.g., 'http://username:password@proxy_ip:proxy_port').
-    - timeout (int): Timeout for the request in seconds (default is 10).
-
-    Returns:
-    - response (requests.Response): The response object returned by requests.get().
-    """
-    proxies = None
-
-    if proxy_raw:
-        split = proxy_raw.split("@")
-        proxy = split[0]
-        auth = None
-        if len(split) > 1:
-            auth = split[1]
-        if proxy_type == "socks4":
-            proxies = {"http": f"socks4://{proxy}", "https": f"socks4://{proxy}"}
-        elif proxy_type == "socks5":
-            proxies = {"http": f"socks5://{proxy}", "https": f"socks5://{proxy}"}
-        else:
-            proxies = {"http": proxy, "https": proxy}
-
-    try:
-        if proxies:
-            response = requests.get(
-                url, proxies=proxies, timeout=timeout, verify=output_pem
-            )
-        else:
-            response = requests.get(url, timeout=timeout, verify=output_pem)
-
-        response.raise_for_status()
-        return response
-
-    except RequestException as e:
-        if debug:
-            print(f"geoPlugin Error: {e}")
-    return None
+from src.func import get_nuitka_file, get_relative_path, write_file
+from src.requests_cache import get_with_proxy
+from src.geoPluginClass import GeoPlugin
 
 
 class GeoIpResult:
@@ -160,21 +107,6 @@ class GeoIpResult:
         return json.dumps(self.to_dict())
 
 
-def get_geo_ip(proxy: str):
-    ip = proxy
-    split = proxy.split(":")
-    if split:
-        ip = split[0]
-    try:
-        with maxminddb.open_database(
-            get_nuitka_file("src/GeoLite2-City.mmdb")
-        ) as reader:
-            data = reader.get(ip)
-            return data
-    except Exception as e:
-        print("Error in geoIp:", e)
-
-
 def get_geo_ip2(
     proxy: str,
     proxy_username: Optional[str] = None,
@@ -251,6 +183,52 @@ def get_geo_ip2(
                             break
                 except Exception:
                     pass
+
+        if not latitude or not longitude:
+            conn = sqlite3.connect(get_relative_path("src/database.sqlite"))
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * from proxies WHERE status = 'active' ORDER BY RANDOM()"
+            )
+            rows = cursor.fetchall()
+            # print(f"got {len(rows)} active proxies")
+            url = f"http://www.geoplugin.net/php.gp?ip={ip}&base_currency=USD&lang=en"
+            break_outer_loop = False
+            for row in rows:
+                row_proxy = row[1]
+                row_type = str(row[4]).split("-") if row[4] else []
+                for proxy_type in row_type:
+                    try:
+                        # print(f"fetch geolocation {proxy_type}://{row_proxy}")
+                        fetch_url = get_with_proxy(url, proxy_type, row_proxy)
+                        if fetch_url:
+                            try:
+                                gp = GeoPlugin()
+                                gp.load_response(fetch_url)
+                                country_name = gp.countryName
+                                latitude = gp.latitude
+                                longitude = gp.longitude
+                                country_code = gp.countryCode
+                                timezone = gp.timezone
+                                city = gp.city
+                                region = gp.region
+                                region_code = gp.regionCode
+                                region_name = gp.regionName
+                                lang = gp.lang
+                                break_outer_loop = True
+                                break
+                            except Exception:
+                                pass
+                    except Exception as e:
+                        print(f"fail get {url} with {proxy_type}://{row_proxy} -> {e}")
+                        traceback.print_exc()
+                if break_outer_loop:
+                    break
+
+        if country_code:
+            # get locale from country code
+            lang = get_locale_from_country_code(country_code)
+
         return GeoIpResult(
             city,
             country_name,
@@ -366,4 +344,6 @@ def download_databases(folder):
 
 
 if __name__ == "__main__":
-    download_databases("src")
+    # download_databases("src")
+    result = get_geo_ip2("104.17.75.127:80")
+    print(result)
