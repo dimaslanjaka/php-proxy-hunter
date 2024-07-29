@@ -44,16 +44,7 @@ def is_debug() -> bool:
 
 
 def is_django_environment():
-    try:
-        if os.environ.get("DJANGO_SETTINGS_MODULE") is not None:
-            return True
-        from django.conf import settings
-
-        # Check if Django settings are configured
-        settings.DEBUG
-        return True
-    except Exception:
-        return False
+    return "DJANGO_SETTINGS_MODULE" in os.environ
 
 
 def main():
