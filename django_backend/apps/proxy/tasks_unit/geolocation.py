@@ -17,6 +17,10 @@ from django_backend.apps.proxy.models import Proxy
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 from src.func_useragent import random_windows_ua
 from src.geoPlugin import get_geo_ip2
+from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
+    result_log_file,
+    log_file,
+)
 
 global_tasks: Set[Union[threading.Thread, Future]] = set()
 
@@ -46,6 +50,7 @@ def fetch_geo_ip(proxy: Optional[str] = None):
     model: Optional[dict] = None
     if select:
         model = select[0]
+    result = {"error": None, "data": None}
 
     # Fetch geo IP details if necessary
     if model["timezone"] is None or model["country"] is None or model["lang"] is None:
@@ -73,7 +78,8 @@ def fetch_geo_ip(proxy: Optional[str] = None):
                 model["lang"] = detail.lang if detail.lang else "en"
                 save = True
         else:
-            print(f"Failed to get geo IP for {model['proxy']}")
+            result["error"] = f"Failed to get geo IP for {model['proxy']}"
+            log_file(result_log_file, result["error"])
 
     # Fetch WebGL data if necessary
     if (
@@ -113,9 +119,12 @@ def fetch_geo_ip(proxy: Optional[str] = None):
                 f"INSERT OR REPLACE INTO proxies ({columns}) VALUES ({placeholders})"
             )
             execute_sql_query(query, values)
-            print(f"fetch_geo_ip success {model}")
+            log_file(result_log_file, f"fetch_geo_ip success {model}")
         except Exception as e:
-            print(f"fetch_geo_ip fail update proxy {model['proxy']}. {e}")
+            result["error"] = f"fetch_geo_ip fail update proxy {model['proxy']}. {e}"
+            log_file(result_log_file, result["error"])
+        result["data"] = model
+    return result
 
 
 def fetch_geo_ip_list(proxies: List[Proxy]):
