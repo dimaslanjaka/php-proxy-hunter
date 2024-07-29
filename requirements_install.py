@@ -38,7 +38,7 @@ def generate_requirements():
 def install_requirements():
     try:
         subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
-        subprocess.check_call(["pip", "install", "--upgrade", "pip"])
+        subprocess.check_call(["python", "-m", "pip", "install", "--upgrade", "pip"])
     except subprocess.CalledProcessError as e:
         print(f"Error installing requirements: {e}")
         return False
