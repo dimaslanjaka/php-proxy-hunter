@@ -80,7 +80,9 @@ def format_query(query: str, params: Optional[Tuple] = None) -> str:
     return formatted_query
 
 
-def execute_sql_query(sql: str, params: Optional[Tuple] = None) -> dict:
+def execute_sql_query(
+    sql: str, params: Optional[Tuple] = None, debug: Optional[bool] = False
+) -> dict:
     """
     Executes an SQL query on all available database connections.
 
@@ -90,6 +92,7 @@ def execute_sql_query(sql: str, params: Optional[Tuple] = None) -> dict:
         params (Optional[tuple]): Optional parameters for the SQL query. This
                                   should be a tuple of values to be inserted
                                   into the placeholders in the SQL query.
+        debug (Optional[bool]): If True, prints debugging information.
 
     Returns:
         dict: A dictionary with two keys: 'error' and 'items'.
@@ -102,9 +105,15 @@ def execute_sql_query(sql: str, params: Optional[Tuple] = None) -> dict:
     for index, conn in enumerate(connections):
         conn_info = f"Connection {index}: {conn}" if conn else f"Connection {index}"
 
+        if debug:
+            print(f"[SQLite] Processing {conn_info}")
+
         if conn:
             try:
                 cursor = conn.cursor()
+                if debug:
+                    print(f"[SQLite] Executing SQL: {sql} with params: {params}")
+
                 # Detect if the connection is from Django
                 if isinstance(conn, connection.__class__):
                     # For Django connection, use %s placeholders
@@ -117,18 +126,24 @@ def execute_sql_query(sql: str, params: Optional[Tuple] = None) -> dict:
                 if sql.strip().upper().startswith("SELECT"):
                     query_results = cursor.fetchall()
                     results["items"].append(query_results)
+                    if debug:
+                        print(f"[SQLite] Fetched results: {query_results}")
                 else:
                     conn.commit()
                     results["items"].append(cursor.rowcount)
+                    if debug:
+                        print(f"[SQLite] Affected rows: {cursor.rowcount}")
 
                 cursor.close()
             except Exception as e:
                 error_message = f"Error executing query {sql} on {conn_info}: {e}"
-                print(error_message)  # Optional: Print the error message
+                print(error_message)  # Print the error message
                 results["error"].append(error_message)
             finally:
                 if hasattr(conn, "close"):
                     conn.close()
+                    if debug:
+                        print(f"[SQLite] Closed {conn_info}")
         else:
             results["error"].append(f"{conn_info} has no connection")
 
