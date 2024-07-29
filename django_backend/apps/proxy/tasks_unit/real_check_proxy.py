@@ -365,8 +365,8 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             )
             params = tuple(data.values())
             try:
-                exec_sql = execute_sql_query(query, params, True)
-                if "error" in exec_sql:
+                exec_sql = execute_sql_query(query, params)
+                if "error" in exec_sql and exec_sql["error"]:
                     # Filter out empty strings
                     errors = [e for e in exec_sql["error"] if e]
 
@@ -374,10 +374,10 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                         error_message = "\n".join(errors)
                         raise ValueError(f"SQL execution error(s):\n{error_message}")
                 else:
-                    log_file(
-                        result_log_file,
-                        f"[CHECKER-PARALLEL] {exec_sql['query']} [DONE]",
-                    )
+                    # log_file(
+                    #     result_log_file,
+                    #     f"[CHECKER-PARALLEL] {exec_sql['query']} [DONE]",
+                    # )
                     # fetch geo location
                     fetch_geo_ip_in_thread([proxy_obj])
                     # Writing working.json
