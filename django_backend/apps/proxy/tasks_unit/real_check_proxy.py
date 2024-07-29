@@ -16,7 +16,7 @@ import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
 from proxy_hunter import decompress_requests_response, extract_proxies
-from proxy_hunter.utils import check_raw_headers_keywords, is_valid_proxy
+from proxy_hunter import check_raw_headers_keywords, is_valid_proxy
 
 from django_backend.apps.proxy.models import Proxy
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
