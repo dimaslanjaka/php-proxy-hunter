@@ -1,5 +1,5 @@
 # undetected-chromedriver
-# nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip
+nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip
 # botasaurus
 # selenium-wire
 # chromedriver_autoinstaller_fix
@@ -22,7 +22,6 @@ geoip2
 python-dateutil
 joblib
 numpy
-socks
 pyyaml
 # proxy-checker @ git+https://github.com/dimaslanjaka/proxy-checker-python@master
 -e file:packages/proxy-checker-python
