@@ -33,6 +33,7 @@ python-dotenv
 pytz
 pyyaml
 requests
+requests_cache
 rarfile
 selenium
 selenium-stealth
