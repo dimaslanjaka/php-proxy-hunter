@@ -7,7 +7,7 @@ sys.path.append(
 import concurrent.futures
 import random
 import threading
-from typing import Callable, Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Set, Union
 
 from django.conf import settings
 from django.db import connection
@@ -23,17 +23,17 @@ from src.func_console import green, log_file, magenta, orange, red
 from src.func_date import get_current_rfc3339_time
 from src.func_proxy import is_port_open
 
-global_tasks: List[Union[threading.Thread, concurrent.futures.Future]] = set()
+global_tasks: Set[Union[threading.Thread, concurrent.futures.Future]] = set()
 
 
 def cleanup_threads():
     global global_tasks
-    global_tasks = [
+    global_tasks = {
         task
         for task in global_tasks
         if (isinstance(task, threading.Thread) and not task.is_alive())
         or (isinstance(task, concurrent.futures.Future) and task.done())
-    ]
+    }
 
 
 def fetch_proxies_same_ip(
