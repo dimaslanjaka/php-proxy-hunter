@@ -24,7 +24,9 @@ from proxy_hunter import (
 )
 
 from django_backend.apps.proxy.models import Proxy
-from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip_in_thread
+from django_backend.apps.proxy.tasks_unit.geolocation import (
+    fetch_geo_ip,
+)
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 from src.func import (
     file_append_str,
@@ -374,12 +376,10 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                         error_message = "\n".join(errors)
                         raise ValueError(f"SQL execution error(s):\n{error_message}")
                 else:
-                    # log_file(
-                    #     result_log_file,
-                    #     f"[CHECKER-PARALLEL] {exec_sql['query']} [DONE]",
-                    # )
                     # fetch geo location
-                    fetch_geo_ip_in_thread([proxy_obj])
+                    t = threading.Thread(target=fetch_geo_ip, args=(proxy_obj.proxy,))
+                    t.start()
+                    global_tasks.add(t)
                     # Writing working.json
                     t = threading.Thread(target=parse_working_proxies)
                     t.start()
