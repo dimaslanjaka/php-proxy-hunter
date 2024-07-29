@@ -15,14 +15,13 @@ from proxy_hunter import is_valid_proxy
 from data.webgl import random_webgl_data
 from django_backend.apps.proxy.models import Proxy
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
+from src.func import get_relative_path
+from src.func_console import log_file
 from src.func_useragent import random_windows_ua
 from src.geoPlugin import get_geo_ip2
-from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
-    result_log_file,
-    log_file,
-)
 
 global_tasks: Set[Union[threading.Thread, Future]] = set()
+result_log_file = get_relative_path("proxyChecker.txt")
 
 
 def cleanup_threads():
