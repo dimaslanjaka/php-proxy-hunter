@@ -144,5 +144,9 @@
     "**/venv": true,
     "**/config": true,
     "**/.yarn": true
-  }
+  },
+  "python.analysis.extraPaths": [
+    "./packages/proxy-hunter-python",
+    "./packages/proxy-checker-python"
+  ]
 }
