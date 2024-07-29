@@ -111,98 +111,79 @@ def get_geo_ip2(
     proxy: str,
     proxy_username: Optional[str] = None,
     proxy_password: Optional[str] = None,
-):
-    ip = proxy
-    split = proxy.split(":")
-    if split:
-        ip = split[0]
-    reader = None
-    try:
-        reader = database.Reader(get_nuitka_file("src/GeoLite2-City.mmdb"))
-        response = reader.city(ip)
-        city = response.city.name
-        country_name = response.country.name
-        country_code = response.country.iso_code
-        latitude = response.location.latitude
-        longitude = response.location.longitude
-        timezone = response.location.time_zone
-        region_name = response.subdivisions.most_specific.name
-        region = response.subdivisions.most_specific.geoname_id
-        region_code = response.subdivisions.most_specific.iso_code
-        languages = response.country.names.keys()
-        if languages:
-            lang = list(languages)[0]
-        else:
-            lang = None
-        if country_code:
-            lang_ = get_locale_from_country_code(country_code)
-            if lang_:
-                lang = lang_
-                # print(f'locale from country code {country_code} is {lang}')
-        reader.close()
-        # fetch region name when maxmind fail
-        if not region_name or not city or not timezone or not region or not region_code:
-            for protocol in ["http", "socks5", "socks4"]:
-                try:
-                    url = "https://ip-get-geolocation.com/api/json"
-                    proxy_url = f"{proxy}@{proxy_username}:{proxy_password}"
-                    response = get_with_proxy(url, protocol, proxy_url)
-                    if response and response.ok:
-                        new_data = response.json()
-                        if (
-                            "status" in new_data
-                            and str(new_data["status"]).lower() == "success"
-                        ):
-                            print(new_data)
-                            if "city" in new_data and new_data["city"] and not city:
-                                city = new_data["city"]
-                            if (
-                                "timezone" in new_data
-                                and new_data["timezone"]
-                                and not timezone
-                            ):
-                                timezone = new_data["timezone"]
-                            if (
-                                "regionName" in new_data
-                                and new_data["regionName"]
-                                and not region_name
-                            ):
-                                region_name = new_data["regionName"]
-                            if (
-                                "region" in new_data
-                                and new_data["region"]
-                                and not region
-                            ):
-                                region = new_data["region"]
-                            if (
-                                "regionCode" in new_data
-                                and new_data["regionCode"]
-                                and not region_code
-                            ):
-                                region_code = new_data["regionCode"]
-                            break
-                except Exception:
-                    pass
+) -> Union[GeoIpResult, None]:
+    ip = proxy.split(":")[0]
+    (
+        city,
+        country_name,
+        country_code,
+        latitude,
+        longitude,
+        timezone,
+        region_name,
+        region,
+        region_code,
+        lang,
+    ) = [None] * 10
 
-        if not latitude or not longitude:
-            conn = sqlite3.connect(get_relative_path("src/database.sqlite"))
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT * from proxies WHERE status = 'active' ORDER BY RANDOM()"
-            )
-            rows = cursor.fetchall()
-            # print(f"got {len(rows)} active proxies")
-            url = f"http://www.geoplugin.net/php.gp?ip={ip}&base_currency=USD&lang=en"
-            break_outer_loop = False
-            for row in rows:
-                row_proxy = row[1]
-                row_type = str(row[4]).split("-") if row[4] else []
-                for proxy_type in row_type:
+    try:
+        with database.Reader(get_nuitka_file("src/GeoLite2-City.mmdb")) as reader:
+            response = reader.city(ip)
+            city = response.city.name
+            country_name = response.country.name
+            country_code = response.country.iso_code
+            latitude = response.location.latitude
+            longitude = response.location.longitude
+            timezone = response.location.time_zone
+            region_name = response.subdivisions.most_specific.name
+            region = response.subdivisions.most_specific.geoname_id
+            region_code = response.subdivisions.most_specific.iso_code
+            languages = response.country.names.keys()
+            lang = list(languages)[0] if languages else None
+
+            if not lang and country_code:
+                lang = get_locale_from_country_code(country_code)
+
+            if not all([city, timezone, region_name, region, region_code]):
+                for protocol in ["http", "socks5", "socks4"]:
                     try:
-                        # print(f"fetch geolocation {proxy_type}://{row_proxy}")
-                        fetch_url = get_with_proxy(url, proxy_type, row_proxy)
-                        if fetch_url:
-                            try:
+                        url = "https://ip-get-geolocation.com/api/json"
+                        proxy_url = (
+                            f"{proxy}@{proxy_username}:{proxy_password}"
+                            if proxy_username and proxy_password
+                            else proxy
+                        )
+                        response = get_with_proxy(url, protocol, proxy_url)
+                        if response and response.ok:
+                            new_data = response.json()
+                            if new_data.get("status", "").lower() == "success":
+                                city = city or new_data.get("city")
+                                timezone = timezone or new_data.get("timezone")
+                                region_name = region_name or new_data.get("regionName")
+                                region = region or new_data.get("region")
+                                region_code = region_code or new_data.get("regionCode")
+                                break
+                    except Exception as e:
+                        print(f"Error with proxy request: {e}")
+
+            if not latitude or not longitude:
+                conn = sqlite3.connect(get_relative_path("src/database.sqlite"))
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT * from proxies WHERE status = 'active' ORDER BY RANDOM()"
+                )
+                rows = cursor.fetchall()
+
+                url = (
+                    f"http://www.geoplugin.net/php.gp?ip={ip}&base_currency=USD&lang=en"
+                )
+                for row in rows:
+                    row_proxy = row[1]
+                    row_types = str(row[4]).split("-") if row[4] else []
+                    for proxy_type in row_types:
+                        try:
+                            fetch_url = get_with_proxy(url, proxy_type, row_proxy)
+                            if fetch_url:
                                 gp = GeoPlugin()
                                 gp.load_response(fetch_url)
                                 country_name = gp.countryName
@@ -215,36 +196,34 @@ def get_geo_ip2(
                                 region_code = gp.regionCode
                                 region_name = gp.regionName
                                 lang = gp.lang
-                                break_outer_loop = True
                                 break
-                            except Exception:
-                                pass
-                    except Exception as e:
-                        print(f"fail get {url} with {proxy_type}://{row_proxy} -> {e}")
-                        traceback.print_exc()
-                if break_outer_loop:
-                    break
+                        except Exception as e:
+                            print(
+                                f"Error fetching geo location with {proxy_type}://{row_proxy}: {e}"
+                            )
+                            traceback.print_exc()
+                    if latitude and longitude:
+                        break
 
-        if country_code:
-            # get locale from country code
-            lang = get_locale_from_country_code(country_code)
+            if country_code:
+                lang = get_locale_from_country_code(country_code)
 
-        return GeoIpResult(
-            city,
-            country_name,
-            country_code,
-            latitude,
-            longitude,
-            timezone,
-            region_name,
-            region,
-            region_code,
-            lang,
-        )
+            return GeoIpResult(
+                city,
+                country_name,
+                country_code,
+                latitude,
+                longitude,
+                timezone,
+                region_name,
+                region,
+                region_code,
+                lang,
+            )
+
     except Exception as e:
         print(f"Error in geoIp2: {e}")
-        if reader is not None:
-            reader.close()
+        return None
 
 
 def fetch_and_save_data(url, filename):
