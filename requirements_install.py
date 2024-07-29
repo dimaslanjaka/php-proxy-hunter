@@ -10,7 +10,7 @@ def generate_requirements():
         "PySide6",
         "nuitka",
         "pyinstaller",
-        "tensorflow",
+        # "tensorflow",
         "pyqtgraph",
         "pyqtdarktheme",
     ]
