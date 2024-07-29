@@ -196,8 +196,12 @@ class Command(BaseCommand):
 
         # Start threads
         threads: List[threading.Thread] = []
-        for item in proxies:
-            threads.append(threading.Thread(target=fetch_geo_ip, args=(item["proxy"],)))
+        for item in active_proxies:
+            if not item["timezone"]:
+                # fetch geolocation on active proxy
+                threads.append(
+                    threading.Thread(target=fetch_geo_ip, args=(item["proxy"],))
+                )
         threads.append(
             threading.Thread(target=filter_duplicates_ips, args=(max_proxies,))
         )
