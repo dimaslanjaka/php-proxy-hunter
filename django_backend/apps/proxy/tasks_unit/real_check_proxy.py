@@ -321,7 +321,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                                 if int(check.latency) > latency:
                                     latency = int(check.latency)
                             else:
-                                log = f"[CHECKER-PARALLEL] {protocol.lower()}://{proxy_obj.proxy} dead -> {check.error}"
+                                log = f"[CHECKER-PARALLEL] {protocol.lower()}://{proxy_obj.proxy} {red('dead')} -> {check.error}"
                                 log_file(result_log_file, log)
                                 working = False
                         except Exception as e:
