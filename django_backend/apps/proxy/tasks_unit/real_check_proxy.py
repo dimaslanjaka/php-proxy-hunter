@@ -45,12 +45,12 @@ global_tasks: Set[Union[threading.Thread, Future]] = set()
 
 def cleanup_threads():
     global global_tasks
-    global_tasks = [
+    global_tasks = {
         task
         for task in global_tasks
         if (isinstance(task, threading.Thread) and not task.is_alive())
         or (isinstance(task, Future) and task.done())
-    ]
+    }
 
 
 def parse_working_proxies():
