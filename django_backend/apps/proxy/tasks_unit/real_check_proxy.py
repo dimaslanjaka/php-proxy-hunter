@@ -381,6 +381,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
 def real_check_proxy_async_in_thread(proxy):
     thread = threading.Thread(target=real_check_proxy_async, args=(proxy,))
     # thread = threading.Thread(target=get_proxies, args=(["untested"],))
+    thread.daemon = True  # Allow thread to be killed when main program exits
     thread.start()
     global_tasks.append(thread)
     return thread
