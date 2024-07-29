@@ -1,3 +1,4 @@
+from http.cookiejar import Cookie, MozillaCookieJar
 import os
 import sys
 
@@ -5,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import hashlib
 import json
 import time
-from typing import Optional
+from typing import List, Optional
 
 import requests
 from requests.exceptions import RequestException
@@ -88,13 +89,18 @@ class MockResponse(requests.Response):
             return {}
 
 
+session = requests.Session()
+
+
 def get_with_proxy(
     url,
     proxy_type: Optional[str] = "http",
     proxy_raw: Optional[str] = None,
     timeout=10,
     debug: Optional[bool] = False,
+    no_cache: Optional[bool] = False,
 ):
+    global session
     """
     Perform a GET request using a proxy of the specified type and cache the response.
 
@@ -108,10 +114,11 @@ def get_with_proxy(
     Returns:
     - response (requests.Response): The response object returned by requests.get().
     """
-    # Check if we have a cached response
-    cached_response = load_cached_response(url)
-    if cached_response:
-        return cached_response
+    if not no_cache:
+        # Check if we have a cached response
+        cached_response = load_cached_response(url)
+        if cached_response:
+            return cached_response
 
     proxies = None
     if proxy_raw:
@@ -127,22 +134,102 @@ def get_with_proxy(
         else:
             proxies = {"http": proxy, "https": proxy}
 
+    cookie_file = get_relative_path("tmp/cookies/requests_cache.txt")
+    os.makedirs(os.path.dirname(cookie_file), 777, True)
+
+    cookie_header = """# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file!  Do not edit.
+"""
+
+    def reset_cookie():
+        if not os.path.exists(cookie_file):
+            with open(cookie_file, "w", encoding="utf-8") as file:
+                file.write(cookie_header)
+
+    try:
+        reset_cookie()
+        cookie_jar = MozillaCookieJar(cookie_file)
+        cookie_jar.load(filename=cookie_file, ignore_discard=True, ignore_expires=True)
+        session.cookies.update(cookie_jar)
+    except Exception as e:
+        if debug:
+            print(f"fail load cookie jar {e}")
+        if "invalid" in str(e).lower():
+            reset_cookie()
+            cookie_jar = MozillaCookieJar(cookie_file)
+
+    default_headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/81.0.4044.138 Safari/537.36",
+        "Accept-Language": "en-US,en",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+    }
+    session.headers.update(default_headers)
+
     try:
         if proxies:
-            response = requests.get(
+            response = session.get(
                 url, proxies=proxies, timeout=timeout, verify=output_pem
             )
         else:
-            response = requests.get(url, timeout=timeout, verify=output_pem)
+            response = session.get(url, timeout=timeout, verify=output_pem)
 
         response.raise_for_status()
-        cache_response(url, response)
+
+        # save cookie
+        cookies_to_be_saved = [cookie_header]
+        update_cookie_jar(cookie_jar, response.cookies)
+        for cookie in cookie_jar:
+            if isinstance(cookie_jar, MozillaCookieJar):
+                domain = cookie.domain
+                secure = "TRUE" if cookie.secure else "FALSE"
+                initial_dot = "TRUE" if domain.startswith(".") else "FALSE"
+                expires = str(cookie.expires) if cookie.expires is not None else ""
+                name = "" if cookie.value is None else cookie.name
+                value = cookie.value if cookie.value is not None else cookie.name
+                cookie_raw = "\t".join(
+                    [domain, initial_dot, cookie.path, secure, expires, name, value]
+                )
+            cookies_to_be_saved.append(cookie_raw)
+        cookie_built = "\n".join(cookies_to_be_saved + [""])
+        with open(cookie_file, "w", encoding="utf-8") as file:
+            file.write(cookie_built)
+
+        if not no_cache:
+            cache_response(url, response)
         return response
 
     except RequestException as e:
         if debug:
             print(f"Request Error: {e}")
     return None
+
+
+def update_cookie_jar(cookie_jar: MozillaCookieJar, cookies: List[Cookie]):
+    cookie_dict = {cookie.name: cookie for cookie in cookie_jar}
+
+    for cookie in cookies:
+        if cookie.name in cookie_dict:
+            # If cookie exists, update its value and expiration date
+            cookie_dict[cookie.name].value = cookie.value
+            cookie_dict[cookie.name].expires = cookie.expires
+            cookie_dict[cookie.name].secure = cookie.secure
+
+            # MozillaCookieJar specific attributes
+            cookie_dict[cookie.name].path = cookie.path
+            cookie_dict[cookie.name].domain = cookie.domain
+
+            # Check if the cookie has 'rest' attribute
+            if hasattr(cookie, "rest"):
+                cookie_dict[cookie.name].rest = cookie.rest
+
+        else:
+            # If cookie does not exist, add it to the cookie jar
+            cookie_jar.set_cookie(cookie)
 
 
 def clear_cache(url: Optional[str] = None) -> None:
@@ -160,5 +247,10 @@ def clear_cache(url: Optional[str] = None) -> None:
 
 
 if __name__ == "__main__":
-    response = get_with_proxy("https://bing.com")
-    print(response.headers)
+    get_with_proxy(
+        "http://httpbin.org/cookies/set/sessioncookie/123456789",
+        no_cache=True,
+        debug=True,
+    )
+    get_with_proxy("http://httpbin.org/cookies", no_cache=True, debug=True)
+    get_with_proxy("https://bing.com", debug=True, no_cache=True)
