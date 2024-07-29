@@ -383,7 +383,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                     # Writing working.json
                     t = threading.Thread(target=parse_working_proxies)
                     t.start()
-                    global_tasks.append(t)
+                    global_tasks.add(t)
                 cleanup_threads()
                 string_to_remove.append(proxy_obj.proxy)
 
@@ -406,5 +406,5 @@ def real_check_proxy_async_in_thread(proxy):
     # thread = threading.Thread(target=get_proxies, args=(["untested"],))
     thread.daemon = True  # Allow thread to be killed when main program exits
     thread.start()
-    global_tasks.append(thread)
+    global_tasks.add(thread)
     return thread
