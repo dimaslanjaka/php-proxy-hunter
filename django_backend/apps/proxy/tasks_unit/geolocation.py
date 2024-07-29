@@ -7,7 +7,7 @@ sys.path.append(
 
 import threading
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
-from typing import List, Union
+from typing import List, Set, Union
 
 from django.conf import settings
 from proxy_hunter import is_valid_proxy
@@ -18,7 +18,7 @@ from django_backend.apps.proxy.utils import execute_sql_query
 from src.func_useragent import random_windows_ua
 from src.geoPlugin import get_geo_ip2
 
-global_tasks: List[Union[threading.Thread, Future]] = []
+global_tasks: Set[Union[threading.Thread, Future]] = set()
 
 
 def cleanup_threads():
@@ -113,7 +113,7 @@ def fetch_geo_ip_list(proxies: List[Proxy]):
             for item in proxies:
                 futures.append(executor.submit(fetch_geo_ip, item.proxy))
             # register to global tasks
-            global_tasks.extend(futures)
+            global_tasks.update(futures)
             # Ensure all threads complete before returning
             for future in as_completed(futures):
                 try:

@@ -10,7 +10,7 @@ import re
 import threading
 import traceback
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
-from typing import List, Optional, Union
+from typing import List, Optional, Set, Union
 from urllib.parse import urlparse
 
 import requests
@@ -40,7 +40,7 @@ from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
 
 result_log_file = get_relative_path("proxyChecker.txt")
-global_tasks: List[Union[threading.Thread, Future]] = set()
+global_tasks: Set[Union[threading.Thread, Future]] = set()
 
 
 def cleanup_threads():
@@ -302,7 +302,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                         executor.submit(handle_check, "socks5"),
                     ]
                     # register to global threads
-                    global_tasks.extend(checks)
+                    global_tasks.update(checks)
 
                     # Iterate through the completed tasks
                     for future in as_completed(checks):

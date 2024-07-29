@@ -278,7 +278,7 @@ def check_open_ports(limit: int = 10, callback: Optional[Callable] = None):
                 futures = []
                 for item in proxies_dict[:limit]:
                     futures.append(executor.submit(worker_check_open_ports, item))
-                proxy_checker_threads.extend(futures)
+                proxy_checker_threads.update(futures)
 
                 for future in concurrent.futures.as_completed(futures):
                     try:
