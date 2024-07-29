@@ -126,7 +126,7 @@ class SitemapMiddleware(MiddlewareMixin):
 
         # Construct the full URL
         result = urlunparse((scheme, host_with_port, path, "", "", ""))
-        print(f"sitemap {result}")
+        # print(f"sitemap {result}")
         return result
 
     def is_valid_url(self, url: str) -> bool:
