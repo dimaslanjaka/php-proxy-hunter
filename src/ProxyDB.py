@@ -15,6 +15,13 @@ from proxy_hunter import Proxy
 
 class ProxyDB:
     def __init__(self, db_location=None, start=False):
+        """
+        Initialize ProxyDB instance.
+
+        Args:
+            db_location (Optional[str]): The location of the SQLite database file. If None, uses default path.
+            start (bool): If True, automatically starts the database connection.
+        """
         self.db_location = db_location
         if db_location is None:
             self.db_location = get_relative_path("src/database.sqlite")
@@ -23,6 +30,7 @@ class ProxyDB:
             self.start_connection()
 
     def start_connection(self):
+        """Establishes a connection to the SQLite database and sets up initial configurations."""
         try:
             self.db = SQLiteHelper(self.db_location)
             # create table proxies when not exist
@@ -54,6 +62,7 @@ class ProxyDB:
             print(e)
 
     def close(self):
+        """Closes the database connection if open."""
         if self.db:
             if self.db.cursor:
                 self.db.cursor.close()
@@ -62,12 +71,28 @@ class ProxyDB:
             self.db.close()
 
     def get_meta_value(self, key: str) -> Optional[str]:
+        """
+        Retrieves a meta value from the database.
+
+        Args:
+            key (str): The key for which to retrieve the value.
+
+        Returns:
+            Optional[str]: The meta value associated with the key, or None if not found.
+        """
         if not self.db:
             self.start_connection()
         result = self.db.select("meta", "value", "key = ?", (key,))
         return result[0]["value"] if result else None
 
     def set_meta_value(self, key: str, value: str) -> None:
+        """
+        Sets a meta value in the database.
+
+        Args:
+            key (str): The key to set.
+            value (str): The value to set.
+        """
         if not self.db:
             self.start_connection()
         sql = f"REPLACE INTO meta (key, value) VALUES ('{key}', '{value}')"
