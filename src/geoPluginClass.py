@@ -88,28 +88,31 @@ class GeoPlugin:
                     self.currencySymbol_UTF8 = data.get("geoplugin_currencySymbol_UTF8")
                     self.currencyConverter = data.get("geoplugin_currencyConverter")
             except json.JSONDecodeError:
-                data = pickle.loads(response.content)
-                if data:
-                    self.city = data.get("geoplugin_city")
-                    self.region = data.get("geoplugin_region")
-                    self.regionCode = data.get("geoplugin_regionCode")
-                    self.regionName = data.get("geoplugin_regionName")
-                    self.dmaCode = data.get("geoplugin_dmaCode")
-                    self.countryCode = data.get("geoplugin_countryCode")
-                    self.countryName = data.get("geoplugin_countryName")
-                    self.inEU = data.get("geoplugin_inEU")
-                    self.euVATrate = data.get("geoplugin_euVATrate")
-                    self.continentCode = data.get("geoplugin_continentCode")
-                    self.continentName = data.get("geoplugin_continentName")
-                    self.latitude = data.get("geoplugin_latitude")
-                    self.longitude = data.get("geoplugin_longitude")
-                    self.locationAccuracyRadius = data.get(
-                        "geoplugin_locationAccuracyRadius"
-                    )
-                    self.timezone = data.get("geoplugin_timezone")
-                    self.currencyCode = data.get("geoplugin_currencyCode")
-                    self.currencySymbol = data.get("geoplugin_currencySymbol")
-                    self.currencyConverter = data.get("geoplugin_currencyConverter")
+                try:
+                    data = pickle.loads(response.content)
+                    if data:
+                        self.city = data.get("geoplugin_city")
+                        self.region = data.get("geoplugin_region")
+                        self.regionCode = data.get("geoplugin_regionCode")
+                        self.regionName = data.get("geoplugin_regionName")
+                        self.dmaCode = data.get("geoplugin_dmaCode")
+                        self.countryCode = data.get("geoplugin_countryCode")
+                        self.countryName = data.get("geoplugin_countryName")
+                        self.inEU = data.get("geoplugin_inEU")
+                        self.euVATrate = data.get("geoplugin_euVATrate")
+                        self.continentCode = data.get("geoplugin_continentCode")
+                        self.continentName = data.get("geoplugin_continentName")
+                        self.latitude = data.get("geoplugin_latitude")
+                        self.longitude = data.get("geoplugin_longitude")
+                        self.locationAccuracyRadius = data.get(
+                            "geoplugin_locationAccuracyRadius"
+                        )
+                        self.timezone = data.get("geoplugin_timezone")
+                        self.currencyCode = data.get("geoplugin_currencyCode")
+                        self.currencySymbol = data.get("geoplugin_currencySymbol")
+                        self.currencyConverter = data.get("geoplugin_currencyConverter")
+                except Exception:
+                    pass
         return response
 
     def locate_recursive(self, ip):
