@@ -272,7 +272,7 @@ jobs:
         run: date +%s > tmp/last_week_run_timestamp
       - run: |
           php scanPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
-          php proxyChecker.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+          php proxyCheckerParallel.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
         name: Check proxies
       - name: Print working proxies
         id: working
