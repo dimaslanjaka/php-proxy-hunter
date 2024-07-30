@@ -3,6 +3,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 import chromedriver_autoinstaller
 from pyvirtualdisplay import Display
+
 display = Display(visible=0, size=(800, 800))
 display.start()
 
@@ -15,8 +16,7 @@ chrome_options = webdriver.ChromeOptions()
 options = [
     # Define window size here
     "--window-size=1200,1200",
-    "--ignore-certificate-errors"
-
+    "--ignore-certificate-errors",
     # "--headless",
     # "--disable-gpu",
     # "--window-size=1920,1200",
@@ -33,5 +33,5 @@ for option in options:
 
 driver = webdriver.Chrome(options=chrome_options)
 
-driver.get('https://github.com')
+driver.get("https://github.com")
 print(driver.title)
