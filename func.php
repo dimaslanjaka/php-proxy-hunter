@@ -2624,3 +2624,16 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
     'runner' => $runner
   ];
 }
+
+function safe_json_decode($json, $assoc = true)
+{
+  $decoded = json_decode($json, $assoc);
+
+  // Check for JSON decode errors
+  if (json_last_error() !== JSON_ERROR_NONE) {
+    // Return null if there's an error
+    return null;
+  }
+
+  return $decoded;
+}
