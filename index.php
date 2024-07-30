@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,8 +19,10 @@
     }, delay * 1000); // Convert seconds to milliseconds
   </script>
 </head>
+
 <body>
   <p>Redirecting in <span id="countdown"><?php echo $delay; ?></span> seconds...</p>
+  <p><a href="proxyManager.html">Click Here To Redirect Immediately</a></p>
   <script type="text/javascript">
     // Update countdown timer
     var countdownElement = document.getElementById('countdown');
@@ -32,4 +35,5 @@
     }, 1000); // Update every second
   </script>
 </body>
+
 </html>
