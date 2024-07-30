@@ -405,12 +405,14 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
       } else {
         $db->updateStatus($item[0]->proxy, 'dead');
         echo "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} dead" . PHP_EOL;
-        // re-check with non-https endpoint
-        $rebuild = new Proxy($item[0]->proxy);
-        $rebuild->username = $item[0]->username;
-        $rebuild->password = $item[0]->password;
-        delete_path($run_file);
-        checkProxyInParallel([$rebuild], 'http://httpforever.com/', false);
+        if ($isSSL == 'true') {
+          // re-check with non-https endpoint
+          $rebuild = new Proxy($item[0]->proxy);
+          $rebuild->username = $item[0]->username;
+          $rebuild->password = $item[0]->password;
+          delete_path($run_file);
+          checkProxyInParallel([$rebuild], 'http://httpforever.com/', false);
+        }
       }
 
       // push proxy to be removed
