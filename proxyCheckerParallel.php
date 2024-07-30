@@ -238,6 +238,8 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
   if (!empty($custom_endpoint)) {
     $endpoint = $custom_endpoint;
   }
+  // https by url
+  $isSSL = str_starts_with($endpoint, "https://") ? 'true' : 'false';
   if ($print_headers) {
     echo "[CHECKER-PARALLEL] CONFIG" . PHP_EOL;
     echo "User $user_id " . date(DATE_RFC3339) . PHP_EOL;
@@ -351,7 +353,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
               }
             }
             $priv_msg = $isPrivate ? "true " . implode("|", $match_private) : "false";
-            $log_msg =  "[CHECKER-PARALLEL] $counter. $protocol://{$item[0]->proxy} is working (private $priv_msg)\n";
+            $log_msg =  "[CHECKER-PARALLEL] $counter. $protocol://{$item[0]->proxy} is working private=$priv_msg https=$isSSL\n";
             echo $log_msg;
             $isWorking = !$isPrivate;
           }
@@ -371,7 +373,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
           'status' => 'active',
           'private' => $isPrivate ? 'true' : 'false',
           'latency' => $latency,
-          'https' => str_starts_with($endpoint, "https://") ? 'true' : 'false'
+          'https' => $isSSL
         ];
         $db->updateData($item[0]->proxy, $data);
         foreach (['http', 'socks5', 'socks4'] as $proxy_type) {
@@ -404,7 +406,11 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
         $db->updateStatus($item[0]->proxy, 'dead');
         echo "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} dead" . PHP_EOL;
         // re-check with non-https endpoint
-        checkProxyInParallel([$item[0]->proxy], 'http://httpforever.com/', false);
+        $rebuild = new Proxy($item[0]->proxy);
+        $rebuild->username = $item[0]->username;
+        $rebuild->password = $item[0]->password;
+        delete_path($run_file);
+        checkProxyInParallel([$rebuild], 'http://httpforever.com/', false);
       }
 
       // push proxy to be removed
