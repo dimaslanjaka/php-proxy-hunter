@@ -10,7 +10,7 @@
     var delay = 5;
 
     // Target URL
-    var url = "proxyManager.php";
+    var url = "proxyManager.html";
 
     // Redirect after the delay
     setTimeout(function() {
