@@ -4,34 +4,34 @@ require_once __DIR__ . '/func.php';
 
 $forbidden = false;
 
-// Check if the X-UserToken header is set and not empty
-if (!empty($_SERVER['HTTP_X_USER_TOKEN']) && !empty($_SERVER['HTTP_X_SERIAL_NUMBER'])) {
-  $userToken = $_SERVER['HTTP_X_USER_TOKEN'];
-  $serialNumber = $_SERVER['HTTP_X_SERIAL_NUMBER'];
+// Check if the X-User-Token and X-Serial-Number headers are set
+$userToken = isset($_SERVER['HTTP_X_USER_TOKEN']) ? $_SERVER['HTTP_X_USER_TOKEN'] : null;
+$serialNumber = isset($_SERVER['HTTP_X_SERIAL_NUMBER']) ? $_SERVER['HTTP_X_SERIAL_NUMBER'] : null;
+
+if ($userToken && $serialNumber) {
   $userFile = __DIR__ . '/data/' . $userToken . '.json';
   if (file_exists($userFile)) {
     $read = read_file($userFile);
-    if ($read) {
+    if ($read !== false) {
       $json = safe_json_decode($read);
       if ($json) {
-        // Extract valid_until and convert to DateTime
-        $validUntilStr = empty($json['valid_until']) ? '' : $json['valid_until'];
+        $validUntilStr = isset($json['valid_until']) ? $json['valid_until'] : '';
         $validUntil = DateTime::createFromFormat(DateTime::ATOM, $validUntilStr);
 
-        if (!$validUntil) {
+        if ($validUntil === false) {
           // Invalid date format
           $forbidden = true;
         } else {
           // Get current date and time
           $now = new DateTime();
           $forbidden = $now > $validUntil;
+
           if (!$forbidden) {
             // Extract devices array
-            $devices = empty($data['devices']) ? [] : $data['devices'];
+            $devices = isset($json['devices']) ? $json['devices'] : [];
 
-            // if serial number exists in devices array
-            // otherwise return 403
-            $forbidden = in_array($serialNumber, $devices) == false;
+            // If serial number exists in devices array, allow access; otherwise, return 403
+            $forbidden = !in_array($serialNumber, $devices, true);
           }
         }
       }
@@ -43,10 +43,10 @@ if (!empty($_SERVER['HTTP_X_USER_TOKEN']) && !empty($_SERVER['HTTP_X_SERIAL_NUMB
     // Return 403 forbidden when captcha is not resolved
     $forbidden = true;
   } else {
-    $last_check_captcha = $_SESSION['last_captcha_check'];
+    $last_check_captcha = isset($_SESSION['last_captcha_check']) ? $_SESSION['last_captcha_check'] : '';
 
     // Convert RFC 3339 date string to a Unix timestamp
-    $last_check_timestamp = strtotime($last_check_captcha);
+    $last_check_timestamp = strtotime($last_check_captcha) ?: 0;
 
     // Get the current Unix timestamp
     $current_timestamp = time();
@@ -69,12 +69,7 @@ if ($forbidden) {
   exit(json_encode(['error' => 'unauthorized, try login first']));
 }
 
-$file = 'proxies.txt';
-
-if (isset($_REQUEST['file'])) {
-  $file = rawurldecode(trim($_REQUEST['file']));
-}
-
+$file = isset($_REQUEST['file']) ? rawurldecode(trim($_REQUEST['file'])) : 'proxies.txt';
 $real_file = realpath(__DIR__ . '/' . $file);
 
 if ($real_file && file_exists($real_file)) {
@@ -82,13 +77,9 @@ if ($real_file && file_exists($real_file)) {
   $fileExtension = pathinfo($real_file, PATHINFO_EXTENSION);
 
   // Check if the file extension is allowed (json, txt, or log)
-  if ($fileExtension === 'json' || $fileExtension === 'txt' || $fileExtension === 'log') {
+  if (in_array($fileExtension, ['json', 'txt', 'log'], true)) {
     // Explicitly set the Content-Type based on the file extension
-    if ($fileExtension === 'json') {
-      $contentType = 'application/json';
-    } else {
-      $contentType = 'text/plain';
-    }
+    $contentType = ($fileExtension === 'json') ? 'application/json' : 'text/plain';
 
     // Set the appropriate Content-Type header
     header("Content-Type: $contentType");
