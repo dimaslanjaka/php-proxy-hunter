@@ -62,7 +62,7 @@ class Command(BaseCommand):
 
             # Prepare insert query for new rows
             placeholders = ", ".join(["?" for _ in columns])
-            insert_query = f"INSERT OR REPLACE INTO proxies ({', '.join(columns)}) VALUES ({placeholders})"
+            insert_query = f"INSERT OR IGNORE INTO proxies ({', '.join(columns)}) VALUES ({placeholders})"
 
             # Insert rows into destination database if they don't exist
             new_rows_count = 0
