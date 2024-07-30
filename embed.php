@@ -4,26 +4,62 @@ require_once __DIR__ . '/func.php';
 
 $forbidden = false;
 
-// Return 403 forbidden when captcha not resolved
-if (!isset($_SESSION['captcha'])) {
-  $forbidden = true;
+// Check if the X-UserToken header is set and not empty
+if (!empty($_SERVER['HTTP_X_USER_TOKEN']) && !empty($_SERVER['HTTP_X_SERIAL_NUMBER'])) {
+  $userToken = $_SERVER['HTTP_X_USER_TOKEN'];
+  $serialNumber = $_SERVER['HTTP_X_SERIAL_NUMBER'];
+  $userFile = __DIR__ . '/data/' . $userToken . '.json';
+  if (file_exists($userFile)) {
+    $read = read_file($userFile);
+    if ($read) {
+      $json = safe_json_decode($read);
+      if ($json) {
+        // Extract valid_until and convert to DateTime
+        $validUntilStr = empty($json['valid_until']) ? '' : $json['valid_until'];
+        $validUntil = DateTime::createFromFormat(DateTime::ATOM, $validUntilStr);
+
+        if (!$validUntil) {
+          // Invalid date format
+          $forbidden = true;
+        } else {
+          // Get current date and time
+          $now = new DateTime();
+          $forbidden = $now > $validUntil;
+          if (!$forbidden) {
+            // Extract devices array
+            $devices = empty($data['devices']) ? [] : $data['devices'];
+
+            // if serial number exists in devices array
+            // otherwise return 403
+            $forbidden = in_array($serialNumber, $devices) == false;
+          }
+        }
+      }
+    }
+  }
 } else {
-  $last_check_captcha = $_SESSION['last_captcha_check'];
-
-  // Convert RFC 3339 date string to a Unix timestamp
-  $last_check_timestamp = strtotime($last_check_captcha);
-
-  // Get the current Unix timestamp
-  $current_timestamp = time();
-
-  // Calculate the Unix timestamp for 1 hour ago
-  $one_hour_ago = $current_timestamp - 3600;
-
-  // Compare if the last check captcha was 1 hour ago
-  if ($last_check_timestamp <= $one_hour_ago) {
-    // The last check captcha was more than 1 hour ago
+  // Check if the captcha session is empty
+  if (empty($_SESSION['captcha'])) {
+    // Return 403 forbidden when captcha is not resolved
     $forbidden = true;
-    unset($_SESSION['captcha']);
+  } else {
+    $last_check_captcha = $_SESSION['last_captcha_check'];
+
+    // Convert RFC 3339 date string to a Unix timestamp
+    $last_check_timestamp = strtotime($last_check_captcha);
+
+    // Get the current Unix timestamp
+    $current_timestamp = time();
+
+    // Calculate the Unix timestamp for 1 hour ago
+    $one_hour_ago = $current_timestamp - 3600;
+
+    // Compare if the last check captcha was more than 1 hour ago
+    if ($last_check_timestamp <= $one_hour_ago) {
+      // The last check captcha was more than 1 hour ago
+      $forbidden = true;
+      unset($_SESSION['captcha']);
+    }
   }
 }
 
