@@ -41,6 +41,12 @@
       "type": "node-terminal"
     },
     {
+      "command": "python workingManager.py",
+      "name": "Run working.json editor",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
       "name": "Python Debugger: Current File",
       "type": "debugpy",
       "request": "launch",
