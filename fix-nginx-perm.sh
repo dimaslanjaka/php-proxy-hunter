@@ -171,26 +171,8 @@ copy_if_both_exist() {
     fi
 }
 
-# Copy gunicorn.service to /etc/systemd/system/gunicorn.service
-copy_if_both_exist "$CWD/assets/systemctl/gunicorn.service" "/etc/systemd/system/gunicorn.service"
-
 # Copy .htaccess_nginx.conf to /etc/nginx/sites-available/default
 copy_if_both_exist "$CWD/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
-
-# Install python requirements
-sudo -u "$USER" -H bash -c "python3.11 -m venv $CWD/venv"
-sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && python3 $CWD/requirements_install.py"
-
-if [ -d "$CWD/venv" ]; then
-    chown -R "$USER":"$USER" "$CWD/venv"
-    chmod 755 "$CWD/venv/bin"/*
-fi
-
-if [ -d "$CWD/django_backend" ]; then
-    chown -R "$USER":"$USER" "$CWD/django_backend"
-    chown -R "$USER":"$USER" "$CWD/django_backend"/*
-    touch "$CWD/django_backend/index.html"
-fi
 
 if [ -d "$CWD/xl" ]; then
     chown -R "$USER":"$USER" "$CWD/xl"
@@ -198,29 +180,9 @@ if [ -d "$CWD/xl" ]; then
     touch "$CWD/xl/index.html"
 fi
 
-# reload django
-function run_as_user_in_venv() {
-    local COMMAND=$1
-    sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && $COMMAND"
-}
-
-# migrate database (when changed)
-run_as_user_in_venv "python $CWD/manage.py migrate"
-# collect static files (to sync with nginx config)
-run_as_user_in_venv "python $CWD/manage.py collectstatic --noinput"
-# clear django caches (from django_backend/apps/core/management/commands/clear_cache.py)
-run_as_user_in_venv "python $CWD/manage.py clear_cache"
-# sync proxies between php and django python databases
-run_as_user_in_venv "python $CWD/manage.py sync_proxies"
-
 # Restart services
 touch "$CWD/assets/index.html"
 touch "$CWD/assets/systemctl/index.html"
-
-# Fix permission for gunicorn services
-chmod 755 "$CWD/assets/systemctl"
-chown root:root "$CWD/assets/systemctl/start_gunicorn.sh"
-chmod 755 "$CWD/assets/systemctl/start_gunicorn.sh"
 
 # Reload daemon
 sudo systemctl daemon-reload
@@ -245,14 +207,8 @@ if systemctl is-active --quiet nginx; then
     echo "Restarted Nginx"
 fi
 
-# Check and restart Gunicorn if installed
-if systemctl is-active --quiet gunicorn; then
-    sudo systemctl restart gunicorn
-    echo "Restarted Gunicorn"
-fi
-
 # Check and restart Spring Boot if installed
-if systemctl is-active --quiet spring; then
-    sudo systemctl restart spring
-    echo "Restarted Spring Boot"
-fi
+# if systemctl is-active --quiet spring; then
+#     sudo systemctl restart spring
+#     echo "Restarted Spring Boot"
+# fi

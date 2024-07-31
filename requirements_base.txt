@@ -51,3 +51,5 @@ pyvirtualdisplay
 -e file:packages/proxy-checker-python
 -e file:packages/proxy-hunter-python
 -e file:packages/rsa-utility
+huey[backends]
+gevent
