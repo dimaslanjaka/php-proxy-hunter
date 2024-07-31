@@ -1,7 +1,4 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
@@ -54,22 +51,10 @@
       "console": "integratedTerminal"
     },
     {
-      "command": "python manage.py runserver 0.0.0.0:8000",
-      "name": "Run django",
-      "request": "launch",
-      "type": "node-terminal",
-    },
-    {
-      "command": "python manage.py runserver_plus 0.0.0.0:8000 --cert-file django_backend/certificates/localhost.crt --key-file django_backend/certificates/localhost.key",
-      "name": "Run django SSL",
-      "request": "launch",
-      "type": "node-terminal",
-    },
-    {
       "command": "python manage.py test django_backend.apps.proxy",
       "name": "Django test proxy",
       "request": "launch",
-      "type": "node-terminal",
+      "type": "node-terminal"
     },
     {
       "name": "Debug index.js",
@@ -88,5 +73,32 @@
       "request": "launch",
       "type": "node-terminal"
     },
+    {
+      "command": "python manage.py runserver 0.0.0.0:8000",
+      "name": "Run django",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "python manage.py runserver_plus 0.0.0.0:8000 --cert-file django_backend/certificates/localhost.crt --key-file django_backend/certificates/localhost.key",
+      "name": "Run django SSL",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "python manage.py run_huey",
+      "name": "Run huey",
+      "request": "launch",
+      "type": "node-terminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Run Django with Huey",
+      "configurations": [
+        "Run django SSL",
+        "Run huey"
+      ]
+    }
   ]
 }
