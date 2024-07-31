@@ -4,6 +4,8 @@ import time
 from django.conf import settings
 from huey import crontab
 from huey.contrib.djhuey import db_task, on_commit_task, periodic_task, task
+from src.func_console import log_file
+from src.func import get_relative_path
 
 # on development run
 # python manage.py run_huey
@@ -75,15 +77,17 @@ def tprint(s, c=32):
 
 # Periodic tasks.
 
-
-@periodic_task(crontab(minute="*/2"))
-def every_other_minute():
-    tprint("This task runs every 2 minutes.", 35)
+n = 1
 
 
-@periodic_task(crontab(minute="*/5"))
-def every_five_mins():
-    tprint("This task runs every 5 minutes.", 34)
+@periodic_task(crontab(minute=f"*/{n}"))
+def every_n_minute():
+    global n
+    tprint(f"This task runs every {n} minutes.", 35)
+    log_file(
+        get_relative_path("proxyChecker.txt"),
+        f"this task huey run periodically {n} minutes",
+    )
 
 
 # When this task is called, it will not be enqueued until the active
