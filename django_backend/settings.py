@@ -315,7 +315,7 @@ DATABASES = {
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 HUEY = huey.SqliteHuey(
-    name="django_huey", filename=get_relative_path("tmp/huey.db"), immediate=not DEBUG
+    name="django_huey", filename=get_relative_path("tmp/huey.db"), immediate=False
 )
 
 # Password validation
