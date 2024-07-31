@@ -63,4 +63,11 @@ sudo make install
   sudo -u www-data -H bash -c "source /var/www/html/venv/bin/activate && python /var/www/html/requirements_install.py"
   ```
 
-
+- run the django server
+  ```bash
+  python manage.py runserver
+  ```
+  open new terminal to run background task executor
+  ```bash
+  python manage.py run_huey
+  ```
