@@ -1,0 +1,14 @@
+[Unit]
+Description=Huey worker daemon for Django application
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/html
+ExecStart=/var/www/html/venv/bin/python /var/www/html/manage.py run_huey
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

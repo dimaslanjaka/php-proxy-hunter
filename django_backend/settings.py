@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
+import huey
 import os
 import sys
 
@@ -109,6 +110,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 # Application definition
 
 INSTALLED_APPS = [
+    "huey.contrib.djhuey",
     "channels",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -312,6 +314,9 @@ DATABASES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+HUEY = huey.SqliteHuey(
+    name="django_huey", filename=get_relative_path("tmp/huey.db"), immediate=not DEBUG
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
