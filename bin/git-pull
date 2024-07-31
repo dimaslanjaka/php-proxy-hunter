@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Set the path to your git repository
+REPO_PATH="/var/www/html"
+
+# Check if there are arguments for the git pull command
+if [ "$#" -eq 0 ]; then
+  echo "Usage: $0 [git pull arguments...]"
+  exit 1
+fi
+
+# Navigate to the repository directory
+cd "$REPO_PATH" || { echo "Repository path not found"; exit 1; }
+
+# Execute git pull with provided arguments as www-data user
+sudo -u www-data git pull "$@"
+
+# Check if the git pull was successful
+if [ $? -eq 0 ]; then
+  echo "Git pull completed successfully."
+else
+  echo "Git pull failed."
+fi
+
+# Execute all fix-*.sh scripts
+chmod +x fix-*.sh
+for file in fix-*.sh; do
+    if [ -x "$file" ]; then
+        bash "$file"
+    else
+        echo "Skipping $file: Not executable"
+    fi
+done
