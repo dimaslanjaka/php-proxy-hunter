@@ -70,6 +70,8 @@ run_as_user_in_venv "python $CWD/manage.py collectstatic --noinput"
 run_as_user_in_venv "python $CWD/manage.py clear_cache"
 # sync proxies between php and django python databases
 run_as_user_in_venv "python $CWD/manage.py sync_proxies"
+# fix invalid proxies
+run_as_user_in_venv "python $CWD/manage.py fix_proxies"
 
 # Reload daemon
 sudo systemctl daemon-reload
