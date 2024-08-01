@@ -9,8 +9,6 @@ from django.test import TestCase
 from unittest.mock import patch, MagicMock
 import sqlite3
 from django_backend.apps.proxy.utils import get_db_connections, execute_sql_query
-from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
-from django_backend.apps.proxy.models import Proxy as ProxyModel
 
 
 class DatabaseUtilsTests(TestCase):
