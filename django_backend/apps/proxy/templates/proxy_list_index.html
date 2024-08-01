@@ -80,28 +80,28 @@
           <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.type|default:"-"|upper }}</td> -->
           <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {% if proxy.region|default:"-" != "-" %}
-            <a href="/proxy?region={{ proxy.region }}" class="hover:underline">{{ proxy.region }}</a>
+            <a href="/proxy/?region={{ proxy.region }}" class="hover:underline">{{ proxy.region }}</a>
             {% else %}
             -
             {% endif %}
           </td>
           <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {% if proxy.city|default:"-" != "-" %}
-            <a href="/proxy?city={{ proxy.city }}" class="hover:underline">{{ proxy.city }}</a>
+            <a href="/proxy/?city={{ proxy.city }}" class="hover:underline">{{ proxy.city }}</a>
             {% else %}
             -
             {% endif %}
           </td>
           <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {% if proxy.country|default:"-" != "-" %}
-            <a href="/proxy?country={{ proxy.country }}" class="hover:underline">{{ proxy.country }}</a>
+            <a href="/proxy/?country={{ proxy.country }}" class="hover:underline">{{ proxy.country }}</a>
             {% else %}
             -
             {% endif %}
           </td>
           <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
             {% if proxy.timezone|default:"-" != "-" %}
-            <a href="/proxy?timezone={{ proxy.timezone }}" class="hover:underline">{{ proxy.timezone }}</a>
+            <a href="/proxy/?timezone={{ proxy.timezone }}" class="hover:underline">{{ proxy.timezone }}</a>
             {% else %}
             -
             {% endif %}
