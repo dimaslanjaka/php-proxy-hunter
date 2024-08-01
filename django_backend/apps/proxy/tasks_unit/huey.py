@@ -1,14 +1,38 @@
+import os
+import sys
+
+from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
+
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
+
 import subprocess
 import time
 
 from django.conf import settings
 from huey import crontab
 from huey.contrib.djhuey import db_task, on_commit_task, periodic_task, task
+from django_backend.apps.proxy.utils import execute_select_query
 from src.func_console import log_file
 from src.func import get_relative_path
 
+
 # on development run
 # python manage.py run_huey
+
+
+@periodic_task(crontab(minute="*/10"))
+def run_geolocation():
+    """
+    Run proxy geolocation for missing proxy information
+    """
+    proxies = execute_select_query(
+        "SELECT * FROM proxies WHERE status = ? AND (timezone IS NULL OR country IS NULL OR lang IS NULL)",
+        ("active",),
+    )
+    for item in proxies:
+        fetch_geo_ip(item["proxy"])
 
 
 @periodic_task(crontab(minute="*/10"))
