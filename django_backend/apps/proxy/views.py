@@ -9,6 +9,8 @@ from django.conf import settings
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Case, IntegerField, Value, When
 
+from django_backend.apps.core.utils import get_query_or_post_body
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
 from django.core.paginator import Paginator
@@ -112,7 +114,7 @@ def index(request: HttpRequest):
         proxies = paginator.page(paginator.num_pages)
 
     # Fetch missing details in a background thread
-    fetch_geo_ip_in_thread(proxies.object_list)
+    # fetch_geo_ip_in_thread(proxies.object_list)
 
     return render(
         request,
@@ -223,28 +225,11 @@ def trigger_check_proxy(request: HttpRequest):
         "running": len(proxy_checker_threads),
     }
 
-    if request.method == "GET":
-        # Get the proxy parameter from the query string
-        proxy = request.GET.get("proxy", None)
-
-    elif request.method == "POST":
-        content_type = request.content_type
-
-        if content_type == "application/json":
-            try:
-                # Parse JSON data from the request body
-                data = json.loads(request.body)
-                proxy = data.get("proxy", None)
-            except json.JSONDecodeError:
-                return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-        elif content_type == "application/x-www-form-urlencoded":
-            # Parse form data
-            proxy = request.POST.get("proxy", None)
+    proxy = get_query_or_post_body(request, "proxy")
+    if not proxy:
+        render_data.update({"message": "Checking existing proxies"})
     else:
-        return render_data.update(
-            {"error": True, "message": "Unsupported request method"}
-        )
+        render_data.update({"message": "Checking custom proxies"})
 
     decoded_proxy = None
     if proxy:
@@ -288,7 +273,6 @@ def trigger_check_proxy(request: HttpRequest):
         render_data.update(
             {
                 "error": False,
-                "message": "Proxy check started in thread",
                 "thread": get_thread_details(thread),
                 # "data": decoded_proxy,
             }
