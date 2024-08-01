@@ -77,17 +77,17 @@ def tprint(s, c=32):
 
 # Periodic tasks.
 
-n = 1
+# n = 1
 
 
-@periodic_task(crontab(minute=f"*/{n}"))
-def every_n_minute():
-    global n
-    tprint(f"This task runs every {n} minutes.", 35)
-    log_file(
-        get_relative_path("proxyChecker.txt"),
-        f"this task huey run periodically {n} minutes",
-    )
+# @periodic_task(crontab(minute=f"*/{n}"))
+# def every_n_minute():
+#     global n
+#     tprint(f"This task runs every {n} minutes.", 35)
+#     log_file(
+#         get_relative_path("proxyChecker.txt"),
+#         f"this task huey run periodically {n} minutes",
+#     )
 
 
 # When this task is called, it will not be enqueued until the active
