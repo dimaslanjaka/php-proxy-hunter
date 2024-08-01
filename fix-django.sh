@@ -76,5 +76,6 @@ sudo systemctl daemon-reload
 
 # Reload django services
 systemctl restart gunicorn
+echo "Gunicorn service restarted"
 systemctl restart huey
-
+echo "Huey service restarted"
