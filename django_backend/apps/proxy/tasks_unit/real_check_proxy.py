@@ -375,7 +375,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                     if len(errors) > 0:
                         error_message = "\n".join(errors)
                         raise ValueError(f"SQL execution error(s):\n{error_message}")
-                else:
+                elif status == "active":
                     # fetch geo location
                     t = threading.Thread(target=fetch_geo_ip, args=(proxy_obj.proxy,))
                     t.start()
