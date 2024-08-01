@@ -6,8 +6,8 @@ REPO_PATH="/var/www/html"
 # Navigate to the repository directory
 cd "$REPO_PATH" || { echo "Repository path not found"; exit 1; }
 
-# Execute git pull with provided arguments as www-data user
-sudo -u www-data git pull "$@"
+# Execute git pull with provided arguments
+git pull "$@"
 
 # Check if the git pull was successful
 if [ $? -eq 0 ]; then
