@@ -73,11 +73,11 @@ def fetch_geo_ip(proxy: Optional[str] = None):
             if model["region"] is None and detail.region_name:
                 model["region"] = detail.region_name
                 save = True
-            if model["lang"] is None:
+            if model["lang"] is None and detail.lang:
                 model["lang"] = detail.lang if detail.lang else "en"
                 save = True
         else:
-            result["error"] = f"Failed to get geo IP for {model['proxy']}"
+            result["error"] = f"fetch_geo_ip Failed geolocation for {model['proxy']}"
             log_file(result_log_file, result["error"])
 
     # Fetch WebGL data if necessary
