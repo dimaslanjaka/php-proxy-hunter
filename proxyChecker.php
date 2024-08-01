@@ -306,11 +306,11 @@ function filter_proxies(array $proxies, bool $skip_dead_proxies = false)
     if (empty($sel)) {
       echo "add $item->proxy" . PHP_EOL;
       // add proxy
-      $db->add($item->proxy);
+      $db->add($item->proxy, true);
       // re-select proxy
       $sel = $db->select($item->proxy);
     }
-    if (empty($sel[0]['status'])) {
+    if (!empty($sel) && empty($sel[0]['status'])) {
       echo "[SQLite] untested $item->proxy" . PHP_EOL;
       $db->updateStatus($item->proxy, 'untested');
     }
