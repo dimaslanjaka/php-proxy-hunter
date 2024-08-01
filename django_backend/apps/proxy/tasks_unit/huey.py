@@ -16,7 +16,7 @@ def run_check_proxies():
     tprint("this task run every 10 minutes")
     try:
         # Specify the command and directory
-        command = "python manage.py check_proxies --max=3"
+        command = "python manage.py check_proxies --max=1"
         # Change to the base directory of your Django project
         base_directory = settings.BASE_DIR
 
