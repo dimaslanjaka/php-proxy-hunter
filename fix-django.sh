@@ -59,7 +59,6 @@ chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
 chown root:root "$CWD/assets/systemctl/start_huey.sh"
 chmod +x "$CWD/assets/systemctl/start_huey.sh"
 
-
 function run_as_user_in_venv() {
     local COMMAND=$1
     sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && $COMMAND"
