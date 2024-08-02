@@ -6,8 +6,7 @@ After=network.target
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/html
-ExecStart=/var/www/html/venv/bin/python /var/www/html/manage.py run_huey
-
+ExecStart=/var/www/html/assets/systemctl/start_huey.sh
 Restart=always
 
 [Install]
