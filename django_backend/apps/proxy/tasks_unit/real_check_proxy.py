@@ -195,6 +195,10 @@ def get_proxies(
 
 
 @huey.contrib.djhuey.task()
+def reak_check_proxy_huey(proxy_data: Optional[str] = ""):
+    return real_check_proxy_async(proxy_data)
+
+
 def real_check_proxy_async(proxy_data: Optional[str] = ""):
     from django_backend.apps.proxy.models import Proxy as ProxyModel
 
@@ -371,11 +375,34 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 f"INSERT OR REPLACE INTO proxies ({columns}) VALUES ({placeholders});"
             )
             params = tuple(data.values())
+
+            # Identify the unique identifier column
+            identifier_column = (
+                "proxy"  # Replace with your unique identifier column name
+            )
+
+            # Dynamically create SQL query based on the dictionary keys
+            update_columns = ", ".join(
+                f"{key} = ?" for key in data if key != identifier_column
+            )
+            update_query = (
+                f"UPDATE proxies SET {update_columns} WHERE {identifier_column} = ?;"
+            )
+
+            # Prepare the parameters for the query
+            update_params = tuple(
+                value for key, value in data.items() if key != identifier_column
+            ) + (data[identifier_column],)
             try:
-                exec_sql = execute_sql_query(query, params)
-                if "error" in exec_sql and exec_sql["error"]:
+                insert_exec = execute_sql_query(query, params)
+                log_file(
+                    result_log_file,
+                    f"[CHECKER-PARALLEL] update {proxy_obj.proxy}: {insert_exec}",
+                )
+                execute_sql_query(update_query, update_params)
+                if "error" in insert_exec and insert_exec["error"]:
                     # Filter out empty strings
-                    errors = [e for e in exec_sql["error"] if e]
+                    errors = [e for e in insert_exec["error"] if e]
 
                     if len(errors) > 0:
                         error_message = "\n".join(errors)
