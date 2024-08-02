@@ -8,6 +8,8 @@ Group=www-data
 WorkingDirectory=/var/www/html
 ExecStart=/var/www/html/assets/systemctl/start_huey.sh
 Restart=always
+StartLimitIntervalSec=500
+StartLimitBurst=5
 
 [Install]
 WantedBy=multi-user.target
