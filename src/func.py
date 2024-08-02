@@ -1020,3 +1020,16 @@ def get_random_profile(json_file):
 
 def md5(input_string: str) -> str:
     return hashlib.md5(input_string.encode()).hexdigest()
+
+def clean_dict(d: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Remove keys from the dictionary where the value is empty (None or an empty string)
+    or under zero (for numerical values).
+
+    Args:
+        d (Dict[str, Any]): The dictionary to be cleaned.
+
+    Returns:
+        Dict[str, Any]: A new dictionary with unwanted key-value pairs removed.
+    """
+    return {k: v for k, v in d.items() if (v not in [None, '', 0] and (isinstance(v, (int, float)) and v >= 0))}
