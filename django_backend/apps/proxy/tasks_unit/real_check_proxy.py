@@ -1,6 +1,9 @@
 import os
 import sys
 
+import huey.contrib
+import huey.contrib.djhuey
+
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
@@ -40,6 +43,7 @@ from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
+import huey
 
 result_log_file = get_relative_path("proxyChecker.txt")
 global_tasks: Set[Union[threading.Thread, Future]] = set()
@@ -190,6 +194,7 @@ def get_proxies(
     return list(unique_proxies)
 
 
+@huey.contrib.djhuey.task()
 def real_check_proxy_async(proxy_data: Optional[str] = ""):
     from django_backend.apps.proxy.models import Proxy as ProxyModel
 
