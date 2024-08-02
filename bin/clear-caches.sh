@@ -9,6 +9,7 @@ echo 3 > /proc/sys/vm/drop_caches
 # Clear old logs
 sudo du -sh /var/log/*
 sudo rm -f /var/log/*.gz
+sudo journalctl --rotate
 sudo journalctl --vacuum-time=1s
 
 # Clear trash
