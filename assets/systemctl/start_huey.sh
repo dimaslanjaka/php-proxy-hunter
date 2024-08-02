@@ -1,5 +1,28 @@
 #!/bin/bash
 
+CWD="/var/www/html"
+
+# Load .env file
+if [ -f "$CWD/.env" ]; then
+    source "$CWD/.env"
+fi
+
+# Detect python virtual bin by operating system
+if [ "$(uname -s)" = "Darwin" ] || [ "$(uname -s)" = "Linux" ]; then
+    # Unix-based systems (Linux, macOS)
+    VENV_BIN="$CWD/venv/bin"
+else
+    # Assume Windows
+    VENV_BIN="$CWD/venv/Scripts"
+fi
+
+# Check if PATH is set
+if [ -z "$PATH" ]; then
+    export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
+else
+    export PATH=$PATH:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
+fi
+
 # Define log file locations
 DATE=$(date +'%Y-%m-%d')
 LOG_DIR="/var/www/html/logs"
