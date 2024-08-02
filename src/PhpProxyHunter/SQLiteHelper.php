@@ -83,7 +83,7 @@ class SQLiteHelper
     $columns = implode(', ', array_keys($data));
     $values = implode(', ', array_fill(0, count($data), '?'));
 
-    $sql = "INSERT INTO $tableName ($columns) VALUES ($values)";
+    $sql = "INSERT OR IGNORE INTO $tableName ($columns) VALUES ($values)";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute(array_values($data));
   }
