@@ -200,12 +200,13 @@ class ProxyDB
    */
   public function add(?string $proxy, bool $force = false): void
   {
-    if (!$this->isAlreadyAdded($proxy) || $force) {
-      $this->db->insert('proxies', ['proxy' => trim($proxy), 'status' => 'untested']);
-      if (!$force) {
-        $this->markAsAdded($proxy);
-      }
-    }
+    $this->db->insert('proxies', ['proxy' => trim($proxy), 'status' => 'untested']);
+    // if (!$this->isAlreadyAdded($proxy) || $force) {
+    //   $this->db->insert('proxies', ['proxy' => trim($proxy), 'status' => 'untested']);
+    //   if (!$force) {
+    //     $this->markAsAdded($proxy);
+    //   }
+    // }
   }
 
   /**
