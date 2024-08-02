@@ -357,7 +357,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 if "cannot schedule new futures" not in str(e).lower():
                     traceback.print_exc()
 
-        if status is not None:
+        if status is not None and proxy_obj.proxy:
             last_check = get_current_rfc3339_time()
             # log_file(result_log_file, f"{proxyClass.proxy} last check {last_check}")
             data = {
@@ -366,43 +366,26 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 "last_check": last_check,
                 "https": "true" if https else "false",
                 "latency": latency,
-                "proxy": proxy_obj.proxy,
             }
-            # Dynamically create SQL query based on the dictionary keys
-            columns = ", ".join(data.keys())
-            placeholders = ", ".join("?" for _ in data)
-            query = (
-                f"INSERT OR REPLACE INTO proxies ({columns}) VALUES ({placeholders});"
-            )
-            params = tuple(data.values())
+            # Dynamically create SQL query for insert based on the dictionary keys
+            insert_data = {**data, "proxy": proxy_obj.proxy}
+            insert_columns = ", ".join(insert_data.keys())
+            placeholders = ", ".join("?" for _ in insert_data)
+            insert_query = f"INSERT OR REPLACE INTO proxies ({insert_columns}) VALUES ({placeholders});"
+            insert_params = tuple(insert_data.values())
 
-            # Identify the unique identifier column
-            identifier_column = (
-                "proxy"  # Replace with your unique identifier column name
-            )
-
-            # Dynamically create SQL query based on the dictionary keys
-            update_columns = ", ".join(
-                f"{key} = ?" for key in data if key != identifier_column
-            )
-            update_query = (
-                f"UPDATE proxies SET {update_columns} WHERE {identifier_column} = ?;"
-            )
-
-            # Prepare the parameters for the query
-            update_params = tuple(
-                value for key, value in data.items() if key != identifier_column
-            ) + (data[identifier_column],)
+            # Dynamically create SQL query for update based on the dictionary keys
+            update_data = data
+            update_columns = ", ".join(f"{key} = ?" for key in update_data.keys())
+            update_query = f"UPDATE proxies SET {update_columns} WHERE proxy = ?;"
+            update_params = tuple(update_data.values()) + (proxy_obj.proxy,)
             try:
-                insert_exec = execute_sql_query(query, params)
-                log_file(
-                    result_log_file,
-                    f"[CHECKER-PARALLEL] update {proxy_obj.proxy}: {insert_exec}",
-                )
-                execute_sql_query(update_query, update_params)
-                if "error" in insert_exec and insert_exec["error"]:
+                insert_exec = execute_sql_query(insert_query, insert_params)
+                update_exec = execute_sql_query(update_query, update_params)
+                merge_exec = {**insert_exec, **update_exec}
+                if merge_exec and "error" in merge_exec and merge_exec["error"]:
                     # Filter out empty strings
-                    errors = [e for e in insert_exec["error"] if e]
+                    errors = [e for e in merge_exec["error"] if e]
 
                     if len(errors) > 0:
                         error_message = "\n".join(errors)
@@ -418,12 +401,12 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                     global_tasks.add(t)
                 cleanup_threads()
                 string_to_remove.append(proxy_obj.proxy)
-
             except Exception as e:
                 log_file(
                     result_log_file,
                     f"[CHECKER-PARALLEL] failed to update {proxy_obj.proxy}: {e}",
                 )
+                traceback.print_exc()
     move_string_between(
         get_relative_path("proxies.txt"),
         get_relative_path("dead.txt"),
