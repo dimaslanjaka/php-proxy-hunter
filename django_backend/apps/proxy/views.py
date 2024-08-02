@@ -35,6 +35,7 @@ from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
     global_tasks as filter_ports_threads,
 )
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
+    reak_check_proxy_huey,
     real_check_proxy_async_in_thread,
     result_log_file as proxy_checker_task_log_file,
     global_tasks as proxy_checker_threads,
@@ -265,6 +266,8 @@ def trigger_check_proxy(request: HttpRequest):
                 "message": f"Maximum number of proxy check threads ({settings.LIMIT_THREADS}) already running",
             }
         )
+        # move task into huey background task when main thread has limit
+        reak_check_proxy_huey(decoded_proxy)
     else:
         # Start the proxy check in a separate thread
         thread = real_check_proxy_async_in_thread(decoded_proxy)
