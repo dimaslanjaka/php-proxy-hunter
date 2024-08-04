@@ -5,8 +5,6 @@
 # */10 * * * * /usr/bin/php /var/www/html/proxyChecker.php > /var/www/html/proxyChecker.txt 2>&1
 # fetch proxies every 4 hours
 7 */4 * * * /usr/bin/php /var/www/html/proxyFetcher.php > /var/www/html/proxyChecker.txt 2>&1
-# restart server every day at midnight
-0 0 * * * bash /var/www/html/fix-nginx-perm.sh
 # run proxy checker parallel 17 past every hour
 # 17 */1 * * * /usr/bin/php /var/www/html/proxyCheckerParallel.php > /var/www/html/proxyChecker.txt 2>&1
 # run config cleaner every week
