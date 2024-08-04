@@ -2,14 +2,39 @@
 
 # A script to run Django management commands easily
 
+# Determine the current script directory and project directory
 CWD=$(dirname "$(realpath "$0")")
 PROJECT_DIR=$(dirname "$CWD")
 COMMAND="python $PROJECT_DIR/manage.py $@"
 
-# Activate virtual environment if not already activated
-if [ -z "$VIRTUAL_ENV" ]; then
-    source "$PROJECT_DIR/venv/bin/activate"
-fi
+# Determine the OS
+OS=$(uname -s)
+
+# Activate virtual environment and run the command based on the OS
+case "$OS" in
+Linux | Darwin)
+    # Unix-based systems
+    if [ -z "$VIRTUAL_ENV" ]; then
+        source "$PROJECT_DIR/venv/bin/activate"
+    fi
+    ;;
+CYGWIN* | MINGW32* | MINGW64*)
+    # Windows (Cygwin or Git Bash)
+    VENV_ACTIVATE_SCRIPT="$PROJECT_DIR/venv/Scripts/activate"
+    if [ -z "$VIRTUAL_ENV" ]; then
+        if [ -f "$VENV_ACTIVATE_SCRIPT" ]; then
+            source "$VENV_ACTIVATE_SCRIPT"
+        else
+            echo "Virtual environment activate script not found."
+            exit 1
+        fi
+    fi
+    ;;
+*)
+    echo "Unsupported OS: $OS"
+    exit 1
+    ;;
+esac
 
 # Determine user based on OS and run command accordingly
 if [[ "$(uname)" == "Linux" ]]; then
