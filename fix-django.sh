@@ -56,8 +56,6 @@ cp -r "$CWD/assets/systemctl/django-huey.service" "/etc/systemd/system/huey.serv
 chmod 755 "$CWD/assets/systemctl"
 chown root:root "$CWD/assets/systemctl/start_gunicorn.sh"
 chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
-chown root:root "$CWD/assets/systemctl/start_huey.sh"
-chmod +x "$CWD/assets/systemctl/start_huey.sh"
 
 function run_as_user_in_venv() {
     local COMMAND=$1
