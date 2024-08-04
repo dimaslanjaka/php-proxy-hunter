@@ -29,10 +29,7 @@ urlpatterns = [
     path(
         "sitemap.txt",
         serve,
-        {
-            "path": "sitemap.txt",
-            "document_root": os.path.join(settings.BASE_DIR, "public/static"),
-        },
+        {"path": "sitemap.txt", "document_root": settings.BASE_DIR},
     ),
 ]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
