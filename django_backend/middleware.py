@@ -90,7 +90,12 @@ class SitemapMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # Check if it's a GET request and the response status is 200
-        if request.method == "GET" and response.status_code == 200:
+        # and the response content type is html
+        if (
+            request.method == "GET"
+            and response.status_code == 200
+            and response.get("Content-Type", "").startswith("text/html")
+        ):
             # Get the current URL with query parameters
             url = self.get_full_url(request)
             # Append to sitemap.txt
