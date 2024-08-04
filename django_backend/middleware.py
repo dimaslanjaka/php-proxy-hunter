@@ -15,6 +15,7 @@ from django.http import HttpRequest, HttpResponse
 from django.middleware.csrf import CsrfViewMiddleware
 from django.utils.deprecation import MiddlewareMixin
 from htmlmin.minify import html_minify
+from filelock import FileLock, Timeout
 
 
 class CustomCsrfExemptMiddleware(MiddlewareMixin):
@@ -85,6 +86,7 @@ class FaviconMiddleware:
 class SitemapMiddleware(MiddlewareMixin):
     ignore_paths = ["/proxy/check", "/proxy/filter", "/sitemap", "/rss", "/atom"]
     initial_url = ["https://sh.webmanajemen.com/proxyManager.html"]
+    lock_file = os.path.join(settings.BASE_DIR, "sitemap.lock")
 
     def process_response(self, request, response):
         # Check if it's a GET request and the response status is 200
@@ -95,7 +97,7 @@ class SitemapMiddleware(MiddlewareMixin):
             self.append_to_sitemap(url)
         return response
 
-    def get_full_url(self, request: HttpRequest) -> str:
+    def get_full_url(self, request) -> str:
         # Get scheme and host from the request
         scheme = request.scheme
         host = request.get_host()
@@ -148,24 +150,27 @@ class SitemapMiddleware(MiddlewareMixin):
         # Define the path to sitemap.txt
         sitemap_path = os.path.join(settings.BASE_DIR, "sitemap.txt")
 
-        # Read the current contents of the file
-        existing_urls: Set[str] = set(self.initial_url)
-        if os.path.exists(sitemap_path):
-            with open(sitemap_path, "r", encoding="utf-8") as file:
-                for line in file:
-                    line = line.strip()
-                    if self.is_valid_url(line):
-                        p = urlparse(line)
-                        # skip indexing IP hostname
-                        if not is_valid_ip(p.hostname):
-                            existing_urls.add(line)
+        # Use file locking to prevent concurrent access
+        lock = FileLock(self.lock_file, timeout=10)  # Timeout is optional
+        with lock:
+            # Read the current contents of the file
+            existing_urls: Set[str] = set(self.initial_url)
+            if os.path.exists(sitemap_path):
+                with open(sitemap_path, "r", encoding="utf-8") as file:
+                    for line in file:
+                        line = line.strip()
+                        if self.is_valid_url(line):
+                            p = urlparse(line)
+                            # Skip indexing IP hostname
+                            if not is_valid_ip(p.hostname):
+                                existing_urls.add(line)
 
-        # Add the new URL if it's not already in the set
-        if url not in existing_urls:
-            existing_urls.add(url)
+            # Add the new URL if it's not already in the set
+            if url not in existing_urls:
+                existing_urls.add(url)
 
-        # Write the updated URLs to the file
-        with open(sitemap_path, "w", encoding="utf-8") as file:
-            for line in sorted(existing_urls):
-                if line:  # Ensure no empty strings are written
-                    file.write(line.strip() + "\n")
+            # Write the updated URLs to the file
+            with open(sitemap_path, "w", encoding="utf-8") as file:
+                for line in sorted(existing_urls):
+                    if line:  # Ensure no empty strings are written
+                        file.write(line.strip() + "\n")

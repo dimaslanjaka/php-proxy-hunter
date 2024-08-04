@@ -53,3 +53,4 @@ pyvirtualdisplay
 -e file:packages/rsa-utility
 huey[backends]
 gevent
+filelock
