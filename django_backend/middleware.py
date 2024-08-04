@@ -158,12 +158,7 @@ class SitemapMiddleware(MiddlewareMixin):
             if os.path.exists(sitemap_path):
                 with open(sitemap_path, "r", encoding="utf-8") as file:
                     for line in file:
-                        line = line.strip()
-                        if self.is_valid_url(line):
-                            p = urlparse(line)
-                            # Skip indexing IP hostname
-                            if not is_valid_ip(p.hostname):
-                                existing_urls.add(line)
+                        existing_urls.add(line)
 
             # Add the new URL if it's not already in the set
             if url not in existing_urls:
@@ -172,5 +167,9 @@ class SitemapMiddleware(MiddlewareMixin):
             # Write the updated URLs to the file
             with open(sitemap_path, "w", encoding="utf-8") as file:
                 for line in sorted(existing_urls):
-                    if line:  # Ensure no empty strings are written
-                        file.write(line.strip() + "\n")
+                    line = line.strip()
+                    if self.is_valid_url(line):
+                        p = urlparse(line)
+                        # Skip indexing IP hostname
+                        if not is_valid_ip(p.hostname):
+                            file.write(line.strip() + "\n")
