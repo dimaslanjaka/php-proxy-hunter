@@ -1,5 +1,8 @@
+import json
 import os
 import sys
+
+from proxy_hunter.utils import is_valid_ip
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
@@ -34,95 +37,124 @@ def cleanup_threads():
     }
 
 
-def fetch_geo_ip(proxy: Optional[str] = None):
-    if not proxy:
-        return
-    # validate proxy
-    valid = is_valid_proxy(proxy)
-    if not valid:
-        execute_sql_query("DELETE FROM proxies WHERE proxy = ?", (proxy,))
-        print(f"{proxy} invalid - removed")
+def fetch_geo_ip(data: Optional[str] = None):
+    if not data:
         return
 
+    result = {"error": None, "messages": None, "data": None}
+
+    # validation
+    valid_proxy = is_valid_proxy(data)
+    if not valid_proxy:
+        execute_sql_query("DELETE FROM proxies WHERE proxy = ?", (data,))
+        print(f"{data} invalid - removed")
+
+    valid_ip = is_valid_ip(data)
+    if not valid_ip and not valid_proxy:
+        result.update(
+            {
+                "error": True,
+                "messages": "Invalid data. Only accept IP:PORT or IP only",
+            }
+        )
+
     save = False
-    select = execute_select_query("SELECT * FROM proxies WHERE proxy = ?", (proxy,))
+    if valid_proxy:
+        select = execute_select_query("SELECT * FROM proxies WHERE proxy = ?", (data,))
+    elif valid_ip:
+        select = execute_select_query(
+            "SELECT * FROM proxies WHERE proxy LIKE ?", (f"%{data}%",)
+        )
+
     model: Optional[dict] = None
     if select:
         model = select[0]
-    result = {"error": None, "data": None}
+    else:
+        result["messages"] = f"fail get geolocation {data}"
 
-    # Fetch geo IP details if necessary
-    if model["timezone"] is None or model["country"] is None or model["lang"] is None:
-        detail = get_geo_ip2(model["proxy"], model["username"], model["password"])
-        if detail:
-            if model["city"] is None and detail.city:
-                model["city"] = detail.city
-                save = True
-            if model["country"] is None and detail.country_name:
-                model["country"] = detail.country_name
-                save = True
-            if model["timezone"] is None and detail.timezone:
-                model["timezone"] = detail.timezone
-                save = True
-            if model["latitude"] is None and detail.latitude:
-                model["latitude"] = detail.latitude
-                save = True
-            if model["longitude"] is None and detail.longitude:
-                model["longitude"] = detail.longitude
-                save = True
-            if model["region"] is None and detail.region_name:
-                model["region"] = detail.region_name
-                save = True
-            if model["lang"] is None and detail.lang:
-                model["lang"] = detail.lang if detail.lang else "en"
-                save = True
-        else:
-            result["error"] = f"fetch_geo_ip Failed geolocation for {model['proxy']}"
-            log_file(result_log_file, result["error"])
+    if model is not None:
+        # Fetch geo IP details if necessary
+        if (
+            model["timezone"] is None
+            or model["country"] is None
+            or model["lang"] is None
+        ):
+            detail = get_geo_ip2(model["proxy"], model["username"], model["password"])
+            if detail:
+                if model["city"] is None and detail.city:
+                    model["city"] = detail.city
+                    save = True
+                if model["country"] is None and detail.country_name:
+                    model["country"] = detail.country_name
+                    save = True
+                if model["timezone"] is None and detail.timezone:
+                    model["timezone"] = detail.timezone
+                    save = True
+                if model["latitude"] is None and detail.latitude:
+                    model["latitude"] = detail.latitude
+                    save = True
+                if model["longitude"] is None and detail.longitude:
+                    model["longitude"] = detail.longitude
+                    save = True
+                if model["region"] is None and detail.region_name:
+                    model["region"] = detail.region_name
+                    save = True
+                if model["lang"] is None and detail.lang:
+                    model["lang"] = detail.lang if detail.lang else "en"
+                    save = True
+            else:
+                result["error"] = (
+                    f"fetch_geo_ip Failed geolocation for {model['proxy']}"
+                )
+                log_file(result_log_file, result["error"])
 
-    # Fetch WebGL data if necessary
-    if (
-        model["webgl_renderer"] is None
-        or model["webgl_vendor"] is None
-        or model["browser_vendor"] is None
-    ):
-        webgl_data = random_webgl_data()
-        if webgl_data:
-            if model["webgl_renderer"] is None and webgl_data.webgl_renderer:
-                model["webgl_renderer"] = webgl_data.webgl_renderer
-                save = True
-            if model["webgl_vendor"] is None and webgl_data.webgl_vendor:
-                model["webgl_vendor"] = webgl_data.webgl_vendor
-                save = True
-            if model["browser_vendor"] is None and webgl_data.browser_vendor:
-                model["browser_vendor"] = webgl_data.browser_vendor
+        # Fetch WebGL data if necessary
+        if (
+            model["webgl_renderer"] is None
+            or model["webgl_vendor"] is None
+            or model["browser_vendor"] is None
+        ):
+            webgl_data = random_webgl_data()
+            if webgl_data:
+                if model["webgl_renderer"] is None and webgl_data.webgl_renderer:
+                    model["webgl_renderer"] = webgl_data.webgl_renderer
+                    save = True
+                if model["webgl_vendor"] is None and webgl_data.webgl_vendor:
+                    model["webgl_vendor"] = webgl_data.webgl_vendor
+                    save = True
+                if model["browser_vendor"] is None and webgl_data.browser_vendor:
+                    model["browser_vendor"] = webgl_data.browser_vendor
+                    save = True
+
+        # Fetch user agent if necessary
+        if model["useragent"] is None:
+            useragent = random_windows_ua()
+            if useragent:
+                model["useragent"] = useragent
                 save = True
 
-    # Fetch user agent if necessary
-    if model["useragent"] is None:
-        useragent = random_windows_ua()
-        if useragent:
-            model["useragent"] = useragent
-            save = True
-
-    if save and model:
-        try:
-            # Remove 'id' from the dictionary if it exists
-            model.pop("id", None)
-            # Extract column names and values
-            columns = ", ".join(model.keys())
-            placeholders = ", ".join(["?"] * len(model))
-            values = tuple(model.values())
-            # Construct the query
-            query = (
-                f"INSERT OR REPLACE INTO proxies ({columns}) VALUES ({placeholders})"
-            )
-            execute_sql_query(query, values)
-            log_file(result_log_file, f"fetch_geo_ip success {model}")
-        except Exception as e:
-            result["error"] = f"fetch_geo_ip fail update proxy {model['proxy']}. {e}"
-            log_file(result_log_file, result["error"])
+        if save:
+            try:
+                # Remove 'id' from the dictionary if it exists
+                model.pop("id", None)
+                # Extract column names and values
+                columns = ", ".join(model.keys())
+                placeholders = ", ".join(["?"] * len(model))
+                values = tuple(model.values())
+                # Construct the query
+                query = f"INSERT OR REPLACE INTO proxies ({columns}) VALUES ({placeholders})"
+                execute_sql_query(query, values)
+                log_file(
+                    result_log_file,
+                    f"fetch_geo_ip success {json.dumps(model, indent=4)}",
+                )
+            except Exception as e:
+                result["error"] = (
+                    f"fetch_geo_ip fail update proxy {model['proxy']}. {e}"
+                )
+                log_file(result_log_file, result["error"])
         result["data"] = model
+
     return result
 
 

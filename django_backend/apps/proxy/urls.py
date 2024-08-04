@@ -16,4 +16,5 @@ urlpatterns = [
         name="proxy_checker_result",
     ),
     path("filter", views.trigger_filter_ports_proxy, name="filter_duplicate_ports"),
+    path("geolocation/<proxy>", views.geolocation_view, name="geolocation"),
 ]
