@@ -3,6 +3,8 @@ import sys
 from typing import Set
 from urllib.parse import parse_qs, urlparse, urlunparse
 
+from proxy_hunter.utils import is_valid_ip
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import re
@@ -91,13 +93,6 @@ class SitemapMiddleware(MiddlewareMixin):
             url = self.get_full_url(request)
             # Append to sitemap.txt
             self.append_to_sitemap(url)
-            # Merge and deduplicate sitemaps
-            self.merge_and_deduplicate_sitemaps(
-                os.path.join(settings.BASE_DIR, "public", "static", "sitemap.txt"),
-                os.path.join(settings.BASE_DIR, "sitemap.txt"),
-                os.path.join(settings.BASE_DIR, "sitemap.txt"),
-            )
-
         return response
 
     def get_full_url(self, request: HttpRequest) -> str:
@@ -108,10 +103,8 @@ class SitemapMiddleware(MiddlewareMixin):
         # Determine if port should be included
         host_parts = host.split(":")
         if len(host_parts) == 2:
-            # Host already includes port
             host_with_port = f"{host_parts[0]}:{host_parts[1]}"
         else:
-            # Host does not include port
             if scheme == "https" and host in settings.ALLOWED_HOSTS:
                 prod_port = int(settings.PRODUCTION_PORT)
                 if prod_port not in (80, 443) and prod_port > 443:
@@ -126,41 +119,19 @@ class SitemapMiddleware(MiddlewareMixin):
 
         # Construct the full URL
         result = urlunparse((scheme, host_with_port, path, "", "", ""))
-        # print(f"sitemap {result}")
         return result
 
     def is_valid_url(self, url: str) -> bool:
         """Check if the URL is valid."""
-        try:
-            parsed = urlparse(url)
-            return all([parsed.scheme, parsed.netloc])
-        except Exception:
-            return False
+        parsed = urlparse(url)
 
-    def merge_and_deduplicate_sitemaps(self, file1, file2, output_file):
-        # Initialize a set to store unique lines
-        unique_lines: Set[str] = set(self.initial_url)
-
-        # Read lines from the first file if it exists
-        if os.path.exists(file1):
-            with open(file1, "r") as f1:
-                for line in f1:
-                    url = line.strip()
-                    if self.is_valid_url(url):
-                        unique_lines.add(url)
-
-        # Read lines from the second file if it exists
-        if os.path.exists(file2):
-            with open(file2, "r") as f2:
-                for line in f2:
-                    url = line.strip()
-                    if self.is_valid_url(url):
-                        unique_lines.add(url)
-
-        # Write unique lines to the output file
-        with open(output_file, "w") as f_out:
-            for line in sorted(unique_lines):
-                f_out.write(f"{line}\n")
+        # Check if the URL has a valid scheme and netloc
+        valid_schemes = {"http", "https"}
+        return (
+            parsed.scheme in valid_schemes
+            and bool(parsed.netloc)
+            and bool(parsed.path)  # Ensure there's a path, which is usually required
+        )
 
     def append_to_sitemap(self, url):
         # Parse the URL and check if it contains the `date` query parameter
@@ -175,26 +146,26 @@ class SitemapMiddleware(MiddlewareMixin):
             return  # Ignore URLs matching ignore_paths
 
         # Define the path to sitemap.txt
-        sitemap_path = os.path.join(
-            settings.BASE_DIR, "public", "static", "sitemap.txt"
-        )
-
-        # Ensure the directory exists
-        sitemap_dir = os.path.dirname(sitemap_path)
-        if not os.path.exists(sitemap_dir):
-            os.makedirs(sitemap_dir)  # Create the directory if it doesn't exist
+        sitemap_path = os.path.join(settings.BASE_DIR, "sitemap.txt")
 
         # Read the current contents of the file
         existing_urls: Set[str] = set(self.initial_url)
         if os.path.exists(sitemap_path):
-            with open(sitemap_path, "r") as file:
-                existing_urls = set(line.strip() for line in file if line.strip())
+            with open(sitemap_path, "r", encoding="utf-8") as file:
+                for line in file:
+                    line = line.strip()
+                    if self.is_valid_url(line):
+                        p = urlparse(line)
+                        # skip indexing IP hostname
+                        if not is_valid_ip(p.hostname):
+                            existing_urls.add(line)
 
         # Add the new URL if it's not already in the set
-        if url.strip() and url not in existing_urls:
-            existing_urls.add(url.strip())
+        if url not in existing_urls:
+            existing_urls.add(url)
 
         # Write the updated URLs to the file
-        with open(sitemap_path, "w") as file:
+        with open(sitemap_path, "w", encoding="utf-8") as file:
             for line in sorted(existing_urls):
-                file.write(line + "\n")
+                if line:  # Ensure no empty strings are written
+                    file.write(line.strip() + "\n")
