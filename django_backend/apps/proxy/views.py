@@ -2,7 +2,7 @@ import json
 import os
 import sys
 from threading import Thread, active_count
-from typing import Any, Dict, Set
+from typing import Any, Dict, Optional, Set
 from urllib.parse import unquote
 from django.views.decorators.cache import never_cache
 from django.conf import settings
@@ -17,7 +17,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
-
+from django.core.cache import cache as django_cache
 from src.func import file_append_str, get_relative_path, truncate_file_content
 from src.func_platform import is_django_environment
 from src.func_console import log_file
@@ -26,7 +26,7 @@ from .models import Proxy
 from .serializers import ProxySerializer
 from django_backend.apps.proxy.tasks_unit.geolocation import (
     global_tasks as tasks_geolocation,
-    fetch_geo_ip_in_thread,
+    fetch_geo_ip,
     cleanup_threads as tasks_geolocation_cleanup,
 )
 from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
@@ -379,3 +379,17 @@ def view_status(request: HttpRequest):
     response["Pragma"] = "no-cache"  # HTTP 1.0.
     response["Expires"] = "0"  # Proxies.
     return response
+
+
+def geolocation_view(request: HttpRequest, proxy: Optional[str] = None):
+    cache_key = f"geolocation_{proxy}"
+    value = django_cache.get(cache_key)
+    if value is None:
+        result = fetch_geo_ip(proxy)
+        if result:
+            django_cache.set(
+                cache_key, result, timeout=604800
+            )  # 604800 seconds = 1 week
+    else:
+        result = value
+    return JsonResponse(result)
