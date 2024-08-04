@@ -158,7 +158,8 @@ class SitemapMiddleware(MiddlewareMixin):
             if os.path.exists(sitemap_path):
                 with open(sitemap_path, "r", encoding="utf-8") as file:
                     for line in file:
-                        existing_urls.add(line)
+                        if line.strip() and line.strip() not in existing_urls:
+                            existing_urls.add(line)
 
             # Add the new URL if it's not already in the set
             if url not in existing_urls:
