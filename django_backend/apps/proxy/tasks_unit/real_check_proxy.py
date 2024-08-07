@@ -60,7 +60,10 @@ def cleanup_threads():
 
 
 def parse_working_proxies():
-    data = execute_select_query("SELECT * FROM proxies WHERE status = ?", ("active",))
+    data = execute_select_query(
+        "SELECT * FROM proxies WHERE status = ? AND timezone IS NOT NULL AND https = ?",
+        ("active", "true"),
+    )
     write_json(get_relative_path("working.json"), data)
 
 
