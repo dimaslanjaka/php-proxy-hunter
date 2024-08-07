@@ -324,5 +324,5 @@ def download_databases(folder):
 
 if __name__ == "__main__":
     # download_databases("src")
-    result = get_geo_ip2("104.17.75.127:80")
+    result = get_geo_ip2("184.185.2.12:4145")
     print(result)
