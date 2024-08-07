@@ -24,10 +24,27 @@
     </div>
   </div>
 
+  <div class="p-6 mx-auto">
+    <!-- Collapsible Button -->
+    <button id="collapse-button" data-collapse-toggle="collapse-content" type="button"
+      class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center">
+      Show Legend
+    </button>
+
+    <!-- Collapsible Content -->
+    <div id="collapse-content" class="hidden mt-4 p-4 rounded-lg">
+      <p>Green background = working proxies</p>
+      <p>Red background = dead proxies</p>
+      <p>No background = untested proxies</p>
+    </div>
+  </div>
+
   <!-- Search Input -->
   <div class="mb-4">
-    <form method="get" action="">
-      <input type="text" id="searchInput" name="search" class="p-2 w-full border rounded" placeholder="Search...">
+    <form method="get" action="" class="flex flex-col md:flex-row items-center">
+      <input type="text" id="searchInput" name="search" class="p-2 mb-2 md:mb-0 w-full border rounded"
+        placeholder="Search...">
+      <button type="submit" class="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full">Search</button>
     </form>
   </div>
 
@@ -60,95 +77,7 @@
           <th class="py-3 px-6 text-left w-32">Password</th>
         </tr>
       </thead>
-      <tbody class="text-gray-100 text-sm font-light">
-        {% for proxy in proxies %}
-        <tr
-          class="border-b border-gray-200 {% if proxy.status == 'active' %}proxy-active{% else %}proxy-dead{% endif %}">
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy|proxy_label }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.proxy|default:"-" }}
-          </td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {% if proxy.latency|default:"-" != "-" %}
-            {{ proxy.latency|default:"0" }} ms
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <!-- format time ago with django_backend/apps/proxy/templatetags/time_filters.py -->
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {{ proxy.last_check|time_ago }}</td>
-          <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.type|default:"-"|upper }}</td> -->
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {% if proxy.region|default:"-" != "-" %}
-            <a href="/proxy/?region={{ proxy.region }}" class="hover:underline">{{ proxy.region }}</a>
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {% if proxy.city|default:"-" != "-" %}
-            <a href="/proxy/?city={{ proxy.city }}" class="hover:underline">{{ proxy.city }}</a>
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {% if proxy.country|default:"-" != "-" %}
-            <a href="/proxy/?country={{ proxy.country }}" class="hover:underline">{{ proxy.country }}</a>
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {% if proxy.timezone|default:"-" != "-" %}
-            <a href="/proxy/?timezone={{ proxy.timezone }}" class="hover:underline">{{ proxy.timezone }}</a>
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {% if proxy.latitude %}
-            <a href="https://www.google.com/maps/search/?api=1&query={{ proxy.latitude }},{{ proxy.longitude }}"
-              rel="nofollow noopener" target="_blank" class="text-blue-500 hover:underline">{{ proxy.latitude }}</a>
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {% if proxy.longitude %}
-            <a href="https://www.google.com/maps/search/?api=1&query={{ proxy.latitude }},{{ proxy.longitude }}"
-              rel="nofollow noopener" target="_blank" class="text-blue-500 hover:underline">{{ proxy.longitude }}</a>
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {{ proxy.anonymity|default:"-" }}</td>
-          <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.https|default:"-" }}</td> -->
-          <!-- <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.status|default:"-" }}</td> -->
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {{ proxy.private|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">{{ proxy.lang|default:"-" }}
-          </td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {{ proxy.useragent|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {{ proxy.webgl_vendor|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {{ proxy.webgl_renderer|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {{ proxy.browser_vendor|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {{ proxy.username|default:"-" }}</td>
-          <td class="py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            {{ proxy.password|default:"-" }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="21" class="py-3 px-6 text-center">No proxies found.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
+      <tbody class="text-gray-100 text-sm font-light" id="proxy-items"></tbody>
     </table>
   </div>
 
