@@ -1,159 +1,78 @@
-import json
 import os
 import sys
 from threading import Thread, active_count
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, Optional
 from urllib.parse import unquote
-from django.views.decorators.cache import never_cache
-from django.conf import settings
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Case, IntegerField, Value, When
 
-from django_backend.apps.core.utils import get_query_or_post_body
+from django.conf import settings
+from django.views.decorators.cache import never_cache
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
-from django.core.paginator import Paginator
+from django.core.cache import cache as django_cache
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
-from django.core.cache import cache as django_cache
-from src.func import file_append_str, get_relative_path, truncate_file_content
-from src.func_platform import is_django_environment
-from src.func_console import log_file
 
-from .models import Proxy
-from .serializers import ProxySerializer
-from django_backend.apps.proxy.tasks_unit.geolocation import (
-    global_tasks as tasks_geolocation,
-    fetch_geo_ip,
-    cleanup_threads as tasks_geolocation_cleanup,
+from django_backend.apps.core.utils import get_query_or_post_body
+from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
+    global_tasks as filter_ports_threads,
 )
 from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
-    start_filter_duplicates_ips,
     start_check_open_ports,
-    global_tasks as filter_ports_threads,
+    start_filter_duplicates_ips,
+)
+from django_backend.apps.proxy.tasks_unit.geolocation import (
+    cleanup_threads as tasks_geolocation_cleanup,
+)
+from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
+from django_backend.apps.proxy.tasks_unit.geolocation import (
+    global_tasks as tasks_geolocation,
+)
+from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
+    cleanup_threads as tasks_checker_cleanup,
+)
+from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
+    global_tasks as proxy_checker_threads,
 )
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
     reak_check_proxy_huey,
     real_check_proxy_async_in_thread,
-    result_log_file as proxy_checker_task_log_file,
-    global_tasks as proxy_checker_threads,
-    cleanup_threads as tasks_checker_cleanup,
 )
+from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
+    result_log_file as proxy_checker_task_log_file,
+)
+from django_backend.apps.proxy.views_unit.proxy import (
+    get_page_title,
+    get_proxy_list,
+)
+from src.func import file_append_str, get_relative_path, truncate_file_content
+from src.func_console import log_file
+from src.func_platform import is_django_environment
+
+from .models import Proxy
+from .serializers import ProxySerializer
 
 
 def index(request: HttpRequest):
-    # Get query parameters
-    filters = {
-        "country": request.GET.get("country"),
-        "city": request.GET.get("city"),
-        "status": request.GET.get("status"),
-        "timezone": request.GET.get("timezone"),
-        "region": request.GET.get("region"),
-        "type": request.GET.get("type"),
-        "https": request.GET.get("https"),
-    }
-    search_query = request.GET.get("search")
-    page_title = "Free Premium Proxy Lists"
-
-    # Build the query
-    query = Q()
-    if filters["status"]:
-        query &= Q(status=filters["status"])
-    if filters["country"]:
-        page_title = f"{filters['country']} Proxy List"
-        query &= Q(country=filters["country"])
-    if filters["city"]:
-        page_title = f"{filters['city']} Proxy List"
-        query &= Q(city=filters["city"])
-    if filters["timezone"]:
-        page_title = f"Proxy List Timezone {filters['timezone']}"
-        query &= Q(timezone=filters["timezone"])
-    if filters["region"]:
-        page_title = f"{filters['region']} Proxy List"
-        query &= Q(region=filters["region"])
-    if filters["type"]:
-        page_title = f"{filters['type'].upper()} Proxy List"
-        query &= Q(type__icontains=filters["type"])
-    if filters["https"]:
-        page_title = "HTTPS/SSL Proxy List"
-        query &= Q(https__icontains="true")
-    if search_query:
-        query &= Q(
-            Q(proxy__icontains=search_query)
-            | Q(region__icontains=search_query)
-            | Q(city__icontains=search_query)
-            | Q(country__icontains=search_query)
-            | Q(timezone__icontains=search_query)
-        )
-
-    # Apply filters and annotations
-    proxy_list = (
-        Proxy.objects.filter(query)
-        .annotate(
-            is_active=Case(
-                When(status="active", then=Value(1)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
-        )
-        .order_by("-is_active", "-last_check")
-    )
-
-    # Paginate the results
-    paginator = Paginator(proxy_list, 30)
-    page_number = request.GET.get("page")
-
-    try:
-        if page_number:
-            page_title += f" Page {page_number}"
-        proxies = paginator.page(page_number)
-    except PageNotAnInteger:
-        proxies = paginator.page(1)
-    except EmptyPage:
-        proxies = paginator.page(paginator.num_pages)
-
-    # Fetch missing details in a background thread
-    # fetch_geo_ip_in_thread(proxies.object_list)
-
+    page_title = get_page_title(request)
+    proxies, pagination_title = get_proxy_list(request)
     return render(
         request,
         "proxy_list_index.html",
-        {"request": request, "proxies": proxies, "page_title": page_title},
+        {
+            "request": request,
+            "proxies": proxies,
+            "page_title": f"{page_title} {pagination_title}".strip(),
+        },
     )
 
 
 def proxies_list(request: HttpRequest):
-    max = 10
-    status = "all"
-    proxies = None
-    if request.method == "GET":
-        max = int(request.GET.get("max", "10"))
-        status = request.GET.get("status", "all")
-    elif request.method == "POST":
-        max = int(request.POST.get("max", "10"))
-        status = request.POST.get("status", "all")
-    else:
-        return JsonResponse(
-            {"error": True, "message": "Unsupported request method"}, status=405
-        )
-
-    if max == 0:
-        max = 10
-    if status == "all":
-        proxies = Proxy.objects.all()[:max]
-    elif status in ["active", "dead", "port-closed"]:
-        proxies = Proxy.objects.filter(status=status)[:max]
-    elif status == "private":
-        proxies = Proxy.objects.filter(Q(status="private") | Q(status="true"))[:max]
-    print(f"status={status} max={max} result={len(proxies)}")
+    proxies, _ = get_proxy_list(request)
     if not proxies:
         return JsonResponse({"error": "no data"})
     serializer = ProxySerializer(proxies, many=True)  # Serialize queryset
-
-    # Alternatively, if not using DRF:
-    # data = [{'proxy': proxy.proxy, 'latency': proxy.latency, ...} for proxy in proxies]
 
     return JsonResponse(serializer.data, safe=False)
 
@@ -383,13 +302,13 @@ def view_status(request: HttpRequest):
 
 def geolocation_view(request: HttpRequest, proxy: Optional[str] = None):
     cache_key = f"geolocation_{proxy}"
-    value = django_cache.get(cache_key)
-    if value is None:
-        result = fetch_geo_ip(proxy)
-        if result:
-            django_cache.set(
-                cache_key, result, timeout=604800
-            )  # 604800 seconds = 1 week
+    # value = django_cache.get(cache_key)
+    # if value is None:
+    result = fetch_geo_ip(proxy)
+    if result:
+        django_cache.set(cache_key, result, timeout=604800)
     else:
-        result = value
+        result = {"Error": True, "messages": f"Fail get geolocation of {proxy}"}
+    # else:
+    #     result = value
     return JsonResponse(result)
