@@ -92,8 +92,12 @@ function init_table() {
               if (key == "last_check" && val.length > 10) {
                 // last_check column
                 val = timeAgo(val);
-              } else {
-                val = `<a href="/proxy/?${key}=${val}">${val}</a>`;
+              } else if (key == "country" || key == "region" || key == "city" || key == "timezone") {
+                // local hyperlink column
+                val = `<a class="hover:underline" target="_blank" href="/proxy/?${key}=${val}">${val}</a>`;
+              } else if ((key == "latitude" || key == "longitude") && item["latitude"] && item["longitude"]) {
+                // google maps hyperlink column
+                val = `<a class="hover:underline" target="_blank" href="https://www.google.com/maps/search/?api=1&query=${item["latitude"]},${item["longitude"]}">${val}</a>`;
               }
               td.innerHTML = val;
               tr.appendChild(td);
