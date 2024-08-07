@@ -40,6 +40,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
 
 // Array of URLs to fetch content from
 $urls = [
+  "https://github.com/zloi-user/hideip.me/blob/main/connect.txt",
   "https://proxies.lat/proxy.txt",
   "https://api.openproxylist.xyz/http.txt",
   "https://api.openproxylist.xyz/socks5.txt",

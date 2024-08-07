@@ -97,6 +97,7 @@ https://multiproxy.org/txt_anon/proxy.txt
 https://proxyspace.pro/http.txt
 https://proxyspace.pro/https.txt
 https://proxies.lat/proxy.txt
+https://raw.githubusercontent.com/zloi-user/hideip.me/main/http.txt
 
 HTTPS RAW:
 https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/https.txt
@@ -106,6 +107,7 @@ https://raw.githubusercontent.com/mmpx12/proxy-list/master/https.txt
 https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW.txt
 https://www.proxyscan.io/download?type=https
 https://raw.githubusercontent.com/aslisk/proxyhttps/main/https.txt
+https://raw.githubusercontent.com/zloi-user/hideip.me/main/https.txt
 
 SOCKS4 RAW:
 https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt
