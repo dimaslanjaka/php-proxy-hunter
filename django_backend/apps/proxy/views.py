@@ -302,13 +302,13 @@ def view_status(request: HttpRequest):
 
 def geolocation_view(request: HttpRequest, proxy: Optional[str] = None):
     cache_key = f"geolocation_{proxy}"
-    # value = django_cache.get(cache_key)
-    # if value is None:
-    result = fetch_geo_ip(proxy)
-    if result:
-        django_cache.set(cache_key, result, timeout=604800)
+    value = django_cache.get(cache_key)
+    if value is None:
+        result = fetch_geo_ip(proxy)
+        if result:
+            django_cache.set(cache_key, result, timeout=604800)
+        else:
+            result = {"Error": True, "messages": f"Fail get geolocation of {proxy}"}
     else:
-        result = {"Error": True, "messages": f"Fail get geolocation of {proxy}"}
-    # else:
-    #     result = value
+        result = value
     return JsonResponse(result)
