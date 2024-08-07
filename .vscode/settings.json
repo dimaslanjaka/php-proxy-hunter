@@ -148,5 +148,17 @@
   "python.analysis.extraPaths": [
     "./packages/proxy-hunter-python",
     "./packages/proxy-checker-python"
+  ],
+  "python.analysis.exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/build",
+    ".git",
+    "venv/**",
+    "**/bin",
+    "**/vendor",
+    "**/*.egg-info",
+    "**/tmp/**",
+    "**/dist"
   ]
 }
