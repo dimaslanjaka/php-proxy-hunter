@@ -11,18 +11,18 @@ USER="www-data"
 
 # Detect python virtual bin by operating system
 if [ "$(uname -s)" = "Darwin" ] || [ "$(uname -s)" = "Linux" ]; then
-    # Unix-based systems (Linux, macOS)
-    VENV_BIN="$CWD/venv/bin"
+  # Unix-based systems (Linux, macOS)
+  VENV_BIN="$CWD/venv/bin"
 else
-    # Assume Windows
-    VENV_BIN="$CWD/venv/Scripts"
+  # Assume Windows
+  VENV_BIN="$CWD/venv/Scripts"
 fi
 
 # Check if PATH is set
 if [ -z "$PATH" ]; then
-    export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
+  export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
 else
-    export PATH=$PATH:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
+  export PATH=$PATH:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
 fi
 
 # Load .env file
@@ -79,3 +79,37 @@ php "$CWD/send_curl.php" --url=https://sh.webmanajemen.com:8443/proxy/check
 # r_cmd "python" "filterPortsDuplicate.py" "--max=10"
 # r_cmd "python" "proxyCheckerReal.py" "--max=10"
 djm check_proxies --max=10
+
+# Helper function to check if it's time to run a job
+should_run_job() {
+  local file_path=$1
+  local interval_hours=$2
+
+  current_time=$(date +%s)  # Current timestamp in seconds
+  interval_seconds=$((interval_hours * 60 * 60))  # Convert hours to seconds
+
+  # Check if timestamp file exists
+  if [ -f "$file_path" ]; then
+    last_fetch=$(cat "$file_path")
+    elapsed_time=$((current_time - last_fetch))
+
+    if [ $elapsed_time -ge $interval_seconds ]; then
+      # Update the timestamp file with the current time
+      echo "$current_time" > "$file_path"
+      return 0  # True, it's time to run the job
+    else
+      return 1  # False, it's not time to run the job
+    fi
+  else
+    # Create the file and update it with the current time
+    echo "$current_time" > "$file_path"
+    return 0  # True, file not found, so it's time to run the job
+  fi
+}
+
+mkdir -p tmp/crontab
+
+# run sync proxies every 6 hours
+if should_run_job "tmp/crontab/djm_sync_proxies" 6; then
+  djm sync_proxies
+fi
