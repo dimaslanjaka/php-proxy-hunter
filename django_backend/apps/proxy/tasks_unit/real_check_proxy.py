@@ -276,6 +276,8 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         https = False
         status = None
         latency = 0
+        if not proxy_obj.proxy:
+            continue
         # validate proxy
         valid = is_valid_proxy(proxy_obj.proxy)
         if not valid:
@@ -357,7 +359,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 if "cannot schedule new futures" not in str(e).lower():
                     traceback.print_exc()
 
-        if status is not None and proxy_obj.proxy:
+        if status is not None:
             last_check = get_current_rfc3339_time()
             # log_file(result_log_file, f"{proxyClass.proxy} last check {last_check}")
             data = {
