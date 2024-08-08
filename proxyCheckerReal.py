@@ -11,21 +11,22 @@ from joblib import Parallel, delayed
 from src.func import (
     file_append_str,
     get_relative_path,
+    get_unique_dicts_by_key_in_list,
     sanitize_filename,
     truncate_file_content,
+    write_json,
 )
-from src.func_console import green, red
+from src.func_console import green, red, log_proxy
 from src.func_proxy import check_proxy, build_request
 from src.ProxyDB import ProxyDB
 from proxy_checker import ProxyChecker
 
-# check proxy with matching the title of response
-
 
 def real_check(proxy: str, url: str, title_should_be: str):
-    # print('=' * 30)
-    # print(f"CHECKING {proxy}")
-    # print('=' * 30)
+    """check proxy with matching the title of response"""
+    # log_proxy('=' * 30)
+    # log_proxy(f"CHECKING {proxy}")
+    # log_proxy('=' * 30)
 
     protocols = []
     output_file = get_relative_path(f"tmp/logs/{sanitize_filename(proxy)}.txt")
@@ -63,7 +64,7 @@ def real_check(proxy: str, url: str, title_should_be: str):
             file_append_str(output_file, log)
 
     if os.path.exists(output_file):
-        print(f"logs written {output_file}")
+        log_proxy(f"logs written {output_file}")
 
     result = {
         "result": False,
@@ -73,10 +74,18 @@ def real_check(proxy: str, url: str, title_should_be: str):
         "type": protocols,
     }
     if protocols:
-        print(f"{proxy} {green('working')} -> {url} ({response_title})")
+        log_proxy(
+            f"{proxy} {green('working')} -> {url} ({response_title})".replace(
+                "()", ""
+            ).strip()
+        )
         result["result"] = True
     else:
-        print(f"{proxy} {red('dead')} -> {url} ({response_title})")
+        log_proxy(
+            f"{proxy} {red('dead')} -> {url} ({response_title})".replace(
+                "()", ""
+            ).strip()
+        )
         result["result"] = False
     return result
 
@@ -108,7 +117,7 @@ def real_anonymity(proxy: str):
             response_title = soup.title.string.strip() if soup.title else ""
             if "AZ Environment".lower() in response_title.lower():
                 result = checker.parse_anonymity(response.text)
-                print(f"{proxy} anonymity is {green(result)}")
+                log_proxy(f"{proxy} anonymity is {green(result)}")
                 # break when success
                 break
     return result
@@ -159,7 +168,7 @@ def real_latency(proxy: str):
             soup = BeautifulSoup(response.text, "html.parser")
             response_title = soup.title.string.strip() if soup.title else ""
             if title_should_be.lower() in response_title.lower():
-                print(f"{proxy} latency is {green(latency)} seconds")
+                log_proxy(f"{proxy} latency is {green(latency)} seconds")
                 # break when success
                 break
     return latency
@@ -190,14 +199,26 @@ def worker(item: Dict[str, str]):
                     "type": ("-".join(test["type"]).lower() if "type" in test else ""),
                 },
             )
+            # write working.json
+            working_data = db.get_working_proxies()
+            # Process the list to replace empty values with None
+            working_data = [
+                {key: (value if value else None) for key, value in item.items()}
+                for item in working_data
+            ]
+            working_data = get_unique_dicts_by_key_in_list(working_data, "proxy")
+            write_json(get_relative_path("working.json"), working_data)
         else:
             db.update_status(item["proxy"], "dead")
+        return test
 
     except Exception as e:
-        print(f"Error processing item {item}: {str(e)}")
+        log_proxy(f"Error processing item {item}: {e}")
+        return {"result": False, "error": e}
 
     finally:
         db.close()
+        return {"result": False}
 
 
 def using_pool(proxies: List[Dict[str, str]], pool_size: int = 5):
@@ -211,21 +232,22 @@ def using_pool(proxies: List[Dict[str, str]], pool_size: int = 5):
         pool.apply_async(worker, (item,))
     pool.close()
     pool.join()
+    return pool
 
 
 def using_joblib(proxies: List[Dict[str, str]], pool_size: int = 5):
-    Parallel(n_jobs=pool_size)(delayed(worker)(item) for item in proxies)
+    return Parallel(n_jobs=pool_size)(delayed(worker)(item) for item in proxies)
 
 
 def test():
     proxy = "45.138.87.238:1080"  # 35.185.196.38:3128
     cek = real_check(proxy, "https://bing.com", "bing")
     if not cek["result"]:
-        print(f"{proxy} dead")
+        log_proxy(f"{proxy} dead")
     if not real_anonymity(proxy):
-        print(f"{proxy} fail get anonymity")
+        log_proxy(f"{proxy} fail get anonymity")
     if not real_latency(proxy):
-        print(f"{proxy} fail get latency")
+        log_proxy(f"{proxy} fail get latency")
 
 
 if __name__ == "__main__":
@@ -237,7 +259,7 @@ if __name__ == "__main__":
         max = args.max
 
     db = ProxyDB(get_relative_path("src/database.sqlite"))
-    proxies: List[Dict[str, str | None]] = db.get_all_proxies()[:max]
+    proxies: List[Dict[str, str | None]] = db.get_all_proxies(True)[:max]
     random.shuffle(proxies)
 
     # using_pool(proxies, 5)
