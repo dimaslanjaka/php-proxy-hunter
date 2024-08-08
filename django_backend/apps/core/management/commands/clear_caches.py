@@ -17,6 +17,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         cache.clear()
-        delete_path(get_relative_path(".cache"))
+        delete_path(get_relative_path("tmp/requests_cache"))
         requests_cache.clear()
         self.stdout.write(self.style.SUCCESS("Cache cleared!"))
