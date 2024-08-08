@@ -163,6 +163,12 @@ def get_geo_ip2(
                                 region = region or new_data.get("region")
                                 region_code = region_code or new_data.get("regionCode")
                                 break
+                            else:
+                                print(
+                                    f"get_with_proxy failed {json.dumps(new_data, indent=2)}"
+                                )
+                        else:
+                            print(f"get_with_proxy failed. No response.")
                     except Exception as e:
                         print(f"Error with proxy request: {e}")
 
