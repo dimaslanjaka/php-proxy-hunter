@@ -171,7 +171,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_backend.middleware.MinifyHTMLMiddleware",  # minify html
+    # "django_backend.middleware.MinifyHTMLMiddleware",  # minify html
     "django_backend.middleware.SitemapMiddleware",  # write sitemap.txt
 ]
 
