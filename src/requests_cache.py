@@ -37,7 +37,7 @@ def cache_response(url: str, response: requests.Response) -> None:
         "content": response.content.decode("utf-8"),  # Use content for binary data
     }
 
-    with open(cache_file_path, "w") as file:
+    with open(cache_file_path, "w", encoding="utf-8") as file:
         json.dump(cache_data, file)
 
 
@@ -48,7 +48,7 @@ def load_cached_response(url: str) -> Optional[requests.Response]:
     if not os.path.exists(cache_file_path):
         return None
 
-    with open(cache_file_path, "r") as file:
+    with open(cache_file_path, "r", encoding="utf-8") as file:
         cache_data = json.load(file)
 
     # Check if the cache has expired
