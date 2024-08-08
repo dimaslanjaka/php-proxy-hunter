@@ -10,7 +10,7 @@ sys.path.append(
 
 import threading
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
-from typing import List, Optional, Set, Union
+from typing import Any, Dict, List, Optional, Set, Union
 
 from django.conf import settings
 from proxy_hunter import is_valid_proxy
@@ -66,16 +66,16 @@ def fetch_geo_ip(data: Optional[str] = None):
             "SELECT * FROM proxies WHERE proxy LIKE ?", (f"%{data}%",)
         )
 
-    model: Optional[dict] = None
+    model: Optional[Dict[str, Any]] = None
     if select:
         model = select[0]
     else:
         result["messages"] = f"fail get geolocation {data}"
 
-    if model:
-        # print("model", json.dumps(model, indent=2))
+    if model and model["proxy"]:
+        # print("geolocation model", json.dumps(model, indent=2))
         detail = get_geo_ip2(model["proxy"], model["username"], model["password"])
-        # print("detail", json.dumps(detail.to_dict(), indent=2))
+        # print("geolocation detail", json.dumps(detail.to_dict(), indent=2))
         if detail:
             model["city"] = detail.city
             model["country"] = detail.country_name
