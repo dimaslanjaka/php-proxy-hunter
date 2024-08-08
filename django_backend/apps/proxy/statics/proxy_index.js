@@ -104,10 +104,10 @@ function init_table() {
             }
             tbody.appendChild(tr);
             // fetch geolocation
-            if ((!item["timezone"] || !item["lang"]) && item["status"] == "active") {
-              // console.log(item["proxy"], "missing geolocation");
-              fetch(`/proxy/geolocation/${item["proxy"]}`);
-            }
+            // if ((!item["timezone"] || !item["lang"]) && item["status"] == "active") {
+            // console.log(item["proxy"], "missing geolocation");
+            if (item["status"] == "active") fetch(`/proxy/geolocation/${item["proxy"]}?date=` + new Date());
+            // }
           }
         } else {
           // empty proxy
