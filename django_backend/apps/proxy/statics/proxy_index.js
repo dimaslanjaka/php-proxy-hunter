@@ -15,22 +15,9 @@ function init_search() {
 function init_table() {
   const tbody = document.querySelector("#proxy-items");
   tbody.innerHTML = "";
-
-  // Step 1: Get the current URL's query parameters
   const queryString = window.location.search;
-
-  // Step 2: Parse the query string into a URLSearchParams object
   const params = new URLSearchParams(queryString);
-
-  // Step 3: Modify the parameters
-  // params.set("newParam", "newValue"); // Add or modify parameters
-  // params.delete("oldParam"); // Remove parameters
   params.set("max", "30");
-  // if (!params.has("status")) {
-  //   params.set("status", "active");
-  // }
-
-  // console.log(params);
 
   // Step 4: Convert the parameters back into a query string
   const updatedQueryString = params.toString();
@@ -169,7 +156,15 @@ function timeAgo(dateString) {
   return agoTime;
 }
 
-setTimeout(() => {
+function _ready() {
   init_search();
   init_table();
-}, 1500);
+  setTimeout(_ready, 30000);
+}
+
+if (typeof docReady == "function") {
+  // eslint-disable-next-line no-undef
+  docReady(_ready);
+} else {
+  setTimeout(_ready, 1500);
+}
