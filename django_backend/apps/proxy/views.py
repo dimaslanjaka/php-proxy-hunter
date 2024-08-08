@@ -1,18 +1,18 @@
 import os
 import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
+
 from threading import Thread, active_count
 from typing import Any, Dict, Optional
 from urllib.parse import unquote
 
 from django.conf import settings
-from django.views.decorators.cache import never_cache
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
-
 from django.core.cache import cache as django_cache
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.views.decorators.cache import never_cache
 
 from django_backend.apps.core.utils import get_query_or_post_body
 from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
@@ -42,11 +42,8 @@ from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
     result_log_file as proxy_checker_task_log_file,
 )
-from django_backend.apps.proxy.views_unit.proxy import (
-    get_page_title,
-    get_proxy_list,
-)
-from src.func import file_append_str, get_relative_path, truncate_file_content
+from django_backend.apps.proxy.views_unit.proxy import get_page_title, get_proxy_list
+from src.func import file_append_str, get_relative_path, is_debug, truncate_file_content
 from src.func_console import log_file
 from src.func_platform import is_django_environment
 
@@ -301,14 +298,17 @@ def view_status(request: HttpRequest):
 
 
 def geolocation_view(request: HttpRequest, proxy: Optional[str] = None):
-    cache_key = f"geolocation_{proxy}"
-    value = django_cache.get(cache_key)
-    if value is None:
-        result = fetch_geo_ip(proxy)
-        if result:
-            django_cache.set(cache_key, result, timeout=604800)
+    if not is_debug():
+        cache_key = f"geolocation_{proxy}"
+        value = django_cache.get(cache_key)
+        if value is None:
+            result = fetch_geo_ip(proxy)
+            if result:
+                django_cache.set(cache_key, result, timeout=604800)
+            else:
+                result = {"Error": True, "messages": f"Fail get geolocation of {proxy}"}
         else:
-            result = {"Error": True, "messages": f"Fail get geolocation of {proxy}"}
+            result = value
     else:
-        result = value
+        result = fetch_geo_ip(proxy)
     return JsonResponse(result)
