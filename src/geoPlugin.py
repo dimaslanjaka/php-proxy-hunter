@@ -141,15 +141,14 @@ def get_geo_ip2(
             languages = response.country.names.keys()
             lang = list(languages)[0] if languages else None
 
-            if not lang and country_code:
-                print(f"geo={proxy}", "fetching locale")
-                lang = get_locale_from_country_code(country_code)
-
-            if not all([city, timezone, region_name, region, region_code]):
+            if not all(
+                [lang, timezone, longitude, latitude, country_name, country_code]
+            ):
                 print(f"geo={proxy}", "fetching ip-get-geolocation.com")
                 for protocol in ["http", "socks5", "socks4"]:
                     try:
-                        url = "https://ip-get-geolocation.com/api/json"
+                        # limit 50 request each day (USE YOUR OWN KEY)
+                        url = f"https://ip-get-geolocation.com/api/json/{ip}?key=8e95a158295f2664e05859cce73f8507"
                         proxy_url = (
                             f"{proxy}@{proxy_username}:{proxy_password}"
                             if proxy_username and proxy_password
@@ -166,25 +165,28 @@ def get_geo_ip2(
                                 region_code = new_data.get("regionCode", region_code)
                                 country_name = new_data.get("country", country_name)
                                 country = new_data.get("country", country)
+                                latitude = new_data.get("lat", latitude)
+                                longitude = new_data.get("lon", longitude)
                                 break
                             else:
                                 print(
-                                    f"get_with_proxy failed {json.dumps(new_data, indent=2)}"
+                                    f"ip-get-geolocation.com failed {json.dumps(new_data, indent=2)}"
                                 )
                         else:
-                            print(f"get_with_proxy failed. No response.")
+                            print(f"ip-get-geolocation.com failed. No response.")
                     except Exception as e:
-                        print(f"Error with proxy request: {e}")
+                        print(f"ip-get-geolocation.com Error: {e}")
 
-            if not latitude or not longitude:
-                print(f"geo={proxy}", "fetching latitude and longitude")
+            if not all(
+                [lang, timezone, longitude, latitude, country_name, country_code]
+            ):
+                print(f"geo={proxy}", "fetching www.geoplugin.net")
                 conn = sqlite3.connect(get_relative_path("src/database.sqlite"))
                 cursor = conn.cursor()
                 cursor.execute(
                     "SELECT * from proxies WHERE status = 'active' ORDER BY RANDOM()"
                 )
                 rows = cursor.fetchall()
-
                 url = (
                     f"http://www.geoplugin.net/php.gp?ip={ip}&base_currency=USD&lang=en"
                 )
@@ -197,16 +199,16 @@ def get_geo_ip2(
                             if fetch_url:
                                 gp = GeoPlugin()
                                 gp.load_response(fetch_url)
-                                country_name = gp.countryName
-                                latitude = gp.latitude
-                                longitude = gp.longitude
-                                country_code = gp.countryCode
-                                timezone = gp.timezone
-                                city = gp.city
-                                region = gp.region
-                                region_code = gp.regionCode
-                                region_name = gp.regionName
-                                lang = gp.lang
+                                country_name = gp.countryName or country_name
+                                latitude = gp.latitude or latitude
+                                longitude = gp.longitude or longitude
+                                country_code = gp.countryCode or country_code
+                                timezone = gp.timezone or timezone
+                                city = gp.city or city
+                                region = gp.region or region
+                                region_code = gp.regionCode or region_code
+                                region_name = gp.regionName or region_name
+                                lang = gp.lang or lang
                                 break
                         except Exception as e:
                             print(
@@ -218,6 +220,9 @@ def get_geo_ip2(
 
             if country_code:
                 lang = get_locale_from_country_code(country_code)
+                if not lang:
+                    print(f"geo={proxy}", "fetching locale")
+                    lang = get_locale_from_country_code(country_code)
 
             return GeoIpResult(
                 city,
