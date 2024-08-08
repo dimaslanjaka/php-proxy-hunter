@@ -73,9 +73,9 @@ def fetch_geo_ip(data: Optional[str] = None):
         result["messages"] = f"fail get geolocation {data}"
 
     if model:
-        # print("model", model)
+        # print("model", json.dumps(model, indent=2))
         detail = get_geo_ip2(model["proxy"], model["username"], model["password"])
-        # print("detail", detail)
+        # print("detail", json.dumps(detail.to_dict(), indent=2))
         if detail:
             model["city"] = detail.city
             model["country"] = detail.country_name
@@ -120,10 +120,10 @@ def fetch_geo_ip(data: Optional[str] = None):
                 f"INSERT OR REPLACE INTO proxies ({columns}) VALUES ({placeholders})"
             )
             execute_sql_query(query, values)
-            log_file(
-                result_log_file,
-                f"fetch_geo_ip success {json.dumps(model, indent=4)}",
-            )
+            # log_file(
+            #     result_log_file,
+            #     f"fetch_geo_ip success {json.dumps(model, indent=4)}",
+            # )
         except Exception as e:
             result["error"] = f"fetch_geo_ip fail update proxy {model['proxy']}. {e}"
             log_file(result_log_file, result["error"])
