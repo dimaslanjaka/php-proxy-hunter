@@ -38,6 +38,7 @@ from src.func import (
     move_string_between,
     read_file,
     write_json,
+    get_unique_dicts_by_key_in_list,
 )
 from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
@@ -61,9 +62,11 @@ def cleanup_threads():
 
 def parse_working_proxies():
     data = execute_select_query(
-        "SELECT * FROM proxies WHERE status = ? AND timezone IS NOT NULL AND https = ?",
-        ("active", "true"),
+        "SELECT * FROM proxies WHERE status = ? AND timezone IS NOT NULL AND lang IS NOT NULL AND useragent IS NOT NULL AND webgl_vendor IS NOT NULL",
+        ("active",),
     )
+    # unique by key 'proxy'
+    data = get_unique_dicts_by_key_in_list(data, "proxy")
     write_json(get_relative_path("working.json"), data)
 
 
