@@ -142,9 +142,11 @@ def get_geo_ip2(
             lang = list(languages)[0] if languages else None
 
             if not lang and country_code:
+                print(f"geo={proxy}", "fetching locale")
                 lang = get_locale_from_country_code(country_code)
 
             if not all([city, timezone, region_name, region, region_code]):
+                print(f"geo={proxy}", "fetching ip-get-geolocation.com")
                 for protocol in ["http", "socks5", "socks4"]:
                     try:
                         url = "https://ip-get-geolocation.com/api/json"
@@ -157,11 +159,13 @@ def get_geo_ip2(
                         if response and response.ok:
                             new_data = response.json()
                             if new_data.get("status", "").lower() == "success":
-                                city = city or new_data.get("city")
-                                timezone = timezone or new_data.get("timezone")
-                                region_name = region_name or new_data.get("regionName")
-                                region = region or new_data.get("region")
-                                region_code = region_code or new_data.get("regionCode")
+                                city = new_data.get("city", city)
+                                timezone = new_data.get("timezone", timezone)
+                                region_name = new_data.get("regionName", region_name)
+                                region = new_data.get("region", region)
+                                region_code = new_data.get("regionCode", region_code)
+                                country_name = new_data.get("country", country_name)
+                                country = new_data.get("country", country)
                                 break
                             else:
                                 print(
@@ -173,6 +177,7 @@ def get_geo_ip2(
                         print(f"Error with proxy request: {e}")
 
             if not latitude or not longitude:
+                print(f"geo={proxy}", "fetching latitude and longitude")
                 conn = sqlite3.connect(get_relative_path("src/database.sqlite"))
                 cursor = conn.cursor()
                 cursor.execute(
