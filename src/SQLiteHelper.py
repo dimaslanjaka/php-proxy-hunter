@@ -80,7 +80,7 @@ class SQLiteHelper:
         """
         self.db_path = db_path
         self.conn = sqlite3.connect(db_path)
-        self.conn.execute('PRAGMA foreign_keys = ON')  # Enable foreign key support
+        self.conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign key support
         self.conn.row_factory = sqlite3.Row  # Access rows by column names
         self.cursor = self.conn.cursor()
 
@@ -95,7 +95,7 @@ class SQLiteHelper:
         Returns:
             None
         """
-        columns_str = ', '.join(columns)
+        columns_str = ", ".join(columns)
         sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_str})"
         self.cursor.execute(sql)
         self.conn.commit()
@@ -111,13 +111,20 @@ class SQLiteHelper:
         Returns:
             None
         """
-        columns = ', '.join(data.keys())
-        placeholders = ', '.join('?' * len(data))
+        columns = ", ".join(data.keys())
+        placeholders = ", ".join("?" * len(data))
         sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
         self.cursor.execute(sql, list(data.values()))
         self.conn.commit()
 
-    def select(self, table_name: str, columns: str = '*', where: Optional[str] = None, params: Optional[Union[tuple, list]] = None) -> List[dict]:
+    def select(
+        self,
+        table_name: str,
+        columns: str = "*",
+        where: Optional[str] = None,
+        params: Optional[Union[tuple, list]] = None,
+        rand: Optional[bool] = False,
+    ) -> List[dict]:
         """
         Selects rows from the table based on the given conditions.
 
@@ -133,11 +140,18 @@ class SQLiteHelper:
         sql = f"SELECT {columns} FROM {table_name}"
         if where:
             sql += f" WHERE {where}"
+        if rand:
+            sql += " ORDER BY RANDOM()"
         self.cursor.execute(sql, params or ())
         rows = self.cursor.fetchall()
         return [dict(row) for row in rows]
 
-    def count(self, table_name: str, where: Optional[str] = None, params: Optional[Union[tuple, list]] = None) -> int:
+    def count(
+        self,
+        table_name: str,
+        where: Optional[str] = None,
+        params: Optional[Union[tuple, list]] = None,
+    ) -> int:
         """
         Returns the number of rows matching the given conditions.
 
@@ -153,16 +167,24 @@ class SQLiteHelper:
         if where:
             sql += f" WHERE {where}"
         self.cursor.execute(sql, params or ())
-        count = self.cursor.fetchone()['count']
+        count = self.cursor.fetchone()["count"]
         return count if count is not None else 0
 
-    def update(self, table_name: str, data: dict, where: str, params: Optional[Union[tuple, list]] = None) -> None:
-        set_values = ', '.join(f"{key} = ?" for key in data)
+    def update(
+        self,
+        table_name: str,
+        data: dict,
+        where: str,
+        params: Optional[Union[tuple, list]] = None,
+    ) -> None:
+        set_values = ", ".join(f"{key} = ?" for key in data)
         sql = f"UPDATE {table_name} SET {set_values} WHERE {where}"
         self.cursor.execute(sql, list(data.values()) + (params or ()))
         self.conn.commit()
 
-    def delete(self, table_name: str, where: str, params: Optional[Union[tuple, list]] = None) -> None:
+    def delete(
+        self, table_name: str, where: str, params: Optional[Union[tuple, list]] = None
+    ) -> None:
         sql = f"DELETE FROM {table_name} WHERE {where}"
         self.cursor.execute(sql, params or ())
         self.conn.commit()
@@ -200,10 +222,14 @@ class SQLiteHelper:
         Returns:
             None
         """
-        with open(dump_path, 'w', encoding='utf-8') as f:
+        with open(dump_path, "w", encoding="utf-8") as f:
             for line in self.conn.iterdump():
-                if line and not line.startswith('BEGIN TRANSACTION') and not line.startswith('COMMIT'):
-                    f.write('%s\n' % line)
+                if (
+                    line
+                    and not line.startswith("BEGIN TRANSACTION")
+                    and not line.startswith("COMMIT")
+                ):
+                    f.write("%s\n" % line)
         print(f"Dump successful to {dump_path}")
 
     def dump_database_truncate(self, dump_path: str) -> None:
@@ -216,10 +242,12 @@ class SQLiteHelper:
         Returns:
             None
         """
-        with open(dump_path, 'w', encoding='utf-8') as f:
+        with open(dump_path, "w", encoding="utf-8") as f:
             # Get a list of tables in the database
             cursor = self.conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
+            )
             tables = cursor.fetchall()
 
             # Iterate over each table
@@ -227,23 +255,34 @@ class SQLiteHelper:
                 table_name = table[0]
 
                 # Skip the sqlite_sequence table
-                if table_name == 'sqlite_sequence':
+                if table_name == "sqlite_sequence":
                     continue
 
                 # Write DROP TABLE and CREATE TABLE statements for each table
-                cursor.execute(f"SELECT sql FROM sqlite_master WHERE name='{table_name}';")
+                cursor.execute(
+                    f"SELECT sql FROM sqlite_master WHERE name='{table_name}';"
+                )
                 create_table_statement = cursor.fetchone()[0]
-                f.write(f"DROP TABLE IF EXISTS \"{table_name}\";\n")
+                f.write(f'DROP TABLE IF EXISTS "{table_name}";\n')
                 f.write(f"{create_table_statement};\n")
 
                 # Dump data from the table, excluding the 'id' column
-                cursor.execute(f"SELECT * FROM \"{table_name}\";")
+                cursor.execute(f'SELECT * FROM "{table_name}";')
                 rows = cursor.fetchall()
                 if rows:
-                    columns = [description[0] for description in cursor.description if description[0] != 'id']
+                    columns = [
+                        description[0]
+                        for description in cursor.description
+                        if description[0] != "id"
+                    ]
                     for row in rows:
-                        values = [repr(row[column]) if row[column] is not None else 'NULL' for column in columns]
-                        f.write(f"INSERT INTO \"{table_name}\" ({', '.join(columns)}) VALUES ({', '.join(values)});\n")
+                        values = [
+                            repr(row[column]) if row[column] is not None else "NULL"
+                            for column in columns
+                        ]
+                        f.write(
+                            f"INSERT INTO \"{table_name}\" ({', '.join(columns)}) VALUES ({', '.join(values)});\n"
+                        )
 
         print(f"Dump successful to {dump_path}")
 
@@ -261,12 +300,12 @@ class SQLiteHelper:
         self.close()
         backup_path = None
         if os.path.exists(new_db_path):
-            backup_path = get_relative_path('tmp/sqliteHelper-backup.sqlite')
+            backup_path = get_relative_path("tmp/sqliteHelper-backup.sqlite")
             copy_file(new_db_path, backup_path)
             delete_path(new_db_path)
         try:
             new_conn = sqlite3.connect(new_db_path)
-            with open(dump_path, 'r', encoding='utf-8') as f:  # Specify encoding here
+            with open(dump_path, "r", encoding="utf-8") as f:  # Specify encoding here
                 sql_script = f.read()
             new_conn.executescript(sql_script)
             new_conn.close()

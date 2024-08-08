@@ -114,10 +114,10 @@ class ProxyDB:
             self.start_connection()
         return self.db.select("proxies", "*", "proxy = ?", [proxy.strip()])
 
-    def get_all_proxies(self) -> List[Dict[str, Union[str, None]]]:
+    def get_all_proxies(self, rand: Optional[bool] = False) -> List[Dict[str, Union[str, None]]]:
         if not self.db:
             self.start_connection()
-        return self.db.select("proxies", "*")
+        return self.db.select("proxies", "*", rand=rand)
 
     def remove(self, proxy):
         if not self.db:
