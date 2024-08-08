@@ -159,8 +159,8 @@ function timeAgo(dateString) {
 function _ready() {
   init_search();
   init_table();
-  // repeat every 2 mins
-  setTimeout(_ready, 120 * 1000);
+  // repeat init table every 2 mins
+  setInterval(init_table, 120 * 1000);
 }
 
 if (typeof docReady == "function") {
