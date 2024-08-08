@@ -7,6 +7,7 @@ sys.path.append(SRC_DIR)
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from src.func import delete_path, get_relative_path
+import requests_cache
 
 # python manage.py clear_caches
 
@@ -17,4 +18,5 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         cache.clear()
         delete_path(get_relative_path(".cache"))
+        requests_cache.clear()
         self.stdout.write(self.style.SUCCESS("Cache cleared!"))
