@@ -101,6 +101,8 @@ def execute_sql_query(
     """
     connections = get_db_connections()
     results = {"error": [], "items": [], "query": format_query(sql, params)}
+    # Transform None to NULL SQLite value
+    params = tuple("NULL" if p is None else p for p in params)
 
     for index, conn in enumerate(connections):
         conn_info = f"Connection {index}: {conn}" if conn else f"Connection {index}"
