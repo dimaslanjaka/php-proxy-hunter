@@ -134,7 +134,7 @@ def execute_select_query(
     return results
 
 
-def adjust_sql_query(sql: str, params: Tuple) -> Tuple[str, Tuple]:
+def adjust_sql_insert_query(sql: str, params: Tuple) -> Tuple[str, Tuple]:
     """
     Adjusts the SQL query and parameters based on None or 'NULL' values.
 
@@ -211,7 +211,8 @@ def execute_sql_query(
 
     try:
         # Adjust SQL query and parameters
-        sql, params = adjust_sql_query(sql, params)
+        if sql.lower().strip().startswith("insert"):
+            sql, params = adjust_sql_insert_query(sql, params)
     except ValueError as e:
         results["error"].append(str(e))
         return results
