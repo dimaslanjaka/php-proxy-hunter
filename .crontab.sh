@@ -74,11 +74,8 @@ r_cmd() {
 # r_cmd "python" "manage.py" "runserver"
 # r_cmd "php" "path/to/script.php" "arg1 arg2"
 
-php "$CWD/send_curl.php" --url=https://sh.webmanajemen.com:8443/proxy/check
-# bash "$CWD/bin/check-proxy-parallel"
 # r_cmd "python" "filterPortsDuplicate.py" "--max=10"
 # r_cmd "python" "proxyCheckerReal.py" "--max=10"
-djm check_proxies --max=10
 
 # Helper function to check if it's time to run a job
 should_run_job() {
@@ -109,7 +106,18 @@ should_run_job() {
 
 mkdir -p tmp/crontab
 
-# run sync proxies every 6 hours
-if should_run_job "tmp/crontab/djm_sync_proxies" 6; then
+# run every 6 hours
+if should_run_job "tmp/crontab/6-h" 6; then
   djm sync_proxies
+fi
+
+# run every hour
+if should_run_job "tmp/crontab/1-h" 1; then
+  php "$CWD/send_curl.php" --url=https://sh.webmanajemen.com:8443/proxy/check
+  djm check_proxies --max=100
+fi
+
+# run every 3 hours
+if should_run_job "tmp/crontab/3-h" 3; then
+  bash "$CWD/bin/check-proxy-parallel"
 fi
