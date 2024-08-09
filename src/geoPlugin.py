@@ -15,7 +15,7 @@ import requests
 from geoip2 import database
 
 from src.func import get_nuitka_file, get_relative_path, write_file
-from src.requests_cache import get_with_proxy
+from src.requests_cache import delete_cached_response, get_with_proxy
 from src.geoPluginClass import GeoPlugin
 
 
@@ -172,6 +172,8 @@ def get_geo_ip2(
                                 print(
                                     f"ip-get-geolocation.com failed {json.dumps(new_data, indent=2)}"
                                 )
+                                # delete cached response
+                                delete_cached_response(url)
                         else:
                             print(f"ip-get-geolocation.com failed. No response.")
                     except Exception as e:
