@@ -46,6 +46,7 @@ from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
 import huey
+from proxyWorking import ProxyWorkingManager
 
 result_log_file = get_relative_path("proxyChecker.txt")
 global_tasks: Set[Union[threading.Thread, Future]] = set()
@@ -62,23 +63,8 @@ def cleanup_threads():
 
 
 def write_working_proxies():
-    print("writing working.json")
-    data = execute_select_query(
-        "SELECT * FROM proxies WHERE status = ? AND timezone IS NOT NULL AND lang IS NOT NULL AND useragent IS NOT NULL AND webgl_vendor IS NOT NULL",
-        ("active",),
-    )
-    # unique by key 'proxy'
-    data = get_unique_dicts_by_key_in_list(data, "proxy")
-    file = get_relative_path("working.json")
-    read = read_file(file)
-    if read:
-        data2 = json.loads(read)
-        data2 = get_unique_dicts_by_key_in_list(data2, "proxy")
-        # Create a set of 'proxy' values from the first list for quick lookup
-        proxies_to_remove = {item["proxy"] for item in data}
-        data2 = [item for item in data2 if item["proxy"] not in proxies_to_remove]
-        data = get_unique_dicts_by_key_in_list(data + data2, "proxy")
-    write_json(file, data)
+    wmg = ProxyWorkingManager()
+    wmg._load_db()
 
 
 def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
