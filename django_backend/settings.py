@@ -20,7 +20,13 @@ from datetime import datetime, timedelta
 
 import dotenv
 from userscripts.parse_userscript import extract_domains_from_userscript
-from src.func import delete_path, get_relative_path, write_file
+from src.func import (
+    delete_path,
+    fix_permissions,
+    get_relative_path,
+    resolve_parent_folder,
+    write_file,
+)
 from src.func_platform import is_debug
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -81,6 +87,7 @@ CSRF_TRUSTED_ORIGINS = [
     for port in [8000, 8880, PRODUCTION_PORT]
 ]
 userscript_path = get_relative_path("userscripts/universal.user.js")
+fix_permissions(userscript_path)
 # Extract domains from the userscript
 userscript_domains = extract_domains_from_userscript(userscript_path)
 
@@ -290,8 +297,10 @@ write_file(
     ),
     "",
 )
+
 # reset log file every restart
 delete_path(LOGGING["handlers"]["file"]["filename"])
+resolve_parent_folder(LOGGING["handlers"]["file"]["filename"])
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
