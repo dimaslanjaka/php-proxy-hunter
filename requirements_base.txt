@@ -54,3 +54,4 @@ pyvirtualdisplay
 huey[backends]
 gevent
 filelock
+pycountry

@@ -1,8 +1,11 @@
 import os
+import re
 import sqlite3
 import sys
 import traceback
 from urllib.parse import urlparse
+import pycountry
+from proxy_hunter.utils import decompress_requests_response
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -197,10 +200,10 @@ def get_geo_ip2(
                     row_types = str(row[4]).split("-") if row[4] else []
                     for proxy_type in row_types:
                         try:
-                            fetch_url = get_with_proxy(url, proxy_type, row_proxy)
-                            if fetch_url:
+                            response = get_with_proxy(url, proxy_type, row_proxy)
+                            if response and response.ok:
                                 gp = GeoPlugin()
-                                gp.load_response(fetch_url)
+                                gp.load_response(response)
                                 country_name = gp.countryName or country_name
                                 latitude = gp.latitude or latitude
                                 longitude = gp.longitude or longitude
@@ -214,11 +217,39 @@ def get_geo_ip2(
                                 break
                         except Exception as e:
                             print(
-                                f"Error fetching geo location with {proxy_type}://{row_proxy}: {e}"
+                                f"www.geoplugin.net error {proxy_type}://{row_proxy}: {e}"
                             )
                             traceback.print_exc()
                     if latitude and longitude:
                         break
+
+            if not all([country_name, country_code]):
+                print(f"geo={proxy}", "fetching cloudflare.com")
+                url = "https://cloudflare.com/cdn-cgi/trace"
+                try:
+                    response = get_with_proxy(url, proxy_type, row_proxy)
+                    if response and response.ok:
+                        text = decompress_requests_response(response)
+
+                        # Split the text into lines using regex for different line endings
+                        lines = re.split(r"\r?\n", text.strip())
+
+                        # Create dictionary from lines
+                        data_dict = dict(
+                            line.split("=", 1) for line in lines if "=" in line
+                        )
+
+                        # Optional: Strip whitespace from keys and values
+                        data_dict = {k.strip(): v.strip() for k, v in data_dict.items()}
+
+                        country_code = data_dict["loc"]
+                        if country_code:
+                            test = get_country_name(country_code)
+                            if test:
+                                country_name = test
+                                country = test
+                except Exception:
+                    pass
 
             if country_code:
                 lang = get_locale_from_country_code(country_code)
@@ -241,6 +272,25 @@ def get_geo_ip2(
 
     except Exception as e:
         print(f"Error in geoIp2: {e}")
+        return None
+
+
+def get_country_name(country_code: str) -> Optional[str]:
+    """
+    Retrieve the country name from a given country code.
+
+    Args:
+        country_code (str): The 2-letter or 3-letter country code.
+
+    Returns:
+        Optional[str]: The name of the country if the code is valid, otherwise None.
+    """
+    try:
+        country = pycountry.countries.get(alpha_2=country_code)
+        if not country:
+            country = pycountry.countries.get(alpha_3=country_code)
+        return country.name if country else None
+    except LookupError:
         return None
 
 
