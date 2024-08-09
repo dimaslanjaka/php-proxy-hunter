@@ -87,7 +87,6 @@ CSRF_TRUSTED_ORIGINS = [
     for port in [8000, 8880, PRODUCTION_PORT]
 ]
 userscript_path = get_relative_path("userscripts/universal.user.js")
-fix_permissions(userscript_path)
 # Extract domains from the userscript
 userscript_domains = extract_domains_from_userscript(userscript_path)
 
