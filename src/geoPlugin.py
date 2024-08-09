@@ -1,19 +1,22 @@
 import os
-import re
-import sqlite3
 import sys
-import traceback
-from urllib.parse import urlparse
-import pycountry
-from proxy_hunter.utils import decompress_requests_response
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import json
 from datetime import datetime, timedelta
-from typing import Any, Optional, Union
-
+from typing import Any, List, Optional, Union
+import re
+import sqlite3
+import traceback
+from urllib.parse import urlparse
+import pycountry
+import pytz
+from proxy_hunter.utils import decompress_requests_response
+from timezonefinder import TimezoneFinder
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
 import requests
 from geoip2 import database
 
@@ -390,7 +393,71 @@ def download_databases(folder):
             print(f"Failed to download {url}")
 
 
+def get_timezones_by_country_code(country_code: str) -> Optional[List[str]]:
+    """
+    Get a list of timezones associated with a given country code.
+
+    Args:
+        country_code (str): The ISO 3166-1 alpha-2 country code (e.g., 'US').
+
+    Returns:
+        Optional[List[str]]: A list of timezone strings if found, otherwise None.
+    """
+    # Get the country name from the country code
+    country = pycountry.countries.get(alpha_2=country_code)
+    if not country:
+        return None
+
+    # Get all timezones
+    timezones = pytz.all_timezones
+
+    # Filter timezones based on the country
+    # Note: This method assumes timezones start with the country name, which may not be accurate.
+    country_timezones = [tz for tz in timezones if tz.startswith(f"{country.name}/")]
+
+    test = country_timezones if country_timezones else None
+    if not test:
+        timezones = pytz.country_timezones.get(country_code.upper())
+        test = timezones if timezones else None
+    if test:
+        return test
+    else:
+        geolocator = Nominatim(user_agent="timezone_lookup")
+        try:
+            location = geolocator.geocode(f"country code {country_code}")
+            if location:
+                return [
+                    location.raw.get("address", {}).get(
+                        "timezone", "No timezone information"
+                    )
+                ]
+            return None
+        except GeocoderTimedOut:
+            return None
+
+
+def get_timezones_by_lat_lon(latitude: float, longitude: float) -> Optional[List[str]]:
+    """
+    Get a list of timezones based on latitude and longitude.
+
+    Args:
+        latitude (float): The latitude coordinate.
+        longitude (float): The longitude coordinate.
+
+    Returns:
+        Optional[List[str]]: A list of timezone strings if found, otherwise None.
+    """
+    tf = TimezoneFinder()
+    timezone = tf.timezone_at(lat=latitude, lng=longitude)
+    return [timezone] if timezone else None
+
+
 if __name__ == "__main__":
     # download_databases("src")
-    result = get_geo_ip2("184.185.2.12:4145")
-    print(result)
+    geo = get_geo_ip2("184.185.2.12:4145")
+    if geo.country_code:
+        tzc = get_timezones_by_country_code(geo.country_code)
+        print(f"Timezone from country code:\t\t{tzc}")
+    if geo.latitude and geo.longitude:
+        tzl = get_timezones_by_lat_lon(geo.latitude, geo.longitude)
+        print(f"Timezone from latitude and longitude:\t{tzc}")
