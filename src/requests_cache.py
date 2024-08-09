@@ -11,7 +11,7 @@ from typing import List, Optional
 import requests
 from requests.exceptions import RequestException
 
-from src.func import get_relative_path, resolve_folder
+from src.func import delete_path, get_relative_path, resolve_folder
 from src.func_certificate import output_pem
 
 CACHE_DIR = get_relative_path("tmp/requests_cache")
@@ -57,6 +57,12 @@ def load_cached_response(url: str) -> Optional[requests.Response]:
         return None
 
     return MockResponse(cache_data)
+
+
+def delete_cached_response(url: str):
+    """delete saved response"""
+    cache_file_path = get_cache_file_path(url)
+    delete_path(cache_file_path)
 
 
 class MockResponse(requests.Response):
