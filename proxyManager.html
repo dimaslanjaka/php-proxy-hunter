@@ -49,19 +49,27 @@
 </head>
 
 <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
-  <div class="w-full text-center mb-4">
-    <script>
-      function redirectToProxy() {
-        const currentHost = window.location.hostname;
-        const port = 8443;
-        const pathname = '/proxy';
-        const url = `https://${currentHost}:${port}${pathname}`;
-        window.location.href = url;
-      }
-    </script>
-    <a href="#" onclick="redirectToProxy()" class="block text-blue-500 text-lg hover:underline">
-      Python Proxy Hunter
-    </a>
+  <div class="container">
+    <div class="flex justify-center mb-4">
+      <div class="text-center">
+        <img src="//tools.ip2location.com/468x60.png" border="0" width="468" height="60" />
+      </div>
+    </div>
+    <div class="mx-auto text-center mb-4">
+      <script>
+        function redirectToProxy() {
+          const currentHost = window.location.hostname;
+          const port = 8443;
+          const pathname = '/proxy';
+          const url = `https://${currentHost}:${port}${pathname}`;
+          window.location.href = url;
+        }
+      </script>
+      <i class="fa-sharp-duotone fa-solid fa-forward mr-2"></i> <a href="#" onclick="redirectToProxy()"
+        class="block text-lg hover:underline">
+        Python Proxy Hunter
+      </a>
+    </div>
   </div>
 
   <div class="mb-3 flex flex-col md:flex-row border border-gray-600 p-4" id="nav-info">
