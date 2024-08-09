@@ -86,7 +86,7 @@
       "type": "node-terminal"
     },
     {
-      "command": "python manage.py run_huey",
+      "command": "python manage.py run_huey --no-periodic --workers=20",
       "name": "Run huey",
       "request": "launch",
       "type": "node-terminal"
