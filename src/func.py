@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import stat
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
@@ -580,6 +581,33 @@ def file_append_str(filename: str, string_to_add: str) -> None:
         pass
 
 
+def fix_permissions(
+    folder_path: str,
+    desired_permissions: int = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO,
+) -> None:
+    """
+    Fixes the permissions of a folder.
+
+    Args:
+        folder_path (str): The path to the folder whose permissions need to be fixed.
+        desired_permissions (int): The desired permissions for the folder in octal format.
+
+    Returns:
+        None
+
+    Raises:
+        OSError: If there is an error changing the folder's permissions.
+    """
+    try:
+        # Change the folder permissions
+        os.chmod(folder_path, desired_permissions)
+        print(
+            f"Permissions of {folder_path} have been set to {oct(desired_permissions)}"
+        )
+    except OSError as e:
+        print(f"Error: {e}")
+
+
 def resolve_parent_folder(path: str) -> str:
     """
     Resolves the parent folder of the given path and creates it if it doesn't exist.
@@ -593,7 +621,15 @@ def resolve_parent_folder(path: str) -> str:
     parent_folder = os.path.dirname(path)
     if not os.path.exists(parent_folder):
         os.makedirs(parent_folder)
+    fix_permissions(parent_folder)
     return parent_folder
+
+
+def resolve_folder(path: str) -> str:
+    resolve_parent_folder(path)
+    os.makedirs(path, exist_ok=True)
+    fix_permissions(path)
+    return path
 
 
 def delete_path(path: str) -> None:
@@ -1021,6 +1057,7 @@ def get_random_profile(json_file):
 def md5(input_string: str) -> str:
     return hashlib.md5(input_string.encode()).hexdigest()
 
+
 def clean_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     """
     Remove keys from the dictionary where the value is empty (None or an empty string)
@@ -1032,4 +1069,8 @@ def clean_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: A new dictionary with unwanted key-value pairs removed.
     """
-    return {k: v for k, v in d.items() if (v not in [None, '', 0] and (isinstance(v, (int, float)) and v >= 0))}
+    return {
+        k: v
+        for k, v in d.items()
+        if (v not in [None, "", 0] and (isinstance(v, (int, float)) and v >= 0))
+    }
