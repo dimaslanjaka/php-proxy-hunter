@@ -242,7 +242,7 @@ def get_geo_ip2(
                             line.split("=", 1) for line in lines if "=" in line
                         )
 
-                        # Optional: Strip whitespace from keys and values
+                        # Strip whitespace from keys and values
                         data_dict = {k.strip(): v.strip() for k, v in data_dict.items()}
 
                         country_code = data_dict["loc"]
@@ -251,6 +251,10 @@ def get_geo_ip2(
                             if test:
                                 country_name = test
                                 country = test
+                            if not timezone:
+                                tzc = get_timezones_by_country_code(country_code)
+                                if tzc:
+                                    timezone = tzc[0]
                 except Exception:
                     pass
 
