@@ -12,8 +12,7 @@ null = None
 class TestStringMethods(unittest.TestCase):
 
     def test_curl(self):
-        self.assertEqual("foo".upper(), "FOO")
-        response = build_request(null, null, "GET", null, "https://yahoo.com")
+        response = build_request(null, null, "GET", null, endpoint="https://yahoo.com")
         self.assertTrue(response.status_code == 200)
 
 
