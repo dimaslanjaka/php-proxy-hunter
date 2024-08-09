@@ -640,7 +640,8 @@
                     });
                     if (regex_proxy.test(build_proxy.join(":"))) {
                       item.raw = build_proxy.join(":");
-                    } else {
+                    } else if (!regex_proxy.test(item.raw)) {
+                      console.error(item.raw, "invalid regex_proxy");
                       return { raw: "" };
                     }
                   }
