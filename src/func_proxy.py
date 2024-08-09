@@ -185,11 +185,11 @@ def build_request(
     if method_upper in request_methods:
         if method_upper in ["POST", "PUT", "PATCH"]:
             response: requests.Response = request_methods[method_upper](
-                endpoint, data=post_data, timeout=10, verify=output_pem
+                endpoint, data=post_data, timeout=10, verify=False
             )
         else:
             response: requests.Response = request_methods[method_upper](
-                endpoint, timeout=10, verify=output_pem
+                endpoint, timeout=10, verify=False
             )
     else:
         raise ValueError(f"Unsupported method: {method}")
