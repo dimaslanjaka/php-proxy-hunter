@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -60,14 +61,24 @@ def cleanup_threads():
     }
 
 
-def parse_working_proxies():
+def write_working_proxies():
+    print("writing working.json")
     data = execute_select_query(
         "SELECT * FROM proxies WHERE status = ? AND timezone IS NOT NULL AND lang IS NOT NULL AND useragent IS NOT NULL AND webgl_vendor IS NOT NULL",
         ("active",),
     )
     # unique by key 'proxy'
     data = get_unique_dicts_by_key_in_list(data, "proxy")
-    write_json(get_relative_path("working.json"), data)
+    file = get_relative_path("working.json")
+    read = read_file(file)
+    if read:
+        data2 = json.loads(read)
+        data2 = get_unique_dicts_by_key_in_list(data2, "proxy")
+        # Create a set of 'proxy' values from the first list for quick lookup
+        proxies_to_remove = {item["proxy"] for item in data}
+        data2 = [item for item in data2 if item["proxy"] not in proxies_to_remove]
+        data = get_unique_dicts_by_key_in_list(data + data2, "proxy")
+    write_json(file, data)
 
 
 def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
@@ -391,6 +402,16 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 insert_exec = execute_sql_query(insert_query, insert_params)
                 update_exec = execute_sql_query(update_query, update_params)
                 merge_exec = {**insert_exec, **update_exec}
+                if status == 'active':
+                    # fetch geo location
+                    t = threading.Thread(target=fetch_geo_ip, args=(proxy_obj.proxy,))
+                    t.start()
+                    global_tasks.add(t)
+                    # Writing working.json
+                    t = threading.Thread(target=write_working_proxies)
+                    t.start()
+                    global_tasks.add(t)
+
                 if merge_exec and "error" in merge_exec and merge_exec["error"]:
                     # Filter out empty strings
                     errors = [e for e in merge_exec["error"] if e]
@@ -398,15 +419,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                     if len(errors) > 0:
                         error_message = "\n".join(errors)
                         raise ValueError(f"SQL execution error(s):\n{error_message}")
-                elif status == "active":
-                    # fetch geo location
-                    t = threading.Thread(target=fetch_geo_ip, args=(proxy_obj.proxy,))
-                    t.start()
-                    global_tasks.add(t)
-                    # Writing working.json
-                    t = threading.Thread(target=parse_working_proxies)
-                    t.start()
-                    global_tasks.add(t)
+
                 cleanup_threads()
                 string_to_remove.append(proxy_obj.proxy)
             except Exception as e:
