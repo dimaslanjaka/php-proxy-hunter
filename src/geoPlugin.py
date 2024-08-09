@@ -154,13 +154,17 @@ def get_geo_ip2(
                 for protocol in ["http", "socks5", "socks4"]:
                     try:
                         # limit 50 request each day (USE YOUR OWN KEY)
-                        url = f"https://ip-get-geolocation.com/api/json/{ip}?key=8e95a158295f2664e05859cce73f8507"
+                        # url = f"https://ip-get-geolocation.com/api/json/{ip}?key=8e95a158295f2664e05859cce73f8507"
+                        url = "https://ip-get-geolocation.com/api/json"
                         proxy_url = (
                             f"{proxy}@{proxy_username}:{proxy_password}"
                             if proxy_username and proxy_password
                             else proxy
                         )
-                        response = get_with_proxy(url, protocol, proxy_url)
+                        # when using key, change no_cache to False
+                        response = get_with_proxy(
+                            url, protocol, proxy_url, no_cache=True
+                        )
                         if response and response.ok:
                             new_data = response.json()
                             if new_data.get("status", "").lower() == "success":
