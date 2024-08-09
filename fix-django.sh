@@ -57,6 +57,16 @@ chmod 755 "$CWD/assets/systemctl"
 chown root:root "$CWD/assets/systemctl/start_gunicorn.sh"
 chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
 
+# Fix permission for additional files
+chmod 755 "$CWD/data"
+chmod 755 "$CWD/userscripts"
+chmod 755 "$CWD/tmp/logs"
+chmod 755 "$CWD/tmp/requests_cache"
+chmod 755 "$CWD/tmp/cookies"
+chown www-data:www-data "$CWD/tmp"
+chown www-data:www-data "$CWD/userscripts"
+chown www-data:www-data "$CWD/data"
+
 function run_as_user_in_venv() {
     local COMMAND=$1
     sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && $COMMAND"
