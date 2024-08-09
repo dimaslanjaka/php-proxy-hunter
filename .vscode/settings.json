@@ -126,7 +126,10 @@
     "src/database.sqlite*": true
   },
   "intelephense.environment.documentRoot": "${workspaceFolder}",
-  "intelephense.environment.includePaths": ["${workspaceFolder}/src", "${workspaceFolder}/vendor"],
+  "intelephense.environment.includePaths": [
+    "${workspaceFolder}/src",
+    "${workspaceFolder}/vendor"
+  ],
   "files.exclude": {
     "**/.cache/**": true,
     "**/.idea/**": true,

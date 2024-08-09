@@ -99,6 +99,14 @@
         "Run django SSL",
         "Run huey"
       ]
+    },
+    {
+      "name": "Run Django Huey Selenium",
+      "configurations": [
+        "Run django SSL",
+        "Run huey",
+        "Run selenium"
+      ]
     }
   ]
 }
