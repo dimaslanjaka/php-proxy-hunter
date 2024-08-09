@@ -23,7 +23,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.vscode" />
     </content>
     <content url="file://$MODULE_DIR$/assets/proxies" />
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.11 (dl-traffic-python)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="all" level="application" />
     <orderEntry type="library" name="bootstrap" level="application" />
