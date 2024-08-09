@@ -11,15 +11,14 @@ from joblib import Parallel, delayed
 from src.func import (
     file_append_str,
     get_relative_path,
-    get_unique_dicts_by_key_in_list,
     sanitize_filename,
     truncate_file_content,
-    write_json,
 )
 from src.func_console import green, red, log_proxy
 from src.func_proxy import check_proxy, build_request
 from src.ProxyDB import ProxyDB
 from proxy_checker import ProxyChecker
+from proxyWorking import ProxyWorkingManager
 
 
 def real_check(proxy: str, url: str, title_should_be: str):
@@ -200,14 +199,8 @@ def worker(item: Dict[str, str]):
                 },
             )
             # write working.json
-            working_data = db.get_working_proxies()
-            # Process the list to replace empty values with None
-            working_data = [
-                {key: (value if value else None) for key, value in item.items()}
-                for item in working_data
-            ]
-            working_data = get_unique_dicts_by_key_in_list(working_data, "proxy")
-            write_json(get_relative_path("working.json"), working_data)
+            wmg = ProxyWorkingManager()
+            wmg._load_db()
         else:
             db.update_status(item["proxy"], "dead")
         return test
