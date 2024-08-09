@@ -21,7 +21,7 @@
 </head>
 
 <body>
-  <p>Redirecting in <span id="countdown"><?php echo $delay; ?></span> seconds...</p>
+  <p>Redirecting in <span id="countdown">0</span> seconds...</p>
   <p><a href="proxyManager.html">Click Here To Redirect Immediately</a></p>
   <script type="text/javascript">
     // Update countdown timer
