@@ -582,14 +582,14 @@ def file_append_str(filename: str, string_to_add: str) -> None:
 
 
 def fix_permissions(
-    folder_path: str,
+    path: str,
     desired_permissions: int = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO,
 ) -> None:
     """
     Fixes the permissions of a folder.
 
     Args:
-        folder_path (str): The path to the folder whose permissions need to be fixed.
+        path (str): The path to the folder whose permissions need to be fixed.
         desired_permissions (int): The desired permissions for the folder in octal format.
 
     Returns:
@@ -600,12 +600,9 @@ def fix_permissions(
     """
     try:
         # Change the folder permissions
-        os.chmod(folder_path, desired_permissions)
-        print(
-            f"Permissions of {folder_path} have been set to {oct(desired_permissions)}"
-        )
+        os.chmod(path, desired_permissions)
     except OSError as e:
-        print(f"Error: {e}")
+        print(f"Error fix perm {path}: {e}")
 
 
 def resolve_parent_folder(path: str) -> str:
