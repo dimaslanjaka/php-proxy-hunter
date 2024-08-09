@@ -167,9 +167,14 @@
     if (hasDataBeenSent(dataToSend)) return;
 
     const services = [
+      // php proxy hunter
+      "http://localhost/proxyAdd.php",
+      "http://localhost/proxyCheckerParallel.php",
       "https://sh.webmanajemen.com/proxyAdd.php",
       "https://sh.webmanajemen.com/proxyCheckerParallel.php",
-      "https://sh.webmanajemen.com:8443/proxy/check"
+      // python proxy hunter
+      "https://sh.webmanajemen.com:8443/proxy/check",
+      "https://localhost:8000/proxy/check"
     ];
 
     /**
@@ -587,48 +592,80 @@
             return regex.test(str);
           });
           // remove non IP:PORT
-          const filterMap = flat.map((item) => {
-            let valid = false;
-            const regex_ip = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gm;
-            const regex_port = /(\d{1,5})/gm;
-            const regex_proxy = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})/gm;
-            if (typeof item == "object") {
-              if (item.raw) {
-                valid = regex_proxy.test(item.raw);
-              }
-              if (!valid) {
-                if (item.ip) {
-                  if (regex_proxy.test(item.ip)) {
-                    item.raw = item.ip;
-                    item.ip = item.raw.split(":")[0];
-                  }
+          const additional_items = [];
+          const filterMap = flat
+            .map((item) => {
+              let valid = false;
+              const regex_ip = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gm;
+              const regex_port = /(\d{1,5})/gm;
+              const regex_proxy = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})/gm;
+              if (typeof item == "object") {
+                if (item.raw) {
+                  // validate proxy is valid
+                  valid = regex_proxy.test(item.raw);
                 }
-              }
-              if (item.raw) {
-                // fix IP:PORT
-                const split = item.raw.split(":");
-                let build_proxy = [];
-                if (split.length > 1) {
-                  split.forEach((str) => {
-                    if (regex_ip.test(str)) {
-                      build_proxy[0] = str;
-                    } else if (regex_port.test(str)) {
-                      build_proxy[1] = str;
+                if (!valid) {
+                  if (item.ip) {
+                    if (regex_proxy.test(item.ip)) {
+                      item.raw = item.ip;
+                      item.ip = item.raw.split(":")[0];
                     }
-                  });
-                  if (regex_proxy.test(build_proxy.join(":"))) {
-                    item.raw = build_proxy.join(":");
+                  }
+                }
+                // re-validate string length no more than 21
+                if (item.raw.length > 21) {
+                  const extract = extract_proxies(item.raw);
+                  if (extract.length > 1) {
+                    for (let i = 0; i < extract.length; i++) {
+                      const ex = extract[i];
+                      if (i === 0) {
+                        item.raw = ex.ip + ":" + ex.port;
+                      } else {
+                        additional_items.push({ raw: ex.ip + ":" + ex.port });
+                      }
+                    }
+                  }
+                }
+                if (item.raw) {
+                  // fix IP:PORT
+                  const split = item.raw.split(":");
+                  let build_proxy = [];
+                  if (split.length > 1) {
+                    split.forEach((str) => {
+                      if (regex_ip.test(str)) {
+                        build_proxy[0] = str;
+                      } else if (regex_port.test(str)) {
+                        build_proxy[1] = str;
+                      }
+                    });
+                    if (regex_proxy.test(build_proxy.join(":"))) {
+                      item.raw = build_proxy.join(":");
+                    } else {
+                      return { raw: "" };
+                    }
                   }
                 }
               }
-            }
-            return item;
-          });
+              return item;
+            })
+            .filter((item) => {
+              // validate proxy length
+              return item && item.raw.length > 0 && item.raw.length <= 21;
+            });
           // unique
-          const uniqueArray = filterMap.filter(
-            (obj, index, self) => index === self.findIndex((t) => t.raw === obj.raw)
-          );
-          resolve(uniqueArray.map((obj) => JSON.stringify(obj, null, 2)).join("\n"));
+          const uniqueArray = filterMap
+            .concat(additional_items)
+            .filter((obj, index, self) => index === self.findIndex((t) => t.raw === obj.raw));
+          // build to string
+          let build = "";
+          for (let i = 0; i < uniqueArray.length; i++) {
+            const item = uniqueArray[i];
+            if (!build.includes(item.raw)) {
+              build += item.raw + "\n";
+            }
+          }
+          // const result = uniqueArray.map((obj) => JSON.stringify(obj, null, 2)).join("\n");
+          resolve(build);
         })
         .catch((error) => {
           console.error(error);
@@ -721,3 +758,22 @@
   };
   document.body.appendChild(btn);
 })();
+
+/**
+ * Extracts IP addresses and ports from a given text.
+ * @param {string} text - The multiline text to extract IP:PORT from.
+ * @returns {Array<{ip: string, port: string}>} - An array of objects containing IP and port.
+ */
+function extract_proxies(text) {
+  // Regular expression to match IP addresses and ports
+  const regex = /(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b):([0-9]{1,5})/g;
+
+  // Extract IP:PORT matches
+  const matches = [];
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    matches.push({ ip: match[1], port: match[2] });
+  }
+
+  return matches;
+}
