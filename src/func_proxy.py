@@ -671,6 +671,7 @@ def is_port_open(address: str) -> bool:
     Returns:
         bool: True if the port is open, False otherwise.
     """
+    result = False
     try:
         # Split the address into IP and port
         host, port = address.split(":")
@@ -683,13 +684,14 @@ def is_port_open(address: str) -> bool:
         s.connect((host, port))
         # debug_log(f"{address} {green('port open')}")
         # If successful, the port is open
-        return True
+        result = True
     except Exception as e:
         # log_proxy(f"{address} {red('port closed')} {str(e)}")
-        return False
+        result = False
     finally:
         # Close the socket
         s.close()
+    return result
 
 
 def upload_proxy(proxy: Any) -> None:
