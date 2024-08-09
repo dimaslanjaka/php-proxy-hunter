@@ -11,11 +11,11 @@ from typing import List, Optional
 import requests
 from requests.exceptions import RequestException
 
-from src.func import get_relative_path
+from src.func import get_relative_path, resolve_folder
 from src.func_certificate import output_pem
 
 CACHE_DIR = get_relative_path("tmp/requests_cache")
-os.makedirs(CACHE_DIR, 777, True)
+resolve_folder(CACHE_DIR)
 CACHE_EXPIRY = 7 * 24 * 60 * 60  # 1 week in seconds
 
 
