@@ -14,6 +14,8 @@ import huey
 import os
 import sys
 
+from proxy_hunter.utils import is_vps
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from datetime import datetime, timedelta
@@ -68,11 +70,13 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 IS_SECURE = False
 
 # Check if running under Gunicorn
-IS_GUNICORN = "gunicorn" in os.getenv("SERVER_SOFTWARE", "") or os.path.exists("/var/www/html/tmp/gunicorn.sock")
+IS_GUNICORN = "gunicorn" in os.getenv("SERVER_SOFTWARE", "") or os.path.exists(
+    "/var/www/html/tmp/gunicorn.sock"
+)
 IS_RUNPLUS = "runserver_plus" in sys.argv
 
-# Check if runserver_plus is being used
-if IS_RUNPLUS or IS_GUNICORN:
+# Check if runserver_plus, gunicorn or is vps is being used
+if IS_RUNPLUS or IS_GUNICORN or is_vps():
     IS_SECURE = True
 
 print(f"is secure {IS_SECURE}, runserver_plus {IS_RUNPLUS}, gunicorn {IS_GUNICORN}")
