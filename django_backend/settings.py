@@ -141,6 +141,9 @@ INSTALLED_APPS = [
 if os.path.exists(get_relative_path("django_backend/apps/axis/urls.py")):
     INSTALLED_APPS.append("django_backend.apps.axis")
 
+if os.path.exists(get_relative_path("django_backend/apps/xl/urls.py")):
+    INSTALLED_APPS.append("django_backend.apps.xl")
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -212,6 +215,7 @@ TEMPLATES = [
             for path in [
                 os.path.join(BASE_DIR, "django_backend/apps/core/templates"),
                 os.path.join(BASE_DIR, "django_backend/apps/axis/templates"),
+                os.path.join(BASE_DIR, "django_backend/apps/xl/templates"),
                 os.path.join(BASE_DIR, "django_backend/apps/proxy/templates"),
                 os.path.join(BASE_DIR, "django_backend/apps/authentication/templates"),
             ]
@@ -382,15 +386,17 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Define the root directory for collected static files
 STATIC_ROOT = os.path.join(BASE_DIR, "public/static")
 
-# Define multiple directories for static files
+# Define only exists multiple directories for static files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "django_backend/apps/core/statics"),
-    os.path.join(BASE_DIR, "django_backend/apps/axis/statics"),
-    os.path.join(BASE_DIR, "django_backend/apps/authentication/statics"),
-    os.path.join(BASE_DIR, "django_backend/apps/proxy/statics"),
-    os.path.join(BASE_DIR, "js"),
-    os.path.join(BASE_DIR, "public"),
+    path
+    for path in [
+        os.path.join(BASE_DIR, "django_backend/apps/core/statics"),
+        os.path.join(BASE_DIR, "django_backend/apps/axis/statics"),
+        os.path.join(BASE_DIR, "django_backend/apps/xl/statics"),
+        os.path.join(BASE_DIR, "django_backend/apps/authentication/statics"),
+        os.path.join(BASE_DIR, "django_backend/apps/proxy/statics"),
+        os.path.join(BASE_DIR, "js"),
+        os.path.join(BASE_DIR, "public"),
+    ]
+    if os.path.exists(path)
 ]
-
-# Filter only existing directories
-STATICFILES_DIRS = [path for path in STATICFILES_DIRS if os.path.exists(path)]
