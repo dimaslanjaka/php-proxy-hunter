@@ -64,9 +64,15 @@ PRODUCTION_PORT = 8443
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Determine if the environment is secure (HTTPS)
-IS_SECURE = (
-    True  # Set to True if using HTTPS (runserver_plus), False otherwise (runserver)
-)
+# Set to True if using HTTPS (runserver_plus), False otherwise (runserver)
+IS_SECURE = False
+
+# Check if running under Gunicorn
+IS_GUNICORN = "gunicorn" in os.getenv("SERVER_SOFTWARE", "")
+
+# Check if runserver_plus is being used
+if "runserver_plus" in sys.argv or IS_GUNICORN:
+    IS_SECURE = True
 
 # Redirect all HTTP requests to HTTPS
 SECURE_SSL_REDIRECT = IS_SECURE
