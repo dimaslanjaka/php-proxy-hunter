@@ -42,6 +42,7 @@ pyyaml
 requests
 requests_cache
 rarfile
+selenium
 setuptools
 six
 sqlalchemy
