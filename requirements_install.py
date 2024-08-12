@@ -1,3 +1,4 @@
+import os
 import subprocess
 import platform
 
@@ -17,8 +18,15 @@ def generate_requirements():
     linux_specific = ["uwsgi", "gunicorn"]
 
     try:
-        with open(base_requirements, "r") as base_file:
-            lines = base_file.readlines()
+        lines = []
+        with open(base_requirements, "r", encoding="utf-8") as base_file:
+            lines.extend(base_file.readlines())
+
+        if os.path.exists("requirements_additional.txt"):
+            with open(
+                "requirements_additional.txt", "r", encoding="utf-8"
+            ) as base_file:
+                lines.extend(base_file.readlines())
 
         if platform.system() == "Windows":
             lines.extend([f"\n{package}\n" for package in windows_specific])
