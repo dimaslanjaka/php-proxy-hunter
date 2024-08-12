@@ -68,7 +68,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 IS_SECURE = False
 
 # Check if running under Gunicorn
-IS_GUNICORN = "gunicorn" in os.getenv("SERVER_SOFTWARE", "")
+IS_GUNICORN = "gunicorn" in os.getenv("SERVER_SOFTWARE", "") or os.path.exists("/var/www/html/tmp/gunicorn.sock")
 IS_RUNPLUS = "runserver_plus" in sys.argv
 
 # Check if runserver_plus is being used
