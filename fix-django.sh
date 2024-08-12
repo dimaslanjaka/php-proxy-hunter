@@ -73,6 +73,7 @@ function run_as_user_in_venv() {
 }
 
 # migrate database (when changed)
+run_as_user_in_venv "python $CWD/manage.py makemigrations"
 run_as_user_in_venv "python $CWD/manage.py migrate"
 # collect static files (to sync with nginx config)
 run_as_user_in_venv "python $CWD/manage.py collectstatic --noinput"
