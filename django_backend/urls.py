@@ -31,8 +31,10 @@ urlpatterns = [
         serve,
         {"path": "sitemap.txt", "document_root": settings.BASE_DIR},
     ),
-]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]
 
 if os.path.exists(get_relative_path("django_backend/apps/axis/urls.py")):
     urlpatterns.append(path("axis/", include("django_backend.apps.axis.urls")))
-    # path('axis/static/<path:path>/', serve, {'document_root': os.path.join(settings.BASE_DIR, 'xl/axisnet')}),
+
+if os.path.exists(get_relative_path("django_backend/apps/xl/urls.py")):
+    urlpatterns.append(path("xl/", include("django_backend.apps.xl.urls")))
