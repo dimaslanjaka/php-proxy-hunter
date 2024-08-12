@@ -69,10 +69,13 @@ IS_SECURE = False
 
 # Check if running under Gunicorn
 IS_GUNICORN = "gunicorn" in os.getenv("SERVER_SOFTWARE", "")
+IS_RUNPLUS = "runserver_plus" in sys.argv
 
 # Check if runserver_plus is being used
-if "runserver_plus" in sys.argv or IS_GUNICORN:
+if IS_RUNPLUS or IS_GUNICORN:
     IS_SECURE = True
+
+print(f"is secure {IS_SECURE}, runserver_plus {IS_RUNPLUS}, gunicorn {IS_GUNICORN}")
 
 # Redirect all HTTP requests to HTTPS
 SECURE_SSL_REDIRECT = IS_SECURE
