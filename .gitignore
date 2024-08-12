@@ -7,7 +7,6 @@
 /xampp
 /bitnami.css
 /applications.html
-/xl*
 *.lock
 /*.pid
 /proxyChecker.txt
@@ -61,3 +60,4 @@ venv/
 *.out
 /databases
 /public/static
+/xl*
