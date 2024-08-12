@@ -1,9 +1,12 @@
 import gzip
 import ipaddress
+import platform
 import re
+import subprocess
 import zlib
 from io import BytesIO
 from typing import Optional
+
 import brotli
 import chardet
 import requests
@@ -202,3 +205,22 @@ if __name__ == "__main__":
     print(
         f"Is valid: {is_valid_proxy('192.168.1.1:80@user:')}"
     )  # Invalid proxy with incomplete credentials
+
+
+def is_vps() -> bool:
+    """
+    Check if the system is a Virtual Private Server (VPS) by looking for virtualization indicators.
+
+    Returns:
+        bool: True if the system is a VPS, False if it is a physical machine or if the check fails.
+    """
+    if platform.system() != "Linux":
+        print("This check is only applicable for Linux systems.")
+        return False
+
+    try:
+        output = subprocess.check_output(["lscpu"]).decode()
+        return "Hypervisor" in output
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
