@@ -42,6 +42,7 @@ fi
 # Install python requirements
 sudo -u "$USER" -H bash -c "python3.11 -m venv $CWD/venv"
 sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && python3 $CWD/requirements_install.py"
+sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && pip3 install --upgrade pip setuptools wheel"
 
 if [ -d "$CWD/venv" ]; then
     chown -R "$USER":"$USER" "$CWD/venv"
