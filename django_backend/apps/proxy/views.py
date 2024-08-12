@@ -84,7 +84,7 @@ def proxy_checker_result(request: HttpRequest):
             file_content = f"File not found {full_file_path}"
         else:
             # Read the file content
-            with open(full_file_path, "r") as file:
+            with open(full_file_path, "r", encoding="utf-8") as file:
                 file_content = file.read()
 
         # Return the file content in the response with the correct MIME type
