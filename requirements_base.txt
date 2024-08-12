@@ -1,5 +1,9 @@
 # undetected-chromedriver
 # nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip
+# proxy-checker @ git+https://github.com/dimaslanjaka/proxy-checker-python@master
+-e file:packages/proxy-checker-python
+-e file:packages/proxy-hunter-python
+-e file:packages/rsa-utility
 autopep8
 babel
 BeautifulSoup4
@@ -47,10 +51,6 @@ webdriver-manager
 zstandard
 chromedriver_autoinstaller
 pyvirtualdisplay
-# proxy-checker @ git+https://github.com/dimaslanjaka/proxy-checker-python@master
--e file:packages/proxy-checker-python
--e file:packages/proxy-hunter-python
--e file:packages/rsa-utility
 huey[backends]
 gevent
 filelock
