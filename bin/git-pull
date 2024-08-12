@@ -4,7 +4,10 @@
 REPO_PATH="/var/www/html"
 
 # Navigate to the repository directory
-cd "$REPO_PATH" || { echo "Repository path not found"; exit 1; }
+cd "$REPO_PATH" || {
+  echo "Repository path not found"
+  exit 1
+}
 
 # Execute git pull with provided arguments
 git pull "$@"
@@ -16,12 +19,20 @@ else
   echo "Git pull failed."
 fi
 
-# Execute all fix-*.sh scripts
-chmod +x fix-*.sh
-for file in fix-*.sh; do
+# Check for CRON_TZ environment variable
+if [ -n "$CRON_TZ" ]; then
+  echo "Script is running under crontab"
+else
+  echo "Script is not running under crontab"
+
+  # Execute all fix-*.sh scripts
+  chmod +x fix-*.sh
+
+  for file in fix-*.sh; do
     if [ -x "$file" ]; then
-        bash "$file"
+      bash "$file"
     else
-        echo "Skipping $file: Not executable"
+      echo "Skipping $file: Not executable"
     fi
-done
+  done
+fi
