@@ -1,5 +1,3 @@
-# undetected-chromedriver
-# nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip
 # proxy-checker @ git+https://github.com/dimaslanjaka/proxy-checker-python@master
 -e file:packages/proxy-checker-python
 -e file:packages/proxy-hunter-python
@@ -8,8 +6,8 @@ autopep8
 babel
 BeautifulSoup4
 black
-channels
 certifi
+chromedriver_autoinstaller
 django
 django-cors-headers
 django-cors-middleware
@@ -21,7 +19,10 @@ djangorestframework
 djangorestframework_simplejwt
 daphne
 datetime
+filelock
 geoip2
+geopy
+gevent
 html5lib
 htmlmin
 ipaddress
@@ -29,8 +30,11 @@ joblib
 maxminddb
 numpy
 oauthlib
+pyautogui
 pycodestyle
+pycountry
 pycryptodome
+pycurl
 pynput
 python-dateutil
 python-dotenv
@@ -39,8 +43,6 @@ pyyaml
 requests
 requests_cache
 rarfile
-selenium
-selenium-stealth
 setuptools
 six
 sqlalchemy
@@ -49,11 +51,5 @@ urllib3
 Werkzeug
 webdriver-manager
 zstandard
-chromedriver_autoinstaller
 pyvirtualdisplay
 huey[backends]
-gevent
-filelock
-pycountry
-timezonefinder
-geopy

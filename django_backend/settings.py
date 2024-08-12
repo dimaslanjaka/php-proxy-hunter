@@ -130,7 +130,6 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 INSTALLED_APPS = [
     "huey.contrib.djhuey",
-    "channels",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
