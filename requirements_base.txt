@@ -7,7 +7,7 @@ BeautifulSoup4
 black
 certifi
 chromedriver_autoinstaller
-django
+django==5.0
 django-cors-headers
 django-cors-middleware
 django-environ
