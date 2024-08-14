@@ -281,20 +281,17 @@ def copy_file(source_file: str, destination_file: str) -> None:
         print(f"Error: {e}")
 
 
-def copy_folder(
-    source_folder: str, destination_folder: str, overwrite: Optional[bool] = False
-) -> None:
+def copy_folder(source_folder: str, destination_folder: str) -> None:
     """
     Copy a folder and its contents recursively from the source location to the destination location.
 
     Args:
         source_folder (str): The path to the source folder to be copied.
         destination_folder (str): The path to the destination folder where the source folder will be copied.
-        overwrite (bool, optional): If True, overwrite the destination folder if it already exists.
-                                    Defaults to False.
 
     Raises:
-        FileExistsError: If the destination folder already exists and overwrite is False.
+        FileExistsError: If the destination folder already exists.
+        FileNotFoundError: If the source folder does not exist.
 
     Returns:
         None
@@ -302,10 +299,7 @@ def copy_folder(
     # Ensure destination parent folder exists
     os.makedirs(os.path.dirname(destination_folder), exist_ok=True)
 
-    if overwrite:
-        if shutil.os.path.exists(destination_folder):
-            shutil.rmtree(destination_folder)
-    shutil.copytree(source_folder, destination_folder)
+    shutil.copytree(source_folder, destination_folder, dirs_exist_ok=True)
 
 
 def file_move_lines(source_file: str, destination_file: str, n: int) -> None:
