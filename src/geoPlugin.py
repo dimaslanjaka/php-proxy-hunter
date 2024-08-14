@@ -42,6 +42,7 @@ class GeoIpResult:
         region: Optional[str] = None,
         region_code: Optional[str] = None,
         lang: Optional[str] = None,
+        **kwargs,  # Allows additional dynamic attributes
     ):
         """
         Initialize a GeoIpResult object.
@@ -57,6 +58,7 @@ class GeoIpResult:
             region (str): The code of the region.
             region_code (str): The code of the region.
             lang (str): The language.
+            **kwargs: Additional dynamic attributes.
         """
         self.city = city
         self.country_name = country_name
@@ -68,6 +70,7 @@ class GeoIpResult:
         self.region = region
         self.region_code = region_code
         self.lang = lang
+        self.__dict__.update(kwargs)  # Update with additional attributes
 
     def __str__(self) -> str:
         """
@@ -101,9 +104,7 @@ class GeoIpResult:
         Args:
             data (Dict[str, Any]): A dictionary containing attribute names and values.
         """
-        for key, value in data.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
+        self.__dict__.update(data)
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -112,7 +113,7 @@ class GeoIpResult:
         Returns:
             Dict[str, Any]: Dictionary representation of the GeoIpResult instance.
         """
-        return {attr: value for attr, value in vars(self).items()}
+        return dict(self.__dict__)
 
     def to_json(self) -> str:
         """
