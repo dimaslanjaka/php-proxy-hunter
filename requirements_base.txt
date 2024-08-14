@@ -27,7 +27,6 @@ htmlmin
 ipaddress
 joblib
 maxminddb
-numpy
 oauthlib
 pyautogui
 pycodestyle
