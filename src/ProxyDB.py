@@ -64,11 +64,14 @@ class ProxyDB:
     def close(self):
         """Closes the database connection if open."""
         if self.db:
-            if self.db.cursor:
-                self.db.cursor.close()
-            if self.db.conn:
-                self.db.conn.close()
-            self.db.close()
+            try:
+                if self.db.cursor:
+                    self.db.cursor.close()
+                if self.db.conn:
+                    self.db.conn.close()
+                self.db.close()
+            except Exception as e:
+                print(f"cannot close database: {e}")
 
     def get_meta_value(self, key: str) -> Optional[str]:
         """
