@@ -114,7 +114,9 @@ class ProxyDB:
             self.start_connection()
         return self.db.select("proxies", "*", "proxy = ?", [proxy.strip()])
 
-    def get_all_proxies(self, rand: Optional[bool] = False) -> List[Dict[str, Union[str, None]]]:
+    def get_all_proxies(
+        self, rand: Optional[bool] = False
+    ) -> List[Dict[str, Union[str, None]]]:
         if not self.db:
             self.start_connection()
         return self.db.select("proxies", "*", rand=rand)
@@ -130,6 +132,7 @@ class ProxyDB:
             self.db.insert("proxies", {"proxy": proxy.strip()})
         else:
             print(f"proxy {proxy} already exists")
+        return self.select(proxy)
 
     def update(
         self,
@@ -293,24 +296,24 @@ class ProxyDB:
         #     or not item["longitude"]
         #     or not item["latitude"]
         # ):
-            # geo = get_geo_ip2(item["proxy"])
-            # if geo is not None:
-            #     modify = True
-            #     db_data.update(
-            #         {
-            #             "country": geo.country_name,
-            #             "lang": geo.lang,
-            #             "timezone": geo.timezone,
-            #             "region": geo.region_name,
-            #             "city": geo.city,
-            #             "longitude": geo.longitude,
-            #             "latitude": geo.latitude,
-            #         }
-            #     )
+        # geo = get_geo_ip2(item["proxy"])
+        # if geo is not None:
+        #     modify = True
+        #     db_data.update(
+        #         {
+        #             "country": geo.country_name,
+        #             "lang": geo.lang,
+        #             "timezone": geo.timezone,
+        #             "region": geo.region_name,
+        #             "city": geo.city,
+        #             "longitude": geo.longitude,
+        #             "latitude": geo.latitude,
+        #         }
+        #     )
         if (
-            not item["webgl_renderer"]
-            or not item["webgl_vendor"]
-            or not item["browser_vendor"]
+            not item.get("webgl_renderer")
+            or not item.get("webgl_vendor")
+            or not item.get("browser_vendor")
         ):
             modify = True
             webgl = random_webgl_data()
@@ -321,7 +324,7 @@ class ProxyDB:
                     "webgl_renderer": webgl.webgl_renderer,
                 }
             )
-        if not item["useragent"]:
+        if not item.get("useragent"):
             modify = True
             db_data["useragent"] = random_windows_ua()
         db_data = self.clean_type(db_data)
