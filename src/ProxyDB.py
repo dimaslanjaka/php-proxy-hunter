@@ -3,7 +3,7 @@ import os
 import re
 import sys
 import time
-from typing import Callable, Dict, Optional, List, Union
+from typing import Any, Callable, Dict, Optional, List, Union
 from data.webgl import random_webgl_data
 from src.func_date import get_current_rfc3339_time
 from src.geoPlugin import get_geo_ip2
@@ -176,11 +176,25 @@ class ProxyDB:
             for key, value in data.items()
             if value is not None and value is not False
         }
-        if "status" in data and data["status"] != "untested":
+        if "status" in data and data.get("status") != "untested":
             data["last_check"] = get_current_rfc3339_time()
         if data:
             data = self.clean_type(data)
+            data = self.fix_no_such_column(data)
+            print(data)
             self.db.update("proxies", data, "proxy = ?", [proxy.strip()])
+
+    def fix_no_such_column(self, item: Dict[str, Any]):
+        """Fix no such table column"""
+        if not item.get("country") and item.get("country_name"):
+            item["country"] = item.get("country_name")
+        if not item.get("region") and item.get("region_name"):
+            item["region"] = item.get("region_name")
+        if not item.get("region") and item.get("region_code"):
+            item["region"] = item.get("region_code")
+        for key in ["region_name", "country_name", "country_code", "region_code"]:
+            item.pop(key, None)
+        return item
 
     def update_status(self, proxy: str, status: str):
         self.update(proxy.strip(), status=status)
@@ -198,7 +212,7 @@ class ProxyDB:
         self, item: Dict[str, Union[str, None]]
     ) -> Dict[str, Union[str, None]]:
         if "type" in item:
-            type_value = item["type"]
+            type_value = item.get("type")
             if type_value is not None and type_value != "":
                 types = type_value.split("-")
                 cleaned_types = [t for t in types if t]  # Filter out empty strings
