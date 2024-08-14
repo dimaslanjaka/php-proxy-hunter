@@ -243,7 +243,7 @@
 
   const parse_proxy_db_net = () => {
     return new Promise((resolve) => {
-      const regex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})$/;
+      const regex = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{2,5})/;
       const result = [];
       const a = Array.from(document.getElementsByClassName("spy14"));
       for (var i = 0; i < a.length; i++) {
@@ -258,8 +258,10 @@
         const tr = Array.from(table.querySelectorAll("tr"));
         for (let ii = 0; ii < tr.length; ii++) {
           const td = Array.from(tr[ii].querySelectorAll("td"));
-          if (td[0] && regex.test(td[0].innerText)) {
-            result.push({ raw: td[0].innerText });
+          if (td[0]) {
+            const test = regex.test(td[0].innerText);
+            // console.log(test, ii, td[0].innerText);
+            if (test) result.push({ raw: td[0].innerText });
           }
         }
       }
@@ -613,12 +615,14 @@
                   }
                 }
                 // re-validate string length no more than 21
+                let no_more_than_21 = false;
                 if (item.raw.length > 21) {
+                  no_more_than_21 = true;
                   const extract = extract_proxies(item.raw);
-                  if (extract.length > 1) {
+                  if (extract.length > 0) {
                     for (let i = 0; i < extract.length; i++) {
                       const ex = extract[i];
-                      if (i === 0) {
+                      if (i == 0) {
                         item.raw = ex.ip + ":" + ex.port;
                       } else {
                         additional_items.push({ raw: ex.ip + ":" + ex.port });
@@ -626,7 +630,7 @@
                     }
                   }
                 }
-                if (item.raw) {
+                if (item.raw && !no_more_than_21) {
                   // fix IP:PORT
                   const split = item.raw.split(":");
                   let build_proxy = [];
