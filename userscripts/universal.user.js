@@ -594,8 +594,8 @@
             return regex.test(str);
           });
           // remove non IP:PORT
-          const additional_items = [];
-          const filterMap = flat
+          const additionalItems = [];
+          const filteredItems = flat
             .map((item) => {
               let valid = false;
               const regex_ip = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gm;
@@ -625,7 +625,7 @@
                       if (i == 0) {
                         item.raw = ex.ip + ":" + ex.port;
                       } else {
-                        additional_items.push({ raw: ex.ip + ":" + ex.port });
+                        additionalItems.push({ raw: ex.ip + ":" + ex.port });
                       }
                     }
                   }
@@ -658,13 +658,13 @@
               return item && item.raw.length > 0 && item.raw.length <= 21;
             });
           // unique
-          const uniqueArray = filterMap
-            .concat(additional_items)
-            .filter((obj, index, self) => index === self.findIndex((t) => t.raw === obj.raw));
+          const uniqueItems = [...filteredItems, ...additionalItems].filter(
+            (obj, index, self) => index === self.findIndex((t) => t.raw === obj.raw)
+          );
           // build to string
           let build = "";
-          for (let i = 0; i < uniqueArray.length; i++) {
-            const item = uniqueArray[i];
+          for (let i = 0; i < uniqueItems.length; i++) {
+            const item = uniqueItems[i];
             if (!build.includes(item.raw)) {
               build += item.raw + "\n";
             }
