@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import json
 from datetime import datetime, timedelta
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 import re
 import sqlite3
 import traceback
@@ -32,16 +32,16 @@ class GeoIpResult:
 
     def __init__(
         self,
-        city: str,
-        country_name: str,
-        country_code: str,
-        latitude: float,
-        longitude: float,
-        timezone: str,
-        region_name: Union[str, int],
-        region: str,
-        region_code: str,
-        lang: str,
+        city: Optional[str] = None,
+        country_name: Optional[str] = None,
+        country_code: Optional[str] = None,
+        latitude: Optional[float] = None,
+        longitude: Optional[float] = None,
+        timezone: Optional[str] = None,
+        region_name: Optional[Union[str, int]] = None,
+        region: Optional[str] = None,
+        region_code: Optional[str] = None,
+        lang: Optional[str] = None,
     ):
         """
         Initialize a GeoIpResult object.
@@ -73,42 +73,53 @@ class GeoIpResult:
         """
         Return a JSON string representation of the object.
         """
-        return json.dumps(self.__dict__)
+        return json.dumps(self.to_dict())
 
     def __repr__(self) -> str:
         """
         Return a JSON string representation of the object.
         """
-        return json.dumps(self.__dict__)
+        return json.dumps(self.to_dict())
 
-    def from_dict(self, **kwargs: Any) -> "GeoIpResult":
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "GeoIpResult":
         """
-        Proxy class constructor.
+        Create a GeoIpResult instance from a dictionary.
 
         Args:
-            **kwargs: Keyword arguments representing proxy attributes.
-        Example:
-            print(Proxy("ip:port").from_dict(**dictionary))
-        """
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-        return self
+            data (Dict[str, Any]): A dictionary containing attribute names and values.
 
-    def to_dict(self):
+        Returns:
+            GeoIpResult: An instance of GeoIpResult.
         """
-        Transform current result into dict ProxyDB
+        return GeoIpResult(**data)
+
+    def update_from_dict(self, data: Dict[str, Any]) -> None:
         """
-        properties = {}
-        for attr, value in vars(self).items():
-            properties[attr] = value
-        return properties
+        Update the current instance with values from a dictionary.
+
+        Args:
+            data (Dict[str, Any]): A dictionary containing attribute names and values.
+        """
+        for key, value in data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Transform current result into dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of the GeoIpResult instance.
+        """
+        return {attr: value for attr, value in vars(self).items()}
 
     def to_json(self) -> str:
         """
-        Convert Proxy instance to JSON string.
+        Convert GeoIpResult instance to JSON string.
 
         Returns:
-        str: JSON representation of the Proxy instance.
+            str: JSON representation of the GeoIpResult instance.
         """
         return json.dumps(self.to_dict())
 
