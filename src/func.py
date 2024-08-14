@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import inspect
 import json
@@ -1065,3 +1066,32 @@ def clean_dict(d: Dict[str, Any]) -> Dict[str, Any]:
         for k, v in d.items()
         if (v not in [None, "", 0] and (isinstance(v, (int, float)) and v >= 0))
     }
+
+
+def base64_encode(data: Union[str, bytes]) -> str:
+    """
+    Encodes a given string or bytes into Base64.
+
+    Args:
+        data (Union[str, bytes]): The data to encode. Can be a string or bytes.
+
+    Returns:
+        str: The Base64 encoded string.
+    """
+    if isinstance(data, str):
+        data = data.encode("utf-8")  # Convert string to bytes if necessary
+    return base64.b64encode(data).decode("utf-8")
+
+
+def base64_decode(encoded_data: str) -> str:
+    """
+    Decodes a Base64 encoded string back to its original string.
+
+    Args:
+        encoded_data (str): The Base64 encoded string to decode.
+
+    Returns:
+        str: The decoded string.
+    """
+    decoded_bytes = base64.b64decode(encoded_data)
+    return decoded_bytes.decode("utf-8")  # Assuming the original data was UTF-8 encoded
