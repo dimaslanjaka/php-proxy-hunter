@@ -6,3 +6,7 @@
 !/chrome-extensions/**/*
 !/systemctl
 !/systemctl/*
+!/images
+!/images/**/*
+!/fonts
+!/fonts/**/*
