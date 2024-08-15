@@ -1,15 +1,12 @@
 import os
 import sys
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Case, IntegerField, Value, When
-
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
 
-from django.core.paginator import Paginator
-from django.db.models import Q
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Case, IntegerField, Q, Value, When
 from django.http import HttpRequest
 
 from django_backend.apps.proxy.models import Proxy
