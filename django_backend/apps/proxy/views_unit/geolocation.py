@@ -27,10 +27,13 @@ def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
     if ip and ip in blacklist:
         print(f"{ip} is localhost")
         url = "https://cloudflare.com/cdn-cgi/trace"
-        response = build_request(endpoint=url)
-        text = decompress_requests_response(response)
-        ips = extract_ips(text)
-        ip = ips[0] if ips else None
+        try:
+            response = build_request(endpoint=url)
+            text = decompress_requests_response(response)
+            ips = extract_ips(text)
+            ip = ips[0] if ips else None
+        except Exception:
+            pass
     if not ip:
         result.update({"message": "IP or PROXY invalid"})
         return JsonResponse(result)
