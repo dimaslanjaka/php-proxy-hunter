@@ -307,26 +307,26 @@ class ProxyDB:
     ) -> Dict[str, Union[str, None]]:
         db_data = item
         modify = False
-        # if (
-        #     not item["country"]
-        #     or not item["timezone"]
-        #     or not item["longitude"]
-        #     or not item["latitude"]
-        # ):
-        # geo = get_geo_ip2(item["proxy"])
-        # if geo is not None:
-        #     modify = True
-        #     db_data.update(
-        #         {
-        #             "country": geo.country_name,
-        #             "lang": geo.lang,
-        #             "timezone": geo.timezone,
-        #             "region": geo.region_name,
-        #             "city": geo.city,
-        #             "longitude": geo.longitude,
-        #             "latitude": geo.latitude,
-        #         }
-        #     )
+        if (
+            not item["country"]
+            or not item["timezone"]
+            or not item["longitude"]
+            or not item["latitude"]
+        ):
+            geo = get_geo_ip2(item["proxy"])
+            if geo:
+                modify = True
+                db_data.update(
+                    {
+                        "country": geo.country_name,
+                        "lang": geo.lang,
+                        "timezone": geo.timezone,
+                        "region": geo.region_name,
+                        "city": geo.city,
+                        "longitude": geo.longitude,
+                        "latitude": geo.latitude,
+                    }
+                )
         if (
             not item.get("webgl_renderer")
             or not item.get("webgl_vendor")
