@@ -28,6 +28,7 @@ ipaddress
 joblib
 maxminddb
 oauthlib
+Pillow
 pyautogui
 pycodestyle
 pycountry

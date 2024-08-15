@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auto Refresh Image</title>
+    <style>
+      img {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+
+  <body>
+    <img id="auto-refresh-image" src="/proxy/geolocation/?img" alt="Auto-refreshing Image" />
+    <div id="debug"></div>
+
+    <script>
+      function refreshImage() {
+        const eld = document.getElementById("debug");
+        const img = document.getElementById("auto-refresh-image");
+
+        eld.innerHTML = "Reloading...";
+        const newImg = new Image();
+        newImg.onload = function () {
+          img.src = newImg.src;
+          eld.innerHTML = "Image loaded.";
+          setTimeout(refreshImage, 1000);
+        };
+        newImg.onerror = function () {
+          eld.innerHTML = "Failed to load image.";
+          setTimeout(refreshImage, 1000);
+        };
+        newImg.src = "/proxy/geolocation/?img&date=" + new Date();
+      }
+
+      setTimeout(refreshImage, 3000);
+    </script>
+  </body>
+</html>
