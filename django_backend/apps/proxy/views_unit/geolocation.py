@@ -46,16 +46,15 @@ def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
     if not ip:
         result.update({"message": "IP or PROXY invalid"})
         return JsonResponse(result)
-
     # revalidate localhost
-    if ip and ip in localhosts:
+    elif ip in localhosts:
         result.update({"message": f"{ip} is localhost"})
         return JsonResponse(result)
 
     result.update({"ip": ip})
     if ip not in localhosts:
         if not is_debug():
-            cache_key = f"geolocation_{ip}"
+            cache_key = f"geolocation_json_{ip}"
             cached_value = django_cache.get(cache_key)
             if cached_value is None:
                 fetched_data = fetch_geo_ip(ip)
