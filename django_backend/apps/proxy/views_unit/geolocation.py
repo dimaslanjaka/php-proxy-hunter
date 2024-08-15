@@ -27,8 +27,9 @@ def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
         data_str = get_client_ip(request)
     ips = extract_ips(data_str)
     ip = ips[0] if ips else None
-    blacklist = settings.ALLOWED_HOSTS + ["127.0.0.1", "::1"]
-    if ip and ip in blacklist:
+    localhosts = settings.ALLOWED_HOSTS + ["127.0.0.1", "::1"]
+    # validate ip not in blacklist
+    if ip and ip in localhosts:
         # print(f"{ip} is localhost")
         url = "https://cloudflare.com/cdn-cgi/trace"
         try:
@@ -36,13 +37,17 @@ def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
             text = decompress_requests_response(response)
             ips = extract_ips(text)
             ip = ips[0] if ips else None
+            if ip and ip in localhosts:
+                # trace result ip is same with localhost
+                result.update({"message": f"{ip} is localhost"})
+                return JsonResponse(result)
         except Exception:
             pass
     if not ip:
         result.update({"message": "IP or PROXY invalid"})
         return JsonResponse(result)
     result.update({"ip": ip})
-    if ip and ip not in blacklist:
+    if ip and ip not in localhosts:
         if not is_debug():
             cache_key = f"geolocation_{ip}"
             value: Optional[dict] = django_cache.get(cache_key)
