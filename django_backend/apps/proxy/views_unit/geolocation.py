@@ -25,61 +25,77 @@ def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
     result = {"error": True}
     if not data_str:
         data_str = get_client_ip(request)
+
     ips = extract_ips(data_str)
     ip = ips[0] if ips else None
     localhosts = settings.ALLOWED_HOSTS + ["127.0.0.1", "::1"]
-    # validate ip not in blacklist
+
     if ip and ip in localhosts:
-        # print(f"{ip} is localhost")
+        # Check if the IP is still localhost after fetching the trace
         url = "https://cloudflare.com/cdn-cgi/trace"
         try:
             response = build_request(endpoint=url)
             text = decompress_requests_response(response)
-            ips = extract_ips(text)
-            ip = ips[0] if ips else None
+            traced_ips = extract_ips(text)
+            ip = traced_ips[0] if traced_ips else None
             if ip and ip in localhosts:
-                # trace result ip is same with localhost
                 result.update({"message": f"{ip} is localhost"})
                 return JsonResponse(result)
         except Exception:
             pass
+
     if not ip:
         result.update({"message": "IP or PROXY invalid"})
         return JsonResponse(result)
+
     result.update({"ip": ip})
-    if ip and ip not in localhosts:
+    if ip not in localhosts:
         if not is_debug():
             cache_key = f"geolocation_{ip}"
-            value: Optional[dict] = django_cache.get(cache_key)
-            if value is None:
-                result.update({"data": fetch_geo_ip(ip)})
-                if result:
+            cached_value = django_cache.get(cache_key)
+            if cached_value is None:
+                fetched_data = fetch_geo_ip(ip)
+                if fetched_data:
+                    result.update(fetched_data)
                     django_cache.set(cache_key, result, timeout=604800)
                 else:
                     result.update(
-                        {"error": True, "message": f"Fail get geolocation of {ip}"}
+                        {
+                            "error": True,
+                            "message": f"Failed to get geolocation for {ip}",
+                        }
                     )
             else:
                 result.update(
-                    {"data": value, "error": False, "message": f"cached data {ip}"}
+                    {
+                        "data": cached_value,
+                        "error": False,
+                        "message": f"Cached data for {ip}",
+                    }
                 )
         else:
             result.update(fetch_geo_ip(ip))
             result.update({"error": False})
+
     if result.get("data"):
-        result["data"].update({"ip": ip})
-        if result["data"]["latitude"] and result["data"]["longitude"]:
-            result["data"].update(
-                {
-                    "map": f"https://www.google.com/maps/search/?api=1&query={result['data']['latitude']},{result['data']['longitude']}",
-                }
+        # update data key
+        data: dict = result.get("data", {})
+        data.update({"ip": ip})
+        lat = data.get("latitude")
+        long = data.get("longitude")
+        if lat and long:
+            data["map"] = (
+                f"https://www.google.com/maps/search/?api=1&query={lat},{long}"
             )
-    is_img = get_query_or_post_body(request, "img", None)
-    is_preview_img = get_query_or_post_body(request, "preview", None)
+        result.update({"data": data})
+
+    is_img = get_query_or_post_body(request, "img")
+    is_preview_img = get_query_or_post_body(request, "preview")
     if is_preview_img is not None:
         return preview_image(request)
-    elif is_img is not None:
+    if is_img is not None:
         return json_to_image_view(request, result)
+
     return JsonResponse(result)
 
 
