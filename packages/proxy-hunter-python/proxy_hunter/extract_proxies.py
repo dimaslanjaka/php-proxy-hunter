@@ -77,6 +77,29 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
     return results
 
 
+def extract_ips(s: str) -> List[str]:
+    """
+    Extracts all IP addresses from a given string.
+
+    Args:
+        s (str): The input string from which IP addresses will be extracted.
+
+    Returns:
+        List[str]: A list of IP addresses found in the string. If no IP addresses are found, an empty list is returned.
+
+    Example:
+        >>> extract_ips("Here are some IP addresses: 192.168.0.1 and 10.0.0.1.")
+        ['192.168.0.1', '10.0.0.1']
+    """
+    # Regular expression to match an IP address
+    ip_pattern = r"\b(?:\d{1,3}\.){3}\d{1,3}\b"
+
+    # Use re.findall to find all IP addresses in the string
+    matches = re.findall(ip_pattern, s)
+
+    return matches  # Return all matched IP addresses
+
+
 if __name__ == "__main__":
     proxies = extract_proxies(
         """
