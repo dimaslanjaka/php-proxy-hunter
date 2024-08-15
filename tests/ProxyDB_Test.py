@@ -11,12 +11,33 @@ null = None
 
 class TestStringMethods(unittest.TestCase):
 
-    def test_curl(self):
-        self.assertEqual("foo".upper(), "FOO")
+    def test_get_all(self):
         self.db = ProxyDB()
         all_p = self.db.get_all_proxies(True)[:10]
-        print(all_p)
+        # print(all_p)
         self.assertTrue(len(all_p) == 10)
+
+    def test_update(self):
+        self.db = ProxyDB()
+        proxy = "13.208.56.180:80"
+        proxy_type = "http"
+        items = self.db.select(proxy)
+        if items:
+            item = items[0]
+        else:
+            item = self.db.add(proxy)[0]
+        if not item.get("type"):
+            # fix missing proxy type
+            item["type"] = proxy_type
+        item = self.db.fix_empty_single_data(item)
+        print("before", item)
+        # city should not be None
+        self.assertTrue(item.get("latitude", None) is not None)
+        self.db.update_data(proxy, {"latitude": None})
+        reselect = self.db.select(proxy)[0]
+        print("after", reselect)
+        # city should None
+        self.assertTrue(reselect.get("latitude", None) is None)
 
 
 if __name__ == "__main__":

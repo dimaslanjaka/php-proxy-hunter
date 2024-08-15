@@ -169,22 +169,22 @@ class ProxyDB:
         if data:
             self.update_data(proxy, data)
 
-    def update_data(self, proxy: str, data: Dict[str, str] = None):
+    def update_data(self, proxy: str, data: Optional[Dict[str, Any]] = None):
         if not proxy.strip() or not self.select(proxy):
             self.add(proxy)
+
         if data is None:
             data = {}
-        data = {
-            key: value
-            for key, value in data.items()
-            if value is not None and value is not False
-        }
+
+        data = {key: value for key, value in data.items()}
+
         if "status" in data and data.get("status") != "untested":
             data["last_check"] = get_current_rfc3339_time()
+
         if data:
             data = self.clean_type(data)
             data = self.fix_no_such_column(data)
-            print(data)
+            # print(data)
             self.db.update("proxies", data, "proxy = ?", [proxy.strip()])
 
     def fix_no_such_column(self, item: Dict[str, Any]):
