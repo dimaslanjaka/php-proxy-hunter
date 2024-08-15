@@ -5,15 +5,19 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
 
-from typing import Optional
+import io
+from typing import Any, Dict, Optional
 
 from django.conf import settings
 from django.core.cache import cache as django_cache
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.shortcuts import render
+from PIL import Image, ImageDraw, ImageFont
 from proxy_hunter.extract_proxies import *
 
+from django_backend.apps.core.utils import get_query_or_post_body
 from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
-from src.func import is_debug
+from src.func import get_relative_path, is_debug, md5
 from src.func_proxy import build_request
 
 
@@ -25,7 +29,7 @@ def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
     ip = ips[0] if ips else None
     blacklist = settings.ALLOWED_HOSTS + ["127.0.0.1", "::1"]
     if ip and ip in blacklist:
-        print(f"{ip} is localhost")
+        # print(f"{ip} is localhost")
         url = "https://cloudflare.com/cdn-cgi/trace"
         try:
             response = build_request(endpoint=url)
@@ -43,22 +47,34 @@ def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
             cache_key = f"geolocation_{ip}"
             value: Optional[dict] = django_cache.get(cache_key)
             if value is None:
-                result = fetch_geo_ip(ip)
+                result.update({"data": fetch_geo_ip(ip)})
                 if result:
                     django_cache.set(cache_key, result, timeout=604800)
                 else:
                     result.update(
-                        {
-                            "error": True,
-                            "message": f"Fail get geolocation of {ip}",
-                            "data": result,
-                        }
+                        {"error": True, "message": f"Fail get geolocation of {ip}"}
                     )
             else:
-                result.update(value)
+                result.update(
+                    {"data": value, "error": False, "message": f"cached data {ip}"}
+                )
         else:
             result.update(fetch_geo_ip(ip))
-        result.update({"error": False})
+            result.update({"error": False})
+    if result.get("data"):
+        result["data"].update({"ip": ip})
+        if result["data"]["latitude"] and result["data"]["longitude"]:
+            result["data"].update(
+                {
+                    "map": f"https://www.google.com/maps/search/?api=1&query={result['data']['latitude']},{result['data']['longitude']}",
+                }
+            )
+    is_img = get_query_or_post_body(request, "img", None)
+    is_preview_img = get_query_or_post_body(request, "preview", None)
+    if is_preview_img is not None:
+        return preview_image(request)
+    elif is_img is not None:
+        return json_to_image_view(request, result)
     return JsonResponse(result)
 
 
@@ -69,3 +85,99 @@ def get_client_ip(request: HttpRequest):
     else:
         ip = request.META.get("REMOTE_ADDR")
     return ip
+
+
+def json_to_image_view(request: HttpRequest, geo_data: Dict[str, Any]):
+    cache_key = md5(f"geolocation_image_{geo_data}")
+    cache_val = django_cache.get(cache_key, None)
+    if cache_val is not None and not is_debug():
+        # load cached
+        return HttpResponse(cache_val, content_type="image/png")
+    # print(geo_data)
+    data: dict = geo_data["data"]
+    # height = int(get_query_or_post_body(request, "h", "60") or "60")
+    # width = int(get_query_or_post_body(request, "w", "480") or "480")
+    height = 250
+    width = 400
+    image = Image.new("RGB", (width, height), color=(255, 255, 255))
+    draw = ImageDraw.Draw(image)
+
+    # Use a default font (you can specify a path to a font file if needed)
+    try:
+        font = ImageFont.truetype(
+            get_relative_path("assets/fonts/Cera Pro Regular Italic.otf"), size=20
+        )
+    except Exception:
+        font = ImageFont.load_default()
+
+    def s(n: int):
+        """create spaces"""
+        return " " * n
+
+    # Draw the text onto the image
+    draw.text(
+        (10, 10), f"IP{s(15)}{data.get('ip') or 'Unknown'}", font=font, fill=(0, 0, 0)
+    )
+    draw.text(
+        (10, 30),
+        f"Region{s(7)}{data.get('region') or data.get('region_name') or data.get('region_code') or 'Unknown'}",
+        font=font,
+        fill=(0, 0, 0),
+    )
+    draw.text(
+        (10, 50),
+        f"City{s(11)}{data.get('city') or 'Unknown'}",
+        font=font,
+        fill=(0, 0, 0),
+    )
+    draw.text(
+        (10, 70),
+        f"Country{s(5)}{data.get('country') or data.get('country_name') or data.get('country_code') or 'Unknown'}",
+        font=font,
+        fill=(0, 0, 0),
+    )
+    draw.text(
+        (10, 90),
+        f"Latitude{s(5)}{data.get('latitude') or 'Unknown'}",
+        font=font,
+        fill=(0, 0, 0),
+    )
+    draw.text(
+        (10, 110),
+        f"Longitude{s(3)}{data.get('longitude') or 'Unknown'}",
+        font=font,
+        fill=(0, 0, 0),
+    )
+    draw.text(
+        (10, 130),
+        f"Timezone{s(3)}{data.get('timezone') or 'Unknown'}",
+        font=font,
+        fill=(0, 0, 0),
+    )
+    draw.text(
+        (10, 150),
+        f"Locale{s(7)}{data.get('lang') or 'Unknown'}",
+        font=font,
+        fill=(0, 0, 0),
+    )
+    draw.text(
+        (10, 180),
+        "Copyright: L3n4r0x\ndimaslanjaka@gmail.com\nhttps://www.webmanajemen.com",
+        font=font,
+        fill=(0, 0, 0),
+    )
+
+    # Save the image to a BytesIO object
+    img_io = io.BytesIO()
+    image.save(img_io, "PNG")
+    img_io.seek(0)
+
+    # save cache
+    django_cache.set(cache_key, img_io.getvalue(), timeout=604800)
+
+    # Return the image as an HTTP response
+    return HttpResponse(img_io.getvalue(), content_type="image/png")
+
+
+def preview_image(request: HttpRequest):
+    return render(request, "geolocation_image.html")
