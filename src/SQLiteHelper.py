@@ -179,6 +179,8 @@ class SQLiteHelper:
     ) -> None:
         set_values = ", ".join(f"{key} = ?" for key in data)
         sql = f"UPDATE {table_name} SET {set_values} WHERE {where}"
+
+        # Ensure None values are passed directly
         self.cursor.execute(sql, list(data.values()) + (params or ()))
         self.conn.commit()
 
