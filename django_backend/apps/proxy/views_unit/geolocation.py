@@ -40,14 +40,16 @@ def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
             text = decompress_requests_response(response)
             traced_ips = extract_ips(text)
             ip = traced_ips[0] if traced_ips else None
-            if ip and ip in localhosts:
-                result.update({"message": f"{ip} is localhost"})
-                return JsonResponse(result)
         except Exception:
             pass
 
     if not ip:
         result.update({"message": "IP or PROXY invalid"})
+        return JsonResponse(result)
+
+    # revalidate localhost
+    if ip and ip in localhosts:
+        result.update({"message": f"{ip} is localhost"})
         return JsonResponse(result)
 
     result.update({"ip": ip})
