@@ -12,6 +12,7 @@ from django.conf import settings
 from django.core.cache import cache as django_cache
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.views.decorators.cache import never_cache
 from PIL import Image, ImageDraw, ImageFont
 from proxy_hunter.extract_proxies import *
 
@@ -21,6 +22,7 @@ from src.func import get_relative_path, is_debug, md5
 from src.func_proxy import build_request
 
 
+@never_cache
 def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
     result = {"error": True}
     if not data_str:
