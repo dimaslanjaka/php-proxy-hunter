@@ -88,13 +88,16 @@ def get_client_ip(request: HttpRequest):
 
 
 def json_to_image_view(request: HttpRequest, geo_data: Dict[str, Any]):
-    cache_key = md5(f"geolocation_image_{geo_data}")
-    cache_val = django_cache.get(cache_key, None)
-    if cache_val is not None and not is_debug():
-        # load cached
-        return HttpResponse(cache_val, content_type="image/png")
     # print(geo_data)
     data: dict = geo_data["data"]
+
+    if data.get("ip"):
+        cache_key = md5(f"geolocation_image_{data['ip']}")
+        cache_val = django_cache.get(cache_key, None)
+        if cache_val is not None and not is_debug():
+            # load cached
+            return HttpResponse(cache_val, content_type="image/png")
+
     # height = int(get_query_or_post_body(request, "h", "60") or "60")
     # width = int(get_query_or_post_body(request, "w", "480") or "480")
     height = 250
