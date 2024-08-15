@@ -13,6 +13,7 @@ from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
+from proxy_hunter.extract_proxies import *
 
 from django_backend.apps.core.utils import get_query_or_post_body
 from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
@@ -46,6 +47,7 @@ from django_backend.apps.proxy.views_unit.proxy import get_page_title, get_proxy
 from src.func import file_append_str, get_relative_path, is_debug, truncate_file_content
 from src.func_console import log_file
 from src.func_platform import is_django_environment
+from src.func_proxy import build_request
 
 from .models import Proxy
 from .serializers import ProxySerializer
@@ -297,18 +299,49 @@ def view_status(request: HttpRequest):
     return response
 
 
-def geolocation_view(request: HttpRequest, proxy: Optional[str] = None):
-    if not is_debug():
-        cache_key = f"geolocation_{proxy}"
-        value = django_cache.get(cache_key)
-        if value is None:
-            result = fetch_geo_ip(proxy)
-            if result:
-                django_cache.set(cache_key, result, timeout=604800)
+def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
+    result = {"error": True}
+    if not data_str:
+        data_str = get_client_ip(request)
+    ips = extract_ips(data_str)
+    ip = ips[0] if ips else None
+    blacklist = settings.ALLOWED_HOSTS + ["127.0.0.1", "::1"]
+    if ip in blacklist:
+        print(f"{ip} is localhost")
+        url = "https://cloudflare.com/cdn-cgi/trace"
+        response = build_request(endpoint=url)
+        text = decompress_requests_response(response)
+        ips = extract_ips(text)
+        ip = ips[0] if ips else None
+    result.update({"ip": ip})
+    if ip and ip not in blacklist:
+        if not is_debug():
+            cache_key = f"geolocation_{ip}"
+            value: Optional[dict] = django_cache.get(cache_key)
+            if value is None:
+                result = fetch_geo_ip(ip)
+                if result:
+                    django_cache.set(cache_key, result, timeout=604800)
+                else:
+                    result.update(
+                        {
+                            "error": True,
+                            "messages": f"Fail get geolocation of {ip}",
+                            "data": result,
+                        }
+                    )
             else:
-                result = {"Error": True, "messages": f"Fail get geolocation of {proxy}"}
+                result.update(value)
         else:
-            result = value
-    else:
-        result = fetch_geo_ip(proxy)
+            result.update(fetch_geo_ip(ip))
+        result.update({"error": False})
     return JsonResponse(result)
+
+
+def get_client_ip(request: HttpRequest):
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0]
+    else:
+        ip = request.META.get("REMOTE_ADDR")
+    return ip
