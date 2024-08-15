@@ -71,7 +71,7 @@ class SQLiteHelper:
         potential resource leaks.
     """
 
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str, check_same_thread=False):
         """
         Initializes a SQLiteHelper instance.
 
@@ -79,7 +79,7 @@ class SQLiteHelper:
             db_path (str): The file path to the SQLite database.
         """
         self.db_path = db_path
-        self.conn = sqlite3.connect(db_path)
+        self.conn = sqlite3.connect(db_path, check_same_thread=check_same_thread)
         self.conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign key support
         self.conn.row_factory = sqlite3.Row  # Access rows by column names
         self.cursor = self.conn.cursor()
