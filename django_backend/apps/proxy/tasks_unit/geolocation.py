@@ -45,12 +45,11 @@ def fetch_geo_ip(data: Optional[str] = None):
 
     # validation
     valid_proxy = is_valid_proxy(data)
-    if not valid_proxy:
+    valid_ip = is_valid_ip(data)
+
+    if not valid_proxy and not valid_ip:
         execute_sql_query("DELETE FROM proxies WHERE proxy = ?", (data,))
         print(f"{data} invalid - removed")
-
-    valid_ip = is_valid_ip(data)
-    if not valid_ip and not valid_proxy:
         result.update(
             {
                 "error": True,
@@ -58,7 +57,6 @@ def fetch_geo_ip(data: Optional[str] = None):
             }
         )
 
-    save = False
     if valid_proxy:
         select = execute_select_query("SELECT * FROM proxies WHERE proxy = ?", (data,))
     elif valid_ip:
@@ -124,7 +122,11 @@ def fetch_geo_ip(data: Optional[str] = None):
             result["error"] = f"fetch_geo_ip fail update proxy {model['proxy']}. {e}"
             log_file(result_log_file, result["error"])
         result["data"] = model
-
+    elif valid_ip or valid_proxy:
+        # ip only
+        result["data"] = get_geo_ip2(data).to_dict()
+        result["messages"] = "IP Only"
+        result["error"] = False
     return result
 
 
