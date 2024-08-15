@@ -24,13 +24,16 @@ def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
     ips = extract_ips(data_str)
     ip = ips[0] if ips else None
     blacklist = settings.ALLOWED_HOSTS + ["127.0.0.1", "::1"]
-    if ip in blacklist:
+    if ip and ip in blacklist:
         print(f"{ip} is localhost")
         url = "https://cloudflare.com/cdn-cgi/trace"
         response = build_request(endpoint=url)
         text = decompress_requests_response(response)
         ips = extract_ips(text)
         ip = ips[0] if ips else None
+    if not ip:
+        result.update({"message": "IP or PROXY invalid"})
+        return JsonResponse(result)
     result.update({"ip": ip})
     if ip and ip not in blacklist:
         if not is_debug():
@@ -44,7 +47,7 @@ def geolocation_view(request: HttpRequest, data_str: Optional[str] = None):
                     result.update(
                         {
                             "error": True,
-                            "messages": f"Fail get geolocation of {ip}",
+                            "message": f"Fail get geolocation of {ip}",
                             "data": result,
                         }
                     )
