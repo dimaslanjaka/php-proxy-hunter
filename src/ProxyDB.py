@@ -14,7 +14,7 @@ from proxy_hunter import Proxy
 
 
 class ProxyDB:
-    def __init__(self, db_location=None, start=False):
+    def __init__(self, db_location=None, start=False, check_same_thread=False):
         """
         Initialize ProxyDB instance.
 
@@ -22,6 +22,7 @@ class ProxyDB:
             db_location (Optional[str]): The location of the SQLite database file. If None, uses default path.
             start (bool): If True, automatically starts the database connection.
         """
+        self.check_same_thread = check_same_thread
         self.db_location = db_location
         if db_location is None:
             self.db_location = get_relative_path("src/database.sqlite")
@@ -32,7 +33,7 @@ class ProxyDB:
     def start_connection(self):
         """Establishes a connection to the SQLite database and sets up initial configurations."""
         try:
-            self.db = SQLiteHelper(self.db_location)
+            self.db = SQLiteHelper(self.db_location, check_same_thread=self.check_same_thread)
             # create table proxies when not exist
             db_create_file = get_nuitka_file("assets/database/create.sql")
             contents = read_file(db_create_file)
