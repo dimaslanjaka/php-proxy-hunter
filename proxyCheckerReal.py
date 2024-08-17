@@ -73,8 +73,9 @@ def real_check(proxy: str, url: str, title_should_be: str):
         "type": protocols,
     }
     if protocols:
+        pt = "-".join(protocols)
         log_proxy(
-            f"{proxy} {green('working')} -> {url} ({response_title})".replace(
+            f"{pt}://{proxy} {green('working')} -> {url} ({response_title})".replace(
                 "()", ""
             ).strip()
         )
@@ -130,8 +131,10 @@ def real_latency(proxy: str):
     configs = [
         ["https://bing.com", "bing"],
         ["https://github.com/", "github"],
+        ["https://www.example.com/", "example"],
         ["http://httpforever.com/", "http forever"],
-        ["http://www.example.net/", "example domain"],
+        ["http://www.example.net/", "example"],
+        ["http://www.example.com/", "example"],
     ]
     for config in configs:
         url, title_should_be = tuple(config)
@@ -251,7 +254,7 @@ if __name__ == "__main__":
     if args.max:
         max = args.max
 
-    db = ProxyDB(get_relative_path("src/database.sqlite"))
+    db = ProxyDB(get_relative_path("src/database.sqlite"), True)
     proxies: List[Dict[str, str | None]] = db.get_all_proxies(True)[:max]
     random.shuffle(proxies)
 
