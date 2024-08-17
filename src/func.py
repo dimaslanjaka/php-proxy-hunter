@@ -1095,3 +1095,23 @@ def base64_decode(encoded_data: str) -> str:
     """
     decoded_bytes = base64.b64decode(encoded_data)
     return decoded_bytes.decode("utf-8")  # Assuming the original data was UTF-8 encoded
+
+
+def unique_non_empty_strings(strings: Optional[List[Union[str, None]]]) -> List[str]:
+    """
+    Filter out non-string elements, empty strings, and None from the input list,
+    and return a list of unique non-empty strings.
+
+    Args:
+        strings (List[Union[str, None]]): The list of strings to process.
+
+    Returns:
+        List[str]: A list of unique non-empty strings.
+    """
+    if not strings:
+        return []
+    unique_strings = set()
+    for s in strings:
+        if isinstance(s, str) and s not in ("", None):
+            unique_strings.add(s)
+    return list(unique_strings)
