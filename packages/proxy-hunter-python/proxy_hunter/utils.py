@@ -6,10 +6,29 @@ import subprocess
 import zlib
 from io import BytesIO
 from typing import Optional
+from urllib.parse import urlparse
 
 import brotli
 import chardet
 import requests
+
+
+def is_valid_url(url: str) -> bool:
+    """
+    Check if the given URL is valid.
+
+    Args:
+        url (str): The URL to be validated.
+
+    Returns:
+        bool: True if the URL is valid, False otherwise.
+    """
+    try:
+        parsed_url = urlparse(url)
+        # A URL is considered valid if it has a scheme and netloc
+        return bool(parsed_url.scheme and parsed_url.netloc)
+    except ValueError:
+        return False
 
 
 def decompress_requests_response(response: requests.Response) -> str:
@@ -186,7 +205,31 @@ def check_raw_headers_keywords(input_string: str) -> bool:
     return found_count >= 4
 
 
+def is_vps() -> bool:
+    """
+    Check if the system is a Virtual Private Server (VPS) by looking for virtualization indicators.
+
+    Returns:
+        bool: True if the system is a VPS, False if it is a physical machine or if the check fails.
+    """
+    if platform.system() != "Linux":
+        print("This check is only applicable for Linux systems.")
+        return False
+
+    try:
+        output = subprocess.check_output(["lscpu"]).decode()
+        return "Hypervisor" in output
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
 if __name__ == "__main__":
+    print(is_valid_url("google"))
+    print(is_valid_url("google.com"))
+    print(is_valid_url("http://google.com"))
+    print(is_valid_url("https://google.com"))
+    print(is_valid_url("https://google.com:8000"))
     print(f"Is valid: {is_valid_proxy('801.0.0.10:801')}")  # Invalid IP
     print(f"Is valid: {is_valid_proxy('0.228.156.97:80')}")  # Check this case
     print(
@@ -205,22 +248,3 @@ if __name__ == "__main__":
     print(
         f"Is valid: {is_valid_proxy('192.168.1.1:80@user:')}"
     )  # Invalid proxy with incomplete credentials
-
-
-def is_vps() -> bool:
-    """
-    Check if the system is a Virtual Private Server (VPS) by looking for virtualization indicators.
-
-    Returns:
-        bool: True if the system is a VPS, False if it is a physical machine or if the check fails.
-    """
-    if platform.system() != "Linux":
-        print("This check is only applicable for Linux systems.")
-        return False
-
-    try:
-        output = subprocess.check_output(["lscpu"]).decode()
-        return "Hypervisor" in output
-    except Exception as e:
-        print(f"Error: {e}")
-        return False
