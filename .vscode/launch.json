@@ -3,43 +3,49 @@
   "configurations": [
     {
       "command": "python main.py",
-      "name": "Run app",
+      "name": "app",
       "request": "launch",
       "type": "node-terminal"
     },
     {
       "command": "python main_proxy_manager.py",
-      "name": "Run proxy manager",
+      "name": "proxy manager",
       "request": "launch",
       "type": "node-terminal"
     },
     {
       "command": "python profile_manager.py",
-      "name": "Run profile manager",
+      "name": "profile manager",
       "request": "launch",
       "type": "node-terminal"
     },
     {
       "command": "python proxyCheckerMultiThreading.main.py",
-      "name": "Run proxy checker",
+      "name": "proxy checker",
       "request": "launch",
       "type": "node-terminal"
     },
     {
       "command": "python device_info.main.py",
-      "name": "Run device info",
+      "name": "device info",
       "request": "launch",
       "type": "node-terminal"
     },
     {
       "command": "python runner.main.py",
-      "name": "Run selenium",
+      "name": "Browser runner",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "python simple_gui.py",
+      "name": "DL-Traffic Simple gui",
       "request": "launch",
       "type": "node-terminal"
     },
     {
       "command": "python workingManager.py",
-      "name": "Run working.json editor",
+      "name": "working.json editor",
       "request": "launch",
       "type": "node-terminal"
     },
@@ -75,37 +81,37 @@
     },
     {
       "command": "python manage.py runserver 0.0.0.0:8000",
-      "name": "Run django",
+      "name": "django",
       "request": "launch",
       "type": "node-terminal"
     },
     {
       "command": "python manage.py runserver_plus 0.0.0.0:8000 --cert-file django_backend/certificates/localhost.crt --key-file django_backend/certificates/localhost.key",
-      "name": "Run django SSL",
+      "name": "django SSL",
       "request": "launch",
       "type": "node-terminal"
     },
     {
       "command": "python manage.py run_huey --no-periodic --workers=20",
-      "name": "Run huey",
+      "name": "huey",
       "request": "launch",
       "type": "node-terminal"
     }
   ],
   "compounds": [
     {
-      "name": "Run Django with Huey",
+      "name": "Django with Huey",
       "configurations": [
-        "Run django SSL",
-        "Run huey"
+        "django SSL",
+        "huey"
       ]
     },
     {
-      "name": "Run Django Huey Selenium",
+      "name": "Django Huey Browser",
       "configurations": [
-        "Run django SSL",
-        "Run huey",
-        "Run selenium"
+        "django SSL",
+        "huey",
+        "Browser runner"
       ]
     }
   ]

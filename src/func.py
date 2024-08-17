@@ -695,19 +695,20 @@ def remove_string_from_file(
 
     # Create a temporary file
     random_string = "".join(random.choice(string.ascii_letters) for _ in range(5))
-    temp_file = get_relative_path(f"tmp/runners/{random_string}.txt")
-    if not os.path.exists(temp_file):
-        write_file(temp_file, "")
+    temp_file_path = f"tmp/runners/{random_string}.txt"
+    os.makedirs(os.path.dirname(temp_file_path), exist_ok=True)
 
-    # Read the original file and write to the temporary file with the strings removed
-    with open(file_path, "r", encoding="utf-8") as file, temp_file:
+    # Open the original file and the temporary file
+    with open(file_path, "r", encoding="utf-8") as file, open(
+        temp_file_path, "w", encoding="utf-8"
+    ) as temp_file:
         for line in file:
             # Replace all occurrences of the pattern with an empty string
             modified_line = regex.sub("", line)
             temp_file.write(modified_line)
 
     # Replace the original file with the temporary file
-    shutil.move(temp_file.name, file_path)
+    shutil.move(temp_file_path, file_path)
 
 
 def keep_alphanumeric_and_remove_spaces(input_string: str) -> str:
