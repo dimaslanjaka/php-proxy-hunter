@@ -9,8 +9,8 @@ on:
         required: true
         default: "500"
         type: string
-schedule:
-  - cron: "0 */3 * * *" # Runs every 3 hours
+  schedule:
+    - cron: "0 */3 * * *" # Runs every 3 hours
 
 concurrency:
   # group: ${{ github.workflow }}-${{ github.event_name }}
