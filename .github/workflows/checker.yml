@@ -234,6 +234,7 @@ jobs:
             fi
           }
           check_run_status "last_4_hours_run_timestamp" 4
+          check_run_status "last_12_hours_run_timestamp" 12
           check_run_status "last_week_run_timestamp" 168
 
       - name: Dump last run
@@ -260,7 +261,7 @@ jobs:
         if: steps.check_last_run.outputs.run_the_job_last_week_run_timestamp == 'true'
         run: python proxyUpload.py
       - name: Clean github actions cache
-        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
+        if: steps.check_last_run.outputs.run_the_job_last_12_hours_run_timestamp == 'true'
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: bash bin/clear-github-actions-cache
