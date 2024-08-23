@@ -19,6 +19,7 @@ from src.func_proxy import check_proxy, build_request
 from src.ProxyDB import ProxyDB
 from proxy_checker import ProxyChecker
 from proxyWorking import ProxyWorkingManager
+import concurrent.futures
 
 
 def real_check(proxy: str, url: str, title_should_be: str):
@@ -39,28 +40,33 @@ def real_check(proxy: str, url: str, title_should_be: str):
         "Accept-Language": "en-US,en;q=0.9",
     }
 
-    checks = {
-        "socks4": check_proxy(proxy, "socks4", url, headers),
-        "http": check_proxy(proxy, "http", url, headers),
-        "socks5": check_proxy(proxy, "socks5", url, headers),
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
+    future_to_proxy_type = {
+        executor.submit(check_proxy, proxy, proxy_type, url, headers): proxy_type
+        for proxy_type in ["socks4", "http", "socks5"]
     }
 
-    for proxy_type, check in checks.items():
-        log = f"{check.type}://{check.proxy}\n"
-        log += f"RESULT: {'true' if check.result else 'false'}\n"
-        if not check.result and check.error:
-            log += f"ERROR: {check.error.strip()}\n"
-        if check.response:
-            log += "RESPONSE HEADERS:\n"
-            for key, value in check.response.headers.items():
-                log += f"  {key}: {value}\n"
-            if check.response.text:
-                soup = BeautifulSoup(check.response.text, "html.parser")
-                response_title = soup.title.string.strip() if soup.title else ""
-                log += f"TITLE: {response_title}\n"
-                if title_should_be.lower() in response_title.lower():
-                    protocols.append(proxy_type.lower())
-            file_append_str(output_file, log)
+    for future in concurrent.futures.as_completed(future_to_proxy_type):
+        proxy_type = future_to_proxy_type[future]
+        try:
+            check = future.result()
+            log = f"{check.type}://{check.proxy}\n"
+            log += f"RESULT: {'true' if check.result else 'false'}\n"
+            if not check.result and check.error:
+                log += f"ERROR: {check.error.strip()}\n"
+            if check.response:
+                log += "RESPONSE HEADERS:\n"
+                for key, value in check.response.headers.items():
+                    log += f"  {key}: {value}\n"
+                if check.response.text:
+                    soup = BeautifulSoup(check.response.text, "html.parser")
+                    response_title = soup.title.string.strip() if soup.title else ""
+                    log += f"TITLE: {response_title}\n"
+                    if title_should_be.lower() in response_title.lower():
+                        protocols.append(check.type.lower())
+                file_append_str(output_file, log)
+        except Exception as exc:
+            log_proxy(f"{proxy_type} check generated an exception: {exc}")
 
     if os.path.exists(output_file):
         log_proxy(f"logs written {output_file}")
@@ -170,7 +176,7 @@ def real_latency(proxy: str):
             soup = BeautifulSoup(response.text, "html.parser")
             response_title = soup.title.string.strip() if soup.title else ""
             if title_should_be.lower() in response_title.lower():
-                log_proxy(f"{proxy} latency is {green(latency)} seconds")
+                log_proxy(f"{proxy} latency is {green(str(latency))} seconds")
                 # break when success
                 break
     return latency
@@ -250,12 +256,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Proxy Tool")
     parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
     args = parser.parse_args()
-    max = 100
+    limit = 100
     if args.max:
-        max = args.max
+        limit = args.max
 
     db = ProxyDB(get_relative_path("src/database.sqlite"), True)
-    proxies: List[Dict[str, str | None]] = db.get_all_proxies(True)[:max]
+    proxies = db.get_untested_proxies(limit)
+    if not proxies:
+        proxies = db.get_all_proxies(True)[:limit]
     random.shuffle(proxies)
 
     # using_pool(proxies, 5)

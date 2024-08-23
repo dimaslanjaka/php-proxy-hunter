@@ -1,11 +1,42 @@
-import subprocess
-import threading
-from typing import Callable, List, Any
 import concurrent.futures
 import os
+import subprocess
 import sys
+import threading
+import time
+from concurrent.futures import FIRST_COMPLETED, wait
+from typing import Any, Callable, List
+
+from pebble import ProcessPool
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+
+def poll_first_completed(
+    max_workers: int = 2, funcs: List[Callable[[], Any]] = []
+) -> List[concurrent.futures.Future]:
+    """
+    Execute a list of callable functions using a ProcessPool and return the first completed future.
+
+    Args:
+        max_workers (int): The maximum number of worker processes to use in the ProcessPool.
+        funcs (List[Callable[[], Any]]): A list of callable functions to execute concurrently.
+
+    Returns:
+        List[concurrent.futures.Future]: A list containing the first completed future.
+
+    Raises:
+        Exception: Any exception raised by the function in the future.
+    """
+    pool = ProcessPool(max_workers=max_workers)
+    scheduled = [pool.schedule(func) for func in funcs]
+    set_future, not_done = wait(tuple(scheduled), return_when=FIRST_COMPLETED)
+
+    # Cancel all other futures that did not complete
+    for f in not_done:
+        f.cancel()
+
+    return list(set_future)
 
 
 def kill_processes(process_names: List[str]) -> None:
