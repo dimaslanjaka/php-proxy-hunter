@@ -34,9 +34,23 @@ jobs:
           cache: 'pip'
           cache-dependency-path: |
             **/requirements*.txt
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18.x
+
+      - name: Setup Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist
+            tmp
+            src/*.sqlite*
+          key: build-cache-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            build-cache-${{ github.sha }}
+            build-cache-${{ hashFiles('**/*.py') }}
+            build-cache-
 
       # Install dependencies
       - name: Install Dependencies
