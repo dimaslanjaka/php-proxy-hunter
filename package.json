@@ -20,7 +20,7 @@
     "binary-collections": "https://github.com/dimaslanjaka/bin.git",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
-    "electron": "^29.3.0",
+    "electron": "^32.0.1",
     "eslint": "8",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
