@@ -47,6 +47,9 @@ jobs:
             dist
             tmp
             src/*.sqlite*
+            node_modules/**
+            .yarn/caches/**/*
+            venv/**/*
           key: build-cache-${{ hashFiles('**/*.py') }}
           restore-keys: |
             build-cache-${{ github.sha }}
