@@ -145,7 +145,10 @@ def get_geo_ip2(
     ) = [None] * 10
 
     try:
-        with database.Reader(get_nuitka_file("src/GeoLite2-City.mmdb")) as reader:
+        db_file = get_relative_path("src/GeoLite2-City.mmdb")
+        if not os.path.exists(db_file):
+            db_file = get_nuitka_file("src/GeoLite2-City.mmdb")
+        with database.Reader(db_file) as reader:
             response = reader.city(ip)
             city = response.city.name
             country_name = response.country.name
@@ -369,10 +372,12 @@ def get_locale_from_country_code(country_code: str):
         return None  # or handle as needed
 
 
-def download_databases(folder):
+def download_databases(folder: str):
     """
     download geolite2 .mmdb databases
     """
+    if not folder:
+        return
     # Ensure the folder exists
     os.makedirs(folder, exist_ok=True)
 
