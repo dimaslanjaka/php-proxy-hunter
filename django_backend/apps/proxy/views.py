@@ -282,6 +282,7 @@ def view_status(request: HttpRequest):
                 "untested": Proxy.objects.filter(status="untested").count(),
                 "dead": Proxy.objects.filter(status="dead").count(),
                 "port-closed": Proxy.objects.filter(status="port-closed").count(),
+                "port-open": Proxy.objects.filter(status="port-open").count(),
                 "private": Proxy.objects.filter(
                     Q(status="private") | Q(status="true")
                 ).count(),
