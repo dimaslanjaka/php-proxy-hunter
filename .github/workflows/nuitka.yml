@@ -1,4 +1,4 @@
-name: Build and Upload EXE
+name: Nuitka CI
 
 on:
   push:
