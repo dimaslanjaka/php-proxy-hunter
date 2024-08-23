@@ -14,7 +14,7 @@ import tempfile
 import time
 import stat
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar, Union
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -1116,3 +1116,20 @@ def unique_non_empty_strings(strings: Optional[List[Union[str, None]]]) -> List[
         if isinstance(s, str) and s not in ("", None):
             unique_strings.add(s)
     return list(unique_strings)
+
+
+def split_list_into_chunks(
+    lst: List[int], chunk_size: int
+) -> Generator[List[int], None, None]:
+    """
+    Split a list into chunks of a specified size.
+
+    Args:
+        lst (List[int]): The list to be split into chunks.
+        chunk_size (int): The size of each chunk.
+
+    Returns:
+        Generator[List[int], None, None]: A generator that yields chunks of the list.
+    """
+    for i in range(0, len(lst), chunk_size):
+        yield lst[i : i + chunk_size]
