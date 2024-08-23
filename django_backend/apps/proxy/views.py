@@ -284,7 +284,7 @@ def view_status(request: HttpRequest):
                 "port-closed": Proxy.objects.filter(status="port-closed").count(),
                 "port-open": Proxy.objects.filter(status="port-open").count(),
                 "private": Proxy.objects.filter(
-                    Q(status="private") | Q(status="true")
+                    Q(status="private") | Q(private="true")
                 ).count(),
                 "active": Proxy.objects.filter(status="active").count(),
             },
