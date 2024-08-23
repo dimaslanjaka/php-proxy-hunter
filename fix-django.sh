@@ -33,6 +33,19 @@ else
     export PATH=$PATH:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
 fi
 
+# Check if Git is installed
+if command -v git >/dev/null 2>&1; then
+    # Check if the current directory is a Git repository
+    if [ -d "$CWD/.git" ] || git -C "$CWD" rev-parse --git-dir >/dev/null 2>&1; then
+        echo "Current directory is a Git repository. Updating submodules..."
+        bash "$CWD/bin/submodule-update"
+    else
+        echo "Current directory is not a Git repository."
+    fi
+else
+    echo "Git is not installed. Please install Git to proceed."
+fi
+
 if [ -d "$CWD/django_backend" ]; then
     chown -R "$USER":"$USER" "$CWD/django_backend"
     chown -R "$USER":"$USER" "$CWD/django_backend"/*
