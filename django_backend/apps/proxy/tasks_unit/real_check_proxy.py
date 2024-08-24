@@ -5,6 +5,8 @@ import sys
 import huey.contrib
 import huey.contrib.djhuey
 
+from django_backend.apps.core.models import ProcessStatus
+
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
@@ -388,7 +390,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 insert_exec = execute_sql_query(insert_query, insert_params)
                 update_exec = execute_sql_query(update_query, update_params)
                 merge_exec = {**insert_exec, **update_exec}
-                if status == 'active':
+                if status == "active":
                     # fetch geo location
                     t = threading.Thread(target=fetch_geo_ip, args=(proxy_obj.proxy,))
                     t.start()
@@ -421,6 +423,12 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     )
 
     file_append_str(result_log_file, f"\n{len(proxies)} proxies checked done.\n")
+
+    # release process status
+    process_status = ProcessStatus.objects.get(process_name="check_existing_proxies")
+    process_status.is_done = True
+    process_status.save()
+    print(f"process {process_status.process_name} released")
 
 
 def real_check_proxy_async_in_thread(proxy):
