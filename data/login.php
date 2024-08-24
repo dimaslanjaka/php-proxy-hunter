@@ -84,6 +84,11 @@ if ($client->getAccessToken()) {
       $email = $google_account_info->email;
       $name = $google_account_info->name;
       $_SESSION['user_id'] = $email;
+      // authorize captcha on logged in
+      if (!empty($email)) {
+        $_SESSION['captcha'] = true;
+        $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
+      }
       if ($email == 'dimaslanjaka@gmail.com') {
         $_SESSION['admin'] = true;
       } else {
@@ -126,126 +131,127 @@ if (!isset($_SESSION['captcha'])) {
     };
   </script>
   <style>
-      pre {
-          white-space: pre-wrap;
-          /* css-3 */
-          white-space: -moz-pre-wrap;
-          /* Mozilla, since 1999 */
-          white-space: -pre-wrap;
-          /* Opera 4-6 */
-          white-space: -o-pre-wrap;
-          /* Opera 7 */
-          word-wrap: break-word;
-          /* Internet Explorer 5.5+ */
-      }
+    pre {
+      white-space: pre-wrap;
+      /* css-3 */
+      white-space: -moz-pre-wrap;
+      /* Mozilla, since 1999 */
+      white-space: -pre-wrap;
+      /* Opera 4-6 */
+      white-space: -o-pre-wrap;
+      /* Opera 7 */
+      word-wrap: break-word;
+      /* Internet Explorer 5.5+ */
+    }
   </style>
   <link rel="stylesheet"
-        href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
+    href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
 </head>
 
 <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<div class="inline-flex rounded-md shadow-sm mb-3" role="group">
-  <button id="my_button"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-700 rounded-l-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-    My Button
-  </button>
-  <button type="button" onclick="location.href='login.php?login=true'"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-l-0 border-blue-700 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-    Login server
-  </button>
-  <button type="button" onclick="location.href='/proxyManager.html'"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-l-0 border-blue-700 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-    Goto Proxy Manager
-  </button>
-</div>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <div class="inline-flex rounded-md shadow-sm mb-3" role="group">
+    <button id="my_button"
+      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-700 rounded-l-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      My Button
+    </button>
+    <button type="button" onclick="location.href='login.php?login=true'"
+      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-l-0 border-blue-700 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      Login server
+    </button>
+    <button type="button" onclick="location.href='/proxyManager.html'"
+      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-l-0 border-blue-700 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      Goto Proxy Manager
+    </button>
+  </div>
 
-<div id="recaptcha"></div>
+  <div id="recaptcha"></div>
 
-<div class="w-full">
-  <pre class="mb-3"><code><?php var_dump($message); ?></code></pre>
-</div>
+  <div class="w-full">
+    <pre class="mb-3"><code><?php var_dump($message); ?></code></pre>
+  </div>
 
-<script>
-  function send_token(token, callback) {
-    if (typeof callback !== "function") callback = () => {
-    };
-    fetch(`//${location.hostname}/data/login.php`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-      },
-      body: new URLSearchParams({
-        "g-recaptcha-response": token
-      })
-        .toString()
-    })
-      .then(res => res.json())
-      .then(callback);
-  }
+  <script>
+    function send_token(token, callback) {
+      if (typeof callback !== "function") callback = () => {};
+      fetch(`//${location.hostname}/data/login.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+          },
+          body: new URLSearchParams({
+              "g-recaptcha-response": token
+            })
+            .toString()
+        })
+        .then(res => res.json())
+        .then(callback);
+    }
 
-  function recaptcha_execute(siteKey) {
-    grecaptcha.execute(siteKey, { action: "submit" }).then(send_token);
-  }
+    function recaptcha_execute(siteKey) {
+      grecaptcha.execute(siteKey, {
+        action: "submit"
+      }).then(send_token);
+    }
 
-  fetch(`//${location.hostname}/info.php`).then(r => r.json()).then(res => {
-    const siteKey = res["captcha-site-key"];
-    const embedder = document.createElement("div");
-    embedder.classList.add("g-recaptcha");
-    embedder.setAttribute("data-sitekey", "X");
-    embedder.setAttribute("data-callback", "send_token");
-    embedder.setAttribute("data-action", "submit");
-    document.getElementById("recaptcha").appendChild(embedder);
-    const script = document.createElement("script");
-    script.src = "https://www.google.com/recaptcha/api.js?render=" + siteKey;
-    script.onload = function() {
-      grecaptcha.ready(() => recaptcha_execute(siteKey));
-    };
-    document.body.appendChild(script);
-  });
-</script>
-
-
-<script>
-  function handleCredentialResponse(response) {
-    // console.log("Encoded JWT ID token: " + response.credential);
-    const tokens = response.credential.split(".");
-    const responsePayload = JSON.parse(atob(tokens[1]));
-    console.log("ID: " + responsePayload.sub);
-    console.log("Full Name: " + responsePayload.name);
-    console.log("Given Name: " + responsePayload.given_name);
-    console.log("Family Name: " + responsePayload.family_name);
-    console.log("Image URL: " + responsePayload.picture);
-    console.log("Email: " + responsePayload.email);
-    // Get current time
-    var now = new Date();
-
-    // Set expiration time to 1 hour from now
-    var expirationTime = new Date(now.getTime() + 1 * 3600 * 1000); // 1 hour = 3600 seconds * 1000 milliseconds
-
-    // Construct the cookie string
-    var cookieString = "<?php echo $shortHash; ?>=" + encodeURIComponent(tokens[1]) + "; expires=" + expirationTime.toUTCString() + "; path=/";
-
-    // Set the cookie
-    document.cookie = cookieString;
-  }
-
-  window.onload = function() {
-    google.accounts.id.initialize({
-      client_id: "435643304043-alt6ls25k6c41qb76kfk34dpbc8t9c07.apps.googleusercontent.com",
-      callback: handleCredentialResponse
+    fetch(`//${location.hostname}/info.php`).then(r => r.json()).then(res => {
+      const siteKey = res["captcha-site-key"];
+      const embedder = document.createElement("div");
+      embedder.classList.add("g-recaptcha");
+      embedder.setAttribute("data-sitekey", "X");
+      embedder.setAttribute("data-callback", "send_token");
+      embedder.setAttribute("data-action", "submit");
+      document.getElementById("recaptcha").appendChild(embedder);
+      const script = document.createElement("script");
+      script.src = "https://www.google.com/recaptcha/api.js?render=" + siteKey;
+      script.onload = function() {
+        grecaptcha.ready(() => recaptcha_execute(siteKey));
+      };
+      document.body.appendChild(script);
     });
-    google.accounts.id.renderButton(
-      document.getElementById("my_button"), {
-        theme: "outline",
-        size: "large"
-      } // customization attributes
-    );
-    // google.accounts.id.prompt(); // also display the One Tap dialog
-    // redirect to non-code query string
-    // if (location.href.includes('?code=')) location.href = 'login.php';
-  };
-</script>
+  </script>
+
+
+  <script>
+    function handleCredentialResponse(response) {
+      // console.log("Encoded JWT ID token: " + response.credential);
+      const tokens = response.credential.split(".");
+      const responsePayload = JSON.parse(atob(tokens[1]));
+      console.log("ID: " + responsePayload.sub);
+      console.log("Full Name: " + responsePayload.name);
+      console.log("Given Name: " + responsePayload.given_name);
+      console.log("Family Name: " + responsePayload.family_name);
+      console.log("Image URL: " + responsePayload.picture);
+      console.log("Email: " + responsePayload.email);
+      // Get current time
+      var now = new Date();
+
+      // Set expiration time to 1 hour from now
+      var expirationTime = new Date(now.getTime() + 1 * 3600 * 1000); // 1 hour = 3600 seconds * 1000 milliseconds
+
+      // Construct the cookie string
+      var cookieString = "<?php echo $shortHash; ?>=" + encodeURIComponent(tokens[1]) + "; expires=" + expirationTime.toUTCString() + "; path=/";
+
+      // Set the cookie
+      document.cookie = cookieString;
+    }
+
+    window.onload = function() {
+      google.accounts.id.initialize({
+        client_id: "435643304043-alt6ls25k6c41qb76kfk34dpbc8t9c07.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.renderButton(
+        document.getElementById("my_button"), {
+          theme: "outline",
+          size: "large"
+        } // customization attributes
+      );
+      // google.accounts.id.prompt(); // also display the One Tap dialog
+      // redirect to non-code query string
+      // if (location.href.includes('?code=')) location.href = 'login.php';
+    };
+  </script>
 </body>
 
 </html>
