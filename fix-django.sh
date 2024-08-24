@@ -46,10 +46,42 @@ else
     echo "Git is not installed. Please install Git to proceed."
 fi
 
+# Set permissions on files and directories
+chown -R "$USER":"$USER" *
+chmod 777 "$CWD"/*.txt
+chmod 755 "$CWD"/*.html "$CWD"/*.js
+chmod 755 "$CWD"/*.css
+chmod 755 "$CWD"/js/*.js "$CWD"/userscripts/*.js
+chmod 777 "$CWD"/config
+chmod 755 "$CWD"/config/*
+chmod 777 "$CWD"/tmp "$CWD"/.cache "$CWD"/data
+chmod 644 "$CWD"/.env
+chmod 755 "$CWD"/*.sh
+chown -R "$USER":"$USER" "$CWD/bin"
+chmod 755 "$CWD/bin"/*
+
+if [ -d "$CWD/assets/proxies" ]; then
+    chmod 777 "$CWD/assets/proxies"
+    chmod 755 "$CWD/assets/proxies"/*
+    touch "$CWD/assets/proxies/index.html"
+fi
+if [ -d "$CWD/packages" ]; then
+    chown -R "$USER":"$USER" "$CWD/packages"
+    chown -R "$USER":"$USER" "$CWD/packages"/*
+fi
+if [ -d "$CWD/public" ]; then
+    chown -R "$USER":"$USER" "$CWD/public"
+    chown -R "$USER":"$USER" "$CWD/public"/*
+fi
 if [ -d "$CWD/django_backend" ]; then
     chown -R "$USER":"$USER" "$CWD/django_backend"
     chown -R "$USER":"$USER" "$CWD/django_backend"/*
     touch "$CWD/django_backend/index.html"
+fi
+if [ -d "$CWD/xl" ]; then
+    chown -R "$USER":"$USER" "$CWD/xl"
+    chown -R "$USER":"$USER" "$CWD/xl"/*
+    touch "$CWD/xl/index.html"
 fi
 
 # Install python requirements
