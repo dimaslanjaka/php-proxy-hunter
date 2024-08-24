@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# fix malformed database with the source tmp/database.sqlite
+
+mkdir -p tmp src
+
+# dump and export to tmp/dump.sql
+sqlite3 tmp/database.sqlite .dump >tmp/dump.sql
+
+# import to src/
+if [ -f "src/database.sqlite" ]; then
+  rm src/database.sqlite
+fi
+sqlite3 src/database.sqlite <tmp/dump.sql
+
+# import to dist/src/
+if [ -f "dist/src/database.sqlite" ]; then
+  rm dist/src/database.sqlite
+fi
+sqlite3 dist/src/database.sqlite <tmp/dump.sql
+
+# re-import to tmp/
+cp -rf src/database.sqlite tmp/database.sqlite
+
+# remove django tables from src/database.sqlite
+
+# Define the SQLite database file path
+DB_FILE="src/database.sqlite"
+
+# List all tables
+ALL_TABLES=$(sqlite3 $DB_FILE ".tables")
+echo "All tables:"
+echo "$ALL_TABLES"
+
+# Initialize a variable to store the filtered table names
+FILTERED_TABLES=""
+
+# Check each table name and filter based on the prefixes
+for TABLE in $ALL_TABLES; do
+  if [[ $TABLE == django_* || $TABLE == auth_* || $TABLE == user_* || $TABLE == users* || $TABLE == *xl* || $TABLE == *im3* || $TABLE == *axis* || $TABLE == *isimple* ]]; then
+    FILTERED_TABLES+="$TABLE "
+  fi
+done
+
+echo "Filtered tables:"
+echo "$FILTERED_TABLES"
+
+# If there are tables that match, proceed to delete them
+if [ -n "$FILTERED_TABLES" ]; then
+  for TABLE in $FILTERED_TABLES; do
+    TABLE=$(echo $TABLE | xargs)  # Trim any extra whitespace
+    sqlite3 $DB_FILE "DROP TABLE IF EXISTS $TABLE;"
+    echo "Dropped table: $TABLE"
+  done
+else
+  echo "No tables found with the specified prefixes."
+fi
