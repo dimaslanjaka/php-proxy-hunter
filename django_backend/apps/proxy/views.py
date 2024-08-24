@@ -1,8 +1,9 @@
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
+from django_backend.apps.core.models import ProcessStatus
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 from threading import Thread, active_count
 from typing import Any, Dict
 from urllib.parse import unquote
@@ -44,6 +45,7 @@ from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
 from django_backend.apps.proxy.views_unit.proxy import get_page_title, get_proxy_list
 from src.func import file_append_str, get_relative_path, truncate_file_content
 from src.func_console import log_file
+from src.func_date import get_current_rfc3339_time
 from src.func_platform import is_django_environment
 
 from .models import Proxy
@@ -135,17 +137,37 @@ def get_thread_details(thread: Thread):
 def trigger_check_proxy(request: HttpRequest):
     global proxy_checker_threads
 
-    truncate_file_content(proxy_checker_task_log_file)
-
     render_data = {
         "running": len(proxy_checker_threads),
+        "date": get_current_rfc3339_time(),
     }
 
+    # ?proxy=IP:PORT to check custom proxy
     proxy = get_query_or_post_body(request, "proxy")
+    # ?force=true to force run
+    process_force_run = get_query_or_post_body(request, "force")
+    render_data.update({"lock": "applied" if not process_force_run else "force"})
     if not proxy:
         render_data.update({"message": "Checking existing proxies"})
+        # lock process
+        process_status, process_created = ProcessStatus.objects.get_or_create(
+            process_name="check_existing_proxies"
+        )
+        if process_force_run:
+            process_status.is_done = True
+            process_status.save()
+        if not process_status.is_done and not process_created and not process_force_run:
+            render_data.update(
+                {"message": f"Another checker running at {process_status.timestamp}"}
+            )
+            return JsonResponse(render_data)
+        else:
+            process_status.is_done = False
+            process_status.save()
     else:
         render_data.update({"message": "Checking custom proxies"})
+
+    truncate_file_content(proxy_checker_task_log_file)
 
     decoded_proxy = None
     if proxy:
