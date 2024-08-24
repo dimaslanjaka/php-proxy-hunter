@@ -47,6 +47,7 @@ jobs:
             dist
             tmp
             src/*.sqlite*
+            src/*.mmdb
             node_modules/**
             .yarn/caches/**/*
             venv/**/*
