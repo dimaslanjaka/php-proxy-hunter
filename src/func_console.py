@@ -100,21 +100,6 @@ def ansi_remover(text):
     return ansi_escape.sub("", text)
 
 
-def log_proxy(*args, **kwargs):
-    # Convert all arguments to string and join them with a space
-    message = " ".join(map(str, args))
-
-    # Print to console (with color codes)
-    print(message, **kwargs)
-
-    # Remove color codes before logging to file
-    cleaned_message = ansi_remover(message)
-
-    # Log to file
-    with open(get_relative_path("proxyChecker.txt"), "a", encoding="utf-8") as f:
-        f.write(cleaned_message + "\n")
-
-
 def log_file(filename: str, *args, **kwargs):
     # Convert all arguments to string and join them with a space
     message = " ".join(map(str, args))
@@ -125,6 +110,14 @@ def log_file(filename: str, *args, **kwargs):
     # Remove color codes before logging to file
     cleaned_message = ansi_remover(message)
 
+    # Ensure the parent directory exists
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
     # Log to file
     with open(filename, "a", encoding="utf-8") as f:
         f.write(cleaned_message + "\n")
+
+
+def log_proxy(*args, **kwargs):
+    # Use log_file to log to the proxyChecker.txt file
+    log_file(get_relative_path("proxyChecker.txt"), *args, **kwargs)
