@@ -1,12 +1,11 @@
 name: Nuitka CI
 
 on:
-  push:
   workflow_dispatch:
   workflow_call:
-     secrets:
-       ACCESS_TOKEN:
-         required: true
+    secrets:
+      ACCESS_TOKEN:
+        required: true
   schedule:
     - cron: "0 */8 * * *"
 
@@ -16,26 +15,25 @@ concurrency:
 
 jobs:
   build:
-    if: contains(github.repository, 'proxy')
+    if: contains(github.repository, 'php-proxy-hunter') || contains(github.repository, 'android-traffic-exchange')
     runs-on: windows-latest
 
     steps:
-
       # Check-out repository
       - uses: actions/checkout@v4
         with:
           repository: dimaslanjaka/traffic-generator
           ref: python
           token: ${{ secrets.ACCESS_TOKEN }}
-          lfs: 'true'
-          submodules: 'true'
+          lfs: "true"
+          submodules: "true"
 
       # Setup Python
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
-          cache: 'pip'
+          python-version: "3.x" # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          architecture: "x64" # optional x64 or x86. Defaults to x64 if not specified
+          cache: "pip"
           cache-dependency-path: |
             **/requirements*.txt
 
