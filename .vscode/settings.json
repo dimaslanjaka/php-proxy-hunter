@@ -146,7 +146,8 @@
     "**/.venv": true,
     "**/venv": true,
     "**/config": true,
-    "**/.yarn": true
+    "**/.yarn": true,
+    "backups": true
   },
   "python.analysis.extraPaths": [
     "./packages/proxy-hunter-python",
@@ -162,6 +163,7 @@
     "**/vendor",
     "**/*.egg-info",
     "**/tmp/**",
-    "**/dist"
+    "**/dist",
+    "**/backups"
   ]
 }
