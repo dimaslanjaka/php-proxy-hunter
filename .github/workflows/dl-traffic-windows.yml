@@ -1,0 +1,22 @@
+name: Nuitka CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: "0 */8 * * *"
+
+concurrency:
+  group: nuitka-ci
+  cancel-in-progress: false
+
+jobs:
+  call-workflow-passing-data:
+    # only run on dimaslanjaka/php-proxy-hunter
+    if: contains(github.repository, 'proxy')
+    uses: dimaslanjaka/traffic-generator/.github/workflows/nuitka.yml@python
+    # with:
+    #   config-path: .github/labeler.yml
+    secrets: inherit
