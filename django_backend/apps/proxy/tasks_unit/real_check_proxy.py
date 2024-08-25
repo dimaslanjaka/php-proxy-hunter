@@ -19,6 +19,7 @@ from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from typing import List, Optional, Set, Union
 from urllib.parse import urlparse
 
+import huey
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -30,25 +31,23 @@ from proxy_hunter import (
 )
 
 from django_backend.apps.proxy.models import Proxy
-from django_backend.apps.proxy.tasks_unit.geolocation import (
-    fetch_geo_ip,
-)
+from django_backend.apps.proxy.models import Proxy as ProxyModel
+from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
+from proxyWorking import ProxyWorkingManager
 from src.func import (
     file_append_str,
     get_message_exception,
     get_relative_path,
+    get_unique_dicts_by_key_in_list,
     move_string_between,
     read_file,
     write_json,
-    get_unique_dicts_by_key_in_list,
 )
 from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
-import huey
-from proxyWorking import ProxyWorkingManager
 
 result_log_file = get_relative_path("proxyChecker.txt")
 global_tasks: Set[Union[threading.Thread, Future]] = set()
@@ -205,9 +204,8 @@ def reak_check_proxy_huey(proxy_data: Optional[str] = ""):
 
 
 def real_check_proxy_async(proxy_data: Optional[str] = ""):
-    from django_backend.apps.proxy.models import Proxy as ProxyModel
-
     global result_log_file, global_tasks
+    is_existing_proxies = not proxy_data
 
     if not proxy_data:
         proxy_data = ""
@@ -425,9 +423,10 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
     file_append_str(result_log_file, f"\n{len(proxies)} proxies checked done.\n")
 
     # release process status
-    process_status = ProcessStatus.objects.get(process_name="check_existing_proxies")
-    process_status.is_done = True
-    process_status.save()
+    if is_existing_proxies:
+        process_status = ProcessStatus.objects.get(process_name="check_existing_proxies")
+        process_status.is_done = True
+        process_status.save()
     print(f"process {process_status.process_name} released")
 
 
