@@ -172,11 +172,12 @@ def real_latency(proxy: str):
                 pass
 
         if response and response.ok:
-            latency = int(end_time - start_time)
+            # get latency milliseconds
+            latency = int(end_time - start_time) * 1000
             soup = BeautifulSoup(response.text, "html.parser")
-            response_title = soup.title.string.strip() if soup.title else ""
+            response_title = soup.title.string.strip() if isinstance(soup.title, str) else ""
             if title_should_be.lower() in response_title.lower():
-                log_proxy(f"{proxy} latency is {green(str(latency))} seconds")
+                log_proxy(f"{proxy} latency is {green(str(latency))} ms")
                 # break when success
                 break
     return latency
