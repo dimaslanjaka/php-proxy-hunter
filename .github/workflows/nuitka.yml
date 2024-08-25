@@ -1,6 +1,7 @@
 name: Nuitka CI
 
 on:
+  push:
   workflow_dispatch:
   workflow_call:
     secrets:
