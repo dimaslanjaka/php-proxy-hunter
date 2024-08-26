@@ -5,6 +5,8 @@ const { exec } = require("child_process");
 const { URL } = require("url");
 const { promisify } = require("util");
 
+// delete caches leaving single last cache based on creation date
+
 // Promisify exec
 const execAsync = promisify(exec);
 
@@ -58,12 +60,12 @@ const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 
 /**
  * Deletes a GitHub Actions cache.
- * @param {string} ghRepo - The GitHub repository in the format "owner/repo".
+ * @param {string} GH_REPO - The GitHub repository in the format "owner/repo".
  * @param {string} cacheId - The ID of the cache to delete.
  * @returns {Promise} - A promise that resolves when the cache is deleted or rejects with an error.
  */
-function deleteGitHubActionsCache(ghRepo, cacheId) {
-  const url = `https://api.github.com/repos/${ghRepo}/actions/caches/${cacheId}`;
+function deleteGitHubActionsCache(GH_REPO, cacheId) {
+  const url = `https://api.github.com/repos/${GH_REPO}/actions/caches/${cacheId}`;
 
   return axios
     .delete(url, {
@@ -73,7 +75,7 @@ function deleteGitHubActionsCache(ghRepo, cacheId) {
       }
     })
     .then((response) => {
-      console.log("Cache deleted successfully:", response.data);
+      console.log(`Cache (${cacheId}) deleted successfully`, response.data);
       return response.data;
     })
     .catch((error) => {
@@ -85,7 +87,7 @@ function deleteGitHubActionsCache(ghRepo, cacheId) {
 /**
  * list github actions caches
  * @param {string} GH_REPO
- * @returns {Promise<Record<string, any>[]>}
+ * @returns {Promise<Record<string, Record<string, any>[]>>}
  */
 function get_caches(GH_REPO) {
   const url = `https://api.github.com/repos/${GH_REPO}/actions/caches`;
@@ -115,7 +117,7 @@ function get_caches(GH_REPO) {
           /**
            * @param {Record<string, Record<string, any>[]>} acc
            * @param {Record<string, any>} item
-           * @returns
+           * @returns {Record<string, Record<string, any>[]>}
            */
           (acc, item) => {
             const prefix = getPrefix(item.key);
@@ -132,8 +134,8 @@ function get_caches(GH_REPO) {
         );
 
         // Convert the grouped object into an array of arrays
-        const result = Object.values(grouped);
-        resolve(result);
+        // const result = Object.values(grouped);
+        resolve(grouped);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -145,8 +147,27 @@ function get_caches(GH_REPO) {
 parseGitRemotes().then((remotes) => {
   const GH_REPO = remotes.origin;
   get_caches(GH_REPO).then((caches) => {
-    caches.forEach((item) => {
-      console.log(item);
-    });
+    for (const key in caches) {
+      if (Object.hasOwnProperty.call(caches, key)) {
+        const item = caches[key]
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // sort descending orders
+          .map((item) => ({
+            ...item,
+            human_readable_date: new Date(item.created_at).toLocaleString() // human readable format
+          }));
+        if (item.length > 1) {
+          const ids = item.map((o) => o.id);
+          ids.shift(); // remove first item
+          // console.log(key, ids, item);
+          if (ids.length > 0) {
+            ids.forEach((id) => deleteGitHubActionsCache(GH_REPO, id));
+          } else {
+            console.log(`cache prefix ${key} only have 1 cache`);
+          }
+        } else {
+          console.log(`cache prefix ${key} only have 1 cache`);
+        }
+      }
+    }
   });
 });
