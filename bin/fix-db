@@ -2,22 +2,24 @@
 
 # fix malformed database with the source tmp/database.sqlite
 
-mkdir -p tmp src
+mkdir -p backups src
 
-# dump and export to tmp/dump.sql
-sqlite3 tmp/database.sqlite .dump >tmp/dump.sql
+# dump and export to backups/dump.sql
+sqlite3 tmp/database.sqlite .dump >backups/dump.sql
+
+echo "file size backups/dump.sql $(stat --format="%s bytes" backups/dump.sql)"
 
 # import to src/
 if [ -f "src/database.sqlite" ]; then
   rm src/database.sqlite
 fi
-sqlite3 src/database.sqlite <tmp/dump.sql
+sqlite3 src/database.sqlite <backups/dump.sql
 
 # import to dist/src/
 if [ -f "dist/src/database.sqlite" ]; then
   rm dist/src/database.sqlite
 fi
-sqlite3 dist/src/database.sqlite <tmp/dump.sql
+sqlite3 dist/src/database.sqlite <backups/dump.sql
 
 # re-import to tmp/
 cp -rf src/database.sqlite tmp/database.sqlite
@@ -55,3 +57,6 @@ if [ -n "$FILTERED_TABLES" ]; then
 else
   echo "No tables found with the specified prefixes."
 fi
+
+mkdir -p dist/src
+cp -rf src/database.sqlite dist/src/database.sqlite
