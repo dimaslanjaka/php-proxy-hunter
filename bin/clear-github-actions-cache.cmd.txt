@@ -1,0 +1,86 @@
+@echo off
+setlocal enabledelayedexpansion
+
+REM Load the .env file if it exists
+if exist .env (
+    for /f "tokens=*" %%i in ('type .env ^| findstr /r /v "^#"') do (
+        set %%i
+    )
+    echo .env file loaded
+)
+
+REM Get the remote URL
+for /f "delims=" %%i in ('git remote get-url origin') do set "REMOTE_URL=%%i"
+
+REM Remove any potential authentication token
+set "REMOTE_URL=%REMOTE_URL:*@=%"
+
+REM Remove the .git suffix if it exists
+set "REMOTE_URL=%REMOTE_URL:.git=%"
+
+echo remote url %REMOTE_URL%
+
+REM Extract username/repo-name from URL
+set "GH_REPO="
+for /f "tokens=1,2,* delims=/" %%b in ("%REMOTE_URL%") do (
+    if not defined GH_REPO (
+        set "GH_REPO=%%c/%%d"
+    )
+)
+
+if not defined GH_REPO (
+    echo Unable to extract username/repo-name from remote URL: %REMOTE_URL%
+    exit /b 1
+)
+
+echo parsed username/repo %GH_REPO%
+
+REM Execute curl command and store the JSON response
+curl -s -X GET ^
+  -H "Accept: application/vnd.github.v3+json" ^
+  -H "Authorization: token %ACCESS_TOKEN%" ^
+  "https://api.github.com/repos/%GH_REPO%/actions/caches" > "tmp\response.json"
+
+REM Parse the JSON response and extract ids, keys, and timestamps
+set "cache_key="
+set "latest_cache_id="
+set "latest_cache_date="
+for /f "tokens=1,2 delims=:" %%a in ('type tmp\response.json ^| findstr /C:"\"key\":" /C:"\"id\":" /C:"\"created_at\":"') do (
+    if "%%a"=="key" (
+        set "cache_key=%%b"
+        set "cache_key=!cache_key:~1,-1!"
+        echo cache key !cache_key!
+    ) else if "%%a"=="id" (
+        set "cache_id=%%b"
+        set "cache_id=!cache_id:~1,-1!"
+        echo cache id !cache_id!
+    ) else if "%%a"=="created_at" (
+        set "cache_date=%%b"
+        set "cache_date=!cache_date:~1,-1!"
+        echo cache created_at !cache_date!
+        REM Check if this cache is the latest for the key
+        if not "!cache_key!"=="!last_key!" (
+            if defined latest_cache_id (
+                echo Deleting old cache !latest_cache_id!
+                curl -X DELETE -H "Authorization: token %ACCESS_TOKEN%" "https://api.github.com/repos/%GH_REPO%/actions/caches/!latest_cache_id!"
+            )
+            set "last_key=!cache_key!"
+            set "latest_cache_id=!cache_id!"
+            set "latest_cache_date=!cache_date!"
+        ) else (
+            if "!cache_date!" gtr "!latest_cache_date!" (
+                echo New latest cache for key !cache_key! is !cache_id!
+                set "latest_cache_id=!cache_id!"
+                set "latest_cache_date=!cache_date!"
+            )
+        )
+    )
+)
+
+REM Clean up old caches for the last processed key
+if defined latest_cache_id (
+    echo Deleting old cache !latest_cache_id!
+    curl -X DELETE -H "Authorization: token %ACCESS_TOKEN%" "https://api.github.com/repos/%GH_REPO%/actions/caches/!latest_cache_id!"
+)
+
+endlocal

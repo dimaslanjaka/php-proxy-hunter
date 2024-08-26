@@ -6,27 +6,5 @@ if [ -f .env ]; then
     echo ".env file loaded"
 fi
 
-# Get the remote URL
-REMOTE_URL=$(git remote get-url origin)
-
-# Extract username/repo-name from HTTPS or SSH URL
-if [[ $REMOTE_URL =~ github\.com[:/]([^/]+)/([^/]+)(\.git)?$ ]]; then
-    GH_REPO="${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
-elif [[ $REMOTE_URL =~ github\.com/([^/]+)/([^/]+)(\.git)?$ ]]; then
-    GH_REPO="${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
-else
-    echo "Unable to extract username/repo-name from remote URL: $REMOTE_URL"
-    exit 1
-fi
-
-# Print the result
-echo "GH_REPO='$GH_REPO'"
-
-echo "deleting all caches, except the last"
-gh api --paginate -H "Accept: application/vnd.github+json" \
-  -H "Authorization: token $ACCESS_TOKEN" \
-  "/repos/${GH_REPO}/actions/caches" |
-  for ID in $(jq '.actions_caches | sort_by(.id) | .[:-1][] | .id '); do
-    echo "Deleting cache id ${ID}"
-    gh api --method DELETE -H "Accept: application/vnd.github+json" -H "Authorization: token $ACCESS_TOKEN" "/repos/${GH_REPO}/actions/caches/${ID}" | echo
-  done
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+node "$SCRIPT_DIR/clear-github-actions-cache.js"
