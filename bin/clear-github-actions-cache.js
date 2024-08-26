@@ -106,9 +106,18 @@ function get_caches(GH_REPO) {
          */
         const data = response.data.actions_caches;
         // resolve(response.data);
-        // Function to extract the prefix from the key
+        /**
+         * extract the prefix from the key
+         * @param {string} key
+         * @returns
+         */
         const getPrefix = (key) => {
-          // Adjust the logic as per your prefix definition
+          const split = key.split(/-_/);
+          if (split.length == 3) {
+            return `${split[0]}-${split[1]}`;
+          } else if (split.length > 3) {
+            return `${split[0]}-${split[1]}-${split[2]}`;
+          }
           return key.split("-")[0];
         };
 
