@@ -153,6 +153,15 @@ jobs:
           yarn install
           python requirements_install.py
 
+      - name: Prepare required directory
+        run: |
+          mkdir -p .cache
+          chmod -R 777 .cache
+          mkdir -p tmp
+          chmod -R 777 tmp
+          mkdir -p config
+          chmod -R 777 config
+
       - name: Initialize Github Actions
         id: php-github-actions-init
         env:
