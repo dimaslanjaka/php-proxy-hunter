@@ -162,7 +162,7 @@ parseGitRemotes().then((remotes) => {
           if (ids.length > 0) {
             ids.forEach((id) => deleteGitHubActionsCache(GH_REPO, id));
           } else {
-            console.log(`cache prefix ${key} only have 1 cache`);
+            console.log(`cache prefix ${key} no cache left`);
           }
         } else {
           console.log(`cache prefix ${key} only have 1 cache`);
