@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# push to private repository new branch
+
+# Generate a random string
+RANDOM_STRING=$(openssl rand -hex 8) # 8 bytes, which results in a 16-character hex string
+
+# Alternatively, use /dev/urandom
+# RANDOM_STRING=$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')
+
+# Push to remote with the random branch name
+git push -f private HEAD:update_${RANDOM_STRING}
