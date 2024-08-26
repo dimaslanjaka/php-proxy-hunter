@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Set the path to your git repository
+REPO_PATH="/var/www/html"
+
+# Navigate to the repository directory
+cd "$REPO_PATH" || {
+  echo "Repository path not found"
+  exit 1
+}
+
+# parse and export .env file (dotenv)
+if [ -f ".env" ]; then
+  # Export the vars in .env into your shell:
+  export $(egrep -v '^#' .env | xargs)
+fi
+
+ORIGIN="https://$ACCESS_TOKEN@github.com/dimaslanjaka/php-proxy-hunter"
+PRIVATE="https://$ACCESS_TOKEN@github.com/dimaslanjaka/traffic-generator"
+
+# Update URL for 'origin' if it exists, otherwise add it
+git remote get-url origin >/dev/null 2>&1 &&
+  git remote set-url origin $ORIGIN ||
+  git remote add origin $ORIGIN
+
+# Update URL for 'private' if it exists, otherwise add it
+git remote get-url private >/dev/null 2>&1 &&
+  git remote set-url private $PRIVATE ||
+  git remote add private $PRIVATE
+if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
+  echo "Permission not applied on windows"
+else
+  chmod +x bin/*
+  chmod +x vendor/bin/*
+  chmod +x node_modules/.bin/*
+  chmod +x venv/bin/*
+  chmod +x *.sh
+  find vendor/bin -type f -exec chmod +x {} +
+  find node_modules/.bin -type f -exec chmod +x {} +
+  find venv/bin -type f -exec chmod +x {} +
+fi
