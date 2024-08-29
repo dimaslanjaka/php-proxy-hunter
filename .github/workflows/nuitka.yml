@@ -75,7 +75,9 @@ jobs:
         run: |
           corepack enable
           yarn install
+          python -m ensurepip --upgrade
           python -m pip install --upgrade pip setuptools wheel
+          python -m distutils.core --help
           python requirements_install.py
 
       - name: Download required files
