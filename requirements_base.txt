@@ -3,11 +3,11 @@
 -e file:packages/rsa-utility
 autopep8
 babel
-BeautifulSoup4
+beautifulsoup4
 black
 certifi
 chromedriver_autoinstaller
-Django==5.0.*
+django==5.0.*
 django-cors-headers
 django-cors-middleware
 django-environ

@@ -8,9 +8,9 @@ def generate_requirements():
     windows_specific = [
         "pywin32",
         "wmi",
-        "PySide6",
-        "QtAwesome",
-        "Nuitka",
+        "pyside6==6.*",
+        "qtawesome==1.*",
+        "nuitka==2.*",
         "pyinstaller",
         "pyqtgraph",
         "pyqtdarktheme",
