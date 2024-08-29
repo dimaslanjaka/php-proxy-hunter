@@ -313,9 +313,7 @@ jobs:
 
           # Check if json_content is not empty, null, [], or {}
           if [ -n "$json_content" ]; then
-            # First curl command to proxyAdd.php (send JSON content directly)
             curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyAdd.php -d "$json_content" > /dev/null 2>&1
-
-            # Second curl command to proxyCheckerParallel.php (send JSON content directly)
-            curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "$json_content" > /dev/null 2>&1
+            # curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "$json_content" > /dev/null 2>&1
+            curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com:8443/proxy/check -d "$json_content" > /dev/null 2>&1
           fi
