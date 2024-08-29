@@ -1,9 +1,15 @@
+import importlib
 import os
-import subprocess
 import platform
+import re
+import subprocess
+from typing import List, Union
+
+package_list: List[str] = []
 
 
 def generate_requirements():
+    global package_list
     base_requirements = "requirements_base.txt"
     windows_specific = [
         "pywin32",
@@ -11,7 +17,7 @@ def generate_requirements():
         "pyside6==6.*",
         "qtawesome==1.*",
         # "nuitka==2.*",
-        "git+https://github.com/Nuitka/Nuitka.git@develop#egg=nuitka",
+        "nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip",
         "pyinstaller",
         "pyqtgraph",
         "pyqtdarktheme",
@@ -35,6 +41,7 @@ def generate_requirements():
 
     # Remove empty lines and duplicates
     unique_lines = list(dict.fromkeys([line for line in lines if line.strip()]))
+    package_list = unique_lines
 
     # Write to requirements.txt
     with open("requirements.txt", "w", encoding="utf-8") as req_file:
@@ -47,7 +54,19 @@ def generate_requirements():
     return True
 
 
-def install_requirements():
+def is_package_installed(package_name):
+    try:
+        importlib.import_module(package_name)
+        return True
+    except ImportError:
+        return False
+
+
+def install_package(name: Union[str, List[str]], install_args=[]):
+    if isinstance(name, str):
+        print(f"installing {name}")
+    else:
+        print(f"installing local package {name[1]}")
     index_urls = [
         "https://pypi.org/simple",
         "https://mirrors.sustech.edu.cn/pypi/simple/",
@@ -59,46 +78,58 @@ def install_requirements():
         "https://repo.huaweicloud.com/repository/pypi/simple/",
         "https://mirror.nju.edu.cn/pypi/web/simple/",
     ]
-
-    last_exception = None
-
     for index_url in index_urls:
-        print(f"Install from {index_url}")
         try:
-            subprocess.check_call(
-                [
-                    "python",
-                    "-m",
-                    "pip",
-                    "install",
-                    "--upgrade",
-                    "pip",
-                    "setuptools",
-                    "wheel",
-                    f"--index-url={index_url}",
-                ]
-            )
-            subprocess.check_call(
-                ["pip", "install", "-r", "requirements.txt", f"--index-url={index_url}"]
-            )
-            subprocess.check_call(
-                ["pip", "install", "socks", "--use-pep517", f"--index-url={index_url}"]
-            )
-            return True  # Exit function if both installs succeed
-        except subprocess.CalledProcessError as e:
-            last_exception = e
-            # Continue with the next index URL
-            continue
-        except Exception as e:
-            last_exception = e
-            print(f"An unexpected error occurred: {e}")
+            if isinstance(name, str):
+                subprocess.check_call(
+                    [
+                        "pip",
+                        "install",
+                        name,
+                        f"--index-url={index_url}",
+                    ]
+                    + install_args
+                )
+            else:
+                # param name is list
+                subprocess.check_call(
+                    ["pip", "install"]
+                    + name
+                    + [f"--index-url={index_url}"]
+                    + install_args
+                )
             break
+        except Exception:
+            print(f"fail install {name} from {index_url}")
 
-    # If all index URLs fail, raise the last exception encountered
-    if last_exception:
-        raise last_exception
 
-    return False
+def install_requirements():
+    global package_list
+    if not package_list:
+        generate_requirements()
+    subprocess.check_call(
+        ["python", "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"]
+    )
+    if not is_package_installed("socks"):
+        install_package("socks", ["--use-pep517"])
+    for pkg in package_list:
+        name = re.sub(r"\s+", " ", pkg.strip()).strip()
+        if name.startswith("#") or not name:
+            # skip comment block & empty package name
+            continue
+        if name.startswith("-e"):
+            # always install local package
+            name = name.replace("-e ", "").strip()
+            install_package(["-e", name])
+            continue
+        if "@ http" in name:
+            # install `packagename @ url-zip`
+            pkgname, url = name.split(" @ ")
+            if not is_package_installed(pkgname.strip()):
+                install_package(name)
+                continue
+        if not is_package_installed(pkg):
+            install_package(name)
 
 
 if __name__ == "__main__":
