@@ -68,9 +68,10 @@ jobs:
       # Install dependencies
       - name: Install Dependencies
         run: |
-          cmd /c bin\py-install.cmd
+          python -m pip install --upgrade pip setuptools wheel
           python -m venv venv
           python requirements_install.py
+          cmd /c bin\py-install.cmd
           touch yarn.lock
           corepack enable
           yarn install
