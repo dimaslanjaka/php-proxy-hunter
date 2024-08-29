@@ -5,9 +5,9 @@ autopep8
 babel
 beautifulsoup4
 black
-git+https://github.com/yeongbin-jo/python-chromedriver-autoinstaller.git@master#egg=chromedriver-autoinstaller
+chromedriver-autoinstaller @ https://github.com/yeongbin-jo/python-chromedriver-autoinstaller/archive/master.zip
 # django==5.0.*
-git+https://github.com/django/django.git@main#egg=django
+django @ https://github.com/django/django/archive/refs/tags/5.0.8.zip
 django-cors-headers
 django-cors-middleware
 django-environ
@@ -45,9 +45,8 @@ timezonefinder --only-binary :all:
 tzlocal
 urllib3
 werkzeug
-git+https://github.com/SergeyPirogov/webdriver_manager.git@master#egg=webdriver_manager
+webdriver-manager @ https://github.com/SergeyPirogov/webdriver_manager/archive/master.zip
 zstandard
 pyvirtualdisplay
 # huey[backends]
-git+https://github.com/coleifer/huey.git@master#egg=huey
-
+huey @ https://github.com/coleifer/huey/archive/master.zip
