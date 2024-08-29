@@ -47,24 +47,51 @@ def generate_requirements():
 
 
 def install_requirements():
-    subprocess.check_call(
-        [
-            "python",
-            "-m",
-            "pip",
-            "install",
-            "--upgrade",
-            "pip",
-            "setuptools",
-            "wheel",
-        ]
-    )
+    index_urls = [
+        "https://pypi.org/simple",
+        "https://pypi.tuna.tsinghua.edu.cn/simple/",
+        "https://mirrors.aliyun.com/pypi/simple/",
+        "https://pypi.douban.com/simple/",
+    ]
 
-    subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
+    last_exception = None
 
-    subprocess.check_call(["pip", "install", "socks", "--use-pep517"])
+    for index_url in index_urls:
+        try:
+            subprocess.check_call(
+                [
+                    "python",
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "pip",
+                    "setuptools",
+                    "wheel",
+                    f"--index-url={index_url}",
+                ]
+            )
+            subprocess.check_call(
+                ["pip", "install", "-r", "requirements.txt", f"--index-url={index_url}"]
+            )
+            subprocess.check_call(
+                ["pip", "install", "socks", "--use-pep517", f"--index-url={index_url}"]
+            )
+            return True  # Exit function if both installs succeed
+        except subprocess.CalledProcessError as e:
+            last_exception = e
+            # Continue with the next index URL
+            continue
+        except Exception as e:
+            last_exception = e
+            print(f"An unexpected error occurred: {e}")
+            break
 
-    return True
+    # If all index URLs fail, raise the last exception encountered
+    if last_exception:
+        raise last_exception
+
+    return False
 
 
 if __name__ == "__main__":
