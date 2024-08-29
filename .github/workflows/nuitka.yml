@@ -71,36 +71,26 @@ jobs:
         run: |
           git restore *.txt
 
-      # Install dependencies
-      - name: Install Dependencies
-        run: |
-          python requirements_install.py
-          cmd /c bin\py-install.cmd
-          touch yarn.lock
-          corepack enable
-          yarn install
-
       - name: Install Dependencies (bash)
         shell: bash
         run: |
           if [ ! -f yarn.lock ]; then
               touch yarn.lock
           fi
+          corepack enable
           yarn install
           python -m pip install --upgrade pip setuptools wheel
           python requirements_install.py
 
       - name: Download required files
         run: |
-          venv\Scripts\activate.bat
-          venv\Scripts\python.exe src/geoPlugin.py
+          python src/geoPlugin.py
 
-      - name: copy
+      - name: Copy Assets
         run: gulp copy
 
-      - name: build simple gui
+      - name: Build Simple GUI
         run: |
-          venv\Scripts\activate.bat
           gulp sgui
 
       # Uploads artifact
