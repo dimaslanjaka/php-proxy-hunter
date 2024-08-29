@@ -46,7 +46,7 @@ selenium
 setuptools
 six
 sqlalchemy
-timezonefinder
+timezonefinder --only-binary :all:
 tzlocal
 urllib3
 Werkzeug
