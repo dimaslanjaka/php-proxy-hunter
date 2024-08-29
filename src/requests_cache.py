@@ -25,10 +25,14 @@ def get_cache_file_path(url: str) -> str:
     return os.path.join(CACHE_DIR, f"{md5_hash}.json")
 
 
-def cache_response(url: str, response: requests.Response) -> None:
+def cache_response(
+    url: str, response: requests.Response, cache_file_path: Optional[str] = None
+) -> None:
     """Save the response content to a file."""
     os.makedirs(CACHE_DIR, exist_ok=True)
-    cache_file_path = get_cache_file_path(url)
+    cache_file_path = (
+        get_cache_file_path(url) if not cache_file_path else cache_file_path
+    )
 
     cache_data = {
         "timestamp": time.time(),
@@ -41,9 +45,13 @@ def cache_response(url: str, response: requests.Response) -> None:
         json.dump(cache_data, file)
 
 
-def load_cached_response(url: str) -> Optional[requests.Response]:
+def load_cached_response(
+    url: str, cache_file_path: Optional[str] = None
+) -> Optional[requests.Response]:
     """Load the response content from a cache file if it exists and is still valid."""
-    cache_file_path = get_cache_file_path(url)
+    cache_file_path = (
+        get_cache_file_path(url) if not cache_file_path else cache_file_path
+    )
 
     if not os.path.exists(cache_file_path):
         return None
@@ -105,6 +113,7 @@ def get_with_proxy(
     timeout=10,
     debug: Optional[bool] = False,
     no_cache: Optional[bool] = False,
+    cache_file_path: Optional[str] = None,
 ):
     global session
     """
@@ -122,7 +131,7 @@ def get_with_proxy(
     """
     if not no_cache:
         # Check if we have a cached response
-        cached_response = load_cached_response(url)
+        cached_response = load_cached_response(url, cache_file_path)
         if cached_response:
             return cached_response
 
@@ -178,13 +187,11 @@ def get_with_proxy(
 
     try:
         if proxies:
-            response = session.get(
-                url, proxies=proxies, timeout=timeout, verify=output_pem
-            )
+            response = session.get(url, proxies=proxies, timeout=timeout, verify=False)
         else:
-            response = session.get(url, timeout=timeout, verify=output_pem)
+            response = session.get(url, timeout=timeout, verify=False)
 
-        response.raise_for_status()
+        # response.raise_for_status()
 
         # save cookie
         cookies_to_be_saved = [cookie_header]
@@ -206,7 +213,7 @@ def get_with_proxy(
             file.write(cookie_built)
 
         if not no_cache:
-            cache_response(url, response)
+            cache_response(url, response, cache_file_path)
         return response
 
     except RequestException as e:
