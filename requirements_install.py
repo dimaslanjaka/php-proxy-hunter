@@ -15,6 +15,7 @@ def generate_requirements():
         "pyqtgraph",
         "pyqtdarktheme",
         "psutil",
+        "pynput",
     ]
     linux_specific = ["uwsgi", "gunicorn"]
 
