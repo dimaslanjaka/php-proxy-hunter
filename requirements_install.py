@@ -47,12 +47,18 @@ def generate_requirements():
 def install_requirements():
     try:
         # Upgrade to the latest version
-        subprocess.check_call(["python", "-m", "pip", "install", "--upgrade", "pip"])
-        # subprocess.check_call(["pip", "install", "--upgrade", "pip"])
-        # subprocess.check_call(
-        #     ["python", "-m", "pip", "install", "--upgrade", "setuptools"]
-        # )
-        # subprocess.check_call(["python", "-m", "pip", "install", "--upgrade", "wheel"])
+        subprocess.check_call(
+            [
+                "python",
+                "-m",
+                "pip",
+                "install",
+                "--upgrade",
+                "pip",
+                "setuptools",
+                "wheel",
+            ]
+        )
 
         # Install requirements from requirements.txt
         subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
