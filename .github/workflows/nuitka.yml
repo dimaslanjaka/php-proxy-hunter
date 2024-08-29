@@ -47,8 +47,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            dist
-            tmp
+            dist/
+            tmp/
             src/*.sqlite*
             src/*.mmdb
             node_modules/**
@@ -56,25 +56,39 @@ jobs:
             .yarn/*.gz
             venv/**/*
             ${{ env.pip_cache_dir }}
-            requirements.txt
-            yarn.lock
+            *.lock
+            *.txt
             package-lock.json
+            assets/proxies/
+            vendor/
           key: build-cache-${{ hashFiles('**/*.py') }}
           restore-keys: |
             build-cache-${{ github.sha }}
             build-cache-${{ hashFiles('**/*.py') }}
             build-cache-
 
+      - name: Restore Non-cached Files
+        run: |
+          git restore *.txt
+
       # Install dependencies
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m venv venv
           python requirements_install.py
           cmd /c bin\py-install.cmd
           touch yarn.lock
           corepack enable
           yarn install
+
+      - name: Install Dependencies (bash)
+        shell: bash
+        run: |
+          if [ ! -f yarn.lock ]; then
+              touch yarn.lock
+          fi
+          yarn install
+          python -m pip install --upgrade pip setuptools wheel
+          python requirements_install.py
 
       - name: Download required files
         run: |
