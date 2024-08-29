@@ -18,15 +18,11 @@ fi
 ORIGIN="https://$ACCESS_TOKEN@github.com/dimaslanjaka/php-proxy-hunter"
 PRIVATE="https://$ACCESS_TOKEN@github.com/dimaslanjaka/traffic-generator"
 
-# Update URL for 'origin' if it exists, otherwise add it
-git remote get-url origin >/dev/null 2>&1 &&
-  git remote set-url origin $ORIGIN ||
-  git remote add origin $ORIGIN
+git remote add origin $ORIGIN
+git remote set-url origin $ORIGIN
+git remote add origin $PRIVATE
+git remote set-url origin $PRIVATE
 
-# Update URL for 'private' if it exists, otherwise add it
-git remote get-url private >/dev/null 2>&1 &&
-  git remote set-url private $PRIVATE ||
-  git remote add private $PRIVATE
 if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
   echo "Permission not applied on windows"
 else
