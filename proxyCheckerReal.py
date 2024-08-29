@@ -78,7 +78,7 @@ def real_check(proxy: str, url: str, title_should_be: str):
         "proxy": proxy,
         "type": protocols,
     }
-    if protocols:
+    if protocols and response_title:
         pt = "-".join(protocols)
         log_proxy(
             f"{pt}://{proxy} {green('working')} -> {url} ({response_title})".replace(
@@ -175,7 +175,9 @@ def real_latency(proxy: str):
             # get latency milliseconds
             latency = int(end_time - start_time) * 1000
             soup = BeautifulSoup(response.text, "html.parser")
-            response_title = soup.title.string.strip() if isinstance(soup.title, str) else ""
+            response_title = (
+                soup.title.string.strip() if isinstance(soup.title, str) else ""
+            )
             if title_should_be.lower() in response_title.lower():
                 log_proxy(f"{proxy} latency is {green(str(latency))} ms")
                 # break when success
