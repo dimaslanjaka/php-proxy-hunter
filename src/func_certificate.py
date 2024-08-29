@@ -96,11 +96,10 @@ def merge_pem():
 def main():
     merge_pem()
     # Use the combined PEM file with requests
-    url = "https://example.com"
-    response = requests.get(url, verify=output_pem)
-
-    # Output the response status and text
-    print(f"status code {response.status_code}")
+    urls = ["https://example.com", "https://cloudflare.com/cdn-cgi/trace"]
+    for url in urls:
+        response = requests.get(url, verify=output_pem)
+        print(f"{url} status code {response.status_code}")
 
 
 if __name__ == "__main__":
