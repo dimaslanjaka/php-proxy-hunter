@@ -31,7 +31,6 @@ pycodestyle
 pycountry
 pycryptodome
 pycurl
-pynput
 python-dateutil
 python-dotenv
 pytz
