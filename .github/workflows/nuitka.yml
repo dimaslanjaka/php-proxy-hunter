@@ -53,6 +53,7 @@ jobs:
             src/*.mmdb
             node_modules/**
             .yarn/caches/**/*
+            .yarn/*.gz
             venv/**/*
             ${{ env.pip_cache_dir }}
             requirements.txt
