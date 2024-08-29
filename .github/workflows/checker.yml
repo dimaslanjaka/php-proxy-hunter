@@ -153,7 +153,6 @@ jobs:
               touch yarn.lock
           fi
           yarn install
-          python -m pip install --upgrade pip setuptools wheel
           python requirements_install.py
 
       - name: Prepare required directory
