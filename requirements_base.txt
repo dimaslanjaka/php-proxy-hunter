@@ -13,7 +13,6 @@ django-cors-middleware
 django-environ
 django-extensions
 django-filter
-django-htmlmin
 djangorestframework
 djangorestframework_simplejwt
 daphne
@@ -23,7 +22,6 @@ geoip2
 geopy
 gevent
 html5lib
-htmlmin
 ipaddress
 joblib
 maxminddb
