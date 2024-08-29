@@ -47,6 +47,8 @@ jobs:
         with:
           token: "${{ secrets.ACCESS_TOKEN }}"
           lfs: true
+          repository: "dimaslanjaka/php-proxy-hunter"
+          ref: "master"
       - uses: actions/checkout@v4
         with:
           token: "${{ secrets.ACCESS_TOKEN }}"
