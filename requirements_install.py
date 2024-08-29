@@ -49,10 +49,18 @@ def generate_requirements():
 def install_requirements():
     index_urls = [
         "https://pypi.org/simple",
+        "https://mirrors.sustech.edu.cn/pypi/web/simple",
         "https://pypi.tuna.tsinghua.edu.cn/simple/",
+        "https://mirrors.bfsu.edu.cn/pypi/web/simple/",
         "https://mirrors.aliyun.com/pypi/simple/",
         "https://pypi.douban.com/simple/",
+        "https://mirror.baidu.com/pypi/simple/",
+        "https://mirrors.cloud.tencent.com/pypi/simple/",
+        "https://repo.huaweicloud.com/repository/pypi/simple/",
+        "https://mirror.nju.edu.cn/pypi/web/simple/",
+        "https://mirrors.sustech.edu.cn/pypi/simple/",
     ]
+    index_urls = list(set(index_urls))  # unique
 
     last_exception = None
 
