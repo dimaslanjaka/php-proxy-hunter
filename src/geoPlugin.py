@@ -176,9 +176,11 @@ def get_geo_ip2(
                             if proxy_username and proxy_password
                             else proxy
                         )
-                        # when using key, change no_cache to False
+                        igg_cache_file = get_relative_path(
+                            f"tmp/requests_cache/{ip}-ip-get-geolocation.json"
+                        )
                         response = get_with_proxy(
-                            url, protocol, proxy_url, no_cache=True
+                            url, protocol, proxy_url, cache_file_path=igg_cache_file
                         )
                         if response and response.ok:
                             new_data = response.json()
@@ -249,7 +251,7 @@ def get_geo_ip2(
                 print(f"geo={proxy}", "fetching cloudflare.com")
                 url = "https://cloudflare.com/cdn-cgi/trace"
                 try:
-                    response = get_with_proxy(url, proxy_type, row_proxy)
+                    response = get_with_proxy(url, proxy_type, row_proxy, no_cache=True)
                     if response and response.ok:
                         text = decompress_requests_response(response)
 
