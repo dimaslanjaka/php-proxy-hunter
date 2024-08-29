@@ -69,16 +69,11 @@ jobs:
       - name: Install Dependencies
         run: |
           cmd /c bin\py-install.cmd
+          python -m venv venv
+          python requirements_install.py
           touch yarn.lock
           corepack enable
           yarn install
-
-      # - name: Re-install Python Dependencies
-      #   run: |
-      #     pip install -r requirements.txt
-      #     python -m venv venv
-      #     venv\Scripts\activate.bat
-      #     pip install -r requirements.txt
 
       - name: Download required files
         run: |
