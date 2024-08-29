@@ -71,12 +71,8 @@ jobs:
         run: |
           git restore *.txt
 
-      - name: Install Dependencies (bash)
-        shell: bash
+      - name: Install Dependencies
         run: |
-          if [ ! -f yarn.lock ]; then
-              touch yarn.lock
-          fi
           corepack enable
           yarn install
           python -m pip install --upgrade pip setuptools wheel
