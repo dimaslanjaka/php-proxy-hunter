@@ -61,11 +61,11 @@ jobs:
             package-lock.json
             assets/proxies/
             vendor/
-          key: build-cache-${{ hashFiles('**/*.py') }}
+          key: nuitka-${{ runner.os }}--${{ github.sha }}
           restore-keys: |
-            build-cache-${{ github.sha }}
-            build-cache-${{ hashFiles('**/*.py') }}
-            build-cache-
+            nuitka-${{ runner.os }}--${{ github.sha }}
+            nuitka-${{ runner.os }}--${{ hashFiles('**/*.py') }}
+            nuitka-${{ runner.os }}--
 
       - name: Restore Non-cached Files
         run: |
