@@ -18,59 +18,50 @@ def generate_requirements():
     ]
     linux_specific = ["uwsgi", "gunicorn"]
 
-    try:
-        lines = []
-        with open(base_requirements, "r", encoding="utf-8") as base_file:
+    lines = []
+    with open(base_requirements, "r", encoding="utf-8") as base_file:
+        lines.extend(base_file.readlines())
+
+    if os.path.exists("requirements_additional.txt"):
+        with open("requirements_additional.txt", "r", encoding="utf-8") as base_file:
             lines.extend(base_file.readlines())
 
-        if os.path.exists("requirements_additional.txt"):
-            with open(
-                "requirements_additional.txt", "r", encoding="utf-8"
-            ) as base_file:
-                lines.extend(base_file.readlines())
+    if platform.system() == "Windows":
+        lines.extend([f"{package}\n" for package in windows_specific])
+    else:
+        lines.extend([f"{package}\n" for package in linux_specific])
 
-        if platform.system() == "Windows":
-            lines.extend([f"\n{package}\n" for package in windows_specific])
-        else:
-            lines.extend([f"\n{package}\n" for package in linux_specific])
+    # Remove empty lines and duplicates
+    unique_lines = list(dict.fromkeys([line for line in lines if line.strip()]))
 
-        with open("requirements.txt", "w") as req_file:
-            req_file.writelines(lines)
+    # Write to requirements.txt
+    with open("requirements.txt", "w", encoding="utf-8") as req_file:
+        req_file.writelines(unique_lines)
 
-    except IOError as e:
-        print(f"Error reading or writing files: {e}")
-        return False
+    # Add a new line at the end of the file
+    with open("requirements.txt", "a", encoding="utf-8") as req_file:
+        req_file.write("\n")
 
     return True
 
 
 def install_requirements():
-    try:
-        # Upgrade to the latest version
-        subprocess.check_call(
-            [
-                "python",
-                "-m",
-                "pip",
-                "install",
-                "--upgrade",
-                "pip",
-                "setuptools",
-                "wheel",
-            ]
-        )
+    subprocess.check_call(
+        [
+            "python",
+            "-m",
+            "pip",
+            "install",
+            "--upgrade",
+            "pip",
+            "setuptools",
+            "wheel",
+        ]
+    )
 
-        # Install requirements from requirements.txt
-        subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
-        # Install without caches
-        # pip install --no-cache-dir -r requirements.txt
+    subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
 
-        # Install the socks package using PEP 517
-        subprocess.check_call(["pip", "install", "socks", "--use-pep517"])
-
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing requirements: {e}")
-        return False
+    subprocess.check_call(["pip", "install", "socks", "--use-pep517"])
 
     return True
 
