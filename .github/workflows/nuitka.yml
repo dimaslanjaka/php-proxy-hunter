@@ -32,15 +32,16 @@ jobs:
       # Setup Python
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.x" # Version range or exact version of a Python version to use, using SemVer's version range syntax
-          architecture: "x64" # optional x64 or x86. Defaults to x64 if not specified
-          cache: "pip"
-          cache-dependency-path: |
-            **/requirements*.txt
+          python-version: "3.x"
+          architecture: "x64"
 
       - uses: actions/setup-node@v4
         with:
           node-version: 18.x
+
+      - name: Get pip cache dir
+        id: pip-cache
+        run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
 
       - name: Setup Cache
         uses: actions/cache@v4
@@ -53,6 +54,10 @@ jobs:
             node_modules/**
             .yarn/caches/**/*
             venv/**/*
+            ${{ env.pip_cache_dir }}
+            requirements.txt
+            yarn.lock
+            package-lock.json
           key: build-cache-${{ hashFiles('**/*.py') }}
           restore-keys: |
             build-cache-${{ github.sha }}
@@ -67,12 +72,12 @@ jobs:
           corepack enable
           yarn install
 
-      - name: Re-install Python Dependencies
-        run: |
-          pip install -r requirements.txt
-          python -m venv venv
-          venv\Scripts\activate.bat
-          pip install -r requirements.txt
+      # - name: Re-install Python Dependencies
+      #   run: |
+      #     pip install -r requirements.txt
+      #     python -m venv venv
+      #     venv\Scripts\activate.bat
+      #     pip install -r requirements.txt
 
       - name: Download required files
         run: |
@@ -83,7 +88,9 @@ jobs:
         run: gulp copy
 
       - name: build simple gui
-        run: gulp sgui
+        run: |
+          venv\Scripts\activate.bat
+          gulp sgui
 
       # Uploads artifact
       - name: Upload Artifact
