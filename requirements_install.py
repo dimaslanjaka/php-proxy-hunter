@@ -121,13 +121,16 @@ def install_requirements():
             # always install local package
             name = name.replace("-e ", "").strip()
             install_package(["-e", name])
-            continue
-        if "@ http" in name:
+        elif "@ http" in name:
             # install `packagename @ url-zip`
             pkgname, url = name.split(" @ ")
             if not is_package_installed(pkgname.strip()):
                 install_package(name)
                 continue
+        elif " --" in name:
+            _args = [item for item in name.split(" ") if item]
+            install_package(_args)
+            continue
         if not is_package_installed(pkg):
             install_package(name)
 
