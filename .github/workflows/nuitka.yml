@@ -71,10 +71,13 @@ jobs:
         run: |
           git restore *.txt
 
-      - name: Install Dependencies
+      - name: Install NodeJS Dependencies
         run: |
           corepack enable
           yarn install
+
+      - name: Install Python Dependencies
+        run: |
           python -m ensurepip --upgrade
           python -m pip install --upgrade pip setuptools wheel
           python -m distutils.core --help
