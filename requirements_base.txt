@@ -5,9 +5,9 @@ autopep8
 babel
 beautifulsoup4
 black
-certifi
-chromedriver_autoinstaller
-django==5.0.*
+git+https://github.com/yeongbin-jo/python-chromedriver-autoinstaller.git@master#egg=chromedriver-autoinstaller
+# django==5.0.*
+git+https://github.com/django/django.git@main#egg=django
 django-cors-headers
 django-cors-middleware
 django-environ
@@ -38,15 +38,16 @@ pyyaml
 requests
 requests_cache
 rarfile
-selenium
-setuptools
+selenium==4.*
 six
 sqlalchemy
 timezonefinder --only-binary :all:
 tzlocal
 urllib3
-Werkzeug
-webdriver-manager
+werkzeug
+git+https://github.com/SergeyPirogov/webdriver_manager.git@master#egg=webdriver_manager
 zstandard
 pyvirtualdisplay
-huey[backends]
+# huey[backends]
+git+https://github.com/coleifer/huey.git@master#egg=huey
+
