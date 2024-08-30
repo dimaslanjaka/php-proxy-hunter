@@ -142,10 +142,5 @@ def install_requirements():
 
 
 if __name__ == "__main__":
-    if generate_requirements():
-        if install_requirements():
-            print("Installation successful!")
-        else:
-            print("Failed to install requirements.")
-    else:
-        print("Failed to generate requirements.")
+    generate_requirements()
+    install_requirements()
