@@ -115,4 +115,4 @@ jobs:
         run: python3 proxyFetcher.py
 
       - name: Import Proxies
-        run: python3 manage.py sync_proxies
+        run: python3 manage.py sync_proxies --max='${{ github.event.inputs.max || 500 }}'
