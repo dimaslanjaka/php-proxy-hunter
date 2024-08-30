@@ -4,7 +4,7 @@
 # run proxy checker /usr/bin/php every 10 minutes
 # */10 * * * * /usr/bin/php /var/www/html/proxyChecker.php > /var/www/html/proxyChecker.txt 2>&1
 # fetch proxies every 4 hours
-7 */4 * * * /usr/bin/php /var/www/html/proxyFetcher.php > /var/www/html/proxyChecker.txt 2>&1
+# 7 */4 * * * /usr/bin/php /var/www/html/proxyFetcher.php > /var/www/html/proxyChecker.txt 2>&1
 # run proxy checker parallel 17 past every hour
 # 17 */1 * * * /usr/bin/php /var/www/html/proxyCheckerParallel.php > /var/www/html/proxyChecker.txt 2>&1
 # run config cleaner every week
