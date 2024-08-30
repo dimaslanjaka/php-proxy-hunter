@@ -31,59 +31,6 @@ def is_valid_url(url: str) -> bool:
         return False
 
 
-def decompress_requests_response(
-    response: requests.Response, debug: bool = False
-) -> str:
-    """
-    Decompresses the content of a requests response object if it's compressed.
-
-    Args:
-        response (requests.Response): The response object from a requests call.
-        debug (bool): Whether to print debugging information.
-
-    Returns:
-        str: The decompressed response content as a string.
-    """
-    # Check if the response has content encoding
-    encoding = response.headers.get("Content-Encoding", "").lower()
-
-    try:
-        if encoding == "gzip":
-            # Handle gzip encoding
-            buf = BytesIO(response.content)
-            with gzip.GzipFile(fileobj=buf) as f:
-                content = f.read()
-        elif encoding == "deflate":
-            # Handle deflate encoding
-            content = zlib.decompress(response.content, -zlib.MAX_WBITS)
-        elif encoding == "br":
-            # Handle Brotli encoding
-            content = brotli.decompress(response.content)
-        else:
-            # No encoding or unsupported encoding
-            content = response.content
-    except (OSError, zlib.error, brotli.BrotliError) as e:
-        if debug:
-            print(f"Decompression error: {e}")
-        content = response.content  # Fallback to raw content
-
-    # Detect encoding if not specified or incorrectly detected
-    detected_encoding = chardet.detect(content).get("encoding")
-
-    if detected_encoding is None:
-        detected_encoding = "utf-8"  # Fallback to a default encoding
-
-    # Decode the content with detected encoding
-    try:
-        return content.decode(detected_encoding)
-    except (UnicodeDecodeError, TypeError) as e:
-        if debug:
-            print(f"Decoding error: {e}")
-        return content.decode(
-            "utf-8", errors="replace"
-        )  # Fallback to utf-8 with error handling
-
-
 def is_valid_ip_connection(proxy: Optional[str]) -> bool:
     if not proxy:
         return False
@@ -251,3 +198,56 @@ if __name__ == "__main__":
     print(
         f"Is valid: {is_valid_proxy('192.168.1.1:80@user:')}"
     )  # Invalid proxy with incomplete credentials
+
+
+def decompress_requests_response(
+    response: requests.Response, debug: bool = False
+) -> str:
+    """
+    Decompresses the content of a requests response object if it's compressed.
+
+    Args:
+        response (requests.Response): The response object from a requests call.
+        debug (bool): Whether to print debugging information.
+
+    Returns:
+        str: The decompressed response content as a string.
+    """
+    # Check if the response has content encoding
+    encoding = response.headers.get("Content-Encoding", "").lower()
+
+    try:
+        if encoding == "gzip":
+            # Handle gzip encoding
+            buf = BytesIO(response.content)
+            with gzip.GzipFile(fileobj=buf) as f:
+                content = f.read()
+        elif encoding == "deflate":
+            # Handle deflate encoding
+            content = zlib.decompress(response.content, -zlib.MAX_WBITS)
+        elif encoding == "br":
+            # Handle Brotli encoding
+            content = brotli.decompress(response.content)
+        else:
+            # No encoding or unsupported encoding
+            content = response.content
+    except (OSError, zlib.error, Exception) as e:
+        if debug:
+            print(f"Decompression error: {e}")
+        content = response.content  # Fallback to raw content
+
+    # Detect encoding if not specified or incorrectly detected
+    detected_encoding = chardet.detect(content).get("encoding")
+
+    if detected_encoding is None:
+        detected_encoding = "utf-8"  # Fallback to a default encoding
+
+    # Decode the content with detected encoding
+    try:
+        return content.decode(detected_encoding)
+    except (UnicodeDecodeError, TypeError) as e:
+        if debug:
+            print(f"Decoding error: {e}")
+        return content.decode(
+            "utf-8", errors="replace"
+        )  # Fallback to utf-8 with error handling
