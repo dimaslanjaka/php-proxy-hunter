@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import hashlib
 import json
 import time
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import requests
 from requests.exceptions import RequestException
@@ -119,31 +119,34 @@ session = requests.Session()
 
 
 def get_with_proxy(
-    url,
+    url: str,
     proxy_type: Optional[str] = "http",
     proxy_raw: Optional[str] = None,
-    timeout=10,
+    timeout: int = 10,
     debug: Optional[bool] = False,
     no_cache: Optional[bool] = False,
     cache_file_path: Optional[str] = None,
-):
-    global session
+    cache_expiration: Optional[int] = None,
+) -> requests.Response:
     """
     Perform a GET request using a proxy of the specified type and cache the response.
 
-    Parameters:
-    - url (str): The URL to perform the GET request on.
-    - proxy_type (str): The type of the proxy. Possible values: 'http', 'socks4', 'socks5', 'https'.
-    - proxy_raw (str): The URL of the proxy to use (e.g., 'http://username:password@proxy_ip:proxy_port').
-    - timeout (int): Timeout for the request in seconds (default is 10).
-    - debug (bool): Whether to print debug information.
+    Args:
+        url (str): The URL to perform the GET request on.
+        proxy_type (str): The type of the proxy. Possible values: 'http', 'socks4', 'socks5', 'https'.
+        proxy_raw (str): The URL of the proxy to use (e.g., 'http://username:password@proxy_ip:proxy_port').
+        timeout (int): Timeout for the request in seconds (default is 10).
+        debug (bool): Whether to print debug information (default is False).
+        no_cache (bool): Whether to bypass the cache (default is False).
+        cache_file_path (Optional[str]): The path to the cache file.
+        cache_expiration (Optional[int]): The cache expiration time in seconds.
 
     Returns:
-    - response (requests.Response): The response object returned by requests.get().
+        requests.Response: The response object returned by requests.get().
     """
     if not no_cache:
         # Check if we have a cached response
-        cached_response = load_cached_response(url, cache_file_path)
+        cached_response = load_cached_response(url, cache_file_path, cache_expiration)
         if cached_response:
             return cached_response
 
