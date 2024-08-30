@@ -31,18 +31,21 @@ def is_valid_url(url: str) -> bool:
         return False
 
 
-def decompress_requests_response(response: requests.Response) -> str:
+def decompress_requests_response(
+    response: requests.Response, debug: bool = False
+) -> str:
     """
     Decompresses the content of a requests response object if it's compressed.
 
     Args:
         response (requests.Response): The response object from a requests call.
+        debug (bool): Whether to print debugging information.
 
     Returns:
         str: The decompressed response content as a string.
     """
     # Check if the response has content encoding
-    encoding = response.headers.get("Content-Encoding")
+    encoding = response.headers.get("Content-Encoding", "").lower()
 
     try:
         if encoding == "gzip":
@@ -59,9 +62,9 @@ def decompress_requests_response(response: requests.Response) -> str:
         else:
             # No encoding or unsupported encoding
             content = response.content
-    except (OSError, zlib.error, Exception) as e:
-        # Handle errors in decompression (including Brotli errors)
-        print(f"Decompression error: {e}")
+    except (OSError, zlib.error, brotli.BrotliError) as e:
+        if debug:
+            print(f"Decompression error: {e}")
         content = response.content  # Fallback to raw content
 
     # Detect encoding if not specified or incorrectly detected
@@ -74,8 +77,8 @@ def decompress_requests_response(response: requests.Response) -> str:
     try:
         return content.decode(detected_encoding)
     except (UnicodeDecodeError, TypeError) as e:
-        # Handle decoding errors
-        print(f"Decoding error: {e}")
+        if debug:
+            print(f"Decoding error: {e}")
         return content.decode(
             "utf-8", errors="replace"
         )  # Fallback to utf-8 with error handling
