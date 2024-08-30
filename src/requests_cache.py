@@ -46,12 +46,22 @@ def cache_response(
 
 
 def load_cached_response(
-    url: str, cache_file_path: Optional[str] = None
+    url: str,
+    cache_file_path: Optional[str] = None,
+    expiration: Optional[int] = CACHE_EXPIRY,
 ) -> Optional[requests.Response]:
-    """Load the response content from a cache file if it exists and is still valid."""
-    cache_file_path = (
-        get_cache_file_path(url) if not cache_file_path else cache_file_path
-    )
+    """
+    Load the response content from a cache file if it exists and is still valid.
+
+    Args:
+        url (str): The URL for which the cache is being accessed.
+        cache_file_path (Optional[str]): The path to the cache file. If None, a default path is used.
+        expiration (Optional[int]): The cache expiration time in seconds. If None, default CACHE_EXPIRY is used.
+
+    Returns:
+        Optional[requests.Response]: A MockResponse object with the cached data, or None if no valid cache is found.
+    """
+    cache_file_path = cache_file_path or get_cache_file_path(url)
 
     if not os.path.exists(cache_file_path):
         return None
@@ -59,8 +69,10 @@ def load_cached_response(
     with open(cache_file_path, "r", encoding="utf-8") as file:
         cache_data = json.load(file)
 
+    expiration = expiration or CACHE_EXPIRY
+
     # Check if the cache has expired
-    if time.time() - cache_data["timestamp"] > CACHE_EXPIRY:
+    if time.time() - cache_data.get("timestamp", 0) > expiration:
         os.remove(cache_file_path)
         return None
 
