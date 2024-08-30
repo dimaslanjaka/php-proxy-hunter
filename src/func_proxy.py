@@ -802,10 +802,10 @@ def get_proxies(
     db = ProxyDB(get_relative_path("src/database.sqlite"))
 
     if not working_only or untested_only:
-        proxies.extend(db.get_untested_proxies())
+        proxies.extend(db.db.select("proxies", "*", "status = ?", ["untested"]))
         # proxies = list(filter(lambda proxy: is_proxy_recently_checked(proxy), proxies))
     if not untested_only or working_only:
-        proxies.extend(db.get_working_proxies())
+        proxies.extend(db.db.select("proxies", "*", "status = ?", ["active"]))
 
     if not working_only or not untested_only:
 
