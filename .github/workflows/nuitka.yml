@@ -104,12 +104,12 @@ jobs:
 
       # Uploads artifact
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: built
           path: |
             dist/*.exe
             dist/src
-            dist/*.xml
             dist/*.json
             dist/*.txt
+            dist/*.yml
