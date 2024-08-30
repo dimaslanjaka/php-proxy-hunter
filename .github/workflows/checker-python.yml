@@ -72,11 +72,11 @@ jobs:
             vendor/
             ${{ env.USERPROFILE }}\AppData\Local\Nuitka\Nuitka\Cache
             $HOME\AppData\Local\Nuitka\Nuitka\Cache
-          key: nuitka-${{ runner.os }}-${{ hashFiles('**/*.py') }}
+          key: cp-${{ runner.os }}-${{ hashFiles('**/*.py') }}
           restore-keys: |
-            nuitka-${{ runner.os }}-${{ github.sha }}
-            nuitka-${{ runner.os }}-${{ hashFiles('**/*.py') }}
-            nuitka-${{ runner.os }}-
+            cp-${{ runner.os }}-${{ github.sha }}
+            cp-${{ runner.os }}-${{ hashFiles('**/*.py') }}
+            cp-${{ runner.os }}-
 
       - name: Restore Non-cached Files
         run: |
