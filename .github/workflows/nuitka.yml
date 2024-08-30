@@ -87,10 +87,6 @@ jobs:
           python3 -m distutils.core --help
           python3 requirements_install.py
 
-      - name: Re-install Python Dependencies
-        run: |
-          pip install --force-reinstall --no-cache-dir -r requirements.txt
-
       - name: Download required files
         run: |
           python3 src/geoPlugin.py
