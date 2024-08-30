@@ -1,4 +1,4 @@
-name: Checker
+name: Checker PHP
 
 on:
   workflow_dispatch:
