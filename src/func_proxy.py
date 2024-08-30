@@ -76,7 +76,7 @@ def build_request(
     no_cache: Optional[bool] = False,
     cookie_file: Optional[str] = "tmp/cookies/default.txt",
     session: Optional[requests.Session] = None,
-    keep_headers: Optional[bool] = None
+    keep_headers: Optional[bool] = None,
 ) -> requests.Response:
     """
     Builds and sends an HTTP request using the provided settings.
@@ -644,29 +644,6 @@ def parse_ip_port(line: str) -> tuple[Optional[str], Optional[str]]:
         return ip, port
     else:
         return None, None
-
-
-def extract_proxies_from_file(filename: str) -> List[Proxy]:
-    """
-    Read a file containing IP:PORT pairs and parse them.
-
-    Args:
-        filename (str): The path to the file.
-
-    Returns:
-        List[Proxy]: A list of parsed IP:PORT pairs.
-    """
-    proxies = []
-    db = ProxyDB()
-    try:
-        with open(filename, "r", encoding="utf-8") as file:
-            for line in file:
-                proxies.extend(db.extract_proxies(line))
-    except Exception as e:
-        print(f"fail open {filename} {str(e)}")
-        pass
-    db.close()
-    return proxies
 
 
 def is_port_open(address: str) -> bool:
