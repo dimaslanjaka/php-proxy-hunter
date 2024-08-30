@@ -61,7 +61,9 @@ jobs:
             package-lock.json
             assets/proxies/
             vendor/
-          key: nuitka-${{ runner.os }}-${{ github.sha }}
+            ${{ env.USERPROFILE }}\AppData\Local\Nuitka\Nuitka\Cache
+            $HOME\AppData\Local\Nuitka\Nuitka\Cache
+          key: nuitka-${{ runner.os }}-${{ hashFiles('**/*.py') }}
           restore-keys: |
             nuitka-${{ runner.os }}-${{ github.sha }}
             nuitka-${{ runner.os }}-${{ hashFiles('**/*.py') }}
