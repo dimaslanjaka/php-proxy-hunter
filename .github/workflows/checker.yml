@@ -135,10 +135,13 @@ jobs:
             src/*.mmdb
             composer.lock
             yarn.lock
-          key: cph-${{ runner.os }}-${{ github.run_id }}
+          key: ${{ runner.os }}-php-${{ github.run_id }}
           restore-keys: |
-            cph-${{ runner.os }}-
             nuitka-${{ runner.os }}-
+            ${{ runner.os }}-php-
+            ${{ runner.os }}-nuitka-
+            ${{ runner.os }}-python-
+            ${{ runner.os }}-
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
