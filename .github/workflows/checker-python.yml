@@ -120,6 +120,10 @@ jobs:
           python3 github-actions-init.py
 
       - name: Download required files
-        run: |
-          python3 src/geoPlugin.py
+        run: python3 src/geoPlugin.py
 
+      - name: Fetch Proxies
+        run: python3 proxyFetcher.py
+
+      - name: Import Proxies
+        run: call bin/djm.cmd sync_proxies
