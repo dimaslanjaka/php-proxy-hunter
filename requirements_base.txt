@@ -47,6 +47,5 @@ urllib3
 werkzeug
 webdriver-manager @ https://github.com/SergeyPirogov/webdriver_manager/archive/master.zip
 zstandard
-pyvirtualdisplay
 # huey[backends]
 huey @ https://github.com/coleifer/huey/archive/master.zip
