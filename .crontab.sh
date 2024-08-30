@@ -121,3 +121,8 @@ fi
 if should_run_job "tmp/crontab/3-h" 3; then
   bash "$CWD/bin/check-proxy-parallel"
 fi
+
+# run every 4 hours
+if should_run_job "tmp/crontab/4-h" 4; then
+  python "$CWD/proxyFetcher.py"
+fi
