@@ -20,7 +20,7 @@ on:
         required: true
 
 concurrency:
-  group: checker-${{ github.workflow }}-${{ github.event_name }}
+  group: php-proxy-checker
   cancel-in-progress: false
 
 jobs:
@@ -159,7 +159,10 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Prepare required directory
+      - name: Initialize Github Actions
+        id: php-github-actions-init
+        env:
+          GITHUB_OUTPUT: $GITHUB_OUTPUT
         run: |
           mkdir -p .cache
           chmod -R 777 .cache
@@ -167,12 +170,6 @@ jobs:
           chmod -R 777 tmp
           mkdir -p config
           chmod -R 777 config
-
-      - name: Initialize Github Actions
-        id: php-github-actions-init
-        env:
-          GITHUB_OUTPUT: $GITHUB_OUTPUT
-        run: |
           mkdir -p assets/proxies
           mkdir -p tmp
           mkdir -p tmp/runners

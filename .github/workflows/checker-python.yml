@@ -1,0 +1,125 @@
+name: Nuitka CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      max:
+        description: "The maximum proxies to be checked."
+        required: true
+        default: "500"
+        type: string
+  workflow_call:
+    inputs:
+      max:
+        description: "The maximum proxies to be checked."
+        required: true
+        default: "500"
+        type: string
+    secrets:
+      ACCESS_TOKEN:
+        required: true
+
+concurrency:
+  group: python-proxy-checker
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: contains(github.repository, 'php-proxy-hunter') || contains(github.repository, 'android-traffic-exchange')
+    runs-on: windows-latest
+
+    steps:
+      # Check-out repository
+      - uses: actions/checkout@v4
+        with:
+          repository: dimaslanjaka/traffic-generator
+          ref: python
+          token: ${{ secrets.ACCESS_TOKEN }}
+          lfs: "true"
+          submodules: "true"
+
+      # Setup Python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          architecture: "x64"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+
+      - name: Get pip cache dir
+        id: pip-cache
+        run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
+
+      - name: Setup Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist/
+            tmp/
+            src/*.sqlite*
+            src/*.mmdb
+            node_modules/**
+            .yarn/caches/**/*
+            .yarn/*.gz
+            venv/**/*
+            ${{ env.pip_cache_dir }}
+            *.lock
+            *.txt
+            package-lock.json
+            assets/proxies/
+            vendor/
+            ${{ env.USERPROFILE }}\AppData\Local\Nuitka\Nuitka\Cache
+            $HOME\AppData\Local\Nuitka\Nuitka\Cache
+          key: nuitka-${{ runner.os }}-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            nuitka-${{ runner.os }}-${{ github.sha }}
+            nuitka-${{ runner.os }}-${{ hashFiles('**/*.py') }}
+            nuitka-${{ runner.os }}-
+
+      - name: Restore Non-cached Files
+        run: |
+          git restore *.txt
+
+      - name: Install NodeJS Dependencies
+        run: |
+          corepack enable
+          yarn install
+
+      - name: Install Python Dependencies
+        run: |
+          python3 -m ensurepip --upgrade
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m distutils.core --help
+          python3 requirements_install.py
+
+      - name: Re-install Python Dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Initialize Github Actions
+        id: php-github-actions-init
+        env:
+          GITHUB_OUTPUT: $GITHUB_OUTPUT
+        run: |
+          mkdir -p .cache
+          chmod -R 777 .cache
+          mkdir -p tmp
+          chmod -R 777 tmp
+          mkdir -p config
+          chmod -R 777 config
+          mkdir -p assets/proxies
+          mkdir -p tmp
+          mkdir -p tmp/runners
+          mkdir -p tmp/cookies
+          chmod 777 tmp
+          chmod 777 tmp/runners
+          chmod 777 tmp/cookies
+          python3 manage.py migrate
+          python3 github-actions-init.py
+
+      - name: Download required files
+        run: |
+          python3 src/geoPlugin.py
+
