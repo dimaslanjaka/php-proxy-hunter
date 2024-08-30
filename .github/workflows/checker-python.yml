@@ -1,4 +1,4 @@
-name: Nuitka CI
+name: Checker Python
 
 on:
   workflow_dispatch:
