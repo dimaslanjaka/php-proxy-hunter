@@ -1,5 +1,5 @@
 import os
-
+import stat
 import chromedriver_autoinstaller
 from selenium import webdriver
 
@@ -13,6 +13,22 @@ def display_test():
 
 if os.getenv("GITHUB_ACTIONS") == "true":
     display_test()
+
+
+def make_dirs_and_set_permissions():
+    # List of directories to create
+    dirs = [".cache", "tmp", "config", "assets/proxies", "tmp/runners", "tmp/cookies"]
+
+    # Create directories
+    for dir_path in dirs:
+        current_directory = os.path.dirname(os.path.abspath(__file__))
+        dir_path = os.path.join(current_directory, dir_path)
+        os.makedirs(dir_path, exist_ok=True)
+        # Set permissions to 777
+        os.chmod(dir_path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+
+
+make_dirs_and_set_permissions()
 
 chromedriver_autoinstaller.install()  # Check if the current version of chromedriver exists
 # and if it doesn't exist, download it automatically,
