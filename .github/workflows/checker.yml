@@ -154,6 +154,7 @@ jobs:
           fi
           yarn install
           python requirements_install.py
+          pip install -r requirements.txt
 
       - name: Prepare required directory
         run: |

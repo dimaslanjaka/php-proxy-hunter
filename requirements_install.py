@@ -134,6 +134,12 @@ def install_requirements():
         if not is_package_installed(pkg):
             install_package(name)
 
+    try:
+        subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
+        subprocess.check_call(["pip", "install", "socks", "--use-pep517"])
+    except Exception:
+        pass
+
 
 if __name__ == "__main__":
     if generate_requirements():
