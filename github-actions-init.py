@@ -1,11 +1,18 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-import chromedriver_autoinstaller
-from pyvirtualdisplay import Display
+import os
 
-display = Display(visible=0, size=(800, 800))
-display.start()
+import chromedriver_autoinstaller
+from selenium import webdriver
+
+
+def display_test():
+    from pyvirtualdisplay import Display
+
+    display = Display(visible=0, size=(800, 800))
+    display.start()
+
+
+if os.getenv("GITHUB_ACTIONS") == "true":
+    display_test()
 
 chromedriver_autoinstaller.install()  # Check if the current version of chromedriver exists
 # and if it doesn't exist, download it automatically,
@@ -35,3 +42,4 @@ driver = webdriver.Chrome(options=chrome_options)
 
 driver.get("https://github.com")
 print(driver.title)
+driver.quit()
