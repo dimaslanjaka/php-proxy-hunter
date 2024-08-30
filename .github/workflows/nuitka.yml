@@ -106,6 +106,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
+          overwrite: 'true'
+          include-hidden-files: 'true'
           name: built
           path: |
             dist/*.exe
