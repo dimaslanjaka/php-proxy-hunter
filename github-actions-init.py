@@ -7,8 +7,11 @@ from selenium import webdriver
 def display_test():
     from pyvirtualdisplay import Display
 
-    display = Display(visible=0, size=(800, 800))
-    display.start()
+    try:
+        display = Display(visible=0, size=(800, 800))
+        display.start()
+    except Exception as e:
+        print(f"pyvirtualdisplay error {e}")
 
 
 if os.getenv("GITHUB_ACTIONS") == "true":
