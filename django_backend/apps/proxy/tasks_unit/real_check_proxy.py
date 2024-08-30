@@ -427,7 +427,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         process_status = ProcessStatus.objects.get(process_name="check_existing_proxies")
         process_status.is_done = True
         process_status.save()
-    print(f"process {process_status.process_name} released")
+        print(f"process {process_status.process_name} released")
 
 
 def real_check_proxy_async_in_thread(proxy):
