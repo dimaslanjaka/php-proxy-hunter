@@ -4,20 +4,6 @@ import chromedriver_autoinstaller
 from selenium import webdriver
 
 
-def display_test():
-    from pyvirtualdisplay import Display
-
-    try:
-        display = Display(visible=0, size=(800, 800))
-        display.start()
-    except Exception as e:
-        print(f"pyvirtualdisplay error {e}")
-
-
-if os.getenv("GITHUB_ACTIONS") == "true":
-    display_test()
-
-
 def make_dirs_and_set_permissions():
     # List of directories to create
     dirs = [".cache", "tmp", "config", "assets/proxies", "tmp/runners", "tmp/cookies"]
