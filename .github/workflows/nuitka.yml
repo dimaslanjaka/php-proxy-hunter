@@ -68,10 +68,10 @@ jobs:
             tmp/
             src/*.sqlite*
             src/*.mmdb
-            node_modules/**
-            .yarn/caches/**/*
+            node_modules/
+            .yarn/caches/
             .yarn/*.gz
-            venv/**/*
+            venv/
             ${{ env.pip_cache_dir }}
             ${{ env.NUITKA_CACHE_DIR }}
             *.lock
@@ -80,7 +80,17 @@ jobs:
             assets/proxies/
             vendor/
             ${{ env.USERPROFILE }}\AppData\Local\Nuitka\Nuitka\Cache
-            $HOME\AppData\Local\Nuitka\Nuitka\Cache
+            $HOME/AppData/Local/Nuitka/Nuitka/Cache
+            ~/.cache/pip
+            config/
+            .cache/
+            proxies.txt
+            dead.txt
+            proxyChecker.txt
+            working.txt
+            working.json
+            composer.lock
+            yarn.lock
           key: ${{ runner.os }}-nuitka-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-nuitka-
