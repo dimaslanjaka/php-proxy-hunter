@@ -6,14 +6,14 @@ on:
       max:
         description: "The maximum proxies to be checked."
         required: true
-        default: "500"
+        default: "100"
         type: string
   workflow_call:
     inputs:
       max:
         description: "The maximum proxies to be checked."
         required: true
-        default: "500"
+        default: "100"
         type: string
     secrets:
       ACCESS_TOKEN:
@@ -118,4 +118,4 @@ jobs:
         run: python3 manage.py sync_proxies
 
       - name: Check Proxies
-        run: python3 manage.py check_proxies --max='${{ github.event.inputs.max || 500 }}'
+        run: python3 manage.py check_proxies --max='${{ github.event.inputs.max || 100 }}'
