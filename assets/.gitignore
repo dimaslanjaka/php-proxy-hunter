@@ -10,3 +10,5 @@
 !/images/**/*
 !/fonts
 !/fonts/**/*
+!/chrome/
+!/chrome/chromedriver.exe
