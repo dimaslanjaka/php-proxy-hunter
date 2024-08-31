@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Define file paths
+TMP_DB="tmp/database.sqlite"
+SRC_DB="src/database.sqlite"
+BACKUP_DIR="backups"
+
+# Create backup directory if it doesn't exist
+mkdir -p "$BACKUP_DIR"
+
+# Backup tmp database if it exists
+if [ -f "$TMP_DB" ]; then
+  sqlite3 "$TMP_DB" .dump > "$BACKUP_DIR/tmp_dump.sql"
+fi
+
+# Backup src database if it exists
+if [ -f "$SRC_DB" ]; then
+  sqlite3 "$SRC_DB" .dump > "$BACKUP_DIR/src_dump.sql"
+fi
