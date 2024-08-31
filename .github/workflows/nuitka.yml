@@ -3,7 +3,19 @@ name: Nuitka CI
 on:
   push:
   workflow_dispatch:
+    inputs:
+      disableCache:
+        description: "Disable cache"
+        required: false
+        default: "false"
+        type: boolean
   workflow_call:
+    inputs:
+      disableCache:
+        description: "Disable cache"
+        required: false
+        default: "false"
+        type: boolean
     secrets:
       ACCESS_TOKEN:
         required: true
@@ -20,7 +32,12 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # Check-out repository
+      - name: Setup Environment Variables
+        if: ${{ github.event.inputs.disableCache || 'false' }}
+        shell: bash
+        run: |
+          echo "NUITKA_CACHE_DIR=${{ github.action_path }}/nuitka/cache" >> $GITHUB_ENV
+
       - uses: actions/checkout@v4
         with:
           repository: dimaslanjaka/traffic-generator
@@ -56,6 +73,7 @@ jobs:
             .yarn/*.gz
             venv/**/*
             ${{ env.pip_cache_dir }}
+            ${{ env.NUITKA_CACHE_DIR }}
             *.lock
             *.txt
             package-lock.json
@@ -102,8 +120,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          overwrite: 'true'
-          include-hidden-files: 'true'
+          overwrite: "true"
+          include-hidden-files: "true"
           name: built
           path: |
             dist/*.exe
