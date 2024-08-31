@@ -94,13 +94,6 @@ jobs:
         run: |
           git restore *.txt
 
-      - name: Clean github actions cache
-        env:
-          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        shell: cmd
-        run: |
-          call "${{ github.workspace }}/bin/clear-github-actions-cache.cmd"
-
       - name: Install NodeJS Dependencies
         run: |
           corepack enable
@@ -132,3 +125,10 @@ jobs:
 
       - name: Check Proxies
         run: python3 manage.py check_proxies --max='${{ github.event.inputs.max || 100 }}'
+
+      - name: Clean github actions cache
+        env:
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        shell: cmd
+        run: |
+          call "${{ github.workspace }}/bin/clear-github-actions-cache.cmd"
