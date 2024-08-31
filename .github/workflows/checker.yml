@@ -137,7 +137,6 @@ jobs:
             yarn.lock
           key: ${{ runner.os }}-php-${{ github.run_id }}
           restore-keys: |
-            nuitka-${{ runner.os }}-
             ${{ runner.os }}-php-
             ${{ runner.os }}-nuitka-
             ${{ runner.os }}-python-
