@@ -1,9 +1,15 @@
 const prettier = require("./.prettierrc.json");
+
 /**
  * @type {import('eslint').ESLint.Options}
  */
 const config = {
-  root: true, // Specifies your current project has own eslint rules without extends parent folder eslint rules
+  // Specifies your current project has own eslint rules without extends parent folder eslint rules
+  root: true,
+  // .eslintignore migration
+  ignorePatterns: ["*.md", "**/tmp/**", "*.html", "*.py", "*.txt"],
+  noInlineConfig: false,
+  reportUnusedDisableDirectives: true,
   parser: "@typescript-eslint/parser", // Specifies the ESLint parser
   env: {
     browser: true, // add support for browser js (window,document,location,etc)
@@ -25,7 +31,8 @@ const config = {
     {
       files: ["*.js"],
       rules: {
-        "@typescript-eslint/no-var-requires": "off" // disable require warning on js files
+        "@typescript-eslint/no-var-requires": "off", // disable require warning on js files
+        "@typescript-eslint/no-require-imports": "off" // disable require warning on js files
       }
     }
   ],

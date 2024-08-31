@@ -165,5 +165,6 @@
     "**/tmp/**",
     "**/dist",
     "**/backups"
-  ]
+  ],
+  "eslint.useFlatConfig": false
 }
