@@ -112,13 +112,13 @@ function get_caches(GH_REPO) {
          * @returns
          */
         const getPrefix = (key) => {
-          const split = key.split(/-_/);
+          const split = key.split(/[-_]/);
           if (split.length == 3) {
             return `${split[0]}-${split[1]}`;
           } else if (split.length > 3) {
             return `${split[0]}-${split[1]}-${split[2]}`;
           }
-          return key.split("-")[0];
+          return split[0];
         };
 
         // Group by prefix
