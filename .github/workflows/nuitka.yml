@@ -134,7 +134,8 @@ jobs:
           name: built
           path: |
             dist/*.exe
-            dist/src
+            dist/src/*.sqlite*
+            dist/src/*.mmdb
             dist/*.json
             dist/*.txt
             dist/*.yml
