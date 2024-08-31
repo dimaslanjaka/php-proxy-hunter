@@ -80,6 +80,21 @@ def get_current_rfc3339_time(use_utc=False):
     return rfc3339_timestamp
 
 
+def convert_rfc3339_to_human_readable(rfc3339_date: str):
+    """
+    Convert DATE_RFC3339 string to human readable format
+    """
+    # Remove trailing 'Z' if present (Z denotes UTC time zone)
+    if rfc3339_date.endswith("Z"):
+        rfc3339_date = rfc3339_date[:-1]
+
+    # Convert RFC 3339 formatted date string to datetime object
+    dt = datetime.fromisoformat(rfc3339_date)
+
+    # Format datetime object as human-readable date and time
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+
 def get_system_timezone() -> str:
     """
     Get system timezone name.
