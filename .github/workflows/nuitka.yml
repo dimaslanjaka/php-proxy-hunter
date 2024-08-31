@@ -98,6 +98,13 @@ jobs:
             ${{ runner.os }}-python-
             ${{ runner.os }}-
 
+      - name: Clean github actions cache
+        env:
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        shell: cmd
+        run: |
+          call "${{ github.workspace }}/bin/clear-github-actions-cache.cmd"
+
       - name: Restore Non-cached Files
         run: |
           git restore *.txt
