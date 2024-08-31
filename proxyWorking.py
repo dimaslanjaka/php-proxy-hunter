@@ -1,10 +1,12 @@
-import random
 import json
-import os
-from typing import List, Dict, Optional, Union
-from src.ProxyDB import ProxyDB
-from src.func import get_relative_path, get_unique_dicts_by_key_in_list
+import random
+from typing import Dict, List, Optional, Union
+
 from filelock import FileLock
+
+from src.func import get_relative_path, get_unique_dicts_by_key_in_list
+from src.func_proxy import upload_proxy
+from src.ProxyDB import ProxyDB
 
 working_file = get_relative_path("working.json")
 lock_file = get_relative_path("tmp/workload.lock")
@@ -16,15 +18,11 @@ class ProxyWorkingManager:
         self.filename: str = working_file
         self.lock: FileLock = FileLock(lock_file)
         self.data: List[Dict[str, Union[str, int, float]]] = self._load_data()
-        self.db: Optional["ProxyDB"] = None
-        try:
-            self.db = ProxyDB(get_relative_path("src/database.sqlite"), True)
-        except Exception as e:
-            print(f"Failed to initialize ProxyDB: {e}")
+        self.db = ProxyDB(get_relative_path("src/database.sqlite"), True)
 
     def _load_db(self):
         """Import and merge from database into working.json"""
-        db_data = self.db.get_working_proxies()
+        db_data = self.db.db.select("proxies", "*", "status = ?", ["active"])
         file_data = self._load_data()
         # Create a dictionary for fast lookup
         existing_proxies = {entry.get("proxy"): entry for entry in file_data}
@@ -66,7 +64,7 @@ class ProxyWorkingManager:
                     indent=2,
                 )
 
-    def add_entry(self, entry: Dict[str, Union[str, int, float]]) -> None:
+    def add_entry(self, entry: Optional[Dict[str, Union[str, int, float]]]) -> None:
         """Add a new entry to the data if 'proxy' key is unique."""
         if not isinstance(entry, dict):
             raise ValueError("Entry must be a dictionary.")
@@ -83,7 +81,9 @@ class ProxyWorkingManager:
             self._save_data()
 
     def update_entry(
-        self, proxy_value: str, updated_entry: Dict[str, Union[str, int, float]]
+        self,
+        proxy_value: str,
+        updated_entry: Optional[Dict[str, Union[str, int, float]]],
     ) -> None:
         """Update an existing entry by 'proxy' key."""
         if not isinstance(updated_entry, dict):
@@ -119,42 +119,23 @@ class ProxyWorkingManager:
                 self._save_data()
                 return
 
+    def upload_proxies(self):
+        formatted: List[str] = []
+        for data in self.data:
+            if data.get("username") and data.get("password"):
+                formatted.append(
+                    "{}:{}@{}".format(
+                        data.get("username"), data.get("password"), data.get("proxy")
+                    )
+                )
+            else:
+                formatted.append(data.get("proxy"))
+        if formatted:
+            upload_proxy(json.dumps(formatted))
+
 
 # Example usage
 if __name__ == "__main__":
     manager = ProxyWorkingManager()
-
-    # Add a new entry
-    new_entry = {
-        "proxy": "192.168.0.1:8080",
-        "latency": "300",
-        "last_check": "2024-08-01T12:00:00+0000",
-        "type": "HTTPS",
-        "region": "-",
-        "city": "-",
-        "country": "United Kingdom",
-        "timezone": "Europe/London",
-        "latitude": "51.509",
-        "longitude": "-0.118",
-        "anonymity": "-",
-        "https": "true",
-        "status": "active",
-        "private": "-",
-        "lang": "en_GB",
-        "useragent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
-        "webgl_vendor": "Google Inc.",
-        "webgl_renderer": "ANGLE (Intel(R) HD Graphics 630 Direct3D11 vs_5_0 ps_5_0)",
-        "browser_vendor": "Google Inc.",
-        "username": "-",
-        "password": "-",
-    }
-    manager.add_entry(new_entry)
-
-    # Update an existing entry
-    manager.update_entry(
-        "192.168.0.1:8080", new_entry
-    )  # Update the entry with the specified proxy
-
-    # Select entries by key
-    results = manager.select_by_key("country", "United Kingdom")
-    print(results)
+    manager._load_db()
+    manager.upload_proxies()
