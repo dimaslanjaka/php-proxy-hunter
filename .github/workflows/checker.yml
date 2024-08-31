@@ -167,10 +167,6 @@ jobs:
           yarn install
           python requirements_install.py
 
-      - name: Re-install Python Dependencies
-        run: |
-          python3 -m pip install --force-reinstall --no-cache-dir -r requirements.txt
-
       - name: Initialize Github Actions
         id: php-github-actions-init
         env:
