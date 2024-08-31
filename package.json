@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "php -S 0.0.0.0:4000",
-    "prepare": "husky install"
+    "prepare": "husky install && playwright install"
   },
   "keywords": [],
   "author": "",
@@ -44,11 +44,14 @@
     "countries-list": "^3.1.0",
     "crypto-js": "4.2.0",
     "deepmerge-ts": "4",
+    "fingerprint-injector": "^2.1.54",
     "highlight.js": "^11.10.0",
     "https-proxy-agent": "^7.0.4",
+    "playwright": "^1.46.1",
     "proxies-grabber": "^1.1.3",
     "puppeteer": "^22.7.0",
     "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-anonymize-ua": "^2.4.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "sbg-utility": "^1.1.6"
   },
