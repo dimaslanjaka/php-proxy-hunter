@@ -74,7 +74,6 @@ jobs:
             $HOME\AppData\Local\Nuitka\Nuitka\Cache
           key: ${{ runner.os }}-python-${{ github.run_id }}
           restore-keys: |
-            nuitka-${{ runner.os }}-
             ${{ runner.os }}-python-
             ${{ runner.os }}-nuitka-
             ${{ runner.os }}-php-
