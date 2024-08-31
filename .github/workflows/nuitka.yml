@@ -36,7 +36,7 @@ jobs:
         if: ${{ github.event.inputs.disableCache || 'false' }}
         shell: bash
         run: |
-          echo "NUITKA_CACHE_DIR=${{ github.action_path }}/nuitka/cache" >> $GITHUB_ENV
+          echo "NUITKA_CACHE_DIR=${{ github.workspace }}/tmp/nuitka-cache" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
         with:
