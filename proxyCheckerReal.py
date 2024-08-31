@@ -1,32 +1,31 @@
 import argparse
+import concurrent.futures
 import os
 import random
-from multiprocessing.pool import ThreadPool as Pool
 import time
+from multiprocessing.pool import ThreadPool as Pool
 from typing import Dict, List
 
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
+from proxy_checker import ProxyChecker
 
+from proxyWorking import ProxyWorkingManager
 from src.func import (
     file_append_str,
     get_relative_path,
     sanitize_filename,
     truncate_file_content,
 )
-from src.func_console import green, red, log_proxy
-from src.func_proxy import check_proxy, build_request
+from src.func_console import green, log_proxy, red
+from src.func_proxy import build_request, check_proxy
 from src.ProxyDB import ProxyDB
-from proxy_checker import ProxyChecker
-from proxyWorking import ProxyWorkingManager
-import concurrent.futures
+from proxy_hunter import decompress_requests_response
 
 
 def real_check(proxy: str, url: str, title_should_be: str):
     """check proxy with matching the title of response"""
-    # log_proxy('=' * 30)
-    # log_proxy(f"CHECKING {proxy}")
-    # log_proxy('=' * 30)
+    result = {}
 
     protocols = []
     output_file = get_relative_path(f"tmp/logs/{sanitize_filename(proxy)}.txt")
@@ -58,8 +57,10 @@ def real_check(proxy: str, url: str, title_should_be: str):
                 log += "RESPONSE HEADERS:\n"
                 for key, value in check.response.headers.items():
                     log += f"  {key}: {value}\n"
-                if check.response.text:
-                    soup = BeautifulSoup(check.response.text, "html.parser")
+                response_text = decompress_requests_response(check.response)
+                if response_text:
+                    result.update({'response_text': response_text})
+                    soup = BeautifulSoup(response_text, "html.parser")
                     response_title = soup.title.string.strip() if soup.title else ""
                     log += f"TITLE: {response_title}\n"
                     if title_should_be.lower() in response_title.lower():
@@ -71,13 +72,16 @@ def real_check(proxy: str, url: str, title_should_be: str):
     if os.path.exists(output_file):
         log_proxy(f"logs written {output_file}")
 
-    result = {
-        "result": False,
-        "url": url,
-        "https": url.startswith("https://"),
-        "proxy": proxy,
-        "type": protocols,
-    }
+    result.update(
+        {
+            "result": False,
+            "url": url,
+            "https": url.startswith("https://"),
+            "proxy": proxy,
+            "type": protocols,
+        }
+    )
+
     if protocols and response_title:
         pt = "-".join(protocols)
         log_proxy(
