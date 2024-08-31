@@ -1,9 +1,10 @@
-from datetime import datetime, timedelta, timezone
-from typing import Optional
-from dateutil import parser
-from tzlocal import get_localzone
 import os
 import sys
+from datetime import datetime, timedelta, timezone
+from typing import Optional
+
+from dateutil import parser
+from tzlocal import get_localzone
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -77,6 +78,16 @@ def get_current_rfc3339_time(use_utc=False):
         rfc3339_timestamp = now.strftime("%Y-%m-%dT%H:%M:%S%z")
 
     return rfc3339_timestamp
+
+
+def get_system_timezone() -> str:
+    """
+    Get system timezone name.
+    """
+    test = get_localzone()
+    if not test:
+        return "UTC"
+    return str(test.key)
 
 
 if __name__ == "__main__":
