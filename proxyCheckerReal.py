@@ -8,9 +8,12 @@ from typing import Dict, List
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
 
+from proxy_hunter import extract_proxies
 from src.func import (
     file_append_str,
     get_relative_path,
+    read_all_text_files,
+    read_file,
     sanitize_filename,
     truncate_file_content,
 )
@@ -264,6 +267,17 @@ if __name__ == "__main__":
         limit = args.max
 
     db = ProxyDB(get_relative_path("src/database.sqlite"), True)
+
+    files_content = read_all_text_files(get_relative_path("assets/proxies"))
+    if os.path.exists(get_relative_path("proxies.txt")):
+        files_content[get_relative_path("proxies.txt")] = read_file(
+            get_relative_path("proxies.txt")
+        )
+    for file_path, content in files_content.items():
+        extract = extract_proxies(content)
+        print(f"Total proxies extracted from {file_path} is {len(extract)}")
+        db.extract_proxies(content, True)
+
     proxies = db.get_untested_proxies(limit)
     if not proxies:
         proxies = db.get_all_proxies(True)[:limit]
