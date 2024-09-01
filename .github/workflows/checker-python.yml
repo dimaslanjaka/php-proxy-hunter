@@ -1,6 +1,7 @@
 name: Checker Python
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       max:
@@ -25,7 +26,7 @@ concurrency:
 
 jobs:
   build:
-    if: contains(github.repository, 'php-proxy-hunter') || contains(github.repository, 'android-traffic-exchange')
+    if: contains(github.repository, 'php-proxy-hunter')
     runs-on: windows-latest
 
     steps:

@@ -1,6 +1,7 @@
 name: Checker PHP
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       max:
@@ -25,8 +26,7 @@ concurrency:
 
 jobs:
   build:
-    # only apply for repository has substring `proxy` like `php-proxy-hunter`
-    if: contains(github.repository, 'proxy')
+    if: contains(github.repository, 'php-proxy-hunter')
     permissions: read-all
     runs-on: ubuntu-latest
     env:
