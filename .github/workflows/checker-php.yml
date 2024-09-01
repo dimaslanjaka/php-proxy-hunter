@@ -172,21 +172,8 @@ jobs:
         env:
           GITHUB_OUTPUT: $GITHUB_OUTPUT
         run: |
-          mkdir -p .cache
-          chmod -R 777 .cache
-          mkdir -p tmp
-          chmod -R 777 tmp
-          mkdir -p config
-          chmod -R 777 config
-          mkdir -p assets/proxies
-          mkdir -p tmp
-          mkdir -p tmp/runners
-          mkdir -p tmp/cookies
-          chmod 777 tmp
-          chmod 777 tmp/runners
-          chmod 777 tmp/cookies
-          php github-actions-init.php
           python github-actions-init.py
+          php github-actions-init.php
 
       - name: Display output
         run: |
