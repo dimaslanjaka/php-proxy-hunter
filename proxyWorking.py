@@ -120,6 +120,9 @@ class ProxyWorkingManager:
                 return
 
     def upload_proxies(self):
+        """
+        Upload working proxies
+        """
         formatted: List[str] = []
         for data in self.data:
             if data.get("username") and data.get("password"):
