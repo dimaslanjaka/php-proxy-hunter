@@ -111,8 +111,8 @@ jobs:
         env:
           GITHUB_OUTPUT: $GITHUB_OUTPUT
         run: |
-          python3 manage.py migrate
           python3 github-actions-init.py
+          python3 manage.py migrate
 
       - name: Download required files
         run: python3 src/geoPlugin.py
