@@ -277,9 +277,8 @@
   const parse_hideme_jquery = () => {
     return new Promise((resolve) => {
       const result = [];
-      // eslint-disable-next-line no-undef
+
       $(".table_block>table>tbody>tr").each(function (i, e) {
-        // eslint-disable-next-line no-undef
         var tr = $(e);
         var tdList = tr.children("td");
         var host = tdList.get(0).innerText;
@@ -749,6 +748,18 @@
 <html>
 <head>
   <title>JSON Data</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    pre {
+      white-space: pre-wrap; /* Ensures long lines wrap */
+      word-wrap: break-word; /* Prevents overflowing */
+    }
+  </style>
 </head>
 <body>
   <pre>${result}</pre>
