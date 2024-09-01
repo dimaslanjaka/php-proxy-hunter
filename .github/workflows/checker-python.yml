@@ -37,7 +37,6 @@ jobs:
           ref: master
           token: ${{ secrets.ACCESS_TOKEN }}
           lfs: "true"
-          submodules: "true"
 
       # Setup Python
       - uses: actions/setup-python@v5
