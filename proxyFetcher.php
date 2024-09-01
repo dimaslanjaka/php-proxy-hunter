@@ -39,7 +39,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
 }, 'z_onExit' . basename(__FILE__));
 
 // Array of URLs to fetch content from
-$urls = json_decode(read_file(__DIR__ . '/proxyFetcherSources.json') || "[]");
+$urls = json_decode(read_file(__DIR__ . '/proxyFetcherSources.json'));
 
 $urls = array_unique($urls);
 
