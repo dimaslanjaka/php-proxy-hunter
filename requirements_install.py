@@ -14,7 +14,7 @@ def generate_requirements():
     windows_specific = [
         "pywin32",
         "wmi",
-        "pyside6==6.*",
+        "PySide6==6.*",
         "qtawesome==1.*",
         # "nuitka==2.*",
         "nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip",
