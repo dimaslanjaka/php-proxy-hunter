@@ -21,7 +21,7 @@ jobs:
   check:
     if: contains(github.repository, 'proxy')
     permissions: read-all
-    # uses: dimaslanjaka/php-proxy-hunter/.github/workflows/checker.yml@master
+    # uses: dimaslanjaka/php-proxy-hunter/.github/workflows/checker-php.yml@master
     uses: dimaslanjaka/php-proxy-hunter/.github/workflows/checker-python.yml@master
     with:
       max: ${{ github.event.inputs.max || 500 }}
