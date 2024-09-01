@@ -1,5 +1,5 @@
 const { path } = require("sbg-utility");
-require("dotenv").config({ path: path.join(__dirname, "/../") });
+require("dotenv").config({ path: path.join(__dirname, "/../"), override: true });
 const axios = require("axios");
 const { exec } = require("child_process");
 const { URL } = require("url");
@@ -153,30 +153,34 @@ function get_caches(GH_REPO) {
   });
 }
 
-parseGitRemotes().then((remotes) => {
-  const GH_REPO = remotes.origin;
-  get_caches(GH_REPO).then((caches) => {
-    for (const key in caches) {
-      if (Object.hasOwnProperty.call(caches, key)) {
-        const item = caches[key]
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // sort descending orders
-          .map((item) => ({
-            ...item,
-            human_readable_date: new Date(item.created_at).toLocaleString() // human readable format
-          }));
-        if (item.length > 1) {
-          const ids = item.map((o) => o.id);
-          ids.shift(); // remove first item
-          // console.log(key, ids, item);
-          if (ids.length > 0) {
-            ids.forEach((id) => deleteGitHubActionsCache(GH_REPO, id));
-          } else {
-            console.log(`cache prefix ${key} no cache left`);
+parseGitRemotes()
+  .then((remotes) => {
+    const GH_REPO = remotes.origin;
+    get_caches(GH_REPO)
+      .then((caches) => {
+        for (const key in caches) {
+          if (Object.hasOwnProperty.call(caches, key)) {
+            const item = caches[key]
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // sort descending orders
+              .map((item) => ({
+                ...item,
+                human_readable_date: new Date(item.created_at).toLocaleString() // human readable format
+              }));
+            if (item.length > 1) {
+              const ids = item.map((o) => o.id);
+              ids.shift(); // remove first item
+              // console.log(key, ids, item);
+              if (ids.length > 0) {
+                ids.forEach((id) => deleteGitHubActionsCache(GH_REPO, id));
+              } else {
+                console.log(`cache prefix ${key} no cache left`);
+              }
+            } else {
+              console.log(`cache prefix ${key} only have 1 cache`);
+            }
           }
-        } else {
-          console.log(`cache prefix ${key} only have 1 cache`);
         }
-      }
-    }
-  });
-});
+      })
+      .catch((e) => console.error(`fail get caches ${GH_REPO}: ${e}`));
+  })
+  .catch((e) => console.error(`fail get remotes: ${e}`));
