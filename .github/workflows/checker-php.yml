@@ -55,7 +55,7 @@ jobs:
           lfs: true
           path: "public"
           repository: "dimaslanjaka/data"
-      - name: update submodules
+      - name: Update Submodules
         run: |
           echo "init submodules"
           git submodule init
