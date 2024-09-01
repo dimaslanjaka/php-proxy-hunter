@@ -1,14 +1,16 @@
 import os
 import sys
-import sqlite3
-from django.core.management.base import BaseCommand
-from proxy_hunter.extract_proxies import extract_proxies
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../"))
 SRC_DIR = os.path.join(BASE_DIR, "src")
 sys.path.append(SRC_DIR)
 
-from src.func import delete_path, get_relative_path, read_file
+import sqlite3
+
+from django.core.management.base import BaseCommand
+from proxy_hunter.extract_proxies import extract_proxies
+
+from src.func import delete_path, get_relative_path, read_all_text_files, read_file
 from src.geoPlugin import download_databases
 
 
@@ -210,19 +212,3 @@ class Command(BaseCommand):
             execute_insert_or_replace(src, proxy_data)
             execute_insert_or_replace(dest, proxy_data)
             delete_path(file_path)
-
-
-def read_all_text_files(directory):
-    text_files_content = {}
-
-    # List all files in the directory
-    for filename in os.listdir(directory):
-        if filename.endswith(".txt"):
-            file_path = os.path.join(directory, filename)
-            try:
-                with open(file_path, "r", encoding="utf-8") as file:
-                    text_files_content[file_path] = file.read()
-            except Exception as e:
-                print(f"Error reading {file_path}: {e}")
-
-    return text_files_content

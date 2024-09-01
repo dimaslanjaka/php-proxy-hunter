@@ -1133,3 +1133,22 @@ def split_list_into_chunks(
     """
     for i in range(0, len(lst), chunk_size):
         yield lst[i : i + chunk_size]
+
+
+def read_all_text_files(directory: str) -> Dict[str, str]:
+    """
+    Read all text files in directory
+    """
+    text_files_content = {}
+
+    # List all files in the directory
+    for filename in os.listdir(directory):
+        if filename.endswith(".txt"):
+            file_path = os.path.join(directory, filename)
+            try:
+                with open(file_path, "r", encoding="utf-8") as file:
+                    text_files_content[file_path] = file.read()
+            except Exception as e:
+                print(f"Error reading {file_path}: {e}")
+
+    return text_files_content
