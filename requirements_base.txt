@@ -6,9 +6,8 @@ babel
 beautifulsoup4
 black
 chromedriver-autoinstaller @ https://github.com/yeongbin-jo/python-chromedriver-autoinstaller/archive/master.zip
-# django==5.0.*
+django==5.0.*
 # django @ https://github.com/django/django/archive/refs/tags/5.0.8.zip
-django
 django-cors-headers
 django-cors-middleware
 django-environ
