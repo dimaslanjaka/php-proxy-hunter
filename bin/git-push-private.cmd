@@ -1,13 +1,10 @@
 @echo off
 
-:: Generate a random string using PowerShell (16-character hex string)
-for /f %%a in ('powershell -command "[Guid]::NewGuid().ToString('N').Substring(0,16)"') do set RANDOM_STRING=%%a
+:: Call PowerShell to get the current date and time in Asia/Jakarta timezone
+for /f "tokens=* usebackq" %%i in (`powershell -Command "(Get-Date).ToUniversalTime().AddHours(7).ToString('yyyy-MM-dd_HH-mm')"`) do set datetime=%%i
 
-:: Alternatively, generate random bytes and convert to a hex string
-:: certutil -generateSRandom 8 > nul
-:: certutil -generateRandom -hex 8 | findstr /v /c:"CERT" > temp.txt
-:: set /p RANDOM_STRING=<temp.txt
-:: del temp.txt
+:: Display the result
+echo The current datetime in Asia/Jakarta timezone is: %datetime%
 
 :: Push to remote with the random branch name
-git push -f private HEAD:update_%RANDOM_STRING%
+git push -f private HEAD:update_%datetime%
