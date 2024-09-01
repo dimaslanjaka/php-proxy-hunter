@@ -128,7 +128,6 @@ jobs:
           GITHUB_OUTPUT: $GITHUB_OUTPUT
         run: |
           python3 github-actions-init.py
-          python3 manage.py migrate
 
       - name: Download required files
         run: python3 src/geoPlugin.py
@@ -136,11 +135,8 @@ jobs:
       - name: Fetch Proxies
         run: python3 proxyFetcher.py
 
-      - name: Import Proxies
-        run: python3 manage.py sync_proxies
-
       - name: Check Proxies
-        run: python3 manage.py check_proxies --max='${{ github.event.inputs.max || 100 }}'
+        run: python3 proxyCheckerReal.py --max='${{ github.event.inputs.max || 100 }}'
 
       - name: Clean github actions cache
         env:
