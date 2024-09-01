@@ -1,22 +1,16 @@
 import json
 import random
 from typing import Dict, List, Optional, Union
-
 from filelock import FileLock
-
 from src.func import get_relative_path, get_unique_dicts_by_key_in_list
 from src.func_proxy import upload_proxy
 from src.ProxyDB import ProxyDB
 
-working_file = get_relative_path("working.json")
-lock_file = get_relative_path("tmp/workload.lock")
-
 
 class ProxyWorkingManager:
     def __init__(self):
-        global working_file
-        self.filename: str = working_file
-        self.lock: FileLock = FileLock(lock_file)
+        self.filename: str = get_relative_path("working.json")
+        self.lock: FileLock = FileLock(get_relative_path("tmp/workload.lock"))
         self.data: List[Dict[str, Union[str, int, float]]] = self._load_data()
         self.db = ProxyDB(get_relative_path("src/database.sqlite"), True)
 
@@ -24,6 +18,7 @@ class ProxyWorkingManager:
         """Import and merge from database into working.json"""
         db_data = self.db.db.select("proxies", "*", "status = ?", ["active"])
         file_data = self._load_data()
+
         # Create a dictionary for fast lookup
         existing_proxies = {entry.get("proxy"): entry for entry in file_data}
         new_entries_dict = {
@@ -32,8 +27,6 @@ class ProxyWorkingManager:
 
         # Merge new entries, retaining the most recent data for each proxy
         merged_entries = {**existing_proxies, **new_entries_dict}
-
-        # Update the data list with merged entries
         self.data = get_unique_dicts_by_key_in_list(
             list(merged_entries.values()), "proxy"
         )
@@ -44,27 +37,25 @@ class ProxyWorkingManager:
         try:
             with open(self.filename, "r", encoding="utf-8") as file:
                 return json.load(file)
-        except FileNotFoundError:
-            return []
-        except json.JSONDecodeError:
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Error loading data: {e}")
             return []
 
     def _save_data(self) -> None:
         """Save data to JSON file."""
         with self.lock:
+            working_data = [
+                {key: (value if value else None) for key, value in item.items()}
+                for item in self.data
+            ]
             with open(self.filename, "w", encoding="utf-8") as file:
-                # Process the list to replace empty values with None
-                working_data = [
-                    {key: (value if value else None) for key, value in item.items()}
-                    for item in self.data
-                ]
                 json.dump(
                     get_unique_dicts_by_key_in_list(working_data, "proxy"),
                     file,
                     indent=2,
                 )
 
-    def add_entry(self, entry: Optional[Dict[str, Union[str, int, float]]]) -> None:
+    def add_entry(self, entry: Dict[str, Union[str, int, float]]) -> None:
         """Add a new entry to the data if 'proxy' key is unique."""
         if not isinstance(entry, dict):
             raise ValueError("Entry must be a dictionary.")
@@ -73,7 +64,6 @@ class ProxyWorkingManager:
         if not proxy_value:
             raise ValueError("Entry must have a 'proxy' key with a non-empty value.")
 
-        # Check for duplicates
         if not any(
             existing_entry.get("proxy") == proxy_value for existing_entry in self.data
         ):
@@ -81,20 +71,18 @@ class ProxyWorkingManager:
             self._save_data()
 
     def update_entry(
-        self,
-        proxy_value: str,
-        updated_entry: Optional[Dict[str, Union[str, int, float]]],
+        self, proxy_value: str, updated_entry: Dict[str, Union[str, int, float]]
     ) -> None:
         """Update an existing entry by 'proxy' key."""
         if not isinstance(updated_entry, dict):
             raise ValueError("Updated entry must be a dictionary.")
 
-        # Find the index of the entry with the given proxy
-        for index, entry in enumerate(self.data):
-            if entry.get("proxy") == proxy_value:
-                self.data[index] = updated_entry
-                self._save_data()
-                return
+        # Using a dictionary for faster lookups
+        entry_map = {entry.get("proxy"): entry for entry in self.data}
+        if proxy_value in entry_map:
+            entry_map[proxy_value] = updated_entry
+            self.data = list(entry_map.values())
+            self._save_data()
 
     def select_by_key(
         self, key: str, value: str
@@ -113,31 +101,26 @@ class ProxyWorkingManager:
 
     def remove_entry(self, proxy_value: str) -> None:
         """Remove an entry by 'proxy' key."""
-        for index, entry in enumerate(self.data):
-            if entry.get("proxy") == proxy_value:
-                del self.data[index]
-                self._save_data()
-                return
+        entry_map = {entry.get("proxy"): entry for entry in self.data}
+        if proxy_value in entry_map:
+            del entry_map[proxy_value]
+            self.data = list(entry_map.values())
+            self._save_data()
 
-    def upload_proxies(self):
-        """
-        Upload working proxies
-        """
-        formatted: List[str] = []
-        for data in self.data:
-            if data.get("username") and data.get("password"):
-                formatted.append(
-                    "{}:{}@{}".format(
-                        data.get("username"), data.get("password"), data.get("proxy")
-                    )
-                )
-            else:
-                formatted.append(data.get("proxy"))
+    def upload_proxies(self) -> None:
+        """Upload working proxies."""
+        formatted = [
+            (
+                f"{data.get('username')}:{data.get('password')}@{data.get('proxy')}"
+                if data.get("username") and data.get("password")
+                else data.get("proxy")
+            )
+            for data in self.data
+        ]
         if formatted:
             upload_proxy(json.dumps(formatted))
 
 
-# Example usage
 if __name__ == "__main__":
     manager = ProxyWorkingManager()
     manager._load_db()
