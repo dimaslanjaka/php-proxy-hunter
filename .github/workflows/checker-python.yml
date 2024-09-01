@@ -32,8 +32,8 @@ jobs:
       # Check-out repository
       - uses: actions/checkout@v4
         with:
-          repository: dimaslanjaka/traffic-generator
-          ref: python
+          repository: dimaslanjaka/php-proxy-hunter
+          ref: master
           token: ${{ secrets.ACCESS_TOKEN }}
           lfs: "true"
           submodules: "true"
