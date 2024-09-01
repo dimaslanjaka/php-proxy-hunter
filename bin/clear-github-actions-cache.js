@@ -62,26 +62,33 @@ const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
  * Deletes a GitHub Actions cache.
  * @param {string} GH_REPO - The GitHub repository in the format "owner/repo".
  * @param {string} cacheId - The ID of the cache to delete.
- * @returns {Promise} - A promise that resolves when the cache is deleted or rejects with an error.
+ * @returns {Promise} - A promise that resolves on success and rejects on error.
  */
 function deleteGitHubActionsCache(GH_REPO, cacheId) {
-  const url = `https://api.github.com/repos/${GH_REPO}/actions/caches/${cacheId}`;
+  return new Promise((resolve, reject) => {
+    const url = `https://api.github.com/repos/${GH_REPO}/actions/caches/${cacheId}`;
+    const token = process.env.ACCESS_TOKEN;
 
-  return axios
-    .delete(url, {
-      headers: {
-        Authorization: `token ${process.env.ACCESS_TOKEN}`,
-        Accept: "application/vnd.github.v3+json"
-      }
-    })
-    .then((response) => {
-      console.log(`Cache (${cacheId}) deleted successfully`, response.data);
-      return response.data;
-    })
-    .catch((error) => {
-      console.error("Error deleting cache:", error.response ? error.response.data : error.message);
-      throw error;
-    });
+    if (!token) {
+      return reject(new Error("Access token is not provided"));
+    }
+
+    axios
+      .delete(url, {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github.v3+json"
+        }
+      })
+      .then((response) => {
+        console.log(`Cache (${cacheId}) deleted successfully`, response.data);
+        resolve(response.data); // Resolve with the response data
+      })
+      .catch((error) => {
+        console.error("Error deleting cache:", error.response?.data || error.message || "Unknown error");
+        reject(error); // Reject with the error
+      });
+  });
 }
 
 /**
