@@ -4,7 +4,17 @@ import stat
 
 def make_dirs_and_set_permissions():
     # List of directories to create
-    dirs = [".cache", "config", "assets/proxies", "tmp/runners", "tmp/cookies"]
+    dirs = [
+        ".cache",
+        "config",
+        "assets/proxies",
+        "tmp/runners",
+        "tmp/cookies",
+        "assets/chrome-profiles",
+        "assets/chrome",
+        "tmp/logs",
+        "tmp/data",
+    ]
 
     # Create directories
     for dir_path in dirs:
