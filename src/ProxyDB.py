@@ -33,7 +33,9 @@ class ProxyDB:
     def start_connection(self):
         """Establishes a connection to the SQLite database and sets up initial configurations."""
         try:
-            self.db = SQLiteHelper(self.db_location, check_same_thread=self.check_same_thread)
+            self.db = SQLiteHelper(
+                self.db_location, check_same_thread=self.check_same_thread
+            )
             # create table proxies when not exist
             db_create_file = get_nuitka_file("assets/database/create.sql")
             contents = read_file(db_create_file)
@@ -309,10 +311,10 @@ class ProxyDB:
         db_data = item
         modify = False
         if (
-            not item["country"]
-            or not item["timezone"]
-            or not item["longitude"]
-            or not item["latitude"]
+            not item.get("country")
+            or not item.get("timezone")
+            or not item.get("longitude")
+            or not item.get("latitude")
         ):
             geo = get_geo_ip2(item["proxy"])
             if geo:
