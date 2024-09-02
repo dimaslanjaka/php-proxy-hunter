@@ -7,16 +7,18 @@ import random
 import re
 import shutil
 import socket
+import stat
 import string
 import subprocess
 import sys
 import tempfile
 import time
-import stat
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, Generator, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from src.func_platform import is_debug
 
 # set Timezone
 os.environ["TZ"] = "Asia/Jakarta"
@@ -105,10 +107,6 @@ def resolve_relative_path(data: Optional[str] = None, *args: Union[str, bytes]) 
 
 def get_pc_name():
     return socket.gethostname()
-
-
-def is_debug():
-    return get_pc_name() == "DESKTOP-JVTSJ6I"
 
 
 def debug_log(*args: Any, sep: Optional[str] = " ", end: Optional[str] = "\n") -> None:
