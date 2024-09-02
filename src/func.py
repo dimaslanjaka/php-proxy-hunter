@@ -1119,20 +1119,42 @@ def unique_non_empty_strings(strings: Optional[List[Union[str, None]]]) -> List[
 
 
 def split_list_into_chunks(
-    lst: List[int], chunk_size: int
-) -> Generator[List[int], None, None]:
+    lst: List[int], chunk_size: Optional[int] = None, total_chunks: Optional[int] = None
+) -> List[List[int]]:
     """
-    Split a list into chunks of a specified size.
+    Split a list into chunks either by a specified chunk size or into a specified number of chunks.
 
     Args:
         lst (List[int]): The list to be split into chunks.
-        chunk_size (int): The size of each chunk.
+        chunk_size (Optional[int]): The size of each chunk. If provided, the list is split into chunks of this size.
+        total_chunks (Optional[int]): The number of chunks to split the list into. If provided, the list is split into this many chunks.
 
     Returns:
-        Generator[List[int], None, None]: A generator that yields chunks of the list.
+        List[List[int]]: A list of lists, where each inner list is a chunk of the original list.
+
+    Raises:
+        ValueError: If neither `chunk_size` nor `total_chunks` is provided.
     """
-    for i in range(0, len(lst), chunk_size):
-        yield lst[i : i + chunk_size]
+    if chunk_size is not None:
+        # Split by specific chunk size
+        return [lst[i : i + chunk_size] for i in range(0, len(lst), chunk_size)]
+
+    elif total_chunks is not None:
+        # Split into a specific number of chunks
+        chunk_size = len(lst) // total_chunks
+        remainder = len(lst) % total_chunks
+        chunks = []
+        start = 0
+
+        for i in range(total_chunks):
+            end = start + chunk_size + (1 if i < remainder else 0)
+            chunks.append(lst[start:end])
+            start = end
+
+        return chunks
+
+    else:
+        raise ValueError("Either chunk_size or total_chunks must be provided.")
 
 
 def read_all_text_files(directory: str) -> Dict[str, str]:
