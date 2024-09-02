@@ -1,17 +1,16 @@
-import datetime
-import http.client as http_client
-import logging
 import os
 import sys
-from proxy_hunter import Proxy
-
-from src.func_platform import is_debug, is_django_environment
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import datetime
+import http.client as http_client
+import http.cookiejar as cookiejar
+import logging
 import random
 import re
 import socket
 import ssl
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from http.cookiejar import Cookie, LWPCookieJar, MozillaCookieJar
@@ -21,8 +20,9 @@ from urllib.parse import urlparse
 import requests
 import urllib3
 from proxy_checker import ProxyChecker
+from proxy_hunter import Proxy
 from requests.adapters import HTTPAdapter
-import http.cookiejar as cookiejar
+
 from src.func import (
     debug_log,
     file_append_str,
@@ -31,12 +31,13 @@ from src.func import (
     get_relative_path,
     get_unique_dicts_by_key_in_list,
     is_date_rfc3339_hour_more_than,
-    read_file,
     move_string_between,
+    read_file,
     write_file,
 )
 from src.func_certificate import output_pem
 from src.func_console import get_caller_info, green, log_proxy, red
+from src.func_platform import is_debug, is_django_environment
 from src.func_useragent import get_pc_useragent
 from src.ProxyDB import ProxyDB
 
@@ -542,6 +543,7 @@ def check_proxy(
     endpoint: str = None,
     headers: Dict[str, str] = None,
     callback: Callable[[ProxyCheckResult], None] = None,
+    cancel_event: Optional[threading.Event] = None,
 ) -> ProxyCheckResult:
     """
     Checks if the provided proxy is working by sending a request.
@@ -552,6 +554,7 @@ def check_proxy(
         callback (Callable[[ProxyCheckResult], None]): Callback function to execute before returning the result.
         endpoint (str, optional): The endpoint URL for the request. Defaults to None.
         headers (Dict[str, str], optional): Headers for the request. Defaults to None.
+        cancel_event (threading.Event, optional): Event to signal cancellation. Defaults to None.
 
     Returns:
         ProxyCheckResult: An object containing the result of the check.
@@ -569,6 +572,18 @@ def check_proxy(
 
     if is_port_open(proxy):
         try:
+            if cancel_event and cancel_event.is_set():
+                return ProxyCheckResult(
+                    result=False,
+                    latency=latency,
+                    error="Operation cancelled",
+                    status=status,
+                    private=is_private,
+                    response=response,
+                    proxy=proxy,
+                    type=proxy_type,
+                )
+
             response = build_request(
                 proxy,
                 proxy_type,
