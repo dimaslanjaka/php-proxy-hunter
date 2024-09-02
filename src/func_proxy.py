@@ -78,21 +78,25 @@ def build_request(
     cookie_file: Optional[str] = "tmp/cookies/default.txt",
     session: Optional[requests.Session] = None,
     keep_headers: Optional[bool] = None,
+    stream: Optional[bool] = False,
+    allow_redirects: Optional[bool] = False,
 ) -> requests.Response:
     """
     Builds and sends an HTTP request using the provided settings.
 
     Args:
-        proxy (str, optional): The proxy address in the format IP:PORT.
-        proxy_type (str, optional): Type of proxy ('http', 'socks4', or 'socks5').
-        method (str, optional): HTTP method ('GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', or 'PATCH'). Defaults to 'GET'.
-        post_data (Dict[str, str], optional): Data to send in a POST, PUT, or PATCH request. Defaults to None.
-        endpoint (str, optional): The endpoint URL for the request. Defaults to 'https://bing.com'.
-        headers (Dict[str, str], optional): Headers for the request. Defaults to None.
-        no_cache (bool, optional): Flag to bypass cache by appending a unique query parameter. Defaults to False.
-        cookie_file (str, optional): Path to the cookie file. Defaults to 'tmp/cookies/default.txt'.
-        session (requests.Session, optional): An existing session to reuse. If None, a new session is created.
-        keep_headers (bool, optional): Flag to determine if default headers should be overridden by provided headers. Defaults to None.
+        proxy (Optional[str]): The proxy address in the format IP:PORT. Defaults to None.
+        proxy_type (Optional[str]): Type of proxy ('http', 'socks4', or 'socks5'). Defaults to None.
+        method (str): HTTP method ('GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'). Defaults to 'GET'.
+        post_data (Optional[Dict[str, str]]): Data to send in a POST, PUT, or PATCH request. Defaults to None.
+        endpoint (str): The endpoint URL for the request. Defaults to 'https://bing.com'.
+        headers (Optional[Dict[str, str]]): Headers for the request. Defaults to None.
+        no_cache (Optional[bool]): Flag to bypass cache by appending a unique query parameter. Defaults to False.
+        cookie_file (Optional[str]): Path to the cookie file. Defaults to 'tmp/cookies/default.txt'.
+        session (Optional[requests.Session]): An existing session to reuse. If None, a new session is created.
+        keep_headers (Optional[bool]): Flag to determine if default headers should be overridden by provided headers. Defaults to None.
+        stream (Optional[bool]): Flag to enable streaming of the response content. Defaults to False.
+        allow_redirects (Optional[bool]): Flag to enable redirection. Defaults to False
 
     Returns:
         requests.Response: The response object from the HTTP request.
@@ -194,11 +198,20 @@ def build_request(
     if method_upper in request_methods:
         if method_upper in ["POST", "PUT", "PATCH"]:
             response: requests.Response = request_methods[method_upper](
-                endpoint, data=post_data, timeout=10, verify=False
+                endpoint,
+                data=post_data,
+                timeout=10,
+                verify=False,
+                stream=stream,
+                allow_redirects=allow_redirects,
             )
         else:
             response: requests.Response = request_methods[method_upper](
-                endpoint, timeout=10, verify=False
+                endpoint,
+                timeout=10,
+                verify=False,
+                stream=stream,
+                allow_redirects=allow_redirects,
             )
     else:
         raise ValueError(f"Unsupported method: {method}")

@@ -18,7 +18,8 @@ from proxy_hunter.extract_proxies import *
 
 from django_backend.apps.core.utils import get_query_or_post_body
 from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
-from src.func import get_relative_path, is_debug, md5
+from src.func import get_relative_path, md5
+from src.func_platform import is_debug
 from src.func_proxy import build_request
 
 

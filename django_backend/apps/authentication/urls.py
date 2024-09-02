@@ -3,9 +3,11 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 from django.urls import path
-from . import views
-from src.func import is_debug
+
 from django_backend.apps.authentication.services import google_views
+from src.func_platform import is_debug
+
+from . import views
 
 urlpatterns = [
     path("create", views.CreateUserAPIView.as_view(), name="create-user"),
