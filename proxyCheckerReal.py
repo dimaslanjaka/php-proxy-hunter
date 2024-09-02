@@ -1,14 +1,18 @@
 import argparse
+import concurrent.futures
 import os
 import random
-from multiprocessing.pool import ThreadPool as Pool
+import threading
 import time
-from typing import Dict, List
+from multiprocessing.pool import ThreadPool as Pool
+from typing import Dict, List, Optional
 
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
-
+from proxy_checker import ProxyChecker
 from proxy_hunter import extract_proxies
+
+from proxyWorking import ProxyWorkingManager
 from src.func import (
     file_append_str,
     get_relative_path,
@@ -17,20 +21,18 @@ from src.func import (
     sanitize_filename,
     truncate_file_content,
 )
-from src.func_console import green, red, log_proxy
-from src.func_proxy import check_proxy, build_request
+from src.func_console import green, log_proxy, red
+from src.func_proxy import build_request, check_proxy
 from src.ProxyDB import ProxyDB
-from proxy_checker import ProxyChecker
-from proxyWorking import ProxyWorkingManager
-import concurrent.futures
 
 
-def real_check(proxy: str, url: str, title_should_be: str):
+def real_check(
+    proxy: str,
+    url: str,
+    title_should_be: str,
+    cancel_event: Optional[threading.Event] = None,
+):
     """check proxy with matching the title of response"""
-    # log_proxy('=' * 30)
-    # log_proxy(f"CHECKING {proxy}")
-    # log_proxy('=' * 30)
-
     protocols = []
     output_file = get_relative_path(f"tmp/logs/{sanitize_filename(proxy)}.txt")
     if os.path.exists(output_file):
@@ -43,16 +45,28 @@ def real_check(proxy: str, url: str, title_should_be: str):
         "Accept-Language": "en-US,en;q=0.9",
     }
 
+    def check_proxy_with_cancellation(proxy_type: str):
+        if cancel_event and cancel_event.is_set():
+            return None  # Early exit if cancellation is requested
+        return check_proxy(proxy, proxy_type, url, headers, cancel_event=cancel_event)
+
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
     future_to_proxy_type = {
-        executor.submit(check_proxy, proxy, proxy_type, url, headers): proxy_type
+        executor.submit(check_proxy_with_cancellation, proxy_type): proxy_type
         for proxy_type in ["socks4", "http", "socks5"]
     }
 
     for future in concurrent.futures.as_completed(future_to_proxy_type):
         proxy_type = future_to_proxy_type[future]
+        if cancel_event and cancel_event.is_set():
+            log_proxy(
+                f"Cancellation requested, stopping {proxy_type} check for {proxy}."
+            )
+            break
         try:
             check = future.result()
+            if check is None:
+                continue  # Skip if the result is None due to cancellation
             log = f"{check.type}://{check.proxy}\n"
             log += f"RESULT: {'true' if check.result else 'false'}\n"
             if not check.result and check.error:
