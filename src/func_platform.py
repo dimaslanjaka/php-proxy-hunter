@@ -1,8 +1,8 @@
 import importlib
 import os
-import sys
 import platform
 import socket
+import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -57,6 +57,10 @@ def main():
             print(os.Caption, os.OSArchitecture)
     else:
         import_linux_packages()
+
+
+def get_pc_name():
+    return socket.gethostname()
 
 
 if __name__ == "__main__":
