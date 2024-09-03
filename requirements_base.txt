@@ -1,6 +1,7 @@
 -e file:packages/proxy-checker-python
 -e file:packages/proxy-hunter-python
 -e file:packages/rsa-utility
+ansi2html
 autopep8
 babel
 beautifulsoup4
