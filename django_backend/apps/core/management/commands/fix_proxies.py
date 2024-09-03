@@ -6,8 +6,9 @@ SRC_DIR = os.path.join(BASE_DIR, "src")
 sys.path.append(SRC_DIR)
 
 from django.core.management.base import BaseCommand
+from proxy_hunter import is_valid_proxy
+
 from django_backend.apps.proxy.models import Proxy
-from proxy_hunter.utils import is_valid_proxy
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 
 
