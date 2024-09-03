@@ -3,6 +3,7 @@ import re
 import subprocess
 import os
 import sys
+from typing import Any
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -93,31 +94,58 @@ def get_caller_info():
     return caller_file, caller_line
 
 
-def ansi_remover(text):
-    # Define the regex pattern for ANSI color codes
+def ansi_remover(text: str) -> str:
+    """
+    Remove ANSI color codes from a given text.
+
+    Args:
+        text (str): The input text containing ANSI color codes.
+
+    Returns:
+        str: The text with ANSI color codes removed.
+    """
     ansi_escape = re.compile(r"\x1B[@-_][0-?]*[ -/]*[@-~]")
-    # Remove the ANSI color codes
     return ansi_escape.sub("", text)
 
 
-def log_file(filename: str, *args, **kwargs):
-    # Convert all arguments to string and join them with a space
-    message = " ".join(map(str, args))
+def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
+    """
+    Log messages to a file and optionally remove ANSI color codes.
 
-    # Print to console (with color codes)
+    Args:
+        filename (str): The path to the log file.
+        *args (Any): Positional arguments representing the messages to log.
+        **kwargs (Any): Keyword arguments including:
+            - remove_ansi (bool): If True, removes ANSI color codes before logging to the file.
+                                 Defaults to True.
+
+    Returns:
+        None
+    """
+    remove_ansi = kwargs.pop("remove_ansi", True)
+    message = " ".join(map(str, args))
     print(message, **kwargs)
 
-    # Remove color codes before logging to file
-    cleaned_message = ansi_remover(message)
+    if remove_ansi:
+        message = ansi_remover(message)
 
-    # Ensure the parent directory exists
     os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-    # Log to file
     with open(filename, "a", encoding="utf-8") as f:
-        f.write(cleaned_message + "\n")
+        f.write(message.strip() + "\n")
 
 
-def log_proxy(*args, **kwargs):
-    # Use log_file to log to the proxyChecker.txt file
+def log_proxy(*args: Any, **kwargs: Any) -> None:
+    """
+    Proxy function to log messages to 'proxyChecker.txt' using log_file.
+
+    Args:
+        *args (Any): Positional arguments representing the messages to log.
+        **kwargs (Any): Keyword arguments to pass to log_file, including:
+            - remove_ansi (bool): If True, removes ANSI color codes before logging to the file.
+                                 Defaults to True.
+
+    Returns:
+        None
+    """
     log_file(get_relative_path("proxyChecker.txt"), *args, **kwargs)
