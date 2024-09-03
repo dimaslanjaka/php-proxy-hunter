@@ -28,12 +28,19 @@ from src.ProxyDB import ProxyDB
 
 
 class ProxyCheckerReal:
-    def __init__(self):
+    def __init__(self, log_mode: str = "text"):
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             "Accept-Language": "en-US,en;q=0.9",
         }
+        self.log_mode = log_mode
+
+    def log(self, *args, **kwargs):
+        if self.log_mode == "html":
+            log_proxy(ansi_html=True, *args, **kwargs)
+        else:
+            log_proxy(*args, **kwargs)
 
     def real_check(
         self,
@@ -65,7 +72,7 @@ class ProxyCheckerReal:
         for future in concurrent.futures.as_completed(future_to_proxy_type):
             proxy_type = future_to_proxy_type[future]
             if cancel_event and cancel_event.is_set():
-                log_proxy(
+                self.log(
                     f"Cancellation requested, stopping {proxy_type} check for {proxy}."
                 )
                 break
@@ -89,10 +96,10 @@ class ProxyCheckerReal:
                             protocols.append(check.type.lower())
                 file_append_str(output_file, log)
             except Exception as exc:
-                log_proxy(f"{proxy_type} check generated an exception: {exc}")
+                self.log(f"{proxy_type} check generated an exception: {exc}")
 
         if os.path.exists(output_file):
-            log_proxy(f"Logs written {output_file}")
+            self.log(f"Logs written {output_file}")
 
         result = {
             "result": False,
@@ -103,14 +110,14 @@ class ProxyCheckerReal:
         }
         if protocols and response_title:
             pt = "-".join(protocols)
-            log_proxy(
+            self.log(
                 f"{pt}://{proxy} {green('working')} -> {url} ({response_title})".replace(
                     "()", ""
                 ).strip()
             )
             result["result"] = True
         else:
-            log_proxy(
+            self.log(
                 f"{proxy} {red('dead')} -> {url} ({response_title})".replace(
                     "()", ""
                 ).strip()
@@ -143,7 +150,7 @@ class ProxyCheckerReal:
                 response_title = soup.title.string.strip() if soup.title else ""
                 if "AZ Environment".lower() in response_title.lower():
                     result = checker.parse_anonymity(response.text)
-                    log_proxy(f"{proxy} anonymity is {green(result)}")
+                    self.log(f"{proxy} anonymity is {green(result)}")
                     # break when success
                     break
         return result
@@ -196,7 +203,7 @@ class ProxyCheckerReal:
                     soup.title.string.strip() if isinstance(soup.title, str) else ""
                 )
                 if title_should_be.lower() in response_title.lower():
-                    log_proxy(f"{proxy} latency is {green(str(latency))} ms")
+                    self.log(f"{proxy} latency is {green(str(latency))} ms")
                     # Break when success
                     break
         return latency
