@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import random
@@ -8,7 +9,7 @@ import string
 from typing import Any, List, Optional, Dict, Union
 
 
-def write_json(filePath: str, data: Any):
+def write_json(file_path: str, data: Any):
     """
     Write JSON data to a file. Creates parent directories if they do not exist.
     """
@@ -16,9 +17,9 @@ def write_json(filePath: str, data: Any):
         return
 
     # Ensure parent directories exist
-    os.makedirs(os.path.dirname(filePath), exist_ok = True)
+    os.makedirs(os.path.dirname(file_path), exist_ok = True)
 
-    with open(filePath, "w", encoding = "utf-8") as file:
+    with open(file_path, "w", encoding = "utf-8") as file:
         json.dump(data, file, indent = 2, ensure_ascii = False, default = serialize)
 
 
@@ -458,3 +459,34 @@ def remove_trailing_hyphens(string: Optional[str]) -> str:
         return ""
     # Remove trailing hyphens, accounting for spaces and empty strings
     return re.sub(r"[-\s]+$", "", string).strip()
+
+
+def file_remove_empty_lines(file_path: str) -> None:
+    """
+    Remove empty lines from a file.
+
+    Args:
+        file_path (str): The path to the input file.
+
+    Returns:
+        None
+    """
+    temp_file = os.path.join("tmp", md5(file_path) + ".tmp")
+    try:
+        with open(file_path, "r", encoding = "utf-8") as f_in, open(
+                temp_file, "w", encoding = "utf-8"
+        ) as f_out:
+            for line in f_in:
+                if line.strip():  # Check if the line is not empty
+                    f_out.write(line)
+        # Replace the original file with the temporary file
+        shutil.move(temp_file, file_path)
+        # print("Empty lines removed from", file_path)
+    except Exception:
+        # print("File not found.")
+        pass
+
+
+def md5(input_string):
+    md5_hash = hashlib.md5(input_string.encode()).hexdigest()
+    return md5_hash

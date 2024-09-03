@@ -1,17 +1,11 @@
 import base64
-import hashlib
 import inspect
-import json
-import os
-import random
-import re
-import shutil
 import subprocess
 import sys
 import tempfile
 import time
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from proxy_hunter import *
 from proxy_hunter.utils.file import write_file, resolve_parent_folder
@@ -492,32 +486,6 @@ def size_of_list_in_mb(list_of_strings: List[str]) -> float:
     return size_in_mb
 
 
-def file_remove_empty_lines(file_path: str) -> None:
-    """
-    Remove empty lines from a file.
-
-    Args:
-        file_path (str): The path to the input file.
-
-    Returns:
-        None
-    """
-    temp_file = get_relative_path("tmp", md5(file_path) + ".tmp")
-    try:
-        with open(file_path, "r", encoding = "utf-8") as f_in, open(
-                temp_file, "w", encoding = "utf-8"
-        ) as f_out:
-            for line in f_in:
-                if line.strip():  # Check if the line is not empty
-                    f_out.write(line)
-        # Replace the original file with the temporary file
-        shutil.move(temp_file, file_path)
-        # print("Empty lines removed from", file_path)
-    except Exception:
-        # print("File not found.")
-        pass
-
-
 def is_file_larger_than_kb(file_path, size_in_kb = 5):
     # Get the size of the file in bytes
     file_size_bytes = os.path.getsize(file_path)
@@ -527,11 +495,6 @@ def is_file_larger_than_kb(file_path, size_in_kb = 5):
 
     # Check if file size is greater than specified size
     return file_size_kb > size_in_kb
-
-
-def md5(input_string):
-    md5_hash = hashlib.md5(input_string.encode()).hexdigest()
-    return md5_hash
 
 
 T = TypeVar("T")
