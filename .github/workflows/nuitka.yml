@@ -150,6 +150,10 @@ jobs:
         run: |
           gulp sgui
 
+      - name: Build Simple GUI (debug)
+        run: |
+          gulp sgui --debug
+
       # Uploads artifact
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
