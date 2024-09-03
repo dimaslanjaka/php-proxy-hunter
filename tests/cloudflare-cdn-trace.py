@@ -9,10 +9,10 @@ tracemalloc.start()
 import os
 import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from proxy_hunter.utils import decompress_requests_response
+from proxy_hunter import decompress_requests_response
 from requests import HTTPError, RequestException, Timeout
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.func import get_relative_path
 from src.func_proxy import build_request
