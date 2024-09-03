@@ -10,26 +10,24 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import huey
 import os
 import sys
-
-from proxy_hunter.utils import is_vps
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from datetime import datetime, timedelta
 
 import dotenv
-from userscripts.parse_userscript import extract_domains_from_userscript
+import huey
+from proxy_hunter import is_vps
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from src.func import (
     delete_path,
-    fix_permissions,
     get_relative_path,
     resolve_parent_folder,
     write_file,
 )
 from src.func_platform import is_debug
+from userscripts.parse_userscript import extract_domains_from_userscript
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

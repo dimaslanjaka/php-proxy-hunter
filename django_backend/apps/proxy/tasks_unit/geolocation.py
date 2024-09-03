@@ -1,19 +1,15 @@
-import json
 import os
 import sys
-
-from proxy_hunter.utils import is_valid_ip
-
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
-)
-
 import threading
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Optional, Set, Union
 
 from django.conf import settings
-from proxy_hunter import is_valid_proxy
+from proxy_hunter import is_valid_ip, is_valid_proxy
+
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
 
 from data.webgl import random_webgl_data
 from django_backend.apps.proxy.models import Proxy
