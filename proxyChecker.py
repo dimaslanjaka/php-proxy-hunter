@@ -2,7 +2,8 @@ import traceback
 import argparse
 from time import sleep
 from typing import Optional
-from src.func import get_relative_path, truncate_file_content
+from src.func import get_relative_path
+from proxy_hunter.utils.file import truncate_file_content
 from src.func_proxy import check_all_proxies
 
 

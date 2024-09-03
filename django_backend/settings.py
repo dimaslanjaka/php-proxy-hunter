@@ -21,11 +21,9 @@ from proxy_hunter import is_vps
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.func import (
-    delete_path,
     get_relative_path,
-    resolve_parent_folder,
-    write_file,
 )
+from proxy_hunter.utils.file import write_file, delete_path, resolve_parent_folder
 from src.func_platform import is_debug
 from userscripts.parse_userscript import extract_domains_from_userscript
 

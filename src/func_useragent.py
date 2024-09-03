@@ -7,7 +7,8 @@ from typing import Union
 
 import requests
 
-from src.func import get_relative_path, read_file
+from src.func import get_relative_path
+from proxy_hunter.utils.file import read_file
 
 
 def get_pc_useragent() -> Union[str, None]:
