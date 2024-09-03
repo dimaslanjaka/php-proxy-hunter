@@ -1,19 +1,21 @@
-from http.cookiejar import Cookie, MozillaCookieJar
-import os
-import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import hashlib
 import json
+import os
+import sys
 import time
-from typing import List, Optional, Union
+from http.cookiejar import Cookie, MozillaCookieJar
+from typing import List, Optional
 
 import requests
+import urllib3
+from proxy_hunter import delete_path, resolve_folder
 from requests.exceptions import RequestException
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from src.func import get_relative_path
-from proxy_hunter.utils.file import resolve_folder, delete_path
-from src.func_certificate import output_pem
+
+urllib3.disable_warnings()
 
 CACHE_DIR = get_relative_path("tmp/requests_cache")
 resolve_folder(CACHE_DIR)

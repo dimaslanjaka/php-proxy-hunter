@@ -8,10 +8,10 @@ sys.path.append(SRC_DIR)
 import sqlite3
 
 from django.core.management.base import BaseCommand
-from proxy_hunter.extract_proxies import extract_proxies
+from proxy_hunter.extractor import extract_proxies
 
 from src.func import get_relative_path
-from proxy_hunter.utils.file import read_file, delete_path, read_all_text_files
+from proxy_hunter import read_file, delete_path, read_all_text_files
 from src.geoPlugin import download_databases
 
 

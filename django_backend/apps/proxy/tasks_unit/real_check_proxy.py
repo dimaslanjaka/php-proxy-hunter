@@ -41,7 +41,7 @@ from src.func import (
     get_unique_dicts_by_key_in_list,
     move_string_between,
 )
-from proxy_hunter.utils.file import write_json, read_file, file_append_str
+from proxy_hunter import write_json, read_file, file_append_str
 from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug
@@ -422,7 +422,9 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
 
     # release process status
     if is_existing_proxies:
-        process_status = ProcessStatus.objects.get(process_name="check_existing_proxies")
+        process_status = ProcessStatus.objects.get(
+            process_name="check_existing_proxies"
+        )
         process_status.is_done = True
         process_status.save()
         print(f"process {process_status.process_name} released")

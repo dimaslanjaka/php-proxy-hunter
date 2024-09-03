@@ -14,7 +14,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 from PIL import Image, ImageDraw, ImageFont
-from proxy_hunter.extract_proxies import *
+from proxy_hunter.extractor import *
 
 from django_backend.apps.core.utils import get_query_or_post_body
 from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
