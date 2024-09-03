@@ -31,7 +31,7 @@ from src.func import (
     is_date_rfc3339_hour_more_than,
     move_string_between,
 )
-from proxy_hunter.utils.file import read_file, write_file, file_append_str
+from proxy_hunter import read_file, write_file, file_append_str
 from src.func_certificate import output_pem
 from src.func_console import get_caller_info, green, log_proxy, red
 from src.func_platform import is_debug, is_django_environment

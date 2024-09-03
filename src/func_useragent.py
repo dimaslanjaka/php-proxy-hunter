@@ -1,14 +1,13 @@
 import os
-import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import random
+import sys
 from typing import Union
 
 import requests
+from proxy_hunter import read_file
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.func import get_relative_path
-from proxy_hunter.utils.file import read_file
 
 
 def get_pc_useragent() -> Union[str, None]:

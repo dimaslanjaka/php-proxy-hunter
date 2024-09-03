@@ -1,5 +1,5 @@
 from .cidr2ips import list_ips_from_cidr
-from .extract_proxies import extract_proxies, extract_proxies_from_file
+from .extractor import extract_proxies, extract_proxies_from_file
 from .ip2cidr import calculate_cidr
 from .ip2proxy_list import generate_ip_port_pairs
 from .ip2subnet import get_default_subnet_mask, get_subnet_mask

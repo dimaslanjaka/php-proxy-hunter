@@ -8,7 +8,6 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from proxy_hunter import *
-from proxy_hunter.utils.file import write_file, resolve_parent_folder
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -111,7 +110,7 @@ def debug_log(*args: Any, sep: Optional[str] = " ", end: Optional[str] = "\n") -
     if is_debug():
         message = sep.join(map(str, args)) + end
         # Print to console
-        print(message, end = "")
+        print(message, end="")
         # Write to file
         file_path = get_relative_path("tmp/debug.log")
         resolve_parent_folder(file_path)
@@ -324,9 +323,9 @@ def remove_duplicate_line_from_file(filename: str) -> None:
         return
     # Copy content to a temporary file
     with open(
-            filename, "r", encoding = "utf-8"
+        filename, "r", encoding="utf-8"
     ) as original_file, tempfile.NamedTemporaryFile(
-        mode = "w", encoding = "utf-8", delete = False
+        mode="w", encoding="utf-8", delete=False
     ) as temp_file:
         lines_seen = set()  # Set to store unique lines
         for line in original_file:
@@ -342,7 +341,7 @@ def remove_duplicate_line_from_file(filename: str) -> None:
 
 
 def get_unique_dicts_by_key_in_list(
-        dicts: List[Dict[str, str]], key: str
+    dicts: List[Dict[str, str]], key: str
 ) -> List[Dict[str, str]]:
     """
     Returns a list of unique dictionaries from the input list of dictionaries based on a specified key.
@@ -374,9 +373,9 @@ def get_unique_dicts_by_key_in_list(
 
 
 def move_string_between(
-        source_file_path: str,
-        destination_file_path: str,
-        string_to_remove: Optional[Union[str, List[str]]] = None,
+    source_file_path: str,
+    destination_file_path: str,
+    string_to_remove: Optional[Union[str, List[str]]] = None,
 ) -> bool:
     """
     Move specified strings from the source file to the destination file and remove them from the source file.
@@ -400,7 +399,7 @@ def move_string_between(
 
     try:
         # Read content from the source file
-        with open(source_file_path, "r", encoding = "utf-8") as source:
+        with open(source_file_path, "r", encoding="utf-8") as source:
             source_content = source.read()
 
         if not string_to_remove:
@@ -416,11 +415,11 @@ def move_string_between(
                 source_content = source_content.replace(string, "")
 
                 # Append the removed string to the destination file
-                with open(destination_file_path, "a", encoding = "utf-8") as destination:
+                with open(destination_file_path, "a", encoding="utf-8") as destination:
                     destination.write("\n" + string + "\n")
 
         # Write the modified content back to the source file
-        with open(source_file_path, "w", encoding = "utf-8") as source:
+        with open(source_file_path, "w", encoding="utf-8") as source:
             source.write(source_content)
 
         return True
@@ -434,7 +433,7 @@ def move_string_between(
 
 
 def is_date_rfc3339_hour_more_than(
-        date_string: Optional[str], hours: int
+    date_string: Optional[str], hours: int
 ) -> Optional[bool]:
     """
     Check if the given date string is more than specified hours ago.
@@ -450,7 +449,7 @@ def is_date_rfc3339_hour_more_than(
         return None
     try:
         # Parse the input date string into a datetime object
-        date_time = datetime.fromisoformat(date_string).replace(tzinfo = timezone.utc)
+        date_time = datetime.fromisoformat(date_string).replace(tzinfo=timezone.utc)
 
         # Calculate the current time in UTC
         current_time = datetime.now(timezone.utc)
@@ -459,7 +458,7 @@ def is_date_rfc3339_hour_more_than(
         time_difference = current_time - date_time
 
         # Convert hours to timedelta object
-        hours_delta = timedelta(hours = hours)
+        hours_delta = timedelta(hours=hours)
 
         # Compare the time difference with the specified hours
         return time_difference >= hours_delta
@@ -486,7 +485,7 @@ def size_of_list_in_mb(list_of_strings: List[str]) -> float:
     return size_in_mb
 
 
-def is_file_larger_than_kb(file_path, size_in_kb = 5):
+def is_file_larger_than_kb(file_path, size_in_kb=5):
     # Get the size of the file in bytes
     file_size_bytes = os.path.getsize(file_path)
 
@@ -515,7 +514,7 @@ def get_random_http_profile(json_file):
     Returns:
         dict: A dictionary containing a random proxy and useragent.
     """
-    with open(json_file, "r", encoding = "utf-8") as file:
+    with open(json_file, "r", encoding="utf-8") as file:
         data = json.load(file)
 
     # Filter profiles where 'type' is 'http'
@@ -543,7 +542,7 @@ def get_random_profile(json_file):
     Returns:
         dict: A dictionary containing a random proxy and useragent.
     """
-    with open(json_file, "r", encoding = "utf-8") as file:
+    with open(json_file, "r", encoding="utf-8") as file:
         data = json.load(file)
 
     # Get a random index within the range of the list
@@ -623,7 +622,7 @@ def unique_non_empty_strings(strings: Optional[List[Union[str, None]]]) -> List[
 
 
 def split_list_into_chunks(
-        lst: List[int], chunk_size: Optional[int] = None, total_chunks: Optional[int] = None
+    lst: List[int], chunk_size: Optional[int] = None, total_chunks: Optional[int] = None
 ) -> List[List[int]]:
     """
     Split a list into chunks either by a specified chunk size or into a specified number of chunks.
@@ -641,7 +640,7 @@ def split_list_into_chunks(
     """
     if chunk_size is not None:
         # Split by specific chunk size
-        return [lst[i: i + chunk_size] for i in range(0, len(lst), chunk_size)]
+        return [lst[i : i + chunk_size] for i in range(0, len(lst), chunk_size)]
 
     elif total_chunks is not None:
         # Split into a specific number of chunks
@@ -659,5 +658,3 @@ def split_list_into_chunks(
 
     else:
         raise ValueError("Either chunk_size or total_chunks must be provided.")
-
-
