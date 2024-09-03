@@ -20,12 +20,11 @@ from urllib.parse import urlparse
 import requests
 import urllib3
 from proxy_checker import ProxyChecker
-from proxy_hunter import Proxy
+from proxy_hunter import Proxy, file_remove_empty_lines
 from requests.adapters import HTTPAdapter
 
 from src.func import (
     debug_log,
-    file_remove_empty_lines,
     find_substring_from_regex,
     get_relative_path,
     get_unique_dicts_by_key_in_list,
