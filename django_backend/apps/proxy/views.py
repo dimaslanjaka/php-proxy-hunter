@@ -13,7 +13,7 @@ from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
-from proxy_hunter.extract_proxies import *
+from proxy_hunter.extractor import *
 
 from django_backend.apps.core.utils import get_query_or_post_body
 from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
@@ -44,7 +44,7 @@ from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
 )
 from django_backend.apps.proxy.views_unit.proxy import get_page_title, get_proxy_list
 from src.func import get_relative_path
-from proxy_hunter.utils.file import file_append_str, truncate_file_content
+from proxy_hunter import file_append_str, truncate_file_content
 from src.func_console import log_file
 from src.func_date import get_current_rfc3339_time
 from src.func_platform import is_django_environment

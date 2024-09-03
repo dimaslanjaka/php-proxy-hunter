@@ -4,17 +4,13 @@ import os
 import shutil
 import sys
 import tempfile
+
 from django.conf import settings
-from django.contrib.sessions.backends.base import (
-    CreateError,
-    SessionBase,
-    UpdateError,
-)
+from django.contrib.sessions.backends.base import CreateError, SessionBase, UpdateError
 from django.core.exceptions import ImproperlyConfigured, SuspiciousOperation
+from proxy_hunter import sanitize_filename
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-
-from proxy_hunter.utils.file import sanitize_filename
 
 
 class SessionStore(SessionBase):

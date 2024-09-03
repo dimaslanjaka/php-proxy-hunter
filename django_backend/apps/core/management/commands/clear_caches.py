@@ -7,7 +7,7 @@ sys.path.append(SRC_DIR)
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from src.func import get_relative_path
-from proxy_hunter.utils.file import delete_path
+from proxy_hunter import delete_path
 import requests_cache
 
 # python manage.py clear_caches

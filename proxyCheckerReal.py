@@ -16,7 +16,14 @@ from proxyWorking import ProxyWorkingManager
 from src.func import (
     get_relative_path,
 )
-from proxy_hunter.utils.file import read_file, file_append_str, delete_path, sanitize_filename, truncate_file_content, read_all_text_files
+from proxy_hunter import (
+    read_file,
+    file_append_str,
+    delete_path,
+    sanitize_filename,
+    truncate_file_content,
+    read_all_text_files,
+)
 from src.func_console import green, log_proxy, red
 from src.func_proxy import build_request, check_proxy
 from src.ProxyDB import ProxyDB

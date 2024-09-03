@@ -1,7 +1,19 @@
-from src.func import *
-from src.func_proxy import *
-from src.requests_cache import get_with_proxy
+import json
+import os
+import sys
+import traceback
 from datetime import datetime as dt
+from typing import List
+
+from proxy_hunter import (
+    decompress_requests_response,
+    extract_proxies,
+    extract_proxies_from_file,
+    read_file,
+    write_file,
+)
+from src.func import get_relative_path
+from src.requests_cache import get_with_proxy
 
 
 def proxyFetcher():
@@ -21,7 +33,7 @@ def proxyFetcher():
     for url in urls:
         try:
             # response = build_request(endpoint=url, no_cache=True)
-            response = get_with_proxy(url, cache_expiration=5 * 60 * 60)
+            response = get_with_proxy(url, cache_expiration=5 * 60 * 60, debug=True)
             if response and response.ok:
                 text = decompress_requests_response(response)
                 class_list = extract_proxies(text)
@@ -29,6 +41,9 @@ def proxyFetcher():
                 results.extend(proxy_list)
         except Exception as e:
             print(f"fail fetch proxy from {url}: {e}")
+            if "module" in str(e):
+                traceback.print_exc()
+                sys.exit()
 
     # Ensure 'results' contains only unique values
     results = list(set(results))

@@ -24,7 +24,7 @@ from django.apps import apps
 from src.func import (
     get_relative_path,
 )
-from proxy_hunter.utils.file import file_append_str, sanitize_filename, truncate_file_content
+from proxy_hunter import file_append_str, sanitize_filename, truncate_file_content
 from src.func_console import green, red
 from src.func_proxy import check_proxy
 
