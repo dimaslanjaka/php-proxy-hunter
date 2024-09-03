@@ -4,7 +4,7 @@ import re
 import subprocess
 import sys
 from typing import Any
-
+from bs4 import BeautifulSoup
 from ansi2html import Ansi2HTMLConverter
 from colorama import Fore, Style, just_fix_windows_console
 
@@ -109,6 +109,18 @@ def ansi_remover(text: str) -> str:
     return ansi_escape.sub("", text)
 
 
+css_content = ""
+
+
+def get_ansi_css_content():
+    """Get generated CSS content (unique)"""
+    global css_content
+    lines = re.split(r"\r?\n", css_content)
+    unique_lines = list(set(lines))
+    result = "\n".join(unique_lines)
+    return result
+
+
 def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
     """
     Log messages to a file and optionally remove ANSI color codes.
@@ -124,6 +136,7 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
     Returns:
         None
     """
+    global css_content
     remove_ansi = kwargs.pop("remove_ansi", True)
     ansi_html = kwargs.pop("ansi_html", False)
     print_args = kwargs.pop("print_args", True)
@@ -133,7 +146,12 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
 
     if ansi_html:
         conv = Ansi2HTMLConverter()
-        message = conv.convert(message)
+        html_content = conv.convert(message)
+        soup = BeautifulSoup(html_content, "html.parser")
+        pre_tag = soup.find("pre", class_="ansi2html-content")
+        message = pre_tag.decode_contents()
+        style_tag = soup.find("style")
+        css_content += style_tag.get_text() + "\n\n"
     elif remove_ansi:
         message = ansi_remover(message)
 
