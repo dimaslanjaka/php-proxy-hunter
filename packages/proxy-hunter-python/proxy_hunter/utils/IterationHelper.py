@@ -1,14 +1,20 @@
 import time
 import os
-from typing import Any, List, TypeVar, Generic
+from typing import Any, List, TypeVar, Generic, Callable
 
 # Define a type variable for generic type
 T = TypeVar("T")
 
 
 class IterationHelper(Generic[T]):
-    def __init__(self, items: List[T], state_file="tmp/data/state.txt"):
+    def __init__(
+        self,
+        items: List[T],
+        callback: Callable[[T], None],
+        state_file="tmp/data/state.txt",
+    ):
         self.items = items
+        self.callback = callback
         self.state_file = state_file
         self.ensure_directory_exists()
         self.current_index = self.load_state()
@@ -35,11 +41,6 @@ class IterationHelper(Generic[T]):
                 return 0
         return 0
 
-    def process_item(self, item: T):
-        print(f"Processing: {item}")
-        # Simulate processing time
-        time.sleep(1)
-
     def pause(self, seconds: int):
         print(f"Pausing for {seconds} seconds...")
         time.sleep(seconds)
@@ -47,7 +48,7 @@ class IterationHelper(Generic[T]):
     def run(self):
         try:
             for i in range(self.current_index, len(self.items)):
-                self.process_item(self.items[i])
+                self.callback(self.items[i])
                 self.current_index = i + 1
                 self.save_state()
                 self.pause(2)  # Pause for 2 seconds between items
@@ -57,6 +58,12 @@ class IterationHelper(Generic[T]):
 
 
 if __name__ == "__main__":
+
+    def process_item(item: str):
+        print(f"Processing: {item}")
+        # Simulate processing time
+        time.sleep(1)
+
     items = [f"Item {i}" for i in range(1, 101)]  # Example list of 100 items
-    helper = IterationHelper(items)
+    helper = IterationHelper(items, callback=process_item)
     helper.run()
