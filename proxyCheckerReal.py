@@ -98,8 +98,8 @@ class ProxyCheckerReal:
             except Exception as exc:
                 self.log(f"{proxy_type} check generated an exception: {exc}")
 
-        if os.path.exists(output_file):
-            self.log(f"Logs written {output_file}")
+        # if os.path.exists(output_file):
+        #     self.log(f"Logs written {output_file}")
 
         result = {
             "result": False,
