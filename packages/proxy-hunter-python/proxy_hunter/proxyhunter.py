@@ -2,6 +2,7 @@
 
 import time
 from socket import *
+from typing import List
 from netaddr import IPNetwork
 from colorama import Fore, Style
 import random, os, sys, re
@@ -35,15 +36,15 @@ def write_result():
             pf.write(proxy)
 
 
-def scan(network):
+def scan(ip: str):
     """
     Extract available IPs from supplied network
     """
     hcount = 0
-    hosts = IPNetwork(network)
+    hosts = IPNetwork(ip)
     print(
         "[{}{}{}{}]: {}{}{}{} available IPs".format(
-            bold, blue, network, reset, bold, green, len(hosts), reset
+            bold, blue, ip, reset, bold, green, len(hosts), reset
         ),
         flush=True,
     )
@@ -234,12 +235,12 @@ if __name__ == "__main__":
     with open(file_path, "r") as f:
         subnets = f.readlines()
 
-        netlist = []
+        netlist: List[str] = []
         num_ips = len(subnets)
         while len(netlist) < 30:
             rand_ip = random.randint(0, num_ips)
             try:
-                netlist.append(subnets[rand_ip])
+                netlist.append(subnets[rand_ip].strip())
             except IndexError:
                 pass
         random.shuffle(netlist)
