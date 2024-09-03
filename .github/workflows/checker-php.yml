@@ -19,6 +19,8 @@ on:
     secrets:
       ACCESS_TOKEN:
         required: true
+  schedule:
+    - cron: "0 */3 * * *" # Runs every 3 hours
 
 concurrency:
   group: php-proxy-checker
