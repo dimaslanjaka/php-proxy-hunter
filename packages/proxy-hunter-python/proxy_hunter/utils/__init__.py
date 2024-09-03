@@ -7,4 +7,5 @@ from .index_utils import (
     is_valid_url,
     is_vps,
 )
-from .IterationHelper import IterationHelper
+from .iterationHelper import IterationHelper
+from .list import flatten_and_clean
