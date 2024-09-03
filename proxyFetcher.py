@@ -1,4 +1,3 @@
-from proxy_hunter import *
 from src.func import *
 from src.func_proxy import *
 from src.requests_cache import get_with_proxy

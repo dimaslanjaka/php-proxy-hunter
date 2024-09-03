@@ -36,14 +36,12 @@ from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 from proxyWorking import ProxyWorkingManager
 from src.func import (
-    file_append_str,
     get_message_exception,
     get_relative_path,
     get_unique_dicts_by_key_in_list,
     move_string_between,
-    read_file,
-    write_json,
 )
+from proxy_hunter.utils.file import write_json, read_file, file_append_str
 from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug

@@ -43,7 +43,8 @@ from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
     result_log_file as proxy_checker_task_log_file,
 )
 from django_backend.apps.proxy.views_unit.proxy import get_page_title, get_proxy_list
-from src.func import file_append_str, get_relative_path, truncate_file_content
+from src.func import get_relative_path
+from proxy_hunter.utils.file import file_append_str, truncate_file_content
 from src.func_console import log_file
 from src.func_date import get_current_rfc3339_time
 from src.func_platform import is_django_environment
