@@ -1,7 +1,7 @@
 import re
 from typing import List, Optional
 from .Proxy import Proxy
-from .utils.index import *
+from .utils import *
 
 
 def extract_proxies(string: Optional[str]) -> List[Proxy]:
