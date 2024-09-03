@@ -1,4 +1,4 @@
-name: Nuitka CI
+name: Nuitka CI (debug)
 
 on:
   push:
@@ -148,7 +148,7 @@ jobs:
 
       - name: Build Simple GUI
         run: |
-          gulp sgui
+          gulp sgui --debug
 
       # Uploads artifact
       - name: Upload Artifact
