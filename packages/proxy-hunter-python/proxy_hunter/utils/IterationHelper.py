@@ -1,9 +1,13 @@
 import time
 import os
+from typing import Any, List, TypeVar, Generic
+
+# Define a type variable for generic type
+T = TypeVar("T")
 
 
-class IterationHelper:
-    def __init__(self, items, state_file="tmp/data/state.txt"):
+class IterationHelper(Generic[T]):
+    def __init__(self, items: List[T], state_file="tmp/data/state.txt"):
         self.items = items
         self.state_file = state_file
         self.ensure_directory_exists()
@@ -31,12 +35,12 @@ class IterationHelper:
                 return 0
         return 0
 
-    def process_item(self, item):
+    def process_item(self, item: T):
         print(f"Processing: {item}")
         # Simulate processing time
         time.sleep(1)
 
-    def pause(self, seconds):
+    def pause(self, seconds: int):
         print(f"Pausing for {seconds} seconds...")
         time.sleep(seconds)
 
