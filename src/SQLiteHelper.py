@@ -1,7 +1,8 @@
 import os
 import sqlite3
 from typing import List, Optional, Union
-from src.func import copy_file, delete_path, get_message_exception, get_relative_path
+from src.func import get_message_exception, get_relative_path
+from proxy_hunter.utils.file import copy_file, delete_path
 
 
 class SQLiteHelper:

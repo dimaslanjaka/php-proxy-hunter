@@ -14,7 +14,7 @@ from django.core.exceptions import ImproperlyConfigured, SuspiciousOperation
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from src.func import sanitize_filename
+from proxy_hunter.utils.file import sanitize_filename
 
 
 class SessionStore(SessionBase):

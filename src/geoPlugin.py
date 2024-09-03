@@ -19,7 +19,8 @@ from timezonefinder import TimezoneFinder
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.func import get_nuitka_file, get_relative_path, write_file
+from src.func import get_nuitka_file, get_relative_path
+from proxy_hunter.utils.file import write_file
 from src.geoPluginClass import GeoPlugin
 from src.requests_cache import delete_cached_response, get_with_proxy
 

@@ -11,7 +11,8 @@ from typing import List, Optional, Union
 import requests
 from requests.exceptions import RequestException
 
-from src.func import delete_path, get_relative_path, resolve_folder
+from src.func import get_relative_path
+from proxy_hunter.utils.file import resolve_folder, delete_path
 from src.func_certificate import output_pem
 
 CACHE_DIR = get_relative_path("tmp/requests_cache")
