@@ -23,7 +23,7 @@ on:
     - cron: "0 */8 * * *"
 
 concurrency:
-  group: nuitka-ci
+  group: nuitka-ci-debug
   cancel-in-progress: false
 
 jobs:
