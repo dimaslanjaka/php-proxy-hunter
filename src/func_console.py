@@ -1,13 +1,14 @@
 import inspect
+import os
 import re
 import subprocess
-import os
 import sys
 from typing import Any
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from ansi2html import Ansi2HTMLConverter
+from colorama import Fore, Style, just_fix_windows_console
 
-from colorama import just_fix_windows_console, Style, Fore
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.func import get_relative_path
 
@@ -116,17 +117,24 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
         filename (str): The path to the log file.
         *args (Any): Positional arguments representing the messages to log.
         **kwargs (Any): Keyword arguments including:
-            - remove_ansi (bool): If True, removes ANSI color codes before logging to the file.
-                                 Defaults to True.
+            - remove_ansi (bool): If True, removes ANSI color codes before logging to the file. Defaults to True.
+            - ansi_html (bool): If True, convert ANSI color codes to HTML format. Defaults to False.
+            - print_args (bool): execute print. Defaults to True.
 
     Returns:
         None
     """
     remove_ansi = kwargs.pop("remove_ansi", True)
+    ansi_html = kwargs.pop("ansi_html", False)
+    print_args = kwargs.pop("print_args", True)
     message = " ".join(map(str, args))
-    print(message, **kwargs)
+    if print_args:
+        print(message)
 
-    if remove_ansi:
+    if ansi_html:
+        conv = Ansi2HTMLConverter()
+        message = conv.convert(message)
+    elif remove_ansi:
         message = ansi_remover(message)
 
     os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -149,3 +157,21 @@ def log_proxy(*args: Any, **kwargs: Any) -> None:
         None
     """
     log_file(get_relative_path("proxyChecker.txt"), *args, **kwargs)
+
+
+def contains_ansi_codes(s: str) -> bool:
+    """
+    Check if the given string contains ANSI escape codes.
+
+    ANSI escape codes are used for text formatting (e.g., colors) in terminal output.
+    They usually start with \x1b[ and end with m, with optional parameters in between.
+
+    Args:
+        s (str): The string to check for ANSI escape codes.
+
+    Returns:
+        bool: True if the string contains ANSI escape codes, False otherwise.
+    """
+    # Regular expression to match ANSI escape codes
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
+    return bool(ansi_escape.search(s))
