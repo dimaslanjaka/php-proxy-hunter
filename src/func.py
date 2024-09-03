@@ -643,24 +643,33 @@ def delete_path(path: str) -> None:
         print(f"Error deleting '{path}': {e}")
 
 
-def sanitize_filename(filename):
+def sanitize_filename(filename: str, extra_chars: Optional[str] = None) -> str:
     """
-    Sanitize a filename by removing any character that is not alphanumeric, underscore, dash, or period.
+    Sanitize the given filename by replacing invalid characters with hyphens.
 
     Args:
-        filename (str or None): The filename to sanitize.
+        filename (str): The original filename to be sanitized.
+        extra_chars (Optional[str]): Additional characters to be replaced with hyphens.
+                                      If None, defaults to the standard set of invalid characters.
 
     Returns:
-        str: The sanitized filename.
+        str: The sanitized filename with invalid characters replaced by hyphens.
     """
-    if not filename:
-        filename = ""
+    # Define a regular expression to match invalid characters in filenames
+    # All non-word and non-digit characters except - _ space and .
+    invalid_chars = r"[^\w\s.\-]"
 
-    # Remove any character that is not alphanumeric, underscore, dash, or period
-    filename = re.sub(r"[^a-zA-Z0-9_-]+", "-", filename)
-    filename = re.sub(r"-+", "-", filename)
+    # Replace invalid characters with hyphens
+    sanitized_filename = re.sub(invalid_chars, "-", filename)
 
-    return filename
+    # If extra_chars is provided, add them to the invalid_chars pattern
+    if extra_chars:
+        extra_chars_pattern = re.escape(extra_chars)
+        invalid_chars = f"[{extra_chars_pattern}]"
+        # Re-replace invalid characters with hyphens
+        sanitized_filename = re.sub(invalid_chars, "-", sanitized_filename)
+
+    return remove_trailing_hyphens(sanitized_filename)
 
 
 def remove_string_from_file(
@@ -952,35 +961,6 @@ def truncate_file_content(file_path, max_length = 0):
                     pass
         except Exception:
             pass
-
-
-def sanitize_filename(filename: str, extra_chars: Optional[str] = None) -> str:
-    """
-    Sanitize the given filename by replacing invalid characters with hyphens.
-
-    Args:
-        filename (str): The original filename to be sanitized.
-        extra_chars (Optional[str]): Additional characters to be replaced with hyphens.
-                                      If None, defaults to the standard set of invalid characters.
-
-    Returns:
-        str: The sanitized filename with invalid characters replaced by hyphens.
-    """
-    # Define a regular expression to match invalid characters in filenames
-    # All non-word and non-digit characters except - _ space and .
-    invalid_chars = r"[^\w\s.\-]"
-
-    # Replace invalid characters with hyphens
-    sanitized_filename = re.sub(invalid_chars, "-", filename)
-
-    # If extra_chars is provided, add them to the invalid_chars pattern
-    if extra_chars:
-        extra_chars_pattern = re.escape(extra_chars)
-        invalid_chars = f"[{extra_chars_pattern}]"
-        # Re-replace invalid characters with hyphens
-        sanitized_filename = re.sub(invalid_chars, "-", sanitized_filename)
-
-    return remove_trailing_hyphens(sanitized_filename)
 
 
 def md5(input_string):
