@@ -10,7 +10,7 @@ from typing import Dict, List, Optional
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
 from proxy_checker import ProxyChecker
-from proxy_hunter import extract_proxies
+from proxy_hunter import decompress_requests_response, extract_proxies
 
 from proxyWorking import ProxyWorkingManager
 from src.func import (
@@ -73,7 +73,7 @@ class ProxyCheckerReal:
             proxy_type = future_to_proxy_type[future]
             if cancel_event and cancel_event.is_set():
                 self.log(
-                    f"Cancellation requested, stopping {proxy_type} check for {proxy}."
+                    f"Cancellation requested, stopping check for {proxy_type}://{proxy}."
                 )
                 break
             try:
@@ -158,6 +158,8 @@ class ProxyCheckerReal:
     def real_latency(self, proxy: str):
         """Get proxy latency."""
         latency = None
+        latency_log = None
+        valid_log = None
         configs = [
             ["https://bing.com", "bing"],
             ["https://github.com/", "github"],
@@ -174,7 +176,9 @@ class ProxyCheckerReal:
 
             try:
                 start_time = time.time()
-                response = build_request(proxy, "http", endpoint=url)
+                response = build_request(
+                    proxy, "http", endpoint=url, allow_redirects=True
+                )
                 end_time = time.time()
             except Exception:
                 pass
@@ -182,7 +186,9 @@ class ProxyCheckerReal:
             if response and not response.ok:
                 try:
                     start_time = time.time()
-                    response = build_request(proxy, "socks4", endpoint=url)
+                    response = build_request(
+                        proxy, "socks4", endpoint=url, allow_redirects=True
+                    )
                     end_time = time.time()
                 except Exception:
                     pass
@@ -190,7 +196,9 @@ class ProxyCheckerReal:
             if response and not response.ok:
                 try:
                     start_time = time.time()
-                    response = build_request(proxy, "socks5", endpoint=url)
+                    response = build_request(
+                        proxy, "socks5", endpoint=url, allow_redirects=True
+                    )
                     end_time = time.time()
                 except Exception:
                     pass
@@ -198,14 +206,27 @@ class ProxyCheckerReal:
             if response and response.ok:
                 # Get latency milliseconds
                 latency = int(end_time - start_time) * 1000
-                soup = BeautifulSoup(response.text, "html.parser")
+                response_text = decompress_requests_response(response)
+                soup = BeautifulSoup(response_text, "html.parser")
                 response_title = (
-                    soup.title.string.strip() if isinstance(soup.title, str) else ""
+                    soup.title.string.strip()
+                    if soup.title and soup.title.string
+                    else "Empty Title"
                 )
+                valid_log = (
+                    green("accurate")
+                    if title_should_be.lower() in response_title.lower()
+                    else red("inaccurate")
+                    + f' page title should be "{title_should_be.lower()}" but "{response_title.lower()}"'
+                )
+                latency_log = (
+                    green(f"{latency} ms") if latency > 0 else red(str(latency))
+                )
+
                 if title_should_be.lower() in response_title.lower():
-                    self.log(f"{proxy} latency is {green(str(latency))} ms")
-                    # Break when success
                     break
+        if valid_log and latency_log:
+            self.log(f"{proxy} latency is {latency_log} [{valid_log}]")
         return latency
 
 
