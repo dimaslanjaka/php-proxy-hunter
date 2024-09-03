@@ -10,7 +10,11 @@ from typing import Dict, List, Optional
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
 from proxy_checker import ProxyChecker
-from proxy_hunter import decompress_requests_response, extract_proxies
+from proxy_hunter import (
+    decompress_requests_response,
+    extract_proxies,
+    check_raw_headers_keywords,
+)
 
 from proxyWorking import ProxyWorkingManager
 from src.func import (
@@ -86,16 +90,21 @@ class ProxyCheckerReal:
                 log += f"RESULT: {'true' if check.result else 'false'}\n"
                 if not check.result and check.error:
                     log += f"ERROR: {check.error.strip()}\n"
-                if check.response:
+                if check.response and check.response.ok:
                     log += "RESPONSE HEADERS:\n"
                     for key, value in check.response.headers.items():
                         log += f"  {key}: {value}\n"
-                    if check.response.text:
-                        soup = BeautifulSoup(check.response.text, "html.parser")
+                    response_text = decompress_requests_response(check.response)
+                    if response_text:
+                        soup = BeautifulSoup(response_text, "html.parser")
                         response_title = soup.title.string.strip() if soup.title else ""
-                        log += f"TITLE: {response_title}\n"
-                        if title_should_be.lower() in response_title.lower():
-                            protocols.append(check.type.lower())
+                        if (
+                            not check_raw_headers_keywords(response_text)
+                            and response_title.lower() != "AZ Environment".lower()
+                        ):
+                            log += f"TITLE: {response_title}\n"
+                            if title_should_be.lower() in response_title.lower():
+                                protocols.append(check.type.lower())
                 file_append_str(output_file, log)
             except Exception as exc:
                 self.log(f"{proxy_type} check generated an exception: {exc}")
@@ -342,6 +351,10 @@ if __name__ == "__main__":
 
     db = ProxyDB(get_relative_path("src/database.sqlite"), True)
 
+    # proxy = "18.169.133.105:132"
+    # sc = real_check(proxy, "http://httpforever.com/", "http forever")
+    # print(sc)
+
     files_content = read_all_text_files(get_relative_path("assets/proxies"))
     if os.path.exists(get_relative_path("proxies.txt")):
         files_content[get_relative_path("proxies.txt")] = read_file(
@@ -362,5 +375,4 @@ if __name__ == "__main__":
     using_joblib(proxies, 5)
     # test()
 
-    # close database
     db.close()
