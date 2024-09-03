@@ -6,7 +6,6 @@ import os
 import random
 import re
 import shutil
-import socket
 import stat
 import string
 import subprocess
@@ -15,6 +14,8 @@ import tempfile
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
+
+from proxy_hunter import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -105,10 +106,6 @@ def resolve_relative_path(data: Optional[str] = None, *args: Union[str, bytes]) 
     return relative
 
 
-def get_pc_name():
-    return socket.gethostname()
-
-
 def debug_log(*args: Any, sep: Optional[str] = " ", end: Optional[str] = "\n") -> None:
     """
     Log debugging information to the console if the current device matches a specific device name.
@@ -121,7 +118,7 @@ def debug_log(*args: Any, sep: Optional[str] = " ", end: Optional[str] = "\n") -
     if is_debug():
         message = sep.join(map(str, args)) + end
         # Print to console
-        print(message, end="")
+        print(message, end = "")
         # Write to file
         file_path = get_relative_path("tmp/debug.log")
         resolve_parent_folder(file_path)
@@ -223,10 +220,10 @@ def write_json(filePath: str, data: Any):
         return
 
     # Ensure parent directories exist
-    os.makedirs(os.path.dirname(filePath), exist_ok=True)
+    os.makedirs(os.path.dirname(filePath), exist_ok = True)
 
-    with open(filePath, "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=2, ensure_ascii=False, default=serialize)
+    with open(filePath, "w", encoding = "utf-8") as file:
+        json.dump(data, file, indent = 2, ensure_ascii = False, default = serialize)
 
 
 def is_class_has_parameter(clazz: type, key: str) -> bool:
@@ -296,9 +293,9 @@ def copy_folder(source_folder: str, destination_folder: str) -> None:
         None
     """
     # Ensure destination parent folder exists
-    os.makedirs(os.path.dirname(destination_folder), exist_ok=True)
+    os.makedirs(os.path.dirname(destination_folder), exist_ok = True)
 
-    shutil.copytree(source_folder, destination_folder, dirs_exist_ok=True)
+    shutil.copytree(source_folder, destination_folder, dirs_exist_ok = True)
 
 
 def file_move_lines(source_file: str, destination_file: str, n: int) -> None:
@@ -314,13 +311,13 @@ def file_move_lines(source_file: str, destination_file: str, n: int) -> None:
     Returns:
     - None
     """
-    with open(source_file, "r+", encoding="utf-8") as source:
+    with open(source_file, "r+", encoding = "utf-8") as source:
         lines = source.readlines()
 
-    with open(destination_file, "a+", encoding="utf-8") as destination:
+    with open(destination_file, "a+", encoding = "utf-8") as destination:
         destination.writelines(lines[:n])
 
-    with open(source_file, "w+", encoding="utf-8") as source:
+    with open(source_file, "w+", encoding = "utf-8") as source:
         source.writelines(lines[n:])
 
 
@@ -356,7 +353,7 @@ def count_lines_in_file(file_path: str) -> int:
         int: The total number of lines in the file.
     """
     # Open the file in read mode
-    with open(file_path, "r", encoding="utf-8") as file:
+    with open(file_path, "r", encoding = "utf-8") as file:
         # Use a loop to iterate through each line and count them
         line_count = sum(1 for line in file)
 
@@ -526,7 +523,7 @@ def read_file(file_path: str) -> Optional[str]:
         Optional[str]: The content of the file if successful, None otherwise.
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as file:
+        with open(file_path, "r", encoding = "utf-8") as file:
             content = file.read()
         return content
     except FileNotFoundError:
@@ -547,7 +544,7 @@ def write_file(file_path: str, content: str) -> None:
     """
     try:
         resolve_parent_folder(file_path)
-        with open(file_path, "w", encoding="utf-8") as file:
+        with open(file_path, "w", encoding = "utf-8") as file:
             file.write(content)
         # print(f"File '{file_path}' has been successfully written.")
     except Exception as e:
@@ -566,7 +563,7 @@ def file_append_str(filename: str, string_to_add: str) -> None:
         None
     """
     try:
-        with open(filename, "a+", encoding="utf-8") as file:
+        with open(filename, "a+", encoding = "utf-8") as file:
             # file.write(string_to_add.encode("utf-8").decode("utf-8", "ignore"))
             file.write(f"{remove_ansi(remove_non_ascii(string_to_add))}\n")
     except Exception as e:
@@ -575,8 +572,8 @@ def file_append_str(filename: str, string_to_add: str) -> None:
 
 
 def fix_permissions(
-    path: str,
-    desired_permissions: int = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO,
+        path: str,
+        desired_permissions: int = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO,
 ) -> None:
     """
     Fixes the permissions of a folder.
@@ -617,7 +614,7 @@ def resolve_parent_folder(path: str) -> str:
 
 def resolve_folder(path: str) -> str:
     resolve_parent_folder(path)
-    os.makedirs(path, exist_ok=True)
+    os.makedirs(path, exist_ok = True)
     fix_permissions(path)
     return path
 
@@ -635,7 +632,7 @@ def delete_path(path: str) -> None:
 
     try:
         if os.path.isdir(path):
-            shutil.rmtree(path, ignore_errors=True)
+            shutil.rmtree(path, ignore_errors = True)
             print(f"Folder '{path}' and its contents deleted successfully.")
         elif os.path.isfile(path):
             os.remove(path)
@@ -667,7 +664,7 @@ def sanitize_filename(filename):
 
 
 def remove_string_from_file(
-    file_path: str, strings_to_remove: Union[str, List[str]]
+        file_path: str, strings_to_remove: Union[str, List[str]]
 ) -> None:
     """
     Removes all occurrences of specified strings from a file.
@@ -694,11 +691,11 @@ def remove_string_from_file(
     # Create a temporary file
     random_string = "".join(random.choice(string.ascii_letters) for _ in range(5))
     temp_file_path = f"tmp/runners/{random_string}.txt"
-    os.makedirs(os.path.dirname(temp_file_path), exist_ok=True)
+    os.makedirs(os.path.dirname(temp_file_path), exist_ok = True)
 
     # Open the original file and the temporary file
-    with open(file_path, "r", encoding="utf-8") as file, open(
-        temp_file_path, "w", encoding="utf-8"
+    with open(file_path, "r", encoding = "utf-8") as file, open(
+            temp_file_path, "w", encoding = "utf-8"
     ) as temp_file:
         for line in file:
             # Replace all occurrences of the pattern with an empty string
@@ -742,9 +739,9 @@ def remove_duplicate_line_from_file(filename: str) -> None:
         return
     # Copy content to a temporary file
     with open(
-        filename, "r", encoding="utf-8"
+            filename, "r", encoding = "utf-8"
     ) as original_file, tempfile.NamedTemporaryFile(
-        mode="w", encoding="utf-8", delete=False
+        mode = "w", encoding = "utf-8", delete = False
     ) as temp_file:
         lines_seen = set()  # Set to store unique lines
         for line in original_file:
@@ -760,7 +757,7 @@ def remove_duplicate_line_from_file(filename: str) -> None:
 
 
 def get_unique_dicts_by_key_in_list(
-    dicts: List[Dict[str, str]], key: str
+        dicts: List[Dict[str, str]], key: str
 ) -> List[Dict[str, str]]:
     """
     Returns a list of unique dictionaries from the input list of dictionaries based on a specified key.
@@ -792,9 +789,9 @@ def get_unique_dicts_by_key_in_list(
 
 
 def move_string_between(
-    source_file_path: str,
-    destination_file_path: str,
-    string_to_remove: Optional[Union[str, List[str]]] = None,
+        source_file_path: str,
+        destination_file_path: str,
+        string_to_remove: Optional[Union[str, List[str]]] = None,
 ) -> bool:
     """
     Move specified strings from the source file to the destination file and remove them from the source file.
@@ -818,7 +815,7 @@ def move_string_between(
 
     try:
         # Read content from the source file
-        with open(source_file_path, "r", encoding="utf-8") as source:
+        with open(source_file_path, "r", encoding = "utf-8") as source:
             source_content = source.read()
 
         if not string_to_remove:
@@ -834,11 +831,11 @@ def move_string_between(
                 source_content = source_content.replace(string, "")
 
                 # Append the removed string to the destination file
-                with open(destination_file_path, "a", encoding="utf-8") as destination:
+                with open(destination_file_path, "a", encoding = "utf-8") as destination:
                     destination.write("\n" + string + "\n")
 
         # Write the modified content back to the source file
-        with open(source_file_path, "w", encoding="utf-8") as source:
+        with open(source_file_path, "w", encoding = "utf-8") as source:
             source.write(source_content)
 
         return True
@@ -852,7 +849,7 @@ def move_string_between(
 
 
 def is_date_rfc3339_hour_more_than(
-    date_string: Optional[str], hours: int
+        date_string: Optional[str], hours: int
 ) -> Optional[bool]:
     """
     Check if the given date string is more than specified hours ago.
@@ -868,7 +865,7 @@ def is_date_rfc3339_hour_more_than(
         return None
     try:
         # Parse the input date string into a datetime object
-        date_time = datetime.fromisoformat(date_string).replace(tzinfo=timezone.utc)
+        date_time = datetime.fromisoformat(date_string).replace(tzinfo = timezone.utc)
 
         # Calculate the current time in UTC
         current_time = datetime.now(timezone.utc)
@@ -877,7 +874,7 @@ def is_date_rfc3339_hour_more_than(
         time_difference = current_time - date_time
 
         # Convert hours to timedelta object
-        hours_delta = timedelta(hours=hours)
+        hours_delta = timedelta(hours = hours)
 
         # Compare the time difference with the specified hours
         return time_difference >= hours_delta
@@ -916,8 +913,8 @@ def file_remove_empty_lines(file_path: str) -> None:
     """
     temp_file = get_relative_path("tmp", md5(file_path) + ".tmp")
     try:
-        with open(file_path, "r", encoding="utf-8") as f_in, open(
-            temp_file, "w", encoding="utf-8"
+        with open(file_path, "r", encoding = "utf-8") as f_in, open(
+                temp_file, "w", encoding = "utf-8"
         ) as f_out:
             for line in f_in:
                 if line.strip():  # Check if the line is not empty
@@ -930,7 +927,7 @@ def file_remove_empty_lines(file_path: str) -> None:
         pass
 
 
-def is_file_larger_than_kb(file_path, size_in_kb=5):
+def is_file_larger_than_kb(file_path, size_in_kb = 5):
     # Get the size of the file in bytes
     file_size_bytes = os.path.getsize(file_path)
 
@@ -941,10 +938,10 @@ def is_file_larger_than_kb(file_path, size_in_kb=5):
     return file_size_kb > size_in_kb
 
 
-def truncate_file_content(file_path, max_length=0):
+def truncate_file_content(file_path, max_length = 0):
     if os.path.exists(file_path):
         try:
-            with open(file_path, "r+", encoding="utf-8") as file:
+            with open(file_path, "r+", encoding = "utf-8") as file:
                 content = file.read()
                 if len(content) > max_length:
                     file.seek(0)
@@ -1009,7 +1006,7 @@ def get_random_http_profile(json_file):
     Returns:
         dict: A dictionary containing a random proxy and useragent.
     """
-    with open(json_file, "r", encoding="utf-8") as file:
+    with open(json_file, "r", encoding = "utf-8") as file:
         data = json.load(file)
 
     # Filter profiles where 'type' is 'http'
@@ -1037,7 +1034,7 @@ def get_random_profile(json_file):
     Returns:
         dict: A dictionary containing a random proxy and useragent.
     """
-    with open(json_file, "r", encoding="utf-8") as file:
+    with open(json_file, "r", encoding = "utf-8") as file:
         data = json.load(file)
 
     # Get a random index within the range of the list
@@ -1117,7 +1114,7 @@ def unique_non_empty_strings(strings: Optional[List[Union[str, None]]]) -> List[
 
 
 def split_list_into_chunks(
-    lst: List[int], chunk_size: Optional[int] = None, total_chunks: Optional[int] = None
+        lst: List[int], chunk_size: Optional[int] = None, total_chunks: Optional[int] = None
 ) -> List[List[int]]:
     """
     Split a list into chunks either by a specified chunk size or into a specified number of chunks.
@@ -1135,7 +1132,7 @@ def split_list_into_chunks(
     """
     if chunk_size is not None:
         # Split by specific chunk size
-        return [lst[i : i + chunk_size] for i in range(0, len(lst), chunk_size)]
+        return [lst[i: i + chunk_size] for i in range(0, len(lst), chunk_size)]
 
     elif total_chunks is not None:
         # Split into a specific number of chunks
@@ -1166,7 +1163,7 @@ def read_all_text_files(directory: str) -> Dict[str, str]:
         if filename.endswith(".txt"):
             file_path = os.path.join(directory, filename)
             try:
-                with open(file_path, "r", encoding="utf-8") as file:
+                with open(file_path, "r", encoding = "utf-8") as file:
                     text_files_content[file_path] = file.read()
             except Exception as e:
                 print(f"Error reading {file_path}: {e}")
