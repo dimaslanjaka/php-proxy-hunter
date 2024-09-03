@@ -3,18 +3,14 @@ import sys
 from typing import Set
 from urllib.parse import parse_qs, urlparse, urlunparse
 
-from proxy_hunter.utils import is_valid_ip
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-import re
-
 from django.conf import settings
-from django.core.cache import cache
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.middleware.csrf import CsrfViewMiddleware
 from django.utils.deprecation import MiddlewareMixin
-from filelock import FileLock, Timeout
+from filelock import FileLock
+from proxy_hunter import is_valid_ip
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 class CustomCsrfExemptMiddleware(MiddlewareMixin):
