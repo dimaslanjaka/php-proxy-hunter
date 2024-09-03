@@ -1,6 +1,5 @@
 from datetime import datetime
 import os
-import re
 import sys
 import time
 from typing import Any, Callable, Dict, Optional, List, Union
@@ -10,7 +9,7 @@ from src.geoPlugin import get_geo_ip2
 from src.func import get_nuitka_file, get_relative_path, read_file, file_append_str
 from src.func_useragent import random_windows_ua
 from src.SQLiteHelper import SQLiteHelper
-from proxy_hunter import Proxy
+from proxy_hunter import Proxy, extract_proxies
 
 
 class ProxyDB:
@@ -132,7 +131,7 @@ class ProxyDB:
             self.start_connection()
         self.db.delete("proxies", "proxy = ?", [proxy.strip()])
 
-    def add(self, proxy):
+    def add(self, proxy: str):
         sel = self.select(proxy)
         if len(sel) == 0:
             self.db.insert("proxies", {"proxy": proxy.strip()})
@@ -399,44 +398,15 @@ class ProxyDB:
         if not line or not line.strip():
             return []
 
-        pattern = re.compile(r"(\d+\.\d+\.\d+\.\d+):(\d+)(?:@(\w+):(\w+))?")
-        valid_proxy = re.compile(
-            r"(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}"
-        )
+        result = extract_proxies(line)
+        if update_db:
+            for item in result:
+                if not self.select(item.proxy):
+                    self.add(item.proxy)
+                if item.username and item.password:
+                    self.update_data(
+                        item.proxy,
+                        {"username": item.username, "password": item.password},
+                    )
 
-        proxies = []
-        already = []
-        for match_proxy in pattern.finditer(line):
-            if valid_proxy.match(match_proxy.group(0)):
-                ip = match_proxy.group(1)
-                port = match_proxy.group(2)
-                username = match_proxy.group(3)
-                password = match_proxy.group(4)
-                ip_port = f"{ip}:{port}"
-                if ip_port not in already:
-                    already.append(ip_port)
-                else:
-                    # skip
-                    continue
-
-                # Assuming ProxyDB.select returns a list of dictionaries
-                select = self.select(ip_port)
-                if select:
-                    result = Proxy(select[0]["proxy"]).from_dict(**select[0])
-                    if username and password:
-                        result.username = username
-                        result.password = password
-                        if update_db:
-                            self.update_data(
-                                select[0]["proxy"],
-                                {"username": username, "password": password},
-                            )
-                else:
-                    result = Proxy(ip_port, username=username, password=password)
-                    if update_db:
-                        self.update_data(
-                            ip_port, {"username": username, "password": password}
-                        )
-                proxies.append(result)
-
-        return proxies
+        return result
