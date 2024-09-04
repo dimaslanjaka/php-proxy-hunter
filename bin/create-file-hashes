@@ -15,13 +15,14 @@ RELATIVE_OUTPUT_FILE=".husky/hash.txt"
 OUTPUT_FILE="$PROJECT_DIR/$RELATIVE_OUTPUT_FILE"
 
 # Create or clear the hash file
->"$OUTPUT_FILE"
+echo -n "" >"$OUTPUT_FILE"
+cat /dev/null >"$OUTPUT_FILE"
 
 # List of file extensions to include
 EXTENSIONS=("py" "js" "php")
 
 # Directories to exclude
-EXCLUDE_DIRS=("node_modules" "vendor" "venv" ".yarn" "__pycache__" "docs/api" "decompiled" "sidompul" "django_backend" "userscripts" "webalizer" ".cache" "tests" "example" ".husky" "packages")
+EXCLUDE_DIRS=("dashboard" "node_modules" "vendor" "venv" ".yarn" "__pycache__" "docs/api" "decompiled" "sidompul" "django_backend" "userscripts" "webalizer" ".cache" "tests" "example" ".husky" "packages")
 
 # Convert EXCLUDE_DIRS array to a grep pattern
 EXCLUDE_PATTERN=$(
