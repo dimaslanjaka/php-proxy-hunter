@@ -446,7 +446,7 @@ def get_proxies(
     get proxies without dead proxies
     """
     proxies: List[Dict[str, str]] = []
-    db = ProxyDB(get_relative_path("src/database.sqlite"))
+    db = ProxyDB(get_relative_path("src/database.sqlite"), True)
 
     if not working_only or untested_only:
         proxies.extend(db.db.select("proxies", "*", "status = ?", ["untested"]))
