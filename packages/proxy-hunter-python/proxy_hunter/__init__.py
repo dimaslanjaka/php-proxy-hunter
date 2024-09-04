@@ -1,14 +1,21 @@
 from .cidr2ips import list_ips_from_cidr
+from .curl import (
+    build_request,
+    generate_netscape_cookie_jar,
+    get_pc_useragent,
+    is_prox,
+    join_header_words,
+    lwp_cookie_str,
+    random_windows_ua,
+    update_cookie_jar,
+)
 from .extractor import extract_proxies, extract_proxies_from_file
 from .ip2cidr import calculate_cidr
 from .ip2proxy_list import generate_ip_port_pairs
 from .ip2subnet import get_default_subnet_mask, get_subnet_mask
-from .prox_check import is_prox
 from .Proxy import Proxy, dict_to_proxy_list
 from .proxyhunter import scan, target
 from .utils import (
-    write_file,
-    write_json,
     check_raw_headers_keywords,
     copy_file,
     copy_folder,
@@ -19,34 +26,27 @@ from .utils import (
     file_append_str,
     file_move_lines,
     file_remove_empty_lines,
+    fix_permissions,
     flatten_and_clean,
     get_random_folder,
-    truncate_file_content,
-    sanitize_filename,
-    fix_permissions,
-    remove_string_from_file,
-    remove_trailing_hyphens,
     is_valid_ip,
     is_valid_ip_connection,
     is_valid_proxy,
     is_valid_url,
     is_vps,
-    read_file,
-    read_all_text_files,
-    remove_ansi,
-    md5,
     list_files_in_directory,
-    resolve_folder,
+    md5,
+    read_all_text_files,
+    read_file,
+    remove_ansi,
     remove_non_ascii,
-    serialize,
+    remove_string_from_file,
+    remove_trailing_hyphens,
+    resolve_folder,
     resolve_parent_folder,
-)
-from .curl import (
-    build_request,
-    update_cookie_jar,
-    get_pc_useragent,
-    join_header_words,
-    lwp_cookie_str,
-    random_windows_ua,
-    generate_netscape_cookie_jar,
+    sanitize_filename,
+    serialize,
+    truncate_file_content,
+    write_file,
+    write_json,
 )

@@ -4,7 +4,7 @@ from proxy_hunter.cidr2ips import list_ips_from_cidr
 from proxy_hunter.ip2cidr import calculate_cidr
 from proxy_hunter.ip2proxy_list import generate_ip_port_pairs
 from proxy_hunter.ip2subnet import get_default_subnet_mask
-from proxy_hunter.prox_check import is_prox
+from proxy_hunter.curl.prox_check import is_prox
 from proxy_hunter.utils import IterationHelper
 import json
 
