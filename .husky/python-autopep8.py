@@ -4,6 +4,9 @@ import re
 import subprocess
 import sys
 
+# python -u .husky/python-autopep8.py filepath
+# lint-staged {"*.py": "python -u .husky/python-autopep8.py"}
+
 # don't fill in both of these
 select_codes = []
 ignore_codes = [
