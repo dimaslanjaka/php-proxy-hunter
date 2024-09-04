@@ -34,24 +34,24 @@ const extensions = ["py", "js", "php"];
 
 // Directories to exclude
 const excludeDirs = [
-  "dashboard",
-  "bin",
-  "node_modules",
-  "vendor",
-  "venv",
-  ".yarn",
-  "__pycache__",
-  "docs/api",
-  "xl",
-  "django_backend",
-  "userscripts",
-  "webalizer",
-  ".cache",
-  "tests",
+  "dashboard/",
+  "bin/",
+  "node_modules/",
+  "vendor/",
+  "venv/",
+  ".yarn/",
+  "__pycache__/",
+  "docs/",
+  "xl/",
+  "django_backend/",
+  "userscripts/",
+  "webalizer/",
+  ".cache/",
+  "tests/",
   "example",
-  ".husky",
-  "packages",
-  "dist"
+  ".husky/",
+  "packages/",
+  "dist/"
 ]
   .map((pattern) => joinPathPreserveDriveLetter(projectDir, pattern))
   .concat([".vscode"]);
