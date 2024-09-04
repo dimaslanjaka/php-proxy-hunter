@@ -52,7 +52,9 @@ const excludeDirs = [
   ".husky",
   "packages",
   "dist"
-].map((pattern) => joinPathPreserveDriveLetter(projectDir, pattern));
+]
+  .map((pattern) => joinPathPreserveDriveLetter(projectDir, pattern))
+  .concat([".vscode"]);
 
 // Convert EXCLUDE_DIRS array to a glob pattern
 const excludePattern = `**/@(${excludeDirs.join("|")})/**`;
