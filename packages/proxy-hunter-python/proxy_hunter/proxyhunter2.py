@@ -9,8 +9,8 @@ from proxy_hunter.utils import IterationHelper
 import json
 
 
-if __name__ == "__main__":
-    ip, port = "156.34.105.58:5678".split(":")
+def proxy_hunter2(proxy: str):
+    ip, port = proxy.split(":")
     cache_file = "tmp/data/cache-{}.json".format(ip)
     if os.path.exists(cache_file):
         pass
@@ -32,3 +32,7 @@ if __name__ == "__main__":
         f"tmp/data/{ip}.txt",
     )
     iterator.run()
+
+
+if __name__ == "__main__":
+    proxy_hunter2("156.34.105.58:5678")
