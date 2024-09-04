@@ -6,7 +6,7 @@ with open("readme.md", "r") as f:
 setuptools.setup(
     name="proxy_hunter",
     version="1.0",
-    packages=["proxy_hunter"],
+    packages=["proxy_hunter", "proxy_hunter.curl", "proxy_hunter.utils"],
     install_requires=[
         "pycurl",
         "netaddr",
