@@ -28,15 +28,18 @@ async function fixRemotes() {
 
 async function pull() {
   await gch.spawnAsync("git", ["fetch", "--all"], { stdio: "inherit" });
-  await gch.spawnAsync("git", ["pull", "private", "python", "-X", "ours", "--no-edit", "--no-rebase"], {
+  await gch.spawnAsync("git", ["pull", "private", "python"], {
     stdio: "inherit"
   });
-  await gch.spawnAsync("git", ["merge", "origin/master", "-X", "theirs", "--no-edit", "--no-rebase"], {
+  await gch.spawnAsync("git", ["merge", "origin/master", "-X", "theirs", "--no-edit"], {
+    stdio: "inherit"
+  });
+  await gch.spawnAsync("git", ["pull", "private", "python", "-X", "ours", "--no-edit"], {
     stdio: "inherit"
   });
   // await execAsync("git fetch --all");
-  // await execAsync("git merge origin/master -X theirs --no-edit --no-rebase");
-  // await execAsync("git pull private python -X ours --no-edit --no-rebase");
+  // await execAsync("git merge origin/master -X theirs --no-edit");
+  // await execAsync("git pull private python -X ours --no-edit");
 }
 
 fixRemotes().then(pull);
