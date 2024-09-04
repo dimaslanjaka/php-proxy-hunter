@@ -1,54 +1,12 @@
 #!/bin/bash
 
-# Determine the current script directory and project directory
-SCRIPT_DIR=$(dirname "$(realpath "$0")")
-PROJECT_DIR=$(dirname "$SCRIPT_DIR")
-ENV_PATH="$PROJECT_DIR/.env"
-if [ -f "$ENV_PATH" ]; then
-  # Load the .env file
-  export $(grep -v '^#' "$ENV_PATH" | xargs)
-  echo "$ENV_PATH file loaded"
+if [ -f .env ]; then
+    # Load the .env file
+    export $(grep -v '^#' .env | xargs)
+    echo ".env file loaded"
 fi
 
-# Define the output file
-RELATIVE_OUTPUT_FILE=".husky/hash.txt"
-OUTPUT_FILE="$PROJECT_DIR/$RELATIVE_OUTPUT_FILE"
-
-# Create or clear the hash file
-echo -n "" >"$OUTPUT_FILE"
-
-# List of file extensions to include
-EXTENSIONS=("py" "js" "php")
-
-# Directories to exclude
-EXCLUDE_DIRS=("dashboard" "bin" "node_modules" "vendor" "venv" ".yarn" "__pycache__" "docs/api" "decompiled" "sidompul" "django_backend" "userscripts" "webalizer" ".cache" "tests" "example" ".husky" "packages" "dist")
-
-# Convert EXCLUDE_DIRS array to a grep pattern
-EXCLUDE_PATTERN=$(IFS=\|; echo "${EXCLUDE_DIRS[*]}")
-
-# Initialize an array to hold the formatted outputs
-declare -a HASH_ARRAY
-
-# Find files with the specified extensions, compute their hash, and save to HASH_ARRAY
-for EXT in "${EXTENSIONS[@]}"; do
-  while IFS= read -r FILE; do
-    HASH=$(sha256sum "$FILE" | awk '{print $1}')
-    RELATIVE_PATH=$(realpath --relative-to="$PROJECT_DIR" "$FILE")
-    FORMATTED_OUTPUT="${RELATIVE_PATH} ${HASH}"
-    HASH_ARRAY+=("$FORMATTED_OUTPUT")
-  done < <(find "$PROJECT_DIR" -type f -name "*.$EXT" | grep -vE "/($EXCLUDE_PATTERN)/")
-done
-
-# Sort the HASH_ARRAY by file paths (first part of each entry)
-IFS=$'\n'
-sorted=($(printf "%s\n" "${HASH_ARRAY[@]}" | sort -k 1))
-unset IFS
-
-# Output the sorted hashes to the file
-for ITEM in "${sorted[@]}"; do
-  echo "$ITEM"
-  echo "$ITEM" >>"$OUTPUT_FILE"
-done
-
-# Add the hash file to the commit
-git add "$RELATIVE_OUTPUT_FILE"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "Current script directory: $SCRIPT_DIR"
+CWD="$(dirname "$SCRIPT_DIR")"
+node "$SCRIPT_DIR/create-file-hashes.js"
