@@ -41,4 +41,12 @@ from .utils import (
     serialize,
     resolve_parent_folder,
 )
-from .curl import *
+from .curl import (
+    build_request,
+    update_cookie_jar,
+    get_pc_useragent,
+    join_header_words,
+    lwp_cookie_str,
+    random_windows_ua,
+    generate_netscape_cookie_jar,
+)
