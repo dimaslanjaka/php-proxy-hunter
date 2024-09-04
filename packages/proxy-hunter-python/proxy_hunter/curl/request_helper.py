@@ -1,16 +1,28 @@
 import datetime
 import os
 import re
+import ssl
+import certifi
 import time
 from http import cookiejar as cookiejar
-from http.cookiejar import MozillaCookieJar, LWPCookieJar, Cookie
-from typing import Optional, Dict, Union, List
+from http.cookiejar import Cookie, LWPCookieJar, MozillaCookieJar
+from typing import Dict, List, Optional, Union
 
 import requests
+import urllib3
 from requests.adapters import HTTPAdapter
 from requests.cookies import RequestsCookieJar
 
 from proxy_hunter.utils import read_file, write_file
+
+# Replace create default https context method
+ssl._create_default_https_context = lambda: ssl.create_default_context(
+    cafile=certifi.where()
+)
+
+# Suppress InsecureRequestWarning
+requests.packages.urllib3.disable_warnings()
+urllib3.disable_warnings()
 
 
 def build_request(
