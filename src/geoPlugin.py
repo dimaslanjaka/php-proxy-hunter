@@ -479,7 +479,7 @@ def get_timezones_by_lat_lon(latitude: float, longitude: float) -> Optional[List
 
 
 if __name__ == "__main__":
-    download_databases("src")
+    download_databases(get_relative_path("src"))
     geo = get_geo_ip2("184.185.2.12:4145")
     tzc = None
     if geo.country_code:
