@@ -17,10 +17,10 @@ def write_json(file_path: str, data: Any):
         return
 
     # Ensure parent directories exist
-    os.makedirs(os.path.dirname(file_path), exist_ok = True)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-    with open(file_path, "w", encoding = "utf-8") as file:
-        json.dump(data, file, indent = 2, ensure_ascii = False, default = serialize)
+    with open(file_path, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=2, ensure_ascii=False, default=serialize)
 
 
 def copy_file(source_file: str, destination_file: str) -> None:
@@ -60,9 +60,9 @@ def copy_folder(source_folder: str, destination_folder: str) -> None:
         None
     """
     # Ensure destination parent folder exists
-    os.makedirs(os.path.dirname(destination_folder), exist_ok = True)
+    os.makedirs(os.path.dirname(destination_folder), exist_ok=True)
 
-    shutil.copytree(source_folder, destination_folder, dirs_exist_ok = True)
+    shutil.copytree(source_folder, destination_folder, dirs_exist_ok=True)
 
 
 def get_random_folder(directory: str) -> str:
@@ -131,7 +131,7 @@ def read_file(file_path: str) -> Optional[str]:
         Optional[str]: The content of the file if successful, None otherwise.
     """
     try:
-        with open(file_path, "r", encoding = "utf-8") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             content = file.read()
         return content
     except FileNotFoundError:
@@ -152,7 +152,7 @@ def write_file(file_path: str, content: str) -> None:
     """
     try:
         resolve_parent_folder(file_path)
-        with open(file_path, "w", encoding = "utf-8") as file:
+        with open(file_path, "w", encoding="utf-8") as file:
             file.write(content)
         # print(f"File '{file_path}' has been successfully written.")
     except Exception as e:
@@ -171,7 +171,7 @@ def file_append_str(filename: str, string_to_add: str) -> None:
         None
     """
     try:
-        with open(filename, "a+", encoding = "utf-8") as file:
+        with open(filename, "a+", encoding="utf-8") as file:
             # file.write(string_to_add.encode("utf-8").decode("utf-8", "ignore"))
             file.write(f"{remove_ansi(remove_non_ascii(string_to_add))}\n")
     except Exception as e:
@@ -180,8 +180,8 @@ def file_append_str(filename: str, string_to_add: str) -> None:
 
 
 def fix_permissions(
-        path: str,
-        desired_permissions: int = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO,
+    path: str,
+    desired_permissions: int = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO,
 ) -> None:
     """
     Fixes the permissions of a folder.
@@ -205,7 +205,7 @@ def fix_permissions(
 
 def resolve_folder(path: str) -> str:
     resolve_parent_folder(path)
-    os.makedirs(path, exist_ok = True)
+    os.makedirs(path, exist_ok=True)
     fix_permissions(path)
     return path
 
@@ -223,7 +223,7 @@ def delete_path(path: str) -> None:
 
     try:
         if os.path.isdir(path):
-            shutil.rmtree(path, ignore_errors = True)
+            shutil.rmtree(path, ignore_errors=True)
             print(f"Folder '{path}' and its contents deleted successfully.")
         elif os.path.isfile(path):
             os.remove(path)
@@ -263,10 +263,10 @@ def sanitize_filename(filename: str, extra_chars: Optional[str] = None) -> str:
     return remove_trailing_hyphens(sanitized_filename)
 
 
-def truncate_file_content(file_path, max_length = 0):
+def truncate_file_content(file_path, max_length=0):
     if os.path.exists(file_path):
         try:
-            with open(file_path, "r+", encoding = "utf-8") as file:
+            with open(file_path, "r+", encoding="utf-8") as file:
                 content = file.read()
                 if len(content) > max_length:
                     file.seek(0)
@@ -284,13 +284,15 @@ def read_all_text_files(directory: str) -> Dict[str, str]:
     Read all text files in directory
     """
     text_files_content = {}
+    if not os.path.exists(directory):
+        return {}
 
     # List all files in the directory
     for filename in os.listdir(directory):
         if filename.endswith(".txt"):
             file_path = os.path.join(directory, filename)
             try:
-                with open(file_path, "r", encoding = "utf-8") as file:
+                with open(file_path, "r", encoding="utf-8") as file:
                     text_files_content[file_path] = file.read()
             except Exception as e:
                 print(f"Error reading {file_path}: {e}")
@@ -321,13 +323,13 @@ def file_move_lines(source_file: str, destination_file: str, n: int) -> None:
     Returns:
     - None
     """
-    with open(source_file, "r+", encoding = "utf-8") as source:
+    with open(source_file, "r+", encoding="utf-8") as source:
         lines = source.readlines()
 
-    with open(destination_file, "a+", encoding = "utf-8") as destination:
+    with open(destination_file, "a+", encoding="utf-8") as destination:
         destination.writelines(lines[:n])
 
-    with open(source_file, "w+", encoding = "utf-8") as source:
+    with open(source_file, "w+", encoding="utf-8") as source:
         source.writelines(lines[n:])
 
 
@@ -363,7 +365,7 @@ def count_lines_in_file(file_path: str) -> int:
         int: The total number of lines in the file.
     """
     # Open the file in read mode
-    with open(file_path, "r", encoding = "utf-8") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         # Use a loop to iterate through each line and count them
         line_count = sum(1 for line in file)
 
@@ -403,7 +405,7 @@ def resolve_parent_folder(path: str) -> str:
 
 
 def remove_string_from_file(
-        file_path: str, strings_to_remove: Union[str, List[str]]
+    file_path: str, strings_to_remove: Union[str, List[str]]
 ) -> None:
     """
     Removes all occurrences of specified strings from a file.
@@ -430,11 +432,11 @@ def remove_string_from_file(
     # Create a temporary file
     random_string = "".join(random.choice(string.ascii_letters) for _ in range(5))
     temp_file_path = f"tmp/runners/{random_string}.txt"
-    os.makedirs(os.path.dirname(temp_file_path), exist_ok = True)
+    os.makedirs(os.path.dirname(temp_file_path), exist_ok=True)
 
     # Open the original file and the temporary file
-    with open(file_path, "r", encoding = "utf-8") as file, open(
-            temp_file_path, "w", encoding = "utf-8"
+    with open(file_path, "r", encoding="utf-8") as file, open(
+        temp_file_path, "w", encoding="utf-8"
     ) as temp_file:
         for line in file:
             # Replace all occurrences of the pattern with an empty string
@@ -473,8 +475,8 @@ def file_remove_empty_lines(file_path: str) -> None:
     """
     temp_file = os.path.join("tmp", md5(file_path) + ".tmp")
     try:
-        with open(file_path, "r", encoding = "utf-8") as f_in, open(
-                temp_file, "w", encoding = "utf-8"
+        with open(file_path, "r", encoding="utf-8") as f_in, open(
+            temp_file, "w", encoding="utf-8"
         ) as f_out:
             for line in f_in:
                 if line.strip():  # Check if the line is not empty
