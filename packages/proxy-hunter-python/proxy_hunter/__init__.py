@@ -9,7 +9,7 @@ from .curl import (
     random_windows_ua,
     update_cookie_jar,
 )
-from .extractor import extract_proxies, extract_proxies_from_file
+from .extractor import extract_proxies, extract_proxies_from_file, extract_ips
 from .ip2cidr import calculate_cidr
 from .ip2proxy_list import generate_ip_port_pairs
 from .ip2subnet import get_default_subnet_mask, get_subnet_mask
@@ -49,4 +49,5 @@ from .utils import (
     truncate_file_content,
     write_file,
     write_json,
+    IterationHelper,
 )
