@@ -5,8 +5,8 @@ with open("readme.md", "r") as f:
 
 setuptools.setup(
     name="proxy_hunter",
-    version="0.1",
-    packages=["proxy_hunter"],
+    version="1.0",
+    packages=["proxy_hunter", "proxy_hunter.test"],
     install_requires=[
         "pycurl",
         "netaddr",
@@ -16,11 +16,14 @@ setuptools.setup(
         "brotli",
         "ipaddress",
     ],
-    author="ricerati",
-    description="Proxy checker in Python",
+    author="Dimas Lanjaka",
+    author_email="dimaslanjaka@gmail.com",
+    description="Proxy hunter utility in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
     keywords="proxy checker",
-    project_urls={"Source Code": "https://github.com/xajnx/proxyhunter"},
+    project_urls={
+        "Source Code": "https://github.com/dimaslanjaka/php-proxy-hunter/packages/proxy-hunter-python"
+    },
     classifiers=["License :: OSI Approved :: MIT License"],
 )
