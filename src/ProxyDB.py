@@ -14,7 +14,12 @@ from proxy_hunter import Proxy, extract_proxies
 
 
 class ProxyDB:
-    def __init__(self, db_location=None, start=False, check_same_thread=False):
+    def __init__(
+        self,
+        db_location: Optional[str] = None,
+        start=False,
+        check_same_thread: bool = False,
+    ):
         """
         Initialize ProxyDB instance.
 
