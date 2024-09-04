@@ -29,7 +29,8 @@ def is_prox(proxy_server: str, debug: bool = False) -> Optional[str]:
             )
             if response.ok:
                 status = response.status_code
-                if status == 200:
+                json_response = response.json()
+                if status == 200 and json_response.get("ip"):
                     return proxy
                 else:
                     print(f"{proxy} got status {status}")
