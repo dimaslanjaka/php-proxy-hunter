@@ -1,22 +1,29 @@
 import os
 import sys
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 from threading import Thread, active_count
 from urllib.parse import unquote
-from django_backend.apps.core.models import ProcessStatus
+
 from django.conf import settings
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
+from proxy_hunter import file_append_str, truncate_file_content
 
+from django_backend.apps.core.models import ProcessStatus
 from django_backend.apps.core.utils import get_query_or_post_body
+from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
+    cleanup_threads as tasks_filter_cleanup,
+)
+from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
+    global_tasks as filter_ports_threads,
+)
 from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
     start_check_open_ports,
     start_filter_duplicates_ips,
-    cleanup_threads as tasks_filter_cleanup,
 )
 from django_backend.apps.proxy.tasks_unit.geolocation import (
     cleanup_threads as tasks_geolocation_cleanup,
@@ -28,6 +35,9 @@ from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
     cleanup_threads as tasks_checker_cleanup,
 )
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
+    global_tasks as proxy_checker_threads,
+)
+from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
     reak_check_proxy_huey,
     real_check_proxy_async_in_thread,
 )
@@ -36,13 +46,10 @@ from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
 )
 from django_backend.apps.proxy.views_unit.proxy import get_page_title, get_proxy_list
 from src.func import get_relative_path
-from proxy_hunter import file_append_str, truncate_file_content
 from src.func_console import log_file
 from src.func_date import get_current_rfc3339_time
 from src.func_platform import is_django_environment
-from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
-    global_tasks as proxy_checker_threads,
-)
+
 from .models import Proxy
 from .serializers import ProxySerializer
 
@@ -217,7 +224,6 @@ def trigger_check_proxy(request: HttpRequest):
 
 
 def trigger_filter_ports_proxy(request: HttpRequest):
-    global filter_ports_threads
     truncate_file_content(proxy_checker_task_log_file)
 
     # clean up threads
