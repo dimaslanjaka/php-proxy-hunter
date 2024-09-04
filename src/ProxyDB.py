@@ -8,7 +8,7 @@ from src.func_date import get_current_rfc3339_time
 from src.geoPlugin import get_geo_ip2
 from src.func import get_nuitka_file, get_relative_path
 from proxy_hunter import read_file, file_append_str
-from src.func_useragent import random_windows_ua
+from proxy_hunter.curl.func_useragent import random_windows_ua
 from src.SQLiteHelper import SQLiteHelper
 from proxy_hunter import Proxy, extract_proxies
 
