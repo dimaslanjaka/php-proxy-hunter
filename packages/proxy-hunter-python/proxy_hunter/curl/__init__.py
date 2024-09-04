@@ -1,5 +1,5 @@
 from .func_useragent import get_pc_useragent, random_windows_ua
-from .build_requests import (
+from .request_helper import (
     build_request,
     generate_netscape_cookie_jar,
     join_header_words,
