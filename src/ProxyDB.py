@@ -1,16 +1,22 @@
-from datetime import datetime
 import os
 import sys
 import time
-from typing import Any, Callable, Dict, Optional, List, Union
+from datetime import datetime
+from typing import Any, Callable, Dict, List, Optional, Union
+
+from proxy_hunter import (
+    Proxy,
+    extract_proxies,
+    file_append_str,
+    random_windows_ua,
+    read_file,
+)
+
 from data.webgl import random_webgl_data
+from src.func import get_nuitka_file, get_relative_path
 from src.func_date import get_current_rfc3339_time
 from src.geoPlugin import get_geo_ip2
-from src.func import get_nuitka_file, get_relative_path
-from proxy_hunter import read_file, file_append_str
-from proxy_hunter.curl.func_useragent import random_windows_ua
 from src.SQLiteHelper import SQLiteHelper
-from proxy_hunter import Proxy, extract_proxies
 
 
 class ProxyDB:

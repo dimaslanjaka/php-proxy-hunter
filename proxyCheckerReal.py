@@ -11,26 +11,22 @@ from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
 from proxy_checker import ProxyChecker
 from proxy_hunter import (
-    decompress_requests_response,
-    extract_proxies,
+    build_request,
     check_raw_headers_keywords,
+    decompress_requests_response,
+    delete_path,
+    extract_proxies,
+    file_append_str,
+    read_all_text_files,
+    read_file,
+    sanitize_filename,
+    truncate_file_content,
 )
 
 from proxyWorking import ProxyWorkingManager
-from src.func import (
-    get_relative_path,
-)
-from proxy_hunter import (
-    read_file,
-    file_append_str,
-    delete_path,
-    sanitize_filename,
-    truncate_file_content,
-    read_all_text_files,
-)
+from src.func import get_relative_path
 from src.func_console import green, log_proxy, red
 from src.func_proxy import check_proxy
-from proxy_hunter.curl.build_requests import build_request
 from src.ProxyDB import ProxyDB
 
 

@@ -16,7 +16,7 @@ from django_backend.apps.proxy.models import Proxy
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 from src.func import get_relative_path
 from src.func_console import log_file
-from proxy_hunter.curl.func_useragent import random_windows_ua
+from proxy_hunter import random_windows_ua
 from src.geoPlugin import get_geo_ip2
 
 global_tasks: Set[Union[threading.Thread, Future]] = set()
