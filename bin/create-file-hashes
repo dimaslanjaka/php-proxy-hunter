@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Determine the current script directory and project directory
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+PROJECT_DIR=$(dirname "$SCRIPT_DIR")
+ENV_PATH="$PROJECT_DIR/.env"
+if [ -f "$ENV_PATH" ]; then
+  # Load the .env file
+  export $(grep -v '^#' "$ENV_PATH" | xargs)
+  echo "$ENV_PATH file loaded"
+fi
+
+# Define the output file
+RELATIVE_OUTPUT_FILE=".husky/hash.txt"
+OUTPUT_FILE="$PROJECT_DIR/$RELATIVE_OUTPUT_FILE"
+
+# Create or clear the hash file
+>"$OUTPUT_FILE"
+
+# List of file extensions to include
+EXTENSIONS=("py" "js" "php")
+
+# Directories to exclude
+EXCLUDE_DIRS=("node_modules" "vendor" "venv" ".yarn" "__pycache__" "docs/api" "decompiled" "sidompul" "django_backend" "userscripts" "webalizer" ".cache" "tests" "example")
+
+# Convert EXCLUDE_DIRS array to a grep pattern
+EXCLUDE_PATTERN=$(
+  IFS=\|
+  echo "${EXCLUDE_DIRS[*]}"
+)
+
+# Find files with the specified extensions, compute their hash, and save to OUTPUT_FILE
+for EXT in "${EXTENSIONS[@]}"; do
+  find "$PROJECT_DIR" -type f -name "*.$EXT" | grep -vE "/($EXCLUDE_PATTERN)/" | while read -r FILE; do
+    HASH=$(sha256sum "$FILE" | awk '{print $1}')
+    RELATIVE_PATH=$(realpath --relative-to="$PROJECT_DIR" "$FILE")
+    FORMATTED_OUTPUT="${HASH} ${RELATIVE_PATH}"
+    echo "$FORMATTED_OUTPUT"
+    echo "$FORMATTED_OUTPUT" >>"$OUTPUT_FILE"
+  done
+done
+
+# Add the hash file to the commit
+git add "$RELATIVE_OUTPUT_FILE"

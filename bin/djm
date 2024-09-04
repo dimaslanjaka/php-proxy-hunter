@@ -3,8 +3,8 @@
 # A script to run Django management commands easily
 
 # Determine the current script directory and project directory
-CWD=$(dirname "$(realpath "$0")")
-PROJECT_DIR=$(dirname "$CWD")
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+PROJECT_DIR=$(dirname "$SCRIPT_DIR")
 COMMAND="python $PROJECT_DIR/manage.py $@"
 
 # Determine the OS
