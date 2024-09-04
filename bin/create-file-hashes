@@ -25,20 +25,30 @@ EXTENSIONS=("py" "js" "php")
 EXCLUDE_DIRS=("dashboard" "bin" "node_modules" "vendor" "venv" ".yarn" "__pycache__" "docs/api" "decompiled" "sidompul" "django_backend" "userscripts" "webalizer" ".cache" "tests" "example" ".husky" "packages")
 
 # Convert EXCLUDE_DIRS array to a grep pattern
-EXCLUDE_PATTERN=$(
-  IFS=\|
-  echo "${EXCLUDE_DIRS[*]}"
-)
+EXCLUDE_PATTERN=$(IFS=\|; echo "${EXCLUDE_DIRS[*]}")
 
-# Find files with the specified extensions, compute their hash, and save to OUTPUT_FILE
+# Initialize an array to hold the formatted outputs
+declare -a HASH_ARRAY
+
+# Find files with the specified extensions, compute their hash, and save to HASH_ARRAY
 for EXT in "${EXTENSIONS[@]}"; do
-  find "$PROJECT_DIR" -type f -name "*.$EXT" | grep -vE "/($EXCLUDE_PATTERN)/" | while read -r FILE; do
+  while IFS= read -r FILE; do
     HASH=$(sha256sum "$FILE" | awk '{print $1}')
     RELATIVE_PATH=$(realpath --relative-to="$PROJECT_DIR" "$FILE")
     FORMATTED_OUTPUT="${HASH} ${RELATIVE_PATH}"
-    echo "$FORMATTED_OUTPUT"
-    echo "$FORMATTED_OUTPUT" >>"$OUTPUT_FILE"
-  done
+    HASH_ARRAY+=("$FORMATTED_OUTPUT")
+  done < <(find "$PROJECT_DIR" -type f -name "*.$EXT" | grep -vE "/($EXCLUDE_PATTERN)/")
+done
+
+# Sort the HASH_ARRAY by file paths (second part of each entry)
+IFS=$'\n'
+sorted=($(printf "%s\n" "${HASH_ARRAY[@]}" | sort -k 2))
+unset IFS
+
+# Output the sorted hashes to the file
+for ITEM in "${sorted[@]}"; do
+  echo "$ITEM"
+  echo "$ITEM" >>"$OUTPUT_FILE"
 done
 
 # Add the hash file to the commit
