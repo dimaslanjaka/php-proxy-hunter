@@ -15,6 +15,10 @@ from requests.cookies import RequestsCookieJar
 
 from proxy_hunter.utils import read_file, write_file
 
+# Set the certificate file in environment variables
+os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
+os.environ["SSL_CERT_FILE"] = certifi.where()
+
 # Replace create default https context method
 ssl._create_default_https_context = lambda: ssl.create_default_context(
     cafile=certifi.where()
