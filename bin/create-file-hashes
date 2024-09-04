@@ -22,7 +22,7 @@ cat /dev/null >"$OUTPUT_FILE"
 EXTENSIONS=("py" "js" "php")
 
 # Directories to exclude
-EXCLUDE_DIRS=("dashboard" "node_modules" "vendor" "venv" ".yarn" "__pycache__" "docs/api" "decompiled" "sidompul" "django_backend" "userscripts" "webalizer" ".cache" "tests" "example" ".husky" "packages")
+EXCLUDE_DIRS=("dashboard" "bin" "node_modules" "vendor" "venv" ".yarn" "__pycache__" "docs/api" "decompiled" "sidompul" "django_backend" "userscripts" "webalizer" ".cache" "tests" "example" ".husky" "packages")
 
 # Convert EXCLUDE_DIRS array to a grep pattern
 EXCLUDE_PATTERN=$(
