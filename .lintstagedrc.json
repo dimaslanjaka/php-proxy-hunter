@@ -1,8 +1,8 @@
 {
-  "*.js": "eslint --fix",
-  "*.ts": "eslint --fix",
-  "*.jsx": "eslint --fix",
-  "*.tsx": "eslint --fix",
+  "*.js": "eslint --fix --config .eslintrc.js",
+  "*.ts": "eslint --fix --config .eslintrc.js",
+  "*.jsx": "eslint --fix --config .eslintrc.js",
+  "*.tsx": "eslint --fix --config .eslintrc.js",
   "*.html": "prettier --list-different --write",
   "*.json": "prettier --list-different --write",
   "*.css": "prettier --list-different --write",
