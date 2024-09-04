@@ -64,6 +64,7 @@ def build_request(
     Raises:
         ValueError: If an invalid proxy type is specified or if an unsupported HTTP method is used.
     """
+    verify_certificate = kwargs.pop("verify", False)
     # Create a new session if one is not provided
     if session is None:
         session = requests.Session()
@@ -157,11 +158,15 @@ def build_request(
     if method_upper in request_methods:
         if method_upper in ["POST", "PUT", "PATCH"]:
             response: requests.Response = request_methods[method_upper](
-                endpoint, data=post_data, timeout=10, verify=False, **kwargs
+                endpoint,
+                data=post_data,
+                timeout=10,
+                verify=verify_certificate,
+                **kwargs,
             )
         else:
             response: requests.Response = request_methods[method_upper](
-                endpoint, timeout=10, verify=False, **kwargs
+                endpoint, timeout=10, verify=verify_certificate, **kwargs
             )
     else:
         raise ValueError(f"Unsupported method: {method}")
