@@ -24,10 +24,14 @@ import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
 from proxy_hunter import (
+    build_request,
     check_raw_headers_keywords,
     decompress_requests_response,
     extract_proxies,
+    file_append_str,
     is_valid_proxy,
+    read_file,
+    write_json,
 )
 
 from django_backend.apps.proxy.models import Proxy
@@ -41,12 +45,10 @@ from src.func import (
     get_unique_dicts_by_key_in_list,
     move_string_between,
 )
-from proxy_hunter import write_json, read_file, file_append_str
 from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug
 from src.func_proxy import ProxyCheckResult, is_port_open, upload_proxy
-from proxy_hunter.curl.build_requests import build_request
 
 result_log_file = get_relative_path("proxyChecker.txt")
 global_tasks: Set[Union[threading.Thread, Future]] = set()

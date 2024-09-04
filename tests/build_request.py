@@ -4,7 +4,7 @@ import unittest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from proxy_hunter.curl.build_requests import build_request
+from proxy_hunter import build_request
 
 null = None
 

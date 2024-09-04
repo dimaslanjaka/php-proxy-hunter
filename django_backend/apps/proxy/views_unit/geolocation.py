@@ -14,14 +14,12 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 from PIL import Image, ImageDraw, ImageFont
-from proxy_hunter.extractor import *
+from proxy_hunter import build_request, decompress_requests_response, extract_ips, md5
 
 from django_backend.apps.core.utils import get_query_or_post_body
 from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
 from src.func import get_relative_path
-from proxy_hunter import md5
 from src.func_platform import is_debug
-from proxy_hunter.curl.build_requests import build_request
 
 
 @never_cache
