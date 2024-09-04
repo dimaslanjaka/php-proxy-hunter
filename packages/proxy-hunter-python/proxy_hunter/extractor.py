@@ -1,7 +1,7 @@
 import re
 from typing import List, Optional
 from .Proxy import Proxy
-from .utils import *
+from .utils import check_raw_headers_keywords, is_valid_proxy, is_valid_ip
 
 
 def extract_proxies(string: Optional[str]) -> List[Proxy]:
