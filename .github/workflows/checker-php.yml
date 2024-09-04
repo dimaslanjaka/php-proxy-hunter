@@ -7,14 +7,14 @@ on:
       max:
         description: "The maximum proxies to be checked."
         required: true
-        default: "500"
+        default: "100"
         type: string
   workflow_call:
     inputs:
       max:
         description: "The maximum proxies to be checked."
         required: true
-        default: "500"
+        default: "100"
         type: string
     secrets:
       ACCESS_TOKEN:
@@ -265,9 +265,9 @@ jobs:
           php configCleaner.php
       - name: Scan ports
         run: |
-          php scanPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
-          # php filterPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
-          php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+          php scanPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
+          # php filterPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
+          php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
       - name: Upload all proxies
         if: steps.check_last_run.outputs.run_the_job_last_week_run_timestamp == 'true'
         run: python proxyUpload.py
@@ -283,8 +283,8 @@ jobs:
         if: steps.check_last_run.outputs.run_the_job_last_week_run_timestamp == 'true'
         run: date +%s > tmp/last_week_run_timestamp
       - run: |
-          php scanPorts.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
-          php proxyCheckerParallel.php --max='${{ github.event.inputs.max || 500 }}' --admin='true'
+          php scanPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
+          php proxyCheckerParallel.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
         name: Check proxies
       - name: Print working proxies
         id: working
