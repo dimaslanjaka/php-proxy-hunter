@@ -176,7 +176,7 @@ def target(ip: str):
                 else:
                     # Check for SOCKS services
                     try:
-                        from .prox_check import is_prox
+                        from .curl.prox_check import is_prox
 
                         p_str = "http://" + str(ip) + ":" + str(port)
                         prox = is_prox(p_str)
