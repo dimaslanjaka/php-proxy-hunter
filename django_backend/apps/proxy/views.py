@@ -96,18 +96,18 @@ def proxy_checker_result(request: HttpRequest):
 
 def print_dict(data: Dict[str, Any]):
     def pretty_print(val, indent=0):
-        if isinstance(val, dict):
+        if isinstance(val, Dict):
             for k, v in val.items():
                 # Print the key and its value if not a dict or list
-                if isinstance(v, (dict, list)):
+                if isinstance(v, (Dict, List)):
                     log_file(proxy_checker_task_log_file, "\t" * indent + f"{k}:")
                     pretty_print(v, indent + 1)
                 else:
                     log_file(proxy_checker_task_log_file, "\t" * indent + f"{k}: {v}")
-        elif isinstance(val, list):
+        elif isinstance(val, List):
             for item in val:
                 # Handle list items
-                if isinstance(item, (dict, list)):
+                if isinstance(item, (Dict, List)):
                     log_file(proxy_checker_task_log_file, "\t" * indent + "-")
                     pretty_print(item, indent + 1)
                 else:
@@ -119,7 +119,7 @@ def print_dict(data: Dict[str, Any]):
 
     # Start with the top-level items
     for key, val in data.items():
-        if isinstance(val, (dict, list)):
+        if isinstance(val, (Dict, List)):
             log_file(proxy_checker_task_log_file, f"{key}:")
             pretty_print(val, 1)
         else:
