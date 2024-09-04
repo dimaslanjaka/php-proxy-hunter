@@ -29,7 +29,8 @@ from proxy_hunter import (
     read_all_text_files,
 )
 from src.func_console import green, log_proxy, red
-from src.func_proxy import build_request, check_proxy
+from src.func_proxy import check_proxy
+from proxy_hunter.curl.build_requests import build_request
 from src.ProxyDB import ProxyDB
 
 
