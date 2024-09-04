@@ -12,5 +12,5 @@
   "*.yaml": "prettier --list-different --write",
   "*.php": "composer exec php-cs-fixer fix",
   "*.sql": "prettier --list-different --write",
-  "*.py": "python -u .husky/python-autopep8.py"
+  "*.py": "black"
 }
