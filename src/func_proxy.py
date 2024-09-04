@@ -28,9 +28,9 @@ from src.func import (
     find_substring_from_regex,
     get_relative_path,
     get_unique_dicts_by_key_in_list,
-    is_date_rfc3339_hour_more_than,
     move_string_between,
 )
+from func_date import is_date_rfc3339_hour_more_than
 from proxy_hunter import read_file, write_file, file_append_str
 from src.func_certificate import output_pem
 from src.func_console import get_caller_info, green, log_proxy, red
