@@ -35,7 +35,7 @@ for EXT in "${EXTENSIONS[@]}"; do
   while IFS= read -r FILE; do
     HASH=$(sha256sum "$FILE" | awk '{print $1}')
     RELATIVE_PATH=$(realpath --relative-to="$PROJECT_DIR" "$FILE")
-    FORMATTED_OUTPUT="${HASH} ${RELATIVE_PATH}"
+    FORMATTED_OUTPUT="${RELATIVE_PATH} ${HASH}"
     HASH_ARRAY+=("$FORMATTED_OUTPUT")
   done < <(find "$PROJECT_DIR" -type f -name "*.$EXT" | grep -vE "/($EXCLUDE_PATTERN)/")
 done
