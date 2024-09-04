@@ -105,6 +105,44 @@ def get_system_timezone() -> str:
     return str(test.key)
 
 
+def is_date_rfc3339_hour_more_than(
+        date_string: Optional[str], hours: int
+) -> Optional[bool]:
+    """
+    Check if the given date string is more than specified hours ago.
+
+    Args:
+    - date_string (str): The date string in RFC3339 format (e.g., "2024-05-06T12:34:56+00:00").
+    - hours (int): The number of hours.
+
+    Returns:
+    - bool: True if the date is more than the specified hours ago, False otherwise.
+    """
+    if not date_string:
+        return None
+    try:
+        # Parse the input date string into a datetime object
+        date_time = datetime.fromisoformat(date_string).replace(tzinfo = timezone.utc)
+
+        # Calculate the current time in UTC
+        current_time = datetime.now(timezone.utc)
+
+        # Calculate the time difference
+        time_difference = current_time - date_time
+
+        # Convert hours to timedelta object
+        hours_delta = timedelta(hours = hours)
+
+        # Compare the time difference with the specified hours
+        return time_difference >= hours_delta
+
+    except ValueError:
+        # Handle invalid date string format
+        raise ValueError(
+            "Invalid date string format. Please provide a date string in RFC3339 format."
+        )
+
+
 if __name__ == "__main__":
     date_str = "2024-07-29T10:36:02+0700"
     hours_to_check = 1
