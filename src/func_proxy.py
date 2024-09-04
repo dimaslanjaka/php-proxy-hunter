@@ -35,7 +35,7 @@ from proxy_hunter import read_file, write_file, file_append_str
 from src.func_certificate import output_pem
 from src.func_console import get_caller_info, green, log_proxy, red
 from src.func_platform import is_debug, is_django_environment
-from src.func_useragent import get_pc_useragent
+from proxy_hunter.curl.func_useragent import get_pc_useragent
 from src.ProxyDB import ProxyDB
 
 # Set the certificate file in environment variables

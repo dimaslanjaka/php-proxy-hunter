@@ -7,7 +7,6 @@ import requests
 from proxy_hunter import read_file
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from src.func import get_relative_path
 
 
 def get_pc_useragent() -> Union[str, None]:
@@ -17,8 +16,9 @@ def get_pc_useragent() -> Union[str, None]:
     Returns:
         Union[str, None]: The user agent string if available, otherwise None.
     """
-    cache_file = get_relative_path("tmp/pc_useragent.txt")
-    result = None
+    cache_file = "tmp/data/pc_useragent.txt"
+    os.makedirs(os.path.dirname(cache_file), 777, True)
+    # result = None
     if os.path.exists(cache_file):
         result = read_file(cache_file)
         if result and result.strip():
