@@ -116,8 +116,9 @@ jobs:
             working.json
             composer.lock
             yarn.lock
-          key: ${{ runner.os }}-nuitka-${{ github.run_id }}
+          key: ${{ runner.os }}-nuitka-${{ hashFiles('.husky/hash.txt') }}
           restore-keys: |
+            ${{ runner.os }}-nuitka-${{ hashFiles('.husky/hash.txt') }}
             ${{ runner.os }}-nuitka-
             ${{ runner.os }}-php-
             ${{ runner.os }}-python-
