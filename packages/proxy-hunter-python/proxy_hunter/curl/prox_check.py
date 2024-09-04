@@ -1,8 +1,10 @@
-""" Proxy server checker for proxyscan.py """
-
+import concurrent.futures
 from typing import Optional
-
 from proxy_hunter.curl.request_helper import build_request
+from colorama import Fore, Style, init
+
+# Initialize colorama
+init()
 
 
 def is_prox(proxy_server: str, debug: bool = False) -> Optional[str]:
@@ -25,27 +27,46 @@ def is_prox(proxy_server: str, debug: bool = False) -> Optional[str]:
 
     proxy_types = ["http", "socks4", "socks5"]
 
-    for endpoint in endpoints:
-        for proxy_type in proxy_types:
-            format_proxy = f"{proxy_type}://{proxy_server}"
-            try:
-                response = build_request(
-                    proxy=proxy_server,
-                    proxy_type=proxy_type,
-                    method="GET",
-                    post_data=None,
-                    endpoint=endpoint,
-                    headers=headers,
+    def check_proxy(proxy_type: str, endpoint: str) -> Optional[str]:
+        format_proxy = f"{proxy_type}://{proxy_server}"
+        try:
+            response = build_request(
+                proxy=proxy_server,
+                proxy_type=proxy_type,
+                method="GET",
+                post_data=None,
+                endpoint=endpoint,
+                headers=headers,
+            )
+            if response and response.ok:
+                response_json = response.json()
+                if response_json.get("ip") or response_json.get("timezone"):
+                    return proxy_server
+                elif debug:
+                    print(
+                        f"{format_proxy} {Fore.RED}failed{Style.RESET_ALL}: caused by decode json\t",
+                        end="\r",
+                    )
+        except Exception as e:
+            if debug:
+                print(
+                    f"{format_proxy} {Fore.RED}failed{Style.RESET_ALL}: "
+                    + str(e)
+                    + "\t",
+                    end="\r",
                 )
-                if response and response.ok:
-                    response_json = response.json()
-                    if response_json.get("ip") or response_json.get("timezone"):
-                        return proxy_server
-                    elif debug:
-                        print(f"{format_proxy} failed: caused by decode json")
-            except Exception as e:
-                if debug:
-                    print(f"{format_proxy} failed:", str(e))
+        return None
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = []
+        for endpoint in endpoints:
+            for proxy_type in proxy_types:
+                futures.append(executor.submit(check_proxy, proxy_type, endpoint))
+
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
+            if result:
+                return result
 
     return None
 
