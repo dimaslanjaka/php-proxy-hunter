@@ -16,7 +16,6 @@ OUTPUT_FILE="$PROJECT_DIR/$RELATIVE_OUTPUT_FILE"
 
 # Create or clear the hash file
 echo -n "" >"$OUTPUT_FILE"
-cat /dev/null >"$OUTPUT_FILE"
 
 # List of file extensions to include
 EXTENSIONS=("py" "js" "php")
@@ -40,9 +39,9 @@ for EXT in "${EXTENSIONS[@]}"; do
   done < <(find "$PROJECT_DIR" -type f -name "*.$EXT" | grep -vE "/($EXCLUDE_PATTERN)/")
 done
 
-# Sort the HASH_ARRAY by file paths (second part of each entry)
+# Sort the HASH_ARRAY by file paths (first part of each entry)
 IFS=$'\n'
-sorted=($(printf "%s\n" "${HASH_ARRAY[@]}" | sort -k 2))
+sorted=($(printf "%s\n" "${HASH_ARRAY[@]}" | sort -k 1))
 unset IFS
 
 # Output the sorted hashes to the file
