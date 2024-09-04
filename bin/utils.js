@@ -50,5 +50,23 @@ async function parseGitRemotes() {
     return {};
   }
 }
+/**
+ * Joins all given path segments together and normalizes the resulting path.
+ * Preserves the case of the drive letter on Windows.
+ *
+ * @param {...string} segments - The path segments to join.
+ * @returns {string} - The normalized path with the drive letter case preserved.
+ */
+function joinPathPreserveDriveLetter(...segments) {
+  let fullPath = require("path").join(...segments);
 
-module.exports = { parseGitRemotes, execAsync };
+  // Check if the path starts with a drive letter (e.g., C:\)
+  if (/^[a-z]:\\/.test(fullPath)) {
+    // Convert the drive letter to uppercase
+    fullPath = fullPath.charAt(0).toUpperCase() + fullPath.slice(1);
+  }
+
+  return fullPath;
+}
+
+module.exports = { parseGitRemotes, execAsync, joinPathPreserveDriveLetter };
