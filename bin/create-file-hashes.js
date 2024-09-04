@@ -60,7 +60,7 @@ const excludeDirs = [
 const excludePattern = `**/@(${excludeDirs.join("|")})/**`;
 
 // Initialize an array to hold the formatted outputs
-let hashArray = [];
+let hashArray = []; //fs.readFileSync(outputFile, "utf-8").split(/\r?\n/);
 
 // Find files with the specified extensions, compute their hash, and save to HASH_ARRAY
 extensions.forEach((ext) => {
@@ -84,10 +84,12 @@ extensions.forEach((ext) => {
 hashArray.sort((a, b) => a.localeCompare(b));
 
 // Output the sorted hashes to the file
-hashArray.forEach((item) => {
-  console.log(item);
-  fs.appendFileSync(outputFile, `${item}\n`);
-});
+hashArray
+  .filter((item) => item.length > 10)
+  .forEach((item) => {
+    console.log(item);
+    fs.appendFileSync(outputFile, `${item}\n`);
+  });
 
 // Add the hash file to the commit
 execSync(`git add ${relativeOutputFile}`);
