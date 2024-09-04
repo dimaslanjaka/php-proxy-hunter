@@ -19,7 +19,4 @@ else
   exit 1
 fi
 
-npx lint-staged
-# python "$(dirname "$0")/python-autopep8.py"
-
-
+. "$PROJECT_DIR/bin/create-file-hashes"

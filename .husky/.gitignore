@@ -8,3 +8,5 @@
 !*.py
 !/post-checkout
 !/pre-push
+!/hash.txt
+!/pre-commit
