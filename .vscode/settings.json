@@ -1,10 +1,13 @@
 {
   "terminal.integrated.env.linux": {
-    "PATH": "${env:PATH}:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/bin:${workspaceFolder}/vendor/bin"
+    "PATH": "${env:PATH}:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/bin:${workspaceFolder}/vendor/bin",
+    "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
+    "ESLINT_USE_FLAT_CONFIG": "false"
   },
   "terminal.integrated.env.windows": {
     "PATH": "${env:PATH};${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\bin;${workspaceFolder}\\vendor\\bin",
-    "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache"
+    "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
+    "ESLINT_USE_FLAT_CONFIG": "false"
   },
   "terminal.integrated.profiles.windows": {
     "PowerShell": {
@@ -12,10 +15,7 @@
       "icon": "terminal-powershell"
     },
     "Command Prompt": {
-      "path": [
-        "${env:windir}\\Sysnative\\cmd.exe",
-        "${env:windir}\\System32\\cmd.exe"
-      ],
+      "path": ["${env:windir}\\Sysnative\\cmd.exe", "${env:windir}\\System32\\cmd.exe"],
       "args": [],
       "icon": "terminal-cmd"
     },
@@ -24,10 +24,7 @@
     },
     "Cygwin": {
       "path": "C:\\cygwin64\\bin\\bash.exe",
-      "args": [
-        "--login",
-        "-i"
-      ],
+      "args": ["--login", "-i"],
       "env": {
         "CHERE_INVOKING": "1"
       }
@@ -47,7 +44,7 @@
   "code-runner.saveAllFilesBeforeRun": true,
   "code-runner.executorMapByGlob": {
     "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
-    "*.py": "python -u",
+    "*.py": "python -u"
   },
   "code-runner.respectShebang": true,
   "debug.terminal.clearBeforeReusing": true,
@@ -60,25 +57,10 @@
     "editor.insertSpaces": true,
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
-  "autopep8.args": [
-    "--ignore",
-    "E401,E402,E211,E501"
-  ],
+  "autopep8.args": ["--ignore", "E401,E402,E211,E501"],
   "intelephense.maxMemory": 1028,
-  "intelephense.rename.exclude": [
-    "**/vendor/**",
-    "**/node_modules/**",
-    "**/tmp/**",
-    "**/dist/**",
-    "**/.cache/**"
-  ],
-  "intelephense.references.exclude": [
-    "**/vendor/**",
-    "**/node_modules/**",
-    "**/tmp/**",
-    "**/dist/**",
-    "**/.cache/**"
-  ],
+  "intelephense.rename.exclude": ["**/vendor/**", "**/node_modules/**", "**/tmp/**", "**/dist/**", "**/.cache/**"],
+  "intelephense.references.exclude": ["**/vendor/**", "**/node_modules/**", "**/tmp/**", "**/dist/**", "**/.cache/**"],
   "intelephense.trace.server": "messages",
   "intelephense.completion.maxItems": 100,
   "intelephense.diagnostics.run": "onSave",
@@ -104,10 +86,7 @@
     "**/assets/**",
     "**/*.sqlite"
   ],
-  "intelephense.files.associations": [
-    "*.php",
-    "*.phtml"
-  ],
+  "intelephense.files.associations": ["*.php", "*.phtml"],
   "intelephense.telemetry.enabled": true,
   "eslint.debug": true,
   "python.createEnvironment.contentButton": "show",
@@ -127,10 +106,7 @@
     "src/database.sqlite*": true
   },
   "intelephense.environment.documentRoot": "${workspaceFolder}",
-  "intelephense.environment.includePaths": [
-    "${workspaceFolder}/src",
-    "${workspaceFolder}/vendor"
-  ],
+  "intelephense.environment.includePaths": ["${workspaceFolder}/src", "${workspaceFolder}/vendor"],
   "files.exclude": {
     "**/.cache/**": true,
     "**/.idea/**": true,
@@ -150,10 +126,7 @@
     "**/.yarn": true,
     "backups": true
   },
-  "python.analysis.extraPaths": [
-    "./packages/proxy-hunter-python",
-    "./packages/proxy-checker-python"
-  ],
+  "python.analysis.extraPaths": ["./packages/proxy-hunter-python", "./packages/proxy-checker-python"],
   "python.analysis.exclude": [
     "**/node_modules",
     "**/__pycache__",
