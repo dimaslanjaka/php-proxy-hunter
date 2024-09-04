@@ -51,7 +51,7 @@ class IterationHelper(Generic[T]):
                 self.callback(self.items[i])
                 self.current_index = i + 1
                 self.save_state()
-                self.pause(2)  # Pause for 2 seconds between items
+                # self.pause(2)  # Pause for 2 seconds between items
         finally:
             # Save state one last time in case of interruption
             self.save_state()
