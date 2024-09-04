@@ -1,15 +1,13 @@
-import os
-import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import datetime
 import http.client as http_client
 import http.cookiejar as cookiejar
 import logging
+import os
 import random
 import re
 import socket
 import ssl
+import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -19,10 +17,15 @@ from urllib.parse import urlparse
 
 import requests
 import urllib3
+from requests.adapters import HTTPAdapter
+from requests.cookies import RequestsCookieJar
+
 from proxy_checker import ProxyChecker
 from proxy_hunter import Proxy, file_remove_empty_lines
-from requests.adapters import HTTPAdapter
+from proxy_hunter import read_file, write_file, file_append_str
+from proxy_hunter.curl.func_useragent import get_pc_useragent
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.func import (
     debug_log,
     find_substring_from_regex,
@@ -31,11 +34,9 @@ from src.func import (
     move_string_between,
 )
 from src.func_date import is_date_rfc3339_hour_more_than
-from proxy_hunter import read_file, write_file, file_append_str
 from src.func_certificate import output_pem
 from src.func_console import get_caller_info, green, log_proxy, red
 from src.func_platform import is_debug, is_django_environment
-from proxy_hunter.curl.func_useragent import get_pc_useragent
 from src.ProxyDB import ProxyDB
 
 # Set the certificate file in environment variables
@@ -75,8 +76,7 @@ def build_request(
     cookie_file: Optional[str] = "tmp/cookies/default.txt",
     session: Optional[requests.Session] = None,
     keep_headers: Optional[bool] = None,
-    stream: Optional[bool] = False,
-    allow_redirects: Optional[bool] = False,
+        **kwargs,
 ) -> requests.Response:
     """
     Builds and sends an HTTP request using the provided settings.
@@ -92,8 +92,7 @@ def build_request(
         cookie_file (Optional[str]): Path to the cookie file. Defaults to 'tmp/cookies/default.txt'.
         session (Optional[requests.Session]): An existing session to reuse. If None, a new session is created.
         keep_headers (Optional[bool]): Flag to determine if default headers should be overridden by provided headers. Defaults to None.
-        stream (Optional[bool]): Flag to enable streaming of the response content. Defaults to False.
-        allow_redirects (Optional[bool]): Flag to enable redirection. Defaults to False
+        **kwargs: Additional keyword arguments to pass to the requests method.
 
     Returns:
         requests.Response: The response object from the HTTP request.
@@ -133,10 +132,10 @@ def build_request(
             )
 
     # Load cookies from the specified cookie file
+    cookie_jar = None
+    cookie_header = None
     if cookie_file is not None:
         cookie_str = ""
-        cookie_jar = None
-        cookie_header = None
         if not os.path.exists(cookie_file):
             generate_netscape_cookie_jar(cookie_file)
         if os.path.exists(cookie_file):
@@ -170,7 +169,6 @@ def build_request(
         default_headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/81.0.4044.138 Safari/537.36",
-            "Accept-Language": "en-US,en",
             "Cache-Control": "no-cache",
             "Pragma": "no-cache",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -195,20 +193,11 @@ def build_request(
     if method_upper in request_methods:
         if method_upper in ["POST", "PUT", "PATCH"]:
             response: requests.Response = request_methods[method_upper](
-                endpoint,
-                data=post_data,
-                timeout=10,
-                verify=False,
-                stream=stream,
-                allow_redirects=allow_redirects,
+                endpoint, data = post_data, timeout = 10, verify = False, **kwargs
             )
         else:
             response: requests.Response = request_methods[method_upper](
-                endpoint,
-                timeout=10,
-                verify=False,
-                stream=stream,
-                allow_redirects=allow_redirects,
+                endpoint, timeout = 10, verify = False, **kwargs
             )
     else:
         raise ValueError(f"Unsupported method: {method}")
@@ -297,7 +286,8 @@ def generate_netscape_cookie_jar(file_path):
 
 
 def update_cookie_jar(
-    cookie_jar: Union[MozillaCookieJar, LWPCookieJar], cookies: List[Cookie]
+        cookie_jar: Union[MozillaCookieJar, LWPCookieJar],
+        cookies: Union[List[Cookie], RequestsCookieJar],
 ):
     cookie_dict = {cookie.name: cookie for cookie in cookie_jar}
 
