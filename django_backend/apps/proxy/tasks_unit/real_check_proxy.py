@@ -45,7 +45,8 @@ from proxy_hunter import write_json, read_file, file_append_str
 from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug
-from src.func_proxy import ProxyCheckResult, build_request, is_port_open, upload_proxy
+from src.func_proxy import ProxyCheckResult, is_port_open, upload_proxy
+from proxy_hunter.curl.build_requests import build_request
 
 result_log_file = get_relative_path("proxyChecker.txt")
 global_tasks: Set[Union[threading.Thread, Future]] = set()

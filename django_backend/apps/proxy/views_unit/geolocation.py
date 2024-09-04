@@ -21,7 +21,7 @@ from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
 from src.func import get_relative_path
 from proxy_hunter import md5
 from src.func_platform import is_debug
-from src.func_proxy import build_request
+from proxy_hunter.curl.build_requests import build_request
 
 
 @never_cache
