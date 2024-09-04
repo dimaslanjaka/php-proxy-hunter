@@ -14,8 +14,9 @@ from requests import HTTPError, RequestException, Timeout
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from proxy_hunter import build_request
+
 from src.func import get_relative_path
-from proxy_hunter.curl.build_requests import build_request
 from src.geoPlugin import get_country_name
 from src.ProxyDB import ProxyDB
 

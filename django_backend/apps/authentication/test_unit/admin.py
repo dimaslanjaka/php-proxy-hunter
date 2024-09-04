@@ -1,19 +1,17 @@
+import json
 import os
 import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
-)
-import json
 import unittest
 
 import environ
+from proxy_hunter import build_request
 
-from src.func import get_relative_path
-from proxy_hunter.curl.build_requests import build_request
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
 
 from django_backend.apps.authentication import utils
+from src.func import get_relative_path
 
 # create superuser
 # modify `.env` file
