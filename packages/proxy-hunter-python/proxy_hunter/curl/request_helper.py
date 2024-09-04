@@ -10,7 +10,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.cookies import RequestsCookieJar
 
-from proxy_hunter import read_file, write_file
+from proxy_hunter.utils import read_file, write_file
 
 
 def build_request(

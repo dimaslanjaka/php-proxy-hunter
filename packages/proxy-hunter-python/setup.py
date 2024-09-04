@@ -6,7 +6,7 @@ with open("readme.md", "r") as f:
 setuptools.setup(
     name="proxy_hunter",
     version="1.0",
-    packages=["proxy_hunter", "proxy_hunter.test"],
+    packages=["proxy_hunter"],
     install_requires=[
         "pycurl",
         "netaddr",
@@ -15,7 +15,9 @@ setuptools.setup(
         "requests",
         "brotli",
         "ipaddress",
+        "pytest",
     ],
+    test_suite="tests",
     author="Dimas Lanjaka",
     author_email="dimaslanjaka@gmail.com",
     description="Proxy hunter utility in Python",
