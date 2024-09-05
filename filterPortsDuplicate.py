@@ -10,7 +10,7 @@ from joblib import Parallel, delayed
 from proxyCheckerReal import real_check
 from src.func import get_relative_path
 from src.func_console import green, red
-from src.func_proxy import is_port_open
+from proxy_hunter.curl.proxy_utils import is_port_open
 from src.ProxyDB import ProxyDB
 
 # remove duplicate ip's more than 3 proxies
