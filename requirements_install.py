@@ -66,7 +66,7 @@ def install_package(name: Union[str, List[str]], install_args=[]):
     if isinstance(name, str):
         print(f"installing {name}")
     else:
-        print(f"installing local package {name[1]}")
+        print(f"installing local package \"{' '.join(name)}\"")
     index_urls = [
         "https://pypi.org/simple",
         "https://mirrors.sustech.edu.cn/pypi/simple/",
@@ -126,19 +126,18 @@ def install_requirements():
             pkgname, url = name.split(" @ ")
             if not is_package_installed(pkgname.strip()):
                 install_package(name)
-                continue
         elif " --" in name:
             _args = [item for item in name.split(" ") if item]
+            print(_args)
             install_package(_args)
-            continue
-        if not is_package_installed(pkg):
+        elif not is_package_installed(pkg):
             install_package(name)
 
-    try:
-        subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
-        subprocess.check_call(["pip", "install", "socks", "--use-pep517"])
-    except Exception:
-        pass
+    # try:
+    #     subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
+    #     subprocess.check_call(["pip", "install", "socks", "--use-pep517"])
+    # except Exception:
+    #     pass
 
 
 if __name__ == "__main__":
