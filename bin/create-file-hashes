@@ -9,4 +9,9 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "Current script directory: $SCRIPT_DIR"
 CWD="$(dirname "$SCRIPT_DIR")"
+
+# Configure the custom merge driver
+git config merge.ourhashdriver.name "Custom Hash File Merge Driver"
+git config merge.ourhashdriver.driver "node \"$SCRIPT_DIR/create-file-hashes.js\" %A"
+
 node "$SCRIPT_DIR/create-file-hashes.js"
