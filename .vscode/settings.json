@@ -89,6 +89,7 @@
   "intelephense.files.associations": ["*.php", "*.phtml"],
   "intelephense.telemetry.enabled": true,
   "eslint.debug": true,
+  "eslint.useFlatConfig": false,
   "python.createEnvironment.contentButton": "show",
   "python.terminal.activateEnvInCurrentTerminal": true,
   "files.watcherExclude": {
@@ -126,7 +127,11 @@
     "**/.yarn": true,
     "backups": true
   },
-  "python.analysis.extraPaths": ["./packages/proxy-hunter-python", "./packages/proxy-checker-python"],
+  "python.analysis.extraPaths": [
+    "./packages/proxy-hunter-python",
+    "./packages/proxy-checker-python",
+    "./packages/rsa-utility"
+  ],
   "python.analysis.exclude": [
     "**/node_modules",
     "**/__pycache__",
@@ -138,7 +143,9 @@
     "**/*.egg-info",
     "**/tmp/**",
     "**/dist",
-    "**/backups"
-  ],
-  "eslint.useFlatConfig": false
+    "**/backups",
+    "**/venv",
+    "**/.cache",
+    "**/.pytest_cache"
+  ]
 }
