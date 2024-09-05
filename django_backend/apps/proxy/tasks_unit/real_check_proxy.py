@@ -48,7 +48,8 @@ from src.func import (
 from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug
-from src.func_proxy import ProxyCheckResult, is_port_open, upload_proxy
+from src.func_proxy import upload_proxy
+from proxy_hunter.curl.proxy_utils import ProxyCheckResult, is_port_open
 
 result_log_file = get_relative_path("proxyChecker.txt")
 global_tasks: Set[Union[threading.Thread, Future]] = set()

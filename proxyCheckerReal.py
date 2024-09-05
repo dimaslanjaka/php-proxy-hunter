@@ -27,7 +27,7 @@ from src.func_date import is_date_rfc3339_hour_more_than
 from proxyWorking import ProxyWorkingManager
 from src.func import get_relative_path
 from src.func_console import green, log_proxy, red
-from src.func_proxy import check_proxy
+from proxy_hunter.curl.proxy_utils import check_proxy
 from src.ProxyDB import ProxyDB
 
 
