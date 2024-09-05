@@ -3,37 +3,32 @@ requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pyright]
-include = ["src", "*.py", "data", "django_backend", "packages", "tests", "xl"]
+include = [
+  "src",
+  "*.py",
+  "data",
+  "django_backend",
+  "tests",
+  "xl"
+]
 exclude = [
   "**/node_modules",
   "**/__pycache__",
-  "src/experimental",
-  "src/typestubs",
   ".cache",
   "dist",
   "**/vendor"
 ]
-ignore = ["src/oldstuff"]
+extraPaths = [
+  "src",
+  "data",
+  "venv/Lib/site-packages",
+  "packages/proxy-hunter-python",
+  "packages/proxy-checker-python",
+  "packages/rsa-utility"
+]
 defineConstant = { DEBUG = true }
-stubPath = "src/stubs"
-
 reportMissingImports = "error"
 reportMissingTypeStubs = false
-extraPaths = ["src", "data", "packages"]
-
+reportPropertyTypeMismatch = "error"
 pythonVersion = "3.11"
 pythonPlatform = "Windows"
-
-executionEnvironments = [
-  # { root = "src/web", pythonVersion = "3.5", pythonPlatform = "Windows", extraPaths = [
-  #   "src/service_libs",
-  # ], reportMissingImports = "warning" },
-  # { root = "src/sdk", pythonVersion = "3.0", extraPaths = [
-  #   "src/backend",
-  # ] },
-  # { root = "src/tests", extraPaths = [
-  #   "src/tests/e2e",
-  #   "src/sdk",
-  # ] },
-  { root = "src" }
-]
