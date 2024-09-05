@@ -10,7 +10,7 @@ from src.ProxyDB import ProxyDB
 class ProxyWorkingManager:
     def __init__(self):
         self.filename: str = get_relative_path("working.json")
-        self.lock: FileLock = FileLock(get_relative_path("tmp/workload.lock"))
+        self.lock = FileLock(get_relative_path("tmp/workload.lock"))
         self.data: List[Dict[str, Union[str, int, float]]] = self._load_data()
         self.db = ProxyDB(get_relative_path("src/database.sqlite"), True)
 
