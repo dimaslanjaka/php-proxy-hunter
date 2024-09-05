@@ -4,8 +4,8 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.func import get_relative_path
-from proxy_hunter import read_file, truncate_file_content
-from src.func_console import contains_ansi_codes, green, log_file, magenta, red, yellow
+from proxy_hunter import read_file, truncate_file_content, contains_ansi_codes
+from src.func_console import green, log_file, magenta, red, yellow
 
 if __name__ == "__main__":
     messages = (

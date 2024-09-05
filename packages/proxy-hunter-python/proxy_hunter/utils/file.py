@@ -7,6 +7,7 @@ import shutil
 import stat
 import string
 from typing import Any, List, Optional, Dict, Union
+from .ansi import remove_ansi
 
 
 def write_json(file_path: str, data: Any):
@@ -370,14 +371,6 @@ def count_lines_in_file(file_path: str) -> int:
         line_count = sum(1 for line in file)
 
     return line_count
-
-
-def remove_ansi(input_string):
-    """
-    Remove ANSI escape sequences from the input string.
-    """
-    ansi_escape = re.compile(r"(?:\x1B[@-_][0-?]*[ -/]*[@-~])")
-    return ansi_escape.sub("", input_string)
 
 
 def remove_non_ascii(input_string):
