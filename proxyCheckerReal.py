@@ -367,7 +367,7 @@ def main_real_proxy_checker(limit: int = 100):
         proxies.extend(db.get_all_proxies(True)[:limit])
     random.shuffle(proxies)
 
-    # using_pool(proxies, 5)
+    # using_pool(proxies[limit:], 5)
     using_joblib(proxies[:limit], 5)
 
     db.close()
