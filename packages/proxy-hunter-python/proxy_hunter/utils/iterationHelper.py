@@ -1,6 +1,6 @@
-import time
 import os
-from typing import Any, List, TypeVar, Generic, Callable
+import time
+from typing import Callable, Generic, List, TypeVar
 
 # Define a type variable for generic type
 T = TypeVar("T")

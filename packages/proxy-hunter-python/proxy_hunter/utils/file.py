@@ -12,13 +12,13 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from .ansi import remove_ansi
 
 
-def save_tuple_to_file(data: Union[Tuple, List[Tuple]], filename: str) -> None:
+def save_tuple_to_file(filename: str, data: Union[Tuple, List[Tuple]]) -> None:
     """
     Save a tuple to a file using pickle serialization.
 
     Args:
-        data (Tuple): The tuple to be stored.
         filename (str): The name of the file where the tuple will be stored.
+        data (Tuple): The tuple to be stored.
 
     Returns:
         None
