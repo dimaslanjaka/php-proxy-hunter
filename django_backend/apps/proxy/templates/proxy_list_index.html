@@ -1,7 +1,16 @@
-{% extends 'base_generic.html' %} {% load static %} {% load time_filters %} {% load canonical_tags %} {% load
-proxy_filters %} {% block title %}{{ page_title|safe }} - Python Proxy Hunter{% endblock %} {% block description %}{{
-page_description|safe }}{% endblock %} {% block nav_title %}Python Proxy Hunter{% endblock %} {% block content %}
-<link rel="stylesheet" href="{% static 'proxy_index.css' %}" />
+{% extends 'base_generic.html' %}
+
+{% load static %}
+{% load time_filters %}
+{% load canonical_tags %}
+{% load proxy_filters %}
+
+{% block title %}{{ page_title|safe }} - Python Proxy Hunter{% endblock %}
+{% block description %}{{ page_description|safe }}{% endblock %}
+{% block nav_title %}Python Proxy Hunter{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'proxy_index.css' %}">
 <div class="container mx-auto">
   <h1 class="text-2xl font-bold mb-4">Proxy List</h1>
 
@@ -10,25 +19,15 @@ page_description|safe }}{% endblock %} {% block nav_title %}Python Proxy Hunter{
   <!-- Ad container -->
   <div class="p-4 rounded-lg shadow-md mx-auto my-4 w-full max-w-md">
     <div class="w-full ad-container">
-      <ins
-        class="adsbygoogle"
-        style="display: block; text-align: center"
-        data-ad-layout="in-article"
-        data-ad-format="fluid"
-        data-ad-client="ca-pub-2188063137129806"
-        data-ad-slot="8481296455"
-      ></ins>
+      <ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-layout="in-article"
+        data-ad-format="fluid" data-ad-client="ca-pub-2188063137129806" data-ad-slot="8481296455"></ins>
     </div>
   </div>
 
   <div class="p-6 mx-auto">
     <!-- Collapsible Button -->
-    <button
-      id="collapse-button"
-      data-collapse-toggle="collapse-content"
-      type="button"
-      class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center"
-    >
+    <button id="collapse-button" data-collapse-toggle="collapse-content" type="button"
+      class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center">
       Show Legend
     </button>
 
@@ -43,13 +42,8 @@ page_description|safe }}{% endblock %} {% block nav_title %}Python Proxy Hunter{
   <!-- Search Input -->
   <div class="mb-4">
     <form method="get" action="" class="flex flex-col md:flex-row items-center">
-      <input
-        type="text"
-        id="searchInput"
-        name="search"
-        class="p-2 mb-2 md:mb-0 w-full border rounded"
-        placeholder="Search..."
-      />
+      <input type="text" id="searchInput" name="search" class="p-2 mb-2 md:mb-0 w-full border rounded"
+        placeholder="Search...">
       <button type="submit" class="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full">Search</button>
     </form>
   </div>
@@ -91,64 +85,42 @@ page_description|safe }}{% endblock %} {% block nav_title %}Python Proxy Hunter{
   <div class="py-4 px-6 flex justify-center items-center bg-gray-800 dark:bg-gray-900 text-gray-200 dark:text-gray-300">
     <div class="inline-flex shadow-sm rounded-md" role="group">
       {% if proxies.has_previous %}
-      <a
-        href="?page=1{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
-        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300"
-      >
+      <a href="?page=1{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
         First
       </a>
-      <a
-        href="?page={{ proxies.previous_page_number }}{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
-        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300"
-      >
+      <a href="?page={{ proxies.previous_page_number }}{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
         Previous
       </a>
       {% else %}
       <button
         class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-200 rounded-l-md cursor-not-allowed dark:text-gray-500 dark:bg-gray-800 dark:border-gray-700"
-        disabled
-      >
-        First
-      </button>
+        disabled>First</button>
       <button
         class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-100 border-t border-b border-gray-200 cursor-not-allowed dark:text-gray-500 dark:bg-gray-800 dark:border-gray-700"
-        disabled
-      >
-        Previous
-      </button>
+        disabled>Previous</button>
       {% endif %}
-      <a
-        href="/proxy"
-        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300"
-      >
+      <a href="/proxy"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
         Page {{ proxies.number }} of {{ proxies.paginator.num_pages }} (Click to reset filters)
       </a>
       {% if proxies.has_next %}
-      <a
-        href="?page={{ proxies.next_page_number }}{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
-        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300"
-      >
+      <a href="?page={{ proxies.next_page_number }}{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
         Next
       </a>
-      <a
-        href="?page={{ proxies.paginator.num_pages }}{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
-        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300"
-      >
+      <a href="?page={{ proxies.paginator.num_pages }}{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}{% endif %}"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-blue-300">
         Last
       </a>
       {% else %}
       <button
         class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-100 border-t border-b border-gray-200 cursor-not-allowed dark:text-gray-500 dark:bg-gray-800 dark:border-gray-700"
-        disabled
-      >
-        Next
-      </button>
+        disabled>Next</button>
       <button
         class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-200 rounded-r-md cursor-not-allowed dark:text-gray-500 dark:bg-gray-800 dark:border-gray-700"
-        disabled
-      >
-        Last
-      </button>
+        disabled>Last</button>
       {% endif %}
     </div>
   </div>
