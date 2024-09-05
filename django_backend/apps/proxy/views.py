@@ -273,15 +273,16 @@ def trigger_filter_ports_proxy(request: HttpRequest):
 
 
 def cleanup_threads():
+    global filter_ports_threads, proxy_checker_threads
     tasks_checker_cleanup()
     tasks_geolocation_cleanup()
     tasks_filter_cleanup()
-    # proxy_checker_threads = {
-    #     thread for thread in proxy_checker_threads if thread.is_alive()
-    # }
-    # filter_ports_threads = {
-    #     thread for thread in filter_ports_threads if thread.is_alive()
-    # }
+    proxy_checker_threads = {
+        thread for thread in proxy_checker_threads if thread.is_alive()
+    }
+    filter_ports_threads = {
+        thread for thread in filter_ports_threads if thread.is_alive()
+    }
 
 
 @never_cache
