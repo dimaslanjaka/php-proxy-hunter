@@ -57,6 +57,7 @@ from .serializers import ProxySerializer
 def index(request: HttpRequest):
     page_title = get_page_title(request)
     proxies, pagination_title = get_proxy_list(request)
+    proxies_str = " ".join([item.proxy for item in proxies.object_list[:10]])
     return render(
         request,
         "proxy_list_index.html",
@@ -64,6 +65,7 @@ def index(request: HttpRequest):
             "request": request,
             "proxies": proxies,
             "page_title": f"{page_title} {pagination_title}".strip(),
+            "page_description": f"{page_title}. {proxies_str}".strip()[:150],
         },
     )
 
