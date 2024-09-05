@@ -272,20 +272,19 @@ def real_latency(proxy: str):
 def worker(item: Dict[str, str]):
     try:
         db = ProxyDB(get_relative_path("src/database.sqlite"))
-        test = real_check(
-            item["proxy"], "https://www.axis.co.id/bantuan", "pusat layanan"
-        )
-
-        if not test["result"]:
-            test = real_check(item["proxy"], "https://www.example.com/", "example")
-
-        if not test["result"]:
-            test = real_check(item["proxy"], "http://azenv.net/", "AZ Environment")
-
-        if not test["result"]:
+        test = {}
+        if not test.get("result"):
+            test = real_check(
+                item["proxy"], "https://www.axis.co.id/bantuan", "pusat layanan"
+            )
+        if not test.get("result"):
+            test = real_check(
+                item["proxy"], "https://www.ssl.org/", "SSL Certificate Checker"
+            )
+        if not test.get("result"):
             test = real_check(item["proxy"], "http://httpforever.com/", "HTTP Forever")
 
-        if test["result"]:
+        if test.get("result"):
             db.update_data(
                 item["proxy"],
                 {
