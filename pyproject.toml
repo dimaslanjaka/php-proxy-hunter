@@ -19,8 +19,6 @@ exclude = [
   "**/vendor"
 ]
 extraPaths = [
-  "src",
-  "data",
   "venv/Lib/site-packages",
   "packages/proxy-hunter-python",
   "packages/proxy-checker-python",
