@@ -338,20 +338,8 @@ def test():
         log_proxy(f"{proxy} fail get latency")
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Proxy Tool")
-    parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
-    args = parser.parse_args()
-    limit = 100
-    if args.max:
-        limit = args.max
-
+def main_real_proxy_checker(limit: int = 100):
     db = ProxyDB(get_relative_path("src/database.sqlite"), True)
-
-    # proxy = "18.169.133.105:132"
-    # sc = real_check(proxy, "http://httpforever.com/", "http forever")
-    # print(sc)
-
     files_content = read_all_text_files(get_relative_path("assets/proxies"))
     if os.path.exists(get_relative_path("proxies.txt")):
         files_content[get_relative_path("proxies.txt")] = read_file(
@@ -381,6 +369,21 @@ if __name__ == "__main__":
 
     # using_pool(proxies, 5)
     using_joblib(proxies[:limit], 5)
-    # test()
 
     db.close()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Proxy Tool")
+    parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
+    args = parser.parse_args()
+    limit = 100
+    if args.max:
+        limit = args.max
+
+    # proxy = "18.169.133.105:132"
+    # sc = real_check(proxy, "http://httpforever.com/", "http forever")
+    # print(sc)
+
+    # test()
+    main_real_proxy_checker(limit)
