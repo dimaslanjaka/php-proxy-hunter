@@ -16,14 +16,12 @@ from datetime import datetime, timedelta
 
 import dotenv
 import huey
-from proxy_hunter import is_vps
+from proxy_hunter import delete_path, is_vps, resolve_parent_folder, write_file
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from proxy_hunter import delete_path, resolve_parent_folder, write_file
 from src.func import get_relative_path
 from src.func_platform import is_debug
-
 from userscripts.parse_userscript import extract_domains_from_userscript
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
