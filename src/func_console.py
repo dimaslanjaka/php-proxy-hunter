@@ -7,6 +7,7 @@ from typing import Any
 from bs4 import BeautifulSoup
 from ansi2html import Ansi2HTMLConverter
 from colorama import Fore, Style, just_fix_windows_console
+from proxy_hunter import remove_ansi
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -95,20 +96,6 @@ def get_caller_info():
     return caller_file, caller_line
 
 
-def ansi_remover(text: str) -> str:
-    """
-    Remove ANSI color codes from a given text.
-
-    Args:
-        text (str): The input text containing ANSI color codes.
-
-    Returns:
-        str: The text with ANSI color codes removed.
-    """
-    ansi_escape = re.compile(r"\x1B[@-_][0-?]*[ -/]*[@-~]")
-    return ansi_escape.sub("", text)
-
-
 css_content = ""
 
 
@@ -137,7 +124,7 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
         None
     """
     global css_content
-    remove_ansi = kwargs.pop("remove_ansi", True)
+    should_remove_ansi = kwargs.pop("remove_ansi", True)
     ansi_html = kwargs.pop("ansi_html", False)
     print_args = kwargs.pop("print_args", True)
     message = " ".join(map(str, args))
@@ -152,8 +139,8 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
         message = pre_tag.decode_contents()
         style_tag = soup.find("style")
         css_content += style_tag.get_text() + "\n\n"
-    elif remove_ansi:
-        message = ansi_remover(message)
+    elif should_remove_ansi:
+        message = remove_ansi(message)
 
     os.makedirs(os.path.dirname(filename), exist_ok=True)
 
@@ -176,21 +163,3 @@ def log_proxy(*args: Any, **kwargs: Any) -> None:
         None
     """
     log_file(get_relative_path("proxyChecker.txt"), *args, **kwargs)
-
-
-def contains_ansi_codes(s: str) -> bool:
-    """
-    Check if the given string contains ANSI escape codes.
-
-    ANSI escape codes are used for text formatting (e.g., colors) in terminal output.
-    They usually start with \x1b[ and end with m, with optional parameters in between.
-
-    Args:
-        s (str): The string to check for ANSI escape codes.
-
-    Returns:
-        bool: True if the string contains ANSI escape codes, False otherwise.
-    """
-    # Regular expression to match ANSI escape codes
-    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
-    return bool(ansi_escape.search(s))
