@@ -11,6 +11,7 @@ exclude = [
   "src/typestubs",
   ".cache",
   "dist",
+  "**/vendor"
 ]
 ignore = ["src/oldstuff"]
 defineConstant = { DEBUG = true }
@@ -18,20 +19,21 @@ stubPath = "src/stubs"
 
 reportMissingImports = "error"
 reportMissingTypeStubs = false
+extraPaths = ["src", "data", "packages"]
 
-pythonVersion = "3.6"
-pythonPlatform = "Linux"
+pythonVersion = "3.11"
+pythonPlatform = "Windows"
 
 executionEnvironments = [
-  { root = "src/web", pythonVersion = "3.5", pythonPlatform = "Windows", extraPaths = [
-    "src/service_libs",
-  ], reportMissingImports = "warning" },
-  { root = "src/sdk", pythonVersion = "3.0", extraPaths = [
-    "src/backend",
-  ] },
-  { root = "src/tests", extraPaths = [
-    "src/tests/e2e",
-    "src/sdk",
-  ] },
-  { root = "src" },
+  # { root = "src/web", pythonVersion = "3.5", pythonPlatform = "Windows", extraPaths = [
+  #   "src/service_libs",
+  # ], reportMissingImports = "warning" },
+  # { root = "src/sdk", pythonVersion = "3.0", extraPaths = [
+  #   "src/backend",
+  # ] },
+  # { root = "src/tests", extraPaths = [
+  #   "src/tests/e2e",
+  #   "src/sdk",
+  # ] },
+  { root = "src" }
 ]

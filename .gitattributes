@@ -2,6 +2,7 @@
 *.cmd       text eol=crlf
 *.bat       text eol=crlf
 *.txt       text eol=lf
+*.toml      text eol=lf
 *.sql       text eol=lf
 *.json      text eol=lf filter=tabspace
 *.sh        text eol=lf
