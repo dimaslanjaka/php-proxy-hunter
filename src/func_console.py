@@ -136,7 +136,7 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
         html_content = conv.convert(message)
         soup = BeautifulSoup(html_content, "html.parser")
         pre_tag = soup.find("pre", class_="ansi2html-content")
-        message = pre_tag.decode_contents()
+        message = pre_tag.decode_contents().strip()
         style_tag = soup.find("style")
         css_content += style_tag.get_text() + "\n\n"
     elif should_remove_ansi:
