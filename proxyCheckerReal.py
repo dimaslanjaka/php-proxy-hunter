@@ -23,6 +23,7 @@ from proxy_hunter import (
     truncate_file_content,
 )
 
+from src.func_date import is_date_rfc3339_hour_more_than
 from proxyWorking import ProxyWorkingManager
 from src.func import get_relative_path
 from src.func_console import green, log_proxy, red
@@ -363,13 +364,21 @@ if __name__ == "__main__":
         db.extract_proxies(content, True)
         delete_path(file_path)
 
-    proxies = db.get_untested_proxies(limit)
+    proxies = db.get_working_proxies(False)
+    proxies = [
+        item
+        for item in proxies
+        if is_date_rfc3339_hour_more_than(item.get("last_check"), 4)
+        # filter only working proxies checked more than 4 hours
+    ]
+    if not proxies or len(proxies) < 100:
+        proxies = db.get_untested_proxies(limit)
     if not proxies:
         proxies = db.get_all_proxies(True)[:limit]
     random.shuffle(proxies)
 
     # using_pool(proxies, 5)
-    using_joblib(proxies, 5)
+    using_joblib(proxies[:limit], 5)
     # test()
 
     db.close()
