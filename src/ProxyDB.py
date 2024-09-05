@@ -177,7 +177,7 @@ class ProxyDB:
             data["latency"] = latency
         if timezone:
             data["timezone"] = timezone
-        if status:
+        if status and status != "untested":
             data["status"] = status
             data["last_check"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         if data:
