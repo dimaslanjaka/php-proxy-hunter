@@ -219,11 +219,16 @@ class ProxyDB:
     def update_latency(self, proxy, latency):
         self.update(proxy.strip(), latency=latency)
 
-    def get_working_proxies(self) -> List[Dict[str, Union[str, None]]]:
+    def get_working_proxies(
+        self, auto_fix: bool = True
+    ) -> List[Dict[str, Union[str, None]]]:
         if not self.db:
             self.start_connection()
         result = self.db.select("proxies", "*", "status = ?", ["active"])
-        return self.fix_empty_data(result)
+        if auto_fix:
+            return self.fix_empty_data(result)
+        else:
+            return result
 
     def clean_type(
         self, item: Dict[str, Union[str, None]]
