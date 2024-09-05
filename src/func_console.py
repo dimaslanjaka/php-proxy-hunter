@@ -158,7 +158,7 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
     os.makedirs(os.path.dirname(filename), exist_ok=True)
 
     with open(filename, "a", encoding="utf-8") as f:
-        f.write(message.strip() + "\n")
+        f.write(message + "\n")
 
 
 def log_proxy(*args: Any, **kwargs: Any) -> None:
