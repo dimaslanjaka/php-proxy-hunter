@@ -115,6 +115,7 @@ fi
 if should_run_job "tmp/crontab/1-h" 1; then
   php "$CWD/send_curl.php" --url=https://sh.webmanajemen.com:8443/proxy/check
   djm check_proxies --max=100
+  djm filter_dups --max=100
 fi
 
 # run every 3 hours
