@@ -3,7 +3,6 @@
   "*.ts": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.js",
   "*.jsx": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.js",
   "*.tsx": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.js",
-  "*.html": "prettier --list-different --write",
   "*.json": "prettier --list-different --write",
   "*.css": "prettier --list-different --write",
   "*.scss": "prettier --list-different --write",
