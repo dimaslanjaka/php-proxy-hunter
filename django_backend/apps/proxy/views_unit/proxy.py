@@ -99,7 +99,7 @@ def get_proxy_list(request: HttpRequest, limit: int = 30):
     # Paginate the results
     paginator = Paginator(proxy_list, limit)
     page_number = request.GET.get("page")
-    pagination_title = None
+    pagination_title = ""
 
     try:
         if page_number:
