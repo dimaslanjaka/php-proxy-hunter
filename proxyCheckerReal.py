@@ -364,16 +364,19 @@ if __name__ == "__main__":
         delete_path(file_path)
 
     proxies = db.get_working_proxies(False)
+    hours_ago = 4
     proxies = [
         item
         for item in proxies
-        if is_date_rfc3339_hour_more_than(item.get("last_check"), 4)
-        # filter only working proxies checked more than 4 hours
+        if is_date_rfc3339_hour_more_than(item.get("last_check"), hours_ago)
+        # filter only working proxies checked more than [hours_ago] hours
     ]
+    print(f"Re-test working proxies >{hours_ago} hours ago {len(proxies)}")
     if not proxies or len(proxies) < 100:
-        proxies = db.get_untested_proxies(limit)
+        proxies.extend(db.get_untested_proxies(limit))
+        print(f"Test untested proxies {len(proxies)}")
     if not proxies:
-        proxies = db.get_all_proxies(True)[:limit]
+        proxies.extend(db.get_all_proxies(True)[:limit])
     random.shuffle(proxies)
 
     # using_pool(proxies, 5)
