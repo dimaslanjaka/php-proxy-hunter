@@ -1,13 +1,44 @@
 import hashlib
 import json
 import os
+import pickle
 import random
 import re
 import shutil
 import stat
 import string
-from typing import Any, List, Optional, Dict, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 from .ansi import remove_ansi
+
+
+def save_tuple_to_file(data: Union[Tuple, List[Tuple]], filename: str) -> None:
+    """
+    Save a tuple to a file using pickle serialization.
+
+    Args:
+        data (Tuple): The tuple to be stored.
+        filename (str): The name of the file where the tuple will be stored.
+
+    Returns:
+        None
+    """
+    with open(filename, "wb") as file:
+        pickle.dump(data, file)
+
+
+def load_tuple_from_file(filename: str) -> Union[Tuple, List[Tuple]]:
+    """
+    Load a tuple from a file using pickle deserialization.
+
+    Args:
+        filename (str): The name of the file from which to load the tuple.
+
+    Returns:
+        Tuple: The tuple that was stored in the file.
+    """
+    with open(filename, "rb") as file:
+        return pickle.load(file)
 
 
 def write_json(file_path: str, data: Any):
