@@ -1,3 +1,4 @@
+from .Proxy import Proxy, dict_to_proxy_list
 from .cidr2ips import list_ips_from_cidr
 from .curl import (
     build_request,
@@ -8,12 +9,15 @@ from .curl import (
     lwp_cookie_str,
     random_windows_ua,
     update_cookie_jar,
+    is_port_open,
+    get_device_ip,
+    check_proxy,
+    get_requests_error,
 )
 from .extractor import extract_ips, extract_proxies, extract_proxies_from_file
 from .ip2cidr import calculate_cidr
 from .ip2proxy_list import generate_ip_port_pairs
 from .ip2subnet import get_default_subnet_mask, get_subnet_mask
-from .Proxy import Proxy, dict_to_proxy_list
 from .proxyhunter import scan, target
 from .utils import (
     IterationHelper,
@@ -21,6 +25,8 @@ from .utils import (
     contains_ansi_codes,
     copy_file,
     copy_folder,
+    find_substring_from_regex,
+    is_matching_regex,
     count_lines_in_file,
     decompress_requests_response,
     delete_path,

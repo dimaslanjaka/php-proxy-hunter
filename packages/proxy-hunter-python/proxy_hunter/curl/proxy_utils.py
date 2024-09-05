@@ -7,9 +7,10 @@ from urllib.parse import urlparse
 import certifi
 import requests
 
-from func import find_substring_from_regex
 from proxy_checker import ProxyChecker
-from proxy_hunter import build_request, get_pc_useragent
+from proxy_hunter.curl.func_useragent import get_pc_useragent
+from proxy_hunter.curl.request_helper import build_request
+from proxy_hunter.utils.regex_utils import find_substring_from_regex
 
 
 def get_device_ip() -> Union[None, str]:
