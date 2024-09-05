@@ -9,14 +9,16 @@ from .curl import (
     random_windows_ua,
     update_cookie_jar,
 )
-from .extractor import extract_proxies, extract_proxies_from_file, extract_ips
+from .extractor import extract_ips, extract_proxies, extract_proxies_from_file
 from .ip2cidr import calculate_cidr
 from .ip2proxy_list import generate_ip_port_pairs
 from .ip2subnet import get_default_subnet_mask, get_subnet_mask
 from .Proxy import Proxy, dict_to_proxy_list
 from .proxyhunter import scan, target
 from .utils import (
+    IterationHelper,
     check_raw_headers_keywords,
+    contains_ansi_codes,
     copy_file,
     copy_folder,
     count_lines_in_file,
@@ -49,5 +51,4 @@ from .utils import (
     truncate_file_content,
     write_file,
     write_json,
-    IterationHelper,
 )

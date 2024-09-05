@@ -1,3 +1,4 @@
+from .ansi import contains_ansi_codes, remove_ansi
 from .file import (
     copy_file,
     copy_folder,
@@ -13,7 +14,6 @@ from .file import (
     md5,
     read_all_text_files,
     read_file,
-    remove_ansi,
     remove_non_ascii,
     remove_string_from_file,
     remove_trailing_hyphens,
