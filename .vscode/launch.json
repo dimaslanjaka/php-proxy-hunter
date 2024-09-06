@@ -68,9 +68,7 @@
       "request": "launch",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd",
-      "args": [
-        "."
-      ],
+      "args": ["."],
       "outputCapture": "std"
     },
     {
@@ -96,23 +94,22 @@
       "name": "huey",
       "request": "launch",
       "type": "node-terminal"
+    },
+    {
+      "command": "\"venv/Scripts/watchmedo\" auto-restart --no-restart-on-command-exit --signal SIGTERM --patterns=\"*.py;*.html;*.js\" --recursive --debounce-interval=0.1 \"venv/Scripts/python\" src/pyside6/localserver/index.py",
+      "name": "PySide6 Local Server",
+      "request": "launch",
+      "type": "node-terminal"
     }
   ],
   "compounds": [
     {
       "name": "Django with Huey",
-      "configurations": [
-        "django SSL",
-        "huey"
-      ]
+      "configurations": ["django SSL", "huey"]
     },
     {
       "name": "Django Huey Browser",
-      "configurations": [
-        "django SSL",
-        "huey",
-        "Browser runner"
-      ]
+      "configurations": ["django SSL", "huey", "Browser runner"]
     }
   ]
 }
