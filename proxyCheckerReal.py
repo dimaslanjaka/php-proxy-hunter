@@ -9,8 +9,6 @@ from typing import Dict, List, Optional
 
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
-
-from proxyWorking import ProxyWorkingManager
 from proxy_checker import ProxyChecker
 from proxy_hunter import (
     build_request,
@@ -25,14 +23,22 @@ from proxy_hunter import (
     truncate_file_content,
 )
 from proxy_hunter.curl.proxy_utils import check_proxy
-from src.ProxyDB import ProxyDB
+
+from proxyWorking import ProxyWorkingManager
 from src.func import get_relative_path
 from src.func_console import green, log_proxy, red
 from src.func_date import is_date_rfc3339_hour_more_than
+from src.ProxyDB import ProxyDB
 
 
 class ProxyCheckerReal:
     def __init__(self, log_mode: str = "text"):
+        """
+        Initializes the ProxyCheckerReal instance.
+
+        Args:
+            log_mode (str): The logging mode, either 'html' or 'text'.
+        """
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -41,6 +47,13 @@ class ProxyCheckerReal:
         self.log_mode = log_mode
 
     def log(self, *args, **kwargs):
+        """
+        Logs messages based on the log_mode setting.
+
+        Args:
+            *args: Message arguments to be logged.
+            **kwargs: Additional logging options.
+        """
         if self.log_mode == "html":
             log_proxy(ansi_html=True, *args, **kwargs)
         else:
@@ -53,7 +66,18 @@ class ProxyCheckerReal:
         title_should_be: str,
         cancel_event: Optional[threading.Event] = None,
     ):
-        """Check proxy with matching the title of response."""
+        """
+        Checks a proxy by matching the title of the response with a given expected title.
+
+        Args:
+            proxy (str): The proxy address in the format "IP:Port".
+            url (str): The URL to send the request to.
+            title_should_be (str): The expected title of the response page.
+            cancel_event (Optional[threading.Event]): An event to handle cancellation (optional).
+
+        Returns:
+            dict: A result dictionary indicating if the proxy is working, its type, and other information.
+        """
         protocols = []
         output_file = get_relative_path(f"tmp/logs/{sanitize_filename(proxy)}.txt")
         if os.path.exists(output_file):
@@ -135,7 +159,15 @@ class ProxyCheckerReal:
         return result
 
     def real_anonymity(self, proxy: str):
-        """Get proxy anonymity."""
+        """
+        Determines the anonymity level of the proxy.
+
+        Args:
+            proxy (str): The proxy address in the format "IP:Port".
+
+        Returns:
+            str: The anonymity level of the proxy.
+        """
         checker = ProxyChecker(60000, False)
         result = None
         for url in checker.proxy_judges:
@@ -165,7 +197,15 @@ class ProxyCheckerReal:
         return result
 
     def real_latency(self, proxy: str):
-        """Get proxy latency."""
+        """
+        Measures the latency of the proxy.
+
+        Args:
+            proxy (str): The proxy address in the format "IP:Port".
+
+        Returns:
+            int: The latency of the proxy in milliseconds.
+        """
         latency = None
         latency_log = None
         valid_log = None
