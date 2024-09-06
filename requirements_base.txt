@@ -1,3 +1,5 @@
+# django @ https://github.com/django/django/archive/refs/tags/5.0.8.zip
+# huey[backends]
 -e file:packages/proxy-checker-python
 -e file:packages/proxy-hunter-python
 -e file:packages/rsa-utility
@@ -7,22 +9,22 @@ babel
 beautifulsoup4
 black
 chromedriver-autoinstaller @ https://github.com/yeongbin-jo/python-chromedriver-autoinstaller/archive/master.zip
-django==5.0.*
-# django @ https://github.com/django/django/archive/refs/tags/5.0.8.zip
+daphne
+datetime
 django-cors-headers
 django-cors-middleware
 django-environ
 django-extensions
 django-filter
+django==5.0.*
 djangorestframework
 djangorestframework_simplejwt
-daphne
-datetime
 filelock
 geoip2
 geopy
 gevent
 html5lib
+huey @ https://github.com/coleifer/huey/archive/master.zip
 ipaddress
 joblib
 maxminddb
@@ -36,17 +38,16 @@ python-dateutil
 python-dotenv
 pytz
 pyyaml
+rarfile
 requests
 requests_cache
-rarfile
 selenium==4.*
 six
 sqlalchemy
 timezonefinder --only-binary :all:
 tzlocal
 urllib3
-werkzeug
+watchdog
 webdriver-manager @ https://github.com/SergeyPirogov/webdriver_manager/archive/master.zip
+werkzeug
 zstandard
-# huey[backends]
-huey @ https://github.com/coleifer/huey/archive/master.zip
