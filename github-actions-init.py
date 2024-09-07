@@ -1,6 +1,36 @@
 import os
 import shutil
 import stat
+import subprocess
+import sys
+
+# List of packages to check
+packages = ["pycountry", "django", "PySide6", "requests"]
+
+
+# Function to check if a package is installed
+def check_package(package_name):
+    try:
+        __import__(package_name)
+        return True
+    except ImportError:
+        return False
+
+
+# Check if all packages are installed
+missing_packages = [pkg for pkg in packages if not check_package(pkg)]
+
+if missing_packages:
+    print(f"Missing packages: {', '.join(missing_packages)}")
+    # Run pip install to install from requirements.txt
+    try:
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"]
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Error installing packages: {e}")
+else:
+    print("All required packages are installed.")
 
 
 def delete_path(path: str) -> None:
@@ -32,10 +62,11 @@ dirs = [
     ".cache",
     "config",
     "assets/proxies",
-    "tmp/cookies",
     "assets/chrome-profiles",
     "assets/chrome",
+    "tmp/cookies",
     "tmp/data",
+    "tmp/logs",
     "dist",
 ] + temp_dirs
 
