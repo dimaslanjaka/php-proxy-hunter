@@ -7,8 +7,6 @@ import random
 import re
 import subprocess
 import sys
-import tempfile
-import time
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
 from proxy_hunter import resolve_parent_folder, write_file
@@ -228,40 +226,6 @@ def get_random_dict(dictionary: Dict) -> Tuple:
     return random_key, random_value
 
 
-def is_directory_created_days_ago_or_more(directory_path: str, days: int) -> bool:
-    """
-    Check if the directory exists and if it was created 'days' days ago or more.
-
-    Args:
-        directory_path (str): The path to the directory.
-        days (int): Number of days ago to check against.
-
-    Returns:
-        bool: True if the directory exists and was created 'days' days ago or more, False otherwise.
-    """
-    # Check if the directory exists
-    if os.path.exists(directory_path):
-        # Get the modification time of the directory
-        mod_time = os.path.getmtime(directory_path)
-
-        # Get current time
-        current_time = time.time()
-
-        # Calculate the time difference
-        time_diff = current_time - mod_time
-
-        # Define 'days' days in seconds
-        days_seconds = days * 24 * 60 * 60
-
-        # Check if the directory was created 'days' days ago or more
-        if time_diff >= days_seconds:
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
 def keep_alphanumeric_and_remove_spaces(input_string: str) -> str:
     """
     Removes spaces and keeps only alphanumeric characters from the input string.
@@ -279,37 +243,6 @@ def keep_alphanumeric_and_remove_spaces(input_string: str) -> str:
     input_string = re.sub(r"[^a-zA-Z0-9]", "", input_string)
 
     return input_string
-
-
-def remove_duplicate_line_from_file(filename: str) -> None:
-    """
-    Removes duplicated lines from a file and overwrites the original file.
-
-    Args:
-        filename (str): The name of the file to clean.
-
-    Returns:
-        None
-    """
-    if not os.path.exists(filename):
-        return
-    # Copy content to a temporary file
-    with open(
-        filename, "r", encoding="utf-8"
-    ) as original_file, tempfile.NamedTemporaryFile(
-        mode="w", encoding="utf-8", delete=False
-    ) as temp_file:
-        lines_seen = set()  # Set to store unique lines
-        for line in original_file:
-            if line not in lines_seen:
-                temp_file.write(line)
-                lines_seen.add(line)
-
-    # Replace original file with cleaned content
-    temp_filename = temp_file.name
-    import shutil
-
-    shutil.move(temp_filename, filename)
 
 
 def get_unique_dicts_by_key_in_list(
@@ -402,32 +335,6 @@ def move_string_between(
     except Exception as e:
         print(f"An error occurred: {e}")
         return False
-
-
-def size_of_list_in_mb(list_of_strings: List[str]) -> float:
-    """
-    Calculate the size of a list of strings in megabytes.
-
-    Args:
-    - list_of_strings (List[str]): The list of strings to calculate the size of.
-
-    Returns:
-    - float: The size of the list in megabytes.
-    """
-    total_size = sum(sys.getsizeof(string) for string in list_of_strings)
-    size_in_mb = total_size / (1024 * 1024)
-    return size_in_mb
-
-
-def is_file_larger_than_kb(file_path, size_in_kb=5):
-    # Get the size of the file in bytes
-    file_size_bytes = os.path.getsize(file_path)
-
-    # Convert bytes to kilobytes
-    file_size_kb = file_size_bytes / 1024
-
-    # Check if file size is greater than specified size
-    return file_size_kb > size_in_kb
 
 
 T = TypeVar("T")
