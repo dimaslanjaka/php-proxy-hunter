@@ -146,8 +146,6 @@ jobs:
             proxyChecker.txt
             working.txt
             working.json
-            composer.lock
-            yarn.lock
           key: ${{ runner.os }}-php-${{ hashFiles('.husky/hash.txt') }}
           restore-keys: |
             ${{ runner.os }}-php-${{ hashFiles('.husky/hash.txt') }}

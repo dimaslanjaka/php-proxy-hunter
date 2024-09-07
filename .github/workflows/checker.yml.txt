@@ -130,8 +130,6 @@ jobs:
             working.txt
             working.json
             src/database.sqlite
-            composer.lock
-            yarn.lock
           key: ${{ runner.os }}-php-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-php-
