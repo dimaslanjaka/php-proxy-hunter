@@ -2,7 +2,7 @@ name: Clean GitHub Actions Cache
 
 on:
   schedule:
-    - cron: "0 0/3 * * *" # Schedule every [n] hour
+    - cron: "0 * * * *" # Schedule every hour
   push:
     branches:
       - master
@@ -14,17 +14,19 @@ on:
 
 jobs:
   clean-cache:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          repository: "dimaslanjaka/php-proxy-hunter"
+          ref: master
+          token: ${{ secrets.ACCESS_TOKEN }}
+          lfs: true
 
       - name: Clean GitHub Actions cache
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
           echo "Cleaning cache..."
-          # Ensure you have the clear-github-actions-cache.cmd script in the specified location
-          chmod +x .github/bin/clear-github-actions-cache.cmd
-          .github/bin/clear-github-actions-cache.cmd
+          .\bin\clear-github-actions-cache.cmd
