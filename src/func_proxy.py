@@ -11,12 +11,13 @@ from typing import Any, Dict, List, Optional, Union
 
 import requests
 import urllib3
-
 from proxy_hunter import (
     Proxy,
     file_append_str,
     file_remove_empty_lines,
     get_pc_useragent,
+    read_all_text_files,
+    read_file,
 )
 from proxy_hunter.curl.proxy_utils import check_proxy, is_port_open
 
@@ -173,33 +174,60 @@ def get_proxies(
     working_only: Optional[bool] = False, untested_only: Optional[bool] = False
 ) -> List[Dict[str, str]]:
     """
-    get proxies without dead proxies
+    Get proxies based on their status, excluding dead proxies.
     """
     proxies: List[Dict[str, str]] = []
     db = ProxyDB(get_relative_path("src/database.sqlite"), True)
 
-    if not working_only or untested_only:
+    # Retrieve proxies from the database based on conditions
+    if untested_only or not working_only:
         proxies.extend(db.db.select("proxies", "*", "status = ?", ["untested"]))
-        # proxies = list(filter(lambda proxy: is_proxy_recently_checked(proxy), proxies))
-    if not untested_only or working_only:
+
+    if working_only or not untested_only:
         proxies.extend(db.db.select("proxies", "*", "status = ?", ["active"]))
 
-    if not working_only or not untested_only:
+    # Read proxies from files if no specific filtering is requested
+    if not working_only and not untested_only:
+        files_content = read_all_text_files(get_relative_path("assets/proxies"))
+        proxy_file_path = get_relative_path("proxies.txt")
+        if os.path.exists(proxy_file_path):
+            files_content[proxy_file_path] = read_file(proxy_file_path)
 
-        def parse(item: Proxy):
-            proxies.append(item.to_dict())
+        for file_path, content in files_content.items():
+            extracted_proxies = db.extract_proxies(content, True)
+            print(
+                f"Total proxies extracted from {file_path} is {len(extracted_proxies)}"
+            )
+            proxies.extend([item.to_dict() for item in extracted_proxies])
 
-        proxies_file = get_relative_path("proxies.txt")
-        if os.path.exists(proxies_file):
-            db.from_file(proxies_file, parse, 100)
+        # Ensure a minimum number of proxies is collected
+        if len(proxies) < 100:
+            proxies.extend(db.db.select("proxies", "*", "status = ?", ["active"], True))
+        if len(proxies) < 100:
+            proxies.extend(
+                db.db.select("proxies", "*", "status = ?", ["untested"], True)
+            )
 
-    # Filter proxies
-    proxies = list(filter(lambda proxy: not is_private_or_dead(proxy), proxies))
+        # Fetch proxies checked more than 1 hour ago
+        if len(proxies) < 100:
+            all_proxies = db.db.select("proxies", "*", rand=True)
+            proxies.extend(
+                [
+                    item
+                    for item in all_proxies
+                    if is_date_rfc3339_hour_more_than(item.get("last_check"), 1)
+                    and item.get("proxy")
+                ]
+            )
+
+    # Filter out private or dead proxies and remove duplicates
+    proxies = [proxy for proxy in proxies if not is_private_or_dead(proxy)]
     proxies = get_unique_dicts_by_key_in_list(proxies, "proxy")
 
-    # close database
+    # Close the database
     db.close()
 
+    # Log if no proxies found, else shuffle
     if not proxies:
         log_proxy("proxies empty")
         file, line = get_caller_info()
