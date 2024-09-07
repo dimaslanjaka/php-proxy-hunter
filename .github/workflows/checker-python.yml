@@ -85,14 +85,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            dist/
-            tmp/
+            ~/.cache/pip
+            ./dist/
+            ./tmp/
             src/*.sqlite*
             src/*.mmdb
             node_modules/
             .yarn/caches/
             .yarn/*.gz
-            venv/
+            ./venv/
             ${{ env.pip_cache_dir }}
             ${{ env.NUITKA_CACHE_DIR }}
             *.lock
@@ -102,13 +103,8 @@ jobs:
             vendor/
             ${{ env.USERPROFILE }}\AppData\Local\Nuitka\Nuitka\Cache
             $HOME/AppData/Local/Nuitka/Nuitka/Cache
-            ~/.cache/pip
             config/
             .cache/
-            proxies.txt
-            dead.txt
-            proxyChecker.txt
-            working.txt
             working.json
           key: ${{ runner.os }}-python-${{ hashFiles('.husky/hash.txt') }}
           restore-keys: |
@@ -131,9 +127,6 @@ jobs:
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m distutils.core --help
           python3 requirements_install.py
-
-      - run: ls -R venv
-        shell: bash
 
       - name: Initialize Github Actions
         id: php-github-actions-init
