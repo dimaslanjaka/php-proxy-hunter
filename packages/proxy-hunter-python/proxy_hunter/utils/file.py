@@ -315,9 +315,8 @@ def read_all_text_files(directory: str) -> Dict[str, str]:
     """
     Read all text files in directory
     """
+    os.makedirs(directory, 777, exist_ok=True)
     text_files_content = {}
-    if not os.path.exists(directory):
-        return {}
 
     # List all files in the directory
     for filename in os.listdir(directory):
