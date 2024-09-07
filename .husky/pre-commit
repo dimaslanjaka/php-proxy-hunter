@@ -1,12 +1,48 @@
-#!/bin/sh
+#!/bin/bash
+
+# Check if Git LFS is installed
+command -v git-lfs >/dev/null 2>&1 || {
+    echo >&2 "\nThis repository is configured for Git LFS but 'git-lfs' was not found on your path. \
+    If you no longer wish to use Git LFS, remove this hook by deleting the 'post-commit' file in the hooks directory \
+    (set by 'core.hookspath'; usually '.git/hooks').\n";
+    exit 2;
+}
+
+# Run git LFS post-commit (optional, based on your intent)
+git lfs post-commit "$@"
 
 # Determine the current script directory and project directory
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 PROJECT_DIR=$(dirname "$SCRIPT_DIR")
 
-command -v git-lfs >/dev/null 2>&1 || { echo >&2 "\nThis repository is configured for Git LFS but 'git-lfs' was not found on your path. If you no longer wish to use Git LFS, remove this hook by deleting the 'post-commit' file in the hooks directory (set by 'core.hookspath'; usually '.git/hooks').\n"; exit 2; }
-git lfs post-commit "$@"
+# Get a list of staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
 
-. "$PROJECT_DIR/bin/create-file-hashes"
-npx lint-staged
-# python "$(dirname "$0")/python-autopep8.py"
+# Initialize variables
+PYTHON_FILES_FOUND=0
+PHP_FILES_FOUND=0
+
+# Check for files with specific extensions
+for FILE in $STAGED_FILES; do
+    if [[ $FILE == *.py ]]; then
+        PYTHON_FILES_FOUND=1
+        echo "Python file detected: $FILE"
+    fi
+    if [[ $FILE == *.php ]]; then
+        PHP_FILES_FOUND=1
+        echo "PHP file detected: $FILE"
+    fi
+done
+
+# Take action based on whether Python or PHP files were found
+if [[ $PYTHON_FILES_FOUND -eq 1 || $PHP_FILES_FOUND -eq 1 ]]; then
+    . "$PROJECT_DIR/bin/create-file-hashes" || { echo "Failed to create file hashes"; exit 1; }
+fi
+
+# Run lint-staged
+npx lint-staged || { echo "Lint-staged failed"; exit 1; }
+
+# Run Python autopep8 if applicable
+# python "$SCRIPT_DIR/python-autopep8.py" || { echo "Autopep8 formatting failed"; exit 1; }
+
+exit 0
