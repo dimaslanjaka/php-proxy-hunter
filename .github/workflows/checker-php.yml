@@ -180,141 +180,27 @@ jobs:
           python github-actions-init.py
           php github-actions-init.php
 
-      - name: Display output
-        run: |
-          echo "Total working proxies: ${{ steps.php-github-actions-init.outputs.total_working }}"
-          echo "Total dead proxies: ${{ steps.php-github-actions-init.outputs.total_dead }}"
-          echo "Total untested proxies: ${{ steps.php-github-actions-init.outputs.total_untested }}"
-          echo "Total private proxies: ${{ steps.php-github-actions-init.outputs.total_private }}"
-          echo "Total all proxies: ${{ steps.php-github-actions-init.outputs.total_all }}"
+      - name: Download required files
+        run: python3 src/geoPlugin.py
 
-      - name: Check if database.sqlite exists
-        id: check_sqlite
-        run: |
-          if [ -f "src/database.sqlite" ]; then
-            echo "sqlite_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "sqlite_exists=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Extract src/database.rar
-        if: ${{ steps.php-github-actions-init.outputs.total_all == '0' || steps.check_sqlite.outputs.sqlite_exists == 'false' }}
-        working-directory: src
-        run: |
-          # unrar x src/database.rar src/
-          # 7z x ./src/database.rar -osrc/ -aoa
-          # rar x src/database.rar src/
-          # 7z x database.rar -y
-          echo "List RAR file"
-          ls -l database.rar
-          echo "Print RAR file size"
-          du -h database.rar
-          unrar e database.rar -y -r
-
-      - name: Check last run
-        id: check_last_run
-        run: |
-          check_run_status() {
-            local file_name=$1
-            local hours=$2
-
-            # Check if tmp directory exists
-            mkdir -p tmp
-
-            # Current timestamp
-            current_time=$(date +%s)
-
-            # Print unique variable
-            echo "Unique var: run_the_job_$file_name"
-
-            # Check if last fetch timestamp file exists
-            if [ -f tmp/$file_name ]; then
-              last_fetch=$(cat tmp/$file_name)
-              elapsed_time=$((current_time - last_fetch))
-              interval_seconds=$((hours * 60 * 60))  # Convert hours to seconds
-
-              if [ $elapsed_time -ge $interval_seconds ]; then
-                echo "last run is more than $hours hours ago"
-                echo "run_the_job_$file_name=true" >> $GITHUB_OUTPUT
-              else
-                echo "last run is less than $hours hours"
-                echo "run_the_job_$file_name=false" >> $GITHUB_OUTPUT
-              fi
-            else
-              echo "tmp/$file_name not found"
-              echo "run_the_job_$file_name=true" >> $GITHUB_OUTPUT
-            fi
-          }
-          check_run_status "last_4_hours_run_timestamp" 4
-          check_run_status "last_12_hours_run_timestamp" 12
-          check_run_status "last_week_run_timestamp" 168
-
-      - name: Dump last run
-        run: |
-          echo "4 hour ${{ steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp }}"
-          echo "168 hour ${{ steps.check_last_run.outputs.run_the_job_last_week_run_timestamp }}"
+      - name: Cleanup
+        run: php cleaner.php
 
       - name: Fetch proxies
-        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
-        run: |
-          php proxyFetcher.php --admin='true'
+        run: php proxyFetcher.php
 
-      - name: Indexing proxies
-        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
-        run: |
-          php proxies-all.php
-          php configCleaner.php
-      - name: Scan ports
-        run: |
-          php scanPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
-          # php filterPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
-          php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
-      - name: Upload all proxies
-        if: steps.check_last_run.outputs.run_the_job_last_week_run_timestamp == 'true'
-        run: python proxyUpload.py
+      - name: Index proxies
+        run: php proxies-all.php
+
+      - name: Check proxies
+        run: php proxyCheckerParallel.php
+
+      - name: Upload Proxies
+        run: python3 proxyWorking.py
+
       - name: Clean github actions cache
-        if: steps.check_last_run.outputs.run_the_job_last_12_hours_run_timestamp == 'true'
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        run: bash bin/clear-github-actions-cache
-      - name: Write last check
-        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
-        run: date +%s > tmp/last_4_hours_run_timestamp
-      - name: Write last check
-        if: steps.check_last_run.outputs.run_the_job_last_week_run_timestamp == 'true'
-        run: date +%s > tmp/last_week_run_timestamp
-      - run: |
-          php scanPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
-          php proxyCheckerParallel.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
-        name: Check proxies
-      - name: Print working proxies
-        id: working
+        shell: cmd
         run: |
-          # Read the JSON file content
-          json_content=$(php proxyWorking.php)
-
-          # Check if json_content is not empty
-          if [ -n "$json_content" ]; then
-            # print working proxies
-            echo "$json_content"
-
-            # copy working proxies into public folder
-            mkdir -p public/proxies
-            cat working.json > public/proxies/working.json
-
-            echo "success=true" >> $GITHUB_OUTPUT
-          else
-            echo "working.json is empty or does not contain valid JSON data."
-            echo "success=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Upload working proxies
-        continue-on-error: true
-        run: |
-          # Read the JSON file content
-          json_content=$(php proxyWorking.php)
-
-          # Check if json_content is not empty, null, [], or {}
-          if [ -n "$json_content" ]; then
-            curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyAdd.php -d "$json_content" > /dev/null 2>&1
-            # curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "$json_content" > /dev/null 2>&1
-            curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com:8443/proxy/check -d "$json_content" > /dev/null 2>&1
-          fi
+          call "${{ github.workspace }}/bin/clear-github-actions-cache.cmd"

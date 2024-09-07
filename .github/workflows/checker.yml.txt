@@ -238,7 +238,7 @@ jobs:
       - name: Clean temp files if needed
         if: steps.clean_temp_files.outputs.clean_temp == 'true'
         run: |
-          php configCleaner.php
+          php cleaner.php
           date +%s > tmp/last_clean_timestamp.txt  # Update last clean timestamp
           echo "last_clean_timestamp=$(date +%s)" >> $GITHUB_STATE
 
