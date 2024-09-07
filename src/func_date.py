@@ -7,6 +7,7 @@ from dateutil import parser
 from tzlocal import get_localzone
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from src.func_console import log_error
 
 
 def is_current_time_more_than_rfc3339(given_datetime_str: str) -> Optional[bool]:
@@ -106,10 +107,10 @@ def get_system_timezone() -> str:
 
 
 def is_date_rfc3339_hour_more_than(
-        date_string: Optional[str], hours: int
+    date_string: Optional[str], hours: int
 ) -> Optional[bool]:
     """
-    Check if the given date string is more than specified hours ago.
+    Check if the given date string is more than the specified hours ago.
 
     Args:
     - date_string (str): The date string in RFC3339 format (e.g., "2024-05-06T12:34:56+00:00").
@@ -120,27 +121,18 @@ def is_date_rfc3339_hour_more_than(
     """
     if not date_string:
         return None
+
     try:
-        # Parse the input date string into a datetime object
-        date_time = datetime.fromisoformat(date_string).replace(tzinfo = timezone.utc)
-
-        # Calculate the current time in UTC
-        current_time = datetime.now(timezone.utc)
-
-        # Calculate the time difference
-        time_difference = current_time - date_time
-
-        # Convert hours to timedelta object
-        hours_delta = timedelta(hours = hours)
-
-        # Compare the time difference with the specified hours
-        return time_difference >= hours_delta
+        # Parse the date string and calculate the time difference in one step
+        date_time = datetime.fromisoformat(date_string)
+        return (datetime.now(timezone.utc) - date_time) >= timedelta(hours=hours)
 
     except ValueError:
-        # Handle invalid date string format
-        raise ValueError(
-            "Invalid date string format. Please provide a date string in RFC3339 format."
+        # Log error instead of raising an exception
+        log_error(
+            f"Invalid date string format: {date_string}. Expected RFC3339 format."
         )
+        return None
 
 
 if __name__ == "__main__":
