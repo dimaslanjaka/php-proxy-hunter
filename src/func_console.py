@@ -4,8 +4,9 @@ import re
 import subprocess
 import sys
 from typing import Any
-from bs4 import BeautifulSoup
+
 from ansi2html import Ansi2HTMLConverter
+from bs4 import BeautifulSoup
 from colorama import Fore, Style, just_fix_windows_console
 from proxy_hunter import remove_ansi
 
@@ -163,3 +164,20 @@ def log_proxy(*args: Any, **kwargs: Any) -> None:
         None
     """
     log_file(get_relative_path("proxyChecker.txt"), *args, **kwargs)
+
+
+def log_error(*args: Any, **kwargs: Any) -> None:
+    """
+    Log error messages to 'errorLog.txt' using log_file.
+
+    Args:
+        *args (Any): Positional arguments representing the messages to log.
+        **kwargs (Any): Keyword arguments to pass to log_file, including:
+            - remove_ansi (bool): If True, removes ANSI color codes before logging to the file. Defaults to True.
+            - ansi_html (bool): If True, convert ANSI color codes to HTML format. Defaults to False.
+            - print_args (bool): execute print. Defaults to True.
+
+    Returns:
+        None
+    """
+    log_file(get_relative_path("tmp/logs/error.txt"), *args, **kwargs)
