@@ -80,7 +80,6 @@ jobs:
             .cache/
             working.json
           key: ${{ runner.os }}-python-${{ hashFiles('.husky/hash.txt') }}
-          fail-on-cache-miss: true
           restore-keys: |
             ${{ runner.os }}-python-${{ hashFiles('.husky/hash.txt') }}
             ${{ runner.os }}-python-
