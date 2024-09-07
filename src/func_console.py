@@ -3,12 +3,15 @@ import os
 import re
 import subprocess
 import sys
-from typing import Any
+from typing import Any, Optional, Union, Dict
 
 from ansi2html import Ansi2HTMLConverter
 from bs4 import BeautifulSoup
 from colorama import Fore, Style, just_fix_windows_console
-from proxy_hunter import remove_ansi
+
+from src.func import get_relative_path
+from src.func_platform import is_debug
+from proxy_hunter import remove_ansi, resolve_parent_folder
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -181,3 +184,71 @@ def log_error(*args: Any, **kwargs: Any) -> None:
         None
     """
     log_file(get_relative_path("tmp/logs/error.txt"), *args, **kwargs)
+
+
+def debug_log(*args: Any, sep: Optional[str] = " ", end: Optional[str] = "\n") -> None:
+    """
+    Log debugging information to the console if the current device matches a specific device name.
+
+    Args:
+        *args (Any): Debugging information to be logged.
+        sep (Optional[str], optional): Separator between arguments. Defaults to ' '.
+        end (Optional[str], optional): Ending character. Defaults to '\n'.
+    """
+    if is_debug():
+        message = sep.join(map(str, args)) + end
+        # Print to console
+        print(message, end="")
+        # Write to file
+        file_path = get_relative_path("tmp/debug.log")
+        resolve_parent_folder(file_path)
+        with open(file_path, "a") as file:
+            file.write(message)
+
+
+def get_message_exception(e: Union[Exception, Any, Dict]) -> str:
+    """
+    Extracts the error message from an exception.
+
+    Args:
+        e (Union[Exception, Any, Dict]): The exception object.
+
+    Returns:
+        str: The error message extracted from the exception.
+    """
+    if isinstance(e, Exception) and e.args:
+        return str(e.args[0]).strip()
+    else:
+        return str(e).strip()
+
+
+def debug_exception(e: Union[Exception, Any, Dict]) -> str:
+    """
+    Extracts the error message from an exception.
+
+    Args:
+        e (Union[Exception, Any, Dict]): The exception object.
+
+    Returns:
+        str: The error message extracted from the exception.
+    """
+    if isinstance(e, Exception):
+        trace = []
+        tb = e.__traceback__
+        while tb is not None:
+            trace.append(
+                {
+                    "filename": tb.tb_frame.f_code.co_filename,
+                    "name": tb.tb_frame.f_code.co_name,
+                    "lineno": tb.tb_lineno,
+                }
+            )
+            tb = tb.tb_next
+        return str(
+            {
+                "type": type(e).__name__,
+                "message": get_message_exception(e),
+                "trace": trace,
+            }
+        )
+    return f"Not exception {str(e)}"
