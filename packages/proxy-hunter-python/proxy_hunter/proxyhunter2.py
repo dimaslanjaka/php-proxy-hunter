@@ -1,6 +1,6 @@
 import concurrent.futures
 import os
-from typing import Tuple
+from typing import Tuple, List
 
 from proxy_hunter.cidr2ips import list_ips_from_cidr
 from proxy_hunter.curl.prox_check import is_prox
@@ -12,6 +12,22 @@ from proxy_hunter.utils.file import (
     load_tuple_from_file,
     save_tuple_to_file,
 )
+
+
+def process_proxies_chunk(proxies_chunk: List[Tuple[str, int]], cache_file: str):
+    def callback(proxy: Tuple[str, int]):
+        ip, port = proxy
+        proxy_str = f"{ip}:{port}"
+        check = is_prox(proxy_str)
+        print(f"{proxy_str} {'is proxy' if check is not None else 'is not proxy'}\t")
+        return proxy if check else None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        results = list(executor.map(callback, proxies_chunk))
+
+    # Filter out the None results and update the cache file
+    proxies_chunk = [result for result in results if result is not None]
+    return proxies_chunk
 
 
 def proxy_hunter2(proxy: str):
@@ -35,19 +51,16 @@ def proxy_hunter2(proxy: str):
         proxies = [pair for ip in ips for pair in generate_ip_port_pairs(ip)]
         save_tuple_to_file(cache_file, proxies)
 
-    def callback(proxy: Tuple[str, int]):
-        ip, port = proxy
-        proxy_str = f"{ip}:{port}"
-        check = is_prox(proxy_str)
-        print(f"{proxy_str} {'is proxy' if check is not None else 'is not proxy'}\t")
-        return proxy if check else None
+    chunk_size = 5000  # Process in chunks of 5000 proxies
+    all_filtered_proxies: List[Tuple[str, int]] = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        results = list(executor.map(callback, proxies))
+    for i in range(0, len(proxies), chunk_size):
+        proxies_chunk = proxies[i : i + chunk_size]
+        filtered_proxies = process_proxies_chunk(proxies_chunk, cache_file)
+        all_filtered_proxies.extend(filtered_proxies)
+        # Optionally, save progress to file here if desired
 
-    # Filter out the None results and update the cache file
-    proxies = [result for result in results if result is not None]
-    save_tuple_to_file(cache_file, proxies)
+    save_tuple_to_file(cache_file, all_filtered_proxies)
 
 
 if __name__ == "__main__":
