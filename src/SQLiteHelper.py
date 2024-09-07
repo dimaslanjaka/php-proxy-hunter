@@ -6,7 +6,8 @@ from typing import List, Optional, Union
 from proxy_hunter import copy_file, delete_path
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from src.func import get_message_exception, get_relative_path
+from src.func import get_relative_path
+from src.func_console import get_message_exception
 
 
 class SQLiteHelper:

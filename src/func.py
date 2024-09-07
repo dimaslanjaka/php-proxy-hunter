@@ -9,11 +9,9 @@ import subprocess
 import sys
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
-from proxy_hunter import resolve_parent_folder, write_file
+from proxy_hunter import write_file
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from src.func_platform import is_debug
 
 # set Timezone
 os.environ["TZ"] = "Asia/Jakarta"
@@ -98,74 +96,6 @@ def resolve_relative_path(data: Optional[str] = None, *args: Union[str, bytes]) 
         write_file(relative, data)
 
     return relative
-
-
-def debug_log(*args: Any, sep: Optional[str] = " ", end: Optional[str] = "\n") -> None:
-    """
-    Log debugging information to the console if the current device matches a specific device name.
-
-    Args:
-        *args (Any): Debugging information to be logged.
-        sep (Optional[str], optional): Separator between arguments. Defaults to ' '.
-        end (Optional[str], optional): Ending character. Defaults to '\n'.
-    """
-    if is_debug():
-        message = sep.join(map(str, args)) + end
-        # Print to console
-        print(message, end="")
-        # Write to file
-        file_path = get_relative_path("tmp/debug.log")
-        resolve_parent_folder(file_path)
-        with open(file_path, "a") as file:
-            file.write(message)
-
-
-def get_message_exception(e: Union[Exception, Any, Dict]) -> str:
-    """
-    Extracts the error message from an exception.
-
-    Args:
-        e (Union[Exception, Any, Dict]): The exception object.
-
-    Returns:
-        str: The error message extracted from the exception.
-    """
-    if isinstance(e, Exception) and e.args:
-        return str(e.args[0]).strip()
-    else:
-        return str(e).strip()
-
-
-def debug_exception(e: Union[Exception, Any, Dict]) -> str:
-    """
-    Extracts the error message from an exception.
-
-    Args:
-        e (Union[Exception, Any, Dict]): The exception object.
-
-    Returns:
-        str: The error message extracted from the exception.
-    """
-    if isinstance(e, Exception):
-        trace = []
-        tb = e.__traceback__
-        while tb is not None:
-            trace.append(
-                {
-                    "filename": tb.tb_frame.f_code.co_filename,
-                    "name": tb.tb_frame.f_code.co_name,
-                    "lineno": tb.tb_lineno,
-                }
-            )
-            tb = tb.tb_next
-        return str(
-            {
-                "type": type(e).__name__,
-                "message": get_message_exception(e),
-                "trace": trace,
-            }
-        )
-    return f"Not exception {str(e)}"
 
 
 # debug_log(f"PC name: {get_pc_name()}")
