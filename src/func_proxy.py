@@ -23,11 +23,11 @@ from proxy_hunter.curl.proxy_utils import check_proxy, is_port_open
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.func import (
-    debug_log,
     get_relative_path,
     get_unique_dicts_by_key_in_list,
     move_string_between,
 )
+from src.func_console import debug_log
 from src.func_certificate import output_pem
 from src.func_console import get_caller_info, green, log_proxy, red
 from src.func_date import is_date_rfc3339_hour_more_than
