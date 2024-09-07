@@ -2,7 +2,6 @@ import http.client as http_client
 import logging
 import os
 import random
-import re
 import ssl
 import sys
 import time
@@ -58,26 +57,6 @@ def requests_enable_verbose():
     requests_log = logging.getLogger("requests.packages.urllib3")
     requests_log.setLevel(logging.DEBUG)
     requests_log.propagate = True
-
-
-def parse_ip_port(line: str) -> tuple[Optional[str], Optional[str]]:
-    """
-    Parse an IP:PORT pair from a string.
-
-    Args:
-        line (str): The string containing the IP:PORT pair.
-
-    Returns:
-        Tuple[str, str]: A tuple containing the IP address and port.
-    """
-    pattern = r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})"
-    match = re.search(pattern, line)
-    if match:
-        ip = match.group(1)
-        port = match.group(2)
-        return ip, port
-    else:
-        return None, None
 
 
 def upload_proxy(proxy: Any) -> None:
