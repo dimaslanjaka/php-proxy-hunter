@@ -93,14 +93,17 @@ jobs:
         run: |
           corepack enable
           yarn install
-          python3 -m ensurepip --upgrade
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m distutils.core --help
-          python3 requirements_install.py
 
-      - name: Clean GitHub Actions cache
+      - name: Initialize Github Actions
+        id: php-github-actions-init
+        env:
+          GITHUB_OUTPUT: $GITHUB_OUTPUT
+        run: |
+          node github-actions-init.js
+
+      - name: Clean github actions cache
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        shell: cmd
         run: |
-          echo "Cleaning cache..."
-          .\bin\clear-github-actions-cache.cmd
+          call "${{ github.workspace }}/bin/clear-github-actions-cache.cmd"
