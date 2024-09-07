@@ -8,7 +8,7 @@
 # run proxy checker parallel 17 past every hour
 # 17 */1 * * * /usr/bin/php /var/www/html/proxyCheckerParallel.php > /var/www/html/proxyChecker.txt 2>&1
 # run config cleaner every week
-0 0 * * 0 /usr/bin/php /var/www/html/configCleaner.php > /var/www/html/proxyChecker.txt 2>&1
+0 0 * * 0 /usr/bin/php /var/www/html/cleaner.php > /var/www/html/proxyChecker.txt 2>&1
 # backup database every day at midnight
 0 0 * * * /usr/local/bin/sqlite3 /var/www/html/src/database.sqlite .dump > /var/www/html/backups/php_database_backup_$(date +\%Y-\%m-\%d).sql
 0 0 * * * /usr/local/bin/sqlite3 /var/www/html/tmp/database.sqlite .dump > /var/www/html/backups/python_database_backup_$(date +\%Y-\%m-\%d).sql
