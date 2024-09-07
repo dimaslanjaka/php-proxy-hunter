@@ -125,7 +125,7 @@ run proxy checker parallel every 1 hour 17 minutes
 run cleaner every week
 
 ```
-0 0 * * 0 php /var/www/html/configCleaner.php
+0 0 * * 0 php /var/www/html/cleaner.php
 ```
 
 backup database everyday at midnight
