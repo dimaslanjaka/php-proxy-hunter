@@ -1,10 +1,13 @@
 import json
 import random
 from typing import Dict, List, Optional, Union
+
 from filelock import FileLock
-from src.func import get_relative_path, get_unique_dicts_by_key_in_list
-from src.func_proxy import upload_proxy
+
+from proxy_hunter.utils.index_utils import get_unique_dicts_by_key_in_list
 from src.ProxyDB import ProxyDB
+from src.func import get_relative_path
+from src.func_proxy import upload_proxy
 
 
 class ProxyWorkingManager:

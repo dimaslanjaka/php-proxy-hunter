@@ -1,11 +1,14 @@
+import base64
 import gzip
+import hashlib
 import ipaddress
 import platform
+import random
 import re
 import subprocess
 import zlib
 from io import BytesIO
-from typing import Optional
+from typing import Optional, Dict, Tuple, List, Any, Union
 from urllib.parse import urlparse
 
 import brotli
@@ -251,3 +254,179 @@ def decompress_requests_response(
         return content.decode(
             "utf-8", errors="replace"
         )  # Fallback to utf-8 with error handling
+
+
+def get_random_dict(dictionary: Dict) -> Tuple:
+    """
+    Return a random key-value pair from the given dictionary.
+
+    Parameters:
+        dictionary (dict): The dictionary from which to select a random key-value pair.
+
+    Returns:
+        tuple: A tuple containing a random key and its corresponding value.
+    """
+    random_key = random.choice(list(dictionary.keys()))
+    random_value = dictionary[random_key]
+    return random_key, random_value
+
+
+def keep_alphanumeric_and_remove_spaces(input_string: str) -> str:
+    """
+    Removes spaces and keeps only alphanumeric characters from the input string.
+
+    Args:
+    - input_string (str): The input string containing alphanumeric and non-alphanumeric characters.
+
+    Returns:
+    - str: The cleaned string containing only alphanumeric characters.
+    """
+    # Remove spaces
+    input_string = input_string.replace(" ", "")
+
+    # Keep only alphanumeric characters using regular expression
+    input_string = re.sub(r"[^a-zA-Z0-9]", "", input_string)
+
+    return input_string
+
+
+def get_unique_dicts_by_key_in_list(
+    dicts: List[Dict[str, str]], key: str
+) -> List[Dict[str, str]]:
+    """
+    Returns a list of unique dictionaries from the input list of dictionaries based on a specified key.
+
+    Args:
+        dicts (List[Dict[str, str]]): The list of dictionaries to process.
+        key (str): The key based on which uniqueness is determined.
+
+    Returns:
+        List[Dict[str, str]]: A list of unique dictionaries based on the specified key.
+
+    Example:
+        ```
+        proxies: List[Dict[str, str]] = [{'proxy': 'proxy1'}, {'proxy': 'proxy2'}, {'proxy': 'proxy1'}, {'proxy': 'proxy3'}]
+        unique_proxies = get_unique_dicts_by_key_in_list(proxies, 'proxy')
+        print(unique_proxies)
+        ```
+    """
+    unique_values = set()
+    unique_dicts = []
+
+    for d in dicts:
+        value = d.get(key)
+        if value not in unique_values:
+            unique_values.add(value)
+            unique_dicts.append(d)
+
+    return unique_dicts
+
+
+def clean_dict(d: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Remove keys from the dictionary where the value is empty (None or an empty string)
+    or under zero (for numerical values).
+
+    Args:
+        d (Dict[str, Any]): The dictionary to be cleaned.
+
+    Returns:
+        Dict[str, Any]: A new dictionary with unwanted key-value pairs removed.
+    """
+    return {
+        k: v
+        for k, v in d.items()
+        if (v not in [None, "", 0] and (isinstance(v, (int, float)) and v >= 0))
+    }
+
+
+def base64_encode(data: Union[str, bytes]) -> str:
+    """
+    Encodes a given string or bytes into Base64.
+
+    Args:
+        data (Union[str, bytes]): The data to encode. Can be a string or bytes.
+
+    Returns:
+        str: The Base64 encoded string.
+    """
+    if isinstance(data, str):
+        data = data.encode("utf-8")  # Convert string to bytes if necessary
+    return base64.b64encode(data).decode("utf-8")
+
+
+def base64_decode(encoded_data: str) -> str:
+    """
+    Decodes a Base64 encoded string back to its original string.
+
+    Args:
+        encoded_data (str): The Base64 encoded string to decode.
+
+    Returns:
+        str: The decoded string.
+    """
+    decoded_bytes = base64.b64decode(encoded_data)
+    return decoded_bytes.decode("utf-8")  # Assuming the original data was UTF-8 encoded
+
+
+def unique_non_empty_strings(strings: Optional[List[Union[str, None]]]) -> List[str]:
+    """
+    Filter out non-string elements, empty strings, and None from the input list,
+    and return a list of unique non-empty strings.
+
+    Args:
+        strings (List[Union[str, None]]): The list of strings to process.
+
+    Returns:
+        List[str]: A list of unique non-empty strings.
+    """
+    if not strings:
+        return []
+    unique_strings = set()
+    for s in strings:
+        if isinstance(s, str) and s not in ("", None):
+            unique_strings.add(s)
+    return list(unique_strings)
+
+
+def split_list_into_chunks(
+    lst: List[int], chunk_size: Optional[int] = None, total_chunks: Optional[int] = None
+) -> List[List[int]]:
+    """
+    Split a list into chunks either by a specified chunk size or into a specified number of chunks.
+
+    Args:
+        lst (List[int]): The list to be split into chunks.
+        chunk_size (Optional[int]): The size of each chunk. If provided, the list is split into chunks of this size.
+        total_chunks (Optional[int]): The number of chunks to split the list into. If provided, the list is split into this many chunks.
+
+    Returns:
+        List[List[int]]: A list of lists, where each inner list is a chunk of the original list.
+
+    Raises:
+        ValueError: If neither `chunk_size` nor `total_chunks` is provided.
+    """
+    if chunk_size is not None:
+        # Split by specific chunk size
+        return [lst[i : i + chunk_size] for i in range(0, len(lst), chunk_size)]
+
+    elif total_chunks is not None:
+        # Split into a specific number of chunks
+        chunk_size = len(lst) // total_chunks
+        remainder = len(lst) % total_chunks
+        chunks = []
+        start = 0
+
+        for i in range(total_chunks):
+            end = start + chunk_size + (1 if i < remainder else 0)
+            chunks.append(lst[start:end])
+            start = end
+
+        return chunks
+
+    else:
+        raise ValueError("Either chunk_size or total_chunks must be provided.")
+
+
+def md5(input_string: str) -> str:
+    return hashlib.md5(input_string.encode()).hexdigest()

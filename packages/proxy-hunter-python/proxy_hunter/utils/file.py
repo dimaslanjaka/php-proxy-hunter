@@ -609,3 +609,63 @@ def is_file_larger_than_kb(file_path, size_in_kb=5):
 
     # Check if file size is greater than specified size
     return file_size_kb > size_in_kb
+
+
+def move_string_between(
+    source_file_path: str,
+    destination_file_path: str,
+    string_to_remove: Optional[Union[str, List[str]]] = None,
+) -> bool:
+    """
+    Move specified strings from the source file to the destination file and remove them from the source file.
+
+    Parameters:
+    - source_file_path: Path to the source file.
+    - destination_file_path: Path to the destination file.
+    - string_to_remove: String or list of strings to remove from the source file.
+
+    Returns:
+    - True if operation is successful, False otherwise.
+    """
+    if not source_file_path or not destination_file_path:
+        return False
+
+    if not os.path.exists(destination_file_path):
+        write_file(destination_file_path, "")
+
+    if not os.path.exists(source_file_path):
+        write_file(source_file_path, "")
+
+    try:
+        # Read content from the source file
+        with open(source_file_path, "r", encoding="utf-8") as source:
+            source_content = source.read()
+
+        if not string_to_remove:
+            return False
+
+        # Ensure string_to_remove is a list
+        if isinstance(string_to_remove, str):
+            string_to_remove = [string_to_remove]
+
+        # Check and remove each string in the list
+        for string in string_to_remove:
+            if string in source_content:
+                source_content = source_content.replace(string, "")
+
+                # Append the removed string to the destination file
+                with open(destination_file_path, "a", encoding="utf-8") as destination:
+                    destination.write("\n" + string + "\n")
+
+        # Write the modified content back to the source file
+        with open(source_file_path, "w", encoding="utf-8") as source:
+            source.write(source_content)
+
+        return True
+
+    except FileNotFoundError as e:
+        print(f"File not found: {e}")
+        return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False

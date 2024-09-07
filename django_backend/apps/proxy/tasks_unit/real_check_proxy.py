@@ -1,9 +1,9 @@
-import json
 import os
 import sys
 
-import huey.contrib
-import huey.contrib.djhuey
+from django_backend.apps.core.models import ProcessStatus
+import os
+import sys
 
 from django_backend.apps.core.models import ProcessStatus
 
@@ -31,7 +31,6 @@ from proxy_hunter import (
     file_append_str,
     is_valid_proxy,
     read_file,
-    write_json,
 )
 
 from django_backend.apps.proxy.models import Proxy
@@ -41,9 +40,8 @@ from django_backend.apps.proxy.utils import execute_select_query, execute_sql_qu
 from proxyWorking import ProxyWorkingManager
 from src.func import (
     get_relative_path,
-    get_unique_dicts_by_key_in_list,
-    move_string_between,
 )
+from proxy_hunter.utils.file import move_string_between
 from src.func_console import get_message_exception
 from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
