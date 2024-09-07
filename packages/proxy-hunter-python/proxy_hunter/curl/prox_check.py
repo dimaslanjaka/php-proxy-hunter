@@ -1,7 +1,9 @@
 import concurrent.futures
 from typing import Optional
-from proxy_hunter.curl.request_helper import build_request
+
 from colorama import Fore, Style, init
+
+from proxy_hunter.curl.request_helper import build_request
 
 # Initialize colorama
 init()

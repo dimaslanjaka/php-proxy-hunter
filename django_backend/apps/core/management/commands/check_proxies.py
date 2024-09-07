@@ -26,7 +26,7 @@ from src.func import (
 )
 from proxy_hunter import file_append_str, sanitize_filename, truncate_file_content
 from src.func_console import green, red
-from proxy_hunter.curl.proxy_utils import check_proxy
+from proxy_hunter import check_proxy
 
 
 def real_check(proxy: str, url: str, title_should_be: str):

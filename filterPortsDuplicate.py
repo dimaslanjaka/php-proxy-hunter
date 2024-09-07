@@ -1,17 +1,18 @@
 import argparse
+import concurrent.futures
 import random
 import sqlite3
 from datetime import datetime, timedelta
 from sqlite3 import Cursor
 from typing import Callable, Dict, List, Optional, Union
-import concurrent.futures
+
 from joblib import Parallel, delayed
 
 from proxyCheckerReal import real_check
+from proxy_hunter import is_port_open
+from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 from src.func_console import green, red
-from proxy_hunter.curl.proxy_utils import is_port_open
-from src.ProxyDB import ProxyDB
 
 # remove duplicate ip's more than 3 proxies
 

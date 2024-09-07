@@ -26,6 +26,11 @@ from .file import (
     truncate_file_content,
     write_file,
     write_json,
+    move_string_between,
+    size_of_list_in_mb,
+    is_file_larger_than_kb,
+    is_directory_created_days_ago_or_more,
+    remove_duplicate_line_from_file,
 )
 from .index_utils import (
     check_raw_headers_keywords,
@@ -35,6 +40,17 @@ from .index_utils import (
     is_valid_proxy,
     is_valid_url,
     is_vps,
+    get_unique_dicts_by_key_in_list,
+    clean_dict,
+    get_random_dict,
+    get_random_item_list,
+    split_list_into_chunks,
+    unique_non_empty_strings,
+    is_class_has_parameter,
+    keep_alphanumeric_and_remove_spaces,
+    md5,
+    base64_decode,
+    base64_encode,
 )
 from .iterationHelper import IterationHelper
 from .list import flatten_and_clean
