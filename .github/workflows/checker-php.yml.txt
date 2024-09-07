@@ -1,0 +1,320 @@
+name: Checker PHP
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      max:
+        description: "The maximum proxies to be checked."
+        required: true
+        default: "100"
+        type: string
+  workflow_call:
+    inputs:
+      max:
+        description: "The maximum proxies to be checked."
+        required: true
+        default: "100"
+        type: string
+    secrets:
+      ACCESS_TOKEN:
+        required: true
+  schedule:
+    - cron: "0 */3 * * *" # Runs every 3 hours
+
+concurrency:
+  group: php-proxy-checker
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: contains(github.repository, 'php-proxy-hunter')
+    permissions: read-all
+    runs-on: ubuntu-latest
+    env:
+      PIP_CACHE_DIR: "${{ github.workspace }}/project/tmp/pip"
+      NUITKA_CACHE_DIR: "${{ github.workspace }}/project/tmp/nuitka-cache"
+      NODE_OPTIONS: "--max_old_space_size=4096" #8192 4096 --expose-gc
+      YARN_ENABLE_IMMUTABLE_INSTALLS: false
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      node_version: 18.x
+      php_version: 7.4
+      YARN_CHECKSUM_BEHAVIOR: update
+
+    steps:
+      - name: Set timezone
+        uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: "Asia/Jakarta"
+      - uses: actions/checkout@v4
+        with:
+          repository: "dimaslanjaka/php-proxy-hunter"
+          ref: master
+          token: ${{ secrets.ACCESS_TOKEN }}
+          lfs: "true"
+      - uses: actions/checkout@v4
+        with:
+          token: "${{ secrets.ACCESS_TOKEN }}"
+          lfs: true
+          path: "public"
+          repository: "dimaslanjaka/data"
+      - name: Update Submodules
+        run: |
+          echo "init submodules"
+          git submodule init
+          git submodule foreach "git submodule init"
+          echo "sync submodules"
+          git submodule sync
+          git submodule foreach "git submodule sync"
+          echo "update submodules"
+          mkdir -p bin >/dev/null 2>&1
+          curl -L https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install > bin/submodule-install
+          rm -rf .git/modules
+          bash ./bin/submodule-install
+          git lfs track "*.rar"
+        shell: bash
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node_version }}
+
+      - run: corepack enable
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Installing package list
+        run: |
+          sudo apt list --installed
+          sudo apt-get install -y p7zip-full p7zip-rar unrar rar jq
+
+      - name: Removing previous chrome instances on runner
+        run: sudo apt purge google-chrome-stable
+
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install chromedriver-autoinstaller selenium
+
+      - name: Install xvfb
+        run: sudo apt-get install xvfb
+
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.php_version }}
+          extensions: imagick, swoole, mbstring, intl, pecl_http, curl, redis, pdo_mysql, pdo_sqlite, dom, zip, phalcon4, pgsql
+          tools: php-cs-fixer, phpunit, composer:v2
+          coverage: none
+        env:
+          fail-fast: true
+
+      - name: Validate composer
+        run: php composer.phar validate --strict
+
+      - name: Cache initialize
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist/
+            tmp/
+            src/*.sqlite*
+            src/*.mmdb
+            node_modules/
+            .yarn/caches/
+            .yarn/*.gz
+            venv/
+            ${{ env.pip_cache_dir }}
+            ${{ env.NUITKA_CACHE_DIR }}
+            *.lock
+            *.txt
+            package-lock.json
+            assets/proxies/
+            vendor/
+            ${{ env.USERPROFILE }}\AppData\Local\Nuitka\Nuitka\Cache
+            $HOME/AppData/Local/Nuitka/Nuitka/Cache
+            ~/.cache/pip
+            config/
+            .cache/
+            proxies.txt
+            dead.txt
+            proxyChecker.txt
+            working.txt
+            working.json
+            composer.lock
+            yarn.lock
+          key: ${{ runner.os }}-php-${{ hashFiles('.husky/hash.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ hashFiles('.husky/hash.txt') }}
+            ${{ runner.os }}-php-
+            ${{ runner.os }}-nuitka-
+            ${{ runner.os }}-python-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          if [ ! -f composer.lock ]; then
+              echo "composer.lock not found, running composer install..."
+              php composer.phar install --prefer-dist --no-progress
+          else
+              echo "composer.lock found, running composer update..."
+              php composer.phar update --prefer-dist --no-progress
+          fi
+          if [ ! -f yarn.lock ]; then
+              touch yarn.lock
+          fi
+          yarn install
+          python requirements_install.py
+
+      - name: Initialize Github Actions
+        id: php-github-actions-init
+        env:
+          GITHUB_OUTPUT: $GITHUB_OUTPUT
+        run: |
+          python github-actions-init.py
+          php github-actions-init.php
+
+      - name: Display output
+        run: |
+          echo "Total working proxies: ${{ steps.php-github-actions-init.outputs.total_working }}"
+          echo "Total dead proxies: ${{ steps.php-github-actions-init.outputs.total_dead }}"
+          echo "Total untested proxies: ${{ steps.php-github-actions-init.outputs.total_untested }}"
+          echo "Total private proxies: ${{ steps.php-github-actions-init.outputs.total_private }}"
+          echo "Total all proxies: ${{ steps.php-github-actions-init.outputs.total_all }}"
+
+      - name: Check if database.sqlite exists
+        id: check_sqlite
+        run: |
+          if [ -f "src/database.sqlite" ]; then
+            echo "sqlite_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "sqlite_exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Extract src/database.rar
+        if: ${{ steps.php-github-actions-init.outputs.total_all == '0' || steps.check_sqlite.outputs.sqlite_exists == 'false' }}
+        working-directory: src
+        run: |
+          # unrar x src/database.rar src/
+          # 7z x ./src/database.rar -osrc/ -aoa
+          # rar x src/database.rar src/
+          # 7z x database.rar -y
+          echo "List RAR file"
+          ls -l database.rar
+          echo "Print RAR file size"
+          du -h database.rar
+          unrar e database.rar -y -r
+
+      - name: Check last run
+        id: check_last_run
+        run: |
+          check_run_status() {
+            local file_name=$1
+            local hours=$2
+
+            # Check if tmp directory exists
+            mkdir -p tmp
+
+            # Current timestamp
+            current_time=$(date +%s)
+
+            # Print unique variable
+            echo "Unique var: run_the_job_$file_name"
+
+            # Check if last fetch timestamp file exists
+            if [ -f tmp/$file_name ]; then
+              last_fetch=$(cat tmp/$file_name)
+              elapsed_time=$((current_time - last_fetch))
+              interval_seconds=$((hours * 60 * 60))  # Convert hours to seconds
+
+              if [ $elapsed_time -ge $interval_seconds ]; then
+                echo "last run is more than $hours hours ago"
+                echo "run_the_job_$file_name=true" >> $GITHUB_OUTPUT
+              else
+                echo "last run is less than $hours hours"
+                echo "run_the_job_$file_name=false" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "tmp/$file_name not found"
+              echo "run_the_job_$file_name=true" >> $GITHUB_OUTPUT
+            fi
+          }
+          check_run_status "last_4_hours_run_timestamp" 4
+          check_run_status "last_12_hours_run_timestamp" 12
+          check_run_status "last_week_run_timestamp" 168
+
+      - name: Dump last run
+        run: |
+          echo "4 hour ${{ steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp }}"
+          echo "168 hour ${{ steps.check_last_run.outputs.run_the_job_last_week_run_timestamp }}"
+
+      - name: Fetch proxies
+        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
+        run: |
+          php proxyFetcher.php --admin='true'
+
+      - name: Indexing proxies
+        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
+        run: |
+          php proxies-all.php
+          php cleaner.php
+      - name: Scan ports
+        run: |
+          php scanPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
+          # php filterPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
+          php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
+      - name: Upload all proxies
+        if: steps.check_last_run.outputs.run_the_job_last_week_run_timestamp == 'true'
+        run: python proxyUpload.py
+      - name: Clean github actions cache
+        if: steps.check_last_run.outputs.run_the_job_last_12_hours_run_timestamp == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: bash bin/clear-github-actions-cache
+      - name: Write last check
+        if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
+        run: date +%s > tmp/last_4_hours_run_timestamp
+      - name: Write last check
+        if: steps.check_last_run.outputs.run_the_job_last_week_run_timestamp == 'true'
+        run: date +%s > tmp/last_week_run_timestamp
+      - run: |
+          php scanPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
+          php proxyCheckerParallel.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
+        name: Check proxies
+      - name: Print working proxies
+        id: working
+        run: |
+          # Read the JSON file content
+          json_content=$(php proxyWorking.php)
+
+          # Check if json_content is not empty
+          if [ -n "$json_content" ]; then
+            # print working proxies
+            echo "$json_content"
+
+            # copy working proxies into public folder
+            mkdir -p public/proxies
+            cat working.json > public/proxies/working.json
+
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "working.json is empty or does not contain valid JSON data."
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Upload working proxies
+        continue-on-error: true
+        run: |
+          # Read the JSON file content
+          json_content=$(php proxyWorking.php)
+
+          # Check if json_content is not empty, null, [], or {}
+          if [ -n "$json_content" ]; then
+            curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyAdd.php -d "$json_content" > /dev/null 2>&1
+            # curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com/proxyCheckerParallel.php -d "$json_content" > /dev/null 2>&1
+            curl --user-agent "GitHubActions-Runner/2.0 (action:CI; repo:dimaslanjaka/php-proxy-hunter; +https://github.com/actions)" -s -X POST https://sh.webmanajemen.com:8443/proxy/check -d "$json_content" > /dev/null 2>&1
+          fi
