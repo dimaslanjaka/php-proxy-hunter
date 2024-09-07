@@ -164,10 +164,3 @@ jobs:
             dist/*.json
             dist/*.txt
             dist/*.yml
-
-      - name: Clean github actions cache
-        env:
-          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        shell: cmd
-        run: |
-          call "${{ github.workspace }}/bin/clear-github-actions-cache.cmd"

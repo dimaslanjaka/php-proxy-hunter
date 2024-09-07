@@ -1,0 +1,30 @@
+name: Clean GitHub Actions Cache
+
+on:
+  schedule:
+    - cron: "0 0/3 * * *" # Schedule every [n] hour
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      ACCESS_TOKEN:
+        required: true
+
+jobs:
+  clean-cache:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Clean GitHub Actions cache
+        env:
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: |
+          echo "Cleaning cache..."
+          # Ensure you have the clear-github-actions-cache.cmd script in the specified location
+          chmod +x .github/bin/clear-github-actions-cache.cmd
+          .github/bin/clear-github-actions-cache.cmd
