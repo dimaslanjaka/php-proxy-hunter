@@ -1,14 +1,7 @@
 import os
-import sys
-
-from django_backend.apps.core.models import ProcessStatus
-
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
-)
-
 import random
 import re
+import sys
 import threading
 import traceback
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
@@ -20,30 +13,33 @@ import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
 from proxy_hunter import (
+    ProxyCheckResult,
     build_request,
     check_raw_headers_keywords,
     decompress_requests_response,
     extract_proxies,
     file_append_str,
+    is_port_open,
     is_valid_proxy,
+    move_string_between,
     read_file,
 )
 
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+)
+
+from django_backend.apps.core.models import ProcessStatus
 from django_backend.apps.proxy.models import Proxy
 from django_backend.apps.proxy.models import Proxy as ProxyModel
 from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 from proxyWorking import ProxyWorkingManager
-from src.func import (
-    get_relative_path,
-)
-from proxy_hunter import move_string_between
-from src.func_console import get_message_exception
-from src.func_console import green, log_file, red
+from src.func import get_relative_path
+from src.func_console import get_message_exception, green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug
 from src.func_proxy import upload_proxy
-from proxy_hunter import ProxyCheckResult, is_port_open
 
 result_log_file = get_relative_path("proxyChecker.txt")
 global_tasks: Set[Union[threading.Thread, Future]] = set()
