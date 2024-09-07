@@ -145,6 +145,9 @@ jobs:
       - name: Download required files
         run: python3 src/geoPlugin.py
 
+      - name: Cleanup
+        run: python3 cleaner.py
+
       - name: Fetch Proxies
         run: python3 proxyFetcher.py
 
