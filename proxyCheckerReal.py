@@ -9,6 +9,8 @@ from typing import Dict, List, Optional
 
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
+
+from proxyWorking import ProxyWorkingManager
 from proxy_checker import ProxyChecker
 from proxy_hunter import (
     build_request,
@@ -22,13 +24,11 @@ from proxy_hunter import (
     sanitize_filename,
     truncate_file_content,
 )
-from proxy_hunter.curl.proxy_utils import check_proxy
-
-from proxyWorking import ProxyWorkingManager
+from proxy_hunter import check_proxy
+from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 from src.func_console import green, log_proxy, red
 from src.func_date import is_date_rfc3339_hour_more_than
-from src.ProxyDB import ProxyDB
 
 
 class ProxyCheckerReal:

@@ -1,10 +1,9 @@
-import inspect
 import json
 import os
 import random
 import subprocess
 import sys
-from typing import List, Optional, TypeVar, Union
+from typing import List, Optional, Union
 
 from proxy_hunter import write_file
 
@@ -121,29 +120,6 @@ def run_php_script(php_script_path: str, *args: str) -> None:
 
     # Run the PHP script
     subprocess.run(command)
-
-
-def is_class_has_parameter(clazz: type, key: str) -> bool:
-    """
-    Check if a class has a specified parameter in its constructor.
-
-    Args:
-        clazz (type): The class to inspect.
-        key (str): The parameter name to check for.
-
-    Returns:
-        bool: True if the class has the specified parameter, False otherwise.
-    """
-    inspect_method = inspect.signature(clazz)
-    return key in inspect_method.parameters
-
-
-T = TypeVar("T")
-
-
-def get_random_item_list(arr: List[T]) -> T:
-    random.shuffle(arr)
-    return random.choice(arr)
 
 
 def get_random_http_profile(json_file):
