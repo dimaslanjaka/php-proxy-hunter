@@ -159,17 +159,7 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          if [ ! -f composer.lock ]; then
-              echo "composer.lock not found, running composer install..."
-              php composer.phar install --prefer-dist --no-progress
-          else
-              echo "composer.lock found, running composer update..."
-              php composer.phar update --prefer-dist --no-progress
-          fi
-          if [ ! -f yarn.lock ]; then
-              touch yarn.lock
-          fi
-          yarn install
+          php composer.phar install --prefer-dist --no-progress
           python requirements_install.py
 
       - name: Initialize Github Actions
