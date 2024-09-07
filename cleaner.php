@@ -44,7 +44,7 @@ foreach ($directories as $directory) {
         continue;
       }
       // skip database deletion
-      $pattern = '/\.(db|sqlite|sqlite3)$/i';
+      $pattern = '/\.(db|sqlite|sqlite3|mmdb)$/i';
       if (preg_match($pattern, $filePath)) {
         echo "$filePath excluded";
         continue;
