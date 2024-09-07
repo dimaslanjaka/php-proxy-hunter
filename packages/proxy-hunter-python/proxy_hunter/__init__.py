@@ -13,6 +13,8 @@ from .curl import (
     get_device_ip,
     check_proxy,
     get_requests_error,
+    ProxyCheckResult,
+    time2isoz,
 )
 from .extractor import extract_ips, extract_proxies, extract_proxies_from_file
 from .ip2cidr import calculate_cidr
@@ -59,4 +61,20 @@ from .utils import (
     truncate_file_content,
     write_file,
     write_json,
+    base64_decode,
+    base64_encode,
+    unique_non_empty_strings,
+    clean_dict,
+    get_random_dict,
+    get_random_item_list,
+    split_list_into_chunks,
+    keep_alphanumeric_and_remove_spaces,
+    get_unique_dicts_by_key_in_list,
+    is_class_has_parameter,
+    iterationHelper,
+    move_string_between,
+    size_of_list_in_mb,
+    is_file_larger_than_kb,
+    is_directory_created_days_ago_or_more,
+    remove_duplicate_line_from_file,
 )

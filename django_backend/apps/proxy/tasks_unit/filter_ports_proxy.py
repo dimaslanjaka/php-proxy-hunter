@@ -21,7 +21,7 @@ from django_backend.apps.proxy.tasks_unit.real_check_proxy import (
 from django_backend.apps.proxy.utils import execute_select_query, execute_sql_query
 from src.func_console import green, log_file, magenta, orange, red
 from src.func_date import get_current_rfc3339_time
-from proxy_hunter.curl.proxy_utils import is_port_open
+from proxy_hunter import is_port_open
 
 global_tasks: Set[Union[threading.Thread, concurrent.futures.Future]] = set()
 

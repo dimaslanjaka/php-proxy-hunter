@@ -1,6 +1,7 @@
 import base64
 import gzip
 import hashlib
+import inspect
 import ipaddress
 import platform
 import random
@@ -8,7 +9,7 @@ import re
 import subprocess
 import zlib
 from io import BytesIO
-from typing import Optional, Dict, Tuple, List, Any, Union
+from typing import Optional, Dict, Tuple, List, Any, Union, TypeVar
 from urllib.parse import urlparse
 
 import brotli
@@ -256,6 +257,21 @@ def decompress_requests_response(
         )  # Fallback to utf-8 with error handling
 
 
+def is_class_has_parameter(clazz: type, key: str) -> bool:
+    """
+    Check if a class has a specified parameter in its constructor.
+
+    Args:
+        clazz (type): The class to inspect.
+        key (str): The parameter name to check for.
+
+    Returns:
+        bool: True if the class has the specified parameter, False otherwise.
+    """
+    inspect_method = inspect.signature(clazz)
+    return key in inspect_method.parameters
+
+
 def get_random_dict(dictionary: Dict) -> Tuple:
     """
     Return a random key-value pair from the given dictionary.
@@ -320,6 +336,10 @@ def get_unique_dicts_by_key_in_list(
             unique_dicts.append(d)
 
     return unique_dicts
+
+
+def md5(input_string: str) -> str:
+    return hashlib.md5(input_string.encode()).hexdigest()
 
 
 def clean_dict(d: Dict[str, Any]) -> Dict[str, Any]:
@@ -428,5 +448,9 @@ def split_list_into_chunks(
         raise ValueError("Either chunk_size or total_chunks must be provided.")
 
 
-def md5(input_string: str) -> str:
-    return hashlib.md5(input_string.encode()).hexdigest()
+T = TypeVar("T")
+
+
+def get_random_item_list(arr: List[T]) -> T:
+    random.shuffle(arr)
+    return random.choice(arr)

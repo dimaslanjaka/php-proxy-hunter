@@ -2,10 +2,6 @@ import os
 import sys
 
 from django_backend.apps.core.models import ProcessStatus
-import os
-import sys
-
-from django_backend.apps.core.models import ProcessStatus
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
@@ -41,13 +37,13 @@ from proxyWorking import ProxyWorkingManager
 from src.func import (
     get_relative_path,
 )
-from proxy_hunter.utils.file import move_string_between
+from proxy_hunter import move_string_between
 from src.func_console import get_message_exception
 from src.func_console import green, log_file, red
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.func_platform import is_debug
 from src.func_proxy import upload_proxy
-from proxy_hunter.curl.proxy_utils import ProxyCheckResult, is_port_open
+from proxy_hunter import ProxyCheckResult, is_port_open
 
 result_log_file = get_relative_path("proxyChecker.txt")
 global_tasks: Set[Union[threading.Thread, Future]] = set()
