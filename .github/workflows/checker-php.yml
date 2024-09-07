@@ -185,10 +185,3 @@ jobs:
 
       - name: Upload Proxies
         run: python3 proxyWorking.py
-
-      - name: Clean github actions cache
-        env:
-          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        shell: cmd
-        run: |
-          call "${{ github.workspace }}/bin/clear-github-actions-cache.cmd"
