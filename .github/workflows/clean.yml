@@ -1,4 +1,4 @@
-name: github actions log cleaner
+name: Clean GitHub Actions Logs
 on:
   workflow_dispatch:
     inputs:
