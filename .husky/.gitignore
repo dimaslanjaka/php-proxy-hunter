@@ -1,12 +1,9 @@
 *
-!/post-merge
 !/.gitignore
 !/h
 !/husky.sh
-!/post-commit
 !/readme.md
 !*.py
-!/post-checkout
-!/pre-push
+!/post-*
+!/pre-*
 !/hash.txt
-!/pre-commit
