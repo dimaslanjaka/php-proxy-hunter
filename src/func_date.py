@@ -42,16 +42,17 @@ def is_date_rfc3339_older_than(date_str: str, hours: int = 1) -> bool:
     Returns:
         bool: True if the timestamp is older than the specified number of hours, False otherwise.
     """
-    # Get the current UTC time
+    # Get the current UTC time and calculate the time threshold
     now = datetime.now(timezone.utc)
-    # Calculate the time threshold
     time_threshold = now - timedelta(hours=hours)
 
     try:
         # Parse the timestamp and ensure it is timezone-aware
         timestamp_dt = parser.isoparse(date_str)
     except ValueError:
-        raise ValueError(f"Invalid timestamp format: {date_str}")
+        # Log the error instead of raising an exception
+        log_error(f"Invalid timestamp format: {date_str}. Expected RFC3339 format.")
+        return False
 
     # Ensure both times are compared in UTC
     if timestamp_dt.tzinfo is None:
