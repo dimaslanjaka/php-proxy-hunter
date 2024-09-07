@@ -127,15 +127,11 @@ jobs:
         run: |
           git restore *.txt
 
-      - name: Install NodeJS Dependencies
+      - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           corepack enable
           yarn install
-
-      - name: Install Python Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
           python3 -m ensurepip --upgrade
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m distutils.core --help
