@@ -55,7 +55,7 @@ jobs:
 
       - name: Setup Cache
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/.cache/pip
@@ -80,6 +80,7 @@ jobs:
             .cache/
             working.json
           key: ${{ runner.os }}-python-${{ hashFiles('.husky/hash.txt') }}
+          fail-on-cache-miss: true
           restore-keys: |
             ${{ runner.os }}-python-${{ hashFiles('.husky/hash.txt') }}
             ${{ runner.os }}-python-
