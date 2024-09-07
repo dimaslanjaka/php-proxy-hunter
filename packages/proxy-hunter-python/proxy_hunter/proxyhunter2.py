@@ -32,7 +32,7 @@ def process_proxies_chunk(proxies_chunk: List[Tuple[str, int]], cache_file: str)
 
 def proxy_hunter2(proxy: str):
     ip, port = proxy.split(":")
-    cache_file = f"tmp/data/cache-{ip}.json"
+    cache_file = f"tmp/data/cache-{ip}.tuple"
     iter_data = f"tmp/data/{ip}.txt"
     if os.path.exists(cache_file):
         try:
