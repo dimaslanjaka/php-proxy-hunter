@@ -27,7 +27,7 @@ def is_current_time_more_than_rfc3339(given_datetime_str: str) -> Optional[bool]
         # Compare the current date and time with the given date and time
         return current_datetime > given_datetime
     except Exception as e:
-        print(f"Error parsing date: {e}")
+        log_error(f"Error parsing date: {e}")
         return None
 
 
