@@ -119,7 +119,11 @@ class ProxyCheckerReal:
                     response_text = decompress_requests_response(check.response)
                     if response_text:
                         soup = BeautifulSoup(response_text, "html.parser")
-                        response_title = soup.title.string.strip() if soup.title else ""
+                        response_title = (
+                            soup.title.string.strip()
+                            if soup.title and soup.title.string
+                            else ""
+                        )
                         if (
                             not check_raw_headers_keywords(response_text)
                             and response_title.lower() != "AZ Environment".lower()
@@ -128,8 +132,8 @@ class ProxyCheckerReal:
                             if title_should_be.lower() in response_title.lower():
                                 protocols.append(check.type.lower())
                 file_append_str(output_file, log)
-            except Exception as exc:
-                self.log(f"{proxy_type} check generated an exception: {exc}")
+            except Exception as e:
+                self.log(f"real_check({proxy_type}) check generated an exception: {e}")
 
         # if os.path.exists(output_file):
         #     self.log(f"Logs written {output_file}")
