@@ -86,6 +86,7 @@ jobs:
         run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
 
       - name: Setup Cache
+        id: cache
         uses: actions/cache@v4
         with:
           path: |
@@ -129,11 +130,13 @@ jobs:
           git restore *.txt
 
       - name: Install NodeJS Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           corepack enable
           yarn install
 
       - name: Install Python Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python3 -m ensurepip --upgrade
           python3 -m pip install --upgrade pip setuptools wheel
