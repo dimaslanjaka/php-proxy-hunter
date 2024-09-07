@@ -36,6 +36,7 @@ dirs = [
     "assets/chrome-profiles",
     "assets/chrome",
     "tmp/data",
+    "dist",
 ] + temp_dirs
 
 # Delete directories contents
