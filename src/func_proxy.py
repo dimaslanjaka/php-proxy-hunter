@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import requests
 import urllib3
+
 from proxy_hunter import (
-    Proxy,
     file_append_str,
     file_remove_empty_lines,
     get_pc_useragent,
@@ -24,9 +24,9 @@ from proxy_hunter.curl.proxy_utils import check_proxy, is_port_open
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.func import (
     get_relative_path,
-    get_unique_dicts_by_key_in_list,
-    move_string_between,
 )
+from proxy_hunter.utils.file import move_string_between
+from proxy_hunter.utils.index_utils import get_unique_dicts_by_key_in_list
 from src.func_console import debug_log
 from src.func_certificate import output_pem
 from src.func_console import get_caller_info, green, log_proxy, red
