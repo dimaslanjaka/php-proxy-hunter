@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 # List of packages to check
-packages = ["pycountry", "django", "PySide6", "requests"]
+packages = ["pycountry", "django", "PySide6", "requests", "pytz", "timezonefinder"]
 
 
 # Function to check if a package is installed
@@ -23,12 +23,9 @@ missing_packages = [pkg for pkg in packages if not check_package(pkg)]
 if missing_packages:
     print(f"Missing packages: {', '.join(missing_packages)}")
     # Run pip install to install from requirements.txt
-    try:
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"]
-        )
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing packages: {e}")
+    subprocess.check_call(
+        [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"]
+    )
 else:
     print("All required packages are installed.")
 
