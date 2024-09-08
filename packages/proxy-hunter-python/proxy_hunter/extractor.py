@@ -1,7 +1,22 @@
 import re
 from typing import List, Optional
+
+from urlextract import URLExtract
+
 from .Proxy import Proxy
-from .utils import check_raw_headers_keywords, is_valid_proxy, is_valid_ip
+from .utils import is_valid_ip, is_valid_proxy
+
+
+def extract_url(string: Optional[str]) -> List[str]:
+    extractor = URLExtract()
+    extract = extractor.find_urls(string)
+    results = []
+    for item in extract:
+        if isinstance(item, str) and (
+            item.startswith("http://") or item.startswith("https://")
+        ):
+            results.append(item)
+    return results
 
 
 def extract_proxies(string: Optional[str]) -> List[Proxy]:
