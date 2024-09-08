@@ -10,8 +10,32 @@ if (!$isCli) {
   exit('Only CLI allowed');
 }
 
-// change config/CLI.json
+// List of required Composer packages
+$requiredPackages = [
+  'geoip2/geoip2',
+  'annexare/countries-list'
+];
 
+// Function to check installed packages using composer show
+function checkMissingPackages(array $requiredPackages): array
+{
+  $installedPackages = json_decode(shell_exec('composer show --format=json'), true)['installed'] ?? [];
+  $installedNames = array_column($installedPackages, 'name');
+
+  return array_filter($requiredPackages, fn ($package) => !in_array(strtolower($package), array_map('strtolower', $installedNames)));
+}
+
+// Install missing packages if any
+if ($missingPackages = checkMissingPackages($requiredPackages)) {
+  echo "Missing packages detected: " . implode(', ', $missingPackages) . "\n";
+  echo "Running composer install...\n";
+  shell_exec('php composer.phar install --prefer-dist --no-progress');
+} else {
+  echo "All required packages are installed.\n";
+}
+
+// Update config/CLI.json
+$configPath = __DIR__ . '/config/CLI.json';
 $data = [
   "endpoint" => "https://www.example.com/",
   "headers" => [
@@ -19,28 +43,23 @@ $data = [
     "Accept-Language: en-US,en;q=0.5",
     "Connection: keep-alive",
     "Host: www.example.com",
-    "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0"
+    "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0"
   ],
   "type" => "http|socks4|socks5"
 ];
+write_file($configPath, json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
-write_file(__DIR__ . '/config/CLI.json', json_encode($data));
-
+// Fetch and process working proxies
 $db = new ProxyDB();
-$data = parse_working_proxies($db);
+$proxyData = parse_working_proxies($db);
 
-// Get the file path from the GITHUB_OUTPUT environment variable
-$githubOutputPath = getenv('GITHUB_OUTPUT');
+// Write proxy counts to GITHUB_OUTPUT if the environment variable exists
+if ($githubOutputPath = getenv('GITHUB_OUTPUT')) {
+  $output = array_reduce(array_keys($proxyData['counter']), function ($acc, $key) use ($proxyData) {
+    $value = $proxyData['counter'][$key];
+    echo "total $key $value proxies" . PHP_EOL;
+    return $acc . "total_$key=$value\n";
+  }, '');
 
-// Initialize an empty output string
-$output = "";
-
-foreach ($data['counter'] as $key => $value) {
-  // Append each key-value pair to the output string
-  $output .= "total_$key=$value\n";
-  // Output log
-  echo "total $key $value proxies" . PHP_EOL;
+  file_put_contents($githubOutputPath, $output, FILE_APPEND);
 }
-
-// Write the output to the GITHUB_OUTPUT file
-file_put_contents($githubOutputPath, $output, FILE_APPEND);
