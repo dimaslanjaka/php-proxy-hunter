@@ -51,7 +51,8 @@ const excludeDirs = [
   "example",
   ".husky/",
   "packages/",
-  "dist/"
+  "dist/",
+  "tmp/"
 ]
   .map((pattern) => joinPathPreserveDriveLetter(projectDir, pattern))
   .concat([".vscode"]);
