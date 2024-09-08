@@ -96,7 +96,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.php_version }}
-          extensions: imagick, swoole, mbstring, intl, pecl_http, curl, redis, pdo_mysql, pdo_sqlite, dom, zip, phalcon4, pgsql
+          extensions: mbstring, intl, pecl_http, curl, redis, pdo_mysql, pdo_sqlite, dom, zip
+          ini-values: post_max_size=256M, max_execution_time=180
           tools: php-cs-fixer, phpunit, composer:v2
           coverage: none
         env:
