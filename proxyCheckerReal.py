@@ -148,14 +148,14 @@ class ProxyCheckerReal:
         if protocols and response_title:
             pt = "-".join(protocols)
             self.log(
-                f"{pt}://{proxy} {green('working')} -> {url} ({response_title})".replace(
+                f"{pt}://{proxy} {green('working')} -> {url} ({response_title})\t".replace(
                     "()", ""
                 ).strip()
             )
             result["result"] = True
         else:
             self.log(
-                f"{proxy} {red('dead')} -> {url} ({response_title})".replace(
+                f"{proxy} {red('dead')} -> {url} ({response_title})\t".replace(
                     "()", ""
                 ).strip()
             )
@@ -195,7 +195,7 @@ class ProxyCheckerReal:
                 response_title = soup.title.string.strip() if soup.title else ""
                 if "AZ Environment".lower() in response_title.lower():
                     result = checker.parse_anonymity(response.text)
-                    self.log(f"{proxy} anonymity is {green(result)}")
+                    self.log(f"{proxy} anonymity is {green(result)}\t")
                     # break when success
                     break
         return result
@@ -279,7 +279,7 @@ class ProxyCheckerReal:
                 if title_should_be.lower() in response_title.lower():
                     break
         if valid_log and latency_log:
-            self.log(f"{proxy} latency is {latency_log} [{valid_log}]")
+            self.log(f"{proxy} latency is {latency_log} [{valid_log}]\t")
         return latency
 
 
