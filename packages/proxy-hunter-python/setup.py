@@ -16,6 +16,7 @@ setuptools.setup(
         "brotli",
         "ipaddress",
         "pytest",
+        "urlextract",
     ],
     test_suite="tests",
     author="Dimas Lanjaka",

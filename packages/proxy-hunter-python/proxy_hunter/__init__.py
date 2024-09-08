@@ -16,7 +16,12 @@ from .curl import (
     ProxyCheckResult,
     time2isoz,
 )
-from .extractor import extract_ips, extract_proxies, extract_proxies_from_file
+from .extractor import (
+    extract_ips,
+    extract_proxies,
+    extract_proxies_from_file,
+    extract_url,
+)
 from .ip2cidr import calculate_cidr
 from .ip2proxy_list import generate_ip_port_pairs
 from .ip2subnet import get_default_subnet_mask, get_subnet_mask
