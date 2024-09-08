@@ -22,11 +22,14 @@ function checkMissingPackages(array $requiredPackages): array
   $installedPackages = json_decode(shell_exec('composer show --format=json'), true)['installed'] ?? [];
   $installedNames = array_column($installedPackages, 'name');
 
-  return array_filter($requiredPackages, fn ($package) => !in_array(strtolower($package), array_map('strtolower', $installedNames)));
+  return array_filter($requiredPackages, function ($package) use ($installedNames) {
+    return !in_array(strtolower($package), array_map('strtolower', $installedNames));
+  });
 }
 
 // Install missing packages if any
-if ($missingPackages = checkMissingPackages($requiredPackages)) {
+$missingPackages = checkMissingPackages($requiredPackages);
+if (!empty($missingPackages)) {
   echo "Missing packages detected: " . implode(', ', $missingPackages) . "\n";
   echo "Running composer install...\n";
   shell_exec('php composer.phar install --prefer-dist --no-progress');
@@ -54,12 +57,13 @@ $db = new ProxyDB();
 $proxyData = parse_working_proxies($db);
 
 // Write proxy counts to GITHUB_OUTPUT if the environment variable exists
-if ($githubOutputPath = getenv('GITHUB_OUTPUT')) {
-  $output = array_reduce(array_keys($proxyData['counter']), function ($acc, $key) use ($proxyData) {
-    $value = $proxyData['counter'][$key];
+$githubOutputPath = getenv('GITHUB_OUTPUT');
+if ($githubOutputPath) {
+  $output = '';
+  foreach ($proxyData['counter'] as $key => $value) {
     echo "total $key $value proxies" . PHP_EOL;
-    return $acc . "total_$key=$value\n";
-  }, '');
+    $output .= "total_$key=$value\n";
+  }
 
   file_put_contents($githubOutputPath, $output, FILE_APPEND);
 }
