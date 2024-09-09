@@ -12,6 +12,11 @@ import tempfile
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+from filelock import FileLock as _FileLock
+from filelock import Timeout as _FilelockTimeout
+
+FilelockTimeout = _FilelockTimeout
+FileLock = _FileLock
 from .ansi import remove_ansi
 
 
@@ -460,17 +465,26 @@ def remove_string_from_file(
     temp_file_path = f"tmp/runners/{random_string}.txt"
     os.makedirs(os.path.dirname(temp_file_path), exist_ok=True)
 
-    # Open the original file and the temporary file
-    with open(file_path, "r", encoding="utf-8") as file, open(
-        temp_file_path, "w", encoding="utf-8"
-    ) as temp_file:
-        for line in file:
-            # Replace all occurrences of the pattern with an empty string
-            modified_line = regex.sub("", line)
-            temp_file.write(modified_line)
+    # Define a lock file path
+    lock_file_path = f"{file_path}.lock"
+    lock = FileLock(lock_file_path)
 
-    # Replace the original file with the temporary file
-    shutil.move(temp_file_path, file_path)
+    try:
+        # Attempt to acquire the lock with a timeout
+        with lock.acquire(timeout=10):  # Timeout after 10 seconds
+            # Open the original file and the temporary file
+            with open(file_path, "r", encoding="utf-8") as file, open(
+                temp_file_path, "w", encoding="utf-8"
+            ) as temp_file:
+                for line in file:
+                    # Replace all occurrences of the pattern with an empty string
+                    modified_line = regex.sub("", line)
+                    temp_file.write(modified_line)
+
+            # Replace the original file with the temporary file
+            shutil.move(temp_file_path, file_path)
+    except FilelockTimeout:
+        print(f"Could not acquire lock for {file_path}. The operation is skipped.")
 
 
 def remove_trailing_hyphens(string: Optional[str]) -> str:
