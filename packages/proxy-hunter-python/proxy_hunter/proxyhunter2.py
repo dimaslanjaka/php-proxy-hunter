@@ -1,14 +1,16 @@
 import atexit
 import concurrent.futures
+import logging
 import os
 import random
 import re
-from typing import Callable, Dict, List, Optional, Tuple, Union
 import threading
-import logging
+from typing import Callable, Dict, List, Optional, Tuple, Union
+
 from proxy_hunter.cidr2ips import list_ips_from_cidr
 from proxy_hunter.curl.prox_check import is_prox
 from proxy_hunter.curl.proxy_utils import is_port_open
+from proxy_hunter.extractor import extract_ips
 from proxy_hunter.ip2cidr import calculate_cidr
 from proxy_hunter.ip2proxy_list import generate_ip_port_pairs
 from proxy_hunter.ip2subnet import get_default_subnet_mask
@@ -33,13 +35,14 @@ def gen_ports(proxy: str, force: bool = False):
     Generate ports from IP and save to tmp/ips-ports/IP.txt.
     Refer to cidr-information/genPorts.php
     """
-    ip, port = proxy.split(":")
-    ip_port_pairs = generate_ip_port_pairs(ip, 80)
-    ip_ports = [":".join(map(str, item)) for item in ip_port_pairs]
-    file = f"tmp/ip-ports/{ip}.txt"
-    if not os.path.exists(file) or force:
-        write_file(file, "\n".join(ip_ports))
-        logging.info(f"Generated {len(ip_ports)} proxies on {file}")
+    ips = extract_ips(proxy)
+    for ip in ips:
+        ip_port_pairs = generate_ip_port_pairs(ip, 80)
+        ip_ports = [":".join(map(str, item)) for item in ip_port_pairs]
+        file = f"tmp/ip-ports/{ip}.txt"
+        if not os.path.exists(file) or force:
+            write_file(file, "\n".join(ip_ports))
+            logging.info(f"Generated {len(ip_ports)} proxies on {file}")
 
 
 at_exit_data: Dict[str, List[str]] = {}
@@ -65,27 +68,28 @@ def iterate_gen_ports(
     proxy: str, callback: Optional[Callable[[str, bool, bool], None]] = None
 ):
     global at_exit_data
-    ip, port = proxy.split(":")
-    if ip not in at_exit_data:
-        at_exit_data[ip] = []
-    file = f"tmp/ip-ports/{ip}.txt"
-    if not os.path.exists(file):
-        logging.warning(f"{file} not found")
-        return
-    text: str = read_file(file)
-    lines: List[str] = re.split(r"\r?\n", text)
-    random.shuffle(lines)
-    logging.info(f"Got {len(lines)} proxies extracted from {file}")
+    ips = extract_ips(proxy)
+    for ip in ips:
+        if ip not in at_exit_data:
+            at_exit_data[ip] = []
+        file = f"tmp/ip-ports/{ip}.txt"
+        if not os.path.exists(file):
+            logging.warning(f"{file} not found")
+            return
+        text: str = read_file(file)
+        lines: List[str] = re.split(r"\r?\n", text)
+        random.shuffle(lines)
+        logging.info(f"Got {len(lines)} proxies extracted from {file}")
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures = []
-        for line_proxy in lines:
-            futures.append(
-                executor.submit(process_iterated_proxy, line_proxy, ip, callback)
-            )
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = []
+            for line_proxy in lines:
+                futures.append(
+                    executor.submit(process_iterated_proxy, line_proxy, ip, callback)
+                )
 
-        # Optional: Wait for all futures to complete
-        concurrent.futures.wait(futures)
+            # Optional: Wait for all futures to complete
+            concurrent.futures.wait(futures)
 
 
 def register_exit():
