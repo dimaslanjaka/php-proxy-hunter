@@ -3,18 +3,18 @@ import os
 import re
 import subprocess
 import sys
-from typing import Any, Dict, Optional, Union
+import threading
+from typing import Any, Dict, Union
 
 from ansi2html import Ansi2HTMLConverter
 from bs4 import BeautifulSoup
 from colorama import Fore, Style, just_fix_windows_console
 from proxy_hunter import remove_ansi, resolve_parent_folder
 
-from src.func_platform import is_debug
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.func import get_relative_path
+from src.func_platform import is_debug
 
 just_fix_windows_console()
 
@@ -111,6 +111,9 @@ def get_ansi_css_content():
     return result
 
 
+print_lock = threading.Lock()
+
+
 def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
     """
     Logs messages to a specified file, with optional handling for ANSI color codes and HTML conversion.
@@ -135,7 +138,9 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
     end = kwargs.pop("end", "\n")
     message = " ".join(map(str, args))
     if print_args:
-        print(message, end=end)
+        with print_lock:
+            sys.stdout.write(f"{message}{end}")
+            sys.stdout.flush()
 
     if ansi_html:
         conv = Ansi2HTMLConverter()
