@@ -1976,8 +1976,14 @@ function confirmAction(string $message = "Are you sure? (y/n): "): bool
  */
 function getRandomFileFromFolder(string $folder, string $file_extension = null): ?string
 {
+  if (!$folder || !file_exists($folder)) {
+    return null;
+  }
   // Get list of files in the folder
   $files = scandir($folder);
+  if (!$files) {
+    return null;
+  }
 
   // Remove special directories "." and ".." from the list
   $files = array_diff($files, ['.', '..']);
