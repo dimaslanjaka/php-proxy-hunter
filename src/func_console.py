@@ -148,7 +148,9 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
         pre_tag = soup.find("pre", class_="ansi2html-content")
         message = pre_tag.decode_contents().strip()
         style_tag = soup.find("style")
-        css_content += style_tag.get_text() + "\n\n"
+        css_text = style_tag.get_text()
+        if css_text not in css_content:
+            css_content += f"{css_text}\n\n"
     elif should_remove_ansi:
         message = remove_ansi(message)
 
