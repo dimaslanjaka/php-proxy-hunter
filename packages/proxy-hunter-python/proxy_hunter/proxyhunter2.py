@@ -100,6 +100,13 @@ def iterate_gen_ports(
             concurrent.futures.wait(futures)
 
 
+def proxy_hunter2(
+    data: str, callback: Optional[Callable[[str, bool, bool], None]] = None
+):
+    gen_ports(data)
+    iterate_gen_ports(data, callback)
+
+
 def register_exit(signum=None, frame=None):
     global at_exit_data
     for ip, data in at_exit_data.items():
@@ -110,6 +117,7 @@ def register_exit(signum=None, frame=None):
 atexit.register(register_exit)
 signal.signal(signal.SIGTERM, register_exit)
 signal.signal(signal.SIGINT, register_exit)  # To handle Ctrl+C
+
 
 if __name__ == "__main__":
     proxy = "156.34.105.58:5678"
