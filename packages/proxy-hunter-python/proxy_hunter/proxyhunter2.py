@@ -11,6 +11,7 @@ from proxy_hunter.utils.file import (
     delete_path,
     load_tuple_from_file,
     save_tuple_to_file,
+    write_file,
 )
 
 
@@ -67,5 +68,17 @@ def chunks_generator(proxy: str):
     # save_tuple_to_file(cache_file, all_filtered_proxies)
 
 
+def gen_ports(proxy: str):
+    """
+    generate ports from IP and save to tmp/ips-ports/IP.txt.
+    refer to cidr-information/genPorts.php
+    """
+    ip, port = proxy.split(":")
+    ip_port_pairs = generate_ip_port_pairs(ip, 80)
+    ip_ports = [":".join(map(str, item)) for item in ip_port_pairs]
+    write_file(f"tmp/ip-ports/{ip}.txt", "\n".join(ip_ports))
+    print(f"generated {len(ip_ports)} proxies on tmp/ip-ports/{ip}.txt")
+
+
 if __name__ == "__main__":
-    chunks_generator("156.34.105.58:5678")
+    gen_ports("156.34.105.58:5678")
