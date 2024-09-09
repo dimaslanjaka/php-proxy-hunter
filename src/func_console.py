@@ -113,15 +113,17 @@ def get_ansi_css_content():
 
 def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
     """
-    Log messages to a file and optionally remove ANSI color codes.
+    Logs messages to a specified file, with optional handling for ANSI color codes and HTML conversion.
 
     Args:
-        filename (str): The path to the log file.
+        filename (str): The path to the log file where messages will be appended.
         *args (Any): Positional arguments representing the messages to log.
-        **kwargs (Any): Keyword arguments including:
-            - remove_ansi (bool): If True, removes ANSI color codes before logging to the file. Defaults to True.
-            - ansi_html (bool): If True, convert ANSI color codes to HTML format. Defaults to False.
-            - print_args (bool): execute print. Defaults to True.
+                     Each argument is converted to a string and concatenated with a space.
+        **kwargs (Any): Optional keyword arguments:
+            - remove_ansi (bool, optional): If True (default), removes ANSI color codes from the log message.
+            - ansi_html (bool, optional): If True, converts ANSI color codes to HTML format. Defaults to False.
+            - print_args (bool, optional): If True (default), prints the message to stdout before logging.
+            - end (str, optional): The string appended after the message when printing. Defaults to a newline ("\n").
 
     Returns:
         None
@@ -130,9 +132,10 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
     should_remove_ansi = kwargs.pop("remove_ansi", True)
     ansi_html = kwargs.pop("ansi_html", False)
     print_args = kwargs.pop("print_args", True)
+    end = kwargs.pop("end", "\n")
     message = " ".join(map(str, args))
     if print_args:
-        print(message)
+        print(message, end=end)
 
     if ansi_html:
         conv = Ansi2HTMLConverter()
@@ -158,9 +161,10 @@ def log_proxy(*args: Any, **kwargs: Any) -> None:
     Args:
         *args (Any): Positional arguments representing the messages to log.
         **kwargs (Any): Keyword arguments to pass to log_file, including:
-            - remove_ansi (bool): If True, removes ANSI color codes before logging to the file. Defaults to True.
-            - ansi_html (bool): If True, convert ANSI color codes to HTML format. Defaults to False.
-            - print_args (bool): execute print. Defaults to True.
+            - remove_ansi (bool, optional): If True (default), removes ANSI color codes from the log message.
+            - ansi_html (bool, optional): If True, converts ANSI color codes to HTML format. Defaults to False.
+            - print_args (bool, optional): If True (default), prints the message to stdout before logging.
+            - end (str, optional): The string appended after the message when printing. Defaults to a newline ("\n").
 
     Returns:
         None
@@ -175,9 +179,10 @@ def log_error(*args: Any, **kwargs: Any) -> None:
     Args:
         *args (Any): Positional arguments representing the messages to log.
         **kwargs (Any): Keyword arguments to pass to log_file, including:
-            - remove_ansi (bool): If True, removes ANSI color codes before logging to the file. Defaults to True.
-            - ansi_html (bool): If True, convert ANSI color codes to HTML format. Defaults to False.
-            - print_args (bool): execute print. Defaults to True.
+            - remove_ansi (bool, optional): If True (default), removes ANSI color codes from the log message.
+            - ansi_html (bool, optional): If True, converts ANSI color codes to HTML format. Defaults to False.
+            - print_args (bool, optional): If True (default), prints the message to stdout before logging.
+            - end (str, optional): The string appended after the message when printing. Defaults to a newline ("\n").
 
     Returns:
         None
@@ -185,16 +190,21 @@ def log_error(*args: Any, **kwargs: Any) -> None:
     log_file(get_relative_path("tmp/logs/error.txt"), *args, **kwargs)
 
 
-def debug_log(*args: Any, sep: Optional[str] = " ", end: Optional[str] = "\n") -> None:
+def debug_log(*args, **kwargs) -> None:
     """
     Log debugging information to the console if the current device matches a specific device name.
 
     Args:
-        *args (Any): Debugging information to be logged.
-        sep (Optional[str], optional): Separator between arguments. Defaults to ' '.
-        end (Optional[str], optional): Ending character. Defaults to '\n'.
+        *args (Any): Positional arguments representing the messages to log.
+        **kwargs (Any): Keyword arguments to pass to log_file, including:
+            - remove_ansi (bool, optional): If True (default), removes ANSI color codes from the log message.
+            - ansi_html (bool, optional): If True, converts ANSI color codes to HTML format. Defaults to False.
+            - print_args (bool, optional): If True (default), prints the message to stdout before logging.
+            - end (str, optional): The string appended after the message when printing. Defaults to a newline ("\n").
     """
     if is_debug():
+        sep = kwargs.get("sep", " ")
+        end = kwargs.get("end", "\n")
         message = sep.join(map(str, args)) + end
         # Print to console
         print(message, end="")
@@ -257,5 +267,14 @@ browser_output_log = get_relative_path("tmp/runners/result.txt")
 
 
 def log_browser(*args, **kwargs):
+    """
+    Args:
+        *args (Any): Positional arguments representing the messages to log.
+        **kwargs (Any): Keyword arguments to pass to log_file, including:
+            - remove_ansi (bool, optional): If True (default), removes ANSI color codes from the log message.
+            - ansi_html (bool, optional): If True, converts ANSI color codes to HTML format. Defaults to False.
+            - print_args (bool, optional): If True (default), prints the message to stdout before logging.
+            - end (str, optional): The string appended after the message when printing. Defaults to a newline ("\n").
+    """
     global browser_output_log
     log_file(browser_output_log, *args, **kwargs)
