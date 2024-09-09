@@ -17,6 +17,7 @@ setuptools.setup(
         "ipaddress",
         "pytest",
         "urlextract",
+        "filelock",
     ],
     test_suite="tests",
     author="Dimas Lanjaka",
