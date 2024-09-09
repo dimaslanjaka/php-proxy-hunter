@@ -61,7 +61,7 @@ def process_iterated_proxy(
     if callable(callback):
         callback(proxy, is_open, is_proxy)
     at_exit_data[ip].append(proxy)
-    remove_string_from_file(file, at_exit_data[ip])
+    remove_string_from_file(file, at_exit_data[ip], True)
 
 
 def iterate_gen_ports(
@@ -98,7 +98,7 @@ def register_exit():
     global at_exit_data
     for ip, data in at_exit_data.items():
         file = f"tmp/ip-ports/{ip}.txt"
-        remove_string_from_file(file, data)
+        remove_string_from_file(file, data, True)
 
 
 atexit.register(register_exit)

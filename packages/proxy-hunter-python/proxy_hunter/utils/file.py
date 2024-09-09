@@ -12,11 +12,8 @@ import tempfile
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from filelock import FileLock as _FileLock
-from filelock import Timeout as _FilelockTimeout
-
-FilelockTimeout = _FilelockTimeout
-FileLock = _FileLock
+from filelock import FileLock
+from filelock import Timeout as FilelockTimeout
 from .ansi import remove_ansi
 
 
@@ -436,7 +433,9 @@ def resolve_parent_folder(path: str) -> str:
 
 
 def remove_string_from_file(
-    file_path: str, strings_to_remove: Union[str, List[str]]
+    file_path: str,
+    strings_to_remove: Union[str, List[str]],
+    exact_matches: bool = False,
 ) -> None:
     """
     Removes all occurrences of specified strings from a file.
@@ -444,6 +443,8 @@ def remove_string_from_file(
     Args:
         file_path (str): The path to the file.
         strings_to_remove (Union[str, List[str]]): The string or list of strings to be removed from the file.
+        exact_matches (bool): If True, only lines that exactly match any of the strings in `strings_to_remove` will be removed.
+                               If False, partial matches are removed.
 
     Returns:
         None
@@ -458,6 +459,8 @@ def remove_string_from_file(
     # Escape strings and create regex pattern
     escaped_strings = [re.escape(s) for s in strings_to_remove[:1000]]
     pattern = "|".join(escaped_strings)
+    if exact_matches:
+        pattern = f"^({pattern})$"
     regex = re.compile(pattern)
 
     # Create a temporary file
@@ -466,7 +469,7 @@ def remove_string_from_file(
     os.makedirs(os.path.dirname(temp_file_path), exist_ok=True)
 
     # Define a lock file path
-    id_file_lock = hashlib.md5(file_path.encode("utf-8"))
+    id_file_lock = hashlib.md5(file_path.encode("utf-8")).hexdigest()
     lock_file_path = f"tmp/runners/{id_file_lock}.lock"
     lock = FileLock(lock_file_path)
 
