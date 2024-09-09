@@ -78,12 +78,14 @@ def iterate_gen_ports(
             return
         text: str = read_file(file)
         lines: List[str] = re.split(r"\r?\n", text)
-        random.shuffle(lines)
-        logging.info(f"Got {len(lines)} proxies extracted from {file}")
+        pattern = re.compile(r"^\d{1,3}(\.\d{1,3}){3}:\d+$")
+        filtered_lines = [line for line in lines if pattern.match(line)]
+        random.shuffle(filtered_lines)
+        logging.info(f"Got {len(filtered_lines)} proxies extracted from {file}")
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = []
-            for line_proxy in lines:
+            for line_proxy in filtered_lines:
                 futures.append(
                     executor.submit(process_iterated_proxy, line_proxy, ip, callback)
                 )
