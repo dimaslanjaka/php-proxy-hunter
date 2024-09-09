@@ -466,7 +466,8 @@ def remove_string_from_file(
     os.makedirs(os.path.dirname(temp_file_path), exist_ok=True)
 
     # Define a lock file path
-    lock_file_path = f"{file_path}.lock"
+    id_file_lock = hashlib.md5(file_path.encode("utf-8"))
+    lock_file_path = f"tmp/runners/{id_file_lock}.lock"
     lock = FileLock(lock_file_path)
 
     try:
