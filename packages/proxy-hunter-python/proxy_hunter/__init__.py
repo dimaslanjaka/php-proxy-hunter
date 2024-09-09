@@ -26,6 +26,7 @@ from .ip2cidr import calculate_cidr
 from .ip2proxy_list import generate_ip_port_pairs
 from .ip2subnet import get_default_subnet_mask, get_subnet_mask
 from .proxyhunter import scan, target
+from .proxyhunter2 import gen_ports, iterate_gen_ports
 from .utils import (
     IterationHelper,
     check_raw_headers_keywords,
