@@ -1,33 +1,34 @@
 import atexit
 import concurrent.futures
-import logging
 import os
 import random
 import re
+import sys
 import threading
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional
 
-from proxy_hunter.cidr2ips import list_ips_from_cidr
 from proxy_hunter.curl.prox_check import is_prox
 from proxy_hunter.curl.proxy_utils import is_port_open
 from proxy_hunter.extractor import extract_ips
-from proxy_hunter.ip2cidr import calculate_cidr
 from proxy_hunter.ip2proxy_list import generate_ip_port_pairs
-from proxy_hunter.ip2subnet import get_default_subnet_mask
 from proxy_hunter.utils.file import (
-    delete_path,
-    load_tuple_from_file,
     read_file,
     remove_string_from_file,
-    save_tuple_to_file,
     write_file,
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s[%(threadName)s] %(message)s",
-)
+# Define a global counter and lock for controlling output
+print_lock = threading.Lock()
+LINE_CLEAR = "\x1b[2K"
+
+
+def print_status(message: str, end="\n"):
+    with print_lock:
+        if "port closed" in message:
+            sys.stdout.write(message + end)
+        else:
+            sys.stdout.write("\n" + message + end)
+        sys.stdout.flush()
 
 
 def gen_ports(proxy: str, force: bool = False):
@@ -42,7 +43,7 @@ def gen_ports(proxy: str, force: bool = False):
         file = f"tmp/ip-ports/{ip}.txt"
         if not os.path.exists(file) or force:
             write_file(file, "\n".join(ip_ports))
-            logging.info(f"Generated {len(ip_ports)} proxies on {file}")
+            print_status(f"Generated {len(ip_ports)} proxies on {file}", end="\n")
 
 
 at_exit_data: Dict[str, List[str]] = {}
@@ -54,10 +55,16 @@ def process_iterated_proxy(
     file = f"tmp/ip-ports/{ip}.txt"
     is_open = is_port_open(proxy)
     is_proxy = False
-    logging.info(f"{proxy} - {'port open' if is_open else 'port closed'}")
+    print_status(
+        f"{proxy} - {'port open' if is_open else 'port closed'}",
+        end="\r" if not is_open else "\n",
+    )
     if is_open:
         is_proxy = is_prox(proxy)
-        logging.info(f"{proxy} - {'is proxy' if is_proxy else 'not proxy'}")
+        print_status(
+            f"{proxy} - {'is proxy' if is_proxy else 'not proxy'}",
+            end="\r" if not is_proxy else "\n",
+        )
     if callable(callback):
         callback(proxy, is_open, is_proxy)
     at_exit_data[ip].append(proxy)
@@ -74,14 +81,16 @@ def iterate_gen_ports(
             at_exit_data[ip] = []
         file = f"tmp/ip-ports/{ip}.txt"
         if not os.path.exists(file):
-            logging.warning(f"{file} not found")
+            print_status(f"{file} not found", end="\r")
             return
         text: str = read_file(file)
         lines: List[str] = re.split(r"\r?\n", text)
         pattern = re.compile(r"^\d{1,3}(\.\d{1,3}){3}:\d+$")
         filtered_lines = [line for line in lines if pattern.match(line)]
         random.shuffle(filtered_lines)
-        logging.info(f"Got {len(filtered_lines)} proxies extracted from {file}")
+        print_status(
+            f"Got {len(filtered_lines)} proxies extracted from {file}", end="\n"
+        )
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = []
