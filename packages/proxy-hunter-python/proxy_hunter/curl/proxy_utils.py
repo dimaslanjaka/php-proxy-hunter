@@ -258,6 +258,7 @@ def is_port_open(address: str) -> bool:
         bool: True if the port is open, False otherwise.
     """
     result = False
+    s = None
     try:
         # Split the address into IP and port
         host, port = address.split(":")
@@ -275,6 +276,7 @@ def is_port_open(address: str) -> bool:
         # log_proxy(f"{address} {red('port closed')} {str(e)}")
         result = False
     finally:
-        # Close the socket
-        s.close()
+        if s:
+            # Close the socket
+            s.close()
     return result
