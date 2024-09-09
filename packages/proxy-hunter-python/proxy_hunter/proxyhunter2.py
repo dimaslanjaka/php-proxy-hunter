@@ -3,7 +3,7 @@ import concurrent.futures
 import os
 import random
 import re
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple, Union
 import threading
 import logging
 from proxy_hunter.cidr2ips import list_ips_from_cidr
@@ -46,21 +46,24 @@ at_exit_data: Dict[str, List[str]] = {}
 
 
 def process_iterated_proxy(
-    proxy: str, ip: str, callback: Optional[Callable[[str], None]] = None
+    proxy: str, ip: str, callback: Optional[Callable[[str, bool, bool], None]] = None
 ):
     file = f"tmp/ip-ports/{ip}.txt"
     is_open = is_port_open(proxy)
+    is_proxy = False
     logging.info(f"{proxy} - {'port open' if is_open else 'port closed'}")
     if is_open:
         is_proxy = is_prox(proxy)
         logging.info(f"{proxy} - {'is proxy' if is_proxy else 'not proxy'}")
-        if is_proxy and callable(callback):
-            callback(proxy)
+    if callable(callback):
+        callback(proxy, is_open, is_proxy)
     at_exit_data[ip].append(proxy)
     remove_string_from_file(file, at_exit_data[ip])
 
 
-def iterate_gen_ports(proxy: str, callback: Optional[Callable[[str], None]] = None):
+def iterate_gen_ports(
+    proxy: str, callback: Optional[Callable[[str, bool, bool], None]] = None
+):
     global at_exit_data
     ip, port = proxy.split(":")
     if ip not in at_exit_data:
