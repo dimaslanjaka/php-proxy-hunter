@@ -3,15 +3,14 @@ import os
 import re
 import subprocess
 import sys
-from typing import Any, Optional, Union, Dict
+from typing import Any, Dict, Optional, Union
 
 from ansi2html import Ansi2HTMLConverter
 from bs4 import BeautifulSoup
 from colorama import Fore, Style, just_fix_windows_console
-
-from src.func import get_relative_path
-from src.func_platform import is_debug
 from proxy_hunter import remove_ansi, resolve_parent_folder
+
+from src.func_platform import is_debug
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -252,3 +251,11 @@ def debug_exception(e: Union[Exception, Any, Dict]) -> str:
             }
         )
     return f"Not exception {str(e)}"
+
+
+browser_output_log = get_relative_path("tmp/runners/result.txt")
+
+
+def log_browser(*args, **kwargs):
+    global browser_output_log
+    log_file(browser_output_log, *args, **kwargs)
