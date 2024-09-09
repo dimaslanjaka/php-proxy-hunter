@@ -51,30 +51,34 @@ class ConsoleColor:
         return f"{color_code}{text}{reset_code}"
 
 
-def red(text: str):
-    # return ConsoleColor.colorize(text, "red")
+def red(text: str) -> str:
+    """Return text in bright red."""
     return Style.BRIGHT + Fore.RED + text + Style.RESET_ALL
 
 
-def magenta(text: str):
+def magenta(text: str) -> str:
+    """Return text in bright magenta."""
     return Style.BRIGHT + Fore.MAGENTA + text + Style.RESET_ALL
 
 
-def yellow(text: str):
+def yellow(text: str) -> str:
+    """Return text in bright yellow."""
     return Style.BRIGHT + Fore.YELLOW + text + Style.RESET_ALL
 
 
-def green(text: str):
-    # return ConsoleColor.colorize(text, "green")
+def green(text: str) -> str:
+    """Return text in bright green."""
     return Style.BRIGHT + Fore.GREEN + text + Style.RESET_ALL
 
 
-def orange(text: str):
+def orange(text: str) -> str:
+    """Return text in bright orange."""
     orange_color = "\033[38;5;208m"
     return Style.BRIGHT + orange_color + text + Style.RESET_ALL
 
 
-def restart_script():
+def restart_script() -> None:
+    """Restart the current script."""
     print("restarting....", end=" ")
     python_executable = sys.executable
     script_path = sys.argv[0]
@@ -83,15 +87,11 @@ def restart_script():
     subprocess.run(command)
 
 
-def get_caller_info():
-    """
-    Get the caller's frame from the call stack
+def get_caller_info() -> tuple[str, int]:
+    """Get the caller's file and line number.
 
-    Example:
-        ```
-        file, line = get_caller_info()
-        print(f"Called from file '{file}', line {line}")
-        ```
+    Returns:
+        tuple: A tuple containing the filename and line number of the caller.
     """
     caller_frame = inspect.stack()[2]
     caller_file = caller_frame.filename
@@ -102,8 +102,12 @@ def get_caller_info():
 css_content = ""
 
 
-def get_ansi_css_content():
-    """Get generated CSS content (unique)"""
+def get_ansi_css_content() -> str:
+    """Get generated unique CSS content from ANSI styles.
+
+    Returns:
+        str: A string of unique CSS lines from ANSI styles.
+    """
     global css_content
     lines = re.split(r"\r?\n", css_content)
     unique_lines = list(set(lines))
@@ -115,21 +119,16 @@ print_lock = threading.Lock()
 
 
 def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
-    """
-    Logs messages to a specified file, with optional handling for ANSI color codes and HTML conversion.
+    """Log messages to a file with optional ANSI or HTML handling.
 
     Args:
-        filename (str): The path to the log file where messages will be appended.
+        filename (str): The path to the log file.
         *args (Any): Positional arguments representing the messages to log.
-                     Each argument is converted to a string and concatenated with a space.
         **kwargs (Any): Optional keyword arguments:
-            - remove_ansi (bool, optional): If True (default), removes ANSI color codes from the log message.
-            - ansi_html (bool, optional): If True, converts ANSI color codes to HTML format. Defaults to False.
-            - print_args (bool, optional): If True (default), prints the message to stdout before logging.
-            - end (str, optional): The string appended after the message when printing. Defaults to a newline ("\n").
-
-    Returns:
-        None
+            - remove_ansi (bool): Removes ANSI color codes. Defaults to True.
+            - ansi_html (bool): Converts ANSI to HTML. Defaults to False.
+            - print_args (bool): Prints the message to stdout. Defaults to True.
+            - end (str): String appended after the message when printing. Defaults to newline.
     """
     global css_content
     should_remove_ansi = kwargs.pop("remove_ansi", True)
@@ -161,52 +160,36 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
 
 def log_proxy(*args: Any, **kwargs: Any) -> None:
     """
-    Proxy function to log messages to 'proxyChecker.txt' using log_file.
+    Proxy logging function to 'proxyChecker.txt'.
 
     Args:
         *args (Any): Positional arguments representing the messages to log.
-        **kwargs (Any): Keyword arguments to pass to log_file, including:
-            - remove_ansi (bool, optional): If True (default), removes ANSI color codes from the log message.
-            - ansi_html (bool, optional): If True, converts ANSI color codes to HTML format. Defaults to False.
-            - print_args (bool, optional): If True (default), prints the message to stdout before logging.
-            - end (str, optional): The string appended after the message when printing. Defaults to a newline ("\n").
-
-    Returns:
-        None
+        **kwargs (Any): Optional keyword arguments:
+            - remove_ansi (bool): Removes ANSI color codes. Defaults to True.
+            - ansi_html (bool): Converts ANSI to HTML. Defaults to False.
+            - print_args (bool): Prints the message to stdout. Defaults to True.
+            - end (str): String appended after the message when printing. Defaults to newline.
     """
     log_file(get_relative_path("proxyChecker.txt"), *args, **kwargs)
 
 
 def log_error(*args: Any, **kwargs: Any) -> None:
     """
-    Log error messages to 'errorLog.txt' using log_file.
+    Log error messages to 'errorLog.txt'.
 
     Args:
         *args (Any): Positional arguments representing the messages to log.
-        **kwargs (Any): Keyword arguments to pass to log_file, including:
-            - remove_ansi (bool, optional): If True (default), removes ANSI color codes from the log message.
-            - ansi_html (bool, optional): If True, converts ANSI color codes to HTML format. Defaults to False.
-            - print_args (bool, optional): If True (default), prints the message to stdout before logging.
-            - end (str, optional): The string appended after the message when printing. Defaults to a newline ("\n").
-
-    Returns:
-        None
+        **kwargs (Any): Optional keyword arguments:
+            - remove_ansi (bool): Removes ANSI color codes. Defaults to True.
+            - ansi_html (bool): Converts ANSI to HTML. Defaults to False.
+            - print_args (bool): Prints the message to stdout. Defaults to True.
+            - end (str): String appended after the message when printing. Defaults to newline.
     """
     log_file(get_relative_path("tmp/logs/error.txt"), *args, **kwargs)
 
 
-def debug_log(*args, **kwargs) -> None:
-    """
-    Log debugging information to the console if the current device matches a specific device name.
-
-    Args:
-        *args (Any): Positional arguments representing the messages to log.
-        **kwargs (Any): Keyword arguments to pass to log_file, including:
-            - remove_ansi (bool, optional): If True (default), removes ANSI color codes from the log message.
-            - ansi_html (bool, optional): If True, converts ANSI color codes to HTML format. Defaults to False.
-            - print_args (bool, optional): If True (default), prints the message to stdout before logging.
-            - end (str, optional): The string appended after the message when printing. Defaults to a newline ("\n").
-    """
+def debug_log(*args: Any, **kwargs: Any) -> None:
+    """Log debugging information to the console and a debug file."""
     if is_debug():
         sep = kwargs.get("sep", " ")
         end = kwargs.get("end", "\n")
@@ -221,14 +204,13 @@ def debug_log(*args, **kwargs) -> None:
 
 
 def get_message_exception(e: Union[Exception, Any, Dict]) -> str:
-    """
-    Extracts the error message from an exception.
+    """Extract error message from an exception.
 
     Args:
         e (Union[Exception, Any, Dict]): The exception object.
 
     Returns:
-        str: The error message extracted from the exception.
+        str: The error message.
     """
     if isinstance(e, Exception) and e.args:
         return str(e.args[0]).strip()
@@ -237,14 +219,13 @@ def get_message_exception(e: Union[Exception, Any, Dict]) -> str:
 
 
 def debug_exception(e: Union[Exception, Any, Dict]) -> str:
-    """
-    Extracts the error message from an exception.
+    """Extract the full trace from an exception.
 
     Args:
         e (Union[Exception, Any, Dict]): The exception object.
 
     Returns:
-        str: The error message extracted from the exception.
+        str: A detailed error message and trace information.
     """
     if isinstance(e, Exception):
         trace = []
@@ -265,21 +246,22 @@ def debug_exception(e: Union[Exception, Any, Dict]) -> str:
                 "trace": trace,
             }
         )
-    return f"Not exception {str(e)}"
+    return f"Not an exception: {str(e)}"
 
 
 browser_output_log = get_relative_path("tmp/runners/result.txt")
 
 
-def log_browser(*args, **kwargs):
-    """
+def log_browser(*args: Any, **kwargs: Any) -> None:
+    """Log browser output to a file.
+
     Args:
         *args (Any): Positional arguments representing the messages to log.
-        **kwargs (Any): Keyword arguments to pass to log_file, including:
-            - remove_ansi (bool, optional): If True (default), removes ANSI color codes from the log message.
-            - ansi_html (bool, optional): If True, converts ANSI color codes to HTML format. Defaults to False.
-            - print_args (bool, optional): If True (default), prints the message to stdout before logging.
-            - end (str, optional): The string appended after the message when printing. Defaults to a newline ("\n").
+        **kwargs (Any): Optional keyword arguments:
+            - remove_ansi (bool): Removes ANSI color codes. Defaults to True.
+            - ansi_html (bool): Converts ANSI to HTML. Defaults to False.
+            - print_args (bool): Prints the message to stdout. Defaults to True.
+            - end (str): String appended after the message when printing. Defaults to newline.
     """
     global browser_output_log
     log_file(browser_output_log, *args, **kwargs)
