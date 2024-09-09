@@ -32,10 +32,20 @@ def gen_ports(proxy: str, force: bool = False):
     file = f"tmp/ip-ports/{ip}.txt"
     if not os.path.exists(file) or force:
         write_file(file, "\n".join(ip_ports))
-        print(f"generated {len(ip_ports)} proxies on {file}")
+        print(f"generated {len(ip_ports)} proxies on {file}" + "\t")
 
 
 at_exit_data: Dict[str, List[str]] = {}
+
+
+def process_iterated_proxy(proxy: str, ip: str, file: str):
+    is_open = is_port_open(proxy)
+    print(proxy, ("port open" if is_open else "port closed") + "\t")
+    if is_open:
+        is_proxy = is_prox(proxy)
+        print(proxy, ("is proxy" if is_proxy else "not proxy") + "\t")
+    at_exit_data[ip].append(proxy)
+    remove_string_from_file(file, proxy)
 
 
 def iterate_gen_ports(proxy: str):
@@ -45,20 +55,22 @@ def iterate_gen_ports(proxy: str):
         at_exit_data[ip] = []
     file = f"tmp/ip-ports/{ip}.txt"
     if not os.path.exists(file):
-        print(file, "not found")
+        print(file, "not found" + "\t")
         return
     text: str = read_file(file)
     lines: List[str] = re.split(r"\r?\n", text)
     random.shuffle(lines)
-    print("got", len(lines), "proxies extracted from", file)
-    for proxy in lines:
-        is_open = is_port_open(proxy)
-        print(proxy, "port open" if is_open else "port closed")
-        if is_open:
-            is_proxy = is_prox(proxy)
-            print(proxy, "is proxy" if is_proxy else "not proxy")
-        at_exit_data[ip].append(proxy)
-        threading.Thread(target=remove_string_from_file, args=(file, proxy)).start()
+    print("got", len(lines), "proxies extracted from", file + "\t")
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        futures = []
+        for line_proxy in lines:
+            futures.append(
+                executor.submit(process_iterated_proxy, line_proxy, ip, file)
+            )
+
+        # Optional: Wait for all futures to complete
+        concurrent.futures.wait(futures)
 
 
 def register_exit():
