@@ -1,8 +1,9 @@
 <?php
 
-// generate ports from IP
-
 require_once __DIR__ . '/../func-proxy.php';
+
+// generate ports from IP
+// save to tmp/ips-ports/IP.txt
 
 $parseData = parseQueryOrPostBody();
 
