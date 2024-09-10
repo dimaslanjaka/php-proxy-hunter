@@ -12,7 +12,7 @@ def extract_url(string: Optional[str]) -> List[str]:
         return []
     extractor = URLExtract()
     extract = extractor.find_urls(string)
-    results = []
+    results: List[str] = []
     for item in extract:
         if isinstance(item, str) and (
             item.startswith("http://") or item.startswith("https://")
@@ -35,7 +35,7 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
     if not string or not string.strip():
         return []
 
-    results = []
+    results: List[Proxy] = []
 
     # Regular expression pattern to match IP:PORT pairs along with optional username and password
     pattern = r"((?:(?:\d{1,3}\.){3}\d{1,3})\:\d{2,5}(?:@\w+:\w+)?|(?:(?:\w+)\:\w+@\d{1,3}(?:\.\d{1,3}){3}\:\d{2,5}))"
@@ -91,7 +91,22 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
             result = Proxy(match)
             results.append(result)
 
-    return results
+    # Unique list of proxy
+    # Create a dictionary to prioritize proxies with credentials
+    unique_proxies = {}
+
+    for p in results:
+        if p.proxy in unique_proxies:
+            # If a proxy with the same address exists, prioritize the one with credentials
+            if p.has_credentials():
+                unique_proxies[p.proxy] = p
+        else:
+            unique_proxies[p.proxy] = p
+
+    # Get a list of unique Proxy objects
+    unique_proxy_list = list(unique_proxies.values())
+
+    return unique_proxy_list
 
 
 def extract_proxies_from_file(filename: str) -> List[Proxy]:

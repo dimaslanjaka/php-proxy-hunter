@@ -82,7 +82,7 @@ class Proxy:
         self.https = https
 
     def has_credentials(self):
-        return self.username is not None and self.password is not None
+        return self.username and self.password
 
     def __str__(self):
         attributes = ", ".join(f"{key}: {value}" for key, value in vars(self).items())
