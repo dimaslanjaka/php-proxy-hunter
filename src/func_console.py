@@ -14,8 +14,7 @@ from proxy_hunter import read_file, remove_ansi, resolve_parent_folder
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.func import get_relative_path
-from src.func_platform import is_debug
+from .func_platform import is_debug
 
 just_fix_windows_console()
 
@@ -181,7 +180,7 @@ def log_proxy(*args: Any, **kwargs: Any) -> None:
             - print_args (bool): Prints the message to stdout. Defaults to True.
             - end (str): String appended after the message when printing. Defaults to newline.
     """
-    log_file(get_relative_path("proxyChecker.txt"), *args, **kwargs)
+    log_file("proxyChecker.txt", *args, **kwargs)
 
 
 def log_error(*args: Any, **kwargs: Any) -> None:
@@ -196,7 +195,7 @@ def log_error(*args: Any, **kwargs: Any) -> None:
             - print_args (bool): Prints the message to stdout. Defaults to True.
             - end (str): String appended after the message when printing. Defaults to newline.
     """
-    log_file(get_relative_path("tmp/logs/error.txt"), *args, **kwargs)
+    log_file("tmp/logs/error.txt", *args, **kwargs)
 
 
 def debug_log(*args: Any, **kwargs: Any) -> None:
@@ -208,7 +207,7 @@ def debug_log(*args: Any, **kwargs: Any) -> None:
         # Print to console
         print(message, end="")
         # Write to file
-        file_path = get_relative_path("tmp/debug.log")
+        file_path = "tmp/debug.log"
         resolve_parent_folder(file_path)
         with open(file_path, "a") as file:
             file.write(message)
@@ -260,7 +259,7 @@ def debug_exception(e: Union[Exception, Any, Dict]) -> str:
     return f"Not an exception: {str(e)}"
 
 
-browser_output_log = get_relative_path("tmp/runners/result.txt")
+browser_output_log = "tmp/runners/result.txt"
 
 
 def log_browser(*args: Any, **kwargs: Any) -> None:
