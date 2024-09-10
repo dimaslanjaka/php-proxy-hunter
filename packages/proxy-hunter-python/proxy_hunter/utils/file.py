@@ -10,7 +10,7 @@ import string
 import sys
 import tempfile
 import time
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 from filelock import FileLock
 from filelock import Timeout as FilelockTimeout
@@ -434,7 +434,7 @@ def resolve_parent_folder(path: str) -> str:
 
 def remove_string_from_file(
     file_path: str,
-    strings_to_remove: Union[str, List[str]],
+    strings_to_remove: Union[str, List[str], Set[str]],
     exact_matches: bool = False,
 ) -> None:
     """
@@ -442,7 +442,7 @@ def remove_string_from_file(
 
     Args:
         file_path (str): The path to the file.
-        strings_to_remove (Union[str, List[str]]): The string or list of strings to be removed from the file.
+        strings_to_remove (Union[str, List[str], Set[str]]): The string, list of strings, or set of strings to be removed from the file.
         exact_matches (bool): If True, only lines that exactly match any of the strings in `strings_to_remove` will be removed.
                                If False, partial matches are removed.
 
@@ -455,6 +455,8 @@ def remove_string_from_file(
     # Ensure strings_to_remove is a list
     if isinstance(strings_to_remove, str):
         strings_to_remove = [strings_to_remove]
+    elif isinstance(strings_to_remove, set):
+        strings_to_remove = list(strings_to_remove)
 
     # Escape strings and create regex pattern
     escaped_strings = [re.escape(s) for s in strings_to_remove[:1000]]
