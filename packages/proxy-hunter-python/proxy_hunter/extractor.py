@@ -8,6 +8,8 @@ from .utils import is_valid_ip, is_valid_proxy
 
 
 def extract_url(string: Optional[str]) -> List[str]:
+    if not string:
+        return []
     extractor = URLExtract()
     extract = extractor.find_urls(string)
     results = []
