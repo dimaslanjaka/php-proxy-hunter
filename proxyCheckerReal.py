@@ -5,7 +5,7 @@ import random
 import threading
 import time
 from multiprocessing.pool import ThreadPool as Pool
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
@@ -313,7 +313,8 @@ def real_latency(proxy: str):
     return instance_checker.real_latency(proxy)
 
 
-def worker(item: Dict[str, str]):
+def worker(item: Dict[str, Any]):
+    db = None
     try:
         db = ProxyDB(get_relative_path("src/database.sqlite"))
         test = {}
@@ -349,11 +350,12 @@ def worker(item: Dict[str, str]):
         return {"result": False, "error": e}
 
     finally:
-        db.close()
+        if db:
+            db.close()
         return {"result": False}
 
 
-def using_pool(proxies: List[Dict[str, str]], pool_size: int = 5):
+def using_pool(proxies: List[Dict[str, Any]], pool_size: int = 5):
     """
     multi threading using pool
     """
@@ -367,7 +369,7 @@ def using_pool(proxies: List[Dict[str, str]], pool_size: int = 5):
     return pool
 
 
-def using_joblib(proxies: List[Dict[str, str]], pool_size: int = 5):
+def using_joblib(proxies: List[dict], pool_size: int = 5):
     return Parallel(n_jobs=pool_size)(delayed(worker)(item) for item in proxies)
 
 
@@ -386,8 +388,8 @@ def main_real_proxy_checker(limit: int = 100):
     db = ProxyDB(get_relative_path("src/database.sqlite"), True)
     files_content = read_all_text_files(get_relative_path("assets/proxies"))
     if os.path.exists(get_relative_path("proxies.txt")):
-        files_content[get_relative_path("proxies.txt")] = read_file(
-            get_relative_path("proxies.txt")
+        files_content[get_relative_path("proxies.txt")] = str(
+            read_file(get_relative_path("proxies.txt"))
         )
     for file_path, content in files_content.items():
         extract = extract_proxies(content)
