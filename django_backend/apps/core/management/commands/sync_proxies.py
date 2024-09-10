@@ -1,16 +1,16 @@
 import os
+import sqlite3
 import sys
+
+from django.core.management.base import BaseCommand
+from proxy_hunter import delete_path, extract_proxies, read_all_text_files, read_file
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../"))
 SRC_DIR = os.path.join(BASE_DIR, "src")
 sys.path.append(SRC_DIR)
 
-import sqlite3
-
-from django.core.management.base import BaseCommand
-from proxy_hunter import delete_path, extract_proxies, read_all_text_files, read_file
-
 from src.func import get_relative_path
+from src.func_proxy import blacklist_remover
 from src.geoPlugin import download_databases
 
 
@@ -157,8 +157,8 @@ class Command(BaseCommand):
         """
         files_content = read_all_text_files(get_relative_path("assets/proxies"))
         if os.path.exists(get_relative_path("proxies.txt")):
-            files_content[get_relative_path("proxies.txt")] = read_file(
-                get_relative_path("proxies.txt")
+            files_content[get_relative_path("proxies.txt")] = str(
+                read_file(get_relative_path("proxies.txt"))
             )
 
         for file_path, content in files_content.items():
@@ -212,3 +212,12 @@ class Command(BaseCommand):
             execute_insert_or_replace(src, proxy_data)
             execute_insert_or_replace(dest, proxy_data)
             delete_path(file_path)
+
+            blacklist_remover(
+                get_relative_path("src/database.sqlite"),
+                get_relative_path("data/blacklist.conf"),
+            )
+            blacklist_remover(
+                get_relative_path("tmp/database.sqlite"),
+                get_relative_path("data/blacklist.conf"),
+            )
