@@ -66,6 +66,7 @@ def process_iterated_proxy(
     ip: str,
     callback: Optional[Callable[[str, bool, bool], None]] = None,
     debug: bool = False,
+    event: Optional[threading.Event] = None,
 ) -> None:
     """
     Processes each proxy by checking if its port is open and if it's a valid proxy.
@@ -76,8 +77,14 @@ def process_iterated_proxy(
         ip (str): The associated IP address.
         callback (Optional[Callable[[str, bool, bool], None]]): Optional callback to handle the result.
         debug (bool): Whether to print debug messages (default: False).
+        event (Optional[threading.Event]): Event object for cancellation (default: None).
     """
     file = f"tmp/ip-ports/{ip}.txt"
+
+    if event and event.is_set():
+        log(f"Cancellation requested for {proxy}", end="\n")
+        return  # Exit early if cancellation is requested
+
     is_open = is_port_open(proxy)
     is_proxy = False
 
@@ -103,6 +110,7 @@ def iterate_gen_ports(
     proxy: str,
     callback: Optional[Callable[[str, bool, bool], None]] = None,
     debug: bool = False,
+    event: Optional[threading.Event] = None,
 ) -> None:
     """
     Iterates over the generated ports for the given IPs, checking their status
@@ -112,6 +120,7 @@ def iterate_gen_ports(
         proxy (str): The proxy string to generate ports for.
         callback (Optional[Callable[[str, bool, bool], None]]): Optional callback to handle the result.
         debug (bool): Whether to print debug messages (default: False).
+        event (Optional[threading.Event]): Event object for cancellation (default: None).
     """
     global at_exit_data
     ips = extract_ips(proxy)
@@ -135,12 +144,14 @@ def iterate_gen_ports(
             for line_proxy in filtered_lines:
                 futures.append(
                     executor.submit(
-                        process_iterated_proxy, line_proxy, ip, callback, debug
+                        process_iterated_proxy, line_proxy, ip, callback, debug, event
                     )
                 )
 
-            # Optional: Wait for all futures to complete
-            concurrent.futures.wait(futures)
+            # Wait for futures to complete or be cancelled
+            for future in concurrent.futures.as_completed(futures):
+                if event and event.is_set():
+                    break
 
 
 def proxy_hunter2(
@@ -148,6 +159,7 @@ def proxy_hunter2(
     callback: Optional[Callable[[str, bool, bool], None]] = None,
     force: bool = False,
     debug: bool = False,
+    event: Optional[threading.Event] = None,
 ) -> None:
     """
     Main function to manage the proxy hunting process. It generates ports and
@@ -158,9 +170,10 @@ def proxy_hunter2(
         callback (Optional[Callable[[str, bool, bool], None]]): Optional callback to handle the result.
         force (bool): Whether to overwrite existing files (default: False).
         debug (bool): Whether to print debug messages (default: False).
+        event (Optional[threading.Event]): Event object for cancellation (default: None).
     """
     gen_ports(data, force, debug)
-    iterate_gen_ports(data, callback, debug)
+    iterate_gen_ports(data, callback, debug, event)
 
 
 def register_exit(signum=None, frame=None) -> None:
