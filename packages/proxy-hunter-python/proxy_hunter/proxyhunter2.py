@@ -19,7 +19,7 @@ print_lock = threading.Lock()
 LINE_CLEAR = "\x1b[2K"
 
 
-def print_status(message: str, end: str = "\n") -> None:
+def log(message: str, end: str = "\n") -> None:
     """
     Prints a message to stdout while acquiring a lock to prevent race conditions
     in multithreaded environments.
@@ -55,7 +55,7 @@ def gen_ports(proxy: str, force: bool = False, debug: bool = False) -> None:
         if not os.path.exists(file) or force:
             write_file(file, "\n".join(ip_ports))
             if debug:
-                print_status(f"Generated {len(ip_ports)} proxies on {file}", end="\n")
+                log(f"Generated {len(ip_ports)} proxies on {file}", end="\n")
 
 
 at_exit_data: Dict[str, List[str]] = {}
@@ -82,14 +82,14 @@ def process_iterated_proxy(
     is_proxy = False
 
     if debug:
-        print_status(
+        log(
             f"{proxy} - {'port open' if is_open else 'port closed'}",
             end="\r" if not is_open else "\n",
         )
     if is_open:
         is_proxy = isinstance(is_prox(proxy), str)
         if debug:
-            print_status(
+            log(
                 f"{proxy} - {'is proxy' if is_proxy else 'not proxy'}",
                 end="\r" if not is_proxy else "\n",
             )
@@ -120,7 +120,7 @@ def iterate_gen_ports(
             at_exit_data[ip] = []
         file = f"tmp/ip-ports/{ip}.txt"
         if not os.path.exists(file):
-            print_status(f"{file} not found", end="\r")
+            log(f"{file} not found", end="\r")
             return
         text = read_file(file)
         lines: List[str] = re.split(r"\r?\n", text) if isinstance(text, str) else []
@@ -128,9 +128,7 @@ def iterate_gen_ports(
         filtered_lines = [line for line in lines if pattern.match(line)]
         random.shuffle(filtered_lines)
         if debug:
-            print_status(
-                f"Got {len(filtered_lines)} proxies extracted from {file}", end="\n"
-            )
+            log(f"Got {len(filtered_lines)} proxies extracted from {file}", end="\n")
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
             futures = []
