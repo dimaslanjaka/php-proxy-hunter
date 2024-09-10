@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 class Proxy:
@@ -10,27 +10,27 @@ class Proxy:
     def __init__(
         self,
         proxy: str,
-        id: int = None,
-        latency: str = None,
-        type: str = None,
-        region: str = None,
-        city: str = None,
-        country: str = None,
-        last_check: str = None,
-        anonymity: str = None,
-        status: str = None,
-        timezone: str = None,
-        longitude: str = None,
-        private: str = None,
-        latitude: str = None,
-        lang: str = None,
-        useragent: str = None,
-        webgl_vendor: str = None,
-        webgl_renderer: str = None,
-        browser_vendor: str = None,
-        username: str = None,
-        password: str = None,
-        https: str = None,  # Optional HTTPS protocol
+        id: Optional[int] = None,
+        latency: Optional[str] = None,
+        type: Optional[str] = None,  # Renamed from `type`
+        region: Optional[str] = None,
+        city: Optional[str] = None,
+        country: Optional[str] = None,
+        last_check: Optional[str] = None,
+        anonymity: Optional[str] = None,
+        status: Optional[str] = None,
+        timezone: Optional[str] = None,
+        longitude: Optional[str] = None,
+        private: Optional[str] = None,
+        latitude: Optional[str] = None,
+        lang: Optional[str] = None,
+        useragent: Optional[str] = None,
+        webgl_vendor: Optional[str] = None,
+        webgl_renderer: Optional[str] = None,
+        browser_vendor: Optional[str] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        https: Optional[str] = None,  # Optional HTTPS protocol
     ) -> None:
         """
         Proxy constructor.
@@ -80,6 +80,9 @@ class Proxy:
         self.username = username
         self.password = password
         self.https = https
+
+    def has_credentials(self):
+        return self.username is not None and self.password is not None
 
     def __str__(self):
         attributes = ", ".join(f"{key}: {value}" for key, value in vars(self).items())
@@ -144,7 +147,7 @@ def dict_to_proxy_list(dict_list: List[Dict[str, Any]]) -> List[Proxy]:
     proxy_list = []
     for item in dict_list:
         proxy = Proxy(
-            proxy=item.get("proxy"),
+            proxy=str(item.get("proxy")),
             id=item.get("id"),
             latency=item.get("latency"),
             type=item.get("type"),
