@@ -4,7 +4,7 @@ import re
 import subprocess
 import sys
 import threading
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union
 
 import bs4
 from ansi2html import Ansi2HTMLConverter
@@ -118,7 +118,7 @@ def get_ansi_css_content() -> str:
 print_lock = threading.Lock()
 
 
-def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
+def log_file(filename: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
     """Log messages to a file with optional ANSI or HTML handling.
 
     Args:
@@ -135,6 +135,7 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
     ansi_html = kwargs.pop("ansi_html", False)
     print_args = kwargs.pop("print_args", True)
     end = kwargs.pop("end", "\n")
+    file_path = filename
     message = " ".join(map(str, args))
     if print_args:
         with print_lock:
@@ -162,10 +163,16 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
     elif should_remove_ansi:
         message = remove_ansi(message)
 
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    if file_path:
+        try:
+            dirname = os.path.dirname(file_path)
+            if dirname:
+                os.makedirs(dirname, exist_ok=True)
 
-    with open(filename, "a", encoding="utf-8") as f:
-        f.write(message + "\n")
+            with open(file_path, "a", encoding="utf-8") as f:
+                f.write(message + "\n")
+        except Exception as e:
+            log_error(f"log_file cannot write {file_path}: {e}")
 
 
 def log_proxy(*args: Any, **kwargs: Any) -> None:
