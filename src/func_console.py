@@ -6,6 +6,7 @@ import sys
 import threading
 from typing import Any, Dict, Union
 
+import bs4
 from ansi2html import Ansi2HTMLConverter
 from bs4 import BeautifulSoup
 from colorama import Fore, Style, just_fix_windows_console
@@ -23,7 +24,7 @@ class ConsoleColor:
     """A helper class for colorizing and formatting console output."""
 
     # ANSI escape codes for text colors
-    COLORS = {
+    COLORS: Dict[str, str] = {
         "reset": "\033[0m",
         "black": "\033[30m",
         "red": "\033[31m",
@@ -53,28 +54,28 @@ class ConsoleColor:
 
 def red(text: str) -> str:
     """Return text in bright red."""
-    return Style.BRIGHT + Fore.RED + text + Style.RESET_ALL
+    return f"{Style.BRIGHT}{Fore.RED}{text}{Style.RESET_ALL}"
 
 
 def magenta(text: str) -> str:
     """Return text in bright magenta."""
-    return Style.BRIGHT + Fore.MAGENTA + text + Style.RESET_ALL
+    return f"{Style.BRIGHT}{Fore.MAGENTA}{text}{Style.RESET_ALL}"
 
 
 def yellow(text: str) -> str:
     """Return text in bright yellow."""
-    return Style.BRIGHT + Fore.YELLOW + text + Style.RESET_ALL
+    return f"{Style.BRIGHT}{Fore.YELLOW}{text}{Style.RESET_ALL}"
 
 
 def green(text: str) -> str:
     """Return text in bright green."""
-    return Style.BRIGHT + Fore.GREEN + text + Style.RESET_ALL
+    return f"{Style.BRIGHT}{Fore.GREEN}{text}{Style.RESET_ALL}"
 
 
 def orange(text: str) -> str:
     """Return text in bright orange."""
     orange_color = "\033[38;5;208m"
-    return Style.BRIGHT + orange_color + text + Style.RESET_ALL
+    return f"{Style.BRIGHT}{orange_color}{text}{Style.RESET_ALL}"
 
 
 def restart_script() -> None:
@@ -99,7 +100,7 @@ def get_caller_info() -> tuple[str, int]:
     return caller_file, caller_line
 
 
-css_content = ""
+css_content: str = ""
 
 
 def get_ansi_css_content() -> str:
@@ -146,11 +147,19 @@ def log_file(filename: str, *args: Any, **kwargs: Any) -> None:
         html_content = conv.convert(message)
         soup = BeautifulSoup(html_content, "html.parser")
         pre_tag = soup.find("pre", class_="ansi2html-content")
-        message = pre_tag.decode_contents().strip()
-        style_tag = soup.find("style")
-        css_text = style_tag.get_text()
-        if css_text not in css_content:
-            css_content += f"{css_text}\n\n"
+        if isinstance(pre_tag, bs4.element.Tag):
+            message = pre_tag.decode_contents().strip()
+            style_tag = soup.find("style")
+            if isinstance(style_tag, bs4.element.Tag):
+                css_text = style_tag.get_text()
+                if css_text not in css_content:
+                    css_content += f"{css_text}\n\n"
+            else:
+                message += (
+                    "\nFail convert ANSI to HTML. style_tag is not type of element Tag"
+                )
+        else:
+            message = "Fail convert ANSI to HTML. pre_tag is not type of element Tag"
     elif should_remove_ansi:
         message = remove_ansi(message)
 
@@ -269,7 +278,7 @@ def log_browser(*args: Any, **kwargs: Any) -> None:
     log_file(browser_output_log, *args, **kwargs)
 
 
-def read_log_file(log_file_path: str):
+def read_log_file(log_file_path: str) -> str:
     """Read a log file and return its content as HTML.
 
     Args:
