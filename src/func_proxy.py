@@ -349,3 +349,11 @@ def blacklist_remover(
 
     conn.commit()
     conn.close()
+
+
+def get_blacklist(blacklist_file: str = "data/blacklist.conf"):
+    """Get blacklisted IPs"""
+    r_blacklist = read_file(blacklist_file)
+    if r_blacklist:
+        blacklist = extract_ips(r_blacklist)
+        return blacklist
