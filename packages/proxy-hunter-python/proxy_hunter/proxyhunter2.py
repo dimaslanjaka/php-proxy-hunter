@@ -103,7 +103,17 @@ def process_iterated_proxy(
     if callable(callback):
         callback(proxy, is_open, is_proxy)
     at_exit_data[ip].append(proxy)
-    remove_string_from_file(file, proxy, True)
+
+    clone_list = at_exit_data[ip]
+    # Use set for efficient removal
+    clone_set = set(at_exit_data[ip])
+    clone_set.difference_update(clone_list)
+
+    # Update the original list with remaining items
+    at_exit_data[ip] = list(clone_set)
+
+    # remove cloned list string from file
+    remove_string_from_file(file, clone_list, True)
 
 
 def iterate_gen_ports(
