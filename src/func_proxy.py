@@ -341,7 +341,7 @@ def blacklist_remover(
     if r_blacklist:
         blacklist = extract_ips(r_blacklist)
         for ip in blacklist:
-            query = 'DELETE FROM "proxies" WHERE "proxy" LIKE ?'
+            query = 'DELETE FROM "proxies" WHERE "proxy" LIKE ? AND status != "active"'
             proxy = f"%{ip}%"
             cursor.execute(query, (proxy,))
             affected_rows = cursor.rowcount

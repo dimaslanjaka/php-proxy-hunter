@@ -265,7 +265,7 @@ function blacklist_remover()
     $blacklist = extractIPs($r_blacklist);
     foreach ($blacklist as $ip) {
       // Prepare the query
-      $query = 'DELETE FROM "main"."proxies" WHERE "proxy" LIKE :proxy';
+      $query = 'DELETE FROM "main"."proxies" WHERE "proxy" LIKE :proxy AND status != "active"';
       $stmt = $pdo->prepare($query);
 
       // Bind parameter (assuming you want to search for '%3.140.243.225%')
