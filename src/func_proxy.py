@@ -2,6 +2,7 @@ import http.client as http_client
 import logging
 import os
 import random
+import sqlite3
 import ssl
 import sys
 import time
@@ -10,25 +11,24 @@ from typing import Any, Dict, List, Optional, Union
 
 import requests
 import urllib3
-
-from proxy_hunter import check_proxy, is_port_open
 from proxy_hunter import (
+    check_proxy,
+    extract_ips,
     file_append_str,
     file_remove_empty_lines,
     get_pc_useragent,
+    get_unique_dicts_by_key_in_list,
+    is_port_open,
+    move_string_between,
     read_all_text_files,
     read_file,
 )
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from src.func import (
-    get_relative_path,
-)
-from proxy_hunter import move_string_between
-from proxy_hunter import get_unique_dicts_by_key_in_list
-from src.func_console import debug_log
+
+from src.func import get_relative_path
 from src.func_certificate import output_pem
-from src.func_console import get_caller_info, green, log_proxy, red
+from src.func_console import debug_log, get_caller_info, green, log_proxy, red
 from src.func_date import is_date_rfc3339_hour_more_than
 from src.func_platform import is_debug, is_django_environment
 from src.ProxyDB import ProxyDB
@@ -329,3 +329,23 @@ def send_post(
             return f"Error: {response.status_code} - {response.text}"
     except Exception as e:
         return f"Error: {str(e)}"
+
+
+def blacklist_remover(
+    db_path: str = "src/database.sqlite", blacklist_file: str = "data/blacklist.conf"
+):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    r_blacklist = read_file(blacklist_file)
+    if r_blacklist:
+        blacklist = extract_ips(r_blacklist)
+        for ip in blacklist:
+            query = 'DELETE FROM "proxies" WHERE "proxy" LIKE ?'
+            proxy = f"%{ip}%"
+            cursor.execute(query, (proxy,))
+            affected_rows = cursor.rowcount
+            print(f"[BLACKLIST] {ip} deleted {affected_rows} row(s).")
+
+    conn.commit()
+    conn.close()
