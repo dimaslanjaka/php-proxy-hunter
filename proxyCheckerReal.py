@@ -99,11 +99,11 @@ class ProxyCheckerReal:
 
         for future in concurrent.futures.as_completed(future_to_proxy_type):
             proxy_type = future_to_proxy_type[future]
-            if cancel_event and cancel_event.is_set():
-                self.log(
-                    f"Cancellation requested, stopping check for {proxy_type}://{proxy}."
-                )
-                break
+            # if cancel_event and cancel_event.is_set():
+            #     self.log(
+            #         f"Cancellation requested, stopping check for {proxy_type}://{proxy}."
+            #     )
+            #     break
             try:
                 check = future.result()
                 if check is None:
