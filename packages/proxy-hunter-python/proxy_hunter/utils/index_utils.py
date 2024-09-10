@@ -217,34 +217,35 @@ def decompress_requests_response(
     Returns:
         str: The decompressed response content as a string.
     """
+    # Ensure content is of type bytes
+    content: bytes = response.content  # type: ignore
+
     # Check if the response has content encoding
     encoding = response.headers.get("Content-Encoding", "").lower()
 
     try:
         if encoding == "gzip":
             # Handle gzip encoding
-            buf = BytesIO(response.content)
+            buf = BytesIO(content)
             with gzip.GzipFile(fileobj=buf) as f:
                 content = f.read()
         elif encoding == "deflate":
             # Handle deflate encoding
-            content = zlib.decompress(response.content, -zlib.MAX_WBITS)
+            content = zlib.decompress(content, -zlib.MAX_WBITS)
         elif encoding == "br":
             # Handle Brotli encoding
-            content = brotli.decompress(response.content)
+            content = brotli.decompress(content)
         else:
             # No encoding or unsupported encoding
-            content = response.content
-    except (OSError, zlib.error, Exception) as e:
+            pass
+    except (OSError, zlib.error, ValueError) as e:
         if debug:
             print(f"Decompression error: {e}")
-        content = response.content  # Fallback to raw content
+        # Fallback to raw content if there's an error
+        content = response.content  # type: ignore
 
     # Detect encoding if not specified or incorrectly detected
-    detected_encoding = chardet.detect(content).get("encoding")
-
-    if detected_encoding is None:
-        detected_encoding = "utf-8"  # Fallback to a default encoding
+    detected_encoding = chardet.detect(content).get("encoding", "utf-8") or "utf-8"
 
     # Decode the content with detected encoding
     try:
@@ -409,19 +410,22 @@ def unique_non_empty_strings(strings: Optional[List[Union[str, None]]]) -> List[
     return list(unique_strings)
 
 
+T = TypeVar("T")
+
+
 def split_list_into_chunks(
-    lst: List[int], chunk_size: Optional[int] = None, total_chunks: Optional[int] = None
-) -> List[List[int]]:
+    lst: List[T], chunk_size: Optional[int] = None, total_chunks: Optional[int] = None
+) -> List[List[T]]:
     """
     Split a list into chunks either by a specified chunk size or into a specified number of chunks.
 
     Args:
-        lst (List[int]): The list to be split into chunks.
+        lst (List[T]): The list to be split into chunks.
         chunk_size (Optional[int]): The size of each chunk. If provided, the list is split into chunks of this size.
         total_chunks (Optional[int]): The number of chunks to split the list into. If provided, the list is split into this many chunks.
 
     Returns:
-        List[List[int]]: A list of lists, where each inner list is a chunk of the original list.
+        List[List[T]]: A list of lists, where each inner list is a chunk of the original list.
 
     Raises:
         ValueError: If neither `chunk_size` nor `total_chunks` is provided.
@@ -446,9 +450,6 @@ def split_list_into_chunks(
 
     else:
         raise ValueError("Either chunk_size or total_chunks must be provided.")
-
-
-T = TypeVar("T")
 
 
 def get_random_item_list(arr: List[T]) -> T:

@@ -3,6 +3,8 @@ requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pyright]
+pythonVersion = "3.11"
+pythonPlatform = "Windows"
 include = [
   "src",
   "*.py",
@@ -28,5 +30,4 @@ defineConstant = { DEBUG = true }
 reportMissingImports = "error"
 reportMissingTypeStubs = false
 reportPropertyTypeMismatch = "error"
-pythonVersion = "3.11"
-pythonPlatform = "Windows"
+reportOptionalMemberAccess = "warning"

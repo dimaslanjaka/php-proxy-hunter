@@ -43,7 +43,7 @@ ssl._create_default_https_context = lambda: ssl.create_default_context(
 )
 
 # Suppress InsecureRequestWarning
-requests.packages.urllib3.disable_warnings()
+requests.packages.urllib3.disable_warnings()  # type: ignore
 urllib3.disable_warnings()
 
 
@@ -170,7 +170,7 @@ def get_proxies(
         files_content = read_all_text_files(get_relative_path("assets/proxies"))
         proxy_file_path = get_relative_path("proxies.txt")
         if os.path.exists(proxy_file_path):
-            files_content[proxy_file_path] = read_file(proxy_file_path)
+            files_content[proxy_file_path] = str(read_file(proxy_file_path))
 
         for file_path, content in files_content.items():
             extracted_proxies = db.extract_proxies(content, True)
@@ -217,7 +217,7 @@ def get_proxies(
     return proxies
 
 
-def is_proxy_recently_checked(proxy: Dict[str, Union[None, str]]) -> bool:
+def is_proxy_recently_checked(proxy: Dict[str, Union[None, str]]):
     if proxy["last_check"] is None:
         return True
     return is_date_rfc3339_hour_more_than(proxy["last_check"], 24)
