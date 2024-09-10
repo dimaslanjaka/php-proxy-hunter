@@ -26,7 +26,7 @@ from .ip2proxy_list import generate_ip_port_pairs
 from .ip2subnet import get_default_subnet_mask, get_subnet_mask
 from .Proxy import Proxy, dict_to_proxy_list
 from .proxyhunter import scan, target
-from .proxyhunter2 import gen_ports, iterate_gen_ports, proxy_hunter2
+from .proxyhunter2 import gen_ports, iterate_gen_ports, proxy_hunter2, log
 from .utils import (
     IterationHelper,
     base64_decode,
