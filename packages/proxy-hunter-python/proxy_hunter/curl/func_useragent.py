@@ -4,7 +4,7 @@ import sys
 from typing import Union
 
 import requests
-from proxy_hunter.utils import read_file
+from proxy_hunter.utils.file import read_file
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
