@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Determine the OS
+OS=$(uname -s)
+
+# Get the directory of the script
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+
+# Default directory for Linux
+if [ "$OS" == "Linux" ]; then
+  CWD="/var/www/html"
+else
+  # For non-Linux systems, use the script directory's parent
+  CWD="$(dirname "$SCRIPT_DIR")"
+fi
+
+USER="www-data"
+
+chmod 777 "$CWD/bin"
+chmod 777 "$CWD/public"
+chmod 777 "$CWD/assets"
+chmod 777 "$CWD/src"
+chmod 777 "$CWD/tmp"
+chmod 777 "$CWD/data"
+
+chown -R "$USER":"$USER" "$CWD/bin"
+chown -R "$USER":"$USER" "$CWD/public"
+chown -R "$USER":"$USER" "$CWD/assets"
+chown -R "$USER":"$USER" "$CWD/src"
+chown -R "$USER":"$USER" "$CWD/tmp"
+chown -R "$USER":"$USER" "$CWD/data"
