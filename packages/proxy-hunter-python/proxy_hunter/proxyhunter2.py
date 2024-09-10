@@ -19,7 +19,15 @@ print_lock = threading.Lock()
 LINE_CLEAR = "\x1b[2K"
 
 
-def print_status(message: str, end="\n"):
+def print_status(message: str, end: str = "\n") -> None:
+    """
+    Prints a message to stdout while acquiring a lock to prevent race conditions
+    in multithreaded environments.
+
+    Args:
+        message (str): The message to print.
+        end (str): The end character (default: newline).
+    """
     with print_lock:
         if "port closed" in message:
             sys.stdout.write(message + end)
@@ -28,10 +36,16 @@ def print_status(message: str, end="\n"):
         sys.stdout.flush()
 
 
-def gen_ports(proxy: str, force: bool = False):
+def gen_ports(proxy: str, force: bool = False, debug: bool = False) -> None:
     """
-    Generate ports from IP and save to tmp/ips-ports/IP.txt.
-    Refer to cidr-information/genPorts.php
+    Generates port combinations for given IP addresses extracted from the proxy
+    and saves them to a file. Optionally forces overwriting existing files and
+    enables debug messages.
+
+    Args:
+        proxy (str): Proxy string containing IP addresses to generate ports for.
+        force (bool): Whether to overwrite existing files (default: False).
+        debug (bool): Whether to print debug messages (default: False).
     """
     ips = extract_ips(proxy)
     for ip in ips:
@@ -40,28 +54,45 @@ def gen_ports(proxy: str, force: bool = False):
         file = f"tmp/ip-ports/{ip}.txt"
         if not os.path.exists(file) or force:
             write_file(file, "\n".join(ip_ports))
-            print_status(f"Generated {len(ip_ports)} proxies on {file}", end="\n")
+            if debug:
+                print_status(f"Generated {len(ip_ports)} proxies on {file}", end="\n")
 
 
 at_exit_data: Dict[str, List[str]] = {}
 
 
 def process_iterated_proxy(
-    proxy: str, ip: str, callback: Optional[Callable[[str, bool, bool], None]] = None
-):
+    proxy: str,
+    ip: str,
+    callback: Optional[Callable[[str, bool, bool], None]] = None,
+    debug: bool = False,
+) -> None:
+    """
+    Processes each proxy by checking if its port is open and if it's a valid proxy.
+    Removes the proxy from the corresponding file once processed.
+
+    Args:
+        proxy (str): The proxy string to process.
+        ip (str): The associated IP address.
+        callback (Optional[Callable[[str, bool, bool], None]]): Optional callback to handle the result.
+        debug (bool): Whether to print debug messages (default: False).
+    """
     file = f"tmp/ip-ports/{ip}.txt"
     is_open = is_port_open(proxy)
     is_proxy = False
-    print_status(
-        f"{proxy} - {'port open' if is_open else 'port closed'}",
-        end="\r" if not is_open else "\n",
-    )
-    if is_open:
-        is_proxy = is_prox(proxy)
+
+    if debug:
         print_status(
-            f"{proxy} - {'is proxy' if is_proxy else 'not proxy'}",
-            end="\r" if not is_proxy else "\n",
+            f"{proxy} - {'port open' if is_open else 'port closed'}",
+            end="\r" if not is_open else "\n",
         )
+    if is_open:
+        is_proxy = isinstance(is_prox(proxy), str)
+        if debug:
+            print_status(
+                f"{proxy} - {'is proxy' if is_proxy else 'not proxy'}",
+                end="\r" if not is_proxy else "\n",
+            )
     if callable(callback):
         callback(proxy, is_open, is_proxy)
     at_exit_data[ip].append(proxy)
@@ -69,8 +100,19 @@ def process_iterated_proxy(
 
 
 def iterate_gen_ports(
-    proxy: str, callback: Optional[Callable[[str, bool, bool], None]] = None
-):
+    proxy: str,
+    callback: Optional[Callable[[str, bool, bool], None]] = None,
+    debug: bool = False,
+) -> None:
+    """
+    Iterates over the generated ports for the given IPs, checking their status
+    in parallel using multithreading.
+
+    Args:
+        proxy (str): The proxy string to generate ports for.
+        callback (Optional[Callable[[str, bool, bool], None]]): Optional callback to handle the result.
+        debug (bool): Whether to print debug messages (default: False).
+    """
     global at_exit_data
     ips = extract_ips(proxy)
     for ip in ips:
@@ -80,20 +122,23 @@ def iterate_gen_ports(
         if not os.path.exists(file):
             print_status(f"{file} not found", end="\r")
             return
-        text: str = read_file(file)
-        lines: List[str] = re.split(r"\r?\n", text)
+        text = read_file(file)
+        lines: List[str] = re.split(r"\r?\n", text) if isinstance(text, str) else []
         pattern = re.compile(r"^\d{1,3}(\.\d{1,3}){3}:\d+$")
         filtered_lines = [line for line in lines if pattern.match(line)]
         random.shuffle(filtered_lines)
-        print_status(
-            f"Got {len(filtered_lines)} proxies extracted from {file}", end="\n"
-        )
+        if debug:
+            print_status(
+                f"Got {len(filtered_lines)} proxies extracted from {file}", end="\n"
+            )
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
             futures = []
             for line_proxy in filtered_lines:
                 futures.append(
-                    executor.submit(process_iterated_proxy, line_proxy, ip, callback)
+                    executor.submit(
+                        process_iterated_proxy, line_proxy, ip, callback, debug
+                    )
                 )
 
             # Optional: Wait for all futures to complete
@@ -101,19 +146,41 @@ def iterate_gen_ports(
 
 
 def proxy_hunter2(
-    data: str, callback: Optional[Callable[[str, bool, bool], None]] = None
-):
-    gen_ports(data)
-    iterate_gen_ports(data, callback)
+    data: str,
+    callback: Optional[Callable[[str, bool, bool], None]] = None,
+    force: bool = False,
+    debug: bool = False,
+) -> None:
+    """
+    Main function to manage the proxy hunting process. It generates ports and
+    iterates through the proxies, applying the provided callback if available.
+
+    Args:
+        data (str): The data to process, typically a proxy string.
+        callback (Optional[Callable[[str, bool, bool], None]]): Optional callback to handle the result.
+        force (bool): Whether to overwrite existing files (default: False).
+        debug (bool): Whether to print debug messages (default: False).
+    """
+    gen_ports(data, force, debug)
+    iterate_gen_ports(data, callback, debug)
 
 
-def register_exit(signum=None, frame=None):
+def register_exit(signum=None, frame=None) -> None:
+    """
+    Callback function to clean up at program exit, removing processed proxies
+    from the files.
+
+    Args:
+        signum: Signal number (optional).
+        frame: Stack frame (optional).
+    """
     global at_exit_data
     for ip, data in at_exit_data.items():
         file = f"tmp/ip-ports/{ip}.txt"
         remove_string_from_file(file, data, True)
 
 
+# Register the cleanup function to be called at exit
 atexit.register(register_exit)
 signal.signal(signal.SIGTERM, register_exit)
 signal.signal(signal.SIGINT, register_exit)  # To handle Ctrl+C
