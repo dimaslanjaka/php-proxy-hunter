@@ -11,3 +11,7 @@ if __name__ == "__main__":
         get_relative_path("src/database.sqlite"),
         get_relative_path("data/blacklist.conf"),
     )
+    blacklist_remover(
+        get_relative_path("tmp/database.sqlite"),
+        get_relative_path("data/blacklist.conf"),
+    )
