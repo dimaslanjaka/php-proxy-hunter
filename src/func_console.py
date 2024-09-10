@@ -9,7 +9,7 @@ from typing import Any, Dict, Union
 from ansi2html import Ansi2HTMLConverter
 from bs4 import BeautifulSoup
 from colorama import Fore, Style, just_fix_windows_console
-from proxy_hunter import remove_ansi, resolve_parent_folder
+from proxy_hunter import read_file, remove_ansi, resolve_parent_folder
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -267,3 +267,35 @@ def log_browser(*args: Any, **kwargs: Any) -> None:
     """
     global browser_output_log
     log_file(browser_output_log, *args, **kwargs)
+
+
+def read_log_file(log_file_path: str):
+    """Read a log file and return its content as HTML.
+
+    Args:
+        log_file_path (str): The path to the log file.
+
+    Returns:
+        str: The log file content converted into an HTML structure,
+             with ANSI escape codes optionally removed and CSS applied.
+    """
+    content = str(read_file(log_file_path))
+    lines = re.split(r"\r?\n", content)
+    html_content = (
+        """
+<html>
+<head>
+<style>%CSS_CONTENT%</style>
+<style>
+body {
+    font-family: 'UbuntuRegular', sans-serif;
+}
+</style>
+</head>
+<body>%BODY%</body>
+</html>
+                """.strip()
+        .replace("%CSS_CONTENT%", get_ansi_css_content())
+        .replace("%BODY%", "<br/>".join(lines))
+    )
+    return html_content
