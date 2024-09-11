@@ -54,8 +54,9 @@ class ProxyCheckerReal:
             *args: Message arguments to be logged.
             **kwargs: Additional logging options.
         """
+        ansi_html = kwargs.pop("ansi_html", True) or True
         if self.log_mode == "html":
-            log_proxy(ansi_html=True, *args, **kwargs)
+            log_proxy(ansi_html=ansi_html, *args, **kwargs)
         else:
             log_proxy(*args, **kwargs)
 
