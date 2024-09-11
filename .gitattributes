@@ -11,6 +11,7 @@
 *.css       text eol=lf filter=tabspace
 *.scss      text eol=lf filter=tabspace
 *.js        text eol=lf filter=tabspace
+*.cjs        text eol=lf filter=tabspace
 *.java      text eol=lf filter=tabspace
 *.kt        text eol=lf filter=tabspace
 pre-commit         text eol=lf
