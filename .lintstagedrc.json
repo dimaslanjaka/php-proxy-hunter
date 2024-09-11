@@ -1,8 +1,9 @@
 {
-  "*.js": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.js",
-  "*.ts": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.js",
-  "*.jsx": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.js",
-  "*.tsx": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.js",
+  "*.js": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.cjs",
+  "*.cjs": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.cjs",
+  "*.ts": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.cjs",
+  "*.jsx": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.cjs",
+  "*.tsx": "set ESLINT_USE_FLAT_CONFIG=false && eslint --fix --config .eslintrc.cjs",
   "*.json": "prettier --list-different --write",
   "*.css": "prettier --list-different --write",
   "*.scss": "prettier --list-different --write",
