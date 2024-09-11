@@ -240,6 +240,11 @@ def decompress_requests_response(
             pass
     except (OSError, zlib.error, ValueError) as e:
         if debug:
+            print(f"Decompression (OSError, zlib.error, ValueError): {e}")
+        # Fallback to raw content if there's an error
+        content = response.content  # type: ignore
+    except Exception as e:
+        if debug:
             print(f"Decompression error: {e}")
         # Fallback to raw content if there's an error
         content = response.content  # type: ignore
