@@ -134,7 +134,9 @@ class ProxyCheckerReal:
                                 protocols.append(check.type.lower())
                 file_append_str(output_file, log)
             except Exception as e:
-                self.log(f"real_check({proxy_type}) check generated an exception: {e}")
+                self.log(
+                    f"real_check({proxy_type}://{proxy}) check generated an exception: {e}"
+                )
 
         # if os.path.exists(output_file):
         #     self.log(f"Logs written {output_file}")
