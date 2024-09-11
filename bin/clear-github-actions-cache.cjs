@@ -1,7 +1,7 @@
 const { path } = require("sbg-utility");
 require("dotenv").config({ path: path.join(__dirname, "/../"), override: true });
 const axios = require("axios");
-const { parseGitRemotes } = require("./utils");
+const { parseGitRemotes } = require("./utils.cjs");
 
 // delete caches leaving single last cache based on creation date
 

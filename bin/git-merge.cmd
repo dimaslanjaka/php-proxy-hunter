@@ -10,6 +10,6 @@ if exist .env (
 )
 
 set "SCRIPT_DIR=%~dp0"
-node "%SCRIPT_DIR%git-merge.js"
+node "%SCRIPT_DIR%git-merge.cjs"
 
 endlocal

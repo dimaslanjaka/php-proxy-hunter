@@ -25,6 +25,6 @@ git config merge.ourhashdriver.name "Custom Hash File Merge Driver"
 git config merge.ourhashdriver.driver "node \"bin\create-file-hashes.js\" %%A"
 
 REM Run the script
-node "%SCRIPT_DIR%\create-file-hashes.js"
+node "%SCRIPT_DIR%\create-file-hashes.cjs"
 
 endlocal
