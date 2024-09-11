@@ -122,6 +122,7 @@ function run_as_user_in_venv() {
 run_as_user_in_venv "python $CWD/manage.py makemigrations"
 run_as_user_in_venv "python $CWD/manage.py migrate"
 # collect static files (to sync with nginx config)
+rm -rf public/static
 run_as_user_in_venv "python $CWD/manage.py collectstatic --noinput"
 # clear django caches (from django_backend/apps/core/management/commands/clear_cache.py)
 run_as_user_in_venv "python $CWD/manage.py clear_cache"
