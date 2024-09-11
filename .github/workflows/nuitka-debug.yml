@@ -133,6 +133,10 @@ jobs:
           python3 -m distutils.core --help
           python3 requirements_install.py
 
+      - name: Re-install Dependencies
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: python3 requirements_install.py
+
       - name: Initialize Github Actions
         id: php-github-actions-init
         env:
