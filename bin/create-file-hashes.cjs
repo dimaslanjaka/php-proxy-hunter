@@ -3,7 +3,7 @@ const path = require("path");
 const crypto = require("crypto");
 const { execSync } = require("child_process");
 const glob = require("glob");
-const { joinPathPreserveDriveLetter } = require("./utils");
+const { joinPathPreserveDriveLetter } = require("./utils.cjs");
 
 // Determine the current script directory and project directory
 const scriptDir = path.dirname(__filename);

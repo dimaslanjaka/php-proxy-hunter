@@ -10,6 +10,6 @@ if exist .env (
 )
 
 set "SCRIPT_DIR=%~dp0"
-node "%SCRIPT_DIR%clear-github-actions-cache.js"
+node "%SCRIPT_DIR%clear-github-actions-cache.cjs"
 
 endlocal

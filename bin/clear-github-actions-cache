@@ -7,4 +7,4 @@ if [ -f .env ]; then
 fi
 
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
-node "$SCRIPT_DIR/clear-github-actions-cache.js"
+node "$SCRIPT_DIR/clear-github-actions-cache.cjs"
