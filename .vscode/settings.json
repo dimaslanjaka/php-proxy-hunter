@@ -126,27 +126,5 @@
     "**/config": true,
     "**/.yarn": true,
     "backups": true
-  },
-  "python.analysis.extraPaths": [
-    "./venv/Lib/site-packages",
-    "./packages/proxy-hunter-python",
-    "./packages/proxy-checker-python",
-    "./packages/rsa-utility"
-  ],
-  "python.analysis.exclude": [
-    "**/node_modules",
-    "**/__pycache__",
-    "**/build",
-    ".git",
-    "venv/**",
-    "**/bin",
-    "**/vendor",
-    "**/*.egg-info",
-    "**/tmp/**",
-    "**/dist",
-    "**/backups",
-    "**/venv",
-    "**/.cache",
-    "**/.pytest_cache"
-  ]
+  }
 }
