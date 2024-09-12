@@ -1,1 +1,6 @@
 /*.json
+/engine
+/profiles
+/run
+__pycache__
+/fingerprints

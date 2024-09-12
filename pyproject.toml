@@ -16,15 +16,25 @@ include = [
 exclude = [
   "**/node_modules",
   "**/__pycache__",
-  ".cache",
-  "dist",
-  "**/vendor"
+  "**/build",
+  ".git",
+  "venv/**",
+  "**/bin",
+  "**/vendor",
+  "**/*.egg-info",
+  "**/tmp/**",
+  "**/dist",
+  "**/backups",
+  "**/venv",
+  "**/.cache",
+  "**/.pytest_cache"
 ]
 extraPaths = [
   "venv/Lib/site-packages",
   "packages/proxy-hunter-python",
   "packages/proxy-checker-python",
-  "packages/rsa-utility"
+  "packages/rsa-utility",
+  "packages/selenium-stealth"
 ]
 defineConstant = { DEBUG = true }
 reportMissingImports = "error"
