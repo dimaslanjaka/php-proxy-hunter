@@ -34,6 +34,7 @@ package-lock.json
 !**/*.php.txt
 !**/*.py.txt
 /sitemap.txt
+!LICENSE*
 
 # python
 /profiles-proxy.json
