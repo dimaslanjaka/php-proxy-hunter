@@ -4,11 +4,11 @@ import os
 import sys
 import time
 from http.cookiejar import Cookie, MozillaCookieJar
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import requests
 import urllib3
-from proxy_hunter import delete_path, resolve_folder
+from proxy_hunter import delete_path, resolve_folder, read_file, write_file
 from requests.exceptions import RequestException
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -32,7 +32,6 @@ def cache_response(
     url: str, response: requests.Response, cache_file_path: Optional[str] = None
 ) -> None:
     """Save the response content to a file."""
-    os.makedirs(CACHE_DIR, exist_ok=True)
     cache_file_path = (
         get_cache_file_path(url) if not cache_file_path else cache_file_path
     )
@@ -41,11 +40,10 @@ def cache_response(
         "timestamp": time.time(),
         "status_code": response.status_code,
         "headers": dict(response.headers),
-        "content": response.content.decode("utf-8"),  # Use content for binary data
+        "content": response.content.decode("utf-8"),  # type: ignore Use content for binary data
     }
 
-    with open(cache_file_path, "w", encoding="utf-8") as file:
-        json.dump(cache_data, file)
+    write_file(cache_file_path, json.dumps(cache_data))
 
 
 def load_cached_response(
@@ -69,17 +67,15 @@ def load_cached_response(
     if not os.path.exists(cache_file_path):
         return None
 
-    with open(cache_file_path, "r", encoding="utf-8") as file:
-        cache_data = json.load(file)
-
-    expiration = expiration or CACHE_EXPIRY
-
-    # Check if the cache has expired
-    if time.time() - cache_data.get("timestamp", 0) > expiration:
-        os.remove(cache_file_path)
-        return None
-
-    return MockResponse(cache_data)
+    read_data: Union[str, None] = read_file(cache_file_path)
+    if read_data:
+        cache_data = json.loads(read_data)
+        expiration = expiration or CACHE_EXPIRY
+        # Check if the cache has expired
+        if time.time() - cache_data.get("timestamp", 0) > expiration:
+            os.remove(cache_file_path)
+            return None
+        return MockResponse(cache_data)
 
 
 def delete_cached_response(url: str):
@@ -111,7 +107,7 @@ class MockResponse(requests.Response):
         if not self.ok:
             raise RequestException(f"HTTP error: {self.status_code}")
 
-    def json(self):
+    def json(self) -> Union[dict, list]:  # type: ignore
         try:
             return json.loads(self.text)
         except json.JSONDecodeError:
@@ -130,7 +126,7 @@ def get_with_proxy(
     no_cache: Optional[bool] = False,
     cache_file_path: Optional[str] = None,
     cache_expiration: Optional[int] = None,
-) -> requests.Response:
+) -> Union[requests.Response, None]:
     """
     Perform a GET request using a proxy of the specified type and cache the response.
 
@@ -180,6 +176,7 @@ def get_with_proxy(
             with open(cookie_file, "w", encoding="utf-8") as file:
                 file.write(cookie_header)
 
+    cookie_jar = None
     try:
         reset_cookie()
         cookie_jar = MozillaCookieJar(cookie_file)
@@ -213,19 +210,20 @@ def get_with_proxy(
 
         # save cookie
         cookies_to_be_saved = [cookie_header]
-        update_cookie_jar(cookie_jar, response.cookies)
-        for cookie in cookie_jar:
-            if isinstance(cookie_jar, MozillaCookieJar):
-                domain = cookie.domain
-                secure = "TRUE" if cookie.secure else "FALSE"
-                initial_dot = "TRUE" if domain.startswith(".") else "FALSE"
-                expires = str(cookie.expires) if cookie.expires is not None else ""
-                name = "" if cookie.value is None else cookie.name
-                value = cookie.value if cookie.value is not None else cookie.name
-                cookie_raw = "\t".join(
-                    [domain, initial_dot, cookie.path, secure, expires, name, value]
-                )
-            cookies_to_be_saved.append(cookie_raw)
+        if cookie_jar:
+            update_cookie_jar(cookie_jar, response.cookies)
+            for cookie in cookie_jar:
+                if isinstance(cookie_jar, MozillaCookieJar):
+                    domain = cookie.domain
+                    secure = "TRUE" if cookie.secure else "FALSE"
+                    initial_dot = "TRUE" if domain.startswith(".") else "FALSE"
+                    expires = str(cookie.expires) if cookie.expires is not None else ""
+                    name = "" if cookie.value is None else cookie.name
+                    value = cookie.value if cookie.value is not None else cookie.name
+                    cookie_raw = "\t".join(
+                        [domain, initial_dot, cookie.path, secure, expires, name, value]
+                    )
+                    cookies_to_be_saved.append(cookie_raw)
         cookie_built = "\n".join(cookies_to_be_saved + [""])
         with open(cookie_file, "w", encoding="utf-8") as file:
             file.write(cookie_built)
@@ -237,7 +235,6 @@ def get_with_proxy(
     except RequestException as e:
         if debug:
             print(f"Request Error: {e}")
-    return None
 
 
 def update_cookie_jar(cookie_jar: MozillaCookieJar, cookies: List[Cookie]):
@@ -256,7 +253,7 @@ def update_cookie_jar(cookie_jar: MozillaCookieJar, cookies: List[Cookie]):
 
             # Check if the cookie has 'rest' attribute
             if hasattr(cookie, "rest"):
-                cookie_dict[cookie.name].rest = cookie.rest
+                cookie_dict[cookie.name].rest = cookie.rest  # type: ignore
 
         else:
             # If cookie does not exist, add it to the cookie jar
