@@ -61,4 +61,5 @@ venv/
 *.out
 /databases
 /public/static
+**/.mypy_cache
 /xl*
