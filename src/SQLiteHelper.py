@@ -186,8 +186,8 @@ class SQLiteHelper:
         set_values = ", ".join(f"{key} = ?" for key in data)
         sql = f"UPDATE {table_name} SET {set_values} WHERE {where}"
 
-        # Ensure None values are passed directly
-        self.cursor.execute(sql, list(data.values()) + (params or ()))
+        # Ensure None values are passed directly, and convert params to a list if necessary
+        self.cursor.execute(sql, list(data.values()) + list(params or []))
         self.conn.commit()
 
     def delete(
