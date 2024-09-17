@@ -63,6 +63,7 @@ class ProxyDB:
             wal_enabled = self.get_meta_value("wal_enabled")
             if not wal_enabled:
                 self.db.execute_query("PRAGMA journal_mode = WAL")
+                self.db.execute_query("PRAGMA wal_autocheckpoint = 100")
                 self.set_meta_value("wal_enabled", "1")
 
             auto_vacuum_enabled = self.get_meta_value("auto_vacuum_enabled")
@@ -124,6 +125,8 @@ class ProxyDB:
             current_time - int(last_vacuum_time) > one_day_in_seconds
         ):
             self.db.execute_query("VACUUM")
+            # https://stackoverflow.com/a/37865221/6404439
+            self.db.execute_query("PRAGMA wal_checkpoint(SQLITE_CHECKPOINT_TRUNCATE);")
             self.set_meta_value("last_vacuum_time", str(current_time))
 
     def select(self, proxy: str):
