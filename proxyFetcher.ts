@@ -1,6 +1,7 @@
 import axios from "axios";
+import fs from "fs-extra";
 import { proxyGrabber } from "proxies-grabber";
-import { fs, path } from "sbg-utility";
+import { path } from "sbg-utility";
 
 const grabber = new proxyGrabber();
 grabber.get().then(function (proxies) {
