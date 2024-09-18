@@ -30,7 +30,7 @@ const outputFile = path.join(projectDir, relativeOutputFile);
 fs.writeFileSync(outputFile, "");
 
 // List of file extensions to include
-const extensions = ["py", "js", "php"];
+const extensions = ["py", "js", "php", "cjs", "mjs"];
 
 // Directories to exclude
 const excludeDirs = [
