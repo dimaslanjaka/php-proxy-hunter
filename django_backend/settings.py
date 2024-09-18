@@ -129,7 +129,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "corsheaders",
     "django_extensions",
     "rest_framework",
     "django_backend.apps.authentication",
@@ -173,7 +172,7 @@ G_REDIRECT_URI = os.getenv("G_REDIRECT_URI")
 
 # middleware classes based on priority
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
+    "django_backend.middleware.SimpleCORSHeadersMiddleware",
     "django_backend.middleware.CustomCsrfExemptMiddleware",
     "django_backend.middleware.CsrfExemptCsrfViewMiddleware",
     "django_backend.middleware.FaviconMiddleware",
