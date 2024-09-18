@@ -11,7 +11,7 @@ black
 chromedriver-autoinstaller @ https://github.com/yeongbin-jo/python-chromedriver-autoinstaller/archive/master.zip
 daphne
 datetime
-django-cors-headers
+django-cors-headers @ https://github.com/adamchainz/django-cors-headers/archive/main.zip
 django-cors-middleware
 django-environ
 django-extensions
