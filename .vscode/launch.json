@@ -100,6 +100,18 @@
       "name": "PySide6 Local Server",
       "request": "launch",
       "type": "node-terminal"
+    },
+    {
+      "command": "cross-env-shell NODE_ENV=development electron -r ts-node/register node_browser/index.electron.js",
+      "name": "Electron",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "rm -rf build && npx rollup -c && cross-env-shell NODE_ENV=development electron -r ts-node/register build/main.js",
+      "name": "Electron Rollup",
+      "request": "launch",
+      "type": "node-terminal"
     }
   ],
   "compounds": [
