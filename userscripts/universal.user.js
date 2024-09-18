@@ -761,9 +761,7 @@
     }
   </style>
 </head>
-<body>
-  <pre>${result}</pre>
-</body>
+<body><pre>${result.trim()}</pre></body>
 </html>`;
 
         window.open(URL.createObjectURL(new Blob([htmlContent], { type: "text/html" })), "width=800,height=600");
