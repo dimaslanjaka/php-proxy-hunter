@@ -44,7 +44,8 @@
   "code-runner.saveAllFilesBeforeRun": true,
   "code-runner.executorMapByGlob": {
     "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
-    "*.py": "python -u"
+    "*.py": "python -u",
+    "*.electron.js": "cross-env-shell NODE_ENV=development electron -r ts-node/register"
   },
   "code-runner.respectShebang": true,
   "debug.terminal.clearBeforeReusing": true,
@@ -125,6 +126,10 @@
     "**/venv": true,
     "**/config": true,
     "**/.yarn": true,
-    "backups": true
+    "backups": true,
+    "data/profiles": true,
+    "data/run": true,
+    "data/fingerprints": true,
+    "data/engine": true
   }
 }
