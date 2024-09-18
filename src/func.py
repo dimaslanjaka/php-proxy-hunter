@@ -49,7 +49,7 @@ def get_nuitka_file(file_path: str) -> str:
     return os.path.join(root_dir, file_path)
 
 
-def get_relative_path(*args: Union[str, bytes]) -> str:
+def get_relative_path(*args: str) -> str:
     """
     Get the relative path from the current working directory (CWD).
 
@@ -59,7 +59,7 @@ def get_relative_path(*args: Union[str, bytes]) -> str:
     Returns:
         str: The normalized relative path.
     """
-    join_path = str(os.path.join(*args))
+    join_path = os.path.join(*args)
     result = os.path.normpath(str(os.path.join(__CWD__, join_path)))
     if is_nuitka():
         result = os.path.normpath(
