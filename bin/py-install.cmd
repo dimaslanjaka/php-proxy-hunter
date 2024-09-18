@@ -7,7 +7,7 @@ set "SCRIPT_DIR=%~dp0"
 REM Remove the trailing backslash
 set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
 
-REM Move up two levels from the script directory
+REM Move up one levels from the script directory
 for %%i in ("%SCRIPT_DIR%") do set "CWD=%%~dpi"
 set "CWD=%CWD:~0,-1%"
 
