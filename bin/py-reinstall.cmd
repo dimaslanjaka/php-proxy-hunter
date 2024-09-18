@@ -52,6 +52,10 @@ call pip uninstall -r "%CWD%\uninstall.txt" -y
 echo Removing uninstall.txt...
 del "%CWD%\uninstall.txt"
 
+:: Reinstall packages from requirements.txt
+echo Reinstalling packages from requirements.txt...
+call python "%CWD%\requirements_install.py"
+
 :: Deactivate the virtual environment
 call "%CWD%\venv\Scripts\deactivate"
 
