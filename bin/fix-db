@@ -2,6 +2,37 @@
 
 # fix malformed database with the source tmp/database.sqlite
 
+# Determine the OS
+OS=$(uname -s)
+
+# Get the directory of the script
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+
+# Default directory for Linux
+if [ "$OS" == "Linux" ]; then
+  CWD="/var/www/html"
+else
+  # For non-Linux systems, use the script directory's parent
+  CWD="$(dirname "$SCRIPT_DIR")"
+fi
+USER="www-data"
+
+# Check if the system is Linux
+if [ "$OS" == "Linux" ]; then
+  echo "Running on Linux"
+  # Your Linux-specific code here
+# Check if the system is macOS
+elif [ "$OS" == "Darwin" ]; then
+  echo "Running on macOS"
+  # Your macOS-specific code here
+# Check if the system is Windows (Git Bash or Cygwin)
+elif [[ "$OS" == MINGW* || "$OS" == CYGWIN* || "$OS" == MSYS* ]]; then
+  echo "Running on Windows"
+  # Your Windows-specific code here
+else
+  echo "Unknown OS: $OS"
+fi
+
 mkdir -p backups src
 
 # dump and export to backups/dump.sql
@@ -50,7 +81,7 @@ echo "$FILTERED_TABLES"
 # If there are tables that match, proceed to delete them
 if [ -n "$FILTERED_TABLES" ]; then
   for TABLE in $FILTERED_TABLES; do
-    TABLE=$(echo $TABLE | xargs)  # Trim any extra whitespace
+    TABLE=$(echo $TABLE | xargs) # Trim any extra whitespace
     sqlite3 $DB_FILE "DROP TABLE IF EXISTS $TABLE;"
     echo "Dropped table: $TABLE"
   done
@@ -58,5 +89,28 @@ else
   echo "No tables found with the specified prefixes."
 fi
 
-mkdir -p dist/src
-cp -rf src/database.sqlite dist/src/database.sqlite
+if [[ "$OS" == MINGW* || "$OS" == CYGWIN* || "$OS" == MSYS* ]]; then
+  mkdir -p dist/src
+  cp -rf src/database.sqlite dist/src/database.sqlite
+fi
+
+if [ -f "tmp/database.sqlite-wal" ]; then
+  echo "Checkpointing and truncating WAL file..."
+  sqlite3 tmp/database.sqlite "PRAGMA wal_checkpoint(TRUNCATE);"
+  echo "tmp/database.sqlite WAL file truncated."
+fi
+
+if [ -f "src/database.sqlite-wal" ]; then
+  echo "Checkpointing and truncating WAL file..."
+  sqlite3 src/database.sqlite "PRAGMA wal_checkpoint(TRUNCATE);"
+  echo "src/database.sqlite WAL file truncated."
+fi
+
+if [ "$OS" == "Linux" ]; then
+  chown -R "$USER":"$USER" "$CWD/bin"
+  chown -R "$USER":"$USER" "$CWD/public"
+  chown -R "$USER":"$USER" "$CWD/assets"
+  chown -R "$USER":"$USER" "$CWD/src"
+  chown -R "$USER":"$USER" "$CWD/tmp"
+  chown -R "$USER":"$USER" "$CWD/data"
+fi

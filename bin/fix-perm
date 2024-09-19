@@ -13,19 +13,38 @@ else
   # For non-Linux systems, use the script directory's parent
   CWD="$(dirname "$SCRIPT_DIR")"
 fi
-
 USER="www-data"
 
-chmod 777 "$CWD/bin"
-chmod 777 "$CWD/public"
-chmod 777 "$CWD/assets"
-chmod 777 "$CWD/src"
-chmod 777 "$CWD/tmp"
-chmod 777 "$CWD/data"
+# Check if the system is Linux
+if [ "$OS" == "Linux" ]; then
+  echo "Running on Linux"
+  # Your Linux-specific code here
+# Check if the system is macOS
+elif [ "$OS" == "Darwin" ]; then
+  echo "Running on macOS"
+  # Your macOS-specific code here
+# Check if the system is Windows (Git Bash or Cygwin)
+elif [[ "$OS" == MINGW* || "$OS" == CYGWIN* || "$OS" == MSYS* ]]; then
+  echo "Running on Windows"
+  # Your Windows-specific code here
+else
+  echo "Unknown OS: $OS"
+fi
 
-chown -R "$USER":"$USER" "$CWD/bin"
-chown -R "$USER":"$USER" "$CWD/public"
-chown -R "$USER":"$USER" "$CWD/assets"
-chown -R "$USER":"$USER" "$CWD/src"
-chown -R "$USER":"$USER" "$CWD/tmp"
-chown -R "$USER":"$USER" "$CWD/data"
+if [ "$OS" == "Linux" ]; then
+  chmod 777 "$CWD/bin"
+  chmod 777 "$CWD/public"
+  chmod 777 "$CWD/assets"
+  chmod 777 "$CWD/src"
+  chmod 777 "$CWD/tmp"
+  chmod 777 "$CWD/data"
+
+  chown -R "$USER":"$USER" "$CWD/bin"
+  chown -R "$USER":"$USER" "$CWD/public"
+  chown -R "$USER":"$USER" "$CWD/assets"
+  chown -R "$USER":"$USER" "$CWD/src"
+  chown -R "$USER":"$USER" "$CWD/tmp"
+  chown -R "$USER":"$USER" "$CWD/data"
+
+  find "$CWD/data" -type f \( -name "*.js" -o -name "*.php" -o -name "*.css" \) -exec chown "$USER":"$USER" {} +
+fi
