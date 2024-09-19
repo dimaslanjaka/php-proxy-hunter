@@ -13,38 +13,43 @@ else
   # For non-Linux systems, use the script directory's parent
   CWD="$(dirname "$SCRIPT_DIR")"
 fi
-USER="www-data"
 
-# Check if the system is Linux
-if [ "$OS" == "Linux" ]; then
-  echo "Running on Linux"
-  # Your Linux-specific code here
-# Check if the system is macOS
-elif [ "$OS" == "Darwin" ]; then
-  echo "Running on macOS"
-  # Your macOS-specific code here
-# Check if the system is Windows (Git Bash or Cygwin)
-elif [[ "$OS" == MINGW* || "$OS" == CYGWIN* || "$OS" == MSYS* ]]; then
-  echo "Running on Windows"
-  # Your Windows-specific code here
-else
-  echo "Unknown OS: $OS"
-fi
+# Set the user variable (can be overridden by an environment variable)
+USER="${USER:-www-data}"
 
-if [ "$OS" == "Linux" ]; then
-  chmod 777 "$CWD/bin"
-  chmod 777 "$CWD/public"
-  chmod 777 "$CWD/assets"
-  chmod 777 "$CWD/src"
-  chmod 777 "$CWD/tmp"
-  chmod 777 "$CWD/data"
+# Check the operating system and run the respective code
+case "$OS" in
+  Linux)
+    echo "Running on Linux"
 
-  chown -R "$USER":"$USER" "$CWD/bin"
-  chown -R "$USER":"$USER" "$CWD/public"
-  chown -R "$USER":"$USER" "$CWD/assets"
-  chown -R "$USER":"$USER" "$CWD/src"
-  chown -R "$USER":"$USER" "$CWD/tmp"
-  chown -R "$USER":"$USER" "$CWD/data"
+    # Directories to change permissions and ownership
+    DIRS=("bin" "public" "assets" "src" "tmp" "data")
 
-  find "$CWD/data" -type f \( -name "*.js" -o -name "*.php" -o -name "*.css" \) -exec chown "$USER":"$USER" {} +
-fi
+    # Change permissions and ownership for each directory
+    for dir in "${DIRS[@]}"; do
+      DIR_PATH="$CWD/$dir"
+
+      # Change permissions (consider using a more restrictive mode as needed)
+      chmod 755 "$DIR_PATH" || { echo "Failed to change permissions for $dir"; exit 1; }
+
+      # Change ownership
+      chown -R "$USER":"$USER" "$DIR_PATH" || { echo "Failed to change ownership for $dir"; exit 1; }
+    done
+
+    # Change ownership for specific file types
+    find "$CWD" -type f \( -name "*.js" -o -name "*.php" -o -name "*.css" -o -name "*.html" -o -name "*.py" -o -name "*.sqlite" \) -exec chown "$USER":"$USER" {} + || {
+      echo "Failed to change ownership for specific file types"
+      exit 1
+    }
+    ;;
+  Darwin)
+    echo "Running on macOS"
+    ;;
+  MINGW*|CYGWIN*|MSYS*)
+    echo "Running on Windows"
+    ;;
+  *)
+    echo "Unknown OS: $OS"
+    exit 1
+    ;;
+esac
