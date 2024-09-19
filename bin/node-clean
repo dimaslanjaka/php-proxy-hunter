@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# put these on top of file
+
+(set -o igncr) 2>/dev/null && set -o igncr; # cygwin encoding fix
+
+# absolute path working directory
+basecwd=${PWD}
+# base script directory
+basedir=`dirname "$0"`
+# absolute path script directory
+SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+# get script path
+SCRIPT=$(realpath "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+
+case `uname` in
+  *CYGWIN*)
+    basedir=`cygpath -w "$basedir"`
+    # make cygwin bin as priority
+    export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:$PATH"
+    ;;
+esac
+
+# parse and export .env file (dotenv)
+if [ -f ".env" ]; then
+  # Export the vars in .env into your shell:
+  export $(egrep -v '^#' .env | xargs)
+fi
+
+echo "cleaning node_modules starts with letter vowels folders..."
+
+vowels=( a i u e o A I U E O )
+for letter in {{a..z},{A..Z}}; do
+    for vowel in "${vowels[@]}"; do
+      withoutVowel="node_modules/${letter}*"
+      withVowel="node_modules/${letter}${vowel}*"
+      echo "deleting ${withoutVowel}"
+      rm -rf $withoutVowel &
+      echo "deleting ${withVowel}"
+      rm -rf $withVowel &
+    done
+done
+
+wait
+
+echo "cleaning locks..."
+
+[[ -d "yarn.lock" ]] && rm -rf yarn.lock &
+[[ -d "package-lock.json" ]] && rm -rf package-lock.json &
+
+wait
+
+echo "cleaning non-letter folders..."
+[[ -d "node_modules/@*" ]] && rm -rf node_modules/@* &
+[[ -d "node_modules/.*" ]] && rm -rf node_modules/.* &
+[[ -d "node_modules" ]] && rm -rf node_modules &
+
+wait
+
+echo "cleaning node_modules using find"
+
+find . -name "tmp" -exec rm -rf '{}' + &
+find . -name "node_modules" -exec rm -rf '{}' + &
+find . -name "yarn.lock" -exec rm -rf '{}' + &
+find . -name "package-lock.json" -exec rm -rf '{}' + &
+
+wait
