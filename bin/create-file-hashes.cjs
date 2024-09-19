@@ -34,27 +34,28 @@ const extensions = ["py", "js", "php", "cjs", "mjs"];
 
 // Directories to exclude
 const excludeDirs = [
-  "dashboard/",
-  "bin/",
-  "node_modules/",
-  "vendor/",
-  "venv/",
-  ".yarn/",
-  "__pycache__/",
-  "docs/",
-  "xl/",
-  "django_backend/",
-  "userscripts/",
-  "webalizer/",
-  ".cache/",
-  "tests/",
+  "dashboard",
+  "bin",
+  "node_modules",
+  "vendor",
+  "venv",
+  ".yarn",
+  "__pycache__",
+  "docs",
+  "xl",
+  "django_backend",
+  "userscripts",
+  "webalizer",
+  ".cache",
+  "tests",
   "example",
-  ".husky/",
-  "packages/",
-  "dist/",
-  "tmp/"
+  ".husky",
+  "packages",
+  "dist",
+  "tmp",
+  "config"
 ]
-  .map((pattern) => joinPathPreserveDriveLetter(projectDir, pattern))
+  // .map((pattern) => joinPathPreserveDriveLetter(projectDir, pattern))
   .concat([".vscode"]);
 
 // Convert EXCLUDE_DIRS array to a glob pattern
