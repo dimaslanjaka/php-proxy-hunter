@@ -136,17 +136,6 @@ if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
   file_put_contents($statusFile, 'running');
 }
 
-function write_working()
-{
-  global $db;
-  echo "[CHECKER] writing working proxies" . PHP_EOL;
-  $data = parse_working_proxies($db);
-  file_put_contents(__DIR__ . '/working.txt', $data['txt']);
-  file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
-  file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
-  return $data;
-}
-
 Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
   // clean proxies.txt
   // clean_proxies_file(__DIR__ . '/proxies.txt');
