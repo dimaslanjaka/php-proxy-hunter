@@ -425,33 +425,3 @@ function execute_single_proxy(Proxy $item)
   }
   schedule_remover();
 }
-
-function schedule_remover()
-{
-  global $str_to_remove;
-  if (!empty($str_to_remove)) {
-    // remove already indexed proxies
-    \PhpProxyHunter\Scheduler::register(function () use ($str_to_remove) {
-      $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
-      $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
-        return strpos($fn, 'added-') !== false;
-      });
-      $files = array_merge($files, $assets);
-      $files = array_filter($files, 'file_exists');
-      $files = array_map('realpath', $files);
-      foreach ($files as $file) {
-        $remove = removeStringFromFile($file, $str_to_remove);
-        if ($remove == 'success') {
-          echo "removed indexed proxies from " . basename($file) . PHP_EOL;
-          sleep(1);
-          removeEmptyLinesFromFile($file);
-        }
-        sleep(1);
-        if (filterIpPortLines($file) == 'success') {
-          echo "non IP:PORT lines removed from " . basename($file) . PHP_EOL;
-        }
-        sleep(1);
-      }
-    }, "remove indexed proxies");
-  }
-}
