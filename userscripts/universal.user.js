@@ -174,6 +174,8 @@
       "https://sh.webmanajemen.com/proxyCheckerParallel.php",
       // python proxy hunter
       "https://sh.webmanajemen.com:8443/proxy/check",
+      "https://localhost:4000/proxy/check",
+      "https://localhost:7000/proxy/check",
       "https://localhost:8000/proxy/check"
     ];
 
@@ -277,7 +279,6 @@
   const parse_hideme_jquery = () => {
     return new Promise((resolve) => {
       const result = [];
-
       $(".table_block>table>tbody>tr").each(function (i, e) {
         var tr = $(e);
         var tdList = tr.children("td");
