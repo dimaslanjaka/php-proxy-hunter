@@ -23,7 +23,9 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
   $config = getConfig($user_id);
   $endpoint = 'https://www.example.com';
   $title_should_be = null;
-  if ($custom_title_should_be) $title_should_be = $custom_title_should_be;
+  if ($custom_title_should_be) {
+    $title_should_be = $custom_title_should_be;
+  }
   $headers = [
     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
   ];
@@ -154,14 +156,22 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
               }
             }
             $priv_msg = $isPrivate ? "true " . implode("|", $match_private) : "false";
-            $log_msg =  "[CHECKER-PARALLEL] $counter. $protocol://{$item[0]->proxy} is working private=$priv_msg https=$isSSL\n";
-            echo $log_msg;
             $isWorking = !$isPrivate;
 
             if (is_string($title_should_be)) {
               $dom = \simplehtmldom\helper::str_get_html($response);
-              // echo "url: " . $endpoint . " title: " . $dom->title() . PHP_EOL;
-              $isWorking = !$isPrivate && strtolower($dom->title()) == strtolower($title_should_be);
+              if ($dom) {
+                echo "url: " . $endpoint . " title: " . $dom->title() . PHP_EOL;
+                $isWorking = !$isPrivate && strtolower($dom->title()) == strtolower($title_should_be);
+              } else {
+                // response is not HTML
+                $isWorking = false;
+              }
+            }
+
+            if ($isWorking) {
+              $log_msg =  "[CHECKER-PARALLEL] $counter. $protocol://{$item[0]->proxy} is working private=$priv_msg https=$isSSL\n";
+              echo $log_msg;
             }
           }
         }
@@ -224,7 +234,9 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
 
       // push proxy to be removed
       $str_to_remove[] = $item[0]->proxy;
-      if (function_exists('schedule_remover'))  schedule_remover();
+      if (function_exists('schedule_remover')) {
+        schedule_remover();
+      }
     }
 
     // flush for live echo
