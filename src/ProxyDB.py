@@ -287,8 +287,8 @@ class ProxyDB:
         result = self.db.select(
             "proxies",
             "*",
-            f"status IS NULL OR status = ? ORDER BY RANDOM() LIMIT {limit}",
-            ["untested"],
+            f"status IS NULL OR status = ? OR status = ? ORDER BY RANDOM() LIMIT {limit}",
+            ["untested", ""],
         )
         if not result:
             return []
