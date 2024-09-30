@@ -82,8 +82,8 @@ should_run_job() {
   local file_path=$1
   local interval_hours=$2
 
-  current_time=$(date +%s)  # Current timestamp in seconds
-  interval_seconds=$((interval_hours * 60 * 60))  # Convert hours to seconds
+  current_time=$(date +%s)                       # Current timestamp in seconds
+  interval_seconds=$((interval_hours * 60 * 60)) # Convert hours to seconds
 
   # Check if timestamp file exists
   if [ -f "$file_path" ]; then
@@ -92,15 +92,15 @@ should_run_job() {
 
     if [ $elapsed_time -ge $interval_seconds ]; then
       # Update the timestamp file with the current time
-      echo "$current_time" > "$file_path"
-      return 0  # True, it's time to run the job
+      echo "$current_time" >"$file_path"
+      return 0 # True, it's time to run the job
     else
-      return 1  # False, it's not time to run the job
+      return 1 # False, it's not time to run the job
     fi
   else
     # Create the file and update it with the current time
-    echo "$current_time" > "$file_path"
-    return 0  # True, file not found, so it's time to run the job
+    echo "$current_time" >"$file_path"
+    return 0 # True, file not found, so it's time to run the job
   fi
 }
 
@@ -126,4 +126,19 @@ fi
 # run every 4 hours
 if should_run_job "tmp/crontab/4-h" 4; then
   python "$CWD/proxyFetcher.py"
+fi
+
+# run every 12 hours
+if should_run_job "tmp/crontab/12-h" 12; then
+  if [ -f "tmp/database.sqlite-wal" ]; then
+    echo "Checkpointing and truncating WAL file..."
+    sqlite3 tmp/database.sqlite "PRAGMA wal_checkpoint(TRUNCATE);"
+    echo "tmp/database.sqlite WAL file truncated."
+  fi
+
+  if [ -f "src/database.sqlite-wal" ]; then
+    echo "Checkpointing and truncating WAL file..."
+    sqlite3 src/database.sqlite "PRAGMA wal_checkpoint(TRUNCATE);"
+    echo "src/database.sqlite WAL file truncated."
+  fi
 fi
