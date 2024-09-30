@@ -1,17 +1,18 @@
 {
   "recommendations": [
+    "ms-python.isort",
+    "bmewburn.vscode-intelephense-client",
+    "esbenp.prettier-vscode",
+    "ms-python.debugpy",
+    "ms-python.vscode-pylance",
+    "foxundermoon.shell-format",
+    "natizyskunk.sftp",
+    "coolbear.systemd-unit-file",
+    "ms-python.python",
+    "k--kato.intellij-idea-keybindings",
     "dbaeumer.vscode-eslint",
     "formulahendry.code-runner",
-    "esbenp.prettier-vscode",
-    "k--kato.intellij-idea-keybindings",
-    "mrmlnc.vscode-apache",
-    "formulahendry.auto-rename-tag",
-    "natizyskunk.sftp",
-    "ms-python.autopep8",
-    "foxundermoon.shell-format",
-    "teclado.vscode-nginx-format",
-    "william-voyek.vscode-nginx",
-    "coolbear.systemd-unit-file",
-    "ms-python.black-formatter"
+    "ms-python.black-formatter",
+    "iliazeus.vscode-ansi"
   ]
 }
