@@ -108,8 +108,15 @@
       "type": "node-terminal"
     },
     {
-      "command": "rm -rf build && npx rollup -c && cross-env-shell NODE_ENV=development electron -r ts-node/register build/main.js",
+      "command": "rm -rf build && npx rollup -c && cross-env-shell NODE_ENV=development electron -r ts-node/register main.js",
       "name": "Electron Rollup",
+      "request": "launch",
+      "type": "node-terminal",
+      "cwd": "${workspaceFolder}/app"
+    },
+    {
+      "command": "cross-env-shell NODE_ENV=development node -r ts-node/register node_browser/express-server.js",
+      "name": "Express Server",
       "request": "launch",
       "type": "node-terminal"
     }

@@ -1,13 +1,13 @@
 const prettier = require("./.prettierrc.json");
 
 /**
- * @type {import('eslint').ESLint.Options}
+ * @type {import("eslint").ESLint.Options}
  */
 const config = {
   // Specifies your current project has own eslint rules without extends parent folder eslint rules
   root: true,
   // .eslintignore migration
-  ignorePatterns: ["*.md", "**/tmp/**", "*.html", "*.py", "*.txt"],
+  ignorePatterns: ["*.md", "**/tmp/**", "*.html", "*.py", "*.txt", "**/app/**", "**/dist/**", "!.*.{js,cjs,mjs}"],
   noInlineConfig: false,
   reportUnusedDisableDirectives: true,
   parser: "@typescript-eslint/parser", // Specifies the ESLint parser
