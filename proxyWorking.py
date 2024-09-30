@@ -19,7 +19,7 @@ class ProxyWorkingManager:
 
     def _load_db(self):
         """Import and merge from database into working.json"""
-        db_data = self.db.db.select("proxies", "*", "status = ?", ["active"])
+        db_data = self.db.db.select("proxies", "*", "status = ?", ["active"])  # type: ignore
         file_data = self._load_data()
 
         # Create a dictionary for fast lookup
@@ -58,7 +58,7 @@ class ProxyWorkingManager:
                     indent=2,
                 )
 
-    def add_entry(self, entry: Dict[str, Union[str, int, float]]) -> None:
+    def add_entry(self, entry: Optional[Dict[str, Union[str, int, float]]]) -> None:
         """Add a new entry to the data if 'proxy' key is unique."""
         if not isinstance(entry, dict):
             raise ValueError("Entry must be a dictionary.")
@@ -74,7 +74,9 @@ class ProxyWorkingManager:
             self._save_data()
 
     def update_entry(
-        self, proxy_value: str, updated_entry: Dict[str, Union[str, int, float]]
+        self,
+        proxy_value: str,
+        updated_entry: Optional[Dict[str, Union[str, int, float]]],
     ) -> None:
         """Update an existing entry by 'proxy' key."""
         if not isinstance(updated_entry, dict):
