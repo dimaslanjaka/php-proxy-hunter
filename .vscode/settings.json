@@ -2,12 +2,14 @@
   "terminal.integrated.env.linux": {
     "PATH": "${env:PATH}:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/bin:${workspaceFolder}/vendor/bin",
     "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
-    "ESLINT_USE_FLAT_CONFIG": "false"
+    "ESLINT_USE_FLAT_CONFIG": "false",
+    "DEBUG_PKG": "1"
   },
   "terminal.integrated.env.windows": {
     "PATH": "${env:PATH};${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\bin;${workspaceFolder}\\vendor\\bin",
     "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
-    "ESLINT_USE_FLAT_CONFIG": "false"
+    "ESLINT_USE_FLAT_CONFIG": "false",
+    "DEBUG_PKG": "1"
   },
   "terminal.integrated.profiles.windows": {
     "PowerShell": {
@@ -57,6 +59,40 @@
     "editor.tabSize": 4,
     "editor.insertSpaces": true,
     "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "[json]": {
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.suggest.insertMode": "replace",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "never",
+      "source.fixAll": "never"
+    }
+  },
+  "[jsonc]": {
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.suggest.insertMode": "replace",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "never",
+      "source.fixAll": "never"
+    }
+  },
+  "[html]": {
+    "editor.suggest.insertMode": "replace",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "never",
+      "source.fixAll": "never"
+    }
+  },
+  "[njk]": {
+    "editor.suggest.insertMode": "replace",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "never",
+      "source.fixAll": "never"
+    }
   },
   "autopep8.args": ["--ignore", "E401,E402,E211,E501"],
   "intelephense.maxMemory": 1028,
@@ -121,7 +157,7 @@
     "**/dist": true,
     "**/tmp": true,
     "**/node_modules": true,
-    // "**/vendor": true,
+    "**/vendor": true,
     "**/.venv": true,
     "**/venv": true,
     "**/config": true,
@@ -131,5 +167,10 @@
     "data/run": true,
     "data/fingerprints": true,
     "data/engine": true
-  }
+  },
+  "files.readonlyInclude": {
+    "**/*.sqlite*": true
+  },
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": false
 }
