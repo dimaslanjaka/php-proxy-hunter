@@ -40,17 +40,17 @@ def get_device_ip() -> Union[None, str]:
 class ProxyCheckResult:
     def __init__(
         self,
-        result: bool,
+        result: Optional[bool],
         latency: Union[float, int],
-        error: str,
-        status: Union[int, None],
+        error: Optional[str],
+        status: Optional[int],
         private: bool,
-        response: requests.Response = None,
-        proxy: str = None,
-        type: str = None,
-        url: str = None,
-        https: bool = None,
-        additional: Dict[str, Any] = {},
+        response: Optional[requests.Response] = None,
+        proxy: Optional[str] = None,
+        type: Optional[str] = None,
+        url: Optional[str] = None,
+        https: Optional[bool] = None,
+        additional: Optional[Dict[str, Any]] = None,
     ):
         self.result = result
         self.latency = latency
@@ -77,9 +77,9 @@ class ProxyCheckResult:
 def check_proxy(
     proxy: str,
     proxy_type: str,
-    endpoint: str = None,
-    headers: Dict[str, str] = None,
-    callback: Callable[[ProxyCheckResult], None] = None,
+    endpoint: Optional[str] = None,
+    headers: Optional[Dict[str, str]] = None,
+    callback: Optional[Callable[[ProxyCheckResult], None]] = None,
     cancel_event: Optional[threading.Event] = None,
 ) -> ProxyCheckResult:
     """
@@ -96,7 +96,7 @@ def check_proxy(
     Returns:
         ProxyCheckResult: An object containing the result of the check.
     """
-    default_headers = {"User-Agent": get_pc_useragent()}
+    default_headers: Dict[str, Any] = {"User-Agent": get_pc_useragent()}
     if headers is not None:
         default_headers.update(headers)
     endpoint = endpoint or "https://httpbin.org/headers"
