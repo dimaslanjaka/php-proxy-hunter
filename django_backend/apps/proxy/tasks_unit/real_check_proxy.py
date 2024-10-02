@@ -190,7 +190,7 @@ def get_proxies(
     return list(unique_proxies)
 
 
-@huey.contrib.djhuey.task()
+@huey.contrib.djhuey.task()  # type: ignore
 def reak_check_proxy_huey(proxy_data: Optional[str] = ""):
     return real_check_proxy_async(proxy_data)
 
@@ -210,7 +210,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
         db_items = [
             item
             for item in db_items
-            if is_date_rfc3339_older_than(item["last_check"], 12)
+            if is_date_rfc3339_older_than(str(item.get("last_check")), 12)
         ]
         log_file(
             result_log_file,
@@ -230,7 +230,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                 f"[CHECKER-PARALLEL] got {len(db_items)} dead proxies",
             )
         for item in db_items:
-            format = item["proxy"]
+            format = str(item.get("proxy"))
             if item["username"] and item["password"]:
                 format += f"@{item['username']}:{item['password']}"
             proxy_data += f"\n{format}\n"
@@ -243,7 +243,7 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
             proxy_data = f"[CHECKER-PARALLEL] {php_result} {proxy_data}"
         log_file(
             result_log_file,
-            f"[CHECKER-PARALLEL] source proxy from reading {len(php_result)} files",
+            f"[CHECKER-PARALLEL] source proxy from reading {len(php_results)} files",
         )
     if proxy_data:
         extract = extract_proxies(proxy_data)
