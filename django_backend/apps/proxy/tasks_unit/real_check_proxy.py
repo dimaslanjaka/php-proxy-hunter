@@ -70,7 +70,7 @@ def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
     def inner_check(url: str, title_should_be: str):
         result = False
         status_code = 0
-        response = None
+        response = None  # type: ignore
         latency = -1
         error = ""
         title = ""
@@ -95,7 +95,7 @@ def real_check_proxy(proxy: str, type: str) -> ProxyCheckResult:
             if body:
                 soup = BeautifulSoup(body, "html.parser")
             title = soup.title.string if soup and soup.title else ""
-            final_url = response.url
+            final_url = str(response.url)
             pattern = r"^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)="
             regex_private_gateway = re.compile(pattern, re.IGNORECASE)
             if status_code == 200:
@@ -321,9 +321,10 @@ def real_check_proxy_async(proxy_data: Optional[str] = ""):
                             )  # Index the protocol list by order of completion
                             protocol = ["HTTP", "SOCKS4", "SOCKS5"][protocol]
                             if check.result:
-                                log = f"[CHECKER-PARALLEL] {protocol.lower()}://{proxy_obj.proxy} {green('working')}. Title: {check.additional['title']}. Url: {check.url}"
+                                if check.additional:
+                                    log = f"[CHECKER-PARALLEL] {protocol.lower()}://{proxy_obj.proxy} {green('working')}. Title: {check.additional.get('title')}. Url: {check.url}"
+                                    log_file(result_log_file, log)
                                 protocols.append(protocol.lower())
-                                log_file(result_log_file, log)
                                 working = True
                                 https = check.https
                                 if int(check.latency) > latency:
