@@ -122,6 +122,7 @@ https://www.proxyscan.io/download?type=socks4
 https://raw.githubusercontent.com/rdavydov/proxy-list/main/proxies/socks4.txt
 https://raw.githubusercontent.com/UptimerBot/proxy-list/main/proxies/socks4.txt
 https://api.openproxylist.xyz/socks4.txt
+https://raw.githubusercontent.com/zloi-user/hideip.me/main/socks4.txt
 
 SOCKS5 RAW:
 https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt
@@ -139,6 +140,7 @@ https://raw.githubusercontent.com/hookzof/socks5_list/master/proxy.txt
 https://raw.githubusercontent.com/rdavydov/proxy-list/main/proxies/socks5.txt
 https://raw.githubusercontent.com/UptimerBot/proxy-list/main/proxies/socks5.txt
 https://api.openproxylist.xyz/socks5.txt
+https://raw.githubusercontent.com/zloi-user/hideip.me/main/socks5.txt
 
 # This is a list of websites that ProxyMaid will use to get public proxies.
 #
