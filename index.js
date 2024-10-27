@@ -1,2 +1,2 @@
-require("ts-node").register();
-require("./electron-test");
+require('ts-node').register();
+require('./electron-test');
