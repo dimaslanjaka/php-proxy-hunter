@@ -2,13 +2,13 @@
   "terminal.integrated.env.linux": {
     "PATH": "${env:PATH}:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/bin:${workspaceFolder}/vendor/bin",
     "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
-    "ESLINT_USE_FLAT_CONFIG": "false",
+    "ESLINT_USE_FLAT_CONFIG": "true",
     "DEBUG_PKG": "1"
   },
   "terminal.integrated.env.windows": {
     "PATH": "${env:PATH};${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\bin;${workspaceFolder}\\vendor\\bin",
     "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
-    "ESLINT_USE_FLAT_CONFIG": "false",
+    "ESLINT_USE_FLAT_CONFIG": "true",
     "DEBUG_PKG": "1"
   },
   "terminal.integrated.profiles.windows": {
@@ -126,7 +126,7 @@
   "intelephense.files.associations": ["*.php", "*.phtml"],
   "intelephense.telemetry.enabled": true,
   "eslint.debug": true,
-  "eslint.useFlatConfig": false,
+  "eslint.useFlatConfig": true,
   "python.createEnvironment.contentButton": "show",
   "python.terminal.activateEnvInCurrentTerminal": true,
   "files.watcherExclude": {
