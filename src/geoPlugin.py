@@ -472,12 +472,3 @@ def get_timezones_by_lat_lon(latitude: float, longitude: float) -> Optional[List
 
 if __name__ == "__main__":
     download_databases(get_relative_path("src"))
-    geo = get_geo_ip2("184.185.2.12:4145")
-    tzc = None
-    if geo:
-        if geo.country_code:
-            tzc = get_timezones_by_country_code(geo.country_code)
-            print(f"Timezone from country code:\t\t{tzc}")
-        if geo.latitude and geo.longitude:
-            tzl = get_timezones_by_lat_lon(geo.latitude, geo.longitude)
-            print(f"Timezone from latitude and longitude:\t{tzc}")
