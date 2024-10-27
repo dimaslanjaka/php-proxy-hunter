@@ -190,7 +190,7 @@ def get_geo_ip2(
                                 region = new_data.get("region", region)
                                 region_code = new_data.get("regionCode", region_code)
                                 country_name = new_data.get("country", country_name)
-                                country = new_data.get("country", country)
+                                country = new_data.get("country", country_name)
                                 latitude = new_data.get("lat", latitude)
                                 longitude = new_data.get("lon", longitude)
                                 break
