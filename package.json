@@ -87,5 +87,5 @@
     "socks-proxy-agent": "^8.0.4",
     "upath": "^2.0.1"
   },
-  "packageManager": "yarn@4.5.0"
+  "packageManager": "yarn@4.5.1"
 }
