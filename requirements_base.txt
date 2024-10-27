@@ -32,9 +32,9 @@ maxminddb
 oauthlib
 Pillow
 pycodestyle
-pycountry
+pycountry==24.6.1
 pycryptodome
-pycurl
+pycurl==7.45.3
 python-dateutil
 python-dotenv
 pytz
