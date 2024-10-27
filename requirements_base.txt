@@ -25,10 +25,11 @@ geoip2
 geopy
 gevent
 html5lib
-huey @ https://github.com/coleifer/huey/archive/master.zip
+huey @ https://github.com/coleifer/huey/archive/master.zip # ==2.5.2
 ipaddress
 joblib
 maxminddb
+numpy==2.1.0
 oauthlib
 Pillow
 pycodestyle
