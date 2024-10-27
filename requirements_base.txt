@@ -45,7 +45,7 @@ requests_cache
 selenium==4.*
 six
 sqlalchemy
-timezonefinder --only-binary :all:
+timezonefinder==6.0.1 --only-binary :all:
 tzlocal
 urllib3
 watchdog
