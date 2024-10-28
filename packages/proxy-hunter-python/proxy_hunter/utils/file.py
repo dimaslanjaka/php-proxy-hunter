@@ -194,7 +194,7 @@ def write_file(file_path: Optional[str], content: Optional[str]) -> None:
                 file.write(content or "")
             # print(f"File '{file_path}' has been successfully written.")
     except Exception as e:
-        print(f"Error: An exception occurred - {e}")
+        print(f"Error writing {file_path} - {e}")
 
 
 def file_append_str(filename: str, string_to_add: str) -> None:

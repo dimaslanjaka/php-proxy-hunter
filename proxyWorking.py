@@ -1,12 +1,14 @@
+from hashlib import md5
 import json
+import os
 import random
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from filelock import FileLock
 
 from proxy_hunter import get_unique_dicts_by_key_in_list
 from src.ProxyDB import ProxyDB
-from src.func import get_relative_path
+from src.func import get_relative_path, write_file
 from src.func_proxy import upload_proxy
 
 
@@ -14,12 +16,12 @@ class ProxyWorkingManager:
     def __init__(self):
         self.filename: str = get_relative_path("working.json")
         self.lock = FileLock(get_relative_path("tmp/workload.lock"))
-        self.data: List[Dict[str, Union[str, int, float]]] = self._load_data()
+        self.data = self._load_data()
         self.db = ProxyDB(get_relative_path("src/database.sqlite"), True)
 
     def _load_db(self):
         """Import and merge from database into working.json"""
-        db_data = self.db.db.select("proxies", "*", "status = ?", ["active"])  # type: ignore
+        db_data: List[Dict[str, Any]] = self.db.db.select("proxies", "*", "status = ?", ["active"])  # type: ignore
         file_data = self._load_data()
 
         # Create a dictionary for fast lookup
@@ -114,7 +116,8 @@ class ProxyWorkingManager:
 
     def upload_proxies(self) -> None:
         """Upload working proxies."""
-        formatted = [
+        # list of IP:PORT or USER:PASS@IP:PORT
+        proxyList = [
             (
                 f"{data.get('username')}:{data.get('password')}@{data.get('proxy')}"
                 if data.get("username") and data.get("password")
@@ -122,8 +125,20 @@ class ProxyWorkingManager:
             )
             for data in self.data
         ]
-        if formatted:
-            upload_proxy(json.dumps(formatted))
+        marks: List[Dict[str, str]] = []
+        if proxyList:
+            for item in proxyList:
+                encrypted_data = md5(str(item).encode()).hexdigest()
+                temp_path = get_relative_path(f"tmp/upload/${item}.json")
+                if os.path.exists(temp_path):
+                    proxyList.remove(item)
+                else:
+                    # mark current item as uploaded
+                    marks.append({"path": temp_path, "data": encrypted_data})
+            json_data = json.dumps(proxyList)
+            upload_proxy(json_data)
+            for obj in marks:
+                write_file(obj.get("path"), obj.get("data"))
 
 
 if __name__ == "__main__":
