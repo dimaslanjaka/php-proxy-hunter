@@ -313,8 +313,8 @@ def keep_alphanumeric_and_remove_spaces(input_string: str) -> str:
 
 
 def get_unique_dicts_by_key_in_list(
-    dicts: List[Dict[str, str]], key: str
-) -> List[Dict[str, str]]:
+    dicts: List[Dict[str, Any]], key: str
+) -> List[Dict[str, Any]]:
     """
     Returns a list of unique dictionaries from the input list of dictionaries based on a specified key.
 
