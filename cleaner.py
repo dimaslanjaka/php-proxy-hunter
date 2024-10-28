@@ -40,7 +40,9 @@ def clean_files_one_week_ago():
             if not os.path.isfile(file_path):
                 continue
             # Skip database files (.db, .sqlite, .sqlite3)
-            if re.search(r"\.(db|sqlite|sqlite3|mmdb)$", file_path, re.IGNORECASE):
+            if re.search(
+                r"\.(db|sqlite|sqlite3|mmdb|.*-wal|.*-shm)$", file_path, re.IGNORECASE
+            ):
                 print(f"{file_path} excluded")
                 continue
 
