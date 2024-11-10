@@ -1,0 +1,71 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"terminal.integrated.env.linux": {
+			"PATH": "${env:PATH}:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/bin:${workspaceFolder}/vendor/bin",
+			"NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
+			"ESLINT_USE_FLAT_CONFIG": "true",
+			"DEBUG_PKG": "1"
+		},
+		"terminal.integrated.env.windows": {
+			"PATH": "${env:PATH};${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\bin;${workspaceFolder}\\vendor\\bin",
+			"NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
+			"ESLINT_USE_FLAT_CONFIG": "true",
+			"DEBUG_PKG": "1"
+		},
+		"terminal.integrated.profiles.windows": {
+			"PowerShell": {
+				"source": "PowerShell",
+				"icon": "terminal-powershell"
+			},
+			"Command Prompt": {
+				"path": [
+					"${env:windir}\\Sysnative\\cmd.exe",
+					"${env:windir}\\System32\\cmd.exe"
+				],
+				"args": [],
+				"icon": "terminal-cmd"
+			},
+			"Git Bash": {
+				"source": "Git Bash"
+			},
+			"Cygwin": {
+				"path": "C:\\cygwin64\\bin\\bash.exe",
+				"args": [
+					"--login",
+					"-i"
+				],
+				"env": {
+					"CHERE_INVOKING": "1"
+				}
+			}
+		},
+		"terminal.integrated.defaultProfile.windows": "Command Prompt",
+		"debug.terminal.clearBeforeReusing": true,
+		"intelephense.maxMemory": 1028,
+		"intelephense.trace.server": "messages",
+		"intelephense.completion.maxItems": 100,
+		"intelephense.diagnostics.run": "onSave",
+		"intelephense.files.associations": [
+			"*.php",
+			"*.phtml"
+		],
+		"intelephense.telemetry.enabled": true,
+		"eslint.debug": true,
+		"typescript.tsdk": "./node_modules/typescript/lib",
+		"typescript.enablePromptUseWorkspaceTsdk": false,
+		"files.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+			"**/Thumbs.db": true,
+			"**/*.py": true
+		}
+	}
+}
