@@ -32,7 +32,9 @@ def run_geolocation():
         ("active",),
     )
     for item in proxies:
-        fetch_geo_ip(item["proxy"])
+        proxy = item.get("proxy", "")
+        if isinstance(proxy, str) and proxy:
+            fetch_geo_ip(proxy)
 
 
 @periodic_task(crontab(minute="*/10"))
