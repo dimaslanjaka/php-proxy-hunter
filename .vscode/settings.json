@@ -124,7 +124,6 @@
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
     "**/dist": true,
-    "**/tmp": true,
     "**/.venv": true,
     "**/venv": true,
     "**/config": true,
