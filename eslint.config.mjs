@@ -56,6 +56,7 @@ export default [
         ...globals.browser, // Browser global variables
         ...globals.amd, // AMD module globals
         ...globals.node, // Node.js global variables
+        grecaptcha: 'readonly',
         $: 'readonly', // jQuery object
         jQuery: 'readonly', // jQuery object
         adsbygoogle: 'writable', // Google Ads

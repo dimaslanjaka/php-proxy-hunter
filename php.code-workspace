@@ -99,6 +99,8 @@
 			"**/.DS_Store": true,
 			"**/Thumbs.db": true,
 			"**/*.py": true
-		}
+		},
+		"git.autoStash": true,
+		"git.useCommitInputAsStashMessage": true
 	}
 }
