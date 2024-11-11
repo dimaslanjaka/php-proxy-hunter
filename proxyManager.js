@@ -983,7 +983,82 @@
       });
   }
 
+  function sleep(time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  }
+
+  async function recaptcha() {
+    function send_token(token, callback) {
+      if (typeof callback !== 'function') {
+        callback = (...args) => {
+          console.log(...args);
+        };
+      }
+      return fetch(`//${location.hostname}/data/login.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        body: new URLSearchParams({
+          'g-recaptcha-response': token
+        }).toString()
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          // Remove recaptcha element
+          if (data.success) {
+            const el = document.getElementById('recaptcha');
+            if (el) el.remove();
+          }
+          return data;
+        })
+        .then(callback);
+    }
+    window.send_token = send_token;
+
+    function recaptcha_execute(siteKey) {
+      grecaptcha.execute(siteKey, { action: 'submit' }).then(send_token);
+    }
+    window.recaptcha_execute = send_token;
+
+    try {
+      const r = await fetch(`//${location.hostname}/info.php`);
+      const res_1 = await r.json();
+      const siteKey_1 = res_1['captcha-site-key'];
+      const embedder = document.createElement('div');
+      embedder.classList.add('g-recaptcha');
+      embedder.setAttribute('data-sitekey', res_1['captcha-v2-site-key']);
+      embedder.setAttribute('data-callback', 'send_token');
+      embedder.setAttribute('data-action', 'submit');
+      document.getElementById('recaptcha').appendChild(embedder);
+      await sleep(1000);
+      const recaptchaV2Script = document.createElement('script');
+      recaptchaV2Script.src = 'https://www.google.com/recaptcha/api.js';
+      document.body.appendChild(recaptchaV2Script);
+      const recaptchaV3Script = document.createElement('script');
+      recaptchaV3Script.src = 'https://www.google.com/recaptcha/api.js?render=' + siteKey_1;
+      recaptchaV3Script.onload = function () {
+        grecaptcha.ready(() => recaptcha_execute(siteKey_1));
+      };
+      document.body.appendChild(recaptchaV3Script);
+    } catch (e) {
+      const message = 'failed obtain captcha site key ' + e.message;
+
+      // Create alert container
+      const alertBox = document.createElement('div');
+      alertBox.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 alert';
+
+      // Create alert message
+      const alertMessage = document.createElement('span');
+      alertMessage.textContent = message;
+      alertBox.appendChild(alertMessage);
+
+      document.getElementById('recaptcha').appendChild(alertBox);
+    }
+  }
+
   (function () {
+    recaptcha();
     main()
       .then((_) => {
         init_config_editor()
@@ -992,4 +1067,5 @@
       })
       .catch(console.error);
   })();
+
 })();
