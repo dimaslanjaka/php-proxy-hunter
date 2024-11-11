@@ -248,8 +248,18 @@ if (!isset($_SESSION['captcha'])) {
         } // customization attributes
       );
       // google.accounts.id.prompt(); // also display the One Tap dialog
-      // redirect to non-code query string
-      // if (location.href.includes('?code=')) location.href = 'login.php';
+      // Redirect to non-code query string
+      // Check if the URL contains ?code=
+      if (window.location.search.includes('code=')) {
+        // Create a new URL object based on the current location
+        const url = new URL(window.location.href);
+
+        // Remove the 'code' parameter
+        url.searchParams.delete('code');
+
+        // Reload the page with the updated URL
+        window.location.replace(url.toString());
+      }
     };
   </script>
 </body>
