@@ -47,15 +47,48 @@
 		"terminal.integrated.defaultProfile.windows": "Command Prompt",
 		"debug.terminal.clearBeforeReusing": true,
 		"intelephense.maxMemory": 1028,
+		"intelephense.rename.exclude": [
+			"**/vendor/**",
+			"**/node_modules/**",
+			"**/tmp/**",
+			"**/.cache/**"
+		],
+		"intelephense.references.exclude": [
+			"**/vendor/**",
+			"**/node_modules/**",
+			"**/tmp/**",
+			"**/.cache/**"
+		],
 		"intelephense.trace.server": "messages",
 		"intelephense.completion.maxItems": 100,
 		"intelephense.diagnostics.run": "onSave",
+		"intelephense.files.exclude": [
+			"**/.DS_Store/**",
+			"**/.cache/**",
+			"**/.git/**",
+			"**/.hg/**",
+			"**/.history/**",
+			"**/.idea/**",
+			"**/.svn/**",
+			"**/.yarn/**",
+			"**/CVS/**",
+			"**/Thumbs.db",
+			"**/assets/**/*",
+			"**/bower_components/**",
+			"**/config/**/*",
+			"**/dist/**",
+			"**/node_modules/**",
+			"**/tmp/**",
+			"**/.venv/**",
+			"**/venv/**",
+			"**/assets/**",
+			"**/*.sqlite"
+		],
 		"intelephense.files.associations": [
 			"*.php",
 			"*.phtml"
 		],
-		"intelephense.telemetry.enabled": true,
-		"eslint.debug": true,
+		"intelephense.telemetry.enabled": false,
 		"typescript.tsdk": "./node_modules/typescript/lib",
 		"typescript.enablePromptUseWorkspaceTsdk": false,
 		"files.exclude": {
