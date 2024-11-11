@@ -7,7 +7,7 @@
   "scripts": {
     "start": "php -S 0.0.0.0:4000",
     "prepare": "husky install",
-    "build": "rollup -c"
+    "build:assets": "rollup -c"
   },
   "keywords": [
     "proxy",
