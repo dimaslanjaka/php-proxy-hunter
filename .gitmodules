@@ -2,3 +2,7 @@
 	path = packages/proxy-checker-python
 	url = https://github.com/dimaslanjaka/proxy-checker-python.git
 	branch = master
+[submodule "packages/netscape-cookies"]
+	path = packages/netscape-cookies
+	url = https://github.com/dimaslanjaka/netscape-cookies.git
+	branch = master
