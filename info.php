@@ -38,6 +38,7 @@ $config['admin'] = $isAdmin; // isset($_SESSION['admin']) && $_SESSION['admin'] 
 $config['pid'] = $_ENV['CPID'];
 $config['captcha'] = isset($_SESSION['captcha']) && $_SESSION['captcha'];
 $config['captcha-site-key'] = $_ENV['G_RECAPTCHA_SITE_KEY'];
+$config['captcha-v2-site-key'] = $_ENV['G_RECAPTCHA_V2_SITE_KEY'];
 $config['server-ip'] = getServerIp();
 $config['your-ip'] = Server::getRequestIP();
 $config_json = json_encode($config);

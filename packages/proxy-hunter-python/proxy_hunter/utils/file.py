@@ -179,7 +179,7 @@ def read_file(file_path: str) -> Optional[str]:
         return None
 
 
-def write_file(file_path: str, content: str) -> None:
+def write_file(file_path: Optional[str], content: Optional[str]) -> None:
     """
     Write content to a file.
 
@@ -188,12 +188,13 @@ def write_file(file_path: str, content: str) -> None:
         content (str): The content to write to the file.
     """
     try:
-        resolve_parent_folder(file_path)
-        with open(file_path, "w", encoding="utf-8") as file:
-            file.write(content)
-        # print(f"File '{file_path}' has been successfully written.")
+        if file_path:
+            resolve_parent_folder(file_path)
+            with open(file_path, "w", encoding="utf-8") as file:
+                file.write(content or "")
+            # print(f"File '{file_path}' has been successfully written.")
     except Exception as e:
-        print(f"Error: An exception occurred - {e}")
+        print(f"Error writing {file_path} - {e}")
 
 
 def file_append_str(filename: str, string_to_add: str) -> None:
