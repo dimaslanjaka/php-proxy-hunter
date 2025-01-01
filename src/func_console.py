@@ -1,5 +1,6 @@
 import inspect
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -314,3 +315,11 @@ body {
         .replace("%BODY%", "<br/>".join(lines))
     )
     return html_content
+
+
+def clear_console():
+    system = platform.system()
+    if system == "Windows":
+        os.system("cls")
+    else:
+        os.system("clear")
