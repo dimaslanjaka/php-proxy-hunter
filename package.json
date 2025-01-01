@@ -51,7 +51,7 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-node-resolve": "^16.0.0",
     "@types/babel__core": "^7",
     "@types/babel__preset-env": "^7",
     "@types/bluebird": "^3.5.42",
