@@ -5,22 +5,22 @@ on:
   workflow_dispatch:
     inputs:
       max:
-        description: "The maximum proxies to be checked."
+        description: 'The maximum proxies to be checked.'
         required: true
-        default: "100"
+        default: '100'
         type: string
   workflow_call:
     inputs:
       max:
-        description: "The maximum proxies to be checked."
+        description: 'The maximum proxies to be checked.'
         required: true
-        default: "100"
+        default: '100'
         type: string
     secrets:
       ACCESS_TOKEN:
         required: true
   schedule:
-    - cron: "0 */3 * * *" # Runs every 3 hours
+    - cron: '0 */3 * * *' # Runs every 3 hours
 
 concurrency:
   group: python-proxy-checker
@@ -31,9 +31,9 @@ jobs:
     if: contains(github.repository, 'php-proxy-hunter')
     runs-on: windows-latest
     env:
-      PIP_CACHE_DIR: "${{ github.workspace }}/project/tmp/pip"
-      NUITKA_CACHE_DIR: "${{ github.workspace }}/project/tmp/nuitka-cache"
-      NODE_OPTIONS: "--max_old_space_size=4096" #8192 4096 --expose-gc
+      PIP_CACHE_DIR: '${{ github.workspace }}/project/tmp/pip'
+      NUITKA_CACHE_DIR: '${{ github.workspace }}/project/tmp/nuitka-cache'
+      NODE_OPTIONS: '--max_old_space_size=4096' #8192 4096 --expose-gc
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
       ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
@@ -48,7 +48,7 @@ jobs:
           repository: dimaslanjaka/php-proxy-hunter
           ref: master
           token: ${{ secrets.ACCESS_TOKEN }}
-          lfs: "true"
+          lfs: 'true'
 
       - name: Update Submodules
         run: |
@@ -68,8 +68,8 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-          architecture: "x64"
+          python-version: '3.11'
+          architecture: 'x64'
 
       - uses: actions/setup-node@v4
         with:

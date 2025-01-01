@@ -12,8 +12,6 @@ import pycountry
 import pytz
 import requests
 from geoip2 import database
-from geopy.exc import GeocoderTimedOut
-from geopy.geocoders import Nominatim
 from proxy_hunter import decompress_requests_response, write_file
 from timezonefinder import TimezoneFinder
 
@@ -190,7 +188,7 @@ def get_geo_ip2(
                                 region = new_data.get("region", region)
                                 region_code = new_data.get("regionCode", region_code)
                                 country_name = new_data.get("country", country_name)
-                                country = new_data.get("country", country)
+                                country = new_data.get("country", country_name)
                                 latitude = new_data.get("lat", latitude)
                                 longitude = new_data.get("lon", longitude)
                                 break
@@ -250,31 +248,34 @@ def get_geo_ip2(
                 print(f"geo={proxy}", "fetching cloudflare.com")
                 url = "https://cloudflare.com/cdn-cgi/trace"
                 try:
-                    response = get_with_proxy(url, proxy_type, row_proxy, no_cache=True)
-                    if response and response.ok:
-                        text = decompress_requests_response(response)
+                    for proxy_type in ["http", "socks5", "socks4"]:
+                        response = get_with_proxy(url, proxy_type, proxy, no_cache=True)
+                        if response and response.ok:
+                            text = decompress_requests_response(response)
 
-                        # Split the text into lines using regex for different line endings
-                        lines = re.split(r"\r?\n", text.strip())
+                            # Split the text into lines using regex for different line endings
+                            lines = re.split(r"\r?\n", text.strip())
 
-                        # Create dictionary from lines
-                        data_dict = dict(
-                            line.split("=", 1) for line in lines if "=" in line
-                        )
+                            # Create dictionary from lines
+                            data_dict = dict(
+                                line.split("=", 1) for line in lines if "=" in line
+                            )
 
-                        # Strip whitespace from keys and values
-                        data_dict = {k.strip(): v.strip() for k, v in data_dict.items()}
+                            # Strip whitespace from keys and values
+                            data_dict = {
+                                k.strip(): v.strip() for k, v in data_dict.items()
+                            }
 
-                        country_code = data_dict["loc"]
-                        if country_code:
-                            test = get_country_name(country_code)
-                            if test:
-                                country_name = test
-                                country = test
-                            if not timezone:
-                                tzc = get_timezones_by_country_code(country_code)
-                                if tzc:
-                                    timezone = tzc[0]
+                            country_code = data_dict["loc"]
+                            if country_code:
+                                test = get_country_name(country_code)
+                                if test:
+                                    country_name = test
+                                    country = test
+                                if not timezone:
+                                    tzc = get_timezones_by_country_code(country_code)
+                                    if tzc:
+                                        timezone = tzc[0]
                 except Exception:
                     pass
 
@@ -292,7 +293,7 @@ def get_geo_ip2(
                 longitude,
                 timezone,
                 region_name,
-                region,
+                str(region),
                 region_code,
                 lang,
             )
@@ -343,6 +344,7 @@ url = (
 )
 
 countries_data_path = get_relative_path("tmp/countries_data.json")
+countries_data = {}
 
 # Check if file exists and if it's not expired
 if os.path.exists(countries_data_path):
@@ -360,7 +362,9 @@ if os.path.exists(countries_data_path):
             countries_data = countries_data_get
 else:
     # File doesn't exist, fetch new data and save to file
-    countries_data = fetch_and_save_data(url, countries_data_path)
+    countries_data_get = fetch_and_save_data(url, countries_data_path)
+    if countries_data_get:
+        countries_data = countries_data_get
 
 
 def get_locale_from_country_code(country_code: str):
@@ -447,19 +451,7 @@ def get_timezones_by_country_code(country_code: str) -> Optional[List[str]]:
         test = timezones if timezones else None
     if test:
         return test
-    else:
-        geolocator = Nominatim(user_agent="timezone_lookup")
-        try:
-            location = geolocator.geocode(f"country code {country_code}")
-            if location:
-                return [
-                    location.raw.get("address", {}).get(
-                        "timezone", "No timezone information"
-                    )
-                ]
-            return None
-        except GeocoderTimedOut:
-            return None
+    return None
 
 
 def get_timezones_by_lat_lon(latitude: float, longitude: float) -> Optional[List[str]]:
@@ -480,11 +472,3 @@ def get_timezones_by_lat_lon(latitude: float, longitude: float) -> Optional[List
 
 if __name__ == "__main__":
     download_databases(get_relative_path("src"))
-    geo = get_geo_ip2("184.185.2.12:4145")
-    tzc = None
-    if geo.country_code:
-        tzc = get_timezones_by_country_code(geo.country_code)
-        print(f"Timezone from country code:\t\t{tzc}")
-    if geo.latitude and geo.longitude:
-        tzl = get_timezones_by_lat_lon(geo.latitude, geo.longitude)
-        print(f"Timezone from latitude and longitude:\t{tzc}")

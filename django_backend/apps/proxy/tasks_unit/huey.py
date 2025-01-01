@@ -1,8 +1,6 @@
 import os
 import sys
 
-from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
-
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 )
@@ -13,10 +11,11 @@ import time
 from django.conf import settings
 from huey import crontab
 from huey.contrib.djhuey import db_task, on_commit_task, periodic_task, task
-from django_backend.apps.proxy.utils import execute_select_query
-from src.func_console import log_file
-from src.func import get_relative_path
 
+from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
+from django_backend.apps.proxy.utils import execute_select_query
+from src.func import get_relative_path
+from src.func_console import log_file
 
 # on development run
 # python manage.py run_huey
@@ -32,7 +31,9 @@ def run_geolocation():
         ("active",),
     )
     for item in proxies:
-        fetch_geo_ip(item["proxy"])
+        proxy = item.get("proxy", "")
+        if isinstance(proxy, str) and proxy:
+            fetch_geo_ip(proxy)
 
 
 @periodic_task(crontab(minute="*/10"))

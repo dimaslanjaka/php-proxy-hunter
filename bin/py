@@ -35,16 +35,12 @@ case "$OS" in
     # Activate the virtual environment
     source "$CWD/venv/bin/activate"
 
-    # Ensure pip
-    python -m ensurepip --default-pip
-
-    # Install requirements
     if [ "$OS" == "Linux" ] && [ -x "$(command -v nginx)" ]; then
       sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && python3 $CWD/requirements_install.py"
       sudo chown -R "$USER:$USER" "$CWD/venv"
       sudo chmod 755 "$CWD/venv/bin"/*
     else
-      python3 "$CWD/requirements_install.py"
+      python "$@"
     fi
 
     # Deactivate the virtual environment
@@ -63,11 +59,7 @@ case "$OS" in
     # Activate the virtual environment
     source "$CWD/venv/Scripts/activate"
 
-    # Ensure pip
-    python -m ensurepip --default-pip
-
-    # Install requirements
-    python "$CWD/requirements_install.py"
+    python "$@"
 
     # Deactivate the virtual environment
     deactivate
