@@ -46,7 +46,7 @@
   "code-runner.saveAllFilesBeforeRun": true,
   "code-runner.executorMapByGlob": {
     "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
-    "*.py": "python -u",
+    "*.py": "py2 -u",
     "*.electron.js": "cross-env-shell NODE_ENV=development electron -r ts-node/register"
   },
   "code-runner.respectShebang": true,
