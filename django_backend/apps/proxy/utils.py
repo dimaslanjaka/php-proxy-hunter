@@ -16,27 +16,34 @@ from src.ProxyDB import ProxyDB
 from django.db import connection
 
 
+def get_connection(database_path: str) -> Optional[sqlite3.Connection]:
+    """
+    Helper function to retrieve a database connection.
+    """
+    try:
+        db = ProxyDB(database_path, True)
+        return db.db.conn if db.db is not None else None
+    except Exception as e:
+        print(f"Error accessing database at {database_path}: {e}")
+        return None
+
+
 def get_db_connections() -> List[sqlite3.Connection]:
     """
-    Retrieves database connections, ensuring that Django connections are only accessed
-    when Django is fully initialized.
+    Retrieves a list of active database connections.
     """
     connections = []
-    try:
-        # Obtain Django SQLite connection
-        database_path = settings.DATABASES["default"]["NAME"]
-        db = ProxyDB(database_path, True)
-        connections.append(db.db.conn if db else None)
-    except Exception as e:
-        print(f"Error accessing {database_path} connection: {e}")
+    # Django database connection
+    django_db_path = settings.DATABASES["default"]["NAME"]
+    django_conn = get_connection(django_db_path)
+    if django_conn:
+        connections.append(django_conn)
 
-    try:
-        # Obtain PHP Proxy Hunter SQLite connection
-        database_path = get_relative_path("src/database.sqlite")
-        db = ProxyDB(database_path, True)
-        connections.append(db.db.conn if db else None)
-    except Exception as e:
-        print(f"Error creating ProxyDB connection: {e}")
+    # PHP Proxy Hunter database connection
+    php_proxy_db_path = get_relative_path("src/database.sqlite")
+    php_proxy_conn = get_connection(php_proxy_db_path)
+    if php_proxy_conn:
+        connections.append(php_proxy_conn)
 
     return connections
 

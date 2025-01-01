@@ -4,16 +4,21 @@ require_once __DIR__ . '/../func.php';
 
 if (!empty($_POST['g-recaptcha-response'])) {
   header('Content-Type: application/json; charset=utf-8');
-  $secret = $_ENV['G_RECAPTCHA_SECRET'];
-  $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $_POST['g-recaptcha-response']);
-  $responseData = json_decode($verifyResponse);
-  if ($responseData->success) {
-    $_SESSION['captcha'] = true;
-    $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
-    exit(json_encode(['message' => "g-recaptcha varified successfully", "success" => true]));
-  } else {
-    exit(json_encode(['message' => "Some error in vrifying g-recaptcha", "success" => false]));
+  $secrets = [$_ENV['G_RECAPTCHA_SECRET'], $_ENV['G_RECAPTCHA_V2_SECRET']];
+
+  foreach ($secrets as $secret) {
+    $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $_POST['g-recaptcha-response']);
+    $responseData = json_decode($verifyResponse);
+
+    if ($responseData->success) {
+      $_SESSION['captcha'] = true;
+      $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
+      exit(json_encode(['message' => "g-recaptcha verified successfully", "success" => true]));
+    }
   }
+
+  // If neither secret was successful
+  exit(json_encode(['message' => "Error verifying g-recaptcha", "success" => false]));
 }
 
 $shortHash = $_ENV['CPID'];
@@ -248,8 +253,18 @@ if (!isset($_SESSION['captcha'])) {
         } // customization attributes
       );
       // google.accounts.id.prompt(); // also display the One Tap dialog
-      // redirect to non-code query string
-      // if (location.href.includes('?code=')) location.href = 'login.php';
+      // Redirect to non-code query string
+      // Check if the URL contains ?code=
+      if (window.location.search.includes('code=')) {
+        // Create a new URL object based on the current location
+        const url = new URL(window.location.href);
+
+        // Remove the 'code' parameter
+        url.searchParams.delete('code');
+
+        // Reload the page with the updated URL
+        window.location.replace(url.toString());
+      }
     };
   </script>
 </body>
