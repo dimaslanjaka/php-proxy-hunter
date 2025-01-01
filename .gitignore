@@ -14,6 +14,7 @@
 .cache/
 *.cache
 .yarn/*.gz
+.yarn/cache
 tmp/
 *.txt
 *.lnk
@@ -38,6 +39,7 @@ package-lock.json
 /app
 
 # python
+/data/script/
 /profiles-proxy.json
 !/adspower.txt
 !/requirements_base.txt
@@ -62,5 +64,5 @@ venv/
 *.out
 /databases
 /public/static
-**/.mypy_cache
+**/.*_cache
 /xl*
