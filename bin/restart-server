@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# Check for CRON_TZ environment variable
+if [ -n "$CRON_TZ" ]; then
+  echo "Script is running under crontab"
+else
+  echo "Script is not running under crontab"
+
+  # Execute all fix-*.sh scripts
+  chmod +x fix-*.sh
+
+  for file in fix-*.sh; do
+    if [ -x "$file" ]; then
+      bash "$file"
+    else
+      echo "Skipping $file: Not executable"
+    fi
+  done
+fi
+
 # Reload daemon
 sudo systemctl daemon-reload
 
@@ -32,3 +50,4 @@ echo "Huey service restarted"
 #     sudo systemctl restart spring
 #     echo "Restarted Spring Boot"
 # fi
+
