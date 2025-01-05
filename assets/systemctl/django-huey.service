@@ -7,9 +7,10 @@ StartLimitBurst=5
 [Service]
 User=www-data
 Group=www-data
-WorkingDirectory=/var/www/html
-ExecStart=/var/www/html/venv/bin/python /var/www/html/manage.py run_huey --workers=1
 Restart=always
+WorkingDirectory=/var/www/html
+ExecStart=/var/www/html/assets/systemctl/start_huey.sh
+# ExecStart=/var/www/html/venv/bin/python /var/www/html/manage.py run_huey --workers=1
 
 [Install]
 WantedBy=multi-user.target
