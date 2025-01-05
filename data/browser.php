@@ -1,9 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../func.php';
-
-use PhpProxyHunter\Server;
-
 // Get current protocol (http or https)
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $home = $protocol . "://" . $_SERVER['HTTP_HOST'];
@@ -81,9 +77,31 @@ $currentUrl = $home . $_SERVER['REQUEST_URI'];
     </div>
 
     <div class="mb-5">
-      Your IP <b><?php echo Server::get_client_ip(); ?></b> <br>
-      Your unique ID <b id="uniqueId"></b>
+      Your unique ID <b id="uniqueId"></b> <br/>
+      <?php
+      if (isset($_SERVER['HTTP_REFERER'])) {
+          $referrerUrl = $_SERVER['HTTP_REFERER'];
+          $parsedUrl = parse_url($referrerUrl);
+
+          echo "Referrer URL: <b>" . $referrerUrl . "</b><br>";
+          echo "Host: <b>" . $parsedUrl['host'] . "</b><br>";
+          echo "Path: <b>" . $parsedUrl['path'] . "</b><br>";
+      } else {
+          echo "No referrer information is available.<br>";
+      }
+
+      // Check if the HTTP_USER_AGENT is set
+      if (isset($_SERVER['HTTP_USER_AGENT'])) {
+          // Get the browser user agent string
+          $userAgent = $_SERVER['HTTP_USER_AGENT'];
+          echo "Browser User Agent: <b>" . $userAgent . "</b><br>";
+      } else {
+          echo "No user agent information is available.<br>";
+      }
+      ?>
     </div>
+
+  <iframe src="https://alanhogan.github.io/web-experiments/3rd/third-party-cookies.html" frameborder="0" height="100px" width="100%"></iframe>
 
     <div class="mb-5">
       <pre class="overflow-x-auto">
