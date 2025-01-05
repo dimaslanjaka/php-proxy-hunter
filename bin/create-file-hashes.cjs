@@ -1,21 +1,21 @@
-const fs = require("fs");
-const path = require("path");
-const crypto = require("crypto");
-const { execSync } = require("child_process");
-const glob = require("glob");
-const { joinPathPreserveDriveLetter } = require("./utils.cjs");
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const { execSync } = require('child_process');
+const glob = require('glob');
+const { joinPathPreserveDriveLetter } = require('./utils.cjs');
 
 // Determine the current script directory and project directory
 const scriptDir = path.dirname(__filename);
 const projectDir = path.dirname(scriptDir);
-const envPath = path.join(projectDir, ".env");
+const envPath = path.join(projectDir, '.env');
 
 // Load the .env file if it exists
 if (fs.existsSync(envPath)) {
-  const envContent = fs.readFileSync(envPath, "utf-8");
-  envContent.split("\n").forEach((line) => {
-    if (line && !line.startsWith("#")) {
-      const [key, value] = line.split("=");
+  const envContent = fs.readFileSync(envPath, 'utf-8');
+  envContent.split('\n').forEach((line) => {
+    if (line && !line.startsWith('#')) {
+      const [key, value] = line.split('=');
       process.env[key.trim()] = value.trim();
     }
   });
@@ -23,43 +23,50 @@ if (fs.existsSync(envPath)) {
 }
 
 // Define the output file
-const relativeOutputFile = ".husky/hash.txt";
+const relativeOutputFile = '.husky/hash.txt';
 const outputFile = path.join(projectDir, relativeOutputFile);
 
 // Create or clear the hash file
-fs.writeFileSync(outputFile, "");
+fs.writeFileSync(outputFile, '');
 
 // List of file extensions to include
-const extensions = ["py", "js", "php", "cjs", "mjs"];
+const extensions = ['py', 'js', 'php', 'cjs', 'mjs'];
 
 // Directories to exclude
 const excludeDirs = [
-  "dashboard",
-  "bin",
-  "node_modules",
-  "vendor",
-  "venv",
-  ".yarn",
-  "__pycache__",
-  "docs",
-  "xl",
-  "django_backend",
-  "userscripts",
-  "webalizer",
-  ".cache",
-  "tests",
-  "example",
-  ".husky",
-  "packages",
-  "dist",
-  "tmp",
-  "config"
+  'dashboard',
+  'bin',
+  'node_modules',
+  'vendor',
+  'venv',
+  '.yarn',
+  '__pycache__',
+  'docs',
+  'xl',
+  'django_backend',
+  'userscripts',
+  'webalizer',
+  '.cache',
+  'tests',
+  'example',
+  '.husky',
+  'packages',
+  'dist',
+  'tmp',
+  'config',
+  'data/script',
+  'logs',
+  'data/run',
+  'data/engine',
+  'data/fingerprints',
+  'venv',
+  'site-packages'
 ]
   // .map((pattern) => joinPathPreserveDriveLetter(projectDir, pattern))
-  .concat([".vscode"]);
+  .concat(['.vscode']);
 
 // Convert EXCLUDE_DIRS array to a glob pattern
-const excludePattern = `**/@(${excludeDirs.join("|")})/**`;
+const excludePattern = `**/@(${excludeDirs.join('|')})/**`;
 
 // Initialize an array to hold the formatted outputs
 let hashArray = []; //fs.readFileSync(outputFile, "utf-8").split(/\r?\n/);
@@ -68,14 +75,26 @@ let hashArray = []; //fs.readFileSync(outputFile, "utf-8").split(/\r?\n/);
 extensions.forEach((ext) => {
   const files = glob.sync(`**/*.${ext}`, {
     cwd: projectDir,
-    ignore: excludePattern,
+    ignore: [excludePattern].concat(excludeDirs),
     absolute: true
   });
 
-  const filter = files.filter((file) => !excludeDirs.some((prefix) => file.startsWith(prefix)));
+  const filter = files
+    // Convert to POSIX-style path
+    .map((filePath) => {
+      return filePath.split(path.win32.sep).join(path.posix.sep);
+    })
+    // Filter start with excluded dir
+    .filter((file) => !excludeDirs.some((prefix) => file.startsWith(prefix)))
+    // Filter file which have excluded dir pattern
+    .filter((file) => {
+      const excludeMapped = excludeDirs.map((filePath) => `/${filePath}/`);
+      return !excludeMapped.some((excludeDirPattern) => file.includes(excludeDirPattern));
+    });
   filter.forEach((file) => {
+    console.log(`reading ${file}`);
     const fileBuffer = fs.readFileSync(file);
-    const hash = crypto.createHash("sha256").update(fileBuffer).digest("hex");
+    const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
     const relativePath = path.relative(projectDir, file);
     const formattedOutput = `${relativePath} ${hash}`;
     hashArray.push(formattedOutput);
