@@ -12,6 +12,20 @@ sudo rm -f /var/log/*.gz
 sudo journalctl --rotate
 sudo journalctl --vacuum-time=1s
 
+if [ -d "tmp/logs" ]; then
+  echo "Removing tmp/logs..."
+  rm -rf tmp/logs
+else
+  echo "Directory tmp/logs does not exist. Skipping."
+fi
+
+if [ -d "tmp/django_caches" ]; then
+  echo "Removing tmp/django_caches..."
+  rm -rf tmp/django_caches
+else
+  echo "Directory tmp/django_caches does not exist. Skipping."
+fi
+
 # Clear trash
 rm -rf ~/.local/share/Trash/*
 
