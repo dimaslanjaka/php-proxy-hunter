@@ -1,22 +1,22 @@
 #!/bin/bash
 
-# Check for CRON_TZ environment variable
-if [ -n "$CRON_TZ" ]; then
-  echo "Script is running under crontab"
-else
-  echo "Script is not running under crontab"
+# Combine all arguments into a single command
+COMMAND="$@"
 
-  # Execute all fix-*.sh scripts
-  chmod +x fix-*.sh
+# Set current working directory to parent directory of bin/
+CWD=$(dirname "$(dirname "$(realpath "$0")")")
 
-  for file in fix-*.sh; do
-    if [ -x "$file" ]; then
-      bash "$file"
-    else
-      echo "Skipping $file: Not executable"
-    fi
-  done
-fi
+echo "Current directory: $CWD"
+echo "Command: $COMMAND"
+
+# Copy services config to /etc/systemd/system
+cp -r "$CWD/assets/systemctl/gunicorn.service" "/etc/systemd/system/gunicorn.service"
+cp -r "$CWD/assets/systemctl/django-huey.service" "/etc/systemd/system/huey.service"
+
+# Fix permission for gunicorn services
+chmod 755 "$CWD/assets/systemctl"
+chown root:root "$CWD/assets/systemctl/start_gunicorn.sh"
+chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
 
 # Reload daemon
 sudo systemctl daemon-reload
