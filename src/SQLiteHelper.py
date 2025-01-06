@@ -10,6 +10,25 @@ from src.func import get_relative_path
 from src.func_console import get_message_exception
 
 
+class MyDatabaseConnection(sqlite3.Connection):
+    def __init__(self, database: str, *args, **kwargs):
+        # Initialize the parent class (sqlite3.Connection)
+        super().__init__(database, *args, **kwargs)
+        self.db_path = database
+
+    # Example of overriding a method to customize behavior
+    def execute(self, query: str, parameters=None):
+        # print(f"Executing query: {query}")
+        # Ensure parameters is either a tuple, list, or dictionary
+        if parameters is None:
+            parameters = ()
+        return super().execute(query, parameters)
+
+    # Example of adding a custom method
+    def custom_method(self):
+        print("This is a custom method for the database connection.")
+
+
 class SQLiteHelper:
     """
     A helper class for interacting with SQLite databases.
@@ -85,7 +104,10 @@ class SQLiteHelper:
             db_path (str): The file path to the SQLite database.
         """
         self.db_path = db_path
-        self.conn = sqlite3.connect(db_path, check_same_thread=check_same_thread)
+        # Connect database
+        sqlite3.connect(db_path, check_same_thread=check_same_thread)
+        # Wrap custom class
+        self.conn = MyDatabaseConnection(db_path, check_same_thread=check_same_thread)
         self.conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign key support
         self.conn.row_factory = sqlite3.Row  # Access rows by column names
         self.cursor = self.conn.cursor()
