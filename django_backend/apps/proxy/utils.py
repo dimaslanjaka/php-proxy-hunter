@@ -7,16 +7,32 @@ from django.conf import settings
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
 import sqlite3
+
+from django.db import connection
 from proxy_checker import *
 from proxy_hunter import *
 
 from src.func_proxy import *
 from src.geoPlugin import *
 from src.ProxyDB import ProxyDB
-from django.db import connection
+from src.SQLiteHelper import MyDatabaseConnection
 
 
-def get_connection(database_path: str) -> Optional[sqlite3.Connection]:
+def print_db_error(conn: MyDatabaseConnection, sql: str, error: Exception):
+    db_path = None
+    try:
+        for id_, name, filename in conn.execute("PRAGMA database_list"):
+            if name == "main" and filename is not None:
+                db_path = filename
+                break
+    except Exception:
+        pass
+    msg = f"Error executing query {sql} on connection {db_path}: {error}"
+    print(msg)
+    return msg
+
+
+def get_connection(database_path: str):
     """
     Helper function to retrieve a database connection.
     """
@@ -28,7 +44,7 @@ def get_connection(database_path: str) -> Optional[sqlite3.Connection]:
         return None
 
 
-def get_db_connections() -> List[sqlite3.Connection]:
+def get_db_connections() -> List[MyDatabaseConnection]:
     """
     Retrieves a list of active database connections.
     """
@@ -131,7 +147,7 @@ def execute_select_query(
 
                 cursor.close()
             except Exception as e:
-                print(f"Error executing query {sql} on connection {conn}: {e}")
+                print_db_error(conn=conn, sql=sql, error=e)
             finally:
                 if isinstance(conn, sqlite3.Connection):
                     conn.close()
@@ -258,8 +274,7 @@ def execute_sql_query(
 
                 cursor.close()
             except Exception as e:
-                error_message = f"Error executing query {sql} on {conn_info}: {e}"
-                print(error_message)  # Print the error message
+                error_message = print_db_error(conn=conn, sql=sql, error=e)
                 results["error"].append(error_message)
             finally:
                 if hasattr(conn, "close"):
