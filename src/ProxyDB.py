@@ -20,6 +20,8 @@ from src.SQLiteHelper import SQLiteHelper
 
 
 class ProxyDB:
+    db: SQLiteHelper
+
     def __init__(
         self,
         db_location: Optional[str] = None,
@@ -33,6 +35,7 @@ class ProxyDB:
             db_location (Optional[str]): The location of the SQLite database file. If None, uses default path.
             start (bool): If True, automatically starts the database connection.
         """
+        self.db = None  # type: ignore # Ensure self.db is always defined
         self.check_same_thread = check_same_thread
         self.db_location = db_location
         if db_location is None:
@@ -336,7 +339,7 @@ class ProxyDB:
             or not item.get("longitude")
             or not item.get("latitude")
         ):
-            _proxy = item.get('proxy')
+            _proxy = item.get("proxy")
             if _proxy:
                 geo = get_geo_ip2(_proxy)
                 if geo:
