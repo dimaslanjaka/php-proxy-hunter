@@ -92,6 +92,20 @@ git lfs track *.rar
 touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-http.txt proxies-socks.txt proxyChecker.txt proxyFetcherSources.txt proxyRange.txt status.txt working.txt
 ```
 
+extract `src/database.rar` to `src` folder
+
+The result like below tree
+
+```
+.
+└── Working directory/
+    ├── src/
+    │   ├── database.sqlite
+    │   └── database.sqlite-whm
+    ├── proxies.txt
+    └── dead.txt
+```
+
 - use **WinRAR** to extract **sqlite** database chunks in **src** folder into single **database.sqlite** file
 
 - modify `.htaccess` or `nginx.conf` with your domain

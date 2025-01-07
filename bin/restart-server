@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# Set current working directory to parent directory of bin/
+CWD=$(dirname "$(dirname "$(realpath "$0")")")
+
+echo "Current directory: $CWD"
+
+# Copy services config to /etc/systemd/system
+cp -r "$CWD/assets/systemctl/gunicorn.service" "/etc/systemd/system/gunicorn.service"
+cp -r "$CWD/assets/systemctl/django-huey.service" "/etc/systemd/system/huey.service"
+
+# Fix permission for gunicorn services
+chmod 755 "$CWD/assets/systemctl"
+chown root:root "$CWD/assets/systemctl/start_gunicorn.sh"
+chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
+
 # Reload daemon
 sudo systemctl daemon-reload
 
@@ -32,3 +46,4 @@ echo "Huey service restarted"
 #     sudo systemctl restart spring
 #     echo "Restarted Spring Boot"
 # fi
+

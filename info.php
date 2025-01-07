@@ -4,6 +4,9 @@ require_once __DIR__ . '/func-proxy.php';
 
 use PhpProxyHunter\Server;
 
+$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad();
+
 global $isCli, $isAdmin;
 
 if (!$isCli) {
