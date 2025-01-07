@@ -60,8 +60,15 @@ async function crawl(url) {
 
   const links = await page.evaluate(() => {
     return Array.from(document.querySelectorAll('a'))
-      .map((anchor) => anchor.href)
-      .filter((href) => href.startsWith(window.location.origin) || href.startsWith('/'));
+      .map((anchor) => {
+        const href = anchor.href;
+        if (href.startsWith('/')) {
+          // Prepend the origin to relative links starting with '/'
+          return window.location.origin + href;
+        }
+        return href;
+      })
+      .filter((href) => href.startsWith(window.location.origin));
   });
 
   console.log(`Crawled ${url}`);
