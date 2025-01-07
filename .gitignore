@@ -66,3 +66,6 @@ venv/
 /public/static
 **/.*_cache
 /xl*
+
+# nodejs
+**/baileys_*/
