@@ -11,22 +11,28 @@ sys.path.append(SRC_DIR)
 import random
 from multiprocessing.pool import ThreadPool as Pool
 from typing import Dict, List
+
+from bs4 import BeautifulSoup
+from django.apps import apps
+from django.core.management.base import BaseCommand
+from filelock import FileLock
+from filelock import Timeout as FileLockTimeout
+from joblib import Parallel, delayed
+from proxy_hunter import (
+    check_proxy,
+    file_append_str,
+    sanitize_filename,
+    truncate_file_content,
+)
+
 from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
     check_open_ports,
     filter_duplicates_ips,
 )
 from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import real_check_proxy_async
-from bs4 import BeautifulSoup
-from django.core.management.base import BaseCommand
-from joblib import Parallel, delayed
-from django.apps import apps
-from src.func import (
-    get_relative_path,
-)
-from proxy_hunter import file_append_str, sanitize_filename, truncate_file_content
+from src.func import get_relative_path
 from src.func_console import green, red
-from proxy_hunter import check_proxy
 
 
 def real_check(proxy: str, url: str, title_should_be: str):
@@ -150,6 +156,7 @@ def using_pool(proxies: List[Dict[str, str]], pool_size: int = 5):
 
 class Command(BaseCommand):
     help = "Check the status of proxies and update the database."
+    lockfile = get_relative_path("tmp/django_check_proxies.lock")
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -160,9 +167,18 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        max_proxies = options["max"]
         self.wait_for_app_ready("django_backend.apps.proxy")
+        lock = FileLock(self.lockfile, timeout=0)
+        try:
+            # Try acquiring the lock
+            with lock:
+                self.stdout.write("Lock acquired. Running the command...")
+                self.run_command(**options)
+        except FileLockTimeout:
+            self.stderr.write("Another instance is already running. Exiting.")
 
+    def run_command(self, **options):
+        max_proxies = options["max"]
         proxies: List[Dict[str, str | int | float | None]] = []
 
         untested_proxies = self.select_proxies(

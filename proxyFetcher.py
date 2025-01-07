@@ -17,10 +17,13 @@ from src.requests_cache import get_with_proxy
 
 
 def proxyFetcher():
-    urls = json.loads(read_file(get_relative_path("proxyFetcherSources.json")))
+    read = read_file(get_relative_path("proxyFetcherSources.json"))
+    if not read:
+        return
+    urls = json.loads(read)
 
     results: List[str] = []
-    file_prefix = "added-fetch-" + dt.now().strftime("%Y%m%d")
+    file_prefix = "added-fetch-python-" + dt.now().strftime("%Y%m%d")
     directory = get_relative_path("assets/proxies/")
     for filename in os.listdir(directory):
         filepath = os.path.join(directory, filename)

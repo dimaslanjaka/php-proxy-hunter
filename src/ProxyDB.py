@@ -20,6 +20,8 @@ from src.SQLiteHelper import SQLiteHelper
 
 
 class ProxyDB:
+    db: SQLiteHelper
+
     def __init__(
         self,
         db_location: Optional[str] = None,
@@ -33,23 +35,25 @@ class ProxyDB:
             db_location (Optional[str]): The location of the SQLite database file. If None, uses default path.
             start (bool): If True, automatically starts the database connection.
         """
+        self.db = None  # type: ignore # Ensure self.db is always defined
         self.check_same_thread = check_same_thread
         self.db_location = db_location
         if db_location is None:
             self.db_location = get_relative_path("src/database.sqlite")
-        self.db = None
         if start:
             self.start_connection()
 
     def start_connection(self):
         """Establishes a connection to the SQLite database and sets up initial configurations."""
         try:
+            if not self.db_location:
+                self.db_location = get_relative_path("src/database.sqlite")
             self.db = SQLiteHelper(
                 self.db_location, check_same_thread=self.check_same_thread
             )
             # create table proxies when not exist
             db_create_file = get_nuitka_file("assets/database/create.sql")
-            contents = read_file(db_create_file)
+            contents = str(read_file(db_create_file))
             commands = contents.split(";")
             if contents:
                 # Loop through each command
@@ -335,20 +339,27 @@ class ProxyDB:
             or not item.get("longitude")
             or not item.get("latitude")
         ):
-            geo = get_geo_ip2(item["proxy"])
-            if geo:
-                modify = True
-                db_data.update(
-                    {
-                        "country": geo.country_name,
-                        "lang": geo.lang,
-                        "timezone": geo.timezone,
-                        "region": geo.region_name,
-                        "city": geo.city,
-                        "longitude": geo.longitude,
-                        "latitude": geo.latitude,
-                    }
-                )
+            _proxy = item.get("proxy")
+            if _proxy:
+                geo = get_geo_ip2(_proxy)
+                if geo:
+                    modify = True
+                    db_data.update(
+                        {
+                            k: v
+                            for k, v in {
+                                "country": geo.country_name,
+                                "lang": geo.lang,
+                                "timezone": geo.timezone,
+                                "region": geo.region_name,
+                                "city": geo.city,
+                                "longitude": geo.longitude,
+                                "latitude": geo.latitude,
+                            }.items()
+                            if v is not None
+                        }
+                    )
+
         if (
             not item.get("webgl_renderer")
             or not item.get("webgl_vendor")
@@ -368,7 +379,9 @@ class ProxyDB:
             db_data["useragent"] = random_windows_ua()
         db_data = self.clean_type(db_data)
         if modify:
-            self.update_data(item["proxy"], db_data)
+            _proxy = item.get("proxy")
+            if _proxy:
+                self.update_data(_proxy, db_data)
         return db_data
 
     def from_file(

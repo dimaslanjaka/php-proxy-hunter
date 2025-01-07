@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>reCAPTCHA Example</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=explicit"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  </head>
+
+  <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
+    <div class="min-h-screen flex flex-col justify-center items-center py-6 sm:py-12">
+      <div class="flex flex-col items-center justify-center text-center w-full max-w-md p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+        <h1 class="text-xl font-semibold mb-4">Please complete the reCAPTCHA</h1>
+        <div id="recaptcha"></div>
+      </div>
+    </div>
+
+    <script>
+      const project_base_url =
+        !isNaN(location.port) && location.port !== '' ? `${location.hostname}:${location.port}` : location.hostname;
+
+      function sleep(time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+      }
+
+      async function recaptcha() {
+        function send_token(token, callback) {
+          if (typeof callback !== 'function') {
+            callback = (...args) => {
+              console.log(...args);
+            };
+          }
+          return fetch(`//${project_base_url}/data/login.php`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: new URLSearchParams({
+              'g-recaptcha-response': token
+            }).toString()
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              // Remove recaptcha element
+              if (data.success) {
+                const el = document.getElementById('recaptcha');
+                if (el) el.remove();
+              }
+              return data;
+            })
+            .then(callback);
+        }
+        window.send_token = send_token;
+
+        function recaptcha_execute(siteKey) {
+          grecaptcha
+            .execute(siteKey, {
+              action: 'submit'
+            })
+            .then(send_token);
+        }
+        window.recaptcha_execute = send_token;
+
+        try {
+          const r = await fetch(`//${project_base_url}/info.php`);
+          const res_1 = await r.json();
+          const siteKey_1 = res_1['captcha-site-key'];
+          const embedder = document.createElement('div');
+          embedder.classList.add('g-recaptcha');
+          embedder.setAttribute('data-sitekey', res_1['captcha-v2-site-key']);
+          embedder.setAttribute('data-callback', 'send_token');
+          embedder.setAttribute('data-action', 'submit');
+          document.getElementById('recaptcha').appendChild(embedder);
+          await sleep(1000);
+          const recaptchaV2Script = document.createElement('script');
+          recaptchaV2Script.src = 'https://www.google.com/recaptcha/api.js';
+          document.body.appendChild(recaptchaV2Script);
+          const recaptchaV3Script = document.createElement('script');
+          recaptchaV3Script.src = 'https://www.google.com/recaptcha/api.js?render=' + siteKey_1;
+          recaptchaV3Script.onload = function () {
+            grecaptcha.ready(() => recaptcha_execute(siteKey_1));
+          };
+          document.body.appendChild(recaptchaV3Script);
+        } catch (e) {
+          const message = 'Failed to obtain captcha site key ' + e.message;
+
+          // Create alert container
+          const alertBox = document.createElement('div');
+          alertBox.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 alert';
+
+          // Create alert message
+          const alertMessage = document.createElement('span');
+          alertMessage.textContent = message;
+          alertBox.appendChild(alertMessage);
+
+          document.getElementById('recaptcha').appendChild(alertBox);
+        }
+      }
+
+      recaptcha();
+    </script>
+  </body>
+</html>
