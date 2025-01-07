@@ -92,9 +92,10 @@ extensions.forEach((ext) => {
       return !excludeMapped.some((excludeDirPattern) => file.includes(excludeDirPattern));
     });
   filter.forEach((file) => {
-    console.log(`reading ${file}`);
-    const fileBuffer = fs.readFileSync(file);
-    const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+    console.log(`calculating ${file}`);
+    const stats = fs.statSync(file);
+    const pseudoHash = `${stats.size}-${stats.mtimeMs}`;
+    const hash = crypto.createHash('sha256').update(pseudoHash).digest('hex');
     const relativePath = path.relative(projectDir, file);
     const formattedOutput = `${relativePath} ${hash}`;
     hashArray.push(formattedOutput);
