@@ -9,14 +9,18 @@ sys.path.append(SRC_DIR)
 
 import random
 from typing import Dict, List
+
+from django.apps import apps
+from django.core.management.base import BaseCommand
+from filelock import FileLock
+from filelock import Timeout as FileLockTimeout
+
 from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
     check_open_ports,
     filter_duplicates_ips,
 )
 from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
-from django.core.management.base import BaseCommand
-from django.apps import apps
-
+from src.func import get_relative_path
 
 processed_proxies = set()
 lock = threading.Lock()
@@ -24,6 +28,7 @@ lock = threading.Lock()
 
 class Command(BaseCommand):
     help = "Check the status of proxies and update the database."
+    lockfile = get_relative_path("tmp/django_filter_dups.lock")
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -34,6 +39,16 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        lock = FileLock(self.lockfile, timeout=0)
+        try:
+            # Try acquiring the lock
+            with lock:
+                self.stdout.write("Lock acquired. Running the command...")
+                self.run_command(**options)
+        except FileLockTimeout:
+            self.stderr.write("Another instance is already running. Exiting.")
+
+    def run_command(self, **options):
         max_proxies = options["max"]
         self.wait_for_app_ready("django_backend.apps.proxy")
 
