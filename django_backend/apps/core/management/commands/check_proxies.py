@@ -27,6 +27,7 @@ from src.func import (
 from proxy_hunter import file_append_str, sanitize_filename, truncate_file_content
 from src.func_console import green, red
 from proxy_hunter import check_proxy
+from filelock import FileLock, Timeout as FileLockTimeout
 
 
 def real_check(proxy: str, url: str, title_should_be: str):
@@ -150,6 +151,7 @@ def using_pool(proxies: List[Dict[str, str]], pool_size: int = 5):
 
 class Command(BaseCommand):
     help = "Check the status of proxies and update the database."
+    lockfile = get_relative_path("tmp/django_check_proxies.lock")
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -160,9 +162,18 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        max_proxies = options["max"]
         self.wait_for_app_ready("django_backend.apps.proxy")
+        lock = FileLock(self.lockfile, timeout=0)
+        try:
+            # Try acquiring the lock
+            with lock:
+                self.stdout.write("Lock acquired. Running the command...")
+                self.run_command(**options)
+        except FileLockTimeout:
+            self.stderr.write("Another instance is already running. Exiting.")
 
+    def run_command(self, **options):
+        max_proxies = options["max"]
         proxies: List[Dict[str, str | int | float | None]] = []
 
         untested_proxies = self.select_proxies(
