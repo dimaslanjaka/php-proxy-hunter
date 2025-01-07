@@ -11,23 +11,28 @@ sys.path.append(SRC_DIR)
 import random
 from multiprocessing.pool import ThreadPool as Pool
 from typing import Dict, List
+
+from bs4 import BeautifulSoup
+from django.apps import apps
+from django.core.management.base import BaseCommand
+from filelock import FileLock
+from filelock import Timeout as FileLockTimeout
+from joblib import Parallel, delayed
+from proxy_hunter import (
+    check_proxy,
+    file_append_str,
+    sanitize_filename,
+    truncate_file_content,
+)
+
 from django_backend.apps.proxy.tasks_unit.filter_ports_proxy import (
     check_open_ports,
     filter_duplicates_ips,
 )
 from django_backend.apps.proxy.tasks_unit.geolocation import fetch_geo_ip
 from django_backend.apps.proxy.tasks_unit.real_check_proxy import real_check_proxy_async
-from bs4 import BeautifulSoup
-from django.core.management.base import BaseCommand
-from joblib import Parallel, delayed
-from django.apps import apps
-from src.func import (
-    get_relative_path,
-)
-from proxy_hunter import file_append_str, sanitize_filename, truncate_file_content
+from src.func import get_relative_path
 from src.func_console import green, red
-from proxy_hunter import check_proxy
-from filelock import FileLock, Timeout as FileLockTimeout
 
 
 def real_check(proxy: str, url: str, title_should_be: str):
