@@ -418,8 +418,8 @@ class ProxyDB
   public function countWorkingProxies(): int
   {
     return $this->db->count('proxies', "(status = ?) AND (private = ? OR private IS NULL OR private = '')", [
-      'active',
-      'false'
+        'active',
+        'false'
     ]);
   }
 
@@ -441,72 +441,75 @@ class ProxyDB
 }
 
 /**
- * proxy table data class
+ * Proxy table data class
  */
 class Proxy
 {
   /** @var int|null */
-  public $id = null;
+  public ?int $id = null;
 
   /** @var string */
-  public $proxy;
+  public string $proxy;
 
   /** @var string|null */
-  public $latency = null;
+  public ?string $latency = null;
 
   /** @var string|null */
-  public $type = null;
+  public ?string $type = null;
 
   /** @var string|null */
-  public $region = null;
+  public ?string $region = null;
 
   /** @var string|null */
-  public $city = null;
+  public ?string $city = null;
 
   /** @var string|null */
-  public $country = null;
+  public ?string $country = null;
 
   /** @var string|null */
-  public $last_check = null;
+  public ?string $last_check = null;
 
   /** @var string|null */
-  public $anonymity = null;
+  public ?string $anonymity = null;
 
   /** @var string|null */
-  public $status = null;
+  public ?string $status = null;
 
   /** @var string|null */
-  public $timezone = null;
+  public ?string $timezone = null;
 
   /** @var string|null */
-  public $longitude = null;
+  public ?string $longitude = null;
 
   /** @var string|null */
-  public $private = null;
+  public ?string $private = null;
 
   /** @var string|null */
-  public $latitude = null;
+  public ?string $latitude = null;
 
   /** @var string|null */
-  public $lang = null;
+  public ?string $lang = null;
 
   /** @var string|null */
-  public $useragent = null;
+  public ?string $useragent = null;
 
   /** @var string|null */
-  public $webgl_vendor = null;
+  public ?string $webgl_vendor = null;
 
   /** @var string|null */
-  public $webgl_renderer = null;
+  public ?string $webgl_renderer = null;
 
   /** @var string|null */
-  public $browser_vendor = null;
+  public ?string $browser_vendor = null;
 
   /** @var string|null */
-  public $username = null;
+  public ?string $username = null;
 
   /** @var string|null */
-  public $password = null;
+  public ?string $password = null;
+
+  /** @var string|null */
+  public ?string $https = "false";
 
   /**
    * Proxy constructor.
@@ -531,30 +534,33 @@ class Proxy
    * @param string|null $username
    * @param string|null $password
    * @param int|null $id
+   * @param string|null $https
    */
   public function __construct(
-    string  $proxy,
-    ?string $latency = null,
-    ?string $type = null,
-    ?string $region = null,
-    ?string $city = null,
-    ?string $country = null,
-    ?string $last_check = null,
-    ?string $anonymity = null,
-    ?string $status = null,
-    ?string $timezone = null,
-    ?string $longitude = null,
-    ?string $private = null,
-    ?string $latitude = null,
-    ?string $lang = null,
-    ?string $useragent = null,
-    ?string $webgl_vendor = null,
-    ?string $webgl_renderer = null,
-    ?string $browser_vendor = null,
-    ?string $username = null,
-    ?string $password = null,
-    ?int    $id = null
-  ) {
+      string  $proxy,
+      ?string $latency = null,
+      ?string $type = null,
+      ?string $region = null,
+      ?string $city = null,
+      ?string $country = null,
+      ?string $last_check = null,
+      ?string $anonymity = null,
+      ?string $status = null,
+      ?string $timezone = null,
+      ?string $longitude = null,
+      ?string $private = null,
+      ?string $latitude = null,
+      ?string $lang = null,
+      ?string $useragent = null,
+      ?string $webgl_vendor = null,
+      ?string $webgl_renderer = null,
+      ?string $browser_vendor = null,
+      ?string $username = null,
+      ?string $password = null,
+      ?int    $id = null,
+      ?string $https = "false"
+  )
+  {
     $this->id = $id;
     $this->proxy = $proxy;
     $this->latency = $latency;
@@ -576,5 +582,6 @@ class Proxy
     $this->browser_vendor = $browser_vendor;
     $this->username = $username;
     $this->password = $password;
+    $this->https = $https;
   }
 }
