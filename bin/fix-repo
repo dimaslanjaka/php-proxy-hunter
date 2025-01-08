@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Set the path to your git repository
-REPO_PATH="/var/www/html"
+# Get the directory of the script
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+
+# Set the path to your git repository from parent folder
+REPO_PATH="$(dirname "$SCRIPT_DIR")"
 
 # Navigate to the repository directory
 cd "$REPO_PATH" || {
