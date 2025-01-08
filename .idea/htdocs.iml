@@ -5,6 +5,11 @@
       <sourceFolder url="file://$MODULE_DIR$/packages/proxy-checker-python" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/packages/proxy-hunter-python" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" packagePrefix="PhpProxyHunter\" />
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/PhpProxyHunter" isTestSource="false" packagePrefix="PhpProxyHunter\" />
+      <sourceFolder url="file://$MODULE_DIR$/src/simplehtmldom" isTestSource="false" packagePrefix="simplehtmldom\" />
+      <sourceFolder url="file://$MODULE_DIR$/src/simplehtmldom/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.cache" />
       <excludeFolder url="file://$MODULE_DIR$/.yarn" />
       <excludeFolder url="file://$MODULE_DIR$/assets" />
