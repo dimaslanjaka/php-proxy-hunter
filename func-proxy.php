@@ -65,7 +65,8 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
       $proxy = $match[1] . ":" . $match[2];
       $result = new Proxy($proxy);
       if (isValidProxy($proxy)) {
-        $results[] = $result;
+        // limit array to 100
+        if (count($results) < 100) $results[] = $result;
       }
       continue;
     }
@@ -76,7 +77,8 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
         $proxy = $ip . ":" . $port;
         $result = new Proxy($proxy);
         if (isValidProxy($proxy)) {
-          $results[] = $result;
+          // limit array to 100
+          if (count($results) < 100) $results[] = $result;
         }
       }
       continue;
@@ -100,12 +102,14 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
           $result->password = $password;
           $db->updateData($proxy, ['username' => $username, 'password' => $password, 'private' => 'true']);
         }
-        $results[] = $result;
+        // limit array to 100
+        if (count($results) < 100) $results[] = $result;
       }
     } else {
       $proxy = $match[0];
       $result = new Proxy($proxy);
-      $results[] = $result;
+      // limit array to 100
+      if (count($results) < 100) $results[] = $result;
     }
 
     // if (!empty($proxy) && is_string($proxy) && strlen($proxy) >= 10) {
