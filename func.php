@@ -187,24 +187,32 @@ $argv = isset($argv) ? $argv : [];
 /**
  * Get project temp folder.
  *
- * @return string
+ * @return string|false The temporary directory path or false on failure.
  */
-function tmp(): string
+function tmp(...$args)
 {
+  // Base directory for temp folder
   $tmpDir = __DIR__ . '/tmp';
+
+  // Append additional directories from $args
+  foreach ($args as $arg) {
+    $tmpDir .= '/' . ltrim($arg, '/');  // Ensure no leading slashes
+  }
 
   // Create temp folder if it doesn't exist
   if (!file_exists($tmpDir)) {
-    if (!mkdir($tmpDir, 0777, true)) {
+    if (!mkdir($tmpDir, 0755, true)) {
+      // Log an error and return false if folder creation fails
       error_log("Failed to create directory: $tmpDir");
-      return '';
+      return false;
     }
   }
 
-  // Set permissions for the directory
-  if (!chmod($tmpDir, 0777)) {
+  // Set permissions for the directory, avoid 0777
+  if (!chmod($tmpDir, 0755)) {
+    // Log an error if setting permissions fails
     error_log("Failed to set permissions for directory: $tmpDir");
-    return '';
+    return false;
   }
 
   return $tmpDir;
