@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Set the path to your git repository
-REPO_PATH="/var/www/html"
+# Get the directory of the script
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+
+# Set the path to your git repository from parent folder
+REPO_PATH="$(dirname "$SCRIPT_DIR")"
 
 # Navigate to the repository directory
 cd "$REPO_PATH" || {
@@ -25,10 +28,10 @@ if [ -n "$CRON_TZ" ]; then
 else
   echo "Script is not running under crontab"
 
-  # Execute all fix-*.sh scripts
-  chmod +x fix-*.sh
+  # Execute all *.sh scripts
+  chmod +x *.sh
 
-  for file in fix-*.sh; do
+  for file in *.sh; do
     if [ -x "$file" ]; then
       bash "$file"
     else

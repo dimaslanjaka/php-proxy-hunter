@@ -8,13 +8,9 @@ OS=$(uname -s)
 # Get the directory of the script
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 
-# Default directory for Linux
-if [ "$OS" == "Linux" ]; then
-  CWD="/var/www/html"
-else
-  # For non-Linux systems, use the script directory's parent
-  CWD="$(dirname "$SCRIPT_DIR")"
-fi
+# Current working directory from parent folder
+CWD="$(dirname "$SCRIPT_DIR")"
+
 USER="www-data"
 
 # Check if the system is Linux
