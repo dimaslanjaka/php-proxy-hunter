@@ -88,7 +88,7 @@
 // ==/UserScript==
 
 (function () {
-  "use strict";
+  'use strict';
 
   const md5 = function (text) {
     // eslint-disable-next-line no-undef
@@ -109,7 +109,7 @@
    */
   const splitStringByLines = function (input, linesPerChunk) {
     // Split the input string by lines
-    const lines = input.split("\n");
+    const lines = input.split('\n');
 
     // Initialize an array to hold chunks of lines
     const chunks = [];
@@ -120,7 +120,7 @@
       const chunk = lines.slice(i, i + linesPerChunk);
 
       // Join the chunk back into a single string and push it to the array
-      chunks.push(chunk.join("\n"));
+      chunks.push(chunk.join('\n'));
     }
 
     return chunks;
@@ -133,15 +133,15 @@
    */
   const addProxyFun = (dataToSend) => {
     if (!dataToSend) return;
-    if (typeof dataToSend != "string") dataToSend = JSON.stringify(dataToSend, null, 2);
+    if (typeof dataToSend != 'string') dataToSend = JSON.stringify(dataToSend, null, 2);
 
     // Check if the data has already been sent by looking at local storage
     const hasDataBeenSent = (data) => {
-      if (typeof data !== "string") data = md5(JSON.stringify(data));
+      if (typeof data !== 'string') data = md5(JSON.stringify(data));
       if (!isMD5Format(data)) data = md5(data);
-      const sentData = localStorage.getItem("sentData");
+      const sentData = localStorage.getItem('sentData');
       const result = sentData && sentData.includes(data);
-      console.log(data, "is same", result);
+      console.log(data, 'is same', result);
       return result;
     };
 
@@ -150,16 +150,16 @@
       // skip null data
       if (!data) return;
       if (!hasDataBeenSent(data)) {
-        if (typeof data !== "string") data = md5(JSON.stringify(data));
+        if (typeof data !== 'string') data = md5(JSON.stringify(data));
         if (!isMD5Format(data)) data = md5(data);
         try {
-          let sentData = localStorage.getItem("sentData") || "";
-          sentData += data + "\n"; // Append the entire data
-          localStorage.setItem("sentData", sentData);
+          let sentData = localStorage.getItem('sentData') || '';
+          sentData += data + '\n'; // Append the entire data
+          localStorage.setItem('sentData', sentData);
         } catch (_e) {
-          console.log("RESET LOCAL STORAGE DATA");
+          console.log('RESET LOCAL STORAGE DATA');
           // reset local storage
-          localStorage.setItem("sentData", data);
+          localStorage.setItem('sentData', data);
         }
       }
     };
@@ -168,15 +168,15 @@
 
     const services = [
       // php proxy hunter
-      "http://localhost/proxyAdd.php",
-      "http://localhost/proxyCheckerParallel.php",
-      "https://sh.webmanajemen.com/proxyAdd.php",
-      "https://sh.webmanajemen.com/proxyCheckerParallel.php",
+      'http://localhost/proxyAdd.php',
+      'http://localhost/proxyCheckerParallel.php',
+      'https://sh.webmanajemen.com/proxyAdd.php',
+      'https://sh.webmanajemen.com/proxyCheckerParallel.php',
       // python proxy hunter
-      "https://sh.webmanajemen.com:8443/proxy/check",
-      "https://localhost:4000/proxy/check",
-      "https://localhost:7000/proxy/check",
-      "https://localhost:8000/proxy/check"
+      'https://sh.webmanajemen.com:8443/proxy/check',
+      'https://localhost:4000/proxy/check',
+      'https://localhost:7000/proxy/check',
+      'https://localhost:8000/proxy/check'
     ];
 
     /**
@@ -189,8 +189,8 @@
         setTimeout(() => {
           fetch(url, {
             signal: AbortSignal.timeout(5000),
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Greasemonkey-Script": "1" },
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Greasemonkey-Script': '1' },
             body: dataToSend
           })
             .then((response) => {
@@ -229,11 +229,11 @@
         fetchWithDelay(url, `proxy=${encodeURIComponent(str_data)}`)
           .then(() => fetchWithDelay(url, `proxies=${encodeURIComponent(str_data)}`))
           .catch((error) => {
-            console.error("Failed to fetch with delay:", error);
+            console.error('Failed to fetch with delay:', error);
           });
       };
       const split_body = splitStringByLines(dataToSend, 100);
-      if (!url.includes("proxyCheckerParallel")) {
+      if (!url.includes('proxyCheckerParallel')) {
         split_body.forEach(do_upload);
       } else {
         const item = split_body[Math.floor(Math.random() * split_body.length)];
@@ -247,19 +247,19 @@
     return new Promise((resolve) => {
       const regex = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{2,5})/;
       const result = [];
-      const a = Array.from(document.getElementsByClassName("spy14"));
+      const a = Array.from(document.getElementsByClassName('spy14'));
       for (var i = 0; i < a.length; i++) {
-        if (a[i].innerText.includes(":")) {
+        if (a[i].innerText.includes(':')) {
           result.push({ raw: a[i].innerText });
         }
       }
 
-      const tables = Array.from(document.querySelectorAll("table"));
+      const tables = Array.from(document.querySelectorAll('table'));
       for (let i = 0; i < tables.length; i++) {
         const table = tables[i];
-        const tr = Array.from(table.querySelectorAll("tr"));
+        const tr = Array.from(table.querySelectorAll('tr'));
         for (let ii = 0; ii < tr.length; ii++) {
-          const td = Array.from(tr[ii].querySelectorAll("td"));
+          const td = Array.from(tr[ii].querySelectorAll('td'));
           if (td[0]) {
             const test = regex.test(td[0].innerText);
             // console.log(test, ii, td[0].innerText);
@@ -279,12 +279,12 @@
   const parse_hideme_jquery = () => {
     return new Promise((resolve) => {
       const result = [];
-      $(".table_block>table>tbody>tr").each(function (i, e) {
+      $('.table_block>table>tbody>tr').each(function (i, e) {
         var tr = $(e);
-        var tdList = tr.children("td");
+        var tdList = tr.children('td');
         var host = tdList.get(0).innerText;
         var port = tdList.get(1).innerText;
-        result.push({ raw: host + ":" + port });
+        result.push({ raw: host + ':' + port });
       });
 
       resolve(result);
@@ -297,25 +297,25 @@
   const parse_prem_proxy = () => {
     return new Promise((resolve) => {
       // Select all table elements on the page
-      const tables = Array.from(document.querySelectorAll("table"));
+      const tables = Array.from(document.querySelectorAll('table'));
       const ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
       const objectWrapper = [];
 
       // Loop through each table element using a for loop
       for (let i = 0; i < tables.length; i++) {
         const table = tables[i];
-        const rows = Array.from(table.querySelectorAll("tr"));
+        const rows = Array.from(table.querySelectorAll('tr'));
 
         for (let j = 0; j < rows.length; j++) {
           const row = rows[j];
-          const td = Array.from(row.querySelectorAll("td"));
-          const texts = td.map((el) => el.innerText).filter((str) => typeof str == "string" && str.trim().length > 0);
-          if (ipOnly.test(texts.join(" "))) {
+          const td = Array.from(row.querySelectorAll('td'));
+          const texts = td.map((el) => el.innerText).filter((str) => typeof str == 'string' && str.trim().length > 0);
+          if (ipOnly.test(texts.join(' '))) {
             // console.log(texts);
             objectWrapper.push({
               raw: texts[0],
-              ip: texts[0].split(":")[0],
-              port: texts[0].split(":")[1],
+              ip: texts[0].split(':')[0],
+              port: texts[0].split(':')[1],
               type: texts[2],
               country: texts[3],
               anonymity: texts[4],
@@ -335,22 +335,22 @@
   const parse_proxylistplus = () => {
     return new Promise((resolve) => {
       // Select all table elements on the page
-      const tables = Array.from(document.querySelectorAll("table"));
+      const tables = Array.from(document.querySelectorAll('table'));
       const ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
       const objectWrapper = [];
 
       // Loop through each table element using a for loop
       for (let i = 0; i < tables.length; i++) {
         const table = tables[i];
-        const rows = Array.from(table.querySelectorAll("tr"));
+        const rows = Array.from(table.querySelectorAll('tr'));
 
         for (let j = 0; j < rows.length; j++) {
           const row = rows[j];
-          const td = Array.from(row.querySelectorAll("td"));
-          const texts = td.map((el) => el.innerText).filter((str) => typeof str == "string" && str.trim().length > 0);
-          if (ipOnly.test(texts.join(" "))) {
+          const td = Array.from(row.querySelectorAll('td'));
+          const texts = td.map((el) => el.innerText).filter((str) => typeof str == 'string' && str.trim().length > 0);
+          if (ipOnly.test(texts.join(' '))) {
             const item = {
-              raw: texts[0] + ":" + texts[1],
+              raw: texts[0] + ':' + texts[1],
               ip: texts[0],
               port: texts[1],
               type: texts[2],
@@ -376,23 +376,23 @@
   const parse_second_and_third_row = () => {
     return new Promise((resolve) => {
       // Select all table elements on the page
-      const tables = Array.from(document.querySelectorAll("table"));
+      const tables = Array.from(document.querySelectorAll('table'));
       const ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
       const objectWrapper = [];
 
       // Loop through each table element using a for loop
       for (let i = 0; i < tables.length; i++) {
         const table = tables[i];
-        const rows = Array.from(table.querySelectorAll("tr"));
+        const rows = Array.from(table.querySelectorAll('tr'));
 
         for (let j = 0; j < rows.length; j++) {
           const row = rows[j];
-          const td = Array.from(row.querySelectorAll("td"));
-          const texts = td.map((el) => el.innerText).filter((str) => typeof str == "string" && str.trim().length > 0);
-          if (ipOnly.test(texts.join(" "))) {
+          const td = Array.from(row.querySelectorAll('td'));
+          const texts = td.map((el) => el.innerText).filter((str) => typeof str == 'string' && str.trim().length > 0);
+          if (ipOnly.test(texts.join(' '))) {
             // console.log(texts);
             objectWrapper.push({
-              raw: texts[1] + ":" + texts[2],
+              raw: texts[1] + ':' + texts[2],
               ip: texts[0],
               port: texts[1],
               type: texts[2],
@@ -414,14 +414,14 @@
   const parse_first_and_second_row = () => {
     return new Promise((resolve) => {
       // Select all table elements on the page
-      const tables = Array.from(document.querySelectorAll("table"));
+      const tables = Array.from(document.querySelectorAll('table'));
       const ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
       const objectWrapper = [];
 
       // Loop through each table element using a for loop
       for (let i = 0; i < tables.length; i++) {
         const table = tables[i];
-        const rows = Array.from(table.querySelectorAll("tr"));
+        const rows = Array.from(table.querySelectorAll('tr'));
 
         for (let j = 0; j < rows.length; j++) {
           const row = rows[j];
@@ -432,10 +432,10 @@
             ssl: null,
             google: null,
             alert: null,
-            type: "http",
+            type: 'http',
             test: null
           };
-          const td = row.querySelectorAll("td");
+          const td = row.querySelectorAll('td');
           const proxy = td[0];
           const port = td[1];
           const countryCode = td[2];
@@ -449,15 +449,15 @@
             buildObject.ssl = /^yes/.test(ssl.innerText.trim()) ? true : false;
             buildObject.code = countryCode.innerText.trim();
             switch (anonymity.innerText.trim()) {
-              case "elite proxy":
-                buildObject.anonymity = "H";
+              case 'elite proxy':
+                buildObject.anonymity = 'H';
                 break;
-              case "anonymous":
-                buildObject.anonymity = "A";
+              case 'anonymous':
+                buildObject.anonymity = 'A';
                 break;
 
               default:
-                buildObject.anonymity = "N";
+                buildObject.anonymity = 'N';
                 break;
             }
             objectWrapper.push(buildObject);
@@ -477,19 +477,19 @@
     return new Promise((resolve) => {
       const regex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})$/;
       const result = [];
-      const a = Array.from(document.getElementsByClassName("spy14"));
+      const a = Array.from(document.getElementsByClassName('spy14'));
       for (var i = 0; i < a.length; i++) {
-        if (a[i].innerText.includes(":")) {
+        if (a[i].innerText.includes(':')) {
           result.push({ raw: a[i].innerText });
         }
       }
 
-      const tables = Array.from(document.querySelectorAll("table"));
+      const tables = Array.from(document.querySelectorAll('table'));
       for (let i = 0; i < tables.length; i++) {
         const table = tables[i];
-        const tr = Array.from(table.querySelectorAll("tr"));
+        const tr = Array.from(table.querySelectorAll('tr'));
         for (let ii = 0; ii < tr.length; ii++) {
-          const td = Array.from(tr[ii].querySelectorAll("td"));
+          const td = Array.from(tr[ii].querySelectorAll('td'));
           if (td.length > 0 && regex.test(td[0].innerText)) {
             result.push({ raw: td[0].innerText });
           }
@@ -515,12 +515,12 @@
 
   const extractIpPortFromBody = () => {
     const result = [];
-    const area = document.querySelectorAll("textarea,td");
+    const area = document.querySelectorAll('textarea,td');
     result.push(...extractIpPortPairs(document.body.innerHTML));
     area.forEach((el) => {
       result.push(...extractIpPortPairs(el.value));
     });
-    const divList = document.querySelectorAll("div.list");
+    const divList = document.querySelectorAll('div.list');
     divList.forEach((el) => {
       result.push(...extractIpPortPairs(el.innerHTML));
     });
@@ -550,9 +550,9 @@
   const freeProxySale = () => {
     return new Promise((resolve) => {
       const result = [];
-      const proxyTable = document.querySelectorAll(".proxy__table");
+      const proxyTable = document.querySelectorAll('.proxy__table');
       proxyTable.forEach((wrapper) => {
-        Array.from(wrapper.querySelectorAll("[class^=css-]")).forEach((el) => {
+        Array.from(wrapper.querySelectorAll('[class^=css-]')).forEach((el) => {
           const ips = findIPv4Addresses(el.textContent);
           if (ips.length > 0) {
             ips.forEach((ip) => {
@@ -589,7 +589,7 @@
           // flatting
           const flat = results.flat().filter((item) => {
             if (!item) return false;
-            const str = typeof item == "string" ? item : JSON.stringify(item);
+            const str = typeof item == 'string' ? item : JSON.stringify(item);
             const regex = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})/gm;
             return regex.test(str);
           });
@@ -601,7 +601,7 @@
               const regex_ip = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gm;
               const regex_port = /(\d{1,5})/gm;
               const regex_proxy = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})/gm;
-              if (typeof item == "object") {
+              if (typeof item == 'object') {
                 if (item.raw) {
                   // validate proxy is valid
                   valid = regex_proxy.test(item.raw);
@@ -610,7 +610,7 @@
                   if (item.ip) {
                     if (regex_proxy.test(item.ip)) {
                       item.raw = item.ip;
-                      item.ip = item.raw.split(":")[0];
+                      item.ip = item.raw.split(':')[0];
                     }
                   }
                 }
@@ -623,16 +623,16 @@
                     for (let i = 0; i < extract.length; i++) {
                       const ex = extract[i];
                       if (i == 0) {
-                        item.raw = ex.ip + ":" + ex.port;
+                        item.raw = ex.ip + ':' + ex.port;
                       } else {
-                        additionalItems.push({ raw: ex.ip + ":" + ex.port });
+                        additionalItems.push({ raw: ex.ip + ':' + ex.port });
                       }
                     }
                   }
                 }
                 if (item.raw && !no_more_than_21) {
                   // fix IP:PORT
-                  const split = item.raw.split(":");
+                  const split = item.raw.split(':');
                   let build_proxy = [];
                   if (split.length > 1) {
                     split.forEach((str) => {
@@ -642,11 +642,11 @@
                         build_proxy[1] = str;
                       }
                     });
-                    if (regex_proxy.test(build_proxy.join(":"))) {
-                      item.raw = build_proxy.join(":");
+                    if (regex_proxy.test(build_proxy.join(':'))) {
+                      item.raw = build_proxy.join(':');
                     } else if (!regex_proxy.test(item.raw)) {
-                      console.error(item.raw, "invalid regex_proxy");
-                      return { raw: "" };
+                      console.error(item.raw, 'invalid regex_proxy');
+                      return { raw: '' };
                     }
                   }
                 }
@@ -662,11 +662,11 @@
             (obj, index, self) => index === self.findIndex((t) => t.raw === obj.raw)
           );
           // build to string
-          let build = "";
+          let build = '';
           for (let i = 0; i < uniqueItems.length; i++) {
             const item = uniqueItems[i];
             if (!build.includes(item.raw)) {
-              build += item.raw + "\n";
+              build += item.raw + '\n';
             }
           }
           // const result = uniqueArray.map((obj) => JSON.stringify(obj, null, 2)).join("\n");
@@ -685,10 +685,10 @@
    * @returns {string} The sanitized HTML content.
    */
   const sanitizeHtml = (html) => {
-    const doc = new DOMParser().parseFromString(html, "text/html");
+    const doc = new DOMParser().parseFromString(html, 'text/html');
 
     // Tags to remove
-    const tagsToRemove = ["img", "script", "iframe", "link", "ins"];
+    const tagsToRemove = ['img', 'script', 'iframe', 'link', 'ins'];
 
     tagsToRemove.forEach((tagName) => {
       const tags = doc.getElementsByTagName(tagName);
@@ -698,33 +698,33 @@
     });
 
     // Remove 'style' attribute from all tags
-    const allTags = doc.getElementsByTagName("*");
+    const allTags = doc.getElementsByTagName('*');
     for (let i = 0; i < allTags.length; i++) {
-      allTags[i].removeAttribute("style");
+      allTags[i].removeAttribute('style');
     }
 
     const filteredHtml = doc.documentElement.outerHTML;
 
-    const doc2 = new DOMParser().parseFromString(filteredHtml, "text/html");
+    const doc2 = new DOMParser().parseFromString(filteredHtml, 'text/html');
     const elements = [];
-    doc2.querySelectorAll("textarea,table,.list").forEach((el) => {
+    doc2.querySelectorAll('textarea,table,.list').forEach((el) => {
       elements.push(el.outerHTML);
     });
-    return elements.join("\n");
+    return elements.join('\n');
   };
 
   /**
    * Monitors changes to the body's HTML content and performs actions when changes are detected.
    */
   const monitorBodyChanges = () => {
-    let lastHtml = "";
+    let lastHtml = '';
 
     setInterval(() => {
       const currentHtml = document.body.innerHTML;
       const sanitizedHtml = sanitizeHtml(currentHtml);
       if (sanitizedHtml !== lastHtml) {
         lastHtml = sanitizedHtml;
-        console.log("body changed");
+        console.log('body changed');
         parse_all().then(addProxyFun);
       }
     }, 3000); // Check every 3 seconds
@@ -732,14 +732,14 @@
 
   setTimeout(monitorBodyChanges, 3000);
 
-  const btn = document.createElement("button");
-  btn.id = "php-proxy-hunter-grab-proxy";
+  const btn = document.createElement('button');
+  btn.id = 'php-proxy-hunter-grab-proxy';
   btn.setAttribute(
-    "style",
-    "position: fixed; top: 50%; left: 0; transform: translateY(-50%); opacity: 0.6; margin-left: 1.2em; color: white; background-color: black;"
+    'style',
+    'position: fixed; top: 50%; left: 0; transform: translateY(-50%); opacity: 0.6; margin-left: 1.2em; color: white; background-color: black;'
   );
-  btn.innerText = "PARSE PROXIES";
-  btn.classList.add("btn", "button", "btn-primary");
+  btn.innerText = 'PARSE PROXIES';
+  btn.classList.add('btn', 'button', 'btn-primary');
   btn.onclick = () => {
     parse_all()
       .then((result) => {
@@ -765,7 +765,7 @@
 <body><pre>${result.trim()}</pre></body>
 </html>`;
 
-        window.open(URL.createObjectURL(new Blob([htmlContent], { type: "text/html" })), "width=800,height=600");
+        window.open(URL.createObjectURL(new Blob([htmlContent], { type: 'text/html' })), 'width=800,height=600');
       })
       .catch((error) => {
         console.error(error);

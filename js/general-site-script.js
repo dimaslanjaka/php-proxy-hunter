@@ -1,7 +1,6 @@
-/* eslint-disable no-undef */
 setTimeout(() => {
-  const port = location.port || "";
-  if (location.host == "23.94.85.180") {
+  const port = location.port || '';
+  if (location.host == '23.94.85.180') {
     if (port.length > 0) {
       location.href = `http://sh.webmanajemen.com:${port}/proxy`;
     } else {
@@ -9,9 +8,9 @@ setTimeout(() => {
     }
   }
 
-  if (location.host.includes("webmanajemen.com")) {
+  if (location.host.includes('webmanajemen.com')) {
     if (port.length === 0) {
-      fetch("info.php")
+      fetch('info.php')
         .then((res) => res.json())
         .then((data) => {
           if (!data.admin) {
@@ -19,7 +18,7 @@ setTimeout(() => {
           }
         })
         .catch((_e) => {
-          console.log("failed get info.php");
+          console.log('failed get info.php');
         });
     } else if (port.length === 4) {
       // django server
@@ -30,18 +29,18 @@ setTimeout(() => {
 
 function startAdsense() {
   // Create script element
-  const script = document.createElement("script");
+  const script = document.createElement('script');
   script.async = true;
-  script.src = "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2188063137129806";
-  script.setAttribute("crossorigin", "anonymous");
+  script.src = '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2188063137129806';
+  script.setAttribute('crossorigin', 'anonymous');
   script.onerror = function () {
     // This function is called if the script fails to load
-    console.log("Adblocker detected!");
+    console.log('Adblocker detected!');
     // Alert the user
-    alert("Adblocker detected!");
+    alert('Adblocker detected!');
 
     // Remove the entire content of the body
-    document.body.innerHTML = "";
+    document.body.innerHTML = '';
 
     // Set timeout to reload the page after 2 seconds
     setTimeout(function () {
@@ -80,7 +79,7 @@ function startAdsense() {
     //   table.rows[randomIndex].insertAdjacentElement('afterend', insElement);
     // }
 
-    const ins = Array.from(document.querySelectorAll("ins.adsbygoogle"));
+    const ins = Array.from(document.querySelectorAll('ins.adsbygoogle'));
     for (let i = 0; i < ins.length; i++) {
       const el = ins[i];
       if (el.children.length == 0) (adsbygoogle = window.adsbygoogle || []).push({});
@@ -92,9 +91,9 @@ function startAdsense() {
 }
 
 function notificationShow() {
-  const notification = document.getElementById("notification");
-  const closeButton = document.getElementById("close-btn");
-  const clearCookieButton = document.getElementById("clear-cookie-btn");
+  const notification = document.getElementById('notification');
+  const closeButton = document.getElementById('close-btn');
+  const clearCookieButton = document.getElementById('clear-cookie-btn');
 
   function _site_set_cookie(name, value, hours) {
     const expires = new Date();
@@ -105,7 +104,7 @@ function notificationShow() {
   function _site_get_cookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
+    if (parts.length === 2) return parts.pop().split(';').shift();
   }
 
   function _site_delete_cookie(name) {
@@ -123,18 +122,18 @@ function notificationShow() {
   }
 
   if (closeButton)
-    closeButton.addEventListener("click", function () {
+    closeButton.addEventListener('click', function () {
       hideNotification();
-      _site_set_cookie("notificationDismissed", "true", 4);
+      _site_set_cookie('notificationDismissed', 'true', 4);
     });
   if (clearCookieButton)
-    clearCookieButton.addEventListener("click", function () {
-      _site_delete_cookie("notificationDismissed");
+    clearCookieButton.addEventListener('click', function () {
+      _site_delete_cookie('notificationDismissed');
       hideNotification(); // Optionally hide the notification immediately
       refreshPage();
     });
 
-  if (_site_get_cookie("notificationDismissed")) {
+  if (_site_get_cookie('notificationDismissed')) {
     hideNotification();
   }
 }

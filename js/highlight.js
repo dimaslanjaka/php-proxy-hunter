@@ -1,19 +1,19 @@
 /* global hljs */
 // init highlight.js after page loaded
-document.addEventListener("DOMContentLoaded", initHljs);
+document.addEventListener('DOMContentLoaded', initHljs);
 
 // start highlight pre code
 function startHighlighter(block) {
   // validate hljs
-  if ("hljs" in window === false) return loadHljs();
+  if ('hljs' in window === false) return loadHljs();
   // fix mysql highlight
-  if (block.classList.contains("language-mysql")) {
-    block.classList.remove("language-mysql");
-    block.classList.add("language-sql");
+  if (block.classList.contains('language-mysql')) {
+    block.classList.remove('language-mysql');
+    block.classList.add('language-sql');
   }
   // start highlight pre code[data-highlight]
-  if (block.hasAttribute("data-highlight")) {
-    if (block.getAttribute("data-highlight") != "false") {
+  if (block.hasAttribute('data-highlight')) {
+    if (block.getAttribute('data-highlight') != 'false') {
       // highlight on data-highlight="true"
       if (hljs.highlightElement) {
         hljs.highlightElement(block);
@@ -32,11 +32,11 @@ function startHighlighter(block) {
 }
 
 function loadScript(url, callback) {
-  const script = document.createElement("script");
+  const script = document.createElement('script');
   script.src = url;
   script.onload = callback;
 
-  const referenceNode = document.querySelectorAll("script").item(0);
+  const referenceNode = document.querySelectorAll('script').item(0);
   referenceNode.parentNode.insertBefore(script, referenceNode.nextSibling);
 }
 
@@ -44,7 +44,7 @@ function loadScriptsSequentially(urls, finalCallback) {
   function loadNext(index) {
     if (index >= urls.length) {
       // All scripts loaded
-      if (typeof finalCallback === "function") {
+      if (typeof finalCallback === 'function') {
         finalCallback();
       }
       return;
@@ -61,22 +61,22 @@ function loadScriptsSequentially(urls, finalCallback) {
 }
 
 function loadStyles(urls, callback) {
-  if (typeof urls === "string") {
+  if (typeof urls === 'string') {
     urls = [urls];
   }
 
   function loadNext(index) {
     if (index >= urls.length) {
       // All CSS loaded
-      if (typeof callback === "function") {
+      if (typeof callback === 'function') {
         callback();
       }
       return;
     }
 
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = urls[index] + "?v=" + new Date().getTime();
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = urls[index] + '?v=' + new Date().getTime();
     link.onload = () => {
       // Load the next CSS in the array
       loadNext(index + 1);
@@ -91,14 +91,14 @@ function loadStyles(urls, callback) {
 
 function loadHljs() {
   // validate hljs already imported
-  if ("hljs" in window === true) return;
+  if ('hljs' in window === true) return;
   // otherwise create one
-  loadStyles("//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/androidstudio.min.css");
-  loadScriptsSequentially(["//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"], function () {
+  loadStyles('//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/androidstudio.min.css');
+  loadScriptsSequentially(['//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js'], function () {
     loadScriptsSequentially(
       [
-        "//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/languages/bash.min.js",
-        "//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/languages/shell.min.js"
+        '//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/languages/bash.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/languages/shell.min.js'
       ],
       initHljs
     );
@@ -107,7 +107,7 @@ function loadHljs() {
 
 function initHljs() {
   // highlight pre code
-  document.querySelectorAll("pre code").forEach(startHighlighter);
+  document.querySelectorAll('pre code').forEach(startHighlighter);
 
   // highlight all pre code elements
   // when use below syntax, please remove above syntax
@@ -121,8 +121,8 @@ function initHljs() {
 }
 
 function loadCss(url) {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = url + "?v=" + new Date().getTime();
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = url + '?v=' + new Date().getTime();
   document.head.appendChild(link);
 }
