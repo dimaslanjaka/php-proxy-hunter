@@ -38,6 +38,9 @@ package-lock.json
 !LICENSE*
 /app
 
+# intellij idea
+.idea/material*
+
 # python
 /data/script/
 /profiles-proxy.json

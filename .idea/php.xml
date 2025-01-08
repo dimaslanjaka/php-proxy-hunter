@@ -12,7 +12,7 @@
   </component>
   <component name="PhpCSFixer">
     <phpcsfixer_settings>
-      <PhpCSFixerConfiguration standards="DoctrineAnnotation;PER;PER-CS;PER-CS1.0;PER-CS2.0;PHP54Migration;PHP56Migration;PHP70Migration;PHP71Migration;PHP73Migration;PHP74Migration;PHP80Migration;PHP81Migration;PHP82Migration;PHP83Migration;PHP84Migration;PHPUnit100Migration;PHPUnit30Migration;PHPUnit32Migration;PHPUnit35Migration;PHPUnit43Migration;PHPUnit48Migration;PHPUnit50Migration;PHPUnit52Migration;PHPUnit54Migration;PHPUnit55Migration;PHPUnit56Migration;PHPUnit57Migration;PHPUnit60Migration;PHPUnit75Migration;PHPUnit84Migration;PSR1;PSR12;PSR2;PhpCsFixer;Symfony" tool_path="$PROJECT_DIR$/vendor/bin/php-cs-fixer" />
+      <PhpCSFixerConfiguration standards="PSR1;PSR2;Symfony;DoctrineAnnotation;PHP70Migration;PHP71Migration" tool_path="$PROJECT_DIR$/vendor/bin/php-cs-fixer" />
     </phpcsfixer_settings>
   </component>
   <component name="PhpIncludePathManager">
@@ -33,32 +33,8 @@
       <path value="$PROJECT_DIR$/vendor/phpoption/phpoption" />
       <path value="$PROJECT_DIR$/vendor/phpseclib/phpseclib" />
       <path value="$PROJECT_DIR$/vendor/ralouphie/getallheaders" />
-      <path value="$PROJECT_DIR$/vendor/symfony/stopwatch" />
-      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-grapheme" />
-      <path value="$PROJECT_DIR$/vendor/symfony/event-dispatcher-contracts" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php81" />
-      <path value="$PROJECT_DIR$/vendor/symfony/event-dispatcher" />
-      <path value="$PROJECT_DIR$/vendor/react/child-process" />
-      <path value="$PROJECT_DIR$/vendor/react/dns" />
-      <path value="$PROJECT_DIR$/vendor/react/cache" />
-      <path value="$PROJECT_DIR$/vendor/react/socket" />
-      <path value="$PROJECT_DIR$/vendor/react/stream" />
-      <path value="$PROJECT_DIR$/vendor/react/event-loop" />
-      <path value="$PROJECT_DIR$/vendor/react/promise" />
-      <path value="$PROJECT_DIR$/vendor/sebastian/diff" />
-      <path value="$PROJECT_DIR$/vendor/psr/container" />
-      <path value="$PROJECT_DIR$/vendor/psr/event-dispatcher" />
-      <path value="$PROJECT_DIR$/vendor/symfony/console" />
-      <path value="$PROJECT_DIR$/vendor/symfony/filesystem" />
-      <path value="$PROJECT_DIR$/vendor/symfony/finder" />
-      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-normalizer" />
-      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php73" />
-      <path value="$PROJECT_DIR$/vendor/symfony/service-contracts" />
-      <path value="$PROJECT_DIR$/vendor/symfony/options-resolver" />
-      <path value="$PROJECT_DIR$/vendor/symfony/process" />
-      <path value="$PROJECT_DIR$/vendor/symfony/string" />
       <path value="$PROJECT_DIR$/vendor/geoip2/geoip2" />
-      <path value="$PROJECT_DIR$/vendor/evenement/evenement" />
       <path value="$PROJECT_DIR$/vendor/guzzlehttp/guzzle" />
       <path value="$PROJECT_DIR$/vendor/firebase/php-jwt" />
       <path value="$PROJECT_DIR$/vendor/maxmind/web-service-common" />
@@ -69,11 +45,12 @@
       <path value="$PROJECT_DIR$/vendor/guzzlehttp/promises" />
       <path value="$PROJECT_DIR$/vendor/guzzlehttp/psr7" />
       <path value="$PROJECT_DIR$/vendor/annexare/countries-list" />
-      <path value="$PROJECT_DIR$/vendor/friendsofphp/php-cs-fixer" />
-      <path value="$PROJECT_DIR$/vendor/clue/ndjson-react" />
       <path value="$PROJECT_DIR$/vendor/composer" />
       <path value="$PROJECT_DIR$/vendor/maxmind-db/reader" />
-      <path value="$PROJECT_DIR$/vendor/fidry/cpu-core-counter" />
+      <path value="$PROJECT_DIR$/vendor/ramsey/collection" />
+      <path value="$PROJECT_DIR$/vendor/php-curl-class/php-curl-class" />
+      <path value="$PROJECT_DIR$/vendor/ramsey/uuid" />
+      <path value="$PROJECT_DIR$/vendor/brick/math" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.2">
