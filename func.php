@@ -807,9 +807,9 @@ function anonymizeEmail(string $email): string
 /**
  * Parse incoming POST request data based on Content-Type.
  *
- * @return array The parsed POST data or null if unsupported content type or parsing fails.
+ * @return array|null The parsed POST data or null if unsupported content type or parsing fails.
  */
-function parsePostData(): array
+function parsePostData(): ?array
 {
   // Get the Content-Type header of the request
   $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
