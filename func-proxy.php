@@ -297,7 +297,7 @@ function mergeHeaders(array $defaultHeaders, array $additionalHeaders): array
  * @param string|null $proxy Proxy address. Default is null.
  * @param string|null $type Type of proxy. Default is 'http'. Possible values are 'http', 'socks4', 'socks5', 'socks4a', or null.
  * @param string $endpoint The URL to send the HTTP request to. Default is 'https://bing.com'.
- * @param array $headers An array of HTTP header strings to send with the request. Default is an empty array.
+ * @param string[] $headers An array of HTTP header strings to send with the request. Default is an empty array.
  * @param string|null $username Proxy authentication username. Default is null.
  * @param string|null $password Proxy authentication password. Default is null.
  * @param string $method HTTP method for the request. Default is 'GET'. Possible values are 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'.
@@ -742,32 +742,41 @@ function processCheckProxy($ch, $proxy, $type, $username, $password): array
   return $result;
 }
 
+/**
+ * Check if the raw headers contain specific keywords like azenv.
+ * @param string $input The raw string headers to check.
+ */
 function checkRawHeadersKeywords($input)
 {
+  // Define the keywords to check for
   $keywords = [
     "REMOTE_ADDR =",
     "REMOTE_PORT =",
     "REQUEST_METHOD =",
     "REQUEST_URI =",
-    'HTTP_ACCEPT-LANGUAGE =',
-    'HTTP_ACCEPT-ENCODING =',
-    'HTTP_USER-AGENT =',
-    'HTTP_ACCEPT =',
-    'REQUEST_TIME =',
-    'HTTP_UPGRADE-INSECURE-REQUESTS =',
-    'HTTP_CONNECTION =',
-    'HTTP_PRIORITY ='
+    "HTTP_ACCEPT-LANGUAGE =",
+    "HTTP_ACCEPT-ENCODING =",
+    "HTTP_USER-AGENT =",
+    "HTTP_ACCEPT =",
+    "REQUEST_TIME =",
+    "HTTP_UPGRADE-INSECURE-REQUESTS =",
+    "HTTP_CONNECTION =",
+    "HTTP_PRIORITY =",
   ];
 
+  // Count how many keywords are found in the input
   $foundCount = 0;
-
   foreach ($keywords as $keyword) {
     if (strpos($input, $keyword) !== false) {
       $foundCount++;
     }
+    // Early return if 4 keywords have been found
+    if ($foundCount >= 4) {
+      return true;
+    }
   }
 
-  return $foundCount >= 4;
+  return false;
 }
 
 function get_geo_ip(string $the_proxy, string $proxy_type = 'http', ?ProxyDB $db = null)
