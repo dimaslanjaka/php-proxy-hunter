@@ -44,6 +44,8 @@ $config['captcha-site-key'] = $_ENV['G_RECAPTCHA_SITE_KEY'];
 $config['captcha-v2-site-key'] = $_ENV['G_RECAPTCHA_V2_SITE_KEY'];
 $config['server-ip'] = getServerIp();
 $config['your-ip'] = Server::getRequestIP();
+$config['your-useragent'] = Server::useragent();
+$config['your-hash'] = Server::getRequestIP() . '-' . md5(Server::useragent());
 $config_json = json_encode($config);
 
 if (!$isCli) {
