@@ -71,6 +71,9 @@ sudo make install
 /usr/local/php7.4/bin/php -v
 /usr/local/php7.4/sbin/php-fpm -v
 
+# for apache2 rebuild manual module
+# /usr/bin/apxs2 -i -a -n php7 /usr/local/php7.4/bin/php
+
 # bind to system
 sudo ln -sf /usr/local/php7.4/bin/php /usr/bin/php
 ```
@@ -174,6 +177,50 @@ location ~ \.php$ {
     # changa path value from `/etc/php/7.2/fpm/php-fpm.conf` or `/etc/php/7.2/fpm/pool.d/www.conf`
     fastcgi_pass unix:/run/php/php7.2-fpm.sock;
 }
+```
+
+### Troubleshoot replace apache2 with nginx
+
+Uninstall apache2
+
+```bash
+sudo systemctl stop apache2
+sudo systemctl disable apache2
+sudo apt-get remove --purge apache2 apache2-utils apache2-bin apache2.2-common apache2-dev -y
+sudo apt-get autoremove --purge -y
+sudo apt-get clean
+```
+
+Install nginx
+
+```bash
+sudo apt update -y
+sudo apt install nginx -y
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
+
+Configure firewall (if applicable)
+
+```bash
+sudo ufw allow 'Nginx Full'
+```
+
+> when `ufw` command not found, dont worry continue next step
+
+Verify nginx installation
+
+```bash
+sudo systemctl status nginx
+sudo nginx -t
+```
+
+> Now you can modify nginx config
+
+Restart nginx
+
+```bash
+sudo systemctl restart nginx
 ```
 
 #### Configure
