@@ -120,7 +120,7 @@ copy_if_both_exist() {
 # copy_if_both_exist "$CWD/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
 
 # Fix permissions
-. "$CWD/bin/fix-perm"
+bash "$CWD/bin/fix-perm"
 
 # Restart services
-. "$CWD/bin/restart-server"
+bash "$CWD/bin/restart-server"
