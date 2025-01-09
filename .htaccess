@@ -8,6 +8,11 @@ Options -Indexes
         Deny from all
     </FilesMatch>
 
+    # Deny access to the 'packages' directory
+    <Directory "./packages">
+        Deny from all
+    </Directory>
+
     # Allow access to robots.txt and sitemap.txt
     RewriteRule ^(robots|sitemap)\.txt$ - [L]
 
