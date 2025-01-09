@@ -9,6 +9,14 @@ SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 # Current working directory from parent folder
 CWD="$(dirname "$SCRIPT_DIR")"
 
+echo "Current directory: $CWD"
+
+# parse and export .env file (dotenv)
+if [ -f ".env" ]; then
+  # Export the vars in .env into your shell:
+  export $(egrep -v '^#' .env | xargs)
+fi
+
 # Set the user variable (can be overridden by an environment variable)
 USER="${USER:-www-data}"
 
