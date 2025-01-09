@@ -41,6 +41,7 @@ class SQLiteHelper
     $callerLine = $caller['line'] ?? 'unknown';
     $this->uniqueKey = md5($dbPath . $callerFile . $callerLine);
 
+    // Avoid multiple PDO instance
     if (isset(self::$_databases[$this->uniqueKey])) {
       $this->pdo = self::$_databases[$this->uniqueKey];
     } else {
