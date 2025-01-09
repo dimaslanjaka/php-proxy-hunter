@@ -1,3 +1,4 @@
+import argparse
 import importlib
 import os
 import platform
@@ -141,5 +142,19 @@ def install_requirements():
 
 
 if __name__ == "__main__":
-    generate_requirements()
-    install_requirements()
+    # Set up argument parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--generate", action="store_true", help="Generate requirements")
+    parser.add_argument("--install", action="store_true", help="Install requirements")
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    # Run actions based on arguments
+    if args.generate and not args.install:
+        generate_requirements()
+    elif args.install and not args.generate:
+        install_requirements()
+    else:
+        generate_requirements()
+        install_requirements()
