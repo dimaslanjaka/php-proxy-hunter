@@ -2,11 +2,16 @@
 
 PHP proxy hunter | PHP proxy checker | Python proxy hunter | Python proxy checker
 
-[![](https://img.shields.io/badge/MAINTENANCE-PHP%20SERVER-blue?style=for-the-badge&labelColor=green&color=blue&label=RUNNING)](https://sh.webmanajemen.com)
-[![](https://img.shields.io/badge/MAINTENANCE-PYTHON%20SERVER-blue?style=for-the-badge&labelColor=green&color=blue&label=RUNNING)](https://sh.webmanajemen.com:8443)
+**CI**
+
 ![GitHub Actions Workflow Status - PHP](https://img.shields.io/github/actions/workflow/status/dimaslanjaka/php-proxy-hunter/.github%2Fworkflows%2Fchecker-php.yml?branch=master&style=for-the-badge&label=proxy%20checker%20PHP&labelColor=blue&link=https%3A%2F%2Fgithub.com%2Fdimaslanjaka%2Fphp-proxy-hunter%2Factions)
 ![GitHub Actions Workflow Status - Python](https://img.shields.io/github/actions/workflow/status/dimaslanjaka/php-proxy-hunter/.github%2Fworkflows%2Fchecker-python.yml?branch=master&style=for-the-badge&label=proxy%20checker%20Python&labelColor=blue&link=https%3A%2F%2Fgithub.com%2Fdimaslanjaka%2Fphp-proxy-hunter%2Factions)
 <!-- red %23b81220 -->
+
+**Servers**
+
+[![](https://img.shields.io/badge/MAINTENANCE-PHP%20SERVER-blue?style=for-the-badge&labelColor=green&color=blue&label=RUNNING)](https://sh.webmanajemen.com)
+[![](https://img.shields.io/badge/MAINTENANCE-PYTHON%20SERVER-blue?style=for-the-badge&labelColor=green&color=blue&label=RUNNING)](https://sh.webmanajemen.com:8443)
 
 ## Features
 

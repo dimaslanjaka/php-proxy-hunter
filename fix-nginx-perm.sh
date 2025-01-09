@@ -59,51 +59,6 @@ for file in "${lock_files[@]}"; do
     fi
 done
 
-# Set permissions on files and directories
-chmod 777 "$CWD"/*.txt
-chmod 755 "$CWD"/*.html "$CWD"/*.js
-chmod 755 "$CWD"/*.css
-chmod 755 "$CWD"/js/*.js "$CWD"/userscripts/*.js
-chmod 777 "$CWD"/config
-chmod 755 "$CWD"/config/*
-chmod 777 "$CWD"/tmp "$CWD"/.cache "$CWD"/data
-chmod 644 "$CWD"/data/*.php
-chmod 644 "$CWD"/*.php
-chmod 644 "$CWD"/.env
-chmod 755 "$CWD"/*.sh
-
-# Create necessary directories and index.html files
-mkdir -p "$CWD/tmp/cookies"
-touch "$CWD/tmp/cookies/index.html"
-touch "$CWD/tmp/index.html"
-mkdir -p "$CWD/config"
-touch "$CWD/config/index.html"
-mkdir -p "$CWD/.cache"
-touch "$CWD/.cache/index.html"
-
-# Additional permissions for specific directories if they exist
-if [ -d "$CWD/assets/proxies" ]; then
-    chmod 777 "$CWD/assets/proxies"
-    chmod 755 "$CWD/assets/proxies"/*
-    touch "$CWD/assets/proxies/index.html"
-fi
-if [ -d "$CWD/packages" ]; then
-    chown -R "$USER":"$USER" "$CWD/packages"
-    chown -R "$USER":"$USER" "$CWD/packages"/*
-fi
-if [ -d "$CWD/public" ]; then
-    chown -R "$USER":"$USER" "$CWD/public"
-    chown -R "$USER":"$USER" "$CWD/public"/*
-fi
-
-# Allow composer and indexing proxies to work
-chown -R "$USER":"$USER" "$CWD"/*.php "$CWD"/*.phar
-
-chown -R "$USER":"$USER" "$CWD/bin"
-chmod 755 "$CWD/bin"/*
-
-echo "Permission sets successful"
-
 OUTPUT_FILE="$CWD/proxyChecker.txt"
 COMPOSER_LOCK="$CWD/composer.lock"
 COMPOSER_PHAR="$CWD/composer.phar"
@@ -140,17 +95,7 @@ run_php_if_not_running "filterPortsDuplicate.php" "--admin=true --delete=true"
 run_php_if_not_running "filterPorts.php" "--admin=true"
 run_php_if_not_running "proxyChecker.php" "--admin=true --max=1000" "true"
 
-# Set permissions for vendor directory
-chmod 777 "$CWD/vendor"
-touch "$CWD/vendor/index.html"
-
 echo "Composer installed"
-
-# Fix ownership for various directories and file types
-chown -R "$USER":"$USER" "$CWD"/*.php "$CWD"/*.txt "$CWD"/*.json "$CWD"/*.js "$CWD"/*.html "$CWD"/src "$CWD"/data "$CWD"/tmp "$CWD"/vendor "$CWD"/assets
-chown -R "$USER":"$USER" "$CWD"/.cache "$CWD"/config "$CWD"/*.css "$CWD"/*.lock "$CWD"/js "$CWD"/.htaccess "$CWD"/.env
-
-echo "Ownership fixed"
 
 # Enable Git LFS and track large files
 git -C "$CWD" lfs install
@@ -172,37 +117,10 @@ copy_if_both_exist() {
 }
 
 # Copy .htaccess_nginx.conf to /etc/nginx/sites-available/default
-copy_if_both_exist "$CWD/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
+# copy_if_both_exist "$CWD/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
+
+# Fix permissions
+bash "$CWD/bin/fix-perm"
 
 # Restart services
-touch "$CWD/assets/index.html"
-touch "$CWD/assets/systemctl/index.html"
-
-# Reload daemon
-sudo systemctl daemon-reload
-
-# Check and restart PHP-FPM if installed
-# Array of PHP versions to check
-php_versions=("7.2" "7.4" "8.0")
-
-# Iterate over each PHP version
-for version in "${php_versions[@]}"; do
-    # Check if PHP FPM service is active
-    if systemctl is-active --quiet php${version}-fpm; then
-        sudo systemctl restart php${version}-fpm
-        echo "Restarted PHP ${version} FPM"
-    fi
-done
-
-# Check and restart Nginx if installed
-if systemctl is-active --quiet nginx; then
-    sudo nginx -t
-    sudo systemctl restart nginx
-    echo "Restarted Nginx"
-fi
-
-# Check and restart Spring Boot if installed
-# if systemctl is-active --quiet spring; then
-#     sudo systemctl restart spring
-#     echo "Restarted Spring Boot"
-# fi
+bash "$CWD/bin/restart-server"

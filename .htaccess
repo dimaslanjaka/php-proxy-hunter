@@ -3,8 +3,9 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Ignore access to specific file patterns
-    <FilesMatch "(\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess)$)">
+    # Ignore access to specific file extensions
+    <FilesMatch "\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess|conf|sql|db|sqlite-whm|out)$">
+        Order allow,deny
         Deny from all
     </FilesMatch>
 
@@ -13,6 +14,9 @@ Options -Indexes
 
     # Block access to all other text files by default
     RewriteRule \.txt$ - [F]
+
+    # Deny access to the 'packages' directory
+    RewriteRule ^packages/ - [F,L]
 
     # Set cache-control for 5 mins for working.json and status.json
     <FilesMatch "^(working|status)\.json$">
@@ -51,3 +55,8 @@ Options -Indexes
 <If "%{HTTP_HOST} == 'sh.webmanajemen.com'">
     Redirect 404 /backups
 </If>
+
+# Block access to github files
+<FilesMatch "^\.git">
+	Require all denied
+</FilesMatch>
