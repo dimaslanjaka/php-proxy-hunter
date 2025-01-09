@@ -172,7 +172,7 @@ copy_if_both_exist() {
 }
 
 # Copy .htaccess_nginx.conf to /etc/nginx/sites-available/default
-copy_if_both_exist "$CWD/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
+# copy_if_both_exist "$CWD/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
 
 # Restart services
 touch "$CWD/assets/index.html"
