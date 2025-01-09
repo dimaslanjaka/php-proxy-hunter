@@ -58,6 +58,10 @@ export LD_LIBRARY_PATH=/usr/local/lib:/usr/lib/x86_64-linux-gnu
 wget https://github.com/php/php-src/archive/refs/tags/php-7.4.33.tar.gz
 tar -zxvf php-7.4.33.tar.gz
 cd php-src-php-7.4.33
+
+# cleanup builds
+make clean
+make distclean
 ./buildconf --force
 
 # configuring makefile
