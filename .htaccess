@@ -5,19 +5,18 @@ Options -Indexes
 
     # Ignore access to specific file extensions
     <FilesMatch "\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess|conf|sql|db|sqlite-whm|out)$">
+        Order allow,deny
         Deny from all
     </FilesMatch>
-
-    # Deny access to the 'packages' directory
-    <Directory "./packages">
-        Deny from all
-    </Directory>
 
     # Allow access to robots.txt and sitemap.txt
     RewriteRule ^(robots|sitemap)\.txt$ - [L]
 
     # Block access to all other text files by default
     RewriteRule \.txt$ - [F]
+
+    # Deny access to the 'packages' directory
+    RewriteRule ^packages/ - [F,L]
 
     # Set cache-control for 5 mins for working.json and status.json
     <FilesMatch "^(working|status)\.json$">
