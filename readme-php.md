@@ -113,7 +113,7 @@ sudo systemctl start php7.4-fpm
 sudo systemctl status php7.4-fpm
 ```
 
-see [.htaccess_nginx](./.htaccess_nginx) to modify nginx config in `/etc/nginx/sites-enabled`
+see [.htaccess_nginx](./.htaccess_nginx) to modify nginx config in `/etc/nginx/sites-enabled/default`
 
 ### php functions
 
