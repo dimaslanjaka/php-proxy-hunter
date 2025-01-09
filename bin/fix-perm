@@ -31,6 +31,8 @@ case "$OS" in
       chown -R "$USER":"$USER" "$DIR_PATH" || { echo "Failed to change ownership for $dir"; exit 1; }
     done
 
+    chmod 755 "$CWD/bin/*" || { echo "Failed to change permissions for $CWD/bin/*"; exit 1; }
+
     # Change ownership for specific file types
     find "$CWD" -type f \( -name "*.js" -o -name "*.php" -o -name "*.css" -o -name "*.html" -o -name "*.py" -o -name "*.sqlite" \) -exec chown "$USER":"$USER" {} + || {
       echo "Failed to change ownership for specific file types"
