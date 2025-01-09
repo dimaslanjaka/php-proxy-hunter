@@ -85,6 +85,10 @@ esac
 VENV_ACTIVATOR="$VENV_BIN/activate"
 source "$VENV_ACTIVATOR"
 
+# Create a temporary directory for pip cache
+mkdir -p "$CWD/tmp/.cache/pip"
+chmod -R 777 "$CWD/tmp/.cache/pip"
+
 # Check for Python binary in the virtual environment
 if [ -x "$VENV_DIR/bin/python" ]; then
     PYTHON_BINARY="$VENV_DIR/bin/python"
@@ -110,12 +114,12 @@ echo "Upgrading pip, setuptools, and wheel..."
 
 if [[ "$OS" == "Linux" ]]; then
     # On Linux, use sudo to upgrade pip, setuptools, and wheel for www-data user
-    sudo -u "$USER" -H "$PYTHON_BINARY" -m ensurepip --upgrade
-    sudo -u "$USER" -H "$PYTHON_BINARY" -m pip install --upgrade pip setuptools wheel
+    sudo -u "$USER" -H "$PYTHON_BINARY" -m ensurepip --upgrade --cache-dir "$CWD/tmp/.cache/pip"
+    sudo -u "$USER" -H "$PYTHON_BINARY" -m pip install --upgrade pip setuptools wheel --cache-dir "$CWD/tmp/.cache/pip"
 else
     # On Windows, call Python directly
-    "$PYTHON_BINARY" -m ensurepip --upgrade
-    "$PYTHON_BINARY" -m pip install --upgrade pip setuptools wheel
+    "$PYTHON_BINARY" -m ensurepip --upgrade --cache-dir "$CWD/tmp/.cache/pip"
+    "$PYTHON_BINARY" -m pip install --upgrade pip setuptools wheel --cache-dir "$CWD/tmp/.cache/pip"
 fi
 
 # Install the required packages
@@ -125,10 +129,12 @@ REQUIREMENTS_SCRIPT="$CWD/requirements_install.py"
 
 if [[ "$OS" == "Linux" ]]; then
     # On Linux, use sudo to run the package installation for www-data user
-    sudo -u "$USER" -H bash -c "source $VENV_ACTIVATOR && $PYTHON_BINARY $REQUIREMENTS_SCRIPT"
+    sudo -u "$USER" -H bash -c "source $VENV_ACTIVATOR && $PYTHON_BINARY $REQUIREMENTS_SCRIPT --generate"
+    sudo -u "$USER" -H "$PYTHON_BINARY" -m pip install -r "$CWD/requirements.txt" --cache-dir "$CWD/tmp/.cache/pip"
 else
     # On Windows, call Python directly
-    "$PYTHON_BINARY" "$REQUIREMENTS_SCRIPT"
+    "$PYTHON_BINARY" "$REQUIREMENTS_SCRIPT --generate"
+    "$PYTHON_BINARY" -m pip install -r "$CWD/requirements.txt" --cache-dir "$CWD/tmp/.cache/pip"
 fi
 
 echo "Requirements installed successfully."
