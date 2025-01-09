@@ -17,7 +17,7 @@ $currentScriptFilename = basename(__FILE__, '.php');
 if (!$isCli && isset($request['proxy'])) {
   // Web server
   $proxy = $request['proxy'];
-  $hashFilename = 'check-https-proxy-' . $userId;
+  $hashFilename = "$currentScriptFilename-" . $userId;
   $proxy_file = tmp() . "/proxies/$hashFilename.txt";
   write_file($proxy_file, $proxy);
 
@@ -47,8 +47,8 @@ if (!$isCli && isset($request['proxy'])) {
 
   $file = isset($options['f']) ? $options['f'] : (isset($options['file']) ? $options['file'] : null);
   $hashFilename = basename($file, '.txt');
-  if ($hashFilename == '.txt') {
-    $hashFilename = 'check-https-proxy-cli.txt';
+  if ($hashFilename == '.txt' || empty($hashFilename)) {
+    $hashFilename = "$currentScriptFilename-cli.txt";
   }
   $proxy = isset($options['p']) ? $options['p'] : (isset($options['proxy']) ? $options['proxy'] : null);
 
@@ -149,12 +149,12 @@ function _log(...$args): void
  */
 function check(string $proxy)
 {
-  global $db, $hashFilename;
+  global $db, $hashFilename, $currentScriptFilename;
   $proxies = extractProxies($proxy, $db, true);
   shuffle($proxies);
 
   $count = count($proxies);
-  $logFilename = str_replace("check-https-proxy-", "", $hashFilename);
+  $logFilename = str_replace("$currentScriptFilename-", "", $hashFilename);
   _log(trim("$logFilename Checking $count proxies..."));
 
   for ($i = 0; $i < $count; $i++) {
