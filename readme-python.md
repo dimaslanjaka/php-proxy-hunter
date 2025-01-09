@@ -1,6 +1,6 @@
 # Documentation for Python Proxy Hunter
 
-> major packages needed
+### Install required libraries
 
 ```bash
 sudo apt-get update -y
@@ -23,7 +23,7 @@ when above not working try
 cd /tmp
 curl -L https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tar.xz -o python3.11.tar.xz
 tar -xf python3.11.tar.xz
-cd /tmp/Python-3.11.9
+cd Python-3.11.9
 ./configure
 make
 sudo make install
