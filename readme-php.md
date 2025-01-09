@@ -1,5 +1,12 @@
 # Documentation for PHP Proxy Hunter
 
+## Install required libraries
+
+```bash
+sudo apt update -y
+sudo apt install -y build-essential libxml2-dev libcurl4-openssl-dev libjpeg-dev libpng-dev libmcrypt-dev libmysqlclient-dev libfreetype6-dev libicu-dev libxpm-dev libjpeg8-dev libpng16-16 libzip-dev libssl-dev pkg-config libonig-dev libpspell-dev perl curl wget
+```
+
 ### Install php7.4 in ubuntu
 
 1.  Open the `sources.list` file with a text editor (for example `nano`):
@@ -37,6 +44,8 @@ sudo apt install -y php7.4 php7.4-common php7.4-opcache php7.4-cli php7.4-gd php
 ```bash
 cd /tmp
 sudo apt install -y unzip libicu-dev wget build-essential libxml2-dev libssl-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libzip-dev libonig-dev libsqlite3-dev libbz2-dev libreadline-dev pkg-config autoconf bison re2c zlib1g-dev libxslt1-dev libwebp-dev libpq-dev libsodium-dev
+# for apache2
+# sudo apt install -y apache2-dev
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/lib/x86_64-linux-gnu
 
 # Install from dist
@@ -53,6 +62,8 @@ cd php-src-php-7.4.33
 
 # configuring makefile
 ./configure --prefix=/usr/local/php7.4 --with-config-file-path=/usr/local/php7.4/etc --enable-bcmath --enable-calendar --enable-exif --enable-ftp=shared --enable-intl --enable-mbstring --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm --with-curl --with-libdir=/lib/x86_64-linux-gnu --with-mysqli --with-openssl --with-pdo-mysql --with-pdo-sqlite --with-sqlite3 --with-readline --with-libxml --with-zlib --with-sodium --with-zip --with-bz2 --enable-fpm
+# for apache2
+# ./configure --prefix=/usr/local/php7.4 --with-config-file-path=/usr/local/php7.4/etc --enable-bcmath --enable-calendar --enable-exif --enable-ftp=shared --enable-intl --enable-mbstring --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm --with-curl --with-libdir=/lib/x86_64-linux-gnu --with-mysqli --with-openssl --with-pdo-mysql --with-pdo-sqlite --with-sqlite3 --with-readline --with-libxml --with-zlib --with-sodium --with-zip --with-bz2 --enable-fpm --with-apxs2=/usr/bin/apxs
 make -j $(nproc)
 sudo make install
 
