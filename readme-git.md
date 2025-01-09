@@ -23,3 +23,12 @@ cd git-2.47.1
 make prefix=/usr/local all
 sudo make prefix=/usr/local install
 ```
+
+## Tips
+
+disable changes on file permission changed
+
+```bash
+git config core.fileMode false
+git config --global core.fileMode false
+```
