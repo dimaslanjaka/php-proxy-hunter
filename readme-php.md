@@ -80,6 +80,37 @@ sudo make install
 
 # bind to system
 sudo ln -sf /usr/local/php7.4/bin/php /usr/bin/php
+
+# copy php-fpm
+cp sapi/fpm/php-fpm.conf /usr/local/php7.4/etc/php-fpm.conf
+mkdir -p /usr/local/php7.4/etc/php-fpm.d
+cp sapi/fpm/www.conf /usr/local/php7.4/etc/php-fpm.d/
+cp sapi/fpm/php-fpm /usr/local/bin/php-fpm
+chmod +x /usr/local/bin/php-fpm
+sudo cp sapi/fpm/php-fpm.service /etc/systemd/system/php7.4-fpm.service
+```
+
+#### Configure php-fpm
+
+see [/assets/systemctl](/assets/systemctl) for the configs
+
+> editing `php7.4-fpm.service` carefully
+
+```bash
+sudo mkdir -p /run/php
+sudo chown -R www-data:www-data /run/php
+sudo chown -R www-data:www-data /usr/local/php7.4/var/log
+
+# test
+/usr/local/php7.4/sbin/php-fpm --test --fpm-config /usr/local/php7.4/etc/php-fpm.conf
+/usr/local/php7.4/sbin/php-fpm --nodaemonize --fpm-config /usr/local/php7.4/etc/php-fpm.conf
+
+# enable php-fpm
+sudo systemctl daemon-reload
+systemctl reset-failed php7.4-fpm
+sudo systemctl enable php7.4-fpm
+sudo systemctl start php7.4-fpm
+sudo systemctl status php7.4-fpm
 ```
 
 ### php functions
