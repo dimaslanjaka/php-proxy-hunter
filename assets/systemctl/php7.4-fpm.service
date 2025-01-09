@@ -5,7 +5,9 @@ Description=The PHP 7.4 FastCGI Process Manager
 After=network.target
 
 [Service]
-Type=notify
+User=www-data
+Group=www-data
+Type=forking
 PIDFile=/run/php/php7.4-fpm.pid
 ExecStart=/usr/local/php7.4/sbin/php-fpm --nodaemonize --fpm-config /usr/local/php7.4/etc/php-fpm.conf
 ExecReload=/bin/kill -USR2 $MAINPID
@@ -14,8 +16,8 @@ StandardError=syslog
 SyslogIdentifier=php-fpm
 TimeoutStartSec=300
 Restart=always
-User=www-data
-Group=www-data
+StartLimitIntervalSec=500
+StartLimitBurst=5
 
 [Install]
 WantedBy=multi-user.target
