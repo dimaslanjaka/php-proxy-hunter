@@ -5,6 +5,9 @@ CWD=$(dirname "$(dirname "$(realpath "$0")")")
 
 echo "Current directory: $CWD"
 
+touch "$CWD/assets/index.html"
+touch "$CWD/assets/systemctl/index.html"
+
 # Copy services config to /etc/systemd/system
 cp -r "$CWD/assets/systemctl/gunicorn.service" "/etc/systemd/system/gunicorn.service"
 cp -r "$CWD/assets/systemctl/django-huey.service" "/etc/systemd/system/huey.service"
