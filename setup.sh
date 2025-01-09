@@ -25,11 +25,21 @@ fi
 
 # Set www-data user for subsequent commands
 USER="www-data"
+
+# Check if /var/www/html exists
 if [ -d "/var/www/html" ]; then
   sudo chown -R $USER:$USER /var/www/html
   echo "Ownership updated for /var/www/html"
 else
   echo "/var/www/html does not exist."
+fi
+
+# Check if /var/www/.cache/pip exists
+if [ -d "/var/www/.cache/pip" ]; then
+  sudo chown -R $USER:$USER /var/www/.cache/pip
+  echo "Ownership updated for /var/www/.cache/pip"
+else
+  echo "/var/www/.cache/pip does not exist."
 fi
 
 # Define the virtual environment directory
