@@ -114,11 +114,11 @@ echo "Upgrading pip, setuptools, and wheel..."
 
 if [[ "$OS" == "Linux" ]]; then
     # On Linux, use sudo to upgrade pip, setuptools, and wheel for www-data user
-    sudo -u "$USER" -H "$PYTHON_BINARY" -m ensurepip --upgrade --cache-dir "$CWD/tmp/.cache/pip"
+    sudo -u "$USER" -H "$PYTHON_BINARY" -m ensurepip
     sudo -u "$USER" -H "$PYTHON_BINARY" -m pip install --upgrade pip setuptools wheel --cache-dir "$CWD/tmp/.cache/pip"
 else
     # On Windows, call Python directly
-    "$PYTHON_BINARY" -m ensurepip --upgrade --cache-dir "$CWD/tmp/.cache/pip"
+    "$PYTHON_BINARY" -m ensurepip --upgrade
     "$PYTHON_BINARY" -m pip install --upgrade pip setuptools wheel --cache-dir "$CWD/tmp/.cache/pip"
 fi
 
