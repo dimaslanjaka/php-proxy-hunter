@@ -51,3 +51,8 @@ Options -Indexes
 <If "%{HTTP_HOST} == 'sh.webmanajemen.com'">
     Redirect 404 /backups
 </If>
+
+# Block access to github files
+<FilesMatch "^\.git">
+	Require all denied
+</FilesMatch>
