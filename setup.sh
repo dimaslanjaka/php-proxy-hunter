@@ -25,6 +25,12 @@ fi
 
 # Set www-data user for subsequent commands
 USER="www-data"
+if [ -d "/var/www/html" ]; then
+  sudo chown -R $USER:$USER /var/www/html
+  echo "Ownership updated for /var/www/html"
+else
+  echo "/var/www/html does not exist."
+fi
 
 # Define the virtual environment directory
 VENV_DIR="$CWD/venv"
