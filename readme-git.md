@@ -24,11 +24,22 @@ make prefix=/usr/local all
 sudo make prefix=/usr/local install
 ```
 
-## Tips
-
-disable changes on file permission changed
+## Fix permissions
 
 ```bash
+# Disable tracking of file permission changes in Git
+# This prevents Git from considering changes to file permissions as modifications
 git config core.fileMode false
-git config --global core.fileMode false
+
+# Change the ownership of all files in /var/www/html to the www-data user and group
+# This allows the web server (often running as www-data) to manage the files
+sudo chown -R www-data:www-data /var/www/html
+
+# Grant group read and write access to all files in /var/www/html
+# This allows members of the 'www-data' group to edit the files
+sudo chmod -R g+rw /var/www/html
+
+# Configure the Git repository to allow shared access by the group
+# This enables collaboration between users in the same group on the Git repository
+git config core.sharedRepository group
 ```
