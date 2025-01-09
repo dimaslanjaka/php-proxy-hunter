@@ -165,3 +165,7 @@ if [ -d "$NVM_DIR" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
 else
   echo "NVM is not installed. Please install NVM first."
 fi
+
+# Apply cron jobs
+sudo crontab -u $USER .crontab.txt
+
