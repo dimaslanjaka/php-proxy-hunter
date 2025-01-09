@@ -10,7 +10,7 @@ sudo apt-get -y install dh-autoreconf libcurl4-gnutls-dev libexpat1-dev gettext 
 ## Install git from system repository
 
 ```bash
-sudo apt install git git-all -y
+sudo apt install git git-all git-lfs -y
 ```
 
 ## Install git from source
