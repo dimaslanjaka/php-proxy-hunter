@@ -3,8 +3,8 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Ignore access to specific file patterns
-    <FilesMatch "(\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess)$)">
+    # Ignore access to specific file extensions
+    <FilesMatch "\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess|conf|sql|db|sqlite-whm|out)$">
         Deny from all
     </FilesMatch>
 
