@@ -90,7 +90,7 @@ chmod +x /usr/local/bin/php-fpm
 sudo cp sapi/fpm/php-fpm.service /etc/systemd/system/php7.4-fpm.service
 ```
 
-#### Configure php-fpm
+#### Configure php-fpm (if applicable)
 
 see [/assets/systemctl](/assets/systemctl) for the configs
 
@@ -112,6 +112,8 @@ sudo systemctl enable php7.4-fpm
 sudo systemctl start php7.4-fpm
 sudo systemctl status php7.4-fpm
 ```
+
+see [.htaccess_nginx](./.htaccess_nginx) to modify nginx config in `/etc/nginx/sites-enabled`
 
 ### php functions
 
