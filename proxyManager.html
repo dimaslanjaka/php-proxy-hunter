@@ -50,6 +50,15 @@
       rel="stylesheet"
       href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
     <link rel="stylesheet" href="./proxyManager.css" />
+    <script>
+      function redirectToProxy() {
+        const currentHost = window.location.hostname;
+        const port = 8443;
+        const pathname = '/proxy';
+        const url = `https://${currentHost}:${port}${pathname}`;
+        window.location.href = url;
+      }
+    </script>
   </head>
 
   <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
@@ -60,15 +69,6 @@
         </div>
       </div>
       <!-- <div class="mx-auto text-center mb-4">
-        <script>
-          function redirectToProxy() {
-            const currentHost = window.location.hostname;
-            const port = 8443;
-            const pathname = "/proxy";
-            const url = `https://${currentHost}:${port}${pathname}`;
-            window.location.href = url;
-          }
-        </script>
         <a href="#" onclick="redirectToProxy()" class="block text-lg hover:underline">
           <i class="fa-sharp-duotone fa-solid fa-forward mr-2"></i> Python Proxy Hunter
         </a>
@@ -114,6 +114,21 @@
 
     <!-- recaptcha - unlock proxy list -->
     <section id="recaptcha" class="flex items-center justify-center text-center"></section>
+
+    <!-- Navigations -->
+    <section id="snav" class="mx-auto mb-4 text-left md:text-center">
+      <a href="#" onclick="redirectToProxy()" class="text-lg hover:underline inline-flex items-center px-1">
+        <i class="fa-brands fa-python mr-1"></i> Python Proxy Hunter
+      </a>
+      <span class="border-r border-gray-300 h-6 mx-2 inline-block align-middle hidden md:inline-block"></span> <!-- Divider -->
+      <a href="./php_backend/" class="text-lg hover:underline inline-flex items-center px-1">
+        <i class="fa-brands fa-expeditedssl mr-1"></i> PHP SSL Proxy Checker
+      </a>
+      <span class="border-r border-gray-300 h-6 mx-2 inline-block align-middle hidden md:inline-block"></span> <!-- Divider -->
+      <a href="https://github.com/your-username/your-repository" class="text-lg hover:underline inline-flex items-center px-1">
+        <i class="fa-sharp-duotone fa-brands fa-github mr-1"></i> GitHub Repository
+      </a>
+    </section>
 
     <section class="mb-5" id="proxies-list">
       <ins

@@ -127,7 +127,7 @@ run_as_user_in_venv "python $CWD/manage.py collectstatic --noinput"
 # clear django caches (from django_backend/apps/core/management/commands/clear_cache.py)
 run_as_user_in_venv "python $CWD/manage.py clear_cache"
 # sync proxies between php and django python databases
-run_as_user_in_venv "python $CWD/manage.py sync_proxies"
+# run_as_user_in_venv "python $CWD/manage.py sync_proxies"
 # fix invalid proxies
 run_as_user_in_venv "python $CWD/manage.py fix_proxies"
 

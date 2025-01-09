@@ -34,6 +34,11 @@
  * @type {Record<string, any>|undefined}
  */
 let user_info;
+/**
+ * dynamically get base url of current project.
+ */
+const project_base_url =
+  !isNaN(location.port) && location.port !== '' ? `${location.hostname}:${location.port}` : location.hostname;
 
 function noop() {
   //
@@ -991,7 +996,7 @@ async function recaptcha() {
         console.log(...args);
       };
     }
-    return fetch(`//${location.hostname}/data/login.php`, {
+    return fetch(`//${project_base_url}/data/login.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -1019,7 +1024,7 @@ async function recaptcha() {
   window.recaptcha_execute = send_token;
 
   try {
-    const r = await fetch(`//${location.hostname}/info.php`);
+    const r = await fetch(`//${project_base_url}/info.php`);
     const res_1 = await r.json();
     const siteKey_1 = res_1['captcha-site-key'];
     const embedder = document.createElement('div');

@@ -1,5 +1,7 @@
 ## Install with snapd
 
+> when you installed python from source
+
 ```bash
 sudo apt install snapd -y
 sudo snap install --classic certbot

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Reload daemon
+sudo systemctl daemon-reload
+
+# Stop nginx
+sudo systemctl stop nginx
+
+# Stop php-fpm
+# Check and restart PHP-FPM if installed
+# Array of PHP versions to check
+php_versions=("7.2" "7.4" "8.0")
+
+# Iterate over each PHP version
+for version in "${php_versions[@]}"; do
+    # Check if PHP FPM service is active
+    if systemctl is-active --quiet php${version}-fpm; then
+        sudo systemctl stop php${version}-fpm
+    fi
+done
+
+# Stop python server
+sudo systemctl stop gunicorn
+sudo systemctl stop huey

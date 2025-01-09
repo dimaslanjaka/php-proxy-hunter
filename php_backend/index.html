@@ -1,89 +1,108 @@
 <html lang="en" class="dark">
-<head>
-  <title>PHP Proxy Checker - WMI</title>
-  <script src="//cdn.tailwindcss.com/3.4.3"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            clifford: '#da373d',
-            ocean: '#1ca9c9',
-            forest: '#228b22',
-            sunset: '#ff4500',
-            sky: '#87ceeb',
-            sand: '#c2b280',
-            berry: '#cc66cc',
-            cyan: '#00ffff',
-            magenta: '#ff00ff',
-            polkador: '#ff6347',
-            skip: '#d3d3d3', // light gray
-            silver: '#c0c0c0',
-            mutedGray: '#b0b0b0',
-            lightGray: '#d3d3d3'
+  <head>
+    <title>PHP SSL Proxy Checker - WMI</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="PHP Proxy Hunter By L3n4r0x" />
+    <link rel="icon" href="https://webmanajemen.com/favicon.ico" />
+    <meta
+      content="https://rawcdn.githack.com/dimaslanjaka/public-source/1a5eb6ac9eec2bd440a694858cdd0f1728e115f1/images/PicsArt_09-09-12.12.25%201584x512px.png"
+      property="og:image" />
+    <meta name="keywords" content="proxy, php proxy" />
+    <meta name="robots" content="index, follow" />
+    <!-- Twitter meta tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Proxy Manager" />
+    <meta name="twitter:description" content="PHP Proxy Hunter By L3n4r0x" />
+    <script src="//cdn.tailwindcss.com/3.4.3"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              clifford: '#da373d',
+              ocean: '#1ca9c9',
+              forest: '#228b22',
+              sunset: '#ff4500',
+              sky: '#87ceeb',
+              sand: '#c2b280',
+              berry: '#cc66cc',
+              cyan: '#00ffff',
+              magenta: '#ff00ff',
+              polkador: '#ff6347',
+              skip: '#d3d3d3', // light gray
+              silver: '#c0c0c0',
+              mutedGray: '#b0b0b0',
+              lightGray: '#d3d3d3'
+            }
           }
         }
+      };
+    </script>
+    <link
+      rel="stylesheet"
+      href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
+  </head>
+  <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
+    <div class="container mb-2">
+      Your ID <b id="uid">%PHP_ID%</b><br />
+      Your IP <b id="ip">%PHP_IP%</b>
+    </div>
+    <div class="container mb-5">
+      <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="data-proxies">Proxies</label>
+      <textarea
+        class="w-full mb-5 h-60 block py-2.5 px-0 text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+        id="data-proxies"
+        name="proxies"
+        placeholder="18.133.16.21:1080@username:password&#10;18.133.16.21:1080&#10;OR ANY TEXTS THAT CONTAINS PROXY"></textarea>
+      <button
+        class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+        id="check-proxies">
+        Check Proxies
+      </button>
+    </div>
+
+    <div class="container">
+      <div class="relative overflow-auto break-all z-0 h-60 mb-5 whitespace-pre" id="https-result"></div>
+    </div>
+
+    <div class="container">
+      <script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2188063137129806"
+        crossorigin="anonymous"></script>
+      <ins
+        class="adsbygoogle"
+        style="display: block"
+        data-ad-format="autorelaxed"
+        data-ad-client="ca-pub-2188063137129806"
+        data-ad-slot="5041245242"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+      integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"></script>
+    <script src="./index.js"></script>
+    <script src="https://rawcdn.githack.com/dimaslanjaka/jquery-form-saver/38176c68300c834d6692953a1be7407caed01832/dist/release/autosave.js"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
       }
-    };
-  </script>
-  <link
-    rel="stylesheet"
-    href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
-</head>
-<body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
-<div class="container mb-2">
-  Your ID <b id="uid">%PHP_ID%</b><br />
-  Your IP <b id="ip">%PHP_IP%</b>
-</div>
-<div class="container mb-5">
-  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="data-proxies">Proxies</label>
-  <textarea
-    class="w-full mb-5 h-60 block py-2.5 px-0 text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-    id="data-proxies"
-    name="proxies"
-    placeholder="18.133.16.21:1080@username:password&#10;18.133.16.21:1080&#10;OR ANY TEXTS THAT CONTAINS PROXY"></textarea>
-  <button
-    class="w-full text-gray-900 bg-gradient-to-r from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-    id="check-proxies">
-    Check Proxies
-  </button>
-</div>
-<div class="container">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2188063137129806"
-          crossorigin="anonymous"></script>
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-format="autorelaxed"
-       data-ad-client="ca-pub-2188063137129806"
-       data-ad-slot="5041245242"></ins>
-  <script>
-    (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
-</div>
-<div class="container">
-  <div class="relative overflow-auto break-all z-0 h-60 mb-5 whitespace-pre" id="https-result"></div>
-</div>
 
-<script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
-        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="./index.js"></script>
-<script
-  src="https://rawcdn.githack.com/dimaslanjaka/jquery-form-saver/38176c68300c834d6692953a1be7407caed01832/dist/release/autosave.js"></script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
+      gtag('js', new Date());
 
-  function gtag() {
-    dataLayer.push(arguments);
-  }
-
-  gtag('js', new Date());
-
-  gtag('config', 'G-BG75CLNJZ1');
-</script>
-</body>
+      gtag('config', 'G-BG75CLNJZ1');
+    </script>
+  </body>
 </html>
