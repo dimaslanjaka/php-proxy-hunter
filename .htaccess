@@ -21,6 +21,9 @@ Options -Indexes
     # Deny access to the 'dist' directory
     RewriteRule ^dist/ - [F,L]
 
+    # Deny access to the 'node_backend' directory
+    RewriteRule ^node_backend/ - [F,L]
+
     # Set cache-control for 5 mins for working.json and status.json
     <FilesMatch "^(working|status)\.json$">
         Header set Cache-Control "public, max-age=300"
