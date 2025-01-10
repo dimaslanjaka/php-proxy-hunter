@@ -4,10 +4,25 @@
 
 > For linux user, NodeJS v20 only compatible for Ubuntu 20.x (VPS)
 
-NodeJS installation steps https://nodejs.org/en/download/current (v23)
-
 ```bash
+# Install requirements
 sudo apt install -y ca-certificates curl gnupg
+
+# Download and install nvm:
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
+# Download and install Node.js:
+nvm install 20
+
+# Verify the Node.js version:
+node -v # Should print "v20.18.1".
+nvm current # Should print "v20.18.1".
+
+# Download and install Yarn:
+corepack enable yarn
+
+# Verify Yarn version:
+yarn -v
 ```
 
 ## Setup user for nodejs
@@ -32,6 +47,10 @@ Switch to user www-data, then install NVM
 ```bash
 # Install NVM
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+# Download and install NodeJS
+nvm install 20
+# Download and install yarn
+corepack enable yarn
 # Load NVM
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
