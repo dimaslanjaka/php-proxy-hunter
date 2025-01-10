@@ -15,6 +15,11 @@ const __dirname = path.dirname(__filename);
 // electron-rebuild -f -w sqlite3
 
 class ProxyDB {
+  /**
+   * Proxy database class.
+   * @param {Partial<string>} dbLocation
+   * @param {boolean} start
+   */
   constructor(dbLocation = null, start = false) {
     this.dbLocation = dbLocation || getRelativePath('src/database.sqlite');
     this.db = null;
