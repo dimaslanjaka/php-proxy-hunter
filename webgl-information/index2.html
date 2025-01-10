@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>CodePen - WebGL Information</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+
+<body>
+  <!-- partial:index.partial.html -->
+  <script>
+    if (location.host === "cdpn.io") console.clear();
+  </script>
+
+  <h1>WebGL Information</h1>
+
+  <table>
+    <tr>
+      <th>Test Name</th>
+      <th>Result</th>
+    </tr>
+    <tr>
+      <td>User Agent <span class="age">(Old)</span></td>
+      <td class="failed result" id="user-agent-result"></td>
+    </tr>
+    <tr>
+      <td>WebDriver <span class="age">(New)</span></td>
+      <td class="failed result" id="webdriver-result">present (failed)</td>
+    </tr>
+    <tr>
+      <td>WebDriver Advanced</td>
+      <td class="failed result" id="advanced-webdriver-result">failed</td>
+    </tr>
+    <tr>
+      <td>Chrome <span class="age">(New)</span></td>
+      <td class="failed result" id="chrome-result">missing (failed)</td>
+    </tr>
+    <tr>
+      <td>Permissions <span class="age">(New)</span></td>
+      <td class="failed result" id="permissions-result"></td>
+    </tr>
+    <tr>
+      <td>Plugins Length <span class="age">(Old)</span></td>
+      <td class="failed result" id="plugins-length-result"></td>
+    </tr>
+    <tr>
+      <td>Plugins is of type PluginArray</td>
+      <td class="failed result" id="plugins-type-result"></td>
+    </tr>
+    <tr>
+      <td>Languages <span class="age">(Old)</span></td>
+      <td class="failed result" id="languages-result"></td>
+    </tr>
+    <tr>
+      <td>WebGL Vendor</td>
+      <td id="webgl-vendor"></td>
+    </tr>
+    <tr>
+      <td>WebGL Renderer</td>
+      <td id="webgl-renderer"></td>
+    </tr>
+    <tr>
+      <td>Broken Image Dimensions</td>
+      <td id="broken-image-dimensions"></td>
+    </tr>
+  </table>
+
+  <h2>DEBUG</h2>
+  <pre id="webgl-info"></pre>
+
+  <h1>Some details</h1>
+  <table>
+    <tr>
+      <td>navigator.cookieEnabled</td>
+      <td>
+        <script>
+          document.write(navigator.cookieEnabled);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.doNotTrack</td>
+      <td>
+        <script>
+          document.write(navigator.doNotTrack);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.msDoNotTrack</td>
+      <td>
+        <script>
+          document.write(navigator.msDoNotTrack);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.sendBeacon</td>
+      <td>
+        <script>
+          try {
+            document.write(navigator.sendBeacon());
+          } catch (e) {
+            document.write("navigator.sendBeacon() failed: " + e.message);
+          }
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.cookieEnabled</td>
+      <td>
+        <script>
+          document.write(navigator.cookieEnabled);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.userAgent</td>
+      <td>
+        <script>
+          document.write(navigator.userAgent);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.appName</td>
+      <td>
+        <script>
+          document.write(navigator.appName);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.vendor</td>
+      <td>
+        <script>
+          document.write(navigator.vendor);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.appCodeName</td>
+      <td>
+        <script>
+          document.write(navigator.appCodeName);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.getUserMedia</td>
+      <td>
+        <script>
+          try {
+            document.write(navigator.getUserMedia());
+          } catch (e) {
+            document.write("Fail navigator.getUserMedia: " + e.message);
+          }
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.sayswho</td>
+      <td>
+        <script>
+          document.write(navigator.sayswho);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.javaEnabled</td>
+      <td>
+        <script>
+          document.write(navigator.javaEnabled());
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.plugins</td>
+      <td>
+        <script>
+          document.write(JSON.stringify(navigator.plugins));
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>screen.width</td>
+      <td>
+        <script>
+          document.write(screen.width);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>screen.height</td>
+      <td>
+        <script>
+          document.write(screen.height);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>screen.colorDepth</td>
+      <td>
+        <script>
+          document.write(screen.colorDepth);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.language</td>
+      <td>
+        <script>
+          document.write(navigator.language);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.loadPurpose</td>
+      <td>
+        <script>
+          document.write(navigator.loadPurpose);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.platform</td>
+      <td>
+        <script>
+          document.write(navigator.platform);
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.mediaDevices</td>
+      <td id="media1">
+        <script>
+          const med = document.getElementById('media1');
+          (async () => {
+            let devices = await navigator.mediaDevices.enumerateDevices();
+            let str = "";
+            devices.forEach(function (device) {
+              str += device.kind + ": " + device.label + " id = " + device.deviceId + "<br/>";
+            });
+            med.innerHTML = str;
+          })();
+        </script>
+
+        <div id="media"></div>
+      </td>
+    </tr>
+    <tr>
+      <td>navigator.getBattery details</td>
+      <td id="battery1">
+        <script>
+          const battery1 = document.getElementById('battery1');
+          (async () => {
+            try {
+              const b = await navigator.getBattery();
+              battery1.innerHTML = "Charging: " + b.charging + "<br/>Level: " + b.level;
+            } catch (e) {
+              battery1.innerHTML = "Fail get battery info: " + e.message
+            }
+          })();
+        </script>
+      </td>
+    </tr>
+    <tr>
+      <td>Canvas1</td>
+      <td id="canvas1"></td>
+    </tr>
+    <tr>
+      <td>Canvas2</td>
+      <td id="canvas2"></td>
+    </tr>
+    <tr>
+      <td>Canvas3 (iframe sandbox)</td>
+      <td id="canvas3">
+        <iframe class="canvased" id="canvas3-iframe" sandbox="allow-same-origin"></iframe>
+      </td>
+    </tr>
+    <tr>
+      <td>Canvas4 (iframe sandbox)</td>
+      <td id="canvas4">
+        <iframe class="canvased" id="canvas4-iframe" sandbox="allow-same-origin"></iframe>
+      </td>
+    </tr>
+    <tr>
+      <td>Canvas5 (iframe)</td>
+      <td id="canvas5">
+        <iframe class="canvased" id="canvas5-iframe"></iframe>
+      </td>
+    </tr>
+  </table>
+  <!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+  <script src='https://cdn.jsdelivr.net/npm/ua-parser-js@0.7.19/src/ua-parser.min.js'></script>
+  <script src='https://bot.sannysoft.com/modernizr.js'></script>
+  <script src='https://bot.sannysoft.com/fpCollect.min.js'></script>
+  <script src='https://bot.sannysoft.com/fpScanner.js'></script>
+  <script src="./script2.js"></script>
+
+</body>
+
+</html>
