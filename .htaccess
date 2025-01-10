@@ -4,7 +4,7 @@ Options -Indexes
     RewriteEngine On
 
     # Ignore access to specific file extensions
-    <FilesMatch "\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess|conf|sql|db|sqlite-whm|out)$">
+    <FilesMatch "\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess|conf|sql|db|sqlite-whm|out|ts)$">
         Order allow,deny
         Deny from all
     </FilesMatch>
