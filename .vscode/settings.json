@@ -17,7 +17,10 @@
       "icon": "terminal-powershell"
     },
     "Command Prompt": {
-      "path": ["${env:windir}\\Sysnative\\cmd.exe", "${env:windir}\\System32\\cmd.exe"],
+      "path": [
+        "${env:windir}\\Sysnative\\cmd.exe",
+        "${env:windir}\\System32\\cmd.exe"
+      ],
       "args": [],
       "icon": "terminal-cmd"
     },
@@ -26,7 +29,10 @@
     },
     "Cygwin": {
       "path": "C:\\cygwin64\\bin\\bash.exe",
-      "args": ["--login", "-i"],
+      "args": [
+        "--login",
+        "-i"
+      ],
       "env": {
         "CHERE_INVOKING": "1"
       }
@@ -47,7 +53,8 @@
   "code-runner.executorMapByGlob": {
     "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
     "*.py": "py2 -u",
-    "*.electron.js": "cross-env-shell NODE_ENV=development electron -r ts-node/register"
+    "*.electron.js": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
+    "*.ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm"
   },
   "code-runner.respectShebang": true,
   "debug.terminal.clearBeforeReusing": true,
@@ -94,7 +101,10 @@
       "source.fixAll": "never"
     }
   },
-  "autopep8.args": ["--ignore", "E401,E402,E211,E501"],
+  "autopep8.args": [
+    "--ignore",
+    "E401,E402,E211,E501"
+  ],
   "eslint.useFlatConfig": true,
   "python.createEnvironment.contentButton": "show",
   "python.terminal.activateEnvInCurrentTerminal": true,
@@ -113,7 +123,10 @@
     "src/database.sqlite*": true
   },
   "intelephense.environment.documentRoot": "${workspaceFolder}",
-  "intelephense.environment.includePaths": ["${workspaceFolder}/src", "${workspaceFolder}/vendor"],
+  "intelephense.environment.includePaths": [
+    "${workspaceFolder}/src",
+    "${workspaceFolder}/vendor"
+  ],
   "files.exclude": {
     "**/.cache/**": true,
     "**/.idea/**": true,
@@ -128,6 +141,9 @@
     "**/venv": true,
     "**/config": true,
     "**/.yarn": true,
+    "**/node_modules": true,
+    "**/tmp": true,
+    "**/vendor": true,
     "backups": true,
     "data/profiles": true,
     "data/run": true,
