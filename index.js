@@ -1,2 +1,4 @@
-require('ts-node').register();
-require('./electron-test');
+// require("ts-node").register();
+// require("./electron-test");
+// import "./node_browser/index.electron.js";
+// import './node_browser/express-server.test.js';
