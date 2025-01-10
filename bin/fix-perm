@@ -92,6 +92,22 @@ Linux)
   chmod 777 "$CWD/vendor"
   touch "$CWD/vendor/index.html"
 
+  # Fix permission for whatsapp bot
+  if [ ! -d "$(dirname "/var/www/html/assets/systemctl/start_whatsapp.sh")" ]; then
+    echo "Error: Directory $(dirname "/var/www/html/assets/systemctl/start_whatsapp.sh") does not exist."
+  else
+    sudo chmod +x /var/www/html/assets/systemctl/start_whatsapp.sh
+    sudo chown $USER:$USER /var/www/html/assets/systemctl/start_whatsapp.sh
+    echo "Permissions and ownership updated successfully."
+  fi
+  for dir in "$CWD/node_modules" "$CWD/.yarn" "$CWD/tmp" "$CWD/dist" "$CWD/baileys_auth_info"; do
+    if [ -d "$dir" ]; then
+      sudo chown -R $USER:$USER "$dir"
+    else
+      echo "Directory $dir does not exist."
+    fi
+  done
+
   echo "Permission sets successful"
 
   # Fix ownership for various directories and file types
