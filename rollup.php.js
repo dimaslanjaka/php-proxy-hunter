@@ -1,6 +1,7 @@
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
+import terser from '@rollup/plugin-terser';
 import fs from 'fs';
 import jsonc from 'jsonc-parser';
 import path from 'path';
@@ -29,6 +30,7 @@ export const proxyManager = {
   plugins: [
     json(), // Support for JSON files
     resolve({ preferBuiltins: true }), // Resolve node_modules packages
-    commonjs()
+    commonjs(),
+    terser({ sourceMap: false }) // Minify the output
   ]
 };
