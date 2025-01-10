@@ -102,7 +102,7 @@
   "exclude": ["node_modules", "build", "app", "tmp", ".cache", "__pycache__", "dist"],
   "ts-node": {
     "compilerOptions": {
-      "module": "CommonJS"
+      "module": "ESNext"
     }
   }
 }
