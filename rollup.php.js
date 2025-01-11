@@ -28,8 +28,8 @@ export const proxyManager = {
     format: 'iife'
   },
   plugins: [
-    json(), // Support for JSON files
     resolve({ preferBuiltins: true }), // Resolve node_modules packages
+    json(), // Support for JSON files
     commonjs(),
     terser({ sourceMap: false }) // Minify the output
   ]

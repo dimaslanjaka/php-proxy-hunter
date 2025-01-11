@@ -1,3 +1,4 @@
+import json from '@rollup/plugin-json';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { execSync } from 'child_process';
 import { globSync } from 'glob';
@@ -40,7 +41,10 @@ function buildWhatsapp() {
       globals
     },
     external: deps.concat('pino', 'node-cache', '@whiskeysockets/baileys', 'fs-extra', 'sbg-utility'),
-    plugins: [nodeResolve({ preferBuiltins: true, extensions: ['.mjs', '.js', '.json', '.node', '.cjs', '.ts'] })]
+    plugins: [
+      nodeResolve({ preferBuiltins: true, extensions: ['.mjs', '.js', '.json', '.node', '.cjs', '.ts'] }),
+      json()
+    ]
   };
   return whatsapp;
 }
@@ -61,7 +65,10 @@ const whatsapp_handlers = globSync('tmp/whatsapp/node_backend/whatsapp_handlers/
       globals
     },
     external: deps.concat('pino', 'node-cache', '@whiskeysockets/baileys', 'fs-extra', 'sbg-utility'),
-    plugins: [nodeResolve({ preferBuiltins: true, extensions: ['.mjs', '.js', '.json', '.node', '.cjs', '.ts'] })]
+    plugins: [
+      nodeResolve({ preferBuiltins: true, extensions: ['.mjs', '.js', '.json', '.node', '.cjs', '.ts'] }),
+      json()
+    ]
   };
   return handler;
 });

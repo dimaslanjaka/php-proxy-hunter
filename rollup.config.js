@@ -197,7 +197,7 @@ const _env = {
     format: 'cjs'
   },
   external: deps,
-  plugins: [nodeResolve({ preferBuiltins: true })]
+  plugins: [nodeResolve({ preferBuiltins: true }), json()]
 };
 
 /**
