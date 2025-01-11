@@ -23,7 +23,7 @@ export default class Replier {
   dateRFC3339: string;
 
   constructor(msg: baileys.WAProto.IWebMessageInfo, socket: ReturnType<typeof baileys.makeWASocket>) {
-    this.receivedText = msg.message?.extendedTextMessage?.text;
+    this.receivedText = msg.message?.extendedTextMessage?.text || msg.message?.conversation;
     this.sender = msg;
     this.sock = socket;
     this.senderId = msg.key.remoteJid;
