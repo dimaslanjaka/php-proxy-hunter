@@ -77,6 +77,7 @@ sqlite3 --version
 
 - [READ PHP SETUP](readme-php.md)
 - [READ PYTHON SETUP](readme-python.md)
+- [READ NODEJS SETUP](readme-nodejs.md)
 
 ## Quickstart
 
@@ -100,7 +101,7 @@ touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-ht
 
 extract `src/database.rar` to `src` folder
 
-The result like below tree
+> The result like below tree
 
 ```
 .
@@ -112,9 +113,14 @@ The result like below tree
     └── dead.txt
 ```
 
-- use **WinRAR** to extract **sqlite** database chunks in **src** folder into single **database.sqlite** file
-
 - modify `.htaccess` or `nginx.conf` with your domain
+- install dependencies
+
+```bash
+yarn install
+python3 requirements_install.py
+php composer.phar install
+```
 
 ## Crontab
 
