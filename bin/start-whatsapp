@@ -30,7 +30,7 @@ if [ -d "$NVM_DIR" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
   # Install dependencies
   yarn install
   # Build the project
-  rollup -c
+  bash "$CWD/bin/build-project"
   # Fix permissions
   bash "$CWD/bin/fix-perm"
 else
