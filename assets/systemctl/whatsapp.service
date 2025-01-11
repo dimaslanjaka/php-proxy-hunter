@@ -6,12 +6,15 @@ Description=WhatsApp Baileys Service
 After=network.target
 
 [Service]
-ExecStart=/var/www/html/assets/systemctl/start_whatsapp.sh >> /var/www/html/tmp/logs/whatsapp.log 2>&1
-Restart=always
+ExecStart=/var/www/html/assets/systemctl/start_whatsapp.sh
+StandardOutput=append:/var/www/html/tmp/logs/whatsapp.log
+StandardError=append:/var/www/html/tmp/logs/whatsapp_error.log
 User=www-data
 Group=www-data
 Environment=NODE_ENV=production
 WorkingDirectory=/var/www/html
+# on-failure: restart on failure
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
