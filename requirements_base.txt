@@ -9,10 +9,10 @@ autopep8
 babel
 beautifulsoup4
 black
-chromedriver-autoinstaller @ https://github.com/yeongbin-jo/python-chromedriver-autoinstaller/archive/master.zip
+chromedriver-autoinstaller @ https://github.com/yeongbin-jo/python-chromedriver-autoinstaller/archive/cd9d19512240f3c4b1833ce9f2e591f68d64d019.zip
 daphne
 datetime
-django-cors-headers @ https://github.com/adamchainz/django-cors-headers/archive/main.zip
+django-cors-headers @ https://github.com/adamchainz/django-cors-headers/archive/81c98d989e6b710f341f8ab5961d415597617b76.zip
 django-cors-middleware
 django-environ
 django-extensions
@@ -25,7 +25,7 @@ geoip2
 geopy
 gevent
 html5lib
-huey @ https://github.com/coleifer/huey/archive/master.zip # ==2.5.2
+huey @ https://github.com/coleifer/huey/archive/5da909af52455ede879b42342891f7bfe4383a71.zip # ==2.5.2
 ipaddress
 joblib
 maxminddb
@@ -50,6 +50,6 @@ timezonefinder==6.0.1 --only-binary :all:
 tzlocal
 urllib3
 watchdog
-webdriver-manager @ https://github.com/SergeyPirogov/webdriver_manager/archive/master.zip
+webdriver-manager @ https://github.com/SergeyPirogov/webdriver_manager/archive/1c59212c6dae5335d2aead14b119307084b44293.zip
 werkzeug
 zstandard
