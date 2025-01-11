@@ -735,6 +735,7 @@ if (!file_exists(__DIR__ . "/config")) {
   mkdir(__DIR__ . "/config");
 }
 setMultiPermissions(__DIR__ . "/config");
+
 function getUserFile(string $user_id): string
 {
   return __DIR__ . "/config/$user_id.json";
@@ -747,6 +748,7 @@ function getConfig(string $user_id): array
     setUserId($user_id);
     $user_file = getUserFile($user_id);
   }
+  if (!is_readable($user_file)) setMultiPermissions($user_file, false);
   // Read the JSON file into a string
   $jsonString = read_file($user_file);
 
@@ -1784,19 +1786,21 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
   if (!file_exists($inputFile)) {
     return false;
   }
-  // Check if file is readable
-  if (!is_readable($inputFile) || is_file_locked($inputFile)) {
-    echo "$inputFile is not readable." . PHP_EOL;
-    var_dump(getFileInfo($inputFile));
+  $isReadable = is_readable($inputFile);
+  $isLocked = is_file_locked($inputFile);
+  if (!$isReadable || $isLocked) {
     $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
     $caller = isset($trace[1]) ? $trace[1] : (isset($trace[0]) ? $trace[0] : []);
-
     $callerFile = isset($caller['file']) ? $caller['file'] : 'unknown';
     $callerLine = isset($caller['line']) ? $caller['line'] : 'unknown';
     $callerClass = isset($caller['class']) ? $caller['class'] : 'non class';
     $callerFunction = isset($caller['function']) ? $caller['function'] : 'non function';
 
-    echo "Called by $callerClass->$callerFunction in {$callerFile} on line {$callerLine}" . PHP_EOL;
+    if (!$isReadable) {
+      var_dump(getFileInfo($inputFile));
+      echo "$inputFile is not readable." . PHP_EOL;
+      echo "Called by $callerClass->$callerFunction in {$callerFile} on line {$callerLine}" . PHP_EOL;
+    }
     return false;
   }
 
