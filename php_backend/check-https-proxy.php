@@ -183,6 +183,7 @@ function check(string $proxy)
 
     $ssl_protocols = [];
     $protocols = ['http', 'socks4', 'socks5'];
+    $latencies = [];
     foreach ($protocols as $protocol) {
       $curl = buildCurl($item->proxy, $protocol, 'https://www.ssl.org/', [
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0'
@@ -195,6 +196,8 @@ function check(string $proxy)
         curl_close($curl);
         if ($info['http_code'] == 200) {
           $msg .= round($info['total_time'], 2) . 's ';
+          // Get the time taken for the request in milliseconds
+          $latencies[] = round($info['total_time'] * 1000, 2);
 
           if (checkRawHeadersKeywords($result)) {
             $msg .= "SSL dead (Azenv). ";
@@ -219,11 +222,22 @@ function check(string $proxy)
 
       _log(trim($msg));
     }
+    // Prepare the base data array
+    $data = ['https' => !empty($ssl_protocols) ? 'true' : 'false'];
+
+    // If ssl_protocols are available, add the corresponding fields
     if (!empty($ssl_protocols)) {
-      $db->updateData($item->proxy, ['type' => join("-", $ssl_protocols), 'status' => 'active', 'https' => 'true']);
-    } else {
-      $db->updateData($item->proxy, ['https' => 'false']);
+      $data['type'] = join("-", $ssl_protocols);
+      $data['status'] = 'active';
+
+      // Add the highest latency if available
+      if (!empty($latencies)) {
+        $data['latency'] = max($latencies);
+      }
     }
+
+    // Perform the database update
+    $db->updateData($item->proxy, $data);
   }
 
   _log("Done checking proxies.");
