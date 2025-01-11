@@ -11,7 +11,14 @@ CWD=$(dirname "$(dirname "$(realpath "$0")")")
 
 echo "Current directory: $CWD"
 
-export NVM_DIR="$HOME/.nvm"
+if [ -d "$HOME/.nvm" ]; then
+  export NVM_DIR="$HOME/.nvm"
+elif [ -d "/usr/local/nvm" ]; then
+  export NVM_DIR="/usr/local/nvm"
+else
+  echo "Neither $HOME/.nvm nor /usr/local/nvm exists."
+  exit 1
+fi
 
 # Check if NVM is installed and load it
 if [ -d "$NVM_DIR" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
@@ -27,7 +34,7 @@ if [ -d "$NVM_DIR" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
   # Fix permissions
   bash "$CWD/bin/fix-perm"
 else
-  echo "NVM is not installed. Please install NVM first."
+  echo "NVM is not installed. Please install NVM first. (readme-nodejs.md)"
   exit 1
 fi
 
