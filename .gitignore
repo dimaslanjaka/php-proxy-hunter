@@ -35,6 +35,7 @@ package-lock.json
 /sitemap.txt
 !LICENSE*
 /app
+/proxyManager.js
 
 # Env
 /.env
