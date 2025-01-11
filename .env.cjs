@@ -16,7 +16,7 @@ const __filename$1 = url.fileURLToPath((typeof document === 'undefined' ? requir
 const __dirname$1 = path.dirname(__filename$1);
 
 // Load environment variables
-dotenv.config({ override: true, path: __dirname$1 });
+dotenv.config({ override: true, path: path.join(__dirname$1, '.env') });
 
 // Argument parsing
 const argv = minimist(process.argv.slice(2));

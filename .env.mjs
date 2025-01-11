@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables
-dotenv.config({ override: true, path: __dirname });
+dotenv.config({ override: true, path: path.join(__dirname, '.env') });
 
 // Argument parsing
 const argv = minimist(process.argv.slice(2));

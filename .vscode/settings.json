@@ -54,8 +54,10 @@
     "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
     "*.py": "py2 -u",
     "*.electron.js": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
-    "*.ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm"
+    "*.ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm",
+    "*.mjs": "node --no-warnings=ExperimentalWarning",
   },
+  "code-runner.saveFileBeforeRun": true,
   "code-runner.respectShebang": true,
   "debug.terminal.clearBeforeReusing": true,
   "[python]": {
