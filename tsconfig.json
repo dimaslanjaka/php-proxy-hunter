@@ -99,24 +99,23 @@
     "enable": true
   },
   "include": [
-    "*.ts",
-    "node_browser",
-    "src",
-    "*.cjs",
-    "*.js"
+    "./node_browser",
+    "./src",
+    ".env.mjs",
+    "./node_backend"
   ],
   "exclude": [
-    "node_modules",
-    "build",
-    "app",
-    "tmp",
-    ".cache",
-    "__pycache__",
-    "dist",
-    "coverage",
-    "public",
-    "test-data",
-    "test-results"
+    "**/node_modules/**",
+    "**/build/**",
+    "**/app/**",
+    "**/tmp/**",
+    "**/.cache/**",
+    "**/__pycache__/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/public/**",
+    "**/test-data/**",
+    "**/test-results/**"
   ],
   "ts-node": {
     "compilerOptions": {
