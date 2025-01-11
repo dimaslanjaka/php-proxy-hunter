@@ -7,7 +7,7 @@ ECHO Current script directory: %SCRIPT_DIR%
 REM Set CWD to the parent directory of the script's directory
 FOR %%I IN ("%SCRIPT_DIR%") DO SET CWD=%%~dpI
 SET CWD=%CWD:~0,-1%
-ECHO Current working directory (parent of script directory): %CWD%
+ECHO Current working directory: %CWD%
 
 REM Run the Node.js script
 node "%SCRIPT_DIR%\build-project.cjs"
