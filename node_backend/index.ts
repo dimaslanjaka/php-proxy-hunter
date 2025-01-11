@@ -1,6 +1,7 @@
 import { dirname } from 'path';
 import path from 'upath';
 import { fileURLToPath } from 'url';
+import { PROJECT_DIR } from '../.env.mjs';
 import { loadModule } from './Function.js';
 import waConnect from './waConnect.js';
 
@@ -11,7 +12,7 @@ const con = new waConnect();
 const activeSenders = new Set(); // Set to track active sender names
 
 con.on('messages', async (replier) => {
-  const senderName = replier.senderName;
+  const senderName = replier.senderId;
   const text = replier.receivedText?.trim();
   console.log('Received message:', text, 'from', senderName);
 
@@ -26,8 +27,8 @@ con.on('messages', async (replier) => {
   try {
     const modules = ['ts', 'js']
       .map((ext) => [
-        path.join(__dirname, 'whatsapp_handlers', 'xl.' + ext),
-        path.join(__dirname, 'whatsapp_handlers', 'proxy.' + ext)
+        path.join(PROJECT_DIR, 'whatsapp_handlers', 'xl.' + ext),
+        path.join(PROJECT_DIR, 'whatsapp_handlers', 'proxy.' + ext)
       ])
       .flat();
 
