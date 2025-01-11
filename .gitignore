@@ -26,10 +26,11 @@ tmp/
 .vscode/sftp.json
 !/robots.txt
 /.env
+/_env.json
+/.env.build.json
 /working.json
 package-lock.json
 /_config.json
-/_env.json
 !/.crontab.txt
 /backups
 !**/*.php.txt
