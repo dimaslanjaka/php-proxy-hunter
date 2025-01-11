@@ -1737,6 +1737,42 @@ function randomIosUa(string $type = 'chrome'): string
 }
 
 /**
+ * Get file information including permissions, owner, and group.
+ *
+ * @param string $file The file path.
+ * @return object An object containing file details: permissions, owner, and group.
+ */
+function getFileInfo(string $file)
+{
+  if (!file_exists($file)) {
+    return (object)[
+      'error' => 'File does not exist.'
+    ];
+  }
+
+  // Get file permissions
+  $permissions = fileperms($file);
+  $permissionsFormatted = substr(sprintf('%o', $permissions), -4);
+
+  // Get file owner
+  $owner = fileowner($file);
+  $owner_info = posix_getpwuid($owner);
+  $ownerName = $owner_info['name'];
+
+  // Get file group
+  $group = filegroup($file);
+  $group_info = posix_getgrgid($group);
+  $groupName = $group_info['name'];
+
+  return [
+    'file' => $file,
+    'permissions' => $permissionsFormatted,
+    'owner' => $ownerName,
+    'group' => $groupName
+  ];
+}
+
+/**
  * Reads a file as UTF-8 encoded text.
  *
  * @param string $inputFile The path to the input file.
@@ -1751,6 +1787,7 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
   // Check if file is readable
   if (!is_readable($inputFile) || is_file_locked($inputFile)) {
     echo "$inputFile is not readable." . PHP_EOL;
+    var_dump(getFileInfo($inputFile));
     $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
     $caller = isset($trace[1]) ? $trace[1] : (isset($trace[0]) ? $trace[0] : []);
 
