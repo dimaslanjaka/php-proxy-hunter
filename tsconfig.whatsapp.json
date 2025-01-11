@@ -3,9 +3,14 @@
   "compilerOptions": {
     "outDir": "./tmp/whatsapp",
   },
-  "include": ["node_backend/**/*.ts"],
+  "include": [
+    "node_backend/**/*.ts"
+  ],
   "exclude": [
     "**/dist",
-    "**/test"
+    "**/test",
+    "**/tmp",
+    "**/node_modules",
+    "**/build",
   ]
 }
