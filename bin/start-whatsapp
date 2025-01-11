@@ -1,0 +1,58 @@
+#!/bin/bash
+
+set -e          # Exit on any error
+set -u          # Treat unset variables as an error
+set -o pipefail # Catch errors in piped commands
+
+# Set www-data user for subsequent commands
+USER="www-data"
+
+CWD=$(dirname "$(dirname "$(realpath "$0")")")
+
+echo "Current directory: $CWD"
+
+export NVM_DIR="$HOME/.nvm"
+
+# Check if NVM is installed and load it
+if [ -d "$NVM_DIR" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
+  # Load NVM into the shell session
+  . "$NVM_DIR/nvm.sh"
+
+  # Enable corepack
+  corepack enable yarn
+  # Install dependencies
+  yarn install
+  # Build the project
+  rollup -c
+  # Fix permissions
+  bash "$CWD/bin/fix-perm"
+else
+  echo "NVM is not installed. Please install NVM first."
+  exit 1
+fi
+
+# Copy service file to systemd
+if ! sudo cp "$CWD/assets/systemctl/whatsapp.service" /etc/systemd/system/whatsapp.service; then
+  echo "Failed to copy service file"
+  exit 1
+fi
+
+echo "Reloading systemd daemon"
+sudo systemctl daemon-reload || exit 1
+
+# Enable the service if not already enabled
+if ! systemctl is-enabled whatsapp > /dev/null 2>&1; then
+    echo "Service whatsapp is not enabled. Enabling it now..."
+    sudo systemctl enable whatsapp || { echo "Failed to enable service whatsapp."; exit 1; }
+else
+    echo "Service whatsapp is already enabled."
+fi
+
+# Start the service if not running, or restart it if it's already running
+if systemctl is-active whatsapp > /dev/null 2>&1; then
+    echo "Service whatsapp is running. Restarting it now..."
+    sudo systemctl restart whatsapp || { echo "Failed to restart service whatsapp."; exit 1; }
+else
+    echo "Service whatsapp is not running. Starting it now..."
+    sudo systemctl start whatsapp || { echo "Failed to start service whatsapp."; exit 1; }
+fi
