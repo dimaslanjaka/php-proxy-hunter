@@ -1,15 +1,17 @@
-// Import necessary modules
-const cp = require('cross-spawn'); // For running command-line processes
-const path = require('path'); // For path operations
-const glob = require('glob'); // For matching files using glob patterns
-const fs = require('fs'); // For file system operations
-const { dotenvConfig } = require('../.env.cjs'); // Import environment variables
+import * as cp from 'cross-spawn'; // For running command-line processes
+import * as glob from 'glob'; // For matching files using glob patterns
+import fs from 'node:fs'; // For file system operations
+import path from 'node:path'; // For path operations
+import { fileURLToPath } from 'node:url';
+import { dotenvConfig } from '../.env.mjs'; // Import environment variables
 
 // Define the current working directory (base path)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const cwd = path.join(__dirname, '../');
 
 // Glob pattern to find all rollup config files in the project
-const rollupConfigs = glob.sync('rollup.*.{js,cjs}', { cwd, absolute: true });
+const rollupConfigs = glob.sync('rollup.*.{js,cjs,mjs}', { cwd, absolute: true });
 
 // Create the environment configuration object
 const envConfig = {

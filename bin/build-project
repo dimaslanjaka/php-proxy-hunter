@@ -9,4 +9,4 @@ CWD=$(dirname "$SCRIPT_DIR")
 echo "Current working directory: $CWD"
 
 # Run the Node.js script
-node "$SCRIPT_DIR/build-project.cjs"
+node "$SCRIPT_DIR/build-project.mjs"
