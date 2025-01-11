@@ -5,9 +5,10 @@ import lodash from 'lodash';
 import { fileURLToPath } from 'url';
 import { getFromProject } from '../../.env.mjs';
 import ProxyDB from '../../src/ProxyDB.js';
+import { getWhatsappFile } from '../Function.js';
 import Replier from '../Replier.js';
 
-const db = new ProxyDB(getFromProject('src/database.sqlite'));
+const db = new ProxyDB(getWhatsappFile('src/database.sqlite'));
 const __filename = fileURLToPath(import.meta.url);
 
 // noinspection JSUnusedGlobalSymbols
@@ -25,7 +26,8 @@ export default async function proxyHandler(replier?: Replier) {
       });
       await replier?.reply(lodash.shuffle(result).slice(0, 30).join('\n'));
     } catch (_error) {
-      const workingFile = getFromProject('working.txt');
+      let workingFile = getFromProject('working.txt');
+      if (!fs.existsSync(workingFile)) workingFile = getWhatsappFile('working.txt');
       if (fs.existsSync(workingFile)) {
         const proxies = fs.readFileSync(workingFile, 'utf-8');
         await replier?.reply(proxies.split(/\r?\n/).slice(0, 5).join('\n'));
