@@ -7,6 +7,7 @@ import process from 'process';
 import puppeteer from 'puppeteer';
 import upath from 'upath';
 import { fileURLToPath } from 'url';
+import productionEnv from './.env.build.json' assert { type: 'json' };
 
 // Setup `__dirname` and `__filename` equivalents for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -15,6 +16,8 @@ const __dirname = path.dirname(__filename);
 // Load environment variables
 const { parsed: dotenvConfig } = dotenv.config({ override: true, path: path.join(__dirname, '.env') });
 export { dotenvConfig };
+
+export const PROJECT_DIR = productionEnv.PROJECT_DIR;
 
 // Argument parsing
 const argv = minimist(process.argv.slice(2));
