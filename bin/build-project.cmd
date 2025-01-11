@@ -10,4 +10,4 @@ SET CWD=%CWD:~0,-1%
 ECHO Current working directory: %CWD%
 
 REM Run the Node.js script
-node "%SCRIPT_DIR%\build-project.cjs"
+node "%SCRIPT_DIR%\build-project.mjs"
