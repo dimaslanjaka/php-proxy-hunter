@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Get the directory of the current Bash script
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+echo "Current script directory: $SCRIPT_DIR"
+
+# Set CWD to the parent directory of the script's directory
+CWD=$(dirname "$SCRIPT_DIR")
+echo "Current working directory: $CWD"
+
+# Run the Node.js script
+node "$SCRIPT_DIR/build-project.cjs"
