@@ -119,6 +119,15 @@
       "name": "Express Server",
       "request": "launch",
       "type": "node-terminal"
+    },
+    {
+      "command": "build-project && node dist/whatsapp.js",
+      "name": "WhatsApp",
+      "request": "launch",
+      "type": "node-terminal",
+      "env": {
+        "NODE_ENV": "development"
+      }
     }
   ],
   "compounds": [
