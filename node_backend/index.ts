@@ -1,12 +1,11 @@
-import { dirname } from 'path';
+import fs from 'fs-extra';
 import path from 'upath';
 import { fileURLToPath } from 'url';
-import { PROJECT_DIR } from '../.env.mjs';
 import { loadModule } from './Function.js';
 import waConnect from './waConnect.js';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 const con = new waConnect();
 
 const activeSenders = new Set(); // Set to track active sender names
@@ -27,11 +26,15 @@ con.on('messages', async (replier) => {
   try {
     const modules = ['ts', 'js']
       .map((ext) => [
-        path.join(PROJECT_DIR, 'whatsapp_handlers', 'xl.' + ext),
-        path.join(PROJECT_DIR, 'whatsapp_handlers', 'proxy.' + ext)
+        path.join(__dirname, 'whatsapp_handlers', 'xl.' + ext),
+        path.join(__dirname, 'whatsapp_handlers', 'proxy.' + ext)
       ])
-      .flat();
-
+      .flat()
+      .filter((f) => {
+        const found = fs.existsSync(f);
+        // console.log('module', f, 'found:', found);
+        return found;
+      });
     for (const modulePath of modules) {
       try {
         const mod = await loadModule(modulePath);

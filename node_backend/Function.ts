@@ -1,7 +1,8 @@
 import * as axios from 'axios';
-import * as fs from 'fs';
+import fs from 'fs-extra';
 import { pathToFileURL } from 'node:url';
-import path from 'path';
+import path from 'upath';
+import { PROJECT_DIR } from '../.env.mjs';
 
 export const FOLDER_CONFIG = './baileys_auth_info';
 export const FOLDER_LOG = './baileys_auth_info/log';
@@ -96,4 +97,8 @@ export async function loadModule(modulePath: string, debug = false) {
     // Handle the error or return a fallback
     return null;
   }
+}
+
+export function getWhatsappFile(...files: string[]) {
+  return path.join(PROJECT_DIR, ...files);
 }
