@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import minimist from 'minimist';
 import os from 'os';
 import path from 'path';
-import process, { env } from 'process';
+import process from 'process';
 import puppeteer from 'puppeteer';
 import upath from 'upath';
 import { fileURLToPath } from 'url';
@@ -13,7 +13,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables
-dotenv.config({ override: true, path: path.join(__dirname, '.env') });
+const { parsed: dotenvConfig } = dotenv.config({ override: true, path: path.join(__dirname, '.env') });
+export { dotenvConfig };
 
 // Argument parsing
 const argv = minimist(process.argv.slice(2));
@@ -21,7 +22,7 @@ const is_debug = argv.debug || false;
 
 // System info
 const cpuCount = os.cpus().length;
-const isGitHubCI = env.CI === 'true';
+const isGitHubCI = process.env.CI === 'true';
 
 export { argv, cpuCount, is_debug, isGitHubCI };
 
@@ -67,8 +68,8 @@ export { githubTokenRO };
  * @returns {boolean} - True if in debug mode, false otherwise.
  */
 const isDebug = (() => {
-  const isGitHubCI = env.CI !== undefined && env.GITHUB_ACTIONS === 'true';
-  const isGitHubCodespaces = env.CODESPACES === 'true';
+  const isGitHubCI = process.env.CI !== undefined && process.env.GITHUB_ACTIONS === 'true';
+  const isGitHubCodespaces = process.env.CODESPACES === 'true';
 
   if (isGitHubCI || isGitHubCodespaces) return true;
 
@@ -120,10 +121,10 @@ export async function getFromNearExe(...paths) {
 
   if (electron.app) {
     const isPackaged = electron.app.isPackaged;
-    if ((env.NODE_ENV === 'development' && !isPackaged) || !isPackaged) {
+    if ((process.env.NODE_ENV === 'development' && !isPackaged) || !isPackaged) {
       return path.join(__dirname, ...paths);
     } else {
-      return path.join(env.PORTABLE_EXECUTABLE_DIR, ...paths);
+      return path.join(process.env.PORTABLE_EXECUTABLE_DIR, ...paths);
     }
   } else {
     return path.join(__dirname, ...paths);
