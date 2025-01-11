@@ -15,33 +15,52 @@ $request = parsePostData();
 $currentScriptFilename = basename(__FILE__, '.php');
 
 if (!$isCli && isset($request['proxy'])) {
-  // Web server
-  $proxy = $request['proxy'];
-  $hashFilename = "$currentScriptFilename-" . $userId;
-  $proxy_file = tmp() . "/proxies/$hashFilename.txt";
-  write_file($proxy_file, $proxy);
+  // Web server setup and process lock
+  $webServerLock = tmp() . "/runners/$currentScriptFilename.proc"; // Define a lock file path
+  if (file_exists($webServerLock)) {
+    // Check if another process with the same script and user is running
+    exit("Another process with same user id still running");
+  } else {
+    // Create the lock file to indicate the current process
+    write_file($webServerLock, "");
+  }
 
-  // Run a long-running process in the background
-  $file = __FILE__;
-  $output_file = tmp() . "/logs/$hashFilename.out";
-  setMultiPermissions([$file, $output_file], true);
+  // Handle proxy configuration
+  $proxy = $request['proxy']; // Extract proxy information from the request
+  $hashFilename = "$currentScriptFilename-" . $userId; // Generate a unique hash filename based on the script and user ID
+  $proxy_file = tmp() . "/proxies/$hashFilename.txt"; // Define the path for the proxy file
+  write_file($proxy_file, $proxy); // Save the proxy details to the file
+
+  // Prepare for a long-running background process
+  $file = __FILE__; // Get the current script's filename
+  $output_file = tmp() . "/logs/$hashFilename.out"; // Define the path for the output log file
+  setMultiPermissions([$file, $output_file], true); // Set appropriate permissions for the script and log file
+
+  // Determine if the system is Windows
   $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-  $cmd = "php " . escapeshellarg($file);
-  $cmd .= " --userId=" . escapeshellarg($userId);
-  $cmd .= " --file=" . escapeshellarg($proxy_file);
-  $cmd = trim($cmd);
 
-  echo $cmd . "\n\n";
+  // Build the command to execute the script
+  $cmd = "php " . escapeshellarg($file); // Base command to run the current script
+  $cmd .= " --userId=" . escapeshellarg($userId); // Append user ID as an argument
+  $cmd .= " --file=" . escapeshellarg($proxy_file); // Append proxy file path as an argument
+  $cmd = trim($cmd); // Trim any extra whitespace
 
+  echo $cmd . "\n\n"; // Print the command for debugging purposes
+
+  // Redirect output and errors to a log file
   $cmd = sprintf("%s > %s 2>&1", $cmd, escapeshellarg($output_file));
-  $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : "");
 
-  write_file($runner, $cmd);
+  // Create a runner script for the command
+  $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : ""); // Use .bat for Windows, no extension for others
+  write_file($runner, $cmd); // Write the command to the runner script
 
-  runBashOrBatch($runner); // Re-run the script in the background
+  // Execute the runner script in the background
+  runBashOrBatch($runner);
 
-  // render index page
-  exit(read_file(__DIR__ . '/index.html'));
+  // Clean up by deleting the lock file
+  delete_path($webServerLock);
+
+  exit; // Exit the current script
 } else {
   $options = getopt("f::p::", ["file::", "proxy::"]);
 
@@ -183,6 +202,7 @@ function check(string $proxy)
 
     $ssl_protocols = [];
     $protocols = ['http', 'socks4', 'socks5'];
+    $latencies = [];
     foreach ($protocols as $protocol) {
       $curl = buildCurl($item->proxy, $protocol, 'https://www.ssl.org/', [
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0'
@@ -195,6 +215,8 @@ function check(string $proxy)
         curl_close($curl);
         if ($info['http_code'] == 200) {
           $msg .= round($info['total_time'], 2) . 's ';
+          // Get the time taken for the request in milliseconds
+          $latencies[] = round($info['total_time'] * 1000, 2);
 
           if (checkRawHeadersKeywords($result)) {
             $msg .= "SSL dead (Azenv). ";
@@ -219,11 +241,22 @@ function check(string $proxy)
 
       _log(trim($msg));
     }
+    // Prepare the base data array
+    $data = ['https' => !empty($ssl_protocols) ? 'true' : 'false'];
+
+    // If ssl_protocols are available, add the corresponding fields
     if (!empty($ssl_protocols)) {
-      $db->updateData($item->proxy, ['type' => join("-", $ssl_protocols), 'status' => 'active', 'https' => 'true']);
-    } else {
-      $db->updateData($item->proxy, ['https' => 'false']);
+      $data['type'] = join("-", $ssl_protocols);
+      $data['status'] = 'active';
+
+      // Add the highest latency if available
+      if (!empty($latencies)) {
+        $data['latency'] = max($latencies);
+      }
     }
+
+    // Perform the database update
+    $db->updateData($item->proxy, $data);
   }
 
   _log("Done checking proxies.");

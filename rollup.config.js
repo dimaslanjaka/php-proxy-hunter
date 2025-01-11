@@ -10,7 +10,7 @@ import path from 'path';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { md5 } from 'sbg-utility';
 import { fileURLToPath } from 'url';
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
