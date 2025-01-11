@@ -125,16 +125,16 @@ if ($enable_debug) {
   ini_set('display_startup_errors', 0);
 }
 ini_set("log_errors", 1); // Enable error logging
-$error_file = __DIR__ . "/tmp/php-error.txt";
+$error_file = __DIR__ . "/tmp/logs/php-error.txt";
 if (!$isCli) {
   // Sanitize the user agent string
   $user_agent = preg_replace('/[^a-zA-Z0-9-_\.]/', '_', $_SERVER['HTTP_USER_AGENT']);
 
   // Check if the sanitized user agent is empty
   if (empty($user_agent)) {
-    $error_file = __DIR__ . "/tmp/php-error.txt";
+    $error_file = __DIR__ . "/tmp/logs/php-error.txt";
   } else {
-    $error_file = __DIR__ . "/tmp/php-error-" . $user_agent . ".txt";
+    $error_file = __DIR__ . "/tmp/logs/php-error-" . $user_agent . ".txt";
   }
 }
 ini_set("error_log", $error_file); // set error path
