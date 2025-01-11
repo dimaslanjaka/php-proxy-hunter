@@ -34,3 +34,5 @@ export const proxyManager = {
     terser({ sourceMap: false }) // Minify the output
   ]
 };
+
+export default proxyManager;
