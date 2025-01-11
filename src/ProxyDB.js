@@ -196,9 +196,35 @@ class ProxyDB {
   }
 
   /**
-   * get working proxies
-   * @param {boolean} autoFix
-   * @returns {Promise<Record<string, any>[]>}
+   * Get working proxies.
+   *
+   * @param {boolean} [autoFix=true] - Whether to automatically fix missing data.
+   * @param {boolean} [rand=true] - Whether to randomize the results.
+   * @param {number} [limit=1000] - The maximum number of results to return.
+   * @returns {Promise<{
+   *   id: number;
+   *   proxy: string;
+   *   latency: string;
+   *   last_check: string;
+   *   type: string;
+   *   region?: string;
+   *   city?: string;
+   *   country?: string;
+   *   timezone?: string;
+   *   latitude?: string;
+   *   longitude?: string;
+   *   anonymity?: string;
+   *   https: string;
+   *   status: string;
+   *   private?: string;
+   *   lang?: string;
+   *   useragent: string;
+   *   webgl_vendor: string;
+   *   webgl_renderer: string;
+   *   browser_vendor: string;
+   *   username?: string;
+   *   password?: string;
+   * }[]>} A promise resolving to an array of proxy objects.
    */
   async getWorkingProxies(autoFix = true, rand = true, limit = 1000) {
     if (!this.db) await this.startConnection();
