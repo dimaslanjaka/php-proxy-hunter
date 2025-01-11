@@ -14,9 +14,10 @@ use PhpProxyHunter\ProxyDB;
  * @param string|null $string The input string containing IP:PORT pairs.
  * @param ProxyDB|null $db An optional ProxyDB instance for database operations.
  * @param bool|null $write_database An optional flag to determine if the results should be written to the database.
+ * @param int $limit The maximum number of results to return.
  * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = true)
+function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = true, $limit = 1000)
 {
   if (!$string) {
     return [];
@@ -65,8 +66,8 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
       $proxy = $match[1] . ":" . $match[2];
       $result = new Proxy($proxy);
       if (isValidProxy($proxy)) {
-        // limit array to 100
-        if (count($results) < 100) $results[] = $result;
+        // limit array
+        if (count($results) < $limit) $results[] = $result;
       }
       continue;
     }
@@ -77,8 +78,8 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
         $proxy = $ip . ":" . $port;
         $result = new Proxy($proxy);
         if (isValidProxy($proxy)) {
-          // limit array to 100
-          if (count($results) < 100) $results[] = $result;
+          // limit array
+          if (count($results) < $limit) $results[] = $result;
         }
       }
       continue;
@@ -102,14 +103,14 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
           $result->password = $password;
           $db->updateData($proxy, ['username' => $username, 'password' => $password, 'private' => 'true']);
         }
-        // limit array to 100
-        if (count($results) < 100) $results[] = $result;
+        // limit array
+        if (count($results) < $limit) $results[] = $result;
       }
     } else {
       $proxy = $match[0];
       $result = new Proxy($proxy);
-      // limit array to 100
-      if (count($results) < 100) $results[] = $result;
+      // limit array
+      if (count($results) < $limit) $results[] = $result;
     }
 
     // if (!empty($proxy) && is_string($proxy) && strlen($proxy) >= 10) {
