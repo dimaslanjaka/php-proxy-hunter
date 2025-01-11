@@ -26,6 +26,15 @@
       <excludeFolder url="file://$MODULE_DIR$/src/undetected-chromedriver" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/.vscode" />
+      <excludeFolder url="file://$MODULE_DIR$/.husky" />
+      <excludeFolder url="file://$MODULE_DIR$/app" />
+      <excludeFolder url="file://$MODULE_DIR$/backups" />
+      <excludeFolder url="file://$MODULE_DIR$/baileys_auth_info" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/databases" />
+      <excludeFolder url="file://$MODULE_DIR$/proxy_checker.egg-info" />
+      <excludeFolder url="file://$MODULE_DIR$/proxy_hunter.egg-info" />
+      <excludeFolder url="file://$MODULE_DIR$/rsa_utility.egg-info" />
     </content>
     <content url="file://$MODULE_DIR$/assets/proxies" />
     <orderEntry type="jdk" jdkName="Python 3.11 (dl-traffic-python)" jdkType="Python SDK" />
