@@ -1,6 +1,7 @@
 import json from '@rollup/plugin-json';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { execSync } from 'child_process';
+import fs from 'fs-extra';
 import { globSync } from 'glob';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -29,6 +30,9 @@ if (typeof __dirname === 'undefined') {
 
 function buildWhatsapp() {
   execSync('tsc -p tsconfig.whatsapp.json', { stdio: 'inherit', cwd: __dirname });
+  fs.copySync(path.join(__dirname, 'assets/database'), path.join(__dirname, 'dist/assets/database'), {
+    overwrite: true
+  });
   /**
    * @type {import('rollup').RollupOptions}
    */

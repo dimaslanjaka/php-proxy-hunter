@@ -150,7 +150,8 @@
     "data/profiles": true,
     "data/run": true,
     "data/fingerprints": true,
-    "data/engine": true
+    "data/engine": true,
+    "bas/": true
   },
   "files.readonlyInclude": {
     "**/*.sqlite*": true
