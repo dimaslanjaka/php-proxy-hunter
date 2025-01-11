@@ -9,5 +9,13 @@ FOR %%I IN ("%SCRIPT_DIR%") DO SET CWD=%%~dpI
 SET CWD=%CWD:~0,-1%
 ECHO Current working directory: %CWD%
 
+:: Fix empty production variables
+IF NOT EXIST "%CWD%\.env.build.json" (
+    echo {} > "%CWD%\.env.build.json"
+    echo File %CWD%\.env.build.json created.
+) ELSE (
+    echo File %CWD%\.env.build.json already exists.
+)
+
 REM Run the Node.js script
 node "%SCRIPT_DIR%\build-project.mjs"
