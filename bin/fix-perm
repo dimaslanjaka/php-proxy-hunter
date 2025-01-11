@@ -18,15 +18,19 @@ if [ -f ".env" ]; then
 fi
 
 # Set the user variable (can be overridden by an environment variable)
-USER="${USER:-www-data}"
+USER="www-data"
 
 # Check the operating system and run the respective code
 case "$OS" in
 Linux)
   echo "Running on Linux"
 
+  chown -R "$USER":"$USER" "$CWD"
+  chown -R "$USER":"$USER" "$CWD/config"
+  chown -R "$USER":"$USER" "$CWD/.env"
+
   # Directories to change permissions and ownership
-  DIRS=("bin" "public" "assets" "src" "tmp" "data")
+  DIRS=("bin" "public" "assets" "src" "tmp" "data" "config" "node_modules" "dist" "baileys_auth_info")
 
   # Change permissions and ownership for each directory
   for dir in "${DIRS[@]}"; do
@@ -133,3 +137,5 @@ MINGW* | CYGWIN* | MSYS*)
   exit 1
   ;;
 esac
+
+ls -la "$CWD"
