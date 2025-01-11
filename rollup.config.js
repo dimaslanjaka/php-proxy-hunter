@@ -159,6 +159,7 @@ const es5Config = {
       preventAssignment: true
     }),
     babel({
+      generatorOpts: { "importAttributesKeyword": "with" },
       babelHelpers: 'bundled', // Use bundled helpers to avoid multiple imports
       presets: ['@babel/preset-env'], // Transpile to ES5
       exclude: 'node_modules/**' // Exclude node_modules from transpilation
