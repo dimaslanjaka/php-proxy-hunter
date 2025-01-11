@@ -8,5 +8,13 @@ echo "Current script directory: $SCRIPT_DIR"
 CWD=$(dirname "$SCRIPT_DIR")
 echo "Current working directory: $CWD"
 
+# Fix empty production variables
+if [ ! -f "$CWD/.env.build.json" ]; then
+    echo "{}" > "$CWD/.env.build.json"
+    echo "File $CWD/.env.build.json created."
+else
+    echo "File $CWD/.env.build.json already exists."
+fi
+
 # Run the Node.js script
 node "$SCRIPT_DIR/build-project.mjs"
