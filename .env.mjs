@@ -7,7 +7,7 @@ import process from 'process';
 import puppeteer from 'puppeteer';
 import upath from 'upath';
 import { fileURLToPath } from 'url';
-import productionEnv from './.env.build.json' assert { type: 'json' };
+import productionEnv from './.env.build.json' with { type: 'json' };
 
 // Setup `__dirname` and `__filename` equivalents for ESM
 const __filename = fileURLToPath(import.meta.url);

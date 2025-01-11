@@ -48,9 +48,7 @@ async function main() {
   user_info = await userInfo();
   if (!user_info) {
     console.log('user null');
-    // await main();
-    location.reload();
-    return;
+    throw new Error('User info is null or undefined');
   }
 
   document.getElementById('start-proxy-check').addEventListener('click', (e) => {

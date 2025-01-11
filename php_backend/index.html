@@ -45,6 +45,31 @@
       href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
   </head>
   <body class="mt-4 -mb-3 mr-4 ml-4 bg-white dark:bg-slate-800 dark:text-slate-400">
+
+    <!-- Navbar -->
+    <nav class="bg-gray-800 mb-4">
+      <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <div class="text-white text-xl font-semibold">PHP Proxy Checker</div>
+        <div class="hidden md:flex space-x-6">
+          <a href="/" class="text-white hover:text-gray-300">Home</a>
+          <a href="/login" class="text-white hover:text-gray-300">Login</a>
+          <a href="https://www.webmanajemen.com/p/about.html" class="text-white hover:text-gray-300">About</a>
+        </div>
+        <div class="md:hidden">
+          <button id="menu-toggle" class="text-white focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div id="mobile-menu" class="md:hidden mt-4 hidden">
+        <a href="#" class="block text-white py-2">Home</a>
+        <a href="#proxies" class="block text-white py-2">Proxies</a>
+        <a href="#about" class="block text-white py-2">About</a>
+      </div>
+    </nav>
+
     <div class="container mb-2">
       Your ID <b id="uid">%PHP_ID%</b><br />
       Your IP <b id="ip">%PHP_IP%</b>
@@ -83,6 +108,11 @@
       </script>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white text-center py-4 mt-5">
+      <p>&copy; 2025 PHP Proxy Checker. All rights reserved.</p>
+    </footer>
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
@@ -104,5 +134,13 @@
 
       gtag('config', 'G-BG75CLNJZ1');
     </script>
+
+    <script>
+      // Toggle mobile menu visibility
+      document.getElementById('menu-toggle').addEventListener('click', function () {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+      });
+    </script>
+
   </body>
 </html>
