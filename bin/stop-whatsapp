@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e  # Exit on any error
+set -u  # Treat unset variables as an error
+set -o pipefail  # Catch errors in piped commands
+
+CWD=$(dirname "$(dirname "$(realpath "$0")")")
+
+echo "Current directory: $CWD"
+
+# Stop the service if it is running
+if systemctl is-active --quiet whatsapp; then
+    echo "Stopping existing whatsapp service"
+    sudo systemctl stop whatsapp
+fi

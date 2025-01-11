@@ -1,0 +1,17 @@
+# /etc/systemd/system/whatsapp.service
+# journalctl -u whatsapp
+
+[Unit]
+Description=WhatsApp Baileys Service
+After=network.target
+
+[Service]
+ExecStart=/var/www/html/assets/systemctl/start_whatsapp.sh >> /var/www/html/tmp/logs/whatsapp.log 2>&1
+Restart=always
+User=www-data
+Group=www-data
+Environment=NODE_ENV=production
+WorkingDirectory=/var/www/html
+
+[Install]
+WantedBy=multi-user.target
