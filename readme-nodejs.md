@@ -56,3 +56,10 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 nvm --version
 ```
+
+Build project environment
+
+```bash
+rollup -c && rollup -c # build twice ONLY for first run
+rollup -c rollup.php.js
+```
