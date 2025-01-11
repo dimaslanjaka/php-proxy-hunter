@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 import dotenv from 'dotenv';
+import minimist from 'minimist';
 import os from 'os';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import process, { env } from 'process';
 import puppeteer from 'puppeteer';
 import upath from 'upath';
-import minimist from 'minimist';
+import { fileURLToPath } from 'url';
 
 // Setup `__dirname` and `__filename` equivalents for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +23,7 @@ const is_debug = argv.debug || false;
 const cpuCount = os.cpus().length;
 const isGitHubCI = env.CI === 'true';
 
-export { isGitHubCI, argv, is_debug, cpuCount };
+export { argv, cpuCount, is_debug, isGitHubCI };
 
 // Electron and packaging checks
 const isElectron = typeof process.versions.electron !== 'undefined';
@@ -36,7 +36,7 @@ const assets = [
   './assets/chrome-extensions/**/*',
   './assets/database/**/*'
 ];
-export { isElectron, assets };
+export { assets, isElectron };
 
 // Chromium executable path handling
 let chromiumExecutablePath = isPkg
@@ -62,7 +62,10 @@ export { chromiumExecutablePath };
 const githubTokenRO = process.env.GITHUB_TOKEN_READ_ONLY;
 export { githubTokenRO };
 
-// Debug mode check
+/**
+ * Determines whether debug mode is enabled based on environment variables and system hostname.
+ * @returns {boolean} - True if in debug mode, false otherwise.
+ */
 const isDebug = (() => {
   const isGitHubCI = env.CI !== undefined && env.GITHUB_ACTIONS === 'true';
   const isGitHubCodespaces = env.CODESPACES === 'true';
@@ -75,7 +78,11 @@ const isDebug = (() => {
 })();
 export { isDebug };
 
-// Get file or folder from project directory
+/**
+ * Resolves a file or folder path relative to the project directory.
+ * @param {...string} paths - Path segments to resolve.
+ * @returns {string} - Resolved absolute path.
+ */
 export function getFromProject(...paths) {
   const actual = path.join(__dirname, ...paths);
 
@@ -87,7 +94,11 @@ export function getFromProject(...paths) {
   return actual;
 }
 
-// Get file or folder from project directory in UNIX format
+/**
+ * Resolves a file or folder path relative to the project directory in UNIX format.
+ * @param {...string} paths - Path segments to resolve.
+ * @returns {string} - Resolved path in UNIX format.
+ */
 export function getFromProjectUnix(...paths) {
   return upath.join(__dirname, ...paths);
 }
@@ -96,9 +107,14 @@ export function getFromProjectUnix(...paths) {
 const tmpDir = getFromProject('tmp');
 const dataDir = getFromProject('data');
 const srcDir = path.join('src');
-export { tmpDir, dataDir, srcDir };
+export { dataDir, srcDir, tmpDir };
 
-// Get file or folder from near exe location
+/**
+ * Resolves a file or folder path near the executable location.
+ * If running within Electron, considers whether the app is packaged.
+ * @param {...string} paths - Path segments to resolve.
+ * @returns {Promise<string>} - Resolved path.
+ */
 export async function getFromNearExe(...paths) {
   const electron = await import('electron').catch(() => ({}));
 

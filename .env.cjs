@@ -2,24 +2,17 @@
 'use strict';
 
 var dotenv = require('dotenv');
+var minimist = require('minimist');
 var os = require('os');
 var path = require('path');
-var url = require('url');
 var process = require('process');
 var puppeteer = require('puppeteer');
 var upath = require('upath');
-var minimist = require('minimist');
+var url = require('url');
 
 var _documentCurrentScript = typeof document !== 'undefined' ? document.currentScript : null;
 // Setup `__dirname` and `__filename` equivalents for ESM
-const __filename$1 = url.fileURLToPath(
-  typeof document === 'undefined'
-    ? require('u' + 'rl').pathToFileURL(__filename).href
-    : (_documentCurrentScript &&
-        _documentCurrentScript.tagName.toUpperCase() === 'SCRIPT' &&
-        _documentCurrentScript.src) ||
-        new URL('.env.cjs', document.baseURI).href
-);
+const __filename$1 = url.fileURLToPath((typeof document === 'undefined' ? require('u' + 'rl').pathToFileURL(__filename).href : (_documentCurrentScript && _documentCurrentScript.tagName.toUpperCase() === 'SCRIPT' && _documentCurrentScript.src || new URL('.env.cjs', document.baseURI).href)));
 const __dirname$1 = path.dirname(__filename$1);
 
 // Load environment variables
@@ -66,7 +59,10 @@ if (process.platform === 'win32') {
 // GitHub token read-only
 const githubTokenRO = process.env.GITHUB_TOKEN_READ_ONLY;
 
-// Debug mode check
+/**
+ * Determines whether debug mode is enabled based on environment variables and system hostname.
+ * @returns {boolean} - True if in debug mode, false otherwise.
+ */
 const isDebug = (() => {
   const isGitHubCI = process.env.CI !== undefined && process.env.GITHUB_ACTIONS === 'true';
   const isGitHubCodespaces = process.env.CODESPACES === 'true';
@@ -78,7 +74,11 @@ const isDebug = (() => {
   return hostname.startsWith('codespaces-') || debugPC.includes(hostname);
 })();
 
-// Get file or folder from project directory
+/**
+ * Resolves a file or folder path relative to the project directory.
+ * @param {...string} paths - Path segments to resolve.
+ * @returns {string} - Resolved absolute path.
+ */
 function getFromProject(...paths) {
   const actual = path.join(__dirname$1, ...paths);
 
@@ -90,7 +90,11 @@ function getFromProject(...paths) {
   return actual;
 }
 
-// Get file or folder from project directory in UNIX format
+/**
+ * Resolves a file or folder path relative to the project directory in UNIX format.
+ * @param {...string} paths - Path segments to resolve.
+ * @returns {string} - Resolved path in UNIX format.
+ */
 function getFromProjectUnix(...paths) {
   return upath.join(__dirname$1, ...paths);
 }
@@ -100,7 +104,12 @@ const tmpDir = getFromProject('tmp');
 const dataDir = getFromProject('data');
 const srcDir = path.join('src');
 
-// Get file or folder from near exe location
+/**
+ * Resolves a file or folder path near the executable location.
+ * If running within Electron, considers whether the app is packaged.
+ * @param {...string} paths - Path segments to resolve.
+ * @returns {Promise<string>} - Resolved path.
+ */
 async function getFromNearExe(...paths) {
   const electron = await import('electron').catch(() => ({}));
 
