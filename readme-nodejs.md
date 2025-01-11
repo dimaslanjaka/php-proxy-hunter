@@ -4,6 +4,30 @@
 
 > For linux user, NodeJS v20 only compatible for Ubuntu 20.x (VPS)
 
+### Install NodeJS for all users
+
+1.  Login as root: `sudo -s`
+
+2.  Create destination folder: `mkdir -p /usr/local/nvm`
+
+3.  Install nvm: `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | NVM_DIR=/usr/local/nvm bash`
+
+4.  Create a file called `nvm.sh` in `/etc/profile.d` with the following contents:
+
+    ```bash
+    #!/usr/bin/env bash
+    export NVM_DIR="/usr/local/nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    ```
+
+5.  Set permissions `chmod 755 /etc/profile.d/nvm.sh`
+
+6.  Run `/etc/profile.d/nvm.sh` or load within current shell  `. /etc/profile.d/nvm.sh`
+
+7.  Install node: `nvm install v20`
+
+### Install NodeJS for root user
+
 ```bash
 # Install requirements
 sudo apt install -y ca-certificates curl gnupg
@@ -25,7 +49,7 @@ corepack enable yarn
 yarn -v
 ```
 
-## Setup user for nodejs
+## Install NodeJS for user
 
 ```bash
 # Create user
