@@ -1,5 +1,6 @@
 import * as baileys from '@whiskeysockets/baileys';
 import fs from 'fs-extra';
+import Long from 'long';
 import mime from 'mime';
 import { promisify } from 'util';
 
@@ -9,13 +10,27 @@ export default class Replier {
   receivedText: string | null | undefined;
   sender: baileys.WAProto.IWebMessageInfo;
   private sock!: ReturnType<typeof baileys.makeWASocket>;
-  senderName: string | null | undefined;
+  /**
+   * sender id ends with @g.us for group, ends with @s.whatsapp.net for personal
+   */
+  senderId: string | null | undefined;
+  isGroup = false;
+  /**
+   * sender whatsapp name
+   */
+  senderName: string;
+  timestamp: any;
+  dateRFC3339: string;
 
   constructor(msg: baileys.WAProto.IWebMessageInfo, socket: ReturnType<typeof baileys.makeWASocket>) {
     this.receivedText = msg.message?.extendedTextMessage?.text;
     this.sender = msg;
     this.sock = socket;
-    this.senderName = msg.key.remoteJid;
+    this.senderId = msg.key.remoteJid;
+    this.senderName = msg.pushName;
+    this.isGroup = msg.key.remoteJid?.endsWith('@g.us');
+    this.timestamp = msg.messageTimestamp;
+    this.dateRFC3339 = this.convertTimestampToRFC3339(msg.messageTimestamp);
   }
 
   /**
@@ -78,5 +93,32 @@ export default class Replier {
     await this.sock.sendPresenceUpdate('paused', jid);
 
     await this.sock.sendMessage(jid, msg);
+  }
+
+  private convertTimestampToRFC3339(timestamp: number | Long) {
+    if (timestamp instanceof Long) {
+      timestamp = timestamp.toNumber();
+    }
+    const date = new Date(timestamp * 1000); // Convert to milliseconds
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZoneName: 'short'
+    };
+
+    // Format the date in the desired RFC3339 format
+    const formattedDate = date.toLocaleString('en-GB', options).replace(',', '').replace(' ', 'T');
+
+    // Adjust the timezone offset to match the format `+0700`
+    const offset = -date.getTimezoneOffset();
+    const sign = offset >= 0 ? '+' : '-';
+    const absOffset = Math.abs(offset);
+    const formattedOffset = `${sign}${String(absOffset).padStart(4, '0')}`;
+
+    return formattedDate + formattedOffset;
   }
 }
