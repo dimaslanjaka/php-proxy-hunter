@@ -30,7 +30,7 @@ Linux)
   chown -R "$USER":"$USER" "$CWD/.env"
 
   # Directories to change permissions and ownership
-  DIRS=("bin" "public" "assets" "src" "tmp" "data" "config" "node_modules" "dist" "baileys_auth_info")
+  DIRS=(".cache" "bin" "public" "assets" "src" "tmp" "data" "config" "node_modules" "dist" "baileys_auth_info")
 
   # Change permissions and ownership for each directory
   for dir in "${DIRS[@]}"; do
