@@ -4,4 +4,6 @@ set -e          # Exit on any error
 set -u          # Treat unset variables as an error
 set -o pipefail # Catch errors in piped commands
 
-systemctl status --no-pager whatsapp.service
+sudo systemctl status --no-pager whatsapp.service
+
+sudo journalctl -u whatsapp.service --no-pager
