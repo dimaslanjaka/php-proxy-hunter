@@ -10,13 +10,13 @@ fi
 # Fix PHP permissions
 OS_TYPE=$(uname -s)
 
-if [[ "$OS_TYPE" == *"CYGWIN"* || "$OS_TYPE" == *"MINGW"* || "$OS_TYPE" == *"MSYS"* ]]; then
+if echo "$OS_TYPE" | grep -q -E "CYGWIN|MINGW|MSYS"; then
   echo "WINDOWS"
-elif [[ "$OS_TYPE" == "Linux" ]]; then
+elif [ "$OS_TYPE" = "Linux" ]; then
   # Change to the Git root directory
   cd "$CWD" || exit
-  if command -v lsb_release &>/dev/null; then
-    if command -v nginx &>/dev/null; then
+  if command -v lsb_release >/dev/null 2>&1; then
+    if command -v nginx >/dev/null 2>&1; then
       chown -R www-data:www-data "$CWD"/*
     else
       echo "Nginx is not installed"
