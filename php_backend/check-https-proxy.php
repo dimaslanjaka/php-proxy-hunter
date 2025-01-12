@@ -187,13 +187,13 @@ function check(string $proxy)
     } else if ($item->last_check) {
       if ($item->status == 'dead') {
         $expired = isDateRFC3339OlderThanHours($item->last_check, 5);
-        if ($item->last_check && $expired) {
+        if ($item->last_check && !$expired) {
           _log("[$no] Skipping proxy {$item->proxy}: Marked as dead, but was recently checked at {$item->last_check}.");
           continue;
         }
       } else if ($item->https == 'false' && $item->status != 'untested') {
         $expired = isDateRFC3339OlderThanHours($item->last_check, 5);
-        if ($item->last_check && $expired) {
+        if ($item->last_check && !$expired) {
           _log("[$no] Skipping proxy {$item->proxy}: Does not support SSL, but was recently checked at {$item->last_check}.");
           continue;
         }
