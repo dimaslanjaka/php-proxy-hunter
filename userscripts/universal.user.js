@@ -739,7 +739,7 @@
               return item && item.raw.length > 0 && item.raw.length <= 21;
             });
           // unique
-          var uniqueItems = [...filteredItems, ...additionalItems].filter(function (obj, index, self) {
+          var uniqueItems = filteredItems.concat(additionalItems).filter(function (obj, index, self) {
             return (
               index ===
               self.findIndex(function (t) {
