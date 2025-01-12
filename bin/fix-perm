@@ -61,6 +61,7 @@ Linux)
   chmod 644 "$CWD"/*.php
   chmod 644 "$CWD"/.env
   chmod 755 "$CWD"/*.sh
+  chmod -R 755 "$CWD/.husky"
 
   # Create necessary directories and index.html files
   mkdir -p "$CWD/tmp/cookies"
