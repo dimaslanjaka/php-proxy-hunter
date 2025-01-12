@@ -107,13 +107,33 @@ export function getWhatsappFile(...files: string[]) {
 export const whatsappLogger = pino(
   {
     transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        colorizeObjects: true,
-        ignore: 'pid,hostname',
-        translateTime: 'SYS:standard' // Automatically outputs ISO8601 (RFC3339)
-      }
+      targets: [
+        {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            colorizeObjects: true,
+            ignore: 'pid,hostname',
+            translateTime: 'SYS:standard' // Automatically outputs ISO8601 (RFC3339)
+          }
+        },
+        {
+          level: 'trace',
+          target: 'pino/file',
+          options: {
+            ignore: 'pid,hostname',
+            destination: getWhatsappFile('tmp/logs/whatsapp-trace.log')
+          }
+        },
+        {
+          level: 'info',
+          target: 'pino/file',
+          options: {
+            ignore: 'pid,hostname',
+            destination: getWhatsappFile('tmp/logs/whatsapp-info.log')
+          }
+        }
+      ]
     }
   },
   pino.destination(getWhatsappFile('tmp/logs/whatsapp-pino.log')) // Log directly to a file
