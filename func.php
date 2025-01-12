@@ -101,6 +101,7 @@ function is_debug(): bool
 $isAdmin = is_debug();
 if (!$isAdmin) {
   if ($isCli) {
+    // CLI
     $short_opts = "p::m::";
     $long_opts = [
       "proxy::",
@@ -173,7 +174,7 @@ if (function_exists('ignore_user_abort')) {
   call_user_func('ignore_user_abort', false);
 }
 
-// start session
+// Start session for web server
 if (!$isCli) {
   /** @noinspection PhpUnhandledExceptionInspection */
   new Session(100 * 3600, __DIR__ . '/tmp/sessions');
