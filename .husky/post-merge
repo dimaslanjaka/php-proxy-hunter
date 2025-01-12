@@ -23,7 +23,7 @@ elif [[ "$OS_TYPE" == "Linux" ]]; then
       command -v nginx &
       >/dev/null
     then
-      chown -R www-data:www-data *
+      chown -R www-data:www-data "$CWD"/*
     else
       echo "Nginx is not installed"
     fi
