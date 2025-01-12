@@ -29,6 +29,10 @@ if [ -d "$NVM_DIR" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
   corepack enable yarn
   # Install dependencies
   yarn install
+  # Initialize required files
+  mkdir -p "$CWD/tmp/logs"
+  touch "$CWD/tmp/logs/whatsapp.log"
+  touch "$CWD/tmp/logs/whatsapp_error.log"
   # Fix permissions
   bash "$CWD/bin/fix-perm"
   # Build the project
