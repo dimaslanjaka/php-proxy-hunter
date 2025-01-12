@@ -1,6 +1,7 @@
 import * as axios from 'axios';
 import fs from 'fs-extra';
 import { pathToFileURL } from 'node:url';
+import pino from 'pino';
 import path from 'upath';
 import { PROJECT_DIR } from '../.env.mjs';
 
@@ -102,3 +103,15 @@ export async function loadModule(modulePath: string, debug = false) {
 export function getWhatsappFile(...files: string[]) {
   return path.join(PROJECT_DIR, ...files);
 }
+
+export const whatsappLogger = pino(
+  {
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        colorize: true
+      }
+    }
+  },
+  pino.destination(getWhatsappFile('tmp/logs/whatsapp-pino.log')) // Log directly to a file
+);
