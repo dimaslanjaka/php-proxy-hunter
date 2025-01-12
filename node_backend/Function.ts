@@ -109,7 +109,10 @@ export const whatsappLogger = pino(
     transport: {
       target: 'pino-pretty',
       options: {
-        colorize: true
+        colorize: true,
+        colorizeObjects: true,
+        ignore: 'pid,hostname',
+        translateTime: 'SYS:standard' // Automatically outputs ISO8601 (RFC3339)
       }
     }
   },
