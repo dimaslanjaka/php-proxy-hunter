@@ -29,9 +29,11 @@ if [ -d "$NVM_DIR" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
   corepack enable yarn
   # Install dependencies
   yarn install
+  # Fix permissions
+  bash "$CWD/bin/fix-perm"
   # Build the project
   bash "$CWD/bin/build-project"
-  # Fix permissions
+  # Re-fix permissions
   bash "$CWD/bin/fix-perm"
 else
   echo "NVM is not installed. Please install NVM first. (readme-nodejs.md)"
