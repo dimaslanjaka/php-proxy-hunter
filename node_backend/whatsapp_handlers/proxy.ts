@@ -37,7 +37,7 @@ export default async function proxyHandler(replier?: Replier) {
         await replier?.reply(proxies.split(/\r?\n/).slice(0, 5).join('\n'));
       }
     }
-  } else if (text.startsWith('/help')) {
+  } else if (text?.startsWith('/help')) {
     replier.reply(`Proxy Utility\n\n- \`/working proxies\` - get working proxies`);
   }
 }
@@ -45,7 +45,7 @@ export default async function proxyHandler(replier?: Replier) {
 if (typeof require !== 'undefined' && require.main === module) {
   whatsappLogger.info(`${__filename} CJS called directly`);
   proxyHandler();
-} else if (import.meta.url === new URL(import.meta.url).href) {
+} else if (import.meta.url === new URL(import.meta.url).href && process.argv?.[1] === __filename) {
   whatsappLogger.info(`${__filename} ESM called directly`);
   proxyHandler();
 } else {
