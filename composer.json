@@ -37,6 +37,7 @@
     "php-curl-class/php-curl-class": "^9.19 || ^11.0"
   },
   "require-dev": {
-    "friendsofphp/php-cs-fixer": "^3.0 || ^2.0"
+    "friendsofphp/php-cs-fixer": "^3.0 || ^2.0",
+    "phpunit/phpunit": "^9.6"
   }
 }
