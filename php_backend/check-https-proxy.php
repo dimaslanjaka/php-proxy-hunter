@@ -3,9 +3,10 @@
 require_once __DIR__ . '/../func.php';
 require_once __DIR__ . '/../func-proxy.php';
 
-use PhpProxyHunter\Proxy;
+// Set maximum execution time to [n] seconds
+ini_set('max_execution_time', 300);
+
 use \PhpProxyHunter\ProxyDB;
-use \PhpProxyHunter\Server;
 
 global $isCli;
 
@@ -176,9 +177,25 @@ function check(string $proxy)
   $logFilename = str_replace("$currentScriptFilename-", "", $hashFilename);
   _log(trim("$logFilename Checking $count proxies..."));
 
+  // Record the start time
+  $startTime = microtime(true);
+  $limitSecs = 120;
+  $isExecutionTimeLimit = function () use ($startTime, $limitSecs) {
+    // Check if the script has been running for more than [n] seconds
+    $elapsedTime = microtime(true) - $startTime;
+    if ($elapsedTime > $limitSecs) {
+      _log("Proxy checker execution limit reached {$limitSecs}s.");
+      return true;
+    }
+    return false;
+  };
+
   for ($i = 0; $i < $count; $i++) {
     $no = $i + 1;
     $item = $proxies[$i];
+
+    // Check if the script has been running for more than [n] seconds
+    if ($isExecutionTimeLimit()) break;
 
     // Skip already SSL-supported proxy
     if ($item->https == 'true' && $item->status == 'active') {
