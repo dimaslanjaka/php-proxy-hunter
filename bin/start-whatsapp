@@ -74,4 +74,4 @@ else
 fi
 
 # Show status
-sleep 5 && systemctl status whatsapp.service
+bash "$CWD/bin/status-whatsapp"
