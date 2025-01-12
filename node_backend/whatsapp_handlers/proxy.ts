@@ -5,7 +5,7 @@ import lodash from 'lodash';
 import { fileURLToPath } from 'url';
 import { getFromProject } from '../../.env.mjs';
 import ProxyDB from '../../src/ProxyDB.js';
-import { getWhatsappFile } from '../Function.js';
+import { getWhatsappFile, whatsappLogger } from '../Function.js';
 import Replier from '../Replier.js';
 
 const db = new ProxyDB(getWhatsappFile('src/database.sqlite'));
@@ -14,7 +14,11 @@ const __filename = fileURLToPath(import.meta.url);
 // noinspection JSUnusedGlobalSymbols
 export default async function proxyHandler(replier?: Replier) {
   const text = replier?.receivedText?.trim();
-  if (text?.toLowerCase().includes('working proxy') || text?.toLowerCase().includes('working proxies')) {
+  if (
+    text?.toLowerCase().includes('working proxy') ||
+    text?.toLowerCase().includes('working proxies') ||
+    text?.toLowerCase().startsWith('/working proxies')
+  ) {
     await replier?.reply('Retrieving working proxies...');
     try {
       const proxies = await db.getWorkingProxies();
@@ -33,15 +37,17 @@ export default async function proxyHandler(replier?: Replier) {
         await replier?.reply(proxies.split(/\r?\n/).slice(0, 5).join('\n'));
       }
     }
+  } else if (text.startsWith('/help')) {
+    replier.reply(`Proxy Utility\n\n- \`/working proxies\` - get working proxies`);
   }
 }
 
 if (typeof require !== 'undefined' && require.main === module) {
-  console.log(`${__filename} CJS called directly`);
+  whatsappLogger.info(`${__filename} CJS called directly`);
   proxyHandler();
 } else if (import.meta.url === new URL(import.meta.url).href) {
-  console.log(`${__filename} ESM called directly`);
+  whatsappLogger.info(`${__filename} ESM called directly`);
   proxyHandler();
 } else {
-  console.log(`${__filename} imported as a module`);
+  whatsappLogger.info(`${__filename} imported as a module`);
 }
