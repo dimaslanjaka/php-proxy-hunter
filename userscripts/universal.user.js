@@ -85,9 +85,10 @@
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @downloadURL https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
-// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.user.js
+// @updateURL   https://raw.githack.com/dimaslanjaka/php-proxy-hunter/master/userscripts/universal.meta.js
 // ==/UserScript==
 
+// https://openuserjs.org/meta/dimaslanjaka/universal_proxy_parser.meta.js
 (function () {
   'use strict';
 
@@ -128,33 +129,46 @@
   };
 
   /**
-   * upload and check proxy
-   * @param {string} dataToSend
-   * @returns
+   * Upload and check proxy.
+   * @param {string} dataToSend - The proxy data to send.
    */
-  const addProxyFun = (dataToSend) => {
+  var addProxyFun = function (dataToSend) {
     if (!dataToSend) return;
-    if (typeof dataToSend != 'string') dataToSend = JSON.stringify(dataToSend, null, 2);
+    if (typeof dataToSend !== 'string') dataToSend = JSON.stringify(dataToSend, null, 2);
 
-    // Check if the data has already been sent by looking at local storage
-    const hasDataBeenSent = (data) => {
+    /**
+     * Check if the data has already been sent by looking at local storage.
+     * @param {string|Object} data - The data to check.
+     * @returns {boolean} True if the data has already been sent.
+     */
+    var hasDataBeenSent = function (data) {
       if (typeof data !== 'string') data = md5(JSON.stringify(data));
       if (!isMD5Format(data)) data = md5(data);
-      const sentData = localStorage.getItem('sentData');
-      const result = sentData && sentData.includes(data);
+      var sentData = localStorage.getItem('sentData');
+      var result = sentData && sentData.includes(data);
       console.log(data, 'is same', result);
       return result;
     };
 
-    // Function to add data to local storage
-    const markDataAsSent = (data) => {
+    /**
+     * Mark data as sent by saving it in local storage.
+     * @param {string|Object} data - The data to be marked as sent.
+     */
+    var markDataAsSent = function (data) {
       // skip null data
       if (!data) return;
+
+      // Check if data has already been sent
       if (!hasDataBeenSent(data)) {
-        if (typeof data !== 'string') data = md5(JSON.stringify(data));
-        if (!isMD5Format(data)) data = md5(data);
+        if (typeof data !== 'string') {
+          data = md5(JSON.stringify(data)); // Convert object data to MD5 hash
+        }
+        if (!isMD5Format(data)) {
+          data = md5(data); // Ensure data is in MD5 format
+        }
+
         try {
-          let sentData = localStorage.getItem('sentData') || '';
+          var sentData = localStorage.getItem('sentData') || '';
           sentData += data + '\n'; // Append the entire data
           localStorage.setItem('sentData', sentData);
         } catch (_e) {
@@ -167,7 +181,7 @@
 
     if (hasDataBeenSent(dataToSend)) return;
 
-    const services = [
+    var services = [
       // php proxy hunter
       'http://localhost/proxyAdd.php',
       'http://localhost/proxyCheckerParallel.php',
@@ -181,89 +195,101 @@
     ];
 
     /**
-     * Function to perform fetch with delay
-     * @param {string} url
-     * @param {string} dataToSend
+     * Perform fetch with a delay.
+     * @param {string} url - The URL to which the fetch request is made.
+     * @param {string} dataToSend - The data to be sent in the POST request.
+     * @returns {Promise} - Returns a promise that resolves after the fetch completes.
      */
-    const fetchWithDelay = (url, dataToSend) => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
+    var fetchWithDelay = function (url, dataToSend) {
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
           fetch(url, {
             signal: AbortSignal.timeout(5000),
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Greasemonkey-Script': '1' },
             body: dataToSend
           })
-            .then((response) => {
+            .then(function (response) {
               if (!response.ok) {
                 // Log all response headers
-                const headers = [];
-                response.headers.forEach((value, name) => {
-                  headers.push({ name, value });
+                var headers = [];
+                response.headers.forEach(function (value, name) {
+                  headers.push({ name: name, value: value });
                 });
-                return response.text().then((body) => {
+                return response.text().then(function (body) {
                   return reject({
-                    status: `${response.status} ${response.statusText}`,
-                    message: `Network response to ${url} was not ok`,
-                    headers,
-                    body
+                    status: response.status + ' ' + response.statusText,
+                    message: 'Network response to ' + url + ' was not ok',
+                    headers: headers,
+                    body: body
                   });
                 });
               }
               return response.text();
             })
-            .then((data) => {
+            .then(function (data) {
               console.log(data);
               resolve();
             })
-            .catch((error) => {
+            .catch(function (error) {
               reject({
-                message: `There was a problem with your fetch operation: (${error.message})`
+                message: 'There was a problem with your fetch operation: (' + error.message + ')'
               });
             });
         }, 1000); // 1 second delay
       });
     };
 
-    services.forEach((url) => {
-      const do_upload = (str_data) => {
-        fetchWithDelay(url, `proxy=${encodeURIComponent(str_data)}`)
-          .then(() => fetchWithDelay(url, `proxies=${encodeURIComponent(str_data)}`))
-          .catch((error) => {
+    // Assuming services and splitStringByLines are already defined
+    services.forEach(function (url) {
+      var do_upload = function (str_data) {
+        fetchWithDelay(url, 'proxy=' + encodeURIComponent(str_data))
+          .then(function () {
+            return fetchWithDelay(url, 'proxies=' + encodeURIComponent(str_data));
+          })
+          .catch(function (error) {
             console.error('Failed to fetch with delay:', error);
           });
       };
-      const split_body = splitStringByLines(dataToSend, 100);
-      if (!url.includes('proxyCheckerParallel')) {
+
+      var split_body = splitStringByLines(dataToSend, 100);
+      if (url.indexOf('proxyCheckerParallel') === -1) {
         split_body.forEach(do_upload);
       } else {
-        const item = split_body[Math.floor(Math.random() * split_body.length)];
+        var item = split_body[Math.floor(Math.random() * split_body.length)];
         do_upload(item);
       }
       markDataAsSent(dataToSend);
     });
   };
 
-  const parse_proxy_db_net = () => {
-    return new Promise((resolve) => {
-      const regex = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{2,5})/;
-      const result = [];
-      const a = Array.from(document.getElementsByClassName('spy14'));
-      for (var i = 0; i < a.length; i++) {
-        if (a[i].innerText.includes(':')) {
-          result.push({ raw: a[i].innerText });
+  /**
+   * Function to parse proxy data from the document.
+   * @returns {Promise} - A promise that resolves with an array of proxy data objects.
+   */
+  var parse_proxy_db_net = function () {
+    return new Promise(function (resolve) {
+      var regex = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{2,5})/;
+      var result = [];
+      var a = Array.prototype.slice.call(document.getElementsByClassName('spy14'));
+
+      for (var outerLoopIndex = 0; outerLoopIndex < a.length; outerLoopIndex++) {
+        // Renamed outer loop variable
+        if (a[outerLoopIndex].innerText.includes(':')) {
+          result.push({ raw: a[outerLoopIndex].innerText });
         }
       }
 
-      const tables = Array.from(document.querySelectorAll('table'));
-      for (let i = 0; i < tables.length; i++) {
-        const table = tables[i];
-        const tr = Array.from(table.querySelectorAll('tr'));
-        for (let ii = 0; ii < tr.length; ii++) {
-          const td = Array.from(tr[ii].querySelectorAll('td'));
+      var tables = Array.prototype.slice.call(document.querySelectorAll('table'));
+      for (var tableLoopIndex = 0; tableLoopIndex < tables.length; tableLoopIndex++) {
+        // Renamed outer loop variable for tables
+        var table = tables[tableLoopIndex];
+        var tr = Array.prototype.slice.call(table.querySelectorAll('tr'));
+        for (var i = 0; i < tr.length; i++) {
+          // Inner loop variable remains i
+          var td = Array.prototype.slice.call(tr[i].querySelectorAll('td'));
           if (td[0]) {
-            const test = regex.test(td[0].innerText);
-            // console.log(test, ii, td[0].innerText);
+            var test = regex.test(td[0].innerText);
             if (test) result.push({ raw: td[0].innerText });
           }
         }
@@ -274,12 +300,12 @@
   };
 
   /**
-   * parse hidemy proxy
-   * @returns {Promise<any[]>}
+   * Function to parse HideMe proxy data.
+   * @returns {Promise<any[]>} - A promise that resolves with an array of proxy data objects.
    */
-  const parse_hideme_jquery = () => {
-    return new Promise((resolve) => {
-      const result = [];
+  var parse_hideme_jquery = function () {
+    return new Promise(function (resolve) {
+      var result = [];
       $('.table_block>table>tbody>tr').each(function (i, e) {
         var tr = $(e);
         var tdList = tr.children('td');
@@ -293,26 +319,33 @@
   };
 
   /**
-   * @returns {Promise<any[]>}
+   * Function to parse proxy data from a table.
+   * @returns {Promise<any[]>} - A promise that resolves with an array of proxy data objects.
    */
-  const parse_prem_proxy = () => {
-    return new Promise((resolve) => {
+  var parse_prem_proxy = function () {
+    return new Promise(function (resolve) {
       // Select all table elements on the page
-      const tables = Array.from(document.querySelectorAll('table'));
-      const ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
-      const objectWrapper = [];
+      var tables = Array.prototype.slice.call(document.querySelectorAll('table'));
+      var ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
+      var objectWrapper = [];
 
       // Loop through each table element using a for loop
-      for (let i = 0; i < tables.length; i++) {
-        const table = tables[i];
-        const rows = Array.from(table.querySelectorAll('tr'));
+      for (var i = 0; i < tables.length; i++) {
+        var table = tables[i];
+        var rows = Array.prototype.slice.call(table.querySelectorAll('tr'));
 
-        for (let j = 0; j < rows.length; j++) {
-          const row = rows[j];
-          const td = Array.from(row.querySelectorAll('td'));
-          const texts = td.map((el) => el.innerText).filter((str) => typeof str == 'string' && str.trim().length > 0);
+        for (var j = 0; j < rows.length; j++) {
+          var row = rows[j];
+          var td = Array.prototype.slice.call(row.querySelectorAll('td'));
+          var texts = td
+            .map(function (el) {
+              return el.innerText;
+            })
+            .filter(function (str) {
+              return typeof str === 'string' && str.trim().length > 0;
+            });
+
           if (ipOnly.test(texts.join(' '))) {
-            // console.log(texts);
             objectWrapper.push({
               raw: texts[0],
               ip: texts[0].split(':')[0],
@@ -331,26 +364,34 @@
   };
 
   /**
-   * @returns {Promise<any[]>}
+   * Function to parse proxy data from a table.
+   * @returns {Promise<any[]>} - A promise that resolves with an array of proxy data objects.
    */
-  const parse_proxylistplus = () => {
-    return new Promise((resolve) => {
+  var parse_proxylistplus = function () {
+    return new Promise(function (resolve) {
       // Select all table elements on the page
-      const tables = Array.from(document.querySelectorAll('table'));
-      const ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
-      const objectWrapper = [];
+      var tables = Array.prototype.slice.call(document.querySelectorAll('table'));
+      var ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
+      var objectWrapper = [];
 
       // Loop through each table element using a for loop
-      for (let i = 0; i < tables.length; i++) {
-        const table = tables[i];
-        const rows = Array.from(table.querySelectorAll('tr'));
+      for (var i = 0; i < tables.length; i++) {
+        var table = tables[i];
+        var rows = Array.prototype.slice.call(table.querySelectorAll('tr'));
 
-        for (let j = 0; j < rows.length; j++) {
-          const row = rows[j];
-          const td = Array.from(row.querySelectorAll('td'));
-          const texts = td.map((el) => el.innerText).filter((str) => typeof str == 'string' && str.trim().length > 0);
+        for (var j = 0; j < rows.length; j++) {
+          var row = rows[j];
+          var td = Array.prototype.slice.call(row.querySelectorAll('td'));
+          var texts = td
+            .map(function (el) {
+              return el.innerText;
+            })
+            .filter(function (str) {
+              return typeof str === 'string' && str.trim().length > 0;
+            });
+
           if (ipOnly.test(texts.join(' '))) {
-            const item = {
+            var item = {
               raw: texts[0] + ':' + texts[1],
               ip: texts[0],
               port: texts[1],
@@ -359,7 +400,6 @@
               anonymity: texts[4],
               https: texts[5]
             };
-            // console.log(item);
             objectWrapper.push(item);
           }
         }
@@ -372,26 +412,33 @@
   // parse_proxylistplus().then(console.log);
 
   /**
-   * @returns {Promise<any[]>}
+   * Function to parse the second and third row proxy data from a table.
+   * @returns {Promise<any[]>} - A promise that resolves with an array of proxy data objects.
    */
-  const parse_second_and_third_row = () => {
-    return new Promise((resolve) => {
+  var parse_second_and_third_row = function () {
+    return new Promise(function (resolve) {
       // Select all table elements on the page
-      const tables = Array.from(document.querySelectorAll('table'));
-      const ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
-      const objectWrapper = [];
+      var tables = Array.prototype.slice.call(document.querySelectorAll('table'));
+      var ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
+      var objectWrapper = [];
 
       // Loop through each table element using a for loop
-      for (let i = 0; i < tables.length; i++) {
-        const table = tables[i];
-        const rows = Array.from(table.querySelectorAll('tr'));
+      for (var i = 0; i < tables.length; i++) {
+        var table = tables[i];
+        var rows = Array.prototype.slice.call(table.querySelectorAll('tr'));
 
-        for (let j = 0; j < rows.length; j++) {
-          const row = rows[j];
-          const td = Array.from(row.querySelectorAll('td'));
-          const texts = td.map((el) => el.innerText).filter((str) => typeof str == 'string' && str.trim().length > 0);
+        for (var j = 0; j < rows.length; j++) {
+          var row = rows[j];
+          var td = Array.prototype.slice.call(row.querySelectorAll('td'));
+          var texts = td
+            .map(function (el) {
+              return el.innerText;
+            })
+            .filter(function (str) {
+              return typeof str === 'string' && str.trim().length > 0;
+            });
+
           if (ipOnly.test(texts.join(' '))) {
-            // console.log(texts);
             objectWrapper.push({
               raw: texts[1] + ':' + texts[2],
               ip: texts[0],
@@ -410,23 +457,24 @@
   };
 
   /**
-   * @returns {Promise<any[]>}
+   * Function to parse the first and second row proxy data from a table.
+   * @returns {Promise<any[]>} - A promise that resolves with an array of proxy data objects.
    */
-  const parse_first_and_second_row = () => {
-    return new Promise((resolve) => {
+  var parse_first_and_second_row = function () {
+    return new Promise(function (resolve) {
       // Select all table elements on the page
-      const tables = Array.from(document.querySelectorAll('table'));
-      const ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
-      const objectWrapper = [];
+      var tables = Array.prototype.slice.call(document.querySelectorAll('table'));
+      var ipOnly = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm;
+      var objectWrapper = [];
 
       // Loop through each table element using a for loop
-      for (let i = 0; i < tables.length; i++) {
-        const table = tables[i];
-        const rows = Array.from(table.querySelectorAll('tr'));
+      for (var i = 0; i < tables.length; i++) {
+        var table = tables[i];
+        var rows = Array.prototype.slice.call(table.querySelectorAll('tr'));
 
-        for (let j = 0; j < rows.length; j++) {
-          const row = rows[j];
-          const buildObject = {
+        for (var j = 0; j < rows.length; j++) {
+          var row = rows[j];
+          var buildObject = {
             raw: null,
             code: null,
             anonymity: null,
@@ -436,19 +484,20 @@
             type: 'http',
             test: null
           };
-          const td = row.querySelectorAll('td');
-          const proxy = td[0];
-          const port = td[1];
-          const countryCode = td[2];
-          const anonymity = td[4];
-          const google = td[5];
-          const ssl = td[6];
+          var td = row.querySelectorAll('td');
+          var proxy = td[0];
+          var port = td[1];
+          var countryCode = td[2];
+          var anonymity = td[4];
+          var google = td[5];
+          var ssl = td[6];
+
           if (proxy && ssl && ipOnly.test(proxy.innerText)) {
-            // console.log(proxy.innerText, port.innerText, countryCode.innerText, anonymity.innerText, google.innerText, ssl.innerText);
-            buildObject.raw = `${proxy.innerText.trim()}:${port.innerText.trim()}`;
+            buildObject.raw = proxy.innerText.trim() + ':' + port.innerText.trim();
             buildObject.google = /^yes/.test(google.innerText.trim()) ? true : false;
             buildObject.ssl = /^yes/.test(ssl.innerText.trim()) ? true : false;
             buildObject.code = countryCode.innerText.trim();
+
             switch (anonymity.innerText.trim()) {
               case 'elite proxy':
                 buildObject.anonymity = 'H';
@@ -456,11 +505,11 @@
               case 'anonymous':
                 buildObject.anonymity = 'A';
                 break;
-
               default:
                 buildObject.anonymity = 'N';
                 break;
             }
+
             objectWrapper.push(buildObject);
           }
         }
@@ -471,28 +520,30 @@
   };
 
   /**
-   * parse IP:PORT from first row
-   * @returns {Promise<any[]>}
+   * Function to parse IP:PORT from the first row.
+   * @returns {Promise<any[]>} - A promise that resolves with an array of IP:PORT data objects.
    */
-  const parse_first_row_ip_port = () => {
-    return new Promise((resolve) => {
-      const regex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})$/;
-      const result = [];
-      const a = Array.from(document.getElementsByClassName('spy14'));
-      for (var i = 0; i < a.length; i++) {
-        if (a[i].innerText.includes(':')) {
-          result.push({ raw: a[i].innerText });
+  var parse_first_row_ip_port = function () {
+    return new Promise(function (resolve) {
+      var regex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})$/;
+      var result = [];
+      var spy14Elements = Array.prototype.slice.call(document.getElementsByClassName('spy14'));
+
+      for (var i = 0; i < spy14Elements.length; i++) {
+        if (spy14Elements[i].innerText.includes(':')) {
+          result.push({ raw: spy14Elements[i].innerText });
         }
       }
 
-      const tables = Array.from(document.querySelectorAll('table'));
-      for (let i = 0; i < tables.length; i++) {
-        const table = tables[i];
-        const tr = Array.from(table.querySelectorAll('tr'));
-        for (let ii = 0; ii < tr.length; ii++) {
-          const td = Array.from(tr[ii].querySelectorAll('td'));
-          if (td.length > 0 && regex.test(td[0].innerText)) {
-            result.push({ raw: td[0].innerText });
+      var tables = Array.prototype.slice.call(document.querySelectorAll('table'));
+      for (var j = 0; j < tables.length; j++) {
+        var table = tables[j];
+        var trElements = Array.prototype.slice.call(table.querySelectorAll('tr'));
+
+        for (var k = 0; k < trElements.length; k++) {
+          var tdElements = Array.prototype.slice.call(trElements[k].querySelectorAll('td'));
+          if (tdElements.length > 0 && regex.test(tdElements[0].innerText)) {
+            result.push({ raw: tdElements[0].innerText });
           }
         }
       }
@@ -507,28 +558,51 @@
    * @param {string} input - The input string containing IP:PORT pairs.
    * @returns {string[]} An array of IP:PORT pairs found in the input string.
    */
-  const extractIpPortPairs = (input) => {
+  var extractIpPortPairs = function (input) {
     if (!input) return [];
     // Regular expression to match IP:PORT
-    const regex = /(?:[0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}/g;
+    var regex = /(?:[0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}/g;
     return input.match(regex) || [];
   };
 
-  const extractIpPortFromBody = () => {
-    const result = [];
-    const area = document.querySelectorAll('textarea,td');
-    result.push(...extractIpPortPairs(document.body.innerHTML));
-    area.forEach((el) => {
-      result.push(...extractIpPortPairs(el.value));
+  /**
+   * Extracts unique IP:PORT pairs from the body and specific elements in the DOM.
+   *
+   * @returns {Promise<any[]>} A promise that resolves with an array of unique IP:PORT objects.
+   */
+  var extractIpPortFromBody = function () {
+    var result = [];
+    var area = document.querySelectorAll('textarea,td');
+
+    // Extract IP:PORT pairs from the body content
+    result.push.apply(result, extractIpPortPairs(document.body.innerHTML));
+
+    // Extract IP:PORT pairs from the values of textarea and td elements
+    area.forEach(function (el) {
+      result.push.apply(result, extractIpPortPairs(el.value));
     });
-    const divList = document.querySelectorAll('div.list');
-    divList.forEach((el) => {
-      result.push(...extractIpPortPairs(el.innerHTML));
+
+    // Extract IP:PORT pairs from div elements with class 'list'
+    var divList = document.querySelectorAll('div.list');
+    divList.forEach(function (el) {
+      result.push.apply(result, extractIpPortPairs(el.innerHTML));
     });
-    const unique = result.filter((str, index, self) => index === self.findIndex((t) => t === str));
-    const map = unique.map((str) => {
+
+    // Remove duplicates by filtering the array
+    var unique = result.filter(function (str, index, self) {
+      return (
+        index ===
+        self.findIndex(function (t) {
+          return t === str;
+        })
+      );
+    });
+
+    // Map the unique IP:PORT pairs to an object structure
+    var map = unique.map(function (str) {
       return { raw: str };
     });
+
     return Promise.resolve(map);
   };
 
@@ -546,21 +620,21 @@
   /**
    * free.proxy-sale.com parser
    * * extract only IP
-   * @returns {Promise<string[]>}
+   * @returns {Promise<{ raw: string }[]>}
    */
-  const freeProxySale = () => {
-    return new Promise((resolve) => {
-      const result = [];
-      const proxyTable = document.querySelectorAll('.proxy__table');
-      proxyTable.forEach((wrapper) => {
-        Array.from(wrapper.querySelectorAll('[class^=css-]')).forEach((el) => {
-          const ips = findIPv4Addresses(el.textContent);
+  var freeProxySale = function () {
+    return new Promise(function (resolve) {
+      var result = [];
+      var proxyTable = document.querySelectorAll('.proxy__table');
+      proxyTable.forEach(function (wrapper) {
+        Array.from(wrapper.querySelectorAll('[class^=css-]')).forEach(function (el) {
+          var ips = findIPv4Addresses(el.textContent);
           if (ips.length > 0) {
-            ips.forEach((ip) => {
-              result.push({ raw: `${ip}:80` });
-              result.push({ raw: `${ip}:443` });
-              result.push({ raw: `${ip}:8080` });
-              result.push({ raw: `${ip}:8000` });
+            ips.forEach(function (ip) {
+              result.push({ raw: ip + ':80' });
+              result.push({ raw: ip + ':443' });
+              result.push({ raw: ip + ':8080' });
+              result.push({ raw: ip + ':8000' });
             });
           }
         });
@@ -569,12 +643,18 @@
     });
   };
 
-  const parse_all = () => {
-    return new Promise((resolve) => {
+  /**
+   * Parses proxy information from multiple sources.
+   * Returns a promise that resolves with a string containing valid IP:PORT combinations.
+   *
+   * @returns {Promise<string>} A promise that resolves with a string of valid proxy addresses.
+   */
+  var parse_all = function () {
+    return new Promise(function (resolve) {
       /**
        * @type {Promise<{ raw: string }[]>[]}
        */
-      const all = [
+      var all = [
         freeProxySale(),
         parse_first_and_second_row(),
         parse_hideme_jquery(),
@@ -586,23 +666,23 @@
         extractIpPortFromBody()
       ];
       Promise.all(all)
-        .then((results) => {
+        .then(function (results) {
           // flatting
-          const flat = results.flat().filter((item) => {
+          var flat = results.flat().filter(function (item) {
             if (!item) return false;
-            const str = typeof item == 'string' ? item : JSON.stringify(item);
-            const regex = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})/gm;
+            var str = typeof item === 'string' ? item : JSON.stringify(item);
+            var regex = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})/gm;
             return regex.test(str);
           });
           // remove non IP:PORT
-          const additionalItems = [];
-          const filteredItems = flat
-            .map((item) => {
-              let valid = false;
-              const regex_ip = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gm;
-              const regex_port = /(\d{1,5})/gm;
-              const regex_proxy = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})/gm;
-              if (typeof item == 'object') {
+          var additionalItems = [];
+          var filteredItems = flat
+            .map(function (item) {
+              var valid = false;
+              var regex_ip = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gm;
+              var regex_port = /(\d{1,5})/gm;
+              var regex_proxy = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})/gm;
+              if (typeof item === 'object') {
                 if (item.raw) {
                   // validate proxy is valid
                   valid = regex_proxy.test(item.raw);
@@ -616,14 +696,14 @@
                   }
                 }
                 // re-validate string length no more than 21
-                let no_more_than_21 = false;
+                var no_more_than_21 = false;
                 if (item.raw.length > 21) {
                   no_more_than_21 = true;
-                  const extract = extract_proxies(item.raw);
+                  var extract = extract_proxies(item.raw);
                   if (extract.length > 0) {
-                    for (let i = 0; i < extract.length; i++) {
-                      const ex = extract[i];
-                      if (i == 0) {
+                    for (var i = 0; i < extract.length; i++) {
+                      var ex = extract[i];
+                      if (i === 0) {
                         item.raw = ex.ip + ':' + ex.port;
                       } else {
                         additionalItems.push({ raw: ex.ip + ':' + ex.port });
@@ -633,10 +713,10 @@
                 }
                 if (item.raw && !no_more_than_21) {
                   // fix IP:PORT
-                  const split = item.raw.split(':');
-                  let build_proxy = [];
+                  var split = item.raw.split(':');
+                  var build_proxy = [];
                   if (split.length > 1) {
-                    split.forEach((str) => {
+                    split.forEach(function (str) {
                       if (regex_ip.test(str)) {
                         build_proxy[0] = str;
                       } else if (regex_port.test(str)) {
@@ -654,28 +734,33 @@
               }
               return item;
             })
-            .filter((item) => {
+            .filter(function (item) {
               // validate proxy length
               return item && item.raw.length > 0 && item.raw.length <= 21;
             });
           // unique
-          const uniqueItems = [...filteredItems, ...additionalItems].filter(
-            (obj, index, self) => index === self.findIndex((t) => t.raw === obj.raw)
-          );
+          var uniqueItems = [...filteredItems, ...additionalItems].filter(function (obj, index, self) {
+            return (
+              index ===
+              self.findIndex(function (t) {
+                return t.raw === obj.raw;
+              })
+            );
+          });
           // build to string
-          let build = '';
-          for (let i = 0; i < uniqueItems.length; i++) {
-            const item = uniqueItems[i];
-            if (!build.includes(item.raw)) {
+          var build = '';
+          for (var i = 0; i < uniqueItems.length; i++) {
+            var item = uniqueItems[i];
+            if (build.indexOf(item.raw) === -1) {
               build += item.raw + '\n';
             }
           }
           // const result = uniqueArray.map((obj) => JSON.stringify(obj, null, 2)).join("\n");
           resolve(build);
         })
-        .catch((error) => {
+        .catch(function (error) {
           console.error(error);
-          resolve([]);
+          resolve('<empty proxies>');
         });
     });
   };
@@ -685,30 +770,30 @@
    * @param {string} html - The HTML content to sanitize.
    * @returns {string} The sanitized HTML content.
    */
-  const sanitizeHtml = (html) => {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
+  var sanitizeHtml = function (html) {
+    var doc = new DOMParser().parseFromString(html, 'text/html');
 
     // Tags to remove
-    const tagsToRemove = ['img', 'script', 'iframe', 'link', 'ins'];
+    var tagsToRemove = ['img', 'script', 'iframe', 'link', 'ins'];
 
-    tagsToRemove.forEach((tagName) => {
-      const tags = doc.getElementsByTagName(tagName);
-      for (let i = tags.length - 1; i >= 0; i--) {
+    tagsToRemove.forEach(function (tagName) {
+      var tags = doc.getElementsByTagName(tagName);
+      for (var i = tags.length - 1; i >= 0; i--) {
         tags[i].parentNode.removeChild(tags[i]);
       }
     });
 
     // Remove 'style' attribute from all tags
-    const allTags = doc.getElementsByTagName('*');
-    for (let i = 0; i < allTags.length; i++) {
+    var allTags = doc.getElementsByTagName('*');
+    for (var i = 0; i < allTags.length; i++) {
       allTags[i].removeAttribute('style');
     }
 
-    const filteredHtml = doc.documentElement.outerHTML;
+    var filteredHtml = doc.documentElement.outerHTML;
 
-    const doc2 = new DOMParser().parseFromString(filteredHtml, 'text/html');
-    const elements = [];
-    doc2.querySelectorAll('textarea,table,.list').forEach((el) => {
+    var doc2 = new DOMParser().parseFromString(filteredHtml, 'text/html');
+    var elements = [];
+    doc2.querySelectorAll('textarea,table,.list').forEach(function (el) {
       elements.push(el.outerHTML);
     });
     return elements.join('\n');
@@ -717,12 +802,12 @@
   /**
    * Monitors changes to the body's HTML content and performs actions when changes are detected.
    */
-  const monitorBodyChanges = () => {
-    let lastHtml = '';
+  var monitorBodyChanges = function () {
+    var lastHtml = '';
 
-    setInterval(() => {
-      const currentHtml = document.body.innerHTML;
-      const sanitizedHtml = sanitizeHtml(currentHtml);
+    setInterval(function () {
+      var currentHtml = document.body.innerHTML;
+      var sanitizedHtml = sanitizeHtml(currentHtml);
       if (sanitizedHtml !== lastHtml) {
         lastHtml = sanitizedHtml;
         console.log('body changed');
@@ -741,11 +826,11 @@
   );
   btn.innerText = 'PARSE PROXIES';
   btn.classList.add('btn', 'button', 'btn-primary');
-  btn.onclick = () => {
+  btn.onclick = function () {
     parse_all()
-      .then((result) => {
+      .then(function (result) {
         addProxyFun(result);
-        const htmlContent = `
+        var htmlContent = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -768,7 +853,7 @@
 
         window.open(URL.createObjectURL(new Blob([htmlContent], { type: 'text/html' })), 'width=800,height=600');
       })
-      .catch((error) => {
+      .catch(function (error) {
         console.error(error);
       });
   };
