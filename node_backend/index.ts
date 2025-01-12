@@ -1,4 +1,4 @@
-import fs, { rmSync } from 'fs-extra';
+import fs from 'fs-extra';
 import { globSync } from 'glob';
 import path from 'upath';
 import { fileURLToPath } from 'url';
@@ -11,7 +11,7 @@ const con = new waConnect();
 
 // Cleanup logs
 globSync('**/whatsapp*.log', { cwd: getWhatsappFile('tmp/logs'), absolute: true }).forEach((file) =>
-  rmSync(file, { force: true })
+  fs.rmSync(file, { force: true })
 );
 
 const activeSenders = new Set(); // Set to track active sender names
