@@ -37,8 +37,12 @@ else
   exit 1
 fi
 
+NODE_PATH=$(realpath $(which node))
+
 # /root/.nvm/versions/node/v20.18.1/bin/node /var/www/html/dist/whatsapp-xl.js
 # node /var/www/html/dist/whatsapp-xl.js
 # "$CWD/node_modules/.bin/nodemon" --exec "/root/.nvm/versions/node/v20.18.1/bin/node" /var/www/html/whatsapp-xl.js
 # nodemon --watch dist/whatsapp-xl.js dist/whatsapp-xl.js
-"$CWD/node_modules/.bin/nodemon" --watch "$CWD/dist/whatsapp.js" --watch "$CWD/dist/whatsapp_handlers/**/*.js" "$CWD/dist/whatsapp.js"
+# "$CWD/node_modules/.bin/nodemon" --watch "$CWD/dist/whatsapp.js" --watch "$CWD/dist/whatsapp_handlers/**/*.js" "$CWD/dist/whatsapp.js"
+
+"$NODE_PATH" "$CWD/dist/whatsapp.js"
