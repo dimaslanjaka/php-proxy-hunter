@@ -154,6 +154,7 @@ ini_set('memory_limit', '128M');
 
 // ignore limitation if exists
 if (function_exists('set_time_limit')) {
+  // Disables the time limit completely
   call_user_func('set_time_limit', 0);
 }
 

@@ -3,9 +3,6 @@
 require_once __DIR__ . '/../func.php';
 require_once __DIR__ . '/../func-proxy.php';
 
-// Set maximum execution time to [n] seconds
-ini_set('max_execution_time', 300);
-
 use \PhpProxyHunter\ProxyDB;
 
 global $isCli;
@@ -14,6 +11,13 @@ $db = new ProxyDB(__DIR__ . '/../src/database.sqlite');
 $userId = getUserId();
 $request = parsePostData();
 $currentScriptFilename = basename(__FILE__, '.php');
+
+// Set maximum execution time to [n] seconds
+ini_set('max_execution_time', 300);
+if (function_exists('set_time_limit')) {
+  // Resets the timer and sets the max execution time to 300 seconds
+  call_user_func('set_time_limit', 300);
+}
 
 if (!$isCli && isset($request['proxy'])) {
   // Web server setup and process lock
