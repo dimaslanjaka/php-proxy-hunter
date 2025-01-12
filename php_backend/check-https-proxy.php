@@ -5,7 +5,7 @@ require_once __DIR__ . '/../func-proxy.php';
 
 use \PhpProxyHunter\ProxyDB;
 
-global $isCli;
+global $isCli, $isAdmin;
 
 $db = new ProxyDB(__DIR__ . '/../src/database.sqlite');
 $userId = getUserId();
@@ -173,7 +173,7 @@ function _log(...$args): void
  */
 function check(string $proxy)
 {
-  global $db, $hashFilename, $currentScriptFilename;
+  global $db, $hashFilename, $currentScriptFilename, $isAdmin;
   $proxies = extractProxies($proxy, $db, true);
   shuffle($proxies);
 
@@ -199,7 +199,7 @@ function check(string $proxy)
     $item = $proxies[$i];
 
     // Check if the script has been running for more than [n] seconds
-    if ($isExecutionTimeLimit()) break;
+    if ($isExecutionTimeLimit() && !$isAdmin) break;
 
     // Skip already SSL-supported proxy
     if ($item->https == 'true' && $item->status == 'active') {
