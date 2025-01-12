@@ -7,7 +7,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# fix PHP permissions
+# Fix PHP permissions
 OS_TYPE=$(uname -s)
 
 if [[ "$OS_TYPE" == *"CYGWIN"* || "$OS_TYPE" == *"MINGW"* || "$OS_TYPE" == *"MSYS"* ]]; then
@@ -15,14 +15,8 @@ if [[ "$OS_TYPE" == *"CYGWIN"* || "$OS_TYPE" == *"MINGW"* || "$OS_TYPE" == *"MSY
 elif [[ "$OS_TYPE" == "Linux" ]]; then
   # Change to the Git root directory
   cd "$CWD" || exit
-  if
-    command -v lsb_release &
-    >/dev/null
-  then
-    if
-      command -v nginx &
-      >/dev/null
-    then
+  if command -v lsb_release &>/dev/null; then
+    if command -v nginx &>/dev/null; then
       chown -R www-data:www-data "$CWD"/*
     else
       echo "Nginx is not installed"
