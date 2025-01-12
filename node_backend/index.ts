@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'upath';
 import { fileURLToPath } from 'url';
-import { loadModule } from './Function.js';
+import { loadModule, whatsappLogger } from './Function.js';
 import waConnect from './waConnect.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -41,13 +41,19 @@ con.on('messages', async (replier) => {
         if (mod && mod.default) {
           await mod.default(replier); // Ensure the module completes execution
         }
-      } catch (moduleError) {
-        console.error(`Error loading module ${modulePath}:`, moduleError);
+      } catch (e) {
+        console.error(`Error loading module ${modulePath}:`, e);
+        whatsappLogger.error({ err: e });
       }
     }
+  } catch (e) {
+    whatsappLogger.error({ err: e });
   } finally {
     activeSenders.delete(senderName); // Remove sender from active list
   }
 });
 
-con.setup().connect().catch(console.error);
+con
+  .setup()
+  .connect()
+  .catch((e) => whatsappLogger.error({ err: e }));
