@@ -2,6 +2,7 @@ import * as axios from 'axios';
 import fs from 'fs-extra';
 import { pathToFileURL } from 'node:url';
 import pino from 'pino';
+import { writefile } from 'sbg-utility';
 import path from 'upath';
 import { PROJECT_DIR } from '../.env.mjs';
 
@@ -99,6 +100,12 @@ export async function loadModule(modulePath: string, debug = false) {
     return null;
   }
 }
+
+// Initialize new log files when not exist every calls
+const logDir = getWhatsappFile('tmp/logs');
+const logsToReset = [path.join(logDir, 'whatsapp-error.log'), path.join(logDir, 'whatsapp.log')];
+const resetMessage = `Log reset at ${new Date().toISOString()}`;
+logsToReset.forEach((file) => writefile(file, resetMessage));
 
 export function getWhatsappFile(...files: string[]) {
   return path.join(PROJECT_DIR, ...files);

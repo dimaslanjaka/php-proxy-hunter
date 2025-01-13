@@ -1,6 +1,5 @@
 import fs from 'fs-extra';
 import { globSync } from 'glob';
-import { writefile } from 'sbg-utility';
 import path from 'upath';
 import { fileURLToPath } from 'url';
 import { getWhatsappFile, loadModule, whatsappLogger } from './Function.js';
@@ -9,26 +8,17 @@ import waConnect from './waConnect.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const con = new waConnect();
-
-// Cleanup logs
 const logDir = getWhatsappFile('tmp/logs');
 
-// Ensure log directory exists
+// Remove existing log files on start
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
 }
-
-// Remove existing log files
 const logFiles = globSync('**/whatsapp*.log', { cwd: logDir, absolute: true });
 logFiles.forEach((file) => fs.rmSync(file, { force: true }));
 
-// Initialize new log files
-const logsToReset = [path.join(logDir, 'whatsapp-error.log'), path.join(logDir, 'whatsapp.log')];
-
-const resetMessage = `Log reset at ${new Date().toISOString()}`;
-logsToReset.forEach((file) => writefile(file, resetMessage));
-
-const activeSenders = new Set(); // Set to track active sender names
+// Set to track active sender names
+const activeSenders = new Set();
 
 con.on('messages', async (replier) => {
   const senderName = replier.senderId;
