@@ -2,17 +2,32 @@
   "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/nodemon.json",
   "restartable": "rs",
   "ignore": [
-    ".git",
+    "**/.git/**",
     "**/node_modules/**",
-    "packages/**/*",
+    "**/packages/**",
+    "**/public/static/**",
     "**/tests/**",
     "**/__pycache__/**",
+    "**/*.pyc",
+    "**/*.pyo",
+    "**/*.pyd",
     "**/*.css",
-    "public/static/**/*",
     "**/tmp/**",
     "**/data/**",
-    "**/*sqlite*",
-    "**/*db*"
+    "**/*.sqlite*",
+    "**/*.db*",
+    "**/venv/**",
+    "**/vendor/**",
+    "**/build/**",
+    "**/baileys*/**",
+    "**/.cache/**",
+    "**/dist/**",
+    "**/logs/**",
+    "**/coverage/**",
+    "**/writable/**",
+    "**/cache/**",
+    "**/storage/framework/cache/**",
+    "**/bootstrap/cache/**"
   ],
   "verbose": true,
   "execMap": {
@@ -23,7 +38,12 @@
   "events": {
     "restart": "bash nodemon.restart.sh"
   },
-  "watch": ["node_browser/**/*", "rollup.*.js", "src/**/*", "node_backend/**/*"],
+  "watch": [
+    "node_browser/**/*",
+    "rollup.*.js",
+    "src/**/*",
+    "node_backend/**/*"
+  ],
   "env": {
     "NODE_ENV": "development"
   },
