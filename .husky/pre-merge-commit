@@ -13,26 +13,19 @@ PHP_FILES_FOUND=0
 
 # Check for files with specific extensions
 for FILE in $STAGED_FILES; do
-    if [[ $FILE == *.py ]]; then
+    if echo "$FILE" | grep -q '\.py$'; then
         PYTHON_FILES_FOUND=1
         echo "Python file detected: $FILE"
     fi
-    if [[ $FILE == *.php ]]; then
+    if echo "$FILE" | grep -q '\.php$'; then
         PHP_FILES_FOUND=1
         echo "PHP file detected: $FILE"
     fi
 done
 
 # Take action based on whether Python or PHP files were found
-if [[ $PYTHON_FILES_FOUND -eq 1 || $PHP_FILES_FOUND -eq 1 ]]; then
-    # Ensure the create-file-hashes script exists and is executable
-    if [[ ! -x "$PROJECT_DIR/bin/create-file-hashes" ]]; then
-        echo "Error: create-file-hashes script is missing or not executable in $PROJECT_DIR/bin/"
-        exit 1
-    fi
-
-    # Run the create-file-hashes script
-    . "$PROJECT_DIR/bin/create-file-hashes" || { echo "Failed to create file hashes"; exit 1; }
+if [ $PYTHON_FILES_FOUND -eq 1 ] || [ $PHP_FILES_FOUND -eq 1 ]; then
+    bash "$PROJECT_DIR/bin/create-file-hashes"
 fi
 
 # Exit successfully if everything worked
