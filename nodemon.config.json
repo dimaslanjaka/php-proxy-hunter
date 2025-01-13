@@ -1,0 +1,32 @@
+{
+  "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/nodemon.json",
+  "restartable": "rs",
+  "ignore": [
+    ".git",
+    "**/node_modules/**",
+    "packages/**/*",
+    "**/tests/**",
+    "**/__pycache__/**",
+    "**/*.css",
+    "public/static/**/*",
+    "**/tmp/**",
+    "**/data/**",
+    "**/*sqlite*",
+    "**/*db*"
+  ],
+  "verbose": true,
+  "execMap": {
+    "js": "node --harmony --no-warnings=ExperimentalWarning --loader ts-node/esm",
+    "mjs": "node --no-warnings=ExperimentalWarning --loader ts-node/esm",
+    "cjs": "node --harmony"
+  },
+  "events": {
+    "restart": "bash nodemon.restart.sh"
+  },
+  "watch": ["node_browser/**/*", "rollup.*.js", "src/**/*", "node_backend/**/*"],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "ext": "js,json,cjs,mjs,html",
+  "delay": 5000
+}
