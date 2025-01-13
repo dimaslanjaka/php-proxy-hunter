@@ -16,37 +16,5 @@ cd "$CWD" || {
 git clean -fdi
 git reset --hard
 
-# Execute git pull with provided arguments
-git pull "$@"
-
-# Check if the git pull was successful
-if [ $? -eq 0 ]; then
-  echo "Git pull completed successfully."
-else
-  echo "Git pull failed."
-fi
-
-# Fix permissions
-bash "$CWD/bin/fix-perm"
-
-# Check for CRON_TZ environment variable
-if [ -n "$CRON_TZ" ]; then
-  echo "Script is running under crontab"
-else
-  echo "Script is not running under crontab"
-
-  # Fix permissions all *.sh scripts
-  chmod +x *.sh
-
-  # Execute all fix-*.sh scripts
-  for file in fix-*.sh; do
-    if [ -x "$file" ]; then
-      bash "$file"
-    else
-      echo "Skipping $file: Not executable"
-    fi
-  done
-fi
-
-# Re-fix permissions
-bash "$CWD/bin/fix-perm"
+# Execute git pull with forwarded arguments
+bash "$CWD/bin/git-pull $@"
