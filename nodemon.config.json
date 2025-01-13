@@ -27,7 +27,11 @@
     "**/writable/**",
     "**/cache/**",
     "**/storage/framework/cache/**",
-    "**/bootstrap/cache/**"
+    "**/bootstrap/cache/**",
+    "**/*.lock",
+    "**/*.txt",
+    "**/*.json",
+    "**/*.mmdb"
   ],
   "verbose": true,
   "execMap": {
@@ -47,6 +51,6 @@
   "env": {
     "NODE_ENV": "development"
   },
-  "ext": "js,json,cjs,mjs,html",
+  "ext": "js,json,cjs,mjs,html,ts",
   "delay": 5000
 }
