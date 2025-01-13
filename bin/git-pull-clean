@@ -12,6 +12,10 @@ cd "$CWD" || {
   exit 1
 }
 
+# Cleanup
+git clean -fdi
+git reset --hard
+
 # Execute git pull with provided arguments
 git pull "$@"
 
@@ -21,10 +25,6 @@ if [ $? -eq 0 ]; then
 else
   echo "Git pull failed."
 fi
-
-# Cleanup
-git clean -fdi
-git reset --hard
 
 # Fix permissions
 bash "$CWD/bin/fix-perm"
