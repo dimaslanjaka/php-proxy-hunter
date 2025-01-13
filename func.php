@@ -813,7 +813,7 @@ function anonymizeEmail(string $email): string
  *
  * @param bool $detect_get Whether to return `$_GET` data if the content type is unsupported (default is false).
  *
- * @return array|null The parsed POST data or null if the content type is unsupported or parsing fails.
+ * @return array The parsed POST data.
  */
 function parsePostData(bool $detect_get = false): ?array
 {
@@ -844,9 +844,6 @@ function parsePostData(bool $detect_get = false): ?array
   } elseif ($detect_get) {
     // If the content type is unsupported, and $detect_get is true, include $_GET data
     $result = array_merge($result, $_GET);
-  } else {
-    // Unsupported content type without $detect_get, return null
-    return null;
   }
 
   return $result;
