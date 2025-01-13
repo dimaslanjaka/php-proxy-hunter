@@ -10,9 +10,9 @@ const __dirname = path.dirname(__filename);
 const con = new waConnect();
 
 // Cleanup logs
-globSync('**/whatsapp*.log', { cwd: getWhatsappFile('tmp/logs'), absolute: true }).forEach((file) =>
-  fs.rmSync(file, { force: true })
-);
+const logDir = getWhatsappFile('tmp/logs');
+if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+globSync('**/whatsapp*.log', { cwd: logDir, absolute: true }).forEach((file) => fs.rmSync(file, { force: true }));
 
 const activeSenders = new Set(); // Set to track active sender names
 
