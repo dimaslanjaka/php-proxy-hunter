@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # run with
-# nodemon --exec [your command]
+# nodemon --config nodemon.config.json --exec [your command]
 # eg:
-# nodemon --exec build-project
+# nodemon --config nodemon.config.json --exec build-project
 
 LOCKFILE="tmp/runners/nodemon.lock"
 
