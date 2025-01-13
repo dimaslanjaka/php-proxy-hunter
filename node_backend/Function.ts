@@ -9,6 +9,78 @@ import { PROJECT_DIR } from '../.env.mjs';
 export const FOLDER_CONFIG = './baileys_auth_info';
 export const FOLDER_LOG = './baileys_auth_info/log';
 
+/**
+ * Constructs a file path relative to the project's directory.
+ *
+ * @param {...string} files - A list of path segments to append to the project directory.
+ * @returns {string} The absolute path to the desired file or directory.
+ */
+export function getWhatsappFile(...files: string[]): string {
+  return path.join(PROJECT_DIR, ...files);
+}
+
+/**
+ * Initializes log files if they don't already exist, writing a reset message to each file.
+ * Ensures logs are re-initialized on every call.
+ */
+export async function initializeLogs() {
+  const logDir = getWhatsappFile('tmp/logs');
+  const logsToReset = [path.join(logDir, 'whatsapp-error.log'), path.join(logDir, 'whatsapp.log')];
+  const resetMessage = `Log reset at ${new Date().toISOString()}`;
+
+  for (const file of logsToReset) {
+    writefile(file, resetMessage); // Overwrite file content
+  }
+}
+
+initializeLogs();
+
+/**
+ * Configures a logger using the Pino library with multiple transports for logging to
+ * files and formatting log output for the console.
+ *
+ * - `pino-pretty`: Formats logs for console output with colorized and human-readable output.
+ * - File Transports:
+ *   - `trace` logs to `whatsapp-trace.log` for detailed debugging information.
+ *   - `info` logs to `whatsapp-info.log` for general application info.
+ *   - General logs are written to `whatsapp-pino.log`.
+ */
+export const whatsappLogger = pino(
+  {
+    transport: {
+      targets: [
+        {
+          target: 'pino-pretty',
+          options: {
+            colorize: true, // Enable colored output in the console
+            colorizeObjects: true, // Enable colored output for objects
+            ignore: 'pid,hostname', // Exclude `pid` and `hostname` fields from output
+            translateTime: 'SYS:standard' // Format timestamps in ISO8601 (RFC3339)
+          }
+        },
+        {
+          level: 'trace', // Log level: trace
+          target: 'pino/file', // Write logs to a file
+          options: {
+            ignore: 'pid,hostname', // Exclude `pid` and `hostname` fields from output
+            destination: getWhatsappFile('tmp/logs/whatsapp-trace.log') // File path for trace logs
+          }
+        },
+        {
+          level: 'info', // Log level: info
+          target: 'pino/file', // Write logs to a file
+          options: {
+            ignore: 'pid,hostname', // Exclude `pid` and `hostname` fields from output
+            destination: getWhatsappFile('tmp/logs/whatsapp-info.log') // File path for info logs
+          }
+        }
+      ]
+    }
+  },
+  // Default destination for all logs
+  pino.destination(getWhatsappFile('tmp/logs/whatsapp-pino.log')) // Write general logs to this file
+);
+
 export const getRandom = (ext: string, lengthArg: number | string = '10') => {
   let length: number = 10;
   if (typeof lengthArg == 'string') {
@@ -100,48 +172,3 @@ export async function loadModule(modulePath: string, debug = false) {
     return null;
   }
 }
-
-// Initialize new log files when not exist every calls
-const logDir = getWhatsappFile('tmp/logs');
-const logsToReset = [path.join(logDir, 'whatsapp-error.log'), path.join(logDir, 'whatsapp.log')];
-const resetMessage = `Log reset at ${new Date().toISOString()}`;
-logsToReset.forEach((file) => writefile(file, resetMessage));
-
-export function getWhatsappFile(...files: string[]) {
-  return path.join(PROJECT_DIR, ...files);
-}
-
-export const whatsappLogger = pino(
-  {
-    transport: {
-      targets: [
-        {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            colorizeObjects: true,
-            ignore: 'pid,hostname',
-            translateTime: 'SYS:standard' // Automatically outputs ISO8601 (RFC3339)
-          }
-        },
-        {
-          level: 'trace',
-          target: 'pino/file',
-          options: {
-            ignore: 'pid,hostname',
-            destination: getWhatsappFile('tmp/logs/whatsapp-trace.log')
-          }
-        },
-        {
-          level: 'info',
-          target: 'pino/file',
-          options: {
-            ignore: 'pid,hostname',
-            destination: getWhatsappFile('tmp/logs/whatsapp-info.log')
-          }
-        }
-      ]
-    }
-  },
-  pino.destination(getWhatsappFile('tmp/logs/whatsapp-pino.log')) // Log directly to a file
-);
