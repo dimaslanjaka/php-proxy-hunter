@@ -150,7 +150,14 @@ fi
 
 # Install Node.js dependencies
 
-export NVM_DIR="$HOME/.nvm"
+if [ -d "$HOME/.nvm" ]; then
+  export NVM_DIR="$HOME/.nvm"
+elif [ -d "/usr/local/nvm" ]; then
+  export NVM_DIR="/usr/local/nvm"
+else
+  echo "Neither $HOME/.nvm nor /usr/local/nvm exists."
+  exit 1
+fi
 
 # Check if the OS is Linux
 if [ "$OS" == "Linux" ]; then
