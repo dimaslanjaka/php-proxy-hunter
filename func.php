@@ -811,49 +811,47 @@ function anonymizeEmail(string $email): string
 /**
  * Parse incoming POST request data based on Content-Type.
  *
- * This function inspects the `Content-Type` header of the request and parses the data accordingly.
- * It supports `multipart/form-data`, `application/json`, and `application/x-www-form-urlencoded` content types,
- * and optionally returns `$_GET` data if `$detect_get` is true and the content type is unsupported.
- *
  * @param bool $detect_get Whether to return `$_GET` data if the content type is unsupported (default is false).
  *
  * @return array|null The parsed POST data or null if the content type is unsupported or parsing fails.
  */
 function parsePostData(bool $detect_get = false): ?array
 {
+  // Initialize an empty array to store the parsed data
+  $result = [];
+
   // Get the Content-Type header of the request
   $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
 
   if (strpos($contentType, "multipart/form-data") !== false) {
-    // Initialize an empty array to store the parsed data
-    $post_data = [];
+    // Merge POST fields into the result
+    $result = array_merge($result, $_POST);
 
-    // Handle POST fields (non-file form fields)
-    foreach ($_POST as $key => $value) {
-      $post_data[$key] = filter_input(INPUT_POST, $key);
-    }
-
-    // Handle uploaded files
+    // Add uploaded files to the result
     foreach ($_FILES as $key => $file) {
-      $post_data[$key] = $file;
+      $result[$key] = $file;
     }
-
-    return $post_data;
   } elseif ($contentType === "application/json") {
-    // Request data is JSON, decode it from the input stream
+    // Decode the JSON from the input stream
     $json_data = json_decode(file_get_contents('php://input'), true);
-    return ($json_data === null) ? null : $json_data;
+
+    if (is_array($json_data)) {
+      $result = array_merge($result, $json_data);
+    }
   } elseif ($contentType === "application/x-www-form-urlencoded") {
-    // Request data is URL encoded, return the POST data directly
-    return $_POST;
-  } else if ($detect_get) {
-    // If the content type is unsupported and $detect_get is true, return $_GET data
-    return $_GET;
+    // Merge URL-encoded POST data into the result
+    $result = array_merge($result, $_POST);
+  } elseif ($detect_get) {
+    // If the content type is unsupported, and $detect_get is true, include $_GET data
+    $result = array_merge($result, $_GET);
   } else {
-    // Return an empty array if the content type is unsupported and $detect_get is false
-    return [];
+    // Unsupported content type without $detect_get, return null
+    return null;
   }
+
+  return $result;
 }
+
 
 /**
  * Get the request parameters either from POST data, GET parameters, or a combination.
