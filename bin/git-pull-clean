@@ -22,6 +22,12 @@ else
   echo "Git pull failed."
 fi
 
+# Cleanup
+git clean -fdi
+
+# Fix permissions
+bash "$CWD/bin/fix-perm"
+
 # Check for CRON_TZ environment variable
 if [ -n "$CRON_TZ" ]; then
   echo "Script is running under crontab"
@@ -41,5 +47,5 @@ else
   done
 fi
 
-# Fix permissions
+# Re-fix permissions
 bash "$CWD/bin/fix-perm"
