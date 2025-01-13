@@ -19,10 +19,6 @@ if (empty($test)) {
   echo "SMS received:\n\n{$test}";
 }
 
-// Sanitize the input to prevent harmful content
-// htmlspecialchars will encode special characters (like <, >, &)
-$test = htmlspecialchars($test, ENT_QUOTES, 'UTF-8');
-
 // Set timezone and get current date and time
 $timezone = new DateTimeZone('Asia/Jakarta');
 $date = new DateTime('now', $timezone);
