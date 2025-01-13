@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Determine the current script directory
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+
 # Set CWD to the root directory of the Git repository
 CWD=$(git rev-parse --show-toplevel)
 if [ $? -ne 0 ]; then
