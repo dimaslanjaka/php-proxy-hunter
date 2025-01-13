@@ -9,7 +9,7 @@ header('Content-Type: text/plain; charset=utf-8');
 
 // Get the 'sms' parameter from either POST or GET
 $request = parsePostData(true);
-$test = $request['sms'] ?? '';
+$test = $request['sms'] ?? $_REQUEST['sms'];
 
 // If 'sms' is empty, you can handle it accordingly
 if (empty($test)) {
@@ -34,9 +34,7 @@ $formattedDateTime = $date->format('Y-m-d\TH:i');
 $content = "{$formattedDateTime} {$test}";
 
 // Write to the file
-if (!empty($test)) {
-  write_file(tmp() . '/sms/get_sms.txt', $content . PHP_EOL);
-}
+write_file(tmp() . '/sms/get_sms.txt', $content . PHP_EOL);
 $hash = getUserId();
 if (!empty($request)) {
   write_file(tmp() . "/sms/get_sms_{$hash}.txt", json_encode($request, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
