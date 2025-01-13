@@ -16,6 +16,8 @@ export const FOLDER_LOG = './baileys_auth_info/log';
  * @returns {string} The absolute path to the desired file or directory.
  */
 export function getWhatsappFile(...files: string[]): string {
+  const joinedPath = files.join(path.sep);
+  if (joinedPath.startsWith(PROJECT_DIR)) return joinedPath;
   return path.join(PROJECT_DIR, ...files);
 }
 
