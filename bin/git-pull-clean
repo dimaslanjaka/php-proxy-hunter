@@ -24,6 +24,7 @@ fi
 
 # Cleanup
 git clean -fdi
+git reset --hard
 
 # Fix permissions
 bash "$CWD/bin/fix-perm"
