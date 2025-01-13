@@ -7,24 +7,16 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Fix PHP permissions
-OS_TYPE=$(uname -s)
+# Fix permissions
+OS=$(uname -s)
 
-if echo "$OS_TYPE" | grep -q -E "CYGWIN|MINGW|MSYS"; then
-  echo "WINDOWS"
-elif [ "$OS_TYPE" = "Linux" ]; then
+if echo "$OS" | grep -q -E "CYGWIN|MINGW|MSYS"; then
+  echo "No need change file permissions on windows"
+elif [ "$OS" = "Linux" ]; then
   # Change to the Git root directory
   cd "$CWD" || exit
-  if command -v lsb_release >/dev/null 2>&1; then
-    if command -v nginx >/dev/null 2>&1; then
-      chown -R www-data:www-data "$CWD"/*
-    else
-      echo "Nginx is not installed"
-    fi
-  else
-    echo "lsb_release command not found, unable to determine distribution"
-    exit 1
-  fi
+  # Fix permissions
+  bash "$CWD/bin/fix-perm"
 else
   echo "Unsupported operating system"
   exit 1
