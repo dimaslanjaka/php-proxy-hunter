@@ -28,5 +28,20 @@ if [ $PYTHON_FILES_FOUND -eq 1 ] || [ $PHP_FILES_FOUND -eq 1 ]; then
     bash "$PROJECT_DIR/bin/create-file-hashes"
 fi
 
+# Fix permissions
+OS=$(uname -s)
+
+if echo "$OS" | grep -q -E "CYGWIN|MINGW|MSYS"; then
+  echo "No need change file permissions on windows"
+elif [ "$OS" = "Linux" ]; then
+  # Change to the Git root directory
+  cd "$CWD" || exit
+  # Fix permissions
+  bash "$CWD/bin/fix-perm"
+else
+  echo "Unsupported operating system"
+  exit 1
+fi
+
 # Exit successfully if everything worked
 exit 0
