@@ -1,8 +1,14 @@
 #!/bin/bash
 
-# Determine the current script directory and project directory
+# Determine the current script directory
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
-PROJECT_DIR=$(dirname "$SCRIPT_DIR")
+
+# Set CWD to the root directory of the Git repository
+CWD=$(git rev-parse --show-toplevel)
+if [ $? -ne 0 ]; then
+  echo "Error: Not in a Git repository"
+  exit 1
+fi
 
 # Get a list of staged files
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
@@ -25,7 +31,7 @@ done
 
 # Take action based on whether Python or PHP files were found
 if [ $PYTHON_FILES_FOUND -eq 1 ] || [ $PHP_FILES_FOUND -eq 1 ]; then
-    bash "$PROJECT_DIR/bin/create-file-hashes"
+    bash "$CWD/bin/create-file-hashes"
 fi
 
 # Fix permissions
