@@ -8,7 +8,7 @@ import { promisify } from 'util';
 
 export default class Replier {
   receivedText: string | null | undefined;
-  sender: baileys.WAProto.IWebMessageInfo;
+  sender: baileys.WAProto.IWebMessageInfo | null | undefined;
   private sock!: ReturnType<typeof baileys.makeWASocket>;
   /**
    * sender id ends with @g.us for group, ends with @s.whatsapp.net for personal
@@ -22,15 +22,15 @@ export default class Replier {
   timestamp: any;
   dateRFC3339: string;
 
-  constructor(msg: baileys.WAProto.IWebMessageInfo, socket: ReturnType<typeof baileys.makeWASocket>) {
-    this.receivedText = msg.message?.extendedTextMessage?.text || msg.message?.conversation;
-    this.sender = msg;
-    this.sock = socket;
-    this.senderId = msg.key.remoteJid;
-    this.senderName = msg.pushName;
-    this.isGroup = msg.key.remoteJid?.endsWith('@g.us');
-    this.timestamp = msg.messageTimestamp;
-    this.dateRFC3339 = this.convertTimestampToRFC3339(msg.messageTimestamp);
+  constructor(msg?: baileys.WAProto.IWebMessageInfo, socket?: ReturnType<typeof baileys.makeWASocket>) {
+    this.receivedText = msg?.message?.extendedTextMessage?.text || msg?.message?.conversation || null;
+    this.sender = msg || null;
+    this.sock = socket!;
+    this.senderId = msg?.key.remoteJid || null;
+    this.senderName = msg?.pushName || 'Unknown';
+    this.isGroup = msg?.key.remoteJid?.endsWith('@g.us') || false;
+    this.timestamp = msg?.messageTimestamp || null;
+    this.dateRFC3339 = msg ? this.convertTimestampToRFC3339(msg.messageTimestamp) : '';
   }
 
   /**
