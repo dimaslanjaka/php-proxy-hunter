@@ -7,30 +7,30 @@ import { promisify } from 'util';
 // let lastSend = new Date();
 
 export default class Replier {
-  receivedText: string | null | undefined;
-  sender: baileys.WAProto.IWebMessageInfo | null | undefined;
-  private sock!: ReturnType<typeof baileys.makeWASocket>;
+  receivedText?: string | null;
+  sender?: baileys.WAProto.IWebMessageInfo;
+  private sock?: ReturnType<typeof baileys.makeWASocket>;
   /**
    * sender id ends with @g.us for group, ends with @s.whatsapp.net for personal
    */
-  senderId: string | null | undefined;
+  senderId?: string | null;
   isGroup = false;
   /**
    * sender whatsapp name
    */
   senderName: string;
-  timestamp: any;
+  timestamp?: number | Long.Long | null;
   dateRFC3339: string;
 
   constructor(msg?: baileys.WAProto.IWebMessageInfo, socket?: ReturnType<typeof baileys.makeWASocket>) {
-    this.receivedText = msg?.message?.extendedTextMessage?.text || msg?.message?.conversation || null;
-    this.sender = msg || null;
-    this.sock = socket!;
-    this.senderId = msg?.key.remoteJid || null;
-    this.senderName = msg?.pushName || 'Unknown';
+    this.receivedText = msg?.message?.extendedTextMessage?.text || msg?.message?.conversation;
+    this.sender = msg;
+    this.sock = socket;
+    this.senderId = msg?.key.remoteJid;
+    this.senderName = msg?.pushName || 'Unknown@s.whatsapp.net';
     this.isGroup = msg?.key.remoteJid?.endsWith('@g.us') || false;
-    this.timestamp = msg?.messageTimestamp || null;
-    this.dateRFC3339 = msg ? this.convertTimestampToRFC3339(msg.messageTimestamp) : '';
+    this.timestamp = msg?.messageTimestamp;
+    this.dateRFC3339 = msg && msg.messageTimestamp ? this.convertTimestampToRFC3339(msg.messageTimestamp) : '';
   }
 
   /**
@@ -44,18 +44,19 @@ export default class Replier {
       // replying
       // await this.sendMessageWTyping({ text }, this.sender.key.remoteJid!);
       if (this.sender.key && this.sender.key.remoteJid) {
-        await this.sock.sendMessage(this.sender.key.remoteJid, { text });
+        await this.sock?.sendMessage(this.sender.key.remoteJid, { text });
       }
     } else {
       const e = new Error();
-      let callerLineAndFile = e.stack
+      const stack = e.stack ?? '';
+      let callerLineAndFile = stack
         .split('\n')[2]
         .replace(/at\s+file:\/\/\//, '')
         .trim();
       const regex = /\((.*):(\d+):(\d+)\)$/;
-      const match1 = regex.exec(e.stack.split('\n')[2]);
+      const match1 = regex.exec(stack.split('\n')[2]);
       const match2 = ''.match(/file:\/\/\/(.+):(\d+):(\d+)/);
-      let match: RegExpExecArray | RegExpMatchArray;
+      let match: RegExpExecArray | RegExpMatchArray | null = null;
       if (match1) {
         match = match1;
       } else if (match2) {
@@ -74,22 +75,24 @@ export default class Replier {
    * @param file image path
    */
   async replyImage(caption: string, file: string) {
-    // mark message readed
-    await this.read(this.sender);
-    const bitmap = await promisify(fs.readFile)(file);
-    // console.log('replying with', file);
-    // convert binary data to base64 encoded string
-    // const base64 = Buffer.from(bitmap).toString('base64');
-    const mimetype = mime.getType(file) || 'image/png';
-    // replying
-    await this.sock
-      .sendMessage(this.sender.key.remoteJid!, {
-        image: bitmap,
-        // jpegThumbnail: base64,
-        caption,
-        mimetype
-      })
-      .catch(console.error);
+    if (this.sender && this.sock) {
+      // mark message readed
+      await this.read(this.sender);
+      const bitmap = await promisify(fs.readFile)(file);
+      // console.log('replying with', file);
+      // convert binary data to base64 encoded string
+      // const base64 = Buffer.from(bitmap).toString('base64');
+      const mimetype = mime.getType(file) || 'image/png';
+      // replying
+      await this.sock
+        .sendMessage(this.sender.key.remoteJid!, {
+          image: bitmap,
+          // jpegThumbnail: base64,
+          caption,
+          mimetype
+        })
+        .catch(console.error);
+    }
   }
 
   /**
@@ -106,15 +109,15 @@ export default class Replier {
    * @param jid
    */
   async replyWTyping(msg: baileys.AnyMessageContent, jid: string) {
-    await this.sock.presenceSubscribe(jid);
+    await this.sock?.presenceSubscribe(jid);
     await baileys.delay(500);
 
-    await this.sock.sendPresenceUpdate('composing', jid);
+    await this.sock?.sendPresenceUpdate('composing', jid);
     await baileys.delay(2000);
 
-    await this.sock.sendPresenceUpdate('paused', jid);
+    await this.sock?.sendPresenceUpdate('paused', jid);
 
-    await this.sock.sendMessage(jid, msg);
+    await this.sock?.sendMessage(jid, msg);
   }
 
   private convertTimestampToRFC3339(timestamp: number | Long) {
