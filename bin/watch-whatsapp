@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Get the directory of the current Bash script
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+echo "Current script directory: $SCRIPT_DIR"
+
+# Set CWD to the parent directory of the script's directory
+CWD=$(dirname "$SCRIPT_DIR")
+echo "Current working directory: $CWD"
+
+# Fix empty production variables
+if [ ! -f "$CWD/.env.build.json" ]; then
+    echo "{}" > "$CWD/.env.build.json"
+    echo "File $CWD/.env.build.json created."
+else
+    echo "File $CWD/.env.build.json already exists."
+fi
+
+# Check if the operating system is Linux
+if [[ "$(uname)" == "Linux" ]]; then
+    echo "Running on Linux OS"
+
+    # Stop the service if it is running
+    if systemctl is-active --quiet whatsapp; then
+        echo "Stopping existing whatsapp service"
+        sudo systemctl stop whatsapp
+    else
+        echo "Whatsapp service is not active"
+    fi
+else
+    echo "This script is designed to run on Linux OS only"
+fi
+
+nodemon --config nodemon.config.json node_backend/index.ts
