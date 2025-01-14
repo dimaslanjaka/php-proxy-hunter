@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Get the directory of the current Bash script
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+echo "Current script directory: $SCRIPT_DIR"
+
+# Set CWD to the parent directory of the script's directory
+CWD=$(dirname "$SCRIPT_DIR")
+echo "Current working directory: $CWD"
+
+# Fix empty production variables
+if [ ! -f "$CWD/.env.build.json" ]; then
+    echo "{}" > "$CWD/.env.build.json"
+    echo "File $CWD/.env.build.json created."
+else
+    echo "File $CWD/.env.build.json already exists."
+fi
+
+nodemon --config nodemon.config.json --exec build-project
