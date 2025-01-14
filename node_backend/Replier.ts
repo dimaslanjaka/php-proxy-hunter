@@ -47,7 +47,24 @@ export default class Replier {
         await this.sock.sendMessage(this.sender.key.remoteJid, { text });
       }
     } else {
-      console.error('Replier.reply sender field is null or undefined');
+      const e = new Error();
+      let callerLineAndFile = e.stack
+        .split('\n')[2]
+        .replace(/at\s+file:\/\/\//, '')
+        .trim();
+      const regex = /\((.*):(\d+):(\d+)\)$/;
+      const match1 = regex.exec(e.stack.split('\n')[2]);
+      const match2 = ''.match(/file:\/\/\/(.+):(\d+):(\d+)/);
+      let match: RegExpExecArray | RegExpMatchArray;
+      if (match1) {
+        match = match1;
+      } else if (match2) {
+        match = match2;
+      }
+      if (match) callerLineAndFile = `${match[1]}:${match[2]}:${match[3]}`;
+      console.error(
+        `Replier.reply sender field is null or undefined.\n${callerLineAndFile}\nmessage: ${text.substring(0, 100)}`
+      );
     }
   }
 
