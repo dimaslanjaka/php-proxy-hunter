@@ -7,77 +7,85 @@ set -o pipefail # Catch errors in piped commands
 # Set www-data user for subsequent commands
 USER="www-data"
 
+# Detect OS
+OS=$(uname -s)
+
 CWD=$(dirname "$(dirname "$(realpath "$0")")")
 
 echo "Current directory: $CWD"
+
+# Initialize NVM_DIR to avoid unbound variable error
+NVM_DIR=""
 
 if [ -d "$HOME/.nvm" ]; then
   export NVM_DIR="$HOME/.nvm"
 elif [ -d "/usr/local/nvm" ]; then
   export NVM_DIR="/usr/local/nvm"
+elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "mingw"* ]]; then
+  # Just continue without setting NVM_DIR for Windows systems
+  echo "Windows environment detected. NVM_DIR will not be set."
 else
   echo "Neither $HOME/.nvm nor /usr/local/nvm exists."
   exit 1
 fi
 
 # Check if NVM is installed and load it
-if [ -d "$NVM_DIR" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
+if [ -n "$NVM_DIR" ] && [ -d "$NVM_DIR" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
   # Load NVM into the shell session
   . "$NVM_DIR/nvm.sh"
-
-  # Enable corepack
-  corepack enable yarn
-  # Install dependencies
-  yarn install
-  # Initialize required files
-  mkdir -p "$CWD/tmp/logs"
-  touch "$CWD/tmp/logs/whatsapp.log"
-  touch "$CWD/tmp/logs/whatsapp_error.log"
-  # Fix permissions
-  bash "$CWD/bin/fix-perm"
-  # Build the project
-  bash "$CWD/bin/build-project"
-  # Re-fix permissions
-  bash "$CWD/bin/fix-perm"
-else
-  echo "NVM is not installed. Please install NVM first. (readme-nodejs.md)"
-  exit 1
 fi
 
-# Copy service file to systemd
-if ! sudo cp "$CWD/assets/systemctl/whatsapp.service" /etc/systemd/system/whatsapp.service; then
-  echo "Failed to copy service file"
-  exit 1
-fi
+# Enable corepack
+# corepack enable yarn >nul 2>&1
+# Install dependencies
+yarn install
+# Initialize required files
+mkdir -p "$CWD/tmp/logs"
+touch "$CWD/tmp/logs/whatsapp.log"
+touch "$CWD/tmp/logs/whatsapp_error.log"
+# Fix permissions
+bash "$CWD/bin/fix-perm"
+# Build the project
+bash "$CWD/bin/build-project"
+# Re-fix permissions
+bash "$CWD/bin/fix-perm"
 
-echo "Reloading systemd daemon"
-sudo systemctl daemon-reload || exit 1
-
-# Enable the service if not already enabled
-if ! systemctl is-enabled whatsapp >/dev/null 2>&1; then
-  echo "Service whatsapp is not enabled. Enabling it now..."
-  sudo systemctl enable whatsapp || {
-    echo "Failed to enable service whatsapp."
+if [[ "$OS" == "Linux" ]]; then
+  # Copy service file to systemd
+  if ! sudo cp "$CWD/assets/systemctl/whatsapp.service" /etc/systemd/system/whatsapp.service; then
+    echo "Failed to copy service file"
     exit 1
-  }
-else
-  echo "Service whatsapp is already enabled."
-fi
+  fi
 
-# Start the service if not running, or restart it if it's already running
-if systemctl is-active whatsapp >/dev/null 2>&1; then
-  echo "Service whatsapp is running. Restarting it now..."
-  sudo systemctl restart whatsapp || {
-    echo "Failed to restart service whatsapp."
-    exit 1
-  }
-else
-  echo "Service whatsapp is not running. Starting it now..."
-  sudo systemctl start whatsapp || {
-    echo "Failed to start service whatsapp."
-    exit 1
-  }
-fi
+  echo "Reloading systemd daemon"
+  sudo systemctl daemon-reload || exit 1
 
-# Show status
-bash "$CWD/bin/status-whatsapp"
+  # Enable the service if not already enabled
+  if ! systemctl is-enabled whatsapp >/dev/null 2>&1; then
+    echo "Service whatsapp is not enabled. Enabling it now..."
+    sudo systemctl enable whatsapp || {
+      echo "Failed to enable service whatsapp."
+      exit 1
+    }
+  else
+    echo "Service whatsapp is already enabled."
+  fi
+
+  # Start the service if not running, or restart it if it's already running
+  if systemctl is-active whatsapp >/dev/null 2>&1; then
+    echo "Service whatsapp is running. Restarting it now..."
+    sudo systemctl restart whatsapp || {
+      echo "Failed to restart service whatsapp."
+      exit 1
+    }
+  else
+    echo "Service whatsapp is not running. Starting it now..."
+    sudo systemctl start whatsapp || {
+      echo "Failed to start service whatsapp."
+      exit 1
+    }
+  fi
+
+  # Show status
+  bash "$CWD/bin/status-whatsapp"
+fi
