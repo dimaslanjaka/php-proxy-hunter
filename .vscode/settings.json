@@ -159,5 +159,7 @@
   "typescript.tsdk": "./node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": false,
   "git.autoStash": true,
-  "git.useCommitInputAsStashMessage": true
+  "git.useCommitInputAsStashMessage": true,
+  "typescript.updateImportsOnPaste.enabled": false,
+  "javascript.updateImportsOnPaste.enabled": false
 }
