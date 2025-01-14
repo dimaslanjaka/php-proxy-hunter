@@ -37,7 +37,8 @@
   "execMap": {
     "js": "node --harmony --no-warnings=ExperimentalWarning --loader ts-node/esm",
     "mjs": "node --no-warnings=ExperimentalWarning --loader ts-node/esm",
-    "cjs": "node --harmony"
+    "cjs": "node --harmony",
+    "ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm"
   },
   "events": {
     "restart": "bash nodemon.restart.sh"
