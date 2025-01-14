@@ -38,12 +38,17 @@ export default class Replier {
    * @param text text contents
    */
   async reply(text: string) {
-    // mark message readed
-    await this.read(this.sender);
-    // replying
-    // await this.sendMessageWTyping({ text }, this.sender.key.remoteJid!);
-    await this.sock.sendMessage(this.sender.key.remoteJid!, { text });
-    // lastSend = new Date();
+    if (this.sender) {
+      // mark message readed
+      await this.read(this.sender);
+      // replying
+      // await this.sendMessageWTyping({ text }, this.sender.key.remoteJid!);
+      if (this.sender.key && this.sender.key.remoteJid) {
+        await this.sock.sendMessage(this.sender.key.remoteJid, { text });
+      }
+    } else {
+      console.error('Replier.reply sender field is null or undefined');
+    }
   }
 
   /**
