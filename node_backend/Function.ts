@@ -22,22 +22,6 @@ export function getWhatsappFile(...files: string[]): string {
 }
 
 /**
- * Initializes log files if they don't already exist, writing a reset message to each file.
- * Ensures logs are re-initialized on every call.
- */
-export async function initializeLogs() {
-  const logDir = getWhatsappFile('tmp/logs');
-  const logsToReset = [path.join(logDir, 'whatsapp-error.log'), path.join(logDir, 'whatsapp.log')];
-  const resetMessage = `Log reset at ${new Date().toISOString()}`;
-
-  for (const file of logsToReset) {
-    writefile(file, resetMessage); // Overwrite file content
-  }
-}
-
-initializeLogs();
-
-/**
  * Configures a logger using the Pino library with multiple transports for logging to
  * files and formatting log output for the console.
  *
@@ -138,6 +122,26 @@ export function ConsoleFile(baseDir = FOLDER_LOG, errorFileName = 'error', fileN
 
 export const baileyLogFile = ConsoleFile(FOLDER_LOG);
 
+export function extractPhoneNumber(text: string): string {
+  const regex = /(\+?62[-\s]?|0)(\d{3,4}[-\s]?\d{3,4}[-\s]?\d{3,4})/;
+  const match = text.match(regex);
+
+  if (match) {
+    // Clean up any spaces or dashes and return the matched phone number
+    let phoneNumber = match[0].replace(/[-\s]/g, '');
+    // Normalize by replacing spaces, dashes, and handling the country code
+    phoneNumber = phoneNumber.replace(/[-\s]/g, ''); // Remove spaces and dashes
+    if (phoneNumber.startsWith('0')) {
+      phoneNumber = '62' + phoneNumber.substring(1); // Replace leading 0 with 62
+    } else if (phoneNumber.startsWith('+62')) {
+      phoneNumber = '62' + phoneNumber.substring(3); // Replace +62 with 62
+    }
+    return phoneNumber;
+  }
+
+  return ''; // Return an empty string if no match is found
+}
+
 export function extractPhoneNumberAndOtp(text: string) {
   const regex = /\/(otp|login|status|check|buy)\s*(\+?62[-\s]?|0)(\d{3,4}[-\s]?\d{3,4}[-\s]?\d{3,4})(?:\s+(\S+))?/;
   const match = text.match(regex);
@@ -173,4 +177,53 @@ export async function loadModule(modulePath: string, debug = false) {
     // Handle the error or return a fallback
     return null;
   }
+}
+
+/**
+ * Dumps data into a WhatsApp-specific log file for debugging purposes.
+ *
+ * @param data - A variadic list of arguments to log. Each argument can be of any type.
+ */
+export function whatsappDump(...data: unknown[]) {
+  const file = getWhatsappFile('tmp/logs/whatsapp-dump.txt');
+  try {
+    // Map each data item to a string representation
+    const mappedData = data.map((item) => {
+      if (item === null) return 'NULL';
+      if (item === undefined) return 'UNDEFINED';
+      if (Array.isArray(item) || typeof item === 'object') {
+        try {
+          return JSON.stringify(item, null, 2);
+        } catch (e) {
+          return `[Error Stringifying Object]: ${(e as Error).message}`;
+        }
+      }
+      return item.toString();
+    });
+
+    const e = new Error();
+    let callerLineAndFile = e.stack
+      .split('\n')[2]
+      .replace(/at\s+file:\/\/\//, '')
+      .trim();
+    const regex = /\((.*):(\d+):(\d+)\)$/;
+    const match1 = regex.exec(e.stack.split('\n')[2]);
+    const match2 = ''.match(/file:\/\/\/(.+):(\d+):(\d+)/);
+    let match: RegExpExecArray | RegExpMatchArray;
+    if (match1) {
+      match = match1;
+    } else if (match2) {
+      match = match2;
+    }
+    if (match) callerLineAndFile = `${match[1]}:${match[2]}:${match[3]}`;
+
+    // Join the mapped data with double newlines for readability
+    const logContent = [callerLineAndFile, ...mappedData].join('\n\n');
+
+    // Write the content to the specified WhatsApp log file
+    writefile(file, logContent);
+  } catch (error) {
+    console.error('Failed to dump WhatsApp data:', error);
+  }
+  return file;
 }
