@@ -154,6 +154,9 @@ if [ -d "$HOME/.nvm" ]; then
   export NVM_DIR="$HOME/.nvm"
 elif [ -d "/usr/local/nvm" ]; then
   export NVM_DIR="/usr/local/nvm"
+elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "mingw"* ]]; then
+  # Just continue without setting NVM_DIR for Windows systems
+  echo "Windows environment detected. NVM_DIR will not be set."
 else
   echo "Neither $HOME/.nvm nor /usr/local/nvm exists."
   exit 1
