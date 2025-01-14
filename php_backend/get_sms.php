@@ -9,7 +9,7 @@ header('Content-Type: text/plain; charset=utf-8');
 
 // Get the 'sms' parameter from either POST or GET
 $request = parsePostData(true);
-$test = $request['sms'] ?? $_REQUEST['sms'] ?? '';
+$test = $request['sms'] ?? $_REQUEST['sms'] ?? $_POST['sms'] ?? $_GET['sms'] ?? '';
 
 // If 'sms' is empty, you can handle it accordingly
 if (empty($test)) {
