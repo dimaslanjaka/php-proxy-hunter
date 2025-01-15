@@ -118,8 +118,11 @@
     "**/test-results/**"
   ],
   "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
     "compilerOptions": {
-      "module": "ESNext"
+      "module": "ESNext",
+      "strict": false
     }
   }
 }
