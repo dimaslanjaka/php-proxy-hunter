@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import Long from 'long';
 import mime from 'mime';
 import { promisify } from 'util';
+import { productionEnv } from '../.env.mjs';
 
 // let lastSend = new Date();
 
@@ -21,6 +22,10 @@ export default class Replier {
   senderName: string;
   timestamp?: number | Long.Long | null;
   dateRFC3339: string;
+  /**
+   * is sender phone number has admin privileges
+   */
+  isAdmin = false;
 
   constructor(msg?: baileys.WAProto.IWebMessageInfo, socket?: ReturnType<typeof baileys.makeWASocket>) {
     this.receivedText = msg?.message?.extendedTextMessage?.text || msg?.message?.conversation;
@@ -31,6 +36,9 @@ export default class Replier {
     this.isGroup = msg?.key.remoteJid?.endsWith('@g.us') || false;
     this.timestamp = msg?.messageTimestamp;
     this.dateRFC3339 = msg && msg.messageTimestamp ? this.convertTimestampToRFC3339(msg.messageTimestamp) : '';
+    this.isAdmin = productionEnv.WHATSAPP_ADMIN.some(
+      (number_phone) => this.senderId?.startsWith(number_phone) ?? false
+    );
   }
 
   /**

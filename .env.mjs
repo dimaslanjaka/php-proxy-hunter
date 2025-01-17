@@ -18,6 +18,7 @@ const { parsed: dotenvConfig } = dotenv.config({ override: true, path: path.join
 export { dotenvConfig };
 
 export const PROJECT_DIR = productionEnv.PROJECT_DIR;
+export { productionEnv };
 
 // Argument parsing
 const argv = minimist(process.argv.slice(2));

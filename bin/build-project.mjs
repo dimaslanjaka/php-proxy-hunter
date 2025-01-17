@@ -17,7 +17,8 @@ const rollupConfigs = glob.sync('rollup.*.{js,cjs,mjs}', { cwd, absolute: true }
 const envConfig = {
   GITHUB_TOKEN_READ_ONLY: dotenvConfig.GITHUB_TOKEN_READ_ONLY, // Add GitHub token
   isDebug: dotenvConfig.isDebug, // Add debug flag
-  PROJECT_DIR: cwd // Add project directory path
+  PROJECT_DIR: cwd, // Add project directory path
+  WHATSAPP_ADMIN: dotenvConfig.WHATSAPP_ADMIN.split(',') // Add whatsapp admin list
 };
 
 // Write environment config to a JSON file
