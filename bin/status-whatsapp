@@ -20,9 +20,10 @@ sudo journalctl -u whatsapp.service --no-pager
 mkdir -p "$CWD/tmp/logs"
 
 # Ensure the files exist
-[ ! -f "$CWD/tmp/logs/whatsapp.log" ] && touch "$CWD/tmp/logs/whatsapp.log"
-[ ! -f "$CWD/tmp/logs/whatsapp-error.log" ] && touch "$CWD/tmp/logs/whatsapp-error.log"
+touch "$CWD/tmp/logs/whatsapp.log"
+touch "$CWD/tmp/logs/whatsapp-error.log"
 
-# Read the files
-cat "$CWD/tmp/logs/whatsapp.log"
-cat "$CWD/tmp/logs/whatsapp-error.log"
+# Read last 100 lines from the files
+tail -n 100 "$CWD/tmp/logs/whatsapp.log"
+tail -n 100 "$CWD/tmp/logs/whatsapp-error.log"
+
