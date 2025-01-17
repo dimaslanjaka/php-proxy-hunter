@@ -202,14 +202,15 @@ export function whatsappDump(...data: unknown[]) {
     });
 
     const e = new Error();
-    let callerLineAndFile = e.stack
+    const stack = e.stack || '';
+    let callerLineAndFile = stack
       .split('\n')[2]
       .replace(/at\s+file:\/\/\//, '')
       .trim();
     const regex = /\((.*):(\d+):(\d+)\)$/;
-    const match1 = regex.exec(e.stack.split('\n')[2]);
+    const match1 = regex.exec(stack.split('\n')[2]);
     const match2 = ''.match(/file:\/\/\/(.+):(\d+):(\d+)/);
-    let match: RegExpExecArray | RegExpMatchArray;
+    let match: RegExpExecArray | RegExpMatchArray | null = null;
     if (match1) {
       match = match1;
     } else if (match2) {
