@@ -4,6 +4,25 @@ set -e          # Exit on any error
 set -u          # Treat unset variables as an error
 set -o pipefail # Catch errors in piped commands
 
+# Get the directory of the current Bash script
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+echo "Current script directory: $SCRIPT_DIR"
+
+# Set CWD to the parent directory of the script's directory
+CWD=$(dirname "$SCRIPT_DIR")
+echo "Current working directory: $CWD"
+
 sudo systemctl status --no-pager whatsapp.service
 
 sudo journalctl -u whatsapp.service --no-pager
+
+# Ensure the directory exists
+mkdir -p "$CWD/tmp/logs"
+
+# Ensure the files exist
+[ ! -f "$CWD/tmp/logs/whatsapp.log" ] && touch "$CWD/tmp/logs/whatsapp.log"
+[ ! -f "$CWD/tmp/logs/whatsapp-error.log" ] && touch "$CWD/tmp/logs/whatsapp-error.log"
+
+# Read the files
+cat "$CWD/tmp/logs/whatsapp.log"
+cat "$CWD/tmp/logs/whatsapp-error.log"
