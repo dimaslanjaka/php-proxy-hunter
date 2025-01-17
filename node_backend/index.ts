@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import { globSync } from 'glob';
+import * as glob from 'glob';
 import { writefile } from 'sbg-utility';
 import path from 'upath';
 import { fileURLToPath } from 'url';
@@ -16,10 +16,9 @@ if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
 }
 const resetMessage = `Log reset at ${new Date().toISOString()}\n\n `;
-const logFiles = globSync('**/whatsapp*.log', { cwd: logDir, absolute: true }).concat(
-  path.join(logDir, 'whatsapp-error.log'),
-  path.join(logDir, 'whatsapp.log')
-);
+const logFiles = glob
+  .globSync('**/whatsapp*.log', { cwd: logDir, absolute: true })
+  .concat(path.join(logDir, 'whatsapp-error.log'), path.join(logDir, 'whatsapp.log'));
 logFiles.forEach((file) => writefile(file, resetMessage));
 
 // Set to track active sender names
@@ -39,12 +38,9 @@ con.on('messages', async (replier) => {
   activeSenders.add(senderName); // Add sender to active list
 
   try {
-    const modules = ['ts', 'js']
-      .map((ext) => [
-        path.join(__dirname, 'whatsapp_handlers', 'xl.' + ext),
-        path.join(__dirname, 'whatsapp_handlers', 'proxy.' + ext)
-      ])
-      .flat()
+    // find ./whatsapp_handlers/*.{js,ts}
+    const modules = glob
+      .globSync('*.{js,ts}', { cwd: path.join(__dirname, 'whatsapp_handlers'), absolute: true })
       .filter((f) => {
         const found = fs.existsSync(f);
         // console.log('module', f, 'found:', found);
