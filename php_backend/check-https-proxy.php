@@ -7,6 +7,23 @@ use \PhpProxyHunter\ProxyDB;
 
 global $isCli, $isAdmin;
 
+if (!$isCli) {
+  // Allow from any origin
+  header("Access-Control-Allow-Origin: *");
+  header("Access-Control-Allow-Headers: *");
+  header("Access-Control-Allow-Methods: *");
+  header('Content-Type: text/plain; charset=utf-8');
+  if (isset($_REQUEST['uid'])) {
+    setUserId($_REQUEST['uid']);
+  }
+  // only allow user with Google Analytics cookie
+  if (!isset($_COOKIE['_ga'])) {
+    exit('Access Denied');
+  }
+  // check admin
+  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
+}
+
 $db = new ProxyDB(__DIR__ . '/../src/database.sqlite');
 $userId = getUserId();
 $request = parsePostData();
@@ -221,6 +238,13 @@ function check(string $proxy)
       }
     }
 
+    // Skip already checked proxy by file-based locking
+    // $lockProxyFile = tmp() . '/runners/already-checked-proxies/' . $item->proxy . '.txt';
+    // if (file_exists($lockProxyFile)) {
+    //   _log("[$no] Skipping proxy {$item->proxy}: recently checked at {$item->last_check}.");
+    //   continue;
+    // }
+
     $ssl_protocols = [];
     $protocols = ['http', 'socks4', 'socks5'];
     $latencies = [];
@@ -263,7 +287,7 @@ function check(string $proxy)
       _log(trim($msg));
     }
     // Prepare the base data array
-    $data = ['https' => !empty($ssl_protocols) ? 'true' : 'false'];
+    $data = ['https' => !empty($ssl_protocols) ? 'true' : 'false', 'last_check' => date(DATE_RFC3339)];
 
     // If ssl_protocols are available, add the corresponding fields
     if (!empty($ssl_protocols)) {
@@ -278,6 +302,11 @@ function check(string $proxy)
 
     // Perform the database update
     $db->updateData($item->proxy, $data);
+
+    // Write lock proxy file
+    // $date = new DateTime();
+    // $date_rfc3339 = $date->format('Y-m-d\TH:i:sP');
+    // write_file($lockProxyFile, $date_rfc3339);
   }
 
   _log("Done checking proxies.");
