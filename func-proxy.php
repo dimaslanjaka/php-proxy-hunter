@@ -176,6 +176,7 @@ function isValidProxy(?string $proxy, bool $validate_credential = false): bool
   if (empty($proxy)) {
     return false;
   }
+
   $username = $password = null;
   $hasCredential = strpos($proxy, '@') !== false;
 
@@ -186,7 +187,12 @@ function isValidProxy(?string $proxy, bool $validate_credential = false): bool
   }
 
   // Extract IP address and port
-  list($ip, $port) = explode(":", trim($proxy), 2);
+  $parts = explode(":", trim($proxy), 2);
+
+  $ip = trim($parts[0]);
+  $port = isset($parts[1]) ? trim($parts[1]) : null;
+
+  if (!$port) return false;
 
   // Validate IP address
   $is_ip_valid = filter_var($ip, FILTER_VALIDATE_IP) !== false && strlen($ip) >= 7 && strpos($ip, '..') === false;
