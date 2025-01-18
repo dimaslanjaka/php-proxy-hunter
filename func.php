@@ -16,7 +16,7 @@ if (!function_exists('str_starts_with')) {
   function str_starts_with(string $haystack, string $needle): bool
   {
     $pattern = '/^' . preg_quote($needle, '/') . '/';
-    return (bool) preg_match($pattern, $haystack);
+    return (bool)preg_match($pattern, $haystack);
   }
 }
 
@@ -859,13 +859,14 @@ function parseQueryOrPostBody(): array
 {
   global $isCli;
   if (!$isCli) {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      return parsePostData();
-    } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-      return $_GET;
-    } else {
-      return $_REQUEST;
-    }
+//    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//      return parsePostData();
+//    } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+//      return $_GET;
+//    } else {
+//      return $_REQUEST;
+//    }
+    return array_merge(parsePostData(), $_REQUEST, $_GET, $_POST);
   }
   return [];
 }
@@ -1339,7 +1340,6 @@ function moveLinesToFile(string $sourceFile, string $destinationFile, int $lines
 
   return true;
 }
-
 
 
 /**
