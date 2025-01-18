@@ -33,7 +33,7 @@ PHP proxy hunter | PHP proxy checker | Python proxy hunter | Python proxy checke
 - Python proxy checker available (Converted)
 - Bash available
 - Batch available
-- Proxy Manager via WhatsApp Bot
+- Proxy Manager via WhatsApp Bot (Ubuntu 20.x)
 
 ![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/d24b8bbf-0fa0-4394-b9e7-78350bdda67d)
 ![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/1e52d0f8-6417-41c3-bb75-86009726df7d)
@@ -47,7 +47,9 @@ git submodule update -i -r
 sudo apt install build-essential autoconf libtool bison re2c pkg-config -y
 ```
 
-### Install sqlite 3.46 in ubuntu
+### Install sqlite 3.46
+
+install on ubuntu 18.x
 
 ```bash
 cd /tmp
@@ -72,6 +74,15 @@ sudo ln -sf /usr/local/bin/sqlite3 /usr/bin/sqlite3
 ls -l /usr/bin/sqlite3
 # verify installation
 which sqlite3
+sqlite3 --version
+```
+
+install on ubuntu 20.x
+
+```bash
+sudo apt update
+sudo apt upgrade
+sudo apt install sqlite3
 sqlite3 --version
 ```
 
