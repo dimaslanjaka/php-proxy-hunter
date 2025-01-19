@@ -20,33 +20,52 @@ chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
 # Reload daemon
 sudo systemctl daemon-reload
 
-# Check and restart PHP-FPM if installed
-# Array of PHP versions to check
+# Check and start/restart PHP-FPM services if installed
 php_versions=("7.2" "7.4" "8.0")
 
-# Iterate over each PHP version
 for version in "${php_versions[@]}"; do
-    # Check if PHP FPM service is active
     if systemctl is-active --quiet php${version}-fpm; then
         sudo systemctl restart php${version}-fpm
         echo "Restarted PHP ${version} FPM"
+    else
+        sudo systemctl start php${version}-fpm
+        echo "Started PHP ${version} FPM"
     fi
 done
 
-# Restart Nginx
+# Check Nginx service status
 sudo nginx -t
-sudo systemctl restart nginx
-echo "Restarted Nginx"
+if systemctl is-active --quiet nginx; then
+    sudo systemctl restart nginx
+    echo "Restarted Nginx"
+else
+    sudo systemctl start nginx
+    echo "Started Nginx"
+fi
 
-# Reload django services
-systemctl restart gunicorn
-echo "Gunicorn service restarted"
-systemctl restart huey
-echo "Huey service restarted"
+# Check Gunicorn service status
+if systemctl is-active --quiet gunicorn; then
+    sudo systemctl restart gunicorn
+    echo "Restarted Gunicorn service"
+else
+    sudo systemctl start gunicorn
+    echo "Started Gunicorn service"
+fi
 
-# Check and restart Spring Boot if installed
+# Check Huey service status
+if systemctl is-active --quiet huey; then
+    sudo systemctl restart huey
+    echo "Restarted Huey service"
+else
+    sudo systemctl start huey
+    echo "Started Huey service"
+fi
+
+# Check and restart Spring Boot if installed (Uncomment if needed)
 # if systemctl is-active --quiet spring; then
 #     sudo systemctl restart spring
 #     echo "Restarted Spring Boot"
+# else
+#     sudo systemctl start spring
+#     echo "Started Spring Boot"
 # fi
-
