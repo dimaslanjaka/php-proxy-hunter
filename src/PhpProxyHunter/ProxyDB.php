@@ -28,6 +28,15 @@ class ProxyDB
   {
     if (!$dbLocation) {
       $dbLocation = __DIR__ . '/../database.sqlite';
+    } else if (!file_exists($dbLocation)) {
+      // Extract the directory part from the path
+      $directory = dirname($dbLocation);
+      // Check if the directory exists and create it if it doesn't
+      if (!is_dir($directory)) {
+        if (!mkdir($directory, 0755, true)) {
+          die("Failed to create directory: $directory\n");
+        }
+      }
     }
     $this->db = new SQLiteHelper($dbLocation);
 
