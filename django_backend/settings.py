@@ -134,6 +134,7 @@ INSTALLED_APPS = [
     "django_backend.apps.authentication",
     "django_backend.apps.core",
     "django_backend.apps.proxy",
+    "phonenumber_field",
 ]
 
 if os.path.exists(get_relative_path("django_backend/apps/axis/urls.py")):
