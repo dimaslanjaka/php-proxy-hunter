@@ -1,14 +1,27 @@
 #!/bin/bash
 
-# Reload daemon
+# Set current working directory to parent directory of bin/
+CWD=$(dirname "$(dirname "$(realpath "$0")")")
+
+echo "Current directory: $CWD"
+
+# Touch required files
+touch "$CWD/assets/index.html"
+touch "$CWD/assets/systemctl/index.html"
+
+# Stop services by removing their config from /etc/systemd/system
+rm -f "/etc/systemd/system/gunicorn.service"
+rm -f "/etc/systemd/system/huey.service"
+
+# Fix permission for gunicorn services (if necessary, you can change or remove this)
+chmod 755 "$CWD/assets/systemctl"
+chown root:root "$CWD/assets/systemctl/start_gunicorn.sh"
+chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
+
+# Reload daemon to reflect changes
 sudo systemctl daemon-reload
 
-# Stop nginx
-sudo systemctl stop nginx
-
-# Stop php-fpm
-# Check and restart PHP-FPM if installed
-# Array of PHP versions to check
+# Check and stop PHP-FPM services if installed
 php_versions=("7.2" "7.4" "8.0")
 
 # Iterate over each PHP version
@@ -16,9 +29,23 @@ for version in "${php_versions[@]}"; do
     # Check if PHP FPM service is active
     if systemctl is-active --quiet php${version}-fpm; then
         sudo systemctl stop php${version}-fpm
+        echo "Stopped PHP ${version} FPM"
     fi
 done
 
-# Stop python server
+# Stop Nginx
+sudo nginx -t
+sudo systemctl stop nginx
+echo "Stopped Nginx"
+
+# Stop django services (Gunicorn and Huey)
 sudo systemctl stop gunicorn
+echo "Gunicorn service stopped"
 sudo systemctl stop huey
+echo "Huey service stopped"
+
+# Check and stop Spring Boot service if installed (Uncomment if needed)
+# if systemctl is-active --quiet spring; then
+#     sudo systemctl stop spring
+#     echo "Stopped Spring Boot"
+# fi
