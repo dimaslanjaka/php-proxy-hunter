@@ -35,6 +35,10 @@
       <excludeFolder url="file://$MODULE_DIR$/proxy_checker.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/proxy_hunter.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/rsa_utility.egg-info" />
+      <excludeFolder url="file://$MODULE_DIR$/.vs" />
+      <excludeFolder url="file://$MODULE_DIR$/baileys_auth_info_sl" />
+      <excludeFolder url="file://$MODULE_DIR$/bas" />
+      <excludeFolder url="file://$MODULE_DIR$/baileys_auth_info_br" />
     </content>
     <content url="file://$MODULE_DIR$/assets/proxies" />
     <orderEntry type="jdk" jdkName="Python 3.11 (dl-traffic-python)" jdkType="Python SDK" />
