@@ -36,10 +36,8 @@ $content = "{$formattedDateTime} {$test}";
 // Write to the file
 write_file(tmp() . '/sms/get_sms.txt', $content . PHP_EOL);
 $hash = getUserId();
-if (!empty($request)) {
-  write_file(tmp() . "/sms/get_sms_{$hash}.txt", json_encode($request, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
-}
 
+write_file(tmp() . "/sms/get_sms_{$hash}.txt", json_encode($request, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
 write_file(tmp() . "/sms/get_sms_{$hash}_post.txt", json_encode($_POST, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
 write_file(tmp() . "/sms/get_sms_{$hash}_get.txt", json_encode($_GET, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
 write_file(tmp() . "/sms/get_sms_{$hash}_request.txt", json_encode($_REQUEST, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
