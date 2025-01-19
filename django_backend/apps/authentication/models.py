@@ -13,7 +13,7 @@ class UserFields(models.Model):
 
     def __str__(self):
         # title admin page /admin/authentication/userbalance/<user_id>/change/
-        return f"User Balance {self.user.username}"
+        return f"User {self.user.username}"
 
     class Meta:
-        db_table = "user_balance"
+        db_table = "user_fields"
