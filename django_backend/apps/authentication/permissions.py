@@ -3,6 +3,10 @@ from django.http import HttpRequest
 
 
 class AdminOnlyPermission(permissions.BasePermission):
-    def has_permission(self, request: HttpRequest, view):
+    def has_permission(self, request: HttpRequest, view):  # type: ignore
         # Only allow admin users to create new users
-        return request.user and request.user.is_superuser
+        return bool(
+            request.user
+            and hasattr(request.user, "is_superuser")
+            and request.user.is_superuser  # type: ignore
+        )
