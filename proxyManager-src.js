@@ -474,8 +474,8 @@ function updateWorkingProxies() {
 // proxies list
 
 class Pagination {
-  urlParams = new URLSearchParams(window.location.search);
   constructor(items, itemsPerPage) {
+    this.urlParams = new URLSearchParams(window.location.search);
     this.items = items;
     this.itemsPerPage = itemsPerPage;
     this.currentPage = parseInt(this.urlParams.get('page')) || 1;
@@ -490,14 +490,14 @@ class Pagination {
      * @type {string[]}
      */
     const result = this.items.slice(startIndex, endIndex);
-    if (this.proxyType !== 'all') {
+    if (this.proxyType.toLowerCase() !== 'all') {
       return result.filter((s) => {
         const splitParts = s.split('|');
         if (splitParts.length > 3) {
           const isMatch = splitParts[3].split('-').includes(this.proxyType.toUpperCase());
           if (isMatch) return true;
-          if (this.proxyType === 'https') return splitParts[11] === 'true';
-          // console.log('No matching proxy type', this.proxyType);
+          if (this.proxyType.toLowerCase() === 'https') return splitParts[11] === 'true';
+          console.log('No matching proxy type', this.proxyType);
         } else {
           console.log('Invalid split data:', s);
         }
@@ -509,33 +509,46 @@ class Pagination {
 
   getPaginationControls() {
     const controls = [];
+    const proxyType = this.proxyType.toLowerCase();
+    const buildParams = function (page) {
+      const params = { page };
+      if (proxyType != 'all') {
+        params.type = proxyType;
+      }
+      const searchParams = new URLSearchParams(params); // Create search parameters from an object
+      return searchParams.toString(); // Convert to query string
+    };
 
     // First button
     controls.push({
       type: this.currentPage > 1 ? 'link' : 'disabled',
       label: 'First',
-      page: 1
+      page: 1,
+      urlParams: buildParams(1)
     });
 
     // Previous button
     controls.push({
       type: this.currentPage > 1 ? 'link' : 'disabled',
       label: 'Previous',
-      page: this.currentPage - 1
+      page: this.currentPage - 1,
+      urlParams: buildParams(this.currentPage - 1)
     });
 
     // Next button
     controls.push({
       type: this.currentPage < this.totalPages ? 'link' : 'disabled',
       label: 'Next',
-      page: this.currentPage + 1
+      page: this.currentPage + 1,
+      urlParams: buildParams(this.currentPage + 1)
     });
 
     // Last button
     controls.push({
       type: this.currentPage < this.totalPages ? 'link' : 'disabled',
       label: 'Last',
-      page: this.totalPages
+      page: this.totalPages,
+      urlParams: buildParams(this.totalPages)
     });
 
     return controls;
@@ -657,7 +670,7 @@ async function fetchWorkingProxies() {
     paginationControls.innerHTML = paginationData.pagination
       .map((control) => {
         if (control.type === 'link') {
-          return `<a href="?page=${control.page}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">${control.label}</a>`;
+          return `<a href="?${control.urlParams}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">${control.label}</a>`;
         } else if (control.type === 'disabled') {
           return `<span class="px-4 py-2 bg-gray-500 text-gray-300 rounded cursor-not-allowed">${control.label}</span>`;
         }
