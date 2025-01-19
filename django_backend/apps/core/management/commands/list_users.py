@@ -8,7 +8,7 @@ sys.path.append(SRC_DIR)
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
-from django_backend.apps.authentication.models import UserBalance
+from django_backend.apps.authentication.models import UserFields
 from django_backend.apps.core.utils import rupiah_format
 
 # list users with custom fields
@@ -28,7 +28,7 @@ class Command(BaseCommand):
         for user in users:
             info = f"{user.username}<{user.email}>"
             try:
-                user_balance = UserBalance.objects.get(user=user)
+                user_balance = UserFields.objects.get(user=user)
                 self.stdout.write(f"{info}\tRp. {rupiah_format(user_balance.saldo)}")
-            except UserBalance.DoesNotExist:
+            except UserFields.DoesNotExist:
                 self.stdout.write(f"{info}\tRp. 0,00")

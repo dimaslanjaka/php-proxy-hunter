@@ -17,6 +17,7 @@ django-cors-middleware
 django-environ
 django-extensions
 django-filter
+django-phonenumber-field[phonenumbers]
 django==5.0.*
 djangorestframework
 djangorestframework_simplejwt
