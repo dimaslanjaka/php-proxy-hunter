@@ -91,6 +91,23 @@ sqlite3 --version
 - [READ PYTHON SETUP](readme-python.md)
 - [READ NODEJS SETUP](readme-nodejs.md)
 
+install project manual
+
+```bash
+python3 requirements_install.py
+yarn install
+composer install
+```
+
+build project
+
+```bash
+# UNIX
+bash bin/build-project
+# Windows
+cmd /c bin\build-project.cmd
+```
+
 ## Quickstart
 
 - clone repository
