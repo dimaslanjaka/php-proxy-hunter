@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "db_table": "user_balance",
+                "db_table": "user_fields",
             },
         ),
         migrations.DeleteModel(
