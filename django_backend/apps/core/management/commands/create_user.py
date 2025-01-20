@@ -5,7 +5,7 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = "Creates a new user\npython manage.py create_user demo@gmail.com demo demo_password"
+    help = "Creates a new user\npython manage.py create_user demo@gmail.com demo demoPassword"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -27,7 +27,7 @@ class Command(BaseCommand):
             type=str,
             help="Password of the user",
             nargs="?",  # This makes the argument optional
-            default="demo_password",  # Default password if not provided
+            default="demoPassword",  # Default password if not provided
         )
 
     def handle(self, *args, **options):
