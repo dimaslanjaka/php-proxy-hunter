@@ -68,11 +68,12 @@ class UserDB
         break;
       }
     }
+    if (isset($result[0])) $result = $result[0];
 
-    if (!empty($result)) {
+    if (!empty($result['id'])) {
       // Merge user fields
-      $field = $this->db->select('user_fields', '*', 'id = ?', [$result['id']]);
-      return array_merge($result, $field);
+      $field = $this->db->select('user_fields', '*', 'user_id = ?', [$result['id']]);
+      if (!empty($field)) return array_merge($result, $field[0]);
     }
 
     return $result;
