@@ -21,28 +21,45 @@ $request = !$isCli ? parsePostData(is_debug()) : getopt("", ["username:", "passw
 $username = sanitize_input($request['username'] ?? null);
 $password = sanitize_input($request['password'] ?? null);
 
-if ($username && $password) {
-  $select = $db->select($username);
-  if (!empty($select['password'])) {
-    $verify = CustomPasswordHasher::verify($password, $select['password']);
-    if ($verify) {
-      // Login success
-      $_SESSION['authenticated'] = true;
-      if (strtolower($select['email']) == strtolower($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '')) {
-        $_SESSION['admin'] = true;
-        die(json_encode(['success' => true, 'admin' => true]));
-      }
-      $_SESSION['authenticated_email'] = strtolower($select['email']);
-      die(json_encode(['success' => true]));
-    } else {
-      die(json_encode(['error' => 'username or password missmatch']));
-    }
-  } else {
-    die(json_encode(['error' => 'password empty']));
-  }
-}
+echo json_encode(do_login($username, $password));
 
-echo json_encode(['error' => 'username or password missmatch']);
+/**
+ * Attempts to log in a user with the provided username and password.
+ *
+ * @param string $username The username of the user attempting to log in.
+ * @param string $password The password of the user attempting to log in.
+ * @return array Returns an array containing the login result.
+ */
+function do_login($username, $password)
+{
+  global $db;
+
+  $response = ['error' => 'username or password empty'];
+
+  if ($username && $password) {
+    $select = $db->select($username);
+    if (!empty($select['password'])) {
+      $verify = CustomPasswordHasher::verify($password, $select['password']);
+      if ($verify) {
+        // Login success
+        $_SESSION['authenticated'] = true;
+        if (strtolower($select['email']) == strtolower($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '')) {
+          $_SESSION['admin'] = true;
+          $response = ['success' => true, 'admin' => true];
+        } else {
+          $_SESSION['authenticated_email'] = strtolower($select['email']);
+          $response = ['success' => true];
+        }
+      } else {
+        $response = ['error' => 'username or password mismatch'];
+      }
+    } else {
+      $response = ['error' => 'password empty'];
+    }
+  }
+
+  return $response;
+}
 
 /**
  * Sanitize input by removing dangerous characters that could be used in SQL injection attacks.
