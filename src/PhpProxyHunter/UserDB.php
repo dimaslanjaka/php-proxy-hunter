@@ -12,6 +12,8 @@ if (!defined('PHP_PROXY_HUNTER')) {
 /**
  * Class UserDB
  *
+ * Handles database operations for user management.
+ *
  * @package PhpProxyHunter
  */
 class UserDB
@@ -22,7 +24,9 @@ class UserDB
   /**
    * UserDB constructor.
    *
-   * @param string|null $dbLocation
+   * Initializes the database connection and schema.
+   *
+   * @param string|null $dbLocation Path to the database file. Defaults to the project's database directory.
    */
   public function __construct(?string $dbLocation = null)
   {
@@ -52,7 +56,7 @@ class UserDB
   }
 
   /**
-   * Select a user from the database by email, username, or id.
+   * Selects a user from the database by email, username, or id.
    *
    * @param mixed $id The email, username, or id of the user.
    * @return array The user data including additional fields, or an empty array if not found.
@@ -83,5 +87,26 @@ class UserDB
     }
 
     return $result;
+  }
+
+  /**
+   * Updates a user's information in the database.
+   *
+   * @param mixed $id The email, username, or id of the user to update.
+   * @param array $data The data to update.
+   */
+  public function update($id, array $data)
+  {
+    $conditions = [
+      'email = ?',
+      'username = ?'
+    ];
+    foreach ($conditions as $condition) {
+      $select = $this->db->select("auth_user", "*", $condition, [$id]);
+      if (!empty($select)) {
+        $this->db->update("auth_user", $data, "email = ?", [$select['email']]);
+        break;
+      }
+    }
   }
 }
