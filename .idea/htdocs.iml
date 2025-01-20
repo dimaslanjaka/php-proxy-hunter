@@ -2,10 +2,6 @@
 <module type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/packages/proxy-checker-python" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/packages/proxy-hunter-python" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" packagePrefix="PhpProxyHunter\" />
-      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/PhpProxyHunter" isTestSource="false" packagePrefix="PhpProxyHunter\" />
       <sourceFolder url="file://$MODULE_DIR$/src/simplehtmldom" isTestSource="false" packagePrefix="simplehtmldom\" />
       <sourceFolder url="file://$MODULE_DIR$/src/simplehtmldom/tests" isTestSource="true" />
