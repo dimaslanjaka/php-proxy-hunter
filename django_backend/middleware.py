@@ -1,11 +1,15 @@
+import hashlib
+import hmac
 import os
 import sys
 from typing import Set
 from urllib.parse import parse_qs, urlparse, urlunparse
 
 from django.conf import settings
+from django.contrib.auth.hashers import BasePasswordHasher
 from django.http import HttpResponse
 from django.middleware.csrf import CsrfViewMiddleware
+from django.utils.crypto import constant_time_compare, pbkdf2
 from django.utils.deprecation import MiddlewareMixin
 from filelock import FileLock
 from proxy_hunter import is_valid_ip
@@ -159,3 +163,33 @@ class SimpleCORSHeadersMiddleware:
             response.status_code = 200
 
         return response
+
+
+class MD5PasswordHasher(BasePasswordHasher):
+    """MD5 with secret key"""
+
+    algorithm = "mwsk"
+
+    def salt(self):
+        """Return a salt for the password (in this case, SECRET_KEY)."""
+        return settings.SECRET_KEY
+
+    def encode(self, password, salt=None):
+        if salt is None:
+            salt = self.salt()
+        hash = hashlib.md5((salt + password).encode()).hexdigest()
+        return f"{self.algorithm}${salt}${hash}"
+
+    def verify(self, password, encoded):
+        algorithm, salt, hash = encoded.split("$", 2)
+        encoded_2 = self.encode(password, salt)
+        return constant_time_compare(encoded, encoded_2)
+
+    def safe_summary(self, encoded):
+        """Provide a safe representation of the hash (e.g., for logging)."""
+        algorithm, salt, hash = encoded.split("$", 2)
+        return {
+            "algorithm": algorithm,
+            "salt": salt,
+            "hash": hash[:6] + "..." + hash[-6:],
+        }
