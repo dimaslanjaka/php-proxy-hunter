@@ -49,7 +49,6 @@
     <link
       rel="stylesheet"
       href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
-    <link rel="stylesheet" href="./proxyManager.css" />
     <script>
       function redirectToProxy() {
         const currentHost = window.location.hostname;
@@ -120,12 +119,16 @@
       <a href="#" onclick="redirectToProxy()" class="text-lg hover:underline inline-flex items-center px-1">
         <i class="fa-brands fa-python mr-1"></i> Python Proxy Hunter
       </a>
-      <span class="border-r border-gray-300 h-6 mx-2 inline-block align-middle hidden md:inline-block"></span> <!-- Divider -->
+      <span class="border-r border-gray-300 h-6 mx-2 inline-block align-middle hidden md:inline-block"></span>
+      <!-- Divider -->
       <a href="./php_backend/" class="text-lg hover:underline inline-flex items-center px-1">
         <i class="fa-brands fa-expeditedssl mr-1"></i> PHP SSL Proxy Checker
       </a>
-      <span class="border-r border-gray-300 h-6 mx-2 inline-block align-middle hidden md:inline-block"></span> <!-- Divider -->
-      <a href="https://github.com/your-username/your-repository" class="text-lg hover:underline inline-flex items-center px-1">
+      <span class="border-r border-gray-300 h-6 mx-2 inline-block align-middle hidden md:inline-block"></span>
+      <!-- Divider -->
+      <a
+        href="https://github.com/your-username/your-repository"
+        class="text-lg hover:underline inline-flex items-center px-1">
         <i class="fa-sharp-duotone fa-brands fa-github mr-1"></i> GitHub Repository
       </a>
     </section>
@@ -426,9 +429,60 @@
       gtag('config', 'G-BG75CLNJZ1');
     </script>
 
-    <script src="./js/highlight.js"></script>
-    <script src="./js/general-site-script.js"></script>
-    <script src="./proxyManager.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
+    <script>
+      /**
+       * Gets the Client ID from the _ga cookie.
+       * @returns {string|null} The Client ID or null if not found.
+       */
+      function getClientId() {
+        var cookies = document.cookie.split('; ');
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].split('=');
+          if (cookie[0] === '_ga') {
+            return cookie[1];
+          }
+        }
+        return null;
+      }
+
+      /**
+       * Creates a script tag with the given path and appends it to the document head.
+       * The Client ID is appended as the `v` parameter.
+       * @param {string} path - The path to the script file.
+       */
+      function createScriptTag(path) {
+        var clientId = getClientId();
+        if (clientId) {
+          var scriptTag = document.createElement('script');
+          scriptTag.src = path + '?v=' + clientId;
+          document.head.appendChild(scriptTag);
+        } else {
+          console.error('Client ID not found in cookies');
+        }
+      }
+      /**
+       * Creates a link tag for a CSS file with the given path and appends it to the document head.
+       * The Client ID is appended as the `v` parameter.
+       * @param {string} path - The path to the CSS file.
+       */
+      function createCssLink(path) {
+        var clientId = getClientId();
+        if (clientId) {
+          var linkTag = document.createElement('link');
+          linkTag.rel = 'stylesheet';
+          linkTag.href = path + '?v=' + clientId;
+          document.head.appendChild(linkTag);
+        } else {
+          console.error('Client ID not found in cookies');
+        }
+      }
+
+      // Call the helper function with the desired path
+      createScriptTag('./js/highlight.js');
+      createScriptTag('./js/general-site-script.js');
+      createScriptTag('./proxyManager.js');
+      createScriptTag('./proxyManager.css');
+    </script>
   </body>
 </html>
