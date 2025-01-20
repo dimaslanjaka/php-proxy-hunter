@@ -104,7 +104,7 @@ class UserDB
     foreach ($conditions as $condition) {
       $select = $this->db->select("auth_user", "*", $condition, [$id]);
       if (!empty($select)) {
-        $this->db->update("auth_user", $data, "email = ?", [$select['email']]);
+        $this->db->update("auth_user", $data, "email = ?", [$select[0]['email']]);
         break;
       }
     }
