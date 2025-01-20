@@ -5,26 +5,43 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = "Creates a new user\npython manage.py create_user demo@gmail.com demo pass"
+    help = "Creates a new user\npython manage.py create_user demo@gmail.com demo demo_password"
 
     def add_arguments(self, parser):
-        parser.add_argument("email", type=str, help="Email address of the user")
-        parser.add_argument("username", type=str, help="Username of the user")
-        parser.add_argument("password", type=str, help="Password of the user")
+        parser.add_argument(
+            "email",
+            type=str,
+            help="Email address of the user",
+            nargs="?",  # This makes the argument optional
+            default="demo@example.com",  # Default email if not provided
+        )
+        parser.add_argument(
+            "username",
+            type=str,
+            help="Username of the user",
+            nargs="?",  # This makes the argument optional
+            default="demo",  # Default username if not provided
+        )
+        parser.add_argument(
+            "password",
+            type=str,
+            help="Password of the user",
+            nargs="?",  # This makes the argument optional
+            default="demo_password",  # Default password if not provided
+        )
 
     def handle(self, *args, **options):
-        email = (
-            options.get("email") or "default@example.com"
-        )  # Default email if not provided
+        email = options["email"]
         username = options["username"]
         password = options["password"]
-        print(
+
+        self.stdout.write(
             f"Creating user with username: {username}, password: {password}, email: {email}"
         )
 
         try:
             if User.objects.filter(username=username).exists():
-                # Create user
+                # Update existing user
                 user = User.objects.get(username=username)
                 user.email = email
                 user.set_password(password)
@@ -33,7 +50,7 @@ class Command(BaseCommand):
                     self.style.SUCCESS(f'Successfully updated user "{username}"')
                 )
             else:
-                # Change user password
+                # Create new user
                 user = User.objects.create_user(
                     email=email, username=username, password=password
                 )
