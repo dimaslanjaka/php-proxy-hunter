@@ -28,6 +28,10 @@ if ($username && $password) {
     if ($verify) {
       // Login success
       $_SESSION['authenticated'] = true;
+      if (strtolower($select['email']) == strtolower($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '')) {
+        $_SESSION['admin'] = true;
+        die(json_encode(['success' => true, 'admin' => true]));
+      }
       die(json_encode(['success' => true]));
     } else {
       die(json_encode(['error' => 'username or password missmatch']));
@@ -55,6 +59,9 @@ function sanitize_input($input)
   if (empty($input)) {
     return null;
   }
+
+  // Decode input
+  $input = html_entity_decode(urldecode($input));
 
   // List of dangerous characters to be removed
   $dangerous_chars = ["'", '"', ";", "--", "#", "/*", "*/", "%", "_", "`"];
