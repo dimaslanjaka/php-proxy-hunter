@@ -841,12 +841,9 @@ function parsePostData(bool $detect_get = false): ?array
   } elseif ($contentType === "application/x-www-form-urlencoded") {
     // Merge URL-encoded POST data into the result
     $result = array_merge($result, $_POST);
-  } elseif ($detect_get) {
-    // If the content type is unsupported, and $detect_get is true, include $_GET data
-    $result = array_merge($result, $_GET);
   }
 
-  return $result;
+  return $detect_get ? array_merge($_GET, $result) : $result;
 }
 
 
