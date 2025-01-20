@@ -37,7 +37,10 @@ if os.path.isfile(dotenv_file):
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv(
-    "DJANGO_SECRET_KEY", "-)ir)&2lz9o41=qsd7pbzl+uv%1tgf+$%ddvz9bbw6_(exk)(f"
+    "DJANGO_SECRET_KEY",
+    os.getenv(
+        "DJANGO_SECRET_KEY", "-)ir)&2lz9o41=qsd7pbzl+uv%1tgf+$%ddvz9bbw6_(exk)(f"
+    ),
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
