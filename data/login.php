@@ -68,7 +68,7 @@ if (isset($_GET['code'])) {
   $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
   if (isset($token['access_token'])) {
     $client->setAccessToken($token);
-    file_put_contents($credentialsPath, json_encode($token, JSON_PRETTY_PRINT));
+    write_file($credentialsPath, json_encode($token, JSON_PRETTY_PRINT));
   }
 }
 
@@ -77,7 +77,7 @@ if ($client->getAccessToken()) {
     $message[] = 'access token expired';
     if ($client->getRefreshToken()) {
       $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-      file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
+      write_file($credentialsPath, json_encode($client->getAccessToken()));
       $token_data = $client->verifyIdToken();
       $message['token_data'] = $token_data;
     }
