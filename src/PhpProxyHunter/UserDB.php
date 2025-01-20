@@ -43,6 +43,12 @@ class UserDB
     // Initialize the database schema
     $sqlFileContents = file_get_contents(__DIR__ . '/../../assets/database/create.sql');
     $this->db->pdo->exec($sqlFileContents);
+
+    // Fix journal mode to WAL
+    $wal_status = $this->db->pdo->query("PRAGMA journal_mode")->fetch()['journal_mode'];
+    if ($wal_status != 'wal') {
+      $this->db->pdo->exec("PRAGMA journal_mode = WAL;");
+    }
   }
 
   /**
