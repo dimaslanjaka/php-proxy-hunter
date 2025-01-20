@@ -158,7 +158,7 @@ class SQLiteHelper
     $setValues = [];
     $setParams = [];
     foreach ($data as $key => $value) {
-      if (empty($value)) {
+      if (empty($value) && $value !== 0) {
         $setValues[] = "$key = NULL";
       } else {
         $setValues[] = "$key = ?";
