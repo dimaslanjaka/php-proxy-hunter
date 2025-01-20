@@ -22,11 +22,11 @@ class CurrentUserStatusView(APIView):
 
     def get(self, request: HttpRequest):
         user = request.user
-        data = get_user_with_fields(user)
+        data = get_user_with_fields(user)  # type: ignore
         data["SID"] = request.session.session_key
         data["is_admin"] = (
             request.user.is_authenticated
-            and request.user.is_staff
+            and User.objects.get(pk=request.user.pk).is_staff
             and settings.UNLIMITED_FOR_ADMIN
         )
         return JsonResponse(data)
