@@ -14,7 +14,7 @@ if (!$isCli) {
   header('Content-Type: application/json; charset=utf-8');
 }
 
-$db = new UserDB(tmp() . '/database.sqlite');
+$user_db = new UserDB(tmp() . '/database.sqlite');
 $request = !$isCli ? parsePostData(is_debug()) : getopt("", ["username:", "password:"]);
 
 // Directly assign the username and password from the request
@@ -32,12 +32,12 @@ echo json_encode(do_login($username, $password));
  */
 function do_login($username, $password)
 {
-  global $db;
+  global $user_db;
 
   $response = ['error' => 'username or password empty'];
 
   if ($username && $password) {
-    $select = $db->select($username);
+    $select = $user_db->select($username);
     if (!empty($select['password'])) {
       $verify = CustomPasswordHasher::verify($password, $select['password']);
       if ($verify) {
@@ -50,6 +50,9 @@ function do_login($username, $password)
         } else {
           $response = ['success' => true];
         }
+        $date = new DateTime();
+        $currentDateTime = $date->format('Y-m-d H:i:s.u');
+        $user_db->update($select['email'], ['last_login' => $currentDateTime]);
       } else {
         $response = ['error' => 'username or password mismatch'];
       }
