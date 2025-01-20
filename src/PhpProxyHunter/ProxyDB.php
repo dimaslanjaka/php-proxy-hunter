@@ -42,20 +42,7 @@ class ProxyDB
 
     // Initialize the database schema
     $sqlFileContents = file_get_contents(__DIR__ . '/../../assets/database/create.sql');
-    if ($sqlFileContents === false) {
-      die('Error reading SQL file.');
-    }
-    // Split the file contents by semicolon to get individual commands
-    $sqlCommands = explode(';', $sqlFileContents);
-
-    // Trim whitespace from each command and filter out empty commands
-    $sqlCommands = array_filter(array_map('trim', $sqlCommands));
-
-    foreach ($sqlCommands as $command) {
-      if (!empty($command)) {
-        $this->db->pdo->exec($command);
-      }
-    }
+    $this->db->pdo->exec($sqlFileContents);
 
     // Check if WAL mode has been enabled
     $walEnabled = $this->getMetaValue('wal_enabled');
