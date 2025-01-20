@@ -32,7 +32,7 @@ class UserDB
   {
     if (!$dbLocation) {
       $dbLocation = __DIR__ . '/../database.sqlite';
-    } else if (!file_exists($dbLocation)) {
+    } elseif (!file_exists($dbLocation)) {
       // Extract the directory part from the path
       $directory = dirname($dbLocation);
       // Check if the directory exists and create it if it doesn't
@@ -65,9 +65,9 @@ class UserDB
   {
     $id = is_string($id) ? trim($id) : $id;
     $conditions = [
-      'email = ?',
-      'username = ?',
-      'id = ?'
+        'email = ?',
+        'username = ?',
+        'id = ?'
     ];
     // Declare empty result
     $result = [];
@@ -78,12 +78,16 @@ class UserDB
         break;
       }
     }
-    if (isset($result[0])) $result = $result[0];
+    if (isset($result[0])) {
+      $result = $result[0];
+    }
 
     if (!empty($result['id'])) {
       // Merge user fields
       $field = $this->db->select('user_fields', '*', 'user_id = ?', [$result['id']]);
-      if (!empty($field)) return array_merge($result, $field[0]);
+      if (!empty($field)) {
+        return array_merge($result, $field[0]);
+      }
     }
 
     return $result;
@@ -98,8 +102,8 @@ class UserDB
   public function update($id, array $data)
   {
     $conditions = [
-      'email = ?',
-      'username = ?'
+        'email = ?',
+        'username = ?'
     ];
     foreach ($conditions as $condition) {
       $select = $this->db->select("auth_user", "*", $condition, [$id]);
@@ -108,5 +112,25 @@ class UserDB
         break;
       }
     }
+  }
+
+  public function update_saldo(int $id, $saldo)
+  {
+    if (is_string($saldo)) {
+      $saldo = intval($saldo);
+    }
+    $select = $this->db->select("user_fields", "*", "user_id = ?", [$id]);
+    if (empty($select)) {
+      // Insert new column when not exist
+      $this->db->insert('user_fields', ['user_id' => $id, 'saldo' => 0]);
+    }
+    $existing_saldo = intval($this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0]['saldo']);
+    $sum_saldo = $existing_saldo + $saldo;
+    $this->db->update('user_fields', ['saldo' => $sum_saldo], "user_id = ?", [$id]);
+    return $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0];
+  }
+
+  public function get_saldo(int $id) {
+    return $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0]['saldo'];
   }
 }
