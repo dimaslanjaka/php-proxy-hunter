@@ -1,12 +1,16 @@
 from typing import Union
 from django.contrib.auth import get_user_model
 from .models import UserFields
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, AnonymousUser, AbstractBaseUser
 
 UserModel = get_user_model()
 
 
-def get_user_with_fields(identifier: Union[int, str, type[AbstractUser]]) -> dict:
+def get_user_with_fields(
+    identifier: Union[
+        int, str, type[AnonymousUser], type[AbstractUser], type[AbstractBaseUser]
+    ]
+) -> dict:
     """
     Retrieves user data along with their balance (saldo) based on the given identifier.
 
