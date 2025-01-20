@@ -27,9 +27,11 @@ for version in "${php_versions[@]}"; do
     if systemctl is-active --quiet php${version}-fpm; then
         sudo systemctl restart php${version}-fpm
         echo "Restarted PHP ${version} FPM"
-    else
+    elif systemctl is-enabled --quiet php${version}-fpm; then
         sudo systemctl start php${version}-fpm
         echo "Started PHP ${version} FPM"
+    else
+        echo "PHP ${version} FPM is not installed."
     fi
 done
 
