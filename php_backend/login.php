@@ -32,6 +32,7 @@ if ($username && $password) {
         $_SESSION['admin'] = true;
         die(json_encode(['success' => true, 'admin' => true]));
       }
+      $_SESSION['authenticated_email'] = strtolower($select['email']);
       die(json_encode(['success' => true]));
     } else {
       die(json_encode(['error' => 'username or password missmatch']));
