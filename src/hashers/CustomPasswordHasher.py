@@ -1,13 +1,16 @@
 from django.contrib.auth.hashers import BasePasswordHasher
 import hashlib
 import os
+from django.conf import settings
 
 
 class CustomPasswordHasher(BasePasswordHasher):
     algorithm = "custom"
 
     def salt(self):
-        return os.urandom(16).hex()
+        # Use SECRET_KEY to generate deterministic salt
+        secret_key = getattr(settings, "SECRET_KEY", "default_secret_key")
+        return hashlib.sha256(secret_key.encode("utf-8")).hexdigest()[:16]
 
     def encode(self, password, salt):
         # Combine password and salt, then hash using SHA256
