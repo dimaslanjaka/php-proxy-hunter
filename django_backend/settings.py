@@ -27,7 +27,7 @@ from userscripts.parse_userscript import extract_domains_from_userscript
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# # load environment variables from .env
+# Load environment variables from .env
 dotenv_file = os.path.join(BASE_DIR, ".env")
 if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
