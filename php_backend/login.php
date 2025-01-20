@@ -15,7 +15,7 @@ if (!$isCli) {
 }
 
 $db = new UserDB(tmp() . '/database.sqlite');
-$request = !$isCli ? parsePostData(true) : getopt("", ["username:", "password:"]);
+$request = !$isCli ? parsePostData(is_debug()) : getopt("", ["username:", "password:"]);
 
 // Directly assign the username and password from the request
 $username = sanitize_input($request['username'] ?? null);
