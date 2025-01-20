@@ -43,11 +43,11 @@ function do_login($username, $password)
       if ($verify) {
         // Login success
         $_SESSION['authenticated'] = true;
+        $_SESSION['authenticated_email'] = strtolower($select['email']);
         if (strtolower($select['email']) == strtolower($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '')) {
           $_SESSION['admin'] = true;
           $response = ['success' => true, 'admin' => true];
         } else {
-          $_SESSION['authenticated_email'] = strtolower($select['email']);
           $response = ['success' => true];
         }
       } else {
