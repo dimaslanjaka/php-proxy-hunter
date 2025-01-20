@@ -341,7 +341,7 @@ HUEY = huey.SqliteHuey(
 # https://python.plainenglish.io/password-hashing-in-django-best-practices-for-securing-user-credentials-64dd5db169bb
 
 PASSWORD_HASHERS = [
-    "django_backend.middleware.MD5PasswordHasher"
+    "src.hashers.CustomPasswordHasher"
     # "django.contrib.auth.hashers.Argon2PasswordHasher",
     # "django.contrib.auth.hashers.PBKDF2PasswordHasher",
     # "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",

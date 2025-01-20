@@ -10,7 +10,8 @@
       "PhpProxyHunter\\": "src/PhpProxyHunter"
     },
     "files": [
-      "data/webgl.php"
+      "data/webgl.php",
+      "src/hashers/CustomPasswordHasher.php"
     ]
   },
   "authors": [
