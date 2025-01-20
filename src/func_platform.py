@@ -4,7 +4,16 @@ import platform
 import socket
 import sys
 
+import dotenv
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from src.func import get_relative_path
+
+# Load environment variables from .env
+dotenv_file = get_relative_path(".env")
+if os.path.isfile(dotenv_file):
+    dotenv.load_dotenv(dotenv_file)
 
 
 def import_windows_packages():
@@ -34,7 +43,7 @@ def is_debug() -> bool:
         return True
 
     # My device lists
-    debug_pc = ["DESKTOP-JVTSJ6I"]
+    debug_pc = os.getenv("DEBUG_DEVICES", "").split(",")
     hostname = socket.gethostname()
 
     if hostname.startswith("codespaces-"):
