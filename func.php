@@ -750,7 +750,9 @@ function getConfig(string $user_id): array
     setUserId($user_id);
     $user_file = getUserFile($user_id);
   }
-  if (!is_readable($user_file)) setMultiPermissions($user_file, false);
+  if (!is_readable($user_file)) {
+    setMultiPermissions($user_file, false);
+  }
   // Read the JSON file into a string
   $jsonString = read_file($user_file);
 
@@ -793,11 +795,16 @@ function setConfig($user_id, $data): array
 /**
  * Anonymize an email address by masking the username.
  *
- * @param string $email The email address to anonymize.
+ * @param string|null $email The email address to anonymize.
  * @return string The anonymized email address.
  */
-function anonymizeEmail(string $email): string
+function anonymizeEmail($email): string
 {
+  // Return same value when empty
+  if (empty($email)) {
+    return $email;
+  }
+
   // Split the email into username and domain
   list($username, $domain) = explode('@', $email);
 
