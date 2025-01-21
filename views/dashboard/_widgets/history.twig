@@ -1,0 +1,102 @@
+<div class="container mx-auto py-8">
+  <!-- Header -->
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold">Transaction History</h1>
+  </header>
+
+  <!-- Search Bar -->
+  <div class="mb-6">
+    <label for="search-input" class="sr-only">Search</label>
+    <input
+      type="text"
+      placeholder="Search transactions..."
+      id="search-input"
+      class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border-gray-300 text-gray-900 placeholder-gray-400"
+    />
+  </div>
+
+  <!-- Transaction Table -->
+  <div class="shadow rounded-lg overflow-x-auto">
+    <table class="min-w-full divide-y">
+      <thead>
+      <tr>
+        <th
+          class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+          Date
+        </th>
+        <th
+          class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+          Description
+        </th>
+        <th
+          class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+          Amount
+        </th>
+        <th
+          class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+          Status
+        </th>
+      </tr>
+      </thead>
+      <tbody class="divide-y" id="transaction-table">
+      <!-- Example Rows -->
+      <tr>
+        <td class="px-6 py-4 text-sm">2025-01-20</td>
+        <td class="px-6 py-4 text-sm">Grocery Shopping</td>
+        <td class="px-6 py-4 text-sm">- $45.99</td>
+        <td class="px-6 py-4 text-sm">Completed</td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 text-sm">2025-01-19</td>
+        <td class="px-6 py-4 text-sm">Electricity Bill</td>
+        <td class="px-6 py-4 text-sm">- $80.00</td>
+        <td class="px-6 py-4 text-sm">Completed</td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 text-sm">2025-01-18</td>
+        <td class="px-6 py-4 text-sm">Freelance Payment</td>
+        <td class="px-6 py-4 text-sm">+ $500.00</td>
+        <td class="px-6 py-4 text-sm">Completed</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // JavaScript for Search Functionality
+  const searchInput = document.getElementById('search-input');
+  const tableBody = document.getElementById('transaction-table');
+  const tableRows = tableBody.querySelectorAll('tr');
+
+  searchInput.addEventListener('input', function() {
+      const query = searchInput.value.toLowerCase();
+      let visibleRowCount = 0;
+
+      tableRows.forEach(row => {
+          const cells = row.querySelectorAll('td');
+          const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+
+          if (rowText.includes(query)) {
+              row.style.display = '';
+              visibleRowCount++;
+          } else {
+              row.style.display = 'none';
+          }
+      });
+
+      // Handle no data found
+      let noDataRow = document.getElementById('no-data-row');
+      if (visibleRowCount === 0) {
+          if (!noDataRow) {
+              noDataRow = document.createElement('tr');
+              noDataRow.id = 'no-data-row';
+              noDataRow.innerHTML = `<td colspan="4" class="px-6 py-4 text-sm text-center">No transactions found</td>`;
+              tableBody.appendChild(noDataRow);
+          }
+      } else if (noDataRow) {
+          noDataRow.remove();
+      }
+  });
+</script>
+
