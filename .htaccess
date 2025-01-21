@@ -3,6 +3,13 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Always use index.php to handle 404 not found
+    RewriteBase /
+    RewriteRule ^index\.php$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.php [L]
+
     # Ignore access to specific file extensions
     <FilesMatch "\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess|conf|sql|db|sqlite-whm|out|ts)$">
         Order allow,deny
@@ -45,6 +52,11 @@ Options -Indexes
         Header set Cache-Control "no-cache, no-store, must-revalidate"
         Header set Pragma "no-cache"
         Header set Expires "0"
+    </FilesMatch>
+
+    # Deny python file access
+    <FilesMatch "\.py$">
+        Require all denied
     </FilesMatch>
 </IfModule>
 
