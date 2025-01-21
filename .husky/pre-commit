@@ -40,7 +40,7 @@ if [[ $PYTHON_FILES_FOUND -eq 1 || $PHP_FILES_FOUND -eq 1 ]]; then
 fi
 
 # Run lint-staged
-# npx lint-staged || { echo "Lint-staged failed"; exit 1; }
+npx lint-staged || { echo "Lint-staged failed"; exit 1; }
 
 # Run Python autopep8 if applicable
 # python "$SCRIPT_DIR/python-autopep8.py" || { echo "Autopep8 formatting failed"; exit 1; }
