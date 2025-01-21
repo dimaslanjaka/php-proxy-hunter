@@ -9,11 +9,11 @@
 <body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen">
 <div class="bg-white w-full max-w-3xl mx-auto border border-gray-300 rounded-lg shadow-md p-6">
   <h1 class="text-2xl font-bold text-red-600">Error 404 - Not Found</h1>
-  <p class="mt-4">{{ errorMessage }}</p>
+  <p class="mt-4">{{ errorMessage | raw }}</p>
   {% if debug %}
     <div class="mt-6 text-sm text-gray-600">
-      <p><strong>File:</strong> {{ errorFile }}</p>
-      <p><strong>Line:</strong> {{ errorLine }}</p>
+      <p><strong>File:</strong> {{ errorFile | raw }}</p>
+      <p><strong>Line:</strong> {{ errorLine | raw }}</p>
       <div class="mt-4">
         <h2 class="font-semibold">Stack Trace:</h2>
         <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code>{{ trace }}</code></pre>
