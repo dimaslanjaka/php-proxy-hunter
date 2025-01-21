@@ -57,9 +57,13 @@ try {
   $viewName = $baseControllerName == 'default' ? $baseActionName : "{$baseControllerName}/{$baseActionName}";
 
   // Check if the view exists in the 'views/' folder
-  $viewPath = realpath(__DIR__ . "/views/{$viewName}.twig");
+  $rawViewPath = __DIR__ . "/views/{$viewName}.twig";
+  $viewPath = realpath($rawViewPath);
 
   if (!$viewPath) {
+    if (is_debug()) {
+      throw new Exception("View file for **$viewName** not found. (**$rawViewPath**)");
+    }
     throw new Exception("View file for **$viewName** not found.");
   }
 
