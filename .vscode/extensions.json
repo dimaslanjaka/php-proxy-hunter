@@ -13,6 +13,7 @@
     "dbaeumer.vscode-eslint",
     "formulahendry.code-runner",
     "ms-python.black-formatter",
-    "iliazeus.vscode-ansi"
+    "iliazeus.vscode-ansi",
+    "mblode.twig-language"
   ]
 }
