@@ -71,8 +71,9 @@ try {
 } catch (Exception $e) {
   // Handle errors by rendering a Twig error page
   http_response_code(404);
+  $md = new Parsedown();
   echo $twig->render('404.twig', [
-    'errorMessage' => $e->getMessage(),
+    'errorMessage' => $md->text($e->getMessage()),
     'errorFile' => $e->getFile(),
     'errorLine' => $e->getLine(),
     'debug' => is_debug(),
