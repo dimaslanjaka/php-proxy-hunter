@@ -2,10 +2,10 @@
 
 # Check if Git LFS is installed
 command -v git-lfs >/dev/null 2>&1 || {
-    echo >&2 "\nThis repository is configured for Git LFS but 'git-lfs' was not found on your path. \
+  echo >&2 "\nThis repository is configured for Git LFS but 'git-lfs' was not found on your path. \
     If you no longer wish to use Git LFS, remove this hook by deleting the 'post-commit' file in the hooks directory \
-    (set by 'core.hookspath'; usually '.git/hooks').\n";
-    exit 2;
+    (set by 'core.hookspath'; usually '.git/hooks').\n"
+  exit 2
 }
 
 # Run git LFS post-commit (optional, based on your intent)
@@ -24,23 +24,37 @@ PHP_FILES_FOUND=0
 
 # Check for files with specific extensions
 for FILE in $STAGED_FILES; do
-    if [[ $FILE == *.py ]]; then
-        PYTHON_FILES_FOUND=1
-        echo "Python file detected: $FILE"
-    fi
-    if [[ $FILE == *.php ]]; then
-        PHP_FILES_FOUND=1
-        echo "PHP file detected: $FILE"
-    fi
+  if [[ $FILE == *.py ]]; then
+    PYTHON_FILES_FOUND=1
+    echo "Python file detected: $FILE"
+  fi
+  if [[ $FILE == *.php ]]; then
+    PHP_FILES_FOUND=1
+    echo "PHP file detected: $FILE"
+  fi
 done
 
 # Take action based on whether Python or PHP files were found
 if [[ $PYTHON_FILES_FOUND -eq 1 || $PHP_FILES_FOUND -eq 1 ]]; then
-    . "$PROJECT_DIR/bin/create-file-hashes" || { echo "Failed to create file hashes"; exit 1; }
+  . "$PROJECT_DIR/bin/create-file-hashes" || {
+    echo "Failed to create file hashes"
+    exit 1
+  }
+fi
+
+# Run php-cs-fixer
+if [[ $PHP_FILES_FOUND -eq 1 ]]; then
+  git status --porcelain | grep -e '^[AM]\(.*\).php$' | cut -c 3- | while read line; do
+    php "$PROJECT_DIR/composer.phar" exec php-cs-fixer fix --verbose "$line"
+    git add "$line"
+  done
 fi
 
 # Run lint-staged
-npx lint-staged || { echo "Lint-staged failed"; exit 1; }
+npx lint-staged || {
+  echo "Lint-staged failed"
+  exit 1
+}
 
 # Run Python autopep8 if applicable
 # python "$SCRIPT_DIR/python-autopep8.py" || { echo "Autopep8 formatting failed"; exit 1; }
