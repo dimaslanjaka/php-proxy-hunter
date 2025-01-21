@@ -75,6 +75,7 @@ try {
     'errorMessage' => $e->getMessage(),
     'errorFile' => $e->getFile(),
     'errorLine' => $e->getLine(),
-    'debug' => is_debug()
+    'debug' => is_debug(),
+    'trace' => print_r($e->getTrace(), true)
   ]);
 }
