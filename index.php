@@ -1,39 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PHP Proxy Hunter</title>
-  <meta name="yandex-verification" content="6e91ba469c56e6ac" />
-  <script type="text/javascript">
-    // Delay in seconds
-    var delay = 5;
+require_once __DIR__ . '/func.php';
 
-    // Target URL
-    var url = "proxyManager.html";
+// Capture the full request URI
+$requestUri = $_SERVER['REQUEST_URI'];
 
-    // Redirect after the delay
-    setTimeout(function() {
-      window.location.href = url;
-    }, delay * 1000); // Convert seconds to milliseconds
-  </script>
-</head>
+// Extract the path part of the URI
+$requestPath = parse_url($requestUri, PHP_URL_PATH);
 
-<body>
-  <p>Redirecting in <span id="countdown">0</span> seconds...</p>
-  <p><a href="proxyManager.html">Click Here To Redirect Immediately</a></p>
-  <script type="text/javascript">
-    // Update countdown timer
-    var countdownElement = document.getElementById('countdown');
-    var timeLeft = delay;
-    setInterval(function() {
-      if (timeLeft > 0) {
-        timeLeft--;
-        countdownElement.textContent = timeLeft;
-      }
-    }, 1000); // Update every second
-  </script>
-</body>
+// Remove leading and trailing slashes and split into segments
+$pathSegments = explode('/', trim($requestPath, '/'));
 
-</html>
+// Default values for controller and action
+$controllerName = !empty($pathSegments[0]) ? ucfirst($pathSegments[0]) . 'Controller' : 'DefaultController';
+$actionName = !empty($pathSegments[1]) ? $pathSegments[1] . 'Action' : 'indexAction';
+
+// Any remaining segments are treated as parameters
+$params = array_slice($pathSegments, 2);
+
+// Autoload controllers
+function autoloadController($className)
+{
+  $filePath = __DIR__ . '/controllers/' . $className . '.php';
+  if (file_exists($filePath)) {
+    require_once $filePath;
+  }
+}
+
+spl_autoload_register('autoloadController');
+
+// Initialize Twig
+$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/views');
+$twig = new \Twig\Environment($loader);
+
+// Dispatcher
+try {
+  // Load when controller exists
+  if (class_exists($controllerName)) {
+    // Instantiate the controller
+    $controllerInstance = new $controllerName();
+
+    // Check if the action method exists
+    if (!method_exists($controllerInstance, $actionName)) {
+      throw new Exception("Action $actionName not found in $controllerName.");
+    }
+
+    // Call the action with parameters
+    call_user_func_array([$controllerInstance, $actionName], $params);
+  }
+
+  // Extract the base name for the view
+  $baseControllerName = strtolower(str_replace('Controller', '', $controllerName));
+  $baseActionName = strtolower(str_replace('Action', '', $actionName));
+
+  // Determine the view to render based on controller and action
+  $viewName = "{$baseControllerName}/{$baseActionName}";
+
+  // Check if the view exists in the 'views/' folder
+  $viewPath = __DIR__ . "/views/{$viewName}.twig";
+  if (!file_exists($viewPath)) {
+    throw new Exception("View file for **$viewName** not found.");
+  }
+
+  // Render the view
+  echo $twig->render("{$viewName}.twig", [
+    'date' => date(DATE_RFC3339),
+    'debug' => is_debug()
+  ]);
+} catch (Exception $e) {
+  // Handle errors by rendering a Twig error page
+  http_response_code(404);
+  echo $twig->render('404.twig', [
+    'errorMessage' => $e->getMessage(),
+    'errorFile' => $e->getFile(),
+    'errorLine' => $e->getLine(),
+    'debug' => is_debug()
+  ]);
+}
