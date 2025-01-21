@@ -1,0 +1,18 @@
+{% extends "template.twig" %}
+
+{% set site_title %}DX{% endset %}
+{% set page_title %}User area{% endset %}
+{% block endhead %}{% endblock endhead %}
+
+{% block body %}
+  <div class="container mx-auto">
+    <p><i class="fa-solid fa-dollar-sign"></i> <span
+        class="mr-5">{{ saldo | default("0") }}</span> <a
+        href="https://wa.link/5553s3" target="_blank"><i
+          class="fa-brands fa-whatsapp"></i> ISI SALDO</a></p>
+  </div>
+
+  {% include 'dashboard/_widgets/history.twig' %}
+{% endblock body %}
+
+{% block endbody %}{% endblock endbody %}
