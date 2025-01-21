@@ -54,11 +54,12 @@ try {
   $baseActionName = strtolower(str_replace('Action', '', $actionName));
 
   // Determine the view to render based on controller and action
-  $viewName = "{$baseControllerName}/{$baseActionName}";
+  $viewName = $baseControllerName == 'default' ? $baseActionName : "{$baseControllerName}/{$baseActionName}";
 
   // Check if the view exists in the 'views/' folder
-  $viewPath = __DIR__ . "/views/{$viewName}.twig";
-  if (!file_exists($viewPath)) {
+  $viewPath = realpath(__DIR__ . "/views/{$viewName}.twig");
+
+  if (!$viewPath) {
     throw new Exception("View file for **$viewName** not found.");
   }
 
