@@ -35,12 +35,11 @@
       <excludeFolder url="file://$MODULE_DIR$/baileys_auth_info_sl" />
       <excludeFolder url="file://$MODULE_DIR$/bas" />
       <excludeFolder url="file://$MODULE_DIR$/baileys_auth_info_br" />
+      <excludeFolder url="file://$MODULE_DIR$/frontend/tmp" />
     </content>
     <content url="file://$MODULE_DIR$/assets/proxies" />
     <orderEntry type="jdk" jdkName="Python 3.11 (dl-traffic-python)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="all" level="application" />
-    <orderEntry type="library" name="bootstrap" level="application" />
   </component>
   <component name="PackageRequirementsSettings">
     <option name="versionSpecifier" value="Don't specify version" />
