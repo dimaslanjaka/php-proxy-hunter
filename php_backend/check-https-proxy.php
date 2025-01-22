@@ -99,7 +99,9 @@ if (!$isCli && isset($request['proxy'])) {
     $proxiesDb = array_merge($db->getWorkingProxies(100), $db->getUntestedProxies(100));
     $filteredArray = array_filter($proxiesDb, function ($item) {
       // Keep dead proxies
-      if (strtolower($item['status']) != 'active') return true;
+      if (strtolower($item['status']) != 'active') {
+        return true;
+      }
       // Only pick non-SSL proxies
       return strtolower($item['https']) != 'true';
     });
@@ -107,13 +109,17 @@ if (!$isCli && isset($request['proxy'])) {
       return $item['proxy'];
     }, $filteredArray);
     $proxy = json_encode($proxyArray);
-  } else if ($file) {
+  } elseif ($file) {
     $read = read_file($file);
-    if ($read) $proxy = $read;
+    if ($read) {
+      $proxy = $read;
+    }
   }
 }
 
-if (empty($hashFilename)) $hashFilename = "CLI";
+if (empty($hashFilename)) {
+  $hashFilename = "CLI";
+}
 $lockFolder = tmp() . '/runners/';
 $lockFilePath = $lockFolder . $hashFilename . '.lock';
 $lockFiles = glob($lockFolder . "/$currentScriptFilename*.lock");
@@ -216,21 +222,24 @@ function check(string $proxy)
     $item = $proxies[$i];
 
     // Check if the script has been running for more than [n] seconds
-    if ($isExecutionTimeLimit() && !$isAdmin) break;
+    if ($isExecutionTimeLimit() && !$isAdmin) {
+      break;
+    }
+
+    // Check if last checked time is more than [n] hour(s)
+    $expired = isDateRFC3339OlderThanHours($item->last_check, 5);
 
     // Skip already SSL-supported proxy
-    if ($item->https == 'true' && $item->status == 'active') {
+    if ($item->https == 'true' && $item->status == 'active' && !$expired) {
       _log("[$no] Skipping proxy {$item->proxy}: Already supports SSL and is active.");
       continue;
-    } else if ($item->last_check) {
+    } elseif ($item->last_check) {
       if ($item->status == 'dead') {
-        $expired = isDateRFC3339OlderThanHours($item->last_check, 5);
         if ($item->last_check && !$expired) {
           _log("[$no] Skipping proxy {$item->proxy}: Marked as dead, but was recently checked at {$item->last_check}.");
           continue;
         }
-      } else if ($item->https == 'false' && $item->status != 'untested') {
-        $expired = isDateRFC3339OlderThanHours($item->last_check, 5);
+      } elseif ($item->https == 'false' && $item->status != 'untested') {
         if ($item->last_check && !$expired) {
           _log("[$no] Skipping proxy {$item->proxy}: Does not support SSL, but was recently checked at {$item->last_check}.");
           continue;
