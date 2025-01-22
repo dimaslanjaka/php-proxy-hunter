@@ -1,11 +1,12 @@
 /* global hljs */
-// init highlight.js after page loaded
-document.addEventListener('DOMContentLoaded', initHljs);
 
 // start highlight pre code
 function startHighlighter(block) {
   // validate hljs
-  if ('hljs' in window === false) return loadHljs();
+  if ('hljs' in window === false) {
+    console.log('highlight.js not loaded');
+    return loadHljs();
+  }
   // fix mysql highlight
   if (block.classList.contains('language-mysql')) {
     block.classList.remove('language-mysql');
@@ -92,6 +93,7 @@ function loadStyles(urls, callback) {
 function loadHljs() {
   // validate hljs already imported
   if ('hljs' in window === true) return;
+  console.log('loading module highlight.js');
   // otherwise create one
   loadStyles('//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/androidstudio.min.css');
   loadScriptsSequentially(['//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js'], function () {
@@ -120,9 +122,13 @@ function initHljs() {
   */
 }
 
-function loadCss(url) {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = url + '?v=' + new Date().getTime();
-  document.head.appendChild(link);
-}
+// function loadCss(url) {
+//   const link = document.createElement('link');
+//   link.rel = 'stylesheet';
+//   link.href = url + '?v=' + new Date().getTime();
+//   document.head.appendChild(link);
+// }
+
+// init highlight.js after page loaded
+// document.addEventListener('DOMContentLoaded', initHljs);
+initHljs();
