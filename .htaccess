@@ -37,6 +37,9 @@ Options -Indexes
     # Deny access to the 'python_browser' directory
     RewriteRule ^python_browser/ - [F,L]
 
+    # Disallow access to twig source views folder
+    RewriteRule ^views/ - [F,L]
+
     # Set cache-control for 5 mins for working.json and status.json
     <FilesMatch "^(working|status)\.json$">
         Header set Cache-Control "public, max-age=300"
