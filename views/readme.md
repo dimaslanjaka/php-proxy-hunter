@@ -11,3 +11,7 @@ default template
 {% block body %}HTML INSIDE <body/>{% endblock body %}
 {% block endbody %}HTML BEFORE </body>{% endblock endbody %}
 ```
+
+# Assets
+
+Location resource assets in **/views/assets** will be compiled using a rollup to the folder **/public/assets**

@@ -5,6 +5,8 @@ import terser from '@rollup/plugin-terser';
 import fs from 'fs';
 import * as glob from 'glob';
 import jsonc from 'jsonc-parser';
+import * as sass from 'sass';
+import { bindProcessExit, writefile } from 'sbg-utility';
 import path from 'upath';
 import { fileURLToPath } from 'url';
 import { isDebug } from './src/func.js';
@@ -69,3 +71,23 @@ const phpJs = findJs.map((input) => {
 });
 
 export default [proxyManager, ...phpJs];
+
+function compileSass() {
+  const resources = glob.globSync('views/assets/**/*.scss', { cwd: __dirname }).map((f) => {
+    const input = path.toUnix(f);
+    return {
+      input,
+      output: `public/php/${input.replace('views/assets/', '').replace('.scss', '.css')}`
+    };
+  });
+  for (let i = 0; i < resources.length; i++) {
+    const src = resources[i];
+    const result = sass.compile(src.input, { charset: true, style: !isDebug() ? 'compressed' : 'expanded' });
+    writefile(src.output, result.css);
+    console.log('compiled', src.output);
+  }
+}
+
+bindProcessExit('compileSass', function () {
+  compileSass();
+});
