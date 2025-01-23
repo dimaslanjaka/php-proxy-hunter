@@ -51,7 +51,7 @@ const phpJs = findJs.map((input) => {
   const config = {
     input,
     output: {
-      file: `public/php/${input}`,
+      file: `public/php/${input.replace('views/assets/', '')}`,
       format: 'iife'
     },
     plugins: [
