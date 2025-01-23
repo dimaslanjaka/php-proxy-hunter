@@ -17,10 +17,7 @@
       "icon": "terminal-powershell"
     },
     "Command Prompt": {
-      "path": [
-        "${env:windir}\\Sysnative\\cmd.exe",
-        "${env:windir}\\System32\\cmd.exe"
-      ],
+      "path": ["${env:windir}\\Sysnative\\cmd.exe", "${env:windir}\\System32\\cmd.exe"],
       "args": [],
       "icon": "terminal-cmd"
     },
@@ -29,10 +26,7 @@
     },
     "Cygwin": {
       "path": "C:\\cygwin64\\bin\\bash.exe",
-      "args": [
-        "--login",
-        "-i"
-      ],
+      "args": ["--login", "-i"],
       "env": {
         "CHERE_INVOKING": "1"
       }
@@ -55,7 +49,7 @@
     "*.py": "py2 -u",
     "*.electron.js": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
     "*.ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm",
-    "*.mjs": "node --no-warnings=ExperimentalWarning",
+    "*.mjs": "node --no-warnings=ExperimentalWarning"
   },
   "code-runner.saveFileBeforeRun": true,
   "code-runner.respectShebang": true,
@@ -89,6 +83,9 @@
       "source.fixAll": "never"
     }
   },
+  "[twig]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[html]": {
     "editor.suggest.insertMode": "replace",
     "editor.codeActionsOnSave": {
@@ -103,10 +100,7 @@
       "source.fixAll": "never"
     }
   },
-  "autopep8.args": [
-    "--ignore",
-    "E401,E402,E211,E501"
-  ],
+  "autopep8.args": ["--ignore", "E401,E402,E211,E501"],
   "eslint.useFlatConfig": true,
   "python.createEnvironment.contentButton": "show",
   "python.terminal.activateEnvInCurrentTerminal": true,
@@ -125,10 +119,7 @@
     "src/database.sqlite*": true
   },
   "intelephense.environment.documentRoot": "${workspaceFolder}",
-  "intelephense.environment.includePaths": [
-    "${workspaceFolder}/src",
-    "${workspaceFolder}/vendor"
-  ],
+  "intelephense.environment.includePaths": ["${workspaceFolder}/src", "${workspaceFolder}/vendor"],
   "files.exclude": {
     "**/.cache/**": true,
     "**/.idea/**": true,
