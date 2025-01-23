@@ -11,7 +11,11 @@ class Session
   private $session_prefix_name = "PHP_PROXY_HUNTER";
 
   /**
-   * @throws Exception
+   * Session constructor that starts a session with a specified timeout and optional session folder.
+   *
+   * @param int $timeout Session timeout in seconds.
+   * @param string|null $session_folder Optional custom folder for storing session files.
+   * @throws Exception If session folder creation fails or session cannot be started.
    */
   public function __construct(int $timeout, $session_folder = null)
   {
@@ -19,8 +23,6 @@ class Session
       mkdir($session_folder, 755, true);
     }
     if (!$this->is_session_started()) {
-      // $this->handle($timeout, $session_folder);
-
       $name = md5($this->session_prefix_name . $timeout . Server::getRequestIP() . Server::useragent());
       if (empty(trim($session_folder))) {
         $session_folder = __DIR__ . '/../../tmp/sessions';
@@ -54,11 +56,21 @@ class Session
     }
   }
 
+  /**
+   * Checks if the session has already been started.
+   *
+   * @return bool Returns true if session is active, false otherwise.
+   */
   public function is_session_started(): bool
   {
     return PHP_SESSION_ACTIVE == session_status();
   }
 
+  /**
+   * Dumps session information including status, id, session folder, and related settings.
+   *
+   * @return array An associative array containing session-related information.
+   */
   public static function dump(): array
   {
     return [
@@ -71,15 +83,66 @@ class Session
         'session.gc_probability' => ini_get('session.gc_probability'),
         'session.gc_divisor' => ini_get('session.gc_divisor'),
         'session.hash_function' => ini_get('session.hash_function'),
+        'session.file' => realpath(session_save_path() .'/sess_' . session_id())
       ],
+      'cookies' => $_COOKIE
     ];
   }
 
   /**
-   * @throws Exception
+   * Returns the current date and time in the 'Asia/Jakarta' timezone.
+   *
+   * @return DateTime The current date and time.
+   * @throws Exception If the DateTime creation fails.
    */
   public function now(): DateTime
   {
     return new DateTime('now', new DateTimeZone('Asia/Jakarta'));
+  }
+
+  /**
+   * Clears all cookies by setting their expiration date to the past.
+   * This method loops through the $_COOKIE array, expires each cookie,
+   * and removes it from the $_COOKIE global array.
+   *
+   * @return void
+   */
+  public static function clearCookies()
+  {
+    // Loop through the $_COOKIE array and delete each cookie
+    foreach ($_COOKIE as $cookie_name => $cookie_value) {
+      // Set cookies to expire in the past to delete them
+      setcookie($cookie_name, '', time() - 3600, '/');
+
+      // Remove the cookie from the $_COOKIE array
+      unset($_COOKIE[$cookie_name]);
+    }
+  }
+
+  /**
+   * Clears all active session data by calling session_destroy() and
+   * resetting relevant session variables.
+   *
+   * @return bool
+   */
+  public static function clearSessions()
+  {
+    // Check if the session is started
+    if (session_status() == PHP_SESSION_ACTIVE) {
+      // Destroy session data
+      session_unset();
+      session_destroy();
+      // Clear cookies
+      self::clearCookies();
+      // Remove existing session file
+      $session_attr = self::dump();
+      $session_file = $session_attr['sessions']['session.file'];
+      if ($session_file && file_exists($session_file)) {
+        unlink($session_file);
+      }
+      return true;
+    } else {
+      return false;
+    }
   }
 }
