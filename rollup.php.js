@@ -46,6 +46,7 @@ export { proxyManager };
 const findJs = glob.globSync('views/assets/**/*.js', { cwd: __dirname }).map((f) => {
   return path.toUnix(f);
 });
+
 const phpJs = findJs.map((input) => {
   /**
    * @type {import('rollup').RollupOptions}
