@@ -97,6 +97,8 @@ install project manual
 python3 requirements_install.py
 yarn install
 composer install
+# for .gitattributes merge driver
+git config merge.resolve_hash.driver "node bin/create-file-hashes.cjs %O %A %B"
 ```
 
 build project
