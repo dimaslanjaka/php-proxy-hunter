@@ -5,14 +5,38 @@
 {% block endhead %}{% endblock endhead %}
 
 {% block body %}
-  <div class="container mx-auto">
-    <p><i class="fa-solid fa-dollar-sign"></i> <span
-        class="mr-5">{{ saldo | default("0") }}</span> <a
-        href="https://wa.link/5553s3" target="_blank"><i
-          class="fa-brands fa-whatsapp"></i> ISI SALDO</a></p>
-  </div>
+	<div class="container mx-auto">
+		<div
+			class="relative p-6 max-w-sm sm:max-w-md md:max-w-lg mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-md">
+			<!-- Pencil Icon (Edit link) -->
+			<a href="/edit-profile" class="absolute top-2 right-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
+				<i class="fas fa-pencil-alt"></i>
+			</a>
 
-  {% include '_widgets/history.twig' %}
+			<p class="text-gray-600 dark:text-gray-300 flex items-center">
+				<i class="fas fa-user mr-3"></i>
+				<span id="user-fullname">John Doe</span>
+			</p>
+			<p class="text-gray-600 dark:text-gray-300 mt-2 flex items-center">
+				<i class="fas fa-envelope mr-3"></i>
+				<span id="user-email">john.doe@example.com</span>
+			</p>
+			<p class="text-gray-600 dark:text-gray-300 mt-2 flex items-center">
+				<i class="fas fa-wallet mr-3"></i>
+				<span id="user-saldo">{{ saldo | default("0") }}</span>
+			</p>
+			<p class="mt-2 flex items-center">
+				<a href="https://wa.link/5553s3" target="_blank" class="text-gray-600 dark:text-gray-300 flex items-center">
+					<i class="fa-brands fa-whatsapp mr-3"></i>
+					ISI SALDO
+				</a>
+			</p>
+		</div>
+	</div>
+
+	{% include '_widgets/history.twig' %}
 {% endblock body %}
 
-{% block endbody %}{% endblock endbody %}
+{% block endbody %}
+	<script src="/public/php/js/dashboard.js"></script>
+{% endblock endbody %}

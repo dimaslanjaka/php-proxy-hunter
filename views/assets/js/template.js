@@ -1,3 +1,37 @@
+import $ from 'jquery';
+
+/**
+ * Fetches user data and ensures the user is authenticated.
+ *
+ * @returns {Promise<import('../../../types/user.js').UserInfoResponse>} A promise that resolves with the user data if authenticated, or rejects with an error.
+ */
+export function getUserData() {
+  return new Promise((resolve, reject) => {
+    /**
+     * Callback for handling user data response.
+     *
+     * @callback UserInfoCallback
+     * @param {import('../../../types/user.js').UserInfoResponse} data - The user information response object.
+     */
+
+    /**
+     * @type {UserInfoCallback}
+     */
+    const callback = function (data) {
+      if (!data.authenticated) {
+        location.href = '/login';
+        reject(new Error('User not authenticated'));
+      } else {
+        resolve(data);
+      }
+    };
+
+    $.getJSON('/php_backend/user-info.php', callback).fail(function () {
+      reject(new Error('Failed to fetch user data'));
+    });
+  });
+}
+
 /**
  * Displays a snackbar message for a specified duration.
  * @param {...string|Error} messages - The messages to be displayed, which can also be an Error object.

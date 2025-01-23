@@ -34,8 +34,11 @@ if (empty($from_db['saldo']) && !empty($from_db['id'])) {
 $result = [
   'authenticated' => isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true,
   'uid' => $browserId,
-  'email' => anonymizeEmail($email),
-  'saldo' => intval($from_db['saldo'] ?? null)
+  'email' => $email,
+  'saldo' => intval($from_db['saldo'] ?? null),
+  'username' => $from_db['username'],
+  'first_name' => $from_db['first_name'],
+  'last_name' => $from_db['last_name']
 ];
 // Assign admin
 if ($isAdmin) {
