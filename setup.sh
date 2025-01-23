@@ -196,3 +196,6 @@ rollup -c
 if [ "$OS" == "Linux" ]; then
     bash -e "$CWD/bin/fix-perm"
 fi
+
+# Add git merge driver
+git config merge.resolve_hash.driver "node bin/create-file-hashes.cjs %O %A %B"
