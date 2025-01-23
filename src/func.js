@@ -1,7 +1,8 @@
 import crypto from 'crypto';
 import fs from 'fs-extra';
+import os from 'os';
 import { dirname, join, normalize } from 'path';
-import { path } from 'sbg-utility';
+import path from 'upath';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -134,4 +135,51 @@ export async function writeFile(filePath, content) {
  */
 export function md5(data) {
   return crypto.createHash('md5').update(data).digest('hex');
+}
+
+/**
+ * Determines whether the application is in debug mode.
+ *
+ * Debug mode is activated based on several conditions:
+ * - If the code is running in a GitHub CI environment or GitHub Codespaces.
+ * - If the hostname of the machine matches one of the debug devices specified
+ *   in the `DEBUG_DEVICES` environment variable.
+ * - If the hostname starts with 'codespaces-'.
+ *
+ * @returns {boolean} True if in debug mode, false otherwise.
+ */
+export function isDebug() {
+  // Check if running in a GitHub CI environment
+  const isGitHubCI = process.env.CI === 'true' && process.env.GITHUB_ACTIONS === 'true';
+
+  // Check if running in GitHub Codespaces
+  const isGitHubCodespaces = process.env.CODESPACES === 'true';
+
+  // Debug mode is active in GitHub CI or GitHub Codespaces environments
+  if (isGitHubCI || isGitHubCodespaces) {
+    return true;
+  }
+
+  // Get the list of debug devices from the environment variable
+  const envPath = path.resolve(process.cwd(), '.env');
+  let debugDevices = [];
+
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    const match = envContent.match(/^DEBUG_DEVICES=(.+)$/m);
+    if (match && match[1]) {
+      debugDevices = match[1].split(',').map((device) => device.trim());
+    }
+  }
+
+  // Get the hostname of the current machine
+  const hostname = os.hostname();
+
+  // Debug mode is active if the hostname starts with 'codespaces-'
+  if (hostname.startsWith('codespaces-')) {
+    return true;
+  }
+
+  // Debug mode is active if the hostname is in the list of debug devices
+  return debugDevices.includes(hostname);
 }
