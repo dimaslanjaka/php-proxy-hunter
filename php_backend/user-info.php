@@ -22,7 +22,7 @@ $browserId = getUserId();
 $request = parsePostData();
 $currentScriptFilename = basename(__FILE__, '.php');
 
-$email = !$isCli ? $_SESSION['authenticated_email'] : '';
+$email = !$isCli ? ($_SESSION['authenticated_email'] ?? '') : '';
 $from_db = $user_db->select($email);
 if (empty($from_db['saldo']) && !empty($from_db['id'])) {
   // Insert saldo when column not exist
@@ -32,12 +32,15 @@ if (empty($from_db['saldo']) && !empty($from_db['id'])) {
 }
 
 $result = [
+  'authenticated' => isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true,
   'uid' => $browserId,
   'email' => anonymizeEmail($email),
   'saldo' => intval($from_db['saldo'] ?? null)
 ];
 // Assign admin
-if ($isAdmin) $result['admin'] = true;
+if ($isAdmin) {
+  $result['admin'] = true;
+}
 // Sort array keys alphabetically
 ksort($result);
 
