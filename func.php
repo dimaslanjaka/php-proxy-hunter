@@ -2788,3 +2788,29 @@ function php_exec($cmd)
     return "Error: No suitable PHP function available to execute commands.";
   }
 }
+
+/**
+ * Removes specified keys from a multi-dimensional array.
+ *
+ * This function recursively iterates over the array and removes all occurrences
+ * of the specified keys at any level of the array.
+ *
+ * @param array $array The array from which keys should be removed. Passed by reference.
+ * @param array $keysToRemove An array of keys to remove from the array.
+ *
+ * @return void
+ */
+function remove_array_keys(array &$array, array $keysToRemove): void
+{
+  foreach ($array as $key => &$value) {
+    if (is_array($value)) {
+      // Recursively apply the function to nested arrays
+      remove_array_keys($value, $keysToRemove);
+    }
+
+    // If the key is in the list of keys to remove, unset it
+    if (in_array($key, $keysToRemove, true)) {
+      unset($array[$key]);
+    }
+  }
+}
