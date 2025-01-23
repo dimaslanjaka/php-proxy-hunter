@@ -53,6 +53,7 @@
   </script>
   <link rel="stylesheet"
         href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
+  <link rel="stylesheet" href="/public/php/css/template.css" />
   {% block endhead %}{% endblock endhead %}
 </head>
 <body
@@ -94,14 +95,15 @@
 <!-- page body -->
 {% block body %}{% endblock body %}
 
+<div id="snackbar">Snackbar Message</div>
+
 <!-- Footer -->
 <footer class="bg-gray-800 text-white text-center py-4 mt-5">
   <p>&copy; 2025 {{ site_title }}. All rights reserved.</p>
 </footer>
 
 <!-- Google tag (gtag.js) -->
-<script async
-        src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BG75CLNJZ1"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
 
@@ -113,8 +115,7 @@
 
   gtag('config', 'G-BG75CLNJZ1');
 </script>
-<script
-  src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
 
 {% block endbody %}{% endblock endbody %}
 </body>
