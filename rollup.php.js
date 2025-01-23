@@ -52,7 +52,8 @@ const phpJs = findJs.map((input) => {
     input,
     output: {
       file: `public/php/${input.replace('views/assets/', '')}`,
-      format: 'iife'
+      format: 'iife',
+      name: path.basename(input, '.js')
     },
     plugins: [
       resolve({ preferBuiltins: true }), // Resolve node_modules packages
