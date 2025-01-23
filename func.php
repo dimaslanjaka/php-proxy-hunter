@@ -865,15 +865,15 @@ function parsePostData(bool $detect_get = false): ?array
     foreach ($_FILES as $key => $file) {
       $result[$key] = $file;
     }
-  } elseif ($contentType === "application/json") {
+  } elseif (strpos($contentType, "application/json") !== false) {
     // Decode the JSON from the input stream
     $json_data = json_decode(file_get_contents('php://input'), true);
 
     if (is_array($json_data)) {
       $result = array_merge($result, $json_data);
     }
-  } elseif ($contentType === "application/x-www-form-urlencoded") {
-    // Merge URL-encoded POST data into the result
+  } elseif (strpos($contentType, "application/x-www-form-urlencoded") !== false) {
+    // For URL-encoded form data, $_POST already contains the parsed data
     $result = array_merge($result, $_POST);
   }
 
