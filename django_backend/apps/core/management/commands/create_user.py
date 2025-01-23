@@ -5,7 +5,7 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = "Creates a new user\npython manage.py create_user demo@gmail.com demo demoPassword"
+    help = "Creates a new user\npython manage.py create_user demo@example.com demo demoPassword"
 
     def add_arguments(self, parser):
         parser.add_argument(
