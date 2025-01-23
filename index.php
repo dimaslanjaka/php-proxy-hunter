@@ -8,6 +8,26 @@ $requestUri = $_SERVER['REQUEST_URI'];
 // Extract the path part of the URI
 $requestPath = parse_url($requestUri, PHP_URL_PATH);
 
+// Check if the request is for a static file
+$staticFileExtensions = ['css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'ico', 'svg', 'woff', 'woff2', 'ttf', 'eot'];
+$fileExtension = pathinfo($requestPath, PATHINFO_EXTENSION);
+
+if (in_array($fileExtension, $staticFileExtensions)) {
+  $filePath = __DIR__ . $requestPath; // Construct the full file path
+
+  if (file_exists($filePath)) {
+    // Serve the file content directly
+    header('Content-Type: ' . mime_content_type($filePath));
+    read_file($filePath);
+    exit; // Stop further execution
+  }
+
+  // If file doesn't exist, respond with 404
+  http_response_code(404);
+  echo "$filePath file not found.";
+  exit;
+}
+
 // Remove leading and trailing slashes and split into segments
 $pathSegments = explode('/', trim($requestPath, '/'));
 
