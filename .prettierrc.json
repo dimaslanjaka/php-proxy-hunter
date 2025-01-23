@@ -25,5 +25,5 @@
       }
     }
   ],
-  "plugins": ["prettier-plugin-embed", "prettier-plugin-sql"]
+  "plugins": ["prettier-plugin-embed", "prettier-plugin-sql", "prettier-plugin-twig"]
 }
