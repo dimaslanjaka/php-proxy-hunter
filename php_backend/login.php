@@ -49,6 +49,9 @@ function do_login($username, $password)
           $response = ['success' => true, 'admin' => true];
         } else {
           $response = ['success' => true];
+          if (isset($_SESSION['admin'])) {
+            unset($_SESSION['admin']);
+          }
         }
         $date = new DateTime();
         $currentDateTime = $date->format('Y-m-d H:i:s.u');
