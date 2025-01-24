@@ -1,0 +1,13 @@
+{% extends "template.twig" %}
+
+{% set site_title %}DX{% endset %}
+{% set page_title %}Admin Dashboard{% endset %}
+{% block endhead %}{% endblock endhead %}
+
+{% block body %}
+  {% include 'admin/refill-saldo.twig' %}
+{% endblock body %}
+
+{% block endbody %}
+<script src="/public/php/js/admin.js"></script>
+{% endblock endbody %}
