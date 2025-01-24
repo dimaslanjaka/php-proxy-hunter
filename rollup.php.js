@@ -56,7 +56,7 @@ const phpJs = findJs.map((input) => {
     output: {
       file: `public/php/${input.replace('views/assets/', '')}`,
       format: 'iife',
-      name: path.basename(input, '.js')
+      name: sanitizeExportName(path.basename(input, '.js'))
     },
     plugins: [
       resolve({ preferBuiltins: true }), // Resolve node_modules packages
@@ -72,6 +72,18 @@ const phpJs = findJs.map((input) => {
 });
 
 export default [proxyManager, ...phpJs];
+
+/**
+ * Sanitizes a string to be a valid JavaScript identifier.
+ * @param {string} name - The name to sanitize.
+ * @returns {string} The sanitized name.
+ */
+function sanitizeExportName(name) {
+  return name
+    .replace(/[^a-zA-Z0-9_$]+/g, '_') // Replace one or more invalid characters with a single underscore.
+    .replace(/^[^a-zA-Z_$]/, '_') // Ensure the name starts with a valid character.
+    .replace(/_+$/, ''); // Remove trailing underscores.
+}
 
 function compileSass() {
   const resources = glob.globSync('views/assets/**/*.scss', { cwd: __dirname }).map((f) => {
