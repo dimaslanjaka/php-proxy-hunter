@@ -7,6 +7,12 @@ header("Access-Control-Allow-Headers: *");
 header("Access-Control-Allow-Methods: *");
 header('Content-Type: text/plain; charset=utf-8');
 
+// Ignore browser caching
+header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+
 // Get the 'sms' parameter from either POST or GET
 $request = parsePostData(true);
 $test = $request['sms'] ?? $_REQUEST['sms'] ?? $_POST['sms'] ?? $_GET['sms'] ?? '';
