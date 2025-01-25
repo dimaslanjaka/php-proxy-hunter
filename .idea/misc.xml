@@ -6,5 +6,5 @@
     <option name="pathToExecutable" value="D:\bin\python\main\Scripts\black.exe" />
     <option name="sdkName" value="Python 3.11 (dl-traffic-python)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (dl-traffic-python)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (htdocs)" project-jdk-type="Python SDK" />
 </project>

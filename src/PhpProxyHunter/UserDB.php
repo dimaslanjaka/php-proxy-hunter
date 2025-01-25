@@ -2,9 +2,6 @@
 
 namespace PhpProxyHunter;
 
-use PDO;
-use PDOException;
-
 if (!defined('PHP_PROXY_HUNTER')) {
   exit('access denied');
 }
@@ -65,9 +62,9 @@ class UserDB
   {
     $id = is_string($id) ? trim($id) : $id;
     $conditions = [
-        'email = ?',
-        'username = ?',
-        'id = ?'
+      'email = ?',
+      'username = ?',
+      'id = ?'
     ];
     // Declare empty result
     $result = [];
@@ -102,8 +99,8 @@ class UserDB
   public function update($id, array $data)
   {
     $conditions = [
-        'email = ?',
-        'username = ?'
+      'email = ?',
+      'username = ?'
     ];
     foreach ($conditions as $condition) {
       $select = $this->db->select("auth_user", "*", $condition, [$id]);
@@ -114,23 +111,30 @@ class UserDB
     }
   }
 
-  public function update_saldo(int $id, $saldo)
+  /**
+   * @param string $log_source log source identifier for logs, eg: refill_saldo, buy_package
+   */
+  public function update_saldo(int $id, $amount, string $log_source, string $log_extra_info = "")
   {
-    if (is_string($saldo)) {
-      $saldo = intval($saldo);
-    }
-    $select = $this->db->select("user_fields", "*", "user_id = ?", [$id]);
-    if (empty($select)) {
+    $amount = intval($amount);
+
+    $find_existing_row = $this->db->select("user_fields", "*", "user_id = ?", [$id]);
+    if (empty($find_existing_row)) {
       // Insert new column when not exist
       $this->db->insert('user_fields', ['user_id' => $id, 'saldo' => 0]);
     }
     $existing_saldo = intval($this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0]['saldo']);
-    $sum_saldo = $existing_saldo + $saldo;
+    $sum_saldo = $existing_saldo + $amount;
     $this->db->update('user_fields', ['saldo' => $sum_saldo], "user_id = ?", [$id]);
+
+    // Update logs
+    $this->db->insert("user_logs", ["message" => "Topup $amount", "log_level" => "INFO", "source" => $log_source, "extra_info" => $log_extra_info, 'user_id' => $id], false);
+
     return $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0];
   }
 
-  public function get_saldo(int $id) {
+  public function get_saldo(int $id)
+  {
     return $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0]['saldo'];
   }
 }

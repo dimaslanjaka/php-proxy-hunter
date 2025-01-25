@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS "auth_user" (
   "date_joined" DATETIME NOT NULL,
   "first_name" VARCHAR(150) NOT NULL
 );
+
 -- is_superuser, is_staff, is_active value only 0 (false) or 1 (true)
 -- add admin
 -- INSERT INTO "auth_user" ("password", "is_superuser", "username", "last_name", "email", "is_staff", "is_active", "first_name") VALUES ('pbkdf2_sha256$720000$m80dHthUAXmM7pr2SKnuEd$GwjT+iseriwh9KNM/R1kIgL/GHfbKf2htsVMDLHzKNE=', '1', 'admin', '', 'admin@example.com', '1', '1', '');
@@ -51,10 +52,19 @@ CREATE TABLE IF NOT EXISTS "auth_user" (
 -- INSERT INTO "auth_user" ("password", "is_superuser", "username", "last_name", "email", "is_staff", "is_active", "first_name") VALUES ('pbkdf2_sha256$720000$m80dHthUAXmM7pr2SKnuEd$GwjT+iseriwh9KNM/R1kIgL/GHfbKf2htsVMDLHzKNE=', '0', 'user', '', 'user@example.com', '0', '1', '');
 -- add staff
 -- INSERT INTO "auth_user" ("password", "is_superuser", "username", "last_name", "email", "is_staff", "is_active", "first_name") VALUES ('pbkdf2_sha256$720000$m80dHthUAXmM7pr2SKnuEd$GwjT+iseriwh9KNM/R1kIgL/GHfbKf2htsVMDLHzKNE=', '0', 'staff', '', 'staff@example.com', '1', '1', '');
-
 -- create user fields from django
 CREATE TABLE IF NOT EXISTS "user_fields" (
   "user_id" integer NOT NULL PRIMARY KEY REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED,
   "saldo" decimal NOT NULL,
   "phone" varchar(128) NULL UNIQUE
-)
+);
+
+-- create user logs
+CREATE TABLE IF NOT EXISTS "user_logs" (
+  "user_id" INTEGER NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED,
+  "timestamp" DATETIME DEFAULT CURRENT_TIMESTAMP,
+  "log_level" TEXT NOT NULL DEFAULT 'INFO',
+  "message" TEXT NOT NULL,
+  "source" TEXT,
+  "extra_info" TEXT
+);
