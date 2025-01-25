@@ -35,7 +35,7 @@ $email = !$isCli ? ($_SESSION['authenticated_email'] ?? '') : '';
 $from_db = $user_db->select($email);
 if (empty($from_db['saldo']) && !empty($from_db['id'])) {
   // Insert saldo when column not exist
-  $user_db->update_saldo($from_db['id'], 0, "init");
+  $user_db->update_saldo($from_db['id'], 0, basename(__FILE__));
   // Update variable
   $from_db = $user_db->select($email);
 }
