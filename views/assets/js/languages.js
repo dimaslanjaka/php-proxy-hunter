@@ -22,7 +22,7 @@ export function updateLanguage() {
  * 'hl' query parameter.
  * If the 'hl' parameter is missing, it defaults to 'en'.
  */
-export function initializeLanguageSelector() {
+export async function initializeLanguageSelector() {
   const currentURL = new URL(window.location.href);
   const language = currentURL.searchParams.get('hl') || 'en'; // Default to 'en' if 'hl' is not in the URL
 
