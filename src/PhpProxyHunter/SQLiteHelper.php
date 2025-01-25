@@ -78,15 +78,27 @@ class SQLiteHelper
    *
    * @param string $tableName The name of the table to insert into.
    * @param array $data An associative array of column names and values.
+   * @param bool $insertOrIgnore Optional. Determines whether to use INSERT OR IGNORE or INSERT.
    */
-  public function insert(string $tableName, array $data): void
+  public function insert(string $tableName, array $data, bool $insertOrIgnore = true): void
   {
+    // Ensure the table name is valid (alphanumeric and underscores only)
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
+      throw new \InvalidArgumentException('Invalid table name.');
+    }
+
     $columns = implode(', ', array_keys($data));
     $values = implode(', ', array_fill(0, count($data), '?'));
+    $sql = $insertOrIgnore ? "INSERT OR IGNORE" : "INSERT";
+    $sql = "$sql INTO $tableName ($columns) VALUES ($values)";
 
-    $sql = "INSERT OR IGNORE INTO $tableName ($columns) VALUES ($values)";
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute(array_values($data));
+    try {
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute(array_values($data));
+    } catch (\PDOException $e) {
+      // Handle error appropriately
+      throw new \RuntimeException('Failed to insert record: ' . $e->getMessage());
+    }
   }
 
   /**
