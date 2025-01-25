@@ -11,7 +11,7 @@ use PhpProxyHunter\TranslationExtension;
 ini_set('memory_limit', '512M');
 
 // Capture the full request URI
-$requestUri = $_SERVER['REQUEST_URI'];
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
 
 // Extract the path part of the URI
 $requestPath = parse_url($requestUri, PHP_URL_PATH);
@@ -81,10 +81,36 @@ if (!in_array($locale, $validLocales)) {
 // Set the detected locale
 $translator->setLocale($locale);
 $translator->setFallbackLocales(['en']);
-error_log("Locale set to: $locale");
 
-// Pass the translator
-$twig->addExtension(new TranslationExtension($translator));
+// Get all PHP files in the 'translations/ext' folder
+$extensionsPath = __DIR__ . '/translations/ext';
+$files = glob($extensionsPath . '/*.php');
+
+foreach ($files as $file) {
+  require_once $file;  // Include the file (make sure the extension class is autoloaded)
+
+  // Get the class name (assuming class name matches the file name)
+  $className = "\PhpProxyHunter\\" . basename($file, '.php');
+  if (!class_exists($className)) {
+    $className = basename($file, '.php');
+  }
+
+  // If the class exists and implements Twig\Extension\ExtensionInterface
+  if (class_exists($className) && is_subclass_of($className, \Twig\Extension\ExtensionInterface::class)) {
+    $extension = null;
+    if (strpos($className, 'TranslationExtension') !== false && isset($translator)) {
+      // Pass the $translator to the TranslationExtension constructor
+      $extension = new $className($translator);
+    } else {
+      // No special arguments needed for other extensions
+      $extension = new $className();
+    }
+    // Add the extension to Twig
+    if ($extension) {
+      $twig->addExtension($extension);
+    }
+  }
+}
 
 // Dispatcher
 try {
