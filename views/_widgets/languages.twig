@@ -1,9 +1,10 @@
 <div class="container mx-auto mb-5">
   <div class="flex justify-center items-center space-x-4">
     <div class="flex justify-center items-center space-x-4">
-      <label for="language-select" class="text-lg font-medium text-gray-900 dark:text-gray-100">Select Language:</label>
+      <label for="language-select" class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ 'select_language' | trans | title }}:</label>
       <select id="language-select"
         class="px-4 py-2 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600">
+        <option value="">{{ 'select_language' | trans | title }}</option>
         <option value="en">English</option>
         <option value="id">Indonesia</option>
       </select>

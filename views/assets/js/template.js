@@ -1,10 +1,12 @@
 import $ from 'jquery';
-import { updateLanguage } from './languages.js';
+import { initializeLanguageSelector, updateLanguage } from './languages.js';
 
 // Language selector
-if ($('#language-select').length) {
-  $('#language-select').on('change', updateLanguage);
-}
+initializeLanguageSelector().then(() => {
+  if ($('#language-select').length) {
+    $('#language-select').on('change', updateLanguage);
+  }
+});
 
 /**
  * Fetches user data and ensures the user is authenticated.
