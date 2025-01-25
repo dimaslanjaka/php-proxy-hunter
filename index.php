@@ -147,7 +147,7 @@ try {
   }
 
   // Render the view
-  echo $twig->render("{$viewName}.twig", [
+  $render_html = $twig->render("{$viewName}.twig", [
     'date' => date(DATE_RFC3339),
     'debug' => is_debug(),
     'locale' => $locale
@@ -156,7 +156,7 @@ try {
   // Handle errors by rendering a Twig error page
   http_response_code(404);
   $md = new Parsedown();
-  echo $twig->render('404.twig', [
+  $render_html = $twig->render('404.twig', [
     'errorMessage' => $md->text($e->getMessage()),
     'errorFile' => $e->getFile(),
     'errorLine' => $e->getLine(),
@@ -165,3 +165,54 @@ try {
     'locale' => $locale
   ]);
 }
+
+/**
+ * Adds the "nofollow" attribute to external HTTP(S) links in the provided HTML string,
+ * except for whitelisted domains.
+ *
+ * This function parses the provided HTML, finds all anchor tags (`<a>`), and checks whether
+ * the `href` attribute contains an external HTTP(S) URL. If the URL is external and not in the
+ * whitelist, the function adds the `rel="nofollow noopener noreferer"` and `target="_blank"`
+ * attributes to the anchor tag.
+ *
+ * @param string $html The input HTML string containing anchor (`<a>`) tags.
+ * @param array $whitelist An array of domains that should be excluded from the nofollow processing.
+ *
+ * @return string The modified HTML string with `nofollow`, `noopener`, `noreferrer`, and `target="_blank"` added to external HTTP(S) links, except for those in the whitelist.
+ */
+function addNoFollowToExternalLinks($html, $whitelist = [])
+{
+  // Create a DOMDocument instance
+  $dom = new DOMDocument();
+
+  // Suppress warnings due to malformed HTML
+  @$dom->loadHTML($html);
+
+  // Find all anchor tags
+  $links = $dom->getElementsByTagName('a');
+
+  // Regex to match HTTP(S) URLs
+  $pattern = '/^https?:\/\/[^\s\/$.?#].[^\s]*$/';
+
+  foreach ($links as $link) {
+    // Get the href attribute
+    $url = $link->getAttribute('href');
+
+    // Validate the URL is an HTTP(S) URL using regex
+    if (preg_match($pattern, $url)) {
+      // Check if the URL is external and not in the whitelist
+      $host = parse_url($url, PHP_URL_HOST);
+      if (strpos($url, $_SERVER['HTTP_HOST']) === false && !in_array($host, $whitelist)) {
+        // Add rel="nofollow noopener noreferer" and target="_blank" if external and not whitelisted
+        $link->setAttribute('rel', 'nofollow noopener noreferer');
+        $link->setAttribute('target', '_blank');
+      }
+    }
+  }
+
+  // Save and return the modified HTML
+  return $dom->saveHTML();
+}
+
+
+echo addNoFollowToExternalLinks($render_html, ['www.webmanajemen.com', 'webmanajemen.com']);
