@@ -7,12 +7,14 @@
   "autoload": {
     "psr-4": {
       "simplehtmldom\\": "src/simplehtmldom/",
-      "PhpProxyHunter\\": "src/PhpProxyHunter"
+      "PhpProxyHunter\\": [
+        "src/PhpProxyHunter",
+        "translations/ext"
+      ]
     },
     "files": [
       "data/webgl.php",
-      "src/hashers/CustomPasswordHasher.php",
-      "translations/TranslationExtension.php"
+      "src/hashers/CustomPasswordHasher.php"
     ]
   },
   "authors": [
@@ -21,7 +23,14 @@
       "email": "dimaslanjaka@gmail.com"
     }
   ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/helpcenterio/country-codes"
+    }
+  ],
   "require": {
+    "brightnucleus/country-codes": "dev-master",
     "composer-plugin-api": "^2.3",
     "annexare/countries-list": "^3.1",
     "geoip2/geoip2": "^2.13",
@@ -45,5 +54,10 @@
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.0 || ^2.0",
     "phpunit/phpunit": "^9.6"
+  },
+  "config": {
+    "allow-plugins": {
+      "brightnucleus/country-codes": true
+    }
   }
 }
