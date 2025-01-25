@@ -84,7 +84,7 @@
     }
   },
   "[twig]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "vscode.html-language-features"
   },
   "[html]": {
     "editor.suggest.insertMode": "replace",
