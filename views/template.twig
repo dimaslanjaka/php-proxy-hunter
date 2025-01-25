@@ -92,10 +92,12 @@
   });
 </script>
 
-{% include "_widgets/languages.twig" %}
-
 <!-- page body -->
 {% block body %}{% endblock body %}
+
+<div class="container mx-auto">
+  {% include "_widgets/languages.twig" %}
+</div>
 
 <div id="snackbar">Snackbar Message</div>
 
