@@ -1,0 +1,42 @@
+<div class="container mx-auto mb-5">
+  <div class="flex justify-center items-center space-x-4">
+    <div class="flex justify-center items-center space-x-4">
+      <label for="language-select" class="text-lg font-medium text-gray-900 dark:text-gray-100">Select Language:</label>
+      <select id="language-select"
+        class="px-4 py-2 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
+        onchange="updateLanguage()">
+        <option value="">{{ locale }}</option>
+        <option value="en">English</option>
+        <option value="id">Indonesia</option>
+      </select>
+    </div>
+
+    <script>
+      // Function to update the language and append 'hl' to the URL
+      function updateLanguage() {
+        const selectedLanguage = document.getElementById('language-select').value;
+        const currentURL = new URL(window.location.href);
+
+        // Append or update the 'hl' query parameter
+        currentURL.searchParams.set('hl', selectedLanguage);
+
+        // Redirect to the new URL
+        window.location.href = currentURL.toString();
+      }
+
+      // Function to initialize the select element based on the current URL's 'hl' parameter
+      function initializeLanguageSelector() {
+        const currentURL = new URL(window.location.href);
+        const language = currentURL.searchParams.get('hl') || 'en'; // Default to 'en' if 'hl' is not in the URL
+
+        const selectElement = document.getElementById('language-select');
+
+        // Set the value of the select dropdown based on the 'hl' parameter in the URL
+        selectElement.value = language;
+      }
+
+      // Run the initialization function when the page loads
+      window.onload = initializeLanguageSelector;
+    </script>
+  </div>
+</div>
