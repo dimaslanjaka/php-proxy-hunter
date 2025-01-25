@@ -1,28 +1,31 @@
 <div class="container mx-auto p-6 bg-white rounded-lg shadow-md dark:bg-gray-900">
   <h2 class="text-xl font-semibold text-gray-700 mb-4 dark:text-gray-100">Form Pengisian Saldo</h2>
-  <form action="#" method="POST">
-      <!-- Pemilihan User -->
-      <div class="mb-4">
-          <label for="user" class="block text-sm font-medium text-gray-600 mb-2 dark:text-gray-100">Pilih User</label>
-          <select id="user" name="user" class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:ring focus:ring-blue-300 focus:outline-none dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:focus:ring-blue-500">
-              <option value="" class="dark:text-gray-400">-- Pilih User --</option>
-              <!-- Add other <option> elements dynamically if needed -->
-          </select>
-          <div id="user-description" class="mt-2 text-sm text-gray-500 dark:text-gray-300">
-              <!-- Description will be displayed here after select change -->
-          </div>
+  <form action="#" method="POST" id="refill-saldo-form">
+    <input type="hidden" name="id">
+    <!-- Pemilihan User -->
+    <div class="mb-4">
+      <label for="user" class="block text-sm font-medium text-gray-600 mb-2 dark:text-gray-100">Pilih User</label>
+      <select id="user" name="user"
+        class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:ring focus:ring-blue-300 focus:outline-none dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:focus:ring-blue-500">
+        <option value="" class="dark:text-gray-400">-- Pilih User --</option>
+        <!-- Add other <option> elements dynamically if needed -->
+      </select>
+      <div id="user-description" class="mt-2 text-sm text-gray-500 dark:text-gray-300">
+        <!-- Description will be displayed here after select change -->
       </div>
+    </div>
 
-      <!-- Input Nomor -->
-      <div class="mb-4">
-          <label for="amount" class="block text-sm font-medium text-gray-600 mb-2 dark:text-gray-100">Nominal Saldo</label>
-          <input type="number" id="amount" name="amount" placeholder="Masukkan nominal saldo"
-              class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:ring focus:ring-blue-300 focus:outline-none dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:focus:ring-blue-500">
-      </div>
+    <!-- Input Nomor -->
+    <div class="mb-4">
+      <label for="amount" class="block text-sm font-medium text-gray-600 mb-2 dark:text-gray-100">Nominal Saldo</label>
+      <input type="number" id="amount" name="amount" placeholder="Masukkan nominal saldo"
+        class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:ring focus:ring-blue-300 focus:outline-none dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:focus:ring-blue-500">
+    </div>
 
-      <!-- Tombol Submit -->
-      <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:ring focus:ring-blue-300 dark:focus:ring-blue-500">
-          Isi Saldo
-      </button>
+    <!-- Tombol Submit -->
+    <button type="submit"
+      class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:ring focus:ring-blue-300 dark:focus:ring-blue-500">
+      Isi Saldo
+    </button>
   </form>
 </div>
