@@ -36,7 +36,7 @@ if ($is_admin) {
   $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
   $users = array_map(function ($user) {
     // Format saldo as currency or integer
-    $user['saldo'] = ($user['saldo'] !== null) ? floatval($user['saldo']) : '0.00'; // Format as currency
+    $user['saldo'] = ($user['saldo'] !== null) ? floatval($user['saldo']) : 0; // Format as currency
 
     // Ensure phone is not null
     $user['phone'] = $user['phone'] ?? 'N/A'; // Default to 'N/A' if NULL
