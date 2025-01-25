@@ -2,6 +2,14 @@
 
 require_once __DIR__ . '/func.php';
 
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Translation\Loader\YamlFileLoader;
+use Twig\Loader\FilesystemLoader as TwigFSLoader;
+use Twig\Environment as TwigEnvironment;
+use PhpProxyHunter\TranslationExtension;
+
+ini_set('memory_limit', '512M');
+
 // Capture the full request URI
 $requestUri = $_SERVER['REQUEST_URI'];
 
@@ -50,8 +58,33 @@ function autoloadController($className)
 spl_autoload_register('autoloadController');
 
 // Initialize Twig
-$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/views');
-$twig = new \Twig\Environment($loader);
+$loader = new TwigFSLoader(__DIR__ . '/views');
+$twig = new TwigEnvironment($loader);
+
+// Initialize Translator
+$translator = new Translator('en');
+$translator->addLoader('yaml', new YamlFileLoader());
+
+// Load translation files for different languages
+$translator->addResource('yaml', __DIR__ . '/translations/messages.en.yaml', 'en');
+$translator->addResource('yaml', __DIR__ . '/translations/messages.id.yaml', 'id');
+
+// Detect locale from URL query parameter or cookie
+$locale = isset($_GET['hl']) ? $_GET['hl'] : (isset($_COOKIE['locale']) ? $_COOKIE['locale'] : 'en');
+
+// Validate the locale to ensure it's one of the supported locales
+$validLocales = ['en', 'id']; // Add more locales as needed
+if (!in_array($locale, $validLocales)) {
+  $locale = 'en'; // Default locale
+}
+
+// Set the detected locale
+$translator->setLocale($locale);
+$translator->setFallbackLocales(['en']);
+error_log("Locale set to: $locale");
+
+// Pass the translator
+$twig->addExtension(new TranslationExtension($translator));
 
 // Dispatcher
 try {
@@ -90,7 +123,8 @@ try {
   // Render the view
   echo $twig->render("{$viewName}.twig", [
     'date' => date(DATE_RFC3339),
-    'debug' => is_debug()
+    'debug' => is_debug(),
+    'locale' => $locale
   ]);
 } catch (Exception $e) {
   // Handle errors by rendering a Twig error page
@@ -101,6 +135,7 @@ try {
     'errorFile' => $e->getFile(),
     'errorLine' => $e->getLine(),
     'debug' => is_debug(),
-    'trace' => print_r($e->getTrace(), true)
+    'trace' => print_r($e->getTrace(), true),
+    'locale' => $locale
   ]);
 }
