@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Get the directory of the script
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+
+# Set the path to your git repository from parent folder
+CWD="$(dirname "$SCRIPT_DIR")"
+
+# parse and export .env file (dotenv)
+if [ -f "$CWD/.env" ]; then
+  # Export the vars in .env into your shell:
+  export $(egrep -v '^#' "$CWD/.env" | xargs)
+fi
+
+git --no-pager diff "$@"
