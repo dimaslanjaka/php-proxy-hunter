@@ -36,15 +36,7 @@ class ProxyDB {
       // Load SQL file to create tables
       const dbCreateFile = getNuitkaFile('assets/database/create.sql');
       const contents = await readFile(dbCreateFile, 'utf-8');
-      const commands = contents
-        .split(';')
-        .map((cmd) => cmd.trim())
-        .filter((cmd) => cmd);
-
-      // Execute each SQL command
-      for (const command of commands) {
-        this.db.executeQuery(command);
-      }
+      this.db.executeQuery(contents);
 
       const walEnabled = await this.getMetaValue('wal_enabled');
       if (!walEnabled) {
