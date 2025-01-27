@@ -245,8 +245,12 @@ class SQLiteHelper {
    */
   executeQuery(sql, params = []) {
     try {
-      const stmt = this.db.prepare(sql);
-      stmt.run(...params);
+      if (params.length > 0) {
+        const stmt = this.db.prepare(sql);
+        stmt.run(...params);
+      } else {
+        this.db.exec(sql);
+      }
     } catch (err) {
       console.error(`Error executing query: ${sql}`, err.message);
       throw err;
