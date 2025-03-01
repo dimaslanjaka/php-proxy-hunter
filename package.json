@@ -132,7 +132,7 @@
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "flowbite": "^2.5.2",
+    "flowbite": "^3.1.2",
     "git-command-helper": "^2.0.2",
     "globals": "^15.14.0",
     "gulp": "^5.0.0",
