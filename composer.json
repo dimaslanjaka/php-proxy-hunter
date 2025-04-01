@@ -45,7 +45,7 @@
     "phpseclib/phpseclib": "~3.0",
     "guzzlehttp/guzzle": "^6.0 || ^7.0",
     "ramsey/uuid": "^4.0",
-    "php-curl-class/php-curl-class": "^9.19 || ^11.0",
+    "php-curl-class/php-curl-class": "^9.19 || ^11.0 || ^12.0",
     "twig/twig": "^3.0",
     "erusev/parsedown": "^1.7",
     "symfony/translation": "^5.4",
