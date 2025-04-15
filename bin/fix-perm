@@ -71,6 +71,8 @@ Linux)
   touch "$CWD/config/index.html"
   mkdir -p "$CWD/.cache"
   touch "$CWD/.cache/index.html"
+  mkdir -p "$CWD/backups"
+  chown -R "$USER":"$USER" "$CWD/backups"
 
   # Additional permissions for specific directories if they exist
   if [ -d "$CWD/assets/proxies" ]; then
@@ -90,6 +92,7 @@ Linux)
   # Allow composer and indexing proxies to work
   chown -R "$USER":"$USER" "$CWD"/*.php "$CWD"/*.phar
 
+  # Fix perm bin folder
   chown -R "$USER":"$USER" "$CWD/bin"
   chmod 755 "$CWD/bin"/*
 
