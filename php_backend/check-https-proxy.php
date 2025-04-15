@@ -205,13 +205,13 @@ function _log(...$args): void
  */
 function check(string $proxy)
 {
-  global $db, $hashFilename, $currentScriptFilename, $isAdmin;
+  global $db, $hashFilename, $currentScriptFilename, $isAdmin, $isCli;
   $proxies = extractProxies($proxy, $db, true);
   shuffle($proxies);
 
   $count = count($proxies);
   $logFilename = str_replace("$currentScriptFilename-", "", $hashFilename);
-  _log(trim("$logFilename Checking $count proxies..."));
+  _log(trim('[' . ($isCli ? 'CLI' : 'WEB') . '] [' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($logFilename, 0, 6) . " Checking $count proxies..."));
 
   // Record the start time
   $startTime = microtime(true);
