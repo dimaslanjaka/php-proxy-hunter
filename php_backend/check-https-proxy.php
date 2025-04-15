@@ -4,6 +4,7 @@ require_once __DIR__ . '/../func.php';
 require_once __DIR__ . '/../func-proxy.php';
 
 use \PhpProxyHunter\ProxyDB;
+use \PhpProxyHunter\Server;
 
 global $isCli;
 
@@ -49,6 +50,7 @@ $db = new ProxyDB(__DIR__ . '/../src/database.sqlite');
 $userId = getUserId();
 $request = parsePostData();
 $currentScriptFilename = basename(__FILE__, '.php');
+$full_url = Server::getCurrentUrl(true);
 
 // Set maximum execution time to [n] seconds
 ini_set('max_execution_time', 300);
@@ -105,6 +107,11 @@ if (!$isCli) {
     delete_path($webServerLock);
 
     exit; // Exit the current script
+  } else {
+    // Direct access
+    echo "Usage:" . PHP_EOL;
+    echo "\tcurl -X POST $full_url -d \"proxy=72.10.160.171:24049\"" . PHP_EOL;
+    exit;
   }
 } else {
   $options = getopt("f::p::", ["file::", "proxy::"]);
