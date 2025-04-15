@@ -45,33 +45,52 @@ function do_login($username, $password)
   $response = ['error' => 'username or password empty'];
 
   if ($username && $password) {
-    $select = $user_db->select($username);
-    if (!empty($select['password'])) {
-      $verify = CustomPasswordHasher::verify($password, $select['password']);
-      if ($verify) {
-        // Login success
-        $_SESSION['authenticated'] = true;
-        $_SESSION['authenticated_email'] = strtolower($select['email']);
-        if (strtolower($select['email']) == strtolower($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '')) {
-          $_SESSION['admin'] = true;
-          $response = ['success' => true, 'admin' => true];
-        } else {
-          $response = ['success' => true];
-          if (isset($_SESSION['admin'])) {
-            unset($_SESSION['admin']);
-          }
-        }
-        $date = new DateTime();
-        $currentDateTime = $date->format('Y-m-d H:i:s.u');
-        $user_db->update($select['email'], ['last_login' => $currentDateTime]);
+    $response = verify($username, $password);
+    if (isset($response['error']) && strpos($response['error'], 'unregistered') !== false && strpos($username, '@') !== false) {
+      // Auto create when username is email
+      $email = $username;
+      $username = explode("@", $email)[0];
+      $add = $user_db->add(['email' => $email, 'password' => $password, 'username' => $username]);
+      if ($add) {
+        $response = ['message' => "username $username with email $email created successfully", 'success' => true];
+        $response = verify($username, $password);
       } else {
-        $response = ['error' => 'username or password mismatch'];
+        $response = ['error' => "username $username with email $email creation failed"];
       }
-    } else {
-      $response = ['error' => 'password empty'];
+      $response['add'] = $add;
     }
   }
 
+  return $response;
+}
+
+function verify($username, $password)
+{
+  global $user_db;
+  $response = ['error' => 'username or password is unregistered'];
+  $select = $user_db->select($username);
+  if (!empty($select['password'])) {
+    $verify = CustomPasswordHasher::verify($password, $select['password']);
+    if ($verify) {
+      // Login success
+      $_SESSION['authenticated'] = true;
+      $_SESSION['authenticated_email'] = strtolower($select['email']);
+      if (strtolower($select['email']) == strtolower($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '')) {
+        $_SESSION['admin'] = true;
+        $response = ['success' => true, 'admin' => true];
+      } else {
+        $response = ['success' => true];
+        if (isset($_SESSION['admin'])) {
+          unset($_SESSION['admin']);
+        }
+      }
+      $date = new DateTime();
+      $currentDateTime = $date->format('Y-m-d H:i:s.u');
+      $user_db->update($select['email'], ['last_login' => $currentDateTime]);
+    } else {
+      $response = ['error' => 'username or password mismatch'];
+    }
+  }
   return $response;
 }
 

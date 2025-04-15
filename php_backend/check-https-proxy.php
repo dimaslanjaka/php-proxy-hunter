@@ -211,7 +211,7 @@ function check(string $proxy)
 
   $count = count($proxies);
   $logFilename = str_replace("$currentScriptFilename-", "", $hashFilename);
-  _log(trim('[' . ($isCli ? 'CLI' : 'WEB') . '] [' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($logFilename, 0, 6) . " Checking $count proxies..."));
+  _log(trim('[' . ($isCli ? 'CLI' : 'WEB') . '][' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($logFilename, 0, 6) . " Checking $count proxies..."));
 
   // Record the start time
   $startTime = microtime(true);
@@ -236,7 +236,7 @@ function check(string $proxy)
     }
 
     // Check if last checked time is more than [n] hour(s)
-    $expired = isDateRFC3339OlderThanHours($item->last_check, 5);
+    $expired = $item->last_check ? isDateRFC3339OlderThanHours($item->last_check, 5) : true;
 
     // Skip already SSL-supported proxy
     if ($item->https == 'true' && $item->status == 'active' && !$expired) {
