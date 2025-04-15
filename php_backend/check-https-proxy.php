@@ -13,23 +13,27 @@ if (!$isCli) {
   header("Access-Control-Allow-Headers: *");
   header("Access-Control-Allow-Methods: *");
 
-  // Set content type to TEXT with UTF-8 encoding
+  // Set content type to plain text with UTF-8 encoding
   header('Content-Type: text/plain; charset=utf-8');
 
-  // Ignore browser caching
+  // Disable browser caching
   header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
   header('Cache-Control: no-store, no-cache, must-revalidate');
   header('Cache-Control: post-check=0, pre-check=0', false);
   header('Pragma: no-cache');
 
-  if (isset($_REQUEST['uid'])) {
-    setUserId($_REQUEST['uid']);
+  // Set user ID from request if available
+  $req = parseQueryOrPostBody();
+  if (isset($req['uid'])) {
+    setUserId($req['uid']);
   }
-  // only allow user with Google Analytics cookie
+
+  // Deny access if Google Analytics cookie is not present
   if (!isset($_COOKIE['_ga'])) {
     exit('Access Denied');
   }
-  // check admin
+
+  // Check if the user has admin privileges
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
@@ -146,30 +150,30 @@ if ($lockFile === false) {
 
 $runAllowed = false;
 
-// Attempt to acquire an exclusive lock to prevent multiple processes from running simultaneously.
+// Attempt to acquire an exclusive lock to prevent multiple instances from running simultaneously
 if (flock($lockFile, LOCK_EX)) {
   _log("$lockFilePath Lock acquired");
   $runAllowed = true;
 
-  // Perform the critical task:
-  // - Clear the log file before starting the operation.
-  // - Run the `check` function with the provided proxy.
+  // Perform critical operations:
+  // - Clear the log file before starting
+  // - Execute the `check` function with the provided proxy
   truncateFile(get_log_file());
   check($proxy);
 
-  // Release the lock after completing the critical section.
+  // Release the lock after completing the critical section
   flock($lockFile, LOCK_UN);
   _log("Lock released");
 } else {
-  // Log that the lock is held by another process, preventing this one from proceeding.
+  // Another process holds the lock; skip execution
   _log("Another process is still running");
 }
 
-// Close the lock file handle to release system resources.
+// Close the lock file handle to free system resources
 fclose($lockFile);
 
 if ($runAllowed) {
-  // Delete the lock file to clean up after the process has finished.
+  // Delete the lock file after successful execution
   delete_path($lockFilePath);
 }
 
