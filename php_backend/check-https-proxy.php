@@ -5,7 +5,9 @@ require_once __DIR__ . '/../func-proxy.php';
 
 use \PhpProxyHunter\ProxyDB;
 
-global $isCli, $isAdmin;
+global $isCli;
+
+$isAdmin = $isCli;
 
 if (!$isCli) {
   // Turn off output buffering
