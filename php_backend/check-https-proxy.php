@@ -57,53 +57,55 @@ if (function_exists('set_time_limit')) {
   call_user_func('set_time_limit', 300);
 }
 
-if (!$isCli && isset($request['proxy'])) {
-  // Web server setup and process lock
-  $webServerLock = tmp() . "/runners/$currentScriptFilename.proc"; // Define a lock file path
-  if (file_exists($webServerLock)) {
-    // Check if another process with the same script and user is running
-    exit("Another process with same user id still running");
-  } else {
-    // Create the lock file to indicate the current process
-    write_file($webServerLock, "");
+if (!$isCli) {
+  if (isset($request['proxy'])) {
+    // Web server setup and process lock
+    $webServerLock = tmp() . "/runners/$currentScriptFilename.proc"; // Define a lock file path
+    if (file_exists($webServerLock)) {
+      // Check if another process with the same script and user is running
+      exit("Another process with same user id still running");
+    } else {
+      // Create the lock file to indicate the current process
+      write_file($webServerLock, "");
+    }
+
+    // Handle proxy configuration
+    $proxy = $request['proxy']; // Extract proxy information from the request
+    $hashFilename = "$currentScriptFilename-" . $userId; // Generate a unique hash filename based on the script and user ID
+    $proxy_file = tmp() . "/proxies/$hashFilename.txt"; // Define the path for the proxy file
+    write_file($proxy_file, $proxy); // Save the proxy details to the file
+
+    // Prepare for a long-running background process
+    $file = __FILE__; // Get the current script's filename
+    $output_file = tmp() . "/logs/$hashFilename.out"; // Define the path for the output log file
+    setMultiPermissions([$file, $output_file], true); // Set appropriate permissions for the script and log file
+
+    // Determine if the system is Windows
+    $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+
+    // Build the command to execute the script
+    $cmd = "php " . escapeshellarg($file); // Base command to run the current script
+    $cmd .= " --userId=" . escapeshellarg($userId); // Append user ID as an argument
+    $cmd .= " --file=" . escapeshellarg($proxy_file); // Append proxy file path as an argument
+    $cmd = trim($cmd); // Trim any extra whitespace
+
+    echo $cmd . "\n\n"; // Print the command for debugging purposes
+
+    // Redirect output and errors to a log file
+    $cmd = sprintf("%s > %s 2>&1", $cmd, escapeshellarg($output_file));
+
+    // Create a runner script for the command
+    $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : ""); // Use .bat for Windows, no extension for others
+    write_file($runner, $cmd); // Write the command to the runner script
+
+    // Execute the runner script in the background
+    runBashOrBatch($runner);
+
+    // Clean up by deleting the lock file
+    delete_path($webServerLock);
+
+    exit; // Exit the current script
   }
-
-  // Handle proxy configuration
-  $proxy = $request['proxy']; // Extract proxy information from the request
-  $hashFilename = "$currentScriptFilename-" . $userId; // Generate a unique hash filename based on the script and user ID
-  $proxy_file = tmp() . "/proxies/$hashFilename.txt"; // Define the path for the proxy file
-  write_file($proxy_file, $proxy); // Save the proxy details to the file
-
-  // Prepare for a long-running background process
-  $file = __FILE__; // Get the current script's filename
-  $output_file = tmp() . "/logs/$hashFilename.out"; // Define the path for the output log file
-  setMultiPermissions([$file, $output_file], true); // Set appropriate permissions for the script and log file
-
-  // Determine if the system is Windows
-  $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-
-  // Build the command to execute the script
-  $cmd = "php " . escapeshellarg($file); // Base command to run the current script
-  $cmd .= " --userId=" . escapeshellarg($userId); // Append user ID as an argument
-  $cmd .= " --file=" . escapeshellarg($proxy_file); // Append proxy file path as an argument
-  $cmd = trim($cmd); // Trim any extra whitespace
-
-  echo $cmd . "\n\n"; // Print the command for debugging purposes
-
-  // Redirect output and errors to a log file
-  $cmd = sprintf("%s > %s 2>&1", $cmd, escapeshellarg($output_file));
-
-  // Create a runner script for the command
-  $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : ""); // Use .bat for Windows, no extension for others
-  write_file($runner, $cmd); // Write the command to the runner script
-
-  // Execute the runner script in the background
-  runBashOrBatch($runner);
-
-  // Clean up by deleting the lock file
-  delete_path($webServerLock);
-
-  exit; // Exit the current script
 } else {
   $options = getopt("f::p::", ["file::", "proxy::"]);
 
@@ -141,8 +143,8 @@ if (!$isCli && isset($request['proxy'])) {
 if (empty($hashFilename)) {
   $hashFilename = "CLI";
 }
-$lockFolder = tmp() . '/runners/';
-$lockFilePath = $lockFolder . $hashFilename . '.lock';
+$lockFolder = unixPath(tmp() . '/runners/');
+$lockFilePath = unixPath($lockFolder . $hashFilename . '.lock');
 $lockFiles = glob($lockFolder . "/$currentScriptFilename*.lock");
 // Check if the number of lock files exceeds the limit
 if (count($lockFiles) > 2) {
@@ -163,18 +165,21 @@ if (flock($lockFile, LOCK_EX)) {
   _log("$lockFilePath Lock acquired");
   $runAllowed = true;
 
-  // Perform critical operations:
-  // - Clear the log file before starting
-  // - Execute the `check` function with the provided proxy
-  truncateFile(get_log_file());
-  check($proxy);
+  if (isset($proxy) && !empty($proxy)) {
+    // Perform critical operations:
+    // - Clear the log file before starting
+    // - Execute the `check` function with the provided proxy
+    truncateFile(get_log_file());
+    check($proxy);
+  }
 
   // Release the lock after completing the critical section
   flock($lockFile, LOCK_UN);
-  _log("Lock released");
+  _log("$lockFilePath Lock released");
 } else {
   // Another process holds the lock; skip execution
   _log("Another process is still running");
+  $runAllowed = false;
 }
 
 // Close the lock file handle to free system resources
