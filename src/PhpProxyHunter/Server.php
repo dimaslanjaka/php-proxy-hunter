@@ -141,4 +141,22 @@ class Server
   {
     return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
   }
+
+  /**
+   * Get the current full URL, or null when running from CLI.
+   *
+   * @param bool $stripQuery Whether to remove the query string from the URL.
+   * @return string|null The current URL, or null in CLI mode.
+   */
+  public static function getCurrentUrl(bool $stripQuery = false): ?string
+  {
+    if (php_sapi_name() === 'cli') {
+      return null;
+    }
+
+    $url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') .
+      "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+
+    return $stripQuery ? strtok($url, '?') : $url;
+  }
 }
