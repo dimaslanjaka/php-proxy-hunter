@@ -8,6 +8,12 @@ use \PhpProxyHunter\ProxyDB;
 global $isCli, $isAdmin;
 
 if (!$isCli) {
+  // Turn off output buffering
+  while (ob_get_level() > 0) {
+    ob_end_flush();
+  }
+  ob_implicit_flush(true);
+
   // Set CORS (Cross-Origin Resource Sharing) headers to allow requests from any origin
   header("Access-Control-Allow-Origin: *");
   header("Access-Control-Allow-Headers: *");
@@ -196,11 +202,16 @@ function get_log_file()
  */
 function _log(...$args): void
 {
+  global $isCli;
   $_logFile = get_log_file();
   $message = join(" ", $args) . PHP_EOL;
 
   append_content_with_lock($_logFile, $message);
   echo $message;
+  if (!$isCli) {
+    // Push output to browser
+    flush();
+  }
 }
 
 /**
