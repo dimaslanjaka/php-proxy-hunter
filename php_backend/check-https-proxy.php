@@ -207,7 +207,11 @@ if (flock($lockFile, LOCK_EX)) {
 
   // Release the lock after completing the critical section
   flock($lockFile, LOCK_UN);
-  _log("$lockFilePath Lock released");
+  if ($isAdmin) {
+    _log("$lockFilePath Lock released");
+  } else {
+    _log("Lock released");
+  }
 } else {
   // Another process holds the lock; skip execution
   _log("Another process is still running");
