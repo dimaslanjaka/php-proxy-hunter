@@ -890,14 +890,7 @@ function parseQueryOrPostBody(): array
 {
   global $isCli;
   if (!$isCli) {
-    //    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    //      return parsePostData();
-    //    } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    //      return $_GET;
-    //    } else {
-    //      return $_REQUEST;
-    //    }
-    return array_merge(parsePostData(), $_REQUEST, $_GET, $_POST);
+    return array_merge(parsePostData(true), $_REQUEST, $_GET, $_POST);
   }
   return [];
 }
