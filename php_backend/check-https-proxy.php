@@ -48,7 +48,7 @@ if (!$isCli) {
 
 $db = new ProxyDB(__DIR__ . '/../src/database.sqlite');
 $userId = getUserId();
-$request = parsePostData();
+$request = parseQueryOrPostBody();
 $currentScriptFilename = basename(__FILE__, '.php');
 $full_url = Server::getCurrentUrl(true);
 
@@ -85,11 +85,16 @@ if (!$isCli) {
     // Determine if the system is Windows
     $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
-    // Build the command to execute the script
-    $cmd = "php " . escapeshellarg($file); // Base command to run the current script
-    $cmd .= " --userId=" . escapeshellarg($userId); // Append user ID as an argument
-    $cmd .= " --file=" . escapeshellarg($proxy_file); // Append proxy file path as an argument
-    $cmd = trim($cmd); // Trim any extra whitespace
+    // Build the base command to run the PHP script
+    $cmd = "php " . escapeshellarg($file);
+    // Add the user ID as a CLI argument
+    $cmd .= " --userId=" . escapeshellarg($userId);
+    // Add the proxy file path as a CLI argument
+    $cmd .= " --file=" . escapeshellarg($proxy_file);
+    // Add the admin flag as a CLI argument (true/false)
+    $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
+    // Trim any leading/trailing whitespace from the full command
+    $cmd = trim($cmd);
 
     echo $cmd . "\n\n"; // Print the command for debugging purposes
 
@@ -114,19 +119,34 @@ if (!$isCli) {
     exit;
   }
 } else {
-  $options = getopt("f::p::", ["file::", "proxy::"]);
+  // Parse command line options (short: -f, -p; long: --file, --proxy, --admin), all optional
+  $options = getopt("f::p::", ["file::", "proxy::", "admin::"]);
 
+  // Set admin flag if --admin is provided and is not 'false'
+  $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
+
+  // Determine the file path from either -f or --file
   $file = isset($options['f']) ? $options['f'] : (isset($options['file']) ? $options['file'] : null);
+
+  // Create a filename hash identifier (used for output/processing)
   $hashFilename = basename($file, '.txt');
+
+  // Fallback filename if no valid file name is provided
   if ($hashFilename == '.txt' || empty($hashFilename)) {
     $hashFilename = "$currentScriptFilename-cli.txt";
   }
+
+  // Determine the proxy source from either -p or --proxy
   $proxy = isset($options['p']) ? $options['p'] : (isset($options['proxy']) ? $options['proxy'] : null);
 
+  // If no proxy file or string is provided, fallback to loading from the database
   if (!$file && !$proxy) {
     _log("No proxy file provided. Searching for proxies in database.");
 
+    // Merge working and untested proxies from the database
     $proxiesDb = array_merge($db->getWorkingProxies(100), $db->getUntestedProxies(100));
+
+    // Filter proxies: keep non-active (dead) or non-SSL ones
     $filteredArray = array_filter($proxiesDb, function ($item) {
       // Keep dead proxies
       if (strtolower($item['status']) != 'active') {
@@ -135,11 +155,16 @@ if (!$isCli) {
       // Only pick non-SSL proxies
       return strtolower($item['https']) != 'true';
     });
+
+    // Extract proxy strings from the filtered result
     $proxyArray = array_map(function ($item) {
       return $item['proxy'];
     }, $filteredArray);
+
+    // Convert proxy list to JSON string
     $proxy = json_encode($proxyArray);
   } elseif ($file) {
+    // If a file is provided, read the content as the proxy list
     $read = read_file($file);
     if ($read) {
       $proxy = $read;
