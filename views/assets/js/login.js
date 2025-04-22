@@ -26,3 +26,7 @@ $('form#login-form').on('submit', function (e) {
     }
   });
 });
+
+$('#google-login-btn').on('click', function () {
+  location.href = '/data/login.php?login';
+});
