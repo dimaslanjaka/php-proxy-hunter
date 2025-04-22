@@ -4,6 +4,7 @@ require_once __DIR__ . '/../func.php';
 require_once __DIR__ . '/../func-proxy.php';
 
 use \PhpProxyHunter\ProxyDB;
+use \PhpProxyHunter\Scheduler;
 use \PhpProxyHunter\Server;
 
 global $isCli;
@@ -61,19 +62,15 @@ if (function_exists('set_time_limit')) {
 
 if (!$isCli) {
   if (isset($request['proxy'])) {
+    // Generate a unique hash filename based on the script and user ID
+    $hashFilename = "$currentScriptFilename-" . $userId;
+
     // Web server setup and process lock
-    $webServerLock = tmp() . "/runners/$currentScriptFilename.proc"; // Define a lock file path
-    if (file_exists($webServerLock)) {
-      // Check if another process with the same script and user is running
-      exit("Another process with same user id still running");
-    } else {
-      // Create the lock file to indicate the current process
-      write_file($webServerLock, "");
-    }
+    $webServerLock = tmp() . "/runners/$hashFilename.proc"; // Define a lock file path
 
     // Handle proxy configuration
     $proxy = $request['proxy']; // Extract proxy information from the request
-    $hashFilename = "$currentScriptFilename-" . $userId; // Generate a unique hash filename based on the script and user ID
+
     $proxy_file = tmp() . "/proxies/$hashFilename.txt"; // Define the path for the proxy file
     write_file($proxy_file, $proxy); // Save the proxy details to the file
 
@@ -93,10 +90,15 @@ if (!$isCli) {
     $cmd .= " --file=" . escapeshellarg($proxy_file);
     // Add the admin flag as a CLI argument (true/false)
     $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
+    // Add the --lockFile argument with the escaped web server lock file path
+    $cmd .= " --lockFile=" . escapeshellarg(unixPath($webServerLock));
     // Trim any leading/trailing whitespace from the full command
     $cmd = trim($cmd);
 
-    echo $cmd . "\n\n"; // Print the command for debugging purposes
+    // If the user is an admin, print the command for debugging purposes
+    if ($isAdmin) {
+      echo $cmd . "\n\n";
+    }
 
     // Redirect output and errors to a log file
     $cmd = sprintf("%s > %s 2>&1", $cmd, escapeshellarg($output_file));
@@ -107,10 +109,6 @@ if (!$isCli) {
 
     // Execute the runner script in the background
     runBashOrBatch($runner);
-
-    // Clean up by deleting the lock file
-    delete_path($webServerLock);
-
     exit; // Exit the current script
   } else {
     // Direct access
@@ -120,10 +118,29 @@ if (!$isCli) {
   }
 } else {
   // Parse command line options (short: -f, -p; long: --file, --proxy, --admin), all optional
-  $options = getopt("f::p::", ["file::", "proxy::", "admin::"]);
+  $options = getopt("f::p::", ["file::", "proxy::", "admin::", "lockFile::"]);
 
   // Set admin flag if --admin is provided and is not 'false'
   $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
+
+  if (!$isAdmin && !empty($options['lockFile'])) {
+    $lockFile = $options['lockFile'];
+
+    // If the lock file exists, exit with an error message
+    if (file_exists($lockFile)) {
+      $lockedMsg = date(DATE_RFC3339) . " another process still running ({$lockFile} is locked) ";
+      _log($lockedMsg);
+      exit($lockedMsg);
+    }
+
+    // Create the lock file to prevent concurrent execution
+    write_file($lockFile, '');
+
+    // Always schedule the removal of the lock file after the process completes
+    Scheduler::register(function () use ($lockFile) {
+      delete_path($lockFile); // Remove the lock file
+    }, 'release-cli-lock');
+  }
 
   // Determine the file path from either -f or --file
   $file = isset($options['f']) ? $options['f'] : (isset($options['file']) ? $options['file'] : null);
