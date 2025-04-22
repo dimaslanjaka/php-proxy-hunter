@@ -95,10 +95,7 @@ if (!$isCli) {
     // Trim any leading/trailing whitespace from the full command
     $cmd = trim($cmd);
 
-    // If the user is an admin, print the command for debugging purposes
-    if ($isAdmin) {
-      echo $cmd . "\n\n";
-    }
+    echo $cmd . "\n\n";
 
     // Redirect output and errors to a log file
     $cmd = sprintf("%s > %s 2>&1", $cmd, escapeshellarg($output_file));
@@ -123,11 +120,11 @@ if (!$isCli) {
   // Set admin flag if --admin is provided and is not 'false'
   $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
 
-  if (!$isAdmin && !empty($options['lockFile'])) {
+  if (!empty($options['lockFile'])) {
     $lockFile = $options['lockFile'];
 
     // If the lock file exists, exit with an error message
-    if (file_exists($lockFile)) {
+    if (!$isAdmin && file_exists($lockFile)) {
       $lockedMsg = date(DATE_RFC3339) . " another process still running ({$lockFile} is locked) ";
       _log($lockedMsg);
       exit($lockedMsg);
