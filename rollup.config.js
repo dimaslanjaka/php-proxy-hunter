@@ -9,7 +9,7 @@ import { globSync } from 'glob';
 import path from 'path';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { md5 } from 'sbg-utility';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import pkg from './package.json' with { type: 'json' };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -159,7 +159,7 @@ const es5Config = {
       preventAssignment: true
     }),
     babel({
-      generatorOpts: { "importAttributesKeyword": "with" },
+      generatorOpts: { importAttributesKeyword: 'with' },
       babelHelpers: 'bundled', // Use bundled helpers to avoid multiple imports
       presets: ['@babel/preset-env'], // Transpile to ES5
       exclude: 'node_modules/**' // Exclude node_modules from transpilation
@@ -203,6 +203,40 @@ const _env = {
 
 /**
  * Exports both the ESM and CommonJS configurations for Rollup to build.
- * @type {import('rollup').RollupOptions[]}
+ * @returns {Promise<import('rollup').RollupOptions[]>} A promise that resolves to an array of Rollup configuration objects.
  */
-export default [_env, mainConfig, esmConfig, es5Config, ...expressRes].filter((config) => fs.existsSync(config.input));
+async function configResolver() {
+  const configs = [_env, mainConfig, esmConfig, es5Config, ...expressRes];
+
+  // Define paths for dynamic configuration files
+  const dynamicConfigs = [path.join(__dirname, 'rollup.whatsapp.js'), path.join(__dirname, 'rollup.php.js')];
+
+  // Loop through dynamicConfigs and add them to configs if they exist
+  for (const dynamicConfig of dynamicConfigs) {
+    if (fs.existsSync(dynamicConfig)) {
+      // Convert the file path to file URL (required for dynamic import)
+      const fileUrl = pathToFileURL(dynamicConfig).href;
+
+      /**
+       * Dynamically import the config file and extract the default export
+       * @type {import('rollup').RollupOptions|import('rollup').RollupOptions[]}
+       */
+      const importedConfig = await import(fileUrl).then((lib) => lib.default);
+
+      // If the imported config is an array, push each item to the configs array
+      if (Array.isArray(importedConfig)) {
+        for (const objectConfig of importedConfig) {
+          configs.push(objectConfig);
+        }
+      } else {
+        // Otherwise, push the single config object
+        configs.push(importedConfig);
+      }
+    }
+  }
+
+  // Filter configs to only include those with a valid 'input' property
+  return configs.filter((config) => fs.existsSync(config.input));
+}
+
+export default configResolver();
