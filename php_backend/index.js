@@ -10,6 +10,36 @@ $.get('//myexternalip.com/raw', function (ip) {
   console.error('Error fetching the external IP:', err); // Log error if fetching fails
 });
 
+const $getWorking = $('#get-working');
+
+$.get('./user-info.php', (data) => {
+  const isAdmin = data?.admin;
+  $getWorking.prop('disabled', !isAdmin);
+
+  if (isAdmin) {
+    $getWorking.one('click', () => {
+      /**
+       * @type {string[]}
+       */
+      const proxiesStr = [];
+      /**
+       * @param {import('../types/proxy').ProxyDetails[]} response
+       */
+      const workingHandler = function (response) {
+        response.forEach((data) => {
+          let proxyStr = data.proxy;
+          if (data.username != '-' && data.password != '-') {
+            proxyStr += `@${data.username}:${data.password}`;
+          }
+          proxiesStr.push(proxyStr);
+        });
+        $('#data-proxies').val(proxiesStr.join('\n'));
+      };
+      $.get('../embed.php?file=working.json', workingHandler);
+    });
+  }
+});
+
 $('#check-proxies').on('click', function () {
   let proxies = $('#data-proxies').val(); // Get the proxies list from the textarea
 
