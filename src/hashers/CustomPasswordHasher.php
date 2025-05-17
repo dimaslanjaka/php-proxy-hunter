@@ -6,8 +6,12 @@ class CustomPasswordHasher
 {
   private static function getSecretKey()
   {
-    $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-    $dotenv->load();
+    if (empty($_ENV['DJANGO_SECRET_KEY'])) {
+      // Load environment variables from .env file
+      $projectRootPath = dirname(\Composer\Factory::getComposerFile()); // __DIR__ . '/../../'
+      $dotenv = Dotenv::createImmutable($projectRootPath);
+      $dotenv->load();
+    }
     return $_ENV['DJANGO_SECRET_KEY'] ?? 'default_secret_key';
   }
 
