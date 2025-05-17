@@ -303,7 +303,7 @@ function check(string $proxy)
     $item = $proxies[$i];
 
     // Check if the script has been running for more than [n] seconds
-    if ($isExecutionTimeLimit() && !$isAdmin) {
+    if (!$isAdmin && $isExecutionTimeLimit()) {
       break;
     }
 
