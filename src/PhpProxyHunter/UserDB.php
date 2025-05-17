@@ -53,6 +53,52 @@ class UserDB
   }
 
   /**
+   * Adds a new user to the database.
+   *
+   * The method ensures required fields (`username`, `password`, `email`) are present,
+   * and sets default values for optional fields (`first_name`, `last_name`, etc.).
+   * If validation passes, the user is inserted into the `auth_user` table.
+   *
+   * @param array $data An associative array containing user data. Expected keys include:
+   *                    - username (string)
+   *                    - password (string)
+   *                    - email (string)
+   *                    - first_name (string, optional)
+   *                    - last_name (string, optional)
+   *                    - date_joined (string, optional, Y-m-d H:i:s format)
+   *                    - is_staff (bool, optional)
+   *                    - is_active (bool, optional)
+   *                    - is_superuser (bool, optional)
+   *                    - last_login (string|null, optional)
+   *
+   * @return bool Returns true if the user was successfully added, false otherwise.
+   */
+  public function add($data)
+  {
+    // Set mandatory fields with defaults or validation
+    $data['username'] = $data['username'] ?? '';
+    $data['password'] = $data['password'] ?? '';
+    $data['email'] = $data['email'] ?? '';
+
+    // Set optional fields with sensible defaults
+    $data['first_name'] = $data['first_name'] ?? '';
+    $data['last_name'] = $data['last_name'] ?? '';
+    $data['date_joined'] = $data['date_joined'] ?? date('Y-m-d H:i:s');
+    $data['is_staff'] = isset($data['is_staff']) ? (bool)$data['is_staff'] : false;
+    $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : true;
+    $data['is_superuser'] = isset($data['is_superuser']) ? (bool)$data['is_superuser'] : false;
+    $data['last_login'] = $data['last_login'] ?? null;
+
+    // Validate required fields
+    if (!empty($data['username']) && !empty($data['password']) && !empty($data['email'])) {
+      $this->db->insert("auth_user", $data, true);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Selects a user from the database by email, username, or id.
    *
    * @param mixed $id The email, username, or id of the user.
