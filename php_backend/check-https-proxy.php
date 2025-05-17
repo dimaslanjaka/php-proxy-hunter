@@ -339,7 +339,7 @@ function check(string $proxy)
     $protocols = ['http', 'socks4', 'socks5'];
     $latencies = [];
     foreach ($protocols as $protocol) {
-      $curl = buildCurl($item->proxy, $protocol, 'https://www.ssl.org/', [
+      $curl = buildCurl($item->proxy, $protocol, 'https://support.mozilla.org/en-US/', [
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0'
       ]);
       $result = curl_exec($curl);
@@ -359,7 +359,7 @@ function check(string $proxy)
             preg_match("/<title>(.*?)<\/title>/is", $result, $matches);
             if (!empty($matches)) {
               $msg .= "Title: " . $matches[1];
-              if (strtolower($matches[1]) == strtolower("SSL Certificate Checker")) {
+              if (strtolower($matches[1]) == strtolower("Mozilla Support")) {
                 $msg .= " (VALID) ";
                 $ssl_protocols[] = $protocol;
               } else {
