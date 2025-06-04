@@ -1,7 +1,7 @@
 """ proxyscan v1 - scan random networks for proxys """
 
 import time
-from socket import *
+from socket import socket, AF_INET, SOCK_STREAM
 from typing import List
 from netaddr import IPNetwork
 from colorama import Fore, Style

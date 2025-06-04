@@ -1,6 +1,63 @@
-!/proxy_hunter/ip_ranges_US.txt
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Distribution / packaging
 build/
-tmp/
-.cache/
-.pytest_cache/
 dist/
+*.egg-info/
+.eggs/
+*.whl
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# VS Code / IDE settings
+.vscode/
+.idea/
+
+# Temporary files
+tmp/
+*.swp
+*.bak
+*.tmp
+venv/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Allow specific file inside ignored folder
+!/proxy_hunter/ip_ranges_US.txt

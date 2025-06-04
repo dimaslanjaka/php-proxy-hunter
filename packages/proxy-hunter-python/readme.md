@@ -78,3 +78,14 @@ Checking host: 104.236.27.7\
 ....
 
 
+<!--
+force reinstall
+
+pip install -e . --force-reinstall
+#pip install -r requirements.txt --force-reinstall
+
+normal install
+
+pip install .
+#pip install -r requirements.txt
+-->
