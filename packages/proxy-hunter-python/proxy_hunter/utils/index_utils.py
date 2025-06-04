@@ -178,6 +178,11 @@ def is_vps() -> bool:
         return False
 
 
+def verbose_print(verbose, message):
+    if verbose:
+        print(message)
+
+
 if __name__ == "__main__":
     print(is_valid_url("google"))
     print(is_valid_url("google.com"))

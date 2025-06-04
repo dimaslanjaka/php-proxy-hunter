@@ -6,7 +6,12 @@ with open("readme.md", "r") as f:
 setuptools.setup(
     name="proxy_hunter",
     version="1.0",
-    packages=["proxy_hunter", "proxy_hunter.curl", "proxy_hunter.utils"],
+    packages=[
+        "proxy_hunter",
+        "proxy_hunter.curl",
+        "proxy_hunter.utils",
+        "proxy_hunter.scrappers",
+    ],
     install_requires=[
         "pycurl",
         "netaddr",
@@ -21,6 +26,11 @@ setuptools.setup(
         "asyncio",
         "brotli",
         "chardet",
+        "proxy-checker",
+        "beautifulsoup4",
+        "httpx",
+        "socks",
+        "pySocks",
     ],
     test_suite="tests",
     author="Dimas Lanjaka",
