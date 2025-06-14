@@ -31,7 +31,7 @@ function stringify($arg): string
  * Outputs content with appropriate Content-Type and UTF-8 charset.
  * Throws an exception if headers are already sent.
  *
- * @param mixed $data Content to output (array, object, string)
+ * @param mixed $data Content to output (array, object, string, int, float, bool, null)
  * @throws RuntimeException If headers are already sent
  * @return void
  */
@@ -51,6 +51,15 @@ function outputUtf8Content($data): void
       header('Content-Type: text/plain; charset=utf-8');
     }
     echo $data;
+  } elseif (is_int($data) || is_float($data)) {
+    header('Content-Type: text/plain; charset=utf-8');
+    echo (string) $data;
+  } elseif (is_bool($data)) {
+    header('Content-Type: text/plain; charset=utf-8');
+    echo $data ? 'true' : 'false';
+  } elseif (is_null($data)) {
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'null';
   } else {
     header('Content-Type: text/plain; charset=utf-8');
     echo '[Unsupported content type: ' . gettype($data) . ']';
