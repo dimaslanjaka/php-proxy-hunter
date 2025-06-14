@@ -2320,6 +2320,27 @@ function runShellCommandLive($command)
   }
 }
 
+/**
+ * Executes a Bash or Batch script asynchronously with optional arguments.
+ *
+ * - Automatically builds a command line from provided arguments.
+ * - Writes a shell or batch runner script into the temporary directory.
+ * - Uses Python virtual environment activation if available.
+ * - Executes the script in the background.
+ *
+ * @param string $scriptPath  The path to the Bash (.sh) or Batch (.bat) script.
+ * @param array $commandArgs  An associative array of arguments to pass to the script as --key=value.
+ * @param string|null $identifier  Optional unique identifier used to name the runner and log files.
+ *
+ * @return array{
+ *   output: string,     // Full path to the output log file.
+ *   cwd: string,        // Current working directory.
+ *   relative: string,   // Relative path to the output log file.
+ *   runner: string      // Full path to the runner script file.
+ * }|array{
+ *   error: string       // Error message if script writing fails.
+ * }
+ */
 function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
 {
   global $isWin;
@@ -2334,7 +2355,8 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
 
   // Determine paths and commands
   $cwd = __DIR__;
-  $filename = sanitizeFilename(!empty($identifier) ? $identifier : unixPath("$scriptPath/$commandArgsString"));
+  $base = !empty($identifier) ? $identifier : md5("$scriptPath/$commandArgsString");
+  $filename = sanitizeFilename(pathinfo($base, PATHINFO_FILENAME) . '-' . sanitizeFilename($base));
   $runner = unixPath(tmp() . "/runners/$filename" . ($isWin ? ".bat" : ".sh"));
   $output_file = unixPath(tmp() . "/logs/$filename.txt");
   $pid_file = unixPath(tmp() . "/runners/$filename.pid");
