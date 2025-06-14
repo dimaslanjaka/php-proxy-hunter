@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php">
-    <testsuites>
+<phpunit bootstrap="vendor/autoload.php" colors="true" verbose="true" stopOnFailure="false">
+    <!-- <testsuites>
         <testsuite name="PHP Proxy Hunter Test Suite">
             <directory>tests</directory>
+        </testsuite>
+    </testsuites> -->
+    <testsuites>
+        <testsuite name="PHP Proxy Hunter Test Suite">
+            <directory suffix="Test.php">tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

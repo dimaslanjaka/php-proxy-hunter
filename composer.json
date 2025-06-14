@@ -18,6 +18,11 @@
       "src/hashers/CustomPasswordHasher.php"
     ]
   },
+  "autoload-dev": {
+    "psr-4": {
+      "PhpProxyHunter\\Tests\\": "tests/PhpProxyHunter/"
+    }
+  },
   "authors": [
     {
       "name": "dimaslanjaka",
