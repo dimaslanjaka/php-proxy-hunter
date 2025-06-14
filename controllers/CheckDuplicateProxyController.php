@@ -244,15 +244,25 @@ if (
   php_sapi_name() === 'cli' &&
   realpath(__FILE__) === realpath($_SERVER['argv'][0] ?? '')
 ) {
-  $list = new ListDuplicateProxyController();
-  $data = $list->fetchDuplicates();
-  $firstKey = array_key_first($data);
-  $firstValue = $data[$firstKey];
-  echo "First Proxy Key: $firstKey " . count($firstValue) . " proxies found.\n";
-  if (!$firstKey) {
-    echo "No proxies found to check.\n";
-    exit(0);
-  }
+  $options = getopt("", ["ip:"]); // Accepts --ip=<IP> argument
+  $ipArg = $options['ip'] ?? null;
+
   $check = new CheckDuplicateProxyController();
-  $check->fetchDuplicates($firstKey);
+
+  if (isValidIp($ipArg)) {
+    $check->fetchDuplicates($ipArg);
+  } else {
+    $list = new ListDuplicateProxyController();
+    $data = $list->fetchDuplicates();
+
+    $firstKey = array_key_first($data);
+
+    if (!$firstKey) {
+      echo "No proxies found to check.\n";
+    } else {
+      $firstCount = count($data[$firstKey]);
+      echo "IP: $firstKey $firstCount proxies found.\n";
+      $check->fetchDuplicates($firstKey);
+    }
+  }
 }
