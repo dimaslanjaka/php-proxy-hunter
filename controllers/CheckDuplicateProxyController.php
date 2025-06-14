@@ -28,7 +28,7 @@ class CheckDuplicateProxyController extends BaseController
     if (!$this->isCLI) {
       throw new Exception('Only CLI Allowed');
     }
-
+    $timer = new \PhpProxyHunter\ExecutionTimer(30, 3); // 30s limit, 3s safety buffer
     $db = new \PhpProxyHunter\ProxyDB();
     /**
      * @var PDO
@@ -47,6 +47,8 @@ class CheckDuplicateProxyController extends BaseController
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($rows as $row) {
+      $timer->exitIfNeeded("Graceful exit: ran out of safe time.");
+      ;
       if (isValidProxy($row['proxy']) === false) {
         // Delete invalid proxies
         $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
@@ -72,8 +74,6 @@ class CheckDuplicateProxyController extends BaseController
         echo "[CHECK-DUPLICATE] Proxy {$row['proxy']} is open.\n";
         $db->updateData($row['proxy'], ['status' => 'untested'], false);
       } else {
-        echo "[CHECK-DUPLICATE] Proxy {$row['proxy']} is closed or dead.\n";
-
         // Fetch the first row ID for this IP to compare
         $firstRowStmt = $pdo->prepare("SELECT id FROM proxies WHERE substr(proxy, 1, instr(proxy, ':') - 1) = :ip ORDER BY id LIMIT 1");
         $firstRowStmt->bindParam(':ip', $proxy_ip, PDO::PARAM_STR);
@@ -90,11 +90,10 @@ class CheckDuplicateProxyController extends BaseController
           continue;
         }
 
-        echo "[CHECK-DUPLICATE] Deleting proxy {$row['proxy']} as it is closed or dead. [DELETED]\n";
         $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
         $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
         $deleteStmt->execute();
-        echo "[CHECK-DUPLICATE] Proxy {$row['proxy']} deleted due to closed or dead status.\n";
+        echo "[CHECK-DUPLICATE] Proxy {$row['proxy']} deleted due to closed or dead status. [DELETED]\n";
       }
     }
   }
