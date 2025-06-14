@@ -13,7 +13,7 @@ class ListDuplicateProxyController extends BaseController
   public function __construct()
   {
     parent::__construct(); // Ensure BaseController's constructor runs
-    $this->outputFile = tmp() . '/proxies/' . get_class($this) . '.txt';
+    $this->outputFile = unixPath(tmp() . '/proxies/' . get_class($this) . '.txt');
   }
 
   public function indexAction()
@@ -23,7 +23,7 @@ class ListDuplicateProxyController extends BaseController
 
   public function checkAction()
   {
-    $cmd = "php " . escapeshellarg($_SERVER['SCRIPT_FILENAME']);
+    $cmd = "php " . escapeshellarg(getProjectRoot() . '/controllers/CheckDuplicateProxyController.php');
 
     $uid = getUserId();
     $cmd .= " --userId=" . escapeshellarg($uid);
@@ -44,7 +44,7 @@ class ListDuplicateProxyController extends BaseController
     write_file($runner, $cmd);
 
     // Execute the runner script in the background
-    runBashOrBatch($runner);
+    runBashOrBatch($runner, [], getCallerInfo() . '-' . $uid);
 
     $result = [
       'status' => 'success',
@@ -55,6 +55,8 @@ class ListDuplicateProxyController extends BaseController
       $result['log_file'] = $this->logFilePath;
       $result['lock_file'] = $this->lockFilePath;
       $result['output_file'] = $this->outputFile;
+      $result['runner'] = $runner;
+      $result['command'] = $cmd;
     }
 
     return $result;
