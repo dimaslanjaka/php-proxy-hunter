@@ -51,6 +51,11 @@ class CheckDuplicateProxyController extends BaseController
       ORDER BY proxy;
   ";
 
+      $firstRowStmt = $pdo->prepare("SELECT id FROM proxies WHERE substr(proxy, 1, instr(proxy, ':') - 1) = :ip ORDER BY id LIMIT 1");
+      $firstRowStmt->bindParam(':ip', $ip, PDO::PARAM_STR);
+      $firstRowStmt->execute();
+      $firstRow = $firstRowStmt->fetch(PDO::FETCH_ASSOC);
+
       $stmt = $pdo->prepare($sql);
       $stmt->execute(['ip' => $ip]);
       $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -68,17 +73,16 @@ class CheckDuplicateProxyController extends BaseController
           continue;
         }
 
-        $proxy_ip = strstr($row['proxy'], ':', true);
-        if (!isValidIp($proxy_ip)) {
+        if (!isValidIp($ip)) {
           // Delete invalid IP proxies
           $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
           $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
           $deleteStmt->execute();
-          $this->log("[CHECK-DUPLICATE] {$row['proxy']} has invalid IP: $proxy_ip. [DELETED]");
+          $this->log("[CHECK-DUPLICATE] {$row['proxy']} has invalid IP: $ip. [DELETED]");
           continue;
         }
 
-        $this->log("[CHECK-DUPLICATE] Checking proxy: {$row['proxy']} with IP: $proxy_ip");
+        $this->log("[CHECK-DUPLICATE] Checking proxy: {$row['proxy']} with IP: $ip");
 
         // Check if the port is open
         if (in_array($row['proxy'], $open_ports)) {
@@ -98,14 +102,8 @@ class CheckDuplicateProxyController extends BaseController
           $db->updateData($row['proxy'], ['status' => 'untested'], false);
           $open_ports[] = $row['proxy'];
         } else {
-          // Fetch the first row ID for this IP to compare
-          $firstRowStmt = $pdo->prepare("SELECT id FROM proxies WHERE substr(proxy, 1, instr(proxy, ':') - 1) = :ip ORDER BY id LIMIT 1");
-          $firstRowStmt->bindParam(':ip', $proxy_ip, PDO::PARAM_STR);
-          $firstRowStmt->execute();
-          $firstRow = $firstRowStmt->fetch(PDO::FETCH_ASSOC);
-
           if (!$firstRow) {
-            $this->log("[CHECK-DUPLICATE] No first row found for IP: $proxy_ip, skipping deletion.");
+            $this->log("[CHECK-DUPLICATE] No first row found for IP: $ip, skipping deletion.");
             continue;
           }
 
@@ -233,17 +231,13 @@ class CheckDuplicateProxyController extends BaseController
         } else {
           $this->log("[CHECK-DUPLICATE] Proxy $proxy is not working with any protocols.");
           // Delete the proxy if it has no working protocols, but only if it was not the first one
-          $firstRowStmt = $pdo->prepare("SELECT id FROM proxies WHERE substr(proxy, 1, instr(proxy, ':') - 1) = :ip ORDER BY id LIMIT 1");
-          $firstRowStmt->bindParam(':ip', $proxy_ip, PDO::PARAM_STR);
-          $firstRowStmt->execute();
-          $firstRow = $firstRowStmt->fetch(PDO::FETCH_ASSOC);
           if ($firstRow && $firstRow['id'] !== $row['id']) {
             $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
             $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
             $deleteStmt->execute();
             $this->log("[CHECK-DUPLICATE] Proxy $proxy deleted due to no working protocols. [DELETED]");
           } else {
-            $this->log("[CHECK-DUPLICATE] Skipping deletion of first proxy: {$row['proxy']}.");
+            $this->log("[CHECK-DUPLICATE] Skipping deletion of first proxy: {$proxy}.");
           }
         }
       }
