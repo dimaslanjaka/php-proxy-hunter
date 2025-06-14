@@ -45,18 +45,18 @@ class BaseController
 
     if ($this->isCLI) {
       // CLI: use class name for lock file
-      $this->lockFilePath = tmp() . '/runners/' . static::class . '.lock';
-      $this->logFilePath = tmp() . '/logs/' . static::class . '.log';
+      $this->lockFilePath = unixPath(tmp() . '/runners/' . static::class . '.lock');
+      $this->logFilePath = unixPath(tmp() . '/logs/' . static::class . '.log');
     } else {
       if (session_status() === PHP_SESSION_ACTIVE) {
         $this->session_id = session_id();
-        $this->lockFilePath = tmp() . '/runners/' . $this->session_id . '.lock';
-        $this->logFilePath = tmp() . '/logs/' . $this->session_id . '.log';
+        $this->lockFilePath = unixPath(tmp() . '/runners/' . $this->session_id . '.lock');
+        $this->logFilePath = unixPath(tmp() . '/logs/' . $this->session_id . '.log');
         $this->isAdmin = isset($_SESSION['admin']) ? (bool)$_SESSION['admin'] : false;
       } else {
         // Fallback for non-CLI with no session
-        $this->lockFilePath = tmp() . '/runners/' . static::class . '.web.lock';
-        $this->logFilePath = tmp() . '/logs/' . static::class . '.web.log';
+        $this->lockFilePath = unixPath(tmp() . '/runners/' . static::class . '.web.lock');
+        $this->logFilePath = unixPath(tmp() . '/logs/' . static::class . '.web.log');
       }
     }
   }
