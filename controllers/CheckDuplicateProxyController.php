@@ -28,72 +28,224 @@ class CheckDuplicateProxyController extends BaseController
     if (!$this->isCLI) {
       throw new Exception('Only CLI Allowed');
     }
-    $timer = new \PhpProxyHunter\ExecutionTimer(30, 3); // 30s limit, 3s safety buffer
-    $db = new \PhpProxyHunter\ProxyDB();
-    /**
-     * @var PDO
-     */
-    $pdo = $db->db->pdo;
 
-    $sql = "
+    $timer = new \PhpProxyHunter\ExecutionTimer(30, 3); // 30s limit, 3s safety buffer
+    $lock = new \PhpProxyHunter\FileLockHelper($this->getLockFilePath());
+    if ($lock->isLockedByAnotherProcess()) {
+      $this->log("[CHECK-DUPLICATE] Another instance is running, exiting.");
+      return;
+    }
+
+    if ($lock->lock(LOCK_EX)) {
+      $this->log("[CHECK-DUPLICATE] Lock acquired, starting check for IP: $ip");
+      $db = new \PhpProxyHunter\ProxyDB();
+      /**
+       * @var PDO
+       */
+      $pdo = $db->db->pdo;
+
+      $sql = "
       SELECT * FROM proxies
       WHERE
           substr(proxy, 1, instr(proxy, ':') - 1) = :ip
       ORDER BY proxy;
   ";
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['ip' => $ip]);
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute(['ip' => $ip]);
+      $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $open_ports = [];
 
-    foreach ($rows as $row) {
-      $timer->exitIfNeeded("Graceful exit: ran out of safe time.");
-      ;
-      if (isValidProxy($row['proxy']) === false) {
-        // Delete invalid proxies
-        $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
-        $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
-        $deleteStmt->execute();
-        echo "[CHECK-DUPLICATE] {$row['proxy']} is invalid, deleted.\n";
-        continue;
-      }
-
-      $proxy_ip = strstr($row['proxy'], ':', true);
-      if (!isValidIp($proxy_ip)) {
-        // Delete invalid IP proxies
-        $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
-        $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
-        $deleteStmt->execute();
-        echo "[CHECK-DUPLICATE] Invalid IP: $proxy_ip for proxy: {$row['proxy']}\n";
-        continue;
-      }
-
-      echo "[CHECK-DUPLICATE] Checking proxy: {$row['proxy']} with IP: $proxy_ip\n";
-
-      if (isPortOpen($row['proxy'])) {
-        echo "[CHECK-DUPLICATE] Proxy {$row['proxy']} is open.\n";
-        $db->updateData($row['proxy'], ['status' => 'untested'], false);
-      } else {
-        // Fetch the first row ID for this IP to compare
-        $firstRowStmt = $pdo->prepare("SELECT id FROM proxies WHERE substr(proxy, 1, instr(proxy, ':') - 1) = :ip ORDER BY id LIMIT 1");
-        $firstRowStmt->bindParam(':ip', $proxy_ip, PDO::PARAM_STR);
-        $firstRowStmt->execute();
-        $firstRow = $firstRowStmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$firstRow) {
-          echo "[CHECK-DUPLICATE] No first row found for IP: $proxy_ip, skipping deletion.\n";
+      foreach ($rows as $row) {
+        $timer->exitIfNeeded("Graceful exit: ran out of safe time.");
+        ;
+        if (isValidProxy($row['proxy']) === false) {
+          // Delete invalid proxies
+          $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
+          $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
+          $deleteStmt->execute();
+          $this->log("[CHECK-DUPLICATE] {$row['proxy']} is not a valid proxy format. [DELETED]");
           continue;
         }
 
-        if ($firstRow['id'] === $row['id']) {
-          echo "[CHECK-DUPLICATE] Keeping first proxy: {$row['proxy']} as it is the first one. [SKIPPED]\n";
+        $proxy_ip = strstr($row['proxy'], ':', true);
+        if (!isValidIp($proxy_ip)) {
+          // Delete invalid IP proxies
+          $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
+          $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
+          $deleteStmt->execute();
+          $this->log("[CHECK-DUPLICATE] {$row['proxy']} has invalid IP: $proxy_ip. [DELETED]");
           continue;
         }
 
-        $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
-        $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
-        $deleteStmt->execute();
-        echo "[CHECK-DUPLICATE] Proxy {$row['proxy']} deleted due to closed or dead status. [DELETED]\n";
+        $this->log("[CHECK-DUPLICATE] Checking proxy: {$row['proxy']} with IP: $proxy_ip");
+
+        // Check if the port is open
+        if (in_array($row['proxy'], $open_ports)) {
+          $this->log("[CHECK-DUPLICATE] Proxy {$row['proxy']} already checked and open, skipping.");
+          continue;
+        }
+        if ($row['status'] === 'active') {
+          if (isDateRFC3339OlderThanHours($row['last_check'], 24)) {
+            $this->log("[CHECK-DUPLICATE] Proxy {$row['proxy']} is active but last checked over 24 hours ago, rechecking.");
+          } else {
+            $this->log("[CHECK-DUPLICATE] Proxy {$row['proxy']} is active and recently checked, skipping. [SKIPPED]");
+            continue; // Skip if it's active and checked recently
+          }
+        }
+        if (isPortOpen($row['proxy'])) {
+          $this->log("[CHECK-DUPLICATE] Proxy {$row['proxy']} is open.");
+          $db->updateData($row['proxy'], ['status' => 'untested'], false);
+          $open_ports[] = $row['proxy'];
+        } else {
+          // Fetch the first row ID for this IP to compare
+          $firstRowStmt = $pdo->prepare("SELECT id FROM proxies WHERE substr(proxy, 1, instr(proxy, ':') - 1) = :ip ORDER BY id LIMIT 1");
+          $firstRowStmt->bindParam(':ip', $proxy_ip, PDO::PARAM_STR);
+          $firstRowStmt->execute();
+          $firstRow = $firstRowStmt->fetch(PDO::FETCH_ASSOC);
+
+          if (!$firstRow) {
+            $this->log("[CHECK-DUPLICATE] No first row found for IP: $proxy_ip, skipping deletion.");
+            continue;
+          }
+
+          if ($firstRow['id'] === $row['id']) {
+            $this->log("[CHECK-DUPLICATE] Skipping deletion of first proxy: {$row['proxy']}. [SKIPPED]");
+            continue;
+          }
+
+          $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
+          $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
+          $deleteStmt->execute();
+          $this->log("[CHECK-DUPLICATE] Proxy {$row['proxy']} deleted due to closed or dead status. [DELETED]");
+        }
+      }
+
+      // Check open ports is active proxies
+      foreach ($open_ports as $proxy) {
+        $curls = [
+          'non-ssl' => [
+            'http' => buildCurl($proxy, 'http', 'http://httpforever.com/', [], $row['username'], $row['password'], 'GET', null, 0),
+            'socks4' => buildCurl($proxy, 'socks4', 'http://httpforever.com/', [], $row['username'], $row['password'], 'GET', null, 0),
+            'socks5' => buildCurl($proxy, 'socks5', 'http://httpforever.com/', [], $row['username'], $row['password'], 'GET', null, 0),
+          ],
+          'ssl' => [
+            'http' => buildCurl($proxy, 'http', 'https://forums.docker.com/', [], $row['username'], $row['password'], 'GET', null, 0),
+            'socks4' => buildCurl($proxy, 'socks4', 'https://forums.docker.com/', [], $row['username'], $row['password'], 'GET', null, 0),
+            'socks5' => buildCurl($proxy, 'socks5', 'https://forums.docker.com/', [], $row['username'], $row['password'], 'GET', null, 0),
+          ],
+        ];
+        // Apply default cURL options
+        $cookieFile = tmp() . '/cookies/default.txt';
+        foreach ($curls as $type => $protocols) {
+          foreach ($protocols as $protocol => $ch) {
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);   // Save cookies to file
+            curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);  // Use cookies from file
+
+          }
+        }
+
+        $working_proxies = [];
+        $working_ssl = false;
+
+        // Check SSL
+        foreach ($curls['ssl'] as $protocol => $ch) {
+          // Execute the request and get the response
+          $response = curl_exec($ch);
+
+          // Check for cURL errors
+          if (curl_errno($ch)) {
+            $this->log("cURL SSL Error (" . $protocol . "://" . $proxy . "): " . curl_error($ch));
+            continue;
+          }
+
+          // Get info about the request
+          $info = curl_getinfo($ch);
+
+          // Close cURL session
+          curl_close($ch);
+
+          if ($info['http_code'] == 200) {
+            $latencyMs = round($info['total_time'] * 1000, 2);
+            preg_match("/<title>(.*?)<\/title>/is", $response, $titleMatches);
+            $title = $titleMatches[1] ?? 'No title found';
+            if (trim(strtolower($title)) === strtolower('Docker Community Forums')) {
+              if (!isset($working_proxies[$proxy])) {
+                $working_proxies[$proxy] = [];
+              }
+              $working_proxies[$proxy]['protocol'][] = $protocol;
+              $working_proxies[$proxy]['latency'][] = $latencyMs;
+              // Delete curl item from the array
+              unset($curls['ssl'][$protocol]);
+              // Delete non-SSL curl item
+              unset($curls['non-ssl'][$protocol]);
+              // Mark as working SSL
+              $working_ssl = true;
+              $this->log("[CHECK-DUPLICATE] Proxy $proxy is active and supports SSL. Latency: {$latencyMs}ms, Title: $title");
+            }
+          }
+        }
+        // If no SSL working proxies found, check non-SSL
+        if (!$working_ssl) {
+          // Check non-SSL
+          foreach ($curls['non-ssl'] as $protocol => $ch) {
+            // Execute the request and get the response
+            $response = curl_exec($ch);
+
+            // Check for cURL errors
+            if (curl_errno($ch)) {
+              $this->log("cURL non-SSL Error (" . $protocol . "://" . $proxy . "): " . curl_error($ch));
+              continue;
+            }
+
+            // Get info about the request
+            $info = curl_getinfo($ch);
+
+            // Close cURL session
+            curl_close($ch);
+
+            if ($info['http_code'] == 200) {
+              $latencyMs = round($info['total_time'] * 1000, 2);
+              preg_match("/<title>(.*?)<\/title>/is", $response, $titleMatches);
+              $title = $titleMatches[1] ?? 'No title found';
+              if (trim(strtolower($title)) === strtolower('HTTP Forever')) {
+                if (!isset($working_proxies[$proxy])) {
+                  $working_proxies[$proxy] = [];
+                }
+                $working_proxies[$proxy]['protocol'][] = $protocol;
+                $working_proxies[$proxy]['latency'][] = $latencyMs;
+                // Delete curl item from the array
+                unset($curls['ssl'][$protocol]);
+                $this->log("[CHECK-DUPLICATE] Proxy $proxy is active and supports non-SSL. Latency: {$latencyMs}ms, Title: $title");
+              }
+            }
+          }
+        }
+
+        // Check if we have any working proxies
+        if (isset($working_proxies[$proxy])) {
+          $protocols = implode('-', $working_proxies[$proxy]['protocol']);
+          $latencies = implode('ms, ', $working_proxies[$proxy]['latency']) . 'ms';
+          $this->log("[CHECK-DUPLICATE] Proxy $proxy is working with protocols: $protocols and latencies: $latencies.");
+          // Update the proxy status to active
+          $db->updateData($proxy, ['status' => 'active', 'type' => $protocols], false);
+        } else {
+          $this->log("[CHECK-DUPLICATE] Proxy $proxy is not working with any protocols.");
+          // Delete the proxy if it has no working protocols, but only if it was not the first one
+          $firstRowStmt = $pdo->prepare("SELECT id FROM proxies WHERE substr(proxy, 1, instr(proxy, ':') - 1) = :ip ORDER BY id LIMIT 1");
+          $firstRowStmt->bindParam(':ip', $proxy_ip, PDO::PARAM_STR);
+          $firstRowStmt->execute();
+          $firstRow = $firstRowStmt->fetch(PDO::FETCH_ASSOC);
+          if ($firstRow && $firstRow['id'] !== $row['id']) {
+            $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
+            $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
+            $deleteStmt->execute();
+            $this->log("[CHECK-DUPLICATE] Proxy $proxy deleted due to no working protocols. [DELETED]");
+          } else {
+            $this->log("[CHECK-DUPLICATE] Skipping deletion of first proxy: {$row['proxy']}.");
+          }
+        }
       }
     }
   }
@@ -108,7 +260,11 @@ if (
   $data = $list->fetchDuplicates();
   $firstKey = array_key_first($data);
   $firstValue = $data[$firstKey];
-
+  echo "First Proxy Key: $firstKey " . count($firstValue) . " proxies found.\n";
+  if (!$firstKey) {
+    echo "No proxies found to check.\n";
+    exit(0);
+  }
   $check = new CheckDuplicateProxyController();
   $check->fetchDuplicates($firstKey);
 }
