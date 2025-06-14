@@ -6,6 +6,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/simplehtmldom" isTestSource="false" packagePrefix="simplehtmldom\" />
       <sourceFolder url="file://$MODULE_DIR$/src/simplehtmldom/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/translations/ext" isTestSource="false" packagePrefix="PhpProxyHunter\" />
       <excludeFolder url="file://$MODULE_DIR$/.cache" />
       <excludeFolder url="file://$MODULE_DIR$/.yarn" />
       <excludeFolder url="file://$MODULE_DIR$/assets" />
@@ -36,6 +38,7 @@
       <excludeFolder url="file://$MODULE_DIR$/bas" />
       <excludeFolder url="file://$MODULE_DIR$/baileys_auth_info_br" />
       <excludeFolder url="file://$MODULE_DIR$/frontend/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/tests/tmp" />
     </content>
     <content url="file://$MODULE_DIR$/assets/proxies" />
     <orderEntry type="jdk" jdkName="Python 3.11 (htdocs)" jdkType="Python SDK" />
