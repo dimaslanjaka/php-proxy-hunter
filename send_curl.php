@@ -17,7 +17,7 @@ if (!isset($options['url'])) {
 $url = $options['url'];
 
 // Define the path for the cookie file
-$cookieFile = __DIR__ . '/tmp/cookies/default.txt';
+$cookieFile = tmp() . '/cookies/default.txt';
 
 // Create the directory if it doesn't exist
 if (!file_exists(dirname($cookieFile))) {
