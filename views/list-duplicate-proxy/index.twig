@@ -1,0 +1,17 @@
+{% extends "template.twig" %}
+
+{% set site_title %}PHP Proxy Hunter{% endset %}
+{% set page_title %}List Duplicate Proxies{% endset %}
+{% block endhead %}{% endblock endhead %}
+
+{% block body %}
+  <ul>
+    {% for key, items in controller_output %}
+      <li>{{ key }}: {{ items|length }} proxies</li>
+    {% endfor %}
+  </ul>
+{% endblock body %}
+
+{% block endbody %}
+  <script src="/public/php/js/template.js"></script>
+{% endblock endbody %}
