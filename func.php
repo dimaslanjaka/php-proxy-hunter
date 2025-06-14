@@ -2355,8 +2355,15 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
 
   // Determine paths and commands
   $cwd = __DIR__;
-  $base = !empty($identifier) ? $identifier : md5("$scriptPath/$commandArgsString");
-  $filename = sanitizeFilename(pathinfo($base, PATHINFO_FILENAME) . '-' . sanitizeFilename($base));
+
+  if (!empty($identifier)) {
+    $filename = sanitizeFilename($identifier);
+  } else {
+    $hash = md5("$scriptPath/$commandArgsString");
+    $name = pathinfo($scriptPath, PATHINFO_FILENAME);
+    $filename = sanitizeFilename($name . '-' . $hash);
+  }
+
   $runner = unixPath(tmp() . "/runners/$filename" . ($isWin ? ".bat" : ".sh"));
   $output_file = unixPath(tmp() . "/logs/$filename.txt");
   $pid_file = unixPath(tmp() . "/runners/$filename.pid");
