@@ -62,6 +62,46 @@ class BaseController
   }
 
   /**
+   * Retrieves the current URL details, including scheme, host, path, query,
+   * parsed query parameters, full URL, and canonical URL.
+   * Note: Fragment (hash) is not accessible from PHP.
+   *
+   * @return array{
+   *     scheme: string,
+   *     host: string,
+   *     path: string,
+   *     query: string|null,
+   *     query_params: array<string, mixed>,
+   *     fragment: null,
+   *     full_url: string,
+   *     canonical_url: string
+   * }
+   */
+  public function getCurrentUrlInfo(): array
+  {
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+    $scheme = $isHttps ? 'https' : 'http';
+    $host   = $_SERVER['HTTP_HOST'];
+    $uri    = $_SERVER['REQUEST_URI']; // includes path + query
+
+    $fullUrl = $scheme . '://' . $host . $uri;
+
+    $parsed = parse_url($fullUrl);
+    parse_str($parsed['query'] ?? '', $queryParams);
+
+    return [
+      'scheme'        => $scheme,
+      'host'          => $host,
+      'path'          => $parsed['path'] ?? '',
+      'query'         => $parsed['query'] ?? null,
+      'query_params'  => $queryParams,
+      'fragment'      => null, // not available via PHP
+      'full_url'      => $fullUrl,
+      'canonical_url' => $scheme . '://' . $host . ($parsed['path'] ?? ''),
+    ];
+  }
+
+  /**
    * Returns the lock file path for the current controller.
    */
   public function getLockFilePath(): string
