@@ -274,6 +274,22 @@ function sanitizeFilePath(string $fullPath): string
   // Reconstruct the full path with the sanitized filename
   return $pathParts['dirname'] . DIRECTORY_SEPARATOR . $sanitizedFilename;
 }
+/**
+ * Returns the absolute path to the project root directory.
+ *
+ * This function locates the Composer autoloader file using reflection,
+ * then traverses up three directory levels to determine the root of the project.
+ *
+ * @return string The absolute path to the project root directory.
+ *
+ * @throws \ReflectionException If the Composer autoloader class cannot be found.
+ */
+
+function getProjectRoot(): string
+{
+  $autoloadPath = (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName();
+  return unixPath(dirname(dirname(dirname($autoloadPath))));
+}
 
 /**
  * Get project temp folder.
@@ -282,8 +298,7 @@ function sanitizeFilePath(string $fullPath): string
  */
 function tmp(...$args)
 {
-  $autoloadPath = (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName();
-  $projectRoot = dirname(dirname(dirname($autoloadPath)));
+  $projectRoot = getProjectRoot();
 
   // Base directory for temp folder
   $tmpDir = $projectRoot . '/tmp';
