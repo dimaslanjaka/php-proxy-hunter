@@ -149,7 +149,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-embed": "^0.4.15",
     "prettier-plugin-sql": "^0.18.1",
-    "prettier-plugin-twig": "https://github.com/dimaslanjaka/prettier-plugin-twig/archive/refs/heads/master.tar.gz#commit=9bf90f7",
+    "prettier-plugin-twig": "https://github.com/dimaslanjaka/prettier-plugin-twig/archive/9bf90f7.tar.gz",
     "rebrowser-patches": "^1.0.17",
     "rollup": "^4.32.0",
     "rollup-plugin-polyfill-node": "^0.13.0",
