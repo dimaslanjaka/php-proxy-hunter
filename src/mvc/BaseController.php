@@ -30,6 +30,7 @@ class BaseController
    */
   protected string $lockFilePath;
   protected string $logFilePath;
+  protected bool $isAdmin = false;
 
   /**
    * BaseController constructor.
@@ -51,6 +52,7 @@ class BaseController
         $this->session_id = session_id();
         $this->lockFilePath = tmp() . '/runners/' . $this->session_id . '.lock';
         $this->logFilePath = tmp() . '/logs/' . $this->session_id . '.log';
+        $this->isAdmin = isset($_SESSION['admin']) ? (bool)$_SESSION['admin'] : false;
       } else {
         // Fallback for non-CLI with no session
         $this->lockFilePath = tmp() . '/runners/' . static::class . '.web.lock';
