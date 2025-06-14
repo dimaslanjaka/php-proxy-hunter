@@ -2,30 +2,74 @@
 
 namespace PhpProxyHunter;
 
+if (!function_exists('tmp')) {
+  require_once __DIR__ . '/../../func.php';
+}
+
 /**
- * BaseController class
+ * Class BaseController
  *
- * This class serves as a base controller for the MVC framework.
- * It provides common functionality for controllers, such as handling CLI requests,
- * setting output files, and rendering views.
+ * Serves as the base controller for the PhpProxyHunter framework.
+ * Provides common functionality such as detecting CLI mode,
+ * managing session IDs, and generating lock file paths.
  */
 class BaseController
 {
-  protected $isCLI = false;
+  /**
+   * Indicates whether the script is running in CLI mode.
+   */
+  protected bool $isCLI;
 
+  /**
+   * Holds the session ID if available (for web requests only).
+   */
+  protected ?string $session_id = null;
+
+  /**
+   * The full path to the lock file associated with this controller.
+   */
+  protected string $lockFilePath;
+
+  /**
+   * BaseController constructor.
+   *
+   * Detects whether the script is running in CLI mode,
+   * initializes the session ID for web requests,
+   * and sets a unique lock file path accordingly.
+   */
   public function __construct()
   {
-    // Check if the request is from CLI
     $this->isCLI = php_sapi_name() === 'cli';
+
+    if ($this->isCLI) {
+      // CLI: use class name for lock file
+      $this->lockFilePath = tmp() . '/runners/' . static::class . '.lock';
+    } else {
+      if (session_status() === PHP_SESSION_ACTIVE) {
+        $this->session_id = session_id();
+        $this->lockFilePath = tmp() . '/runners/' . $this->session_id . '.lock';
+      } else {
+        // Fallback for non-CLI with no session
+        $this->lockFilePath = tmp() . '/runners/' . static::class . '.web.lock';
+      }
+    }
   }
 
   /**
-   * Index action method
-   *
-   * Returns the content of the output file as a JSON array.
+   * Returns the lock file path for the current controller.
    */
-  public function indexAction()
+  public function getLockFilePath(): string
   {
-    return [];
+    return unixPath($this->lockFilePath);
   }
+}
+
+// Only run when executed directly from CLI, not when included or required
+if (
+  php_sapi_name() === 'cli' &&
+  realpath(__FILE__) === realpath($_SERVER['argv'][0] ?? '')
+) {
+  $controller = new BaseController();
+  echo 'Session ID: ' . ($controller->session_id ?? 'N/A') . PHP_EOL;
+  echo 'Lock file path: ' . $controller->getLockFilePath() . PHP_EOL;
 }
