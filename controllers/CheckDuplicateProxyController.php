@@ -100,13 +100,15 @@ class CheckDuplicateProxyController extends BaseController
 }
 
 // Only run when executed directly from CLI, not when included or required
-if (php_sapi_name() === 'cli' && realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
+if (
+  php_sapi_name() === 'cli' &&
+  realpath(__FILE__) === realpath($_SERVER['argv'][0] ?? '')
+) {
   $list = new ListDuplicateProxyController();
   $data = $list->fetchDuplicates();
   $firstKey = array_key_first($data);
   $firstValue = $data[$firstKey];
-  // var_dump($firstKey);
-  // var_dump($firstValue);
+
   $check = new CheckDuplicateProxyController();
   $check->fetchDuplicates($firstKey);
 }

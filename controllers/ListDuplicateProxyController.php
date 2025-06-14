@@ -70,11 +70,13 @@ class ListDuplicateProxyController extends BaseController
 }
 
 // Only run when executed directly from CLI, not when included or required
-if (php_sapi_name() === 'cli' && realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
+if (php_sapi_name() === 'cli' && realpath(__FILE__) === realpath($_SERVER['argv'][0] ?? '')) {
   $controller = new ListDuplicateProxyController();
   $data = $controller->fetchDuplicates();
+
   $result = array_map(function ($key, $value) {
     return "$key: " . count($value) . " proxies";
   }, array_keys($data), $data);
+
   print_r($result);
 }
