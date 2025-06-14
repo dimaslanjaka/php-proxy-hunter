@@ -1357,54 +1357,6 @@ function moveLinesToFile(string $sourceFile, string $destinationFile, int $lines
   return true;
 }
 
-
-/**
- * Append content to a file with file locking.
- *
- * @param string $file The file path.
- * @param string $content_to_append The content to append.
- * @return bool True if the content was successfully appended, false otherwise.
- */
-function append_content_with_lock(string $file, string $content_to_append): bool
-{
-  createParentFolders($file);
-  if (file_exists($file)) {
-    if (is_file_locked($file)) {
-      return false;
-    }
-    if (!is_writable($file)) {
-      return false;
-    }
-  }
-  // Open the file for appending, create it if it doesn't exist
-  $handle = @fopen($file, 'a+');
-
-  // Check if file handle is valid
-  if (!$handle) {
-    return false;
-  }
-
-  // Acquire an exclusive lock
-  if (flock($handle, LOCK_EX)) {
-    // Append the content
-    if (!empty(trim($content_to_append))) {
-      fwrite($handle, $content_to_append);
-    }
-
-    // Release the lock
-    flock($handle, LOCK_UN);
-
-    // Close the file handle
-    fclose($handle);
-
-    return true;
-  } else {
-    // Couldn't acquire the lock
-    fclose($handle);
-    return false;
-  }
-}
-
 /**
  * Removes a specified string from a text file.
  *
