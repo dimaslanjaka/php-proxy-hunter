@@ -21,6 +21,45 @@ class ListDuplicateProxyController extends BaseController
     return json_decode(read_file($this->outputFile) ?? '[]', true);
   }
 
+  public function checkAction()
+  {
+    $cmd = "php " . escapeshellarg($_SERVER['SCRIPT_FILENAME']);
+
+    $uid = getUserId();
+    $cmd .= " --userId=" . escapeshellarg($uid);
+    $cmd .= " --max=" . escapeshellarg("30");
+    $cmd .= " --admin=" . escapeshellarg($this->isAdmin ? 'true' : 'false');
+
+    $urlInfo = $this->getCurrentUrlInfo();
+    if ($urlInfo) {
+      $cmd .= " -ip=" . escapeshellarg($urlInfo['query_params']['ip'] ?? '');
+    }
+
+    // Generate the command to run in the background
+    $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($this->logFilePath), escapeshellarg($this->lockFilePath));
+    $ext = (strtoupper(PHP_OS_FAMILY) === 'WINDOWS') ? '.bat' : '.sh';
+    $runner = tmp() . "/runners/" . basename($this->lockFilePath, '.lock') . $ext;
+
+    // Write the command to the runner script
+    write_file($runner, $cmd);
+
+    // Execute the runner script in the background
+    runBashOrBatch($runner);
+
+    $result = [
+      'status' => 'success',
+      'message' => 'Duplicate proxy check started. Check the log file for progress.',
+      'user_id' => $uid,
+    ];
+    if ($this->isAdmin) {
+      $result['log_file'] = $this->logFilePath;
+      $result['lock_file'] = $this->lockFilePath;
+      $result['output_file'] = $this->outputFile;
+    }
+
+    return $result;
+  }
+
   public function fetchDuplicates()
   {
     if (!$this->isCLI) {
