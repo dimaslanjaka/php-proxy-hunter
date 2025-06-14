@@ -146,6 +146,10 @@ try {
   $rawViewPath = __DIR__ . "/views/{$viewName}.twig";
   $viewPath = realpath($rawViewPath);
 
+  if (!$viewPath && !class_exists($controllerName)) {
+    throw new Exception("Both controller '{$controllerName}' and view '{$viewName}.twig' not found.");
+  }
+
   if (!$viewPath) {
     // If no view is found, use controller output directly
     exit(outputUtf8Content($controllerOutput));
