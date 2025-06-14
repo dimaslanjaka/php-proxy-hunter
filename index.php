@@ -148,7 +148,7 @@ try {
 
   if (!$viewPath) {
     // If no view is found, use controller output directly
-    $render_html = stringify($controllerOutput);
+    exit(outputUtf8Content($controllerOutput));
   } else {
     // Render the view
     $render_html = $twig->render("{$viewName}.twig", [

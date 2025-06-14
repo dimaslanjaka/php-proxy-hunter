@@ -26,3 +26,33 @@ function stringify($arg): string
 
   return json_encode($arg, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 }
+
+/**
+ * Outputs content with appropriate Content-Type and UTF-8 charset.
+ * Throws an exception if headers are already sent.
+ *
+ * @param mixed $data Content to output (array, object, string)
+ * @throws RuntimeException If headers are already sent
+ * @return void
+ */
+function outputUtf8Content($data): void
+{
+  if (headers_sent($file, $line)) {
+    throw new RuntimeException("Cannot set headers. Headers already sent in $file on line $line.");
+  }
+
+  if (is_array($data) || is_object($data)) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+  } elseif (is_string($data)) {
+    if ($data !== strip_tags($data)) {
+      header('Content-Type: text/html; charset=utf-8');
+    } else {
+      header('Content-Type: text/plain; charset=utf-8');
+    }
+    echo $data;
+  } else {
+    header('Content-Type: text/plain; charset=utf-8');
+    echo '[Unsupported content type: ' . gettype($data) . ']';
+  }
+}
