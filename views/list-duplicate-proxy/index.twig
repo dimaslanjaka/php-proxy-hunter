@@ -7,7 +7,9 @@
 {% block body %}
   <ul>
     {% for key, items in controller_output %}
-      <li>{{ key }}: {{ items|length }} proxies</li>
+      <li>
+        <a href="/list-duplicate-proxy/check?ip={{ key }}" class="text-blue-400 hover:text-blue-200 underline" rel="nofollow">{{ key }}</a>: {{ items|length }} proxies
+      </li>
     {% endfor %}
   </ul>
 {% endblock body %}
