@@ -78,6 +78,8 @@ class BaseController
     $timestamp = date('Y-m-d H:i:s');
     $message = implode(' ', array_map('stringify', $args));
 
+    echo $message . PHP_EOL;
+
     // Append to log file
     append_content_with_lock($this->logFilePath, trim("[$timestamp] $message") . PHP_EOL);
   }
