@@ -9,7 +9,8 @@
       "simplehtmldom\\": "src/simplehtmldom/",
       "PhpProxyHunter\\": [
         "src/PhpProxyHunter",
-        "translations/ext"
+        "translations/ext",
+        "src/mvc"
       ]
     },
     "files": [

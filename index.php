@@ -4,6 +4,7 @@ require_once __DIR__ . '/func.php';
 
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
+use Twig\Extension\DebugExtension as TwigDebugExtension;
 use Twig\Loader\FilesystemLoader as TwigFSLoader;
 use Twig\Environment as TwigEnvironment;
 use PhpProxyHunter\TranslationExtension;
@@ -40,7 +41,8 @@ if (in_array($fileExtension, $staticFileExtensions)) {
 $pathSegments = explode('/', trim($requestPath, '/'));
 
 // Default values for controller and action
-$controllerName = !empty($pathSegments[0]) ? ucfirst($pathSegments[0]) . 'Controller' : 'DefaultController';
+$controllerBase = !empty($pathSegments[0]) ? $pathSegments[0] : 'default';
+$controllerName = str_replace(' ', '', ucwords(str_replace('-', ' ', $controllerBase))) . 'Controller';
 $actionName = !empty($pathSegments[1]) ? $pathSegments[1] . 'Action' : 'indexAction';
 
 // Any remaining segments are treated as parameters
@@ -49,9 +51,11 @@ $params = array_slice($pathSegments, 2);
 // Autoload controllers
 function autoloadController($className)
 {
-  $filePath = __DIR__ . '/controllers/' . $className . '.php';
-  if (file_exists($filePath)) {
-    require_once $filePath;
+  $GLOBALS['loadedControllerPath'] = __DIR__ . '/controllers/' . $className . '.php';
+  if (file_exists($GLOBALS['loadedControllerPath'])) {
+    require_once $GLOBALS['loadedControllerPath'];
+    // Save the loaded controller path globally
+    $GLOBALS['loadedControllerPath'] = realpath($GLOBALS['loadedControllerPath']);
   }
 }
 
@@ -59,7 +63,10 @@ spl_autoload_register('autoloadController');
 
 // Initialize Twig
 $loader = new TwigFSLoader(__DIR__ . '/views');
-$twig = new TwigEnvironment($loader);
+$twig = new TwigEnvironment($loader, ['debug'=>is_debug()]);
+if (is_debug()) {
+  $twig->addExtension(new TwigDebugExtension());
+}
 
 // Initialize Translator
 $translator = new Translator('en');
@@ -116,20 +123,20 @@ foreach ($files as $file) {
 try {
   // Load when controller exists
   if (class_exists($controllerName)) {
-    // Instantiate the controller
     $controllerInstance = new $controllerName();
 
-    // Check if the action method exists
     if (!method_exists($controllerInstance, $actionName)) {
       throw new Exception("Action $actionName not found in $controllerName.");
     }
 
-    // Call the action with parameters
-    call_user_func_array([$controllerInstance, $actionName], $params);
+    // Call action and capture return value
+    $controllerOutput = call_user_func_array([$controllerInstance, $actionName], $params);
+  } else {
+    $controllerOutput = '';
   }
 
   // Extract the base name for the view
-  $baseControllerName = strtolower(str_replace('Controller', '', $controllerName));
+  $baseControllerName = !empty($pathSegments[0]) ? $pathSegments[0] : 'default';
   $baseActionName = strtolower(str_replace('Action', '', $actionName));
 
   // Determine the view to render based on controller and action
@@ -140,17 +147,36 @@ try {
   $viewPath = realpath($rawViewPath);
 
   if (!$viewPath) {
+    $message = "View file for **$viewName** not found.";
     if (is_debug()) {
-      throw new Exception("View file for **$viewName** not found. (**$rawViewPath**)");
+      $message .= " (**$rawViewPath**)";
     }
-    throw new Exception("View file for **$viewName** not found.");
+    throw new Exception($message);
   }
 
   // Render the view
   $render_html = $twig->render("{$viewName}.twig", [
     'date' => date(DATE_RFC3339),
     'debug' => is_debug(),
-    'locale' => $locale
+    'locale' => $locale,
+    'controller_output' => $controllerOutput,
+    'views_debug' => [
+      '$controllerName' => $controllerName,
+      '$controllerFilePath' => file_exists($GLOBALS['loadedControllerPath']) ? realpath($GLOBALS['loadedControllerPath']) : $GLOBALS['loadedControllerPath'] . " Not found",
+      '$baseControllerName' => $baseControllerName,
+      '$baseActionName' => $baseActionName,
+      '$actionName' => $actionName,
+      '$params' => $params,
+      '$viewName' => $viewName,
+      '$rawViewPath' => $rawViewPath,
+      '$resolvedViewPath' => $viewPath,
+      '$requestUri' => $requestUri,
+      '$requestPath' => $requestPath,
+      '$fileExtension' => $fileExtension,
+      '$staticMode' => in_array($fileExtension, $staticFileExtensions),
+      '$locale' => $locale,
+      '$debug' => is_debug(),
+    ]
   ]);
 } catch (Exception $e) {
   // Handle errors by rendering a Twig error page
