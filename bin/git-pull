@@ -41,5 +41,20 @@ else
   done
 fi
 
+# Fix .husky/hash.txt (modified, staged, or untracked)
+if git status --porcelain .husky/hash.txt | grep -qE '^( M|M |A |??)'; then
+  echo "Detected changes in .husky/hash.txt"
+
+  # Truncate the file
+  : > .husky/hash.txt
+
+  # Add it to the index
+  git add .husky/hash.txt
+
+  echo ".husky/hash.txt has been truncated and staged."
+else
+  echo ".husky/hash.txt is clean. No action needed."
+fi
+
 # Fix permissions
 bash "$CWD/bin/fix-perm"
