@@ -16,22 +16,6 @@ class ListDuplicateProxyController extends BaseController
     $this->outputFile = unixPath(tmp() . '/proxies/' . get_class($this) . '.txt');
   }
 
-  private function executeCommand($cmd)
-  {
-    // Generate the command to run in the background
-    $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($this->logFilePath), escapeshellarg($this->lockFilePath));
-    $ext = (strtoupper(PHP_OS_FAMILY) === 'WINDOWS') ? '.bat' : '.sh';
-    $runner = tmp() . "/runners/" . basename($this->lockFilePath, '.lock') . $ext;
-
-    // Write the command to the runner script
-    write_file($runner, $cmd);
-
-    // Execute the runner script in the background
-    runBashOrBatch($runner, [], getCallerInfo() . '-' . $this->session_id);
-
-    return ['runner' => $runner, 'command' => $cmd];
-  }
-
   public function indexAction()
   {
     $urlInfo = $this->getCurrentUrlInfo();
@@ -66,6 +50,7 @@ class ListDuplicateProxyController extends BaseController
       . ' --userId=' . escapeshellarg(getUserId())
       . ' --max=30'
       . ' --admin=' . escapeshellarg($this->isAdmin ? 'true' : 'false')
+      . ' --lockFile=' . escapeshellarg($this->lockFilePath)
       . ' -ip=' . escapeshellarg($ip);
 
     $exec = $this->executeCommand($cmd);
@@ -92,6 +77,22 @@ class ListDuplicateProxyController extends BaseController
     return $result;
   }
 
+  private function executeCommand($cmd)
+  {
+    // Generate the command to run in the background
+    $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($this->logFilePath), escapeshellarg($this->lockFilePath));
+    $ext = (strtoupper(PHP_OS_FAMILY) === 'WINDOWS') ? '.bat' : '.sh';
+    $runner = tmp() . "/runners/" . basename($this->lockFilePath, '.lock') . $ext;
+
+    // Write the command to the runner script
+    write_file($runner, $cmd);
+
+    // Execute the runner script in the background
+    runBashOrBatch($runner, [], getCallerInfo() . '-' . $this->session_id);
+
+    return ['runner' => $runner, 'command' => $cmd];
+  }
+
   /**
    * Fetch duplicate proxies, paginated.
    *
@@ -106,16 +107,23 @@ class ListDuplicateProxyController extends BaseController
       throw new Exception('Only CLI Allowed');
     }
 
-    $db = new \PhpProxyHunter\ProxyDB();
-    /**
-     * @var PDO
-     */
-    $pdo = $db->db->pdo;
+    $lock = new \PhpProxyHunter\FileLockHelper($this->getLockFilePath());
+    if ($lock->isLockedByAnotherProcess()) {
+      $this->log("[CHECK-DUPLICATE] Another instance is running, exiting.");
+      return;
+    }
 
-    // Calculate SQL offset
-    $offset = ($page - 1) * $pageSize;
+    if ($lock->lock()) {
+      $db = new \PhpProxyHunter\ProxyDB();
+      /**
+       * @var PDO
+       */
+      $pdo = $db->db->pdo;
 
-    $sql = "SELECT * FROM proxies
+      // Calculate SQL offset
+      $offset = ($page - 1) * $pageSize;
+
+      $sql = "SELECT * FROM proxies
     WHERE
       substr(proxy, 1, instr(proxy, ':') - 1) IN (
         SELECT substr(proxy, 1, instr(proxy, ':') - 1) AS ip
@@ -126,31 +134,34 @@ class ListDuplicateProxyController extends BaseController
     ORDER BY proxy
     LIMIT :limit OFFSET :offset";
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-    $stmt->execute();
+      $stmt = $pdo->prepare($sql);
+      $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
+      $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+      $stmt->execute();
 
-    $duplicated_ip = [];
+      $duplicated_ip = [];
 
-    // Fetch rows one by one to reduce memory usage
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-      // Extract IP from proxy (before ':')
-      $ip = strstr($row['proxy'], ':', true);
+      // Fetch rows one by one to reduce memory usage
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        // Extract IP from proxy (before ':')
+        $ip = strstr($row['proxy'], ':', true);
 
-      if ($ip === false) {
-        // Skip rows without a valid proxy format (no colon found)
-        continue;
+        if ($ip === false) {
+          // Skip rows without a valid proxy format (no colon found)
+          continue;
+        }
+
+        // Group rows by IP
+        $duplicated_ip[$ip][] = $row;
       }
 
-      // Group rows by IP
-      $duplicated_ip[$ip][] = $row;
+      // Write JSON data to file (not compressed here)
+      write_file($this->outputFile, json_encode($duplicated_ip, JSON_PRETTY_PRINT));
+
+      return $duplicated_ip;
     }
 
-    // Write JSON data to file (not compressed here)
-    write_file($this->outputFile, json_encode($duplicated_ip, JSON_PRETTY_PRINT));
-
-    return $duplicated_ip;
+    return [];
   }
 }
 
