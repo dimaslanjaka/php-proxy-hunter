@@ -45,7 +45,10 @@ class SQLiteHelper
     if (isset(self::$_databases[$this->uniqueKey])) {
       $this->pdo = self::$_databases[$this->uniqueKey];
     } else {
-      $this->pdo = new PDO("sqlite:$dbPath");
+      $this->pdo = new PDO("sqlite:$dbPath"); // ;busyTimeout=10000
+      // Set how long (in seconds) SQLite will wait if the database is locked
+      $this->pdo->setAttribute(PDO::ATTR_TIMEOUT, 10);
+      // Enable exceptions for error handling
       $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       self::$_databases[$this->uniqueKey] = $this->pdo;
     }
