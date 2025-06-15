@@ -118,6 +118,10 @@ class ListDuplicateProxyController extends BaseController
 
     if ($this->lock->lock()) {
       $db = new \PhpProxyHunter\ProxyDB();
+      if ($db->isDatabaseLocked()) {
+        $this->log("[CHECK-DUPLICATE] Database is locked, exiting.");
+        return;
+      }
       /**
        * @var PDO
        */

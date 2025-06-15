@@ -38,6 +38,10 @@ class CheckDuplicateProxyController extends BaseController
     if ($lock->lock(LOCK_EX)) {
       $this->log("[CHECK-DUPLICATE] Lock acquired, starting check for IP: $ip");
       $db = new \PhpProxyHunter\ProxyDB();
+      if ($db->isDatabaseLocked()) {
+        $this->log("[CHECK-DUPLICATE] Database is locked, exiting.");
+        return;
+      }
       /**
        * @var PDO
        */
