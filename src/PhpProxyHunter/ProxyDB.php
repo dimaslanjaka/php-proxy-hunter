@@ -26,18 +26,20 @@ class ProxyDB
    */
   public function __construct(?string $dbLocation = null)
   {
-    if (!$dbLocation) {
-      $dbLocation = __DIR__ . '/../database.sqlite';
+    $isInMemory = $dbLocation === ':memory:';
+
+    // Use an in-memory SQLite database for testing purposes
+    if ($isInMemory || !$dbLocation) {
+      $dbLocation = $isInMemory ? ':memory:' : __DIR__ . '/../database.sqlite';
     } elseif (!file_exists($dbLocation)) {
       // Extract the directory part from the path
       $directory = dirname($dbLocation);
       // Check if the directory exists and create it if it doesn't
-      if (!is_dir($directory)) {
-        if (!mkdir($directory, 0755, true)) {
-          die("Failed to create directory: $directory\n");
-        }
+      if (!is_dir($directory) && !mkdir($directory, 0755, true)) {
+        die("Failed to create directory: $directory\n");
       }
     }
+
     $this->db = new SQLiteHelper($dbLocation);
 
     // Initialize the database schema
@@ -45,16 +47,14 @@ class ProxyDB
     $this->db->pdo->exec($sqlFileContents);
 
     // Check if WAL mode has been enabled
-    $walEnabled = $this->getMetaValue('wal_enabled');
-    if (!$walEnabled) {
+    if (!$this->getMetaValue('wal_enabled')) {
       // Enable Write-Ahead Logging mode
       $this->db->pdo->exec('PRAGMA journal_mode = WAL');
       $this->setMetaValue('wal_enabled', '1');
     }
 
     // Check if auto-vacuum mode has been enabled
-    $autoVacuumEnabled = $this->getMetaValue('auto_vacuum_enabled');
-    if (!$autoVacuumEnabled) {
+    if (!$this->getMetaValue('auto_vacuum_enabled')) {
       // Enable auto-vacuum mode
       $this->db->pdo->exec('PRAGMA auto_vacuum = FULL');
       $this->setMetaValue('auto_vacuum_enabled', '1');
@@ -63,6 +63,7 @@ class ProxyDB
     // Check if VACUUM needs to be run
     $this->runDailyVacuum();
   }
+
 
   /**
    * Get a meta value from the meta table.
