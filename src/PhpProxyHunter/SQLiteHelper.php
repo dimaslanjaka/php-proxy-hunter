@@ -199,4 +199,25 @@ class SQLiteHelper
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
   }
+
+  /**
+   * Checks if the database is currently locked.
+   *
+   * @return bool True if the database is locked, false otherwise.
+   */
+  public function isDatabaseLocked(): bool
+  {
+    try {
+      // Use a lightweight read query
+      $this->pdo->query('SELECT 1');
+      return false;
+    } catch (\PDOException $e) {
+      // Check if the error code indicates the database is locked
+      if ((int)$e->getCode() === 5) { // SQLITE_BUSY
+        return true;
+      }
+      // Rethrow for other errors
+      throw $e;
+    }
+  }
 }
