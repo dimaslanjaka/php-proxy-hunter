@@ -18,6 +18,6 @@ class UserController extends BaseController
   public function logsAction()
   {
     // Return user logs (placeholder)
-    return readfile($this->logFilePath);
+    return read_file($this->logFilePath);
   }
 }
