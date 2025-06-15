@@ -18,6 +18,10 @@ class ProxyDB
 {
   /** @var SQLiteHelper $db */
   public $db;
+  /**
+   * @var string The root directory of the project.
+   */
+  public $projectRoot;
 
   /**
    * ProxyDB constructor.
@@ -27,10 +31,11 @@ class ProxyDB
   public function __construct(?string $dbLocation = null)
   {
     $isInMemory = $dbLocation === ':memory:';
+    $this->projectRoot = getProjectRoot();
 
     // Use an in-memory SQLite database for testing purposes
     if ($isInMemory || !$dbLocation) {
-      $dbLocation = $isInMemory ? ':memory:' : __DIR__ . '/../database.sqlite';
+      $dbLocation = $isInMemory ? ':memory:' : $this->projectRoot . '/src/database.sqlite';
     } elseif (!file_exists($dbLocation)) {
       // Extract the directory part from the path
       $directory = dirname($dbLocation);
@@ -43,7 +48,10 @@ class ProxyDB
     $this->db = new SQLiteHelper($dbLocation);
 
     // Initialize the database schema
-    $sqlFileContents = file_get_contents(__DIR__ . '/../../assets/database/create.sql');
+    $sqlFileContents = file_get_contents($this->projectRoot . '/assets/database/create.sql');
+    if ($sqlFileContents === false) {
+      throw new \RuntimeException('Failed to read SQL file: ' . $this->projectRoot . '/assets/database/create.sql');
+    }
     $this->db->pdo->exec($sqlFileContents);
 
     // Check if WAL mode has been enabled
