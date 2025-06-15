@@ -9,23 +9,27 @@ use PhpProxyHunter\BaseController;
 class ListDuplicateProxyController extends BaseController
 {
   private $outputFile;
+  private $lock;
 
   public function __construct()
   {
     parent::__construct(); // Ensure BaseController's constructor runs
     $this->outputFile = unixPath(tmp() . '/proxies/' . get_class($this) . '.txt');
+    $this->lock = new \PhpProxyHunter\FileLockHelper($this->getLockFilePath());
   }
 
   public function indexAction()
   {
-    $urlInfo = $this->getCurrentUrlInfo();
-    $max = isset($urlInfo['query_params']['max']) ? intval($urlInfo['query_params']['max']) : 100;
-    $page = isset($urlInfo['query_params']['page']) ? intval($urlInfo['query_params']['page']) : 1;
+    if ($this->lock->lock()) {
+      $urlInfo = $this->getCurrentUrlInfo();
+      $max = isset($urlInfo['query_params']['max']) ? intval($urlInfo['query_params']['max']) : 100;
+      $page = isset($urlInfo['query_params']['page']) ? intval($urlInfo['query_params']['page']) : 1;
 
-    $cmd = "php " . escapeshellarg(getProjectRoot() . '/controllers/ListDuplicateProxyController.php')
-      . ' --max=' . escapeshellarg($max)
-      . ' --page=' . escapeshellarg($page);
-    $this->executeCommand($cmd);
+      $cmd = "php " . escapeshellarg(getProjectRoot() . '/controllers/ListDuplicateProxyController.php')
+        . ' --max=' . escapeshellarg($max)
+        . ' --page=' . escapeshellarg($page);
+      $this->executeCommand($cmd);
+    }
 
     if (!file_exists($this->outputFile)) {
       return [];
@@ -107,13 +111,12 @@ class ListDuplicateProxyController extends BaseController
       throw new Exception('Only CLI Allowed');
     }
 
-    $lock = new \PhpProxyHunter\FileLockHelper($this->getLockFilePath());
-    if ($lock->isLockedByAnotherProcess()) {
+    if ($this->lock->isLockedByAnotherProcess()) {
       $this->log("[CHECK-DUPLICATE] Another instance is running, exiting.");
       return;
     }
 
-    if ($lock->lock()) {
+    if ($this->lock->lock()) {
       $db = new \PhpProxyHunter\ProxyDB();
       /**
        * @var PDO
