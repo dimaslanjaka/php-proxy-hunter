@@ -34,7 +34,13 @@ class ListDuplicateProxyController extends BaseController
 
   public function indexAction()
   {
-    $cmd = "php " . escapeshellarg(getProjectRoot() . '/controllers/ListDuplicateProxyController.php');
+    $urlInfo = $this->getCurrentUrlInfo();
+    $max = isset($urlInfo['query_params']['max']) ? intval($urlInfo['query_params']['max']) : 100;
+    $page = isset($urlInfo['query_params']['page']) ? intval($urlInfo['query_params']['page']) : 1;
+
+    $cmd = "php " . escapeshellarg(getProjectRoot() . '/controllers/ListDuplicateProxyController.php')
+      . ' --max=' . escapeshellarg($max)
+      . ' --page=' . escapeshellarg($page);
     $this->executeCommand($cmd);
 
     if (!file_exists($this->outputFile)) {
@@ -150,8 +156,14 @@ class ListDuplicateProxyController extends BaseController
 
 // Only run when executed directly from CLI, not when included or required
 if (php_sapi_name() === 'cli' && realpath(__FILE__) === realpath($_SERVER['argv'][0] ?? '')) {
+  // Parse CLI arguments for --page=[n] and --max=[n] using getopt
+  $options = getopt('', ['page::', 'max::']);
+
+  $page = isset($options['page']) ? intval($options['page']) : 1;
+  $pageSize = isset($options['max']) ? intval($options['max']) : 1000;
+
   $controller = new ListDuplicateProxyController();
-  $data = $controller->fetchDuplicates();
+  $data = $controller->fetchDuplicates($page, $pageSize);
 
   $result = array_map(function ($key, $value) {
     return "$key: " . count($value) . " proxies";
