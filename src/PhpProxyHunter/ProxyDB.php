@@ -443,4 +443,14 @@ class ProxyDB
     $this->db->close();
     $this->db = null;
   }
+
+  /**
+   * Checks if the database is currently locked.
+   *
+   * @return bool True if the database is locked, false otherwise.
+   */
+  public function isDatabaseLocked(): bool
+  {
+    return $this->db->isDatabaseLocked();
+  }
 }
