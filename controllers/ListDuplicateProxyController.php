@@ -16,8 +16,30 @@ class ListDuplicateProxyController extends BaseController
     $this->outputFile = unixPath(tmp() . '/proxies/' . get_class($this) . '.txt');
   }
 
+  private function executeCommand($cmd)
+  {
+    // Generate the command to run in the background
+    $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($this->logFilePath), escapeshellarg($this->lockFilePath));
+    $ext = (strtoupper(PHP_OS_FAMILY) === 'WINDOWS') ? '.bat' : '.sh';
+    $runner = tmp() . "/runners/" . basename($this->lockFilePath, '.lock') . $ext;
+
+    // Write the command to the runner script
+    write_file($runner, $cmd);
+
+    // Execute the runner script in the background
+    runBashOrBatch($runner, [], getCallerInfo() . '-' . $this->session_id);
+
+    return ['runner' => $runner, 'command' => $cmd];
+  }
+
   public function indexAction()
   {
+    $cmd = "php " . escapeshellarg(getProjectRoot() . '/controllers/ListDuplicateProxyController.php');
+    $this->executeCommand($cmd);
+
+    if (!file_exists($this->outputFile)) {
+      return [];
+    }
     return json_decode(read_file($this->outputFile) ?? '[]', true);
   }
 
@@ -35,16 +57,7 @@ class ListDuplicateProxyController extends BaseController
       $cmd .= " -ip=" . escapeshellarg($urlInfo['query_params']['ip'] ?? '');
     }
 
-    // Generate the command to run in the background
-    $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($this->logFilePath), escapeshellarg($this->lockFilePath));
-    $ext = (strtoupper(PHP_OS_FAMILY) === 'WINDOWS') ? '.bat' : '.sh';
-    $runner = tmp() . "/runners/" . basename($this->lockFilePath, '.lock') . $ext;
-
-    // Write the command to the runner script
-    write_file($runner, $cmd);
-
-    // Execute the runner script in the background
-    runBashOrBatch($runner, [], getCallerInfo() . '-' . $uid);
+    $exec = $this->executeCommand($cmd);
 
     $result = [
       'status' => 'success',
@@ -55,14 +68,25 @@ class ListDuplicateProxyController extends BaseController
       $result['log_file'] = $this->logFilePath;
       $result['lock_file'] = $this->lockFilePath;
       $result['output_file'] = $this->outputFile;
-      $result['runner'] = $runner;
-      $result['command'] = $cmd;
+      $result['runner'] = $exec['runner'];
+      $result['command'] = [
+        'original' => $cmd,
+        'modified' => $exec['command'],
+      ];
     }
 
     return $result;
   }
 
-  public function fetchDuplicates()
+  /**
+   * Fetch duplicate proxies, paginated.
+   *
+   * @param int $page The page number (1-based index)
+   * @param int $pageSize Number of records per page
+   * @return array Grouped duplicate proxies by IP
+   * @throws Exception
+   */
+  public function fetchDuplicates(int $page = 1, int $pageSize = 1000)
   {
     if (!$this->isCLI) {
       throw new Exception('Only CLI Allowed');
@@ -74,24 +98,29 @@ class ListDuplicateProxyController extends BaseController
      */
     $pdo = $db->db->pdo;
 
-    $sql = "
-            SELECT * FROM proxies
-            WHERE
-              substr(proxy, 1, instr(proxy, ':') - 1) IN (
-                SELECT substr(proxy, 1, instr(proxy, ':') - 1) AS ip
-                FROM proxies
-                GROUP BY ip
-                HAVING COUNT(*) > 1
-              )
-            ORDER BY proxy;
-        ";
+    // Calculate SQL offset
+    $offset = ($page - 1) * $pageSize;
 
-    $stmt = $pdo->query($sql);
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $sql = "SELECT * FROM proxies
+    WHERE
+      substr(proxy, 1, instr(proxy, ':') - 1) IN (
+        SELECT substr(proxy, 1, instr(proxy, ':') - 1) AS ip
+        FROM proxies
+        GROUP BY ip
+        HAVING COUNT(*) > 1
+      )
+    ORDER BY proxy
+    LIMIT :limit OFFSET :offset";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
 
     $duplicated_ip = [];
 
-    foreach ($rows as $row) {
+    // Fetch rows one by one to reduce memory usage
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
       // Extract IP from proxy (before ':')
       $ip = strstr($row['proxy'], ':', true);
 
@@ -104,7 +133,8 @@ class ListDuplicateProxyController extends BaseController
       $duplicated_ip[$ip][] = $row;
     }
 
-    write_file($this->outputFile, json_encode($duplicated_ip));
+    // Write JSON data to file (not compressed here)
+    write_file($this->outputFile, json_encode($duplicated_ip, JSON_PRETTY_PRINT));
 
     return $duplicated_ip;
   }
