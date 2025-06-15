@@ -226,10 +226,10 @@ function isValidProxy(?string $proxy, bool $validate_credential = false): bool
 /**
  * Validate a given proxy IP address.
  *
- * @param string|null $proxy The proxy IP address to validate. Can be null.
+ * @param mixed $proxy The proxy IP address to validate. Can be null.
  * @return bool True if the proxy IP address is valid, false otherwise.
  */
-function isValidIp(?string $proxy): bool
+function isValidIp($proxy): bool
 {
   if (!$proxy) {
     return false;
