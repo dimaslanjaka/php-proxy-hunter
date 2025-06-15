@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # fix malformed database with the source tmp/database.sqlite
 
@@ -13,58 +14,49 @@ CWD="$(dirname "$SCRIPT_DIR")"
 
 USER="www-data"
 
-# Check if the system is Linux
-if [ "$OS" == "Linux" ]; then
-  echo "Running on Linux"
-  # Your Linux-specific code here
-# Check if the system is macOS
-elif [ "$OS" == "Darwin" ]; then
-  echo "Running on macOS"
-  # Your macOS-specific code here
-# Check if the system is Windows (Git Bash or Cygwin)
-elif [[ "$OS" == MINGW* || "$OS" == CYGWIN* || "$OS" == MSYS* ]]; then
-  echo "Running on Windows"
-  # Your Windows-specific code here
-else
-  echo "Unknown OS: $OS"
-fi
+# OS Detection
+case "$OS" in
+  Linux)
+    echo "Running on Linux"
+    ;;
+  Darwin)
+    echo "Running on macOS"
+    ;;
+  MINGW*|CYGWIN*|MSYS*)
+    echo "Running on Windows"
+    ;;
+  *)
+    echo "Unknown OS: $OS"
+    ;;
+esac
 
-mkdir -p backups src
+mkdir -p backups src dist/src
 
-# dump and export to backups/dump.sql
-sqlite3 tmp/database.sqlite .dump >backups/dump.sql
+# Dump and export to backups/dump.sql
+sqlite3 tmp/database.sqlite .dump > backups/dump.sql
+echo "File size backups/dump.sql: $(stat --format="%s bytes" backups/dump.sql)"
 
-echo "file size backups/dump.sql $(stat --format="%s bytes" backups/dump.sql)"
+# Import into databases
+for TARGET in src/database.sqlite dist/src/database.sqlite; do
+  [ -f "$TARGET" ] && rm -f "$TARGET"
+  sqlite3 "$TARGET" < backups/dump.sql
+done
 
-# import to src/
-if [ -f "src/database.sqlite" ]; then
-  rm src/database.sqlite
-fi
-sqlite3 src/database.sqlite <backups/dump.sql
+# Re-import to tmp/
+cp -f src/database.sqlite tmp/database.sqlite
 
-# import to dist/src/
-if [ -f "dist/src/database.sqlite" ]; then
-  rm dist/src/database.sqlite
-fi
-sqlite3 dist/src/database.sqlite <backups/dump.sql
-
-# re-import to tmp/
-cp -rf src/database.sqlite tmp/database.sqlite
-
-# remove django tables from src/database.sqlite
+# Remove Django and other specific tables from src/database.sqlite
 
 # Define the SQLite database file path
 DB_FILE="src/database.sqlite"
 
 # List all tables
-ALL_TABLES=$(sqlite3 $DB_FILE ".tables")
+ALL_TABLES=$(sqlite3 "$DB_FILE" ".tables")
 echo "All tables:"
 echo "$ALL_TABLES"
 
-# Initialize a variable to store the filtered table names
+# Filter tables by specific patterns
 FILTERED_TABLES=""
-
-# Check each table name and filter based on the prefixes
 for TABLE in $ALL_TABLES; do
   if [[ $TABLE == django_* || $TABLE == auth_* || $TABLE == user_* || $TABLE == users* || $TABLE == *xl* || $TABLE == *im3* || $TABLE == *axis* || $TABLE == *isimple* ]]; then
     FILTERED_TABLES+="$TABLE "
@@ -74,39 +66,30 @@ done
 echo "Filtered tables:"
 echo "$FILTERED_TABLES"
 
-# If there are tables that match, proceed to delete them
-if [ -n "$FILTERED_TABLES" ]; then
-  for TABLE in $FILTERED_TABLES; do
-    TABLE=$(echo $TABLE | xargs) # Trim any extra whitespace
-    sqlite3 $DB_FILE "DROP TABLE IF EXISTS $TABLE;"
-    echo "Dropped table: $TABLE"
-  done
-else
-  echo "No tables found with the specified prefixes."
-fi
+# Drop filtered tables
+for TABLE in $FILTERED_TABLES; do
+  TABLE=$(echo "$TABLE" | xargs) # Trim whitespace
+  sqlite3 "$DB_FILE" "DROP TABLE IF EXISTS $TABLE;"
+  echo "Dropped table: $TABLE"
+done
 
+# Re-copy on Windows in case previous import didn't persist
 if [[ "$OS" == MINGW* || "$OS" == CYGWIN* || "$OS" == MSYS* ]]; then
-  mkdir -p dist/src
-  cp -rf src/database.sqlite dist/src/database.sqlite
+  cp -f src/database.sqlite dist/src/database.sqlite
 fi
 
-if [ -f "tmp/database.sqlite-wal" ]; then
-  echo "Checkpointing and truncating WAL file..."
-  sqlite3 tmp/database.sqlite "PRAGMA wal_checkpoint(TRUNCATE);"
-  echo "tmp/database.sqlite WAL file truncated."
-fi
+# Truncate WAL files if present
+for DB_PATH in tmp/database.sqlite src/database.sqlite; do
+  if [ -f "${DB_PATH}-wal" ]; then
+    echo "Checkpointing and truncating WAL file for $DB_PATH..."
+    sqlite3 "$DB_PATH" "PRAGMA wal_checkpoint(TRUNCATE);"
+    echo "$DB_PATH WAL file truncated."
+  fi
+done
 
-if [ -f "src/database.sqlite-wal" ]; then
-  echo "Checkpointing and truncating WAL file..."
-  sqlite3 src/database.sqlite "PRAGMA wal_checkpoint(TRUNCATE);"
-  echo "src/database.sqlite WAL file truncated."
-fi
-
+# Set ownership for Linux
 if [ "$OS" == "Linux" ]; then
-  chown -R "$USER":"$USER" "$CWD/bin"
-  chown -R "$USER":"$USER" "$CWD/public"
-  chown -R "$USER":"$USER" "$CWD/assets"
-  chown -R "$USER":"$USER" "$CWD/src"
-  chown -R "$USER":"$USER" "$CWD/tmp"
-  chown -R "$USER":"$USER" "$CWD/data"
+  for DIR in bin public assets src tmp data; do
+    chown -R "$USER":"$USER" "$CWD/$DIR"
+  done
 fi
