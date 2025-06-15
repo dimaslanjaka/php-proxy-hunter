@@ -254,14 +254,13 @@ if (
     $list = new ListDuplicateProxyController();
     $data = $list->fetchDuplicates();
 
-    $firstKey = array_key_first($data);
-
-    if (!$firstKey) {
-      echo "No proxies found to check.\n";
-    } else {
+    if (is_array($data) && !empty($data)) {
+      $firstKey = array_key_first($data);
       $firstCount = count($data[$firstKey]);
       echo "IP: $firstKey $firstCount proxies found.\n";
       $check->fetchDuplicates($firstKey);
+    } else {
+      echo "No proxies found to check.\n";
     }
   }
 }
