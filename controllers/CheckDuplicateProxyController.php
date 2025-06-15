@@ -27,6 +27,10 @@ class CheckDuplicateProxyController extends BaseController
     if (!$this->isCLI) {
       throw new Exception('Only CLI Allowed');
     }
+    if (!isValidIp($ip)) {
+      $this->log("[CHECK-DUPLICATE] Invalid IP address provided: $ip");
+      return;
+    }
 
     $timer = new \PhpProxyHunter\ExecutionTimer(30, 3); // 30s limit, 3s safety buffer
     $lock = new \PhpProxyHunter\FileLockHelper($this->getLockFilePath());
@@ -257,6 +261,7 @@ if (
   } else {
     $list = new ListDuplicateProxyController();
     $data = $list->fetchDuplicates();
+    shuffle($data); // Shuffle the data to randomize the first IP
 
     if (is_array($data) && !empty($data)) {
       $firstKey = array_key_first($data);
