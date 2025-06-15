@@ -45,33 +45,41 @@ class ListDuplicateProxyController extends BaseController
 
   public function checkAction()
   {
-    $cmd = "php " . escapeshellarg(getProjectRoot() . '/controllers/CheckDuplicateProxyController.php');
-
-    $uid = getUserId();
-    $cmd .= " --userId=" . escapeshellarg($uid);
-    $cmd .= " --max=" . escapeshellarg("30");
-    $cmd .= " --admin=" . escapeshellarg($this->isAdmin ? 'true' : 'false');
-
     $urlInfo = $this->getCurrentUrlInfo();
-    if ($urlInfo) {
-      $cmd .= " -ip=" . escapeshellarg($urlInfo['query_params']['ip'] ?? '');
+    $ip = $urlInfo['query_params']['ip'] ?? null;
+    if (!isValidIp($ip)) {
+      return [
+        'status' => 'error',
+        'message' => 'Invalid IP address provided.',
+        'ip' => $ip,
+        'valid' => false,
+      ];
     }
+
+    $cmd = 'php ' . escapeshellarg(getProjectRoot() . '/controllers/CheckDuplicateProxyController.php')
+      . ' --userId=' . escapeshellarg(getUserId())
+      . ' --max=30'
+      . ' --admin=' . escapeshellarg($this->isAdmin ? 'true' : 'false')
+      . ' -ip=' . escapeshellarg($ip);
 
     $exec = $this->executeCommand($cmd);
 
     $result = [
       'status' => 'success',
       'message' => 'Duplicate proxy check started. Check the log file for progress.',
-      'user_id' => $uid,
+      'user_id' => getUserId(),
     ];
+
     if ($this->isAdmin) {
-      $result['log_file'] = $this->logFilePath;
-      $result['lock_file'] = $this->lockFilePath;
-      $result['output_file'] = $this->outputFile;
-      $result['runner'] = $exec['runner'];
-      $result['command'] = [
-        'original' => $cmd,
-        'modified' => $exec['command'],
+      $result += [
+        'log_file' => $this->logFilePath,
+        'lock_file' => $this->lockFilePath,
+        'output_file' => $this->outputFile,
+        'runner' => $exec['runner'],
+        'command' => [
+          'original' => $cmd,
+          'modified' => $exec['command'],
+        ],
       ];
     }
 
