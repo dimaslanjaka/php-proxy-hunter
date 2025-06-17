@@ -1,0 +1,9 @@
+#!/bin/bash
+# Install Python development requirements
+
+pip install -r requirements-dev.txt
+if [ $? -ne 0 ]; then
+  echo "Failed to install development requirements."
+  exit $?
+fi
+echo "Development requirements installed successfully."
