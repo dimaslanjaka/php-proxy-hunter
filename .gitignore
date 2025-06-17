@@ -52,7 +52,8 @@ package-lock.json
 /data/script/
 /profiles-proxy.json
 !/adspower.txt
-!/requirements_base.txt
+!/requirements-base.txt
+!/requirements-dev.txt
 /requirements.txt
 /profiles
 /profiles.json
