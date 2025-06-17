@@ -1,8 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/pyright/refs/heads/main/packages/vscode-pyright/schemas/pyrightconfig.schema.json",
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
+  "extraPaths": ["packages/proxy-checker-python", "packages/proxy-hunter-python", "packages/rsa-utility"],
   "exclude": [
     "**/node_modules",
     "**/__pycache__",
@@ -14,9 +13,7 @@
     "**/tmp",
     "**/vendor"
   ],
-  "ignore": [
-    "src/oldstuff"
-  ],
+  "ignore": ["src/oldstuff"],
   "stubPath": "src/stubs",
   "defineConstant": {
     "DEBUG": true
