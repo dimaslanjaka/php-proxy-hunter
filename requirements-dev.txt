@@ -1,0 +1,8 @@
+-r requirements.txt
+-e packages/proxy-checker-python
+-e packages/proxy-hunter-python
+-e packages/rsa-utility
+
+#-e file:packages/proxy-checker-python
+#-e file:packages/proxy-hunter-python
+#-e file:packages/rsa-utility

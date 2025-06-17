@@ -11,7 +11,7 @@ package_list: List[str] = []
 
 def generate_requirements():
     global package_list
-    base_requirements = "requirements_base.txt"
+    base_requirements = "requirements-base.txt"
     windows_specific = [
         "pywin32",
         "wmi",
@@ -27,13 +27,19 @@ def generate_requirements():
     ]
     linux_specific = ["uwsgi", "gunicorn"]
 
-    lines = []
+    lines: List[str] = []
     with open(base_requirements, "r", encoding="utf-8") as base_file:
         lines.extend(base_file.readlines())
 
     if os.path.exists("requirements_additional.txt"):
         with open("requirements_additional.txt", "r", encoding="utf-8") as base_file:
             lines.extend(base_file.readlines())
+
+    if os.path.exists("requirements-dev.txt"):
+        with open("requirements-dev.txt", "r", encoding="utf-8") as base_file:
+            lines.extend(base_file.readlines())
+        # Remove the line that includes `-r requirements.txt`
+        lines = [line for line in lines if line.strip() != "-r requirements.txt"]
 
     if platform.system() == "Windows":
         lines.extend([f"{package}\n" for package in windows_specific])

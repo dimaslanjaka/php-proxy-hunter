@@ -1,8 +1,5 @@
 # django @ https://github.com/django/django/archive/refs/tags/5.0.8.zip
 # huey[backends]
--e file:packages/proxy-checker-python
--e file:packages/proxy-hunter-python
--e file:packages/rsa-utility
 ansi2html
 asyncio
 autopep8
