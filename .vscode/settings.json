@@ -50,7 +50,7 @@
     "*.electron.js": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
     "*.ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm",
     "*.mjs": "node --no-warnings=ExperimentalWarning",
-    "*Test.php": "phpunit --verbose --testdox --colors=always",
+    "*Test.php": "phpunit --verbose --debug --testdox --colors=always",
     "*.php": "php -d display_errors=1 -d error_reporting=E_ALL -d xdebug.mode=coverage -d xdebug.start_with_request=yes -d xdebug.client_port=9003 -d xdebug.log=$workspaceRoot/tmp/logs/xdebug.log $fullFileName"
   },
   "code-runner.saveFileBeforeRun": true,
@@ -156,5 +156,18 @@
   "typescript.updateImportsOnPaste.enabled": false,
   "javascript.updateImportsOnPaste.enabled": false,
   "intelephense.diagnostics.run": "onSave",
-  "intelephense.environment.phpVersion": "7.4.33"
+  "intelephense.environment.phpVersion": "7.4.33",
+  "intelephense.files.exclude": [
+    "**/.git/**",
+    "**/.svn/**",
+    "**/.hg/**",
+    "**/CVS/**",
+    "**/.DS_Store/**",
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/.history/**"
+  ],
+  "intelephense.references.exclude": [],
+  "intelephense.rename.exclude": [],
+  "intelephense.maxMemory": 1000
 }
