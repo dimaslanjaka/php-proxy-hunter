@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { spawnSync, execSync } = require('child_process');
-const { chmodSync, writeFileSync, readdirSync } = require('fs');
+const { chmodSync, readdirSync, writeFileSync } = require('fs');
 const { join, dirname } = require('path');
 
 // Get script directory and repo root
@@ -60,6 +60,8 @@ try {
     writeFileSync('.husky/hash.txt', '');
     execSync('git add .husky/hash.txt');
     console.log('.husky/hash.txt has been truncated and staged.');
+    execSync('git checkout -- .husky/hash.txt', { stdio: 'inherit' });
+    console.log('.husky/hash.txt has been reset to the last committed state.');
   } else {
     console.log('.husky/hash.txt is clean. No action needed.');
   }
