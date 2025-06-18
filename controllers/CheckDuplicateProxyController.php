@@ -266,10 +266,10 @@ if (
     if (is_array($data) && !empty($data)) {
       $firstKey = array_key_first($data);
       $firstCount = count($data[$firstKey]);
-      echo "IP: $firstKey $firstCount proxies found.\n";
+      $list->log("IP: $firstKey $firstCount proxies found.");
       $check->fetchDuplicates($firstKey);
     } else {
-      echo "No proxies found to check.\n";
+      $list->log("No proxies found to check.");
     }
   }
 }
