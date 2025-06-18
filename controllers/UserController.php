@@ -17,11 +17,10 @@ class UserController extends BaseController
 
   /**
    * Get user logs
-   * @url /user/logs
+   * @url /user/logs-get
    */
-  public function logsAction()
+  public function logsGetAction()
   {
-    // Return user logs (placeholder)
     if (!file_exists($this->logFilePath) || !is_readable($this->logFilePath)) {
       return ['status' => 'error', 'message' => 'Log file not found or not readable.'];
     }
@@ -31,7 +30,6 @@ class UserController extends BaseController
     }
     return $content;
   }
-
 
   /**
    * Clear user logs

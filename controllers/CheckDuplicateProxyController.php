@@ -231,14 +231,14 @@ class CheckDuplicateProxyController extends BaseController
           // Update the proxy status to active
           $db->updateData($proxy, ['status' => 'active', 'type' => $protocols], false);
         } else {
-          // Delete the proxy if it has no working protocols, but only if it was not the first one
+          // Delete the proxy if it has no supported protocols, but only if it was not the first one
           if ($firstRow && $firstRow['id'] == $row['id']) {
             $this->log("[CHECK-DUPLICATE] Skipping deletion of first proxy: {$proxy}. [SKIPPED]");
           } else {
             $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id");
             $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
             $deleteStmt->execute();
-            $this->log("[CHECK-DUPLICATE] Proxy $proxy deleted due to no working protocols. [DELETED]");
+            $this->log("[CHECK-DUPLICATE] Proxy $proxy deleted due to lack of supported protocols. [DELETED]");
           }
         }
       }
