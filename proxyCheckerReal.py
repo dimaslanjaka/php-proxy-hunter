@@ -131,7 +131,8 @@ class ProxyCheckerReal:
                         ):
                             log += f"TITLE: {response_title}\n"
                             if title_should_be.lower() in response_title.lower():
-                                protocols.append(check.type.lower())
+                                if check.type is not None:
+                                    protocols.append(check.type.lower())
                 file_append_str(output_file, log)
             except Exception as e:
                 self.log(
@@ -195,7 +196,11 @@ class ProxyCheckerReal:
                     pass
             if response and response.ok:
                 soup = BeautifulSoup(response.text, "html.parser")
-                response_title = soup.title.string.strip() if soup.title else ""
+                response_title = (
+                    soup.title.string.strip()
+                    if soup.title and soup.title.string
+                    else ""
+                )
                 if "AZ Environment".lower() in response_title.lower():
                     result = checker.parse_anonymity(response.text)
                     self.log(f"{proxy} anonymity is {green(result)}\t")
