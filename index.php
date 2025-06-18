@@ -43,7 +43,10 @@ $pathSegments = explode('/', trim($requestPath, '/'));
 // Default values for controller and action
 $controllerBase = !empty($pathSegments[0]) ? $pathSegments[0] : 'default';
 $controllerName = str_replace(' ', '', ucwords(str_replace('-', ' ', $controllerBase))) . 'Controller';
-$actionName = !empty($pathSegments[1]) ? $pathSegments[1] . 'Action' : 'indexAction';
+$actionBase = !empty($pathSegments[1]) ? $pathSegments[1] : 'index';
+// Convert hyphens to camelCase for method names
+$actionBase = str_replace(' ', '', lcfirst(ucwords(str_replace('-', ' ', $actionBase))));
+$actionName = $actionBase . 'Action';
 
 // Any remaining segments are treated as parameters
 $params = array_slice($pathSegments, 2);
