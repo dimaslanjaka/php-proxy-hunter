@@ -22,7 +22,14 @@ class UserController extends BaseController
   public function logsAction()
   {
     // Return user logs (placeholder)
-    return read_file($this->logFilePath);
+    if (!file_exists($this->logFilePath) || !is_readable($this->logFilePath)) {
+      return ['status' => 'error', 'message' => 'Log file not found or not readable.'];
+    }
+    $content = @read_file($this->logFilePath);
+    if ($content === false) {
+      return 'Failed to read log file. File may be in use or locked.';
+    }
+    return $content;
   }
 
 
@@ -34,7 +41,9 @@ class UserController extends BaseController
   {
     // Clear user logs
     if (file_exists($this->logFilePath)) {
-      unlink($this->logFilePath);
+      if (!@unlink($this->logFilePath)) {
+        return ['status' => 'error', 'message' => 'Failed to clear logs. File may be in use or locked.'];
+      }
     }
     return ['status' => 'success', 'message' => 'Logs cleared successfully.'];
   }
