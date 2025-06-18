@@ -1,0 +1,19 @@
+{% extends "template.twig" %}
+
+{% set site_title %}PHP Proxy Hunter{% endset %}
+{% set page_title %}User Logs{% endset %}
+
+{% block endhead %}{% endblock endhead %}
+
+{% block body %}
+  <div class="container">
+    <div class="overflow-auto w-full max-w-full" style="max-width:100%;">
+      <div id="logs" class="whitespace-pre break-all min-w-full" style="max-height: 500px;"></div>
+    </div>
+  </div>
+{% endblock body %}
+
+{% block endbody %}
+  <script src="/public/php/js/template.js"></script>
+  <script src="/public/php/js/user/logs.js"></script>
+{% endblock endbody %}
