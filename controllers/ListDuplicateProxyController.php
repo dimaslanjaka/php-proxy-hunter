@@ -50,7 +50,8 @@ class ListDuplicateProxyController extends BaseController
       ];
     }
 
-    $cmd = 'php ' . escapeshellarg(getProjectRoot() . '/controllers/CheckDuplicateProxyController.php')
+    $php = getPhpBinaryPath();
+    $cmd = escapeshellarg($php) . ' ' . escapeshellarg(getProjectRoot() . '/controllers/CheckDuplicateProxyController.php')
       . ' --userId=' . escapeshellarg(getUserId())
       . ' --max=30'
       . ' --admin=' . escapeshellarg($this->isAdmin ? 'true' : 'false')

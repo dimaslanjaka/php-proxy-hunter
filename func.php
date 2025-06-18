@@ -2408,6 +2408,37 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
   ];
 }
 
+/**
+ * Returns the path to the PHP binary executable.
+ *
+ * This function attempts to determine the path to the currently running PHP binary.
+ * It first checks if the PHP_BINARY constant is defined and points to an executable file.
+ * If not, it tries to locate the PHP binary using the system's 'which' (Unix) or 'where' (Windows) command.
+ * If detection fails, it falls back to returning the string 'php'.
+ *
+ * @return string The full path to the PHP binary, or 'php' if detection fails.
+ */
+function getPhpBinaryPath()
+{
+  // If running from CLI, PHP_BINARY is reliable
+  if (php_sapi_name() === 'cli' && is_executable(PHP_BINARY) && stripos(PHP_BINARY, 'php') !== false) {
+    return PHP_BINARY;
+  }
+
+  // Otherwise, try to detect it manually
+  $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+  $finderCmd = $isWin ? 'where php' : 'which php';
+  $found = trim(shell_exec($finderCmd));
+
+  // Validate the found path
+  if (is_executable($found) && stripos($found, 'php') !== false) {
+    return $found;
+  }
+
+  // Last resort
+  return 'php';
+}
+
 function safe_json_decode($json, $assoc = true)
 {
   $decoded = json_decode($json, $assoc);
