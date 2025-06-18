@@ -146,6 +146,20 @@ class ListDuplicateProxyController extends BaseController
         $duplicated_ip[$ip][] = $row;
       }
 
+      // Ensure $duplicated_ip is associative with IP as key
+      if (!empty($duplicated_ip) && array_keys($duplicated_ip) === range(0, count($duplicated_ip) - 1)) {
+        $assoc = [];
+        foreach ($duplicated_ip as $rowGroup) {
+          if (isset($rowGroup[0]['proxy'])) {
+            $ip = strstr($rowGroup[0]['proxy'], ':', true);
+            if ($ip !== false) {
+              $assoc[$ip] = $rowGroup;
+            }
+          }
+        }
+        $duplicated_ip = $assoc;
+      }
+
       // Sort by count descending
       uasort($duplicated_ip, function ($a, $b) {
         return count($b) <=> count($a);

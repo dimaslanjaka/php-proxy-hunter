@@ -260,8 +260,31 @@ if (
     $check->fetchDuplicates($ipArg);
   } else {
     $list = new ListDuplicateProxyController();
+    $list->log("No IP provided, fetching duplicates from the database.");
     $data = $list->fetchDuplicates();
-    shuffle($data); // Shuffle the data to randomize the first IP
+
+    // If $data is a numerically indexed array, convert it to associative array with IP as key
+    if (is_array($data) && !empty($data) && isset($data[0]['proxy'])) {
+      $assocData = [];
+      foreach ($data as $row) {
+        $ip = explode(':', $row['proxy'])[0];
+        if (!isset($assocData[$ip])) {
+          $assocData[$ip] = [];
+        }
+        $assocData[$ip][] = $row;
+      }
+      $data = $assocData;
+    }
+    // Shuffle the IP keys
+    if (is_array($data) && !empty($data)) {
+      $keys = array_keys($data);
+      shuffle($keys);
+      $shuffledData = [];
+      foreach ($keys as $key) {
+        $shuffledData[$key] = $data[$key];
+      }
+      $data = $shuffledData;
+    }
 
     if (is_array($data) && !empty($data)) {
       $firstKey = array_key_first($data);
