@@ -134,15 +134,15 @@ class ListDuplicateProxyController extends BaseController
       $offset = ($page - 1) * $pageSize;
 
       $sql = "SELECT * FROM proxies
-    WHERE
-      substr(proxy, 1, instr(proxy, ':') - 1) IN (
-        SELECT substr(proxy, 1, instr(proxy, ':') - 1) AS ip
-        FROM proxies
-        GROUP BY ip
-        HAVING COUNT(*) > 1
-      )
-    ORDER BY proxy
-    LIMIT :limit OFFSET :offset";
+        WHERE
+          substr(proxy, 1, instr(proxy, ':') - 1) IN (
+            SELECT substr(proxy, 1, instr(proxy, ':') - 1) AS ip
+            FROM proxies
+            GROUP BY ip
+            HAVING COUNT(*) > 1
+          )
+        ORDER BY proxy
+        LIMIT :limit OFFSET :offset";
 
       $stmt = $pdo->prepare($sql);
       $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
@@ -164,6 +164,11 @@ class ListDuplicateProxyController extends BaseController
         // Group rows by IP
         $duplicated_ip[$ip][] = $row;
       }
+
+      // Sort by count descending
+      uasort($duplicated_ip, function ($a, $b) {
+        return count($b) <=> count($a);
+      });
 
       // Write JSON data to file (not compressed here)
       write_file($this->outputFile, json_encode($duplicated_ip, JSON_PRETTY_PRINT));
