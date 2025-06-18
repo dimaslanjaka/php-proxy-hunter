@@ -109,7 +109,18 @@ class BaseController
     return unixPath($this->lockFilePath);
   }
 
-  protected function log(...$args): void
+  /**
+   * Logs one or more messages with a timestamp.
+   *
+   * This method stringifies all provided arguments, concatenates them into a single message,
+   * and outputs the message to the standard output. It also appends the message, prefixed
+   * with a timestamp, to a log file specified by $this->logFilePath. The log file is written
+   * to using a locking mechanism to prevent concurrent write issues.
+   *
+   * @param mixed ...$args One or more values to be logged. Each value will be stringified.
+   * @return void
+   */
+  public function log(...$args): void
   {
     // Ensure stringify function is available
     if (!function_exists('stringify')) {
@@ -120,7 +131,14 @@ class BaseController
     $timestamp = date('Y-m-d H:i:s');
     $message = implode(' ', array_map('stringify', $args));
 
-    echo $message . PHP_EOL;
+    foreach ($args as $arg) {
+      if (is_array($arg) || is_object($arg)) {
+        print_r($arg);
+      } else {
+        echo $arg;
+      }
+      echo PHP_EOL;
+    }
 
     // Append to log file
     append_content_with_lock($this->logFilePath, trim("[$timestamp] $message") . PHP_EOL);
