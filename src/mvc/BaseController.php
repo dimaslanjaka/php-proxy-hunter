@@ -155,16 +155,11 @@ class BaseController
    */
   protected function executeCommand($cmd)
   {
-    // Prepare log file paths for command output
-    $dirLogFilePath = dirname($this->logFilePath);
-    $filenameLogFile = basename($this->logFilePath, '.log');
-    $outputFile = unixPath($dirLogFilePath . '/' . $filenameLogFile . '-shell-output.log');
-
     // Build the command to run in the background, redirecting output and storing PID
     $cmd = sprintf(
-      "%s > %s 2>&1 & echo $! >> %s",
+      "%s >> %s 2>&1 & echo $! >> %s",
       $cmd,
-      $outputFile,
+      escapeshellarg($this->logFilePath),
       escapeshellarg($this->lockFilePath)
     );
 
