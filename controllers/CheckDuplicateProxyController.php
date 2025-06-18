@@ -260,7 +260,7 @@ if (
     $check->fetchDuplicates($ipArg);
   } else {
     $list = new ListDuplicateProxyController();
-    $list->log("No IP provided, fetching duplicates from the database.");
+    $list->log("[CHECK-DUPLICATE] No IP provided, fetching duplicates from the database.");
     $data = $list->fetchDuplicates();
 
     // If $data is a numerically indexed array, convert it to associative array with IP as key
@@ -289,10 +289,10 @@ if (
     if (is_array($data) && !empty($data)) {
       $firstKey = array_key_first($data);
       $firstCount = count($data[$firstKey]);
-      $list->log("IP: $firstKey $firstCount proxies found.");
+      $list->log("[CHECK-DUPLICATE] IP: $firstKey $firstCount proxies found.");
       $check->fetchDuplicates($firstKey);
     } else {
-      $list->log("No proxies found to check.");
+      $list->log("[CHECK-DUPLICATE] No proxies found to check.");
     }
   }
 }
