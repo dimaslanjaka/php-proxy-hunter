@@ -124,20 +124,6 @@ foreach ($files as $file) {
 
 // Dispatcher
 try {
-  // Load when controller exists
-  if (class_exists($controllerName)) {
-    $controllerInstance = new $controllerName();
-
-    if (!method_exists($controllerInstance, $actionName)) {
-      throw new Exception("Action $actionName not found in $controllerName.");
-    }
-
-    // Call action and capture return value
-    $controllerOutput = call_user_func_array([$controllerInstance, $actionName], $params);
-  } else {
-    $controllerOutput = '';
-  }
-
   // Extract the base name for the view
   $baseControllerName = !empty($pathSegments[0]) ? $pathSegments[0] : 'default';
   $baseActionName = strtolower(str_replace('Action', '', $actionName));
@@ -148,6 +134,24 @@ try {
   // Check if the view exists in the 'views/' folder
   $rawViewPath = __DIR__ . "/views/{$viewName}.twig";
   $viewPath = realpath($rawViewPath);
+
+  $controllerOutput = '';
+
+  // Load when controller exists
+  if (class_exists($controllerName)) {
+    $controllerInstance = new $controllerName();
+
+    if (!method_exists($controllerInstance, $actionName)) {
+      // If view exists, allow rendering without throwing
+      if (!$viewPath) {
+        throw new Exception("Action $actionName not found in $controllerName.");
+      }
+      // else: view exists, so just skip controller output
+    } else {
+      // Call action and capture return value
+      $controllerOutput = call_user_func_array([$controllerInstance, $actionName], $params);
+    }
+  }
 
   if (!$viewPath && !class_exists($controllerName)) {
     throw new Exception("Both controller '{$controllerName}' and view '{$viewName}.twig' not found.");
