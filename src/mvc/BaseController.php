@@ -125,6 +125,43 @@ class BaseController
     // Append to log file
     append_content_with_lock($this->logFilePath, trim("[$timestamp] $message") . PHP_EOL);
   }
+
+  /**
+   * Executes a shell command in the background and logs its output.
+   *
+   * Generates a runner script (batch or shell) to execute the given command,
+   * redirects output to a log file, and stores the process ID in the lock file.
+   *
+   * @param string $cmd The shell command to execute.
+   * @return array{runner: string, command: string} Information about the runner script and command.
+   */
+  protected function executeCommand($cmd)
+  {
+    // Prepare log file paths for command output
+    $dirLogFilePath = dirname($this->logFilePath);
+    $filenameLogFile = basename($this->logFilePath, '.log');
+    $outputFile = unixPath($dirLogFilePath . '/' . $filenameLogFile . '-shell-output.log');
+
+    // Build the command to run in the background, redirecting output and storing PID
+    $cmd = sprintf(
+      "%s > %s 2>&1 & echo $! >> %s",
+      $cmd,
+      $outputFile,
+      escapeshellarg($this->lockFilePath)
+    );
+
+    // Determine script extension based on OS
+    $ext = (strtoupper(PHP_OS_FAMILY) === 'WINDOWS') ? '.bat' : '.sh';
+    $runner = tmp() . "/runners/" . basename($this->lockFilePath, '.lock') . $ext;
+
+    // Write the command to the runner script file
+    write_file($runner, $cmd);
+
+    // Execute the runner script in the background
+    runBashOrBatch($runner, [], getCallerInfo() . '-' . $this->session_id);
+
+    return ['runner' => $runner, 'command' => $cmd];
+  }
 }
 
 // Only run when executed directly from CLI, not when included or required
