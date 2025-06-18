@@ -190,5 +190,5 @@ if (php_sapi_name() === 'cli' && realpath(__FILE__) === realpath($_SERVER['argv'
     return "$key: " . count($value) . " proxies";
   }, array_keys($data), $data);
 
-  $controller->log($result);
+  $controller->log("[LIST-DUPLICATE] " . json_encode($result));
 }

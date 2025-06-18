@@ -156,7 +156,7 @@ class CheckDuplicateProxyController extends BaseController
 
           // Check for cURL errors
           if (curl_errno($ch)) {
-            $this->log("cURL SSL Error (" . $protocol . "://" . $proxy . "): " . curl_error($ch));
+            $this->log("[CHECK-DUPLICATE] cURL SSL Error (" . $protocol . "://" . $proxy . "): " . curl_error($ch));
             continue;
           }
 
@@ -195,7 +195,7 @@ class CheckDuplicateProxyController extends BaseController
 
             // Check for cURL errors
             if (curl_errno($ch)) {
-              $this->log("cURL non-SSL Error (" . $protocol . "://" . $proxy . "): " . curl_error($ch));
+              $this->log("[CHECK-DUPLICATE] cURL non-SSL Error (" . $protocol . "://" . $proxy . "): " . curl_error($ch));
               continue;
             }
 
