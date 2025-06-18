@@ -124,4 +124,12 @@ function fetchLogs() {
 document.addEventListener('DOMContentLoaded', function () {
   fetchLogs();
   setInterval(fetchLogs, 3000);
+  const clearBtn = document.getElementById('clear-logs-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function () {
+      fetch('/user/logs-clear', { method: 'POST' })
+        .then(() => fetchLogs())
+        .catch((err) => console.error('Error clearing logs:', err));
+    });
+  }
 });

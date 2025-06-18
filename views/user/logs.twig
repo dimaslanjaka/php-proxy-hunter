@@ -6,9 +6,14 @@
 {% block endhead %}{% endblock endhead %}
 
 {% block body %}
-  <div class="container">
-    <div class="overflow-auto w-full max-w-full" style="max-width:100%;">
-      <div id="logs" class="whitespace-pre break-all min-w-full" style="max-height: 500px;"></div>
+  <div class="container mx-auto">
+    <div class="mb-3">
+      <button id="clear-logs-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
+        <i class="fa fa-trash"></i> Clear Logs
+      </button>
+    </div>
+    <div class="overflow-auto w-full" style="max-width:100%;">
+      <div id="logs" class="whitespace-pre break-all min-w-full max-h-[500px]"></div>
     </div>
   </div>
 {% endblock body %}
