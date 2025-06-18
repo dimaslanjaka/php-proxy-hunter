@@ -81,25 +81,6 @@ class ListDuplicateProxyController extends BaseController
     return $result;
   }
 
-  private function executeCommand($cmd)
-  {
-    // Generate the command to run in the background
-    $dirLogFilePath = dirname($this->logFilePath);
-    $filenameLogFile = basename($this->logFilePath, '.log');
-    $outputFile = unixPath($dirLogFilePath . '/' . $filenameLogFile . '-shell-output.log');
-    $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, $outputFile, escapeshellarg($this->lockFilePath));
-    $ext = (strtoupper(PHP_OS_FAMILY) === 'WINDOWS') ? '.bat' : '.sh';
-    $runner = tmp() . "/runners/" . basename($this->lockFilePath, '.lock') . $ext;
-
-    // Write the command to the runner script
-    write_file($runner, $cmd);
-
-    // Execute the runner script in the background
-    runBashOrBatch($runner, [], getCallerInfo() . '-' . $this->session_id);
-
-    return ['runner' => $runner, 'command' => $cmd];
-  }
-
   /**
    * Fetch duplicate proxies, paginated.
    *
