@@ -33,7 +33,7 @@ Pillow
 pycodestyle
 pycountry==24.6.1
 pycryptodome
-pycurl==7.45.3
+pycurl
 python-dateutil
 python-dotenv
 pytz
