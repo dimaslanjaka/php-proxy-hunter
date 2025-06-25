@@ -204,12 +204,37 @@ sudo crontab -u www-data -l
 sudo crontab -u www-data .crontab.txt
 ```
 
-## Troubleshoot
+## Troubleshooting
 
-<!-- missing php extension -->
+### Missing PHP Extension
 
-- To run webserver for nginx needs **php-fpm** install using `sudo apt install php-fpm -y`
-- To disable git indexing when changing permission files using **chmod** run `git config core.fileMode false`
+Nginx requires **php-fpm** to run PHP. Install it with:
+
+```bash
+sudo apt install php-fpm -y
+```
+
+### Git File Permission Issues
+
+To avoid Git detecting file permission changes (e.g., after running `chmod`), disable file mode tracking:
+
+```bash
+git config core.fileMode false
+```
+
+### Git LFS Quota Exceeded
+
+If you encounter an error like:
+
+```
+Smudge error: ... This repository exceeded its LFS budget
+```
+
+You can skip LFS downloads by setting this environment variable:
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1
+```
 
 ### Restart php
 
