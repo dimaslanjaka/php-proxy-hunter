@@ -1,9 +1,27 @@
-#!/bin/bash
-# Install Python development requirements
+#!/usr/bin/env bash
+set -e
 
-pip install -r requirements-dev.txt
-if [ $? -ne 0 ]; then
-  echo "Failed to install development requirements."
-  exit $?
+# Resolve the directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CWD="$(dirname "$SCRIPT_DIR")"
+VENV_DIR="$CWD/venv"
+
+# Check if we're already in the venv
+if [[ "$(python -c 'import sys; print(sys.prefix)')" != "$VENV_DIR" ]]; then
+    echo "Virtual environment is not active. Checking if it exists..."
+
+    # Create venv if it doesn't exist
+    if [[ ! -f "$VENV_DIR/bin/activate" ]]; then
+        echo "Creating virtual environment at: $VENV_DIR"
+        python3 -m venv "$VENV_DIR"
+    fi
+
+    # Activate the venv
+    source "$VENV_DIR/bin/activate"
 fi
+
+# Install requirements
+echo "Installing development requirements..."
+pip install -r "$CWD/requirements-dev.txt"
+
 echo "Development requirements installed successfully."
