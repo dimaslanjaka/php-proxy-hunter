@@ -5,6 +5,7 @@ import platform
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import List, Optional, Union
 
@@ -148,7 +149,7 @@ def install_package(
     name_display = " ".join(name) if isinstance(name, list) else name
     print(f"Installing: {name_display}")
 
-    base_cmd = [get_binary_path("pip"), "install"]
+    base_cmd = [sys.executable, "-m", "pip", "install"]
     name_args = name if isinstance(name, list) else [name]
 
     for url in mirrors:
@@ -170,7 +171,16 @@ def install_requirements():
         generate_requirements()
 
     subprocess.check_call(
-        ["python", "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"]
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "--upgrade",
+            "pip",
+            "setuptools",
+            "wheel",
+        ]
     )
     install_package("socks", ["--use-pep517"])
 
