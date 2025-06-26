@@ -77,7 +77,8 @@ def generate_requirements() -> bool:
             "PySide6==6.*",
             "qtawesome==1.*",
             # "nuitka==2.*",
-            "nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip",
+            # install nuitka from branch develop
+            "nuitka @ https://github.com/Nuitka/Nuitka/archive/0af50da.zip",
             "pyinstaller",
             "pyqtgraph",
             "pyqtdarktheme",
