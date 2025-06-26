@@ -130,12 +130,15 @@ jobs:
             ${{ runner.os }}-python-
             ${{ runner.os }}-
 
-      # Install dependencies (if cache missed)
-      - name: Install dependencies
+      # Install PHP dependencies (if cache missed)
+      - name: Install PHP dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          php composer.phar install --prefer-dist --no-progress
-          python requirements_install.py
+        run: php composer.phar install --prefer-dist --no-progress
+
+      # Install Python dependencies (if cache missed)
+      - name: Install Python dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: python requirements_install.py
 
       # Initialize scripts
       - name: Initialize GitHub Actions
