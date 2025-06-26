@@ -117,14 +117,20 @@ jobs:
         run: |
           git restore *.txt
 
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Install NodeJS Dependencies
+        shell: bash
         run: |
           corepack enable
+          touch yarn.lock
           yarn install
+          npm install -g @go-task/cli
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
           python3 -m ensurepip --upgrade
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m distutils.core --help
           python3 requirements_install.py
 
       - name: Initialize Github Actions
