@@ -17,8 +17,8 @@ echo Working directory: %CWD%
 REM Check if the venv folder exists
 if not exist "%CWD%\venv" (
     echo Creating virtual environment...
-    call pip install virtualenv
-    call python -m venv "%CWD%\venv"
+    call python3 -m pip install virtualenv
+    call python3 -m venv "%CWD%\venv"
 ) else (
     echo Virtual environment already exists.
 )
