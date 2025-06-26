@@ -1,15 +1,41 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Get the directory of the script
-SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+set -e
 
-# Set the path to your git repository from parent folder
-CWD="$(dirname "$SCRIPT_DIR")"
+# Output path
+CACHE_DIR=".cache/git"
+OUTPUT="$CACHE_DIR/diff.txt"
 
-# parse and export .env file (dotenv)
-if [ -f "$CWD/.env" ]; then
-  # Export the vars in .env into your shell:
-  export $(egrep -v '^#' "$CWD/.env" | xargs)
+# Ensure output directory exists
+mkdir -p "$CACHE_DIR"
+
+# Show help if no arguments or --help is passed
+if [[ -z "$1" || "$1" == "--help" ]]; then
+    echo "Git Diff Helper"
+    echo "----------------------------"
+    echo "Usage:"
+    echo "  git-diff FILE             Show staged diff of specified file"
+    echo "  git-diff --staged-only    Show staged diff of all files"
+    echo "  git-diff --help           Show this help message"
+    echo
+    echo "Output is saved to: $OUTPUT"
+    exit 0
 fi
 
-git --no-pager diff "$@"
+# Handle --staged-only
+if [[ "$1" == "--staged-only" ]]; then
+    if git --no-pager diff --staged > "$OUTPUT"; then
+        echo "[✓] Full staged diff saved to \"$OUTPUT\""
+    else
+        echo "[X] Failed to save staged diff"
+    fi
+    exit 0
+fi
+
+# Handle specific file diff
+FILE="$1"
+if git --no-pager diff --cached -- "$FILE" > "$OUTPUT"; then
+    echo "[✓] Staged diff of \"$FILE\" saved to \"$OUTPUT\""
+else
+    echo "[X] Failed to generate diff for \"$FILE\""
+fi
