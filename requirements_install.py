@@ -4,159 +4,147 @@ import os
 import platform
 import re
 import subprocess
-from typing import List, Union
+from typing import List, Optional, Union
 
 package_list: List[str] = []
 
 
-def generate_requirements():
+def read_requirements_file(filepath: str) -> List[str]:
+    """Read lines from a file if it exists."""
+    if not os.path.exists(filepath):
+        return []
+    with open(filepath, encoding="utf-8") as f:
+        return f.readlines()
+
+
+def generate_requirements() -> bool:
+    """Generate requirements.txt based on base and OS-specific packages."""
     global package_list
-    base_requirements = "requirements-base.txt"
-    windows_specific = [
-        "pywin32",
-        "wmi",
-        "PySide6==6.*",
-        "qtawesome==1.*",
-        # "nuitka==2.*",
-        "nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip",
-        "pyinstaller",
-        "pyqtgraph",
-        "pyqtdarktheme",
-        "psutil",
-        "pynput",
-    ]
-    linux_specific = ["uwsgi", "gunicorn"]
 
     lines: List[str] = []
-    with open(base_requirements, "r", encoding="utf-8") as base_file:
-        lines.extend(base_file.readlines())
+    lines += read_requirements_file("requirements-base.txt")
+    lines += read_requirements_file("requirements_additional.txt")
 
-    if os.path.exists("requirements_additional.txt"):
-        with open("requirements_additional.txt", "r", encoding="utf-8") as base_file:
-            lines.extend(base_file.readlines())
+    dev_lines = read_requirements_file("requirements-dev.txt")
+    lines += [line for line in dev_lines if line.strip() != "-r requirements.txt"]
 
-    if os.path.exists("requirements-dev.txt"):
-        with open("requirements-dev.txt", "r", encoding="utf-8") as base_file:
-            lines.extend(base_file.readlines())
-        # Remove the line that includes `-r requirements.txt`
-        lines = [line for line in lines if line.strip() != "-r requirements.txt"]
+    os_packages = {
+        "Windows": [
+            "pywin32",
+            "wmi",
+            "PySide6==6.*",
+            "qtawesome==1.*",
+            # "nuitka==2.*",
+            "nuitka @ https://github.com/Nuitka/Nuitka/archive/develop.zip",
+            "pyinstaller",
+            "pyqtgraph",
+            "pyqtdarktheme",
+            "psutil",
+            "pynput",
+        ],
+        "Linux": [
+            "uwsgi",
+            "gunicorn",
+        ],
+    }
 
-    if platform.system() == "Windows":
-        lines.extend([f"{package}\n" for package in windows_specific])
-    else:
-        lines.extend([f"{package}\n" for package in linux_specific])
+    lines += [f"{pkg}\n" for pkg in os_packages.get(platform.system(), [])]
 
     # Remove empty lines and duplicates
-    unique_lines = list(dict.fromkeys([line for line in lines if line.strip()]))
-    package_list = unique_lines
+    package_list = list(dict.fromkeys(line for line in lines if line.strip()))
 
-    # Write to requirements.txt
-    with open("requirements.txt", "w", encoding="utf-8") as req_file:
-        req_file.writelines(unique_lines)
-
-    # Add a new line at the end of the file
-    with open("requirements.txt", "a", encoding="utf-8") as req_file:
-        req_file.write("\n")
+    with open("requirements.txt", "w", encoding="utf-8") as f:
+        f.writelines(package_list)
+        f.write("\n")  # Ensure newline at EOF
 
     return True
 
 
-def is_package_installed(package_name):
+def is_package_installed(pkg: str) -> bool:
+    """Check if a package is already installed."""
     try:
-        importlib.import_module(package_name)
+        importlib.import_module(pkg)
         return True
     except ImportError:
         return False
 
 
-def install_package(name: Union[str, List[str]], install_args=[]):
-    if isinstance(name, str):
-        print(f"installing {name}")
-    else:
-        print(f"installing local package \"{' '.join(name)}\"")
-    index_urls = [
-        "https://pypi.org/simple",
-        "https://mirrors.sustech.edu.cn/pypi/simple/",
-        "https://mirrors.sustech.edu.cn/pypi/web/simple",
-        "https://pypi.tuna.tsinghua.edu.cn/simple/",
-        "https://mirrors.bfsu.edu.cn/pypi/web/simple/",
-        "https://mirrors.aliyun.com/pypi/simple/",
-        "https://mirrors.cloud.tencent.com/pypi/simple/",
-        "https://repo.huaweicloud.com/repository/pypi/simple/",
-        "https://mirror.nju.edu.cn/pypi/web/simple/",
-    ]
-    for index_url in index_urls:
+DEFAULT_INDEXES = [
+    "https://pypi.org/simple",
+    "https://mirrors.aliyun.com/pypi/simple/",
+    "https://pypi.tuna.tsinghua.edu.cn/simple/",
+    "https://mirrors.cloud.tencent.com/pypi/simple/",
+    "https://repo.huaweicloud.com/repository/pypi/simple/",
+    "https://mirror.nju.edu.cn/pypi/web/simple/",
+]
+
+
+def install_package(
+    name: Union[str, List[str]],
+    install_args: Optional[List[str]] = None,
+    extra_indexes: Optional[List[str]] = None,
+):
+    """Attempt to install a package using pip with multiple index mirrors."""
+    if install_args is None:
+        install_args = []
+    if extra_indexes is None:
+        extra_indexes = DEFAULT_INDEXES
+
+    name_display = " ".join(name) if isinstance(name, list) else name
+    print(f"Installing: {name_display}")
+
+    base_cmd = ["pip", "install"]
+    name_args = name if isinstance(name, list) else [name]
+
+    for url in extra_indexes:
         try:
-            if isinstance(name, str):
-                subprocess.check_call(
-                    [
-                        "pip",
-                        "install",
-                        name,
-                        f"--index-url={index_url}",
-                    ]
-                    + install_args
-                )
-            else:
-                # param name is list
-                subprocess.check_call(
-                    ["pip", "install"]
-                    + name
-                    + [f"--index-url={index_url}"]
-                    + install_args
-                )
-            break
-        except Exception:
-            print(f"fail install {name} from {index_url}")
+            subprocess.check_call(
+                base_cmd + name_args + [f"--index-url={url}"] + install_args
+            )
+            return
+        except subprocess.CalledProcessError:
+            print(f"Failed from index: {url}")
+
+    raise RuntimeError(f"❌ Failed to install: {name_display}")
 
 
 def install_requirements():
+    """Install all packages listed in requirements.txt or regenerated list."""
     global package_list
     if not package_list:
         generate_requirements()
+
     subprocess.check_call(
         ["python", "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"]
     )
-    if not is_package_installed("socks"):
-        install_package("socks", ["--use-pep517"])
-    for pkg in package_list:
-        name = re.sub(r"\s+", " ", pkg.strip()).strip()
-        if name.startswith("#") or not name:
-            # skip comment block & empty package name
-            continue
-        if name.startswith("-e"):
-            # always install local package
-            name = name.replace("-e ", "").strip()
-            install_package(["-e", name])
-        elif "@ http" in name:
-            # install `packagename @ url-zip`
-            pkgname, url = name.split(" @ ")
+    install_package("socks", ["--use-pep517"])
+
+    for raw_pkg in package_list:
+        line = re.sub(r"\s+", " ", raw_pkg.strip())
+        if not line or line.startswith("#"):
+            continue  # skip comments/empty
+
+        if line.startswith("-e"):
+            install_package(["-e", line.replace("-e", "").strip()])
+        elif " @ http" in line:
+            pkgname, _ = line.split(" @ ", 1)
             if not is_package_installed(pkgname.strip()):
-                install_package(name)
-        elif " --" in name:
-            _args = [item for item in name.split(" ") if item]
-            print(_args)
-            install_package(_args)
-        elif not is_package_installed(pkg):
-            install_package(name)
-
-    # try:
-    #     subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
-    #     subprocess.check_call(["pip", "install", "socks", "--use-pep517"])
-    # except Exception:
-    #     pass
+                install_package(line)
+        elif " --" in line:
+            install_package([arg for arg in line.split() if arg])
+        elif not is_package_installed(line):
+            install_package(line)
 
 
-if __name__ == "__main__":
-    # Set up argument parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--generate", action="store_true", help="Generate requirements")
-    parser.add_argument("--install", action="store_true", help="Install requirements")
+def main():
+    parser = argparse.ArgumentParser(description="Manage Python requirements")
+    parser.add_argument(
+        "--generate", action="store_true", help="Generate requirements.txt"
+    )
+    parser.add_argument("--install", action="store_true", help="Install packages")
 
-    # Parse arguments
     args = parser.parse_args()
 
-    # Run actions based on arguments
     if args.generate and not args.install:
         generate_requirements()
     elif args.install and not args.generate:
@@ -164,3 +152,7 @@ if __name__ == "__main__":
     else:
         generate_requirements()
         install_requirements()
+
+
+if __name__ == "__main__":
+    main()
