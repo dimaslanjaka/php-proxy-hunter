@@ -96,6 +96,15 @@ def generate_requirements() -> bool:
     # Remove empty lines and duplicates
     package_list = list(dict.fromkeys(line for line in lines if line.strip()))
 
+    # filter out specific packages
+    def should_exclude(pkg: str) -> bool:
+        # package that included from other requirements files
+        if pkg.endswith(".txt") or pkg.startswith("#"):
+            return True
+        return False
+
+    package_list = [pkg for pkg in package_list if not should_exclude(pkg)]
+
     with open("requirements.txt", "w", encoding="utf-8") as f:
         f.writelines(package_list)
         f.write("\n")  # Ensure newline at EOF
