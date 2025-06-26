@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# install: https://taskfile.dev/installation/
+
+version: '3'
+
+vars:
+  GREETING: PHP Proxy Hunter Tasks
+
+env:
+  PATH: "{{.PWD}}/bin:{{.PATH}}"
+dotenv: ['.env', '.env.local']
+
+tasks:
+  default:
+    silent: true
+    cmd: task --list
+  noop:
+    internal: true
+    silent: true
+    cmd: noop() { :; }
+  dump:
+    desc: Dump test
+    ignore_error: true
+    cmds:
+      - echo $PATH
+      - echo $PWD
+      - which python
+      - which python3
+      - which py
+      - |
+          command -v py || command -v python3 || command -v python
+
+  install-python:
+    desc: Install Python dependencies
+    cmds:
+      - py -m pip install --upgrade pip
+      - py -m pip install --upgrade setuptools
+      - py -m pip install --upgrade wheel
+      - py -m pip install socks
+      - py -m pip install -r requirements-base.txt
+      - py -m pip install -e file:packages/proxy-checker-python
+      - py -m pip install -e file:packages/proxy-hunter-python
+      - py -m pip install -e file:packages/rsa-utility
+      - py -m pip install -e file:packages/selenium-stealth
+      - py -m pip install -e file:packages/netscape-cookies
