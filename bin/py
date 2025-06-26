@@ -35,7 +35,7 @@ case "$OS" in
       sudo chown -R "$USER:$USER" "$CWD/venv"
       sudo chmod 755 "$CWD/venv/bin"/*
     else
-      python "$@"
+      python3 "$@"
     fi
 
     # Deactivate the virtual environment
@@ -46,7 +46,7 @@ case "$OS" in
     # Windows-like environments (Cygwin, MinGW)
     if [ ! -d "$CWD/venv" ]; then
       echo "Creating virtual environment..."
-      python.exe -m venv "$CWD/venv"
+      python3.exe -m venv "$CWD/venv"
     else
       echo "Virtual environment already exists."
     fi
@@ -54,7 +54,7 @@ case "$OS" in
     # Activate the virtual environment
     source "$CWD/venv/Scripts/activate"
 
-    python "$@"
+    python3 "$@"
 
     # Deactivate the virtual environment
     deactivate

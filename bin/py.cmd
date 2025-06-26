@@ -27,7 +27,7 @@ REM Activate the virtual environment
 call "%CWD%\venv\Scripts\activate"
 
 REM Run python with all forwarded arguments
-call python %*
+call python3 %*
 
 REM Deactivate the virtual environment
 @REM call "%CWD%\venv\Scripts\deactivate"
