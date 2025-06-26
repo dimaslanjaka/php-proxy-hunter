@@ -31,6 +31,7 @@ from .file import (
     truncate_file_content,
     write_file,
     write_json,
+    file_exists,
 )
 from .index_utils import (
     base64_decode,

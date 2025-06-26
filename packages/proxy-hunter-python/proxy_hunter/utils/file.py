@@ -11,7 +11,7 @@ import sys
 import tempfile
 import time
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
-
+from pathlib import Path
 from filelock import FileLock
 from filelock import Timeout as FilelockTimeout
 from .ansi import remove_ansi
@@ -215,6 +215,23 @@ def file_append_str(filename: str, string_to_add: str) -> None:
     except Exception as e:
         print(f"Fail append new line {filename} {e.args[0]}")
         pass
+
+
+def file_exists(filepath: str) -> bool:
+    """
+    Check if a file exists at the specified path.
+
+    Args:
+        filepath (str): The path to the file.
+
+    Returns:
+        bool: True if the file exists and is a regular file, False otherwise.
+
+    Example:
+        >>> file_exists("/path/to/file.txt")
+        True
+    """
+    return os.path.isfile(filepath)
 
 
 def fix_permissions(
@@ -690,3 +707,7 @@ def move_string_between(
     except Exception as e:
         print(f"An error occurred: {e}")
         return False
+
+
+def join_path(*segments: str) -> str:
+    return str(Path(*segments).resolve())
