@@ -5,10 +5,18 @@
 version: '3'
 
 vars:
-  GREETING: PHP Proxy Hunter Tasks
+  PYTHON:
+    sh: |
+      # use "/bin/py" as main python command
+      {{ if eq OS "windows" }}
+        echo "\\\\bin\\\\py.cmd"
+      {{ else }}
+        echo "/bin/py"
+      {{ end }}
 
 env:
   PATH: "{{.PWD}}/bin:{{.PATH}}"
+
 dotenv: ['.env', '.env.local']
 
 tasks:
@@ -30,17 +38,18 @@ tasks:
       - which py
       - |
           command -v py || command -v python3 || command -v python
-
+  # task install-python
   install-python:
     desc: Install Python dependencies
     cmds:
-      - py -m pip install --upgrade pip
-      - py -m pip install --upgrade setuptools
-      - py -m pip install --upgrade wheel
-      - py -m pip install socks
-      - py -m pip install -r requirements-base.txt
-      - py -m pip install -e file:packages/proxy-checker-python
-      - py -m pip install -e file:packages/proxy-hunter-python
-      - py -m pip install -e file:packages/rsa-utility
-      - py -m pip install -e file:packages/selenium-stealth
-      - py -m pip install -e file:packages/netscape-cookies
+      - ".{{.PYTHON}} -m ensurepip --upgrade"
+      - ".{{.PYTHON}} -m pip install --upgrade pip"
+      - ".{{.PYTHON}} -m pip install --upgrade setuptools"
+      - ".{{.PYTHON}} -m pip install --upgrade wheel"
+      - ".{{.PYTHON}} -m pip install socks"
+      - ".{{.PYTHON}} -m pip install -r requirements-base.txt"
+      - ".{{.PYTHON}} -m pip install -e file:packages/proxy-checker-python"
+      - ".{{.PYTHON}} -m pip install -e file:packages/proxy-hunter-python"
+      - ".{{.PYTHON}} -m pip install -e file:packages/rsa-utility"
+      - ".{{.PYTHON}} -m pip install -e file:packages/selenium-stealth"
+      - ".{{.PYTHON}} -m pip install -e file:packages/netscape-cookies"
