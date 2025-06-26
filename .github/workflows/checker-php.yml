@@ -138,7 +138,10 @@ jobs:
       # Install Python dependencies (if cache missed)
       - name: Install Python dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: python requirements_install.py
+        run: |
+          python3 -m ensurepip --upgrade
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 requirements_install.py
 
       # Initialize scripts
       - name: Initialize GitHub Actions
