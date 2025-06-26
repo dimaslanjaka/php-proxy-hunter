@@ -1,11 +1,31 @@
 #!/usr/bin/env node
 
 const { spawnSync } = require('child_process');
-const { existsSync, rmSync } = require('fs');
-const { join, resolve } = require('path');
-const { config } = require('dotenv');
+const fs = require('fs');
+const path = require('path');
 
-config(); // Load .env
+// Path to .env file
+const envPath = path.resolve(__dirname, '.env');
+
+// Check if .env exists and read it
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+
+  // Split into lines and process each
+  envContent.split('\n').forEach(line => {
+    const trimmedLine = line.trim();
+
+    // Ignore empty lines and comments
+    if (!trimmedLine || trimmedLine.startsWith('#')) return;
+
+    // Extract key and value
+    const [key, ...vals] = trimmedLine.split('=');
+    if (!key) return;
+
+    const value = vals.join('=').trim().replace(/^['"]|['"]$/g, ''); // Remove surrounding quotes
+    process.env[key.trim()] = value;
+  });
+}
 
 // Parse CLI args
 const args = process.argv.slice(2);
@@ -14,9 +34,9 @@ let REPO_PATH = ROOT;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '-cwd' && args[i + 1]) {
-    ROOT = resolve(args[++i]);
+    ROOT = path.resolve(args[++i]);
   } else if (args[i].startsWith('--cwd=')) {
-    ROOT = resolve(args[i].split('=')[1]);
+    ROOT = path.resolve(args[i].split('=')[1]);
   }
 }
 
@@ -33,11 +53,11 @@ const submoduleList = runGit([
 
 for (const line of submoduleList) {
   const [KEY, MODULE_PATH] = line.trim().split(/\s+/);
-  const RELATIVE_MODULE_PATH = join(ROOT, MODULE_PATH);
+  const RELATIVE_MODULE_PATH = path.join(ROOT, MODULE_PATH);
 
-  if (existsSync(RELATIVE_MODULE_PATH)) {
+  if (fs.existsSync(RELATIVE_MODULE_PATH)) {
     console.log(`Deleting ${RELATIVE_MODULE_PATH}`);
-    rmSync(RELATIVE_MODULE_PATH, { recursive: true, force: true });
+    fs.rmSync(RELATIVE_MODULE_PATH, { recursive: true, force: true });
   }
 
   const NAME = KEY.match(/^submodule\.(.*)\.path$/)[1];
@@ -60,9 +80,8 @@ for (const line of submoduleList) {
   }
 
   const repo = URL.replace('https://github.com/', '');
-  const GIT_MODULES = join(RELATIVE_MODULE_PATH, '.gitmodules');
+  const GIT_MODULES = path.join(RELATIVE_MODULE_PATH, '.gitmodules');
 
-  // If access token is set, use it
   if (process.env.ACCESS_TOKEN) {
     const URL_WITH_TOKEN = `https://${process.env.ACCESS_TOKEN}@github.com/${repo}`;
     console.log(`Apply token for ${repo} at ${MODULE_PATH} branch ${BRANCH}`);
@@ -72,9 +91,8 @@ for (const line of submoduleList) {
   runGit(['-C', RELATIVE_MODULE_PATH, 'fetch', '--all']);
   runGit(['-C', RELATIVE_MODULE_PATH, 'pull', 'origin', BRANCH, '-X', 'theirs']);
 
-  if (existsSync(GIT_MODULES)) {
+  if (fs.existsSync(GIT_MODULES)) {
     console.log(`${MODULE_PATH} has submodules`);
-    // Recursively run self
     const result = spawnSync('node', [__filename, '-cwd', RELATIVE_MODULE_PATH], { stdio: 'inherit' });
     if (result.status !== 0) {
       console.error(`Recursive submodule failed for ${RELATIVE_MODULE_PATH}`);
@@ -83,7 +101,6 @@ for (const line of submoduleList) {
   }
 }
 
-// Final update all
 runGit(['-C', REPO_PATH, 'submodule', 'update', '--init', '--recursive']);
 
 
