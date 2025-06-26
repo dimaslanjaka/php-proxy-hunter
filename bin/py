@@ -39,7 +39,7 @@ case "$OS" in
     fi
 
     # Deactivate the virtual environment
-    deactivate
+    # deactivate
     ;;
 
   CYGWIN* | MINGW32* | MINGW64*)
@@ -57,7 +57,7 @@ case "$OS" in
     python3 "$@"
 
     # Deactivate the virtual environment
-    deactivate
+    # deactivate
     ;;
 
   *)
