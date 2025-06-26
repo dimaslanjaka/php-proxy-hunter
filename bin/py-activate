@@ -1,0 +1,11 @@
+#!/bin/bash
+# Activate virtual environment from <project>/venv
+
+# Get the directory of this script (i.e., <project>/bin)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Go up one level to get to <project> root
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# Activate the virtual environment
+source "$PROJECT_ROOT/venv/bin/activate"
