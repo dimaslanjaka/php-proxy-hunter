@@ -29,7 +29,6 @@ setuptools.setup(
         "proxy-checker",
         "beautifulsoup4",
         "httpx",
-        "socks",
         "pySocks",
     ],
     test_suite="tests",
