@@ -143,6 +143,15 @@ jobs:
           python3 -m pip install --upgrade pip setuptools wheel
           python3 requirements_install.py
 
+      # Install NodeJS dependencies (if cache missed)
+      - name: Install NodeJS Dependencies
+        shell: bash
+        run: |
+          corepack enable
+          touch yarn.lock
+          yarn install
+          npm install -g @go-task/cli
+
       # Initialize scripts
       - name: Initialize GitHub Actions
         env:
