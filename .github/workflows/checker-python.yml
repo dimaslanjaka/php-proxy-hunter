@@ -20,7 +20,7 @@ on:
       ACCESS_TOKEN:
         required: true
   schedule:
-    - cron: '0 */3 * * *' # Runs every 3 hours
+    - cron: '0 */3 * * *' # Every 3 hours
 
 concurrency:
   group: python-proxy-checker
@@ -30,57 +30,51 @@ jobs:
   build:
     if: contains(github.repository, 'php-proxy-hunter')
     runs-on: windows-latest
+
     env:
       PIP_CACHE_DIR: '${{ github.workspace }}/project/tmp/pip'
       NUITKA_CACHE_DIR: '${{ github.workspace }}/project/tmp/nuitka-cache'
-      NODE_OPTIONS: '--max_old_space_size=4096' #8192 4096 --expose-gc
+      NODE_OPTIONS: '--max_old_space_size=4096'
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
       ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-      node_version: 20.x
-      php_version: 7.4
       YARN_CHECKSUM_BEHAVIOR: update
 
     steps:
-      # Check-out repository
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
           repository: dimaslanjaka/php-proxy-hunter
           ref: master
           token: ${{ secrets.ACCESS_TOKEN }}
-          lfs: 'true'
+          lfs: true
 
-      - name: Update Submodules
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Initialize Submodules
+        shell: bash
         run: |
-          echo "init submodules"
-          git submodule init
-          git submodule foreach "git submodule init"
-          echo "sync submodules"
-          git submodule sync
-          git submodule foreach "git submodule sync"
-          echo "update submodules"
-          mkdir -p bin >/dev/null 2>&1
-          curl -L https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install > bin/submodule-install
+          echo "Initializing submodules"
+          git submodule update --init --recursive
+          mkdir -p bin
+          curl -sL https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install -o bin/submodule-install
           rm -rf .git/modules
           bash ./bin/submodule-install
           git lfs track "*.rar"
-        shell: bash
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          architecture: 'x64'
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18.x
 
       - name: Get pip cache dir
         id: pip-cache
         run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
 
       - name: Setup Cache
-        id: cache
         uses: actions/cache@v4
         with:
           path: |
@@ -109,13 +103,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-python-${{ hashFiles('.husky/hash.txt') }}
             ${{ runner.os }}-python-
-            ${{ runner.os }}-nuitka-
-            ${{ runner.os }}-php-
             ${{ runner.os }}-
 
       - name: Restore Non-cached Files
-        run: |
-          git restore *.txt
+        run: git restore *.txt
 
       - name: Install NodeJS Dependencies
         shell: bash
@@ -125,7 +116,7 @@ jobs:
           yarn install
           npm install -g @go-task/cli
 
-      - name: Install Dependencies
+      - name: Install Python Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
@@ -133,14 +124,13 @@ jobs:
           python3 -m pip install --upgrade pip setuptools wheel
           python3 requirements_install.py
 
-      - name: Initialize Github Actions
+      - name: Initialize GitHub Actions
         id: php-github-actions-init
         env:
           GITHUB_OUTPUT: $GITHUB_OUTPUT
-        run: |
-          python3 github-actions-init.py
+        run: python3 github-actions-init.py
 
-      - name: Download required files
+      - name: Download Required Files
         run: python3 src/geoPlugin.py
 
       - name: Cleanup
@@ -150,7 +140,10 @@ jobs:
         run: python3 proxyFetcher.py
 
       - name: Check Proxies
-        run: python3 proxyCheckerReal.py --max='${{ github.event.inputs.max || 100 }}'
+        run: |
+          MAX_INPUT="${{ inputs.max || github.event.inputs.max || '100' }}"
+          echo "Checking max $MAX_INPUT proxies"
+          python3 proxyCheckerReal.py --max="$MAX_INPUT"
 
       - name: Upload Proxies
         run: python3 proxyWorking.py

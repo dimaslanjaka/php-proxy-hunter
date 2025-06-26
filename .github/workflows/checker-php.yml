@@ -2,25 +2,25 @@ name: Checker PHP
 
 on:
   push:
+  schedule:
+    - cron: '0 */3 * * *' # Every 3 hours
   workflow_dispatch:
     inputs:
       max:
-        description: 'The maximum proxies to be checked.'
+        description: 'Maximum proxies to be checked.'
         required: true
         default: '100'
         type: string
   workflow_call:
     inputs:
       max:
-        description: 'The maximum proxies to be checked.'
+        description: 'Maximum proxies to be checked.'
         required: true
         default: '100'
         type: string
     secrets:
       ACCESS_TOKEN:
         required: true
-  schedule:
-    - cron: '0 */3 * * *' # Runs every 3 hours
 
 concurrency:
   group: php-proxy-checker
@@ -29,68 +29,66 @@ concurrency:
 jobs:
   build:
     if: contains(github.repository, 'php-proxy-hunter')
-    permissions: read-all
     runs-on: windows-latest
+    permissions: read-all
     env:
-      PIP_CACHE_DIR: '${{ github.workspace }}/project/tmp/pip'
-      NUITKA_CACHE_DIR: '${{ github.workspace }}/project/tmp/nuitka-cache'
-      NODE_OPTIONS: '--max_old_space_size=4096' #8192 4096 --expose-gc
+      PIP_CACHE_DIR: ${{ github.workspace }}/project/tmp/pip
+      NUITKA_CACHE_DIR: ${{ github.workspace }}/project/tmp/nuitka-cache
+      NODE_OPTIONS: --max_old_space_size=4096
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
       ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-      node_version: 20.x
-      php_version: 7.4
       YARN_CHECKSUM_BEHAVIOR: update
+    defaults:
+      run:
+        shell: bash
 
     steps:
-      - name: Set timezone
-        uses: szenius/set-timezone@v2.0
+      # Set timezone
+      - uses: szenius/set-timezone@v2.0
         with:
-          timezoneLinux: 'Asia/Jakarta'
+          timezoneLinux: Asia/Jakarta
+
+      # Checkout project and data repositories
       - uses: actions/checkout@v4
         with:
-          repository: 'dimaslanjaka/php-proxy-hunter'
+          repository: dimaslanjaka/php-proxy-hunter
           ref: master
           token: ${{ secrets.ACCESS_TOKEN }}
-          lfs: 'true'
+          lfs: true
+
       - uses: actions/checkout@v4
         with:
-          token: '${{ secrets.ACCESS_TOKEN }}'
+          repository: dimaslanjaka/data
+          path: public
+          token: ${{ secrets.ACCESS_TOKEN }}
           lfs: true
-          path: 'public'
-          repository: 'dimaslanjaka/data'
+
+      # Initialize and update submodules
       - name: Update Submodules
         run: |
-          echo "init submodules"
-          git submodule init
-          git submodule foreach "git submodule init"
-          echo "sync submodules"
-          git submodule sync
-          git submodule foreach "git submodule sync"
-          echo "update submodules"
-          mkdir -p bin >/dev/null 2>&1
-          curl -L https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install > bin/submodule-install
+          echo "Initializing submodules..."
+          git submodule update --init --recursive
+          mkdir -p bin
+          curl -L https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install -o bin/submodule-install
           rm -rf .git/modules
           bash ./bin/submodule-install
           git lfs track "*.rar"
-        shell: bash
 
-      - name: Setup NodeJS
-        uses: actions/setup-node@v4
+      # Setup runtimes
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.node_version }}
+          node-version: 20.x
 
       - run: corepack enable
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: 3.11
 
-      - name: Setup PHP with PECL extension
-        uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ env.php_version }}
+          php-version: 7.4
           extensions: mbstring, intl, pecl_http, curl, pdo_mysql, pdo_sqlite, dom, zip, fileinfo, json, redis
           ini-values: post_max_size=256M, max_execution_time=180
           tools: php-cs-fixer, phpunit, composer:v2
@@ -98,9 +96,9 @@ jobs:
         env:
           fail-fast: true
 
-      - name: Cache initialize
+      # Cache dependencies and outputs
+      - uses: actions/cache@v4
         id: cache
-        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/pip
@@ -112,7 +110,7 @@ jobs:
             .yarn/caches/
             .yarn/*.gz
             ./venv/
-            ${{ env.pip_cache_dir }}
+            ${{ env.PIP_CACHE_DIR }}
             ${{ env.NUITKA_CACHE_DIR }}
             *.lock
             *.txt
@@ -132,20 +130,22 @@ jobs:
             ${{ runner.os }}-python-
             ${{ runner.os }}-
 
+      # Install dependencies (if cache missed)
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           php composer.phar install --prefer-dist --no-progress
           python requirements_install.py
 
-      - name: Initialize Github Actions
-        id: php-github-actions-init
+      # Initialize scripts
+      - name: Initialize GitHub Actions
         env:
           GITHUB_OUTPUT: $GITHUB_OUTPUT
         run: |
           python github-actions-init.py
           php github-actions-init.php
 
+      # Download & process data
       - name: Download required files
         run: python3 src/geoPlugin.py
 
