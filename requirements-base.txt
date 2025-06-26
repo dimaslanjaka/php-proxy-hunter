@@ -23,7 +23,8 @@ geoip2
 geopy
 gevent
 html5lib
-huey @ https://github.com/coleifer/huey/archive/5da909af52455ede879b42342891f7bfe4383a71.zip # ==2.5.2
+# huey==2.5.2
+huey @ https://github.com/coleifer/huey/archive/5da909af52455ede879b42342891f7bfe4383a71.zip
 ipaddress
 joblib
 maxminddb
