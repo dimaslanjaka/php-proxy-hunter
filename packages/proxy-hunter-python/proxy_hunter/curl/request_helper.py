@@ -33,7 +33,7 @@ def build_request(
     proxy: Optional[str] = None,
     proxy_type: Optional[str] = None,
     method: str = "GET",
-    post_data: Optional[Dict[str, str]] = None,
+    post_data: Optional[Union[Dict[str, str], str]] = None,
     endpoint: str = "https://bing.com",
     headers: Optional[Dict[str, str]] = None,
     no_cache: Optional[bool] = False,
@@ -49,7 +49,7 @@ def build_request(
         proxy (Optional[str]): The proxy address in the format IP:PORT. Defaults to None.
         proxy_type (Optional[str]): Type of proxy ('http', 'socks4', or 'socks5'). Defaults to None.
         method (str): HTTP method ('GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'). Defaults to 'GET'.
-        post_data (Optional[Dict[str, str]]): Data to send in a POST, PUT, or PATCH request. Defaults to None.
+        post_data (Optional[Union[Dict[str, str], str]]): Data to send in a POST, PUT, or PATCH request. Can be dict or str. Defaults to None.
         endpoint (str): The endpoint URL for the request. Defaults to 'https://bing.com'.
         headers (Optional[Dict[str, str]]): Headers for the request. Defaults to None.
         no_cache (Optional[bool]): Flag to bypass cache by appending a unique query parameter. Defaults to False.
@@ -105,7 +105,7 @@ def build_request(
             generate_netscape_cookie_jar(cookie_file)
         if os.path.exists(cookie_file):
             cookie_str = read_file(cookie_file)
-        if cookie_str != "":
+        if cookie_str is not None and cookie_str != "":
             try:
                 if "Netscape HTTP Cookie File" in cookie_str:
                     cookie_jar = MozillaCookieJar(cookie_file)
