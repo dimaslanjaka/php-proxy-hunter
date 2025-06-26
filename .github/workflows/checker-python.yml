@@ -140,6 +140,7 @@ jobs:
         run: python3 proxyFetcher.py
 
       - name: Check Proxies
+        shell: bash
         run: |
           MAX_INPUT="${{ inputs.max || github.event.inputs.max || '100' }}"
           echo "Checking max $MAX_INPUT proxies"
