@@ -141,7 +141,7 @@ def install_package(
     for url in mirrors:
         try:
             cmd = base_cmd + name_args + [f"--index-url={url}"] + install_args
-            print(" ".join(cmd))
+            print("\n" + " ".join(cmd) + "\n")
             subprocess.check_call(cmd)
             return
         except subprocess.CalledProcessError:
@@ -163,18 +163,41 @@ def install_requirements():
 
     for raw_pkg in package_list:
         line = re.sub(r"\s+", " ", raw_pkg.strip())
+        # skip comments/empty lines
         if not line or line.startswith("#"):
-            continue  # skip comments/empty
+            continue
+
+        if "-e " in line and not line.startswith("-e "):
+            raise RuntimeError(f"❌ Unsupported requirement line: {line}")
+
+        if "file:" in line and not line.startswith("-e "):
+            local_package = re.findall(r"file:([^\s]+)", line)
+            if local_package:
+                pkg_path = local_package[0]
+                if not os.path.exists(pkg_path):
+                    raise RuntimeError(f"❌ Local package not found: {pkg_path}")
+                try:
+                    install_package([line])
+                except Exception as e:
+                    print(f"Error installing local package {pkg_path}: {e}")
+                    raise
+                continue
 
         if line.startswith("-e"):
             install_package(["-e", line.replace("-e", "").strip()])
-        elif " @ http" in line:
+            continue
+
+        if " @ http" in line:
             pkgname, _ = line.split(" @ ", 1)
             if not is_package_installed(pkgname.strip()):
                 install_package(line)
-        elif " --" in line:
+            continue
+
+        if " --" in line:
             install_package([arg for arg in line.split() if arg])
-        elif not is_package_installed(line):
+            continue
+
+        if not is_package_installed(line):
             install_package(line)
 
 
