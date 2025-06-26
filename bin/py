@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Determine the OS
+set -euo pipefail
+
+# Detect OS
 OS=$(uname -s)
 
 # Get the directory of the script
@@ -15,49 +17,64 @@ if [ ! -d "$CWD" ]; then
   exit 1
 fi
 
+VENV_PATH="$CWD/venv"
 USER="www-data"
+
+ensure_python3_shim_unix() {
+  if [ -f "$VENV_PATH/bin/python" ] && [ ! -f "$VENV_PATH/bin/python3" ]; then
+    echo "Creating python3 symlink..."
+    ln -s python "$VENV_PATH/bin/python3"
+  fi
+}
+
+ensure_python3_shim_windows() {
+  if [ -f "$VENV_PATH/Scripts/python.exe" ] && [ ! -f "$VENV_PATH/Scripts/python3.exe" ]; then
+    echo "Creating python3.exe shim..."
+    cp "$VENV_PATH/Scripts/python.exe" "$VENV_PATH/Scripts/python3.exe"
+  fi
+}
 
 case "$OS" in
   Linux | Darwin)
     # Unix-based systems (Linux, macOS)
-    if [ ! -d "$CWD/venv" ]; then
+    if [ ! -d "$VENV_PATH" ]; then
       echo "Creating virtual environment..."
-      python3 -m venv "$CWD/venv"
+      python3 -m venv "$VENV_PATH"
+      echo "Virtual environment created."
     else
       echo "Virtual environment already exists."
     fi
 
-    # Activate the virtual environment
-    source "$CWD/venv/bin/activate"
+    ensure_python3_shim_unix
 
-    if [ "$OS" == "Linux" ] && [ -x "$(command -v nginx)" ]; then
-      sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && python3 $CWD/requirements_install.py"
-      sudo chown -R "$USER:$USER" "$CWD/venv"
-      sudo chmod 755 "$CWD/venv/bin"/*
+    # Activate the virtual environment
+    source "$VENV_PATH/bin/activate"
+
+    if [ "$OS" == "Linux" ] && command -v nginx >/dev/null; then
+      sudo -u "$USER" -H bash -c "source '$VENV_PATH/bin/activate' && python3 '$CWD/requirements_install.py'"
+      sudo chown -R "$USER:$USER" "$VENV_PATH"
+      sudo chmod 755 "$VENV_PATH/bin"/*
     else
       python3 "$@"
     fi
-
-    # Deactivate the virtual environment
-    # deactivate
     ;;
 
   CYGWIN* | MINGW32* | MINGW64*)
-    # Windows-like environments (Cygwin, MinGW)
-    if [ ! -d "$CWD/venv" ]; then
+    # Windows-like environments (Cygwin, Git Bash, MinGW)
+    if [ ! -d "$VENV_PATH" ]; then
       echo "Creating virtual environment..."
-      python3.exe -m venv "$CWD/venv"
+      python3.exe -m venv "$VENV_PATH"
+      echo "Virtual environment created."
     else
       echo "Virtual environment already exists."
     fi
 
+    ensure_python3_shim_windows
+
     # Activate the virtual environment
-    source "$CWD/venv/Scripts/activate"
+    source "$VENV_PATH/Scripts/activate"
 
     python3 "$@"
-
-    # Deactivate the virtual environment
-    # deactivate
     ;;
 
   *)

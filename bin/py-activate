@@ -1,12 +1,16 @@
 #!/bin/bash
 # Create or activate virtual environment in <project>/venv
 
+set -e  # Exit on error
+set -u  # Treat unset variables as errors
+
 # Get the directory of this script (i.e., <project>/bin)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Go up one level to get to <project> root
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 VENV_PATH="$PROJECT_ROOT/venv"
+VENV_BIN="$VENV_PATH/bin"
 
 # Check if venv exists
 if [ ! -d "$VENV_PATH" ]; then
@@ -14,8 +18,20 @@ if [ ! -d "$VENV_PATH" ]; then
   python3 -m venv "$VENV_PATH"
   echo "Virtual environment created."
 else
-  echo "Virtual environment already exists. Activating..."
+  echo "Virtual environment already exists."
+fi
+
+# Ensure python3 exists in venv/bin
+if [ -f "$VENV_BIN/python" ] && [ ! -f "$VENV_BIN/python3" ]; then
+  echo "Creating python3 symlink in venv/bin..."
+  ln -s python "$VENV_BIN/python3"
+  echo "python3 symlink created."
+elif [ -f "$VENV_BIN/python3" ]; then
+  echo "python3 already exists in venv/bin."
+else
+  echo "ERROR: python executable not found in $VENV_BIN"
+  exit 1
 fi
 
 # Activate the virtual environment
-source "$VENV_PATH/bin/activate"
+source "$VENV_BIN/activate"
