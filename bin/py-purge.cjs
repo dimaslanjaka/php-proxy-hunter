@@ -22,7 +22,7 @@ if (!fs.existsSync(venvPath)) {
     process.exit(1);
   }
 
-  execSync(`python -m venv "${venvPath}"`, { stdio: 'inherit', shell: true });
+  execSync(`python3 -m venv "${venvPath}"`, { stdio: 'inherit', shell: true });
 } else {
   console.log('Virtual environment already exists.');
 }

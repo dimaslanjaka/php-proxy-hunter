@@ -7,7 +7,7 @@ CWD="$(dirname "$SCRIPT_DIR")"
 VENV_DIR="$CWD/venv"
 
 # Check if we're already in the venv
-if [[ "$(python -c 'import sys; print(sys.prefix)')" != "$VENV_DIR" ]]; then
+if [[ "$(python3 -c 'import sys; print(sys.prefix)')" != "$VENV_DIR" ]]; then
     echo "Virtual environment is not active. Checking if it exists..."
 
     # Create venv if it doesn't exist

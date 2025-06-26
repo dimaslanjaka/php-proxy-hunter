@@ -16,6 +16,7 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     # Terminate POSIX-compatible processes using ps and kill
     # Example: terminate Python processes
     ps -ef | grep python | grep -v grep | awk '{print $2}' | xargs kill -9
+    ps -ef | grep python3 | grep -v grep | awk '{print $2}' | xargs kill -9
 
     # Example: terminate Chrome-related processes
     ps -ef | grep chrome | grep -v grep | awk '{print $2}' | xargs kill -9

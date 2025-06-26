@@ -69,7 +69,7 @@ case "$OS" in
     pip cache purge
 
     # Install requirements
-    python "$CWD/requirements_install.py"
+    python3 "$CWD/requirements_install.py"
 
     # Deactivate the virtual environment
     deactivate
