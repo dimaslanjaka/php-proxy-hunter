@@ -14,6 +14,7 @@ from .curl import (
     random_windows_ua,
     time2isoz,
     update_cookie_jar,
+    DebugSession,
 )
 from .extractor import (
     extract_ips,
