@@ -65,6 +65,9 @@ if platform.system() == "Windows" and is_git_repo_and_on_branch("python"):
 missing_packages = [pkg for pkg in packages if not check_package(pkg)]
 if missing_packages:
     print(f"Missing packages: {', '.join(missing_packages)}")
+    # Generate requirements.txt
+    subprocess.check_call([sys.executable, "requirements_install.py", "--generate"])
+    # Install missing packages
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"]
     )
