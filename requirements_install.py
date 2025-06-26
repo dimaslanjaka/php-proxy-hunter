@@ -99,7 +99,10 @@ def generate_requirements() -> bool:
     # filter out specific packages
     def should_exclude(pkg: str) -> bool:
         # package that included from other requirements files
-        if pkg.endswith(".txt") or pkg.startswith("#"):
+        if pkg.endswith(".txt") or ("-r " in pkg and ".txt" in pkg):
+            return True
+        # package that is a comment
+        if pkg.startswith("#") or pkg.strip() == "":
             return True
         return False
 
