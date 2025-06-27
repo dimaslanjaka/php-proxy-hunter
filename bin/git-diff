@@ -9,33 +9,36 @@ OUTPUT="$CACHE_DIR/diff.txt"
 # Ensure output directory exists
 mkdir -p "$CACHE_DIR"
 
-# Show help if no arguments or --help is passed
-if [[ -z "$1" || "$1" == "--help" ]]; then
+# Show help if no arguments or --help/-h is passed
+if [[ -z "$1" || "$1" == "--help" || "$1" == "-h" ]]; then
     echo "Git Diff Helper"
     echo "----------------------------"
     echo "Usage:"
     echo "  git-diff FILE             Show staged diff of specified file"
     echo "  git-diff --staged-only    Show staged diff of all files"
-    echo "  git-diff --help           Show this help message"
+    echo "  git-diff -s | -S          Same as --staged-only"
+    echo "  git-diff --help | -h      Show this help message"
     echo
     echo "Output is saved to: $OUTPUT"
     exit 0
 fi
 
-# Handle --staged-only
-if [[ "$1" == "--staged-only" ]]; then
-    if git --no-pager diff --staged > "$OUTPUT"; then
-        echo "[✓] Full staged diff saved to \"$OUTPUT\""
-    else
-        echo "[X] Failed to save staged diff"
-    fi
-    exit 0
-fi
+# Parse options
+case "$1" in
+    --staged-only|-s|-S)
+        if git --no-pager diff --staged > "$OUTPUT"; then
+            echo "[✓] Full staged diff saved to \"$OUTPUT\""
+        else
+            echo "[✗] Failed to save staged diff"
+        fi
+        exit 0
+        ;;
+esac
 
 # Handle specific file diff
 FILE="$1"
 if git --no-pager diff --cached -- "$FILE" > "$OUTPUT"; then
     echo "[✓] Staged diff of \"$FILE\" saved to \"$OUTPUT\""
 else
-    echo "[X] Failed to generate diff for \"$FILE\""
+    echo "[✗] Failed to generate diff for \"$FILE\""
 fi
