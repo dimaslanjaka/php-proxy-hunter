@@ -76,3 +76,9 @@ tasks:
     cmds:
       - php composer.phar config github-oauth.github.com "{{.RESOLVED_GITHUB_TOKEN}}"
       - php composer.phar install --no-progress --no-suggest --no-interaction --optimize-autoloader
+
+  install-nodejs:
+    desc: Install NodeJS dependencies
+    cmds:
+      - touch yarn.lock
+      - yarn install
