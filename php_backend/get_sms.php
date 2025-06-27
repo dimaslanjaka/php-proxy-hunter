@@ -6,44 +6,44 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Access-Control-Allow-Methods: *");
 header('Content-Type: text/plain; charset=utf-8');
-
-// Ignore browser caching
 header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Cache-Control: post-check=0, pre-check=0', false);
+header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 header('Pragma: no-cache');
 
-// Get the 'sms' parameter from either POST or GET
+// Parse incoming data
 $request = parsePostData(true);
-$test = $request['sms'] ?? $_REQUEST['sms'] ?? $_POST['sms'] ?? $_GET['sms'] ?? '';
+$sms = $request['sms'] ?? $_REQUEST['sms'] ?? $_POST['sms'] ?? '';
 
-// If 'sms' is empty, you can handle it accordingly
-if (empty($test)) {
-  // Handle the case when no message is provided
-  echo 'No message provided' . PHP_EOL;
+if (empty($sms)) {
+  echo "No message provided" . PHP_EOL;
 } else {
-  echo "SMS received:\n\n{$test}";
+  echo "SMS received:\n\n{$sms}";
 }
 
-// Set timezone and get current date and time
-$timezone = new DateTimeZone('Asia/Jakarta');
-$date = new DateTime('now', $timezone);
+// Date and log setup
+$now = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
+$formattedTime = $now->format('Y-m-d\TH:i');
+$logEntry = "{$formattedTime}: {$sms}";
 
-// Format the current date for folder and log naming
-$today = $date->format('d-m-Y H:i:s');
-$month = $date->format('F');
-$todayDate = $date->format('d-m-Y');
-$todayOrder = $date->format('Y-m-d');
-$formattedDateTime = $date->format('Y-m-d\TH:i');
+// OTP detection
+if (preg_match('/\b\d{4,8}\b/', $sms, $matches)) {
+  $otp = "{$formattedTime}: {$matches[0]}";
+  append_content_with_lock(tmp() . '/sms/get_sms_otp.txt', $otp . PHP_EOL);
+}
 
-// Prepare log content
-$content = "{$formattedDateTime} {$test}";
+// Log SMS
+append_content_with_lock(tmp() . '/sms/get_sms.txt', $logEntry . PHP_EOL);
 
-// Write to the file
-write_file(tmp() . '/sms/get_sms.txt', $content . PHP_EOL);
+// Write logs per user
 $hash = getUserId();
+$basePath = tmp() . "/sms/{$hash}";
 
-write_file(tmp() . "/sms/get_sms_{$hash}.txt", json_encode($request, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
-write_file(tmp() . "/sms/get_sms_{$hash}_post.txt", json_encode($_POST, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
-write_file(tmp() . "/sms/get_sms_{$hash}_get.txt", json_encode($_GET, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
-write_file(tmp() . "/sms/get_sms_{$hash}_request.txt", json_encode($_REQUEST, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
+function json_pretty($data): string
+{
+  return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+}
+
+write_file("{$basePath}.txt", json_pretty($request) . PHP_EOL);
+write_file("{$basePath}_post.txt", json_pretty($_POST) . PHP_EOL);
+write_file("{$basePath}_get.txt", json_pretty($_GET) . PHP_EOL);
+write_file("{$basePath}_request.txt", json_pretty($_REQUEST) . PHP_EOL);
