@@ -35,83 +35,100 @@ import pkg from './package.json' with { type: 'json' };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// 📌 Static override rules
+const specialPackageOverrides = [
+  { pkg: 'sbg-utility', branch: 'sbg-utility', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
+  { pkg: 'sbg-api', branch: 'sbg-api', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
+  { pkg: 'instant-indexing', branch: 'instant-indexing', repo: 'static-blog-generator', owner: 'dimaslanjaka' }
+];
+
 /**
- * Get JSON from a URL with GitHub headers
+ * Fetch JSON from a URL with GitHub headers.
+ * @param {string} url
+ * @returns {Promise<any>}
  */
 function fetchJson(url) {
+  const headers = {
+    'User-Agent': pkg.name || 'node.js',
+    Accept: 'application/vnd.github.v3+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    ...(process.env.GITHUB_TOKEN ? { Authorization: `token ${process.env.GITHUB_TOKEN}` } : {})
+  };
+
   return new Promise((resolve, reject) => {
     https
-      .get(
-        url,
-        {
-          headers: {
-            'User-Agent': pkg.name || 'node.js',
-            Accept: 'application/vnd.github.v3+json',
-            Authorization: `token ${process.env.GITHUB_TOKEN}`
-          }
-        },
-        (res) => {
-          let data = '';
-          res.on('data', (chunk) => (data += chunk));
-          res.on('end', () => {
-            try {
-              resolve(JSON.parse(data));
-            } catch {
-              reject(new Error(`Invalid JSON from: ${url}`));
+      .get(url, { headers }, (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+              return reject(
+                new Error(`GitHub API Error ${res.statusCode}: ${json.message || 'Unknown error'}\nURL: ${url}`)
+              );
             }
-          });
-        }
-      )
+            resolve(json);
+          } catch {
+            reject(new Error(`Invalid JSON from: ${url}`));
+          }
+        });
+      })
       .on('error', reject);
   });
 }
 
 /**
- * Find the branch with the latest commit
- * @param {string} owner
- * @param {string} repo
- * @returns {Promise<{owner: string, repo: string, branch: string, sha: string, date: string}>}
+ * Get latest commit SHA from a specific branch.
  */
-export async function getLatestCommitAcrossBranches(owner, repo) {
+async function getLatestCommit(owner, repo, branch = 'main') {
+  const url = `https://api.github.com/repos/${owner}/${repo}/commits/${branch}`;
+  const json = await fetchJson(url);
+
+  const sha = json.sha;
+  const dateStr = json.commit?.committer?.date || json.commit?.author?.date;
+
+  if (!sha || !dateStr) {
+    console.log(json);
+    throw new Error(`Missing SHA or date for ${owner}/${repo}@${branch}`);
+  }
+
+  return {
+    owner,
+    repo,
+    branch,
+    sha,
+    date: new Date(dateStr).toISOString()
+  };
+}
+
+/**
+ * Get latest commit SHA from all branches and pick the latest.
+ */
+async function getLatestCommitAcrossBranches(owner, repo) {
   const branches = await fetchJson(`https://api.github.com/repos/${owner}/${repo}/branches`);
 
   const commits = await Promise.all(
-    branches.map(async (branch) => {
-      const commitSha = branch?.commit?.sha;
+    branches.map(async ({ name, commit }) => {
+      const commitSha = commit?.sha;
       if (!commitSha) {
-        console.warn(`No commit SHA for '${owner}/${repo}' branch: ${branch.name}`);
-        return {
-          branch: branch.name,
-          sha: '',
-          date: new Date(0)
-        };
+        console.warn(`No commit SHA for '${owner}/${repo}' branch: ${name}`);
+        return { branch: name, sha: '', date: new Date(0) };
       }
 
       try {
-        const commit = await fetchJson(`https://api.github.com/repos/${owner}/${repo}/commits/${commitSha}`);
-        const date = commit.commit?.committer?.date || commit.commit?.author?.date;
-
-        if (!date) {
-          console.warn(`No commit date found for branch: ${branch.name}`);
-        }
-
-        return {
-          branch: branch.name,
-          sha: commit.sha,
-          date: new Date(date)
-        };
+        const commitData = await fetchJson(`https://api.github.com/repos/${owner}/${repo}/commits/${commitSha}`);
+        const dateStr = commitData.commit?.committer?.date || commitData.commit?.author?.date;
+        const date = dateStr ? new Date(dateStr) : new Date(0);
+        return { branch: name, sha: commitData.sha, date };
       } catch (e) {
-        console.warn(`Failed to fetch commit for ${branch.name}:`, e.message);
-        return {
-          branch: branch.name,
-          sha: commitSha,
-          date: new Date(0)
-        };
+        console.warn(`Failed to fetch commit for ${name}: ${e.message}`);
+        return { branch: name, sha: commitSha, date: new Date(0) };
       }
     })
   );
 
-  const latest = commits.reduce((a, b) => (a.date > b.date ? a : b));
+  const latest = commits.reduce((a, b) => (a.date > b.date ? a : b), { date: new Date(0) });
 
   return {
     owner,
@@ -123,48 +140,9 @@ export async function getLatestCommitAcrossBranches(owner, repo) {
 }
 
 /**
- * Get the latest commit hash from a GitHub repository's branch.
- * @param {string} owner - GitHub username or organization.
- * @param {string} repo - Repository name.
- * @param {string} branch - Branch name (default: 'main').
- * @returns {Promise<string>} Latest commit SHA.
+ * Replace the branch or commit in a GitHub raw URL with the latest hash.
  */
-export async function getLatestCommitHash(owner, repo, branch = 'main') {
-  const url = `https://api.github.com/repos/${owner}/${repo}/commits/${branch}`;
-  return new Promise((resolve, reject) => {
-    https
-      .get(
-        url,
-        {
-          headers: {
-            'User-Agent': 'node.js',
-            Accept: 'application/vnd.github.v3+json'
-          }
-        },
-        (res) => {
-          let data = '';
-          res.on('data', (chunk) => (data += chunk));
-          res.on('end', () => {
-            try {
-              const json = JSON.parse(data);
-              resolve(json.sha);
-            } catch (_e) {
-              reject(new Error('Failed to parse GitHub API response'));
-            }
-          });
-        }
-      )
-      .on('error', reject);
-  });
-}
-
-/**
- * Replace the commit hash in a GitHub raw URL with the latest hash from the repo.
- * @param {string} url - Original GitHub raw URL.
- * @param {string} latestHash - Latest commit hash to use in the new URL.
- * @returns {string} Updated URL with latest commit hash.
- */
-export function replaceRawWithLastestHash(url, latestHash) {
+function replaceRawWithLatestHash(url, latestHash) {
   const match = url.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)\/raw\/([^/]+)\/(.+)$/);
   if (!match) throw new Error('Invalid GitHub raw URL');
 
@@ -173,9 +151,7 @@ export function replaceRawWithLastestHash(url, latestHash) {
 }
 
 /**
- * Parse various GitHub URLs to extract owner, repo, branch, and include original URL
- * @param {string} url
- * @returns {{ owner: string, repo: string, branch?: string, url: string }}
+ * Parse GitHub URLs and extract owner, repo, branch, and original URL.
  */
 function parseGitHubUrl(url) {
   const ghRepoRoot = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/?$/;
@@ -208,20 +184,38 @@ function parseGitHubUrl(url) {
   throw new Error(`Unsupported GitHub URL: ${url}`);
 }
 
+// 🧠 Main logic
 (async () => {
-  for (const key in pkg.resolutions) {
-    if (Object.prototype.hasOwnProperty.call(pkg.resolutions, key)) {
-      const url = pkg.resolutions[key];
+  const entries = Object.entries(pkg.resolutions || {});
+  const updates = await Promise.all(
+    entries.map(async ([currentPkgName, url]) => {
       const repo = parseGitHubUrl(url);
-      const latest = await getLatestCommitAcrossBranches(repo.owner, repo.repo);
-      const result = { pkg: key, ...repo, ...latest, new_url: replaceRawWithLastestHash(url, latest.sha) };
-      if (url !== result.new_url) {
-        console.log(`\n${ansiColors.cyan(result.pkg)}:`); // show package name first
-        console.log('  from:', url.replace(repo.branch, ansiColors.red(repo.branch)));
-        console.log('    to:', result.new_url.replace(latest.sha, ansiColors.green(latest.sha)));
-        pkg.resolutions[key] = result.new_url;
-      }
+      const override = specialPackageOverrides.find((p) => p.pkg === currentPkgName);
+
+      const latest = override
+        ? await getLatestCommit(override.owner, override.repo, override.branch)
+        : await getLatestCommitAcrossBranches(repo.owner, repo.repo);
+
+      const new_url = replaceRawWithLatestHash(url, latest.sha);
+
+      return {
+        currentPkgName,
+        url,
+        new_url,
+        repo,
+        latest
+      };
+    })
+  );
+
+  for (const { currentPkgName, url, new_url, repo, latest } of updates) {
+    if (url !== new_url) {
+      console.log(`\n${ansiColors.cyan(currentPkgName)}:`);
+      console.log('  from:', url.replace(repo.branch, ansiColors.red(repo.branch)));
+      console.log('    to:', new_url.replace(latest.sha, ansiColors.green(latest.sha)));
+      pkg.resolutions[currentPkgName] = new_url;
     }
   }
+
   fs.writeFileSync(path.join(__dirname, 'package.json'), JSON.stringify(pkg, null, 2));
 })();
