@@ -146,11 +146,13 @@ extract `src/database.rar` to `src` folder
 
 - modify `.htaccess` or `nginx.conf` with your domain
 - install dependencies
+> For more details about available tasks and commands, see the [Taskfile.yml](Taskfile.yml) or visit the [Taskfile documentation](https://taskfile.dev/).
 
 ```bash
-yarn install
-python3 requirements_install.py
-php composer.phar install
+npm install -g @go-task/cli # or `pip install go-task-bin`
+task install-nodejs
+task install-python
+task install-php
 ```
 
 ## Crontab
