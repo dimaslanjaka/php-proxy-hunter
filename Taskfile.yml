@@ -9,9 +9,9 @@ vars:
     sh: |
       # use "/bin/py" as main python command
       {{ if eq OS "windows" }}
-        echo "\\\\bin\\\\py.cmd"
+        echo "$(pwd)\\bin\\py.cmd"
       {{ else }}
-        echo "/bin/py"
+        echo "$(pwd)/bin/py"
       {{ end }}
   RESOLVED_GITHUB_TOKEN:
     sh: |
@@ -23,6 +23,8 @@ vars:
       else
         echo ""
       fi
+  PROJECT_DIR:
+    sh: echo "$(pwd)"
 
 env:
   PATH: '{{.PWD}}/bin:{{.PATH}}'
@@ -43,26 +45,24 @@ tasks:
     cmds:
       - echo $PATH
       - echo $PWD
-      - which python
-      - which python3
-      - which py
+      - 'echo "python: {{.PYTHON}}"'
       - 'echo "github token: {{.RESOLVED_GITHUB_TOKEN}}"'
-  # task install-python
+
   install-python:
     desc: Install Python dependencies
     cmds:
-      - '.{{.PYTHON}} -m ensurepip --upgrade'
-      - '.{{.PYTHON}} -m pip install --upgrade pip'
-      - '.{{.PYTHON}} -m pip install --upgrade setuptools'
-      - '.{{.PYTHON}} -m pip install --upgrade wheel'
-      - '.{{.PYTHON}} -m pip install socks'
-      - '.{{.PYTHON}} requirements_install.py --generate'
-      - '.{{.PYTHON}} -m pip install -r requirements.txt'
-      - '.{{.PYTHON}} -m pip install -e file:packages/proxy-checker-python'
-      - '.{{.PYTHON}} -m pip install -e file:packages/proxy-hunter-python'
-      - '.{{.PYTHON}} -m pip install -e file:packages/rsa-utility'
-      - '.{{.PYTHON}} -m pip install -e file:packages/selenium-stealth'
-      - '.{{.PYTHON}} -m pip install -e file:packages/netscape-cookies'
+      - '"{{.PYTHON}}" -m ensurepip --upgrade'
+      - '"{{.PYTHON}}" -m pip install --upgrade pip'
+      - '"{{.PYTHON}}" -m pip install --upgrade setuptools'
+      - '"{{.PYTHON}}" -m pip install --upgrade wheel'
+      - '"{{.PYTHON}}" -m pip install socks'
+      - '"{{.PYTHON}}" requirements_install.py --generate'
+      - '"{{.PYTHON}}" -m pip install -r requirements.txt'
+      - '"{{.PYTHON}}" -m pip install -e file:packages/proxy-checker-python'
+      - '"{{.PYTHON}}" -m pip install -e file:packages/proxy-hunter-python'
+      - '"{{.PYTHON}}" -m pip install -e file:packages/rsa-utility'
+      - '"{{.PYTHON}}" -m pip install -e file:packages/selenium-stealth'
+      - '"{{.PYTHON}}" -m pip install -e file:packages/netscape-cookies'
 
   install-php:
     desc: Install PHP dependencies
