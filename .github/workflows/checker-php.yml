@@ -133,7 +133,17 @@ jobs:
       # Install PHP dependencies (if cache missed)
       - name: Install PHP dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: php composer.phar install --prefer-dist --no-progress
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"}}'
+        run: |
+          php composer.phar config --global github-oauth.github.com "${{ secrets.ACCESS_TOKEN }}"
+          php composer.phar install --prefer-dist --no-progress --no-suggest --no-interaction --optimize-autoloader
+      # - name: Install PHP dependencies
+      #   if: steps.cache.outputs.cache-hit != 'true'
+      #   uses: php-actions/composer@v6
+      #   env:
+      #     COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"} }'
+      #     args: "--prefer-dist --no-progress"
 
       # Install Python dependencies (if cache missed)
       - name: Install Python dependencies
