@@ -201,7 +201,7 @@ jobs:
       - name: Fetch proxies if needed
         if: steps.check_last_run.outputs.run_fetcher == 'true'
         run: |
-          php proxyFetcher.php --admin='true'
+          php artisan/proxyFetcher.php --admin='true'
           php proxies-all.php --admin='true'
           date +%s > tmp/last_fetch_timestamp.txt  # Update last fetch timestamp
           echo "last_fetch_timestamp=$(date +%s)" >> $GITHUB_STATE

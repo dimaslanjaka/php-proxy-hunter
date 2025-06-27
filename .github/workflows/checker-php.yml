@@ -178,7 +178,7 @@ jobs:
         run: php cleaner.php
 
       - name: Fetch proxies
-        run: php proxyFetcher.php
+        run: php artisan/proxyFetcher.php
 
       - name: Index proxies
         run: php proxies-all.php

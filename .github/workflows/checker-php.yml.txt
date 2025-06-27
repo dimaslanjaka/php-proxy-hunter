@@ -250,7 +250,7 @@ jobs:
       - name: Fetch proxies
         if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
         run: |
-          php proxyFetcher.php --admin='true'
+          php artisan/proxyFetcher.php --admin='true'
 
       - name: Indexing proxies
         if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'

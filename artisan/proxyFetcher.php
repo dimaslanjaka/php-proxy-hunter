@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/func-proxy.php';
+require_once __DIR__ . '/../func-proxy.php';
 
 use \PhpProxyHunter\Scheduler;
 
@@ -17,8 +17,8 @@ if (function_exists('header')) {
   header('Content-Type: text/plain; charset=UTF-8');
 }
 
-$lockFilePath = __DIR__ . "/proxyChecker.lock";
-$statusFile = __DIR__ . "/status.txt";
+$lockFilePath = PROJECT_ROOT . "/proxyChecker.lock";
+$statusFile = PROJECT_ROOT . "/status.txt";
 
 if (file_exists($lockFilePath) && !is_debug()) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
@@ -39,7 +39,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
 }, 'z_onExit' . basename(__FILE__));
 
 // Array of URLs to fetch content from
-$urls = json_decode(read_file(__DIR__ . '/proxyFetcherSources.json'));
+$urls = json_decode(read_file(PROJECT_ROOT . '/data/proxyFetcherSources.json'));
 
 $urls = array_unique($urls);
 
@@ -49,17 +49,14 @@ $chunks = array_chunk($urls, 5);
 // Loop through each chunk with an index
 foreach ($chunks as $index => $chunk) {
   // Create a unique filename for each chunk
-  $outputFile = __DIR__ . "/assets/proxies/added-fetch-" . date("Ymd") . "-chunk-" . ($index + 1) . ".txt";
+  $outputFile = PROJECT_ROOT . "/assets/proxies/added-fetch-" . date("Ymd") . "-chunk-" . ($index + 1) . ".txt";
 
   foreach ($chunk as $url) {
     // Fetch content from URL
-    $content = curlGetWithProxy($url, null, null, 3600);
-    if (!$content) {
-      $content = '';
-    }
+    $content = curlGetWithProxy($url, null, null, 3600) ?: '';
     $json = json_decode(trim($content), true);
     if (json_last_error() === JSON_ERROR_NONE) {
-      $content = '';
+      // $content = '';
       if (isset($json['data'])) {
         if (is_array($json['data'])) {
           foreach ($json['data'] as $item) {
@@ -72,13 +69,16 @@ foreach ($chunks as $index => $chunk) {
           }
         }
       } else {
-        var_dump($json);
+        $extracted = extractProxies($content, null, false, 10000);
+        foreach ($extracted as $proxy) {
+          $content .= $proxy->username . ':' . $proxy->password . '@' . $proxy->proxy . PHP_EOL;
+        }
       }
     }
 
     // Append content to output file
     Scheduler::register(function () use ($outputFile, $content, $url) {
-      $fallback_file = __DIR__ . '/assets/proxies/added-fetch-' . md5($url) . '.txt';
+      $fallback_file = PROJECT_ROOT . '/assets/proxies/added-fetch-' . md5($url) . '.txt';
       $append = append_content_with_lock($outputFile, "\n" . $content . "\n");
       if (!$append) {
         $outputFile = $fallback_file;
