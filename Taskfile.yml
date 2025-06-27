@@ -27,7 +27,7 @@ vars:
     sh: echo "$(pwd)"
 
 env:
-  PATH: '{{.PWD}}/bin:{{.PATH}}'
+  PATH: '{{.PWD}}/bin:{{.PWD}}/node_modules/.bin:{{.PWD}}/venv/bin:{{.PWD}}/venv/Scripts:{{.PWD}}/vendor/bin:{{.PATH}}'
 
 dotenv: ['.env', '.env.local']
 
