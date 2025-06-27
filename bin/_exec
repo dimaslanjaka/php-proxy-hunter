@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Check if arguments are provided
+if [ $# -eq 0 ]; then
+  echo "Usage: bash bin/executor.sh <command>"
+  exit 1
+fi
+
+# Combine all arguments into a single command
+COMMAND="$@"
+
+# Set current working directory to parent directory of bin/
+CWD=$(dirname "$(dirname "$(realpath "$0")")")
+
+echo "Current directory: $CWD"
+echo "Command: $COMMAND"
+
+# Check if OS is Linux
+if [[ "$(uname)" == "Linux" ]]; then
+  if [[ -x "$(command -v nginx)" ]]; then
+    # If nginx is running, execute the command as www-data user
+    USER="www-data"
+    echo "Detected nginx running. Executing command as $USER user."
+    sudo -u "$USER" -H bash -c "source $CWD/venv/bin/activate && $COMMAND"
+  else
+    # If nginx is not running, execute the command as the current user
+    echo "Nginx not detected. Executing command as current user."
+    source "$CWD/venv/bin/activate" && eval "$COMMAND"
+  fi
+else
+  # For Windows or other OS, activate the virtual environment and run the command
+  echo "Detected non-Linux OS. Activating virtual environment and executing command."
+  eval "source $CWD/venv/Scripts/activate && $COMMAND"
+fi
+
+# Example usage:
+# bash bin/_exec python3 filterPortsDuplicate.py --max=30
