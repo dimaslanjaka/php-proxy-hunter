@@ -4,3 +4,4 @@
 /run
 __pycache__
 /fingerprints
+!/proxyFetcherSources.json
