@@ -13,9 +13,19 @@ vars:
       {{ else }}
         echo "/bin/py"
       {{ end }}
+  RESOLVED_GITHUB_TOKEN:
+    sh: |
+      # resolve GITHUB_TOKEN from secrets
+      if [ ! -z "$GITHUB_TOKEN" ]; then
+        echo "$GITHUB_TOKEN"
+      elif [ ! -z "$ACCESS_TOKEN" ]; then
+        echo "$ACCESS_TOKEN"
+      else
+        echo ""
+      fi
 
 env:
-  PATH: "{{.PWD}}/bin:{{.PATH}}"
+  PATH: '{{.PWD}}/bin:{{.PATH}}'
 
 dotenv: ['.env', '.env.local']
 
@@ -36,21 +46,33 @@ tasks:
       - which python
       - which python3
       - which py
-      - |
-          command -v py || command -v python3 || command -v python
+      - 'echo "github token: {{.RESOLVED_GITHUB_TOKEN}}"'
   # task install-python
   install-python:
     desc: Install Python dependencies
     cmds:
-      - ".{{.PYTHON}} -m ensurepip --upgrade"
-      - ".{{.PYTHON}} -m pip install --upgrade pip"
-      - ".{{.PYTHON}} -m pip install --upgrade setuptools"
-      - ".{{.PYTHON}} -m pip install --upgrade wheel"
-      - ".{{.PYTHON}} -m pip install socks"
-      - ".{{.PYTHON}} requirements_install.py --generate"
-      - ".{{.PYTHON}} -m pip install -r requirements.txt"
-      - ".{{.PYTHON}} -m pip install -e file:packages/proxy-checker-python"
-      - ".{{.PYTHON}} -m pip install -e file:packages/proxy-hunter-python"
-      - ".{{.PYTHON}} -m pip install -e file:packages/rsa-utility"
-      - ".{{.PYTHON}} -m pip install -e file:packages/selenium-stealth"
-      - ".{{.PYTHON}} -m pip install -e file:packages/netscape-cookies"
+      - '.{{.PYTHON}} -m ensurepip --upgrade'
+      - '.{{.PYTHON}} -m pip install --upgrade pip'
+      - '.{{.PYTHON}} -m pip install --upgrade setuptools'
+      - '.{{.PYTHON}} -m pip install --upgrade wheel'
+      - '.{{.PYTHON}} -m pip install socks'
+      - '.{{.PYTHON}} requirements_install.py --generate'
+      - '.{{.PYTHON}} -m pip install -r requirements.txt'
+      - '.{{.PYTHON}} -m pip install -e file:packages/proxy-checker-python'
+      - '.{{.PYTHON}} -m pip install -e file:packages/proxy-hunter-python'
+      - '.{{.PYTHON}} -m pip install -e file:packages/rsa-utility'
+      - '.{{.PYTHON}} -m pip install -e file:packages/selenium-stealth'
+      - '.{{.PYTHON}} -m pip install -e file:packages/netscape-cookies'
+
+  install-php:
+    desc: Install PHP dependencies
+    env:
+      COMPOSER_AUTH: |
+        {
+          "github-oauth": {
+            "github.com": "{{.RESOLVED_GITHUB_TOKEN}}"
+          }
+        }
+    cmds:
+      - php composer.phar config github-oauth.github.com "{{.RESOLVED_GITHUB_TOKEN}}"
+      - php composer.phar install --no-progress --no-suggest --no-interaction --optimize-autoloader
