@@ -26,6 +26,8 @@ if (!defined('JSON_THROW_ON_ERROR')) {
   define('JSON_THROW_ON_ERROR', 4194304);
 }
 
+define('PROJECT_ROOT', __DIR__);
+
 // Detect if the system is Windows
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
