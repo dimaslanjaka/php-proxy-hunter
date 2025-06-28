@@ -38,27 +38,27 @@ fi
 OS=$(uname -s)
 HOST=$(hostname)
 
-if command -v nginx >/dev/null 2>&1; then
-  echo "Nginx is installed"
-else
-  echo "Nginx is not installed"
-  exit 0
-fi
-
+# Check if running on Windows (Cygwin, MinGW, or MSYS)
 if echo "$OS" | grep -q -E "CYGWIN|MINGW|MSYS"; then
   echo "No need change file permissions on windows"
+# If running on Linux
 elif [ "$OS" = "Linux" ]; then
-  # Check for WSL/WSL2
+  # Check if running under WSL/WSL2
   if grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null; then
     echo "Skipping permission fix on WSL/WSL2"
+  # Check if the hostname contains 'DESKTOP' (likely a Windows host)
   elif echo "$HOST" | grep -q 'DESKTOP'; then
     echo "Skipping permission fix on host: $HOST"
   else
-    # Change to the Git root directory
-    cd "$CWD" || exit
-    # Fix permissions
-    bash "$CWD/bin/fix-perm"
+    # If nginx is installed, proceed to fix permissions
+    if command -v nginx >/dev/null 2>&1; then
+      # Change directory to the Git root
+      cd "$CWD" || exit
+      # Run the permission fix script
+      bash "$CWD/bin/fix-perm"
+    fi
   fi
+# If OS is not supported
 else
   echo "Unsupported operating system"
   exit 1
