@@ -42,6 +42,7 @@ tasks:
   dump:
     desc: Dump test
     ignore_error: true
+    silent: true
     cmds:
       - echo $PATH
       - echo $PWD
@@ -50,6 +51,7 @@ tasks:
 
   install-python:
     desc: Install Python dependencies
+    silent: true
     cmds:
       - '"{{.PYTHON}}" -m ensurepip --upgrade'
       - '"{{.PYTHON}}" -m pip install --upgrade pip'
@@ -73,18 +75,21 @@ tasks:
             "github.com": "{{.RESOLVED_GITHUB_TOKEN}}"
           }
         }
+    silent: true
     cmds:
       - php composer.phar config github-oauth.github.com "{{.RESOLVED_GITHUB_TOKEN}}"
       - php composer.phar install --no-progress --no-suggest --no-interaction --optimize-autoloader
 
   install-nodejs:
     desc: Install NodeJS dependencies
+    silent: true
     cmds:
       - touch yarn.lock
       - yarn install
 
   build-nodejs:
     desc: Build NodeJS project
+    silent: true
     cmds:
       - rollup -c rollup.project.js
       - rollup -c rollup.php.js
@@ -92,6 +97,7 @@ tasks:
 
   build:
     desc: Build all projects
+    silent: true
     cmds:
       - task build-nodejs
 
@@ -120,8 +126,8 @@ tasks:
 
   skip-lfs:
     desc: Skip Git LFS smudge and process filters
+    silent: true
     cmds:
       - |
         git config --global filter.lfs.process "git-lfs filter-process --skip"
         git config --global filter.lfs.smudge "git-lfs smudge --skip -- %f"
-
