@@ -80,7 +80,7 @@ def resolve_relative_path(data: Optional[str] = None, *args: Union[str, bytes]) 
     Returns:
         str: The normalized relative path.
     """
-    relative = get_relative_path(*args)
+    relative = get_relative_path(*(str(arg) for arg in args))
 
     if not os.path.exists(relative):
         if not data:
