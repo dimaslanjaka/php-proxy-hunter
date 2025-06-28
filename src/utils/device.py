@@ -1,12 +1,34 @@
 import hashlib
+import os
 import platform
 import uuid
-import os
 
 try:
     import winreg
 except ImportError:
     winreg = None  # Not on Windows
+
+
+def isWSL():
+    return "microsoft" in platform.uname().release.lower()
+
+
+def detect_wsl_version():
+    if isWSL():
+        try:
+            with open("/proc/version", "r") as f:
+                version_info = f.read().lower()
+                if "microsoft" in version_info:
+                    # This could be WSL1 or WSL2
+                    with open("/proc/sys/kernel/osrelease", "r") as f2:
+                        osrelease = f2.read()
+                        if "microsoft-standard" in osrelease:
+                            return "WSL2"
+                        else:
+                            return "WSL1"
+        except Exception as e:
+            return f"WSL (unknown version): {e}"
+    return "Not WSL"
 
 
 def get_linux_machine_id():
@@ -22,10 +44,10 @@ def get_windows_machine_guid():
     """Get the MachineGuid from the Windows registry."""
     if winreg is not None:
         try:
-            key = winreg.OpenKey(
-                winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Cryptography"
-            )
-            value, _ = winreg.QueryValueEx(key, "MachineGuid")
+            key = winreg.OpenKey(  # type: ignore
+                winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Cryptography"  # type: ignore
+            )  # type: ignore
+            value, _ = winreg.QueryValueEx(key, "MachineGuid")  # type: ignore
             return value
         except Exception:
             return None
