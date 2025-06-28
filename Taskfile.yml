@@ -77,7 +77,45 @@ tasks:
         }
     silent: true
     cmds:
-      - php composer.phar config github-oauth.github.com "{{.RESOLVED_GITHUB_TOKEN}}"
+      - |
+          if [ -z "$RESOLVED_GITHUB_TOKEN" ]; then
+            echo "RESOLVED_GITHUB_TOKEN is empty, trying to load .env..."
+            if [ -f ".env" ]; then
+              set -a
+              . ./.env
+              set +a
+            fi
+
+            # Re-check ACCESS_TOKEN or GITHUB_TOKEN after loading .env
+            if [ ! -z "$GITHUB_TOKEN" ]; then
+              RESOLVED_GITHUB_TOKEN="$GITHUB_TOKEN"
+            elif [ ! -z "$ACCESS_TOKEN" ]; then
+              RESOLVED_GITHUB_TOKEN="$ACCESS_TOKEN"
+            else
+              echo "Error: RESOLVED_GITHUB_TOKEN is empty. Please set GITHUB_TOKEN or ACCESS_TOKEN in .env"
+              exit 1
+            fi
+          fi
+
+          # Remove any trailing newlines or carriage returns and trim whitespace
+          RESOLVED_GITHUB_TOKEN=$(echo "$RESOLVED_GITHUB_TOKEN" | tr -d '\r\n' | xargs)
+          echo "Using RESOLVED_GITHUB_TOKEN: $RESOLVED_GITHUB_TOKEN"
+
+          export COMPOSER_AUTH='{
+            "github-oauth": {
+              "github.com": "'"$RESOLVED_GITHUB_TOKEN"'"
+            }
+          }'
+
+          # php composer.phar config github-oauth.github.com "$RESOLVED_GITHUB_TOKEN"
+          echo "Creating auth.json with resolved GitHub token..."
+          cat > auth.json <<EOF
+          {
+            "github-oauth": {
+              "github.com": "$RESOLVED_GITHUB_TOKEN"
+            }
+          }
+          EOF
       - php composer.phar install --no-progress --no-suggest --no-interaction --optimize-autoloader
 
   install-nodejs:
