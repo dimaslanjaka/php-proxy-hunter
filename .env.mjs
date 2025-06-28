@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import dotenv from 'dotenv';
+import fs from 'fs';
 import minimist from 'minimist';
 import os from 'os';
 import path from 'path';
@@ -7,7 +8,6 @@ import process from 'process';
 import puppeteer from 'puppeteer';
 import upath from 'upath';
 import { fileURLToPath } from 'url';
-import productionEnv from './.env.build.json' with { type: 'json' };
 
 // Setup `__dirname` and `__filename` equivalents for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -19,6 +19,17 @@ export { dotenvConfig };
 
 export const PROJECT_DIR = productionEnv.PROJECT_DIR;
 export { productionEnv };
+
+// Create the environment configuration object
+const productionEnv = {
+  GITHUB_TOKEN_READ_ONLY: dotenvConfig.GITHUB_TOKEN_READ_ONLY, // Add GitHub token
+  isDebug: dotenvConfig.isDebug, // Add debug flag
+  PROJECT_DIR: __dirname, // Add project directory path
+  WHATSAPP_ADMIN: dotenvConfig.WHATSAPP_ADMIN?.split(',') || [] // Add whatsapp admin list
+};
+
+// Write environment config to a JSON file
+fs.writeFileSync(path.join(__dirname, '.env.build.json'), JSON.stringify(productionEnv, null, 2));
 
 // Argument parsing
 const argv = minimist(process.argv.slice(2));
