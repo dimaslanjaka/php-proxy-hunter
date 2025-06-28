@@ -6,3 +6,7 @@
 	path = packages/netscape-cookies
 	url = https://github.com/dimaslanjaka/netscape-cookies.git
 	branch = master
+[submodule "packages/baileys"]
+	path = packages/baileys
+	url = https://github.com/dimaslanjaka/baileys-api.git
+	branch = master

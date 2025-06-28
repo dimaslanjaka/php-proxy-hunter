@@ -2,48 +2,64 @@
 
 require_once __DIR__ . '/../func.php';
 
+global $isAdmin;
+
+// === Headers ===
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Access-Control-Allow-Methods: *");
-header('Content-Type: text/plain; charset=utf-8');
+header("Content-Type: text/plain; charset=utf-8");
+header("Expires: Sun, 01 Jan 2014 00:00:00 GMT");
+header("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0");
+header("Pragma: no-cache");
 
-// Ignore browser caching
-header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Cache-Control: post-check=0, pre-check=0', false);
-header('Pragma: no-cache');
-
-// Get the 'sms' parameter from either POST or GET
-$request = parsePostData(true);
-$test = $request['sms'] ?? $_REQUEST['sms'] ?? $_POST['sms'] ?? $_GET['sms'] ?? '';
-
-// If 'sms' is empty, you can handle it accordingly
-if (empty($test)) {
-  // Handle the case when no message is provided
-  echo 'No message provided' . PHP_EOL;
-} else {
-  echo "SMS received:\n\n{$test}";
+// === Helpers ===
+function json_pretty($data): string
+{
+  return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 }
 
-// Set timezone and get current date and time
-$timezone = new DateTimeZone('Asia/Jakarta');
-$date = new DateTime('now', $timezone);
+// === Define common log paths ===
+$tmpDir = tmp() . '/sms';
+$logFile       = "{$tmpDir}/get_sms.txt";
+$otpLogFile    = "{$tmpDir}/get_sms_otp.txt";
 
-// Format the current date for folder and log naming
-$today = $date->format('d-m-Y H:i:s');
-$month = $date->format('F');
-$todayDate = $date->format('d-m-Y');
-$todayOrder = $date->format('Y-m-d');
-$formattedDateTime = $date->format('Y-m-d\TH:i');
+// === Parse incoming data ===
+$request = parsePostData(true);
+$sms = $request['sms'] ?? $_REQUEST['sms'] ?? $_POST['sms'] ?? '';
+$password = $request['password'] ?? $_REQUEST['password'] ?? $_POST['password'] ?? '';
+$isPasswordValid = $password === $_ENV['SMS_PASSWORD'];
 
-// Prepare log content
-$content = "{$formattedDateTime} {$test}";
+// === Admin Mode: Show SMS Log ===
+if (($isPasswordValid || $isAdmin) && isset($_GET['read'])) {
+  echo file_exists($logFile)
+    ? "--- SMS Log ---\n" . file_get_contents($logFile)
+    : "--- SMS Log not found ---\n";
+  exit;
+}
 
-// Write to the file
-write_file(tmp() . '/sms/get_sms.txt', $content . PHP_EOL);
+echo empty($sms)
+  ? "No message provided" . PHP_EOL
+  : "SMS received:\n\n{$sms}";
+
+// === Time & log formatting ===
+$now = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
+$timestamp = $now->format('Y-m-d\TH:i');
+$logEntry = "{$timestamp}: {$sms}";
+
+// === OTP Extraction ===
+if (preg_match('/\b\d{4,8}\b/', $sms, $matches)) {
+  append_content_with_lock($otpLogFile, "{$timestamp}: {$matches[0]}" . PHP_EOL);
+}
+
+// === Log SMS ===
+append_content_with_lock($logFile, $logEntry . PHP_EOL);
+
+// === Per-user request logging ===
 $hash = getUserId();
+$base = "{$tmpDir}/{$hash}";
 
-write_file(tmp() . "/sms/get_sms_{$hash}.txt", json_encode($request, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
-write_file(tmp() . "/sms/get_sms_{$hash}_post.txt", json_encode($_POST, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
-write_file(tmp() . "/sms/get_sms_{$hash}_get.txt", json_encode($_GET, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
-write_file(tmp() . "/sms/get_sms_{$hash}_request.txt", json_encode($_REQUEST, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL);
+write_file("{$base}.txt", json_pretty($request) . PHP_EOL);
+write_file("{$base}_post.txt", json_pretty($_POST)   . PHP_EOL);
+write_file("{$base}_get.txt", json_pretty($_GET)    . PHP_EOL);
+write_file("{$base}_request.txt", json_pretty($_REQUEST) . PHP_EOL);
