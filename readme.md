@@ -104,10 +104,7 @@ git config merge.resolve_hash.driver "node bin/create-file-hashes.cjs %O %A %B"
 build project
 
 ```bash
-# UNIX
-bash bin/build-project
-# Windows
-cmd /c bin\build-project.cmd
+task build
 ```
 
 ## Quickstart

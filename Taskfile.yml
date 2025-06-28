@@ -82,3 +82,15 @@ tasks:
     cmds:
       - touch yarn.lock
       - yarn install
+
+  build-nodejs:
+    desc: Build NodeJS project
+    cmds:
+      - rollup -c rollup.project.js
+      - rollup -c rollup.php.js
+      - rollup -c rollup.whatsapp.js
+
+  build:
+    desc: Build all projects
+    cmds:
+      - task build-nodejs
