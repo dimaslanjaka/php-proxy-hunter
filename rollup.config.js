@@ -221,7 +221,11 @@ async function configResolver() {
        * Dynamically import the config file and extract the default export
        * @type {import('rollup').RollupOptions|import('rollup').RollupOptions[]}
        */
-      const importedConfig = await import(fileUrl).then((lib) => lib.default);
+      const importedConfig = await import(fileUrl).then((lib) => {
+        if (lib.default) return lib.default;
+        if (Array.isArray(lib)) return lib;
+        throw new Error(`Invalid export in ${dynamicConfig}. Expected a default export or an array.`);
+      });
 
       // If the imported config is an array, push each item to the configs array
       if (Array.isArray(importedConfig)) {
