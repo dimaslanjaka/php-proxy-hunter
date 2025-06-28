@@ -1,8 +1,9 @@
+import { AnyMessageContent, makeWASocket } from '@whiskeysockets/baileys';
 import * as axios from 'axios';
 import fs from 'fs-extra';
 import { pathToFileURL } from 'node:url';
 import pino from 'pino';
-import { writefile } from 'sbg-utility';
+import { delay, writefile } from 'sbg-utility';
 import path from 'upath';
 import { PROJECT_DIR } from '../.env.mjs';
 
@@ -227,4 +228,27 @@ export function whatsappDump(...data: unknown[]) {
     console.error('Failed to dump WhatsApp data:', error);
   }
   return file;
+}
+
+/**
+ * Sends a WhatsApp message with simulated typing presence.
+ *
+ * @param sock - The WhatsApp socket instance.
+ * @param msg - The message content to send.
+ * @param jid - The recipient's JID (phone number in WhatsApp format).
+ */
+export async function sendMessageWithTyping(
+  sock: ReturnType<typeof makeWASocket>,
+  msg: AnyMessageContent,
+  jid: string
+): Promise<void> {
+  await sock.presenceSubscribe(jid);
+  await delay(500);
+
+  await sock.sendPresenceUpdate('composing', jid);
+  await delay(2000);
+
+  await sock.sendPresenceUpdate('paused', jid);
+
+  await sock.sendMessage(jid, msg);
 }
