@@ -36,14 +36,19 @@ fi
 
 # Fix permissions
 OS=$(uname -s)
+HOST=$(hostname)
 
 if echo "$OS" | grep -q -E "CYGWIN|MINGW|MSYS"; then
   echo "No need change file permissions on windows"
 elif [ "$OS" = "Linux" ]; then
-  # Change to the Git root directory
-  cd "$CWD" || exit
-  # Fix permissions
-  bash "$CWD/bin/fix-perm"
+  if echo "$HOST" | grep -q 'DESKTOP'; then
+    echo "Skipping permission fix on host: $HOST"
+  else
+    # Change to the Git root directory
+    cd "$CWD" || exit
+    # Fix permissions
+    bash "$CWD/bin/fix-perm"
+  fi
 else
   echo "Unsupported operating system"
   exit 1
