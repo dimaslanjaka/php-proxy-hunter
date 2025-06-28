@@ -10,16 +10,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const con = new waConnect();
 const logDir = getWhatsappFile('tmp/logs');
+const handlersDir = path.join(__dirname, 'whatsapp_handlers');
 
-// Reset existing log files on start
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir, { recursive: true });
-}
-const resetMessage = `Log reset at ${new Date().toISOString()}\n\n `;
-const logFiles = glob
-  .globSync('**/whatsapp*.log', { cwd: logDir, absolute: true })
-  .concat(path.join(logDir, 'whatsapp-error.log'), path.join(logDir, 'whatsapp.log'));
-logFiles.forEach((file) => writefile(file, resetMessage));
+// Ensure log directory exists
+fs.ensureDirSync(logDir);
+
+// Reset existing log files
+const resetMessage = `Log reset at ${new Date().toISOString()}\n\n`;
+const logFiles = [
+  ...glob.globSync('**/whatsapp*.log', { cwd: logDir, absolute: true }),
+  path.join(logDir, 'whatsapp-error.log'),
+  path.join(logDir, 'whatsapp.log')
+];
+await Promise.all(logFiles.map((file) => writefile(file, resetMessage)));
 
 // Set to track active sender names
 const activeSenders = new Set();
@@ -29,51 +32,36 @@ con.on('messages', async (replier) => {
   const text = replier.receivedText?.trim();
   if (replier.isGroup) return; // Ignore group messages
 
-  console.log(
-    'Received message:',
-    text,
-    'from',
-    senderName,
-    'at',
-    new Date().toISOString(),
-    'is group:',
-    replier.isGroup,
-    'is admin:',
-    replier.isAdmin
-  );
+  console.log(`[WA] ${new Date().toISOString()} - From: ${senderName}, Text: "${text}"`);
 
   if (activeSenders.has(senderName)) {
-    // console.log(`Skipping message from ${senderName}: Process already running.`);
     replier.reply('Please wait for the previous process to complete.');
-    return; // Ignore if a process is already running for this sender
+    return;
   }
 
-  activeSenders.add(senderName); // Add sender to active list
+  activeSenders.add(senderName);
 
   try {
-    // find ./whatsapp_handlers/*.{js,ts}
-    const modules = glob
-      .globSync('*.{js,ts}', { cwd: path.join(__dirname, 'whatsapp_handlers'), absolute: true })
-      .filter((f) => {
-        const found = fs.existsSync(f);
-        // console.log('module', f, 'found:', found);
-        return found;
-      });
+    const modules = glob.globSync('*.{js,ts,cjs,mjs}', {
+      cwd: handlersDir,
+      absolute: true
+    });
+
     for (const modulePath of modules) {
       try {
         const mod = await loadModule(modulePath);
-        if (mod && mod.default) {
-          await mod.default(replier); // Ensure the module completes execution
+        if (mod?.default) {
+          await mod.default(replier);
         }
       } catch (e) {
-        console.error(`Error loading module ${modulePath}:`, e);
+        console.error(`[Handler Error] in ${modulePath}:`, e);
         whatsappLogger.error({ err: e });
       }
     }
   } catch (e) {
     whatsappLogger.error({ err: e });
   } finally {
-    activeSenders.delete(senderName); // Remove sender from active list
+    activeSenders.delete(senderName);
   }
 });
 
