@@ -169,6 +169,8 @@
   "typescript.enablePromptUseWorkspaceTsdk": false,
   "typescript.tsdk": "./node_modules/typescript/lib",
   "typescript.updateImportsOnPaste.enabled": false,
+  "python.analysis.diagnosticMode": "openFilesOnly",
+  "python.analysis.diagnosticsSource": "Pyright",
   "yaml.schemas": {
     "https://taskfile.dev/schema.json": "Taskfile.yml"
   }
