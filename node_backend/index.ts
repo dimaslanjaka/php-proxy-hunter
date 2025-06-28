@@ -27,7 +27,20 @@ const activeSenders = new Set();
 con.on('messages', async (replier) => {
   const senderName = replier.senderId;
   const text = replier.receivedText?.trim();
-  console.log('Received message:', text, 'from', senderName);
+  if (replier.isGroup) return; // Ignore group messages
+
+  console.log(
+    'Received message:',
+    text,
+    'from',
+    senderName,
+    'at',
+    new Date().toISOString(),
+    'is group:',
+    replier.isGroup,
+    'is admin:',
+    replier.isAdmin
+  );
 
   if (activeSenders.has(senderName)) {
     // console.log(`Skipping message from ${senderName}: Process already running.`);

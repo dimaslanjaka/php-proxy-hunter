@@ -6,8 +6,10 @@ import fs from 'fs-extra';
 import NodeCache from 'node-cache';
 import path from 'path';
 import P from 'pino';
+import qrcode from 'qrcode-terminal';
 import { writefile } from 'sbg-utility';
 import { ConsoleFile, FOLDER_CONFIG, FOLDER_LOG, initDir } from './Function.js';
+import { InMemoryStore } from './MemoryStore.js';
 import Replier from './Replier.js';
 
 export interface waOption {
@@ -39,7 +41,7 @@ export default class waConnect extends events.EventEmitter {
     base: FOLDER_CONFIG,
     logDir: FOLDER_LOG
   };
-  store!: ReturnType<typeof baileys.makeInMemoryStore>;
+  store!: InMemoryStore;
 
   constructor(socket?: ReturnType<typeof baileys.makeWASocket>) {
     super();
@@ -58,7 +60,7 @@ export default class waConnect extends events.EventEmitter {
 
     this.console = ConsoleFile(this.config.logDir);
     this.msgRetryCounterCache = new NodeCache();
-    this.store = baileys.makeInMemoryStore({ logger: this.logger });
+    this.store = new InMemoryStore({ logger: this.logger });
     const sessionCoreFile = path.join(this.config.base, 'baileys_store_multi.json');
     this.store.readFromFile(sessionCoreFile);
     // save sessions every 10s
@@ -86,7 +88,6 @@ export default class waConnect extends events.EventEmitter {
       browser: baileys.Browsers.ubuntu('Desktop'),
       version,
       logger: this.logger,
-      printQRInTerminal: true,
       mobile: false,
       auth: {
         creds: state.creds,
@@ -115,7 +116,11 @@ export default class waConnect extends events.EventEmitter {
       // maybe it closed, or we received all offline message or connection opened
       if (events['connection.update']) {
         const update = events['connection.update'];
-        const { connection, lastDisconnect } = update;
+        const { connection, lastDisconnect, qr } = update;
+        if (qr && qr.length > 0) {
+          console.log('QR Code:', qr);
+          qrcode.generate(qr);
+        }
         if (connection === 'close') {
           if (lastDisconnect) {
             const shouldReconnect =
@@ -181,9 +186,9 @@ export default class waConnect extends events.EventEmitter {
     });
   }
 
-  private async getMessage(key: baileys.WAMessageKey): Promise<baileys.WAMessageContent | undefined> {
+  private async getMessage(key: baileys.WAMessageKey) {
     if (this.store) {
-      const msg = await this.store.loadMessage(key.remoteJid!, key.id!);
+      const msg = this.store.saveMessage(key.remoteJid!, { key });
       return msg?.message || undefined;
     }
 

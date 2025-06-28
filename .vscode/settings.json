@@ -79,7 +79,7 @@
     "**/.idea/**": true,
     "**/.svn": true,
     "**/Thumbs.db": true,
-    "**/dist": true,
+    "**/dist": false,
     "**/.venv": true,
     "**/.yarn": true,
     "**/node_modules": true,
