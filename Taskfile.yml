@@ -94,3 +94,24 @@ tasks:
     desc: Build all projects
     cmds:
       - task build-nodejs
+
+  fix-perm:
+    desc: Fix file permissions (Linux only)
+    silent: true
+    cmds:
+      - |
+        if [ "$(uname)" != "Linux" ]; then
+          echo "This task can only run on Linux."
+          exit 1
+        fi
+
+        echo "Fixing permissions in bin/..."
+
+        # Set read/write for owner, readable for group/others
+        chmod -R u+rw,go+r,go-w bin/
+
+        # Ensure executable permission for all files (not just dirs)
+        find bin/ -type f -exec chmod u+x {} \;
+
+        # Show result
+        ls -l bin/
