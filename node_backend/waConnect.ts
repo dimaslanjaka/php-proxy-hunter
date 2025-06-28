@@ -41,7 +41,7 @@ export default class waConnect extends events.EventEmitter {
     base: FOLDER_CONFIG,
     logDir: FOLDER_LOG
   };
-  store!: InMemoryStore;
+  store?: InMemoryStore;
 
   constructor(socket?: ReturnType<typeof baileys.makeWASocket>) {
     super();
@@ -65,7 +65,7 @@ export default class waConnect extends events.EventEmitter {
     this.store.readFromFile(sessionCoreFile);
     // save sessions every 10s
     setInterval(() => {
-      this.store.writeToFile(sessionCoreFile);
+      this.store?.writeToFile(sessionCoreFile);
     }, 10000);
     return this;
   }
