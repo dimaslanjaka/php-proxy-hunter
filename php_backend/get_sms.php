@@ -24,17 +24,19 @@ $tmpDir = tmp() . '/sms';
 $logFile       = "{$tmpDir}/get_sms.txt";
 $otpLogFile    = "{$tmpDir}/get_sms_otp.txt";
 
+// === Parse incoming data ===
+$request = parsePostData(true);
+$sms = $request['sms'] ?? $_REQUEST['sms'] ?? $_POST['sms'] ?? '';
+$password = $request['password'] ?? $_REQUEST['password'] ?? $_POST['password'] ?? '';
+$isPasswordValid = $password === $_ENV['SMS_PASSWORD'];
+
 // === Admin Mode: Show SMS Log ===
-if ($isAdmin && isset($_GET['read'])) {
+if (($isPasswordValid || $isAdmin) && isset($_GET['read'])) {
   echo file_exists($logFile)
     ? "--- SMS Log ---\n" . file_get_contents($logFile)
     : "--- SMS Log not found ---\n";
   exit;
 }
-
-// === Parse incoming data ===
-$request = parsePostData(true);
-$sms = $request['sms'] ?? $_REQUEST['sms'] ?? $_POST['sms'] ?? '';
 
 echo empty($sms)
   ? "No message provided" . PHP_EOL
