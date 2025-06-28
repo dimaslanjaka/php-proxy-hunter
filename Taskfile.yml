@@ -98,6 +98,8 @@ tasks:
   fix-perm:
     desc: Fix file permissions (Linux only)
     silent: true
+    deps:
+      - skip-lfs
     cmds:
       - |
         if [ "$(uname)" != "Linux" ]; then
@@ -115,3 +117,11 @@ tasks:
 
         # Show result
         ls -l bin/
+
+  skip-lfs:
+    desc: Skip Git LFS smudge and process filters
+    cmds:
+      - |
+        git config --global filter.lfs.process "git-lfs filter-process --skip"
+        git config --global filter.lfs.smudge "git-lfs smudge --skip -- %f"
+
