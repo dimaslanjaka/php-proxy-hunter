@@ -171,5 +171,26 @@
   "typescript.updateImportsOnPaste.enabled": false,
   "yaml.schemas": {
     "https://taskfile.dev/schema.json": "Taskfile.yml"
+  },
+  "search.exclude": {
+    "**/venv/**": true,
+    "**/.cache/**": true,
+    "**/.idea/**": true,
+    "**/.venv/**": true,
+    "**/.yarn/**": true,
+    "**/dist/**": true,
+    "**/profiles/**": true,
+    "**/config/**": true,
+    "**/databases/**": true,
+    "**/node_modules/**": true,
+    "**/vendor/**": true,
+    "**/backups/**": true,
+    "**/data/**": true,
+    "**/bas/**": true,
+    "**/.git/**": true,
+    "**/.hg/**": true,
+    "**/.svn/**": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
   }
 }
