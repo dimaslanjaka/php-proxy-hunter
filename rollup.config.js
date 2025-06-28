@@ -209,7 +209,7 @@ async function configResolver() {
   const configs = [_env, mainConfig, esmConfig, es5Config, ...expressRes];
 
   // Define paths for dynamic configuration files
-  const dynamicConfigs = [path.join(__dirname, 'rollup.whatsapp.js'), path.join(__dirname, 'rollup.php.js')];
+  const dynamicConfigs = globSync('rollup.*.js', { cwd: __dirname }).map((f) => path.join(__dirname, f));
 
   // Loop through dynamicConfigs and add them to configs if they exist
   for (const dynamicConfig of dynamicConfigs) {
