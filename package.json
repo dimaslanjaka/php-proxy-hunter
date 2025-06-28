@@ -27,7 +27,8 @@
     "normal-rebuild": "npm rebuild",
     "build": "rollup -c",
     "build:packages": "yarn workspaces foreach --no-private --all run build",
-    "postinstall": "npm run build:packages"
+    "postinstall": "npm run build:packages",
+    "update:sha": "node package-resolution-updater.js"
   },
   "workspaces": {
     "packages": [
@@ -35,13 +36,13 @@
     ]
   },
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.18",
+    "@hapi/boom": "^10.0.1",
     "ansi-colors": "^4.1.3",
     "ansi-to-html": "^0.7.2",
     "axios": "^1.10.0",
     "axios-cache-interceptor": "1",
     "axios-cookiejar-support": "^6.0.2",
-    "baileys": "^6.7.18",
+    "baileys": "*",
     "better-sqlite3": "^12.1.1",
     "bluebird": "^3.7.2",
     "cheerio": "^1.1.0",
@@ -69,6 +70,7 @@
     "mime": "^4.0.7",
     "minimist": "^1.2.8",
     "moment-timezone": "^0.6.0",
+    "node-cache": "^5.1.2",
     "nunjucks": "^3.2.4",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0",
@@ -79,7 +81,7 @@
     "q": "^1.5.1",
     "qrcode-terminal": "^0.12.0",
     "rimraf": "^6.0.1",
-    "sbg-utility": "^2.0.8",
+    "sbg-utility": "*",
     "serve-favicon": "^2.5.1",
     "socks-proxy-agent": "^8.0.5",
     "tiny-typed-emitter": "^2.1.0",
@@ -181,10 +183,10 @@
     "markdown-it": "https://github.com/dimaslanjaka/markdown-it/raw/17ccc825cbb3e4c6d59edada5f6d93f27075d752/release/markdown-it.tgz",
     "nodejs-package-types": "https://github.com/dimaslanjaka/nodejs-package-types/raw/98bb96fb655dce26bf06091e44720e09dea2ba30/release/nodejs-package-types.tgz",
     "sbg-api": "https://github.com/dimaslanjaka/static-blog-generator/raw/95400dd87106542a640092fa2073ee7d5c9b83e6/packages/sbg-api/release/sbg-api.tgz",
-    "sbg-cli": "https://github.com/dimaslanjaka/static-blog-generator/raw/4304210184972eb54cb7f2e219d5a75486d33e58/packages/sbg-cli/release/sbg-cli.tgz",
-    "sbg-server": "https://github.com/dimaslanjaka/static-blog-generator/raw/4304210184972eb54cb7f2e219d5a75486d33e58/packages/sbg-server/release/sbg-server.tgz",
-    "sbg-utility": "https://github.com/dimaslanjaka/static-blog-generator/raw/4304210184972eb54cb7f2e219d5a75486d33e58/packages/sbg-utility/release/sbg-utility.tgz",
-    "static-blog-generator": "https://github.com/dimaslanjaka/static-blog-generator/raw/4304210184972eb54cb7f2e219d5a75486d33e58/packages/static-blog-generator/release/static-blog-generator.tgz",
+    "sbg-cli": "https://github.com/dimaslanjaka/static-blog-generator/raw/4a6d2c0b2a7653402ccb87229fa2f074986e9ede/packages/sbg-cli/release/sbg-cli.tgz",
+    "sbg-server": "https://github.com/dimaslanjaka/static-blog-generator/raw/4a6d2c0b2a7653402ccb87229fa2f074986e9ede/packages/sbg-server/release/sbg-server.tgz",
+    "sbg-utility": "https://github.com/dimaslanjaka/static-blog-generator/raw/7696e66ab84f319909c5dab9054303e91f898454/packages/sbg-utility/release/sbg-utility.tgz",
+    "static-blog-generator": "https://github.com/dimaslanjaka/static-blog-generator/raw/4a6d2c0b2a7653402ccb87229fa2f074986e9ede/packages/static-blog-generator/release/static-blog-generator.tgz",
     "warehouse": "https://github.com/dimaslanjaka/hexo/raw/62efb19b69dcb3b771e0d607eb77f573d97c2a77/releases/warehouse.tgz"
   },
   "packageManager": "yarn@4.9.2"
