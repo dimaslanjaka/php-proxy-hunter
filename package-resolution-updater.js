@@ -39,7 +39,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const specialPackageOverrides = [
   { pkg: 'sbg-utility', branch: 'sbg-utility', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
   { pkg: 'sbg-api', branch: 'sbg-api', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
-  { pkg: 'instant-indexing', branch: 'instant-indexing', repo: 'static-blog-generator', owner: 'dimaslanjaka' }
+  { pkg: 'instant-indexing', branch: 'instant-indexing', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
+  { pkg: 'sbg-server', branch: 'master', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
+  { pkg: 'sbg-cli', branch: 'master', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
+  { pkg: 'static-blog-generator', branch: 'master', repo: 'static-blog-generator', owner: 'dimaslanjaka' }
 ];
 
 /**
