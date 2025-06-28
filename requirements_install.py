@@ -47,7 +47,7 @@ def generate_requirements() -> bool:
             "pynput",
         ],
         "Linux": [
-            "uwsgi",
+            "uwsgi @ https://github.com/unbit/uwsgi/archive/f931938.zip",
             "gunicorn",
         ],
     }
