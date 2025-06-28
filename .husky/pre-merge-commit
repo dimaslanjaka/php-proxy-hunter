@@ -38,6 +38,13 @@ fi
 OS=$(uname -s)
 HOST=$(hostname)
 
+if command -v nginx >/dev/null 2>&1; then
+  echo "Nginx is installed"
+else
+  echo "Nginx is not installed"
+  exit 0
+fi
+
 if echo "$OS" | grep -q -E "CYGWIN|MINGW|MSYS"; then
   echo "No need change file permissions on windows"
 elif [ "$OS" = "Linux" ]; then
