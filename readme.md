@@ -1,139 +1,129 @@
-# php-proxy-hunter
+# PHP Proxy Hunter
 
-PHP proxy hunter | PHP proxy checker | Python proxy hunter | Python proxy checker
+> A cross-platform proxy checker and hunter toolkit built with PHP, Python, and shell scripting.
 
-**CI**
+[![PHP Checker CI](https://img.shields.io/github/actions/workflow/status/dimaslanjaka/php-proxy-hunter/.github%2Fworkflows%2Fchecker-php.yml?branch=master&style=for-the-badge&label=PHP%20Checker&labelColor=blue)](https://github.com/dimaslanjaka/php-proxy-hunter/actions)
+[![Python Checker CI](https://img.shields.io/github/actions/workflow/status/dimaslanjaka/php-proxy-hunter/.github%2Fworkflows%2Fchecker-python.yml?branch=master&style=for-the-badge&label=Python%20Checker&labelColor=blue)](https://github.com/dimaslanjaka/php-proxy-hunter/actions)
 
-![GitHub Actions Workflow Status - PHP](https://img.shields.io/github/actions/workflow/status/dimaslanjaka/php-proxy-hunter/.github%2Fworkflows%2Fchecker-php.yml?branch=master&style=for-the-badge&label=proxy%20checker%20PHP&labelColor=blue&link=https%3A%2F%2Fgithub.com%2Fdimaslanjaka%2Fphp-proxy-hunter%2Factions)
-![GitHub Actions Workflow Status - Python](https://img.shields.io/github/actions/workflow/status/dimaslanjaka/php-proxy-hunter/.github%2Fworkflows%2Fchecker-python.yml?branch=master&style=for-the-badge&label=proxy%20checker%20Python&labelColor=blue&link=https%3A%2F%2Fgithub.com%2Fdimaslanjaka%2Fphp-proxy-hunter%2Factions)
-<!-- red %23b81220 -->
+### Live Servers
 
-**Servers**
+[![PHP Server](https://img.shields.io/badge/MAINTENANCE-PHP%20SERVER-blue?style=for-the-badge&labelColor=green)](https://sh.webmanajemen.com)
+[![Python Server](https://img.shields.io/badge/MAINTENANCE-PYTHON%20SERVER-blue?style=for-the-badge&labelColor=green)](https://sh.webmanajemen.com:8443)
 
-[![](https://img.shields.io/badge/MAINTENANCE-PHP%20SERVER-blue?style=for-the-badge&labelColor=green&color=blue&label=RUNNING)](https://sh.webmanajemen.com)
-[![](https://img.shields.io/badge/MAINTENANCE-PYTHON%20SERVER-blue?style=for-the-badge&labelColor=green&color=blue&label=RUNNING)](https://sh.webmanajemen.com:8443)
+---
 
-## Features
+## 🚀 Features
 
-- Lightweight
-- HTTP/HTTPS/SSL supported
-- SOCKS4/5 supported
-- CIDR ranges scanner
-- Proxy extractor
-- Single thread proxy checker
-- Multi thread proxy checker
+- Proxy checker/hunter/extractor
+- CIDR range scanner
+- HTTP/HTTPS, SOCKS4/5 support
 - Open port scanner
-- Artisan supported
-- Web server supported
-- Nginx supported
-- Apache supported
-- Proxy finder
-- Proxy hunter
-- Proxy checker
-- Python proxy checker available (Converted)
-- Bash available
-- Batch available
-- Proxy Manager via WhatsApp Bot (Ubuntu 20.x)
-- Support for windows 10
+- Web-based and CLI interface
+- Artisan, Nginx, and Apache support
+- Multithread & single-thread checker
+- WhatsApp Bot proxy manager (Ubuntu 20.x)
+- Cross-platform: Linux & Windows 10+
+- PHP, Python, Bash, Batch support
 
-![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/d24b8bbf-0fa0-4394-b9e7-78350bdda67d)
-![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/1e52d0f8-6417-41c3-bb75-86009726df7d)
-![image](https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/adb9aaaf-2151-44c0-aaf2-b19c1c536bc7)
+<img src="https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/d24b8bbf-0fa0-4394-b9e7-78350bdda67d" width="100%" />
+<img src="https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/1e52d0f8-6417-41c3-bb75-86009726df7d" width="100%" />
+<img src="https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/adb9aaaf-2151-44c0-aaf2-b19c1c536bc7" width="100%" />
 
-## Requirements
+---
 
-> Before all, run
+## 📦 Requirements
+
+Before starting, run:
+
 ```bash
-git submodule update -i -r
+git submodule update --init --recursive
 sudo apt install build-essential autoconf libtool bison re2c pkg-config -y
 ```
 
-### Install sqlite 3.46
+### Install SQLite 3.46
 
-install on ubuntu 18.x
+**Ubuntu 18.x:**
 
 ```bash
+# Build from source
 cd /tmp
-curl -L -O https://www.sqlite.org/2024/sqlite-autoconf-3460000.tar.gz
+curl -LO https://www.sqlite.org/2024/sqlite-autoconf-3460000.tar.gz
 tar -xzf sqlite-autoconf-3460000.tar.gz
 cd sqlite-autoconf-3460000
-./configure
-make
-sudo make install
+./configure && make && sudo make install
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 export LD_RUN_PATH=/usr/local/lib:$LD_RUN_PATH
-# Check if /usr/local/lib is in /etc/ld.so.conf
+
+# Update ld.so
 if ! grep -q "/usr/local/lib" /etc/ld.so.conf; then
     echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf
-    sudo ldconfig
-    echo "/usr/local/lib added to /etc/ld.so.conf and ldconfig updated."
-else
-    echo "/usr/local/lib already exists in /etc/ld.so.conf"
-    sudo ldconfig
 fi
+sudo ldconfig
+
+# Link binary
 sudo ln -sf /usr/local/bin/sqlite3 /usr/bin/sqlite3
-ls -l /usr/bin/sqlite3
-# verify installation
-which sqlite3
 sqlite3 --version
 ```
 
-install on ubuntu 20.x
+**Ubuntu 20.x:**
 
 ```bash
-sudo apt update
-sudo apt upgrade
+sudo apt update && sudo apt upgrade
 sudo apt install sqlite3
 sqlite3 --version
 ```
 
-- [READ PHP SETUP](readme-php.md)
-- [READ PYTHON SETUP](readme-python.md)
-- [READ NODEJS SETUP](readme-nodejs.md)
+---
 
-install project manual
+## 📖 Setup Guides
+
+- [PHP Setup Guide](readme-php.md)
+- [Python Setup Guide](readme-python.md)
+- [Node.js Setup Guide](readme-nodejs.md)
+
+---
+
+## ⚙️ Installation
 
 ```bash
 python3 requirements_install.py
 yarn install
 composer install
-# for .gitattributes merge driver
+
+# Setup Git attributes merge driver
 git config merge.resolve_hash.driver "node bin/create-file-hashes.cjs %O %A %B"
 ```
 
-build project
+### Build Project
 
 ```bash
 task build
 ```
 
-## Quickstart
+---
 
-- clone repository
+## 🧪 Quickstart
 
 ```bash
-sudo apt-get install git git-lfs -y
-git clone https://github.com/dimaslanjaka/php-proxy-hunter folder_name
-cd folder_name
+sudo apt install git git-lfs -y
+git clone https://github.com/dimaslanjaka/php-proxy-hunter my-project
+cd my-project
 git lfs install
-git lfs track *.rar
+git lfs track "*.rar"
 ```
 
-- rename `.env_sample` into `.env`
-
-- create database files
+1. Rename `.env_sample` to `.env`
+2. Create required data files:
 
 ```bash
 touch CIDR.txt CIDR-original.txt dead.txt proxies.txt proxies-all.txt proxies-http.txt proxies-socks.txt proxyChecker.txt proxyFetcherSources.txt proxyRange.txt status.txt working.txt
 ```
 
-extract `src/database.rar` to `src` folder
+3. Extract `src/database.rar` into `src/`
 
-> The result like below tree
-
-```
+```text
 .
-└── Working directory/
+└── project/
     ├── src/
     │   ├── database.sqlite
     │   └── database.sqlite-whm
@@ -141,81 +131,49 @@ extract `src/database.rar` to `src` folder
     └── dead.txt
 ```
 
-- modify `.htaccess` or `nginx.conf` with your domain
-- install dependencies
-> For more details about available tasks and commands, see the [Taskfile.yml](Taskfile.yml) or visit the [Taskfile documentation](https://taskfile.dev/).
+4. Modify `.htaccess` or `nginx.conf` for your domain
+
+5. Install dependencies:
 
 ```bash
-npm install -g @go-task/cli # or `pip install go-task-bin`
+npm install -g @go-task/cli
 task install-nodejs
 task install-python
 task install-php
 ```
 
-## Crontab
+---
 
-run proxy checker every 10 mins
+## ⏰ Crontab Jobs
 
-```bash
-*/10 * * * * php /path/to/proxyChecker.php > /path/to/proxyChecker.txt 2>&1
-```
+| Task                        | Schedule            | Command |
+|----------------------------|---------------------|---------|
+| Proxy checker              | Every 10 mins       | `*/10 * * * * php /path/to/proxyChecker.php > /path/to/proxyChecker.txt 2>&1` |
+| Proxy fetcher              | Daily               | `0 0 * * * php /var/www/html/proxyFetcher.php` |
+| Proxy index                | Daily               | `0 0 * * * php /var/www/html/proxies-all.php` |
+| Parallel checker           | Hourly at 17 mins   | `17 */1 * * * php /var/www/html/proxyCheckerParallel.php` |
+| Cleaner                    | Weekly (Sunday)     | `0 0 * * 0 php /var/www/html/cleaner.php` |
+| DB backup                  | Daily at midnight   | `0 0 * * * sqlite3 /var/www/html/src/database.sqlite .dump > /var/www/html/backups/database_backup_$(date +\%Y-\%m-\%d).sql` |
 
-run proxy fetcher every day once
-
-```bash
-0 0 * * * php /var/www/html/proxyFetcher.php
-```
-
-run proxy indexing every day once
-
-```bash
-0 0 * * * php /var/www/html/proxies-all.php
-```
-
-run proxy checker parallel every 1 hour 17 minutes
+**Crontab as specific user:**
 
 ```bash
-17 */1 * * * php /var/www/html/proxyCheckerParallel.php
+sudo crontab -u www-data -e    # Edit
+sudo crontab -u www-data -l    # List
+sudo crontab -u www-data .crontab.txt  # Apply from file
 ```
 
-run cleaner every week
+---
 
-```
-0 0 * * 0 php /var/www/html/cleaner.php
-```
-
-backup database everyday at midnight
-
-```bash
-0 0 * * * sqlite3 /var/www/html/src/database.sqlite .dump > /var/www/html/backups/database_backup_$(date +\%Y-\%m-\%d).sql
-```
-
-### crontab using spesific user
-
-> edit `www-data` with your username
-
-```bash
-# edit crontab
-sudo crontab -u www-data -e
-# list crontab
-sudo crontab -u www-data -l
-# apply crontab from file (.crontab.txt)
-sudo crontab -u www-data .crontab.txt
-```
-
-## Troubleshooting
+## 🛠️ Troubleshooting
 
 ### Missing PHP Extension
-
-Nginx requires **php-fpm** to run PHP. Install it with:
 
 ```bash
 sudo apt install php-fpm -y
 ```
 
-### Git File Permission Issues
-
-To avoid Git detecting file permission changes (e.g., after running `chmod`), disable file mode tracking:
+### Git Permissions Issue
 
 ```bash
 git config core.fileMode false
@@ -223,48 +181,46 @@ git config core.fileMode false
 
 ### Git LFS Quota Exceeded
 
-If you encounter an error like:
-
-```
-Smudge error: ... This repository exceeded its LFS budget
-```
-
-You can skip LFS downloads by setting this environment variable:
-
 ```bash
 GIT_LFS_SKIP_SMUDGE=1
 ```
 
-### Restart php
+### Restart PHP/Nginx
 
-```sh
+```bash
 systemctl restart php7.2-fpm
 systemctl restart nginx
 ```
 
-## Python
+---
 
-### Requirements
-
-- python v3
-
-### Quick Start
+## 🐍 Python
 
 ```bash
-python -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
-## Production
+---
 
-- [download php here](https://windows.php.net/downloads/releases/archives/)
-- [download chrome and webdriver here](https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json)
-- extract [php zip](https://windows.php.net/downloads/releases/archives/php-7.4.3-nts-Win32-vc15-x86.zip) into **assets/php**. The file structure should be **assets/php/php.exe**
-- extract [chrome zip](https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.91/win32/chrome-win32.zip) into **assets/chrome**. The file structure should be **assets/chrome/chrome.exe**
-- extract [chrome driver zip](https://storage.googleapis.com/chrome-for-testing-public/124.0.6367.91/win32/chromedriver-win32.zip) into **assets/chrome**. The file structure should be **assets/chrome/chromedriver.exe**
-- rename **php.ini-production** to **php.ini**, then modify **php.ini**
+## 📦 Production (Windows)
+
+- [Download PHP](https://windows.php.net/downloads/releases/archives/)
+- [Download Chrome & WebDriver](https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json)
+
+Place them in the following structure:
+
+```text
+assets/
+├── php/
+│   └── php.exe
+├── chrome/
+    ├── chrome.exe
+    └── chromedriver.exe
+```
+
+Update `php.ini`:
 
 ```ini
-; uncomment below codes from php.ini
 extension_dir = "ext"
 extension=pdo_sqlite
 extension=curl
@@ -280,35 +236,19 @@ extension=gettext
 extension=ftp
 ```
 
-```txt
-----------------------------------------------------------------------------
-LICENSE
-----------------------------------------------------------------------------
-This file is part of Proxy Checker.
+---
 
-Proxy Checker is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+## 📄 License
 
-Proxy Checker is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Proxy Checker.  If not, see <https://www.gnu.org/licenses/>.
-
-----------------------------------------------------------------------------
-Copyright (c) 2024 Dimas lanjaka
-----------------------------------------------------------------------------
+```
 This project is licensed under the GNU General Public License v3.0
-For full license details, please visit: https://www.gnu.org/licenses/gpl-3.0.html
+Copyright (c) 2024 Dimas Lanjaka
 
-If you have any inquiries regarding the license or permissions, please contact:
-
-Name: Dimas Lanjaka
-Website: https://www.webmanajemen.com
-Email: dimaslanjaka@gmail.com
+See https://www.gnu.org/licenses/gpl-3.0.html for details.
 ```
 
+For questions:
+
+- **Name:** Dimas Lanjaka
+- **Website:** [webmanajemen.com](https://www.webmanajemen.com)
+- **Email:** dimaslanjaka@gmail.com
