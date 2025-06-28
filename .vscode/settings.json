@@ -135,7 +135,7 @@
     // for non-WSL use prefix "${env:PATH}:"
     // for WSL use prefix "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:"
     "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:${workspaceFolder}/bin:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/vendor/bin",
-    "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
+    "NUITKA_CACHE_DIR": "${workspaceFolder}/tmp/nuitka-cache",
     "ESLINT_USE_FLAT_CONFIG": "true",
     "DEBUG_PKG": "1"
   },
