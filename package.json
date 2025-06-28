@@ -81,7 +81,7 @@
     "q": "^1.5.1",
     "qrcode-terminal": "^0.12.0",
     "rimraf": "^6.0.1",
-    "sbg-utility": "*",
+    "sbg-utility": "^2.0.8",
     "serve-favicon": "^2.5.1",
     "socks-proxy-agent": "^8.0.5",
     "tiny-typed-emitter": "^2.1.0",
@@ -162,7 +162,7 @@
   "resolutions": {
     "@types/git-command-helper": "https://github.com/dimaslanjaka/git-command-helper/raw/8d52506b26fa8f5ca728b904b45bfa4afa2880b4/release/git-command-helper.tgz",
     "@types/hexo": "https://github.com/dimaslanjaka/hexo/raw/62efb19b69dcb3b771e0d607eb77f573d97c2a77/releases/hexo.tgz",
-    "binary-collections": "https://github.com/dimaslanjaka/bin/raw/4a790bc7b92037619fd305026a001dffe03d1954/releases/bin.tgz",
+    "binary-collections": "https://github.com/dimaslanjaka/bin/raw/2e9c18e7c2f91c171f4cab5bda7040ba9369c1de/releases/bin.tgz",
     "cross-spawn": "https://github.com/dimaslanjaka/node-cross-spawn/raw/80999ac7a7031a81e11ddb5fab0f8ba433041c98/release/cross-spawn.tgz",
     "git-command-helper": "https://github.com/dimaslanjaka/git-command-helper/raw/8d52506b26fa8f5ca728b904b45bfa4afa2880b4/release/git-command-helper.tgz",
     "hexo": "https://github.com/dimaslanjaka/hexo/raw/62efb19b69dcb3b771e0d607eb77f573d97c2a77/releases/hexo.tgz",
