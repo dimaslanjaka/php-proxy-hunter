@@ -3,13 +3,45 @@ import importlib
 import os
 import platform
 import re
-import shutil
+import requests
 import subprocess
 import sys
-from pathlib import Path
 from typing import List, Optional, Union
 
 package_list: List[str] = []
+working_urls: List[str] = []
+all_urls = [
+    "https://pypi.org/simple",  # Official PyPI
+    "https://mirrors.aliyun.com/pypi/simple/",  # Alibaba Cloud
+    "https://pypi.tuna.tsinghua.edu.cn/simple/",  # Tsinghua University
+    "https://mirrors.cloud.tencent.com/pypi/simple/",  # Tencent Cloud
+    "https://repo.huaweicloud.com/repository/pypi/simple/",  # Huawei Cloud
+    "https://mirror.nju.edu.cn/pypi/web/simple/",  # Nanjing University
+    # Additional public mirrors:
+    "https://pypi.mirrors.ustc.edu.cn/simple/",  # University of Science and Technology of China
+    "https://pypi.douban.com/simple/",  # Douban (note: sometimes unstable or deprecated)
+    "https://mirrors.sjtug.sjtu.edu.cn/pypi/web/simple/",  # Shanghai Jiao Tong University
+    "https://mirrors.bfsu.edu.cn/pypi/web/simple/",  # Beijing Foreign Studies University
+    "https://pypi.nju.edu.cn/simple/",  # Another Nanjing University mirror
+    "https://pypi.mirrors.hust.edu.cn/simple/",  # Huazhong University of Science and Technology
+]
+
+timeout = 3  # seconds
+for url in all_urls:
+    try:
+        resp = requests.head(url, timeout=timeout, allow_redirects=True)
+        if resp.status_code == 200:
+            working_urls.append(url)
+        else:
+            print(f"URL {url} returned status code {resp.status_code}")
+    except Exception:
+        print(f"URL {url} is not reachable or timed out")
+        continue
+
+print(
+    f"Checked {len(all_urls)} URLs, found {len(working_urls)} working mirrors. {working_urls}"
+)
+DEFAULT_PYPI_MIRRORS = working_urls
 
 
 def read_requirements_file(filepath: str) -> List[str]:
@@ -83,16 +115,6 @@ def is_package_installed(pkg: str) -> bool:
         return True
     except ImportError:
         return False
-
-
-DEFAULT_PYPI_MIRRORS = [
-    "https://pypi.org/simple",
-    "https://mirrors.aliyun.com/pypi/simple/",
-    "https://pypi.tuna.tsinghua.edu.cn/simple/",
-    "https://mirrors.cloud.tencent.com/pypi/simple/",
-    "https://repo.huaweicloud.com/repository/pypi/simple/",
-    "https://mirror.nju.edu.cn/pypi/web/simple/",
-]
 
 
 def install_package(
