@@ -45,7 +45,10 @@
   "[twig]": {
     "editor.defaultFormatter": "vscode.html-language-features"
   },
-  "autopep8.args": ["--ignore", "E401,E402,E211,E501"],
+  "autopep8.args": [
+    "--ignore",
+    "E401,E402,E211,E501"
+  ],
   "code-runner.clearPreviousOutput": true,
   "code-runner.executorMapByGlob": {
     "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
@@ -111,7 +114,10 @@
   "git.useCommitInputAsStashMessage": true,
   "intelephense.diagnostics.run": "onSave",
   "intelephense.environment.documentRoot": "${workspaceFolder}",
-  "intelephense.environment.includePaths": ["${workspaceFolder}/src", "${workspaceFolder}/vendor"],
+  "intelephense.environment.includePaths": [
+    "${workspaceFolder}/src",
+    "${workspaceFolder}/vendor"
+  ],
   "intelephense.environment.phpVersion": "7.4.33",
   "intelephense.files.exclude": [
     "**/.git/**",
@@ -126,6 +132,10 @@
   "intelephense.maxMemory": 1000,
   "intelephense.references.exclude": [],
   "intelephense.rename.exclude": [],
+  "isort.args": [
+    "--profile",
+    "black"
+  ],
   "javascript.updateImportsOnPaste.enabled": false,
   "python.analysis.autoImportCompletions": true,
   "python.createEnvironment.contentButton": "show",
@@ -151,7 +161,10 @@
       "icon": "terminal-powershell"
     },
     "Command Prompt": {
-      "path": ["${env:windir}\\Sysnative\\cmd.exe", "${env:windir}\\System32\\cmd.exe"],
+      "path": [
+        "${env:windir}\\Sysnative\\cmd.exe",
+        "${env:windir}\\System32\\cmd.exe"
+      ],
       "args": [],
       "icon": "terminal-cmd"
     },
@@ -160,7 +173,10 @@
     },
     "Cygwin": {
       "path": "C:\\cygwin64\\bin\\bash.exe",
-      "args": ["--login", "-i"],
+      "args": [
+        "--login",
+        "-i"
+      ],
       "env": {
         "CHERE_INVOKING": "1"
       }
