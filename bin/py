@@ -37,7 +37,7 @@ ensure_python3_shim_windows() {
 case "$OS" in
   Linux | Darwin)
     # Unix-based systems (Linux, macOS)
-    if [ ! -d "$VENV_PATH" ]; then
+    if [ ! -d "$VENV_PATH" ] || [ ! -f "$VENV_PATH/bin/activate" ]; then
       echo "Creating virtual environment..."
       python3 -m venv "$VENV_PATH"
       echo "Virtual environment created."
