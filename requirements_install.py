@@ -134,14 +134,24 @@ def install_package(
     base_cmd = [sys.executable, "-m", "pip", "install"]
     name_args = name if isinstance(name, list) else [name]
 
-    for url in mirrors:
+    # If installing from a GitHub URL, don't use mirrors
+    if any("https://github.com" in str(arg) for arg in name_args):
         try:
-            cmd = base_cmd + name_args + [f"--index-url={url}"] + install_args
+            cmd = base_cmd + name_args + install_args
             print("\n" + " ".join(cmd) + "\n")
             subprocess.check_call(cmd)
             return
         except subprocess.CalledProcessError:
-            print(f"Failed from mirror: {url}")
+            print("Failed to install from GitHub URL")
+    else:
+        for url in mirrors:
+            try:
+                cmd = base_cmd + name_args + [f"--index-url={url}"] + install_args
+                print("\n" + " ".join(cmd) + "\n")
+                subprocess.check_call(cmd)
+                return
+            except subprocess.CalledProcessError:
+                print(f"Failed from mirror: {url}")
 
     raise RuntimeError(f"❌ Failed to install: {name_display}")
 
