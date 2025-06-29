@@ -15,7 +15,8 @@ django-environ
 django-extensions
 django-filter
 django-phonenumber-field[phonenumbers]
-django==5.0.*
+# django==5.0.*
+django>=5.0,<5.1
 djangorestframework
 djangorestframework_simplejwt
 filelock
