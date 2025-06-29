@@ -10,9 +10,37 @@ def is_msvc_installed():
     Checks if Microsoft Visual Studio C++ (MSVC) compiler is installed on the system.
 
     Returns:
-        bool: True if 'cl.exe' (the MSVC compiler) is found in the system PATH, False otherwise.
+        bool: True if 'cl.exe' (the MSVC compiler) is found in the system PATH or in common Visual Studio directories, False otherwise.
     """
-    return shutil.which("cl.exe") is not None
+    # Check if cl.exe is in PATH
+    if shutil.which("cl.exe") is not None:
+        return True
+
+    # Check common Visual Studio Build Tools installation paths
+    possible_roots = [
+        os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"),
+        os.environ.get("ProgramFiles", r"C:\Program Files"),
+    ]
+    vs_versions = ["2022", "2019", "2017"]
+    for root in possible_roots:
+        for version in vs_versions:
+            vs_path = os.path.join(
+                root,
+                "Microsoft Visual Studio",
+                version,
+                "BuildTools",
+                "VC",
+                "Tools",
+                "MSVC",
+            )
+            if os.path.isdir(vs_path):
+                for subdir in os.listdir(vs_path):
+                    cl_path = os.path.join(
+                        vs_path, subdir, "bin", "Hostx64", "x64", "cl.exe"
+                    )
+                    if os.path.isfile(cl_path):
+                        return True
+    return False
 
 
 def check_mingw():
@@ -49,3 +77,11 @@ def check_mingw():
                 return False
     except FileNotFoundError:
         return False
+
+
+# Example usage
+if __name__ == "__main__":
+    if is_msvc_installed():
+        print("MSVC is installed.")
+    else:
+        print("MSVC is not installed.")
