@@ -57,7 +57,7 @@ tasks:
       - '"{{.PYTHON}}" -m pip install --upgrade pip'
       - '"{{.PYTHON}}" -m pip install --upgrade setuptools'
       - '"{{.PYTHON}}" -m pip install --upgrade wheel'
-      - '"{{.PYTHON}}" -m pip install socks'
+      - '"{{.PYTHON}}" -m pip install socks requests'
       # - '"{{.PYTHON}}" requirements_install.py --generate'
       # - '"{{.PYTHON}}" -m pip install -r requirements.txt'
       - '"{{.PYTHON}}" requirements_install.py'
