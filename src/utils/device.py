@@ -81,9 +81,36 @@ def get_hostname_uuid():
     return str(uuid.uuid5(uuid.NAMESPACE_DNS, platform.node()))
 
 
+def is_docker():
+    """Detect if running inside a Docker container."""
+    if os.path.isfile("/.dockerenv"):
+        return True
+    try:
+        with open("/proc/1/cgroup", "rt") as f:
+            for line in f:
+                if "docker" in line or "containerd" in line:
+                    return True
+    except OSError:
+        pass
+    return False
+
+
+def is_github_actions():
+    return os.getenv("GITHUB_ACTIONS", "").lower() == "true"
+
+
+def is_github_codespaces():
+    return "CODESPACES" in os.environ or "CODESPACE_NAME" in os.environ
+
+
 if __name__ == "__main__":
     print("System:", platform.system())
     print("Hostname UUID5:", get_hostname_uuid())
     print("MAC UUID:", get_mac_uuid())
     print("System Identifier:", get_machine_identifier())
     print("Stable Machine Hash:", get_stable_machine_hash())
+    print("WSL Version:", detect_wsl_version())
+    print("Is Docker:", is_docker())
+    print("Is GitHub Actions:", is_github_actions())
+    print("Is GitHub Codespaces:", is_github_codespaces())
+    print("Is WSL:", isWSL())
