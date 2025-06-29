@@ -7,6 +7,7 @@ import requests
 import subprocess
 import sys
 from typing import List, Optional, Union
+from src.utils.device import is_docker
 
 package_list: List[str] = []
 working_urls: List[str] = []
@@ -100,6 +101,12 @@ def generate_requirements() -> bool:
         return False
 
     package_list = [pkg for pkg in package_list if not should_exclude(pkg)]
+
+    # Fix django version
+    if is_docker():
+        package_list += "django"
+    else:
+        package_list += "django==5.0.*"
 
     with open("requirements.txt", "w", encoding="utf-8") as f:
         f.writelines(package_list)
