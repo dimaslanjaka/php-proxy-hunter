@@ -143,7 +143,7 @@ export async function loadConfigWithDefaults() {
   const userConfig = await loadConfig();
 
   // Deep merge configuration
-  return {
+  const loadedConfig = {
     ...defaults,
     ...userConfig,
     processing: {
@@ -152,6 +152,16 @@ export async function loadConfigWithDefaults() {
     },
     ignorePatterns: userConfig.ignorePatterns || defaults.ignorePatterns
   };
+
+  // Ensure outputDir is always an object with markdown and html subdirectories
+  if (loadedConfig.outputDir && typeof loadedConfig.outputDir === 'string') {
+    // If outputDir is a string, migrate value to object with markdown and html subdirectories
+    loadedConfig.outputDir = {
+      markdown: loadedConfig.outputDir,
+      html: loadedConfig.outputDir
+    };
+  }
+  return loadedConfig;
 }
 
 export { configFilenames };
