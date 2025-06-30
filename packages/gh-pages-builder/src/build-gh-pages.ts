@@ -132,7 +132,13 @@ export default async function buildGitHubPages() {
     if (config.renameReadme) {
       const parsed = path.parse(outputFilePath);
       if (parsed.name.toLowerCase() === 'readme') {
-        outputFilePath = path.join(parsed.dir, 'index' + parsed.ext);
+        const isCurrentFileIsIndex = path.parse(filePath).name.toLowerCase() === 'index';
+        // Check if the file is named 'README' and not already 'index'
+        if (!isCurrentFileIsIndex) {
+          // Rename README to index.md
+          outputFilePath = path.join(parsed.dir, 'index' + parsed.ext);
+          console.log(`🔄 Renamed README to index: ${filePath} -> ${outputFilePath}`);
+        }
       }
     }
 
