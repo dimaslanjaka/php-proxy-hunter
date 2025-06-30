@@ -187,8 +187,11 @@ Both directories maintain the original project structure and are ready for deplo
 
 ### Build Process
 ```bash
-yarn build          # Build both ESM and CJS versions
-yarn build:dev      # Build in watch mode
-yarn test           # Run tests with build validation
-yarn clean          # Clean dist directory
+npm run build       # Build both ESM and CJS versions
+npm run build:dev   # Build in watch mode
+npm run dev         # Development mode
+npm run clean       # Clean dist directory
+npm test            # Run tests with build validation
+npm run test:watch  # Run tests in watch mode
+npm run test:coverage # Run tests with coverage
 ```
