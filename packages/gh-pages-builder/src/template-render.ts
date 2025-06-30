@@ -2,7 +2,7 @@ import fs from 'fs';
 import nunjucks from 'nunjucks';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { md } from './build-gh-pages.js';
+import { md } from './build-markdown.js';
 
 // __dirname replacement for ESM
 const __filename = fileURLToPath(import.meta.url);
