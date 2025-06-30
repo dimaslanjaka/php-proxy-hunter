@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { configFiles } from './env.cjs';
+import { populateMarkdownFiles } from './utils.js';
 
 // ESM __dirname workaround
 const __filename = fileURLToPath(import.meta.url);
@@ -13,29 +14,16 @@ const fixturesDir = path.join(__dirname, 'fixtures');
 
 describe('Configuration System', () => {
   beforeAll(async () => {
-    // Run markdown generation script before tests (if it exists)
-    const generateMarkdownsPath = path.join(fixturesDir, 'generate-markdowns.js');
-
-    if (fs.existsSync(generateMarkdownsPath)) {
-      try {
-        execSync(`node "${generateMarkdownsPath}"`, { stdio: 'inherit' });
-        console.log('✅ Markdown generation script completed successfully');
-      } catch (error) {
-        console.error('❌ Error running markdown generation script:', error.message);
-        // Don't throw here - just log the error and continue with tests
-        console.warn('⚠️  Continuing with tests without markdown generation');
-      }
-    } else {
-      console.log('ℹ️  No markdown generation script found, skipping');
-    }
+    populateMarkdownFiles();
   });
 
   for (let i = 0; i < configFiles.length; i++) {
     const sourceConfigPath = configFiles[i];
     const configFilename = path.basename(sourceConfigPath);
-    const testConfigPath = path.join(fixturesDir, `test-${i}-${configFilename}`);
+    const configExtension = path.extname(sourceConfigPath);
+    const testConfigPath = path.join(fixturesDir, `gh-pages-builder.config.${configExtension}`);
 
-    describe(`Config file: ${configFilename}`, () => {
+    describe(`Config file: ${testConfigPath}`, () => {
       beforeAll(() => {
         // Copy the config file to the test directory with unique name
         fs.copyFileSync(sourceConfigPath, testConfigPath);

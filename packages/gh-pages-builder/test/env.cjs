@@ -7,3 +7,4 @@ const configFiles = glob.sync('**/*-config.{js,cjs,mjs}', {
   absolute: true
 });
 module.exports.configFiles = configFiles;
+module.exports.fixturesDir = fixturesDir;
