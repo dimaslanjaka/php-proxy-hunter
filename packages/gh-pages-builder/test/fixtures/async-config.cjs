@@ -13,7 +13,16 @@ module.exports = async function () {
           markdown: 'tmp/markdown',
           html: 'tmp/html'
         },
-        customOption: 'async-test'
+        customOption: 'async-test',
+        processing: {
+          generateToc: true,
+          enableAnchors: true,
+          tocIndentSize: 2
+        },
+        theme: {
+          name: 'default',
+          engine: 'nunjucks'
+        }
       });
     }, 10);
   });

@@ -27,7 +27,16 @@ export default async function () {
           '**/simplehtmldom/**'
         ],
         tocPlaceholder: /<!--\s*toc\s*-->/i,
-        renameReadme: true
+        renameReadme: true,
+        processing: {
+          generateToc: true,
+          enableAnchors: true,
+          tocIndentSize: 2
+        },
+        theme: {
+          name: 'default',
+          engine: 'nunjucks'
+        }
       });
     }, 100);
   });

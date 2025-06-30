@@ -11,5 +11,14 @@ export default {
   },
   ignorePatterns: ['**/node_modules/**', '**/dist/**'],
   tocPlaceholder: /<!--\s*toc\s*-->/i,
-  renameReadme: true
+  renameReadme: true,
+  processing: {
+    generateToc: true,
+    enableAnchors: true,
+    tocIndentSize: 2
+  },
+  theme: {
+    name: 'default',
+    engine: 'nunjucks'
+  }
 };

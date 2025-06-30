@@ -7,14 +7,34 @@ import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 
-const projectDir = process.cwd();
+export const projectDir = process.cwd();
 const configFilenames = ['gh-pages-builder.config.cjs', 'gh-pages-builder.config.mjs', 'gh-pages-builder.config.js'];
+
+export interface Config {
+  inputPattern: string;
+  outputDir: {
+    markdown: string;
+    html: string;
+  };
+  ignorePatterns: string[];
+  tocPlaceholder: RegExp;
+  renameReadme: boolean;
+  processing: {
+    generateToc: boolean;
+    enableAnchors: boolean;
+    tocIndentSize: number;
+  };
+  theme: {
+    name: string;
+    engine: 'nunjucks' | 'handlebars' | 'mustache' | 'ejs';
+  };
+}
 
 /**
  * Get default configuration
  * @returns Default configuration object
  */
-export function getDefaultConfig() {
+export function getDefaultConfig(): Config {
   return {
     inputPattern: '**/*.md',
     outputDir: {
@@ -40,6 +60,10 @@ export function getDefaultConfig() {
       generateToc: true,
       enableAnchors: true,
       tocIndentSize: 2
+    },
+    theme: {
+      name: 'default',
+      engine: 'nunjucks'
     }
   };
 }

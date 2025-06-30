@@ -11,6 +11,12 @@ module.exports = {
   },
   directExport: true,
   processing: {
-    generateToc: false
+    generateToc: false,
+    enableAnchors: true,
+    tocIndentSize: 2
+  },
+  theme: {
+    name: 'default',
+    engine: 'nunjucks'
   }
 };

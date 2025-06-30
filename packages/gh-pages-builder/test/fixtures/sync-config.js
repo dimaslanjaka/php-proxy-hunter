@@ -52,6 +52,14 @@ export default function () {
       generateToc: true,
       enableAnchors: true,
       tocIndentSize: 2
+    },
+
+    /**
+     * Theme configuration
+     */
+    theme: {
+      name: 'default',
+      engine: 'nunjucks'
     }
   };
 }

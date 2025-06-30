@@ -10,6 +10,15 @@ module.exports = function () {
       markdown: 'tmp/markdown',
       html: 'tmp/html'
     },
-    customOption: 'sync-test'
+    customOption: 'sync-test',
+    processing: {
+      generateToc: true,
+      enableAnchors: true,
+      tocIndentSize: 2
+    },
+    theme: {
+      name: 'default',
+      engine: 'nunjucks'
+    }
   };
 };
