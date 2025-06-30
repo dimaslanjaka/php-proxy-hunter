@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { writefile } from 'sbg-utility';
 import { projectDir } from './init.js';
+import { nodeConsole } from './logger.js';
 
 const directoryTreeFile = path.join(projectDir, 'tmp', 'directory-tree.txt');
 // Reset directory tree file at startup
@@ -25,4 +26,6 @@ export function printDirectory(dirPath: string, prefix = '') {
       printDirectory(path.join(dirPath, item.name), newPrefix);
     }
   });
+
+  nodeConsole.log(`Directory structure written to ${directoryTreeFile}`);
 }

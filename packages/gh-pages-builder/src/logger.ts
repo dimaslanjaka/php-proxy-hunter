@@ -10,6 +10,8 @@ const logFilePath = path.resolve(projectDir, 'tmp/github-pages-builder.log');
 // This is useful for debugging and tracking issues in the current run.
 writefile(logFilePath, '');
 
+export const nodeConsole = globalThis.console;
+
 export default class Logger {
   protected static debug = false;
 
