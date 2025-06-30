@@ -22,6 +22,7 @@ export default async function () {
           '**/docs/**',
           '**/test/**',
           '**/tests/**',
+          '**/tmp/**',
           '**/vendor/**',
           '**/composer/**',
           '**/simplehtmldom/**'

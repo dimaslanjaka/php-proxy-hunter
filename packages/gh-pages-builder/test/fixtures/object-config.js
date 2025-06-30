@@ -9,7 +9,7 @@ export default {
     markdown: 'tmp/markdown',
     html: 'tmp/html'
   },
-  ignorePatterns: ['**/node_modules/**', '**/dist/**'],
+  ignorePatterns: ['**/node_modules/**', '**/dist/**', '**/tmp/**'],
   tocPlaceholder: /<!--\s*toc\s*-->/i,
   renameReadme: true,
   processing: {

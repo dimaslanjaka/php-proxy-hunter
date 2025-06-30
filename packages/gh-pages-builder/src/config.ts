@@ -53,7 +53,7 @@ export function getDefaultConfig(): Config {
       '**/tests/**',
       '**/vendor/**',
       '**/composer/**',
-      '**/simplehtmldom/**'
+      '**/tmp/**'
     ],
     tocPlaceholder: /<!--\s*toc\s*-->/i,
     renameReadme: true,

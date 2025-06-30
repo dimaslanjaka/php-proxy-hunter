@@ -30,6 +30,7 @@ export default function () {
       '**/docs/**',
       '**/test/**',
       '**/tests/**',
+      '**/tmp/**',
       '**/vendor/**',
       '**/composer/**',
       '**/simplehtmldom/**'

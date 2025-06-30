@@ -156,7 +156,7 @@ module.exports = async function () {
 - `**/test/**`, `**/tests/**`
 - `**/vendor/**`
 - `**/composer/**`
-- `**/simplehtmldom/**`
+- `**/tmp/**`
 
 ### Auto-Detection Features
 
