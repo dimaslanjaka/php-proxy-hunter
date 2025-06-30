@@ -164,7 +164,7 @@
   "resolutions": {
     "@types/git-command-helper": "https://github.com/dimaslanjaka/git-command-helper/raw/8d52506b26fa8f5ca728b904b45bfa4afa2880b4/release/git-command-helper.tgz",
     "@types/hexo": "https://github.com/dimaslanjaka/hexo/raw/62efb19b69dcb3b771e0d607eb77f573d97c2a77/releases/hexo.tgz",
-    "binary-collections": "https://github.com/dimaslanjaka/bin/raw/2e9c18e7c2f91c171f4cab5bda7040ba9369c1de/releases/bin.tgz",
+    "binary-collections": "https://github.com/dimaslanjaka/bin/raw/53b089eeece3a15550d13fc6de88c9ebbd6fef9d/releases/bin.tgz",
     "cross-spawn": "https://github.com/dimaslanjaka/node-cross-spawn/raw/80999ac7a7031a81e11ddb5fab0f8ba433041c98/release/cross-spawn.tgz",
     "git-command-helper": "https://github.com/dimaslanjaka/git-command-helper/raw/8d52506b26fa8f5ca728b904b45bfa4afa2880b4/release/git-command-helper.tgz",
     "hexo": "https://github.com/dimaslanjaka/hexo/raw/62efb19b69dcb3b771e0d607eb77f573d97c2a77/releases/hexo.tgz",
