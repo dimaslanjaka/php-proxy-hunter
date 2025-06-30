@@ -136,5 +136,7 @@ export default async function buildGitHubPages() {
   });
 
   printDirectory(outputMarkdownDir);
-  console.log(`\n🎉 Successfully processed ${markdownFiles.length} files to ${config.outputDir}`);
+  console.log(
+    `\n🎉 Successfully processed ${markdownFiles.length} files:\n ${JSON.stringify(config.outputDir, null, 2)}`
+  );
 }
