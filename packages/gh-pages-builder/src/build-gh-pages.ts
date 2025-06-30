@@ -14,12 +14,13 @@ import path from 'path';
 import { writefile } from 'sbg-utility';
 import { fileURLToPath } from 'url';
 import { loadConfigWithDefaults } from './config.js';
+import { projectDir } from './init.js';
 import console from './logger.js';
+import { printDirectory } from './utils.js';
 
 // ESM __dirname workaround
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '../../..');
 
 /**
  * Slugify headings like GitHub
@@ -72,26 +73,6 @@ export function renderTocFromMarkdown(markdown: string) {
   return tocMarkdown;
 }
 
-/**
- * Recursively print directory structure in tree format
- * @param dirPath - The directory path to print
- * @param prefix The prefix string for tree formatting
- */
-function printDirectory(dirPath: string, prefix = '') {
-  const items = fs.readdirSync(dirPath, { withFileTypes: true });
-
-  items.forEach((item, index) => {
-    const isLast = index === items.length - 1;
-    const pointer = isLast ? '└── ' : '├── ';
-    console.log(prefix + pointer + item.name);
-
-    if (item.isDirectory()) {
-      const newPrefix = prefix + (isLast ? '    ' : '│   ');
-      printDirectory(path.join(dirPath, item.name), newPrefix);
-    }
-  });
-}
-
 // === Main Processing ===
 
 /**
@@ -108,7 +89,7 @@ export default async function buildGitHubPages() {
    */
   const markdownFiles = glob.sync(config.inputPattern, {
     posix: true,
-    cwd: projectRoot,
+    cwd: projectDir,
     ignore: config.ignorePatterns
   });
 
@@ -117,10 +98,10 @@ export default async function buildGitHubPages() {
   /**
    * Output directory for processed markdown files
    */
-  const outputMarkdownDir = path.join(projectRoot, config.outputDir.markdown);
+  const outputMarkdownDir = path.join(projectDir, config.outputDir.markdown);
 
   markdownFiles.forEach((filePath) => {
-    const fullPath = path.join(projectRoot, filePath);
+    const fullPath = path.join(projectDir, filePath);
     let markdown = fs.readFileSync(fullPath, 'utf-8');
     let outputFilePath = path.join(outputMarkdownDir, filePath);
 
