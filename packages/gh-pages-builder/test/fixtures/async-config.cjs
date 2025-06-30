@@ -13,7 +13,21 @@ module.exports = async function () {
           markdown: 'tmp/markdown',
           html: 'tmp/html'
         },
-        customOption: 'async-test',
+        ignorePatterns: [
+          '**/node_modules/**',
+          '**/dist/**',
+          '**/build/**',
+          '**/.git/**',
+          '**/coverage/**',
+          '**/docs/**',
+          '**/test/**',
+          '**/tests/**',
+          '**/vendor/**',
+          '**/composer/**',
+          '**/simplehtmldom/**'
+        ],
+        tocPlaceholder: /<!--\s*toc\s*-->/i,
+        renameReadme: true,
         processing: {
           generateToc: true,
           enableAnchors: true,
@@ -22,7 +36,8 @@ module.exports = async function () {
         theme: {
           name: 'default',
           engine: 'nunjucks'
-        }
+        },
+        customOption: 'async-test'
       });
     }, 10);
   });

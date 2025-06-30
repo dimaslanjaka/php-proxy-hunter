@@ -9,7 +9,21 @@ module.exports = {
     markdown: 'tmp/markdown',
     html: 'tmp/html'
   },
-  directExport: true,
+  ignorePatterns: [
+    '**/node_modules/**',
+    '**/dist/**',
+    '**/build/**',
+    '**/.git/**',
+    '**/coverage/**',
+    '**/docs/**',
+    '**/test/**',
+    '**/tests/**',
+    '**/vendor/**',
+    '**/composer/**',
+    '**/simplehtmldom/**'
+  ],
+  tocPlaceholder: /<!--\s*toc\s*-->/i,
+  renameReadme: true,
   processing: {
     generateToc: false,
     enableAnchors: true,
@@ -18,5 +32,6 @@ module.exports = {
   theme: {
     name: 'default',
     engine: 'nunjucks'
-  }
+  },
+  directExport: true
 };
