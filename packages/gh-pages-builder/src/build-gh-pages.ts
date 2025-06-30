@@ -14,6 +14,7 @@ import path from 'path';
 import { writefile } from 'sbg-utility';
 import { fileURLToPath } from 'url';
 import { loadConfigWithDefaults } from './config.js';
+import console from './logger.js';
 
 // ESM __dirname workaround
 const __filename = fileURLToPath(import.meta.url);

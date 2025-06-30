@@ -6,8 +6,9 @@
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
+import { projectDir } from './init.js';
+import console from './logger.js';
 
-export const projectDir = process.cwd();
 const configFilenames = ['gh-pages-builder.config.cjs', 'gh-pages-builder.config.mjs', 'gh-pages-builder.config.js'];
 
 export interface Config {
