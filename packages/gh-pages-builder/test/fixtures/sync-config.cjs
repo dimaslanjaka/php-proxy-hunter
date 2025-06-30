@@ -3,10 +3,13 @@
  * This file demonstrates sync function config pattern for CommonJS
  */
 
-module.exports = function() {
+module.exports = function () {
   return {
     inputPattern: '**/*.test.md',
-    outputDir: 'test-output',
+    outputDir: {
+      markdown: 'tmp/markdown',
+      html: 'tmp/html'
+    },
     customOption: 'sync-test'
   };
 };

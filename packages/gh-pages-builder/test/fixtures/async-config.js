@@ -3,13 +3,16 @@
  * This file demonstrates async config pattern
  */
 
-export default async function() {
+export default async function () {
   // Simulate async operation (e.g., reading from API, database, etc.)
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
         inputPattern: '**/*.md',
-        outputDir: 'tmp/docs',
+        outputDir: {
+          markdown: 'tmp/markdown',
+          html: 'tmp/html'
+        },
         ignorePatterns: [
           '**/node_modules/**',
           '**/dist/**',

@@ -5,7 +5,10 @@
 
 module.exports = {
   inputPattern: '**/*.direct.md',
-  outputDir: 'direct-output',
+  outputDir: {
+    markdown: 'tmp/markdown',
+    html: 'tmp/html'
+  },
   directExport: true,
   processing: {
     generateToc: false

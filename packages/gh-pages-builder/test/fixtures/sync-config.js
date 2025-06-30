@@ -3,7 +3,7 @@
  * This file demonstrates sync function config pattern
  */
 
-export default function() {
+export default function () {
   return {
     /**
      * Glob pattern to find markdown files
@@ -13,7 +13,10 @@ export default function() {
     /**
      * Output directory for processed files
      */
-    outputDir: 'tmp/docs',
+    outputDir: {
+      markdown: 'tmp/markdown',
+      html: 'tmp/html'
+    },
 
     /**
      * Patterns to ignore when searching for markdown files

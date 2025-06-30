@@ -5,7 +5,10 @@
 
 export default {
   inputPattern: '**/*.md',
-  outputDir: 'tmp/docs',
+  outputDir: {
+    markdown: 'tmp/markdown',
+    html: 'tmp/html'
+  },
   ignorePatterns: ['**/node_modules/**', '**/dist/**'],
   tocPlaceholder: /<!--\s*toc\s*-->/i,
   renameReadme: true

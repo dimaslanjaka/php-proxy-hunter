@@ -3,13 +3,16 @@
  * This file demonstrates async config pattern for CommonJS
  */
 
-module.exports = async function() {
+module.exports = async function () {
   // Simulate async operation (e.g., reading from API, database, etc.)
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
         inputPattern: '**/*.async.md',
-        outputDir: 'async-output',
+        outputDir: {
+          markdown: 'tmp/markdown',
+          html: 'tmp/html'
+        },
         customOption: 'async-test'
       });
     }, 10);
