@@ -4,7 +4,17 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
 import { glob } from 'glob';
 
-const external = ['fs', 'path', 'url', 'module', 'glob', 'markdown-it', 'markdown-it-anchor', 'nunjucks'];
+const external = [
+  'fs',
+  'path',
+  'url',
+  'module',
+  'glob',
+  'markdown-it',
+  'markdown-it-anchor',
+  'nunjucks',
+  'sbg-utility'
+];
 
 /**
  * Creates a Rollup configuration object for a given module format and output directory.

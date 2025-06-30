@@ -11,6 +11,7 @@ import * as glob from 'glob';
 import MarkdownIt from 'markdown-it';
 import anchor from 'markdown-it-anchor';
 import path from 'path';
+import { writefile } from 'sbg-utility';
 import { fileURLToPath } from 'url';
 import { loadConfigWithDefaults } from './config.js';
 
@@ -151,8 +152,7 @@ export default async function buildGitHubPages() {
       markdown = markdown.replace(config.tocPlaceholder, tocHtml);
     }
 
-    fs.mkdirSync(path.dirname(outputFilePath), { recursive: true });
-    fs.writeFileSync(outputFilePath, markdown, 'utf-8');
+    writefile(outputFilePath, markdown);
     console.log(`✅ Processed: ${filePath} -> ${outputFilePath}`);
   });
 
