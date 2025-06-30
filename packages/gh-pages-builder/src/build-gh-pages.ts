@@ -100,21 +100,24 @@ export default async function buildGitHubPages() {
    */
   const outputMarkdownDir = path.join(projectDir, config.outputDir.markdown);
 
-  markdownFiles.forEach((filePath) => {
-    const fullPath = path.join(projectDir, filePath);
+  markdownFiles.forEach((sourceFilePath) => {
+    const fullPath = path.join(projectDir, sourceFilePath);
     let markdown = fs.readFileSync(fullPath, 'utf-8');
-    let outputFilePath = path.join(outputMarkdownDir, filePath);
+    let outputFilePath = path.join(outputMarkdownDir, sourceFilePath);
+    const sourceFileDir = path.dirname(sourceFilePath);
+    const filesInSourceDir = fs.readdirSync(path.join(projectDir, sourceFileDir));
+    const sourceDirHasIndex = filesInSourceDir.some(
+      (f) => f.toLowerCase() === 'index.md' || f.toLowerCase() === 'index.html'
+    );
 
     // Handle README renaming if configured
     if (config.renameReadme) {
       const parsed = path.parse(outputFilePath);
       if (parsed.name.toLowerCase() === 'readme') {
-        const isCurrentFileIsIndex = path.parse(filePath).name.toLowerCase() === 'index';
-        // Check if the file is named 'README' and not already 'index'
-        if (!isCurrentFileIsIndex) {
-          // Rename README to index.md
+        // Rename readme to index if no index file exists
+        if (!sourceDirHasIndex) {
           outputFilePath = path.join(parsed.dir, 'index' + parsed.ext);
-          console.log(`🔄 Renamed README to index: ${filePath} -> ${outputFilePath}`);
+          console.log(`🔄 Renamed README to index: ${sourceFilePath} -> ${outputFilePath}`);
         }
       }
     }
@@ -122,14 +125,14 @@ export default async function buildGitHubPages() {
     // Process TOC if enabled and placeholder found
     if (config.processing.generateToc && config.tocPlaceholder.test(markdown)) {
       const tocHtml = renderTocFromMarkdown(markdown);
-      console.log(`📄 Rendered HTML TOC for: ${filePath}\n`);
+      console.log(`📄 Rendered HTML TOC for: ${sourceFilePath}\n`);
       console.log(tocHtml);
       console.log('\n---\n');
       markdown = markdown.replace(config.tocPlaceholder, tocHtml);
     }
 
     writefile(outputFilePath, markdown);
-    console.log(`✅ Processed: ${filePath} -> ${outputFilePath}`);
+    console.log(`✅ Processed: ${sourceFilePath} -> ${outputFilePath}`);
   });
 
   printDirectory(outputMarkdownDir);
