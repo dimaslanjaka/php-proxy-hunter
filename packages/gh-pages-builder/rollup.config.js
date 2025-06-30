@@ -69,6 +69,24 @@ const rollupConfig = [
         return chunk.fileName === 'build-gh-pages.js' ? '#!/usr/bin/env node' : '';
       }
     }
+  },
+  // Fixtures config CJS build
+  // This configuration is used for testing purposes
+  {
+    input: glob.sync('test/fixtures/**/*.js', { nodir: true, ignore: ['**/gh-pages-builder*'] }),
+    output: {
+      dir: 'test/fixtures',
+      format: 'cjs',
+      exports: 'named',
+      entryFileNames: '[name].cjs'
+    },
+    plugins: [
+      nodeResolve({
+        preferBuiltins: true
+      }),
+      commonjs(),
+      json()
+    ]
   }
 ];
 
