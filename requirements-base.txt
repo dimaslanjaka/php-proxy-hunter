@@ -29,7 +29,6 @@ huey @ https://github.com/coleifer/huey/archive/5da909af52455ede879b42342891f7bf
 ipaddress
 joblib
 maxminddb
-numpy==2.1.0
 oauthlib
 Pillow
 pycodestyle

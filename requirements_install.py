@@ -78,10 +78,12 @@ def generate_requirements() -> bool:
             "pyqtdarktheme",
             "psutil",
             "pynput",
+            "numpy==2.1.0",
         ],
         "Linux": [
             "uwsgi @ https://github.com/unbit/uwsgi/archive/f931938.zip",
             "gunicorn",
+            "numpy",
         ],
     }
 
