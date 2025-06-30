@@ -118,12 +118,6 @@ export default async function buildGitHubPages() {
    */
   const outputMarkdownDir = path.join(projectRoot, config.outputDir.markdown);
 
-  // Clear output directory if it exists
-  if (fs.existsSync(outputMarkdownDir)) {
-    fs.rmSync(outputMarkdownDir, { recursive: true, force: true });
-    console.log(`🗑️ Cleared existing output directory: ${outputMarkdownDir}`);
-  }
-
   markdownFiles.forEach((filePath) => {
     const fullPath = path.join(projectRoot, filePath);
     let markdown = fs.readFileSync(fullPath, 'utf-8');
