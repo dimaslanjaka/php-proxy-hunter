@@ -10,3 +10,7 @@
 	path = packages/baileys
 	url = https://github.com/dimaslanjaka/baileys-api.git
 	branch = master
+[submodule "packages/gh-pages"]
+	path = packages/gh-pages
+	url = https://github.com/dimaslanjaka/github-pages-builder.git
+	branch = master
