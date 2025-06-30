@@ -126,15 +126,6 @@ export async function loadConfig(): Promise<ReturnType<typeof getDefaultConfig>>
 }
 
 /**
- * Universal config loader that can handle both sync and async usage patterns (ESM version)
- * Note: This ESM version is primarily async due to dynamic import requirements
- * @returns Configuration object
- */
-export async function loadConfigUniversal(): Promise<ReturnType<typeof getDefaultConfig>> {
-  return await loadConfig();
-}
-
-/**
  * Load configuration with defaults merged
  * @returns Configuration object with defaults
  */

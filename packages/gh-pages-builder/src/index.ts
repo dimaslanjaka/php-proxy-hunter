@@ -4,13 +4,7 @@
  */
 
 // Export configuration functions
-export {
-  configFilenames,
-  getDefaultConfig,
-  loadConfig,
-  loadConfigUniversal,
-  loadConfigWithDefaults
-} from './config.js';
+export { configFilenames, getDefaultConfig, loadConfig, loadConfigWithDefaults } from './config.js';
 
 // Export utility functions from build script
 export { renderTocFromMarkdown, slugify } from './build-gh-pages.js';
