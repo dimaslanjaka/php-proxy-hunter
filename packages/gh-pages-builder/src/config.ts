@@ -4,6 +4,7 @@
  */
 
 import fs from 'fs';
+import * as glob from 'glob';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { projectDir } from './init.js';
@@ -181,3 +182,30 @@ export async function loadConfigWithDefaults() {
 }
 
 export { configFilenames };
+
+/**
+ * Find all template files for supported engines using glob
+ * @returns Array of template file paths
+ */
+export function findAllTemplates(): string[] {
+  const templatesDir = path.join(projectDir, 'templates');
+  if (!fs.existsSync(templatesDir)) {
+    console.warn(`⚠️  Templates directory not found: ${templatesDir}`);
+    return [];
+  }
+
+  // All supported extensions for all engines
+  const allExtensions = ['.njk', '.hbs', '.handlebars', '.mustache', '.ejs', '.html'];
+
+  const patterns = allExtensions.map((ext) => path.join(templatesDir, `**/*${ext}`));
+
+  // Use glob to find all matching files
+  const templateFiles = patterns.flatMap((pattern) => glob.sync(pattern, { nodir: true }));
+
+  if (templateFiles.length === 0) {
+    console.warn(`⚠️  No templates found in ${templatesDir}`);
+    return [];
+  }
+
+  return templateFiles;
+}
