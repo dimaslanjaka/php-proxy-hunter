@@ -1,0 +1,17 @@
+/**
+ * GitHub Pages Builder Configuration - CommonJS Async Function
+ * This file demonstrates async config pattern for CommonJS
+ */
+
+module.exports = async function() {
+  // Simulate async operation (e.g., reading from API, database, etc.)
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        inputPattern: '**/*.async.md',
+        outputDir: 'async-output',
+        customOption: 'async-test'
+      });
+    }, 10);
+  });
+};

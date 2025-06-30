@@ -1,0 +1,7 @@
+{
+  "name": "@test/fixtures",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Test fixtures for gh-pages-builder"
+}
