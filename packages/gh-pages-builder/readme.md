@@ -167,13 +167,6 @@ The configuration loader automatically:
 - Supports hot reloading during development (clears require cache)
 - Uses ESM imports with CommonJS config files (`.cjs`) for maximum compatibility
 
-## Dependencies
-
-- **markdown-it** - Markdown parser and renderer
-- **markdown-it-anchor** - Generates heading anchors
-- **glob** - File pattern matching
-- **nunjucks** - Template rendering engine
-
 ## TypeScript Support
 
 This package is built with TypeScript and provides:
@@ -198,12 +191,4 @@ yarn build          # Build both ESM and CJS versions
 yarn build:dev      # Build in watch mode
 yarn test           # Run tests with build validation
 yarn clean          # Clean dist directory
-```
-
-### Cross-platform Git Diff
-The project includes cross-platform git diff tooling:
-```bash
-bin/git-diff --help              # Show usage
-bin/git-diff FILE               # Show staged diff of file
-bin/git-diff --staged-only      # Show all staged changes
 ```
