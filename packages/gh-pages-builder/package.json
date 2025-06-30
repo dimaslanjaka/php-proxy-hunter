@@ -39,14 +39,15 @@
     "builder"
   ],
   "scripts": {
-    "build": "npm run clean && rollup -c",
+    "build": "rollup -c",
     "build:dev": "rollup -c --watch",
     "dev": "node src/build-gh-pages.js --dev",
-    "clean": "rimraf dist tmp/docs",
+    "clean": "rimraf dist",
+    "pretest": "npm run build",
     "prepublishOnly": "npm run build",
     "test": "cross-env-shell NODE_OPTIONS=\"--experimental-vm-modules\" jest",
-    "test:watch": "cross-env-shell NODE_OPTIONS=\"--experimental-vm-modules\" && npx jest --watch",
-    "test:coverage": "cross-env-shell NODE_OPTIONS=\"--experimental-vm-modules\" && npx jest --coverage"
+    "test:watch": "npm test -- --watch",
+    "test:coverage": "npm test -- --coverage"
   },
   "dependencies": {
     "glob": "^11.0.3",
