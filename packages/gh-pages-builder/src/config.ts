@@ -11,8 +11,42 @@ const projectDir = process.cwd();
 const configFilenames = ['gh-pages-builder.config.cjs', 'gh-pages-builder.config.mjs', 'gh-pages-builder.config.js'];
 
 /**
+ * Get default configuration
+ * @returns Default configuration object
+ */
+export function getDefaultConfig() {
+  return {
+    inputPattern: '**/*.md',
+    outputDir: {
+      markdown: 'tmp/markdown',
+      html: 'tmp/html'
+    },
+    ignorePatterns: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.git/**',
+      '**/coverage/**',
+      '**/docs/**',
+      '**/test/**',
+      '**/tests/**',
+      '**/vendor/**',
+      '**/composer/**',
+      '**/simplehtmldom/**'
+    ],
+    tocPlaceholder: /<!--\s*toc\s*-->/i,
+    renameReadme: true,
+    processing: {
+      generateToc: true,
+      enableAnchors: true,
+      tocIndentSize: 2
+    }
+  };
+}
+
+/**
  * Find the first existing config file
- * @returns {Promise<string|null>} Path to config file or null if none found
+ * @returns Path to config file or null if none found
  */
 async function findConfigFile() {
   for (const filename of configFilenames) {
@@ -31,10 +65,10 @@ async function findConfigFile() {
  * Load configuration from gh-pages-builder.config.* files
  * Automatically detects and handles both sync and async config functions
  * Supports .cjs, .mjs, and .js extensions
- * @returns {Promise<object>} Configuration object
+ * @returns Configuration object
  */
-export async function loadConfig() {
-  let loadedConfig = {};
+export async function loadConfig(): Promise<ReturnType<typeof getDefaultConfig>> {
+  let loadedConfig = {} as ReturnType<typeof getDefaultConfig>;
 
   try {
     // Find the first available config file
@@ -81,7 +115,11 @@ export async function loadConfig() {
 
     console.log(`✅ Loaded config from ${configPath}`);
   } catch (err) {
-    console.warn(`⚠️  Could not load config:`, err.message);
+    if (err && typeof err === 'object' && 'message' in err) {
+      console.warn(`⚠️  Could not load config:`, (err as { message: string }).message);
+    } else {
+      console.warn(`⚠️  Could not load config:`, err);
+    }
   }
 
   return loadedConfig;
@@ -90,46 +128,15 @@ export async function loadConfig() {
 /**
  * Universal config loader that can handle both sync and async usage patterns (ESM version)
  * Note: This ESM version is primarily async due to dynamic import requirements
- * @returns {Promise<object>} Configuration object
+ * @returns Configuration object
  */
-export async function loadConfigUniversal() {
+export async function loadConfigUniversal(): Promise<ReturnType<typeof getDefaultConfig>> {
   return await loadConfig();
 }
 
 /**
- * Get default configuration
- * @returns {object} Default configuration object
- */
-export function getDefaultConfig() {
-  return {
-    inputPattern: '**/*.md',
-    outputDir: 'tmp/docs',
-    ignorePatterns: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/.git/**',
-      '**/coverage/**',
-      '**/docs/**',
-      '**/test/**',
-      '**/tests/**',
-      '**/vendor/**',
-      '**/composer/**',
-      '**/simplehtmldom/**'
-    ],
-    tocPlaceholder: /<!--\s*toc\s*-->/i,
-    renameReadme: true,
-    processing: {
-      generateToc: true,
-      enableAnchors: true,
-      tocIndentSize: 2
-    }
-  };
-}
-
-/**
  * Load configuration with defaults merged
- * @returns {Promise<object>} Configuration object with defaults
+ * @returns Configuration object with defaults
  */
 export async function loadConfigWithDefaults() {
   const defaults = getDefaultConfig();

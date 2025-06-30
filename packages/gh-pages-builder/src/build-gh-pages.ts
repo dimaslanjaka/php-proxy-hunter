@@ -21,10 +21,10 @@ const projectRoot = path.resolve(__dirname, '../../..');
 
 /**
  * Slugify headings like GitHub
- * @param {string} s - The string to slugify
- * @returns {string} A URL-safe slug string
+ * @param s - The string to slugify
+ * @returns A URL-safe slug string
  */
-export function slugify(s) {
+export function slugify(s: string) {
   return encodeURIComponent(
     s
       .trim()
@@ -34,17 +34,17 @@ export function slugify(s) {
   );
 }
 
+export const md = new MarkdownIt(undefined, undefined).use(anchor, {
+  slugify // use custom slugify for consistency
+});
+
 /**
  * Generate Markdown Table of Contents from markdown string
- * @param {string} markdown - Raw markdown content to parse
- * @returns {string} Markdown-formatted table of contents with links
+ * @param markdown - Raw markdown content to parse
+ * @returns Markdown-formatted table of contents with links
  */
-export function renderTocFromMarkdown(markdown) {
+export function renderTocFromMarkdown(markdown: string) {
   const headers = [];
-
-  const md = new MarkdownIt().use(anchor, {
-    slugify // use custom slugify for consistency
-  });
 
   const tokens = md.parse(markdown, {});
 
@@ -72,11 +72,10 @@ export function renderTocFromMarkdown(markdown) {
 
 /**
  * Recursively print directory structure in tree format
- * @param {string} dirPath - The directory path to print
- * @param {string} [prefix=''] - The prefix string for tree formatting
- * @returns {void}
+ * @param dirPath - The directory path to print
+ * @param prefix The prefix string for tree formatting
  */
-function printDirectory(dirPath, prefix = '') {
+function printDirectory(dirPath: string, prefix = '') {
   const items = fs.readdirSync(dirPath, { withFileTypes: true });
 
   items.forEach((item, index) => {
@@ -105,7 +104,6 @@ export default async function buildGitHubPages() {
 
   /**
    * Find all markdown files in the project directory
-   * @type {string[]} Array of markdown file paths
    */
   const markdownFiles = glob.sync(config.inputPattern, {
     posix: true,
@@ -117,9 +115,8 @@ export default async function buildGitHubPages() {
 
   /**
    * Output directory for processed markdown files
-   * @type {string}
    */
-  const outputMarkdownDir = path.join(projectRoot, config.outputDir);
+  const outputMarkdownDir = path.join(projectRoot, config.outputDir.markdown);
 
   markdownFiles.forEach((filePath) => {
     const fullPath = path.join(projectRoot, filePath);
