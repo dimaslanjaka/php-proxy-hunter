@@ -41,8 +41,7 @@ export async function loadConfig() {
     const configPath = await findConfigFile();
 
     if (!configPath) {
-      console.log(`ℹ️  No config file found (tried: ${configFilenames.join(', ')}), using defaults`);
-      return loadedConfig;
+      throw new Error(`No config file found (tried: ${configFilenames.join(', ')})`);
     }
 
     // Determine how to load based on file extension
