@@ -94,7 +94,6 @@ function printDirectory(dirPath: string, prefix = '') {
 
 /**
  * Main build function that processes markdown files according to configuration
- * @returns {Promise<void>}
  */
 export default async function buildGitHubPages() {
   // Load configuration
@@ -117,6 +116,12 @@ export default async function buildGitHubPages() {
    * Output directory for processed markdown files
    */
   const outputMarkdownDir = path.join(projectRoot, config.outputDir.markdown);
+
+  // Clear output directory if it exists
+  if (fs.existsSync(outputMarkdownDir)) {
+    fs.rmSync(outputMarkdownDir, { recursive: true, force: true });
+    console.log(`🗑️ Cleared existing output directory: ${outputMarkdownDir}`);
+  }
 
   markdownFiles.forEach((filePath) => {
     const fullPath = path.join(projectRoot, filePath);
