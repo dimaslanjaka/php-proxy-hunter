@@ -130,6 +130,14 @@ jobs:
             ${{ runner.os }}-python-
             ${{ runner.os }}-
 
+      # Install required tools
+      - name: Install required tools
+        run: |
+          npm install -g @go-task/cli
+          python3 -m ensurepip --upgrade
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install requests
+
       # Install PHP dependencies (if cache missed)
       - name: Install PHP dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -138,29 +146,16 @@ jobs:
         run: |
           php composer.phar config --global github-oauth.github.com "${{ secrets.ACCESS_TOKEN }}"
           php composer.phar install --prefer-dist --no-progress --no-suggest --no-interaction --optimize-autoloader
-      # - name: Install PHP dependencies
-      #   if: steps.cache.outputs.cache-hit != 'true'
-      #   uses: php-actions/composer@v6
-      #   env:
-      #     COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"} }'
-      #     args: "--prefer-dist --no-progress"
 
       # Install Python dependencies (if cache missed)
       - name: Install Python dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          python3 -m ensurepip --upgrade
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 requirements_install.py
+        run: task install-python
 
       # Install NodeJS dependencies (if cache missed)
       - name: Install NodeJS Dependencies
         shell: bash
-        run: |
-          corepack enable
-          touch yarn.lock
-          yarn install
-          npm install -g @go-task/cli
+        run: task install-nodejs
 
       # Initialize scripts
       - name: Initialize GitHub Actions

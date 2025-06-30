@@ -108,21 +108,22 @@ jobs:
       - name: Restore Non-cached Files
         run: git restore *.txt
 
+      # Install required tools
+      - name: Install required tools
+        run: |
+          npm install -g @go-task/cli
+          python3 -m ensurepip --upgrade
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install requests
+
       - name: Install NodeJS Dependencies
         shell: bash
-        run: |
-          corepack enable
-          touch yarn.lock
-          yarn install
-          npm install -g @go-task/cli
+        run: task install-nodejs
 
       - name: Install Python Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         shell: bash
-        run: |
-          python3 -m ensurepip --upgrade
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 requirements_install.py
+        run: task install-python
 
       - name: Initialize GitHub Actions
         id: php-github-actions-init
