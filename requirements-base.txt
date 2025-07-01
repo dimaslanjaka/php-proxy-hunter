@@ -52,3 +52,4 @@ watchdog
 webdriver-manager @ https://github.com/SergeyPirogov/webdriver_manager/archive/1c59212c6dae5335d2aead14b119307084b44293.zip
 werkzeug
 zstandard
+paramiko
