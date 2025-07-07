@@ -1,0 +1,13 @@
+*.sqlite
+*.db
+*.*journal*
+*.sqlite3
+*.sqlite-journal
+*.sqlite3-journal
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
