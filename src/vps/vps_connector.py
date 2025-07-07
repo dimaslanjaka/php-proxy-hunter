@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import stat
+import shutil
 
 # Add project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
@@ -40,7 +41,7 @@ class VPSConnector:
         self.sftp = None
 
     def connect(self):
-        print(f"Connecting to {self.host}...")
+        print(f"Connecting to {self.host}...\t")
         self.client = paramiko.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
@@ -53,16 +54,16 @@ class VPSConnector:
             )
 
         self.sftp = self.client.open_sftp()
-        print("🟢 Connected.")
+        print("🟢\tConnected.")
 
     def _print_progress(self, filename, size, sent):
         percent = float(sent) / float(size) * 100
-        sys.stdout.write(f"\r📤 Uploading {filename}: {percent:.2f}%")
+        sys.stdout.write(f"\r📤\tUploading {filename}: {percent:.2f}%")
         sys.stdout.flush()
 
     def upload(self, local_path, remote_path):
         if not self.sftp:
-            print("❌ SFTP client not initialized. Cannot upload.")
+            print("❌\tSFTP client not initialized. Cannot upload.")
             return
 
         if os.path.isdir(local_path):
@@ -73,14 +74,14 @@ class VPSConnector:
                 remote_stat = self.sftp.stat(remote_path)
                 local_size = os.path.getsize(local_path)
                 if remote_stat.st_size == local_size:
-                    print(f"⏩ Skipping upload: {local_path} (same size as remote)")
+                    print(f"⏩\tSkipping upload: {local_path} (same size as remote)")
                     upload_needed = False
             except IOError:
                 # Remote file does not exist, so upload is needed
                 pass
 
             if upload_needed:
-                print(f"📤 Uploading file: {local_path} → {remote_path}")
+                print(f"📤\tUploading file: {local_path} → {remote_path}")
                 file_size = os.path.getsize(local_path)
                 self.sftp.put(
                     local_path,
@@ -89,13 +90,13 @@ class VPSConnector:
                         f, total, sent
                     ),
                 )
-                print("\n✅ File upload complete.")
+                print("\n✅\tFile upload complete.")
 
     def _upload_folder(self, local_folder, remote_folder):
         if not self.sftp:
-            print("❌ SFTP client not initialized. Cannot upload.")
+            print("❌\tSFTP client not initialized. Cannot upload.")
             return
-        print(f"📁 Uploading folder: {local_folder} → {remote_folder}")
+        print(f"📁\tUploading folder: {local_folder} → {remote_folder}")
         for root, _, files in os.walk(local_folder):
             rel_path = os.path.relpath(root, local_folder)
             remote_path = os.path.join(remote_folder, rel_path).replace("\\", "/")
@@ -109,7 +110,7 @@ class VPSConnector:
             for file in files:
                 local_file = os.path.join(root, file)
                 remote_file = os.path.join(remote_path, file).replace("\\", "/")
-                print(f" - Uploading {local_file} → {remote_file}")
+                print(f" -\tUploading {local_file} → {remote_file}")
                 file_size = os.path.getsize(local_file)
                 self.sftp.put(
                     local_file,
@@ -122,72 +123,82 @@ class VPSConnector:
 
     def download(self, remote_path, local_path):
         if not self.sftp:
-            print("❌ SFTP client not initialized. Cannot download.")
+            print("❌\tSFTP client not initialized. Cannot download.")
             return
-        print(f"Downloading {remote_path} to {local_path}...")
+        print(f"⬇️\tDownloading {remote_path} to {local_path}...\t")
         self.sftp.get(remote_path, local_path)
-        print("✅ Download complete.")
+        print("✅\tDownload complete.")
 
     def delete_remote(self, remote_path: str) -> None:
-        """Delete a file on the remote server via SFTP."""
+        """Delete a file on the remote server via SFTP. Ignores if file does not exist."""
         if not self.sftp:
-            print("❌ SFTP client not initialized. Cannot delete remote file.")
+            print("❌\tSFTP client not initialized. Cannot delete remote file.")
             return
-        print(f"Deleting remote file {remote_path}...")
-        self.sftp.remove(remote_path)
-        print("✅ Remote file deleted.")
+        print(f"Deleting remote file {remote_path}...\t")
+        try:
+            self.sftp.remove(remote_path)
+            print("✅\tRemote file deleted.")
+        except FileNotFoundError:
+            print(f"⚠️\tRemote file not found: {remote_path}")
+        except IOError as e:
+            import errno
+
+            if hasattr(e, "errno") and e.errno == errno.ENOENT:
+                print(f"⚠️\tRemote file not found: {remote_path}")
+            else:
+                raise
 
     def delete_local(self, local_path: str) -> None:
         """Delete a local file with progress feedback."""
         if not os.path.exists(local_path):
-            print(f"❌ Local file not found: {local_path}")
+            print(f"❌\tLocal file not found: {local_path}")
             return
         file_size = os.path.getsize(local_path)
-        print(f"Deleting local file: {local_path} ({file_size} bytes)")
+        print(f"🗑️\tDeleting local file: {local_path} ({file_size} bytes)\t")
         # Simulate progress for large files
         if file_size > 1024 * 1024:  # >1MB, show progress
             deleted = 0
             chunk = 1024 * 1024  # 1MB
             while deleted < file_size:
                 percent = min(100, (deleted / file_size) * 100)
-                sys.stdout.write(f"\r🗑️ Deleting: {percent:.2f}%")
+                sys.stdout.write(f"\r🗑️\tDeleting: {percent:.2f}%")
                 sys.stdout.flush()
                 deleted += chunk
-            sys.stdout.write("\r🗑️ Deleting: 100.00%\n")
+            sys.stdout.write("\r🗑️\tDeleting: 100.00%\n")
         os.remove(local_path)
-        print("✅ Local file deleted.")
+        print("✅\tLocal file deleted.")
 
     def run_command(self, command, cwd=None):
         if not self.client:
-            print("❌ SSH client not initialized. Cannot run command.")
+            print("❌\tSSH client not initialized. Cannot run command.")
             return
 
         if cwd:
             command = f"cd {cwd} && {command}"
 
-        print(f"📁 Running remote command: {command}")
+        print(f"📁\tRunning remote command: {command}")
         stdin, stdout, stderr = self.client.exec_command(command)
         output = stdout.read().decode()
         error = stderr.read().decode()
 
-        print("📥 Command output:")
+        print("📥\tCommand output:")
         print(output)
         if error:
-            print("⚠️ Command error:")
+            print("⚠️\tCommand error:")
             print(error)
 
     def run_command_live(self, command, cwd=None):
         if not self.client:
-            print("❌ SSH client not initialized. Cannot run command.")
+            print("❌\tSSH client not initialized. Cannot run command.")
             return
 
         if cwd:
             command = f"cd {cwd} && {command}"
 
-        print(f"📡 Executing: {command}")
+        print(f"📡\tExecuting: {command}")
         transport = self.client.get_transport()
         if not transport:
-            print("❌ SSH transport not initialized. Cannot run command.")
+            print("❌\tSSH transport not initialized. Cannot run command.")
             return
         channel = transport.open_session()
         channel.get_pty()  # simulates terminal behavior
@@ -207,7 +218,7 @@ class VPSConnector:
                     break
         finally:
             exit_status = channel.recv_exit_status()
-            print(f"\n🚪 Command exited with status {exit_status}")
+            print(f"\n🚪\tCommand exited with status {exit_status}")
 
     def delete(self, path: str, remote: bool = True, local: bool = True) -> None:
         """
@@ -222,7 +233,7 @@ class VPSConnector:
                 else:
                     self.delete_remote(path)
             else:
-                print("❌ SFTP client not initialized. Cannot delete remote.")
+                print("❌\tSFTP client not initialized. Cannot delete remote.")
         if local:
             if os.path.exists(path):
                 if os.path.isdir(path):
@@ -230,25 +241,56 @@ class VPSConnector:
                 else:
                     self.delete_local(path)
             else:
-                print(f"❌ Local path not found: {path}")
+                print(f"❌\tLocal path not found: {path}")
 
     def _is_remote_dir(self, remote_path: str) -> bool:
         try:
-            return stat.S_ISDIR(self.sftp.stat(remote_path).st_mode)
+            if self.sftp is None:
+                return False
+            remote_stat = self.sftp.stat(remote_path)
+            if remote_stat is None or remote_stat.st_mode is None:
+                return False
+            return stat.S_ISDIR(remote_stat.st_mode)
         except Exception:
             return False
 
     def _delete_remote_folder(self, remote_folder: str) -> None:
-        """Recursively delete a folder on the remote server."""
-        for entry in self.sftp.listdir_attr(remote_folder):
+        """Recursively delete a folder on the remote server. Ignores if folder does not exist."""
+        if self.sftp is None:
+            print("❌\tSFTP client not initialized. Cannot delete remote folder.")
+            return
+        try:
+            entries = self.sftp.listdir_attr(remote_folder)
+        except FileNotFoundError:
+            print(f"⚠️\tRemote folder not found: {remote_folder}")
+            return
+        except IOError as e:
+            import errno
+
+            if hasattr(e, "errno") and e.errno == errno.ENOENT:
+                print(f"⚠️\tRemote folder not found: {remote_folder}")
+                return
+            else:
+                raise
+        for entry in entries:
             remote_path = os.path.join(remote_folder, entry.filename).replace("\\", "/")
-            if stat.S_ISDIR(entry.st_mode):
+            if entry.st_mode is not None and stat.S_ISDIR(entry.st_mode):
                 self._delete_remote_folder(remote_path)
             else:
                 self.delete_remote(remote_path)
-        print(f"Deleting remote folder {remote_folder}...")
-        self.sftp.rmdir(remote_folder)
-        print("✅ Remote folder deleted.")
+        print(f"Deleting remote folder {remote_folder}...\t")
+        try:
+            self.sftp.rmdir(remote_folder)
+            print("✅\tRemote folder deleted.")
+        except FileNotFoundError:
+            print(f"⚠️\tRemote folder not found: {remote_folder}")
+        except IOError as e:
+            import errno
+
+            if hasattr(e, "errno") and e.errno == errno.ENOENT:
+                print(f"⚠️\tRemote folder not found: {remote_folder}")
+            else:
+                raise
 
     def _delete_local_folder(self, local_folder: str) -> None:
         """Recursively delete a local folder with progress."""
@@ -256,25 +298,25 @@ class VPSConnector:
 
         total_files = sum(len(files) for _, _, files in os.walk(local_folder))
         deleted = 0
-        print(f"Deleting local folder: {local_folder}")
+        print(f"Deleting local folder: {local_folder}\t")
         for root, _, files in os.walk(local_folder):
             for file in files:
                 file_path = os.path.join(root, file)
                 self.delete_local(file_path)
                 deleted += 1
                 percent = (deleted / total_files) * 100 if total_files else 100
-                sys.stdout.write(f"\r🗑️ Deleting files: {percent:.2f}%")
+                sys.stdout.write(f"\r🗑️\tDeleting files: {percent:.2f}%")
                 sys.stdout.flush()
         shutil.rmtree(local_folder)
-        sys.stdout.write("\r🗑️ Deleting files: 100.00%\n")
-        print("✅ Local folder deleted.")
+        sys.stdout.write("\r🗑️\tDeleting files: 100.00%\n")
+        print("✅\tLocal folder deleted.")
 
     def close(self):
         if self.sftp:
             self.sftp.close()
         if self.client:
             self.client.close()
-        print("🔴 Connection closed.")
+        print("🔴\tConnection closed.")
 
 
 # === Example Usage ===
@@ -299,7 +341,17 @@ if __name__ == "__main__":
 
         vps.upload("test.txt", f"{sftp_config['remote_path']}/test.txt")
         vps.download(f"{sftp_config['remote_path']}/test.txt", "downloaded_test.txt")
-        vps.delete_remote(f"{sftp_config['remote_path']}/test.txt")
-        vps.delete_local("downloaded_test.txt")
+
+        # Test new delete function (delete both local and remote)
+        # Re-upload for demonstration
+        vps.upload("test.txt", f"{sftp_config['remote_path']}/test.txt")
+        shutil.copy("test.txt", "test_copy.txt")
+        vps.upload("test_copy.txt", f"{sftp_config['remote_path']}/test_copy.txt")
+        print("\nTesting new delete function on test.txt (both local and remote):")
+        vps.delete("test.txt", remote=True, local=True)
+        print("\nTesting new delete function on test_copy.txt (both local and remote):")
+        vps.delete("test_copy.txt", remote=True, local=True)
+        print("\nTesting new delete function on downloaded_test.txt (local only):")
+        vps.delete("downloaded_test.txt", remote=False, local=True)
     finally:
         vps.close()
