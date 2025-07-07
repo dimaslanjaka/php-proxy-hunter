@@ -1,66 +1,70 @@
+# Private keys and sensitive files
+/xl*
+
+# PHP
 /php-obfuscator
+
+# Node.js
 **/node_modules
-**/vendor
-/config
-/dashboard
-/img
-/xampp
-/bitnami.css
-/applications.html
-*.lock
-/*.pid
-/proxyChecker.txt
-/webalizer
-.cache/
-*.cache
+package-lock.json
 .yarn/*.gz
 .yarn/cache
+
+# Composer (PHP)
+**/vendor
+/vendor/
+*.lock
+
+# Config & Dashboard
+/config
+/dashboard
+/config.yaml
+/_config.json
+/.env
+/.env.build.json
+/.env.cjs
+/_env.json
+.vscode/sftp.json
+
+# Assets & Static
+/img
+/bitnami.css
+/applications.html
+/webalizer
+/public/static
+
+# Miscellaneous
+/xampp
+/proxyChecker.txt
+/cache/
+*.cache
 tmp/
 *.txt
 *.lnk
 *.ink
-!proxyFetcherSources.txt
-!CIDR*.txt
-/vendor/
-/status.json
-.vscode/sftp.json
-!/robots.txt
-/working.json
-package-lock.json
-/_config.json
-!/.crontab.txt
-/backups
-!**/*.php.txt
-!**/*.py.txt
-/sitemap.txt
-!LICENSE*
-/app
+*.log
+*.spec
+/*.pid
 /proxyManager.js
-
-# Env
-/.env
-# production environment vars
-/_env.json
-/.env.build.json
-# rollup ESM -> CJS by `bin/build-project`
-/.env.cjs
-auth.json
-
-# intellij idea
+/proxyFetcherSources.txt
+/working.json
+/status.json
+/backups
+/databases
+/output
+/error_logs
+/log/
+log/
 .idea/material*
+/.vs
 
-# python
+# Python
 /data/script/
 /profiles-proxy.json
-!/adspower.txt
-!/requirements-base.txt
-!/requirements-dev.txt
-/requirements.txt
 /profiles
 /profiles.json
 /build
 /local_storage.json
-/output
 /error_logs
 __pycache__
 .venv/
@@ -68,21 +72,11 @@ venv/
 .conda/
 /dist
 *.egg-info
-/.vs
 /src/nuitka
 /src/undetected-chromedriver
 /src/selenium-dolphin
-/config.yaml
-*.out
-/databases
-/public/static
-**/.*_cache
-/xl*
 
-# nodejs
-**/baileys_*/
-
-# Ignore all coverage files and folders
+# Coverage
 coverage/
 .coverage*
 coverage.*
@@ -90,3 +84,44 @@ coverage.*
 **/.coverage*
 **/coverage.*
 !*coverage*.toml
+
+# Node.js (Baileys)
+**/baileys_*/
+
+# Pyarmor
+.pyarmor/
+
+# Ignore all files ending with .out
+*.out
+
+# Ignore all files ending with .log
+*.log
+
+# Ignore all files ending with .spec
+*.spec
+
+# Ignore all files ending with .txt except specific ones
+*.txt
+!proxyFetcherSources.txt
+!CIDR*.txt
+!/.crontab.txt
+!/adspower.txt
+!/requirements-base.txt
+!/requirements-dev.txt
+/requirements.txt
+!/robots.txt
+/sitemap.txt
+
+# Ignore all LICENSE files except those starting with LICENSE
+!LICENSE*
+
+# Ignore all .cache files and folders
+.cache/
+*.cache
+
+# Ignore all hidden cache files
+**/.*_cache
+
+# Exceptions for .php.txt and .py.txt files
+!**/*.php.txt
+!**/*.py.txt
