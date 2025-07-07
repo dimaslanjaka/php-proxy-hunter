@@ -69,31 +69,46 @@ const envPath = path.join(projectDir, '.env');
   // Initialize an array to hold the formatted outputs
   let hashArray = [];
 
-  // Find files with the specified extensions, compute their hash, and save to hashArray
-  await Promise.all(
-    extensions.map(async (ext) => {
-      const files = glob.sync(`**/*.${ext}`, {
+  // Helper function to hash and add file if not already processed
+  const processedFiles = new Set();
+  /**
+   * Hashes a file and pushes its relative path and hash to the hashArray.
+   * @param {string} file - The absolute path to the file.
+   * @returns {Promise<void>}
+   */
+  async function hashAndPush(file) {
+    if (processedFiles.has(file)) return;
+    processedFiles.add(file);
+    try {
+      const stats = await fs.stat(file);
+      const pseudoHash = `${stats.size}-${stats.mtimeMs}`;
+      const hash = crypto.createHash('sha256').update(pseudoHash).digest('hex');
+      let relativePath = path.relative(projectDir, file);
+      relativePath = relativePath.split(path.sep).join('/');
+      hashArray.push(`${relativePath} ${hash}`);
+    } catch (err) {
+      console.error(`Error processing file: ${file}`, err);
+    }
+  }
+
+  // Collect all files to process (extensions + special files)
+  let allFiles = new Set();
+  allFiles.add(path.join(projectDir, 'package.json'));
+  allFiles.add(path.join(projectDir, 'composer.json'));
+  allFiles.add(path.join(projectDir, 'requirements.txt'));
+  allFiles.add(path.join(projectDir, 'requirements-dev.txt'));
+  extensions.forEach((ext) => {
+    glob
+      .sync(`**/*.${ext}`, {
         cwd: projectDir,
         ignore: ignorePatterns,
         absolute: true
-      });
+      })
+      .forEach((f) => allFiles.add(f));
+  });
 
-      await Promise.all(
-        files.map(async (file) => {
-          try {
-            const stats = await fs.stat(file);
-            const pseudoHash = `${stats.size}-${stats.mtimeMs}`;
-            const hash = crypto.createHash('sha256').update(pseudoHash).digest('hex');
-            let relativePath = path.relative(projectDir, file);
-            relativePath = relativePath.split(path.sep).join('/');
-            hashArray.push(`${relativePath} ${hash}`);
-          } catch (err) {
-            console.error(`Error processing file: ${file}`, err);
-          }
-        })
-      );
-    })
-  );
+  // Hash all unique files
+  await Promise.all(Array.from(allFiles).map(hashAndPush));
 
   // Sort the hashArray by file paths
   hashArray.sort((a, b) => a.localeCompare(b));
