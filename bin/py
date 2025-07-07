@@ -17,7 +17,12 @@ if [ ! -d "$CWD" ]; then
   exit 1
 fi
 
-VENV_PATH="$CWD/venv"
+# Prefer .venv over venv for virtual environment path
+if [ -d "$CWD/.venv" ] || [ ! -d "$CWD/venv" ]; then
+  VENV_PATH="$CWD/.venv"
+else
+  VENV_PATH="$CWD/venv"
+fi
 USER="www-data"
 
 ensure_python3_shim_unix() {

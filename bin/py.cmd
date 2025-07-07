@@ -9,17 +9,19 @@ REM Move up one level to get <project> root
 for %%i in ("%SCRIPT_DIR%") do set "CWD=%%~dpi"
 set "CWD=%CWD:~0,-1%"
 
-echo Working directory: %CWD%
-
-REM Set venv path
+REM Prefer .venv over venv for virtual environment path
+set ".VENV_DIR=%CWD%\.venv"
 set "VENV_DIR=%CWD%\venv"
-set "VENV_SCRIPTS=%VENV_DIR%\Scripts"
+set "VENV_PATH=%VENV_DIR%"
+if exist "%CWD%\.venv" (
+    set "VENV_PATH=%CWD%\.venv"
+)
+set "VENV_SCRIPTS=%VENV_PATH%\Scripts"
 
 REM Check if venv exists
-if not exist "%VENV_DIR%" (
+if not exist "%VENV_PATH%" (
     echo Creating virtual environment...
-    REM Ensure virtualenv is available (optional, not required for `python -m venv`)
-    call python -m venv "%VENV_DIR%"
+    call python -m venv "%VENV_PATH%"
     if errorlevel 1 (
         echo Failed to create virtual environment.
         exit /b 1
@@ -43,8 +45,5 @@ call "%VENV_SCRIPTS%\activate.bat"
 
 REM Run python with all forwarded arguments
 call python %*
-
-REM Optional: Upgrade pip
-REM call python -m pip install --upgrade pip
 
 endlocal
