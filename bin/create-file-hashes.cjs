@@ -84,7 +84,8 @@ const envPath = path.join(projectDir, '.env');
             const stats = await fs.stat(file);
             const pseudoHash = `${stats.size}-${stats.mtimeMs}`;
             const hash = crypto.createHash('sha256').update(pseudoHash).digest('hex');
-            const relativePath = path.relative(projectDir, file);
+            let relativePath = path.relative(projectDir, file);
+            relativePath = relativePath.split(path.sep).join('/');
             hashArray.push(`${relativePath} ${hash}`);
           } catch (err) {
             console.error(`Error processing file: ${file}`, err);
