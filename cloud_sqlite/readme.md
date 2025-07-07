@@ -7,27 +7,36 @@ A lightweight PHP + SQLite backend for syncing structured data across devices. S
 All API endpoints require an `Authorization` header:
 
 ```
-Authorization: Bearer my-secret-token
+Authorization: Bearer <your-secret-token>
 ```
 
-You can set the token in `config.php`:
+The secret token is stored in your `.env` file as `CLOUD_SQLITE_SECRET`:
 
-```php
-define('AUTH_TOKEN', 'my-secret-token');
+```ini
+CLOUD_SQLITE_SECRET=your-secret-token
 ```
+
+The application loads this value automatically via `config.php` using [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv).
 
 ---
 
 ## 🏗️ Setup Instructions
 
 1. Place the project files in a PHP-enabled server (e.g. Apache, Nginx).
-2. Run `init.php` once to create the database schema:
+2. Copy `.env-local.example` to `.env-local` and set your secrets:
+
+```bash
+cp .env-local.example .env-local
+# Edit .env-local and set CLOUD_SQLITE_SECRET
+```
+
+3. Run `init.php` once to create the database schema:
 
 ```bash
 php init.php
 ```
 
-3. Start using the API from any device.
+4. Start using the API from any device.
 
 ---
 
@@ -49,7 +58,7 @@ Insert or update a row by ID.
 **cURL:**
 ```bash
 curl -X POST http://localhost/sync.php \
-  -H "Authorization: Bearer my-secret-token" \
+  -H "Authorization: Bearer <your-secret-token>" \
   -H "Content-Type: application/json" \
   -d '{"id":1,"name":"Device A","value":"Hello World"}'
 ```
@@ -61,7 +70,7 @@ Fetch all rows from the database.
 
 **cURL:**
 ```bash
-curl -H "Authorization: Bearer my-secret-token" http://localhost/fetch.php
+curl -H "Authorization: Bearer <your-secret-token>" http://localhost/fetch.php
 ```
 
 ---
@@ -74,7 +83,7 @@ Fetch rows updated after a specific timestamp.
 
 **Example:**
 ```bash
-curl -H "Authorization: Bearer my-secret-token" \
+curl -H "Authorization: Bearer <your-secret-token>" \
   "http://localhost/fetch-updated.php?since=2025-07-07T08:00:00"
 ```
 
@@ -93,7 +102,7 @@ Delete a row by ID.
 **cURL:**
 ```bash
 curl -X POST http://localhost/delete.php \
-  -H "Authorization: Bearer my-secret-token" \
+  -H "Authorization: Bearer <your-secret-token>" \
   -H "Content-Type: application/json" \
   -d '{"id":1}'
 ```
@@ -126,7 +135,7 @@ CREATE TABLE items (
 
 ## 🔒 Security Notes
 
-- Use strong, unique `AUTH_TOKEN` in production
+- Use strong, unique `CLOUD_SQLITE_SECRET` in production (set in `.env-local`)
 - Add rate limiting and logging for security
 - Consider HTTPS if exposed to the public internet
 
