@@ -3,6 +3,7 @@ import paramiko
 import os
 import sys
 import json
+import stat
 
 # Add project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
@@ -127,13 +128,34 @@ class VPSConnector:
         self.sftp.get(remote_path, local_path)
         print("✅ Download complete.")
 
-    def delete(self, remote_path):
+    def delete_remote(self, remote_path: str) -> None:
+        """Delete a file on the remote server via SFTP."""
         if not self.sftp:
-            print("❌ SFTP client not initialized. Cannot delete.")
+            print("❌ SFTP client not initialized. Cannot delete remote file.")
             return
         print(f"Deleting remote file {remote_path}...")
         self.sftp.remove(remote_path)
         print("✅ Remote file deleted.")
+
+    def delete_local(self, local_path: str) -> None:
+        """Delete a local file with progress feedback."""
+        if not os.path.exists(local_path):
+            print(f"❌ Local file not found: {local_path}")
+            return
+        file_size = os.path.getsize(local_path)
+        print(f"Deleting local file: {local_path} ({file_size} bytes)")
+        # Simulate progress for large files
+        if file_size > 1024 * 1024:  # >1MB, show progress
+            deleted = 0
+            chunk = 1024 * 1024  # 1MB
+            while deleted < file_size:
+                percent = min(100, (deleted / file_size) * 100)
+                sys.stdout.write(f"\r🗑️ Deleting: {percent:.2f}%")
+                sys.stdout.flush()
+                deleted += chunk
+            sys.stdout.write("\r🗑️ Deleting: 100.00%\n")
+        os.remove(local_path)
+        print("✅ Local file deleted.")
 
     def run_command(self, command, cwd=None):
         if not self.client:
@@ -187,6 +209,66 @@ class VPSConnector:
             exit_status = channel.recv_exit_status()
             print(f"\n🚪 Command exited with status {exit_status}")
 
+    def delete(self, path: str, remote: bool = True, local: bool = True) -> None:
+        """
+        Delete a file or folder both locally and/or remotely.
+        If remote is True, delete on remote SFTP server.
+        If local is True, delete on local filesystem.
+        """
+        if remote:
+            if self.sftp:
+                if self._is_remote_dir(path):
+                    self._delete_remote_folder(path)
+                else:
+                    self.delete_remote(path)
+            else:
+                print("❌ SFTP client not initialized. Cannot delete remote.")
+        if local:
+            if os.path.exists(path):
+                if os.path.isdir(path):
+                    self._delete_local_folder(path)
+                else:
+                    self.delete_local(path)
+            else:
+                print(f"❌ Local path not found: {path}")
+
+    def _is_remote_dir(self, remote_path: str) -> bool:
+        try:
+            return stat.S_ISDIR(self.sftp.stat(remote_path).st_mode)
+        except Exception:
+            return False
+
+    def _delete_remote_folder(self, remote_folder: str) -> None:
+        """Recursively delete a folder on the remote server."""
+        for entry in self.sftp.listdir_attr(remote_folder):
+            remote_path = os.path.join(remote_folder, entry.filename).replace("\\", "/")
+            if stat.S_ISDIR(entry.st_mode):
+                self._delete_remote_folder(remote_path)
+            else:
+                self.delete_remote(remote_path)
+        print(f"Deleting remote folder {remote_folder}...")
+        self.sftp.rmdir(remote_folder)
+        print("✅ Remote folder deleted.")
+
+    def _delete_local_folder(self, local_folder: str) -> None:
+        """Recursively delete a local folder with progress."""
+        import shutil
+
+        total_files = sum(len(files) for _, _, files in os.walk(local_folder))
+        deleted = 0
+        print(f"Deleting local folder: {local_folder}")
+        for root, _, files in os.walk(local_folder):
+            for file in files:
+                file_path = os.path.join(root, file)
+                self.delete_local(file_path)
+                deleted += 1
+                percent = (deleted / total_files) * 100 if total_files else 100
+                sys.stdout.write(f"\r🗑️ Deleting files: {percent:.2f}%")
+                sys.stdout.flush()
+        shutil.rmtree(local_folder)
+        sys.stdout.write("\r🗑️ Deleting files: 100.00%\n")
+        print("✅ Local folder deleted.")
+
     def close(self):
         if self.sftp:
             self.sftp.close()
@@ -217,6 +299,7 @@ if __name__ == "__main__":
 
         vps.upload("test.txt", f"{sftp_config['remote_path']}/test.txt")
         vps.download(f"{sftp_config['remote_path']}/test.txt", "downloaded_test.txt")
-        vps.delete(f"{sftp_config['remote_path']}/test.txt")
+        vps.delete_remote(f"{sftp_config['remote_path']}/test.txt")
+        vps.delete_local("downloaded_test.txt")
     finally:
         vps.close()
