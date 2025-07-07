@@ -22,21 +22,41 @@ The application loads this value automatically via `config.php` using [vlucas/ph
 
 ## 🏗️ Setup Instructions
 
-1. Place the project files in a PHP-enabled server (e.g. Apache, Nginx).
-2. Copy `.env-sample` to `.env` and set your secrets:
+### Enable SQLite Extension
+
+Ensure the SQLite extension is enabled in your `php.ini` file:
+
+- Open your `php.ini` (location varies by system, e.g., `C:/xampp/php/php.ini`)
+- Make sure the following line is present and not commented out (remove the leading `;` if present):
+  ```ini
+  extension=sqlite3
+  ```
+- Restart your web server (Apache, Nginx, etc.) after making changes.
+
+### Deploy Project Files
+
+Place the project files in a PHP-enabled server (e.g. Apache, Nginx).
+
+### Configure Environment Variables
+
+Copy `.env-sample` to `.env` and set your secrets:
 
 ```bash
 cp .env-sample .env
 # Edit .env and set CLOUD_SQLITE_SECRET
 ```
 
-3. Run `init.php` once to create the database schema:
+### Initialize Database Schema
+
+Run `init.php` once to create the database schema:
 
 ```bash
 php init.php
 ```
 
-4. Start using the API from any device.
+### Start Using the API
+
+You can now use the API from any device.
 
 ---
 
