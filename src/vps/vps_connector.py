@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 import paramiko
 import os
 import sys
@@ -31,12 +31,23 @@ def load_sftp_config(config_path=".vscode/sftp.json"):
 
 
 class VPSConnector:
-    def __init__(self, host, port, username, password=None, key_path=None):
+    def __init__(
+        self,
+        host: str,
+        port: int,
+        username: str,
+        remote_path: str,
+        local_path: str,
+        password: Optional[str] = None,
+        key_path: Optional[str] = None,
+    ):
         self.host = host
         self.port = port
         self.username = username
         self.password = password
         self.key_path = key_path
+        self.remote_path = remote_path
+        self.local_path = local_path
         self.client = None
         self.sftp = None
 
@@ -329,6 +340,8 @@ if __name__ == "__main__":
         username=sftp_config["username"],
         password=sftp_config["password"],
         key_path=sftp_config["key_path"],
+        remote_path=sftp_config.get("remote_path", "/"),
+        local_path=os.getcwd(),
     )
 
     try:
@@ -339,14 +352,14 @@ if __name__ == "__main__":
             with open("test.txt", "w") as f:
                 f.write("This is a test file for upload.\n")
 
-        vps.upload("test.txt", f"{sftp_config['remote_path']}/test.txt")
-        vps.download(f"{sftp_config['remote_path']}/test.txt", "downloaded_test.txt")
+        vps.upload("test.txt", f"{vps.remote_path}/test.txt")
+        vps.download(f"{vps.remote_path}/test.txt", "downloaded_test.txt")
 
         # Test new delete function (delete both local and remote)
         # Re-upload for demonstration
-        vps.upload("test.txt", f"{sftp_config['remote_path']}/test.txt")
+        vps.upload("test.txt", f"{vps.remote_path}/test.txt")
         shutil.copy("test.txt", "test_copy.txt")
-        vps.upload("test_copy.txt", f"{sftp_config['remote_path']}/test_copy.txt")
+        vps.upload("test_copy.txt", f"{vps.remote_path}/test_copy.txt")
         print("\nTesting new delete function on test.txt (both local and remote):")
         vps.delete("test.txt", remote=True, local=True)
         print("\nTesting new delete function on test_copy.txt (both local and remote):")

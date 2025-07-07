@@ -43,6 +43,8 @@ if __name__ == "__main__":
         username=sftp_config["username"],
         password=sftp_config["password"],
         key_path=sftp_config["key_path"],
+        remote_path=sftp_config.get("remote_path", "/var/www/html"),
+        local_path=sftp_config.get("local_path", "."),
     )
 
     try:
