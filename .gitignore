@@ -1,43 +1,48 @@
 # Private keys and sensitive files
 /xl*
+/.env
+/.env.build.json
+/.env.cjs
+/_config.json
+/_env.json
+/config
+/config.yaml
+auth.json
 
 # PHP
 /php-obfuscator
-
-# Node.js
-**/node_modules
-package-lock.json
-.yarn/*.gz
-.yarn/cache
-
-# Composer (PHP)
 **/vendor
 /vendor/
 *.lock
 
+# Node.js
+**/node_modules
+.yarn/cache
+.yarn/*.gz
+package-lock.json
+**/baileys_*/
+log/
+
 # Config & Dashboard
-/config
+/.vscode/sftp.json
 /dashboard
-/config.yaml
-/_config.json
-/.env
-/.env.build.json
-/.env.cjs
-/_env.json
-.vscode/sftp.json
 
 # Assets & Static
-/img
-/bitnami.css
 /applications.html
-/webalizer
+/bitnami.css
+/img
 /public/static
+/webalizer
+/app
+/proxyManager.js
 
 # Miscellaneous
-/xampp
-/proxyChecker.txt
-/cache/
+.cache/
 *.cache
+.idea/material*
+.log/
+.vs
+/xampp
 tmp/
 *.txt
 *.lnk
@@ -45,28 +50,34 @@ tmp/
 *.log
 *.spec
 /*.pid
-/proxyManager.js
-/proxyFetcherSources.txt
-/working.json
+!proxyFetcherSources.txt
+!CIDR*.txt
 /status.json
+!/robots.txt
+/working.json
+!/.crontab.txt
 /backups
+!**/*.php.txt
+!**/*.py.txt
+/sitemap.txt
+!LICENSE*
+*.out
 /databases
 /output
 /error_logs
-/log/
-log/
-.idea/material*
-/.vs
 
 # Python
 /data/script/
 /profiles-proxy.json
+!/adspower.txt
+!/requirements-base.txt
+!/requirements-dev.txt
+/requirements.txt
 /profiles
 /profiles.json
 /build
 /local_storage.json
-/error_logs
-__pycache__
+**/__*
 .venv/
 venv/
 .conda/
@@ -75,6 +86,7 @@ venv/
 /src/nuitka
 /src/undetected-chromedriver
 /src/selenium-dolphin
+.pyarmor/
 
 # Coverage
 coverage/
@@ -84,44 +96,3 @@ coverage.*
 **/.coverage*
 **/coverage.*
 !*coverage*.toml
-
-# Node.js (Baileys)
-**/baileys_*/
-
-# Pyarmor
-.pyarmor/
-
-# Ignore all files ending with .out
-*.out
-
-# Ignore all files ending with .log
-*.log
-
-# Ignore all files ending with .spec
-*.spec
-
-# Ignore all files ending with .txt except specific ones
-*.txt
-!proxyFetcherSources.txt
-!CIDR*.txt
-!/.crontab.txt
-!/adspower.txt
-!/requirements-base.txt
-!/requirements-dev.txt
-/requirements.txt
-!/robots.txt
-/sitemap.txt
-
-# Ignore all LICENSE files except those starting with LICENSE
-!LICENSE*
-
-# Ignore all .cache files and folders
-.cache/
-*.cache
-
-# Ignore all hidden cache files
-**/.*_cache
-
-# Exceptions for .php.txt and .py.txt files
-!**/*.php.txt
-!**/*.py.txt
