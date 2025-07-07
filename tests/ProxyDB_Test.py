@@ -10,9 +10,9 @@ null = None
 
 
 class TestStringMethods(unittest.TestCase):
+    db = ProxyDB(start=True)
 
     def test_vacuum(self):
-        self.db = ProxyDB()
         self.db.db.execute_query("PRAGMA journal_mode = WAL")
         self.db.db.execute_query("PRAGMA wal_autocheckpoint = 100")
         self.db.db.execute_query("PRAGMA auto_vacuum = FULL")
@@ -21,13 +21,11 @@ class TestStringMethods(unittest.TestCase):
         self.db.db.execute_query("PRAGMA wal_checkpoint(SQLITE_CHECKPOINT_TRUNCATE);")
 
     def test_get_all(self):
-        self.db = ProxyDB()
         all_p = self.db.get_all_proxies(True)[:10]
         # print(all_p)
         self.assertTrue(len(all_p) == 10)
 
     def test_update(self):
-        self.db = ProxyDB()
         proxy = "13.208.56.180:80"
         proxy_type = "http"
         items = self.db.select(proxy)

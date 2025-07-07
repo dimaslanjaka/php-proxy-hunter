@@ -41,3 +41,14 @@ reportMissingImports = "error"
 reportMissingTypeStubs = false
 reportPropertyTypeMismatch = "error"
 reportOptionalMemberAccess = "warning"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests"
+]
+python_files = [
+    "test_*.py",
+    "*_test.py"
+]
