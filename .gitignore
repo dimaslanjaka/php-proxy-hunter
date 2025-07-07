@@ -81,3 +81,12 @@ venv/
 
 # nodejs
 **/baileys_*/
+
+# Ignore all coverage files and folders
+coverage/
+.coverage*
+coverage.*
+**/coverage/
+**/.coverage*
+**/coverage.*
+!*coverage*.toml

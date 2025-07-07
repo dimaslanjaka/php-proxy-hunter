@@ -44,7 +44,7 @@ reportOptionalMemberAccess = "warning"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q"
+addopts = "-ra -v"
 testpaths = [
     "tests"
 ]
@@ -52,3 +52,4 @@ python_files = [
     "test_*.py",
     "*_test.py"
 ]
+cache_dir = "tmp/pytest"
