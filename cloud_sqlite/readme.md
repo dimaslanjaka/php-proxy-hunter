@@ -23,11 +23,11 @@ The application loads this value automatically via `config.php` using [vlucas/ph
 ## 🏗️ Setup Instructions
 
 1. Place the project files in a PHP-enabled server (e.g. Apache, Nginx).
-2. Copy `.env-local.example` to `.env-local` and set your secrets:
+2. Copy `.env-sample` to `.env` and set your secrets:
 
 ```bash
-cp .env-local.example .env-local
-# Edit .env-local and set CLOUD_SQLITE_SECRET
+cp .env-sample .env
+# Edit .env and set CLOUD_SQLITE_SECRET
 ```
 
 3. Run `init.php` once to create the database schema:
