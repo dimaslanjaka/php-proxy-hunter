@@ -1,60 +1,61 @@
 {
   "[html]": {
-    "editor.suggest.insertMode": "replace",
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "never",
-      "source.fixAll": "never"
-    }
+      "source.fixAll": "never",
+      "source.organizeImports": "never"
+    },
+    "editor.suggest.insertMode": "replace"
   },
   "[json]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "never",
+      "source.organizeImports": "never"
+    },
     "editor.quickSuggestions": {
       "strings": true
     },
-    "editor.suggest.insertMode": "replace",
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": "never",
-      "source.fixAll": "never"
-    }
+    "editor.suggest.insertMode": "replace"
   },
   "[jsonc]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "never",
+      "source.organizeImports": "never"
+    },
     "editor.quickSuggestions": {
       "strings": true
     },
-    "editor.suggest.insertMode": "replace",
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": "never",
-      "source.fixAll": "never"
-    }
+    "editor.suggest.insertMode": "replace"
   },
   "[njk]": {
-    "editor.suggest.insertMode": "replace",
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "never",
-      "source.fixAll": "never"
-    }
+      "source.fixAll": "never",
+      "source.organizeImports": "never"
+    },
+    "editor.suggest.insertMode": "replace"
   },
   "[python]": {
     "editor.codeActionsOnSave": {
       "source.organizeImports": "never"
     },
+    "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.formatOnSave": true,
-    "editor.tabSize": 4,
     "editor.insertSpaces": true,
-    "editor.defaultFormatter": "ms-python.black-formatter"
+    "editor.tabSize": 4
   },
   "[twig]": {
     "editor.defaultFormatter": "vscode.html-language-features"
   },
   "autopep8.args": ["--ignore", "E401,E402,E211,E501"],
   "code-runner.clearPreviousOutput": true,
+  "code-runner.cwd": "${workspaceFolder}",
   "code-runner.executorMapByGlob": {
-    "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
-    "*.py": "py -u",
     "*.electron.js": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
-    "*.ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm",
     "*.mjs": "node --no-warnings=ExperimentalWarning",
-    "*Test.php": "phpunit --verbose --debug --testdox --colors=always",
     "*.php": "php -d display_errors=1 -d error_reporting=E_ALL -d xdebug.mode=coverage -d xdebug.start_with_request=yes -d xdebug.client_port=9003 -d xdebug.log=$workspaceRoot/tmp/logs/xdebug.log $fullFileName",
+    "*.py": "py -u",
+    "*.ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm",
+    "*Test.php": "phpunit --verbose --debug --testdox --colors=always",
+    "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
     "rollup.*.{js,cjs,mjs,ts}": "rollup -c"
   },
   "code-runner.ignoreSelection": true,
@@ -72,24 +73,23 @@
   "eslint.useFlatConfig": true,
   "files.autoSave": "onWindowChange",
   "files.exclude": {
-    "**/.cache/**": true,
     "**/.DS_Store": true,
+    "**/.cache/**": true,
     "**/.git": true,
     "**/.hg": true,
     "**/.idea/**": true,
     "**/.svn": true,
     "**/Thumbs.db": true,
+    "**/bas/": true,
+    "**/data/fingerprints": true,
+    "**/data/profiles": true,
+    "**/data/run": true,
     "**/dist": false,
     "**/.venv": true,
     "**/.yarn": true,
     "**/node_modules": true,
     "**/vendor": true,
-    "backups": true,
-    "data/profiles": true,
-    "data/run": true,
-    "data/fingerprints": true,
-    "data/engine": true,
-    "bas/": true
+    "backups": true
   },
   "files.readonlyInclude": {
     "**/*.sqlite*": true
@@ -114,91 +114,114 @@
   "intelephense.environment.includePaths": ["${workspaceFolder}/src", "${workspaceFolder}/vendor"],
   "intelephense.environment.phpVersion": "7.4.33",
   "intelephense.files.exclude": [
-    "**/.git/**",
-    "**/.svn/**",
-    "**/.hg/**",
-    "**/CVS/**",
     "**/.DS_Store/**",
-    "**/node_modules/**",
+    "**/.git/**",
+    "**/.history/**",
+    "**/.hg/**",
+    "**/.svn/**",
+    "**/CVS/**",
     "**/bower_components/**",
-    "**/.history/**"
+    "**/node_modules/**"
   ],
   "intelephense.maxMemory": 1000,
   "intelephense.references.exclude": [],
   "intelephense.rename.exclude": [],
   "isort.args": ["--profile", "black"],
   "javascript.updateImportsOnPaste.enabled": false,
+  "js/ts.implicitProjectConfig.checkJs": true,
+  "js/ts.implicitProjectConfig.experimentalDecorators": true,
+  "js/ts.implicitProjectConfig.module": "ESNext",
+  "python.analysis.autoFormatStrings": true,
   "python.analysis.autoImportCompletions": true,
+  "python.analysis.diagnosticMode": "openFilesOnly",
+  "python.analysis.diagnosticsSource": "Pyright",
+  "python.analysis.inlayHints.pytestParameters": true,
   "python.createEnvironment.contentButton": "show",
+  "python.defaultInterpreterPath": "${workspaceFolder}/bin/py.cmd",
+  "python.envFile": "${workspaceFolder}/.env",
   "python.terminal.activateEnvInCurrentTerminal": true,
+  "python.testing.autoTestDiscoverOnSaveEnabled": false,
+  "python.testing.autoTestDiscoverOnSavePattern": "**/*test*.py",
+  "python.testing.cwd": "${workspaceFolder}",
+  "python.testing.debugPort": 8467,
+  "python.testing.promptToConfigure": true,
+  "python.testing.pytestArgs": [
+    "-ra",
+    "-v",
+    "-s",
+    "--cov=src",
+    "--cov=data",
+    "--cov=django_backend",
+    "--cov-report=term-missing",
+    "--cov-report=html:coverage/python",
+    "-k",
+    "*test*.py",
+    "./tests"
+  ],
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "remoteHub.gitProtocol": "http",
+  "remoteHub.richNavigation.enabled": true,
+  "sftp.debug": true,
+  "sftp.printDebugLog": true,
+  "search.exclude": {
+    "**/.DS_Store": true,
+    "**/.cache/**": true,
+    "**/.git/**": true,
+    "**/.hg/**": true,
+    "**/.idea/**": true,
+    "**/.svn/**": true,
+    "**/Thumbs.db": true,
+    "**/backups/**": true,
+    "**/bas/**": true,
+    "**/config/**": true,
+    "**/data/**": true,
+    "**/databases/**": true,
+    "**/dist/**": true,
+    "**/node_modules/**": true,
+    "**/profiles/**": true,
+    "**/vendor/**": true,
+    "**/venv/**": true,
+    "**/.venv/**": true,
+    "**/.yarn/**": true
+  },
   "terminal.integrated.defaultProfile.windows": "Command Prompt",
   "terminal.integrated.env.linux": {
-    // for non-WSL use prefix "${env:PATH}:"
-    // for WSL use prefix "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:"
-    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:${workspaceFolder}/bin:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/vendor/bin",
-    "NUITKA_CACHE_DIR": "${workspaceFolder}/tmp/nuitka-cache",
+    "DEBUG_PKG": "1",
     "ESLINT_USE_FLAT_CONFIG": "true",
-    "DEBUG_PKG": "1"
+    "NUITKA_CACHE_DIR": "${workspaceFolder}/tmp/nuitka-cache",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:${workspaceFolder}/bin:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/vendor/bin"
   },
   "terminal.integrated.env.windows": {
-    "PATH": "${env:PATH};${workspaceFolder}\\bin;${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\vendor\\bin",
-    "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
+    "DEBUG_PKG": "1",
     "ESLINT_USE_FLAT_CONFIG": "true",
-    "DEBUG_PKG": "1"
+    "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
+    "PATH": "${env:PATH};${workspaceFolder}\\bin;${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\vendor\\bin"
   },
   "terminal.integrated.profiles.windows": {
-    "PowerShell": {
-      "source": "PowerShell",
-      "icon": "terminal-powershell"
+    "Cygwin": {
+      "args": ["--login", "-i"],
+      "env": {
+        "CHERE_INVOKING": "1"
+      },
+      "path": "C:\\cygwin64\\bin\\bash.exe"
     },
     "Command Prompt": {
-      "path": ["${env:windir}\\Sysnative\\cmd.exe", "${env:windir}\\System32\\cmd.exe"],
       "args": [],
-      "icon": "terminal-cmd"
+      "icon": "terminal-cmd",
+      "path": ["${env:windir}\\Sysnative\\cmd.exe", "${env:windir}\\System32\\cmd.exe"]
     },
     "Git Bash": {
       "source": "Git Bash"
     },
-    "Cygwin": {
-      "path": "C:\\cygwin64\\bin\\bash.exe",
-      "args": ["--login", "-i"],
-      "env": {
-        "CHERE_INVOKING": "1"
-      }
+    "PowerShell": {
+      "icon": "terminal-powershell",
+      "source": "PowerShell"
     }
   },
-  "typescript.enablePromptUseWorkspaceTsdk": false,
+  "testing.displayedCoveragePercent": "minimum",
+  "testing.followRunningTest": true,
+  "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "typescript.updateImportsOnPaste.enabled": false,
-  "python.analysis.diagnosticMode": "openFilesOnly",
-  "python.analysis.diagnosticsSource": "Pyright",
-  "yaml.schemas": {
-    "https://taskfile.dev/schema.json": "Taskfile.yml"
-  },
-  "search.exclude": {
-    "**/venv/**": true,
-    "**/.cache/**": true,
-    "**/.idea/**": true,
-    "**/.venv/**": true,
-    "**/.yarn/**": true,
-    "**/dist/**": true,
-    "**/profiles/**": true,
-    "**/config/**": true,
-    "**/databases/**": true,
-    "**/node_modules/**": true,
-    "**/vendor/**": true,
-    "**/backups/**": true,
-    "**/data/**": true,
-    "**/bas/**": true,
-    "**/.git/**": true,
-    "**/.hg/**": true,
-    "**/.svn/**": true,
-    "**/.DS_Store": true,
-    "**/Thumbs.db": true
-  },
-  "workbench.remoteIndicator.showExtensionRecommendations": false,
-  "extensions.ignoreRecommendations": true,
-  "python.testing.pytestArgs": ["."],
-  "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
+  "typescript.updateImportsOnPaste.enabled": false
 }
