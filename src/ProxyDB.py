@@ -21,6 +21,15 @@ from src.SQLiteHelper import SQLiteHelper
 
 class ProxyDB:
     db: SQLiteHelper
+    """
+    ProxyDB manages proxy data storage and operations using an SQLite database.
+
+    Attributes:
+        db (SQLiteHelper): The SQLiteHelper instance for database operations. This attribute is available after `start_connection()` has been called at least once.
+
+    Note:
+        Ensure `start_connection()` is called before accessing or using `self.db` to establish the database connection.
+    """
 
     def __init__(
         self,
@@ -35,7 +44,6 @@ class ProxyDB:
             db_location (Optional[str]): The location of the SQLite database file. If None, uses default path.
             start (bool): If True, automatically starts the database connection.
         """
-        self.db = None  # type: ignore # Ensure self.db is always defined
         self.check_same_thread = check_same_thread
         self.db_location = db_location
         if db_location is None:
