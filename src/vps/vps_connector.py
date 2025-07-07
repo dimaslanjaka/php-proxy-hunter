@@ -37,7 +37,7 @@ class VPSConnector:
         port: int,
         username: str,
         remote_path: str,
-        local_path: str,
+        local_path: str = os.getcwd(),
         password: Optional[str] = None,
         key_path: Optional[str] = None,
     ):
@@ -133,12 +133,35 @@ class VPSConnector:
                 print()  # newline after progress bar
 
     def download(self, remote_path, local_path):
+        """
+        Download a file or directory from the remote server to the local machine.
+        If remote_path is a directory, recursively download its contents.
+        """
         if not self.sftp:
             print("❌\tSFTP client not initialized. Cannot download.")
             return
-        print(f"⬇️\tDownloading {remote_path} to {local_path}...\t")
-        self.sftp.get(remote_path, local_path)
-        print("✅\tDownload complete.")
+
+        if self._is_remote_dir(remote_path):
+            print(
+                f"⬇️\tRecursively downloading directory {remote_path} to {local_path}...\t"
+            )
+            if not os.path.exists(local_path):
+                os.makedirs(local_path)
+            for entry in self.sftp.listdir_attr(remote_path):
+                remote_item = os.path.join(remote_path, entry.filename).replace(
+                    "\\", "/"
+                )
+                local_item = os.path.join(local_path, entry.filename)
+                if entry.st_mode is not None and stat.S_ISDIR(entry.st_mode):
+                    self.download(remote_item, local_item)
+                else:
+                    print(f"⬇️\tDownloading file {remote_item} to {local_item}")
+                    self.sftp.get(remote_item, local_item)
+            print("✅\tDirectory download complete.")
+        else:
+            print(f"⬇️\tDownloading {remote_path} to {local_path}...\t")
+            self.sftp.get(remote_path, local_path)
+            print("✅\tDownload complete.")
 
     def delete_remote(self, remote_path: str) -> None:
         """Delete a file on the remote server via SFTP. Ignores if file does not exist."""
@@ -255,13 +278,16 @@ class VPSConnector:
                 print(f"❌\tLocal path not found: {path}")
 
     def _is_remote_dir(self, remote_path: str) -> bool:
+        """
+        Check if a remote path is a directory on the SFTP server.
+        """
+        if self.sftp is None:
+            return False
         try:
-            if self.sftp is None:
-                return False
             remote_stat = self.sftp.stat(remote_path)
-            if remote_stat is None or remote_stat.st_mode is None:
-                return False
-            return stat.S_ISDIR(remote_stat.st_mode)
+            if remote_stat is not None and remote_stat.st_mode is not None:
+                return stat.S_ISDIR(remote_stat.st_mode)
+            return False
         except Exception:
             return False
 
@@ -347,24 +373,9 @@ if __name__ == "__main__":
     try:
         vps.connect()
         vps.run_command("uptime")
-        # Ensure 'test.txt' exists before uploading
-        if not os.path.exists("test.txt"):
-            with open("test.txt", "w") as f:
-                f.write("This is a test file for upload.\n")
-
-        vps.upload("test.txt", f"{vps.remote_path}/test.txt")
-        vps.download(f"{vps.remote_path}/test.txt", "downloaded_test.txt")
-
-        # Test new delete function (delete both local and remote)
-        # Re-upload for demonstration
-        vps.upload("test.txt", f"{vps.remote_path}/test.txt")
-        shutil.copy("test.txt", "test_copy.txt")
-        vps.upload("test_copy.txt", f"{vps.remote_path}/test_copy.txt")
-        print("\nTesting new delete function on test.txt (both local and remote):")
-        vps.delete("test.txt", remote=True, local=True)
-        print("\nTesting new delete function on test_copy.txt (both local and remote):")
-        vps.delete("test_copy.txt", remote=True, local=True)
-        print("\nTesting new delete function on downloaded_test.txt (local only):")
-        vps.delete("downloaded_test.txt", remote=False, local=True)
+        # vps.run_command("git pull", "/var/www/html")
+        # Try downloading backups
+        print("Downloading backups from remote server...")
+        vps.download(f"{vps.remote_path}/backups", "backups")
     finally:
         vps.close()
