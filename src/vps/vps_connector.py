@@ -132,6 +132,12 @@ class VPSConnector:
                 )
                 print()  # newline after progress bar
 
+    def _print_download_progress(self, filename: str, size: int, received: int) -> None:
+        """Print the download progress for a file."""
+        percent = float(received) / float(size) * 100 if size else 100
+        sys.stdout.write(f"\r⬇️\tDownloading {filename}: {percent:.2f}%")
+        sys.stdout.flush()
+
     def download(self, remote_path, local_path):
         """
         Download a file or directory from the remote server to the local machine.
@@ -155,12 +161,39 @@ class VPSConnector:
                 if entry.st_mode is not None and stat.S_ISDIR(entry.st_mode):
                     self.download(remote_item, local_item)
                 else:
+                    file_size = entry.st_size if hasattr(entry, "st_size") else None
                     print(f"⬇️\tDownloading file {remote_item} to {local_item}")
-                    self.sftp.get(remote_item, local_item)
+                    if file_size:
+                        self.sftp.get(
+                            remote_item,
+                            local_item,
+                            callback=lambda received, total=file_size, f=entry.filename: self._print_download_progress(
+                                f, total, received
+                            ),
+                        )
+                        print()  # newline after progress bar
+                    else:
+                        self.sftp.get(remote_item, local_item)
             print("✅\tDirectory download complete.")
         else:
             print(f"⬇️\tDownloading {remote_path} to {local_path}...\t")
-            self.sftp.get(remote_path, local_path)
+            # Get file size for progress
+            try:
+                remote_stat = self.sftp.stat(remote_path)
+                file_size = remote_stat.st_size
+            except Exception:
+                file_size = None
+            if file_size:
+                self.sftp.get(
+                    remote_path,
+                    local_path,
+                    callback=lambda received, total=file_size, f=os.path.basename(
+                        remote_path
+                    ): self._print_download_progress(f, total, received),
+                )
+                print()  # newline after progress bar
+            else:
+                self.sftp.get(remote_path, local_path)
             print("✅\tDownload complete.")
 
     def delete_remote(self, remote_path: str) -> None:
