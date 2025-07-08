@@ -80,7 +80,7 @@ if ($currentPath) {
 }
 
 /**
- * Determines whether the application is in debug mode.
+ * Determines whether the application is in debug mode. (DEVELOPMENT MODE)
  *
  * Debug mode is activated based on several conditions:
  * - If the code is running in a GitHub CI environment or GitHub Codespaces.
@@ -158,7 +158,7 @@ ini_set("log_errors", 1); // Enable error logging
 $error_file = __DIR__ . "/tmp/logs/php-error.txt";
 if (!$isCli) {
   // Sanitize the user agent string
-  $user_agent = preg_replace('/[^a-zA-Z0-9-_\.]/', '_', $_SERVER['HTTP_USER_AGENT']);
+  $user_agent = preg_replace('/[^a-zA-Z0-9-_\.]/', '_', $_SERVER['HTTP_USER_AGENT'] ?? 'unknown');
 
   // Check if the sanitized user agent is empty
   if (empty($user_agent)) {
@@ -2109,6 +2109,7 @@ function split_by_line(?string $str): array
  */
 function moveContent(string $sourceFile, string $destinationFile): string
 {
+
   // Check if source file is readable
   if (!is_readable($sourceFile)) {
     return "$sourceFile not readable";

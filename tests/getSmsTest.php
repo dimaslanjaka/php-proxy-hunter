@@ -14,8 +14,8 @@ use PHPUnit\Framework\TestCase;
  * - POST request with JSON body.
  *
  * Prerequisites:
- * - PHP server running at http://localhost:3000/php_backend/get_sms.php
- *   (Start with: php -S localhost:3000)
+ * - PHP server running at http://localhost:8000/php_backend/get_sms.php
+ *   (Start with: php -S localhost:8000)
  * - PHPUnit installed via Composer.
  *
  * Usage:
@@ -38,7 +38,7 @@ class GetSmsTest extends TestCase
   public static function setUpBeforeClass(): void
   {
     $urlsToTry = [
-      'http://localhost:3000/php_backend/get_sms.php',
+      'http://localhost:8000/php_backend/get_sms.php',
       'http://localhost/php_backend/get_sms.php',
     ];
 
@@ -50,7 +50,7 @@ class GetSmsTest extends TestCase
       }
     }
 
-    self::fail("Neither http://localhost:3000 nor http://localhost is available.");
+    self::fail("Neither http://localhost:8000 nor http://localhost is available.");
   }
 
   public function testPostJson()
