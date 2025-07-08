@@ -29,7 +29,8 @@
     "build:packages": "yarn workspaces foreach --no-private --all run build",
     "build:docs": "yarn workspace gh-pages-builder run build",
     "postinstall": "npm run build:packages",
-    "update:sha": "node package-resolution-updater.js"
+    "update:sha": "node package-resolution-updater.mjs",
+    "download:updater": "curl -o package-resolution-updater.mjs https://raw.githubusercontent.com/dimaslanjaka/nodejs-package-types/refs/heads/main/package-resolution-updater.mjs"
   },
   "workspaces": {
     "packages": [

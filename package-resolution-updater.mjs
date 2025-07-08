@@ -37,12 +37,41 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // 📌 Static override rules
 const specialPackageOverrides = [
+  // SBG packages
   { pkg: 'sbg-utility', branch: 'sbg-utility', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
   { pkg: 'sbg-api', branch: 'sbg-api', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
   { pkg: 'instant-indexing', branch: 'instant-indexing', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
   { pkg: 'sbg-server', branch: 'master', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
   { pkg: 'sbg-cli', branch: 'master', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
-  { pkg: 'static-blog-generator', branch: 'master', repo: 'static-blog-generator', owner: 'dimaslanjaka' }
+  { pkg: 'static-blog-generator', branch: 'master', repo: 'static-blog-generator', owner: 'dimaslanjaka' },
+  // Hexo family
+  { pkg: 'hexo', branch: 'monorepo-v7', repo: 'hexo', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-util', branch: 'monorepo-v7', repo: 'hexo', owner: 'dimaslanjaka' },
+  { pkg: 'warehouse', branch: 'monorepo-v7', repo: 'hexo', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-server', branch: 'monorepo-v7', repo: 'hexo', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-log', branch: 'monorepo-v7', repo: 'hexo', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-front-matter', branch: 'monorepo-v7', repo: 'hexo', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-cli', branch: 'monorepo-v7', repo: 'hexo', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-asset-link', branch: 'monorepo-v7', repo: 'hexo', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-post-parser', branch: 'pre-release', repo: 'hexo-post-parser', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-seo', branch: 'pre-release', repo: 'hexo-seo', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-is', branch: 'master', repo: 'hexo-is', owner: 'dimaslanjaka' },
+  { pkg: 'markdown-it', branch: 'master', repo: 'markdown-it', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-renderers', branch: 'pre-release', repo: 'hexo-renderers', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-shortcodes', branch: 'pre-release', repo: 'hexo-shortcodes', owner: 'dimaslanjaka' },
+  { pkg: 'google-news-sitemap', branch: 'master', repo: 'google-news-sitemap', owner: 'dimaslanjaka' },
+  { pkg: 'git-command-helper', branch: 'pre-release', repo: 'git-command-helper', owner: 'dimaslanjaka' },
+  {
+    pkg: 'nodejs-package-types',
+    branch: 'main',
+    repo: 'nodejs-package-types',
+    owner: 'dimaslanjaka'
+  },
+  { pkg: 'cross-spawn', branch: 'private', repo: 'node-cross-spawn', owner: 'dimaslanjaka' },
+  { pkg: 'hexo-generator-redirect', branch: 'master', repo: 'hexo-generator-redirect', owner: 'dimaslanjaka' },
+  { pkg: 'binary-collections', branch: 'master', repo: 'bin', owner: 'dimaslanjaka' },
+  { pkg: '@types/hexo', branch: 'monorepo-v7', repo: 'hexo', owner: 'dimaslanjaka' },
+  { pkg: '@types/git-command-helper', branch: 'pre-release', repo: 'git-command-helper', owner: 'dimaslanjaka' }
 ];
 
 /**
@@ -190,9 +219,28 @@ function parseGitHubUrl(url) {
 // 🧠 Main logic
 (async () => {
   const entries = Object.entries(pkg.resolutions || {});
-  const updates = await Promise.all(
-    entries.map(async ([currentPkgName, url]) => {
-      const repo = parseGitHubUrl(url);
+
+  if (entries.length === 0) {
+    console.log(ansiColors.yellow('No resolutions found in package.json'));
+    return;
+  }
+
+  console.log(`Processing ${entries.length} resolution(s)...`);
+
+  const updates = [];
+
+  for (const [currentPkgName, url] of entries) {
+    // Validate if URL is a GitHub URL
+    let repo;
+    try {
+      repo = parseGitHubUrl(url);
+      console.log(`✅ Valid GitHub URL for ${ansiColors.cyan(currentPkgName)}: ${url}`);
+    } catch (error) {
+      console.log(`⏭️  Skipping ${ansiColors.yellow(currentPkgName)}: ${error.message}`);
+      continue;
+    }
+
+    try {
       const override = specialPackageOverrides.find((p) => p.pkg === currentPkgName);
 
       const latest = override
@@ -201,15 +249,24 @@ function parseGitHubUrl(url) {
 
       const new_url = replaceRawWithLatestHash(url, latest.sha);
 
-      return {
+      updates.push({
         currentPkgName,
         url,
         new_url,
         repo,
         latest
-      };
-    })
-  );
+      });
+    } catch (error) {
+      console.log(`❌ Failed to process ${ansiColors.red(currentPkgName)}: ${error.message}`);
+    }
+  }
+
+  if (updates.length === 0) {
+    console.log(ansiColors.yellow('No GitHub URLs were processed'));
+    return;
+  }
+
+  console.log(`\n📝 Applying updates to ${updates.length} GitHub URL(s)...`);
 
   for (const { currentPkgName, url, new_url, repo, latest } of updates) {
     if (url !== new_url) {
@@ -217,8 +274,11 @@ function parseGitHubUrl(url) {
       console.log('  from:', url.replace(repo.branch, ansiColors.red(repo.branch)));
       console.log('    to:', new_url.replace(latest.sha, ansiColors.green(latest.sha)));
       pkg.resolutions[currentPkgName] = new_url;
+    } else {
+      console.log(`\n${ansiColors.cyan(currentPkgName)}: ${ansiColors.gray('already up-to-date')}`);
     }
   }
 
   fs.writeFileSync(path.join(__dirname, 'package.json'), JSON.stringify(pkg, null, 2));
+  console.log(`\n✅ package.json updated successfully`);
 })();
