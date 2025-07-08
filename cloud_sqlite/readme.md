@@ -40,7 +40,7 @@ The application loads this value automatically via `config.php` using [vlucas/ph
 Ensure the PDO SQLite extension is enabled in your `php.ini` file:
 
 - Open your `php.ini` (location varies by system, e.g., `C:/xampp/php/php.ini`)
-- Make sure the following line is present and not commented out (remove the leading `;` if present):
+- Make sure the following lines are present and not commented out (remove the leading `;` if present):
   ```ini
   extension=pdo_sqlite
   ```
