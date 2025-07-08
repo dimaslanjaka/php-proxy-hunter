@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /** @noinspection RegExpRedundantEscape */
 /** @noinspection RegExpUnnecessaryNonCapturingGroup */
 
@@ -925,34 +927,37 @@ function filterIpPortLines(string $inputFile): string
     return "$inputFile locked";
   }
 
-  // Read content from file
-  $content = read_file($inputFile);
-  if (!is_string($content) || empty(trim($content))) {
-    return "$inputFile could not be read or has empty content";
-  }
-
   // Regex pattern for IP:PORT format
   $re = '/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}\b/';
 
-  // Split content into lines
-  $lines = split_by_line($content);
-  if (!$lines) {
-    return "Failed to split content into lines";
+  $tmpFile = $inputFile . '.tmp';
+  $in = fopen($inputFile, 'r');
+  if (!$in) {
+    return "$inputFile could not be opened for reading";
   }
-
-  // Filter lines based on regex pattern
-  $filteredLines = [];
-  foreach ($lines as $line) {
+  $out = fopen($tmpFile, 'w');
+  if (!$out) {
+    fclose($in);
+    return "$tmpFile could not be opened for writing";
+  }
+  $found = false;
+  while (($line = fgets($in)) !== false) {
     if (preg_match($re, $line)) {
-      $filteredLines[] = $line;
+      fwrite($out, $line);
+      $found = true;
     }
   }
-
-  // Write filtered lines back to the file
-  if (file_put_contents($inputFile, implode("\n", $filteredLines)) === false) {
-    return "Failed to write filtered content to $inputFile";
+  fclose($in);
+  fclose($out);
+  if ($found) {
+    if (!rename($tmpFile, $inputFile)) {
+      unlink($tmpFile);
+      return "Failed to overwrite $inputFile with filtered content";
+    }
+  } else {
+    unlink($tmpFile);
+    return "$inputFile has no valid proxy lines";
   }
-
   return 'success';
 }
 
