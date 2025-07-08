@@ -18,12 +18,14 @@ async function configResolver() {
 
   // Define paths for dynamic configuration files
   const dynamicConfigs = [
-    ...globSync('rollup.*.js', { cwd: __dirname }).map((f) => path.join(__dirname, f)),
-    ...globSync('rollup.*.cjs', { cwd: __dirname }).map((f) => path.join(__dirname, f)),
-    ...globSync('rollup.*.mjs', { cwd: __dirname }).map((f) => path.join(__dirname, f))
+    ...globSync('rollup.*.{js,cjs,mjs}', { cwd: __dirname, nodir: true }).map((f) => path.join(__dirname, f))
   ].filter((v, i, a) => a.indexOf(v) === i);
 
-  // Helper to timeout if import hangs
+  /**
+   * Promise that rejects after a timeout.
+   * @param {number} ms - Milliseconds to wait before rejecting.
+   * @returns {Promise<never>}
+   */
   const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout loading config')), ms));
 
   // Loop through dynamicConfigs and add them to configs if they exist
