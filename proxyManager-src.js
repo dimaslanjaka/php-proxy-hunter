@@ -57,13 +57,15 @@ async function main() {
     doCheck();
   });
 
-  document.getElementById('filter-ports').addEventListener('click', (e) => {
+  document.getElementById('filter-ports')?.addEventListener('click', (e) => {
     e.preventDefault();
     showSnackbar('Filter open ports requested');
-    fetch('./filterPortsBackground.php', { signal: AbortSignal.timeout(5000) }).catch((e) => showSnackbar(e.message));
+    fetch('./artisan/filterPortsBackground.php', { signal: AbortSignal.timeout(5000) }).catch((e) =>
+      showSnackbar(e.message)
+    );
   });
 
-  document.getElementById('respawn-proxies').addEventListener('click', (e) => {
+  document.getElementById('respawn-proxies')?.addEventListener('click', (e) => {
     e.preventDefault();
     showSnackbar('Proxy respawner requested');
     fetch('./proxyRespawner.php', { signal: AbortSignal.timeout(5000) }).catch((e) => showSnackbar(e.message));
@@ -77,7 +79,7 @@ async function main() {
 
   const autoCheck = document.getElementById('autoCheckProxy');
   if (['dev.webmanajemen.com', 'localhost', '127.0.0.1'].some((str) => new RegExp(str).test(location.host))) {
-    autoCheck.addEventListener('change', (_e) => {
+    autoCheck?.addEventListener('change', (_e) => {
       clearInterval(interval_check);
       if (autoCheck.checked) {
         const callback = () =>
@@ -94,7 +96,7 @@ async function main() {
       }
     });
   } else {
-    document.getElementById('autoCheckProxy-wrapper').remove();
+    document.getElementById('autoCheckProxy-wrapper')?.remove();
   }
 
   // noinspection ES6MissingAwait
@@ -182,10 +184,10 @@ async function checkerOutput() {
     })
     .join('<br/>');
   const checkerResult = document.getElementById('cpresult');
-  checkerResult.innerHTML = filter;
+  if (checkerResult) checkerResult.innerHTML = filter;
   // Check if content height exceeds div height
   // Only scroll when checker status is running
-  if (checkerResult.scrollHeight > checkerResult.clientHeight && checker_status) {
+  if (checkerResult && checkerResult.scrollHeight > checkerResult.clientHeight && checker_status) {
     // Scroll the div to the bottom
     checkerResult.scrollTop = checkerResult.scrollHeight - checkerResult.clientHeight;
   }

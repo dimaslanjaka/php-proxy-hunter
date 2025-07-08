@@ -11,18 +11,18 @@ run_php_script() {
     if [[ "$(uname -s)" == *"CYGWIN"* || "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"MSYS"* ]]; then
         # Running on Windows
         php "$SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 --admin=true &
-        php "$SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 --admin=true --delete=true &
+        php "$SCRIPT_DIR/../artisan/filterPortsDuplicate.php" --max=400 --admin=true --delete=true &
     elif [[ "$(uname -s)" == "Linux" ]]; then
         if command -v lsb_release &> /dev/null; then
             if [[ "$(lsb_release -is)" == "Ubuntu" ]]; then
                 if command -v nginx &> /dev/null; then
                     # Running on Ubuntu with Nginx installed
                     sudo -u www-data php "$SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 --admin=true &
-                    sudo -u www-data php "$SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 --admin=true --delete=true &
+                    sudo -u www-data php "$SCRIPT_DIR/../artisan/filterPortsDuplicate.php" --max=400 --admin=true --delete=true &
                 else
                     echo "Nginx is not installed, running PHP script without sudo"
                     php "$SCRIPT_DIR/../proxyCheckerParallel.php" --max=400 --admin=true &
-                    php "$SCRIPT_DIR/../filterPortsDuplicate.php" --max=400 --admin=true --delete=true &
+                    php "$SCRIPT_DIR/../artisan/filterPortsDuplicate.php" --max=400 --admin=true --delete=true &
                 fi
             else
                 echo "Linux distribution is not Ubuntu: $(lsb_release -is)"

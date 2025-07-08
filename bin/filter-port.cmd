@@ -1,4 +1,4 @@
 @echo off
 
-php filterPortsBackground.php
+php artisan/filterPortsBackground.php
 echo.

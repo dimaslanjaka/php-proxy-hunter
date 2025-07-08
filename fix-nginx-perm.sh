@@ -91,8 +91,8 @@ run_php_if_not_running() {
 
 # Validate and run scripts if not already running
 run_php_if_not_running "proxies-all.php" "--admin=true"
-run_php_if_not_running "filterPortsDuplicate.php" "--admin=true --delete=true"
-run_php_if_not_running "filterPorts.php" "--admin=true"
+run_php_if_not_running "artisan/filterPortsDuplicate.php" "--admin=true --delete=true"
+run_php_if_not_running "artisan/filterPorts.php" "--admin=true"
 run_php_if_not_running "proxyChecker.php" "--admin=true --max=1000" "true"
 
 echo "Composer installed"

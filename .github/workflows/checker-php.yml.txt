@@ -260,8 +260,8 @@ jobs:
       - name: Scan ports
         run: |
           php scanPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
-          # php filterPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
-          php filterPortsDuplicate.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
+          # php artisan/filterPorts.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
+          php artisan/filterPortsDuplicate.php --max='${{ github.event.inputs.max || 100 }}' --admin='true'
       - name: Upload all proxies
         if: steps.check_last_run.outputs.run_the_job_last_week_run_timestamp == 'true'
         run: python proxyUpload.py

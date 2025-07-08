@@ -2,7 +2,7 @@
 
 // remove duplicate IP from database
 
-require __DIR__ . '/func-proxy.php';
+require __DIR__ . '/../func-proxy.php';
 
 global $isCli;
 
@@ -53,12 +53,12 @@ if ($isAdmin || $endless) {
   set_time_limit(0);
 }
 
-$lockFilePath = tmp() . "/runners/" . basename(__FILE__, '.php') . ".lock";
+$lockFilePath = tmp("/runners/" . basename(__FILE__, '.php') . ".lock");
 if ($endless) {
-  $lockFilePath = tmp() . "/" . basename(__FILE__, '.php') . "-endless.lock";
+  $lockFilePath = tmp("/" . basename(__FILE__, '.php') . "-endless.lock");
 }
 
-$statusFile = __DIR__ . "/status.txt";
+$statusFile = dirname(__DIR__) . "/status.txt";
 
 // Check if the lock file exists
 if (file_exists($lockFilePath)) {
@@ -254,10 +254,11 @@ function wasCheckedThisWeek($pdo, $proxy)
 function write_working()
 {
   global $db;
+  $projectRoot = dirname(__DIR__);
   echo "[FILTER-PORT] writing working proxies" . PHP_EOL;
   $data = parse_working_proxies($db);
-  file_put_contents(__DIR__ . '/working.txt', $data['txt']);
-  file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
-  file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
+  file_put_contents($projectRoot . '/working.txt', $data['txt']);
+  file_put_contents($projectRoot . '/working.json', json_encode($data['array']));
+  file_put_contents($projectRoot . '/status.json', json_encode($data['counter']));
   return $data;
 }

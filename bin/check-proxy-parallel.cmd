@@ -15,5 +15,5 @@ for /l %%i in (1, 1, %NUM_INSTANCES%) do (
 )
 
 for /l %%i in (1, 1, %NUM_INSTANCES%) do (
-    start "Filter ports %%i" php "%cwd%filterPortsDuplicate.php" --max=400 --admin=true --delete=true
+    start "Filter ports %%i" php "%cwd%artisan/filterPortsDuplicate.php" --max=400 --admin=true --delete=true
 )

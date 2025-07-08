@@ -350,6 +350,6 @@ jobs:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
           bash bin/clear-github-actions-cache
-          php filterPortsDuplicate.php --admin='true'
+          php artisan/filterPortsDuplicate.php --admin='true'
           date +%s > tmp/last_ci_cache_clean_timestamp.txt  # Update last clean timestamp
           echo "last_ci_cache_clean_timestamp=$(date +%s)" >> $GITHUB_STATE

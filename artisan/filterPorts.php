@@ -1,8 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 // filter open ports only
 
-require __DIR__ . '/func-proxy.php';
+// Define project root for reuse
+const PROJECT_ROOT = __DIR__ !== null ? dirname(__DIR__) : '';
+
+require PROJECT_ROOT . '/func-proxy.php';
 
 use PhpProxyHunter\Proxy;
 use PhpProxyHunter\ProxyDB;
@@ -46,8 +51,8 @@ if ($isCli) {
   }
 }
 
-$lockFilePath = tmp() . "/runners/" . basename(__FILE__, '.php') . ".lock";
-$statusFile = __DIR__ . "/status.txt";
+$lockFilePath = PROJECT_ROOT . "/tmp/runners/" . basename(__FILE__, '.php') . ".lock";
+$statusFile = PROJECT_ROOT . "/status.txt";
 
 if (file_exists($lockFilePath) && !is_debug()) {
   exit(date(DATE_RFC3339) . ' another process still running ' . basename(__FILE__, '.php') . PHP_EOL);
@@ -56,7 +61,7 @@ if (file_exists($lockFilePath) && !is_debug()) {
   file_put_contents($statusFile, 'filter-ports');
 }
 
-function exitProcess()
+function exitProcess(): void
 {
   global $lockFilePath, $statusFile;
   if (file_exists($lockFilePath)) {
@@ -69,7 +74,7 @@ register_shutdown_function('exitProcess');
 
 $db = new ProxyDB();
 
-$file = __DIR__ . '/proxies.txt';
+$file = PROJECT_ROOT . '/proxies.txt';
 
 // remove empty lines
 removeEmptyLinesFromFile($file);
@@ -98,7 +103,7 @@ try {
     if (!$read) {
       $read = [];
     }
-    $proxies = extractProxies(implode("\n", $read), $db, false);
+    $proxies = extractProxies(implode("\n", $read), null, false);
     $proxies = array_merge($proxies, $db_data_map);
   } else {
     // prioritize untested proxies from database
@@ -127,7 +132,7 @@ try {
   echo "fail extracting proxies " . $e->getMessage() . PHP_EOL;
 }
 
-function processProxy($proxy)
+function processProxy($proxy): void
 {
   global $start_time, $file, $db, $maxExecutionTime;
   // Check if execution time exceeds [n] seconds
@@ -136,7 +141,7 @@ function processProxy($proxy)
     return;
   }
   if (!isPortOpen($proxy)) {
-    removeStringAndMoveToFile($file, __DIR__ . '/dead.txt', $proxy);
+    removeStringAndMoveToFile($file, PROJECT_ROOT . '/dead.txt', $proxy);
     $db->updateData($proxy, ['status' => 'port-closed'], false);
     echo $proxy . " port closed" . PHP_EOL;
   }

@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-/** @noinspection DuplicatedCode */
+// Define project root for reuse
+$projectRoot = dirname(__DIR__);
 
-// working proxies writer
-
-require_once dirname(__DIR__) . '/func-proxy.php';
+require_once $projectRoot . '/func-proxy.php';
 
 use PhpProxyHunter\ProxyDB;
 
@@ -19,12 +18,11 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
-$projectDir = dirname(__DIR__);
-if (file_exists($projectDir . '/proxyChecker.lock') && !is_debug()) {
+if (file_exists($projectRoot . '/proxyChecker.lock') && !is_debug()) {
   exit('proxy checker process still running');
 }
 
-$lockFilePath = $projectDir . '/proxyWorking.lock';
+$lockFilePath = $projectRoot . '/proxyWorking.lock';
 
 if (file_exists($lockFilePath) && !is_debug()) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
@@ -47,11 +45,9 @@ $db = new ProxyDB();
 $data = parse_working_proxies($db);
 
 // write working proxies
-write_file($projectDir . '/working.txt', $data['txt']);
-write_file($projectDir . '/working.json', json_encode($data['array']));
-
-// write status
-write_file($projectDir . '/status.json', json_encode($data['counter']));
+write_file($projectRoot . '/working.txt', $data['txt']);
+write_file($projectRoot . '/working.json', json_encode($data['array']));
+write_file($projectRoot . '/status.json', json_encode($data['counter']));
 
 echo PHP_EOL;
 
@@ -73,20 +69,10 @@ foreach ($data['counter'] as $key => $value) {
   echo "total $key $value proxies" . PHP_EOL;
 }
 
-// set limitation for below codes only
-//if (function_exists('set_time_limit')) set_time_limit(30);
-//
-//$untested = extractProxies(read_file(__DIR__ . '/proxies.txt'));
-//$untested = uniqueClassObjectsByProperty($untested, 'proxy');
-//$untested = count($untested);
-//echo "total untested proxies from file " . $untested . PHP_EOL;
-//$data['counter']['untested'] += $untested;
-//file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
-
 setMultiPermissions([
-  $projectDir . '/status.json',
-  $projectDir . '/proxies.txt',
-  $projectDir . '/dead.txt',
-  $projectDir . '/working.txt',
-  $projectDir . '/working.json',
+  $projectRoot . '/status.json',
+  $projectRoot . '/proxies.txt',
+  $projectRoot . '/dead.txt',
+  $projectRoot . '/working.txt',
+  $projectRoot . '/working.json',
 ]);

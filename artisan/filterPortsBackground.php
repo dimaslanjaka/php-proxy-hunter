@@ -1,6 +1,11 @@
 <?php
 
-require_once __DIR__ . "/func-proxy.php";
+declare(strict_types=1);
+
+// Define project root for reuse
+$projectRoot = dirname(__DIR__);
+
+require_once $projectRoot . "/func-proxy.php";
 
 if (!$isCli) {
   // Allow from any origin
@@ -20,14 +25,13 @@ if (!$isCli) {
 }
 
 // Run a long-running process in the background
-$files = [__DIR__ . "/filterPorts.php", __DIR__ . "/filterPortsDuplicate.php"];
+$files = [$projectRoot . "/artisan/filterPorts.php", $projectRoot . "/artisan/filterPortsDuplicate.php"];
 $lock_files = [];
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
 foreach ($files as $file) {
-  $output_file = __DIR__ . '/proxyChecker.txt';
-  $pid_file = __DIR__ . '/tmp/runners/' . basename($file, '.php') . '.pid';
-  $lock_files[] = $pid_file;
+  $output_file = $projectRoot . '/proxyChecker.txt';
+  $pid_file = $projectRoot . '/tmp/runners/' . basename($file, '.php') . '.pid';
   setMultiPermissions([$file, $output_file, $pid_file]);
   $cmd = "php " . escapeshellarg($file);
 
@@ -37,7 +41,7 @@ foreach ($files as $file) {
   $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
 
   // validate lock files
-  $lock_file = __DIR__ . '/tmp/runners/' . basename($file, '.php') . '.lock';
+  $lock_file = $projectRoot . '/tmp/runners/' . basename($file, '.php') . '.lock';
   $lock_files[] = $lock_file;
   if (file_exists($lock_file) && !is_debug()) {
     echo date(DATE_RFC3339) . ' another process still running '  . basename($file, '.php') . PHP_EOL;
@@ -48,7 +52,7 @@ foreach ($files as $file) {
 
   $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
 
-  $runner = __DIR__ . "/tmp/runners/" . basename(__FILE__, '.php') . ($isWin ? '.bat' : "");
+  $runner = $projectRoot . "/tmp/runners/" . basename(__FILE__, '.php') . ($isWin ? '.bat' : "");
   write_file($runner, $cmd);
   write_file($lock_file, '');
 

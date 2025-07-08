@@ -26,7 +26,7 @@ if (function_exists('header')) {
 $lock_files = [];
 $file = __DIR__ . "/geoIp.php";
 $output_file = __DIR__ . '/proxyChecker.txt';
-$pid_file = __DIR__ . '/filterPorts.pid';
+$pid_file = __DIR__ . '/geoIpBackround.pid';
 $lock_files[] = $pid_file;
 setMultiPermissions([$file, $output_file, $pid_file]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
