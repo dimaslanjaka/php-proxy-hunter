@@ -54,7 +54,7 @@
 │   ├── build.js [5e4f6bb9]
 │   └── test.js [d76416f6]
 ├── func-cidr.php [a9a669d4]
-├── func-proxy.php [293ea74c]
+├── func-proxy.php [04701b67]
 ├── func.php [ec10728b]
 ├── geoIp.php [c1ba94c7]
 ├── geoIpBackground.php [fe3b4984]
@@ -139,7 +139,7 @@
 │   ├── PhpProxyHunter/
 │   │   ├── ExecutionTimer.php [5a7fe518]
 │   │   ├── FileLockHelper.php [33f77868]
-│   │   ├── GeoIpHelper.php [09ea4830]
+│   │   ├── GeoIpHelper.php [3cb3dccb]
 │   │   ├── Proxy.php [3b730285]
 │   │   ├── ProxyDB.php [d3ecff34]
 │   │   ├── SQLiteHelper.php [5af9cbf0]

@@ -437,7 +437,7 @@ function processCheckProxy($ch, $proxy, $type, $username, $password): array
       'result' => false,
       'latency' => $latency,
       'error' => $error_msg,
-      'status' => trim($info['http_code']),
+      'status' => (string)$info['http_code'],
       'private' => $isPrivate,
       'https' => $isHttps,
       'anonymity' => null
@@ -455,7 +455,7 @@ function processCheckProxy($ch, $proxy, $type, $username, $password): array
     // mark as private dead
     if ($is_private_match) {
       $result['result'] = false;
-      $result['status'] = trim($info['http_code']);
+      $result['status'] = (string)$info['http_code'];
       $result['error'] = 'Private proxy ' . json_encode($matches);
       $result['private'] = true;
       $result['https'] = true; // private proxy always support HTTPS
@@ -483,7 +483,7 @@ function processCheckProxy($ch, $proxy, $type, $username, $password): array
       'result' => true,
       'latency' => $latency,
       'error' => null,
-      'status' => trim($info['http_code']),
+      'status' => (string)$info['http_code'],
       'private' => $isPrivate,
       'https' => $isHttps,
       'anonymity' => null
