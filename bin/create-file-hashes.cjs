@@ -74,7 +74,7 @@ const envPath = path.join(projectDir, '.env');
   /**
    * Hashes a file and pushes its relative path and hash to the hashArray.
    * @param {string} file - The absolute path to the file.
-   * @returns {Promise<void>}
+   * @returns {Promise<void>} Resolves when the file has been processed and added to hashArray.
    */
   async function hashAndPush(file) {
     if (processedFiles.has(file)) return;
@@ -85,7 +85,7 @@ const envPath = path.join(projectDir, '.env');
       const hash = crypto.createHash('sha256').update(pseudoHash).digest('hex');
       let relativePath = path.relative(projectDir, file);
       relativePath = relativePath.split(path.sep).join('/');
-      hashArray.push(`${relativePath} ${hash}`);
+      hashArray.push(`${relativePath} ${hash.slice(0, 8)}`);
     } catch (err) {
       console.error(`Error processing file: ${file}`, err);
     }
@@ -113,8 +113,63 @@ const envPath = path.join(projectDir, '.env');
   // Sort the hashArray by file paths
   hashArray.sort((a, b) => a.localeCompare(b));
 
-  // Output the sorted hashes to the file
-  await fs.writeFile(outputFile, hashArray.join('\n'), 'utf-8');
+  // Generates a directory/file tree string from a hash array of file paths and hashes.
+  /**
+   * Generates a directory/file tree string from a hash array of file paths and hashes.
+   *
+   * @param {string[]} hashArray - Array of strings in the format 'relative/path/to/file hash'.
+   * @returns {string} The directory/file tree as a string, with file hashes.
+   */
+  function getFileTreeString(hashArray) {
+    const tree = {};
+    // Map file paths to hashes for quick lookup
+    const hashMap = {};
+    for (const entry of hashArray) {
+      const [filePath, hash] = entry.split(' ');
+      hashMap[filePath] = hash;
+      const parts = filePath.split('/');
+      let current = tree;
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        if (i === parts.length - 1) {
+          current[part] = null; // file
+        } else {
+          current[part] = current[part] || {};
+          current = current[part];
+        }
+      }
+    }
+    /**
+     * Recursively builds the tree string for a given node.
+     *
+     * @param {Object} node - The current node in the tree.
+     * @param {string} prefix - The prefix for the current tree level.
+     * @param {string} parentPath - The path to the current node.
+     * @returns {string[]} Array of lines representing the tree structure.
+     */
+    function printNode(node, prefix = '', parentPath = '') {
+      const keys = Object.keys(node).sort();
+      let lines = [];
+      keys.forEach((key, idx) => {
+        const isLast = idx === keys.length - 1;
+        const branch = isLast ? '└── ' : '├── ';
+        const currentPath = parentPath ? parentPath + '/' + key : key;
+        if (node[key] === null) {
+          // file: show hash
+          lines.push(prefix + branch + key + ' [' + (hashMap[currentPath] || '') + ']');
+        } else {
+          lines.push(prefix + branch + key + '/');
+          lines = lines.concat(printNode(node[key], prefix + (isLast ? '    ' : '│   '), currentPath));
+        }
+      });
+      return lines;
+    }
+    return printNode(tree, '', '').join('\n');
+  }
+
+  // Write directory/file tree to the output file (hashes are included in the tree)
+  const fileTreeString = getFileTreeString(hashArray);
+  await fs.writeFile(outputFile, fileTreeString + '\n', 'utf-8');
 
   // Add the hash file to the commit
   execSync(`git add ${relativeOutputFile}`);
