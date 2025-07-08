@@ -38,7 +38,7 @@ let user_info;
  * dynamically get base url of current project.
  */
 const project_base_url =
-  !isNaN(location.port) && location.port !== '' ? `${location.hostname}:${location.port}` : location.hostname;
+  !isNaN(Number(location.port)) && location.port !== '' ? `${location.hostname}:${location.port}` : location.hostname;
 
 function noop() {
   //
@@ -57,7 +57,7 @@ async function main() {
     doCheck();
   });
 
-  document.getElementById('filter-ports')?.addEventListener('click', (e) => {
+  document.getElementById('filter-ports').addEventListener('click', (e) => {
     e.preventDefault();
     showSnackbar('Filter open ports requested');
     fetch('./artisan/filterPortsBackground.php', { signal: AbortSignal.timeout(5000) }).catch((e) =>
@@ -65,7 +65,7 @@ async function main() {
     );
   });
 
-  document.getElementById('respawn-proxies')?.addEventListener('click', (e) => {
+  document.getElementById('respawn-proxies').addEventListener('click', (e) => {
     e.preventDefault();
     showSnackbar('Proxy respawner requested');
     fetch('./proxyRespawner.php', { signal: AbortSignal.timeout(5000) }).catch((e) => showSnackbar(e.message));
@@ -79,8 +79,9 @@ async function main() {
 
   const autoCheck = document.getElementById('autoCheckProxy');
   if (['dev.webmanajemen.com', 'localhost', '127.0.0.1'].some((str) => new RegExp(str).test(location.host))) {
-    autoCheck?.addEventListener('change', (_e) => {
+    autoCheck.addEventListener('change', (_e) => {
       clearInterval(interval_check);
+
       if (autoCheck.checked) {
         const callback = () =>
           checkerStatus().then((result) => {
@@ -96,7 +97,7 @@ async function main() {
       }
     });
   } else {
-    document.getElementById('autoCheckProxy-wrapper')?.remove();
+    document.getElementById('autoCheckProxy-wrapper').remove();
   }
 
   // noinspection ES6MissingAwait
@@ -262,6 +263,7 @@ function scrollToResult() {
   const offset = 100; // Adjust this value to change the offset
 
   // Scroll to the element
+
   target.scrollIntoView({ behavior: 'smooth' });
 
   // Adjust the scroll position
@@ -281,6 +283,7 @@ function listenCurlCommandBuilder() {
     scrollToResult();
 
     // Get the form data
+
     const formData = new FormData(this);
 
     // Construct the fetch options
@@ -299,12 +302,14 @@ function listenCurlCommandBuilder() {
       })
       .then((data) => {
         // Display the response in the result div
+
         document.getElementById('result').innerHTML =
           `<p class="text-green-600 font-semibold">POST request successful!</p>
    <pre class="mt-2 bg-gray-100 p-2 rounded text-black whitespace-pre-wrap break-all">${data}</pre>`;
       })
       .catch((error) => {
         console.error('Error:', error);
+
         document.getElementById('result').innerHTML =
           `<p class="text-red-600 font-semibold">Error: ${error.message}</p>`;
       });
@@ -317,6 +322,7 @@ function listenCurlCommandBuilder() {
     const origin = window.location.origin;
 
     // Add the pre element with the copy button
+
     resultCurl.innerHTML = `
     <div class="relative">
       <pre class="dark:bg-gray-800 dark:text-white whitespace-pre-wrap break-words p-4"><code class="dark:text-white">curl -X POST ${origin}/proxyCheckerParallel.php \\\n\t -d "proxy=${encoded}"</code></pre>
@@ -325,8 +331,10 @@ function listenCurlCommandBuilder() {
   `;
 
     // Add event listener to the copy button
+
     document.getElementById('copyButton').addEventListener('click', function () {
       const codeElement = resultCurl.querySelector('code');
+
       const textToCopy = codeElement.innerText;
 
       navigator.clipboard.writeText(textToCopy).then(
@@ -353,7 +361,7 @@ async function userInfo() {
       });
       cookie = getCookie('user_config');
     }
-    return JSON.parse(atob(decodeURIComponent(cookie)));
+    if (cookie) return JSON.parse(atob(decodeURIComponent(cookie)));
   } catch (_) {
     //
   }
@@ -388,12 +396,12 @@ async function checkerStatus() {
   ];
   const enable_buttons = () => {
     buttons.forEach((el) => {
-      el.classList.remove('disabled');
+      if (el) el.classList.remove('disabled');
     });
   };
   const disable_buttons = () => {
     buttons.forEach((el) => {
-      if (!el.classList.contains('disabled')) el.classList.add('disabled');
+      if (el && !el.classList.contains('disabled')) el.classList.add('disabled');
     });
   };
   return await fetch('./embed.php?file=status.txt', {
@@ -402,7 +410,7 @@ async function checkerStatus() {
   })
     .then((res) => res.text())
     .then((data) => {
-      if (!data.trim().includes('idle')) {
+      if (!data.trim().includes('idle') && status) {
         // another php still processing
         disable_buttons();
         status.innerHTML = data.trim().toUpperCase();
@@ -412,7 +420,7 @@ async function checkerStatus() {
         );
         checker_status = true;
         return true;
-      } else {
+      } else if (status) {
         checker_status = false;
         enable_buttons();
         status.setAttribute(
@@ -480,6 +488,7 @@ class Pagination {
     this.urlParams = new URLSearchParams(window.location.search);
     this.items = items;
     this.itemsPerPage = itemsPerPage;
+
     this.currentPage = parseInt(this.urlParams.get('page')) || 1;
     this.totalPages = Math.ceil(this.items.length / this.itemsPerPage);
     this.proxyType = this.urlParams.get('type') || 'all';
@@ -580,6 +589,7 @@ async function fetchWorkingProxies() {
   if (!workingProxiesTxt || workingProxiesTxt !== testWorkingProxiesTxt) {
     workingProxiesTxt = testWorkingProxiesTxt;
     const tbody = document.getElementById('wproxy');
+
     tbody.innerHTML = '';
 
     const items = workingProxiesTxt.split(/\r?\n/).filter((line) => line.trim() !== '');
@@ -664,11 +674,13 @@ async function fetchWorkingProxies() {
 
         tr.appendChild(td);
       });
+
       tbody.appendChild(tr);
     });
 
     // Render pagination controls
     const paginationControls = document.getElementById('pagination-controls');
+
     paginationControls.innerHTML = paginationData.pagination
       .map((control) => {
         if (control.type === 'link') {
@@ -687,6 +699,7 @@ async function fetchWorkingProxies() {
         copyToClipboard(proxy);
         showSnackbar(`${proxy} Copied`);
       });
+
       el.setAttribute('aria-copy', el.getAttribute('data'));
     });
 
@@ -698,6 +711,7 @@ async function fetchWorkingProxies() {
         fetch(`./proxyCheckerParallel.php?proxy=${proxy}`).then(() => showSnackbar(`Re-check ${proxy} requested`));
         scrollToResult();
       });
+
       el.setAttribute('aria-copy', el.getAttribute('data'));
     });
   }
@@ -722,11 +736,13 @@ function run_ajax_schedule() {
   if (!ajax_schedule_running) {
     ajax_schedule_running = true;
     const url = ajax_url_schedule.shift();
+
     fetch(url, {
       signal: AbortSignal.timeout(5000)
     })
       .catch(() => {
         // re-push the url when error
+
         add_ajax_schedule(url);
       })
       .finally(() => {
@@ -763,6 +779,7 @@ function timeAgo(dateString) {
   const now = new Date();
 
   // Calculate the time difference in milliseconds
+
   const difference = now - date;
 
   // Convert milliseconds to seconds, minutes, hours, and days
@@ -799,6 +816,7 @@ function showSnackbar(...messages) {
 
   // Combine all messages into one string
   // Set the message
+
   snackbar.textContent = messages
     .map((msg) => {
       if (msg instanceof Error) {
@@ -814,6 +832,7 @@ function showSnackbar(...messages) {
     .join(' ');
 
   // Add the "show" class to DIV
+
   snackbar.classList.add('show');
 
   // Hide the snackbar after 3 seconds
@@ -845,6 +864,7 @@ function copyToClipboard(text) {
         });
     } else if (window.clipboardData && window.clipboardData.setData) {
       // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
+
       return window.clipboardData.setData('Text', text);
     } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
       const textarea = document.createElement('textarea');
@@ -920,10 +940,12 @@ async function init_config_editor() {
   const submit_proxies = (e) => {
     e.preventDefault();
     clearTimeout(sending_proxies); // Clear the previous timeout
+
     sending_proxies = setTimeout(() => addProxy(document.getElementById('add_proxies').value), 1000); // Set a new timeout
   };
 
   document.getElementById('add_proxies').addEventListener('change', submit_proxies);
+
   document.getElementById('submit-new-proxies').addEventListener('click', submit_proxies);
 }
 
@@ -967,7 +989,9 @@ async function addProxy(proxies) {
 
 function modify_config() {
   let type = document.querySelector('[name=http]').checked ? 'http' : '';
+
   type += document.querySelector('[name=socks5]').checked ? '|' + 'socks5' : '';
+
   type += document.querySelector('[name=socks4]').checked ? '|' + 'socks4' : '';
   fetch('./info.php', {
     signal: AbortSignal.timeout(5000),
@@ -978,6 +1002,7 @@ function modify_config() {
     body: JSON.stringify({
       config: {
         headers: document.querySelector('[name=headers]').value.trim().split(/\r?\n/),
+
         endpoint: document.querySelector('[name=endpoint]').value.trim(),
         type: type.trim()
       }
@@ -1029,11 +1054,13 @@ async function recaptcha() {
       })
       .then(callback);
   }
+
   window.send_token = send_token;
 
   function recaptcha_execute(siteKey) {
     grecaptcha.execute(siteKey, { action: 'submit' }).then(send_token);
   }
+
   window.recaptcha_execute = send_token;
 
   try {
@@ -1045,6 +1072,7 @@ async function recaptcha() {
     embedder.setAttribute('data-sitekey', res_1['captcha-v2-site-key']);
     embedder.setAttribute('data-callback', 'send_token');
     embedder.setAttribute('data-action', 'submit');
+
     document.getElementById('recaptcha').appendChild(embedder);
     await sleep(1000);
     const recaptchaV2Script = document.createElement('script');
