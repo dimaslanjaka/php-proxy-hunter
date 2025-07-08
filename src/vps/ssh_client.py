@@ -72,15 +72,18 @@ class SSHClient:
         channel = transport.open_session()
         channel.get_pty()
         channel.exec_command(command)
-        while True:
-            if channel.recv_ready():
-                sys.stdout.write(channel.recv(4096).decode())
-                sys.stdout.flush()
-            if channel.recv_stderr_ready():
-                sys.stderr.write(channel.recv_stderr(4096).decode())
-                sys.stderr.flush()
-            if channel.exit_status_ready():
-                break
+        try:
+            while True:
+                if channel.recv_ready():
+                    sys.stdout.write(channel.recv(4096).decode())
+                    sys.stdout.flush()
+                if channel.recv_stderr_ready():
+                    sys.stderr.write(channel.recv_stderr(4096).decode())
+                    sys.stderr.flush()
+                if channel.exit_status_ready():
+                    break
+        finally:
+            print()  # Always print a newline after command completes
         return channel.recv_exit_status()
 
     def close(self) -> None:
