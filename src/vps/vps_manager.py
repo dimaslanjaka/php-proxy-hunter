@@ -29,11 +29,6 @@ def load_menus():
     return sorted(menu_items, key=lambda x: x["label"])
 
 
-def pull_latest_code(vps: VPSConnector):
-    """Pull the latest code from the git repository on the VPS."""
-    return vps.run_command_live("git pull", "/var/www/html")
-
-
 if __name__ == "__main__":
     sftp_config = load_sftp_config(get_relative_path(".vscode/sftp.json"))
 
@@ -49,12 +44,7 @@ if __name__ == "__main__":
 
     try:
         vps.connect()
-        menu_items = [
-            {
-                "label": "Pull latest code (git pull)",
-                "action": pull_latest_code,
-            }
-        ]
+        menu_items = []
 
         # Add dynamically loaded plugins
         menu_items += load_menus()
