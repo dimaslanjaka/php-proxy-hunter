@@ -8,6 +8,7 @@
 /config
 /config.yaml
 auth.json
+/.vscode/sftp.json
 
 # PHP
 /php-obfuscator
@@ -23,16 +24,21 @@ package-lock.json
 **/baileys_*/
 log/
 
-# Config & Dashboard
-/.vscode/sftp.json
-/dashboard
+# Databases
+**/*.sqlite*
+**/*.sqlite*-*
+**/db.json
 
-# Assets & Static
+# XAMPP default files
+/dashboard
+/webalizer
 /applications.html
 /bitnami.css
 /img
+/xampp
+
+# Assets & Static
 /public/static
-/webalizer
 /app
 /proxyManager.js
 
@@ -42,7 +48,6 @@ log/
 .idea/material*
 .log/
 .vs
-/xampp
 tmp/
 *.txt
 *.lnk
