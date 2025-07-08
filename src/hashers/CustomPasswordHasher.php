@@ -8,7 +8,7 @@ class CustomPasswordHasher
   {
     if (empty($_ENV['DJANGO_SECRET_KEY'])) {
       // Load environment variables from .env file
-      $projectRootPath = dirname(\Composer\Factory::getComposerFile()); // __DIR__ . '/../../'
+      $projectRootPath = dirname(__DIR__, 2); // Go up two levels from src/hashers
       $dotenv = Dotenv::createImmutable($projectRootPath);
       $dotenv->load();
     }
