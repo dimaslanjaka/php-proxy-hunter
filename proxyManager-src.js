@@ -440,9 +440,7 @@ function fetchWorkingData() {
   fetch('./artisan/proxyWorkingBackground.php', {
     signal: AbortSignal.timeout(5000),
     mode: 'cors'
-  }).catch(() => {
-    // Handle errors if needed
-  });
+  }).catch(noop);
 }
 
 const fetchWorkingEveryMinutes = 1;

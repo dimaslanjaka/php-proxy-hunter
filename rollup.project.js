@@ -107,13 +107,13 @@ const baseConfig = {
  * @type {import('rollup').RollupOptions}
  */
 const esmConfig = deepmerge(baseConfig, {
-  output: {
+  output: /** @type {import('rollup').OutputOptions} */ ({
     file: 'app/main.mjs',
     format: 'esm',
     sourcemap: false,
     inlineDynamicImports: true
     // banner: _esmBanner
-  }
+  })
 });
 
 /**
