@@ -20,7 +20,6 @@ from src.SQLiteHelper import SQLiteHelper
 
 
 class ProxyDB:
-    db: SQLiteHelper
     """
     ProxyDB manages proxy data storage and operations using an SQLite database.
 
@@ -34,7 +33,7 @@ class ProxyDB:
     def __init__(
         self,
         db_location: Optional[str] = None,
-        start=False,
+        start: bool = False,
         check_same_thread: bool = False,
     ):
         """
@@ -46,6 +45,7 @@ class ProxyDB:
         """
         self.check_same_thread = check_same_thread
         self.db_location = db_location
+        self.db: Optional[SQLiteHelper] = None
         if db_location is None:
             self.db_location = get_relative_path("src/database.sqlite")
         if start:
@@ -125,8 +125,8 @@ class ProxyDB:
         """
         if not self.db:
             self.start_connection()
-        sql = f"REPLACE INTO meta (key, value) VALUES ('{key}', '{value}')"
-        self.db.execute_query(sql)
+        sql = "REPLACE INTO meta (key, value) VALUES (?, ?)"
+        self.db.execute_query(sql, (key, value))
 
     def run_daily_vacuum(self):
         last_vacuum_time: Optional[str] = self.get_meta_value("last_vacuum_time")
@@ -271,23 +271,8 @@ class ProxyDB:
         Returns:
         - List[Dict[str, Union[str, None]]]: The cleaned list of dictionaries with 'type' values
         cleaned and merged with hyphens where applicable.
-
-        Example:
-        >>> data = [
-        ...     {"type": "socks5--"},
-        ...     {"type": "http-"},
-        ...     {"type": "socks4"},
-        ...     {"type": "socks5--socks4"},
-        ...     {"type": ""},
-        ...     {"type": None}
-        ... ]
-        >>> cleaned_data = clean_and_merge_types(data)
-        >>> print(cleaned_data)
-        [{'type': 'socks5'}, {'type': 'http'}, {'type': 'socks4'}, {'type': 'socks5-socks4'}, {'type': ''}, {'type': None}]
         """
-        for item in data:
-            item = self.clean_type(item)
-        return data
+        return [self.clean_type(item) for item in data]
 
     def get_untested_proxies(
         self, limit: Optional[int] = None
@@ -416,9 +401,9 @@ class ProxyDB:
                 line = line.strip()
                 if not line:  # Skip empty lines
                     continue
-                counter += 1
-                if limit is not None and counter > limit:
+                if limit is not None and counter >= limit:
                     break
+                counter += 1
                 parsed_data = self.extract_proxies(line)
                 if parsed_data:
                     for single_data in parsed_data:
