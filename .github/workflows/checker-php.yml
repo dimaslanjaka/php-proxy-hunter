@@ -2,6 +2,9 @@ name: Checker PHP
 
 on:
   push:
+    paths:
+      - 'artisan/**/*.php'
+      - 'data/**/*.php'
   schedule:
     - cron: '0 */3 * * *' # Every 3 hours
   workflow_dispatch:

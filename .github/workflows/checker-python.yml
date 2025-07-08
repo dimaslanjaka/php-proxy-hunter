@@ -2,6 +2,9 @@ name: Checker Python
 
 on:
   push:
+    paths:
+      - 'src/**/*.py'
+      - 'data/**/*.py'
   workflow_dispatch:
     inputs:
       max:
