@@ -17,9 +17,10 @@ async function configResolver() {
   const configs = [];
 
   // Define paths for dynamic configuration files
-  const dynamicConfigs = [
-    ...globSync('rollup.*.{js,cjs,mjs}', { cwd: __dirname, nodir: true }).map((f) => path.join(__dirname, f))
-  ].filter((v, i, a) => a.indexOf(v) === i);
+  const dynamicConfigs = globSync('rollup.*.{js,cjs,mjs}', { cwd: __dirname, nodir: true })
+    .map((f) => path.join(__dirname, f))
+    .filter((v, i, a) => a.indexOf(v) === i) // Ensure unique entries
+    .filter((f) => !f.includes('rollup.config.js')); // Exclude the main config file
 
   /**
    * Promise that rejects after a timeout.
@@ -33,7 +34,6 @@ async function configResolver() {
     if (!fs.existsSync(dynamicConfig)) continue;
 
     const fileUrl = pathToFileURL(dynamicConfig).href;
-    console.log(`[IMPORT] Trying: ${dynamicConfig}`);
 
     try {
       const lib = await Promise.race([
@@ -59,10 +59,9 @@ async function configResolver() {
           throw new Error(`Invalid config in ${dynamicConfig}: missing 'input' property`);
         }
       }
-
-      console.log(`[OK] Loaded dynamic config from: ${dynamicConfig}`);
     } catch (err) {
       console.error(`[FAIL] Failed to load ${dynamicConfig}: ${err.message}`);
+      throw err;
     }
   }
 
