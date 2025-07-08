@@ -1,10 +1,12 @@
 <?php
+declare(strict_types=1);
 
-include __DIR__ . '/init.php';
+require_once __DIR__ . '/init.php';
+require_once __DIR__ . '/config.php';
 
 header('Content-Type: application/json');
 
-if ($_SERVER['HTTP_AUTHORIZATION'] ?? '' !== 'Bearer ' . AUTH_TOKEN) {
+if (!isAuthenticated()) {
   http_response_code(401);
   echo json_encode(['error' => 'Unauthorized']);
   exit;
@@ -17,14 +19,9 @@ if (!$since) {
   exit;
 }
 
-$stmt = $db->prepare("SELECT * FROM items WHERE updated_at > ?");
-$stmt->bindValue(1, $since, SQLITE3_TEXT);
-$res = $stmt->execute();
-
-$data = [];
-while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
-  $data[] = $row;
-}
+$stmt = $pdo->prepare('SELECT * FROM items WHERE updated_at > ?');
+$stmt->execute([$since]);
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo json_encode($data);
 

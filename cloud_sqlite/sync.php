@@ -1,17 +1,25 @@
 <?php
+declare(strict_types=1);
 
-include __DIR__ . '/init.php';
+require_once __DIR__ . '/../func.php';
+require_once __DIR__ . '/init.php';
+require_once __DIR__ . '/config.php';
 
 header('Content-Type: application/json');
 
-// Auth check
-if ($_SERVER['HTTP_AUTHORIZATION'] ?? '' !== 'Bearer ' . AUTH_TOKEN) {
+if (!isAuthenticated()) {
   http_response_code(401);
   echo json_encode(['error' => 'Unauthorized']);
   exit;
 }
 
-$data = json_decode(file_get_contents('php://input'), true);
+// Remove 'auth' from post data if present
+$request = function_exists('parsePostData') ? parsePostData(true) : [];
+if (isset($request['auth'])) {
+  unset($request['auth']);
+}
+
+$data = $request;
 
 if (!isset($data['id'], $data['name'], $data['value'])) {
   http_response_code(400);
@@ -20,22 +28,27 @@ if (!isset($data['id'], $data['name'], $data['value'])) {
 }
 
 // Insert or replace
-$stmt = $db->prepare("
-  INSERT INTO items (id, name, value, updated_at)
-  VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-  ON CONFLICT(id) DO UPDATE SET
-    name = excluded.name,
-    value = excluded.value,
-    updated_at = CURRENT_TIMESTAMP
-");
-$stmt->bindValue(1, $data['id'], SQLITE3_INTEGER);
-$stmt->bindValue(2, $data['name'], SQLITE3_TEXT);
-$stmt->bindValue(3, $data['value'], SQLITE3_TEXT);
-$stmt->execute();
+$stmt = $pdo->prepare('
+    INSERT INTO items (id, name, value, updated_at)
+    VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(id) DO UPDATE SET
+        name = excluded.name,
+        value = excluded.value,
+        updated_at = CURRENT_TIMESTAMP
+');
+$stmt->execute([
+    $data['id'],
+    $data['name'],
+    $data['value'],
+]);
 
 echo json_encode(['status' => 'ok']);
 
-// Insert or Update with Timestamp + Token Check:
+// Usage:
 // curl -X POST /cloud_sqlite/sync.php \
+//   -H "Content-Type: application/json" \
+//   -d '{"id":1,"name":"device1","value":"hello world","auth":"YOUR_TOKEN"}'
+// or
+// curl -X POST 'http://localhost:8000/cloud_sqlite/sync.php?auth=YOUR_TOKEN' \
 //   -H "Content-Type: application/json" \
 //   -d '{"id":1,"name":"device1","value":"hello world"}'

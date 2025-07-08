@@ -1,22 +1,19 @@
 <?php
+declare(strict_types=1);
 
-include __DIR__ . '/init.php';
+require_once __DIR__ . '/init.php';
+require_once __DIR__ . '/config.php';
 
 header('Content-Type: application/json');
 
-// Auth check
-if ($_SERVER['HTTP_AUTHORIZATION'] ?? '' !== 'Bearer ' . AUTH_TOKEN) {
+if (!isAuthenticated()) {
   http_response_code(401);
   echo json_encode(['error' => 'Unauthorized']);
   exit;
 }
 
-$res = $db->query("SELECT * FROM items");
-
-$data = [];
-while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
-  $data[] = $row;
-}
+$stmt = $pdo->query('SELECT * FROM items');
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo json_encode($data);
 
