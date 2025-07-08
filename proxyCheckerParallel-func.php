@@ -7,6 +7,7 @@ global $isCli, $isAdmin, $isCli;
 use PhpProxyHunter\Proxy;
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
+use PhpProxyHunter\GeoIpHelper;
 
 $str_to_remove = [];
 
@@ -202,7 +203,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
         }
         if (empty($item[0]->timezone) || empty($item[0]->country) || empty($item[0]->lang)) {
           foreach ($protocols as $protocol) {
-            get_geo_ip($item[0]->proxy, $protocol, $db);
+            GeoIpHelper::getGeoIp($item[0]->proxy, $protocol, $db);
           }
         }
         if (empty($item[0]->useragent)) {

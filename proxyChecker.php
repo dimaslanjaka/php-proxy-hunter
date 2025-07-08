@@ -37,6 +37,7 @@ require_once __DIR__ . "/proxyCheckerParallel-func.php";
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Proxy;
 use PhpProxyHunter\Scheduler;
+use PhpProxyHunter\GeoIpHelper;
 
 global $isCli;
 
@@ -389,7 +390,7 @@ function execute_single_proxy(Proxy $item)
 
         if (empty($item->timezone) || empty($item->country) || empty($item->lang)) {
           foreach ($proxy_types as $type) {
-            get_geo_ip($item->proxy, $type, $db);
+            GeoIpHelper::getGeoIp($item->proxy, $type, $db);
           }
         }
 

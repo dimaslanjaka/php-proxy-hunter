@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
+use PhpProxyHunter\GeoIpHelper;
+
 global $isCli, $isWin;
 
 if (!$isCli) {
@@ -71,7 +73,7 @@ shuffle($extract);
 
 foreach ($extract as $item) {
   if (empty($item->lang) || empty($item->country) || empty($item->timezone) || empty($item->longitude) || empty($item->latitude)) {
-    get_geo_ip($item->proxy, 'http', $db);
+    GeoIpHelper::getGeoIp($item->proxy, 'http', $db);
   }
   if (empty($item->useragent)) {
     $item->useragent = randomWindowsUa();
