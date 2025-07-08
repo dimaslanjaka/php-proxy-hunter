@@ -4,6 +4,9 @@ if (!class_exists('ProxyDB')) {
   require_once __DIR__ . '/../../../vendor/autoload.php';
 }
 
+use PhpProxyHunter\ProxyDB;
+use PhpProxyHunter\Proxy;
+
 /**
  * Extracts all IPv4 addresses from the given string.
  *
