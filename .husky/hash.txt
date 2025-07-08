@@ -245,9 +245,9 @@
 │       ├── config.py [a126191c]
 │       ├── menus/
 │       │   ├── download-backups.py [932b443f]
-│       │   └── project-manager.py [93df11b4]
+│       │   └── project-manager.py [5c9c7169]
 │       ├── sftp_client.py [81facb94]
-│       ├── ssh_client.py [91636083]
+│       ├── ssh_client.py [1f3d01aa]
 │       ├── vps_connector.py [eee8d9c7]
 │       └── vps_manager.py [a4b41a09]
 ├── translations/
