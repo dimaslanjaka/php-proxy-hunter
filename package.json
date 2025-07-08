@@ -30,7 +30,12 @@
     "build:docs": "yarn workspace gh-pages-builder run build",
     "postinstall": "npm run build:packages",
     "update:sha": "node package-resolution-updater.mjs",
-    "download:updater": "curl -o package-resolution-updater.mjs https://raw.githubusercontent.com/dimaslanjaka/nodejs-package-types/refs/heads/main/package-resolution-updater.mjs"
+    "download:updater": "curl -o package-resolution-updater.mjs https://raw.githubusercontent.com/dimaslanjaka/nodejs-package-types/refs/heads/main/package-resolution-updater.mjs",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles",
+    "test:coverage": "npm test -- --coverage",
+    "test:watch": "npm test -- --watch",
+    "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand --detectOpenHandles",
+    "lint": "eslint . --ext .js,.ts,.tsx --fix"
   },
   "workspaces": {
     "packages": [
@@ -98,8 +103,13 @@
   "devDependencies": {
     "@babel/core": "^7.27.7",
     "@babel/preset-env": "^7.27.2",
+    "@babel/preset-typescript": "^7.24.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.29.0",
+    "@jest/environment": "^30.0.4",
+    "@jest/expect": "^30.0.4",
+    "@jest/globals": "^30.0.4",
+    "@jest/types": "^30.0.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-json": "^6.1.0",
@@ -116,6 +126,7 @@
     "@types/fs-extra": "^11",
     "@types/gulp": "^4.0.17",
     "@types/heic-convert": "^2",
+    "@types/jest": "^29.5.11",
     "@types/jquery": "^3.5.32",
     "@types/js-levenshtein": "^1",
     "@types/lockfile": "^1",
@@ -131,7 +142,8 @@
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",
     "autoprefixer": "^10.4.21",
-    "binary-collections": "https://github.com/dimaslanjaka/bin.git",
+    "babel-jest": "^30.0.4",
+    "binary-collections": "^2.0.7",
     "cross-env": "^7.0.3",
     "eslint": "^9.29.0",
     "eslint-config-prettier": "^10.1.5",
@@ -142,6 +154,9 @@
     "gulp": "^5.0.1",
     "gulp-cli": "^3.1.0",
     "husky": "^9.1.7",
+    "jest": "^30.0.4",
+    "jest-config": "^30.0.4",
+    "jest-mock": "^30.0.2",
     "jsonc-parser": "^3.3.1",
     "lint-staged": "^16.1.2",
     "nexe": "5.0.0-beta.4",
@@ -159,6 +174,7 @@
     "rollup-plugin-polyfill-node": "^0.13.0",
     "sass": "^1.89.2",
     "tailwindcss": "^4.1.11",
+    "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
