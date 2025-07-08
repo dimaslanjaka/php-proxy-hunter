@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Warn if not sourced
+(return 0 2>/dev/null) || { echo "Please run this script with: source $0"; exit 1; }
+
+find_nvm_folder() {
+  find / -type f -name "nvm.sh" 2>/dev/null | while read -r file; do
+    dir=$(dirname "$file")
+    echo "$dir"
+  done
+}
+
+# Try to find and source nvm.sh from common locations, then print the folder and exit
+for f in "$HOME/.nvm/nvm.sh" "/usr/local/nvm/nvm.sh" "/root/.nvm/nvm.sh" /home/*/.nvm/nvm.sh; do
+  if [ -f "$f" ]; then
+    dir=$(dirname "$f")
+    . "$f"
+    echo "$dir"
+    exit 0
+  fi
+done
+
+# If not found, try to find nvm.sh anywhere and print possible locations
+found_any=false
+while read -r nvm_dir; do
+  found_any=true
+  echo "Found nvm.sh at: $nvm_dir/nvm.sh"
+done < <(find_nvm_folder)
+
+if ! $found_any; then
+  echo "No nvm.sh found"
+fi
+exit 1
