@@ -24,6 +24,9 @@ Coding standards, domain knowledge, and preferences that AI should follow.
 
 - List all dependencies in `requirements.txt`.
 - Use virtual environments for dependency management.
+- Use `pytest` for testing.
+- Use `black` for formatting.
+- Use `venv` for package management.
 
 ## Testing
 
