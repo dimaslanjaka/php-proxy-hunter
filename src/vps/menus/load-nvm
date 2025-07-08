@@ -10,13 +10,12 @@ find_nvm_folder() {
   done
 }
 
-# Try to find and source nvm.sh from common locations, then print the folder and exit
+# Try to find and source nvm.sh from common locations, then return after sourcing
 for f in "$HOME/.nvm/nvm.sh" "/usr/local/nvm/nvm.sh" "/root/.nvm/nvm.sh" /home/*/.nvm/nvm.sh; do
   if [ -f "$f" ]; then
-    dir=$(dirname "$f")
+    echo "Sourcing nvm.sh from: $f"
     . "$f"
-    echo "$dir"
-    exit 0
+    return 0
   fi
 done
 
@@ -24,10 +23,12 @@ done
 found_any=false
 while read -r nvm_dir; do
   found_any=true
-  echo "Found nvm.sh at: $nvm_dir/nvm.sh"
+  echo "Sourcing nvm.sh from: $nvm_dir/nvm.sh"
+  . "$nvm_dir/nvm.sh"
+  return 0
 done < <(find_nvm_folder)
 
 if ! $found_any; then
   echo "No nvm.sh found"
 fi
-exit 1
+return 1
