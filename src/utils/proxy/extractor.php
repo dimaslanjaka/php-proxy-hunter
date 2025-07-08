@@ -1,5 +1,9 @@
 <?php
 
+if (!class_exists('ProxyDB')) {
+  require_once __DIR__ . '/../../../vendor/autoload.php';
+}
+
 /**
  * Extracts all IPv4 addresses from the given string.
  *

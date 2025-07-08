@@ -3,7 +3,12 @@
 │   ├── main.js [5b4f1e7f]
 │   └── main.mjs [1fdc0c34]
 ├── artisan/
-│   └── proxyFetcher.php [94822335]
+│   ├── filterPorts.php [090ebe55]
+│   ├── filterPortsBackground.php [e461e16e]
+│   ├── filterPortsDuplicate.php [088ebcfe]
+│   ├── proxyFetcher.php [656da78b]
+│   ├── proxyWorking.php [40cf1711]
+│   └── proxyWorkingBackground.php [6b14d448]
 ├── backup.php [485e4f5d]
 ├── browser-json-cookies/
 │   └── cookies-merger.js [6adb068d]
@@ -46,9 +51,6 @@
 │   └── webgl.py [ba2dd4ca]
 ├── embed.php [7f9e714e]
 ├── eslint.config.mjs [984b7024]
-├── filterPorts.php [bc06111e]
-├── filterPortsBackground.php [a508ae14]
-├── filterPortsDuplicate.php [05469f4c]
 ├── filterPortsDuplicate.py [d2996a1b]
 ├── frontend/
 │   ├── build.js [5e4f6bb9]
@@ -96,14 +98,12 @@
 ├── proxyCheckerParallel.php [8af013a0]
 ├── proxyCheckerReal.py [622b5078]
 ├── proxyFetcher.py [99947fa6]
-├── proxyManager-src.js [fe6831b0]
+├── proxyManager-src.js [c5803e1e]
 ├── proxyManager.js [448b8beb]
 ├── proxyManager.php [0fc7aa0a]
 ├── proxyRespawner.php [0a8e4087]
 ├── proxyUpload.py [7cd8db54]
-├── proxyWorking.php [1d26e5f8]
 ├── proxyWorking.py [24749587]
-├── proxyWorkingBackground.php [f9a0539f]
 ├── public/
 │   ├── php/
 │   │   ├── js/
@@ -221,9 +221,9 @@
 │   │   ├── process.js [e1eb8895]
 │   │   ├── proxy/
 │   │   │   ├── cidr.php [a6186f99]
-│   │   │   ├── extractor.php [ba33bf26]
+│   │   │   ├── extractor.php [5c72ca77]
 │   │   │   ├── ports.php [37bd3ce9]
-│   │   │   └── validator.php [869d31dc]
+│   │   │   └── validator.php [7915aa4a]
 │   │   ├── string/
 │   │   │   ├── index.php [624581e0]
 │   │   │   └── useragent.php [8649a42e]
