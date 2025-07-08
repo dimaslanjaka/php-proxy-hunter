@@ -15,6 +15,7 @@ const __dirname = path.dirname(__filename);
 // electron-rebuild -f -w sqlite3
 
 class ProxyDB {
+  errorFile = getNuitkaFile('error.txt');
   /**
    * Proxy database class.
    * @param {Partial<string>} dbLocation
@@ -79,9 +80,12 @@ class ProxyDB {
     }
   }
 
-  async appendErrorLog(error) {
-    const errorFile = getNuitkaFile('error.txt');
-    fs.appendFile(errorFile, `${error}\n`);
+  appendErrorLog(error) {
+    const dir = path.dirname(this.errorFile);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.appendFileSync(this.errorFile, `${error}\n`);
   }
 
   cleanType(item) {
@@ -233,6 +237,15 @@ class ProxyDB {
     const result = this.db.select('proxies', '*', 'status = ?', ['untested'], rand, limit);
     const result2 = this.db.select('proxies', '*', 'status = ? OR status IS NULL OR status = ?', ['untested', '']);
     return result.concat(result2);
+  }
+
+  /**
+   * Close the database connection (for test cleanup)
+   */
+  async close() {
+    if (this.db && typeof this.db.db?.close === 'function') {
+      this.db.db.close();
+    }
   }
 }
 export default ProxyDB;
