@@ -121,6 +121,12 @@
       "type": "node-terminal"
     },
     {
+      "command": "phpunit tests/cloud_sqlite/",
+      "name": "phpunit cloud_sqlite",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
       "command": "build-project && node dist/whatsapp.js",
       "name": "WhatsApp",
       "request": "launch",

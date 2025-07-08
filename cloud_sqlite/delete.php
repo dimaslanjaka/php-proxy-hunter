@@ -1,10 +1,13 @@
 <?php
+declare(strict_types=1);
 
-include __DIR__ . '/init.php';
+require_once __DIR__ . '/../func.php';
+require_once __DIR__ . '/init.php';
+require_once __DIR__ . '/config.php';
 
 header('Content-Type: application/json');
 
-if ($_SERVER['HTTP_AUTHORIZATION'] ?? '' !== 'Bearer ' . AUTH_TOKEN) {
+if (!isAuthenticated()) {
   http_response_code(401);
   echo json_encode(['error' => 'Unauthorized']);
   exit;
@@ -18,8 +21,7 @@ if (!isset($data['id'])) {
   exit;
 }
 
-$stmt = $db->prepare("DELETE FROM items WHERE id = ?");
-$stmt->bindValue(1, $data['id'], SQLITE3_INTEGER);
-$stmt->execute();
+$stmt = $pdo->prepare('DELETE FROM items WHERE id = ?');
+$stmt->execute([$data['id']]);
 
 echo json_encode(['status' => 'deleted']);

@@ -1,10 +1,10 @@
 # 📡 PHP SQLite Sync API
 
-A lightweight PHP + SQLite backend for syncing structured data across devices. Supports insert/update with timestamps, fetch-all, fetch-since, and optional authentication.
+A lightweight PHP + SQLite backend for syncing structured data across devices. Uses PDO for SQLite access, strict types, and PSR-12 coding standards. Supports insert/update with timestamps, fetch-all, fetch-since, and optional authentication.
 
 ## 🔐 Authentication
 
-All API endpoints require an `Authorization` header:
+All API endpoints require authentication. The recommended method is the HTTP `Authorization` header:
 
 ```
 Authorization: Bearer <your-secret-token>
@@ -18,20 +18,41 @@ CLOUD_SQLITE_SECRET=your-secret-token
 
 The application loads this value automatically via `config.php` using [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv).
 
+**Supported authentication methods:**
+
+- **Production:**
+  - HTTP `Authorization` header (recommended)
+  - `auth` field in POST/JSON body
+- **Development only (when `is_debug()` is true):**
+  - `?auth=...` query parameter (for quick testing)
+
 ---
 
 ## 🏗️ Setup Instructions
 
-### Enable SQLite Extension
+### PHP Requirements
 
-Ensure the SQLite extension is enabled in your `php.ini` file:
+- PHP 7.4 or newer (with PDO and pdo_sqlite extensions enabled)
+- Composer (for dependency management)
+
+### Enable PDO SQLite Extension
+
+Ensure the PDO SQLite extension is enabled in your `php.ini` file:
 
 - Open your `php.ini` (location varies by system, e.g., `C:/xampp/php/php.ini`)
 - Make sure the following line is present and not commented out (remove the leading `;` if present):
   ```ini
-  extension=sqlite3
+  extension=pdo_sqlite
   ```
 - Restart your web server (Apache, Nginx, etc.) after making changes.
+
+### Install Dependencies
+
+Run Composer to install dependencies:
+
+```bash
+composer install
+```
 
 ### Deploy Project Files
 
@@ -75,10 +96,24 @@ Insert or update a row by ID.
 }
 ```
 
-**cURL:**
+**cURL (with Authorization header):**
 ```bash
 curl -X POST http://localhost/sync.php \
   -H "Authorization: Bearer <your-secret-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"id":1,"name":"Device A","value":"Hello World"}'
+```
+
+**cURL (with auth field in body):**
+```bash
+curl -X POST http://localhost/sync.php \
+  -H "Content-Type: application/json" \
+  -d '{"id":1,"name":"Device A","value":"Hello World","auth":"<your-secret-token>"}'
+```
+
+**cURL (with ?auth param, development only):**
+```bash
+curl -X POST "http://localhost/sync.php?auth=<your-secret-token>" \
   -H "Content-Type: application/json" \
   -d '{"id":1,"name":"Device A","value":"Hello World"}'
 ```
@@ -88,9 +123,14 @@ curl -X POST http://localhost/sync.php \
 ### `GET /fetch.php`
 Fetch all rows from the database.
 
-**cURL:**
+**cURL (with Authorization header):**
 ```bash
 curl -H "Authorization: Bearer <your-secret-token>" http://localhost/fetch.php
+```
+
+**cURL (with ?auth param, development only):**
+```bash
+curl http://localhost/fetch.php?auth=<your-secret-token>
 ```
 
 ---
@@ -101,10 +141,15 @@ Fetch rows updated after a specific timestamp.
 **Parameters:**
 - `since` – (required) ISO 8601 or SQLite-compatible timestamp
 
-**Example:**
+**Example (with Authorization header):**
 ```bash
 curl -H "Authorization: Bearer <your-secret-token>" \
   "http://localhost/fetch-updated.php?since=2025-07-07T08:00:00"
+```
+
+**Example (with ?auth param, development only):**
+```bash
+curl "http://localhost/fetch-updated.php?since=2025-07-07T08:00:00&auth=<your-secret-token>"
 ```
 
 ---
@@ -119,10 +164,24 @@ Delete a row by ID.
 }
 ```
 
-**cURL:**
+**cURL (with Authorization header):**
 ```bash
 curl -X POST http://localhost/delete.php \
   -H "Authorization: Bearer <your-secret-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"id":1}'
+```
+
+**cURL (with auth field in body):**
+```bash
+curl -X POST http://localhost/delete.php \
+  -H "Content-Type: application/json" \
+  -d '{"id":1,"auth":"<your-secret-token>"}'
+```
+
+**cURL (with ?auth param, development only):**
+```bash
+curl -X POST "http://localhost/delete.php?auth=<your-secret-token>" \
   -H "Content-Type: application/json" \
   -d '{"id":1}'
 ```
@@ -145,10 +204,12 @@ CREATE TABLE items (
 ## ✅ Features
 
 - SQLite-backed, no external DB required
+- Uses PDO for database access
 - Insert or update with `ON CONFLICT`
 - Timestamp tracking with `updated_at`
 - Simple RESTful API
 - Minimal auth (Bearer token)
+- Strict types and PSR-12 coding standards
 - Lightweight and easy to self-host
 
 ---
