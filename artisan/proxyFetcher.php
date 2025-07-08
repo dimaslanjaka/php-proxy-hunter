@@ -1,6 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../func-proxy.php';
+declare(strict_types=1);
+
+// Define project root for reuse
+$projectRoot = dirname(__DIR__);
+
+require_once $projectRoot . '/func-proxy.php';
 
 use \PhpProxyHunter\Scheduler;
 
@@ -17,8 +22,8 @@ if (function_exists('header')) {
   header('Content-Type: text/plain; charset=UTF-8');
 }
 
-$lockFilePath = PROJECT_ROOT . "/proxyChecker.lock";
-$statusFile = PROJECT_ROOT . "/status.txt";
+$lockFilePath = $projectRoot . "/proxyChecker.lock";
+$statusFile = $projectRoot . "/status.txt";
 
 if (file_exists($lockFilePath) && !is_debug()) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
@@ -39,7 +44,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
 }, 'z_onExit' . basename(__FILE__));
 
 // Array of URLs to fetch content from
-$urls = json_decode(read_file(PROJECT_ROOT . '/data/proxyFetcherSources.json'));
+$urls = json_decode(read_file($projectRoot . '/data/proxyFetcherSources.json'));
 
 $urls = array_unique($urls);
 
@@ -49,7 +54,7 @@ $chunks = array_chunk($urls, 5);
 // Loop through each chunk with an index
 foreach ($chunks as $index => $chunk) {
   // Create a unique filename for each chunk
-  $outputFile = PROJECT_ROOT . "/assets/proxies/added-fetch-" . date("Ymd") . "-chunk-" . ($index + 1) . ".txt";
+  $outputFile = $projectRoot . "/assets/proxies/added-fetch-" . date("Ymd") . "-chunk-" . ($index + 1) . ".txt";
 
   foreach ($chunk as $url) {
     // Fetch content from URL
@@ -78,7 +83,8 @@ foreach ($chunks as $index => $chunk) {
 
     // Append content to output file
     Scheduler::register(function () use ($outputFile, $content, $url) {
-      $fallback_file = PROJECT_ROOT . '/assets/proxies/added-fetch-' . md5($url) . '.txt';
+      $projectRoot = dirname(__DIR__);
+      $fallback_file = $projectRoot . '/assets/proxies/added-fetch-' . md5($url) . '.txt';
       $append = append_content_with_lock($outputFile, "\n" . $content . "\n");
       if (!$append) {
         $outputFile = $fallback_file;
