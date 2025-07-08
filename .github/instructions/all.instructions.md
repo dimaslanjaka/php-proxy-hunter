@@ -9,4 +9,4 @@ applyTo: '**/*.*'
 - When creating or modifying files, ensure that the file paths are correct and that the files are placed in appropriate directories.
 - Always check for existing files before creating new ones to avoid overwriting important data.
 - Always backup important files before making significant changes.
-- Always backup to `[filename].bak` before modifying/moving files.
+- Before modifying or moving files, always create a backup by copying the original content to `[filename].bak`.
