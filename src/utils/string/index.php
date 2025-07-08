@@ -28,6 +28,24 @@ function stringify($arg): string
 }
 
 /**
+ * Converts a string or an array of strings into regex patterns.
+ *
+ * @param string|array $input The input string or array of strings.
+ * @return string|array The regex pattern(s) corresponding to the input.
+ */
+function string_to_regex($input)
+{
+  // If $input is an array, process each string
+  if (is_array($input)) {
+    return array_map(function ($string) {
+      return '/\b' . preg_quote($string, '/') . '\b/';
+    }, $input);
+  } else { // If $input is a single string, process it
+    return '/\b' . preg_quote($input, '/') . '\b/';
+  }
+}
+
+/**
  * Outputs content with appropriate Content-Type and UTF-8 charset.
  * Throws an exception if headers are already sent.
  *
@@ -64,4 +82,59 @@ function outputUtf8Content($data): void
     header('Content-Type: text/plain; charset=utf-8');
     echo '[Unsupported content type: ' . gettype($data) . ']';
   }
+}
+
+function generateRandomString($length = 10): string
+{
+  $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  $randomString = '';
+  for ($i = 0; $i < $length; $i++) {
+    $randomString .= $characters[rand(0, strlen($characters) - 1)];
+  }
+  return $randomString;
+}
+
+/**
+ * Split a string into an array of lines. Support CRLF
+ *
+ * @param string|null $str The input string to split.
+ * @return array An array of lines, or an empty array if the split fails.
+ */
+function split_by_line(?string $str): array
+{
+  if (!$str) {
+    return [];
+  }
+
+  $lines = preg_split('/\r?\n/', $str);
+
+  // Check if preg_split succeeded
+  if ($lines === false) {
+    return [];
+  }
+
+  return $lines;
+}
+
+/**
+ * Anonymize an email address by masking the username.
+ *
+ * @param string|null $email The email address to anonymize.
+ * @return string The anonymized email address.
+ */
+function anonymizeEmail($email): string
+{
+  // Return same value when empty
+  if (empty($email)) {
+    return $email;
+  }
+
+  // Split the email into username and domain
+  list($username, $domain) = explode('@', $email);
+
+  // Anonymize the username (keep only the first and the last character)
+  $username_anon = substr($username, 0, 1) . str_repeat('*', strlen($username) - 2) . substr($username, -1);
+
+  // Reconstruct the anonymized email
+  return $username_anon . '@' . $domain;
 }

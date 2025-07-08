@@ -1,16 +1,17 @@
 <?php
 
-// Get the full path of the executing script
-$caller = PHP_SAPI === 'cli' && isset($_SERVER['argv'][0])
-  ? realpath($_SERVER['argv'][0])
-  : (isset($_SERVER['SCRIPT_FILENAME']) ? realpath($_SERVER['SCRIPT_FILENAME']) : null);
+// Auto load all php files including subdirectories
 
-// Load all .php files from current dir except this file and caller
-$files = glob(__DIR__ . '/*.php');
+$iterator = new RecursiveIteratorIterator(
+  new RecursiveDirectoryIterator(__DIR__)
+);
 
-foreach ($files as $file) {
-  $realFile = realpath($file);
-  if ($realFile !== __FILE__ && $realFile !== $caller) {
-    require_once $realFile;
+foreach ($iterator as $file) {
+  if (
+    $file->isFile() &&
+    $file->getExtension() === 'php' &&
+    $file->getRealPath() !== __FILE__
+  ) {
+    require_once $file->getRealPath();
   }
 }

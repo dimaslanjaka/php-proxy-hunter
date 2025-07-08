@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../func-cidr.php';
+require_once __DIR__ . '/../autoload.php';
 
 // Example CIDR range
 $cidr = "192.168.1.0/24";
