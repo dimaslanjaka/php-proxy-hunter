@@ -55,6 +55,34 @@ class SSHClient:
         error = stderr.read().decode()
         return output, error
 
+    def run_command_live(self, command: str, cwd: Optional[str] = None) -> int:
+        """
+        Run a command on the remote server and stream output live to local stdout/stderr.
+        Returns the exit status of the command.
+        """
+        import sys
+
+        if not self.client:
+            raise RuntimeError("SSH client not connected.")
+        if cwd:
+            command = f"cd {cwd} && {command}"
+        transport = self.client.get_transport()
+        if transport is None:
+            raise RuntimeError("SSH transport not available.")
+        channel = transport.open_session()
+        channel.get_pty()
+        channel.exec_command(command)
+        while True:
+            if channel.recv_ready():
+                sys.stdout.write(channel.recv(4096).decode())
+                sys.stdout.flush()
+            if channel.recv_stderr_ready():
+                sys.stderr.write(channel.recv_stderr(4096).decode())
+                sys.stderr.flush()
+            if channel.exit_status_ready():
+                break
+        return channel.recv_exit_status()
+
     def close(self) -> None:
         """
         Close the SSH connection.

@@ -246,9 +246,9 @@
 │       ├── menus/
 │       │   └── download-backups.py [8820719e]
 │       ├── sftp_client.py [81facb94]
-│       ├── ssh_client.py [20bb6b4b]
+│       ├── ssh_client.py [8412a5e3]
 │       ├── vps_connector.py [eee8d9c7]
-│       └── vps_manager.py [479b3c00]
+│       └── vps_manager.py [1d4a2cb2]
 ├── translations/
 │   └── ext/
 │       ├── BooleanStringExtension.php [a3e9e915]

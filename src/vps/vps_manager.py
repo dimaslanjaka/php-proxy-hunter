@@ -31,7 +31,7 @@ def load_menus():
 
 def pull_latest_code(vps: VPSConnector):
     """Pull the latest code from the git repository on the VPS."""
-    return vps.run_command("git pull", "/var/www/html")
+    return vps.run_command_live("git pull", "/var/www/html")
 
 
 if __name__ == "__main__":
