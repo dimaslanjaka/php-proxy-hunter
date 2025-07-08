@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 /** @noinspection DuplicatedCode */
 
 // working proxies writer
 
-require_once __DIR__ . '/func-proxy.php';
+require_once dirname(__DIR__) . '/func-proxy.php';
 
 use PhpProxyHunter\ProxyDB;
 
@@ -17,11 +19,12 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
-if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug()) {
+$projectDir = dirname(__DIR__);
+if (file_exists($projectDir . '/proxyChecker.lock') && !is_debug()) {
   exit('proxy checker process still running');
 }
 
-$lockFilePath = __DIR__ . "/proxyWorking.lock";
+$lockFilePath = $projectDir . '/proxyWorking.lock';
 
 if (file_exists($lockFilePath) && !is_debug()) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
@@ -30,7 +33,7 @@ if (file_exists($lockFilePath) && !is_debug()) {
   file_put_contents($lockFilePath, date(DATE_RFC3339));
 }
 
-function exitProcess()
+function exitProcess(): void
 {
   global $lockFilePath;
   if (file_exists($lockFilePath)) {
@@ -44,20 +47,20 @@ $db = new ProxyDB();
 $data = parse_working_proxies($db);
 
 // write working proxies
-write_file(__DIR__ . '/working.txt', $data['txt']);
-write_file(__DIR__ . '/working.json', json_encode($data['array']));
+write_file($projectDir . '/working.txt', $data['txt']);
+write_file($projectDir . '/working.json', json_encode($data['array']));
 
 // write status
-write_file(__DIR__ . '/status.json', json_encode($data['counter']));
+write_file($projectDir . '/status.json', json_encode($data['counter']));
 
 echo PHP_EOL;
 
 // print working proxies [protocols]://IP:PORT@username:password
 $proxies = $db->getWorkingProxies();
 $proxies = array_map(function ($item) {
-  $raw = $item['type'] . "://" . $item['proxy'];
+  $raw = $item['type'] . '://' . $item['proxy'];
   if (!empty($raw['username']) && !empty($raw['password'])) {
-    $raw .= "@" . $raw['username'] . ":" . $raw['password'];
+    $raw .= '@' . $raw['username'] . ':' . $raw['password'];
   }
   return $raw;
 }, $proxies);
@@ -81,9 +84,9 @@ foreach ($data['counter'] as $key => $value) {
 //file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
 
 setMultiPermissions([
-  __DIR__ . '/status.json',
-  __DIR__ . '/proxies.txt',
-  __DIR__ . '/dead.txt',
-  __DIR__ . '/working.txt',
-  __DIR__ . '/working.json'
+  $projectDir . '/status.json',
+  $projectDir . '/proxies.txt',
+  $projectDir . '/dead.txt',
+  $projectDir . '/working.txt',
+  $projectDir . '/working.json',
 ]);

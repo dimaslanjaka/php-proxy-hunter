@@ -427,7 +427,7 @@ async function checkerStatus() {
 }
 
 function fetchWorkingData() {
-  fetch('./proxyWorkingBackground.php', {
+  fetch('./artisan/proxyWorkingBackground.php', {
     signal: AbortSignal.timeout(5000),
     mode: 'cors'
   }).catch(() => {
