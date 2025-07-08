@@ -18,8 +18,10 @@ def composer_update(vps: VPSConnector):
 
 
 def yarn_install(vps: VPSConnector):
-    """Run 'yarn install' in the project directory on the VPS."""
-    return vps.run_command_live("yarn install", "/var/www/html")
+    """Run 'yarn install' in the project directory on the VPS, sourcing .bashrc for environment setup."""
+    # Source .bashrc to load NVM and other environment variables, then run yarn install
+    cmd = 'bash -c "source ~/.bashrc && yarn install"'
+    return vps.run_command_live(cmd, "/var/www/html")
 
 
 def pip_install_requirements_dev(vps: VPSConnector):

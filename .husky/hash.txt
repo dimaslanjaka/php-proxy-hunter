@@ -53,7 +53,7 @@
 │   ├── fetch.php [8fed332e]
 │   ├── init.php [a695d17f]
 │   └── sync.php [ec4db33f]
-├── composer.json [e6925325]
+├── composer.json [1a4d3f65]
 ├── controllers/
 │   ├── CheckDuplicateProxyController.php [9eebf479]
 │   ├── ListDuplicateProxyController.php [e29f380e]
@@ -76,10 +76,10 @@
 ├── geoIp.php [a002aa16]
 ├── geoIpBackground.php [f0a5c80c]
 ├── gh-pages-builder.config.js [d13fabef]
-├── github-actions-init.cjs [e588c9ab]
+├── github-actions-init.cjs [90c7e530]
 ├── github-actions-init.php [f72b83b8]
 ├── github-actions-init.py [48d3ac40]
-├── index.js [84649fb8]
+├── index.js [37689d80]
 ├── index.php [5d06f346]
 ├── info.php [861ec1fc]
 ├── js/
@@ -135,9 +135,9 @@
 │           ├── index.js [61524004]
 │           ├── note.js [675e0981]
 │           └── proxy.js [57694eaa]
-├── requirements-dev.txt [b57b94f7]
+├── requirements-dev.txt [95072062]
 ├── requirements.txt [57e8e65b]
-├── requirements_install.py [23af7adc]
+├── requirements_install.py [34f979fa]
 ├── rollup.config.js [15ed49b6]
 ├── rollup.php.js [7a47dc0b]
 ├── rollup.project.js [1da8913e]
@@ -244,12 +244,12 @@
 │   └── vps/
 │       ├── config.py [a126191c]
 │       ├── menus/
-│       │   ├── download-backups.py [932b443f]
-│       │   └── project-manager.py [5c9c7169]
+│       │   ├── download-backups.py [3c7cebe7]
+│       │   └── project-manager.py [0ffa74dd]
 │       ├── sftp_client.py [81facb94]
-│       ├── ssh_client.py [1f3d01aa]
+│       ├── ssh_client.py [fb93dcfe]
 │       ├── vps_connector.py [eee8d9c7]
-│       └── vps_manager.py [a4b41a09]
+│       └── vps_manager.py [413272b7]
 ├── translations/
 │   └── ext/
 │       ├── BooleanStringExtension.php [a3e9e915]
