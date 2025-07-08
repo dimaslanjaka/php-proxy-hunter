@@ -184,7 +184,9 @@
     "**/vendor/**": true,
     "**/venv/**": true,
     "**/.venv/**": true,
-    "**/.yarn/**": true
+    "**/.yarn/**": true,
+    "**/hash.txt": true,
+    "**/coverage/**": true
   },
   "terminal.integrated.defaultProfile.windows": "Command Prompt",
   "terminal.integrated.env.linux": {

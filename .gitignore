@@ -54,6 +54,7 @@ tmp/
 *.ink
 *.log
 *.spec
+*.bak
 /*.pid
 !proxyFetcherSources.txt
 !CIDR*.txt
