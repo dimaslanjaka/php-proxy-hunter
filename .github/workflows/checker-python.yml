@@ -62,15 +62,16 @@ jobs:
         with:
           node-version: 20.x
 
-      - name: Initialize Submodules
-        shell: bash
+      - run: corepack enable
+
+      - name: Update Submodules
         run: |
-          echo "Initializing submodules"
+          echo "Initializing submodules..."
           git submodule update --init --recursive
           mkdir -p bin
-          curl -sL https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install -o bin/submodule-install
+          npm install -g binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
           rm -rf .git/modules
-          bash ./bin/submodule-install
+          npx submodule-install
           git lfs track "*.rar"
 
       - name: Get pip cache dir

@@ -68,23 +68,21 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           lfs: true
 
-      # Initialize and update submodules
-      - name: Update Submodules
-        run: |
-          echo "Initializing submodules..."
-          git submodule update --init --recursive
-          mkdir -p bin
-          curl -L https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install -o bin/submodule-install
-          rm -rf .git/modules
-          bash ./bin/submodule-install
-          git lfs track "*.rar"
-
-      # Setup runtimes
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
 
       - run: corepack enable
+
+      - name: Update Submodules
+        run: |
+          echo "Initializing submodules..."
+          git submodule update --init --recursive
+          mkdir -p bin
+          npm install -g binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
+          rm -rf .git/modules
+          npx submodule-install
+          git lfs track "*.rar"
 
       - uses: actions/setup-python@v5
         with:
