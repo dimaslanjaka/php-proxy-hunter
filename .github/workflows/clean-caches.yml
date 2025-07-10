@@ -42,7 +42,7 @@ jobs:
           git submodule sync
           git submodule foreach "git submodule sync"
           echo "update submodules"
-          curl -L https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install > bin/submodule-install
+          npm install -g binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
           rm -rf .git/modules
           npx submodule-install
           git lfs track "*.rar"
