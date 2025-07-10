@@ -42,8 +42,8 @@ jobs:
           git submodule sync
           git submodule foreach "git submodule sync"
           echo "update submodules"
-          npm install -g binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
-          rm -rf .git/modules
+          npm install -g rimraf binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
+          npx rimraf .git/modules
           npx submodule-install
           git lfs track "*.rar"
         shell: bash
