@@ -64,10 +64,9 @@ jobs:
           git submodule sync
           git submodule foreach "git submodule sync"
           echo "update submodules"
-          mkdir -p bin >/dev/null 2>&1
           curl -L https://github.com/dimaslanjaka/bin/raw/master/bin/submodule-install > bin/submodule-install
           rm -rf .git/modules
-          bash ./bin/submodule-install
+          npx submodule-install
           git lfs track "*.rar"
         shell: bash
 
