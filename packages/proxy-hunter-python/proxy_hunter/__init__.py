@@ -85,4 +85,5 @@ from .utils import (
     write_file,
     write_json,
     file_exists,
+    dict_updater,
 )
