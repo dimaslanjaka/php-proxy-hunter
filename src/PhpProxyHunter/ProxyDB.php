@@ -31,7 +31,8 @@ class ProxyDB
   public function __construct(?string $dbLocation = null)
   {
     $isInMemory = $dbLocation === ':memory:';
-    $this->projectRoot = getProjectRoot();
+    $autoloadPath = (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName();
+    $this->projectRoot = dirname(dirname(dirname($autoloadPath)));
 
     // Use an in-memory SQLite database for testing purposes
     if ($isInMemory || !$dbLocation) {
