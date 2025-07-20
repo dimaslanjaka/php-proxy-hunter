@@ -1,3 +1,6 @@
+├── app/
+│   ├── main.cjs [f84cd111]
+│   └── main.mjs [ffdf4aa4]
 ├── artisan/
 │   ├── filterPorts.php [7ef2faa7]
 │   ├── filterPortsBackground.php [6737d26a]
@@ -26,7 +29,7 @@
 │   ├── fetch.php [8f1f1b73]
 │   ├── init.php [10cd9646]
 │   └── sync.php [f727ef2e]
-├── composer.json [6338d5e2]
+├── composer.json [dd240486]
 ├── controllers/
 │   ├── CheckDuplicateProxyController.php [efd4e12f]
 │   ├── ListDuplicateProxyController.php [590cee83]
@@ -37,7 +40,8 @@
 │   ├── browser.php [aa6229c4]
 │   ├── get-ca.py [44f36751]
 │   ├── index.php [27044028]
-│   ├── login.php [3b790f94]
+│   ├── login.php [71c5353b]
+│   ├── user-handler.php [72ec5406]
 │   ├── webgl.js [85256b47]
 │   ├── webgl.php [fc4fbac9]
 │   └── webgl.py [e63585e6]
@@ -88,10 +92,25 @@
 ├── proxyCheckerReal.py [2d358ea7]
 ├── proxyFetcher.py [0a16d8c8]
 ├── proxyManager-src.js [605dda95]
+├── proxyManager.js [cba991dd]
 ├── proxyManager.php [1219a44f]
 ├── proxyRespawner.php [05f1631b]
 ├── proxyUpload.py [75a66a9e]
 ├── proxyWorking.py [2b3fb2a0]
+├── public/
+│   └── php/
+│       └── js/
+│           ├── admin.js [29158b29]
+│           ├── dashboard.js [067c9c9f]
+│           ├── languages.js [f9337946]
+│           ├── login.js [dc9be9f3]
+│           ├── profile-card.js [2c1cc4e4]
+│           ├── refill-saldo.js [a59c21dc]
+│           ├── template.js [9cc63de1]
+│           ├── user/
+│           │   └── logs.js [5583ac70]
+│           └── utils/
+│               └── url.js [d5f4a695]
 ├── requirements-dev.txt [4c996b63]
 ├── requirements.txt [e2c01128]
 ├── requirements_install.py [d7fa40aa]
@@ -102,13 +121,12 @@
 ├── scanPorts.php [089403c5]
 ├── send_curl.php [8ec862d3]
 ├── src/
-│   ├── FileSessionHandler.php [0afc6334]
 │   ├── PhpProxyHunter/
 │   │   ├── ExecutionTimer.php [c8c80c6f]
 │   │   ├── FileLockHelper.php [953a13da]
 │   │   ├── GeoIpHelper.php [aae9dcf4]
 │   │   ├── Proxy.php [83ba70e0]
-│   │   ├── ProxyDB.php [97d29f6d]
+│   │   ├── ProxyDB.php [4405470c]
 │   │   ├── SQLiteHelper.php [c19a6119]
 │   │   ├── Scheduler.php [6c834b04]
 │   │   ├── Server.php [6e104328]
@@ -120,7 +138,9 @@
 │   ├── ProxyDB.py [09de6e0f]
 │   ├── SQLiteHelper.js [da56926b]
 │   ├── SQLiteHelper.py [fca47867]
+│   ├── UserDB.php [c9d81f47]
 │   ├── __init__.py [604affe1]
+│   ├── autoload.php [32382786]
 │   ├── database.js [50b81652]
 │   ├── func.js [16bc24c5]
 │   ├── func.py [df5fdfab]
@@ -184,7 +204,6 @@
 │   ├── utils/
 │   │   ├── __init__.py [92ef870c]
 │   │   ├── array.js [dcb2517c]
-│   │   ├── autoload.php [2c865e1a]
 │   │   ├── axios.cookie.store.cjs [617fd8e4]
 │   │   ├── axios.cookie2.js [1c7b2c7c]
 │   │   ├── c.py [b4dd83e2]
@@ -237,12 +256,14 @@
 │           ├── admin.js [bbbd8ffb]
 │           ├── dashboard.js [2fc9d344]
 │           ├── languages.js [9bb513c1]
-│           ├── login.js [d08183ea]
+│           ├── login.js [d5bcc402]
 │           ├── profile-card.js [1caa20d4]
 │           ├── refill-saldo.js [5c41a659]
 │           ├── template.js [6923897f]
-│           └── user/
-│               └── logs.js [8c3c9846]
+│           ├── user/
+│           │   └── logs.js [8c3c9846]
+│           └── utils/
+│               └── url.js [150b7f37]
 └── webgl-information/
     ├── script.js [5fd60361]
     └── script2.js [f2edb95e]

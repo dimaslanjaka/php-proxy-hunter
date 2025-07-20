@@ -16,7 +16,7 @@
     "files": [
       "data/webgl.php",
       "src/hashers/CustomPasswordHasher.php",
-      "src/utils/autoload.php"
+      "src/autoload.php"
     ]
   },
   "autoload-dev": {
