@@ -108,7 +108,12 @@ if ($client->getAccessToken()) {
     $email = $google_account_info->email ?? null;
 
     if ($email) {
-      $_SESSION['admin'] = $email === 'dimaslanjaka@gmail.com' || $email === $_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '';
+      $isAdmin = $email === 'dimaslanjaka@gmail.com' || $email === $_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '';
+      if (!$isAdmin) {
+        if (isset($_SESSION['admin'])) {
+          unset($_SESSION['admin']);
+        }
+      }
       $existingUser = $user_db->select($email);
       if (empty($existingUser)) {
         $username = preg_replace('/[^a-zA-Z0-9_]/', '', preg_replace('/@gmail\.com$/', '', $email));
@@ -116,14 +121,19 @@ if ($client->getAccessToken()) {
           'email' => $email,
           'username' => $username,
           'password' => bin2hex(random_bytes(8)),
-          'is_staff' => $_SESSION['admin'] ? 'admin' : 'user',
+          'is_staff' => $isAdmin ? 'admin' : 'user',
           'is_active' => true,
           'is_superuser' => $email === 'dimaslanjaka@gmail.com'
         ]);
       }
 
       $_SESSION['user_id'] = $email;
+      $_SESSION['authenticated'] = true;
+      $_SESSION['authenticated_email'] = $email;
       $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
+      if ($isAdmin) {
+        $_SESSION['admin'] = true;
+      }
 
       $result['email'] = $email;
     }

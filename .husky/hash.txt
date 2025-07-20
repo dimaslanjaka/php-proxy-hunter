@@ -77,7 +77,7 @@
 │   ├── logs.php [c83c673a]
 │   ├── recaptcha.php [e006a02b]
 │   ├── refill-saldo.php [ad6c6395]
-│   ├── user-handler.php [13971be3]
+│   ├── user-handler.php [f4832972]
 │   └── user-info.php [e8984fc4]
 ├── phpliteadmin/
 │   ├── phpliteadmin.config.php [e627fa27]
@@ -100,13 +100,13 @@
 ├── public/
 │   └── php/
 │       └── js/
-│           ├── admin.js [29158b29]
-│           ├── dashboard.js [7b427b43]
+│           ├── admin.js [2265f661]
+│           ├── dashboard.js [2a7e88be]
 │           ├── languages.js [f9337946]
-│           ├── login.js [c08172b8]
-│           ├── profile-card.js [450bf579]
-│           ├── refill-saldo.js [a59c21dc]
-│           ├── template.js [9cc63de1]
+│           ├── login.js [298f90e3]
+│           ├── profile-card.js [a45b6b25]
+│           ├── refill-saldo.js [357b9626]
+│           ├── template.js [202a0794]
 │           ├── user/
 │           │   └── logs.js [5583ac70]
 │           └── utils/
@@ -258,7 +258,7 @@
 │           ├── login.js [f798b689]
 │           ├── profile-card.js [779cb337]
 │           ├── refill-saldo.js [5c41a659]
-│           ├── template.js [6923897f]
+│           ├── template.js [f69f3d6e]
 │           ├── user/
 │           │   └── logs.js [8c3c9846]
 │           └── utils/
