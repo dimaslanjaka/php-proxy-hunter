@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { showSnackbar } from './template.js';
 import { getUrlParameter } from './utils/url.js';
 
-// Send data to /data/user-handler.php
+// Send data to /php_backend/user-handler.php
 // php.webmanajemen.com/login?code=4/0AVMBsJguF_MEVoP95n4Dqhj80pelro6jBWeHz4eSyHSXHOvKjpjc7X-plWurLZhTwn0Nvg&scope=email profile https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email openid&authuser=0&prompt=consent
 
 const codeParam = getUrlParameter('code');
@@ -10,7 +10,7 @@ console.log('Authorization code:', codeParam);
 if (codeParam) {
   // Do something with the code parameter if needed
   showSnackbar('Authorization code detected');
-  $.post('/data/user-handler.php', { 'google-oauth-callback': codeParam }, function (response) {
+  $.post('/php_backend/user-handler.php', { 'google-oauth-callback': codeParam }, function (response) {
     if (response.success) {
       showSnackbar('Login successful');
       setTimeout(() => {
@@ -56,7 +56,7 @@ $('#google-login-btn').on('click', function () {
   if (href) location.href = href;
 });
 
-$.get(`/data/user-handler.php?google-auth-uri=${new Date().toISOString()}`, function (response) {
+$.get(`/php_backend/user-handler.php?google-auth-uri=${new Date().toISOString()}`, function (response) {
   const { auth_uri = null } = response;
   if (auth_uri) {
     $('#google-login-btn').attr('href', auth_uri);
