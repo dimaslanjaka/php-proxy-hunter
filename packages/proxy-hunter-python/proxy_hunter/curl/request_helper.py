@@ -154,19 +154,34 @@ def build_request(
         "OPTIONS": session.options,
         "PATCH": session.patch,
     }
+
+    # Extract timeout from kwargs or use default
+    timeout = kwargs.pop("timeout", 10)
+
     method_upper = method.upper()
     if method_upper in request_methods:
         if method_upper in ["POST", "PUT", "PATCH"]:
-            response: requests.Response = request_methods[method_upper](
-                endpoint,
-                data=post_data,
-                timeout=10,
-                verify=verify_certificate,
-                **kwargs,
-            )
+            # Use json=post_data if Content-Type is application/json and post_data is dict
+            content_type = session.headers.get("Content-Type", "")
+            if "application/json" in str(content_type) and isinstance(post_data, dict):
+                response: requests.Response = request_methods[method_upper](
+                    endpoint,
+                    json=post_data,
+                    timeout=timeout,
+                    verify=verify_certificate,
+                    **kwargs,
+                )
+            else:
+                response: requests.Response = request_methods[method_upper](
+                    endpoint,
+                    data=post_data,
+                    timeout=timeout,
+                    verify=verify_certificate,
+                    **kwargs,
+                )
         else:
             response: requests.Response = request_methods[method_upper](
-                endpoint, timeout=10, verify=verify_certificate, **kwargs
+                endpoint, timeout=timeout, verify=verify_certificate, **kwargs
             )
     else:
         raise ValueError(f"Unsupported method: {method}")

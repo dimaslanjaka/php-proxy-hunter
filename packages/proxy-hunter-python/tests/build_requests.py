@@ -1,50 +1,59 @@
-import unittest
-import certifi
-from requests import Response
+import sys
+import os
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import certifi
+import pytest
+from requests import Response
 from proxy_hunter.curl.request_helper import build_request
 
 
-class TestMyClass(unittest.TestCase):
+def do_request(**kwargs):
+    try:
+        return build_request(endpoint="https://www.example.com", **kwargs)
+    except Exception:
+        return None
 
-    def test_without_proxy(self):
-        response = self.do_request()
-        self.assertEqual(response.status_code, 200)
 
-    def test_with_proxy(self):
-        response = None
-        proxy = "117.40.32.135:8080"
-        try:
-            response = self.do_request(
-                proxy=proxy, proxy_type="http", verify=certifi.where()
-            )
-        except Exception:
-            pass
-        if not response:
-            try:
-                response = self.do_request(
-                    proxy=proxy, proxy_type="socks4", verify=certifi.where()
-                )
-            except Exception:
-                pass
-        if not response:
-            try:
-                response = self.do_request(
-                    proxy=proxy, proxy_type="socks5", verify=certifi.where()
-                )
-            except Exception:
-                pass
-        self.assertTrue(isinstance(response, Response))
-        if response:
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue("<title>Example Domain</title>" in response.text)
+def test_without_proxy():
+    response = do_request()
+    assert response is not None, "No response returned"
+    assert response.status_code == 200
 
-    def do_request(self, **kwargs):
-        try:
-            return build_request(endpoint="https://www.example.com", **kwargs)
-        except Exception:
-            return None
+
+def test_post_formdata():
+    url = "https://httpbin.org/post"
+    data = {"foo": "bar", "baz": "qux"}
+    response = build_request(endpoint=url, method="POST", post_data=data)
+    assert response is not None
+    assert response.status_code == 200
+    json_resp = response.json()
+    assert json_resp["form"] == data
+
+
+def test_post_json():
+    url = "https://httpbin.org/post"
+    data = {"foo": "bar", "baz": "qux"}
+    headers = {"Content-Type": "application/json"}
+    response = build_request(
+        endpoint=url, method="POST", post_data=data, headers=headers
+    )
+    assert response is not None
+    assert response.status_code == 200
+    json_resp = response.json()
+    assert json_resp["json"] == data
+
+
+@pytest.mark.parametrize("proxy_type", ["http", "socks4", "socks5"])
+def test_with_proxy(proxy_type):
+    proxy = "117.40.32.135:8080"
+    response = do_request(proxy=proxy, proxy_type=proxy_type, verify=certifi.where())
+    if response is None:
+        pytest.skip(f"Proxy {proxy_type} at {proxy} is not working or unreachable.")
+    assert isinstance(response, Response)
+    assert response.status_code == 200
+    assert "<title>Example Domain</title>" in response.text
 
 
 if __name__ == "__main__":
-    unittest.main()
+    sys.exit(pytest.main([__file__]))
