@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/../func.php';
 
+use PhpProxyHunter\UserDB;
+
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -16,6 +18,7 @@ $protocol = 'https://';
 $host = $_SERVER['HTTP_HOST'];
 $request = parsePostData(true);
 $redirectUri = "{$protocol}{$host}/login";
+$user_db = new UserDB(tmp() . '/database.sqlite');
 
 $client = new Google\Client();
 $client->setClientId($_ENV['G_CLIENT_ID']);
@@ -63,9 +66,8 @@ if (!empty($request['google-oauth-callback'])) {
 if (!empty($request['me'])) {
   $email = $_SESSION['user_id'] ?? null;
   if ($email) {
-    $userDb = new UserDB();
-    $user = $userDb->getUserByEmail($email);
-    if ($user) {
+    $user = $user_db->select($email);
+    if (!empty($user)) {
       jsonResponse([
         'id' => $user['id'],
         'username' => $user['username'],
@@ -106,11 +108,18 @@ if ($client->getAccessToken()) {
     $email = $google_account_info->email ?? null;
 
     if ($email) {
-      $_SESSION['admin'] = $email === 'dimaslanjaka@gmail.com';
-      $existingUser = $userDb->getUserByEmail($email);
-      if (!$existingUser) {
-        $username = preg_replace('/@gmail\.com$/', '', $email);
-        $userDb->createUser($username, $email, bin2hex(random_bytes(8)), $_SESSION['admin'] ? 'admin' : 'user');
+      $_SESSION['admin'] = $email === 'dimaslanjaka@gmail.com' || $email === $_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '';
+      $existingUser = $user_db->select($email);
+      if (empty($existingUser)) {
+        $username = preg_replace('/[^a-zA-Z0-9_]/', '', preg_replace('/@gmail\.com$/', '', $email));
+        $user_db->add([
+          'email' => $email,
+          'username' => $username,
+          'password' => bin2hex(random_bytes(8)),
+          'is_staff' => $_SESSION['admin'] ? 'admin' : 'user',
+          'is_active' => true,
+          'is_superuser' => $email === 'dimaslanjaka@gmail.com'
+        ]);
       }
 
       $_SESSION['user_id'] = $email;

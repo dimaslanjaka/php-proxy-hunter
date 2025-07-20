@@ -41,7 +41,6 @@
 │   ├── get-ca.py [44f36751]
 │   ├── index.php [27044028]
 │   ├── login.php [71c5353b]
-│   ├── user-handler.php [9ff1b8d9]
 │   ├── webgl.js [85256b47]
 │   ├── webgl.php [fc4fbac9]
 │   └── webgl.py [e63585e6]
@@ -73,11 +72,12 @@
 │   ├── get_sms.php [2b134976]
 │   ├── index.js [6faf84a8]
 │   ├── list-user.php [6589135a]
-│   ├── login.php [93d36f3c]
+│   ├── login.php [753367f3]
 │   ├── logout.php [de302a9c]
 │   ├── logs.php [c83c673a]
 │   ├── recaptcha.php [e006a02b]
 │   ├── refill-saldo.php [ad6c6395]
+│   ├── user-handler.php [13971be3]
 │   └── user-info.php [e8984fc4]
 ├── phpliteadmin/
 │   ├── phpliteadmin.config.php [e627fa27]
@@ -101,10 +101,10 @@
 │   └── php/
 │       └── js/
 │           ├── admin.js [29158b29]
-│           ├── dashboard.js [067c9c9f]
+│           ├── dashboard.js [7b427b43]
 │           ├── languages.js [f9337946]
-│           ├── login.js [d81ee146]
-│           ├── profile-card.js [2c1cc4e4]
+│           ├── login.js [c08172b8]
+│           ├── profile-card.js [450bf579]
 │           ├── refill-saldo.js [a59c21dc]
 │           ├── template.js [9cc63de1]
 │           ├── user/
@@ -138,7 +138,6 @@
 │   ├── ProxyDB.py [09de6e0f]
 │   ├── SQLiteHelper.js [da56926b]
 │   ├── SQLiteHelper.py [fca47867]
-│   ├── UserDB.php [bd5f848d]
 │   ├── __init__.py [604affe1]
 │   ├── autoload.php [32382786]
 │   ├── database.js [50b81652]
@@ -254,10 +253,10 @@
 │   └── assets/
 │       └── js/
 │           ├── admin.js [bbbd8ffb]
-│           ├── dashboard.js [2fc9d344]
+│           ├── dashboard.js [7a425e0c]
 │           ├── languages.js [9bb513c1]
-│           ├── login.js [61e32e88]
-│           ├── profile-card.js [1caa20d4]
+│           ├── login.js [f798b689]
+│           ├── profile-card.js [779cb337]
 │           ├── refill-saldo.js [5c41a659]
 │           ├── template.js [6923897f]
 │           ├── user/
