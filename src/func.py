@@ -69,6 +69,18 @@ def get_relative_path(*args: str) -> str:
     return result
 
 
+def tmp(nuitka: bool = False) -> str:
+    """
+    Get the temporary directory path.
+
+    Returns:
+        str: The path to the temporary directory.
+    """
+    if nuitka and is_nuitka():
+        return get_nuitka_file("tmp")
+    return get_relative_path("tmp")
+
+
 def resolve_relative_path(data: Optional[str] = None, *args: Union[str, bytes]) -> str:
     """
     Get relative path and optionally create if it does not exist.
