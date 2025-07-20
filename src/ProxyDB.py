@@ -30,6 +30,8 @@ class ProxyDB:
         Ensure `start_connection()` is called before accessing or using `self.db` to establish the database connection.
     """
 
+    db: Optional[SQLiteHelper] = None
+
     def __init__(
         self,
         db_location: Optional[str] = None,

@@ -219,8 +219,23 @@ class SQLiteHelper:
         self.cursor.execute(sql, params or ())
         self.conn.commit()
 
-    def execute_query(self, sql: str):
-        self.cursor.execute(sql)
+    def execute_query(
+        self, sql: str, params: Optional[Union[tuple, list]] = None
+    ) -> None:
+        """
+        Executes a custom SQL query with optional parameters.
+
+        Args:
+            sql (str): The SQL query to execute.
+            params (Optional[Union[tuple, list]]): Parameters to substitute in the query (default is None).
+
+        Returns:
+            None
+        """
+        if params is not None and params != () and params != []:
+            self.cursor.execute(sql, params)
+        else:
+            self.cursor.execute(sql)
         self.conn.commit()
 
     def truncate_table(self, table_name: str) -> None:
