@@ -11,8 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
   exit;
 }
 
-session_start();
-
 // Configuration
 $protocol = 'https://';
 $host = $_SERVER['HTTP_HOST'];
@@ -61,6 +59,24 @@ if (!empty($request['google-oauth-callback'])) {
   jsonResponse(['error' => 'Failed to fetch access token'], 400);
 }
 
+// Get current user info
+if (!empty($request['me'])) {
+  $email = $_SESSION['user_id'] ?? null;
+  if ($email) {
+    $userDb = new UserDB();
+    $user = $userDb->getUserByEmail($email);
+    if ($user) {
+      jsonResponse([
+        'id' => $user['id'],
+        'username' => $user['username'],
+        'email' => $user['email'],
+        'role' => $user['role']
+      ]);
+    }
+    jsonResponse(['error' => 'User not found'], 404);
+  }
+}
+
 $result = ['error' => ['messages' => []]];
 
 // Try to load existing token
@@ -90,15 +106,15 @@ if ($client->getAccessToken()) {
     $email = $google_account_info->email ?? null;
 
     if ($email) {
-      $existingUser = $userDb->getUserByUsername($email);
+      $_SESSION['admin'] = $email === 'dimaslanjaka@gmail.com';
+      $existingUser = $userDb->getUserByEmail($email);
       if (!$existingUser) {
         $username = preg_replace('/@gmail\.com$/', '', $email);
-        $userDb->createUser($username, $email, bin2hex(random_bytes(8)), 'user');
+        $userDb->createUser($username, $email, bin2hex(random_bytes(8)), $_SESSION['admin'] ? 'admin' : 'user');
       }
 
       $_SESSION['user_id'] = $email;
       $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
-      $_SESSION['admin'] = $email === 'dimaslanjaka@gmail.com';
 
       $result['email'] = $email;
     }
