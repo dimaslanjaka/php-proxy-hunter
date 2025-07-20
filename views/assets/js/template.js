@@ -47,6 +47,9 @@ export function getUserData() {
 export function showSnackbar(...messages) {
   // Get the snackbar element
   const snackbar = document.getElementById('snackbar');
+  if (!snackbar) {
+    throw new Error('Snackbar element not found');
+  }
 
   // Combine all messages into one string
   // Set the message
@@ -75,48 +78,54 @@ export function showSnackbar(...messages) {
 
 /**
  * Copies a string to the clipboard. Must be called from within an
- * event handler such as click. May return false if it failed, but
- * this is not always possible. Browser support for Chrome 43+,
- * Firefox 42+, Safari 10+, Edge and Internet Explorer 10+.
- * Internet Explorer: The clipboard feature may be disabled by
- * an administrator. By default, a prompt is shown the first
- * time the clipboard is used (per session).
+ * event handler such as click. Returns a promise that resolves to true
+ * if the operation succeeds, otherwise resolves to false.
+ *
+ * Browser support for Chrome 43+, Firefox 42+, Safari 10+, Edge and IE 10+.
+ *
  * @param {string} text - The text to be copied to the clipboard.
- * @returns {boolean} - Returns true if the operation succeeds, otherwise returns false.
+ * @returns {Promise<boolean>} - Resolves to true if copy succeeded, false otherwise.
  */
 export function copyToClipboard(text) {
-  try {
-    if (navigator.clipboard) {
-      return navigator.clipboard
-        .writeText(text)
-        .then(() => true)
-        .catch((err) => {
-          showSnackbar('Error copying to clipboard:', err);
-          return false;
-        });
-    } else if (window.clipboardData && window.clipboardData.setData) {
-      // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
-      return window.clipboardData.setData('Text', text);
-    } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
-      const textarea = document.createElement('textarea');
-      textarea.textContent = text;
-      textarea.style.position = 'fixed'; // Prevent scrolling to bottom of page in Microsoft Edge.
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        return document.execCommand('copy'); // Security exception may be thrown by some browsers.
-      } catch (ex) {
-        showSnackbar('Copy to clipboard failed.', ex);
-        return false;
-      } finally {
-        document.body.removeChild(textarea);
+  return new Promise((resolve) => {
+    try {
+      if (navigator.clipboard) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => resolve(true))
+          .catch((err) => {
+            showSnackbar('Error copying to clipboard:', err);
+            resolve(false);
+          });
+      } else if (window.clipboardData && window.clipboardData.setData) {
+        // For IE
+        const success = window.clipboardData.setData('Text', text);
+        resolve(success);
+      } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
+        const textarea = document.createElement('textarea');
+        textarea.textContent = text;
+        textarea.style.position = 'fixed'; // Avoid scrolling
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          const success = document.execCommand('copy');
+          if (!success) {
+            showSnackbar('Copy command was not successful.');
+          }
+          resolve(success);
+        } catch (ex) {
+          showSnackbar('Copy to clipboard failed.', ex);
+          resolve(false);
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      } else {
+        showSnackbar('Copying to clipboard not supported.');
+        resolve(false);
       }
-    } else {
-      showSnackbar('Copying to clipboard not supported.');
-      return false;
+    } catch (err) {
+      showSnackbar('Error copying to clipboard:', err);
+      resolve(false);
     }
-  } catch (err) {
-    showSnackbar('Error copying to clipboard:', err);
-    return false;
-  }
+  });
 }
