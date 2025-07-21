@@ -21,4 +21,5 @@ export interface UserListData {
   is_active: string;
   date_joined: string;
   first_name: string;
+  saldo: number;
 }
