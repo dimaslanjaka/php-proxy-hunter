@@ -18,7 +18,7 @@ $protocol = 'https://';
 $host = $_SERVER['HTTP_HOST'];
 $request = parsePostData(true);
 $redirectUri = "{$protocol}{$host}/login";
-$user_db = new UserDB(tmp() . '/database.sqlite');
+$user_db = new UserDB();
 
 $client = new Google\Client();
 $client->setClientId($_ENV['G_CLIENT_ID']);
