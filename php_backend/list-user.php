@@ -22,8 +22,18 @@ if (!$isCli) {
   header('Pragma: no-cache');
 }
 
-$user_db = new UserDB(tmp() . '/database.sqlite');
+$user_db = new UserDB();
 $is_admin = ($_SESSION['admin'] ?? false) === true && ($_SESSION['authenticated'] ?? false) === true;
+if (!$is_admin) {
+  // If the user is not an admin, return an error message
+  if (!$isCli) {
+    echo json_encode(['error' => 'You are not authorized to view this page.']);
+  } else {
+    echo 'You are not authorized to view this page.';
+  }
+  exit;
+}
+
 if ($is_admin) {
   $sql = "SELECT auth_user.id, auth_user.username, auth_user.first_name, auth_user.last_name, auth_user.email, user_fields.saldo, user_fields.phone
         FROM auth_user
@@ -46,6 +56,4 @@ if ($is_admin) {
 
   remove_array_keys($users, ['password']);
   echo json_encode($users);
-} else {
-  echo json_encode(['error' => 'unauthorized']);
 }
