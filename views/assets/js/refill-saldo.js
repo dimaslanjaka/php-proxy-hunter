@@ -7,8 +7,9 @@ import { showSnackbar } from './template.js';
  * @param {import('../../../types/user').UserLists | {error: string}} data - The data received, which is either a UserLists object or an error object with a string message.
  */
 const callback = (data) => {
-  if (data.error) {
-    location.href = '/';
+  console.log('User data received:', data);
+  if (typeof data === 'object' && data !== null && 'error' in data) {
+    // location.href = '/';
   } else if (Array.isArray(data)) {
     for (let i = 0; i < data.length; i++) {
       const user = data[i];
@@ -16,13 +17,17 @@ const callback = (data) => {
       if (user.first_name.trim().length > 0) {
         optionText = `${user.first_name} ${user.last_name} (${user.username})`.trim();
       }
+      if (user.email.trim().length > 0) {
+        optionText = `${optionText} <${user.email}>`.trim();
+      }
       // console.log(user);
       $('#user').append(
         $('<option>', {
-          value: user.username,
+          value: user.email,
           text: optionText
         })
           .attr('data-username', user.username)
+          .attr('data-email', user.email)
           .attr('data-saldo', user.saldo ?? '0')
       );
     }
@@ -35,7 +40,7 @@ let debounceTimeout;
 
 function formChanged() {
   // Get the value of the selected option
-  const selectedUser = $('#user').val();
+  const selectedUser = $('#user').val()?.toString().trim();
 
   // Check if no option is selected (empty value)
   if (!selectedUser || selectedUser.length === 0) {
@@ -84,7 +89,11 @@ function formChanged() {
   }
 
   // Get the trimmed value of the input
-  const amount = $('#amount').val().trim();
+  const amount = $('#amount').val()?.toString().trim();
+  if (!amount) {
+    showSnackbar('Please enter an amount to refill.');
+    return; // Exit the function if amount is empty
+  }
 
   // Check if the input is not empty and not zero
   const amountNotEmpty = amount !== '' && parseFloat(amount) !== 0;

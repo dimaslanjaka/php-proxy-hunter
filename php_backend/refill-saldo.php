@@ -14,13 +14,13 @@ if (!$isCli) {
   header('Content-Type: application/json; charset=utf-8');
 }
 
-$user_db = new UserDB(tmp() . '/database.sqlite');
+$user_db = new UserDB();
 $is_admin = ($_SESSION['admin'] ?? false) === true && ($_SESSION['authenticated'] ?? false) === true;
 if ($is_admin) {
   $request = parsePostData(is_debug());
-  $user_identifier = $request['id'];
+  $user_id = $request['user'];
   $amount = floatval($request['amount']);
-  $user = $user_db->select($user_identifier);
+  $user = $user_db->select($user_id);
   if (!empty($user)) {
     $existing_saldo = floatval($user['saldo'] ?? 0);
     $total = $existing_saldo + $amount;
