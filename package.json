@@ -23,7 +23,7 @@
   ],
   "scripts": {
     "start": "php -S 0.0.0.0:4000",
-    "prepare": "husky",
+    "prepare": "npx husky",
     "normal-rebuild": "npm rebuild",
     "build": "rollup -c",
     "build:packages": "yarn workspaces foreach --no-private --all run build",
