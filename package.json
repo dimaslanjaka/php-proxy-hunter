@@ -124,6 +124,7 @@
     "@types/crypto-js": "^4",
     "@types/express": "^5",
     "@types/fs-extra": "^11",
+    "@types/grecaptcha": "^3.0.9",
     "@types/gulp": "^4.0.17",
     "@types/heic-convert": "^2",
     "@types/jest": "^30.0.0",

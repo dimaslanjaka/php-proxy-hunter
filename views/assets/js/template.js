@@ -1,6 +1,14 @@
 import $ from 'jquery';
 import { initializeLanguageSelector, updateLanguage } from './languages.js';
 
+/**
+ * dynamically get base url of current project.
+ */
+const project_base_url =
+  !isNaN(Number(location.port)) && location.port !== '' ? `${location.hostname}:${location.port}` : location.hostname;
+
+export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // Language selector (global)
 initializeLanguageSelector().then(() => {
   if ($('#language-select').length) {
@@ -18,6 +26,51 @@ $.getJSON('/php_backend/user-info.php', function (data) {
     $('[data-role="logout"]').hide();
   }
 });
+
+// Google Recaptcha V3
+fetch(`//${project_base_url}/info.php`)
+  .then((res) => res.json())
+  .then((data) => {
+    const siteKey_1 = data['captcha-site-key'];
+    const embedder = document.createElement('div');
+    embedder.classList.add('g-recaptcha');
+    embedder.setAttribute('data-sitekey', data['captcha-v2-site-key']);
+    embedder.setAttribute('data-callback', 'send_token');
+    embedder.setAttribute('data-action', 'submit');
+    $('#recaptcha').append(embedder);
+    sleep(1000).then(() => {
+      const recaptchaV2Script = document.createElement('script');
+      recaptchaV2Script.src = 'https://www.google.com/recaptcha/api.js';
+      document.body.appendChild(recaptchaV2Script);
+      const recaptchaV3Script = document.createElement('script');
+      recaptchaV3Script.src = 'https://www.google.com/recaptcha/api.js?render=' + siteKey_1;
+      recaptchaV3Script.onload = function () {
+        grecaptcha.ready(() => {
+          grecaptcha.execute(siteKey_1, { action: 'submit' }).then((token) => {
+            fetch(`//${project_base_url}/php_backend/recaptcha.php`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+              },
+              body: new URLSearchParams({
+                'g-recaptcha-response': token
+              }).toString()
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                // Remove recaptcha element
+                if (data.success) {
+                  const el = document.getElementById('recaptcha');
+                  if (el) el.remove();
+                }
+                return data;
+              });
+          });
+        });
+      };
+      document.body.appendChild(recaptchaV3Script);
+    });
+  });
 
 /**
  * Fetches user data and ensures the user is authenticated.
