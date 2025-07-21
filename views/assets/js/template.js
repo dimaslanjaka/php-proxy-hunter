@@ -1,10 +1,21 @@
 import $ from 'jquery';
 import { initializeLanguageSelector, updateLanguage } from './languages.js';
 
-// Language selector
+// Language selector (global)
 initializeLanguageSelector().then(() => {
   if ($('#language-select').length) {
     $('#language-select').on('change', updateLanguage);
+  }
+});
+
+// Navigation bar (global)
+$.getJSON('/php_backend/user-info.php', function (data) {
+  if (data.authenticated) {
+    $('[data-role="login"]').hide();
+    $('[data-role="logout"]').show();
+  } else {
+    $('[data-role="login"]').show();
+    $('[data-role="logout"]').hide();
   }
 });
 
