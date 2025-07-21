@@ -42,6 +42,18 @@ const proxyManager = {
         fs.mkdirSync(path.dirname(file), { recursive: true });
         fs.writeFileSync(file, JSON.stringify({ build: Math.random().toString(36).slice(2) }));
         console.log('PHP env file created:', file);
+      },
+      closeBundle: () => {
+        // Copy views/assets/json to public/php/json
+        const srcDir = path.join(__dirname, 'views', 'assets', 'json');
+        const destDir = path.join(__dirname, 'public', 'php', 'json');
+        fs.mkdirSync(destDir, { recursive: true });
+        glob.globSync('*.{json,jsonc,txt}', { cwd: srcDir }).forEach((file) => {
+          const srcFile = path.join(srcDir, file);
+          const destFile = path.join(destDir, file);
+          fs.copyFileSync(srcFile, destFile);
+          console.log('Copied', srcFile, 'to', destFile);
+        });
       }
     }
   ]
