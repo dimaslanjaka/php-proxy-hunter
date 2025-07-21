@@ -70,8 +70,25 @@ if ($forbidden) {
 }
 
 $file = isset($_REQUEST['file']) ? rawurldecode(trim($_REQUEST['file'])) : 'proxies.txt';
-$real_file = realpath(__DIR__ . '/' . $file);
+// Restrict file access using glob patterns (no secret or environment files)
 
+// Exclude/ignore files matching these glob patterns (denylist)
+$excludedGlobs = ['*.env', '*.env.*', '*.php', '*.sh', '*.bat', '*.exe', '*.bak', '*.key', '*.pem', '*.crt', '*.htaccess', 'composer.*', 'package*.json', 'node_modules*', 'vendor*', '.git*', '*.bak', '*.lock', '*.zip', '*.tar*', '*.gz', '*.7z', '*.rar', '*.db', '*.sqlite', '*.py', '*.ts', '*.js', '*.cjs', '*.mjs', '*.md', '*.yml', '*.yaml', '*.log.bak'];
+$baseFile = basename($file);
+$denied = false;
+foreach ($excludedGlobs as $pattern) {
+  if (fnmatch($pattern, $baseFile, FNM_CASEFOLD)) {
+    $denied = true;
+    break;
+  }
+}
+if ($denied) {
+  http_response_code(403);
+  header('Content-Type: application/json; charset=utf-8');
+  exit(json_encode(['error' => 'Access denied.']));
+}
+
+$real_file = realpath(__DIR__ . '/' . $baseFile);
 if ($real_file && file_exists($real_file)) {
   // Determine the file extension
   $fileExtension = pathinfo($real_file, PATHINFO_EXTENSION);
