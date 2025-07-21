@@ -1,3 +1,4 @@
+/// <reference path="../../../types/window-shim.d.ts" />
 import $ from 'jquery';
 import { initializeLanguageSelector, updateLanguage } from './languages.js';
 
@@ -163,8 +164,8 @@ export function copyToClipboard(text) {
           });
       } else if (window.clipboardData && window.clipboardData.setData) {
         // For IE
-        const success = window.clipboardData.setData('Text', text);
-        resolve(success);
+        window.clipboardData.setData('Text', text);
+        resolve(true);
       } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
         const textarea = document.createElement('textarea');
         textarea.textContent = text;

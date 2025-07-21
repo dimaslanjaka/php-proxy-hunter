@@ -123,7 +123,15 @@ export default [
 
     rules: {
       '@typescript-eslint/no-var-requires': 'off', // Allow require() in CommonJS files
-      '@typescript-eslint/no-require-imports': 'off' // Allow require imports
+      '@typescript-eslint/no-require-imports': 'off', // Allow require imports
+      '@typescript-eslint/triple-slash-reference': 'off' // Disable triple-slash-reference rule
+    }
+  },
+  {
+    // Specific rules for ECMAScript modules
+    files: ['**/*.mjs'],
+    rules: {
+      '@typescript-eslint/triple-slash-reference': 'off' // Disable triple-slash-reference rule
     }
   }
 ];
