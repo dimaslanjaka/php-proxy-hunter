@@ -6,6 +6,8 @@
 {% block endhead %}{% endblock endhead %}
 
 {% block body %}
+  {% include '_widgets/dashboard-menu.twig' %}
+
   <div class="container mx-auto">
     <div class="mb-3">
       <button id="clear-logs-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">

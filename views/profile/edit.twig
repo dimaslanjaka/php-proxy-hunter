@@ -6,6 +6,8 @@
 {% block endhead %}{% endblock endhead %}
 
 {% block body %}
+  {% include '_widgets/dashboard-menu.twig' %}
+
   <div class="container mx-auto max-w-md mt-8">
     <h2 class="text-2xl font-bold mb-6 dark:text-white">Edit Profile</h2>
     {% if controller_output is defined and controller_output.message is defined %}
