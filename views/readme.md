@@ -15,3 +15,11 @@ default template
 # Assets
 
 Location resource assets in **/views/assets** will be compiled using a rollup to the folder **/public/assets**
+
+# Debug
+
+To debug in twig, use
+
+```twig
+<pre><code>{{ views_debug|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+```
