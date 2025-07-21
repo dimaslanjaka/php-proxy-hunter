@@ -144,17 +144,23 @@ class UserDB
    */
   public function update($id, array $data)
   {
+    $id = is_string($id) ? trim($id) : $id;
     $conditions = [
       'email = ?',
-      'username = ?'
+      'username = ?',
+      'id = ?'
     ];
+    $success = false;
     foreach ($conditions as $condition) {
       $select = $this->db->select("auth_user", "*", $condition, [$id]);
       if (!empty($select)) {
-        $this->db->update("auth_user", $data, "email = ?", [$select[0]['email']]);
+        $success = true;
+        // Update the user data using the correct identifier
+        $this->db->update("auth_user", $data, "id = ?", [$select[0]['id']]);
         break;
       }
     }
+    return $success;
   }
 
   /**

@@ -65,10 +65,45 @@ class UserDBTest extends TestCase
       'first_name' => 'Updated',
       'last_name' => 'Name',
     ];
-    $this->userDB->update('updateuser', $updateData);
-    $selected = $this->userDB->select('updateuser');
-    $this->assertEquals('Updated', $selected['first_name']);
-    $this->assertEquals('Name', $selected['last_name']);
+    // Test update by username
+    $resultUsername = $this->userDB->update('updateuser', $updateData);
+    $this->assertTrue($resultUsername);
+    $selectedUsername = $this->userDB->select('updateuser');
+    $this->assertEquals('Updated', $selectedUsername['first_name']);
+    $this->assertEquals('Name', $selectedUsername['last_name']);
+
+    // Test update by email
+    $updateDataEmail = [
+      'first_name' => 'EmailUpdated',
+      'last_name' => 'EmailName',
+    ];
+    $resultEmail = $this->userDB->update('update@example.com', $updateDataEmail);
+    $this->assertTrue($resultEmail);
+    $selectedEmail = $this->userDB->select('update@example.com');
+    $this->assertEquals('EmailUpdated', $selectedEmail['first_name']);
+    $this->assertEquals('EmailName', $selectedEmail['last_name']);
+
+    // Test update by id
+    $userById = $this->userDB->select('updateuser');
+    $updateDataId = [
+      'first_name' => 'IdUpdated',
+      'last_name' => 'IdName',
+    ];
+    $resultId = $this->userDB->update($userById['id'], $updateDataId);
+    $this->assertTrue($resultId);
+    $selectedId = $this->userDB->select($userById['id']);
+    $this->assertEquals('IdUpdated', $selectedId['first_name']);
+    $this->assertEquals('IdName', $selectedId['last_name']);
+
+    // Test updating username itself
+    $newUsername = 'updateduser';
+    $updateUsernameData = [
+      'username' => $newUsername
+    ];
+    $resultUsernameChange = $this->userDB->update($userById['id'], $updateUsernameData);
+    $this->assertTrue($resultUsernameChange);
+    $selectedNewUsername = $this->userDB->select($newUsername);
+    $this->assertEquals($newUsername, $selectedNewUsername['username']);
   }
 
   public function testSaldoOperations(): void
