@@ -34,10 +34,19 @@ const proxyManager = {
   plugins: [
     resolve({ preferBuiltins: true }), // Resolve node_modules packages
     json(), // Support for JSON files
-    commonjs()
+    commonjs(),
+    {
+      name: 'build-php-env',
+      buildStart: () => {
+        const file = path.join(__dirname, 'public', 'php', 'json', 'env.json');
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, JSON.stringify({ build: Math.random().toString(36).slice(2) }));
+        console.log('PHP env file created:', file);
+      }
+    }
   ]
 };
-if (!isDebug()) {
+if (!isDebug() && Array.isArray(proxyManager.plugins)) {
   // Minify the output on production
   proxyManager.plugins.push(terser({ sourceMap: false }));
 }
@@ -64,7 +73,7 @@ const phpJs = findJs.map((input) => {
       commonjs()
     ]
   };
-  if (!isDebug()) {
+  if (!isDebug() && Array.isArray(config.plugins)) {
     // Minify the output on production
     config.plugins.push(terser({ sourceMap: false }));
   }
