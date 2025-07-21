@@ -1,0 +1,5 @@
+[
+  { "url": "/dashboard", "icon": "fa-duotone fa-gauge-high", "label": "Dashboard" },
+  { "url": "/proxies", "icon": "fa-duotone fa-diagram-project", "label": "Proxies" },
+  { "url": "/settings", "icon": "fa-duotone fa-sliders", "label": "Settings" }
+]
