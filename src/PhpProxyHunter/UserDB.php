@@ -183,4 +183,15 @@ class UserDB
   {
     return $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0]['saldo'];
   }
+
+  public function __destruct()
+  {
+    // Close the database connection
+    $this->db->close();
+  }
+
+  public function close()
+  {
+    $this->db->close();
+  }
 }
