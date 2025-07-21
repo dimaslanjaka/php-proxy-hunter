@@ -1,0 +1,57 @@
+{% extends "template.twig" %}
+
+{% set site_title %}DX{% endset %}
+{% set page_title %}Edit Profile{% endset %}
+
+{% block endhead %}{% endblock endhead %}
+
+{% block body %}
+  <div class="container mx-auto max-w-md mt-8">
+    <h2 class="text-2xl font-bold mb-6 dark:text-white">Edit Profile</h2>
+    {% if controller_output is defined and controller_output.message is defined %}
+      {% if controller_output.success %}
+        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+          {{ controller_output.message|default('Profile updated successfully.') }}
+        </div>
+      {% else %}
+        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {{ controller_output.message|default('There was an error updating your profile.') }}
+        </div>
+      {% endif %}
+    {% endif %}
+    <form id="edit-profile-form" class="bg-white dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4" method="post" action="/profile/edit">
+      <div class="mb-4">
+        <label class="block text-gray-700 dark:text-gray-200 text-sm font-bold mb-2" for="username">Username</label>
+        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-900 leading-tight focus:outline-none focus:shadow-outline" id="username" name="username" type="text" placeholder="Enter new username">
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 dark:text-gray-200 text-sm font-bold mb-2" for="password">Password</label>
+        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-white dark:bg-gray-900 leading-tight focus:outline-none focus:shadow-outline" id="password" name="password" type="password" placeholder="Enter new password">
+      </div>
+      <div class="flex items-center justify-between">
+        <button class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-800 dark:hover:bg-blue-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+          Save Changes
+        </button>
+      </div>
+    </form>
+    <div id="edit-profile-message" class="mt-4 text-center text-sm dark:text-gray-300"></div>
+  </div>
+{% endblock body %}
+
+{% block endbody %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch('/public/php/json/env.json')
+        .then(response => response.json())
+        .then(data => {
+          const script = document.createElement('script');
+          script.type = 'application/javascript';
+          script.src = `/public/php/js/edit-profile.js?build=${data.build}`;
+          document.body.appendChild(script);
+        })
+        .catch(error => {
+          console.error('Error fetching environment data:', error);
+        });
+    });
+  </script>
+{% endblock endbody %}
