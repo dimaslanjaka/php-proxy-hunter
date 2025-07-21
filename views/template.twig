@@ -51,6 +51,7 @@
       }
     };
   </script>
+  <!-- Font Awesome 6 Pro: Add your own CDN or local path below if needed -->
   <link rel="stylesheet"
         href="//rawcdn.githack.com/dimaslanjaka/Web-Manajemen/0f634f242ff259087c9fe176e8f28ccaebb5c015/css/all.min.css" />
   <link rel="stylesheet" href="/public/php/css/template.css" />
@@ -64,8 +65,15 @@
   <div class="max-w-7xl mx-auto flex justify-between items-center">
     <div class="text-white text-xl font-semibold">{{ site_title }}</div>
     <div class="hidden md:flex space-x-6">
-      <a href="/" class="text-white hover:text-gray-300">Home</a>
-      <a href="/login" class="text-white hover:text-gray-300">Login</a>
+      <a href="/" class="text-white hover:text-gray-300">
+        <i class="fa-solid fa-house"></i> Home
+      </a>
+      <a href="/login" class="text-white hover:text-gray-300">
+        <i class="fa-solid fa-right-to-bracket"></i> Login
+      </a>
+      <a href="/logout" class="text-white hover:text-gray-300">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </a>
       <a href="https://www.webmanajemen.com/p/about.html"
          class="text-white hover:text-gray-300">About</a>
     </div>
@@ -80,9 +88,17 @@
     </div>
   </div>
   <div id="mobile-menu" class="md:hidden mt-4 hidden">
-    <a href="#" class="block text-white py-2">Home</a>
+    <a href="#" class="block text-white py-2">
+      <i class="fa-solid fa-house"></i> Home
+    </a>
     <a href="#proxies" class="block text-white py-2">Proxies</a>
     <a href="#about" class="block text-white py-2">About</a>
+    <a href="/login" class="block text-white py-2">
+      <i class="fa-solid fa-right-to-bracket"></i> Login
+    </a>
+    <a href="/logout" class="block text-white py-2">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </a>
   </div>
 </nav>
 <script>
