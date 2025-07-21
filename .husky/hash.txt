@@ -33,6 +33,7 @@
 ├── controllers/
 │   ├── CheckDuplicateProxyController.php [efd4e12f]
 │   ├── ListDuplicateProxyController.php [590cee83]
+│   ├── LogoutController.php [cb3bd837]
 │   ├── ProfileController.php [6a88af52]
 │   ├── UserController.php [8e22c050]
 │   └── autoload.php [73bb219c]
@@ -71,9 +72,9 @@
 ├── php_backend/
 │   ├── check-https-proxy.php [7bb2e98e]
 │   ├── get_sms.php [301f88a8]
-│   ├── google-oauth.php [1c863fc6]
+│   ├── google-oauth.php [535be9bb]
 │   ├── index.js [6faf84a8]
-│   ├── list-user.php [6589135a]
+│   ├── list-user.php [3f40cead]
 │   ├── login.php [753367f3]
 │   ├── logout.php [de302a9c]
 │   ├── logs.php [c83c673a]
@@ -101,13 +102,13 @@
 ├── public/
 │   └── php/
 │       └── js/
-│           ├── admin.js [6f494ac1]
+│           ├── admin.js [8f1c1e43]
 │           ├── dashboard.js [3b46ef60]
 │           ├── edit-profile.js [c428d9a1]
 │           ├── languages.js [4e2d1bf1]
-│           ├── login.js [46f7a0c2]
+│           ├── login.js [a0277495]
 │           ├── profile-card.js [6eef85e9]
-│           ├── refill-saldo.js [f8a8f586]
+│           ├── refill-saldo.js [ce95e003]
 │           ├── template.js [b4ff27ff]
 │           ├── user/
 │           │   └── logs.js [d79cc2a0]
@@ -258,9 +259,9 @@
 │           ├── dashboard.js [7a425e0c]
 │           ├── edit-profile.js [7ee38d8e]
 │           ├── languages.js [9bb513c1]
-│           ├── login.js [44dc2b9c]
+│           ├── login.js [8cb1a644]
 │           ├── profile-card.js [cc973f92]
-│           ├── refill-saldo.js [5c41a659]
+│           ├── refill-saldo.js [268d766d]
 │           ├── template.js [8f8d9758]
 │           ├── user/
 │           │   └── logs.js [8c3c9846]

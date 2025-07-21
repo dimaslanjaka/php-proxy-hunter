@@ -13,75 +13,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
   exit;
 }
 
-// Configuration
-$protocol = 'https://';
+// === Configuration ===
 $host = $_SERVER['HTTP_HOST'];
-$request = parsePostData(true);
+$protocol = 'https://';
 $redirectUri = "{$protocol}{$host}/login";
+$request = parsePostData(true);
 $user_db = new UserDB();
-
-$client = new Google\Client();
-$client->setClientId($_ENV['G_CLIENT_ID']);
-$client->setClientSecret($_ENV['G_CLIENT_SECRET']);
-$client->setDeveloperKey($_ENV['G_API']);
-$client->setRedirectUri($redirectUri);
-$client->addScope([
-  'https://www.googleapis.com/auth/userinfo.email',
-  'https://www.googleapis.com/auth/userinfo.profile'
-]);
-$client->setAccessType('offline');
-$client->setApprovalPrompt('force');
-$client->setPrompt('select_account consent');
-$client->setApplicationName('PHP PROXY HUNTER');
-$client->setIncludeGrantedScopes(true);
-
 $visitorId = $_COOKIE['visitor_id'] ?? 'CLI';
 $credentialsPath = __DIR__ . "/../tmp/logins/login_{$visitorId}.json";
 createParentFolders($credentialsPath);
 
-// Request for auth URL
+$client = createGoogleClient($redirectUri);
+
+// === Handle Google Auth URL Request ===
 if (!empty($request['google-auth-uri'])) {
-  $authUri = $client->createAuthUrl();
   jsonResponse([
-    'auth_uri' => $authUri,
+    'auth_uri' => $client->createAuthUrl(),
     'redirect_uri' => $redirectUri
   ]);
 }
 
-// Handle OAuth callback
+// === Handle OAuth Callback ===
 if (!empty($request['google-oauth-callback'])) {
   $token = $client->fetchAccessTokenWithAuthCode($request['google-oauth-callback']);
+
   if (!empty($token['access_token'])) {
     write_file($credentialsPath, json_encode($token, JSON_PRETTY_PRINT));
-    jsonResponse([
-      'success' => true,
-      'message' => 'Login successful',
-      'token_data' => $client->verifyIdToken()
-    ]);
+    $client->setAccessToken($token);
+
+    try {
+      $google_oauth = new Google_Service_Oauth2($client);
+      $info = $google_oauth->userinfo->get();
+      $email = $info->email ?? null;
+
+      if ($email) {
+        finalizeUserSession($email, $user_db); // create or update user
+        jsonResponse([
+          'success' => true,
+          'message' => 'Login successful',
+          'email' => $email
+        ]);
+      } else {
+        jsonResponse(['error' => 'Unable to get user email from Google'], 400);
+      }
+    } catch (\Google\Service\Exception $e) {
+      jsonResponse(['error' => $e->getMessage()], 400);
+    }
   }
+
   jsonResponse(['error' => 'Failed to fetch access token'], 400);
 }
 
-// Get current user info
-if (!empty($request['me'])) {
-  $email = $_SESSION['user_id'] ?? null;
-  if ($email) {
-    $user = $user_db->select($email);
-    if (!empty($user)) {
-      jsonResponse([
-        'id' => $user['id'],
-        'username' => $user['username'],
-        'email' => $user['email'],
-        'role' => $user['role']
-      ]);
-    }
-    jsonResponse(['error' => 'User not found'], 404);
-  }
-}
-
+// === Initialize result ===
 $result = ['error' => ['messages' => []]];
 
-// Try to load existing token
+// === Load token from file ===
 if (file_exists($credentialsPath)) {
   $token = json_decode(read_file($credentialsPath), true);
   if ($token) {
@@ -89,52 +75,17 @@ if (file_exists($credentialsPath)) {
   }
 }
 
-// Refresh or get user info
+// === Handle Authenticated User ===
 if ($client->getAccessToken()) {
-  $userDb = new UserDB();
-
-  if ($client->isAccessTokenExpired()) {
-    if ($client->getRefreshToken()) {
-      $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-      write_file($credentialsPath, json_encode($client->getAccessToken(), JSON_PRETTY_PRINT));
-    } else {
-      $result['error']['messages'][] = 'Refresh token missing or invalid';
-    }
-  }
+  refreshAccessTokenIfNeeded($client, $credentialsPath, $result);
 
   try {
     $google_oauth = new Google_Service_Oauth2($client);
-    $google_account_info = $google_oauth->userinfo->get();
-    $email = $google_account_info->email ?? null;
+    $info = $google_oauth->userinfo->get();
+    $email = $info->email ?? null;
 
     if ($email) {
-      $isAdmin = $email === 'dimaslanjaka@gmail.com' || $email === $_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '';
-      if (!$isAdmin) {
-        if (isset($_SESSION['admin'])) {
-          unset($_SESSION['admin']);
-        }
-      }
-      $existingUser = $user_db->select($email);
-      if (empty($existingUser)) {
-        $username = preg_replace('/[^a-zA-Z0-9_]/', '', preg_replace('/@gmail\.com$/', '', $email));
-        $user_db->add([
-          'email' => $email,
-          'username' => $username,
-          'password' => bin2hex(random_bytes(8)),
-          'is_staff' => $isAdmin ? 'admin' : 'user',
-          'is_active' => true,
-          'is_superuser' => $email === 'dimaslanjaka@gmail.com'
-        ]);
-      }
-
-      $_SESSION['user_id'] = $email;
-      $_SESSION['authenticated'] = true;
-      $_SESSION['authenticated_email'] = $email;
-      $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
-      if ($isAdmin) {
-        $_SESSION['admin'] = true;
-      }
-
+      finalizeUserSession($email, $user_db);
       $result['email'] = $email;
     }
   } catch (\Google\Service\Exception $e) {
@@ -144,7 +95,70 @@ if ($client->getAccessToken()) {
 
 jsonResponse($result);
 
-// Utility
+
+// === Utility Functions ===
+
+function createGoogleClient(string $redirectUri): Google\Client
+{
+  $client = new Google\Client();
+  $client->setClientId($_ENV['G_CLIENT_ID']);
+  $client->setClientSecret($_ENV['G_CLIENT_SECRET']);
+  $client->setDeveloperKey($_ENV['G_API']);
+  $client->setRedirectUri($redirectUri);
+  $client->addScope([
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile'
+  ]);
+  $client->setAccessType('offline');
+  $client->setApprovalPrompt('force');
+  $client->setPrompt('select_account consent');
+  $client->setApplicationName('PHP PROXY HUNTER');
+  $client->setIncludeGrantedScopes(true);
+  return $client;
+}
+
+function refreshAccessTokenIfNeeded(Google\Client $client, string $path, array &$result): void
+{
+  if ($client->isAccessTokenExpired()) {
+    $refreshToken = $client->getRefreshToken();
+    if ($refreshToken) {
+      $client->fetchAccessTokenWithRefreshToken($refreshToken);
+      write_file($path, json_encode($client->getAccessToken(), JSON_PRETTY_PRINT));
+    } else {
+      $result['error']['messages'][] = 'Refresh token missing or invalid';
+    }
+  }
+}
+
+function finalizeUserSession(string $email, UserDB $user_db): void
+{
+  $isAdmin = $email === 'dimaslanjaka@gmail.com' || $email === ($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '');
+
+  if (!$isAdmin && isset($_SESSION['admin'])) {
+    unset($_SESSION['admin']);
+  }
+
+  $existingUser = $user_db->select($email);
+  if (!$existingUser) {
+    $username = preg_replace('/[^a-zA-Z0-9_]/', '', preg_replace('/@gmail\.com$/', '', $email));
+    $user_db->add([
+      'email' => $email,
+      'username' => $username,
+      'password' => bin2hex(random_bytes(8)),
+      'is_staff' => $isAdmin ? 'admin' : 'user',
+      'is_active' => true,
+      'is_superuser' => $email === 'dimaslanjaka@gmail.com'
+    ]);
+  }
+
+  $_SESSION['user_id'] = $email;
+  $_SESSION['authenticated'] = true;
+  $_SESSION['authenticated_email'] = $email;
+  if ($isAdmin) {
+    $_SESSION['admin'] = true;
+  }
+}
+
 function jsonResponse(array $data, int $status = 200): void
 {
   http_response_code($status);
