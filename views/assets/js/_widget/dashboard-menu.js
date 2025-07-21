@@ -11,7 +11,11 @@ fetch('/public/php/json/dashboard-menu.jsonc')
       console.error('JSONC parse error:', e);
     }
     const ul = document.getElementById('dashboard-menu');
-    if (Array.isArray(menu) && ul) {
+    if (!ul) {
+      console.error('Dashboard menu element not found');
+      return;
+    }
+    if (Array.isArray(menu)) {
       ul.innerHTML = menu
         .map(
           (item) => `
@@ -31,6 +35,10 @@ fetch('/public/php/json/dashboard-menu.jsonc')
   })
   .catch((error) => {
     const ul = document.getElementById('dashboard-menu');
+    if (!ul) {
+      console.error('Dashboard menu element not found');
+      return;
+    }
     ul.innerHTML = `<li class='text-red-500'>Menu failed to load</li>`;
     console.error('Menu load error:', error);
   });
