@@ -10,6 +10,32 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Run composer update or install
+if command -v php >/dev/null 2>&1; then
+  if [ -f "$CWD/composer.lock" ]; then
+    php composer.phar update
+  else
+    php composer.phar install
+  fi
+else
+  echo "Error: PHP is not installed. Skipping composer operations."
+fi
+
+# Run yarn install
+if command -v yarn >/dev/null 2>&1; then
+  touch "$CWD/yarn.lock"  # Create an empty yarn.lock if it doesn't exist
+  yarn install
+else
+  echo "Error: Yarn is not installed. Skipping yarn operations."
+fi
+
+# Run npx rollup if it exists
+if command -v npx >/dev/null 2>&1; then
+  npx rollup -c "$CWD/rollup.config.js" || echo "Error: npx rollup failed."
+else
+  echo "Error: npx is not installed. Skipping rollup operations."
+fi
+
 # Fix permissions
 OS=$(uname -s)
 HOST=$(hostname)
@@ -38,30 +64,4 @@ elif [ "$OS" = "Linux" ]; then
 else
   echo "Unsupported operating system"
   exit 1
-fi
-
-# Run composer update or install
-if command -v php >/dev/null 2>&1; then
-  if [ -f "$CWD/composer.lock" ]; then
-    php composer.phar update
-  else
-    php composer.phar install
-  fi
-else
-  echo "Error: PHP is not installed. Skipping composer operations."
-fi
-
-# Run yarn install
-if command -v yarn >/dev/null 2>&1; then
-  touch "$CWD/yarn.lock"  # Create an empty yarn.lock if it doesn't exist
-  yarn install
-else
-  echo "Error: Yarn is not installed. Skipping yarn operations."
-fi
-
-# Run npx rollup if it exists
-if command -v npx >/dev/null 2>&1; then
-  npx rollup -c "$CWD/rollup.config.js" || echo "Error: npx rollup failed."
-else
-  echo "Error: npx is not installed. Skipping rollup operations."
 fi
