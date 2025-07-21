@@ -45,13 +45,20 @@ class ProfileController extends BaseController
           ];
         }
 
-        $user->update($email, [
+        $update = $user->update($email, [
           'username' => $newUsername
         ]);
-        return [
-          'success' => true,
-          'message' => "Profile updated successfully."
-        ];
+        if ($update) {
+          return [
+            'success' => true,
+            'message' => "Profile updated successfully."
+          ];
+        } else {
+          return [
+            'success' => false,
+            'message' => "Failed to update profile. Please try again."
+          ];
+        }
       }
     } else {
       return [
