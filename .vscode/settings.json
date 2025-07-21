@@ -51,7 +51,6 @@
   "code-runner.executorMapByGlob": {
     "*.electron.js": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
     "*.mjs": "node --no-warnings=ExperimentalWarning",
-    "*.php": "php -d display_errors=1 -d error_reporting=E_ALL -d xdebug.mode=coverage -d xdebug.start_with_request=yes -d xdebug.client_port=9003 -d xdebug.log=$workspaceRoot/tmp/logs/xdebug.log $fullFileName",
     "*.py": "py -u",
     "*.ts": "node --no-warnings=ExperimentalWarning --loader ts-node/esm",
     "*.test.{cjs,js,mjs,ts}": "npm test --",
