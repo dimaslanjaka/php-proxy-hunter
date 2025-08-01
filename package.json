@@ -54,7 +54,7 @@
     "better-sqlite3": "^12.2.0",
     "bluebird": "^3.7.2",
     "cheerio": "^1.1.0",
-    "chromedriver": "138.0.1",
+    "chromedriver": "138.0.5",
     "cors": "^2.8.5",
     "countries-list": "^3.1.1",
     "cross-spawn": "https://github.com/dimaslanjaka/node-cross-spawn/raw/private/release/cross-spawn.tgz",
