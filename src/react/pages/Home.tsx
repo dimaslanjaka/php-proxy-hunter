@@ -1,5 +1,6 @@
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
+import Link from '../components/Link';
 
 const Home = () => (
   <>
@@ -17,18 +18,18 @@ const Home = () => (
               today!
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
-              <a
+              <Link
                 href="/proxyManager.html"
                 className="px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 bg-blue-600 dark:bg-blue-700 text-white flex items-center gap-2">
                 {/* <i className="fas fa-server"></i> */}
                 Proxy Manager
-              </a>
-              <a
+              </Link>
+              <Link
                 href="https://github.com/dimaslanjaka/php-proxy-hunter"
                 className="px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
                 {/* <i className="fab fa-github"></i> */}
                 Learn More
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -118,11 +119,11 @@ const Home = () => (
             Start your journey today with our platform. It’s time to achieve the success you deserve.
           </p>
           <div className="mt-8">
-            <a
+            <Link
               href="#"
               className="px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 bg-blue-600 dark:bg-blue-700 text-white">
               Get Started Now
-            </a>
+            </Link>
           </div>
         </div>
       </section>
