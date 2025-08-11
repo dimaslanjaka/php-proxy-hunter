@@ -6,14 +6,14 @@
     // Specify the module system for the generated JavaScript
     "module": "ESNext",
 
+    // Specify libraries to include in the compilation
+    "lib": ["ES2022"],
+
     // Define how module paths are resolved
     "moduleResolution": "node",
 
     // Specify directories for type definitions
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./types", "./node_modules/@types"],
 
     // Enable importing JSON files as modules
     "resolveJsonModule": true,
