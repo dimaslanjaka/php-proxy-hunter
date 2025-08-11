@@ -35,12 +35,12 @@ CREATE TABLE IF NOT EXISTS "auth_user" (
   "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   "password" VARCHAR(128) NOT NULL,
   "last_login" DATETIME NULL,
-  "is_superuser" BOOL NOT NULL,
+  "is_superuser" INTEGER NOT NULL,
   "username" VARCHAR(150) NOT NULL UNIQUE,
   "last_name" VARCHAR(150) NOT NULL,
   "email" VARCHAR(254) NOT NULL,
-  "is_staff" BOOL NOT NULL,
-  "is_active" BOOL NOT NULL,
+  "is_staff" INTEGER NOT NULL,
+  "is_active" INTEGER NOT NULL,
   "date_joined" DATETIME NOT NULL,
   "first_name" VARCHAR(150) NOT NULL
 );
