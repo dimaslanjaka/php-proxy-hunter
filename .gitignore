@@ -23,6 +23,7 @@ auth.json
 package-lock.json
 **/baileys_*/
 log/
+src/react/components/theme.*
 
 # Databases
 **/*.sqlite*

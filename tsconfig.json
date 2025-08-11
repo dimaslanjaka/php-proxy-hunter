@@ -7,7 +7,7 @@
     "module": "ESNext",
 
     // Specify libraries to include in the compilation
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM"],
 
     // Define how module paths are resolved
     "moduleResolution": "node",
@@ -43,7 +43,10 @@
     "strict": true,
 
     // Skip type checking for declaration files in `node_modules`
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    // Enable support for JSX/TSX
+    "jsx": "react-jsx"
   },
   "typeAcquisition": {
     // Enable automatic type acquisition for JavaScript projects

@@ -66,10 +66,31 @@
   "debug.terminal.clearBeforeReusing": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
-    "source.organizeImports": "explicit"
+    "source.organizeImports": "never"
   },
   "editor.formatOnPaste": false,
   "editor.formatOnSave": false,
+  "eslint.debug": true,
+  "eslint.enable": true,
+  "eslint.format.enable": true,
+  "eslint.ignoreUntitled": true,
+  "eslint.lintTask.enable": true,
+  "eslint.probe": [
+    "astro",
+    "civet",
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "html",
+    "mdx",
+    "vue",
+    "markdown",
+    "json",
+    "jsonc",
+    "twig"
+  ],
+  "eslint.useESLintClass": true,
   "eslint.useFlatConfig": true,
   "files.autoSave": "onWindowChange",
   "files.exclude": {
