@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
 import { indexHtmlReplacementPlugin, TailwindCSSBuildPlugin } from './vite-plugin.js';
+import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,8 +49,8 @@ export default defineConfig({
     }
   },
   server: {
-    host: 'dev.webmanajemen.com',
-    port: 5173,
+    host: process.env.VITE_HOSTNAME || 'dev.webmanajemen.com',
+    port: parseInt(String(process.env.VITE_PORT)) || 5173,
     open: false,
     watch: {
       ignored: [
