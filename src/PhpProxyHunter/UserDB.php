@@ -104,9 +104,9 @@ class UserDB
     $data['first_name'] = $data['first_name'] ?? '';
     $data['last_name'] = $data['last_name'] ?? '';
     $data['date_joined'] = $data['date_joined'] ?? date('Y-m-d H:i:s');
-    $data['is_staff'] = isset($data['is_staff']) ? (bool)$data['is_staff'] : false;
-    $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : true;
-    $data['is_superuser'] = isset($data['is_superuser']) ? (bool)$data['is_superuser'] : false;
+    $data['is_staff'] = isset($data['is_staff']) ? self::normalizeBoolToInt($data['is_staff']) : 0;
+    $data['is_active'] = isset($data['is_active']) ? self::normalizeBoolToInt($data['is_active']) : 1;
+    $data['is_superuser'] = isset($data['is_superuser']) ? self::normalizeBoolToInt($data['is_superuser']) : 0;
     $data['last_login'] = $data['last_login'] ?? null;
 
     // Validate required fields
@@ -213,6 +213,33 @@ class UserDB
   {
     $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
     return isset($saldo_row[0]['saldo']) ? $saldo_row[0]['saldo'] : 0;
+  }
+  /**
+   * Normalize boolean-like values to integer (0 or 1).
+   * Accepts bool, int, string ('true', 'false', '1', '0', 'yes', 'no', 'on', 'off').
+   *
+   * @param mixed $value
+   * @return int
+   */
+  private static function normalizeBoolToInt($value): int
+  {
+    if (is_bool($value)) {
+      return $value ? 1 : 0;
+    }
+    if (is_int($value)) {
+      return ($value === 1) ? 1 : 0;
+    }
+    if (is_string($value)) {
+      $v = strtolower(trim($value));
+      if (in_array($v, ['1', 'true', 'yes', 'on', 'admin'], true)) {
+        return 1;
+      }
+      if (in_array($v, ['0', 'false', 'no', 'off', '', 'user'], true)) {
+        return 0;
+      }
+    }
+    // fallback: treat as falsy
+    return 0;
   }
 
   public function __destruct()
