@@ -42,6 +42,7 @@ src/react/components/theme.*
 /public/static
 /app
 /proxyManager.js
+/index.html
 
 # Miscellaneous
 .cache/
