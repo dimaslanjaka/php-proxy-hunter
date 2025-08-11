@@ -23,7 +23,7 @@ if (!$isCli) {
   $isAdmin = !empty($_SESSION['admin']);
 }
 
-$user_db = new UserDB();
+$user_db = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
 $browserId = getUserId();
 $request = parsePostData();
 

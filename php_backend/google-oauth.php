@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // === Configuration ===
 $host = $_SERVER['HTTP_HOST'];
 $protocol = 'https://';
-$redirectUri = !empty($_GET['redirect_uri']) ? $_GET['redirect_uri'] : "{$protocol}{$host}/login";
 $request = parsePostData(true);
-$user_db = new UserDB();
+$redirectUri = !empty($request['redirect_uri']) ? $request['redirect_uri'] : "{$protocol}{$host}/login";
+$user_db = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
 $visitorId = $_COOKIE['visitor_id'] ?? 'CLI';
 $credentialsPath = __DIR__ . "/../tmp/logins/login_{$visitorId}.json";
 createParentFolders($credentialsPath);
