@@ -215,13 +215,18 @@ class MySQLHelper
   }
 
   /**
-   * Checks if the database is currently locked.
+   * Resets the AUTO_INCREMENT value of the specified table to 1.
    *
-   * @return bool Always returns false for MySQL.
+   * @param string $tableName The name of the table to reset the AUTO_INCREMENT value for.
+   *
+   * @throws \InvalidArgumentException If the table name is invalid.
    */
-  public function isDatabaseLocked(): bool
+  public function resetIncrement(string $tableName): void
   {
-    // MySQL does not have the same locking as SQLite, so always return false
-    return false;
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
+      throw new \InvalidArgumentException('Invalid table name.');
+    }
+    $sql = "ALTER TABLE $tableName AUTO_INCREMENT = 1";
+    $this->pdo->exec($sql);
   }
 }
