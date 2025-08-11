@@ -48,8 +48,23 @@ class MySQLHelper
     if (isset(self::$_databases[$this->uniqueKey])) {
       $this->pdo = self::$_databases[$this->uniqueKey];
     } else {
+      // Try connecting to the database, if it fails due to unknown database, create it
       $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-      $this->pdo = new PDO($dsn, $username, $password);
+      try {
+        $this->pdo = new PDO($dsn, $username, $password);
+      } catch (\PDOException $e) {
+        if (strpos($e->getMessage(), 'Unknown database') !== false) {
+          // Connect without dbname and create the database
+          $dsnNoDb = "mysql:host=$host;charset=utf8mb4";
+          $pdoTmp = new PDO($dsnNoDb, $username, $password);
+          $pdoTmp->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+          $pdoTmp->exec("CREATE DATABASE IF NOT EXISTS `" . str_replace('`', '', $dbname) . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+          // Now connect again with the dbname
+          $this->pdo = new PDO($dsn, $username, $password);
+        } else {
+          throw $e;
+        }
+      }
       $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       self::$_databases[$this->uniqueKey] = $this->pdo;
     }
