@@ -15,8 +15,28 @@ if (!defined('PHP_PROXY_HUNTER')) {
  */
 class UserDB
 {
-  /** @var SQLiteHelper $db */
+  /**
+   * @var SQLiteHelper|MySQLHelper $db Database helper instance (SQLite or MySQL)
+   */
   public $db;
+
+  public function __construct(?string $dbLocation = null, string $dbType = 'sqlite', string $host = 'localhost', string $dbname = 'php_proxy_hunter', string $username = 'root', string $password = '', bool $unique = false)
+  {
+    if ($dbType === 'mysql') {
+      $this->mysql($host, $dbname, $username, $password, $unique);
+    } else {
+      $this->sqlite($dbLocation);
+    }
+  }
+
+  public function mysql(string $host, string $dbname, string $username, string $password, bool $unique = false)
+  {
+    $this->db = new MySQLHelper($host, $dbname, $username, $password, $unique);
+
+    // Initialize the database schema
+    $sqlFileContents = file_get_contents(__DIR__ . '/assets/mysql-schema.sql');
+    $this->db->pdo->exec($sqlFileContents);
+  }
 
   /**
    * UserDB constructor.
@@ -25,7 +45,7 @@ class UserDB
    *
    * @param string|null $dbLocation Path to the database file. Defaults to the project's database directory.
    */
-  public function __construct(?string $dbLocation = null)
+  public function sqlite(?string $dbLocation = null)
   {
     if (!$dbLocation) {
       $dbLocation = __DIR__ . '/../database.sqlite';
@@ -42,7 +62,7 @@ class UserDB
     $this->db = new SQLiteHelper($dbLocation);
 
     // Initialize the database schema
-    $sqlFileContents = file_get_contents(__DIR__ . '/../../assets/database/create.sql');
+    $sqlFileContents = file_get_contents(__DIR__ . '/assets/sqlite-schema.sql');
     $this->db->pdo->exec($sqlFileContents);
 
     // Fix journal mode to WAL

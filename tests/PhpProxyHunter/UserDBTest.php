@@ -13,24 +13,42 @@ class UserDBTest extends TestCase
 {
   private UserDB $userDB;
   private string $testDbPath;
+  private string $mysqlHost = 'localhost';
+  private string $mysqlDb = 'php_proxy_hunter_test';
+  private string $mysqlUser = 'root';
+  private string $mysqlPass = '';
+  private bool $useMySQL = false;
 
   protected function setUp(): void
   {
-    $this->testDbPath = tmp() . '/test_database.sqlite';
-    // Remove any existing test DB
-    if (file_exists($this->testDbPath)) {
-      // Try to close any open connection before unlink
-      @unlink($this->testDbPath);
+    $this->useMySQL = getenv('PHP_PROXY_HUNTER_TEST_MYSQL') === '1';
+    if ($this->useMySQL) {
+      $this->userDB = new UserDB(null, 'mysql', $this->mysqlHost, $this->mysqlDb, $this->mysqlUser, $this->mysqlPass, true);
+      // Optionally, clear tables before each test
+      $pdo = $this->userDB->db->pdo;
+      $pdo->exec('SET FOREIGN_KEY_CHECKS=0;');
+      $pdo->exec('TRUNCATE TABLE user_logs;');
+      $pdo->exec('TRUNCATE TABLE user_fields;');
+      $pdo->exec('TRUNCATE TABLE auth_user;');
+      $pdo->exec('TRUNCATE TABLE meta;');
+      $pdo->exec('TRUNCATE TABLE added_proxies;');
+      $pdo->exec('TRUNCATE TABLE processed_proxies;');
+      $pdo->exec('TRUNCATE TABLE proxies;');
+      $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
+    } else {
+      $this->testDbPath = sys_get_temp_dir() . '/test_database.sqlite';
+      if (file_exists($this->testDbPath)) {
+        @unlink($this->testDbPath);
+      }
+      $this->userDB = new UserDB($this->testDbPath);
     }
-    $this->userDB = new UserDB($this->testDbPath);
   }
 
   protected function tearDown(): void
   {
-    // Close DB connection before deleting file
     $this->userDB->close();
     gc_collect_cycles();
-    if (file_exists($this->testDbPath)) {
+    if (!$this->useMySQL && isset($this->testDbPath) && file_exists($this->testDbPath)) {
       @unlink($this->testDbPath);
     }
   }
