@@ -20,12 +20,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // === Configuration ===
 $host = $_SERVER['HTTP_HOST'];
 $protocol = 'https://';
-$redirectUri = "{$protocol}{$host}/login";
+$redirectUri = !empty($_GET['redirect_uri']) ? $_GET['redirect_uri'] : "{$protocol}{$host}/login";
 $request = parsePostData(true);
 $user_db = new UserDB();
 $visitorId = $_COOKIE['visitor_id'] ?? 'CLI';
 $credentialsPath = __DIR__ . "/../tmp/logins/login_{$visitorId}.json";
 createParentFolders($credentialsPath);
+
+// Validate redirect URI
+if (!filter_var($redirectUri, FILTER_VALIDATE_URL)) {
+  jsonResponse(['error' => 'Invalid redirect URI'], 400);
+}
 
 $client = createGoogleClient($redirectUri);
 
