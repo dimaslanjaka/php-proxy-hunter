@@ -194,20 +194,25 @@ class UserDB
     if (empty($find_existing_row)) {
       // Insert new column when not exist
       $this->db->insert('user_fields', ['user_id' => $id, 'saldo' => 0]);
+      $existing_saldo = 0;
+    } else {
+      $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
+      $existing_saldo = isset($saldo_row[0]['saldo']) ? intval($saldo_row[0]['saldo']) : 0;
     }
-    $existing_saldo = intval($this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0]['saldo']);
     $sum_saldo = $existing_saldo + $amount;
     $this->db->update('user_fields', ['saldo' => $sum_saldo], "user_id = ?", [$id]);
 
     // Update logs
     $this->db->insert("user_logs", ["message" => "Topup $amount", "log_level" => "INFO", "source" => $log_source, "extra_info" => $log_extra_info, 'user_id' => $id], false);
 
-    return $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0];
+    $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
+    return isset($saldo_row[0]) ? $saldo_row[0] : ['saldo' => 0];
   }
 
   public function get_saldo(int $id)
   {
-    return $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0]['saldo'];
+    $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
+    return isset($saldo_row[0]['saldo']) ? $saldo_row[0]['saldo'] : 0;
   }
 
   public function __destruct()
