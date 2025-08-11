@@ -3,6 +3,13 @@ import { Link as OriginalLink } from 'react-router-dom';
 import safelink from 'safelinkify';
 import { isValidHttpUrl } from '../utils/index.js';
 
+export const sfInstance = new safelink.safelink({
+  exclude: [/\.webmanajemen\.com/],
+  redirect: '/outbound?url=',
+  password: 'php-proxy-hunter',
+  verbose: true
+});
+
 export interface LinkProps {
   /** Target URL */
   href?: string;
@@ -38,14 +45,8 @@ class Link extends React.Component<LinkProps, { sf: any }> {
 
   componentDidMount() {
     this._isMounted = true;
-    const sf = new safelink.safelink({
-      exclude: [/\.webmanajemen\.com/],
-      redirect: '/outbound?url=',
-      password: 'php-proxy-hunter',
-      verbose: true
-    });
     if (this._isMounted) {
-      this.setState({ sf });
+      this.setState({ sf: sfInstance });
     }
   }
 
