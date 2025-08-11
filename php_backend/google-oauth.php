@@ -154,7 +154,7 @@ function finalizeUserSession(string $email, UserDB $user_db): void
       'email' => $email,
       'username' => $username,
       'password' => bin2hex(random_bytes(8)),
-      'is_staff' => $isAdmin ? 'admin' : 'user',
+      'is_staff' => $isAdmin ? 1 : 0,
       'is_active' => true,
       'is_superuser' => $email === 'dimaslanjaka@gmail.com'
     ]);
