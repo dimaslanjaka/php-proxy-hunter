@@ -11,10 +11,31 @@ use PhpProxyHunter\UserDB;
  */
 class UserDBSaldoArithmeticTest extends TestCase
 {
+
   private string $mysqlHost;
   private string $mysqlDb;
   private string $mysqlUser;
   private string $mysqlPass;
+
+  /**
+   * Create the test database if it does not exist.
+   */
+  private function createTestDatabase(): void
+  {
+    $dsn = sprintf('mysql:host=%s', $this->mysqlHost);
+    $pdo = new \PDO($dsn, $this->mysqlUser, $this->mysqlPass);
+    $pdo->exec('CREATE DATABASE IF NOT EXISTS `' . $this->mysqlDb . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+  }
+
+  /**
+   * Drop the test database after tests.
+   */
+  private function dropTestDatabase(): void
+  {
+    $dsn = sprintf('mysql:host=%s', $this->mysqlHost);
+    $pdo = new \PDO($dsn, $this->mysqlUser, $this->mysqlPass);
+    $pdo->exec('DROP DATABASE IF EXISTS `' . $this->mysqlDb . '`;');
+  }
 
   public function __construct(?string $name = null, array $data = [], $dataName = '')
   {
@@ -46,6 +67,7 @@ class UserDBSaldoArithmeticTest extends TestCase
   public function testSaldoArithmeticMysql(): void
   {
     try {
+      $this->createTestDatabase();
       $userDB = new UserDB(null, 'mysql', $this->mysqlHost, $this->mysqlDb, $this->mysqlUser, $this->mysqlPass, true);
       $pdo = $userDB->db->pdo;
       $pdo->exec('SET FOREIGN_KEY_CHECKS=0;');
@@ -59,6 +81,7 @@ class UserDBSaldoArithmeticTest extends TestCase
       $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
       $this->runSaldoArithmeticTest($userDB);
       $userDB->close();
+      $this->dropTestDatabase();
     } catch (\Throwable $e) {
       $this->fail("Failed to connect or setup MySQL: " . $e->getMessage());
     }
