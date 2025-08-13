@@ -29,9 +29,9 @@ jobs:
           path: |
             ~/.yarn
             **/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('.husky/hash.txt') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('.husky/hash.txt') }}
           restore-keys: |
-            ${{ runner.os }}-
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: yarn install
