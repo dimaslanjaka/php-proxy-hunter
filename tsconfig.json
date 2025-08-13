@@ -31,7 +31,7 @@
     "sourceMap": true,
 
     // Specify the directory for emitted files
-    "outDir": "./dist",
+    "outDir": "./tmp/dist-project",
 
     // Emit compliant JavaScript for iterables, which may be less performant
     "downlevelIteration": true,
