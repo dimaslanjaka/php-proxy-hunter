@@ -38,9 +38,11 @@ export function TailwindCSSBuildPlugin() {
  * @returns {import('vite').Plugin}
  */
 export function indexHtmlReplacementPlugin() {
+  let command;
   return {
     name: 'index-html-replacement',
-    configResolved(_config) {
+    configResolved(config) {
+      command = config.command;
       // Copy index.dev.html to index.html for development mode.
       // Do not remove: ensures dev server uses index.dev.html content as index.html.
       // In production, index.html is generated in dist/react and index.dev.html is ignored.
@@ -79,6 +81,8 @@ export function indexHtmlReplacementPlugin() {
      * This ensures that the production build uses the correct HTML file.
      */
     closeBundle() {
+      // Skip if not building for production
+      if (command !== 'build') return;
       const indexHtml = path.join(process.cwd(), 'dist/react/index.html');
       if (!fs.existsSync(indexHtml)) {
         console.warn(`${indexHtml} does not exist, skipping copy.`);
