@@ -1,0 +1,63 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+          cache-dependency-path: .husky/hash.txt
+
+      - name: Init cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.yarn
+            **/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('.husky/hash.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build React app
+        run: yarn build:react
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: .deploy_git
+
+      - name: Copy build to .deploy_git
+        run: |
+          rm -rf .deploy_git/assets || true
+          cp -r dist/react/* .deploy_git/
+
+      - name: Build commit message
+        id: commitmsg
+        run: |
+          LATEST_COMMIT=$(git rev-parse HEAD)
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/$LATEST_COMMIT"
+          echo "message=chore: deploy to gh-pages from $LATEST_COMMIT ($COMMIT_URL)" >> $GITHUB_OUTPUT
+
+      - name: Commit and push to gh-pages
+        working-directory: .deploy_git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "${{ steps.commitmsg.outputs.message }}" || echo "No changes to commit"
+          git push
