@@ -26,4 +26,4 @@ jobs:
     with:
       max: ${{ github.event.inputs.max || 500 }}
     secrets:
-      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}

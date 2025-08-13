@@ -40,8 +40,8 @@ jobs:
       NUITKA_CACHE_DIR: ${{ github.workspace }}/project/tmp/nuitka-cache
       NODE_OPTIONS: --max_old_space_size=4096
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
-      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-      GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
       YARN_CHECKSUM_BEHAVIOR: update
     defaults:
       run:
@@ -58,14 +58,14 @@ jobs:
         with:
           repository: dimaslanjaka/php-proxy-hunter
           ref: master
-          token: ${{ secrets.ACCESS_TOKEN }}
+          token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           lfs: true
 
       - uses: actions/checkout@v4
         with:
           repository: dimaslanjaka/data
           path: public
-          token: ${{ secrets.ACCESS_TOKEN }}
+          token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           lfs: true
 
       - uses: actions/setup-node@v4
@@ -144,9 +144,9 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         shell: bash
         env:
-          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"}}'
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}"}}'
         run: |
-          php composer.phar config --global github-oauth.github.com "${{ secrets.ACCESS_TOKEN }}"
+          php composer.phar config --global github-oauth.github.com "${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}"
           # If vendor folder is missing or empty, remove composer.lock and re-install
           if [ ! -d vendor ] || [ -z "$(ls -A vendor 2>/dev/null)" ]; then
             rm -f composer.lock

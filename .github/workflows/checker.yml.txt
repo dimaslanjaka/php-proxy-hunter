@@ -32,8 +32,8 @@ jobs:
     env:
       NODE_OPTIONS: "--max_old_space_size=4096" #8192 4096 --expose-gc
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
-      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-      GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
       node_version: 18.x
       php_version: 7.4
       YARN_CHECKSUM_BEHAVIOR: update
@@ -45,11 +45,11 @@ jobs:
           timezoneLinux: "Asia/Jakarta"
       - uses: actions/checkout@v4
         with:
-          token: "${{ secrets.ACCESS_TOKEN }}"
+          token: "${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}"
           lfs: ""
       - uses: actions/checkout@v4
         with:
-          token: "${{ secrets.ACCESS_TOKEN }}"
+          token: "${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}"
           lfs: ""
           path: "public"
           repository: "dimaslanjaka/data"
@@ -346,7 +346,7 @@ jobs:
       - name: Clean GitHub caches if needed
         if: steps.clean_github_actions_cache.outputs.clean_temp == 'true'
         env:
-          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           bash bin/clear-github-actions-cache
           php artisan/filterPortsDuplicate.php --admin='true'
