@@ -51,6 +51,8 @@ jobs:
           path: |
             ~/.yarn
             **/node_modules
+            **/tmp/**
+            **/dist/**
           key: ${{ runner.os }}-node-${{ hashFiles('.husky/hash.txt') }}
           restore-keys: |
             ${{ runner.os }}-node-
