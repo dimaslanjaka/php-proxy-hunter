@@ -39,7 +39,9 @@
     "lint:fix": "npm run lint -- --fix",
     "build:tailwind": "npx --yes @tailwindcss/cli -i ./tailwind.input.css -o ./src/react/components/theme.css",
     "dev:react": "vite",
-    "build:react": "npm run build:tailwind && vite build"
+    "build:react": "npm run build:tailwind && vite build",
+    "preview:react": "npm run build:react && vite preview",
+    "build:gh-pages": "npm run build:react && node vite-gh-pages.js"
   },
   "workspaces": {
     "packages": [
