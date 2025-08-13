@@ -50,7 +50,7 @@ const config: JestConfigWithTsJest = {
           ]
         },
         useESM: true,
-        tsconfig: path.join(__dirname, 'tsconfig.jest.json')
+        tsconfig: path.join(__dirname, 'tsconfig.json')
       }
     ],
     // Only transform js, jsx, cjs (not mjs)

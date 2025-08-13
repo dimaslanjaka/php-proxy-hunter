@@ -58,7 +58,8 @@
     "./src",
     ".env.mjs",
     "./node_backend",
-    "./types/**/*.d.ts"
+    "./types/**/*.d.ts",
+    "./test/**/*"
   ],
   "exclude": [
     // Exclude specific directories and patterns from the compilation
