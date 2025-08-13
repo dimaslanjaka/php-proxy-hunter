@@ -30,6 +30,14 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           repository: dimaslanjaka/php-proxy-hunter
 
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: .deploy_git
+          token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          repository: dimaslanjaka/php-proxy-hunter
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -55,20 +63,6 @@ jobs:
 
       - name: Build React app
         run: node vite-gh-pages.js
-
-      - name: Checkout gh-pages branch
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-          path: .deploy_git
-          token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          repository: dimaslanjaka/php-proxy-hunter
-
-      - name: Copy build to .deploy_git
-        run: |
-          rm -rf .deploy_git/assets || true
-          cp -r dist/react/* .deploy_git/
-          rm -rf .deploy_git/php || true
 
       - name: Build commit message
         id: commitmsg
