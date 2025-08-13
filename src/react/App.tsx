@@ -14,7 +14,7 @@ const GitHistory = React.lazy(() => import('./pages/GitHistory'));
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <Router>
+      <Router basename={import.meta.env.BASE_URL}>
         <React.Suspense
           fallback={
             <div className="flex items-center justify-center min-h-screen">
