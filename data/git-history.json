@@ -1,8 +1,8 @@
 [
   {
-    "hash": "c43817ef9231fb9053051d29103e3c4d04c9ae5f",
-    "date": "2025-08-13T20:49:26+07:00",
-    "message": "feat(vite-plugin): add git history builder execution in index HTML replacement plugin",
+    "hash": "03bfbb0813c45d4e20490dad4baf9cb1d72309ca",
+    "date": "2025-08-13T22:05:16+07:00",
+    "message": "feat(react): sync createUrl with vite base url and improve changelog fetch\n\n- Updated `createUrl` in `src/react/utils/url.ts` to prepend the Vite base URL for non-PHP routes, handle edge cases, and add debug logs.\n- Refactored `Changelog.tsx` to use `createUrl` for fetching git history, ensuring correct path resolution with Vite base.\n- Added `.deploy_git/` to `.gitignore` to exclude deployment artifacts.\n- Updated `vite.config.js` to allow testing with a custom base path (commented example).",
     "files": [
       ".crontab.sh",
       ".crontab.txt",
