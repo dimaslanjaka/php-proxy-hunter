@@ -59,7 +59,8 @@ export function indexHtmlReplacementPlugin() {
           '/settings',
           '/dashboard',
           '/logout',
-          '/proxy'
+          '/proxy',
+          '/contact'
         ];
         if (devRoutes.includes(req.url)) {
           req.url = '/index.dev.html';

@@ -8,6 +8,7 @@ import OauthHandler from './pages/OauthHandler';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import About from './pages/About';
+import Contact from './pages/Contact';
 
 const App: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ const App: React.FC = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
           </Routes>
         </React.Suspense>
       </Router>
