@@ -1,8 +1,8 @@
 [
   {
-    "hash": "09429d235a4bc13b6f431855e1d3abdc6182540e",
-    "date": "2025-08-13T22:23:25+07:00",
-    "message": "refactor(build): move cache busting and route HTML generation from vite-plugin.js to vite-gh-pages.js\n\n- Moved cache busting logic and copying of index.html to route-specific HTML files from the Vite plugin (vite-plugin.js) to the deployment script (vite-gh-pages.js).\n- Simplified vite-plugin.js by removing unnecessary dependencies and the closeBundle hook.\n- Ensured cache busting and route HTML generation now occur only during deployment, improving build clarity and separation of concerns.",
+    "hash": "6dad28603398b529fe5902d5f32025475d19a61e",
+    "date": "2025-08-14T05:01:31+07:00",
+    "message": "feat(build): add GitHub Pages config and preview support for Vite\n\n- Added `vite-gh-pages.config.js` to provide a Vite config with the correct base path for GitHub Pages deployments.\n- Updated `vite-gh-pages.js` to use the new config and removed inline config merging.\n- Modified `vite.config.js` to export both a named config (`viteConfig`) and a default function for Vite param detection.\n- Updated npm scripts in `package.json`:\n  - Changed `build:gh-pages` to run only the deploy script.\n  - Added `preview:gh-pages` for previewing the GitHub Pages build locally with the correct config.",
     "files": [
       ".crontab.sh",
       ".crontab.txt",
@@ -1064,6 +1064,7 @@
       "views/readme.md",
       "views/template.twig",
       "views/user/logs.twig",
+      "vite-gh-pages.config.js",
       "vite-gh-pages.js",
       "vite-plugin.js",
       "vite.config.js",
