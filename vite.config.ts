@@ -67,7 +67,11 @@ export default defineConfig({
         '**/.vscode/**',
         '**/.idea/**',
         '**/.git/**',
-        '**/.github/**'
+        '**/.github/**',
+        '**/.husky/**',
+        '**/public/**/*.json',
+        '**/tests/**',
+        '**/test/**'
       ],
       usePolling: true, // slower but reliable
       interval: 100
