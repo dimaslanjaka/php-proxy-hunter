@@ -124,7 +124,19 @@ class Navbar extends React.Component<object, NavbarState> {
                     title="Twitter">
                     <i className="fab fa-twitter mr-2"></i> Twitter
                   </a>
-                  {/* Add more social links here */}
+                  <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                  <Link
+                    href="/about"
+                    className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    title="About">
+                    <i className="fal fa-info-circle mr-2"></i> About
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    title="Contact">
+                    <i className="fal fa-envelope mr-2"></i> Contact
+                  </Link>
                 </div>
               )}
             </div>
