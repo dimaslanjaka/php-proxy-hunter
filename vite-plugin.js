@@ -1,8 +1,6 @@
 import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'upath';
-import routes from './src/react/routes.json' with { type: 'json' };
-import * as cheerio from 'cheerio';
 
 /**
  * Vite plugin to build Tailwind CSS using the Tailwind CLI.
@@ -39,11 +37,9 @@ export function TailwindCSSBuildPlugin() {
  * @returns {import('vite').Plugin}
  */
 export function indexHtmlReplacementPlugin() {
-  let command;
   return {
     name: 'index-html-replacement',
-    configResolved(config) {
-      command = config.command;
+    configResolved(_config) {
       // Copy index.dev.html to index.html for development mode.
       // Do not remove: ensures dev server uses index.dev.html content as index.html.
       // In production, index.html is generated in dist/react and index.dev.html is ignored.
@@ -88,80 +84,6 @@ export function indexHtmlReplacementPlugin() {
         }
         next();
       });
-    },
-    /**
-     * After build hook to copy index.dev.html to index.html.
-     * This ensures that the production build uses the correct HTML file.
-     */
-    closeBundle() {
-      // Skip if not building for production
-      if (command !== 'build') return;
-      const indexHtml = path.join(process.cwd(), 'dist/react/index.html');
-      if (!fs.existsSync(indexHtml)) {
-        console.warn(`${indexHtml} does not exist, skipping copy.`);
-        return;
-      }
-      const relIndexHtml = path.relative(process.cwd(), indexHtml);
-      // Modify html
-      const htmlContent = fs.readFileSync(indexHtml, 'utf-8');
-      const $ = cheerio.load(htmlContent);
-      // Get latest git commit hash
-      let version = 'unknown';
-      try {
-        const gitResult = spawnSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' });
-        if (gitResult.status === 0 && gitResult.stdout) {
-          version = gitResult.stdout.trim();
-        }
-      } catch {
-        // ignore
-      }
-      // Process script and link tags for cache busting
-      $('script[src], link[href]').each((_, el) => {
-        const tag = el.tagName.toLowerCase();
-        const src = $(el).attr('src') || $(el).attr('href');
-        if (
-          !src ||
-          src.startsWith('{{') ||
-          /^(#|data:|mailto:|tel:|javascript:|blob:|file:|https?:\/\/|\/\/)/.test(src)
-        ) {
-          return;
-        }
-        try {
-          const parseSrc = new URL(src, 'http://www.webmanajemen.com/php-proxy-hunter/');
-          parseSrc.searchParams.set('version', version);
-          const newUrl = parseSrc.pathname + parseSrc.search;
-          if (tag === 'script') {
-            $(el).attr('src', newUrl);
-          } else if (tag === 'link') {
-            $(el).attr('href', newUrl);
-          }
-          console.log(`Cache bust: ${tag.toUpperCase()} ${src} => ${newUrl}`);
-        } catch {
-          console.warn(`Failed to parse URL for cache busting: ${src}`);
-        }
-      });
-      // Write modified HTML back to file
-      fs.writeFileSync(indexHtml, $.html());
-      console.log(`Updated ${relIndexHtml} with version query parameters.`);
-      // Copy dist/react/index.html to spesific routes
-      for (const route of routes) {
-        if (route.path.endsWith('/')) {
-          // Ensure the route does not end with a slash
-          route.path += 'index.html';
-        } else if (!route.path.endsWith('.html')) {
-          // Append index.html if it does not end with .html
-          // This ensures that the route is treated as a directory
-          // and served as index.html
-          // e.g., /about becomes /about/index.html
-          route.path += '/index.html';
-        }
-        const routePathWithoutHtml = route.path.replace(/\.html$/, '');
-        const routeHtml = path.join(process.cwd(), 'dist/react', `${routePathWithoutHtml}.html`);
-        const relRouteHtml = path.relative(process.cwd(), routeHtml);
-        fs.ensureDirSync(path.dirname(routeHtml)); // Ensure the directory exists
-        fs.copyFileSync(indexHtml, routeHtml);
-        console.log(`Copied ${relIndexHtml} to ${relRouteHtml} after build.`);
-      }
     }
   };
 }
