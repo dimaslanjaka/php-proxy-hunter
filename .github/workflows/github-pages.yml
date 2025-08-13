@@ -1,9 +1,13 @@
 name: Deploy GitHub Pages
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - main
+    paths:
+      - 'src/react/**/*'
+      - 'src/utils/**/*'
+      - 'src/dev/**/*'
+      - '.github/workflows/github-pages.yml'
 
 jobs:
   build-and-deploy:
