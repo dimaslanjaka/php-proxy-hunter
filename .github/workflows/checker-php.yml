@@ -178,7 +178,7 @@ jobs:
         run: python3 src/geoPlugin.py
 
       - name: Cleanup
-        run: php cleaner.php
+        run: php artisan/cleaner.php
 
       - name: Fetch proxies
         run: php artisan/proxyFetcher.php
