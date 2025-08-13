@@ -67,7 +67,7 @@ jobs:
         run: |
           LATEST_COMMIT=$(git rev-parse HEAD)
           COMMIT_URL="https://github.com/${{ github.repository }}/commit/$LATEST_COMMIT"
-          echo "message=chore: deploy to gh-pages from $LATEST_COMMIT ($COMMIT_URL)" >> $GITHUB_OUTPUT
+          echo "message=chore: deploy to gh-pages from $COMMIT_URL" >> $GITHUB_OUTPUT
 
       - name: Commit and push to gh-pages
         working-directory: .deploy_git
