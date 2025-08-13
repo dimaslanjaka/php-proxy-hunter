@@ -60,6 +60,7 @@ jobs:
         run: |
           rm -rf .deploy_git/assets || true
           cp -r dist/react/* .deploy_git/
+          rm -rf .deploy_git/php || true
 
       - name: Build commit message
         id: commitmsg
