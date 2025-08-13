@@ -9,7 +9,7 @@ type Commit = ReturnType<typeof gitHistoryToJson>[number];
 let gitHistoryCache: Commit[] | null = null;
 let gitHistoryPromise: Promise<Commit[]> | null = null;
 
-export default function GitHistory() {
+export default function Changelog() {
   const [commits, setCommits] = React.useState<Commit[] | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [page, setPage] = React.useState(1);

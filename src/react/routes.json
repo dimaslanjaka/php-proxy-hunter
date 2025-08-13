@@ -10,5 +10,25 @@
   {
     "path": "/login",
     "component": "pages/Login.tsx"
+  },
+  {
+    "path": "/changelog",
+    "component": "pages/Changelog.tsx"
+  },
+  {
+    "path": "/oauth",
+    "component": "pages/OAuthHandler.tsx"
+  },
+  {
+    "path": "/settings",
+    "component": "pages/Settings.tsx"
+  },
+  {
+    "path": "/about",
+    "component": "pages/About.tsx"
+  },
+  {
+    "path": "/contact",
+    "component": "pages/Contact.tsx"
   }
 ]

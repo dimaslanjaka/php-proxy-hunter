@@ -9,7 +9,7 @@ const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const About = React.lazy(() => import('./pages/About'));
 const Contact = React.lazy(() => import('./pages/Contact'));
-const GitHistory = React.lazy(() => import('./pages/GitHistory'));
+const Changelog = React.lazy(() => import('./pages/Changelog'));
 
 const App: React.FC = () => {
   return (
@@ -32,7 +32,7 @@ const App: React.FC = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/changelog" element={<GitHistory />} />
+            <Route path="/changelog" element={<Changelog />} />
           </Routes>
         </React.Suspense>
       </Router>
