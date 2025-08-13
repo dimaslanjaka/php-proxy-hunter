@@ -40,15 +40,23 @@ export function TailwindCSSBuildPlugin() {
 export function indexHtmlReplacementPlugin() {
   return {
     name: 'index-html-replacement',
+    configResolved(config) {
+      // Ensure the plugin runs after the server is configured
+      if (config.command === 'serve') {
+        config.server.middlewareMode = true; // Enable middleware mode
+      }
+      // Copy index.dev.html to index.html for development mode.
+      // Do not remove: ensures dev server uses index.dev.html content as index.html.
+      // In production, index.html is generated in dist/react and index.dev.html is ignored.
+      const devHtml = path.join(process.cwd(), 'index.dev.html');
+      const prodHtml = path.join(process.cwd(), 'index.html');
+      fs.copyFileSync(devHtml, prodHtml);
+    },
     /**
      * Configures the dev server to serve index.dev.html for specific routes.
      * @param {import('vite').ViteDevServer} server
      */
     configureServer(server) {
-      // Write index.html from index.dev.html for development
-      const devHtml = path.join(process.cwd(), 'index.dev.html');
-      const prodHtml = path.join(process.cwd(), 'index.html');
-      fs.copyFileSync(devHtml, prodHtml);
       // Replace index.html with index.dev.html for specific routes
       server.middlewares.use((req, _res, next) => {
         const devRoutes = [
