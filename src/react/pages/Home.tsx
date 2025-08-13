@@ -20,13 +20,25 @@ const Home = () => (
             <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
               <Link
                 href="/proxyManager.html"
-                className="px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 bg-blue-600 dark:bg-blue-700 text-white flex items-center gap-2">
-                {/* <i className="fas fa-server"></i> */}
+                className="px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2
+                  bg-blue-600 text-white border-blue-700
+                  dark:bg-blue-700 dark:text-white dark:border-blue-600">
+                <i className="fas fa-server"></i>
                 Proxy Manager
               </Link>
               <Link
+                href="/changelog"
+                className="px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2
+                  bg-green-100 text-green-900 border-green-300
+                  dark:bg-green-800 dark:text-green-100 dark:border-green-700">
+                <i className="fa-duotone fa-clock-rotate-left"></i>
+                Changelog
+              </Link>
+              <Link
                 href="https://github.com/dimaslanjaka/php-proxy-hunter"
-                className="px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700">
+                className="px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2
+                  bg-gray-100 text-gray-900 border-gray-300
+                  dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
                 {/* <i className="fab fa-github"></i> */}
                 Learn More
               </Link>

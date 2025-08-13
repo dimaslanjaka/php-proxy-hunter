@@ -17,10 +17,10 @@ export interface GitHistoryOptions {
 }
 
 /**
- * Get git commit history with hash, message, and changed files.
+ * Get git commit history with hash, date, message, and changed files.
  *
  * @param options - Filter options for git history. See {@link GitHistoryOptions}.
- * @returns Array of commit objects: { hash, message, files[] }
+ * @returns Array of commit objects: { hash, date, message, files[] }
  *
  * @example
  * // Get last 10 commits
@@ -29,17 +29,19 @@ export interface GitHistoryOptions {
  * // Get commits between two dates
  * getGitHistory({ since: '2024-01-01', until: '2024-12-31' });
  */
-export function getGitHistory(options: GitHistoryOptions = {}) {
+export function gitHistoryToJson(options: GitHistoryOptions = {}) {
   // Use a clear separator for commits
   const SEP = '---end---';
   let rangeArgs = '';
   if (options.since) rangeArgs += ` --since="${options.since}"`;
   if (options.until) rangeArgs += ` --until="${options.until}"`;
   if (options.last) rangeArgs += ` -n ${options.last}`;
-  const log = execSync(`git log${rangeArgs} --pretty=format:%H%n%B%n${SEP} --name-only`, { encoding: 'utf8' });
+  // Add %cI (ISO 8601 commit date) after hash
+  const log = execSync(`git log${rangeArgs} --pretty=format:%H%n%cI%n%B%n${SEP} --name-only`, { encoding: 'utf8' });
   const lines = log.split(/\r?\n/);
-  const commits: Array<{ hash: string; message: string; files: string[] }> = [];
+  const commits: Array<{ hash: string; date: string; message: string; files: string[] }> = [];
   let hash = '';
+  let date = '';
   let messageLines: string[] = [];
   let files: string[] = [];
   let inMessage = false;
@@ -51,11 +53,13 @@ export function getGitHistory(options: GitHistoryOptions = {}) {
       if (hash) {
         commits.push({
           hash,
+          date,
           message: messageLines.join('\n').trim(),
           files: files.filter((f) => f !== '.husky/hash.txt')
         });
       }
       hash = line;
+      date = lines[++i] || '';
       messageLines = [];
       files = [];
       inMessage = true;
@@ -78,9 +82,12 @@ export function getGitHistory(options: GitHistoryOptions = {}) {
   if (hash) {
     commits.push({
       hash,
+      date,
       message: messageLines.join('\n').trim(),
       files: files.filter((f) => f !== '.husky/hash.txt')
     });
   }
   return commits;
 }
+
+export default gitHistoryToJson;

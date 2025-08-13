@@ -1,9 +1,9 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { getGitHistory } from './git-history-to-json';
+import { gitHistoryToJson } from './git-history-to-json';
 
 function main() {
-  const data = getGitHistory();
+  const data = gitHistoryToJson();
   const outDir = join(process.cwd(), 'public', 'data');
   if (!existsSync(outDir)) {
     mkdirSync(outDir, { recursive: true });
