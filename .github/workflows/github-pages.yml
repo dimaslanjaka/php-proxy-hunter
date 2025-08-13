@@ -42,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: Build Project
+        run: yarn build
+
       - name: Build React app
         run: yarn build:react
 
