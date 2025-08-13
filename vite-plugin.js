@@ -49,7 +49,18 @@ export function indexHtmlReplacementPlugin() {
       fs.copyFileSync('index.dev.html', 'index.html');
       // Replace index.html with index.dev.html for specific routes
       server.middlewares.use((req, _res, next) => {
-        const devRoutes = ['/', '/index.html', '/outbound', '/login'];
+        const devRoutes = [
+          '/',
+          '/index.html',
+          '/outbound',
+          '/login',
+          '/oauth',
+          '/about',
+          '/settings',
+          '/dashboard',
+          '/logout',
+          '/proxy'
+        ];
         if (devRoutes.includes(req.url)) {
           req.url = '/index.dev.html';
         }
