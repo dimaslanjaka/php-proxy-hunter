@@ -43,6 +43,8 @@ src/react/components/theme.*
 /app
 /proxyManager.js
 /index.html
+/public/php
+/public/data/git-history*
 
 # Miscellaneous
 .cache/
