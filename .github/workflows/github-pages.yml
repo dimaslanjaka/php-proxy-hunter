@@ -8,6 +8,10 @@ on:
       - 'src/utils/**/*'
       - 'src/dev/**/*'
       - '.github/workflows/github-pages.yml'
+      - '**/vite*'
+      - '**/tailwind*'
+      - '**/rollup*'
+      - '**/postcss*'
 
 permissions:
   contents: write
