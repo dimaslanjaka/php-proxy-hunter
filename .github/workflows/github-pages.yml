@@ -54,7 +54,7 @@ jobs:
         run: yarn build
 
       - name: Build React app
-        run: yarn build:react
+        run: node vite-gh-pages.js
 
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
