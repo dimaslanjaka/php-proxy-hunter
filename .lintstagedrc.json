@@ -12,5 +12,6 @@
   "*.yml": "prettier --list-different --write",
   "*.yaml": "prettier --list-different --write",
   "*.sql": "prettier --list-different --write",
-  "*.py": "black"
+  "*.py": "black",
+  "*.php": "php-cs-fixer fix"
 }
