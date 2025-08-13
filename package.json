@@ -84,6 +84,7 @@
     "minimist": "^1.2.8",
     "moment-timezone": "^0.6.0",
     "node-cache": "^5.1.2",
+    "node-html-parser": "^7.0.1",
     "nunjucks": "^3.2.4",
     "pino": "^9.8.0",
     "pino-pretty": "^13.1.1",

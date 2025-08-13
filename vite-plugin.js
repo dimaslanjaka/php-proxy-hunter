@@ -2,6 +2,7 @@ import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'upath';
 import routes from './src/react/routes.json' with { type: 'json' };
+import htmlParser from 'node-html-parser';
 
 /**
  * Vite plugin to build Tailwind CSS using the Tailwind CLI.
@@ -89,6 +90,35 @@ export function indexHtmlReplacementPlugin() {
         return;
       }
       const relIndexHtml = path.relative(process.cwd(), indexHtml);
+      // Modify html
+      const htmlContent = fs.readFileSync(indexHtml, 'utf-8');
+      const root = htmlParser.parse(htmlContent);
+      // add version query to script and link tags
+      // Get latest git commit hash
+      let version = 'unknown';
+      try {
+        const gitResult = spawnSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' });
+        if (gitResult.status === 0 && gitResult.stdout) {
+          version = gitResult.stdout.trim();
+        }
+      } catch {
+        // ignore
+      }
+      root.querySelectorAll('script, link').forEach((element) => {
+        const src = element.getAttribute('src') || element.getAttribute('href');
+        if (src && !src.includes('version=')) {
+          const parseSrc = new URL(src, 'http://example.com'); // Use a dummy base URL
+          parseSrc.searchParams.set('version', version);
+          if (element.tagName === 'script') {
+            element.setAttribute('src', parseSrc.pathname + parseSrc.search);
+          } else if (element.tagName === 'link') {
+            element.setAttribute('href', parseSrc.pathname + parseSrc.search);
+          }
+        }
+      });
+      // Write modified HTML back to file
+      fs.writeFileSync(indexHtml, root.toString());
+      console.log(`Updated ${relIndexHtml} with version query parameters.`);
       // Copy dist/react/index.html to spesific routes
       for (const route of routes) {
         if (route.path.endsWith('/')) {
