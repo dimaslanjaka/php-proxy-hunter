@@ -10,14 +10,41 @@ let gitHistoryCache: Commit[] | null = null;
 let gitHistoryPromise: Promise<Commit[]> | null = null;
 
 export default function GitHistory() {
-  const [commits, setCommits] = React.useState<Commit[] | null>(gitHistoryCache);
+  const [commits, setCommits] = React.useState<Commit[] | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [page, setPage] = React.useState(1);
+  const [isLoading, setIsLoading] = React.useState(false);
   const COMMITS_PER_PAGE = 30;
 
+  // Try to load cached first page from localStorage on mount
   React.useEffect(() => {
+    if (!commits) {
+      const cached = localStorage.getItem('gitHistoryFirstPage');
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCommits(parsed);
+          }
+        } catch {
+          setError('Failed to parse cached git history');
+        }
+      }
+    }
+  }, []);
+
+  // Fetch full data and update cache/UI
+  React.useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
     if (gitHistoryCache) {
       setCommits(gitHistoryCache);
+      try {
+        localStorage.setItem('gitHistoryFirstPage', JSON.stringify(gitHistoryCache.slice(0, COMMITS_PER_PAGE)));
+      } catch {
+        setError('Failed to update git history cache');
+      }
+      setIsLoading(false);
       return;
     }
     if (!gitHistoryPromise) {
@@ -28,11 +55,28 @@ export default function GitHistory() {
         })
         .then((data) => {
           gitHistoryCache = data;
+          try {
+            localStorage.setItem('gitHistoryFirstPage', JSON.stringify(data.slice(0, COMMITS_PER_PAGE)));
+          } catch {
+            setError('Failed to update git history cache');
+          }
           return data;
         });
     }
-    gitHistoryPromise.then((data) => setCommits(data)).catch((err) => setError(err.message));
-  }, []);
+    gitHistoryPromise
+      .then((data) => {
+        if (!cancelled) setCommits(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [COMMITS_PER_PAGE]);
 
   // Pagination logic
   const totalCommits = commits ? commits.length : 0;
@@ -54,7 +98,7 @@ export default function GitHistory() {
           </p>
         </div>
         {error && <div className="text-red-500 dark:text-red-400 text-center mb-4">{error}</div>}
-        {!commits && !error && (
+        {isLoading && (
           <div className="flex justify-center items-center py-8">
             <i className="fa-duotone fa-spinner-third animate-spin text-2xl text-blue-600 dark:text-blue-400 mr-2"></i>
             <span className="text-gray-500 dark:text-gray-300">Loading git history...</span>
