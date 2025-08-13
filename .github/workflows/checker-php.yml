@@ -149,9 +149,9 @@ jobs:
           # If vendor folder is missing or empty, remove composer.lock and re-install
           if [ ! -d vendor ] || [ -z "$(ls -A vendor 2>/dev/null)" ]; then
             rm -f composer.lock
-            php composer.phar install --prefer-dist --no-progress --no-suggest --no-interaction --optimize-autoloader;
+            php composer.phar install --prefer-dist --no-progress --no-interaction --optimize-autoloader;
           elif [ ! -f composer.lock ]; then
-            php composer.phar install --prefer-dist --no-progress --no-suggest --no-interaction --optimize-autoloader;
+            php composer.phar install --prefer-dist --no-progress --no-interaction --optimize-autoloader;
           fi
 
       # Install Python dependencies (if cache missed)
