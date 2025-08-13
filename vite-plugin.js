@@ -80,6 +80,10 @@ export function indexHtmlReplacementPlugin() {
      */
     closeBundle() {
       const indexHtml = path.join(process.cwd(), 'dist/react/index.html');
+      if (!fs.existsSync(indexHtml)) {
+        console.warn(`${indexHtml} does not exist, skipping copy.`);
+        return;
+      }
       const relIndexHtml = path.relative(process.cwd(), indexHtml);
       // Copy dist/react/index.html to spesific routes
       for (const route of routes) {
