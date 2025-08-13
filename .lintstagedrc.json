@@ -13,5 +13,5 @@
   "*.yaml": "prettier --list-different --write",
   "*.sql": "prettier --list-different --write",
   "*.py": "black",
-  "*.php": "php-cs-fixer fix"
+  "*.php": "php-cs-fixer fix --config=.php-cs-fixer.dist.php"
 }
