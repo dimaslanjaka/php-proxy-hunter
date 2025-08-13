@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distPath = path.resolve(__dirname, 'dist/react');
 
-export default defineConfig({
+export const viteConfig = defineConfig({
   root: '.',
   // Uncomment below to test custom base path
   // base: '/php-proxy-hunter/',
@@ -77,3 +77,15 @@ export default defineConfig({
     }
   }
 });
+
+// Export a function to access Vite params
+export default ({ command, mode }) => {
+  // Example: log the command and mode
+  console.log('Vite command:', command); // 'serve' or 'build'
+  console.log('Vite mode:', mode); // e.g., 'development' or 'production'
+  // Example: check for custom CLI flags
+  if (process.argv.includes('--my-custom-flag')) {
+    console.log('Custom flag detected!');
+  }
+  return viteConfig;
+};

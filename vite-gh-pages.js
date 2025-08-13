@@ -3,9 +3,9 @@ import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'upath';
 import { fileURLToPath } from 'url';
-import { build, mergeConfig } from 'vite';
+import { build } from 'vite';
 import routes from './src/react/routes.json' with { type: 'json' };
-import config from './vite.config.js';
+import viteConfig from './vite-gh-pages.config.js';
 
 /**
  * Fixes __dirname for ESM modules.
@@ -13,12 +13,6 @@ import config from './vite.config.js';
  */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-/**
- * Vite configuration merged with GitHub Pages base path.
- * @type {import('vite').UserConfig}
- */
-const viteConfig = mergeConfig(config, { base: '/php-proxy-hunter/' });
 
 /**
  * Builds the project for GitHub Pages and deploys it.
