@@ -75,6 +75,7 @@ tmp/
 /databases
 /output
 /error_logs
+.deploy_git/
 
 # Python
 /data/script/

@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import type gitHistoryToJson from '../../dev/git-history-to-json';
+import { createUrl } from '../utils/url';
 
 type Commit = ReturnType<typeof gitHistoryToJson>[number];
 
@@ -48,7 +49,7 @@ export default function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      gitHistoryPromise = fetch('/data/git-history.json')
+      gitHistoryPromise = fetch(createUrl('/data/git-history.json'))
         .then((res) => {
           if (!res.ok) throw new Error('Failed to fetch git history');
           return res.json();

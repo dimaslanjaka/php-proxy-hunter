@@ -1,4 +1,4 @@
-import { isViteDevServer } from './index';
+import { isViteDevServer, viteBaseUrl } from './index';
 
 /**
  * Validates whether a string is a valid HTTP or HTTPS URL.
@@ -29,16 +29,33 @@ export function isValidHttpUrl(str: string): boolean {
  */
 export function createUrl(path: string, params: Record<string, any> = {}): string {
   let origin = window.location.origin; // Default to current origin
+  let base = '';
+  if (viteBaseUrl && viteBaseUrl !== '/') {
+    base = viteBaseUrl.endsWith('/') ? viteBaseUrl.slice(0, -1) : viteBaseUrl;
+  }
   if (path.endsWith('/')) {
     path += 'index.html'; // Ensure path ends with a file if it is a directory
   }
   if (path.includes('.php') && isViteDevServer) {
-    origin = 'https://' + import.meta.env.VITE_BACKEND_HOSTNAME || 'dev.webmanajemen.com'; // Laragon, XAMPP, etc.
+    origin = 'https://' + (import.meta.env.VITE_BACKEND_HOSTNAME || 'dev.webmanajemen.com'); // Laragon, XAMPP, etc.
+    base = '';
   }
+  // Prepend vite base to path if not PHP and viteBaseUrl is set
+  if (!path.includes('.php') && base) {
+    // Avoid double slashes
+    path = base + (path.startsWith('/') ? path : '/' + path);
+  }
+
+  console.debug(`[createUrl] path: "${path}", params:`, params, `origin: "${origin}"`);
+  console.debug(`[createUrl] viteBaseUrl: "${viteBaseUrl}", isViteDevServer: ${isViteDevServer}`);
 
   const url = new URL(path, origin);
   Object.keys(params).forEach((key) => {
     url.searchParams.append(key, String(params[key]));
   });
-  return url.toString();
+  const result = url.toString();
+
+  console.debug(`[createUrl] result: "${result}"`);
+
+  return result;
 }
