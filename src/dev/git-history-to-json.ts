@@ -1,9 +1,42 @@
 import { execSync } from 'child_process';
 
-export function getGitHistory() {
+/**
+ * Options for filtering git history.
+ *
+ * @property since Only include commits after this date (YYYY-MM-DD).
+ * @property until Only include commits before this date (YYYY-MM-DD).
+ * @property last  Only include the last N commits.
+ */
+export interface GitHistoryOptions {
+  /** e.g. '2024-01-01' */
+  since?: string;
+  /** e.g. '2024-12-31' */
+  until?: string;
+  /** e.g. 10 (last 10 commits) */
+  last?: number;
+}
+
+/**
+ * Get git commit history with hash, message, and changed files.
+ *
+ * @param options - Filter options for git history. See {@link GitHistoryOptions}.
+ * @returns Array of commit objects: { hash, message, files[] }
+ *
+ * @example
+ * // Get last 10 commits
+ * getGitHistory({ last: 10 });
+ *
+ * // Get commits between two dates
+ * getGitHistory({ since: '2024-01-01', until: '2024-12-31' });
+ */
+export function getGitHistory(options: GitHistoryOptions = {}) {
   // Use a clear separator for commits
   const SEP = '---end---';
-  const log = execSync(`git log --pretty=format:%H%n%B%n${SEP} --name-only`, { encoding: 'utf8' });
+  let rangeArgs = '';
+  if (options.since) rangeArgs += ` --since="${options.since}"`;
+  if (options.until) rangeArgs += ` --until="${options.until}"`;
+  if (options.last) rangeArgs += ` -n ${options.last}`;
+  const log = execSync(`git log${rangeArgs} --pretty=format:%H%n%B%n${SEP} --name-only`, { encoding: 'utf8' });
   const lines = log.split(/\r?\n/);
   const commits: Array<{ hash: string; message: string; files: string[] }> = [];
   let hash = '';
