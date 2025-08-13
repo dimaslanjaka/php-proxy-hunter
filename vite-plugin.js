@@ -50,6 +50,18 @@ export function indexHtmlReplacementPlugin() {
       const devHtml = path.join(process.cwd(), 'index.dev.html');
       const prodHtml = path.join(process.cwd(), 'index.html');
       fs.copyFileSync(devHtml, prodHtml);
+
+      // Execute git history builder
+      spawnSync(
+        'node',
+        [
+          '--no-warnings=ExperimentalWarning',
+          '--loader',
+          'ts-node/esm',
+          path.join(process.cwd(), 'src/dev/git-history.builder.ts')
+        ],
+        { stdio: 'inherit', shell: true }
+      );
     },
     /**
      * Configures the dev server to serve index.dev.html for specific routes.
