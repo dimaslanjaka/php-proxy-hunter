@@ -1,21 +1,27 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { ThemeProvider } from './components/ThemeContext';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Outbound from './pages/Outbound';
-import OauthHandler from './pages/OauthHandler';
-import Dashboard from './pages/Dashboard';
-import Settings from './pages/Settings';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import GitHistory from './pages/GitHistory';
+const Home = React.lazy(() => import('./pages/Home'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Outbound = React.lazy(() => import('./pages/Outbound'));
+const OauthHandler = React.lazy(() => import('./pages/OauthHandler'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Settings = React.lazy(() => import('./pages/Settings'));
+const About = React.lazy(() => import('./pages/About'));
+const Contact = React.lazy(() => import('./pages/Contact'));
+const GitHistory = React.lazy(() => import('./pages/GitHistory'));
 
 const App: React.FC = () => {
   return (
     <ThemeProvider>
       <Router>
-        <React.Suspense fallback={<div>Loading...</div>}>
+        <React.Suspense
+          fallback={
+            <div className="flex items-center justify-center min-h-screen">
+              <i className="fa-duotone fa-spinner-third animate-spin text-2xl text-blue-600 dark:text-blue-400 mr-2"></i>
+              <span className="text-gray-500 dark:text-gray-300">Loading...</span>
+            </div>
+          }>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
