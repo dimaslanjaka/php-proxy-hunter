@@ -17,7 +17,7 @@ const ThemeSwitcher: React.FC = () => {
     <button
       type="button"
       onClick={() => {
-        console.log('Button clicked');
+        // console.log('Button clicked');
         toggleTheme();
       }}
       aria-label="Toggle dark mode"
