@@ -75,14 +75,9 @@ export function indexHtmlReplacementPlugin() {
      * This ensures that the production build uses the correct HTML file.
      */
     closeBundle() {
-      const devHtml = path.join(process.cwd(), 'dist/react/index.dev.html');
-      // Copy dist/react/index.dev.html to dist/react/index.html after build
-      const prodHtml = path.join(process.cwd(), 'dist/react/index.html');
-      fs.copyFileSync(devHtml, prodHtml);
-      const relDevHtml = path.relative(process.cwd(), devHtml);
-      const relProdHtml = path.relative(process.cwd(), prodHtml);
-      console.log(`Copied ${relDevHtml} to ${relProdHtml} after build.`);
-      // Copy dist/react/index.dev.html to spesific routes
+      const indexHtml = path.join(process.cwd(), 'dist/react/index.html');
+      const relIndexHtml = path.relative(process.cwd(), indexHtml);
+      // Copy dist/react/index.html to spesific routes
       for (const route of routes) {
         if (route.path.endsWith('/')) {
           // Ensure the route does not end with a slash
@@ -98,8 +93,8 @@ export function indexHtmlReplacementPlugin() {
         const routeHtml = path.join(process.cwd(), 'dist/react', `${routePathWithoutHtml}.html`);
         const relRouteHtml = path.relative(process.cwd(), routeHtml);
         fs.ensureDirSync(path.dirname(routeHtml)); // Ensure the directory exists
-        fs.copyFileSync(devHtml, routeHtml);
-        console.log(`Copied ${relDevHtml} to ${relRouteHtml} after build.`);
+        fs.copyFileSync(indexHtml, routeHtml);
+        console.log(`Copied ${relIndexHtml} to ${relRouteHtml} after build.`);
       }
     }
   };

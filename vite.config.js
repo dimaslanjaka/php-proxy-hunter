@@ -24,9 +24,6 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       // https://rollupjs.org/configuration-options/
-      input: {
-        app: './index.dev.html'
-      },
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],
