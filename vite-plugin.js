@@ -2,7 +2,7 @@ import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'upath';
 import routes from './src/react/routes.json' with { type: 'json' };
-import htmlParser from 'node-html-parser';
+import * as cheerio from 'cheerio';
 
 /**
  * Vite plugin to build Tailwind CSS using the Tailwind CLI.
@@ -92,8 +92,7 @@ export function indexHtmlReplacementPlugin() {
       const relIndexHtml = path.relative(process.cwd(), indexHtml);
       // Modify html
       const htmlContent = fs.readFileSync(indexHtml, 'utf-8');
-      const root = htmlParser.parse(htmlContent);
-      // add version query to script and link tags
+      const $ = cheerio.load(htmlContent);
       // Get latest git commit hash
       let version = 'unknown';
       try {
@@ -104,20 +103,33 @@ export function indexHtmlReplacementPlugin() {
       } catch {
         // ignore
       }
-      root.querySelectorAll('script, link').forEach((element) => {
-        const src = element.getAttribute('src') || element.getAttribute('href');
-        if (src && !src.includes('version=')) {
-          const parseSrc = new URL(src, 'http://example.com'); // Use a dummy base URL
+      // Process script and link tags for cache busting
+      $('script[src], link[href]').each((_, el) => {
+        const tag = el.tagName.toLowerCase();
+        const src = $(el).attr('src') || $(el).attr('href');
+        if (
+          !src ||
+          src.startsWith('{{') ||
+          /^(#|data:|mailto:|tel:|javascript:|blob:|file:|https?:\/\/|\/\/)/.test(src)
+        ) {
+          return;
+        }
+        try {
+          const parseSrc = new URL(src, 'http://www.webmanajemen.com/php-proxy-hunter/');
           parseSrc.searchParams.set('version', version);
-          if (element.tagName === 'script') {
-            element.setAttribute('src', parseSrc.pathname + parseSrc.search);
-          } else if (element.tagName === 'link') {
-            element.setAttribute('href', parseSrc.pathname + parseSrc.search);
+          const newUrl = parseSrc.pathname + parseSrc.search;
+          if (tag === 'script') {
+            $(el).attr('src', newUrl);
+          } else if (tag === 'link') {
+            $(el).attr('href', newUrl);
           }
+          console.log(`Cache bust: ${tag.toUpperCase()} ${src} => ${newUrl}`);
+        } catch {
+          console.warn(`Failed to parse URL for cache busting: ${src}`);
         }
       });
       // Write modified HTML back to file
-      fs.writeFileSync(indexHtml, root.toString());
+      fs.writeFileSync(indexHtml, $.html());
       console.log(`Updated ${relIndexHtml} with version query parameters.`);
       // Copy dist/react/index.html to spesific routes
       for (const route of routes) {
