@@ -69,7 +69,8 @@ export default defineConfig({
         '**/.git/**',
         '**/.github/**'
       ],
-      usePolling: false
+      usePolling: true, // slower but reliable
+      interval: 100
     }
   }
 });

@@ -2,7 +2,7 @@ import flowbitePlugin from 'flowbite/plugin';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./src/**/*.tsx', './src/**/*.jsx', './*.html', './node_modules/flowbite/**/*.js'],
+  content: ['./src/**/*.{js,ts,jsx,tsx}', './*.html', './node_modules/flowbite/**/*.js'],
   theme: {
     extend: {}
   },
