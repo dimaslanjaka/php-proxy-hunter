@@ -26,6 +26,27 @@ if (!$isCli) {
 $user_db = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
 $browserId = getUserId();
 $request = parsePostData();
+$result = ['messages' => []];
+
+if (isset($request['update']) && !empty($_SESSION['authenticated'])) {
+  // Update user information
+  $email = $request['email'] ?? '';
+  $username = $request['username'] ?? '';
+  $password = $request['password'] ?? '';
+  $currentUserData = $user_db->select($email);
+  if (!empty($currentUserData)) {
+    if (!empty($username)) {
+      $user_db->update($currentUserData['id'], ['username' => $username]);
+      $result['success'] = true;
+      $result['messages'][] = 'Username updated successfully.';
+    }
+    if (!empty($password)) {
+      $user_db->update($currentUserData['id'], ['password' => $password]);
+      $result['success'] = true;
+      $result['messages'][] = 'Password updated successfully.';
+    }
+  }
+}
 
 $email = !$isCli ? ($_SESSION['authenticated_email'] ?? '') : '';
 $userData = [];
@@ -34,20 +55,21 @@ if ($email) {
   $userData = $user_db->select($email);
 
   if (!isset($userData['saldo']) && isset($userData['id'])) {
+    // Initialize saldo to 0 if not set
     $user_db->update_saldo($userData['id'], 0, basename(__FILE__) . ':' . __LINE__);
     $userData = $user_db->select($email);
+    $result['success'] = true;
+    $result['messages'][] = 'Saldo initialized to 0.';
   }
 }
 
-$result = [
-  'authenticated' => !empty($_SESSION['authenticated']),
-  'uid'          => $browserId,
-  'email'        => $email,
-  'saldo'        => (int)($userData['saldo'] ?? 0),
-  'username'     => $userData['username'] ?? '',
-  'first_name'   => $userData['first_name'] ?? '',
-  'last_name'    => $userData['last_name'] ?? '',
-];
+$result['authenticated'] = !empty($_SESSION['authenticated']);
+$result['uid'] = $browserId;
+$result['email'] = $email;
+$result['saldo'] = (int)($userData['saldo'] ?? 0);
+$result['username'] = $userData['username'] ?? '';
+$result['first_name'] = $userData['first_name'] ?? '';
+$result['last_name'] = $userData['last_name'] ?? '';
 
 if (!empty($isAdmin)) {
   $result['admin'] = true;
