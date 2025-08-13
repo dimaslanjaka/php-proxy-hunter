@@ -42,7 +42,8 @@
     "build:react": "npm run build:tailwind && vite build",
     "preview:react": "npm run build:react && vite preview",
     "build:gh-pages": "node vite-gh-pages.js",
-    "preview:gh-pages": "npm run build:gh-pages && vite preview --config vite-gh-pages.config.js"
+    "preview:gh-pages": "npm run build:gh-pages && vite preview --config vite-gh-pages.config.js",
+    "dev:gh-pages": "npm run build:gh-pages && vite --config vite-gh-pages.config.js"
   },
   "workspaces": {
     "packages": [
