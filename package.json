@@ -38,8 +38,8 @@
     "lint": "eslint --ext .js,.ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
     "build:tailwind": "npx --yes @tailwindcss/cli -i ./tailwind.input.css -o ./src/react/components/theme.css",
-    "dev:react": "vite --config vite.config.ts",
-    "build:react": "npm run build:tailwind && vite build --config vite.config.ts"
+    "dev:react": "vite",
+    "build:react": "npm run build:tailwind && vite build"
   },
   "workspaces": {
     "packages": [

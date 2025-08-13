@@ -16,7 +16,7 @@
       "script": "dev:react",
       "problemMatcher": [],
       "label": "npm: dev:react",
-      "detail": "vite --config vite.config.ts"
+      "detail": "vite"
     }
   ]
 }
