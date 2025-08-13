@@ -142,6 +142,7 @@ jobs:
       # Install PHP dependencies (if cache missed)
       - name: Install PHP dependencies
         if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"}}'
         run: |
