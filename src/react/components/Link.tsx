@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link as OriginalLink } from 'react-router-dom';
 import safelink from 'safelinkify';
-import { isValidHttpUrl } from '../utils/index.js';
+import { isValidHttpUrl } from '../utils/url.js';
 
 export const sfInstance = new safelink.safelink({
   exclude: [/\.webmanajemen\.com/],

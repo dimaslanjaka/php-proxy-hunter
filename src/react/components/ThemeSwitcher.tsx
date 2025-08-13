@@ -11,7 +11,7 @@ const ThemeSwitcher: React.FC = () => {
     } else {
       root.classList.remove('dark');
     }
-    console.log('Current theme:', theme);
+    // console.log('Current theme:', theme);
   }, [theme]);
   return (
     <button

@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/",
+    "component": "pages/Home.tsx"
+  },
+  {
+    "path": "/outbound",
+    "component": "pages/Outbound.tsx"
+  },
+  {
+    "path": "/login",
+    "component": "pages/Login.tsx"
+  }
+]
