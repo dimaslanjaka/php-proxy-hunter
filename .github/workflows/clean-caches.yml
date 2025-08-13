@@ -1,5 +1,9 @@
 name: Clean GitHub Actions Cache
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 on:
   schedule:
     - cron: '0 * * * *' # Schedule every hour
