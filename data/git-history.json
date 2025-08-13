@@ -1,8 +1,8 @@
 [
   {
-    "hash": "7cb565d87d08ed3fa685fed47e0a6965396790c0",
-    "date": "2025-08-13T22:14:04+07:00",
-    "message": "chore(github-pages): add cache paths for node_modules, tmp, and dist directories",
+    "hash": "09429d235a4bc13b6f431855e1d3abdc6182540e",
+    "date": "2025-08-13T22:23:25+07:00",
+    "message": "refactor(build): move cache busting and route HTML generation from vite-plugin.js to vite-gh-pages.js\n\n- Moved cache busting logic and copying of index.html to route-specific HTML files from the Vite plugin (vite-plugin.js) to the deployment script (vite-gh-pages.js).\n- Simplified vite-plugin.js by removing unnecessary dependencies and the closeBundle hook.\n- Ensured cache busting and route HTML generation now occur only during deployment, improving build clarity and separation of concerns.",
     "files": [
       ".crontab.sh",
       ".crontab.txt",
