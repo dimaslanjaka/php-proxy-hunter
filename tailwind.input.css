@@ -7,3 +7,10 @@
 @custom-variant light (&:where(.light, .light *));
 /* apply flowbite */
 @plugin "flowbite/plugin";
+
+/* disabled element */
+@layer components {
+  .disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
