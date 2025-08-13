@@ -13,7 +13,7 @@ const distPath = path.resolve(__dirname, 'dist/react');
 export default defineConfig({
   root: '.',
   // Uncomment below to test custom base path
-  base: '/php-proxy-hunter/',
+  // base: '/php-proxy-hunter/',
   cacheDir: path.resolve(__dirname, 'tmp/.vite'),
   plugins: [TailwindCSSBuildPlugin(), react(), mkcert(), indexHtmlReplacementPlugin()],
   resolve: {
