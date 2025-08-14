@@ -7,6 +7,7 @@
 ### Install required libraries
 
 ```bash
+sudo apt update -y
 sudo apt install -y ca-certificates fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils
 ```
 
@@ -93,3 +94,32 @@ Build project environment
 rollup -c && rollup -c # build twice ONLY for first run
 rollup -c rollup.php.js
 ```
+
+## Install NodeJS with NVM for Windows
+
+NVM for Windows is a separate project from the Linux/Mac version. It allows you to easily manage and switch between Node.js versions on Windows.
+
+### Download NVM for Windows
+Go to the [NVM for Windows releases page](https://github.com/coreybutler/nvm-windows/releases) and download the latest `nvm-setup.zip` or `nvm-setup.exe` installer.
+
+### Install NVM
+Run the installer and follow the prompts. Accept the default installation paths unless you have a specific need to change them.
+
+### Open a new Command Prompt
+After installation, open a new `cmd.exe` window to ensure NVM is available in your PATH.
+
+### Install Node.js v20
+```bash
+nvm install 20
+nvm use 20
+node -v   # Should print a version like v20.x.x
+npm -v    # Should print the npm version
+```
+
+### (Optional) Install Yarn
+```bash
+npm install -g yarn
+yarn -v
+```
+
+> For more details, see the [NVM for Windows documentation](https://github.com/coreybutler/nvm-windows#installation--upgrades).
