@@ -1,4 +1,4 @@
-import { viteBaseUrl } from './index';
+import { isViteDevServer, viteBaseUrl } from './index';
 
 /**
  * Validates whether a string is a valid HTTP or HTTPS URL.
@@ -39,7 +39,10 @@ export function createUrl(path: string, params: Record<string, any> = {}): strin
   }
   if (path.includes('.php')) {
     // If it's a PHP file, use vite backend origin
-    origin = 'https://' + (import.meta.env.VITE_BACKEND_HOSTNAME || 'dev.webmanajemen.com'); // Laragon, XAMPP, etc.
+    const backendHostname = isViteDevServer
+      ? import.meta.env.VITE_BACKEND_HOSTNAME_DEV
+      : import.meta.env.VITE_BACKEND_HOSTNAME_PROD;
+    origin = 'https://' + (backendHostname || 'dev.webmanajemen.com'); // Laragon, XAMPP, etc.
     base = '';
   }
   // Prepend vite base to path if not PHP and viteBaseUrl is set
