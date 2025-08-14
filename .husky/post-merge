@@ -21,19 +21,13 @@ else
   echo "Error: PHP is not installed. Skipping composer operations."
 fi
 
-# Run yarn install
+# Run yarn
 if command -v yarn >/dev/null 2>&1; then
   touch "$CWD/yarn.lock"  # Create an empty yarn.lock if it doesn't exist
   yarn install
+  yarn build
 else
   echo "Error: Yarn is not installed. Skipping yarn operations."
-fi
-
-# Run npx rollup if it exists
-if command -v npx >/dev/null 2>&1; then
-  npx rollup -c "$CWD/rollup.config.js" || echo "Error: npx rollup failed."
-else
-  echo "Error: npx is not installed. Skipping rollup operations."
 fi
 
 # Fix permissions
