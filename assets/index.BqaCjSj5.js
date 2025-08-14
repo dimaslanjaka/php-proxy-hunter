@@ -11456,7 +11456,7 @@ function isValidHttpUrl(str) {
   }
   return url.protocol === "http:" || url.protocol === "https:";
 }
-function createUrl(path, params = {}) {
+function createUrl(path, params = {}, opts) {
   console.debug(`[createUrl] path: "${path}", params:`, params);
   let origin = window.location.origin;
   let base = "";
@@ -19115,7 +19115,8 @@ function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      gitHistoryPromise = fetch(createUrl("/data/git-history.json")).then((res) => {
+      const url = createUrl(`/data/git-history.json`, { v: cae9b097 });
+      gitHistoryPromise = fetch(url).then((res) => {
         if (!res.ok) throw new Error("Failed to fetch git history");
         return res.json();
       }).then((data) => {

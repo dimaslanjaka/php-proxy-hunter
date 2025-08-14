@@ -1,5 +1,41 @@
 [
   {
+    "hash": "cae9b09753c5ff0b8a209f354f6dc96482034dd7",
+    "date": "2025-08-15T06:47:42+07:00",
+    "message": "feat(utils): allow dynamic backend hostname injection in createUrl and add tests\n\n- Refactor `createUrl` to accept optional `opts` parameter for backendDev and backendProd hostnames, enabling dynamic injection for testability.\n- Update JSDoc for `createUrl` to document new options and behavior.\n- Fallback to Vite env variables if options are not provided.\n- Add comprehensive Vitest test suite for `createUrl` covering:\n  - index.html appending for directory paths\n  - origin usage for non-PHP paths\n  - query parameter appending\n  - viteBaseUrl handling\n  - backend hostname selection for PHP files, with injected values for dev/prod",
+    "files": [
+      "src/react/utils/url.ts",
+      "tests/react/utils/url.vitest.ts"
+    ]
+  },
+  {
+    "hash": "a2d2cb7dd9c8a323b2c4124ca02059944f35c599",
+    "date": "2025-08-15T06:45:51+07:00",
+    "message": "test(vitest): integrate Vitest for unit testing\n\n- add `vitest` dependency to package.json\n- create `vitest.config.ts` reusing Vite configuration\n- configure test environment with jsdom and global support\n- simplify vite.config.js export for compatibility",
+    "files": [
+      "package.json",
+      "vite.config.js",
+      "vitest.config.ts"
+    ]
+  },
+  {
+    "hash": "43c55193625f768ab17edb1cd1381e6c2bf464fd",
+    "date": "2025-08-15T06:10:20+07:00",
+    "message": "feat(build): add git commit hash as cache buster for git history fetch\n\n- inject `VITE_GIT_COMMIT` into Vite config using current git commit hash\n- append commit hash as query param when fetching `/data/git-history.json`\n- prevents stale fetches by ensuring cache is invalidated per commit",
+    "files": [
+      "src/react/pages/Changelog.tsx",
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "4eeabe84a9bff17306c00b7b76b88451a51bc8c8",
+    "date": "2025-08-15T05:48:16+07:00",
+    "message": "fix(settings): add source map resolution options for vite debugging",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
     "hash": "4ed2e8ce70a74f1f7553299da5a569853a57e7bb",
     "date": "2025-08-15T05:36:38+07:00",
     "message": "ci(github-pages): add scheduled workflow to run every 6 hours\n\nAdded a cron schedule trigger to the GitHub Pages workflow for automatic deployment every 6 hours.",
