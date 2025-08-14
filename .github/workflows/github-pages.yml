@@ -12,6 +12,8 @@ on:
       - '**/tailwind*'
       - '**/rollup*'
       - '**/postcss*'
+  schedule:
+    - cron: '0 */6 * * *'
 
 permissions:
   contents: write
