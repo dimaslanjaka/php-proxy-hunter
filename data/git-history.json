@@ -1,8 +1,180 @@
 [
   {
+    "hash": "4ed2e8ce70a74f1f7553299da5a569853a57e7bb",
+    "date": "2025-08-15T05:36:38+07:00",
+    "message": "ci(github-pages): add scheduled workflow to run every 6 hours\n\nAdded a cron schedule trigger to the GitHub Pages workflow for automatic deployment every 6 hours.",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "aaca32dc15e4df11747e90ff516b9b562d050b9a",
+    "date": "2025-08-15T05:34:43+07:00",
+    "message": "fix(workflows): remove architecture specification from Python setup in CI workflows",
+    "files": [
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/nuitka-debug.yml.txt",
+      ".github/workflows/nuitka.yml.txt"
+    ]
+  },
+  {
+    "hash": "204295f4d17342bc408586bdd83126e64c64d784",
+    "date": "2025-08-15T05:33:46+07:00",
+    "message": "fix(workflows): comment out submodule update steps in clean-caches.yml",
+    "files": [
+      ".github/workflows/clean-caches.yml"
+    ]
+  },
+  {
+    "hash": "094dcc0e4ddcff407be249e300bd1e9ae270a30a",
+    "date": "2025-08-15T05:32:15+07:00",
+    "message": "refactor(workflows): rename clean.yml to clean-logs.yml and add concurrency control\n\n- Renamed workflow file from `.github/workflows/clean.yml` to `.github/workflows/clean-logs.yml` for clarity.\n- Added `concurrency` group to prevent overlapping workflow runs.",
+    "files": [
+      ".github/workflows/clean-logs.yml"
+    ]
+  },
+  {
+    "hash": "543bdf1c35324577e3673954fb04f1bc8cde8862",
+    "date": "2025-08-15T05:28:05+07:00",
+    "message": "fix(readme): Add NVM for Windows installation instructions and update library installation command",
+    "files": [
+      "readme-nodejs.md"
+    ]
+  },
+  {
+    "hash": "dfd4899f08489b89aeec6a5d2e78162bb552eb5d",
+    "date": "2025-08-15T05:12:48+07:00",
+    "message": "fix(readme): Add note about restarting installation steps and update package list command",
+    "files": [
+      "readme-php.md"
+    ]
+  },
+  {
+    "hash": "dfdd345a0b77a236781d03160541bbc1d9b4da0a",
+    "date": "2025-08-15T04:43:00+07:00",
+    "message": "fix(scripts): Replace submodule-update script with npx binary-collections submodule-install",
+    "files": [
+      "fix-django.sh",
+      "fix-nginx-perm.sh"
+    ]
+  },
+  {
+    "hash": "6b9a7761589652ffa8d09148cad6604d6c679ab2",
+    "date": "2025-08-15T04:37:37+07:00",
+    "message": "fix(composer): Add missing comma in require-dev section for phpunit",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
+    "hash": "924ea846e7efc6d0b6fe08e8e9ef18fa1ba113cf",
+    "date": "2025-08-15T04:08:28+07:00",
+    "message": "refactor(bin): use default require for fs/path, replace forEach with for loops, improve error logging\n\n- Switched to default require style for child_process, fs, and path modules.\n- Replaced forEach with for loops for better control and clarity.\n- Updated error logging to include error messages for chmod, script execution, and .husky/hash.txt handling.\n- Used path.join for fix-perm script execution.",
+    "files": [
+      "bin/git-pull.cjs"
+    ]
+  },
+  {
+    "hash": "2a50634233b9fb6d0f76989a5f68f23c6fc75cc2",
+    "date": "2025-08-15T03:56:40+07:00",
+    "message": "fix(script): Add user existence check for www-data before proceeding",
+    "files": [
+      "fix-django.sh",
+      "fix-nginx-perm.sh"
+    ]
+  },
+  {
+    "hash": "e78d1fab426871fa1aef38bb0c0779ffed49d14a",
+    "date": "2025-08-15T03:49:21+07:00",
+    "message": "fix(workflow): Simplify yarn operations and remove rollup step",
+    "files": [
+      ".husky/post-merge"
+    ]
+  },
+  {
+    "hash": "ed8a8f555ce8441905a72104410d28ea4ee4967a",
+    "date": "2025-08-15T03:13:55+07:00",
+    "message": "fix(workflow): Standardize step names",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml"
+    ]
+  },
+  {
+    "hash": "b81d141fc4f6b78c54e3a6ba0229299f9ceebf40",
+    "date": "2025-08-15T03:11:34+07:00",
+    "message": "fix(workflow): Add cache-dependency-path for yarn",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml"
+    ]
+  },
+  {
+    "hash": "b3e9a9f27e09dbb60385c4e67bb8855e8efc6862",
+    "date": "2025-08-15T03:08:10+07:00",
+    "message": "fix(workflow): Update Node.js version to 22.x and enable yarn caching",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml"
+    ]
+  },
+  {
+    "hash": "32ac6ae0815e987319e77412b2ad670277251d69",
+    "date": "2025-08-15T03:02:12+07:00",
+    "message": "fix(workflow): Update push paths",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml"
+    ]
+  },
+  {
+    "hash": "3e12a1bf51f212ef291f68ae253002c2c3a89875",
+    "date": "2025-08-15T02:59:57+07:00",
+    "message": "fix(workflow): Update cache paths to include subdirectories",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml"
+    ]
+  },
+  {
+    "hash": "cdefd22e41ef92d014349ef879da18c166afa7bd",
+    "date": "2025-08-15T02:54:23+07:00",
+    "message": "fix(task): Enhance yarn install command with error logging",
+    "files": [
+      "Taskfile.yml"
+    ]
+  },
+  {
+    "hash": "cf11dd59c217451f1acd86270f6d7b5f78a47d06",
+    "date": "2025-08-15T02:47:33+07:00",
+    "message": "fix(ci): Remove git lfs tracking for \"*.rar\" files in workflow configurations",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml"
+    ]
+  },
+  {
+    "hash": "51c56b9ccd9e4310615f142bf4634b4feae11a7a",
+    "date": "2025-08-15T02:46:55+07:00",
+    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
+    "files": []
+  },
+  {
+    "hash": "8f42c8c09976746c84e682affc6370148a870dbd",
+    "date": "2025-08-15T02:46:11+07:00",
+    "message": "Merge pull request #51 from dimaslanjaka/dependabot/composer/phpunit/phpunit-tw-9.6or-tw-12.0\n\nbuild(deps-dev): update phpunit/phpunit requirement from ^9.6 to ^9.6 || ^12.0",
+    "files": []
+  },
+  {
     "hash": "cb42146a5db52815296532b9aed5cffb4a7833c6",
     "date": "2025-08-15T02:45:46+07:00",
     "message": "Merge branch 'master' into dependabot/composer/phpunit/phpunit-tw-9.6or-tw-12.0",
+    "files": []
+  },
+  {
+    "hash": "379299742ff387649f5f1452b103d122c03d69f9",
+    "date": "2025-08-15T02:44:16+07:00",
+    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
     "files": []
   },
   {
@@ -10,6 +182,15 @@
     "date": "2025-08-15T02:42:10+07:00",
     "message": "Merge pull request #52 from dimaslanjaka/dependabot/composer/symfony/yaml-tw-5.4or-tw-7.0\n\nbuild(deps): update symfony/yaml requirement from ^5.4 to ^5.4 || ^7.0",
     "files": []
+  },
+  {
+    "hash": "4c7c1e06fa57498fd4163b2e3d63daa0635b6852",
+    "date": "2025-08-15T02:41:43+07:00",
+    "message": "fix(scripts): update build script to include separate rollup and react builds",
+    "files": [
+      "package.json",
+      "packages/gh-pages"
+    ]
   },
   {
     "hash": "228efab57b884e8a91e1ae2748f2906cb75d2f08",
