@@ -11467,8 +11467,9 @@ function createUrl(path, params = {}) {
     path += "index.html";
   }
   if (path.includes(".php")) {
-    origin = "https://dev.webmanajemen.com";
-    base = "";
+    {
+      throw new Error("VITE_BACKEND_HOSTNAME_DEV or VITE_BACKEND_HOSTNAME_PROD is not defined");
+    }
   }
   if (!path.includes(".php") && base) {
     path = base + (path.startsWith("/") ? path : "/" + path);

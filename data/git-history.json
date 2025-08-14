@@ -1,5 +1,13 @@
 [
   {
+    "hash": "228efab57b884e8a91e1ae2748f2906cb75d2f08",
+    "date": "2025-08-15T02:32:37+07:00",
+    "message": "fix(url): ensure backend hostname is defined before constructing URL",
+    "files": [
+      "src/react/utils/url.ts"
+    ]
+  },
+  {
     "hash": "e4adf5aa8a6b7ac557e2d95a5d4f27cad649b1cc",
     "date": "2025-08-15T02:28:57+07:00",
     "message": "feat(env): split VITE_BACKEND_HOSTNAME into DEV and PROD variants\n\n- Updated `.env-sample` to replace `VITE_BACKEND_HOSTNAME` with `VITE_BACKEND_HOSTNAME_DEV` and `VITE_BACKEND_HOSTNAME_PROD` for clearer environment separation.\n- Modified `src/react/utils/url.ts` to select backend hostname based on dev or prod environment using `isViteDevServer`.\n- Updated type definitions in `types/vite-env.d.ts` to reflect new environment variables.",
