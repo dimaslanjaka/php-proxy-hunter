@@ -49,10 +49,10 @@ export const viteConfig = defineConfig({
           axios: ['axios'],
           'deepmerge-ts': ['deepmerge-ts']
         },
-        entryFileNames: `assets/[name].${gitHash}.js`,
-        chunkFileNames: `assets/chunks/[name].${gitHash}.js`,
+        entryFileNames: `assets/${gitHash}/[name].[hash].js`,
+        chunkFileNames: `assets/${gitHash}/[name].[hash].js`,
         assetFileNames: (_assetInfo) => {
-          return `assets/${gitHash}/[name][extname]`;
+          return `assets/${gitHash}/[name].[hash][extname]`;
         }
       }
     }
