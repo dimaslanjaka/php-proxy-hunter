@@ -1,8 +1,8 @@
 [
   {
-    "hash": "c7138721a5df268984d2edb329e62fbe568812e3",
-    "date": "2025-08-14T07:56:23+07:00",
-    "message": "refactor(react): move routing and layout to index.tsx\n\n- Removed App.tsx and integrated its routing logic directly into index.tsx\n- Added global Navbar and Footer rendering in index.tsx to wrap all pages\n- Removed individual Navbar and Footer imports/usages from page components",
+    "hash": "abc65db7eaa754f7d5d95d6e3d46287ce0f936a6",
+    "date": "2025-08-14T15:44:35+07:00",
+    "message": "refactor(utils): simplify createUrl logic and debug output\n\n- Removed isViteDevServer import and related logic from createUrl.\n- Now always uses VITE_BACKEND_HOSTNAME for PHP file URLs.\n- Reduced and clarified debug logging in createUrl for easier tracing.",
     "files": [
       ".crontab.sh",
       ".crontab.txt",
@@ -656,6 +656,7 @@
       "pyproject.toml",
       "pyrightconfig.json",
       "readme-git.md",
+      "readme-mysql.md",
       "readme-nodejs.md",
       "readme-php.md",
       "readme-python.md",
@@ -735,6 +736,7 @@
       "src/react/components/Navbar.tsx",
       "src/react/components/ThemeContext.tsx",
       "src/react/components/ThemeSwitcher.tsx",
+      "src/react/debugger/remove-node-child-detector.js",
       "src/react/index.tsx",
       "src/react/pages/About.tsx",
       "src/react/pages/Changelog.tsx",
