@@ -37,12 +37,15 @@ sudo apt install -y php7.4 php7.4-common php7.4-opcache php7.4-cli php7.4-gd php
 
 ### Install php7.4 in ubuntu (from source - advanced)
 
+> **Note:** If you update or change any configuration or source files during the installation process, you must restart the steps from the beginning to ensure all changes are applied correctly.
+
 - pdo_sqlite
 - php_zip
 - php_intl
 
 ```bash
 cd /tmp
+sudo apt-get update -y
 sudo apt install -y unzip libicu-dev wget build-essential libxml2-dev libssl-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libzip-dev libonig-dev libsqlite3-dev libbz2-dev libreadline-dev pkg-config autoconf bison re2c zlib1g-dev libxslt1-dev libwebp-dev libpq-dev libsodium-dev
 # for apache2
 # sudo apt install -y apache2-dev
@@ -66,8 +69,10 @@ make distclean
 
 # configuring makefile
 ./configure --prefix=/usr/local/php7.4 --with-config-file-path=/usr/local/php7.4/etc --enable-bcmath --enable-calendar --enable-exif --enable-ftp=shared --enable-intl --enable-mbstring --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm --with-curl --with-libdir=/lib/x86_64-linux-gnu --with-mysqli --with-openssl --with-pdo-mysql --with-pdo-sqlite --with-sqlite3 --with-readline --with-libxml --with-zlib --with-sodium --with-zip --with-bz2 --enable-fpm
+
 # for apache2
 # ./configure --prefix=/usr/local/php7.4 --with-config-file-path=/usr/local/php7.4/etc --enable-bcmath --enable-calendar --enable-exif --enable-ftp=shared --enable-intl --enable-mbstring --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm --with-curl --with-libdir=/lib/x86_64-linux-gnu --with-mysqli --with-openssl --with-pdo-mysql --with-pdo-sqlite --with-sqlite3 --with-readline --with-libxml --with-zlib --with-sodium --with-zip --with-bz2 --with-apxs2=/usr/bin/apxs
+
 make -j $(nproc)
 sudo make install
 
