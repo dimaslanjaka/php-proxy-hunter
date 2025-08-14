@@ -24,6 +24,7 @@ export const viteConfig = defineConfig({
   build: {
     outDir: distPath,
     emptyOutDir: true,
+    minify: false,
     rollupOptions: {
       // https://rollupjs.org/configuration-options/
       output: {
