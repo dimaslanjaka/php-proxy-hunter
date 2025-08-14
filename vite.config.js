@@ -49,10 +49,34 @@ export const viteConfig = defineConfig({
           axios: ['axios'],
           'deepmerge-ts': ['deepmerge-ts']
         },
-        entryFileNames: `assets/${gitHash}/[name].[hash].js`,
-        chunkFileNames: `assets/${gitHash}/[name].[hash].js`,
-        assetFileNames: (_assetInfo) => {
-          return `assets/${gitHash}/[name].[hash][extname]`;
+        entryFileNames: `assets/${gitHash}-[name].[hash].js`,
+        chunkFileNames: `assets/${gitHash}-[name].[hash].js`,
+        assetFileNames: (assetInfo) => {
+          // Group assets by type: json, images, css, other
+          let names = [];
+          if (Array.isArray(assetInfo.names) && assetInfo.names.length > 0) {
+            names = assetInfo.names;
+          } else if (typeof assetInfo.name === 'string') {
+            names = [assetInfo.name];
+          }
+          // Check all possible names for type
+          for (const name of names) {
+            if (/\.css$/i.test(name)) {
+              return `assets/css/${gitHash}-[name].[hash][extname]`;
+            }
+          }
+          for (const name of names) {
+            if (/\.json$/i.test(name)) {
+              return `assets/json/${gitHash}-[name].[hash][extname]`;
+            }
+          }
+          for (const name of names) {
+            if (/\.(png|jpe?g|svg|gif|webp|ico)$/i.test(name)) {
+              return `assets/images/${gitHash}-[name].[hash][extname]`;
+            }
+          }
+          // Default: other assets
+          return `assets/other/${gitHash}-[name].[hash][extname]`;
         }
       }
     }
