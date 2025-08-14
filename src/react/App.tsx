@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from './components/ThemeContext';
 const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
@@ -14,7 +14,7 @@ const Changelog = React.lazy(() => import('./pages/Changelog'));
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <Router basename={import.meta.env.BASE_URL}>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <React.Suspense
           fallback={
             <div className="flex items-center justify-center min-h-screen">
@@ -35,7 +35,7 @@ const App: React.FC = () => {
             <Route path="/changelog" element={<Changelog />} />
           </Routes>
         </React.Suspense>
-      </Router>
+      </BrowserRouter>
     </ThemeProvider>
   );
 };
