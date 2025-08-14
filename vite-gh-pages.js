@@ -7,10 +7,7 @@ import { build } from 'vite';
 import routes from './src/react/routes.json' with { type: 'json' };
 import viteConfig from './vite-gh-pages.config.js';
 
-/**
- * Fixes __dirname for ESM modules.
- * @type {string}
- */
+// Fixes __dirname for ESM modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -19,18 +16,18 @@ const __dirname = path.dirname(__filename);
  * @returns {Promise<void>}
  */
 async function buildForGithubPages() {
-  await build(viteConfig)
-    .then(() => {
-      console.log('Build successful for GitHub Pages');
-    })
-    .catch(console.error);
-  // add .no_jekyll file to prevent Jekyll processing
+  try {
+    await build(viteConfig);
+    console.log('Build successful for GitHub Pages');
+  } catch (err) {
+    console.error('Build failed:', err);
+    return;
+  }
   const noJekyllPath = path.join(viteConfig.build.outDir, '.no_jekyll');
   if (!fs.existsSync(noJekyllPath)) {
     fs.writeFileSync(noJekyllPath, '');
     console.log('.no_jekyll file created to prevent Jekyll processing');
   }
-  // Deploy to .deploy_git directory
   await deploy();
 }
 
@@ -41,33 +38,31 @@ async function buildForGithubPages() {
  * @returns {Promise<void>}
  */
 async function deploy() {
-  // Ensure .deploy_git directory exists
   const deployGitPath = path.join(__dirname, '.deploy_git');
+  // Ensure .deploy_git exists and is up to date
   if (!fs.existsSync(deployGitPath)) {
-    const gitUrlResult = spawnSync('git', ['config', '--get', 'remote.origin.url'], {
+    const gitUrl = spawnSync('git', ['config', '--get', 'remote.origin.url'], {
       cwd: __dirname,
       encoding: 'utf-8'
-    });
-    const gitUrl = gitUrlResult.stdout.trim();
+    }).stdout.trim();
     console.log(`Cloning repository from ${gitUrl} to ${deployGitPath}`);
-    spawnSync('git', ['clone', gitUrl, deployGitPath], {
-      cwd: __dirname,
-      stdio: 'inherit'
-    });
+    spawnSync('git', ['clone', gitUrl, deployGitPath], { cwd: __dirname, stdio: 'inherit' });
+  } else {
+    console.log(`Fetching latest changes in ${deployGitPath}`);
+    spawnSync('git', ['fetch', 'origin'], { cwd: deployGitPath, stdio: 'inherit' });
+    console.log(`Resetting repository in ${deployGitPath} to origin/gh-pages`);
+    spawnSync('git', ['reset', '--hard', 'origin/gh-pages'], { cwd: deployGitPath, stdio: 'inherit' });
   }
-  // Delete react auto generated files
-  fs.rmSync(path.join(deployGitPath, 'assets'), { recursive: true, force: true });
-  // Copy dist/react to .deploy_git directory
+
+  // Clean and copy build output
+  for (const dir of ['assets', 'php']) {
+    fs.rmSync(path.join(deployGitPath, dir), { recursive: true, force: true });
+  }
   fs.copySync(viteConfig.build.outDir, deployGitPath, { overwrite: true, dereference: true });
-  // Delete php assets
-  fs.rmSync(path.join(deployGitPath, 'php'), { recursive: true, force: true });
-  // Add cache busting to all html files
+
+  // Cache busting for index.html
   const indexHtml = path.join(viteConfig.build.outDir, 'index.html');
-  const relIndexHtml = path.relative(process.cwd(), indexHtml);
-  // Modify html
-  const htmlContent = fs.readFileSync(indexHtml, 'utf-8');
-  const $ = cheerio.load(htmlContent);
-  // Get latest git commit hash
+  const $ = cheerio.load(fs.readFileSync(indexHtml, 'utf-8'));
   let version = 'unknown';
   try {
     const gitResult = spawnSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' });
@@ -77,33 +72,30 @@ async function deploy() {
   } catch {
     // ignore
   }
-  // Process script and link tags for cache busting
   $('script[src], link[href]').each((_, el) => {
     const tag = el.tagName.toLowerCase();
     const src = $(el).attr('src') || $(el).attr('href');
-    if (!src || src.startsWith('{{') || /^(#|data:|mailto:|tel:|javascript:|blob:|file:|https?:\/\/|\/\/)/.test(src)) {
+    if (!src || src.startsWith('{{') || /^(#|data:|mailto:|tel:|javascript:|blob:|file:|https?:\/\/|\/\/)/.test(src))
       return;
-    }
     try {
       const parseSrc = new URL(src, 'http://www.webmanajemen.com/php-proxy-hunter/');
       parseSrc.searchParams.set('version', version);
       const newUrl = parseSrc.pathname + parseSrc.search;
-      if (tag === 'script') {
-        $(el).attr('src', newUrl);
-      } else if (tag === 'link') {
-        $(el).attr('href', newUrl);
-      }
+      if (tag === 'script') $(el).attr('src', newUrl);
+      else if (tag === 'link') $(el).attr('href', newUrl);
       console.log(`Cache bust: ${tag.toUpperCase()} ${src} => ${newUrl}`);
     } catch {
       console.warn(`Failed to parse URL for cache busting: ${src}`);
     }
   });
-  // Write modified HTML back to file
+  const relIndexHtml = path.relative(process.cwd(), indexHtml);
   fs.writeFileSync(indexHtml, $.html());
   console.log(`Updated ${relIndexHtml} with version query parameters.`);
 
-  // Copy dist/react/index.html to spesific routes
-  for (const route of routes) {
+  // Copy index.html to each route in .deploy_git
+  for (const routeOrig of routes) {
+    let route = { ...routeOrig };
+    console.log(`Processing route: ${route.path}`);
     if (route.path.endsWith('/')) {
       // Ensure the route does not end with a slash
       route.path += 'index.html';
@@ -115,11 +107,23 @@ async function deploy() {
       route.path += '/index.html';
     }
     const routePathWithoutHtml = route.path.replace(/\.html$/, '');
-    const routeHtml = path.join(process.cwd(), 'dist/react', `${routePathWithoutHtml}.html`);
+    const routeHtml = path.join(deployGitPath, `${routePathWithoutHtml}.html`);
+    fs.ensureDirSync(path.dirname(routeHtml));
+    if (!fs.existsSync(indexHtml)) {
+      console.error(`Source HTML does not exist: ${path.relative(process.cwd(), indexHtml)}`);
+      continue;
+    }
     const relRouteHtml = path.relative(process.cwd(), routeHtml);
-    fs.ensureDirSync(path.dirname(routeHtml)); // Ensure the directory exists
-    fs.copyFileSync(indexHtml, routeHtml);
-    console.log(`Copied ${relIndexHtml} to ${relRouteHtml} after build.`);
+    try {
+      fs.copySync(indexHtml, routeHtml, { overwrite: true, dereference: true });
+      if (!fs.existsSync(routeHtml)) {
+        console.error(`Failed to copy to: ${relRouteHtml}`);
+      } else {
+        console.log(`Copied ${relIndexHtml} to ${relRouteHtml} after build.`);
+      }
+    } catch (err) {
+      console.error(`Error copying ${relIndexHtml} to ${relRouteHtml}:`, err);
+    }
   }
 }
 
