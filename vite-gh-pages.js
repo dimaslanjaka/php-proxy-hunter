@@ -16,6 +16,12 @@ const __dirname = path.dirname(__filename);
  * @returns {Promise<void>}
  */
 async function buildForGithubPages() {
+  // Clean the output directory
+  if (fs.existsSync(viteConfig.build.outDir)) {
+    fs.rmSync(viteConfig.build.outDir, { recursive: true, force: true });
+    console.log(`Cleaned output directory: ${viteConfig.build.outDir}`);
+  }
+  // Build the project
   try {
     await build(viteConfig);
     console.log('Build successful for GitHub Pages');
@@ -61,15 +67,17 @@ async function deploy() {
   // Clean and copy build output
   for (const dir of ['assets', 'php', 'static']) {
     const target = path.join(deployGitPath, dir);
-    fs.rmSync(target, { recursive: true, force: true });
-    console.log(`Removed old directory: ${target}`);
+    if (fs.existsSync(target)) {
+      fs.rmSync(target, { recursive: true, force: true });
+      console.log(`Removed old directory: ${target}`);
+    }
   }
 
   // Re-copy build assets
   const source = path.join(viteConfig.build.outDir, 'assets');
   const target = path.join(deployGitPath, 'assets');
   fs.copySync(source, target, { overwrite: true, dereference: true });
-  console.log(`Copied assets from ${source} to ${target}`);
+  console.log(`Copied assets from ${path.relative(process.cwd(), source)} to ${path.relative(process.cwd(), target)}`);
 
   // Cache busting for index.html
   const indexHtml = path.join(viteConfig.build.outDir, 'index.html');
@@ -138,4 +146,4 @@ async function deploy() {
 }
 
 // Run the build and deploy process
-buildForGithubPages();
+buildForGithubPages().catch(console.error);
