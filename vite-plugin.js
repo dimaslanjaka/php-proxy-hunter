@@ -58,32 +58,32 @@ export function indexHtmlReplacementPlugin() {
         ],
         { stdio: 'inherit', shell: true }
       );
-    },
-    /**
-     * Configures the dev server to serve index.dev.html for specific routes.
-     * @param {import('vite').ViteDevServer} server
-     */
-    configureServer(server) {
-      // Replace index.html with index.dev.html for specific routes
-      server.middlewares.use((req, _res, next) => {
-        const devRoutes = [
-          '/',
-          '/index.html',
-          '/outbound',
-          '/login',
-          '/oauth',
-          '/about',
-          '/settings',
-          '/dashboard',
-          '/logout',
-          '/proxy',
-          '/contact'
-        ];
-        if (devRoutes.includes(req.url)) {
-          req.url = '/index.dev.html';
-        }
-        next();
-      });
     }
+    // /**
+    //  * Configures the dev server to serve index.dev.html for specific routes.
+    //  * @param {import('vite').ViteDevServer} server
+    //  */
+    // configureServer(server) {
+    //   // Replace index.html with index.dev.html for specific routes
+    //   server.middlewares.use((req, _res, next) => {
+    //     const devRoutes = [
+    //       '/',
+    //       '/index.html',
+    //       '/outbound',
+    //       '/login',
+    //       '/oauth',
+    //       '/about',
+    //       '/settings',
+    //       '/dashboard',
+    //       '/logout',
+    //       '/proxy',
+    //       '/contact'
+    //     ];
+    //     if (devRoutes.includes(req.url)) {
+    //       req.url = '/index.dev.html';
+    //     }
+    //     next();
+    //   });
+    // }
   };
 }
