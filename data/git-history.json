@@ -1,5 +1,21 @@
 [
   {
+    "hash": "6cf492c61e8613f66f3d1345c002640b79fab6b2",
+    "date": "2025-08-14T16:32:10+07:00",
+    "message": "fix(vite): Use Vite/Rollup default hashed filenames for cache busting",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "fe95225a5cd58745b3644a29ac0a9d49d00efd19",
+    "date": "2025-08-14T16:29:05+07:00",
+    "message": "refactor(build): clean output directory before build and improve deploy asset handling\n\n- Clean the build output directory before starting the build process to ensure a fresh build.\n- Add existence check before removing old directories in the deploy step to prevent errors.\n- Improve asset copy log to show relative paths for better readability.\n- Handle build process errors with .catch for better error reporting.",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
     "hash": "afda38b2237d7566bbc299eb6b88479bff1486a0",
     "date": "2025-08-14T16:21:17+07:00",
     "message": "refactor(vite-gh-pages): improve deploy asset handling and logging\n\n- Copy build output to .deploy_git before cleaning old directories.\n- Clean up old 'assets', 'php', and 'static' directories in .deploy_git with explicit logging.\n- Re-copy only the 'assets' directory from build output to .deploy_git after cleanup.\n- Add log messages for asset copy and directory removal actions.\n- Remove redundant route processing log in route copy loop.",
