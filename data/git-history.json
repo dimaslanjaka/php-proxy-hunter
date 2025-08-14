@@ -1,8 +1,8 @@
 [
   {
-    "hash": "6dad28603398b529fe5902d5f32025475d19a61e",
-    "date": "2025-08-14T05:01:31+07:00",
-    "message": "feat(build): add GitHub Pages config and preview support for Vite\n\n- Added `vite-gh-pages.config.js` to provide a Vite config with the correct base path for GitHub Pages deployments.\n- Updated `vite-gh-pages.js` to use the new config and removed inline config merging.\n- Modified `vite.config.js` to export both a named config (`viteConfig`) and a default function for Vite param detection.\n- Updated npm scripts in `package.json`:\n  - Changed `build:gh-pages` to run only the deploy script.\n  - Added `preview:gh-pages` for previewing the GitHub Pages build locally with the correct config.",
+    "hash": "c7138721a5df268984d2edb329e62fbe568812e3",
+    "date": "2025-08-14T07:56:23+07:00",
+    "message": "refactor(react): move routing and layout to index.tsx\n\n- Removed App.tsx and integrated its routing logic directly into index.tsx\n- Added global Navbar and Footer rendering in index.tsx to wrap all pages\n- Removed individual Navbar and Footer imports/usages from page components",
     "files": [
       ".crontab.sh",
       ".crontab.txt",
@@ -549,7 +549,6 @@
       "node_browser/.gitignore",
       "nodemon.config.json",
       "nodemon.restart.sh",
-      "package-resolution-updater.mjs",
       "package.json",
       "packages/.gitignore",
       "packages/baileys",
@@ -731,7 +730,6 @@
       "src/proxy/proxyWorking.js",
       "src/proxy/proxyWorking.test.js",
       "src/proxy/utils.js",
-      "src/react/App.tsx",
       "src/react/components/Footer.tsx",
       "src/react/components/Link.tsx",
       "src/react/components/Navbar.tsx",
