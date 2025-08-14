@@ -74,6 +74,7 @@ jobs:
         with:
           node-version: 22.x
           cache: 'yarn'
+          cache-dependency-path: 'package.json'
 
       - run: corepack enable
 
