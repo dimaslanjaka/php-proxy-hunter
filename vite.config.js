@@ -17,8 +17,8 @@ const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
 export const viteConfig = defineConfig({
   root: '.',
   define: {
-    'import.meta.env.VITE_GIT_COMMIT': gitCommitHash,
-    VITE_GIT_COMMIT: gitCommitHash
+    'import.meta.env.VITE_GIT_COMMIT': `"${gitCommitHash}"`,
+    VITE_GIT_COMMIT: `"${gitCommitHash}"`
   },
   cacheDir: path.resolve(__dirname, 'tmp/.vite'),
   plugins: [TailwindCSSBuildPlugin(), react(), mkcert(), indexHtmlReplacementPlugin()],
