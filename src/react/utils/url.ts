@@ -42,7 +42,10 @@ export function createUrl(path: string, params: Record<string, any> = {}): strin
     const backendHostname = isViteDevServer
       ? import.meta.env.VITE_BACKEND_HOSTNAME_DEV
       : import.meta.env.VITE_BACKEND_HOSTNAME_PROD;
-    origin = 'https://' + (backendHostname || 'dev.webmanajemen.com'); // Laragon, XAMPP, etc.
+    if (!backendHostname) {
+      throw new Error('VITE_BACKEND_HOSTNAME_DEV or VITE_BACKEND_HOSTNAME_PROD is not defined');
+    }
+    origin = `https://${backendHostname}`; // Laragon, XAMPP, etc.
     base = '';
   }
   // Prepend vite base to path if not PHP and viteBaseUrl is set
