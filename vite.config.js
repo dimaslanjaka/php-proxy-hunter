@@ -1,3 +1,4 @@
+// import react from '@vitejs/plugin-react';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -5,10 +6,20 @@ import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
 import { indexHtmlReplacementPlugin, TailwindCSSBuildPlugin } from './vite-plugin.js';
 import 'dotenv/config';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 const distPath = path.resolve(__dirname, 'dist/react');
+
+// Get latest git commit hash (short)
+let gitHash = 'dev';
+try {
+  gitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+} catch {
+  console.warn('Could not get git commit hash, using "dev"');
+}
 
 export const viteConfig = defineConfig({
   root: '.',
@@ -37,6 +48,11 @@ export const viteConfig = defineConfig({
           moment: ['moment', 'moment-timezone'],
           axios: ['axios'],
           'deepmerge-ts': ['deepmerge-ts']
+        },
+        entryFileNames: `assets/[name].${gitHash}.js`,
+        chunkFileNames: `assets/chunks/[name].${gitHash}.js`,
+        assetFileNames: (_assetInfo) => {
+          return `assets/${gitHash}/[name][extname]`;
         }
       }
     }
