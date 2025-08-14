@@ -20,14 +20,25 @@ export function isValidHttpUrl(str: string): boolean {
  * Creates a full URL string from a given path and optional query parameters.
  *
  * - If the path ends with a slash, 'index.html' is appended.
- * - If the path contains '.php', the origin is set to 'localhost'.
+ * - If the path contains '.php', the origin is set to the backend hostname (dev or prod) from Vite env or provided options.
  * - Otherwise, uses the current window location origin.
+ * - If viteBaseUrl is set and not PHP, it is prepended to the path.
  *
  * @param path The path to append to the origin (can be relative or absolute).
  * @param params An object containing query parameters to append to the URL.
+ * @param opts Optional config for backend hostnames (for testability):
+ *   - backendDev: override for dev backend hostname
+ *   - backendProd: override for prod backend hostname
  * @returns The constructed URL as a string.
  */
-export function createUrl(path: string, params: Record<string, any> = {}): string {
+export function createUrl(
+  path: string,
+  params: Record<string, any> = {},
+  opts?: {
+    backendDev?: string;
+    backendProd?: string;
+  }
+): string {
   console.debug(`[createUrl] path: "${path}", params:`, params);
   let origin = window.location.origin; // Default to current origin
   let base = '';
@@ -40,8 +51,8 @@ export function createUrl(path: string, params: Record<string, any> = {}): strin
   if (path.includes('.php')) {
     // If it's a PHP file, use vite backend origin
     const backendHostname = isViteDevServer
-      ? import.meta.env.VITE_BACKEND_HOSTNAME_DEV
-      : import.meta.env.VITE_BACKEND_HOSTNAME_PROD;
+      ? opts?.backendDev || import.meta.env.VITE_BACKEND_HOSTNAME_DEV
+      : opts?.backendProd || import.meta.env.VITE_BACKEND_HOSTNAME_PROD;
     if (!backendHostname) {
       throw new Error('VITE_BACKEND_HOSTNAME_DEV or VITE_BACKEND_HOSTNAME_PROD is not defined');
     }
