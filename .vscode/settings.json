@@ -122,6 +122,9 @@
   "code-runner.saveAllFilesBeforeRun": true,
   "code-runner.saveFileBeforeRun": true,
   "debug.terminal.clearBeforeReusing": true,
+  "debug.javascript.terminalOptions": {
+    "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**", "**/node_modules/.vite-temp/**"]
+  },
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "never"
