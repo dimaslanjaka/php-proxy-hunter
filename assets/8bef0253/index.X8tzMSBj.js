@@ -1,5 +1,5 @@
-import { R as React, L as Link$1, r as reactExports, u as useLocation, B as BrowserRouter, a as Routes, b as Route } from "./chunks/react-router.6cf492c61.js";
-import { r as requireReact, a as requireReactDom, g as getDefaultExportFromCjs, c as commonjsGlobal, b as getAugmentedNamespace } from "./chunks/react.6cf492c61.js";
+import { R as React, L as Link$1, r as reactExports, u as useLocation, B as BrowserRouter, a as Routes, b as Route } from "./react-router.ZDh0b63A.js";
+import { r as requireReact, a as requireReactDom, g as getDefaultExportFromCjs, c as commonjsGlobal, b as getAugmentedNamespace } from "./react.BKuUvC82.js";
 (function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) return;
@@ -11467,7 +11467,7 @@ function createUrl(path, params = {}) {
     path += "index.html";
   }
   if (path.includes(".php")) {
-    origin = "https://php.webmanajemen.com";
+    origin = "https://dev.webmanajemen.com";
     base = "";
   }
   if (!path.includes(".php") && base) {
