@@ -1,25 +1,16 @@
 // import react from '@vitejs/plugin-react';
 import react from '@vitejs/plugin-react';
+import 'dotenv/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
 import { indexHtmlReplacementPlugin, TailwindCSSBuildPlugin } from './vite-plugin.js';
-import 'dotenv/config';
-import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const distPath = path.resolve(__dirname, 'dist/react');
-
-// Get latest git commit hash (short)
-let gitHash = 'dev';
-try {
-  gitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
-} catch {
-  console.warn('Could not get git commit hash, using "dev"');
-}
 
 export const viteConfig = defineConfig({
   root: '.',
@@ -49,8 +40,8 @@ export const viteConfig = defineConfig({
           axios: ['axios'],
           'deepmerge-ts': ['deepmerge-ts']
         },
-        entryFileNames: `assets/${gitHash}-[name].[hash].js`,
-        chunkFileNames: `assets/${gitHash}-[name].[hash].js`,
+        entryFileNames: `assets/[name].[hash].js`,
+        chunkFileNames: `assets/[name].[hash].js`,
         assetFileNames: (assetInfo) => {
           // Group assets by type: json, images, css, other
           let names = [];
@@ -62,21 +53,21 @@ export const viteConfig = defineConfig({
           // Check all possible names for type
           for (const name of names) {
             if (/\.css$/i.test(name)) {
-              return `assets/css/${gitHash}-[name].[hash][extname]`;
+              return `assets/css/[name].[hash][extname]`;
             }
           }
           for (const name of names) {
             if (/\.json$/i.test(name)) {
-              return `assets/json/${gitHash}-[name].[hash][extname]`;
+              return `assets/json/[name].[hash][extname]`;
             }
           }
           for (const name of names) {
             if (/\.(png|jpe?g|svg|gif|webp|ico)$/i.test(name)) {
-              return `assets/images/${gitHash}-[name].[hash][extname]`;
+              return `assets/images/[name].[hash][extname]`;
             }
           }
           // Default: other assets
-          return `assets/other/${gitHash}-[name].[hash][extname]`;
+          return `assets/other/[name].[hash][extname]`;
         }
       }
     }
