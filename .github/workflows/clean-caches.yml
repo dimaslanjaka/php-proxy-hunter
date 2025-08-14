@@ -37,20 +37,20 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           lfs: true
 
-      - name: Update Submodules
-        run: |
-          echo "init submodules"
-          git submodule init
-          git submodule foreach "git submodule init"
-          echo "sync submodules"
-          git submodule sync
-          git submodule foreach "git submodule sync"
-          echo "update submodules"
-          npm install -g rimraf binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
-          npx rimraf .git/modules
-          npx submodule-install
-          git lfs track "*.rar"
-        shell: bash
+      # - name: Update Submodules
+      #   run: |
+      #     echo "init submodules"
+      #     git submodule init
+      #     git submodule foreach "git submodule init"
+      #     echo "sync submodules"
+      #     git submodule sync
+      #     git submodule foreach "git submodule sync"
+      #     echo "update submodules"
+      #     npm install -g rimraf binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
+      #     npx rimraf .git/modules
+      #     npx submodule-install
+      #     git lfs track "*.rar"
+      #   shell: bash
 
       - uses: actions/setup-python@v5
         with:
