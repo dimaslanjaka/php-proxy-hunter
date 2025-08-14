@@ -107,14 +107,4 @@ export const viteConfig = defineConfig({
   }
 });
 
-// Export a function to access Vite params
-export default ({ command, mode }) => {
-  // Example: log the command and mode
-  console.log('Vite command:', command); // 'serve' or 'build'
-  console.log('Vite mode:', mode); // e.g., 'development' or 'production'
-  // Example: check for custom CLI flags
-  if (process.argv.includes('--my-custom-flag')) {
-    console.log('Custom flag detected!');
-  }
-  return viteConfig;
-};
+export default viteConfig;
