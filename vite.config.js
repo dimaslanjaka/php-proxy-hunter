@@ -37,13 +37,6 @@ export const viteConfig = defineConfig({
           moment: ['moment', 'moment-timezone'],
           axios: ['axios'],
           'deepmerge-ts': ['deepmerge-ts']
-        },
-        entryFileNames: function (chunkInfo) {
-          const filename = chunkInfo.name;
-          if (filename === 'app') {
-            return 'index.html';
-          }
-          return `${filename}.js`;
         }
       }
     }
