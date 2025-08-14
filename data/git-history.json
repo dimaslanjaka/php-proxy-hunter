@@ -1,5 +1,17 @@
 [
   {
+    "hash": "cb42146a5db52815296532b9aed5cffb4a7833c6",
+    "date": "2025-08-15T02:45:46+07:00",
+    "message": "Merge branch 'master' into dependabot/composer/phpunit/phpunit-tw-9.6or-tw-12.0",
+    "files": []
+  },
+  {
+    "hash": "ae8b9b0203f2396e4a09e71a4ccaeb11e63a6ec5",
+    "date": "2025-08-15T02:42:10+07:00",
+    "message": "Merge pull request #52 from dimaslanjaka/dependabot/composer/symfony/yaml-tw-5.4or-tw-7.0\n\nbuild(deps): update symfony/yaml requirement from ^5.4 to ^5.4 || ^7.0",
+    "files": []
+  },
+  {
     "hash": "228efab57b884e8a91e1ae2748f2906cb75d2f08",
     "date": "2025-08-15T02:32:37+07:00",
     "message": "fix(url): ensure backend hostname is defined before constructing URL",
@@ -1036,6 +1048,22 @@
     "message": "refactor: documentation",
     "files": [
       "packages/proxy-hunter-python/readme.md"
+    ]
+  },
+  {
+    "hash": "1d50606a48d7e5bc286eab70e5432d245cd80b4d",
+    "date": "2025-08-01T15:33:11Z",
+    "message": "build(deps): update symfony/yaml requirement from ^5.4 to ^5.4 || ^7.0\n\nUpdates the requirements on [symfony/yaml](https://github.com/symfony/yaml) to permit the latest version.\n- [Release notes](https://github.com/symfony/yaml/releases)\n- [Changelog](https://github.com/symfony/yaml/blob/7.3/CHANGELOG.md)\n- [Commits](https://github.com/symfony/yaml/compare/v5.4.0...v7.3.2)\n\n---\nupdated-dependencies:\n- dependency-name: symfony/yaml\n  dependency-version: 7.3.2\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
+    "hash": "627e1f038e2bc4cc9d5adb8b3f99cfa24a0a4b84",
+    "date": "2025-08-01T15:32:55Z",
+    "message": "build(deps-dev): update phpunit/phpunit requirement || ^12.0\n\nUpdates the requirements on [phpunit/phpunit](https://github.com/sebastianbergmann/phpunit) to permit the latest version.\n- [Release notes](https://github.com/sebastianbergmann/phpunit/releases)\n- [Changelog](https://github.com/sebastianbergmann/phpunit/blob/12.3.0/ChangeLog-12.3.md)\n- [Commits](https://github.com/sebastianbergmann/phpunit/compare/9.6.0...12.3.0)\n\n---\nupdated-dependencies:\n- dependency-name: phpunit/phpunit\n  dependency-version: 12.3.0\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      "composer.json"
     ]
   },
   {
