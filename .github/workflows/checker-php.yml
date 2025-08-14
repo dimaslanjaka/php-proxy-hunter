@@ -51,34 +51,39 @@ jobs:
 
     steps:
       # Set timezone
-      - uses: szenius/set-timezone@v2.0
+      - name: Set Timezone
+        uses: szenius/set-timezone@v2.0
         with:
           timezoneLinux: Asia/Jakarta
 
       # Checkout project and data repositories
-      - uses: actions/checkout@v4
+      - name: Checkout Main Repository
+        uses: actions/checkout@v4
         with:
           repository: dimaslanjaka/php-proxy-hunter
           ref: master
           token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           lfs: true
 
-      - uses: actions/checkout@v4
+      - name: Checkout Data Repository
+        uses: actions/checkout@v4
         with:
           repository: dimaslanjaka/data
           path: public
           token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           lfs: true
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'yarn'
           cache-dependency-path: 'package.json'
 
-      - run: corepack enable
+      - name: Enable Corepack
+        run: corepack enable
 
-      - name: Update Submodules
+      - name: Update Git Submodules and Install Global Node Tools
         run: |
           echo "Initializing submodules..."
           git submodule update --init --recursive
@@ -86,11 +91,13 @@ jobs:
           npx rimraf .git/modules
           npx submodule-install
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: 3.11
 
-      - uses: shivammathur/setup-php@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: 7.4
           extensions: mbstring, intl, pecl_http, curl, pdo_mysql, pdo_sqlite, dom, zip, fileinfo, json, redis
@@ -101,7 +108,8 @@ jobs:
           fail-fast: true
 
       # Cache dependencies and outputs
-      - uses: actions/cache@v4
+      - name: Cache Dependencies and Outputs
+        uses: actions/cache@v4
         id: cache
         with:
           path: |
@@ -135,7 +143,7 @@ jobs:
             ${{ runner.os }}-
 
       # Install required tools
-      - name: Install required tools
+      - name: Install Required Tools
         run: |
           npm install -g @go-task/cli
           python3 -m ensurepip --upgrade
@@ -143,7 +151,7 @@ jobs:
           python3 -m pip install requests
 
       # Install PHP dependencies (if cache missed)
-      - name: Install PHP dependencies
+      - name: Install PHP Dependencies (if cache missed)
         if: steps.cache.outputs.cache-hit != 'true'
         shell: bash
         env:
@@ -159,17 +167,17 @@ jobs:
           fi
 
       # Install Python dependencies (if cache missed)
-      - name: Install Python dependencies
+      - name: Install Python Dependencies (if cache missed)
         if: steps.cache.outputs.cache-hit != 'true'
         run: task install-python
 
       # Install NodeJS dependencies (if cache missed)
-      - name: Install NodeJS Dependencies
+      - name: Install Node.js Dependencies (if cache missed)
         shell: bash
         run: task install-nodejs
 
       # Initialize scripts
-      - name: Initialize GitHub Actions
+      - name: Initialize Project Scripts
         env:
           GITHUB_OUTPUT: $GITHUB_OUTPUT
         run: |
@@ -177,19 +185,19 @@ jobs:
           php github-actions-init.php
 
       # Download & process data
-      - name: Download required files
+      - name: Download Required Files
         run: python3 src/geoPlugin.py
 
-      - name: Cleanup
+      - name: Cleanup Project
         run: php artisan/cleaner.php
 
-      - name: Fetch proxies
+      - name: Fetch Proxies
         run: php artisan/proxyFetcher.php
 
-      - name: Index proxies
+      - name: Index Proxies
         run: php proxies-all.php
 
-      - name: Check proxies
+      - name: Check Proxies
         run: php proxyCheckerParallel.php
 
       - name: Upload Proxies

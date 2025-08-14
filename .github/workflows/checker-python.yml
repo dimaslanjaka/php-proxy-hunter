@@ -46,7 +46,7 @@ jobs:
       YARN_CHECKSUM_BEHAVIOR: update
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Main Repository
         uses: actions/checkout@v4
         with:
           repository: dimaslanjaka/php-proxy-hunter
@@ -66,9 +66,10 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'package.json'
 
-      - run: corepack enable
+      - name: Enable Corepack
+        run: corepack enable
 
-      - name: Update Submodules
+      - name: Update Git Submodules and Install Global Node Tools
         run: |
           echo "Initializing submodules..."
           git submodule update --init --recursive
@@ -76,11 +77,11 @@ jobs:
           npx rimraf .git/modules
           npx submodule-install
 
-      - name: Get pip cache dir
+      - name: Get pip Cache Directory
         id: pip-cache
         run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
 
-      - name: Setup Cache
+      - name: Cache Dependencies and Outputs
         uses: actions/cache@v4
         with:
           path: |
@@ -114,24 +115,23 @@ jobs:
       - name: Restore Non-cached Files
         run: git restore *.txt
 
-      # Install required tools
-      - name: Install required tools
+      - name: Install Required Tools
         run: |
           npm install -g @go-task/cli
           python3 -m ensurepip --upgrade
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install requests
 
-      - name: Install NodeJS Dependencies
+      - name: Install Node.js Dependencies
         shell: bash
         run: task install-nodejs
 
-      - name: Install Python Dependencies
+      - name: Install Python Dependencies (if cache missed)
         if: steps.cache.outputs.cache-hit != 'true'
         shell: bash
         run: task install-python
 
-      - name: Initialize GitHub Actions
+      - name: Initialize Project Scripts
         id: php-github-actions-init
         env:
           GITHUB_OUTPUT: $GITHUB_OUTPUT
@@ -140,7 +140,7 @@ jobs:
       - name: Download Required Files
         run: python3 src/geoPlugin.py
 
-      - name: Cleanup
+      - name: Cleanup Project
         run: python3 cleaner.py
 
       - name: Fetch Proxies
