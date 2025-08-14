@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+
 import { createUrl } from '../utils/url';
 
 const Dashboard = () => {
@@ -30,7 +29,6 @@ const Dashboard = () => {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-5xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-10 flex flex-col gap-8">
           <div className="flex flex-wrap gap-8 justify-center">
@@ -60,7 +58,6 @@ const Dashboard = () => {
           {error && <div className="mt-4 text-red-500 text-center">{error}</div>}
         </div>
       </div>
-      <Footer />
     </>
   );
 };

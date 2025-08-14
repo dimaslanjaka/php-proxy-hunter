@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { sfInstance } from '../components/Link';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 /**
  * Outbound Redirect Page
@@ -26,7 +24,6 @@ const Outbound: React.FC = () => {
 
   return (
     <>
-      <Navbar />
       <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
         <div className="max-w-lg w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-800">
           {isValid ? (
@@ -57,7 +54,6 @@ const Outbound: React.FC = () => {
             </>
           )}
         </div>
-        <Footer />
       </div>
     </>
   );

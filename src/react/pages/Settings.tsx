@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { createUrl } from '../utils/url';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+
 import { fetchUserInfo } from '../utils/user';
 
 // Settings page for user profile management
@@ -80,7 +79,6 @@ const Settings = () => {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md">
           <h2 className="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-white flex items-center justify-center">
@@ -145,7 +143,6 @@ const Settings = () => {
           </button>
         </form>
       </div>
-      <Footer />
     </>
   );
 };

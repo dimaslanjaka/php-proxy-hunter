@@ -1,6 +1,5 @@
 import React from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+
 import type gitHistoryToJson from '../../dev/git-history-to-json';
 import { createUrl } from '../utils/url';
 
@@ -86,7 +85,6 @@ export default function Changelog() {
 
   return (
     <>
-      <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2 flex items-center justify-center gap-2">
@@ -203,7 +201,6 @@ export default function Changelog() {
           </>
         )}
       </div>
-      <Footer />
     </>
   );
 }

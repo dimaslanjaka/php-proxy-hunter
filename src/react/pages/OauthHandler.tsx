@@ -2,8 +2,6 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { createUrl } from '../utils/url';
 import Link from '../components/Link';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 const OauthHandler = () => {
   const location = useLocation();
@@ -46,7 +44,6 @@ const OauthHandler = () => {
 
   return (
     <>
-      <Navbar />
       <div id="oauth-handler" className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md text-center">
           {loading ? (
@@ -93,7 +90,6 @@ const OauthHandler = () => {
           )}
         </div>
       </div>
-      <Footer />
     </>
   );
 };

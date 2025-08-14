@@ -1,10 +1,7 @@
-import Footer from '../components/Footer';
-import Navbar from '../components/Navbar';
 import Link from '../components/Link';
 
 const Home = () => (
   <>
-    <Navbar />
     <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
       {/* Hero Section */}
       <section className="relative bg-white dark:bg-gray-900">
@@ -140,7 +137,6 @@ const Home = () => (
         </div>
       </section>
     </div>
-    <Footer />
   </>
 );
 

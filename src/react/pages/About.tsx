@@ -1,10 +1,7 @@
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import Link from '../components/Link';
 
 const About = () => (
   <>
-    <Navbar />
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto">
       <section className="w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 md:p-10 border border-gray-200 dark:border-gray-700">
         <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white text-center">About PHP Proxy Hunter</h2>
@@ -65,7 +62,6 @@ const About = () => (
         </div>
       </section>
     </main>
-    <Footer />
   </>
 );
 
