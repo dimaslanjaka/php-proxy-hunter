@@ -81,7 +81,6 @@ jobs:
           npm install -g rimraf binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
           npx rimraf .git/modules
           npx submodule-install
-          git lfs track "*.rar"
 
       - uses: actions/setup-python@v5
         with:

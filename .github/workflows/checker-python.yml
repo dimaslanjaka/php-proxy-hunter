@@ -71,7 +71,6 @@ jobs:
           npm install -g rimraf binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
           npx rimraf .git/modules
           npx submodule-install
-          git lfs track "*.rar"
 
       - name: Get pip cache dir
         id: pip-cache
