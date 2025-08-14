@@ -54,11 +54,22 @@ async function deploy() {
     spawnSync('git', ['reset', '--hard', 'origin/gh-pages'], { cwd: deployGitPath, stdio: 'inherit' });
   }
 
-  // Clean and copy build output
-  for (const dir of ['assets', 'php']) {
-    fs.rmSync(path.join(deployGitPath, dir), { recursive: true, force: true });
-  }
+  // Copy build output to .deploy_git
   fs.copySync(viteConfig.build.outDir, deployGitPath, { overwrite: true, dereference: true });
+  console.log(`Copied build output to ${deployGitPath}`);
+
+  // Clean and copy build output
+  for (const dir of ['assets', 'php', 'static']) {
+    const target = path.join(deployGitPath, dir);
+    fs.rmSync(target, { recursive: true, force: true });
+    console.log(`Removed old directory: ${target}`);
+  }
+
+  // Re-copy build assets
+  const source = path.join(viteConfig.build.outDir, 'assets');
+  const target = path.join(deployGitPath, 'assets');
+  fs.copySync(source, target, { overwrite: true, dereference: true });
+  console.log(`Copied assets from ${source} to ${target}`);
 
   // Cache busting for index.html
   const indexHtml = path.join(viteConfig.build.outDir, 'index.html');
@@ -95,7 +106,6 @@ async function deploy() {
   // Copy index.html to each route in .deploy_git
   for (const routeOrig of routes) {
     let route = { ...routeOrig };
-    console.log(`Processing route: ${route.path}`);
     if (route.path.endsWith('/')) {
       // Ensure the route does not end with a slash
       route.path += 'index.html';
