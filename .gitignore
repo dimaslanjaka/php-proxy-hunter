@@ -23,6 +23,7 @@ auth.json
 package-lock.json
 **/baileys_*/
 log/
+src/react/components/theme.*
 
 # Databases
 **/*.sqlite*
@@ -41,6 +42,9 @@ log/
 /public/static
 /app
 /proxyManager.js
+/index.html
+/public/php
+/public/data/git-history*
 
 # Miscellaneous
 .cache/
@@ -71,6 +75,7 @@ tmp/
 /databases
 /output
 /error_logs
+.deploy_git/
 
 # Python
 /data/script/

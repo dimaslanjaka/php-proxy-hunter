@@ -1,7 +1,8 @@
 ├── app/
-│   ├── main.cjs [4f3c0628]
-│   └── main.mjs [98372734]
+│   ├── main.cjs [a621fefc]
+│   └── main.mjs [5a9630c8]
 ├── artisan/
+│   ├── cleaner.php [8801cba6]
 │   ├── filterPorts.php [1060056a]
 │   ├── filterPortsBackground.php [8fd9d47a]
 │   ├── filterPortsDuplicate.php [726381cd]
@@ -20,7 +21,6 @@
 │   ├── checkPorts.php [9c9e21da]
 │   ├── genPorts.php [fac39f8c]
 │   └── script.js [cf19011a]
-├── cleaner.php [8a61eb3e]
 ├── cleaner.py [4e019db0]
 ├── cloud_sqlite/
 │   ├── config.php [9fd02a15]
@@ -29,7 +29,7 @@
 │   ├── fetch.php [f0c02a59]
 │   ├── init.php [dfe13cce]
 │   └── sync.php [5959c801]
-├── composer.json [c75371e1]
+├── composer.json [ead5b667]
 ├── controllers/
 │   ├── CheckDuplicateProxyController.php [efd4e12f]
 │   ├── ListDuplicateProxyController.php [590cee83]
@@ -47,7 +47,7 @@
 │   ├── webgl.php [fc4fbac9]
 │   └── webgl.py [e63585e6]
 ├── embed.php [4b2d429f]
-├── eslint.config.mjs [6da48062]
+├── eslint.config.js [fd763d22]
 ├── filterPortsDuplicate.py [41725689]
 ├── func-proxy.php [331c2a17]
 ├── func.php [ed5fafbc]
@@ -58,7 +58,7 @@
 ├── github-actions-init.php [10e385fa]
 ├── github-actions-init.py [ee8130c1]
 ├── index.js [a3018592]
-├── index.php [2fe7f100]
+├── index.php [cc4402ec]
 ├── info.php [7a4648e9]
 ├── js/
 │   ├── general-site-script.js [820ca2fb]
@@ -68,22 +68,23 @@
 ├── manage.py [d0538c5b]
 ├── mergeDB.php [38cc7584]
 ├── package-resolution-updater.mjs [e4bd1b86]
-├── package.json [dceab531]
+├── package.json [d751ce87]
 ├── php_backend/
 │   ├── check-https-proxy.php [7bb2e98e]
 │   ├── get_sms.php [301f88a8]
-│   ├── google-oauth.php [7d30a58f]
+│   ├── google-oauth.php [c399d4d6]
 │   ├── index.js [6faf84a8]
-│   ├── list-user.php [3f40cead]
-│   ├── login.php [753367f3]
+│   ├── list-user.php [c9ef8213]
+│   ├── login.php [d96014ea]
 │   ├── logout.php [de302a9c]
 │   ├── logs.php [c83c673a]
-│   ├── recaptcha.php [e006a02b]
-│   ├── refill-saldo.php [3a279096]
-│   └── user-info.php [b0d9fb35]
+│   ├── recaptcha.php [606cfd74]
+│   ├── refill-saldo.php [f99dfb91]
+│   └── user-info.php [fa29cb34]
 ├── phpliteadmin/
 │   ├── phpliteadmin.config.php [e627fa27]
 │   └── phpliteadmin.php [f63ac55c]
+├── postcss.config.js [047c5908]
 ├── proxies-all.php [9937c57c]
 ├── proxyAdd.php [c7a03f50]
 ├── proxyChecker.php [4ad75837]
@@ -94,7 +95,7 @@
 ├── proxyCheckerReal.py [8f418fd3]
 ├── proxyFetcher.py [84f6f702]
 ├── proxyManager-src.js [20acd514]
-├── proxyManager.js [88abe531]
+├── proxyManager.js [12bccd9d]
 ├── proxyManager.php [1219a44f]
 ├── proxyRespawner.php [05f1631b]
 ├── proxyUpload.py [8e360fc1]
@@ -102,23 +103,25 @@
 ├── public/
 │   └── php/
 │       └── js/
-│           ├── admin.js [ae4de1bb]
-│           ├── dashboard.js [3b46ef60]
-│           ├── edit-profile.js [c428d9a1]
-│           ├── languages.js [4e2d1bf1]
-│           ├── login.js [65059cdc]
-│           ├── profile-card.js [6eef85e9]
-│           ├── refill-saldo.js [fae69bc1]
-│           ├── template.js [b4ff27ff]
+│           ├── _widget/
+│           │   └── dashboard-menu.js [7c41abe8]
+│           ├── admin.js [32e31452]
+│           ├── dashboard.js [2ffdba86]
+│           ├── edit-profile.js [1747e66e]
+│           ├── languages.js [ac0a3579]
+│           ├── login.js [46be2a94]
+│           ├── profile-card.js [c6a634bf]
+│           ├── refill-saldo.js [7c224fd4]
+│           ├── template.js [bf04893c]
 │           ├── user/
-│           │   └── logs.js [d79cc2a0]
+│           │   └── logs.js [463aec7c]
 │           └── utils/
-│               └── url.js [7d1928a3]
+│               └── url.js [c47ea6d4]
 ├── requirements-dev.txt [a29aab93]
 ├── requirements.txt [e2c01128]
 ├── requirements_install.py [8f113d29]
 ├── rollup.config.js [7cff03e4]
-├── rollup.php.js [d3443cbd]
+├── rollup.php.js [9693f7ca]
 ├── rollup.project.js [06ec49b0]
 ├── rollup.whatsapp.js [fc8f49e3]
 ├── scanPorts.php [089403c5]
@@ -128,13 +131,14 @@
 │   │   ├── ExecutionTimer.php [c8c80c6f]
 │   │   ├── FileLockHelper.php [953a13da]
 │   │   ├── GeoIpHelper.php [d31e5dd7]
+│   │   ├── MySQLHelper.php [ebd09803]
 │   │   ├── Proxy.php [83ba70e0]
 │   │   ├── ProxyDB.php [1bdc0b77]
 │   │   ├── SQLiteHelper.php [c19a6119]
 │   │   ├── Scheduler.php [6c834b04]
 │   │   ├── Server.php [6e104328]
 │   │   ├── Session.php [e8f78afc]
-│   │   ├── UserDB.php [7bc29600]
+│   │   ├── UserDB.php [f434234b]
 │   │   ├── geoPlugin.php [77f2220e]
 │   │   └── geoPlugin2.php [f5f8de5b]
 │   ├── ProxyDB.js [187ef586]
@@ -245,6 +249,7 @@
 │       ├── ssh_client.py [03d22fb9]
 │       ├── vps_connector.py [c27b5a9d]
 │       └── vps_manager.py [757c986c]
+├── tailwind.config.js [8aa15330]
 ├── translations/
 │   └── ext/
 │       ├── BooleanStringExtension.php [7e94528b]
@@ -255,6 +260,8 @@
 ├── views/
 │   └── assets/
 │       └── js/
+│           ├── _widget/
+│           │   └── dashboard-menu.js [5d1ebad6]
 │           ├── admin.js [bbbd8ffb]
 │           ├── dashboard.js [7a425e0c]
 │           ├── edit-profile.js [7ee38d8e]
@@ -262,11 +269,12 @@
 │           ├── login.js [653e6111]
 │           ├── profile-card.js [cc973f92]
 │           ├── refill-saldo.js [4809968c]
-│           ├── template.js [8f8d9758]
+│           ├── template.js [2869cfff]
 │           ├── user/
 │           │   └── logs.js [8c3c9846]
 │           └── utils/
 │               └── url.js [1cdfd491]
+├── vite-plugin.js [8d53dae3]
 └── webgl-information/
     ├── script.js [5fd60361]
     └── script2.js [f2edb95e]

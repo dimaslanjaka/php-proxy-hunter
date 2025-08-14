@@ -20,12 +20,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // === Configuration ===
 $host = $_SERVER['HTTP_HOST'];
 $protocol = 'https://';
-$redirectUri = "{$protocol}{$host}/login";
 $request = parsePostData(true);
-$user_db = new UserDB();
+$redirectUri = !empty($request['redirect_uri']) ? $request['redirect_uri'] : "{$protocol}{$host}/login";
+$user_db = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
 $visitorId = $_COOKIE['visitor_id'] ?? 'CLI';
 $credentialsPath = __DIR__ . "/../tmp/logins/login_{$visitorId}.json";
 createParentFolders($credentialsPath);
+
+// Validate redirect URI
+if (!filter_var($redirectUri, FILTER_VALIDATE_URL)) {
+  jsonResponse(['error' => 'Invalid redirect URI'], 400);
+}
 
 $client = createGoogleClient($redirectUri);
 
@@ -149,7 +154,7 @@ function finalizeUserSession(string $email, UserDB $user_db): void
       'email' => $email,
       'username' => $username,
       'password' => bin2hex(random_bytes(8)),
-      'is_staff' => $isAdmin ? 'admin' : 'user',
+      'is_staff' => $isAdmin ? 1 : 0,
       'is_active' => true,
       'is_superuser' => $email === 'dimaslanjaka@gmail.com'
     ]);

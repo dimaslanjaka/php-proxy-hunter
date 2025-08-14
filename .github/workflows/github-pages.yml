@@ -1,0 +1,87 @@
+name: Deploy GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'src/react/**/*'
+      - 'src/utils/**/*'
+      - 'src/dev/**/*'
+      - '.github/workflows/github-pages.yml'
+      - '**/vite*'
+      - '**/tailwind*'
+      - '**/rollup*'
+      - '**/postcss*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          repository: dimaslanjaka/php-proxy-hunter
+          fetch-depth: 0
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: .deploy_git
+          token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          repository: dimaslanjaka/php-proxy-hunter
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+          cache-dependency-path: .husky/hash.txt
+
+      - name: Init cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.yarn
+            **/node_modules
+            **/tmp/**
+            **/dist/**
+          key: ${{ runner.os }}-node-${{ hashFiles('.husky/hash.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build Project
+        run: yarn build
+
+      - name: Build React app
+        run: node vite-gh-pages.js
+
+      - name: Build commit message
+        id: commitmsg
+        run: |
+          LATEST_COMMIT=$(git rev-parse HEAD)
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/$LATEST_COMMIT"
+          echo "message=chore: deploy to gh-pages from $COMMIT_URL" >> $GITHUB_OUTPUT
+
+      - name: Commit and push to gh-pages
+        working-directory: .deploy_git
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "${{ steps.commitmsg.outputs.message }}" || echo "No changes to commit"
+          git push "https://x-access-token:${ACCESS_TOKEN}@github.com/${{ github.repository }}.git" gh-pages

@@ -1,0 +1,16 @@
+/* Tailwind CSS
+ * run `yarn dlx @tailwindcss/cli -i ./tailwind.input.css -o ./src/react/components/theme.css` to generate the CSS file
+ */
+@import 'tailwindcss';
+/* theme switcher support by changing class to dark and light */
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
+/* apply flowbite */
+@plugin "flowbite/plugin";
+
+/* disabled element */
+@layer components {
+  .disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}

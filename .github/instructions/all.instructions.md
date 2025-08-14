@@ -8,5 +8,3 @@ applyTo: '**/*.*'
 - Moving files should be done with care, ensuring that the new location is correctly referenced in the codebase.
 - When creating or modifying files, ensure that the file paths are correct and that the files are placed in appropriate directories.
 - Always check for existing files before creating new ones to avoid overwriting important data.
-- Always backup important files before making significant changes.
-- Before modifying or moving files, always create a backup by copying the original content to `[filename].bak`.

@@ -6,14 +6,14 @@
     // Specify the module system for the generated JavaScript
     "module": "ESNext",
 
+    // Specify libraries to include in the compilation
+    "lib": ["ES2022", "DOM"],
+
     // Define how module paths are resolved
     "moduleResolution": "node",
 
     // Specify directories for type definitions
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./types", "./node_modules/@types"],
 
     // Enable importing JSON files as modules
     "resolveJsonModule": true,
@@ -31,7 +31,7 @@
     "sourceMap": true,
 
     // Specify the directory for emitted files
-    "outDir": "./dist",
+    "outDir": "./tmp/dist-project",
 
     // Emit compliant JavaScript for iterables, which may be less performant
     "downlevelIteration": true,
@@ -43,7 +43,10 @@
     "strict": true,
 
     // Skip type checking for declaration files in `node_modules`
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    // Enable support for JSX/TSX
+    "jsx": "react-jsx"
   },
   "typeAcquisition": {
     // Enable automatic type acquisition for JavaScript projects
@@ -54,7 +57,9 @@
     "./node_browser",
     "./src",
     ".env.mjs",
-    "./node_backend"
+    "./node_backend",
+    "./types/**/*.d.ts",
+    "./test/**/*"
   ],
   "exclude": [
     // Exclude specific directories and patterns from the compilation

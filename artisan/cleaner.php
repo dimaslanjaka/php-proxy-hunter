@@ -2,27 +2,25 @@
 
 // config json files cleaner
 
-require_once __DIR__ . '/func.php';
+require_once __DIR__ . '/../func.php';
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 if (!$isCli) {
   header('Content-Type:text/plain; charset=UTF-8');
-}
-if (!$isCli) {
   exit('web server access disallowed');
 }
 
 // Directory where JSON files are located
 $directories = [
-  __DIR__ . '/config/',
-  __DIR__ . '/.cache/',
-  __DIR__ . '/tmp/',
-  __DIR__ . '/tmp/cookies/',
-  __DIR__ . '/tmp/sessions/',
-  __DIR__ . '/tmp/runners/',
-  __DIR__ . '/tmp/logs/',
-  __DIR__ . '/backups/'
+  __DIR__ . '/../config/',
+  __DIR__ . '/../.cache/',
+  __DIR__ . '/../tmp/',
+  __DIR__ . '/../tmp/cookies/',
+  __DIR__ . '/../tmp/sessions/',
+  __DIR__ . '/../tmp/runners/',
+  __DIR__ . '/../tmp/logs/',
+  __DIR__ . '/../backups/'
 ];
 
 // Get the current timestamp

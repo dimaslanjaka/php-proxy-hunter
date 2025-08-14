@@ -15,8 +15,28 @@ if (!defined('PHP_PROXY_HUNTER')) {
  */
 class UserDB
 {
-  /** @var SQLiteHelper $db */
+  /**
+   * @var SQLiteHelper|MySQLHelper $db Database helper instance (SQLite or MySQL)
+   */
   public $db;
+
+  public function __construct(?string $dbLocation = null, string $dbType = 'sqlite', string $host = 'localhost', string $dbname = 'php_proxy_hunter', string $username = 'root', string $password = '', bool $unique = false)
+  {
+    if ($dbType === 'mysql') {
+      $this->mysql($host, $dbname, $username, $password, $unique);
+    } else {
+      $this->sqlite($dbLocation);
+    }
+  }
+
+  public function mysql(string $host, string $dbname, string $username, string $password, bool $unique = false)
+  {
+    $this->db = new MySQLHelper($host, $dbname, $username, $password, $unique);
+
+    // Initialize the database schema
+    $sqlFileContents = file_get_contents(__DIR__ . '/assets/mysql-schema.sql');
+    $this->db->pdo->exec($sqlFileContents);
+  }
 
   /**
    * UserDB constructor.
@@ -25,7 +45,7 @@ class UserDB
    *
    * @param string|null $dbLocation Path to the database file. Defaults to the project's database directory.
    */
-  public function __construct(?string $dbLocation = null)
+  public function sqlite(?string $dbLocation = null)
   {
     if (!$dbLocation) {
       $dbLocation = __DIR__ . '/../database.sqlite';
@@ -42,7 +62,7 @@ class UserDB
     $this->db = new SQLiteHelper($dbLocation);
 
     // Initialize the database schema
-    $sqlFileContents = file_get_contents(__DIR__ . '/../../assets/database/create.sql');
+    $sqlFileContents = file_get_contents(__DIR__ . '/assets/sqlite-schema.sql');
     $this->db->pdo->exec($sqlFileContents);
 
     // Fix journal mode to WAL
@@ -84,9 +104,9 @@ class UserDB
     $data['first_name'] = $data['first_name'] ?? '';
     $data['last_name'] = $data['last_name'] ?? '';
     $data['date_joined'] = $data['date_joined'] ?? date('Y-m-d H:i:s');
-    $data['is_staff'] = isset($data['is_staff']) ? (bool)$data['is_staff'] : false;
-    $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : true;
-    $data['is_superuser'] = isset($data['is_superuser']) ? (bool)$data['is_superuser'] : false;
+    $data['is_staff'] = isset($data['is_staff']) ? self::normalizeBoolToInt($data['is_staff']) : 0;
+    $data['is_active'] = isset($data['is_active']) ? self::normalizeBoolToInt($data['is_active']) : 1;
+    $data['is_superuser'] = isset($data['is_superuser']) ? self::normalizeBoolToInt($data['is_superuser']) : 0;
     $data['last_login'] = $data['last_login'] ?? null;
 
     // Validate required fields
@@ -174,20 +194,52 @@ class UserDB
     if (empty($find_existing_row)) {
       // Insert new column when not exist
       $this->db->insert('user_fields', ['user_id' => $id, 'saldo' => 0]);
+      $existing_saldo = 0;
+    } else {
+      $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
+      $existing_saldo = isset($saldo_row[0]['saldo']) ? intval($saldo_row[0]['saldo']) : 0;
     }
-    $existing_saldo = intval($this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0]['saldo']);
     $sum_saldo = $existing_saldo + $amount;
     $this->db->update('user_fields', ['saldo' => $sum_saldo], "user_id = ?", [$id]);
 
     // Update logs
     $this->db->insert("user_logs", ["message" => "Topup $amount", "log_level" => "INFO", "source" => $log_source, "extra_info" => $log_extra_info, 'user_id' => $id], false);
 
-    return $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0];
+    $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
+    return isset($saldo_row[0]) ? $saldo_row[0] : ['saldo' => 0];
   }
 
   public function get_saldo(int $id)
   {
-    return $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id])[0]['saldo'];
+    $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
+    return isset($saldo_row[0]['saldo']) ? $saldo_row[0]['saldo'] : 0;
+  }
+  /**
+   * Normalize boolean-like values to integer (0 or 1).
+   * Accepts bool, int, string ('true', 'false', '1', '0', 'yes', 'no', 'on', 'off').
+   *
+   * @param mixed $value
+   * @return int
+   */
+  private static function normalizeBoolToInt($value): int
+  {
+    if (is_bool($value)) {
+      return $value ? 1 : 0;
+    }
+    if (is_int($value)) {
+      return ($value === 1) ? 1 : 0;
+    }
+    if (is_string($value)) {
+      $v = strtolower(trim($value));
+      if (in_array($v, ['1', 'true', 'yes', 'on', 'admin'], true)) {
+        return 1;
+      }
+      if (in_array($v, ['0', 'false', 'no', 'off', '', 'user'], true)) {
+        return 0;
+      }
+    }
+    // fallback: treat as falsy
+    return 0;
   }
 
   public function __destruct()

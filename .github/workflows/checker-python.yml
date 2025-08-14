@@ -39,8 +39,8 @@ jobs:
       NUITKA_CACHE_DIR: '${{ github.workspace }}/project/tmp/nuitka-cache'
       NODE_OPTIONS: '--max_old_space_size=4096'
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
-      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-      GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
       YARN_CHECKSUM_BEHAVIOR: update
 
     steps:
@@ -49,7 +49,7 @@ jobs:
         with:
           repository: dimaslanjaka/php-proxy-hunter
           ref: master
-          token: ${{ secrets.ACCESS_TOKEN }}
+          token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           lfs: true
 
       - name: Setup Python
