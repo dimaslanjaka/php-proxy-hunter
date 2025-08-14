@@ -44,7 +44,7 @@ if command -v git >/dev/null 2>&1; then
     # Check if the current directory is a Git repository
     if [ -d "$CWD/.git" ] || git -C "$CWD" rev-parse --git-dir >/dev/null 2>&1; then
         echo "Current directory is a Git repository. Updating submodules..."
-        bash "$CWD/bin/submodule-update"
+        npx --yes binary-collections submodule-install
     else
         echo "Current directory is not a Git repository."
     fi
