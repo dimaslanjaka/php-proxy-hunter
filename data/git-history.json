@@ -1,5 +1,21 @@
 [
   {
+    "hash": "cfe2d9a2f9656a52ab93118cd7348a1444387c56",
+    "date": "2025-08-15T01:24:00+07:00",
+    "message": "fix(vite): remove git hash from asset filenames for consistent naming",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "e220265b9a2112427f6bd7d457804ce996265531",
+    "date": "2025-08-15T01:22:48+07:00",
+    "message": "fix(vite): enhance asset file naming by grouping assets and ensuring proper directory structure",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "8bef0253c9e8e6a8cfbe579e3f2df68113b79ec7",
     "date": "2025-08-15T00:59:54+07:00",
     "message": "build(vite): ensure unique and consistent hashed filenames for all assets\n\n- Update entry, chunk, and asset file naming patterns to include both the git commit hash and a content hash.\n- Output files now use the format: assets/<gitHash>/[name].[hash].js for JS and assets/<gitHash>/[name].[hash][extname] for other assets.\n- Prevents filename collisions and improves cache busting.",
