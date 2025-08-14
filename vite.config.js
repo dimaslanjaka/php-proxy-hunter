@@ -6,16 +6,20 @@ import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
 import { indexHtmlReplacementPlugin, TailwindCSSBuildPlugin } from './vite-plugin.js';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const distPath = path.resolve(__dirname, 'dist/react');
+const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
 export const viteConfig = defineConfig({
   root: '.',
-  // Uncomment below to test custom base path
-  // base: '/php-proxy-hunter/',
+  define: {
+    'import.meta.env.VITE_GIT_COMMIT': gitCommitHash,
+    VITE_GIT_COMMIT: gitCommitHash
+  },
   cacheDir: path.resolve(__dirname, 'tmp/.vite'),
   plugins: [TailwindCSSBuildPlugin(), react(), mkcert(), indexHtmlReplacementPlugin()],
   resolve: {

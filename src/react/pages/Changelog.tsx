@@ -48,7 +48,9 @@ export default function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      gitHistoryPromise = fetch(createUrl('/data/git-history.json'))
+      // Add cache buster to avoid stale fetches
+      const url = createUrl(`/data/git-history.json`, { v: import.meta.env.VITE_GIT_COMMIT });
+      gitHistoryPromise = fetch(url)
         .then((res) => {
           if (!res.ok) throw new Error('Failed to fetch git history');
           return res.json();
