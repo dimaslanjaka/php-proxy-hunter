@@ -9,6 +9,12 @@ fi
 # Set www-data user for subsequent commands
 USER="www-data"
 
+# Check if the user exists
+if ! id -u "$USER" >/dev/null 2>&1; then
+    echo "User $USER does not exist. Please create the user before running this script."
+    exit 1
+fi
+
 # Get the absolute path of the current script directory
 CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
