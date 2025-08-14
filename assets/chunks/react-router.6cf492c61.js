@@ -1,4 +1,4 @@
-import { r as requireReact, g as getDefaultExportFromCjs } from "./react-BKuUvC82.js";
+import { r as requireReact, g as getDefaultExportFromCjs } from "./react.6cf492c61.js";
 var reactExports = requireReact();
 const React = /* @__PURE__ */ getDefaultExportFromCjs(reactExports);
 /**
