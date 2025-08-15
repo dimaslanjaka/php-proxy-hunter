@@ -46,7 +46,8 @@ if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUES
     'fnt'
   ];
 
-  $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+  $pathOnly = parse_url($filePath, PHP_URL_PATH);
+  $ext = strtolower(pathinfo($pathOnly, PATHINFO_EXTENSION));
   if (!in_array($ext, $allowedExtensions, true)) {
     http_response_code(403);
     echo '403 Forbidden: The requested file type is not allowed.';
