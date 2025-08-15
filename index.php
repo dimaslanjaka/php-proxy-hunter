@@ -2,10 +2,10 @@
 
 // Enable CORS for local development
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: *');
+header('Access-Control-Allow-Methods: *');
 
-$localhosts = ['localhost', '127.0.0.1', 'dev.webmanajemen.com'];
+$localhosts = ['localhost', '127.0.0.1', 'dev.webmanajemen.com', 'php.webmanajemen.com'];
 
 if (in_array($_SERVER['HTTP_HOST'], $localhosts)) {
   // Enable error reporting for local development
@@ -19,7 +19,7 @@ if (in_array($_SERVER['HTTP_HOST'], $localhosts)) {
 
 // Route /assets and /data to dist/assets and dist/data with auto MIME type, allow only specific file types
 if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUEST_URI'], '/data/') === 0) {
-  $filePath = __DIR__ . '/dist' . $_SERVER['REQUEST_URI'];
+  $filePath = __DIR__ . '/dist/react' . $_SERVER['REQUEST_URI'];
   $allowedExtensions = [
     'json',
     'txt',
@@ -35,8 +35,17 @@ if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUES
     'xsl',
     'jsonc',
     'js',
-    'css'
+    'css',
+    'woff',
+    'woff2',
+    'ttf',
+    'otf',
+    'eot',
+    'sfnt',
+    'font',
+    'fnt'
   ];
+
   $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
   if (!in_array($ext, $allowedExtensions, true)) {
     http_response_code(403);
@@ -44,15 +53,23 @@ if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUES
     exit;
   }
   if (file_exists($filePath)) {
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $filePath);
-    finfo_close($finfo);
+    if ($ext === 'js') {
+      $mimeType = 'application/javascript';
+    } elseif ($ext === 'css') {
+      $mimeType = 'text/css';
+    } else {
+      $finfo = finfo_open(FILEINFO_MIME_TYPE);
+      $mimeType = finfo_file($finfo, $filePath);
+      finfo_close($finfo);
+    }
     header('Content-Type: ' . $mimeType);
+
     readfile($filePath);
     exit;
   } else {
     http_response_code(404);
-    echo '404 Not Found: The requested file ' . htmlspecialchars($_SERVER['REQUEST_URI']) . ' was not found in /dist/assets or /dist/data.';
+
+    echo '404 Not Found: The requested file ' . htmlspecialchars($_SERVER['REQUEST_URI']) . ' was not found.';
     exit;
   }
 }
