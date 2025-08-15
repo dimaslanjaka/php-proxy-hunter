@@ -22,7 +22,7 @@ jobs:
             build-essential autoconf bison re2c pkg-config wget curl \
             libxml2-dev libssl-dev libcurl4-openssl-dev \
             libbz2-dev libzip-dev libicu-dev libreadline-dev \
-            libsodium-dev zlib1g-dev
+            libsodium-dev zlib1g-dev libonig-dev
 
       - name: Build SQLite
         run: |
