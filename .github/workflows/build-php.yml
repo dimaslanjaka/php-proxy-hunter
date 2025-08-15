@@ -99,7 +99,9 @@ jobs:
 
       - name: Install into staging dir (PHP)
         working-directory: php-src
-        run: make install DESTDIR=$GITHUB_WORKSPACE/stage
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/stage/usr/local/php
+          make install DESTDIR=$GITHUB_WORKSPACE/stage
 
       - name: Copy SQLite into staging dir
         run: |
