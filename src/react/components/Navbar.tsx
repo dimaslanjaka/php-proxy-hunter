@@ -132,6 +132,12 @@ class Navbar extends React.Component<object, NavbarState> {
                     <i className="fal fa-info-circle mr-2"></i> About
                   </Link>
                   <Link
+                    href="/changelog"
+                    className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    title="Changelog">
+                    <i className="fal fa-history mr-2"></i> Changelog
+                  </Link>
+                  <Link
                     href="/contact"
                     className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     title="Contact">
