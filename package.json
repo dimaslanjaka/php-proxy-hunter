@@ -198,6 +198,7 @@
     "vitest": "^3.2.4"
   },
   "resolutions": {
+    "typescript": "~5.8.0",
     "@types/hexo": "https://github.com/dimaslanjaka/hexo/raw/2a0275d3e9ffa777a8576578535ab60a2c4f50be/releases/hexo.tgz",
     "binary-collections": "https://github.com/dimaslanjaka/bin/raw/2e0a11aae56d84ca7cece6056cf6ccc2f232c8f3/releases/bin.tgz",
     "cross-spawn": "https://github.com/dimaslanjaka/node-cross-spawn/raw/80999ac7a7031a81e11ddb5fab0f8ba433041c98/release/cross-spawn.tgz",
