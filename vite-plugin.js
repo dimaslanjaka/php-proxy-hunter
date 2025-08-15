@@ -32,13 +32,15 @@ export function TailwindCSSBuildPlugin() {
 export function indexHtmlReplacementPlugin() {
   return {
     name: 'index-html-replacement',
-    configResolved(_config) {
-      // Copy index.dev.html to index.html for development mode.
-      // Do not remove: ensures dev server uses index.dev.html content as index.html.
-      // In production, index.html is generated in dist/react and index.dev.html is ignored.
-      const devHtml = path.join(process.cwd(), 'index.dev.html');
-      const prodHtml = path.join(process.cwd(), 'index.html');
-      fs.copyFileSync(devHtml, prodHtml);
+    configResolved(config) {
+      if (config.command === 'serve') {
+        // Copy index.dev.html to index.html for development mode.
+        // Do not remove: ensures dev server uses index.dev.html content as index.html.
+        // In production, index.html is generated in dist/react and index.dev.html is ignored.
+        const devHtml = path.join(process.cwd(), 'index.dev.html');
+        const prodHtml = path.join(process.cwd(), 'index.html');
+        fs.copyFileSync(devHtml, prodHtml);
+      }
 
       // Execute git history builder
       spawnSync(
@@ -51,6 +53,12 @@ export function indexHtmlReplacementPlugin() {
         ],
         { stdio: 'inherit', shell: true }
       );
+    },
+    closeBundle() {
+      // Copy compiled index.html to the project directory for production.
+      fs.copySync(path.join(process.cwd(), 'dist/react/index.html'), path.join(process.cwd(), 'index.html'), {
+        overwrite: true
+      });
     }
     // /**
     //  * Configures the dev server to serve index.dev.html for specific routes.
