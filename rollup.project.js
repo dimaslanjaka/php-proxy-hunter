@@ -34,20 +34,10 @@ const globals = {
   axios: 'axios'
 };
 
-const _esmBanner = `
-import * as NodeUrl from 'node:url';
-import NodePath from 'node:path';
-
-if (typeof __dirname === 'undefined') {
-  const __filename = NodeUrl.fileURLToPath(import.meta.url);
-  const __dirname = NodePath.dirname(__filename);
-}
-`;
-
 /**
  A Rollup plugin that modifies the output code after the build process.
 
- @returns {Object} - A Rollup plugin object.
+ @returns {import('rollup').Plugin} - A Rollup plugin object.
 */
 const modifyOutputCode = () => {
   return {
