@@ -1,5 +1,48 @@
 [
   {
+    "hash": "0ceb1bdebcc07dd36dad38a216ad6cbaec7a5cee",
+    "date": "2025-08-15T20:51:24+07:00",
+    "message": "refactor(proxy): update logger, test structure, and utility usage\n\n- Move logger implementation from node_browser/logger.js to src/proxy/logger.js and update imports accordingly.\n- Replace deprecated toMs utility with toMilliseconds from sbg-utility in ProxyChecker and hunter modules.\n- Remove src/proxy/filterTest.test.js and add tests/proxy/filterTest.direct.js for direct test execution.\n- Move and rename test files from src/proxy/*.test.js to tests/proxy/*.direct.js, updating import paths to use src/ structure.\n- Update tsconfig.json to include ./tests/**/* instead of ./test/**/* in the include section.\n- General code cleanup and modernization of proxy-related modules and tests.",
+    "files": [
+      "src/proxy/ProxyChecker.js",
+      "src/proxy/filterTest.test.js",
+      "src/proxy/hunter.js",
+      "src/proxy/logger.js",
+      "tests/proxy/ProxyChecker.direct.js",
+      "tests/proxy/filterTest.direct.js",
+      "tests/proxy/hunter.direct.js",
+      "tests/proxy/portOpen.direct.js",
+      "tests/proxy/proxyWorking.direct.js",
+      "tsconfig.json"
+    ]
+  },
+  {
+    "hash": "2238433158e48b8b687fec601168b6a2fed7d602",
+    "date": "2025-08-15T20:23:05+07:00",
+    "message": "fix(func.php): update parameter type for curlGetWithProxy function to allow nullable proxy",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
+    "hash": "e919d40b3c6971c84ea7afa9cdc1a0dbde05ad69",
+    "date": "2025-08-15T20:13:56+07:00",
+    "message": "fix(systemd,php-fpm): improve PHP-FPM socket permissions, service config, and log handling\n\n- Uncomment listen.mode in php-fpm-pool.ini to explicitly set socket permissions to 0660.\n- Simplify php-fpm.service by removing unnecessary directives and comments for better compatibility.\n- Update restart-server script to ensure /var/log/php-fpm.log exists with correct permissions and ownership for www-data.\n- Add copying of nginx config to sites-available in restart-server for consistent deployment.",
+    "files": [
+      "assets/systemctl/php-fpm-pool.ini",
+      "assets/systemctl/php-fpm.service",
+      "bin/restart-server"
+    ]
+  },
+  {
+    "hash": "f174ec4edb46aeda580f74e2416af13fda7a97e6",
+    "date": "2025-08-15T19:33:24+07:00",
+    "message": "fix(HtmlDocument): ensure string input for document loading and improve noise handling",
+    "files": [
+      "src/simplehtmldom/HtmlDocument.php"
+    ]
+  },
+  {
     "hash": "08d7b7a3344c65572f5627be052784da69ec7ae8",
     "date": "2025-08-15T18:59:08+07:00",
     "message": "fix: use file path without query string for file operations\n\nUpdate file_exists, finfo_file, and readfile to use the path without query parameters, ensuring correct file detection and serving when query strings are present.",
