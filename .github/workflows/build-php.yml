@@ -10,10 +10,13 @@ on:
       - readme-php.md
       - readme-sqlite.md
 
+concurrency:
+  group: php-fpm-build
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-22.04
-
     steps:
       - name: Install build dependencies
         run: |
