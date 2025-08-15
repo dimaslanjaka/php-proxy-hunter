@@ -47,7 +47,11 @@ done
 if systemctl is-active --quiet php-fpm; then
     sudo systemctl restart php-fpm
     echo "Restarted PHP-FPM service"
-elif systemctl is-enabled --quiet php-fpm; then
+elif systemctl list-unit-files | grep -q '^php-fpm.service'; then
+    if ! systemctl is-enabled --quiet php-fpm; then
+        sudo systemctl enable php-fpm
+        echo "Enabled PHP-FPM service"
+    fi
     sudo systemctl start php-fpm
     echo "Started PHP-FPM service"
 else
