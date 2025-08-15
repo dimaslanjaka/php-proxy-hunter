@@ -1,5 +1,269 @@
 [
   {
+    "hash": "9f3d26414dab84e73e625d195871dd024a2618cb",
+    "date": "2025-08-15T18:44:19+07:00",
+    "message": "fix(index-html-replacement): improve file copy logic to handle empty source files",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "30441e22b445496b4cc2a6580424b9acb406309e",
+    "date": "2025-08-15T18:40:38+07:00",
+    "message": "refactor: extract and reuse copyIndexHtml utility for index.html copying\n\n- Move index.dev.html to index.html copy logic into a reusable copyIndexHtml function in vite-plugin.js.\n- Replace inline copy logic in vite-gh-pages.js and indexHtmlReplacementPlugin with the new utility.\n- Add JSDoc to copyIndexHtml for clarity and maintainability.",
+    "files": [
+      "vite-gh-pages.js",
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "48846a27e439d030d8735fd7f094895ca7726b79",
+    "date": "2025-08-15T18:32:54+07:00",
+    "message": "fix(post-merge): remove unnecessary --no-dev flag from composer arguments",
+    "files": [
+      ".husky/post-merge"
+    ]
+  },
+  {
+    "hash": "020723f7cdbf13f7e4fd8b9a7ac29bbcdf60077d",
+    "date": "2025-08-15T18:19:33+07:00",
+    "message": "fix(build): ensure index.dev.html is copied to index.html before building",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "0356600afb322e14a781a629d5a3c95b8b1d623c",
+    "date": "2025-08-15T18:12:51+07:00",
+    "message": "fix(post-merge): simplify submodule update logic by removing VPS condition",
+    "files": [
+      ".husky/post-merge"
+    ]
+  },
+  {
+    "hash": "eafa6adbababdc33357792b193e5ce7dda79928d",
+    "date": "2025-08-15T18:11:30+07:00",
+    "message": "fix(restart-server): enable PHP-FPM service if not already enabled before starting",
+    "files": [
+      "bin/restart-server"
+    ]
+  },
+  {
+    "hash": "fd97166618f5f35ea2f2f319f2e3dcf57a8f697c",
+    "date": "2025-08-15T17:59:26+07:00",
+    "message": "fix(php-fpm): change service type from forking to simple for better process management",
+    "files": [
+      "assets/systemctl/php-fpm.service"
+    ]
+  },
+  {
+    "hash": "ba89e7a812b161e1909a9426c5750aca97eb0d69",
+    "date": "2025-08-15T17:55:16+07:00",
+    "message": "fix(restart-server): ensure /run/php directory ownership is set for www-data user",
+    "files": [
+      "bin/restart-server"
+    ]
+  },
+  {
+    "hash": "1c35e1253d2cddbb81fd1c47cd48588a0db94f98",
+    "date": "2025-08-15T17:44:29+07:00",
+    "message": "feat(index): update CORS to allow all headers and methods, extend localhost list, support font assets, adjust asset path, and improve MIME handling for js/css",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
+    "hash": "dcb508c768d3b473348183dc13ffb6b8321ce932",
+    "date": "2025-08-15T17:31:47+07:00",
+    "message": "fix(readme): add command to remove all crontab entries for www-data user",
+    "files": [
+      "readme.md"
+    ]
+  },
+  {
+    "hash": "f8168fdd57f6de775ed101d1578066a739d78f34",
+    "date": "2025-08-15T17:28:13+07:00",
+    "message": "fix(post-merge): update submodule installation command to use the latest version",
+    "files": [
+      ".husky/post-merge"
+    ]
+  },
+  {
+    "hash": "9119cdc4904e51377faee31acbdb0dcff51789bb",
+    "date": "2025-08-15T16:58:13+07:00",
+    "message": "feat(index): allow js and css assets, improve error messages for 403 and 404 responses",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
+    "hash": "4de43eb267aec44eea65882226dd460bd14ec412",
+    "date": "2025-08-15T16:52:17+07:00",
+    "message": "refactor!: remove legacy MVC controllers, views, and translations\n\n- Remove all files in `controllers/`, `src/mvc/`, `views/`, and `translations/` related to the old PHP MVC and Twig-based frontend.\n- Update `.htaccess` and `.htaccess_nginx.conf` to block access to the `src` folder instead of the `views` folder.\n- Clean up `composer.json` autoload paths by removing references to `translations/ext` and `src/mvc`.\n- Update submodule `packages/baileys` to latest commit.\n\nBREAKING CHANGE: The legacy PHP MVC controllers, Twig templates, and translation files have been removed. All related routes and frontend features depending on these files are no longer available.",
+    "files": [
+      ".htaccess",
+      ".htaccess_nginx.conf",
+      "composer.json",
+      "controllers/CheckDuplicateProxyController.php",
+      "controllers/ListDuplicateProxyController.php",
+      "controllers/LogoutController.php",
+      "controllers/ProfileController.php",
+      "controllers/UserController.php",
+      "controllers/autoload.php",
+      "packages/baileys",
+      "src/mvc/BaseController.php",
+      "translations/ext/BooleanStringExtension.php",
+      "translations/ext/CountryCodeExtension.php",
+      "translations/ext/TranslationExtension.php",
+      "translations/messages.en.yaml",
+      "translations/messages.id.yaml",
+      "views/404.twig",
+      "views/_partials/landing.twig",
+      "views/_partials/login.twig",
+      "views/_partials/profile-card.twig",
+      "views/_widgets/dashboard-menu.twig",
+      "views/_widgets/history.twig",
+      "views/_widgets/languages.twig",
+      "views/admin/index.twig",
+      "views/admin/refill-saldo.twig",
+      "views/assets/css/template.scss",
+      "views/assets/js/_widget/dashboard-menu.js",
+      "views/assets/js/admin.js",
+      "views/assets/js/dashboard.js",
+      "views/assets/js/edit-profile.js",
+      "views/assets/js/languages.js",
+      "views/assets/js/login.js",
+      "views/assets/js/profile-card.js",
+      "views/assets/js/refill-saldo.js",
+      "views/assets/js/template.js",
+      "views/assets/js/user/logs.js",
+      "views/assets/js/utils/url.js",
+      "views/assets/json/dashboard-menu.jsonc",
+      "views/dashboard/index.twig",
+      "views/index.twig",
+      "views/list-duplicate-proxy/index.twig",
+      "views/login/index.twig",
+      "views/profile/edit.twig",
+      "views/readme.md",
+      "views/template.twig",
+      "views/user/logs.twig"
+    ]
+  },
+  {
+    "hash": "8816047a466a047de4d6aa765d7bb07d445d22ad",
+    "date": "2025-08-15T16:27:42+07:00",
+    "message": "fix(post-merge): enhance submodule update logic for VPS environments",
+    "files": [
+      ".husky/post-merge"
+    ]
+  },
+  {
+    "hash": "bf2bc8bab9b4c35a567208a2625eb2a2edab4deb",
+    "date": "2025-08-15T16:09:46+07:00",
+    "message": "fix(editorconfig): add Bash and shell script formatting rules to .editorconfig\nfix(vscode): enable ShellFormat and configure supported languages in settings.json",
+    "files": [
+      ".editorconfig",
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "548b71a9b9c3fccfb8519396fc4c59d89897ba5d",
+    "date": "2025-08-15T16:09:15+07:00",
+    "message": "fix(post-merge): enhance composer installation logic to support VPS environments and user-specific execution",
+    "files": [
+      ".husky/post-merge"
+    ]
+  },
+  {
+    "hash": "79a62e4bad0672757319806ebe3cbb79bfd9b136",
+    "date": "2025-08-15T15:49:21+07:00",
+    "message": "fix(vite-plugin): simplify index.html copying logic in indexHtmlReplacementPlugin",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "01d4b4682578435d8f4f2ef762ed5cccd095fc2e",
+    "date": "2025-08-15T15:44:52+07:00",
+    "message": "fix(vite-plugin): update path handling for HTML files in indexHtmlReplacementPlugin",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "76c5c7fe640d5b2fe913d6e801aff174ed14c2aa",
+    "date": "2025-08-15T15:38:28+07:00",
+    "message": "fix(vite-plugin): enhance closeBundle logic to check for source file existence before copying",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "41e438288edf64e1b83ffe69f1ba461da0e5b956",
+    "date": "2025-08-15T15:36:43+07:00",
+    "message": "fix(post-merge): enhance submodule update process with stashing and restoring changes",
+    "files": [
+      ".husky/post-merge"
+    ]
+  },
+  {
+    "hash": "06e4906112b6a8649d409070ee4b8fd93f70e3f8",
+    "date": "2025-08-15T15:31:30+07:00",
+    "message": "feat(post-merge): add submodule update functionality to post-merge hook",
+    "files": [
+      ".husky/post-merge"
+    ]
+  },
+  {
+    "hash": "2d4eb607948acf2f8c539c08df6e3244d7141d5b",
+    "date": "2025-08-15T15:28:06+07:00",
+    "message": "fix(package.json): add resolution for typescript to version ~5.8.0",
+    "files": [
+      "package.json",
+      "packages/baileys"
+    ]
+  },
+  {
+    "hash": "fade172bca2c34eae4ecc230343d187cb512ef2a",
+    "date": "2025-08-15T14:29:04+07:00",
+    "message": "refactor(rollup.project.js): remove unused banner code and clarify return type in modifyOutputCode",
+    "files": [
+      "rollup.project.js"
+    ]
+  },
+  {
+    "hash": "53f667bfddb115d1bbcc056e0f5f115a1f86082f",
+    "date": "2025-08-15T13:59:49+07:00",
+    "message": "chore(composer.phar): update composer.phar binary to latest version",
+    "files": [
+      "composer.phar"
+    ]
+  },
+  {
+    "hash": "87ee7902edc1d98d1498f21809233f31b0fb17aa",
+    "date": "2025-08-15T13:55:16+07:00",
+    "message": "fix(pre-commit): correct php-cs-fixer command syntax in pre-commit hook",
+    "files": [
+      ".husky/pre-commit"
+    ]
+  },
+  {
+    "hash": "b6cce55c3eca4e735aba3acb4c4a6c57387b6df6",
+    "date": "2025-08-15T13:53:41+07:00",
+    "message": "feat(index.php): restrict /assets and /data routes to specific file types and improve MIME handling\n\n- Added a route to serve files from /assets and /data only if their extensions are in an allowed list (json, txt, images, xml, xsl, jsonc).\n- Automatically detects and sets the correct MIME type for allowed files.\n- Returns 403 Forbidden for disallowed file types and 404 Not Found for missing files.\n- Simplified index file serving logic.",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
+    "hash": "1339410bc2cb55138523a1808d2e2e9c3d9092e8",
+    "date": "2025-08-15T13:40:59+07:00",
+    "message": "feat(vite-plugin): improve index.html handling for dev and production\n\n- Update `configResolved` to only copy `index.dev.html` to `index.html` in development mode (`serve` command).\n- Add `closeBundle` hook to copy the compiled `dist/react/index.html` to the project root for production builds.\n- Ensures correct index.html is used in both development and production environments.",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
     "hash": "2fadc0f5ea598988a223644840e9895fde18112b",
     "date": "2025-08-15T13:04:28+07:00",
     "message": "feat(php-fpm): add systemd service and config for generic PHP-FPM, update nginx and service scripts\n\n- Add `php-fpm.service`, `php-fpm-pool.ini`, and `php-conf.ini` to `assets/systemctl` for generic PHP-FPM management.\n- Update `.htaccess_nginx.conf` to use a generic `php-fpm.sock` instead of version-specific socket.\n- Update `bin/restart-server` and `bin/stop-server` scripts to handle both old versioned PHP-FPM services and the new generic `php-fpm` service, including improved service start/stop logic and config copying.\n- Add documentation for PHP 7.4 setup in `docs/readme-php7.4.md`.\n- Update `readme-php.md` to reference new generic PHP-FPM setup and troubleshooting steps.\n- Fix permission script to copy updated nginx config.",
