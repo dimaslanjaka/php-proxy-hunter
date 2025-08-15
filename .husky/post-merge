@@ -55,7 +55,7 @@ fi
 # Run composer update or install
 COMPOSER_LOCK="$CWD/composer.lock"
 COMPOSER_PHAR="$CWD/composer.phar"
-COMPOSER_ARGS="--no-dev --no-interaction"
+COMPOSER_ARGS="--no-interaction"
 
 if [ $IS_VPS -eq 1 ]; then
   # only install production dependencies on VPS
