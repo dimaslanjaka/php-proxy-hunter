@@ -1,5 +1,4 @@
 # /etc/systemd/system/php-fpm.service
-# experimental
 
 [Unit]
 Description=The PHP FastCGI Process Manager
@@ -8,17 +7,7 @@ After=network.target
 [Service]
 User=www-data
 Group=www-data
-Type=simple
-PIDFile=/run/php/php-fpm.pid
 ExecStart=/usr/local/php/sbin/php-fpm --nodaemonize --fpm-config /usr/local/php/etc/php-fpm.conf
-ExecReload=/bin/kill -USR2 $MAINPID
-StandardOutput=syslog
-StandardError=syslog
-SyslogIdentifier=php-fpm
-TimeoutStartSec=300
-Restart=always
-StartLimitIntervalSec=500
-StartLimitBurst=5
 
 [Install]
 WantedBy=multi-user.target

@@ -14,14 +14,20 @@ cp -r "$CWD/assets/systemctl/django-huey.service" "/etc/systemd/system/huey.serv
 cp -r "$CWD/assets/systemctl/php-fpm.service" "/etc/systemd/system/php-fpm.service"
 cp -r "$CWD/assets/systemctl/php-fpm-pool.ini" "/usr/local/php/etc/php-fpm.d/www.conf"
 cp -r "$CWD/assets/systemctl/php-conf.ini" "/usr/local/php/etc/php-fpm.conf"
+cp -r "$CWD/.htaccess_nginx.conf" "/etc/nginx/sites-available/default"
 
 # Fix permission for services
 chmod 755 "$CWD/assets/systemctl"
 chown root:root "$CWD/assets/systemctl/start_gunicorn.sh"
 chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
+
 mkdir -p /run/php
+mkdir -p /var/log
+touch /var/log/php-fpm.log
+chmod 664 /var/log/php-fpm.log
 if id "www-data" &>/dev/null; then
   chown www-data:www-data /run/php
+  chown www-data:www-data /var/log/php-fpm.log
 else
   echo "User www-data does not exist. Skipping chown for /run/php."
 fi
