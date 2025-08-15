@@ -18998,6 +18998,18 @@ class Navbar extends React.Component {
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               Link,
               {
+                href: "/changelog",
+                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+                title: "Changelog",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-history mr-2" }),
+                  " Changelog"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Link,
+              {
                 href: "/contact",
                 className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
                 title: "Contact",
@@ -19115,7 +19127,7 @@ function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      const url = createUrl(`/data/git-history.json`, { v: "753107f1" });
+      const url = createUrl(`/data/git-history.json`, { v: "42dd91fc" });
       gitHistoryPromise = fetch(url).then((res) => {
         if (!res.ok) throw new Error("Failed to fetch git history");
         return res.json();
@@ -19513,6 +19525,23 @@ const Login = () => {
     )
   ] }) }) });
 };
+const NotFound = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col items-center justify-center min-h-[60vh] py-8 px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700", children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-6xl text-red-500 mb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa-duotone fa-circle-exclamation" }) }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-4xl font-bold text-gray-800 dark:text-white mb-1", children: "404" }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl text-gray-600 dark:text-gray-300 mb-2", children: "Page Not Found" }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 dark:text-gray-400 mb-4", children: "The page you are looking for does not exist." }),
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Link,
+    {
+      href: "/",
+      className: "inline-flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors font-medium shadow focus:outline-none focus:ring-2 focus:ring-blue-400",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa-duotone fa-house" }),
+        "Go to Home"
+      ]
+    }
+  )
+] }) });
 const OauthHandler = () => {
   const location2 = useLocation();
   const [result, setResult] = React.useState(null);
@@ -19782,7 +19811,8 @@ root.render(
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/settings", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/about", element: /* @__PURE__ */ jsxRuntimeExports.jsx(About, {}) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/contact", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Contact, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/changelog", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Changelog, {}) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/changelog", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Changelog, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "*", element: /* @__PURE__ */ jsxRuntimeExports.jsx(NotFound, {}) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Footer, {})
   ] }) }) })

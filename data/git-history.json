@@ -1,5 +1,39 @@
 [
   {
+    "hash": "42dd91fcb8bf417ef7528cc9ca2920c806e9f69d",
+    "date": "2025-08-15T09:37:50+07:00",
+    "message": "fix(php): update PHP version range",
+    "files": [
+      "bin/restart-server",
+      "bin/stop-server"
+    ]
+  },
+  {
+    "hash": "d28f7227c91f8e685d4ac05ed85229f8914a727b",
+    "date": "2025-08-15T09:33:35+07:00",
+    "message": "feat(docs): add guide for building SQLite from source on Linux",
+    "files": [
+      "readme-sqlite.md"
+    ]
+  },
+  {
+    "hash": "39bb6dee3487f10c9411a3a5504f45ed37135267",
+    "date": "2025-08-15T07:32:24+07:00",
+    "message": "fix(Navbar): remove unused state properties and clean up component",
+    "files": [
+      "src/react/components/Navbar.tsx"
+    ]
+  },
+  {
+    "hash": "634f6bd3fc01fae7108b8cc7c7ccd2df83a32303",
+    "date": "2025-08-15T07:29:42+07:00",
+    "message": "feat(pages): add NotFound component for 404 error handling",
+    "files": [
+      "src/react/index.tsx",
+      "src/react/pages/NotFound.tsx"
+    ]
+  },
+  {
     "hash": "753107f1d4d5fa7936c9ae6aaee5c77bdfa379e4",
     "date": "2025-08-15T07:22:08+07:00",
     "message": "feat(styles): add custom font-face rules and font output category\n\n- Added @font-face declarations for Ubuntu, Cera Pro, and JetBrains Mono fonts in tailwind.input.css.\n- Applied Ubuntu font to body, Cera Pro to headings, and JetBrains Mono to code elements.\n- Updated Vite config to alias /assets/fonts and output font files to assets/fonts in build.",
