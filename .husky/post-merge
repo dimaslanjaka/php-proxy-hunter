@@ -2,6 +2,7 @@
 
 # Determine the current script directory
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
+USER="www-data"
 
 # Set CWD to the root directory of the Git repository
 CWD=$(git rev-parse --show-toplevel)
@@ -42,11 +43,41 @@ else
 fi
 
 # Run composer update or install
+COMPOSER_LOCK="$CWD/composer.lock"
+COMPOSER_PHAR="$CWD/composer.phar"
+COMPOSER_ARGS="--no-dev --no-interaction"
+# Detect if running on a VPS or desktop
+IS_VPS=0
+if [ -f /sys/class/dmi/id/product_name ]; then
+  PRODUCT_NAME=$(cat /sys/class/dmi/id/product_name 2>/dev/null | tr '[:upper:]' '[:lower:]')
+  if echo "$PRODUCT_NAME" | grep -qE "vps|virtual|kvm|qemu|xen|vmware|hyper-v|cloud"; then
+    IS_VPS=1
+  fi
+fi
+
+if [ $IS_VPS -eq 1 ]; then
+  # only install production dependencies on VPS
+  echo "Detected VPS environment. Installing production dependencies only."
+  COMPOSER_ARGS="--no-dev --no-interaction"
+fi
+
+# Composer install/update (output redirected for debugging)
 if command -v php >/dev/null 2>&1; then
-  if [ -f "$CWD/composer.lock" ]; then
-    php composer.phar update
+  # Check if the user exists
+  if id -u "$USER" >/dev/null 2>&1; then
+    # Run composer commands as the specified user
+    if [ ! -f "$COMPOSER_LOCK" ]; then
+      su -s /bin/sh -c "php $COMPOSER_PHAR install $COMPOSER_ARGS" "$USER"
+    else
+      su -s /bin/sh -c "php $COMPOSER_PHAR update $COMPOSER_ARGS" "$USER"
+    fi
   else
-    php composer.phar install
+    # Run composer as current user if target user does not exist
+    if [ -f "$COMPOSER_LOCK" ]; then
+      php $COMPOSER_PHAR update $COMPOSER_ARGS
+    else
+      php $COMPOSER_PHAR install $COMPOSER_ARGS
+    fi
   fi
 else
   echo "Error: PHP is not installed. Skipping composer operations."
