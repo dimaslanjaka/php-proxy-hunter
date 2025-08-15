@@ -161,6 +161,7 @@ task install-php
 sudo crontab -u www-data -e    # Edit
 sudo crontab -u www-data -l    # List
 sudo crontab -u www-data .crontab.txt  # Apply from file
+sudo crontab -u www-data -r # remove all
 ```
 
 ---
