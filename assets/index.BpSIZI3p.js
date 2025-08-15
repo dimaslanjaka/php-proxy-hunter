@@ -19127,7 +19127,7 @@ function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      const url = createUrl(`/data/git-history.json`, { v: "9f3d2641" });
+      const url = createUrl(`/data/git-history.json`, { v: "08d7b7a3" });
       gitHistoryPromise = fetch(url).then((res) => {
         if (!res.ok) throw new Error("Failed to fetch git history");
         return res.json();

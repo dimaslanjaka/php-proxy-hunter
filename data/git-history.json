@@ -1,5 +1,29 @@
 [
   {
+    "hash": "08d7b7a3344c65572f5627be052784da69ec7ae8",
+    "date": "2025-08-15T18:59:08+07:00",
+    "message": "fix: use file path without query string for file operations\n\nUpdate file_exists, finfo_file, and readfile to use the path without query parameters, ensuring correct file detection and serving when query strings are present.",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
+    "hash": "44665bf889b9b9af909061bf90161aebac3cc392",
+    "date": "2025-08-15T18:57:21+07:00",
+    "message": "fix: correctly detect file extension by removing query string from file path\n\nUse parse_url to extract the path before checking the file extension, ensuring files with query parameters are handled properly.",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
+    "hash": "84b077a4362821f78941dbddf9f37cc388b1abba",
+    "date": "2025-08-15T18:54:07+07:00",
+    "message": "fix(index.php): decode URL for asset and data routing to handle special characters",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
     "hash": "9f3d26414dab84e73e625d195871dd024a2618cb",
     "date": "2025-08-15T18:44:19+07:00",
     "message": "fix(index-html-replacement): improve file copy logic to handle empty source files",
