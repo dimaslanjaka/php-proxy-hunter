@@ -2672,6 +2672,43 @@
     }
   }
 }
+@font-face {
+  font-family: 'Ubuntu';
+  src: url('/php-proxy-hunter/assets/fonts/Ubuntu-R-webfont.47rzPAWy.woff') format('woff'), url('/php-proxy-hunter/assets/fonts/Ubuntu-R-webfont.DDbgjL-A.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ubuntu';
+  src: url('/php-proxy-hunter/assets/fonts/Ubuntu-B-webfont.CiYMjqr0.woff') format('woff'), url('/php-proxy-hunter/assets/fonts/Ubuntu-B-webfont.B-VIdUiY.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+body {
+  font-family: 'Ubuntu', sans-serif;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/php-proxy-hunter/assets/fonts/Cera%20Pro.Dlw4E1E7.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+h1, h2, h3, h4, h5, h6, .font-cera {
+  font-family: 'Cera Pro', sans-serif;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/php-proxy-hunter/assets/fonts/JetBrainsMono-Regular.BQaDgvhP.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+pre, code, kbd, samp, .font-jetbrains {
+  font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
+}
 @layer components {
   .disabled {
     cursor: not-allowed;

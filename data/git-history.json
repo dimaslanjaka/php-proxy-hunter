@@ -1,5 +1,32 @@
 [
   {
+    "hash": "753107f1d4d5fa7936c9ae6aaee5c77bdfa379e4",
+    "date": "2025-08-15T07:22:08+07:00",
+    "message": "feat(styles): add custom font-face rules and font output category\n\n- Added @font-face declarations for Ubuntu, Cera Pro, and JetBrains Mono fonts in tailwind.input.css.\n- Applied Ubuntu font to body, Cera Pro to headings, and JetBrains Mono to code elements.\n- Updated Vite config to alias /assets/fonts and output font files to assets/fonts in build.",
+    "files": [
+      "tailwind.input.css",
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "9a2e7380fbcc39e799fd08df51579102629beb56",
+    "date": "2025-08-15T07:18:58+07:00",
+    "message": "feat(build): extract Tailwind CSS build logic to separate script and update usage\n\n- Moved Tailwind CSS build logic to new `tailwind.build.js` file with proper JSDoc and CLI support.\n- Updated `build:tailwind` npm script to use `node tailwind.build.js` instead of direct npx command.\n- Refactored `vite-plugin.js` to import and use the new `buildTailwind` function, improving code reuse and maintainability.",
+    "files": [
+      "package.json",
+      "tailwind.build.js",
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "3205937c9e1b6b00ef6c207b3fcf54b356aeb767",
+    "date": "2025-08-15T06:50:46+07:00",
+    "message": "fix(vite): wrap git commit hash in quotes for proper string definition",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "cae9b09753c5ff0b8a209f354f6dc96482034dd7",
     "date": "2025-08-15T06:47:42+07:00",
     "message": "feat(utils): allow dynamic backend hostname injection in createUrl and add tests\n\n- Refactor `createUrl` to accept optional `opts` parameter for backendDev and backendProd hostnames, enabling dynamic injection for testability.\n- Update JSDoc for `createUrl` to document new options and behavior.\n- Fallback to Vite env variables if options are not provided.\n- Add comprehensive Vitest test suite for `createUrl` covering:\n  - index.html appending for directory paths\n  - origin usage for non-PHP paths\n  - query parameter appending\n  - viteBaseUrl handling\n  - backend hostname selection for PHP files, with injected values for dev/prod",
