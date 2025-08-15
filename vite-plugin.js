@@ -1,7 +1,12 @@
 import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'upath';
+import { fileURLToPath } from 'url';
 import { buildTailwind } from './tailwind.build.js';
+
+// Fixes __dirname for ESM modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Vite plugin to build Tailwind CSS using the Tailwind CLI.
@@ -26,6 +31,20 @@ export function TailwindCSSBuildPlugin() {
 }
 
 /**
+ * Copies index.dev.html to index.html for development mode.
+ * Ensures the dev server uses index.dev.html content as index.html.
+ * In production, index.html is generated in dist/react and index.dev.html is ignored.
+ */
+export function copyIndexHtml() {
+  // Copy index.dev.html to index.html for development mode.
+  // Do not remove: ensures dev server uses index.dev.html content as index.html.
+  // In production, index.html is generated in dist/react and index.dev.html is ignored.
+  const devHtml = path.join(__dirname, 'index.dev.html');
+  const prodHtml = path.join(__dirname, 'index.html');
+  fs.copyFileSync(devHtml, prodHtml);
+}
+
+/**
  * Vite plugin to replace the index.html with index.dev.html for certain routes during dev server.
  * @returns {import('vite').Plugin}
  */
@@ -36,12 +55,7 @@ export function indexHtmlReplacementPlugin() {
     name: 'index-html-replacement',
     configResolved(config) {
       viteConfig = config;
-      // Copy index.dev.html to index.html for development mode.
-      // Do not remove: ensures dev server uses index.dev.html content as index.html.
-      // In production, index.html is generated in dist/react and index.dev.html is ignored.
-      const devHtml = path.join(__dirname, 'index.dev.html');
-      const prodHtml = path.join(__dirname, 'index.html');
-      fs.copyFileSync(devHtml, prodHtml);
+      copyIndexHtml();
 
       // Execute git history builder
       spawnSync(

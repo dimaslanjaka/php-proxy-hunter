@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { build } from 'vite';
 import routes from './src/react/routes.json' with { type: 'json' };
 import viteConfig from './vite-gh-pages.config.js';
+import { copyIndexHtml } from './vite-plugin.js';
 
 // Fixes __dirname for ESM modules
 const __filename = fileURLToPath(import.meta.url);
@@ -22,14 +23,7 @@ async function buildForGithubPages() {
     console.log(`Cleaned output directory: ${viteConfig.build.outDir}`);
   }
   // Copy index.dev.html to index.html
-  const indexDevPath = path.join(__dirname, 'index.dev.html');
-  const indexPath = path.join(__dirname, 'index.html');
-  if (fs.existsSync(indexDevPath)) {
-    fs.copyFileSync(indexDevPath, indexPath);
-    console.log(`Copied ${path.relative(process.cwd(), indexDevPath)} to ${path.relative(process.cwd(), indexPath)}`);
-  } else {
-    throw new Error(`Error: ${path.relative(process.cwd(), indexDevPath)} does not exist. Cannot proceed with build.`);
-  }
+  copyIndexHtml();
   // Build the project
   try {
     await build(viteConfig);
