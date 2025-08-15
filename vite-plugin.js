@@ -74,11 +74,16 @@ export function indexHtmlReplacementPlugin() {
         // Copy compiled index.html to the project directory for production.
         const src = path.join(__dirname, 'dist/react/index.html');
         const dest = path.join(__dirname, 'index.html');
-        if (fs.existsSync(src) && fs.statSync(src).size > 0) {
-          fs.copySync(src, dest, { overwrite: true });
-          console.log(`Copied ${src} to ${dest}`);
+        if (fs.existsSync(src)) {
+          const stat = fs.statSync(src);
+          if (stat.size > 0) {
+            fs.copySync(src, dest, { overwrite: true });
+            console.log(`Copied ${src} to ${dest}`);
+          } else {
+            console.warn(`Source file "${src}" is empty. Skipping copy.`);
+          }
         } else {
-          console.warn(`Source file "${src}" does not exist or is empty. Skipping copy.`);
+          console.warn(`Source file "${src}" does not exist. Skipping copy.`);
         }
       }
     }
