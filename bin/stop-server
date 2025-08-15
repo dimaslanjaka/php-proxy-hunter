@@ -22,7 +22,7 @@ chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
 sudo systemctl daemon-reload
 
 # Check and stop PHP-FPM services if installed
-php_versions=("7.2" "7.4" "8.0")
+php_versions=("7.2" "7.3" "7.4" "8.0" "8.1" "8.2" "8.3" "8.4" "8.5")
 
 # Iterate over each PHP version
 for version in "${php_versions[@]}"; do
