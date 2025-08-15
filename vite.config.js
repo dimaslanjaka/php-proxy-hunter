@@ -24,7 +24,8 @@ export const viteConfig = defineConfig({
   plugins: [TailwindCSSBuildPlugin(), react(), mkcert(), indexHtmlReplacementPlugin()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src')
+      '@': path.resolve(__dirname, 'src'),
+      '/assets/fonts': path.resolve(__dirname, 'assets/fonts')
     }
   },
   build: {
@@ -47,7 +48,7 @@ export const viteConfig = defineConfig({
         entryFileNames: `assets/[name].[hash].js`,
         chunkFileNames: `assets/[name].[hash].js`,
         assetFileNames: (assetInfo) => {
-          // Group assets by type: json, images, css, other
+          // Group assets by type: fonts, json, images, css, other
           let names = [];
           if (Array.isArray(assetInfo.names) && assetInfo.names.length > 0) {
             names = assetInfo.names;
@@ -55,6 +56,11 @@ export const viteConfig = defineConfig({
             names = [assetInfo.name];
           }
           // Check all possible names for type
+          for (const name of names) {
+            if (/\.(woff2?|ttf|otf|eot)$/i.test(name)) {
+              return `assets/fonts/[name].[hash][extname]`;
+            }
+          }
           for (const name of names) {
             if (/\.css$/i.test(name)) {
               return `assets/css/[name].[hash][extname]`;
