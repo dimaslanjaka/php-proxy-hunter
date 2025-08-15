@@ -11,8 +11,11 @@ touch "$CWD/assets/systemctl/index.html"
 # Copy services config to /etc/systemd/system
 cp -r "$CWD/assets/systemctl/gunicorn.service" "/etc/systemd/system/gunicorn.service"
 cp -r "$CWD/assets/systemctl/django-huey.service" "/etc/systemd/system/huey.service"
+cp -r "$CWD/assets/systemctl/php-fpm.service" "/etc/systemd/system/php-fpm.service"
+cp -r "$CWD/assets/systemctl/php-fpm-pool.ini" "/usr/local/php/etc/php-fpm.d/www.conf"
+cp -r "$CWD/assets/systemctl/php-conf.ini" "/usr/local/php/etc/php-fpm.conf"
 
-# Fix permission for gunicorn services
+# Fix permission for services
 chmod 755 "$CWD/assets/systemctl"
 chown root:root "$CWD/assets/systemctl/start_gunicorn.sh"
 chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
@@ -20,20 +23,32 @@ chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
 # Reload daemon
 sudo systemctl daemon-reload
 
-# Check and start/restart PHP-FPM services if installed
+# _____PHP-FPM Service Handling_____
+
+# Check and stop OLD PHP-FPM services if installed
 php_versions=("7.2" "7.3" "7.4" "8.0" "8.1" "8.2" "8.3" "8.4" "8.5")
 
 for version in "${php_versions[@]}"; do
     if systemctl is-active --quiet php${version}-fpm; then
-        sudo systemctl restart php${version}-fpm
-        echo "Restarted PHP ${version} FPM"
-    elif systemctl is-enabled --quiet php${version}-fpm; then
-        sudo systemctl start php${version}-fpm
-        echo "Started PHP ${version} FPM"
+        sudo systemctl stop php${version}-fpm
+        echo "Stopped PHP ${version} FPM"
     else
-        echo "PHP ${version} FPM is not installed."
+        echo "PHP ${version} FPM is not running or not installed."
     fi
 done
+
+# Start PHP-FPM service
+if systemctl is-active --quiet php-fpm; then
+    sudo systemctl restart php-fpm
+    echo "Restarted PHP-FPM service"
+elif systemctl is-enabled --quiet php-fpm; then
+    sudo systemctl start php-fpm
+    echo "Started PHP-FPM service"
+else
+    echo "PHP-FPM service is not installed."
+fi
+
+# ______Nginx Service Handling_____
 
 # Check Nginx service status
 sudo nginx -t
@@ -45,6 +60,8 @@ else
     echo "Started Nginx"
 fi
 
+# _____Gunicorn Service Handling_____
+
 # Check Gunicorn service status
 if systemctl is-active --quiet gunicorn; then
     sudo systemctl restart gunicorn
@@ -53,6 +70,8 @@ else
     sudo systemctl start gunicorn
     echo "Started Gunicorn service"
 fi
+
+# _____Huey Service Handling_____
 
 # Check Huey service status
 if systemctl is-active --quiet huey; then

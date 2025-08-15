@@ -1,84 +1,123 @@
 # Documentation for PHP Proxy Hunter
 
-> Old version:
->
-> [PHP 7.4 installation guide](./docs/readme-php7.4.md)
+## Install required libraries
 
-## Requirement PHP extensions
+```bash
+sudo apt update -y
+sudo apt install -y build-essential libxml2-dev libcurl4-openssl-dev libjpeg-dev libpng-dev libmcrypt-dev libmysqlclient-dev libfreetype6-dev libicu-dev libxpm-dev libjpeg8-dev libpng16-16 libzip-dev libssl-dev pkg-config libonig-dev libpspell-dev perl curl wget
+sudo apt install -y build-essential autoconf libtool bison re2c pkg-config
+```
+
+### Install php7.4 in ubuntu
+
+1.  Open the `sources.list` file with a text editor (for example `nano`):
+
+```bash
+sudo nano /etc/apt/sources.list
+```
+
+2.  Add the following lines to the file:
+
+```bash
+deb https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main
+# deb-src https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main
+```
+
+3.  Add the repository signing key:
+
+```bash
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4f4ea0aae5267a6c
+```
+
+4. Install PHP
+
+```bash
+sudo rm -rf /var/lib/apt/lists/*
+sudo apt update
+sudo apt install -y php7.4 php7.4-common php7.4-opcache php7.4-cli php7.4-gd php7.4-curl php7.3-mysql php7.4-sqlite3
+```
+
+### Install php7.4 in ubuntu (from source - advanced)
+
+> **Note:** If you update or change any configuration or source files during the installation process, you must restart the steps from the beginning to ensure all changes are applied correctly.
 
 - pdo_sqlite
 - php_zip
 - php_intl
 
-## Install required libraries
-
 ```bash
-sudo apt update -y
-sudo apt install -y autoconf bison build-essential curl libbz2-dev libcurl4-openssl-dev libfreetype6-dev libicu-dev libjpeg-dev libjpeg8-dev libmcrypt-dev libmysqlclient-dev libonig-dev libpng-dev libpng16-16 libpq-dev libpspell-dev libreadline-dev libsodium-dev libssl-dev libtool libwebp-dev libxml2-dev libxpm-dev libxslt1-dev libzip-dev perl pkg-config re2c unzip wget zlib1g-dev
-```
+cd /tmp
+sudo apt-get update -y
+sudo apt install -y unzip libicu-dev wget build-essential libxml2-dev libssl-dev libcurl4-openssl-dev libpng-dev libjpeg-dev libfreetype6-dev libzip-dev libonig-dev libsqlite3-dev libbz2-dev libreadline-dev pkg-config autoconf bison re2c zlib1g-dev libxslt1-dev libwebp-dev libpq-dev libsodium-dev
+# for apache2
+# sudo apt install -y apache2-dev
+export LD_LIBRARY_PATH=/usr/local/lib:/usr/lib/x86_64-linux-gnu
 
-> `sqlite3`, `libsqlite3-dev` install when you not build sqlite from source
+# Install from dist
+# wget https://www.php.net/distributions/php-7.4.30.tar.gz
+# tar -zxvf php-7.4.30.tar.gz
+# cd php-7.4.30
 
-### Install php in ubuntu from source
-
-```bash
-echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/local-sqlite.conf
-sudo ldconfig
-
-export CPPFLAGS="-I/usr/local/include"
-export LDFLAGS="-L/usr/local/lib"
-export LD_LIBRARY_PATH="/usr/local/lib"
-
-git clone https://github.com/php/php-src.git --depth 1 --branch php-8.4.11
-cd php-src
+# Install from github
+# git clone --depth 1 --branch=master https://github.com/php/php-src php-src
+wget https://github.com/php/php-src/archive/refs/tags/php-7.4.33.tar.gz
+tar -zxvf php-7.4.33.tar.gz
+cd php-src-php-7.4.33
 
 # cleanup builds
 make clean
 make distclean
 ./buildconf --force
 
-./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --enable-bcmath --enable-calendar --enable-exif --enable-ftp=shared --enable-intl --enable-mbstring --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm --with-curl --with-libdir=/lib/x86_64-linux-gnu --with-mysqli --with-openssl --with-pdo-mysql --with-pdo-sqlite --with-sqlite3 --with-readline --with-libxml --with-zlib --with-sodium --with-zip --with-bz2 --enable-fpm
+# configuring makefile
+./configure --prefix=/usr/local/php7.4 --with-config-file-path=/usr/local/php7.4/etc --enable-bcmath --enable-calendar --enable-exif --enable-ftp=shared --enable-intl --enable-mbstring --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm --with-curl --with-libdir=/lib/x86_64-linux-gnu --with-mysqli --with-openssl --with-pdo-mysql --with-pdo-sqlite --with-sqlite3 --with-readline --with-libxml --with-zlib --with-sodium --with-zip --with-bz2 --enable-fpm
+
+# for apache2
+# ./configure --prefix=/usr/local/php7.4 --with-config-file-path=/usr/local/php7.4/etc --enable-bcmath --enable-calendar --enable-exif --enable-ftp=shared --enable-intl --enable-mbstring --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvsem --enable-sysvshm --with-curl --with-libdir=/lib/x86_64-linux-gnu --with-mysqli --with-openssl --with-pdo-mysql --with-pdo-sqlite --with-sqlite3 --with-readline --with-libxml --with-zlib --with-sodium --with-zip --with-bz2 --with-apxs2=/usr/bin/apxs
 
 make -j $(nproc)
 sudo make install
 
 # verify installation
-/usr/local/php/bin/php -v
-/usr/local/php/sbin/php-fpm -v
+/usr/local/php7.4/bin/php -v
+/usr/local/php7.4/sbin/php-fpm -v
+
+# for apache2 rebuild manual module
+# /usr/bin/apxs2 -i -a -n php7 /usr/local/php7.4/bin/php
 
 # bind to system
-sudo ln -sf /usr/local/php/bin/php /usr/bin/php
+sudo ln -sf /usr/local/php7.4/bin/php /usr/bin/php
 
 # copy php-fpm
-cp sapi/fpm/php-fpm.conf /usr/local/php/etc/php-fpm.conf
-mkdir -p /usr/local/php/etc/php-fpm.d
-cp sapi/fpm/www.conf /usr/local/php/etc/php-fpm.d/
+cp sapi/fpm/php-fpm.conf /usr/local/php7.4/etc/php-fpm.conf
+mkdir -p /usr/local/php7.4/etc/php-fpm.d
+cp sapi/fpm/www.conf /usr/local/php7.4/etc/php-fpm.d/
 cp sapi/fpm/php-fpm /usr/local/bin/php-fpm
 chmod +x /usr/local/bin/php-fpm
-sudo cp sapi/fpm/php-fpm.service /etc/systemd/system/php-fpm.service
+sudo cp sapi/fpm/php-fpm.service /etc/systemd/system/php7.4-fpm.service
 ```
 
 #### Configure php-fpm (if applicable)
 
 see [/assets/systemctl](/assets/systemctl) for the configs
 
-> editing `php-fpm.service` carefully
+> editing `php7.4-fpm.service` carefully
 
 ```bash
 sudo mkdir -p /run/php
 sudo chown -R www-data:www-data /run/php
-sudo chown -R www-data:www-data /usr/local/php/var/log
+sudo chown -R www-data:www-data /usr/local/php7.4/var/log
 
 # test
-/usr/local/php/sbin/php-fpm --test --fpm-config /usr/local/php/etc/php-fpm.conf
-/usr/local/php/sbin/php-fpm --nodaemonize --fpm-config /usr/local/php/etc/php-fpm.conf
+/usr/local/php7.4/sbin/php-fpm --test --fpm-config /usr/local/php7.4/etc/php-fpm.conf
+/usr/local/php7.4/sbin/php-fpm --nodaemonize --fpm-config /usr/local/php7.4/etc/php-fpm.conf
 
 # enable php-fpm
 sudo systemctl daemon-reload
-systemctl reset-failed php-fpm
-sudo systemctl enable php-fpm
-sudo systemctl start php-fpm
-sudo systemctl status php-fpm
+systemctl reset-failed php7.4-fpm
+sudo systemctl enable php7.4-fpm
+sudo systemctl start php7.4-fpm
+sudo systemctl status php7.4-fpm
 ```
 
 see [.htaccess_nginx](./.htaccess_nginx) to modify nginx config in `/etc/nginx/sites-enabled/default`
@@ -121,7 +160,7 @@ If you see an error like:
 
 ```text
 /usr/bin/ld: ext/pdo_sqlite/.libs/sqlite_statement.o: in function `pdo_sqlite_stmt_col_meta':
-/usr/local/src/php-src-php-7.4.33/ext/pdo_sqlite/sqlite_statement.c:379: undefined reference to `sqlite3_column_table_name'
+/tmp/php-src-php-7.4.33/ext/pdo_sqlite/sqlite_statement.c:379: undefined reference to `sqlite3_column_table_name'
 collect2: error: ld returned 1 exit status
 make: *** [Makefile:288: sapi/cli/php] Error 1
 ```
@@ -155,22 +194,15 @@ This means PHP is not linking against the correct (new) SQLite library. To fix:
    # Should show /usr/local/lib/libsqlite3.so.0
    ```
 
-If it still fails, [build the sqlite from source](./readme-sqlite.md)
+If it still fails, ensure no old SQLite dev packages are interfering (e.g., try removing `libsqlite3-dev` if you built from source).
 
 ```bash
-sudo apt remove -y --purge sqlite3 libsqlite3-dev
-sudo apt autoremove -y
-cd /usr/local/src
-wget https://www.sqlite.org/2023/sqlite-autoconf-3410200.tar.gz
-tar xvzf sqlite-autoconf-3410200.tar.gz
-cd sqlite-autoconf-3410200/
-CFLAGS="-O2 -DSQLITE_ENABLE_COLUMN_METADATA=1" ./configure
-make
-sudo make install
+sudo apt-get remove --purge libsqlite3-dev -y
+sudo ldconfig
+export CPPFLAGS="-I/usr/local/include"
+export LDFLAGS="-L/usr/local/lib"
+export LD_LIBRARY_PATH="/usr/local/lib"
 ```
-
-another sqlite versions:
-- https://sqlite.org/2025/sqlite-src-3500400.zip
 
 ### Troubleshoot pdo_sqlite.so error
 
