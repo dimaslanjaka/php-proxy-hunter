@@ -30,9 +30,11 @@ export function TailwindCSSBuildPlugin() {
  * @returns {import('vite').Plugin}
  */
 export function indexHtmlReplacementPlugin() {
+  let viteConfig;
   return {
     name: 'index-html-replacement',
     configResolved(config) {
+      viteConfig = config;
       if (config.command === 'serve') {
         // Copy index.dev.html to index.html for development mode.
         // Do not remove: ensures dev server uses index.dev.html content as index.html.
@@ -56,9 +58,13 @@ export function indexHtmlReplacementPlugin() {
     },
     closeBundle() {
       // Copy compiled index.html to the project directory for production.
-      fs.copySync(path.join(process.cwd(), 'dist/react/index.html'), path.join(process.cwd(), 'index.html'), {
-        overwrite: true
-      });
+      const src = path.join(process.cwd(), 'dist/react/index.html');
+      const dest = path.join(process.cwd(), 'index.html');
+      if (fs.existsSync(src) && fs.statSync(src).size > 0) {
+        fs.copySync(src, dest, { overwrite: true });
+      } else {
+        console.warn(`Source file "${src}" does not exist or is empty. Skipping copy.`);
+      }
     }
     // /**
     //  * Configures the dev server to serve index.dev.html for specific routes.
