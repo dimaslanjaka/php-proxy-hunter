@@ -42,3 +42,18 @@ indent_style = tab
 # Batch files use tabs for indentation
 [*.bat]
 indent_style = tab
+
+# Bash and shell scripts
+[*.{sh,bash}]
+# like -i=4
+indent_style = space
+indent_size = 4
+
+shell_variant      = posix # like -ln=posix
+binary_next_line   = true  # like -bn
+switch_case_indent = true  # like -ci
+space_redirects    = true  # like -sr
+keep_padding       = true  # like -kp
+function_next_line = true  # like -fn
+never_split        = true  # like -ns
+

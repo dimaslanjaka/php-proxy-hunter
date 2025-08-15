@@ -307,5 +307,19 @@
   "testing.followRunningTest": true,
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "typescript.updateImportsOnPaste.enabled": false
+  "typescript.updateImportsOnPaste.enabled": false,
+  "shellformat.useEditorConfig": true,
+  "shellformat.effectLanguages": [
+    "shellscript",
+    "dockerfile",
+    "dotenv",
+    "hosts",
+    "jvmoptions",
+    "ignore",
+    "gitignore",
+    "properties",
+    "spring-boot-properties",
+    "azcli",
+    "bats"
+  ]
 }
