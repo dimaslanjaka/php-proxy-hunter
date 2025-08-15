@@ -197,7 +197,7 @@ class HtmlDocument
   ) {
     $this->clear();
 
-    $this->doc = trim($str);
+    $this->doc = trim(is_string($str) ? $str : '');
     $this->size = strlen($this->doc);
     $this->original_size = $this->size; // original size of the html
     $this->pos = 0;
@@ -257,16 +257,16 @@ class HtmlDocument
       // malicious software
       if (strlen($text) > $pos + 15) {
         $key = '___noise___'
-                    . $text[$pos + 11]
-                    . $text[$pos + 12]
-                    . $text[$pos + 13]
-                    . $text[$pos + 14]
-                    . $text[$pos + 15];
+          . $text[$pos + 11]
+          . $text[$pos + 12]
+          . $text[$pos + 13]
+          . $text[$pos + 14]
+          . $text[$pos + 15];
 
         if (isset($this->noise[$key])) {
           $text = substr($text, 0, $pos)
-                        . $this->noise[$key]
-                        . substr($text, $pos + 16);
+            . $this->noise[$key]
+            . substr($text, $pos + 16);
 
           unset($this->noise[$key]);
         } else {
@@ -274,17 +274,17 @@ class HtmlDocument
           // do this to prevent an infinite loop.
           // FIXME: THis causes an infinite loop because the keyword ___NOISE___ is included in the key!
           $text = substr($text, 0, $pos)
-                        . 'UNDEFINED NOISE FOR KEY: '
-                        . $key
-                        . substr($text, $pos + 16);
+            . 'UNDEFINED NOISE FOR KEY: '
+            . $key
+            . substr($text, $pos + 16);
         }
       } else {
         // There is no valid key being given back to us... We must get
         // rid of the ___noise___ or we will have a problem.
         Debug::log_once('Noise restoration failed. The provided key is incomplete: ' . $text);
         $text = substr($text, 0, $pos)
-                    . 'NO NUMERIC NOISE KEY'
-                    . substr($text, $pos + 11);
+          . 'NO NUMERIC NOISE KEY'
+          . substr($text, $pos + 11);
       }
     }
 
@@ -897,8 +897,8 @@ class HtmlDocument
     // Since CP1252 is a superset, if we get one of it's subsets, we want
     // it instead.
     if (('iso-8859-1' == strtolower($charset))
-            || ('latin1' == strtolower($charset))
-            || ('latin-1' == strtolower($charset))
+      || ('latin1' == strtolower($charset))
+      || ('latin-1' == strtolower($charset))
     ) {
       $charset = 'CP1252';
     }
