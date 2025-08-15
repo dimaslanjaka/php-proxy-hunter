@@ -53,19 +53,19 @@ if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUES
     echo '403 Forbidden: The requested file type is not allowed.';
     exit;
   }
-  if (file_exists($filePath)) {
+  if (file_exists($pathOnly)) {
     if ($ext === 'js') {
       $mimeType = 'application/javascript';
     } elseif ($ext === 'css') {
       $mimeType = 'text/css';
     } else {
       $finfo = finfo_open(FILEINFO_MIME_TYPE);
-      $mimeType = finfo_file($finfo, $filePath);
+      $mimeType = finfo_file($finfo, $pathOnly);
       finfo_close($finfo);
     }
     header('Content-Type: ' . $mimeType);
 
-    readfile($filePath);
+    readfile($pathOnly);
     exit;
   } else {
     http_response_code(404);
