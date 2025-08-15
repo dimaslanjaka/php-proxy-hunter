@@ -17,18 +17,50 @@ if (in_array($_SERVER['HTTP_HOST'], $localhosts)) {
   ini_set('display_errors', 0);
 }
 
-if (in_array($_SERVER['HTTP_HOST'], $localhosts)) {
-  // Read index.dev.html for local development
-  $indexFile = __DIR__ . '/index.dev.html';
-  if (file_exists($indexFile)) {
-    readfile($indexFile);
+// Route /assets and /data to dist/assets and dist/data with auto MIME type, allow only specific file types
+if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUEST_URI'], '/data/') === 0) {
+  $filePath = __DIR__ . '/dist' . $_SERVER['REQUEST_URI'];
+  $allowedExtensions = [
+    'json',
+    'txt',
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'bmp',
+    'webp',
+    'svg',
+    'ico',
+    'xml',
+    'xsl',
+    'jsonc'
+  ];
+  $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+  if (!in_array($ext, $allowedExtensions, true)) {
+    http_response_code(403);
+    echo '403 Forbidden';
     exit;
   }
+  if (file_exists($filePath)) {
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $filePath);
+    finfo_close($finfo);
+    header('Content-Type: ' . $mimeType);
+    readfile($filePath);
+    exit;
+  } else {
+    http_response_code(404);
+    echo '404 Not Found';
+    exit;
+  }
+}
+
+$indexFile = __DIR__ . '/index.html';
+if (file_exists($indexFile)) {
+  readfile($indexFile);
+  exit;
 } else {
-  // Read index.html for production
-  $indexFile = __DIR__ . '/dist/react/index.html';
-  if (file_exists($indexFile)) {
-    readfile($indexFile);
-    exit;
-  }
+  http_response_code(404);
+  echo '404 Not Found';
+  exit;
 }
