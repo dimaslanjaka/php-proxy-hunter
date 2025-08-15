@@ -457,7 +457,7 @@ function curlGetCache($url): string
  * @param string $cacheDir The directory where cached responses will be stored. Defaults to './.cache/' in the current directory.
  * @return string|false The response content or false on failure.
  */
-function curlGetWithProxy(string $url, string $proxy = null, ?string $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/')
+function curlGetWithProxy(string $url, ?string $proxy = null, ?string $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/')
 {
   // Generate cache file path based on URL
   if (!file_exists($cacheDir)) {
