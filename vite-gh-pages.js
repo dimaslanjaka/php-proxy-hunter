@@ -21,6 +21,15 @@ async function buildForGithubPages() {
     fs.rmSync(viteConfig.build.outDir, { recursive: true, force: true });
     console.log(`Cleaned output directory: ${viteConfig.build.outDir}`);
   }
+  // Copy index.dev.html to index.html
+  const indexDevPath = path.join(__dirname, 'index.dev.html');
+  const indexPath = path.join(__dirname, 'index.html');
+  if (fs.existsSync(indexDevPath)) {
+    fs.copyFileSync(indexDevPath, indexPath);
+    console.log(`Copied ${path.relative(process.cwd(), indexDevPath)} to ${path.relative(process.cwd(), indexPath)}`);
+  } else {
+    throw new Error(`Error: ${path.relative(process.cwd(), indexDevPath)} does not exist. Cannot proceed with build.`);
+  }
   // Build the project
   try {
     await build(viteConfig);
