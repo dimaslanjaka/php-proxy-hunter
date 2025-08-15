@@ -36,7 +36,7 @@ if [ -f "$CWD/.gitmodules" ]; then
   # Update submodules
   if [ $IS_VPS -eq 1 ]; then
     # Always update submodule to latest commit on VPS
-    npx --yes binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz submodule-install
+    npx --yes binary-collections submodule-install
   else
     git submodule update --init --recursive || {
       echo "Failed to update submodules"
