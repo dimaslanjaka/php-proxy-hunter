@@ -1,0 +1,104 @@
+name: Build PHP FPM
+
+on:
+  workflow_dispatch: # Run manually from Actions tab
+  push:
+    paths:
+      - .github/workflows/build-php.yml # Trigger on changes to this workflow file
+      - readme-php.md # Trigger on changes to PHP README
+      - readme-sqlite.md # Trigger on changes to SQLite README
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential autoconf bison re2c pkg-config wget curl \
+            libxml2-dev libssl-dev libcurl4-openssl-dev \
+            libbz2-dev libzip-dev libicu-dev libreadline-dev \
+            libsodium-dev zlib1g-dev
+
+      - name: Build SQLite
+        run: |
+          SQLITE_VER=3460000
+          wget https://www.sqlite.org/2024/sqlite-autoconf-${SQLITE_VER}.tar.gz
+          tar xzf sqlite-autoconf-${SQLITE_VER}.tar.gz
+          cd sqlite-autoconf-${SQLITE_VER}
+          CFLAGS="-O2 -DSQLITE_ENABLE_COLUMN_METADATA=1" ./configure --prefix=/usr/local/sqlite
+          make -j$(nproc)
+          sudo make install
+          echo "/usr/local/sqlite/lib" | sudo tee /etc/ld.so.conf.d/sqlite3.conf
+          sudo ldconfig
+
+      - name: Checkout PHP source
+        run: |
+          git clone --depth=1 https://github.com/php/php-src.git -b php-8.4.11 php-src
+          cd php-src
+          ./buildconf --force
+
+      - name: Configure PHP
+        working-directory: php-src
+        run: |
+          ./configure \
+            --prefix=/usr/local/php \
+            --with-config-file-path=/usr/local/php/etc \
+            --enable-bcmath \
+            --enable-calendar \
+            --enable-exif \
+            --enable-ftp=shared \
+            --enable-intl \
+            --enable-mbstring \
+            --enable-soap \
+            --enable-sockets \
+            --enable-sysvmsg \
+            --enable-sysvsem \
+            --enable-sysvshm \
+            --with-curl \
+            --with-libdir=/lib/x86_64-linux-gnu \
+            --with-mysqli \
+            --with-openssl \
+            --with-pdo-mysql \
+            --with-pdo-sqlite=/usr/local/sqlite \
+            --with-sqlite3=/usr/local/sqlite \
+            --with-readline \
+            --with-libxml \
+            --with-zlib \
+            --with-sodium \
+            --with-zip \
+            --with-bz2 \
+            --enable-fpm
+
+      - name: Build PHP
+        working-directory: php-src
+        run: make -j$(nproc)
+
+      - name: Install into staging dir (PHP)
+        working-directory: php-src
+        run: make install DESTDIR=$GITHUB_WORKSPACE/stage
+
+      - name: Copy SQLite into staging dir
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/stage/usr/local
+          cp -a /usr/local/sqlite $GITHUB_WORKSPACE/stage/usr/local/
+
+      - name: Package artifact
+        run: |
+          cd stage
+          tar -czf ../php-fpm-build.tar.gz usr
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-fpm-build
+          path: php-fpm-build.tar.gz
+# 🔹 After build
+# Download the artifact from GitHub Actions (php-fpm-build.tar.gz).
+# Upload it to your VPS.
+# Extract it into / (since we preserved /usr/local/php prefix inside usr/):
+# sudo tar -xzf php-fpm-build.tar.gz -C /
+# Verify the installation:
+# /usr/local/php/sbin/php-fpm -v
