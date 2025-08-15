@@ -19,7 +19,7 @@ if (in_array($_SERVER['HTTP_HOST'], $localhosts)) {
 
 // Route /assets and /data to dist/assets and dist/data with auto MIME type, allow only specific file types
 if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUEST_URI'], '/data/') === 0) {
-  $filePath = __DIR__ . '/dist/react' . $_SERVER['REQUEST_URI'];
+  $filePath = __DIR__ . '/dist/react' . urldecode($_SERVER['REQUEST_URI']);
   $allowedExtensions = [
     'json',
     'txt',
