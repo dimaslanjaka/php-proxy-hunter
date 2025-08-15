@@ -19,6 +19,12 @@ cp -r "$CWD/assets/systemctl/php-conf.ini" "/usr/local/php/etc/php-fpm.conf"
 chmod 755 "$CWD/assets/systemctl"
 chown root:root "$CWD/assets/systemctl/start_gunicorn.sh"
 chmod +x "$CWD/assets/systemctl/start_gunicorn.sh"
+mkdir -p /run/php
+if id "www-data" &>/dev/null; then
+  chown www-data:www-data /run/php
+else
+  echo "User www-data does not exist. Skipping chown for /run/php."
+fi
 
 # Reload daemon
 sudo systemctl daemon-reload
