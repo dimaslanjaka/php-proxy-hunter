@@ -4,6 +4,15 @@
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 USER="www-data"
 
+# Detect if running on a VPS or desktop
+IS_VPS=0
+if [ -f /sys/class/dmi/id/product_name ]; then
+  PRODUCT_NAME=$(cat /sys/class/dmi/id/product_name 2>/dev/null | tr '[:upper:]' '[:lower:]')
+  if echo "$PRODUCT_NAME" | grep -qE "vps|virtual|kvm|qemu|xen|vmware|hyper-v|cloud"; then
+    IS_VPS=1
+  fi
+fi
+
 # Set CWD to the root directory of the Git repository
 CWD=$(git rev-parse --show-toplevel)
 if [ $? -ne 0 ]; then
@@ -24,10 +33,16 @@ if [ -f "$CWD/.gitmodules" ]; then
     '
   fi
 
-  git submodule update --init --recursive || {
-    echo "Failed to update submodules"
-    exit 1
-  }
+  # Update submodules
+  if [ $IS_VPS -eq 1 ]; then
+    # Always update submodule to latest commit on VPS
+    npx --yes binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz submodule-install
+  else
+    git submodule update --init --recursive || {
+      echo "Failed to update submodules"
+      exit 1
+    }
+  fi
 
   # Pop stashed changes in each submodule after update
   if [ -f "$CWD/.gitmodules" ]; then
@@ -46,14 +61,6 @@ fi
 COMPOSER_LOCK="$CWD/composer.lock"
 COMPOSER_PHAR="$CWD/composer.phar"
 COMPOSER_ARGS="--no-dev --no-interaction"
-# Detect if running on a VPS or desktop
-IS_VPS=0
-if [ -f /sys/class/dmi/id/product_name ]; then
-  PRODUCT_NAME=$(cat /sys/class/dmi/id/product_name 2>/dev/null | tr '[:upper:]' '[:lower:]')
-  if echo "$PRODUCT_NAME" | grep -qE "vps|virtual|kvm|qemu|xen|vmware|hyper-v|cloud"; then
-    IS_VPS=1
-  fi
-fi
 
 if [ $IS_VPS -eq 1 ]; then
   # only install production dependencies on VPS
