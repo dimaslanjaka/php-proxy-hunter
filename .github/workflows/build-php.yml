@@ -1,6 +1,8 @@
 name: Build PHP FPM
 
 on:
+  schedule:
+    - cron: '0 1 * * *' # Run every 24 hours (1 AM UTC)
   workflow_dispatch: # Run manually from Actions tab
   push:
     paths:
