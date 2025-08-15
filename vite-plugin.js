@@ -30,6 +30,7 @@ export function TailwindCSSBuildPlugin() {
  * @returns {import('vite').Plugin}
  */
 export function indexHtmlReplacementPlugin() {
+  /** @type {import('vite').ResolvedConfig} */
   let viteConfig;
   return {
     name: 'index-html-replacement',
@@ -39,8 +40,8 @@ export function indexHtmlReplacementPlugin() {
         // Copy index.dev.html to index.html for development mode.
         // Do not remove: ensures dev server uses index.dev.html content as index.html.
         // In production, index.html is generated in dist/react and index.dev.html is ignored.
-        const devHtml = path.join(process.cwd(), 'index.dev.html');
-        const prodHtml = path.join(process.cwd(), 'index.html');
+        const devHtml = path.join(__dirname, 'index.dev.html');
+        const prodHtml = path.join(__dirname, 'index.html');
         fs.copyFileSync(devHtml, prodHtml);
       }
 
@@ -51,19 +52,22 @@ export function indexHtmlReplacementPlugin() {
           '--no-warnings=ExperimentalWarning',
           '--loader',
           'ts-node/esm',
-          path.join(process.cwd(), 'src/dev/git-history.builder.ts')
+          path.join(__dirname, 'src/dev/git-history.builder.ts')
         ],
         { stdio: 'inherit', shell: true }
       );
     },
     closeBundle() {
-      // Copy compiled index.html to the project directory for production.
-      const src = path.join(process.cwd(), 'dist/react/index.html');
-      const dest = path.join(process.cwd(), 'index.html');
-      if (fs.existsSync(src) && fs.statSync(src).size > 0) {
-        fs.copySync(src, dest, { overwrite: true });
-      } else {
-        console.warn(`Source file "${src}" does not exist or is empty. Skipping copy.`);
+      if (viteConfig.command === 'build') {
+        // Copy compiled index.html to the project directory for production.
+        const src = path.join(__dirname, 'dist/react/index.html');
+        const dest = path.join(__dirname, 'index.html');
+        if (fs.existsSync(src) && fs.statSync(src).size > 0) {
+          fs.copySync(src, dest, { overwrite: true });
+          console.log(`Copied ${src} to ${dest}`);
+        } else {
+          console.warn(`Source file "${src}" does not exist or is empty. Skipping copy.`);
+        }
       }
     }
     // /**
