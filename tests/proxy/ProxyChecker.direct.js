@@ -1,9 +1,9 @@
 import ansiColors from 'ansi-colors';
-import { logProxy, markProxyAsDead } from '../../node_browser/logger.js';
-import { db } from '../database.js';
-import { splitArrayIntoChunks } from '../utils/array.js';
-import { extractProxies } from './extractor.js';
-import { ProxyChecker } from './ProxyChecker.js';
+import { db } from '../../src/database.js';
+import { splitArrayIntoChunks } from '../../src/utils/array.js';
+import { extractProxies } from '../../src/proxy/extractor.js';
+import { ProxyChecker } from '../../src/proxy/ProxyChecker.js';
+import { logProxy, markProxyAsDead } from '../../src/proxy/logger.js';
 
 const proxies = extractProxies(`
 177.234.194.226:999

@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import { db } from '../database.js';
-import { splitArrayIntoChunks } from '../utils/array.js';
-import ProxyWorkingManager from './proxyWorking.js';
+import { db } from '../../src/database.js';
+import { splitArrayIntoChunks } from '../../src/utils/array.js';
+import ProxyWorkingManager from '../../src/proxy/proxyWorking.js';
 
 const mgr = new ProxyWorkingManager();
 mgr.getAll().then(async (items) => {

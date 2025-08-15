@@ -1,5 +1,5 @@
-import { logProxy } from '../../node_browser/logger.js';
-import { ProxyHunter } from './hunter.js';
+import { ProxyHunter } from '../../src/proxy/hunter.js';
+import { logProxy } from '../../src/proxy/logger.js';
 
 const data = `23.105.170.35:35046
 23.105.170.30:21477

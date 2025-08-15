@@ -59,7 +59,7 @@
     ".env.mjs",
     "./node_backend",
     "./types/**/*.d.ts",
-    "./test/**/*"
+    "./tests/**/*"
   ],
   "exclude": [
     // Exclude specific directories and patterns from the compilation

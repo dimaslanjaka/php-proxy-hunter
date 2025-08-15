@@ -3,14 +3,14 @@ import fs from 'fs-extra';
 import _ from 'lodash';
 import path from 'path';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import { logProxy } from '../../node_browser/logger.js';
-import { toMs } from '../../node_browser/puppeteer/time_utils.js';
+import { logProxy } from './logger.js';
 import { db } from '../database.js';
 import { splitArrayIntoChunks } from '../utils/array.js';
 import { removeStringsFromFile } from '../utils/file.js';
 import { extractIps, extractProxies } from './extractor.js';
 import { ProxyChecker } from './ProxyChecker.js';
 import { isPortOpen, isValidProxy } from './utils.js';
+import { toMilliseconds } from 'sbg-utility';
 
 /**
  * Generates a list of IP:PORT combinations starting from the specified IP and
@@ -93,7 +93,7 @@ export class ProxyHunter extends TypedEmitter {
         const checks = chunk.map(async (proxy) => {
           try {
             if (mode === 'port') {
-              if (!(await isPortOpen(proxy, toMs(60)))) {
+              if (!(await isPortOpen(proxy, toMilliseconds(0, 0, 60)))) {
                 this.emit('log', `${proxy} ${ansiColors.redBright('port closed')}`);
                 this.emit('port-closed', proxy);
                 dataToRemove.push(proxy);

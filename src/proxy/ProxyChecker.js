@@ -1,10 +1,10 @@
 import ansiColors from 'ansi-colors';
 import { load as loadCheerio } from 'cheerio';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import { toMs } from '../../node_browser/puppeteer/time_utils.js';
 import { buildCurl } from '../utils/curl.js';
 import { getAnonymity } from './anonymity.js';
 import utils, { CheckerResult, isPortOpen } from './utils.js';
+import { toMilliseconds } from 'sbg-utility';
 
 /**
  * @typedef {Object} ProxyCheckerEvents
@@ -146,7 +146,7 @@ export class ProxyChecker extends TypedEmitter {
       const format = `${protocol}://${proxyData.address}`;
       const greenFormat = ansiColors.green(format);
       const redFormat = ansiColors.red(format);
-      const innerCheck = (url) => buildCurl(url, { ...proxyData, protocol }, toMs(60));
+      const innerCheck = (url) => buildCurl(url, { ...proxyData, protocol }, toMilliseconds(0, 0, 60));
 
       try {
         const curl = await innerCheck(endpoint);

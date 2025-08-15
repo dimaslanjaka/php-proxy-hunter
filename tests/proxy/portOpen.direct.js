@@ -1,6 +1,6 @@
 import Bluebird from 'bluebird';
-import { extractProxies } from './extractor.js';
-import { isPortOpen } from './utils.js';
+import { extractProxies } from '../../src/proxy/extractor.js';
+import { isPortOpen } from '../../src/proxy/utils.js';
 
 const proxies = `
 116.107.213.122:5020
