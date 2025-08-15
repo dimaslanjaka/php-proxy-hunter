@@ -11,6 +11,7 @@ import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import NotFound from './pages/NotFound';
 import OauthHandler from './pages/OauthHandler';
 import Outbound from './pages/Outbound';
 import Settings from './pages/Settings';
@@ -57,6 +58,7 @@ root.render(
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/changelog" element={<Changelog />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
       </BrowserRouter>
