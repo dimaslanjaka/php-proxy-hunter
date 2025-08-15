@@ -34,15 +34,10 @@ if [ -f "$CWD/.gitmodules" ]; then
   fi
 
   # Update submodules
-  if [ $IS_VPS -eq 1 ]; then
-    # Always update submodule to latest commit on VPS
-    npx --yes binary-collections submodule-install
-  else
-    git submodule update --init --recursive || {
-      echo "Failed to update submodules"
-      exit 1
-    }
-  fi
+  git submodule update --init --recursive || {
+    echo "Failed to update submodules"
+    exit 1
+  }
 
   # Pop stashed changes in each submodule after update
   if [ -f "$CWD/.gitmodules" ]; then
