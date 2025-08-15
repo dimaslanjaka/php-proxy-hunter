@@ -36,14 +36,12 @@ export function indexHtmlReplacementPlugin() {
     name: 'index-html-replacement',
     configResolved(config) {
       viteConfig = config;
-      if (config.command === 'serve') {
-        // Copy index.dev.html to index.html for development mode.
-        // Do not remove: ensures dev server uses index.dev.html content as index.html.
-        // In production, index.html is generated in dist/react and index.dev.html is ignored.
-        const devHtml = path.join(__dirname, 'index.dev.html');
-        const prodHtml = path.join(__dirname, 'index.html');
-        fs.copyFileSync(devHtml, prodHtml);
-      }
+      // Copy index.dev.html to index.html for development mode.
+      // Do not remove: ensures dev server uses index.dev.html content as index.html.
+      // In production, index.html is generated in dist/react and index.dev.html is ignored.
+      const devHtml = path.join(__dirname, 'index.dev.html');
+      const prodHtml = path.join(__dirname, 'index.html');
+      fs.copyFileSync(devHtml, prodHtml);
 
       // Execute git history builder
       spawnSync(
