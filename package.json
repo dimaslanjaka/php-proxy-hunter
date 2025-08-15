@@ -28,7 +28,7 @@
     "build:packages": "yarn workspaces foreach --no-private --all run build",
     "build:react": "npm run build:tailwind && vite build",
     "build:rollup": "rollup -c rollup.config.js",
-    "build:tailwind": "npx --yes @tailwindcss/cli -i ./tailwind.input.css -o ./src/react/components/theme.css",
+    "build:tailwind": "node tailwind.build.js",
     "dev:gh-pages": "npm run build:gh-pages && vite --config vite-gh-pages.config.js",
     "dev:react": "vite",
     "lint": "eslint --ext .js,.ts,.tsx",

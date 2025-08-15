@@ -1,6 +1,7 @@
 import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'upath';
+import { buildTailwind } from './tailwind.build.js';
 
 /**
  * Vite plugin to build Tailwind CSS using the Tailwind CLI.
@@ -16,15 +17,7 @@ export function TailwindCSSBuildPlugin() {
      */
     async configResolved() {
       try {
-        const inputCss = path.join(process.cwd(), 'tailwind.input.css');
-        const outputCss = path.join(process.cwd(), 'src/react/components/theme.css');
-        const result = spawnSync('npx', ['--yes', '@tailwindcss/cli@latest', '-i', inputCss, '-o', outputCss], {
-          stdio: 'inherit',
-          shell: true
-        });
-        if (result.error || result.status !== 0) {
-          throw result.error || new Error(`Tailwind CSS build failed with exit code ${result.status}`);
-        }
+        buildTailwind();
       } catch (error) {
         console.error('Failed to build Tailwind CSS:', error);
       }
