@@ -2,8 +2,8 @@ name: Build PHP FPM
 
 on:
   schedule:
-    - cron: '0 1 * * *'
-  workflow_dispatch:
+    - cron: '0 1 * * *' # 🔹 Nightly build
+  workflow_dispatch: # 🔹 Allow manual trigger
   push:
     paths:
       - .github/workflows/build-php.yml
@@ -19,7 +19,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential autoconf bison re2c pkg-config wget curl \
+            build-essential autoconf bison re2c pkg-config wget curl git \
             libxml2-dev libssl-dev libcurl4-openssl-dev \
             libbz2-dev libzip-dev libicu-dev libreadline-dev \
             libsodium-dev zlib1g-dev libonig-dev ccache
@@ -97,20 +97,24 @@ jobs:
         working-directory: php-src
         run: make -j$(nproc)
 
+      # 🔹 Install PHP into staging directory
       - name: Install into staging dir (PHP)
         working-directory: php-src
         run: |
-          mkdir -p $GITHUB_WORKSPACE/stage/usr/local/php
+          mkdir -p $GITHUB_WORKSPACE/stage
           make install DESTDIR=$GITHUB_WORKSPACE/stage
 
+      # 🔹 Copy SQLite into staging directory
       - name: Copy SQLite into staging dir
         run: |
           mkdir -p $GITHUB_WORKSPACE/stage/usr/local
           cp -a /usr/local/sqlite $GITHUB_WORKSPACE/stage/usr/local/
 
+      # 🔹 Create artifact (tarball for easy install)
       - name: Package artifact
         run: |
           cd stage
+          # Final tarball: contains usr/local/php + usr/local/sqlite
           tar -czf ../php-fpm-build.tar.gz usr
 
       - name: Upload artifact
@@ -118,10 +122,12 @@ jobs:
         with:
           name: php-fpm-build
           path: php-fpm-build.tar.gz
-# 🔹 After build
-# Download the artifact from GitHub Actions (php-fpm-build.tar.gz).
-# Upload it to your VPS.
-# Extract it into / (since we preserved /usr/local/php prefix inside usr/):
-# sudo tar -xzf php-fpm-build.tar.gz -C /
-# Verify the installation:
-# /usr/local/php/sbin/php-fpm -v
+# 🔹 How to install on your VPS:
+# 1. Download artifact (php-fpm-build.tar.gz) from GitHub Actions
+# 2. Upload it to your VPS
+# 3. Extract into root (preserves /usr/local/php + /usr/local/sqlite paths):
+#    sudo tar -xzf php-fpm-build.tar.gz -C /
+# 4. Verify:
+#    /usr/local/php/bin/php -v
+#    /usr/local/php/sbin/php-fpm -v
+#    /usr/local/sqlite/bin/sqlite3 --version
