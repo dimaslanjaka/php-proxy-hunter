@@ -1,6 +1,6 @@
 ├── app/
-│   ├── main.cjs [2e22debb]
-│   └── main.mjs [75396571]
+│   ├── main.cjs [3bd31812]
+│   └── main.mjs [990d1a48]
 ├── artisan/
 │   ├── cleaner.php [adb77b73]
 │   ├── filterPorts.php [1060056a]
@@ -27,14 +27,7 @@
 │   ├── fetch.php [f0c02a59]
 │   ├── init.php [dfe13cce]
 │   └── sync.php [5959c801]
-├── composer.json [8933d6db]
-├── controllers/
-│   ├── CheckDuplicateProxyController.php [efd4e12f]
-│   ├── ListDuplicateProxyController.php [590cee83]
-│   ├── LogoutController.php [beaa5490]
-│   ├── ProfileController.php [7bb0d265]
-│   ├── UserController.php [8e22c050]
-│   └── autoload.php [73bb219c]
+├── composer.json [20143578]
 ├── coverage/
 │   └── jest/
 │       └── lcov-report/
@@ -58,11 +51,11 @@
 ├── geoIp.php [45ae452b]
 ├── geoIpBackground.php [8e5f2b38]
 ├── gh-pages-builder.config.js [752f98b5]
-├── github-actions-init.cjs [9f132e5d]
+├── github-actions-init.cjs [4ca0b051]
 ├── github-actions-init.php [10e385fa]
 ├── github-actions-init.py [ee8130c1]
-├── index.js [14b75be3]
-├── index.php [25a15ba6]
+├── index.js [a16a8e4b]
+├── index.php [a328973f]
 ├── info.php [7a4648e9]
 ├── js/
 │   ├── general-site-script.js [820ca2fb]
@@ -71,7 +64,7 @@
 ├── logout.php [6b1a7711]
 ├── manage.py [d0538c5b]
 ├── mergeDB.php [38cc7584]
-├── package.json [20f9ee59]
+├── package.json [05a8f17d]
 ├── php_backend/
 │   ├── check-https-proxy.php [7bb2e98e]
 │   ├── get_sms.php [301f88a8]
@@ -98,7 +91,7 @@
 ├── proxyCheckerReal.py [8f418fd3]
 ├── proxyFetcher.py [84f6f702]
 ├── proxyManager-src.js [20acd514]
-├── proxyManager.js [0148ed19]
+├── proxyManager.js [6ace6c02]
 ├── proxyManager.php [1219a44f]
 ├── proxyRespawner.php [05f1631b]
 ├── proxyUpload.py [8e360fc1]
@@ -107,30 +100,30 @@
 │   ├── php/
 │   │   └── js/
 │   │       ├── _widget/
-│   │       │   └── dashboard-menu.js [8fd17d64]
-│   │       ├── admin.js [ea7ae771]
-│   │       ├── dashboard.js [1f78bfc4]
-│   │       ├── edit-profile.js [cd7774d0]
-│   │       ├── languages.js [25c4b746]
-│   │       ├── login.js [2c3134c0]
-│   │       ├── profile-card.js [936f05b3]
-│   │       ├── refill-saldo.js [a7c202c0]
-│   │       ├── template.js [923a168b]
+│   │       │   └── dashboard-menu.js [21a51f24]
+│   │       ├── admin.js [19d79f1b]
+│   │       ├── dashboard.js [5e440bca]
+│   │       ├── edit-profile.js [1a0b1d7d]
+│   │       ├── languages.js [fc32a728]
+│   │       ├── login.js [a3289bd3]
+│   │       ├── profile-card.js [f6ffc3fd]
+│   │       ├── refill-saldo.js [4201d694]
+│   │       ├── template.js [f428a3a2]
 │   │       ├── user/
-│   │       │   └── logs.js [b3911e37]
+│   │       │   └── logs.js [25f58ed8]
 │   │       └── utils/
-│   │           └── url.js [87c52fda]
+│   │           └── url.js [56eab985]
 │   └── static/
 │       └── express/
 │           ├── index.js [b2856c08]
 │           ├── note.js [8bfaa880]
 │           └── proxy.js [e8fa310d]
-├── requirements-dev.txt [c6316c7c]
+├── requirements-dev.txt [8c154b9f]
 ├── requirements.txt [e2c01128]
 ├── requirements_install.py [8f113d29]
 ├── rollup.config.js [7cff03e4]
 ├── rollup.php.js [6315a9ba]
-├── rollup.project.js [06ec49b0]
+├── rollup.project.js [5a4dee21]
 ├── rollup.whatsapp.js [fc8f49e3]
 ├── scanPorts.php [089403c5]
 ├── send_curl.php [8ec862d3]
@@ -175,8 +168,6 @@
 │   │   ├── CustomPasswordHasher.php [23f88890]
 │   │   ├── CustomPasswordHasher.py [b793ce7e]
 │   │   └── __init__.py [7e2f008e]
-│   ├── mvc/
-│   │   └── BaseController.php [d611bad7]
 │   ├── preferences.py [8dda5f67]
 │   ├── proxy/
 │   │   ├── ProxyChecker.js [d92154b8]
@@ -247,34 +238,12 @@
 │       ├── vps_connector.py [c27b5a9d]
 │       └── vps_manager.py [757c986c]
 ├── tailwind.build.js [9315f47a]
-├── tailwind.config.js [1a221b03]
-├── translations/
-│   └── ext/
-│       ├── BooleanStringExtension.php [7e94528b]
-│       ├── CountryCodeExtension.php [8983a042]
-│       └── TranslationExtension.php [4e658eef]
+├── tailwind.config.js [92283873]
 ├── update.php [6b1f380e]
 ├── useragent.php [6c86f81d]
-├── views/
-│   └── assets/
-│       └── js/
-│           ├── _widget/
-│           │   └── dashboard-menu.js [957c0533]
-│           ├── admin.js [bbbd8ffb]
-│           ├── dashboard.js [7a425e0c]
-│           ├── edit-profile.js [3f2622ba]
-│           ├── languages.js [9bb513c1]
-│           ├── login.js [88939761]
-│           ├── profile-card.js [db8292a0]
-│           ├── refill-saldo.js [cddad450]
-│           ├── template.js [f526d228]
-│           ├── user/
-│           │   └── logs.js [8c3c9846]
-│           └── utils/
-│               └── url.js [0edebbf6]
 ├── vite-gh-pages.config.js [1b87916c]
 ├── vite-gh-pages.js [2b619547]
-├── vite-plugin.js [51dc6161]
+├── vite-plugin.js [3fe10d8a]
 ├── vite.config.js [2cbaa72e]
 └── webgl-information/
     ├── script.js [5fd60361]

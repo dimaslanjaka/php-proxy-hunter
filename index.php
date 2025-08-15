@@ -33,12 +33,14 @@ if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUES
     'ico',
     'xml',
     'xsl',
-    'jsonc'
+    'jsonc',
+    'js',
+    'css'
   ];
   $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
   if (!in_array($ext, $allowedExtensions, true)) {
     http_response_code(403);
-    echo '403 Forbidden';
+    echo '403 Forbidden: The requested file type is not allowed.';
     exit;
   }
   if (file_exists($filePath)) {
@@ -50,7 +52,7 @@ if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUES
     exit;
   } else {
     http_response_code(404);
-    echo '404 Not Found';
+    echo '404 Not Found: The requested file ' . htmlspecialchars($_SERVER['REQUEST_URI']) . ' was not found in /dist/assets or /dist/data.';
     exit;
   }
 }
@@ -61,6 +63,6 @@ if (file_exists($indexFile)) {
   exit;
 } else {
   http_response_code(404);
-  echo '404 Not Found';
+  echo '404 Not Found: The main index.html file was not found in the application root directory.';
   exit;
 }
