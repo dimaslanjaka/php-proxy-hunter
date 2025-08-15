@@ -2,13 +2,13 @@ name: Build PHP FPM
 
 on:
   schedule:
-    - cron: '0 1 * * *' # Run every 24 hours (1 AM UTC)
-  workflow_dispatch: # Run manually from Actions tab
+    - cron: '0 1 * * *'
+  workflow_dispatch:
   push:
     paths:
-      - .github/workflows/build-php.yml # Trigger on changes to this workflow file
-      - readme-php.md # Trigger on changes to PHP README
-      - readme-sqlite.md # Trigger on changes to SQLite README
+      - .github/workflows/build-php.yml
+      - readme-php.md
+      - readme-sqlite.md
 
 jobs:
   build:
@@ -22,28 +22,47 @@ jobs:
             build-essential autoconf bison re2c pkg-config wget curl \
             libxml2-dev libssl-dev libcurl4-openssl-dev \
             libbz2-dev libzip-dev libicu-dev libreadline-dev \
-            libsodium-dev zlib1g-dev libonig-dev
+            libsodium-dev zlib1g-dev libonig-dev ccache
 
-      - name: Build SQLite
+      # 🔹 Unified cache (ccache + sqlite-src + php-src)
+      - name: Setup build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.ccache
+            sqlite-autoconf-*
+            php-src
+          key: build-${{ runner.os }}-${{ hashFiles('.github/workflows/build-php.yml') }}
+          restore-keys: |
+            build-${{ runner.os }}-
+
+      - name: Build SQLite (if missing)
         run: |
           SQLITE_VER=3460000
-          wget https://www.sqlite.org/2024/sqlite-autoconf-${SQLITE_VER}.tar.gz
-          tar xzf sqlite-autoconf-${SQLITE_VER}.tar.gz
-          cd sqlite-autoconf-${SQLITE_VER}
-          CFLAGS="-O2 -DSQLITE_ENABLE_COLUMN_METADATA=1" ./configure --prefix=/usr/local/sqlite
-          make -j$(nproc)
-          sudo make install
-          echo "/usr/local/sqlite/lib" | sudo tee /etc/ld.so.conf.d/sqlite3.conf
-          sudo ldconfig
+          if [ ! -d sqlite-autoconf-${SQLITE_VER} ]; then
+            wget https://www.sqlite.org/2024/sqlite-autoconf-${SQLITE_VER}.tar.gz
+            tar xzf sqlite-autoconf-${SQLITE_VER}.tar.gz
+            cd sqlite-autoconf-${SQLITE_VER}
+            CFLAGS="-O2 -DSQLITE_ENABLE_COLUMN_METADATA=1" ./configure --prefix=/usr/local/sqlite
+            make -j$(nproc)
+            sudo make install
+            echo "/usr/local/sqlite/lib" | sudo tee /etc/ld.so.conf.d/sqlite3.conf
+            sudo ldconfig
+          fi
 
-      - name: Checkout PHP source
+      - name: Checkout PHP source (if missing)
         run: |
-          git clone --depth=1 https://github.com/php/php-src.git -b php-8.4.11 php-src
-          cd php-src
-          ./buildconf --force
+          if [ ! -d php-src ]; then
+            git clone --depth=1 https://github.com/php/php-src.git -b php-8.4.11 php-src
+            cd php-src
+            ./buildconf --force
+          fi
 
       - name: Configure PHP
         working-directory: php-src
+        env:
+          CC: 'ccache gcc'
+          CXX: 'ccache g++'
         run: |
           ./configure \
             --prefix=/usr/local/php \
