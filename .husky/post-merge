@@ -13,10 +13,30 @@ fi
 # Update submodules
 if [ -f "$CWD/.gitmodules" ]; then
   echo "Updating submodules..."
+  # Stash changes in each submodule before updating
+  if [ -f "$CWD/.gitmodules" ]; then
+    git submodule foreach --quiet '
+      if [ -n "$(git status --porcelain)" ]; then
+        echo "Stashing changes in submodule $name..."
+        git stash push -u -m "pre-submodule-update"
+      fi
+    '
+  fi
+
   git submodule update --init --recursive || {
     echo "Failed to update submodules"
     exit 1
   }
+
+  # Pop stashed changes in each submodule after update
+  if [ -f "$CWD/.gitmodules" ]; then
+    git submodule foreach --quiet '
+      if git stash list | grep -q "pre-submodule-update"; then
+        echo "Restoring stashed changes in submodule $name..."
+        git stash pop
+      fi
+    '
+  fi
 else
   echo "No submodules found, skipping update."
 fi
