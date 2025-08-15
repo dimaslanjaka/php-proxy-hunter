@@ -145,6 +145,12 @@ finalize_setup() {
 
 echo "Script directory: $SCRIPT_DIR"
 
+# Check if the user exists
+if ! id -u "$USER" >/dev/null 2>&1; then
+    echo "User $USER does not exist. Please create the user before running this script."
+    exit 1
+fi
+
 require_root_linux
 ensure_env_loaded
 
