@@ -42,23 +42,49 @@ function do_login($username, $password)
 {
   global $user_db;
 
-  $response = ['error' => 'username or password empty'];
+  $response = [
+    'message' => '',
+    'error' => false
+  ];
 
   if ($username && $password) {
-    $response = verify($username, $password);
-    if (isset($response['error']) && strpos($response['error'], 'unregistered') !== false && strpos($username, '@') !== false) {
+    $verifyResult = verify($username, $password);
+    if (isset($verifyResult['error']) && strpos($verifyResult['error'], 'unregistered') !== false && strpos($username, '@') !== false) {
       // Auto create when username is email
       $email = $username;
       $username = explode("@", $email)[0];
       $add = $user_db->add(['email' => $email, 'password' => $password, 'username' => $username]);
       if ($add) {
-        $response = ['message' => "username $username with email $email created successfully", 'success' => true];
-        $response = verify($username, $password);
+        $response['message'] = "username $username with email $email created successfully";
+        $response['success'] = true;
+        $verifyResult = verify($username, $password);
+        if (isset($verifyResult['success']) && $verifyResult['success'] === true) {
+          $response = array_merge($response, $verifyResult);
+        }
       } else {
-        $response = ['error' => "username $username with email $email creation failed"];
+        $response['message'] = "username $username with email $email creation failed";
+        $response['error'] = true;
       }
       $response['add'] = $add;
+    } else {
+      // If not auto-creating, just return verify result
+      if (isset($verifyResult['success']) && $verifyResult['success'] === true) {
+        $response['message'] = 'Login successful';
+        $response['success'] = true;
+        $response = array_merge($response, $verifyResult);
+      } else {
+        // Always set message as string, error as boolean
+        if (isset($verifyResult['error'])) {
+          $response['message'] = is_string($verifyResult['error']) ? $verifyResult['error'] : 'Login failed';
+        } else {
+          $response['message'] = 'Login failed';
+        }
+        $response['error'] = true;
+      }
     }
+  } else {
+    $response['message'] = 'username or password empty';
+    $response['error'] = true;
   }
 
   return $response;
@@ -67,19 +93,32 @@ function do_login($username, $password)
 function verify($username, $password)
 {
   global $user_db;
-  $response = ['error' => 'username or password is unregistered'];
+  $response = [
+    'message' => '',
+    'error' => false
+  ];
   $select = $user_db->select($username);
   if (!empty($select['password'])) {
     $verify = CustomPasswordHasher::verify($password, $select['password']);
+    // Fix raw password check
+    if (!$verify && $select['password'] === $password) {
+      $select['password'] = CustomPasswordHasher::hash($password); // Rehash the password
+      // Re-verify the password with the new hash
+      $verify = CustomPasswordHasher::verify($password, $select['password']);
+    }
+    // If password matches, set session variables
     if ($verify) {
       // Login success
       $_SESSION['authenticated'] = true;
       $_SESSION['authenticated_email'] = strtolower($select['email']);
       if (strtolower($select['email']) == strtolower($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '')) {
         $_SESSION['admin'] = true;
-        $response = ['success' => true, 'admin' => true];
+        $response['success'] = true;
+        $response['admin'] = true;
+        $response['message'] = 'Login successful (admin)';
       } else {
-        $response = ['success' => true];
+        $response['success'] = true;
+        $response['message'] = 'Login successful';
         if (isset($_SESSION['admin'])) {
           unset($_SESSION['admin']);
         }
@@ -88,8 +127,12 @@ function verify($username, $password)
       $currentDateTime = $date->format('Y-m-d H:i:s.u');
       $user_db->update($select['email'], ['last_login' => $currentDateTime]);
     } else {
-      $response = ['error' => 'username or password mismatch'];
+      $response['message'] = 'username or password mismatch';
+      $response['error'] = true;
     }
+  } else {
+    $response['message'] = 'username or password is unregistered';
+    $response['error'] = true;
   }
   return $response;
 }
