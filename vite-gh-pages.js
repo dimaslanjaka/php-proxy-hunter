@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import path from 'upath';
 import { fileURLToPath } from 'url';
 import { build } from 'vite';
-import routes from './src/react/routes.json' with { type: 'json' };
+import routes from './src/react/routes.js';
 import viteConfig from './vite-gh-pages.config.js';
 import { copyIndexHtml } from './vite-plugin.js';
 

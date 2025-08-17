@@ -5,16 +5,8 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import { ThemeProvider } from './components/ThemeContext';
 import './components/theme.css';
-import About from './pages/About';
-import Changelog from './pages/Changelog';
-import Contact from './pages/Contact';
-import Dashboard from './pages/Dashboard';
-import Home from './pages/Home';
-import Login from './pages/Login';
 import NotFound from './pages/NotFound';
-import OauthHandler from './pages/OauthHandler';
-import Outbound from './pages/Outbound';
-import Settings from './pages/Settings';
+import routes from './routes.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
@@ -48,16 +40,9 @@ root.render(
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Navbar />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/outbound" element={<Outbound />} />
-          <Route path="/oauth" element={<OauthHandler />} />
-          <Route path="/oauth/google" element={<OauthHandler />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/changelog" element={<Changelog />} />
+          {routes.map((route) => (
+            <Route key={route.path} path={route.path} element={<route.component />} />
+          ))}
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
