@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { addSaldoToUser, getListOfUsers } from '../utils/user';
+import { useNavigate } from 'react-router-dom';
+import { addSaldoToUser, getListOfUsers, getUserInfo } from '../utils/user';
 import { toRupiah } from '../../utils/number';
 
 export default function Admin() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<Awaited<ReturnType<typeof getListOfUsers>>>([]);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [saldo, setSaldo] = useState('');
@@ -25,6 +27,17 @@ export default function Admin() {
   }
 
   React.useEffect(() => {
+    // Get current logged-in user
+    getUserInfo()
+      .then((user) => {
+        if (user && !user.admin) {
+          // Current user is not admin, redirect using react-router-dom
+          navigate('/');
+        }
+      })
+      .catch(() => {
+        setError('Failed to fetch user info.');
+      });
     // Get list of users from the server
     const fetchUsers = async () => {
       try {
