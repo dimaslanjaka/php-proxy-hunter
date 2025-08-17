@@ -8,8 +8,9 @@ from src.vps.vps_connector import VPSConnector
 
 
 def pull_latest_code(vps: VPSConnector):
-    """Pull the latest code from the git repository on the VPS."""
-    return vps.run_command_live("git pull", "/var/www/html")
+    """Pull the latest code from the git repository on the VPS, sourcing NVM environment first."""
+    cmd = 'bash -c "source src/vps/menus/load-nvm && bash -e bin/git-pull"'
+    return vps.run_command_live(cmd, "/var/www/html")
 
 
 def composer_update(vps: VPSConnector):
@@ -24,6 +25,12 @@ def yarn_install(vps: VPSConnector):
     return vps.run_command_live(cmd, "/var/www/html")
 
 
+def yarn_build(vps: VPSConnector):
+    """Run 'yarn build' in the project directory on the VPS, sourcing .bashrc for environment setup."""
+    cmd = 'bash -c "source src/vps/menus/load-nvm && yarn build"'
+    return vps.run_command_live(cmd, "/var/www/html")
+
+
 def pip_install_requirements_dev(vps: VPSConnector):
     """Run 'bash -e bin/py -m pip install -r requirements-dev.txt' in the project directory on the VPS."""
     return vps.run_command_live(
@@ -32,7 +39,7 @@ def pip_install_requirements_dev(vps: VPSConnector):
 
 
 def register():
-    """Register the menu item for pulling the latest code."""
+    """Register the menu items for project management actions."""
     return [
         {
             "label": "Pull latest code (git pull)",
@@ -45,6 +52,10 @@ def register():
         {
             "label": "Run yarn install",
             "action": yarn_install,
+        },
+        {
+            "label": "Run yarn build",
+            "action": yarn_build,
         },
         {
             "label": "Install Python dev requirements",

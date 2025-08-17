@@ -211,6 +211,7 @@
 │   │   │   └── stats.php [d66113eb]
 │   │   ├── file.js [3f4f5dfe]
 │   │   ├── file.py [0810dec8]
+│   │   ├── number.js [73b06438]
 │   │   ├── other.js [fb4ec1b1]
 │   │   ├── preferences.js [814c4328]
 │   │   ├── process.js [bae1bef9]
@@ -230,7 +231,7 @@
 │       ├── config.py [6a7a3fd2]
 │       ├── menus/
 │       │   ├── download-backups.py [a6a76ca8]
-│       │   └── project-manager.py [3e858c1a]
+│       │   └── project-manager.py [70b46878]
 │       ├── sftp_client.py [1a2fd89d]
 │       ├── ssh_client.py [03d22fb9]
 │       ├── vps_connector.py [c27b5a9d]
