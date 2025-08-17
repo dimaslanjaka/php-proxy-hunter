@@ -40,11 +40,20 @@ root.render(
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Navbar />
         <Routes>
-          {routes.flatMap((route) => {
-            if (Array.isArray(route.path)) {
-              return route.path.map((p) => <Route key={p} path={p} element={<route.component />} />);
+          {routes.flatMap((CustomRoute) => {
+            if (!CustomRoute.Component) return null;
+            if (Array.isArray(CustomRoute.path)) {
+              return CustomRoute.path.map((p) =>
+                CustomRoute.Component ? <Route key={p} path={p} element={<CustomRoute.Component />} /> : null
+              );
             }
-            return <Route key={route.path} path={route.path} element={<route.component />} />;
+            return (
+              <Route
+                key={CustomRoute.path}
+                path={CustomRoute.path}
+                element={CustomRoute.Component ? <CustomRoute.Component /> : null}
+              />
+            );
           })}
           <Route path="*" element={<NotFound />} />
         </Routes>

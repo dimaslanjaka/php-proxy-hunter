@@ -13,46 +13,46 @@ import routesMeta from './routes.json' assert { type: 'json' };
 
 // Compose the routes array by merging metadata with components
 const routes = routesMeta.map((meta) => {
-  let component;
+  let Component;
   switch (meta.path instanceof Array ? meta.path[0] : meta.path) {
     case '/':
-      component = Home;
+      Component = Home;
       break;
     case '/admin':
-      component = Admin;
+      Component = Admin;
       break;
     case '/outbound':
-      component = Outbound;
+      Component = Outbound;
       break;
     case '/login':
-      component = Login;
+      Component = Login;
       break;
     case '/changelog':
-      component = Changelog;
+      Component = Changelog;
       break;
     case '/settings':
-      component = Settings;
+      Component = Settings;
       break;
     case '/dashboard':
-      component = Dashboard;
+      Component = Dashboard;
       break;
     case '/about':
-      component = About;
+      Component = About;
       break;
     case '/contact':
-      component = Contact;
+      Component = Contact;
       break;
     case '/logout':
-      component = Logout;
+      Component = Logout;
       break;
     case '/oauth':
     case '/oauth/google':
-      component = OauthHandler;
+      Component = OauthHandler;
       break;
     default:
-      component = undefined;
+      Component = undefined;
   }
-  return { ...meta, component };
+  return { ...meta, Component };
 });
 
 export default routes;
