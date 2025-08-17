@@ -2,6 +2,21 @@
 const CustomPasswordHasher = require('../../src/hashers/CustomPasswordHasher.cjs');
 
 describe('CustomPasswordHasher', () => {
+  test('should return false for invalid encoded format (empty)', () => {
+    expect(CustomPasswordHasher.verify('irrelevant', '')).toBe(false);
+  });
+
+  test('should return false for invalid encoded format (no $)', () => {
+    expect(CustomPasswordHasher.verify('irrelevant', 'notavalidformat')).toBe(false);
+  });
+
+  test('should return false for invalid encoded format (missing hash)', () => {
+    expect(CustomPasswordHasher.verify('irrelevant', '$somesalt')).toBe(false);
+  });
+
+  test('should return false for invalid encoded format (missing salt)', () => {
+    expect(CustomPasswordHasher.verify('irrelevant', 'somehash$')).toBe(false);
+  });
   const password = 'my_secure_password';
 
   test('should generate a salt', () => {

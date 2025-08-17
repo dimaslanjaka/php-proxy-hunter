@@ -20,14 +20,23 @@ class CustomPasswordHasher(BasePasswordHasher):
 
     def verify(self, password, encoded):
         # Verify password by comparing hashes
-        password_hash, salt = encoded.rsplit("$", 1)
+        if "$" not in encoded:
+            # Invalid encoded format, avoid ValueError
+            return False
+        parts = encoded.rsplit("$", 1)
+        if len(parts) != 2 or not parts[0] or not parts[1]:
+            # Either part is missing or empty, invalid format
+            return False
+        password_hash = parts[0]
+        salt = parts[1]
         return (
             password_hash
             == hashlib.sha256((password + salt).encode("utf-8")).hexdigest()
         )
 
     def safe_summary(self, encoded):
-        password_hash, salt = encoded.rsplit("$", 1)
+        parts = encoded.rsplit("$", 1)
+        salt = parts[1] if len(parts) == 2 else ""
         return {
             "algorithm": self.algorithm,
             "salt": salt,

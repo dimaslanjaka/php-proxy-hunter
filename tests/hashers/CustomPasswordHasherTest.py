@@ -31,3 +31,18 @@ def test_encode_and_verify(password, hasher):
     assert len(encoded) > 0
     is_valid = hasher.verify(password, encoded)
     assert is_valid
+
+
+def test_invalid_encoded_formats(hasher):
+    # Empty encoded
+    assert hasher.verify("irrelevant", "") is False
+    # No separator
+    assert hasher.verify("irrelevant", "notavalidformat") is False
+    # Missing hash
+    assert hasher.verify("irrelevant", "$somesalt") is False
+    # Missing salt
+    assert hasher.verify("irrelevant", "somehash$") is False
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

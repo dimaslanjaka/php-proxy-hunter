@@ -25,7 +25,12 @@ class CustomPasswordHasher {
   }
 
   static verify(password, encoded) {
-    const [passwordHash, salt] = encoded.split('$');
+    const parts = encoded.split('$');
+    if (parts.length < 2) {
+      // Invalid encoded format, avoid undefined value
+      return false;
+    }
+    const [passwordHash, salt] = parts;
     const hashedPassword = crypto
       .createHash('sha256')
       .update(password + salt)
@@ -34,7 +39,7 @@ class CustomPasswordHasher {
   }
 
   static summary(encoded) {
-    const [passwordHash, salt] = encoded.split('$');
+    const [_passwordHash, salt] = encoded.split('$');
     return { algorithm: 'custom', salt };
   }
 }

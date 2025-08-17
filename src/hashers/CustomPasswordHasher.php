@@ -31,7 +31,12 @@ class CustomPasswordHasher
 
   public static function verify($password, $encoded)
   {
-    list($passwordHash, $salt) = explode('$', $encoded, 2);
+    $parts = explode('$', $encoded, 2);
+    if (count($parts) < 2) {
+      // Invalid encoded format, avoid undefined array key warning
+      return false;
+    }
+    list($passwordHash, $salt) = $parts;
     $hashedPassword = hash('sha256', $password . $salt);
     return $passwordHash === $hashedPassword; // Compare hashes
   }

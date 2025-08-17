@@ -16,6 +16,14 @@ class CustomPasswordHasherTest extends TestCase
     $this->password = 'my_secure_password';
   }
 
+  public function testInvalidEncodedFormats(): void
+  {
+    $this->assertFalse(CustomPasswordHasher::verify('irrelevant', ''));
+    $this->assertFalse(CustomPasswordHasher::verify('irrelevant', 'notavalidformat'));
+    $this->assertFalse(CustomPasswordHasher::verify('irrelevant', '$somesalt'));
+    $this->assertFalse(CustomPasswordHasher::verify('irrelevant', 'somehash$'));
+  }
+
   public function testGenerateSalt(): void
   {
     $salt = CustomPasswordHasher::getSalt();
