@@ -2068,9 +2068,9 @@ export {
   BrowserRouter as B,
   Link$1 as L,
   React as R,
-  useLocation as a,
+  useNavigate as a,
   Routes as b,
   Route as c,
   reactExports as r,
-  useNavigate as u
+  useLocation as u
 };

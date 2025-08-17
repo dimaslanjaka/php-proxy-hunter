@@ -1,4 +1,4 @@
-import { R as React, L as Link$1, r as reactExports, u as useNavigate, a as useLocation, B as BrowserRouter, b as Routes, c as Route } from "./react-router.BcaVcf8t.js";
+import { R as React, L as Link$1, r as reactExports, u as useLocation, a as useNavigate, B as BrowserRouter, b as Routes, c as Route } from "./react-router.DnMW-Xb5.js";
 import { r as requireReact, a as requireReactDom, g as getDefaultExportFromCjs, c as commonjsGlobal, b as getAugmentedNamespace } from "./react.BKuUvC82.js";
 import { a as axios } from "./axios.9sRqNPX7.js";
 (function polyfill() {
@@ -11485,6 +11485,17 @@ async function fetchUserInfo() {
   const response = await axios.get(createUrl("/php_backend/user-info.php"));
   return response.data;
 }
+async function getListOfUsers() {
+  const response = await axios.get(createUrl("/php_backend/list-user.php"));
+  return response.data;
+}
+async function addSaldoToUser(userId, amount) {
+  const response = await axios.post(createUrl("/php_backend/refill-saldo.php"), {
+    user: userId,
+    amount
+  });
+  return response.data;
+}
 var dist$1 = { exports: {} };
 var parseQuery = {};
 var toURL = {};
@@ -18846,45 +18857,41 @@ const ThemeSwitcher = () => {
     }
   );
 };
-class Navbar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.userMenuRef = React.createRef();
-    this.socialMenuRef = React.createRef();
-    this.handleClickOutside = (event) => {
-      const userMenu = this.userMenuRef.current;
-      const socialMenu = this.socialMenuRef.current;
-      if (this.state.userMenuOpen && userMenu && !userMenu.contains(event.target) || this.state.socialOpen && socialMenu && !socialMenu.contains(event.target)) {
-        this.setState({ userMenuOpen: false, socialOpen: false });
-      }
-    };
-    this.handleUserMenuToggle = () => {
-      this.setState((prevState) => ({
-        userMenuOpen: !prevState.userMenuOpen,
+const Navbar = () => {
+  const location2 = useLocation();
+  const [state, setState] = reactExports.useState({
+    authenticated: false,
+    email: void 0,
+    first_name: void 0,
+    last_name: void 0,
+    saldo: void 0,
+    uid: void 0,
+    username: void 0,
+    userMenuOpen: false,
+    socialOpen: false
+  });
+  const userMenuRef = reactExports.useRef(null);
+  const socialMenuRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    setState((prev) => ({ ...prev, userMenuOpen: false, socialOpen: false }));
+    if (location2.pathname === "/logout") {
+      setState({
+        authenticated: false,
+        email: void 0,
+        first_name: void 0,
+        last_name: void 0,
+        saldo: void 0,
+        uid: void 0,
+        username: void 0,
+        userMenuOpen: false,
         socialOpen: false
-      }));
-    };
-    this.handleSocialMenuToggle = () => {
-      this.setState((prevState) => ({
-        socialOpen: !prevState.socialOpen,
-        userMenuOpen: false
-      }));
-    };
-    this.state = {
-      authenticated: false,
-      email: void 0,
-      first_name: void 0,
-      last_name: void 0,
-      saldo: void 0,
-      uid: void 0,
-      username: void 0,
-      userMenuOpen: false
-    };
-  }
-  componentDidMount() {
+      });
+      return;
+    }
     fetchUserInfo().then((data) => {
       if (data.authenticated) {
-        this.setState({
+        setState((prev) => ({
+          ...prev,
           authenticated: true,
           email: data.email,
           first_name: data.first_name,
@@ -18893,205 +18900,218 @@ class Navbar extends React.Component {
           uid: data.uid,
           username: data.username,
           admin: data.admin || false
-        });
+        }));
       } else {
-        this.setState({ authenticated: false });
+        setState((prev) => ({ ...prev, authenticated: false }));
       }
     }).catch((error) => {
       console.error("Error fetching user info:", error);
-      this.setState({ authenticated: false });
+      setState((prev) => ({ ...prev, authenticated: false }));
     });
-    document.addEventListener("mousedown", this.handleClickOutside);
-  }
-  componentWillUnmount() {
-    document.removeEventListener("mousedown", this.handleClickOutside);
-  }
-  render() {
-    const socialOpen = this.state.socialOpen || false;
-    const userMenuOpen = this.state.userMenuOpen || false;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { className: "w-full bg-white dark:bg-gray-900 shadow-md", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { href: "/", className: "text-2xl font-bold text-blue-600 dark:text-white", title: "Home", children: "DX" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
+  }, [location2.pathname]);
+  reactExports.useEffect(() => {
+    const handleClickOutside = (event) => {
+      const userMenu = userMenuRef.current;
+      const socialMenu = socialMenuRef.current;
+      if (state.userMenuOpen && userMenu && !userMenu.contains(event.target) || state.socialOpen && socialMenu && !socialMenu.contains(event.target)) {
+        setState((prev) => ({ ...prev, userMenuOpen: false, socialOpen: false }));
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [state.userMenuOpen, state.socialOpen]);
+  const handleUserMenuToggle = () => {
+    setState((prev) => ({ ...prev, userMenuOpen: !prev.userMenuOpen, socialOpen: false }));
+  };
+  const handleSocialMenuToggle = () => {
+    setState((prev) => ({ ...prev, socialOpen: !prev.socialOpen, userMenuOpen: false }));
+  };
+  const socialOpen = state.socialOpen || false;
+  const userMenuOpen = state.userMenuOpen || false;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { className: "w-full bg-white dark:bg-gray-900 shadow-md", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { href: "/", className: "text-2xl font-bold text-blue-600 dark:text-white", title: "Home", children: "DX" }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Link,
+        {
+          href: "/proxyManager.html",
+          className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
+          "aria-label": "Proxy Manager",
+          title: "Proxy Manager",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-network-wired text-2xl", "aria-hidden": "true" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Proxy" })
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: userMenuRef, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Link,
+          "button",
           {
-            href: "/proxyManager.html",
-            className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
-            "aria-label": "Proxy Manager",
-            title: "Proxy Manager",
+            className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none flex items-center gap-1",
+            "aria-label": "User Menu",
+            title: "User Menu",
+            onClick: handleUserMenuToggle,
+            type: "button",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-network-wired text-2xl", "aria-hidden": "true" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Proxy" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-user-cog text-2xl", "aria-hidden": "true" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "User Menu" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: `fal fa-chevron-${userMenuOpen ? "up" : "down"} ml-1 text-xs`, "aria-hidden": "true" })
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: this.userMenuRef, children: [
+        userMenuOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50", children: state.authenticated ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none flex items-center gap-1",
-              "aria-label": "User Menu",
-              title: "User Menu",
-              onClick: this.handleUserMenuToggle,
-              type: "button",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-user-cog text-2xl", "aria-hidden": "true" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "User Menu" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: `fal fa-chevron-${userMenuOpen ? "up" : "down"} ml-1 text-xs`, "aria-hidden": "true" })
-              ]
-            }
-          ),
-          userMenuOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50", children: this.state.authenticated ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Link,
-              {
-                href: "/dashboard",
-                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-                title: "Dashboard",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-tachometer-alt mr-2" }),
-                  " Dashboard"
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Link,
-              {
-                href: "/settings",
-                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-                title: "Settings",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-cog mr-2" }),
-                  " Settings"
-                ]
-              }
-            ),
-            this.state.admin && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Link,
-              {
-                href: "/admin",
-                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-                title: "Admin",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-user-shield mr-2" }),
-                  " Admin"
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Link,
-              {
-                href: "/logout",
-                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-                title: "Logout",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-sign-out-alt mr-2" }),
-                  " Logout"
-                ]
-              }
-            )
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Link,
             {
-              href: "/login",
+              href: "/dashboard",
               className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-              title: "Login",
+              title: "Dashboard",
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fas fa-sign-in-alt mr-2" }),
-                " Login"
-              ]
-            }
-          ) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: this.socialMenuRef, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none flex items-center gap-1",
-              "aria-label": "Social Media",
-              title: "Social Media",
-              onClick: this.handleSocialMenuToggle,
-              type: "button",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-ellipsis-h text-2xl", "aria-hidden": "true" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Social" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: `fal fa-chevron-${socialOpen ? "up" : "down"} ml-1 text-xs`, "aria-hidden": "true" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-tachometer-alt mr-2" }),
+                " Dashboard"
               ]
             }
           ),
-          socialOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "a",
-              {
-                href: "https://github.com/dimaslanjaka/php-proxy-hunter",
-                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-                target: "_blank",
-                rel: "noopener noreferrer",
-                title: "GitHub Repository",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fab fa-github mr-2" }),
-                  " GitHub"
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "a",
-              {
-                href: "https://twitter.com/dimaslanjaka",
-                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-                target: "_blank",
-                rel: "noopener noreferrer",
-                title: "Twitter",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fab fa-twitter mr-2" }),
-                  " Twitter"
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("hr", { className: "my-1 border-gray-200 dark:border-gray-700" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Link,
-              {
-                href: "/about",
-                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-                title: "About",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-info-circle mr-2" }),
-                  " About"
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Link,
-              {
-                href: "/changelog",
-                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-                title: "Changelog",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-history mr-2" }),
-                  " Changelog"
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Link,
-              {
-                href: "/contact",
-                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-                title: "Contact",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-envelope mr-2" }),
-                  " Contact"
-                ]
-              }
-            )
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeSwitcher, {})
-      ] })
-    ] }) });
-  }
-}
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Link,
+            {
+              href: "/settings",
+              className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+              title: "Settings",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-cog mr-2" }),
+                " Settings"
+              ]
+            }
+          ),
+          state.admin && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Link,
+            {
+              href: "/admin",
+              className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+              title: "Admin",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-user-shield mr-2" }),
+                " Admin"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Link,
+            {
+              href: "/logout",
+              className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+              title: "Logout",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-sign-out-alt mr-2" }),
+                " Logout"
+              ]
+            }
+          )
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Link,
+          {
+            href: "/login",
+            className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+            title: "Login",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fas fa-sign-in-alt mr-2" }),
+              " Login"
+            ]
+          }
+        ) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: socialMenuRef, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none flex items-center gap-1",
+            "aria-label": "Social Media",
+            title: "Social Media",
+            onClick: handleSocialMenuToggle,
+            type: "button",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-ellipsis-h text-2xl", "aria-hidden": "true" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Social" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: `fal fa-chevron-${socialOpen ? "up" : "down"} ml-1 text-xs`, "aria-hidden": "true" })
+            ]
+          }
+        ),
+        socialOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "a",
+            {
+              href: "https://github.com/dimaslanjaka/php-proxy-hunter",
+              className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              title: "GitHub Repository",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fab fa-github mr-2" }),
+                " GitHub"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "a",
+            {
+              href: "https://twitter.com/dimaslanjaka",
+              className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              title: "Twitter",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fab fa-twitter mr-2" }),
+                " Twitter"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("hr", { className: "my-1 border-gray-200 dark:border-gray-700" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Link,
+            {
+              href: "/about",
+              className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+              title: "About",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-info-circle mr-2" }),
+                " About"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Link,
+            {
+              href: "/changelog",
+              className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+              title: "Changelog",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-history mr-2" }),
+                " Changelog"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Link,
+            {
+              href: "/contact",
+              className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+              title: "Contact",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-envelope mr-2" }),
+                " Contact"
+              ]
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeSwitcher, {})
+    ] })
+  ] }) });
+};
 const NotFound = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col items-center justify-center min-h-[60vh] py-8 px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700", children: [
   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-6xl text-red-500 mb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa-duotone fa-circle-exclamation" }) }),
   /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-4xl font-bold text-gray-800 dark:text-white mb-1", children: "404" }),
@@ -21949,7 +21969,7 @@ function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      const url = createUrl(`/data/git-history.json`, { v: "fd387378" });
+      const url = createUrl(`/data/git-history.json`, { v: "b11e9749" });
       gitHistoryPromise = (async () => {
         const commits2 = [];
         for await (const commit of streamJsonFromUrl(url, "!*")) {
@@ -22060,17 +22080,66 @@ function Changelog() {
     ] })
   ] }) });
 }
-const users = [
-  { id: 1, name: "User One" },
-  { id: 2, name: "User Two" },
-  { id: 3, name: "User Three" }
-];
+function toRupiah(value) {
+  if (value === null || value === void 0) return "Rp. 0";
+  let num = value;
+  if (typeof value === "string") {
+    num = parseFloat(value.replace(/[^\d.-]/g, ""));
+  }
+  if (typeof num !== "number" || isNaN(num)) return "Rp. 0";
+  return "Rp. " + num.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
 function Admin() {
-  const [selectedUser, setSelectedUser] = React.useState(users[0].id);
+  const [users, setUsers] = reactExports.useState([]);
+  const [selectedUser, setSelectedUser] = reactExports.useState(null);
   const [saldo, setSaldo] = reactExports.useState("");
-  const handleSubmit = (e) => {
+  const [error, setError] = reactExports.useState(null);
+  function getSelectedUserSaldo() {
+    if (!selectedUser) return 0;
+    const user = users.find((u) => String(u.id) === selectedUser || u.email === selectedUser);
+    if (!user) return 0;
+    return user.saldo ?? 0;
+  }
+  function getNewSaldo() {
+    const current = getSelectedUserSaldo();
+    const add = parseFloat(saldo);
+    if (isNaN(add)) return current;
+    return current + add;
+  }
+  React.useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const result = await getListOfUsers();
+        setUsers(result);
+        if (result && result.length > 0) {
+          setSelectedUser(result[0].id !== void 0 ? String(result[0].id) : "");
+        }
+      } catch (_e) {
+        setUsers([]);
+        setSelectedUser(null);
+      }
+    };
+    fetchUsers();
+  }, []);
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Added saldo ${saldo} to user ${selectedUser}`);
+    setError(null);
+    if (selectedUser) {
+      try {
+        await addSaldoToUser(selectedUser, parseFloat(saldo));
+        try {
+          const result = await getListOfUsers();
+          setUsers(result);
+        } catch (_err) {
+          setError("Failed to refresh user list.");
+        }
+        setSaldo("");
+      } catch (err) {
+        setError(err?.message || "Failed to add saldo.");
+      }
+    } else {
+      setError("Please select a user to add saldo.");
+    }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4 transition-colors", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300", children: [
@@ -22085,9 +22154,17 @@ function Admin() {
           {
             id: "user",
             className: "block w-full rounded-md border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:focus:border-blue-400 dark:focus:ring-blue-900 focus:ring-opacity-50 transition-colors",
-            value: selectedUser,
-            onChange: (e) => setSelectedUser(Number(e.target.value)),
-            children: users.map((user) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: user.id, children: user.name }, user.id))
+            value: selectedUser ?? "",
+            onChange: (e) => setSelectedUser(e.target.value),
+            disabled: users.length === 0,
+            children: Array.isArray(users) && users.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Loading users..." }) : Array.isArray(users) ? users.map((user) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "option",
+              {
+                value: user.id ?? user.email,
+                children: user.email
+              },
+              user.id ?? user.email ?? user.username ?? user.first_name ?? Math.random()
+            )) : /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "No users found" })
           }
         )
       ] }),
@@ -22106,11 +22183,21 @@ function Admin() {
           }
         )
       ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-2 text-center", children: selectedUser && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-base", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-gray-600 dark:text-gray-300", children: "Saldo: " }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("b", { className: "text-gray-900 dark:text-white", children: toRupiah(getSelectedUserSaldo()) }),
+        saldo && !isNaN(parseFloat(saldo)) && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mx-2 text-blue-700 dark:text-blue-300", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa fa-arrow-right" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("b", { className: "text-blue-700 dark:text-blue-300", children: toRupiah(getNewSaldo()) })
+        ] })
+      ] }) }),
+      error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-2 text-center text-red-600 dark:text-red-400 text-sm font-medium", children: error }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
         {
           type: "submit",
           className: "w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors font-semibold",
+          disabled: users.length === 0 || !selectedUser,
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa fa-plus" }),
             " Add Saldo"
