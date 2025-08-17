@@ -190,14 +190,6 @@ const Navbar: React.FC = () => {
                   title="GitHub Repository">
                   <i className="fab fa-github mr-2"></i> GitHub
                 </a>
-                <a
-                  href="https://twitter.com/dimaslanjaka"
-                  className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Twitter">
-                  <i className="fab fa-twitter mr-2"></i> Twitter
-                </a>
                 <hr className="my-1 border-gray-200 dark:border-gray-700" />
                 <Link
                   href="/about"
