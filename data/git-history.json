@@ -1,5 +1,29 @@
 [
   {
+    "hash": "7e3f68b141cb45b5bd607130aa3abd5d297acf0f",
+    "date": "2025-08-17T12:05:10+07:00",
+    "message": "fix(vite): exclude .deploy_git directory from watch list",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "b2559a0b637368a7438efcd7407638af69713855",
+    "date": "2025-08-17T12:04:04+07:00",
+    "message": "fix(github-pages): ensure job runs for both php-proxy-hunter and android-traffic-exchange repositories",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "1c2ace0cb99ab4836f6a2af726684600f354625a",
+    "date": "2025-08-17T12:00:55+07:00",
+    "message": "chore(husky): handle yarn install failure gracefully in post-merge hook\n\n- Updated `.husky/post-merge` to echo a message if `yarn install` fails, improving post-merge script robustness.",
+    "files": [
+      ".husky/post-merge"
+    ]
+  },
+  {
     "hash": "98c3cbb8a2b4557c602764022f1e03aeafe61d4b",
     "date": "2025-08-17T11:55:04+07:00",
     "message": "feat(react): add streaming JSON utility with oboe.js and integrate in Changelog\n\n- Added `oboe` and `@types/oboe` dependencies to `package.json` for streaming JSON parsing.\n- Created `streamJsonFromUrl` async generator in `src/react/utils/json.ts` to stream large JSON files using oboe.js.\n- Refactored `Changelog` page to use the new streaming helper for loading git history, improving performance with large files.\n- Added integration test for `streamJsonFromUrl` in `tests/react/utils/json.test.ts` using a real public JSON endpoint.",
