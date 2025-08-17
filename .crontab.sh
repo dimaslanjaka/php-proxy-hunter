@@ -145,14 +145,8 @@ fi
 
 # run every 24 hours
 if should_run_job "tmp/crontab/24-h" 24; then
-    BACKUP_DIR="$CWD/backups"
-    # backup database mysql
-    if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ] && [ -n "$MYSQL_DATABASE" ]; then
-        mkdir -p "$BACKUP_DIR"
-        BACKUP_FILE="$BACKUP_DIR/mysql-backup-$(date +%Y%m%d-%H%M%S).sql"
-        mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"
-        echo "MySQL backup saved to $BACKUP_FILE"
-    else
-        echo "MySQL credentials not set in .env"
-    fi
+    bash -e "$CWD/bin/backup-db"
+    # Remove old backups older than 7 days
+    find "$CWD/backups" -type f -name "*.sql" -mtime +7 -exec rm -f {} \;
+    echo "Old backups removed, keeping only the last 7 days."
 fi

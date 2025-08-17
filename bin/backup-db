@@ -1,21 +1,36 @@
 #!/bin/bash
 
-# Define file paths
-TMP_DB="tmp/database.sqlite"
-SRC_DB="src/database.sqlite"
-BACKUP_DIR="backups"
+CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TMP_DB="$CWD/tmp/database.sqlite"
+SRC_DB="$CWD/src/database.sqlite"
+BACKUP_DIR="$CWD/backups"
+
+# Load .env file
+if [ -f "$CWD/.env" ]; then
+    source "$CWD/.env"
+fi
 
 # Create backup directory if it doesn't exist
 mkdir -p "$BACKUP_DIR"
 
 # Backup tmp database if it exists
 if [ -f "$TMP_DB" ]; then
-  sqlite3 "$TMP_DB" .dump > "$BACKUP_DIR/tmp_dump.sql"
-  echo "$TMP_DB -> $BACKUP_DIR/tmp_dump.sql"
+    sqlite3 "$TMP_DB" .dump > "$BACKUP_DIR/tmp_dump.sql"
+    echo "$TMP_DB -> $BACKUP_DIR/tmp_dump.sql"
 fi
 
 # Backup src database if it exists
 if [ -f "$SRC_DB" ]; then
-  sqlite3 "$SRC_DB" .dump > "$BACKUP_DIR/src_dump.sql"
-  echo "$SRC_DB -> $BACKUP_DIR/src_dump.sql"
+    sqlite3 "$SRC_DB" .dump > "$BACKUP_DIR/src_dump.sql"
+    echo "$SRC_DB -> $BACKUP_DIR/src_dump.sql"
+fi
+
+# Backup MySQL database
+if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ] && [ -n "$MYSQL_DATABASE" ]; then
+    mkdir -p "$BACKUP_DIR"
+    BACKUP_FILE="$BACKUP_DIR/mysql-backup-$(date +%Y%m%d-%H%M%S).sql"
+    mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"
+    echo "MySQL backup saved to $BACKUP_FILE"
+else
+    echo "MySQL credentials not set in .env"
 fi
