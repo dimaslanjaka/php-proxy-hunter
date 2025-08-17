@@ -21,8 +21,10 @@
 @font-face {
   font-family: 'Ubuntu';
   src:
+    local('Ubuntu'),
     url('/assets/fonts/ubuntu/Ubuntu-B-webfont.woff') format('woff'),
-    url('/assets/fonts/ubuntu/Ubuntu-B-webfont.ttf') format('truetype');
+    url('/assets/fonts/ubuntu/Ubuntu-B-webfont.ttf') format('truetype'),
+    url('/assets/fonts/ubuntu/Ubuntu-B-webfont.otf') format('opentype');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
