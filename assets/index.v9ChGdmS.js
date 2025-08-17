@@ -11481,7 +11481,7 @@ function createUrl(path, params = {}, opts) {
   const result = url.toString();
   return result;
 }
-async function fetchUserInfo() {
+async function getUserInfo() {
   const response = await axios.get(createUrl("/php_backend/user-info.php"));
   return response.data;
 }
@@ -18888,7 +18888,7 @@ const Navbar = () => {
       });
       return;
     }
-    fetchUserInfo().then((data) => {
+    getUserInfo().then((data) => {
       if (data.authenticated) {
         setState((prev) => ({
           ...prev,
@@ -19471,7 +19471,7 @@ const Dashboard = () => {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
   React.useEffect(() => {
-    fetchUserInfo().then((data) => {
+    getUserInfo().then((data) => {
       if (typeof data.saldo === "number") {
         setSaldo(data.saldo);
       }
@@ -19520,7 +19520,7 @@ const Settings = () => {
   const [error, setError] = reactExports.useState("");
   const [success, setSuccess] = reactExports.useState("");
   React.useEffect(() => {
-    fetchUserInfo().then((data) => {
+    getUserInfo().then((data) => {
       if (data.authenticated) {
         setUsername(data.username || "");
         setEmail(data.email || "");
@@ -21969,7 +21969,7 @@ function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      const url = createUrl(`/data/git-history.json`, { v: "b11e9749" });
+      const url = createUrl(`/data/git-history.json`, { v: "6177494d" });
       gitHistoryPromise = (async () => {
         const commits2 = [];
         for await (const commit of streamJsonFromUrl(url, "!*")) {
@@ -22090,6 +22090,7 @@ function toRupiah(value) {
   return "Rp. " + num.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 function Admin() {
+  const navigate = useNavigate();
   const [users, setUsers] = reactExports.useState([]);
   const [selectedUser, setSelectedUser] = reactExports.useState(null);
   const [saldo, setSaldo] = reactExports.useState("");
@@ -22107,6 +22108,13 @@ function Admin() {
     return current + add;
   }
   React.useEffect(() => {
+    getUserInfo().then((user) => {
+      if (user && !user.admin) {
+        navigate("/");
+      }
+    }).catch(() => {
+      setError("Failed to fetch user info.");
+    });
     const fetchUsers = async () => {
       try {
         const result = await getListOfUsers();

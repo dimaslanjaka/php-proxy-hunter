@@ -1,5 +1,48 @@
 [
   {
+    "hash": "6177494d58130cfc7e5574dbbb72e0dcf6bf398d",
+    "date": "2025-08-18T04:33:28+07:00",
+    "message": "feat(admin): add admin check and redirect using react-router-dom\n\n- Imported useNavigate and getUserInfo in Admin page.\n- Added effect to check if the current user is admin; if not, redirect to home using navigate('/').\n- Improved error handling for user info fetch failure.",
+    "files": [
+      "src/react/pages/Admin.tsx"
+    ]
+  },
+  {
+    "hash": "46c19c71c150a40be70e7aecc060b4429b4768ae",
+    "date": "2025-08-18T04:32:18+07:00",
+    "message": "refactor(user): rename fetchUserInfo to getUserInfo and update related usage\n\n- Renamed fetchUserInfo to getUserInfo in user utility module.\n- Updated all imports and usages in Navbar, Dashboard, and Settings components.\n- Changed UserInfo/SingleUserInfo usage to match new function and type signatures.\n- Made uid property in SingleUserInfo optional for improved type safety.",
+    "files": [
+      "src/react/components/Navbar.tsx",
+      "src/react/pages/Dashboard.tsx",
+      "src/react/pages/Settings.tsx",
+      "src/react/utils/user.ts"
+    ]
+  },
+  {
+    "hash": "348a810ab989daeba2c6534f70376d28135d7be2",
+    "date": "2025-08-18T03:35:16+07:00",
+    "message": "feat(vps): enhance project manager with NVM sourcing and yarn build support\n\n- Update `pull_latest_code` to source NVM environment and use custom git-pull script\n- Add `yarn_build` function to run `yarn build` with NVM environment sourced\n- Register new \"Run yarn build\" menu item\n- Update docstrings for clarity and accuracy",
+    "files": [
+      "src/vps/menus/project-manager.py"
+    ]
+  },
+  {
+    "hash": "fbc008d4066ccbf098db46a7163d8393633ead60",
+    "date": "2025-08-18T03:32:02+07:00",
+    "message": "feat(git-pull): auto-resolve .husky/hash.txt conflict during git pull\n\n- Detect if the only merge conflict is .husky/hash.txt during a dry-run merge before git pull\n- If so, automatically truncate and stage .husky/hash.txt, then continue the merge\n- Abort the pull as before if other files are conflicted or if resolution fails",
+    "files": [
+      "bin/git-pull.cjs"
+    ]
+  },
+  {
+    "hash": "c6ebf7b396901bf35c330ae95056fdb3b615c86d",
+    "date": "2025-08-18T03:28:22+07:00",
+    "message": "feat(git-pull): detect and prevent git pull if merge conflicts are expected\n\n- Add logic to fetch latest changes and perform a dry-run merge before running `git pull`\n- Abort the pull if a merge conflict is detected, preventing partial or broken updates\n- Ensure any changes from the dry-run are reset before proceeding with the actual pull",
+    "files": [
+      "bin/git-pull.cjs"
+    ]
+  },
+  {
     "hash": "b11e9749abf5c9af25e2a106e4ba03fc18072c5a",
     "date": "2025-08-18T02:53:13+07:00",
     "message": "feat(admin): dynamic user list, saldo addition, and error handling\n\n- Refactor Admin page to fetch user list from server using getListOfUsers.\n- Remove static users array; use state for users, selectedUser, saldo, and error.\n- Add helper functions to get current and new saldo, and format as Rupiah.\n- Implement saldo addition with addSaldoToUser and refresh user list after submit.\n- Display current and new saldo inline with arrow icon.\n- Show error messages above the submit button if saldo addition or user refresh fails.\n- Update user select to handle loading and empty states.\n- Add new utility: toRupiah for formatting numbers as Indonesian Rupiah.\n- Update user types and API calls in utils/user.ts for better type safety and extensibility.",
