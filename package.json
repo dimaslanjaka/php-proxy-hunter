@@ -22,7 +22,7 @@
     "fingerprint"
   ],
   "scripts": {
-    "build": "npm run build:rollup && npm run build:react",
+    "build": "npm run build:packages && npm run build:rollup && npm run build:react",
     "build:docs": "yarn workspace gh-pages-builder run build",
     "build:gh-pages": "node vite-gh-pages.js",
     "build:packages": "yarn workspaces foreach --no-private --all run build",
@@ -34,7 +34,6 @@
     "lint": "eslint --ext .js,.ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
     "normal-rebuild": "npm rebuild",
-    "postinstall": "npm run build:packages",
     "prepare": "npx husky && node setup.js",
     "preview:gh-pages": "npm run build:gh-pages && vite preview --config vite-gh-pages.config.js",
     "preview:react": "npm run build:react && vite preview",
