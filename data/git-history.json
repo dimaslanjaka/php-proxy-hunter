@@ -1,5 +1,22 @@
 [
   {
+    "hash": "fd387378f7a96a265e9e2e5ecfed2efc921d1ec9",
+    "date": "2025-08-17T17:22:49+07:00",
+    "message": "feat(navbar): hide admin menu for non-admin users\n\n- Add `admin` property to `UserInfo` interface and user state.\n- Only render the /admin link in the Navbar if the current user is an admin.",
+    "files": [
+      "src/react/components/Navbar.tsx",
+      "src/react/utils/user.ts"
+    ]
+  },
+  {
+    "hash": "d1720261e98d97776f03c5850271881a9b2655d3",
+    "date": "2025-08-17T17:04:09+07:00",
+    "message": "refactor(list-user): improve error response structure for unauthorized access",
+    "files": [
+      "php_backend/list-user.php"
+    ]
+  },
+  {
     "hash": "61a9204f07fa4b784b2830ef9818d3ff59ce06bc",
     "date": "2025-08-17T16:45:00+07:00",
     "message": "refactor(react): use PascalCase 'Component' prop for route mapping and JSX rendering\n\n- Updated route mapping logic to use 'Component' (PascalCase) instead of 'component' for consistency with React conventions.\n- Refactored route rendering in index.tsx to check for existence of 'Component' and render using JSX (<Component />) instead of string-based or lower-case component references.\n- Improved type safety and clarity in route definitions and rendering.",

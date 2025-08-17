@@ -18891,7 +18891,8 @@ class Navbar extends React.Component {
           last_name: data.last_name,
           saldo: data.saldo,
           uid: data.uid,
-          username: data.username
+          username: data.username,
+          admin: data.admin || false
         });
       } else {
         this.setState({ authenticated: false });
@@ -18965,7 +18966,7 @@ class Navbar extends React.Component {
                 ]
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            this.state.admin && /* @__PURE__ */ jsxRuntimeExports.jsxs(
               Link,
               {
                 href: "/admin",
@@ -21948,7 +21949,7 @@ function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      const url = createUrl(`/data/git-history.json`, { v: "61a9204f" });
+      const url = createUrl(`/data/git-history.json`, { v: "fd387378" });
       gitHistoryPromise = (async () => {
         const commits2 = [];
         for await (const commit of streamJsonFromUrl(url, "!*")) {
