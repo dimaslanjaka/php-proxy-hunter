@@ -16,12 +16,61 @@ try {
   process.exit(1);
 }
 
-// Run `git pull` with passed arguments
-const pullResult = child_process.spawnSync('git', ['pull', ...process.argv.slice(2)], { stdio: 'inherit' });
-if (pullResult.status === 0) {
-  console.log('Git pull completed successfully.');
-} else {
-  console.error('Git pull failed.');
+// Detect if git pull will have conflict before running it
+try {
+  // Fetch latest changes
+  const fetchResult = child_process.spawnSync('git', ['fetch', ...process.argv.slice(2)], { stdio: 'inherit' });
+  if (fetchResult.status !== 0) {
+    console.error('Git fetch failed.');
+    process.exit(1);
+  }
+
+  // Get current branch name
+  const branchName = child_process.execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim();
+  const remoteName = 'origin';
+  const remoteBranch = `${remoteName}/${branchName}`;
+
+  // Dry-run merge to detect conflicts
+  let mergeResult;
+  try {
+    mergeResult = child_process.spawnSync(
+      'git',
+      ['merge', '--no-commit', '--no-ff', '--no-edit', '--dry-run', remoteBranch],
+      { encoding: 'utf8' }
+    );
+  } catch (err) {
+    console.error('Error running git merge dry-run:', err.message);
+    process.exit(1);
+  }
+
+  if (mergeResult.stderr && /CONFLICT/i.test(mergeResult.stderr)) {
+    console.error('Merge conflict detected! Aborting git pull.');
+    // Abort the merge if it started
+    try {
+      child_process.execSync('git merge --abort');
+    } catch (_) {
+      // ignore
+    }
+    process.exit(1);
+  }
+
+  // If no conflict, reset any changes from dry-run
+  try {
+    child_process.execSync('git reset --hard');
+  } catch (_) {
+    // ignore
+  }
+
+  // Now run git pull
+  const pullResult = child_process.spawnSync('git', ['pull', ...process.argv.slice(2)], { stdio: 'inherit' });
+  if (pullResult.status === 0) {
+    console.log('Git pull completed successfully.');
+  } else {
+    console.error('Git pull failed.');
+  }
+} catch (err) {
+  console.error('Error during git pull conflict check:', err.message);
+  process.exit(1);
 }
 
 // Check if running under cron
