@@ -1,5 +1,16 @@
 [
   {
+    "hash": "98c3cbb8a2b4557c602764022f1e03aeafe61d4b",
+    "date": "2025-08-17T11:55:04+07:00",
+    "message": "feat(react): add streaming JSON utility with oboe.js and integrate in Changelog\n\n- Added `oboe` and `@types/oboe` dependencies to `package.json` for streaming JSON parsing.\n- Created `streamJsonFromUrl` async generator in `src/react/utils/json.ts` to stream large JSON files using oboe.js.\n- Refactored `Changelog` page to use the new streaming helper for loading git history, improving performance with large files.\n- Added integration test for `streamJsonFromUrl` in `tests/react/utils/json.test.ts` using a real public JSON endpoint.",
+    "files": [
+      "package.json",
+      "src/react/pages/Changelog.tsx",
+      "src/react/utils/json.ts",
+      "tests/react/utils/json.test.ts"
+    ]
+  },
+  {
     "hash": "0ceb1bdebcc07dd36dad38a216ad6cbaec7a5cee",
     "date": "2025-08-15T20:51:24+07:00",
     "message": "refactor(proxy): update logger, test structure, and utility usage\n\n- Move logger implementation from node_browser/logger.js to src/proxy/logger.js and update imports accordingly.\n- Replace deprecated toMs utility with toMilliseconds from sbg-utility in ProxyChecker and hunter modules.\n- Remove src/proxy/filterTest.test.js and add tests/proxy/filterTest.direct.js for direct test execution.\n- Move and rename test files from src/proxy/*.test.js to tests/proxy/*.direct.js, updating import paths to use src/ structure.\n- Update tsconfig.json to include ./tests/**/* instead of ./test/**/* in the include section.\n- General code cleanup and modernization of proxy-related modules and tests.",
