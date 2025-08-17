@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import dotenv from 'dotenv';
 import fs from 'fs';
 import minimist from 'minimist';
@@ -17,9 +16,6 @@ const __dirname = path.dirname(__filename);
 const { parsed: dotenvConfig } = dotenv.config({ override: true, path: path.join(__dirname, '.env') });
 export { dotenvConfig };
 
-export const PROJECT_DIR = productionEnv.PROJECT_DIR;
-export { productionEnv };
-
 // Create the environment configuration object
 const productionEnv = {
   GITHUB_TOKEN_READ_ONLY: dotenvConfig.GITHUB_TOKEN_READ_ONLY, // Add GitHub token
@@ -27,6 +23,9 @@ const productionEnv = {
   PROJECT_DIR: __dirname, // Add project directory path
   WHATSAPP_ADMIN: dotenvConfig.WHATSAPP_ADMIN?.split(',') || [] // Add whatsapp admin list
 };
+
+export const PROJECT_DIR = productionEnv.PROJECT_DIR;
+export { productionEnv };
 
 // Write environment config to a JSON file
 fs.writeFileSync(path.join(__dirname, '.env.build.json'), JSON.stringify(productionEnv, null, 2));
