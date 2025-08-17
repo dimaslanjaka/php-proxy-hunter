@@ -77,6 +77,9 @@ try {
       }
       process.exit(1);
     }
+  } else {
+    // No conflict detected, continue as normal
+    console.log('No merge conflicts detected in dry-run. Proceeding with git pull.');
   }
 
   // If no conflict, reset any changes from dry-run
