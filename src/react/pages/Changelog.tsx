@@ -1,6 +1,6 @@
 import React from 'react';
-
 import type gitHistoryToJson from '../../dev/git-history-to-json';
+import { streamJsonFromUrl } from '../utils/json';
 import { createUrl } from '../utils/url';
 
 type Commit = ReturnType<typeof gitHistoryToJson>[number];
@@ -50,20 +50,23 @@ export default function Changelog() {
     if (!gitHistoryPromise) {
       // Add cache buster to avoid stale fetches
       const url = createUrl(`/data/git-history.json`, { v: import.meta.env.VITE_GIT_COMMIT });
-      gitHistoryPromise = fetch(url)
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to fetch git history');
-          return res.json();
-        })
-        .then((data) => {
-          gitHistoryCache = data;
-          try {
-            localStorage.setItem('gitHistoryFirstPage', JSON.stringify(data.slice(0, COMMITS_PER_PAGE)));
-          } catch {
-            setError('Failed to update git history cache');
-          }
-          return data;
-        });
+      // Use streaming helper for large files
+      gitHistoryPromise = (async () => {
+        const commits: Commit[] = [];
+        // If your JSON is an array: use '!*'. If it's {commits: [...]}, use '!commits.*'
+        for await (const commit of streamJsonFromUrl<Commit>(url, '!*')) {
+          commits.push(commit);
+        }
+        return commits;
+      })().then((data) => {
+        gitHistoryCache = data;
+        try {
+          localStorage.setItem('gitHistoryFirstPage', JSON.stringify(data.slice(0, COMMITS_PER_PAGE)));
+        } catch {
+          setError('Failed to update git history cache');
+        }
+        return data;
+      });
     }
     gitHistoryPromise
       .then((data) => {
