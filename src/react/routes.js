@@ -8,6 +8,7 @@ import About from './pages/About.tsx';
 import Contact from './pages/Contact.tsx';
 import Changelog from './pages/Changelog.tsx';
 import Admin from './pages/Admin.tsx';
+import Logout from './pages/Logout.tsx';
 
 export default [
   {
@@ -99,5 +100,14 @@ export default [
     thumbnail:
       'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
     canonical: 'https://www.webmanajemen.com/php-proxy-hunter/contact'
+  },
+  {
+    path: '/logout',
+    component: Logout,
+    title: 'Logout | PHP Proxy Hunter',
+    description: 'Logout from your PHP Proxy Hunter account.',
+    thumbnail:
+      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
+    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/logout'
   }
 ];
