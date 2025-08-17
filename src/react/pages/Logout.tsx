@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { createUrl } from '../utils/url';
+import Link from '../components/Link';
 
 const Logout: React.FC = () => {
   const [done, setDone] = React.useState(false);
@@ -36,12 +37,12 @@ const Logout: React.FC = () => {
               <i className="fal fa-check-circle"></i>
               You have been logged out.
             </p>
-            <a
+            <Link
               href="/login"
               className="text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-2">
               <i className="fal fa-sign-in-alt"></i>
               Go to Login
-            </a>
+            </Link>
           </>
         )}
         {done && logoutSuccess === false && (
