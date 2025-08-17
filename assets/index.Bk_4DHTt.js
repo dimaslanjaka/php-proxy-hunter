@@ -21333,7 +21333,7 @@ function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      const url = createUrl(`/data/git-history.json`, { v: "7e3f68b1" });
+      const url = createUrl(`/data/git-history.json`, { v: "48ebf139" });
       gitHistoryPromise = (async () => {
         const commits2 = [];
         for await (const commit of streamJsonFromUrl(url, "!*")) {

@@ -1,5 +1,67 @@
 [
   {
+    "hash": "48ebf139340021b6ef431d1f0c388da7f4c1c8ea",
+    "date": "2025-08-17T12:55:35+07:00",
+    "message": "fix(index.php): update allowed file extensions for asset routing and improve MIME type handling",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
+    "hash": "ab6d3fd0983fe60de80fbdb37759341868f32bbf",
+    "date": "2025-08-17T12:48:51+07:00",
+    "message": "feat(css): add Ubuntu font-face and apply to body in Tailwind input\n\n- Added @font-face for 'Ubuntu' using UbuntuMono-R.ttf in tailwind.input.css\n- Set 'Ubuntu' as the default font-family for the body element",
+    "files": [
+      "assets/fonts/ubuntu/CONTRIBUTING.txt",
+      "assets/fonts/ubuntu/FONTLOG.txt",
+      "assets/fonts/ubuntu/LICENCE-FAQ.txt",
+      "assets/fonts/ubuntu/LICENCE.txt",
+      "assets/fonts/ubuntu/README.txt",
+      "assets/fonts/ubuntu/TRADEMARKS.txt",
+      "assets/fonts/ubuntu/Ubuntu-B.ttf",
+      "assets/fonts/ubuntu/Ubuntu-BI.ttf",
+      "assets/fonts/ubuntu/Ubuntu-C.ttf",
+      "assets/fonts/ubuntu/Ubuntu-L.ttf",
+      "assets/fonts/ubuntu/Ubuntu-LI.ttf",
+      "assets/fonts/ubuntu/Ubuntu-M.ttf",
+      "assets/fonts/ubuntu/Ubuntu-MI.ttf",
+      "assets/fonts/ubuntu/Ubuntu-R.ttf",
+      "assets/fonts/ubuntu/Ubuntu-RI.ttf",
+      "assets/fonts/ubuntu/Ubuntu-Th.ttf",
+      "assets/fonts/ubuntu/UbuntuMono-B.ttf",
+      "assets/fonts/ubuntu/UbuntuMono-BI.ttf",
+      "assets/fonts/ubuntu/UbuntuMono-R.ttf",
+      "assets/fonts/ubuntu/UbuntuMono-RI.ttf",
+      "assets/fonts/ubuntu/copyright.txt",
+      "tailwind.input.css",
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "0d230f0f8a0a9f24e921df04039600fb687214aa",
+    "date": "2025-08-17T12:22:35+07:00",
+    "message": "refactor(index.php): optimize static asset serving logic and remove redundancy\n\n- Removed redundant file path and extension handling for /assets and /data routes.\n- Unified file existence checks using a loop to try both the project root and /dist/react directories.\n- Centralized MIME type detection and response logic.\n- Ensured allowed extension rule is enforced before serving any file.",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
+    "hash": "bf39bf8d10bc97176b5b8733162e62edcc0a3202",
+    "date": "2025-08-17T12:16:29+07:00",
+    "message": "chore(nginx): comment out static file location block for js, css, images, and icons\n\nThe location block handling static files with caching and logging settings has been commented out. This change allows requests for missing static files to be handled by the main try_files rule, enabling fallback to index.php.",
+    "files": [
+      ".htaccess_nginx.conf"
+    ]
+  },
+  {
+    "hash": "37846c1dc2a9a16de9d968d4a0d2b87440298ba9",
+    "date": "2025-08-17T12:12:46+07:00",
+    "message": "fix(tailwind): add local font reference for bold Ubuntu font",
+    "files": [
+      "tailwind.input.css"
+    ]
+  },
+  {
     "hash": "7e3f68b141cb45b5bd607130aa3abd5d297acf0f",
     "date": "2025-08-17T12:05:10+07:00",
     "message": "fix(vite): exclude .deploy_git directory from watch list",

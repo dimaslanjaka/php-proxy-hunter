@@ -2544,17 +2544,7 @@
 }
 @font-face {
   font-family: 'Ubuntu';
-  src: url('/php-proxy-hunter/assets/fonts/Ubuntu-R-webfont.47rzPAWy.woff') format('woff'), url('/php-proxy-hunter/assets/fonts/Ubuntu-R-webfont.DDbgjL-A.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ubuntu';
-  src: url('/php-proxy-hunter/assets/fonts/Ubuntu-B-webfont.CiYMjqr0.woff') format('woff'), url('/php-proxy-hunter/assets/fonts/Ubuntu-B-webfont.B-VIdUiY.ttf') format('truetype');
-  font-weight: bold;
-  font-style: normal;
-  font-display: swap;
+  src: local('Ubuntu'), url('/php-proxy-hunter/assets/fonts/UbuntuMono-R.B5zf1UKa.ttf') format('truetype');
 }
 body {
   font-family: 'Ubuntu', sans-serif;
