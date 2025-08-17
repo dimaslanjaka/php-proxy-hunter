@@ -105,7 +105,8 @@ export const viteConfig = defineConfig({
         '**/.husky/**',
         '**/public/**/*.json',
         '**/tests/**',
-        '**/test/**'
+        '**/test/**',
+        '**/.deploy_git/**'
       ],
       usePolling: true, // slower but reliable
       interval: 100
