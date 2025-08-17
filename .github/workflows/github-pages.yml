@@ -24,6 +24,7 @@ concurrency:
 
 jobs:
   build-and-deploy:
+    if: contains(github.repository, 'php-proxy-hunter') || contains(github.repository, 'android-traffic-exchange')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
