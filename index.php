@@ -19,7 +19,6 @@ if (in_array($_SERVER['HTTP_HOST'], $localhosts)) {
 
 // Route /assets and /data to dist/assets and dist/data with auto MIME type, allow only specific file types
 if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUEST_URI'], '/data/') === 0) {
-  $filePath = __DIR__ . '/dist/react' . urldecode($_SERVER['REQUEST_URI']);
   $allowedExtensions = [
     'json',
     'txt',
@@ -46,33 +45,40 @@ if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUES
     'fnt'
   ];
 
-  $pathOnly = parse_url($filePath, PHP_URL_PATH);
-  $ext = strtolower(pathinfo($pathOnly, PATHINFO_EXTENSION));
+  $requestPath = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+  $ext = strtolower(pathinfo($requestPath, PATHINFO_EXTENSION));
   if (!in_array($ext, $allowedExtensions, true)) {
     http_response_code(403);
     echo '403 Forbidden: The requested file type is not allowed.';
     exit;
   }
-  if (file_exists($pathOnly)) {
-    if ($ext === 'js') {
-      $mimeType = 'application/javascript';
-    } elseif ($ext === 'css') {
-      $mimeType = 'text/css';
-    } else {
-      $finfo = finfo_open(FILEINFO_MIME_TYPE);
-      $mimeType = finfo_file($finfo, $pathOnly);
-      finfo_close($finfo);
+
+  // Try to serve from local root first, then from /dist/react
+  $locations = [
+    __DIR__ . $requestPath,
+    __DIR__ . '/dist/react' . $requestPath
+  ];
+
+  foreach ($locations as $file) {
+    if (file_exists($file)) {
+      if ($ext === 'js') {
+        $mimeType = 'application/javascript';
+      } elseif ($ext === 'css') {
+        $mimeType = 'text/css';
+      } else {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file);
+        finfo_close($finfo);
+      }
+      header('Content-Type: ' . $mimeType);
+      readfile($file);
+      exit;
     }
-    header('Content-Type: ' . $mimeType);
-
-    readfile($pathOnly);
-    exit;
-  } else {
-    http_response_code(404);
-
-    echo '404 Not Found: The requested file ' . htmlspecialchars($_SERVER['REQUEST_URI']) . ' was not found.';
-    exit;
   }
+
+  http_response_code(404);
+  echo '404 Not Found: The requested file ' . htmlspecialchars($_SERVER['REQUEST_URI']) . ' was not found.';
+  exit;
 }
 
 $indexFile = __DIR__ . '/index.html';
