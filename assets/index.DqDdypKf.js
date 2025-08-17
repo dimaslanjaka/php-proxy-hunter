@@ -1,5 +1,6 @@
-import { R as React, L as Link$1, r as reactExports, u as useLocation, B as BrowserRouter, a as Routes, b as Route } from "./react-router.2wkitfaT.js";
+import { R as React, L as Link$1, r as reactExports, u as useNavigate, a as useLocation, B as BrowserRouter, b as Routes, c as Route } from "./react-router.BcaVcf8t.js";
 import { r as requireReact, a as requireReactDom, g as getDefaultExportFromCjs, c as commonjsGlobal, b as getAugmentedNamespace } from "./react.BKuUvC82.js";
+import { a as axios } from "./axios.9sRqNPX7.js";
 (function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) return;
@@ -11457,7 +11458,6 @@ function isValidHttpUrl(str) {
   return url.protocol === "http:" || url.protocol === "https:";
 }
 function createUrl(path, params = {}, opts) {
-  console.debug(`[createUrl] path: "${path}", params:`, params);
   let origin = window.location.origin;
   let base = "";
   {
@@ -11479,13 +11479,11 @@ function createUrl(path, params = {}, opts) {
     url.searchParams.append(key, String(params[key]));
   });
   const result = url.toString();
-  console.debug(`[createUrl] result: "${result}"`);
   return result;
 }
 async function fetchUserInfo() {
-  const response = await fetch(createUrl("/php_backend/user-info.php"));
-  if (!response.ok) throw new Error("Failed to fetch user info");
-  return response.json();
+  const response = await axios.get(createUrl("/php_backend/user-info.php"));
+  return response.data;
 }
 var dist$1 = { exports: {} };
 var parseQuery = {};
@@ -18851,6 +18849,27 @@ const ThemeSwitcher = () => {
 class Navbar extends React.Component {
   constructor(props) {
     super(props);
+    this.userMenuRef = React.createRef();
+    this.socialMenuRef = React.createRef();
+    this.handleClickOutside = (event) => {
+      const userMenu = this.userMenuRef.current;
+      const socialMenu = this.socialMenuRef.current;
+      if (this.state.userMenuOpen && userMenu && !userMenu.contains(event.target) || this.state.socialOpen && socialMenu && !socialMenu.contains(event.target)) {
+        this.setState({ userMenuOpen: false, socialOpen: false });
+      }
+    };
+    this.handleUserMenuToggle = () => {
+      this.setState((prevState) => ({
+        userMenuOpen: !prevState.userMenuOpen,
+        socialOpen: false
+      }));
+    };
+    this.handleSocialMenuToggle = () => {
+      this.setState((prevState) => ({
+        socialOpen: !prevState.socialOpen,
+        userMenuOpen: false
+      }));
+    };
     this.state = {
       authenticated: false,
       email: void 0,
@@ -18858,7 +18877,8 @@ class Navbar extends React.Component {
       last_name: void 0,
       saldo: void 0,
       uid: void 0,
-      username: void 0
+      username: void 0,
+      userMenuOpen: false
     };
   }
   componentDidMount() {
@@ -18880,9 +18900,14 @@ class Navbar extends React.Component {
       console.error("Error fetching user info:", error);
       this.setState({ authenticated: false });
     });
+    document.addEventListener("mousedown", this.handleClickOutside);
+  }
+  componentWillUnmount() {
+    document.removeEventListener("mousedown", this.handleClickOutside);
   }
   render() {
     const socialOpen = this.state.socialOpen || false;
+    const userMenuOpen = this.state.userMenuOpen || false;
     return /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { className: "w-full bg-white dark:bg-gray-900 shadow-md", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { href: "/", className: "text-2xl font-bold text-blue-600 dark:text-white", title: "Home", children: "DX" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
@@ -18899,57 +18924,97 @@ class Navbar extends React.Component {
             ]
           }
         ),
-        this.state.authenticated && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Link,
-          {
-            href: "/dashboard",
-            className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
-            "aria-label": "Dashboard",
-            title: "Dashboard",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-tachometer-alt text-2xl", "aria-hidden": "true" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Dashboard" })
-            ]
-          }
-        ),
-        this.state.authenticated && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Link,
-          {
-            href: "/settings",
-            className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
-            "aria-label": "Settings",
-            title: "Settings",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-cog text-2xl", "aria-hidden": "true" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Settings" })
-            ]
-          }
-        ),
-        !this.state.authenticated && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Link,
-          {
-            href: "/login",
-            className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium",
-            "aria-label": "Login",
-            title: "Login",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fas fa-sign-in-alt text-2xl", "aria-hidden": "true" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Login" })
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: this.userMenuRef, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
-              className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none",
+              className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none flex items-center gap-1",
+              "aria-label": "User Menu",
+              title: "User Menu",
+              onClick: this.handleUserMenuToggle,
+              type: "button",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-user-cog text-2xl", "aria-hidden": "true" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "User Menu" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: `fal fa-chevron-${userMenuOpen ? "up" : "down"} ml-1 text-xs`, "aria-hidden": "true" })
+              ]
+            }
+          ),
+          userMenuOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50", children: this.state.authenticated ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Link,
+              {
+                href: "/dashboard",
+                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+                title: "Dashboard",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-tachometer-alt mr-2" }),
+                  " Dashboard"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Link,
+              {
+                href: "/settings",
+                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+                title: "Settings",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-cog mr-2" }),
+                  " Settings"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Link,
+              {
+                href: "/admin",
+                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+                title: "Admin",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-user-shield mr-2" }),
+                  " Admin"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Link,
+              {
+                href: "/logout",
+                className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+                title: "Logout",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-sign-out-alt mr-2" }),
+                  " Logout"
+                ]
+              }
+            )
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Link,
+            {
+              href: "/login",
+              className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
+              title: "Login",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fas fa-sign-in-alt mr-2" }),
+                " Login"
+              ]
+            }
+          ) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: this.socialMenuRef, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: "text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none flex items-center gap-1",
               "aria-label": "Social Media",
               title: "Social Media",
-              onClick: () => this.setState({ socialOpen: !socialOpen }),
+              onClick: this.handleSocialMenuToggle,
               type: "button",
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-ellipsis-h text-2xl", "aria-hidden": "true" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Social" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Social" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: `fal fa-chevron-${socialOpen ? "up" : "down"} ml-1 text-xs`, "aria-hidden": "true" })
               ]
             }
           ),
@@ -19026,6 +19091,530 @@ class Navbar extends React.Component {
     ] }) });
   }
 }
+const NotFound = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col items-center justify-center min-h-[60vh] py-8 px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700", children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-6xl text-red-500 mb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa-duotone fa-circle-exclamation" }) }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-4xl font-bold text-gray-800 dark:text-white mb-1", children: "404" }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl text-gray-600 dark:text-gray-300 mb-2", children: "Page Not Found" }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 dark:text-gray-400 mb-4", children: "The page you are looking for does not exist." }),
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Link,
+    {
+      href: "/",
+      className: "inline-flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors font-medium shadow focus:outline-none focus:ring-2 focus:ring-blue-400",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa-duotone fa-house" }),
+        "Go to Home"
+      ]
+    }
+  )
+] }) });
+const Home = () => /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen", children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "relative bg-white dark:bg-gray-900", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-20", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-gray-900 dark:text-gray-100", children: "Build Your Future" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-6 text-lg sm:mt-8 sm:text-xl sm:max-w-2xl sm:mx-auto text-gray-700 dark:text-gray-300", children: "Discover the tools and insights to take your business to the next level. Join thousands of innovators today!" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-8 flex flex-col sm:flex-row justify-center gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Link,
+        {
+          href: "/proxyManager.html",
+          className: "px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2\n                  bg-blue-600 text-white border-blue-700\n                  dark:bg-blue-700 dark:text-white dark:border-blue-600",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fas fa-server" }),
+            "Proxy Manager"
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Link,
+        {
+          href: "/changelog",
+          className: "px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2\n                  bg-green-100 text-green-900 border-green-300\n                  dark:bg-green-800 dark:text-green-100 dark:border-green-700",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa-duotone fa-clock-rotate-left" }),
+            "Changelog"
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Link,
+        {
+          href: "https://github.com/dimaslanjaka/php-proxy-hunter",
+          className: "px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2\n                  bg-gray-100 text-gray-900 border-gray-300\n                  dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700",
+          children: "Learn More"
+        }
+      )
+    ] })
+  ] }) }) }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "py-16 bg-gray-50 dark:bg-gray-800", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center w-16 h-16 border rounded-full mx-auto bg-blue-600 dark:bg-blue-700 text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "svg",
+        {
+          className: "w-8 h-8",
+          fill: "none",
+          stroke: "currentColor",
+          viewBox: "0 0 24 24",
+          xmlns: "http://www.w3.org/2000/svg",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              strokeWidth: "2",
+              d: "M3 10h11M9 21V3m12 10H9m3 7h3m4 0h3m-4-4h3m-6 0h3M9 7h3m6 0h3"
+            }
+          )
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mt-4 text-xl font-semibold text-gray-900 dark:text-gray-100", children: "Innovative Tools" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-gray-700 dark:text-gray-300", children: "Access a range of tools to enhance productivity and achieve your goals faster." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center w-16 h-16 border rounded-full mx-auto bg-blue-600 dark:bg-blue-700 text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "svg",
+        {
+          className: "w-8 h-8",
+          fill: "none",
+          stroke: "currentColor",
+          viewBox: "0 0 24 24",
+          xmlns: "http://www.w3.org/2000/svg",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              strokeWidth: "2",
+              d: "M13 16h-1v-4h-1m5 4h-1v-6h-1m-4 6h1m-5-4h1m8-6H9m2-4H5m6 0h6"
+            }
+          )
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mt-4 text-xl font-semibold text-gray-900 dark:text-gray-100", children: "Actionable Insights" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-gray-700 dark:text-gray-300", children: "Gain insights that drive results and keep you ahead of the competition." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center w-16 h-16 border rounded-full mx-auto bg-blue-600 dark:bg-blue-700 text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "svg",
+        {
+          className: "w-8 h-8",
+          fill: "none",
+          stroke: "currentColor",
+          viewBox: "0 0 24 24",
+          xmlns: "http://www.w3.org/2000/svg",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              strokeWidth: "2",
+              d: "M9.75 9.75l-1.5-1.5m0 0L8 8m3-3H5m6 0h6m-6 6h6m-6 6h6m6-6h-3m-6 6h3m-6-9H5m6 0h6"
+            }
+          )
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mt-4 text-xl font-semibold text-gray-900 dark:text-gray-100", children: "Scalable Solutions" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-gray-700 dark:text-gray-300", children: "Grow your business with flexible and scalable solutions tailored to your needs." })
+    ] })
+  ] }) }) }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "py-16 bg-white dark:bg-gray-900", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-3xl font-extrabold sm:text-4xl text-gray-900 dark:text-gray-100", children: "Ready to Transform Your Future?" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-4 text-lg text-gray-700 dark:text-gray-300", children: "Start your journey today with our platform. It’s time to achieve the success you deserve." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Link,
+      {
+        href: "#",
+        className: "px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 bg-blue-600 dark:bg-blue-700 text-white",
+        children: "Get Started Now"
+      }
+    ) })
+  ] }) })
+] }) });
+const Login = () => {
+  const [username, setUsername] = reactExports.useState("");
+  const [password, setPassword] = reactExports.useState("");
+  const [error, setError] = reactExports.useState("");
+  const [googleAuthUrl, setGoogleAuthUrl] = reactExports.useState("");
+  const indicators = {};
+  const navigate = useNavigate();
+  reactExports.useEffect(() => {
+    document.title = "Login - PHP Proxy Hunter";
+    const googleRedirectUrl = createUrl("/oauth/google");
+    if (!indicators.getAuthUrl) {
+      indicators.getAuthUrl = true;
+      axios.get(createUrl("/php_backend/google-oauth.php", { redirect_uri: googleRedirectUrl, "google-auth-uri": true })).then((res) => {
+        setGoogleAuthUrl(res.data.auth_uri);
+        console.log(res.data);
+        document.querySelector("#google-login-button")?.removeAttribute("disabled");
+      }).catch((e) => {
+        console.error("Error fetching Google Auth URL:", e);
+        indicators.getAuthUrl = false;
+        document.querySelector("#google-login-button")?.setAttribute("disabled", "true");
+      });
+    }
+  }, [setGoogleAuthUrl]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setError("Please enter both username and password.");
+      return;
+    }
+    const url = createUrl("/php_backend/login.php");
+    axios.post(url, { username, password }).then((response) => {
+      const data = response.data;
+      if (data.success) {
+        navigate("/dashboard");
+      } else {
+        setError(data.message || "Login failed. Please try again.");
+      }
+    }).catch((error2) => {
+      console.error("Login error:", error2);
+      setError(
+        error2.response?.data?.message || error2.message || "An unexpected error occurred. Please try again later."
+      );
+    });
+  };
+  const handleGoogleLogin = () => {
+    if (googleAuthUrl) {
+      window.location.href = googleAuthUrl;
+    } else {
+      alert("Google login not available at the moment.");
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold mb-6 text-center text-blue-600 dark:text-white", children: "Login" }),
+    error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 text-red-500", children: error }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block mb-1 text-gray-700 dark:text-gray-200", htmlFor: "username", children: "Username" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          id: "username",
+          type: "text",
+          value: username,
+          onChange: (e) => setUsername(e.target.value),
+          className: "w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white",
+          autoComplete: "username"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block mb-1 text-gray-700 dark:text-gray-200", htmlFor: "password", children: "Password" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          id: "password",
+          type: "password",
+          value: password,
+          onChange: (e) => setPassword(e.target.value),
+          className: "w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white",
+          autoComplete: "current-password"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "submit",
+        className: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring mb-4",
+        children: "Login"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        id: "google-login-button",
+        disabled: !googleAuthUrl,
+        "aria-label": "Login with Google",
+        title: "Login with Google",
+        type: "button",
+        className: "w-full flex items-center justify-center bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded focus:outline-none focus:ring dark:bg-gray-700 dark:text-white dark:border-gray-500 dark:hover:bg-gray-600",
+        style: { marginTop: "8px" },
+        onClick: handleGoogleLogin,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-5 h-5 mr-2 fa-brands fa-google", style: { fontSize: "1.25rem" } }),
+          "Login with Google"
+        ]
+      }
+    )
+  ] }) }) });
+};
+const Outbound = () => {
+  const location2 = useLocation();
+  const [url, setUrl] = reactExports.useState("#");
+  reactExports.useEffect(() => {
+    const parseUrl = () => {
+      const parsed = sfInstance.resolveQueryUrl(window.location.href);
+      const url2 = parsed.url?.base64.decode || "";
+      setUrl(url2);
+      console.log(parsed);
+    };
+    parseUrl();
+  }, [location2.search]);
+  const isValid = url && /^https?:\/\//.test(url);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col items-center justify-center min-h-screen text-center px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-lg w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-800", children: isValid ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl font-extrabold mb-4 text-blue-700 dark:text-blue-400", children: "Leaving Site" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-2 text-gray-700 dark:text-gray-300", children: "You are about to visit an external site. For your safety, please review the link below before proceeding." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 p-2 bg-blue-50 dark:bg-gray-800 rounded break-all text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700", children: url }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "a",
+      {
+        href: url,
+        className: "inline-block px-6 py-2 rounded bg-blue-600 dark:bg-blue-700 text-white font-semibold hover:bg-blue-700 dark:hover:bg-blue-800 transition",
+        rel: "noopener noreferrer",
+        target: "_blank",
+        children: "Continue to site"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-4 text-sm text-gray-500 dark:text-gray-400", children: "This link will open in a new tab. If you do not trust this link, you can safely close this page." })
+  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-bold mb-4 text-red-600", children: "Invalid or Missing URL" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700 dark:text-gray-300", children: "Please check the link and try again." })
+  ] }) }) }) });
+};
+const OauthHandler = () => {
+  const location2 = useLocation();
+  const [result, setResult] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const hasRunRef = React.useRef(false);
+  React.useEffect(() => {
+    if (hasRunRef.current) return;
+    hasRunRef.current = true;
+    const params = new URLSearchParams(location2.search);
+    const code = params.get("code");
+    const state = params.get("state");
+    if (!code) {
+      setResult({ success: false, error: "No OAuth code found. Please try again." });
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const googleRedirectUrl = createUrl("/oauth/google");
+    axios.post(
+      createUrl("/php_backend/google-oauth.php", { redirect_uri: googleRedirectUrl, "google-oauth-callback": code }),
+      { code, state }
+    ).then((res) => {
+      setResult(res.data);
+      setLoading(false);
+    }).catch(() => {
+      setResult({ success: false, error: "OAuth failed. Please try again." });
+      setLoading(false);
+    });
+  }, [location2]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { id: "oauth-handler", className: "min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md text-center", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold mb-6 text-blue-600 dark:text-white", children: "Processing OAuth..." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700 dark:text-gray-200 mb-4", children: "Please wait while we log you in with Google." })
+  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    result?.success ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold mb-6 text-green-600 dark:text-green-400", children: "Login Successful!" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-gray-700 dark:text-gray-200 mb-2", children: [
+        "Welcome",
+        result.email ? `, ${result.email}` : "",
+        "!"
+      ] })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold mb-6 text-red-600 dark:text-red-400", children: "Login Failed" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700 dark:text-gray-200 mb-2", children: result?.error || "Unknown error." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2 mt-4 sm:flex-row sm:justify-center sm:gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Link,
+        {
+          href: "/dashboard",
+          className: `w-full sm:w-48 flex items-center justify-center px-4 py-2 rounded font-semibold shadow transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50
+                    ${result && !result.success ? "bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none dark:bg-gray-700 dark:text-gray-400" : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"}
+                  `,
+          "aria-disabled": result && !result.success,
+          tabIndex: result && !result.success ? -1 : 0,
+          children: [
+            "Go to Dashboard ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-arrow-right ml-1" })
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Link,
+        {
+          href: "/login",
+          className: "w-full sm:w-48 flex items-center justify-center px-4 py-2 rounded bg-gray-200 text-blue-700 font-semibold shadow hover:bg-gray-300 transition dark:bg-gray-700 dark:text-blue-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-arrow-left mr-1" }),
+            " Back to Login"
+          ]
+        }
+      )
+    ] })
+  ] }) }) }) });
+};
+const Dashboard = () => {
+  const [saldo, setSaldo] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState("");
+  React.useEffect(() => {
+    fetchUserInfo().then((data) => {
+      if (typeof data.saldo === "number") {
+        setSaldo(data.saldo);
+      }
+      setLoading(false);
+    }).catch(() => {
+      setError("Failed to load user info.");
+      setLoading(false);
+    });
+  }, []);
+  const handleBuySaldo = () => {
+    alert("Redirecting to buy saldo (credit)...");
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full max-w-5xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-10 flex flex-col gap-8", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-8 justify-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-[260px] max-w-xs bg-yellow-100 dark:bg-yellow-900 rounded-xl p-8 flex flex-col items-center shadow-md", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fa-solid fa-wallet text-yellow-600 dark:text-yellow-300 text-3xl mb-3" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-yellow-700 dark:text-yellow-200 mb-1", children: "Saldo" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-3xl font-bold", children: loading ? "..." : saldo !== null ? saldo : "—" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: handleBuySaldo,
+            className: "mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring",
+            children: "Buy Saldo (Credit)"
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-[260px] max-w-xs bg-gray-100 dark:bg-gray-700 rounded-xl p-8 flex flex-col items-center shadow-md opacity-80 cursor-not-allowed", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fa-solid fa-clock-rotate-left text-gray-600 dark:text-gray-300 text-3xl mb-3" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-700 dark:text-gray-200 mb-1", children: "Transaction History" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-base text-gray-500 dark:text-gray-300", children: "Coming soon..." })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-8 text-gray-600 dark:text-gray-300 text-center text-lg", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fa-regular fa-circle-info mr-2" }),
+      "Welcome to your dashboard! More stats and widgets coming soon."
+    ] }),
+    error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 text-red-500 text-center", children: error })
+  ] }) }) });
+};
+const Settings = () => {
+  const [username, setUsername] = reactExports.useState("");
+  const [email, setEmail] = reactExports.useState("");
+  const [password, setPassword] = reactExports.useState("");
+  const [error, setError] = reactExports.useState("");
+  const [success, setSuccess] = reactExports.useState("");
+  React.useEffect(() => {
+    fetchUserInfo().then((data) => {
+      if (data.authenticated) {
+        setUsername(data.username || "");
+        setEmail(data.email || "");
+      } else {
+        setError("You must be logged in to access settings.");
+      }
+    }).catch((err) => {
+      console.error("Error fetching user info:", err);
+      setError("Failed to load user information.");
+    });
+  }, []);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    if (!username || !email) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    try {
+      const payload = {
+        update: "1",
+        username,
+        email
+      };
+      if (password) {
+        payload.password = password;
+      }
+      const response = await axios.post(createUrl("/php_backend/user-info.php"), payload);
+      const data = response.data;
+      if (data && data.authenticated) {
+        setSuccess("Profile updated successfully!");
+        setPassword("");
+      } else {
+        setError("Failed to update profile.");
+      }
+    } catch (err) {
+      setError(err.message || "Failed to update profile.");
+    }
+  };
+  const handleBuySaldo = () => {
+    alert("Redirecting to buy saldo (credit)...");
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-2xl font-bold mb-6 text-center text-blue-600 dark:text-white flex items-center justify-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fa-light fa-user-gear mr-3 text-blue-500", style: { fontSize: "1.5rem" } }),
+      "User Settings"
+    ] }),
+    error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 text-red-500", children: error }),
+    success && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 text-green-500", children: success }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block mb-1 text-gray-700 dark:text-gray-200", htmlFor: "username", children: "Username" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          id: "username",
+          type: "text",
+          name: "username",
+          value: username,
+          onChange: (e) => setUsername(e.target.value),
+          className: "w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white",
+          autoComplete: "username"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block mb-1 text-gray-700 dark:text-gray-200", htmlFor: "email", children: "Email" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          id: "email",
+          type: "email",
+          name: "email",
+          value: email,
+          disabled: true,
+          className: "w-full px-3 py-2 border rounded bg-gray-200 dark:bg-gray-700 dark:text-white cursor-not-allowed opacity-70",
+          autoComplete: "email"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block mb-1 text-gray-700 dark:text-gray-200", htmlFor: "password", children: "New Password" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          id: "password",
+          type: "password",
+          name: "password",
+          value: password,
+          onChange: (e) => setPassword(e.target.value),
+          className: "w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white",
+          autoComplete: "new-password",
+          placeholder: "Leave blank to keep current password"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "submit",
+        className: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring mb-4",
+        children: "Save Changes"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "button",
+        onClick: handleBuySaldo,
+        className: "w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring",
+        children: "Buy Saldo (Credit)"
+      }
+    )
+  ] }) }) });
+};
 const About = () => /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("main", { className: "min-h-screen flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 md:p-10 border border-gray-200 dark:border-gray-700", children: [
   /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-3xl font-bold mb-4 text-gray-900 dark:text-white text-center", children: "About PHP Proxy Hunter" }),
   /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mb-6 text-center text-gray-700 dark:text-gray-300", children: [
@@ -19067,6 +19656,32 @@ const About = () => /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Frag
       }
     )
   ] }),
+  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full text-center text-sm text-gray-500 dark:text-gray-400", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-1 font-semibold text-gray-900 dark:text-white", children: "Author:" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-1 text-gray-900 dark:text-white", children: "Dimas Lanjaka" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "a",
+      {
+        href: "https://www.webmanajemen.com",
+        className: "text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-200 transition-colors",
+        target: "_blank",
+        rel: "noopener noreferrer",
+        children: "webmanajemen.com"
+      }
+    ) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "a",
+      {
+        href: "mailto:dimaslanjaka@gmail.com",
+        className: "text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-200 transition-colors",
+        children: "dimaslanjaka@gmail.com"
+      }
+    ) })
+  ] })
+] }) }) });
+const Contact = () => /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("main", { className: "min-h-screen flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 md:p-10 border border-gray-200 dark:border-gray-700", children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-3xl font-bold mb-4 text-gray-900 dark:text-white text-center", children: "Contact" }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-6 text-center text-gray-700 dark:text-gray-300", children: "For questions, feedback, or support regarding PHP Proxy Hunter, please use the contact information below." }),
   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full text-center text-sm text-gray-500 dark:text-gray-400", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-1 font-semibold text-gray-900 dark:text-white", children: "Author:" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-1 text-gray-900 dark:text-white", children: "Dimas Lanjaka" }),
@@ -21333,7 +21948,7 @@ function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      const url = createUrl(`/data/git-history.json`, { v: "48ebf139" });
+      const url = createUrl(`/data/git-history.json`, { v: "af454fee" });
       gitHistoryPromise = (async () => {
         const commits2 = [];
         for await (const commit of streamJsonFromUrl(url, "!*")) {
@@ -21444,557 +22059,267 @@ function Changelog() {
     ] })
   ] }) });
 }
-const Contact = () => /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("main", { className: "min-h-screen flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 md:p-10 border border-gray-200 dark:border-gray-700", children: [
-  /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-3xl font-bold mb-4 text-gray-900 dark:text-white text-center", children: "Contact" }),
-  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-6 text-center text-gray-700 dark:text-gray-300", children: "For questions, feedback, or support regarding PHP Proxy Hunter, please use the contact information below." }),
-  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full text-center text-sm text-gray-500 dark:text-gray-400", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-1 font-semibold text-gray-900 dark:text-white", children: "Author:" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-1 text-gray-900 dark:text-white", children: "Dimas Lanjaka" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "a",
-      {
-        href: "https://www.webmanajemen.com",
-        className: "text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-200 transition-colors",
-        target: "_blank",
-        rel: "noopener noreferrer",
-        children: "webmanajemen.com"
-      }
-    ) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "a",
-      {
-        href: "mailto:dimaslanjaka@gmail.com",
-        className: "text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-200 transition-colors",
-        children: "dimaslanjaka@gmail.com"
-      }
-    ) })
-  ] })
-] }) }) });
-const Dashboard = () => {
-  const [saldo, setSaldo] = reactExports.useState(null);
-  const [loading, setLoading] = reactExports.useState(true);
-  const [error, setError] = reactExports.useState("");
-  reactExports.useEffect(() => {
-    fetch(createUrl("/php_backend/user-info.php")).then((res) => res.json()).then((data) => {
-      if (typeof data.saldo === "number") {
-        setSaldo(data.saldo);
-      }
-      setLoading(false);
-    }).catch(() => {
-      setError("Failed to load user info.");
-      setLoading(false);
-    });
-  }, []);
-  const handleBuySaldo = () => {
-    alert("Redirecting to buy saldo (credit)...");
+const users = [
+  { id: 1, name: "User One" },
+  { id: 2, name: "User Two" },
+  { id: 3, name: "User Three" }
+];
+function Admin() {
+  const [selectedUser, setSelectedUser] = React.useState(users[0].id);
+  const [saldo, setSaldo] = reactExports.useState("");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert(`Added saldo ${saldo} to user ${selectedUser}`);
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full max-w-5xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-10 flex flex-col gap-8", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-8 justify-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-[260px] max-w-xs bg-yellow-100 dark:bg-yellow-900 rounded-xl p-8 flex flex-col items-center shadow-md", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fa-solid fa-wallet text-yellow-600 dark:text-yellow-300 text-3xl mb-3" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-yellow-700 dark:text-yellow-200 mb-1", children: "Saldo" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-3xl font-bold", children: loading ? "..." : saldo !== null ? saldo : "—" }),
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4 transition-colors", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "text-green-500 dark:text-green-400 fa fa-plus" }),
+      "Add Saldo"
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "user", className: "block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200", children: "Select User" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
+          "select",
           {
-            type: "button",
-            onClick: handleBuySaldo,
-            className: "mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring",
-            children: "Buy Saldo (Credit)"
+            id: "user",
+            className: "block w-full rounded-md border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:focus:border-blue-400 dark:focus:ring-blue-900 focus:ring-opacity-50 transition-colors",
+            value: selectedUser,
+            onChange: (e) => setSelectedUser(Number(e.target.value)),
+            children: users.map((user) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: user.id, children: user.name }, user.id))
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-[260px] max-w-xs bg-gray-100 dark:bg-gray-700 rounded-xl p-8 flex flex-col items-center shadow-md opacity-80 cursor-not-allowed", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fa-solid fa-clock-rotate-left text-gray-600 dark:text-gray-300 text-3xl mb-3" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-lg font-semibold text-gray-700 dark:text-gray-200 mb-1", children: "Transaction History" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-base text-gray-500 dark:text-gray-300", children: "Coming soon..." })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-8 text-gray-600 dark:text-gray-300 text-center text-lg", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fa-regular fa-circle-info mr-2" }),
-      "Welcome to your dashboard! More stats and widgets coming soon."
-    ] }),
-    error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 text-red-500 text-center", children: error })
-  ] }) }) });
-};
-const Home = () => /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen", children: [
-  /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "relative bg-white dark:bg-gray-900", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-20", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-gray-900 dark:text-gray-100", children: "Build Your Future" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-6 text-lg sm:mt-8 sm:text-xl sm:max-w-2xl sm:mx-auto text-gray-700 dark:text-gray-300", children: "Discover the tools and insights to take your business to the next level. Join thousands of innovators today!" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-8 flex flex-col sm:flex-row justify-center gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "saldo", className: "block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200", children: "Saldo Amount" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            id: "saldo",
+            type: "number",
+            className: "block w-full rounded-md border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:focus:border-blue-400 dark:focus:ring-blue-900 focus:ring-opacity-50 transition-colors",
+            value: saldo,
+            onChange: (e) => setSaldo(e.target.value),
+            required: true,
+            min: "0"
+          }
+        )
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        Link,
+        "button",
         {
-          href: "/proxyManager.html",
-          className: "px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2\n                  bg-blue-600 text-white border-blue-700\n                  dark:bg-blue-700 dark:text-white dark:border-blue-600",
+          type: "submit",
+          className: "w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors font-semibold",
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fas fa-server" }),
-            "Proxy Manager"
+            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa fa-plus" }),
+            " Add Saldo"
           ]
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        Link,
-        {
-          href: "/changelog",
-          className: "px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2\n                  bg-green-100 text-green-900 border-green-300\n                  dark:bg-green-800 dark:text-green-100 dark:border-green-700",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa-duotone fa-clock-rotate-left" }),
-            "Changelog"
-          ]
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Link,
-        {
-          href: "https://github.com/dimaslanjaka/php-proxy-hunter",
-          className: "px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2\n                  bg-gray-100 text-gray-900 border-gray-300\n                  dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700",
-          children: "Learn More"
         }
       )
     ] })
-  ] }) }) }),
-  /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "py-16 bg-gray-50 dark:bg-gray-800", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center w-16 h-16 border rounded-full mx-auto bg-blue-600 dark:bg-blue-700 text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "svg",
-        {
-          className: "w-8 h-8",
-          fill: "none",
-          stroke: "currentColor",
-          viewBox: "0 0 24 24",
-          xmlns: "http://www.w3.org/2000/svg",
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "path",
-            {
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              strokeWidth: "2",
-              d: "M3 10h11M9 21V3m12 10H9m3 7h3m4 0h3m-4-4h3m-6 0h3M9 7h3m6 0h3"
-            }
-          )
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mt-4 text-xl font-semibold text-gray-900 dark:text-gray-100", children: "Innovative Tools" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-gray-700 dark:text-gray-300", children: "Access a range of tools to enhance productivity and achieve your goals faster." })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center w-16 h-16 border rounded-full mx-auto bg-blue-600 dark:bg-blue-700 text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "svg",
-        {
-          className: "w-8 h-8",
-          fill: "none",
-          stroke: "currentColor",
-          viewBox: "0 0 24 24",
-          xmlns: "http://www.w3.org/2000/svg",
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "path",
-            {
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              strokeWidth: "2",
-              d: "M13 16h-1v-4h-1m5 4h-1v-6h-1m-4 6h1m-5-4h1m8-6H9m2-4H5m6 0h6"
-            }
-          )
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mt-4 text-xl font-semibold text-gray-900 dark:text-gray-100", children: "Actionable Insights" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-gray-700 dark:text-gray-300", children: "Gain insights that drive results and keep you ahead of the competition." })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center w-16 h-16 border rounded-full mx-auto bg-blue-600 dark:bg-blue-700 text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "svg",
-        {
-          className: "w-8 h-8",
-          fill: "none",
-          stroke: "currentColor",
-          viewBox: "0 0 24 24",
-          xmlns: "http://www.w3.org/2000/svg",
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "path",
-            {
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              strokeWidth: "2",
-              d: "M9.75 9.75l-1.5-1.5m0 0L8 8m3-3H5m6 0h6m-6 6h6m-6 6h6m6-6h-3m-6 6h3m-6-9H5m6 0h6"
-            }
-          )
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mt-4 text-xl font-semibold text-gray-900 dark:text-gray-100", children: "Scalable Solutions" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-gray-700 dark:text-gray-300", children: "Grow your business with flexible and scalable solutions tailored to your needs." })
-    ] })
-  ] }) }) }),
-  /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "py-16 bg-white dark:bg-gray-900", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-3xl font-extrabold sm:text-4xl text-gray-900 dark:text-gray-100", children: "Ready to Transform Your Future?" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-4 text-lg text-gray-700 dark:text-gray-300", children: "Start your journey today with our platform. It’s time to achieve the success you deserve." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Link,
-      {
-        href: "#",
-        className: "px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 bg-blue-600 dark:bg-blue-700 text-white",
-        children: "Get Started Now"
-      }
-    ) })
-  ] }) })
-] }) });
-const Login = () => {
-  const [username, setUsername] = reactExports.useState("");
-  const [password, setPassword] = reactExports.useState("");
-  const [error, setError] = reactExports.useState("");
-  const [googleAuthUrl, setGoogleAuthUrl] = reactExports.useState("");
-  const indicators = {};
+  ] }) });
+}
+const Logout = () => {
+  const [done, setDone] = React.useState(false);
+  const [error, setError] = React.useState(false);
+  const [logoutSuccess, setLogoutSuccess] = React.useState(null);
   reactExports.useEffect(() => {
-    document.title = "Login - PHP Proxy Hunter";
-    const googleRedirectUrl = createUrl("/oauth/google");
-    if (!indicators.getAuthUrl) {
-      indicators.getAuthUrl = true;
-      fetch(createUrl("/php_backend/google-oauth.php", { redirect_uri: googleRedirectUrl, "google-auth-uri": true })).then((res) => res.json()).then((data) => {
-        setGoogleAuthUrl(data.auth_uri);
-        console.log(data);
-        document.querySelector("#google-login-button")?.removeAttribute("disabled");
-      }).catch((e) => {
-        console.error("Error fetching Google Auth URL:", e);
-        indicators.getAuthUrl = false;
-        document.querySelector("#google-login-button")?.setAttribute("disabled", "true");
-      });
-    }
-  }, [setGoogleAuthUrl]);
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!username || !password) {
-      setError("Please enter both username and password.");
-      return;
-    }
-    setError("");
-    alert("Login successful!");
-  };
-  const handleGoogleLogin = () => {
-    if (googleAuthUrl) {
-      window.location.href = googleAuthUrl;
-    } else {
-      alert("Google login not available at the moment.");
-    }
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold mb-6 text-center text-blue-600 dark:text-white", children: "Login" }),
-    error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 text-red-500", children: error }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block mb-1 text-gray-700 dark:text-gray-200", htmlFor: "username", children: "Username" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          id: "username",
-          type: "text",
-          value: username,
-          onChange: (e) => setUsername(e.target.value),
-          className: "w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white",
-          autoComplete: "username"
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block mb-1 text-gray-700 dark:text-gray-200", htmlFor: "password", children: "Password" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          id: "password",
-          type: "password",
-          value: password,
-          onChange: (e) => setPassword(e.target.value),
-          className: "w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white",
-          autoComplete: "current-password"
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "button",
-      {
-        type: "submit",
-        className: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring mb-4",
-        children: "Login"
+    axios.get(createUrl("/php_backend/logout.php")).then((res) => {
+      const data = res.data;
+      if (data && data.logout === true) {
+        setLogoutSuccess(true);
+      } else {
+        setLogoutSuccess(false);
       }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "button",
-      {
-        id: "google-login-button",
-        disabled: !googleAuthUrl,
-        "aria-label": "Login with Google",
-        title: "Login with Google",
-        type: "button",
-        className: "w-full flex items-center justify-center bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded focus:outline-none focus:ring dark:bg-gray-700 dark:text-white dark:border-gray-500 dark:hover:bg-gray-600",
-        style: { marginTop: "8px" },
-        onClick: handleGoogleLogin,
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-5 h-5 mr-2 fa-brands fa-google", style: { fontSize: "1.25rem" } }),
-          "Login with Google"
-        ]
-      }
-    )
-  ] }) }) });
-};
-const NotFound = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col items-center justify-center min-h-[60vh] py-8 px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700", children: [
-  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-6xl text-red-500 mb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa-duotone fa-circle-exclamation" }) }),
-  /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-4xl font-bold text-gray-800 dark:text-white mb-1", children: "404" }),
-  /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl text-gray-600 dark:text-gray-300 mb-2", children: "Page Not Found" }),
-  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 dark:text-gray-400 mb-4", children: "The page you are looking for does not exist." }),
-  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    Link,
-    {
-      href: "/",
-      className: "inline-flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors font-medium shadow focus:outline-none focus:ring-2 focus:ring-blue-400",
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fa-duotone fa-house" }),
-        "Go to Home"
-      ]
-    }
-  )
-] }) });
-const OauthHandler = () => {
-  const location2 = useLocation();
-  const [result, setResult] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
-  const hasRunRef = React.useRef(false);
-  React.useEffect(() => {
-    if (hasRunRef.current) return;
-    hasRunRef.current = true;
-    const params = new URLSearchParams(location2.search);
-    const code = params.get("code");
-    const state = params.get("state");
-    if (!code) {
-      setResult({ success: false, error: "No OAuth code found. Please try again." });
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    const googleRedirectUrl = createUrl("/oauth/google");
-    fetch(
-      createUrl("/php_backend/google-oauth.php", { redirect_uri: googleRedirectUrl, "google-oauth-callback": code }),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, state })
-      }
-    ).then((res) => res.json()).then((data) => {
-      setResult(data);
-      setLoading(false);
+      setDone(true);
     }).catch(() => {
-      setResult({ success: false, error: "OAuth failed. Please try again." });
-      setLoading(false);
+      setError(true);
+      setDone(true);
     });
-  }, [location2]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { id: "oauth-handler", className: "min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md text-center", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold mb-6 text-blue-600 dark:text-white", children: "Processing OAuth..." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700 dark:text-gray-200 mb-4", children: "Please wait while we log you in with Google." })
-  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    result?.success ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold mb-6 text-green-600 dark:text-green-400", children: "Login Successful!" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-gray-700 dark:text-gray-200 mb-2", children: [
-        "Welcome",
-        result.email ? `, ${result.email}` : "",
-        "!"
-      ] })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold mb-6 text-red-600 dark:text-red-400", children: "Login Failed" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700 dark:text-gray-200 mb-2", children: result?.error || "Unknown error." })
+  }, []);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white dark:bg-gray-800 p-8 rounded shadow text-center transition-colors", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "text-2xl font-bold mb-4 flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-sign-out-alt text-blue-600 dark:text-blue-300" }),
+      "Logging out..."
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2 mt-4 sm:flex-row sm:justify-center sm:gap-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        Link,
-        {
-          href: "/dashboard",
-          className: `w-full sm:w-48 flex items-center justify-center px-4 py-2 rounded font-semibold shadow transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50
-                    ${result && !result.success ? "bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none dark:bg-gray-700 dark:text-gray-400" : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"}
-                  `,
-          "aria-disabled": result && !result.success,
-          tabIndex: result && !result.success ? -1 : 0,
-          children: [
-            "Go to Dashboard ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-arrow-right ml-1" })
-          ]
-        }
-      ),
+    !done && !error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 dark:text-gray-300", children: "You are being logged out. Please wait." }),
+    done && logoutSuccess === true && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-green-600 dark:text-green-400 mb-4 flex items-center justify-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-check-circle" }),
+        "You have been logged out."
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Link,
         {
           href: "/login",
-          className: "w-full sm:w-48 flex items-center justify-center px-4 py-2 rounded bg-gray-200 text-blue-700 font-semibold shadow hover:bg-gray-300 transition dark:bg-gray-700 dark:text-blue-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50",
+          className: "text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-2",
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-arrow-left mr-1" }),
-            " Back to Login"
+            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-sign-in-alt" }),
+            "Go to Login"
+          ]
+        }
+      )
+    ] }),
+    done && logoutSuccess === false && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-yellow-600 dark:text-yellow-400 mb-4 flex items-center justify-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-exclamation-triangle" }),
+        "Logout response invalid. Please try again."
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "a",
+        {
+          href: "/login",
+          className: "text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-2",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-sign-in-alt" }),
+            "Go to Login"
+          ]
+        }
+      )
+    ] }),
+    error && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-red-600 dark:text-red-400 mb-4 flex items-center justify-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-times-circle" }),
+        "Logout failed. Please try again."
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "a",
+        {
+          href: "/login",
+          className: "text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-2",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fal fa-sign-in-alt" }),
+            "Go to Login"
           ]
         }
       )
     ] })
-  ] }) }) }) });
+  ] }) });
 };
-const Outbound = () => {
-  const location2 = useLocation();
-  const [url, setUrl] = reactExports.useState("#");
-  reactExports.useEffect(() => {
-    const parseUrl = () => {
-      const parsed = sfInstance.resolveQueryUrl(window.location.href);
-      const url2 = parsed.url?.base64.decode || "";
-      setUrl(url2);
-      console.log(parsed);
-    };
-    parseUrl();
-  }, [location2.search]);
-  const isValid = url && /^https?:\/\//.test(url);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col items-center justify-center min-h-screen text-center px-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-lg w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-800", children: isValid ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl font-extrabold mb-4 text-blue-700 dark:text-blue-400", children: "Leaving Site" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-2 text-gray-700 dark:text-gray-300", children: "You are about to visit an external site. For your safety, please review the link below before proceeding." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 p-2 bg-blue-50 dark:bg-gray-800 rounded break-all text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700", children: url }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "a",
-      {
-        href: url,
-        className: "inline-block px-6 py-2 rounded bg-blue-600 dark:bg-blue-700 text-white font-semibold hover:bg-blue-700 dark:hover:bg-blue-800 transition",
-        rel: "noopener noreferrer",
-        target: "_blank",
-        children: "Continue to site"
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-4 text-sm text-gray-500 dark:text-gray-400", children: "This link will open in a new tab. If you do not trust this link, you can safely close this page." })
-  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-bold mb-4 text-red-600", children: "Invalid or Missing URL" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-700 dark:text-gray-300", children: "Please check the link and try again." })
-  ] }) }) }) });
-};
-const Settings = () => {
-  const [username, setUsername] = reactExports.useState("");
-  const [email, setEmail] = reactExports.useState("");
-  const [password, setPassword] = reactExports.useState("");
-  const [error, setError] = reactExports.useState("");
-  const [success, setSuccess] = reactExports.useState("");
-  React.useEffect(() => {
-    fetchUserInfo().then((data) => {
-      if (data.authenticated) {
-        setUsername(data.username || "");
-        setEmail(data.email || "");
-      } else {
-        setError("You must be logged in to access settings.");
-      }
-    }).catch((err) => {
-      console.error("Error fetching user info:", err);
-      setError("Failed to load user information.");
-    });
-  }, []);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    if (!username || !email) {
-      setError("Please fill in all fields.");
-      return;
-    }
-    try {
-      const payload = {
-        update: "1",
-        username,
-        email
-      };
-      if (password) {
-        payload.password = password;
-      }
-      const response = await fetch(createUrl("/php_backend/user-info.php"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-        // credentials: 'include'
-      });
-      if (!response.ok) {
-        throw new Error("Failed to update user info");
-      }
-      const data = await response.json();
-      if (data && data.authenticated) {
-        setSuccess("Profile updated successfully!");
-        setPassword("");
-      } else {
-        setError("Failed to update profile.");
-      }
-    } catch (err) {
-      setError(err.message || "Failed to update profile.");
-    }
-  };
-  const handleBuySaldo = () => {
-    alert("Redirecting to buy saldo (credit)...");
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-2xl font-bold mb-6 text-center text-blue-600 dark:text-white flex items-center justify-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fa-light fa-user-gear mr-3 text-blue-500", style: { fontSize: "1.5rem" } }),
-      "User Settings"
-    ] }),
-    error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 text-red-500", children: error }),
-    success && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4 text-green-500", children: success }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block mb-1 text-gray-700 dark:text-gray-200", htmlFor: "username", children: "Username" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          id: "username",
-          type: "text",
-          name: "username",
-          value: username,
-          onChange: (e) => setUsername(e.target.value),
-          className: "w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white",
-          autoComplete: "username"
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block mb-1 text-gray-700 dark:text-gray-200", htmlFor: "email", children: "Email" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          id: "email",
-          type: "email",
-          name: "email",
-          value: email,
-          disabled: true,
-          className: "w-full px-3 py-2 border rounded bg-gray-200 dark:bg-gray-700 dark:text-white cursor-not-allowed opacity-70",
-          autoComplete: "email"
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block mb-1 text-gray-700 dark:text-gray-200", htmlFor: "password", children: "New Password" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          id: "password",
-          type: "password",
-          name: "password",
-          value: password,
-          onChange: (e) => setPassword(e.target.value),
-          className: "w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white",
-          autoComplete: "new-password",
-          placeholder: "Leave blank to keep current password"
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "button",
-      {
-        type: "submit",
-        className: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring mb-4",
-        children: "Save Changes"
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "button",
-      {
-        type: "button",
-        onClick: handleBuySaldo,
-        className: "w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring",
-        children: "Buy Saldo (Credit)"
-      }
-    )
-  ] }) }) });
-};
+const routesMeta = [
+  {
+    path: "/",
+    title: "Home | PHP Proxy Hunter",
+    description: "Welcome to PHP Proxy Hunter - the ultimate tool for managing and checking proxies.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/"
+  },
+  {
+    path: "/admin",
+    title: "Admin | PHP Proxy Hunter",
+    description: "Admin panel to add saldo for users.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/admin"
+  },
+  {
+    path: "/outbound",
+    title: "Outbound | PHP Proxy Hunter",
+    description: "View and manage outbound proxy connections in PHP Proxy Hunter.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/outbound"
+  },
+  {
+    path: "/login",
+    title: "Login | PHP Proxy Hunter",
+    description: "Login to your PHP Proxy Hunter account to access proxy management features.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/login"
+  },
+  {
+    path: "/changelog",
+    title: "Changelog | PHP Proxy Hunter",
+    description: "See the latest updates and changes to PHP Proxy Hunter.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/changelog"
+  },
+  {
+    path: [
+      "/oauth",
+      "/oauth/google"
+    ],
+    title: "OAuth Handler | PHP Proxy Hunter",
+    description: "Handle OAuth authentication for PHP Proxy Hunter.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/oauth"
+  },
+  {
+    path: "/settings",
+    title: "Settings | PHP Proxy Hunter",
+    description: "Configure your PHP Proxy Hunter preferences and settings.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/settings"
+  },
+  {
+    path: "/dashboard",
+    title: "Dashboard | PHP Proxy Hunter",
+    description: "View your dashboard and proxy statistics in PHP Proxy Hunter.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/dashboard"
+  },
+  {
+    path: "/about",
+    title: "About | PHP Proxy Hunter",
+    description: "Learn more about PHP Proxy Hunter and its features.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/about"
+  },
+  {
+    path: "/contact",
+    title: "Contact | PHP Proxy Hunter",
+    description: "Contact the PHP Proxy Hunter team for support or inquiries.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/contact"
+  },
+  {
+    path: "/logout",
+    title: "Logout | PHP Proxy Hunter",
+    description: "Logout from your PHP Proxy Hunter account.",
+    thumbnail: "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    canonical: "https://www.webmanajemen.com/php-proxy-hunter/logout"
+  }
+];
+const routes = routesMeta.map((meta) => {
+  let component;
+  switch (meta.path instanceof Array ? meta.path[0] : meta.path) {
+    case "/":
+      component = Home;
+      break;
+    case "/admin":
+      component = Admin;
+      break;
+    case "/outbound":
+      component = Outbound;
+      break;
+    case "/login":
+      component = Login;
+      break;
+    case "/changelog":
+      component = Changelog;
+      break;
+    case "/settings":
+      component = Settings;
+      break;
+    case "/dashboard":
+      component = Dashboard;
+      break;
+    case "/about":
+      component = About;
+      break;
+    case "/contact":
+      component = Contact;
+      break;
+    case "/logout":
+      component = Logout;
+      break;
+    case "/oauth":
+    case "/oauth/google":
+      component = OauthHandler;
+      break;
+    default:
+      component = void 0;
+  }
+  return { ...meta, component };
+});
 const root = ReactDOM.createRoot(document.getElementById("root"));
 window.addEventListener("keydown", function(e) {
   if (e.key === "Backspace" && !e.repeat && !(document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA" || document.activeElement.isContentEditable))) {
@@ -22011,16 +22336,12 @@ root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(BrowserRouter, { basename: "/php-proxy-hunter/", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Navbar, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Routes, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Home, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/login", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Login, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/outbound", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Outbound, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/oauth", element: /* @__PURE__ */ jsxRuntimeExports.jsx(OauthHandler, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/oauth/google", element: /* @__PURE__ */ jsxRuntimeExports.jsx(OauthHandler, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/dashboard", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Dashboard, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/settings", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/about", element: /* @__PURE__ */ jsxRuntimeExports.jsx(About, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/contact", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Contact, {}) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/changelog", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Changelog, {}) }),
+      routes.flatMap((route) => {
+        if (Array.isArray(route.path)) {
+          return route.path.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: p, element: /* @__PURE__ */ jsxRuntimeExports.jsx(route.component, {}) }, p));
+        }
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: route.path, element: /* @__PURE__ */ jsxRuntimeExports.jsx(route.component, {}) }, route.path);
+      }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "*", element: /* @__PURE__ */ jsxRuntimeExports.jsx(NotFound, {}) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Footer, {})

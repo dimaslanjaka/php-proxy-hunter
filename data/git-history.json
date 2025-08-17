@@ -1,5 +1,204 @@
 [
   {
+    "hash": "af454feed49d3b7ebccde5b20fbf9cf6bec314be",
+    "date": "2025-08-17T16:14:14+07:00",
+    "message": "chore(package): update build script order and remove postinstall\n\n- Updated the build script to run `build:packages` before `build:rollup` and `build:react` for proper dependency build order.\n- Removed the `postinstall` script that previously triggered `build:packages` after install.",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "83222a8a8abfa70f28c536d134c61db11e628c3e",
+    "date": "2025-08-17T16:13:02+07:00",
+    "message": "refactor(routes): move route metadata to routes.json and dynamically merge with components\n\n- Extracted all route metadata (path, title, description, thumbnail, canonical) from routes.js into a new routes.json file for better separation of concerns and easier reuse.\n- Updated routes.js to import metadata from routes.json and dynamically assign the correct React component to each route based on its path.\n- Updated vite-gh-pages.js to import routes from routes.json (as JSON) and refactored the route HTML generation logic to support both string and array paths, ensuring all route aliases are handled.",
+    "files": [
+      "src/react/routes.js",
+      "src/react/routes.json",
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "37755a143c12f08ce08bd810051aa42123e38c32",
+    "date": "2025-08-17T15:45:45+07:00",
+    "message": "feat(nginx): update access rules for /data and /assets file types",
+    "files": [
+      ".htaccess_nginx.conf"
+    ]
+  },
+  {
+    "hash": "3e7458f61961adee5de9824188940a429d923875",
+    "date": "2025-08-17T15:33:44+07:00",
+    "message": "feat(nginx): allow public access to /data/git-history.json",
+    "files": [
+      ".htaccess_nginx.conf"
+    ]
+  },
+  {
+    "hash": "09e5527948915715b5e49f5253cbd5b6afaf6c28",
+    "date": "2025-08-17T15:27:28+07:00",
+    "message": "fix(fix-perm): add user existence check before proceeding with permission changes",
+    "files": [
+      "bin/fix-perm"
+    ]
+  },
+  {
+    "hash": "28b5114aeac57745d70a14f1f7128c285288a281",
+    "date": "2025-08-17T15:12:24+07:00",
+    "message": "refactor(dashboard): replace axios with fetchUserInfo utility for user data retrieval",
+    "files": [
+      "src/react/pages/Dashboard.tsx"
+    ]
+  },
+  {
+    "hash": "3a4069c6c5e894e1e906635989019b0ac87ce1c7",
+    "date": "2025-08-17T15:09:20+07:00",
+    "message": "fix(navbar): close dropdowns when clicking outside\n\n- Add document event listener to detect clicks outside user and social dropdowns.\n- Use refs to track dropdown elements and close them when a click occurs outside.\n- Remove event listener on component unmount to prevent memory leaks.",
+    "files": [
+      "src/react/components/Navbar.tsx"
+    ]
+  },
+  {
+    "hash": "5bdf2b86a65c5c38676affbd6ee27e6ab719fb89",
+    "date": "2025-08-17T15:04:36+07:00",
+    "message": "refactor(react): migrate all fetch calls to axios in user and page components\n\n- Replaced all instances of fetch with axios for HTTP requests in the following files:\n  - src/react/pages/Dashboard.tsx\n  - src/react/pages/Login.tsx\n  - src/react/pages/Logout.tsx\n  - src/react/pages/OauthHandler.tsx\n  - src/react/pages/Settings.tsx\n  - src/react/utils/user.ts\n- Updated imports and usage to use axios for consistency and improved error handling.\n- Ensured all affected components handle axios response structure and errors appropriately.",
+    "files": [
+      "src/react/pages/Dashboard.tsx",
+      "src/react/pages/Login.tsx",
+      "src/react/pages/Logout.tsx",
+      "src/react/pages/OauthHandler.tsx",
+      "src/react/pages/Settings.tsx",
+      "src/react/utils/user.ts"
+    ]
+  },
+  {
+    "hash": "0653b3151d2d154722f5c70a845e69b2f5e07aa8",
+    "date": "2025-08-17T14:57:59+07:00",
+    "message": "feat(login): add login API integration and redirect on success\n\n- Integrate login form with backend API using fetch.\n- Use react-router-dom's useNavigate to redirect to /dashboard after successful login.\n- Display error messages for failed login attempts.",
+    "files": [
+      "src/react/pages/Login.tsx"
+    ]
+  },
+  {
+    "hash": "b4fb17d36eec57c3b2ef14e63cb927eb22cc3baa",
+    "date": "2025-08-17T14:47:31+07:00",
+    "message": "fix(login): unify response structure and improve password verification logic\n\n- Ensure all login responses include 'message' and boolean 'error' keys for consistency.\n- Refactor do_login and verify to always return structured responses.\n- Add support for legacy raw password check and automatic rehashing if detected.\n- Improve admin login response and session handling.\n- Provide clearer error and success messages for all login scenarios.",
+    "files": [
+      "php_backend/login.php"
+    ]
+  },
+  {
+    "hash": "bffb0ceb368414a4be85d6298084c176b61dc4c7",
+    "date": "2025-08-17T14:41:57+07:00",
+    "message": "fix(hashers): improve robustness of password verification and add tests for invalid formats\n\n- Update password hasher implementations (Node.js, PHP, Python) to safely handle invalid encoded formats and avoid runtime errors.\n- Add comprehensive tests in all languages to ensure verify returns false for empty, malformed, or incomplete encoded strings.\n- Refactor Python hasher to use indexed access for split results, matching logic across implementations.",
+    "files": [
+      "src/hashers/CustomPasswordHasher.cjs",
+      "src/hashers/CustomPasswordHasher.php",
+      "src/hashers/CustomPasswordHasher.py",
+      "tests/hashers/CustomPasswordHasher.test.cjs",
+      "tests/hashers/CustomPasswordHasherTest.php",
+      "tests/hashers/CustomPasswordHasherTest.py"
+    ]
+  },
+  {
+    "hash": "6a2bd32de8314c9eec4701098df3ce92e82422e8",
+    "date": "2025-08-17T14:37:17+07:00",
+    "message": "fix(ReferenceError): Cannot access 'productionEnv' before initialization",
+    "files": [
+      ".env.mjs"
+    ]
+  },
+  {
+    "hash": "19790c3a3a7a3a8082526b016c81c869e39f1a60",
+    "date": "2025-08-17T14:36:23+07:00",
+    "message": "feat(setup): run setup.js in prepare script and add setup.js for build steps\n\n- Update the \"prepare\" npm script to run both husky and setup.js.\n- Add new setup.js file to automate loading environment variables, building Tailwind CSS, and copying index.html.",
+    "files": [
+      "package.json",
+      "setup.js"
+    ]
+  },
+  {
+    "hash": "4eb40c37cd1ee4b2aae2e1198a30fd47393e4e42",
+    "date": "2025-08-17T14:23:08+07:00",
+    "message": "feat(Logout): replace anchor tag with Link component for navigation",
+    "files": [
+      "src/react/pages/Logout.tsx"
+    ]
+  },
+  {
+    "hash": "318bb3fccdc94556b3525c2fea8ced741b5e27be",
+    "date": "2025-08-17T14:22:15+07:00",
+    "message": "feat(Link): export Link component as aLink and aHref for easier usage",
+    "files": [
+      "src/react/components/Link.tsx"
+    ]
+  },
+  {
+    "hash": "a7fdab22ec990071221bca96ecead7008210ae23",
+    "date": "2025-08-17T14:16:42+07:00",
+    "message": "feat(react): support multiple paths per route\n\n- Refactored route rendering in `index.tsx` to accept `path` as a string or array of strings, creating multiple `<Route />` elements when an array is provided.\n- Updated `/oauth` route in `routes.js` to support both `/oauth` and `/oauth/google` paths for the `OauthHandler` component.",
+    "files": [
+      "src/react/index.tsx",
+      "src/react/routes.js"
+    ]
+  },
+  {
+    "hash": "8f5f8725e45ffbbfb3d0f67acaf86579b36a7b4a",
+    "date": "2025-08-17T14:12:45+07:00",
+    "message": "feat(instructions): update applyTo pattern to include cjs and mjs file extensions",
+    "files": [
+      ".github/instructions/nodejs.instructions.md"
+    ]
+  },
+  {
+    "hash": "99d5916121f7d175653c01a85d4245c2f2089f4b",
+    "date": "2025-08-17T14:05:10+07:00",
+    "message": "feat(Admin): enhance dark mode support and improve styling for user selection and saldo input",
+    "files": [
+      "src/react/pages/Admin.tsx"
+    ]
+  },
+  {
+    "hash": "7254aee06defeed100278fdf67bbd0fc2ecca807",
+    "date": "2025-08-17T13:55:40+07:00",
+    "message": "feat(robots.txt, vite-plugin): disallow admin, tmp, and embed.php in robots.txt; automate robots.txt copying in build\n\n- Added Disallow rules for /admin, /tmp, and /embed.php in robots.txt to restrict crawler access.\n- Updated vite-plugin.js to automatically copy robots.txt to production directories if the file exists and is not empty.",
+    "files": [
+      "robots.txt",
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "b243bac5ad28e732598f29954201e6eaa98f2349",
+    "date": "2025-08-17T13:52:10+07:00",
+    "message": "feat(logout): add logout page, route, and user dropdown link with dark mode support\n\n- Added a new Logout page (`src/react/pages/Logout.tsx`) that calls the backend logout endpoint, handles the JSON response, and displays status messages with Font Awesome Pro icons.\n- Implemented dark mode support for the Logout page using Tailwind/Flowbite classes.\n- Added a `/logout` route to the app in `src/react/routes.js`.\n- Added a Logout link with icon to the user dropdown in the Navbar for authenticated users.",
+    "files": [
+      "src/react/components/Navbar.tsx",
+      "src/react/pages/Logout.tsx",
+      "src/react/routes.js"
+    ]
+  },
+  {
+    "hash": "8b9ef4d99e25154ea3fcf596f745d719176fec29",
+    "date": "2025-08-17T13:42:39+07:00",
+    "message": "feat(navbar, admin, routes): unify user dropdown, add admin page, and clean up imports\n\n- Refactored Navbar to use a single user dropdown for both authenticated and unauthenticated users, removing duplicate dropdown logic.\n- Added `userMenuOpen` state to Navbar for better dropdown control.\n- Implemented toggle handlers to ensure only one dropdown (user or social) is open at a time.\n- Added new `Admin` page (`src/react/pages/Admin.tsx`) with a form to add saldo for users.\n- Updated route imports in `src/react/routes.js` to use `.tsx` suffix and registered the new `/admin` route.",
+    "files": [
+      "src/react/components/Navbar.tsx",
+      "src/react/pages/Admin.tsx",
+      "src/react/routes.js",
+      "src/react/utils/url.ts"
+    ]
+  },
+  {
+    "hash": "d6d9b69706fc2707cbeb9e1fbc1f6cff04cff28f",
+    "date": "2025-08-17T13:24:29+07:00",
+    "message": "refactor(react): centralize route definitions and simplify routing\n\n- Removed individual route imports and static <Route> declarations from index.tsx.\n- Introduced a new src/react/routes.js file exporting an array of route objects with their respective components and metadata.\n- Updated index.tsx to dynamically generate <Route> elements from the centralized routes array.\n- Deleted the obsolete src/react/routes.json file.\n- Updated vite-gh-pages.js to import routes from routes.js instead of the removed JSON file.",
+    "files": [
+      "src/react/index.tsx",
+      "src/react/routes.js",
+      "src/react/routes.json",
+      "vite-gh-pages.js"
+    ]
+  },
+  {
     "hash": "48ebf139340021b6ef431d1f0c388da7f4c1c8ea",
     "date": "2025-08-17T12:55:35+07:00",
     "message": "fix(index.php): update allowed file extensions for asset routing and improve MIME type handling",
