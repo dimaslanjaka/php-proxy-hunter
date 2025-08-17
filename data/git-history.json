@@ -1,5 +1,27 @@
 [
   {
+    "hash": "c88379e2c34bd181c15522ee965b0af4bfcad580",
+    "date": "2025-08-18T05:21:06+07:00",
+    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
+    "files": []
+  },
+  {
+    "hash": "c528d3be15c5349eb74131dd79eb285be10748c8",
+    "date": "2025-08-18T05:20:12+07:00",
+    "message": "feat(navbar): remove Twitter link from the navbar",
+    "files": [
+      "src/react/components/Navbar.tsx"
+    ]
+  },
+  {
+    "hash": "7fe81f76a197dd96d8fc4aad28cac3463a5bf2ac",
+    "date": "2025-08-18T04:45:09+07:00",
+    "message": "fix(git-pull): detect merge conflicts in both stdout and stderr\n\nPreviously, the script only checked stderr for merge conflict messages, which could cause false positives or missed conflicts depending on the Git version and environment. Now, it checks both stdout and stderr to reliably detect merge conflicts during dry-run merges.",
+    "files": [
+      "bin/git-pull.cjs"
+    ]
+  },
+  {
     "hash": "6177494d58130cfc7e5574dbbb72e0dcf6bf398d",
     "date": "2025-08-18T04:33:28+07:00",
     "message": "feat(admin): add admin check and redirect using react-router-dom\n\n- Imported useNavigate and getUserInfo in Admin page.\n- Added effect to check if the current user is admin; if not, redirect to home using navigate('/').\n- Improved error handling for user info fetch failure.",

@@ -19055,20 +19055,6 @@ const Navbar = () => {
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "a",
-            {
-              href: "https://twitter.com/dimaslanjaka",
-              className: "flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700",
-              target: "_blank",
-              rel: "noopener noreferrer",
-              title: "Twitter",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("i", { className: "fab fa-twitter mr-2" }),
-                " Twitter"
-              ]
-            }
-          ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("hr", { className: "my-1 border-gray-200 dark:border-gray-700" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Link,
@@ -21969,7 +21955,7 @@ function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      const url = createUrl(`/data/git-history.json`, { v: "6177494d" });
+      const url = createUrl(`/data/git-history.json`, { v: "c88379e2" });
       gitHistoryPromise = (async () => {
         const commits2 = [];
         for await (const commit of streamJsonFromUrl(url, "!*")) {
