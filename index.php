@@ -20,34 +20,34 @@ if (in_array($_SERVER['HTTP_HOST'], $localhosts)) {
 // Route /assets and /data to dist/assets and dist/data with auto MIME type, allow only specific file types
 if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUEST_URI'], '/data/') === 0) {
   $allowedExtensions = [
-    'json',
-    'txt',
-    'jpg',
-    'jpeg',
-    'png',
-    'gif',
-    'bmp',
-    'webp',
-    'svg',
-    'ico',
-    'xml',
-    'xsl',
-    'jsonc',
-    'js',
-    'css',
-    'woff',
-    'woff2',
-    'ttf',
-    'otf',
-    'eot',
-    'sfnt',
-    'font',
-    'fnt'
+    'css' => 'text/css',
+    'js' => 'application/javascript',
+    'json' => 'application/json',
+    'txt' => 'text/plain',
+    'jpg' => 'image/jpeg',
+    'jpeg' => 'image/jpeg',
+    'png' => 'image/png',
+    'gif' => 'image/gif',
+    'bmp' => 'image/bmp',
+    'webp' => 'image/webp',
+    'svg' => 'image/svg+xml',
+    'ico' => 'image/x-icon',
+    'xml' => 'application/xml',
+    'xsl' => 'application/xslt+xml',
+    'jsonc' => 'application/json',
+    'woff' => 'font/woff',
+    'woff2' => 'font/woff2',
+    'ttf' => 'font/ttf',
+    'otf' => 'font/otf',
+    'eot' => 'application/vnd.ms-fontobject',
+    'sfnt' => 'font/sfnt',
+    'font' => 'font/ttf',
+    'fnt' => 'font/ttf'
   ];
 
   $requestPath = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
   $ext = strtolower(pathinfo($requestPath, PATHINFO_EXTENSION));
-  if (!in_array($ext, $allowedExtensions, true)) {
+  if (!array_key_exists($ext, $allowedExtensions)) {
     http_response_code(403);
     echo '403 Forbidden: The requested file type is not allowed.';
     exit;
@@ -61,11 +61,8 @@ if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUES
 
   foreach ($locations as $file) {
     if (file_exists($file)) {
-      if ($ext === 'js') {
-        $mimeType = 'application/javascript';
-      } elseif ($ext === 'css') {
-        $mimeType = 'text/css';
-      } else {
+      $mimeType = $allowedExtensions[$ext];
+      if ($mimeType === null) {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $file);
         finfo_close($finfo);

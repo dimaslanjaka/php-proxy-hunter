@@ -55,7 +55,7 @@
 ├── github-actions-init.php [10e385fa]
 ├── github-actions-init.py [ee8130c1]
 ├── index.js [a16a8e4b]
-├── index.php [83f4d5b5]
+├── index.php [fddd0f86]
 ├── info.php [7a4648e9]
 ├── js/
 │   ├── general-site-script.js [820ca2fb]
@@ -239,7 +239,7 @@
 ├── useragent.php [6c86f81d]
 ├── vite-gh-pages.config.js [1b87916c]
 ├── vite-gh-pages.js [3cf18579]
-├── vite-plugin.js [c5ed3d8f]
+├── vite-plugin.js [ee77d358]
 ├── vite.config.js [682f68e1]
 └── webgl-information/
     ├── script.js [5fd60361]
