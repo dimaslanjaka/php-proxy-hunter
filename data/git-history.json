@@ -1,5 +1,15 @@
 [
   {
+    "hash": "61a9204f07fa4b784b2830ef9818d3ff59ce06bc",
+    "date": "2025-08-17T16:45:00+07:00",
+    "message": "refactor(react): use PascalCase 'Component' prop for route mapping and JSX rendering\n\n- Updated route mapping logic to use 'Component' (PascalCase) instead of 'component' for consistency with React conventions.\n- Refactored route rendering in index.tsx to check for existence of 'Component' and render using JSX (<Component />) instead of string-based or lower-case component references.\n- Improved type safety and clarity in route definitions and rendering.",
+    "files": [
+      "packages/baileys",
+      "src/react/index.tsx",
+      "src/react/routes.js"
+    ]
+  },
+  {
     "hash": "af454feed49d3b7ebccde5b20fbf9cf6bec314be",
     "date": "2025-08-17T16:14:14+07:00",
     "message": "chore(package): update build script order and remove postinstall\n\n- Updated the build script to run `build:packages` before `build:rollup` and `build:react` for proper dependency build order.\n- Removed the `postinstall` script that previously triggered `build:packages` after install.",

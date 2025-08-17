@@ -21948,7 +21948,7 @@ function Changelog() {
       return;
     }
     if (!gitHistoryPromise) {
-      const url = createUrl(`/data/git-history.json`, { v: "af454fee" });
+      const url = createUrl(`/data/git-history.json`, { v: "61a9204f" });
       gitHistoryPromise = (async () => {
         const commits2 = [];
         for await (const commit of streamJsonFromUrl(url, "!*")) {
@@ -22279,46 +22279,46 @@ const routesMeta = [
   }
 ];
 const routes = routesMeta.map((meta) => {
-  let component;
+  let Component;
   switch (meta.path instanceof Array ? meta.path[0] : meta.path) {
     case "/":
-      component = Home;
+      Component = Home;
       break;
     case "/admin":
-      component = Admin;
+      Component = Admin;
       break;
     case "/outbound":
-      component = Outbound;
+      Component = Outbound;
       break;
     case "/login":
-      component = Login;
+      Component = Login;
       break;
     case "/changelog":
-      component = Changelog;
+      Component = Changelog;
       break;
     case "/settings":
-      component = Settings;
+      Component = Settings;
       break;
     case "/dashboard":
-      component = Dashboard;
+      Component = Dashboard;
       break;
     case "/about":
-      component = About;
+      Component = About;
       break;
     case "/contact":
-      component = Contact;
+      Component = Contact;
       break;
     case "/logout":
-      component = Logout;
+      Component = Logout;
       break;
     case "/oauth":
     case "/oauth/google":
-      component = OauthHandler;
+      Component = OauthHandler;
       break;
     default:
-      component = void 0;
+      Component = void 0;
   }
-  return { ...meta, component };
+  return { ...meta, Component };
 });
 const root = ReactDOM.createRoot(document.getElementById("root"));
 window.addEventListener("keydown", function(e) {
@@ -22336,11 +22336,21 @@ root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(BrowserRouter, { basename: "/php-proxy-hunter/", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Navbar, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Routes, { children: [
-      routes.flatMap((route) => {
-        if (Array.isArray(route.path)) {
-          return route.path.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: p, element: /* @__PURE__ */ jsxRuntimeExports.jsx(route.component, {}) }, p));
+      routes.flatMap((CustomRoute) => {
+        if (!CustomRoute.Component) return null;
+        if (Array.isArray(CustomRoute.path)) {
+          return CustomRoute.path.map(
+            (p) => CustomRoute.Component ? /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: p, element: /* @__PURE__ */ jsxRuntimeExports.jsx(CustomRoute.Component, {}) }, p) : null
+          );
         }
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: route.path, element: /* @__PURE__ */ jsxRuntimeExports.jsx(route.component, {}) }, route.path);
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Route,
+          {
+            path: CustomRoute.path,
+            element: CustomRoute.Component ? /* @__PURE__ */ jsxRuntimeExports.jsx(CustomRoute.Component, {}) : null
+          },
+          CustomRoute.path
+        );
       }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "*", element: /* @__PURE__ */ jsxRuntimeExports.jsx(NotFound, {}) })
     ] }),
