@@ -43,10 +43,11 @@ try {
     process.exit(1);
   }
 
-  if (mergeResult.stderr && /CONFLICT/i.test(mergeResult.stderr)) {
+  const mergeOutput = (mergeResult.stderr || '') + (mergeResult.stdout || '');
+  if (/CONFLICT/i.test(mergeOutput)) {
     // Check if the only conflict is .husky/hash.txt
     /** @type {string[]} */
-    let conflictFiles = mergeResult.stderr.match(/CONFLICT \(content\): Merge conflict in (.+)/g) || [];
+    let conflictFiles = mergeOutput.match(/CONFLICT \(content\): Merge conflict in (.+)/g) || [];
     conflictFiles = conflictFiles.map(function (line) {
       return line.replace(/.*Merge conflict in /, '').trim();
     });
