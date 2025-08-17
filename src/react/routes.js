@@ -9,105 +9,50 @@ import Contact from './pages/Contact.tsx';
 import Changelog from './pages/Changelog.tsx';
 import Admin from './pages/Admin.tsx';
 import Logout from './pages/Logout.tsx';
+import routesMeta from './routes.json' assert { type: 'json' };
 
-export default [
-  {
-    path: '/',
-    component: Home,
-    title: 'Home | PHP Proxy Hunter',
-    description: 'Welcome to PHP Proxy Hunter - the ultimate tool for managing and checking proxies.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/'
-  },
-  {
-    path: '/admin',
-    component: Admin,
-    title: 'Admin | PHP Proxy Hunter',
-    description: 'Admin panel to add saldo for users.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/admin'
-  },
-  {
-    path: '/outbound',
-    component: Outbound,
-    title: 'Outbound | PHP Proxy Hunter',
-    description: 'View and manage outbound proxy connections in PHP Proxy Hunter.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/outbound'
-  },
-  {
-    path: '/login',
-    component: Login,
-    title: 'Login | PHP Proxy Hunter',
-    description: 'Login to your PHP Proxy Hunter account to access proxy management features.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/login'
-  },
-  {
-    path: '/changelog',
-    component: Changelog,
-    title: 'Changelog | PHP Proxy Hunter',
-    description: 'See the latest updates and changes to PHP Proxy Hunter.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/changelog'
-  },
-  {
-    path: ['/oauth', '/oauth/google'],
-    component: OauthHandler,
-    title: 'OAuth Handler | PHP Proxy Hunter',
-    description: 'Handle OAuth authentication for PHP Proxy Hunter.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/oauth'
-  },
-  {
-    path: '/settings',
-    component: Settings,
-    title: 'Settings | PHP Proxy Hunter',
-    description: 'Configure your PHP Proxy Hunter preferences and settings.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/settings'
-  },
-  {
-    path: '/dashboard',
-    component: Dashboard,
-    title: 'Dashboard | PHP Proxy Hunter',
-    description: 'View your dashboard and proxy statistics in PHP Proxy Hunter.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/dashboard'
-  },
-  {
-    path: '/about',
-    component: About,
-    title: 'About | PHP Proxy Hunter',
-    description: 'Learn more about PHP Proxy Hunter and its features.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/about'
-  },
-  {
-    path: '/contact',
-    component: Contact,
-    title: 'Contact | PHP Proxy Hunter',
-    description: 'Contact the PHP Proxy Hunter team for support or inquiries.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/contact'
-  },
-  {
-    path: '/logout',
-    component: Logout,
-    title: 'Logout | PHP Proxy Hunter',
-    description: 'Logout from your PHP Proxy Hunter account.',
-    thumbnail:
-      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
-    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/logout'
+// Compose the routes array by merging metadata with components
+const routes = routesMeta.map((meta) => {
+  let component;
+  switch (meta.path instanceof Array ? meta.path[0] : meta.path) {
+    case '/':
+      component = Home;
+      break;
+    case '/admin':
+      component = Admin;
+      break;
+    case '/outbound':
+      component = Outbound;
+      break;
+    case '/login':
+      component = Login;
+      break;
+    case '/changelog':
+      component = Changelog;
+      break;
+    case '/settings':
+      component = Settings;
+      break;
+    case '/dashboard':
+      component = Dashboard;
+      break;
+    case '/about':
+      component = About;
+      break;
+    case '/contact':
+      component = Contact;
+      break;
+    case '/logout':
+      component = Logout;
+      break;
+    case '/oauth':
+    case '/oauth/google':
+      component = OauthHandler;
+      break;
+    default:
+      component = undefined;
   }
-];
+  return { ...meta, component };
+});
+
+export default routes;

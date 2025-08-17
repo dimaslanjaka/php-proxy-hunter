@@ -1,0 +1,79 @@
+[
+  {
+    "path": "/",
+    "title": "Home | PHP Proxy Hunter",
+    "description": "Welcome to PHP Proxy Hunter - the ultimate tool for managing and checking proxies.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/"
+  },
+  {
+    "path": "/admin",
+    "title": "Admin | PHP Proxy Hunter",
+    "description": "Admin panel to add saldo for users.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/admin"
+  },
+  {
+    "path": "/outbound",
+    "title": "Outbound | PHP Proxy Hunter",
+    "description": "View and manage outbound proxy connections in PHP Proxy Hunter.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/outbound"
+  },
+  {
+    "path": "/login",
+    "title": "Login | PHP Proxy Hunter",
+    "description": "Login to your PHP Proxy Hunter account to access proxy management features.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/login"
+  },
+  {
+    "path": "/changelog",
+    "title": "Changelog | PHP Proxy Hunter",
+    "description": "See the latest updates and changes to PHP Proxy Hunter.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/changelog"
+  },
+  {
+    "path": ["/oauth", "/oauth/google"],
+    "title": "OAuth Handler | PHP Proxy Hunter",
+    "description": "Handle OAuth authentication for PHP Proxy Hunter.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/oauth"
+  },
+  {
+    "path": "/settings",
+    "title": "Settings | PHP Proxy Hunter",
+    "description": "Configure your PHP Proxy Hunter preferences and settings.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/settings"
+  },
+  {
+    "path": "/dashboard",
+    "title": "Dashboard | PHP Proxy Hunter",
+    "description": "View your dashboard and proxy statistics in PHP Proxy Hunter.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/dashboard"
+  },
+  {
+    "path": "/about",
+    "title": "About | PHP Proxy Hunter",
+    "description": "Learn more about PHP Proxy Hunter and its features.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/about"
+  },
+  {
+    "path": "/contact",
+    "title": "Contact | PHP Proxy Hunter",
+    "description": "Contact the PHP Proxy Hunter team for support or inquiries.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/contact"
+  },
+  {
+    "path": "/logout",
+    "title": "Logout | PHP Proxy Hunter",
+    "description": "Logout from your PHP Proxy Hunter account.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/logout"
+  }
+]

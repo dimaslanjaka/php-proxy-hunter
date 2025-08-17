@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import path from 'upath';
 import { fileURLToPath } from 'url';
 import { build } from 'vite';
-import routes from './src/react/routes.js';
+import routes from './src/react/routes.json' with { type: 'json' };
 import viteConfig from './vite-gh-pages.config.js';
 import { copyIndexHtml } from './vite-plugin.js';
 
@@ -117,33 +117,38 @@ async function deploy() {
   // Copy index.html to each route in .deploy_git
   for (const routeOrig of routes) {
     let route = { ...routeOrig };
-    if (route.path.endsWith('/')) {
-      // Ensure the route does not end with a slash
-      route.path += 'index.html';
-    } else if (!route.path.endsWith('.html')) {
-      // Append index.html if it does not end with .html
-      // This ensures that the route is treated as a directory
-      // and served as index.html
-      // e.g., /about becomes /about/index.html
-      route.path += '/index.html';
-    }
-    const routePathWithoutHtml = route.path.replace(/\.html$/, '');
-    const routeHtml = path.join(deployGitPath, `${routePathWithoutHtml}.html`);
-    fs.ensureDirSync(path.dirname(routeHtml));
-    if (!fs.existsSync(indexHtml)) {
-      console.error(`Source HTML does not exist: ${path.relative(process.cwd(), indexHtml)}`);
-      continue;
-    }
-    const relRouteHtml = path.relative(process.cwd(), routeHtml);
-    try {
-      fs.copySync(indexHtml, routeHtml, { overwrite: true, dereference: true });
-      if (!fs.existsSync(routeHtml)) {
-        console.error(`Failed to copy to: ${relRouteHtml}`);
-      } else {
-        console.log(`Copied ${relIndexHtml} to ${relRouteHtml} after build.`);
+    // Support string or string[] for path
+    const paths = Array.isArray(route.path) ? route.path : [route.path];
+    for (let pathItem of paths) {
+      let routePath = pathItem;
+      if (routePath.endsWith('/')) {
+        // Ensure the route does not end with a slash
+        routePath += 'index.html';
+      } else if (!routePath.endsWith('.html')) {
+        // Append index.html if it does not end with .html
+        // This ensures that the route is treated as a directory
+        // and served as index.html
+        // e.g., /about becomes /about/index.html
+        routePath += '/index.html';
       }
-    } catch (err) {
-      console.error(`Error copying ${relIndexHtml} to ${relRouteHtml}:`, err);
+      const routePathWithoutHtml = routePath.replace(/\.html$/, '');
+      const routeHtml = path.join(deployGitPath, `${routePathWithoutHtml}.html`);
+      fs.ensureDirSync(path.dirname(routeHtml));
+      if (!fs.existsSync(indexHtml)) {
+        console.error(`Source HTML does not exist: ${path.relative(process.cwd(), indexHtml)}`);
+        continue;
+      }
+      const relRouteHtml = path.relative(process.cwd(), routeHtml);
+      try {
+        fs.copySync(indexHtml, routeHtml, { overwrite: true, dereference: true });
+        if (!fs.existsSync(routeHtml)) {
+          console.error(`Failed to copy to: ${relRouteHtml}`);
+        } else {
+          console.log(`Copied ${relIndexHtml} to ${relRouteHtml} after build.`);
+        }
+      } catch (err) {
+        console.error(`Error copying ${relIndexHtml} to ${relRouteHtml}:`, err);
+      }
     }
   }
 }
