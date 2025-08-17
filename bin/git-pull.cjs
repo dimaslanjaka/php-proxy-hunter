@@ -44,14 +44,38 @@ try {
   }
 
   if (mergeResult.stderr && /CONFLICT/i.test(mergeResult.stderr)) {
-    console.error('Merge conflict detected! Aborting git pull.');
-    // Abort the merge if it started
-    try {
-      child_process.execSync('git merge --abort');
-    } catch (_) {
-      // ignore
+    // Check if the only conflict is .husky/hash.txt
+    /** @type {string[]} */
+    let conflictFiles = mergeResult.stderr.match(/CONFLICT \(content\): Merge conflict in (.+)/g) || [];
+    conflictFiles = conflictFiles.map(function (line) {
+      return line.replace(/.*Merge conflict in /, '').trim();
+    });
+    if (conflictFiles.length === 1 && conflictFiles[0] === '.husky/hash.txt') {
+      console.warn('Only .husky/hash.txt has conflict. Truncating and staging .husky/hash.txt...');
+      try {
+        fs.writeFileSync('.husky/hash.txt', '');
+        child_process.execSync('git add .husky/hash.txt');
+        child_process.execSync('git merge --continue');
+        console.log('.husky/hash.txt conflict resolved by truncating and staging.');
+      } catch (e) {
+        console.error('Failed to resolve .husky/hash.txt conflict:', e.message);
+        try {
+          child_process.execSync('git merge --abort');
+        } catch (_) {
+          // ignore
+        }
+        process.exit(1);
+      }
+    } else {
+      console.error('Merge conflict detected! Aborting git pull.');
+      // Abort the merge if it started
+      try {
+        child_process.execSync('git merge --abort');
+      } catch (_) {
+        // ignore
+      }
+      process.exit(1);
     }
-    process.exit(1);
   }
 
   // If no conflict, reset any changes from dry-run
