@@ -57,7 +57,7 @@ export default [
     canonical: 'https://www.webmanajemen.com/php-proxy-hunter/changelog'
   },
   {
-    path: '/oauth',
+    path: ['/oauth', '/oauth/google'],
     component: OauthHandler,
     title: 'OAuth Handler | PHP Proxy Hunter',
     description: 'Handle OAuth authentication for PHP Proxy Hunter.',
