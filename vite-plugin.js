@@ -20,11 +20,26 @@ export function TailwindCSSBuildPlugin() {
      * Runs Tailwind CSS build when Vite config is resolved.
      * @returns {Promise<void>}
      */
-    async configResolved() {
+    async configResolved(_config) {
       try {
         buildTailwind();
       } catch (error) {
         console.error('Failed to build Tailwind CSS:', error);
+      }
+    },
+    /**
+     * Use Vite's watcher to rebuild Tailwind CSS when tailwind.input.css changes.
+     */
+    handleHotUpdate({ file, server }) {
+      const tailwindInputPath = path.join(__dirname, 'tailwind.input.css');
+      if (file === tailwindInputPath) {
+        try {
+          buildTailwind();
+          server.ws.send({ type: 'full-reload' });
+          console.log('Rebuilt Tailwind CSS and triggered full reload due to tailwind.input.css change.');
+        } catch (error) {
+          console.error('Failed to rebuild Tailwind CSS on change:', error);
+        }
       }
     }
   };
