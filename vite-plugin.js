@@ -101,6 +101,22 @@ export function indexHtmlReplacementPlugin() {
           console.warn(`Source file "${src}" does not exist. Skipping copy.`);
         }
       }
+
+      // Copy robots.txt to the project directory for production.
+      const robotsSrc = path.join(__dirname, 'robots.txt');
+      const destinations = [path.join(__dirname, 'dist/react/robots.txt'), path.join(__dirname, 'public/robots.txt')];
+
+      if (fs.existsSync(robotsSrc)) {
+        const stat = fs.statSync(robotsSrc);
+        if (stat.size > 0) {
+          destinations.forEach((dest) => {
+            fs.copySync(robotsSrc, dest, { overwrite: true });
+          });
+          console.log(`Copied ${robotsSrc} to: ${destinations.join(', ')}`);
+        } else {
+          console.warn(`Source file "${robotsSrc}" is empty. Skipping copy.`);
+        }
+      }
     }
     // /**
     //  * Configures the dev server to serve index.dev.html for specific routes.
