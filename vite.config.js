@@ -1,4 +1,3 @@
-// import react from '@vitejs/plugin-react';
 import react from '@vitejs/plugin-react';
 import 'dotenv/config';
 import path from 'path';
@@ -7,6 +6,7 @@ import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
 import { indexHtmlReplacementPlugin, TailwindCSSBuildPlugin } from './vite-plugin.js';
 import { execSync } from 'child_process';
+import legacy from '@vitejs/plugin-legacy';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +21,15 @@ export const viteConfig = defineConfig({
     VITE_GIT_COMMIT: `"${gitCommitHash}"`
   },
   cacheDir: path.resolve(__dirname, 'tmp/.vite'),
-  plugins: [TailwindCSSBuildPlugin(), react(), mkcert(), indexHtmlReplacementPlugin()],
+  plugins: [
+    TailwindCSSBuildPlugin(),
+    react(),
+    mkcert(),
+    indexHtmlReplacementPlugin(),
+    legacy({
+      targets: ['defaults', 'not IE 11']
+    })
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
