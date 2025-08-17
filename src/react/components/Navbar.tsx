@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { fetchUserInfo, UserInfo } from '../utils/user';
+import { getUserInfo, SingleUserInfo } from '../utils/user';
 import Link from './Link';
 import ThemeSwitcher from './ThemeSwitcher';
 
-interface NavbarState extends UserInfo {
+interface NavbarState extends SingleUserInfo {
   socialOpen?: boolean;
   userMenuOpen?: boolean;
 }
@@ -45,8 +45,8 @@ const Navbar: React.FC = () => {
       return;
     }
     // Fetch user info from the server
-    fetchUserInfo()
-      .then((data: UserInfo) => {
+    getUserInfo()
+      .then((data) => {
         if (data.authenticated) {
           setState((prev) => ({
             ...prev,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createUrl } from '../utils/url';
 import axios from 'axios';
-import { fetchUserInfo } from '../utils/user';
+import { getUserInfo } from '../utils/user';
 
 // Settings page for user profile management
 // Backends:
@@ -15,7 +15,7 @@ const Settings = () => {
   const [success, setSuccess] = useState('');
 
   React.useEffect(() => {
-    fetchUserInfo()
+    getUserInfo()
       .then((data) => {
         if (data.authenticated) {
           setUsername(data.username || '');

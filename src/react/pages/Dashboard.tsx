@@ -1,5 +1,5 @@
 import React from 'react';
-import { fetchUserInfo } from '../utils/user';
+import { getUserInfo } from '../utils/user';
 
 const Dashboard = () => {
   const [saldo, setSaldo] = React.useState<number | null>(null);
@@ -7,7 +7,7 @@ const Dashboard = () => {
   const [error, setError] = React.useState('');
 
   React.useEffect(() => {
-    fetchUserInfo()
+    getUserInfo()
       .then((data) => {
         if (typeof data.saldo === 'number') {
           setSaldo(data.saldo);

@@ -13,11 +13,11 @@ export interface UserInfo {
 }
 
 export interface SingleUserInfo extends UserInfo {
-  uid: string;
+  uid?: string;
   admin?: boolean;
 }
 
-export async function fetchUserInfo() {
+export async function getUserInfo() {
   const response = await axios.get<SingleUserInfo>(createUrl('/php_backend/user-info.php'));
   return response.data;
 }
