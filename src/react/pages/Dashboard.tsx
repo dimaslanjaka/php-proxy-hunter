@@ -1,6 +1,5 @@
 import React from 'react';
-import { createUrl } from '../utils/url';
-import axios from 'axios';
+import { fetchUserInfo } from '../utils/user';
 
 const Dashboard = () => {
   const [saldo, setSaldo] = React.useState<number | null>(null);
@@ -8,10 +7,8 @@ const Dashboard = () => {
   const [error, setError] = React.useState('');
 
   React.useEffect(() => {
-    axios
-      .get(createUrl('/php_backend/user-info.php'))
-      .then((res) => {
-        const data = res.data;
+    fetchUserInfo()
+      .then((data) => {
         if (typeof data.saldo === 'number') {
           setSaldo(data.saldo);
         }
