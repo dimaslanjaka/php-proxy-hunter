@@ -20,6 +20,12 @@ fi
 # Set the user variable (can be overridden by an environment variable)
 USER="www-data"
 
+# Check if the user exists
+if ! id "$USER" &>/dev/null; then
+  echo "Error: User '$USER' does not exist."
+  exit 1
+fi
+
 # Check the operating system and run the respective code
 case "$OS" in
 Linux)
