@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { createUrl } from '../utils/url';
 import Link from '../components/Link';
+import axios from 'axios';
 
 const OauthHandler = () => {
   const location = useLocation();
@@ -23,17 +24,13 @@ const OauthHandler = () => {
     }
     setLoading(true);
     const googleRedirectUrl = import.meta.env.VITE_GOOGLE_REDIRECT_URL || createUrl('/oauth/google');
-    fetch(
-      createUrl('/php_backend/google-oauth.php', { redirect_uri: googleRedirectUrl, 'google-oauth-callback': code }),
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, state })
-      }
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setResult(data);
+    axios
+      .post(
+        createUrl('/php_backend/google-oauth.php', { redirect_uri: googleRedirectUrl, 'google-oauth-callback': code }),
+        { code, state }
+      )
+      .then((res) => {
+        setResult(res.data);
         setLoading(false);
       })
       .catch(() => {

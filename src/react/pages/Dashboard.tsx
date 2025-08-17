@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
-
+import React from 'react';
 import { createUrl } from '../utils/url';
+import axios from 'axios';
 
 const Dashboard = () => {
-  const [saldo, setSaldo] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [saldo, setSaldo] = React.useState<number | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState('');
 
-  useEffect(() => {
-    fetch(createUrl('/php_backend/user-info.php'))
-      .then((res) => res.json())
-      .then((data) => {
+  React.useEffect(() => {
+    axios
+      .get(createUrl('/php_backend/user-info.php'))
+      .then((res) => {
+        const data = res.data;
         if (typeof data.saldo === 'number') {
           setSaldo(data.saldo);
         }

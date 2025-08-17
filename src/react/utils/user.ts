@@ -1,4 +1,5 @@
 import { createUrl } from './url';
+import axios from 'axios';
 
 export interface UserInfo {
   authenticated: boolean;
@@ -11,7 +12,6 @@ export interface UserInfo {
 }
 
 export async function fetchUserInfo(): Promise<UserInfo> {
-  const response = await fetch(createUrl('/php_backend/user-info.php'));
-  if (!response.ok) throw new Error('Failed to fetch user info');
-  return response.json();
+  const response = await axios.get<UserInfo>(createUrl('/php_backend/user-info.php'));
+  return response.data;
 }

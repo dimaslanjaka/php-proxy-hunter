@@ -1,15 +1,17 @@
 import React, { useEffect } from 'react';
 import { createUrl } from '../utils/url';
 import Link from '../components/Link';
+import axios from 'axios';
 
 const Logout: React.FC = () => {
   const [done, setDone] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [logoutSuccess, setLogoutSuccess] = React.useState<boolean | null>(null);
   useEffect(() => {
-    fetch(createUrl('/php_backend/logout.php'))
-      .then((res) => res.json())
-      .then((data) => {
+    axios
+      .get(createUrl('/php_backend/logout.php'))
+      .then((res) => {
+        const data = res.data;
         if (data && data.logout === true) {
           setLogoutSuccess(true);
         } else {

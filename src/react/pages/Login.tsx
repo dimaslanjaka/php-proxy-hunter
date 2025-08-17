@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createUrl } from '../utils/url';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -16,11 +17,11 @@ const Login = () => {
     const googleRedirectUrl = import.meta.env.VITE_GOOGLE_REDIRECT_URL || createUrl('/oauth/google');
     if (!indicators.getAuthUrl) {
       indicators.getAuthUrl = true; // Mark as done
-      fetch(createUrl('/php_backend/google-oauth.php', { redirect_uri: googleRedirectUrl, 'google-auth-uri': true }))
-        .then((res) => res.json())
-        .then((data) => {
-          setGoogleAuthUrl(data.auth_uri);
-          console.log(data);
+      axios
+        .get(createUrl('/php_backend/google-oauth.php', { redirect_uri: googleRedirectUrl, 'google-auth-uri': true }))
+        .then((res) => {
+          setGoogleAuthUrl(res.data.auth_uri);
+          console.log(res.data);
           // Enable Google login button
           document.querySelector('#google-login-button')?.removeAttribute('disabled');
         })
@@ -42,20 +43,10 @@ const Login = () => {
       return;
     }
     const url = createUrl('/php_backend/login.php');
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })
-    })
+    axios
+      .post(url, { username, password })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error('Login failed. Please check your credentials.');
-        }
-        return response.json();
-      })
-      .then((data) => {
+        const data = response.data;
         if (data.success) {
           navigate('/dashboard');
         } else {
@@ -64,7 +55,9 @@ const Login = () => {
       })
       .catch((error) => {
         console.error('Login error:', error);
-        setError(error.message || 'An unexpected error occurred. Please try again later.');
+        setError(
+          error.response?.data?.message || error.message || 'An unexpected error occurred. Please try again later.'
+        );
       });
   };
 

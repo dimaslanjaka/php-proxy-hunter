@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createUrl } from '../utils/url';
-
+import axios from 'axios';
 import { fetchUserInfo } from '../utils/user';
 
 // Settings page for user profile management
@@ -49,18 +49,8 @@ const Settings = () => {
         payload.password = password;
       }
 
-      const response = await fetch(createUrl('/php_backend/user-info.php'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-        // credentials: 'include'
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update user info');
-      }
-      const data = await response.json();
+      const response = await axios.post(createUrl('/php_backend/user-info.php'), payload);
+      const data = response.data;
       if (data && data.authenticated) {
         setSuccess('Profile updated successfully!');
         setPassword(''); // clear password field after update
