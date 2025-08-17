@@ -1,12 +1,13 @@
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Outbound from './pages/Outbound';
-import OauthHandler from './pages/OauthHandler';
-import Dashboard from './pages/Dashboard';
-import Settings from './pages/Settings';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Changelog from './pages/Changelog';
+import Home from './pages/Home.tsx';
+import Login from './pages/Login.tsx';
+import Outbound from './pages/Outbound.tsx';
+import OauthHandler from './pages/OauthHandler.tsx';
+import Dashboard from './pages/Dashboard.tsx';
+import Settings from './pages/Settings.tsx';
+import About from './pages/About.tsx';
+import Contact from './pages/Contact.tsx';
+import Changelog from './pages/Changelog.tsx';
+import Admin from './pages/Admin.tsx';
 
 export default [
   {
@@ -17,6 +18,15 @@ export default [
     thumbnail:
       'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
     canonical: 'https://www.webmanajemen.com/php-proxy-hunter/'
+  },
+  {
+    path: '/admin',
+    component: Admin,
+    title: 'Admin | PHP Proxy Hunter',
+    description: 'Admin panel to add saldo for users.',
+    thumbnail:
+      'https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg',
+    canonical: 'https://www.webmanajemen.com/php-proxy-hunter/admin'
   },
   {
     path: '/outbound',

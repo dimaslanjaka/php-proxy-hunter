@@ -39,7 +39,7 @@ export function createUrl(
     backendProd?: string;
   }
 ): string {
-  console.debug(`[createUrl] path: "${path}", params:`, params);
+  // console.debug(`[createUrl] path: "${path}", params:`, params);
   let origin = window.location.origin; // Default to current origin
   let base = '';
   if (viteBaseUrl && viteBaseUrl !== '/') {
@@ -71,7 +71,7 @@ export function createUrl(
   });
   const result = url.toString();
 
-  console.debug(`[createUrl] result: "${result}"`);
+  // console.debug(`[createUrl] result: "${result}"`);
 
   return result;
 }
