@@ -25,11 +25,15 @@ if (!$isCli) {
 $user_db = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
 $is_admin = ($_SESSION['admin'] ?? false) === true && ($_SESSION['authenticated'] ?? false) === true;
 if (!$is_admin) {
-  // If the user is not an admin, return an error message
+  // If the user is not an admin, return an error message with 'message' and boolean 'error'
+  $response = [
+    'message' => 'You are not authorized to view this page.',
+    'error' => true
+  ];
   if (!$isCli) {
-    echo json_encode(['error' => 'You are not authorized to view this page.']);
+    echo json_encode($response);
   } else {
-    echo 'You are not authorized to view this page.';
+    echo $response['message'];
   }
   exit;
 }
