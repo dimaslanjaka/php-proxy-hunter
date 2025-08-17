@@ -9,6 +9,7 @@ export interface UserInfo {
   saldo?: number;
   uid?: string;
   username?: string;
+  admin?: boolean;
 }
 
 export async function fetchUserInfo(): Promise<UserInfo> {

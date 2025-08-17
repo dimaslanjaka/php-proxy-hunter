@@ -34,7 +34,8 @@ class Navbar extends React.Component<object, NavbarState> {
             last_name: data.last_name,
             saldo: data.saldo,
             uid: data.uid,
-            username: data.username
+            username: data.username,
+            admin: data.admin || false
           });
         } else {
           this.setState({ authenticated: false });
@@ -129,12 +130,14 @@ class Navbar extends React.Component<object, NavbarState> {
                         title="Settings">
                         <i className="fal fa-cog mr-2"></i> Settings
                       </Link>
-                      <Link
-                        href="/admin"
-                        className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        title="Admin">
-                        <i className="fal fa-user-shield mr-2"></i> Admin
-                      </Link>
+                      {this.state.admin && (
+                        <Link
+                          href="/admin"
+                          className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          title="Admin">
+                          <i className="fal fa-user-shield mr-2"></i> Admin
+                        </Link>
+                      )}
                       <Link
                         href="/logout"
                         className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
