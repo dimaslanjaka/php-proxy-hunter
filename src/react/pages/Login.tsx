@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createUrl } from '../utils/url';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -7,6 +8,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [googleAuthUrl, setGoogleAuthUrl] = useState('');
   const indicators = {} as Record<string, any>; // Placeholder for indicators object
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Login - PHP Proxy Hunter';
@@ -39,9 +41,31 @@ const Login = () => {
       setError('Please enter both username and password.');
       return;
     }
-    setError('');
-    // Example: redirect or show success
-    alert('Login successful!');
+    const url = createUrl('/php_backend/login.php');
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Login failed. Please check your credentials.');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          navigate('/dashboard');
+        } else {
+          setError(data.message || 'Login failed. Please try again.');
+        }
+      })
+      .catch((error) => {
+        console.error('Login error:', error);
+        setError(error.message || 'An unexpected error occurred. Please try again later.');
+      });
   };
 
   const handleGoogleLogin = () => {
