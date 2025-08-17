@@ -92,3 +92,4 @@ class Link extends React.Component<LinkProps, { sf: any }> {
 }
 
 export default Link;
+export { Link as aLink, Link as aHref };
