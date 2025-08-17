@@ -44,7 +44,26 @@ class Navbar extends React.Component<object, NavbarState> {
         console.error('Error fetching user info:', error);
         this.setState({ authenticated: false });
       });
+    document.addEventListener('mousedown', this.handleClickOutside);
   }
+
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClickOutside);
+  }
+
+  userMenuRef = React.createRef<HTMLDivElement>();
+  socialMenuRef = React.createRef<HTMLDivElement>();
+
+  handleClickOutside = (event: MouseEvent) => {
+    const userMenu = this.userMenuRef.current;
+    const socialMenu = this.socialMenuRef.current;
+    if (
+      (this.state.userMenuOpen && userMenu && !userMenu.contains(event.target as Node)) ||
+      (this.state.socialOpen && socialMenu && !socialMenu.contains(event.target as Node))
+    ) {
+      this.setState({ userMenuOpen: false, socialOpen: false });
+    }
+  };
 
   handleUserMenuToggle = () => {
     this.setState((prevState) => ({
@@ -82,9 +101,8 @@ class Navbar extends React.Component<object, NavbarState> {
               <i className="fal fa-network-wired text-2xl" aria-hidden="true"></i>
               <span className="sr-only">Proxy</span>
             </Link>
-            {/* Removed duplicate authenticated user dropdown */}
             {/* User Dropdown for both authenticated and unauthenticated */}
-            <div className="relative">
+            <div className="relative" ref={this.userMenuRef}>
               <button
                 className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none flex items-center gap-1"
                 aria-label="User Menu"
@@ -136,7 +154,7 @@ class Navbar extends React.Component<object, NavbarState> {
               )}
             </div>
             {/* Social Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={this.socialMenuRef}>
               <button
                 className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none flex items-center gap-1"
                 aria-label="Social Media"
