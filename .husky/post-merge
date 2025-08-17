@@ -88,7 +88,9 @@ fi
 # Run yarn
 if command -v yarn >/dev/null 2>&1; then
   touch "$CWD/yarn.lock"  # Create an empty yarn.lock if it doesn't exist
-  yarn install
+  yarn install || {
+    echo "Yarn install failed."
+  }
   yarn build
 else
   echo "Error: Yarn is not installed. Skipping yarn operations."
