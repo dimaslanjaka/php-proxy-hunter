@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { addSaldoToUser, getListOfUsers, getUserInfo } from '../utils/user';
 import AddSaldoForm from './admin/AddSaldoForm';
 import EditPasswordForm from './admin/EditPasswordForm';
 import EditSaldoForm from './admin/EditSaldoForm';
 
 export default function Admin() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [users, setUsers] = useState<Awaited<ReturnType<typeof getListOfUsers>>>([]);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
@@ -30,7 +32,7 @@ export default function Admin() {
         }
       })
       .catch(() => {
-        setError('Failed to fetch user info.');
+        setError(t('failed_to_fetch_user_info'));
       });
     // Get list of users from the server
     const fetchUsers = async () => {
@@ -59,14 +61,14 @@ export default function Admin() {
           const result = await getListOfUsers();
           setUsers(result);
         } catch (_err) {
-          setError('Failed to refresh user list.');
+          setError(t('failed_to_refresh_user_list'));
         }
         setSaldo('');
       } catch (err: any) {
-        setError(err?.message || 'Failed to add saldo.');
+        setError(err?.message || t('add_saldo_error'));
       }
     } else {
-      setError('Please select a user to add saldo.');
+      setError(t('add_saldo_select_user'));
     }
   };
 
@@ -75,13 +77,13 @@ export default function Admin() {
       <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors">
         <h1 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300">
           <i className="text-green-500 dark:text-green-400 fa fa-money-bill-wave"></i>
-          Saldo Manager
+          {t('saldo_manager_title')}
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
             <div>
               <label htmlFor="user" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
-                Select User
+                {t('select_user_label')}
               </label>
               <select
                 id="user"
@@ -91,7 +93,7 @@ export default function Admin() {
                 disabled={users.length === 0}
                 autoComplete="off">
                 {Array.isArray(users) && users.length === 0 ? (
-                  <option value="">Loading users...</option>
+                  <option value="">{t('loading_users')}</option>
                 ) : Array.isArray(users) ? (
                   users.map((user) => (
                     <option
@@ -101,7 +103,7 @@ export default function Admin() {
                     </option>
                   ))
                 ) : (
-                  <option value="">No users found</option>
+                  <option value="">{t('no_users_found')}</option>
                 )}
               </select>
             </div>
@@ -122,9 +124,7 @@ export default function Admin() {
             </div>
             <div>
               <EditPasswordForm userId={selectedUser} onSuccess={() => {}} />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Masukkan password baru untuk user yang dipilih.
-              </p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('enter_new_password_hint')}</p>
             </div>
             <div>
               <EditSaldoForm

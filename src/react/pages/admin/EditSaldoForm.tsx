@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 import { toRupiah } from '../../../utils/number';
 import { setSaldoToUser as setSaldoToUserApi } from '../../utils/user';
 
@@ -16,6 +17,7 @@ const EditSaldoForm: React.FC<EditSaldoFormProps> = ({ userId, currentSaldo, onS
   const [newSaldo, setNewSaldo] = useState('');
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const formatRupiah = (val: string) => {
     const n = parseFloat(val);
@@ -41,7 +43,7 @@ const EditSaldoForm: React.FC<EditSaldoFormProps> = ({ userId, currentSaldo, onS
   return (
     <div>
       <label htmlFor="edit-saldo" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
-        Set Saldo Baru
+        {t('set_saldo_label')}
       </label>
       <input
         id="edit-saldo"
@@ -55,18 +57,24 @@ const EditSaldoForm: React.FC<EditSaldoFormProps> = ({ userId, currentSaldo, onS
         autoComplete="off"
       />
       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-        Masukkan saldo baru (akan menggantikan saldo lama). Contoh: <b>100000</b> (akan menjadi {toRupiah(100000)})
+        <Trans
+          i18nKey="set_saldo_placeholder"
+          values={{ exampleRupiah: toRupiah(100000) }}
+          components={[<b key="b" />]}
+        />
       </p>
       <span className="text-xs text-gray-500 dark:text-gray-400">
-        {`Saldo saat ini: `}
+        {t('current_saldo') + ' '}
         <b className="text-gray-900 dark:text-white">{toRupiah(currentSaldo)}</b>
         {'. '}
         {newSaldo && !isNaN(parseFloat(newSaldo)) ? (
-          <>
-            Saldo akan diubah menjadi <b className="text-blue-700 dark:text-blue-300">{formatRupiah(newSaldo)}</b>
-          </>
+          <Trans
+            i18nKey="saldo_will_change"
+            values={{ newSaldo: formatRupiah(newSaldo) }}
+            components={[<b className="text-blue-700 dark:text-blue-300" key="b" />]}
+          />
         ) : (
-          'Masukkan saldo baru (dalam angka)'
+          t('saldo_input_hint')
         )}
       </span>
       <button
@@ -74,9 +82,9 @@ const EditSaldoForm: React.FC<EditSaldoFormProps> = ({ userId, currentSaldo, onS
         className="mt-2 px-3 py-1 bg-green-600 dark:bg-green-700 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors text-sm font-semibold w-full flex items-center justify-center gap-2"
         disabled={loading || !userId || !newSaldo}
         onClick={handleSetSaldo}>
-        {loading ? 'Saving...' : 'Set Saldo'}
+        {loading ? t('saving') : t('set_saldo_button')}
       </button>
-      {err && <div className="text-xs text-red-500 dark:text-red-400">{err}</div>}
+      {err && <div className="text-xs text-red-500 dark:text-red-400">{t('set_saldo_error')}</div>}
     </div>
   );
 };

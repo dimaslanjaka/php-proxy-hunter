@@ -1,10 +1,15 @@
+import './i18n'; // Ensure i18n is initialized before rendering components
+
+// Import necessary React and ReactDOM libraries
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import './components/theme.css';
+
+// Import all components and pages
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import { ThemeProvider } from './components/ThemeContext';
-import './components/theme.css';
 import NotFound from './pages/NotFound';
 import routes from './routes.js';
 
