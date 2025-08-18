@@ -37,6 +37,12 @@ async function buildForGithubPages() {
     fs.writeFileSync(noJekyllPath, '');
     console.log('.no_jekyll file created to prevent Jekyll processing');
   }
+
+  // Verify the build output
+  const indexHtml = path.join(viteConfig.build.outDir, 'index.html');
+  if (!fs.existsSync(indexHtml)) {
+    throw new Error(`Build failed: ${indexHtml} does not exist.`);
+  }
   await deploy();
 }
 
@@ -79,8 +85,14 @@ async function deploy() {
   // Re-copy build assets
   const source = path.join(viteConfig.build.outDir, 'assets');
   const target = path.join(deployGitPath, 'assets');
-  fs.copySync(source, target, { overwrite: true, dereference: true });
-  console.log(`Copied assets from ${path.relative(process.cwd(), source)} to ${path.relative(process.cwd(), target)}`);
+  if (fs.existsSync(source)) {
+    fs.copySync(source, target, { overwrite: true, dereference: true });
+    console.log(
+      `Copied assets from ${path.relative(process.cwd(), source)} to ${path.relative(process.cwd(), target)}`
+    );
+  } else {
+    console.warn(`Source assets directory does not exist: ${path.relative(process.cwd(), source)}`);
+  }
 
   // Cache busting for index.html
   const indexHtml = path.join(viteConfig.build.outDir, 'index.html');
