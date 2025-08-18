@@ -260,3 +260,16 @@ kbd,
 samp {
   font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
 }
+
+input::placeholder,
+small,
+.text-xs {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Arial,
+    sans-serif;
+}
