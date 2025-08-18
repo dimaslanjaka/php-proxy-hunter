@@ -31,10 +31,11 @@ jobs:
       VITE_BACKEND_HOSTNAME_PROD: ${{ secrets.VITE_BACKEND_HOSTNAME_PROD }}
       GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
     steps:
-      - name: Debug info
+      - name: Check VITE secrets presence
         run: |
-          echo "VITE_BACKEND_HOSTNAME_DEV=${VITE_BACKEND_HOSTNAME_DEV}"
-          echo "VITE_BACKEND_HOSTNAME_PROD=${VITE_BACKEND_HOSTNAME_PROD}"
+          if [ -z "$VITE_BACKEND_HOSTNAME_DEV" ]; then echo "VITE_BACKEND_HOSTNAME_DEV is NOT set"; else echo "VITE_BACKEND_HOSTNAME_DEV is set"; fi
+          if [ -z "$VITE_BACKEND_HOSTNAME_PROD" ]; then echo "VITE_BACKEND_HOSTNAME_PROD is NOT set"; else echo "VITE_BACKEND_HOSTNAME_PROD is set"; fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
