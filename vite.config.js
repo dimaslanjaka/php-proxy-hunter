@@ -23,16 +23,7 @@ export const viteConfig = defineConfig({
     VITE_GIT_COMMIT: `"${gitCommitHash}"`
   },
   cacheDir: path.resolve(__dirname, 'tmp/.vite'),
-  plugins: [
-    indexHtmlReplacementPlugin(),
-    fontsResolverPlugin(),
-    TailwindCSSBuildPlugin(),
-    react(),
-    mkcert(),
-    legacy({
-      targets: ['defaults', 'not IE 11']
-    })
-  ],
+  plugins: [indexHtmlReplacementPlugin(), fontsResolverPlugin(), TailwindCSSBuildPlugin(), react(), mkcert()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
@@ -140,5 +131,14 @@ export const viteConfig = defineConfig({
     }
   }
 });
+
+const isGithubCI = process.env.GITHUB_ACTIONS === 'true';
+if (!isGithubCI) {
+  viteConfig.plugins.push(
+    legacy({
+      targets: ['defaults', 'not IE 11']
+    })
+  );
+}
 
 export default viteConfig;
