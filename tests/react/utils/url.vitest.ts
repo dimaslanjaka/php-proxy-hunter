@@ -2,23 +2,18 @@ import { describe, it, beforeAll, afterAll, expect, vi } from 'vitest';
 import { createUrl } from '../../../src/react/utils/url';
 import * as utilsIndex from '../../../src/react/utils/index';
 
-declare global {
-  // Vitest allows globalThis for test globals
-
-  var viteBaseUrl: string | undefined;
-
-  var isViteDevServer: boolean | undefined;
-}
+let { isViteDevServer, viteBaseUrl } = utilsIndex;
 
 describe('createUrl', () => {
   let OLD_LOCATION: Location;
 
   beforeAll(() => {
     // Mock imported isViteDevServer and viteBaseUrl for Vitest
-    vi.spyOn(utilsIndex, 'isViteDevServer', 'get').mockImplementation(() => globalThis.isViteDevServer ?? false);
-    vi.spyOn(utilsIndex, 'viteBaseUrl', 'get').mockImplementation(() => globalThis.viteBaseUrl ?? '/');
+    vi.spyOn(utilsIndex, 'isViteDevServer', 'get').mockImplementation(() => isViteDevServer ?? false);
+    vi.spyOn(utilsIndex, 'viteBaseUrl', 'get').mockImplementation(() => viteBaseUrl ?? '/');
     // Save original location
     OLD_LOCATION = window.location;
+    // @ts-expect-error: to allow overriding window.location in tests
     delete window.location;
     // @ts-expect-error: window.location is read-only in TypeScript types, but we need to override for test
     window.location = {
@@ -48,17 +43,17 @@ describe('createUrl', () => {
   });
 
   it('should use viteBaseUrl if set and not PHP', () => {
-    globalThis.viteBaseUrl = '/base/';
+    viteBaseUrl = '/base/';
     expect(createUrl('/abc')).toContain('/base/abc');
-    globalThis.viteBaseUrl = undefined;
+    viteBaseUrl = '';
   });
 
   it('should use backend hostname for PHP files', () => {
-    globalThis.isViteDevServer = true;
+    isViteDevServer = true;
     expect(createUrl('/foo.php', {}, { backendDev: 'devhost', backendProd: 'prodhost' })).toContain(
       'https://devhost/foo.php'
     );
-    globalThis.isViteDevServer = false;
+    isViteDevServer = false;
     expect(createUrl('/foo.php', {}, { backendDev: 'devhost', backendProd: 'prodhost' })).toContain(
       'https://prodhost/foo.php'
     );

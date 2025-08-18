@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import id from './locales/id.json';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import { isViteDevServer } from './utils';
 
 const resources = {
   en: { translation: en },
