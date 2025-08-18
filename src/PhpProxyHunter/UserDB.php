@@ -184,13 +184,20 @@ class UserDB
   }
 
   /**
-   * @param string $log_source log source identifier for logs, eg: refill_saldo, buy_package
+   * Update a user's saldo (balance) by incrementing or replacing it.
+   *
+   * If $replace is true, the saldo is set to $amount. If false, $amount is added to the current saldo.
+   *
+   * @param int $id User ID
+   * @param int $amount Amount to add or set
+   * @param string $log_source Log source identifier (e.g. refill_saldo, buy_package)
+   * @param string $log_extra_info Extra info for logs (optional)
+   * @param bool $replace If true, replace saldo with $amount; if false, increment by $amount (default: false)
+   * @return array The updated saldo row (['saldo' => int])
    */
-  public function update_saldo(int $id, $amount, string $log_source, string $log_extra_info = "")
+  public function update_saldo(int $id, int $amount, string $log_source, string $log_extra_info = '', bool $replace = false): array
   {
-    $amount = intval($amount);
-
-    $find_existing_row = $this->db->select("user_fields", "*", "user_id = ?", [$id]);
+    $find_existing_row = $this->db->select('user_fields', '*', 'user_id = ?', [$id]);
     if (empty($find_existing_row)) {
       // Insert new column when not exist
       $this->db->insert('user_fields', ['user_id' => $id, 'saldo' => 0]);
@@ -199,11 +206,23 @@ class UserDB
       $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
       $existing_saldo = isset($saldo_row[0]['saldo']) ? intval($saldo_row[0]['saldo']) : 0;
     }
-    $sum_saldo = $existing_saldo + $amount;
-    $this->db->update('user_fields', ['saldo' => $sum_saldo], "user_id = ?", [$id]);
+
+    if ($replace) {
+      $new_saldo = $amount;
+    } else {
+      $new_saldo = $existing_saldo + $amount;
+    }
+    $this->db->update('user_fields', ['saldo' => $new_saldo], 'user_id = ?', [$id]);
 
     // Update logs
-    $this->db->insert("user_logs", ["message" => "Topup $amount", "log_level" => "INFO", "source" => $log_source, "extra_info" => $log_extra_info, 'user_id' => $id], false);
+    $log_action = $replace ? "Set saldo to $amount" : "Topup $amount";
+    $this->db->insert('user_logs', [
+      'message' => $log_action,
+      'log_level' => 'INFO',
+      'source' => $log_source,
+      'extra_info' => $log_extra_info,
+      'user_id' => $id
+    ], false);
 
     $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
     return isset($saldo_row[0]) ? $saldo_row[0] : ['saldo' => 0];

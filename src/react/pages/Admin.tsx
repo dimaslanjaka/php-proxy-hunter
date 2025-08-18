@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addSaldoToUser, getListOfUsers, getUserInfo } from '../utils/user';
 import { toRupiah } from '../../utils/number';
+import { setSaldoToUser as setSaldoToUserApi } from '../utils/user';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -158,10 +159,10 @@ type EditSaldoFormProps = {
   onSuccess: () => void;
 };
 
-// Dummy fallback for setSaldoToUser if not implemented
-const setSaldoToUser = async (_userId: string, _saldo: number) => {
-  // TODO: Implement this function in ../utils/user and import it
-  throw new Error('setSaldoToUser is not implemented');
+// Set saldo to exact value for a user
+const setSaldoToUser = async (userId: string, saldo: number) => {
+  // Call backend API to set saldo (not add)
+  return setSaldoToUserApi(userId, saldo);
 };
 
 const EditSaldoForm: React.FC<EditSaldoFormProps> = ({ userId, currentSaldo, onSuccess }) => {
@@ -247,6 +248,7 @@ const AddSaldoForm: React.FC<AddSaldoFormProps> = ({ userId, currentSaldo, onSuc
       <input
         id="saldo"
         type="number"
+        placeholder="Masukkan jumlah saldo (angka)"
         className="block w-full rounded-md border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:focus:border-blue-400 dark:focus:ring-blue-900 focus:ring-opacity-50 transition-colors"
         value={saldo}
         onChange={(e) => setSaldo(e.target.value)}
