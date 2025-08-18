@@ -51,7 +51,7 @@ const Settings = () => {
 
       const response = await axios.post(createUrl('/php_backend/user-info.php'), payload);
       const data = response.data;
-      if (data && data.authenticated) {
+      if (data && data.success) {
         setSuccess('Profile updated successfully!');
         setPassword(''); // clear password field after update
       } else {

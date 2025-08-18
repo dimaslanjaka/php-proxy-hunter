@@ -38,15 +38,31 @@ $browserId = getUserId();
 $request = parsePostData();
 $result = ['messages' => []];
 
-// Only allow updates for authenticated users
-if (isset($request['update'], $_SESSION['authenticated']) && $_SESSION['authenticated']) {
+// Allow updates for authenticated users or admins (admin can update any user by email or username)
+if (isset($request['update']) && (!empty($_SESSION['authenticated']) || !empty($isAdmin))) {
   $email = $request['email'] ?? '';
   $username = $request['username'] ?? '';
   $password = $request['password'] ?? '';
-  $currentUserData = $user_db->select($email);
+  $currentUserData = null;
+
+  if (!empty($isAdmin)) {
+    // Admin can update any user by email or username
+    if (!empty($email)) {
+      $currentUserData = $user_db->select($email);
+    } elseif (!empty($username)) {
+      $currentUserData = $user_db->select($username);
+    }
+  } else {
+    // Normal user: only allow updating their own account
+    $sessionEmail = $_SESSION['authenticated_email'] ?? '';
+    if ($email === $sessionEmail || empty($email)) {
+      $currentUserData = $user_db->select($sessionEmail);
+    }
+  }
+
   if (!empty($currentUserData)) {
     $updateFields = [];
-    if (!empty($username)) {
+    if (!empty($username) && !empty($isAdmin)) {
       $updateFields['username'] = $username;
     }
     if (!empty($password)) {
@@ -58,6 +74,9 @@ if (isset($request['update'], $_SESSION['authenticated']) && $_SESSION['authenti
       $result['messages'][] = 'Profile updated successfully.';
     }
   }
+  ksort($result);
+  echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  exit;
 }
 
 $email = !$isCli ? ($_SESSION['authenticated_email'] ?? '') : '';
