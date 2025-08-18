@@ -73,6 +73,9 @@ jobs:
             ${{ runner.os }}-node-${{ hashFiles('.husky/hash.txt') }}
             ${{ runner.os }}-node-
 
+      - name: Clean dist and tmp
+        run: rm -rf dist/* tmp/*
+
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn install
