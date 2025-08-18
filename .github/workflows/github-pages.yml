@@ -76,9 +76,15 @@ jobs:
 
       - name: Build Project
         run: yarn build
+        env:
+          VITE_BACKEND_HOSTNAME_DEV: ${{ secrets.VITE_BACKEND_HOSTNAME_DEV }}
+          VITE_BACKEND_HOSTNAME_PROD: ${{ secrets.VITE_BACKEND_HOSTNAME_PROD }}
 
       - name: Build React app
         run: node vite-gh-pages.js
+        env:
+          VITE_BACKEND_HOSTNAME_DEV: ${{ secrets.VITE_BACKEND_HOSTNAME_DEV }}
+          VITE_BACKEND_HOSTNAME_PROD: ${{ secrets.VITE_BACKEND_HOSTNAME_PROD }}
 
       - name: Build commit message
         id: commitmsg
