@@ -110,6 +110,7 @@ export default function Changelog() {
         )}
         {commits && (
           <>
+            {/* Commit list */}
             <ol className="relative border-l border-gray-200 dark:border-gray-700">
               {paginatedCommits.map((commit: Commit) => (
                 <li key={commit.hash} className="mb-10 ml-6">
@@ -148,9 +149,11 @@ export default function Changelog() {
                         <i className="fa-duotone fa-file-code mr-1"></i>
                         Files changed:
                       </span>
-                      <ul className="list-disc list-inside text-xs text-gray-500 dark:text-gray-400">
+                      <ul className="list-disc list-inside text-xs text-gray-500 dark:text-gray-400 overflow-x-auto break-all max-w-full">
                         {commit.files.map((file: string) => (
-                          <li key={file}>{file}</li>
+                          <li key={file} className="break-all max-w-full">
+                            {file}
+                          </li>
                         ))}
                       </ul>
                     </div>
@@ -162,17 +165,22 @@ export default function Changelog() {
             {totalPages > 1 && (
               <nav className="flex justify-center mt-8" aria-label="Pagination">
                 <ul className="inline-flex -space-x-px text-sm">
+                  {/* First page button (only one left arrow, disables on first page) */}
                   <li>
                     <button
                       className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      onClick={() => setPage(1)}
                       disabled={page === 1}
-                      aria-label="Previous page">
-                      <i className="fa-duotone fa-angle-left"></i>
+                      aria-label="First page">
+                      <i className="fa-duotone fa-angles-left"></i>
                     </button>
                   </li>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) =>
-                    Math.abs(p - page) <= 2 || p === 1 || p === totalPages ? (
+                  {/* Previous ellipsis removed */}
+                  {/* Centered page numbers */}
+                  {[-1, 0, 1].map((offset) => {
+                    const p = page + offset;
+                    if (p < 1 || p > totalPages) return null;
+                    return (
                       <li key={p}>
                         <button
                           className={`px-3 py-2 leading-tight border ${
@@ -185,19 +193,17 @@ export default function Changelog() {
                           {p}
                         </button>
                       </li>
-                    ) : p === page - 3 || p === page + 3 ? (
-                      <li key={p}>
-                        <span className="px-3 py-2 text-gray-400">…</span>
-                      </li>
-                    ) : null
-                  )}
+                    );
+                  })}
+                  {/* Next ellipsis removed */}
+                  {/* Last page button (only one right arrow, disables on last page) */}
                   <li>
                     <button
                       className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      onClick={() => setPage(totalPages)}
                       disabled={page === totalPages}
-                      aria-label="Next page">
-                      <i className="fa-duotone fa-angle-right"></i>
+                      aria-label="Last page">
+                      <i className="fa-duotone fa-angles-right"></i>
                     </button>
                   </li>
                 </ul>
