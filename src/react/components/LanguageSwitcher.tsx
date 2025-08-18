@@ -1,21 +1,33 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
+/**
+ * Get the currently selected language from localStorage, or 'en' if not set.
+ * @returns {string} The selected language code (e.g., 'en', 'id').
+ */
+export function getSelectedLanguage(): string {
+  return localStorage.getItem('i18nextLng') || 'en';
+}
+
+/**
+ * Set the selected language in localStorage.
+ * @param lang - The language code to save (e.g., 'en', 'id').
+ */
+export function setSelectedLanguage(lang: string): void {
+  localStorage.setItem('i18nextLng', lang);
+}
+
 const LanguageSwitcher: React.FC = () => {
   const { i18n } = useTranslation();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
-    try {
-      localStorage.setItem('i18nextLng', lng);
-    } catch {
-      //
-    }
+    setSelectedLanguage(lng);
   };
 
   React.useEffect(() => {
     // On mount, set language from localStorage if available
-    const savedLang = localStorage.getItem('i18nextLng');
+    const savedLang = getSelectedLanguage();
     if (savedLang && savedLang !== i18n.language) {
       i18n.changeLanguage(savedLang);
     }

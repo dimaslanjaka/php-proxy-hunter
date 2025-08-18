@@ -4,6 +4,7 @@ import en from './locales/en.json';
 import id from './locales/id.json';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { isViteDevServer } from './utils';
+import { getSelectedLanguage } from './components/LanguageSwitcher';
 
 const resources = {
   en: { translation: en },
@@ -18,7 +19,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en', // default language
+    lng: getSelectedLanguage(), // use the selected language from localStorage
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false // react already safes from xss
