@@ -7,6 +7,8 @@ import mkcert from 'vite-plugin-mkcert';
 import { indexHtmlReplacementPlugin, TailwindCSSBuildPlugin } from './vite-plugin.js';
 import { execSync } from 'child_process';
 import legacy from '@vitejs/plugin-legacy';
+import browserslist from 'browserslist';
+import { browserslistToTargets } from 'lightningcss';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,10 +38,25 @@ export const viteConfig = defineConfig({
       '/assets/fonts': path.resolve(__dirname, 'assets/fonts')
     }
   },
+  css: {
+    transformer: 'lightningcss',
+    lightningcss: {
+      targets: browserslistToTargets(browserslist('>= 0.25%'))
+    }
+  },
   build: {
     outDir: distPath,
     emptyOutDir: true,
-    minify: false,
+    minify: 'terser',
+    // Remove all comments from minified JS and CSS
+    terserOptions: {
+      format: {
+        comments: false
+      }
+    },
+    cssMinify: 'lightningcss', // ensure CSS is minified
+    cssCodeSplit: true,
+    // For full CSS comment removal, use cssnano via PostCSS if needed
     rollupOptions: {
       // https://rollupjs.org/configuration-options/
       output: {
