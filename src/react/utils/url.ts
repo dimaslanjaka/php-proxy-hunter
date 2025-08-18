@@ -54,9 +54,14 @@ export function createUrl(
       ? opts?.backendDev || import.meta.env.VITE_BACKEND_HOSTNAME_DEV
       : opts?.backendProd || import.meta.env.VITE_BACKEND_HOSTNAME_PROD;
     if (!backendHostname) {
-      throw new Error('VITE_BACKEND_HOSTNAME_DEV or VITE_BACKEND_HOSTNAME_PROD is not defined');
+      // On environments like GitHub Pages, env vars may not be set. Fallback to current hostname.
+      alert(
+        'VITE_BACKEND_HOSTNAME_DEV or VITE_BACKEND_HOSTNAME_PROD is not defined; falling back to window.location.hostname'
+      );
+      origin = `${window.location.protocol}//${window.location.hostname}`;
+    } else {
+      origin = `https://${backendHostname}`; // Laragon, XAMPP, etc.
     }
-    origin = `https://${backendHostname}`; // Laragon, XAMPP, etc.
     base = '';
   }
   // Prepend vite base to path if not PHP and viteBaseUrl is set
