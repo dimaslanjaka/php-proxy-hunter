@@ -118,31 +118,45 @@ export function indexHtmlReplacementPlugin() {
         }
       }
     }
-    // /**
-    //  * Configures the dev server to serve index.dev.html for specific routes.
-    //  * @param {import('vite').ViteDevServer} server
-    //  */
-    // configureServer(server) {
-    //   // Replace index.html with index.dev.html for specific routes
-    //   server.middlewares.use((req, _res, next) => {
-    //     const devRoutes = [
-    //       '/',
-    //       '/index.html',
-    //       '/outbound',
-    //       '/login',
-    //       '/oauth',
-    //       '/about',
-    //       '/settings',
-    //       '/dashboard',
-    //       '/logout',
-    //       '/proxy',
-    //       '/contact'
-    //     ];
-    //     if (devRoutes.includes(req.url)) {
-    //       req.url = '/index.dev.html';
-    //     }
-    //     next();
-    //   });
-    // }
+  };
+}
+
+export function fontsResolverPlugin() {
+  return {
+    name: 'fonts-resolver',
+    /**
+     * Configures the dev server to serve fonts from the /assets/fonts directory.
+     * @param {import('vite').ViteDevServer} server
+     */
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        // Serve fonts from the /assets/fonts directory
+        if (req.url.startsWith('/assets/fonts/')) {
+          // Decode URI to handle spaces and special characters in filenames
+          const fontFile = decodeURIComponent(req.url.replace('/assets/fonts/', ''));
+          const fontPath = path.join(__dirname, 'assets/fonts', fontFile);
+          if (fs.existsSync(fontPath)) {
+            // Detect MIME type based on file extension
+            const ext = path.extname(fontPath).toLowerCase();
+            let mimeType = 'application/octet-stream';
+            if (ext === '.woff2') mimeType = 'font/woff2';
+            else if (ext === '.woff') mimeType = 'font/woff';
+            else if (ext === '.ttf') mimeType = 'font/ttf';
+            else if (ext === '.otf') mimeType = 'font/otf';
+            else if (ext === '.eot') mimeType = 'application/vnd.ms-fontobject';
+            else if (ext === '.svg') mimeType = 'image/svg+xml';
+            else if (ext === '.css') mimeType = 'text/css';
+            else if (ext === '.js') mimeType = 'application/javascript';
+            res.setHeader('Content-Type', mimeType);
+            fs.createReadStream(fontPath).pipe(res);
+          } else {
+            res.statusCode = 404;
+            res.end('Font not found');
+          }
+        } else {
+          next();
+        }
+      });
+    }
   };
 }

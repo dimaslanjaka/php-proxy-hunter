@@ -70,3 +70,153 @@
   font-family: 'Cera_Stencil_PRO_Thin';
   src: url('./Cera_Stencil_PRO_Thin.otf');
 }
+
+// JetBrains Mono font
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-ExtraBoldItalic.woff2') format('woff2');
+  font-weight: 800;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-ExtraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-ExtraLightItalic.woff2') format('woff2');
+  font-weight: 200;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-LightItalic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-MediumItalic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-SemiBoldItalic.woff2') format('woff2');
+  font-weight: 600;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-Thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./JetBrainsMono-ThinItalic.woff2') format('woff2');
+  font-weight: 100;
+  font-style: italic;
+}
+
+// Helvetica Neue LT Pro Bold
+@font-face {
+  font-family: 'Helvetica Neue LT Pro';
+  src:
+    url('./HelveticaNeueLTPro-Bd.otf') format('opentype'),
+    url('./HelveticaNeueLTPro-Bd.ttf') format('truetype'),
+    url('./HelveticaNeueLTPro-Bd.eot') format('embedded-opentype'),
+    url('./HelveticaNeueLTPro-Bd.woff') format('woff'),
+    url('./HelveticaNeueLTPro-Bd.svg') format('svg');
+  font-weight: bold;
+  font-style: normal;
+}
+
+// Helvetica Neue Condensed Bold
+@font-face {
+  font-family: 'Helvetica Neue';
+  src:
+    url('./HelveticaNeue-CondensedBold.ttf') format('truetype'),
+    url('./HelveticaNeue-CondensedBold.eot') format('embedded-opentype'),
+    url('./HelveticaNeue-CondensedBold.woff') format('woff'),
+    url('./HelveticaNeue-CondensedBold.svg') format('svg');
+  font-weight: bold;
+  font-stretch: condensed;
+  font-style: normal;
+}
+
+// Helvetica Neue Light
+@font-face {
+  font-family: 'Helvetica Neue';
+  src:
+    url('./HelveticaNeue-Light.ttf') format('truetype'),
+    url('./HelveticaNeue-Light.eot') format('embedded-opentype'),
+    url('./HelveticaNeue-Light.woff') format('woff'),
+    url('./HelveticaNeue-Light.svg') format('svg');
+  font-weight: 300;
+  font-style: normal;
+}
+
+// Helvetica Neue Regular
+@font-face {
+  font-family: 'Helvetica Neue';
+  src:
+    url('./HelveticaNeue.ttf') format('truetype'),
+    url('./HelveticaNeue.eot') format('embedded-opentype'),
+    url('./HelveticaNeue.woff') format('woff'),
+    url('./HelveticaNeue.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@import url('./ubuntu/stylesheet.css');

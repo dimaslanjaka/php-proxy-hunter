@@ -7,58 +7,6 @@
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant light (&:where(.light, .light *));
 
-/* custom font */
-@font-face {
-  font-family: 'Ubuntu';
-  src:
-    local('Ubuntu'),
-    url('/assets/fonts/ubuntu/UbuntuMono-R.ttf') format('truetype');
-  /* font-weight: bold;
-  font-style: normal;
-  font-display: swap; */
-}
-
-/* apply to body */
-body {
-  font-family: 'Ubuntu', sans-serif;
-}
-
-/* Headings use Cera Pro font */
-@font-face {
-  font-family: 'Cera Pro';
-  src: url('/assets/fonts/Cera Pro.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.font-cera {
-  font-family: 'Cera Pro', sans-serif;
-}
-
-/* JetBrains Mono for code blocks */
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/assets/fonts/JetBrainsMono-Regular.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-pre,
-code,
-kbd,
-samp,
-.font-jetbrains {
-  font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
-}
-
 /* apply flowbite */
 @plugin "flowbite/plugin";
 

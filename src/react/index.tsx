@@ -4,6 +4,10 @@ import './i18n'; // Ensure i18n is initialized before rendering components
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+// Import fonts
+import './fonts.scss';
+// Import global styles
 import './components/theme.css';
 
 // Import all components and pages

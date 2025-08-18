@@ -1,0 +1,262 @@
+// @import url('../../assets/fonts/index.scss');
+
+// Ubuntu font faces (only files that exist)
+@font-face {
+  font-family: 'Ubuntu';
+  src:
+    url('/assets/fonts/ubuntu/Ubuntu-R-webfont.woff') format('woff'),
+    url('/assets/fonts/ubuntu/Ubuntu-R-webfont.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Ubuntu';
+  src:
+    url('/assets/fonts/ubuntu/Ubuntu-B-webfont.woff') format('woff'),
+    url('/assets/fonts/ubuntu/Ubuntu-B-webfont.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Ubuntu';
+  src:
+    url('/assets/fonts/ubuntu/Ubuntu-L-webfont.woff') format('woff'),
+    url('/assets/fonts/ubuntu/Ubuntu-L-webfont.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Ubuntu';
+  src:
+    url('/assets/fonts/ubuntu/Ubuntu-M-webfont.woff') format('woff'),
+    url('/assets/fonts/ubuntu/Ubuntu-M-webfont.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Ubuntu';
+  src:
+    url('/assets/fonts/ubuntu/Ubuntu-RI-webfont.woff') format('woff'),
+    url('/assets/fonts/ubuntu/Ubuntu-RI-webfont.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Ubuntu';
+  src:
+    url('/assets/fonts/ubuntu/Ubuntu-BI-webfont.woff') format('woff'),
+    url('/assets/fonts/ubuntu/Ubuntu-BI-webfont.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Ubuntu';
+  src:
+    url('/assets/fonts/ubuntu/Ubuntu-LI-webfont.woff') format('woff'),
+    url('/assets/fonts/ubuntu/Ubuntu-LI-webfont.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Ubuntu';
+  src:
+    url('/assets/fonts/ubuntu/Ubuntu-MI-webfont.woff') format('woff'),
+    url('/assets/fonts/ubuntu/Ubuntu-MI-webfont.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+}
+
+// Cera Pro font faces (only files that exist)
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Bold%20italic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Black%20italic.otf') format('opentype');
+  font-weight: 900;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Light%20italic.otf') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Medium%20italic.otf') format('opentype');
+  font-weight: 500;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Regular%20Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Thin.otf') format('opentype');
+  font-weight: 100;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cera Pro';
+  src: url('/assets/fonts/Cera%20Pro%20Thin%20Italic.otf') format('opentype');
+  font-weight: 100;
+  font-style: italic;
+}
+
+// JetBrains Mono font faces (only files that exist)
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-ExtraBoldItalic.woff2') format('woff2');
+  font-weight: 800;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-ExtraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-ExtraLightItalic.woff2') format('woff2');
+  font-weight: 200;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-LightItalic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-MediumItalic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-SemiBoldItalic.woff2') format('woff2');
+  font-weight: 600;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-ThinItalic.woff2') format('woff2');
+  font-weight: 100;
+  font-style: italic;
+}
+
+/* body uses Ubuntu font */
+body {
+  font-family: 'Ubuntu', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif;
+}
+
+/* Headings use Cera Pro font */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Cera Pro', sans-serif;
+}
+
+/* JetBrains Mono for code blocks */
+pre,
+code,
+kbd,
+samp {
+  font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
+}

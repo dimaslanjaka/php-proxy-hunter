@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
-import { indexHtmlReplacementPlugin, TailwindCSSBuildPlugin } from './vite-plugin.js';
+import { fontsResolverPlugin, indexHtmlReplacementPlugin, TailwindCSSBuildPlugin } from './vite-plugin.js';
 import { execSync } from 'child_process';
 import legacy from '@vitejs/plugin-legacy';
 import browserslist from 'browserslist';
@@ -24,10 +24,11 @@ export const viteConfig = defineConfig({
   },
   cacheDir: path.resolve(__dirname, 'tmp/.vite'),
   plugins: [
+    indexHtmlReplacementPlugin(),
+    fontsResolverPlugin(),
     TailwindCSSBuildPlugin(),
     react(),
     mkcert(),
-    indexHtmlReplacementPlugin(),
     legacy({
       targets: ['defaults', 'not IE 11']
     })
