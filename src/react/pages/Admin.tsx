@@ -124,7 +124,6 @@ export default function Admin() {
             </div>
             <div>
               <EditPasswordForm userId={selectedUser} onSuccess={() => {}} />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('enter_new_password_hint')}</p>
             </div>
             <div>
               <EditSaldoForm

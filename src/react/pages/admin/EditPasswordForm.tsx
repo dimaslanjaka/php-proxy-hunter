@@ -62,6 +62,7 @@ const EditPasswordForm: React.FC<EditPasswordFormProps> = ({ userId, onSuccess }
       {newPassword && newPassword.length < 6 && (
         <div className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">{t('password_min_length')}</div>
       )}
+      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('enter_new_password_hint')}</p>
       <button
         type="button"
         className="mt-2 px-3 py-1 bg-green-600 dark:bg-green-700 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors text-sm font-semibold w-full flex items-center justify-center gap-2"
