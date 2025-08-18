@@ -26,6 +26,10 @@ jobs:
   build-and-deploy:
     if: contains(github.repository, 'php-proxy-hunter') || contains(github.repository, 'android-traffic-exchange')
     runs-on: ubuntu-latest
+    env:
+      VITE_BACKEND_HOSTNAME_DEV: ${{ secrets.VITE_BACKEND_HOSTNAME_DEV }}
+      VITE_BACKEND_HOSTNAME_PROD: ${{ secrets.VITE_BACKEND_HOSTNAME_PROD }}
+      GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
