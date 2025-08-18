@@ -36,7 +36,8 @@ export const viteConfig = defineConfig({
     alias: {
       '@': path.resolve(__dirname, 'src'),
       '/assets/fonts': path.resolve(__dirname, 'assets/fonts')
-    }
+    },
+    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json', '.cjs']
   },
   css: {
     transformer: 'lightningcss',
