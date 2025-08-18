@@ -261,9 +261,9 @@ samp {
   font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
 }
 
-input::placeholder,
-small,
-.text-xs {
+input:not([class*='fa-'])::placeholder,
+small:not([class*='fa-']),
+.text-xs:not([class*='fa-']) {
   font-family:
     system-ui,
     -apple-system,
@@ -272,4 +272,8 @@ small,
     Roboto,
     Arial,
     sans-serif;
+}
+
+button {
+  font-family: 'Cera Pro', 'Ubuntu', Arial, sans-serif;
 }
