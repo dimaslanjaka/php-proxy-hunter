@@ -1,5 +1,337 @@
 [
   {
+    "hash": "060b1b9661067f1ea7428825940290d109866908",
+    "date": "2025-08-19T06:56:00+07:00",
+    "message": "fix(vite.config): conditionally add legacy plugin for non-GitHub CI environments",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "76a87d2e0ad3cda7215d84c1df4bfa2003dccdf5",
+    "date": "2025-08-19T06:53:43+07:00",
+    "message": "fix(dependencies): update various package versions for improved stability and performance",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "7e6085edeaf51a984404633d162dc38a000d1b2d",
+    "date": "2025-08-19T06:51:20+07:00",
+    "message": "fix(github-pages): add verification for build output and handle missing assets directory",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "7037d9508be205f2d8fab5743bd621d8d26c7ef8",
+    "date": "2025-08-19T02:40:01+07:00",
+    "message": "fix(github-pages): include yarn.lock in cache paths for improved dependency management",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "cec9b12f4d14b699ae97e6d9119d1e2171b1bd4c",
+    "date": "2025-08-18T20:34:31+07:00",
+    "message": "fix(github-pages): add step to clean dist and tmp directories before installation",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "e2e5b7228cae7ffa296f8dae9cdc62334fb58cff",
+    "date": "2025-08-18T20:33:16+07:00",
+    "message": "fix(url): handle missing backend hostname in GitHub Pages by falling back to current hostname",
+    "files": [
+      "src/react/utils/url.ts"
+    ]
+  },
+  {
+    "hash": "c11c4581a6a722b78c31adb552523d0f17f9ce6e",
+    "date": "2025-08-18T20:30:55+07:00",
+    "message": "fix(github-pages): update cache path for node_modules to ensure proper caching",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "3b215b1f8cc119e20d476a1355a321fde6430257",
+    "date": "2025-08-18T20:29:24+07:00",
+    "message": "feat(github-pages): add environment variables for VITE backend hostnames in build steps",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "238d0f58afc528d4de22f4baeae8a8a21cc62e17",
+    "date": "2025-08-18T20:27:37+07:00",
+    "message": "feat(github-pages): enhance VITE secrets check with conditional logging",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "bf627415ad608117b71c195c7c4686433e5775e0",
+    "date": "2025-08-18T20:09:56+07:00",
+    "message": "feat(github-pages): add debug info for backend hostname environment variables",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "1b01329f1cb7af28b7f679469e555590cc016761",
+    "date": "2025-08-18T18:50:02+07:00",
+    "message": "ci(github-pages): add environment variables for build and deploy\n\n- set VITE_BACKEND_HOSTNAME_DEV and VITE_BACKEND_HOSTNAME_PROD from secrets\n- configure GITHUB_TOKEN to use ACCESS_TOKEN fallback",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "d11c446810ac5685386535018cfcd1f68ecb6e38",
+    "date": "2025-08-18T18:46:13+07:00",
+    "message": "feat(changelog): improve commit list and pagination UI\n\n- added comment markers for commit list and pagination sections\n- improved file list styling with overflow handling and word breaking\n- updated pagination:\n  - replaced previous/next buttons with first/last page buttons\n  - simplified page number display to show current ±1 only\n  - removed ellipsis display for skipped pages",
+    "files": [
+      "src/react/pages/Changelog.tsx"
+    ]
+  },
+  {
+    "hash": "cea6fc220500731da867240d123b9d0436232a14",
+    "date": "2025-08-18T17:20:44+07:00",
+    "message": "feat(Navbar): make navbar fixed at the top",
+    "files": [
+      "src/react/components/Navbar.tsx"
+    ]
+  },
+  {
+    "hash": "9fa768d0793fb8cbf918cc3c0077a4051c3df5b4",
+    "date": "2025-08-18T17:15:37+07:00",
+    "message": "refactor(admin): move password hint from Admin page to EditPasswordForm\n\nThe password hint paragraph was relocated from the Admin page to the EditPasswordForm component to improve component encapsulation and maintainability.",
+    "files": [
+      "src/react/pages/Admin.tsx",
+      "src/react/pages/admin/EditPasswordForm.tsx"
+    ]
+  },
+  {
+    "hash": "b86e6e6730a783f79b0572c77d7eb8dfd5dd99c1",
+    "date": "2025-08-18T17:10:50+07:00",
+    "message": "style(fonts): refine font usage for placeholders, small text, and buttons\n\n- exclude elements with Font Awesome classes from system font overrides\n- set default button font-family to use Cera Pro, Ubuntu, and fallbacks",
+    "files": [
+      "src/react/fonts.scss"
+    ]
+  },
+  {
+    "hash": "8903386501e822e58a7f37ee8f61da3ae6095f78",
+    "date": "2025-08-18T17:07:04+07:00",
+    "message": "feat(fonts): add system font stack for input placeholders and small text",
+    "files": [
+      "src/react/fonts.scss"
+    ]
+  },
+  {
+    "hash": "78ed455a0b218575aa3bf507790f19c1bacfcbee",
+    "date": "2025-08-18T17:02:17+07:00",
+    "message": "feat(fonts): add JetBrains Mono, Helvetica Neue, and Ubuntu font support\n\n- added multiple JetBrains Mono font weights/styles to assets\n- added Helvetica Neue LT Pro, Condensed Bold, Light, and Regular variants\n- extended Ubuntu fonts with UbuntuMono in stylesheet.css\n- created src/react/fonts.scss with Ubuntu, Cera Pro, JetBrains Mono, and global font usage\n- updated react entrypoint to import fonts.scss\n- removed redundant font-face definitions from tailwind.input.css\n- introduced fontsResolverPlugin in vite-plugin.js to serve fonts with correct MIME types\n- updated vite.config.js to register fontsResolverPlugin",
+    "files": [
+      "assets/fonts/index.scss",
+      "assets/fonts/ubuntu/stylesheet.css",
+      "src/react/fonts.scss",
+      "src/react/index.tsx",
+      "tailwind.input.css",
+      "vite-plugin.js",
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "c4acc9865f4da5ce3abc5e91ebb3fd09ad4423bd",
+    "date": "2025-08-18T15:29:26+07:00",
+    "message": "feat(i18n): replace i18next-browser-languagedetector with custom language detection\n\n- Removed `i18next-browser-languagedetector` dependency\n- Added custom language detection using browser locale and multiple geolocation APIs (ipapi, ipinfo, ipwho.is, ip-api)\n- Implemented caching of geolocation results in localStorage for 1 hour\n- Moved `getSelectedLanguage` and `setSelectedLanguage` helpers to `i18n.ts`\n- Updated `LanguageSwitcher` to use new detection logic and helpers",
+    "files": [
+      "package.json",
+      "src/react/components/LanguageSwitcher.tsx",
+      "src/react/i18n.ts"
+    ]
+  },
+  {
+    "hash": "0b65514ec1190d30cec7f3d198edda7db337cd0f",
+    "date": "2025-08-18T15:08:53+07:00",
+    "message": "refactor(i18n): persist selected language in localStorage and reuse across app\n\n- Added `getSelectedLanguage` and `setSelectedLanguage` helpers in `LanguageSwitcher`\n- Replaced direct `localStorage` access with helper functions for better reuse\n- Updated `i18n.ts` to initialize with saved language from localStorage instead of defaulting to English",
+    "files": [
+      "src/react/components/LanguageSwitcher.tsx",
+      "src/react/i18n.ts"
+    ]
+  },
+  {
+    "hash": "4b50eacc6d34321643aa43a60ee635080097ea3b",
+    "date": "2025-08-18T14:02:28+07:00",
+    "message": "refactor(utils): import isViteDevServer from utils and simplify test mocks\n\n- Imported `isViteDevServer` from `utils` in `i18n.ts`\n- Removed global declarations for `viteBaseUrl` and `isViteDevServer` in tests\n- Updated `url.vitest.ts` to reference and mock values directly from `utilsIndex`\n- Simplified test setup for `createUrl` by avoiding `globalThis` usage",
+    "files": [
+      "src/react/i18n.ts",
+      "tests/react/utils/url.vitest.ts"
+    ]
+  },
+  {
+    "hash": "9bf1a950f963a828ef59c107d6d790aff9c1a09f",
+    "date": "2025-08-18T13:59:01+07:00",
+    "message": "feat(i18n): add browser language detection for automatic locale selection\n\n- Installed `i18next-browser-languagedetector` dependency\n- Configured `i18n.ts` to use `LanguageDetector` before `initReactI18next`\n- Enabled automatic detection of user language with fallback to English\n- Added `debug` mode support for development environment",
+    "files": [
+      "package.json",
+      "src/react/i18n.ts"
+    ]
+  },
+  {
+    "hash": "7ac31afbb35496c2a90e7d867bafb6ca90101c42",
+    "date": "2025-08-18T13:56:18+07:00",
+    "message": "feat(i18n): add multilingual support with English and Indonesian translations\n\n- Added `i18next` and `react-i18next` dependencies\n- Created `i18n.ts` configuration with default and fallback language\n- Added locale files: `en.json` and `id.json`\n- Implemented `LanguageSwitcher` component with persistence via localStorage\n- Updated `Footer` to include language selector\n- Integrated translations in `Admin`, `AddSaldoForm`, `EditPasswordForm`, and `EditSaldoForm`\n- Replaced hardcoded text with `t()` and `<Trans />` for localization",
+    "files": [
+      "package.json",
+      "src/react/components/Footer.tsx",
+      "src/react/components/LanguageSwitcher.tsx",
+      "src/react/i18n.ts",
+      "src/react/index.tsx",
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/Admin.tsx",
+      "src/react/pages/admin/AddSaldoForm.tsx",
+      "src/react/pages/admin/EditPasswordForm.tsx",
+      "src/react/pages/admin/EditSaldoForm.tsx"
+    ]
+  },
+  {
+    "hash": "71b348b3dbc6dab133b222cf9503dd6bdaf0697a",
+    "date": "2025-08-18T13:11:53+07:00",
+    "message": "refactor(admin): modularize saldo management components\n\n- Extracted `AddSaldoForm` and `EditSaldoForm` into separate components\n- Updated `Admin.tsx` to use modular forms for better maintainability\n- Switched user selection to use `email` as unique identifier\n- Improved form UX with `autoComplete=\"off\"` and clearer helper texts\n- Added support for editing user passwords alongside saldo management",
+    "files": [
+      "src/react/pages/Admin.tsx",
+      "src/react/pages/admin/AddSaldoForm.tsx",
+      "src/react/pages/admin/EditSaldoForm.tsx"
+    ]
+  },
+  {
+    "hash": "9f1a797ee7370f10cddfea6b78072a98ad04a0d4",
+    "date": "2025-08-18T13:09:51+07:00",
+    "message": "feat(admin): allow admins to update user profiles and passwords\n\n- Updated `user-info.php` to support admin updates by email or username\n- Ensured normal users can only update their own account\n- Added JSON response with success/error messages\n- Changed `Settings.tsx` to check `data.success` instead of `data.authenticated`\n- Added new `EditPasswordForm` component for admin to set user passwords",
+    "files": [
+      "php_backend/user-info.php",
+      "src/react/pages/Settings.tsx",
+      "src/react/pages/admin/EditPasswordForm.tsx"
+    ]
+  },
+  {
+    "hash": "845fbfb6815a8678db6a776e2d38103257e9f02f",
+    "date": "2025-08-18T11:44:51+07:00",
+    "message": "feat(vite): add support for additional file extensions in alias configuration",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "c9d24484e21835664e67fa4e0b396a79761c3d69",
+    "date": "2025-08-18T11:42:20+07:00",
+    "message": "build(vite): add lightningcss with browserslist for CSS transforms and minification\n\n- Added `browserslist` and `lightningcss` dependencies\n- Configured Vite to use `lightningcss` for CSS transformation and minification\n- Integrated `browserslistToTargets` for target environments\n- Enabled terser for JS minification with comment removal",
+    "files": [
+      "package.json",
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "13d1ff4804d6a32c538eba06ae0869fe3352bfe1",
+    "date": "2025-08-18T08:38:41+07:00",
+    "message": "refactor(hashing): extract file hashing logic into separate module\n\n- move hashing and tree generation into new `bin/file-hasher.cjs`\n- add reusable `createFileHashes` and `getFileTreeString` functions\n- simplify `create-file-hashes.cjs` to use shared module\n- add dotenv for loading `.env` file\n- export `createFileHashesMain` for reuse by other scripts\n- update `git-pull.cjs` to use `createFileHashesMain` when resolving `.husky/hash.txt` conflicts\n- wrap main logic in async functions with proper error handling",
+    "files": [
+      "bin/create-file-hashes.cjs",
+      "bin/file-hasher.cjs",
+      "bin/git-pull.cjs"
+    ]
+  },
+  {
+    "hash": "4e39275107a556236372f49f62bbd123148e5157",
+    "date": "2025-08-18T08:26:42+07:00",
+    "message": "feat(git-pull): improve conflict detection and CLI handling\n\n- add `minimist` for parsing CLI args (--remote, --branch, or positional)\n- replace dry-run merge with real merge + conflict detection via `git status`\n- introduce `getConflictFiles` helper to detect and return conflicted files\n- handle `.husky/hash.txt` conflicts automatically by truncating and staging\n- abort merge safely when other conflicts are detected\n- restrict *.sh chmod and execution to Linux platforms\n- simplify fix-perm error handling\n- remove obsolete shebang and redundant .husky/hash.txt checks",
+    "files": [
+      "bin/git-pull.cjs"
+    ]
+  },
+  {
+    "hash": "5d00eaec2b67a30453c2fc9d61e10a5d0d116ec1",
+    "date": "2025-08-18T07:21:18+07:00",
+    "message": "feat(saldo): add ability to set saldo to exact value\n\n- Extended `update_saldo` method with `$replace` flag to support replacing saldo instead of incrementing\n- Updated `refill-saldo.php` to handle `set` parameter for saldo replacement\n- Implemented `setSaldoToUser` API function in frontend utils\n- Integrated saldo set functionality into Admin page\n- Added placeholder to AddSaldoForm input\n- Updated and expanded tests to cover saldo replacement scenario",
+    "files": [
+      "php_backend/refill-saldo.php",
+      "src/PhpProxyHunter/UserDB.php",
+      "src/react/pages/Admin.tsx",
+      "src/react/utils/user.ts",
+      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
+    "hash": "aa9b912f2c87440546c4f5ac70ea0d4b79443645",
+    "date": "2025-08-18T06:59:14+07:00",
+    "message": "feat(admin): refactor saldo management UI with modular forms\n\n- Replace single saldo form with two modular components:\n  - AddSaldoForm for incrementing saldo\n  - EditSaldoForm for setting saldo directly\n- Remove inline saldo calculation helper\n- Remove global form submit button; each form now handles its own submission\n- Update layout with two-column grid for better user experience\n- Add placeholder `setSaldoToUser` function for future implementation",
+    "files": [
+      "src/react/pages/Admin.tsx"
+    ]
+  },
+  {
+    "hash": "15b7494307cd5e91739f2ae93164f10fe8a91bae",
+    "date": "2025-08-18T05:59:59+07:00",
+    "message": "fix(git-pull): add log message for no conflict detection during dry-run",
+    "files": [
+      "bin/git-pull.cjs"
+    ]
+  },
+  {
+    "hash": "327f6af7cc9397e1345c7be4cebf34bf5a7fffe8",
+    "date": "2025-08-18T05:57:20+07:00",
+    "message": "feat(setup): update setup.js to run browserslist-db update\n\n- Import spawnSync from 'child_process'\n- Add command to run 'npx --yes update-browserslist-db@latest' after build steps",
+    "files": [
+      "setup.js"
+    ]
+  },
+  {
+    "hash": "3e6b7a8a40fbb84e5bc281f90de4fde9cab45e36",
+    "date": "2025-08-18T05:55:55+07:00",
+    "message": "refactor(cron): delegate MySQL and SQLite backup to bin/backup-db script and add cleanup\n\n- Move MySQL backup logic from .crontab.sh to bin/backup-db for better modularity and maintainability.\n- Enhance bin/backup-db to load .env, support both SQLite and MySQL backups, and use absolute paths.\n- Add automatic removal of old backup files older than 7 days in .crontab.sh to manage disk usage.\n- Improve backup script output and error handling for missing credentials.",
+    "files": [
+      ".crontab.sh",
+      "bin/backup-db"
+    ]
+  },
+  {
+    "hash": "afff74079b800a0ced09edcb4ed66f9c51829670",
+    "date": "2025-08-18T05:52:49+07:00",
+    "message": "refactor(backup): remove obsolete backup script",
+    "files": [
+      "backup.php"
+    ]
+  },
+  {
+    "hash": "246c584541bd6d0640f159a472b982204f74f29e",
+    "date": "2025-08-18T05:45:05+07:00",
+    "message": "fix(crontab): improve indentation and add MySQL backup functionality",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "5ae4e5c9c4775ee35600354c774511db3f68223f",
+    "date": "2025-08-18T05:44:05+07:00",
+    "message": "fix(extensions): remove shell-format extension and add bash-beautify",
+    "files": [
+      ".vscode/extensions.json"
+    ]
+  },
+  {
+    "hash": "861f5ea9711854a151b7005bea3442276e01e0f8",
+    "date": "2025-08-18T05:31:16+07:00",
+    "message": "feat(vite): add legacy plugin for broader browser compatibility\n\n- Added `@vitejs/plugin-legacy` and `terser` to devDependencies in package.json.\n- Updated `vite.config.js` to include the legacy plugin with targets for modern browsers (excluding IE 11).\n- This ensures the build outputs are compatible with a wider range of browsers.",
+    "files": [
+      "package.json",
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "c88379e2c34bd181c15522ee965b0af4bfcad580",
     "date": "2025-08-18T05:21:06+07:00",
     "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
