@@ -78,7 +78,7 @@ jobs:
         run: rm -rf dist/* tmp/*
 
       - name: Setup github actions
-        run: node github-actions-init.cjs
+        run: node setup.js
 
       - name: Build Project
         run: yarn build
