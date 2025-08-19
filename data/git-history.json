@@ -1,5 +1,16 @@
 [
   {
+    "hash": "26d1d521c588bd9a511b061f8ee14204b55d4e21",
+    "date": "2025-08-19T13:30:00+07:00",
+    "message": "refactor(workflows): replace github-actions-init.cjs with setup.js\n\n- Updated GitHub Actions workflows to run `node setup.js` instead of `node github-actions-init.cjs`\n- Removed legacy `github-actions-init.cjs` script\n- Extended `setup.js` to handle dependency installation and checksum verification\n- Preserved Tailwind build, index.html copy, and browserslist-db update tasks",
+    "files": [
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/github-pages.yml",
+      "github-actions-init.cjs",
+      "setup.js"
+    ]
+  },
+  {
     "hash": "639812be4538f52f31632e3d16aecf43b089d664",
     "date": "2025-08-19T07:42:52+07:00",
     "message": "feat(ci): improve GitHub Actions dependency setup and add checksum-based install\n\n- Replace direct `yarn install` step in GitHub Actions with a custom setup using `github-actions-init.cjs`\n- Refactor `github-actions-init.cjs` to use `spawnSync` instead of `execSync` for better process control\n- Expand required packages to include `upath` and `fs-extra`\n- Add checksum comparison for `package.json` to trigger `yarn install` only when dependencies change\n- Store and update checksum in `tmp/checksum.txt` to avoid unnecessary installs\n- Improve logging and error handling for dependency installation",
