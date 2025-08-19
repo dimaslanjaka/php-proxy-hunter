@@ -1,5 +1,14 @@
 [
   {
+    "hash": "639812be4538f52f31632e3d16aecf43b089d664",
+    "date": "2025-08-19T07:42:52+07:00",
+    "message": "feat(ci): improve GitHub Actions dependency setup and add checksum-based install\n\n- Replace direct `yarn install` step in GitHub Actions with a custom setup using `github-actions-init.cjs`\n- Refactor `github-actions-init.cjs` to use `spawnSync` instead of `execSync` for better process control\n- Expand required packages to include `upath` and `fs-extra`\n- Add checksum comparison for `package.json` to trigger `yarn install` only when dependencies change\n- Store and update checksum in `tmp/checksum.txt` to avoid unnecessary installs\n- Improve logging and error handling for dependency installation",
+    "files": [
+      ".github/workflows/github-pages.yml",
+      "github-actions-init.cjs"
+    ]
+  },
+  {
     "hash": "060b1b9661067f1ea7428825940290d109866908",
     "date": "2025-08-19T06:56:00+07:00",
     "message": "fix(vite.config): conditionally add legacy plugin for non-GitHub CI environments",
