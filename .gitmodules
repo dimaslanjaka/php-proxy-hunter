@@ -14,3 +14,7 @@
 	path = packages/gh-pages
 	url = https://github.com/dimaslanjaka/github-pages-builder.git
 	branch = master
+[submodule "packages/proxies-grabber"]
+	path = packages/proxies-grabber
+	url = https://github.com/dimaslanjaka/proxies-grabber.git
+	branch = master
