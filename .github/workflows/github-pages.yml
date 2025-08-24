@@ -69,6 +69,7 @@ jobs:
             **/tmp/**
             **/dist/**
             **/yarn.lock
+            **/public/**
           key: ${{ runner.os }}-node-${{ hashFiles('.husky/hash.txt') }}
           restore-keys: |
             ${{ runner.os }}-node-${{ hashFiles('.husky/hash.txt') }}
