@@ -11,6 +11,7 @@ auth.json
 /.vscode/sftp.json
 /bin/sqlite*
 /bin/sqldiff*
+/phpmyadmin
 
 # PHP
 /php-obfuscator
