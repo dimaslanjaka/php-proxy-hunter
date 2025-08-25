@@ -9,6 +9,8 @@
 /config.yaml
 auth.json
 /.vscode/sftp.json
+/bin/sqlite*
+/bin/sqldiff*
 
 # PHP
 /php-obfuscator
