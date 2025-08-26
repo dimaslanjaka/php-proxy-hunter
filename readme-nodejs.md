@@ -27,11 +27,33 @@ sudo apt install -y ca-certificates fonts-liberation libasound2 libatk-bridge2.0
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
     ```
 
+    or automatically using shell terminal:
+
+    ```bash
+    sudo tee /etc/profile.d/nvm.sh > /dev/null <<'EOF'
+    export NVM_DIR="/usr/local/nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    EOF
+    ```
+
 5.  Set permissions `chmod 755 /etc/profile.d/nvm.sh`
 
-6.  Run `/etc/profile.d/nvm.sh` or load within current shell  `. /etc/profile.d/nvm.sh`
+6.  Run `/etc/profile.d/nvm.sh` or load within current shell  `. /etc/profile.d/nvm.sh` or `source /etc/profile.d/nvm.sh`
 
 7.  Install node: `nvm install v20`
+
+8. Compile & symlink Node from `nvm`
+
+   ```bash
+   NODE_BIN_DIR="$(dirname $(nvm which 20))"
+
+   sudo ln -sf "$NODE_BIN_DIR/node" /usr/local/bin/node
+   sudo ln -sf "$NODE_BIN_DIR/npm" /usr/local/bin/npm
+   sudo ln -sf "$NODE_BIN_DIR/npx" /usr/local/bin/npx
+   sudo ln -sf "$NODE_BIN_DIR/corepack" /usr/local/bin/corepack
+   ```
+
+   > Then all users just run `node` / `npm` without caring about `nvm`.
 
 ### Install NodeJS for root user
 
