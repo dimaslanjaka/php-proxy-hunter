@@ -3,7 +3,7 @@ import importlib
 import os
 import platform
 import re
-import requests
+import urllib.request
 import subprocess
 import sys
 from typing import List, Optional, Union
@@ -28,13 +28,16 @@ all_urls = [
 ]
 
 timeout = 3  # seconds
+
 for url in all_urls:
     try:
-        resp = requests.head(url, timeout=timeout, allow_redirects=True)
-        if resp.status_code == 200:
-            working_urls.append(url)
-        else:
-            print(f"URL {url} returned status code {resp.status_code}")
+        req = urllib.request.Request(url, method="HEAD")
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            status_code = resp.status
+            if status_code == 200:
+                working_urls.append(url)
+            else:
+                print(f"URL {url} returned status code {status_code}")
     except Exception:
         print(f"URL {url} is not reachable or timed out")
         continue
