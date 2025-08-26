@@ -141,7 +141,7 @@ def install_package(
     name_display = " ".join(name) if isinstance(name, list) else name
     print(f"Installing: {name_display}")
 
-    base_cmd = [sys.executable, "-m", "pip", "install"]
+    base_cmd = [get_python_executable(), "-m", "pip", "install"]
     name_args = name if isinstance(name, list) else [name]
 
     # If installing from a GitHub URL, don't use mirrors
@@ -166,6 +166,24 @@ def install_package(
     raise RuntimeError(f"❌ Failed to install: {name_display}")
 
 
+def get_python_executable() -> str:
+    """Get the path to the Python executable.
+    Checks for .venv and venv folders in the current directory, then falls back to sys.executable.
+    """
+    venv_dirs = [".venv", "venv"]
+    exe_name = "python.exe" if platform.system() == "Windows" else "python3"
+    for venv_dir in venv_dirs:
+        venv_path = os.path.join(
+            os.getcwd(),
+            venv_dir,
+            "Scripts" if platform.system() == "Windows" else "bin",
+            exe_name,
+        )
+        if os.path.isfile(venv_path):
+            return venv_path
+    return sys.executable
+
+
 def install_requirements():
     """Install all packages listed in requirements.txt or regenerated list."""
     global package_list
@@ -174,7 +192,7 @@ def install_requirements():
 
     subprocess.check_call(
         [
-            sys.executable,
+            get_python_executable(),
             "-m",
             "pip",
             "install",
