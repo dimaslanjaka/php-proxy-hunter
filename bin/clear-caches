@@ -52,7 +52,7 @@ echo "Removing Python __pycache__ folders..."
 find /var/www/html -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
 
 # --- Reset Python venvs ---
-for dir in venv .venv env; do
+for dir in venv .venv; do
   if [ -d "$dir" ]; then
     echo "Removing virtualenv at $dir..."
     rm -rf "$dir"
