@@ -7,7 +7,6 @@ import urllib.request
 import subprocess
 import sys
 from typing import List, Optional, Union
-from src.utils.device import is_docker
 
 package_list: List[str] = []
 working_urls: List[str] = []
@@ -46,6 +45,20 @@ print(
     f"Checked {len(all_urls)} URLs, found {len(working_urls)} working mirrors. {working_urls}"
 )
 DEFAULT_PYPI_MIRRORS = working_urls
+
+
+def is_docker():
+    """Detect if running inside a Docker container."""
+    if os.path.isfile("/.dockerenv"):
+        return True
+    try:
+        with open("/proc/1/cgroup", "rt") as f:
+            for line in f:
+                if "docker" in line or "containerd" in line:
+                    return True
+    except OSError:
+        pass
+    return False
 
 
 def read_requirements_file(filepath: str) -> List[str]:
