@@ -155,10 +155,11 @@ def install_package(
         mirrors = DEFAULT_PYPI_MIRRORS
 
     name_display = " ".join(name) if isinstance(name, list) else name
-    print(f"Installing: {name_display}")
 
     base_cmd = [get_python_executable(), "-m", "pip", "install"]
     name_args = name if isinstance(name, list) else [name]
+
+    print(f"Installing: {name_display} => ${name_args}")
 
     # If installing from a GitHub URL, don't use mirrors
     if any("https://github.com" in str(arg) for arg in name_args):
@@ -179,7 +180,7 @@ def install_package(
             except subprocess.CalledProcessError:
                 print(f"Failed from mirror: {url}")
 
-    raise RuntimeError(f"❌ Failed to install: {name_display}")
+    raise RuntimeError(f"❌ Failed to install: {name_display} => ${name_args}")
 
 
 def get_python_executable() -> str:
