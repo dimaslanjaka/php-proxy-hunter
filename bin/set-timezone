@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Accept timezone as an argument, default to Asia/Jakarta
+timezone="${1:-Asia/Jakarta}"
+timezone_file="/usr/share/zoneinfo/$timezone"
+link_target="/etc/localtime"
+
+# Check if the timezone file exists
+if [ -f "$timezone_file" ]; then
+    # Create symbolic link with sudo privileges
+    sudo ln -sf "$timezone_file" "$link_target"
+    echo "Symbolic link created successfully."
+else
+    echo "Error: Timezone file $timezone_file not found."
+    exit 1
+fi
+sudo timedatectl set-timezone "$timezone"
+echo "Timezone set to $timezone at $(date)"
