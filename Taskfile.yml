@@ -53,6 +53,7 @@ tasks:
     desc: Install Python dependencies
     silent: true
     cmds:
+      - 'echo "Installing Python packages using {{.PYTHON}}"'
       - '"{{.PYTHON}}" -m ensurepip --upgrade'
       - '"{{.PYTHON}}" -m pip install --upgrade pip'
       - '"{{.PYTHON}}" -m pip install --upgrade setuptools'
