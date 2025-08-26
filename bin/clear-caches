@@ -1,35 +1,109 @@
 #!/bin/bash
 
-# clear VPS memory every day at 3 AM
-# 0 3 * * * /var/www/html/bin/clear_caches.sh
+# clear VPS memory + caches every day at 3 AM
+# Add to crontab (root):  0 3 * * * /var/www/html/bin/clear_caches.sh
 
+# --- Clear pagecache/dentries/inodes ---
 sync
-echo 3 > /proc/sys/vm/drop_caches
+echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
 
-# Clear old logs
-sudo du -sh /var/log/*
-sudo rm -f /var/log/*.gz
+# --- Clear old logs ---
+echo "Cleaning logs..."
 sudo journalctl --rotate
 sudo journalctl --vacuum-time=1s
+sudo find /var/log -type f -name "*.gz" -delete
+sudo find /var/log -type f -name "*.old" -delete
+sudo find /var/log -type f -name "*.log.*" -delete
 
-if [ -d "tmp/logs" ]; then
-  echo "Removing tmp/logs..."
-  rm -rf tmp/logs
-else
-  echo "Directory tmp/logs does not exist. Skipping."
+# --- Clear tmp logs if exist ---
+for dir in tmp/logs tmp/django_caches; do
+  if [ -d "$dir" ]; then
+    echo "Removing $dir..."
+    rm -rf "$dir"
+  else
+    echo "Directory $dir does not exist. Skipping."
+  fi
+done
+
+# --- Clear trash for all users ---
+for user in /home/*/; do
+  rm -rf "$user/.local/share/Trash/"* 2>/dev/null
+done
+rm -rf /root/.local/share/Trash/* 2>/dev/null
+
+# --- Clear apt cache ---
+sudo apt-get clean
+sudo apt-get autoclean
+
+# --- Optional: Clear snap cache if using snap ---
+if command -v snap >/dev/null; then
+  sudo du -sh /var/lib/snapd/cache 2>/dev/null
+  sudo rm -rf /var/lib/snapd/cache/*
 fi
 
-if [ -d "tmp/django_caches" ]; then
-  echo "Removing tmp/django_caches..."
-  rm -rf tmp/django_caches
-else
-  echo "Directory tmp/django_caches does not exist. Skipping."
+# --- Clean Python caches ---
+if command -v pip >/dev/null; then
+  echo "Cleaning global pip cache..."
+  pip cache purge || true
+  rm -rf ~/.cache/pip
 fi
 
-# Clear trash
-rm -rf ~/.local/share/Trash/*
+echo "Removing Python __pycache__ folders..."
+find /var/www/html -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
 
-# show usages
+# --- Reset Python venvs ---
+for dir in venv .venv env; do
+  if [ -d "$dir" ]; then
+    echo "Removing virtualenv at $dir..."
+    rm -rf "$dir"
+  fi
+
+  if [ -f requirements.txt ]; then
+    echo "Recreating $dir..."
+    python3 -m venv "$dir"
+    "$dir/bin/pip" install --upgrade pip setuptools wheel
+    "$dir/bin/pip" install -r requirements.txt
+  else
+    echo "No requirements.txt found, skipping $dir recreation."
+  fi
+done
+
+# --- Clean Composer cache ---
+if command -v composer >/dev/null; then
+  echo "Cleaning Composer cache..."
+  composer clear-cache
+  rm -rf ~/.composer/cache
+  rm -rf ~/.cache/composer
+elif [ -f composer.phar ]; then
+  echo "Cleaning Composer cache using composer.phar..."
+  php composer.phar clear-cache
+  rm -rf ~/.composer/cache
+  rm -rf ~/.cache/composer
+fi
+
+# --- Clean JS package managers caches ---
+if command -v npm >/dev/null; then
+  echo "Cleaning npm cache..."
+  npm cache clean --force
+fi
+
+if command -v yarn >/dev/null; then
+  echo "Cleaning Yarn cache..."
+  yarn cache clean
+  rm -rf ~/.cache/yarn
+fi
+
+if [ -d "$HOME/.nvm/.cache" ]; then
+  echo "Cleaning NVM cache..."
+  rm -rf "$HOME/.nvm/.cache"
+fi
+
+if command -v pnpm >/dev/null; then
+  echo "Cleaning pnpm store..."
+  pnpm store prune
+fi
+
+# --- Show usages ---
 echo "Disk Status:"
 df -h
 echo "RAM Status:"
