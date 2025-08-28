@@ -67,7 +67,7 @@ done
 
 OUTPUT_FILE="$CWD/proxyChecker.txt"
 COMPOSER_LOCK="$CWD/composer.lock"
-COMPOSER_PHAR="$CWD/composer.phar"
+COMPOSER_PHAR="$CWD/bin/composer.phar"
 
 # Install or update composer packages
 if [ ! -f "$COMPOSER_LOCK" ]; then

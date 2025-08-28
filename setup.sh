@@ -13,7 +13,7 @@ VENV_BIN_LINUX="$VENV_DIR/bin"
 VENV_BIN_WINDOWS="$VENV_DIR/Scripts"
 REQUIREMENTS_SCRIPT="$SCRIPT_DIR/requirements_install.py"
 COMPOSER_LOCK="$SCRIPT_DIR/composer.lock"
-COMPOSER_PHAR="$SCRIPT_DIR/composer.phar"
+COMPOSER_PHAR="$SCRIPT_DIR/bin/composer.phar"
 CACHE_DIR="$SCRIPT_DIR/tmp/.cache/pip"
 USER="www-data"
 
