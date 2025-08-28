@@ -11,14 +11,18 @@ async function main() {
     if (fs.existsSync(DEST)) {
       fs.rmSync(DEST, { recursive: true, force: true });
     }
-    await spawnAsync('git', ['clone', 'https://github.com/vrana/adminer.git', DEST], { stdio: 'inherit' });
+    await spawnAsync('git', ['clone', 'https://github.com/vrana/adminer.git', DEST], { stdio: 'inherit', shell: true });
   }
   // Update submodule
-  await spawnAsync('git', ['submodule', 'update', '--init', '--recursive'], { stdio: 'inherit', cwd: DEST });
+  await spawnAsync('git', ['submodule', 'update', '--init', '--recursive'], {
+    stdio: 'inherit',
+    cwd: DEST,
+    shell: true
+  });
   // Install or Update composer dependencies
   const composerLockPath = path.join(DEST, 'composer.lock');
   if (!fs.existsSync(composerLockPath)) {
-    await spawnAsync('composer', ['install'], { cwd: DEST, stdio: 'inherit' });
+    await spawnAsync('composer', ['install'], { cwd: DEST, stdio: 'inherit', shell: true });
   } else {
     // If composer.lock exists, run composer update to ensure all dependencies are up to date
     await spawnAsync('composer', ['update'], { cwd: DEST, stdio: 'inherit' });
@@ -26,7 +30,7 @@ async function main() {
 
   const adminerIndex = path.join(DEST, 'adminer/index.php');
   // restore adminer/index.php
-  await spawnAsync('git', ['restore', adminerIndex], { cwd: DEST, stdio: 'inherit' });
+  await spawnAsync('git', ['restore', adminerIndex], { cwd: DEST, stdio: 'inherit', shell: true });
   // Modify content for adminer/index.php
   const funcPhpPath = path.join(process.cwd(), 'func.php');
   // Calculate relative path from adminer/index.php to func.php
@@ -51,7 +55,7 @@ if (!isset($_SESSION['admin'])) {
   const editorIndex = path.join(DEST, 'editor/index.php');
   if (fs.existsSync(editorIndex)) {
     // restore editor/index.php
-    await spawnAsync('git', ['restore', editorIndex], { cwd: DEST, stdio: 'inherit' });
+    await spawnAsync('git', ['restore', editorIndex], { cwd: DEST, stdio: 'inherit', shell: true });
     const relativeFuncPhpEditor = path.relative(path.dirname(editorIndex), funcPhpPath).replace(/\\/g, '/');
     const editorContent = fs.readFileSync(editorIndex, 'utf-8');
     const editorContentMod = editorContent.replace(
