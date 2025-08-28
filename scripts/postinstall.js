@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const CWD = path.resolve(__dirname, '..');
-const files = [path.join(__dirname, 'composer-installer.js')];
+const files = [path.join(__dirname, 'composer-installer.js'), path.join(__dirname, 'sqlite-installer.js')];
 
 async function main() {
   for (const file of files) {
