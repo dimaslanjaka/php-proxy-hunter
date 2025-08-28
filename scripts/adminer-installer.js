@@ -54,12 +54,12 @@ function download(url, dest) {
 }
 
 function modify() {
-  // replace <?php with custom script
+  // replace `namespace Adminer;` with custom script
   for (const file of files) {
     const content = fs.readFileSync(file.output, 'utf-8');
     const modified = content.replace(
-      /<\?php/g,
-      `<?php
+      /namespace\s+Adminer;/,
+      `namespace Adminer;
 
 require_once __DIR__ . '/../func.php';
 // only allow administrator
