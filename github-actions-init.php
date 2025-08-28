@@ -32,7 +32,7 @@ $missingPackages = checkMissingPackages($requiredPackages);
 if (!empty($missingPackages)) {
   echo "Missing packages detected: " . implode(', ', $missingPackages) . "\n";
   echo "Running composer install...\n";
-  shell_exec('php composer.phar install --prefer-dist --no-progress');
+  shell_exec('php bin/composer.phar install --prefer-dist --no-progress');
 } else {
   echo "All required packages are installed.\n";
 }

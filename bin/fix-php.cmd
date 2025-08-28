@@ -1,3 +1,3 @@
 @echo off
 
-call php composer.phar exec php-cs-fixer fix %*
+call php bin/composer.phar exec php-cs-fixer fix %*

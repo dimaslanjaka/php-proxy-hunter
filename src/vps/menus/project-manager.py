@@ -15,7 +15,7 @@ def pull_latest_code(vps: VPSConnector):
 
 def composer_update(vps: VPSConnector):
     """Run 'composer update' in the project directory on the VPS."""
-    return vps.run_command_live("php composer.phar update", "/var/www/html")
+    return vps.run_command_live("php bin/composer.phar update", "/var/www/html")
 
 
 def yarn_install(vps: VPSConnector):

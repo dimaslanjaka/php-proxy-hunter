@@ -34,6 +34,6 @@ fi
 
 # Additional commands (commented out in original batch script)
 # rm -f *.lock
-# php composer.phar install
+# php bin/composer.phar install
 # touch yarn.lock
 # yarn install

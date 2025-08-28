@@ -13,6 +13,7 @@ auth.json
 /bin/sqldiff*
 /phpmyadmin
 /adminer
+/bin/composer*
 
 # PHP
 /php-obfuscator

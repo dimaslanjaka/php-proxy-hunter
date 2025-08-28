@@ -113,7 +113,7 @@ jobs:
           fail-fast: true
 
       - name: Validate composer
-        run: php composer.phar validate --strict
+        run: php bin/composer.phar validate --strict
 
       - name: Cache initialize
         id: cache
@@ -154,10 +154,10 @@ jobs:
         run: |
           if [ ! -f composer.lock ]; then
               echo "composer.lock not found, running composer install..."
-              php composer.phar install --prefer-dist --no-progress
+              php bin/composer.phar install --prefer-dist --no-progress
           else
               echo "composer.lock found, running composer update..."
-              php composer.phar update --prefer-dist --no-progress
+              php bin/composer.phar update --prefer-dist --no-progress
           fi
           if [ ! -f yarn.lock ]; then
               touch yarn.lock

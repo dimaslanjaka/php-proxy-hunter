@@ -109,7 +109,7 @@ tasks:
           }
         }'
 
-        # php composer.phar config github-oauth.github.com "$RESOLVED_GITHUB_TOKEN"
+        # php bin/composer.phar config github-oauth.github.com "$RESOLVED_GITHUB_TOKEN"
         echo "Creating auth.json with resolved GitHub token..."
         cat > auth.json <<EOF
         {
@@ -118,7 +118,7 @@ tasks:
           }
         }
         EOF
-      - php composer.phar install --no-progress --no-suggest --no-interaction --optimize-autoloader
+      - php bin/composer.phar install --no-progress --no-suggest --no-interaction --optimize-autoloader
 
   install-nodejs:
     desc: Install NodeJS dependencies

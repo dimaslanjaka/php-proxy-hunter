@@ -1,59 +1,59 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/php
 {
-	"name": "Github Dev Container",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	// "image": "mcr.microsoft.com/devcontainers/universal:2",
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	"features": {
-		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/devcontainers/features/git-lfs:1": {},
-		"ghcr.io/devcontainers/features/github-cli:1": {},
-		// "ghcr.io/devcontainers/features/python:1": {},
-		// "ghcr.io/devcontainers/features/php:1": {},
-		// "ghcr.io/devcontainers/features/node:1": {
-		// 	"version": "18"
-		// }
-	},
-	"remoteEnv": {
-		// set timezone to Asia/Jakarta
-		"TZ": "Asia/Jakarta"
-	},
-	// Configure tool-specific properties.
-	"customizations": {
-		// Configure properties specific to VS Code.
-		"vscode": {
-			// "settings": {},
-			"extensions": [
-				"bmewburn.vscode-intelephense-client",
-				"esbenp.prettier-vscode",
-				"dbaeumer.vscode-eslint",
-				"formulahendry.code-runner"
-			]
-		},
-		"codespaces": {
-			"repositories": {
-				"dimaslanjaka/php-proxy-hunter": {
-					"permissions": "write-all"
-				}
-			}
-		}
-	},
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [8000],
-	// Use 'portsAttributes' to set default properties for specific forwarded ports. More info: https://code.visualstudio.com/docs/remote/devcontainerjson-reference.
-	// "portsAttributes": {
-	// 	"8000": {
-	// 		"label": "Hello Remote World",
-	// 		"onAutoForward": "notify"
-	// 	}
-	// }
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html"
-	"postCreateCommand": "touch yarn.lock && yarn install && php composer.phar install && chmod 755 node_modules/.bin/* && chmod 755 vendor/bin/*"
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+  "name": "Github Dev Container",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  // "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/git-lfs:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+    // "ghcr.io/devcontainers/features/python:1": {},
+    // "ghcr.io/devcontainers/features/php:1": {},
+    // "ghcr.io/devcontainers/features/node:1": {
+    // 	"version": "18"
+    // }
+  },
+  "remoteEnv": {
+    // set timezone to Asia/Jakarta
+    "TZ": "Asia/Jakarta"
+  },
+  // Configure tool-specific properties.
+  "customizations": {
+    // Configure properties specific to VS Code.
+    "vscode": {
+      // "settings": {},
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "formulahendry.code-runner"
+      ]
+    },
+    "codespaces": {
+      "repositories": {
+        "dimaslanjaka/php-proxy-hunter": {
+          "permissions": "write-all"
+        }
+      }
+    }
+  },
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [8000],
+  // Use 'portsAttributes' to set default properties for specific forwarded ports. More info: https://code.visualstudio.com/docs/remote/devcontainerjson-reference.
+  // "portsAttributes": {
+  // 	"8000": {
+  // 		"label": "Hello Remote World",
+  // 		"onAutoForward": "notify"
+  // 	}
+  // }
+  // Use 'postCreateCommand' to run commands after the container is created.
+  // "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html"
+  "postCreateCommand": "touch yarn.lock && yarn install && php bin/composer.phar install && chmod 755 node_modules/.bin/* && chmod 755 vendor/bin/*"
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
 }

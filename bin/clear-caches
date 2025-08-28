@@ -76,7 +76,7 @@ if command -v composer >/dev/null; then
   rm -rf ~/.cache/composer
 elif [ -f composer.phar ]; then
   echo "Cleaning Composer cache using composer.phar..."
-  php composer.phar clear-cache
+  php bin/composer.phar clear-cache
   rm -rf ~/.composer/cache
   rm -rf ~/.cache/composer
 fi
