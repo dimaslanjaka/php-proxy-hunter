@@ -12,6 +12,7 @@ auth.json
 /bin/sqlite*
 /bin/sqldiff*
 /phpmyadmin
+/adminer
 
 # PHP
 /php-obfuscator
