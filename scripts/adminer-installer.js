@@ -2,9 +2,9 @@ import { spawnAsync } from 'cross-spawn';
 import fs from 'fs-extra';
 import path from 'upath';
 
-// Destination folder
 const DEST = path.join(process.cwd(), 'adminer');
 if (!fs.existsSync(DEST)) fs.mkdirSync(DEST, { recursive: true });
+const composerPath = path.join(process.cwd(), 'bin', 'composer.phar');
 
 async function main() {
   if (!fs.existsSync(path.join(DEST, '.git'))) {
@@ -22,10 +22,10 @@ async function main() {
   // Install or Update composer dependencies
   const composerLockPath = path.join(DEST, 'composer.lock');
   if (!fs.existsSync(composerLockPath)) {
-    await spawnAsync('composer', ['install'], { cwd: DEST, stdio: 'inherit', shell: true });
+    await spawnAsync('php', [composerPath, 'install'], { cwd: DEST, stdio: 'inherit', shell: true });
   } else {
     // If composer.lock exists, run composer update to ensure all dependencies are up to date
-    await spawnAsync('composer', ['update'], { cwd: DEST, stdio: 'inherit' });
+    await spawnAsync('php', [composerPath, 'update'], { cwd: DEST, stdio: 'inherit' });
   }
 
   const adminerIndex = path.join(DEST, 'adminer/index.php');
