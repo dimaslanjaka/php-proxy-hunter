@@ -15,8 +15,14 @@ async function main() {
   }
   // Update submodule
   await spawnAsync('git', ['submodule', 'update', '--init', '--recursive'], { stdio: 'inherit', cwd: DEST });
-  // Update composer dependencies
-  await spawnAsync('composer', ['install'], { cwd: DEST, stdio: 'inherit' });
+  // Install or Update composer dependencies
+  const composerLockPath = path.join(DEST, 'composer.lock');
+  if (!fs.existsSync(composerLockPath)) {
+    await spawnAsync('composer', ['install'], { cwd: DEST, stdio: 'inherit' });
+  } else {
+    // If composer.lock exists, run composer update to ensure all dependencies are up to date
+    await spawnAsync('composer', ['update'], { cwd: DEST, stdio: 'inherit' });
+  }
 
   const adminerIndex = path.join(DEST, 'adminer/index.php');
   // restore adminer/index.php
