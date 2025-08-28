@@ -280,7 +280,7 @@
     "DEBUG_PKG": "1",
     "ESLINT_USE_FLAT_CONFIG": "true",
     "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
-    "PATH": "${env:PATH};${workspaceFolder}\\bin;${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\vendor\\bin"
+    "PATH": "${env:LOCALAPPDATA}\\nvm;C:\\nvm4w\\nodejs;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\usr\\bin;${env:PATH};${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\bin;${workspaceFolder}\\vendor\\bin"
   },
   "terminal.integrated.profiles.windows": {
     "Cygwin": {
