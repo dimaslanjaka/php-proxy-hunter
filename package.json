@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "@hapi/boom": "^10.0.1",
+    "@vitalets/google-translate-api": "^9.2.1",
     "@whiskeysockets/baileys": "^6.7.18",
     "ansi-colors": "^4.1.3",
     "ansi-to-html": "^0.7.2",
@@ -156,6 +157,7 @@
     "@types/react-dom": "^19",
     "@types/selenium-webdriver": "^4",
     "@types/serve-favicon": "^2",
+    "@types/unzipper": "^0",
     "@types/which": "^3.0.4",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
@@ -200,6 +202,7 @@
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typescript": "~5.8.0",
+    "unzipper": "^0.12.3",
     "vite": "7.1.3",
     "vite-plugin-mkcert": "^1.17.8",
     "vitest": "^3.2.4"

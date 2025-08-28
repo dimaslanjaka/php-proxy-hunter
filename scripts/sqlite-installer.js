@@ -122,13 +122,45 @@ async function shouldDownload(url, local) {
 
     console.log('Extracting...');
     if (ext === '.zip') {
-      if (os.platform() === 'win32') {
-        execSync(`powershell -Command "Expand-Archive -Path '${local}' -DestinationPath '${binDir}' -Force"`, {
-          stdio: 'inherit'
-        });
-      } else {
-        execSync(`unzip -o '${local}' -d '${binDir}'`, { stdio: 'inherit' });
-      }
+      // Use unzipper for progress
+      const unzipper = await import('unzipper');
+      const directory = await unzipper.Open.file(local);
+      const total = directory.files.filter((f) => f.type !== 'Directory').length;
+      let count = 0;
+      await new Promise((resolve, reject) => {
+        fs.createReadStream(local)
+          .pipe(unzipper.Parse())
+          .on('entry', function (entry) {
+            let relativePath;
+            const parts = entry.path.split(/[/\\]/);
+            if (parts.length > 1) {
+              relativePath = parts.slice(1).join(path.sep);
+            } else {
+              relativePath = entry.path;
+            }
+            if (!relativePath) {
+              entry.autodrain();
+              return;
+            }
+            const filePath = path.join(binDir, relativePath);
+            if (entry.type === 'Directory') {
+              fs.mkdirSync(filePath, { recursive: true });
+              entry.autodrain();
+            } else {
+              count++;
+              const percent = ((count / total) * 100).toFixed(1);
+              process.stdout.write(`\r${percent}% (${count}/${total})` + ' '.repeat(40));
+              const dir = path.dirname(filePath);
+              fs.mkdirSync(dir, { recursive: true });
+              entry.pipe(fs.createWriteStream(filePath));
+            }
+          })
+          .on('close', () => {
+            process.stdout.write('\nExtraction complete. Total files: ' + count + '\n');
+            resolve();
+          })
+          .on('error', reject);
+      });
     } else if (ext === '.gz') {
       execSync(`mkdir -p '${binDir}' && tar -xzf '${local}' -C '${binDir}' --strip-components=1`, { stdio: 'inherit' });
     }

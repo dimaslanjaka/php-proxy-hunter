@@ -5,8 +5,8 @@
 import fs from 'fs';
 import path from 'path';
 import https from 'https';
-import { execSync } from 'child_process';
 import crypto from 'crypto';
+import * as unzipper from 'unzipper';
 
 const CWD = process.cwd();
 const TMP_DIR = path.join(CWD, 'tmp', 'download');
@@ -34,7 +34,14 @@ async function getRemoteFileSize(url) {
 }
 
 /**
- * Download file
+ * Downloads a file from the specified URL and saves it to the given output path.
+ * Resolves when the download is complete.
+ * Rejects if the HTTP status is not 200 or if an error occurs during download.
+ *
+ * @param {string} url - The URL to download the file from.
+ * @param {string} output - The local file path where the downloaded file will be saved.
+ * @returns {Promise<void>} Resolves when the file is downloaded successfully.
+ * @throws {Error} If the download fails or the HTTP status is not 200.
  */
 async function downloadFile(url, output) {
   console.log(`Downloading: ${url}`);
@@ -48,7 +55,15 @@ async function downloadFile(url, output) {
           return reject(new Error(`Failed to download: ${res.statusCode}`));
         }
         res.pipe(file);
-        file.on('finish', () => file.close(resolve));
+        file.on('finish', () =>
+          file.close((err) => {
+            if (!err) {
+              resolve(undefined);
+            } else {
+              reject(err);
+            }
+          })
+        );
       })
       .on('error', (err) => {
         file.close();
@@ -59,18 +74,52 @@ async function downloadFile(url, output) {
 }
 
 /**
- * Extract zip file using system tools (PowerShell on Windows, unzip on others)
+ * Extracts a zip file to the specified target directory using unzipper, with progress output.
+ *
+ * @param {string} zipFile - The path to the zip file to extract.
+ * @param {string} targetDir - The directory where the contents will be extracted.
+ * @returns {Promise<void>} Resolves when extraction is complete.
+ * @throws {Error} If extraction fails.
  */
 async function extractZip(zipFile, targetDir) {
   console.log(`Extracting to ${targetDir} ...`);
-  if (process.platform === 'win32') {
-    execSync(`powershell -Command "Expand-Archive -Path '${zipFile}' -DestinationPath '${targetDir}' -Force"`, {
-      stdio: 'inherit'
-    });
-  } else {
-    execSync(`unzip -o '${zipFile}' -d '${targetDir}'`, { stdio: 'inherit' });
-  }
-  console.log('Extraction complete.');
+  // Get total number of entries for progress
+  const directory = await unzipper.Open.file(zipFile);
+  const total = directory.files.filter((f) => f.type !== 'Directory').length;
+  let count = 0;
+  await new Promise((resolve, reject) => {
+    fs.createReadStream(zipFile)
+      .pipe(unzipper.Parse())
+      .on('entry', function (entry) {
+        // Remove the first directory from the path
+        /** @type {string[]} */
+        const parts = entry.path.split(/[/\\]/);
+        parts.shift(); // Remove the top-level folder
+        const relativePath = parts.join(path.sep);
+        if (!relativePath) {
+          entry.autodrain();
+          return;
+        }
+        const filePath = path.join(targetDir, relativePath);
+        if (entry.type === 'Directory') {
+          fs.mkdirSync(filePath, { recursive: true });
+          entry.autodrain();
+        } else {
+          count++;
+          const percent = ((count / total) * 100).toFixed(1);
+          const progressMsg = `${percent}% (${count}/${total})`;
+          process.stdout.write('\r' + progressMsg + ' '.repeat(60)); // pad with spaces
+          const dir = path.dirname(filePath);
+          fs.mkdirSync(dir, { recursive: true });
+          entry.pipe(fs.createWriteStream(filePath));
+        }
+      })
+      .on('close', () => {
+        process.stdout.write('\nExtraction complete. Total files: ' + count + '\n');
+        resolve();
+      })
+      .on('error', reject);
+  });
 }
 
 function createConfigFile() {
@@ -101,7 +150,8 @@ $cfg['Servers'][$i]['AllowNoPassword'] = false;
 /*
  * Laragon: set phpmyadmin to not timeout so quickly
  */
-$cfg['LoginCookieValidity'] = 36000;
+$cfg['LoginCookieValidity'] = 604800; // 1 week in seconds
+$cfg['LoginCookieStore'] = 604800; // 1 week in seconds
 
 /**
  * Directories for saving/loading files from server
@@ -110,7 +160,7 @@ $cfg['UploadDir'] = __DIR__ . '/tmp/upload';
 $cfg['SaveDir'] = __DIR__ . '/tmp/save';
 
 `.trim();
-  const configPath = path.join(EXTRACT_DIR, `phpMyAdmin-${PHPMYADMIN_VERSION}-all-languages`, 'config.inc.php');
+  const configPath = path.join(EXTRACT_DIR, 'config.inc.php');
   fs.writeFileSync(configPath, configContent);
   console.log(`Created config.inc.php at ${configPath} with upload and save directories set.`);
 }
@@ -142,12 +192,13 @@ async function main() {
     if (remoteSize !== localSize) {
       console.log('File size differs. Downloading phpMyAdmin...');
       await downloadFile(PHPMYADMIN_URL, DOWNLOAD_FILE);
-      await extractZip(DOWNLOAD_FILE, EXTRACT_DIR);
-      createConfigFile();
     } else {
       console.log('Local file is up to date. Skipping download.');
     }
 
+    // Always extract and create config
+    await extractZip(DOWNLOAD_FILE, EXTRACT_DIR);
+    createConfigFile();
     console.log('Done ✅ (zip kept in tmp/download)');
   } catch (err) {
     console.error('Error:', err);
