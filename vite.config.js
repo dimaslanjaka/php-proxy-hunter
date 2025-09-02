@@ -106,19 +106,31 @@ export const viteConfig = defineConfig({
         },
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
+            if (id.startsWith('react')) {
+              if (id.includes('router')) {
+                return 'react-router';
+              }
+              return 'react';
+            }
+            if (id.includes('moment')) {
+              return 'moment';
+            }
+            if (/proxy|proxies/.test(id)) {
+              return 'proxy';
+            }
             return 'vendor';
           }
+          if (id.includes('components')) {
+            return 'components';
+          }
+          if (/pages?/.test(id)) {
+            return 'pages';
+          }
+          if (/helpers?|utils/.test(id)) {
+            return 'utils-helpers';
+          }
+          // Let Rollup handle other modules automatically by returning undefined
         },
-        // manualChunks: {
-        //   react: ['react', 'react-dom'],
-        //   'react-router': ['react-router', 'react-router-dom'],
-        //   // bootstrap: ['bootstrap', 'react-bootstrap'],
-        //   highlight: ['highlight.js'],
-        //   // 'nik-parser': ['nik-parser-jurusid'],
-        //   moment: ['moment', 'moment-timezone'],
-        //   axios: ['axios'],
-        //   'deepmerge-ts': ['deepmerge-ts']
-        // },
         entryFileNames: `assets/[name].[hash].js`,
         chunkFileNames: `assets/[name].[hash].js`,
         assetFileNames: (assetInfo) => {
