@@ -1,3 +1,5 @@
+/// <reference path="../types/window-shim.d.ts" />
+
 setTimeout(() => {
   const port = location.port || '';
   if (location.host == '23.94.85.180') {
