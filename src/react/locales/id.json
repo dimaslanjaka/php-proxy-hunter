@@ -31,5 +31,18 @@
   "set_password_button": "Set Password",
   "set_password_success": "Password berhasil diperbarui.",
   "set_password_error": "Gagal mengatur password.",
-  "password_min_length": "Password minimal 6 karakter."
+  "password_min_length": "Password minimal 6 karakter.",
+  "settings_title": "Pengaturan Pengguna",
+  "settings_must_login": "Anda harus login untuk mengakses pengaturan.",
+  "settings_failed_load_user": "Gagal memuat informasi pengguna.",
+  "settings_fill_all_fields": "Silakan isi semua kolom.",
+  "settings_profile_updated": "Profil berhasil diperbarui!",
+  "settings_failed_update_profile": "Gagal memperbarui profil.",
+  "settings_redirect_buy_saldo": "Mengalihkan ke pembelian saldo...",
+  "settings_username_label": "Nama Pengguna",
+  "settings_email_label": "Email",
+  "settings_password_label": "Password Baru",
+  "settings_password_placeholder": "Kosongkan jika tidak ingin mengubah password",
+  "settings_save_changes": "Simpan Perubahan",
+  "settings_buy_saldo": "Beli Saldo"
 }

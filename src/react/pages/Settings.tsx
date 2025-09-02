@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createUrl } from '../utils/url';
 import axios from 'axios';
 import { getUserInfo } from '../utils/user';
@@ -8,6 +9,7 @@ import { getUserInfo } from '../utils/user';
 // - /php_backend/user-info.php
 
 const Settings = () => {
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,21 +24,21 @@ const Settings = () => {
           setUsername(data.username || '');
           setEmail(data.email || '');
         } else {
-          setError('You must be logged in to access settings.');
+          setError(t('settings_must_login'));
         }
       })
       .catch((err) => {
         console.error('Error fetching user info:', err);
-        setError('Failed to load user information.');
+        setError(t('settings_failed_load_user'));
       });
-  }, []);
+  }, [t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     if (!username || !email) {
-      setError('Please fill in all fields.');
+      setError(t('settings_fill_all_fields'));
       return;
     }
 
@@ -53,19 +55,19 @@ const Settings = () => {
       const response = await axios.post(createUrl('/php_backend/user-info.php'), payload);
       const data = response.data;
       if (data && data.success) {
-        setSuccess('Profile updated successfully!');
+        setSuccess(t('settings_profile_updated'));
         setPassword(''); // clear password field after update
       } else {
-        setError('Failed to update profile.');
+        setError(t('settings_failed_update_profile'));
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to update profile.');
+      setError(err.message || t('settings_failed_update_profile'));
     }
   };
 
   const handleBuySaldo = () => {
     // TODO: Integrate with payment/credit system
-    alert('Redirecting to buy saldo (credit)...');
+    alert(t('settings_redirect_buy_saldo'));
   };
 
   return (
@@ -74,13 +76,13 @@ const Settings = () => {
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md">
           <h2 className="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-white flex items-center justify-center">
             <span className="fa-light fa-user-gear mr-3 text-blue-500" style={{ fontSize: '1.5rem' }}></span>
-            User Settings
+            {t('settings_title')}
           </h2>
           {error && <div className="mb-4 text-red-500">{error}</div>}
           {success && <div className="mb-4 text-green-500">{success}</div>}
           <div className="mb-4">
             <label className="block mb-1 text-gray-700 dark:text-gray-200" htmlFor="username">
-              Username
+              {t('settings_username_label')}
             </label>
             <input
               id="username"
@@ -94,7 +96,7 @@ const Settings = () => {
           </div>
           <div className="mb-4">
             <label className="block mb-1 text-gray-700 dark:text-gray-200" htmlFor="email">
-              Email
+              {t('settings_email_label')}
             </label>
             <input
               id="email"
@@ -108,7 +110,7 @@ const Settings = () => {
           </div>
           <div className="mb-6">
             <label className="block mb-1 text-gray-700 dark:text-gray-200" htmlFor="password">
-              New Password
+              {t('settings_password_label')}
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -119,7 +121,7 @@ const Settings = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white"
                 autoComplete="new-password"
-                placeholder="Leave blank to keep current password"
+                placeholder={t('settings_password_placeholder')}
                 style={{ paddingRight: '2rem' }}
               />
               <span
@@ -143,13 +145,13 @@ const Settings = () => {
           <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring mb-4">
-            Save Changes
+            {t('settings_save_changes')}
           </button>
           <button
             type="button"
             onClick={handleBuySaldo}
             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring">
-            Buy Saldo (Credit)
+            {t('settings_buy_saldo')}
           </button>
         </form>
       </div>
