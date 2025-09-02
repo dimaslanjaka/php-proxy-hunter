@@ -167,15 +167,15 @@ jobs:
             php bin/composer.phar install --prefer-dist --no-progress --no-interaction --optimize-autoloader;
           fi
 
-      # Install Python dependencies (if cache missed)
-      - name: Install Python Dependencies (if cache missed)
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: task install-python
-
       # Install NodeJS dependencies (if cache missed)
       - name: Install Node.js Dependencies (if cache missed)
         shell: bash
         run: task install-nodejs
+
+      # Install Python dependencies (if cache missed)
+      - name: Install Python Dependencies (if cache missed)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: task install-python
 
       # Initialize scripts
       - name: Initialize Project Scripts
