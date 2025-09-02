@@ -90,15 +90,45 @@ export const viteConfig = defineConfig({
       // https://rollupjs.org/configuration-options/
       maxParallelFileOps: 2,
       output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          'react-router': ['react-router', 'react-router-dom'],
-          // bootstrap: ['bootstrap', 'react-bootstrap'],
-          highlight: ['highlight.js'],
-          // 'nik-parser': ['nik-parser-jurusid'],
-          moment: ['moment', 'moment-timezone'],
-          axios: ['axios'],
-          'deepmerge-ts': ['deepmerge-ts']
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.startsWith('react')) {
+              if (id.includes('router')) {
+                return 'react-router';
+              }
+              return 'react';
+            }
+            if (id.startsWith('@mui/')) {
+              return 'mui';
+            }
+            if (id.includes('moment')) {
+              return 'moment';
+            }
+            if (id.startsWith('nik')) {
+              return 'nik';
+            }
+            if (/tailwind|flowbite|bootstrap|popperjs/.test(id)) {
+              return 'ui-lib';
+            }
+            if (/highlight|prism/.test(id)) {
+              return 'syntax-highlighter';
+            }
+            if (/proxy|proxies/.test(id)) {
+              return 'proxy';
+            }
+            // Other vendor libraries
+            return 'vendor';
+          }
+          if (id.includes('components')) {
+            return 'components';
+          }
+          if (/pages?/.test(id)) {
+            return 'pages';
+          }
+          if (/helpers?|utils/.test(id)) {
+            return 'utils-helpers';
+          }
+          // Let Rollup handle other modules automatically by returning undefined
         },
         entryFileNames: `assets/[name].[hash].js`,
         chunkFileNames: `assets/[name].[hash].js`,
