@@ -124,6 +124,7 @@ tasks:
     desc: Install NodeJS dependencies
     silent: true
     cmds:
+      - corepack enable
       - touch yarn.lock
       - |
         yarn install || {
