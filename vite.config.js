@@ -51,30 +51,30 @@ export const viteConfig = defineConfig({
   },
   build: {
     outDir: distPath,
-    watch: {
-      include: ['src/**/*.cjs', 'src/**/*.jsx', 'src/**/*.js', 'src/**/*.mjs', 'src/**/*.tsx', 'src/**/*.ts'],
-      exclude: [
-        '**/node_modules/**',
-        '**/dist/**',
-        '**/build/**',
-        '**/coverage/**',
-        '**/packages/**',
-        '**/tmp/**',
-        '**/transpile/**',
-        '**/docs/**',
-        '**/.yarn/**',
-        '**/.cache/**',
-        '**/.vscode/**',
-        '**/.idea/**',
-        '**/.git/**',
-        '**/.github/**',
-        '**/.husky/**',
-        '**/public/**',
-        '**/tests/**',
-        '**/test/**',
-        '**/.deploy_git/**'
-      ]
-    },
+    // watch: {
+    //   include: ['src/**/*.cjs', 'src/**/*.jsx', 'src/**/*.js', 'src/**/*.mjs', 'src/**/*.tsx', 'src/**/*.ts'],
+    //   exclude: [
+    //     '**/node_modules/**',
+    //     '**/dist/**',
+    //     '**/build/**',
+    //     '**/coverage/**',
+    //     '**/packages/**',
+    //     '**/tmp/**',
+    //     '**/transpile/**',
+    //     '**/docs/**',
+    //     '**/.yarn/**',
+    //     '**/.cache/**',
+    //     '**/.vscode/**',
+    //     '**/.idea/**',
+    //     '**/.git/**',
+    //     '**/.github/**',
+    //     '**/.husky/**',
+    //     '**/public/**',
+    //     '**/tests/**',
+    //     '**/test/**',
+    //     '**/.deploy_git/**'
+    //   ]
+    // },
     emptyOutDir: true,
     minify: 'terser',
     // Remove all comments from minified JS and CSS
