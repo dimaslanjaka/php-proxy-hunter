@@ -2,6 +2,8 @@ import React from 'react';
 import type gitHistoryToJson from '../../dev/git-history-to-json';
 import { streamJsonFromUrl } from '../utils/json';
 import { createUrl } from '../utils/url';
+import ReactMarkdown from 'react-markdown';
+import style from './Changelog.module.scss';
 
 type Commit = ReturnType<typeof gitHistoryToJson>[number];
 
@@ -140,9 +142,9 @@ export default function Changelog() {
                       </span>
                     </div>
                   </div>
-                  <p className="mb-2 text-base font-normal text-gray-600 dark:text-gray-300 whitespace-pre-line">
-                    {commit.message.split('\n').slice(1).join('\n').trim()}
-                  </p>
+                  <div className={`prose dark:prose-invert mb-2 text-gray-400 dark:text-gray-300 ${style.markdown}`}>
+                    <ReactMarkdown>{commit.message.split('\n').slice(1).join('\n').trim()}</ReactMarkdown>
+                  </div>
                   {commit.files && commit.files.length > 0 && (
                     <div className="mb-2">
                       <span className="text-xs text-gray-400 dark:text-gray-300 mr-2">

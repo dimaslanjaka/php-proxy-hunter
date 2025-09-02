@@ -1,0 +1,12 @@
+.markdown {
+  a {
+    text-decoration: none;
+    color: #2563eb; // normal (light mode) link color
+  }
+}
+
+.dark .markdown {
+  a {
+    color: #60a5fa; // dark mode link color
+  }
+}
