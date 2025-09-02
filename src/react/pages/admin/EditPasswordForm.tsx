@@ -10,6 +10,7 @@ export type EditPasswordFormProps = {
 
 const EditPasswordForm: React.FC<EditPasswordFormProps> = ({ userId, onSuccess }) => {
   const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -48,17 +49,36 @@ const EditPasswordForm: React.FC<EditPasswordFormProps> = ({ userId, onSuccess }
       <label htmlFor="edit-password" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
         {t('edit_password_label')}
       </label>
-      <input
-        id="edit-password"
-        type="password"
-        className="block w-full rounded-md border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:focus:border-blue-400 dark:focus:ring-blue-900 focus:ring-opacity-50 transition-colors"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        minLength={6}
-        placeholder={t('password_placeholder')}
-        disabled={loading || !userId}
-        autoComplete="off"
-      />
+      <div style={{ position: 'relative' }}>
+        <input
+          id="edit-password"
+          type={showPassword ? 'text' : 'password'}
+          className="block w-full rounded-md border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 dark:focus:border-blue-400 dark:focus:ring-blue-900 focus:ring-opacity-50 transition-colors"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          minLength={6}
+          placeholder={t('password_placeholder')}
+          disabled={loading || !userId}
+          autoComplete="off"
+          style={{ paddingRight: '2rem' }}
+        />
+        <span
+          onClick={() => setShowPassword(!showPassword)}
+          style={{
+            position: 'absolute',
+            right: '0.5rem',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            cursor: 'pointer',
+            color: '#888',
+            zIndex: 2
+          }}>
+          <i
+            className={showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'}
+            aria-hidden="true"
+            style={{ fontSize: '1.2rem' }}></i>
+        </span>
+      </div>
       {newPassword && newPassword.length < 6 && (
         <div className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">{t('password_min_length')}</div>
       )}
