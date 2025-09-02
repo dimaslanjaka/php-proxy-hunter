@@ -6,6 +6,7 @@ import axios from 'axios';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [googleAuthUrl, setGoogleAuthUrl] = useState('');
   const indicators = {} as Record<string, any>; // Placeholder for indicators object
@@ -93,14 +94,33 @@ const Login = () => {
             <label className="block mb-1 text-gray-700 dark:text-gray-200" htmlFor="password">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white"
-              autoComplete="current-password"
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white"
+                autoComplete="current-password"
+                style={{ paddingRight: '2rem' }}
+              />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '0.5rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  cursor: 'pointer',
+                  color: '#888',
+                  zIndex: 2
+                }}>
+                <i
+                  className={showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'}
+                  aria-hidden="true"
+                  style={{ fontSize: '1.2rem' }}></i>
+              </span>
+            </div>
           </div>
           <button
             type="submit"
