@@ -1,4 +1,5 @@
 import { execSync } from 'child_process';
+import { array_unique } from 'sbg-utility';
 
 /**
  * Options for filtering git history.
@@ -64,17 +65,19 @@ export function gitHistoryToJson(options: GitHistoryOptions = {}) {
           hash,
           date,
           message: messageLines.join('\n').trim(),
-          files: files
-            .filter((f) => !bannedFiles.some((pattern) => pattern.test(f)))
-            .map((f) => {
-              // Anonymize file paths
-              for (const [key, pattern] of Object.entries(anonymizedFiles)) {
-                if (pattern.test(f)) {
-                  return f.replace(pattern, key);
+          files: array_unique(
+            files
+              .filter((f) => !bannedFiles.some((pattern) => pattern.test(f)))
+              .map((f) => {
+                // Anonymize file paths
+                for (const [key, pattern] of Object.entries(anonymizedFiles)) {
+                  if (pattern.test(f)) {
+                    return f.replace(pattern, key);
+                  }
                 }
-              }
-              return f;
-            })
+                return f;
+              })
+          )
         });
       }
       hash = line;
