@@ -1,5 +1,50 @@
 [
   {
+    "hash": "99529a15170e1d1e0d0983417f307a8b0202f53f",
+    "date": "2025-09-02T14:46:18+07:00",
+    "message": "feat(locales): add user settings translations in English and Indonesian",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/Settings.tsx"
+    ]
+  },
+  {
+    "hash": "5a910cdc6bd791c00d8c56743c613e2845d9f092",
+    "date": "2025-09-02T14:33:06+07:00",
+    "message": "feat(Taskfile): enable corepack",
+    "files": [
+      "Taskfile.yml"
+    ]
+  },
+  {
+    "hash": "8121898af193f2895f92e9bb9aed2f4883d0a16a",
+    "date": "2025-09-02T14:31:43+07:00",
+    "message": "chore: update Yarn version to 4.9.4",
+    "files": [
+      ".yarn/releases/yarn-4.9.4.cjs",
+      ".yarnrc.yml",
+      "package.json"
+    ]
+  },
+  {
+    "hash": "6280a08151ce1750f9fd7dfe2153322782008e24",
+    "date": "2025-09-02T14:29:33+07:00",
+    "message": "fix(Taskfile): improve yarn install error handling",
+    "files": [
+      "Taskfile.yml"
+    ]
+  },
+  {
+    "hash": "7aedf767ce27830c728e76a8648d7dd62bca914a",
+    "date": "2025-09-02T14:28:15+07:00",
+    "message": "feat(workflows): add Taskfile* to trigger paths in PHP and Python checkers",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml"
+    ]
+  },
+  {
     "hash": "f148439e6e1e56d37ae1ffab21aad46cf7edf7aa",
     "date": "2025-09-02T14:18:41+07:00",
     "message": "feat(Settings): add show/hide password functionality in settings form",
