@@ -151,8 +151,18 @@ jobs:
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install requests
 
-      # Install PHP dependencies (if cache missed)
-      - name: Install PHP Dependencies (if cache missed)
+      # Install Python dependencies
+      - name: Install Python Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: task install-python
+
+      # Install NodeJS dependencies
+      - name: Install Node.js Dependencies
+        shell: bash
+        run: task install-nodejs
+
+      # Install PHP dependencies
+      - name: Install PHP Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         shell: bash
         env:
@@ -166,16 +176,6 @@ jobs:
           elif [ ! -f composer.lock ]; then
             php bin/composer.phar install --prefer-dist --no-progress --no-interaction --optimize-autoloader;
           fi
-
-      # Install NodeJS dependencies (if cache missed)
-      - name: Install Node.js Dependencies (if cache missed)
-        shell: bash
-        run: task install-nodejs
-
-      # Install Python dependencies (if cache missed)
-      - name: Install Python Dependencies (if cache missed)
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: task install-python
 
       # Initialize scripts
       - name: Initialize Project Scripts
