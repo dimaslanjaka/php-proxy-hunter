@@ -26,7 +26,7 @@
     "build:docs": "yarn workspace gh-pages-builder run build",
     "build:gh-pages": "node vite-gh-pages.js",
     "build:packages": "yarn workspaces foreach --no-private --all run build",
-    "build:react": "npm run build:tailwind && vite build",
+    "build:react": "npm run build:tailwind && cross-env NODE_OPTIONS=\"--max_old_space_size=4096 --openssl-legacy-provider\" vite build",
     "build:rollup": "rollup -c rollup.config.js",
     "build:tailwind": "node tailwind.build.js",
     "dev:gh-pages": "npm run build:gh-pages && vite --config vite-gh-pages.config.js",
