@@ -1,5 +1,31 @@
 [
   {
+    "hash": "0778a746d72bb3179851b78956c00f83e8e9c44b",
+    "date": "2025-09-02T17:10:05+07:00",
+    "message": "feat(vite.config): enable source maps and optimize chunking for better performance",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "6aa4cedeef0b5ceb5b7bc3518f6be4f10cd63cd2",
+    "date": "2025-09-02T17:01:51+07:00",
+    "message": "fix(build): increase memory limit and enable legacy OpenSSL provider for react build",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "cb7f7297a0d3a6f8ff0210f3b5ef524cf91bdfe5",
+    "date": "2025-09-02T16:55:42+07:00",
+    "message": "feat(browserlist): add script to update Browserslist database",
+    "files": [
+      "packages/baileys",
+      "packages/gh-pages",
+      "scripts/browserlist-updater.js"
+    ]
+  },
+  {
     "hash": "99529a15170e1d1e0d0983417f307a8b0202f53f",
     "date": "2025-09-02T14:46:18+07:00",
     "message": "feat(locales): add user settings translations in English and Indonesian",
