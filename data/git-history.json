@@ -1,5 +1,37 @@
 [
   {
+    "hash": "f148439e6e1e56d37ae1ffab21aad46cf7edf7aa",
+    "date": "2025-09-02T14:18:41+07:00",
+    "message": "feat(Settings): add show/hide password functionality in settings form",
+    "files": [
+      "src/react/pages/Settings.tsx"
+    ]
+  },
+  {
+    "hash": "0480c9dd2c1655dc83d991d8eb1ff74eb2f834ac",
+    "date": "2025-09-02T14:16:22+07:00",
+    "message": "feat(EditPasswordForm): add show/hide password functionality",
+    "files": [
+      "src/react/pages/admin/EditPasswordForm.tsx"
+    ]
+  },
+  {
+    "hash": "6d7ba2886f7cda00c0b7769db7512cd80b362fb6",
+    "date": "2025-09-02T14:12:33+07:00",
+    "message": "feat(Login): add show/hide password functionality in login form",
+    "files": [
+      "src/react/pages/Login.tsx"
+    ]
+  },
+  {
+    "hash": "2f280beacc6b0792bbd517a0a3b8a678947e18db",
+    "date": "2025-09-02T14:00:46+07:00",
+    "message": "refactor(workflows): reorganize dependency installation steps",
+    "files": [
+      ".github/workflows/checker-php.yml"
+    ]
+  },
+  {
     "hash": "4b02d0e884e5e6741264b17749831b70ea4a8dc6",
     "date": "2025-09-02T13:29:43+07:00",
     "message": "fix(workflows): reorder dependencies installation",
