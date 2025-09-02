@@ -11,6 +11,7 @@ const Settings = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -69,7 +70,7 @@ const Settings = () => {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 mt-4">
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md">
           <h2 className="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-white flex items-center justify-center">
             <span className="fa-light fa-user-gear mr-3 text-blue-500" style={{ fontSize: '1.5rem' }}></span>
@@ -109,16 +110,35 @@ const Settings = () => {
             <label className="block mb-1 text-gray-700 dark:text-gray-200" htmlFor="password">
               New Password
             </label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white"
-              autoComplete="new-password"
-              placeholder="Leave blank to keep current password"
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:text-white"
+                autoComplete="new-password"
+                placeholder="Leave blank to keep current password"
+                style={{ paddingRight: '2rem' }}
+              />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '0.5rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  cursor: 'pointer',
+                  color: '#888',
+                  zIndex: 2
+                }}>
+                <i
+                  className={showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'}
+                  aria-hidden="true"
+                  style={{ fontSize: '1.2rem' }}></i>
+              </span>
+            </div>
           </div>
           <button
             type="submit"
