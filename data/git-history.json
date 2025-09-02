@@ -1,5 +1,57 @@
 [
   {
+    "hash": "4892246a51166c622090706e5530020acf0b52d8",
+    "date": "2025-09-02T19:23:53+07:00",
+    "message": "refactor(vite.config): comment out watch configuration for clarity",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "f7198b503cc830a08f87338603a5240968a9d266",
+    "date": "2025-09-02T19:17:28+07:00",
+    "message": "refactor(vite.config): streamline file watching configuration and enhance manual chunking",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "3a95a72c53c1f9a27ac7a27f6fee2faadf672c5d",
+    "date": "2025-09-02T18:50:46+07:00",
+    "message": "fix(github-pages): set timeout 30 mins",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "6804732628c22616cf4cd7eafdb651a0338ae72e",
+    "date": "2025-09-02T18:49:18+07:00",
+    "message": "feat(vite.config): enhance manual chunking for better module organization",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "e8a66e011d3e193fafadb4d096363a305748f3f9",
+    "date": "2025-09-02T17:30:22+07:00",
+    "message": "feat(vite): restrict file watching to specific src extensions\n\nAdded `ignoredFiles` and `includedFiles` patterns to centralize watch configuration.\nConfigured `build.watch` to include only source file extensions while excluding unnecessary paths.\nUpdated `server.watch` to ignore all files except `.tsx`, `.jsx`, `.ts`, `.js`, `.cjs`, and `.mjs` under `src/` for stricter file watching.",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "b132942ba99ffb259cf9b72a96ef9248c49b26b1",
+    "date": "2025-09-02T17:15:24+07:00",
+    "message": "Merge pull request #55 from dimaslanjaka/dependabot/npm_and_yarn/chromedriver-139.0.3\n\nbuild(deps): bump chromedriver from 139.0.2 to 139.0.3",
+    "files": []
+  },
+  {
+    "hash": "8d85015581c089357f5bb9c2a7302e61a3af4600",
+    "date": "2025-09-02T17:15:13+07:00",
+    "message": "Merge pull request #56 from dimaslanjaka/dependabot/npm_and_yarn/vite-7.1.4\n\nbuild(deps-dev): bump vite from 7.1.3 to 7.1.4",
+    "files": []
+  },
+  {
     "hash": "724475826e365f389ae3709895149c4fbe724aa5",
     "date": "2025-09-02T10:12:11Z",
     "message": "build(deps-dev): bump vite from 7.1.3 to 7.1.4\n\nBumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) from 7.1.3 to 7.1.4.\n- [Release notes](https://github.com/vitejs/vite/releases)\n- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)\n- [Commits](https://github.com/vitejs/vite/commits/v7.1.4/packages/vite)\n\n---\nupdated-dependencies:\n- dependency-name: vite\n  dependency-version: 7.1.4\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
@@ -207,6 +259,14 @@
     "hash": "fa84cd2edc58652036523b6a974cbb2a6d9708c8",
     "date": "2025-09-02T10:35:37+07:00",
     "message": "fix(package.json): update sbg-utility URL to the latest version",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "b38788079e1111d0aa0322486c2c502aab081b28",
+    "date": "2025-09-02T02:55:27Z",
+    "message": "build(deps): bump chromedriver from 139.0.2 to 139.0.3\n\nBumps [chromedriver](https://github.com/giggio/node-chromedriver) from 139.0.2 to 139.0.3.\n- [Commits](https://github.com/giggio/node-chromedriver/compare/139.0.2...139.0.3)\n\n---\nupdated-dependencies:\n- dependency-name: chromedriver\n  dependency-version: 139.0.3\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
     "files": [
       "package.json"
     ]
