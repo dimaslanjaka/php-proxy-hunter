@@ -1,5 +1,21 @@
 [
   {
+    "hash": "61f19029c215fae5a54640cacc43db40a7c3bfb9",
+    "date": "2025-09-02T19:51:32+07:00",
+    "message": "feat(git-history): add unique file filtering and anonymization to commit history",
+    "files": [
+      "src/dev/git-history-to-json.ts"
+    ]
+  },
+  {
+    "hash": "0886fc1fe318f98c617f537b4989c3297543b658",
+    "date": "2025-09-02T19:50:18+07:00",
+    "message": "feat(git-history): add file anonymization and filtering for banned files",
+    "files": [
+      "src/dev/git-history-to-json.ts"
+    ]
+  },
+  {
     "hash": "775cf836295d69540c6afde35038577da3a0cb55",
     "date": "2025-09-02T19:43:09+07:00",
     "message": "refactor(vite.config): enhance manual chunking logic for better module organization",
@@ -300,7 +316,6 @@
     "date": "2025-08-28T13:25:05+07:00",
     "message": "fix(scripts): update composer.phar path to use the bin directory",
     "files": [
-      ".husky/post-merge",
       "fix-nginx-perm.sh",
       "setup.sh"
     ]
@@ -357,7 +372,6 @@
       ".github/workflows/checker-php.yml.txt",
       ".github/workflows/checker.yml.txt",
       ".gitignore",
-      ".husky/pre-commit",
       "Taskfile.yml",
       "bin/clear-caches",
       "bin/fix-php",
@@ -1287,9 +1301,7 @@
     "hash": "1c2ace0cb99ab4836f6a2af726684600f354625a",
     "date": "2025-08-17T12:00:55+07:00",
     "message": "chore(husky): handle yarn install failure gracefully in post-merge hook\n\n- Updated `.husky/post-merge` to echo a message if `yarn install` fails, improving post-merge script robustness.",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "98c3cbb8a2b4557c602764022f1e03aeafe61d4b",
@@ -1390,9 +1402,7 @@
     "hash": "48846a27e439d030d8735fd7f094895ca7726b79",
     "date": "2025-08-15T18:32:54+07:00",
     "message": "fix(post-merge): remove unnecessary --no-dev flag from composer arguments",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "020723f7cdbf13f7e4fd8b9a7ac29bbcdf60077d",
@@ -1406,9 +1416,7 @@
     "hash": "0356600afb322e14a781a629d5a3c95b8b1d623c",
     "date": "2025-08-15T18:12:51+07:00",
     "message": "fix(post-merge): simplify submodule update logic by removing VPS condition",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "eafa6adbababdc33357792b193e5ce7dda79928d",
@@ -1454,9 +1462,7 @@
     "hash": "f8168fdd57f6de775ed101d1578066a739d78f34",
     "date": "2025-08-15T17:28:13+07:00",
     "message": "fix(post-merge): update submodule installation command to use the latest version",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "9119cdc4904e51377faee31acbdb0dcff51789bb",
@@ -1523,9 +1529,7 @@
     "hash": "8816047a466a047de4d6aa765d7bb07d445d22ad",
     "date": "2025-08-15T16:27:42+07:00",
     "message": "fix(post-merge): enhance submodule update logic for VPS environments",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "bf2bc8bab9b4c35a567208a2625eb2a2edab4deb",
@@ -1540,9 +1544,7 @@
     "hash": "548b71a9b9c3fccfb8519396fc4c59d89897ba5d",
     "date": "2025-08-15T16:09:15+07:00",
     "message": "fix(post-merge): enhance composer installation logic to support VPS environments and user-specific execution",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "79a62e4bad0672757319806ebe3cbb79bfd9b136",
@@ -1572,17 +1574,13 @@
     "hash": "41e438288edf64e1b83ffe69f1ba461da0e5b956",
     "date": "2025-08-15T15:36:43+07:00",
     "message": "fix(post-merge): enhance submodule update process with stashing and restoring changes",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "06e4906112b6a8649d409070ee4b8fd93f70e3f8",
     "date": "2025-08-15T15:31:30+07:00",
     "message": "feat(post-merge): add submodule update functionality to post-merge hook",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "2d4eb607948acf2f8c539c08df6e3244d7141d5b",
@@ -1613,9 +1611,7 @@
     "hash": "87ee7902edc1d98d1498f21809233f31b0fb17aa",
     "date": "2025-08-15T13:55:16+07:00",
     "message": "fix(pre-commit): correct php-cs-fixer command syntax in pre-commit hook",
-    "files": [
-      ".husky/pre-commit"
-    ]
+    "files": []
   },
   {
     "hash": "b6cce55c3eca4e735aba3acb4c4a6c57387b6df6",
@@ -1906,9 +1902,7 @@
     "hash": "e78d1fab426871fa1aef38bb0c0779ffed49d14a",
     "date": "2025-08-15T03:49:21+07:00",
     "message": "fix(workflow): Simplify yarn operations and remove rollup step",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "ed8a8f555ce8441905a72104410d28ea4ee4967a",
@@ -2154,9 +2148,7 @@
     "hash": "3505d55ea39440c08977aa893dc79f160c343e3b",
     "date": "2025-08-14T14:54:26+07:00",
     "message": "chore(pre-commit): improve php-cs-fixer config usage and add yarn support for lint-staged\n\n- Specify php-cs-fixer config file in pre-commit hook for consistent formatting.\n- Add conditional logic to use `yarn dlx lint-staged` if Yarn and .yarnrc.yml are present, otherwise fallback to npx.\n- Enhance compatibility for projects using Yarn 2+.",
-    "files": [
-      ".husky/pre-commit"
-    ]
+    "files": []
   },
   {
     "hash": "b6d2d71d9e24501badc4b036bc5c4466b803419b",
@@ -2585,7 +2577,6 @@
     "date": "2025-08-13T16:47:39+07:00",
     "message": "chore(git): rename git-history.ts to git-history.builder.ts and update post-commit hook\n\n- Renamed `src/dev/git-history.ts` to `src/dev/git-history.builder.ts` for clarity.\n- Updated `.husky/post-commit` to run the builder script after each commit.",
     "files": [
-      ".husky/post-commit",
       "src/dev/git-history.builder.ts"
     ]
   },
@@ -3172,9 +3163,7 @@
     "hash": "e0d798336075f1aab580e3184b197d74dd767c9b",
     "date": "2025-07-21T17:15:08+07:00",
     "message": "refactor(post-merge): run composer, yarn, and rollup commands execution before fix permission",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "4d275ae9bd24fe44d5928c808cab1d5f1eafbd61",
@@ -3188,9 +3177,7 @@
     "hash": "4338041b5aa16a948d030178d10f2468be397826",
     "date": "2025-07-21T17:08:14+07:00",
     "message": "feat(post-merge): add support for composer, yarn, and rollup commands",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "d02ffb6e2c2067b616441baee624e2ec955403f2",
@@ -4826,9 +4813,7 @@
     "hash": "c62ed2c3e38bbec71a43c2dd0f913f7a835f656b",
     "date": "2025-06-29T03:29:13+07:00",
     "message": "feat(husky): improve pre-commit hook compatibility and robustness\n\n- Switch shebang from bash to sh for broader compatibility.\n- Use POSIX-compliant shell syntax throughout.\n- Replace bash-specific [[ ... ]] with case/esac and [ ... ].\n- Add checks for script existence and executability before running create-file-hashes.\n- Improve staged PHP file detection and formatting with php-cs-fixer.\n- Add clearer logging and error handling.\n- Keep optional Python formatting commented for future use.",
-    "files": [
-      ".husky/pre-commit"
-    ]
+    "files": []
   },
   {
     "hash": "5423152222760ddcf3660fdf3b8af4221f0e98b0",
@@ -4851,34 +4836,25 @@
     "hash": "e66e2850431859ccb4fb2bf8cf29d870dded3ffe",
     "date": "2025-06-29T03:04:45+07:00",
     "message": "Improve OS and environment checks for permission fixing in Husky hooks\n\n- Add detection for WSL/WSL2 and Windows hostnames to skip permission fixes when appropriate.\n- Only run permission fix script if nginx is installed.\n- Refactor logic for clarity and consistency between post-merge and pre-merge-commit hooks.",
-    "files": [
-      ".husky/post-merge",
-      ".husky/pre-merge-commit"
-    ]
+    "files": []
   },
   {
     "hash": "353281469e82af8445f75df6c786631872d7ef07",
     "date": "2025-06-29T03:00:35+07:00",
     "message": "fix: skip permission fix on WSL/WSL2",
-    "files": [
-      ".husky/pre-merge-commit"
-    ]
+    "files": []
   },
   {
     "hash": "f02808d41c4c4b497cd333c54eaa05352eec91ed",
     "date": "2025-06-29T02:57:53+07:00",
     "message": "fix: ignore fix permission when nginx not installed",
-    "files": [
-      ".husky/pre-merge-commit"
-    ]
+    "files": []
   },
   {
     "hash": "59403def9d2f06bc2864dbc00e10d69a8c138f6a",
     "date": "2025-06-29T02:56:58+07:00",
     "message": "fix: ignore fix perm on linux desktop",
-    "files": [
-      ".husky/pre-merge-commit"
-    ]
+    "files": []
   },
   {
     "hash": "f06712348ba59852ff0b4b0898d2fc2b9a995fe3",
@@ -7113,7 +7089,6 @@
     "date": "2025-01-21T11:41:35+07:00",
     "message": "refactor: detach php-cs-fixer from lint-staged, run from pre-commit instead",
     "files": [
-      ".husky/pre-commit",
       ".lintstagedrc.json"
     ]
   },
@@ -7129,9 +7104,7 @@
     "hash": "857b6928adeb9282ff7bd4270827528f0a322dd3",
     "date": "2025-01-21T11:21:57+07:00",
     "message": "refactor: re-enable lint-staged",
-    "files": [
-      ".husky/pre-commit"
-    ]
+    "files": []
   },
   {
     "hash": "d318053f3c1073f54e99b3731b54d04995f0e4b6",
@@ -8087,27 +8060,19 @@
     "hash": "70d55c6d291c10edbb73df0179eed7b7110541a8",
     "date": "2025-01-13T14:26:36+07:00",
     "message": "fix: update hooks to correctly determine script directory and set CWD",
-    "files": [
-      ".husky/post-merge",
-      ".husky/pre-merge-commit"
-    ]
+    "files": []
   },
   {
     "hash": "3cf1f263b7a778b30569842a0ae2f5da0d56e8ee",
     "date": "2025-01-13T14:24:02+07:00",
     "message": "fix: enhance permission handling",
-    "files": [
-      ".husky/post-merge",
-      ".husky/pre-merge-commit"
-    ]
+    "files": []
   },
   {
     "hash": "cef23821c8d0d2ecd08a6d7ca45e5259970fba2e",
     "date": "2025-01-13T14:20:40+07:00",
     "message": "fix: improve file type detection in pre-merge-commit hook",
-    "files": [
-      ".husky/pre-merge-commit"
-    ]
+    "files": []
   },
   {
     "hash": "fa26d88d4e57917ea22c6779e87bbfceab3107e1",
@@ -8339,9 +8304,7 @@
     "hash": "7b862040735f03c8412116ea16c14ec64a35c6b4",
     "date": "2025-01-12T08:51:04+07:00",
     "message": "fix: enhance post-merge script for improved OS detection and command execution",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "7cba11b92edd890b08c895e2e8064d8097f9fe64",
@@ -8355,25 +8318,19 @@
     "hash": "630307f666fcc84a939ed8720cbc21d9c65bb2d5",
     "date": "2025-01-12T08:42:51+07:00",
     "message": "fix: improve post-merge script for PHP permissions handling and streamline command checks",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "2da7d20915b8d4bfbc026d9d1a894df811ee9fb3",
     "date": "2025-01-12T08:41:49+07:00",
     "message": "fix: update post-merge script to change ownership of files in the current directory",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "97787a0cd03660c3477a25dcd576a02e560f5b0b",
     "date": "2025-01-12T08:40:04+07:00",
     "message": "fix: improve post-merge script for better OS detection and error handling",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "9f52b04145ff425fef33968cba170a2176a40b40",
@@ -9950,7 +9907,6 @@
     "message": "feat: recaptcha v2",
     "files": [
       ".env_sample",
-      ".husky/pre-commit",
       "data/login.php",
       "eslint.config.mjs",
       "info.php",
@@ -11235,10 +11191,7 @@
     "hash": "8118d210f3ba46ec7a1dca5b8e8a8c61ed546803",
     "date": "2024-09-08T03:31:13+07:00",
     "message": "fix: run create file hashes only for .py or .php extension",
-    "files": [
-      ".husky/pre-commit",
-      ".husky/pre-merge-commit"
-    ]
+    "files": []
   },
   {
     "hash": "0b42d99db85b29869ea68f01185b8d6ba52df275",
@@ -11396,10 +11349,7 @@
     "hash": "171a0fb0cddc0a18abfaa06923b2ebd773c810ba",
     "date": "2024-09-07T10:06:39+07:00",
     "message": "feat: git hook pre merge commit create file hashes",
-    "files": [
-      ".husky/.gitignore",
-      ".husky/pre-merge-commit"
-    ]
+    "files": []
   },
   {
     "hash": "8e08dda18f0d455ee609027eefb4bc52df14457f",
@@ -12153,7 +12103,6 @@
     "date": "2024-09-04T19:31:29+07:00",
     "message": "git-hook format using `black` formatter",
     "files": [
-      ".husky/python-autopep8.py",
       ".lintstagedrc.json"
     ]
   },
@@ -12335,13 +12284,7 @@
     "hash": "e1b12329fed783ec5377fc450f08ba245a194909",
     "date": "2024-09-04T16:25:43+07:00",
     "message": "fix(husky): husky script deprecated",
-    "files": [
-      ".husky/post-checkout",
-      ".husky/post-commit",
-      ".husky/post-merge",
-      ".husky/pre-commit",
-      ".husky/pre-push"
-    ]
+    "files": []
   },
   {
     "hash": "d591720ae790e82a4950c8ee289b1ffe80b9ca3d",
@@ -12388,9 +12331,7 @@
     "hash": "055b9372824a4acba10bf400e57ce966aa93fd92",
     "date": "2024-09-04T15:21:11+07:00",
     "message": "fix: `autopep8` api",
-    "files": [
-      ".husky/python-autopep8.py"
-    ]
+    "files": []
   },
   {
     "hash": "b14c6c3a0f684a9c83dbbf347d03112f035f77ba",
@@ -12415,19 +12356,13 @@
     "hash": "894774ae2b3833c17eacf0bade730a101e740080",
     "date": "2024-09-04T14:58:52+07:00",
     "message": "move `lint-staged` into `pre-commit` git-hook",
-    "files": [
-      ".husky/post-commit",
-      ".husky/pre-commit"
-    ]
+    "files": []
   },
   {
     "hash": "ef675c17fc2b89af2d94eac121bc3c68eccc1048",
     "date": "2024-09-04T14:58:43+07:00",
     "message": "feat: create hashes file list into .husky/hash.txt\n\nregister hash creation on git-hook pre-commit",
     "files": [
-      ".husky/.gitignore",
-      ".husky/post-commit",
-      ".husky/pre-commit",
       "bin/create-file-hashes",
       "bin/djm"
     ]
@@ -16311,10 +16246,7 @@
     "hash": "514ac82d9355c2f6fd2619e2496d7f88b3518e89",
     "date": "2024-07-29T02:24:24+07:00",
     "message": "validate husky bash script before run",
-    "files": [
-      ".husky/post-commit",
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "3343b2e0265add62aea01b0356caf227ac79db90",
@@ -21302,10 +21234,6 @@
     "message": "`.cmd` and `.bat` force using CRLF",
     "files": [
       ".gitattributes",
-      ".husky/post-commit",
-      ".husky/post-merge",
-      ".husky/python-autopep8.py",
-      ".husky/readme.md",
       ".yarn/releases/yarn-4.3.1.cjs",
       ".yarnrc.yml",
       "assets/database/create.sql",
@@ -22773,7 +22701,6 @@
     "date": "2024-07-04T01:34:49+07:00",
     "message": "run autopep8 using lint-staged",
     "files": [
-      ".husky/post-commit",
       ".lintstagedrc.json"
     ]
   },
@@ -23659,19 +23586,13 @@
     "hash": "9fcf704c107d8572b9af2bf6e5f1198fe02df24b",
     "date": "2024-06-15T19:33:19+07:00",
     "message": "feat: comment",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "95f24b36cb8f7223df5443bec331b33c296720d5",
     "date": "2024-06-15T19:32:06+07:00",
     "message": "index auto generated files",
-    "files": [
-      ".husky/.gitignore",
-      ".husky/post-checkout",
-      ".husky/pre-push"
-    ]
+    "files": []
   },
   {
     "hash": "211d59b789b6009fd0ef7f009072e49dc7456999",
@@ -25185,12 +25106,7 @@
     "hash": "fd720562bd28f9860946fe8245935d222eb2fe7c",
     "date": "2024-06-08T22:43:16Z",
     "message": "set permission 755",
-    "files": [
-      ".husky/post-commit",
-      ".husky/post-merge",
-      ".husky/python-autopep8.py",
-      ".husky/readme.md"
-    ]
+    "files": []
   },
   {
     "hash": "a20142c891af86a77458950b443102024be616fb",
@@ -26604,9 +26520,7 @@
     "hash": "ef9610cb8a5103f0a380891de6a686c96e16afb4",
     "date": "2024-05-17T20:21:08+07:00",
     "message": "only run chown on linux with nginx installed",
-    "files": [
-      ".husky/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "a293646593484c6a63ee4b03c54f840796649573",
@@ -26669,22 +26583,13 @@
     "hash": "d08bd2758f2854681fd1cc43f112b72d839d91b5",
     "date": "2024-05-17T15:29:21+07:00",
     "message": "add python code formatter",
-    "files": [
-      ".husky/.gitignore",
-      ".husky/post-commit",
-      ".husky/python-autopep8.py"
-    ]
+    "files": []
   },
   {
     "hash": "98b4e5afe0b7a1b2c9437f9e3ee4c84d01b02a73",
     "date": "2024-05-17T15:12:30+07:00",
     "message": "change husky version to v8",
     "files": [
-      ".husky/.gitignore",
-      ".husky/h",
-      ".husky/husky.sh",
-      ".husky/post-commit",
-      ".husky/post-merge",
       "package.json"
     ]
   },
@@ -26692,31 +26597,19 @@
     "hash": "bbd99e2b73c84ba1a1ec54076d3981e112cf3063",
     "date": "2024-05-17T15:10:15+07:00",
     "message": "change husky directory",
-    "files": [
-      ".husky/.gitignore",
-      ".husky/h",
-      ".husky/husky.sh",
-      ".husky/post-commit",
-      ".husky/post-merge",
-      ".husky/readme.md"
-    ]
+    "files": []
   },
   {
     "hash": "3d6454d1ae77ddc55401208e2521ed7f8ec96c07",
     "date": "2024-05-17T15:08:35+07:00",
     "message": "change git hooks directory",
-    "files": [
-      ".husky/_/readme.md"
-    ]
+    "files": []
   },
   {
     "hash": "9c918688ddc71617172e94b3e85b73c3e7f38cef",
     "date": "2024-05-17T15:07:00+07:00",
     "message": "feat: tutorial git hooks",
-    "files": [
-      ".husky/_/.gitignore",
-      ".husky/_/readme.md"
-    ]
+    "files": []
   },
   {
     "hash": "a8a004b735a7de617a928bd045043a6e6ebbf079",
@@ -26733,8 +26626,6 @@
     "date": "2024-05-17T09:31:43+07:00",
     "message": "install `lint-staged`",
     "files": [
-      ".husky/_/.gitignore",
-      ".husky/_/post-commit",
       ".lintstagedrc.json",
       "package.json"
     ]
@@ -28904,27 +28795,19 @@
     "hash": "26153c8dc4ea410d9dd445a6b80d4e8daebaa9f5",
     "date": "2024-05-09T20:47:08+07:00",
     "message": "change permission files on non-windows",
-    "files": [
-      ".husky/_/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "c6a33ad8f5b984dd3ae614eea330ad3c66a9612f",
     "date": "2024-05-09T20:45:34+07:00",
     "message": "index husky main script",
-    "files": [
-      ".husky/_/.gitignore",
-      ".husky/_/h",
-      ".husky/_/husky.sh",
-      ".husky/_/post-merge"
-    ]
+    "files": []
   },
   {
     "hash": "7d45caa1045798c58fabf05eb4d0b2675c52dc39",
     "date": "2024-05-09T20:41:46+07:00",
     "message": "index the gitignore itself",
     "files": [
-      ".husky/_/.gitignore",
       "assets/.gitignore"
     ]
   },
@@ -28933,7 +28816,6 @@
     "date": "2024-05-09T20:39:59+07:00",
     "message": "add git hooks using husky",
     "files": [
-      ".husky/_/post-merge",
       "package.json"
     ]
   },
