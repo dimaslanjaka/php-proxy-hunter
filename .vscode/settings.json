@@ -151,6 +151,21 @@
     "jsonc",
     "twig"
   ],
+  "eslint.validate": [
+    "astro",
+    "civet",
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "html",
+    "mdx",
+    "vue",
+    "markdown",
+    "json",
+    "jsonc",
+    "twig"
+  ],
   "eslint.useESLintClass": true,
   "eslint.useFlatConfig": true,
   "files.autoSave": "onWindowChange",
