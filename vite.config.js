@@ -20,6 +20,28 @@ const __dirname = path.dirname(__filename);
 
 const distPath = path.resolve(__dirname, 'dist/react');
 const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
+const ignoredFiles = [
+  '**/node_modules/**',
+  '**/dist/**',
+  '**/build/**',
+  '**/coverage/**',
+  '**/packages/**',
+  '**/tmp/**',
+  '**/transpile/**',
+  '**/docs/**',
+  '**/.yarn/**',
+  '**/.cache/**',
+  '**/.vscode/**',
+  '**/.idea/**',
+  '**/.git/**',
+  '**/.github/**',
+  '**/.husky/**',
+  '**/public/**',
+  '**/tests/**',
+  '**/test/**',
+  '**/.deploy_git/**'
+];
+const includedFiles = ['src/**/*.cjs', 'src/**/*.jsx', 'src/**/*.js', 'src/**/*.mjs', 'src/**/*.tsx', 'src/**/*.ts'];
 
 export const viteConfig = defineConfig({
   root: '.',
@@ -50,6 +72,10 @@ export const viteConfig = defineConfig({
     }
   },
   build: {
+    watch: {
+      include: includedFiles,
+      exclude: ignoredFiles
+    },
     outDir: distPath,
     emptyOutDir: true,
     minify: 'terser',
@@ -136,25 +162,13 @@ export const viteConfig = defineConfig({
     open: false,
     watch: {
       ignored: [
-        '**/node_modules/**',
-        '**/dist/**',
-        '**/build/**',
-        '**/coverage/**',
-        '**/packages/**',
-        '**/tmp/**',
-        '**/transpile/**',
-        '**/docs/**',
-        '**/.yarn/**',
-        '**/.cache/**',
-        '**/.vscode/**',
-        '**/.idea/**',
-        '**/.git/**',
-        '**/.github/**',
-        '**/.husky/**',
-        '**/public/**/*.json',
-        '**/tests/**',
-        '**/test/**',
-        '**/.deploy_git/**'
+        '**/*', // ignore everything
+        '!src/**/*.tsx',
+        '!src/**/*.jsx',
+        '!src/**/*.ts',
+        '!src/**/*.js',
+        '!src/**/*.cjs',
+        '!src/**/*.mjs'
       ],
       usePolling: true, // slower but reliable
       interval: 100
