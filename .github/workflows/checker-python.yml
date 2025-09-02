@@ -8,6 +8,7 @@ on:
       - '.github/workflows/checker-python.yml'
       - 'requirements*'
       - 'setup*'
+      - 'Taskfile*'
   workflow_dispatch:
     inputs:
       max:
