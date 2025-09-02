@@ -1,3 +1,8 @@
+proxyManager*
+php/
+static/
+robots.txt
+sitemap*
 node_modules
 *.lock
 *.log

@@ -1,5 +1,355 @@
 [
   {
+    "hash": "5fdd7d40f104c634a9ad39c0b053ced94f4c1d95",
+    "date": "2025-09-02T12:53:21+07:00",
+    "message": "feat(workflows): include 'setup*' paths",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "df80ee53c0abfb2c84108763f566979c744d080b",
+    "date": "2025-09-02T12:52:28+07:00",
+    "message": "refactor(setup): move dependency imports inside isInstalled block\n\n- Relocate imports for fs-extra, sbg-utility, and upath to only load when dependencies are already installed.\n- Improves efficiency by avoiding unnecessary imports when not needed.",
+    "files": [
+      "setup.js"
+    ]
+  },
+  {
+    "hash": "94783bb1fe60347454167d801750f178b101800d",
+    "date": "2025-09-02T12:20:32+07:00",
+    "message": "fix(setup): improve dependency installation logic\n\n- Change dependency installation to run `yarn install` when not installed.\n- Reinstall dependencies if `package.json` checksum has changed.\n- Add error handling for failed `yarn install` command.",
+    "files": [
+      "setup.js"
+    ]
+  },
+  {
+    "hash": "510e07a8f251f4c5e3ae12885ec96d0f72fbf4b9",
+    "date": "2025-09-02T11:47:33+07:00",
+    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
+    "files": []
+  },
+  {
+    "hash": "8e1a9676e708236c0ae87fd1a6e4e0027cc3aafa",
+    "date": "2025-09-02T11:46:52+07:00",
+    "message": "Merge pull request #57 from dimaslanjaka/dependabot/github_actions/actions/checkout-5\n\nbuild(deps): bump actions/checkout from 4 to 5",
+    "files": []
+  },
+  {
+    "hash": "b97d347634b8a30f3d1fbb5989bd93a269cff005",
+    "date": "2025-09-02T11:41:15+07:00",
+    "message": "feat(types): improve ads typings and add Google-related type definitions\n\n- remove redundant `globals.d.ts` window declaration\n- extend `window-shim.d.ts` with `adsbygoogle` support\n- reference `window-shim.d.ts` in `general-site-script.js`\n- add type packages: google-ads-scripts, google-publisher-tag, google.maps, google IMA",
+    "files": [
+      "js/general-site-script.js",
+      "js/globals.d.ts",
+      "package.json",
+      "types/window-shim.d.ts"
+    ]
+  },
+  {
+    "hash": "cf370d56733d0a8cf8a9787fe9e483a547727f77",
+    "date": "2025-09-02T11:29:02+07:00",
+    "message": "docs(js/highlight): refine JSDoc types for callbacks and add param annotation\n\n- Updated callback type in `loadScript` to `(...args: any[]) => any`\n- Made `callback` optional in `loadStyles` with proper type annotation\n- Added JSDoc param annotation for `index` in `loadNext`",
+    "files": [
+      "js/highlight.js"
+    ]
+  },
+  {
+    "hash": "9e812916962f1c2ecc618c9684b11dabdbe83b87",
+    "date": "2025-09-02T04:13:50Z",
+    "message": "build(deps): bump actions/checkout from 4 to 5\n\nBumps [actions/checkout](https://github.com/actions/checkout) from 4 to 5.\n- [Release notes](https://github.com/actions/checkout/releases)\n- [Changelog](https://github.com/actions/checkout/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/actions/checkout/compare/v4...v5)\n\n---\nupdated-dependencies:\n- dependency-name: actions/checkout\n  dependency-version: '5'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "b624bacee9e62336f40763f9ae7eab4c4ecd0691",
+    "date": "2025-09-02T10:47:40+07:00",
+    "message": "feat(vite): add customStaticAssetsPlugin for proxyManager files and robots.txt\n\n- Introduced `customStaticAssetsPlugin` to serve `/assets` and `proxyManager.*` files in dev\n- Moved `robots.txt` copy logic into `customStaticAssetsPlugin`\n- Updated `vite.config.js` to register `customStaticAssetsPlugin`\n- Improved JSDoc for `fontsResolverPlugin`",
+    "files": [
+      "vite-plugin.js",
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "5f9f6a8943e3ea4b618d512b4cbcc8e732000fed",
+    "date": "2025-09-02T10:43:34+07:00",
+    "message": "docs(js/highlight): add JSDoc annotations and improve hljs type safety\n\n- Added JSDoc comments for functions (`startHighlighter`, `loadScript`, `loadScriptsSequentially`, `loadStyles`, `loadHljs`, `initHljs`)\n- Documented parameters and return types\n- Added `@ts-expect-error` for `hljs.highlightElement` to handle version differences",
+    "files": [
+      "js/highlight.js"
+    ]
+  },
+  {
+    "hash": "fa84cd2edc58652036523b6a974cbb2a6d9708c8",
+    "date": "2025-09-02T10:35:37+07:00",
+    "message": "fix(package.json): update sbg-utility URL to the latest version",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "8bb842672728b06a3d6a7faf5a30e7eff07dba07",
+    "date": "2025-08-28T13:27:36+07:00",
+    "message": "fix(adminer-installer): update composer commands to use php with composer.phar path",
+    "files": [
+      "scripts/adminer-installer.js"
+    ]
+  },
+  {
+    "hash": "8af90ce411c56cfd56c6aa0bce76c79a60b3a7a8",
+    "date": "2025-08-28T13:25:05+07:00",
+    "message": "fix(scripts): update composer.phar path to use the bin directory",
+    "files": [
+      ".husky/post-merge",
+      "fix-nginx-perm.sh",
+      "setup.sh"
+    ]
+  },
+  {
+    "hash": "2d1eb36236a0b61950160b3b833030f1ca689d09",
+    "date": "2025-08-28T13:23:16+07:00",
+    "message": "fix(scripts): add shell: true to all spawnAsync calls for Windows compatibility\n\n- Ensure all spawnAsync commands run in a shell environment by adding shell: true.\n- Fixes issues with command execution on Windows platforms.",
+    "files": [
+      "scripts/adminer-installer.js"
+    ]
+  },
+  {
+    "hash": "8b91011f33b5b27ff9e9a8a0cbfe4822adb12eca",
+    "date": "2025-08-28T13:18:30+07:00",
+    "message": "fix(adminer-installer): improve composer dependency management by adding conditional install/update logic",
+    "files": [
+      "packages/proxies-grabber",
+      "scripts/adminer-installer.js"
+    ]
+  },
+  {
+    "hash": "fefdf9e5628a56c4d5985bca83a9db590f52f907",
+    "date": "2025-08-28T13:17:02+07:00",
+    "message": "refactor(scripts): switch adminer-installer.js to git-based workflow and enhance security\n\n- Replace manual file downloads with git clone of the adminer repository.\n- Add submodule and composer dependency updates for adminer.\n- Automatically patch both adminer/index.php and editor/index.php to require the project's func.php using a relative path.\n- Inject admin-only access control logic into both files.\n- Remove legacy download and file modification logic in favor of a unified async workflow.",
+    "files": [
+      "scripts/adminer-installer.js"
+    ]
+  },
+  {
+    "hash": "432a325bbab598b47b4271b30debc3773d7cc276",
+    "date": "2025-08-28T13:00:59+07:00",
+    "message": "chore(postinstall): clean up postinstall script structure",
+    "files": [
+      "scripts/postinstall.js"
+    ]
+  },
+  {
+    "hash": "2e4f35eff9c9e1c261c86fb8235fdb32e59f580a",
+    "date": "2025-08-28T13:00:18+07:00",
+    "message": "feat(postinstall): add postinstall script to run composer-installer",
+    "files": [
+      "package.json",
+      "scripts/postinstall.js"
+    ]
+  },
+  {
+    "hash": "4da464e9f0a27fd71b090de1bb4f3cac12633a5a",
+    "date": "2025-08-28T12:56:07+07:00",
+    "message": "refactor(composer): move composer.phar to bin directory and update references\n\n- Moved `composer.phar` from project root to `bin/composer.phar` for better organization.\n- Updated all scripts, workflow files, and documentation to reference `php bin/composer.phar` instead of `php composer.phar`.\n- Added `/bin/composer*` to `.gitignore` to exclude composer binaries from version control.\n- Removed the old `composer.phar` from the project root.\n- Added a new script `scripts/composer-installer.js` to automate downloading and setting up Composer in the `bin` directory.",
+    "files": [
+      ".devcontainer/devcontainer.json",
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-php.yml.txt",
+      ".github/workflows/checker.yml.txt",
+      ".gitignore",
+      ".husky/pre-commit",
+      "Taskfile.yml",
+      "bin/clear-caches",
+      "bin/fix-php",
+      "bin/fix-php.cmd",
+      "bin/kills",
+      "bin/kills.cmd",
+      "composer.phar",
+      "github-actions-init.php",
+      "scripts/composer-installer.js",
+      "src/vps/menus/project-manager.py"
+    ]
+  },
+  {
+    "hash": "ee0e81045538783afe38ec54f7db4bfad0dc52f4",
+    "date": "2025-08-28T12:42:10+07:00",
+    "message": "fix(adminer-installer): update modify function to replace 'namespace Adminer;' with custom script",
+    "files": [
+      "scripts/adminer-installer.js"
+    ]
+  },
+  {
+    "hash": "4de8190c2f6b878dee1f6695753b14e93f7aee6c",
+    "date": "2025-08-28T12:37:36+07:00",
+    "message": "feat(adminer-installer): add script to download and modify Adminer files",
+    "files": [
+      ".gitignore",
+      "scripts/adminer-installer.js"
+    ]
+  },
+  {
+    "hash": "b836876b60b36c57685637df36034d90d81e6178",
+    "date": "2025-08-28T11:13:32+07:00",
+    "message": "refactor(phpliteadmin): rename phpliteadmin.php to index.php",
+    "files": [
+      "phpliteadmin/index.php"
+    ]
+  },
+  {
+    "hash": "3feb7163ac836135fe4e1e2abfc7bdbd628d52b2",
+    "date": "2025-08-28T11:00:29+07:00",
+    "message": "feat(installer): add unzipper-based extraction with progress for phpmyadmin and sqlite\n\n- Replace system-based zip extraction (unzip/Expand-Archive) with unzipper in both phpmyadmin-installer.js and sqlite-installer.js\n- Show extraction progress percentage and file count during zip extraction\n- Add @vitalets/google-translate-api and unzipper to dependencies\n- Add @types/unzipper to devDependencies\n- Improve downloadFile and extractZip with JSDoc comments and error handling\n- Update phpMyAdmin config: increase LoginCookieValidity and add LoginCookieStore to 1 week, output config.inc.php directly in phpmyadmin/\n- Always extract and create config for phpMyAdmin, even if zip is up to date",
+    "files": [
+      "package.json",
+      "scripts/phpmyadmin-installer.js",
+      "scripts/sqlite-installer.js"
+    ]
+  },
+  {
+    "hash": "64c9813a793e4bf1ff9c7c0bb7e7bb4957cac1fa",
+    "date": "2025-08-28T10:30:38+07:00",
+    "message": "fix(settings): update PATH variable to include local NVM and Git binaries",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "109bb43f228dc673858c4a7c4f0ffb6e6583f49f",
+    "date": "2025-08-26T23:33:07+07:00",
+    "message": "feat(install_package): enhance installation logging with detailed package names and arguments",
+    "files": [
+      "requirements_install.py"
+    ]
+  },
+  {
+    "hash": "c5c27725ccc5888d85b8f5eebe3aab6e261ec26d",
+    "date": "2025-08-26T20:55:57+07:00",
+    "message": "refactor(requirements_install): inline is_docker function and remove external import\n\n- Removed import of is_docker from src.utils.device.\n- Added a local is_docker() implementation to detect Docker environment directly within the script.",
+    "files": [
+      "requirements_install.py"
+    ]
+  },
+  {
+    "hash": "862ce4b8f6c49c2d0de52b684bcdaca8b7837fc6",
+    "date": "2025-08-26T20:54:44+07:00",
+    "message": "refactor(requirements_install): replace requests with urllib for mirror checking\n\n- Removed the external 'requests' dependency.\n- Replaced HTTP HEAD requests for PyPI mirror checking with Python's built-in 'urllib.request'.\n- Maintains functionality without requiring additional packages.",
+    "files": [
+      "requirements_install.py"
+    ]
+  },
+  {
+    "hash": "f88ad0ea3a003bbf4dbe7668e01a94d68d5c4560",
+    "date": "2025-08-26T20:51:26+07:00",
+    "message": "feat(Taskfile): add echo statement for Python package installation",
+    "files": [
+      "Taskfile.yml"
+    ]
+  },
+  {
+    "hash": "e426ab91befd6863d68727d4a5431af364cbf090",
+    "date": "2025-08-26T19:58:14+07:00",
+    "message": "feat(set-timezone): add script to set system timezone with argument support",
+    "files": [
+      "bin/set-timezone"
+    ]
+  },
+  {
+    "hash": "0818b41c83e9fc229acfcb09dcdeb997073f98dd",
+    "date": "2025-08-26T19:53:51+07:00",
+    "message": "fix(clear-caches): remove 'env' from virtualenv cleanup",
+    "files": [
+      "bin/clear-caches"
+    ]
+  },
+  {
+    "hash": "ece8cb9063e8cfec2773bf42e475c4d520b25a24",
+    "date": "2025-08-26T19:53:06+07:00",
+    "message": "feat(requirements): improve Python executable detection for pip installs\n\n- Add get_python_executable() to prioritize .venv/venv Python executables before falling back to sys.executable.\n- Update install_package and install_requirements to use get_python_executable() for more reliable environment handling.",
+    "files": [
+      "requirements_install.py"
+    ]
+  },
+  {
+    "hash": "b5be32d4ccc9ed568dbb745f63907687c29f0239",
+    "date": "2025-08-26T19:02:18+07:00",
+    "message": "feat(scripts): enhance clear-caches script with extended cleanup tasks\n\n- Add detailed sections for cache, logs, tmp files, and trash cleanup\n- Improve log cleanup with journalctl rotation and removal of *.gz, *.old, *.log.* files\n- Add support for clearing tmp/logs, tmp/django_caches, and user trash\n- Include cleanup for apt, snap, pip, Python __pycache__, and virtualenvs\n- Add Composer cache clearing (global and local)\n- Add npm, yarn, nvm, and pnpm cache cleanup\n- Show disk and RAM usage after cleanup",
+    "files": [
+      "bin/clear-caches"
+    ]
+  },
+  {
+    "hash": "0da28125433234d5fb654a25a6e1cb2062c64da4",
+    "date": "2025-08-26T18:30:33+07:00",
+    "message": "docs(readme-nodejs): add system-wide nvm setup and node symlink instructions\n\nExpanded installation guide with:\n- alternative method to load nvm via `/etc/profile.d/nvm.sh`\n- additional option to source nvm using `source`\n- steps to compile & symlink Node, npm, npx, and corepack system-wide",
+    "files": [
+      "readme-nodejs.md"
+    ]
+  },
+  {
+    "hash": "861089b237cbb87421551ac7ba9e7b8615acb839",
+    "date": "2025-08-26T18:03:20+07:00",
+    "message": "chore(deps): bump dependencies in package.json\n\n- upgrade chromedriver to 139.0.2\n- upgrade i18next to ^25.4.2\n- upgrade proxies-grabber to ^1.1.4\n- upgrade puppeteer to 24.17\n- upgrade react-i18next to ^15.7.2\n- upgrade undici to ^7.15.0\n- upgrade @eslint/js to ^9.34.0\n- upgrade @types/jquery to ^3.5.33\n- upgrade @typescript-eslint/* to ^8.41.0\n- upgrade @vitejs/plugin-react to ^5.0.1\n- upgrade eslint to ^9.34.0\n- upgrade react-router-dom to ^7.8.2\n- upgrade rollup to ^4.48.1\n- upgrade sass to ^1.91.0\n- upgrade vite to 7.1.3\n- add proxies-grabber tarball dependency",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "81463eec579d6fac8c73118b1f55fb46e139a27d",
+    "date": "2025-08-26T17:56:42+07:00",
+    "message": "fix(package): update sbg-utility and resolutions for binary-collections and git-command-helper",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "0a3994cf58b44056eb53795fabe21c68898b8746",
+    "date": "2025-08-25T13:13:31+07:00",
+    "message": "feat(phpmyadmin-installer): add script to auto-download and extract phpMyAdmin with Node.js",
+    "files": [
+      ".gitignore",
+      "scripts/phpmyadmin-installer.js"
+    ]
+  },
+  {
+    "hash": "40b97d06f23598cec21b365596f3e5fe41642759",
+    "date": "2025-08-25T13:11:12+07:00",
+    "message": "feat(sqlite-installer): add script to auto-download and extract SQLite binaries",
+    "files": [
+      ".gitignore",
+      "scripts/sqlite-installer.js"
+    ]
+  },
+  {
+    "hash": "b3618b24a0c82230d1cbc527593459a8bf400a93",
+    "date": "2025-08-25T00:41:48+07:00",
+    "message": "feat(github-pages): include public directory in cache paths for GitHub Actions",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "7df95e6877d57e20beaca06f33698a360ea079f2",
+    "date": "2025-08-25T00:17:54+07:00",
+    "message": "feat(gitignore): add .gitignore file to exclude unnecessary files and directories",
+    "files": [
+      "public/.gitignore"
+    ]
+  },
+  {
+    "hash": "b9c71da533ed66d9bd8c91f4670d7c6b7d46da01",
+    "date": "2025-08-25T00:15:47+07:00",
+    "message": "feat(submodules): add proxies-grabber submodule for enhanced proxy management",
+    "files": [
+      ".gitmodules",
+      "packages/proxies-grabber"
+    ]
+  },
+  {
     "hash": "26d1d521c588bd9a511b061f8ee14204b55d4e21",
     "date": "2025-08-19T13:30:00+07:00",
     "message": "refactor(workflows): replace github-actions-init.cjs with setup.js\n\n- Updated GitHub Actions workflows to run `node setup.js` instead of `node github-actions-init.cjs`\n- Removed legacy `github-actions-init.cjs` script\n- Extended `setup.js` to handle dependency installation and checksum verification\n- Preserved Tailwind build, index.html copy, and browserslist-db update tasks",
