@@ -126,11 +126,10 @@ tasks:
     cmds:
       - touch yarn.lock
       - |
-        yarn install
-        if [ $? -ne 0 ]; then
+        yarn install || {
           cat /tmp/xfs-*/build.log
           exit 1
-        fi
+        }
 
   build-nodejs:
     desc: Build NodeJS project
