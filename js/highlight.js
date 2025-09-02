@@ -43,7 +43,7 @@ function startHighlighter(block) {
 /**
  * Dynamically loads a JavaScript file and executes a callback when loaded.
  * @param {string} url - The URL of the script to load.
- * @param {Function} callback - The function to call once the script is loaded.
+ * @param {(...args: any[]) => any} callback - The function to call once the script is loaded.
  */
 function loadScript(url, callback) {
   const script = document.createElement('script');
@@ -82,13 +82,16 @@ function loadScriptsSequentially(urls, finalCallback) {
 /**
  * Loads one or more CSS files and executes a callback when all are loaded.
  * @param {string|string[]} urls - URL or array of URLs of CSS files to load.
- * @param {Function} callback - Function to call after all CSS files are loaded.
+ * @param {(...args: any[]) => any} [callback] - Function to call after all CSS files are loaded.
  */
 function loadStyles(urls, callback) {
   if (typeof urls === 'string') {
     urls = [urls];
   }
 
+  /**
+   * @param {number} index
+   */
   function loadNext(index) {
     if (index >= urls.length) {
       // All CSS loaded
