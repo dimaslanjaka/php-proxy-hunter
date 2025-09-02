@@ -61,20 +61,38 @@ export const viteConfig = defineConfig({
     },
     cssMinify: 'lightningcss', // ensure CSS is minified
     cssCodeSplit: true,
+    sourcemap: true,
     // For full CSS comment removal, use cssnano via PostCSS if needed
     rollupOptions: {
       // https://rollupjs.org/configuration-options/
+      maxParallelFileOps: 2,
+      cache: false,
+      external: ['react', 'react-dom'],
       output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          'react-router': ['react-router', 'react-router-dom'],
-          // bootstrap: ['bootstrap', 'react-bootstrap'],
-          highlight: ['highlight.js'],
-          // 'nik-parser': ['nik-parser-jurusid'],
-          moment: ['moment', 'moment-timezone'],
-          axios: ['axios'],
-          'deepmerge-ts': ['deepmerge-ts']
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM'
         },
+        inlineDynamicImports: false,
+        sourcemapIgnoreList: (relativeSourcePath) => {
+          const normalizedPath = path.normalize(relativeSourcePath);
+          return normalizedPath.includes('node_modules');
+        },
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+        // manualChunks: {
+        //   react: ['react', 'react-dom'],
+        //   'react-router': ['react-router', 'react-router-dom'],
+        //   // bootstrap: ['bootstrap', 'react-bootstrap'],
+        //   highlight: ['highlight.js'],
+        //   // 'nik-parser': ['nik-parser-jurusid'],
+        //   moment: ['moment', 'moment-timezone'],
+        //   axios: ['axios'],
+        //   'deepmerge-ts': ['deepmerge-ts']
+        // },
         entryFileNames: `assets/[name].[hash].js`,
         chunkFileNames: `assets/[name].[hash].js`,
         assetFileNames: (assetInfo) => {
