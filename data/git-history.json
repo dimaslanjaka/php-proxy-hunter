@@ -1,5 +1,13 @@
 [
   {
+    "hash": "775cf836295d69540c6afde35038577da3a0cb55",
+    "date": "2025-09-02T19:43:09+07:00",
+    "message": "refactor(vite.config): enhance manual chunking logic for better module organization",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "cac01206c0c2bd8ecb447672879d07c8cf2cc66f",
     "date": "2025-09-02T19:35:36+07:00",
     "message": "fix(vite.config): set maxParallelFileOps to 2 for improved build performance",
