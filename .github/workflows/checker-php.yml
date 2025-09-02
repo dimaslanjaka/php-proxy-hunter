@@ -8,6 +8,7 @@ on:
       - 'src/PhpProxyHunter/**/*.php'
       - '.github/workflows/checker-php.yml'
       - 'composer.json'
+      - 'setup*'
   schedule:
     - cron: '0 */3 * * *' # Every 3 hours
   workflow_dispatch:

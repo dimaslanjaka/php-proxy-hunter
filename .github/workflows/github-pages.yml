@@ -12,6 +12,7 @@ on:
       - '**/tailwind*'
       - '**/rollup*'
       - '**/postcss*'
+      - 'setup*'
   schedule:
     - cron: '0 */6 * * *'
 
