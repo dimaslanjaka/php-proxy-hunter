@@ -25,6 +25,7 @@ concurrency:
 
 jobs:
   build-and-deploy:
+    timeout-minutes: 30
     if: contains(github.repository, 'php-proxy-hunter') || contains(github.repository, 'android-traffic-exchange')
     runs-on: ubuntu-latest
     env:
