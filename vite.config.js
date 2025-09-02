@@ -173,13 +173,25 @@ export const viteConfig = defineConfig({
     open: false,
     watch: {
       ignored: [
-        '**/*', // ignore everything
-        '!src/**/*.tsx',
-        '!src/**/*.jsx',
-        '!src/**/*.ts',
-        '!src/**/*.js',
-        '!src/**/*.cjs',
-        '!src/**/*.mjs'
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/build/**',
+        '**/coverage/**',
+        '**/packages/**',
+        '**/tmp/**',
+        '**/transpile/**',
+        '**/docs/**',
+        '**/.yarn/**',
+        '**/.cache/**',
+        '**/.vscode/**',
+        '**/.idea/**',
+        '**/.git/**',
+        '**/.github/**',
+        '**/.husky/**',
+        '**/public/**',
+        '**/tests/**',
+        '**/test/**',
+        '**/.deploy_git/**'
       ],
       usePolling: true, // slower but reliable
       interval: 100
