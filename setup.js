@@ -43,8 +43,8 @@ async function installDependencies() {
   const sbgUtility = await import('sbg-utility');
   const path = await import('upath').then((mod) => mod.default ?? mod);
 
-  // Compare checksum when not yet installed
-  if (!isInstalled) {
+  if (isInstalled) {
+    // Reinstall dependencies if package.json checksum has changed
     const checksum = sbgUtility.getChecksum(path.join(__dirname, 'package.json'));
     const fileChecksum = path.join(__dirname, 'tmp/checksum.txt');
     const previousChecksum = fs.existsSync(fileChecksum) ? fs.readFileSync(fileChecksum, 'utf-8') : '';
@@ -56,6 +56,13 @@ async function installDependencies() {
       }
       fs.writeFileSync(fileChecksum, checksum);
       console.log('Checksum updated:', checksum);
+    }
+  } else {
+    // Dependencies not installed
+    const result = spawnSync('yarn', ['install'], { stdio: 'inherit', shell: true });
+    if (result.error) {
+      console.error('Failed to run yarn install:', result.error);
+      process.exit(result.status || 1);
     }
   }
 }
