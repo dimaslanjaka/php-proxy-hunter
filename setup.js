@@ -39,11 +39,12 @@ async function isAlreadyInstalled() {
  */
 async function installDependencies() {
   const isInstalled = await isAlreadyInstalled();
-  const fs = await import('fs-extra').then((mod) => mod.default ?? mod);
-  const sbgUtility = await import('sbg-utility');
-  const path = await import('upath').then((mod) => mod.default ?? mod);
 
   if (isInstalled) {
+    const fs = await import('fs-extra').then((mod) => mod.default ?? mod);
+    const sbgUtility = await import('sbg-utility');
+    const path = await import('upath').then((mod) => mod.default ?? mod);
+
     // Reinstall dependencies if package.json checksum has changed
     const checksum = sbgUtility.getChecksum(path.join(__dirname, 'package.json'));
     const fileChecksum = path.join(__dirname, 'tmp/checksum.txt');
