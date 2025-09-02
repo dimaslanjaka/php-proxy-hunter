@@ -88,6 +88,7 @@ export const viteConfig = defineConfig({
     // For full CSS comment removal, use cssnano via PostCSS if needed
     rollupOptions: {
       // https://rollupjs.org/configuration-options/
+      maxParallelFileOps: 2,
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],
