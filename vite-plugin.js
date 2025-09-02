@@ -101,32 +101,20 @@ export function indexHtmlReplacementPlugin() {
           console.warn(`Source file "${src}" does not exist. Skipping copy.`);
         }
       }
-
-      // Copy robots.txt to the project directory for production.
-      const robotsSrc = path.join(__dirname, 'robots.txt');
-      const destinations = [path.join(__dirname, 'dist/react/robots.txt'), path.join(__dirname, 'public/robots.txt')];
-
-      if (fs.existsSync(robotsSrc)) {
-        const stat = fs.statSync(robotsSrc);
-        if (stat.size > 0) {
-          destinations.forEach((dest) => {
-            fs.copySync(robotsSrc, dest, { overwrite: true });
-          });
-          console.log(`Copied ${robotsSrc} to: ${destinations.join(', ')}`);
-        } else {
-          console.warn(`Source file "${robotsSrc}" is empty. Skipping copy.`);
-        }
-      }
     }
   };
 }
 
+/**
+ * Vite plugin to serve fonts from the /assets/fonts directory during development.
+ * @returns {import('vite').Plugin}
+ */
 export function fontsResolverPlugin() {
   return {
     name: 'fonts-resolver',
     /**
      * Configures the dev server to serve fonts from the /assets/fonts directory.
-     * @param {import('vite').ViteDevServer} server
+     * @param {import('vite').ViteDevServer} server - The Vite dev server instance.
      */
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
@@ -157,6 +145,56 @@ export function fontsResolverPlugin() {
           next();
         }
       });
+    }
+  };
+}
+
+/**
+ * Vite plugin to serve custom static assets from /assets and proxyManager.* files during development.
+ * @returns {import('vite').Plugin}
+ */
+export function customStaticAssetsPlugin() {
+  /** @type {import('vite').ResolvedConfig} */
+  let config;
+  return {
+    name: 'custom-static-assets',
+    configResolved(_config) {
+      config = _config;
+    },
+    closeBundle() {
+      // Skip non-build command
+      if (config.command !== 'build') return;
+
+      const filesToCopy = ['proxyManager.html', 'proxyManager.js', 'proxyManager.css'];
+      for (const file of filesToCopy) {
+        const srcPath = path.join(__dirname, file);
+        const destPaths = [path.join(__dirname, 'public', file), path.join(config.build.outDir, file)];
+        for (const destPath of destPaths) {
+          if (fs.existsSync(srcPath)) {
+            fs.ensureDirSync(path.dirname(destPath));
+            fs.copySync(srcPath, destPath, { overwrite: true, dereference: true });
+            console.log(`Copied ${path.relative(__dirname, srcPath)} to ${path.relative(__dirname, destPath)}`);
+          } else {
+            console.warn(`Source file "${srcPath}" does not exist. Skipping copy.`);
+          }
+        }
+      }
+
+      // Copy robots.txt to the project directory for production.
+      const robotsSrc = path.join(__dirname, 'robots.txt');
+      const destinations = [path.join(__dirname, 'dist/react/robots.txt'), path.join(__dirname, 'public/robots.txt')];
+
+      if (fs.existsSync(robotsSrc)) {
+        const stat = fs.statSync(robotsSrc);
+        if (stat.size > 0) {
+          for (const dest of destinations) {
+            fs.copySync(robotsSrc, dest, { overwrite: true });
+          }
+          console.log(`Copied ${robotsSrc} to: ${destinations.join(', ')}`);
+        } else {
+          console.warn(`Source file "${robotsSrc}" is empty. Skipping copy.`);
+        }
+      }
     }
   };
 }

@@ -4,7 +4,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
-import { fontsResolverPlugin, indexHtmlReplacementPlugin, TailwindCSSBuildPlugin } from './vite-plugin.js';
+import {
+  customStaticAssetsPlugin,
+  fontsResolverPlugin,
+  indexHtmlReplacementPlugin,
+  TailwindCSSBuildPlugin
+} from './vite-plugin.js';
 import { execSync } from 'child_process';
 import legacy from '@vitejs/plugin-legacy';
 import browserslist from 'browserslist';
@@ -23,7 +28,14 @@ export const viteConfig = defineConfig({
     VITE_GIT_COMMIT: `"${gitCommitHash}"`
   },
   cacheDir: path.resolve(__dirname, 'tmp/.vite'),
-  plugins: [indexHtmlReplacementPlugin(), fontsResolverPlugin(), TailwindCSSBuildPlugin(), react(), mkcert()],
+  plugins: [
+    indexHtmlReplacementPlugin(),
+    fontsResolverPlugin(),
+    TailwindCSSBuildPlugin(),
+    react(),
+    mkcert(),
+    customStaticAssetsPlugin()
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
