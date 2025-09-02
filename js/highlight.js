@@ -1,6 +1,10 @@
 /* global hljs */
 
-// start highlight pre code
+/**
+ * start highlight pre code
+ * @param {Element|HTMLElement} block
+ * @returns
+ */
 function startHighlighter(block) {
   // validate hljs
   if ('hljs' in window === false) {
@@ -16,7 +20,9 @@ function startHighlighter(block) {
   if (block.hasAttribute('data-highlight')) {
     if (block.getAttribute('data-highlight') != 'false') {
       // highlight on data-highlight="true"
+      // @ts-expect-error: highlightElement may not be defined in some hljs versions
       if (hljs.highlightElement) {
+        // @ts-expect-error: highlightElement may not be defined in some hljs versions
         hljs.highlightElement(block);
       } else {
         hljs.highlightBlock(block);
@@ -24,7 +30,9 @@ function startHighlighter(block) {
     }
   } else {
     // highlight no attribute data-highlight
+    // @ts-expect-error: highlightElement may not be defined in some hljs versions
     if (hljs.highlightElement) {
+      // @ts-expect-error: highlightElement may not be defined in some hljs versions
       hljs.highlightElement(block);
     } else {
       hljs.highlightBlock(block);
@@ -32,6 +40,11 @@ function startHighlighter(block) {
   }
 }
 
+/**
+ * Dynamically loads a JavaScript file and executes a callback when loaded.
+ * @param {string} url - The URL of the script to load.
+ * @param {Function} callback - The function to call once the script is loaded.
+ */
 function loadScript(url, callback) {
   const script = document.createElement('script');
   script.src = url;
@@ -41,6 +54,11 @@ function loadScript(url, callback) {
   referenceNode.parentNode.insertBefore(script, referenceNode.nextSibling);
 }
 
+/**
+ * Loads multiple JavaScript files sequentially and executes a final callback when all are loaded.
+ * @param {string[]} urls - Array of script URLs to load.
+ * @param {Function} finalCallback - Function to call after all scripts are loaded.
+ */
 function loadScriptsSequentially(urls, finalCallback) {
   function loadNext(index) {
     if (index >= urls.length) {
@@ -61,6 +79,11 @@ function loadScriptsSequentially(urls, finalCallback) {
   loadNext(0);
 }
 
+/**
+ * Loads one or more CSS files and executes a callback when all are loaded.
+ * @param {string|string[]} urls - URL or array of URLs of CSS files to load.
+ * @param {Function} callback - Function to call after all CSS files are loaded.
+ */
 function loadStyles(urls, callback) {
   if (typeof urls === 'string') {
     urls = [urls];
@@ -90,6 +113,9 @@ function loadStyles(urls, callback) {
   loadNext(0);
 }
 
+/**
+ * Loads highlight.js and its required language modules and styles if not already loaded.
+ */
 function loadHljs() {
   // validate hljs already imported
   if ('hljs' in window === true) return;
@@ -107,6 +133,9 @@ function loadHljs() {
   });
 }
 
+/**
+ * Initializes highlight.js on all <pre><code> blocks in the document.
+ */
 function initHljs() {
   // highlight pre code
   document.querySelectorAll('pre code').forEach(startHighlighter);
