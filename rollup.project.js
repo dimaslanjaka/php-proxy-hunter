@@ -26,7 +26,8 @@ const deps = Object.keys(pkg.dependencies)
     'better-sqlite3',
     'node-cache',
     '@whiskeysockets/baileys',
-    'pino'
+    'pino',
+    'browser-with-fingerprints'
   );
 const globals = {
   jquery: '$',

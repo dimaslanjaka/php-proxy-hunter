@@ -11,7 +11,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const deps = Object.keys(pkg.dependencies)
   .concat(...Object.keys(pkg.devDependencies))
-  .concat('better-sqlite3', 'node-cache', '@whiskeysockets/baileys', 'pino', 'long', 'electron');
+  .concat(
+    'better-sqlite3',
+    'node-cache',
+    '@whiskeysockets/baileys',
+    'pino',
+    'long',
+    'electron',
+    'browser-with-fingerprints'
+  );
 const globals = {
   jquery: '$',
   lodash: '_',
