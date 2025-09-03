@@ -1,5 +1,15 @@
 [
   {
+    "hash": "b7f649ad85fd3ccfcf386d91713f4f8a611a52cc",
+    "date": "2025-09-03T14:43:39+07:00",
+    "message": "feat: add 'browser-with-fingerprints' to external dependencies in rollup configurations",
+    "files": [
+      "rollup.php.js",
+      "rollup.project.js",
+      "rollup.whatsapp.js"
+    ]
+  },
+  {
     "hash": "9af3dcda32186f1b790754a9d6ae5a1a152e0cdf",
     "date": "2025-09-03T14:40:28+07:00",
     "message": "fix(vite.config): disable polling for file watching to improve performance",
