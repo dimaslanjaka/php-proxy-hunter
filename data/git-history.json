@@ -1,5 +1,22 @@
 [
   {
+    "hash": "9af3dcda32186f1b790754a9d6ae5a1a152e0cdf",
+    "date": "2025-09-03T14:40:28+07:00",
+    "message": "fix(vite.config): disable polling for file watching to improve performance",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "bcdc2c74888f4b8f015001f5fea404d6d903e112",
+    "date": "2025-09-03T14:36:16+07:00",
+    "message": "refactor(admin): extract saldo management logic to SaldoManager component\n\n- Moved all saldo management logic and UI from Admin.tsx to a new SaldoManager component.\n- Replaced the implementation in Admin.tsx with a simple wrapper that renders <SaldoManager />.\n- Created src/react/pages/admin/SaldoManager.tsx to encapsulate user saldo, password, and user management forms and logic.\n- Improves code organization and separation of concerns in the admin pages.",
+    "files": [
+      "src/react/pages/Admin.tsx",
+      "src/react/pages/admin/SaldoManager.tsx"
+    ]
+  },
+  {
     "hash": "0ab3f4d3dc196c1bb1896e73a995f8eca837680e",
     "date": "2025-09-02T20:11:07+07:00",
     "message": "feat(changelog): render commit messages as markdown\n\n- Added `react-markdown` dependency\n- Updated `Changelog.tsx` to render commit messages using `ReactMarkdown`\n- Introduced `Changelog.module.scss` for link styling in light and dark mode",
