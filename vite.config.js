@@ -195,7 +195,8 @@ export const viteConfig = defineConfig({
       ],
       // enable polling is slower but reliable
       usePolling: false,
-      interval: 1000
+      // interval for polling in ms
+      interval: 3000
     }
   }
 });
