@@ -193,8 +193,9 @@ export const viteConfig = defineConfig({
         '**/test/**',
         '**/.deploy_git/**'
       ],
-      usePolling: true, // slower but reliable
-      interval: 100
+      // enable polling is slower but reliable
+      usePolling: false,
+      interval: 1000
     }
   }
 });
