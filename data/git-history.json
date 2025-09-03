@@ -1,5 +1,31 @@
 [
   {
+    "hash": "0ab3f4d3dc196c1bb1896e73a995f8eca837680e",
+    "date": "2025-09-02T20:11:07+07:00",
+    "message": "feat(changelog): render commit messages as markdown\n\n- Added `react-markdown` dependency\n- Updated `Changelog.tsx` to render commit messages using `ReactMarkdown`\n- Introduced `Changelog.module.scss` for link styling in light and dark mode",
+    "files": [
+      "package.json",
+      "src/react/pages/Changelog.module.scss",
+      "src/react/pages/Changelog.tsx"
+    ]
+  },
+  {
+    "hash": "1a36b9df77ccf34b257e5a13b16a4387e67a0da2",
+    "date": "2025-09-02T20:04:43+07:00",
+    "message": "fix(vite.config): update watch ignored patterns to exclude specific directories",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "3dd91339d26fa09baedbae5c2e940c103af3e2ea",
+    "date": "2025-09-02T19:59:09+07:00",
+    "message": "feat(eslint): extend validation to include additional file types",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
     "hash": "61f19029c215fae5a54640cacc43db40a7c3bfb9",
     "date": "2025-09-02T19:51:32+07:00",
     "message": "feat(git-history): add unique file filtering and anonymization to commit history",
