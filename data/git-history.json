@@ -1,5 +1,13 @@
 [
   {
+    "hash": "b5f78f0de718efeb06940beb5937ed8c73c22c1d",
+    "date": "2025-09-03T14:45:49+07:00",
+    "message": "fix(vite.config): increase file watching interval to 3000ms for improved reliability",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "b7f649ad85fd3ccfcf386d91713f4f8a611a52cc",
     "date": "2025-09-03T14:43:39+07:00",
     "message": "feat: add 'browser-with-fingerprints' to external dependencies in rollup configurations",
