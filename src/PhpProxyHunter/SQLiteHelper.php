@@ -30,15 +30,15 @@ class SQLiteHelper
    * SQLiteHelper constructor.
    *
    * @param string $dbPath The path to the SQLite database file.
-   * @param bool $unique Whether to use a unique key based on caller location.
+   * @param bool   $unique Whether to use a unique key based on caller location.
    */
-  public function __construct(string $dbPath, bool $unique = false)
+  public function __construct($dbPath, $unique = false)
   {
     $trace = debug_backtrace();
     // Unique key is based on the last caller if $unique is true
     $caller = $unique ? end($trace) : $trace[0];
-    $callerFile = $caller['file'] ?? 'unknown';
-    $callerLine = $caller['line'] ?? 'unknown';
+    $callerFile = isset($caller['file']) ? $caller['file'] : 'unknown';
+    $callerLine = isset($caller['line']) ? $caller['line'] : 'unknown';
     $this->uniqueKey = md5($dbPath . $callerFile . $callerLine);
 
     // Avoid multiple PDO instance
@@ -57,7 +57,7 @@ class SQLiteHelper
   /**
    * Closes the database connection.
    */
-  public function close(): void
+  public function close()
   {
     unset(self::$_databases[$this->uniqueKey]);
     $this->pdo = null;
@@ -67,9 +67,9 @@ class SQLiteHelper
    * Creates a table in the database.
    *
    * @param string $tableName The name of the table to create.
-   * @param array $columns An array of column definitions.
+   * @param array  $columns   An array of column definitions.
    */
-  public function createTable(string $tableName, array $columns): void
+  public function createTable($tableName, $columns)
   {
     $columnsString = implode(', ', $columns);
     $sql = "CREATE TABLE IF NOT EXISTS $tableName ($columnsString)";
@@ -80,10 +80,10 @@ class SQLiteHelper
    * Inserts a record into the specified table.
    *
    * @param string $tableName The name of the table to insert into.
-   * @param array $data An associative array of column names and values.
-   * @param bool $insertOrIgnore Optional. Determines whether to use INSERT OR IGNORE or INSERT.
+   * @param array  $data      An associative array of column names and values.
+   * @param bool   $insertOrIgnore Optional. Determines whether to use INSERT OR IGNORE or INSERT.
    */
-  public function insert(string $tableName, array $data, bool $insertOrIgnore = true): void
+  public function insert($tableName, $data, $insertOrIgnore = true)
   {
     // Ensure the table name is valid (alphanumeric and underscores only)
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
@@ -107,13 +107,13 @@ class SQLiteHelper
   /**
    * Selects records from the specified table.
    *
-   * @param string $tableName The name of the table to select from.
-   * @param string $columns The columns to select.
-   * @param string|null $where The WHERE clause.
-   * @param array $params An array of parameters to bind to the query.
+   * @param string      $tableName The name of the table to select from.
+   * @param string      $columns   The columns to select.
+   * @param string|null $where     The WHERE clause.
+   * @param array       $params    An array of parameters to bind to the query.
    * @return array An array containing the selected records.
    */
-  public function select(string $tableName, string $columns = '*', ?string $where = null, array $params = []): array
+  public function select($tableName, $columns = '*', $where = null, $params = [])
   {
     $sql = "SELECT $columns FROM $tableName";
     if ($where) {
@@ -122,33 +122,33 @@ class SQLiteHelper
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $result ?: [];
+    return $result ? $result : [];
   }
 
   /**
    * Executes a custom SQL query and returns the result.
    *
-   * @param string $sql The SQL query to execute.
-   * @param array $params An array of parameters to bind to the query.
+   * @param string $sql    The SQL query to execute.
+   * @param array  $params An array of parameters to bind to the query.
    * @return array The queried result.
    */
-  public function executeCustomQuery(string $sql, array $params = []): array
+  public function executeCustomQuery($sql, $params = [])
   {
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $result ?: [];
+    return $result ? $result : [];
   }
 
   /**
    * Counts the records in the specified table.
    *
-   * @param string $tableName The name of the table to count records from.
-   * @param string|null $where The WHERE clause.
-   * @param array $params An array of parameters to bind to the query.
+   * @param string      $tableName The name of the table to count records from.
+   * @param string|null $where     The WHERE clause.
+   * @param array       $params    An array of parameters to bind to the query.
    * @return int The count of records.
    */
-  public function count(string $tableName, ?string $where = null, array $params = []): int
+  public function count($tableName, $where = null, $params = [])
   {
     $sql = "SELECT COUNT(*) as count FROM $tableName";
     if ($where) {
@@ -164,11 +164,11 @@ class SQLiteHelper
    * Updates records in the specified table.
    *
    * @param string $tableName The name of the table to update.
-   * @param array $data An associative array of column names and values to update.
-   * @param string $where The WHERE clause.
-   * @param array $params An array of parameters to bind to the query.
+   * @param array  $data      An associative array of column names and values to update.
+   * @param string $where     The WHERE clause.
+   * @param array  $params    An array of parameters to bind to the query.
    */
-  public function update(string $tableName, array $data, string $where, array $params = []): void
+  public function update($tableName, $data, $where, $params = [])
   {
     $setValues = [];
     $setParams = [];
@@ -190,10 +190,10 @@ class SQLiteHelper
    * Deletes records from the specified table.
    *
    * @param string $tableName The name of the table to delete from.
-   * @param string $where The WHERE clause.
-   * @param array $params An array of parameters to bind to the query.
+   * @param string $where     The WHERE clause.
+   * @param array  $params    An array of parameters to bind to the query.
    */
-  public function delete(string $tableName, string $where, array $params = []): void
+  public function delete($tableName, $where, $params = [])
   {
     $sql = "DELETE FROM $tableName WHERE $where";
     $stmt = $this->pdo->prepare($sql);
@@ -205,7 +205,7 @@ class SQLiteHelper
    *
    * @return bool True if the database is locked, false otherwise.
    */
-  public function isDatabaseLocked(): bool
+  public function isDatabaseLocked()
   {
     try {
       // Use a lightweight read query

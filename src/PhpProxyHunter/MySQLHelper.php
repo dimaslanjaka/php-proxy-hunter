@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace PhpProxyHunter;
 
 use PDO;
@@ -37,12 +35,12 @@ class MySQLHelper
    * @param string $password The MySQL password.
    * @param bool $unique Whether to use a unique key based on caller location.
    */
-  public function __construct(string $host, string $dbname, string $username, string $password, bool $unique = false)
+  public function __construct($host, $dbname, $username, $password, $unique = false)
   {
     $trace = debug_backtrace();
     $caller = $unique ? end($trace) : $trace[0];
-    $callerFile = $caller['file'] ?? 'unknown';
-    $callerLine = $caller['line'] ?? 'unknown';
+    $callerFile = isset($caller['file']) ? $caller['file'] : 'unknown';
+    $callerLine = isset($caller['line']) ? $caller['line'] : 'unknown';
     $this->uniqueKey = md5($host . $dbname . $username . $callerFile . $callerLine);
 
     if (isset(self::$_databases[$this->uniqueKey])) {
@@ -73,7 +71,7 @@ class MySQLHelper
   /**
    * Closes the database connection.
    */
-  public function close(): void
+  public function close()
   {
     unset(self::$_databases[$this->uniqueKey]);
     $this->pdo = null;
@@ -85,7 +83,7 @@ class MySQLHelper
    * @param string $tableName The name of the table to create.
    * @param array $columns An array of column definitions.
    */
-  public function createTable(string $tableName, array $columns): void
+  public function createTable($tableName, $columns)
   {
     $columnsString = implode(', ', $columns);
     $sql = "CREATE TABLE IF NOT EXISTS $tableName ($columnsString)";
@@ -97,9 +95,9 @@ class MySQLHelper
    *
    * @param string $tableName The name of the table to insert into.
    * @param array $data An associative array of column names and values.
-   * @param bool $insertOrIgnore Optional. Determines whether to use INSERT IGNORE or INSERT.
+   * @param bool $insertOrIgnore Determines whether to use INSERT IGNORE or INSERT.
    */
-  public function insert(string $tableName, array $data, bool $insertOrIgnore = true): void
+  public function insert($tableName, $data, $insertOrIgnore = true)
   {
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
       throw new \InvalidArgumentException('Invalid table name.');
@@ -127,7 +125,7 @@ class MySQLHelper
    * @param array $params An array of parameters to bind to the query.
    * @return array An array containing the selected records.
    */
-  public function select(string $tableName, string $columns = '*', ?string $where = null, array $params = []): array
+  public function select($tableName, $columns = '*', $where = null, $params = [])
   {
     $sql = "SELECT $columns FROM $tableName";
     if ($where) {
@@ -136,7 +134,7 @@ class MySQLHelper
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $result ?: [];
+    return $result ? $result : [];
   }
 
   /**
@@ -146,12 +144,12 @@ class MySQLHelper
    * @param array $params An array of parameters to bind to the query.
    * @return array The queried result.
    */
-  public function executeCustomQuery(string $sql, array $params = []): array
+  public function executeCustomQuery($sql, $params = [])
   {
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $result ?: [];
+    return $result ? $result : [];
   }
 
   /**
@@ -162,7 +160,7 @@ class MySQLHelper
    * @param array $params An array of parameters to bind to the query.
    * @return int The count of records.
    */
-  public function count(string $tableName, ?string $where = null, array $params = []): int
+  public function count($tableName, $where = null, $params = [])
   {
     $sql = "SELECT COUNT(*) as count FROM $tableName";
     if ($where) {
@@ -182,7 +180,7 @@ class MySQLHelper
    * @param string $where The WHERE clause.
    * @param array $params An array of parameters to bind to the query.
    */
-  public function update(string $tableName, array $data, string $where, array $params = []): void
+  public function update($tableName, $data, $where, $params = [])
   {
     $setValues = [];
     $setParams = [];
@@ -207,7 +205,7 @@ class MySQLHelper
    * @param string $where The WHERE clause.
    * @param array $params An array of parameters to bind to the query.
    */
-  public function delete(string $tableName, string $where, array $params = []): void
+  public function delete($tableName, $where, $params = [])
   {
     $sql = "DELETE FROM $tableName WHERE $where";
     $stmt = $this->pdo->prepare($sql);
@@ -221,7 +219,7 @@ class MySQLHelper
    *
    * @throws \InvalidArgumentException If the table name is invalid.
    */
-  public function resetIncrement(string $tableName): void
+  public function resetIncrement($tableName)
   {
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
       throw new \InvalidArgumentException('Invalid table name.');
