@@ -206,10 +206,11 @@
   },
   "git.autoStash": true,
   "git.useCommitInputAsStashMessage": true,
-  "intelephense.diagnostics.run": "onSave",
-  "intelephense.environment.documentRoot": "${workspaceFolder}",
-  "intelephense.environment.includePaths": ["${workspaceFolder}/src", "${workspaceFolder}/vendor"],
   "intelephense.environment.phpVersion": "7.4.33",
+  "intelephense.diagnostics.enable": true,
+  "intelephense.diagnostics.run": "onSave",
+  // "intelephense.environment.documentRoot": "${workspaceFolder}",
+  "intelephense.environment.includePaths": ["./src", "./vendor", "${workspaceFolder}/tests"],
   "intelephense.files.exclude": [
     "**/.DS_Store/**",
     "**/.git/**",
@@ -220,7 +221,7 @@
     "**/bower_components/**",
     "**/node_modules/**"
   ],
-  "intelephense.maxMemory": 1000,
+  "intelephense.maxMemory": 4000,
   "intelephense.references.exclude": [],
   "intelephense.rename.exclude": [],
   "isort.args": ["--profile", "black"],

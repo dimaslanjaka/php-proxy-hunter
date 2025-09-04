@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="php-proxy-hunter" useTempFile="true" exclude=".svn;.cvs;.idea;.DS_Store;.git;.hg;*.hprof;*.pyc;__pycache__;tmp;venv;.venv;" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false" compareModeInSync="TEXT" showExcludedInSync="true">
+  <component name="PublishConfigData" serverName="23.94.85.180" useTempFile="true" exclude=".svn;.cvs;.idea;.DS_Store;.git;.hg;*.hprof;*.pyc;__pycache__;tmp;venv;.venv;" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false" compareModeInSync="TEXT" showExcludedInSync="true">
     <option name="confirmBeforeUploading" value="false" />
     <serverData>
-      <paths name="php-proxy-hunter">
+      <paths name="23.94.85.180">
         <serverdata>
           <mappings>
-            <mapping deploy="/var/www/html" local="$PROJECT_DIR$" web="/" />
+            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping local="$PROJECT_DIR$/assets/proxies" web="/" />
           </mappings>
-          <excludedPaths>
-            <excludedPath local="true" path="$PROJECT_DIR$/assets" />
-            <excludedPath local="true" path="$PROJECT_DIR$/venv" />
-          </excludedPaths>
         </serverdata>
       </paths>
     </serverData>
