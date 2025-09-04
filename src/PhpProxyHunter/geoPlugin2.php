@@ -40,9 +40,14 @@ class geoPlugin2
 
   public function locate(string $ip)
   {
-    $record = $this->city->city(trim($ip));
-    $plugin = new geoPlugin();
-    $plugin->fromGeoIp2CityModel($record);
-    return $plugin;
+    try {
+      $record = $this->city->city(trim($ip));
+      $plugin = new geoPlugin();
+      $plugin->fromGeoIp2CityModel($record);
+      return $plugin;
+    } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
+      // IP not found in database, return null or handle gracefully
+      return null;
+    }
   }
 }

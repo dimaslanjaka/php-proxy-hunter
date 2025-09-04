@@ -211,16 +211,18 @@ class geoPlugin implements \JsonSerializable
       }
       $geo2 = new geoPlugin2();
       $geoplugin = $geo2->locate($ip);
-      $this->lang = $geoplugin->lang;
-      $this->latitude = $geoplugin->latitude;
-      $this->longitude = $geoplugin->longitude;
-      $this->timezone = $geoplugin->timezone;
-      $this->city = $geoplugin->city;
-      $this->countryName = $geoplugin->countryName;
-      $this->countryCode = $geoplugin->countryCode;
-      $this->regionName = $geoplugin->regionName;
-      $this->region = $geoplugin->region;
-      $this->regionCode = $geoplugin->regionCode;
+      if ($geoplugin != null) {
+        $this->lang = $geoplugin->lang;
+        $this->latitude = $geoplugin->latitude;
+        $this->longitude = $geoplugin->longitude;
+        $this->timezone = $geoplugin->timezone;
+        $this->city = $geoplugin->city;
+        $this->countryName = $geoplugin->countryName;
+        $this->countryCode = $geoplugin->countryCode;
+        $this->regionName = $geoplugin->regionName;
+        $this->region = $geoplugin->region;
+        $this->regionCode = $geoplugin->regionCode;
+      }
     }
     return $this;
   }
