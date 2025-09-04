@@ -21,9 +21,18 @@ class CoreDB
    * @param string $username MySQL username.
    * @param string $password MySQL password.
    * @param bool $unique Whether to use a unique MySQL connection (custom flag).
+   * @param string|null $type Database type ('mysql' or 'sqlite'). If null, tries MySQL first then SQLite.
    */
-  public function __construct($dbLocation = null, $host = 'localhost', $dbname = 'php_proxy_hunter', $username = 'root', $password = '', $unique = false)
+  public function __construct($dbLocation = null, $host = 'localhost', $dbname = 'php_proxy_hunter', $username = 'root', $password = '', $unique = false, $type = null)
   {
+    // Enforce type to mysql or sqlite when specified
+    if ($type === 'mysql') {
+      $this->mysql($host, $dbname, $username, $password, $unique);
+      return;
+    } elseif ($type === 'sqlite') {
+      $this->sqlite($dbLocation);
+      return;
+    }
     try {
       $this->mysql($host, $dbname, $username, $password, $unique);
     } catch (\Throwable $th) {
