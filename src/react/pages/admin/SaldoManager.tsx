@@ -73,7 +73,7 @@ export default function SaldoManager() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4 transition-colors">
+    <div className="flex flex-col items-center justify-center p-4 transition-colors">
       <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors">
         <h1 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300">
           <i className="text-green-500 dark:text-green-400 fa fa-money-bill-wave"></i>
