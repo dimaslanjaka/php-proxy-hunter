@@ -8,6 +8,34 @@ use RuntimeException;
 class CoreDB
 {
   /**
+   * @var string|null
+   */
+  private ?string $constructorDbLocation = null;
+  /**
+   * @var string|null
+   */
+  private ?string $constructorHost = null;
+  /**
+   * @var string|null
+   */
+  private ?string $constructorDbName = null;
+  /**
+   * @var string|null
+   */
+  private ?string $constructorUsername = null;
+  /**
+   * @var string|null
+   */
+  private ?string $constructorPassword = null;
+  /**
+   * @var bool|null
+   */
+  private ?bool $constructorUnique = null;
+  /**
+   * @var string|null
+   */
+  private ?string $constructorType = null;
+  /**
    * @var SQLiteHelper|MySQLHelper Database helper instance
    */
   public $db;
@@ -37,6 +65,14 @@ class CoreDB
     bool $unique = false,
     ?string $type = null
   ) {
+    $this->constructorDbLocation = $dbLocation;
+    $this->constructorHost = $host;
+    $this->constructorDbName = $dbname;
+    $this->constructorUsername = $username;
+    $this->constructorPassword = $password;
+    $this->constructorUnique = $unique;
+    $this->constructorType = $type;
+
     // Enforce type when specified
     if ($type === 'mysql') {
       $this->initMySQL($host, $dbname, $username, $password, $unique);
@@ -54,6 +90,62 @@ class CoreDB
     } catch (\Throwable $th) {
       $this->initSQLite($dbLocation);
     }
+  }
+
+  /**
+   * Get the dbLocation passed to the constructor
+   */
+  public function getConstructorDbLocation(): ?string
+  {
+    return $this->constructorDbLocation;
+  }
+
+  /**
+   * Get the host passed to the constructor
+   */
+  public function getConstructorHost(): ?string
+  {
+    return $this->constructorHost;
+  }
+
+  /**
+   * Get the dbName passed to the constructor
+   */
+  public function getConstructorDbName(): ?string
+  {
+    return $this->constructorDbName;
+  }
+
+  /**
+   * Get the username passed to the constructor
+   */
+  public function getConstructorUsername(): ?string
+  {
+    return $this->constructorUsername;
+  }
+
+  /**
+   * Get the password passed to the constructor
+   */
+  public function getConstructorPassword(): ?string
+  {
+    return $this->constructorPassword;
+  }
+
+  /**
+   * Get the unique flag passed to the constructor
+   */
+  public function getConstructorUnique(): ?bool
+  {
+    return $this->constructorUnique;
+  }
+
+  /**
+   * Get the type passed to the constructor
+   */
+  public function getConstructorType(): ?string
+  {
+    return $this->constructorType;
   }
 
   /**
