@@ -2,114 +2,116 @@
 
 namespace PhpProxyHunter;
 
+use PDO;
+use RuntimeException;
+
 class CoreDB
 {
   /**
-   * @var SQLiteHelper|MySQLHelper $db Database helper instance (SQLite or MySQL)
+   * @var SQLiteHelper|MySQLHelper Database helper instance
    */
   public $db;
 
   /**
-   * @var string|null $driver Database driver type ('mysql' or 'sqlite')
+   * @var string|null Database driver type ('mysql' or 'sqlite')
    */
-  public $driver = null;
+  public ?string $driver = null;
 
   /**
-   * @var string|null $dbPath Path to SQLite database file
+   * @var string|null Path to SQLite database file
    */
-  public $dbPath = null;
+  public ?string $dbPath = null;
 
   /**
    * CoreDB constructor.
    *
    * Initializes the database connection using MySQL or SQLite.
    * Attempts to connect to MySQL first; falls back to SQLite if MySQL connection fails.
-   *
-   * @param string|null $dbLocation Path to SQLite database file (if using SQLite).
-   * @param string $host MySQL host.
-   * @param string $dbname MySQL database name.
-   * @param string $username MySQL username.
-   * @param string $password MySQL password.
-   * @param bool $unique Whether to use a unique MySQL connection (custom flag).
-   * @param string|null $type Database type ('mysql' or 'sqlite'). If null, tries MySQL first then SQLite.
    */
-  public function __construct($dbLocation = null, $host = 'localhost', $dbname = 'php_proxy_hunter', $username = 'root', $password = '', $unique = false, $type = null)
-  {
-    // Enforce type to mysql or sqlite when specified
+  public function __construct(
+    ?string $dbLocation = null,
+    string $host = 'localhost',
+    string $dbname = 'php_proxy_hunter',
+    string $username = 'root',
+    string $password = '',
+    bool $unique = false,
+    ?string $type = null
+  ) {
+    // Enforce type when specified
     if ($type === 'mysql') {
-      $this->mysql($host, $dbname, $username, $password, $unique);
-      $this->driver = 'mysql';
-      return;
-    } elseif ($type === 'sqlite') {
-      $this->sqlite($dbLocation);
-      $this->driver = 'sqlite';
+      $this->initMySQL($host, $dbname, $username, $password, $unique);
       return;
     }
+
+    if ($type === 'sqlite') {
+      $this->initSQLite($dbLocation);
+      return;
+    }
+
+    // Auto-detect: try MySQL first, then fallback to SQLite
     try {
-      $this->mysql($host, $dbname, $username, $password, $unique);
-      $this->driver = 'mysql';
+      $this->initMySQL($host, $dbname, $username, $password, $unique);
     } catch (\Throwable $th) {
-      $this->sqlite($dbLocation);
-      $this->driver = 'sqlite';
+      $this->initSQLite($dbLocation);
     }
   }
 
   /**
    * Initialize MySQL database connection and schema.
-   *
-   * @param string $host
-   * @param string $dbname
-   * @param string $username
-   * @param string $password
-   * @param bool   $unique
    */
-  public function mysql($host, $dbname, $username, $password, $unique = false)
+  private function initMySQL(string $host, string $dbname, string $username, string $password, bool $unique = false): void
   {
     $this->db = new MySQLHelper($host, $dbname, $username, $password, $unique);
+    $this->driver = 'mysql';
 
-    // Initialize the database schema
-    $sqlFileContents = file_get_contents(__DIR__ . '/assets/mysql-schema.sql');
-    $this->db->pdo->exec($sqlFileContents);
+    $this->loadSchema(__DIR__ . '/assets/mysql-schema.sql');
   }
 
   /**
    * Initialize SQLite database connection and schema.
-   *
-   * @param string|null $dbLocation
    */
-  public function sqlite($dbLocation = null)
+  private function initSQLite(?string $dbLocation = null): void
   {
-    if (!$dbLocation) {
-      $dbLocation = __DIR__ . '/../database.sqlite';
-    } elseif (!file_exists($dbLocation)) {
-      // Extract the directory part from the path
+    $dbLocation ??= __DIR__ . '/../database.sqlite';
+
+    if (!file_exists($dbLocation)) {
       $directory = dirname($dbLocation);
-      // Check if the directory exists and create it if it doesn't
-      if (!is_dir($directory)) {
-        if (!mkdir($directory, 0755, true)) {
-          die("Failed to create directory: $directory\n");
-        }
+      if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
+        throw new RuntimeException("Failed to create directory: $directory");
       }
     }
+
     $this->dbPath = $dbLocation;
-
     $this->db = new SQLiteHelper($dbLocation);
+    $this->driver = 'sqlite';
 
-    // Initialize the database schema
-    $sqlFileContents = file_get_contents(__DIR__ . '/assets/sqlite-schema.sql');
-    $this->db->pdo->exec($sqlFileContents);
+    $this->loadSchema(__DIR__ . '/assets/sqlite-schema.sql');
 
-    // Fix journal mode to WAL
-    $wal_status = $this->db->pdo->query("PRAGMA journal_mode")->fetch(\PDO::FETCH_ASSOC);
-    if (isset($wal_status['journal_mode']) && $wal_status['journal_mode'] !== 'wal') {
+    // Ensure WAL mode
+    $walStatus = $this->db->pdo->query("PRAGMA journal_mode")->fetch(PDO::FETCH_ASSOC);
+    if (($walStatus['journal_mode'] ?? '') !== 'wal') {
       $this->db->pdo->exec("PRAGMA journal_mode = WAL;");
+    }
+  }
+
+  /**
+   * Load and execute schema file if exists.
+   */
+  private function loadSchema(string $schemaPath): void
+  {
+    if (!is_file($schemaPath)) {
+      return;
+    }
+    $sql = file_get_contents($schemaPath);
+    if ($sql !== false) {
+      $this->db->pdo->exec($sql);
     }
   }
 
   /**
    * Close database connection.
    */
-  public function close()
+  public function close(): void
   {
     if ($this->db) {
       $this->db->close();
@@ -123,30 +125,24 @@ class CoreDB
 
   /**
    * Execute custom SQL query.
-   *
-   * @param string $sql
-   * @param array  $params
-   * @return mixed
    */
-  public function query($sql, $params = [])
+  public function query(string $sql, array $params = []): mixed
   {
     return $this->db->executeCustomQuery($sql, $params);
   }
 
   /**
    * Select from database.
-   *
-   * @param string $table
-   * @param array  $columns
-   * @param array  $where
-   * @param array  $params
-   * @param string $orderBy
-   * @param int    $limit
-   * @param int    $offset
-   * @return mixed
    */
-  public function select($table, $columns = ['*'], $where = [], $params = [], $orderBy = '', $limit = 0, $offset = 0)
-  {
+  public function select(
+    string $table,
+    array $columns = ['*'],
+    array $where = [],
+    array $params = [],
+    string $orderBy = '',
+    int $limit = 0,
+    int $offset = 0
+  ): mixed {
     return $this->db->select($table, $columns, $where, $params, $orderBy, $limit, $offset);
   }
 }
