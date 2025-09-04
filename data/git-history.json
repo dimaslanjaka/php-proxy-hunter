@@ -1,5 +1,21 @@
 [
   {
+    "hash": "bb16974385ffdd60b30a56c00a8726380a3b2d2e",
+    "date": "2025-09-05T04:28:38+07:00",
+    "message": "refactor(UserDBTest): remove redundant file deletion check for SQLite test database",
+    "files": [
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
+    "hash": "0a6d961b91bebc316463ed1ad7196c0f882f772f",
+    "date": "2025-09-05T04:27:54+07:00",
+    "message": "feat(coredb): store constructor parameters and add getters for retrieval",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
     "hash": "c990ebb49a73cbdd2e7474fb100e7dc32c0c00ae",
     "date": "2025-09-04T22:11:11+07:00",
     "message": "refactor(admin): move page-level layout styling from SaldoManager to Admin\n\n- Wrapped `SaldoManager` with container in `Admin` for consistent layout\n- Removed redundant min-height and background styling from `SaldoManager`",
