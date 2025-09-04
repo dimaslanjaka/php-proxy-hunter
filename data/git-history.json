@@ -1,5 +1,13 @@
 [
   {
+    "hash": "efa0beaca04361522a3f0076f2912baff56f0daa",
+    "date": "2025-09-04T20:37:26+07:00",
+    "message": "feat: enhance CoreDB constructor to support direct SQLite and MySQL initialization",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
     "hash": "f7ea8e0d7d77f2b4e432e37d88eae8b8bf3721c1",
     "date": "2025-09-04T19:08:31+07:00",
     "message": "feat: implement CoreDB class for MySQL and SQLite database connections",
