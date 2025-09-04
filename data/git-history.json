@@ -1,5 +1,29 @@
 [
   {
+    "hash": "e8d81a9c207f65c2872e8cfe476d5c72be21f534",
+    "date": "2025-09-04T21:29:18+07:00",
+    "message": "refactor(coredb): improve type safety and schema initialization\n\nAdded strict type hints, replaced `die()` with `RuntimeException`, and extracted schema loading into a reusable `loadSchema` method. Also refactored MySQL/SQLite initialization methods for clarity and maintainability.",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
+    "hash": "81eb3c282b9c5446eecdd878f8aa3de6d3163b5a",
+    "date": "2025-09-04T21:27:53+07:00",
+    "message": "feat: add dbPath property to CoreDB for SQLite database file path",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
+    "hash": "3112b39e6b4a66eb5ae611e36a8f7c49cd37883d",
+    "date": "2025-09-04T21:21:57+07:00",
+    "message": "fix: update phpunit version constraint to include version 6",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
     "hash": "90480f5e5fd0904e7919dcedfa95bec324b8a733",
     "date": "2025-09-04T20:56:05+07:00",
     "message": "feat: add driver property to CoreDB for tracking database type",
