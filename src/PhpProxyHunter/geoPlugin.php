@@ -118,7 +118,7 @@ class geoPlugin implements \JsonSerializable
       $this->regionName = $record->mostSpecificSubdivision->name;
       $this->region = $record->mostSpecificSubdivision->geonameId;
       $this->regionCode = $record->mostSpecificSubdivision->isoCode;
-      $lang = array_keys($record->country->names);
+      $lang = is_array($record->country->names) ? array_keys($record->country->names) : [];
       if (!empty($lang)) {
         $this->lang = $lang[0];
       }
