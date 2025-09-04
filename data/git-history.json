@@ -1,5 +1,77 @@
 [
   {
+    "hash": "970d1cc545f83b61b0cae587d035a9704b4ba878",
+    "date": "2025-09-04T19:00:36+07:00",
+    "message": "fix(geoip): handle missing IPs gracefully in geoPlugin2 and geoPlugin\n\n- Wrap GeoIP2 city lookup in geoPlugin2::locate() with try-catch to prevent fatal errors for missing IPs, returning null instead.\n- Update geoPlugin to check for null from geoPlugin2::locate() before assigning properties.\n- Minor constructor simplification in geoPlugin.",
+    "files": [
+      "src/PhpProxyHunter/geoPlugin.php",
+      "src/PhpProxyHunter/geoPlugin2.php"
+    ]
+  },
+  {
+    "hash": "e62dfd0855cb0a6a5abf4dd0cd0d61a7da200250",
+    "date": "2025-09-04T18:56:39+07:00",
+    "message": "refactor(github-pages): simplify paths for push events in workflow",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "61f8f572a754a75ac7f016e8c46fe4bf77a77104",
+    "date": "2025-09-04T18:55:17+07:00",
+    "message": "fix(geoPlugin): prevent array_keys warning on null country names\n\n- Added type check for $record->country->names before calling array_keys() in fromGeoIp2CityModel to avoid PHP warning when value is null.",
+    "files": [
+      "src/PhpProxyHunter/geoPlugin.php"
+    ]
+  },
+  {
+    "hash": "d0345d1d33b13afca3311abbdf947082113c5cec",
+    "date": "2025-09-04T18:20:34+07:00",
+    "message": "feat: add production database configuration to .env-sample",
+    "files": [
+      ".env-sample"
+    ]
+  },
+  {
+    "hash": "4b74c262bf82c3af3ec650650dfdba77971e93b5",
+    "date": "2025-09-04T18:11:32+07:00",
+    "message": "test: load MySQL config from environment variables in UserDBTest\n\n- Replace hardcoded MySQL connection values with environment-based config\n- Initialize MySQL credentials in setUp() from $_ENV\n- Use Dotenv::createUnsafeImmutable in bootstrap.php\n- Sync $_ENV values to getenv() for compatibility",
+    "files": [
+      "tests/PhpProxyHunter/UserDBTest.php",
+      "tests/bootstrap.php"
+    ]
+  },
+  {
+    "hash": "2e46e923464bd04b2d7343afcd2d9413ce752dc3",
+    "date": "2025-09-04T18:05:22+07:00",
+    "message": "test: refactor UserDBTest for multi-db support and cleanup\n\n- Refactored `UserDBTest` to support both SQLite and MySQL using a data provider.\n- Replaced `setUp`/`tearDown` with `setUpDB`/`tearDownDB` methods parameterized by driver.\n- Added `dbProvider` for running tests on both database types.\n- Cleaned up test database tables before each MySQL test using a loop.\n- Updated tests to use the new setup/teardown and accept the driver as a parameter.\n- Improved test clarity and reduced code duplication.",
+    "files": [
+      "tests/PhpProxyHunter/UserDBTest.php",
+      "tests/bootstrap.php"
+    ]
+  },
+  {
+    "hash": "5436b069de84dbeec57d6e5c3383498bbdf1a441",
+    "date": "2025-09-04T18:04:22+07:00",
+    "message": "refactor: PHP 7 compatible",
+    "files": [
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/SQLiteHelper.php"
+    ]
+  },
+  {
+    "hash": "2e6b44b04e45408948dc3291ec46317b7422c75d",
+    "date": "2025-09-04T18:03:33+07:00",
+    "message": "feat: update deployment and configuration files for improved PHP environment setup",
+    "files": [
+      ".idea/deployment.xml",
+      ".idea/misc.xml",
+      ".idea/php-test-framework.xml",
+      ".idea/php.xml",
+      ".vscode/settings.json"
+    ]
+  },
+  {
     "hash": "b5f78f0de718efeb06940beb5937ed8c73c22c1d",
     "date": "2025-09-03T14:45:49+07:00",
     "message": "fix(vite.config): increase file watching interval to 3000ms for improved reliability",
