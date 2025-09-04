@@ -15,6 +15,11 @@ class CoreDB
   public $driver = null;
 
   /**
+   * @var string|null $dbPath Path to SQLite database file
+   */
+  public $dbPath = null;
+
+  /**
    * CoreDB constructor.
    *
    * Initializes the database connection using MySQL or SQLite.
@@ -86,6 +91,7 @@ class CoreDB
         }
       }
     }
+    $this->dbPath = $dbLocation;
 
     $this->db = new SQLiteHelper($dbLocation);
 
