@@ -10,6 +10,11 @@ class CoreDB
   public $db;
 
   /**
+   * @var string|null $driver Database driver type ('mysql' or 'sqlite')
+   */
+  public $driver = null;
+
+  /**
    * CoreDB constructor.
    *
    * Initializes the database connection using MySQL or SQLite.
@@ -28,15 +33,19 @@ class CoreDB
     // Enforce type to mysql or sqlite when specified
     if ($type === 'mysql') {
       $this->mysql($host, $dbname, $username, $password, $unique);
+      $this->driver = 'mysql';
       return;
     } elseif ($type === 'sqlite') {
       $this->sqlite($dbLocation);
+      $this->driver = 'sqlite';
       return;
     }
     try {
       $this->mysql($host, $dbname, $username, $password, $unique);
+      $this->driver = 'mysql';
     } catch (\Throwable $th) {
       $this->sqlite($dbLocation);
+      $this->driver = 'sqlite';
     }
   }
 
