@@ -4,9 +4,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'src/react/**/*'
-      - 'src/utils/**/*'
-      - 'src/dev/**/*'
+      - 'src/**/*'
+      - 'tests/**/*'
       - '.github/workflows/github-pages.yml'
       - '**/vite*'
       - '**/tailwind*'
