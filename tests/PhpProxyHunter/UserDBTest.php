@@ -68,9 +68,6 @@ class UserDBTest extends TestCase
       $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
     } else {
       $this->testDbPath = sys_get_temp_dir() . '/test_database.sqlite';
-      if (file_exists($this->testDbPath)) {
-        @unlink($this->testDbPath);
-      }
       $this->userDB = new UserDB($this->testDbPath);
     }
   }
@@ -82,7 +79,6 @@ class UserDBTest extends TestCase
       $this->userDB = null;
     }
     gc_collect_cycles();
-
     if ($driver === 'sqlite' && $this->testDbPath && file_exists($this->testDbPath)) {
       @unlink($this->testDbPath);
     }
