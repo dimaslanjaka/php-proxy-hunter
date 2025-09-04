@@ -1,5 +1,13 @@
 [
   {
+    "hash": "90480f5e5fd0904e7919dcedfa95bec324b8a733",
+    "date": "2025-09-04T20:56:05+07:00",
+    "message": "feat: add driver property to CoreDB for tracking database type",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
     "hash": "efa0beaca04361522a3f0076f2912baff56f0daa",
     "date": "2025-09-04T20:37:26+07:00",
     "message": "feat: enhance CoreDB constructor to support direct SQLite and MySQL initialization",
