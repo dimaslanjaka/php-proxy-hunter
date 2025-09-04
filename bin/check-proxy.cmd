@@ -11,4 +11,4 @@ if exist "%CUSTOM_PHP_PATH%" (
 
 %PHP_PATH% proxyCheckerBackground.php
 echo.
-%PHP_PATH% proxyWorking.php
+%PHP_PATH% artisan/proxyWorking.php

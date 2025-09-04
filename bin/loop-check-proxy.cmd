@@ -24,7 +24,7 @@ for /l %%i in (1, 1, %max%) do (
     echo Running iteration %%i of %max%
     %PHP_PATH% proxyCheckerBackground.php
     echo.
-    %PHP_PATH% proxyWorking.php
+    %PHP_PATH% artisan/proxyWorking.php
     timeout /t 30 /nobreak >nul
 )
 
