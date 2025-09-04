@@ -14,10 +14,10 @@ class UserDBTest extends TestCase
   private ?UserDB $userDB = null;
   private ?string $testDbPath = null;
 
-  private string $mysqlHost = 'localhost';
-  private string $mysqlDb   = 'php_proxy_hunter_test';
-  private string $mysqlUser = 'root';
-  private string $mysqlPass = '123456';
+  private ?string $mysqlHost = null;
+  private ?string $mysqlUser = null;
+  private ?string $mysqlPass = null;
+  private ?string $mysqlDb = null;
 
   public function dbProvider(): array
   {
@@ -25,6 +25,15 @@ class UserDBTest extends TestCase
       'sqlite' => ['sqlite'],
       'mysql'  => ['mysql'],
     ];
+  }
+
+  protected function setUp(): void
+  {
+    parent::setUp();
+    $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? null;
+    $this->mysqlUser = $_ENV['MYSQL_USER'] ?? null;
+    $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? null;
+    $this->mysqlDb   = 'php_proxy_hunter_test';
   }
 
   protected function setUpDB(string $driver): void
