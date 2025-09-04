@@ -11,29 +11,51 @@ use PhpProxyHunter\UserDB;
  */
 class UserDBTest extends TestCase
 {
-  private UserDB $userDB;
-  private string $testDbPath;
-  private string $mysqlHost = 'localhost';
-  private string $mysqlDb = 'php_proxy_hunter_test';
-  private string $mysqlUser = 'root';
-  private string $mysqlPass = '';
-  private bool $useMySQL = false;
+  private ?UserDB $userDB = null;
+  private ?string $testDbPath = null;
 
-  protected function setUp(): void
+  private string $mysqlHost = 'localhost';
+  private string $mysqlDb   = 'php_proxy_hunter_test';
+  private string $mysqlUser = 'root';
+  private string $mysqlPass = '123456';
+
+  public function dbProvider(): array
   {
-    $this->useMySQL = getenv('PHP_PROXY_HUNTER_TEST_MYSQL') === '1';
-    if ($this->useMySQL) {
-      $this->userDB = new UserDB(null, 'mysql', $this->mysqlHost, $this->mysqlDb, $this->mysqlUser, $this->mysqlPass, true);
-      // Optionally, clear tables before each test
+    return [
+      'sqlite' => ['sqlite'],
+      'mysql'  => ['mysql'],
+    ];
+  }
+
+  protected function setUpDB(string $driver): void
+  {
+    if ($driver === 'mysql') {
+      $this->userDB = new UserDB(
+        null,
+        'mysql',
+        $this->mysqlHost,
+        $this->mysqlDb,
+        $this->mysqlUser,
+        $this->mysqlPass,
+        true
+      );
+
+      // Clean tables before each test
       $pdo = $this->userDB->db->pdo;
       $pdo->exec('SET FOREIGN_KEY_CHECKS=0;');
-      $pdo->exec('TRUNCATE TABLE user_logs;');
-      $pdo->exec('TRUNCATE TABLE user_fields;');
-      $pdo->exec('TRUNCATE TABLE auth_user;');
-      $pdo->exec('TRUNCATE TABLE meta;');
-      $pdo->exec('TRUNCATE TABLE added_proxies;');
-      $pdo->exec('TRUNCATE TABLE processed_proxies;');
-      $pdo->exec('TRUNCATE TABLE proxies;');
+      foreach (
+        [
+          'user_logs',
+          'user_fields',
+          'auth_user',
+          'meta',
+          'added_proxies',
+          'processed_proxies',
+          'proxies',
+        ] as $table
+      ) {
+        $pdo->exec("TRUNCATE TABLE {$table};");
+      }
       $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
     } else {
       $this->testDbPath = sys_get_temp_dir() . '/test_database.sqlite';
@@ -44,23 +66,32 @@ class UserDBTest extends TestCase
     }
   }
 
-  protected function tearDown(): void
+  protected function tearDownDB(string $driver): void
   {
-    $this->userDB->close();
+    if ($this->userDB) {
+      $this->userDB->close();
+      $this->userDB = null;
+    }
     gc_collect_cycles();
-    if (!$this->useMySQL && isset($this->testDbPath) && file_exists($this->testDbPath)) {
+
+    if ($driver === 'sqlite' && $this->testDbPath && file_exists($this->testDbPath)) {
       @unlink($this->testDbPath);
     }
   }
 
-  public function testAddAndSelectUser(): void
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testAddAndSelectUser(string $driver): void
   {
+    $this->setUpDB($driver);
+
     $userData = [
       'username' => 'testuser',
       'password' => 'password123',
-      'email' => 'test@example.com',
+      'email'    => 'test@example.com',
       'first_name' => 'Test',
-      'last_name' => 'User',
+      'last_name'  => 'User',
     ];
     $result = $this->userDB->add($userData);
     $this->assertTrue($result);
@@ -69,81 +100,76 @@ class UserDBTest extends TestCase
     $this->assertNotEmpty($selected);
     $this->assertEquals('testuser', $selected['username']);
     $this->assertEquals('test@example.com', $selected['email']);
+
+    $this->tearDownDB($driver);
   }
 
-  public function testUpdateUser(): void
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testUpdateUser(string $driver): void
   {
+    $this->setUpDB($driver);
+
     $userData = [
       'username' => 'updateuser',
       'password' => 'password123',
-      'email' => 'update@example.com',
+      'email'    => 'update@example.com',
     ];
     $this->userDB->add($userData);
-    $updateData = [
-      'first_name' => 'Updated',
-      'last_name' => 'Name',
-    ];
-    // Test update by username
-    $resultUsername = $this->userDB->update('updateuser', $updateData);
-    $this->assertTrue($resultUsername);
-    $selectedUsername = $this->userDB->select('updateuser');
-    $this->assertEquals('Updated', $selectedUsername['first_name']);
-    $this->assertEquals('Name', $selectedUsername['last_name']);
 
-    // Test update by email
-    $updateDataEmail = [
-      'first_name' => 'EmailUpdated',
-      'last_name' => 'EmailName',
-    ];
-    $resultEmail = $this->userDB->update('update@example.com', $updateDataEmail);
-    $this->assertTrue($resultEmail);
-    $selectedEmail = $this->userDB->select('update@example.com');
-    $this->assertEquals('EmailUpdated', $selectedEmail['first_name']);
-    $this->assertEquals('EmailName', $selectedEmail['last_name']);
+    $updateData = ['first_name' => 'Updated', 'last_name' => 'Name'];
+    $this->assertTrue($this->userDB->update('updateuser', $updateData));
+    $selected = $this->userDB->select('updateuser');
+    $this->assertEquals('Updated', $selected['first_name']);
+    $this->assertEquals('Name', $selected['last_name']);
 
-    // Test update by id
+    $updateDataEmail = ['first_name' => 'EmailUpdated', 'last_name' => 'EmailName'];
+    $this->assertTrue($this->userDB->update('update@example.com', $updateDataEmail));
+    $selected = $this->userDB->select('update@example.com');
+    $this->assertEquals('EmailUpdated', $selected['first_name']);
+    $this->assertEquals('EmailName', $selected['last_name']);
+
     $userById = $this->userDB->select('updateuser');
-    $updateDataId = [
-      'first_name' => 'IdUpdated',
-      'last_name' => 'IdName',
-    ];
-    $resultId = $this->userDB->update($userById['id'], $updateDataId);
-    $this->assertTrue($resultId);
-    $selectedId = $this->userDB->select($userById['id']);
-    $this->assertEquals('IdUpdated', $selectedId['first_name']);
-    $this->assertEquals('IdName', $selectedId['last_name']);
+    $updateDataId = ['first_name' => 'IdUpdated', 'last_name' => 'IdName'];
+    $this->assertTrue($this->userDB->update($userById['id'], $updateDataId));
+    $selected = $this->userDB->select($userById['id']);
+    $this->assertEquals('IdUpdated', $selected['first_name']);
+    $this->assertEquals('IdName', $selected['last_name']);
 
-    // Test updating username itself
     $newUsername = 'updateduser';
-    $updateUsernameData = [
-      'username' => $newUsername
-    ];
-    $resultUsernameChange = $this->userDB->update($userById['id'], $updateUsernameData);
-    $this->assertTrue($resultUsernameChange);
-    $selectedNewUsername = $this->userDB->select($newUsername);
-    $this->assertEquals($newUsername, $selectedNewUsername['username']);
+    $this->assertTrue($this->userDB->update($userById['id'], ['username' => $newUsername]));
+    $selected = $this->userDB->select($newUsername);
+    $this->assertEquals($newUsername, $selected['username']);
+
+    $this->tearDownDB($driver);
   }
 
-  public function testSaldoOperations(): void
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testSaldoOperations(string $driver): void
   {
+    $this->setUpDB($driver);
+
     $userData = [
       'username' => 'saldo',
       'password' => 'password123',
-      'email' => 'saldo@example.com',
+      'email'    => 'saldo@example.com',
     ];
     $this->userDB->add($userData);
     $user = $this->userDB->select('saldo');
     $id = (int) $user['id'];
-    $this->userDB->update_saldo($id, 100, 'refill_saldo', '', false);
-    $saldo = $this->userDB->get_saldo($id);
-    $this->assertEquals(100, $saldo);
-    $this->userDB->update_saldo($id, -50, 'buy_package', '', false);
-    $saldo = $this->userDB->get_saldo($id);
-    $this->assertEquals(50, $saldo);
 
-    // Test set saldo (replace)
+    $this->userDB->update_saldo($id, 100, 'refill_saldo', '', false);
+    $this->assertEquals(100, $this->userDB->get_saldo($id));
+
+    $this->userDB->update_saldo($id, -50, 'buy_package', '', false);
+    $this->assertEquals(50, $this->userDB->get_saldo($id));
+
     $this->userDB->update_saldo($id, 777, 'admin_set', '', true);
-    $saldo = $this->userDB->get_saldo($id);
-    $this->assertEquals(777, $saldo);
+    $this->assertEquals(777, $this->userDB->get_saldo($id));
+
+    $this->tearDownDB($driver);
   }
 }

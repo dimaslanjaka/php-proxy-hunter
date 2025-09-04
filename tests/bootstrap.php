@@ -1,4 +1,5 @@
 <?php
+
 // PHPUnit bootstrap file to load .env early
 require_once __DIR__ . '/../vendor/autoload.php';
 
