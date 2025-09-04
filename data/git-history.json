@@ -1,5 +1,14 @@
 [
   {
+    "hash": "c990ebb49a73cbdd2e7474fb100e7dc32c0c00ae",
+    "date": "2025-09-04T22:11:11+07:00",
+    "message": "refactor(admin): move page-level layout styling from SaldoManager to Admin\n\n- Wrapped `SaldoManager` with container in `Admin` for consistent layout\n- Removed redundant min-height and background styling from `SaldoManager`",
+    "files": [
+      "src/react/pages/Admin.tsx",
+      "src/react/pages/admin/SaldoManager.tsx"
+    ]
+  },
+  {
     "hash": "e8d81a9c207f65c2872e8cfe476d5c72be21f534",
     "date": "2025-09-04T21:29:18+07:00",
     "message": "refactor(coredb): improve type safety and schema initialization\n\nAdded strict type hints, replaced `die()` with `RuntimeException`, and extracted schema loading into a reusable `loadSchema` method. Also refactored MySQL/SQLite initialization methods for clarity and maintainability.",
