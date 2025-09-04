@@ -1,5 +1,22 @@
 [
   {
+    "hash": "f7ea8e0d7d77f2b4e432e37d88eae8b8bf3721c1",
+    "date": "2025-09-04T19:08:31+07:00",
+    "message": "feat: implement CoreDB class for MySQL and SQLite database connections",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
+    "hash": "9b5bf2911baf99997ad8828737f2758e2e921991",
+    "date": "2025-09-04T19:02:41+07:00",
+    "message": "fix: update script paths to include 'artisan' for proxyWorking.php",
+    "files": [
+      "bin/check-proxy.cmd",
+      "bin/loop-check-proxy.cmd"
+    ]
+  },
+  {
     "hash": "970d1cc545f83b61b0cae587d035a9704b4ba878",
     "date": "2025-09-04T19:00:36+07:00",
     "message": "fix(geoip): handle missing IPs gracefully in geoPlugin2 and geoPlugin\n\n- Wrap GeoIP2 city lookup in geoPlugin2::locate() with try-catch to prevent fatal errors for missing IPs, returning null instead.\n- Update geoPlugin to check for null from geoPlugin2::locate() before assigning properties.\n- Minor constructor simplification in geoPlugin.",
