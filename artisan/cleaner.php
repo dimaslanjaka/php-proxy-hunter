@@ -4,7 +4,15 @@
 
 require_once __DIR__ . '/../func.php';
 
-$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+$isCli = (
+  php_sapi_name() === 'cli'
+  || defined('STDIN')
+  || (
+    empty($_SERVER['REMOTE_ADDR'])
+    && !isset($_SERVER['HTTP_USER_AGENT'])
+    && count($_SERVER['argv']) > 0
+  )
+);
 
 if (!$isCli) {
   header('Content-Type:text/plain; charset=UTF-8');
