@@ -1,14 +1,15 @@
 <?php
+
 // Initialize a cURL session
 $ch = curl_init();
 
 // URL for the POST request
-$url = "http://httpbin.org/post";
+$url = 'http://httpbin.org/post';
 
 // Data to be sent via POST
 $postData = [
   'field1' => 'value1',
-  'field2' => 'value2'
+  'field2' => 'value2',
 ];
 
 // Convert data array to a URL-encoded query string

@@ -11,13 +11,13 @@ use PhpProxyHunter\UserDB;
  */
 class UserDBTest extends TestCase
 {
-  private ?UserDB $userDB = null;
+  private ?UserDB $userDB     = null;
   private ?string $testDbPath = null;
 
   private ?string $mysqlHost = null;
   private ?string $mysqlUser = null;
   private ?string $mysqlPass = null;
-  private ?string $mysqlDb = null;
+  private ?string $mysqlDb   = null;
 
   public function dbProvider(): array
   {
@@ -68,7 +68,7 @@ class UserDBTest extends TestCase
       $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
     } else {
       $this->testDbPath = sys_get_temp_dir() . '/test_database.sqlite';
-      $this->userDB = new UserDB($this->testDbPath);
+      $this->userDB     = new UserDB($this->testDbPath);
     }
   }
 
@@ -92,9 +92,9 @@ class UserDBTest extends TestCase
     $this->setUpDB($driver);
 
     $userData = [
-      'username' => 'testuser',
-      'password' => 'password123',
-      'email'    => 'test@example.com',
+      'username'   => 'testuser',
+      'password'   => 'password123',
+      'email'      => 'test@example.com',
       'first_name' => 'Test',
       'last_name'  => 'User',
     ];
@@ -135,7 +135,7 @@ class UserDBTest extends TestCase
     $this->assertEquals('EmailUpdated', $selected['first_name']);
     $this->assertEquals('EmailName', $selected['last_name']);
 
-    $userById = $this->userDB->select('updateuser');
+    $userById     = $this->userDB->select('updateuser');
     $updateDataId = ['first_name' => 'IdUpdated', 'last_name' => 'IdName'];
     $this->assertTrue($this->userDB->update($userById['id'], $updateDataId));
     $selected = $this->userDB->select($userById['id']);
@@ -164,7 +164,7 @@ class UserDBTest extends TestCase
     ];
     $this->userDB->add($userData);
     $user = $this->userDB->select('saldo');
-    $id = (int) $user['id'];
+    $id   = (int) $user['id'];
 
     $this->userDB->update_saldo($id, 100, 'refill_saldo', '', false);
     $this->assertEquals(100, $this->userDB->get_saldo($id));

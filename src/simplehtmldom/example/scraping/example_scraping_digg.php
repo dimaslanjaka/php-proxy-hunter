@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This example loads the main page from https://digg.com/, extracts news items
  * and returns the details in a custom format.
@@ -8,7 +9,7 @@ include_once '../../HtmlWeb.php';
 use simplehtmldom\HtmlWeb;
 
 // Download a page
-$doc = new HtmlWeb();
+$doc  = new HtmlWeb();
 $html = $doc->load('https://digg.com/');
 
 // Loop through all articles in the page

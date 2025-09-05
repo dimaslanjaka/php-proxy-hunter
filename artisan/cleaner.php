@@ -20,7 +20,7 @@ $directories = [
   __DIR__ . '/../tmp/sessions/',
   __DIR__ . '/../tmp/runners/',
   __DIR__ . '/../tmp/logs/',
-  __DIR__ . '/../backups/'
+  __DIR__ . '/../backups/',
 ];
 
 // Get the current timestamp
@@ -54,7 +54,7 @@ foreach ($directories as $directory) {
       // File was last modified more than 1 week ago.
       if ($file_mtime < $oneWeekAgo) {
         // Remove the file
-        echo "File $file removed (" . (unlink($filePath) ? 'success' : 'failed') . ")" . PHP_EOL;
+        echo "File $file removed (" . (unlink($filePath) ? 'success' : 'failed') . ')' . PHP_EOL;
       }
     }
     // Close the directory handle

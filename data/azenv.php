@@ -40,8 +40,7 @@
 
 foreach ($_SERVER as $header => $value) {
   if (
-    strpos($header, 'REMOTE') !== false || strpos($header, 'HTTP') !== false ||
-    strpos($header, 'REQUEST') !== false
+    strpos($header, 'REMOTE') !== false || strpos($header, 'HTTP') !== false || strpos($header, 'REQUEST') !== false
   ) {
     echo $header . ' = ' . $value . "\n";
   }

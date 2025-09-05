@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/func.php";
+require_once __DIR__ . '/func.php';
 
 use PhpProxyHunter\Scheduler;
 
@@ -8,9 +8,9 @@ $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMO
 
 if (!$isCli) {
   // Allow from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
   header('Content-Type: text/plain; charset=utf-8');
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
@@ -22,15 +22,15 @@ if (!$isCli) {
 }
 
 // Run a long-running process in the background
-$file = realpath(__DIR__ . "/proxyChecker.php");
+$file        = realpath(__DIR__ . '/proxyChecker.php');
 $output_file = __DIR__ . '/proxyChecker.txt';
-$pid_file = __DIR__ . '/tmp/runners/proxyChecker.pid';
+$pid_file    = __DIR__ . '/tmp/runners/proxyChecker.pid';
 setMultiPermissions([$file, $output_file, $pid_file], true);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-$cmd = "php " . escapeshellarg($file);
+$cmd   = 'php ' . escapeshellarg($file);
 
 $uid = getUserId();
-$cmd .= " --userId=" . escapeshellarg($uid);
+$cmd .= ' --userId=' . escapeshellarg($uid);
 
 // validate lock files
 if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug()) {
@@ -41,8 +41,8 @@ $cmd = trim($cmd);
 
 echo $cmd . "\n\n";
 
-$cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
-$runner = __DIR__ . "/tmp/runners/proxyChecker" . ($isWin ? '.bat' : "");
+$cmd    = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
+$runner = __DIR__ . '/tmp/runners/proxyChecker' . ($isWin ? '.bat' : '');
 
 write_file($runner, $cmd);
 

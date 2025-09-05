@@ -8,7 +8,7 @@ use Exception;
 
 class Session
 {
-  private $session_prefix_name = "PHP_PROXY_HUNTER";
+  private $session_prefix_name = 'PHP_PROXY_HUNTER';
 
   /**
    * Session constructor that starts a session with a specified timeout and optional session folder.
@@ -50,8 +50,8 @@ class Session
       if (!isset($_SESSION['session_started'])) {
         $_SESSION['session_started'] = $this->now();
         $_SESSION['session_timeout'] = $timeout;
-        $_SESSION['cookie_timeout'] = $timeout;
-        $_SESSION['id'] = session_id();
+        $_SESSION['cookie_timeout']  = $timeout;
+        $_SESSION['id']              = session_id();
       }
     }
   }
@@ -75,17 +75,17 @@ class Session
   {
     return [
       'sessions' => [
-        'active' => PHP_SESSION_NONE == session_status(),
-        'id' => session_id(),
-        'folder' => realpath(ini_get('session.save_path')),
-        'session.gc_maxlifetime' => ini_get('session.gc_maxlifetime'),
+        'active'                  => PHP_SESSION_NONE == session_status(),
+        'id'                      => session_id(),
+        'folder'                  => realpath(ini_get('session.save_path')),
+        'session.gc_maxlifetime'  => ini_get('session.gc_maxlifetime'),
         'session.cookie_lifetime' => ini_get('session.cookie_lifetime'),
-        'session.gc_probability' => ini_get('session.gc_probability'),
-        'session.gc_divisor' => ini_get('session.gc_divisor'),
-        'session.hash_function' => ini_get('session.hash_function'),
-        'session.file' => realpath(session_save_path() .'/sess_' . session_id())
+        'session.gc_probability'  => ini_get('session.gc_probability'),
+        'session.gc_divisor'      => ini_get('session.gc_divisor'),
+        'session.hash_function'   => ini_get('session.hash_function'),
+        'session.file'            => realpath(session_save_path() .'/sess_' . session_id()),
       ],
-      'cookies' => $_COOKIE
+      'cookies' => $_COOKIE,
     ];
   }
 

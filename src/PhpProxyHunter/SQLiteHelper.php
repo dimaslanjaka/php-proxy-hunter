@@ -36,9 +36,9 @@ class SQLiteHelper
   {
     $trace = debug_backtrace();
     // Unique key is based on the last caller if $unique is true
-    $caller = $unique ? end($trace) : $trace[0];
-    $callerFile = isset($caller['file']) ? $caller['file'] : 'unknown';
-    $callerLine = isset($caller['line']) ? $caller['line'] : 'unknown';
+    $caller          = $unique ? end($trace) : $trace[0];
+    $callerFile      = isset($caller['file']) ? $caller['file'] : 'unknown';
+    $callerLine      = isset($caller['line']) ? $caller['line'] : 'unknown';
     $this->uniqueKey = md5($dbPath . $callerFile . $callerLine);
 
     // Avoid multiple PDO instance
@@ -72,7 +72,7 @@ class SQLiteHelper
   public function createTable($tableName, $columns)
   {
     $columnsString = implode(', ', $columns);
-    $sql = "CREATE TABLE IF NOT EXISTS $tableName ($columnsString)";
+    $sql           = "CREATE TABLE IF NOT EXISTS $tableName ($columnsString)";
     $this->pdo->exec($sql);
   }
 
@@ -91,9 +91,9 @@ class SQLiteHelper
     }
 
     $columns = implode(', ', array_keys($data));
-    $values = implode(', ', array_fill(0, count($data), '?'));
-    $sql = $insertOrIgnore ? "INSERT OR IGNORE" : "INSERT";
-    $sql = "$sql INTO $tableName ($columns) VALUES ($values)";
+    $values  = implode(', ', array_fill(0, count($data), '?'));
+    $sql     = $insertOrIgnore ? 'INSERT OR IGNORE' : 'INSERT';
+    $sql     = "$sql INTO $tableName ($columns) VALUES ($values)";
 
     try {
       $stmt = $this->pdo->prepare($sql);
@@ -181,8 +181,8 @@ class SQLiteHelper
       }
     }
     $setString = implode(', ', $setValues);
-    $sql = "UPDATE $tableName SET $setString WHERE $where";
-    $stmt = $this->pdo->prepare($sql);
+    $sql       = "UPDATE $tableName SET $setString WHERE $where";
+    $stmt      = $this->pdo->prepare($sql);
     $stmt->execute(array_merge($setParams, $params));
   }
 
@@ -195,7 +195,7 @@ class SQLiteHelper
    */
   public function delete($tableName, $where, $params = [])
   {
-    $sql = "DELETE FROM $tableName WHERE $where";
+    $sql  = "DELETE FROM $tableName WHERE $where";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
   }

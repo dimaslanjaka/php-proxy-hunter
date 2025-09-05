@@ -126,7 +126,7 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
       if (!isValidIp($match[1])) {
         continue;
       }
-      $proxy = $match[1] . ":" . $match[2];
+      $proxy  = $match[1] . ':' . $match[2];
       $result = new Proxy($proxy);
       if (isValidProxy($proxy)) {
         // limit array
@@ -137,10 +137,10 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
       continue;
     }
     if ($matched_json && count($match) === 3) {
-      $ip = $match[1];   // IP address
+      $ip   = $match[1];   // IP address
       $port = $match[2]; // Port number
       if (isValidIp($ip)) {
-        $proxy = $ip . ":" . $port;
+        $proxy  = $ip . ':' . $port;
         $result = new Proxy($proxy);
         if (isValidProxy($proxy)) {
           // limit array
@@ -162,7 +162,7 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
         $proxy = $exploded[1];
         $login = $exploded[0];
       }
-      list($username, $password) = explode(":", $login);
+      list($username, $password) = explode(':', $login);
       if (isValidProxy($proxy)) {
         $result = new Proxy($proxy);
         if (!empty($username) && !empty($password) && $write_database === true) {
@@ -176,7 +176,7 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
         }
       }
     } else {
-      $proxy = $match[0];
+      $proxy  = $match[0];
       $result = new Proxy($proxy);
       // limit array
       if (count($results) < $limit) {

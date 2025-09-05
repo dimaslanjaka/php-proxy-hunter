@@ -5,7 +5,7 @@ require_once __DIR__ . '/func.php';
 $forbidden = false;
 
 // Check if the X-User-Token and X-Serial-Number headers are set
-$userToken = isset($_SERVER['HTTP_X_USER_TOKEN']) ? $_SERVER['HTTP_X_USER_TOKEN'] : null;
+$userToken    = isset($_SERVER['HTTP_X_USER_TOKEN']) ? $_SERVER['HTTP_X_USER_TOKEN'] : null;
 $serialNumber = isset($_SERVER['HTTP_X_SERIAL_NUMBER']) ? $_SERVER['HTTP_X_SERIAL_NUMBER'] : null;
 
 if ($userToken && $serialNumber) {
@@ -16,14 +16,14 @@ if ($userToken && $serialNumber) {
       $json = safe_json_decode($read);
       if ($json) {
         $validUntilStr = isset($json['valid_until']) ? $json['valid_until'] : '';
-        $validUntil = DateTime::createFromFormat(DateTime::ATOM, $validUntilStr);
+        $validUntil    = DateTime::createFromFormat(DateTime::ATOM, $validUntilStr);
 
         if ($validUntil === false) {
           // Invalid date format
           $forbidden = true;
         } else {
           // Get current date and time
-          $now = new DateTime();
+          $now       = new DateTime();
           $forbidden = $now > $validUntil;
 
           if (!$forbidden) {
@@ -64,7 +64,7 @@ if ($userToken && $serialNumber) {
 }
 
 if ($forbidden) {
-  header("Content-Type: application/json; charset=utf-8");
+  header('Content-Type: application/json; charset=utf-8');
   http_response_code(403);
   exit(json_encode(['error' => 'unauthorized, try login first']));
 }
@@ -74,8 +74,8 @@ $file = isset($_REQUEST['file']) ? rawurldecode(trim($_REQUEST['file'])) : 'prox
 
 // Exclude/ignore files matching these glob patterns (denylist)
 $excludedGlobs = ['*.env', '*.env.*', '*.php', '*.sh', '*.bat', '*.exe', '*.bak', '*.key', '*.pem', '*.crt', '*.htaccess', 'composer.*', 'package*.json', 'node_modules*', 'vendor*', '.git*', '*.bak', '*.lock', '*.zip', '*.tar*', '*.gz', '*.7z', '*.rar', '*.db', '*.sqlite', '*.py', '*.ts', '*.js', '*.cjs', '*.mjs', '*.md', '*.yml', '*.yaml', '*.log.bak'];
-$baseFile = basename($file);
-$denied = false;
+$baseFile      = basename($file);
+$denied        = false;
 foreach ($excludedGlobs as $pattern) {
   if (fnmatch($pattern, $baseFile, FNM_CASEFOLD)) {
     $denied = true;
@@ -106,7 +106,7 @@ if ($real_file && file_exists($real_file)) {
   } else {
     // Invalid file type
     http_response_code(400);
-    echo "Invalid file type. Only JSON, text, and log files are allowed.";
+    echo 'Invalid file type. Only JSON, text, and log files are allowed.';
   }
 } else {
   // File not found or inaccessible

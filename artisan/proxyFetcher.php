@@ -7,7 +7,7 @@ $projectRoot = dirname(__DIR__);
 
 require_once $projectRoot . '/func-proxy.php';
 
-use \PhpProxyHunter\Scheduler;
+use PhpProxyHunter\Scheduler;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
@@ -22,8 +22,8 @@ if (function_exists('header')) {
   header('Content-Type: text/plain; charset=UTF-8');
 }
 
-$lockFilePath = $projectRoot . "/proxyChecker.lock";
-$statusFile = $projectRoot . "/status.txt";
+$lockFilePath = $projectRoot . '/proxyChecker.lock';
+$statusFile   = $projectRoot . '/status.txt';
 
 if (file_exists($lockFilePath) && !is_debug()) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
@@ -34,12 +34,12 @@ if (file_exists($lockFilePath) && !is_debug()) {
 }
 
 Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
-  echo "releasing lock" . PHP_EOL;
+  echo 'releasing lock' . PHP_EOL;
   // clean lock files
   if (file_exists($lockFilePath)) {
     unlink($lockFilePath);
   }
-  echo "update status to IDLE" . PHP_EOL;
+  echo 'update status to IDLE' . PHP_EOL;
   file_put_contents($statusFile, 'idle');
 }, 'z_onExit' . basename(__FILE__));
 
@@ -54,19 +54,19 @@ $chunks = array_chunk($urls, 5);
 // Loop through each chunk with an index
 foreach ($chunks as $index => $chunk) {
   // Create a unique filename for each chunk
-  $outputFile = $projectRoot . "/assets/proxies/added-fetch-" . date("Ymd") . "-chunk-" . ($index + 1) . ".txt";
+  $outputFile = $projectRoot . '/assets/proxies/added-fetch-' . date('Ymd') . '-chunk-' . ($index + 1) . '.txt';
 
   foreach ($chunk as $url) {
     // Fetch content from URL
     $content = curlGetWithProxy($url, null, null, 3600) ?: '';
-    $json = json_decode(trim($content), true);
+    $json    = json_decode(trim($content), true);
     if (json_last_error() === JSON_ERROR_NONE) {
       // $content = '';
       if (isset($json['data'])) {
         if (is_array($json['data'])) {
           foreach ($json['data'] as $item) {
             if (isset($item['ip']) && isset($item['port'])) {
-              $proxy = trim($item['ip']) . ":" . trim($item['port']);
+              $proxy = trim($item['ip']) . ':' . trim($item['port']);
               $content .= $proxy . PHP_EOL;
             } else {
               var_dump($item);
@@ -83,12 +83,12 @@ foreach ($chunks as $index => $chunk) {
 
     // Append content to output file
     Scheduler::register(function () use ($outputFile, $content, $url) {
-      $projectRoot = dirname(__DIR__);
+      $projectRoot   = dirname(__DIR__);
       $fallback_file = $projectRoot . '/assets/proxies/added-fetch-' . md5($url) . '.txt';
-      $append = append_content_with_lock($outputFile, "\n" . $content . "\n");
+      $append        = append_content_with_lock($outputFile, "\n" . $content . "\n");
       if (!$append) {
         $outputFile = $fallback_file;
-        $append = append_content_with_lock($fallback_file, "\n" . $content . "\n");
+        $append     = append_content_with_lock($fallback_file, "\n" . $content . "\n");
       }
       if ($append) {
         $filter = filterIpPortLines($outputFile);
@@ -102,6 +102,6 @@ foreach ($chunks as $index => $chunk) {
         }
         sleep(1);
       }
-    }, "append content " . md5($url));
+    }, 'append content ' . md5($url));
   }
 }

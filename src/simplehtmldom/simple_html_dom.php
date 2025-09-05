@@ -85,8 +85,7 @@ class_alias('\simplehtmldom\HtmlDocument', 'simple_html_dom', true);
  * @param string $str HTML string
  */
 class simple_html_dom // extends HtmlDocument
-{
-  public $innertext;
+{public $innertext;
   public $outertext;
 
   public function __construct()

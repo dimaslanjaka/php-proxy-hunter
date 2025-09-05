@@ -6,9 +6,9 @@ global $isCli, $isAdmin;
 
 if (!$isCli) {
   // Set CORS (Cross-Origin Resource Sharing) headers to allow requests from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
 
   // Set content type to JSON with UTF-8 encoding
   header('Content-Type: application/json; charset=utf-8');
@@ -29,14 +29,14 @@ if (!empty($_POST['g-recaptcha-response'])) {
 
   foreach ($secrets as $secret) {
     $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $_POST['g-recaptcha-response']);
-    $responseData = json_decode($verifyResponse);
+    $responseData   = json_decode($verifyResponse);
 
     if ($responseData->success) {
-      $_SESSION['captcha'] = true;
+      $_SESSION['captcha']            = true;
       $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
-      exit(json_encode(['message' => "Google reCAPTCHA verified successfully", "success" => true]));
+      exit(json_encode(['message' => 'Google reCAPTCHA verified successfully', 'success' => true]));
     }
   }
 }
 
-echo json_encode(['error' => "Failed to verify Google reCAPTCHA", "success" => false]);
+echo json_encode(['error' => 'Failed to verify Google reCAPTCHA', 'success' => false]);

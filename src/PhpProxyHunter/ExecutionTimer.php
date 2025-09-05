@@ -38,9 +38,9 @@ class ExecutionTimer
    */
   public function __construct(int $maxExecutionTime = 30, int $safetyBuffer = 2)
   {
-    $this->startTime = microtime(true);
+    $this->startTime        = microtime(true);
     $this->maxExecutionTime = $maxExecutionTime;
-    $this->safetyBuffer = $safetyBuffer;
+    $this->safetyBuffer     = $safetyBuffer;
   }
 
   /**

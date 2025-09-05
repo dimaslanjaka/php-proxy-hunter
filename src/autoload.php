@@ -7,7 +7,7 @@ $excludeFolders = [
   '**/simplehtmldom/**',
   '**/PhpProxyHunter/**',
   '**/mvc/**',
-  '**/__*/**'
+  '**/__*/**',
 ];
 
 $iterator = new RecursiveIteratorIterator(
@@ -19,7 +19,7 @@ foreach ($iterator as $file) {
     continue;
   }
   // Skip files in excluded folders using glob patterns
-  $skip = false;
+  $skip     = false;
   $filePath = str_replace('\\', '/', $file->getPathname());
   foreach ($excludeFolders as $pattern) {
     if (fnmatch($pattern, $filePath)) {

@@ -66,9 +66,9 @@ class UserDB
     $this->db->pdo->exec($sqlFileContents);
 
     // Fix journal mode to WAL
-    $wal_status = $this->db->pdo->query("PRAGMA journal_mode")->fetch()['journal_mode'];
+    $wal_status = $this->db->pdo->query('PRAGMA journal_mode')->fetch()['journal_mode'];
     if ($wal_status != 'wal') {
-      $this->db->pdo->exec("PRAGMA journal_mode = WAL;");
+      $this->db->pdo->exec('PRAGMA journal_mode = WAL;');
     }
   }
 
@@ -98,20 +98,20 @@ class UserDB
     // Set mandatory fields with defaults or validation
     $data['username'] = $data['username'] ?? '';
     $data['password'] = $data['password'] ?? '';
-    $data['email'] = $data['email'] ?? '';
+    $data['email']    = $data['email']    ?? '';
 
     // Set optional fields with sensible defaults
-    $data['first_name'] = $data['first_name'] ?? '';
-    $data['last_name'] = $data['last_name'] ?? '';
-    $data['date_joined'] = $data['date_joined'] ?? date('Y-m-d H:i:s');
-    $data['is_staff'] = isset($data['is_staff']) ? self::normalizeBoolToInt($data['is_staff']) : 0;
-    $data['is_active'] = isset($data['is_active']) ? self::normalizeBoolToInt($data['is_active']) : 1;
+    $data['first_name']   = $data['first_name']  ?? '';
+    $data['last_name']    = $data['last_name']   ?? '';
+    $data['date_joined']  = $data['date_joined'] ?? date('Y-m-d H:i:s');
+    $data['is_staff']     = isset($data['is_staff']) ? self::normalizeBoolToInt($data['is_staff']) : 0;
+    $data['is_active']    = isset($data['is_active']) ? self::normalizeBoolToInt($data['is_active']) : 1;
     $data['is_superuser'] = isset($data['is_superuser']) ? self::normalizeBoolToInt($data['is_superuser']) : 0;
-    $data['last_login'] = $data['last_login'] ?? null;
+    $data['last_login']   = $data['last_login'] ?? null;
 
     // Validate required fields
     if (!empty($data['username']) && !empty($data['password']) && !empty($data['email'])) {
-      $this->db->insert("auth_user", $data, true);
+      $this->db->insert('auth_user', $data, true);
       return true;
     }
 
@@ -126,11 +126,11 @@ class UserDB
    */
   public function select($id)
   {
-    $id = is_string($id) ? trim($id) : $id;
+    $id         = is_string($id) ? trim($id) : $id;
     $conditions = [
       'email = ?',
       'username = ?',
-      'id = ?'
+      'id = ?',
     ];
     // Declare empty result
     $result = [];
@@ -164,19 +164,19 @@ class UserDB
    */
   public function update($id, array $data)
   {
-    $id = is_string($id) ? trim($id) : $id;
+    $id         = is_string($id) ? trim($id) : $id;
     $conditions = [
       'email = ?',
       'username = ?',
-      'id = ?'
+      'id = ?',
     ];
     $success = false;
     foreach ($conditions as $condition) {
-      $select = $this->db->select("auth_user", "*", $condition, [$id]);
+      $select = $this->db->select('auth_user', '*', $condition, [$id]);
       if (!empty($select)) {
         $success = true;
         // Update the user data using the correct identifier
-        $this->db->update("auth_user", $data, "id = ?", [$select[0]['id']]);
+        $this->db->update('auth_user', $data, 'id = ?', [$select[0]['id']]);
         break;
       }
     }
@@ -203,7 +203,7 @@ class UserDB
       $this->db->insert('user_fields', ['user_id' => $id, 'saldo' => 0]);
       $existing_saldo = 0;
     } else {
-      $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
+      $saldo_row      = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
       $existing_saldo = isset($saldo_row[0]['saldo']) ? intval($saldo_row[0]['saldo']) : 0;
     }
 
@@ -217,11 +217,11 @@ class UserDB
     // Update logs
     $log_action = $replace ? "Set saldo to $amount" : "Topup $amount";
     $this->db->insert('user_logs', [
-      'message' => $log_action,
-      'log_level' => 'INFO',
-      'source' => $log_source,
+      'message'    => $log_action,
+      'log_level'  => 'INFO',
+      'source'     => $log_source,
       'extra_info' => $log_extra_info,
-      'user_id' => $id
+      'user_id'    => $id,
     ], false);
 
     $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);

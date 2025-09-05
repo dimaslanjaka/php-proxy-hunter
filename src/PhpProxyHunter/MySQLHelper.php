@@ -37,10 +37,10 @@ class MySQLHelper
    */
   public function __construct($host, $dbname, $username, $password, $unique = false)
   {
-    $trace = debug_backtrace();
-    $caller = $unique ? end($trace) : $trace[0];
-    $callerFile = isset($caller['file']) ? $caller['file'] : 'unknown';
-    $callerLine = isset($caller['line']) ? $caller['line'] : 'unknown';
+    $trace           = debug_backtrace();
+    $caller          = $unique ? end($trace) : $trace[0];
+    $callerFile      = isset($caller['file']) ? $caller['file'] : 'unknown';
+    $callerLine      = isset($caller['line']) ? $caller['line'] : 'unknown';
     $this->uniqueKey = md5($host . $dbname . $username . $callerFile . $callerLine);
 
     if (isset(self::$_databases[$this->uniqueKey])) {
@@ -54,9 +54,9 @@ class MySQLHelper
         if (strpos($e->getMessage(), 'Unknown database') !== false) {
           // Connect without dbname and create the database
           $dsnNoDb = "mysql:host=$host;charset=utf8mb4";
-          $pdoTmp = new PDO($dsnNoDb, $username, $password);
+          $pdoTmp  = new PDO($dsnNoDb, $username, $password);
           $pdoTmp->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-          $pdoTmp->exec("CREATE DATABASE IF NOT EXISTS `" . str_replace('`', '', $dbname) . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+          $pdoTmp->exec('CREATE DATABASE IF NOT EXISTS `' . str_replace('`', '', $dbname) . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
           // Now connect again with the dbname
           $this->pdo = new PDO($dsn, $username, $password);
         } else {
@@ -86,7 +86,7 @@ class MySQLHelper
   public function createTable($tableName, $columns)
   {
     $columnsString = implode(', ', $columns);
-    $sql = "CREATE TABLE IF NOT EXISTS $tableName ($columnsString)";
+    $sql           = "CREATE TABLE IF NOT EXISTS $tableName ($columnsString)";
     $this->pdo->exec($sql);
   }
 
@@ -104,9 +104,9 @@ class MySQLHelper
     }
 
     $columns = implode(', ', array_keys($data));
-    $values = implode(', ', array_fill(0, count($data), '?'));
-    $sql = $insertOrIgnore ? "INSERT IGNORE" : "INSERT";
-    $sql = "$sql INTO $tableName ($columns) VALUES ($values)";
+    $values  = implode(', ', array_fill(0, count($data), '?'));
+    $sql     = $insertOrIgnore ? 'INSERT IGNORE' : 'INSERT';
+    $sql     = "$sql INTO $tableName ($columns) VALUES ($values)";
 
     try {
       $stmt = $this->pdo->prepare($sql);
@@ -193,8 +193,8 @@ class MySQLHelper
       }
     }
     $setString = implode(', ', $setValues);
-    $sql = "UPDATE $tableName SET $setString WHERE $where";
-    $stmt = $this->pdo->prepare($sql);
+    $sql       = "UPDATE $tableName SET $setString WHERE $where";
+    $stmt      = $this->pdo->prepare($sql);
     $stmt->execute(array_merge($setParams, $params));
   }
 
@@ -207,7 +207,7 @@ class MySQLHelper
    */
   public function delete($tableName, $where, $params = [])
   {
-    $sql = "DELETE FROM $tableName WHERE $where";
+    $sql  = "DELETE FROM $tableName WHERE $where";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
   }

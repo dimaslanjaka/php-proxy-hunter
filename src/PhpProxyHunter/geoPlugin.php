@@ -108,17 +108,17 @@ class geoPlugin implements \JsonSerializable
   public function fromGeoIp2CityModel(\GeoIp2\Model\City $record = null)
   {
     if ($record != null) {
-      $this->city = $record->city->name;
+      $this->city        = $record->city->name;
       $this->countryName = $record->country->name;
       $this->countryCode = $record->country->isoCode;
-      $this->latitude = $record->location->latitude;
-      $this->longitude = $record->location->longitude;
-      $this->latitude = $record->location->latitude;
-      $this->timezone =  $record->location->timeZone;
-      $this->regionName = $record->mostSpecificSubdivision->name;
-      $this->region = $record->mostSpecificSubdivision->geonameId;
-      $this->regionCode = $record->mostSpecificSubdivision->isoCode;
-      $lang = is_array($record->country->names) ? array_keys($record->country->names) : [];
+      $this->latitude    = $record->location->latitude;
+      $this->longitude   = $record->location->longitude;
+      $this->latitude    = $record->location->latitude;
+      $this->timezone    = $record->location->timeZone;
+      $this->regionName  = $record->mostSpecificSubdivision->name;
+      $this->region      = $record->mostSpecificSubdivision->geonameId;
+      $this->regionCode  = $record->mostSpecificSubdivision->isoCode;
+      $lang              = is_array($record->country->names) ? array_keys($record->country->names) : [];
       if (!empty($lang)) {
         $this->lang = $lang[0];
       }
@@ -167,24 +167,24 @@ class geoPlugin implements \JsonSerializable
       } else {
         $data = unserialize($response);
         if ($data != false) {
-          $this->city = $data['geoplugin_city'];
-          $this->region = $data['geoplugin_region'];
-          $this->regionCode = $data['geoplugin_regionCode'];
-          $this->regionName = $data['geoplugin_regionName'];
-          $this->dmaCode = $data['geoplugin_dmaCode'];
-          $this->countryCode = $data['geoplugin_countryCode'];
-          $this->countryName = $data['geoplugin_countryName'];
-          $this->inEU = $data['geoplugin_inEU'];
-          $this->euVATrate = $data['geoplugin_euVATrate'];
-          $this->continentCode = $data['geoplugin_continentCode'];
-          $this->continentName = $data['geoplugin_continentName'];
-          $this->latitude = $data['geoplugin_latitude'];
-          $this->longitude = $data['geoplugin_longitude'];
+          $this->city                   = $data['geoplugin_city'];
+          $this->region                 = $data['geoplugin_region'];
+          $this->regionCode             = $data['geoplugin_regionCode'];
+          $this->regionName             = $data['geoplugin_regionName'];
+          $this->dmaCode                = $data['geoplugin_dmaCode'];
+          $this->countryCode            = $data['geoplugin_countryCode'];
+          $this->countryName            = $data['geoplugin_countryName'];
+          $this->inEU                   = $data['geoplugin_inEU'];
+          $this->euVATrate              = $data['geoplugin_euVATrate'];
+          $this->continentCode          = $data['geoplugin_continentCode'];
+          $this->continentName          = $data['geoplugin_continentName'];
+          $this->latitude               = $data['geoplugin_latitude'];
+          $this->longitude              = $data['geoplugin_longitude'];
           $this->locationAccuracyRadius = $data['geoplugin_locationAccuracyRadius'];
-          $this->timezone = $data['geoplugin_timezone'];
-          $this->currencyCode = $data['geoplugin_currencyCode'];
-          $this->currencySymbol = $data['geoplugin_currencySymbol'];
-          $this->currencyConverter = $data['geoplugin_currencyConverter'];
+          $this->timezone               = $data['geoplugin_timezone'];
+          $this->currencyCode           = $data['geoplugin_currencyCode'];
+          $this->currencySymbol         = $data['geoplugin_currencySymbol'];
+          $this->currencyConverter      = $data['geoplugin_currencyConverter'];
         } else {
           // echo $ip . ' geo api failed ' . PHP_EOL;
           // echo $response . PHP_EOL;
@@ -200,7 +200,7 @@ class geoPlugin implements \JsonSerializable
    */
   public function locate_recursive(string $ip)
   {
-    $geo = $this->locate($ip);
+    $geo         = $this->locate($ip);
     $decodedData = json_decode($geo, true);
     if ($decodedData !== null && json_last_error() === JSON_ERROR_NONE) {
       if (isset($decodedData['geoplugin_status']) && isset($decodedData['geoplugin_message']) && $decodedData['geoplugin_status'] == 429 && strpos($decodedData['geoplugin_message'], 'too many request') !== false) {
@@ -209,19 +209,19 @@ class geoPlugin implements \JsonSerializable
           unlink($this->cacheFile);
         }
       }
-      $geo2 = new geoPlugin2();
+      $geo2      = new geoPlugin2();
       $geoplugin = $geo2->locate($ip);
       if ($geoplugin != null) {
-        $this->lang = $geoplugin->lang;
-        $this->latitude = $geoplugin->latitude;
-        $this->longitude = $geoplugin->longitude;
-        $this->timezone = $geoplugin->timezone;
-        $this->city = $geoplugin->city;
+        $this->lang        = $geoplugin->lang;
+        $this->latitude    = $geoplugin->latitude;
+        $this->longitude   = $geoplugin->longitude;
+        $this->timezone    = $geoplugin->timezone;
+        $this->city        = $geoplugin->city;
         $this->countryName = $geoplugin->countryName;
         $this->countryCode = $geoplugin->countryCode;
-        $this->regionName = $geoplugin->regionName;
-        $this->region = $geoplugin->region;
-        $this->regionCode = $geoplugin->regionCode;
+        $this->regionName  = $geoplugin->regionName;
+        $this->region      = $geoplugin->region;
+        $this->regionCode  = $geoplugin->regionCode;
       }
     }
     return $this;
@@ -235,7 +235,7 @@ class geoPlugin implements \JsonSerializable
    */
   public function fetch($host)
   {
-    $cacheDir = getcwd() . '/.cache/';
+    $cacheDir        = getcwd() . '/.cache/';
     $this->cacheFile = $cacheDir . md5($host);
 
     // Create cache directory if it doesn't exist
@@ -255,12 +255,12 @@ class geoPlugin implements \JsonSerializable
       curl_setopt($ch, CURLOPT_URL, $host);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
       curl_setopt($ch, CURLOPT_USERAGENT, 'geoPlugin PHP Class v1.1');
-      $response = curl_exec($ch);
+      $response   = curl_exec($ch);
       $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
       curl_close($ch);
     } elseif (ini_get('allow_url_fopen')) {
       // Fall back to fopen()
-      $response = file_get_contents($host);
+      $response   = file_get_contents($host);
       $httpStatus = $http_response_header[0];
     } else {
       trigger_error('geoPlugin class Error: Cannot retrieve data. Either compile PHP with cURL support or enable allow_url_fopen in php.ini ', E_USER_ERROR);
@@ -319,7 +319,7 @@ class geoPlugin implements \JsonSerializable
       return [[]];
     }
 
-    $host = "http://www.geoplugin.net/extras/nearby.gp?lat=" . $this->latitude . "&long=" . $this->longitude . "&radius={$radius}";
+    $host = 'http://www.geoplugin.net/extras/nearby.gp?lat=' . $this->latitude . '&long=' . $this->longitude . "&radius={$radius}";
 
     if (is_numeric($limit)) {
       $host .= "&limit={$limit}";

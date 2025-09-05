@@ -9,7 +9,7 @@ class CustomPasswordHasher
     if (empty($_ENV['DJANGO_SECRET_KEY'])) {
       // Load environment variables from .env file
       $projectRootPath = dirname(__DIR__, 2); // Go up two levels from src/hashers
-      $dotenv = Dotenv::createImmutable($projectRootPath);
+      $dotenv          = Dotenv::createImmutable($projectRootPath);
       $dotenv->load();
     }
     return $_ENV['DJANGO_SECRET_KEY'] ?? 'default_secret_key';
@@ -24,7 +24,7 @@ class CustomPasswordHasher
 
   public static function hash($password)
   {
-    $salt = self::getSalt();
+    $salt           = self::getSalt();
     $hashedPassword = hash('sha256', $password . $salt); // Combine password and salt
     return $hashedPassword . '$' . $salt; // Return hashed password with salt
   }
@@ -37,7 +37,7 @@ class CustomPasswordHasher
       return false;
     }
     list($passwordHash, $salt) = $parts;
-    $hashedPassword = hash('sha256', $password . $salt);
+    $hashedPassword            = hash('sha256', $password . $salt);
     return $passwordHash === $hashedPassword; // Compare hashes
   }
 

@@ -6,9 +6,9 @@ global $isCli, $isWin, $isAdmin;
 
 if (!$isCli) {
   // Allow from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
   header('Content-Type: application/json; charset=utf-8');
   // Set output buffering to zero
   ini_set('output_buffering', 0);
@@ -17,7 +17,7 @@ if (!$isCli) {
   }
   // Need user logged in
   if (empty($_SESSION['user_id'])) {
-    exit(json_encode(["error" => "Access denied"]));
+    exit(json_encode(['error' => 'Access denied']));
   }
 }
 
@@ -26,9 +26,9 @@ if (!empty($parseQuery['txt'])) {
   header('Content-Type: text/plain; charset=utf-8');
 }
 
-$cwd = realpath(__DIR__ . '/../');
-$file = realpath(__DIR__ . '/../proxyChecker.py');
-$venv = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
+$cwd      = realpath(__DIR__ . '/../');
+$file     = realpath(__DIR__ . '/../proxyChecker.py');
+$venv     = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
 $venvCall = $isWin ? "call $venv" : "source $venv";
 
 $commandArgs = '';
@@ -45,22 +45,22 @@ $filename = '';
 if (!empty($parseQuery['msisdn'])) {
   $filename .= prefixZeroMsisdn(trim(rawurldecode($parseQuery['msisdn'])));
   if (!empty($parseQuery['action'])) {
-    $filename .= "-" . trim(rawurldecode($parseQuery['action']));
+    $filename .= '-' . trim(rawurldecode($parseQuery['action']));
   }
 }
 if (empty($filename)) {
   $filename = md5($file . json_encode($parseQuery));
 }
 
-$runner = unixPath(tmp() . "/runners/$filename" . ($isWin ? ".bat" : ".sh"));
+$runner      = unixPath(tmp() . "/runners/$filename" . ($isWin ? '.bat' : '.sh'));
 $output_file = unixPath(tmp() . "/logs/$filename.txt");
-$pid_file = unixPath(tmp() . "/runners/$filename.pid");
+$pid_file    = unixPath(tmp() . "/runners/$filename.pid");
 
 // Truncate output file
 truncateFile($output_file);
 
 // Disable directory listing
-write_file(tmp() . "/logs/index.html", "");
+write_file(tmp() . '/logs/index.html', '');
 
 // Construct the command
 $cmd = "$venvCall && python $file $commandArgs > $output_file 2>&1 & echo $! > $pid_file";
@@ -77,21 +77,21 @@ chdir($cwd);
 
 // Execute the runner script
 if ($isWin) {
-  $runner_win = "start /B \"window_name\" " . escapeshellarg(unixPath($runner));
+  $runner_win = 'start /B "window_name" ' . escapeshellarg(unixPath($runner));
   pclose(popen($runner_win, 'r'));
 } else {
-  exec("bash " . escapeshellarg($runner) . " > /dev/null 2>&1 &");
+  exec('bash ' . escapeshellarg($runner) . ' > /dev/null 2>&1 &');
 }
 
 $result = [
-  'output' => unixPath($output_file),
-  'cwd' => unixPath($cwd),
-  'relative' => str_replace(unixPath($cwd), '', unixPath($output_file))
+  'output'   => unixPath($output_file),
+  'cwd'      => unixPath($cwd),
+  'relative' => str_replace(unixPath($cwd), '', unixPath($output_file)),
 ];
 
 if ($isAdmin) {
-  $result['cmd'] = $cmd;
-  $result['PATH'] = getenv('PATH');
+  $result['cmd']    = $cmd;
+  $result['PATH']   = getenv('PATH');
   $result['runner'] = $runner;
 }
 

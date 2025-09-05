@@ -4,7 +4,7 @@
 
 // index all proxies into database
 
-require_once __DIR__ . "/func-proxy.php";
+require_once __DIR__ . '/func-proxy.php';
 
 global $isWin, $isCli;
 
@@ -18,23 +18,23 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
-$lockFilePath = __DIR__ . "/tmp/proxies-all.lock";
-$statusFile = __DIR__ . "/status.txt";
+$lockFilePath = __DIR__ . '/tmp/proxies-all.lock';
+$statusFile   = __DIR__ . '/status.txt';
 
-$isAdmin = false;
+$isAdmin          = false;
 $maxExecutionTime = 10 * 60;
 // disable execution limit
 set_time_limit(0);
 
 if ($isCli) {
-  $short_opts = "p:m::";
-  $long_opts = [
-    "proxy:",
-    "max::",
-    "userId::",
-    "lockFile::",
-    "runner::",
-    "admin::"
+  $short_opts = 'p:m::';
+  $long_opts  = [
+    'proxy:',
+    'max::',
+    'userId::',
+    'lockFile::',
+    'runner::',
+    'admin::',
   ];
   $options = getopt($short_opts, $long_opts);
   if (!empty($options['max'])) {
@@ -71,7 +71,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile) {
 $db = new ProxyDB();
 
 //$files = [__DIR__ . '/proxies.txt'];
-$files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
+$files  = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
 $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
   return strpos($fn, 'added-') !== false;
 });
@@ -81,24 +81,24 @@ if (!empty($assets)) {
 $files = array_filter($files, 'is_file');
 $files = array_map('realpath', $files);
 
-$str_to_remove = [];
+$str_to_remove       = [];
 $str_limit_to_remove = 10000;
-$files_to_merge = [];
+$files_to_merge      = [];
 
 foreach ($files as $file) {
   if (!file_exists($file)) {
     continue;
   }
   if (filterIpPortLines($file) == 'success') {
-    echo "non IP:PORT lines removed from " . basename($file) . PHP_EOL;
+    echo 'non IP:PORT lines removed from ' . basename($file) . PHP_EOL;
   }
-  $read = read_file($file);
+  $read        = read_file($file);
   $isFileEmpty = (is_string($read) && empty(trim($read))) || filesize($file) == 0;
   // Check if file is empty
   if ($isFileEmpty) {
     // Delete the file
     unlink($file);
-    echo "Deleted empty file: " . basename($file) . PHP_EOL;
+    echo 'Deleted empty file: ' . basename($file) . PHP_EOL;
   } elseif (filesize($file) < 30000) {
     // merge and delete if the file is small (under 30kb)
     $files_to_merge[] = $file;
@@ -116,11 +116,11 @@ if (!empty($files_to_merge)) {
   $contents = array_filter($contents, function (string $content) {
     return !empty($content);
   });
-  $content = implode(PHP_EOL, $contents);
-  $directory = __DIR__ . '/assets/proxies';
-  $mergedFileName = $directory . '/added-' . date("Ymd") . '_merged_file.txt';
+  $content          = implode(PHP_EOL, $contents);
+  $directory        = __DIR__ . '/assets/proxies';
+  $mergedFileName   = $directory . '/added-' . date('Ymd') . '_merged_file.txt';
   $mergedFileHandle = fopen($mergedFileName, 'w+');
-  $write = fwrite($mergedFileHandle, $content);
+  $write            = fwrite($mergedFileHandle, $content);
   fclose($mergedFileHandle);
   if ($write) {
     array_map(function (string $file) {
@@ -128,7 +128,7 @@ if (!empty($files_to_merge)) {
         unlink($file);
       }
     }, $files_to_merge);
-    echo "small files merged into " . basename($mergedFileName) . PHP_EOL;
+    echo 'small files merged into ' . basename($mergedFileName) . PHP_EOL;
   }
 }
 
@@ -156,14 +156,14 @@ iterateBigFilesLineByLine($files, 500, function ($line) use ($db, $str_limit_to_
     }
     $sel = $db->select($item->proxy);
     if (empty($sel)) {
-      echo "add " . $item->proxy . PHP_EOL;
+      echo 'add ' . $item->proxy . PHP_EOL;
       // add proxy
       $db->add($item->proxy);
       // re-select proxy
       $sel = $db->select($item->proxy);
     }
     if (empty($sel[0]['status'])) {
-      echo "treat as untested " . $item->proxy . PHP_EOL;
+      echo 'treat as untested ' . $item->proxy . PHP_EOL;
       $db->updateStatus($item->proxy, 'untested');
     }
     // re-check if proxy already indexed
@@ -177,13 +177,13 @@ iterateBigFilesLineByLine($files, 500, function ($line) use ($db, $str_limit_to_
   }
 });
 
-$indicator_all = __DIR__ . '/tmp/proxies-all-should-iterating-database.txt';
+$indicator_all           = __DIR__ . '/tmp/proxies-all-should-iterating-database.txt';
 $indicator_all_not_found = !file_exists($indicator_all);
-$indicator_all_expired = isFileCreatedMoreThanHours($indicator_all, 24);
-$can_do_iterate = $indicator_all_not_found || $indicator_all_expired;
+$indicator_all_expired   = isFileCreatedMoreThanHours($indicator_all, 24);
+$can_do_iterate          = $indicator_all_not_found || $indicator_all_expired;
 
 if ($can_do_iterate) {
-  echo "iterating all proxies" . PHP_EOL;
+  echo 'iterating all proxies' . PHP_EOL;
   $db->iterateAllProxies(function ($item) use ($db, $str_limit_to_remove, &$str_to_remove) {
     if (!empty($item['proxy'])) {
       if (!isValidProxy($item['proxy'])) {
@@ -211,14 +211,14 @@ if (!empty($str_to_remove)) {
     Scheduler::register(function () use (&$str_to_remove, $file) {
       $remove = removeStringFromFile($file, $str_to_remove);
       if ($remove == 'success') {
-        echo "[FILE] removed indexed proxies from " . basename($file) . ' (' . count($str_to_remove) . ')' . PHP_EOL;
+        echo '[FILE] removed indexed proxies from ' . basename($file) . ' (' . count($str_to_remove) . ')' . PHP_EOL;
       } else {
         echo $remove . PHP_EOL;
       }
-    }, "[FILE] remove indexed " . $file);
+    }, '[FILE] remove indexed ' . $file);
   }
 } else {
-  echo "No proxies to remove" . PHP_EOL;
+  echo 'No proxies to remove' . PHP_EOL;
 }
 
 function countFilesAndRepeatScriptIfNeeded()
@@ -230,7 +230,7 @@ function countFilesAndRepeatScriptIfNeeded()
   if ($handle = opendir($directory)) {
     // Count the files in the directory
     while (false !== ($entry = readdir($handle))) {
-      if ($entry != "." && $entry != "..") {
+      if ($entry != '.' && $entry != '..') {
         $fileCount++;
       }
     }
@@ -250,7 +250,7 @@ function restart_script()
 {
   global $argv;
   $currentScript = __FILE__;
-  $args = implode(' ', array_slice($argv, 1)); // Get all arguments except the script name
+  $args          = implode(' ', array_slice($argv, 1)); // Get all arguments except the script name
 
   // Execute the command
   runShellCommandLive("php $currentScript $args");
@@ -259,14 +259,14 @@ function restart_script()
 function blacklist_remover()
 {
   global $db;
-  $pdo = $db->db->pdo;
+  $pdo         = $db->db->pdo;
   $r_blacklist = read_file(__DIR__ . '/data/blacklist.conf');
   if ($r_blacklist) {
     $blacklist = extractIPs($r_blacklist);
     foreach ($blacklist as $ip) {
       // Prepare the query
       $query = 'DELETE FROM "main"."proxies" WHERE "proxy" LIKE :proxy AND status != "active"';
-      $stmt = $pdo->prepare($query);
+      $stmt  = $pdo->prepare($query);
 
       // Bind parameter (assuming you want to search for '%3.140.243.225%')
       $proxy = "%$ip%";

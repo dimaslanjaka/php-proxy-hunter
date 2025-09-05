@@ -6,7 +6,7 @@ include_once '../HtmlWeb.php';
 use simplehtmldom\HtmlWeb;
 
 // Load the document
-$doc = new HtmlWeb();
+$doc  = new HtmlWeb();
 $html = $doc->load('https://www.google.com/');
 
 // Remove all images and inputs from the DOM

@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../autoload.php';
 
 // Example CIDR range
-$cidr = "192.168.1.0/24";
+$cidr = '192.168.1.0/24';
 
 // Generate a random IP address within the CIDR range
 $randomIP = generateRandomIP($cidr);

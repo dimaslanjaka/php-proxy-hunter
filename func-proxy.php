@@ -23,7 +23,7 @@ function mergeHeaders(array $defaultHeaders, array $additionalHeaders): array
   $convertToAssocArray = function ($headers) {
     $assocArray = [];
     foreach ($headers as $header) {
-      $parts = explode(': ', $header, 2);
+      $parts                 = explode(': ', $header, 2);
       $assocArray[$parts[0]] = $parts[1];
     }
     return $assocArray;
@@ -77,7 +77,7 @@ function buildCurl(
     'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
     'Accept-Language: en-US,en;q=0.5',
     'Referer: https://www.google.com/',
-    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0',
   ];
 
   $headers = array_merge($default_headers, $headers);
@@ -215,7 +215,7 @@ function getServerIp()
   // If the above fails, try to get the IP address from the system
   if (PHP_OS_FAMILY === 'Windows') {
     // Get the output from ipconfig and filter out IPv4 addresses
-    $output = shell_exec("ipconfig");
+    $output = shell_exec('ipconfig');
     if ($output) {
       // Use regex to find all IPv4 addresses in the output
       preg_match_all('/IPv4 Address[^\d]*([\d\.]+)/i', $output, $matches);
@@ -227,7 +227,7 @@ function getServerIp()
     }
   } else {
     // For Linux, use hostname -I and filter out IPv6 addresses
-    $ip = trim(shell_exec("hostname -I"));
+    $ip = trim(shell_exec('hostname -I'));
     if ($ip) {
       // Split the result and find the first valid IPv4 address
       $ipParts = explode(' ', $ip);
@@ -254,10 +254,10 @@ function getServerIp()
 function parse_anonymity(string $response_ip_info, string $response_judges): string
 {
   if (empty(trim($response_ip_info)) || empty(trim($response_judges))) {
-    return "";
+    return '';
   }
   $mergedResponse = $response_ip_info . $response_judges;
-  $deviceIp = getServerIp();
+  $deviceIp       = getServerIp();
   if (empty($deviceIp) || $deviceIp === null || $deviceIp === false || $deviceIp === 0) {
     throw new Exception('Device IP is empty, null, false, or 0');
   }
@@ -276,7 +276,7 @@ function parse_anonymity(string $response_ip_info, string $response_judges): str
     'FORWARDED-FOR-IP',
     'FORWARDED',
     'CLIENT-IP',
-    'PROXY-CONNECTION'
+    'PROXY-CONNECTION',
   ];
 
   foreach ($privacy_headers as $header) {
@@ -305,15 +305,15 @@ function get_anonymity(string $proxy, string $type, ?string $username = null, ?s
     'http://httpheader.net/azenv.php',
     'http://pascal.hoez.free.fr/azenv.php',
     'https://www.cooleasy.com/azenv.php',
-    'https://httpbin.org/headers'
+    'https://httpbin.org/headers',
   ];
   $ip_infos = [
     'https://api.ipify.org/',
     'https://httpbin.org/ip',
-    'https://cloudflare.com/cdn-cgi/trace'
+    'https://cloudflare.com/cdn-cgi/trace',
   ];
   $content_judges = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
-    $ch = buildCurl($proxy, $type, $url, [], $username, $password);
+    $ch      = buildCurl($proxy, $type, $url, [], $username, $password);
     $content = curl_exec($ch);
     curl_close($ch);
     if (is_string($content)) {
@@ -322,7 +322,7 @@ function get_anonymity(string $proxy, string $type, ?string $username = null, ?s
     return '';
   }, $proxy_judges);
   $content_ip = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
-    $ch = buildCurl($proxy, $type, $url, [], $username, $password);
+    $ch      = buildCurl($proxy, $type, $url, [], $username, $password);
     $content = curl_exec($ch);
     curl_close($ch);
     if ($content) {
@@ -361,14 +361,14 @@ function checkProxy(
 ) {
   $proxy = trim($proxy);
   if (!$multiSSL) {
-    $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password, "GET", null, 0);
+    $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password, 'GET', null, 0);
     return processCheckProxy($ch, $proxy, $type, $username, $password);
   } else {
     $chs = [
-      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, "GET", null, 0),
-      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, "GET", null, 1),
-      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, "GET", null, 2),
-      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, "GET", null, 3)
+      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, 'GET', null, 0),
+      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, 'GET', null, 1),
+      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, 'GET', null, 2),
+      buildCurl($proxy, $type, $endpoint, $headers, $username, $password, 'GET', null, 3),
     ];
     return array_map('processCheckProxy', $chs);
   }
@@ -381,49 +381,46 @@ function processCheckProxy($ch, $proxy, $type, $username, $password): array
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60); // Timeout for connection phase in seconds
   curl_setopt($ch, CURLOPT_TIMEOUT, 60); // Total timeout for the request in seconds
-  $start = microtime(true); // Start time
-  $response = curl_exec($ch);
-  $end = microtime(true); // End time
-  $request_headers = curl_getinfo($ch, CURLINFO_HEADER_OUT);
-  $isHttps = strpos($endpoint, 'https') !== false;
-  $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-  $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 ||
-    $http_status == 301 || $http_status == 302 || $http_status == 304;
+  $start             = microtime(true); // Start time
+  $response          = curl_exec($ch);
+  $end               = microtime(true); // End time
+  $request_headers   = curl_getinfo($ch, CURLINFO_HEADER_OUT);
+  $isHttps           = strpos($endpoint, 'https') !== false;
+  $header_size       = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+  $http_status       = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 || $http_status == 301 || $http_status == 302 || $http_status == 304;
   if ($response !== false) {
     $response_header = substr($response, 0, $header_size);
-    $body = substr($response, $header_size);
+    $body            = substr($response, $header_size);
   } else {
     // If the response is false, set empty strings for headers and body
     $response_header = '';
-    $body = '';
+    $body            = '';
   }
-  $info = curl_getinfo($ch);
+  $info    = curl_getinfo($ch);
   $latency = -1;
 
   // is private proxy?
   $isPrivate = stripos($response_header, 'Proxy-Authorization:') !== false;
 
   $result = [
-    'result' => false,
-    'body' => $response,
+    'result'           => false,
+    'body'             => $response,
     'response-headers' => $response_header,
-    'request-headers' => $request_headers,
-    'proxy' => $proxy,
-    'type' => $type
+    'request-headers'  => $request_headers,
+    'proxy'            => $proxy,
+    'type'             => $type,
   ];
 
   // Check for azenv/raw headers or empty body
   if (empty($body) || !is_string($body)) {
     $result['result'] = false;
-    $result['error'] = 'empty response body';
+    $result['error']  = 'empty response body';
   } elseif (
-    checkRawHeadersKeywords($body) ||
-    stripos($response_header, 'azenvironment') !== false ||
-    stripos($response_header, 'azenv') !== false
+    checkRawHeadersKeywords($body) || stripos($response_header, 'azenvironment') !== false || stripos($response_header, 'azenv') !== false
   ) {
     $result['result'] = false;
-    $result['error'] = 'azenv raw headers found';
+    $result['error']  = 'azenv raw headers found';
   }
 
   // Check for CURL errors or empty response
@@ -431,16 +428,16 @@ function processCheckProxy($ch, $proxy, $type, $username, $password): array
     $error_msg = curl_error($ch);
     if (preg_match('/no authentication method was acceptable/mi', $error_msg)) {
       $isPrivate = true;
-      $error_msg = "Need credentials";
+      $error_msg = 'Need credentials';
     }
     $result = array_merge($result, [
-      'result' => false,
-      'latency' => $latency,
-      'error' => $error_msg,
-      'status' => (string)$info['http_code'],
-      'private' => $isPrivate,
-      'https' => $isHttps,
-      'anonymity' => null
+      'result'    => false,
+      'latency'   => $latency,
+      'error'     => $error_msg,
+      'status'    => (string)$info['http_code'],
+      'private'   => $isPrivate,
+      'https'     => $isHttps,
+      'anonymity' => null,
     ]);
   }
 
@@ -448,17 +445,17 @@ function processCheckProxy($ch, $proxy, $type, $username, $password): array
 
   // check proxy private by redirected to gateway url
   if (!$isPrivate && empty($result['error'])) {
-    $finalUrl = $info['url'];
-    $pattern = '/^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)=/i';
+    $finalUrl         = $info['url'];
+    $pattern          = '/^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)=/i';
     $is_private_match = preg_match($pattern, $finalUrl, $matches);
-    $isPrivate = $is_private_match !== false && $is_private_match > 0;
+    $isPrivate        = $is_private_match !== false && $is_private_match > 0;
     // mark as private dead
     if ($is_private_match) {
-      $result['result'] = false;
-      $result['status'] = (string)$info['http_code'];
-      $result['error'] = 'Private proxy ' . json_encode($matches);
-      $result['private'] = true;
-      $result['https'] = true; // private proxy always support HTTPS
+      $result['result']    = false;
+      $result['status']    = (string)$info['http_code'];
+      $result['error']     = 'Private proxy ' . json_encode($matches);
+      $result['private']   = true;
+      $result['https']     = true; // private proxy always support HTTPS
       $result['anonymity'] = null;
     }
   }
@@ -480,24 +477,24 @@ function processCheckProxy($ch, $proxy, $type, $username, $password): array
   // result is empty = no error
   if (empty($result['error'])) {
     $result = array_merge($result, [
-      'result' => true,
-      'latency' => $latency,
-      'error' => null,
-      'status' => (string)$info['http_code'],
-      'private' => $isPrivate,
-      'https' => $isHttps,
-      'anonymity' => null
+      'result'    => true,
+      'latency'   => $latency,
+      'error'     => null,
+      'status'    => (string)$info['http_code'],
+      'private'   => $isPrivate,
+      'https'     => $isHttps,
+      'anonymity' => null,
     ]);
     if (!$http_status_valid) {
       $result['result'] = false;
-      $result['error'] = "http response status code invalid $http_status";
+      $result['error']  = "http response status code invalid $http_status";
     }
     $anonymity = get_anonymity($proxy, $type, $username, $password);
     if (!empty($anonymity)) {
       $result['anonymity'] = strtolower($anonymity);
     } else {
       $result['result'] = false;
-      $result['error'] = 'failed obtain proxy anonymity';
+      $result['error']  = 'failed obtain proxy anonymity';
     }
   }
 
@@ -512,18 +509,18 @@ function checkRawHeadersKeywords($input)
 {
   // Define the keywords to check for
   $keywords = [
-    "REMOTE_ADDR =",
-    "REMOTE_PORT =",
-    "REQUEST_METHOD =",
-    "REQUEST_URI =",
-    "HTTP_ACCEPT-LANGUAGE =",
-    "HTTP_ACCEPT-ENCODING =",
-    "HTTP_USER-AGENT =",
-    "HTTP_ACCEPT =",
-    "REQUEST_TIME =",
-    "HTTP_UPGRADE-INSECURE-REQUESTS =",
-    "HTTP_CONNECTION =",
-    "HTTP_PRIORITY =",
+    'REMOTE_ADDR =',
+    'REMOTE_PORT =',
+    'REQUEST_METHOD =',
+    'REQUEST_URI =',
+    'HTTP_ACCEPT-LANGUAGE =',
+    'HTTP_ACCEPT-ENCODING =',
+    'HTTP_USER-AGENT =',
+    'HTTP_ACCEPT =',
+    'REQUEST_TIME =',
+    'HTTP_UPGRADE-INSECURE-REQUESTS =',
+    'HTTP_CONNECTION =',
+    'HTTP_PRIORITY =',
   ];
 
   // Count how many keywords are found in the input
@@ -563,7 +560,7 @@ function filterIpPortLines(string $inputFile): string
   $re = '/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{2,5}\b/';
 
   $tmpFile = $inputFile . '.tmp';
-  $in = fopen($inputFile, 'r');
+  $in      = fopen($inputFile, 'r');
   if (!$in) {
     return "$inputFile could not be opened for reading";
   }
@@ -667,11 +664,11 @@ function parse_working_proxies(ProxyDB $db): array
   }, $array_mapper));
 
   $count = [
-    'working' => $db->countWorkingProxies(),
-    'dead' => $db->countDeadProxies(),
+    'working'  => $db->countWorkingProxies(),
+    'dead'     => $db->countDeadProxies(),
     'untested' => $db->countUntestedProxies(),
-    'private' => $db->countPrivateProxies(),
-    'all' => $db->countAllProxies()
+    'private'  => $db->countPrivateProxies(),
+    'all'      => $db->countAllProxies(),
   ];
 
   return ['txt' => $workingTxt, 'array' => $array_mapper, 'counter' => $count];
@@ -689,7 +686,7 @@ function extractIpPortFromFileCallback(string $filePath, callable $callback)
 {
   if (file_exists($filePath)) {
     // Open the file for reading in binary mode
-    $fp = fopen($filePath, "rb");
+    $fp = fopen($filePath, 'rb');
     if (!$fp) {
       throw new Exception('File open failed.');
     }
@@ -730,7 +727,7 @@ function extractIpPortFromFile(string $filePath, bool $unique = false): array
 
   if (file_exists($filePath)) {
     // Open the file for reading in binary mode
-    $fp = @fopen($filePath, "rb");
+    $fp = @fopen($filePath, 'rb');
     if (!$fp) {
       return [];
     }

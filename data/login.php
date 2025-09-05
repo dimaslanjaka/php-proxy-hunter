@@ -8,25 +8,25 @@ if (!empty($_POST['g-recaptcha-response'])) {
 
   foreach ($secrets as $secret) {
     $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $_POST['g-recaptcha-response']);
-    $responseData = json_decode($verifyResponse);
+    $responseData   = json_decode($verifyResponse);
 
     if ($responseData->success) {
-      $_SESSION['captcha'] = true;
+      $_SESSION['captcha']            = true;
       $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
-      exit(json_encode(['message' => "g-recaptcha verified successfully", "success" => true]));
+      exit(json_encode(['message' => 'g-recaptcha verified successfully', 'success' => true]));
     }
   }
 
   // If neither secret was successful
-  exit(json_encode(['message' => "Error verifying g-recaptcha", "success" => false]));
+  exit(json_encode(['message' => 'Error verifying g-recaptcha', 'success' => false]));
 }
 
 $shortHash = $_ENV['CPID'];
 
 // init configuration
 $protocol = 'https://';
-$host = !$isCli ? $_SERVER['HTTP_HOST'] : 'sh.webmanajemen.com';
-$path = !$isCli ? strtok($_SERVER['REQUEST_URI'], '?') : '/data/login.php';
+$host     = !$isCli ? $_SERVER['HTTP_HOST'] : 'sh.webmanajemen.com';
+$path     = !$isCli ? strtok($_SERVER['REQUEST_URI'], '?') : '/data/login.php';
 
 // Construct the full URL
 $current_url = $protocol . $host . $path;
@@ -38,8 +38,8 @@ $client->setClientId($_ENV['G_CLIENT_ID']);
 $client->setClientSecret($_ENV['G_CLIENT_SECRET']);
 $client->setDeveloperKey($_ENV['G_API']);
 $client->setRedirectUri($redirectUri);
-$client->addScope("https://www.googleapis.com/auth/userinfo.email");
-$client->addScope("https://www.googleapis.com/auth/userinfo.profile");
+$client->addScope('https://www.googleapis.com/auth/userinfo.email');
+$client->addScope('https://www.googleapis.com/auth/userinfo.profile');
 $client->setAccessType('offline');
 $client->setApprovalPrompt('force');
 $client->setApplicationName('PHP PROXY HUNTER');
@@ -78,7 +78,7 @@ if ($client->getAccessToken()) {
     if ($client->getRefreshToken()) {
       $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
       write_file($credentialsPath, json_encode($client->getAccessToken()));
-      $token_data = $client->verifyIdToken();
+      $token_data            = $client->verifyIdToken();
       $message['token_data'] = $token_data;
     }
   } else {
@@ -86,12 +86,12 @@ if ($client->getAccessToken()) {
     $google_oauth = new Google_Service_Oauth2($client);
     try {
       $google_account_info = $google_oauth->userinfo->get();
-      $email = $google_account_info->email;
-      $name = $google_account_info->name;
+      $email               = $google_account_info->email;
+      $name                = $google_account_info->name;
       $_SESSION['user_id'] = $email;
       // authorize captcha on logged in
       if (!empty($email)) {
-        $_SESSION['captcha'] = true;
+        $_SESSION['captcha']            = true;
         $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
       }
       if ($email == 'dimaslanjaka@gmail.com') {
@@ -109,7 +109,7 @@ if ($client->getAccessToken()) {
 }
 
 if (!isset($_SESSION['captcha'])) {
-  $message[] = "please resolve captcha challenge";
+  $message[] = 'please resolve captcha challenge';
 }
 
 ?>

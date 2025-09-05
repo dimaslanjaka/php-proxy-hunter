@@ -32,7 +32,7 @@
   Email: dimaslanjaka@gmail.com
 */
 
-require_once __DIR__ . "/proxyCheckerParallel-func.php";
+require_once __DIR__ . '/proxyCheckerParallel-func.php';
 
 use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Proxy;
@@ -44,9 +44,9 @@ global $isCli;
 if (!$isCli) {
   if (function_exists('header')) {
     // Allow from any origin
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Headers: *");
-    header("Access-Control-Allow-Methods: *");
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Headers: *');
+    header('Access-Control-Allow-Methods: *');
     header('Content-Type: text/plain; charset=utf-8');
     header('X-Powered-By: L3n4r0x');
   }
@@ -58,7 +58,7 @@ if (!$isCli) {
 
 // limit execution time seconds unit
 $maxExecutionTime = 120;
-$startTime = microtime(true);
+$startTime        = microtime(true);
 if (function_exists('set_time_limit')) {
   // Set the PHP maximum execution time to 5 minutes (300 seconds)
   set_time_limit(300);
@@ -73,15 +73,15 @@ if (!$isCli) {
   }
 }
 
-$config = getConfig(getUserId());
-$endpoint = trim($config['endpoint']);
-$headers = array_filter($config['headers']);
+$config    = getConfig(getUserId());
+$endpoint  = trim($config['endpoint']);
+$headers   = array_filter($config['headers']);
 $checksFor = $config['type'];
 
 if (!$isCli) {
   if (isset($_SERVER['HTTP_HOST'])) {
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
-    $origin = $protocol . $_SERVER['HTTP_HOST'];
+    $origin   = $protocol . $_SERVER['HTTP_HOST'];
   }
   if (isset($origin)) {
     echo "working proxies $origin/working.txt\n";
@@ -91,27 +91,27 @@ if (!$isCli) {
 
 /// FUNCTIONS (DO NOT EDIT)
 
-$db = new ProxyDB(__DIR__ . '/src/database.sqlite');
-$lockFilePath = __DIR__ . "/proxyChecker.lock";
-$statusFile = __DIR__ . "/status.txt";
-$max_checks = 50;
+$db           = new ProxyDB(__DIR__ . '/src/database.sqlite');
+$lockFilePath = __DIR__ . '/proxyChecker.lock';
+$statusFile   = __DIR__ . '/status.txt';
+$max_checks   = 50;
 /**
  * Array of strings to remove.
  *
  * @var string[]
  */
 $str_to_remove = [];
-$isAdmin = false;
+$isAdmin       = false;
 
 if ($isCli) {
-  $short_opts = "p:m::";
-  $long_opts = [
-    "proxy:",
-    "max::",
-    "userId::",
-    "lockFile::",
-    "runner::",
-    "admin::"
+  $short_opts = 'p:m::';
+  $long_opts  = [
+    'proxy:',
+    'max::',
+    'userId::',
+    'lockFile::',
+    'runner::',
+    'admin::',
   ];
   $options = getopt($short_opts, $long_opts);
   if (!empty($options['max'])) {
@@ -140,29 +140,29 @@ if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
 Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
   // clean proxies.txt
   // clean_proxies_file(__DIR__ . '/proxies.txt');
-  $data = parse_working_proxies($db);
+  $data         = parse_working_proxies($db);
   $countsString = implode("\n", array_map(function ($key, $value) {
     return "$key proxies $value";
   }, array_keys($data['counter']), $data['counter']));
   echo $countsString . PHP_EOL;
-  echo "releasing lock" . PHP_EOL;
+  echo 'releasing lock' . PHP_EOL;
   // clean lock files
   if (file_exists($lockFilePath)) {
     unlink($lockFilePath);
   }
-  echo "update status to IDLE" . PHP_EOL;
+  echo 'update status to IDLE' . PHP_EOL;
   file_put_contents($statusFile, 'idle');
 }, 'z_onExit' . basename(__FILE__));
 
 // print cURL informations
-echo "User " . $config['user_id'] . ' at ' . date("Y-m-d H:i:s") . PHP_EOL;
+echo 'User ' . $config['user_id'] . ' at ' . date('Y-m-d H:i:s') . PHP_EOL;
 echo "GET $endpoint " . strtoupper($checksFor) . PHP_EOL;
 echo implode("\n", $headers) . PHP_EOL;
 
 // Specify the file path
-$untestedFilePath = __DIR__ . "/proxies.txt";
-$deadPath = __DIR__ . "/dead.txt";
-$workingPath = __DIR__ . "/working.txt";
+$untestedFilePath = __DIR__ . '/proxies.txt';
+$deadPath         = __DIR__ . '/dead.txt';
+$workingPath      = __DIR__ . '/working.txt';
 setMultiPermissions([$untestedFilePath, $workingPath, $deadPath], true);
 
 // move backup added proxies
@@ -189,13 +189,13 @@ $untested = [];
 
 try {
   $db_untested = $db->getUntestedProxies($max_checks);
-  $db_working = $db->getWorkingProxies($max_checks);
+  $db_working  = $db->getWorkingProxies($max_checks);
   // include dead proxies when current date (minute unit) can be divided by 3
   // or if untested proxies less than $max_checks items
   $include_dead_proxies = date('i') % 3 == 0 || count($db_untested) < $max_checks || empty($db_untested);
-  $db_dead = $include_dead_proxies ? $db->getDeadProxies($max_checks) : [];
-  $db_data = array_merge($db_untested, $db_working, $db_dead);
-  $db_data_map = array_map(function ($item) {
+  $db_dead              = $include_dead_proxies ? $db->getDeadProxies($max_checks) : [];
+  $db_data              = array_merge($db_untested, $db_working, $db_dead);
+  $db_data_map          = array_map(function ($item) {
     $wrap = new Proxy($item['proxy']);
     foreach ($item as $key => $value) {
       if (property_exists($wrap, $key)) {
@@ -209,10 +209,10 @@ try {
     return $wrap;
   }, $db_data);
   $db_data_map = filter_proxies($db_data_map, $include_dead_proxies);
-  $untested = array_merge($untested, $db_data_map);
-  echo "[DB] queue: " . count($db_data_map) . " proxies" . PHP_EOL;
+  $untested    = array_merge($untested, $db_data_map);
+  echo '[DB] queue: ' . count($db_data_map) . ' proxies' . PHP_EOL;
 } catch (\Throwable $th) {
-  echo "failed add untested proxies from database " . $th->getMessage() . PHP_EOL;
+  echo 'failed add untested proxies from database ' . $th->getMessage() . PHP_EOL;
 }
 
 // get proxy from proxies.txt
@@ -223,7 +223,7 @@ if ($countLinesUntestedProxies > 0) {
   }
   $file_untested = extractProxies(implode("\n", $file_untested_str));
   $file_untested = filter_proxies($file_untested, date('i') % 3 == 0);
-  echo "[FILE] queue: " . count($file_untested) . " proxies" . PHP_EOL;
+  echo '[FILE] queue: ' . count($file_untested) . ' proxies' . PHP_EOL;
 
   $untested = array_merge($untested, $file_untested);
   shuffle($untested);
@@ -231,7 +231,7 @@ if ($countLinesUntestedProxies > 0) {
 
 if (empty($untested)) {
   // re-check dead proxies when both data (db & file) is empty
-  $db_dead = $db->getDeadProxies(10000);
+  $db_dead     = $db->getDeadProxies(10000);
   $db_data_map = array_map(function ($item) {
     // check if dead proxy checked less than 1 hour ago
     if (!empty($item['last_check'])) {
@@ -330,7 +330,7 @@ function execute_single_proxy(Proxy $item)
     exit(0);
     return;
   }
-  $raw_proxy = '';
+  $raw_proxy  = '';
   $proxyValid = isValidProxy($item->proxy);
   if ($proxyValid) {
     $raw_proxy = $item->proxy;
@@ -344,13 +344,13 @@ function execute_single_proxy(Proxy $item)
     } else {
       $proxy_types = [];
       $anonymities = [];
-      $latencies = [];
-      $errors = [];
+      $latencies   = [];
+      $errors      = [];
 
       $checks = [
-        'http' => checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password),
+        'http'   => checkProxy($item->proxy, 'http', $endpoint, $headers, $item->username, $item->password),
         'socks5' => checkProxy($item->proxy, 'socks5', $endpoint, $headers, $item->username, $item->password),
-        'socks4' => checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password)
+        'socks4' => checkProxy($item->proxy, 'socks4', $endpoint, $headers, $item->username, $item->password),
       ];
 
       foreach ($checks as $type => $check) {
@@ -370,21 +370,21 @@ function execute_single_proxy(Proxy $item)
         $merged_proxy_types = implode('-', $proxy_types);
         echo $item->proxy . ' working ' . strtoupper($merged_proxy_types) . ' latency ' . max($latencies) . ' ms' . PHP_EOL;
         $db->updateData($item->proxy, [
-          'type' => $merged_proxy_types,
-          'status' => 'active',
-          'latency' => max($latencies),
-          'username' => $item->username,
-          'password' => $item->password,
-          'https' => strpos($endpoint, 'https') !== false ? 'true' : 'false',
-          'anonymity' => implode('-', array_unique($anonymities))
+          'type'      => $merged_proxy_types,
+          'status'    => 'active',
+          'latency'   => max($latencies),
+          'username'  => $item->username,
+          'password'  => $item->password,
+          'https'     => strpos($endpoint, 'https') !== false ? 'true' : 'false',
+          'anonymity' => implode('-', array_unique($anonymities)),
         ]);
 
         if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
           $webgl = random_webgl_data();
           $db->updateData($item->proxy, [
             'webgl_renderer' => $webgl->webgl_renderer,
-            'webgl_vendor' => $webgl->webgl_vendor,
-            'browser_vendor' => $webgl->browser_vendor
+            'webgl_vendor'   => $webgl->webgl_vendor,
+            'browser_vendor' => $webgl->browser_vendor,
           ]);
         }
 
@@ -399,7 +399,7 @@ function execute_single_proxy(Proxy $item)
           $db->updateData($item->proxy, ['useragent' => $item->useragent]);
         }
       } else {
-        $error = join(" ", $errors);
+        $error = join(' ', $errors);
         if (strpos($error, 'anonymity') !== false) {
           $db->updateStatus($item->proxy, 'untested');
           echo $item->proxy . ' failed obtain anoymity' . PHP_EOL;
@@ -417,7 +417,7 @@ function execute_single_proxy(Proxy $item)
     } catch (Exception $e) {
       $errorMessage = $e->getMessage();
       // Handle or display the error message
-      echo "fail delete " . $item->proxy . ' : ' . $errorMessage . PHP_EOL;
+      echo 'fail delete ' . $item->proxy . ' : ' . $errorMessage . PHP_EOL;
     }
   }
   // add to remover scheduler

@@ -11,12 +11,12 @@ if (!$isAdmin) {
   exit('Access denied');
 }
 
-$scriptPath = realpath(__DIR__ . '/../proxyChecker.py');
+$scriptPath  = realpath(__DIR__ . '/../proxyChecker.py');
 $commandArgs = [
-  'max' => '5'
+  'max' => '5',
 ];
 
-$result = runPythonInBackground($scriptPath, $commandArgs, "proxy-checker-python");
+$result = runPythonInBackground($scriptPath, $commandArgs, 'proxy-checker-python');
 
 if (isset($result['error'])) {
   echo json_encode(['error' => $result['error']]);

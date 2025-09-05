@@ -4,7 +4,7 @@
 
 require_once __DIR__ . '/../func-proxy.php';
 
-use \PhpProxyHunter\ProxyDB;
+use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
 
 global $isCli;
@@ -16,22 +16,22 @@ if (!$isCli) {
   die('Direct access not allowed');
 }
 
-$max = 500; // default max proxies to be checked
+$max              = 500; // default max proxies to be checked
 $maxExecutionTime = 2 * 60; // 2 mins
-$isAdmin = false;
-$basename = basename(__FILE__, '.php');
-$lockFilePath = tmp() . "/runners/$basename.lock";
-$statusFile = __DIR__ . "/../status.txt";
-$short_opts = "p:m::";
-$long_opts = [
-  "path:",
-  "max::",
-  "userId::",
-  "lockFile::",
-  "runner::",
-  "admin::",
-  "ip::",
-  "ports::"
+$isAdmin          = false;
+$basename         = basename(__FILE__, '.php');
+$lockFilePath     = tmp() . "/runners/$basename.lock";
+$statusFile       = __DIR__ . '/../status.txt';
+$short_opts       = 'p:m::';
+$long_opts        = [
+  'path:',
+  'max::',
+  'userId::',
+  'lockFile::',
+  'runner::',
+  'admin::',
+  'ip::',
+  'ports::',
 ];
 $options = getopt($short_opts, $long_opts);
 if (!empty($options['lockFile'])) {
@@ -54,7 +54,7 @@ if (!empty($options['path']) && file_exists($options['path'])) {
 } else {
   $filePath = getRandomFileFromFolder($folder, 'txt');
 }
-$ips = [];
+$ips   = [];
 $ports = [80, 8080, 8000, 3128, 443, 8888];
 if (!empty($options['ip'])) {
   $ips = extractIPs($options['ip']);
@@ -66,7 +66,7 @@ if (!empty($options['ports'])) {
 }
 if (!empty($ips)) {
   // prioritize custom path
-  $id = md5(implode("", $ips));
+  $id       = md5(implode('', $ips));
   $filePath = join(PATH_SEPARATOR, [$folder, "custom-$id.txt"]);
   foreach ($ips as $ip) {
     if (!isValidIp($ip)) {
@@ -104,7 +104,7 @@ register_shutdown_function('exitProcess');
 
 // main script start
 
-$startTime = time();
+$startTime     = time();
 $str_to_remove = [];
 
 if (file_exists($filePath)) {
@@ -130,7 +130,7 @@ if (file_exists($filePath)) {
       $item = $proxies[$i];
       if (isPortOpen($item->proxy)) {
         // add to database on port open
-        $date = new DateTime('2014-01-21');
+        $date        = new DateTime('2014-01-21');
         $format_date = $date->format(DATE_RFC3339);
         $db->updateData($item->proxy, ['status' => 'untested', 'last_check' => $format_date]);
         //      $http = checkProxy($item->proxy);

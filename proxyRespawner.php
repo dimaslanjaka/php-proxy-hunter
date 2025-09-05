@@ -52,14 +52,14 @@ if (!$isCli) {
 } else {
   $id = 'CLI';
 }
-$lockFilePath = tmp() . "/runners/respawner-" . sanitizeFilename($id) . ".lock";
-$statusFile = __DIR__ . "/status.txt";
+$lockFilePath = tmp() . '/runners/respawner-' . sanitizeFilename($id) . '.lock';
+$statusFile   = __DIR__ . '/status.txt';
 
 if (!$isCli) {
   // Allow from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
   header('Content-Type: text/plain; charset=utf-8');
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
@@ -91,12 +91,12 @@ function exitProcess()
 register_shutdown_function('exitProcess');
 
 // limit execution time seconds unit
-$startTime = microtime(true);
+$startTime        = microtime(true);
 $maxExecutionTime = 120;
 if ($isAdmin) {
   $maxExecutionTime = 10 * 60;
 }
-$db = new ProxyDB();
+$db  = new ProxyDB();
 $pdo = $db->db->pdo;
 
 if ($isCli) {
@@ -114,10 +114,10 @@ if ($isCli) {
     if ($elapsedTime > $maxExecutionTime) {
       break;
     } else {
-      write_file($statusFile, "respawn");
+      write_file($statusFile, 'respawn');
     }
     $open = isPortOpen($item['proxy']);
-    $log = "[RESPAWN] " . $item['proxy'] . ' port ' . ($open ? 'open' : 'closed') . PHP_EOL;
+    $log  = '[RESPAWN] ' . $item['proxy'] . ' port ' . ($open ? 'open' : 'closed') . PHP_EOL;
     echo $log;
     if ($open) {
       $db->updateData($item['proxy'], ['status' => 'untested']);
@@ -128,9 +128,9 @@ if ($isCli) {
   }
 } else {
   // restart using CLI from web server
-  $file = __FILE__;
+  $file        = __FILE__;
   $output_file = __DIR__ . '/proxyChecker.txt';
-  $cmd = "php " . escapeshellarg($file);
+  $cmd         = 'php ' . escapeshellarg($file);
   // setup lock file
   $id = Server::getRequestIP();
   if (empty($id)) {
@@ -139,18 +139,18 @@ if ($isCli) {
   // lock file same as scanPorts.php
   $webLockFile = tmp() . '/runners/respawner-web-' . sanitizeFilename($id) . '.lock';
 
-  $runner = tmp() . "/runners/" . basename($webLockFile, '.lock') . ($isWin ? '.bat' : "");
-  $uid = getUserId();
-  $cmd .= " --userId=" . escapeshellarg($uid);
-  $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
-  $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
-  $cmd .= " --max=" . escapeshellarg("30");
-  $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
+  $runner = tmp() . '/runners/' . basename($webLockFile, '.lock') . ($isWin ? '.bat' : '');
+  $uid    = getUserId();
+  $cmd .= ' --userId=' . escapeshellarg($uid);
+  $cmd .= ' --lockFile=' . escapeshellarg(unixPath($webLockFile));
+  $cmd .= ' --runner=' . escapeshellarg(unixPath($runner));
+  $cmd .= ' --max=' . escapeshellarg('30');
+  $cmd .= ' --admin=' . escapeshellarg($isAdmin ? 'true' : 'false');
 
   echo $cmd . "\n\n";
 
   // Generate the command to run in the background
-  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
+  $cmd = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
 
   // Write the command to the runner script
   write_file($runner, $cmd);

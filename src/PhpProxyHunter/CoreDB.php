@@ -66,12 +66,12 @@ class CoreDB
     ?string $type = null
   ) {
     $this->constructorDbLocation = $dbLocation;
-    $this->constructorHost = $host;
-    $this->constructorDbName = $dbname;
-    $this->constructorUsername = $username;
-    $this->constructorPassword = $password;
-    $this->constructorUnique = $unique;
-    $this->constructorType = $type;
+    $this->constructorHost       = $host;
+    $this->constructorDbName     = $dbname;
+    $this->constructorUsername   = $username;
+    $this->constructorPassword   = $password;
+    $this->constructorUnique     = $unique;
+    $this->constructorType       = $type;
 
     // Enforce type when specified
     if ($type === 'mysql') {
@@ -153,7 +153,7 @@ class CoreDB
    */
   private function initMySQL(string $host, string $dbname, string $username, string $password, bool $unique = false): void
   {
-    $this->db = new MySQLHelper($host, $dbname, $username, $password, $unique);
+    $this->db     = new MySQLHelper($host, $dbname, $username, $password, $unique);
     $this->driver = 'mysql';
 
     $this->loadSchema(__DIR__ . '/assets/mysql-schema.sql');
@@ -174,15 +174,15 @@ class CoreDB
     }
 
     $this->dbPath = $dbLocation;
-    $this->db = new SQLiteHelper($dbLocation);
+    $this->db     = new SQLiteHelper($dbLocation);
     $this->driver = 'sqlite';
 
     $this->loadSchema(__DIR__ . '/assets/sqlite-schema.sql');
 
     // Ensure WAL mode
-    $walStatus = $this->db->pdo->query("PRAGMA journal_mode")->fetch(PDO::FETCH_ASSOC);
+    $walStatus = $this->db->pdo->query('PRAGMA journal_mode')->fetch(PDO::FETCH_ASSOC);
     if (($walStatus['journal_mode'] ?? '') !== 'wal') {
-      $this->db->pdo->exec("PRAGMA journal_mode = WAL;");
+      $this->db->pdo->exec('PRAGMA journal_mode = WAL;');
     }
   }
 

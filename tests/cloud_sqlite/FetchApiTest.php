@@ -24,7 +24,7 @@ final class FetchApiTest extends TestCase
         ],
     ];
     $context = stream_context_create($opts);
-    $result = file_get_contents(self::$baseUrl . '/fetch.php', false, $context);
+    $result  = file_get_contents(self::$baseUrl . '/fetch.php', false, $context);
     if ($result === false) {
       $error = error_get_last();
       $this->fail('HTTP request failed: ' . ($error['message'] ?? 'Unknown error'));

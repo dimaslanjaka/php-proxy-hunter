@@ -4,9 +4,9 @@ require_once __DIR__ . '/../func.php';
 
 use PhpProxyHunter\UserDB;
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
-header("Access-Control-Allow-Methods: *");
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: *');
+header('Access-Control-Allow-Methods: *');
 header('Content-Type: application/json; charset=utf-8');
 header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
 header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -18,12 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // === Configuration ===
-$host = $_SERVER['HTTP_HOST'];
-$protocol = 'https://';
-$request = parsePostData(true);
-$redirectUri = !empty($request['redirect_uri']) ? $request['redirect_uri'] : "{$protocol}{$host}/login";
-$user_db = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
-$visitorId = $_COOKIE['visitor_id'] ?? 'CLI';
+$host            = $_SERVER['HTTP_HOST'];
+$protocol        = 'https://';
+$request         = parsePostData(true);
+$redirectUri     = !empty($request['redirect_uri']) ? $request['redirect_uri'] : "{$protocol}{$host}/login";
+$user_db         = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
+$visitorId       = $_COOKIE['visitor_id'] ?? 'CLI';
 $credentialsPath = __DIR__ . "/../tmp/logins/login_{$visitorId}.json";
 createParentFolders($credentialsPath);
 
@@ -37,8 +37,8 @@ $client = createGoogleClient($redirectUri);
 // === Handle Google Auth URL Request ===
 if (!empty($request['google-auth-uri'])) {
   jsonResponse([
-    'auth_uri' => $client->createAuthUrl(),
-    'redirect_uri' => $redirectUri
+    'auth_uri'     => $client->createAuthUrl(),
+    'redirect_uri' => $redirectUri,
   ]);
 }
 
@@ -52,15 +52,15 @@ if (!empty($request['google-oauth-callback'])) {
 
     try {
       $google_oauth = new Google_Service_Oauth2($client);
-      $info = $google_oauth->userinfo->get();
-      $email = $info->email ?? null;
+      $info         = $google_oauth->userinfo->get();
+      $email        = $info->email ?? null;
 
       if ($email) {
         finalizeUserSession($email, $user_db); // create or update user
         jsonResponse([
           'success' => true,
           'message' => 'Login successful',
-          'email' => $email
+          'email'   => $email,
         ]);
       } else {
         jsonResponse(['error' => 'Unable to get user email from Google'], 400);
@@ -90,8 +90,8 @@ if ($client->getAccessToken()) {
 
   try {
     $google_oauth = new Google_Service_Oauth2($client);
-    $info = $google_oauth->userinfo->get();
-    $email = $info->email ?? null;
+    $info         = $google_oauth->userinfo->get();
+    $email        = $info->email ?? null;
 
     if ($email) {
       finalizeUserSession($email, $user_db);
@@ -116,7 +116,7 @@ function createGoogleClient(string $redirectUri): Google\Client
   $client->setRedirectUri($redirectUri);
   $client->addScope([
     'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/userinfo.profile'
+    'https://www.googleapis.com/auth/userinfo.profile',
   ]);
   $client->setAccessType('offline');
   $client->setApprovalPrompt('force');
@@ -151,17 +151,17 @@ function finalizeUserSession(string $email, UserDB $user_db): void
   if (!$existingUser) {
     $username = preg_replace('/[^a-zA-Z0-9_]/', '', preg_replace('/@gmail\.com$/', '', $email));
     $user_db->add([
-      'email' => $email,
-      'username' => $username,
-      'password' => bin2hex(random_bytes(8)),
-      'is_staff' => $isAdmin ? 1 : 0,
-      'is_active' => true,
-      'is_superuser' => $email === 'dimaslanjaka@gmail.com'
+      'email'        => $email,
+      'username'     => $username,
+      'password'     => bin2hex(random_bytes(8)),
+      'is_staff'     => $isAdmin ? 1 : 0,
+      'is_active'    => true,
+      'is_superuser' => $email === 'dimaslanjaka@gmail.com',
     ]);
   }
 
-  $_SESSION['user_id'] = $email;
-  $_SESSION['authenticated'] = true;
+  $_SESSION['user_id']             = $email;
+  $_SESSION['authenticated']       = true;
   $_SESSION['authenticated_email'] = $email;
   if ($isAdmin) {
     $_SESSION['admin'] = true;

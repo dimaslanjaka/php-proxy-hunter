@@ -9,17 +9,17 @@ use PhpProxyHunter\Server;
 
 $db = new ProxyDB();
 
-$str = '';
+$str     = '';
 $isAdmin = false;
 
 if (!$isCli) {
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
   header('Content-Type: text/plain; charset=utf-8');
 
   // parse data from web server
-  $web_data = null;
+  $web_data   = null;
   $parseQuery = parseQueryOrPostBody();
   // custom IP
   // ?proxy=123.123.132.123 or Post body key proxy
@@ -37,14 +37,14 @@ if (!$isCli) {
   $isAdmin = isset($_SESSION['admin']) && $_SESSION['admin'] === true;
 } else {
   // parse data from CLI
-  $short_opts = "p:m::";
-  $long_opts = [
-    "proxy:",
-    "max::",
-    "userId::",
-    "lockFile::",
-    "runner::",
-    "admin::"
+  $short_opts = 'p:m::';
+  $long_opts  = [
+    'proxy:',
+    'max::',
+    'userId::',
+    'lockFile::',
+    'runner::',
+    'admin::',
   ];
   $options = getopt($short_opts, $long_opts);
   if (!empty($options['proxy'])) {
@@ -111,10 +111,10 @@ function execute_line($line, $line_index)
 function do_check($filePath, $background = false)
 {
   global $isCli, $isAdmin, $background_running;
-  $file =  __DIR__ . '/cidr-information/CIDR-check.php';
-  $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-  $cmd = "php " . escapeshellarg($file);
-  $runner = __DIR__ . "/tmp/runners/CIDR-port-checker-" . basename($filePath, '.php') . ($isWin ? '.bat' : ".sh");
+  $file        = __DIR__ . '/cidr-information/CIDR-check.php';
+  $isWin       = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+  $cmd         = 'php ' . escapeshellarg($file);
+  $runner      = __DIR__ . '/tmp/runners/CIDR-port-checker-' . basename($filePath, '.php') . ($isWin ? '.bat' : '.sh');
   $webLockFile = __DIR__ . '/tmp/' . basename(__FILE__, '.php') . '.lock';
   $output_file = __DIR__ . '/proxyChecker.txt';
 
@@ -130,22 +130,22 @@ function do_check($filePath, $background = false)
       echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
       return;
     }
-    $runner = __DIR__ . "/tmp/runners/" . sanitizeFilename(basename($filePath, '.php') . '-' . basename($webLockFile, '.lock')) . ($isWin ? '.bat' : "");
-    $uid = getUserId();
-    $cmd .= " --userId=" . escapeshellarg($uid);
-    $cmd .= " --lockFile=" . escapeshellarg(unixPath($webLockFile));
+    $runner = __DIR__ . '/tmp/runners/' . sanitizeFilename(basename($filePath, '.php') . '-' . basename($webLockFile, '.lock')) . ($isWin ? '.bat' : '');
+    $uid    = getUserId();
+    $cmd .= ' --userId=' . escapeshellarg($uid);
+    $cmd .= ' --lockFile=' . escapeshellarg(unixPath($webLockFile));
   }
 
-  $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
-  $cmd .= " --path=" . escapeshellarg($filePath);
-  $cmd .= " --max=" . escapeshellarg("500");
-  $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
+  $cmd .= ' --runner=' . escapeshellarg(unixPath($runner));
+  $cmd .= ' --path=' . escapeshellarg($filePath);
+  $cmd .= ' --max=' . escapeshellarg('500');
+  $cmd .= ' --admin=' . escapeshellarg($isAdmin ? 'true' : 'false');
 
   echo $cmd . "\n\n";
 
   if ($background) {
     // Generate the command to run in the background
-    $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
+    $cmd = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($webLockFile));
     $background_running += 1;
   }
 
@@ -164,8 +164,8 @@ function do_check($filePath, $background = false)
 
 function saveRangePorts(string $ip)
 {
-  $explode = explode(":", $ip);
-  $ip = $explode[0];
+  $explode    = explode(':', $ip);
+  $ip         = $explode[0];
   $outputPath = tmp() . '/ips-ports/' . sanitizeFilename($ip) . '.txt';
   createParentFolders($outputPath);
 

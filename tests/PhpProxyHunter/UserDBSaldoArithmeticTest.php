@@ -11,7 +11,6 @@ use PhpProxyHunter\UserDB;
  */
 class UserDBSaldoArithmeticTest extends TestCase
 {
-
   private string $mysqlHost;
   private string $mysqlDb;
   private string $mysqlUser;
@@ -69,7 +68,7 @@ class UserDBSaldoArithmeticTest extends TestCase
     try {
       $this->createTestDatabase();
       $userDB = new UserDB(null, 'mysql', $this->mysqlHost, $this->mysqlDb, $this->mysqlUser, $this->mysqlPass, true);
-      $pdo = $userDB->db->pdo;
+      $pdo    = $userDB->db->pdo;
       $pdo->exec('SET FOREIGN_KEY_CHECKS=0;');
       $pdo->exec('TRUNCATE TABLE user_logs;');
       $pdo->exec('TRUNCATE TABLE user_fields;');
@@ -83,7 +82,7 @@ class UserDBSaldoArithmeticTest extends TestCase
       $userDB->close();
       $this->dropTestDatabase();
     } catch (\Throwable $e) {
-      $this->fail("Failed to connect or setup MySQL: " . $e->getMessage());
+      $this->fail('Failed to connect or setup MySQL: ' . $e->getMessage());
     }
   }
 
@@ -92,11 +91,11 @@ class UserDBSaldoArithmeticTest extends TestCase
     $userData = [
       'username' => 'arithuser',
       'password' => 'arithpass',
-      'email' => 'arith@example.com',
+      'email'    => 'arith@example.com',
     ];
     $userDB->add($userData);
     $user = $userDB->select('arithuser');
-    $id = (int) $user['id'];
+    $id   = (int) $user['id'];
 
     // Initial saldo should be 0 after first insert
     $saldo = $userDB->get_saldo($id);

@@ -17,19 +17,19 @@
  */
 function getCallerInfo(string $format = '{class}-{function}-{line}-{char}', bool $asArray = false)
 {
-  $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+  $trace  = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
   $caller = isset($trace[1]) ? $trace[1] : $trace[0];
 
-  $class = isset($caller['class']) ? $caller['class'] : '[no-class]';
+  $class    = isset($caller['class']) ? $caller['class'] : '[no-class]';
   $function = isset($caller['function']) ? $caller['function'] : '[no-function]';
-  $line = isset($caller['line']) ? $caller['line'] : '[no-line]';
+  $line     = isset($caller['line']) ? $caller['line'] : '[no-line]';
 
   $charNo = 0;
   if (isset($caller['file'], $caller['line'])) {
-    $fileLines = file($caller['file']);
+    $fileLines   = file($caller['file']);
     $lineContent = isset($fileLines[$caller['line'] - 1]) ? $fileLines[$caller['line'] - 1] : '';
-    $charPos = strpos($lineContent, $function);
-    $charNo = $charPos !== false ? $charPos + 1 : 0;
+    $charPos     = strpos($lineContent, $function);
+    $charNo      = $charPos !== false ? $charPos + 1 : 0;
   }
 
   if ($asArray) {

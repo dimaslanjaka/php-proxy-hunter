@@ -106,7 +106,7 @@ class FileLockHelper
 // Only run when executed directly from CLI, not when included or required
 if (php_sapi_name() === 'cli' && realpath(__FILE__) === realpath($_SERVER['argv'][0] ?? '')) {
   $lockFile = __DIR__ . '/mylock.lock';
-  $lock = new FileLockHelper($lockFile);
+  $lock     = new FileLockHelper($lockFile);
 
   if ($lock->lock(LOCK_EX)) {
     echo "Lock acquired. Starting work...\n";

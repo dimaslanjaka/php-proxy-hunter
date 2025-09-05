@@ -71,7 +71,7 @@ class Proxy
   public ?string $password = null;
 
   /** @var string|null */
-  public ?string $https = "false";
+  public ?string $https = 'false';
 
   /**
    * Proxy constructor.
@@ -120,29 +120,29 @@ class Proxy
     ?string $username = null,
     ?string $password = null,
     ?int    $id = null,
-    ?string $https = "false"
+    ?string $https = 'false'
   ) {
-    $this->id = $id;
-    $this->proxy = $proxy;
-    $this->latency = $latency;
-    $this->type = $type;
-    $this->region = $region;
-    $this->city = $city;
-    $this->country = $country;
-    $this->last_check = $last_check;
-    $this->anonymity = $anonymity;
-    $this->status = $status;
-    $this->timezone = $timezone;
-    $this->longitude = $longitude;
-    $this->private = $private;
-    $this->latitude = $latitude;
-    $this->lang = $lang;
-    $this->useragent = $useragent;
-    $this->webgl_vendor = $webgl_vendor;
+    $this->id             = $id;
+    $this->proxy          = $proxy;
+    $this->latency        = $latency;
+    $this->type           = $type;
+    $this->region         = $region;
+    $this->city           = $city;
+    $this->country        = $country;
+    $this->last_check     = $last_check;
+    $this->anonymity      = $anonymity;
+    $this->status         = $status;
+    $this->timezone       = $timezone;
+    $this->longitude      = $longitude;
+    $this->private        = $private;
+    $this->latitude       = $latitude;
+    $this->lang           = $lang;
+    $this->useragent      = $useragent;
+    $this->webgl_vendor   = $webgl_vendor;
     $this->webgl_renderer = $webgl_renderer;
     $this->browser_vendor = $browser_vendor;
-    $this->username = $username;
-    $this->password = $password;
-    $this->https = $https;
+    $this->username       = $username;
+    $this->password       = $password;
+    $this->https          = $https;
   }
 }

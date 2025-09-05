@@ -21,8 +21,8 @@ foreach ($locales as $locale) {
   $translator->setLocale($locale);
 
   echo "Locale: $locale\n";
-  echo "hello: " . $translator->trans('hello') . "\n";
-  echo "welcome: " . $translator->trans('welcome') . "\n";
-  echo "select_user: " . $translator->trans('select_user') . "\n";
+  echo 'hello: ' . $translator->trans('hello') . "\n";
+  echo 'welcome: ' . $translator->trans('welcome') . "\n";
+  echo 'select_user: ' . $translator->trans('select_user') . "\n";
   echo "--------------------------\n";
 }

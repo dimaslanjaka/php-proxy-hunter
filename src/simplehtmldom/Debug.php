@@ -9,9 +9,9 @@ namespace simplehtmldom;
  */
 class Debug
 {
-  private static $enabled = false;
+  private static $enabled      = false;
   private static $debugHandler = null;
-  private static $callerLock = [];
+  private static $callerLock   = [];
 
   /**
    * Enables debug mode.
@@ -54,7 +54,7 @@ class Debug
    */
   private static function log_trace($message, $backtrace)
   {
-    $idx = 0;
+    $idx          = 0;
     $debugmessage = '';
 
     foreach ($backtrace as $caller) {

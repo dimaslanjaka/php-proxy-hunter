@@ -45,12 +45,12 @@ if ($currentPath) {
   // var_dump("original PATH", $currentPath);
 
   // Specify the new directories to add
-  $paths = [__DIR__ . '/venv/Scripts'];
-  $PathSeparator = $isWin ? ";" : ":";
-  $newDirectory = implode($PathSeparator, $paths);
+  $paths         = [__DIR__ . '/venv/Scripts'];
+  $PathSeparator = $isWin ? ';' : ':';
+  $newDirectory  = implode($PathSeparator, $paths);
 
   // Combine the current PATH with the new directory
-  $newPath = $newDirectory . $PathSeparator . $currentPath;
+  $newPath     = $newDirectory . $PathSeparator . $currentPath;
   $explodePath = array_filter(array_unique(explode($PathSeparator, $newPath)));
   $explodePath = array_map(function ($str) {
     // Only apply realpath if the directory exists
@@ -131,14 +131,14 @@ $isAdmin = is_debug();
 if (!$isAdmin) {
   if ($isCli) {
     // CLI
-    $short_opts = "p::m::";
-    $long_opts = [
-      "proxy::",
-      "max::",
-      "userId::",
-      "lockFile::",
-      "runner::",
-      "admin::"
+    $short_opts = 'p::m::';
+    $long_opts  = [
+      'proxy::',
+      'max::',
+      'userId::',
+      'lockFile::',
+      'runner::',
+      'admin::',
     ];
     $options = getopt($short_opts, $long_opts);
     $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
@@ -154,20 +154,20 @@ if ($enable_debug) {
   ini_set('display_errors', 0);
   ini_set('display_startup_errors', 0);
 }
-ini_set("log_errors", 1); // Enable error logging
-$error_file = __DIR__ . "/tmp/logs/php-error.txt";
+ini_set('log_errors', 1); // Enable error logging
+$error_file = __DIR__ . '/tmp/logs/php-error.txt';
 if (!$isCli) {
   // Sanitize the user agent string
   $user_agent = preg_replace('/[^a-zA-Z0-9-_\.]/', '_', $_SERVER['HTTP_USER_AGENT'] ?? 'unknown');
 
   // Check if the sanitized user agent is empty
   if (empty($user_agent)) {
-    $error_file = __DIR__ . "/tmp/logs/php-error.txt";
+    $error_file = __DIR__ . '/tmp/logs/php-error.txt';
   } else {
-    $error_file = __DIR__ . "/tmp/logs/php-error-" . $user_agent . ".txt";
+    $error_file = __DIR__ . '/tmp/logs/php-error-' . $user_agent . '.txt';
   }
 }
-ini_set("error_log", $error_file); // set error path
+ini_set('error_log', $error_file); // set error path
 
 if ($enable_debug) {
   error_reporting(E_ALL);
@@ -225,13 +225,13 @@ $argv = isset($argv) ? $argv : [];
 function uniqueClassObjectsByProperty(array $array, string $property): array
 {
   $tempArray = [];
-  $result = [];
+  $result    = [];
   foreach ($array as $item) {
     if (property_exists($item, $property)) {
       $value = $item->$property;
       if (!isset($tempArray[$value])) {
         $tempArray[$value] = true;
-        $result[] = $item;
+        $result[]          = $item;
       }
     }
   }
@@ -357,7 +357,7 @@ function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFi
   }
   // Check if $stringToRemove is empty or contains only whitespace characters
   if (is_null($stringToRemove) || empty(trim($stringToRemove))) {
-    return "Empty string to remove";
+    return 'Empty string to remove';
   }
 
   // Check if source file is writable
@@ -383,23 +383,23 @@ function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFi
   // Open source file for reading
   $sourceHandle = @fopen($sourceFilePath, 'r');
   if (!$sourceHandle) {
-    return "Failed to open source file";
+    return 'Failed to open source file';
   }
 
   // Open destination file for appending
   $destinationHandle = @fopen($destinationFilePath, 'a');
   if (!$destinationHandle) {
     fclose($sourceHandle);
-    return "Failed to open destination file";
+    return 'Failed to open destination file';
   }
 
   // Open a temporary file for writing
   $tempFilePath = tempnam(sys_get_temp_dir(), 'source_temp');
-  $tempHandle = @fopen($tempFilePath, 'w');
+  $tempHandle   = @fopen($tempFilePath, 'w');
   if (!$tempHandle) {
     fclose($sourceHandle);
     fclose($destinationHandle);
-    return "Failed to create temporary file";
+    return 'Failed to create temporary file';
   }
 
   // Acquire an exclusive lock on the source file
@@ -421,21 +421,21 @@ function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFi
     // Replace the source file with the temporary file
     if (!rename($tempFilePath, $sourceFilePath)) {
       unlink($tempFilePath);
-      return "Failed to replace source file";
+      return 'Failed to replace source file';
     }
 
     // Append the removed string to the destination file
     if (file_put_contents($destinationFilePath, PHP_EOL . $stringToRemove . PHP_EOL, FILE_APPEND) === false) {
-      return "Failed to append removed string to destination file";
+      return 'Failed to append removed string to destination file';
     }
 
-    return "Success";
+    return 'Success';
   } else {
     fclose($sourceHandle);
     fclose($destinationHandle);
     fclose($tempHandle);
     unlink($tempFilePath);
-    return "Failed to acquire lock on source file";
+    return 'Failed to acquire lock on source file';
   }
 }
 
@@ -511,7 +511,7 @@ function rewriteIpPortFile(string $filename): bool
   }
 
   // Open the file for reading
-  $file = @fopen($filename, "r");
+  $file = @fopen($filename, 'r');
   if (!$file) {
     echo "Error opening $filename for reading" . PHP_EOL;
     return false;
@@ -519,7 +519,7 @@ function rewriteIpPortFile(string $filename): bool
 
   // Open a temporary file for writing
   $tempFilename = tempnam(__DIR__ . '/tmp', 'rewriteIpPortFile');
-  $tempFile = @fopen($tempFilename, "w");
+  $tempFile     = @fopen($tempFilename, 'w');
   if (!$tempFile) {
     fclose($file); // Close the original file
     echo "Error opening temporary ($tempFilename) file for writing";
@@ -545,7 +545,7 @@ function rewriteIpPortFile(string $filename): bool
 
   // Replace the original file with the temporary file
   if (!rename($tempFilename, $filename)) {
-    echo "Error replacing original file with temporary file";
+    echo 'Error replacing original file with temporary file';
     return false;
   }
 
@@ -599,7 +599,7 @@ function getFilesByExtension(string $folder, ?string $extension = 'txt'): array
     return [];
   }
 
-  $files = [];
+  $files  = [];
   $folder = rtrim($folder, '/') . '/'; // Ensure folder path ends with a slash
 
   // Open the directory
@@ -609,7 +609,7 @@ function getFilesByExtension(string $folder, ?string $extension = 'txt'): array
       $file = $folder . $entry;
 
       // ensure it's a file
-      if ($entry != "." && $entry != ".." && is_file($file)) {
+      if ($entry != '.' && $entry != '..' && is_file($file)) {
         if (!empty($extension)) {
           // Check if file has the specified extension
           if (pathinfo($file, PATHINFO_EXTENSION) === $extension) {
@@ -665,9 +665,9 @@ function parseArgs($args): array
   foreach ($args as $arg) {
     if (substr($arg, 0, 2) === '--') {
       // Argument is in the format --key=value
-      $parts = explode('=', substr($arg, 2), 2);
-      $key = $parts[0];
-      $value = $parts[1] ?? true; // If value is not provided, set it to true
+      $parts            = explode('=', substr($arg, 2), 2);
+      $key              = $parts[0];
+      $value            = $parts[1] ?? true; // If value is not provided, set it to true
       $parsedArgs[$key] = $value;
     }
   }
@@ -676,7 +676,7 @@ function parseArgs($args): array
 }
 
 // Default user ID to "CLI" assuming the script is running from the command line
-$user_id = "CLI";
+$user_id = 'CLI';
 
 if (!$isCli) {
   // If not running in CLI mode, generate a hashed user ID
@@ -719,7 +719,7 @@ function setUserId(string $new_user_id)
         'X-Request-At: 2024-04-07T20:57:14.73+07:00',
         'X-Version-App: 5.8.8',
         'User-Agent: myXL / 5.8.8(741); StandAloneInstall; (samsung; SM-G955N; SDK 25; Android 7.1.2)',
-        'Content-Type: application/json; charset=utf-8'
+        'Content-Type: application/json; charset=utf-8',
       ];
 
       $data = [
@@ -729,7 +729,7 @@ function setUserId(string $new_user_id)
         'headers' => $new_user_id == 'CLI'
           ? $headers
           : ['User-Agent: Mozilla/5.0 (Linux; Android 14; Pixel 6 Pro Build/UPB3.230519.014) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.60 Mobile Safari/537.36 GNews Android/2022137898'],
-        'type' => 'http|socks4|socks5'
+        'type' => 'http|socks4|socks5',
       ];
 
       $file = getUserFile($new_user_id);
@@ -754,10 +754,10 @@ function getUserId(): string
   return $user_id;
 }
 
-if (!file_exists(__DIR__ . "/config")) {
-  mkdir(__DIR__ . "/config");
+if (!file_exists(__DIR__ . '/config')) {
+  mkdir(__DIR__ . '/config');
 }
-setMultiPermissions(__DIR__ . "/config");
+setMultiPermissions(__DIR__ . '/config');
 
 function getUserFile(string $user_id): string
 {
@@ -782,9 +782,9 @@ function getConfig(string $user_id): array
 
   $defaults = [
     'endpoint' => 'https://google.com',
-    'headers' => [],
-    'type' => 'http|socks4|socks5',
-    'user_id' => $user_id
+    'headers'  => [],
+    'type'     => 'http|socks4|socks5',
+    'user_id'  => $user_id,
   ];
 
   // Check if decoding was successful
@@ -800,11 +800,11 @@ function getConfig(string $user_id): array
 function setConfig($user_id, $data): array
 {
   $user_file = getUserFile($user_id);
-  $defaults = getConfig($user_id);
+  $defaults  = getConfig($user_id);
   // remove conflict data
   unset($defaults['headers']);
   // Encode the data to JSON format
-  $nData = mergeArrays($defaults, $data);
+  $nData   = mergeArrays($defaults, $data);
   $newData = json_encode($nData);
   // write data
   file_put_contents($user_file, $newData);
@@ -826,9 +826,9 @@ function parsePostData(bool $detect_get = false): ?array
   $result = [];
 
   // Get the Content-Type header of the request
-  $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+  $contentType = isset($_SERVER['CONTENT_TYPE']) ? trim($_SERVER['CONTENT_TYPE']) : '';
 
-  if (strpos($contentType, "multipart/form-data") !== false) {
+  if (strpos($contentType, 'multipart/form-data') !== false) {
     // Merge POST fields into the result
     $result = array_merge($result, $_POST);
 
@@ -836,14 +836,14 @@ function parsePostData(bool $detect_get = false): ?array
     foreach ($_FILES as $key => $file) {
       $result[$key] = $file;
     }
-  } elseif (strpos($contentType, "application/json") !== false) {
+  } elseif (strpos($contentType, 'application/json') !== false) {
     // Decode the JSON from the input stream
     $json_data = json_decode(file_get_contents('php://input'), true);
 
     if (is_array($json_data)) {
       $result = array_merge($result, $json_data);
     }
-  } elseif (strpos($contentType, "application/x-www-form-urlencoded") !== false) {
+  } elseif (strpos($contentType, 'application/x-www-form-urlencoded') !== false) {
     // For URL-encoded form data, $_POST already contains the parsed data
     $result = array_merge($result, $_POST);
   }
@@ -913,9 +913,9 @@ function setCacheHeaders($max_age_minutes, bool $cors = true): void
 {
   if ($cors) {
     // Allow from any origin
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Headers: *");
-    header("Access-Control-Allow-Methods: *");
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Headers: *');
+    header('Access-Control-Allow-Methods: *');
   }
 
   // Set the Cache-Control header to specify the maximum age in minutes and must-revalidate
@@ -933,10 +933,10 @@ function setCacheHeaders($max_age_minutes, bool $cors = true): void
  * @param string $message The confirmation message.
  * @return bool True if user confirms (y/yes), false otherwise (n/no).
  */
-function confirmAction(string $message = "Are you sure? (y/n): "): bool
+function confirmAction(string $message = 'Are you sure? (y/n): '): bool
 {
   $validResponses = ['y', 'yes', 'n', 'no'];
-  $response = '';
+  $response       = '';
 
   while (!in_array($response, $validResponses)) {
     echo $message;
@@ -959,7 +959,7 @@ function confirmAction(string $message = "Are you sure? (y/n): "): bool
 function iterateArray(array $array, int $limit = 50, ?callable $callback = null): void
 {
   $arrayLength = count($array);
-  $limit = min($arrayLength, $limit); // Get the minimum of array length and $limit
+  $limit       = min($arrayLength, $limit); // Get the minimum of array length and $limit
   for ($i = 0; $i < $limit; $i++) {
     // Access array element at index $i and perform desired operations
     $item = $array[$i];
@@ -1024,7 +1024,7 @@ function fixFile(string $inputFile): void
     // Close the file handle
     fclose($fileHandle);
   } else {
-    echo "fixFile: Unable to acquire lock." . PHP_EOL;
+    echo 'fixFile: Unable to acquire lock.' . PHP_EOL;
   }
 }
 
@@ -1055,17 +1055,17 @@ function runPythonInBackground($scriptPath, $commandArgs = [], $identifier = nul
   $commandArgsString = trim($commandArgsString);
 
   // Determine paths and commands
-  $cwd = __DIR__;
-  $filename = !empty($identifier) ? sanitizeFilename($identifier) : sanitizeFilename(unixPath("$scriptPath/$commandArgsString"));
-  $runner = unixPath(tmp() . "/runners/$filename" . ($isWin ? ".bat" : ".sh"));
+  $cwd         = __DIR__;
+  $filename    = !empty($identifier) ? sanitizeFilename($identifier) : sanitizeFilename(unixPath("$scriptPath/$commandArgsString"));
+  $runner      = unixPath(tmp() . "/runners/$filename" . ($isWin ? '.bat' : '.sh'));
   $output_file = unixPath(tmp() . "/logs/$filename.txt");
-  $pid_file = unixPath(tmp() . "/runners/$filename.pid");
+  $pid_file    = unixPath(tmp() . "/runners/$filename.pid");
 
   // Truncate output file
   truncateFile($output_file);
 
   // Construct the command
-  $venv = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
+  $venv     = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
   $venvCall = $isWin ? "call $venv" : "source $venv";
 
   $cmd = "$venvCall && python $scriptPath $commandArgsString > $output_file 2>&1 & echo $! > $pid_file";
@@ -1082,17 +1082,17 @@ function runPythonInBackground($scriptPath, $commandArgs = [], $identifier = nul
 
   // Execute the runner script
   if ($isWin) {
-    $runner_win = "start /B \"window_name\" " . escapeshellarg(unixPath($runner));
+    $runner_win = 'start /B "window_name" ' . escapeshellarg(unixPath($runner));
     pclose(popen($runner_win, 'r'));
   } else {
-    exec("bash " . escapeshellarg($runner) . " > /dev/null 2>&1 &");
+    exec('bash ' . escapeshellarg($runner) . ' > /dev/null 2>&1 &');
   }
 
   return [
-    'output' => unixPath($output_file),
-    'cwd' => unixPath($cwd),
+    'output'   => unixPath($output_file),
+    'cwd'      => unixPath($cwd),
     'relative' => str_replace(unixPath($cwd), '', unixPath($output_file)),
-    'runner' => $runner
+    'runner'   => $runner,
   ];
 }
 
@@ -1105,7 +1105,7 @@ function runShellCommandLive($command)
   // Open a process for the command
   $process = proc_open($command, [
     1 => ['pipe', 'w'], // stdout
-    2 => ['pipe', 'w']  // stderr
+    2 => ['pipe', 'w'],  // stderr
   ], $pipes);
 
   if (is_resource($process)) {
@@ -1175,20 +1175,20 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
   if (!empty($identifier)) {
     $filename = sanitizeFilename($identifier);
   } else {
-    $hash = md5("$scriptPath/$commandArgsString");
-    $name = pathinfo($scriptPath, PATHINFO_FILENAME);
+    $hash     = md5("$scriptPath/$commandArgsString");
+    $name     = pathinfo($scriptPath, PATHINFO_FILENAME);
     $filename = sanitizeFilename($name . '-' . $hash);
   }
 
-  $runner = unixPath(tmp() . "/runners/$filename" . ($isWin ? ".bat" : ".sh"));
+  $runner      = unixPath(tmp() . "/runners/$filename" . ($isWin ? '.bat' : '.sh'));
   $output_file = unixPath(tmp() . "/logs/$filename.txt");
-  $pid_file = unixPath(tmp() . "/runners/$filename.pid");
+  $pid_file    = unixPath(tmp() . "/runners/$filename.pid");
 
   // Truncate output file
   truncateFile($output_file);
 
   // Construct the command
-  $venv = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
+  $venv     = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
   $venvCall = $isWin ? "call $venv" : "source $venv";
 
   $cmd = $venvCall;
@@ -1210,17 +1210,17 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
 
   // Execute the runner script
   if ($isWin) {
-    $runner_win = "start /B \"window_name\" " . escapeshellarg(unixPath($runner));
+    $runner_win = 'start /B "window_name" ' . escapeshellarg(unixPath($runner));
     pclose(popen($runner_win, 'r'));
   } else {
-    exec("bash " . escapeshellarg($runner) . " > /dev/null 2>&1 &");
+    exec('bash ' . escapeshellarg($runner) . ' > /dev/null 2>&1 &');
   }
 
   return [
-    'output' => unixPath($output_file),
-    'cwd' => unixPath($cwd),
+    'output'   => unixPath($output_file),
+    'cwd'      => unixPath($cwd),
     'relative' => str_replace(unixPath($cwd), '', unixPath($output_file)),
-    'runner' => $runner
+    'runner'   => $runner,
   ];
 }
 
@@ -1242,9 +1242,9 @@ function getPhpBinaryPath()
   }
 
   // Otherwise, try to detect it manually
-  $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+  $isWin     = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
   $finderCmd = $isWin ? 'where php' : 'which php';
-  $found = trim(shell_exec($finderCmd));
+  $found     = trim(shell_exec($finderCmd));
 
   // Validate the found path
   if (is_executable($found) && stripos($found, 'php') !== false) {
@@ -1278,10 +1278,10 @@ function php_exec($cmd)
 {
   // Check for `exec` support
   if (function_exists('exec')) {
-    $output = [];
+    $output     = [];
     $return_var = 0;
     exec($cmd, $output, $return_var);
-    return implode(" ", $output);
+    return implode(' ', $output);
   }
   // Check for `shell_exec` support
   elseif (function_exists('shell_exec')) {
@@ -1306,9 +1306,9 @@ function php_exec($cmd)
   // Check for `proc_open` support
   elseif (function_exists('proc_open')) {
     $descriptorspec = [
-      0 => ["pipe", "r"], // STDIN
-      1 => ["pipe", "w"], // STDOUT
-      2 => ["pipe", "w"], // STDERR
+      0 => ['pipe', 'r'], // STDIN
+      1 => ['pipe', 'w'], // STDOUT
+      2 => ['pipe', 'w'], // STDERR
     ];
 
     $proc = proc_open($cmd, $descriptorspec, $pipes);
@@ -1319,12 +1319,12 @@ function php_exec($cmd)
       proc_close($proc);
       return $output;
     } else {
-      return "Error: Unable to execute command using proc_open.";
+      return 'Error: Unable to execute command using proc_open.';
     }
   }
   // No suitable function available
   else {
-    return "Error: No suitable PHP function available to execute commands.";
+    return 'Error: No suitable PHP function available to execute commands.';
   }
 }
 

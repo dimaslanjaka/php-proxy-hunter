@@ -16,7 +16,7 @@ class SQLiteHelperTest extends TestCase
     $this->db->createTable($this->table, [
       'id INTEGER PRIMARY KEY',
       'name TEXT',
-      'age INTEGER'
+      'age INTEGER',
     ]);
   }
 

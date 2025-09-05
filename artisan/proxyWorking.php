@@ -41,7 +41,7 @@ function exitProcess(): void
 
 register_shutdown_function('exitProcess');
 
-$db = new ProxyDB();
+$db   = new ProxyDB();
 $data = parse_working_proxies($db);
 
 // write working proxies

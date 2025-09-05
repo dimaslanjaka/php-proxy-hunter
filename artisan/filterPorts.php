@@ -21,19 +21,19 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
-$isAdmin = false; // admin indicator
-$max_checks = 500; // max proxies to be checked
+$isAdmin          = false; // admin indicator
+$max_checks       = 500; // max proxies to be checked
 $maxExecutionTime = 120; // max 120s execution time
 
 if ($isCli) {
-  $short_opts = "p:m::";
-  $long_opts = [
-    "proxy:",
-    "max::",
-    "userId::",
-    "lockFile::",
-    "runner::",
-    "admin::"
+  $short_opts = 'p:m::';
+  $long_opts  = [
+    'proxy:',
+    'max::',
+    'userId::',
+    'lockFile::',
+    'runner::',
+    'admin::',
   ];
   $options = getopt($short_opts, $long_opts);
   if (!empty($options['max'])) {
@@ -51,8 +51,8 @@ if ($isCli) {
   }
 }
 
-$lockFilePath = PROJECT_ROOT . "/tmp/runners/" . basename(__FILE__, '.php') . ".lock";
-$statusFile = PROJECT_ROOT . "/status.txt";
+$lockFilePath = PROJECT_ROOT . '/tmp/runners/' . basename(__FILE__, '.php') . '.lock';
+$statusFile   = PROJECT_ROOT . '/status.txt';
 
 if (file_exists($lockFilePath) && !is_debug()) {
   exit(date(DATE_RFC3339) . ' another process still running ' . basename(__FILE__, '.php') . PHP_EOL);
@@ -83,7 +83,7 @@ removeEmptyLinesFromFile($file);
 $start_time = microtime(true);
 
 try {
-  $db_data = $db->getUntestedProxies(100);
+  $db_data     = $db->getUntestedProxies(100);
   $db_data_map = array_map(function ($item) {
     // transform array into Proxy instance same as extractProxies result
     $wrap = new Proxy($item['proxy']);
@@ -129,7 +129,7 @@ try {
     }
   }
 } catch (Exception $e) {
-  echo "fail extracting proxies " . $e->getMessage() . PHP_EOL;
+  echo 'fail extracting proxies ' . $e->getMessage() . PHP_EOL;
 }
 
 function processProxy($proxy): void
@@ -143,7 +143,7 @@ function processProxy($proxy): void
   if (!isPortOpen($proxy)) {
     removeStringAndMoveToFile($file, PROJECT_ROOT . '/dead.txt', $proxy);
     $db->updateData($proxy, ['status' => 'port-closed'], false);
-    echo $proxy . " port closed" . PHP_EOL;
+    echo $proxy . ' port closed' . PHP_EOL;
   }
 }
 

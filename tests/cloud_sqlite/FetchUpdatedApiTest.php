@@ -19,8 +19,8 @@ final class FetchUpdatedApiTest extends TestCase
   {
     // Insert a row to ensure something is available
     $data = [
-        'id' => 100,
-        'name' => 'FetchUpdated',
+        'id'    => 100,
+        'name'  => 'FetchUpdated',
         'value' => 'Test',
     ];
     $opts = [
@@ -36,15 +36,15 @@ final class FetchUpdatedApiTest extends TestCase
     $context = stream_context_create($opts);
     file_get_contents(self::$baseUrl . '/sync.php', false, $context);
     $since = date('Y-m-d H:i:s', strtotime('-1 day'));
-    $opts = [
+    $opts  = [
         'http' => [
             'method' => 'GET',
             'header' => 'Authorization: Bearer lasjhdfjo',
         ],
     ];
     $context = stream_context_create($opts);
-    $url = self::$baseUrl . '/fetch-updated.php?since=' . urlencode($since);
-    $result = file_get_contents($url, false, $context);
+    $url     = self::$baseUrl . '/fetch-updated.php?since=' . urlencode($since);
+    $result  = file_get_contents($url, false, $context);
     if ($result === false) {
       $error = error_get_last();
       $this->fail('HTTP request failed: ' . ($error['message'] ?? 'Unknown error'));

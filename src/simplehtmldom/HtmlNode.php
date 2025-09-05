@@ -38,34 +38,34 @@ include_once __DIR__ . '/Debug.php';
  */
 class HtmlNode
 {
-  const HDOM_TYPE_ELEMENT = 1;
-  const HDOM_TYPE_COMMENT = 2;
-  const HDOM_TYPE_TEXT = 3;
-  const HDOM_TYPE_ROOT = 5;
-  const HDOM_TYPE_UNKNOWN = 6;
-  const HDOM_TYPE_CDATA = 7;
+  public const HDOM_TYPE_ELEMENT = 1;
+  public const HDOM_TYPE_COMMENT = 2;
+  public const HDOM_TYPE_TEXT    = 3;
+  public const HDOM_TYPE_ROOT    = 5;
+  public const HDOM_TYPE_UNKNOWN = 6;
+  public const HDOM_TYPE_CDATA   = 7;
 
-  const HDOM_QUOTE_DOUBLE = 0;
-  const HDOM_QUOTE_SINGLE = 1;
-  const HDOM_QUOTE_NO = 3;
+  public const HDOM_QUOTE_DOUBLE = 0;
+  public const HDOM_QUOTE_SINGLE = 1;
+  public const HDOM_QUOTE_NO     = 3;
 
-  const HDOM_INFO_BEGIN = 0;
-  const HDOM_INFO_END = 1;
-  const HDOM_INFO_QUOTE = 2;
-  const HDOM_INFO_SPACE = 3;
-  const HDOM_INFO_TEXT = 4;
-  const HDOM_INFO_INNER = 5;
-  const HDOM_INFO_OUTER = 6;
-  const HDOM_INFO_ENDSPACE = 7;
+  public const HDOM_INFO_BEGIN    = 0;
+  public const HDOM_INFO_END      = 1;
+  public const HDOM_INFO_QUOTE    = 2;
+  public const HDOM_INFO_SPACE    = 3;
+  public const HDOM_INFO_TEXT     = 4;
+  public const HDOM_INFO_INNER    = 5;
+  public const HDOM_INFO_OUTER    = 6;
+  public const HDOM_INFO_ENDSPACE = 7;
 
   public $nodetype = self::HDOM_TYPE_TEXT;
-  public $tag = 'text';
-  public $attr = [];
+  public $tag      = 'text';
+  public $attr     = [];
   public $children = [];
-  public $nodes = [];
-  public $parent = null;
-  public $_ = [];
-  private $dom = null;
+  public $nodes    = [];
+  public $parent   = null;
+  public $_        = [];
+  private $dom     = null;
 
   public function __construct($dom)
   {
@@ -73,7 +73,7 @@ class HtmlNode
       return $this;
     }
 
-    $this->dom = $dom;
+    $this->dom    = $dom;
     $dom->nodes[] = $this;
   }
 
@@ -137,10 +137,10 @@ class HtmlNode
     }
 
     return [
-      'nodetype' => $nodetype,
-      'tag' => $this->tag,
+      'nodetype'   => $nodetype,
+      'tag'        => $this->tag,
       'attributes' => empty($this->attr) ? 'none' : $this->attr,
-      'nodes' => empty($this->nodes) ? 'none' : $this->nodes,
+      'nodes'      => empty($this->nodes) ? 'none' : $this->nodes,
     ];
   }
 
@@ -250,10 +250,10 @@ class HtmlNode
 
   public static function is_utf8($str)
   {
-    $c = 0;
-    $b = 0;
+    $c    = 0;
+    $b    = 0;
     $bits = 0;
-    $len = strlen($str);
+    $len  = strlen($str);
     for ($i = 0; $i < $len; ++$i) {
       $c = ord($str[$i]);
       if ($c > 128) {
@@ -323,7 +323,7 @@ class HtmlNode
         switch ($quote_type) {
           case self::HDOM_QUOTE_SINGLE:
             $quote = '\'';
-            $val = htmlentities($val, ENT_QUOTES, $this->dom->target_charset);
+            $val   = htmlentities($val, ENT_QUOTES, $this->dom->target_charset);
             break;
           case self::HDOM_QUOTE_NO:
             $quote = '';
@@ -331,7 +331,7 @@ class HtmlNode
           case self::HDOM_QUOTE_DOUBLE:
           default:
             $quote = '"';
-            $val = htmlentities($val, ENT_COMPAT, $this->dom->target_charset);
+            $val   = htmlentities($val, ENT_COMPAT, $this->dom->target_charset);
         }
 
         $ret .= $key
@@ -496,7 +496,7 @@ class HtmlNode
       }
 
       $head = [$this->_[self::HDOM_INFO_BEGIN] => 1];
-      $cmd = ' '; // Combinator
+      $cmd  = ' '; // Combinator
 
       // handle descendant selectors, no recursive!
       for ($l = 0; $l < $levle; ++$l) {
@@ -509,7 +509,7 @@ class HtmlNode
         }
 
         $head = $ret;
-        $cmd = $selectors[$c][$l][6]; // Next Combinator
+        $cmd  = $selectors[$c][$l][6]; // Next Combinator
       }
 
       foreach ($head as $k => $v) {
@@ -601,7 +601,7 @@ class HtmlNode
     );
 
     $selectors = [];
-    $result = [];
+    $result    = [];
 
     foreach ($matches as $m) {
       $m[0] = trim($m[0]);
@@ -651,7 +651,7 @@ class HtmlNode
           }
 
           $inverted = (isset($att[1][0]) && '!' === $att[1][0]);
-          $m[5][] = [
+          $m[5][]   = [
             $inverted ? substr($att[1], 1) : $att[1], // Name
             (isset($att[2])) ? $att[2] : '', // Expression
             (isset($att[3])) ? $att[3] : '', // Value
@@ -677,7 +677,7 @@ class HtmlNode
 
       if ($is_list) { // Selector List
         $selectors[] = $result;
-        $result = [];
+        $result      = [];
       }
     }
 
@@ -856,7 +856,7 @@ class HtmlNode
 
   public function get_display_size()
   {
-    $width = -1;
+    $width  = -1;
     $height = -1;
 
     if ('img' !== $this->tag) {
@@ -930,7 +930,7 @@ class HtmlNode
 
     $result = [
       'height' => $height,
-      'width' => $width,
+      'width'  => $width,
     ];
 
     return $result;
@@ -1117,8 +1117,8 @@ class HtmlNode
     // It fails to unset the current node from it's current parents nodes or
     // children list first.
     if (null !== $parent) {
-      $this->parent = $parent;
-      $this->parent->nodes[] = $this;
+      $this->parent             = $parent;
+      $this->parent->nodes[]    = $this;
       $this->parent->children[] = $this;
     }
 
@@ -1198,21 +1198,21 @@ class HtmlNode
 
   public function appendChild($node)
   {
-    $node->parent = $this;
-    $this->nodes[] = $node;
+    $node->parent     = $this;
+    $this->nodes[]    = $node;
     $this->children[] = $node;
 
     if ($this->dom) { // Attach current node to DOM (recursively)
       $children = [$node];
 
       while ($children) {
-        $child = array_pop($children);
+        $child    = array_pop($children);
         $children = array_merge($children, $child->children);
 
-        $this->dom->nodes[] = $child;
-        $child->dom = $this->dom;
+        $this->dom->nodes[]              = $child;
+        $child->dom                      = $this->dom;
         $child->_[self::HDOM_INFO_BEGIN] = count($this->dom->nodes) - 1;
-        $child->_[self::HDOM_INFO_END] = $child->_[self::HDOM_INFO_BEGIN];
+        $child->_[self::HDOM_INFO_END]   = $child->_[self::HDOM_INFO_BEGIN];
       }
 
       $this->dom->root->_[self::HDOM_INFO_END] = count($this->dom->nodes) - 1;
@@ -1224,7 +1224,7 @@ class HtmlNode
   protected function seek($selector, &$ret, $parent_cmd, $lowercase = false)
   {
     list($ps_selector, $tag, $ps_element, $id, $class, $attributes, $cmb) = $selector;
-    $nodes = [];
+    $nodes                                                                = [];
 
     if (' ' === $parent_cmd) { // Descendant Combinator
       // Find parent closing tag if the current element doesn't have a closing
@@ -1487,7 +1487,7 @@ class HtmlNode
   {
     if ('i' === $case_sensitivity) {
       $pattern = strtolower($pattern);
-      $value = strtolower($value);
+      $value   = strtolower($value);
     }
 
     // Apply the same rules for the pattern and attribute value

@@ -29,14 +29,14 @@ class GeoIpHelper
       $db = new ProxyDB();
     }
     list($ip, $port) = explode(':', $proxy);
-    $geo_plugin = new \PhpProxyHunter\geoPlugin();
-    $geoUrl = "https://ip-get-geolocation.com/api/json/$ip";
-    $content = curlGetWithProxy($geoUrl, $proxy, $proxy_type);
+    $geo_plugin      = new \PhpProxyHunter\geoPlugin();
+    $geoUrl          = "https://ip-get-geolocation.com/api/json/$ip";
+    $content         = curlGetWithProxy($geoUrl, $proxy, $proxy_type);
     if (!$content) {
       $content = '';
     }
     $geoIp = json_decode($content, true);
-    $data = [];
+    $data  = [];
     if (json_last_error() === JSON_ERROR_NONE) {
       if (trim($geoIp['status']) != 'fail') {
         if (isset($geoIp['lat'])) {
@@ -52,7 +52,7 @@ class GeoIpHelper
           $data['country'] = $geoIp['country'];
         }
         try {
-          $countries = array_values(\Annexare\Countries\countries());
+          $countries     = array_values(\Annexare\Countries\countries());
           $filterCountry = array_filter($countries, function ($country) use ($geoIp, $proxy) {
             return trim(strtolower($country['name'])) == trim(strtolower($geoIp['country']));
           });
@@ -95,8 +95,8 @@ class GeoIpHelper
       if (!empty($locate->timezone)) {
         $data['timezone'] = $locate->timezone;
       }
-      $lang = $locate->lang;
-      $locale = $locate->countryCode ? self::countryCodeToLocale($locate->countryCode) : '';
+      $lang     = $locate->lang;
+      $locale   = $locate->countryCode ? self::countryCodeToLocale($locate->countryCode) : '';
       $ext_intl = $locate->countryCode ? self::extIntlGetLangCountryCode($locate->countryCode) : '';
       if (!empty($locale)) {
         $lang = $locale;
@@ -151,25 +151,23 @@ class GeoIpHelper
       throw new \RuntimeException("Locales file not found: $localesFile");
     }
     $localesJson = file_get_contents($localesFile);
-    $locales = json_decode($localesJson, true);
+    $locales     = json_decode($localesJson, true);
     if (!is_array($locales)) {
       return null;
     }
     foreach ($locales as $locale) {
-      $locale_region = \Locale::getRegion($locale);
+      $locale_region   = \Locale::getRegion($locale);
       $locale_language = \Locale::getPrimaryLanguage($locale);
-      $locale_array = [
+      $locale_array    = [
         'language' => $locale_language,
-        'region' => $locale_region
+        'region'   => $locale_region,
       ];
       if (
-        strtoupper($country_code) == $locale_region &&
-        $language_code == ''
+        strtoupper($country_code) == $locale_region && $language_code == ''
       ) {
         return \Locale::composeLocale($locale_array);
       } elseif (
-        strtoupper($country_code) == $locale_region &&
-        strtolower($language_code) == $locale_language
+        strtoupper($country_code) == $locale_region && strtolower($language_code) == $locale_language
       ) {
         return \Locale::composeLocale($locale_array);
       }

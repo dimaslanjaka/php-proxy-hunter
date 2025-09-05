@@ -34,17 +34,17 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
-$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+$isCli   = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 $strings = '';
 
 if (!$isCli) {
   // Allow from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
   header('Content-Type: text/plain; charset=utf-8');
   // Check if the form was submitted
-  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['proxies'])) {
       $strings = rawurldecode($_POST['proxies']);
       if (isBase64Encoded($strings)) {
@@ -67,7 +67,7 @@ $proxies = array_filter($proxies, function (\PhpProxyHunter\Proxy $item) {
 $proxies_txt_array = array_map(function (\PhpProxyHunter\Proxy $item) {
   $raw_proxy = $item->proxy;
   if (!empty($item->username) && !empty($item->password)) {
-    $raw_proxy .= "@" . $item->username . ":" . $item->password;
+    $raw_proxy .= '@' . $item->username . ':' . $item->password;
   }
   return $raw_proxy;
 }, $proxies);
@@ -91,7 +91,7 @@ if (file_exists(__DIR__ . '/proxyChecker.lock')) {
 
 $count = count($proxies);
 if ($count > 0) {
-  echo $count . " proxies added successfully." . PHP_EOL;
+  echo $count . ' proxies added successfully.' . PHP_EOL;
 } else {
-  echo "Proxy added successfully." . PHP_EOL;
+  echo 'Proxy added successfully.' . PHP_EOL;
 }

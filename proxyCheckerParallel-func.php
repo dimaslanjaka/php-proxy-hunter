@@ -20,35 +20,35 @@ $str_to_remove = [];
 function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?bool $print_headers = true, ?string $custom_title_should_be = null)
 {
   global $isCli, $max, $str_to_remove, $lockFile;
-  $user_id = getUserId();
-  $config = getConfig($user_id);
-  $endpoint = 'https://www.example.com';
+  $user_id         = getUserId();
+  $config          = getConfig($user_id);
+  $endpoint        = 'https://www.example.com';
   $title_should_be = null;
   if ($custom_title_should_be) {
     $title_should_be = $custom_title_should_be;
   }
   $headers = [
-    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0',
   ];
   if (strtolower($user_id) != 'cli') {
     // get endpoint from user data
     $endpoint = trim($config['endpoint']);
-    $headers = array_filter($config['headers']);
+    $headers  = array_filter($config['headers']);
   }
   // prioritize custom endpoint
   if (!empty($custom_endpoint)) {
     $endpoint = $custom_endpoint;
   }
   // https by url
-  $isSSL = str_starts_with($endpoint, "https://") ? 'true' : 'false';
+  $isSSL = str_starts_with($endpoint, 'https://') ? 'true' : 'false';
   if ($print_headers) {
-    echo "[CHECKER-PARALLEL] CONFIG" . PHP_EOL;
+    echo '[CHECKER-PARALLEL] CONFIG' . PHP_EOL;
     echo "User $user_id " . date(DATE_RFC3339) . PHP_EOL;
     echo "GET $endpoint" . PHP_EOL;
     echo implode(PHP_EOL, $headers) . PHP_EOL . PHP_EOL;
   }
-  $db = new ProxyDB();
-  $statusFile = __DIR__ . "/status.txt";
+  $db         = new ProxyDB();
+  $statusFile = __DIR__ . '/status.txt';
   Scheduler::register(function () use ($lockFile, $statusFile) {
     // release main lock files
     delete_path($lockFile);
@@ -58,11 +58,11 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
     shuffle($proxies);
   }
   // limit proxies by $max
-  $proxies = array_slice($proxies, 0, $max);
-  $iterator = new ArrayIterator($proxies);
+  $proxies          = array_slice($proxies, 0, $max);
+  $iterator         = new ArrayIterator($proxies);
   $combinedIterable = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
   $combinedIterable->attachIterator($iterator);
-  $counter = 0;
+  $counter   = 0;
   $startTime = microtime(true);
   foreach ($combinedIterable as $index => $item) {
     if (empty($item[0]->proxy)) {
@@ -73,7 +73,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
       $elapsedTime = microtime(true) - $startTime;
       if ($elapsedTime > 60) {
         // Execution time exceeded
-        echo "Execution time exceeded maximum allowed time of 60 seconds." . PHP_EOL;
+        echo 'Execution time exceeded maximum allowed time of 60 seconds.' . PHP_EOL;
         break;
       }
     }
@@ -99,19 +99,19 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
       $ch = [
         buildCurl($item[0]->proxy, 'http', $endpoint, $headers, $item[0]->username, $item[0]->password),
         buildCurl($item[0]->proxy, 'socks4', $endpoint, $headers, $item[0]->username, $item[0]->password),
-        buildCurl($item[0]->proxy, 'socks5', $endpoint, $headers, $item[0]->username, $item[0]->password)
+        buildCurl($item[0]->proxy, 'socks5', $endpoint, $headers, $item[0]->username, $item[0]->password),
       ];
 
       $protocols = [];
-      $mh = curl_multi_init();
+      $mh        = curl_multi_init();
       foreach ($ch as $handle_index => $handle) {
-        $protocol = $handle_index === 0 ? 'http' : ($handle_index === 1 ? 'socks4' : ($handle_index === 2 ? 'socks5' : ''));
+        $protocol                 = $handle_index === 0 ? 'http' : ($handle_index === 1 ? 'socks4' : ($handle_index === 2 ? 'socks5' : ''));
         $protocols[$handle_index] = $protocol;
         curl_multi_add_handle($mh, $handle);
       }
       // Record the start time
       $startTime = microtime(true);
-      $running = null;
+      $running   = null;
       do {
         curl_multi_exec($mh, $running);
         // Wait a short time before continuing to avoid consuming too much CPU
@@ -121,23 +121,22 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
       $endTime = microtime(true);
 
       // Calculate the total latency
-      $latency = round(($endTime - $startTime) * 1000);
+      $latency   = round(($endTime - $startTime) * 1000);
       $isPrivate = false;
       $isWorking = false;
       foreach ($ch as $handle_index => $handle) {
-        $http_status = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-        $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 ||
-          $http_status == 301 || $http_status == 302 || $http_status == 304;
-        $protocol = $protocols[$handle_index];
+        $http_status       = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+        $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 || $http_status == 301 || $http_status == 302 || $http_status == 304;
+        $protocol          = $protocols[$handle_index];
         if ($http_status_valid) {
           $info = curl_getinfo($handle);
           // get content
           $response = curl_multi_getcontent($handle);
           // check if not azenv proxy
           if (is_string($response) && !checkRawHeadersKeywords($response)) {
-            $header_size = curl_getinfo($handle, CURLINFO_HEADER_SIZE);
+            $header_size     = curl_getinfo($handle, CURLINFO_HEADER_SIZE);
             $response_header = substr($response, 0, $header_size);
-            $match_private = [];
+            $match_private   = [];
 
             // is private proxy?
             $isPrivate = stripos($response_header, 'Proxy-Authorization:') !== false;
@@ -150,19 +149,19 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
             } else {
               // check proxy private by redirected to gateway url
               if (!$isPrivate) {
-                $finalUrl = $info['url'];
-                $pattern = '/^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)=/i';
-                $mP = preg_match($pattern, $finalUrl, $match_private);
+                $finalUrl  = $info['url'];
+                $pattern   = '/^https?:\/\/(?:www\.gstatic\.com|gateway\.(zs\w+)\.[a-zA-Z]{2,})(?::\d+)?\/.*(?:origurl)=/i';
+                $mP        = preg_match($pattern, $finalUrl, $match_private);
                 $isPrivate = $mP > 0;
               }
             }
-            $priv_msg = $isPrivate ? "true " . implode("|", $match_private) : "false";
+            $priv_msg  = $isPrivate ? 'true ' . implode('|', $match_private) : 'false';
             $isWorking = !$isPrivate;
 
             if (is_string($title_should_be)) {
               $dom = \simplehtmldom\helper::str_get_html($response);
               if ($dom) {
-                echo "url: " . $endpoint . " title: " . $dom->title() . PHP_EOL;
+                echo 'url: ' . $endpoint . ' title: ' . $dom->title() . PHP_EOL;
                 $isWorking = !$isPrivate && strtolower($dom->title()) == strtolower($title_should_be);
               } else {
                 // response is not HTML
@@ -171,7 +170,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
             }
 
             if ($isWorking) {
-              $log_msg =  "[CHECKER-PARALLEL] $counter. $protocol://{$item[0]->proxy} is working private=$priv_msg https=$isSSL\n";
+              $log_msg = "[CHECKER-PARALLEL] $counter. $protocol://{$item[0]->proxy} is working private=$priv_msg https=$isSSL\n";
               echo $log_msg;
             }
           }
@@ -187,11 +186,11 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
 
       if ($isWorking) {
         $data = [
-          'type' => implode('-', $protocols),
-          'status' => 'active',
+          'type'    => implode('-', $protocols),
+          'status'  => 'active',
           'private' => $isPrivate ? 'true' : 'false',
           'latency' => $latency,
-          'https' => $isSSL
+          'https'   => $isSSL,
         ];
         $db->updateData($item[0]->proxy, $data);
         foreach (['http', 'socks5', 'socks4'] as $proxy_type) {
@@ -214,8 +213,8 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
           $webgl = random_webgl_data();
           $db->updateData($item[0]->proxy, [
             'webgl_renderer' => $webgl->webgl_renderer,
-            'webgl_vendor' => $webgl->webgl_vendor,
-            'browser_vendor' => $webgl->browser_vendor
+            'webgl_vendor'   => $webgl->webgl_vendor,
+            'browser_vendor' => $webgl->browser_vendor,
           ]);
         }
         // write working proxies
@@ -225,7 +224,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
         echo "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} dead" . PHP_EOL;
         if ($isSSL == 'true') {
           // re-check with non-https endpoint
-          $rebuild = new Proxy($item[0]->proxy);
+          $rebuild           = new Proxy($item[0]->proxy);
           $rebuild->username = $item[0]->username;
           $rebuild->password = $item[0]->password;
           delete_path($run_file);
@@ -261,7 +260,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
 function write_working()
 {
   $db = new ProxyDB();
-  echo "[CHECKER-PARALLEL] writing working proxies" . PHP_EOL;
+  echo '[CHECKER-PARALLEL] writing working proxies' . PHP_EOL;
   $data = parse_working_proxies($db);
   file_put_contents(__DIR__ . '/working.txt', $data['txt']);
   file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
@@ -275,7 +274,7 @@ function schedule_remover()
   if (!empty($str_to_remove)) {
     // remove already indexed proxies
     Scheduler::register(function () use ($str_to_remove) {
-      $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
+      $files  = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
       $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
         return strpos($fn, 'added-') !== false;
       });
@@ -285,18 +284,18 @@ function schedule_remover()
       foreach ($files as $file) {
         $remove = removeStringFromFile($file, $str_to_remove);
         if ($remove == 'success') {
-          echo "[CHECKER-PARALLEL] removed indexed proxies from " . basename($file) . PHP_EOL;
+          echo '[CHECKER-PARALLEL] removed indexed proxies from ' . basename($file) . PHP_EOL;
           sleep(1);
           removeEmptyLinesFromFile($file);
         }
         sleep(1);
         if (filterIpPortLines($file) == 'success') {
-          echo "[CHECKER-PARALLEL] non IP:PORT lines removed from " . basename($file) . PHP_EOL;
+          echo '[CHECKER-PARALLEL] non IP:PORT lines removed from ' . basename($file) . PHP_EOL;
         }
         sleep(1);
       }
       cleanUp();
-    }, "remove indexed proxies");
+    }, 'remove indexed proxies');
   }
 }
 

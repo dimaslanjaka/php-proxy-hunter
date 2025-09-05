@@ -9,7 +9,7 @@ use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
 
-$db = new ProxyDB();
+$db  = new ProxyDB();
 $str = '';
 // default limit proxy to check
 $max = 100 + $db->countWorkingProxies();
@@ -22,9 +22,9 @@ if (!$isCli) {
   if (ob_get_level() == 0) {
     ob_start();
   }
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
   header('Content-Type: text/plain; charset=UTF-8');
 
   // web server admin
@@ -35,7 +35,7 @@ if (!$isCli) {
   if (empty($id)) {
     $id .= Server::useragent();
   }
-  $user_id = getUserId();
+  $user_id     = getUserId();
   $webLockFile = tmp() . "/runners/$user_id-parallel-web-" . sanitizeFilename($id) . '.lock';
   if (file_exists($webLockFile) && !$isAdmin) {
     exit(date(DATE_RFC3339) . ' another process still running (web lock file is locked) ' . basename(__FILE__, '.php') . PHP_EOL);
@@ -72,24 +72,24 @@ if (!$isCli) {
 
   // web server run parallel in background
   // avoid bad response or hangs whole web server
-  $file = __FILE__;
+  $file               = __FILE__;
   $runner_output_file = __DIR__ . '/proxyChecker.txt';
-  $cmd = "php " . escapeshellarg($file);
+  $cmd                = 'php ' . escapeshellarg($file);
 
-  $user_id = getUserId();
-  $runner = tmp() . "/runners/parallel-cli-$user_id-$id" . ($isWin ? '.bat' : ".sh");
+  $user_id     = getUserId();
+  $runner      = tmp() . "/runners/parallel-cli-$user_id-$id" . ($isWin ? '.bat' : '.sh');
   $cliLockFile = tmp() . "/runners/parallel-cli-$user_id-$id.lock";
-  $uid = getUserId();
-  $cmd .= " --userId=" . escapeshellarg($uid);
-  $cmd .= " --lockFile=" . escapeshellarg(unixPath($cliLockFile));
-  $cmd .= " --runner=" . escapeshellarg(unixPath($runner));
+  $uid         = getUserId();
+  $cmd .= ' --userId=' . escapeshellarg($uid);
+  $cmd .= ' --lockFile=' . escapeshellarg(unixPath($cliLockFile));
+  $cmd .= ' --runner=' . escapeshellarg(unixPath($runner));
   // re-encode base64
-  $cmd .= " --proxy=" . escapeshellarg(base64_encode($str));
-  $cmd .= " --max=" . escapeshellarg("30");
-  $cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
+  $cmd .= ' --proxy=' . escapeshellarg(base64_encode($str));
+  $cmd .= ' --max=' . escapeshellarg('30');
+  $cmd .= ' --admin=' . escapeshellarg($isAdmin ? 'true' : 'false');
 
   // Generate the command to run in the background
-  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($runner_output_file), escapeshellarg($webLockFile));
+  $cmd = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($runner_output_file), escapeshellarg($webLockFile));
 
   // Write the command to the runner script
   if (write_file($runner, $cmd)) {
@@ -104,14 +104,14 @@ if (!$isCli) {
 // process only for CLI
 
 if ($isCli) {
-  $short_opts = "p:m::";
-  $long_opts = [
-    "proxy:",
-    "max::",
-    "userId::",
-    "lockFile::",
-    "runner::",
-    "admin::"
+  $short_opts = 'p:m::';
+  $long_opts  = [
+    'proxy:',
+    'max::',
+    'userId::',
+    'lockFile::',
+    'runner::',
+    'admin::',
   ];
   $options = getopt($short_opts, $long_opts);
   $isAdmin = !empty($options['admin']) && $options['admin'] !== 'false';
@@ -155,7 +155,7 @@ if ($isCli) {
   }
 
   $proxies = extractProxies($str, $db);
-  echo "[CHECKER-PARALLEL] checking " . count($proxies) . " proxies\n";
+  echo '[CHECKER-PARALLEL] checking ' . count($proxies) . " proxies\n";
   $str_to_remove = [];
 
   if (empty($proxies)) {
@@ -176,7 +176,7 @@ if ($isCli) {
       }
       return isDateRFC3339OlderThanHours($item['last_check'], 24);
     });
-    $db_data = array_merge($db_data, $working_data);
+    $db_data     = array_merge($db_data, $working_data);
     $db_data_map = array_map(function ($item) {
       // transform array into Proxy instance same as extractProxies result
       $wrap = new Proxy($item['proxy']);

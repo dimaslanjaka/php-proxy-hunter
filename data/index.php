@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 // header('Content-Type: text/plain; charset=utf-8');
 
 if (isset($_REQUEST['uid'])) {
-  $uid = urldecode(trim($_REQUEST['uid']));
+  $uid       = urldecode(trim($_REQUEST['uid']));
   $user_file = realpath(__DIR__ . "/$uid.json");
   if (isset($_SESSION['admin']) && $_SESSION['admin'] === true) {
     if (isset($_REQUEST['create'])) {
@@ -19,11 +19,11 @@ if (isset($_REQUEST['uid'])) {
   }
   if ($user_file !== false && file_exists($user_file)) {
     $data_str = file_get_contents($user_file);
-    $data = json_decode($data_str, true);
+    $data     = json_decode($data_str, true);
     exit($data_str);
   } else {
     $dateString = '2011-11-11';
-    $date = DateTime::createFromFormat('Y-m-d', $dateString);
+    $date       = DateTime::createFromFormat('Y-m-d', $dateString);
 
     if ($date !== false) {
       // Format the date according to RFC3339

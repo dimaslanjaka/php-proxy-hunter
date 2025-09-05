@@ -19,8 +19,8 @@ final class SyncApiTest extends TestCase
   {
     // Insert
     $data = [
-        'id' => 1,
-        'name' => 'Device A',
+        'id'    => 1,
+        'name'  => 'Device A',
         'value' => 'Hello World',
     ];
     $opts = [
@@ -34,7 +34,7 @@ final class SyncApiTest extends TestCase
         ],
     ];
     $context = stream_context_create($opts);
-    $result = file_get_contents(self::$baseUrl . '/sync.php', false, $context);
+    $result  = file_get_contents(self::$baseUrl . '/sync.php', false, $context);
     if ($result === false) {
       $error = error_get_last();
       $this->fail('HTTP request failed: ' . ($error['message'] ?? 'Unknown error'));
@@ -42,9 +42,9 @@ final class SyncApiTest extends TestCase
     $this->assertStringContainsString('ok', $result);
 
     // Update
-    $data['value'] = 'Updated Value';
+    $data['value']           = 'Updated Value';
     $opts['http']['content'] = json_encode($data);
-    $result = file_get_contents(self::$baseUrl . '/sync.php', false, $context);
+    $result                  = file_get_contents(self::$baseUrl . '/sync.php', false, $context);
     if ($result === false) {
       $error = error_get_last();
       $this->fail('HTTP request failed: ' . ($error['message'] ?? 'Unknown error'));
@@ -55,8 +55,8 @@ final class SyncApiTest extends TestCase
   public function testInsertWithAuthParam(): void
   {
     $data = [
-        'id' => 2,
-        'name' => 'Device B',
+        'id'    => 2,
+        'name'  => 'Device B',
         'value' => 'With Auth Param',
     ];
     $opts = [
@@ -69,8 +69,8 @@ final class SyncApiTest extends TestCase
         ],
     ];
     $context = stream_context_create($opts);
-    $url = self::$baseUrl . '/sync.php?auth=lasjhdfjo';
-    $result = file_get_contents($url, false, $context);
+    $url     = self::$baseUrl . '/sync.php?auth=lasjhdfjo';
+    $result  = file_get_contents($url, false, $context);
     if ($result === false) {
       $error = error_get_last();
       $this->fail('HTTP request failed: ' . ($error['message'] ?? 'Unknown error'));
@@ -81,10 +81,10 @@ final class SyncApiTest extends TestCase
   public function testInsertWithAuthField(): void
   {
     $data = [
-        'id' => 3,
-        'name' => 'Device C',
+        'id'    => 3,
+        'name'  => 'Device C',
         'value' => 'With Auth Field',
-        'auth' => 'lasjhdfjo',
+        'auth'  => 'lasjhdfjo',
     ];
     $opts = [
         'http' => [
@@ -96,7 +96,7 @@ final class SyncApiTest extends TestCase
         ],
     ];
     $context = stream_context_create($opts);
-    $result = file_get_contents(self::$baseUrl . '/sync.php', false, $context);
+    $result  = file_get_contents(self::$baseUrl . '/sync.php', false, $context);
     if ($result === false) {
       $error = error_get_last();
       $this->fail('HTTP request failed: ' . ($error['message'] ?? 'Unknown error'));

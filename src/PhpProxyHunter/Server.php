@@ -17,7 +17,7 @@ class Server
 
   public static function isCloudflare(): bool
   {
-    $ipCheck = self::_cloudflare_CheckIP($_SERVER['REMOTE_ADDR']);
+    $ipCheck      = self::_cloudflare_CheckIP($_SERVER['REMOTE_ADDR']);
     $requestCheck = self::_cloudflare_Requests_Check();
 
     return $ipCheck && $requestCheck;
@@ -79,10 +79,10 @@ class Server
     list($range, $netmask) = explode('/', trim($range), 2);
     //var_dump($netmask);
 
-    $ip_decimal = ip2long($ip);
-    $range_decimal = ip2long($range);
+    $ip_decimal       = ip2long($ip);
+    $range_decimal    = ip2long($range);
     $wildcard_decimal = pow(2, (32 - $netmask)) - 1;
-    $netmask_decimal = ~$wildcard_decimal;
+    $netmask_decimal  = ~$wildcard_decimal;
 
     return ($ip_decimal & $netmask_decimal) == ($range_decimal & $netmask_decimal);
   }

@@ -36,68 +36,68 @@ class HtmlDocument
    *
    * @var HtmlNode
    */
-  public $root = null;
-  public $nodes = [];
-  public $callback = null;
+  public $root      = null;
+  public $nodes     = [];
+  public $callback  = null;
   public $lowercase = false;
   public $original_size;
   public $size;
-  public $_charset = '';
-  public $_target_charset = '';
-  public $default_br_text = '';
+  public $_charset          = '';
+  public $_target_charset   = '';
+  public $default_br_text   = '';
   public $default_span_text = '';
   protected $pos;
   protected $doc;
   protected $char;
   protected $cursor;
   protected $parent;
-  protected $noise = [];
-  protected $token_blank = " \t\r\n";
-  protected $token_equal = ' =/>';
-  protected $token_slash = " />\r\n\t";
-  protected $token_attr = ' >';
+  protected $noise             = [];
+  protected $token_blank       = " \t\r\n";
+  protected $token_equal       = ' =/>';
+  protected $token_slash       = " />\r\n\t";
+  protected $token_attr        = ' >';
   protected $self_closing_tags = [
-    'area' => 1,
-    'base' => 1,
-    'br' => 1,
-    'col' => 1,
-    'embed' => 1,
-    'hr' => 1,
-    'img' => 1,
-    'input' => 1,
-    'link' => 1,
-    'meta' => 1,
-    'param' => 1,
+    'area'   => 1,
+    'base'   => 1,
+    'br'     => 1,
+    'col'    => 1,
+    'embed'  => 1,
+    'hr'     => 1,
+    'img'    => 1,
+    'input'  => 1,
+    'link'   => 1,
+    'meta'   => 1,
+    'param'  => 1,
     'source' => 1,
-    'track' => 1,
-    'wbr' => 1,
+    'track'  => 1,
+    'wbr'    => 1,
   ];
   protected $block_tags = [
-    'body' => 1,
-    'div' => 1,
-    'form' => 1,
-    'root' => 1,
-    'span' => 1,
+    'body'  => 1,
+    'div'   => 1,
+    'form'  => 1,
+    'root'  => 1,
+    'span'  => 1,
     'table' => 1,
   ];
   protected $optional_closing_tags = [
     // Not optional, see
     // https://www.w3.org/TR/html/textlevel-semantics.html#the-b-element
-    'b' => ['b' => 1],
+    'b'  => ['b' => 1],
     'dd' => ['dd' => 1, 'dt' => 1],
     // Not optional, see
     // https://www.w3.org/TR/html/grouping-content.html#the-dl-element
-    'dl' => ['dd' => 1, 'dt' => 1],
-    'dt' => ['dd' => 1, 'dt' => 1],
-    'li' => ['li' => 1],
+    'dl'       => ['dd' => 1, 'dt' => 1],
+    'dt'       => ['dd' => 1, 'dt' => 1],
+    'li'       => ['li' => 1],
     'optgroup' => ['optgroup' => 1, 'option' => 1],
-    'option' => ['optgroup' => 1, 'option' => 1],
-    'p' => ['p' => 1],
-    'rp' => ['rp' => 1, 'rt' => 1],
-    'rt' => ['rp' => 1, 'rt' => 1],
-    'td' => ['td' => 1, 'th' => 1],
-    'th' => ['td' => 1, 'th' => 1],
-    'tr' => ['td' => 1, 'th' => 1, 'tr' => 1],
+    'option'   => ['optgroup' => 1, 'option' => 1],
+    'p'        => ['p' => 1],
+    'rp'       => ['rp' => 1, 'rt' => 1],
+    'rt'       => ['rp' => 1, 'rt' => 1],
+    'td'       => ['td' => 1, 'th' => 1],
+    'th'       => ['td' => 1, 'th' => 1],
+    'tr'       => ['td' => 1, 'th' => 1, 'tr' => 1],
   ];
 
   public function __construct(
@@ -161,7 +161,7 @@ class HtmlDocument
       $this->doc = preg_replace('/([\t\s]*[\r\n]^[\t\s]*)/m', ' ', $this->doc);
 
       // Restore temporarily removed elements and calculate new size
-      $this->doc = $this->restore_noise($this->doc);
+      $this->doc  = $this->restore_noise($this->doc);
       $this->size = strlen($this->doc);
     }
 
@@ -197,21 +197,21 @@ class HtmlDocument
   ) {
     $this->clear();
 
-    $this->doc = trim(is_string($str) ? $str : '');
-    $this->size = strlen($this->doc);
-    $this->original_size = $this->size; // original size of the html
-    $this->pos = 0;
-    $this->cursor = 1;
-    $this->noise = [];
-    $this->nodes = [];
-    $this->lowercase = $lowercase;
-    $this->default_br_text = $defaultBRText;
-    $this->default_span_text = $defaultSpanText;
-    $this->root = new HtmlNode($this);
-    $this->root->tag = 'root';
+    $this->doc                                = trim(is_string($str) ? $str : '');
+    $this->size                               = strlen($this->doc);
+    $this->original_size                      = $this->size; // original size of the html
+    $this->pos                                = 0;
+    $this->cursor                             = 1;
+    $this->noise                              = [];
+    $this->nodes                              = [];
+    $this->lowercase                          = $lowercase;
+    $this->default_br_text                    = $defaultBRText;
+    $this->default_span_text                  = $defaultSpanText;
+    $this->root                               = new HtmlNode($this);
+    $this->root->tag                          = 'root';
     $this->root->_[HtmlNode::HDOM_INFO_BEGIN] = -1;
-    $this->root->nodetype = HtmlNode::HDOM_TYPE_ROOT;
-    $this->parent = $this->root;
+    $this->root->nodetype                     = HtmlNode::HDOM_TYPE_ROOT;
+    $this->parent                             = $this->root;
     if ($this->size > 0) {
       $this->char = $this->doc[0];
     }
@@ -229,9 +229,9 @@ class HtmlDocument
     for ($i = $count - 1; $i > -1; --$i) {
       $key = '___noise___' . sprintf('% 5d', count($this->noise) + 1000);
 
-      $idx = ($remove_tag) ? 0 : 1; // 0 = entire match, 1 = submatch
+      $idx               = ($remove_tag) ? 0 : 1; // 0 = entire match, 1 = submatch
       $this->noise[$key] = $matches[$i][$idx][0];
-      $this->doc = substr_replace($this->doc, $key, $matches[$i][$idx][1], strlen($matches[$i][$idx][0]));
+      $this->doc         = substr_replace($this->doc, $key, $matches[$i][$idx][1], strlen($matches[$i][$idx][0]));
     }
 
     // reset the length of content
@@ -323,9 +323,9 @@ class HtmlDocument
     }
 
     if (false === ($pos = strpos($this->doc, $char, $this->pos))) {
-      $ret = substr($this->doc, $this->pos, $this->size - $this->pos);
+      $ret        = substr($this->doc, $this->pos, $this->size - $this->pos);
       $this->char = null;
-      $this->pos = $this->size;
+      $this->pos  = $this->size;
 
       return $ret;
     }
@@ -334,16 +334,16 @@ class HtmlDocument
       return '';
     }
 
-    $pos_old = $this->pos;
+    $pos_old    = $this->pos;
     $this->char = $this->doc[$pos];
-    $this->pos = $pos;
+    $this->pos  = $pos;
 
     return substr($this->doc, $pos_old, $pos - $pos_old);
   }
 
   protected function link_nodes(&$node, $is_child)
   {
-    $node->parent = $this->parent;
+    $node->parent          = $this->parent;
     $this->parent->nodes[] = $node;
     if ($is_child) {
       $this->parent->children[] = $node;
@@ -388,7 +388,7 @@ class HtmlDocument
 
       if (strcasecmp($this->parent->tag, $tag)) { // Parent is not start tag
         $parent_lower = strtolower($this->parent->tag);
-        $tag_lower = strtolower($tag);
+        $tag_lower    = strtolower($tag);
         if (isset($this->optional_closing_tags[$parent_lower]) && isset($this->block_tags[$tag_lower])) {
           $org_parent = $this->parent;
 
@@ -417,7 +417,7 @@ class HtmlDocument
           // grandparent exists + current is block tag
           // Parent has no end tag
           $this->parent->_[HtmlNode::HDOM_INFO_END] = 0;
-          $org_parent = $this->parent;
+          $org_parent                               = $this->parent;
 
           // Find start tag
           while (($this->parent->parent) && strtolower($this->parent->tag) !== $tag_lower) {
@@ -426,7 +426,7 @@ class HtmlDocument
 
           // No start tag, close parent
           if (strtolower($this->parent->tag) !== $tag_lower) {
-            $this->parent = $org_parent; // restore origonal parent
+            $this->parent                             = $org_parent; // restore origonal parent
             $this->parent->_[HtmlNode::HDOM_INFO_END] = $this->cursor;
 
             return $this->as_text_node($tag);
@@ -434,7 +434,7 @@ class HtmlDocument
         } elseif (($this->parent->parent) && strtolower($this->parent->parent->tag) === $tag_lower) {
           // Grandparent exists and current tag closes it
           $this->parent->_[HtmlNode::HDOM_INFO_END] = 0;
-          $this->parent = $this->parent->parent;
+          $this->parent                             = $this->parent->parent;
         } else { // Random tag, add as text node
           return $this->as_text_node($tag);
         }
@@ -453,7 +453,7 @@ class HtmlDocument
     }
 
     // Start tag: https://dev.w3.org/html5/pf-summary/syntax.html#start-tags
-    $node = new HtmlNode($this);
+    $node                               = new HtmlNode($this);
     $node->_[HtmlNode::HDOM_INFO_BEGIN] = $this->cursor++;
 
     // Tag name
@@ -464,11 +464,11 @@ class HtmlDocument
         // Go back until $tag only contains start of comment "!--".
         while (strlen($tag) > 3) {
           $this->char = $this->doc[--$this->pos]; // previous
-          $tag = substr($tag, 0, strlen($tag) - 1);
+          $tag        = substr($tag, 0, strlen($tag) - 1);
         }
 
         $node->nodetype = HtmlNode::HDOM_TYPE_COMMENT;
-        $node->tag = 'comment';
+        $node->tag      = 'comment';
 
         $data = '';
 
@@ -501,12 +501,12 @@ class HtmlDocument
         // Go back until $tag only contains start of cdata "![CDATA[".
         while (strlen($tag) > 8) {
           $this->char = $this->doc[--$this->pos]; // previous
-          $tag = substr($tag, 0, strlen($tag) - 1);
+          $tag        = substr($tag, 0, strlen($tag) - 1);
         }
 
         // CDATA can contain HTML stuff, need to find closing tags first
         $node->nodetype = HtmlNode::HDOM_TYPE_CDATA;
-        $node->tag = 'cdata';
+        $node->tag      = 'cdata';
 
         $data = '';
 
@@ -538,7 +538,7 @@ class HtmlDocument
       } else { // Unknown
         Debug::log('Source document contains unknown declaration: <' . $tag);
         $node->nodetype = HtmlNode::HDOM_TYPE_UNKNOWN;
-        $node->tag = 'unknown';
+        $node->tag      = 'unknown';
       }
 
       $node->_[HtmlNode::HDOM_INFO_TEXT] = '<' . $tag . $this->copy_until_char('>');
@@ -569,14 +569,14 @@ class HtmlDocument
 
     // Valid tag name
     $node->nodetype = HtmlNode::HDOM_TYPE_ELEMENT;
-    $tag_lower = strtolower($tag);
-    $node->tag = ($this->lowercase) ? $tag_lower : $tag;
+    $tag_lower      = strtolower($tag);
+    $node->tag      = ($this->lowercase) ? $tag_lower : $tag;
 
     if (isset($this->optional_closing_tags[$tag_lower])) { // Optional closing tag
       while (isset($this->optional_closing_tags[$tag_lower][strtolower($this->parent->tag)])) {
         // Previous element was the last element of ancestor
         $this->parent->_[HtmlNode::HDOM_INFO_END] = $node->_[HtmlNode::HDOM_INFO_BEGIN] - 1;
-        $this->parent = $this->parent->parent;
+        $this->parent                             = $this->parent->parent;
       }
       $node->parent = $this->parent;
     }
@@ -602,10 +602,10 @@ class HtmlDocument
 
       if ($this->pos >= $this->size - 1 && '>' !== $this->char) { // End Of File
         Debug::log('Source document ended unexpectedly!');
-        $node->nodetype = HtmlNode::HDOM_TYPE_TEXT;
-        $node->_[HtmlNode::HDOM_INFO_END] = 0;
+        $node->nodetype                    = HtmlNode::HDOM_TYPE_TEXT;
+        $node->_[HtmlNode::HDOM_INFO_END]  = 0;
         $node->_[HtmlNode::HDOM_INFO_TEXT] = '<' . $tag . $space[0] . $name;
-        $node->tag = 'text';
+        $node->tag                         = 'text';
         $this->link_nodes($node, false);
 
         return true;
@@ -629,7 +629,7 @@ class HtmlDocument
         $this->parse_attr($node, $name, $space, $trim); // get attribute value
       } else { // Attribute without value
         $node->_[HtmlNode::HDOM_INFO_QUOTE][$name] = HtmlNode::HDOM_QUOTE_NO;
-        $node->attr[$name] = true;
+        $node->attr[$name]                         = true;
         if ('>' !== $this->char) {
           $this->char = $this->doc[--$this->pos];
         } // prev
@@ -770,7 +770,7 @@ class HtmlDocument
       case '"':
         $quote_type = HtmlNode::HDOM_QUOTE_DOUBLE;
         $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
-        $value = $this->copy_until_char('"');
+        $value      = $this->copy_until_char('"');
         $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
         break;
       case '\'':
@@ -778,14 +778,14 @@ class HtmlDocument
         Debug::log_once('Source document contains attribute values with single quotes (<e attribute=\'value\'>). Use double quotes for best performance.');
         $quote_type = HtmlNode::HDOM_QUOTE_SINGLE;
         $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
-        $value = $this->copy_until_char('\'');
+        $value      = $this->copy_until_char('\'');
         $this->char = (++$this->pos < $this->size) ? $this->doc[$this->pos] : null; // next
         break;
       default:
         // phpcs:ignore Generic.Files.LineLength
         Debug::log_once('Source document contains attribute values without quotes (<e attribute=value>). Use double quotes for best performance');
         $quote_type = HtmlNode::HDOM_QUOTE_NO;
-        $value = $this->copy_until($this->token_attr);
+        $value      = $this->copy_until($this->token_attr);
     }
 
     $value = $this->restore_noise($value);
@@ -813,7 +813,7 @@ class HtmlDocument
 
     if (function_exists('get_last_retrieve_url_contents_content_type')) {
       $contentTypeHeader = call_user_func('get_last_retrieve_url_contents_content_type');
-      $success = preg_match('/charset=(.+)/', $contentTypeHeader, $matches);
+      $success           = preg_match('/charset=(.+)/', $contentTypeHeader, $matches);
       if ($success) {
         $charset = $matches[1];
       }
@@ -963,11 +963,11 @@ class HtmlDocument
   public function __debugInfo()
   {
     return [
-      'root' => $this->root,
-      'noise' => empty($this->noise) ? 'none' : $this->noise,
-      'charset' => $this->_charset,
+      'root'           => $this->root,
+      'noise'          => empty($this->noise) ? 'none' : $this->noise,
+      'charset'        => $this->_charset,
       'target charset' => $this->_target_charset,
-      'original size' => $this->original_size,
+      'original size'  => $this->original_size,
     ];
   }
 
@@ -1084,10 +1084,10 @@ class HtmlDocument
 
   public function createElement($name, $value = null)
   {
-    $node = new HtmlNode(null);
-    $node->nodetype = HtmlNode::HDOM_TYPE_ELEMENT;
+    $node                               = new HtmlNode(null);
+    $node->nodetype                     = HtmlNode::HDOM_TYPE_ELEMENT;
     $node->_[HtmlNode::HDOM_INFO_BEGIN] = 1;
-    $node->_[HtmlNode::HDOM_INFO_END] = 1;
+    $node->_[HtmlNode::HDOM_INFO_END]   = 1;
 
     if (null !== $value) {
       $node->_[HtmlNode::HDOM_INFO_INNER] = $value;
@@ -1100,7 +1100,7 @@ class HtmlDocument
 
   public function createTextNode($value)
   {
-    $node = new HtmlNode($this);
+    $node           = new HtmlNode($this);
     $node->nodetype = HtmlNode::HDOM_TYPE_TEXT;
 
     if (null !== $value) {

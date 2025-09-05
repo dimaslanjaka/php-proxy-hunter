@@ -14,20 +14,20 @@ if (function_exists('header') && !$isCli) {
   header('Content-Type: application/json; charset=UTF-8');
 
   // Allow from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
   header('Content-Type: application/json; charset=utf-8');
 
   // check admin
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
-$db = new \PhpProxyHunter\ProxyDB(__DIR__ . '/src/database.sqlite');
-$lockFilePath = tmp() . "/runners/geoIp.lock";
-$statusFile = __DIR__ . "/status.txt";
-$config = getConfig(getUserId());
-$options = getopt("", ["str:"]); // php geoIp.php --str "xsdsd dfdfd"
+$db           = new \PhpProxyHunter\ProxyDB(__DIR__ . '/src/database.sqlite');
+$lockFilePath = tmp() . '/runners/geoIp.lock';
+$statusFile   = __DIR__ . '/status.txt';
+$config       = getConfig(getUserId());
+$options      = getopt('', ['str:']); // php geoIp.php --str "xsdsd dfdfd"
 
 $string_data = '89.58.45.94:45729';
 if ($isCli) {
@@ -52,12 +52,12 @@ if (file_exists($lockFilePath) && !$isAdmin) {
 }
 
 \PhpProxyHunter\Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
-  echo "releasing lock" . PHP_EOL;
+  echo 'releasing lock' . PHP_EOL;
   // clean lock files
   if (file_exists($lockFilePath)) {
     unlink($lockFilePath);
   }
-  echo "update status to IDLE" . PHP_EOL;
+  echo 'update status to IDLE' . PHP_EOL;
   write_file($statusFile, 'idle');
 }, 'z_onExit' . basename(__FILE__));
 
@@ -78,15 +78,15 @@ foreach ($extract as $item) {
   if (empty($item->useragent)) {
     $item->useragent = randomWindowsUa();
     $db->updateData($item->proxy, ['useragent' => $item->useragent]);
-    echo $item->proxy . " missing useragent fix" . PHP_EOL;
+    echo $item->proxy . ' missing useragent fix' . PHP_EOL;
   }
   if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
     $webgl = random_webgl_data();
     $db->updateData($item->proxy, [
       'webgl_renderer' => $webgl->webgl_renderer,
-      'webgl_vendor' => $webgl->webgl_vendor,
-      'browser_vendor' => $webgl->browser_vendor
+      'webgl_vendor'   => $webgl->webgl_vendor,
+      'browser_vendor' => $webgl->browser_vendor,
     ]);
-    echo $item->proxy . " missing WebGL fix" . PHP_EOL;
+    echo $item->proxy . ' missing WebGL fix' . PHP_EOL;
   }
 }

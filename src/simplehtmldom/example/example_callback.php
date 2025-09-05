@@ -14,7 +14,7 @@ function my_callback($element)
 }
 
 // Load the document
-$doc = new HtmlWeb();
+$doc  = new HtmlWeb();
 $html = $doc->load('https://www.google.com/');
 
 // Register the callback function

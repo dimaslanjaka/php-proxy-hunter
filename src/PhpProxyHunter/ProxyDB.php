@@ -30,8 +30,8 @@ class ProxyDB
    */
   public function __construct(?string $dbLocation = null)
   {
-    $isInMemory = $dbLocation === ':memory:';
-    $autoloadPath = (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName();
+    $isInMemory        = $dbLocation === ':memory:';
+    $autoloadPath      = (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName();
     $this->projectRoot = dirname(dirname(dirname($autoloadPath)));
 
     // Use an in-memory SQLite database for testing purposes
@@ -105,8 +105,8 @@ class ProxyDB
    */
   private function runDailyVacuum(): void
   {
-    $lastVacuumTime = $this->getMetaValue('last_vacuum_time');
-    $currentTime = time();
+    $lastVacuumTime  = $this->getMetaValue('last_vacuum_time');
+    $currentTime     = time();
     $oneDayInSeconds = 86400;
 
     if (!$lastVacuumTime || ($currentTime - (int)$lastVacuumTime > $oneDayInSeconds)) {
@@ -226,7 +226,7 @@ class ProxyDB
     if (empty($proxy)) {
       return false;
     }
-    $stmt = $this->db->pdo->prepare("SELECT COUNT(*) FROM added_proxies WHERE proxy = :proxy");
+    $stmt = $this->db->pdo->prepare('SELECT COUNT(*) FROM added_proxies WHERE proxy = :proxy');
     $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
     $stmt->execute();
     return $stmt->fetchColumn() > 0;
@@ -346,10 +346,10 @@ class ProxyDB
   public function getWorkingProxies(?int $limit = null): array
   {
     $whereClause = 'status = ?';
-    $params = ['active'];
+    $params      = ['active'];
 
     $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
-    $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
+    $limitClause   = ($limit !== null) ? "LIMIT $limit" : '';
 
     $result = $this->db->select('proxies', '*', $whereClause . ' ' . $orderByRandom . ' ' . $limitClause, $params);
     if (!$result) {
@@ -367,10 +367,10 @@ class ProxyDB
   public function getPrivateProxies(?int $limit = null): array
   {
     $whereClause = 'status = ? OR private = ?';
-    $params = ['private', 'true'];
+    $params      = ['private', 'true'];
 
     $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
-    $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
+    $limitClause   = ($limit !== null) ? "LIMIT $limit" : '';
 
     return $this->db->select('proxies', '*', $whereClause . ' ' . $orderByRandom . ' ' . $limitClause, $params);
   }
@@ -384,10 +384,10 @@ class ProxyDB
   public function getDeadProxies(?int $limit = null): array
   {
     $whereClause = 'status = ? OR status = ?';
-    $params = ['dead', 'port-closed'];
+    $params      = ['dead', 'port-closed'];
 
     $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
-    $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
+    $limitClause   = ($limit !== null) ? "LIMIT $limit" : '';
 
     return $this->db->select('proxies', '*', $whereClause . ' ' . $orderByRandom . ' ' . $limitClause, $params);
   }
@@ -401,10 +401,10 @@ class ProxyDB
   public function getUntestedProxies(?int $limit = null): array
   {
     $whereClause = 'status IS NULL OR status = "" OR status NOT IN (?, ?, ?)';
-    $params = ['active', 'port-closed', 'dead'];
+    $params      = ['active', 'port-closed', 'dead'];
 
     $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
-    $limitClause = ($limit !== null) ? "LIMIT $limit" : '';
+    $limitClause   = ($limit !== null) ? "LIMIT $limit" : '';
 
     return $this->db->select('proxies', '*', $whereClause . ' ' . $orderByRandom . ' ' . $limitClause, $params);
   }
@@ -412,7 +412,7 @@ class ProxyDB
   public function countDeadProxies(): int
   {
     $closed = $this->db->count('proxies', 'status = ?', ['port-closed']);
-    $dead = $this->db->count('proxies', 'status = ?', ['dead']);
+    $dead   = $this->db->count('proxies', 'status = ?', ['dead']);
     return $closed + $dead;
   }
 
@@ -425,13 +425,13 @@ class ProxyDB
   {
     return $this->db->count('proxies', "(status = ?) AND (private = ? OR private IS NULL OR private = '')", [
       'active',
-      'false'
+      'false',
     ]);
   }
 
   public function countPrivateProxies(): int
   {
-    return $this->db->count('proxies', "private = ?", ['true']);
+    return $this->db->count('proxies', 'private = ?', ['true']);
   }
 
   public function countAllProxies(): int

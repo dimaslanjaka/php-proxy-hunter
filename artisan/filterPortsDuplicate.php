@@ -13,24 +13,24 @@ if (!$isCli) {
   exit('only CLI allowed');
 }
 
-$max_checks = 500; // max proxies to be checked
+$max_checks       = 500; // max proxies to be checked
 $maxExecutionTime = 120; // max 120s execution time
-$endless = false;
-$perform_delete = false;
+$endless          = false;
+$perform_delete   = false;
 
 if ($isCli) {
-  $short_opts = "p:m::";
-  $long_opts = [
-    "proxy:",
-    "max::",
-    "userId::",
-    "lockFile::",
-    "runner::",
-    "admin::",
-    "endless::",
-    "delete::"
+  $short_opts = 'p:m::';
+  $long_opts  = [
+    'proxy:',
+    'max::',
+    'userId::',
+    'lockFile::',
+    'runner::',
+    'admin::',
+    'endless::',
+    'delete::',
   ];
-  $options = getopt($short_opts, $long_opts);
+  $options        = getopt($short_opts, $long_opts);
   $perform_delete = !empty($options['delete']); // --delete=true
   if (!empty($options['max'])) { // --max=100
     $max = intval($options['max']);
@@ -48,17 +48,17 @@ if ($isCli) {
 
 if ($isAdmin || $endless) {
   // set time limit 10 minutes for admin and 600 minutes for endless mode
-  $maxExecutionTime = $endless ? 600 * 60 :  10 * 60;
+  $maxExecutionTime = $endless ? 600 * 60 : 10 * 60;
   // disable execution limit
   set_time_limit(0);
 }
 
-$lockFilePath = tmp("/runners/" . basename(__FILE__, '.php') . ".lock");
+$lockFilePath = tmp('/runners/' . basename(__FILE__, '.php') . '.lock');
 if ($endless) {
-  $lockFilePath = tmp("/" . basename(__FILE__, '.php') . "-endless.lock");
+  $lockFilePath = tmp('/' . basename(__FILE__, '.php') . '-endless.lock');
 }
 
-$statusFile = dirname(__DIR__) . "/status.txt";
+$statusFile = dirname(__DIR__) . '/status.txt';
 
 // Check if the lock file exists
 if (file_exists($lockFilePath)) {
@@ -78,7 +78,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile) {
     unlink($lockFilePath);
   }
   file_put_contents($statusFile, 'idle');
-}, "z_Exit_" . md5(__FILE__));
+}, 'z_Exit_' . md5(__FILE__));
 
 $db = new ProxyDB();
 /**
@@ -87,8 +87,8 @@ $db = new ProxyDB();
 $pdo = $db->db->pdo;
 
 // Step 1: Identify and process duplicates based on IP address in batches
-$batchSize = 1000; // Adjust batch size as needed
-$start = 0;
+$batchSize    = 1000; // Adjust batch size as needed
+$start        = 0;
 $duplicateIds = [];
 
 do {
@@ -109,7 +109,7 @@ do {
   $stmt->bindParam(':batchSize', $batchSize, PDO::PARAM_INT);
   $stmt->execute();
   $duplicateIpCounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  $startTime = microtime(true);
+  $startTime         = microtime(true);
 
   // Display the results
   foreach ($duplicateIpCounts as $ipInfo) {
@@ -159,8 +159,8 @@ do {
       // shuffle ips
       shuffle($ipRows);
       foreach ($ipRows as $row) {
-        $log = '';
-        $proxy = $row['proxy'];
+        $log           = '';
+        $proxy         = $row['proxy'];
         $isAlreadyDead = false;
         if (!empty($row['last_check'])) {
           $deadStatus = $row['status'] == 'port-closed' || $row['status'] == 'dead';
@@ -172,7 +172,7 @@ do {
         }
         if (!isValidProxy(trim($proxy))) {
           // Proxy is invalid, delete the row
-          $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE \"_rowid_\" = :id AND \"proxy\" = :proxy");
+          $deleteStmt = $pdo->prepare('DELETE FROM proxies WHERE "_rowid_" = :id AND "proxy" = :proxy');
           $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
           $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
           $deleteStmt->execute();
@@ -190,8 +190,8 @@ do {
               echo "$proxy port open\n";
               $db->updateData($proxy, ['status' => 'untested'], false);
               // Update the last_check timestamp
-              $lastCheck = date(DATE_RFC3339); // Assign date to a variable
-              $updateStmt = $pdo->prepare("UPDATE proxies SET last_check = :last_check WHERE proxy = :proxy");
+              $lastCheck  = date(DATE_RFC3339); // Assign date to a variable
+              $updateStmt = $pdo->prepare('UPDATE proxies SET last_check = :last_check WHERE proxy = :proxy');
               $updateStmt->bindParam(':last_check', $lastCheck, PDO::PARAM_STR); // Use variable here
               $updateStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
               $updateStmt->execute();
@@ -200,7 +200,7 @@ do {
             } elseif ($keepRow['proxy'] !== $proxy) {
               if ($perform_delete || $isAlreadyDead) {
                 // Delete closed port
-                $deleteStmt = $pdo->prepare("DELETE FROM proxies WHERE id = :id AND proxy = :proxy");
+                $deleteStmt = $pdo->prepare('DELETE FROM proxies WHERE id = :id AND proxy = :proxy');
                 $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
                 $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
                 $deleteStmt->execute();
@@ -244,7 +244,7 @@ function wasCheckedThisMonth(\PDO $pdo, string $proxy)
 function wasCheckedThisWeek($pdo, $proxy)
 {
   $startOfWeek = date('Y-m-d', strtotime('last sunday'));
-  $stmt = $pdo->prepare("SELECT COUNT(*) FROM proxies WHERE proxy = :proxy AND last_check >= :start_of_week");
+  $stmt        = $pdo->prepare('SELECT COUNT(*) FROM proxies WHERE proxy = :proxy AND last_check >= :start_of_week');
   $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
   $stmt->bindParam(':start_of_week', $startOfWeek, PDO::PARAM_STR);
   $stmt->execute();
@@ -255,7 +255,7 @@ function write_working()
 {
   global $db;
   $projectRoot = dirname(__DIR__);
-  echo "[FILTER-PORT] writing working proxies" . PHP_EOL;
+  echo '[FILTER-PORT] writing working proxies' . PHP_EOL;
   $data = parse_working_proxies($db);
   file_put_contents($projectRoot . '/working.txt', $data['txt']);
   file_put_contents($projectRoot . '/working.json', json_encode($data['array']));

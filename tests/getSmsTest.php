@@ -50,22 +50,22 @@ class GetSmsTest extends TestCase
       }
     }
 
-    self::fail("Neither http://localhost:8000 nor http://localhost is available.");
+    self::fail('Neither http://localhost:8000 nor http://localhost is available.');
   }
 
   public function testPostJson()
   {
-    $data = ['sms' => 'Hello from JSON'];
+    $data    = ['sms' => 'Hello from JSON'];
     $options = [
       'http' => [
-        'method'  => 'POST',
-        'header'  => [
-          "Content-Type: application/json",
+        'method' => 'POST',
+        'header' => [
+          'Content-Type: application/json',
         ],
         'content' => json_encode($data),
-      ]
+      ],
     ];
-    $context = stream_context_create($options);
+    $context  = stream_context_create($options);
     $response = file_get_contents($this->baseUrl, false, $context);
 
     $this->assertNotFalse($response);
@@ -74,17 +74,17 @@ class GetSmsTest extends TestCase
 
   public function testPostForm()
   {
-    $data = http_build_query(['sms' => 'Hello from form']);
+    $data    = http_build_query(['sms' => 'Hello from form']);
     $options = [
       'http' => [
-        'method'  => 'POST',
-        'header'  => [
-          "Content-Type: application/x-www-form-urlencoded",
+        'method' => 'POST',
+        'header' => [
+          'Content-Type: application/x-www-form-urlencoded',
         ],
         'content' => $data,
-      ]
+      ],
     ];
-    $context = stream_context_create($options);
+    $context  = stream_context_create($options);
     $response = file_get_contents($this->baseUrl, false, $context);
 
     $this->assertNotFalse($response);

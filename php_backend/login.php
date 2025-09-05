@@ -8,9 +8,9 @@ global $isCli;
 
 if (!$isCli) {
   // Set CORS (Cross-Origin Resource Sharing) headers to allow requests from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
 
   // Set content type to JSON with UTF-8 encoding
   header('Content-Type: application/json; charset=utf-8');
@@ -23,7 +23,7 @@ if (!$isCli) {
 }
 
 $user_db = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
-$request = !$isCli ? parsePostData(is_debug()) : getopt("", ["username:", "password:"]);
+$request = !$isCli ? parsePostData(is_debug()) : getopt('', ['username:', 'password:']);
 
 // Directly assign the username and password from the request
 $username = sanitize_input($request['username'] ?? null);
@@ -44,26 +44,26 @@ function do_login($username, $password)
 
   $response = [
     'message' => '',
-    'error' => false
+    'error'   => false,
   ];
 
   if ($username && $password) {
     $verifyResult = verify($username, $password);
     if (isset($verifyResult['error']) && strpos($verifyResult['error'], 'unregistered') !== false && strpos($username, '@') !== false) {
       // Auto create when username is email
-      $email = $username;
-      $username = explode("@", $email)[0];
-      $add = $user_db->add(['email' => $email, 'password' => $password, 'username' => $username]);
+      $email    = $username;
+      $username = explode('@', $email)[0];
+      $add      = $user_db->add(['email' => $email, 'password' => $password, 'username' => $username]);
       if ($add) {
         $response['message'] = "username $username with email $email created successfully";
         $response['success'] = true;
-        $verifyResult = verify($username, $password);
+        $verifyResult        = verify($username, $password);
         if (isset($verifyResult['success']) && $verifyResult['success'] === true) {
           $response = array_merge($response, $verifyResult);
         }
       } else {
         $response['message'] = "username $username with email $email creation failed";
-        $response['error'] = true;
+        $response['error']   = true;
       }
       $response['add'] = $add;
     } else {
@@ -71,7 +71,7 @@ function do_login($username, $password)
       if (isset($verifyResult['success']) && $verifyResult['success'] === true) {
         $response['message'] = 'Login successful';
         $response['success'] = true;
-        $response = array_merge($response, $verifyResult);
+        $response            = array_merge($response, $verifyResult);
       } else {
         // Always set message as string, error as boolean
         if (isset($verifyResult['error'])) {
@@ -84,7 +84,7 @@ function do_login($username, $password)
     }
   } else {
     $response['message'] = 'username or password empty';
-    $response['error'] = true;
+    $response['error']   = true;
   }
 
   return $response;
@@ -95,7 +95,7 @@ function verify($username, $password)
   global $user_db;
   $response = [
     'message' => '',
-    'error' => false
+    'error'   => false,
   ];
   $select = $user_db->select($username);
   if (!empty($select['password'])) {
@@ -109,12 +109,12 @@ function verify($username, $password)
     // If password matches, set session variables
     if ($verify) {
       // Login success
-      $_SESSION['authenticated'] = true;
+      $_SESSION['authenticated']       = true;
       $_SESSION['authenticated_email'] = strtolower($select['email']);
       if (strtolower($select['email']) == strtolower($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '')) {
-        $_SESSION['admin'] = true;
+        $_SESSION['admin']   = true;
         $response['success'] = true;
-        $response['admin'] = true;
+        $response['admin']   = true;
         $response['message'] = 'Login successful (admin)';
       } else {
         $response['success'] = true;
@@ -123,16 +123,16 @@ function verify($username, $password)
           unset($_SESSION['admin']);
         }
       }
-      $date = new DateTime();
+      $date            = new DateTime();
       $currentDateTime = $date->format('Y-m-d H:i:s.u');
       $user_db->update($select['email'], ['last_login' => $currentDateTime]);
     } else {
       $response['message'] = 'username or password mismatch';
-      $response['error'] = true;
+      $response['error']   = true;
     }
   } else {
     $response['message'] = 'username or password is unregistered';
-    $response['error'] = true;
+    $response['error']   = true;
   }
   return $response;
 }
@@ -158,7 +158,7 @@ function sanitize_input($input)
   $input = html_entity_decode(urldecode($input));
 
   // List of dangerous characters to be removed
-  $dangerous_chars = ["'", '"', ";", "--", "#", "/*", "*/", "%", "_", "`"];
+  $dangerous_chars = ["'", '"', ';', '--', '#', '/*', '*/', '%', '_', '`'];
 
   // Remove dangerous characters using str_replace in a more efficient manner
   $input = str_ireplace($dangerous_chars, '', $input);

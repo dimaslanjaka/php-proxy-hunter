@@ -33,16 +33,16 @@ if (!$isCli) {
   }
 }
 
-$user_db = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
+$user_db   = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
 $browserId = getUserId();
-$request = parsePostData();
-$result = ['messages' => []];
+$request   = parsePostData();
+$result    = ['messages' => []];
 
 // Allow updates for authenticated users or admins (admin can update any user by email or username)
 if (isset($request['update']) && (!empty($_SESSION['authenticated']) || !empty($isAdmin))) {
-  $email = $request['email'] ?? '';
-  $username = $request['username'] ?? '';
-  $password = $request['password'] ?? '';
+  $email           = $request['email']    ?? '';
+  $username        = $request['username'] ?? '';
+  $password        = $request['password'] ?? '';
   $currentUserData = null;
 
   if (!empty($isAdmin)) {
@@ -70,7 +70,7 @@ if (isset($request['update']) && (!empty($_SESSION['authenticated']) || !empty($
     }
     if ($updateFields) {
       $user_db->update($currentUserData['id'], $updateFields);
-      $result['success'] = true;
+      $result['success']    = true;
       $result['messages'][] = 'Profile updated successfully.';
     }
   }
@@ -79,15 +79,15 @@ if (isset($request['update']) && (!empty($_SESSION['authenticated']) || !empty($
   exit;
 }
 
-$email = !$isCli ? ($_SESSION['authenticated_email'] ?? '') : '';
+$email    = !$isCli ? ($_SESSION['authenticated_email'] ?? '') : '';
 $userData = [];
 if ($email) {
   $userData = $user_db->select($email);
   if (!isset($userData['saldo']) && isset($userData['id'])) {
     // Initialize saldo to 0 if not set
     $user_db->update_saldo($userData['id'], 0, basename(__FILE__) . ':' . __LINE__);
-    $userData = $user_db->select($email);
-    $result['success'] = true;
+    $userData             = $user_db->select($email);
+    $result['success']    = true;
     $result['messages'][] = 'Saldo initialized to 0.';
   }
 }
@@ -97,9 +97,9 @@ $result += [
   'uid'           => $browserId,
   'email'         => $email,
   'saldo'         => (int)($userData['saldo'] ?? 0),
-  'username'      => $userData['username'] ?? '',
+  'username'      => $userData['username']   ?? '',
   'first_name'    => $userData['first_name'] ?? '',
-  'last_name'     => $userData['last_name'] ?? '',
+  'last_name'     => $userData['last_name']  ?? '',
 ];
 if (!empty($isAdmin)) {
   $result['admin'] = true;

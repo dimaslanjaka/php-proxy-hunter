@@ -3,7 +3,7 @@
 // run CIDR-check.php
 // or check open ports by ip
 
-require_once __DIR__ . "/../func-proxy.php";
+require_once __DIR__ . '/../func-proxy.php';
 
 use PhpProxyHunter\Server;
 
@@ -19,15 +19,15 @@ if (!$isCli) {
   }
 }
 
-$max = 500; // default max proxies to be checked
+$max              = 500; // default max proxies to be checked
 $maxExecutionTime = 2 * 60; // 2 mins
-$startTime = time();
+$startTime        = time();
 
 if (!$isCli) {
   // Allow from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
   header('Content-Type: text/plain; charset=utf-8');
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
@@ -42,19 +42,19 @@ if (!$isCli) {
 
 $parseData = parseQueryOrPostBody();
 
-$ips = [];
+$ips   = [];
 $ports = [
   80, 81, 83, 88, 3128, 3129, 3654, 4444, 5800, 6588, 6666,
   6800, 7004, 8080, 8081, 8082, 8083, 8088, 8118, 8123, 8888,
-  9000, 8084, 8085, 9999, 45454, 45554, 53281, 8443
+  9000, 8084, 8085, 9999, 45454, 45554, 53281, 8443,
 ];
 
 if (!empty($parseData['ip'])) {
   // ?ip=IP:PORT
   // OR post body ip with content contains proxies (IP:PORT)
   // checkPorts.php?ip=13.56.192.187:80&ports=440,443,4444,5678
-  $ips = extractIPs($parseData['ip']);
-  $ports = array_merge($ports, extractPorts($parseData['ip']));
+  $ips         = extractIPs($parseData['ip']);
+  $ports       = array_merge($ports, extractPorts($parseData['ip']));
   $customPorts = !empty($parseData['ports']) ? $parseData['ports'] : (!empty($parseData['port']) ? $parseData['port'] : '');
   if (!empty($customPorts)) {
     // force using custom ports
@@ -64,14 +64,14 @@ if (!empty($parseData['ip'])) {
 
 // unique and shuffling
 $ports = array_unique($ports);
-$ips = array_unique($ips);
+$ips   = array_unique($ips);
 shuffle($ports);
 if (!empty($ips)) {
   shuffle($ips);
 }
 
-$file = realpath(__DIR__ . '/CIDR-check.php');
-$lock_files = [];
+$file        = realpath(__DIR__ . '/CIDR-check.php');
+$lock_files  = [];
 $output_file = __DIR__ . '/../proxyChecker.txt';
 if (file_exists($output_file)) {
   $output_file = realpath($output_file);
@@ -84,29 +84,29 @@ if (file_exists($pid_file)) {
 }
 
 if (!$isCli) {
-  $main_lock_file = tmp() . '/runners/' . sanitizeFilename(Server::getRequestIP()) . ".lock";
-  $lock_files[] = $main_lock_file;
+  $main_lock_file = tmp() . '/runners/' . sanitizeFilename(Server::getRequestIP()) . '.lock';
+  $lock_files[]   = $main_lock_file;
 
   if (file_exists($main_lock_file)) {
     exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
   }
 }
 
-$cmd = "php " . escapeshellarg($file);
+$cmd = 'php ' . escapeshellarg($file);
 $uid = getUserId();
-$cmd .= " --userId=" . escapeshellarg($uid);
-$cmd .= " --max=" . escapeshellarg("30");
-$cmd .= " --admin=" . escapeshellarg($isAdmin ? 'true' : 'false');
+$cmd .= ' --userId=' . escapeshellarg($uid);
+$cmd .= ' --max=' . escapeshellarg('30');
+$cmd .= ' --admin=' . escapeshellarg($isAdmin ? 'true' : 'false');
 
 if (!empty($ips)) {
   sort($ips);
   sort($ports);
-  $cmd .= " --ip=" . escapeshellarg(implode(",", array_unique($ips)));
-  $cmd .= " --ports=" . escapeshellarg(implode(",", array_unique($ports)));
+  $cmd .= ' --ip=' . escapeshellarg(implode(',', array_unique($ips)));
+  $cmd .= ' --ports=' . escapeshellarg(implode(',', array_unique($ports)));
 }
 
 // validate lock files
-$lock_file = tmp() . '/runners/' . basename($file, '.php') . '.lock';
+$lock_file    = tmp() . '/runners/' . basename($file, '.php') . '.lock';
 $lock_files[] = $lock_file;
 if (file_exists($lock_file) && !is_debug()) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
@@ -115,9 +115,9 @@ if (file_exists($lock_file) && !is_debug()) {
 echo $cmd . "\n\n";
 
 if (!$isCli) {
-  $cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
+  $cmd = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
 
-  $runner = tmp() . "/runners/" . basename(__FILE__, '.php') . ($isWin ? '.bat' : "");
+  $runner = tmp() . '/runners/' . basename(__FILE__, '.php') . ($isWin ? '.bat' : '');
   write_file($runner, $cmd);
   write_file($lock_file, '');
   runBashOrBatch($runner);
@@ -141,7 +141,7 @@ if (!$isCli) {
     // Close the process file pointer
     pclose($process);
   } else {
-    echo "Unable to execute command.";
+    echo 'Unable to execute command.';
   }
 }
 
@@ -150,7 +150,7 @@ function checkIp($ip)
   global $ports, $startTime, $maxExecutionTime, $db, $output_file;
   if (isValidIp($ip)) {
     foreach (array_unique($ports) as $port) {
-      $port =  intval("$port");
+      $port = intval("$port");
       if (strlen("$port") < 2) {
         continue;
       }

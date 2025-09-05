@@ -5,13 +5,13 @@ require_once __DIR__ . '/../func.php';
 global $isAdmin;
 
 // === Headers ===
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
-header("Access-Control-Allow-Methods: *");
-header("Content-Type: text/plain; charset=utf-8");
-header("Expires: Sun, 01 Jan 2014 00:00:00 GMT");
-header("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0");
-header("Pragma: no-cache");
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: *');
+header('Access-Control-Allow-Methods: *');
+header('Content-Type: text/plain; charset=utf-8');
+header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
+header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+header('Pragma: no-cache');
 
 // === Helpers ===
 function json_pretty($data): string
@@ -20,14 +20,14 @@ function json_pretty($data): string
 }
 
 // === Define common log paths ===
-$tmpDir = tmp() . '/sms';
-$logFile       = "{$tmpDir}/get_sms.txt";
-$otpLogFile    = "{$tmpDir}/get_sms_otp.txt";
+$tmpDir     = tmp() . '/sms';
+$logFile    = "{$tmpDir}/get_sms.txt";
+$otpLogFile = "{$tmpDir}/get_sms_otp.txt";
 
 // === Parse incoming data ===
-$request = parsePostData(true);
-$sms = $request['sms'] ?? $_REQUEST['sms'] ?? $_POST['sms'] ?? '';
-$password = $request['password'] ?? $_REQUEST['password'] ?? $_POST['password'] ?? '';
+$request         = parsePostData(true);
+$sms             = $request['sms']      ?? $_REQUEST['sms'] ?? $_POST['sms'] ?? '';
+$password        = $request['password'] ?? $_REQUEST['password'] ?? $_POST['password'] ?? '';
 $isPasswordValid = $password === $_ENV['SMS_PASSWORD'];
 
 // === Admin Mode: Show SMS Log ===
@@ -39,13 +39,13 @@ if (($isPasswordValid || $isAdmin) && isset($_GET['read'])) {
 }
 
 echo empty($sms)
-  ? "No message provided" . PHP_EOL
+  ? 'No message provided' . PHP_EOL
   : "SMS received:\n\n{$sms}";
 
 // === Time & log formatting ===
-$now = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
+$now       = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
 $timestamp = $now->format('Y-m-d\TH:i');
-$logEntry = "{$timestamp}: {$sms}";
+$logEntry  = "{$timestamp}: {$sms}";
 
 // === OTP Extraction ===
 if (preg_match('/\b\d{4,8}\b/', $sms, $matches)) {

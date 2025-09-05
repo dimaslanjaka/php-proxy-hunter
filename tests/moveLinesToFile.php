@@ -2,9 +2,9 @@
 
 require_once __DIR__ . '/../func.php';
 
-$sourceFile = __DIR__ . '/../tmp/source.txt';
+$sourceFile      = __DIR__ . '/../tmp/source.txt';
 $destinationFile = __DIR__ . '/../tmp/destination.txt';
-$linesToMove = 50;
+$linesToMove     = 50;
 
 $lines = [];
 

@@ -7,10 +7,10 @@ use PhpProxyHunter\ProxyDB;
 
 $db = new ProxyDB(__DIR__ . '/../tmp/database.sqlite');
 
-$dead = extractIpPortFromFile(__DIR__ . '/../dead.txt', true);
+$dead     = extractIpPortFromFile(__DIR__ . '/../dead.txt', true);
 $untested = extractIpPortFromFile(__DIR__ . '/../proxies.txt', true);
-$proxies = array_merge($dead, $untested);
-$str = '
+$proxies  = array_merge($dead, $untested);
+$str      = '
 username1:password1@1.1.1.1:83
 1.1.1.1:8080@username2:password2
 XXXXX192.198.1.100:80XXX
@@ -44,7 +44,7 @@ function get_ports()
   global $proxies;
   $ports = array_map(function ($proxy) {
     // Split the proxy string by ":" and get the port part
-    $parts = explode(":", $proxy);
+    $parts = explode(':', $proxy);
     return end($parts); // Get the last element of the array which is the port
   }, $proxies);
 

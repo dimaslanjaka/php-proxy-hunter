@@ -12,8 +12,8 @@ while (true) {
   // Simulate processing
   usleep(500000); // 0.5s
 
-  echo "Processing... Elapsed: " . round($timer->getElapsedTime(), 2) . "s" . PHP_EOL;
+  echo 'Processing... Elapsed: ' . round($timer->getElapsedTime(), 2) . 's' . PHP_EOL;
 
   // Check if we should exit early
-  $timer->exitIfNeeded("Graceful exit: ran out of safe time.");
+  $timer->exitIfNeeded('Graceful exit: ran out of safe time.');
 }

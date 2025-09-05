@@ -18,19 +18,19 @@ function isValidProxy(?string $proxy, bool $validate_credential = false): bool
     return false;
   }
 
-  $username = $password = null;
+  $username      = $password = null;
   $hasCredential = strpos($proxy, '@') !== false;
 
   // Extract username and password if credentials are present
   if ($hasCredential) {
-    list($proxy, $credential) = explode("@", trim($proxy), 2);
-    list($username, $password) = explode(":", trim($credential), 2);
+    list($proxy, $credential)  = explode('@', trim($proxy), 2);
+    list($username, $password) = explode(':', trim($credential), 2);
   }
 
   // Extract IP address and port
-  $parts = explode(":", trim($proxy), 2);
+  $parts = explode(':', trim($proxy), 2);
 
-  $ip = trim($parts[0]);
+  $ip   = trim($parts[0]);
   $port = isset($parts[1]) ? trim($parts[1]) : null;
 
   if (!$port) {
@@ -42,15 +42,15 @@ function isValidProxy(?string $proxy, bool $validate_credential = false): bool
 
   // Validate port number
   $is_port_valid = strlen($port) >= 2 && filter_var($port, FILTER_VALIDATE_INT, [
-    "options" => [
-      "min_range" => 1,
-      "max_range" => 65535
-    ]
+    'options' => [
+      'min_range' => 1,
+      'max_range' => 65535,
+    ],
   ]);
 
   // Check if proxy is valid
-  $proxyLength = strlen($proxy);
-  $re = '/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}/';
+  $proxyLength    = strlen($proxy);
+  $re             = '/(?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(?!0)\d{2,5}/';
   $is_proxy_valid = $is_ip_valid && $is_port_valid && $proxyLength >= 10 && $proxyLength <= 21 && preg_match($re, $proxy);
 
   // Validate credentials if required
@@ -73,8 +73,8 @@ function isValidIp($proxy): bool
     return false;
   }
 
-  $split = explode(":", trim($proxy), 2);
-  $ip = $split[0];
+  $split       = explode(':', trim($proxy), 2);
+  $ip          = $split[0];
   $is_ip_valid = filter_var($ip, FILTER_VALIDATE_IP) !== false
     && strlen($ip) >= 7
     && strpos($ip, '..') === false;

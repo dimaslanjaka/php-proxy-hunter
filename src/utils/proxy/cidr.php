@@ -4,11 +4,11 @@ function getIPRange(string $cidr): array
 {
   list($ip, $mask) = explode('/', trim($cidr));
 
-  $ipLong = ip2long($ip);
+  $ipLong   = ip2long($ip);
   $maskLong = ~((1 << (32 - $mask)) - 1);
 
   $start = $ipLong & $maskLong;
-  $end = $ipLong | (~$maskLong & 0xFFFFFFFF);
+  $end   = $ipLong | (~$maskLong & 0xFFFFFFFF);
 
   $ips = [];
   for ($i = $start; $i <= $end; $i++) {
@@ -32,20 +32,20 @@ function getIPRange(string $cidr): array
 function IPv6CIDRToRange($cidr): array
 {
   list($ip, $prefix) = explode('/', $cidr);
-  $range_start = inet_pton($ip);
-  $range_end = $range_start;
+  $range_start       = inet_pton($ip);
+  $range_end         = $range_start;
 
   if ($prefix < 128) {
     $suffix = 128 - $prefix;
     for ($i = 0; $i < $suffix; $i++) {
       $range_start[$i] = chr(ord($range_start[$i]) & (0xFF << ($i % 8)));
-      $range_end[$i] = chr(ord($range_end[$i]) | (0xFF >> (7 - $i % 8)));
+      $range_end[$i]   = chr(ord($range_end[$i]) | (0xFF >> (7 - $i % 8)));
     }
   }
 
   return [
     'start' => inet_ntop($range_start),
-    'end' => inet_ntop($range_end)
+    'end'   => inet_ntop($range_end),
   ];
 }
 
@@ -66,8 +66,8 @@ function IPv6CIDRToList($cidr): array
 {
   $range = IPv6CIDRToRange($cidr);
   $start = inet_pton($range['start']);
-  $end = inet_pton($range['end']);
-  $ips = [];
+  $end   = inet_pton($range['end']);
+  $ips   = [];
 
   // Increment IP address in binary representation
   while (strcmp($start, $end) <= 0) {

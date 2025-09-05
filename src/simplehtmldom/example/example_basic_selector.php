@@ -6,7 +6,7 @@ include_once '../HtmlWeb.php';
 use simplehtmldom\HtmlWeb;
 
 // get DOM from URL or file
-$doc = new HtmlWeb();
+$doc  = new HtmlWeb();
 $html = $doc->load('http://www.google.com/');
 
 // find all links

@@ -5,7 +5,7 @@ declare(strict_types=1);
 // Define project root for reuse
 $projectRoot = dirname(__DIR__);
 
-require_once $projectRoot . "/func.php";
+require_once $projectRoot . '/func.php';
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
@@ -22,18 +22,18 @@ if (!$isCli) {
 }
 
 // Run a long-running process in the background
-$file = $projectRoot . "/artisan/proxyWorking.php";
+$file        = $projectRoot . '/artisan/proxyWorking.php';
 $output_file = $projectRoot . '/tmp/output-shell/proxyWorking.txt';
-$pid_file = $projectRoot . '/proxyWorking.pid';
+$pid_file    = $projectRoot . '/proxyWorking.pid';
 setMultiPermissions([$file, $output_file, $pid_file]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-$cmd = "php " . escapeshellarg($file);
+$cmd   = 'php ' . escapeshellarg($file);
 // if ($isWin) {
 //   $cmd = "start /B \"proxy_checker\" $cmd";
 // }
 
 $uid = getUserId();
-$cmd .= " --userId=" . escapeshellarg($uid);
+$cmd .= ' --userId=' . escapeshellarg($uid);
 
 // validate lock files
 if (file_exists($projectRoot . '/proxyChecker.lock') && !is_debug()) {
@@ -42,8 +42,8 @@ if (file_exists($projectRoot . '/proxyChecker.lock') && !is_debug()) {
 
 echo $cmd . "\n\n";
 
-$cmd = sprintf("%s > %s 2>&1 & echo $! >> %s", $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
-$runner = $projectRoot . "/tmp/runners/" . basename(__FILE__, '.php') . ($isWin ? '.bat' : "");
+$cmd    = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
+$runner = $projectRoot . '/tmp/runners/' . basename(__FILE__, '.php') . ($isWin ? '.bat' : '');
 
 write_file($runner, $cmd);
 

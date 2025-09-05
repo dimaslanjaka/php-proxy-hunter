@@ -10,29 +10,29 @@ function getFileInfo(string $file)
 {
   if (!file_exists($file)) {
     return (object)[
-      'error' => 'File does not exist.'
+      'error' => 'File does not exist.',
     ];
   }
 
   // Get file permissions
-  $permissions = fileperms($file);
+  $permissions          = fileperms($file);
   $permissionsFormatted = substr(sprintf('%o', $permissions), -4);
 
   // Get file owner
-  $owner = fileowner($file);
+  $owner      = fileowner($file);
   $owner_info = posix_getpwuid($owner);
-  $ownerName = $owner_info['name'];
+  $ownerName  = $owner_info['name'];
 
   // Get file group
-  $group = filegroup($file);
+  $group      = filegroup($file);
   $group_info = posix_getgrgid($group);
-  $groupName = $group_info['name'];
+  $groupName  = $group_info['name'];
 
   return [
-    'file' => $file,
+    'file'        => $file,
     'permissions' => $permissionsFormatted,
-    'owner' => $ownerName,
-    'group' => $groupName
+    'owner'       => $ownerName,
+    'group'       => $groupName,
   ];
 }
 
@@ -70,7 +70,7 @@ function is_file_locked(string $filePath): bool
   }
 
   // Check if the file is locked
-  $handle = @fopen($filePath, "r");
+  $handle = @fopen($filePath, 'r');
   if ($handle === false) {
     // Unable to open file
     return true;
@@ -347,7 +347,7 @@ function removeStringFromFile(string $file_path, $string_to_remove): string
     return "$file_path non-writable";
   }
 
-  $content = read_file($file_path);
+  $content    = read_file($file_path);
   $is_content = is_string($content) && !empty(trim($content));
   if (!$content || !$is_content) {
     return "$file_path could not be read or has empty content";
@@ -360,10 +360,10 @@ function removeStringFromFile(string $file_path, $string_to_remove): string
 
   $new_string = preg_replace($regex_pattern, PHP_EOL, $content, -1, $count);
   if ($new_string === null) {
-    return "removeStringFromFile: preg_replace failed";
+    return 'removeStringFromFile: preg_replace failed';
   }
   if ($count === 0) {
-    return "removeStringFromFile: no string replaced";
+    return 'removeStringFromFile: no string replaced';
   }
 
   $result = file_put_contents($file_path, $new_string);
@@ -391,7 +391,7 @@ function iterateLines(string $string, $shuffle_or_callback, ?callable $callback 
   $lines = explode("\n", $normalizedString);
 
   if (is_callable($shuffle_or_callback)) {
-    $callback = $shuffle_or_callback;
+    $callback     = $shuffle_or_callback;
     $shuffleLines = false;
   } elseif ($shuffle_or_callback === true) {
     $shuffleLines = true;
@@ -429,7 +429,7 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
     }
 
     // Create a temporary file to copy the original file content
-    $tempFile = tmpfile();
+    $tempFile   = tmpfile();
     $sourceFile = @fopen($filePath, 'r');
 
     if ($sourceFile && $tempFile) {
@@ -443,7 +443,7 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
 
       // Acquire an exclusive lock on the temporary file
       if (flock($tempFile, LOCK_SH)) {
-        $maxLines = is_callable($callbackOrMax) ? PHP_INT_MAX : $callbackOrMax;
+        $maxLines  = is_callable($callbackOrMax) ? PHP_INT_MAX : $callbackOrMax;
         $linesRead = 0;
 
         while (($line = fgets($tempFile)) !== false && $linesRead < $maxLines) {
@@ -466,7 +466,7 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
         flock($tempFile, LOCK_UN);
         fclose($tempFile);
       } else {
-        echo "Failed to acquire lock for temporary file" . PHP_EOL;
+        echo 'Failed to acquire lock for temporary file' . PHP_EOL;
       }
 
       fclose($sourceFile);
@@ -490,13 +490,13 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
 function removeDuplicateLinesFromSource(string $sourceFile, string $destinationFile): bool
 {
   // Open source file for reading
-  $sourceHandle = @fopen($sourceFile, "r");
+  $sourceHandle = @fopen($sourceFile, 'r');
   if (!$sourceHandle) {
     return false; // Unable to open source file
   }
 
   // Open destination file for reading
-  $destinationHandle = @fopen($destinationFile, "r");
+  $destinationHandle = @fopen($destinationFile, 'r');
   if (!$destinationHandle) {
     fclose($sourceHandle);
     return false; // Unable to open destination file
@@ -533,7 +533,7 @@ function removeDuplicateLinesFromSource(string $sourceFile, string $destinationF
   rewind($tempFile);
 
   // Open source file for writing
-  $sourceHandle = @fopen($sourceFile, "w");
+  $sourceHandle = @fopen($sourceFile, 'w');
   if (!$sourceHandle) {
     fclose($tempFile);
     return false; // Unable to open source file for writing
@@ -610,7 +610,7 @@ function splitLargeFile(string $largeFilePath, int $maxLinesPerFile, string $out
   // Close the last small file
   fclose($smallFile);
 
-  echo "Splitting complete!";
+  echo 'Splitting complete!';
 }
 
 /**
@@ -626,8 +626,8 @@ function splitLargeFile(string $largeFilePath, int $maxLinesPerFile, string $out
 function getDuplicatedLines(string $file1, string $file2): array
 {
   // Open files for reading
-  $handle1 = @fopen($file1, "r");
-  $handle2 = @fopen($file2, "r");
+  $handle1 = @fopen($file1, 'r');
+  $handle2 = @fopen($file2, 'r');
 
   // Initialize arrays to store lines
   $lines1 = [];
@@ -764,7 +764,6 @@ function truncateFile(string $filePath)
  */
 function moveContent(string $sourceFile, string $destinationFile): string
 {
-
   // Check if source file is readable
   if (!is_readable($sourceFile)) {
     return "$sourceFile not readable";
@@ -792,7 +791,7 @@ function moveContent(string $sourceFile, string $destinationFile): string
   $destinationHandle = @fopen($destinationFile, 'a');
 
   // Attempt to acquire locks on both files
-  $lockSource = $sourceHandle && flock($sourceHandle, LOCK_SH);
+  $lockSource      = $sourceHandle      && flock($sourceHandle, LOCK_SH);
   $lockDestination = $destinationHandle && flock($destinationHandle, LOCK_EX);
 
   // Check if both files are opened and locked successfully
@@ -808,7 +807,7 @@ function moveContent(string $sourceFile, string $destinationFile): string
     fclose($sourceHandle);
     fclose($destinationHandle);
 
-    return "success"; // Success, so return "success"
+    return 'success'; // Success, so return "success"
   } else {
     // Close both files if they were opened
     if ($sourceHandle) {
@@ -818,7 +817,7 @@ function moveContent(string $sourceFile, string $destinationFile): string
       fclose($destinationHandle);
     }
 
-    return "Failed to move content"; // Indicate failure
+    return 'Failed to move content'; // Indicate failure
   }
 }
 
@@ -843,20 +842,20 @@ function removeDuplicateLines(string $inputFile): void
     return;
   }
   $lines = [];
-  $fd = @fopen($inputFile, "r");
+  $fd    = @fopen($inputFile, 'r');
   if ($fd === false) {
     echo "removeDuplicateLines: Failed to open $inputFile" . PHP_EOL;
     return;
   }
   if (flock($fd, LOCK_EX)) { // Acquire an exclusive lock
     while ($line = fgets($fd)) {
-      $line = rtrim($line, "\r\n"); // ignore the newline
+      $line         = rtrim($line, "\r\n"); // ignore the newline
       $lines[$line] = 1;
     }
     flock($fd, LOCK_UN); // Release the lock
   }
   fclose($fd);
-  $fd = @fopen($inputFile, "w");
+  $fd = @fopen($inputFile, 'w');
   if ($fd === false) {
     echo "removeDuplicateLines: Failed to open $inputFile" . PHP_EOL;
     return;
@@ -891,12 +890,12 @@ function countNonEmptyLines(string $filePath, int $chunkSize = 4096)
   if (is_file_locked($filePath)) {
     return 0;
   }
-  $file = @fopen($filePath, "r");
+  $file = @fopen($filePath, 'r');
   if (!$file) {
     return false; // File open failed
   }
 
-  $count = 0;
+  $count  = 0;
   $buffer = '';
 
   while (!feof($file)) {
@@ -963,7 +962,7 @@ function read_first_lines(string $filePath, int $lines_to_read)
   if (!file_exists($filePath)) {
     return false;
   }
-  $lines = [];
+  $lines  = [];
   $handle = @fopen($filePath, 'r');
   if (!$handle) {
     // Handle error opening the file

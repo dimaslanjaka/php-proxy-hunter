@@ -8,9 +8,9 @@ global $isCli;
 
 if (!$isCli) {
   // Set CORS (Cross-Origin Resource Sharing) headers to allow requests from any origin
-  header("Access-Control-Allow-Origin: *");
-  header("Access-Control-Allow-Headers: *");
-  header("Access-Control-Allow-Methods: *");
+  header('Access-Control-Allow-Origin: *');
+  header('Access-Control-Allow-Headers: *');
+  header('Access-Control-Allow-Methods: *');
 
   // Set content type to JSON with UTF-8 encoding
   header('Content-Type: application/json; charset=utf-8');
@@ -22,13 +22,13 @@ if (!$isCli) {
   header('Pragma: no-cache');
 }
 
-$user_db = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
+$user_db  = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
 $is_admin = ($_SESSION['admin'] ?? false) === true && ($_SESSION['authenticated'] ?? false) === true;
 if (!$is_admin) {
   // If the user is not an admin, return an error message with 'message' and boolean 'error'
   $response = [
     'message' => 'You are not authorized to view this page.',
-    'error' => true
+    'error'   => true,
   ];
   if (!$isCli) {
     echo json_encode($response);
@@ -39,9 +39,9 @@ if (!$is_admin) {
 }
 
 if ($is_admin) {
-  $sql = "SELECT auth_user.id, auth_user.username, auth_user.first_name, auth_user.last_name, auth_user.email, user_fields.saldo, user_fields.phone
+  $sql = 'SELECT auth_user.id, auth_user.username, auth_user.first_name, auth_user.last_name, auth_user.email, user_fields.saldo, user_fields.phone
         FROM auth_user
-        LEFT JOIN user_fields ON auth_user.id = user_fields.user_id;";
+        LEFT JOIN user_fields ON auth_user.id = user_fields.user_id;';
 
   $stmt = $user_db->db->pdo->prepare($sql);
   $stmt->execute();

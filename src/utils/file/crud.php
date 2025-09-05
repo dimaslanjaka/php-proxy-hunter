@@ -13,13 +13,13 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
     return false;
   }
   $isReadable = is_readable($inputFile);
-  $isLocked = is_file_locked($inputFile);
+  $isLocked   = is_file_locked($inputFile);
   if (!$isReadable || $isLocked) {
-    $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-    $caller = isset($trace[1]) ? $trace[1] : (isset($trace[0]) ? $trace[0] : []);
-    $callerFile = isset($caller['file']) ? $caller['file'] : 'unknown';
-    $callerLine = isset($caller['line']) ? $caller['line'] : 'unknown';
-    $callerClass = isset($caller['class']) ? $caller['class'] : 'non class';
+    $trace          = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+    $caller         = isset($trace[1]) ? $trace[1] : (isset($trace[0]) ? $trace[0] : []);
+    $callerFile     = isset($caller['file']) ? $caller['file'] : 'unknown';
+    $callerLine     = isset($caller['line']) ? $caller['line'] : 'unknown';
+    $callerClass    = isset($caller['class']) ? $caller['class'] : 'non class';
     $callerFunction = isset($caller['function']) ? $caller['function'] : 'non function';
 
     if (!$isReadable) {
@@ -31,7 +31,7 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
   }
 
   $content = '';
-  $handle = @fopen($inputFile, 'rb');
+  $handle  = @fopen($inputFile, 'rb');
 
   if ($handle === false) {
     echo "Failed to open $inputFile for reading." . PHP_EOL;
@@ -102,7 +102,7 @@ function delete_path($path): array
 {
   $result = [
     'deleted' => [],
-    'errors' => []
+    'errors'  => [],
   ];
 
   // Convert single path to an array for uniform handling
@@ -122,9 +122,9 @@ function delete_path($path): array
         // Recursively delete directory contents before deleting the directory
         $files = array_diff(scandir($p), ['.', '..']);
         foreach ($files as $file) {
-          $sub_result = delete_path("$p/$file");
+          $sub_result        = delete_path("$p/$file");
           $result['deleted'] = array_merge($result['deleted'], $sub_result['deleted']);
-          $result['errors'] = array_merge($result['errors'], $sub_result['errors']);
+          $result['errors']  = array_merge($result['errors'], $sub_result['errors']);
         }
         // Remove the directory
         if (rmdir($p)) {

@@ -20,11 +20,11 @@ $ch = buildCurl(
 $response = curl_exec($ch);
 curl_close($ch);
 
-echo "GET Response: " . $response . "\n";
+echo 'GET Response: ' . $response . "\n";
 
 $post_data = json_encode([
-  'title' => 'foo',
-  'body' => 'bar',
+  'title'  => 'foo',
+  'body'   => 'bar',
   'userId' => 1,
 ]);
 
@@ -46,11 +46,11 @@ $ch = buildCurl(
 $response = curl_exec($ch);
 curl_close($ch);
 
-echo "POST JSON Response: " . $response . "\n";
+echo 'POST JSON Response: ' . $response . "\n";
 
 $post_data = http_build_query([
-  'title' => 'foo',
-  'body' => 'bar',
+  'title'  => 'foo',
+  'body'   => 'bar',
   'userId' => 1,
 ]);
 
@@ -72,12 +72,12 @@ $ch = buildCurl(
 $response = curl_exec($ch);
 curl_close($ch);
 
-echo "POST URL Form Encoded Response: " . $response . "\n";
+echo 'POST URL Form Encoded Response: ' . $response . "\n";
 
 $put_data = json_encode([
-  'id' => 1,
-  'title' => 'foo',
-  'body' => 'bar',
+  'id'     => 1,
+  'title'  => 'foo',
+  'body'   => 'bar',
   'userId' => 1,
 ]);
 
@@ -99,7 +99,7 @@ $ch = buildCurl(
 $response = curl_exec($ch);
 curl_close($ch);
 
-echo "PUT Response: " . $response . "\n";
+echo 'PUT Response: ' . $response . "\n";
 
 $patch_data = json_encode([
   'title' => 'foo',
@@ -123,4 +123,4 @@ $ch = buildCurl(
 $response = curl_exec($ch);
 curl_close($ch);
 
-echo "PATCH Response: " . $response . "\n";
+echo 'PATCH Response: ' . $response . "\n";

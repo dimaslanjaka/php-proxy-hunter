@@ -12,9 +12,9 @@ ini_set('memory_limit', '1024M'); // Increase memory limit if needed
 
 // put *.sqlite in tmp/ folder
 
-$sourceDir = __DIR__ . '/tmp/';
+$sourceDir    = __DIR__ . '/tmp/';
 $targetDbPath = __DIR__ . '/src/database.sqlite'; // $sourceDir . 'merged.sqlite';
-$chunkSize = 1000; // Number of rows to process at a time
+$chunkSize    = 1000; // Number of rows to process at a time
 
 try {
   // Create or open the target SQLite database
@@ -34,12 +34,12 @@ try {
 
     // Fetch all tables from the source database
     $tablesResult = $sourceDb->query("SELECT name FROM sqlite_master WHERE type='table'");
-    $tables = $tablesResult->fetchAll(PDO::FETCH_COLUMN);
+    $tables       = $tablesResult->fetchAll(PDO::FETCH_COLUMN);
 
     foreach ($tables as $table) {
       // Get column names
       $columnsResult = $sourceDb->query("PRAGMA table_info($table)");
-      $columns = $columnsResult->fetchAll(PDO::FETCH_COLUMN, 1);
+      $columns       = $columnsResult->fetchAll(PDO::FETCH_COLUMN, 1);
 
       // Check if table exists in the target database
       $tableExists = $targetDb->query("SELECT name FROM sqlite_master WHERE type='table' AND name='$table'")->fetchColumn();
@@ -54,9 +54,9 @@ try {
       }
 
       // Prepare insert statement for the target database
-      $columnsList = implode(',', $columns);
+      $columnsList  = implode(',', $columns);
       $placeholders = implode(',', array_fill(0, count($columns), '?'));
-      $insertStmt = $targetDb->prepare("INSERT OR IGNORE INTO $table ($columnsList) VALUES ($placeholders)");
+      $insertStmt   = $targetDb->prepare("INSERT OR IGNORE INTO $table ($columnsList) VALUES ($placeholders)");
 
       if ($insertStmt === false) {
         throw new Exception("Failed to prepare insert statement for table $table in file $sourceFile");
@@ -81,7 +81,7 @@ try {
     }
   }
 
-  echo "Databases merged successfully!";
+  echo 'Databases merged successfully!';
 } catch (Exception $e) {
-  echo "An error occurred: " . $e->getMessage();
+  echo 'An error occurred: ' . $e->getMessage();
 }
