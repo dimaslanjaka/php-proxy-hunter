@@ -1,5 +1,38 @@
 [
   {
+    "hash": "bb76ab040e940e55f24537f4f758d4cde2493cfd",
+    "date": "2025-09-05T18:37:54+07:00",
+    "message": "refactor: update exclusion patterns in configuration files to improve code quality checks",
+    "files": [
+      ".php-cs-fixer.dist.php",
+      "phpcs.xml"
+    ]
+  },
+  {
+    "hash": "9ccee2234b8b7ec29a90a9f5ab8fbd19d2fe690c",
+    "date": "2025-09-05T18:35:35+07:00",
+    "message": "refactor: add rule to ensure newline after opening PHP tag",
+    "files": [
+      ".php-cs-fixer.dist.php"
+    ]
+  },
+  {
+    "hash": "a3f87413774dd7aca01e16ebc7cabe2265045666",
+    "date": "2025-09-05T18:24:29+07:00",
+    "message": "refactor: standardize indentation and formatting in phpcs.xml",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
+    "hash": "e314c2ea6da7f860989c819cdaac8da9604cca93",
+    "date": "2025-09-05T17:15:43+07:00",
+    "message": "refactor: improve readability of CLI check in cleaner.php",
+    "files": [
+      "artisan/cleaner.php"
+    ]
+  },
+  {
     "hash": "474d8cb60fa6317cf656c52936366f350150d8b9",
     "date": "2025-09-05T16:58:05+07:00",
     "message": "refactor: code for consistency and readability\n\n- Adjusted whitespace and alignment in various files for improved readability.\n- Standardized string delimiters from double quotes to single quotes where applicable.\n- Ensured consistent variable assignments and formatting across multiple test files.\n- Enhanced user agent generation functions for better clarity and structure.\n- Updated header settings in user agent script to use single quotes for consistency.\n- Cleaned up array definitions and function calls for better visual alignment.",
