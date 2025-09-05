@@ -1,22 +1,33 @@
 <?xml version="1.0"?>
-<ruleset name="MyProject">
-    <description>PHPCS rules aligned with php-cs-fixer</description>
+<ruleset name="PhpProxyHunter">
+    <description>PHPCS rules aligned with php-cs-fixer config (PSR12 + custom rules + 2-space indent)</description>
 
-    <!-- Use PSR-12 as base -->
+    <!-- Base coding standard -->
     <rule ref="PSR12"/>
 
-    <!-- Additional custom rules -->
-    <rule ref="Generic.Files.LineLength">
+    <!-- Indentation: 2 spaces -->
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
         <properties>
-            <property name="lineLimit" value="120"/>
-            <property name="absoluteLineLimit" value="150"/>
+            <property name="indent" value="2"/>
+            <property name="tabIndent" value="false"/>
+            <property name="exact" value="true"/>
         </properties>
     </rule>
-    <rule ref="Generic.Formatting.DisallowMultipleStatements"/>
 
-    <!-- Include source files -->
-    <file>src</file>
+    <!-- Short array syntax -->
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 
-    <!-- Exclude tests or vendor if needed -->
+    <!-- Unused imports -->
+    <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses"/>
+
+    <!-- Trailing comma in multiline arrays -->
+    <rule ref="SlevomatCodingStandard.Arrays.TrailingArrayComma"/>
+
+    <!-- Files to scan -->
+    <file>./</file>
+
+    <!-- Exclude directories -->
     <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
+    <exclude-pattern>tmp/*</exclude-pattern>
 </ruleset>
