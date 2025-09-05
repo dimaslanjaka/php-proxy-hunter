@@ -1,22 +1,22 @@
 <?xml version="1.0"?>
-<ruleset name="Project Rules">
-    <!-- Base standard -->
-    <rule ref="PSR2"/>
+<ruleset name="MyProject">
+    <description>PHPCS rules aligned with php-cs-fixer</description>
 
-    <!-- Custom rules -->
-    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+    <!-- Use PSR-12 as base -->
+    <rule ref="PSR12"/>
 
-    <!-- Exclude specific file -->
-    <exclude-pattern>**/dist/**</exclude-pattern>
-
-    <!-- Exclude directories -->
-    <exclude-pattern>vendor/*</exclude-pattern>
-    <exclude-pattern>node_modules/*</exclude-pattern>
-
-    <!-- Tab/space configuration -->
-    <arg name="tab-width" value="2"/>
-    <!-- Disable namespace requirement -->
-    <rule ref="PSR1.Classes.ClassDeclaration">
-        <exclude name="PSR1.Classes.ClassDeclaration.Namespace"/>
+    <!-- Additional custom rules -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="150"/>
+        </properties>
     </rule>
+    <rule ref="Generic.Formatting.DisallowMultipleStatements"/>
+
+    <!-- Include source files -->
+    <file>src</file>
+
+    <!-- Exclude tests or vendor if needed -->
+    <exclude-pattern>vendor/*</exclude-pattern>
 </ruleset>
