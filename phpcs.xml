@@ -1,33 +1,59 @@
 <?xml version="1.0"?>
 <ruleset name="PhpProxyHunter">
-    <description>PHPCS rules aligned with php-cs-fixer config (PSR12 + custom rules + 2-space indent)</description>
+  <description>PHPCS rules aligned with php-cs-fixer config (PSR12 + custom rules + 2-space indent)</description>
 
-    <!-- Base coding standard -->
-    <rule ref="PSR12"/>
+  <!-- Base coding standard -->
+  <rule ref="PSR12"/>
 
-    <!-- Indentation: 2 spaces -->
-    <rule ref="Generic.WhiteSpace.ScopeIndent">
-        <properties>
-            <property name="indent" value="2"/>
-            <property name="tabIndent" value="false"/>
-            <property name="exact" value="true"/>
-        </properties>
-    </rule>
+  <!-- Indentation: 2 spaces -->
+  <rule ref="Generic.WhiteSpace.ScopeIndent">
+    <properties>
+      <property name="indent" value="2"/>
+      <property name="tabIndent" value="false"/>
+      <property name="exact" value="true"/>
+    </properties>
+  </rule>
 
-    <!-- Short array syntax -->
-    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+  <!-- Short array syntax -->
+  <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 
-    <!-- Unused imports -->
-    <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses"/>
+  <!-- Unused imports -->
+  <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses"/>
 
-    <!-- Trailing comma in multiline arrays -->
-    <rule ref="SlevomatCodingStandard.Arrays.TrailingArrayComma"/>
+  <!-- Exclude the specific sniff for missing namespaces -->
+  <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+    <!-- disable it project-wide -->
+    <severity>0</severity>
+  </rule>
+  <exclude name="SlevomatCodingStandard.Namespaces.RequireNamespace"/>
+  <exclude name="SlevomatCodingStandard.Namespaces.RequireOneNamespaceLevel"/>
+  <exclude name="SlevomatCodingStandard.Namespaces.RequireMultiLevelNamespace"/>
+  <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedGlobalFunctions"/>
+  <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedGlobalConstants"/>
+  <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedGlobalClasses"/>
 
-    <!-- Files to scan -->
-    <file>./</file>
+  <!-- Trailing comma in multiline arrays -->
+  <rule ref="SlevomatCodingStandard.Arrays.TrailingArrayComma"/>
 
-    <!-- Exclude directories -->
-    <exclude-pattern>vendor/*</exclude-pattern>
-    <exclude-pattern>node_modules/*</exclude-pattern>
-    <exclude-pattern>tmp/*</exclude-pattern>
+  <!-- disable side effect -->
+  <exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
+  <rule ref="PSR1.Files.SideEffects">
+    <severity>0</severity>
+  </rule>
+
+  <!-- disable function call signature indent (indentation error) -->
+  <rule ref="PSR2.Methods.FunctionCallSignature.Indent">
+    <severity>0</severity>
+  </rule>
+  <rule ref="Generic.Files.LineLength">
+    <severity>0</severity>
+  </rule>
+
+  <!-- Files to scan -->
+  <file>./</file>
+
+  <!-- Exclude directories -->
+  <exclude-pattern>vendor/*</exclude-pattern>
+  <exclude-pattern>node_modules/*</exclude-pattern>
+  <exclude-pattern>tmp/*</exclude-pattern>
 </ruleset>
