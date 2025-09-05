@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<ruleset name="Project Rules">
+    <!-- Base standard -->
+    <rule ref="PSR2"/>
+
+    <!-- Custom rules -->
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+    <!-- Exclude specific file -->
+    <exclude-pattern>**/dist/**</exclude-pattern>
+
+    <!-- Exclude directories -->
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
+
+    <!-- Tab/space configuration -->
+    <arg name="tab-width" value="2"/>
+    <!-- Disable namespace requirement -->
+    <rule ref="PSR1.Classes.ClassDeclaration">
+        <exclude name="PSR1.Classes.ClassDeclaration.Namespace"/>
+    </rule>
+</ruleset>

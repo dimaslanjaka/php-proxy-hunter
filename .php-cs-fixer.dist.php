@@ -4,7 +4,6 @@
 
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
-use PhpCsFixer\Runner\Parallel\ParallelConfig;
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 
 $finder = Finder::create()
@@ -19,6 +18,10 @@ return $config->setRules([
     '@PSR2' => true,
     'array_syntax' => ['syntax' => 'short'],
     'no_unused_imports' => true,
+    'braces' => [
+        'allow_single_line_closure' => true,
+        'position_after_functions_and_oop_constructs' => 'same',
+    ],
 ])
     ->setFinder($finder)
     ->setCacheFile('tmp/.php-cs-fixer.cache');
