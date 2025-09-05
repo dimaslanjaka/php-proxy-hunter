@@ -12,6 +12,7 @@
       <property name="tabIndent" value="false"/>
       <property name="exact" value="true"/>
     </properties>
+  <exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact"/>
   </rule>
 
   <!-- Short array syntax -->
