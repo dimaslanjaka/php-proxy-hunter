@@ -8,7 +8,7 @@ use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 
 $finder = Finder::create()
   ->in(__DIR__)
-  ->exclude(['vendor', 'node_modules'])
+  ->exclude(['vendor', 'node_modules', 'phpliteadmin', 'adminer', 'phpmyadmin'])
   ->name('*.php')
   ->ignoreDotFiles(true)
   ->ignoreVCS(true);

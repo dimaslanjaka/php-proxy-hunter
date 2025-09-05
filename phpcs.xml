@@ -56,4 +56,7 @@
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>node_modules/*</exclude-pattern>
   <exclude-pattern>tmp/*</exclude-pattern>
+  <exclude-pattern>adminer/*</exclude-pattern>
+  <exclude-pattern>phpmyadmin/*</exclude-pattern>
+  <exclude-pattern>phpliteadmin/*</exclude-pattern>
 </ruleset>
