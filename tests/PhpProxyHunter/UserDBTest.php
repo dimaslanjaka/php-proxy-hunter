@@ -48,27 +48,25 @@ class UserDBTest extends TestCase
         $this->mysqlPass,
         true
       );
-
-      // Clean tables before each test
-      $pdo = $this->userDB->db->pdo;
-      $pdo->exec('SET FOREIGN_KEY_CHECKS=0;');
-      foreach (
-        [
-          'user_logs',
-          'user_fields',
-          'auth_user',
-          'meta',
-          'added_proxies',
-          'processed_proxies',
-          'proxies',
-        ] as $table
-      ) {
-        $pdo->exec("TRUNCATE TABLE {$table};");
+      // Remove related user_discount rows before deleting test users
+      $pdo     = $this->userDB->db->pdo;
+      $userIds = $pdo->query("SELECT id FROM auth_user WHERE username IN ('testuser', 'updateuser', 'saldo') OR email IN ('test@example.com', 'update@example.com', 'saldo@example.com')")->fetchAll(PDO::FETCH_COLUMN);
+      if ($userIds && count($userIds) > 0) {
+        $ids = implode(',', array_map('intval', $userIds));
+        $pdo->exec("DELETE FROM user_discount WHERE user_id IN ($ids)");
       }
-      $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
+      $pdo->exec("DELETE FROM auth_user WHERE username IN ('testuser', 'updateuser', 'saldo') OR email IN ('test@example.com', 'update@example.com', 'saldo@example.com')");
     } else {
       $this->testDbPath = sys_get_temp_dir() . '/test_database.sqlite';
       $this->userDB     = new UserDB($this->testDbPath);
+      // Remove related user_discount rows before deleting test users
+      $pdo     = $this->userDB->db->pdo;
+      $userIds = $pdo->query("SELECT id FROM auth_user WHERE username IN ('testuser', 'updateuser', 'saldo') OR email IN ('test@example.com', 'update@example.com', 'saldo@example.com')")->fetchAll(PDO::FETCH_COLUMN);
+      if ($userIds && count($userIds) > 0) {
+        $ids = implode(',', array_map('intval', $userIds));
+        $pdo->exec("DELETE FROM user_discount WHERE user_id IN ($ids)");
+      }
+      $pdo->exec("DELETE FROM auth_user WHERE username IN ('testuser', 'updateuser', 'saldo') OR email IN ('test@example.com', 'update@example.com', 'saldo@example.com')");
     }
   }
 
