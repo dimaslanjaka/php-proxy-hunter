@@ -1,5 +1,35 @@
 [
   {
+    "hash": "fb88fdb5f10d7da182e2575d6e35c9a3e651e7c1",
+    "date": "2025-09-06T16:57:36+07:00",
+    "message": "feat(changelog): show placeholder when no files changed in commit\n\nDisplay a placeholder message \"No files changed in this commit.\" in the changelog UI when a commit has an empty or missing `files` array, improving clarity for users viewing the commit history.",
+    "files": [
+      "src/react/pages/Changelog.tsx"
+    ]
+  },
+  {
+    "hash": "229f3809e329588859f3b0249662377a2edc3b69",
+    "date": "2025-09-06T16:55:56+07:00",
+    "message": "refactor(Changelog): replace oboe streaming with native fetch for git-history.json\n\n- Removed usage of streamJsonFromUrl and oboe.js for streaming JSON.\n- Switched to native fetch with cache-busting and no-cache headers to always retrieve the latest git-history.json.\n- Added a refresh button to manually reload the changelog data.\n- Improved refresh logic by introducing a refreshKey state and resetting pagination on refresh.\n- Cleaned up legacy promise and streaming logic for clarity and reliability.",
+    "files": [
+      "src/react/pages/Changelog.tsx"
+    ]
+  },
+  {
+    "hash": "a2cac1f3d16de8ad3e27aa014dcb06e8c4542fba",
+    "date": "2025-09-06T16:49:46+07:00",
+    "message": "refactor(json): add no-cache headers to oboe request options",
+    "files": [
+      "src/react/utils/json.ts"
+    ]
+  },
+  {
+    "hash": "6971ba6731a782cab8f36d37c384f624583665af",
+    "date": "2025-09-06T16:29:27+07:00",
+    "message": "chore(post-commit): add commit history builder execution to post-commit hook",
+    "files": []
+  },
+  {
     "hash": "0cae8ee20fb16221f5c13c745633c0a9c5f5a6a6",
     "date": "2025-09-06T16:02:04+07:00",
     "message": "refactor(coredb): make constructor parameters public fields and remove getters\n\n- Changed all private constructor parameter fields to public properties with updated PHPDoc.\n- Removed redundant getter methods for constructor parameters.\n- Updated constructor to assign values directly to public fields.",
