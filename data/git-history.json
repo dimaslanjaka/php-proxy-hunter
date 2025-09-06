@@ -1,5 +1,69 @@
 [
   {
+    "hash": "0cae8ee20fb16221f5c13c745633c0a9c5f5a6a6",
+    "date": "2025-09-06T16:02:04+07:00",
+    "message": "refactor(coredb): make constructor parameters public fields and remove getters\n\n- Changed all private constructor parameter fields to public properties with updated PHPDoc.\n- Removed redundant getter methods for constructor parameters.\n- Updated constructor to assign values directly to public fields.",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
+    "hash": "8df0774a57f19006bea328cea0bbb48c7f665fb5",
+    "date": "2025-09-06T15:59:31+07:00",
+    "message": "test: clean up related user_discount rows before deleting test users in UserDBTest",
+    "files": [
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
+    "hash": "a63c28ff6cee95774e9a842d1909f495786ce717",
+    "date": "2025-09-06T15:56:27+07:00",
+    "message": "refactor(CoreDBTest): simplify database cleanup by removing unnecessary truncation",
+    "files": [
+      "tests/PhpProxyHunter/CoreDBTest.php"
+    ]
+  },
+  {
+    "hash": "cce766c91c96158c6652faa657ac7391d0169fd3",
+    "date": "2025-09-06T15:54:51+07:00",
+    "message": "test(CoreDB): add unit tests for CoreDB class with MySQL and SQLite support",
+    "files": [
+      "tests/PhpProxyHunter/CoreDBTest.php"
+    ]
+  },
+  {
+    "hash": "844750b5b6582abb2a3773f1ec5499b7d724a674",
+    "date": "2025-09-06T15:50:26+07:00",
+    "message": "chore(phpcs): disable specific PSR-12 rules for CoreDBTest.php\n\n- Disabled `PSR12.Files.FileHeader.SpacingAfterBlock`\n- Disabled `PSR12.ControlStructures.ControlStructureSpacing.LineIndent`",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
+    "hash": "0a62e5312292ea8814b607a96f571bcc494d7d13",
+    "date": "2025-09-06T15:45:19+07:00",
+    "message": "refactor(coredb): remove PHP 8+ type hints for PHP 7 compatibility\n\n- Replaced typed properties (?string, ?bool) with untyped properties\n- Removed typed parameters and return types from methods\n- Replaced `\\Throwable` with `\\Exception` in constructor try-catch\n- Replaced null coalescing assignment (`??=`) with explicit null check\n- Adjusted WAL mode check for compatibility with PHP 7",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
+    "hash": "f5ba61640e64ad249323fc12080bea8b7b963834",
+    "date": "2025-09-06T15:43:52+07:00",
+    "message": "feat(CoreDB): initialize user_db instance in MySQL and SQLite constructors",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
+    "hash": "d532e4e426848f58b00dc24083db372ac5a355fd",
+    "date": "2025-09-06T14:48:49+07:00",
+    "message": "chore(phpcs): disable Squiz.Functions.MultiLineFunctionDeclaration.Indent sniff\n\nSet severity to 0 for Squiz.Functions.MultiLineFunctionDeclaration.Indent in phpcs.xml to suppress multi-line function declaration indent errors.",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
     "hash": "ea2db919775073e9bc7dffb5e2b8f08e98985646",
     "date": "2025-09-06T14:38:38+07:00",
     "message": "fix(mysql): add fallback to switch user authentication to caching_sha2_password if mysql_native_password plugin auto-install fails",
