@@ -41,6 +41,11 @@ class CoreDB
   public $db;
 
   /**
+   * @var UserDB|null User database helper instance
+   */
+  public $user_db = null;
+
+  /**
    * @var string|null Database driver type ('mysql' or 'sqlite')
    */
   public ?string $driver = null;
@@ -153,8 +158,9 @@ class CoreDB
    */
   private function initMySQL(string $host, string $dbname, string $username, string $password, bool $unique = false): void
   {
-    $this->db     = new MySQLHelper($host, $dbname, $username, $password, $unique);
-    $this->driver = 'mysql';
+    $this->db      = new MySQLHelper($host, $dbname, $username, $password, $unique);
+    $this->driver  = 'mysql';
+    $this->user_db = new UserDB(null, 'mysql', $host, $dbname, $username, $password, $unique);
 
     $this->loadSchema(__DIR__ . '/assets/mysql-schema.sql');
   }
@@ -173,9 +179,10 @@ class CoreDB
       }
     }
 
-    $this->dbPath = $dbLocation;
-    $this->db     = new SQLiteHelper($dbLocation);
-    $this->driver = 'sqlite';
+    $this->dbPath  = $dbLocation;
+    $this->db      = new SQLiteHelper($dbLocation);
+    $this->driver  = 'sqlite';
+    $this->user_db = new UserDB($dbLocation, 'sqlite');
 
     $this->loadSchema(__DIR__ . '/assets/sqlite-schema.sql');
 
