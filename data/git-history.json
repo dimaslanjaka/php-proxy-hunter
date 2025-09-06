@@ -1,5 +1,21 @@
 [
   {
+    "hash": "191b0fa967a141ee9375ef1c193aedf8c5e9a678",
+    "date": "2025-09-06T17:05:26+07:00",
+    "message": "refactor(changelog): simplify fetch logic and cache-busting in dev mode\n\n- Consolidate URL creation by using shared params object\n- Add timestamp param only in dev to avoid stale data\n- Use single fetch call with conditional headers\n- Update comments for clarity",
+    "files": [
+      "src/react/pages/Changelog.tsx"
+    ]
+  },
+  {
+    "hash": "1d0bf8961f23011c4b45de63d4ed7d859eb6f847",
+    "date": "2025-09-06T17:02:33+07:00",
+    "message": "fix(Changelog): add timestamp to URL in development to prevent caching issues",
+    "files": [
+      "src/react/pages/Changelog.tsx"
+    ]
+  },
+  {
     "hash": "fb88fdb5f10d7da182e2575d6e35c9a3e651e7c1",
     "date": "2025-09-06T16:57:36+07:00",
     "message": "feat(changelog): show placeholder when no files changed in commit\n\nDisplay a placeholder message \"No files changed in this commit.\" in the changelog UI when a commit has an empty or missing `files` array, improving clarity for users viewing the commit history.",
