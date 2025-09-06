@@ -10,31 +10,31 @@ class CoreDB
   /**
    * @var string|null
    */
-  private ?string $constructorDbLocation = null;
+  private $constructorDbLocation = null;
   /**
    * @var string|null
    */
-  private ?string $constructorHost = null;
+  private $constructorHost = null;
   /**
    * @var string|null
    */
-  private ?string $constructorDbName = null;
+  private $constructorDbName = null;
   /**
    * @var string|null
    */
-  private ?string $constructorUsername = null;
+  private $constructorUsername = null;
   /**
    * @var string|null
    */
-  private ?string $constructorPassword = null;
+  private $constructorPassword = null;
   /**
    * @var bool|null
    */
-  private ?bool $constructorUnique = null;
+  private $constructorUnique = null;
   /**
    * @var string|null
    */
-  private ?string $constructorType = null;
+  private $constructorType = null;
   /**
    * @var SQLiteHelper|MySQLHelper Database helper instance
    */
@@ -48,12 +48,12 @@ class CoreDB
   /**
    * @var string|null Database driver type ('mysql' or 'sqlite')
    */
-  public ?string $driver = null;
+  public $driver = null;
 
   /**
    * @var string|null Path to SQLite database file
    */
-  public ?string $dbPath = null;
+  public $dbPath = null;
 
   /**
    * CoreDB constructor.
@@ -62,13 +62,13 @@ class CoreDB
    * Attempts to connect to MySQL first; falls back to SQLite if MySQL connection fails.
    */
   public function __construct(
-    ?string $dbLocation = null,
-    string $host = 'localhost',
-    string $dbname = 'php_proxy_hunter',
-    string $username = 'root',
-    string $password = '',
-    bool $unique = false,
-    ?string $type = null
+    $dbLocation = null,
+    $host = 'localhost',
+    $dbname = 'php_proxy_hunter',
+    $username = 'root',
+    $password = '',
+    $unique = false,
+    $type = null
   ) {
     $this->constructorDbLocation = $dbLocation;
     $this->constructorHost       = $host;
@@ -92,63 +92,42 @@ class CoreDB
     // Auto-detect: try MySQL first, then fallback to SQLite
     try {
       $this->initMySQL($host, $dbname, $username, $password, $unique);
-    } catch (\Throwable $th) {
+    } catch (\Exception $e) {
       $this->initSQLite($dbLocation);
     }
   }
 
-  /**
-   * Get the dbLocation passed to the constructor
-   */
-  public function getConstructorDbLocation(): ?string
+  public function getConstructorDbLocation()
   {
     return $this->constructorDbLocation;
   }
 
-  /**
-   * Get the host passed to the constructor
-   */
-  public function getConstructorHost(): ?string
+  public function getConstructorHost()
   {
     return $this->constructorHost;
   }
 
-  /**
-   * Get the dbName passed to the constructor
-   */
-  public function getConstructorDbName(): ?string
+  public function getConstructorDbName()
   {
     return $this->constructorDbName;
   }
 
-  /**
-   * Get the username passed to the constructor
-   */
-  public function getConstructorUsername(): ?string
+  public function getConstructorUsername()
   {
     return $this->constructorUsername;
   }
 
-  /**
-   * Get the password passed to the constructor
-   */
-  public function getConstructorPassword(): ?string
+  public function getConstructorPassword()
   {
     return $this->constructorPassword;
   }
 
-  /**
-   * Get the unique flag passed to the constructor
-   */
-  public function getConstructorUnique(): ?bool
+  public function getConstructorUnique()
   {
     return $this->constructorUnique;
   }
 
-  /**
-   * Get the type passed to the constructor
-   */
-  public function getConstructorType(): ?string
+  public function getConstructorType()
   {
     return $this->constructorType;
   }
@@ -156,7 +135,7 @@ class CoreDB
   /**
    * Initialize MySQL database connection and schema.
    */
-  private function initMySQL(string $host, string $dbname, string $username, string $password, bool $unique = false): void
+  private function initMySQL($host, $dbname, $username, $password, $unique = false)
   {
     $this->db      = new MySQLHelper($host, $dbname, $username, $password, $unique);
     $this->driver  = 'mysql';
@@ -168,9 +147,11 @@ class CoreDB
   /**
    * Initialize SQLite database connection and schema.
    */
-  private function initSQLite(?string $dbLocation = null): void
+  private function initSQLite($dbLocation = null)
   {
-    $dbLocation ??= __DIR__ . '/../database.sqlite';
+    if ($dbLocation === null) {
+      $dbLocation = __DIR__ . '/../database.sqlite';
+    }
 
     if (!file_exists($dbLocation)) {
       $directory = dirname($dbLocation);
@@ -188,7 +169,7 @@ class CoreDB
 
     // Ensure WAL mode
     $walStatus = $this->db->pdo->query('PRAGMA journal_mode')->fetch(PDO::FETCH_ASSOC);
-    if (($walStatus['journal_mode'] ?? '') !== 'wal') {
+    if (!isset($walStatus['journal_mode']) || strtolower($walStatus['journal_mode']) !== 'wal') {
       $this->db->pdo->exec('PRAGMA journal_mode = WAL;');
     }
   }
@@ -196,7 +177,7 @@ class CoreDB
   /**
    * Load and execute schema file if exists.
    */
-  private function loadSchema(string $schemaPath): void
+  private function loadSchema($schemaPath)
   {
     if (!is_file($schemaPath)) {
       return;
@@ -210,7 +191,7 @@ class CoreDB
   /**
    * Close database connection.
    */
-  public function close(): void
+  public function close()
   {
     if ($this->db) {
       $this->db->close();
@@ -225,7 +206,7 @@ class CoreDB
   /**
    * Execute custom SQL query.
    */
-  public function query(string $sql, array $params = []): mixed
+  public function query($sql, $params = [])
   {
     return $this->db->executeCustomQuery($sql, $params);
   }
@@ -234,14 +215,14 @@ class CoreDB
    * Select from database.
    */
   public function select(
-    string $table,
-    array $columns = ['*'],
-    array $where = [],
-    array $params = [],
-    string $orderBy = '',
-    int $limit = 0,
-    int $offset = 0
-  ): mixed {
+    $table,
+    $columns = ['*'],
+    $where = [],
+    $params = [],
+    $orderBy = '',
+    $limit = 0,
+    $offset = 0
+  ) {
     return $this->db->select($table, $columns, $where, $params, $orderBy, $limit, $offset);
   }
 }
