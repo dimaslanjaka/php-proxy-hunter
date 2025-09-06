@@ -67,7 +67,30 @@ class MySQLHelper
             // Try again to connect
             $this->pdo = new PDO($dsn, $username, $password);
           } catch (\PDOException $e2) {
-            throw new \RuntimeException("Failed to auto-install mysql_native_password plugin. Please install it manually with: INSTALL PLUGIN mysql_native_password SONAME '" . $dll . "';\nOriginal error: " . $e2->getMessage());
+            // Prepare the SQL for error message
+            $alterUserSql = "ALTER USER '" . addslashes($username) . "'@'" . addslashes($host ?: '%') . "' IDENTIFIED WITH caching_sha2_password BY '" . addslashes($password) . "';";
+            // Attempt to change the user's plugin to caching_sha2_password
+            try {
+              $dsnNoDb2 = "mysql:host=$host;charset=utf8mb4";
+              $pdoTmp2  = new PDO($dsnNoDb2, $username, $password);
+              $pdoTmp2->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+              $pdoTmp2->exec($alterUserSql);
+              // Try again to connect
+              $this->pdo = new PDO($dsn, $username, $password);
+              $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+              self::$databases[$this->uniqueKey] = $this->pdo;
+              return;
+            } catch (\PDOException $e3) {
+              throw new \RuntimeException(
+                "[MySQLHelper] Unable to connect: both attempts to auto-install 'mysql_native_password' and switch user to 'caching_sha2_password' failed.\n" .
+                "\nManual intervention required. Please execute one of the following as an admin in MySQL:\n" .
+                "  1. INSTALL PLUGIN mysql_native_password SONAME '" . $dll . "';\n" .
+                '  2. ' . $alterUserSql . "\n" .
+                "\n---\n" .
+                'Auto-install error:   ' . $e2->getMessage() . "\n" .
+                'Switch plugin error:  ' . $e3->getMessage() . "\n"
+              );
+            }
           }
         } else {
           throw $e;
