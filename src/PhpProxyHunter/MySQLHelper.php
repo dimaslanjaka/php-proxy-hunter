@@ -21,7 +21,7 @@ class MySQLHelper
   public $pdo;
 
   /** @var PDO[] Static property to hold PDO instances. */
-  private static $_databases = [];
+  private static $databases = [];
 
   /** @var string The unique key for the current PDO instance. */
   private $uniqueKey;
@@ -43,8 +43,8 @@ class MySQLHelper
     $callerLine      = isset($caller['line']) ? $caller['line'] : 'unknown';
     $this->uniqueKey = md5($host . $dbname . $username . $callerFile . $callerLine);
 
-    if (isset(self::$_databases[$this->uniqueKey])) {
-      $this->pdo = self::$_databases[$this->uniqueKey];
+    if (isset(self::$databases[$this->uniqueKey])) {
+      $this->pdo = self::$databases[$this->uniqueKey];
     } else {
       // Try connecting to the database, if it fails due to unknown database, create it
       $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
@@ -78,7 +78,7 @@ class MySQLHelper
         }
       }
       $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      self::$_databases[$this->uniqueKey] = $this->pdo;
+      self::$databases[$this->uniqueKey] = $this->pdo;
     }
   }
 
@@ -87,7 +87,7 @@ class MySQLHelper
    */
   public function close()
   {
-    unset(self::$_databases[$this->uniqueKey]);
+    unset(self::$databases[$this->uniqueKey]);
     $this->pdo = null;
   }
 
