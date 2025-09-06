@@ -1,5 +1,13 @@
 [
   {
+    "hash": "50c3203320dc3fa03e9d0c94bfbed6682d5f1c2f",
+    "date": "2025-09-06T17:46:29+07:00",
+    "message": "feat(modal): add reusable Modal component for displaying dialogs and confirmations and custom content",
+    "files": [
+      "src/react/components/Modal.tsx"
+    ]
+  },
+  {
     "hash": "191b0fa967a141ee9375ef1c193aedf8c5e9a678",
     "date": "2025-09-06T17:05:26+07:00",
     "message": "refactor(changelog): simplify fetch logic and cache-busting in dev mode\n\n- Consolidate URL creation by using shared params object\n- Add timestamp param only in dev to avoid stale data\n- Use single fetch call with conditional headers\n- Update comments for clarity",
