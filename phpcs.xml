@@ -5,6 +5,14 @@
   <!-- Base coding standard -->
   <rule ref="PSR12"/>
 
+  <!-- Disable header block spacing and control structure indent rules for tests/PhpProxyHunter/CoreDBTest.php -->
+  <rule ref="PSR12.Files.FileHeader.SpacingAfterBlock">
+    <severity>0</severity>
+  </rule>
+  <rule ref="PSR12.ControlStructures.ControlStructureSpacing.LineIndent">
+    <severity>0</severity>
+  </rule>
+
   <!-- Indentation: 2 spaces -->
   <rule ref="Generic.WhiteSpace.ScopeIndent">
     <properties>
