@@ -8,33 +8,40 @@ use RuntimeException;
 class CoreDB
 {
   /**
+   * Path to SQLite database file (if using SQLite) or null
    * @var string|null
    */
-  private $constructorDbLocation = null;
+  public $dbLocation = null;
   /**
+   * Database host (for MySQL)
    * @var string|null
    */
-  private $constructorHost = null;
+  public $host = null;
   /**
+   * Database name (for MySQL)
    * @var string|null
    */
-  private $constructorDbName = null;
+  public $dbname = null;
   /**
+   * Database username (for MySQL)
    * @var string|null
    */
-  private $constructorUsername = null;
+  public $username = null;
   /**
+   * Database password (for MySQL)
    * @var string|null
    */
-  private $constructorPassword = null;
+  public $password = null;
   /**
+   * Whether to use unique connection (for MySQL)
    * @var bool|null
    */
-  private $constructorUnique = null;
+  public $unique = null;
   /**
+   * Database driver type ('mysql' or 'sqlite')
    * @var string|null
    */
-  private $constructorType = null;
+  public $type = null;
   /**
    * @var SQLiteHelper|MySQLHelper Database helper instance
    */
@@ -70,13 +77,13 @@ class CoreDB
     $unique = false,
     $type = null
   ) {
-    $this->constructorDbLocation = $dbLocation;
-    $this->constructorHost       = $host;
-    $this->constructorDbName     = $dbname;
-    $this->constructorUsername   = $username;
-    $this->constructorPassword   = $password;
-    $this->constructorUnique     = $unique;
-    $this->constructorType       = $type;
+    $this->dbLocation = $dbLocation;
+    $this->host       = $host;
+    $this->dbname     = $dbname;
+    $this->username   = $username;
+    $this->password   = $password;
+    $this->unique     = $unique;
+    $this->type       = $type;
 
     // Enforce type when specified
     if ($type === 'mysql') {
@@ -97,40 +104,7 @@ class CoreDB
     }
   }
 
-  public function getConstructorDbLocation()
-  {
-    return $this->constructorDbLocation;
-  }
 
-  public function getConstructorHost()
-  {
-    return $this->constructorHost;
-  }
-
-  public function getConstructorDbName()
-  {
-    return $this->constructorDbName;
-  }
-
-  public function getConstructorUsername()
-  {
-    return $this->constructorUsername;
-  }
-
-  public function getConstructorPassword()
-  {
-    return $this->constructorPassword;
-  }
-
-  public function getConstructorUnique()
-  {
-    return $this->constructorUnique;
-  }
-
-  public function getConstructorType()
-  {
-    return $this->constructorType;
-  }
 
   /**
    * Initialize MySQL database connection and schema.
