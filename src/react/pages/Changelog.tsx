@@ -41,15 +41,17 @@ export default function Changelog() {
     // On refresh, always fetch new data and update cache
     const fetchData = async () => {
       try {
-        // Add cache buster to avoid stale fetches
-        let url: string;
+        // Always bust cache in dev mode to avoid stale data with Vite
+        const params: Record<string, string | number> = { v: import.meta.env.VITE_GIT_COMMIT };
         if (import.meta.env.DEV) {
-          // In dev, always add timestamp to avoid caching issues with Vite
-          url = createUrl(`/data/git-history.json`, { v: import.meta.env.VITE_GIT_COMMIT, t: Date.now() });
-        } else {
-          url = createUrl(`/data/git-history.json`, { v: import.meta.env.VITE_GIT_COMMIT });
+          params.t = Date.now();
         }
-        const res = await fetch(url, { headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' } });
+
+        const url = createUrl(`/data/git-history.json`, params);
+
+        const res = await fetch(url, {
+          headers: import.meta.env.DEV ? { 'Cache-Control': 'no-cache', Pragma: 'no-cache' } : undefined
+        });
         const commits: Commit[] = await res.json();
         if (!cancelled) {
           console.log(commits.slice(0, 5));
