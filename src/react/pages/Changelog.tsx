@@ -42,7 +42,13 @@ export default function Changelog() {
     const fetchData = async () => {
       try {
         // Add cache buster to avoid stale fetches
-        const url = createUrl(`/data/git-history.json`, { v: import.meta.env.VITE_GIT_COMMIT, t: Date.now() });
+        let url: string;
+        if (import.meta.env.DEV) {
+          // In dev, always add timestamp to avoid caching issues with Vite
+          url = createUrl(`/data/git-history.json`, { v: import.meta.env.VITE_GIT_COMMIT, t: Date.now() });
+        } else {
+          url = createUrl(`/data/git-history.json`, { v: import.meta.env.VITE_GIT_COMMIT });
+        }
         const res = await fetch(url, { headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' } });
         const commits: Commit[] = await res.json();
         if (!cancelled) {
