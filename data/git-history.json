@@ -1,5 +1,13 @@
 [
   {
+    "hash": "7efeafc96507da823f25084a174e3eb43b8d6c77",
+    "date": "2025-09-06T14:21:17+07:00",
+    "message": "fix(mysql): handle missing mysql_native_password plugin by attempting auto-install",
+    "files": [
+      "src/PhpProxyHunter/MySQLHelper.php"
+    ]
+  },
+  {
     "hash": "0ee8c3cee2fc569babab147ece4b70cf1c062535",
     "date": "2025-09-06T05:33:22+07:00",
     "message": "refactor: add exclusion for incorrect exact indentation in phpcs.xml",
