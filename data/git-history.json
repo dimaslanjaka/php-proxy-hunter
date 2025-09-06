@@ -1,5 +1,13 @@
 [
   {
+    "hash": "0ee8c3cee2fc569babab147ece4b70cf1c062535",
+    "date": "2025-09-06T05:33:22+07:00",
+    "message": "refactor: add exclusion for incorrect exact indentation in phpcs.xml",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
     "hash": "bb76ab040e940e55f24537f4f758d4cde2493cfd",
     "date": "2025-09-05T18:37:54+07:00",
     "message": "refactor: update exclusion patterns in configuration files to improve code quality checks",
