@@ -52,27 +52,15 @@ class CoreDBTest extends TestCase
         true,
         'mysql'
       );
-
-      // Clean tables before each test
+      // Remove only the test row from meta table before each test
       $pdo = $this->coreDB->db->pdo;
-      $pdo->exec('SET FOREIGN_KEY_CHECKS=0;');
-      foreach (
-        [
-          'user_logs',
-          'user_fields',
-          'auth_user',
-          'meta',
-          'added_proxies',
-          'processed_proxies',
-          'proxies',
-        ] as $table
-      ) {
-        $pdo->exec("TRUNCATE TABLE {$table};");
-      }
-      $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
+      $pdo->exec("DELETE FROM meta WHERE `key` = 'testkey'");
     } else {
       $this->testDbPath = sys_get_temp_dir() . '/test_core_database.sqlite';
       $this->coreDB     = new CoreDB($this->testDbPath, null, null, null, null, false, 'sqlite');
+      // Remove only the test row from meta table before each test
+      $pdo = $this->coreDB->db->pdo;
+      $pdo->exec("DELETE FROM meta WHERE key = 'testkey'");
     }
   }
 
