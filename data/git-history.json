@@ -1,5 +1,13 @@
 [
   {
+    "hash": "ea2db919775073e9bc7dffb5e2b8f08e98985646",
+    "date": "2025-09-06T14:38:38+07:00",
+    "message": "fix(mysql): add fallback to switch user authentication to caching_sha2_password if mysql_native_password plugin auto-install fails",
+    "files": [
+      "src/PhpProxyHunter/MySQLHelper.php"
+    ]
+  },
+  {
     "hash": "e4307cab0a509f3ff6f13efebeeeb9b9e7fbfe36",
     "date": "2025-09-06T14:25:48+07:00",
     "message": "refactor: remove redundant PHP_PROXY_HUNTER access checks from database and scheduler classes",
