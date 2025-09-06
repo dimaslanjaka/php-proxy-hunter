@@ -2,10 +2,6 @@
 
 namespace PhpProxyHunter;
 
-if (!defined('PHP_PROXY_HUNTER')) {
-  exit('access denied');
-}
-
 /** @noinspection PhpUnusedLocalVariableInspection */
 $shutdown_functions = [];
 

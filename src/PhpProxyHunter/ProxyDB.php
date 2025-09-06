@@ -5,10 +5,6 @@ namespace PhpProxyHunter;
 use PDO;
 use PDOException;
 
-if (!defined('PHP_PROXY_HUNTER')) {
-  exit('access denied');
-}
-
 /**
  * Class ProxyDB
  *

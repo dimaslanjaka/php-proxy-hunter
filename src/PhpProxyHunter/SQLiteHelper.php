@@ -4,10 +4,6 @@ namespace PhpProxyHunter;
 
 use PDO;
 
-if (!defined('PHP_PROXY_HUNTER')) {
-  exit('access denied');
-}
-
 /**
  * Class SQLiteHelper
  *
