@@ -4,6 +4,7 @@
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 PROJECT_DIR=$(dirname "$SCRIPT_DIR")
 
+# run commit history builder
 node --no-warnings=ExperimentalWarning --loader ts-node/esm "$PROJECT_DIR/src/dev/git-history.builder.ts"
 
 command -v git-lfs >/dev/null 2>&1 || {
