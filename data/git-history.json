@@ -1,5 +1,25 @@
 [
   {
+    "hash": "e4307cab0a509f3ff6f13efebeeeb9b9e7fbfe36",
+    "date": "2025-09-06T14:25:48+07:00",
+    "message": "refactor: remove redundant PHP_PROXY_HUNTER access checks from database and scheduler classes",
+    "files": [
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/PhpProxyHunter/SQLiteHelper.php",
+      "src/PhpProxyHunter/Scheduler.php",
+      "src/PhpProxyHunter/UserDB.php"
+    ]
+  },
+  {
+    "hash": "d3c57e0d040d9e62d77935ca04091f15183c77a8",
+    "date": "2025-09-06T14:24:25+07:00",
+    "message": "refactor(mysql): rename static property $_databases to $databases for consistency",
+    "files": [
+      "src/PhpProxyHunter/MySQLHelper.php"
+    ]
+  },
+  {
     "hash": "7efeafc96507da823f25084a174e3eb43b8d6c77",
     "date": "2025-09-06T14:21:17+07:00",
     "message": "fix(mysql): handle missing mysql_native_password plugin by attempting auto-install",
