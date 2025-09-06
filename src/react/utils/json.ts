@@ -31,7 +31,15 @@ export async function* streamJsonFromUrl<T = any>(
     }
   };
 
-  const ob = oboe({ url }).node(nodePattern, (node: T) => {
+  // Use oboe options to set no-cache headers in browser
+  const ob = oboe({
+    url,
+    method: 'GET',
+    headers: {
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache'
+    }
+  }).node(nodePattern, (node: T) => {
     queue.push(node);
     nextValue();
     return oboe.drop; // Don't keep in memory
