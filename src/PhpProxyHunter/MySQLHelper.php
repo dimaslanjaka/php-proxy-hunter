@@ -51,7 +51,8 @@ class MySQLHelper
       try {
         $this->pdo = new PDO($dsn, $username, $password);
       } catch (\PDOException $e) {
-        if (strpos($e->getMessage(), 'Unknown database') !== false) {
+        $msg = $e->getMessage();
+        if (strpos($msg, 'Unknown database') !== false) {
           // Connect without dbname and create the database
           $dsnNoDb = "mysql:host=$host;charset=utf8mb4";
           $pdoTmp  = new PDO($dsnNoDb, $username, $password);
@@ -59,6 +60,19 @@ class MySQLHelper
           $pdoTmp->exec('CREATE DATABASE IF NOT EXISTS `' . str_replace('`', '', $dbname) . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
           // Now connect again with the dbname
           $this->pdo = new PDO($dsn, $username, $password);
+        } elseif (strpos($msg, "Plugin 'mysql_native_password' is not loaded") !== false) {
+          // Try to auto-install the plugin (requires SUPER privilege)
+          $dll = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'mysql_native_password.dll' : 'mysql_native_password.so';
+          try {
+            $dsnNoDb = "mysql:host=$host;charset=utf8mb4";
+            $pdoTmp  = new PDO($dsnNoDb, $username, $password);
+            $pdoTmp->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdoTmp->exec("INSTALL PLUGIN mysql_native_password SONAME '" . $dll . "';");
+            // Try again to connect
+            $this->pdo = new PDO($dsn, $username, $password);
+          } catch (\PDOException $e2) {
+            throw new \RuntimeException("Failed to auto-install mysql_native_password plugin. Please install it manually with: INSTALL PLUGIN mysql_native_password SONAME '" . $dll . "';\nOriginal error: " . $e2->getMessage());
+          }
         } else {
           throw $e;
         }
