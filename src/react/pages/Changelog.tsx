@@ -1,6 +1,5 @@
 import React from 'react';
 import type gitHistoryToJson from '../../dev/git-history-to-json';
-import { streamJsonFromUrl } from '../utils/json';
 import { createUrl } from '../utils/url';
 import ReactMarkdown from 'react-markdown';
 import style from './Changelog.module.scss';
@@ -9,13 +8,13 @@ type Commit = ReturnType<typeof gitHistoryToJson>[number];
 
 // Module-level cache to ensure fetch runs only once per session
 let gitHistoryCache: Commit[] | null = null;
-let gitHistoryPromise: Promise<Commit[]> | null = null;
 
 export default function Changelog() {
   const [commits, setCommits] = React.useState<Commit[] | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [page, setPage] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [refreshKey, setRefreshKey] = React.useState(0);
   const COMMITS_PER_PAGE = 30;
 
   // Try to load cached first page from localStorage on mount
@@ -39,7 +38,31 @@ export default function Changelog() {
   React.useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
-    if (gitHistoryCache) {
+    // On refresh, always fetch new data and update cache
+    const fetchData = async () => {
+      try {
+        // Add cache buster to avoid stale fetches
+        const url = createUrl(`/data/git-history.json`, { v: import.meta.env.VITE_GIT_COMMIT, t: Date.now() });
+        const res = await fetch(url, { headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' } });
+        const commits: Commit[] = await res.json();
+        if (!cancelled) {
+          console.log(commits.slice(0, 5));
+          setCommits(commits);
+          gitHistoryCache = commits;
+          try {
+            localStorage.setItem('gitHistoryFirstPage', JSON.stringify(commits.slice(0, COMMITS_PER_PAGE)));
+          } catch {
+            setError('Failed to update git history cache');
+          }
+        }
+      } catch (err: any) {
+        if (!cancelled) setError(err.message);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+    // If not a refresh, use cache if available
+    if (refreshKey === 0 && gitHistoryCache) {
       setCommits(gitHistoryCache);
       try {
         localStorage.setItem('gitHistoryFirstPage', JSON.stringify(gitHistoryCache.slice(0, COMMITS_PER_PAGE)));
@@ -47,48 +70,29 @@ export default function Changelog() {
         setError('Failed to update git history cache');
       }
       setIsLoading(false);
-      return;
+    } else {
+      fetchData();
     }
-    if (!gitHistoryPromise) {
-      // Add cache buster to avoid stale fetches
-      const url = createUrl(`/data/git-history.json`, { v: import.meta.env.VITE_GIT_COMMIT });
-      // Use streaming helper for large files
-      gitHistoryPromise = (async () => {
-        const commits: Commit[] = [];
-        // If your JSON is an array: use '!*'. If it's {commits: [...]}, use '!commits.*'
-        for await (const commit of streamJsonFromUrl<Commit>(url, '!*')) {
-          commits.push(commit);
-        }
-        return commits;
-      })().then((data) => {
-        gitHistoryCache = data;
-        try {
-          localStorage.setItem('gitHistoryFirstPage', JSON.stringify(data.slice(0, COMMITS_PER_PAGE)));
-        } catch {
-          setError('Failed to update git history cache');
-        }
-        return data;
-      });
-    }
-    gitHistoryPromise
-      .then((data) => {
-        if (!cancelled) setCommits(data);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err.message);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
     return () => {
       cancelled = true;
     };
-  }, [COMMITS_PER_PAGE]);
+  }, [COMMITS_PER_PAGE, refreshKey]);
 
   // Pagination logic
   const totalCommits = commits ? commits.length : 0;
   const totalPages = Math.ceil(totalCommits / COMMITS_PER_PAGE);
   const paginatedCommits = commits ? commits.slice((page - 1) * COMMITS_PER_PAGE, page * COMMITS_PER_PAGE) : [];
+
+  // Refresh handler: clear cache and refetch
+  const handleRefresh = () => {
+    gitHistoryCache = null;
+    setCommits(null);
+    setError(null);
+    setIsLoading(true);
+    setPage(1);
+    localStorage.removeItem('gitHistoryFirstPage');
+    setRefreshKey((k) => k + 1);
+  };
 
   return (
     <>
@@ -102,6 +106,14 @@ export default function Changelog() {
             Explore the historical progress and key milestones of this repository. Each entry below represents a
             significant update, feature, or fix that has shaped the project.
           </p>
+          <button
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+            onClick={handleRefresh}
+            disabled={isLoading}
+            aria-label="Refresh changelog">
+            <i className="fa-duotone fa-arrows-rotate mr-2"></i>
+            Refresh
+          </button>
         </div>
         {error && <div className="text-red-500 dark:text-red-400 text-center mb-4">{error}</div>}
         {isLoading && (
