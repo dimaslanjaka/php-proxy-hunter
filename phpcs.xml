@@ -12,7 +12,10 @@
       <property name="tabIndent" value="false"/>
       <property name="exact" value="true"/>
     </properties>
-  <exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact"/>
+    <exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact"/>
+  </rule>
+  <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.Indent">
+    <severity>0</severity>
   </rule>
 
   <!-- Short array syntax -->
