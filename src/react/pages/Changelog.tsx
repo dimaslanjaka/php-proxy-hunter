@@ -157,7 +157,7 @@ export default function Changelog() {
                   <div className={`prose dark:prose-invert mb-2 text-gray-400 dark:text-gray-300 ${style.markdown}`}>
                     <ReactMarkdown>{commit.message.split('\n').slice(1).join('\n').trim()}</ReactMarkdown>
                   </div>
-                  {commit.files && commit.files.length > 0 && (
+                  {commit.files && commit.files.length > 0 ? (
                     <div className="mb-2">
                       <span className="text-xs text-gray-400 dark:text-gray-300 mr-2">
                         <i className="fa-duotone fa-file-code mr-1"></i>
@@ -170,6 +170,13 @@ export default function Changelog() {
                           </li>
                         ))}
                       </ul>
+                    </div>
+                  ) : (
+                    <div className="mb-2">
+                      <span className="text-xs text-gray-400 dark:text-gray-300 mr-2">
+                        <i className="fa-duotone fa-file-code mr-1"></i>
+                        No files changed in this commit.
+                      </span>
                     </div>
                   )}
                 </li>
