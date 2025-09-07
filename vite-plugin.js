@@ -198,3 +198,18 @@ export function customStaticAssetsPlugin() {
     }
   };
 }
+
+if (process.argv.some((arg) => arg.includes('vite-plugin.js'))) {
+  copyIndexHtml();
+  buildTailwind();
+  spawnSync(
+    'node',
+    [
+      '--no-warnings=ExperimentalWarning',
+      '--loader',
+      'ts-node/esm',
+      path.join(__dirname, 'src/dev/git-history.builder.ts')
+    ],
+    { stdio: 'inherit', shell: true }
+  );
+}

@@ -35,6 +35,7 @@
     "lint:fix": "npm run lint -- --fix",
     "normal-rebuild": "npm rebuild",
     "prepare": "npx husky && node setup.js",
+    "prepare:react": "node vite-plugin.js",
     "preview:gh-pages": "npm run build:gh-pages && vite preview --config vite-gh-pages.config.js",
     "preview:react": "npm run build:react && vite preview",
     "start": "php -S 0.0.0.0:4000",
