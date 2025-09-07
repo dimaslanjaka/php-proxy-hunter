@@ -1,5 +1,29 @@
 [
   {
+    "hash": "161449de90b81b4c6b9961a6a4b3e1740b21a5ab",
+    "date": "2025-09-07T19:01:07+07:00",
+    "message": "docs(CoreDB): enhance constructor docblock with additional parameters for MySQL connection",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
+    "hash": "7dbaa7c603b5fc96c6f1acf3c631efe50889f8b0",
+    "date": "2025-09-07T18:59:32+07:00",
+    "message": "feat(db): use is_debug_device to load environment-specific DB credentials",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
+    "hash": "04fb2c005e94c8010a6c322709caf4c05110e4de",
+    "date": "2025-09-07T18:56:16+07:00",
+    "message": "refactor(debug): extract debug device check into is_debug_device and simplify is_debug logic",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
     "hash": "e21733447eae9e0fbcbaa97790beeb7e3f2ede20",
     "date": "2025-09-07T17:17:35+07:00",
     "message": "feat: add prepare:react script and automatic build steps in vite-plugin.js\n\n- Added `prepare:react` npm script to run `vite-plugin.js`.\n- Updated `vite-plugin.js` to automatically copy index.html, build Tailwind, and run `git-history.builder.ts` when executed directly.",
