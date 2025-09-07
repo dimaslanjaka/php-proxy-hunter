@@ -1,5 +1,13 @@
 [
   {
+    "hash": "f445e07e2aacebbc28cf242ae266eeddd1d49145",
+    "date": "2025-09-07T16:56:46+07:00",
+    "message": "feat(modal): add scrollable option and support for larger sizes\n\n- Added `scrollable` prop to allow modal body to scroll for long content.\n- Expanded `size` prop to support '2xl' and '3xl' modal sizes.\n- Updated default size to 'xl' fallback for safety.\n- Enhanced JSDoc comments for props and component usage examples.",
+    "files": [
+      "src/react/components/Modal.tsx"
+    ]
+  },
+  {
     "hash": "32b67d98bdf15de9b38fece45e5f4ad83603b938",
     "date": "2025-09-07T16:01:50+07:00",
     "message": "feat(db): add MySQL support to ProxyDB and update tests\n\n- Extend ProxyDB to support both SQLite and MySQL databases.\n- Add new constructor parameters for MySQL connection: host, dbname, username, password, and unique constraints.\n- Implement `initMySQL()` method to initialize MySQL database and schema.\n- Refactor `initSQLite()` to separate SQLite initialization logic.\n- Update ProxyDBTest to support both SQLite and MySQL using a data provider.\n- Add setup and teardown methods for handling different database types in tests.\n- Ensure tests add, update, remove, and query proxies for both SQLite and MySQL.",
