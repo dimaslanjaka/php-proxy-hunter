@@ -1,5 +1,14 @@
 [
   {
+    "hash": "e21733447eae9e0fbcbaa97790beeb7e3f2ede20",
+    "date": "2025-09-07T17:17:35+07:00",
+    "message": "feat: add prepare:react script and automatic build steps in vite-plugin.js\n\n- Added `prepare:react` npm script to run `vite-plugin.js`.\n- Updated `vite-plugin.js` to automatically copy index.html, build Tailwind, and run `git-history.builder.ts` when executed directly.",
+    "files": [
+      "package.json",
+      "vite-plugin.js"
+    ]
+  },
+  {
     "hash": "f445e07e2aacebbc28cf242ae266eeddd1d49145",
     "date": "2025-09-07T16:56:46+07:00",
     "message": "feat(modal): add scrollable option and support for larger sizes\n\n- Added `scrollable` prop to allow modal body to scroll for long content.\n- Expanded `size` prop to support '2xl' and '3xl' modal sizes.\n- Updated default size to 'xl' fallback for safety.\n- Enhanced JSDoc comments for props and component usage examples.",
