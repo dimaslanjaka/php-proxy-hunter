@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../func.php';
 require_once __DIR__ . '/../func-proxy.php';
-
-use PhpProxyHunter\UserDB;
+include __DIR__ . '/shared.php';
 
 global $isCli, $isAdmin;
 
@@ -33,7 +32,6 @@ if (!$isCli) {
   }
 }
 
-$user_db   = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
 $browserId = getUserId();
 $request   = parsePostData();
 $result    = ['messages' => []];

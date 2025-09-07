@@ -1,8 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../func.php';
-
-use PhpProxyHunter\UserDB;
+include __DIR__ . '/shared.php';
 
 global $isCli;
 
@@ -22,7 +21,6 @@ if (!$isCli) {
   header('Pragma: no-cache');
 }
 
-$user_db  = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
 $is_admin = ($_SESSION['admin'] ?? false) === true && ($_SESSION['authenticated'] ?? false) === true;
 if (!$is_admin) {
   // If the user is not an admin, return an error message with 'message' and boolean 'error'

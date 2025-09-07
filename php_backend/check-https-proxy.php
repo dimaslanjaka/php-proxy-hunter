@@ -2,8 +2,8 @@
 
 require_once __DIR__ . '/../func.php';
 require_once __DIR__ . '/../func-proxy.php';
+include __DIR__ . '/shared.php';
 
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
 
@@ -47,7 +47,6 @@ if (!$isCli) {
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
-$db                    = new ProxyDB(__DIR__ . '/../src/database.sqlite');
 $userId                = getUserId();
 $request               = parseQueryOrPostBody();
 $currentScriptFilename = basename(__FILE__, '.php');
@@ -158,7 +157,7 @@ if (!$isCli) {
     _log('No proxy file provided. Searching for proxies in database.');
 
     // Merge working and untested proxies from the database
-    $proxiesDb = array_merge($db->getWorkingProxies(100), $db->getUntestedProxies(100));
+    $proxiesDb = array_merge($proxy_db->getWorkingProxies(100), $proxy_db->getUntestedProxies(100));
 
     // Filter proxies: keep non-active (dead) or non-SSL ones
     $filteredArray = array_filter($proxiesDb, function ($item) {
@@ -277,8 +276,8 @@ function _log(...$args): void
  */
 function check(string $proxy)
 {
-  global $db, $hashFilename, $currentScriptFilename, $isAdmin, $isCli;
-  $proxies = extractProxies($proxy, $db, true);
+  global $proxy_db, $hashFilename, $currentScriptFilename, $isAdmin, $isCli;
+  $proxies = extractProxies($proxy, $proxy_db, true);
   shuffle($proxies);
 
   $count       = count($proxies);
@@ -391,7 +390,7 @@ function check(string $proxy)
     }
 
     // Perform the database update
-    $db->updateData($item->proxy, $data);
+    $proxy_db->updateData($item->proxy, $data);
 
     // Write lock proxy file
     // $date = new DateTime();

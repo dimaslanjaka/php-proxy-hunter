@@ -1,8 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../func.php';
-
-use PhpProxyHunter\UserDB;
+include __DIR__ . '/shared.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: *');
@@ -22,7 +21,6 @@ $host            = $_SERVER['HTTP_HOST'];
 $protocol        = 'https://';
 $request         = parsePostData(true);
 $redirectUri     = !empty($request['redirect_uri']) ? $request['redirect_uri'] : "{$protocol}{$host}/login";
-$user_db         = new UserDB(null, 'mysql', $_ENV['MYSQL_HOST'], $_ENV['MYSQL_DBNAME'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
 $visitorId       = $_COOKIE['visitor_id'] ?? 'CLI';
 $credentialsPath = __DIR__ . "/../tmp/logins/login_{$visitorId}.json";
 createParentFolders($credentialsPath);
@@ -139,7 +137,7 @@ function refreshAccessTokenIfNeeded(Google\Client $client, string $path, array &
   }
 }
 
-function finalizeUserSession(string $email, UserDB $user_db): void
+function finalizeUserSession(string $email, \PhpProxyHunter\UserDB $user_db): void
 {
   $isAdmin = $email === 'dimaslanjaka@gmail.com' || $email === ($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '');
 
