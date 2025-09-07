@@ -1,5 +1,13 @@
 [
   {
+    "hash": "ce1e356e6f779256142613da4a358a84f9473854",
+    "date": "2025-09-07T19:19:19+07:00",
+    "message": "fix(tailwind): ensure all buttons have pointer cursor for better UX",
+    "files": [
+      "tailwind.input.css"
+    ]
+  },
+  {
     "hash": "161449de90b81b4c6b9961a6a4b3e1740b21a5ab",
     "date": "2025-09-07T19:01:07+07:00",
     "message": "docs(CoreDB): enhance constructor docblock with additional parameters for MySQL connection",
