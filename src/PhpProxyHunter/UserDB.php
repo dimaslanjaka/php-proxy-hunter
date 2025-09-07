@@ -19,7 +19,7 @@ class UserDB
   /**
    * UserDB constructor.
    *
-   * @param string|null $dbLocation Path to the database file (SQLite mode).
+   * @param string|SQLiteHelper|MySQLHelper|null $dbLocation Path to the database file (SQLite mode).
    * @param string $dbType Database type: 'sqlite' or 'mysql'.
    * @param string $host MySQL host.
    * @param string $dbname MySQL database name.
@@ -29,10 +29,16 @@ class UserDB
    */
   public function __construct($dbLocation = null, $dbType = 'sqlite', $host = 'localhost', $dbname = 'php_proxy_hunter', $username = 'root', $password = '', $unique = false)
   {
-    if ($dbType === 'mysql') {
-      $this->mysql($host, $dbname, $username, $password, $unique);
+    if ($dbLocation instanceof SQLiteHelper || $dbLocation instanceof MySQLHelper) {
+      // $dbLocation is an instance of SQLiteHelper or MySQLHelper
+      $this->db = $dbLocation;
     } else {
-      $this->sqlite($dbLocation);
+      // $dbLocation is a string (path) or null
+      if ($dbType === 'mysql') {
+        $this->mysql($host, $dbname, $username, $password, $unique);
+      } else {
+        $this->sqlite($dbLocation);
+      }
     }
   }
 

@@ -113,7 +113,7 @@ class CoreDB
   {
     $this->db      = new MySQLHelper($host, $dbname, $username, $password, $unique);
     $this->driver  = 'mysql';
-    $this->user_db = new UserDB(null, 'mysql', $host, $dbname, $username, $password, $unique);
+    $this->user_db = new UserDB($this->db);
 
     $this->loadSchema(__DIR__ . '/assets/mysql-schema.sql');
   }
@@ -137,7 +137,7 @@ class CoreDB
     $this->dbPath  = $dbLocation;
     $this->db      = new SQLiteHelper($dbLocation);
     $this->driver  = 'sqlite';
-    $this->user_db = new UserDB($dbLocation, 'sqlite');
+    $this->user_db = new UserDB($this->db);
 
     $this->loadSchema(__DIR__ . '/assets/sqlite-schema.sql');
 
