@@ -1,5 +1,22 @@
 [
   {
+    "hash": "e7c3b00e2bbeaa56a19fa8580323dda27955305d",
+    "date": "2025-09-07T11:58:02+07:00",
+    "message": "refactor(core): allow UserDB to accept existing DB helper instance\n\n- Updated CoreDB to pass an existing SQLiteHelper or MySQLHelper instance to UserDB instead of connection parameters.\n- Modified UserDB constructor to accept a SQLiteHelper or MySQLHelper instance directly, enabling more flexible database management and reducing redundant connections.",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php",
+      "src/PhpProxyHunter/UserDB.php"
+    ]
+  },
+  {
+    "hash": "48a9a8ecb598e2904fc0dc23dd00296255f23c0c",
+    "date": "2025-09-07T11:53:51+07:00",
+    "message": "refactor(userdb): make class PHP 7 compatible and improve phpdoc\n\n- Removed nullable and typed parameter hints for PHP 7 compatibility\n- Replaced null coalescing operator with isset checks\n- Adjusted return type hints to untyped for PHP 7\n- Added detailed phpdoc for constructor, mysql, sqlite, update, get_saldo, destructor, and close methods\n- Simplified conditions and removed redundant inline comments",
+    "files": [
+      "src/PhpProxyHunter/UserDB.php"
+    ]
+  },
+  {
     "hash": "50c3203320dc3fa03e9d0c94bfbed6682d5f1c2f",
     "date": "2025-09-06T17:46:29+07:00",
     "message": "feat(modal): add reusable Modal component for displaying dialogs and confirmations and custom content",
