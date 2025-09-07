@@ -1,5 +1,67 @@
 [
   {
+    "hash": "a38a499705675ded5e34d51fdcda01884a091f58",
+    "date": "2025-09-07T15:50:26+07:00",
+    "message": "refactor(ProxyDB): optimize constructor to support helper instances and improve readability\n\n- Allow $dbLocation parameter to accept SQLiteHelper or MySQLHelper instances directly\n- Simplify database path normalization and in-memory detection\n- Replace die() with RuntimeException when directory creation fails\n- Streamline schema loading with clearer variable names\n- Add inline comments for clarity and maintain existing WAL and auto-vacuum setup\n- Keep daily vacuum maintenance call intact",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "f84d84f45823ab34be540f008b68b29b4e9ba065",
+    "date": "2025-09-07T15:46:56+07:00",
+    "message": "refactor(proxydb): make ProxyDB compatible with PHP 7 by removing nullable and strict type hints",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "596e75d3f0b133893b6c0525d567fd77c16540c5",
+    "date": "2025-09-07T15:46:21+07:00",
+    "message": "fix(phpcs): disable inline control structure rule with severity 0",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
+    "hash": "7bc2cc6efa4ad97c814b81fec77b24b62a885a48",
+    "date": "2025-09-07T15:41:07+07:00",
+    "message": "refactor(shared): unify database initialization and dotenv loading\n\n- Added dotenv loading to shared.php for consistent environment setup\n- Replaced direct UserDB instantiation with $core_db->user_db\n- Updated CoreDB initialization to use environment variables and sqlite path",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
+    "hash": "9a26b3098eb0589288f7fbe8af79b00b647b5413",
+    "date": "2025-09-07T15:33:34+07:00",
+    "message": "refactor(google-oauth): make PHP 7 compatible and improve phpdoc\n\n- Replaced null coalescing operators with isset checks\n- Removed scalar and return type hints for PHP 7 compatibility\n- Added detailed phpdoc blocks for utility functions:\n  - createGoogleClient\n  - refreshAccessTokenIfNeeded\n  - finalizeUserSession\n  - jsonResponse",
+    "files": [
+      "php_backend/google-oauth.php"
+    ]
+  },
+  {
+    "hash": "c6a406c3d4e339bdfa0b693692d936d7c7bf77e0",
+    "date": "2025-09-07T15:32:00+07:00",
+    "message": "refactor(php_backend): centralize DB initialization in shared.php\n\n- Added new `shared.php` to manage common DB connections (`UserDB`, `ProxyDB`, `CoreDB`)\n- Replaced direct `UserDB` and `ProxyDB` instantiations with shared variables\n- Updated `check-https-proxy.php`, `google-oauth.php`, `list-user.php`, `login.php`, `refill-saldo.php`, and `user-info.php` to include `shared.php`\n- Improved maintainability by preventing duplicate DB connection code",
+    "files": [
+      "php_backend/check-https-proxy.php",
+      "php_backend/google-oauth.php",
+      "php_backend/list-user.php",
+      "php_backend/login.php",
+      "php_backend/refill-saldo.php",
+      "php_backend/shared.php",
+      "php_backend/user-info.php"
+    ]
+  },
+  {
+    "hash": "27772c578ec3e6b1f7ca87a111d5d3a9969d9f47",
+    "date": "2025-09-07T14:04:00+07:00",
+    "message": "fix(phpcs): disable break indent error in switch-case",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
     "hash": "e7c3b00e2bbeaa56a19fa8580323dda27955305d",
     "date": "2025-09-07T11:58:02+07:00",
     "message": "refactor(core): allow UserDB to accept existing DB helper instance\n\n- Updated CoreDB to pass an existing SQLiteHelper or MySQLHelper instance to UserDB instead of connection parameters.\n- Modified UserDB constructor to accept a SQLiteHelper or MySQLHelper instance directly, enabling more flexible database management and reducing redundant connections.",
