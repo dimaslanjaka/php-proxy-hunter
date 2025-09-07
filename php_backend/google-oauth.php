@@ -21,7 +21,7 @@ $host            = $_SERVER['HTTP_HOST'];
 $protocol        = 'https://';
 $request         = parsePostData(true);
 $redirectUri     = !empty($request['redirect_uri']) ? $request['redirect_uri'] : "{$protocol}{$host}/login";
-$visitorId       = $_COOKIE['visitor_id'] ?? 'CLI';
+$visitorId       = isset($_COOKIE['visitor_id']) ? $_COOKIE['visitor_id'] : 'CLI';
 $credentialsPath = __DIR__ . "/../tmp/logins/login_{$visitorId}.json";
 createParentFolders($credentialsPath);
 
@@ -51,7 +51,7 @@ if (!empty($request['google-oauth-callback'])) {
     try {
       $google_oauth = new Google_Service_Oauth2($client);
       $info         = $google_oauth->userinfo->get();
-      $email        = $info->email ?? null;
+      $email        = isset($info->email) ? $info->email : null;
 
       if ($email) {
         finalizeUserSession($email, $user_db); // create or update user
@@ -89,7 +89,7 @@ if ($client->getAccessToken()) {
   try {
     $google_oauth = new Google_Service_Oauth2($client);
     $info         = $google_oauth->userinfo->get();
-    $email        = $info->email ?? null;
+    $email        = isset($info->email) ? $info->email : null;
 
     if ($email) {
       finalizeUserSession($email, $user_db);
@@ -105,7 +105,13 @@ jsonResponse($result);
 
 // === Utility Functions ===
 
-function createGoogleClient(string $redirectUri): Google\Client
+/**
+ * Create a configured Google Client instance.
+ *
+ * @param string $redirectUri
+ * @return Google\Client
+ */
+function createGoogleClient($redirectUri)
 {
   $client = new Google\Client();
   $client->setClientId($_ENV['G_CLIENT_ID']);
@@ -124,7 +130,15 @@ function createGoogleClient(string $redirectUri): Google\Client
   return $client;
 }
 
-function refreshAccessTokenIfNeeded(Google\Client $client, string $path, array &$result): void
+/**
+ * Refresh access token if expired and update credentials file.
+ *
+ * @param Google\Client $client
+ * @param string $path
+ * @param array $result
+ * @return void
+ */
+function refreshAccessTokenIfNeeded($client, $path, array &$result)
 {
   if ($client->isAccessTokenExpired()) {
     $refreshToken = $client->getRefreshToken();
@@ -137,9 +151,16 @@ function refreshAccessTokenIfNeeded(Google\Client $client, string $path, array &
   }
 }
 
-function finalizeUserSession(string $email, \PhpProxyHunter\UserDB $user_db): void
+/**
+ * Finalize user session by creating or updating user in DB and setting session values.
+ *
+ * @param string $email
+ * @param \PhpProxyHunter\UserDB $user_db
+ * @return void
+ */
+function finalizeUserSession($email, $user_db)
 {
-  $isAdmin = $email === 'dimaslanjaka@gmail.com' || $email === ($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '');
+  $isAdmin = $email === 'dimaslanjaka@gmail.com' || $email === (isset($_ENV['DJANGO_SUPERUSER_EMAIL']) ? $_ENV['DJANGO_SUPERUSER_EMAIL'] : '');
 
   if (!$isAdmin && isset($_SESSION['admin'])) {
     unset($_SESSION['admin']);
@@ -166,7 +187,14 @@ function finalizeUserSession(string $email, \PhpProxyHunter\UserDB $user_db): vo
   }
 }
 
-function jsonResponse(array $data, int $status = 200): void
+/**
+ * Send JSON response and exit.
+ *
+ * @param array $data
+ * @param int $status
+ * @return void
+ */
+function jsonResponse(array $data, $status = 200)
 {
   http_response_code($status);
   header('Content-Type: application/json');
