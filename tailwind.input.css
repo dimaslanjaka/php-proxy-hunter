@@ -16,3 +16,11 @@
     @apply opacity-50 cursor-not-allowed;
   }
 }
+
+/* Ensure all buttons have pointer cursor */
+.btn,
+button,
+input[type='button'],
+input[type='submit'] {
+  @apply cursor-pointer;
+}
