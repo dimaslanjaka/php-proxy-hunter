@@ -57,6 +57,10 @@
   <rule ref="PSR2.Methods.FunctionCallSignature.Indent">
     <severity>0</severity>
   </rule>
+  <!-- Disable break indent error in switch-case -->
+  <rule ref="PSR2.ControlStructures.SwitchDeclaration.BreakIndent">
+    <severity>0</severity>
+  </rule>
   <rule ref="Generic.Files.LineLength">
     <severity>0</severity>
   </rule>
