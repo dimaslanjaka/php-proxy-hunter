@@ -30,9 +30,9 @@ class UserDBTest extends TestCase
   protected function setUp(): void
   {
     parent::setUp();
-    $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? null;
-    $this->mysqlUser = $_ENV['MYSQL_USER'] ?? null;
-    $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? null;
+    $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST');
+    $this->mysqlUser = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
+    $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS');
     $this->mysqlDb   = 'php_proxy_hunter_test';
   }
 
