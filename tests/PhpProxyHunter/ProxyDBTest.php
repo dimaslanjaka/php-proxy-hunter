@@ -7,36 +7,86 @@ use PhpProxyHunter\ProxyDB;
 
 class ProxyDBTest extends TestCase
 {
-  /** @var ProxyDB */
-  private $proxyDB;
-
+  /** @var ProxyDB|null */
+  private $proxyDB = null;
   /** @var string */
-  private $testProxy = '123.123.123.123:8080';
+  private $testProxy          = '123.123.123.123:8080';
+  private ?string $testDbPath = null;
+  private ?string $mysqlHost  = null;
+  private ?string $mysqlUser  = null;
+  private ?string $mysqlPass  = null;
+  private ?string $mysqlDb    = null;
+
+  public function dbProvider(): array
+  {
+    return [
+      'sqlite' => ['sqlite'],
+      'mysql'  => ['mysql'],
+    ];
+  }
 
   protected function setUp(): void
   {
-    // Use an in-memory SQLite DB for isolation
-    $this->proxyDB = new ProxyDB(':memory:');
+    parent::setUp();
+    $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST');
+    $this->mysqlUser = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
+    $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS');
+    $this->mysqlDb   = 'php_proxy_hunter_test';
   }
 
-  protected function tearDown(): void
+  protected function setUpDB(string $driver): void
   {
-    // Remove test proxy if exists
-    $this->proxyDB->remove($this->testProxy);
-    $this->proxyDB->close();
+    if ($driver === 'mysql') {
+      $this->proxyDB = new ProxyDB(
+        null,
+        'mysql',
+        $this->mysqlHost,
+        $this->mysqlDb,
+        $this->mysqlUser,
+        $this->mysqlPass,
+        true
+      );
+      // Remove test proxy if exists
+      $this->proxyDB->remove($this->testProxy);
+    } else {
+      $this->testDbPath = sys_get_temp_dir() . '/test_proxydb.sqlite';
+      $this->proxyDB    = new ProxyDB($this->testDbPath);
+      $this->proxyDB->remove($this->testProxy);
+    }
   }
 
-  public function testAddAndSelectProxy(): void
+  protected function tearDownDB(string $driver): void
   {
+    if ($this->proxyDB) {
+      $this->proxyDB->remove($this->testProxy);
+      $this->proxyDB->close();
+      $this->proxyDB = null;
+    }
+    gc_collect_cycles();
+    if ($driver === 'sqlite' && $this->testDbPath && file_exists($this->testDbPath)) {
+      @unlink($this->testDbPath);
+    }
+  }
+
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testAddAndSelectProxy(string $driver): void
+  {
+    $this->setUpDB($driver);
     $this->proxyDB->add($this->testProxy);
     $result = $this->proxyDB->select($this->testProxy);
-
     $this->assertNotEmpty($result);
     $this->assertEquals($this->testProxy, $result[0]['proxy']);
+    $this->tearDownDB($driver);
   }
 
-  public function testUpdateProxy(): void
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testUpdateProxy(string $driver): void
   {
+    $this->setUpDB($driver);
     $this->proxyDB->add($this->testProxy);
     $this->proxyDB->update(
       $this->testProxy,
@@ -48,34 +98,47 @@ class ProxyDBTest extends TestCase
       '123ms',
       'UTC+7'
     );
-
     $result = $this->proxyDB->select($this->testProxy);
-
     $this->assertEquals('http', $result[0]['type']);
     $this->assertEquals('SomeCity', $result[0]['city']);
     $this->assertEquals('active', $result[0]['status']);
+    $this->tearDownDB($driver);
   }
 
-  public function testRemoveProxy(): void
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testRemoveProxy(string $driver): void
   {
+    $this->setUpDB($driver);
     $this->proxyDB->add($this->testProxy);
     $this->proxyDB->remove($this->testProxy);
     $result = $this->proxyDB->select($this->testProxy);
-
     $this->assertEmpty($result);
+    $this->tearDownDB($driver);
   }
 
-  public function testIsAlreadyAddedAndMarkAsAdded(): void
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testIsAlreadyAddedAndMarkAsAdded(string $driver): void
   {
+    $this->setUpDB($driver);
     $this->assertFalse($this->proxyDB->isAlreadyAdded($this->testProxy));
     $this->proxyDB->markAsAdded($this->testProxy);
     $this->assertTrue($this->proxyDB->isAlreadyAdded($this->testProxy));
+    $this->tearDownDB($driver);
   }
 
-  public function testGetAllProxies(): void
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testGetAllProxies(string $driver): void
   {
+    $this->setUpDB($driver);
     $this->proxyDB->add($this->testProxy);
     $proxies = $this->proxyDB->getAllProxies();
     $this->assertNotEmpty($proxies);
+    $this->tearDownDB($driver);
   }
 }

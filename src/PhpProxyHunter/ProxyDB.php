@@ -12,7 +12,7 @@ use PDOException;
  */
 class ProxyDB
 {
-  /** @var SQLiteHelper $db */
+  /** @var SQLiteHelper|MySQLHelper $db */
   public $db;
   /**
    * @var string The root directory of the project.
@@ -23,9 +23,22 @@ class ProxyDB
    * ProxyDB constructor.
    *
    * @param string|SQLiteHelper|MySQLHelper|null $dbLocation Path to DB file, or DB helper instance.
+   * @param string $dbType Database type: 'sqlite' or 'mysql'.
+   * @param string $host MySQL host.
+   * @param string $dbname MySQL database name.
+   * @param string $username MySQL username.
+   * @param string $password MySQL password.
+   * @param bool $unique Whether to enforce unique constraints (MySQL only).
    */
-  public function __construct($dbLocation = null)
-  {
+  public function __construct(
+    $dbLocation = null,
+    string $dbType = 'sqlite',
+    string $host = 'localhost',
+    string $dbname = 'php_proxy_hunter',
+    string $username = 'root',
+    string $password = '',
+    bool $unique = false
+  ) {
     // Accept helper instance directly
     if ($dbLocation instanceof SQLiteHelper || $dbLocation instanceof MySQLHelper) {
       $this->db = $dbLocation;
@@ -36,7 +49,35 @@ class ProxyDB
     $autoloadPath      = (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName();
     $this->projectRoot = dirname(dirname(dirname($autoloadPath)));
 
-    // Normalize database location
+    if ($dbType === 'mysql') {
+      $this->initMySQL($host, $dbname, $username, $password, $unique);
+    } else {
+      $this->initSQLite($dbLocation);
+    }
+  }
+
+  /**
+   * Initialize MySQL database connection and schema.
+   */
+  private function initMySQL(string $host, string $dbname, string $username, string $password, bool $unique = false): void
+  {
+    $this->db = new MySQLHelper($host, $dbname, $username, $password, $unique);
+    $sqlFile  = __DIR__ . '/assets/mysql-schema.sql';
+    if (!is_file($sqlFile)) {
+      throw new \RuntimeException("Failed to read SQL file: $sqlFile");
+    }
+    $sql = file_get_contents($sqlFile);
+    if ($sql === false) {
+      throw new \RuntimeException("Failed to read SQL file: $sqlFile");
+    }
+    $this->db->pdo->exec($sql);
+  }
+
+  /**
+   * Initialize SQLite database connection and schema.
+   */
+  private function initSQLite($dbLocation = null): void
+  {
     $isInMemory = $dbLocation === ':memory:';
     $dbLocation = $isInMemory
       ? ':memory:'
