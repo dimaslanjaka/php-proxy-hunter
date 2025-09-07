@@ -22,12 +22,16 @@ if (class_exists('Dotenv\\Dotenv')) {
 
 // Declare a database connection variable
 $dbName  = is_debug() ? 'php_proxy_hunter_test' : ($_ENV['MYSQL_DBNAME'] ?? getenv('MYSQL_DBNAME'));
+$dbUser  = is_debug_device() ? ($_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER')) : ($_ENV['MYSQL_USER_PRODUCTION'] ?? getenv('MYSQL_USER_PRODUCTION'));
+$dbPass  = is_debug_device() ? ($_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS')) : ($_ENV['MYSQL_PASS_PRODUCTION'] ?? getenv('MYSQL_PASS_PRODUCTION'));
+$dbHost  = is_debug_device() ? ($_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST')) : ($_ENV['MYSQL_HOST_PRODUCTION'] ?? getenv('MYSQL_HOST_PRODUCTION'));
+$dbFile  = is_debug() ? __DIR__ . '/../tmp/database_test.sqlite' : __DIR__ . '/../src/database.sqlite';
 $core_db = new CoreDB(
-  __DIR__ . '/../src/database.sqlite',
-  $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST'),
+  $dbFile,
+  $dbHost,
   $dbName,
-  $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER'),
-  $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS'),
+  $dbUser,
+  $dbPass,
   false,
   'mysql'
 );
