@@ -72,6 +72,14 @@ class CoreDB
    *
    * Initializes the database connection using MySQL or SQLite.
    * Attempts to connect to MySQL first; falls back to SQLite if MySQL connection fails.
+   *
+   * @param string|null $dbLocation Path to SQLite database file (if using SQLite), or null.
+   * @param string $host Database host for MySQL (default: 'localhost').
+   * @param string $dbname Database name for MySQL (default: 'php_proxy_hunter').
+   * @param string $username Database username for MySQL (default: 'root').
+   * @param string $password Database password for MySQL (default: '').
+   * @param bool $unique Whether to use a unique MySQL connection (default: false).
+   * @param string|null $type Database driver type ('mysql' or 'sqlite'), or null for auto-detect.
    */
   public function __construct(
     $dbLocation = null,
