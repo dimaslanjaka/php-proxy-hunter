@@ -1,5 +1,31 @@
 [
   {
+    "hash": "32b67d98bdf15de9b38fece45e5f4ad83603b938",
+    "date": "2025-09-07T16:01:50+07:00",
+    "message": "feat(db): add MySQL support to ProxyDB and update tests\n\n- Extend ProxyDB to support both SQLite and MySQL databases.\n- Add new constructor parameters for MySQL connection: host, dbname, username, password, and unique constraints.\n- Implement `initMySQL()` method to initialize MySQL database and schema.\n- Refactor `initSQLite()` to separate SQLite initialization logic.\n- Update ProxyDBTest to support both SQLite and MySQL using a data provider.\n- Add setup and teardown methods for handling different database types in tests.\n- Ensure tests add, update, remove, and query proxies for both SQLite and MySQL.",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "tests/PhpProxyHunter/ProxyDBTest.php"
+    ]
+  },
+  {
+    "hash": "b658b63bda3ea27d29ce50e843bde1d3bf97d4d1",
+    "date": "2025-09-07T15:59:16+07:00",
+    "message": "refactor(tests): update UserDBTest to use getenv for database credentials",
+    "files": [
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
+    "hash": "0e6719032b2d268e05829d3b08a3b7adc74ad042",
+    "date": "2025-09-07T15:53:35+07:00",
+    "message": "refactor(core): move ProxyDB initialization into CoreDB\n\n- Removed direct instantiation of `ProxyDB` in `shared.php`.\n- Added `proxy_db` property to `CoreDB` and initialize it alongside `user_db`.\n- Updated `shared.php` to get `proxy_db` from `core_db`.",
+    "files": [
+      "php_backend/shared.php",
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
     "hash": "a38a499705675ded5e34d51fdcda01884a091f58",
     "date": "2025-09-07T15:50:26+07:00",
     "message": "refactor(ProxyDB): optimize constructor to support helper instances and improve readability\n\n- Allow $dbLocation parameter to accept SQLiteHelper or MySQLHelper instances directly\n- Simplify database path normalization and in-memory detection\n- Replace die() with RuntimeException when directory creation fails\n- Streamline schema loading with clearer variable names\n- Add inline comments for clarity and maintain existing WAL and auto-vacuum setup\n- Keep daily vacuum maintenance call intact",
