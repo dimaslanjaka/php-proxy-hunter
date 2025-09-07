@@ -2,7 +2,6 @@
 
 require_once __DIR__ . '/../func.php';
 
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\CoreDB;
 
 // Disallow access to this file directly
@@ -22,9 +21,8 @@ if (class_exists('Dotenv\\Dotenv')) {
 }
 
 // Declare a database connection variable
-$proxy_db = new ProxyDB(__DIR__ . '/../src/database.sqlite');
-$dbName   = is_debug() ? 'php_proxy_hunter_test' : ($_ENV['MYSQL_DBNAME'] ?? getenv('MYSQL_DBNAME'));
-$core_db  = new CoreDB(
+$dbName  = is_debug() ? 'php_proxy_hunter_test' : ($_ENV['MYSQL_DBNAME'] ?? getenv('MYSQL_DBNAME'));
+$core_db = new CoreDB(
   __DIR__ . '/../src/database.sqlite',
   $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST'),
   $dbName,
@@ -35,3 +33,5 @@ $core_db  = new CoreDB(
 );
 /** @var \PhpProxyHunter\UserDB $user_db */
 $user_db = $core_db->user_db;
+/** @var \PhpProxyHunter\ProxyDB $proxy_db */
+$proxy_db = $core_db->proxy_db;

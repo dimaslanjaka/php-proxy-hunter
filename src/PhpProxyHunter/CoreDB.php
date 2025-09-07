@@ -53,6 +53,11 @@ class CoreDB
   public $user_db = null;
 
   /**
+   * @var ProxyDB|null Proxy database helper instance
+   */
+  public $proxy_db = null;
+
+  /**
    * @var string|null Database driver type ('mysql' or 'sqlite')
    */
   public $driver = null;
@@ -111,9 +116,10 @@ class CoreDB
    */
   private function initMySQL($host, $dbname, $username, $password, $unique = false)
   {
-    $this->db      = new MySQLHelper($host, $dbname, $username, $password, $unique);
-    $this->driver  = 'mysql';
-    $this->user_db = new UserDB($this->db);
+    $this->db       = new MySQLHelper($host, $dbname, $username, $password, $unique);
+    $this->driver   = 'mysql';
+    $this->user_db  = new UserDB($this->db);
+    $this->proxy_db = new ProxyDB($this->db);
 
     $this->loadSchema(__DIR__ . '/assets/mysql-schema.sql');
   }
@@ -134,10 +140,11 @@ class CoreDB
       }
     }
 
-    $this->dbPath  = $dbLocation;
-    $this->db      = new SQLiteHelper($dbLocation);
-    $this->driver  = 'sqlite';
-    $this->user_db = new UserDB($this->db);
+    $this->dbPath   = $dbLocation;
+    $this->db       = new SQLiteHelper($dbLocation);
+    $this->driver   = 'sqlite';
+    $this->user_db  = new UserDB($this->db);
+    $this->proxy_db = new ProxyDB($this->db);
 
     $this->loadSchema(__DIR__ . '/assets/sqlite-schema.sql');
 
