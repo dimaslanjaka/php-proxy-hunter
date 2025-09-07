@@ -80,51 +80,56 @@ if ($currentPath) {
 }
 
 /**
+ * Checks if the current hostname matches any of the debug devices
+ * defined in the `DEBUG_DEVICES` environment variable.
+ *
+ * @return bool True if the hostname matches a debug device, false otherwise.
+ */
+function is_debug_device(): bool
+{
+  $env_path      = __DIR__ . '/.env';
+  $debug_devices = [];
+
+  // Load DEBUG_DEVICES from .env file if it exists
+  if (file_exists($env_path)) {
+    $read_env = file_get_contents($env_path);
+    if (preg_match('/^DEBUG_DEVICES=(.+)$/m', $read_env, $matches)) {
+      $debug_devices = array_map('trim', explode(',', $matches[1]));
+    }
+  }
+
+  $hostname = gethostname();
+  return in_array($hostname, $debug_devices, true);
+}
+
+/**
  * Determines whether the application is in debug mode. (DEVELOPMENT MODE)
  *
  * Debug mode is activated based on several conditions:
- * - If the code is running in a GitHub CI environment or GitHub Codespaces.
- * - If the hostname of the machine matches one of the debug devices specified
- *   in the `DEBUG_DEVICES` environment variable.
+ * - If running in a GitHub CI environment.
+ * - If running in GitHub Codespaces.
+ * - If the hostname matches a debug device from the `DEBUG_DEVICES` variable.
  * - If the hostname starts with 'codespaces-'.
  *
  * @return bool True if in debug mode, false otherwise.
  */
 function is_debug(): bool
 {
-  // Check if running in a GitHub CI environment
+  // GitHub CI environment
   $isGitHubCI = getenv('CI') !== false && getenv('GITHUB_ACTIONS') === 'true';
 
-  // Check if running in GitHub Codespaces
+  // GitHub Codespaces
   $isGitHubCodespaces = getenv('CODESPACES') === 'true';
 
-  // Debug mode is active in GitHub CI or GitHub Codespaces environments
-  if ($isGitHubCI || $isGitHubCodespaces) {
-    return true;
-  }
-
-  // Get the list of debug devices from the environment variable
-  $env_path = __DIR__ . '/.env';
-  $debug_pc = [];
-  // Verify if the .env file exists
-  if (file_exists($env_path)) {
-    $read_env = file_get_contents($env_path);
-    preg_match('/^DEBUG_DEVICES=(.+)$/m', $read_env, $matches);
-    $debug_pc = isset($matches[1]) ? explode(',', $matches[1]) : [];
-    $debug_pc = array_map('trim', $debug_pc);
-  }
-
-  // Get the hostname of the current machine
+  // Hostname
   $hostname = gethostname();
 
-  // Debug mode is active if the hostname starts with 'codespaces-'
-  if (str_starts_with($hostname, 'codespaces-')) {
-    return true;
-  }
-
-  // Debug mode is active if the hostname is in the list of debug devices
-  return in_array($hostname, $debug_pc);
+  return $isGitHubCI
+    || $isGitHubCodespaces
+    || str_starts_with($hostname, 'codespaces-')
+    || is_debug_device();
 }
+
 
 // Detect admin
 $isAdmin = is_debug();
