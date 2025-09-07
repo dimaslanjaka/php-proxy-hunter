@@ -16,7 +16,18 @@ class UserDB
    */
   public $db;
 
-  public function __construct(?string $dbLocation = null, string $dbType = 'sqlite', string $host = 'localhost', string $dbname = 'php_proxy_hunter', string $username = 'root', string $password = '', bool $unique = false)
+  /**
+   * UserDB constructor.
+   *
+   * @param string|null $dbLocation Path to the database file (SQLite mode).
+   * @param string $dbType Database type: 'sqlite' or 'mysql'.
+   * @param string $host MySQL host.
+   * @param string $dbname MySQL database name.
+   * @param string $username MySQL username.
+   * @param string $password MySQL password.
+   * @param bool $unique Whether to enforce unique constraints (MySQL only).
+   */
+  public function __construct($dbLocation = null, $dbType = 'sqlite', $host = 'localhost', $dbname = 'php_proxy_hunter', $username = 'root', $password = '', $unique = false)
   {
     if ($dbType === 'mysql') {
       $this->mysql($host, $dbname, $username, $password, $unique);
@@ -25,30 +36,34 @@ class UserDB
     }
   }
 
-  public function mysql(string $host, string $dbname, string $username, string $password, bool $unique = false)
+  /**
+   * Connect to MySQL database and initialize schema.
+   *
+   * @param string $host MySQL host.
+   * @param string $dbname Database name.
+   * @param string $username Username.
+   * @param string $password Password.
+   * @param bool $unique Whether to enforce uniqueness.
+   */
+  public function mysql($host, $dbname, $username, $password, $unique = false)
   {
     $this->db = new MySQLHelper($host, $dbname, $username, $password, $unique);
 
-    // Initialize the database schema
     $sqlFileContents = file_get_contents(__DIR__ . '/assets/mysql-schema.sql');
     $this->db->pdo->exec($sqlFileContents);
   }
 
   /**
-   * UserDB constructor.
-   *
-   * Initializes the database connection and schema.
+   * Connect to SQLite database and initialize schema.
    *
    * @param string|null $dbLocation Path to the database file. Defaults to the project's database directory.
    */
-  public function sqlite(?string $dbLocation = null)
+  public function sqlite($dbLocation = null)
   {
     if (!$dbLocation) {
       $dbLocation = __DIR__ . '/../database.sqlite';
     } elseif (!file_exists($dbLocation)) {
-      // Extract the directory part from the path
       $directory = dirname($dbLocation);
-      // Check if the directory exists and create it if it doesn't
       if (!is_dir($directory)) {
         if (!mkdir($directory, 0755, true)) {
           die("Failed to create directory: $directory\n");
@@ -57,11 +72,9 @@ class UserDB
     }
     $this->db = new SQLiteHelper($dbLocation);
 
-    // Initialize the database schema
     $sqlFileContents = file_get_contents(__DIR__ . '/assets/sqlite-schema.sql');
     $this->db->pdo->exec($sqlFileContents);
 
-    // Fix journal mode to WAL
     $wal_status = $this->db->pdo->query('PRAGMA journal_mode')->fetch()['journal_mode'];
     if ($wal_status != 'wal') {
       $this->db->pdo->exec('PRAGMA journal_mode = WAL;');
@@ -91,21 +104,18 @@ class UserDB
    */
   public function add($data)
   {
-    // Set mandatory fields with defaults or validation
-    $data['username'] = $data['username'] ?? '';
-    $data['password'] = $data['password'] ?? '';
-    $data['email']    = $data['email']    ?? '';
+    $data['username'] = isset($data['username']) ? $data['username'] : '';
+    $data['password'] = isset($data['password']) ? $data['password'] : '';
+    $data['email']    = isset($data['email']) ? $data['email'] : '';
 
-    // Set optional fields with sensible defaults
-    $data['first_name']   = $data['first_name']  ?? '';
-    $data['last_name']    = $data['last_name']   ?? '';
-    $data['date_joined']  = $data['date_joined'] ?? date('Y-m-d H:i:s');
+    $data['first_name']   = isset($data['first_name']) ? $data['first_name'] : '';
+    $data['last_name']    = isset($data['last_name']) ? $data['last_name'] : '';
+    $data['date_joined']  = isset($data['date_joined']) ? $data['date_joined'] : date('Y-m-d H:i:s');
     $data['is_staff']     = isset($data['is_staff']) ? self::normalizeBoolToInt($data['is_staff']) : 0;
     $data['is_active']    = isset($data['is_active']) ? self::normalizeBoolToInt($data['is_active']) : 1;
     $data['is_superuser'] = isset($data['is_superuser']) ? self::normalizeBoolToInt($data['is_superuser']) : 0;
-    $data['last_login']   = $data['last_login'] ?? null;
+    $data['last_login']   = isset($data['last_login']) ? $data['last_login'] : null;
 
-    // Validate required fields
     if (!empty($data['username']) && !empty($data['password']) && !empty($data['email'])) {
       $this->db->insert('auth_user', $data, true);
       return true;
@@ -123,13 +133,8 @@ class UserDB
   public function select($id)
   {
     $id         = is_string($id) ? trim($id) : $id;
-    $conditions = [
-      'email = ?',
-      'username = ?',
-      'id = ?',
-    ];
-    // Declare empty result
-    $result = [];
+    $conditions = ['email = ?', 'username = ?', 'id = ?'];
+    $result     = [];
 
     foreach ($conditions as $condition) {
       $result = $this->db->select('auth_user', '*', $condition, [$id]);
@@ -142,7 +147,6 @@ class UserDB
     }
 
     if (!empty($result['id'])) {
-      // Merge user fields
       $field = $this->db->select('user_fields', '*', 'user_id = ?', [$result['id']]);
       if (!empty($field)) {
         return array_merge($result, $field[0]);
@@ -157,21 +161,18 @@ class UserDB
    *
    * @param mixed $id The email, username, or id of the user to update.
    * @param array $data The data to update.
+   * @return bool True if update successful, false otherwise.
    */
   public function update($id, array $data)
   {
     $id         = is_string($id) ? trim($id) : $id;
-    $conditions = [
-      'email = ?',
-      'username = ?',
-      'id = ?',
-    ];
-    $success = false;
+    $conditions = ['email = ?', 'username = ?', 'id = ?'];
+    $success    = false;
+
     foreach ($conditions as $condition) {
       $select = $this->db->select('auth_user', '*', $condition, [$id]);
       if (!empty($select)) {
         $success = true;
-        // Update the user data using the correct identifier
         $this->db->update('auth_user', $data, 'id = ?', [$select[0]['id']]);
         break;
       }
@@ -191,11 +192,10 @@ class UserDB
    * @param bool $replace If true, replace saldo with $amount; if false, increment by $amount (default: false)
    * @return array The updated saldo row (['saldo' => int])
    */
-  public function update_saldo(int $id, int $amount, string $log_source, string $log_extra_info = '', bool $replace = false): array
+  public function update_saldo($id, $amount, $log_source, $log_extra_info = '', $replace = false)
   {
     $find_existing_row = $this->db->select('user_fields', '*', 'user_id = ?', [$id]);
     if (empty($find_existing_row)) {
-      // Insert new column when not exist
       $this->db->insert('user_fields', ['user_id' => $id, 'saldo' => 0]);
       $existing_saldo = 0;
     } else {
@@ -203,14 +203,9 @@ class UserDB
       $existing_saldo = isset($saldo_row[0]['saldo']) ? intval($saldo_row[0]['saldo']) : 0;
     }
 
-    if ($replace) {
-      $new_saldo = $amount;
-    } else {
-      $new_saldo = $existing_saldo + $amount;
-    }
+    $new_saldo = $replace ? $amount : $existing_saldo + $amount;
     $this->db->update('user_fields', ['saldo' => $new_saldo], 'user_id = ?', [$id]);
 
-    // Update logs
     $log_action = $replace ? "Set saldo to $amount" : "Topup $amount";
     $this->db->insert('user_logs', [
       'message'    => $log_action,
@@ -224,11 +219,18 @@ class UserDB
     return isset($saldo_row[0]) ? $saldo_row[0] : ['saldo' => 0];
   }
 
-  public function get_saldo(int $id)
+  /**
+   * Get user's saldo (balance).
+   *
+   * @param int $id User ID.
+   * @return int Current saldo value.
+   */
+  public function get_saldo($id)
   {
     $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
     return isset($saldo_row[0]['saldo']) ? $saldo_row[0]['saldo'] : 0;
   }
+
   /**
    * Normalize boolean-like values to integer (0 or 1).
    * Accepts bool, int, string ('true', 'false', '1', '0', 'yes', 'no', 'on', 'off').
@@ -236,7 +238,7 @@ class UserDB
    * @param mixed $value
    * @return int
    */
-  private static function normalizeBoolToInt($value): int
+  private static function normalizeBoolToInt($value)
   {
     if (is_bool($value)) {
       return $value ? 1 : 0;
@@ -253,16 +255,20 @@ class UserDB
         return 0;
       }
     }
-    // fallback: treat as falsy
     return 0;
   }
 
+  /**
+   * Destructor: closes DB connection.
+   */
   public function __destruct()
   {
-    // Close the database connection
     $this->db->close();
   }
 
+  /**
+   * Manually close DB connection.
+   */
   public function close()
   {
     $this->db->close();
