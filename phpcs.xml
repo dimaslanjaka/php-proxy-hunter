@@ -5,6 +5,11 @@
   <!-- Base coding standard -->
   <rule ref="PSR12"/>
 
+  <!-- Disable inline control structure rule -->
+  <rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
+    <severity>0</severity>
+  </rule>
+
   <!-- Disable header block spacing and control structure indent rules for tests/PhpProxyHunter/CoreDBTest.php -->
   <rule ref="PSR12.Files.FileHeader.SpacingAfterBlock">
     <severity>0</severity>
