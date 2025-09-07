@@ -22,41 +22,58 @@ class ProxyDB
   /**
    * ProxyDB constructor.
    *
-   * @param string|null $dbLocation
+   * @param string|SQLiteHelper|MySQLHelper|null $dbLocation Path to DB file, or DB helper instance.
    */
   public function __construct($dbLocation = null)
   {
-    $isInMemory        = $dbLocation === ':memory:';
+    // Accept helper instance directly
+    if ($dbLocation instanceof SQLiteHelper || $dbLocation instanceof MySQLHelper) {
+      $this->db = $dbLocation;
+      return;
+    }
+
+    // Resolve project root via Composer autoloader
     $autoloadPath      = (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName();
     $this->projectRoot = dirname(dirname(dirname($autoloadPath)));
 
-    if ($isInMemory || !$dbLocation) {
-      $dbLocation = $isInMemory ? ':memory:' : $this->projectRoot . '/src/database.sqlite';
-    } elseif (!file_exists($dbLocation)) {
+    // Normalize database location
+    $isInMemory = $dbLocation === ':memory:';
+    $dbLocation = $isInMemory
+      ? ':memory:'
+      : ($dbLocation ?: $this->projectRoot . '/src/database.sqlite');
+
+    // Ensure directory exists if not using in-memory DB
+    if (!$isInMemory && !file_exists($dbLocation)) {
       $directory = dirname($dbLocation);
       if (!is_dir($directory) && !mkdir($directory, 0755, true)) {
-        die("Failed to create directory: $directory\n");
+        throw new \RuntimeException("Failed to create directory: $directory");
       }
     }
 
+    // Initialize SQLite
     $this->db = new SQLiteHelper($dbLocation);
 
-    $sqlFileContents = file_get_contents($this->projectRoot . '/assets/database/create.sql');
-    if ($sqlFileContents === false) {
-      throw new \RuntimeException('Failed to read SQL file: ' . $this->projectRoot . '/assets/database/create.sql');
+    // Load schema
+    $sqlFile = $this->projectRoot . '/assets/database/create.sql';
+    $sql     = @file_get_contents($sqlFile);
+    if ($sql === false) {
+      throw new \RuntimeException("Failed to read SQL file: $sqlFile");
     }
-    $this->db->pdo->exec($sqlFileContents);
+    $this->db->pdo->exec($sql);
 
+    // Enable WAL mode if not already enabled
     if (!$this->getMetaValue('wal_enabled')) {
       $this->db->pdo->exec('PRAGMA journal_mode = WAL');
       $this->setMetaValue('wal_enabled', '1');
     }
 
+    // Enable auto-vacuum if not already enabled
     if (!$this->getMetaValue('auto_vacuum_enabled')) {
       $this->db->pdo->exec('PRAGMA auto_vacuum = FULL');
       $this->setMetaValue('auto_vacuum_enabled', '1');
     }
 
+    // Daily maintenance
     $this->runDailyVacuum();
   }
 
