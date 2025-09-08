@@ -1,5 +1,25 @@
 [
   {
+    "hash": "bee7d6876e2c9e6b5f4f8b00339077f4d83a9b79",
+    "date": "2025-09-08T09:44:56+07:00",
+    "message": "refactor: remove toRupiah formatting for saldo in Dashboard, AddSaldoForm, and EditSaldoForm",
+    "files": [
+      "src/react/pages/Dashboard.tsx",
+      "src/react/pages/admin/AddSaldoForm.tsx",
+      "src/react/pages/admin/EditSaldoForm.tsx"
+    ]
+  },
+  {
+    "hash": "3687c10877f1c6ed25ab433cb6925131195bcdc2",
+    "date": "2025-09-08T09:44:16+07:00",
+    "message": "chore(UI): rename saldo to point",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/Dashboard.tsx"
+    ]
+  },
+  {
     "hash": "ce1e356e6f779256142613da4a358a84f9473854",
     "date": "2025-09-07T19:19:19+07:00",
     "message": "fix(tailwind): ensure all buttons have pointer cursor for better UX",
