@@ -44,5 +44,7 @@
   "settings_password_label": "New Password",
   "settings_password_placeholder": "Leave blank to keep current password",
   "settings_save_changes": "Save Changes",
-  "settings_buy_saldo": "Buy Saldo (Credit)"
+  "settings_buy_saldo": "Buy Saldo (Credit)",
+  "recharge_points": "Recharge Points",
+  "point": "Point"
 }

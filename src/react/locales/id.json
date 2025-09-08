@@ -44,5 +44,7 @@
   "settings_password_label": "Password Baru",
   "settings_password_placeholder": "Kosongkan jika tidak ingin mengubah password",
   "settings_save_changes": "Simpan Perubahan",
-  "settings_buy_saldo": "Beli Saldo"
+  "settings_buy_saldo": "Beli Saldo",
+  "recharge_points": "Isi Ulang Poin",
+  "point": "Poin"
 }
