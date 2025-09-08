@@ -1,7 +1,6 @@
 import React from 'react';
-import { getUserInfo } from '../utils/user';
-import { toRupiah } from '../../utils/number';
 import { useTranslation } from 'react-i18next';
+import { getUserInfo } from '../utils/user';
 
 const Dashboard = () => {
   const { t } = useTranslation();
@@ -40,7 +39,7 @@ const Dashboard = () => {
                 {t('point', 'Point')}
               </div>
               <div className="text-3xl font-bold text-yellow-800 dark:text-yellow-100">
-                {loading ? '...' : saldo !== null ? toRupiah(saldo) : '—'}
+                {loading ? '...' : saldo !== null ? saldo : '—'}
               </div>
               <button
                 type="button"

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
-import { toRupiah } from '../../../utils/number';
+import { Trans, useTranslation } from 'react-i18next';
 import { addSaldoToUser } from '../../utils/user';
 
 export type AddSaldoFormProps = {
@@ -37,12 +36,12 @@ const AddSaldoForm: React.FC<AddSaldoFormProps> = ({ userId, currentSaldo, onSuc
       </p>
       <span className="text-xs text-gray-500 dark:text-gray-400">
         {t('add_saldo_current') + ' '}
-        <b className="text-gray-900 dark:text-white">{toRupiah(currentSaldo)}</b>
+        <b className="text-gray-900 dark:text-white">{currentSaldo}</b>
         {'. '}
         {saldo && !isNaN(parseFloat(saldo)) ? (
           <Trans
             i18nKey="add_saldo_will"
-            values={{ newSaldo: toRupiah(currentSaldo + parseFloat(saldo)) }}
+            values={{ newSaldo: currentSaldo + parseFloat(saldo) }}
             components={[<b className="text-blue-700 dark:text-blue-300" key="b" />]}
           />
         ) : (

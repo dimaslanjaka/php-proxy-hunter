@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
-import { toRupiah } from '../../../utils/number';
+import { Trans, useTranslation } from 'react-i18next';
 import { setSaldoToUser as setSaldoToUserApi } from '../../utils/user';
 
 export type EditSaldoFormProps = {
@@ -18,12 +17,6 @@ const EditSaldoForm: React.FC<EditSaldoFormProps> = ({ userId, currentSaldo, onS
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const { t } = useTranslation();
-
-  const formatRupiah = (val: string) => {
-    const n = parseFloat(val);
-    if (isNaN(n)) return '';
-    return toRupiah(n);
-  };
 
   const handleSetSaldo = async () => {
     setErr(null);
@@ -57,20 +50,16 @@ const EditSaldoForm: React.FC<EditSaldoFormProps> = ({ userId, currentSaldo, onS
         autoComplete="off"
       />
       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-        <Trans
-          i18nKey="set_saldo_placeholder"
-          values={{ exampleRupiah: toRupiah(100000) }}
-          components={[<b key="b" />]}
-        />
+        <Trans i18nKey="set_saldo_placeholder" values={{ exampleRupiah: 100000 }} components={[<b key="b" />]} />
       </p>
       <span className="text-xs text-gray-500 dark:text-gray-400">
         {t('current_saldo') + ' '}
-        <b className="text-gray-900 dark:text-white">{toRupiah(currentSaldo)}</b>
+        <b className="text-gray-900 dark:text-white">{currentSaldo}</b>
         {'. '}
         {newSaldo && !isNaN(parseFloat(newSaldo)) ? (
           <Trans
             i18nKey="saldo_will_change"
-            values={{ newSaldo: formatRupiah(newSaldo) }}
+            values={{ newSaldo: parseFloat(newSaldo) }}
             components={[<b className="text-blue-700 dark:text-blue-300" key="b" />]}
           />
         ) : (
