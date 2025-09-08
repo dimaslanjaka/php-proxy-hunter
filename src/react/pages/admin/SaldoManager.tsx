@@ -65,10 +65,10 @@ export default function SaldoManager() {
         }
         setSaldo('');
       } catch (err: any) {
-        setError(err?.message || t('add_saldo_error'));
+        setError(err?.message || t('add_point_error'));
       }
     } else {
-      setError(t('add_saldo_select_user'));
+      setError(t('add_point_select_user'));
     }
   };
 
@@ -76,8 +76,8 @@ export default function SaldoManager() {
     <div className="flex flex-col items-center justify-center p-4 transition-colors">
       <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors">
         <h1 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300">
-          <i className="text-green-500 dark:text-green-400 fa fa-money-bill-wave"></i>
-          {t('saldo_manager_title')}
+          <i className="text-yellow-500 dark:text-yellow-400 fa-duotone fa-coins"></i>
+          {t('point_manager_title')}
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">

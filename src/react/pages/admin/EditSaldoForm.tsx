@@ -36,7 +36,7 @@ const EditSaldoForm: React.FC<EditSaldoFormProps> = ({ userId, currentSaldo, onS
   return (
     <div>
       <label htmlFor="edit-saldo" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
-        {t('set_saldo_label')}
+        {t('set_point_label')}
       </label>
       <input
         id="edit-saldo"
@@ -50,7 +50,7 @@ const EditSaldoForm: React.FC<EditSaldoFormProps> = ({ userId, currentSaldo, onS
         autoComplete="off"
       />
       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-        <Trans i18nKey="set_saldo_placeholder" values={{ exampleRupiah: 100000 }} components={[<b key="b" />]} />
+        <Trans i18nKey="set_point_placeholder" values={{ exampleRupiah: 100000 }} components={[<b key="b" />]} />
       </p>
       <span className="text-xs text-gray-500 dark:text-gray-400">
         {t('current_saldo') + ' '}
@@ -71,9 +71,9 @@ const EditSaldoForm: React.FC<EditSaldoFormProps> = ({ userId, currentSaldo, onS
         className="mt-2 px-3 py-1 bg-green-600 dark:bg-green-700 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors text-sm font-semibold w-full flex items-center justify-center gap-2"
         disabled={loading || !userId || !newSaldo}
         onClick={handleSetSaldo}>
-        {loading ? t('saving') : t('set_saldo_button')}
+        {loading ? t('saving') : t('set_point_button')}
       </button>
-      {err && <div className="text-xs text-red-500 dark:text-red-400">{t('set_saldo_error')}</div>}
+      {err && <div className="text-xs text-red-500 dark:text-red-400">{t('set_point_error')}</div>}
     </div>
   );
 };
