@@ -1,5 +1,17 @@
 [
   {
+    "hash": "cacbaf3617bf46a6ae4a5ade0d1baf5cfdae9a7f",
+    "date": "2025-09-08T11:01:24+07:00",
+    "message": "refactor(i18n): migrate saldo to point terminology and enhance package translations\n\n- Changed all saldo-related translation keys and UI labels to point-related ones in AddSaldoForm, EditSaldoForm, and SaldoManager.\n- Added and updated point-related translation keys in both `en.json` and `id.json`.\n- Added and improved package manager related translation keys in both languages.\n- Updated icon in SaldoManager to a point-related icon (fa-duotone fa-coins).",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/admin/AddSaldoForm.tsx",
+      "src/react/pages/admin/EditSaldoForm.tsx",
+      "src/react/pages/admin/SaldoManager.tsx"
+    ]
+  },
+  {
     "hash": "bee7d6876e2c9e6b5f4f8b00339077f4d83a9b79",
     "date": "2025-09-08T09:44:56+07:00",
     "message": "refactor: remove toRupiah formatting for saldo in Dashboard, AddSaldoForm, and EditSaldoForm",
