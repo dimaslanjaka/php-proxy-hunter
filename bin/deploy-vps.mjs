@@ -6,6 +6,35 @@ import SftpClient from 'ssh2-sftp-client';
 const { host, port, username, password, remotePath } = sftpConfig;
 
 /**
+ * Upload a single file to the remote server using ssh2-sftp-client.
+ * @param {string} localFile - Local file path to upload.
+ * @param {string} remoteFile - Remote file path to upload to.
+ * @param {object} [config] - Optional SFTP config override.
+ * @returns {Promise<void>}
+ */
+export async function uploadFile(localFile, remoteFile, config = {}) {
+  const sftp = new SftpClient();
+  const sftpOptions = {
+    host,
+    port,
+    username,
+    password,
+    ...config
+  };
+  try {
+    await sftp.connect(sftpOptions);
+    console.log(`Uploading file ${localFile} to ${remoteFile} ...`);
+    await sftp.put(localFile, remoteFile);
+    console.log('File upload complete.');
+  } catch (err) {
+    console.error('SFTP file upload error:', err);
+    throw err;
+  } finally {
+    sftp.end();
+  }
+}
+
+/**
  * Recursively upload a local directory to the remote server using ssh2-sftp-client.
  * @param {string} localDir - Local directory to upload.
  * @param {string} remoteDir - Remote directory to upload to.
@@ -127,8 +156,13 @@ export function gitPull() {
 async function main() {
   const { stdout = undefined } = (await gitPull()) || {};
   if (/up to date/i.test(stdout || '')) {
+    // Set maintenance page
+    await uploadFile('index.maintenance.html', `${remotePath}/index.html`);
+    // Build project
     await spawnAsync('node', ['bin/build-project.mjs'], { stdio: 'inherit', shell: true });
+    // Upload built files
     await uploadDir('dist', `${remotePath}/dist`);
+    await uploadFile('index.html', `${remotePath}/index.html`);
   }
 }
 
