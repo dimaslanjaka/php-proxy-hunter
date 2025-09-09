@@ -1,5 +1,21 @@
 [
   {
+    "hash": "14026ca27c3d9379a1858c33657392e917c7bc45",
+    "date": "2025-09-09T18:02:24+07:00",
+    "message": "chore(vscode): add recommended extensions in extensions.json",
+    "files": [
+      ".vscode/extensions.json"
+    ]
+  },
+  {
+    "hash": "855eb4ef2dfe3a545c1e520e5b7aa6d39e5c92aa",
+    "date": "2025-09-09T18:00:35+07:00",
+    "message": "fix(PHP_CodeSniffer): disable trailing comma rule severity in phpcs.xml",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
     "hash": "cacbaf3617bf46a6ae4a5ade0d1baf5cfdae9a7f",
     "date": "2025-09-08T11:01:24+07:00",
     "message": "refactor(i18n): migrate saldo to point terminology and enhance package translations\n\n- Changed all saldo-related translation keys and UI labels to point-related ones in AddSaldoForm, EditSaldoForm, and SaldoManager.\n- Added and updated point-related translation keys in both `en.json` and `id.json`.\n- Added and improved package manager related translation keys in both languages.\n- Updated icon in SaldoManager to a point-related icon (fa-duotone fa-coins).",
