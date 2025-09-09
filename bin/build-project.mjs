@@ -1,19 +1,30 @@
-import * as cp from 'cross-spawn'; // For running command-line processes
-import * as glob from 'glob'; // For matching files using glob patterns
-import path from 'node:path'; // For path operations
+import * as cp from 'cross-spawn';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import fs from 'fs-extra';
+import { getChecksum } from 'sbg-utility/dist/utils/hash';
+import * as glob from 'glob';
 
 // Define the current working directory (base path)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const cwd = path.join(__dirname, '../');
+const checksumFile = path.join(cwd, 'tmp/build/build-project-checksum.txt');
+fs.ensureDirSync(path.dirname(checksumFile));
+const lastChecksum = fs.existsSync(checksumFile) ? fs.readFileSync(checksumFile, 'utf-8').trim() : null;
+const currentChecksum = getChecksum(
+  path.join(cwd, 'package.json'),
+  ...glob
+    .sync('src/**/*.{js,jsx,ts,tsx}', { cwd, nodir: true, dot: true })
+    .map((f) => path.join(cwd, f))
+    .sort()
+);
 
-// Glob pattern to find all rollup config files in the project
-const rollupConfigs = glob.sync('rollup.*.{js,cjs,mjs}', { cwd, absolute: true });
-
-// Loop over each rollup config file and build it
-rollupConfigs.forEach((f) => {
-  const filename = path.basename(f); // Extract the file name from the full path
-  console.log('building', filename); // Log the build process for each config file
-  cp.spawnSync('rollup', ['-c', f], { stdio: 'inherit', cwd }); // Run rollup with the config file
-});
+if (lastChecksum !== currentChecksum) {
+  cp.spawnSync('yarn', ['install'], { stdio: 'inherit', cwd });
+  cp.spawnSync('npm', ['run', 'build'], {
+    stdio: 'inherit',
+    cwd
+  });
+  fs.writeFileSync(checksumFile, currentChecksum, 'utf-8');
+}
