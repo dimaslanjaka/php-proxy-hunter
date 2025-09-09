@@ -46,6 +46,8 @@ async function buildForGithubPages() {
   await deploy();
 }
 
+const deployGitPath = path.join(__dirname, '.deploy_git');
+
 /**
  * Deploys the built project to the .deploy_git directory for GitHub Pages.
  * Clones the repository if the directory does not exist.
@@ -53,7 +55,6 @@ async function buildForGithubPages() {
  * @returns {Promise<void>}
  */
 async function deploy() {
-  const deployGitPath = path.join(__dirname, '.deploy_git');
   // Ensure .deploy_git exists and is up to date
   if (!fs.existsSync(deployGitPath)) {
     const gitUrl = spawnSync('git', ['config', '--get', 'remote.origin.url'], {
@@ -127,6 +128,26 @@ async function deploy() {
   console.log(`Updated ${relIndexHtml} with version query parameters.`);
 
   // Copy index.html to each route in .deploy_git
+  await copyIndexToRoutes();
+}
+
+/**
+ * Copies the built index.html file to each route defined in routes.json, ensuring
+ * each route is served its own index.html for proper SPA routing on GitHub Pages.
+ *
+ * For each route in routes.json, this function determines the correct output path
+ * (e.g., /about/index.html) and copies the built index.html to that location in the
+ * deployment directory. Handles both string and array route paths.
+ *
+ * @param {string} [targetDir] - Optional target directory to use as the root for copying index.html files.
+ *   If not provided, defaults to the deployGitPath directory.
+ * @returns {Promise<void>} Resolves when all index.html files have been copied for all routes.
+ */
+export async function copyIndexToRoutes(targetDir = undefined) {
+  const indexHtml = path.join(viteConfig.build.outDir, 'index.html');
+  const relIndexHtml = path.relative(process.cwd(), indexHtml);
+  // const $ = cheerio.load(fs.readFileSync(indexHtml, 'utf-8'));
+
   for (const routeOrig of routes) {
     let route = { ...routeOrig };
     // Support string or string[] for path
@@ -144,13 +165,13 @@ async function deploy() {
         routePath += '/index.html';
       }
       const routePathWithoutHtml = routePath.replace(/\.html$/, '');
-      const routeHtml = path.join(deployGitPath, `${routePathWithoutHtml}.html`);
+      const routeHtml = path.join(targetDir || deployGitPath, `${routePathWithoutHtml}.html`);
+      const relRouteHtml = path.relative(process.cwd(), routeHtml);
       fs.ensureDirSync(path.dirname(routeHtml));
       if (!fs.existsSync(indexHtml)) {
         console.error(`Source HTML does not exist: ${path.relative(process.cwd(), indexHtml)}`);
         continue;
       }
-      const relRouteHtml = path.relative(process.cwd(), routeHtml);
       try {
         fs.copySync(indexHtml, routeHtml, { overwrite: true, dereference: true });
         if (!fs.existsSync(routeHtml)) {
