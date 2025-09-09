@@ -1,5 +1,37 @@
 [
   {
+    "hash": "87dc4f055510678ac370f4c4784e8bfaeb5dac57",
+    "date": "2025-09-10T05:04:25+07:00",
+    "message": "fix(copyIndexToRoutes): prevent copying index.html to itself\n\n- Add check to skip copying when source and destination paths are identical\n- Log skipped action for clarity",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "d432a88394fd713856924eb769d67e8e92078744",
+    "date": "2025-09-10T05:01:26+07:00",
+    "message": "fix(deploy): use path.join for consistent file path handling in upload functions",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "cd53e2431a496f661590d5eb02fd039d5f691266",
+    "date": "2025-09-10T04:59:35+07:00",
+    "message": "fix(ReferenceError): __dirname is not defined",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "ae15d2845cd03b37cfae61a4895d750c77e4b5f0",
+    "date": "2025-09-10T04:58:35+07:00",
+    "message": "feat(deploy): use absolute maintenance page path and copy index to routes after build\n\n- Use `path.resolve` for maintenance page upload to ensure correct file path.\n- Import and call `copyIndexToRoutes` after building the project to update route indexes in the dist/react directory.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
     "hash": "83b6ff26f6a746c3ab67d9ac299dfacc6a1733b8",
     "date": "2025-09-10T04:55:38+07:00",
     "message": "feat(deploy): add maintenance mode and file upload support\n\n- Introduce `uploadFile` function for single file SFTP uploads\n- Update deployment flow to:\n  - Upload `index.maintenance.html` as temporary maintenance page\n  - Build project\n  - Upload `dist` directory and final `index.html`\n- Add new `index.maintenance.html` page with Tailwind, Flowbite, and Font Awesome",
