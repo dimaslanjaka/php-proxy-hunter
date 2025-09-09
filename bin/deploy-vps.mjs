@@ -1,10 +1,13 @@
 import { spawnAsync } from 'cross-spawn';
-import sftpConfig from '../.vscode/sftp.json' with { type: 'json' };
+import path from 'path';
 import { Client } from 'ssh2';
 import SftpClient from 'ssh2-sftp-client';
+import { fileURLToPath } from 'url';
+import sftpConfig from '../.vscode/sftp.json' with { type: 'json' };
 import { copyIndexToRoutes } from '../vite-gh-pages.js';
-import path from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const { host, port, username, password, remotePath } = sftpConfig;
 
 /**
