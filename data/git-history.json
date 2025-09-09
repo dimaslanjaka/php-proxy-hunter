@@ -1,5 +1,45 @@
 [
   {
+    "hash": "83b6ff26f6a746c3ab67d9ac299dfacc6a1733b8",
+    "date": "2025-09-10T04:55:38+07:00",
+    "message": "feat(deploy): add maintenance mode and file upload support\n\n- Introduce `uploadFile` function for single file SFTP uploads\n- Update deployment flow to:\n  - Upload `index.maintenance.html` as temporary maintenance page\n  - Build project\n  - Upload `dist` directory and final `index.html`\n- Add new `index.maintenance.html` page with Tailwind, Flowbite, and Font Awesome",
+    "files": [
+      "bin/deploy-vps.mjs",
+      "index.maintenance.html"
+    ]
+  },
+  {
+    "hash": "9a53741a57cdb244cd05b700ef3206b8518f8858",
+    "date": "2025-09-10T04:50:43+07:00",
+    "message": "refactor(deploy): extract deployGitPath and export copyIndexToRoutes for SPA routing\n\n- Move deployGitPath definition to module scope for reuse.\n- Export copyIndexToRoutes as a standalone function with improved JSDoc.\n- Allow copyIndexToRoutes to accept an optional targetDir for flexible deployment.\n- Refactor deploy to use the new copyIndexToRoutes signature.",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "2832ebd165be7b449b7fb11d50a5b91ed56ecef1",
+    "date": "2025-09-10T04:07:24+07:00",
+    "message": "fix: wrap buildForGithubPages call in conditional to ensure proper execution",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "4ebcea2ee3f33153d6acf07a705eb8a198d0a2f2",
+    "date": "2025-09-10T04:02:42+07:00",
+    "message": "fix(post-merge): replace yarn build with node script for project build",
+    "files": []
+  },
+  {
+    "hash": "dfb0f2efc43669046e028b2078cb0cbe63574291",
+    "date": "2025-09-10T03:53:02+07:00",
+    "message": "fix(build): ensure shell compatibility for spawnSync and update deploy script\n\n- Add `shell: true` to yarn and npm spawnSync calls in build-project.mjs for better cross-platform compatibility.\n- Update deploy-vps.mjs to use build-project.mjs via node instead of direct npm run build, ensuring",
+    "files": [
+      "bin/build-project.mjs",
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
     "hash": "fee6d25003cb88c1c1e612b6e73ec9ebe0ea3729",
     "date": "2025-09-10T03:45:20+07:00",
     "message": "feat(build): add checksum-based build caching and dependency install\n\n- Introduce checksum calculation for package.json and src files to detect changes.\n- Skip build and dependency install if no changes detected since last build.\n- Replace rollup config glob/build loop with conditional yarn install and npm build.\n- Store last build checksum in tmp/build/build-project-checksum.txt for future runs.",
