@@ -127,7 +127,7 @@ export function gitPull() {
 async function main() {
   const { stdout = undefined } = (await gitPull()) || {};
   if (/up to date/i.test(stdout || '')) {
-    await spawnAsync('npm', ['run', 'build'], { stdio: 'inherit' });
+    await spawnAsync('node', ['bin/build-project.mjs'], { stdio: 'inherit', shell: true });
     await uploadDir('dist', `${remotePath}/dist`);
   }
 }

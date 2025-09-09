@@ -21,10 +21,11 @@ const currentChecksum = getChecksum(
 );
 
 if (lastChecksum !== currentChecksum) {
-  cp.spawnSync('yarn', ['install'], { stdio: 'inherit', cwd });
+  cp.spawnSync('yarn', ['install'], { stdio: 'inherit', cwd, shell: true });
   cp.spawnSync('npm', ['run', 'build'], {
     stdio: 'inherit',
-    cwd
+    cwd,
+    shell: true
   });
   fs.writeFileSync(checksumFile, currentChecksum, 'utf-8');
 }
