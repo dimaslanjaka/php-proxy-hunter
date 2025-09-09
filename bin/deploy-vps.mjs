@@ -2,6 +2,8 @@ import { spawnAsync } from 'cross-spawn';
 import sftpConfig from '../.vscode/sftp.json' with { type: 'json' };
 import { Client } from 'ssh2';
 import SftpClient from 'ssh2-sftp-client';
+import { copyIndexToRoutes } from '../vite-gh-pages.js';
+import path from 'path';
 
 const { host, port, username, password, remotePath } = sftpConfig;
 
@@ -157,9 +159,10 @@ async function main() {
   const { stdout = undefined } = (await gitPull()) || {};
   if (/up to date/i.test(stdout || '')) {
     // Set maintenance page
-    await uploadFile('index.maintenance.html', `${remotePath}/index.html`);
+    await uploadFile(path.resolve(__dirname, '/../index.maintenance.html'), `${remotePath}/index.html`);
     // Build project
     await spawnAsync('node', ['bin/build-project.mjs'], { stdio: 'inherit', shell: true });
+    await copyIndexToRoutes(path.resolve(__dirname, '/../dist/react'));
     // Upload built files
     await uploadDir('dist', `${remotePath}/dist`);
     await uploadFile('index.html', `${remotePath}/index.html`);
