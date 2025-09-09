@@ -27,7 +27,13 @@ async function fetchDownloadCSV() {
   });
 }
 
-// === Pick best binary for platform/arch ===
+/**
+ * Selects the best matching SQLite tools binary for the current OS and architecture.
+ *
+ * @param {string[]} csvLines - Array of CSV lines from the SQLite download page.
+ * @returns {{ relative: string, filename: string }|undefined}
+ *   An object with the relative download path and filename, or undefined if not found.
+ */
 function pickDownload(csvLines) {
   const platform = os.platform();
   const arch = os.arch();
@@ -40,12 +46,16 @@ function pickDownload(csvLines) {
   } else if (platform === 'linux') {
     target = arch === 'arm64' ? 'linux-aarch64' : 'linux-x86_64';
   } else {
-    throw new Error(`Unsupported platform: ${platform} ${arch}`);
+    console.error(`Unsupported platform: ${platform} ${arch}`);
+    return undefined;
   }
 
   const tool = csvLines.map((line) => line.split(',')).find((f) => f[2] && f[2].includes(`sqlite-tools-${target}`));
 
-  if (!tool) throw new Error(`No sqlite-tools found for ${target}`);
+  if (!tool) {
+    console.error(`No sqlite-tools found for ${target}`);
+    return undefined;
+  }
 
   return {
     relative: tool[2],
@@ -92,7 +102,9 @@ async function shouldDownload(url, local) {
   try {
     console.log('Fetching SQLite download list...');
     const csv = await fetchDownloadCSV();
-    const { relative, filename } = pickDownload(csv);
+    const { relative = undefined, filename = undefined } = pickDownload(csv) || {};
+
+    if (!relative || !filename) return console.error('No suitable SQLite binary found');
 
     const base = 'https://www.sqlite.org';
     const url = `${base}/${relative}`;
