@@ -166,4 +166,6 @@ async function deploy() {
 }
 
 // Run the build and deploy process
-buildForGithubPages().catch(console.error);
+if (process.argv.some((arg) => arg.includes('vite-gh-pages.js'))) {
+  buildForGithubPages().catch(console.error);
+}
