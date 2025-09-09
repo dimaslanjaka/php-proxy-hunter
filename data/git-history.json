@@ -1,5 +1,31 @@
 [
   {
+    "hash": "fee6d25003cb88c1c1e612b6e73ec9ebe0ea3729",
+    "date": "2025-09-10T03:45:20+07:00",
+    "message": "feat(build): add checksum-based build caching and dependency install\n\n- Introduce checksum calculation for package.json and src files to detect changes.\n- Skip build and dependency install if no changes detected since last build.\n- Replace rollup config glob/build loop with conditional yarn install and npm build.\n- Store last build checksum in tmp/build/build-project-checksum.txt for future runs.",
+    "files": [
+      "bin/build-project.mjs"
+    ]
+  },
+  {
+    "hash": "c4f0f3bebe870ecec9b3695e50b56516c8e31698",
+    "date": "2025-09-10T03:37:49+07:00",
+    "message": "refactor: update checksum file path",
+    "files": [
+      "packages/proxies-grabber",
+      "setup.js"
+    ]
+  },
+  {
+    "hash": "32fea59ff46fabf42f663e19512eedd4494f2798",
+    "date": "2025-09-10T03:35:33+07:00",
+    "message": "feat(deploy): add deploy-vps script for remote deployment and git pull functionality",
+    "files": [
+      "bin/deploy-vps.cmd",
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
     "hash": "e4073136e10440115105a5664edac7dfce1557ab",
     "date": "2025-09-10T02:59:25+07:00",
     "message": "refactor(bin): rename create-file-hashes scripts to cfh\n\n- Rename all create-file-hashes scripts and references to cfh for brevity and consistency.\n- Update .gitattributes, .husky hooks, and documentation to use the new cfh script name.\n- Adjust merge driver configuration and related shell/cmd scripts to reference cfh.\n- Update internal imports and usage in supporting scripts.",
