@@ -138,7 +138,7 @@ apply_cron_jobs() {
 finalize_setup() {
   rollup -c
   [ "$OS" = "Linux" ] && bash -e "$SCRIPT_DIR/bin/fix-perm"
-  git config merge.resolve_hash.driver "node bin/create-file-hashes.cjs %O %A %B"
+  git config merge.resolve_hash.driver "node bin/cfh.cjs %O %A %B"
 }
 
 # ─── Main Script Execution ────────────────────────────────────────────────────

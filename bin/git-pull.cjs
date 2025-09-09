@@ -2,7 +2,7 @@ const child_process = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const minimist = require('minimist');
-const { createFileHashesMain } = require('./create-file-hashes.cjs');
+const { createFileHashesMain } = require('./cfh.cjs');
 
 // Get script directory and repo root
 const SCRIPT_DIR = __dirname;

@@ -57,5 +57,5 @@ post-commit     text eol=lf
 *.sqlite        filter=lfs diff=lfs merge=lfs -text
 
 # Special cases, run this
-# git config merge.resolve_hash.driver "node bin/create-file-hashes.cjs %O %A %B"
+# git config merge.resolve_hash.driver "node bin/cfh.cjs %O %A %B"
 .husky/hash.txt text eol=lf merge=ours driver=resolve_hash

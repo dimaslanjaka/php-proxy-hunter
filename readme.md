@@ -91,7 +91,7 @@ yarn install
 composer install
 
 # Setup Git attributes merge driver
-git config merge.resolve_hash.driver "node bin/create-file-hashes.cjs %O %A %B"
+git config merge.resolve_hash.driver "node bin/cfh.cjs %O %A %B"
 ```
 
 ### Build Project

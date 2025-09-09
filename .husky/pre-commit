@@ -37,16 +37,16 @@ for FILE in $STAGED_FILES; do
   esac
 done
 
-# Run create-file-hashes if applicable
+# Run cfh if applicable
 if [ "$PYTHON_FILES_FOUND" -eq 1 ] || [ "$PHP_FILES_FOUND" -eq 1 ]; then
-  HASH_SCRIPT="$PROJECT_DIR/bin/create-file-hashes"
+  HASH_SCRIPT="$PROJECT_DIR/bin/cfh"
   if [ -x "$HASH_SCRIPT" ]; then
     bash "$HASH_SCRIPT" || {
       echo "Failed to create file hashes"
       exit 1
     }
   else
-    echo "create-file-hashes script not found or not executable: $HASH_SCRIPT"
+    echo "cfh script not found or not executable: $HASH_SCRIPT"
     exit 1
   fi
 fi
