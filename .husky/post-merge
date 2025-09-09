@@ -91,7 +91,9 @@ if command -v yarn >/dev/null 2>&1; then
   yarn install || {
     echo "Yarn install failed."
   }
-  yarn build
+  node "$CWD/bin/build-project.mjs" || {
+    echo "Build project failed."
+  }
 else
   echo "Error: Yarn is not installed. Skipping yarn operations."
 fi
