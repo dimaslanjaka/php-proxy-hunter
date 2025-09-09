@@ -49,8 +49,10 @@
   <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedGlobalConstants"/>
   <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedGlobalClasses"/>
 
-  <!-- Trailing comma in multiline arrays -->
-  <rule ref="SlevomatCodingStandard.Arrays.TrailingArrayComma"/>
+  <!-- Trailing comma in multiline arrays (disabled) -->
+  <rule ref="SlevomatCodingStandard.Arrays.TrailingArrayComma">
+    <severity>0</severity>
+  </rule>
 
   <!-- disable side effect -->
   <exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
