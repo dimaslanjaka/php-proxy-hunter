@@ -1,5 +1,22 @@
 [
   {
+    "hash": "5be6854d8f8bef870132c00eb7cb54c3d1f78410",
+    "date": "2025-09-10T06:05:55+07:00",
+    "message": "feat(Dashboard): refactor to use DashboardContent component for improved structure",
+    "files": [
+      "src/react/pages/Dashboard.tsx",
+      "src/react/pages/dashboard/DashboardContent.tsx"
+    ]
+  },
+  {
+    "hash": "37136e4609607b217b2bbc5f177081cd98921d76",
+    "date": "2025-09-10T06:03:35+07:00",
+    "message": "fix(SaldoManager): adjust margin for improved layout consistency",
+    "files": [
+      "src/react/pages/admin/SaldoManager.tsx"
+    ]
+  },
+  {
     "hash": "87dc4f055510678ac370f4c4784e8bfaeb5dac57",
     "date": "2025-09-10T05:04:25+07:00",
     "message": "fix(copyIndexToRoutes): prevent copying index.html to itself\n\n- Add check to skip copying when source and destination paths are identical\n- Log skipped action for clarity",
