@@ -305,4 +305,62 @@ class SQLiteHelper extends BaseSQL
       throw $e;
     }
   }
+
+  public function modifyColumnIfExists($table, $column, $definition)
+  {
+    $columns = $this->getTableColumns($table);
+    if (!in_array($column, $columns, true)) {
+      return false;
+    }
+    try {
+      $this->pdo->beginTransaction();
+      // Get table schema
+      $stmt = $this->pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'");
+      $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (!$row) {
+        throw new \RuntimeException("Table $table does not exist");
+      }
+      $createSql = $row['sql'];
+      $stmt      = null;
+      // Parse columns definition
+      $pattern = '/\((.*)\)/s';
+      if (!preg_match($pattern, $createSql, $matches)) {
+        throw new \RuntimeException("Could not parse CREATE TABLE statement for $table");
+      }
+      $colsDef    = $matches[1];
+      $colsArr    = array_map('trim', explode(',', $colsDef));
+      $newColsArr = [];
+      foreach ($colsArr as $colDef) {
+        // Replace only the target column definition
+        if (preg_match('/^"?' . preg_quote($column, '/') . '"?\s+/i', $colDef)) {
+          $newColsArr[] = '"' . $column . '" ' . $definition;
+        } else {
+          $newColsArr[] = $colDef;
+        }
+      }
+      $newCreateSql = preg_replace($pattern, '(' . implode(', ', $newColsArr) . ')', $createSql);
+      $tmpTable     = $table . '_TEMP';
+      $newCreateSql = str_replace($table, $tmpTable, $newCreateSql);
+      $this->pdo->exec($newCreateSql);
+      $colsList  = implode(', ', $columns);
+      $insertSql = "INSERT INTO $tmpTable ($colsList) SELECT $colsList FROM $table";
+      $this->pdo->exec($insertSql);
+      $this->pdo->exec("DROP TABLE $table");
+      $this->pdo->exec("ALTER TABLE $tmpTable RENAME TO $table");
+      $this->pdo->commit();
+      return true;
+    } catch (\Exception $e) {
+      if ($this->pdo->inTransaction()) {
+        $this->pdo->rollBack();
+      }
+      throw $e;
+    }
+  }
+
+  public function getTableSchema($table)
+  {
+    $stmt = $this->pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'");
+    $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? $row['sql'] : null;
+  }
 }

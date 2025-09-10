@@ -135,4 +135,14 @@ abstract class BaseSQL
    * @return array List of column names.
    */
   abstract public function getTableColumns($table);
+
+  /**
+   * Modify a column in a table if it exists.
+   *
+   * @param string $table The table name.
+   * @param string $column The column name.
+   * @param string $definition The new column definition (SQL fragment).
+   * @return bool True if the column was modified, false if it did not exist or failed.
+   */
+  abstract public function modifyColumnIfExists($table, $column, $definition);
 }

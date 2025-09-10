@@ -297,4 +297,14 @@ class MySQLHelper extends BaseSQL
     }
     return false;
   }
+
+  public function modifyColumnIfExists($table, $column, $definition)
+  {
+    $columns = $this->getTableColumns($table);
+    if (in_array($column, $columns, true)) {
+      $this->pdo->exec("ALTER TABLE `$table` MODIFY COLUMN `$column` $definition");
+      return true;
+    }
+    return false;
+  }
 }

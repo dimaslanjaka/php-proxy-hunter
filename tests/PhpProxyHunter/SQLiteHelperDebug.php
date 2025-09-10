@@ -22,3 +22,11 @@ var_dump('column exists before', $db->columnExists($table, $col));
 gc_collect_cycles(); // force collection of any lingering PDOStatement
 $db->dropColumnIfExists($table, $col);
 var_dump('column exists after', $db->columnExists($table, $col));
+
+$db->createTable('meta', [
+  'key TEXT PRIMARY KEY',
+  'value TEXT',
+]);
+var_dump('meta columns before modify', $db->getTableSchema('meta'));
+$db->modifyColumnIfExists('meta', 'key', 'INTEGER DEFAULT NULL');
+var_dump('meta columns after modify', $db->getTableSchema('meta'));
