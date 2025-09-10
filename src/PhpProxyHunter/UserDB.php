@@ -248,12 +248,12 @@ class UserDB
   }
 
   /**
-   * Get user's saldo (balance).
+   * Get user's point (saldo/balance).
    *
    * @param int $id User ID.
-   * @return int Current saldo value.
+   * @return int Current point (saldo) value.
    */
-  public function get_saldo($id)
+  public function getPoint($id)
   {
     $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
     return isset($saldo_row[0]['saldo']) ? $saldo_row[0]['saldo'] : 0;

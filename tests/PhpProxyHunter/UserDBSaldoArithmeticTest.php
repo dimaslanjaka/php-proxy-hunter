@@ -112,32 +112,32 @@ class UserDBSaldoArithmeticTest extends TestCase
     $id   = (int) $user['id'];
 
     // Initial saldo should be 0 after first insert
-    $saldo = $userDB->get_saldo($id);
+    $saldo = $userDB->getPoint($id);
     $this->assertEquals(0, $saldo);
 
     // Add 200
     $userDB->updatePoint($id, 200, 'test_add', '', false);
-    $saldo = $userDB->get_saldo($id);
+    $saldo = $userDB->getPoint($id);
     $this->assertEquals(200, $saldo);
 
     // Add 50 more
     $userDB->updatePoint($id, 50, 'test_plus', '', false);
-    $saldo = $userDB->get_saldo($id);
+    $saldo = $userDB->getPoint($id);
     $this->assertEquals(250, $saldo);
 
     // Subtract 100
     $userDB->updatePoint($id, -100, 'test_minus', '', false);
-    $saldo = $userDB->get_saldo($id);
+    $saldo = $userDB->getPoint($id);
     $this->assertEquals(150, $saldo);
 
     // Subtract 200 (should allow negative saldo)
     $userDB->updatePoint($id, -200, 'test_minus_overdraw', '', false);
-    $saldo = $userDB->get_saldo($id);
+    $saldo = $userDB->getPoint($id);
     $this->assertEquals(-50, $saldo);
 
     // Set saldo to 1234 (replace)
     $userDB->updatePoint($id, 1234, 'test_set', '', true);
-    $saldo = $userDB->get_saldo($id);
+    $saldo = $userDB->getPoint($id);
     $this->assertEquals(1234, $saldo);
   }
 }

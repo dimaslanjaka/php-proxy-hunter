@@ -167,13 +167,13 @@ class UserDBTest extends TestCase
     $id   = (int) $user['id'];
 
     $this->userDB->updatePoint($id, 100, 'refill_saldo', '', false);
-    $this->assertEquals(100, $this->userDB->get_saldo($id));
+    $this->assertEquals(100, $this->userDB->getPoint($id));
 
     $this->userDB->updatePoint($id, -50, 'buy_package', '', false);
-    $this->assertEquals(50, $this->userDB->get_saldo($id));
+    $this->assertEquals(50, $this->userDB->getPoint($id));
 
     $this->userDB->updatePoint($id, 777, 'admin_set', '', true);
-    $this->assertEquals(777, $this->userDB->get_saldo($id));
+    $this->assertEquals(777, $this->userDB->getPoint($id));
 
     $this->tearDownDB($driver);
   }
