@@ -1,7 +1,8 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+use PhpProxyHunter\UserDB;
 use PhpProxyHunter\CoreDB;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers LogsRepository
@@ -9,8 +10,9 @@ use PhpProxyHunter\CoreDB;
 class LogsRepositoryTest extends TestCase
 {
   /**
-   * @var LogsRepository
+   * @var UserDB|null
    */
+  private $userDB;
   private $logsRepository;
 
   /**
@@ -42,6 +44,28 @@ class LogsRepositoryTest extends TestCase
    * @var string|null
    */
   private $testDbPath;
+
+
+  /**
+   * @var int
+   */
+  private $testUserId = 7895;
+
+  /**
+   * @var array
+   */
+  private $testUserInfo = [
+    'password'     => 'testpass',
+    'last_login'   => null,
+    'is_superuser' => 0,
+    'username'     => 'testuser',
+    'last_name'    => '',
+    'email'        => 'testuser@example.com',
+    'is_staff'     => 0,
+    'is_active'    => 1,
+    'date_joined'  => '', // will be set dynamically
+    'first_name'   => '',
+  ];
 
   public function dbProvider()
   {
@@ -77,6 +101,8 @@ class LogsRepositoryTest extends TestCase
     }
 
     $this->logsRepository = new LogsRepository($this->db->db->pdo);
+    // Set up UserDB for user management
+    $this->userDB = new UserDB($this->db->db, $driver);
   }
 
   /**
@@ -85,7 +111,16 @@ class LogsRepositoryTest extends TestCase
   public function testAddLogAndGetLogsFromDb($driver)
   {
     $this->setUpDB($driver);
-    $result = $this->logsRepository->addLog(1, 'Test log', 'INFO', 'test', ['foo' => 'bar']);
+    $userId = $this->testUserId;
+    if ($driver === 'mysql') {
+      $info                = $this->testUserInfo;
+      $info['id']          = $userId;
+      $info['date_joined'] = date('Y-m-d H:i:s');
+      $this->userDB->delete($userId);
+      $this->userDB->delete($info['username']);
+      $this->userDB->add($info);
+    }
+    $result = $this->logsRepository->addLog($userId, 'Test log', 'INFO', 'test', ['foo' => 'bar']);
     $this->assertTrue($result);
     $logs = $this->logsRepository->getLogsFromDb(1);
     $this->assertCount(1, $logs);
@@ -98,7 +133,16 @@ class LogsRepositoryTest extends TestCase
   public function testAddActivityAndGetActivities($driver)
   {
     $this->setUpDB($driver);
-    $result = $this->logsRepository->addActivity(2, 'LOGIN', 'user', 123, '127.0.0.1', 'PHPUnit', ['ip' => '127.0.0.1']);
+    $userId = $this->testUserId;
+    if ($driver === 'mysql') {
+      $info                = $this->testUserInfo;
+      $info['id']          = $userId;
+      $info['date_joined'] = date('Y-m-d H:i:s');
+      $this->userDB->delete($userId);
+      $this->userDB->delete($info['username']);
+      $this->userDB->add($info);
+    }
+    $result = $this->logsRepository->addActivity($userId, 'LOGIN', 'user', 123, '127.0.0.1', 'PHPUnit', ['ip' => '127.0.0.1']);
     $this->assertTrue($result);
     $activities = $this->logsRepository->getActivities(1);
     $this->assertCount(1, $activities);
