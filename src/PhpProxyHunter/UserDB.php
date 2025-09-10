@@ -277,6 +277,37 @@ class UserDB
   }
 
   /**
+   * Deletes a user from the database by email, username, or id.
+   *
+   * This method removes the user from the `auth_user` table and also deletes
+   * all related records from `user_discount`, `user_logs`, and `user_fields` tables.
+   *
+   * @param mixed $id The email, username, or id of the user to delete.
+   * @return bool True if the user was found and deleted, false otherwise.
+   */
+  public function delete($id)
+  {
+    $id         = is_string($id) ? trim($id) : $id;
+    $conditions = ['email = ?', 'username = ?', 'id = ?'];
+    $success    = false;
+
+    foreach ($conditions as $condition) {
+      $select = $this->db->select('auth_user', '*', $condition, [$id]);
+      if (!empty($select)) {
+        $success = true;
+        $this->db->delete('auth_user', 'id = ?', [$select[0]['id']]);
+        $ids = implode(',', array_map('intval', [$select[0]['id']]));
+        $this->db->pdo->exec("DELETE FROM user_discount WHERE user_id IN ($ids)");
+        $this->db->pdo->exec("DELETE FROM user_logs WHERE user_id IN ($ids)");
+        $this->db->pdo->exec("DELETE FROM user_fields WHERE user_id IN ($ids)");
+        $this->db->pdo->exec("DELETE FROM auth_user WHERE id IN ($ids)");
+        break;
+      }
+    }
+    return $success;
+  }
+
+  /**
    * Destructor: closes DB connection.
    */
   public function __destruct()

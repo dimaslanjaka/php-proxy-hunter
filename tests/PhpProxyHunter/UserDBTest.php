@@ -56,7 +56,6 @@ class UserDBTest extends TestCase
         $pdo->exec("DELETE FROM user_discount WHERE user_id IN ($ids)");
         $pdo->exec("DELETE FROM user_logs WHERE user_id IN ($ids)");
         $pdo->exec("DELETE FROM user_fields WHERE user_id IN ($ids)");
-        // Add more child tables if needed
         $pdo->exec("DELETE FROM auth_user WHERE id IN ($ids)");
       }
     } else {
@@ -175,6 +174,31 @@ class UserDBTest extends TestCase
 
     $this->userDB->update_saldo($id, 777, 'admin_set', '', true);
     $this->assertEquals(777, $this->userDB->get_saldo($id));
+
+    $this->tearDownDB($driver);
+  }
+
+  public function deleteUser($driver)
+  {
+    $this->setUpDB($driver);
+
+    // Add test user to ensure they exist before deletion
+    $user = [
+      'username' => 'testuser009',
+      'password' => 'password123',
+      'email'    => 'test009@example.com',
+    ];
+    $this->userDB->add($user);
+
+    // Check user exists
+    $user = $this->userDB->select('testuser009');
+    $this->assertNotEmpty($user);
+
+    // Delete user
+    $result = $this->userDB->delete('testuser009');
+    $this->assertTrue($result);
+    $user = $this->userDB->select('testuser009');
+    $this->assertEmpty($user);
 
     $this->tearDownDB($driver);
   }
