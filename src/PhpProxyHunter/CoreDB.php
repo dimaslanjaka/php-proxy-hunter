@@ -68,6 +68,11 @@ class CoreDB
   public $dbPath = null;
 
   /**
+   * @var LogsRepository|null Logs repository instance
+   */
+  public $logsRepository = null;
+
+  /**
    * CoreDB constructor.
    *
    * Initializes the database connection using MySQL or SQLite.
@@ -124,10 +129,11 @@ class CoreDB
    */
   private function initMySQL($host, $dbname, $username, $password, $unique = false)
   {
-    $this->db       = new MySQLHelper($host, $dbname, $username, $password, $unique);
-    $this->driver   = 'mysql';
-    $this->user_db  = new UserDB($this->db);
-    $this->proxy_db = new ProxyDB($this->db);
+    $this->db             = new MySQLHelper($host, $dbname, $username, $password, $unique);
+    $this->driver         = 'mysql';
+    $this->user_db        = new UserDB($this->db);
+    $this->proxy_db       = new ProxyDB($this->db);
+    $this->logsRepository = new LogsRepository($this->db->pdo);
 
     $this->loadSchema(__DIR__ . '/assets/mysql-schema.sql');
   }
