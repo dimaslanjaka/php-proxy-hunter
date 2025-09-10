@@ -1,12 +1,7 @@
 <?php
 
-use PhpProxyHunter\CoreDB;
-
 class LogsRepository
 {
-  /** @var CoreDB */
-  private $db;
-
   /** @var \PDO */
   private $pdo;
 
@@ -14,13 +9,13 @@ class LogsRepository
   private $driver;
 
   /**
-   * @param CoreDB $db
+   * @param \PDO $db
    */
-  public function __construct(CoreDB $db)
+  public function __construct($pdo)
   {
-    $this->db     = $db;
-    $this->pdo    = $db->db->pdo;
-    $this->driver = $db->driver;
+    $this->pdo = $pdo;
+    // Get the driver name (e.g., "mysql", "sqlite", "pgsql")
+    $this->driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     $this->ensureTable();
   }
 

@@ -76,7 +76,7 @@ class LogsRepositoryTest extends TestCase
       $this->db         = new CoreDB($this->testDbPath);
     }
 
-    $this->logsRepository = new LogsRepository($this->db);
+    $this->logsRepository = new LogsRepository($this->db->db->pdo);
   }
 
   /**
