@@ -1,5 +1,22 @@
 [
   {
+    "hash": "81351f417fbf383e22ae3bb0cfb2585868d6bdf9",
+    "date": "2025-09-10T07:20:23+07:00",
+    "message": "feat(logs): refactor logs endpoint to use LogsRepository and shared DB\n\n- Refactored `php_backend/logs.php` to use a new `LogsRepository` class for fetching logs by hash.\n- Included `shared.php` for consistent database and utility function loading.\n- Added `src/database/LogsRepository.php` with a method to retrieve log content by hash, using helper functions for file access.\n- Improves maintainability and centralizes log file access logic.",
+    "files": [
+      "php_backend/logs.php",
+      "src/database/LogsRepository.php"
+    ]
+  },
+  {
+    "hash": "afd7868800698928f13bc46079f90c4d464e42db",
+    "date": "2025-09-10T07:12:16+07:00",
+    "message": "refactor(logs): streamline request handling and improve code structure",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
     "hash": "5df3c92cfd944ef2f5b94674a8d2487da0dd4f84",
     "date": "2025-09-10T07:03:24+07:00",
     "message": "chore(Admin): replace saldo-related components to point-related",
