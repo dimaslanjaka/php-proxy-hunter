@@ -1,5 +1,15 @@
 [
   {
+    "hash": "5df3c92cfd944ef2f5b94674a8d2487da0dd4f84",
+    "date": "2025-09-10T07:03:24+07:00",
+    "message": "chore(Admin): replace saldo-related components to point-related",
+    "files": [
+      "src/react/pages/Admin.tsx",
+      "src/react/pages/admin/AddPointForm.tsx",
+      "src/react/pages/admin/ManagerPoint.tsx"
+    ]
+  },
+  {
     "hash": "5be6854d8f8bef870132c00eb7cb54c3d1f78410",
     "date": "2025-09-10T06:05:55+07:00",
     "message": "feat(Dashboard): refactor to use DashboardContent component for improved structure",
