@@ -200,29 +200,41 @@ class UserDB
    */
   public function update_saldo($id, $amount, $log_source, $log_extra_info = '', $replace = false)
   {
-    $find_existing_row = $this->db->select('user_fields', '*', 'user_id = ?', [$id]);
-    if (empty($find_existing_row)) {
+    // Get current saldo (if exists)
+    $saldo_row      = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
+    $existing_saldo = isset($saldo_row[0]['saldo']) ? (int)$saldo_row[0]['saldo'] : 0;
+
+    // If no record, insert initial row
+    if (empty($saldo_row)) {
       $this->db->insert('user_fields', ['user_id' => $id, 'saldo' => 0]);
-      $existing_saldo = 0;
-    } else {
-      $saldo_row      = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
-      $existing_saldo = isset($saldo_row[0]['saldo']) ? intval($saldo_row[0]['saldo']) : 0;
     }
 
-    $new_saldo = $replace ? $amount : $existing_saldo + $amount;
+    // Calculate new saldo
+    $new_saldo = $replace ? (int)$amount : $existing_saldo + (int)$amount;
+
+    // Update saldo
     $this->db->update('user_fields', ['saldo' => $new_saldo], 'user_id = ?', [$id]);
 
-    $log_action = $replace ? "Set saldo to $amount" : "Topup $amount";
+    // Prepare log
+    $log_action = $replace ? "Set saldo to {$amount}" : "Topup {$amount}";
+    $extraInfo  = $log_extra_info;
+
+    if (is_array($extraInfo) || is_object($extraInfo)) {
+      $extraInfo = json_encode($extraInfo, JSON_UNESCAPED_UNICODE);
+    } elseif ($extraInfo === null || $extraInfo === '') {
+      $extraInfo = null;
+    }
+
+    // Insert log
     $this->db->insert('user_logs', [
       'message'    => $log_action,
       'log_level'  => 'INFO',
       'source'     => $log_source,
-      'extra_info' => $log_extra_info,
+      'extra_info' => $extraInfo,
       'user_id'    => $id,
     ], false);
 
-    $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
-    return isset($saldo_row[0]) ? $saldo_row[0] : ['saldo' => 0];
+    return ['saldo' => $new_saldo];
   }
 
   /**
