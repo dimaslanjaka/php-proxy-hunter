@@ -80,3 +80,12 @@ CREATE TABLE IF NOT EXISTS `user_activity` (
   `details` JSON, -- structured info (before/after values)
   FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
 ) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `user_discount` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NOT NULL,
+  `discount` DECIMAL(10, 2) DEFAULT 0,
+  `package_id` INT,
+  FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`),
+  UNIQUE (`user_id`, `package_id`)
+) ENGINE = InnoDB;
