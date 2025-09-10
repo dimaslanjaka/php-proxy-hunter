@@ -1,5 +1,61 @@
 [
   {
+    "hash": "9cc479e64509cf27c98519ebc6607358b015c589",
+    "date": "2025-09-10T15:24:05+07:00",
+    "message": "feat(db): support PDO injection in MySQLHelper and SQLiteHelper constructors\n\n- Updated MySQLHelper to accept either host credentials or an existing PDO instance\n- Updated SQLiteHelper to accept either database path or an existing PDO instance\n- Improved unique key generation to handle PDO-based connections\n- Enhanced SQLiteHelper::dropColumnIfExists to rebuild table schema safely\n- Added new test cases for constructor with PDO, table operations, and column management\n- Introduced SQLiteHelperDebug for debugging schema changes",
+    "files": [
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/SQLiteHelper.php",
+      "tests/PhpProxyHunter/MySQLHelperTest.php",
+      "tests/PhpProxyHunter/SQLiteHelperDebug.php",
+      "tests/PhpProxyHunter/SQLiteHelperTest.php"
+    ]
+  },
+  {
+    "hash": "3795620398aff715014f87a52247a3b988f57e52",
+    "date": "2025-09-10T14:26:30+07:00",
+    "message": "feat(sql): add schema management methods for MySQL and SQLite helpers\n\n- Added abstract methods in BaseSQL for column and table schema operations:\n  - addColumnIfNotExists\n  - columnExists\n  - dropColumnIfExists\n  - getTableColumns\n- Implemented schema management in MySQLHelper using DESCRIBE and ALTER TABLE\n- Implemented schema management in SQLiteHelper using PRAGMA and ALTER TABLE\n- Updated PHPDoc and type hints for stricter definitions\n- Enabled strict typing across BaseSQL",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/SQLiteHelper.php"
+    ]
+  },
+  {
+    "hash": "9a6bba2d6cd9bc93e9a75c4b60a53e6c1b3523fa",
+    "date": "2025-09-10T14:19:04+07:00",
+    "message": "refactor(sql): introduce BaseSQL abstract class and extend MySQLHelper, SQLiteHelper from it",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/SQLiteHelper.php"
+    ]
+  },
+  {
+    "hash": "fb33865f24a21b48ebf75a23cc56630b09c29479",
+    "date": "2025-09-10T14:12:55+07:00",
+    "message": "refactor(UserDBTest): simplify user deletion logic in test cases",
+    "files": [
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
+    "hash": "e6820b659f5f3b4336f8ff547c8075b0d1c298f0",
+    "date": "2025-09-10T14:04:41+07:00",
+    "message": "test(MySQLHelper): add unit tests for MySQLHelper class",
+    "files": [
+      "tests/PhpProxyHunter/MySQLHelperTest.php"
+    ]
+  },
+  {
+    "hash": "c398eed066289c04ac6fd469d7f3bd015ea524fd",
+    "date": "2025-09-10T13:50:56+07:00",
+    "message": "refactor(SQLiteHelper): rename static property $_databases to $databases",
+    "files": [
+      "src/PhpProxyHunter/SQLiteHelper.php"
+    ]
+  },
+  {
     "hash": "66d5f7f6d4fdeb4994f0c7a96a0ac66fec718909",
     "date": "2025-09-10T13:22:19+07:00",
     "message": "feat: add mariadb support and proxy translation script\n\n- add `mariadb` dependency to package.json\n- add new script `src/react/i18n-translator.ts` for proxy translation and MySQL/MariaDB CRUD operations\n  - uses mariadb for database connection and schema setup\n  - implements proxy translation, proxy checking, and saving results to the database\n  - uses RFC3339 date format for processed proxies\n  - shuffles proxies before checking\n- add new test/debug script `tests/database/mysql-native-password-debug.ts` for managing MySQL user authentication plugin and printing user plugin info",
