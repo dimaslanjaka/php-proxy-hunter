@@ -11,16 +11,13 @@ use PDO;
  *
  * @package PhpProxyHunter
  */
-class SQLiteHelper
+class SQLiteHelper extends BaseSQL
 {
   /** @var PDO|null $pdo */
   public $pdo;
 
   /** @var PDO[] Static property to hold PDO instances. */
   private static $databases = [];
-
-  /** @var string The unique key for the current PDO instance. */
-  private $uniqueKey;
 
   /**
    * SQLiteHelper constructor.

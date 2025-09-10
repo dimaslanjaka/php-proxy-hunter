@@ -11,16 +11,13 @@ use PDO;
  *
  * @package PhpProxyHunter
  */
-class MySQLHelper
+class MySQLHelper extends BaseSQL
 {
   /** @var PDO|null $pdo */
   public $pdo;
 
   /** @var PDO[] Static property to hold PDO instances. */
   private static $databases = [];
-
-  /** @var string The unique key for the current PDO instance. */
-  private $uniqueKey;
 
   /**
    * MySQLHelper constructor.
@@ -83,12 +80,12 @@ class MySQLHelper
             } catch (\PDOException $e3) {
               throw new \RuntimeException(
                 "[MySQLHelper] Unable to connect: both attempts to auto-install 'mysql_native_password' and switch user to 'caching_sha2_password' failed.\n" .
-                "\nManual intervention required. Please execute one of the following as an admin in MySQL:\n" .
-                "  1. INSTALL PLUGIN mysql_native_password SONAME '" . $dll . "';\n" .
-                '  2. ' . $alterUserSql . "\n" .
-                "\n---\n" .
-                'Auto-install error:   ' . $e2->getMessage() . "\n" .
-                'Switch plugin error:  ' . $e3->getMessage() . "\n"
+                  "\nManual intervention required. Please execute one of the following as an admin in MySQL:\n" .
+                  "  1. INSTALL PLUGIN mysql_native_password SONAME '" . $dll . "';\n" .
+                  '  2. ' . $alterUserSql . "\n" .
+                  "\n---\n" .
+                  'Auto-install error:   ' . $e2->getMessage() . "\n" .
+                  'Switch plugin error:  ' . $e3->getMessage() . "\n"
               );
             }
           }
