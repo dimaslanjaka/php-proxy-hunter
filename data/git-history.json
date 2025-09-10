@@ -1,5 +1,14 @@
 [
   {
+    "hash": "81f6e4fd076766bc5d071d0fdbbe6dea2f448dd9",
+    "date": "2025-09-10T11:39:47+07:00",
+    "message": "chore: update locales",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json"
+    ]
+  },
+  {
     "hash": "1cdb9047abdc752206b1e622186de478ee7dd9c7",
     "date": "2025-09-10T10:38:02+07:00",
     "message": "feat(UserActivity): add UserActivityCard component and integrate user activity fetching",
