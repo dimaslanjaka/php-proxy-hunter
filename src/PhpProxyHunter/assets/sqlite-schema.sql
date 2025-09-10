@@ -61,10 +61,23 @@ CREATE TABLE IF NOT EXISTS "user_fields" (
 
 -- create user logs
 CREATE TABLE IF NOT EXISTS "user_logs" (
-  "user_id" INTEGER NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED,
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "user_id" INTEGER NOT NULL REFERENCES "auth_user" ("id"),
   "timestamp" DATETIME DEFAULT CURRENT_TIMESTAMP,
   "log_level" TEXT NOT NULL DEFAULT 'INFO',
   "message" TEXT NOT NULL,
   "source" TEXT,
-  "extra_info" TEXT
+  "extra_info" TEXT -- store JSON as TEXT, queryable with JSON1
+);
+
+CREATE TABLE IF NOT EXISTS "user_activity" (
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "user_id" INTEGER NOT NULL REFERENCES "auth_user" ("id"),
+  "activity_type" TEXT NOT NULL,
+  "target_type" TEXT,
+  "target_id" INTEGER,
+  "ip_address" TEXT,
+  "user_agent" TEXT,
+  "timestamp" DATETIME DEFAULT CURRENT_TIMESTAMP,
+  "details" TEXT -- JSON string, use json_extract() if SQLite compiled with JSON1
 );

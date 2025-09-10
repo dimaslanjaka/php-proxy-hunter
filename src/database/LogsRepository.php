@@ -4,11 +4,46 @@ use PhpProxyHunter\CoreDB;
 
 class LogsRepository
 {
-  private CoreDB $db;
+  /** @var CoreDB */
+  private $db;
 
+  /** @var \PDO */
+  private $pdo;
+
+  /** @var string|null */
+  private $driver;
+
+  /**
+   * @param CoreDB $db
+   */
   public function __construct(CoreDB $db)
   {
-    $this->db = $db;
+    $this->db     = $db;
+    $this->pdo    = $db->db->pdo;
+    $this->driver = $db->driver;
+  }
+
+  /**
+   * Write log content to a file by its hash.
+   *
+   * @param string $hash    The hash identifying the log file.
+   * @param string $content The log content to write.
+   * @return bool True on success, false on failure.
+   * @throws \Exception If required helper functions are not defined or file path cannot be determined.
+   */
+  public function addLogByHash($hash, $content)
+  {
+    $file = $this->getLogFilePath($hash);
+    if ($file === null) {
+      throw new \Exception('Could not determine log file path. Make sure tmp() is defined.');
+    }
+    if (!function_exists('write_file')) {
+      throw new \Exception('Function write_file() is not defined. Make sure to include the necessary files.');
+    }
+    if (is_array($content) || is_object($content)) {
+      $content = json_encode($content, JSON_UNESCAPED_UNICODE);
+    }
+    return write_file($file, $content);
   }
 
   /**
@@ -18,18 +53,128 @@ class LogsRepository
    * @return string|null The log content if found, or null if not found.
    * @throws \Exception If required helper functions are not defined.
    */
-  public function getLogsByHash(string $hash): ?string
+  public function getLogsByHash($hash)
   {
-    if (!function_exists('tmp')) {
-      throw new \Exception('Function tmp() is not defined. Make sure to include the necessary files.');
+    $file = $this->getLogFilePath($hash);
+    if ($file === null) {
+      return null;
     }
     if (!function_exists('read_file')) {
       throw new \Exception('Function read_file() is not defined. Make sure to include the necessary files.');
     }
-    $file = tmp() . '/logs/' . $hash . '.txt';
-    if (!file_exists($file)) {
-      $file = tmp() . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . $hash . '.txt';
-    }
     return read_file($file) ?: null;
+  }
+
+  /**
+   * Get the file path for a log file by hash. Returns null if tmp() is not defined.
+   *
+   * @param string $hash
+   * @return string|null
+   */
+  public function getLogFilePath($hash)
+  {
+    if (!function_exists('tmp')) {
+      throw new \Exception('Function tmp() is not defined. Make sure to include the necessary files.');
+    }
+    $file1 = tmp() . '/logs/' . $hash . '.txt';
+    $file2 = tmp() . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . $hash . '.txt';
+    if (file_exists($file1)) {
+      return $file1;
+    }
+    if (file_exists($file2)) {
+      return $file2;
+    }
+    // If neither exists, return the first path as the default for writing
+    return $file1;
+  }
+
+  /**
+   * Inserts an application/system log into the user_logs table.
+   *
+   * @param int         $userId    The user ID related to the log entry.
+   * @param string      $message   The log message.
+   * @param string      $logLevel  Log severity (INFO, WARNING, ERROR).
+   * @param string|null $source    Source module/component of the log.
+   * @param mixed       $extraInfo Extra info (string or array/object to be stored as JSON).
+   * @return bool True on success, false on failure.
+   */
+  public function addLog($userId, $message, $logLevel = 'INFO', $source = null, $extraInfo = null)
+  {
+    $sql = 'INSERT INTO user_logs (user_id, log_level, message, source, extra_info)
+                VALUES (:user_id, :log_level, :message, :source, :extra_info)';
+
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([
+      ':user_id'    => $userId,
+      ':log_level'  => $logLevel,
+      ':message'    => $message,
+      ':source'     => $source,
+      ':extra_info' => is_array($extraInfo) || is_object($extraInfo)
+        ? json_encode($extraInfo, JSON_UNESCAPED_UNICODE)
+        : $extraInfo,
+    ]);
+  }
+
+  /**
+   * Inserts a user action into the user_activity table (audit trail).
+   *
+   * @param int         $userId       The user performing the action.
+   * @param string      $activityType Type of activity (LOGIN, CREATE, UPDATE, DELETE, LOGOUT).
+   * @param string|null $targetType   Type of entity affected (e.g., "order", "profile").
+   * @param int|null    $targetId     ID of the entity affected.
+   * @param string|null $ipAddress    IP address of the user.
+   * @param string|null $userAgent    User agent string of the client.
+   * @param mixed       $details      Extra details (string or array/object as JSON).
+   * @return bool True on success, false on failure.
+   */
+  public function addActivity($userId, $activityType, $targetType = null, $targetId = null, $ipAddress = null, $userAgent = null, $details = null)
+  {
+    $sql = 'INSERT INTO user_activity
+                   (user_id, activity_type, target_type, target_id, ip_address, user_agent, details)
+                VALUES
+                   (:user_id, :activity_type, :target_type, :target_id, :ip_address, :user_agent, :details)';
+
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([
+      ':user_id'       => $userId,
+      ':activity_type' => $activityType,
+      ':target_type'   => $targetType,
+      ':target_id'     => $targetId,
+      ':ip_address'    => $ipAddress,
+      ':user_agent'    => $userAgent,
+      ':details'       => is_array($details) || is_object($details)
+        ? json_encode($details, JSON_UNESCAPED_UNICODE)
+        : $details,
+    ]);
+  }
+
+  /**
+   * Retrieves recent application/system logs from the user_logs table.
+   *
+   * @param int $limit Maximum number of logs to retrieve.
+   * @return array The list of logs as associative arrays.
+   */
+  public function getLogsFromDb($limit = 50)
+  {
+    $sql  = 'SELECT * FROM user_logs ORDER BY timestamp DESC LIMIT :limit';
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+  }
+
+  /**
+   * Retrieves recent user activities from the user_activity table.
+   *
+   * @param int $limit Maximum number of activities to retrieve.
+   * @return array The list of activities as associative arrays.
+   */
+  public function getActivities($limit = 50)
+  {
+    $sql  = 'SELECT * FROM user_activity ORDER BY timestamp DESC LIMIT :limit';
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
   }
 }
