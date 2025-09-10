@@ -233,13 +233,14 @@ class UserDB
     }
 
     // Insert log
-    $this->db->insert('user_logs', [
-      'message'    => $log_action,
-      'log_level'  => 'INFO',
-      'source'     => $log_source,
-      'extra_info' => $extraInfo,
-      'user_id'    => $id,
-    ], false);
+    // $this->db->insert('user_logs', [
+    //   'message'    => $log_action,
+    //   'log_level'  => 'INFO',
+    //   'source'     => $log_source,
+    //   'extra_info' => $extraInfo,
+    //   'user_id'    => $id,
+    // ], false);
+    $this->logsRepository->addLog($id, $log_action, 'INFO', $log_source, $extraInfo);
 
     return ['saldo' => $new_saldo];
   }
