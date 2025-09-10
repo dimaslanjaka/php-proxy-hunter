@@ -155,15 +155,22 @@ class LogsRepository
     $sql = 'INSERT INTO user_logs (user_id, log_level, message, source, extra_info)
                 VALUES (:user_id, :log_level, :message, :source, :extra_info)';
 
-    $stmt = $this->pdo->prepare($sql);
+    $stmt      = $this->pdo->prepare($sql);
+    $jsonValue = null;
+    if (is_array($extraInfo) || is_object($extraInfo)) {
+      $jsonValue = json_encode($extraInfo, JSON_UNESCAPED_UNICODE);
+    } elseif ($extraInfo === null || $extraInfo === '') {
+      // For MySQL JSON columns, null is valid, empty string is not
+      $jsonValue = null;
+    } else {
+      $jsonValue = $extraInfo;
+    }
     return $stmt->execute([
       ':user_id'    => $userId,
       ':log_level'  => $logLevel,
       ':message'    => $message,
       ':source'     => $source,
-      ':extra_info' => is_array($extraInfo) || is_object($extraInfo)
-        ? json_encode($extraInfo, JSON_UNESCAPED_UNICODE)
-        : $extraInfo,
+      ':extra_info' => $jsonValue,
     ]);
   }
 
