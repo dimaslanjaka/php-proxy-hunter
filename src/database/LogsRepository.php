@@ -21,6 +21,63 @@ class LogsRepository
     $this->db     = $db;
     $this->pdo    = $db->db->pdo;
     $this->driver = $db->driver;
+    $this->ensureTable();
+  }
+
+  private function ensureTable()
+  {
+    if ($this->driver === 'mysql') {
+      $sql = <<<SQL
+      CREATE TABLE IF NOT EXISTS `user_logs` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `user_id` INT NOT NULL,
+        `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        `log_level` VARCHAR(32) NOT NULL DEFAULT 'INFO', -- INFO, WARNING, ERROR
+        `message` TEXT NOT NULL, -- human-readable log
+        `source` VARCHAR(255), -- module/service
+        `extra_info` JSON, -- use JSON if possible
+        FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
+      ) ENGINE = InnoDB;
+
+      CREATE TABLE IF NOT EXISTS `user_activity` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `user_id` INT NOT NULL,
+        `activity_type` VARCHAR(50) NOT NULL, -- LOGIN, CREATE, UPDATE, DELETE, LOGOUT
+        `target_type` VARCHAR(50), -- table/entity name, e.g., "order"
+        `target_id` INT, -- entity ID
+        `ip_address` VARCHAR(45), -- IPv4/IPv6
+        `user_agent` TEXT, -- browser/app info
+        `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        `details` JSON, -- structured info (before/after values)
+        FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
+      ) ENGINE = InnoDB;
+      SQL;
+    } else {
+      $sql = <<<SQL
+      CREATE TABLE IF NOT EXISTS "user_logs" (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "user_id" INTEGER NOT NULL REFERENCES "auth_user" ("id"),
+        "timestamp" DATETIME DEFAULT CURRENT_TIMESTAMP,
+        "log_level" TEXT NOT NULL DEFAULT 'INFO',
+        "message" TEXT NOT NULL,
+        "source" TEXT,
+        "extra_info" TEXT -- store JSON as TEXT, queryable with JSON1
+      );
+
+      CREATE TABLE IF NOT EXISTS "user_activity" (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "user_id" INTEGER NOT NULL REFERENCES "auth_user" ("id"),
+        "activity_type" TEXT NOT NULL,
+        "target_type" TEXT,
+        "target_id" INTEGER,
+        "ip_address" TEXT,
+        "user_agent" TEXT,
+        "timestamp" DATETIME DEFAULT CURRENT_TIMESTAMP,
+        "details" TEXT -- JSON string, use json_extract() if SQLite compiled with JSON1
+      );
+      SQL;
+    }
+    $this->pdo->exec($sql);
   }
 
   /**
