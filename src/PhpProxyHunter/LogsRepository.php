@@ -77,6 +77,9 @@ class LogsRepository
       SQL;
     }
     $this->pdo->exec($sql);
+
+    $migration = new LogsRepositoryMigrations($this->pdo, $this->driver);
+    $migration->migrateIfNeeded();
   }
 
   /**
