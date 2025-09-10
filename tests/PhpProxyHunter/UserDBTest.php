@@ -54,8 +54,11 @@ class UserDBTest extends TestCase
       if ($userIds && count($userIds) > 0) {
         $ids = implode(',', array_map('intval', $userIds));
         $pdo->exec("DELETE FROM user_discount WHERE user_id IN ($ids)");
+        $pdo->exec("DELETE FROM user_logs WHERE user_id IN ($ids)");
+        $pdo->exec("DELETE FROM user_fields WHERE user_id IN ($ids)");
+        // Add more child tables if needed
+        $pdo->exec("DELETE FROM auth_user WHERE id IN ($ids)");
       }
-      $pdo->exec("DELETE FROM auth_user WHERE username IN ('testuser', 'updateuser', 'saldo') OR email IN ('test@example.com', 'update@example.com', 'saldo@example.com')");
     } else {
       $this->testDbPath = sys_get_temp_dir() . '/test_database.sqlite';
       $this->userDB     = new UserDB($this->testDbPath);
