@@ -3,6 +3,7 @@
 use PhpProxyHunter\UserDB;
 use PhpProxyHunter\CoreDB;
 use PHPUnit\Framework\TestCase;
+use PhpProxyHunter\LogsRepository;
 
 /**
  * @covers LogsRepository

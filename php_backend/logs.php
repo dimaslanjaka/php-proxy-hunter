@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../func.php';
 include __DIR__ . '/shared.php';
 
+use PhpProxyHunter\LogsRepository;
+
 // Allow from any origin
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: *');

@@ -1,5 +1,7 @@
 <?php
 
+namespace PhpProxyHunter;
+
 class LogsRepository
 {
   /** @var \PDO */
