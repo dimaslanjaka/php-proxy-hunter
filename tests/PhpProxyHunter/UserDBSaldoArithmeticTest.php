@@ -49,40 +49,51 @@ class UserDBSaldoArithmeticTest extends TestCase
     }
   }
 
-  public function testSaldoArithmeticSqlite(): void
+
+  public function dbProvider(): array
   {
-    $testDbPath = sys_get_temp_dir() . '/test_database_saldo.sqlite';
-    if (file_exists($testDbPath)) {
-      @unlink($testDbPath);
-    }
-    $userDB = new UserDB($testDbPath);
-    $this->runSaldoArithmeticTest($userDB);
-    $userDB->close();
-    if (file_exists($testDbPath)) {
-      @unlink($testDbPath);
-    }
+    return [
+      'sqlite' => ['sqlite'],
+      'mysql'  => ['mysql'],
+    ];
   }
 
-  public function testSaldoArithmeticMysql(): void
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testSaldoArithmetic($driver): void
   {
-    try {
-      $this->createTestDatabase();
-      $userDB = new UserDB(null, 'mysql', $this->mysqlHost, $this->mysqlDb, $this->mysqlUser, $this->mysqlPass, true);
-      $pdo    = $userDB->db->pdo;
-      $pdo->exec('SET FOREIGN_KEY_CHECKS=0;');
-      $pdo->exec('TRUNCATE TABLE user_logs;');
-      $pdo->exec('TRUNCATE TABLE user_fields;');
-      $pdo->exec('TRUNCATE TABLE auth_user;');
-      $pdo->exec('TRUNCATE TABLE meta;');
-      $pdo->exec('TRUNCATE TABLE added_proxies;');
-      $pdo->exec('TRUNCATE TABLE processed_proxies;');
-      $pdo->exec('TRUNCATE TABLE proxies;');
-      $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
+    if ($driver === 'sqlite') {
+      $testDbPath = sys_get_temp_dir() . '/test_database_saldo.sqlite';
+      if (file_exists($testDbPath)) {
+        @unlink($testDbPath);
+      }
+      $userDB = new UserDB($testDbPath);
       $this->runSaldoArithmeticTest($userDB);
       $userDB->close();
-      $this->dropTestDatabase();
-    } catch (\Throwable $e) {
-      $this->fail('Failed to connect or setup MySQL: ' . $e->getMessage());
+      if (file_exists($testDbPath)) {
+        @unlink($testDbPath);
+      }
+    } else {
+      try {
+        $this->createTestDatabase();
+        $userDB = new UserDB(null, 'mysql', $this->mysqlHost, $this->mysqlDb, $this->mysqlUser, $this->mysqlPass, true);
+        $pdo    = $userDB->db->pdo;
+        $pdo->exec('SET FOREIGN_KEY_CHECKS=0;');
+        $pdo->exec('TRUNCATE TABLE user_logs;');
+        $pdo->exec('TRUNCATE TABLE user_fields;');
+        $pdo->exec('TRUNCATE TABLE auth_user;');
+        $pdo->exec('TRUNCATE TABLE meta;');
+        $pdo->exec('TRUNCATE TABLE added_proxies;');
+        $pdo->exec('TRUNCATE TABLE processed_proxies;');
+        $pdo->exec('TRUNCATE TABLE proxies;');
+        $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
+        $this->runSaldoArithmeticTest($userDB);
+        $userDB->close();
+        $this->dropTestDatabase();
+      } catch (\Throwable $e) {
+        $this->fail('Failed to connect or setup MySQL: ' . $e->getMessage());
+      }
     }
   }
 
@@ -93,7 +104,10 @@ class UserDBSaldoArithmeticTest extends TestCase
       'password' => 'arithpass',
       'email'    => 'arith@example.com',
     ];
-    $userDB->add($userData);
+    // Add user only if not exists
+    if (!$userDB->select($userData['username'])) {
+      $userDB->add($userData);
+    }
     $user = $userDB->select('arithuser');
     $id   = (int) $user['id'];
 
