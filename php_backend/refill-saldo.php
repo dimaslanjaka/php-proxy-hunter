@@ -24,12 +24,12 @@ if ($is_admin) {
     $existing_saldo = floatval($user['saldo'] ?? 0);
     if ($set) {
       // Set saldo to exact value (replace saldo)
-      $user_db->update_saldo($user['id'], $amount, basename(__FILE__) . ':' . __LINE__, '', true);
+      $user_db->updatePoint($user['id'], $amount, basename(__FILE__) . ':' . __LINE__, '', true);
       $total = $amount;
       echo json_encode(['total' => $total, 'existing' => $existing_saldo, 'set' => $amount]);
     } else {
       // Add saldo (default behavior)
-      $user_db->update_saldo($user['id'], $amount, basename(__FILE__) . ':' . __LINE__, '', false);
+      $user_db->updatePoint($user['id'], $amount, basename(__FILE__) . ':' . __LINE__, '', false);
       $total = $existing_saldo + $amount;
       echo json_encode(['total' => $total, 'existing' => $existing_saldo, 'add' => $amount]);
     }

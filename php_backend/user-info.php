@@ -83,7 +83,7 @@ if ($email) {
   $userData = $user_db->select($email);
   if (!isset($userData['saldo']) && isset($userData['id'])) {
     // Initialize saldo to 0 if not set
-    $user_db->update_saldo($userData['id'], 0, basename(__FILE__) . ':' . __LINE__);
+    $user_db->updatePoint($userData['id'], 0, basename(__FILE__) . ':' . __LINE__);
     $userData             = $user_db->select($email);
     $result['success']    = true;
     $result['messages'][] = 'Saldo initialized to 0.';

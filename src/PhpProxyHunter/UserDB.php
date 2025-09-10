@@ -194,18 +194,20 @@ class UserDB
   }
 
   /**
-   * Update a user's saldo (balance) by incrementing or replacing it.
+   * Updates a user's saldo (balance) in the database.
    *
    * If $replace is true, the saldo is set to $amount. If false, $amount is added to the current saldo.
+   * Also logs the operation using the LogsRepository.
    *
-   * @param int $id User ID
-   * @param int $amount Amount to add or set
-   * @param string $log_source Log source identifier (e.g. refill_saldo, buy_package)
-   * @param string $log_extra_info Extra info for logs (optional)
-   * @param bool $replace If true, replace saldo with $amount; if false, increment by $amount (default: false)
-   * @return array The updated saldo row (['saldo' => int])
+   * @param int         $id             User ID.
+   * @param int         $amount         Amount to add or set.
+   * @param string      $log_source     Log source identifier (e.g. 'refill_saldo', 'buy_package').
+   * @param string|array|null $log_extra_info Extra info for logs (optional).
+   * @param bool        $replace        If true, replace saldo with $amount; if false, increment by $amount (default: false).
+   *
+   * @return array Returns an array with the updated saldo, e.g. ['saldo' => int].
    */
-  public function update_saldo($id, $amount, $log_source, $log_extra_info = '', $replace = false)
+  public function updatePoint($id, $amount, $log_source, $log_extra_info = '', $replace = false)
   {
     // Get current saldo (if exists)
     $saldo_row      = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
