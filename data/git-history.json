@@ -1,5 +1,22 @@
 [
   {
+    "hash": "591ada30eac5ff7ca8e311d2929eb2bf0f8cda88",
+    "date": "2025-09-10T15:35:27+07:00",
+    "message": "feat(LogsRepository): add migration handling for log repository schema changes",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php",
+      "src/PhpProxyHunter/LogsRepositoryMigrations.php"
+    ]
+  },
+  {
+    "hash": "7f461ba93b5b66b029cea8e366170b24aceec736",
+    "date": "2025-09-10T15:30:14+07:00",
+    "message": "fix(LogsRepository): add missing use statement for PDO",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php"
+    ]
+  },
+  {
     "hash": "9cc479e64509cf27c98519ebc6607358b015c589",
     "date": "2025-09-10T15:24:05+07:00",
     "message": "feat(db): support PDO injection in MySQLHelper and SQLiteHelper constructors\n\n- Updated MySQLHelper to accept either host credentials or an existing PDO instance\n- Updated SQLiteHelper to accept either database path or an existing PDO instance\n- Improved unique key generation to handle PDO-based connections\n- Enhanced SQLiteHelper::dropColumnIfExists to rebuild table schema safely\n- Added new test cases for constructor with PDO, table operations, and column management\n- Introduced SQLiteHelperDebug for debugging schema changes",
