@@ -107,5 +107,11 @@ class LogsRepositoryMigrations
       // SQLite does not support ENUM, use TEXT with CHECK constraint
       $this->helper->addColumnIfNotExists('user_logs', 'log_type', "TEXT CHECK(log_type IN ('system', 'package', 'payment', 'other'))");
     }
+    // Change details column in user_activity to TEXT NULL DEFAULT NULL
+    if ($this->driver === 'mysql') {
+      $this->helper->modifyColumnIfExists('user_activity', 'details', 'TEXT NULL DEFAULT NULL');
+    } elseif ($this->driver === 'sqlite') {
+      $this->helper->modifyColumnIfExists('user_activity', 'details', 'TEXT DEFAULT NULL');
+    }
   }
 }
