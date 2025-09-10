@@ -142,7 +142,7 @@
 │   │   ├── ExecutionTimer.php [2ca2a10e]
 │   │   ├── FileLockHelper.php [2ea736cc]
 │   │   ├── GeoIpHelper.php [53d80536]
-│   │   ├── LogsRepository.php [89d093af]
+│   │   ├── LogsRepository.php [1d410bbd]
 │   │   ├── LogsRepositoryMigrations.php [8a3688a9]
 │   │   ├── MySQLHelper.php [f526fbcb]
 │   │   ├── Proxy.php [21788f6d]

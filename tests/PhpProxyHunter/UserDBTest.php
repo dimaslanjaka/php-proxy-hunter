@@ -52,11 +52,9 @@ class UserDBTest extends TestCase
       $pdo     = $this->userDB->db->pdo;
       $userIds = $pdo->query("SELECT id FROM auth_user WHERE username IN ('testuser', 'updateuser', 'saldo') OR email IN ('test@example.com', 'update@example.com', 'saldo@example.com')")->fetchAll(PDO::FETCH_COLUMN);
       if ($userIds && count($userIds) > 0) {
-        $ids = implode(',', array_map('intval', $userIds));
-        $pdo->exec("DELETE FROM user_discount WHERE user_id IN ($ids)");
-        $pdo->exec("DELETE FROM user_logs WHERE user_id IN ($ids)");
-        $pdo->exec("DELETE FROM user_fields WHERE user_id IN ($ids)");
-        $pdo->exec("DELETE FROM auth_user WHERE id IN ($ids)");
+        foreach ($userIds as $userId) {
+          $this->userDB->delete($userId);
+        }
       }
     } else {
       $this->testDbPath = sys_get_temp_dir() . '/test_database.sqlite';
