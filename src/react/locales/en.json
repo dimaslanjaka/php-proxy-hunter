@@ -80,5 +80,9 @@
   "set_point_placeholder": "Enter new points (will replace old points). Example: <1>100</1> (will become {{exampleRupiah}})",
   "set_point_button": "Set Points",
   "set_point_error": "Failed to set points.",
-  "point_manager_title": "Point Manager"
+  "point_manager_title": "Point Manager",
+  "user_activity_title": "User Activity for {{user}}",
+  "failed_to_fetch_activity": "Failed to fetch activity.",
+  "loading": "Loading...",
+  "no_activity_found": "No activity found."
 }

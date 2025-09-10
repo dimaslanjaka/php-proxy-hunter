@@ -80,5 +80,9 @@
   "set_point_placeholder": "Masukkan poin baru (akan menggantikan poin lama). Contoh: <1>100</1> (akan menjadi {{exampleRupiah}})",
   "set_point_button": "Set Poin",
   "set_point_error": "Gagal mengatur poin.",
-  "point_manager_title": "Manajer Poin"
+  "point_manager_title": "Manajer Poin",
+  "user_activity_title": "Aktivitas Pengguna untuk {{user}}",
+  "failed_to_fetch_activity": "Gagal mengambil aktivitas.",
+  "loading": "Memuat...",
+  "no_activity_found": "Tidak ada aktivitas ditemukan."
 }
