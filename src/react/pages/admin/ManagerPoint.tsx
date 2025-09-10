@@ -2,11 +2,11 @@ import { useTranslation } from 'react-i18next';
 import { addSaldoToUser, getListOfUsers, getUserInfo } from '../../utils/user.js';
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
-import AddSaldoForm from './AddSaldoForm';
-import EditPasswordForm from './EditPasswordForm';
-import EditSaldoForm from './EditSaldoForm';
+import AddPointForm from './AddPointForm.js';
+import EditPasswordForm from './EditPasswordForm.js';
+import EditSaldoForm from './EditSaldoForm.js';
 
-export default function SaldoManager() {
+export default function ManagerPoint() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [users, setUsers] = useState<Awaited<ReturnType<typeof getListOfUsers>>>([]);
@@ -108,7 +108,7 @@ export default function SaldoManager() {
               </select>
             </div>
             <div>
-              <AddSaldoForm
+              <AddPointForm
                 userId={selectedUser}
                 currentSaldo={getSelectedUserSaldo()}
                 onSuccess={async () => {
