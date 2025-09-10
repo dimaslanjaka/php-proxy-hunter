@@ -1,5 +1,44 @@
 [
   {
+    "hash": "5b8f5629cdc7eed41ec9be7b2c25a8fb1d2f14e1",
+    "date": "2025-09-10T08:40:49+07:00",
+    "message": "feat(schema): add user_logs and user_activity tables for enhanced logging and activity tracking",
+    "files": [
+      "src/PhpProxyHunter/assets/mysql-schema.sql",
+      "src/PhpProxyHunter/assets/sqlite-schema.sql"
+    ]
+  },
+  {
+    "hash": "5fd8ac47d1c66fceece7c6484823318d81a34b4f",
+    "date": "2025-09-10T08:39:15+07:00",
+    "message": "refactor(logs): decouple LogsRepository from CoreDB, accept PDO directly\n\n- Changed LogsRepository to accept a PDO instance in the constructor instead of CoreDB.\n- Updated driver detection to use PDO's getAttribute(PDO::ATTR_DRIVER_NAME).\n- Updated test setup to pass PDO instance from CoreDB to LogsRepository.",
+    "files": [
+      "src/database/LogsRepository.php",
+      "tests/database/LogsRepositoryTest.php"
+    ]
+  },
+  {
+    "hash": "945658e21d2ca69a9202c274f8f1582e02812002",
+    "date": "2025-09-10T08:36:40+07:00",
+    "message": "refactor(database): move user_logs and user_activity table creation into LogsRepository",
+    "files": [
+      "src/PhpProxyHunter/assets/mysql-schema.sql",
+      "src/PhpProxyHunter/assets/sqlite-schema.sql",
+      "src/database/LogsRepository.php"
+    ]
+  },
+  {
+    "hash": "109d504df12ab20cc6b8d97db1ced4d891a935cd",
+    "date": "2025-09-10T08:10:21+07:00",
+    "message": "feat(schema,logs): enhance user log and activity storage, add file log helpers\n\n- Updated MySQL and SQLite schemas:\n  - Added `id` as primary key to `user_logs` and `user_activity` tables.\n  - Changed `extra_info`/`details` columns to use JSON (MySQL) or TEXT (SQLite, for JSON1 compatibility).\n  - Added more descriptive comments and improved structure for both tables.\n- Refactored `LogsRepository`:\n  - Added PHPDoc and type annotations for properties.\n  - Added constructor to initialize PDO and driver.\n  - Added `addLogByHash` method to write log content to file, auto-encoding arrays/objects as JSON.\n  - Added `getLogFilePath` helper to resolve log file path by hash.\n  - Refactored `getLogsByHash` to use `getLogFilePath` and support file-based log retrieval.\n  - Ensured all file log helpers throw clear exceptions if required functions are missing.\n- Added PHPUnit test for `LogsRepository` covering DB and file-based log operations for both SQLite and MySQL.",
+    "files": [
+      "src/PhpProxyHunter/assets/mysql-schema.sql",
+      "src/PhpProxyHunter/assets/sqlite-schema.sql",
+      "src/database/LogsRepository.php",
+      "tests/database/LogsRepositoryTest.php"
+    ]
+  },
+  {
     "hash": "81351f417fbf383e22ae3bb0cfb2585868d6bdf9",
     "date": "2025-09-10T07:20:23+07:00",
     "message": "feat(logs): refactor logs endpoint to use LogsRepository and shared DB\n\n- Refactored `php_backend/logs.php` to use a new `LogsRepository` class for fetching logs by hash.\n- Included `shared.php` for consistent database and utility function loading.\n- Added `src/database/LogsRepository.php` with a method to retrieve log content by hash, using helper functions for file access.\n- Improves maintainability and centralizes log file access logic.",
