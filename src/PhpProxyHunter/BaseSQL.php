@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpProxyHunter;
 
 /**
@@ -12,7 +14,7 @@ namespace PhpProxyHunter;
  */
 abstract class BaseSQL
 {
-  /** @var PDO|null Database connection instance */
+  /** @var \PDO|null Database connection instance */
   protected $pdo;
 
   /** @var string The unique key for the current PDO instance. */
@@ -32,69 +34,105 @@ abstract class BaseSQL
    * Create a table in the database.
    *
    * @param string $tableName The name of the table to create.
-   * @param array  $columns   Column definitions.
+   * @param array $columns Column definitions.
    * @return void
    */
-  abstract public function createTable($tableName, $columns);
+  abstract public function createTable($tableName, array $columns);
 
   /**
    * Insert a record into a table.
    *
    * @param string $tableName The target table.
-   * @param array  $data      Associative array of column => value.
-   * @param bool   $insertOrIgnore Whether to use "INSERT OR IGNORE".
+   * @param array $data Associative array of column => value.
+   * @param bool $insertOrIgnore Whether to use "INSERT OR IGNORE".
    * @return void
    */
-  abstract public function insert($tableName, $data, $insertOrIgnore = true);
+  abstract public function insert($tableName, array $data, $insertOrIgnore = true);
 
   /**
    * Select records from a table.
    *
-   * @param string      $tableName The target table.
-   * @param string      $columns   The columns to select.
-   * @param string|null $where     The WHERE clause.
-   * @param array       $params    Parameters for the query.
+   * @param string $tableName The target table.
+   * @param string $columns The columns to select.
+   * @param string|null $where The WHERE clause.
+   * @param array $params Parameters for the query.
    * @return array
    */
-  abstract public function select($tableName, $columns = '*', $where = null, $params = []);
+  abstract public function select($tableName, $columns = '*', $where = null, array $params = []);
 
   /**
    * Execute a custom SQL query.
    *
-   * @param string $sql    SQL query.
-   * @param array  $params Parameters for the query.
+   * @param string $sql SQL query.
+   * @param array $params Parameters for the query.
    * @return array
    */
-  abstract public function executeCustomQuery($sql, $params = []);
+  abstract public function executeCustomQuery($sql, array $params = []);
 
   /**
    * Count records in a table.
    *
-   * @param string      $tableName The target table.
-   * @param string|null $where     The WHERE clause.
-   * @param array       $params    Parameters for the query.
+   * @param string $tableName The target table.
+   * @param string|null $where The WHERE clause.
+   * @param array $params Parameters for the query.
    * @return int
    */
-  abstract public function count($tableName, $where = null, $params = []);
+  abstract public function count($tableName, $where = null, array $params = []);
 
   /**
    * Update records in a table.
    *
    * @param string $tableName The target table.
-   * @param array  $data      Data to update.
-   * @param string $where     The WHERE clause.
-   * @param array  $params    Parameters for the query.
+   * @param array $data Data to update.
+   * @param string $where The WHERE clause.
+   * @param array $params Parameters for the query.
    * @return void
    */
-  abstract public function update($tableName, $data, $where, $params = []);
+  abstract public function update($tableName, array $data, $where, array $params = []);
 
   /**
    * Delete records from a table.
    *
    * @param string $tableName The target table.
-   * @param string $where     The WHERE clause.
-   * @param array  $params    Parameters for the query.
+   * @param string $where The WHERE clause.
+   * @param array $params Parameters for the query.
    * @return void
    */
-  abstract public function delete($tableName, $where, $params = []);
+  abstract public function delete($tableName, $where, array $params = []);
+
+  /**
+   * Add a column to a table if it does not exist.
+   *
+   * @param string $table The table name.
+   * @param string $column The column name.
+   * @param string $definition The column definition (SQL fragment).
+   * @return bool True if the column was added, false if it already existed or failed.
+   */
+  abstract public function addColumnIfNotExists($table, $column, $definition);
+
+  /**
+   * Check if a column exists in a table.
+   *
+   * @param string $table The table name.
+   * @param string $column The column name.
+   * @return bool True if the column exists, false otherwise.
+   */
+  abstract public function columnExists($table, $column);
+
+  /**
+   * Drop a column from a table if it exists.
+   *
+   * @param string $table The table name.
+   * @param string $column The column name.
+   * @return bool True if the column was dropped, false if it did not exist or failed.
+   */
+  abstract public function dropColumnIfExists($table, $column);
+
+  /**
+   * Get all columns of a table.
+   *
+   * @param string $table The table name.
+   * @return array List of column names.
+   */
+  abstract public function getTableColumns($table);
 }

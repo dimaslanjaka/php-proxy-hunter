@@ -213,4 +213,40 @@ class SQLiteHelper extends BaseSQL
       throw $e;
     }
   }
+
+  public function getTableColumns($table)
+  {
+    $stmt    = $this->pdo->query("PRAGMA table_info($table)");
+    $columns = [];
+    foreach ($stmt as $row) {
+      $columns[] = $row['name'];
+    }
+    return $columns;
+  }
+
+  public function addColumnIfNotExists($table, $column, $definition)
+  {
+    $columns = $this->getTableColumns($table);
+    if (!in_array($column, $columns, true)) {
+      $this->pdo->exec("ALTER TABLE $table ADD COLUMN $column $definition");
+      return true;
+    }
+    return false;
+  }
+
+  public function columnExists($table, $column)
+  {
+    $columns = $this->getTableColumns($table);
+    return in_array($column, $columns, true);
+  }
+
+  public function dropColumnIfExists($table, $column)
+  {
+    $columns = $this->getTableColumns($table);
+    if (in_array($column, $columns, true)) {
+      $this->pdo->exec("ALTER TABLE `$table` DROP COLUMN `$column`");
+      return true;
+    }
+    return false;
+  }
 }

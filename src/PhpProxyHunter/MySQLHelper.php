@@ -257,4 +257,38 @@ class MySQLHelper extends BaseSQL
     $sql = "ALTER TABLE $tableName AUTO_INCREMENT = 1";
     $this->pdo->exec($sql);
   }
+
+  public function getTableColumns($table)
+  {
+    $stmt    = $this->pdo->query("DESCRIBE `$table`");
+    $columns = [];
+    foreach ($stmt as $row) {
+      $columns[] = $row['Field'];
+    }
+    return $columns;
+  }
+
+  public function addColumnIfNotExists($table, $column, $definition)
+  {
+    $columns = $this->getTableColumns($table);
+    if (!in_array($column, $columns, true)) {
+      $this->pdo->exec("ALTER TABLE `$table` ADD COLUMN `$column` $definition");
+    }
+  }
+
+  public function columnExists($table, $column)
+  {
+    $columns = $this->getTableColumns($table);
+    return in_array($column, $columns, true);
+  }
+
+  public function dropColumnIfExists($table, $column)
+  {
+    $columns = $this->getTableColumns($table);
+    if (in_array($column, $columns, true)) {
+      $this->pdo->exec("ALTER TABLE `$table` DROP COLUMN `$column`");
+      return true;
+    }
+    return false;
+  }
 }
