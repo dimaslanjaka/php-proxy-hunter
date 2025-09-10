@@ -1,5 +1,63 @@
 [
   {
+    "hash": "cd5d4d955028079630c42ce5510467d3980bdfeb",
+    "date": "2025-09-10T10:01:19+07:00",
+    "message": "feat(UserDB): enhance delete method to remove related records from user_activity, user_discount, user_logs, and user_fields",
+    "files": [
+      "src/PhpProxyHunter/UserDB.php"
+    ]
+  },
+  {
+    "hash": "6ac46935ce0aa3b0eebe8e14c34f4c6e0975e947",
+    "date": "2025-09-10T09:47:56+07:00",
+    "message": "feat(UserDB): add delete method to remove users and related records",
+    "files": [
+      "src/PhpProxyHunter/UserDB.php",
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
+    "hash": "756ea33cd469d6c1ec33923d2003cfedc97154be",
+    "date": "2025-09-10T09:39:33+07:00",
+    "message": "test: enhance UserDBTest cleanup to remove related child records\n\nExpanded the cleanup logic to delete entries from user_logs and user_fields before removing users, and adjusted deletion from auth_user to target by user IDs instead of filtering by username or email. This ensures a more reliable and consistent database state during tests.",
+    "files": [
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
+    "hash": "3273b8b2a7b9dfc796f841aebaf9e7a2b2b6252c",
+    "date": "2025-09-10T09:27:35+07:00",
+    "message": "test: unify saldo arithmetic tests with data provider\n\n- replace separate SQLite and MySQL tests with single parameterized test using dbProvider\n- ensure SQLite database is properly created and removed after test\n- add MySQL setup and cleanup inside data-driven test\n- prevent duplicate user insertion by checking existence before adding",
+    "files": [
+      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php"
+    ]
+  },
+  {
+    "hash": "e4f3c3dbe5df9d1fb97328e8480fd812771ef0bb",
+    "date": "2025-09-10T09:24:45+07:00",
+    "message": "feat(schema): add user_discount table for managing user discounts and packages",
+    "files": [
+      "src/PhpProxyHunter/assets/mysql-schema.sql",
+      "src/PhpProxyHunter/assets/sqlite-schema.sql"
+    ]
+  },
+  {
+    "hash": "4e4c3cfa1e9706a196f5fd6c6385746ec0a436c6",
+    "date": "2025-09-10T09:16:02+07:00",
+    "message": "refactor(userdb): optimize update_saldo to reduce queries and improve logging\n\nReplaced multiple select queries with a single saldo lookup, removed redundant\nfinal query by returning the calculated saldo, and ensured extra_info is\nproperly normalized before logging.",
+    "files": [
+      "src/PhpProxyHunter/UserDB.php"
+    ]
+  },
+  {
+    "hash": "c3f3b243335abd68d7923b02963a50019ba9b7eb",
+    "date": "2025-09-10T08:50:24+07:00",
+    "message": "fix(LogRepository): ensure valid JSON or null for extra_info in addLog\n\n- Updated addLog to handle empty or null extra_info values for MySQL JSON columns.\n- Prevents invalid JSON errors by inserting null when extra_info is empty or null, and encoding arrays/objects as JSON.",
+    "files": [
+      "src/database/LogsRepository.php"
+    ]
+  },
+  {
     "hash": "5b8f5629cdc7eed41ec9be7b2c25a8fb1d2f14e1",
     "date": "2025-09-10T08:40:49+07:00",
     "message": "feat(schema): add user_logs and user_activity tables for enhanced logging and activity tracking",
