@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../func.php';
-require_once __DIR__ . '/../func-proxy.php';
+include __DIR__ . '/shared.php';
 
 // Allow from any origin
 header('Access-Control-Allow-Origin: *');
@@ -9,16 +9,13 @@ header('Access-Control-Allow-Headers: *');
 header('Access-Control-Allow-Methods: *');
 header('Content-Type: text/plain; charset=utf-8');
 
-$request = parsePostData(true);
-$hash    = isset($request['hash']) ? $request['hash'] : '';
+$logsRepo = new LogsRepository($core_db);
+$request  = parsePostData(true);
+$hash     = isset($request['hash']) ? $request['hash'] : '';
 if (!empty($hash)) {
-  $file = tmp() . '/logs/' . $hash . '.txt';
-  if (!file_exists($file)) {
-    $file = tmp() . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR . $hash . '.txt';
-  }
-  $read = read_file($file);
-  if ($read) {
-    echo $read;
+  $logData = $logsRepo->getLogsByHash($hash);
+  if ($logData) {
+    echo $logData;
   } else {
     echo "No logs found for {$hash}" . PHP_EOL;
   }
