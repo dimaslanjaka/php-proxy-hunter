@@ -2,6 +2,8 @@
 
 namespace PhpProxyHunter;
 
+use PDO;
+
 class LogsRepository
 {
   /** @var \PDO */
