@@ -44,6 +44,79 @@ class MySQLHelperTest extends TestCase
     }
   }
 
+  public function testCreateTable(): void
+  {
+    $table   = 'test_create_table';
+    $columns = [
+      'id INT AUTO_INCREMENT PRIMARY KEY',
+      'foo VARCHAR(50)',
+    ];
+    $this->db->createTable($table, $columns);
+    $this->assertContains('foo', $this->db->getTableColumns($table));
+    $this->db->pdo->exec("DROP TABLE IF EXISTS `$table`");
+  }
+
+  public function testClose(): void
+  {
+    $this->db->close();
+    $this->assertNull($this->db->pdo);
+  }
+
+  public function testResetIncrement(): void
+  {
+    $this->db->insert($this->table, ['name' => 'Reset', 'age' => 1]);
+    $this->db->pdo->exec("DELETE FROM `{$this->table}`");
+    $this->db->resetIncrement($this->table);
+    $this->db->insert($this->table, ['name' => 'Reset2', 'age' => 2]);
+    $result = $this->db->select($this->table);
+    $this->assertSame(1, (int)$result[0]['id']);
+  }
+
+  public function testGetTableColumns(): void
+  {
+    $columns = $this->db->getTableColumns($this->table);
+    $this->assertContains('name', $columns);
+    $this->assertContains('age', $columns);
+  }
+
+  public function testAddColumnIfNotExistsAndColumnExists(): void
+  {
+    $col = 'new_col';
+    $def = 'VARCHAR(20)';
+    if ($this->db->columnExists($this->table, $col)) {
+      $this->db->dropColumnIfExists($this->table, $col);
+    }
+    $this->assertFalse($this->db->columnExists($this->table, $col));
+    $this->db->addColumnIfNotExists($this->table, $col, $def);
+    $this->assertTrue($this->db->columnExists($this->table, $col));
+  }
+
+  public function testDropColumnIfExists(): void
+  {
+    $col = 'to_drop';
+    $def = 'INT';
+    if (!$this->db->columnExists($this->table, $col)) {
+      $this->db->addColumnIfNotExists($this->table, $col, $def);
+    }
+    $this->assertTrue($this->db->columnExists($this->table, $col));
+    $this->db->dropColumnIfExists($this->table, $col);
+    $this->assertFalse($this->db->columnExists($this->table, $col));
+  }
+
+  public function testConstructorWithPDO(): void
+  {
+    $pdo = new PDO(
+      "mysql:host={$this->mysqlHost};dbname={$this->mysqlDb};charset=utf8mb4",
+      $this->mysqlUser,
+      $this->mysqlPass
+    );
+    $db2 = new MySQLHelper($pdo, null, null, null, true);
+    $this->assertInstanceOf(MySQLHelper::class, $db2);
+    $this->assertInstanceOf(PDO::class, $db2->pdo);
+    $db2->pdo->exec('CREATE TABLE IF NOT EXISTS test_pdo (id INT PRIMARY KEY)');
+    $db2->pdo->exec('DROP TABLE IF EXISTS test_pdo');
+  }
+
   public function testInsertAndSelect(): void
   {
     $this->db->insert($this->table, ['name' => 'Alice', 'age' => 30]);

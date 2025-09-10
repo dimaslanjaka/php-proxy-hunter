@@ -22,78 +22,84 @@ class MySQLHelper extends BaseSQL
   /**
    * MySQLHelper constructor.
    *
-   * @param string $host The MySQL host.
-   * @param string $dbname The MySQL database name.
-   * @param string $username The MySQL username.
-   * @param string $password The MySQL password.
+   * @param string|PDO $hostOrPdo The MySQL host or a PDO instance.
+   * @param string|null $dbname The MySQL database name (ignored if PDO is provided).
+   * @param string|null $username The MySQL username (ignored if PDO is provided).
+   * @param string|null $password The MySQL password (ignored if PDO is provided).
    * @param bool $unique Whether to use a unique key based on caller location.
    */
-  public function __construct($host, $dbname, $username, $password, $unique = false)
+  public function __construct($hostOrPdo, $dbname = null, $username = null, $password = null, $unique = false)
   {
-    $trace           = debug_backtrace();
-    $caller          = $unique ? end($trace) : $trace[0];
-    $callerFile      = isset($caller['file']) ? $caller['file'] : 'unknown';
-    $callerLine      = isset($caller['line']) ? $caller['line'] : 'unknown';
-    $this->uniqueKey = md5($host . $dbname . $username . $callerFile . $callerLine);
+    $isPdo               = $hostOrPdo instanceof PDO;
+    $hostOrPdoIdentifier = $isPdo ? spl_object_hash($hostOrPdo) : $hostOrPdo;
+    $trace               = debug_backtrace();
+    $caller              = $unique ? end($trace) : $trace[0];
+    $callerFile          = isset($caller['file']) ? $caller['file'] : 'unknown';
+    $callerLine          = isset($caller['line']) ? $caller['line'] : 'unknown';
+    $this->uniqueKey     = md5($hostOrPdoIdentifier . ($dbname ?: '') . ($username ?: '') . $callerFile . $callerLine);
 
     if (isset(self::$databases[$this->uniqueKey])) {
       $this->pdo = self::$databases[$this->uniqueKey];
     } else {
-      // Try connecting to the database, if it fails due to unknown database, create it
-      $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-      try {
-        $this->pdo = new PDO($dsn, $username, $password);
-      } catch (\PDOException $e) {
-        $msg = $e->getMessage();
-        if (strpos($msg, 'Unknown database') !== false) {
-          // Connect without dbname and create the database
-          $dsnNoDb = "mysql:host=$host;charset=utf8mb4";
-          $pdoTmp  = new PDO($dsnNoDb, $username, $password);
-          $pdoTmp->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-          $pdoTmp->exec('CREATE DATABASE IF NOT EXISTS `' . str_replace('`', '', $dbname) . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
-          // Now connect again with the dbname
+      if ($isPdo) {
+        $this->pdo = $hostOrPdo;
+      } else {
+        // Try connecting to the database, if it fails due to unknown database, create it
+        $dsn = "mysql:host=$hostOrPdo;dbname=$dbname;charset=utf8mb4";
+        try {
           $this->pdo = new PDO($dsn, $username, $password);
-        } elseif (strpos($msg, "Plugin 'mysql_native_password' is not loaded") !== false) {
-          // Try to auto-install the plugin (requires SUPER privilege)
-          $dll = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'mysql_native_password.dll' : 'mysql_native_password.so';
-          try {
-            $dsnNoDb = "mysql:host=$host;charset=utf8mb4";
+        } catch (\PDOException $e) {
+          $msg = $e->getMessage();
+          if (strpos($msg, 'Unknown database') !== false) {
+            // Connect without dbname and create the database
+            $dsnNoDb = "mysql:host=$hostOrPdo;charset=utf8mb4";
             $pdoTmp  = new PDO($dsnNoDb, $username, $password);
             $pdoTmp->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $pdoTmp->exec("INSTALL PLUGIN mysql_native_password SONAME '" . $dll . "';");
-            // Try again to connect
+            $pdoTmp->exec('CREATE DATABASE IF NOT EXISTS `' . str_replace('`', '', $dbname) . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+            // Now connect again with the dbname
             $this->pdo = new PDO($dsn, $username, $password);
-          } catch (\PDOException $e2) {
-            // Prepare the SQL for error message
-            $alterUserSql = "ALTER USER '" . addslashes($username) . "'@'" . addslashes($host ?: '%') . "' IDENTIFIED WITH caching_sha2_password BY '" . addslashes($password) . "';";
-            // Attempt to change the user's plugin to caching_sha2_password
+          } elseif (strpos($msg, "Plugin 'mysql_native_password' is not loaded") !== false) {
+            // Try to auto-install the plugin (requires SUPER privilege)
+            $dll = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'mysql_native_password.dll' : 'mysql_native_password.so';
             try {
-              $dsnNoDb2 = "mysql:host=$host;charset=utf8mb4";
-              $pdoTmp2  = new PDO($dsnNoDb2, $username, $password);
-              $pdoTmp2->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-              $pdoTmp2->exec($alterUserSql);
+              $dsnNoDb = "mysql:host=$hostOrPdo;charset=utf8mb4";
+              $pdoTmp  = new PDO($dsnNoDb, $username, $password);
+              $pdoTmp->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+              $pdoTmp->exec("INSTALL PLUGIN mysql_native_password SONAME '" . $dll . "';");
               // Try again to connect
               $this->pdo = new PDO($dsn, $username, $password);
-              $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-              self::$databases[$this->uniqueKey] = $this->pdo;
-              return;
-            } catch (\PDOException $e3) {
-              throw new \RuntimeException(
-                "[MySQLHelper] Unable to connect: both attempts to auto-install 'mysql_native_password' and switch user to 'caching_sha2_password' failed.\n" .
-                  "\nManual intervention required. Please execute one of the following as an admin in MySQL:\n" .
-                  "  1. INSTALL PLUGIN mysql_native_password SONAME '" . $dll . "';\n" .
-                  '  2. ' . $alterUserSql . "\n" .
-                  "\n---\n" .
-                  'Auto-install error:   ' . $e2->getMessage() . "\n" .
-                  'Switch plugin error:  ' . $e3->getMessage() . "\n"
-              );
+            } catch (\PDOException $e2) {
+              // Prepare the SQL for error message
+              $alterUserSql = "ALTER USER '" . addslashes($username) . "'@'" . addslashes($hostOrPdo ?: '%') . "' IDENTIFIED WITH caching_sha2_password BY '" . addslashes($password) . "';";
+              // Attempt to change the user's plugin to caching_sha2_password
+              try {
+                $dsnNoDb2 = "mysql:host=$hostOrPdo;charset=utf8mb4";
+                $pdoTmp2  = new PDO($dsnNoDb2, $username, $password);
+                $pdoTmp2->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $pdoTmp2->exec($alterUserSql);
+                // Try again to connect
+                $this->pdo = new PDO($dsn, $username, $password);
+                $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                self::$databases[$this->uniqueKey] = $this->pdo;
+                return;
+              } catch (\PDOException $e3) {
+                throw new \RuntimeException(
+                  "[MySQLHelper] Unable to connect: both attempts to auto-install 'mysql_native_password' and switch user to 'caching_sha2_password' failed.\n" .
+                    "\nManual intervention required. Please execute one of the following as an admin in MySQL:\n" .
+                    "  1. INSTALL PLUGIN mysql_native_password SONAME '" . $dll . "';\n" .
+                    '  2. ' . $alterUserSql . "\n" .
+                    "\n---\n" .
+                    'Auto-install error:   ' . $e2->getMessage() . "\n" .
+                    'Switch plugin error:  ' . $e3->getMessage() . "\n"
+                );
+              }
             }
+          } else {
+            throw $e;
           }
-        } else {
-          throw $e;
         }
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       }
-      $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       self::$databases[$this->uniqueKey] = $this->pdo;
     }
   }

@@ -11,6 +11,7 @@ use PDO;
  *
  * @package PhpProxyHunter
  */
+
 class SQLiteHelper extends BaseSQL
 {
   /** @var PDO|null $pdo */
@@ -20,29 +21,40 @@ class SQLiteHelper extends BaseSQL
   private static $databases = [];
 
   /**
+   * @var string Unique key for the PDO instance.
+   */
+  protected $uniqueKey;
+
+
+  /**
    * SQLiteHelper constructor.
    *
-   * @param string $dbPath The path to the SQLite database file.
-   * @param bool   $unique Whether to use a unique key based on caller location.
+   * @param string|PDO $dbPathOrPdo The path to the SQLite database file or a PDO instance.
+   * @param bool $unique Whether to use a unique key based on caller location.
    */
-  public function __construct($dbPath, $unique = false)
+  public function __construct($dbPathOrPdo, $unique = false)
   {
     $trace = debug_backtrace();
     // Unique key is based on the last caller if $unique is true
-    $caller          = $unique ? end($trace) : $trace[0];
-    $callerFile      = isset($caller['file']) ? $caller['file'] : 'unknown';
-    $callerLine      = isset($caller['line']) ? $caller['line'] : 'unknown';
-    $this->uniqueKey = md5($dbPath . $callerFile . $callerLine);
+    $dbPathOrPdoIdentifier = is_string($dbPathOrPdo) ? $dbPathOrPdo : spl_object_hash($dbPathOrPdo);
+    $caller                = $unique ? end($trace) : $trace[0];
+    $callerFile            = isset($caller['file']) ? $caller['file'] : 'unknown';
+    $callerLine            = isset($caller['line']) ? $caller['line'] : 'unknown';
+    $this->uniqueKey       = md5($dbPathOrPdoIdentifier . $callerFile . $callerLine);
 
     // Avoid multiple PDO instance
     if (isset(self::$databases[$this->uniqueKey])) {
       $this->pdo = self::$databases[$this->uniqueKey];
     } else {
-      $this->pdo = new PDO("sqlite:$dbPath"); // ;busyTimeout=10000
-      // Set how long (in seconds) SQLite will wait if the database is locked
-      $this->pdo->setAttribute(PDO::ATTR_TIMEOUT, 10);
-      // Enable exceptions for error handling
-      $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      if ($dbPathOrPdo instanceof PDO) {
+        $this->pdo = $dbPathOrPdo;
+      } else {
+        $this->pdo = new PDO('sqlite:' . $dbPathOrPdo); // ;busyTimeout=10000
+        // Set how long (in seconds) SQLite will wait if the database is locked
+        $this->pdo->setAttribute(PDO::ATTR_TIMEOUT, 10);
+        // Enable exceptions for error handling
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      }
       self::$databases[$this->uniqueKey] = $this->pdo;
     }
   }
@@ -243,10 +255,54 @@ class SQLiteHelper extends BaseSQL
   public function dropColumnIfExists($table, $column)
   {
     $columns = $this->getTableColumns($table);
-    if (in_array($column, $columns, true)) {
-      $this->pdo->exec("ALTER TABLE `$table` DROP COLUMN `$column`");
-      return true;
+    if (!in_array($column, $columns, true)) {
+      return false;
     }
-    return false;
+    // Remove the column from the list
+    $newColumns = array_filter($columns, function ($col) use ($column) {
+      return $col !== $column;
+    });
+    // Set busy timeout to help with locks
+    $this->pdo->exec('PRAGMA busy_timeout = 5000');
+    // Wrap schema change in a transaction
+    try {
+      $this->pdo->beginTransaction();
+      // Get table schema
+      $stmt = $this->pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'");
+      $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (!$row) {
+        throw new \RuntimeException("Table $table does not exist");
+      }
+      $createSql = $row['sql'];
+      // Release the statement to avoid locking the table
+      $stmt = null;
+      // Build new CREATE TABLE statement without the column
+      $pattern = '/\((.*)\)/s';
+      if (!preg_match($pattern, $createSql, $matches)) {
+        throw new \RuntimeException("Could not parse CREATE TABLE statement for $table");
+      }
+      $colsDef = $matches[1];
+      $colsArr = array_filter(array_map('trim', explode(',', $colsDef)), function ($def) use ($column) {
+        return stripos($def, $column) === false;
+      });
+      $newCreateSql = preg_replace($pattern, '(' . implode(', ', $colsArr) . ')', $createSql);
+      $tmpTable     = $table . '_TEMP';
+      $newCreateSql = str_replace($table, $tmpTable, $newCreateSql);
+      // var_dump($newCreateSql);
+      $this->pdo->exec($newCreateSql);
+      $colsList  = implode(', ', $newColumns);
+      $insertSql = "INSERT INTO $tmpTable ($colsList) SELECT $colsList FROM $table";
+      // var_dump($insertSql);
+      $this->pdo->exec($insertSql);
+      $this->pdo->exec("DROP TABLE $table");
+      $this->pdo->exec("ALTER TABLE $tmpTable RENAME TO $table");
+      $this->pdo->commit();
+      return true;
+    } catch (\Exception $e) {
+      if ($this->pdo->inTransaction()) {
+        $this->pdo->rollBack();
+      }
+      throw $e;
+    }
   }
 }
