@@ -1,5 +1,23 @@
 [
   {
+    "hash": "66d5f7f6d4fdeb4994f0c7a96a0ac66fec718909",
+    "date": "2025-09-10T13:22:19+07:00",
+    "message": "feat: add mariadb support and proxy translation script\n\n- add `mariadb` dependency to package.json\n- add new script `src/react/i18n-translator.ts` for proxy translation and MySQL/MariaDB CRUD operations\n  - uses mariadb for database connection and schema setup\n  - implements proxy translation, proxy checking, and saving results to the database\n  - uses RFC3339 date format for processed proxies\n  - shuffles proxies before checking\n- add new test/debug script `tests/database/mysql-native-password-debug.ts` for managing MySQL user authentication plugin and printing user plugin info",
+    "files": [
+      "package.json",
+      "src/react/i18n-translator.ts",
+      "tests/database/mysql-native-password-debug.ts"
+    ]
+  },
+  {
+    "hash": "de718104c8c2bdd2574b064ccabb5dc27f1ba030",
+    "date": "2025-09-10T11:44:57+07:00",
+    "message": "fix(package): update proxies-grabber package URL to the latest version",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
     "hash": "81f6e4fd076766bc5d071d0fdbbe6dea2f448dd9",
     "date": "2025-09-10T11:39:47+07:00",
     "message": "chore: update locales",
