@@ -1,5 +1,38 @@
 [
   {
+    "hash": "1cdb9047abdc752206b1e622186de478ee7dd9c7",
+    "date": "2025-09-10T10:38:02+07:00",
+    "message": "feat(UserActivity): add UserActivityCard component and integrate user activity fetching",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/Dashboard.tsx",
+      "src/react/pages/components/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "79f92d2b21533c11373fe62a94122e99d47aa6f7",
+    "date": "2025-09-10T10:37:08+07:00",
+    "message": "refactor(userdb): rename get_saldo to getPoint and update all usages\n\n- Renamed the UserDB method `get_saldo` to `getPoint` for consistency with point-based terminology.\n- Updated all references to `get_saldo` in backend PHP files and tests.\n- Improved PHPDoc to reflect the new method name and clarify the return value.",
+    "files": [
+      "src/PhpProxyHunter/UserDB.php",
+      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
+    "hash": "976dfc8c0eade23c1303e19d9c0c07f639b2a951",
+    "date": "2025-09-10T10:33:06+07:00",
+    "message": "refactor(userdb): rename update_saldo to updatePoint and update all usages\n\n- Renamed the UserDB method `update_saldo` to `updatePoint` for improved clarity and consistency.\n- Updated all references to `update_saldo` in backend PHP files and tests.\n- Enhanced the PHPDoc for the method to clarify parameters, return value, and logging side effects.",
+    "files": [
+      "php_backend/refill-saldo.php",
+      "php_backend/user-info.php",
+      "src/PhpProxyHunter/UserDB.php",
+      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
     "hash": "a8afe25fd8bc7c80a4e27eb844d353bc6d29d655",
     "date": "2025-09-10T10:28:35+07:00",
     "message": "feat(UserDB): replace direct database log insertion with logsRepository method",
