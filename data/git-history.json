@@ -1,5 +1,13 @@
 [
   {
+    "hash": "2d1bf4e20553726e90c89f1e68b0d1a2d804f93b",
+    "date": "2025-09-10T10:10:31+07:00",
+    "message": "test(database): use UserDB for user management in LogsRepositoryTest\n\n- Add UserDB as a dependency for managing test users in MySQL tests.\n- Add reusable test user info and userId as class properties.\n- Refactor MySQL test setup to create and clean up test users using UserDB.\n- Ensure consistent user management for addLog and addActivity tests.",
+    "files": [
+      "tests/database/LogsRepositoryTest.php"
+    ]
+  },
+  {
     "hash": "cd5d4d955028079630c42ce5510467d3980bdfeb",
     "date": "2025-09-10T10:01:19+07:00",
     "message": "feat(UserDB): enhance delete method to remove related records from user_activity, user_discount, user_logs, and user_fields",
