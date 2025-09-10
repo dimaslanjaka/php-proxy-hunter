@@ -17,6 +17,11 @@ class UserDB
   public $db;
 
   /**
+   * @var LogsRepository $logsRepository Logs repository instance
+   */
+  public $logsRepository;
+
+  /**
    * UserDB constructor.
    *
    * @param string|SQLiteHelper|MySQLHelper|null $dbLocation Path to the database file (SQLite mode).
@@ -40,6 +45,8 @@ class UserDB
         $this->sqlite($dbLocation);
       }
     }
+
+    $this->logsRepository = new LogsRepository($this->db->pdo);
   }
 
   /**
