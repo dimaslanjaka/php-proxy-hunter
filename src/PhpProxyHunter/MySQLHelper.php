@@ -180,7 +180,7 @@ class MySQLHelper extends BaseSQL
    * @param array $params An array of parameters to bind to the query.
    * @return array The queried result.
    */
-  public function executeCustomQuery($sql, $params = [])
+  public function execute($sql, $params = [])
   {
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);

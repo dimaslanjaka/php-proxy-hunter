@@ -67,7 +67,7 @@ abstract class BaseSQL
    * @param array $params Parameters for the query.
    * @return array
    */
-  abstract public function executeCustomQuery($sql, array $params = []);
+  abstract public function execute($sql, array $params = []);
 
   /**
    * Count records in a table.

@@ -203,7 +203,7 @@ class CoreDB
    */
   public function query($sql, $params = [])
   {
-    return $this->db->executeCustomQuery($sql, $params);
+    return $this->db->execute($sql, $params);
   }
 
   /**

@@ -84,7 +84,7 @@ if (isset($parseQueries['random'])) {
 }
 $query .= " LIMIT $max OFFSET $offset";
 
-$data = $db->db->executeCustomQuery($query, $params);
+$data = $db->db->execute($query, $params);
 
 // Convert last_check to human-readable format
 foreach ($data as &$item) {

@@ -104,10 +104,10 @@ class SQLiteHelperTest extends TestCase
     $this->assertCount(0, $results);
   }
 
-  public function testExecuteCustomQuery(): void
+  public function testExecute(): void
   {
     $this->db->insert($this->table, ['name' => 'Eve', 'age' => 22]);
-    $results = $this->db->executeCustomQuery("SELECT * FROM {$this->table} WHERE name = ?", ['Eve']);
+    $results = $this->db->execute("SELECT * FROM {$this->table} WHERE name = ?", ['Eve']);
 
     $this->assertCount(1, $results);
     $this->assertSame('Eve', $results[0]['name']);

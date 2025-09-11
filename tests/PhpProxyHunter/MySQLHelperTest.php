@@ -152,7 +152,7 @@ class MySQLHelperTest extends TestCase
     $this->assertCount(0, $results);
   }
 
-  public function testExecuteCustomQuery(): void
+  public function testExecute(): void
   {
     $this->db->insert($this->table, ['name' => 'Eve', 'age' => 22]);
     $stmt = $this->db->pdo->query("SELECT COUNT(*) as cnt FROM `{$this->table}` WHERE name = 'Eve'");
