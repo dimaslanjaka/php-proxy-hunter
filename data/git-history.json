@@ -1,5 +1,32 @@
 [
   {
+    "hash": "5f9291ba49e6d51a0991547c2c5507300424a17b",
+    "date": "2025-09-11T18:12:00+07:00",
+    "message": "test(SQLiteHelperTest): add unit tests for modifyColumnIfExists method",
+    "files": [
+      "tests/PhpProxyHunter/SQLiteHelperTest.php"
+    ]
+  },
+  {
+    "hash": "6b2c9cc4d2ee5d5ded2e50ae72e0155a677a807b",
+    "date": "2025-09-10T15:58:17+07:00",
+    "message": "feat(database): implement modifyColumnIfExists method for dynamic column modification",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/SQLiteHelper.php",
+      "tests/PhpProxyHunter/SQLiteHelperDebug.php"
+    ]
+  },
+  {
+    "hash": "ddc19f85b6d41c8af0cc22de14c42e82dabbf8f0",
+    "date": "2025-09-10T15:57:22+07:00",
+    "message": "feat(LogsRepository): update user_activity details column type for MySQL and SQLite",
+    "files": [
+      "src/PhpProxyHunter/LogsRepositoryMigrations.php"
+    ]
+  },
+  {
     "hash": "591ada30eac5ff7ca8e311d2929eb2bf0f8cda88",
     "date": "2025-09-10T15:35:27+07:00",
     "message": "feat(LogsRepository): add migration handling for log repository schema changes",
