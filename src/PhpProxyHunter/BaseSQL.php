@@ -145,4 +145,25 @@ abstract class BaseSQL
    * @return bool True if the column was modified, false if it did not exist or failed.
    */
   abstract public function modifyColumnIfExists($table, $column, $definition);
+
+  /**
+   * Begin a database transaction.
+   *
+   * @return bool
+   */
+  abstract public function beginTransaction();
+
+  /**
+   * Commit the current transaction.
+   *
+   * @return bool
+   */
+  abstract public function commit();
+
+  /**
+   * Roll back the current transaction.
+   *
+   * @return bool
+   */
+  abstract public function rollback();
 }

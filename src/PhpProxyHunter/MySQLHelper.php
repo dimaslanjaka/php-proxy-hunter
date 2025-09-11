@@ -307,4 +307,19 @@ class MySQLHelper extends BaseSQL
     }
     return false;
   }
+
+  public function beginTransaction()
+  {
+    return $this->pdo->beginTransaction();
+  }
+
+  public function commit()
+  {
+    return $this->pdo->commit();
+  }
+
+  public function rollback()
+  {
+    return $this->pdo->rollBack();
+  }
 }

@@ -363,4 +363,19 @@ class SQLiteHelper extends BaseSQL
     $row  = $stmt->fetch(PDO::FETCH_ASSOC);
     return $row ? $row['sql'] : null;
   }
+
+  public function beginTransaction()
+  {
+    return $this->pdo->beginTransaction();
+  }
+
+  public function commit()
+  {
+    return $this->pdo->commit();
+  }
+
+  public function rollback()
+  {
+    return $this->pdo->rollBack();
+  }
 }

@@ -159,4 +159,25 @@ class MySQLHelperTest extends TestCase
     $row  = $stmt->fetch();
     $this->assertSame(1, (int)$row['cnt']);
   }
+
+  public function testTransactionCommit(): void
+  {
+    $this->db->beginTransaction();
+    $this->db->insert($this->table, ['name' => 'Frank', 'age' => 33]);
+    $this->db->commit();
+
+    $results = $this->db->select($this->table, '*', 'name = ?', ['Frank']);
+    $this->assertCount(1, $results);
+    $this->assertSame('Frank', $results[0]['name']);
+  }
+
+  public function testTransactionRollback(): void
+  {
+    $this->db->beginTransaction();
+    $this->db->insert($this->table, ['name' => 'Grace', 'age' => 44]);
+    $this->db->rollback();
+
+    $results = $this->db->select($this->table, '*', 'name = ?', ['Grace']);
+    $this->assertCount(0, $results);
+  }
 }
