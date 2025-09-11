@@ -119,6 +119,32 @@ class SQLiteHelperTest extends TestCase
     $this->db->insert('invalid-table-name!', ['name' => 'Test'], true);
   }
 
+  public function testModifyColumnIfExists(): void
+  {
+    $col     = 'mod_col';
+    $defText = 'TEXT';
+    $defInt  = 'INTEGER';
+    // Ensure column does not exist
+    if ($this->db->columnExists($this->table, $col)) {
+      $this->db->dropColumnIfExists($this->table, $col);
+    }
+    $this->db->addColumnIfNotExists($this->table, $col, $defText);
+    $this->assertTrue($this->db->columnExists($this->table, $col));
+    // Insert a row with string value
+    $this->db->insert($this->table, ['name' => 'modtest', 'age' => 1, $col => '123']);
+    // Modify column type to INTEGER
+    $result = $this->db->modifyColumnIfExists($this->table, $col, $defInt);
+    $this->assertTrue($result);
+    // Check column type in schema
+    $schema = $this->db->getTableSchema($this->table);
+    // Use regex to match column definition, allowing for quotes and whitespace
+    $this->assertMatchesRegularExpression('/["`\[]?' . preg_quote($col, '/') . '["`\]]?\s+INTEGER/i', $schema);
+    // Data should be preserved and castable to int
+    $rows = $this->db->select($this->table, '*', 'name = ?', ['modtest']);
+    $this->assertCount(1, $rows);
+    $this->assertSame(123, (int)$rows[0][$col]);
+  }
+
   protected function tearDown(): void
   {
     $this->db->close();
