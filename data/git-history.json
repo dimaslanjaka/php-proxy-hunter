@@ -1,5 +1,19 @@
 [
   {
+    "hash": "5e682d986fe02eba8a1713d71d9da6434a2ecbe2",
+    "date": "2025-09-11T18:23:55+07:00",
+    "message": "refactor(sql): rename executeCustomQuery to execute across codebase\n\n- Updated BaseSQL abstract method from executeCustomQuery to execute\n- Refactored CoreDB, MySQLHelper, and SQLiteHelper to use execute\n- Replaced executeCustomQuery calls in list.php with execute\n- Adjusted related unit tests to reflect renamed method",
+    "files": [
+      "list.php",
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/CoreDB.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/SQLiteHelper.php",
+      "tests/PhpProxyHunter/MySQLHelperTest.php",
+      "tests/PhpProxyHunter/SQLiteHelperTest.php"
+    ]
+  },
+  {
     "hash": "079a99c805bc29e3e135e6a36a68a0790eb1fecd",
     "date": "2025-09-11T18:19:49+07:00",
     "message": "feat(sql): add transaction support (begin, commit, rollback) to BaseSQL, MySQLHelper, and SQLiteHelper\n\n- Added abstract methods for beginTransaction, commit, and rollback to BaseSQL.\n- Implemented transaction methods in MySQLHelper and SQLiteHelper using PDO.\n- Added PHPUnit tests for transaction commit and rollback in both MySQLHelperTest and SQLiteHelperTest.",
