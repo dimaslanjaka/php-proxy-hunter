@@ -774,6 +774,33 @@ function getUserStatusFile(string $user_id): string
   return __DIR__ . "/tmp/status/$user_id.txt";
 }
 
+function getUserLogFile(string $user_id): string
+{
+  return __DIR__ . "/tmp/logs/$user_id.txt";
+}
+
+function resetUserLogFile(string $user_id): bool
+{
+  $user_file = getUserLogFile($user_id);
+  $now       = date('Y-m-d H:i:s');
+  $content   = "Log reset at $now\n";
+  return file_put_contents($user_file, $content, LOCK_EX) !== false;
+}
+
+function addUserLog(string $user_id, string $message): bool
+{
+  $user_file = getUserLogFile($user_id);
+  if (!file_exists(dirname($user_file))) {
+    mkdir(dirname($user_file), 0777, true);
+  }
+  if (!file_exists($user_file)) {
+    $now    = date('Y-m-d H:i:s');
+    $header = "Log created at $now\n";
+    file_put_contents($user_file, $header, LOCK_EX);
+  }
+  return file_put_contents($user_file, date('Y-m-d H:i:s') . ' ' . $message . PHP_EOL, FILE_APPEND | LOCK_EX) !== false;
+}
+
 function getConfig(string $user_id): array
 {
   $user_file = getUserFile($user_id);
