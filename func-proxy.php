@@ -1,14 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 /** @noinspection RegExpRedundantEscape */
 /** @noinspection RegExpUnnecessaryNonCapturingGroup */
 
 require_once __DIR__ . '/func.php';
-
-use PhpProxyHunter\Proxy;
-use PhpProxyHunter\ProxyDB;
 
 /**
  * Merge two arrays of HTTP headers while ensuring uniqueness based on the keys.
@@ -17,14 +12,19 @@ use PhpProxyHunter\ProxyDB;
  * @param array $additionalHeaders The array of additional headers to merge.
  * @return array The merged array of headers with unique keys.
  */
-function mergeHeaders(array $defaultHeaders, array $additionalHeaders): array
+/**
+ * @param array $defaultHeaders
+ * @param array $additionalHeaders
+ * @return array
+ */
+function mergeHeaders($defaultHeaders, $additionalHeaders)
 {
   // Convert the arrays into associative arrays with header keys as keys
   $convertToAssocArray = function ($headers) {
     $assocArray = [];
     foreach ($headers as $header) {
       $parts                 = explode(': ', $header, 2);
-      $assocArray[$parts[0]] = $parts[1];
+      $assocArray[$parts[0]] = isset($parts[1]) ? $parts[1] : '';
     }
     return $assocArray;
   };
@@ -37,7 +37,6 @@ function mergeHeaders(array $defaultHeaders, array $additionalHeaders): array
   foreach ($mergedHeaders as $key => $value) {
     $finalHeaders[] = "$key: $value";
   }
-
   return $finalHeaders;
 }
 
@@ -105,15 +104,14 @@ function buildCurl(
 
   if (strpos($endpoint, 'https') !== false) {
     // curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, 'TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-SHA');
-    // Check for TLS 1.3 support first (if available)
     if (defined('CURL_SSLVERSION_TLSv1_3') && $ssl === 3) {
-      // var_dump("using TLSv3");
+      // Check for TLS 1.3 support first (if available)
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3); // CURL_SSLVERSION_TLSv1_3 = 7
-    } // Check for TLS 1.2 support
-    elseif (defined('CURL_SSLVERSION_TLSv1_2') && $ssl === 2) {
+    } elseif (defined('CURL_SSLVERSION_TLSv1_2') && $ssl === 2) {
+      // Check for TLS 1.2 support
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
     } elseif (defined('CURL_SSLVERSION_TLSv1_0') && $ssl === 1) {
-      // var_dump("using TLSv1");
+      // Check for TLS 1.0 support
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_0); // CURL_SSLVERSION_TLSv1_0 = 4
     } elseif (defined('CURL_SSLVERSION_MAX_DEFAULT')) {
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_DEFAULT);
@@ -251,7 +249,12 @@ function getServerIp()
  * @param string $response_judges The response containing headers to judge anonymity.
  * @return string Anonymity level: Transparent, Anonymous, or Elite. And Empty is failed
  */
-function parse_anonymity(string $response_ip_info, string $response_judges): string
+/**
+ * @param string $response_ip_info
+ * @param string $response_judges
+ * @return string
+ */
+function parse_anonymity($response_ip_info, $response_judges)
 {
   if (empty(trim($response_ip_info)) || empty(trim($response_judges))) {
     return '';
@@ -297,7 +300,14 @@ function parse_anonymity(string $response_ip_info, string $response_judges): str
  * @param string|null $password Optional password for proxy authentication.
  * @return string Anonymity level: Transparent, Anonymous, Elite, or Empty if failed.
  */
-function get_anonymity(string $proxy, string $type, ?string $username = null, ?string $password = null): string
+/**
+ * @param string $proxy
+ * @param string $type
+ * @param string|null $username
+ * @param string|null $password
+ * @return string
+ */
+function get_anonymity($proxy, $type, $username = null, $password = null)
 {
   $proxy_judges = [
     'https://wfuchs.de/azenv.php',
@@ -312,7 +322,7 @@ function get_anonymity(string $proxy, string $type, ?string $username = null, ?s
     'https://httpbin.org/ip',
     'https://cloudflare.com/cdn-cgi/trace',
   ];
-  $content_judges = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
+  $content_judges = array_map(function ($url) use ($proxy, $type, $username, $password) {
     $ch      = buildCurl($proxy, $type, $url, [], $username, $password);
     $content = curl_exec($ch);
     curl_close($ch);
@@ -321,7 +331,7 @@ function get_anonymity(string $proxy, string $type, ?string $username = null, ?s
     }
     return '';
   }, $proxy_judges);
-  $content_ip = array_map(function (string $url) use ($proxy, $type, $username, $password): string {
+  $content_ip = array_map(function ($url) use ($proxy, $type, $username, $password) {
     $ch      = buildCurl($proxy, $type, $url, [], $username, $password);
     $content = curl_exec($ch);
     curl_close($ch);
@@ -350,14 +360,24 @@ function get_anonymity(string $proxy, string $type, ?string $username = null, ?s
  *               - 'status': HTTP status code of the response.
  *               - 'private': Boolean indicating if the proxy is private.
  */
+/**
+ * @param string $proxy
+ * @param string $type
+ * @param string $endpoint
+ * @param array $headers
+ * @param string|null $username
+ * @param string|null $password
+ * @param bool $multiSSL
+ * @return array
+ */
 function checkProxy(
-  string  $proxy,
-  string  $type = 'http',
-  string  $endpoint = 'https://bing.com',
-  array   $headers = [],
-  ?string $username = null,
-  ?string $password = null,
-  bool $multiSSL = false
+  $proxy,
+  $type = 'http',
+  $endpoint = 'https://bing.com',
+  $headers = [],
+  $username = null,
+  $password = null,
+  $multiSSL = false
 ) {
   $proxy = trim($proxy);
   if (!$multiSSL) {
@@ -374,7 +394,15 @@ function checkProxy(
   }
 }
 
-function processCheckProxy($ch, $proxy, $type, $username, $password): array
+/**
+ * @param resource $ch
+ * @param string $proxy
+ * @param string $type
+ * @param string $username
+ * @param string $password
+ * @return array
+ */
+function processCheckProxy($ch, $proxy, $type, $username, $password)
 {
   $endpoint = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
   curl_setopt($ch, CURLINFO_HEADER_OUT, true);
@@ -544,7 +572,11 @@ function checkRawHeadersKeywords($input)
  * @param string $inputFile The path to the file.
  * @return string 'success' on successful filtering, or an error message on failure.
  */
-function filterIpPortLines(string $inputFile): string
+/**
+ * @param string $inputFile
+ * @return string
+ */
+function filterIpPortLines($inputFile)
 {
   // Check if destination file is writable
   if (!is_writable($inputFile)) {
@@ -590,7 +622,10 @@ function filterIpPortLines(string $inputFile): string
   return 'success';
 }
 
-function clean_proxies_file(string $file)
+/**
+ * @param string $file
+ */
+function clean_proxies_file($file)
 {
   echo "remove duplicate lines $file" . PHP_EOL;
 
@@ -622,7 +657,11 @@ function clean_proxies_file(string $file)
  *               - 'array': An array of associative arrays representing the working proxies data, with keys 'proxy', 'port', 'type', 'country', 'last_check', and 'useragent'.
  *               - 'counter': An array containing counts of different types of proxies in the database, including 'working', 'dead', 'untested', and 'private'.
  */
-function parse_working_proxies(ProxyDB $db): array
+/**
+ * @param ProxyDB $db
+ * @return array
+ */
+function parse_working_proxies($db)
 {
   // Retrieve working proxies from the provided ProxyDB object
   $working = $db->getWorkingProxies();
@@ -682,7 +721,12 @@ function parse_working_proxies(ProxyDB $db): array
  * @param callable $callback The callback function to process each matched IP:PORT combination.
  * @throws Exception
  */
-function extractIpPortFromFileCallback(string $filePath, callable $callback)
+/**
+ * @param string $filePath
+ * @param callable $callback
+ * @throws Exception
+ */
+function extractIpPortFromFileCallback($filePath, $callback)
 {
   if (file_exists($filePath)) {
     // Open the file for reading in binary mode
@@ -721,7 +765,12 @@ function extractIpPortFromFileCallback(string $filePath, callable $callback)
  * @param bool $unique (Optional) If set to true, returns only unique IP:PORT combinations. Default is false.
  * @return array An array containing the extracted IP:PORT combinations.
  */
-function extractIpPortFromFile(string $filePath, bool $unique = false): array
+/**
+ * @param string $filePath
+ * @param bool $unique
+ * @return array
+ */
+function extractIpPortFromFile($filePath, $unique = false)
 {
   $ipPortList = [];
 
@@ -756,6 +805,12 @@ function extractIpPortFromFile(string $filePath, bool $unique = false): array
   return $ipPortList;
 }
 
+/**
+ * @param string $ip
+ * @param int $minPort
+ * @param int $maxPort
+ * @return array
+ */
 function generateIPWithPorts($ip, $minPort = 10, $maxPort = 65535)
 {
   // Initialize an empty array to hold the IP:PORT values
@@ -763,7 +818,6 @@ function generateIPWithPorts($ip, $minPort = 10, $maxPort = 65535)
 
   // Loop from port 80 to the maximum port value
   for ($port = $minPort; $port <= $maxPort; $port++) {
-    // Add the IP:PORT value to the array
     $ipPorts[] = $ip . ':' . $port;
   }
 
