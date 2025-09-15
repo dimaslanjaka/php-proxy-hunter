@@ -1,5 +1,50 @@
 [
   {
+    "hash": "c025d4fb359b5a1c74aba68c3dfd3eb57698c9e6",
+    "date": "2025-09-15T17:33:58+07:00",
+    "message": "refactor: rename geoPlugin to GeoPlugin for PSR compliance\n\n- Rename file `geoPlugin.php` to `GeoPlugin.php`\n- Update class name from `geoPlugin` to `GeoPlugin`\n- Update references in `GeoIpHelper` and `GeoPlugin2` to use `GeoPlugin`\n- Standardize docblocks, comments, user agent string, and error messages to `GeoPlugin`",
+    "files": [
+      "src/PhpProxyHunter/GeoIpHelper.php",
+      "src/PhpProxyHunter/GeoPlugin.php",
+      "src/PhpProxyHunter/GeoPlugin2.php"
+    ]
+  },
+  {
+    "hash": "47ba0a1925f828dc3ba9877ad53bcf400dc30db5",
+    "date": "2025-09-15T17:32:00+07:00",
+    "message": "refactor: rename geoPlugin2 to GeoPlugin2 for PSR compliance\n\n- Rename file `geoPlugin2.php` to `GeoPlugin2.php`\n- Update class name from `geoPlugin2` to `GeoPlugin2`\n- Adjust error log messages to use updated class name\n- Update `geoPlugin` to reference `GeoPlugin2` instead of `geoPlugin2`",
+    "files": [
+      "src/PhpProxyHunter/GeoPlugin2.php",
+      "src/PhpProxyHunter/geoPlugin.php"
+    ]
+  },
+  {
+    "hash": "9fd85496a4b4eae02023deb8b7641c661dc53a7b",
+    "date": "2025-09-15T17:30:04+07:00",
+    "message": "fix(extractor.php): reduce default limit in extractProxies function from 1000 to 100",
+    "files": [
+      "src/utils/proxy/extractor.php"
+    ]
+  },
+  {
+    "hash": "4e0cb7e92c01093d779c756500caf838866a0c71",
+    "date": "2025-09-15T17:29:19+07:00",
+    "message": "feat(geoPlugin2): add automatic GeoLite2 database download with fallback URLs\n\n- Introduce `$url_downloads` list with multiple sources for ASN, City, and Country databases\n- Implement constructor logic to check and download missing or outdated database files\n- Add `downloadFile` helper with cURL for robust file fetching, including SSL fallback and error logging\n- Ensure local databases are kept up to date before initializing MaxMind Reader instances",
+    "files": [
+      "geoIp.php",
+      "src/PhpProxyHunter/geoPlugin.php",
+      "src/PhpProxyHunter/geoPlugin2.php"
+    ]
+  },
+  {
+    "hash": "d7166e9555f8df2451e84ff77244561d82a307b6",
+    "date": "2025-09-15T15:37:46+07:00",
+    "message": "feat(func.php): add functions to manage user log files",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
     "hash": "c50f5bd5ba5b6a9cb8967e93a0c6540bcefbe843",
     "date": "2025-09-15T15:03:54+07:00",
     "message": "feat(func.php): add getUserStatusFile function to retrieve user status",
