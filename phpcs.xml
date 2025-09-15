@@ -68,6 +68,13 @@
   <rule ref="PSR2.ControlStructures.SwitchDeclaration.BreakIndent">
     <severity>0</severity>
   </rule>
+  <!-- Disable multi-line control structure spacing rules -->
+  <rule ref="PSR12.ControlStructures.ControlStructureSpacing.FirstExpressionLine">
+    <severity>0</severity>
+  </rule>
+  <rule ref="PSR12.ControlStructures.ControlStructureSpacing.CloseParenthesisLine">
+    <severity>0</severity>
+  </rule>
   <rule ref="Generic.Files.LineLength">
     <severity>0</severity>
   </rule>
