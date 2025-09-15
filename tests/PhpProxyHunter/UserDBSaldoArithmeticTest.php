@@ -64,7 +64,7 @@ class UserDBSaldoArithmeticTest extends TestCase
   public function testSaldoArithmetic($driver): void
   {
     if ($driver === 'sqlite') {
-      $testDbPath = sys_get_temp_dir() . '/test_database_saldo.sqlite';
+      $testDbPath = __DIR__ . '/tmp/test_database_saldo.sqlite';
       if (file_exists($testDbPath)) {
         @unlink($testDbPath);
       }

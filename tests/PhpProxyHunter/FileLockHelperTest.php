@@ -11,7 +11,7 @@ class FileLockHelperTest extends TestCase
 
   protected function setUp(): void
   {
-    $this->lockFile = sys_get_temp_dir() . '/php_lock_test/mylock.lock';
+    $this->lockFile = __DIR__ . '/tmp/php_lock_test/mylock.lock';
     if (file_exists($this->lockFile)) {
       unlink($this->lockFile);
     }
