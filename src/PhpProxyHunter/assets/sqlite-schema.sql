@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS "meta" (key TEXT PRIMARY KEY, value TEXT);
 
 -- based on django authentication database
 CREATE TABLE IF NOT EXISTS "auth_user" (
-  "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
   "password" VARCHAR(128) NOT NULL,
   "last_login" DATETIME NULL,
   "is_superuser" INTEGER NOT NULL,
@@ -80,13 +80,4 @@ CREATE TABLE IF NOT EXISTS "user_activity" (
   "user_agent" TEXT,
   "timestamp" DATETIME DEFAULT CURRENT_TIMESTAMP,
   "details" TEXT -- JSON string, use json_extract() if SQLite compiled with JSON1
-);
-
-CREATE TABLE IF NOT EXISTS "user_discount" (
-  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-  "user_id" INTEGER NOT NULL REFERENCES "auth_user" ("id"),
-  "discount" REAL DEFAULT 0,
-  "package_id" INTEGER,
-  FOREIGN KEY (user_id) REFERENCES auth_user (id),
-  UNIQUE (user_id, package_id)
 );
