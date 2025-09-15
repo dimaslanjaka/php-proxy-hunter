@@ -30,12 +30,119 @@ class geoPlugin2
   private $city;
   private $asn;
   private $country;
+  private $url_downloads = [
+    'https://git.io/GeoLite2-ASN.mmdb',
+    'https://git.io/GeoLite2-City.mmdb',
+    'https://git.io/GeoLite2-Country.mmdb',
+    'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-City.mmdb',
+    'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb',
+    'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb',
+  ];
 
   public function __construct()
   {
+    $filenames = [
+      __DIR__ . '/../GeoLite2-ASN.mmdb',
+      __DIR__ . '/../GeoLite2-City.mmdb',
+      __DIR__ . '/../GeoLite2-Country.mmdb',
+    ];
+    foreach ($filenames as $filename) {
+      $basename         = basename($filename);
+      $findDownloadUrls = array_filter($this->url_downloads, function ($url) use ($basename) {
+        return strpos($url, $basename) !== false;
+      });
+      $downloaded = false;
+      foreach ($findDownloadUrls as $url) {
+        if ($this->downloadFile($url, $filename)) {
+          $downloaded = true;
+          break;
+        }
+      }
+      // Optionally, you can log or throw if all downloads fail
+      if (!$downloaded) {
+        // error_log("Failed to download $basename from all sources.");
+      }
+    }
     $this->city    = new Reader(__DIR__ . '/../GeoLite2-City.mmdb');
     $this->asn     = new Reader(__DIR__ . '/../GeoLite2-ASN.mmdb');
     $this->country = new Reader(__DIR__ . '/../GeoLite2-Country.mmdb');
+  }
+
+  private function downloadFile($url, $path)
+  {
+    // Helper to perform cURL with optional SSL verify
+    $curl_head = function ($url, $verify = true) {
+      $ch = curl_init($url);
+      curl_setopt($ch, CURLOPT_NOBODY, true);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+      curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+      curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verify);
+      curl_exec($ch);
+      $info = [
+        'size'  => curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD),
+        'code'  => curl_getinfo($ch, CURLINFO_HTTP_CODE),
+        'error' => curl_error($ch),
+      ];
+      curl_close($ch);
+      return $info;
+    };
+    $curl_get = function ($url, $verify = true) {
+      $ch = curl_init($url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+      curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+      curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verify);
+      $data = curl_exec($ch);
+      $info = [
+        'data'  => $data,
+        'code'  => curl_getinfo($ch, CURLINFO_HTTP_CODE),
+        'error' => curl_error($ch),
+      ];
+      curl_close($ch);
+      return $info;
+    };
+
+    // Get remote file size (try with SSL verify, then fallback)
+    $head = $curl_head($url, true);
+    if ($head['code'] === 0 && strpos($head['error'], 'SSL certificate') !== false) {
+      $head = $curl_head($url, false);
+    }
+
+    $remoteFileSize = $head['size'];
+    $httpCode       = $head['code'];
+    $curlError      = $head['error'];
+
+    // Get local file size
+    $localFileSize = file_exists($path) ? filesize($path) : -1;
+
+    // Only download if sizes differ or local file does not exist
+    if ($httpCode == 200 && ($remoteFileSize != $localFileSize)) {
+      $get = $curl_get($url, true);
+      if ($get['code'] === 0 && strpos($get['error'], 'SSL certificate') !== false) {
+        $get = $curl_get($url, false);
+      }
+      $data       = $get['data'];
+      $httpCode   = $get['code'];
+      $curlError2 = $get['error'];
+
+      if ($httpCode == 200 && $data) {
+        $result = @file_put_contents($path, $data);
+        if ($result === false) {
+          error_log("[geoPlugin2] Failed to write file: $path");
+        }
+        return $result !== false;
+      } else {
+        error_log("[geoPlugin2] Download failed for $url (HTTP $httpCode, CURL error: $curlError2)");
+      }
+      return false;
+    } elseif ($httpCode != 200) {
+      error_log("[geoPlugin2] HEAD request failed for $url (HTTP $httpCode, CURL error: $curlError)");
+    }
+    // No need to download, sizes match
+    return true;
   }
 
   public function locate(string $ip)

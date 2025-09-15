@@ -103,6 +103,7 @@ class geoPlugin implements \JsonSerializable
    */
   public function __construct()
   {
+    //
   }
 
   public function fromGeoIp2CityModel(\GeoIp2\Model\City $record = null)

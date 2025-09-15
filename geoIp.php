@@ -10,6 +10,8 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
+ini_set('memory_limit', '512M');
+
 if (function_exists('header') && !$isCli) {
   header('Content-Type: application/json; charset=UTF-8');
 
