@@ -73,12 +73,10 @@
 │   ├── login.php [f8f27d9a]
 │   ├── logout.php [60033189]
 │   ├── logs.php [2c541e66]
-│   ├── packages.php [55cfb74b]
 │   ├── recaptcha.php [824a2156]
 │   ├── refill-saldo.php [ffe44501]
 │   ├── shared.php [38162b5d]
-│   ├── user-info.php [9e4eae29]
-│   └── vouchers.php [0022a39a]
+│   └── user-info.php [9e4eae29]
 ├── phpliteadmin/
 │   ├── index.php [5d489b56]
 │   └── phpliteadmin.config.php [2fa99e17]
