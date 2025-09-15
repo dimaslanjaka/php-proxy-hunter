@@ -25,9 +25,7 @@
 - Cross-platform: Linux & Windows 10+
 - PHP, Python, Bash, Batch support
 
-<img src="https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/d24b8bbf-0fa0-4394-b9e7-78350bdda67d" width="100%" />
 <img src="https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/1e52d0f8-6417-41c3-bb75-86009726df7d" width="100%" />
-<img src="https://github.com/dimaslanjaka/php-proxy-hunter/assets/12471057/adb9aaaf-2151-44c0-aaf2-b19c1c536bc7" width="100%" />
 <img width="1366" height="768" alt="proxy checker parallel" src="https://github.com/user-attachments/assets/74f59a65-0a6f-458a-a036-32af0104e370" />
 
 
