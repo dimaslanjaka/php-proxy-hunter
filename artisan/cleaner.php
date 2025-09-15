@@ -62,6 +62,27 @@ foreach ($directories as $directory) {
         // Fallback: filectime is creation time on Windows, inode change time on Unix
         $fileDate = @filectime($filePath);
       }
+      // Get using exec if both failed
+      if ($fileDate === false) {
+        try {
+          if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $output = [];
+            exec("for %I in (\"$filePath\") do @echo %~tI", $output);
+            if (isset($output[0])) {
+              $fileDate = strtotime($output[0]);
+            }
+          } else {
+            $output = [];
+            exec('stat -c %Y ' . escapeshellarg($filePath), $output);
+            if (isset($output[0]) && is_numeric($output[0])) {
+              $fileDate = (int)$output[0];
+            }
+          }
+        } catch (Throwable $e) {
+          // Log or handle the exception as needed
+          $fileDate = false;
+        }
+      }
 
       // File was last modified (or created) more than 1 week ago.
       if ($fileDate !== false && $fileDate < $oneWeekAgo) {
