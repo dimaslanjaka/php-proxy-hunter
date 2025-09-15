@@ -80,7 +80,7 @@ function extractPorts($inputString)
  * @param int $limit The maximum number of results to return.
  * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = true, $limit = 1000)
+function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = true, $limit = 100)
 {
   if (!$string) {
     return [];
