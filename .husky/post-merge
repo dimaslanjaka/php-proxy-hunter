@@ -127,3 +127,6 @@ else
   echo "Unsupported operating system"
   exit 1
 fi
+
+# run commit history builder
+node --no-warnings=ExperimentalWarning --loader ts-node/esm "$PROJECT_DIR/src/dev/git-history.builder.ts"
