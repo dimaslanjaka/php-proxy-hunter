@@ -22,12 +22,12 @@ class ProxyDB
   /**
    * ProxyDB constructor.
    *
-   * @param string|SQLiteHelper|MySQLHelper|null $dbLocation Path to DB file, or DB helper instance.
+   * @param string|SQLiteHelper|MySQLHelper|CoreDB|null $dbLocation Path to DB file, or DB helper/CoreDB instance.
    * @param string $dbType Database type: 'sqlite' or 'mysql'.
-   * @param string $host MySQL host.
-   * @param string $dbname MySQL database name.
-   * @param string $username MySQL username.
-   * @param string $password MySQL password.
+   * @param string $host MySQL host (for MySQL only).
+   * @param string $dbname MySQL database name (for MySQL only).
+   * @param string $username MySQL username (for MySQL only).
+   * @param string $password MySQL password (for MySQL only).
    * @param bool $unique Whether to enforce unique constraints (MySQL only).
    */
   public function __construct(
@@ -42,6 +42,9 @@ class ProxyDB
     // Accept helper instance directly
     if ($dbLocation instanceof SQLiteHelper || $dbLocation instanceof MySQLHelper) {
       $this->db = $dbLocation;
+      return;
+    } elseif ($dbLocation instanceof CoreDB) {
+      $this->db = $dbLocation->db;
       return;
     }
 
