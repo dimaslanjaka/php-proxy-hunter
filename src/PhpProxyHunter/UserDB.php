@@ -37,6 +37,12 @@ class UserDB
     if ($dbLocation instanceof SQLiteHelper || $dbLocation instanceof MySQLHelper) {
       // $dbLocation is an instance of SQLiteHelper or MySQLHelper
       $this->db = $dbLocation;
+      // Auto-detect driver type from the DB helper instance
+      if ($dbLocation instanceof MySQLHelper) {
+        $dbType = 'mysql';
+      } else {
+        $dbType = 'sqlite';
+      }
     } else {
       // $dbLocation is a string (path) or null
       if ($dbType === 'mysql') {
@@ -45,6 +51,44 @@ class UserDB
         $this->sqlite($dbLocation);
       }
     }
+
+    // Use detected driver type for table creation
+    if ($dbType === 'mysql') {
+      $sql = <<<SQL
+    CREATE TABLE IF NOT EXISTS `auth_user` (
+      `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      `password` VARCHAR(128) NOT NULL,
+      `last_login` DATETIME NULL,
+      `is_superuser` TINYINT(1) NOT NULL,
+      `username` VARCHAR(150) NOT NULL UNIQUE,
+      `last_name` VARCHAR(150) NOT NULL,
+      `email` VARCHAR(254) NOT NULL,
+      `is_staff` TINYINT(1) NOT NULL,
+      `is_active` TINYINT(1) NOT NULL,
+      `date_joined` DATETIME NOT NULL,
+      `first_name` VARCHAR(150) NOT NULL
+    );
+    SQL;
+    } else {
+      $sql = <<<SQL
+    CREATE TABLE IF NOT EXISTS "auth_user" (
+      "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+      "password" TEXT NOT NULL,
+      "last_login" TEXT,            -- ISO8601 string
+      "is_superuser" INTEGER NOT NULL,
+      "username" TEXT NOT NULL UNIQUE,
+      "last_name" TEXT NOT NULL,
+      "email" TEXT NOT NULL,
+      "is_staff" INTEGER NOT NULL,
+      "is_active" INTEGER NOT NULL,
+      "date_joined" TEXT NOT NULL,
+      "first_name" TEXT NOT NULL
+    );
+    SQL;
+    }
+
+    echo "Ensuring auth_user table exists... ($dbType)\n";
+    $this->db->pdo->exec(trim($sql));
 
     $this->logsRepository = new LogsRepository($this->db->pdo);
   }

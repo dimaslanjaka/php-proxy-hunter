@@ -57,7 +57,7 @@ class UserDBTest extends TestCase
         }
       }
     } else {
-      $this->testDbPath = sys_get_temp_dir() . '/test_database.sqlite';
+      $this->testDbPath = __DIR__ . '/tmp/test_database.sqlite';
       $this->userDB     = new UserDB($this->testDbPath);
       // Remove related user_discount rows before deleting test users
       $pdo     = $this->userDB->db->pdo;
