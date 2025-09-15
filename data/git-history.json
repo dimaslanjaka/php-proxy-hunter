@@ -1,5 +1,31 @@
 [
   {
+    "hash": "6aca2a7d79ec8be41914567313863e4ff64486fb",
+    "date": "2025-09-15T09:59:10+07:00",
+    "message": "build(dev): update git-history builder to write output to multiple locations\n\n- switched to using full `fs` and `path` modules instead of destructured imports\n- now writes `git-history.json` to both:\n  - `public/data`\n  - `dist/react`\n- added log message for each output file",
+    "files": [
+      "src/dev/git-history.builder.ts"
+    ]
+  },
+  {
+    "hash": "bb55e8e80dae34a0c36452f4fc4aac1966b98531",
+    "date": "2025-09-15T09:52:13+07:00",
+    "message": "fix(post-merge): remove unsupported OS check in post-merge script",
+    "files": []
+  },
+  {
+    "hash": "1b455a65c9e020d28a255c755f5468c023ef8526",
+    "date": "2025-09-15T09:50:16+07:00",
+    "message": "fix(post-merge): correct variable reference for commit history builder script",
+    "files": []
+  },
+  {
+    "hash": "293458dc0e84ce943182e79b5dc8b149e00efa63",
+    "date": "2025-09-15T09:48:27+07:00",
+    "message": "feat(post-merge): add commit history builder script execution",
+    "files": []
+  },
+  {
     "hash": "2515aef60d2b01ab2702dcb8c8b8aec4e27ace46",
     "date": "2025-09-15T09:43:57+07:00",
     "message": "fix(LogsRepository): update constructor to accept CoreDB instance and throw exception for invalid types",
