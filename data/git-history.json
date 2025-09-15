@@ -1,5 +1,29 @@
 [
   {
+    "hash": "a79199230a27aebd605bed5f9d38c4e913f71562",
+    "date": "2025-09-15T11:26:07+07:00",
+    "message": "chore: update baileys v7",
+    "files": [
+      "packages/baileys"
+    ]
+  },
+  {
+    "hash": "89b6dfd7e878c45512c44caab7016479c3cb37e2",
+    "date": "2025-09-15T10:50:50+07:00",
+    "message": "fix(checker-php): add execution of composer-installer script before composer config",
+    "files": [
+      ".github/workflows/checker-php.yml"
+    ]
+  },
+  {
+    "hash": "c22114c9ad1aecb82744c27e2ce2aae0e441ded4",
+    "date": "2025-09-15T10:49:45+07:00",
+    "message": "docs(composer-installer): add JSDoc comments for functions in the script",
+    "files": [
+      "scripts/composer-installer.js"
+    ]
+  },
+  {
     "hash": "6f5fce7fd106c8ad054f1c09a14544d884ec75d6",
     "date": "2025-09-15T10:03:32+07:00",
     "message": "fix(git-history.builder): correct output file path for git history JSON",
