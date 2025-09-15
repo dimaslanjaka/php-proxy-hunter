@@ -769,6 +769,11 @@ function getUserFile(string $user_id): string
   return __DIR__ . "/config/$user_id.json";
 }
 
+function getUserStatusFile(string $user_id): string
+{
+  return __DIR__ . "/tmp/status/$user_id.txt";
+}
+
 function getConfig(string $user_id): array
 {
   $user_file = getUserFile($user_id);
@@ -1287,29 +1292,25 @@ function php_exec($cmd)
     $return_var = 0;
     exec($cmd, $output, $return_var);
     return implode(' ', $output);
-  }
-  // Check for `shell_exec` support
-  elseif (function_exists('shell_exec')) {
+  } elseif (function_exists('shell_exec')) {
+    // Check for `shell_exec` support
     return shell_exec($cmd);
-  }
-  // Check for `system` support
-  elseif (function_exists('system')) {
+  } elseif (function_exists('system')) {
+    // Check for `system` support
     $return_var = 0;
     ob_start();
     system($cmd, $return_var);
     $output = ob_get_clean();
     return $output;
-  }
-  // Check for `passthru` support
-  elseif (function_exists('passthru')) {
+  } elseif (function_exists('passthru')) {
+    // Check for `passthru` support
     $return_var = 0;
     ob_start();
     passthru($cmd, $return_var);
     $output = ob_get_clean();
     return $output;
-  }
-  // Check for `proc_open` support
-  elseif (function_exists('proc_open')) {
+  } elseif (function_exists('proc_open')) {
+    // Check for `proc_open` support
     $descriptorspec = [
       0 => ['pipe', 'r'], // STDIN
       1 => ['pipe', 'w'], // STDOUT
@@ -1326,9 +1327,8 @@ function php_exec($cmd)
     } else {
       return 'Error: Unable to execute command using proc_open.';
     }
-  }
-  // No suitable function available
-  else {
+  } else {
+    // No suitable function available
     return 'Error: No suitable PHP function available to execute commands.';
   }
 }
