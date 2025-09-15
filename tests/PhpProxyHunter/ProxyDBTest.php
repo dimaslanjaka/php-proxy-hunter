@@ -49,7 +49,7 @@ class ProxyDBTest extends TestCase
       // Remove test proxy if exists
       $this->proxyDB->remove($this->testProxy);
     } else {
-      $this->testDbPath = sys_get_temp_dir() . '/test_proxydb.sqlite';
+      $this->testDbPath = __DIR__ . '/tmp/test_proxydb.sqlite';
       $this->proxyDB    = new ProxyDB($this->testDbPath);
       $this->proxyDB->remove($this->testProxy);
     }
@@ -124,9 +124,11 @@ class ProxyDBTest extends TestCase
   public function testIsAlreadyAddedAndMarkAsAdded(string $driver): void
   {
     $this->setUpDB($driver);
+    $this->proxyDB->remove($this->testProxy);
     $this->assertFalse($this->proxyDB->isAlreadyAdded($this->testProxy));
     $this->proxyDB->markAsAdded($this->testProxy);
     $this->assertTrue($this->proxyDB->isAlreadyAdded($this->testProxy));
+    $this->proxyDB->remove($this->testProxy);
     $this->tearDownDB($driver);
   }
 
