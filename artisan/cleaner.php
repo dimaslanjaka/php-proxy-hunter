@@ -56,11 +56,15 @@ foreach ($directories as $directory) {
         continue;
       }
 
-      // Get the last modification time of the file
-      $file_mtime = filemtime($filePath);
+      // Get the last modification time of the file, fallback to creation time if needed
+      $fileDate = @filemtime($filePath);
+      if ($fileDate === false) {
+        // Fallback: filectime is creation time on Windows, inode change time on Unix
+        $fileDate = @filectime($filePath);
+      }
 
-      // File was last modified more than 1 week ago.
-      if ($file_mtime < $oneWeekAgo) {
+      // File was last modified (or created) more than 1 week ago.
+      if ($fileDate !== false && $fileDate < $oneWeekAgo) {
         // Remove the file
         echo "File $file removed (" . (unlink($filePath) ? 'success' : 'failed') . ')' . PHP_EOL;
       }
