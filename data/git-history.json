@@ -1,5 +1,88 @@
 [
   {
+    "hash": "c50f5bd5ba5b6a9cb8967e93a0c6540bcefbe843",
+    "date": "2025-09-15T15:03:54+07:00",
+    "message": "feat(func.php): add getUserStatusFile function to retrieve user status",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
+    "hash": "404d0f73226b4b981c8760702b3a18e58166ee29",
+    "date": "2025-09-15T15:00:20+07:00",
+    "message": "refactor(shared.php): update require statement to load func-proxy.php",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
+    "hash": "467beae6d98c51f35c825b87985cff4738316335",
+    "date": "2025-09-15T14:59:43+07:00",
+    "message": "refactor(php): improve PHP 7 compatibility and code clarity\n\n- Remove strict_types declaration for broader compatibility.\n- Remove unused imports of Proxy and ProxyDB.\n- Replace PHP 7+ type hints and return types with PHP 5/7 compatible docblocks.\n- Refactor function signatures to remove union and nullable types, using docblocks for type information.\n- Use short array syntax for all arrays.\n- Add or update docblocks for all functions to clarify parameter and return types.\n- Improve inline comments for SSL version selection and array handling.\n- Minor whitespace and formatting adjustments for consistency.",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
+    "hash": "ead8d1215c6a8fdd70fd18d3804b33fadafc8b4a",
+    "date": "2025-09-15T14:53:10+07:00",
+    "message": "feat(proxydb): add support for CoreDB instance in constructor\n\n- Updated constructor docblock to include `CoreDB`\n- Allow passing `CoreDB` to ProxyDB constructor and use its `$db` property\n- Clarified MySQL-specific parameter descriptions in docblock",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "545ca628a3757e28a195cedc934adc3e73189f34",
+    "date": "2025-09-15T14:27:39+07:00",
+    "message": "docs: remove deprecated UI preview images",
+    "files": [
+      "readme.md"
+    ]
+  },
+  {
+    "hash": "e6fd8349d17d83668f9af11a01f6012ff7bfc54c",
+    "date": "2025-09-15T14:22:50+07:00",
+    "message": "docs: add image for proxy checker parallel in README",
+    "files": [
+      "readme.md"
+    ]
+  },
+  {
+    "hash": "ddd4908837f97384c7036d12bb3bca18769fbf20",
+    "date": "2025-09-15T14:06:10+07:00",
+    "message": "refactor: update references from proxies-all.php to proxyCollector.php\n\n- Replaced `artisan/proxies-all.php` with `artisan/proxyCollector.php` in GitHub workflows\n- Updated script references in `bin/run-php` and `fix-nginx-perm.sh`\n- Adjusted documentation in `readme.md` to reflect new script name",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-php.yml.txt",
+      ".github/workflows/checker.yml.txt",
+      "bin/run-php",
+      "fix-nginx-perm.sh",
+      "readme.md"
+    ]
+  },
+  {
+    "hash": "c30e9454779d5f75830b0562346b19f5c2ab5868",
+    "date": "2025-09-15T14:05:01+07:00",
+    "message": "refactor: move proxies-all.php to artisan/proxyCollector.php and update references\n\n- Renamed `proxies-all.php` to `artisan/proxyCollector.php`\n- Updated all workflow scripts, shell scripts, and documentation to use new path\n- Adjusted file includes and paths inside `proxyCollector.php` for correct relative references",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-php.yml.txt",
+      ".github/workflows/checker.yml.txt",
+      "artisan/proxyCollector.php",
+      "bin/run-php",
+      "fix-nginx-perm.sh",
+      "readme.md"
+    ]
+  },
+  {
+    "hash": "8a4cd2bc7f80dcdba8fbdce96b4127af5a5b8781",
+    "date": "2025-09-15T13:35:24+07:00",
+    "message": "fix(phpcs): disable multi-line control structure spacing rules",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
     "hash": "a79199230a27aebd605bed5f9d38c4e913f71562",
     "date": "2025-09-15T11:26:07+07:00",
     "message": "chore: update baileys v7",
