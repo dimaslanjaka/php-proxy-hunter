@@ -1,5 +1,13 @@
 [
   {
+    "hash": "2515aef60d2b01ab2702dcb8c8b8aec4e27ace46",
+    "date": "2025-09-15T09:43:57+07:00",
+    "message": "fix(LogsRepository): update constructor to accept CoreDB instance and throw exception for invalid types",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php"
+    ]
+  },
+  {
     "hash": "1167a827df5afd058f41dd8bf4e78a76c8b6607b",
     "date": "2025-09-15T09:37:19+07:00",
     "message": "fix(userdb): remove debug echo for auth_user table creation",
