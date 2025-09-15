@@ -5,7 +5,7 @@ namespace PhpProxyHunter;
 use PDO;
 use RuntimeException;
 
-class CoreDB
+class CoreDB extends BaseSQL
 {
   /**
    * Path to SQLite database file (if using SQLite) or null
@@ -180,6 +180,8 @@ class CoreDB
     $sql = file_get_contents($schemaPath);
     if ($sql !== false) {
       $this->db->pdo->exec($sql);
+    } else {
+      throw new RuntimeException("Failed to read schema file: $schemaPath");
     }
   }
 
@@ -219,5 +221,62 @@ class CoreDB
     $offset = 0
   ) {
     return $this->db->select($table, $columns, $where, $params, $orderBy, $limit, $offset);
+  }
+
+  public function createTable($tableName, array $columns)
+  {
+    return $this->db->createTable($tableName, $columns);
+  }
+  public function insert($table, $data = [], $params = [])
+  {
+    return $this->db->insert($table, $data, $params);
+  }
+  public function execute($sql, $params = [])
+  {
+    return $this->db->execute($sql, $params);
+  }
+  public function count($table, $where = null, $params = [])
+  {
+    return $this->db->count($table, $where, $params);
+  }
+  public function update($table, array $data, $where = null, $params = [])
+  {
+    return $this->db->update($table, $data, $where, $params);
+  }
+  public function delete($table, $where = null, $params = [])
+  {
+    return $this->db->delete($table, $where, $params);
+  }
+  public function addColumnIfNotExists($table, $column, $definition)
+  {
+    return $this->db->addColumnIfNotExists($table, $column, $definition);
+  }
+  public function columnExists($table, $column)
+  {
+    return $this->db->columnExists($table, $column);
+  }
+  public function dropColumnIfExists($table, $column)
+  {
+    return $this->db->dropColumnIfExists($table, $column);
+  }
+  public function getTableColumns($table)
+  {
+    return $this->db->getTableColumns($table);
+  }
+  public function modifyColumnIfExists($table, $column, $definition)
+  {
+    return $this->db->modifyColumnIfExists($table, $column, $definition);
+  }
+  public function beginTransaction()
+  {
+    return $this->db->beginTransaction();
+  }
+  public function commit()
+  {
+    return $this->db->commit();
+  }
+  public function rollback()
+  {
+    return $this->db->rollback();
   }
 }
