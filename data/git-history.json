@@ -1,5 +1,13 @@
 [
   {
+    "hash": "6f5fce7fd106c8ad054f1c09a14544d884ec75d6",
+    "date": "2025-09-15T10:03:32+07:00",
+    "message": "fix(git-history.builder): correct output file path for git history JSON",
+    "files": [
+      "src/dev/git-history.builder.ts"
+    ]
+  },
+  {
     "hash": "6aca2a7d79ec8be41914567313863e4ff64486fb",
     "date": "2025-09-15T09:59:10+07:00",
     "message": "build(dev): update git-history builder to write output to multiple locations\n\n- switched to using full `fs` and `path` modules instead of destructured imports\n- now writes `git-history.json` to both:\n  - `public/data`\n  - `dist/react`\n- added log message for each output file",
