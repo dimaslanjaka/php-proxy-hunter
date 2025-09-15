@@ -87,7 +87,6 @@ class UserDB
     SQL;
     }
 
-    echo "Ensuring auth_user table exists... ($dbType)\n";
     $this->db->pdo->exec(trim($sql));
 
     $this->logsRepository = new LogsRepository($this->db->pdo);
