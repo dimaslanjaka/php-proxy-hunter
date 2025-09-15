@@ -1,5 +1,85 @@
 [
   {
+    "hash": "8ad39ad34be87b292ce105f65e765f2da06aa1ab",
+    "date": "2025-09-15T09:27:51+07:00",
+    "message": "feat(img): add image proxy with caching and validation\n\n- introduced php_backend/img.php\n- fetches remote images via cURL with 10s timeout and max size of 5MB\n- caches responses for 24h in tmp/image-cache with metadata\n- supports cache bypass with `refresh=1`\n- validates URL scheme and optional allowed hosts\n- streams content while writing to cache\n- ensures only valid image content-types are served",
+    "files": [
+      "php_backend/img.php"
+    ]
+  },
+  {
+    "hash": "d6dec570a171295857b1cfb7c885ba2e17c3f9cd",
+    "date": "2025-09-15T09:27:03+07:00",
+    "message": "feat(userdb): auto-create auth_user table based on driver type\n\n- auto-detects database driver (mysql/sqlite) when initialized with DB helper\n- ensures `auth_user` table exists with driver-specific schema\n- added console output to indicate table creation and driver type\n- updated UserDBTest to use dedicated tmp path for sqlite tests",
+    "files": [
+      "src/PhpProxyHunter/UserDB.php",
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
+    "hash": "a8c274dfe821953a6352610bf2d1fa84bf4a5eda",
+    "date": "2025-09-15T09:26:19+07:00",
+    "message": "fix(tests): update lock file paths to use local directory instead of system temp dir",
+    "files": [
+      "tests/PhpProxyHunter/FileLockHelperTest.php",
+      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php"
+    ]
+  },
+  {
+    "hash": "ff5c2c167a6f0c46903fc96892a4dd1279e6323a",
+    "date": "2025-09-15T09:25:38+07:00",
+    "message": "feat(session): add FileSessionHandler for filesystem-based session management\n\n- implemented FileSessionHandler class using SessionHandlerInterface\n- supports configurable session file path, prefix, and postfix\n- handles reading, writing, destroying, and garbage collection of session files\n- validates directory existence and writability on initialization",
+    "files": [
+      "src/FileSessionHandler.php"
+    ]
+  },
+  {
+    "hash": "7450899c4ff424960afec3ea779ae11c9de386b2",
+    "date": "2025-09-15T09:24:50+07:00",
+    "message": "fix(proxydb): ensure proxies are removed from added_proxies table\n\n- ProxyDB::remove now deletes from both `proxies` and `added_proxies` to maintain consistency\n- updated ProxyDBTest:\n  - use dedicated tmp path for sqlite tests\n  - added cleanup calls to remove test proxy in isAlreadyAdded/markAsAdded test",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "tests/PhpProxyHunter/ProxyDBTest.php"
+    ]
+  },
+  {
+    "hash": "d69a164130b7cefe46cd3b7b1c0bc0484b56491b",
+    "date": "2025-09-15T09:23:43+07:00",
+    "message": "feat(sqlite): improve table creation and schema modification debugging\n\n- createTable: filter out empty or whitespace-only columns to prevent syntax errors\n- modifyColumn:\n  - wrapped CREATE TABLE execution in try/catch with debug logging to file and error log\n  - added var_dump outputs for generated SQL during modification\n- getTable definition: applied fixSQLiteSyntax to clean up SQL before parsing\n- introduced fixSQLiteSyntax helper:\n  - strips comments\n  - normalizes whitespace",
+    "files": [
+      "src/PhpProxyHunter/SQLiteHelper.php"
+    ]
+  },
+  {
+    "hash": "369d10bb7fecb4c258f85c804771dbd96baa51ef",
+    "date": "2025-09-15T09:22:34+07:00",
+    "message": "feat(logs): improve schema migrations and add validation for required tables\n\n- LogsRepository: added check to ensure `auth_user` table exists before creating logs\n- LogsRepositoryMigrations:\n  - ensured `meta` table is created for both MySQL and SQLite\n  - added conditional handling for `log_type` column creation\n  - added migration step to include `user_id` column in `user_activity`\n  - improved handling of `details` column updates with driver-specific logic\n- added LogRepositoryMigrationsDebug script for migration testing\n- updated LogsRepositoryTest to use dedicated tmp sqlite path",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php",
+      "src/PhpProxyHunter/LogsRepositoryMigrations.php",
+      "tests/PhpProxyHunter/LogRepositoryMigrationsDebug.php",
+      "tests/database/LogsRepositoryTest.php"
+    ]
+  },
+  {
+    "hash": "e8e26d12c1938763bc8168d2e1204ad144a0edc3",
+    "date": "2025-09-15T09:21:28+07:00",
+    "message": "refactor(schema): remove user_discount table from MySQL and SQLite schemas",
+    "files": [
+      "src/PhpProxyHunter/assets/mysql-schema.sql",
+      "src/PhpProxyHunter/assets/sqlite-schema.sql"
+    ]
+  },
+  {
+    "hash": "e15cc7fb9ae01b1a28345c171848cc554ce42b08",
+    "date": "2025-09-15T09:20:35+07:00",
+    "message": "feat(coredb): extend BaseSQL and add delegated DB utility methods\n\n- CoreDB now extends BaseSQL\n- added delegation methods for common DB operations:\n  - createTable, insert, execute, count, update, delete\n  - add/modify/drop/columnExists helpers\n  - getTableColumns\n  - transaction control (beginTransaction, commit, rollback)\n- added explicit error handling when schema file cannot be read\n- updated CoreDBTest to use dedicated tmp directory for sqlite tests",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php",
+      "tests/PhpProxyHunter/CoreDBTest.php"
+    ]
+  },
+  {
     "hash": "5e682d986fe02eba8a1713d71d9da6434a2ecbe2",
     "date": "2025-09-11T18:23:55+07:00",
     "message": "refactor(sql): rename executeCustomQuery to execute across codebase\n\n- Updated BaseSQL abstract method from executeCustomQuery to execute\n- Refactored CoreDB, MySQLHelper, and SQLiteHelper to use execute\n- Replaced executeCustomQuery calls in list.php with execute\n- Adjusted related unit tests to reflect renamed method",
