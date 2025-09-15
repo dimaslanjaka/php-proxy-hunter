@@ -169,6 +169,7 @@ jobs:
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}"}}'
         run: |
+          node scripts/composer-installer.js
           php bin/composer.phar config --global github-oauth.github.com "${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}"
           # If vendor folder is missing or empty, remove composer.lock and re-install
           if [ ! -d vendor ] || [ -z "$(ls -A vendor 2>/dev/null)" ]; then
