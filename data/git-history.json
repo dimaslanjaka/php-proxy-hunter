@@ -1,5 +1,13 @@
 [
   {
+    "hash": "1167a827df5afd058f41dd8bf4e78a76c8b6607b",
+    "date": "2025-09-15T09:37:19+07:00",
+    "message": "fix(userdb): remove debug echo for auth_user table creation",
+    "files": [
+      "src/PhpProxyHunter/UserDB.php"
+    ]
+  },
+  {
     "hash": "8ad39ad34be87b292ce105f65e765f2da06aa1ab",
     "date": "2025-09-15T09:27:51+07:00",
     "message": "feat(img): add image proxy with caching and validation\n\n- introduced php_backend/img.php\n- fetches remote images via cURL with 10s timeout and max size of 5MB\n- caches responses for 24h in tmp/image-cache with metadata\n- supports cache bypass with `refresh=1`\n- validates URL scheme and optional allowed hosts\n- streams content while writing to cache\n- ensures only valid image content-types are served",
