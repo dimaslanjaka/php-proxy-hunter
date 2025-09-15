@@ -13,10 +13,17 @@ class LogsRepository
   private $driver;
 
   /**
-   * @param \PDO $db
+   * @param \PDO|\PhpProxyHunter\CoreDB $db
    */
-  public function __construct($pdo)
+  public function __construct($db)
   {
+    if ($db instanceof CoreDB) {
+      $pdo = $db->db->pdo;
+    } elseif ($db instanceof PDO) {
+      $pdo = $db;
+    } else {
+      throw new \InvalidArgumentException('Expected instance of PDO or CoreDB.');
+    }
     $this->pdo = $pdo;
     // Get the driver name (e.g., "mysql", "sqlite", "pgsql")
     $this->driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
