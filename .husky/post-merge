@@ -129,4 +129,4 @@ else
 fi
 
 # run commit history builder
-node --no-warnings=ExperimentalWarning --loader ts-node/esm "$PROJECT_DIR/src/dev/git-history.builder.ts"
+node --no-warnings=ExperimentalWarning --loader ts-node/esm "$CWD/src/dev/git-history.builder.ts"
