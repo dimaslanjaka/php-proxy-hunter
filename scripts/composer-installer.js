@@ -12,6 +12,13 @@ const composerUrl = 'https://getcomposer.org/composer-stable.phar';
 const binDir = path.resolve(__dirname, '../bin');
 const composerPath = path.join(binDir, 'composer.phar');
 
+/**
+ * Downloads a file from the given URL and saves it to the specified destination.
+ *
+ * @param {string} url - The URL to download the file from.
+ * @param {string} dest - The destination file path where the downloaded file will be saved.
+ * @param {(err: Error|null) => void} cb - Callback function called when download completes or fails.
+ */
 function downloadComposer(url, dest, cb) {
   const file = fs.createWriteStream(dest);
   https
@@ -30,12 +37,21 @@ function downloadComposer(url, dest, cb) {
     });
 }
 
+/**
+ * Ensures that the bin directory exists. Creates it if it does not exist.
+ */
 function ensureBinDir() {
   if (!fs.existsSync(binDir)) {
     fs.mkdirSync(binDir, { recursive: true });
   }
 }
 
+/**
+ * Makes the specified file executable (chmod 755).
+ * On Windows, this operation is ignored if it fails.
+ *
+ * @param {string} filePath - The path to the file to make executable.
+ */
 function makeExecutable(filePath) {
   try {
     fs.chmodSync(filePath, 0o755);
@@ -44,6 +60,11 @@ function makeExecutable(filePath) {
   }
 }
 
+/**
+ * Main function to orchestrate downloading and installing Composer.
+ * Ensures the bin directory exists, downloads Composer, makes it executable,
+ * and creates a shortcut script for easier usage.
+ */
 function main() {
   ensureBinDir();
   console.log('Downloading Composer to', composerPath);
