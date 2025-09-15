@@ -254,7 +254,7 @@ jobs:
       - name: Indexing proxies
         if: steps.check_last_run.outputs.run_the_job_last_4_hours_run_timestamp == 'true'
         run: |
-          php proxies-all.php
+          php artisan/proxies-all.php
           php cleaner.php
       - name: Scan ports
         run: |

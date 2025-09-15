@@ -4,7 +4,7 @@
 
 // index all proxies into database
 
-require_once __DIR__ . '/func-proxy.php';
+require_once __DIR__ . '/../func-proxy.php';
 
 global $isWin, $isCli;
 
@@ -18,8 +18,8 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
-$lockFilePath = __DIR__ . '/tmp/proxies-all.lock';
-$statusFile   = __DIR__ . '/status.txt';
+$lockFilePath = tmp() . '/proxies-all.lock';
+$statusFile   = __DIR__ . '/../status.txt';
 
 $isAdmin          = false;
 $maxExecutionTime = 10 * 60;
@@ -70,9 +70,8 @@ Scheduler::register(function () use ($lockFilePath, $statusFile) {
 
 $db = new ProxyDB();
 
-//$files = [__DIR__ . '/proxies.txt'];
-$files  = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
-$assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
+$files  = [__DIR__ . '/../dead.txt', __DIR__ . '/../proxies.txt', __DIR__ . '/../proxies-all.txt'];
+$assets = array_filter(getFilesByExtension(__DIR__ . '/../assets/proxies'), function ($fn) {
   return strpos($fn, 'added-') !== false;
 });
 if (!empty($assets)) {
@@ -107,23 +106,23 @@ foreach ($files as $file) {
 
 if (!empty($files_to_merge)) {
   // merge and delete if the file is small (under 30kb)
-  $contents = array_map(function (string $file) {
+  $contents = array_map(function ($file) {
     if (file_exists($file)) {
       return read_file($file);
     }
     return '';
   }, $files_to_merge);
-  $contents = array_filter($contents, function (string $content) {
+  $contents = array_filter($contents, function ($content) {
     return !empty($content);
   });
   $content          = implode(PHP_EOL, $contents);
-  $directory        = __DIR__ . '/assets/proxies';
+  $directory        = __DIR__ . '/../assets/proxies';
   $mergedFileName   = $directory . '/added-' . date('Ymd') . '_merged_file.txt';
   $mergedFileHandle = fopen($mergedFileName, 'w+');
   $write            = fwrite($mergedFileHandle, $content);
   fclose($mergedFileHandle);
   if ($write) {
-    array_map(function (string $file) {
+    array_map(function ($file) {
       if (file_exists($file)) {
         unlink($file);
       }
@@ -177,7 +176,7 @@ iterateBigFilesLineByLine($files, 500, function ($line) use ($db, $str_limit_to_
   }
 });
 
-$indicator_all           = __DIR__ . '/tmp/proxies-all-should-iterating-database.txt';
+$indicator_all           = tmp() . '/proxies-all-should-iterating-database.txt';
 $indicator_all_not_found = !file_exists($indicator_all);
 $indicator_all_expired   = isFileCreatedMoreThanHours($indicator_all, 24);
 $can_do_iterate          = $indicator_all_not_found || $indicator_all_expired;
@@ -223,7 +222,7 @@ if (!empty($str_to_remove)) {
 
 function countFilesAndRepeatScriptIfNeeded()
 {
-  $directory = __DIR__ . '/assets/proxies';
+  $directory = __DIR__ . '/../assets/proxies';
   $fileCount = 0;
 
   // Open the directory
@@ -260,7 +259,7 @@ function blacklist_remover()
 {
   global $db;
   $pdo         = $db->db->pdo;
-  $r_blacklist = read_file(__DIR__ . '/data/blacklist.conf');
+  $r_blacklist = read_file(__DIR__ . '/../data/blacklist.conf');
   if ($r_blacklist) {
     $blacklist = extractIPs($r_blacklist);
     foreach ($blacklist as $ip) {
