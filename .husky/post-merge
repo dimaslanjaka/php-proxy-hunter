@@ -122,10 +122,6 @@ elif [ "$OS" = "Linux" ]; then
       bash "$CWD/bin/fix-perm"
     fi
   fi
-# If OS is not supported
-else
-  echo "Unsupported operating system"
-  exit 1
 fi
 
 # run commit history builder
