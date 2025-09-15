@@ -2,7 +2,7 @@
 │   ├── main.cjs [7674a400]
 │   └── main.mjs [e8409dcb]
 ├── artisan/
-│   ├── cleaner.php [ad6b4d24]
+│   ├── cleaner.php [d35d5c91]
 │   ├── filterPorts.php [96da3b1f]
 │   ├── filterPortsBackground.php [a6528e9e]
 │   ├── filterPortsDuplicate.php [1cfe18bb]
@@ -74,7 +74,7 @@
 │   ├── login.php [f8f27d9a]
 │   ├── logout.php [60033189]
 │   ├── logs.php [a3a9e45d]
-│   ├── proxy-checker.php [622f1ffe]
+│   ├── proxy-checker.php [b55c6bb4]
 │   ├── recaptcha.php [824a2156]
 │   ├── refill-saldo.php [ffe44501]
 │   ├── shared.php [6937bcb9]
