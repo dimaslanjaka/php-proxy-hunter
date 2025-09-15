@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../func.php';
+require_once __DIR__ . '/../func-proxy.php';
 
 use PhpProxyHunter\CoreDB;
 
