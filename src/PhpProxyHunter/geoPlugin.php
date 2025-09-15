@@ -197,7 +197,7 @@ class geoPlugin implements \JsonSerializable
   }
 
   /**
-   * locate recursive, fallback to geoPlugin2
+   * locate recursive, fallback to GeoPlugin2
    */
   public function locate_recursive(string $ip)
   {
@@ -210,7 +210,7 @@ class geoPlugin implements \JsonSerializable
           unlink($this->cacheFile);
         }
       }
-      $geo2      = new geoPlugin2();
+      $geo2      = new GeoPlugin2();
       $geoplugin = $geo2->locate($ip);
       if ($geoplugin != null) {
         $this->lang        = $geoplugin->lang;

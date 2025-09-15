@@ -25,7 +25,7 @@ namespace PhpProxyHunter;
 
 use GeoIp2\Database\Reader;
 
-class geoPlugin2
+class GeoPlugin2
 {
   private $city;
   private $asn;
@@ -131,15 +131,15 @@ class geoPlugin2
       if ($httpCode == 200 && $data) {
         $result = @file_put_contents($path, $data);
         if ($result === false) {
-          error_log("[geoPlugin2] Failed to write file: $path");
+          error_log("[GeoPlugin2] Failed to write file: $path");
         }
         return $result !== false;
       } else {
-        error_log("[geoPlugin2] Download failed for $url (HTTP $httpCode, CURL error: $curlError2)");
+        error_log("[GeoPlugin2] Download failed for $url (HTTP $httpCode, CURL error: $curlError2)");
       }
       return false;
     } elseif ($httpCode != 200) {
-      error_log("[geoPlugin2] HEAD request failed for $url (HTTP $httpCode, CURL error: $curlError)");
+      error_log("[GeoPlugin2] HEAD request failed for $url (HTTP $httpCode, CURL error: $curlError)");
     }
     // No need to download, sizes match
     return true;
