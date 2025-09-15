@@ -8,10 +8,14 @@ function main() {
   if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true });
   }
-  const outFiles = [path.join(outDir, 'git-history.json'), path.join(process.cwd(), 'dist/react', 'git-history.json')];
+  const outFiles = [
+    path.join(outDir, 'git-history.json'),
+    path.join(process.cwd(), 'dist/react/data/git-history.json')
+  ];
   for (const outFile of outFiles) {
+    const relativePath = path.relative(process.cwd(), outFile);
     fs.writeFileSync(outFile, JSON.stringify(data, null, 2), 'utf8');
-    console.log(`Git history written to ${outFile}`);
+    console.log(`Git history written to ${relativePath}`);
   }
 }
 
