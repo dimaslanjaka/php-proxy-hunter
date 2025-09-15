@@ -97,7 +97,7 @@ class LogsRepositoryTest extends TestCase
         'mysql'
       );
     } else {
-      $this->testDbPath = sys_get_temp_dir() . '/test_packages.sqlite';
+      $this->testDbPath = __DIR__ . '/tmp/test_packages.sqlite';
       $this->db         = new CoreDB($this->testDbPath);
     }
 

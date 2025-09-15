@@ -25,6 +25,13 @@ class LogsRepository
 
   private function ensureTable()
   {
+    // Check if table auth_user exists, throw if not
+    try {
+      $this->pdo->query('SELECT 1 FROM `auth_user` LIMIT 1');
+    } catch (\PDOException $e) {
+      throw new \Exception("Required table 'auth_user' does not exist in the database.");
+    }
+
     if ($this->driver === 'mysql') {
       $sql = <<<SQL
       CREATE TABLE IF NOT EXISTS `user_logs` (

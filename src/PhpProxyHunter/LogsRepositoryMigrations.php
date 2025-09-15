@@ -30,9 +30,18 @@ class LogsRepositoryMigrations
     $this->driver = $driver;
     if ($driver === 'mysql') {
       $this->helper = new MySQLHelper($pdo);
+      $sql          = 'CREATE TABLE IF NOT EXISTS meta (
+        `key` VARCHAR(255) PRIMARY KEY,
+        `value` TEXT
+      ) ENGINE=InnoDB;';
     } else {
       $this->helper = new SQLiteHelper($pdo);
+      $sql          = 'CREATE TABLE IF NOT EXISTS meta (
+        key TEXT PRIMARY KEY,
+        value TEXT
+      );';
     }
+    $this->pdo->exec($sql);
   }
 
   /**
@@ -101,17 +110,27 @@ class LogsRepositoryMigrations
   private function run(): void
   {
     // Add column log_type to user_logs if it does not exist, values: system,package,payment,other
-    if ($this->driver === 'mysql') {
-      $this->helper->addColumnIfNotExists('user_logs', 'log_type', "ENUM('system', 'package', 'payment', 'other')");
-    } elseif ($this->driver === 'sqlite') {
-      // SQLite does not support ENUM, use TEXT with CHECK constraint
-      $this->helper->addColumnIfNotExists('user_logs', 'log_type', "TEXT CHECK(log_type IN ('system', 'package', 'payment', 'other'))");
+    if (!$this->helper->columnExists('user_logs', 'log_type')) {
+      if ($this->driver === 'mysql') {
+        $this->helper->addColumnIfNotExists('user_logs', 'log_type', "ENUM('system', 'package', 'payment', 'other')");
+      } elseif ($this->driver === 'sqlite') {
+        // SQLite does not support ENUM, use TEXT with CHECK constraint
+        $this->helper->addColumnIfNotExists('user_logs', 'log_type', "TEXT CHECK(log_type IN ('system', 'package', 'payment', 'other'))");
+      }
     }
-    // Change details column in user_activity to TEXT NULL DEFAULT NULL
-    if ($this->driver === 'mysql') {
-      $this->helper->modifyColumnIfExists('user_activity', 'details', 'TEXT NULL DEFAULT NULL');
-    } elseif ($this->driver === 'sqlite') {
-      $this->helper->modifyColumnIfExists('user_activity', 'details', 'TEXT DEFAULT NULL');
+
+    // Add user_id column
+    if (!$this->helper->columnExists('user_activity', 'user_id')) {
+      $this->helper->addColumnIfNotExists('user_activity', 'user_id', 'INTEGER NOT NULL REFERENCES auth_user(id)');
+    }
+
+    // add details column to user_activity if it does not exist
+    if ($this->helper->columnExists('user_activity', 'details')) {
+      if ($this->driver === 'sqlite') {
+        $this->helper->modifyColumnIfExists('user_activity', 'details', 'TEXT DEFAULT NULL');
+      } elseif ($this->driver === 'mysql') {
+        $this->helper->modifyColumnIfExists('user_activity', 'details', 'TEXT NULL DEFAULT NULL');
+      }
     }
   }
 }
