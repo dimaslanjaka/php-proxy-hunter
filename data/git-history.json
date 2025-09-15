@@ -1,5 +1,45 @@
 [
   {
+    "hash": "521e0748c2921d1ac1b55f5f933a0ed85faa4328",
+    "date": "2025-09-15T23:15:27+07:00",
+    "message": "feat(proxy-checker): implement proxy checking functionality with CORS support and logging",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "7647b1c5ac9c8272a14580cbe89d287736a1c72a",
+    "date": "2025-09-15T22:00:42+07:00",
+    "message": "feat(clean-caches): add clean-caches.cmd script to execute php artisan cleaner for windows",
+    "files": [
+      "bin/clean-caches.cmd"
+    ]
+  },
+  {
+    "hash": "764feb5b1335d38195b581c8bcdb856c7fefd4ef",
+    "date": "2025-09-15T21:59:44+07:00",
+    "message": "fix(cleaner): enhance file date retrieval with exec fallback for unsupported cases",
+    "files": [
+      "artisan/cleaner.php"
+    ]
+  },
+  {
+    "hash": "963c972524fc560eefb717170e065bbbac5f1f1a",
+    "date": "2025-09-15T21:58:17+07:00",
+    "message": "fix(cleaner): fallback to file creation time if modification time unavailable",
+    "files": [
+      "artisan/cleaner.php"
+    ]
+  },
+  {
+    "hash": "c2fe2a8404e6fb17f282cd2709aeddec679a9de3",
+    "date": "2025-09-15T21:53:49+07:00",
+    "message": "feat(clear-caches): add php artisan cleaner command to Composer cache cleanup",
+    "files": [
+      "bin/clear-caches"
+    ]
+  },
+  {
     "hash": "c025d4fb359b5a1c74aba68c3dfd3eb57698c9e6",
     "date": "2025-09-15T17:33:58+07:00",
     "message": "refactor: rename geoPlugin to GeoPlugin for PSR compliance\n\n- Rename file `geoPlugin.php` to `GeoPlugin.php`\n- Update class name from `geoPlugin` to `GeoPlugin`\n- Update references in `GeoIpHelper` and `GeoPlugin2` to use `GeoPlugin`\n- Standardize docblocks, comments, user agent string, and error messages to `GeoPlugin`",
