@@ -150,7 +150,7 @@ task install-php
 |----------------------------|---------------------|---------|
 | Proxy checker              | Every 10 mins       | `*/10 * * * * php /path/to/proxyChecker.php > /path/to/proxyChecker.txt 2>&1` |
 | Proxy fetcher              | Daily               | `0 0 * * * php /var/www/html/proxyFetcher.php` |
-| Proxy index                | Daily               | `0 0 * * * php /var/www/html/artisan/proxies-all.php` |
+| Proxy index                | Daily               | `0 0 * * * php /var/www/html/artisan/proxyCollector.php` |
 | Parallel checker           | Hourly at 17 mins   | `17 */1 * * * php /var/www/html/proxyCheckerParallel.php` |
 | Cleaner                    | Weekly (Sunday)     | `0 0 * * 0 php /var/www/html/cleaner.php` |
 | DB backup                  | Daily at midnight   | `0 0 * * * sqlite3 /var/www/html/src/database.sqlite .dump > /var/www/html/backups/database_backup_$(date +\%Y-\%m-\%d).sql` |

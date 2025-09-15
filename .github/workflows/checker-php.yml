@@ -198,7 +198,7 @@ jobs:
         run: php artisan/proxyFetcher.php
 
       - name: Index Proxies
-        run: php artisan/proxies-all.php
+        run: php artisan/proxyCollector.php
 
       - name: Check Proxies
         run: php proxyCheckerParallel.php
