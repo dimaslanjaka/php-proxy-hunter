@@ -29,7 +29,7 @@ class GeoIpHelper
       $db = new ProxyDB();
     }
     list($ip, $port) = explode(':', $proxy);
-    $geo_plugin      = new \PhpProxyHunter\geoPlugin();
+    $geo_plugin      = new \PhpProxyHunter\GeoPlugin();
     $geoUrl          = "https://ip-get-geolocation.com/api/json/$ip";
     $content         = curlGetWithProxy($geoUrl, $proxy, $proxy_type);
     if (!$content) {

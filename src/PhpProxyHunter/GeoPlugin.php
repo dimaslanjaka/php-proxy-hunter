@@ -16,20 +16,20 @@
  *
  * @package PhpProxyHunter
  * @version 1.2
- * @author geoPlugin (gp_support@geoplugin.com)
- * @copyright Copyright geoPlugin (gp_support@geoplugin.com)
+ * @author GeoPlugin (gp_support@geoplugin.com)
+ * @copyright Copyright GeoPlugin (gp_support@geoplugin.com)
  * @link http://www.geoplugin.com/webservices/php
  */
 
 namespace PhpProxyHunter;
 
 /**
- * A PHP class that utilizes the geoPlugin webservice (http://www.geoplugin.com/) to geolocate IP addresses
+ * A PHP class that utilizes the GeoPlugin webservice (http://www.geoplugin.com/) to geolocate IP addresses
  * and retrieve geographical information and currency details.
  */
-class geoPlugin implements \JsonSerializable
+class GeoPlugin implements \JsonSerializable
 {
-  /** @var string The geoPlugin server URL */
+  /** @var string The GeoPlugin server URL */
   public $host = 'http://www.geoplugin.net/php.gp?ip={IP}&base_currency={CURRENCY}&lang={LANG}';
 
   /** @var string The default base currency */
@@ -99,7 +99,7 @@ class geoPlugin implements \JsonSerializable
   public $cacheFile = null;
 
   /**
-   * Initialize geoPlugin variables.
+   * Initialize GeoPlugin variables.
    */
   public function __construct()
   {
@@ -150,7 +150,7 @@ class geoPlugin implements \JsonSerializable
 
     $data = [];
 
-    // Set the geoPlugin vars
+    // Set the GeoPlugin vars
     $this->ip = $ip;
 
     $response = $this->fetch($host);
@@ -255,7 +255,7 @@ class geoPlugin implements \JsonSerializable
       $ch = curl_init();
       curl_setopt($ch, CURLOPT_URL, $host);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-      curl_setopt($ch, CURLOPT_USERAGENT, 'geoPlugin PHP Class v1.1');
+      curl_setopt($ch, CURLOPT_USERAGENT, 'GeoPlugin PHP Class v1.1');
       $response   = curl_exec($ch);
       $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
       curl_close($ch);
@@ -264,7 +264,7 @@ class geoPlugin implements \JsonSerializable
       $response   = file_get_contents($host);
       $httpStatus = $http_response_header[0];
     } else {
-      trigger_error('geoPlugin class Error: Cannot retrieve data. Either compile PHP with cURL support or enable allow_url_fopen in php.ini ', E_USER_ERROR);
+      trigger_error('GeoPlugin class Error: Cannot retrieve data. Either compile PHP with cURL support or enable allow_url_fopen in php.ini ', E_USER_ERROR);
       return false;
     }
 
@@ -292,11 +292,11 @@ class geoPlugin implements \JsonSerializable
   {
     // Easily convert amounts to geolocated currency.
     if (!is_numeric($this->currencyConverter) || $this->currencyConverter == 0) {
-      trigger_error('geoPlugin class Notice: currencyConverter has no value.', E_USER_NOTICE);
+      trigger_error('GeoPlugin class Notice: currencyConverter has no value.', E_USER_NOTICE);
       return $amount;
     }
     if (!is_numeric($amount)) {
-      trigger_error('geoPlugin class Warning: The amount passed to geoPlugin::convert is not numeric.', E_USER_WARNING);
+      trigger_error('GeoPlugin class Warning: The amount passed to GeoPlugin::convert is not numeric.', E_USER_WARNING);
       return $amount;
     }
     if ($symbol === true) {
@@ -316,7 +316,7 @@ class geoPlugin implements \JsonSerializable
   public function nearby($radius = 10, $limit = null)
   {
     if (!is_numeric($this->latitude) || !is_numeric($this->longitude)) {
-      trigger_error('geoPlugin class Warning: Incorrect latitude or longitude values.', E_USER_NOTICE);
+      trigger_error('GeoPlugin class Warning: Incorrect latitude or longitude values.', E_USER_NOTICE);
       return [[]];
     }
 

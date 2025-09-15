@@ -16,8 +16,8 @@
  *
  * @package PhpProxyHunter
  * @version 1.2
- * @author geoPlugin (gp_support@geoplugin.com)
- * @copyright Copyright geoPlugin (gp_support@geoplugin.com)
+ * @author GeoPlugin (gp_support@geoplugin.com)
+ * @copyright Copyright GeoPlugin (gp_support@geoplugin.com)
  * @link http://www.geoplugin.com/webservices/php
  */
 
@@ -149,7 +149,7 @@ class GeoPlugin2
   {
     try {
       $record = $this->city->city(trim($ip));
-      $plugin = new geoPlugin();
+      $plugin = new GeoPlugin();
       $plugin->fromGeoIp2CityModel($record);
       return $plugin;
     } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
