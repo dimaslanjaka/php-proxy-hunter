@@ -76,6 +76,8 @@ class SQLiteHelper extends BaseSQL
    */
   public function createTable($tableName, $columns)
   {
+    // Remove empty or whitespace-only columns to avoid syntax errors
+    $columns       = array_filter(array_map('trim', $columns));
     $columnsString = implode(', ', $columns);
     $sql           = "CREATE TABLE IF NOT EXISTS $tableName ($columnsString)";
     $this->pdo->exec($sql);
@@ -289,7 +291,15 @@ class SQLiteHelper extends BaseSQL
       $tmpTable     = $table . '_TEMP';
       $newCreateSql = str_replace($table, $tmpTable, $newCreateSql);
       // var_dump($newCreateSql);
-      $this->pdo->exec($newCreateSql);
+      try {
+        $this->pdo->exec($newCreateSql);
+      } catch (\PDOException $ex) {
+        // Debug: output the generated SQL to help diagnose syntax errors
+        $debugMsg = "\n---\nSQLITE CREATE TABLE DEBUG\n---\n" . $newCreateSql . "\n---\n" . $ex->getMessage() . "\n---\n";
+        @file_put_contents(__DIR__ . '/sqlite_create_table_debug.sql', $debugMsg);
+        error_log($debugMsg);
+        throw $ex;
+      }
       $colsList  = implode(', ', $newColumns);
       $insertSql = "INSERT INTO $tmpTable ($colsList) SELECT $colsList FROM $table";
       // var_dump($insertSql);
@@ -320,7 +330,7 @@ class SQLiteHelper extends BaseSQL
       if (!$row) {
         throw new \RuntimeException("Table $table does not exist");
       }
-      $createSql = $row['sql'];
+      $createSql = $this->fixSQLiteSyntax($row['sql']);
       $stmt      = null;
       // Parse columns definition
       $pattern = '/\((.*)\)/s';
@@ -344,6 +354,9 @@ class SQLiteHelper extends BaseSQL
       $this->pdo->exec($newCreateSql);
       $colsList  = implode(', ', $columns);
       $insertSql = "INSERT INTO $tmpTable ($colsList) SELECT $colsList FROM $table";
+      var_dump('[modifyColumn] create sql', $createSql);
+      var_dump('[modifyColumn] new create sql', $newCreateSql);
+      var_dump('[modifyColumn] insert sql', $insertSql);
       $this->pdo->exec($insertSql);
       $this->pdo->exec("DROP TABLE $table");
       $this->pdo->exec("ALTER TABLE $tmpTable RENAME TO $table");
@@ -377,5 +390,14 @@ class SQLiteHelper extends BaseSQL
   public function rollback()
   {
     return $this->pdo->rollBack();
+  }
+
+  public function fixSQLiteSyntax($sql)
+  {
+    // Remove Comments
+    $sql = preg_replace('/--.*$/m', '', $sql);
+    // Remove multiple spaces
+    $sql = preg_replace('/\s+/', ' ', $sql);
+    return trim($sql);
   }
 }
