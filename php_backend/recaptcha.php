@@ -23,12 +23,23 @@ if (!$isCli) {
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
-if (!empty($_POST['g-recaptcha-response'])) {
+$request = parseQueryOrPostBody();
+
+if (isset($request['status'])) {
+  header('Content-Type: application/json; charset=utf-8');
+  if (!empty($_SESSION['captcha']) && $_SESSION['captcha'] === true) {
+    exit(json_encode(['message' => 'Captcha already verified', 'success' => true]));
+  } else {
+    exit(json_encode(['error' => 'Captcha not verified', 'success' => false]));
+  }
+}
+
+if (!empty($request['g-recaptcha-response'])) {
   header('Content-Type: application/json; charset=utf-8');
   $secrets = [$_ENV['G_RECAPTCHA_SECRET'], $_ENV['G_RECAPTCHA_V2_SECRET']];
 
   foreach ($secrets as $secret) {
-    $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $_POST['g-recaptcha-response']);
+    $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $request['g-recaptcha-response']);
     $responseData   = json_decode($verifyResponse);
 
     if ($responseData->success) {
