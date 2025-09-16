@@ -8,6 +8,11 @@ $forbidden = false;
 $userToken    = isset($_SERVER['HTTP_X_USER_TOKEN']) ? $_SERVER['HTTP_X_USER_TOKEN'] : null;
 $serialNumber = isset($_SERVER['HTTP_X_SERIAL_NUMBER']) ? $_SERVER['HTTP_X_SERIAL_NUMBER'] : null;
 
+// Set CORS (Cross-Origin Resource Sharing) headers to allow requests from any origin
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: *');
+header('Access-Control-Allow-Methods: *');
+
 if ($userToken && $serialNumber) {
   $userFile = __DIR__ . '/data/' . $userToken . '.json';
   if (file_exists($userFile)) {
