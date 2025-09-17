@@ -1,5 +1,29 @@
 [
   {
+    "hash": "e6479af806472195974371363a7f9b60b2be70d2",
+    "date": "2025-09-17T12:37:16+07:00",
+    "message": "refactor(proxy-checker): extract proxy details formatting to helper\n\n- Introduced `build_proxy_details` function to generate proxy details array and string, reducing code duplication.\n- Replaced repeated proxy details formatting logic with calls to the new helper throughout proxy checking flow.\n- Improved maintainability and readability by centralizing proxy details construction.",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "18b09bfab9bc900d972b1ab94a5bfb4831af9a3a",
+    "date": "2025-09-17T12:36:02+07:00",
+    "message": "feat(proxy-list): add automatic refresh of proxy list every minute",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "343ff5211866abd578f9b521362b2ddd8970339c",
+    "date": "2025-09-17T12:31:48+07:00",
+    "message": "fix(proxy-checker): enhance shutdown logging with proxy details and ensure lock file removal",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "693edd68ee206e58db8d10a7f1c4e1911eacec2c",
     "date": "2025-09-17T12:26:12+07:00",
     "message": "refactor(react): extract log viewer section to LogViewer component\n\n- Moved the log viewer UI from ProxyList.tsx into a new dedicated component, ProxyList/LogViewer.tsx, for improved modularity and code organization.\n- Updated ProxyList.tsx to use the new <LogViewer /> component.",
