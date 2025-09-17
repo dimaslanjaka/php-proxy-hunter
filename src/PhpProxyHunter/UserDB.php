@@ -348,10 +348,7 @@ class UserDB
       $select = $this->db->select('auth_user', '*', $condition, [$id]);
       if (!empty($select)) {
         $success = true;
-        // $this->db->delete('auth_user', 'id = ?', [$select[0]['id']]);
-        $ids = implode(',', array_map('intval', [$select[0]['id']]));
-        // Delete from user_activity first to avoid FK constraint errors
-        $this->db->pdo->exec("DELETE FROM user_activity WHERE user_id IN ($ids)");
+        $ids     = implode(',', array_map('intval', [$select[0]['id']]));
         $this->db->pdo->exec("DELETE FROM user_discount WHERE user_id IN ($ids)");
         $this->db->pdo->exec("DELETE FROM user_logs WHERE user_id IN ($ids)");
         $this->db->pdo->exec("DELETE FROM user_fields WHERE user_id IN ($ids)");

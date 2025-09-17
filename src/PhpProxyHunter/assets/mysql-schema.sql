@@ -67,16 +67,3 @@ CREATE TABLE IF NOT EXISTS `user_logs` (
   `extra_info` JSON, -- use JSON if possible
   FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
 ) ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS `user_activity` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT NOT NULL,
-  `activity_type` VARCHAR(50) NOT NULL, -- LOGIN, CREATE, UPDATE, DELETE, LOGOUT
-  `target_type` VARCHAR(50), -- table/entity name, e.g., "order"
-  `target_id` INT, -- entity ID
-  `ip_address` VARCHAR(45), -- IPv4/IPv6
-  `user_agent` TEXT, -- browser/app info
-  `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `details` JSON, -- structured info (before/after values)
-  FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE = InnoDB;

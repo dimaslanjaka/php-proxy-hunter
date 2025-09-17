@@ -118,19 +118,5 @@ class LogsRepositoryMigrations
         $this->helper->addColumnIfNotExists('user_logs', 'log_type', "TEXT CHECK(log_type IN ('system', 'package', 'payment', 'other'))");
       }
     }
-
-    // Add user_id column
-    if (!$this->helper->columnExists('user_activity', 'user_id')) {
-      $this->helper->addColumnIfNotExists('user_activity', 'user_id', 'INTEGER NOT NULL REFERENCES auth_user(id)');
-    }
-
-    // add details column to user_activity if it does not exist
-    if ($this->helper->columnExists('user_activity', 'details')) {
-      if ($this->driver === 'sqlite') {
-        $this->helper->modifyColumnIfExists('user_activity', 'details', 'TEXT DEFAULT NULL');
-      } elseif ($this->driver === 'mysql') {
-        $this->helper->modifyColumnIfExists('user_activity', 'details', 'TEXT NULL DEFAULT NULL');
-      }
-    }
   }
 }

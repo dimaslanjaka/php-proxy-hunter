@@ -53,19 +53,6 @@ class LogsRepository
         `extra_info` JSON, -- use JSON if possible
         FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
       ) ENGINE = InnoDB;
-
-      CREATE TABLE IF NOT EXISTS `user_activity` (
-        `id` INT AUTO_INCREMENT PRIMARY KEY,
-        `user_id` INT NOT NULL,
-        `activity_type` VARCHAR(50) NOT NULL, -- LOGIN, CREATE, UPDATE, DELETE, LOGOUT
-        `target_type` VARCHAR(50), -- table/entity name, e.g., "order"
-        `target_id` INT, -- entity ID
-        `ip_address` VARCHAR(45), -- IPv4/IPv6
-        `user_agent` TEXT, -- browser/app info
-        `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP,
-        `details` JSON, -- structured info (before/after values)
-        FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-      ) ENGINE = InnoDB;
       SQL;
     } else {
       $sql = <<<SQL
@@ -77,18 +64,6 @@ class LogsRepository
         "message" TEXT NOT NULL,
         "source" TEXT,
         "extra_info" TEXT -- store JSON as TEXT, queryable with JSON1
-      );
-
-      CREATE TABLE IF NOT EXISTS "user_activity" (
-        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "user_id" INTEGER NOT NULL REFERENCES "auth_user" ("id"),
-        "activity_type" TEXT NOT NULL,
-        "target_type" TEXT,
-        "target_id" INTEGER,
-        "ip_address" TEXT,
-        "user_agent" TEXT,
-        "timestamp" DATETIME DEFAULT CURRENT_TIMESTAMP,
-        "details" TEXT -- JSON string, use json_extract() if SQLite compiled with JSON1
       );
       SQL;
     }
@@ -203,39 +178,6 @@ class LogsRepository
   }
 
   /**
-   * Inserts a user action into the user_activity table (audit trail).
-   *
-   * @param int         $userId       The user performing the action.
-   * @param string      $activityType Type of activity (LOGIN, CREATE, UPDATE, DELETE, LOGOUT).
-   * @param string|null $targetType   Type of entity affected (e.g., "order", "profile").
-   * @param int|null    $targetId     ID of the entity affected.
-   * @param string|null $ipAddress    IP address of the user.
-   * @param string|null $userAgent    User agent string of the client.
-   * @param mixed       $details      Extra details (string or array/object as JSON).
-   * @return bool True on success, false on failure.
-   */
-  public function addActivity($userId, $activityType, $targetType = null, $targetId = null, $ipAddress = null, $userAgent = null, $details = null)
-  {
-    $sql = 'INSERT INTO user_activity
-                   (user_id, activity_type, target_type, target_id, ip_address, user_agent, details)
-                VALUES
-                   (:user_id, :activity_type, :target_type, :target_id, :ip_address, :user_agent, :details)';
-
-    $stmt = $this->pdo->prepare($sql);
-    return $stmt->execute([
-      ':user_id'       => $userId,
-      ':activity_type' => $activityType,
-      ':target_type'   => $targetType,
-      ':target_id'     => $targetId,
-      ':ip_address'    => $ipAddress,
-      ':user_agent'    => $userAgent,
-      ':details'       => is_array($details) || is_object($details)
-        ? json_encode($details, JSON_UNESCAPED_UNICODE)
-        : $details,
-    ]);
-  }
-
-  /**
    * Retrieves recent application/system logs from the user_logs table.
    *
    * @param int $limit Maximum number of logs to retrieve.
@@ -244,21 +186,6 @@ class LogsRepository
   public function getLogsFromDb($limit = 50)
   {
     $sql  = 'SELECT * FROM user_logs ORDER BY timestamp DESC LIMIT :limit';
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
-    $stmt->execute();
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-  }
-
-  /**
-   * Retrieves recent user activities from the user_activity table.
-   *
-   * @param int $limit Maximum number of activities to retrieve.
-   * @return array The list of activities as associative arrays.
-   */
-  public function getActivities($limit = 50)
-  {
-    $sql  = 'SELECT * FROM user_activity ORDER BY timestamp DESC LIMIT :limit';
     $stmt = $this->pdo->prepare($sql);
     $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
     $stmt->execute();
