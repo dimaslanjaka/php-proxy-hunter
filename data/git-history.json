@@ -1,5 +1,42 @@
 [
   {
+    "hash": "6a947768313157c3070e75ada88aa144b72a1692",
+    "date": "2025-09-17T18:20:03+07:00",
+    "message": "feat(logs): dynamic table rendering for logs with flexible columns\n\n- strip raw `timestamp` and `created_at` fields, keep only `log_time`\n- introduce dynamic header generation based on log keys\n- exclude internal fields (ids, log_level, log_type) from display\n- render logs in a generic key/value table with JSON stringification for objects",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php",
+      "src/react/pages/admin/LogsSection.tsx"
+    ]
+  },
+  {
+    "hash": "18b73e6c9f54b7ebc42e0e871da0e1e0c0b5c58d",
+    "date": "2025-09-17T17:49:33+07:00",
+    "message": "feat(types): add stub type definition for 'php_backend'",
+    "files": [
+      "types/php_backend.d.ts"
+    ]
+  },
+  {
+    "hash": "867b0524c5650f4e7efdfd22b669f1b34bcde63c",
+    "date": "2025-09-17T17:39:45+07:00",
+    "message": "feat(logs): enhance logs with user and package details\n\n- join user_logs with auth_user to include username and email\n- join package_logs with packages to include package name\n- update types to reflect new fields for user and package logs\n- improve LogsSection UI: scrollable table, smaller text, and richer log display",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php",
+      "src/react/pages/admin/LogsSection.tsx",
+      "types/php_backend/logs.d.ts"
+    ]
+  },
+  {
+    "hash": "80796166b204a9bd3790509a13945a31a9767c69",
+    "date": "2025-09-17T17:24:08+07:00",
+    "message": "feat(admin): add logs pagination and fetch from backend\n\n- create reusable Pagination component\n- add LogsResponse, UserLog, and PackageLog types\n- update LogsSection to fetch logs from backend with pagination\n- handle loading and empty states",
+    "files": [
+      "src/react/components/Pagination.tsx",
+      "src/react/pages/admin/LogsSection.tsx",
+      "types/php_backend/logs.d.ts"
+    ]
+  },
+  {
     "hash": "684a7cf07bb42f2127c17753bcff3791efa9e2b9",
     "date": "2025-09-17T17:09:22+07:00",
     "message": "feat(logs): add pagination and merge logs from user_logs and package_logs\n\n- Support page and per_page parameters in logs.php with validation\n- Extend LogsRepository to detect driver and use helper for table checks\n- Update getLogsFromDb() to fetch logs from both user_logs and package_logs\n- Combine, sort, and paginate logs by timestamp\n- Return structured JSON response including page, per_page, logs, and count",
