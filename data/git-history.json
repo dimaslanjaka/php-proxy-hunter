@@ -1,5 +1,32 @@
 [
   {
+    "hash": "b7a8a48eb83e206dda7e526a2c130fc5fca1ebf5",
+    "date": "2025-09-17T13:30:22+07:00",
+    "message": "feat(react): add Snackbar component and integrate notifications\n\n- Introduced `Snackbar` context and provider for global toast-style notifications\n- Added `useSnackbar` hook for triggering messages\n- Integrated Snackbar into `ProxyList` for proxy re-check feedback\n- Wrapped app in `SnackbarProvider` in `index.tsx`\n- Added `/examples/snackbar` route with `SnackBarSample` demo page",
+    "files": [
+      "src/react/components/Snackbar.tsx",
+      "src/react/index.tsx",
+      "src/react/pages/ProxyList.tsx",
+      "src/react/pages/samples/SnackBarSample.tsx"
+    ]
+  },
+  {
+    "hash": "615e4aeb20c36c21940abb152a86d57ddd10f919",
+    "date": "2025-09-17T13:02:19+07:00",
+    "message": "fix(proxy-checker): improve logging and status file handling during proxy checks",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "98239c4cf993355f38aa2f7f84159e48b1393ab3",
+    "date": "2025-09-17T12:43:19+07:00",
+    "message": "fix(proxy-checker): log attempts to access IP services with proxy details",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "e6479af806472195974371363a7f9b60b2be70d2",
     "date": "2025-09-17T12:37:16+07:00",
     "message": "refactor(proxy-checker): extract proxy details formatting to helper\n\n- Introduced `build_proxy_details` function to generate proxy details array and string, reducing code duplication.\n- Replaced repeated proxy details formatting logic with calls to the new helper throughout proxy checking flow.\n- Improved maintainability and readability by centralizing proxy details construction.",
