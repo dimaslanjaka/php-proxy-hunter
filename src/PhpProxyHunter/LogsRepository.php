@@ -187,7 +187,7 @@ class LogsRepository
       $jsonValue = null;
     } else {
       // Use json_validate if available to check if $extraInfo is valid JSON
-      if (function_exists('json_validate') && json_validate($extraInfo)) {
+      if (function_exists('json_validate') && \json_validate($extraInfo)) {
         $jsonValue = $extraInfo;
       } else {
         $jsonValue = json_encode($extraInfo, JSON_UNESCAPED_UNICODE);
