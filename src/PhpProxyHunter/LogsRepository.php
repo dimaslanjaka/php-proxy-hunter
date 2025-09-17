@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/shim.php';
+
 namespace PhpProxyHunter;
 
 use PDO;
@@ -184,7 +186,12 @@ class LogsRepository
       // For MySQL JSON columns, null is valid, empty string is not
       $jsonValue = null;
     } else {
-      $jsonValue = $extraInfo;
+      // Use json_validate if available to check if $extraInfo is valid JSON
+      if (function_exists('json_validate') && json_validate($extraInfo)) {
+        $jsonValue = $extraInfo;
+      } else {
+        $jsonValue = json_encode($extraInfo, JSON_UNESCAPED_UNICODE);
+      }
     }
     return $stmt->execute([
       ':user_id'    => $userId,
