@@ -1,13 +1,35 @@
 import React from 'react';
+import { createUrl } from '../../utils/url';
+import { LogsResponse } from '../../../../types/php_backend/logs';
+import { Pagination } from '../../components/Pagination';
 
 export default function LogsSection() {
-  // Sample log data
-  const logs = [
-    { id: 1, user: 'admin@example.com', action: 'Logged in', time: '2025-09-17 10:00:00' },
-    { id: 2, user: 'user1@example.com', action: 'Checked proxy status', time: '2025-09-17 10:05:12' },
-    { id: 3, user: 'admin@example.com', action: 'Added new proxy', time: '2025-09-17 10:10:45' },
-    { id: 4, user: 'user2@example.com', action: 'Exported logs', time: '2025-09-17 10:15:30' }
-  ];
+  const [logsData, setLogsData] = React.useState<LogsResponse | null>(null);
+  const [page, setPage] = React.useState(1);
+  const perPage = 50;
+  const [loading, setLoading] = React.useState(false);
+
+  const fetchLogs = React.useCallback((pageNum: number) => {
+    setLoading(true);
+    const url = createUrl('/php_backend/logs.php', { page: pageNum, per_page: perPage });
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        setLogsData(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching logs:', error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    fetchLogs(page);
+  }, [page, fetchLogs]);
+
+  const logs = logsData?.logs || [];
 
   return (
     <div className="flex flex-col items-center justify-center m-4 transition-colors">
@@ -32,16 +54,51 @@ export default function LogsSection() {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {logs.map((log) => (
-                <tr key={log.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{log.user}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{log.action}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{log.time}</td>
+              {loading ? (
+                <tr>
+                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    Loading logs...
+                  </td>
                 </tr>
-              ))}
+              ) : logs.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    No logs found.
+                  </td>
+                </tr>
+              ) : (
+                logs.map((log: any) => {
+                  // Handle both UserLog and PackageLog
+                  let user = '';
+                  let action = '';
+                  let time = '';
+                  if ('user_id' in log) {
+                    user = log.user_id ? `User #${log.user_id}` : '';
+                    action = log.message || log.log_type || log.log_level || '';
+                    time = log.log_time || log.timestamp || '';
+                  } else if ('package_id' in log) {
+                    user = `Package #${log.package_id}`;
+                    action = log.action || '';
+                    time = log.log_time || log.created_at || '';
+                  }
+                  return (
+                    <tr key={log.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{user}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{action}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{time}</td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
+        <Pagination
+          page={logsData?.page || 1}
+          perPage={logsData?.per_page || perPage}
+          count={logsData?.count || 0}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );
