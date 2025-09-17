@@ -1,5 +1,15 @@
 [
   {
+    "hash": "d90fcf69179f60bd8677a61df7fcca2fbe915c31",
+    "date": "2025-09-17T13:39:19+07:00",
+    "message": "feat(snackbar): add stackable notifications with configurable max count\n\n- Introduced `stackable` and `maxSnackbars` props in `SnackbarProvider`\n- Support multiple concurrent snackbars when stackable is enabled\n- Updated close handling for individual stacked snackbars\n- Enabled `stackable` mode in `index.tsx`\n- Added stackable demo button in `SnackBarSample`",
+    "files": [
+      "src/react/components/Snackbar.tsx",
+      "src/react/index.tsx",
+      "src/react/pages/samples/SnackBarSample.tsx"
+    ]
+  },
+  {
     "hash": "b7a8a48eb83e206dda7e526a2c130fc5fca1ebf5",
     "date": "2025-09-17T13:30:22+07:00",
     "message": "feat(react): add Snackbar component and integrate notifications\n\n- Introduced `Snackbar` context and provider for global toast-style notifications\n- Added `useSnackbar` hook for triggering messages\n- Integrated Snackbar into `ProxyList` for proxy re-check feedback\n- Wrapped app in `SnackbarProvider` in `index.tsx`\n- Added `/examples/snackbar` route with `SnackBarSample` demo page",
