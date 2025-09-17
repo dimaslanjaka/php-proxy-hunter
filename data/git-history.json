@@ -1,5 +1,14 @@
 [
   {
+    "hash": "e999984e87aad3d5f4fea693dbffeaacd1ced36e",
+    "date": "2025-09-17T08:58:15+07:00",
+    "message": "build(vite): load dotenv and inject all VITE_ env variables including git commit hash",
+    "files": [
+      "types/vite-env.d.ts",
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "848a13706be657479596a50252dd72e7bec7f764",
     "date": "2025-09-17T08:50:00+07:00",
     "message": "fix(proxy-list): enhance SSL filtering logic for improved proxy selection",
