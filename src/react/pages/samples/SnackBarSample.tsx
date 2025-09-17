@@ -28,6 +28,15 @@ function SnackBarSample() {
           onClick={() => showSnackbar({ message: 'Warning notification!', type: 'warning' })}>
           Show Warning
         </button>
+        <button
+          className="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700"
+          onClick={() => {
+            for (let i = 1; i <= 5; i++) {
+              showSnackbar({ message: `Stacked notification #${i}`, type: 'default', duration: 4000 });
+            }
+          }}>
+          Show Stackable (5x)
+        </button>
       </div>
     </div>
   );

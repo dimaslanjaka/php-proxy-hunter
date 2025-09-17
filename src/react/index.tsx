@@ -48,7 +48,7 @@ window.addEventListener('keydown', function (e) {
 root.render(
   <React.StrictMode>
     <ThemeProvider>
-      <SnackbarProvider>
+      <SnackbarProvider stackable={true}>
         <BrowserRouter basename={import.meta.env.BASE_URL}>
           <Navbar />
           <Routes>
