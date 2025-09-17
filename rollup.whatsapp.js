@@ -18,7 +18,9 @@ const deps = Object.keys(pkg.dependencies)
     'pino',
     'long',
     'electron',
-    'browser-with-fingerprints'
+    'browser-with-fingerprints',
+    'puppeteer-with-fingerprints',
+    'selenium-with-fingerprints'
   );
 const globals = {
   jquery: '$',

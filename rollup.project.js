@@ -27,7 +27,9 @@ const deps = Object.keys(pkg.dependencies)
     'node-cache',
     '@whiskeysockets/baileys',
     'pino',
-    'browser-with-fingerprints'
+    'browser-with-fingerprints',
+    'puppeteer-with-fingerprints',
+    'selenium-with-fingerprints'
   );
 const globals = {
   jquery: '$',
