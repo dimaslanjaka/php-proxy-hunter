@@ -63,7 +63,6 @@ async function fetchAndSetProxies(setProxies: React.Dispatch<React.SetStateActio
 
 function ProxyList() {
   const [typeFilter, setTypeFilter] = React.useState('');
-  const [sslFilter, setSslFilter] = React.useState('');
   const [proxies, setProxies] = React.useState<ProxyDetails[]>([]);
   const [showModal, setShowModal] = React.useState(false);
   const recaptchaRef = React.useRef<ReCAPTCHA>(null);
@@ -108,22 +107,16 @@ function ProxyList() {
       filtered = filtered.filter((p) => String(p.timezone || '') === timezoneFilter);
     }
     if (typeFilter) {
-      filtered = filtered.filter((p) =>
-        String(p.type || '')
-          .toLowerCase()
-          .split('-')
-          .includes(typeFilter)
-      );
-    }
-    if (sslFilter) {
       filtered = filtered.filter((p) => {
         const typeStr = String(p.type || '').toLowerCase();
-        const hasSsl = typeStr.includes('ssl') || String(p.https) === 'true';
-        return sslFilter === 'true' ? hasSsl : !hasSsl;
+        if (typeFilter === 'ssl') {
+          return typeStr.includes('ssl');
+        }
+        return typeStr.split('-').includes(typeFilter);
       });
     }
     return filtered;
-  }, [proxies, countryFilter, cityFilter, timezoneFilter, typeFilter, sslFilter]);
+  }, [proxies, countryFilter, cityFilter, timezoneFilter, typeFilter]);
 
   const paginatedProxies = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -237,17 +230,7 @@ function ProxyList() {
                   <option value="http">HTTP</option>
                   <option value="socks4">SOCKS4</option>
                   <option value="socks5">SOCKS5</option>
-                </select>
-              </div>
-              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[120px]">
-                <label className="text-gray-700 dark:text-gray-200 mb-1">SSL:</label>
-                <select
-                  value={sslFilter}
-                  onChange={(e) => setSslFilter(e.target.value)}
-                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
-                  <option value="">All</option>
-                  <option value="true">SSL Only</option>
-                  <option value="false">Non-SSL</option>
+                  <option value="ssl">SSL</option>
                 </select>
               </div>
               <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
