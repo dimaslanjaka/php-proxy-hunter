@@ -1,5 +1,13 @@
 [
   {
+    "hash": "15e9c47510ab21a28b46d1ce385113935e55e6e1",
+    "date": "2025-09-17T15:51:56+07:00",
+    "message": "fix(logs): correct require_once placement for shim.php in LogsRepository",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php"
+    ]
+  },
+  {
     "hash": "39cc0a6857c61c33fd221b08d6c38dfab1f5246a",
     "date": "2025-09-17T15:47:43+07:00",
     "message": "feat(shim): add PHP 8 compatibility shims for removed/deprecated functions\n\nAdded fallback implementations for functions removed in PHP 8:\n- get_magic_quotes_gpc()\n- get_magic_quotes_runtime()\n- set_magic_quotes_runtime()\n- create_function()\n- each()\n- get_html_translation_table_compat()\n\nThese shims ensure legacy code can run without modification under PHP 8.",
