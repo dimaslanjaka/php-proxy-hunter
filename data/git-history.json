@@ -1,5 +1,13 @@
 [
   {
+    "hash": "4ad04b511aa3bed1c82fc2dc0cecec42e09ae281",
+    "date": "2025-09-17T13:42:02+07:00",
+    "message": "docs(snackbar): add TSDoc comments and usage examples\n\n- Documented `SnackbarType`, `SnackbarOptions`, `SnackbarProviderProps`, and `SnackbarContextProps`\n- Added examples for `showSnackbar` usage and provider setup\n- Improved clarity of prop descriptions and default values",
+    "files": [
+      "src/react/components/Snackbar.tsx"
+    ]
+  },
+  {
     "hash": "d90fcf69179f60bd8677a61df7fcca2fbe915c31",
     "date": "2025-09-17T13:39:19+07:00",
     "message": "feat(snackbar): add stackable notifications with configurable max count\n\n- Introduced `stackable` and `maxSnackbars` props in `SnackbarProvider`\n- Support multiple concurrent snackbars when stackable is enabled\n- Updated close handling for individual stacked snackbars\n- Enabled `stackable` mode in `index.tsx`\n- Added stackable demo button in `SnackBarSample`",
