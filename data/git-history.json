@@ -1,5 +1,33 @@
 [
   {
+    "hash": "c5cfe1bfbaf2c2c830001c120843eb2f7f39c9a6",
+    "date": "2025-09-17T08:45:43+07:00",
+    "message": "feat(proxy-list): add new Proxy List page with reCAPTCHA protection, filtering, and pagination",
+    "files": [
+      "package.json",
+      "src/react/pages/Home.tsx",
+      "src/react/pages/ProxyList.tsx",
+      "src/react/routes.js",
+      "src/react/routes.json"
+    ]
+  },
+  {
+    "hash": "54d9f3f31e51a72167fc6a1cefd000ffdde4d4cf",
+    "date": "2025-09-17T06:57:03+07:00",
+    "message": "fix(recaptcha): refactor request handling to use parsed query data for reCAPTCHA verification\n- add status check endpoint and unify request parsing",
+    "files": [
+      "php_backend/recaptcha.php"
+    ]
+  },
+  {
+    "hash": "bb99a78e3e372f87f844b95848b956bde3d67a48",
+    "date": "2025-09-17T06:43:00+07:00",
+    "message": "feat(embed): add CORS headers to allow cross-origin requests",
+    "files": [
+      "embed.php"
+    ]
+  },
+  {
     "hash": "521e0748c2921d1ac1b55f5f933a0ed85faa4328",
     "date": "2025-09-15T23:15:27+07:00",
     "message": "feat(proxy-checker): implement proxy checking functionality with CORS support and logging",
