@@ -251,7 +251,13 @@ if (!$isCli) {
       if (empty($publicIP)) {
         // Mark as dead if no public IP found for this type
         $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
-        $resultMessage = "Proxy is dead (no public IP detected) (Type: {$proxyInfo['type']})";
+        $proxyDetails = [];
+        foreach (['proxy', 'type', 'username', 'password'] as $key) {
+          if (!empty($proxyInfo[$key])) {
+            $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
+          }
+        }
+        $resultMessage = 'Proxy is dead (no public IP detected) (' . implode(', ', $proxyDetails) . ')';
         addLog($resultMessage);
         continue;
       }
@@ -279,7 +285,13 @@ if (!$isCli) {
     if (empty($publicIP)) {
       // Mark as dead if no public IP found
       $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
-      $status = "Proxy is dead (no public IP detected) (Type: {$proxyInfo['type']})";
+      $proxyDetails = [];
+      foreach (['proxy', 'type', 'username', 'password'] as $key) {
+        if (!empty($proxyInfo[$key])) {
+          $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
+        }
+      }
+      $status = 'Proxy is dead (no public IP detected) (' . implode(', ', $proxyDetails) . ')';
       @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
       addLog($status);
       exit($status . PHP_EOL);
