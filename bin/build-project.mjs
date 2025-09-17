@@ -5,27 +5,47 @@ import fs from 'fs-extra';
 import { getChecksum } from 'sbg-utility/dist/utils/hash';
 import * as glob from 'glob';
 
-// Define the current working directory (base path)
+// Setup paths
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const cwd = path.join(__dirname, '../');
-const checksumFile = path.join(cwd, 'tmp/build/build-project-checksum.txt');
-fs.ensureDirSync(path.dirname(checksumFile));
-const lastChecksum = fs.existsSync(checksumFile) ? fs.readFileSync(checksumFile, 'utf-8').trim() : null;
-const currentChecksum = getChecksum(
-  path.join(cwd, 'package.json'),
-  ...glob
-    .sync('src/**/*.{js,jsx,ts,tsx}', { cwd, nodir: true, dot: true })
-    .map((f) => path.join(cwd, f))
-    .sort()
-);
+const tmpDir = path.join(cwd, 'tmp/build');
+fs.ensureDirSync(tmpDir);
 
-if (lastChecksum !== currentChecksum) {
-  cp.spawnSync('yarn', ['install'], { stdio: 'inherit', cwd, shell: true });
-  cp.spawnSync('npm', ['run', 'build'], {
-    stdio: 'inherit',
+// Checksum files
+const checksumInstallFile = path.join(tmpDir, 'build-project-checksum-install.txt');
+const checksumBuildFile = path.join(tmpDir, 'build-project-checksum-build.txt');
+
+// Calculate checksums
+
+const lastInstallChecksum = fs.existsSync(checksumInstallFile)
+  ? fs.readFileSync(checksumInstallFile, 'utf-8').trim()
+  : null;
+const lastBuildChecksum = fs.existsSync(checksumBuildFile) ? fs.readFileSync(checksumBuildFile, 'utf-8').trim() : null;
+
+const currentInstallChecksum = getChecksum(path.join(cwd, 'package.json'));
+const srcFiles = glob
+  .sync('src/**/*.{js,jsx,ts,tsx}', { cwd, nodir: true, dot: true })
+  .map((f) => path.join(cwd, f))
+  .sort();
+const currentBuildChecksum = getChecksum(...srcFiles);
+
+// Run yarn install if package.json changed
+if (lastInstallChecksum !== currentInstallChecksum) {
+  cp.spawnSync('yarn', ['install'], {
     cwd,
-    shell: true
+    shell: true,
+    stdio: 'inherit'
   });
-  fs.writeFileSync(checksumFile, currentChecksum, 'utf-8');
+  fs.writeFileSync(checksumInstallFile, currentInstallChecksum, 'utf-8');
+}
+
+// Run yarn build if src changed
+if (lastBuildChecksum !== currentBuildChecksum) {
+  cp.spawnSync('yarn', ['build'], {
+    cwd,
+    shell: true,
+    stdio: 'inherit'
+  });
+  fs.writeFileSync(checksumBuildFile, currentBuildChecksum, 'utf-8');
 }
