@@ -1,5 +1,21 @@
 [
   {
+    "hash": "2e3300804e3f68c22eb1d4a32152f058e7a5be42",
+    "date": "2025-09-17T09:10:43+07:00",
+    "message": "feat(vite): ensure process.env.VITE_ variables are set for better accessibility",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "2ebf6474bb200ba8810dceae5f0976f5fc03b4bf",
+    "date": "2025-09-17T09:08:45+07:00",
+    "message": "fix(fix-perm): remove .phar files from ownership change for PHP files",
+    "files": [
+      "bin/fix-perm"
+    ]
+  },
+  {
     "hash": "7c11c6ca9078431429bf86c568a1fde54719a6a4",
     "date": "2025-09-17T09:00:37+07:00",
     "message": "feat(vite): expose non-VITE_ env variables in VITE_ format for better accessibility",
