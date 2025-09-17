@@ -116,9 +116,11 @@ function ProxyList() {
       );
     }
     if (sslFilter) {
-      filtered = filtered.filter((p) =>
-        sslFilter === 'true' ? String(p.https) === 'true' : String(p.https) !== 'true'
-      );
+      filtered = filtered.filter((p) => {
+        const typeStr = String(p.type || '').toLowerCase();
+        const hasSsl = typeStr.includes('ssl') || String(p.https) === 'true';
+        return sslFilter === 'true' ? hasSsl : !hasSsl;
+      });
     }
     return filtered;
   }, [proxies, countryFilter, cityFilter, timezoneFilter, typeFilter, sslFilter]);
