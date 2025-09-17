@@ -16,7 +16,7 @@ const Home = () => (
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
               <Link
-                href="/proxyManager.html"
+                href="/proxy-list"
                 className="px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2
                   bg-blue-600 text-white border-blue-700
                   dark:bg-blue-700 dark:text-white dark:border-blue-600">

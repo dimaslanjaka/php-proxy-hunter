@@ -10,6 +10,7 @@ import Changelog from './pages/Changelog.tsx';
 import Admin from './pages/Admin.tsx';
 import Logout from './pages/Logout.tsx';
 import routesMeta from './routes.json' assert { type: 'json' };
+import ProxyList from './pages/ProxyList.tsx';
 
 // Compose the routes array by merging metadata with components
 const routes = routesMeta.map((meta) => {
@@ -48,6 +49,10 @@ const routes = routesMeta.map((meta) => {
     case '/oauth':
     case '/oauth/google':
       Component = OauthHandler;
+      break;
+    case '/proxy-list':
+    case '/proxyManager.html':
+      Component = ProxyList; // Deprecated route, no component assigned
       break;
     default:
       Component = undefined;

@@ -75,5 +75,12 @@
     "description": "Logout from your PHP Proxy Hunter account.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/logout"
+  },
+  {
+    "path": ["/proxy-list", "/proxyManager.html"],
+    "title": "Proxy List | PHP Proxy Hunter",
+    "description": "View and manage your proxy list in PHP Proxy Hunter.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-list"
   }
 ]
