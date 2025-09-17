@@ -1,5 +1,13 @@
 [
   {
+    "hash": "62a5b51457102b24fec74fa9b5a8089ef8ea14d0",
+    "date": "2025-09-17T14:31:47+07:00",
+    "message": "feat(ci): load .env.example and set VITE_ variables in GitHub Actions\n\n- Add dotenv import and load .env.example in vite-gh-pages.config.js\n- In GitHub CI, ensure all variables from .env.example are set as environment variables, prefixed with VITE_ if needed\n- Improves environment consistency for Vite builds on GitHub Pages",
+    "files": [
+      "vite-gh-pages.config.js"
+    ]
+  },
+  {
     "hash": "99f6da5fd03634f5fb7d24d06939484515e6864f",
     "date": "2025-09-17T14:26:47+07:00",
     "message": "refactor(react): decouple log viewer state and improve proxy fetch error handling\n\n- Refactored `LogViewer` to manage its own state and polling logic internally, removing the need to pass `logViewer` and `setLogViewer` props from `ProxyList`.\n- Updated `handleRecheck` to remove all `setLogViewer` usage and related state updates.\n- Enhanced `getWorkingProxies` and `fetchAndSetProxies` to accept an optional `setShowModal` callback. If the proxy fetch returns a 403 Forbidden or a non-array result, the reCAPTCHA modal is shown automatically.\n- Updated all usages of `fetchAndSetProxies` to pass `setShowModal` for consistent error handling.\n- Removed the unused close button from the `LogViewer` UI.\n- Cleaned up legacy state and effect code related to log viewer management in `ProxyList`.",
