@@ -52,6 +52,12 @@ async function getWorkingProxies() {
     delete (proxy as Partial<ProxyDetails>).https;
     result[i] = proxy;
   }
+  // Sort by last_check (date string), most recent first
+  result.sort((a, b) => {
+    const dateA = a.last_check ? new Date(a.last_check).getTime() : 0;
+    const dateB = b.last_check ? new Date(b.last_check).getTime() : 0;
+    return dateB - dateA;
+  });
   return result;
 }
 
