@@ -322,4 +322,11 @@ class MySQLHelper extends BaseSQL
   {
     return $this->pdo->rollBack();
   }
+
+  public function hasTable($table)
+  {
+    $stmt = $this->pdo->prepare('SHOW TABLES LIKE ?');
+    $stmt->execute([$table]);
+    return (bool)$stmt->fetchColumn();
+  }
 }

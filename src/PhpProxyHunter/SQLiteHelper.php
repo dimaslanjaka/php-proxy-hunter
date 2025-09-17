@@ -400,4 +400,11 @@ class SQLiteHelper extends BaseSQL
     $sql = preg_replace('/\s+/', ' ', $sql);
     return trim($sql);
   }
+
+  public function hasTable($table)
+  {
+    $stmt = $this->pdo->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?");
+    $stmt->execute([$table]);
+    return (bool)$stmt->fetchColumn();
+  }
 }

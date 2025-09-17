@@ -166,4 +166,12 @@ abstract class BaseSQL
    * @return bool
    */
   abstract public function rollback();
+
+  /**
+   * Check if a table exists in the database.
+   *
+   * @param string $table The table name.
+   * @return bool True if the table exists, false otherwise.
+   */
+  abstract public function hasTable($table);
 }

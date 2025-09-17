@@ -279,4 +279,8 @@ class CoreDB extends BaseSQL
   {
     return $this->db->rollback();
   }
+  public function hasTable($table)
+  {
+    return $this->db->hasTable($table);
+  }
 }

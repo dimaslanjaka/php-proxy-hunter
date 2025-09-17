@@ -134,4 +134,18 @@ class CoreDBTest extends TestCase
       $this->tearDownDB($driver);
     }
   }
+
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testHasTable($driver)
+  {
+    $this->setUpDB($driver);
+    try {
+      $this->assertTrue($this->coreDB->hasTable('meta'));
+      $this->assertFalse($this->coreDB->hasTable('non_existent_table'));
+    } finally {
+      $this->tearDownDB($driver);
+    }
+  }
 }
