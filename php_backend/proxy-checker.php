@@ -248,15 +248,15 @@ if (!$isCli) {
     foreach ($proxyTypes as $type) {
       $proxyInfo['type'] = $type;
       $publicIP          = getPublicIP(true, 300, $proxyInfo);
+      $proxyDetails      = [];
+      foreach (['proxy', 'type', 'username', 'password'] as $key) {
+        if (!empty($proxyInfo[$key])) {
+          $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
+        }
+      }
       if (empty($publicIP)) {
         // Mark as dead if no public IP found for this type
         $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
-        $proxyDetails = [];
-        foreach (['proxy', 'type', 'username', 'password'] as $key) {
-          if (!empty($proxyInfo[$key])) {
-            $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
-          }
-        }
         $resultMessage = 'Proxy is dead (no public IP detected) (' . implode(', ', $proxyDetails) . ')';
         addLog($resultMessage);
         continue;
@@ -266,7 +266,7 @@ if (!$isCli) {
       if (in_array($publicIP, $ipProxy, true)) {
         // Proxy working, same as proxy IP
         $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'last_check' => date(DATE_RFC3339)]);
-        $resultMessage = "Proxy is working. Detected IP: $publicIP (Type: {$proxyInfo['type']})";
+        $resultMessage = "Proxy is working. Detected IP: $publicIP (" . implode(', ', $proxyDetails) . ')';
         // Check website title to verify proxy functionality
         $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
         $resultMessage .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
@@ -274,7 +274,7 @@ if (!$isCli) {
         $foundWorking = true;
       } else {
         // Proxy working, but different IP
-        $resultMessage = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (Type: {$proxyInfo['type']})";
+        $resultMessage = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (" . implode(', ', $proxyDetails) . ')';
         addLog($resultMessage);
         $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
       }
@@ -283,6 +283,18 @@ if (!$isCli) {
     // Run the proxy check with specified type
     $publicIP = getPublicIP(true, 300, $proxyInfo);
     if (empty($publicIP)) {
+      // Mark as dead if no public IP found
+      $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
+      $proxyDetails = [];
+      foreach (['proxy', 'type', 'username', 'password'] as $key) {
+        if (!empty($proxyInfo[$key])) {
+          $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
+        }
+      }
+      $status = 'Proxy is dead (no public IP detected) (' . implode(', ', $proxyDetails) . ')';
+      @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
+      addLog($status);
+      exit($status . PHP_EOL);
       // Mark as dead if no public IP found
       $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
       $proxyDetails = [];
@@ -307,9 +319,36 @@ if (!$isCli) {
       @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
       addLog($status);
       exit($status . PHP_EOL);
+      // Proxy working, same as proxy IP
+      $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'last_check' => date(DATE_RFC3339)]);
+      $proxyDetails = [];
+      foreach (['proxy', 'type', 'username', 'password'] as $key) {
+        if (!empty($proxyInfo[$key])) {
+          $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
+        }
+      }
+      $status = "Proxy is working. Detected IP: $publicIP (" . implode(', ', $proxyDetails) . ')';
+      // Check website title to verify proxy functionality
+      $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
+      $status .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
+      @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
+      addLog($status);
+      exit($status . PHP_EOL);
     } else {
       // Proxy working, but different IP
       $status = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (Type: {$proxyInfo['type']})";
+      @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
+      addLog($status);
+      $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
+      exit($status . PHP_EOL);
+      // Proxy working, but different IP
+      $proxyDetails = [];
+      foreach (['proxy', 'type', 'username', 'password'] as $key) {
+        if (!empty($proxyInfo[$key])) {
+          $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
+        }
+      }
+      $status = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (" . implode(', ', $proxyDetails) . ')';
       @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
       addLog($status);
       $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
