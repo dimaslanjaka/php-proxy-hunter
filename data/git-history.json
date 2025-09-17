@@ -1,5 +1,13 @@
 [
   {
+    "hash": "cbbe366d676d4344c775327a2b8d84e89e61ca23",
+    "date": "2025-09-17T16:16:28+07:00",
+    "message": "fix(logs): add namespace prefix to json_validate function call in addLog method",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php"
+    ]
+  },
+  {
     "hash": "15e9c47510ab21a28b46d1ce385113935e55e6e1",
     "date": "2025-09-17T15:51:56+07:00",
     "message": "fix(logs): correct require_once placement for shim.php in LogsRepository",
