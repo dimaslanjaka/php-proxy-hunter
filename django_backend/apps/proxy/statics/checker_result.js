@@ -1,4 +1,4 @@
-console.log("checker result start");
+console.log('checker result start');
 
 function isStringLargerThan1MB(str) {
   // Create a Blob from the string
@@ -14,24 +14,24 @@ function isStringLargerThan1MB(str) {
   return sizeInBytes > oneMBInBytes;
 }
 
-let prevOutput = "";
-let processedOutput = "";
+let prevOutput = '';
+let processedOutput = '';
 function processText(info) {
   // skip update UI when output when remains same
   if (prevOutput === info) return processedOutput;
-  if (typeof info !== "string") return processedOutput;
+  if (typeof info !== 'string') return processedOutput;
   if (info.trim().length === 0) return processedOutput;
   // skip update UI when output more than 1 MB
   if (isStringLargerThan1MB(info))
     return `${processedOutput}<br><span class="text-center font-medium">STRING SIZE EXCEDEED</span>`;
-  prevOutput = info || "";
-  processedOutput = (info || "")
+  prevOutput = info || '';
+  processedOutput = (info || '')
     .split(/\r?\n/)
     .slice(-1000)
     .map((str) => {
       // remove ANSI codes
       // eslint-disable-next-line no-control-regex
-      str = str.replace(/\x1b\[[0-9;]*m/g, "");
+      str = str.replace(/\x1b\[[0-9;]*m/g, '');
       str = str.replace(/port closed/gm, '<span class="text-red-400">port closed</span>');
       str = str.replace(/port open/gm, '<span class="text-green-400">port open</span>');
       str = str.replace(/not working/gm, '<span class="text-red-600">not working</span>');
@@ -46,7 +46,7 @@ function processText(info) {
       );
       if (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}/.test(str)) {
         str = str.replace(/working.*/, (whole) => {
-          if (whole.includes("-1")) return `<span class="text-orange-400">${whole}</span>`;
+          if (whole.includes('-1')) return `<span class="text-orange-400">${whole}</span>`;
           return `<span class="text-green-400">${whole}</span>`;
         });
       }
@@ -63,7 +63,7 @@ function processText(info) {
         return str;
       }
     })
-    .join("");
+    .join('');
   return processedOutput;
 }
 
@@ -81,19 +81,19 @@ function scrollToBottomIfNeeded(css_selector) {
 // Function to fetch data and update the textarea
 async function fetchDataAndUpdateTextarea() {
   try {
-    const response = await fetch("/proxy/result?format=txt&date=" + new Date());
+    const response = await fetch('/proxy/result?format=txt&date=' + new Date());
     const data = await response.text();
-    const el = document.getElementById("resultTextarea");
+    const el = document.getElementById('resultTextarea');
     const new_data = processText(data);
     if (new_data) el.innerHTML = new_data;
 
     // Call the function on content update
-    scrollToBottomIfNeeded("#resultTextarea");
+    scrollToBottomIfNeeded('#resultTextarea');
 
     // Optional: Handle window resize events
-    window.addEventListener("resize", () => scrollToBottomIfNeeded("#resultTextarea"));
+    window.addEventListener('resize', () => scrollToBottomIfNeeded('#resultTextarea'));
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error('Error fetching data:', error);
   }
 }
 
@@ -104,14 +104,14 @@ setInterval(fetchDataAndUpdateTextarea, 3 * 1000);
 fetchDataAndUpdateTextarea();
 
 setTimeout(() => {
-  console.log("listen button start");
-  document.getElementById("filter-ports-duplicate").addEventListener("click", (e) => {
+  console.log('listen button start');
+  document.getElementById('filter-ports-duplicate').addEventListener('click', (e) => {
     e.preventDefault();
-    fetch("/proxy/filter?date=" + new Date());
+    fetch('/proxy/filter?date=' + new Date());
   });
 
-  document.getElementById("re-check-random").addEventListener("click", (e) => {
+  document.getElementById('re-check-random').addEventListener('click', (e) => {
     e.preventDefault();
-    fetch("/proxy/check?date=" + new Date());
+    fetch('/proxy/check?date=' + new Date());
   });
 }, 3000);

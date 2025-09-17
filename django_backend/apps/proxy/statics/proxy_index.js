@@ -1,10 +1,10 @@
 function init_search() {
-  const searchInput = document.getElementById("searchInput");
+  const searchInput = document.getElementById('searchInput');
   // Get the URL parameters
   const urlParams = new URLSearchParams(window.location.search);
 
   // Get the 'search' parameter
-  const searchParam = urlParams.get("search");
+  const searchParam = urlParams.get('search');
 
   // If the 'search' parameter exists, set it as the value of the input field
   if (searchParam !== null) {
@@ -13,11 +13,11 @@ function init_search() {
 }
 
 function init_table() {
-  const tbody = document.querySelector("#proxy-items");
-  tbody.innerHTML = "";
+  const tbody = document.querySelector('#proxy-items');
+  tbody.innerHTML = '';
   const queryString = window.location.search;
   const params = new URLSearchParams(queryString);
-  params.set("max", "30");
+  params.set('max', '30');
 
   // Step 4: Convert the parameters back into a query string
   const updatedQueryString = params.toString();
@@ -35,74 +35,74 @@ function init_table() {
         if (items.length > 0) {
           for (let i = 0; i < items.length; i++) {
             const item = items[i];
-            const tr = document.createElement("tr");
-            tr.classList.add(..."border-b border-gray-200".split(" "));
+            const tr = document.createElement('tr');
+            tr.classList.add(...'border-b border-gray-200'.split(' '));
             // add background color based on proxy status
-            if (item["status"] == "active") {
-              tr.classList.add("proxy-active");
-            } else if (item["status"] == "untested") {
-              tr.classList.add("proxy-untested");
+            if (item['status'] == 'active') {
+              tr.classList.add('proxy-active');
+            } else if (item['status'] == 'untested') {
+              tr.classList.add('proxy-untested');
             } else {
-              tr.classList.add("proxy-dead");
+              tr.classList.add('proxy-dead');
             }
             // create badge on first column
-            const td_badge = document.createElement("td");
-            td_badge.classList.add(..."py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis".split(" "));
+            const td_badge = document.createElement('td');
+            td_badge.classList.add(...'py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis'.split(' '));
             let div = '<div class="flex flex-wrap space-x-1">';
-            if (item["https"] == "true") {
+            if (item['https'] == 'true') {
               div +=
                 '<a class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-400 mb-1" href="/proxy?https=true">SSL</a>';
             }
-            const protocols = ("" + (item["type"] || "")).split("-");
+            const protocols = ('' + (item['type'] || '')).split('-');
             for (let i = 0; i < protocols.length; i++) {
               const protocol = protocols[i];
-              if (protocol.toLowerCase() == "http") {
+              if (protocol.toLowerCase() == 'http') {
                 div +=
                   '<a class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400 mb-1" href="/proxy?type=http">HTTP</a>';
-              } else if (protocol.toLowerCase() == "socks4") {
+              } else if (protocol.toLowerCase() == 'socks4') {
                 div +=
                   '<a class="bg-green-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-400 mb-1" href="/proxy?type=socks4">SOCKS4</a>';
-              } else if (protocol.toLowerCase() == "socks5") {
+              } else if (protocol.toLowerCase() == 'socks5') {
                 div +=
                   '<a class="bg-red-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-400 mb-1" href="/proxy?type=socks5">SOCKS5</a>';
               }
             }
             td_badge.innerHTML = div;
             tr.appendChild(td_badge);
-            const exclude = ["id", "type", "status", "https"];
+            const exclude = ['id', 'type', 'status', 'https'];
             for (const key in item) {
               if (exclude.includes(key)) continue;
-              let val = item[key] || "-";
-              if (val.toString().length === 0) val = "-";
-              const td = document.createElement("td");
-              td.classList.add(..."py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis".split(" "));
-              if (key == "last_check" && val.length > 10) {
+              let val = item[key] || '-';
+              if (val.toString().length === 0) val = '-';
+              const td = document.createElement('td');
+              td.classList.add(...'py-3 px-6 text-left whitespace-nowrap overflow-hidden text-ellipsis'.split(' '));
+              if (key == 'last_check' && val.length > 10) {
                 // last_check column
                 val = timeAgo(val);
-              } else if (key == "country" || key == "region" || key == "city" || key == "timezone") {
+              } else if (key == 'country' || key == 'region' || key == 'city' || key == 'timezone') {
                 // local hyperlink column
                 val = `<a class="hover:underline" target="_blank" href="/proxy/?${key}=${val}">${val}</a>`;
-              } else if ((key == "latitude" || key == "longitude") && item["latitude"] && item["longitude"]) {
+              } else if ((key == 'latitude' || key == 'longitude') && item['latitude'] && item['longitude']) {
                 // google maps hyperlink column
-                val = `<a class="hover:underline" target="_blank" href="https://www.google.com/maps/search/?api=1&query=${item["latitude"]},${item["longitude"]}">${val}</a>`;
+                val = `<a class="hover:underline" target="_blank" href="https://www.google.com/maps/search/?api=1&query=${item['latitude']},${item['longitude']}">${val}</a>`;
               }
               td.innerHTML = val;
               tr.appendChild(td);
             }
             tbody.appendChild(tr);
             // fetch geolocation
-            if ((!item["timezone"] || !item["lang"]) && item["status"] == "active") {
+            if ((!item['timezone'] || !item['lang']) && item['status'] == 'active') {
               // console.log(item["proxy"], "missing geolocation");
-              fetch(`/proxy/geolocation/${item["proxy"]}?date=` + new Date());
+              fetch(`/proxy/geolocation/${item['proxy']}?date=` + new Date());
             }
           }
         } else {
           // empty proxy
-          const tr = document.createElement("tr");
-          const td = document.createElement("td");
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
           td.colSpan = 21;
-          td.innerHTML = "No proxies found.";
-          td.classList.add(..."py-3 px-6 text-center".split(" "));
+          td.innerHTML = 'No proxies found.';
+          td.classList.add(...'py-3 px-6 text-center'.split(' '));
           tr.appendChild(td);
           tbody.appendChild(tr);
         }
@@ -110,7 +110,7 @@ function init_table() {
     )
     .catch((error) => {
       // Handle any errors
-      console.error("Error:", error);
+      console.error('Error:', error);
     });
 }
 
@@ -130,7 +130,7 @@ function timeAgo(dateString) {
   const now = new Date();
 
   // Calculate the time difference in milliseconds
-  const difference = now - date;
+  const difference = now.getTime() - date.getTime();
 
   // Convert milliseconds to seconds, minutes, hours, and days
   const seconds = Math.floor(difference / 1000);
@@ -144,14 +144,14 @@ function timeAgo(dateString) {
   const remainingSeconds = seconds % 60;
 
   // Construct the ago time string
-  let agoTime = "";
-  if (days > 0) agoTime += days + " day" + (days === 1 ? "" : "s") + " ";
-  if (remainingHours > 0) agoTime += remainingHours + " hour" + (remainingHours === 1 ? "" : "s") + " ";
-  if (remainingMinutes > 0) agoTime += remainingMinutes + " minute" + (remainingMinutes === 1 ? "" : "s") + " ";
-  if (remainingSeconds > 0) agoTime += remainingSeconds + " second" + (remainingSeconds === 1 ? "" : "s") + " ";
+  let agoTime = '';
+  if (days > 0) agoTime += days + ' day' + (days === 1 ? '' : 's') + ' ';
+  if (remainingHours > 0) agoTime += remainingHours + ' hour' + (remainingHours === 1 ? '' : 's') + ' ';
+  if (remainingMinutes > 0) agoTime += remainingMinutes + ' minute' + (remainingMinutes === 1 ? '' : 's') + ' ';
+  if (remainingSeconds > 0) agoTime += remainingSeconds + ' second' + (remainingSeconds === 1 ? '' : 's') + ' ';
 
   // Append "ago" to the ago time string
-  agoTime += "ago";
+  agoTime += 'ago';
 
   return agoTime;
 }
@@ -163,7 +163,7 @@ function _ready() {
   setInterval(init_table, 120 * 1000);
 }
 
-if (typeof docReady == "function") {
+if (typeof docReady == 'function') {
   // eslint-disable-next-line no-undef
   docReady(_ready);
 } else {
