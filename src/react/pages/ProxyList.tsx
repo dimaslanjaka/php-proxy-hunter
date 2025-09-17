@@ -1,3 +1,9 @@
+import React, { useMemo, useState } from 'react';
+import CodeBlock from '../components/CodeBlock';
+import ReCAPTCHA from 'react-google-recaptcha';
+import { createUrl } from '../utils/url';
+import { ProxyDetails } from '../../../types/proxy';
+
 // =====================
 // API Usage Section
 // =====================
@@ -55,21 +61,15 @@ function ProxyCheckerApiUsage() {
           <p className="mb-1 text-gray-700 dark:text-gray-200 font-semibold">
             Example <b>curl</b> request:
           </p>
-          <pre className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 text-xs text-gray-800 dark:text-gray-100 font-mono overflow-x-auto border border-gray-200 dark:border-gray-700">
-            {curlExample}
-          </pre>
+          <CodeBlock language="bash">{curlExample}</CodeBlock>
           <p className="mb-1 mt-4 text-gray-700 dark:text-gray-200 font-semibold">
             Example with <b>username</b> and <b>password</b>:
           </p>
-          <pre className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 text-xs text-gray-800 dark:text-gray-100 font-mono overflow-x-auto border border-gray-200 dark:border-gray-700">
-            {curlAuthExample}
-          </pre>
+          <CodeBlock language="bash">{curlAuthExample}</CodeBlock>
         </div>
         <div>
           <p className="mb-1 text-gray-700 dark:text-gray-200 font-semibold">Response:</p>
-          <pre className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 text-xs text-gray-800 dark:text-gray-100 font-mono overflow-x-auto border border-gray-200 dark:border-gray-700">
-            {responseExample}
-          </pre>
+          <CodeBlock language="json">{responseExample}</CodeBlock>
         </div>
         <p className="mt-3 text-gray-600 dark:text-gray-300 text-xs">
           Use the <span className="font-semibold">logEmbedUrl</span> and{' '}
@@ -109,10 +109,6 @@ function timeAgo(dateString: string | number | Date) {
   const years = Math.floor(months / 12);
   return `${years}y ago`;
 }
-import React, { useMemo, useState } from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
-import { createUrl } from '../utils/url';
-import { ProxyDetails } from '../../../types/proxy';
 
 let fetchingProxies = false;
 async function getWorkingProxies() {
