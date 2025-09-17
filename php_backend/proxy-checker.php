@@ -124,7 +124,6 @@ if (!$isCli) {
   if (file_exists($lockFilePath) && !$isAdmin) {
     // another process still running
     $status = 'Another process is still running.';
-    @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
     http_response_code(429);
     send_json([
       'error'    => true,
@@ -269,10 +268,12 @@ if (!$isCli) {
   if (empty($proxyInfo['type'])) {
     $proxyTypes   = ['http', 'https', 'socks4', 'socks5', 'socks5h'];
     $foundWorking = false;
+    @file_put_contents($statusFile, 'starting', LOCK_EX);
     foreach ($proxyTypes as $type) {
       $proxyInfo['type'] = $type;
-      $proxyDetailsArr   = build_proxy_details($proxyInfo);
-      addLog('Checking proxy (' . $proxyDetailsArr['text'] . ')');
+      @file_put_contents($statusFile, 'processing', LOCK_EX);
+      $proxyDetailsArr = build_proxy_details($proxyInfo);
+      addLog('Checking proxy (' . $proxyDetailsArr['text'] . ')...');
 
       $publicIP        = getPublicIP(true, 300, $proxyInfo);
       $proxyDetailsArr = build_proxy_details($proxyInfo);
@@ -280,8 +281,7 @@ if (!$isCli) {
       if (empty($publicIP)) {
         // Mark as dead if no public IP found for this type
         $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
-        $resultMessage = 'Proxy is dead (no public IP detected) (' . $proxyDetailsArr['text'] . ')';
-        addLog($resultMessage);
+        addLog('Proxy is dead (no public IP detected) (' . $proxyDetailsArr['text'] . ')');
         continue;
       }
 
@@ -302,19 +302,21 @@ if (!$isCli) {
         $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
       }
     }
+    @file_put_contents($statusFile, 'stopped', LOCK_EX);
   } else {
     // Run the proxy check with specified type
+    @file_put_contents($statusFile, 'starting', LOCK_EX);
     $proxyDetailsArr = build_proxy_details($proxyInfo);
     addLog('Checking proxy (' . $proxyDetailsArr['text'] . ')');
 
+    @file_put_contents($statusFile, 'processing', LOCK_EX);
     $publicIP = getPublicIP(true, 300, $proxyInfo);
     if (empty($publicIP)) {
       // Mark as dead if no public IP found
       $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
-      $status = 'Proxy is dead (no public IP detected) (' . $proxyDetailsArr['text'] . ')';
-      @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-      addLog($status);
-      exit($status . PHP_EOL);
+      addLog('Proxy is dead (no public IP detected) (' . $proxyDetailsArr['text'] . ')');
+      @file_put_contents($statusFile, 'stopped', LOCK_EX);
+      exit('stopped' . PHP_EOL);
     }
 
     $ipProxy = extractIPs($proxyInfo['proxy']);
@@ -325,16 +327,16 @@ if (!$isCli) {
       // Check website title to verify proxy functionality
       $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
       $status .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
-      @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
       addLog($status);
-      exit($status . PHP_EOL);
+      @file_put_contents($statusFile, 'stopped', LOCK_EX);
+      exit('stopped' . PHP_EOL);
     } else {
       // Proxy working, but different IP
       $status = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (" . $proxyDetailsArr['text'] . ')';
-      @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
       addLog($status);
       $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
-      exit($status . PHP_EOL);
+      @file_put_contents($statusFile, 'stopped', LOCK_EX);
+      exit('stopped' . PHP_EOL);
     }
   }
 }
