@@ -1,5 +1,29 @@
 [
   {
+    "hash": "c1eed74c7c022164224b1fd0cc3cbc14e081414d",
+    "date": "2025-09-17T15:01:08+07:00",
+    "message": "fix(recaptcha): ensure reCAPTCHA secret key is configured before verification",
+    "files": [
+      "php_backend/recaptcha.php"
+    ]
+  },
+  {
+    "hash": "3e032d5fa3a28504f09166b57f8c63b3b8c6d993",
+    "date": "2025-09-17T15:00:22+07:00",
+    "message": "refactor(recaptcha): improve code structure and enhance reCAPTCHA verification logic",
+    "files": [
+      "php_backend/recaptcha.php"
+    ]
+  },
+  {
+    "hash": "136f4d04989b7ef402aa8f092a56d38916e588bb",
+    "date": "2025-09-17T14:54:43+07:00",
+    "message": "feat(proxy): use createUrl utility for fetching cURL timeout in PHP",
+    "files": [
+      "src/react/pages/ProxyList/ModifyCurl.tsx"
+    ]
+  },
+  {
     "hash": "77dc966969fb28ee51b7d271a8f1e48e2732dc2e",
     "date": "2025-09-17T14:52:50+07:00",
     "message": "feat(proxy): add configurable cURL timeout setting via UI and backend\n\n- Added backend support in `proxy-checker.php` to handle `set_curl_timeout` requests\n  - Validates timeout range (1–300 seconds)\n  - Updates and persists user config\n  - Applies custom timeout in `getPublicIP` and `getWebsiteTitle`\n- Updated `ProxyList.tsx` to include new `ModifyCurl` section\n- Implemented `ModifyCurl.tsx` React component\n  - Allows users to set cURL timeout via form\n  - Displays success or error messages",
