@@ -96,7 +96,7 @@ Linux)
   fi
 
   # Allow composer and indexing proxies to work
-  chown -R "$USER":"$USER" "$CWD"/*.php "$CWD"/*.phar
+  chown -R "$USER":"$USER" "$CWD"/*.php
 
   # Fix perm bin folder
   chown -R "$USER":"$USER" "$CWD/bin"
