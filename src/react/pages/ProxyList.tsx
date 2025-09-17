@@ -6,6 +6,9 @@ import ApiUsage from './ProxyList/ApiUsage';
 import LogViewer from './ProxyList/LogViewer';
 import ModifyCurl from './ProxyList/ModifyCurl';
 import { useSnackbar } from '../components/Snackbar';
+import * as dateCjs from '../../utils/date.js';
+
+const { timeAgo } = dateCjs as typeof import('../../utils/date.js');
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
@@ -54,24 +57,6 @@ const handleCopy = (proxy: ProxyDetails) => {
     navigator.clipboard.writeText(proxy.proxy);
   }
 };
-// Helper to format time ago
-function timeAgo(dateString: string | number | Date) {
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  if (isNaN(seconds)) return '';
-  if (seconds < 60) return `${seconds}s ago`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}mo ago`;
-  const years = Math.floor(months / 12);
-  return `${years}y ago`;
-}
 
 let fetchingProxies = false;
 async function getWorkingProxies(setShowModal?: React.Dispatch<React.SetStateAction<boolean>>) {
