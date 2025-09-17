@@ -16,6 +16,8 @@ import Navbar from './components/Navbar';
 import { ThemeProvider } from './components/ThemeContext';
 import NotFound from './pages/NotFound';
 import routes from './routes.js';
+import { SnackbarProvider } from './components/Snackbar';
+import SnackBarSample from './pages/samples/SnackBarSample';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
@@ -46,28 +48,31 @@ window.addEventListener('keydown', function (e) {
 root.render(
   <React.StrictMode>
     <ThemeProvider>
-      <BrowserRouter basename={import.meta.env.BASE_URL}>
-        <Navbar />
-        <Routes>
-          {routes.flatMap((CustomRoute) => {
-            if (!CustomRoute.Component) return null;
-            if (Array.isArray(CustomRoute.path)) {
-              return CustomRoute.path.map((p) =>
-                CustomRoute.Component ? <Route key={p} path={p} element={<CustomRoute.Component />} /> : null
+      <SnackbarProvider>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <Navbar />
+          <Routes>
+            {routes.flatMap((CustomRoute) => {
+              if (!CustomRoute.Component) return null;
+              if (Array.isArray(CustomRoute.path)) {
+                return CustomRoute.path.map((p) =>
+                  CustomRoute.Component ? <Route key={p} path={p} element={<CustomRoute.Component />} /> : null
+                );
+              }
+              return (
+                <Route
+                  key={CustomRoute.path}
+                  path={CustomRoute.path}
+                  element={CustomRoute.Component ? <CustomRoute.Component /> : null}
+                />
               );
-            }
-            return (
-              <Route
-                key={CustomRoute.path}
-                path={CustomRoute.path}
-                element={CustomRoute.Component ? <CustomRoute.Component /> : null}
-              />
-            );
-          })}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Footer />
-      </BrowserRouter>
+            })}
+            <Route path="/examples/snackbar" element={<SnackBarSample />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Footer />
+        </BrowserRouter>
+      </SnackbarProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

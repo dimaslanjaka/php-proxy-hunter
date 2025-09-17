@@ -4,6 +4,7 @@ import { ProxyDetails } from '../../../types/proxy';
 import { createUrl } from '../utils/url';
 import ApiUsage from './ProxyList/ApiUsage';
 import LogViewer, { LogViewerState } from './ProxyList/LogViewer';
+import { useSnackbar } from '../components/Snackbar';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
@@ -12,7 +13,8 @@ import LogViewer, { LogViewerState } from './ProxyList/LogViewer';
  */
 const handleRecheck = async (
   proxy: ProxyDetails,
-  setLogViewer: React.Dispatch<React.SetStateAction<LogViewerState>>
+  setLogViewer: React.Dispatch<React.SetStateAction<LogViewerState>>,
+  showSnackbar: (options: { message: string; type: 'success' | 'danger' }) => void
 ) => {
   try {
     let body = `proxy=${encodeURIComponent(proxy.proxy)}`;
@@ -41,14 +43,14 @@ const handleRecheck = async (
       }));
     }
     if (data && data.message) {
-      alert(data.message);
+      showSnackbar({ message: data.message, type: 'success' });
     } else {
-      alert('Proxy re-check request sent.');
+      showSnackbar({ message: 'Proxy re-check request sent.', type: 'success' });
     }
     // Optionally, you could refresh the proxy list here
     // fetchAndSetProxies(setProxies);
   } catch (err) {
-    alert('Failed to re-check proxy.');
+    showSnackbar({ message: 'Failed to re-check proxy.', type: 'danger' });
     console.error(err);
   }
 };
@@ -112,6 +114,7 @@ async function fetchAndSetProxies(setProxies: React.Dispatch<React.SetStateActio
 }
 
 function ProxyList() {
+  const { showSnackbar } = useSnackbar();
   const [typeFilter, setTypeFilter] = React.useState('');
   const [proxies, setProxies] = React.useState<ProxyDetails[]>([]);
   const [showModal, setShowModal] = React.useState(false);
@@ -426,7 +429,7 @@ function ProxyList() {
                     <button
                       title="Re-check proxy"
                       className="inline-flex items-center justify-center p-1 rounded bg-yellow-100 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-600 mr-1"
-                      onClick={() => handleRecheck(proxy, setLogViewer)}>
+                      onClick={() => handleRecheck(proxy, setLogViewer, showSnackbar)}>
                       <i className="fa-duotone fa-rotate-right"></i>
                     </button>
                     <button
