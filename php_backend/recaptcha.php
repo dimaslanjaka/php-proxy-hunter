@@ -50,6 +50,11 @@ if (!empty($request['g-recaptcha-response'])) {
     $_ENV['G_RECAPTCHA_V2_SECRET'] ?? null,
   ]);
 
+  if (empty($secrets)) {
+    echo json_encode(['error' => 'reCAPTCHA secret key not configured', 'success' => false]);
+    exit;
+  }
+
   foreach ($secrets as $secret) {
     $verifyUrl = sprintf(
       'https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s',
