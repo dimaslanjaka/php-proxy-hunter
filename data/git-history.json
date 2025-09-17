@@ -1,5 +1,13 @@
 [
   {
+    "hash": "636a00018b7a1f30a411460065354505354d3233",
+    "date": "2025-09-17T16:26:36+07:00",
+    "message": "fix(SQLiteHelper): comment out debug var_dump statements in modifyColumn method",
+    "files": [
+      "src/PhpProxyHunter/SQLiteHelper.php"
+    ]
+  },
+  {
     "hash": "cbbe366d676d4344c775327a2b8d84e89e61ca23",
     "date": "2025-09-17T16:16:28+07:00",
     "message": "fix(logs): add namespace prefix to json_validate function call in addLog method",
