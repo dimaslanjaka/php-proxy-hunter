@@ -354,9 +354,9 @@ class SQLiteHelper extends BaseSQL
       $this->pdo->exec($newCreateSql);
       $colsList  = implode(', ', $columns);
       $insertSql = "INSERT INTO $tmpTable ($colsList) SELECT $colsList FROM $table";
-      var_dump('[modifyColumn] create sql', $createSql);
-      var_dump('[modifyColumn] new create sql', $newCreateSql);
-      var_dump('[modifyColumn] insert sql', $insertSql);
+      // var_dump('[modifyColumn] create sql', $createSql);
+      // var_dump('[modifyColumn] new create sql', $newCreateSql);
+      // var_dump('[modifyColumn] insert sql', $insertSql);
       $this->pdo->exec($insertSql);
       $this->pdo->exec("DROP TABLE $table");
       $this->pdo->exec("ALTER TABLE $tmpTable RENAME TO $table");
