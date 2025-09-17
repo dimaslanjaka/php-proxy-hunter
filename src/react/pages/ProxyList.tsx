@@ -80,7 +80,20 @@ function ProxyCheckerApiUsage() {
   );
 }
 // Handler to re-check a proxy (calls backend API, supports user/pass)
-const handleRecheck = async (proxy: ProxyDetails) => {
+// Log viewer state and polling logic
+type LogViewerState = {
+  open: boolean;
+  url: string;
+  statusUrl?: string;
+  loading: boolean;
+  log: string;
+  intervalId?: number;
+};
+
+const handleRecheck = async (
+  proxy: ProxyDetails,
+  setLogViewer: React.Dispatch<React.SetStateAction<LogViewerState>>
+) => {
   try {
     let body = `proxy=${encodeURIComponent(proxy.proxy)}`;
     if (proxy.username) {
@@ -97,6 +110,16 @@ const handleRecheck = async (proxy: ProxyDetails) => {
       body
     });
     const data = await response.json();
+    if (data && data.logEmbedUrl) {
+      setLogViewer((prev) => ({
+        ...prev,
+        open: true,
+        url: data.logEmbedUrl,
+        statusUrl: data.statusEmbedUrl,
+        loading: true,
+        log: ''
+      }));
+    }
     if (data && data.message) {
       alert(data.message);
     } else {
@@ -148,7 +171,6 @@ async function getWorkingProxies() {
   for (let i = 0; i < result.length; i++) {
     const proxy = result[i];
     if (proxy.https === 'true') {
-      console.log(proxy);
       proxy.type = proxy.type ? `${proxy.type}-SSL` : 'SSL';
     }
     delete (proxy as Partial<ProxyDetails>).https;
@@ -180,6 +202,67 @@ function ProxyList() {
   const [cityFilter, setCityFilter] = React.useState('');
   const [timezoneFilter, setTimezoneFilter] = React.useState('');
   const [filterOpen, setFilterOpen] = useState(false);
+  // Log viewer state
+  const [logViewer, setLogViewer] = React.useState<LogViewerState>({
+    open: true,
+    url: '',
+    statusUrl: '',
+    loading: false,
+    log: '',
+    intervalId: undefined
+  });
+
+  // On mount, fetch user id and set log URL
+  React.useEffect(() => {
+    async function fetchUserIdAndSetLog() {
+      try {
+        const res = await fetch(createUrl('/php_backend/user-info.php'));
+        const data = await res.json();
+        if (data && data.uid) {
+          const logUrl = createUrl(`/php_backend/proxy-checker.php?id=${data.uid}&type=log`);
+          const statusUrl = createUrl(`/php_backend/proxy-checker.php?id=${data.uid}&type=status`);
+          setLogViewer((prev) => ({
+            ...prev,
+            open: true,
+            url: logUrl,
+            statusUrl: statusUrl
+          }));
+        }
+      } catch (_e) {
+        // ignore
+      }
+    }
+    fetchUserIdAndSetLog();
+  }, []);
+
+  // Poll log if logViewer.url
+  React.useEffect(() => {
+    let interval: number | undefined;
+    if (logViewer.url) {
+      const fetchLog = async () => {
+        try {
+          const res = await fetch(logViewer.url);
+          const text = await res.text();
+          setLogViewer((prev) => {
+            if (prev.log.trim() === text.trim()) {
+              // Only update loading, not log
+              if (prev.loading) return { ...prev, loading: false };
+              return prev;
+            }
+            return { ...prev, log: text, loading: false };
+          });
+        } catch {
+          setLogViewer((prev) => ({ ...prev, log: 'Failed to fetch log.', loading: false }));
+        }
+      };
+      fetchLog();
+      interval = window.setInterval(fetchLog, 3000);
+      setLogViewer((prev) => ({ ...prev, intervalId: interval }));
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [logViewer.url]);
 
   // Get ProxyDetails keys for table, reordering specific columns to the end
   const proxyKeys = useMemo(() => {
@@ -410,7 +493,7 @@ function ProxyList() {
                     <button
                       title="Re-check proxy"
                       className="inline-flex items-center justify-center p-1 rounded bg-yellow-100 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-600 mr-1"
-                      onClick={() => handleRecheck(proxy)}>
+                      onClick={() => handleRecheck(proxy, setLogViewer)}>
                       <i className="fa-duotone fa-rotate-right"></i>
                     </button>
                     <button
@@ -509,6 +592,37 @@ function ProxyList() {
           </div>
         </div>
       </div>
+      {/* Log Viewer Section (always visible) */}
+      <section className="my-8">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-blue-200 dark:border-blue-700 p-6 transition-colors duration-300 flowbite-modal">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold text-blue-800 dark:text-blue-200 flex items-center gap-2">
+              <i className="fa-duotone fa-file-lines"></i> Proxy Check Log
+            </h2>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg cursor-not-allowed opacity-50"
+              disabled
+              tabIndex={-1}
+              aria-label="Log viewer always visible">
+              <i className="fa-duotone fa-xmark text-base"></i> Close
+            </button>
+          </div>
+          <div className="mb-2 text-xs text-gray-600 dark:text-gray-300 break-all">
+            <span className="font-mono">{logViewer.url}</span>
+          </div>
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
+            {logViewer.loading ? (
+              <span className="text-gray-400 dark:text-gray-500">Loading log...</span>
+            ) : logViewer.log ? (
+              <span className="text-gray-800 dark:text-gray-100">{logViewer.log}</span>
+            ) : (
+              <span className="text-gray-400 dark:text-gray-500">No log output yet.</span>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* API Usage Section (moved after proxy list) */}
       <ProxyCheckerApiUsage />
     </div>
