@@ -23,7 +23,26 @@ const lastInstallChecksum = fs.existsSync(checksumInstallFile)
   : null;
 const lastBuildChecksum = fs.existsSync(checksumBuildFile) ? fs.readFileSync(checksumBuildFile, 'utf-8').trim() : null;
 
-const currentInstallChecksum = getChecksum(path.join(cwd, 'package.json'));
+const packageJsonFiles = glob
+  .sync('**/package.json', {
+    cwd,
+    nodir: true,
+    dot: true,
+    ignore: [
+      '**/node_modules/**',
+      '**/*venv/**',
+      '**/.yarn/**',
+      '**/vendor/**',
+      '**/tmp/**',
+      '**/dist/**',
+      '**/.git/**',
+      '**/build/**',
+      '**/.cache/**'
+    ]
+  })
+  .map((f) => path.join(cwd, f))
+  .sort();
+const currentInstallChecksum = getChecksum(...packageJsonFiles);
 const srcFiles = glob
   .sync('src/**/*.{js,jsx,ts,tsx}', { cwd, nodir: true, dot: true })
   .map((f) => path.join(cwd, f))
