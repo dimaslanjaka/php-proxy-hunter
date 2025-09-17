@@ -108,7 +108,7 @@ const Navbar: React.FC = () => {
           </div>
           <div className="flex items-center space-x-4">
             <Link
-              href="/proxyManager.html"
+              href="/proxy-list"
               className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
               aria-label="Proxy Manager"
               title="Proxy Manager">
