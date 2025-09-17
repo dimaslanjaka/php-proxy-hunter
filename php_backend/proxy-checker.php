@@ -243,11 +243,17 @@ if (!$isCli) {
 
   // if empty proxy type, loop through all types
   if (empty($proxyInfo['type'])) {
-    $proxyTypes = ['http', 'https', 'socks4', 'socks5', 'socks5h'];
+    $proxyTypes   = ['http', 'https', 'socks4', 'socks5', 'socks5h'];
+    $foundWorking = false;
     foreach ($proxyTypes as $type) {
       $proxyInfo['type'] = $type;
       $publicIP          = getPublicIP(true, 300, $proxyInfo);
-      if (!$publicIP) {
+      if (empty($publicIP)) {
+        // Mark as dead if no public IP found for this type
+        $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
+        $resultMessage = "Proxy is dead (no public IP detected) (Type: {$proxyInfo['type']})";
+        addLog($resultMessage);
+        safe_unlink($lockFile);
         continue;
       }
 
@@ -261,6 +267,7 @@ if (!$isCli) {
         $resultMessage .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
         addLog($resultMessage);
         safe_unlink($lockFile);
+        $foundWorking = true;
       } else {
         // Proxy working, but different IP
         $resultMessage = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (Type: {$proxyInfo['type']})";
@@ -272,28 +279,35 @@ if (!$isCli) {
   } else {
     // Run the proxy check with specified type
     $publicIP = getPublicIP(true, 300, $proxyInfo);
-    if ($publicIP) {
-      $ipProxy = extractIPs($proxyInfo['proxy']);
-      if (in_array($publicIP, $ipProxy, true)) {
-        // Proxy working, same as proxy IP
-        $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'last_check' => date(DATE_RFC3339)]);
-        $status = "Proxy is working. Detected IP: $publicIP (Type: {$proxyInfo['type']})";
-        // Check website title to verify proxy functionality
-        $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
-        $status .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
-        @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-        safe_unlink($lockFile);
-        addLog($status);
-        exit($status . PHP_EOL);
-      } else {
-        // Proxy working, but different IP
-        $status = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (Type: {$proxyInfo['type']})";
-        @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-        safe_unlink($lockFile);
-        addLog($status);
-        $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
-        exit($status . PHP_EOL);
-      }
+    if (empty($publicIP)) {
+      // Mark as dead if no public IP found
+      $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
+      $status = "Proxy is dead (no public IP detected) (Type: {$proxyInfo['type']})";
+      @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
+      safe_unlink($lockFile);
+      addLog($status);
+      exit($status . PHP_EOL);
+    }
+    $ipProxy = extractIPs($proxyInfo['proxy']);
+    if (in_array($publicIP, $ipProxy, true)) {
+      // Proxy working, same as proxy IP
+      $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'last_check' => date(DATE_RFC3339)]);
+      $status = "Proxy is working. Detected IP: $publicIP (Type: {$proxyInfo['type']})";
+      // Check website title to verify proxy functionality
+      $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
+      $status .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
+      @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
+      safe_unlink($lockFile);
+      addLog($status);
+      exit($status . PHP_EOL);
+    } else {
+      // Proxy working, but different IP
+      $status = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (Type: {$proxyInfo['type']})";
+      @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
+      safe_unlink($lockFile);
+      addLog($status);
+      $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
+      exit($status . PHP_EOL);
     }
   }
 }
