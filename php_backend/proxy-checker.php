@@ -109,6 +109,15 @@ if (!$isCli) {
     }
   }
 
+  // Handle reset log request
+  if (isset($request['resetLog']) && $request['resetLog']) {
+    resetLog();
+    send_json([
+      'error'   => false,
+      'message' => 'Log file reset.',
+    ]);
+  }
+
   // Validate input before calling getPublicIP
   if (empty($proxyInfo['proxy']) && empty($proxyInfo['type'])) {
     // Ensure the directory exists before writing the file
@@ -250,9 +259,6 @@ if (!$isCli) {
     }
     addLog('Process ended, lock file removed.' . (count($proxyDetails) ? ' (' . implode(', ', $proxyDetails) . ')' : ''));
   });
-
-  // reset log file
-  resetLog();
 
   // validate input before calling getPublicIP
   if (empty($proxyInfo['proxy']) && empty($proxyInfo['type'])) {
