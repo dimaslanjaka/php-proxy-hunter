@@ -79,10 +79,35 @@ function ProxyCheckerApiUsage() {
     </section>
   );
 }
-// Handler to re-check a proxy (dummy implementation, replace with real logic)
-const handleRecheck = (proxy: ProxyDetails) => {
-  // TODO: Implement actual re-check logic (e.g., API call)
-  alert(`Re-checking proxy: ${proxy.proxy}`);
+// Handler to re-check a proxy (calls backend API, supports user/pass)
+const handleRecheck = async (proxy: ProxyDetails) => {
+  try {
+    let body = `proxy=${encodeURIComponent(proxy.proxy)}`;
+    if (proxy.username) {
+      body += `&username=${encodeURIComponent(proxy.username)}`;
+    }
+    if (proxy.password) {
+      body += `&password=${encodeURIComponent(proxy.password)}`;
+    }
+    const response = await fetch(createUrl('/php_backend/proxy-checker.php'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body
+    });
+    const data = await response.json();
+    if (data && data.message) {
+      alert(data.message);
+    } else {
+      alert('Proxy re-check request sent.');
+    }
+    // Optionally, you could refresh the proxy list here
+    // fetchAndSetProxies(setProxies);
+  } catch (err) {
+    alert('Failed to re-check proxy.');
+    console.error(err);
+  }
 };
 
 // Handler to copy proxy string to clipboard
