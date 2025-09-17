@@ -2,10 +2,19 @@
 
 require_once __DIR__ . '/../func.php';
 
-global $isCli, $isAdmin;
+/**
+ * Google reCAPTCHA verification endpoint.
+ *
+ * Handles CORS, session, and reCAPTCHA validation for API requests.
+ *
+ * @author dimaslanjaka
+ */
+
+// Detect CLI mode
+$isCli = (php_sapi_name() === 'cli');
 
 if (!$isCli) {
-  // Set CORS (Cross-Origin Resource Sharing) headers to allow requests from any origin
+  // Set CORS headers
   header('Access-Control-Allow-Origin: *');
   header('Access-Control-Allow-Headers: *');
   header('Access-Control-Allow-Methods: *');
@@ -18,34 +27,43 @@ if (!$isCli) {
   header('Cache-Control: no-store, no-cache, must-revalidate');
   header('Cache-Control: post-check=0, pre-check=0', false);
   header('Pragma: no-cache');
-
-  // Check admin
-  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
 $request = parseQueryOrPostBody();
 
+// Status check endpoint
 if (isset($request['status'])) {
   header('Content-Type: application/json; charset=utf-8');
-  if (!empty($_SESSION['captcha']) && $_SESSION['captcha'] === true) {
-    exit(json_encode(['message' => 'Captcha already verified', 'success' => true]));
-  } else {
-    exit(json_encode(['error' => 'Captcha not verified', 'success' => false]));
-  }
+  $verified = !empty($_SESSION['captcha']) && $_SESSION['captcha'] === true;
+  $response = $verified
+    ? ['message' => 'Captcha already verified', 'success' => true]
+    : ['error' => 'Captcha not verified', 'success' => false];
+  echo json_encode($response);
+  exit;
 }
 
+// reCAPTCHA verification
 if (!empty($request['g-recaptcha-response'])) {
   header('Content-Type: application/json; charset=utf-8');
-  $secrets = [$_ENV['G_RECAPTCHA_SECRET'], $_ENV['G_RECAPTCHA_V2_SECRET']];
+  $secrets = array_filter([
+    $_ENV['G_RECAPTCHA_SECRET']    ?? null,
+    $_ENV['G_RECAPTCHA_V2_SECRET'] ?? null,
+  ]);
 
   foreach ($secrets as $secret) {
-    $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $request['g-recaptcha-response']);
+    $verifyUrl = sprintf(
+      'https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s',
+      urlencode($secret),
+      urlencode($request['g-recaptcha-response'])
+    );
+    $verifyResponse = file_get_contents($verifyUrl);
     $responseData   = json_decode($verifyResponse);
 
-    if ($responseData->success) {
+    if (!empty($responseData) && !empty($responseData->success) && $responseData->success) {
       $_SESSION['captcha']            = true;
       $_SESSION['last_captcha_check'] = date(DATE_RFC3339);
-      exit(json_encode(['message' => 'Google reCAPTCHA verified successfully', 'success' => true]));
+      echo json_encode(['message' => 'Google reCAPTCHA verified successfully', 'success' => true]);
+      exit;
     }
   }
 }
