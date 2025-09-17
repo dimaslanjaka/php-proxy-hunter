@@ -1,5 +1,14 @@
 [
   {
+    "hash": "08e6a28eec13eb6b05718b26e08e01a1f222e9cf",
+    "date": "2025-09-17T15:44:37+07:00",
+    "message": "fix(logs): ensure proper JSON validation and fallback encoding\n\n- Added `shim.php` with polyfill for `json_validate` when not available\n- Updated `LogsRepository` to use `json_validate` for `$extraInfo` when storing logs\n- Fallback to `json_encode` with `JSON_UNESCAPED_UNICODE` if not valid JSON",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php",
+      "src/PhpProxyHunter/shim.php"
+    ]
+  },
+  {
     "hash": "c1eed74c7c022164224b1fd0cc3cbc14e081414d",
     "date": "2025-09-17T15:01:08+07:00",
     "message": "fix(recaptcha): ensure reCAPTCHA secret key is configured before verification",
