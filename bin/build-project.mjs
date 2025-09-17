@@ -44,7 +44,7 @@ const packageJsonFiles = glob
   .sort();
 const currentInstallChecksum = getChecksum(...packageJsonFiles);
 const srcFiles = glob
-  .sync('src/**/*.{js,jsx,ts,tsx}', { cwd, nodir: true, dot: true })
+  .sync('src/**/*.{js,jsx,ts,tsx,cjs,mjs}', { cwd, nodir: true, dot: true })
   .map((f) => path.join(cwd, f))
   .sort();
 const currentBuildChecksum = getChecksum(...srcFiles);
