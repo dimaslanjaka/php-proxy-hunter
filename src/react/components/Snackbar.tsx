@@ -1,25 +1,56 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 
+/**
+ * Type of snackbar notification.
+ * @example
+ * showSnackbar({ message: 'Saved!', type: 'success' })
+ */
 export type SnackbarType = 'default' | 'success' | 'danger' | 'warning';
 
+/**
+ * Options for displaying a snackbar notification.
+ * @example
+ * showSnackbar({ message: 'Hello!', type: 'success', duration: 5000 })
+ */
 interface SnackbarOptions {
+  /** The message to display. */
   message: string;
+  /** The type of snackbar (default, success, danger, warning). */
   type?: SnackbarType;
-  duration?: number; // ms
+  /** How long to show the snackbar (ms). Default: 3000 */
+  duration?: number;
 }
 
+/**
+ * Props for the SnackbarProvider component.
+ * @example
+ * <SnackbarProvider stackable maxSnackbars={3}>...</SnackbarProvider>
+ */
 interface SnackbarProviderProps {
+  /** Child React nodes. */
   children: ReactNode;
+  /** Allow multiple snackbars to stack. Default: false */
   stackable?: boolean;
+  /** Maximum number of snackbars to show at once. Default: 5 */
   maxSnackbars?: number;
 }
 
+/**
+ * Snackbar context value.
+ */
 interface SnackbarContextProps {
+  /** Show a snackbar notification. */
   showSnackbar: (options: SnackbarOptions) => void;
 }
 
 const SnackbarContext = createContext<SnackbarContextProps | undefined>(undefined);
 
+/**
+ * React hook to access the snackbar context.
+ * @example
+ * const { showSnackbar } = useSnackbar();
+ * showSnackbar({ message: 'Saved!', type: 'success' });
+ */
 export const useSnackbar = () => {
   const ctx = useContext(SnackbarContext);
   if (!ctx) throw new Error('useSnackbar must be used within a SnackbarProvider');
@@ -33,6 +64,14 @@ const typeStyles: Record<SnackbarType, string> = {
   warning: 'text-orange-500 bg-white dark:text-orange-400 dark:bg-gray-800'
 };
 
+/**
+ * Provides snackbar notification context to child components.
+ * Place at the root of your app.
+ * @example
+ * <SnackbarProvider stackable maxSnackbars={3}>
+ *   <App />
+ * </SnackbarProvider>
+ */
 export const SnackbarProvider = ({ children, stackable = false, maxSnackbars = 5 }: SnackbarProviderProps) => {
   // If stackable, manage an array of snackbars
   const [snackbars, setSnackbars] = useState<
