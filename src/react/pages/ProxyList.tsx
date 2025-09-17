@@ -226,62 +226,72 @@ function ProxyList() {
             {filterOpen ? 'Hide Filters' : 'Show Filters'}
           </button>
           <div id="proxy-filter-collapse" className={`${filterOpen ? 'block' : 'hidden'}`}>
-            <div className="flex flex-wrap gap-2 mt-4 items-center w-full">
-              <label className="text-gray-700 dark:text-gray-200">Type:</label>
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 min-w-[100px] w-full sm:w-auto">
-                <option value="">All Types</option>
-                <option value="http">HTTP</option>
-                <option value="socks4">SOCKS4</option>
-                <option value="socks5">SOCKS5</option>
-              </select>
-              <label className="text-gray-700 dark:text-gray-200">SSL:</label>
-              <select
-                value={sslFilter}
-                onChange={(e) => setSslFilter(e.target.value)}
-                className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 min-w-[80px] w-full sm:w-auto">
-                <option value="">All</option>
-                <option value="true">SSL Only</option>
-                <option value="false">Non-SSL</option>
-              </select>
-              <label className="text-gray-700 dark:text-gray-200">Country:</label>
-              <select
-                value={countryFilter}
-                onChange={(e) => setCountryFilter(e.target.value)}
-                className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 min-w-[120px] w-full sm:w-auto">
-                <option value="">All Countries</option>
-                {uniqueCountries.map((country) => (
-                  <option key={country} value={country}>
-                    {country}
-                  </option>
-                ))}
-              </select>
-              <label className="text-gray-700 dark:text-gray-200">City:</label>
-              <select
-                value={cityFilter}
-                onChange={(e) => setCityFilter(e.target.value)}
-                className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 min-w-[120px] w-full sm:w-auto">
-                <option value="">All Cities</option>
-                {uniqueCities.map((city) => (
-                  <option key={city} value={city}>
-                    {city}
-                  </option>
-                ))}
-              </select>
-              <label className="text-gray-700 dark:text-gray-200">Timezone:</label>
-              <select
-                value={timezoneFilter}
-                onChange={(e) => setTimezoneFilter(e.target.value)}
-                className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 min-w-[120px] w-full sm:w-auto">
-                <option value="">All Timezones</option>
-                {uniqueTimezones.map((tz) => (
-                  <option key={tz} value={tz}>
-                    {tz}
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-col sm:flex-row flex-wrap gap-x-4 gap-y-2 mt-4 items-center w-full">
+              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
+                <label className="text-gray-700 dark:text-gray-200 mb-1">Type:</label>
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
+                  <option value="">All Types</option>
+                  <option value="http">HTTP</option>
+                  <option value="socks4">SOCKS4</option>
+                  <option value="socks5">SOCKS5</option>
+                </select>
+              </div>
+              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[120px]">
+                <label className="text-gray-700 dark:text-gray-200 mb-1">SSL:</label>
+                <select
+                  value={sslFilter}
+                  onChange={(e) => setSslFilter(e.target.value)}
+                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
+                  <option value="">All</option>
+                  <option value="true">SSL Only</option>
+                  <option value="false">Non-SSL</option>
+                </select>
+              </div>
+              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
+                <label className="text-gray-700 dark:text-gray-200 mb-1">Country:</label>
+                <select
+                  value={countryFilter}
+                  onChange={(e) => setCountryFilter(e.target.value)}
+                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
+                  <option value="">All Countries</option>
+                  {uniqueCountries.map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
+                <label className="text-gray-700 dark:text-gray-200 mb-1">City:</label>
+                <select
+                  value={cityFilter}
+                  onChange={(e) => setCityFilter(e.target.value)}
+                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
+                  <option value="">All Cities</option>
+                  {uniqueCities.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
+                <label className="text-gray-700 dark:text-gray-200 mb-1">Timezone:</label>
+                <select
+                  value={timezoneFilter}
+                  onChange={(e) => setTimezoneFilter(e.target.value)}
+                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
+                  <option value="">All Timezones</option>
+                  {uniqueTimezones.map((tz) => (
+                    <option key={tz} value={tz}>
+                      {tz}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
