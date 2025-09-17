@@ -1,5 +1,32 @@
 [
   {
+    "hash": "ffa4559a999f9cf81f835ecdf482a84dc9cb07b8",
+    "date": "2025-09-17T10:40:14+07:00",
+    "message": "fix(deps): add puppeteer and selenium with fingerprints to external dependencies",
+    "files": [
+      "rollup.php.js",
+      "rollup.project.js",
+      "rollup.whatsapp.js"
+    ]
+  },
+  {
+    "hash": "1489feae51b06db44d8fb0ff579fba76ede4cb9d",
+    "date": "2025-09-17T10:39:37+07:00",
+    "message": "fix(deps): update typescript to version 5.8.3",
+    "files": [
+      "packages/baileys",
+      "packages/proxies-grabber"
+    ]
+  },
+  {
+    "hash": "83d8c4153150a7d9f1da47beef3a860d0b49bfbd",
+    "date": "2025-09-17T10:27:41+07:00",
+    "message": "fix(build): include additional file extensions in source file checksum calculation",
+    "files": [
+      "bin/build-project.mjs"
+    ]
+  },
+  {
     "hash": "cfa8dd168b85d3ff1839e77cb27a576618a3129f",
     "date": "2025-09-17T09:55:33+07:00",
     "message": "fix(build): update checksum calculation to include all package.json files in the project",
