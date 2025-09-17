@@ -1,5 +1,23 @@
 [
   {
+    "hash": "99f6da5fd03634f5fb7d24d06939484515e6864f",
+    "date": "2025-09-17T14:26:47+07:00",
+    "message": "refactor(react): decouple log viewer state and improve proxy fetch error handling\n\n- Refactored `LogViewer` to manage its own state and polling logic internally, removing the need to pass `logViewer` and `setLogViewer` props from `ProxyList`.\n- Updated `handleRecheck` to remove all `setLogViewer` usage and related state updates.\n- Enhanced `getWorkingProxies` and `fetchAndSetProxies` to accept an optional `setShowModal` callback. If the proxy fetch returns a 403 Forbidden or a non-array result, the reCAPTCHA modal is shown automatically.\n- Updated all usages of `fetchAndSetProxies` to pass `setShowModal` for consistent error handling.\n- Removed the unused close button from the `LogViewer` UI.\n- Cleaned up legacy state and effect code related to log viewer management in `ProxyList`.",
+    "files": [
+      "src/react/pages/ProxyList.tsx",
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
+    "hash": "57bd5f5d0a34fec51c208e53872a55ed57769acd",
+    "date": "2025-09-17T14:03:49+07:00",
+    "message": "feat(log-viewer): add reset log functionality in UI and backend\n\n- Added `resetLog` handling in `proxy-checker.php` to clear the log file on request\n- Updated `LogViewer` component to include a \"Reset Log\" button\n- Implemented API call to reset log and refetch updated log content\n- Improved state handling for loading, log content, and URL updates",
+    "files": [
+      "php_backend/proxy-checker.php",
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
     "hash": "4ad04b511aa3bed1c82fc2dc0cecec42e09ae281",
     "date": "2025-09-17T13:42:02+07:00",
     "message": "docs(snackbar): add TSDoc comments and usage examples\n\n- Documented `SnackbarType`, `SnackbarOptions`, `SnackbarProviderProps`, and `SnackbarContextProps`\n- Added examples for `showSnackbar` usage and provider setup\n- Improved clarity of prop descriptions and default values",
