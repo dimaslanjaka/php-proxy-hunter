@@ -1,5 +1,61 @@
 [
   {
+    "hash": "95145941c39eb34c88705af0e4a218d5420f327e",
+    "date": "2025-09-17T11:30:50+07:00",
+    "message": "fix(CodeBlock): prevent warning by unsetting previous highlight before re-highlighting",
+    "files": [
+      "src/react/components/CodeBlock.tsx"
+    ]
+  },
+  {
+    "hash": "203f4265498161d8a0713d11c113eaa9a3f2539f",
+    "date": "2025-09-17T11:28:53+07:00",
+    "message": "feat(ProxyList): implement proxy re-check functionality with API call support",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "298437950f971d4513cc11d4b3a90b2770aa0a89",
+    "date": "2025-09-17T11:26:09+07:00",
+    "message": "fix(proxy-checker): decode URL-encoded request parameters for proxy authentication",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "9ae19e58722444c23a6018dd09f2f7a19ddedeac",
+    "date": "2025-09-17T11:21:57+07:00",
+    "message": "refactor(proxy-list): replace <pre> blocks with CodeBlock component for API usage examples",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "aa97f30f4ff05b12b64651c273be458b115147ef",
+    "date": "2025-09-17T11:18:32+07:00",
+    "message": "feat(CodeBlock): add CodeBlock component for syntax highlighting",
+    "files": [
+      "src/react/components/CodeBlock.tsx"
+    ]
+  },
+  {
+    "hash": "edd4abbc2424a14ac5e80648a1da78a8550f40d4",
+    "date": "2025-09-17T11:10:28+07:00",
+    "message": "feat(ProxyList): add API usage section with examples for proxy checking",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "33a2d29b6441c058c1ecdce03d063fef54bc5968",
+    "date": "2025-09-17T11:05:24+07:00",
+    "message": "fix(Navbar): update proxy manager link to point to /proxy-list",
+    "files": [
+      "src/react/components/Navbar.tsx"
+    ]
+  },
+  {
     "hash": "9886b08722987c1270452c56ce47bd787d144ec1",
     "date": "2025-09-17T11:02:35+07:00",
     "message": "fix(proxy-list): sort proxies by last_check date in descending order",
