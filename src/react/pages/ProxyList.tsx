@@ -264,6 +264,16 @@ function ProxyList() {
     checkCaptchaStatus();
   }, [setProxies]);
 
+  // Refresh proxy list every 1 minute
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      if (!showModal) {
+        fetchAndSetProxies(setProxies);
+      }
+    }, 60000); // 60,000 ms = 1 min
+    return () => clearInterval(interval);
+  }, [showModal, setProxies]);
+
   const handleRecaptcha = async (token: string | null) => {
     if (token) {
       // Send token to backend for verification
