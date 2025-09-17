@@ -1,5 +1,5 @@
 import react from '@vitejs/plugin-react';
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
@@ -18,16 +18,33 @@ import { browserslistToTargets } from 'lightningcss';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Output directory for React build
 const distPath = path.resolve(__dirname, 'dist/react');
+// Get current git commit hash for versioning
 const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
+
+// Load .env file (dotenv)
+dotenv.config();
+
+// Prepare VITE_ prefixed env variables for define
+const viteEnv = {
+  'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(gitCommitHash),
+  VITE_GIT_COMMIT: JSON.stringify(gitCommitHash)
+};
+for (const [key, value] of Object.entries(process.env)) {
+  if (key.startsWith('VITE_')) {
+    viteEnv[`import.meta.env.${key}`] = JSON.stringify(value);
+    viteEnv[key] = JSON.stringify(value);
+  }
+}
 
 export const viteConfig = defineConfig({
   root: '.',
-  define: {
-    'import.meta.env.VITE_GIT_COMMIT': `"${gitCommitHash}"`,
-    VITE_GIT_COMMIT: `"${gitCommitHash}"`
-  },
+  // Inject all VITE_ env variables and git commit hash
+  define: viteEnv,
+  // Use a custom cache directory for Vite
   cacheDir: path.resolve(__dirname, 'tmp/.vite'),
+  // Register Vite plugins
   plugins: [
     indexHtmlReplacementPlugin(),
     fontsResolverPlugin(),
@@ -36,6 +53,7 @@ export const viteConfig = defineConfig({
     mkcert(),
     customStaticAssetsPlugin()
   ],
+  // Module resolution settings
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
@@ -43,12 +61,14 @@ export const viteConfig = defineConfig({
     },
     extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json', '.cjs']
   },
+  // CSS transformer and targets
   css: {
     transformer: 'lightningcss',
     lightningcss: {
       targets: browserslistToTargets(browserslist('>= 0.25%'))
     }
   },
+  // Build configuration
   build: {
     outDir: distPath,
     // watch: {
@@ -167,6 +187,7 @@ export const viteConfig = defineConfig({
       }
     }
   },
+  // Dev server configuration
   server: {
     host: process.env.VITE_HOSTNAME || 'dev.webmanajemen.com',
     port: parseInt(String(process.env.VITE_PORT)) || 5173,
