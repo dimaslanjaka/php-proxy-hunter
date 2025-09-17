@@ -3,17 +3,16 @@ import ReCAPTCHA from 'react-google-recaptcha';
 import { ProxyDetails } from '../../../types/proxy';
 import { createUrl } from '../utils/url';
 import ApiUsage from './ProxyList/ApiUsage';
-import LogViewer, { LogViewerState } from './ProxyList/LogViewer';
+import LogViewer from './ProxyList/LogViewer';
 import { useSnackbar } from '../components/Snackbar';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
  * @param proxy ProxyDetails
- * @param setLogViewer React.Dispatch to update log viewer state
+ *
  */
 const handleRecheck = async (
   proxy: ProxyDetails,
-  setLogViewer: React.Dispatch<React.SetStateAction<LogViewerState>>,
   showSnackbar: (options: { message: string; type: 'success' | 'danger' }) => void
 ) => {
   try {
@@ -33,14 +32,7 @@ const handleRecheck = async (
     });
     const data = await response.json();
     if (data && data.logEmbedUrl) {
-      setLogViewer((prev) => ({
-        ...prev,
-        open: true,
-        url: data.logEmbedUrl,
-        statusUrl: data.statusEmbedUrl,
-        loading: true,
-        log: ''
-      }));
+      // removed setLogViewer usage
     }
     if (data && data.message) {
       showSnackbar({ message: data.message, type: 'success' });
@@ -81,14 +73,31 @@ function timeAgo(dateString: string | number | Date) {
 }
 
 let fetchingProxies = false;
-async function getWorkingProxies() {
+async function getWorkingProxies(setShowModal?: React.Dispatch<React.SetStateAction<boolean>>) {
   if (fetchingProxies) return [];
   fetchingProxies = true;
-  const result = (await fetch(createUrl('/embed.php?file=working.json'), {
-    signal: AbortSignal.timeout(5000)
-  })
-    .then((res) => res.json())
-    .catch(() => [])) as ProxyDetails[];
+  let result: any = [];
+  try {
+    const res = await fetch(createUrl('/embed.php?file=working.json'), {
+      signal: AbortSignal.timeout(5000)
+    });
+    if (res.status === 403) {
+      if (setShowModal) setShowModal(true);
+      fetchingProxies = false;
+      return [];
+    }
+    result = await res.json();
+    if (!Array.isArray(result)) {
+      if (setShowModal) setShowModal(true);
+      fetchingProxies = false;
+      return [];
+    }
+  } catch {
+    // fallback: show recaptcha if error
+    if (setShowModal) setShowModal(true);
+    fetchingProxies = false;
+    return [];
+  }
   fetchingProxies = false;
   for (let i = 0; i < result.length; i++) {
     const proxy = result[i];
@@ -108,8 +117,11 @@ async function getWorkingProxies() {
 }
 
 // Helper to fetch and set proxies
-async function fetchAndSetProxies(setProxies: React.Dispatch<React.SetStateAction<ProxyDetails[]>>) {
-  const result = await getWorkingProxies();
+async function fetchAndSetProxies(
+  setProxies: React.Dispatch<React.SetStateAction<ProxyDetails[]>>,
+  setShowModal?: React.Dispatch<React.SetStateAction<boolean>>
+) {
+  const result = await getWorkingProxies(setShowModal);
   if (Array.isArray(result)) setProxies(result);
 }
 
@@ -125,67 +137,6 @@ function ProxyList() {
   const [cityFilter, setCityFilter] = React.useState('');
   const [timezoneFilter, setTimezoneFilter] = React.useState('');
   const [filterOpen, setFilterOpen] = React.useState(false);
-  // Log viewer state
-  const [logViewer, setLogViewer] = React.useState<LogViewerState>({
-    open: true,
-    url: '',
-    statusUrl: '',
-    loading: false,
-    log: '',
-    intervalId: undefined
-  });
-
-  // On mount, fetch user id and set log URL
-  React.useEffect(() => {
-    async function fetchUserIdAndSetLog() {
-      try {
-        const res = await fetch(createUrl('/php_backend/user-info.php'));
-        const data = await res.json();
-        if (data && data.uid) {
-          const logUrl = createUrl(`/php_backend/proxy-checker.php?id=${data.uid}&type=log`);
-          const statusUrl = createUrl(`/php_backend/proxy-checker.php?id=${data.uid}&type=status`);
-          setLogViewer((prev) => ({
-            ...prev,
-            open: true,
-            url: logUrl,
-            statusUrl: statusUrl
-          }));
-        }
-      } catch (_e) {
-        // ignore
-      }
-    }
-    fetchUserIdAndSetLog();
-  }, []);
-
-  // Poll log if logViewer.url
-  React.useEffect(() => {
-    let interval: number | undefined;
-    if (logViewer.url) {
-      const fetchLog = async () => {
-        try {
-          const res = await fetch(logViewer.url);
-          const text = await res.text();
-          setLogViewer((prev) => {
-            if (prev.log.trim() === text.trim()) {
-              // Only update loading, not log
-              if (prev.loading) return { ...prev, loading: false };
-              return prev;
-            }
-            return { ...prev, log: text, loading: false };
-          });
-        } catch {
-          setLogViewer((prev) => ({ ...prev, log: 'Failed to fetch log.', loading: false }));
-        }
-      };
-      fetchLog();
-      interval = window.setInterval(fetchLog, 3000);
-      setLogViewer((prev) => ({ ...prev, intervalId: interval }));
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [logViewer.url]);
 
   // Get ProxyDetails keys for table, reordering specific columns to the end
   const proxyKeys = React.useMemo(() => {
@@ -258,7 +209,7 @@ function ProxyList() {
           setShowModal(true);
         } else {
           setShowModal(false);
-          fetchAndSetProxies(setProxies);
+          fetchAndSetProxies(setProxies, setShowModal);
         }
       } catch {
         setShowModal(true); // fallback: show modal if error
@@ -271,7 +222,7 @@ function ProxyList() {
   React.useEffect(() => {
     const interval = setInterval(() => {
       if (!showModal) {
-        fetchAndSetProxies(setProxies);
+        fetchAndSetProxies(setProxies, setShowModal);
       }
     }, 60000); // 60,000 ms = 1 min
     return () => clearInterval(interval);
@@ -290,7 +241,7 @@ function ProxyList() {
       const data = await response.json();
       if (data.success) {
         setShowModal(false);
-        fetchAndSetProxies(setProxies);
+        fetchAndSetProxies(setProxies, setShowModal);
       } else {
         // handle error, e.g., show a message
       }
@@ -429,7 +380,7 @@ function ProxyList() {
                     <button
                       title="Re-check proxy"
                       className="inline-flex items-center justify-center p-1 rounded bg-yellow-100 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-600 mr-1"
-                      onClick={() => handleRecheck(proxy, setLogViewer, showSnackbar)}>
+                      onClick={() => handleRecheck(proxy, showSnackbar)}>
                       <i className="fa-duotone fa-rotate-right"></i>
                     </button>
                     <button
@@ -529,7 +480,7 @@ function ProxyList() {
         </div>
       </div>
       {/* Log Viewer Section (always visible) */}
-      <LogViewer logViewer={logViewer} />
+      <LogViewer />
 
       {/* API Usage Section (moved after proxy list) */}
       <ApiUsage />

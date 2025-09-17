@@ -1,31 +1,53 @@
 import React from 'react';
 import { createUrl } from '../../utils/url';
 
-export type LogViewerState = {
-  open: boolean;
-  url: string;
-  statusUrl?: string;
-  loading: boolean;
-  log: string;
-  intervalId?: number;
-};
-
-interface LogViewerProps {
-  logViewer: LogViewerState;
-}
-
-const LogViewer: React.FC<LogViewerProps> = ({ logViewer }) => {
+const LogViewer: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
-  const [log, setLog] = React.useState(logViewer.log);
-  const [url, setUrl] = React.useState(logViewer.url);
+  const [log, setLog] = React.useState('');
+  const [url, setUrl] = React.useState('');
 
+  // On mount, fetch user id and set log URL
   React.useEffect(() => {
-    setLog(logViewer.log);
-  }, [logViewer.log]);
+    async function fetchUserIdAndSetLog() {
+      try {
+        const res = await fetch(createUrl('/php_backend/user-info.php'));
+        const data = await res.json();
+        if (data && data.uid) {
+          const logUrl = createUrl(`/php_backend/proxy-checker.php?id=${data.uid}&type=log`);
+          setUrl(logUrl);
+        }
+      } catch (_e) {
+        // ignore
+      }
+    }
+    fetchUserIdAndSetLog();
+  }, []);
 
+  // Poll log if url
   React.useEffect(() => {
-    setUrl(logViewer.url);
-  }, [logViewer.url]);
+    let interval: number | undefined;
+    if (url) {
+      const fetchLog = async () => {
+        try {
+          const res = await fetch(url);
+          const text = await res.text();
+          setLog((prev) => {
+            if (prev.trim() === text.trim()) {
+              return prev;
+            }
+            return text;
+          });
+        } catch {
+          setLog('Failed to fetch log.');
+        }
+      };
+      fetchLog();
+      interval = window.setInterval(fetchLog, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [url]);
 
   const handleResetLog = async () => {
     setLoading(true);
@@ -62,14 +84,6 @@ const LogViewer: React.FC<LogViewerProps> = ({ logViewer }) => {
               aria-label="Reset log"
               disabled={loading}>
               <i className="fa-duotone fa-rotate-left"></i> Reset Log
-            </button>
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg cursor-not-allowed opacity-50"
-              disabled
-              tabIndex={-1}
-              aria-label="Log viewer always visible">
-              <i className="fa-duotone fa-xmark text-base"></i> Close
             </button>
           </div>
         </div>
