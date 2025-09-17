@@ -1,5 +1,25 @@
 [
   {
+    "hash": "8b63bd96dd39904dc50bc3891fbdec3eba7454e7",
+    "date": "2025-09-17T19:09:27+07:00",
+    "message": "refactor(date): centralize timeAgo utility\n\n- move timeAgo implementation into new src/utils/date.js module\n- remove duplicate timeAgo functions from proxyManager-src.js and ProxyList.tsx\n- import shared utility in affected files",
+    "files": [
+      "proxyManager-src.js",
+      "src/react/pages/ProxyList.tsx",
+      "src/utils/date.js"
+    ]
+  },
+  {
+    "hash": "c6f8fe327e13956fb6e53570c3be57c0c34b1c0e",
+    "date": "2025-09-17T18:43:12+07:00",
+    "message": "refactor: standardize string quotes to single quotes across JavaScript files",
+    "files": [
+      "django_backend/apps/core/statics/js/base_script.js",
+      "django_backend/apps/proxy/statics/checker_result.js",
+      "django_backend/apps/proxy/statics/proxy_index.js"
+    ]
+  },
+  {
     "hash": "6a947768313157c3070e75ada88aa144b72a1692",
     "date": "2025-09-17T18:20:03+07:00",
     "message": "feat(logs): dynamic table rendering for logs with flexible columns\n\n- strip raw `timestamp` and `created_at` fields, keep only `log_time`\n- introduce dynamic header generation based on log keys\n- exclude internal fields (ids, log_level, log_type) from display\n- render logs in a generic key/value table with JSON stringification for objects",
