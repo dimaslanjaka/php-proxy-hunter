@@ -253,7 +253,6 @@ if (!$isCli) {
         $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
         $resultMessage = "Proxy is dead (no public IP detected) (Type: {$proxyInfo['type']})";
         addLog($resultMessage);
-        safe_unlink($lockFile);
         continue;
       }
 
@@ -266,13 +265,11 @@ if (!$isCli) {
         $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
         $resultMessage .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
         addLog($resultMessage);
-        safe_unlink($lockFile);
         $foundWorking = true;
       } else {
         // Proxy working, but different IP
         $resultMessage = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (Type: {$proxyInfo['type']})";
         addLog($resultMessage);
-        safe_unlink($lockFile);
         $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
       }
     }
@@ -284,7 +281,6 @@ if (!$isCli) {
       $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
       $status = "Proxy is dead (no public IP detected) (Type: {$proxyInfo['type']})";
       @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-      safe_unlink($lockFile);
       addLog($status);
       exit($status . PHP_EOL);
     }
@@ -297,14 +293,12 @@ if (!$isCli) {
       $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
       $status .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
       @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-      safe_unlink($lockFile);
       addLog($status);
       exit($status . PHP_EOL);
     } else {
       // Proxy working, but different IP
       $status = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (Type: {$proxyInfo['type']})";
       @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-      safe_unlink($lockFile);
       addLog($status);
       $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
       exit($status . PHP_EOL);
