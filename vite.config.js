@@ -24,7 +24,7 @@ const distPath = path.resolve(__dirname, 'dist/react');
 const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
 // Load .env file (dotenv)
-const dotCfg = dotenv.config();
+const dotCfg = dotenv.config({ override: true });
 
 // Prepare VITE_ prefixed env variables for define
 const viteEnv = {
