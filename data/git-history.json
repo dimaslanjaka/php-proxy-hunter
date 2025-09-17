@@ -1,5 +1,17 @@
 [
   {
+    "hash": "b6920644e272a39ac5e2fb7d973ee7d458900cb5",
+    "date": "2025-09-17T16:35:47+07:00",
+    "message": "refactor(logs): remove user_activity table and related methods\n\n- Drop user_activity table definitions from MySQL and SQLite schemas\n- Remove creation and migration logic for user_activity\n- Delete addActivity() and getActivities() methods from LogsRepository\n- Clean up UserDB to no longer delete from user_activity",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php",
+      "src/PhpProxyHunter/LogsRepositoryMigrations.php",
+      "src/PhpProxyHunter/UserDB.php",
+      "src/PhpProxyHunter/assets/mysql-schema.sql",
+      "src/PhpProxyHunter/assets/sqlite-schema.sql"
+    ]
+  },
+  {
     "hash": "636a00018b7a1f30a411460065354505354d3233",
     "date": "2025-09-17T16:26:36+07:00",
     "message": "fix(SQLiteHelper): comment out debug var_dump statements in modifyColumn method",
