@@ -1,5 +1,15 @@
 [
   {
+    "hash": "77dc966969fb28ee51b7d271a8f1e48e2732dc2e",
+    "date": "2025-09-17T14:52:50+07:00",
+    "message": "feat(proxy): add configurable cURL timeout setting via UI and backend\n\n- Added backend support in `proxy-checker.php` to handle `set_curl_timeout` requests\n  - Validates timeout range (1–300 seconds)\n  - Updates and persists user config\n  - Applies custom timeout in `getPublicIP` and `getWebsiteTitle`\n- Updated `ProxyList.tsx` to include new `ModifyCurl` section\n- Implemented `ModifyCurl.tsx` React component\n  - Allows users to set cURL timeout via form\n  - Displays success or error messages",
+    "files": [
+      "php_backend/proxy-checker.php",
+      "src/react/pages/ProxyList.tsx",
+      "src/react/pages/ProxyList/ModifyCurl.tsx"
+    ]
+  },
+  {
     "hash": "62a5b51457102b24fec74fa9b5a8089ef8ea14d0",
     "date": "2025-09-17T14:31:47+07:00",
     "message": "feat(ci): load .env.example and set VITE_ variables in GitHub Actions\n\n- Add dotenv import and load .env.example in vite-gh-pages.config.js\n- In GitHub CI, ensure all variables from .env.example are set as environment variables, prefixed with VITE_ if needed\n- Improves environment consistency for Vite builds on GitHub Pages",
