@@ -1,5 +1,22 @@
 [
   {
+    "hash": "173f24638cd348568da9dfc8f4d11edaa5429467",
+    "date": "2025-09-17T12:17:21+07:00",
+    "message": "refactor(react): move ProxyCheckerApiUsage to separate ApiUsage component\n\n- Extracted the ProxyCheckerApiUsage section from ProxyList.tsx into a new file, ProxyList/ApiUsage.tsx, for better modularity and maintainability.\n- Updated ProxyList.tsx to import and use the new ApiUsage component.\n- Replaced all local useMemo/useState imports with React namespace usage for consistency.",
+    "files": [
+      "src/react/pages/ProxyList.tsx",
+      "src/react/pages/ProxyList/ApiUsage.tsx"
+    ]
+  },
+  {
+    "hash": "4d4d3cbcfd3b42a0127014441ac94df3ba0e155f",
+    "date": "2025-09-17T12:02:53+07:00",
+    "message": "fix(proxy-checker): ensure working proxies are saved to JSON on shutdown",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "4905dfe01ef84d872c62881022dbdee7ad89c82b",
     "date": "2025-09-17T11:56:23+07:00",
     "message": "feat(proxy-list): add always-visible log viewer with polling and improved recheck UX\n\n- Introduce `LogViewerState` type and state to manage log viewer UI and polling.\n- Refactor `handleRecheck` to accept `setLogViewer` and update log viewer state on recheck.\n- On mount, auto-fetch user ID and set log/status URLs for log viewer.\n- Implement polling logic to fetch and update logs every 3 seconds, only updating UI if log content changes.\n- Remove unnecessary console.log from proxy processing.\n- Add always-visible log viewer section styled for dark/light mode and Flowbite compatibility.\n- Update recheck button to trigger new `handleRecheck` signature.\n- Improve user feedback and log loading state.",
