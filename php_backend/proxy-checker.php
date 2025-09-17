@@ -224,7 +224,9 @@ if (!$isCli) {
   file_put_contents($lockFile, (string)getmypid(), LOCK_EX);
 
   // ensure lock file is always deleted when script ends
-  register_shutdown_function(function () use ($lockFile) {
+  register_shutdown_function(function () use ($lockFile, $db) {
+    $working_proxies = parse_working_proxies($db);
+    write_file(__DIR__ . '/../working.json', json_encode($working_proxies['array']));
     safe_unlink($lockFile);
   });
 
