@@ -1,5 +1,13 @@
 [
   {
+    "hash": "7c11c6ca9078431429bf86c568a1fde54719a6a4",
+    "date": "2025-09-17T09:00:37+07:00",
+    "message": "feat(vite): expose non-VITE_ env variables in VITE_ format for better accessibility",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "e999984e87aad3d5f4fea693dbffeaacd1ced36e",
     "date": "2025-09-17T08:58:15+07:00",
     "message": "build(vite): load dotenv and inject all VITE_ env variables including git commit hash",
