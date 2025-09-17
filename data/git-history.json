@@ -1,5 +1,37 @@
 [
   {
+    "hash": "4905dfe01ef84d872c62881022dbdee7ad89c82b",
+    "date": "2025-09-17T11:56:23+07:00",
+    "message": "feat(proxy-list): add always-visible log viewer with polling and improved recheck UX\n\n- Introduce `LogViewerState` type and state to manage log viewer UI and polling.\n- Refactor `handleRecheck` to accept `setLogViewer` and update log viewer state on recheck.\n- On mount, auto-fetch user ID and set log/status URLs for log viewer.\n- Implement polling logic to fetch and update logs every 3 seconds, only updating UI if log content changes.\n- Remove unnecessary console.log from proxy processing.\n- Add always-visible log viewer section styled for dark/light mode and Flowbite compatibility.\n- Update recheck button to trigger new `handleRecheck` signature.\n- Improve user feedback and log loading state.",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "b8852ff4630c86859796b6ac79448a70fc4769a8",
+    "date": "2025-09-17T11:54:26+07:00",
+    "message": "feat(proxy-checker): add detailed logging of proxy details before performing checks",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "f8df8752998e95a6e839e74128ffe3cef74c552e",
+    "date": "2025-09-17T11:49:32+07:00",
+    "message": "fix(proxy-checker): improve dead and active proxy messages with detailed proxy information",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "8218cab83b98fecbfe8b527363e3659f38fe8b8c",
+    "date": "2025-09-17T11:46:49+07:00",
+    "message": "fix(proxy-checker): enhance dead proxy messages with detailed proxy information",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "95145941c39eb34c88705af0e4a218d5420f327e",
     "date": "2025-09-17T11:30:50+07:00",
     "message": "fix(CodeBlock): prevent warning by unsetting previous highlight before re-highlighting",
