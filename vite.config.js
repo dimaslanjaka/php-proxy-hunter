@@ -24,14 +24,14 @@ const distPath = path.resolve(__dirname, 'dist/react');
 const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
 // Load .env file (dotenv)
-dotenv.config();
+const dotCfg = dotenv.config();
 
 // Prepare VITE_ prefixed env variables for define
 const viteEnv = {
   'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(gitCommitHash),
   VITE_GIT_COMMIT: JSON.stringify(gitCommitHash)
 };
-for (const [key, value] of Object.entries(process.env)) {
+for (const [key, value] of Object.entries(dotCfg.parsed || {})) {
   if (key.startsWith('VITE_')) {
     viteEnv[`import.meta.env.${key}`] = JSON.stringify(value);
     viteEnv[key] = JSON.stringify(value);
