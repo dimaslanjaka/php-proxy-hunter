@@ -224,10 +224,17 @@ if (!$isCli) {
   file_put_contents($lockFile, (string)getmypid(), LOCK_EX);
 
   // ensure lock file is always deleted when script ends
-  register_shutdown_function(function () use ($lockFile, $db) {
+  register_shutdown_function(function () use ($lockFile, $db, $proxyInfo) {
     $working_proxies = parse_working_proxies($db);
     write_file(__DIR__ . '/../working.json', json_encode($working_proxies['array']));
     safe_unlink($lockFile);
+    $proxyDetails = [];
+    foreach (['proxy', 'type', 'username', 'password'] as $key) {
+      if (!empty($proxyInfo[$key])) {
+        $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
+      }
+    }
+    addLog('Process ended, lock file removed.' . (count($proxyDetails) ? ' (' . implode(', ', $proxyDetails) . ')' : ''));
   });
 
   // reset log file
