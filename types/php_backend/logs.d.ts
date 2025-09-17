@@ -5,25 +5,30 @@ export interface LogsResponse {
   logs: LogEntry[];
 }
 
-export type LogEntry = UserLog | PackageLog;
+export type LogEntry = UserLogEntry | PackageLogEntry;
 
-export interface UserLog {
+export interface UserLogEntry {
   id: number;
   user_id: number;
-  timestamp: string; // e.g. "2025-09-17 16:53:22"
-  log_level: string; // e.g. "INFO"
+  timestamp: string;
+  log_level: string;
   message: string;
   source: string;
   extra_info: string | null;
   log_type: string | null;
-  log_time: string; // same as timestamp
+  log_time: string;
+  user_username: string;
+  user_email: string;
+  user_id_real: number;
 }
 
-export interface PackageLog {
+export interface PackageLogEntry {
   id: number;
-  action: string; // e.g. "add"
+  action: string;
   package_id: number;
-  details: string; // JSON string of package details
-  created_at: string; // e.g. "2025-09-17 15:36:58"
+  details: string;
+  created_at: string;
   log_time: string;
+  package_name: string;
+  package_id_real: number;
 }

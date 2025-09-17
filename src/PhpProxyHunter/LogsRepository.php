@@ -199,9 +199,13 @@ class LogsRepository
   {
     $logs = [];
 
-    // Collect logs from user_logs
-    if ($this->helper->hasTable('user_logs')) {
-      $sql  = 'SELECT *, `timestamp` AS log_time FROM `user_logs` ORDER BY `timestamp` DESC LIMIT :limit OFFSET :offset';
+    // Collect logs from user_logs with user info
+    if ($this->helper->hasTable('user_logs') && $this->helper->hasTable('auth_user')) {
+      $sql = 'SELECT ul.*, ul.`timestamp` AS log_time, u.username AS user_username, u.email AS user_email, u.id AS user_id_real
+              FROM `user_logs` ul
+              LEFT JOIN `auth_user` u ON ul.user_id = u.id
+              ORDER BY ul.`timestamp` DESC
+              LIMIT :limit OFFSET :offset';
       $stmt = $this->pdo->prepare($sql);
       $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
       $stmt->bindValue(':offset', (int)$offset, \PDO::PARAM_INT);
@@ -210,9 +214,13 @@ class LogsRepository
       $logs     = array_merge($logs, $userLogs);
     }
 
-    // Collect logs from package_logs
-    if ($this->helper->hasTable('package_logs')) {
-      $sql  = 'SELECT *, `created_at` AS log_time FROM `package_logs` ORDER BY `created_at` DESC LIMIT :limit OFFSET :offset';
+    // Collect logs from package_logs with package info
+    if ($this->helper->hasTable('package_logs') && $this->helper->hasTable('packages')) {
+      $sql = 'SELECT pl.*, pl.`created_at` AS log_time, p.name AS package_name, p.id AS package_id_real
+              FROM `package_logs` pl
+              LEFT JOIN `packages` p ON pl.package_id = p.id
+              ORDER BY pl.`created_at` DESC
+              LIMIT :limit OFFSET :offset';
       $stmt = $this->pdo->prepare($sql);
       $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
       $stmt->bindValue(':offset', (int)$offset, \PDO::PARAM_INT);

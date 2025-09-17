@@ -38,33 +38,16 @@ export default function LogsSection() {
           <i className="fa-duotone fa-clipboard-list text-green-500 dark:text-green-400"></i>
           Log Activity
         </h1>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" style={{ maxHeight: '350px', overflowY: 'auto' }}>
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Action
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Time
-                </th>
-              </tr>
-            </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                    Loading logs...
-                  </td>
+                  <td className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Loading logs...</td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                    No logs found.
-                  </td>
+                  <td className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No logs found.</td>
                 </tr>
               ) : (
                 logs.map((log: any) => {
@@ -73,19 +56,36 @@ export default function LogsSection() {
                   let action = '';
                   let time = '';
                   if ('user_id' in log) {
-                    user = log.user_id ? `User #${log.user_id}` : '';
+                    user = log.user_email ? log.user_email : '';
                     action = log.message || log.log_type || log.log_level || '';
                     time = log.log_time || log.timestamp || '';
                   } else if ('package_id' in log) {
-                    user = `Package #${log.package_id}`;
+                    // Show package name (package code) if available
+                    const pkgName = log.package_name ? log.package_name : `Package #${log.package_id}`;
+                    let pkgCode = '';
+                    // Try to extract code from details JSON if present
+                    if (log.details) {
+                      try {
+                        const details = JSON.parse(log.details);
+                        if (details.code) {
+                          pkgCode = details.code;
+                        }
+                      } catch {
+                        // Ignore JSON parse errors
+                      }
+                    }
+                    user = pkgCode ? `${pkgName} (${pkgCode})` : pkgName;
                     action = log.action || '';
                     time = log.log_time || log.created_at || '';
                   }
+                  // Show each data in its own <td>
                   return (
                     <tr key={log.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{user}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{action}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{time}</td>
+                      <td className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100">{user}</td>
+                      <td className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100">
+                        {action}
+                      </td>
+                      <td className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-500 dark:text-gray-400">{time}</td>
                     </tr>
                   );
                 })
