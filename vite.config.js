@@ -24,13 +24,32 @@ const distPath = path.resolve(__dirname, 'dist/react');
 const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
 // Load .env file (dotenv)
+const sampleCfg = dotenv.config({ path: path.resolve(__dirname, '.env.example') });
 const dotCfg = dotenv.config({ override: true });
+const isGithubCI = process.env.GITHUB_ACTIONS === 'true';
 
 // Prepare VITE_ prefixed env variables for define
 const viteEnv = {
   'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(gitCommitHash),
   VITE_GIT_COMMIT: JSON.stringify(gitCommitHash)
 };
+if (isGithubCI) {
+  // In GitHub CI, ensure all variables from .env.example are set, using defaults if necessary
+  for (const [key, _value] of Object.entries(sampleCfg.parsed || {})) {
+    const deviceValue = process.env[key];
+    if (deviceValue) {
+      if (key.startsWith('VITE_')) {
+        viteEnv[`import.meta.env.${key}`] = JSON.stringify(deviceValue);
+        viteEnv[key] = JSON.stringify(deviceValue);
+      } else {
+        viteEnv[key] = JSON.stringify(deviceValue);
+        viteEnv[`import.meta.env.VITE_${key}`] = JSON.stringify(deviceValue);
+        process.env[`VITE_${key}`] = deviceValue; // ensure process.env.VITE_ variables are set
+      }
+    }
+  }
+}
+// Loop through loaded .env variables
 for (const [key, value] of Object.entries(dotCfg.parsed || {})) {
   if (key.startsWith('VITE_')) {
     viteEnv[`import.meta.env.${key}`] = JSON.stringify(value);
@@ -227,7 +246,6 @@ export const viteConfig = defineConfig({
   }
 });
 
-const isGithubCI = process.env.GITHUB_ACTIONS === 'true';
 if (!isGithubCI) {
   viteConfig.plugins.push(
     legacy({
