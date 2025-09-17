@@ -14,21 +14,32 @@ class LogsRepository
   /** @var string|null */
   private $driver;
 
+  /** @var \PhpProxyHunter\MySQLHelper|\PhpProxyHunter\SQLiteHelper|null */
+  private $helper = null;
+
   /**
    * @param \PDO|\PhpProxyHunter\CoreDB $db
    */
   public function __construct($db)
   {
     if ($db instanceof CoreDB) {
-      $pdo = $db->db->pdo;
+      $pdo          = $db->db->pdo;
+      $this->driver = $db->driver;
+      $this->helper = $db->db;
     } elseif ($db instanceof PDO) {
       $pdo = $db;
+      // Get the driver name (e.g., "mysql", "sqlite", "pgsql")
+      $this->driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+      if ($this->driver === 'sqlite') {
+        $this->helper = new SQLiteHelper($pdo);
+      } elseif ($this->driver === 'mysql') {
+        $this->helper = new MySQLHelper($pdo);
+      }
     } else {
       throw new \InvalidArgumentException('Expected instance of PDO or CoreDB.');
     }
     $this->pdo = $pdo;
-    // Get the driver name (e.g., "mysql", "sqlite", "pgsql")
-    $this->driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+
     $this->ensureTable();
   }
 
@@ -178,17 +189,47 @@ class LogsRepository
   }
 
   /**
-   * Retrieves recent application/system logs from the user_logs table.
+   * Retrieves paginated application/system logs from the user_logs and package_logs tables.
    *
-   * @param int $limit Maximum number of logs to retrieve.
+   * @param int $limit  Maximum number of logs to retrieve per page.
+   * @param int $offset Offset for pagination (number of logs to skip).
    * @return array The list of logs as associative arrays.
    */
-  public function getLogsFromDb($limit = 50)
+  public function getLogsFromDb($limit = 50, $offset = 0)
   {
-    $sql  = 'SELECT * FROM user_logs ORDER BY timestamp DESC LIMIT :limit';
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
-    $stmt->execute();
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    $logs = [];
+
+    // Collect logs from user_logs
+    if ($this->helper->hasTable('user_logs')) {
+      $sql  = 'SELECT *, `timestamp` AS log_time FROM `user_logs` ORDER BY `timestamp` DESC LIMIT :limit OFFSET :offset';
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
+      $stmt->bindValue(':offset', (int)$offset, \PDO::PARAM_INT);
+      $stmt->execute();
+      $userLogs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+      $logs     = array_merge($logs, $userLogs);
+    }
+
+    // Collect logs from package_logs
+    if ($this->helper->hasTable('package_logs')) {
+      $sql  = 'SELECT *, `created_at` AS log_time FROM `package_logs` ORDER BY `created_at` DESC LIMIT :limit OFFSET :offset';
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
+      $stmt->bindValue(':offset', (int)$offset, \PDO::PARAM_INT);
+      $stmt->execute();
+      $packageLogs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+      $logs        = array_merge($logs, $packageLogs);
+    }
+
+    // Sort all logs by log_time descending
+    usort($logs, function ($a, $b) {
+      $timeA = isset($a['log_time']) ? strtotime($a['log_time']) : 0;
+      $timeB = isset($b['log_time']) ? strtotime($b['log_time']) : 0;
+      return $timeB <=> $timeA;
+    });
+
+    // Slice to $limit entries for combined pagination
+    $logs = array_slice($logs, 0, $limit);
+    return $logs;
   }
 }

@@ -14,6 +14,14 @@ header('Content-Type: text/plain; charset=utf-8');
 
 $logsRepo = new LogsRepository($core_db);
 $request  = parsePostData(true);
+$page     = isset($request['page']) ? (int)$request['page'] : 1;
+if ($page < 1) {
+  $page = 1;
+}
+$perPage = isset($request['per_page']) ? (int)$request['per_page'] : 50;
+if ($perPage < 1 || $perPage > 500) {
+  $perPage = 50;
+}
 
 $hash = isset($request['hash']) ? $request['hash'] : '';
 if (!empty($hash)) {
@@ -28,7 +36,14 @@ if (!empty($hash)) {
 
 if ($isAdmin) {
   header('Content-Type: application/json; charset=utf-8');
-  $logs = $logsRepo->getLogsFromDb();
-  echo json_encode($logs, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  $offset   = ($page - 1) * $perPage;
+  $logs     = $logsRepo->getLogsFromDb($perPage, $offset);
+  $response = [
+    'page'     => $page,
+    'per_page' => $perPage,
+    'logs'     => $logs,
+    'count'    => count($logs),
+  ];
+  echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   exit;
 }
