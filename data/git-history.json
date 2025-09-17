@@ -1,5 +1,34 @@
 [
   {
+    "hash": "684a7cf07bb42f2127c17753bcff3791efa9e2b9",
+    "date": "2025-09-17T17:09:22+07:00",
+    "message": "feat(logs): add pagination and merge logs from user_logs and package_logs\n\n- Support page and per_page parameters in logs.php with validation\n- Extend LogsRepository to detect driver and use helper for table checks\n- Update getLogsFromDb() to fetch logs from both user_logs and package_logs\n- Combine, sort, and paginate logs by timestamp\n- Return structured JSON response including page, per_page, logs, and count",
+    "files": [
+      "php_backend/logs.php",
+      "src/PhpProxyHunter/LogsRepository.php"
+    ]
+  },
+  {
+    "hash": "510302b96f074105a8d28b8a7bc4fd0bac7301e7",
+    "date": "2025-09-17T17:03:36+07:00",
+    "message": "feat(db): add hasTable() method to check table existence\n\n- Add abstract hasTable() method to BaseSQL\n- Implement hasTable() in CoreDB, MySQLHelper, and SQLiteHelper\n- Add tests in CoreDBTest to verify table existence detection",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/CoreDB.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/SQLiteHelper.php",
+      "tests/PhpProxyHunter/CoreDBTest.php"
+    ]
+  },
+  {
+    "hash": "f1c72b11a440be2036a84e459bf71423877c3d6d",
+    "date": "2025-09-17T16:44:31+07:00",
+    "message": "feat(logs): allow admins to fetch all logs in JSON format\n\n- Add global $isAdmin check in logs.php\n- Return logs from database as JSON when user is admin\n- Preserve existing hash-based log retrieval",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
     "hash": "739865bec6f812c922b82773b12393e125c2683e",
     "date": "2025-09-17T16:39:37+07:00",
     "message": "feat(Admin): add LogsSection component to display log activity",
