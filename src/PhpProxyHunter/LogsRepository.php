@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/shim.php';
-
 namespace PhpProxyHunter;
+
+require_once __DIR__ . '/shim.php';
 
 use PDO;
 
