@@ -254,7 +254,7 @@ if (!$isCli) {
       $ipProxy = extractIPs($proxyInfo['proxy']);
       if (in_array($publicIP, $ipProxy, true)) {
         // Proxy working, same as proxy IP
-        $db->updateData($proxyInfo['proxy'], ['status' => 'active']);
+        $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'last_check' => date(DATE_RFC3339)]);
         $resultMessage = "Proxy is working. Detected IP: $publicIP (Type: {$proxyInfo['type']})";
         // Check website title to verify proxy functionality
         $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
@@ -275,7 +275,7 @@ if (!$isCli) {
       $ipProxy = extractIPs($proxyInfo['proxy']);
       if (in_array($publicIP, $ipProxy, true)) {
         // Proxy working, same as proxy IP
-        $db->updateData($proxyInfo['proxy'], ['status' => 'active']);
+        $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'last_check' => date(DATE_RFC3339)]);
         $status = "Proxy is working. Detected IP: $publicIP (Type: {$proxyInfo['type']})";
         // Check website title to verify proxy functionality
         $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
