@@ -266,6 +266,7 @@ if (!$isCli) {
         $resultMessage = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (Type: {$proxyInfo['type']})";
         addLog($resultMessage);
         safe_unlink($lockFile);
+        $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
       }
     }
   } else {
@@ -290,6 +291,7 @@ if (!$isCli) {
         @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
         safe_unlink($lockFile);
         addLog($status);
+        $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
         exit($status . PHP_EOL);
       }
     }
