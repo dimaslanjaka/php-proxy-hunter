@@ -60,10 +60,10 @@ Place the project files in a PHP-enabled server (e.g. Apache, Nginx).
 
 ### Configure Environment Variables
 
-Copy `.env-sample` to `.env` and set your secrets:
+Copy `.env.example` to `.env` and set your secrets:
 
 ```bash
-cp .env-sample .env
+cp .env.example .env
 # Edit .env and set CLOUD_SQLITE_SECRET
 ```
 
