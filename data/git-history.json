@@ -1,5 +1,14 @@
 [
   {
+    "hash": "693edd68ee206e58db8d10a7f1c4e1911eacec2c",
+    "date": "2025-09-17T12:26:12+07:00",
+    "message": "refactor(react): extract log viewer section to LogViewer component\n\n- Moved the log viewer UI from ProxyList.tsx into a new dedicated component, ProxyList/LogViewer.tsx, for improved modularity and code organization.\n- Updated ProxyList.tsx to use the new <LogViewer /> component.",
+    "files": [
+      "src/react/pages/ProxyList.tsx",
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
     "hash": "173f24638cd348568da9dfc8f4d11edaa5429467",
     "date": "2025-09-17T12:17:21+07:00",
     "message": "refactor(react): move ProxyCheckerApiUsage to separate ApiUsage component\n\n- Extracted the ProxyCheckerApiUsage section from ProxyList.tsx into a new file, ProxyList/ApiUsage.tsx, for better modularity and maintainability.\n- Updated ProxyList.tsx to import and use the new ApiUsage component.\n- Replaced all local useMemo/useState imports with React namespace usage for consistency.",
