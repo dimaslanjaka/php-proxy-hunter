@@ -62,10 +62,10 @@ if (!$isCli) {
 
   $request   = parseQueryOrPostBody();
   $proxyInfo = [
-    'proxy'    => $request['proxy']    ?? null,
-    'type'     => $request['type']     ?? null,
-    'username' => $request['username'] ?? null,
-    'password' => $request['password'] ?? null,
+    'proxy'    => isset($request['proxy']) ? urldecode($request['proxy']) : null,
+    'type'     => isset($request['type']) ? urldecode($request['type']) : null,
+    'username' => isset($request['username']) ? urldecode($request['username']) : null,
+    'password' => isset($request['password']) ? urldecode($request['password']) : null,
   ];
 
   $userId     = getUserId();
