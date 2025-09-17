@@ -247,6 +247,14 @@ if (!$isCli) {
     $foundWorking = false;
     foreach ($proxyTypes as $type) {
       $proxyInfo['type'] = $type;
+      $proxyDetails      = [];
+      foreach (['proxy', 'type', 'username', 'password'] as $key) {
+        if (!empty($proxyInfo[$key])) {
+          $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
+        }
+      }
+      addLog('Checking proxy (' . implode(', ', $proxyDetails) . ')');
+      $proxyInfo['type'] = $type;
       $publicIP          = getPublicIP(true, 300, $proxyInfo);
       $proxyDetails      = [];
       foreach (['proxy', 'type', 'username', 'password'] as $key) {
@@ -281,6 +289,13 @@ if (!$isCli) {
     }
   } else {
     // Run the proxy check with specified type
+    $proxyDetails = [];
+    foreach (['proxy', 'type', 'username', 'password'] as $key) {
+      if (!empty($proxyInfo[$key])) {
+        $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
+      }
+    }
+    addLog('Checking proxy (' . implode(', ', $proxyDetails) . ')');
     $publicIP = getPublicIP(true, 300, $proxyInfo);
     if (empty($publicIP)) {
       // Mark as dead if no public IP found
