@@ -1,5 +1,61 @@
 [
   {
+    "hash": "9886b08722987c1270452c56ce47bd787d144ec1",
+    "date": "2025-09-17T11:02:35+07:00",
+    "message": "fix(proxy-list): sort proxies by last_check date in descending order",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "bee19bfc0431b16090e9ecf43bf3f682af757bfc",
+    "date": "2025-09-17T11:01:35+07:00",
+    "message": "refactor(proxy-checker): remove redundant safe_unlink calls for lock file\n\nEliminate multiple direct calls to safe_unlink($lockFile) within proxy checking logic.\nLock file is now only unlinked once at process shutdown via register_shutdown_function,\npreventing duplicate unlink attempts and ensuring cleaner resource management.",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "b59d22763c846d1f0000945e8579b69dfa91f0ee",
+    "date": "2025-09-17T11:00:12+07:00",
+    "message": "feat(proxy-checker): mark proxies as dead when no public IP is detected",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "37028a5301867902f37869a32f8f831ba8fdd53c",
+    "date": "2025-09-17T10:55:43+07:00",
+    "message": "fix(proxy-checker): update proxy status to 'unknown' when IP mismatch or unreachable",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "e3ad362d1bdfaee89379ab5218c503c61cb21f7c",
+    "date": "2025-09-17T10:53:26+07:00",
+    "message": "fix(proxy-checker): add last_check timestamp to active proxy updates",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "460eefc3553fc37773a868cc0dc4be5cf75e8ff3",
+    "date": "2025-09-17T10:49:27+07:00",
+    "message": "refactor(proxy-list): remove sslFilter state and integrate SSL option into typeFilter",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "f5354f9d4fc7d1dcbe57f989d0457626c7582f4b",
+    "date": "2025-09-17T10:42:42+07:00",
+    "message": "fix(deps): remove proxies-grabber dependency resolutions",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
     "hash": "ffa4559a999f9cf81f835ecdf482a84dc9cb07b8",
     "date": "2025-09-17T10:40:14+07:00",
     "message": "fix(deps): add puppeteer and selenium with fingerprints to external dependencies",
