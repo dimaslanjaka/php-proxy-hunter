@@ -85,6 +85,9 @@ else
   echo "Error: PHP is not installed. Skipping composer operations."
 fi
 
+# run commit history builder
+node --no-warnings=ExperimentalWarning --loader ts-node/esm "$CWD/src/dev/git-history.builder.ts"
+
 # Run yarn
 if command -v yarn >/dev/null 2>&1; then
   touch "$CWD/yarn.lock"  # Create an empty yarn.lock if it doesn't exist
@@ -123,6 +126,3 @@ elif [ "$OS" = "Linux" ]; then
     fi
   fi
 fi
-
-# run commit history builder
-node --no-warnings=ExperimentalWarning --loader ts-node/esm "$CWD/src/dev/git-history.builder.ts"
