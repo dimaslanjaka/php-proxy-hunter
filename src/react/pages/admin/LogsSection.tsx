@@ -3,8 +3,13 @@ import { createUrl } from '../../utils/url';
 import { LogsResponse } from '../../../../types/php_backend/logs';
 import { Pagination } from '../../components/Pagination';
 
+interface LogsResponseWithExtras extends LogsResponse {
+  [key: string]: any;
+  logs: (LogsResponse['logs'][number] & { [key: string]: any })[];
+}
+
 export default function LogsSection() {
-  const [logsData, setLogsData] = React.useState<LogsResponse | null>(null);
+  const [logsData, setLogsData] = React.useState<LogsResponseWithExtras | null>(null);
   const [page, setPage] = React.useState(1);
   const perPage = 50;
   const [loading, setLoading] = React.useState(false);
@@ -31,6 +36,18 @@ export default function LogsSection() {
 
   const logs = logsData?.logs || [];
 
+  // Collect all unique keys from all logs for table headers
+  // Keys to exclude from the table
+  const excludeKeys = ['user_id', 'package_id', 'user_id_real', 'package_id_real', 'id', 'log_level', 'log_type'];
+
+  const allKeys = React.useMemo(() => {
+    const keysSet = new Set<string>();
+    logs.forEach((log) => {
+      Object.keys(log).forEach((k) => keysSet.add(k));
+    });
+    return Array.from(keysSet).filter((k) => !excludeKeys.includes(k));
+  }, [logs]);
+
   return (
     <div className="flex flex-col items-center justify-center m-4 transition-colors">
       <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors">
@@ -40,55 +57,46 @@ export default function LogsSection() {
         </h1>
         <div className="overflow-x-auto" style={{ maxHeight: '350px', overflowY: 'auto' }}>
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead>
+              <tr>
+                {allKeys.map((key) => (
+                  <th
+                    key={key}
+                    className="px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap">
+                    {key}
+                  </th>
+                ))}
+              </tr>
+            </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {loading ? (
                 <tr>
-                  <td className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Loading logs...</td>
+                  <td colSpan={allKeys.length} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    Loading logs...
+                  </td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
-                  <td className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No logs found.</td>
+                  <td colSpan={allKeys.length} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    No logs found.
+                  </td>
                 </tr>
               ) : (
-                logs.map((log: any) => {
-                  // Handle both UserLog and PackageLog
-                  let user = '';
-                  let action = '';
-                  let time = '';
-                  if ('user_id' in log) {
-                    user = log.user_email ? log.user_email : '';
-                    action = log.message || log.log_type || log.log_level || '';
-                    time = log.log_time || log.timestamp || '';
-                  } else if ('package_id' in log) {
-                    // Show package name (package code) if available
-                    const pkgName = log.package_name ? log.package_name : `Package #${log.package_id}`;
-                    let pkgCode = '';
-                    // Try to extract code from details JSON if present
-                    if (log.details) {
-                      try {
-                        const details = JSON.parse(log.details);
-                        if (details.code) {
-                          pkgCode = details.code;
-                        }
-                      } catch {
-                        // Ignore JSON parse errors
-                      }
-                    }
-                    user = pkgCode ? `${pkgName} (${pkgCode})` : pkgName;
-                    action = log.action || '';
-                    time = log.log_time || log.created_at || '';
-                  }
-                  // Show each data in its own <td>
-                  return (
-                    <tr key={log.id}>
-                      <td className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100">{user}</td>
-                      <td className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100">
-                        {action}
+                logs.map((log) => (
+                  <tr key={log.id}>
+                    {allKeys.map((key) => (
+                      <td
+                        key={key}
+                        className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700">
+                        {typeof log[key] === 'object' && log[key] !== null
+                          ? JSON.stringify(log[key])
+                          : log[key] !== undefined && log[key] !== null
+                            ? String(log[key])
+                            : ''}
                       </td>
-                      <td className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-500 dark:text-gray-400">{time}</td>
-                    </tr>
-                  );
-                })
+                    ))}
+                  </tr>
+                ))
               )}
             </tbody>
           </table>

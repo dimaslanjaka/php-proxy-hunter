@@ -236,6 +236,12 @@ class LogsRepository
       return $timeB <=> $timeA;
     });
 
+    // Remove 'timestamp' and 'created_at' but keep 'log_time'
+    foreach ($logs as &$log) {
+      unset($log['timestamp'], $log['created_at']);
+    }
+    unset($log); // break reference
+
     // Slice to $limit entries for combined pagination
     $logs = array_slice($logs, 0, $limit);
     return $logs;
