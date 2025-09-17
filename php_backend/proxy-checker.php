@@ -513,7 +513,8 @@ function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [])
 
   $response = null;
 
-  foreach ($ipServices as $url) {
+  foreach ($ipServices as $idx => $url) {
+    addLog('Trying IP service #' . ($idx + 1) . ' (Proxy: ' . ($proxyInfo['proxy'] ?? 'N/A') . ', Type: ' . ($proxyInfo['type'] ?? 'N/A') . ')');
     $ch = buildCurl(
       $proxyInfo['proxy'] ?? null,
       $proxyInfo['type']  ?? 'http',
