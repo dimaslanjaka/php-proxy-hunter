@@ -1,5 +1,13 @@
 [
   {
+    "hash": "848a13706be657479596a50252dd72e7bec7f764",
+    "date": "2025-09-17T08:50:00+07:00",
+    "message": "fix(proxy-list): enhance SSL filtering logic for improved proxy selection",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
     "hash": "c5cfe1bfbaf2c2c830001c120843eb2f7f39c9a6",
     "date": "2025-09-17T08:45:43+07:00",
     "message": "feat(proxy-list): add new Proxy List page with reCAPTCHA protection, filtering, and pagination",
