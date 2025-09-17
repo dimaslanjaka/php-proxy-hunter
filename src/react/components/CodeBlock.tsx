@@ -13,6 +13,10 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ language = '', children, classNam
 
   useEffect(() => {
     if (codeRef.current) {
+      // Unset previous highlight to avoid warning
+      if (codeRef.current.dataset.highlighted) {
+        delete codeRef.current.dataset.highlighted;
+      }
       hljs.highlightElement(codeRef.current);
     }
   }, [children, language]);
