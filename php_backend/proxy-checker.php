@@ -118,6 +118,24 @@ if (!$isCli) {
     ]);
   }
 
+  // Handle set timeout request
+  if (isset($request['set_curl_timeout'])) {
+    $timeout = intval($request['set_curl_timeout']);
+    if ($timeout < 1 || $timeout > 300) {
+      send_json([
+        'error'   => true,
+        'message' => 'Timeout must be between 1 and 300 seconds.',
+      ]);
+    }
+    $config['curl_timeout'] = $timeout;
+    setConfig($userId, $config);
+    $config = getConfig($userId); // refresh
+    send_json([
+      'error'   => false,
+      'message' => "cURL timeout set to $timeout seconds.",
+    ]);
+  }
+
   // Validate input before calling getPublicIP
   if (empty($proxyInfo['proxy']) && empty($proxyInfo['type'])) {
     // Ensure the directory exists before writing the file
@@ -235,6 +253,7 @@ if (!$isCli) {
     'username' => $options['username'] ?? null,
     'password' => $options['password'] ?? null,
   ];
+  $timeout = $config['curl_timeout'] ?? 10;
 
   if (file_exists($lockFile) && !$isAdmin) {
     // another process still running
@@ -281,7 +300,7 @@ if (!$isCli) {
       $proxyDetailsArr = build_proxy_details($proxyInfo);
       addLog('Checking proxy (' . $proxyDetailsArr['text'] . ')...');
 
-      $publicIP        = getPublicIP(true, 300, $proxyInfo);
+      $publicIP        = getPublicIP(true, $timeout, $proxyInfo);
       $proxyDetailsArr = build_proxy_details($proxyInfo);
 
       if (empty($publicIP)) {
@@ -297,7 +316,7 @@ if (!$isCli) {
         $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'last_check' => date(DATE_RFC3339)]);
         $resultMessage = "Proxy is working. Detected IP: $publicIP (" . $proxyDetailsArr['text'] . ')';
         // Check website title to verify proxy functionality
-        $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
+        $titleOk = getWebsiteTitle(null, null, true, $timeout, $proxyInfo);
         $resultMessage .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
         addLog($resultMessage);
         $foundWorking = true;
@@ -316,7 +335,7 @@ if (!$isCli) {
     addLog('Checking proxy (' . $proxyDetailsArr['text'] . ')');
 
     @file_put_contents($statusFile, 'processing', LOCK_EX);
-    $publicIP = getPublicIP(true, 300, $proxyInfo);
+    $publicIP = getPublicIP(true, $timeout, $proxyInfo);
     if (empty($publicIP)) {
       // Mark as dead if no public IP found
       $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);

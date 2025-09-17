@@ -4,6 +4,7 @@ import { ProxyDetails } from '../../../types/proxy';
 import { createUrl } from '../utils/url';
 import ApiUsage from './ProxyList/ApiUsage';
 import LogViewer from './ProxyList/LogViewer';
+import ModifyCurl from './ProxyList/ModifyCurl';
 import { useSnackbar } from '../components/Snackbar';
 
 /**
@@ -280,6 +281,7 @@ function ProxyList() {
           </div>
         </div>
       )}
+
       {/* Main content */}
       <div className={showModal ? 'blur-sm pointer-events-none select-none' : ''}>
         <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
@@ -479,8 +481,12 @@ function ProxyList() {
           </div>
         </div>
       </div>
+
       {/* Log Viewer Section (always visible) */}
       <LogViewer />
+
+      {/* Section: How to Modify cURL Timeout in PHP */}
+      <ModifyCurl />
 
       {/* API Usage Section (moved after proxy list) */}
       <ApiUsage />
