@@ -35,6 +35,10 @@ for (const [key, value] of Object.entries(process.env)) {
   if (key.startsWith('VITE_')) {
     viteEnv[`import.meta.env.${key}`] = JSON.stringify(value);
     viteEnv[key] = JSON.stringify(value);
+  } else {
+    // Also expose non-VITE_ variables without import.meta.env. prefix
+    viteEnv[key] = JSON.stringify(value);
+    viteEnv[`import.meta.env.VITE_${key}`] = JSON.stringify(value);
   }
 }
 
