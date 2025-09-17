@@ -1,5 +1,68 @@
 [
   {
+    "hash": "cfa8dd168b85d3ff1839e77cb27a576618a3129f",
+    "date": "2025-09-17T09:55:33+07:00",
+    "message": "fix(build): update checksum calculation to include all package.json files in the project",
+    "files": [
+      "bin/build-project.mjs"
+    ]
+  },
+  {
+    "hash": "b054fbb325906de48b754269337cfc1839411e01",
+    "date": "2025-09-17T09:53:20+07:00",
+    "message": "build(script): split checksum tracking into install and build steps in build-project.mjs",
+    "files": [
+      "bin/build-project.mjs"
+    ]
+  },
+  {
+    "hash": "9f7eec9dd21fc891a87ff09875a77bb4e2973151",
+    "date": "2025-09-17T09:51:57+07:00",
+    "message": "build(vite): load `.env.example` in GitHub CI and ensure VITE_ variables are properly injected",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "86b698dab21b093700e762a0fbd9ef0a4fca6206",
+    "date": "2025-09-17T09:46:49+07:00",
+    "message": "refactor(env): rename `.env-sample` to `.env.example` and update documentation references",
+    "files": [
+      ".env.example",
+      "cloud_sqlite/readme.md"
+    ]
+  },
+  {
+    "hash": "d13835b6b6a0aed7b73a3d8c45812dafb38c8e70",
+    "date": "2025-09-17T09:44:58+07:00",
+    "message": "fix(vite): enable overriding of environment variables when loading .env file",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "098f0c451169d04213f13804f23974f949f2ede7",
+    "date": "2025-09-17T09:43:19+07:00",
+    "message": "build(vite): use dotenv parsed config instead of process.env for VITE_ variables",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "d30360a706301155ccc2cd10d7f32ce639c459c0",
+    "date": "2025-09-17T09:42:29+07:00",
+    "message": "chore(husky): run commit history builder earlier in post-merge hook",
+    "files": []
+  },
+  {
+    "hash": "20c048c7836d56a36bc302711368114293ff346c",
+    "date": "2025-09-17T09:35:51+07:00",
+    "message": "style(ProxyList): improve filter layout for better usability and responsiveness",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
     "hash": "2e3300804e3f68c22eb1d4a32152f058e7a5be42",
     "date": "2025-09-17T09:10:43+07:00",
     "message": "feat(vite): ensure process.env.VITE_ variables are set for better accessibility",
