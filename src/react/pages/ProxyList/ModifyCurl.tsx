@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createUrl } from '../../utils/url';
 
 /**
  * Section: How to Modify cURL Timeout in PHP
@@ -18,7 +19,7 @@ const ModifyCurl: React.FC = () => {
     setResult(null);
     setError(null);
     try {
-      const response = await fetch('php_backend/proxy-checker.php', {
+      const response = await fetch(createUrl('php_backend/proxy-checker.php'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `set_curl_timeout=${encodeURIComponent(timeout)}`
