@@ -14,7 +14,10 @@ export default function LogsSection() {
   const perPage = 50;
   const [loading, setLoading] = React.useState(false);
 
+  let isFetching = false;
   const fetchLogs = React.useCallback((pageNum: number) => {
+    if (isFetching) return;
+    isFetching = true;
     setLoading(true);
     const url = createUrl('/php_backend/logs.php', { page: pageNum, per_page: perPage });
     fetch(url)
@@ -27,6 +30,7 @@ export default function LogsSection() {
       })
       .finally(() => {
         setLoading(false);
+        isFetching = false;
       });
   }, []);
 
@@ -90,8 +94,8 @@ export default function LogsSection() {
                   </td>
                 </tr>
               ) : (
-                logs.map((log) => (
-                  <tr key={log.id}>
+                logs.map((log, idx) => (
+                  <tr key={`${log.id ?? 'noid'}-${idx}`}>
                     {allKeys.map((key) => (
                       <td
                         key={key}
