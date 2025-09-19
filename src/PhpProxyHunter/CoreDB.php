@@ -193,6 +193,16 @@ class CoreDB extends BaseSQL
     if ($this->db) {
       $this->db->close();
     }
+    $this->db = null;
+    if ($this->user_db) {
+      $this->user_db->close();
+    }
+    $this->user_db = null;
+    if ($this->proxy_db) {
+      $this->proxy_db->close();
+    }
+    $this->proxy_db = null;
+    $this->pdo      = null;
   }
 
   public function __destruct()
