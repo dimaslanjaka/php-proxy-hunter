@@ -208,6 +208,28 @@ class CoreDB extends BaseSQL
     return $this->db->execute($sql, $params);
   }
 
+  public function showCreationTable($table)
+  {
+    if ($this->driver === 'mysql') {
+      $result = $this->db->pdo->query("SHOW CREATE TABLE {$table}");
+      $fetch  = $result->fetch(PDO::FETCH_ASSOC);
+    }
+    if ($this->driver === 'sqlite') {
+      $result = $this->db->pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='{$table}'");
+      $fetch  = $result->fetch(PDO::FETCH_ASSOC);
+    }
+    if ($fetch) {
+      if (isset($fetch['Create Table'])) {
+        return $fetch['Create Table'];
+      }
+      if (isset($fetch['sql'])) {
+        return $fetch['sql'];
+      }
+      return $fetch;
+    }
+    return null;
+  }
+
   /**
    * Select from database.
    */
