@@ -9,7 +9,7 @@ import * as glob from 'glob';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const cwd = path.join(__dirname, '../');
-const tmpDir = path.join(cwd, 'tmp/build');
+const tmpDir = path.join(cwd, 'tmp/locks');
 fs.ensureDirSync(tmpDir);
 
 // Checksum files

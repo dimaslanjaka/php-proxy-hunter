@@ -193,7 +193,7 @@ function buildCurl(
  */
 function getServerIp()
 {
-  $filePath = __DIR__ . '/tmp/server-ip.txt';
+  $filePath = __DIR__ . '/tmp/locks/server-ip.txt';
 
   // Try to load IP from file if it exists and is not empty
   if (file_exists($filePath) && filesize($filePath) > 0) {

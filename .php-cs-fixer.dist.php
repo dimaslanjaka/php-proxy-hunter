@@ -31,5 +31,5 @@ return $config->setRules([
   ],
 ])
   ->setFinder($finder)
-  ->setCacheFile('tmp/.php-cs-fixer.cache')
+  ->setCacheFile('tmp/locks/.php-cs-fixer.cache')
   ->setRiskyAllowed(true);

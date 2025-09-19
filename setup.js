@@ -47,7 +47,7 @@ async function installDependencies() {
 
     // Reinstall dependencies if package.json checksum has changed
     const checksum = sbgUtility.getChecksum(path.join(__dirname, 'package.json'));
-    const fileChecksum = path.join(__dirname, 'tmp/build/setup-checksum.txt');
+    const fileChecksum = path.join(__dirname, 'tmp/locks/setup-checksum.txt');
     const previousChecksum = fs.existsSync(fileChecksum) ? fs.readFileSync(fileChecksum, 'utf-8') : '';
     if (checksum !== previousChecksum) {
       const result = spawnSync('yarn', ['install'], { stdio: 'inherit', shell: true });
