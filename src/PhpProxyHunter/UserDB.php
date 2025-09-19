@@ -173,7 +173,14 @@ class UserDB
     $data['last_login']   = isset($data['last_login']) ? $data['last_login'] : null;
 
     if (!empty($data['username']) && !empty($data['password']) && !empty($data['email'])) {
-      $this->db->insert('auth_user', $data, true);
+      // If 'id' is provided and not empty, use it in the insert
+      if (isset($data['id']) && $data['id'] !== '' && $data['id'] !== null) {
+        $this->db->insert('auth_user', $data, true);
+      } else {
+        // Remove id if empty to let DB auto-increment
+        unset($data['id']);
+        $this->db->insert('auth_user', $data, true);
+      }
       return true;
     }
 
