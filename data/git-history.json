@@ -1,5 +1,37 @@
 [
   {
+    "hash": "39b780e1b6f4df8800fd2d772ec7476849645a68",
+    "date": "2025-09-19T18:30:07+07:00",
+    "message": "fix(logs): improve user authentication error handling in logs retrieval",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
+    "hash": "e0d9765c781bc044ea9adf2709acd7d358e04f46",
+    "date": "2025-09-19T18:27:38+07:00",
+    "message": "fix(user): handle optional id on user insert\n\n- Use provided `id` if not empty when inserting into `auth_user`\n- Remove empty `id` to allow database auto-increment",
+    "files": [
+      "src/PhpProxyHunter/UserDB.php"
+    ]
+  },
+  {
+    "hash": "474bf24e0132b1382a8576d05048c55ee9184a90",
+    "date": "2025-09-19T18:23:54+07:00",
+    "message": "feat(logs): include payment logs and add log_table field to all log types\n\n- Add `log_table` field for user, package, and payment logs to identify source table\n- Extend log collection to include `package_payment` records with related user and package info\n- Update cleanup step to also remove `purchased_at` while keeping `log_time`",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php"
+    ]
+  },
+  {
+    "hash": "6d6a939aa2e86b0c91ce7b6b07507e3ae0b1c559",
+    "date": "2025-09-19T18:20:12+07:00",
+    "message": "feat(CoreDB): ensure proper closure of database connections in destructor",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
     "hash": "e0ce6a7422cfb9fd5e3ad0be35967464d891dd4e",
     "date": "2025-09-19T11:17:23+07:00",
     "message": "chore(tmp): move cache, build, and state files into tmp/locks directory",
