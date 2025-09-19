@@ -13,6 +13,7 @@ export default function LogsSection() {
   const [page, setPage] = React.useState(1);
   const perPage = 50;
   const [loading, setLoading] = React.useState(false);
+  const prevLogsRef = React.useRef<any>(null);
 
   let isFetching = false;
   const fetchLogs = React.useCallback((pageNum: number) => {
@@ -23,7 +24,10 @@ export default function LogsSection() {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        setLogsData(data);
+        if (JSON.stringify(data) !== JSON.stringify(prevLogsRef.current)) {
+          setLogsData(data);
+          prevLogsRef.current = data;
+        }
       })
       .catch((error) => {
         console.error('Error fetching logs:', error);
