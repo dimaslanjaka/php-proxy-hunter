@@ -1,5 +1,13 @@
 [
   {
+    "hash": "16084fd45eb08d9615c44cfc68c5e4fac0f01077",
+    "date": "2025-09-19T10:22:30+07:00",
+    "message": "refactor(ProxyList): simplify timeAgo import statement",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
     "hash": "8b63bd96dd39904dc50bc3891fbdec3eba7454e7",
     "date": "2025-09-17T19:09:27+07:00",
     "message": "refactor(date): centralize timeAgo utility\n\n- move timeAgo implementation into new src/utils/date.js module\n- remove duplicate timeAgo functions from proxyManager-src.js and ProxyList.tsx\n- import shared utility in affected files",
