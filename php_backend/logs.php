@@ -40,7 +40,11 @@ if (isset($request['me'])) {
     echo json_encode(['authenticated' => false, 'error' => true, 'message' => 'Not authenticated'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     exit;
   }
-  $user     = $user_db->select($_SESSION['authenticated_email']);
+  $user = $user_db->select($_SESSION['authenticated_email']);
+  if (empty($user)) {
+    echo json_encode(['authenticated' => false, 'error' => true, 'message' => 'User not found'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+  }
   $logsRepo = $core_db->logsRepository->getLogsFromDb([
     'limit'   => $perPage,
     'offset'  => ($page - 1) * $perPage,
