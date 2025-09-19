@@ -199,6 +199,41 @@ export function customStaticAssetsPlugin() {
   };
 }
 
+const lockFilePath = path.join(__dirname, 'tmp/locks/.dev-server-lock');
+
+/** @returns {import('vite').Plugin} */
+export function prepareVitePlugins() {
+  return {
+    name: 'prepare-vite-plugins',
+    configResolved(config) {
+      // create lock file to signal for dev server
+      if (config.command === 'serve') {
+        fs.ensureDirSync(path.dirname(lockFilePath));
+        fs.writeFileSync(lockFilePath, 'lock');
+      }
+    }
+  };
+}
+
+// Register at exit handlers to remove lock file
+process.on('exit', () => {
+  if (fs.existsSync(lockFilePath)) {
+    fs.removeSync(lockFilePath);
+  }
+});
+process.on('SIGINT', () => {
+  process.exit();
+});
+process.on('SIGTERM', () => {
+  process.exit();
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
+// If this script is run directly, copy index.html and build Tailwind CSS
+// This ensures index.html is present and Tailwind CSS is built before starting dev server or building
 if (process.argv.some((arg) => arg.includes('vite-plugin.js'))) {
   copyIndexHtml();
   buildTailwind();

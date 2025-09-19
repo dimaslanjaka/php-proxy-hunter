@@ -8,6 +8,7 @@ import {
   customStaticAssetsPlugin,
   fontsResolverPlugin,
   indexHtmlReplacementPlugin,
+  prepareVitePlugins,
   TailwindCSSBuildPlugin
 } from './vite-plugin.js';
 import { execSync } from 'child_process';
@@ -70,6 +71,7 @@ export const viteConfig = defineConfig({
   cacheDir: path.resolve(__dirname, 'tmp/.vite'),
   // Register Vite plugins
   plugins: [
+    prepareVitePlugins(),
     indexHtmlReplacementPlugin(),
     fontsResolverPlugin(),
     TailwindCSSBuildPlugin(),
