@@ -1,5 +1,21 @@
 [
   {
+    "hash": "58c6c75d3d05358958ad284d761f1c27d5cffc53",
+    "date": "2025-09-20T06:32:37+07:00",
+    "message": "fix(LogsSection): prevent duplicate log entries by checking previous logs before updating state",
+    "files": [
+      "src/react/pages/admin/LogsSection.tsx"
+    ]
+  },
+  {
+    "hash": "730120ddb918879e12f23af54fdbc6d306932125",
+    "date": "2025-09-20T06:09:19+07:00",
+    "message": "fix(admin/logs): ensure unique React keys for log rows and prevent concurrent fetches\n\n- Fix duplicate key warning in log table by using a combination of log.id and index for the <tr> key.\n- Add isFetching flag to prevent concurrent fetchLogs calls and ensure proper state reset.",
+    "files": [
+      "src/react/pages/admin/LogsSection.tsx"
+    ]
+  },
+  {
     "hash": "9c4ff5918c312c7d6d3338c9ea7f10b943ca8a7d",
     "date": "2025-09-20T06:00:14+07:00",
     "message": "feat(LogsSection): implement periodic log fetching every 30 seconds",
