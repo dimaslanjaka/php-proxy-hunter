@@ -275,8 +275,14 @@ class UserDB
     $this->db->update('user_fields', ['saldo' => $new_saldo], 'user_id = ?', [$id]);
 
     // Prepare log
-    $log_action = $replace ? "Set saldo to {$amount}" : "Topup {$amount}";
-    $extraInfo  = $log_extra_info;
+    if ($log_source === 'buy_package' && !$replace && $amount > 0) {
+      $log_action = "Buy package for {$amount}";
+    } elseif ($replace) {
+      $log_action = "Set saldo to {$amount}";
+    } else {
+      $log_action = "Topup {$amount}";
+    }
+    $extraInfo = $log_extra_info;
 
     if (is_array($extraInfo) || is_object($extraInfo)) {
       $extraInfo = json_encode($extraInfo, JSON_UNESCAPED_UNICODE);
