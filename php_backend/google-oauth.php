@@ -151,6 +151,12 @@ function refreshAccessTokenIfNeeded($client, $path, array &$result)
   }
 }
 
+function getAdminEmails()
+{
+  $adminEmails = isset($_ENV['ADMIN_EMAILS']) ? explode(',', $_ENV['ADMIN_EMAILS']) : [];
+  return array_map('trim', $adminEmails);
+}
+
 /**
  * Finalize user session by creating or updating user in DB and setting session values.
  *
@@ -160,7 +166,8 @@ function refreshAccessTokenIfNeeded($client, $path, array &$result)
  */
 function finalizeUserSession($email, $user_db)
 {
-  $isAdmin = $email === 'dimaslanjaka@gmail.com' || $email === (isset($_ENV['DJANGO_SUPERUSER_EMAIL']) ? $_ENV['DJANGO_SUPERUSER_EMAIL'] : '');
+  $isEmailAdmin = in_array($email, getAdminEmails());
+  $isAdmin      = $isEmailAdmin || $email === (isset($_ENV['DJANGO_SUPERUSER_EMAIL']) ? $_ENV['DJANGO_SUPERUSER_EMAIL'] : '');
 
   if (!$isAdmin && isset($_SESSION['admin'])) {
     unset($_SESSION['admin']);
