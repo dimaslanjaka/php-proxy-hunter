@@ -1,5 +1,14 @@
 [
   {
+    "hash": "f335b7be4dc3b11cad95a56c7cbe7125e1366630",
+    "date": "2025-09-19T23:26:23+07:00",
+    "message": "fix(UserDB): enhance log action messages for saldo updates based on conditions",
+    "files": [
+      "packages/proxies-grabber",
+      "src/PhpProxyHunter/UserDB.php"
+    ]
+  },
+  {
     "hash": "39b780e1b6f4df8800fd2d772ec7476849645a68",
     "date": "2025-09-19T18:30:07+07:00",
     "message": "fix(logs): improve user authentication error handling in logs retrieval",
