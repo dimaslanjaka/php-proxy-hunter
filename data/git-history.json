@@ -1,5 +1,32 @@
 [
   {
+    "hash": "e0ce6a7422cfb9fd5e3ad0be35967464d891dd4e",
+    "date": "2025-09-19T11:17:23+07:00",
+    "message": "chore(tmp): move cache, build, and state files into tmp/locks directory",
+    "files": [
+      ".php-cs-fixer.dist.php",
+      "artisan/cleaner.php",
+      "bin/build-project.mjs",
+      "func-proxy.php",
+      "setup.js"
+    ]
+  },
+  {
+    "hash": "8edf38b98782d32394408b8b028b6e5ea579c7f0",
+    "date": "2025-09-19T11:11:43+07:00",
+    "message": "feat(post-merge): conditionally run build script based on dev server lock file presence",
+    "files": []
+  },
+  {
+    "hash": "567788b25e2bd03c1cd2bdbbfd8dddded044bf78",
+    "date": "2025-09-19T11:09:58+07:00",
+    "message": "feat(vite): add dev server lock file handling and prepareVitePlugins integration",
+    "files": [
+      "vite-plugin.js",
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "3ace59ca36980c01b6ce16ec43e65c03e8c1e4eb",
     "date": "2025-09-19T11:00:29+07:00",
     "message": "feat(logs): add endpoint to fetch authenticated user's logs and update admin logs query",
