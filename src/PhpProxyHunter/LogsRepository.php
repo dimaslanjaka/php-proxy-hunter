@@ -226,7 +226,11 @@ class LogsRepository
       $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
       $stmt->execute();
       $userLogs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-      $logs     = array_merge($logs, $userLogs);
+      foreach ($userLogs as &$log_type) {
+        $log_type['log_table'] = 'user';
+      }
+      unset($log_type);
+      $logs = array_merge($logs, $userLogs);
     }
 
     // Collect logs from package_logs with package info
@@ -249,7 +253,46 @@ class LogsRepository
       $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
       $stmt->execute();
       $packageLogs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-      $logs        = array_merge($logs, $packageLogs);
+      foreach ($packageLogs as &$log_type) {
+        $log_type['log_table'] = 'package';
+      }
+      unset($log_type);
+      $logs = array_merge($logs, $packageLogs);
+    }
+
+    // Collect payment records from package_payment with user and package info
+    if ($this->helper->hasTable('package_payment') && $this->helper->hasTable('auth_user') && $this->helper->hasTable('packages')) {
+      $where  = [];
+      $params = [];
+      if ($userId !== null) {
+        $where[]                = 'pp.user_id = :pay_user_id';
+        $params[':pay_user_id'] = $userId;
+      }
+      if ($packageId !== null) {
+        $where[]                   = 'pp.package_id = :pay_package_id';
+        $params[':pay_package_id'] = $packageId;
+      }
+      $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
+      $sql      = 'SELECT pp.*, pp.purchased_at AS log_time, u.username AS user_username, u.email AS user_email, u.id AS user_id_real, p.name AS package_name, p.id AS package_id_real, "payment" AS log_type
+              FROM package_payment pp
+              LEFT JOIN auth_user u ON pp.user_id = u.id
+              LEFT JOIN packages p ON pp.package_id = p.id
+              ' . $whereSql . '
+              ORDER BY pp.purchased_at DESC
+              LIMIT :limit OFFSET :offset';
+      $stmt = $this->pdo->prepare($sql);
+      foreach ($params as $k => $v) {
+        $stmt->bindValue($k, $v, is_int($v) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+      }
+      $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+      $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+      $stmt->execute();
+      $paymentLogs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+      foreach ($paymentLogs as &$log_type) {
+        $log_type['log_table'] = 'payment';
+      }
+      unset($log_type);
+      $logs = array_merge($logs, $paymentLogs);
     }
 
     // Sort all logs by log_time descending
@@ -259,9 +302,9 @@ class LogsRepository
       return $timeB <=> $timeA;
     });
 
-    // Remove 'timestamp' and 'created_at' but keep 'log_time'
+    // Remove 'timestamp', 'created_at', and 'purchased_at' but keep 'log_time'
     foreach ($logs as &$log) {
-      unset($log['timestamp'], $log['created_at']);
+      unset($log['timestamp'], $log['created_at'], $log['purchased_at']);
     }
     unset($log); // break reference
 
