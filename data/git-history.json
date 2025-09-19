@@ -1,5 +1,38 @@
 [
   {
+    "hash": "3ace59ca36980c01b6ce16ec43e65c03e8c1e4eb",
+    "date": "2025-09-19T11:00:29+07:00",
+    "message": "feat(logs): add endpoint to fetch authenticated user's logs and update admin logs query",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
+    "hash": "aff7f2831ad8b40eeb6e2c3f2482837164ab88c7",
+    "date": "2025-09-19T10:59:19+07:00",
+    "message": "feat(logs): add filtering by user_id and package_id to getLogsFromDb",
+    "files": [
+      "src/PhpProxyHunter/LogsRepository.php"
+    ]
+  },
+  {
+    "hash": "65e0fb003687eb7f597dab1ad2654aaf09239893",
+    "date": "2025-09-19T10:44:34+07:00",
+    "message": "feat(CoreDB): add showCreationTable method for retrieving table creation SQL",
+    "files": [
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
+    "hash": "ca786a4918e06d9af4c82af5872e0154c120d339",
+    "date": "2025-09-19T10:28:39+07:00",
+    "message": "feat(auth): add support for configurable admin emails via .env\n\n- Introduce ADMIN_EMAILS variable in .env.example to allow specifying multiple admin emails.\n- Add getAdminEmails() helper in google-oauth.php to retrieve and parse admin emails from environment.\n- Update finalizeUserSession to check admin status against ADMIN_EMAILS list, improving flexibility and maintainability.",
+    "files": [
+      ".env.example",
+      "php_backend/google-oauth.php"
+    ]
+  },
+  {
     "hash": "16084fd45eb08d9615c44cfc68c5e4fac0f01077",
     "date": "2025-09-19T10:22:30+07:00",
     "message": "refactor(ProxyList): simplify timeAgo import statement",
