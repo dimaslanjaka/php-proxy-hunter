@@ -6,9 +6,7 @@ import ApiUsage from './ProxyList/ApiUsage';
 import LogViewer from './ProxyList/LogViewer';
 import ModifyCurl from './ProxyList/ModifyCurl';
 import { useSnackbar } from '../components/Snackbar';
-import * as dateCjs from '../../utils/date.js';
-
-const { timeAgo } = dateCjs as typeof import('../../utils/date.js');
+import { timeAgo } from '../../utils/date.js';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
