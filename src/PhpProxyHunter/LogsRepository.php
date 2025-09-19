@@ -191,39 +191,62 @@ class LogsRepository
   /**
    * Retrieves paginated application/system logs from the user_logs and package_logs tables.
    *
-   * @param int $limit  Maximum number of logs to retrieve per page.
-   * @param int $offset Offset for pagination (number of logs to skip).
+   * @param array $options Options for pagination and filtering. Supported keys:
+   *   - 'limit' (int): Maximum number of logs to retrieve per page (default 50)
+   *   - 'offset' (int): Offset for pagination (number of logs to skip, default 0)
+   *   - 'user_id' (int): If set, only logs for this user ID will be returned (user_logs only)
+   *   - 'package_id' (int): If set, only logs for this package ID will be returned (package_logs only)
    * @return array The list of logs as associative arrays.
    */
-  public function getLogsFromDb($limit = 50, $offset = 0)
+  public function getLogsFromDb(array $options = [])
   {
-    $logs = [];
+    $logs      = [];
+    $limit     = isset($options['limit']) ? (int)$options['limit'] : 50;
+    $offset    = isset($options['offset']) ? (int)$options['offset'] : 0;
+    $userId    = isset($options['user_id']) ? $options['user_id'] : null;
+    $packageId = isset($options['package_id']) ? $options['package_id'] : null;
 
     // Collect logs from user_logs with user info
-    if ($this->helper->hasTable('user_logs') && $this->helper->hasTable('auth_user')) {
+    if ($this->helper->hasTable('user_logs') && $this->helper->hasTable('auth_user') && $packageId === null) {
+      $where = '';
+      if ($userId !== null) {
+        $where = 'WHERE ul.user_id = :user_id';
+      }
       $sql = 'SELECT ul.*, ul.`timestamp` AS log_time, u.username AS user_username, u.email AS user_email, u.id AS user_id_real
               FROM `user_logs` ul
               LEFT JOIN `auth_user` u ON ul.user_id = u.id
+              ' . $where . '
               ORDER BY ul.`timestamp` DESC
               LIMIT :limit OFFSET :offset';
       $stmt = $this->pdo->prepare($sql);
-      $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
-      $stmt->bindValue(':offset', (int)$offset, \PDO::PARAM_INT);
+      if ($userId !== null) {
+        $stmt->bindValue(':user_id', $userId, \PDO::PARAM_INT);
+      }
+      $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+      $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
       $stmt->execute();
       $userLogs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
       $logs     = array_merge($logs, $userLogs);
     }
 
     // Collect logs from package_logs with package info
-    if ($this->helper->hasTable('package_logs') && $this->helper->hasTable('packages')) {
+    if ($this->helper->hasTable('package_logs') && $this->helper->hasTable('packages') && $userId === null) {
+      $where = '';
+      if ($packageId !== null) {
+        $where = 'WHERE pl.package_id = :package_id';
+      }
       $sql = 'SELECT pl.*, pl.`created_at` AS log_time, p.name AS package_name, p.id AS package_id_real
               FROM `package_logs` pl
               LEFT JOIN `packages` p ON pl.package_id = p.id
+              ' . $where . '
               ORDER BY pl.`created_at` DESC
               LIMIT :limit OFFSET :offset';
       $stmt = $this->pdo->prepare($sql);
-      $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
-      $stmt->bindValue(':offset', (int)$offset, \PDO::PARAM_INT);
+      if ($packageId !== null) {
+        $stmt->bindValue(':package_id', $packageId, \PDO::PARAM_INT);
+      }
+      $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+      $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
       $stmt->execute();
       $packageLogs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
       $logs        = array_merge($logs, $packageLogs);
