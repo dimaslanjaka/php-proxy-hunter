@@ -34,6 +34,14 @@ export default function LogsSection() {
     fetchLogs(page);
   }, [page, fetchLogs]);
 
+  // Fetch logs every 30 seconds
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      fetchLogs(page);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [page, fetchLogs]);
+
   const logs = logsData?.logs || [];
 
   // Collect all unique keys from all logs for table headers
