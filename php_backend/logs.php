@@ -34,10 +34,33 @@ if (!empty($hash)) {
   exit;
 }
 
+if (isset($request['me'])) {
+  header('Content-Type: application/json; charset=utf-8');
+  if (empty($_SESSION['authenticated_email'])) {
+    echo json_encode(['authenticated' => false, 'error' => true, 'message' => 'Not authenticated'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+  }
+  $user     = $user_db->select($_SESSION['authenticated_email']);
+  $logsRepo = $core_db->logsRepository->getLogsFromDb([
+    'limit'   => $perPage,
+    'offset'  => ($page - 1) * $perPage,
+    'user_id' => $user['id'],
+  ]);
+  echo json_encode([
+    'authenticated' => true,
+    'error'         => false,
+    'logs'          => $logsRepo,
+  ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  exit;
+}
+
 if ($isAdmin) {
   header('Content-Type: application/json; charset=utf-8');
-  $offset   = ($page - 1) * $perPage;
-  $logs     = $logsRepo->getLogsFromDb($perPage, $offset);
+  $offset = ($page - 1) * $perPage;
+  $logs   = $logsRepo->getLogsFromDb([
+    'limit'  => $perPage,
+    'offset' => $offset,
+  ]);
   $response = [
     'page'     => $page,
     'per_page' => $perPage,
