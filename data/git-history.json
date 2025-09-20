@@ -1,5 +1,22 @@
 [
   {
+    "hash": "05233e372c44ba050d45604a6f745525d8eba09c",
+    "date": "2025-09-20T21:00:17+07:00",
+    "message": "refactor!: remove LogsRepository and user_logs table\n\n- Deleted LogsRepository and LogsRepositoryMigrations classes\n- Removed user_logs table from create.sql, mysql-schema.sql, and sqlite-schema.sql\n- Removed references to LogsRepository in CoreDB, UserDB, and logs.php\n- Adjusted UserDB methods to no longer log saldo operations or delete from user_logs\n- Simplified tests by removing truncation and references to user_logs\n- Deleted LogsRepositoryTest\n\nBREAKING CHANGE: user activity and saldo operations are no longer logged in user_logs, and LogsRepository has been removed.",
+    "files": [
+      "assets/database/create.sql",
+      "php_backend/logs.php",
+      "src/PhpProxyHunter/CoreDB.php",
+      "src/PhpProxyHunter/LogsRepository.php",
+      "src/PhpProxyHunter/LogsRepositoryMigrations.php",
+      "src/PhpProxyHunter/UserDB.php",
+      "src/PhpProxyHunter/assets/mysql-schema.sql",
+      "src/PhpProxyHunter/assets/sqlite-schema.sql",
+      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
+      "tests/database/LogsRepositoryTest.php"
+    ]
+  },
+  {
     "hash": "58c6c75d3d05358958ad284d761f1c27d5cffc53",
     "date": "2025-09-20T06:32:37+07:00",
     "message": "fix(LogsSection): prevent duplicate log entries by checking previous logs before updating state",
