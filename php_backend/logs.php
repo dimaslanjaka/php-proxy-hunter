@@ -2,7 +2,7 @@
 
 include __DIR__ . '/shared.php';
 
-use PhpProxyHunter\LogsRepository;
+// use PhpProxyHunter\LogsRepository; (removed)
 
 global $isAdmin;
 
@@ -12,9 +12,9 @@ header('Access-Control-Allow-Headers: *');
 header('Access-Control-Allow-Methods: *');
 header('Content-Type: text/plain; charset=utf-8');
 
-$logsRepo = new LogsRepository($core_db);
-$request  = parsePostData(true);
-$page     = isset($request['page']) ? (int)$request['page'] : 1;
+// $logsRepo instantiation removed
+$request = parsePostData(true);
+$page    = isset($request['page']) ? (int)$request['page'] : 1;
 if ($page < 1) {
   $page = 1;
 }
@@ -45,15 +45,11 @@ if (isset($request['me'])) {
     echo json_encode(['authenticated' => false, 'error' => true, 'message' => 'User not found'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     exit;
   }
-  $logsRepo = $core_db->logsRepository->getLogsFromDb([
-    'limit'   => $perPage,
-    'offset'  => ($page - 1) * $perPage,
-    'user_id' => $user['id'],
-  ]);
+  // $logsRepo usage removed; no logs to return
   echo json_encode([
     'authenticated' => true,
     'error'         => false,
-    'logs'          => $logsRepo,
+    'logs'          => [],
   ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   exit;
 }

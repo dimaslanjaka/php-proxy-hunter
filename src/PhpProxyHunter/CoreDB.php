@@ -68,9 +68,9 @@ class CoreDB extends BaseSQL
   public $dbPath = null;
 
   /**
-   * @var LogsRepository|null Logs repository instance
+   * Logs repository instance removed
    */
-  public $logsRepository = null;
+  // public $logsRepository removed
 
   /**
    * CoreDB constructor.
@@ -129,11 +129,11 @@ class CoreDB extends BaseSQL
    */
   private function initMySQL($host, $dbname, $username, $password, $unique = false)
   {
-    $this->db             = new MySQLHelper($host, $dbname, $username, $password, $unique);
-    $this->driver         = 'mysql';
-    $this->user_db        = new UserDB($this->db);
-    $this->proxy_db       = new ProxyDB($this->db);
-    $this->logsRepository = new LogsRepository($this->db->pdo);
+    $this->db       = new MySQLHelper($host, $dbname, $username, $password, $unique);
+    $this->driver   = 'mysql';
+    $this->user_db  = new UserDB($this->db);
+    $this->proxy_db = new ProxyDB($this->db);
+    // $this->logsRepository instantiation removed
 
     $this->loadSchema(__DIR__ . '/assets/mysql-schema.sql');
   }

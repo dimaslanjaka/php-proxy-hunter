@@ -58,14 +58,3 @@ CREATE TABLE IF NOT EXISTS "user_fields" (
   "saldo" decimal NOT NULL,
   "phone" varchar(128) NULL UNIQUE
 );
-
--- create user logs
-CREATE TABLE IF NOT EXISTS "user_logs" (
-  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-  "user_id" INTEGER NOT NULL REFERENCES "auth_user" ("id"),
-  "timestamp" DATETIME DEFAULT CURRENT_TIMESTAMP,
-  "log_level" TEXT NOT NULL DEFAULT 'INFO',
-  "message" TEXT NOT NULL,
-  "source" TEXT,
-  "extra_info" TEXT -- store JSON as TEXT, queryable with JSON1
-);

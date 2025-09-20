@@ -56,14 +56,3 @@ CREATE TABLE IF NOT EXISTS `user_fields` (
   `phone` VARCHAR(128) NULL UNIQUE,
   FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
 );
-
-CREATE TABLE IF NOT EXISTS `user_logs` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT NOT NULL,
-  `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `log_level` VARCHAR(32) NOT NULL DEFAULT 'INFO', -- INFO, WARNING, ERROR
-  `message` TEXT NOT NULL, -- human-readable log
-  `source` VARCHAR(255), -- module/service
-  `extra_info` JSON, -- use JSON if possible
-  FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE = InnoDB;

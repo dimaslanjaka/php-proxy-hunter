@@ -17,9 +17,9 @@ class UserDB
   public $db;
 
   /**
-   * @var LogsRepository $logsRepository Logs repository instance
+   * Logs repository instance removed
    */
-  public $logsRepository;
+  // public $logsRepository removed
 
   /**
    * UserDB constructor.
@@ -89,7 +89,7 @@ class UserDB
 
     $this->db->pdo->exec(trim($sql));
 
-    $this->logsRepository = new LogsRepository($this->db->pdo);
+    // $this->logsRepository instantiation removed
   }
 
   /**
@@ -247,7 +247,7 @@ class UserDB
    * Updates a user's saldo (balance) in the database.
    *
    * If $replace is true, the saldo is set to $amount. If false, $amount is added to the current saldo.
-   * Also logs the operation using the LogsRepository.
+   * Logging operation using LogsRepository removed.
    *
    * @param int         $id             User ID.
    * @param int         $amount         Amount to add or set.
@@ -289,16 +289,6 @@ class UserDB
     } elseif ($extraInfo === null || $extraInfo === '') {
       $extraInfo = null;
     }
-
-    // Insert log
-    // $this->db->insert('user_logs', [
-    //   'message'    => $log_action,
-    //   'log_level'  => 'INFO',
-    //   'source'     => $log_source,
-    //   'extra_info' => $extraInfo,
-    //   'user_id'    => $id,
-    // ], false);
-    $this->logsRepository->addLog($id, $log_action, 'INFO', $log_source, $extraInfo);
 
     return ['saldo' => $new_saldo];
   }
@@ -346,7 +336,7 @@ class UserDB
    * Deletes a user from the database by email, username, or id.
    *
    * This method removes the user from the `auth_user` table and also deletes
-   * all related records from `user_discount`, `user_logs`, and `user_fields` tables.
+   * all related records from `user_discount`, and `user_fields` tables.
    *
    * @param mixed $id The email, username, or id of the user to delete.
    * @return bool True if the user was found and deleted, false otherwise.
@@ -363,7 +353,6 @@ class UserDB
         $success = true;
         $ids     = implode(',', array_map('intval', [$select[0]['id']]));
         $this->db->pdo->exec("DELETE FROM user_discount WHERE user_id IN ($ids)");
-        $this->db->pdo->exec("DELETE FROM user_logs WHERE user_id IN ($ids)");
         $this->db->pdo->exec("DELETE FROM user_fields WHERE user_id IN ($ids)");
         $this->db->pdo->exec("DELETE FROM auth_user WHERE id IN ($ids)");
         break;

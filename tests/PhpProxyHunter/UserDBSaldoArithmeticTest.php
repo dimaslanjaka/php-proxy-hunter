@@ -79,15 +79,9 @@ class UserDBSaldoArithmeticTest extends TestCase
         $this->createTestDatabase();
         $userDB = new UserDB(null, 'mysql', $this->mysqlHost, $this->mysqlDb, $this->mysqlUser, $this->mysqlPass, true);
         $pdo    = $userDB->db->pdo;
-        $pdo->exec('SET FOREIGN_KEY_CHECKS=0;');
-        $pdo->exec('TRUNCATE TABLE user_logs;');
-        $pdo->exec('TRUNCATE TABLE user_fields;');
-        $pdo->exec('TRUNCATE TABLE auth_user;');
-        $pdo->exec('TRUNCATE TABLE meta;');
-        $pdo->exec('TRUNCATE TABLE added_proxies;');
-        $pdo->exec('TRUNCATE TABLE processed_proxies;');
-        $pdo->exec('TRUNCATE TABLE proxies;');
-        $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
+        foreach (['user_fields', 'auth_user', 'meta', 'added_proxies', 'processed_proxies', 'proxies'] as $table) {
+          $pdo->exec("TRUNCATE TABLE $table;");
+        }
         $this->runSaldoArithmeticTest($userDB);
         $userDB->close();
         $this->dropTestDatabase();
