@@ -11,19 +11,19 @@ class Server
     if ($check) {
       return $_SERVER['HTTP_CF_CONNECTING_IP'];
     } else {
-      return self::get_client_ip();
+      return self::getClientIp();
     }
   }
 
   public static function isCloudflare(): bool
   {
-    $ipCheck      = self::_cloudflare_CheckIP($_SERVER['REMOTE_ADDR']);
-    $requestCheck = self::_cloudflare_Requests_Check();
+    $ipCheck      = self::cloudflareCheckIp($_SERVER['REMOTE_ADDR']);
+    $requestCheck = self::cloudflareRequestsCheck();
 
     return $ipCheck && $requestCheck;
   }
 
-  public static function _cloudflare_CheckIP(?string $ip): bool
+  public static function cloudflareCheckIp(?string $ip): bool
   {
     $cf_ips = [
       '199.27.128.0/21',
@@ -43,7 +43,7 @@ class Server
     $is_cf_ip = false;
     if (is_string($ip)) {
       foreach ($cf_ips as $cf_ip) {
-        if (self::ip_in_range($ip, $cf_ip)) {
+        if (self::ipInRange($ip, $cf_ip)) {
           $is_cf_ip = true;
           break;
         }
@@ -63,7 +63,7 @@ class Server
    *
    * @return bool true if the ip is in this range / false if not
    */
-  public static function ip_in_range(?string $ip, string $range): bool
+  public static function ipInRange(?string $ip, string $range): bool
   {
     if (!is_string($ip)) {
       return false;
@@ -89,7 +89,7 @@ class Server
 
   // Use when handling ips
 
-  public static function _cloudflare_Requests_Check(): bool
+  public static function cloudflareRequestsCheck(): bool
   {
     $flag = true;
 
@@ -109,7 +109,7 @@ class Server
     return $flag;
   }
 
-  public static function get_client_ip()
+  public static function getClientIp()
   {
     $ipaddress = null;
     if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
