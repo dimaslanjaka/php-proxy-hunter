@@ -1,11 +1,11 @@
 import React from 'react';
 import { createUrl } from '../../utils/url';
-import { LogsResponse } from '../../../../types/php_backend/logs';
+import { LogEntry, LogsResponse } from '../../../../types/php_backend/logs';
 import { Pagination } from '../../components/Pagination';
 
 interface LogsResponseWithExtras extends LogsResponse {
   [key: string]: any;
-  logs: (LogsResponse['logs'][number] & { [key: string]: any })[];
+  logs: (LogEntry & { [key: string]: any })[];
 }
 
 export default function LogsSection() {
@@ -54,7 +54,7 @@ export default function LogsSection() {
 
   // Collect all unique keys from all logs for table headers
   // Keys to exclude from the table
-  const excludeKeys = ['user_id', 'package_id', 'user_id_real', 'package_id_real', 'id', 'log_level', 'log_type'];
+  const excludeKeys: string[] = ['id'];
 
   const allKeys = React.useMemo(() => {
     const keysSet = new Set<string>();
@@ -79,7 +79,12 @@ export default function LogsSection() {
                   <th
                     key={key}
                     className="px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap">
-                    {key}
+                    {key
+                      .split('_')
+                      .map((part) =>
+                        part.toLowerCase() === 'ip' ? 'IP' : part.charAt(0).toUpperCase() + part.slice(1)
+                      )
+                      .join(' ')}
                   </th>
                 ))}
               </tr>
