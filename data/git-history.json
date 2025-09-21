@@ -1,5 +1,39 @@
 [
   {
+    "hash": "48d7902bc43a899431c098db46c830eb6d7eb5f9",
+    "date": "2025-09-21T15:35:52+07:00",
+    "message": "feat(login): integrate logging of successful login attempts with IP and user agent",
+    "files": [
+      "php_backend/google-oauth.php",
+      "php_backend/login.php"
+    ]
+  },
+  {
+    "hash": "4ab0df38d1cf42f926d34bca9dbc4499d9c84768",
+    "date": "2025-09-21T15:28:31+07:00",
+    "message": "feat(ActivityLog): auto-detect IP and user agent in log method if not provided",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php"
+    ]
+  },
+  {
+    "hash": "8a2fd1e2ca308574958507d3b39b49bd7882ed38",
+    "date": "2025-09-21T15:25:35+07:00",
+    "message": "refactor(Server): rename methods to use camelCase convention",
+    "files": [
+      "src/PhpProxyHunter/Server.php"
+    ]
+  },
+  {
+    "hash": "b7b5b3b99f905eb48b6c08e515b51117e586f475",
+    "date": "2025-09-21T15:19:30+07:00",
+    "message": "feat(CoreDB): add ActivityLog instance to CoreDB\n\n- Add public property `$log_db` to CoreDB for activity log database helper.\n- Instantiate `ActivityLog` in MySQL initialization and assign to `$log_db`.\n- Expose `$log_db` in `php_backend/shared.php` for easier access to activity logging.",
+    "files": [
+      "php_backend/shared.php",
+      "src/PhpProxyHunter/CoreDB.php"
+    ]
+  },
+  {
     "hash": "31fc4e13d25b65b4c98304f428e9622290f6c864",
     "date": "2025-09-21T15:15:09+07:00",
     "message": "refactor(ActivityLog): remove redundant comments in constructor and method definitions",
