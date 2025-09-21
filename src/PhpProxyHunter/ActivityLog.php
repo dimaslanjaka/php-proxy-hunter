@@ -1,10 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PhpProxyHunter;
 
 use PDO;
 use PDOException;
 
+/**
+ * Class ActivityLog
+ *
+ * Handles logging of user activities to the database.
+ * Accepts PDO, SQLiteHelper, MySQLHelper, or CoreDB for database connection.
+ *
+ * @package PhpProxyHunter
+ */
 class ActivityLog
 {
   public const MYSQL_SCHEMA = <<<SQL
@@ -81,13 +91,38 @@ class ActivityLog
     CREATE INDEX idx_activity_log_created_at ON activity_log(created_at);
     SQL;
 
+
+  /**
+   * @var PDO
+   */
   private PDO $db;
+
+  /**
+   * @var string
+   */
   private string $driver;
 
-  public function __construct(PDO $db)
+  /**
+   * ActivityLog constructor.
+   *
+   * @param PDO|SQLiteHelper|MySQLHelper|CoreDB $dbOrHelper
+   */
+  public function __construct($dbOrHelper)
   {
-    $this->db     = $db;
-    $this->driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+    if ($dbOrHelper instanceof PDO) {
+      $this->db     = $dbOrHelper;
+      $this->driver = $dbOrHelper->getAttribute(PDO::ATTR_DRIVER_NAME);
+    } elseif (
+      (class_exists('PhpProxyHunter\\SQLiteHelper') && $dbOrHelper instanceof \PhpProxyHunter\SQLiteHelper) || (class_exists('PhpProxyHunter\\MySQLHelper') && $dbOrHelper instanceof \PhpProxyHunter\MySQLHelper)
+    ) {
+      $this->db     = $dbOrHelper->pdo;
+      $this->driver = $this->db->getAttribute(PDO::ATTR_DRIVER_NAME);
+    } elseif (class_exists('PhpProxyHunter\\CoreDB') && $dbOrHelper instanceof \PhpProxyHunter\CoreDB) {
+      $this->db     = $dbOrHelper->db->pdo;
+      $this->driver = $this->db->getAttribute(PDO::ATTR_DRIVER_NAME);
+    } else {
+      throw new \InvalidArgumentException('Invalid argument for ActivityLog constructor. Must be PDO, SQLiteHelper, MySQLHelper, or CoreDB.');
+    }
     // Ensure the table exists
     $this->db->exec($this->driver === 'sqlite' ? self::SQLITE_SCHEMA : self::MYSQL_SCHEMA);
   }
