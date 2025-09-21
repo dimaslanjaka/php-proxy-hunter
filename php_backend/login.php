@@ -90,7 +90,7 @@ function do_login($username, $password)
 
 function verify($username, $password)
 {
-  global $user_db;
+  global $log_db, $user_db;
   $response = [
     'message' => '',
     'error'   => false,
@@ -124,6 +124,17 @@ function verify($username, $password)
       $date            = new DateTime();
       $currentDateTime = $date->format('Y-m-d H:i:s.u');
       $user_db->update($select['email'], ['last_login' => $currentDateTime]);
+      // Log activity after successful login
+      if (isset($log_db) && $log_db) {
+        $log_db->log(
+          $select['id'],
+          'LOGIN',
+          null,
+          'auth_user',
+          null,
+          ['email' => $select['email']],
+        );
+      }
     } else {
       $response['message'] = 'username or password mismatch';
       $response['error']   = true;

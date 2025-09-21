@@ -1,6 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../func.php';
 include __DIR__ . '/shared.php';
 
 header('Access-Control-Allow-Origin: *');
@@ -166,6 +165,7 @@ function getAdminEmails()
  */
 function finalizeUserSession($email, $user_db)
 {
+  global $log_db;
   $isEmailAdmin = in_array($email, getAdminEmails());
   $isAdmin      = $isEmailAdmin || $email === (isset($_ENV['DJANGO_SUPERUSER_EMAIL']) ? $_ENV['DJANGO_SUPERUSER_EMAIL'] : '');
 
@@ -184,6 +184,8 @@ function finalizeUserSession($email, $user_db)
       'is_active'    => true,
       'is_superuser' => $email === 'dimaslanjaka@gmail.com',
     ]);
+    // Fetch the newly created user
+    $existingUser = $user_db->select($email);
   }
 
   $_SESSION['user_id']             = $email;
@@ -191,6 +193,18 @@ function finalizeUserSession($email, $user_db)
   $_SESSION['authenticated_email'] = $email;
   if ($isAdmin) {
     $_SESSION['admin'] = true;
+  }
+
+  // Log activity after successful login (any method)
+  if (isset($log_db) && $log_db && isset($existingUser['id'])) {
+    $log_db->log(
+      $existingUser['id'],
+      'LOGIN',
+      null,
+      'auth_user',
+      null,
+      ['email' => $email, 'oauth' => 'google']
+    );
   }
 }
 
