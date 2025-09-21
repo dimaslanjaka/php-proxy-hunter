@@ -16,6 +16,12 @@ applyTo: '**/*.{tsx,jsx}'
   - Font Awesome Pro CDN
   - Main HTML at `index.dev.html`
 
+## Internationalization framework
+- Framework: **i18next**
+- Framework initialization: `src/react/i18n.ts`
+- locales folder `src/react/locales`
+- locales format is JSON
+
 ## General rules for generated code
 - Use **functional components** and React **hooks** (`useState`, `useEffect`, etc.).
 - Use **JSX** and `className` for Tailwind utility classes.
