@@ -105,5 +105,12 @@
   "no_vouchers": "Tidak ada voucher",
   "user_activity_title": "Aktivitas Pengguna untuk {{user}}",
   "failed_to_fetch_activity": "Gagal mengambil aktivitas.",
-  "no_activity_found": "Tidak ada aktivitas ditemukan."
+  "no_activity_found": "Tidak ada aktivitas ditemukan.",
+  "prev": "Sebelumnya",
+  "next": "Berikutnya",
+  "page": "Halaman",
+  "rows_per_page": "Baris per halaman",
+  "action": "Aksi",
+  "timestamp": "Waktu",
+  "details": "Detail"
 }

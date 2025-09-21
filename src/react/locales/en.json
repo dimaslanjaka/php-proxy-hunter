@@ -105,5 +105,12 @@
   "no_vouchers": "No vouchers available.",
   "user_activity_title": "User Activity for {{user}}",
   "failed_to_fetch_activity": "Failed to fetch activity.",
-  "no_activity_found": "No activity found."
+  "no_activity_found": "No activity found.",
+  "prev": "Previous",
+  "next": "Next",
+  "page": "Page",
+  "rows_per_page": "Rows per page",
+  "action": "Action",
+  "timestamp": "Timestamp",
+  "details": "Details"
 }
