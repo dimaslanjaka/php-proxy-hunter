@@ -1,5 +1,14 @@
 [
   {
+    "hash": "09e06ecac2f6b1b6b03656ffe789a4011d8327f1",
+    "date": "2025-09-21T18:09:58+07:00",
+    "message": "refactor(logs): simplify LogsResponse and LogEntry interfaces",
+    "files": [
+      "src/react/pages/admin/LogsSection.tsx",
+      "types/php_backend/logs.d.ts"
+    ]
+  },
+  {
     "hash": "41ae3c20e7dad46388cf762506d595fd420693e9",
     "date": "2025-09-21T17:29:58+07:00",
     "message": "feat(ui): add pagination and localization to UserActivityCard\n\n- Refactored `UserActivityCard.tsx` to support paginated log fetching, including page navigation and page size selection.\n- Added new translation keys for pagination and table headers to `en.json` and `id.json`:\n  - prev, next, page, rows_per_page, action, timestamp, details\n- Updated UI to use a table for activity logs with full dark mode support.\n- Removed old dummy data and fetch logic, now uses real API and types.",
