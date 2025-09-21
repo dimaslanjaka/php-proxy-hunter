@@ -203,15 +203,18 @@ class ActivityLog
   }
 
   /**
-   * Fetch recent logs.
+   * Fetch recent logs with pagination.
    *
-   * @param int $limit
+   * @param int $limit  Number of logs to return (default 50)
+   * @param int $offset Offset for pagination (default 0)
    * @return array
    */
-  public function recent($limit = 50)
+  public function recent($limit = 50, $offset = 0)
   {
-    $stmt = $this->db->prepare('SELECT * FROM activity_log ORDER BY created_at DESC LIMIT :limit');
+    $sql  = 'SELECT * FROM activity_log ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
+    $stmt = $this->db->prepare($sql);
     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
