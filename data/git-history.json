@@ -1,5 +1,13 @@
 [
   {
+    "hash": "fdf279a92c3a847445d3ed6d349927a28ca16a29",
+    "date": "2025-09-21T15:13:48+07:00",
+    "message": "refactor(ActivityLog): optimize constructor to reduce redundancy\n\n- Centralize PDO extraction from supported types (PDO, SQLiteHelper, MySQLHelper, CoreDB) into a single variable.\n- Assign PDO instance and driver only once after type resolution.\n- Improves readability and maintainability of the constructor logic.",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php"
+    ]
+  },
+  {
     "hash": "c2f274d1575b7ce8b056323700a5e178f0f1cd4d",
     "date": "2025-09-21T15:11:40+07:00",
     "message": "refactor(ActivityLog): make class PHP 7 compatible\n\n- Remove strict_types declaration for broader compatibility.\n- Remove typed properties and parameter/return type hints; use PHPDoc for type annotations.\n- Add PHPDoc blocks for class properties and methods.\n- Update constructor and methods to use PHP 7 compatible signatures.\n- Replace nullable and typed parameters with untyped, default-null parameters.\n- Add explicit null checks for parameter binding in log() method.\n- Minor formatting and doc improvements for clarity and compatibility.",
