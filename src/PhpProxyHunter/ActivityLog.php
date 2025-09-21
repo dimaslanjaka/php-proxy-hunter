@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace PhpProxyHunter;
 
 use PDO;
@@ -17,6 +15,10 @@ use PDOException;
  */
 class ActivityLog
 {
+  /**
+   * MySQL schema for activity_log table
+   * @var string
+   */
   public const MYSQL_SCHEMA = <<<SQL
     CREATE TABLE IF NOT EXISTS activity_log (
         id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -52,6 +54,10 @@ class ActivityLog
         INDEX (created_at)
     );
     SQL;
+  /**
+   * SQLite schema for activity_log table
+   * @var string
+   */
   public const SQLITE_SCHEMA = <<<SQL
     CREATE TABLE IF NOT EXISTS activity_log (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,13 +101,22 @@ class ActivityLog
   /**
    * @var PDO
    */
-  private PDO $db;
+
+  /**
+   * @var PDO
+   */
+  private $db;
 
   /**
    * @var string
    */
-  private string $driver;
+  private $driver;
 
+  /**
+   * ActivityLog constructor.
+   *
+   * @param PDO|SQLiteHelper|MySQLHelper|CoreDB $dbOrHelper
+   */
   /**
    * ActivityLog constructor.
    *
@@ -130,16 +145,29 @@ class ActivityLog
   /**
    * Write a log entry.
    */
+  /**
+   * Write a log entry.
+   *
+   * @param int $userId
+   * @param string $actionType
+   * @param int|null $targetId
+   * @param string|null $targetType
+   * @param int|null $targetUserId
+   * @param array|null $details
+   * @param string|null $ipAddress
+   * @param string|null $userAgent
+   * @return bool
+   */
   public function log(
-    int $userId,
-    string $actionType,
-    ?int $targetId = null,
-    ?string $targetType = null,
-    ?int $targetUserId = null,
-    ?array $details = null,
-    ?string $ipAddress = null,
-    ?string $userAgent = null
-  ): bool {
+    $userId,
+    $actionType,
+    $targetId = null,
+    $targetType = null,
+    $targetUserId = null,
+    $details = null,
+    $ipAddress = null,
+    $userAgent = null
+  ) {
     try {
       $stmt = $this->db->prepare(<<<SQL
           INSERT INTO activity_log
@@ -148,10 +176,19 @@ class ActivityLog
               (:user_id, :target_user_id, :action_type, :target_id, :target_type, :details, :ip_address, :user_agent)
       SQL);
 
+
       $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-      $stmt->bindValue(':target_user_id', $targetUserId, $targetUserId !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
+      if ($targetUserId !== null) {
+        $stmt->bindValue(':target_user_id', $targetUserId, PDO::PARAM_INT);
+      } else {
+        $stmt->bindValue(':target_user_id', null, PDO::PARAM_NULL);
+      }
       $stmt->bindValue(':action_type', $actionType);
-      $stmt->bindValue(':target_id', $targetId, $targetId !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
+      if ($targetId !== null) {
+        $stmt->bindValue(':target_id', $targetId, PDO::PARAM_INT);
+      } else {
+        $stmt->bindValue(':target_id', null, PDO::PARAM_NULL);
+      }
       $stmt->bindValue(':target_type', $targetType);
       $stmt->bindValue(':details', $details !== null ? json_encode($details, JSON_UNESCAPED_UNICODE) : null);
       $stmt->bindValue(':ip_address', $ipAddress);
@@ -167,14 +204,17 @@ class ActivityLog
   /**
    * Fetch recent logs.
    */
-  public function recent(int $limit = 50): array
+  /**
+   * Fetch recent logs.
+   *
+   * @param int $limit
+   * @return array
+   */
+  public function recent($limit = 50)
   {
-    $stmt = $this->db->prepare('SELECT * FROM activity_log
-            ORDER BY created_at DESC
-            LIMIT :limit');
+    $stmt = $this->db->prepare('SELECT * FROM activity_log ORDER BY created_at DESC LIMIT :limit');
     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();
-
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 }
