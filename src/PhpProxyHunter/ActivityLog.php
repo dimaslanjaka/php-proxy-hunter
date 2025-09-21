@@ -218,4 +218,20 @@ class ActivityLog
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
+
+  /**
+   * Close the ActivityLog and release resources.
+   */
+  public function close()
+  {
+    $this->db = null;
+  }
+
+  /**
+   * Destructor to ensure resources are released.
+   */
+  public function __destruct()
+  {
+    $this->close();
+  }
 }
