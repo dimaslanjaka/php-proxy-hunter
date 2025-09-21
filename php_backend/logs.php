@@ -34,6 +34,12 @@ if (!empty($hash)) {
   exit;
 }
 
+// Handle unauthenticated access to own logs
+if (empty($_SESSION['authenticated_email'])) {
+  header('Content-Type: application/json; charset=utf-8');
+  echo json_encode(['authenticated' => false, 'error' => true, 'message' => 'Not authenticated'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  exit;
+}
 
 if (isset($request['me'])) {
   header('Content-Type: application/json; charset=utf-8');
