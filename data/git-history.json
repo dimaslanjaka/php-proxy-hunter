@@ -1,5 +1,21 @@
 [
   {
+    "hash": "c2f274d1575b7ce8b056323700a5e178f0f1cd4d",
+    "date": "2025-09-21T15:11:40+07:00",
+    "message": "refactor(ActivityLog): make class PHP 7 compatible\n\n- Remove strict_types declaration for broader compatibility.\n- Remove typed properties and parameter/return type hints; use PHPDoc for type annotations.\n- Add PHPDoc blocks for class properties and methods.\n- Update constructor and methods to use PHP 7 compatible signatures.\n- Replace nullable and typed parameters with untyped, default-null parameters.\n- Add explicit null checks for parameter binding in log() method.\n- Minor formatting and doc improvements for clarity and compatibility.",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php"
+    ]
+  },
+  {
+    "hash": "7c1ac56f264c1aa67b149cf4fe3879a1650bffef",
+    "date": "2025-09-21T15:09:23+07:00",
+    "message": "feat(ActivityLog): enhance constructor to support SQLiteHelper and MySQLHelper, and improve error handling",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php"
+    ]
+  },
+  {
     "hash": "90ac467dcb285edd2924e58e43eaa1855f28c548",
     "date": "2025-09-21T15:05:16+07:00",
     "message": "fix(ProxyDB, UserDB): ensure safe closure of database connections in close and destructor methods",
