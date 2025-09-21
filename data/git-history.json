@@ -1,5 +1,29 @@
 [
   {
+    "hash": "0318d9932e953cd4675f0b2d8def3a993ac8cd9d",
+    "date": "2025-09-21T16:47:19+07:00",
+    "message": "fix(logs): prevent unauthenticated access to own logs with JSON error response",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
+    "hash": "ce8e2e5c56a8833541a986e4c772b5941f4d517a",
+    "date": "2025-09-21T16:45:31+07:00",
+    "message": "feat(logs): update user log retrieval and add pagination support for admin logs",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
+    "hash": "0773a8f600258de4fb1311ca7b5382adf0a508c9",
+    "date": "2025-09-21T16:43:53+07:00",
+    "message": "feat(ActivityLog): enhance recent logs method to support pagination",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php"
+    ]
+  },
+  {
     "hash": "48d7902bc43a899431c098db46c830eb6d7eb5f9",
     "date": "2025-09-21T15:35:52+07:00",
     "message": "feat(login): integrate logging of successful login attempts with IP and user agent",
