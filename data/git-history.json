@@ -1,5 +1,13 @@
 [
   {
+    "hash": "31fc4e13d25b65b4c98304f428e9622290f6c864",
+    "date": "2025-09-21T15:15:09+07:00",
+    "message": "refactor(ActivityLog): remove redundant comments in constructor and method definitions",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php"
+    ]
+  },
+  {
     "hash": "fdf279a92c3a847445d3ed6d349927a28ca16a29",
     "date": "2025-09-21T15:13:48+07:00",
     "message": "refactor(ActivityLog): optimize constructor to reduce redundancy\n\n- Centralize PDO extraction from supported types (PDO, SQLiteHelper, MySQLHelper, CoreDB) into a single variable.\n- Assign PDO instance and driver only once after type resolution.\n- Improves readability and maintainability of the constructor logic.",
