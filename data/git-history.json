@@ -1,5 +1,58 @@
 [
   {
+    "hash": "41ae3c20e7dad46388cf762506d595fd420693e9",
+    "date": "2025-09-21T17:29:58+07:00",
+    "message": "feat(ui): add pagination and localization to UserActivityCard\n\n- Refactored `UserActivityCard.tsx` to support paginated log fetching, including page navigation and page size selection.\n- Added new translation keys for pagination and table headers to `en.json` and `id.json`:\n  - prev, next, page, rows_per_page, action, timestamp, details\n- Updated UI to use a table for activity logs with full dark mode support.\n- Removed old dummy data and fetch logic, now uses real API and types.",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "c7d5dc6240a9c57e3315d5112090b10501ac5d23",
+    "date": "2025-09-21T17:24:45+07:00",
+    "message": "feat(instructions): add i18next framework details for internationalization",
+    "files": [
+      ".github/instructions/react.instruction.md"
+    ]
+  },
+  {
+    "hash": "e1e1fbd2ac5f19626d1907d9bc24b71be162a70d",
+    "date": "2025-09-21T17:19:23+07:00",
+    "message": "feat(instructions): add GitHub Copilot guidelines for React components with Tailwind and Flowbite",
+    "files": [
+      ".github/instructions/react.instruction.md"
+    ]
+  },
+  {
+    "hash": "f807e48890de723eac395fffb93008fa221411ec",
+    "date": "2025-09-21T17:05:27+07:00",
+    "message": "refactor(user-activity-card): move component to dashboard directory",
+    "files": [
+      "src/react/pages/Dashboard.tsx",
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "d8817f332bb7322e3bce8a79294f47d6b1cb9be8",
+    "date": "2025-09-21T17:04:00+07:00",
+    "message": "feat(user): add getUserLogs function with pagination support\n\n- Introduced `getUserLogs` in `src/react/utils/user.ts` to fetch current user logs\n  with page and pageSize parameters.\n- Added new type definitions in `types/php_backend/logs.d.ts`:\n  - `LogEntry`\n  - `UserLogResponse`",
+    "files": [
+      "src/react/utils/user.ts",
+      "types/php_backend/logs.d.ts"
+    ]
+  },
+  {
+    "hash": "ad6bc421af5d0aef52b5f348d9ea3c23bb2a0ea1",
+    "date": "2025-09-21T16:57:40+07:00",
+    "message": "refactor(user): move UserInfo interface to a separate type definition file",
+    "files": [
+      "src/react/utils/user.ts",
+      "types/php_backend/user.d.ts"
+    ]
+  },
+  {
     "hash": "0318d9932e953cd4675f0b2d8def3a993ac8cd9d",
     "date": "2025-09-21T16:47:19+07:00",
     "message": "fix(logs): prevent unauthenticated access to own logs with JSON error response",
