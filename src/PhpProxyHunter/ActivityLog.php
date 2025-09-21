@@ -124,20 +124,20 @@ class ActivityLog
    */
   public function __construct($dbOrHelper)
   {
+    // Resolve PDO instance from supported types
     if ($dbOrHelper instanceof PDO) {
-      $this->db     = $dbOrHelper;
-      $this->driver = $dbOrHelper->getAttribute(PDO::ATTR_DRIVER_NAME);
+      $pdo = $dbOrHelper;
     } elseif (
       (class_exists('PhpProxyHunter\\SQLiteHelper') && $dbOrHelper instanceof \PhpProxyHunter\SQLiteHelper) || (class_exists('PhpProxyHunter\\MySQLHelper') && $dbOrHelper instanceof \PhpProxyHunter\MySQLHelper)
     ) {
-      $this->db     = $dbOrHelper->pdo;
-      $this->driver = $this->db->getAttribute(PDO::ATTR_DRIVER_NAME);
+      $pdo = $dbOrHelper->pdo;
     } elseif (class_exists('PhpProxyHunter\\CoreDB') && $dbOrHelper instanceof \PhpProxyHunter\CoreDB) {
-      $this->db     = $dbOrHelper->db->pdo;
-      $this->driver = $this->db->getAttribute(PDO::ATTR_DRIVER_NAME);
+      $pdo = $dbOrHelper->db->pdo;
     } else {
       throw new \InvalidArgumentException('Invalid argument for ActivityLog constructor. Must be PDO, SQLiteHelper, MySQLHelper, or CoreDB.');
     }
+    $this->db     = $pdo;
+    $this->driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     // Ensure the table exists
     $this->db->exec($this->driver === 'sqlite' ? self::SQLITE_SCHEMA : self::MYSQL_SCHEMA);
   }
