@@ -117,11 +117,6 @@ class ActivityLog
    *
    * @param PDO|SQLiteHelper|MySQLHelper|CoreDB $dbOrHelper
    */
-  /**
-   * ActivityLog constructor.
-   *
-   * @param PDO|SQLiteHelper|MySQLHelper|CoreDB $dbOrHelper
-   */
   public function __construct($dbOrHelper)
   {
     // Resolve PDO instance from supported types
@@ -142,9 +137,6 @@ class ActivityLog
     $this->db->exec($this->driver === 'sqlite' ? self::SQLITE_SCHEMA : self::MYSQL_SCHEMA);
   }
 
-  /**
-   * Write a log entry.
-   */
   /**
    * Write a log entry.
    *
@@ -201,9 +193,6 @@ class ActivityLog
     }
   }
 
-  /**
-   * Fetch recent logs.
-   */
   /**
    * Fetch recent logs.
    *
