@@ -160,6 +160,15 @@ class ActivityLog
     $ipAddress = null,
     $userAgent = null
   ) {
+    // Auto-detect IP and user agent if not provided
+    if (($ipAddress === null || $ipAddress === '') || ($userAgent === null || $userAgent === '')) {
+      if ($ipAddress === null || $ipAddress === '') {
+        $ipAddress = \PhpProxyHunter\Server::getRequestIP();
+      }
+      if ($userAgent === null || $userAgent === '') {
+        $userAgent = \PhpProxyHunter\Server::useragent();
+      }
+    }
     try {
       $stmt = $this->db->prepare(<<<SQL
           INSERT INTO activity_log
