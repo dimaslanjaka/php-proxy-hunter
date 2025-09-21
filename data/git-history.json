@@ -1,5 +1,46 @@
 [
   {
+    "hash": "90ac467dcb285edd2924e58e43eaa1855f28c548",
+    "date": "2025-09-21T15:05:16+07:00",
+    "message": "fix(ProxyDB, UserDB): ensure safe closure of database connections in close and destructor methods",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/PhpProxyHunter/UserDB.php"
+    ]
+  },
+  {
+    "hash": "3834c6ae8c123dead99a169fa0bffc43d73d9e57",
+    "date": "2025-09-21T15:04:35+07:00",
+    "message": "feat(ActivityLogTest): add unit tests for ActivityLog class with SQLite and MySQL support",
+    "files": [
+      "tests/PhpProxyHunter/ActivityLogTest.php"
+    ]
+  },
+  {
+    "hash": "edd14eb8eba3ae2a67e8fbcc05dbaab269b26cf6",
+    "date": "2025-09-21T15:02:31+07:00",
+    "message": "feat(ActivityLog): add SQLite schema for activity log table and update constructor to ensure table creation",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php"
+    ]
+  },
+  {
+    "hash": "8fda16b50750483c775fd5c05ee82718291ed277",
+    "date": "2025-09-21T14:58:52+07:00",
+    "message": "feat(ActivityLog): implement activity logging with structured database table and methods",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php"
+    ]
+  },
+  {
+    "hash": "ab1cc1b8be6bf89eb305f0d4d8759076d93c50f7",
+    "date": "2025-09-21T14:55:28+07:00",
+    "message": "refactor(BaseSQL): change close method to abstract for consistency in subclasses",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php"
+    ]
+  },
+  {
     "hash": "05233e372c44ba050d45604a6f745525d8eba09c",
     "date": "2025-09-20T21:00:17+07:00",
     "message": "refactor!: remove LogsRepository and user_logs table\n\n- Deleted LogsRepository and LogsRepositoryMigrations classes\n- Removed user_logs table from create.sql, mysql-schema.sql, and sqlite-schema.sql\n- Removed references to LogsRepository in CoreDB, UserDB, and logs.php\n- Adjusted UserDB methods to no longer log saldo operations or delete from user_logs\n- Simplified tests by removing truncation and references to user_logs\n- Deleted LogsRepositoryTest\n\nBREAKING CHANGE: user activity and saldo operations are no longer logged in user_logs, and LogsRepository has been removed.",
