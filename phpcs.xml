@@ -5,6 +5,11 @@
   <!-- Base coding standard -->
   <rule ref="PSR12"/>
 
+  <!-- Disable space after class keyword for anonymous classes -->
+  <rule ref="PSR12.Classes.AnonClassDeclaration.SpaceAfterKeyword">
+    <severity>0</severity>
+  </rule>
+
   <!-- Disable inline control structure rule -->
   <rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
     <severity>0</severity>
