@@ -1,5 +1,21 @@
 [
   {
+    "hash": "4988fe34bd28e7c0299a8f154db30f31a8abb649",
+    "date": "2025-09-21T18:46:42+07:00",
+    "message": "feat(ActivityLog): add close method and destructor for resource management",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php"
+    ]
+  },
+  {
+    "hash": "2336f5afaf3934bebf382ddb5a6053ee6399b65a",
+    "date": "2025-09-21T18:37:10+07:00",
+    "message": "refactor(phpcs): disable severity for space after class keyword in anonymous classes",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
     "hash": "09e06ecac2f6b1b6b03656ffe789a4011d8327f1",
     "date": "2025-09-21T18:09:58+07:00",
     "message": "refactor(logs): simplify LogsResponse and LogEntry interfaces",
