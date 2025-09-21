@@ -34,6 +34,7 @@ if (!empty($hash)) {
   exit;
 }
 
+
 if (isset($request['me'])) {
   header('Content-Type: application/json; charset=utf-8');
   if (empty($_SESSION['authenticated_email'])) {
@@ -45,27 +46,33 @@ if (isset($request['me'])) {
     echo json_encode(['authenticated' => false, 'error' => true, 'message' => 'User not found'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     exit;
   }
-  // $logsRepo usage removed; no logs to return
+  // Get logs for this user from $log_db
+  $allLogs  = $log_db->recent(1000);
+  $userLogs = array_values(array_filter($allLogs, function ($log) use ($user) {
+    return isset($log['user_id']) && $log['user_id'] == $user['id'];
+  }));
   echo json_encode([
     'authenticated' => true,
     'error'         => false,
-    'logs'          => [],
+    'logs'          => $userLogs,
   ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   exit;
 }
 
+
 if ($isAdmin) {
   header('Content-Type: application/json; charset=utf-8');
-  $offset = ($page - 1) * $perPage;
-  $logs   = $logsRepo->getLogsFromDb([
-    'limit'  => $perPage,
-    'offset' => $offset,
-  ]);
+  $allLogs = $log_db->recent($perPage);
+  $limit   = isset($_GET['limit']) ? max(1, intval($_GET['limit'])) : 50;
+  $offset  = isset($_GET['offset']) ? max(0, intval($_GET['offset'])) : 0;
+  $logs    = $log_db->recent($limit, $offset);
+
+  // Optionally, include pagination info in the response
   $response = [
-    'page'     => $page,
-    'per_page' => $perPage,
-    'logs'     => $logs,
-    'count'    => count($logs),
+    'logs'   => $logs,
+    'limit'  => $limit,
+    'offset' => $offset,
+    'count'  => count($logs),
   ];
   echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   exit;
