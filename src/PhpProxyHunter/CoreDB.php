@@ -58,6 +58,11 @@ class CoreDB extends BaseSQL
   public $proxy_db = null;
 
   /**
+   * @var ActivityLog|null Activity log database helper instance
+   */
+  public $log_db = null;
+
+  /**
    * @var string|null Database driver type ('mysql' or 'sqlite')
    */
   public $driver = null;
@@ -66,11 +71,6 @@ class CoreDB extends BaseSQL
    * @var string|null Path to SQLite database file
    */
   public $dbPath = null;
-
-  /**
-   * Logs repository instance removed
-   */
-  // public $logsRepository removed
 
   /**
    * CoreDB constructor.
@@ -122,8 +122,6 @@ class CoreDB extends BaseSQL
     }
   }
 
-
-
   /**
    * Initialize MySQL database connection and schema.
    */
@@ -133,7 +131,7 @@ class CoreDB extends BaseSQL
     $this->driver   = 'mysql';
     $this->user_db  = new UserDB($this->db);
     $this->proxy_db = new ProxyDB($this->db);
-    // $this->logsRepository instantiation removed
+    $this->log_db   = new ActivityLog($this->db);
 
     $this->loadSchema(__DIR__ . '/assets/mysql-schema.sql');
   }

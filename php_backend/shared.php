@@ -39,3 +39,5 @@ $core_db = new CoreDB(
 $user_db = $core_db->user_db;
 /** @var \PhpProxyHunter\ProxyDB $proxy_db */
 $proxy_db = $core_db->proxy_db;
+/** @var \PhpProxyHunter\ActivityLog $log_db */
+$log_db = $core_db->log_db;
