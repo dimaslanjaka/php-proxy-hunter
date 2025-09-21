@@ -1,4 +1,4 @@
-import UserActivityCard from './components/UserActivityCard';
+import UserActivityCard from './dashboard/UserActivityCard';
 import DashboardContent from './dashboard/DashboardContent';
 
 export default function Dashboard() {
