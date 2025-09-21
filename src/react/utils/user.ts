@@ -1,3 +1,4 @@
+import { UserLogResponse } from '../../../types/php_backend/logs';
 import { UserInfo } from '../../../types/php_backend/user';
 import { createUrl } from './url';
 import axios from 'axios';
@@ -16,6 +17,19 @@ export interface SingleUserInfo extends UserInfo {
  */
 export async function getUserInfo(): Promise<SingleUserInfo> {
   const response = await axios.get<SingleUserInfo>(createUrl('/php_backend/user-info.php'));
+  return response.data;
+}
+
+/**
+ * Get logs for the current user with pagination.
+ * @param page
+ * @param pageSize
+ * @returns
+ */
+export async function getUserLogs(page: number = 1, pageSize: number = 20) {
+  const response = await axios.get<UserLogResponse>(createUrl('/php_backend/logs.php'), {
+    params: { page, per_page: pageSize, me: 1 }
+  });
   return response.data;
 }
 
