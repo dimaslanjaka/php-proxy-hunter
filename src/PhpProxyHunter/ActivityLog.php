@@ -7,7 +7,7 @@ use PDOException;
 
 class ActivityLog
 {
-  public const SQL = <<<SQL
+  public const MYSQL_SCHEMA = <<<SQL
     CREATE TABLE IF NOT EXISTS activity_log (
         id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
@@ -42,12 +42,54 @@ class ActivityLog
         INDEX (created_at)
     );
     SQL;
+  public const SQLITE_SCHEMA = <<<SQL
+    CREATE TABLE IF NOT EXISTS activity_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        user_id INTEGER NOT NULL,         -- the user who performed the action
+        target_user_id INTEGER NULL,      -- optional: if the action affects another user
+
+        action_type TEXT NOT NULL CHECK (
+            action_type IN (
+                'LOGIN',
+                'PACKAGE_CREATE',
+                'PACKAGE_UPDATE',
+                'PACKAGE_DELETE',
+                'PACKAGE_BUY',
+                'TOPUP',
+                'PAYMENT',
+                'REFUND',
+                'OTHER'
+            )
+        ),
+
+        target_id INTEGER NULL,           -- id of affected record (e.g., package_id, topup_id, etc.)
+        target_type TEXT NULL,            -- table/entity name (e.g., 'package', 'payment')
+
+        details TEXT NULL,                -- JSON stored as TEXT (SQLite has JSON1 extension for querying)
+
+        ip_address TEXT NULL,             -- store IPv4/IPv6 (VARCHAR(45) → TEXT)
+        user_agent TEXT NULL,             -- optional for login/device tracking
+
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Indexes (SQLite requires explicit CREATE INDEX statements)
+    CREATE INDEX idx_activity_log_user_id ON activity_log(user_id);
+    CREATE INDEX idx_activity_log_action_type ON activity_log(action_type);
+    CREATE INDEX idx_activity_log_target_id ON activity_log(target_id);
+    CREATE INDEX idx_activity_log_created_at ON activity_log(created_at);
+    SQL;
 
   private PDO $db;
+  private string $driver;
 
   public function __construct(PDO $db)
   {
-    $this->db = $db;
+    $this->db     = $db;
+    $this->driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+    // Ensure the table exists
+    $this->db->exec($this->driver === 'sqlite' ? self::SQLITE_SCHEMA : self::MYSQL_SCHEMA);
   }
 
   /**
