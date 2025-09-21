@@ -25,10 +25,7 @@ abstract class BaseSQL
    *
    * @return void
    */
-  public function close()
-  {
-    $this->pdo = null;
-  }
+  abstract public function close();
 
   /**
    * Create a table in the database.
