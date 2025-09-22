@@ -41,7 +41,11 @@ class ActivityLogTest extends TestCase
       $this->log = new ActivityLog($this->db);
       $this->db->exec('DELETE FROM activity_log');
     } else {
-      $this->db = new PDO('sqlite::memory:');
+      $sqliteFile = __DIR__ . '/tmp/test_packages.sqlite';
+      if (!is_dir(__DIR__ . '/tmp')) {
+        mkdir(__DIR__ . '/tmp', 0777, true);
+      }
+      $this->db = new PDO('sqlite:' . $sqliteFile);
       $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $this->log = new ActivityLog($this->db);
     }
