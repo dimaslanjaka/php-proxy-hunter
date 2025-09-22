@@ -1,5 +1,38 @@
 [
   {
+    "hash": "debfde1283f62161d8056167a29272ec81a3806f",
+    "date": "2025-09-22T16:51:46+07:00",
+    "message": "refactor(UserActivityCard): make activity table body scrollable with sticky header\n\n- Refactored the user activity table to separate the header and body, enabling only the table content (tbody) to be scrollable while keeping the header fixed.\n- Applied Tailwind CSS classes for sticky header and scrollable body for better UX and consistency with LogsSection.",
+    "files": [
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "1d05c48d73d2dd1ae849dfcb7a0042e104794f91",
+    "date": "2025-09-22T16:50:36+07:00",
+    "message": "feat(ActivityLog): add script to populate activity log with sample admin actions",
+    "files": [
+      "tests/PhpProxyHunter/ActivityLogPopulate.php"
+    ]
+  },
+  {
+    "hash": "dafe38afc3682a9f94f1683d9d2b51efd1739828",
+    "date": "2025-09-22T16:40:44+07:00",
+    "message": "fix(config): ensure CLOUD_SQLITE_SECRET is retrieved from $_ENV if available",
+    "files": [
+      "cloud_sqlite/config.php"
+    ]
+  },
+  {
+    "hash": "09d891b46a14b421a83a671037872ef0834ef21e",
+    "date": "2025-09-22T16:40:04+07:00",
+    "message": "refactor(env): move getAdminEmails helper to dedicated env.php\n\n- remove getAdminEmails definition from google-oauth.php\n- create src/database/env.php to centralize environment variable helpers\n- keep same functionality: parse ADMIN_EMAILS from env and trim values",
+    "files": [
+      "php_backend/google-oauth.php",
+      "src/database/env.php"
+    ]
+  },
+  {
     "hash": "c08792583947c0734d47a4199b6de2f087f947e4",
     "date": "2025-09-22T16:24:44+07:00",
     "message": "refactor(LogsSection): make table body scrollable with fixed header\n\n- Refactored the logs table to separate the header and body, enabling only the table content (tbody) to be scrollable while keeping the header fixed.\n- Applied Tailwind CSS classes for sticky header and scrollable body.\n- Improved accessibility by adding scope=\"col\" to table headers.",
