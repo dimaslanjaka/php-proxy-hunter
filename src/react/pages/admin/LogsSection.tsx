@@ -67,10 +67,20 @@ export default function LogsSection() {
   return (
     <div className="flex flex-col items-center justify-center m-4 transition-colors">
       <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors">
-        <h1 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300">
-          <i className="fa-duotone fa-clipboard-list text-green-500 dark:text-green-400"></i>
-          Log Activity
-        </h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-center flex items-center gap-2 text-blue-700 dark:text-blue-300">
+            <i className="fa-duotone fa-clipboard-list text-green-500 dark:text-green-400"></i>
+            Log Activity
+          </h1>
+          <button
+            className="ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1"
+            onClick={() => fetchLogs(page)}
+            disabled={loading}
+            title="Refresh logs now">
+            <i className="fa fa-refresh"></i>
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
         <div className="overflow-x-auto" style={{ maxHeight: '350px', overflowY: 'auto' }}>
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead>
