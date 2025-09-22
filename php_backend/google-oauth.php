@@ -150,12 +150,6 @@ function refreshAccessTokenIfNeeded($client, $path, array &$result)
   }
 }
 
-function getAdminEmails()
-{
-  $adminEmails = isset($_ENV['ADMIN_EMAILS']) ? explode(',', $_ENV['ADMIN_EMAILS']) : [];
-  return array_map('trim', $adminEmails);
-}
-
 /**
  * Finalize user session by creating or updating user in DB and setting session values.
  *
