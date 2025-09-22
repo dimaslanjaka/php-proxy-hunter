@@ -7,7 +7,7 @@ require_once __DIR__ . '/../func.php';
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__), '.env');
 $dotenv->load();
 
-$secret = getenv('CLOUD_SQLITE_SECRET');
+$secret = isset($_ENV['CLOUD_SQLITE_SECRET']) ? $_ENV['CLOUD_SQLITE_SECRET'] : getenv('CLOUD_SQLITE_SECRET');
 if ($secret === false || $secret === '') {
   throw new RuntimeException('CLOUD_SQLITE_SECRET environment variable is not set.');
 }
