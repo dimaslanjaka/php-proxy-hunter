@@ -77,6 +77,43 @@ if (isset($request['update']) && (!empty($_SESSION['authenticated']) || !empty($
   exit;
 }
 
+// Get user info by email or id if provided (admin only)
+if ($isAdmin && !isset($request['update']) && (isset($request['email']) || isset($request['id']))) {
+  $email = $request['email'] ?? '';
+  $id    = isset($request['id']) && is_numeric($request['id']) ? (int)$request['id'] : 0;
+  if (!empty($email)) {
+    $userData = $user_db->select($email);
+  } elseif ($id > 0) {
+    $userData = $user_db->select($id);
+  } else {
+    $userData = [];
+  }
+  if (!empty($userData)) {
+    $result += [
+      'success'       => true,
+      'authenticated' => true,
+      'uid'           => $userData['id'],
+      'email'         => $userData['email'],
+      'saldo'         => (int)($userData['saldo'] ?? 0),
+      'username'      => $userData['username']   ?? '',
+      'first_name'    => $userData['first_name'] ?? '',
+      'last_name'     => $userData['last_name']  ?? '',
+      'admin'         => $userData['is_superuser'] == 1,
+      'staff'         => $userData['is_staff']     == 1,
+      'active'        => $userData['is_active']    == 1,
+    ];
+  } else {
+    $result += [
+      'success'       => false,
+      'authenticated' => false,
+      'messages'      => ['User not found.'],
+    ];
+  }
+  ksort($result);
+  echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  exit;
+}
+
 $email    = !$isCli ? ($_SESSION['authenticated_email'] ?? '') : '';
 $userData = [];
 if ($email) {
