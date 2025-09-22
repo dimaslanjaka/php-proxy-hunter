@@ -1,5 +1,21 @@
 [
   {
+    "hash": "298f5a8b2264533e9a91611896b9dc21a7565c9b",
+    "date": "2025-09-22T12:26:43+07:00",
+    "message": "feat(user-info): add functionality to retrieve user info by email or ID for admins",
+    "files": [
+      "php_backend/user-info.php"
+    ]
+  },
+  {
+    "hash": "767268b6cf44d4980684ebe85bce0ed1c8c42581",
+    "date": "2025-09-22T12:19:52+07:00",
+    "message": "feat(admin/logs): add refresh button to reload logs manually",
+    "files": [
+      "src/react/pages/admin/LogsSection.tsx"
+    ]
+  },
+  {
     "hash": "dc9fe9958870ca3c669c80ab40086eb0b10cca1e",
     "date": "2025-09-22T11:24:22+07:00",
     "message": "fix(UserDB): ensure database connection is properly closed and set to null",
