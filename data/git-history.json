@@ -1,5 +1,13 @@
 [
   {
+    "hash": "dc9fe9958870ca3c669c80ab40086eb0b10cca1e",
+    "date": "2025-09-22T11:24:22+07:00",
+    "message": "fix(UserDB): ensure database connection is properly closed and set to null",
+    "files": [
+      "src/PhpProxyHunter/UserDB.php"
+    ]
+  },
+  {
     "hash": "575a226e2595dff8d1479cb9782aa8944b7f25f0",
     "date": "2025-09-22T11:10:39+07:00",
     "message": "fix(sqlite): prevent index creation error by using IF NOT EXISTS\n\n- Updated SQLite schema to use CREATE INDEX IF NOT EXISTS for all activity_log indexes.\n- This avoids errors when indexes already exist during repeated schema initialization.",
