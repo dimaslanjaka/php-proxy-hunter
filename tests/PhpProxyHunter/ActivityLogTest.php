@@ -83,7 +83,6 @@ class ActivityLogTest extends TestCase
     $this->tearDownDB($driver);
   }
 
-
   /**
    * @dataProvider dbProvider
    */

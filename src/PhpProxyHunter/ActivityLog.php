@@ -91,10 +91,10 @@ class ActivityLog
     );
 
     -- Indexes (SQLite requires explicit CREATE INDEX statements)
-    CREATE INDEX idx_activity_log_user_id ON activity_log(user_id);
-    CREATE INDEX idx_activity_log_action_type ON activity_log(action_type);
-    CREATE INDEX idx_activity_log_target_id ON activity_log(target_id);
-    CREATE INDEX idx_activity_log_created_at ON activity_log(created_at);
+    CREATE INDEX IF NOT EXISTS idx_activity_log_user_id ON activity_log(user_id);
+    CREATE INDEX IF NOT EXISTS idx_activity_log_action_type ON activity_log(action_type);
+    CREATE INDEX IF NOT EXISTS idx_activity_log_target_id ON activity_log(target_id);
+    CREATE INDEX IF NOT EXISTS idx_activity_log_created_at ON activity_log(created_at);
     SQL;
 
 
