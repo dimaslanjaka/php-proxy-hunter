@@ -1,5 +1,13 @@
 [
   {
+    "hash": "18e04a6b96f24444a045481da9667868e3c77c1d",
+    "date": "2025-09-22T17:09:47+07:00",
+    "message": "refactor(dashboard): simplify and modularize UserActivityCard table rendering\n\n- Remove inline fallback comment for total count assignment.\n- Introduce a `columns` array to define table headers and their order.\n- Add a `getColumnValue` helper function to extract and normalize log values for each column.\n- Refactor table rendering to use `columns.map` for both headers and body cells, ensuring consistent order and easier maintenance.\n- Replace previous manual row rendering logic with a more modular and DRY approach.\n- Move scrollable area to the table wrapper and apply consistent sticky header and cell styling.",
+    "files": [
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
     "hash": "debfde1283f62161d8056167a29272ec81a3806f",
     "date": "2025-09-22T16:51:46+07:00",
     "message": "refactor(UserActivityCard): make activity table body scrollable with sticky header\n\n- Refactored the user activity table to separate the header and body, enabling only the table content (tbody) to be scrollable while keeping the header fixed.\n- Applied Tailwind CSS classes for sticky header and scrollable body for better UX and consistency with LogsSection.",
