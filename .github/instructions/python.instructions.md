@@ -2,6 +2,8 @@
 applyTo: '**/*.py'
 ---
 
+# GitHub Copilot Instructions — Python
+
 Coding standards, domain knowledge, and preferences that AI should follow.
 
 ## General Guidelines

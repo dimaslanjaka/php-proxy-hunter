@@ -2,6 +2,8 @@
 applyTo: '**/*.php'
 ---
 
+# GitHub Copilot Instructions — PHP
+
 Coding standards, domain knowledge, and preferences that AI should follow.
 
 - Use PSR-12 coding standards for all PHP code.

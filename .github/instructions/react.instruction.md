@@ -8,16 +8,51 @@ applyTo: '**/*.{tsx,jsx}'
 (These instructions assume the required CDNs are already added to the app entry point; do not emit `<script>`/`<link>` tags inside components.)
 
 ## Project assumptions
-- Framework: **React** (functional components + hooks).
-- Build/tooling: Create React App, Vite, or similar.
-- The following CDNs are already present in the project's HTML entry (do not generate these tags inside components):
   - Tailwind CDN: `https://cdn.tailwindcss.com`
   - Flowbite JS CDN: `https://unpkg.com/flowbite/dist/flowbite.min.js`
   - Font Awesome Pro CDN
   - Main HTML at `index.dev.html`
 
-## Internationalization framework
-- Framework: **i18next**
+## React Code Contribution Instructions
+
+Follow these guidelines when creating or modifying React components or related files:
+
+1. **File Naming and Structure**
+  - Use `.jsx` or `.tsx` extensions for React components.
+  - Place components in a `components/` directory or an appropriate subfolder.
+  - Name files and components using PascalCase (e.g., `MyComponent.jsx`).
+
+2. **Component Structure**
+  - Use functional components with hooks unless class components are required.
+  - Export components as default unless multiple exports are needed.
+  - Include PropTypes or TypeScript interfaces for props validation.
+
+3. **Styling**
+  - Use CSS Modules, styled-components, or Tailwind CSS for styling.
+  - Avoid inline styles except for dynamic or one-off cases.
+
+4. **State Management**
+  - Prefer React's built-in state and context APIs for local and global state.
+  - Use external state libraries (e.g., Redux, Zustand) only if necessary.
+
+5. **Testing**
+  - Write unit tests for all components using Jest and React Testing Library.
+  - Place test files alongside components with a `.test.jsx` or `.test.tsx` suffix.
+
+6. **Code Quality**
+  - Follow the project's ESLint and Prettier configurations.
+  - Ensure all code passes linting and formatting checks before committing.
+
+7. **Documentation**
+  - Add JSDoc or TypeScript doc comments for complex components and functions.
+  - Update relevant README or documentation files if public APIs change.
+
+8. **Pull Requests**
+  - Reference related issues in your PR description.
+  - Summarize changes and provide testing instructions.
+
+---
+Adhering to these instructions ensures consistency and maintainability across all React code in this repository.
 - Framework initialization: `src/react/i18n.ts`
 - locales folder `src/react/locales`
 - locales format is JSON

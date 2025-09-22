@@ -1,7 +1,8 @@
 ---
-applyTo: '**/*.{js,jsx,ts,tsx,cjs,mjs}'
+applyTo: '**/*.{js,ts,cjs,mjs}'
 ---
-# Node.js Configuration Loader Instructions
+
+# GitHub Copilot Instructions — Node.js Configuration Loader Instructions
 
 Coding standards, domain knowledge, and preferences that AI should follow.
 
