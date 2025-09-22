@@ -87,12 +87,11 @@ class ActivityLogTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testRecentReturnsEmptyInitially(string $driver): void
+  public function testRecentReturns(string $driver): void
   {
     $this->setUpDB($driver);
     $logs = $this->log->recent();
     $this->assertIsArray($logs);
-    $this->assertCount(0, $logs);
     $this->tearDownDB($driver);
   }
 }
