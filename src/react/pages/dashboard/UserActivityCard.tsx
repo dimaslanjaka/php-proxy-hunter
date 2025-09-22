@@ -24,7 +24,6 @@ export default function UserActivityCard() {
       .then((data) => {
         if (isMounted) {
           setLogs(data.logs || []);
-          // Try to get count from data.count, fallback to logs.length if not present
           setTotal(
             typeof (data as any).count === 'number'
               ? (data as any).count
@@ -56,6 +55,52 @@ export default function UserActivityCard() {
     setPage(1);
   }
 
+  // Define columns for consistent header and body order
+  const columns = [
+    { key: 'action', label: t('action') },
+    { key: 'timestamp', label: t('timestamp') },
+    { key: 'details', label: t('details') },
+    { key: 'ip_address', label: 'IP' },
+    { key: 'user_agent', label: 'UA' }
+  ];
+
+  // Helper to extract values for each column from a log entry
+  function getColumnValue(log: LogEntry, colKey: string) {
+    switch (colKey) {
+      case 'action':
+        if ('action_type' in log && typeof log.action_type === 'string' && log.action_type) {
+          return log.action_type;
+        } else if ('action' in log && typeof (log as any).action === 'string' && (log as any).action) {
+          return (log as any).action;
+        } else if ('message' in log && typeof (log as any).message === 'string' && (log as any).message) {
+          return (log as any).message;
+        }
+        return '-';
+      case 'timestamp':
+        if ('created_at' in log && typeof (log as any).created_at === 'string' && (log as any).created_at) {
+          return (log as any).created_at;
+        } else if ('timestamp' in log && typeof (log as any).timestamp === 'string' && (log as any).timestamp) {
+          return (log as any).timestamp;
+        } else if ('log_time' in log && typeof (log as any).log_time === 'string' && (log as any).log_time) {
+          return (log as any).log_time;
+        }
+        return '-';
+      case 'details':
+        if ('details' in log && typeof (log as any).details === 'string' && (log as any).details) {
+          return (log as any).details;
+        } else if ('extra_info' in log && typeof (log as any).extra_info === 'string' && (log as any).extra_info) {
+          return (log as any).extra_info;
+        }
+        return '-';
+      case 'ip_address':
+        return (log as any).ip_address || '-';
+      case 'user_agent':
+        return (log as any).user_agent || '-';
+      default:
+        return '-';
+    }
+  }
+
   return (
     <div className="flex flex-col items-center justify-center m-4 transition-colors">
       <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors dark:border dark:border-gray-700">
@@ -71,75 +116,38 @@ export default function UserActivityCard() {
           <div className="text-center text-gray-500 dark:text-gray-400">{t('no_activity_found')}</div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[350px]">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 table-auto text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
                 <thead className="text-xs uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
-                    <th scope="col" className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-50 dark:bg-gray-700">
-                      {t('action')}
-                    </th>
-                    <th scope="col" className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-50 dark:bg-gray-700">
-                      {t('timestamp')}
-                    </th>
-                    <th scope="col" className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-50 dark:bg-gray-700">
-                      {t('details')}
-                    </th>
+                    {columns.map((col) => (
+                      <th
+                        key={col.key}
+                        scope="col"
+                        className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap">
+                        {col.label}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {logs.map((log) => (
+                    <tr key={log.id}>
+                      {columns.map((col) => (
+                        <td
+                          key={col.key}
+                          className={
+                            col.key === 'details'
+                              ? 'px-4 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words'
+                              : 'px-4 py-2 text-sm text-gray-700 dark:text-gray-300'
+                          }>
+                          {getColumnValue(log, col.key)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
               </table>
-              <div className="max-h-[350px] overflow-y-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 table-auto text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {logs.map((log) => {
-                      let action: string = '-';
-                      let timestamp: string = '-';
-                      let details: string = '-';
-                      if ('action_type' in log && typeof log.action_type === 'string' && log.action_type) {
-                        action = log.action_type;
-                      } else if ('action' in log && typeof (log as any).action === 'string' && (log as any).action) {
-                        action = (log as any).action;
-                      } else if ('message' in log && typeof (log as any).message === 'string' && (log as any).message) {
-                        action = (log as any).message;
-                      }
-                      if (
-                        'created_at' in log &&
-                        typeof (log as any).created_at === 'string' &&
-                        (log as any).created_at
-                      ) {
-                        timestamp = (log as any).created_at;
-                      } else if (
-                        'timestamp' in log &&
-                        typeof (log as any).timestamp === 'string' &&
-                        (log as any).timestamp
-                      ) {
-                        timestamp = (log as any).timestamp;
-                      } else if (
-                        'log_time' in log &&
-                        typeof (log as any).log_time === 'string' &&
-                        (log as any).log_time
-                      ) {
-                        timestamp = (log as any).log_time;
-                      }
-                      if ('details' in log && typeof (log as any).details === 'string' && (log as any).details) {
-                        details = (log as any).details;
-                      } else if (
-                        'extra_info' in log &&
-                        typeof (log as any).extra_info === 'string' &&
-                        (log as any).extra_info
-                      ) {
-                        details = (log as any).extra_info;
-                      }
-                      return (
-                        <tr key={log.id}>
-                          <td className="px-4 py-2 font-semibold text-gray-900 dark:text-white">{action}</td>
-                          <td className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">{timestamp}</td>
-                          <td className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">{details}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
             </div>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-4 gap-2">
               <div className="flex items-center gap-2">
