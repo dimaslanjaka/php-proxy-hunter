@@ -161,12 +161,22 @@ class ActivityLog
     $userAgent = null
   ) {
     // Auto-detect IP and user agent if not provided
-    if (($ipAddress === null || $ipAddress === '') || ($userAgent === null || $userAgent === '')) {
-      if ($ipAddress === null || $ipAddress === '') {
-        $ipAddress = \PhpProxyHunter\Server::getRequestIP();
+    $isWebServer = (php_sapi_name() !== 'cli' && php_sapi_name() !== 'phpdbg');
+    if ($isWebServer) {
+      if (($ipAddress === null || $ipAddress === '') || ($userAgent === null || $userAgent === '')) {
+        if ($ipAddress === null || $ipAddress === '') {
+          $ipAddress = \PhpProxyHunter\Server::getRequestIP();
+        }
+        if ($userAgent === null || $userAgent === '') {
+          $userAgent = \PhpProxyHunter\Server::useragent();
+        }
       }
-      if ($userAgent === null || $userAgent === '') {
-        $userAgent = \PhpProxyHunter\Server::useragent();
+    } else {
+      if ($ipAddress === null) {
+        $ipAddress = 'CLI';
+      }
+      if ($userAgent === null) {
+        $userAgent = 'CLI';
       }
     }
     try {
