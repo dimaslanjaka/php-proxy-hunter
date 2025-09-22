@@ -1,5 +1,13 @@
 [
   {
+    "hash": "b3236b45c71a500fbff35a91f9904bb2cdf2e876",
+    "date": "2025-09-22T13:50:05+07:00",
+    "message": "feat(tailwind): enable dark mode and extend custom color palette",
+    "files": [
+      "tailwind.config.js"
+    ]
+  },
+  {
     "hash": "298f5a8b2264533e9a91611896b9dc21a7565c9b",
     "date": "2025-09-22T12:26:43+07:00",
     "message": "feat(user-info): add functionality to retrieve user info by email or ID for admins",
