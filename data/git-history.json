@@ -1,5 +1,38 @@
 [
   {
+    "hash": "575a226e2595dff8d1479cb9782aa8944b7f25f0",
+    "date": "2025-09-22T11:10:39+07:00",
+    "message": "fix(sqlite): prevent index creation error by using IF NOT EXISTS\n\n- Updated SQLite schema to use CREATE INDEX IF NOT EXISTS for all activity_log indexes.\n- This avoids errors when indexes already exist during repeated schema initialization.",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php",
+      "tests/PhpProxyHunter/ActivityLogTest.php"
+    ]
+  },
+  {
+    "hash": "88017791c59af6b83318417c058f1cf97fc8fced",
+    "date": "2025-09-22T11:09:23+07:00",
+    "message": "test: update ActivityLogTest to remove empty assertion in recent logs test\n\n- Renamed testRecentReturnsEmptyInitially to testRecentReturns for clarity.\n- Removed assertion that expected zero logs, allowing for flexible initial state.",
+    "files": [
+      "tests/PhpProxyHunter/ActivityLogTest.php"
+    ]
+  },
+  {
+    "hash": "02d1e01edc53c58c55c0fac254fdd9239cf363da",
+    "date": "2025-09-22T11:05:33+07:00",
+    "message": "test(activity-log): use file-based SQLite database with tmp directory instead of in-memory DB",
+    "files": [
+      "tests/PhpProxyHunter/ActivityLogTest.php"
+    ]
+  },
+  {
+    "hash": "47e4cc97db442ae0cb4fa3d98e91dbf968356154",
+    "date": "2025-09-22T11:03:09+07:00",
+    "message": "fix(activity-log): handle CLI execution by setting default IP and user agent to \"CLI\"",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php"
+    ]
+  },
+  {
     "hash": "4988fe34bd28e7c0299a8f154db30f31a8abb649",
     "date": "2025-09-21T18:46:42+07:00",
     "message": "feat(ActivityLog): add close method and destructor for resource management",
