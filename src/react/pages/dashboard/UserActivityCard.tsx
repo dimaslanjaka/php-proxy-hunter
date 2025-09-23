@@ -117,14 +117,14 @@ export default function UserActivityCard() {
         ) : (
           <>
             <div className="overflow-x-auto max-h-[350px]">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 table-auto text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
-                <thead className="text-xs uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead>
                   <tr>
                     {columns.map((col) => (
                       <th
                         key={col.key}
                         scope="col"
-                        className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap">
+                        className="sticky top-0 z-10 px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap">
                         {col.label}
                       </th>
                     ))}
@@ -136,11 +136,7 @@ export default function UserActivityCard() {
                       {columns.map((col) => (
                         <td
                           key={col.key}
-                          className={
-                            col.key === 'details'
-                              ? 'px-4 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words'
-                              : 'px-4 py-2 text-sm text-gray-700 dark:text-gray-300'
-                          }>
+                          className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700">
                           {getColumnValue(log, col.key)}
                         </td>
                       ))}

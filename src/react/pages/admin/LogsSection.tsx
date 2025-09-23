@@ -81,7 +81,7 @@ export default function LogsSection() {
             <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[350px]">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead>
               <tr>
@@ -100,42 +100,38 @@ export default function LogsSection() {
                 ))}
               </tr>
             </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {loading ? (
+                <tr>
+                  <td colSpan={allKeys.length} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    Loading logs...
+                  </td>
+                </tr>
+              ) : logs.length === 0 ? (
+                <tr>
+                  <td colSpan={allKeys.length} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    No logs found.
+                  </td>
+                </tr>
+              ) : (
+                logs.map((log, idx) => (
+                  <tr key={`${log.id ?? 'noid'}-${idx}`}>
+                    {allKeys.map((key) => (
+                      <td
+                        key={key}
+                        className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700">
+                        {typeof log[key] === 'object' && log[key] !== null
+                          ? JSON.stringify(log[key])
+                          : log[key] !== undefined && log[key] !== null
+                            ? String(log[key])
+                            : ''}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
           </table>
-          <div className="max-h-[350px] overflow-y-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {loading ? (
-                  <tr>
-                    <td colSpan={allKeys.length} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                      Loading logs...
-                    </td>
-                  </tr>
-                ) : logs.length === 0 ? (
-                  <tr>
-                    <td colSpan={allKeys.length} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                      No logs found.
-                    </td>
-                  </tr>
-                ) : (
-                  logs.map((log, idx) => (
-                    <tr key={`${log.id ?? 'noid'}-${idx}`}>
-                      {allKeys.map((key) => (
-                        <td
-                          key={key}
-                          className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700">
-                          {typeof log[key] === 'object' && log[key] !== null
-                            ? JSON.stringify(log[key])
-                            : log[key] !== undefined && log[key] !== null
-                              ? String(log[key])
-                              : ''}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
         </div>
         <Pagination
           page={logsData?.page || 1}
