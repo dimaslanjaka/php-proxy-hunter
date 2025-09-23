@@ -31,13 +31,23 @@ class Meta
   public $pdo;
 
   /**
+   * Database driver name.
+   *
+   * @var string
+   */
+  public $driver;
+
+  /**
    * Meta constructor.
    *
    * @param \PDO $pdo PDO database connection instance.
    */
   public function __construct($pdo)
   {
-    $this->pdo = $pdo;
+    $this->pdo    = $pdo;
+    $this->driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+    // Ensure the table exists
+    $this->pdo->exec($this->driver === 'sqlite' ? $this->SQLiteSchema : $this->MySQLSchema);
   }
 
   public function close()
