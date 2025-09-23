@@ -1,12 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
-require_once __DIR__ . '/../func.php';
 require_once __DIR__ . '/../func-proxy.php';
 include __DIR__ . '/shared.php';
 
-global $isCli, $isAdmin;
+global $isCli, $isAdmin, $log_db;
 
 /**
  * Set CORS and response headers for API.
@@ -68,6 +65,18 @@ if (isset($request['update']) && (!empty($_SESSION['authenticated']) || !empty($
     }
     if ($updateFields) {
       $user_db->update($currentUserData['id'], $updateFields);
+      // Log the update action
+      $log_db->log(
+        (int)$currentUserData['id'], // userId
+        'OTHER',                // actionType (use enum value)
+        null,                   // targetId
+        null,                   // targetType
+        null,                   // targetUserId
+        [
+          'fields_updated' => array_keys($updateFields),
+          'values'         => $updateFields,
+        ]
+      );
       $result['success']    = true;
       $result['messages'][] = 'Profile updated successfully.';
     }
