@@ -78,7 +78,7 @@
 │   ├── recaptcha.php [f2a57158]
 │   ├── refill-saldo.php [ffe44501]
 │   ├── shared.php [bd05be42]
-│   └── user-info.php [03c0cc07]
+│   └── user-info.php [fdf2bd47]
 ├── phpliteadmin/
 │   ├── index.php [5d489b56]
 │   └── phpliteadmin.config.php [2fa99e17]
@@ -923,7 +923,8 @@
 ├── src/
 │   ├── FileSessionHandler.php [08997297]
 │   ├── PhpProxyHunter/
-│   │   ├── ActivityLog.php [2a3f8d17]
+│   │   ├── ActivityLog.php [6c66bc6d]
+│   │   ├── ActivityLogMigration.php [ef9fd6d4]
 │   │   ├── BaseSQL.php [6d319cd5]
 │   │   ├── CoreDB.php [52d74c69]
 │   │   ├── ExecutionTimer.php [2ca2a10e]
@@ -931,6 +932,7 @@
 │   │   ├── GeoIpHelper.php [f87ce142]
 │   │   ├── GeoPlugin.php [6446f887]
 │   │   ├── GeoPlugin2.php [fc60df8f]
+│   │   ├── Meta.php [c1a2d62e]
 │   │   ├── MySQLHelper.php [ea31ef61]
 │   │   ├── Proxy.php [21788f6d]
 │   │   ├── ProxyDB.php [87e075ea]
@@ -939,6 +941,7 @@
 │   │   ├── Server.php [d921e233]
 │   │   ├── Session.php [46a7a3d9]
 │   │   ├── UserDB.php [abd7ab33]
+│   │   ├── const.php [4c21df14]
 │   │   └── shim.php [64a8359d]
 │   ├── ProxyDB.js [187ef586]
 │   ├── ProxyDB.py [f6e7bc57]
