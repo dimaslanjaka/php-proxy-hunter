@@ -1,5 +1,63 @@
 [
   {
+    "hash": "edaf0b6358773781012fdf157f34b62a442c5097",
+    "date": "2025-09-23T17:02:28+07:00",
+    "message": "feat(meta): add driver detection and auto-create meta table\n\nAdds `$driver` property to store the database driver name.\nMeta constructor now ensures the `meta` table exists by executing\nthe appropriate schema for SQLite or MySQL.",
+    "files": [
+      "src/PhpProxyHunter/Meta.php"
+    ]
+  },
+  {
+    "hash": "034789183a5e43332f739fe294c45483ba374d92",
+    "date": "2025-09-23T17:01:10+07:00",
+    "message": "feat(activity-log): add migration support for action_type column\n\nIntroduces `ActivityLogMigration` class to handle schema changes\nfor the `activity_log` table, specifically the `action_type` column.\n- Integrates migration execution into `ActivityLog` constructor.\n- Ensures migration is tracked using the `Meta` table.\n- Closes migration resources on shutdown.",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php",
+      "src/PhpProxyHunter/ActivityLogMigration.php"
+    ]
+  },
+  {
+    "hash": "19abb05f02cd11ff408cf532051d07f2fd99cc1f",
+    "date": "2025-09-23T17:00:08+07:00",
+    "message": "fix(meta): escape key in SQL queries for consistency",
+    "files": [
+      "src/PhpProxyHunter/Meta.php"
+    ]
+  },
+  {
+    "hash": "59b129ed5e3bf22279cdec7090d15ef8c6448e0b",
+    "date": "2025-09-23T16:44:37+07:00",
+    "message": "feat(meta): add Meta class for handling database meta information\n\nIntroduces a new `Meta` class that manages meta information schema\nfor SQLite and MySQL databases. Includes methods to check, get,\nand set key-value pairs in the `meta` table, along with schema\ndefinitions and lifecycle handling.",
+    "files": [
+      "src/PhpProxyHunter/Meta.php"
+    ]
+  },
+  {
+    "hash": "23d3d4548737c9b98fdceb09292aa934ccda5e63",
+    "date": "2025-09-23T16:43:38+07:00",
+    "message": "feat(const): add PACKAGE_VERSION constant for versioning",
+    "files": [
+      "src/PhpProxyHunter/const.php"
+    ]
+  },
+  {
+    "hash": "672b9944369d64ba08f9444f2011c61580edcec3",
+    "date": "2025-09-23T16:31:01+07:00",
+    "message": "feat(user-info): log user profile updates to activity log",
+    "files": [
+      "php_backend/user-info.php"
+    ]
+  },
+  {
+    "hash": "46fa5f2b00094b722f1160d516f312b0badb86fc",
+    "date": "2025-09-23T16:20:34+07:00",
+    "message": "refactor(ui): unify table structure and styles for LogsSection and UserActivityCard\n\n- Merged table header and body into a single table in LogsSection to ensure column alignment.\n- Applied consistent scroll container and sticky header approach.\n- Updated UserActivityCard table to use the same padding, border, and header classes as LogsSection.\n- Ensured both components use `px-2 py-1` for th/td, consistent text sizing, and sticky header styles.\n- Removed redundant table wrappers and extra classes for a cleaner, unified UI.",
+    "files": [
+      "src/react/pages/admin/LogsSection.tsx",
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
     "hash": "18e04a6b96f24444a045481da9667868e3c77c1d",
     "date": "2025-09-22T17:09:47+07:00",
     "message": "refactor(dashboard): simplify and modularize UserActivityCard table rendering\n\n- Remove inline fallback comment for total count assignment.\n- Introduce a `columns` array to define table headers and their order.\n- Add a `getColumnValue` helper function to extract and normalize log values for each column.\n- Refactor table rendering to use `columns.map` for both headers and body cells, ensuring consistent order and easier maintenance.\n- Replace previous manual row rendering logic with a more modular and DRY approach.\n- Move scrollable area to the table wrapper and apply consistent sticky header and cell styling.",
