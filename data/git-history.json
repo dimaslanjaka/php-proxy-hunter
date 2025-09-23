@@ -1,5 +1,13 @@
 [
   {
+    "hash": "811cb5f2b1add6e5ed6142702c9fb86c648c2f91",
+    "date": "2025-09-23T17:19:31+07:00",
+    "message": "fix(meta): escape reserved column name \"key\" in meta table schema\n\n- Add quotes to \"key\" in SQLite schema and backticks to `key` in MySQL schema to prevent SQL syntax errors due to reserved word usage.",
+    "files": [
+      "src/PhpProxyHunter/Meta.php"
+    ]
+  },
+  {
     "hash": "edaf0b6358773781012fdf157f34b62a442c5097",
     "date": "2025-09-23T17:02:28+07:00",
     "message": "feat(meta): add driver detection and auto-create meta table\n\nAdds `$driver` property to store the database driver name.\nMeta constructor now ensures the `meta` table exists by executing\nthe appropriate schema for SQLite or MySQL.",
