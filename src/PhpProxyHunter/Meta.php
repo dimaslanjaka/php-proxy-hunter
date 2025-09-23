@@ -52,14 +52,14 @@ class Meta
 
   public function hasKey($key)
   {
-    $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM meta WHERE key = :key');
+    $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM meta WHERE `key` = :key');
     $stmt->execute([':key' => $key]);
     return $stmt->fetchColumn() > 0;
   }
 
   public function get($key, $default = null)
   {
-    $stmt = $this->pdo->prepare('SELECT value FROM meta WHERE key = :key');
+    $stmt = $this->pdo->prepare('SELECT value FROM meta WHERE `key` = :key');
     $stmt->execute([':key' => $key]);
     return $stmt->fetchColumn() ?: $default;
   }
@@ -67,9 +67,9 @@ class Meta
   public function set($key, $value)
   {
     if ($this->hasKey($key)) {
-      $stmt = $this->pdo->prepare('UPDATE meta SET value = :value WHERE key = :key');
+      $stmt = $this->pdo->prepare('UPDATE meta SET value = :value WHERE `key` = :key');
     } else {
-      $stmt = $this->pdo->prepare('INSERT INTO meta (key, value) VALUES (:key, :value)');
+      $stmt = $this->pdo->prepare('INSERT INTO meta (`key`, value) VALUES (:key, :value)');
     }
     return $stmt->execute([':key' => $key, ':value' => $value]);
   }
