@@ -14,14 +14,14 @@ class Meta
    *
    * @var string
    */
-  public $SQLiteSchema = 'CREATE TABLE IF NOT EXISTS "meta" (key TEXT PRIMARY KEY, value TEXT);';
+  public $SQLiteSchema = 'CREATE TABLE IF NOT EXISTS "meta" ("key" TEXT PRIMARY KEY, value TEXT);';
 
   /**
    * MySQL schema for the meta table.
    *
    * @var string
    */
-  public $MySQLSchema = 'CREATE TABLE IF NOT EXISTS `meta` (key VARCHAR(255) PRIMARY KEY, value TEXT);';
+  public $MySQLSchema = 'CREATE TABLE IF NOT EXISTS `meta` (`key` VARCHAR(255) PRIMARY KEY, value TEXT);';
 
   /**
    * PDO database connection instance.
