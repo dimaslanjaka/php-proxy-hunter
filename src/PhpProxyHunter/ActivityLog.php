@@ -97,11 +97,6 @@ class ActivityLog
     CREATE INDEX IF NOT EXISTS idx_activity_log_created_at ON activity_log(created_at);
     SQL;
 
-
-  /**
-   * @var PDO
-   */
-
   /**
    * @var PDO
    */
@@ -111,6 +106,11 @@ class ActivityLog
    * @var string
    */
   private $driver;
+
+  /**
+   * @var ActivityLogMigration
+   */
+  private $migration;
 
   /**
    * ActivityLog constructor.
@@ -135,6 +135,9 @@ class ActivityLog
     $this->driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     // Ensure the table exists
     $this->db->exec($this->driver === 'sqlite' ? self::SQLITE_SCHEMA : self::MYSQL_SCHEMA);
+    // Run migrations if needed
+    $this->migration = new ActivityLogMigration($this->db);
+    $this->migration->run();
   }
 
   /**
@@ -235,6 +238,10 @@ class ActivityLog
   public function close()
   {
     $this->db = null;
+    if ($this->migration) {
+      $this->migration->close();
+      $this->migration = null;
+    }
   }
 
   /**
