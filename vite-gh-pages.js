@@ -154,13 +154,15 @@ export function cacheBustHtml(htmlFilePath, version) {
  * (e.g., /about/index.html) and copies the built index.html to that location in the
  * deployment directory. Handles both string and array route paths.
  *
+ * @param {string} [sourceHtml] - Optional path to the source index.html file to copy.
+ *   Defaults to the built index.html in the Vite output directory.
  * @param {string} [targetDir] - Optional target directory to use as the root for copying index.html files.
  *   If not provided, defaults to the deployGitPath directory.
  * @returns {Promise<void>} Resolves when all index.html files have been copied for all routes.
  */
-export async function copyIndexToRoutes(targetDir = undefined) {
-  const indexHtml = path.join(viteConfig.build.outDir, 'index.html');
-  const relIndexHtml = path.relative(process.cwd(), indexHtml);
+export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = undefined) {
+  if (!sourceHtml) sourceHtml = path.join(viteConfig.build.outDir, 'index.html');
+  const relIndexHtml = path.relative(process.cwd(), sourceHtml);
   // const $ = cheerio.load(fs.readFileSync(indexHtml, 'utf-8'));
 
   for (const routeOrig of routes) {
@@ -183,17 +185,17 @@ export async function copyIndexToRoutes(targetDir = undefined) {
       const routeHtml = path.join(targetDir || deployGitPath, `${routePathWithoutHtml}.html`);
       const relRouteHtml = path.relative(process.cwd(), routeHtml);
       // Prevent copying if source and destination are the same
-      if (path.resolve(indexHtml) === path.resolve(routeHtml)) {
-        console.log(`Skipped copying: source and destination are the same (${indexHtml})`);
+      if (path.resolve(sourceHtml) === path.resolve(routeHtml)) {
+        console.log(`Skipped copying: source and destination are the same (${sourceHtml})`);
         continue;
       }
       fs.ensureDirSync(path.dirname(routeHtml));
-      if (!fs.existsSync(indexHtml)) {
-        console.error(`Source HTML does not exist: ${path.relative(process.cwd(), indexHtml)}`);
+      if (!fs.existsSync(sourceHtml)) {
+        console.error(`Source HTML does not exist: ${path.relative(process.cwd(), sourceHtml)}`);
         continue;
       }
       try {
-        fs.copySync(indexHtml, routeHtml, { overwrite: true, dereference: true });
+        fs.copySync(sourceHtml, routeHtml, { overwrite: true, dereference: true });
         if (!fs.existsSync(routeHtml)) {
           console.error(`Failed to copy to: ${relRouteHtml}`);
         } else {
