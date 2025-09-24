@@ -163,7 +163,7 @@ export function cacheBustHtml(htmlFilePath, version) {
 export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = undefined) {
   if (!sourceHtml) sourceHtml = path.join(viteConfig.build.outDir, 'index.html');
   const relIndexHtml = path.relative(process.cwd(), sourceHtml);
-  // const $ = cheerio.load(fs.readFileSync(indexHtml, 'utf-8'));
+  const $ = cheerio.load(fs.readFileSync(sourceHtml, 'utf-8'));
 
   for (const routeOrig of routes) {
     let route = { ...routeOrig };
@@ -194,8 +194,62 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
         console.error(`Source HTML does not exist: ${path.relative(process.cwd(), sourceHtml)}`);
         continue;
       }
+      // Modify HTML title for the route
+      if (route.title) {
+        // Update <title>
+        $('title').text(route.title);
+
+        // Update or create meta[property="og:title"]
+        let ogTitleTag = $('meta[property="og:title"]');
+        if (ogTitleTag.length === 0) {
+          $('head').append('<meta property="og:title">');
+          ogTitleTag = $('meta[property="og:title"]');
+        }
+        ogTitleTag.attr('content', route.title);
+
+        // Update or create meta[name="twitter:title"]
+        let twitterTitleTag = $('meta[name="twitter:title"]');
+        if (twitterTitleTag.length === 0) {
+          $('head').append('<meta name="twitter:title">');
+          twitterTitleTag = $('meta[name="twitter:title"]');
+        }
+        twitterTitleTag.attr('content', route.title);
+
+        console.log(`Updated title, og:title, and twitter:title in ${relIndexHtml} for route ${routePath}`);
+      }
+      // Modify meta description if provided
+      if (route.description) {
+        // Update or create meta[name="description"]
+        let descTag = $('meta[name="description"]');
+        if (descTag.length === 0) {
+          $('head').append('<meta name="description">');
+          descTag = $('meta[name="description"]');
+        }
+        descTag.attr('content', route.description);
+
+        // Update or create meta[property="og:description"]
+        let ogDescTag = $('meta[property="og:description"]');
+        if (ogDescTag.length === 0) {
+          $('head').append('<meta property="og:description">');
+          ogDescTag = $('meta[property="og:description"]');
+        }
+        ogDescTag.attr('content', route.description);
+
+        // Update or create meta[name="twitter:description"]
+        let twitterDescTag = $('meta[name="twitter:description"]');
+        if (twitterDescTag.length === 0) {
+          $('head').append('<meta name="twitter:description">');
+          twitterDescTag = $('meta[name="twitter:description"]');
+        }
+        twitterDescTag.attr('content', route.description);
+
+        console.log(
+          `Updated meta description, og:description, and twitter:description in ${relIndexHtml} for route ${routePath}`
+        );
+      }
       try {
-        fs.copySync(sourceHtml, routeHtml, { overwrite: true, dereference: true });
+        // fs.copySync(sourceHtml, routeHtml, { overwrite: true, dereference: true });
+        fs.writeFileSync(routeHtml, $.html());
         if (!fs.existsSync(routeHtml)) {
           console.error(`Failed to copy to: ${relRouteHtml}`);
         } else {
