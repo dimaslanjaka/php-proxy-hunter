@@ -97,15 +97,33 @@ async function deploy() {
 
   // Cache busting for index.html
   const indexHtml = path.join(viteConfig.build.outDir, 'index.html');
-  const $ = cheerio.load(fs.readFileSync(indexHtml, 'utf-8'));
-  let version = 'unknown';
-  try {
-    const gitResult = spawnSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' });
-    if (gitResult.status === 0 && gitResult.stdout) {
-      version = gitResult.stdout.trim();
+  cacheBustHtml(indexHtml);
+
+  // Copy index.html to each route in .deploy_git
+  await copyIndexToRoutes();
+}
+
+/**
+ * Adds cache-busting version query parameters to script and link tags in an HTML file.
+ * @param {string} htmlFilePath - Path to the HTML file to update.
+ * @param {string} [version] - Optional version string. If not provided, uses current git commit hash.
+ */
+export function cacheBustHtml(htmlFilePath, version) {
+  if (!fs.existsSync(htmlFilePath)) {
+    console.warn(`File does not exist for cache busting: ${htmlFilePath}`);
+    return;
+  }
+  const $ = cheerio.load(fs.readFileSync(htmlFilePath, 'utf-8'));
+  let ver = version || 'unknown';
+  if (!version) {
+    try {
+      const gitResult = spawnSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' });
+      if (gitResult.status === 0 && gitResult.stdout) {
+        ver = gitResult.stdout.trim();
+      }
+    } catch {
+      // ignore
     }
-  } catch {
-    // ignore
   }
   $('script[src], link[href]').each((_, el) => {
     const tag = el.tagName.toLowerCase();
@@ -114,7 +132,7 @@ async function deploy() {
       return;
     try {
       const parseSrc = new URL(src, 'http://www.webmanajemen.com/php-proxy-hunter/');
-      parseSrc.searchParams.set('version', version);
+      parseSrc.searchParams.set('version', ver);
       const newUrl = parseSrc.pathname + parseSrc.search;
       if (tag === 'script') $(el).attr('src', newUrl);
       else if (tag === 'link') $(el).attr('href', newUrl);
@@ -123,12 +141,9 @@ async function deploy() {
       console.warn(`Failed to parse URL for cache busting: ${src}`);
     }
   });
-  const relIndexHtml = path.relative(process.cwd(), indexHtml);
-  fs.writeFileSync(indexHtml, $.html());
-  console.log(`Updated ${relIndexHtml} with version query parameters.`);
-
-  // Copy index.html to each route in .deploy_git
-  await copyIndexToRoutes();
+  const relHtml = path.relative(process.cwd(), htmlFilePath);
+  fs.writeFileSync(htmlFilePath, $.html());
+  console.log(`Updated ${relHtml} with version query parameters.`);
 }
 
 /**
