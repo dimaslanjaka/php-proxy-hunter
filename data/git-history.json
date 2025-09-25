@@ -1,5 +1,45 @@
 [
   {
+    "hash": "6a2e13a44bad65b16ddb345f0f890b414ca072f5",
+    "date": "2025-09-25T12:48:09+07:00",
+    "message": "fix(proxy): update ProxyData constructor to handle null values for proxy parameter",
+    "files": [
+      "src/proxy/ProxyData.js"
+    ]
+  },
+  {
+    "hash": "29e6f1198f77bb0af915b3298c0d7b5557e32831",
+    "date": "2025-09-25T12:41:40+07:00",
+    "message": "feat(proxy): add ProxyData class for managing proxy table data",
+    "files": [
+      "src/proxy/ProxyData.js"
+    ]
+  },
+  {
+    "hash": "1bf4ac0224b8dbc8f906dc39953e51ab9992a078",
+    "date": "2025-09-25T12:28:37+07:00",
+    "message": "feat(proxy-checker): enhance local IP detection to include localhost addresses",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "59ab3d58468f8841c7bf65a3f160a627e22db3e4",
+    "date": "2025-09-25T12:27:47+07:00",
+    "message": "feat(proxy-checker): resolve external IP when server IP is local network\n\n- Detects if current server IP is in local range (192.168.*) or debug device\n- Falls back to getPublicIP() to retrieve external IP for accurate proxy validation\n- Added logging of detected server IP with AnsiColors",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "46a9a6f3cb8c82400168620ea763832fbe88c8e1",
+    "date": "2025-09-25T12:23:33+07:00",
+    "message": "feat(info): resolve public IP when request IP is localhost\n\n- Added fallback to fetch external IP from api.ipify.org if detected IP is 127.0.0.1\n- Ensures accurate client IP detection for local requests",
+    "files": [
+      "info.php"
+    ]
+  },
+  {
     "hash": "7595620dba50964d68b2db48d35f942c84491e20",
     "date": "2025-09-25T12:13:02+07:00",
     "message": "refactor(proxy): move validation functions into dedicated validator module\n\n- Created validator.js with isValidProxy, isValidIp, and isValidPort\n- Updated extractor.js, hunter.js, and proxyWorking.js to import isValidProxy from validator.js\n- Updated utils.js to import validation helpers from validator.js and removed inline implementations\n- Cleaned up default export in utils.js to exclude removed functions",
