@@ -1,5 +1,33 @@
 [
   {
+    "hash": "7595620dba50964d68b2db48d35f942c84491e20",
+    "date": "2025-09-25T12:13:02+07:00",
+    "message": "refactor(proxy): move validation functions into dedicated validator module\n\n- Created validator.js with isValidProxy, isValidIp, and isValidPort\n- Updated extractor.js, hunter.js, and proxyWorking.js to import isValidProxy from validator.js\n- Updated utils.js to import validation helpers from validator.js and removed inline implementations\n- Cleaned up default export in utils.js to exclude removed functions",
+    "files": [
+      "src/proxy/extractor.js",
+      "src/proxy/hunter.js",
+      "src/proxy/proxyWorking.js",
+      "src/proxy/utils.js",
+      "src/proxy/validator.js"
+    ]
+  },
+  {
+    "hash": "ec27d20b949d68089cddda21a458ada559ca6b5b",
+    "date": "2025-09-25T11:56:26+07:00",
+    "message": "refactor(log-viewer): export getUserProxyLogUrl function for external usage",
+    "files": [
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
+    "hash": "9fc1027bd0d4aba174544f1c9f045421feff52d8",
+    "date": "2025-09-25T11:46:11+07:00",
+    "message": "refactor(log-viewer): extract user proxy log URL fetch into helper\n\n- Moved user-info fetch logic into getUserProxyLogUrl() helper\n- Updated effect to use helper and handle failure with user-friendly message",
+    "files": [
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
     "hash": "12bb06b448335899186b38cc73ea777efcfd3860",
     "date": "2025-09-25T11:37:53+07:00",
     "message": "fix(proxy-checker): correct error message and align database field name\n\n- Updated validation message to only require 'proxy' parameter\n- Renamed 'last_checked' to 'last_check' to match database schema",
