@@ -275,8 +275,36 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
 
         console.log(`Updated meta og:image, twitter:image, and image in ${relIndexHtml} for route ${routePath}`);
       }
+      // Modify meta canonical if provided
+      if (route.canonical) {
+        // Update or create link[rel="canonical"]
+        let canonicalTag = $('link[rel="canonical"]');
+        if (canonicalTag.length === 0) {
+          $('head').append('<link rel="canonical">');
+          canonicalTag = $('link[rel="canonical"]');
+        }
+        canonicalTag.attr('href', route.canonical);
+
+        // Update or create meta[property="og:url"]
+        let ogUrlTag = $('meta[property="og:url"]');
+        if (ogUrlTag.length === 0) {
+          $('head').append('<meta property="og:url">');
+          ogUrlTag = $('meta[property="og:url"]');
+        }
+        ogUrlTag.attr('content', route.canonical);
+
+        // Update or create meta[name="twitter:url"]
+        let twitterUrlTag = $('meta[name="twitter:url"]');
+        if (twitterUrlTag.length === 0) {
+          $('head').append('<meta name="twitter:url">');
+          twitterUrlTag = $('meta[name="twitter:url"]');
+        }
+        twitterUrlTag.attr('content', route.canonical);
+
+        console.log(`Updated link rel="canonical" in ${relIndexHtml} for route ${routePath}`);
+      }
       try {
-        // fs.copySync(sourceHtml, routeHtml, { overwrite: true, dereference: true });
+        // Write the modified HTML to the route's HTML file
         fs.writeFileSync(routeHtml, $.html());
         if (!fs.existsSync(routeHtml)) {
           console.error(`Failed to copy to: ${relRouteHtml}`);
