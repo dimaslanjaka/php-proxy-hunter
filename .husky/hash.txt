@@ -74,7 +74,7 @@
 │   ├── login.php [824e8961]
 │   ├── logout.php [60033189]
 │   ├── logs.php [5b2a5872]
-│   ├── proxy-checker.php [40513de0]
+│   ├── proxy-checker.php [8b6204d3]
 │   ├── recaptcha.php [f2a57158]
 │   ├── refill-saldo.php [ffe44501]
 │   ├── shared.php [bd05be42]
@@ -976,6 +976,7 @@
 │   ├── preferences.py [8dda5f67]
 │   ├── proxy/
 │   │   ├── ProxyChecker.js [c7e30921]
+│   │   ├── ProxyData.js [2d46a3cd]
 │   │   ├── anonymity.js [947b3554]
 │   │   ├── extractor.js [5f147596]
 │   │   ├── filter.js [f979ac8e]

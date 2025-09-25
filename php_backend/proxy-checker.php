@@ -263,6 +263,14 @@ if (!$isCli) {
     exit($status . PHP_EOL);
   }
 
+  // Fix username and password empty string
+  if (is_string($proxyInfo['username']) && trim($proxyInfo['username']) === '') {
+    $proxyInfo['username'] = null;
+  }
+  if (is_string($proxyInfo['password']) && trim($proxyInfo['password']) === '') {
+    $proxyInfo['password'] = null;
+  }
+
   // create lock file
   file_put_contents($lockFile, (string)getmypid(), LOCK_EX);
 
