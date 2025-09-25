@@ -1,5 +1,21 @@
 [
   {
+    "hash": "f06cefefbfa88275c4d35f805962f7b911a13ea9",
+    "date": "2025-09-25T07:59:18+07:00",
+    "message": "feat(ci): set global env for all jobs in github-pages workflow\n\n- Move all environment variable mappings from individual job and step env blocks to a top-level env block.\n- Remove redundant env blocks from build-and-deploy job and steps.\n- Simplify workflow by ensuring all secrets and environment variables are available globally to all jobs and steps.",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "2395849f94916fd822f5bcce9fae626556280bd4",
+    "date": "2025-09-25T07:53:29+07:00",
+    "message": "feat(github-pages): add additional environment variables for build process",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
     "hash": "7f828e98d3cfe85ffe37548b8ac180cbeb8651ce",
     "date": "2025-09-25T07:46:55+07:00",
     "message": "fix(vite-plugin): ensure lock file is created and updated only during dev server",
