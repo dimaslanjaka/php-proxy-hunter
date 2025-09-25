@@ -27,7 +27,7 @@
 │   ├── fetch.php [ddafbc61]
 │   ├── init.php [873d721d]
 │   └── sync.php [3ff46bda]
-├── composer.json [247455e1]
+├── composer.json [8dc6ac3c]
 ├── coverage/
 │   └── jest/
 │       └── lcov-report/
@@ -74,7 +74,7 @@
 │   ├── login.php [824e8961]
 │   ├── logout.php [60033189]
 │   ├── logs.php [5b2a5872]
-│   ├── proxy-checker.php [74f09480]
+│   ├── proxy-checker.php [a31458a1]
 │   ├── recaptcha.php [f2a57158]
 │   ├── refill-saldo.php [ffe44501]
 │   ├── shared.php [bd05be42]
@@ -926,6 +926,7 @@
 │   ├── PhpProxyHunter/
 │   │   ├── ActivityLog.php [9cf264da]
 │   │   ├── ActivityLogMigration.php [84bd06b7]
+│   │   ├── AnsiColors.php [df8649f4]
 │   │   ├── BaseSQL.php [6d319cd5]
 │   │   ├── CoreDB.php [52d74c69]
 │   │   ├── ExecutionTimer.php [2ca2a10e]
