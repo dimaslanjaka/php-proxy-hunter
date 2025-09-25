@@ -1,6 +1,6 @@
 ├── app/
-│   ├── main.cjs [260d6e40]
-│   └── main.mjs [fc774bef]
+│   ├── main.cjs [1b712e32]
+│   └── main.mjs [7f2d1a6f]
 ├── artisan/
 │   ├── cleaner.php [3eeba3ca]
 │   ├── filterPorts.php [96da3b1f]
@@ -55,7 +55,7 @@
 ├── github-actions-init.py [ee8130c1]
 ├── index.js [4294f6aa]
 ├── index.php [eb9e8e87]
-├── info.php [e2073c10]
+├── info.php [0b2ead55]
 ├── js/
 │   ├── general-site-script.js [80a2ca66]
 │   └── highlight.js [fe9d16c1]
@@ -74,7 +74,7 @@
 │   ├── login.php [824e8961]
 │   ├── logout.php [60033189]
 │   ├── logs.php [5b2a5872]
-│   ├── proxy-checker.php [71b1b5ef]
+│   ├── proxy-checker.php [3ba3f19a]
 │   ├── recaptcha.php [f2a57158]
 │   ├── refill-saldo.php [ffe44501]
 │   ├── shared.php [bd05be42]
@@ -876,7 +876,7 @@
 ├── proxyCheckerReal.py [8f418fd3]
 ├── proxyFetcher.py [84f6f702]
 ├── proxyManager-src.js [f71a0536]
-├── proxyManager.js [82301297]
+├── proxyManager.js [60104bfa]
 ├── proxyManager.php [6bc8ba1b]
 ├── proxyRespawner.php [de08f2c9]
 ├── proxyUpload.py [8e360fc1]
@@ -898,7 +898,7 @@
 │   │       │   └── logs.js [25f58ed8]
 │   │       └── utils/
 │   │           └── url.js [56eab985]
-│   ├── proxyManager.js [82301297]
+│   ├── proxyManager.js [60104bfa]
 │   └── static/
 │       └── express/
 │           ├── index.js [d6071226]
@@ -977,12 +977,13 @@
 │   ├── proxy/
 │   │   ├── ProxyChecker.js [c7e30921]
 │   │   ├── anonymity.js [947b3554]
-│   │   ├── extractor.js [e45cc451]
+│   │   ├── extractor.js [5f147596]
 │   │   ├── filter.js [f979ac8e]
-│   │   ├── hunter.js [348ca050]
+│   │   ├── hunter.js [11416a24]
 │   │   ├── logger.js [76955837]
-│   │   ├── proxyWorking.js [dbbda4c2]
-│   │   └── utils.js [eb6b196a]
+│   │   ├── proxyWorking.js [4950417e]
+│   │   ├── utils.js [27ea91e1]
+│   │   └── validator.js [31ad1676]
 │   ├── react/
 │   │   ├── debugger/
 │   │   │   └── remove-node-child-detector.js [742b2cdf]

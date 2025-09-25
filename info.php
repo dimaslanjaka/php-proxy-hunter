@@ -46,7 +46,17 @@ $config['server-ip']           = getServerIp();
 $config['your-ip']             = Server::getRequestIP();
 $config['your-useragent']      = Server::useragent();
 $config['your-hash']           = getUserId();
-$config_json                   = json_encode($config);
+
+if (trim($config['your-ip']) == '127.0.0.1') {
+  // Curl external service to get public IP
+  $ch          = buildCurl(null, null, 'https://api.ipify.org', []);
+  $external_ip = curl_exec($ch);
+  if ($external_ip !== false && filter_var($external_ip, FILTER_VALIDATE_IP)) {
+    $config['your-ip'] = $external_ip;
+  }
+}
+
+$config_json = json_encode($config);
 
 if (!$isCli) {
   set_cookie('user_config', base64_encode($config_json));
