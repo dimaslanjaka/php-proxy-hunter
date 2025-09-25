@@ -1,5 +1,37 @@
 [
   {
+    "hash": "f40fb9af39eb2882bd8b967139939319dc808a95",
+    "date": "2025-09-25T08:28:36+07:00",
+    "message": "feat(proxy-checker): enhance proxy status logging and add non-SSL testing for public IP detection",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "004e025a3b851a6be34ebfebd1cffd9752acb54b",
+    "date": "2025-09-25T08:08:50+07:00",
+    "message": "feat(proxy-checker): enhance shutdown function to write additional proxy details and status",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "c70802335982c489337f34ec089d758f90f5d7a9",
+    "date": "2025-09-25T08:07:00+07:00",
+    "message": "refactor(useragent): move to php_backend directory and add script name metadata",
+    "files": [
+      "php_backend/useragent.php"
+    ]
+  },
+  {
+    "hash": "110eec14687f1a1624afb70e42645309ba295c39",
+    "date": "2025-09-25T08:05:43+07:00",
+    "message": "chore(update.php): remove obsolete update script",
+    "files": [
+      "update.php"
+    ]
+  },
+  {
     "hash": "f06cefefbfa88275c4d35f805962f7b911a13ea9",
     "date": "2025-09-25T07:59:18+07:00",
     "message": "feat(ci): set global env for all jobs in github-pages workflow\n\n- Move all environment variable mappings from individual job and step env blocks to a top-level env block.\n- Remove redundant env blocks from build-and-deploy job and steps.\n- Simplify workflow by ensuring all secrets and environment variables are available globally to all jobs and steps.",
