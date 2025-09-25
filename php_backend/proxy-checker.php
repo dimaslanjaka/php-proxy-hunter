@@ -314,7 +314,16 @@ if (!$isCli) {
 function proxyChecker($proxyInfo, $types = [])
 {
   global $config, $db;
-  $currentIp = getServerIp();
+  $currentIp          = getServerIp();
+  $isCurrentIpIsLocal = preg_match('/^192\.168/', $currentIp) === 1 || is_debug_device();
+  if ($isCurrentIpIsLocal) {
+    // Try to get public IP if current IP is a common router IP
+    $external_ip = getPublicIP(false, 10);
+    if ($external_ip !== false && filter_var($external_ip, FILTER_VALIDATE_IP)) {
+      $currentIp = $external_ip;
+    }
+  }
+  addLog('Current server IP: ' . AnsiColors::colorize(['cyan'], $currentIp));
   if (is_string($types) && $types !== '') {
     $types = [$types];
   }

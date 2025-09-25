@@ -55,7 +55,7 @@
 ├── github-actions-init.py [ee8130c1]
 ├── index.js [4294f6aa]
 ├── index.php [eb9e8e87]
-├── info.php [0b2ead55]
+├── info.php [17729d03]
 ├── js/
 │   ├── general-site-script.js [80a2ca66]
 │   └── highlight.js [fe9d16c1]
@@ -74,7 +74,7 @@
 │   ├── login.php [824e8961]
 │   ├── logout.php [60033189]
 │   ├── logs.php [5b2a5872]
-│   ├── proxy-checker.php [3ba3f19a]
+│   ├── proxy-checker.php [2820acb6]
 │   ├── recaptcha.php [f2a57158]
 │   ├── refill-saldo.php [ffe44501]
 │   ├── shared.php [bd05be42]
