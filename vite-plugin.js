@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import path from 'upath';
 import { fileURLToPath } from 'url';
 import { buildTailwind } from './tailwind.build.js';
+import { copyIndexToRoutes } from './vite-gh-pages.js';
 
 // Fixes __dirname for ESM modules
 const __filename = fileURLToPath(import.meta.url);
@@ -84,25 +85,29 @@ export function indexHtmlReplacementPlugin() {
         { stdio: 'inherit', shell: true }
       );
     },
-    closeBundle() {
+    async closeBundle() {
       if (viteConfig.command === 'build') {
-        // Copy compiled index.html to the project directory for production.
-        const src = path.join(__dirname, 'dist/react/index.html');
-        const dest = path.join(__dirname, 'index.html');
-        if (fs.existsSync(src)) {
-          const stat = fs.statSync(src);
-          if (stat.size > 0) {
-            fs.copySync(src, dest, { overwrite: true });
-            console.log(`Copied ${src} to ${dest}`);
-          } else {
-            console.warn(`Source file "${src}" is empty. Skipping copy.`);
-          }
-        } else {
-          console.warn(`Source file "${src}" does not exist. Skipping copy.`);
-        }
+        await copyIndexForProduction();
       }
     }
   };
+}
+
+export async function copyIndexForProduction() {
+  // Optimized: Copy compiled index.html to the project directory for production only if it exists and is non-empty.
+  const src = path.join(__dirname, 'dist/react/index.html');
+  const dest = path.join(__dirname, 'index.html');
+  try {
+    if (!fs.existsSync(src)) throw new Error(`Source file "${src}" does not exist. Skipping copy.`);
+    const stat = fs.statSync(src);
+    if (stat.size === 0) throw new Error(`Source file "${src}" is empty. Skipping copy.`);
+    fs.copySync(src, dest, { overwrite: true });
+    console.log(`Copied ${src} to ${dest}`);
+    // Copy index.html to all route destinations in dist/react
+    await copyIndexToRoutes(src, path.join(__dirname, 'dist/react'));
+  } catch (err) {
+    console.warn(err.message || err);
+  }
 }
 
 /**
