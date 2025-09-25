@@ -1,5 +1,13 @@
 [
   {
+    "hash": "700a07dbec31034709c19ea93919f082c3438b32",
+    "date": "2025-09-25T12:56:50+07:00",
+    "message": "fix(proxy-checker): set username and password to null if empty",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "6a2e13a44bad65b16ddb345f0f890b414ca072f5",
     "date": "2025-09-25T12:48:09+07:00",
     "message": "fix(proxy): update ProxyData constructor to handle null values for proxy parameter",
