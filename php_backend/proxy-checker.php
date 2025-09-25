@@ -268,7 +268,11 @@ if (!$isCli) {
   // ensure lock file is always deleted when script ends
   register_shutdown_function(function () use ($lockFile, $db, $proxyInfo) {
     $working_proxies = parse_working_proxies($db);
-    write_file(__DIR__ . '/../working.json', json_encode($working_proxies['array']));
+    $projectRoot     = __DIR__ . '/..';
+    // write working proxies
+    write_file($projectRoot . '/working.txt', $working_proxies['txt']);
+    write_file($projectRoot . '/working.json', json_encode($working_proxies['array']));
+    write_file($projectRoot . '/status.json', json_encode($working_proxies['counter']));
     safe_unlink($lockFile);
     $proxyDetails = [];
     foreach (['proxy', 'type', 'username', 'password'] as $key) {
