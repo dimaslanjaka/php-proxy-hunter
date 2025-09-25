@@ -1,5 +1,37 @@
 [
   {
+    "hash": "12bb06b448335899186b38cc73ea777efcfd3860",
+    "date": "2025-09-25T11:37:53+07:00",
+    "message": "fix(proxy-checker): correct error message and align database field name\n\n- Updated validation message to only require 'proxy' parameter\n- Renamed 'last_checked' to 'last_check' to match database schema",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "f9dea91f2e7e7251c04b491e356069c009bd33e9",
+    "date": "2025-09-25T11:36:09+07:00",
+    "message": "refactor(proxy-checker): extract proxyChecker function and improve type validation\n\n- Added proxyChecker() function to handle SSL and non-SSL proxy testing logic\n- Improved validation for supported proxy types (http, https, socks4, socks5, socks5h)\n- Enhanced logging with AnsiColors for clearer CLI and log outputs\n- Updated log writing to convert ANSI codes to HTML for consistency\n- Simplified getPublicIP logging by commenting out redundant service checks",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "06ebcb291827ab91ed89c1194b633c8dd7d0b2a1",
+    "date": "2025-09-25T11:24:21+07:00",
+    "message": "fix(proxydb): filter out null, false, and empty values before updating record in proxies table\n\nAdded array_filter to clean $data before database update, ensuring only meaningful values (including 0 and '0') are stored.",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "3917218a0e6f4faabb51482831548874155fa5ad",
+    "date": "2025-09-25T10:50:41+07:00",
+    "message": "feat(getServerIp): delete cached IP file if older than 5 minutes on debug devices",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
     "hash": "127357eb4bdcb05ba1097a89266d6dbe057dc4df",
     "date": "2025-09-25T10:39:13+07:00",
     "message": "feat(log-viewer): render log output as HTML\n\nUse dangerouslySetInnerHTML to render log content, allowing HTML entities and colored spans to display correctly in the ProxyList LogViewer.",
