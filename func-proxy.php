@@ -195,6 +195,11 @@ function getServerIp()
 {
   $filePath = __DIR__ . '/tmp/locks/server-ip.txt';
 
+  // Delete cached IP file if it's older than 5 mins on debug devices
+  if (is_debug_device() && file_exists($filePath) && (time() - filemtime($filePath) > 300)) {
+    unlink($filePath);
+  }
+
   // Try to load IP from file if it exists and is not empty
   if (file_exists($filePath) && filesize($filePath) > 0) {
     $ipFromFile = trim(file_get_contents($filePath));
