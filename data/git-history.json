@@ -1,5 +1,22 @@
 [
   {
+    "hash": "3be9445c6d5c8618f110ac5372442ce84092941d",
+    "date": "2025-09-25T09:30:00+07:00",
+    "message": "refactor(proxy-checker): extract helpers and reduce duplicated proxy check logic\n\nIntroduced helper functions `$markStatus`, `$processResult`, and `$checkProxy` to centralize status updates, proxy result handling, and proxy checking. Simplified concurrency handling, input validation, and shutdown cleanup while preserving original log messages and database updates. This reduces code duplication and improves maintainability in `php_backend/proxy-checker.php`.",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "9ff1aa635074aa720fc40646ec08328f4f42f451",
+    "date": "2025-09-25T09:14:01+07:00",
+    "message": "feat(AnsiColors): add ANSI colorization and HTML conversion functionality",
+    "files": [
+      "src/PhpProxyHunter/AnsiColors.php",
+      "tests/console/color.php"
+    ]
+  },
+  {
     "hash": "f40fb9af39eb2882bd8b967139939319dc808a95",
     "date": "2025-09-25T08:28:36+07:00",
     "message": "feat(proxy-checker): enhance proxy status logging and add non-SSL testing for public IP detection",
