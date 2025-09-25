@@ -318,6 +318,11 @@ class ProxyDB
       $data['last_check'] = date(DATE_RFC3339);
     }
     if (!empty($data)) {
+      // Remove values that are null, false, or empty (including '', 0, '0', [], etc.)
+      $data = array_filter($data, function ($value) {
+        return !empty($value) || $value === 0 || $value === '0';
+      });
+      // Update the record
       $this->db->update('proxies', $data, 'proxy = ?', [trim($proxy)]);
     }
   }
