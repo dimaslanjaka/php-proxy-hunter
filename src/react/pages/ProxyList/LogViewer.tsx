@@ -1,7 +1,7 @@
 import React from 'react';
 import { createUrl } from '../../utils/url';
 
-async function getUserProxyLogUrl() {
+export async function getUserProxyLogUrl() {
   try {
     const res = await fetch(createUrl('/php_backend/user-info.php'));
     const data = await res.json();
