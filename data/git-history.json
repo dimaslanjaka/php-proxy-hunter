@@ -1,5 +1,13 @@
 [
   {
+    "hash": "127357eb4bdcb05ba1097a89266d6dbe057dc4df",
+    "date": "2025-09-25T10:39:13+07:00",
+    "message": "feat(log-viewer): render log output as HTML\n\nUse dangerouslySetInnerHTML to render log content, allowing HTML entities and colored spans to display correctly in the ProxyList LogViewer.",
+    "files": [
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
     "hash": "3991127329afe3668b00b289985ea689696b34e7",
     "date": "2025-09-25T10:22:15+07:00",
     "message": "refactor(php7): make Proxy class compatible with PHP 7\n\n- Removed typed properties and nullable type hints from all class properties.\n- Updated constructor to remove type hints and nullable types from parameters.\n- Ensured all type information is preserved in PHPDoc comments for IDE and static analysis support.\n- This change improves compatibility with PHP 7 environments.",
