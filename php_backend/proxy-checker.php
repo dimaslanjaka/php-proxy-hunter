@@ -144,7 +144,7 @@ if (!$isCli) {
     http_response_code(400);
     send_json([
       'error'   => true,
-      'message' => "'proxy' and 'type' parameters are required.",
+      'message' => "'proxy' parameter is required.",
     ]);
   }
 
@@ -402,12 +402,12 @@ function proxyChecker($proxyInfo, $types = [])
   } else {
     // save to database
     $db->updateData($proxyInfo['proxy'], [
-      'type'         => implode('-', $workingTypes),
-      'username'     => $proxyInfo['username'] ?? null,
-      'password'     => $proxyInfo['password'] ?? null,
-      'https'        => $isSSL ? 'true' : 'false',
-      'last_checked' => date(DATE_RFC3339),
-      'status'       => 'active',
+      'type'       => implode('-', $workingTypes),
+      'username'   => $proxyInfo['username'] ?? null,
+      'password'   => $proxyInfo['password'] ?? null,
+      'https'      => $isSSL ? 'true' : 'false',
+      'last_check' => date(DATE_RFC3339),
+      'status'     => 'active',
     ]);
   }
 }
