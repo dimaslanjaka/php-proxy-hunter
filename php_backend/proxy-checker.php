@@ -315,7 +315,7 @@ function proxyChecker($proxyInfo, $types = [])
 {
   global $config, $db;
   $currentIp          = getServerIp();
-  $isCurrentIpIsLocal = preg_match('/^192\.168/', $currentIp) === 1 || is_debug_device();
+  $isCurrentIpIsLocal = preg_match('/^(192\.168|127\.)/', $currentIp) === 1 || is_debug_device();
   if ($isCurrentIpIsLocal) {
     // Try to get public IP if current IP is a common router IP
     $external_ip = getPublicIP(false, 10);
