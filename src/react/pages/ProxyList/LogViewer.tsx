@@ -1,6 +1,19 @@
 import React from 'react';
 import { createUrl } from '../../utils/url';
 
+async function getUserProxyLogUrl() {
+  try {
+    const res = await fetch(createUrl('/php_backend/user-info.php'));
+    const data = await res.json();
+    if (data && data.uid) {
+      const logUrl = createUrl(`/php_backend/proxy-checker.php?id=${data.uid}&type=log`);
+      return logUrl;
+    }
+  } catch (_e) {
+    // ignore
+  }
+}
+
 const LogViewer: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
   const [log, setLog] = React.useState('');
@@ -8,19 +21,13 @@ const LogViewer: React.FC = () => {
 
   // On mount, fetch user id and set log URL
   React.useEffect(() => {
-    async function fetchUserIdAndSetLog() {
-      try {
-        const res = await fetch(createUrl('/php_backend/user-info.php'));
-        const data = await res.json();
-        if (data && data.uid) {
-          const logUrl = createUrl(`/php_backend/proxy-checker.php?id=${data.uid}&type=log`);
-          setUrl(logUrl);
-        }
-      } catch (_e) {
-        // ignore
+    getUserProxyLogUrl().then((logUrl) => {
+      if (logUrl) {
+        setUrl(logUrl);
+      } else {
+        setLog('Failed to retrieve user ID for log.');
       }
-    }
-    fetchUserIdAndSetLog();
+    });
   }, []);
 
   // Poll log if url
