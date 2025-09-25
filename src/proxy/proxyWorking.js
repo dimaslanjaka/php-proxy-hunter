@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { db } from '../database.js';
-import { isValidProxy } from './utils.js';
+import { isValidProxy } from './validator.js';
 
 /**
  * ProxyWorkingManager class to manage proxies in a JSON file.

@@ -9,8 +9,9 @@ import { splitArrayIntoChunks } from '../utils/array.js';
 import { removeStringsFromFile } from '../utils/file.js';
 import { extractIps, extractProxies } from './extractor.js';
 import { ProxyChecker } from './ProxyChecker.js';
-import { isPortOpen, isValidProxy } from './utils.js';
+import { isPortOpen } from './utils.js';
 import { toMilliseconds } from 'sbg-utility';
+import { isValidProxy } from './validator.js';
 
 /**
  * Generates a list of IP:PORT combinations starting from the specified IP and

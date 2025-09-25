@@ -1,4 +1,4 @@
-import { isValidProxy } from './utils.js';
+import { isValidProxy } from './validator.js';
 
 /**
  * Extracts valid HTTP/HTTPS URLs from a given string.
