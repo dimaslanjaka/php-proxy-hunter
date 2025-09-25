@@ -208,12 +208,22 @@ const lockFilePath = path.join(__dirname, 'tmp/locks/.dev-server-lock');
 
 /** @returns {import('vite').Plugin} */
 export function prepareVitePlugins() {
+  let isDevServer = false;
   return {
     name: 'prepare-vite-plugins',
     configResolved(config) {
-      // create lock file to signal for dev server
-      if (config.command === 'serve') {
-        fs.ensureDirSync(path.dirname(lockFilePath));
+      // Only set up lock file if running dev server
+      isDevServer = config.command === 'serve';
+      if (isDevServer) {
+        if (!fs.existsSync(path.dirname(lockFilePath))) {
+          fs.ensureDirSync(path.dirname(lockFilePath));
+        }
+        fs.writeFileSync(lockFilePath, 'lock');
+      }
+    },
+    handleHotUpdate() {
+      // Only update lock file if running dev server
+      if (isDevServer) {
         fs.writeFileSync(lockFilePath, 'lock');
       }
     }
