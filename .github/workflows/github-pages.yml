@@ -85,14 +85,120 @@ jobs:
       - name: Build Project
         run: yarn build
         env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ADMIN_EMAILS: ${{ secrets.ADMIN_EMAILS }}
+          CLOUD_SQLITE_SECRET: ${{ secrets.CLOUD_SQLITE_SECRET }}
+          CPID: ${{ secrets.CPID }}
+          DEBUG: ${{ secrets.DEBUG }}
+          DEBUG_DEVICES: ${{ secrets.DEBUG_DEVICES }}
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_SUPERUSER_EMAIL: ${{ secrets.DJANGO_SUPERUSER_EMAIL }}
+          DJANGO_SUPERUSER_PASSWORD: ${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
+          DJANGO_SUPERUSER_USERNAME: ${{ secrets.DJANGO_SUPERUSER_USERNAME }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+          FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
+          FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          G_API: ${{ secrets.G_API }}
+          G_CLIENT_ID: ${{ secrets.G_CLIENT_ID }}
+          G_CLIENT_SECRET: ${{ secrets.G_CLIENT_SECRET }}
+          G_PROJECT_ID: ${{ secrets.G_PROJECT_ID }}
+          G_RECAPTCHA_SECRET: ${{ secrets.G_RECAPTCHA_SECRET }}
+          G_RECAPTCHA_SITE_KEY: ${{ secrets.G_RECAPTCHA_SITE_KEY }}
+          G_RECAPTCHA_V2_SECRET: ${{ secrets.G_RECAPTCHA_V2_SECRET }}
+          G_RECAPTCHA_V2_SITE_KEY: ${{ secrets.G_RECAPTCHA_V2_SITE_KEY }}
+          G_REDIRECT_URI: ${{ secrets.G_REDIRECT_URI }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN_READ_ONLY: ${{ secrets.GITHUB_TOKEN_READ_ONLY }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GMAIL_SMTP_EMAIL: ${{ secrets.GMAIL_SMTP_EMAIL }}
+          GMAIL_SMTP_PASS: ${{ secrets.GMAIL_SMTP_PASS }}
+          H_CAPTCHA_SECRET: ${{ secrets.H_CAPTCHA_SECRET }}
+          H_CAPTCHA_SITE: ${{ secrets.H_CAPTCHA_SITE }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          OPENAI_KEY2: ${{ secrets.OPENAI_KEY2 }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_PASS: ${{ secrets.SFTP_PASS }}
+          SFTP_PATH: ${{ secrets.SFTP_PATH }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SMS_PASSWORD: ${{ secrets.SMS_PASSWORD }}
+          WHATSAPP_ADMIN: ${{ secrets.WHATSAPP_ADMIN }}
+          CLOUDFLARED_TOKEN: ${{ secrets.CLOUDFLARED_TOKEN }}
+          VITE_HOSTNAME: ${{ secrets.VITE_HOSTNAME }}
+          VITE_PORT: ${{ secrets.VITE_PORT }}
           VITE_BACKEND_HOSTNAME_DEV: ${{ secrets.VITE_BACKEND_HOSTNAME_DEV }}
           VITE_BACKEND_HOSTNAME_PROD: ${{ secrets.VITE_BACKEND_HOSTNAME_PROD }}
+          MYSQL_USER_PRODUCTION: ${{ secrets.MYSQL_USER_PRODUCTION }}
+          MYSQL_PASS_PRODUCTION: ${{ secrets.MYSQL_PASS_PRODUCTION }}
+          MYSQL_HOST_PRODUCTION: ${{ secrets.MYSQL_HOST_PRODUCTION }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASS: ${{ secrets.MYSQL_PASS }}
+          MYSQL_DBNAME: ${{ secrets.MYSQL_DBNAME }}
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
 
       - name: Build React app
         run: node vite-gh-pages.js
         env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ADMIN_EMAILS: ${{ secrets.ADMIN_EMAILS }}
+          CLOUD_SQLITE_SECRET: ${{ secrets.CLOUD_SQLITE_SECRET }}
+          CPID: ${{ secrets.CPID }}
+          DEBUG: ${{ secrets.DEBUG }}
+          DEBUG_DEVICES: ${{ secrets.DEBUG_DEVICES }}
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_SUPERUSER_EMAIL: ${{ secrets.DJANGO_SUPERUSER_EMAIL }}
+          DJANGO_SUPERUSER_PASSWORD: ${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
+          DJANGO_SUPERUSER_USERNAME: ${{ secrets.DJANGO_SUPERUSER_USERNAME }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+          FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
+          FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          G_API: ${{ secrets.G_API }}
+          G_CLIENT_ID: ${{ secrets.G_CLIENT_ID }}
+          G_CLIENT_SECRET: ${{ secrets.G_CLIENT_SECRET }}
+          G_PROJECT_ID: ${{ secrets.G_PROJECT_ID }}
+          G_RECAPTCHA_SECRET: ${{ secrets.G_RECAPTCHA_SECRET }}
+          G_RECAPTCHA_SITE_KEY: ${{ secrets.G_RECAPTCHA_SITE_KEY }}
+          G_RECAPTCHA_V2_SECRET: ${{ secrets.G_RECAPTCHA_V2_SECRET }}
+          G_RECAPTCHA_V2_SITE_KEY: ${{ secrets.G_RECAPTCHA_V2_SITE_KEY }}
+          G_REDIRECT_URI: ${{ secrets.G_REDIRECT_URI }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN_READ_ONLY: ${{ secrets.GITHUB_TOKEN_READ_ONLY }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GMAIL_SMTP_EMAIL: ${{ secrets.GMAIL_SMTP_EMAIL }}
+          GMAIL_SMTP_PASS: ${{ secrets.GMAIL_SMTP_PASS }}
+          H_CAPTCHA_SECRET: ${{ secrets.H_CAPTCHA_SECRET }}
+          H_CAPTCHA_SITE: ${{ secrets.H_CAPTCHA_SITE }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          OPENAI_KEY2: ${{ secrets.OPENAI_KEY2 }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_PASS: ${{ secrets.SFTP_PASS }}
+          SFTP_PATH: ${{ secrets.SFTP_PATH }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SMS_PASSWORD: ${{ secrets.SMS_PASSWORD }}
+          WHATSAPP_ADMIN: ${{ secrets.WHATSAPP_ADMIN }}
+          CLOUDFLARED_TOKEN: ${{ secrets.CLOUDFLARED_TOKEN }}
+          VITE_HOSTNAME: ${{ secrets.VITE_HOSTNAME }}
+          VITE_PORT: ${{ secrets.VITE_PORT }}
           VITE_BACKEND_HOSTNAME_DEV: ${{ secrets.VITE_BACKEND_HOSTNAME_DEV }}
           VITE_BACKEND_HOSTNAME_PROD: ${{ secrets.VITE_BACKEND_HOSTNAME_PROD }}
+          MYSQL_USER_PRODUCTION: ${{ secrets.MYSQL_USER_PRODUCTION }}
+          MYSQL_PASS_PRODUCTION: ${{ secrets.MYSQL_PASS_PRODUCTION }}
+          MYSQL_HOST_PRODUCTION: ${{ secrets.MYSQL_HOST_PRODUCTION }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASS: ${{ secrets.MYSQL_PASS }}
+          MYSQL_DBNAME: ${{ secrets.MYSQL_DBNAME }}
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
 
       - name: Build commit message
         id: commitmsg
