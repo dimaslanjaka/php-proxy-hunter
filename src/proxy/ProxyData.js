@@ -11,7 +11,7 @@
 export default class ProxyData {
   /**
    * @param {Object} params
-   * @param {string} params.proxy
+   * @param {string|null} [params.proxy=null]
    * @param {string|null} [params.latency=null]
    * @param {string|null} [params.type=null]
    * @param {string|null} [params.region=null]
@@ -35,7 +35,7 @@ export default class ProxyData {
    * @param {string|null} [params.https='false'] - kept as string to mirror original PHP value
    */
   constructor({
-    proxy,
+    proxy = null,
     latency = null,
     type = null,
     region = null,
@@ -61,7 +61,7 @@ export default class ProxyData {
     /** @type {number|null} */
     this.id = id;
 
-    /** @type {string} */
+    /** @type {string|null} */
     this.proxy = proxy;
 
     /** @type {string|null} */
