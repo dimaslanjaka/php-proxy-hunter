@@ -30,6 +30,7 @@
   Name: Dimas Lanjaka
   Website: https://www.webmanajemen.com
   Email: dimaslanjaka@gmail.com
+  Script Name: Random User-Agent Generator
 */
 
 require_once __DIR__ . '/func.php';
