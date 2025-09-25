@@ -184,11 +184,6 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
       const routePathWithoutHtml = routePath.replace(/\.html$/, '');
       const routeHtml = path.join(targetDir || deployGitPath, `${routePathWithoutHtml}.html`);
       const relRouteHtml = path.relative(process.cwd(), routeHtml);
-      // Prevent copying if source and destination are the same
-      if (path.resolve(sourceHtml) === path.resolve(routeHtml)) {
-        console.log(`Skipped copying: source and destination are the same (${sourceHtml})`);
-        continue;
-      }
       fs.ensureDirSync(path.dirname(routeHtml));
       if (!fs.existsSync(sourceHtml)) {
         console.error(`Source HTML does not exist: ${path.relative(process.cwd(), sourceHtml)}`);
