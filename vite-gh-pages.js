@@ -113,7 +113,7 @@ export function cacheBustHtml(htmlFilePath, version) {
     console.warn(`File does not exist for cache busting: ${htmlFilePath}`);
     return;
   }
-  const $ = cheerio.load(fs.readFileSync(htmlFilePath, 'utf-8'));
+  let $ = cheerio.load(fs.readFileSync(htmlFilePath, 'utf-8'));
   let ver = version || 'unknown';
   if (!version) {
     try {
@@ -143,6 +143,7 @@ export function cacheBustHtml(htmlFilePath, version) {
   });
   const relHtml = path.relative(process.cwd(), htmlFilePath);
   fs.writeFileSync(htmlFilePath, $.html());
+  $ = null; // Help GC
   console.log(`Updated ${relHtml} with version query parameters.`);
 }
 
@@ -163,7 +164,8 @@ export function cacheBustHtml(htmlFilePath, version) {
 export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = undefined) {
   if (!sourceHtml) sourceHtml = path.join(viteConfig.build.outDir, 'index.html');
   const relIndexHtml = path.relative(process.cwd(), sourceHtml);
-  const $ = cheerio.load(fs.readFileSync(sourceHtml, 'utf-8'));
+  // Read the HTML content once for reuse in each route
+  const htmlContent = fs.readFileSync(sourceHtml, 'utf-8');
 
   for (const routeOrig of routes) {
     let route = { ...routeOrig };
@@ -171,14 +173,11 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
     const paths = Array.isArray(route.path) ? route.path : [route.path];
     for (let pathItem of paths) {
       let routePath = pathItem;
+      // If routePath ends with a slash, treat as directory and append index.html
       if (routePath.endsWith('/')) {
-        // Ensure the route does not end with a slash
         routePath += 'index.html';
       } else if (!routePath.endsWith('.html')) {
-        // Append index.html if it does not end with .html
-        // This ensures that the route is treated as a directory
-        // and served as index.html
-        // e.g., /about becomes /about/index.html
+        // If not ending with .html, treat as directory and append index.html
         routePath += '/index.html';
       }
       const routePathWithoutHtml = routePath.replace(/\.html$/, '');
@@ -186,14 +185,16 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
       const relRouteHtml = path.relative(process.cwd(), routeHtml);
       fs.ensureDirSync(path.dirname(routeHtml));
       if (!fs.existsSync(sourceHtml)) {
+        // Source HTML file must exist for copying
         console.error(`Source HTML does not exist: ${path.relative(process.cwd(), sourceHtml)}`);
         continue;
       }
-      // Modify HTML title for the route
+      // Use a local Cheerio instance for each route to avoid memory leaks
+      let $ = cheerio.load(htmlContent);
+      // Modify HTML title for the route if provided
       if (route.title) {
-        // Update <title>
+        // Set <title> tag
         $('title').text(route.title);
-
         // Update or create meta[property="og:title"]
         let ogTitleTag = $('meta[property="og:title"]');
         if (ogTitleTag.length === 0) {
@@ -201,7 +202,6 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           ogTitleTag = $('meta[property="og:title"]');
         }
         ogTitleTag.attr('content', route.title);
-
         // Update or create meta[name="twitter:title"]
         let twitterTitleTag = $('meta[name="twitter:title"]');
         if (twitterTitleTag.length === 0) {
@@ -209,7 +209,7 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           twitterTitleTag = $('meta[name="twitter:title"]');
         }
         twitterTitleTag.attr('content', route.title);
-
+        // Log update for debugging
         console.log(`Updated title, og:title, and twitter:title in ${relIndexHtml} for route ${routePath}`);
       }
       // Modify meta description if provided
@@ -221,7 +221,6 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           descTag = $('meta[name="description"]');
         }
         descTag.attr('content', route.description);
-
         // Update or create meta[property="og:description"]
         let ogDescTag = $('meta[property="og:description"]');
         if (ogDescTag.length === 0) {
@@ -229,7 +228,6 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           ogDescTag = $('meta[property="og:description"]');
         }
         ogDescTag.attr('content', route.description);
-
         // Update or create meta[name="twitter:description"]
         let twitterDescTag = $('meta[name="twitter:description"]');
         if (twitterDescTag.length === 0) {
@@ -237,7 +235,7 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           twitterDescTag = $('meta[name="twitter:description"]');
         }
         twitterDescTag.attr('content', route.description);
-
+        // Log update for debugging
         console.log(
           `Updated meta description, og:description, and twitter:description in ${relIndexHtml} for route ${routePath}`
         );
@@ -251,7 +249,6 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           ogImageTag = $('meta[property="og:image"]');
         }
         ogImageTag.attr('content', route.thumbnail);
-
         // Update or create meta[name="twitter:image"]
         let twitterImageTag = $('meta[name="twitter:image"]');
         if (twitterImageTag.length === 0) {
@@ -259,7 +256,6 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           twitterImageTag = $('meta[name="twitter:image"]');
         }
         twitterImageTag.attr('content', route.thumbnail);
-
         // Update or create meta[name="image"]
         let imageTag = $('meta[name="image"]');
         if (imageTag.length === 0) {
@@ -267,7 +263,7 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           imageTag = $('meta[name="image"]');
         }
         imageTag.attr('content', route.thumbnail);
-
+        // Log update for debugging
         console.log(`Updated meta og:image, twitter:image, and image in ${relIndexHtml} for route ${routePath}`);
       }
       // Modify meta canonical if provided
@@ -279,7 +275,6 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           canonicalTag = $('link[rel="canonical"]');
         }
         canonicalTag.attr('href', route.canonical);
-
         // Update or create meta[property="og:url"]
         let ogUrlTag = $('meta[property="og:url"]');
         if (ogUrlTag.length === 0) {
@@ -287,7 +282,6 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           ogUrlTag = $('meta[property="og:url"]');
         }
         ogUrlTag.attr('content', route.canonical);
-
         // Update or create meta[name="twitter:url"]
         let twitterUrlTag = $('meta[name="twitter:url"]');
         if (twitterUrlTag.length === 0) {
@@ -295,18 +289,22 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           twitterUrlTag = $('meta[name="twitter:url"]');
         }
         twitterUrlTag.attr('content', route.canonical);
-
+        // Log update for debugging
         console.log(`Updated link rel="canonical" in ${relIndexHtml} for route ${routePath}`);
       }
       try {
         // Write the modified HTML to the route's HTML file
         fs.writeFileSync(routeHtml, $.html());
+        $ = null; // Help GC
         if (!fs.existsSync(routeHtml)) {
+          // Check if file was written successfully
           console.error(`Failed to copy to: ${relRouteHtml}`);
         } else {
+          // Log successful copy
           console.log(`Copied ${relIndexHtml} to ${relRouteHtml} after build.`);
         }
       } catch (err) {
+        // Log any error during file write
         console.error(`Error copying ${relIndexHtml} to ${relRouteHtml}:`, err);
       }
     }
