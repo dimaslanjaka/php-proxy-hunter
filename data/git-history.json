@@ -1,5 +1,29 @@
 [
   {
+    "hash": "7f828e98d3cfe85ffe37548b8ac180cbeb8651ce",
+    "date": "2025-09-25T07:46:55+07:00",
+    "message": "fix(vite-plugin): ensure lock file is created and updated only during dev server",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "3abbd656e323185be20d2f6bffe3362b3b1bd574",
+    "date": "2025-09-25T07:44:50+07:00",
+    "message": "fix(ProxyList): reset page to 1 when filter selection changes",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "68d60eb8355d0a8860ca414f6e53199efe8b31ad",
+    "date": "2025-09-25T07:41:02+07:00",
+    "message": "refactor(vite-gh-pages): optimize Cheerio memory usage and clarify comments\n\n- Change Cheerio instance `$` from const to let in `cacheBustHtml` and set to null after use to help garbage collection.\n- In `copyIndexToRoutes`, read HTML content once and use a local Cheerio instance for each route to avoid memory leaks.\n- Add and clarify comments for route handling, Cheerio usage, and debugging.\n- Remove redundant or unclear comments, replacing them with concise, meaningful explanations.",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
     "hash": "b1a26b880c62d7f44a07050f53ca04793265029d",
     "date": "2025-09-25T07:32:32+07:00",
     "message": "refactor(vite-gh-pages): remove redundant check for identical source and destination in copyIndexToRoutes",
