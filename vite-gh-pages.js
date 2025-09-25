@@ -247,6 +247,34 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
           `Updated meta description, og:description, and twitter:description in ${relIndexHtml} for route ${routePath}`
         );
       }
+      // Modify meta thumbnail if provided
+      if (route.thumbnail) {
+        // Update or create meta[property="og:image"]
+        let ogImageTag = $('meta[property="og:image"]');
+        if (ogImageTag.length === 0) {
+          $('head').append('<meta property="og:image">');
+          ogImageTag = $('meta[property="og:image"]');
+        }
+        ogImageTag.attr('content', route.thumbnail);
+
+        // Update or create meta[name="twitter:image"]
+        let twitterImageTag = $('meta[name="twitter:image"]');
+        if (twitterImageTag.length === 0) {
+          $('head').append('<meta name="twitter:image">');
+          twitterImageTag = $('meta[name="twitter:image"]');
+        }
+        twitterImageTag.attr('content', route.thumbnail);
+
+        // Update or create meta[name="image"]
+        let imageTag = $('meta[name="image"]');
+        if (imageTag.length === 0) {
+          $('head').append('<meta name="image">');
+          imageTag = $('meta[name="image"]');
+        }
+        imageTag.attr('content', route.thumbnail);
+
+        console.log(`Updated meta og:image, twitter:image, and image in ${relIndexHtml} for route ${routePath}`);
+      }
       try {
         // fs.copySync(sourceHtml, routeHtml, { overwrite: true, dereference: true });
         fs.writeFileSync(routeHtml, $.html());
