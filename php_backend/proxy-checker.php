@@ -1,48 +1,34 @@
 <?php
 
-declare(strict_types=1);
-
-include __DIR__ . '/shared.php';
-
 use PhpProxyHunter\ProxyDB;
-
-global $isAdmin, $isCli;
+use PhpProxyHunter\Server;
 
 /**
- * NOTE:
- * - I preserved all original functions and PHPDoc comments (addLog, resetLog, getLogFile,
- *   getWebsiteTitle, getPublicIP, send_json, send_text).
- * - Optimization changes are internal (null coalescing, early returns, small helpers,
- *   less repetition, consistent checks, safer file writes).
+ * Helper functions (must be defined before use)
  */
-
-/** Ensure directory exists helper (keeps behavior but avoids repeating mkdir checks) */
-function ensure_dir(string $dir): void
+function ensure_dir($dir)
 {
   if (!is_dir($dir)) {
     @mkdir($dir, 0777, true);
   }
 }
 
-/** Small helper to safely unlink a file if it exists */
-function safe_unlink(string $file): void
+function safe_unlink($file)
 {
   if (file_exists($file)) {
     @unlink($file);
   }
 }
 
-/** Helper to get normalized request scheme/host/script dir */
-function get_self_base(): string
+function get_self_base()
 {
-  $scheme = $_SERVER['REQUEST_SCHEME'] ?? (($_SERVER['HTTPS'] ?? '') === 'on' ? 'https' : 'http');
-  $host   = $_SERVER['HTTP_HOST']      ?? 'localhost';
-  $script = dirname($_SERVER['SCRIPT_NAME'] ?? '/');
+  $scheme = isset($_SERVER['REQUEST_SCHEME']) ? $_SERVER['REQUEST_SCHEME'] : (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
+  $host   = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+  $script = isset($_SERVER['SCRIPT_NAME']) ? dirname($_SERVER['SCRIPT_NAME']) : '/';
   return rtrim($scheme . '://' . $host . $script, '/');
 }
 
-/** Small helper to return proxy details array and joined string to avoid repeating loops */
-function build_proxy_details(array $proxyInfo): array
+function build_proxy_details($proxyInfo)
 {
   $details = [];
   foreach (['proxy', 'type', 'username', 'password'] as $key) {
@@ -267,6 +253,7 @@ if (!$isCli) {
 
   $processResult = function (array $proxyInfo, string $publicIP, bool $same, bool $nonSSL) use ($db) {
     $proxyDetails = build_proxy_details($proxyInfo)['text'];
+    $currentIp    = Server::getClientIp();
 
     if ($same) {
       // Proxy working, same as proxy IP
@@ -286,7 +273,11 @@ if (!$isCli) {
         'https'      => $nonSSL ? 'false' : 'true',
         'last_check' => date(DATE_RFC3339),
       ]);
-      $msg = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. ($proxyDetails)";
+      if ($publicIP === $currentIp) {
+        $msg = "Proxy is working, but detected IP ($publicIP) matches your current IP ($currentIp). ($proxyDetails)";
+      } else {
+        $msg = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. ($proxyDetails)";
+      }
       addLog($msg);
     }
     return $same;
