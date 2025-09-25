@@ -255,180 +255,141 @@ if (!$isCli) {
   ];
   $timeout = $config['curl_timeout'] ?? 10;
 
+  /**
+   * --- Helpers to avoid repetition ---
+   */
+  $markStatus = function (string $status, bool $exit = false) use ($statusFile) {
+    @file_put_contents($statusFile, $status, LOCK_EX);
+    if ($exit) {
+      exit($status . PHP_EOL);
+    }
+  };
+
+  $processResult = function (array $proxyInfo, string $publicIP, bool $same, bool $nonSSL) use ($db) {
+    $proxyDetails = build_proxy_details($proxyInfo)['text'];
+
+    if ($same) {
+      // Proxy working, same as proxy IP
+      $db->updateData($proxyInfo['proxy'], [
+        'status'     => 'active',
+        'https'      => $nonSSL ? 'false' : 'true',
+        'last_check' => date(DATE_RFC3339),
+      ]);
+      $msg     = "Proxy is working. Detected IP: $publicIP ($proxyDetails)";
+      $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
+      $msg .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
+      addLog($msg);
+    } else {
+      // Proxy working, but different IP
+      $db->updateData($proxyInfo['proxy'], [
+        'status'     => 'unknown',
+        'https'      => $nonSSL ? 'false' : 'true',
+        'last_check' => date(DATE_RFC3339),
+      ]);
+      $msg = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. ($proxyDetails)";
+      addLog($msg);
+    }
+    return $same;
+  };
+
+  $checkProxy = function (array $proxyInfo, int $timeout, bool $nonSSL = false) use ($processResult) {
+    $proxyDetails = build_proxy_details($proxyInfo)['text'];
+    addLog('Checking proxy' . ($nonSSL ? ' (non-SSL)' : '') . " ($proxyDetails)...");
+
+    $publicIP = getPublicIP(true, $timeout, $proxyInfo, $nonSSL);
+    if (empty($publicIP)) {
+      addLog("{$proxyInfo['type']} proxy type did not return a public IP" . ($nonSSL ? ' (non-SSL).' : '.'));
+      return false;
+    }
+
+    $ipProxy = extractIPs($proxyInfo['proxy']);
+    return $processResult($proxyInfo, $publicIP, in_array($publicIP, $ipProxy, true), $nonSSL);
+  };
+
+  // --- Concurrency check ---
   if (file_exists($lockFile) && !$isAdmin) {
-    // another process still running
-    $status = 'Another process is still running.';
-    @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-    exit($status . PHP_EOL);
+    $markStatus('Another process is still running.', true);
   }
 
   // create lock file
   file_put_contents($lockFile, (string)getmypid(), LOCK_EX);
 
-  // ensure lock file is always deleted when script ends
+  // cleanup hook
   register_shutdown_function(function () use ($lockFile, $db, $proxyInfo) {
-    $working_proxies = parse_working_proxies($db);
-    $projectRoot     = __DIR__ . '/..';
-    // write working proxies
-    write_file($projectRoot . '/working.txt', $working_proxies['txt']);
-    write_file($projectRoot . '/working.json', json_encode($working_proxies['array']));
-    write_file($projectRoot . '/status.json', json_encode($working_proxies['counter']));
+    $working = parse_working_proxies($db);
+    $root    = __DIR__ . '/..';
+    write_file($root . '/working.txt', $working['txt']);
+    write_file($root . '/working.json', json_encode($working['array']));
+    write_file($root . '/status.json', json_encode($working['counter']));
     safe_unlink($lockFile);
-    $proxyDetails = [];
-    foreach (['proxy', 'type', 'username', 'password'] as $key) {
-      if (!empty($proxyInfo[$key])) {
-        $proxyDetails[] = ucfirst($key) . ': ' . $proxyInfo[$key];
+
+    $details = [];
+    foreach (['proxy', 'type', 'username', 'password'] as $k) {
+      if (!empty($proxyInfo[$k])) {
+        $details[] = ucfirst($k) . ': ' . $proxyInfo[$k];
       }
     }
-    addLog('Process ended, lock file removed.' . (count($proxyDetails) ? ' (' . implode(', ', $proxyDetails) . ')' : ''));
+    addLog('Process ended, lock file removed.' . ($details ? ' (' . implode(', ', $details) . ')' : ''));
   });
 
-  // validate input before calling getPublicIP
+  // --- Validate input ---
   if (empty($proxyInfo['proxy']) && empty($proxyInfo['type'])) {
-    // Ensure the directory exists before writing the file
     ensure_dir(dirname($statusFile));
-    $status = "'proxy' and 'type' parameters are required.";
-    @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-    safe_unlink($lockFile);
-    exit($status . PHP_EOL);
+    $markStatus("'proxy' and 'type' parameters are required.", true);
   }
 
-  // if empty proxy type, loop through all types
+  // --- Main logic ---
+  $proxyTypes = ['http', 'https', 'socks4', 'socks5', 'socks5h'];
+  $markStatus('starting');
+
   if (empty($proxyInfo['type'])) {
-    $proxyTypes   = ['http', 'https', 'socks4', 'socks5', 'socks5h'];
     $foundWorking = false;
-    @file_put_contents($statusFile, 'starting', LOCK_EX);
+
+    // First: SSL attempt
     foreach ($proxyTypes as $type) {
+      $markStatus('processing');
       $proxyInfo['type'] = $type;
-      @file_put_contents($statusFile, 'processing', LOCK_EX);
-      $proxyDetailsArr = build_proxy_details($proxyInfo);
-      addLog('Checking proxy (' . $proxyDetailsArr['text'] . ')...');
-
-      $publicIP        = getPublicIP(true, $timeout, $proxyInfo);
-      $proxyDetailsArr = build_proxy_details($proxyInfo);
-
-      if (empty($publicIP)) {
-        addLog("{$type} proxy type did not return a public IP.");
-        continue;
-      }
-
-      $ipProxy = extractIPs($proxyInfo['proxy']);
-      if (in_array($publicIP, $ipProxy, true)) {
-        // Proxy working, same as proxy IP
-        $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'https' => 'true', 'last_check' => date(DATE_RFC3339)]);
-        $resultMessage = "Proxy is working. Detected IP: $publicIP (" . $proxyDetailsArr['text'] . ')';
-        // Check website title to verify proxy functionality
-        $titleOk = getWebsiteTitle(null, null, true, $timeout, $proxyInfo);
-        $resultMessage .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
-        addLog($resultMessage);
+      if ($checkProxy($proxyInfo, $timeout)) {
         $foundWorking = true;
-      } else {
-        // Proxy working, but different IP
-        $resultMessage = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (" . $proxyDetailsArr['text'] . ')';
-        addLog($resultMessage);
-        $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'last_check' => date(DATE_RFC3339)]);
+        break;
       }
     }
-    // if no types worked, run non-SSL test
+
+    // Fallback: non-SSL
     if (!$foundWorking) {
       addLog('No proxy types worked, running non-SSL test...');
       foreach ($proxyTypes as $type) {
+        $markStatus('processing');
         $proxyInfo['type'] = $type;
-        @file_put_contents($statusFile, 'processing', LOCK_EX);
-        $proxyDetailsArr = build_proxy_details($proxyInfo);
-        addLog('Checking proxy (non-SSL) (' . $proxyDetailsArr['text'] . ')...');
-
-        $publicIP = getPublicIP(true, $timeout, $proxyInfo, true);
-        if (empty($publicIP)) {
-          addLog("{$type} proxy type did not return a public IP (non-SSL).");
-          continue;
-        }
-
-        $ipProxy = extractIPs($proxyInfo['proxy']);
-        if (in_array($publicIP, $ipProxy, true)) {
-          // Proxy working, same as proxy IP
-          $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'https' => 'false', 'last_check' => date(DATE_RFC3339)]);
-          $resultMessage = "Proxy is working. Detected IP: $publicIP (" . $proxyDetailsArr['text'] . ')';
-          // Check website title to verify proxy functionality
-          $titleOk = getWebsiteTitle(null, null, true, $timeout, $proxyInfo);
-          $resultMessage .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
-          addLog($resultMessage);
+        if ($checkProxy($proxyInfo, $timeout, true)) {
           $foundWorking = true;
-        } else {
-          // Proxy working, but different IP
-          $resultMessage = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (" . $proxyDetailsArr['text'] . ')';
-          addLog($resultMessage);
-          $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'https' => 'false', 'last_check' => date(DATE_RFC3339)]);
+          break;
         }
       }
     }
-    // if still not found working, mark as dead
+
     if (!$foundWorking) {
       $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'last_check' => date(DATE_RFC3339)]);
-      addLog('Proxy is dead (no public IP detected for any type) (' . $proxyDetailsArr['text'] . ')');
+      $details = build_proxy_details($proxyInfo)['text'];
+      addLog("Proxy is dead (no public IP detected for any type) ($details)");
     }
-    @file_put_contents($statusFile, 'stopped', LOCK_EX);
+
+    $markStatus('stopped');
   } else {
-    // Run the proxy check with specified type
-    @file_put_contents($statusFile, 'starting', LOCK_EX);
-    $proxyDetailsArr = build_proxy_details($proxyInfo);
-    $foundWorking    = false;
-    $ipProxy         = extractIPs($proxyInfo['proxy']);
-    addLog('Checking proxy (' . $proxyDetailsArr['text'] . ')');
-
-    @file_put_contents($statusFile, 'processing', LOCK_EX);
-    $publicIP = getPublicIP(true, $timeout, $proxyInfo);
-    if (empty($publicIP)) {
-      // Test non-SSL if no IP found
+    $markStatus('processing');
+    if (!$checkProxy($proxyInfo, $timeout)) {
       addLog('No public IP detected, running non-SSL test...');
-      $publicIP = getPublicIP(true, $timeout, $proxyInfo, true);
-      if (empty($publicIP)) {
-        $db->updateData($proxyInfo['proxy'], ['status' => 'dead', 'https' => 'false', 'last_check' => date(DATE_RFC3339)]);
-        addLog('Proxy is dead (no public IP detected) (' . $proxyDetailsArr['text'] . ')');
-        @file_put_contents($statusFile, 'stopped', LOCK_EX);
-        exit('stopped' . PHP_EOL);
+      if (!$checkProxy($proxyInfo, $timeout, true)) {
+        $db->updateData($proxyInfo['proxy'], [
+          'status'     => 'dead',
+          'https'      => 'false',
+          'last_check' => date(DATE_RFC3339),
+        ]);
+        $details = build_proxy_details($proxyInfo)['text'];
+        addLog("Proxy is dead (no public IP detected) ($details)");
       }
-
-      if (in_array($publicIP, $ipProxy, true)) {
-        // Proxy working, same as proxy IP
-        $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'https' => 'false', 'last_check' => date(DATE_RFC3339)]);
-        $status = "Proxy is working. Detected IP: $publicIP (" . $proxyDetailsArr['text'] . ')';
-        // Check website title to verify proxy functionality
-        $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
-        $status .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
-        addLog($status);
-        @file_put_contents($statusFile, 'stopped', LOCK_EX);
-        exit('stopped' . PHP_EOL);
-      } else {
-        // Proxy working, but different IP
-        $status = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (" . $proxyDetailsArr['text'] . ')';
-        addLog($status);
-        $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'https' => 'false', 'last_check' => date(DATE_RFC3339)]);
-        @file_put_contents($statusFile, 'stopped', LOCK_EX);
-        exit('stopped' . PHP_EOL);
-      }
-      @file_put_contents($statusFile, 'stopped', LOCK_EX);
-      exit('stopped' . PHP_EOL);
     }
-
-    if (in_array($publicIP, $ipProxy, true)) {
-      // Proxy working, same as proxy IP
-      $db->updateData($proxyInfo['proxy'], ['status' => 'active', 'https' => 'true', 'last_check' => date(DATE_RFC3339)]);
-      $status = "Proxy is working. Detected IP: $publicIP (" . $proxyDetailsArr['text'] . ')';
-      // Check website title to verify proxy functionality
-      $titleOk = getWebsiteTitle(null, null, true, 300, $proxyInfo);
-      $status .= $titleOk ? ' Website title check passed.' : ' Website title check failed.';
-      addLog($status);
-      @file_put_contents($statusFile, 'stopped', LOCK_EX);
-      exit('stopped' . PHP_EOL);
-    } else {
-      // Proxy working, but different IP
-      $status = "Proxy is working, but detected IP ($publicIP) does not match proxy IP. (" . $proxyDetailsArr['text'] . ')';
-      addLog($status);
-      $db->updateData($proxyInfo['proxy'], ['status' => 'unknown', 'https' => 'true', 'last_check' => date(DATE_RFC3339)]);
-      @file_put_contents($statusFile, 'stopped', LOCK_EX);
-      exit('stopped' . PHP_EOL);
-    }
+    $markStatus('stopped', true);
   }
 }
 
