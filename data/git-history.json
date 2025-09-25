@@ -1,5 +1,61 @@
 [
   {
+    "hash": "b1a26b880c62d7f44a07050f53ca04793265029d",
+    "date": "2025-09-25T07:32:32+07:00",
+    "message": "refactor(vite-gh-pages): remove redundant check for identical source and destination in copyIndexToRoutes",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "a8cd5fb7c115868d1c733a4bafb1a2618ac80e1f",
+    "date": "2025-09-25T07:31:52+07:00",
+    "message": "feat(vite-gh-pages): add support for canonical and social meta tags in route HTML",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "c2d4308412b4cfbb027ccc2c9354ba0d9f92c0cf",
+    "date": "2025-09-25T07:26:33+07:00",
+    "message": "feat(vite-gh-pages): add support for dynamic meta thumbnails in route HTML",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "48baaff69aeaae8fd06dd4bb7d2fd31cf8d164e8",
+    "date": "2025-09-25T07:24:23+07:00",
+    "message": "refactor(vite-plugin): extract and optimize index.html production copy logic\n\n- Move index.html production copy logic to a new async function `copyIndexForProduction`\n- Use `copyIndexToRoutes` to copy index.html to all route destinations in dist/react\n- Replace inline copy logic in `indexHtmlReplacementPlugin` with call to `copyIndexForProduction`\n- Improve error handling and code clarity",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "b3cf65ad11a1d1483ff70088a03b7e2b7b761bc5",
+    "date": "2025-09-24T13:39:57+07:00",
+    "message": "feat(vite-gh-pages): enhance SPA route HTML with SEO and social meta tags\n\n- Dynamically update <title> for each route based on route.title\n- Add or update meta[property=\"og:title\"] and meta[name=\"twitter:title\"] for each route\n- Add or update meta[name=\"description\"], meta[property=\"og:description\"], and meta[name=\"twitter:description\"] for each route\n- Write modified HTML to each route's index.html for proper SPA routing and improved SEO/social sharing",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "10e20cc7fdd5e2045eb03d9027dc714d50d6fd81",
+    "date": "2025-09-24T13:29:57+07:00",
+    "message": "refactor(vite-gh-pages): add sourceHtml param to copyIndexToRoutes\n\n- Add optional `sourceHtml` parameter to `copyIndexToRoutes` for specifying the source index.html file\n- Update logic to use `sourceHtml` instead of hardcoded build output path\n- Improve flexibility for copying index.html to route destinations\n- Update JSDoc to document new parameter",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "ed034f2094509f061c222e9036f1fd9d3e5b1be6",
+    "date": "2025-09-24T13:27:23+07:00",
+    "message": "refactor(vite-gh-pages): extract cache busting logic to reusable function\n\n- Move cache busting logic for index.html into a new exportable function `cacheBustHtml`\n- Replace inline cache busting in `deploy` with a call to `cacheBustHtml`\n- Allow cache busting to be reused for other HTML files and support optional version parameter\n- Improve code clarity and maintainability",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
     "hash": "811cb5f2b1add6e5ed6142702c9fb86c648c2f91",
     "date": "2025-09-23T17:19:31+07:00",
     "message": "fix(meta): escape reserved column name \"key\" in meta table schema\n\n- Add quotes to \"key\" in SQLite schema and backticks to `key` in MySQL schema to prevent SQL syntax errors due to reserved word usage.",
