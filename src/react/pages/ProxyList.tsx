@@ -287,7 +287,10 @@ function ProxyList() {
                 <label className="text-gray-700 dark:text-gray-200 mb-1">Type:</label>
                 <select
                   value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value)}
+                  onChange={(e) => {
+                    setTypeFilter(e.target.value);
+                    setPage(1);
+                  }}
                   className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
                   <option value="">All Types</option>
                   <option value="http">HTTP</option>
@@ -300,7 +303,10 @@ function ProxyList() {
                 <label className="text-gray-700 dark:text-gray-200 mb-1">Country:</label>
                 <select
                   value={countryFilter}
-                  onChange={(e) => setCountryFilter(e.target.value)}
+                  onChange={(e) => {
+                    setCountryFilter(e.target.value);
+                    setPage(1);
+                  }}
                   className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
                   <option value="">All Countries</option>
                   {uniqueCountries.map((country) => (
@@ -314,7 +320,10 @@ function ProxyList() {
                 <label className="text-gray-700 dark:text-gray-200 mb-1">City:</label>
                 <select
                   value={cityFilter}
-                  onChange={(e) => setCityFilter(e.target.value)}
+                  onChange={(e) => {
+                    setCityFilter(e.target.value);
+                    setPage(1);
+                  }}
                   className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
                   <option value="">All Cities</option>
                   {uniqueCities.map((city) => (
@@ -328,7 +337,10 @@ function ProxyList() {
                 <label className="text-gray-700 dark:text-gray-200 mb-1">Timezone:</label>
                 <select
                   value={timezoneFilter}
-                  onChange={(e) => setTimezoneFilter(e.target.value)}
+                  onChange={(e) => {
+                    setTimezoneFilter(e.target.value);
+                    setPage(1);
+                  }}
                   className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
                   <option value="">All Timezones</option>
                   {uniqueTimezones.map((tz) => (
