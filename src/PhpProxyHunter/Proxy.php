@@ -8,70 +8,70 @@ namespace PhpProxyHunter;
 class Proxy
 {
   /** @var int|null */
-  public ?int $id = null;
+  public $id = null;
 
   /** @var string */
-  public string $proxy;
+  public $proxy;
 
   /** @var string|null */
-  public ?string $latency = null;
+  public $latency = null;
 
   /** @var string|null */
-  public ?string $type = null;
+  public $type = null;
 
   /** @var string|null */
-  public ?string $region = null;
+  public $region = null;
 
   /** @var string|null */
-  public ?string $city = null;
+  public $city = null;
 
   /** @var string|null */
-  public ?string $country = null;
+  public $country = null;
 
   /** @var string|null */
-  public ?string $last_check = null;
+  public $last_check = null;
 
   /** @var string|null */
-  public ?string $anonymity = null;
+  public $anonymity = null;
 
   /** @var string|null */
-  public ?string $status = null;
+  public $status = null;
 
   /** @var string|null */
-  public ?string $timezone = null;
+  public $timezone = null;
 
   /** @var string|null */
-  public ?string $longitude = null;
+  public $longitude = null;
 
   /** @var string|null */
-  public ?string $private = null;
+  public $private = null;
 
   /** @var string|null */
-  public ?string $latitude = null;
+  public $latitude = null;
 
   /** @var string|null */
-  public ?string $lang = null;
+  public $lang = null;
 
   /** @var string|null */
-  public ?string $useragent = null;
+  public $useragent = null;
 
   /** @var string|null */
-  public ?string $webgl_vendor = null;
+  public $webgl_vendor = null;
 
   /** @var string|null */
-  public ?string $webgl_renderer = null;
+  public $webgl_renderer = null;
 
   /** @var string|null */
-  public ?string $browser_vendor = null;
+  public $browser_vendor = null;
 
   /** @var string|null */
-  public ?string $username = null;
+  public $username = null;
 
   /** @var string|null */
-  public ?string $password = null;
+  public $password = null;
 
   /** @var string|null */
-  public ?string $https = 'false';
+  public $https = 'false';
 
   /**
    * Proxy constructor.
@@ -99,28 +99,28 @@ class Proxy
    * @param string|null $https
    */
   public function __construct(
-    string  $proxy,
-    ?string $latency = null,
-    ?string $type = null,
-    ?string $region = null,
-    ?string $city = null,
-    ?string $country = null,
-    ?string $last_check = null,
-    ?string $anonymity = null,
-    ?string $status = null,
-    ?string $timezone = null,
-    ?string $longitude = null,
-    ?string $private = null,
-    ?string $latitude = null,
-    ?string $lang = null,
-    ?string $useragent = null,
-    ?string $webgl_vendor = null,
-    ?string $webgl_renderer = null,
-    ?string $browser_vendor = null,
-    ?string $username = null,
-    ?string $password = null,
-    ?int    $id = null,
-    ?string $https = 'false'
+    $proxy,
+    $latency = null,
+    $type = null,
+    $region = null,
+    $city = null,
+    $country = null,
+    $last_check = null,
+    $anonymity = null,
+    $status = null,
+    $timezone = null,
+    $longitude = null,
+    $private = null,
+    $latitude = null,
+    $lang = null,
+    $useragent = null,
+    $webgl_vendor = null,
+    $webgl_renderer = null,
+    $browser_vendor = null,
+    $username = null,
+    $password = null,
+    $id = null,
+    $https = 'false'
   ) {
     $this->id             = $id;
     $this->proxy          = $proxy;
