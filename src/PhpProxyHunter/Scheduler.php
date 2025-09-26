@@ -47,6 +47,10 @@ class Scheduler
   public static function execute(): void
   {
     global $shutdown_functions;
+    // Ensure $shutdown_functions is always an array
+    if (!isset($shutdown_functions) || !is_array($shutdown_functions)) {
+      $shutdown_functions = [];
+    }
     // Sort the array by keys alphabetically
     ksort($shutdown_functions);
     foreach ($shutdown_functions as $key => $shutdown_function) {
