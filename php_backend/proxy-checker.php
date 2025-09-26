@@ -145,7 +145,7 @@ if (!$isCli) {
   }
 
   if (!empty($proxyInfo['proxy'])) {
-    $validTypes = ['http', 'https', 'socks4', 'socks5', 'socks5h'];
+    $validTypes = ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
     if (!empty($proxyInfo['type']) && !in_array(strtolower($proxyInfo['type']), $validTypes, true)) {
       http_response_code(400);
       send_json([
@@ -287,7 +287,7 @@ if (!$isCli) {
   }
 
   $type         = empty($proxyInfo['type']) ? '' : strtolower($proxyInfo['type']);
-  $allowedTypes = ['http', 'https', 'socks4', 'socks5', 'socks5h'];
+  $allowedTypes = ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
   if ($type !== '' && !in_array($type, $allowedTypes, true)) {
     $status = 'Invalid proxy type. Supported types are http, https, socks4, socks5, socks5h.';
     @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
@@ -333,7 +333,7 @@ function proxyChecker($proxyInfo, $types = [])
     $types = [$types];
   }
   if (empty($types)) {
-    $types = ['http', 'https', 'socks4', 'socks5', 'socks5h'];
+    $types = ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
   }
   $foundWorking = false;
   $isSSL        = false;
