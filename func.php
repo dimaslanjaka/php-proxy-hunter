@@ -85,20 +85,15 @@ if ($currentPath) {
  *
  * @return bool True if the hostname matches a debug device, false otherwise.
  */
-function is_debug_device(): bool
+function is_debug_device()
 {
-  $env_path      = __DIR__ . '/.env';
-  $debug_devices = [];
-
-  // Load DEBUG_DEVICES from .env file if it exists
-  if (file_exists($env_path)) {
-    $read_env = file_get_contents($env_path);
-    if (preg_match('/^DEBUG_DEVICES=(.+)$/m', $read_env, $matches)) {
-      $debug_devices = array_map('trim', explode(',', $matches[1]));
-    }
+  $debug_devices_env = isset($_ENV['DEBUG_DEVICES']) ? $_ENV['DEBUG_DEVICES'] : getenv('DEBUG_DEVICES');
+  if (empty($debug_devices_env)) {
+    error_log('DEBUG_DEVICES environment variable is not set or empty.');
+    return false;
   }
-
-  $hostname = gethostname();
+  $debug_devices = array_map('trim', explode(',', $debug_devices_env));
+  $hostname      = gethostname();
   return in_array($hostname, $debug_devices, true);
 }
 
