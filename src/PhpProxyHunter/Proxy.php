@@ -145,4 +145,16 @@ class Proxy
     $this->password       = $password;
     $this->https          = $https;
   }
+
+  /**
+   * Returns a JSON representation of the Proxy object.
+   * @return string
+   */
+  public function toJson($pretty = false)
+  {
+    if ($pretty) {
+      return json_encode(get_object_vars($this), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+    return json_encode(get_object_vars($this), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  }
 }
