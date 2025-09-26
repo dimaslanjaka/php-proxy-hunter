@@ -1,0 +1,77 @@
+# ===============================
+# Squid Proxy - Public Open Proxy
+# ===============================
+
+# WARNING: This configuration allows unrestricted access to anyone.
+# Backup existing config
+# sudo cp /etc/squid/squid.conf /etc/squid/squid.conf.bak
+# Copy this config in place
+# cp .htaccess_squid /etc/squid/squid.conf
+# sudo systemctl restart squid
+# sudo systemctl status squid --no-pager
+
+# Port to listen on
+http_port 8000
+
+# Hostname shown in logs/warnings
+visible_hostname squid-proxy
+
+# Disable caching (recommended for public proxies to avoid disk growth & privacy issues)
+cache deny all
+
+# Access log
+access_log /var/log/squid/access.log
+
+# Define safe ports that proxy can connect to
+acl SSL_ports port 443
+acl Safe_ports port 80          # http
+acl Safe_ports port 21          # ftp
+acl Safe_ports port 443         # https
+acl Safe_ports port 70          # gopher
+acl Safe_ports port 210         # wais
+acl Safe_ports port 1025-65535  # unregistered ports
+acl Safe_ports port 280         # http-mgmt
+acl Safe_ports port 488         # gss-http
+acl Safe_ports port 591         # filemaker
+acl Safe_ports port 777         # multiling http
+acl Safe_ports port 8080        # alternative http
+acl Safe_ports port 8443        # alternative https (for your server)
+
+# Define CONNECT method ACL
+acl CONNECT method CONNECT
+
+# Deny requests to unsafe ports
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+
+# Allow ALL traffic (public proxy) - DANGEROUS
+acl all src all
+http_access allow all
+
+# Disable ICP/HTCP (not needed)
+icp_port 0
+htcp_port 0
+
+# Performance tuning (basic)
+maximum_object_size 0 KB
+cache_mem 64 MB
+
+# Connection handling & privacy tweaks
+dns_v4_first on
+# remove X-Forwarded-For to avoid leaking client IPs
+forwarded_for delete
+# disable Via header
+via off
+# Remove more identifying headers
+request_header_access Server deny all
+request_header_access WWW-Authenticate deny all
+request_header_access Link deny all
+
+# Timeouts (tune if required)
+request_timeout 5 minutes
+connect_timeout 30 seconds
+
+# Process and logging
+pid_filename /var/run/squid.pid
+# keep 10 rotated log files
+logfile_rotate 10
