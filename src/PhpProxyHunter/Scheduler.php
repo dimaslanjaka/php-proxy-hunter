@@ -1,8 +1,9 @@
 <?php
 
+/** @noinspection PhpUnusedLocalVariableInspection */
+
 namespace PhpProxyHunter;
 
-/** @noinspection PhpUnusedLocalVariableInspection */
 $shutdown_functions = [];
 
 /**
@@ -26,7 +27,7 @@ class Scheduler
     if (is_string($identifier) && !empty($identifier)) {
       $shutdown_functions[$id] = $func;
     } else {
-      $shutdown_functions[self::rand_str()] = $func;
+      $shutdown_functions[self::randStr()] = $func;
     }
   }
 
@@ -36,7 +37,7 @@ class Scheduler
    * @param int $length The length of the random string to generate.
    * @return string The generated random string.
    */
-  public static function rand_str(int $length = 10): string
+  public static function randStr(int $length = 10): string
   {
     return substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length / strlen($x)))), 1, $length);
   }
