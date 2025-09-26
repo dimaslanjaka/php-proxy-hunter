@@ -166,4 +166,8 @@ export default class ProxyData {
   toJSON() {
     return this.toObject();
   }
+
+  toString() {
+    return JSON.stringify(this.toObject());
+  }
 }
