@@ -1,5 +1,71 @@
 [
   {
+    "hash": "90dafd29442dd81c0eb6f2fec7ba4262bf7515e6",
+    "date": "2025-09-26T18:57:10+07:00",
+    "message": "feat: enhance getPublicIP function with debug output for response handling",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
+    "hash": "454c8b589987794ba242a6e4a8dfff55eff59326",
+    "date": "2025-09-26T18:55:36+07:00",
+    "message": "feat: refactor getPublicIP test cases to use constants for proxy and timeout",
+    "files": [
+      "tests/proxy/getPublicIP.php"
+    ]
+  },
+  {
+    "hash": "8cf5493da1595b55aae1b6a0e1055d798196a04d",
+    "date": "2025-09-26T18:53:09+07:00",
+    "message": "feat: add initial Squid proxy configuration file for public access",
+    "files": [
+      ".htaccess_squid"
+    ]
+  },
+  {
+    "hash": "9a0c54d85bb1ef656d5a8cfafd660f0f3ad80052",
+    "date": "2025-09-26T18:29:07+07:00",
+    "message": "docs: update readme with TODO section for proxy parsing",
+    "files": [
+      "userscripts/readme.md"
+    ]
+  },
+  {
+    "hash": "9f7d11a027086749a65ba04451b672a9e2d0e8f9",
+    "date": "2025-09-26T18:28:24+07:00",
+    "message": "feat: enhance getPublicIP function with proxy type rotation and debug support\n\n- Add debug parameter to enable connection attempt logging\n- Implement proxy type rotation to automatically try different proxy protocols (http, socks4, socks5, etc.)\n- Separate proxy and non-proxy request handling logic for better reliability\n- Remove duplicate PHPDoc comments for cleaner code documentation\n- Improve proxy connection resilience by testing multiple proxy types",
+    "files": [
+      "func-proxy.php",
+      "tests/proxy/getPublicIP.php"
+    ]
+  },
+  {
+    "hash": "29b9836d48dea3b3b93a0b4be60f966424eea88c",
+    "date": "2025-09-26T18:17:45+07:00",
+    "message": "feat: improve environment variable loading with enhanced type conversion\n\n- Add string shim include for PHP compatibility with str_starts_with()\n- Remove conditional dotenv loading to ensure consistent environment setup\n- Enhance manual .env parser with automatic type conversion for booleans, numbers, and JSON arrays\n- Improve .env file parsing robustness and data type handling",
+    "files": [
+      "src/database/env.php"
+    ]
+  },
+  {
+    "hash": "60a1a90f5848c3e898fec4e1eb8fb4e905231d99",
+    "date": "2025-09-26T18:12:13+07:00",
+    "message": "refactor: extract CLI detection logic into reusable function\n\n- Move CLI detection logic from func.php to new is_cli() function in src/database/env.php\n- Replace inline CLI detection with function call in func.php\n- Improves code reusability and maintainability",
+    "files": [
+      "func.php",
+      "src/database/env.php"
+    ]
+  },
+  {
+    "hash": "0e62cbfe2649b2f663fdae83d127be0b250319eb",
+    "date": "2025-09-26T17:43:15+07:00",
+    "message": "feat(cmd-here): add script to set up custom PATH and workspace directory",
+    "files": [
+      "cmd-here.bat"
+    ]
+  },
+  {
     "hash": "54bc91bb5ffb51a4f23caa3c9f8cdae99f0d9d72",
     "date": "2025-09-26T12:15:45+07:00",
     "message": "feat(ProxyData): add toString method for JSON representation",
