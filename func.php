@@ -5,20 +5,7 @@
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
-if (!function_exists('str_starts_with')) {
-  /**
-   * Checks if a string starts with a given prefix using regular expressions.
-   *
-   * @param string $haystack The input string.
-   * @param string $needle The prefix to check for.
-   * @return bool Returns true if the string starts with the prefix, false otherwise.
-   */
-  function str_starts_with(string $haystack, string $needle): bool
-  {
-    $pattern = '/^' . preg_quote($needle, '/') . '/';
-    return (bool)preg_match($pattern, $haystack);
-  }
-}
+include __DIR__ . '/src/utils/shim/string.php';
 
 define('PHP_PROXY_HUNTER', 'true');
 
