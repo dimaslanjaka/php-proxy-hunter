@@ -1,5 +1,49 @@
 [
   {
+    "hash": "d3380c02081a2c9b9756280feee0f7db85685c1e",
+    "date": "2025-09-26T12:04:23+07:00",
+    "message": "refactor(env): move is_debug function from func.php to src/database/env.php",
+    "files": [
+      "func.php",
+      "src/database/env.php"
+    ]
+  },
+  {
+    "hash": "692f503a1a8c21c7d04a49fdbb8c54e9eaf7b8fa",
+    "date": "2025-09-26T12:00:46+07:00",
+    "message": "refactor(autoload): initialize $loadedFiles with get_included_files for better tracking of loaded files",
+    "files": [
+      "src/autoload.php"
+    ]
+  },
+  {
+    "hash": "9dfb9b3b70414f46ea1ba17fc926bb7fce9593a2",
+    "date": "2025-09-26T11:57:23+07:00",
+    "message": "refactor: move str_starts_with shim to utils\n\n- extracted str_starts_with() polyfill from func.php into src/utils/shim/string.php\n- updated func.php to include the shim file for better organization and reuse",
+    "files": [
+      "func.php",
+      "src/utils/shim/string.php"
+    ]
+  },
+  {
+    "hash": "bca7623077c39f7dee52a6fda3e1eead6c8f6950",
+    "date": "2025-09-26T11:55:16+07:00",
+    "message": "refactor: move request parsing helpers to utils and add autoload checks\n\n- moved parsePostData() and parseQueryOrPostBody() from func.php to src/utils/server/postdata.php\n- added runtime checks in src/autoload.php to ensure parseQueryOrPostBody() and is_debug_device() are available\n- improved structure by grouping request parsing logic under utils/server",
+    "files": [
+      "func.php",
+      "src/autoload.php",
+      "src/utils/server/postdata.php"
+    ]
+  },
+  {
+    "hash": "abfb87dce3c109bf09500898d3974ac03cd214fa",
+    "date": "2025-09-26T11:51:06+07:00",
+    "message": "refactor(autoload): add check for AUTOLOADER_INCLUDED to prevent multiple inclusions",
+    "files": [
+      "src/autoload.php"
+    ]
+  },
+  {
     "hash": "5acdcfb6bda6920b027d4f958a555e3224b4f5e8",
     "date": "2025-09-26T11:45:55+07:00",
     "message": "refactor(autoload): optimize file loading by checking for previously loaded files",
