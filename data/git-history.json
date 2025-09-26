@@ -1,5 +1,29 @@
 [
   {
+    "hash": "54bc91bb5ffb51a4f23caa3c9f8cdae99f0d9d72",
+    "date": "2025-09-26T12:15:45+07:00",
+    "message": "feat(ProxyData): add toString method for JSON representation",
+    "files": [
+      "src/proxy/ProxyData.js"
+    ]
+  },
+  {
+    "hash": "91cc6840751f780b55901d680a9b950b2d4e1d3c",
+    "date": "2025-09-26T12:09:19+07:00",
+    "message": "feat(proxy-checker): add support for 'socks4a' proxy type",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "0fe74fdb1ae836f5a9baefbb29c6e756b6aa5e25",
+    "date": "2025-09-26T12:07:28+07:00",
+    "message": "feat(buildCurl): add support for 'socks5h' proxy type with remote DNS resolution\n\n- Expanded the `buildCurl` function to support the 'socks5h' proxy type, enabling remote DNS/hostname resolution when CURLPROXY_SOCKS5_HOSTNAME is available.\n- Updated the PHPDoc for the `$type` parameter to document all supported proxy types, including detailed descriptions for 'http', 'socks4', 'socks4a', 'socks5', and 'socks5h'.\n- Improved proxy type handling by normalizing the type string and adding logic for 'socks5h' with fallback to CURLPROXY_SOCKS5 if necessary.",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
     "hash": "d3380c02081a2c9b9756280feee0f7db85685c1e",
     "date": "2025-09-26T12:04:23+07:00",
     "message": "refactor(env): move is_debug function from func.php to src/database/env.php",
