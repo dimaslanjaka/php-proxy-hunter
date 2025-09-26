@@ -1,5 +1,21 @@
 <?php
 
+// Load dotenv if not already loaded
+if (class_exists('Dotenv\\Dotenv')) {
+  if (!isset($_ENV['DEBUG_DEVICES']) && !getenv('DEBUG_DEVICES') && !isset($_ENV['ADMIN_EMAILS']) && !getenv('ADMIN_EMAILS')) {
+    $projectRoot = realpath(__DIR__ . '/../../');
+    if ($projectRoot === false) {
+      throw new RuntimeException('Could not determine project root directory.');
+    }
+    $dotenv = Dotenv\Dotenv::createUnsafeImmutable($projectRoot);
+    $dotenv->load();
+    // For compatibility with libraries using getenv()
+    foreach ($_ENV as $key => $value) {
+      putenv("$key=$value");
+    }
+  }
+}
+
 /**
  * Retrieves the list of admin email addresses from the environment variable 'ADMIN_EMAILS'.
  *
