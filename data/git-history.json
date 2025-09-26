@@ -1,5 +1,47 @@
 [
   {
+    "hash": "7dfa7573508454d2f78954fbd56c553a462031aa",
+    "date": "2025-09-26T11:04:06+07:00",
+    "message": "refactor: move getPublicIP to func-proxy.php and improve getServerIp resolution\n\n- relocated getPublicIP() implementation from php_backend/proxy-checker.php to func-proxy.php for reuse\n- updated getServerIp() to:\n  - use a $result variable instead of multiple early returns\n  - check and replace local/private IPs (127.x / 192.168.x) with detected public IP\n  - ensure fallback logic works consistently across Windows and Linux\n- added optional caching and proxy support in getPublicIP()",
+    "files": [
+      "func-proxy.php",
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "787e0e62a1293ee95edd7ff561a58a43fc9e5c75",
+    "date": "2025-09-26T10:59:35+07:00",
+    "message": "feat(env): load dotenv from project root and sync variables to getenv",
+    "files": [
+      "src/database/env.php"
+    ]
+  },
+  {
+    "hash": "049667d6306529389d4c46a95577f37b86b16725",
+    "date": "2025-09-26T10:56:23+07:00",
+    "message": "refactor(env): move is_debug_device function from func.php to src/database/env.php",
+    "files": [
+      "func.php",
+      "src/database/env.php"
+    ]
+  },
+  {
+    "hash": "0666adeacdc38f5eb8a6f03b30f3f043461e6e71",
+    "date": "2025-09-26T10:54:57+07:00",
+    "message": "refactor(env): use environment variable for debug device detection\n\nRefactored the is_debug_device function to use the DEBUG_DEVICES environment variable (via $_ENV or getenv) instead of manually reading the .env file. This improves compatibility with dotenv and centralizes environment configuration. Added error logging if the variable is not set or empty.",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
+    "hash": "86d1998db4e29d4ee8c0c455866deea37604bdd5",
+    "date": "2025-09-26T10:49:19+07:00",
+    "message": "docs(proxyChecker): enhance function documentation with detailed parameter descriptions and usage",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "94942c7f3a70a93790ba8a4e36f4bedb3234eb94",
     "date": "2025-09-26T09:59:23+07:00",
     "message": "refactor(proxy): improve proxy extraction logic and add comprehensive tests\n\n- Refactored `extractProxies` to use separate regex patterns for:\n  - `user:pass@ip:port`\n  - `ip:port@user:pass`\n  - plain `ip:port`\n  - whitespace-separated and JSON-formatted proxies\n- Ensured username and password are always set on the Proxy object, regardless of database write flag\n- Removed legacy parsing logic for mixed credential/proxy formats\n- Added PHPUnit tests for:\n  - JSON string extraction\n  - `user:pass@ip:port` format\n  - `ip:port@user:pass` format\n  - plain `ip:port` format\n  - extraction from long text containing a proxy",
