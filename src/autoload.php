@@ -18,7 +18,7 @@ $excludeFolders = [
 $iterator = new RecursiveIteratorIterator(
   new RecursiveDirectoryIterator(__DIR__)
 );
-$loadedFiles = [];
+$loadedFiles = get_included_files();
 
 foreach ($iterator as $file) {
   if ($file->isDir() || $file->getExtension() !== 'php' || $file->getRealPath() === __FILE__) {
