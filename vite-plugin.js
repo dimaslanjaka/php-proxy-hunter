@@ -205,10 +205,11 @@ export function customStaticAssetsPlugin() {
 }
 
 const lockFilePath = path.join(__dirname, 'tmp/locks/.dev-server-lock');
+// Track if running as dev server
+let isDevServer = false;
 
 /** @returns {import('vite').Plugin} */
 export function prepareVitePlugins() {
-  let isDevServer = false;
   return {
     name: 'prepare-vite-plugins',
     configResolved(config) {
@@ -230,9 +231,9 @@ export function prepareVitePlugins() {
   };
 }
 
-// Register at exit handlers to remove lock file
+// Register at exit handlers to remove lock file only if running dev server
 process.on('exit', () => {
-  if (fs.existsSync(lockFilePath)) {
+  if (isDevServer && fs.existsSync(lockFilePath)) {
     fs.removeSync(lockFilePath);
   }
 });
