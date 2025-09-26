@@ -13,6 +13,7 @@ $excludeFolders = [
 $iterator = new RecursiveIteratorIterator(
   new RecursiveDirectoryIterator(__DIR__)
 );
+$loadedFiles = [];
 
 foreach ($iterator as $file) {
   if ($file->isDir() || $file->getExtension() !== 'php' || $file->getRealPath() === __FILE__) {
@@ -31,9 +32,16 @@ foreach ($iterator as $file) {
     continue;
   }
 
+  $realPath = $file->getRealPath();
+  // Skip if file already loaded
+  if (in_array($realPath, $loadedFiles, true)) {
+    continue;
+  }
+
   if (
     $file->isFile()
   ) {
-    require_once $file->getRealPath();
+    require_once $realPath;
+    $loadedFiles[] = $realPath;
   }
 }
