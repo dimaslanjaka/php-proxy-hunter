@@ -1,5 +1,10 @@
 <?php
 
+if (defined('AUTOLOADER_INCLUDED')) {
+  return;
+}
+define('AUTOLOADER_INCLUDED', 1);
+
 // Auto load all php files including subdirectories
 
 $excludeFolders = [
