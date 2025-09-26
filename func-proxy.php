@@ -12,11 +12,6 @@ require_once __DIR__ . '/func.php';
  * @param array $additionalHeaders The array of additional headers to merge.
  * @return array The merged array of headers with unique keys.
  */
-/**
- * @param array $defaultHeaders
- * @param array $additionalHeaders
- * @return array
- */
 function mergeHeaders($defaultHeaders, $additionalHeaders)
 {
   // Convert the arrays into associative arrays with header keys as keys
@@ -290,10 +285,11 @@ function getServerIp()
  *                             'password' => string|null Proxy password
  *                           ]
  * @param bool  $nonSsl      If true, use only non-SSL (http) services.
+ * @param bool  $debug       If true, enable debug output messages.
  *
  * @return string The detected public IP address, or an empty string if not found.
  */
-function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonSsl = false)
+function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonSsl = false, $debug = false)
 {
   $ipServices = [
     'https://api64.ipify.org',
@@ -339,28 +335,69 @@ function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonS
 
   $response = null;
 
+  $proxyTypes = ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
+  $useProxy   = !empty($proxyInfo['proxy']);
+  if ($useProxy) {
+    if (!empty($proxyInfo['type'])) {
+      $proxyTypes = [$proxyInfo['type']];
+    } elseif (isset($proxyInfo['type']) && !in_array(strtolower($proxyInfo['type']), $proxyTypes, true)) {
+      $proxyInfo['type'] = 'http';
+    }
+  }
+
   foreach ($ipServices as $idx => $url) {
-    // addLog('Trying IP service #' . ($idx + 1) . ' (Proxy: ' . ($proxyInfo['proxy'] ?? 'N/A') . ', Type: ' . ($proxyInfo['type'] ?? 'N/A') . ')');
-    $ch = buildCurl(
-      $proxyInfo['proxy'] ?? null,
-      $proxyInfo['type']  ?? 'http',
-      $url,
-      ['User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0'],
-      $proxyInfo['username'] ?? null,
-      $proxyInfo['password'] ?? null
-    );
+    if ($useProxy) {
+      // Rotate through proxy types if multiple are available
+      foreach ($proxyTypes as $type) {
+        if ($debug) {
+          echo "Trying to get public IP from $url using proxy {$proxyInfo['proxy']} of type $type" . PHP_EOL;
+        }
+        $proxyInfo['type'] = $type;
+        $ch                = buildCurl(
+          $proxyInfo['proxy'] ?? null,
+          $proxyInfo['type']  ?? null,
+          $url,
+          ['User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0'],
+          $proxyInfo['username'] ?? null,
+          $proxyInfo['password'] ?? null
+        );
 
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-    $output   = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $output   = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-    curl_close($ch);
+        curl_close($ch);
 
-    if ($httpCode >= 200 && $httpCode < 300 && $output) {
-      $response = $output;
-      break;
+        if ($httpCode >= 200 && $httpCode < 300 && $output) {
+          $response = $output;
+          break;
+        }
+      }
+    } else {
+      if ($debug) {
+        echo "Trying to get public IP from $url without proxy" . PHP_EOL;
+      }
+      $ch = buildCurl(
+        null,
+        null,
+        $url,
+        ['User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0']
+      );
+
+      curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+      $output   = curl_exec($ch);
+      $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+      curl_close($ch);
+
+      if ($httpCode >= 200 && $httpCode < 300 && $output) {
+        $response = $output;
+        break;
+      }
     }
   }
 
