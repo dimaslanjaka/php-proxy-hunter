@@ -3,10 +3,10 @@
 /** @noinspection PhpDefineCanBeReplacedWithConstInspection */
 /** @noinspection RegExpRedundantEscape */
 
-$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
-
 include __DIR__ . '/src/utils/shim/string.php';
 include __DIR__ . '/src/database/env.php';
+
+$isCli = is_cli();
 
 define('PHP_PROXY_HUNTER', 'true');
 

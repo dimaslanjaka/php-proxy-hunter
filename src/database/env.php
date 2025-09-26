@@ -73,3 +73,8 @@ function is_debug(): bool
     || str_starts_with($hostname, 'codespaces-')
     || is_debug_device();
 }
+
+function is_cli()
+{
+  return (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+}
