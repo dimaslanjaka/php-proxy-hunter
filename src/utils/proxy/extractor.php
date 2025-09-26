@@ -91,14 +91,18 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
 
   $results = [];
 
-  // Regular expression pattern to match IP:PORT pairs along with optional username and password
-  $pattern = '/((?:(?:\d{1,3}\.){3}\d{1,3})\:\d{2,5}(?:@\w+:\w+)?|(?:(?:\w+)\:\w+@\d{1,3}(?:\.\d{1,3}){3}\:\d{2,5}))/';
 
-  // Initialize $matches array
-  $matches = [];
+  // Separate regex for user:pass@ip:port (allow start of line, end of line, or surrounded by whitespace)
+  $pattern_userpass_ipport = '/([^@\s:]+):([^@\s:]+)@((?:\d{1,3}\.){3}\d{1,3}:\d{2,5})/';
+  preg_match_all($pattern_userpass_ipport, $string, $matches_userpass_ipport, PREG_SET_ORDER);
 
-  // Perform the matching IP:PORT
-  preg_match_all($pattern, $string, $matches1, PREG_SET_ORDER);
+  // Separate regex for ip:port@user:pass
+  $pattern_ipport_userpass = '/((?:\d{1,3}\.){3}\d{1,3}:\d{2,5})@([^@\s:]+):([^@\s:]+)/';
+  preg_match_all($pattern_ipport_userpass, $string, $matches_ipport_userpass, PREG_SET_ORDER);
+
+  // Regex for plain ip:port
+  $pattern_ipport = '/(\d{1,3}(?:\.\d{1,3}){3}:\d{2,5})/';
+  preg_match_all($pattern_ipport, $string, $matches_ipport, PREG_SET_ORDER);
 
   // Perform the matching IP PORT (whitespaces)
   $re = '/((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+((?!0)\d{2,5})/m';
@@ -106,12 +110,30 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
   $matched_whitespaces = !empty($matches2);
 
   // Perform the matching IP PORT (json) to match "ip":"x.x.x.x","port":"xxxxx"
-  $pattern = '/"ip":"((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})".*?"port":"((?!0)\d{2,5})/m';
-  preg_match_all($pattern, $string, $matches3, PREG_SET_ORDER);
+  $pattern_json = '/"ip":"((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})".*?"port":"((?!0)\d{2,5})/m';
+  preg_match_all($pattern_json, $string, $matches3, PREG_SET_ORDER);
   $matched_json = !empty($matches3);
 
-  // Merge $matches1 and $matches2 into $matches
-  $matches = array_merge($matches1, $matches2, $matches3);
+  $matches = [];
+  // Add user:pass@ip:port
+  foreach ($matches_userpass_ipport as $m) {
+    // $m[1]=user, $m[2]=pass, $m[3]=ip:port
+    $matches[] = ['proxy' => $m[3], 'username' => $m[1], 'password' => $m[2]];
+  }
+  // Add ip:port@user:pass
+  foreach ($matches_ipport_userpass as $m) {
+    // $m[1]=ip:port, $m[2]=user, $m[3]=pass
+    $matches[] = ['proxy' => $m[1], 'username' => $m[2], 'password' => $m[3]];
+  }
+  // Add plain ip:port (but skip if already matched above)
+  $already = array_column($matches, 'proxy');
+  foreach ($matches_ipport as $m) {
+    if (!in_array($m[1], $already)) {
+      $matches[] = ['proxy' => $m[1], 'username' => null, 'password' => null];
+    }
+  }
+  // Add whitespace and json matches as before
+  $matches = array_merge($matches, $matches2, $matches3);
 
   if (!$db) {
     $db = new ProxyDB();
@@ -121,7 +143,27 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
     if (empty($match)) {
       continue;
     }
-    // var_dump($match, count($match));
+    // If this is a new-style match array (proxy, username, password)
+    if (isset($match['proxy'])) {
+      $proxy    = $match['proxy'];
+      $username = $match['username'] ?? null;
+      $password = $match['password'] ?? null;
+      if (isValidProxy($proxy)) {
+        $result = new Proxy($proxy);
+        if (!empty($username) && !empty($password)) {
+          $result->username = $username;
+          $result->password = $password;
+          if ($write_database === true) {
+            $db->updateData($proxy, ['username' => $username, 'password' => $password, 'private' => 'true']);
+          }
+        }
+        if (count($results) < $limit) {
+          $results[] = $result;
+        }
+      }
+      continue;
+    }
+    // legacy whitespace and json logic
     if ($matched_whitespaces && count($match) === 3) {
       if (!isValidIp($match[1])) {
         continue;
@@ -129,7 +171,6 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
       $proxy  = $match[1] . ':' . $match[2];
       $result = new Proxy($proxy);
       if (isValidProxy($proxy)) {
-        // limit array
         if (count($results) < $limit) {
           $results[] = $result;
         }
@@ -137,51 +178,18 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
       continue;
     }
     if ($matched_json && count($match) === 3) {
-      $ip   = $match[1];   // IP address
-      $port = $match[2]; // Port number
+      $ip   = $match[1];
+      $port = $match[2];
       if (isValidIp($ip)) {
         $proxy  = $ip . ':' . $port;
         $result = new Proxy($proxy);
         if (isValidProxy($proxy)) {
-          // limit array
           if (count($results) < $limit) {
             $results[] = $result;
           }
         }
       }
       continue;
-    }
-    $username = $password = $proxy = null;
-    if (!empty($match[1]) && strpos($match[1], '@') !== false) {
-      // list($proxy, $login) = explode('@', $match[1]);
-      $exploded = explode('@', $match[1]);
-      if (isValidProxy($exploded[0])) {
-        $proxy = $exploded[0];
-        $login = $exploded[1];
-      } else {
-        $proxy = $exploded[1];
-        $login = $exploded[0];
-      }
-      list($username, $password) = explode(':', $login);
-      if (isValidProxy($proxy)) {
-        $result = new Proxy($proxy);
-        if (!empty($username) && !empty($password) && $write_database === true) {
-          $result->username = $username;
-          $result->password = $password;
-          $db->updateData($proxy, ['username' => $username, 'password' => $password, 'private' => 'true']);
-        }
-        // limit array
-        if (count($results) < $limit) {
-          $results[] = $result;
-        }
-      }
-    } else {
-      $proxy  = $match[0];
-      $result = new Proxy($proxy);
-      // limit array
-      if (count($results) < $limit) {
-        $results[] = $result;
-      }
     }
 
     // if (!empty($proxy) && is_string($proxy) && strlen($proxy) >= 10) {
