@@ -50,3 +50,12 @@ foreach ($iterator as $file) {
     $loadedFiles[] = $realPath;
   }
 }
+
+// Verify
+
+if (!function_exists('parseQueryOrPostBody')) {
+  throw new RuntimeException('Function parseQueryOrPostBody() not found. Ensure func.php is included.');
+}
+if (!function_exists('is_debug_device')) {
+  throw new RuntimeException('Function is_debug_device() not found. Ensure env.php is included.');
+}
