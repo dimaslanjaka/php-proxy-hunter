@@ -1,5 +1,13 @@
 [
   {
+    "hash": "e27a9fa498a37a7f2c4712a5f7389f1c66b0fa96",
+    "date": "2025-09-26T18:59:22+07:00",
+    "message": "fix(proxy): stop getPublicIP after first successful response\n\nPreviously, the function continued testing all IP services even after\nreceiving a successful response. Changed `break` to `break 2` to exit\nboth the proxy types loop and the services loop when a response is\nobtained, improving efficiency and preventing unnecessary API calls.",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
     "hash": "90dafd29442dd81c0eb6f2fec7ba4262bf7515e6",
     "date": "2025-09-26T18:57:10+07:00",
     "message": "feat: enhance getPublicIP function with debug output for response handling",
