@@ -80,24 +80,6 @@ if ($currentPath) {
 }
 
 /**
- * Checks if the current hostname matches any of the debug devices
- * defined in the `DEBUG_DEVICES` environment variable.
- *
- * @return bool True if the hostname matches a debug device, false otherwise.
- */
-function is_debug_device()
-{
-  $debug_devices_env = isset($_ENV['DEBUG_DEVICES']) ? $_ENV['DEBUG_DEVICES'] : getenv('DEBUG_DEVICES');
-  if (empty($debug_devices_env)) {
-    error_log('DEBUG_DEVICES environment variable is not set or empty.');
-    return false;
-  }
-  $debug_devices = array_map('trim', explode(',', $debug_devices_env));
-  $hostname      = gethostname();
-  return in_array($hostname, $debug_devices, true);
-}
-
-/**
  * Determines whether the application is in debug mode. (DEVELOPMENT MODE)
  *
  * Debug mode is activated based on several conditions:
