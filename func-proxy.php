@@ -194,6 +194,7 @@ function buildCurl(
 function getServerIp()
 {
   $filePath = __DIR__ . '/tmp/locks/server-ip.txt';
+  $result   = false;
 
   // Delete cached IP file if it's older than 5 mins on debug devices
   if (is_debug_device() && file_exists($filePath) && (time() - filemtime($filePath) > 300)) {
@@ -204,19 +205,19 @@ function getServerIp()
   if (file_exists($filePath) && filesize($filePath) > 0) {
     $ipFromFile = trim(file_get_contents($filePath));
     if (!empty($ipFromFile)) {
-      return $ipFromFile;
+      $result = $ipFromFile;
     }
   }
 
   // Check for server address
-  if (!empty($_SERVER['SERVER_ADDR'])) {
+  if (empty($result) && !empty($_SERVER['SERVER_ADDR'])) {
     $serverIp = $_SERVER['SERVER_ADDR'];
     file_put_contents($filePath, $serverIp);
-    return $serverIp;
+    $result = $serverIp;
   }
 
   // If the above fails, try to get the IP address from the system
-  if (PHP_OS_FAMILY === 'Windows') {
+  if (empty($result) && PHP_OS_FAMILY === 'Windows') {
     // Get the output from ipconfig and filter out IPv4 addresses
     $output = shell_exec('ipconfig');
     if ($output) {
@@ -225,10 +226,10 @@ function getServerIp()
       if (!empty($matches[1][0])) {
         $serverIp = trim($matches[1][0]);
         write_file($filePath, $serverIp);
-        return $serverIp;
+        $result = $serverIp;
       }
     }
-  } else {
+  } elseif (empty($result)) {
     // For Linux, use hostname -I and filter out IPv6 addresses
     $ip = trim(shell_exec('hostname -I'));
     if ($ip) {
@@ -238,13 +239,135 @@ function getServerIp()
         if (filter_var($part, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
           $serverIp = trim($part);
           file_put_contents($filePath, $serverIp);
-          return $serverIp;
+          $result = $serverIp;
         }
       }
     }
   }
 
-  return false;
+  $isCurrentIpIsLocal = !empty($result) && preg_match('/^(192\.168|127\.)/', $result) === 1;
+  if ($isCurrentIpIsLocal) {
+    // Try to get public IP if current IP is a common router IP
+    $external_ip = getPublicIP(false, 10);
+    if ($external_ip !== false && filter_var($external_ip, FILTER_VALIDATE_IP)) {
+      $result = $external_ip;
+    }
+  }
+
+  return $result;
+}
+
+/**
+ * Retrieve the public IP address using multiple external services, with optional proxy support and simple file caching.
+ *
+ * @param bool  $cache       Enable or disable caching of the public IP result.
+ * @param int   $cacheTimeout Cache timeout in seconds.
+ * @param array $proxyInfo   Optional proxy information:
+ *                           [
+ *                             'proxy'    => string Proxy address,
+ *                             'type'     => string Proxy type (http, socks5, etc),
+ *                             'username' => string|null Proxy username,
+ *                             'password' => string|null Proxy password
+ *                           ]
+ * @param bool  $nonSsl      If true, use only non-SSL (http) services.
+ *
+ * @return string The detected public IP address, or an empty string if not found.
+ */
+function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonSsl = false)
+{
+  $ipServices = [
+    'https://api64.ipify.org',
+    'https://ipinfo.io/ip',
+    'https://api.myip.com',
+    'https://ip.42.pl/raw',
+    'https://ifconfig.me/ip',
+    'https://cloudflare.com/cdn-cgi/trace',
+    'https://httpbin.org/ip',
+    'https://api.ipify.org',
+  ];
+  if ($nonSsl) {
+    // use non-SSL services only
+    $ipServices = [
+      'http://api64.ipify.org',
+      'http://ipinfo.io/ip',
+      'http://api.myip.com',
+      'http://ip.42.pl/raw',
+      'http://ifconfig.me/ip',
+      'http://httpbin.org/ip',
+      'http://api.ipify.org',
+    ];
+  }
+
+  $cacheDir = tmp() . '/runners/public-ip';
+  if (!is_dir($cacheDir)) {
+    @mkdir($cacheDir, 0777, true);
+  }
+
+  $cacheKey = ($proxyInfo['proxy'] ?? '') !== ''
+    ? md5(($proxyInfo['proxy'] ?? '') . ($proxyInfo['type'] ?? '') . ($proxyInfo['username'] ?? '') . ($proxyInfo['password'] ?? ''))
+    : '';
+  $cacheFile = $cacheDir . '/' . $cacheKey . '.cache';
+
+  if ($cache && $cacheKey !== '') {
+    if (file_exists($cacheFile)) {
+      $data = @json_decode(@file_get_contents($cacheFile), true);
+      if (is_array($data) && isset($data['ip'], $data['expires']) && $data['expires'] > time()) {
+        return (string)$data['ip'];
+      }
+    }
+  }
+
+  $response = null;
+
+  foreach ($ipServices as $idx => $url) {
+    // addLog('Trying IP service #' . ($idx + 1) . ' (Proxy: ' . ($proxyInfo['proxy'] ?? 'N/A') . ', Type: ' . ($proxyInfo['type'] ?? 'N/A') . ')');
+    $ch = buildCurl(
+      $proxyInfo['proxy'] ?? null,
+      $proxyInfo['type']  ?? 'http',
+      $url,
+      ['User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0'],
+      $proxyInfo['username'] ?? null,
+      $proxyInfo['password'] ?? null
+    );
+
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $output   = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    curl_close($ch);
+
+    if ($httpCode >= 200 && $httpCode < 300 && $output) {
+      $response = $output;
+      break;
+    }
+  }
+
+  if (!$response) {
+    return '';
+  }
+
+  // Parse IP using regex
+  if (preg_match(
+    "/(?!0)(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/",
+    $response,
+    $matches
+  )) {
+    $result = $matches[0] ?? '';
+    if ($result !== '') {
+      if ($cache && $cacheKey !== '') {
+        $data = [
+          'ip'      => $result,
+          'expires' => time() + $cacheTimeout,
+        ];
+        @file_put_contents($cacheFile, json_encode($data));
+      }
+      return (string)$result;
+    }
+  }
+
+  return '';
 }
 
 /**
