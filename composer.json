@@ -13,7 +13,6 @@
     },
     "files": [
       "data/webgl.php",
-      "src/hashers/CustomPasswordHasher.php",
       "src/autoload.php"
     ]
   },
