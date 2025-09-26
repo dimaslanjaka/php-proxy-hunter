@@ -20,7 +20,7 @@ foreach ($iterator as $file) {
   }
   // Skip files in excluded folders using glob patterns
   $skip     = false;
-  $filePath = str_replace('\\', '/', $file->getPathname());
+  $filePath = preg_replace('/\\\\+/', '/', $file->getPathname());
   foreach ($excludeFolders as $pattern) {
     if (fnmatch($pattern, $filePath)) {
       $skip = true;
