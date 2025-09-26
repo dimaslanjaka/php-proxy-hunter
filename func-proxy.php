@@ -370,7 +370,10 @@ function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonS
 
         curl_close($ch);
 
-        if ($httpCode >= 200 && $httpCode < 300 && $output) {
+        if ($output !== false) {
+          if ($debug) {
+            echo "Received response (type: $type): " . substr($output, 0, 100) . (strlen($output) > 100 ? '...' : '') . PHP_EOL;
+          }
           $response = $output;
           break;
         }
@@ -394,7 +397,10 @@ function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonS
 
       curl_close($ch);
 
-      if ($httpCode >= 200 && $httpCode < 300 && $output) {
+      if ($output !== false) {
+        if ($debug) {
+          echo 'Received response without proxy: ' . substr($output, 0, 100) . (strlen($output) > 100 ? '...' : '') . PHP_EOL;
+        }
         $response = $output;
         break;
       }
