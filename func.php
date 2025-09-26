@@ -6,6 +6,7 @@
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
 include __DIR__ . '/src/utils/shim/string.php';
+include __DIR__ . '/src/database/env.php';
 
 define('PHP_PROXY_HUNTER', 'true');
 
@@ -65,35 +66,6 @@ if ($currentPath) {
 
   // exit;
 }
-
-/**
- * Determines whether the application is in debug mode. (DEVELOPMENT MODE)
- *
- * Debug mode is activated based on several conditions:
- * - If running in a GitHub CI environment.
- * - If running in GitHub Codespaces.
- * - If the hostname matches a debug device from the `DEBUG_DEVICES` variable.
- * - If the hostname starts with 'codespaces-'.
- *
- * @return bool True if in debug mode, false otherwise.
- */
-function is_debug(): bool
-{
-  // GitHub CI environment
-  $isGitHubCI = getenv('CI') !== false && getenv('GITHUB_ACTIONS') === 'true';
-
-  // GitHub Codespaces
-  $isGitHubCodespaces = getenv('CODESPACES') === 'true';
-
-  // Hostname
-  $hostname = gethostname();
-
-  return $isGitHubCI
-    || $isGitHubCodespaces
-    || str_starts_with($hostname, 'codespaces-')
-    || is_debug_device();
-}
-
 
 // Detect admin
 $isAdmin = is_debug();

@@ -45,3 +45,31 @@ function is_debug_device()
   $hostname      = gethostname();
   return in_array($hostname, $debug_devices, true);
 }
+
+/**
+ * Determines whether the application is in debug mode. (DEVELOPMENT MODE)
+ *
+ * Debug mode is activated based on several conditions:
+ * - If running in a GitHub CI environment.
+ * - If running in GitHub Codespaces.
+ * - If the hostname matches a debug device from the `DEBUG_DEVICES` variable.
+ * - If the hostname starts with 'codespaces-'.
+ *
+ * @return bool True if in debug mode, false otherwise.
+ */
+function is_debug(): bool
+{
+  // GitHub CI environment
+  $isGitHubCI = getenv('CI') !== false && getenv('GITHUB_ACTIONS') === 'true';
+
+  // GitHub Codespaces
+  $isGitHubCodespaces = getenv('CODESPACES') === 'true';
+
+  // Hostname
+  $hostname = gethostname();
+
+  return $isGitHubCI
+    || $isGitHubCodespaces
+    || str_starts_with($hostname, 'codespaces-')
+    || is_debug_device();
+}
