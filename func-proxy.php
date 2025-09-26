@@ -44,7 +44,12 @@ function mergeHeaders($defaultHeaders, $additionalHeaders)
  * Build a cURL handle for making HTTP requests.
  *
  * @param string|null $proxy Proxy address. Default is null.
- * @param string|null $type Type of proxy. Default is 'http'. Possible values are 'http', 'socks4', 'socks5', 'socks4a', or null.
+ * @param string|null $type Type of proxy. Default is 'http'. Possible values are 'http', 'socks4', 'socks5', 'socks4a', 'socks5h', or null.
+ *   - 'http': HTTP proxy
+ *   - 'socks4': SOCKS4 proxy
+ *   - 'socks4a': SOCKS4A proxy (hostname resolution via proxy)
+ *   - 'socks5': SOCKS5 proxy (IP address resolution only)
+ *   - 'socks5h': SOCKS5 proxy with remote DNS/hostname resolution (requires CURLPROXY_SOCKS5_HOSTNAME)
  * @param string $endpoint The URL to send the HTTP request to. Default is 'https://bing.com'.
  * @param string[] $headers An array of HTTP header strings to send with the request. Default is an empty array.
  * @param string|null $username Proxy authentication username. Default is null.
@@ -92,11 +97,26 @@ function buildCurl(
     }
     // Determine the CURL proxy type based on the specified $type
     $proxy_type = CURLPROXY_HTTP;
-    if (strtolower($type) == 'socks5') {
+    $type_lc    = strtolower($type);
+    if ($type_lc === 'socks5h') {
+      if (defined('CURLPROXY_SOCKS5_HOSTNAME')) {
+        $proxy_type = CURLPROXY_SOCKS5_HOSTNAME;
+      } else {
+        // Fallback to CURLPROXY_SOCKS5 if CURLPROXY_SOCKS5_HOSTNAME is not defined
+        $proxy_type = CURLPROXY_SOCKS5;
+      }
+      // set CURLOPT_PROXY with supported format
+      $extractIPPort = extractProxies($proxy);
+      if (!empty($extractIPPort)) {
+        // Use the first extracted proxy
+        $proxy = $extractIPPort[0]->proxy;
+        curl_setopt($ch, CURLOPT_PROXY, "socks5h://$proxy");
+      }
+    } elseif ($type_lc === 'socks5') {
       $proxy_type = CURLPROXY_SOCKS5;
-    } elseif (strtolower($type) == 'socks4') {
+    } elseif ($type_lc === 'socks4') {
       $proxy_type = CURLPROXY_SOCKS4;
-    } elseif (strtolower($type) == 'socks4a') {
+    } elseif ($type_lc === 'socks4a') {
       $proxy_type = CURLPROXY_SOCKS4A;
     }
     curl_setopt($ch, CURLOPT_PROXYTYPE, $proxy_type); // Specify proxy type
