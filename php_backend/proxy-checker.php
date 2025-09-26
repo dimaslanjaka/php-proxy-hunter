@@ -316,8 +316,21 @@ if (!$isCli) {
 
 /**
  * Check a proxy by attempting to retrieve the public IP address through it.
- * @param array $proxyInfo Proxy information
- * @param string|array $types Proxy type(s) to try (e.g. 'http', or ['http', 'socks5'])
+ *
+ * This function tests the provided proxy information against a list of proxy types (SSL and non-SSL)
+ * by attempting to fetch the public IP address using external services. It logs the results of each
+ * attempt and updates the proxy status in the database if a working configuration is found.
+ *
+ * @param array       $proxyInfo Array containing proxy details:
+ *                               [
+ *                                 'proxy'    => string Proxy address,
+ *                                 'type'     => string|null Proxy type (http, socks5, etc),
+ *                                 'username' => string|null Proxy username,
+ *                                 'password' => string|null Proxy password
+ *                               ]
+ * @param string|array $types    Proxy type(s) to try (e.g. 'http', or ['http', 'socks5']).
+ *
+ * @return void
  */
 function proxyChecker($proxyInfo, $types = [])
 {
