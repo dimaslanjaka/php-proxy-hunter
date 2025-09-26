@@ -987,3 +987,20 @@ function read_first_lines(string $filePath, int $lines_to_read)
 
   return $lines;
 }
+
+
+/** Ensure directory exists helper (keeps behavior but avoids repeating mkdir checks) */
+function ensure_dir(string $dir): void
+{
+  if (!is_dir($dir)) {
+    @mkdir($dir, 0777, true);
+  }
+}
+
+/** Small helper to safely unlink a file if it exists */
+function safe_unlink(string $file): void
+{
+  if (file_exists($file)) {
+    @unlink($file);
+  }
+}

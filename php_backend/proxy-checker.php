@@ -17,22 +17,6 @@ global $isAdmin, $isCli;
  *   less repetition, consistent checks, safer file writes).
  */
 
-/** Ensure directory exists helper (keeps behavior but avoids repeating mkdir checks) */
-function ensure_dir(string $dir): void
-{
-  if (!is_dir($dir)) {
-    @mkdir($dir, 0777, true);
-  }
-}
-
-/** Small helper to safely unlink a file if it exists */
-function safe_unlink(string $file): void
-{
-  if (file_exists($file)) {
-    @unlink($file);
-  }
-}
-
 /** Helper to get normalized request scheme/host/script dir */
 function get_self_base(): string
 {
