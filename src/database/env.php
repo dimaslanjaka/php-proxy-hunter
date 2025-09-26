@@ -1,17 +1,45 @@
 <?php
 
+include_once __DIR__ . '/../utils/shim/string.php';
+
 // Load dotenv if not already loaded
 if (class_exists('Dotenv\\Dotenv')) {
-  if (!isset($_ENV['DEBUG_DEVICES']) && !getenv('DEBUG_DEVICES') && !isset($_ENV['ADMIN_EMAILS']) && !getenv('ADMIN_EMAILS')) {
-    $projectRoot = realpath(__DIR__ . '/../../');
-    if ($projectRoot === false) {
-      throw new RuntimeException('Could not determine project root directory.');
-    }
-    $dotenv = Dotenv\Dotenv::createUnsafeImmutable($projectRoot);
-    $dotenv->load();
-    // For compatibility with libraries using getenv()
-    foreach ($_ENV as $key => $value) {
-      putenv("$key=$value");
+  $projectRoot = realpath(__DIR__ . '/../../');
+  if ($projectRoot === false) {
+    throw new RuntimeException('Could not determine project root directory.');
+  }
+  $dotenv = Dotenv\Dotenv::createUnsafeImmutable($projectRoot);
+  $dotenv->load();
+  // For compatibility with libraries using getenv()
+  foreach ($_ENV as $key => $value) {
+    putenv("$key=$value");
+  }
+} else {
+  // Parse .env file manually if Dotenv is not available
+  $envFile = __DIR__ . '/../../.env';
+  if (file_exists($envFile) && is_readable($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+      if (str_starts_with(trim($line), '#')) {
+        continue; // Skip comments
+      }
+      $parts = explode('=', $line, 2);
+      if (count($parts) === 2) {
+        $key   = trim($parts[0]);
+        $value = trim($parts[1]);
+        if ($value === 'true' || $value === 'false') {
+          $value = $value === 'true' ? true : false;
+        } elseif (is_numeric($value)) {
+          $value = $value + 0; // Convert to int or float
+        } elseif (preg_match('/^\[.*\]$/', $value)) {
+          $arrayValue = json_decode($value, true);
+          if (json_last_error() === JSON_ERROR_NONE) {
+            $value = $arrayValue;
+          }
+        }
+        $_ENV[$key] = $value;
+        putenv("$key=$value");
+      }
     }
   }
 }
