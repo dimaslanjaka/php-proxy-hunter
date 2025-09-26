@@ -375,7 +375,7 @@ function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonS
             echo "Received response (type: $type): " . substr($output, 0, 100) . (strlen($output) > 100 ? '...' : '') . PHP_EOL;
           }
           $response = $output;
-          break;
+          break 2; // Break from both the proxy types loop and the services loop
         }
       }
     } else {
