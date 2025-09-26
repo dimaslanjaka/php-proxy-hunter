@@ -148,13 +148,20 @@ class Proxy
 
   /**
    * Returns a JSON representation of the Proxy object.
-   * @return string
+   *
+   * @param bool $pretty   If true, returns pretty-printed JSON.
+   * @param bool $notEmpty If true, only includes properties that are not null or empty.
+   * @return string        JSON encoded string representing the Proxy object.
    */
-  public function toJson($pretty = false)
+  public function toJson($pretty = false, $notEmpty = false)
   {
-    if ($pretty) {
-      return json_encode(get_object_vars($this), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $data = get_object_vars($this);
+    if ($notEmpty) {
+      $data = array_filter($data, fn ($value) => !is_null($value) && $value !== '');
     }
-    return json_encode(get_object_vars($this), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($pretty) {
+      return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+    return json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
   }
 }
