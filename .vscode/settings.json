@@ -206,6 +206,7 @@
   },
   "git.autoStash": true,
   "git.useCommitInputAsStashMessage": true,
+  "git.repositoryScanIgnoredFolders": ["node_modules", ".deploy_git"],
   "intelephense.environment.phpVersion": "7.4.33",
   "intelephense.diagnostics.enable": true,
   "intelephense.diagnostics.run": "onSave",
