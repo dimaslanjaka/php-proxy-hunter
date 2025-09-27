@@ -2,16 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./tmp/whatsapp",
+    "moduleResolution": "node",
     "strict": false
   },
-  "include": [
-    "node_backend/**/*.ts"
-  ],
-  "exclude": [
-    "**/dist",
-    "**/test",
-    "**/tmp",
-    "**/node_modules",
-    "**/build",
-  ]
+  "include": ["node_backend/**/*.ts"],
+  "exclude": ["**/dist", "**/test", "**/tmp", "**/node_modules", "**/build"]
 }
