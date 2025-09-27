@@ -83,6 +83,7 @@
     "https-proxy-agent": "^7.0.6",
     "i18next": "^25.4.2",
     "jquery": "^3.7.1",
+    "jquery-form-saver": "1.2.0",
     "js-levenshtein": "^1.1.6",
     "jsonc-parser": "^3.3.1",
     "link-preview-js": "^3.1.0",

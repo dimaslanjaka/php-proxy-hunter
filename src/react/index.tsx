@@ -18,6 +18,7 @@ import NotFound from './pages/NotFound';
 import routes from './routes.js';
 import { SnackbarProvider } from './components/Snackbar';
 import SnackBarSample from './pages/samples/SnackBarSample';
+import SimpleFormSaverDemo from './pages/SimpleFormSaverDemo';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
@@ -68,6 +69,7 @@ root.render(
               );
             })}
             <Route path="/examples/snackbar" element={<SnackBarSample />} />
+            <Route path="/examples/form-saver" element={<SimpleFormSaverDemo />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
