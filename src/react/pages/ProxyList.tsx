@@ -4,6 +4,7 @@ import { ProxyDetails } from '../../../types/proxy';
 import { createUrl } from '../utils/url';
 import ApiUsage from './ProxyList/ApiUsage';
 import LogViewer from './ProxyList/LogViewer';
+import ProxySubmission from './ProxyList/ProxySubmission';
 import ModifyCurl from './ProxyList/ModifyCurl';
 import { useSnackbar } from '../components/Snackbar';
 import { timeAgo } from '../../utils/date.js';
@@ -476,6 +477,9 @@ function ProxyList() {
           </div>
         </div>
       </div>
+
+      {/* Proxy Submission Section */}
+      <ProxySubmission />
 
       {/* Log Viewer Section (always visible) */}
       <LogViewer />
