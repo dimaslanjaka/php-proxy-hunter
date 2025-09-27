@@ -1,5 +1,57 @@
 [
   {
+    "hash": "2e4920a4132e561670e06831c20d963914f949fb",
+    "date": "2025-09-27T16:03:57+07:00",
+    "message": "feat: add jquery-form-saver integration with React demo pages\n\n- Add jquery-form-saver dependency to package.json\n- Create SimpleFormSaverDemo page with three example implementations\n- Add CleanFormSaverExamples component with settings, contact, and dynamic form demos\n- Add new route /examples/form-saver for form saver demonstrations\n- Implement ReactFormSaver component wrapper and useFormSaver hook examples",
+    "files": [
+      "package.json",
+      "src/react/index.tsx",
+      "src/react/pages/SimpleFormSaverDemo.tsx",
+      "src/react/pages/examples/CleanFormSaverExamples.tsx"
+    ]
+  },
+  {
+    "hash": "c901a2937d9582d3f730f69f2328f6175e154461",
+    "date": "2025-09-27T16:02:57+07:00",
+    "message": "fix(tsconfig): restore moduleResolution setting to 'node'",
+    "files": [
+      "tsconfig.whatsapp.json"
+    ]
+  },
+  {
+    "hash": "e748a1efe334ed66149ada1a77a1ef655ac0a54f",
+    "date": "2025-09-27T16:01:46+07:00",
+    "message": "fix(tsconfig): change moduleResolution from 'node' to 'bundler'",
+    "files": [
+      "tsconfig.json"
+    ]
+  },
+  {
+    "hash": "18a480e7b606e60e931aab48433b2e34f6e7cf65",
+    "date": "2025-09-27T14:38:18+07:00",
+    "message": "feat: add ignored folders for git repository scanning",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "392363a4e1f621f07d01a557752c3a7ec8eb519b",
+    "date": "2025-09-27T12:08:22+07:00",
+    "message": "feat: add ProxySubmission component for proxy data submission and validation",
+    "files": [
+      "src/react/pages/ProxyList.tsx",
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "e3e1dea9d76386ac51023f40a214c6fcaaec3a81",
+    "date": "2025-09-27T11:47:29+07:00",
+    "message": "fix: invalid instruction file name",
+    "files": [
+      ".github/instructions/react.instructions.md"
+    ]
+  },
+  {
     "hash": "e27a9fa498a37a7f2c4712a5f7389f1c66b0fa96",
     "date": "2025-09-26T18:59:22+07:00",
     "message": "fix(proxy): stop getPublicIP after first successful response\n\nPreviously, the function continued testing all IP services even after\nreceiving a successful response. Changed `break` to `break 2` to exit\nboth the proxy types loop and the services loop when a response is\nobtained, improving efficiency and preventing unnecessary API calls.",
