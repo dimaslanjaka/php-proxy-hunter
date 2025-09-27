@@ -18,7 +18,7 @@ import NotFound from './pages/NotFound';
 import routes from './routes.js';
 import { SnackbarProvider } from './components/Snackbar';
 import SnackBarSample from './pages/examples/SnackBarSample';
-import SimpleFormSaverDemo from './pages/SimpleFormSaverDemo';
+import SimpleFormSaverDemo from './pages/examples/SimpleFormSaverDemo';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 

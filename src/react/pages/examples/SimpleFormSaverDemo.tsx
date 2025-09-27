@@ -1,5 +1,5 @@
 import React from 'react';
-import { SettingsWithFormSaver, ContactFormWithHook, DynamicFormExample } from './examples/CleanFormSaverExamples';
+import { SettingsWithFormSaver, ContactFormWithHook, DynamicFormExample } from './CleanFormSaverExamples';
 
 /**
  * Simple wrapper for Form Saver examples
