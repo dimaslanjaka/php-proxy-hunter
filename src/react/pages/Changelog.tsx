@@ -3,6 +3,8 @@ import type gitHistoryToJson from '../../dev/git-history-to-json';
 import { createUrl } from '../utils/url';
 import ReactMarkdown from 'react-markdown';
 import style from './Changelog.module.scss';
+import { getUserInfo } from '../utils/user';
+import { Nullable } from 'safelinkify';
 
 type Commit = ReturnType<typeof gitHistoryToJson>[number];
 
@@ -15,6 +17,7 @@ export default function Changelog() {
   const [page, setPage] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(false);
   const [refreshKey, setRefreshKey] = React.useState(0);
+  const [isAdmin, setIsAdmin] = React.useState(false);
   const COMMITS_PER_PAGE = 30;
 
   // Try to load cached first page from localStorage on mount
@@ -32,6 +35,9 @@ export default function Changelog() {
         }
       }
     }
+    getUserInfo().then((user) => {
+      setIsAdmin(user?.admin || false);
+    });
   }, []);
 
   // Fetch full data and update cache/UI
@@ -42,7 +48,7 @@ export default function Changelog() {
     const fetchData = async () => {
       try {
         // Always bust cache in dev mode to avoid stale data with Vite
-        const params: Record<string, string | number> = { v: import.meta.env.VITE_GIT_COMMIT };
+        const params: Record<string, Nullable<string | number>> = { v: import.meta.env.VITE_GIT_COMMIT };
         if (import.meta.env.DEV) {
           params.t = Date.now();
         }
@@ -165,25 +171,36 @@ export default function Changelog() {
                   <div className={`prose dark:prose-invert mb-2 text-gray-400 dark:text-gray-300 ${style.markdown}`}>
                     <ReactMarkdown>{commit.message.split('\n').slice(1).join('\n').trim()}</ReactMarkdown>
                   </div>
-                  {commit.files && commit.files.length > 0 ? (
-                    <div className="mb-2">
-                      <span className="text-xs text-gray-400 dark:text-gray-300 mr-2">
-                        <i className="fa-duotone fa-file-code mr-1"></i>
-                        Files changed:
-                      </span>
-                      <ul className="list-disc list-inside text-xs text-gray-500 dark:text-gray-400 overflow-x-auto break-all max-w-full">
-                        {commit.files.map((file: string) => (
-                          <li key={file} className="break-all max-w-full">
-                            {file}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                  {isAdmin ? (
+                    <>
+                      {commit.files && commit.files.length > 0 ? (
+                        <div className="mb-2">
+                          <span className="text-xs text-gray-400 dark:text-gray-300 mr-2">
+                            <i className="fa-duotone fa-file-code mr-1"></i>
+                            Files changed:
+                          </span>
+                          <ul className="list-disc list-inside text-xs text-gray-500 dark:text-gray-400 overflow-x-auto break-all max-w-full">
+                            {commit.files.map((file: string) => (
+                              <li key={file} className="break-all max-w-full">
+                                {file}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : (
+                        <div className="mb-2">
+                          <span className="text-xs text-gray-400 dark:text-gray-300 mr-2">
+                            <i className="fa-duotone fa-file-code mr-1"></i>
+                            No files changed in this commit.
+                          </span>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="mb-2">
                       <span className="text-xs text-gray-400 dark:text-gray-300 mr-2">
-                        <i className="fa-duotone fa-file-code mr-1"></i>
-                        No files changed in this commit.
+                        <i className="fa-duotone fa-lock mr-1"></i>
+                        File changes are only visible to administrators.
                       </span>
                     </div>
                   )}
