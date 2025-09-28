@@ -49,6 +49,15 @@ export default function ProxySubmission() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    fetch(createUrl('/php_backend/proxy-add.php'), { method: 'POST', body: new URLSearchParams({ proxies: textarea }) })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+
     // Split textarea into lines and extract proxies from each line
     const parsed = textarea.split(/\r?\n/).map(extractProxies).flat().filter(Boolean);
 
