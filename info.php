@@ -56,6 +56,10 @@ if (trim($config['your-ip']) == '127.0.0.1') {
   }
 }
 
+if ($isAdmin) {
+  $config['env'] = getEnvPairs();
+}
+
 $config_json = json_encode($config);
 
 if (!$isCli) {

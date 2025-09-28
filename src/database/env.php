@@ -2,6 +2,8 @@
 
 include_once __DIR__ . '/../utils/shim/string.php';
 
+$pairs = [];
+
 // Load dotenv if not already loaded
 if (class_exists('Dotenv\\Dotenv')) {
   $projectRoot = realpath(__DIR__ . '/../../');
@@ -13,6 +15,7 @@ if (class_exists('Dotenv\\Dotenv')) {
   // For compatibility with libraries using getenv()
   foreach ($_ENV as $key => $value) {
     putenv("$key=$value");
+    $pairs[$key] = $value;
   }
 } else {
   // Parse .env file manually if Dotenv is not available
@@ -27,6 +30,10 @@ if (class_exists('Dotenv\\Dotenv')) {
       if (count($parts) === 2) {
         $key   = trim($parts[0]);
         $value = trim($parts[1]);
+
+        // Always strip surrounding quotes (single or double)
+        $value = trim($value, '"\'');
+
         if ($value === 'true' || $value === 'false') {
           $value = $value === 'true' ? true : false;
         } elseif (is_numeric($value)) {
@@ -39,9 +46,16 @@ if (class_exists('Dotenv\\Dotenv')) {
         }
         $_ENV[$key] = $value;
         putenv("$key=$value");
+        $pairs[$key] = $value;
       }
     }
   }
+}
+
+function getEnvPairs(): array
+{
+  global $pairs;
+  return $pairs;
 }
 
 /**
