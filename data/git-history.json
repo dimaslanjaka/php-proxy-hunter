@@ -1,5 +1,14 @@
 [
   {
+    "hash": "f2ebe6144b1e8f55faf83ceb68d3808f8f062da8",
+    "date": "2025-09-28T19:33:10+07:00",
+    "message": "feat: prioritize index.php over index.html in directory index\n\n- Add DirectoryIndex directive to .htaccess to prioritize index.php first, then index.html\n- Update nginx configuration to search for index.php before index.html and index.htm\n- Ensure consistent directory index behavior across Apache and Nginx web servers",
+    "files": [
+      ".htaccess",
+      ".htaccess_nginx.conf"
+    ]
+  },
+  {
     "hash": "b696c955a201c3f2cef4dacd8daa87faea5c37f1",
     "date": "2025-09-28T17:58:43+07:00",
     "message": "feat(changelog): restrict file changes visibility to admin users only\n\n- Add admin role checking with getUserInfo integration\n- Implement conditional rendering for commit file changes\n- Show placeholder message for non-admin users with lock icon\n- Add Nullable type import for improved type safety\n- Maintain existing functionality while adding access control layer",
