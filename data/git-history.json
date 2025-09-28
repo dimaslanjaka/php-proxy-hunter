@@ -1,5 +1,14 @@
 [
   {
+    "hash": "1cc8e5db02350a7e5a7d2ede2b64e02f84cb5720",
+    "date": "2025-09-28T09:35:15+07:00",
+    "message": "feat: add proxy submission endpoint with React integration\n\n- Add new PHP backend endpoint at php_backend/proxy-add.php to handle proxy submissions\n- Integrate fetch API call in ProxySubmission component to send proxy data to backend\n- Backend saves submitted proxies to user-specific files in assets/proxies directory\n- Add proper JSON response handling with status codes and error messages",
+    "files": [
+      "php_backend/proxy-add.php",
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
     "hash": "3d7ff3826a958d148ad5bccecb9052aa0ec5152d",
     "date": "2025-09-27T16:17:40+07:00",
     "message": "refactor: move SimpleFormSaverDemo to examples directory\n\n- Move src/react/pages/SimpleFormSaverDemo.tsx to src/react/pages/examples/SimpleFormSaverDemo.tsx\n- Update import path in src/react/index.tsx to reflect new location\n- Fix relative import path for CleanFormSaverExamples within the moved file",
