@@ -51,6 +51,13 @@ foreach ($iterator as $file) {
   }
 }
 
+// Load any additional autoload.php files from xl subdirectories
+foreach (glob(__DIR__ . '/../xl/*/autoload.php') as $autoloadFile) {
+  if (is_file($autoloadFile)) {
+    require_once $autoloadFile;
+  }
+}
+
 // Verify
 
 if (!function_exists('parseQueryOrPostBody')) {
