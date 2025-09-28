@@ -1,5 +1,8 @@
 Options -Indexes
 
+# Set directory index priority: index.php first, then index.html
+DirectoryIndex index.php index.html
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
