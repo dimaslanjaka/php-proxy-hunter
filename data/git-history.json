@@ -1,5 +1,21 @@
 [
   {
+    "hash": "4090ea8d29feabb36ecc5273b6883f75fb3b09e6",
+    "date": "2025-09-28T17:33:51+07:00",
+    "message": "feat: load additional autoload.php files from xl subdirectories",
+    "files": [
+      "src/autoload.php"
+    ]
+  },
+  {
+    "hash": "76e604020713f4e7331852ca56498a80b4ab1b20",
+    "date": "2025-09-28T17:27:49+07:00",
+    "message": "feat(php_backend): add audit logging and admin validation to refill-saldo\n\n- Remove redundant func.php include (functionality moved to shared.php)\n- Add log_db and user_db to global scope\n- Add current admin user validation with exception handling\n- Implement comprehensive audit logging for topup operations\n- Log both 'set' and 'add' saldo operations with detailed metadata\n- Include amount, method, operation type, and existing saldo in logs",
+    "files": [
+      "php_backend/refill-saldo.php"
+    ]
+  },
+  {
     "hash": "1cc8e5db02350a7e5a7d2ede2b64e02f84cb5720",
     "date": "2025-09-28T09:35:15+07:00",
     "message": "feat: add proxy submission endpoint with React integration\n\n- Add new PHP backend endpoint at php_backend/proxy-add.php to handle proxy submissions\n- Integrate fetch API call in ProxySubmission component to send proxy data to backend\n- Backend saves submitted proxies to user-specific files in assets/proxies directory\n- Add proper JSON response handling with status codes and error messages",
