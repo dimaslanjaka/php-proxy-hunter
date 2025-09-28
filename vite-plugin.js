@@ -205,21 +205,26 @@ export function customStaticAssetsPlugin() {
 }
 
 const lockFilePath = path.join(__dirname, 'tmp/locks/.dev-server-lock');
+const buildLockFilePath = path.join(__dirname, 'tmp/locks/.build-lock');
+fs.ensureDirSync(path.dirname(lockFilePath));
+fs.ensureDirSync(path.dirname(buildLockFilePath));
 // Track if running as dev server
 let isDevServer = false;
+// Track if running as build
+let isBuild = false;
 
 /** @returns {import('vite').Plugin} */
 export function prepareVitePlugins() {
   return {
     name: 'prepare-vite-plugins',
     configResolved(config) {
-      // Only set up lock file if running dev server
+      // Only set up lock file when conditions are met
       isDevServer = config.command === 'serve';
+      isBuild = config.command === 'build';
       if (isDevServer) {
-        if (!fs.existsSync(path.dirname(lockFilePath))) {
-          fs.ensureDirSync(path.dirname(lockFilePath));
-        }
         fs.writeFileSync(lockFilePath, 'lock');
+      } else if (isBuild) {
+        fs.writeFileSync(buildLockFilePath, 'lock');
       }
     },
     handleHotUpdate() {
@@ -235,6 +240,9 @@ export function prepareVitePlugins() {
 process.on('exit', () => {
   if (isDevServer && fs.existsSync(lockFilePath)) {
     fs.removeSync(lockFilePath);
+  }
+  if (isBuild && fs.existsSync(buildLockFilePath)) {
+    fs.removeSync(buildLockFilePath);
   }
 });
 process.on('SIGINT', () => {

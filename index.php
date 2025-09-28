@@ -78,6 +78,13 @@ if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUES
   exit;
 }
 
+// Maintenance mode check
+$maintenanceFile = __DIR__ . '/tmp/locks/.build-lock';
+if (file_exists($maintenanceFile)) {
+  readfile(__DIR__ . '/index.maintenance.html');
+  exit;
+}
+
 $indexFile = __DIR__ . '/index.html';
 if (file_exists($indexFile)) {
   readfile($indexFile);
