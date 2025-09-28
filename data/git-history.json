@@ -1,5 +1,13 @@
 [
   {
+    "hash": "b696c955a201c3f2cef4dacd8daa87faea5c37f1",
+    "date": "2025-09-28T17:58:43+07:00",
+    "message": "feat(changelog): restrict file changes visibility to admin users only\n\n- Add admin role checking with getUserInfo integration\n- Implement conditional rendering for commit file changes\n- Show placeholder message for non-admin users with lock icon\n- Add Nullable type import for improved type safety\n- Maintain existing functionality while adding access control layer",
+    "files": [
+      "src/react/pages/Changelog.tsx"
+    ]
+  },
+  {
     "hash": "33b71b54941d725367721e237569e31eff9960da",
     "date": "2025-09-28T17:53:01+07:00",
     "message": "feat: add maintenance mode during build process\n\n- Add maintenance mode check in index.php that serves maintenance page when build lock exists\n- Create build lock file during Vite build process to trigger maintenance mode\n- Ensure lock directories are created before writing lock files\n- Clean up build lock file on process exit\n- Refactor lock file setup to handle both dev server and build scenarios",
