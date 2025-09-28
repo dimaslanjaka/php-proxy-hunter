@@ -1,5 +1,14 @@
 [
   {
+    "hash": "68accdfbd743a9ec67c6b783495c1f41756c2b1e",
+    "date": "2025-09-28T21:54:49+07:00",
+    "message": "feat: expose environment variables to admin users and fix quote handling\n\n- Add global $pairs array to track loaded environment variables\n- Implement getEnvPairs() function to return environment variable pairs\n- Expose environment variables in config for admin users only\n- Always strip surrounding quotes from .env values to prevent invalid formatting\n- Track variables in both Dotenv and manual .env parsing paths",
+    "files": [
+      "info.php",
+      "src/database/env.php"
+    ]
+  },
+  {
     "hash": "f2ebe6144b1e8f55faf83ceb68d3808f8f062da8",
     "date": "2025-09-28T19:33:10+07:00",
     "message": "feat: prioritize index.php over index.html in directory index\n\n- Add DirectoryIndex directive to .htaccess to prioritize index.php first, then index.html\n- Update nginx configuration to search for index.php before index.html and index.htm\n- Ensure consistent directory index behavior across Apache and Nginx web servers",
