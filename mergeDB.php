@@ -84,7 +84,17 @@ try {
 
     // Collect proxies from current source database
     try {
-      $sourceProxies    = $sourceDb->query('SELECT proxy FROM proxies')->fetchAll(PDO::FETCH_COLUMN);
+      $sourceProxies = $sourceDb->query('SELECT proxy,username,password FROM proxies')->fetchAll(PDO::FETCH_ASSOC);
+      // build proxy strings with auth if available. format IP:PORT or USER:PASS@IP:PORT
+      foreach ($sourceProxies as &$proxy) {
+        if (!empty($proxy['username']) && !empty($proxy['password'])) {
+          $proxy = $proxy['username'] . ':' . $proxy['password'] . '@' . $proxy['proxy'];
+        } else {
+          $proxy = $proxy['proxy'];
+        }
+      }
+      unset($proxy);
+      $sourceProxies    = array_unique($sourceProxies);
       $allSourceProxies = array_merge($allSourceProxies, $sourceProxies);
     } catch (Exception $e) {
       // Table might not exist in this source database, continue
@@ -97,7 +107,18 @@ try {
 
   // Get proxies from target (merged) database
   try {
-    $proxies = $targetDb->query('SELECT proxy FROM proxies')->fetchAll(PDO::FETCH_COLUMN);
+    $proxies = $targetDb->query('SELECT proxy,username,password FROM proxies')->fetchAll(PDO::FETCH_ASSOC);
+    // build proxy strings with auth if available. format IP:PORT or USER:PASS@IP:PORT
+    foreach ($proxies as &$proxy) {
+      if (!empty($proxy['username']) && !empty($proxy['password'])) {
+        $proxy = $proxy['username'] . ':' . $proxy['password'] . '@' . $proxy['proxy'];
+      } else {
+        $proxy = $proxy['proxy'];
+      }
+    }
+    unset($proxy);
+    $proxies = array_unique($proxies);
+    // Save to file (overwrite if exists)
     file_put_contents($outputFile, implode(PHP_EOL, $proxies));
   } catch (Exception $e) {
     echo 'Warning: Could not fetch proxies from target database - ' . $e->getMessage() . PHP_EOL;
