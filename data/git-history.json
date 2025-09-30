@@ -1,5 +1,162 @@
 [
   {
+    "hash": "33600d47e863a61f89e3ea03e4e9c56a75e042b1",
+    "date": "2025-10-01T02:28:12+07:00",
+    "message": "feat(mergeDB): add proxy authentication support for database operations\n\n- Modify SQL queries to fetch username and password fields\n- Build proxy strings with auth format (USER:PASS@IP:PORT) when credentials exist\n- Add deduplication with array_unique for both source and target proxies\n- Maintain backward compatibility for proxies without authentication",
+    "files": [
+      "mergeDB.php"
+    ]
+  },
+  {
+    "hash": "d10ab1a51d82b5998e1b0815fe4ff6d2823e67cf",
+    "date": "2025-10-01T02:23:39+07:00",
+    "message": "fix(database): resolve undefined variable error in mergeDB script\n\n- Add $allSourceProxies array to collect proxy data during loop iteration\n- Move proxy collection logic inside foreach loop where $sourceDb is in scope\n- Implement proper error handling for proxy export operations\n- Replace broken post-loop $sourceDb access with collected proxy data\n- Add warning messages for databases without proxies table\n- Ensure proxy export works even when target database is empty\n\nFixes fatal error: \"Call to a member function query() on null\" caused by accessing $sourceDb outside its scope",
+    "files": [
+      "mergeDB.php",
+      "proxyManager.php"
+    ]
+  },
+  {
+    "hash": "7aa810c92f21929e528bf383420d356f37965562",
+    "date": "2025-10-01T02:14:46+07:00",
+    "message": "fix(database): add cross-database compatibility to filterPortsDuplicate\n\n- Add shared database instance support via php_backend/shared.php\n- Implement PDO driver detection using getAttribute method\n- Replace hardcoded SQLite syntax with database-specific SQL functions\n- Fix MySQL compatibility issues with SUBSTR, datetime, and RANDOM functions\n- Update DELETE statements to handle different row ID fields (id vs _rowid_)\n- Improve lock file handling with directory creation and file validation\n- Replace ProxyDB instantiation with global $proxy_db instance\n- Standardize date parameter binding for better SQL injection prevention",
+    "files": [
+      "artisan/filterPortsDuplicate.php"
+    ]
+  },
+  {
+    "hash": "bcd562201e0d37da7fcd8770e36ec65b9298aea7",
+    "date": "2025-10-01T01:59:18+07:00",
+    "message": "refactor(proxy-checker): migrate to shared database and strict types\n\n- Add strict type declarations to both files\n- Switch from func-proxy.php to php_backend/shared.php for better modularity\n- Replace ProxyDB instantiation with global $proxy_db instance\n- Add return type annotations to functions (void, array)\n- Update write_working function to accept optional ProxyDB parameter\n- Pass database instance to write_working calls for consistency\n- Fix duplicate global variable declaration\n- Reorder use statements for better organization\n- Fix ini_set parameter to use string value for type safety",
+    "files": [
+      "proxyCheckerParallel-func.php",
+      "proxyCheckerParallel.php"
+    ]
+  },
+  {
+    "hash": "4cbf75fc37c42ea45b1a0aff82c9bf8e194ef3d8",
+    "date": "2025-10-01T01:57:55+07:00",
+    "message": "refactor(artisan): update filterPorts.php to use shared database and project root\n\n- Replace PROJECT_ROOT constant with $projectRoot variable\n- Switch from func-proxy.php to php_backend/shared.php for better modularity\n- Remove ProxyDB import and use global $proxy_db instance\n- Update all PROJECT_ROOT references to use $projectRoot variable\n- Add $projectRoot to processProxy function globals for consistency",
+    "files": [
+      "artisan/filterPorts.php"
+    ]
+  },
+  {
+    "hash": "e8fb8c888f59d0426681bba7db40eec6974485ef",
+    "date": "2025-10-01T01:55:35+07:00",
+    "message": "fix(database): enhance select method with ORDER BY and LIMIT support\n\n- Add orderBy and limit parameters to BaseSQL abstract select method\n- Implement ORDER BY and LIMIT clauses in MySQLHelper and SQLiteHelper select methods\n- Add getRandomFunction() helper in ProxyDB to handle database-specific RANDOM functions\n- Refactor proxy retrieval methods to use new select method signature\n- Fix SQL syntax errors caused by concatenating ORDER BY and LIMIT to WHERE clauses\n- Improve code maintainability by centralizing query building logic\n\nBREAKING CHANGE: select method signature now includes additional optional parameters for orderBy and limit",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/PhpProxyHunter/SQLiteHelper.php"
+    ]
+  },
+  {
+    "hash": "a1e28bed98c73154ebbe978410fa9cea17f21a49",
+    "date": "2025-09-30T21:18:05+07:00",
+    "message": "feat(proxyRespawner): use shared database and add multi-database support\n\n- Replace direct ProxyDB instantiation with shared $proxy_db instance\n- Include shared.php instead of func-proxy.php for better dependency management\n- Add database driver detection for SQLite and MySQL compatibility\n- Implement driver-specific SQL queries for date operations and random ordering\n- Add exception handling for unsupported database drivers",
+    "files": [
+      "proxyRespawner.php"
+    ]
+  },
+  {
+    "hash": "3f10e19cbb5cb902e73c3694d83cc036631d23e7",
+    "date": "2025-09-30T21:16:30+07:00",
+    "message": "fix(geoIp): use shared database instance and pass db parameter to extractProxies\n\n- Include shared.php to access global $proxy_db instance\n- Replace direct ProxyDB instantiation with shared $proxy_db\n- Pass database parameter to extractProxies function to prevent null reference errors",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "3b6e80b3069181be18e2f844e03c9af965206e74",
+    "date": "2025-09-30T21:02:03+07:00",
+    "message": "refactor: remove unused ProxyDB import and instance from func.php\n\n- Remove unused PhpProxyHunter\\ProxyDB import\n- Remove unused $db = new ProxyDB() instantiation\n- Clean up dead code to improve maintainability",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
+    "hash": "68cc50028c9a517df890b4fbb34bc90b35d06c04",
+    "date": "2025-09-30T21:00:17+07:00",
+    "message": "feat: add function to retrieve current authenticated user data",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
+    "hash": "d03a47d5fcfdf62d6b749d612c2de109bb0f8c79",
+    "date": "2025-09-30T20:57:36+07:00",
+    "message": "fix: use shared ProxyDB instance in scanPorts.php\n\n- Use shared ProxyDB instance from php_backend/shared.php instead of creating new instance\n- Pass ProxyDB instance to extractProxies function to prevent null reference error\n- Add required global variables to access shared database connection",
+    "files": [
+      "scanPorts.php"
+    ]
+  },
+  {
+    "hash": "6c2fe30cc5acb2f4d72547fa1d3cf0a37181f78a",
+    "date": "2025-09-30T20:54:26+07:00",
+    "message": "refactor: replace ProxyDB instantiation with shared instance in proxyChecker\n\n- Add dependency on shared.php for centralized database access\n- Replace new ProxyDB() with shared $proxy_db variable\n- Remove unused ProxyDB import\n- Add $proxy_db to global variable declaration",
+    "files": [
+      "proxyChecker.php"
+    ]
+  },
+  {
+    "hash": "3ea976924f63df122bff7c4825b4b902f836c63c",
+    "date": "2025-09-30T20:52:23+07:00",
+    "message": "refactor: replace ProxyDB instantiation with shared instance in CIDR-check\n\n- Add dependency on shared.php for centralized database access\n- Replace new ProxyDB() with shared $proxy_db variable\n- Remove unused ProxyDB import\n- Add $proxy_db to global variable declaration and closure use statement",
+    "files": [
+      "cidr-information/CIDR-check.php"
+    ]
+  },
+  {
+    "hash": "347e338d7684d83c70485b07972d4df491e62e55",
+    "date": "2025-09-30T20:50:34+07:00",
+    "message": "refactor(proxyCollector): use shared ProxyDB instance\n\n- Included shared.php to access global $proxy_db.\n- Replaced direct instantiation of ProxyDB with shared instance.\n- Extended globals to include $proxy_db alongside $isWin and $isCli.",
+    "files": [
+      "artisan/proxyCollector.php"
+    ]
+  },
+  {
+    "hash": "7b87bc162620c345ac728d12dd6ecc247420cb4f",
+    "date": "2025-09-30T20:49:22+07:00",
+    "message": "refactor(proxyWorking): use global ProxyDB instance instead of instantiation",
+    "files": [
+      "artisan/proxyWorking.php"
+    ]
+  },
+  {
+    "hash": "5e430ca6e6dea20cb988cf2621cc7cf97c78ae33",
+    "date": "2025-09-30T20:42:17+07:00",
+    "message": "refactor(list): use shared ProxyDB instance and improve access checks\n\n- Replaced direct inclusion of func-proxy.php with shared.php.\n- Introduced global $proxy_db for database access instead of creating a new instance.\n- Added explicit error handling when ProxyDB instance is not available.\n- Updated access control to allow CLI while enforcing cookie/session checks for web requests.",
+    "files": [
+      "list.php"
+    ]
+  },
+  {
+    "hash": "a42dfeccf743f77ae1a8548eed906591897081d0",
+    "date": "2025-09-30T20:40:54+07:00",
+    "message": "fix(geoip): throw exception when ProxyDB instance is missing\n\n- Replaced silent ProxyDB instantiation with InvalidArgumentException to enforce explicit dependency.",
+    "files": [
+      "src/PhpProxyHunter/GeoIpHelper.php"
+    ]
+  },
+  {
+    "hash": "09b4b57d2a2c1a30612ccb57522c5adb76b4b160",
+    "date": "2025-09-30T20:39:13+07:00",
+    "message": "fix(proxy): require ProxyDB instance when write_database is true\n\n- Changed default value of `write_database` from `true` to `false` in `extractProxies`.\n- Added explicit exception when `write_database` is true but no ProxyDB instance is provided.",
+    "files": [
+      "src/utils/proxy/extractor.php"
+    ]
+  },
+  {
+    "hash": "ab73d292e4c76ef9dac7c462d902563dd0e3b34d",
+    "date": "2025-09-30T20:35:12+07:00",
+    "message": "refactor: replace ProxyDB instantiation with shared instance in proxy-checker\n\n- Remove unused ProxyDB import\n- Add proxy_db to global declaration\n- Replace new ProxyDB() with shared $proxy_db variable\n- Improve memory efficiency by reusing existing database connection",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "68accdfbd743a9ec67c6b783495c1f41756c2b1e",
     "date": "2025-09-28T21:54:49+07:00",
     "message": "feat: expose environment variables to admin users and fix quote handling\n\n- Add global $pairs array to track loaded environment variables\n- Implement getEnvPairs() function to return environment variable pairs\n- Expose environment variables in config for admin users only\n- Always strip surrounding quotes from .env values to prevent invalid formatting\n- Track variables in both Dotenv and manual .env parsing paths",
