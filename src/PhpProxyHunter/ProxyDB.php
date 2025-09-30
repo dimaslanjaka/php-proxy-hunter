@@ -164,6 +164,15 @@ class ProxyDB
   }
 
   /**
+   * Get the appropriate RANDOM function based on database type
+   * @return string
+   */
+  private function getRandomFunction()
+  {
+    return $this->db instanceof MySQLHelper ? 'RAND()' : 'RANDOM()';
+  }
+
+  /**
    * @param callable $callback
    * @return void
    */
@@ -194,17 +203,8 @@ class ProxyDB
    */
   public function getAllProxies($limit = null)
   {
-    $sql = 'SELECT * FROM proxies';
-    if ($limit !== null) {
-      $sql .= ' ORDER BY RANDOM() LIMIT ?';
-    }
-    $stmt = $this->db->pdo->prepare($sql);
-    if ($limit !== null) {
-      $stmt->bindParam(1, $limit, \PDO::PARAM_INT);
-    }
-    $stmt->execute();
-    $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    return $result ?: [];
+    $orderBy = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
+    return $this->db->select('proxies', '*', null, [], $orderBy, $limit);
   }
 
   /**
@@ -339,39 +339,35 @@ class ProxyDB
 
   public function getWorkingProxies($limit = null)
   {
-    $whereClause   = 'status = ?';
-    $params        = ['active'];
-    $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
-    $limitClause   = ($limit !== null) ? "LIMIT $limit" : '';
-    $result        = $this->db->select('proxies', '*', $whereClause . ' ' . $orderByRandom . ' ' . $limitClause, $params);
+    $whereClause = 'status = ?';
+    $params      = ['active'];
+    $orderBy     = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
+    $result      = $this->db->select('proxies', '*', $whereClause, $params, $orderBy, $limit);
     return $result ?: [];
   }
 
   public function getPrivateProxies($limit = null)
   {
-    $whereClause   = 'status = ? OR private = ?';
-    $params        = ['private', 'true'];
-    $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
-    $limitClause   = ($limit !== null) ? "LIMIT $limit" : '';
-    return $this->db->select('proxies', '*', $whereClause . ' ' . $orderByRandom . ' ' . $limitClause, $params);
+    $whereClause = 'status = ? OR private = ?';
+    $params      = ['private', 'true'];
+    $orderBy     = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
+    return $this->db->select('proxies', '*', $whereClause, $params, $orderBy, $limit);
   }
 
   public function getDeadProxies($limit = null)
   {
-    $whereClause   = 'status = ? OR status = ?';
-    $params        = ['dead', 'port-closed'];
-    $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
-    $limitClause   = ($limit !== null) ? "LIMIT $limit" : '';
-    return $this->db->select('proxies', '*', $whereClause . ' ' . $orderByRandom . ' ' . $limitClause, $params);
+    $whereClause = 'status = ? OR status = ?';
+    $params      = ['dead', 'port-closed'];
+    $orderBy     = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
+    return $this->db->select('proxies', '*', $whereClause, $params, $orderBy, $limit);
   }
 
   public function getUntestedProxies($limit = null)
   {
-    $whereClause   = 'status IS NULL OR status = "" OR status NOT IN (?, ?, ?)';
-    $params        = ['active', 'port-closed', 'dead'];
-    $orderByRandom = ($limit !== null && $limit > 0) ? 'ORDER BY RANDOM()' : '';
-    $limitClause   = ($limit !== null) ? "LIMIT $limit" : '';
-    return $this->db->select('proxies', '*', $whereClause . ' ' . $orderByRandom . ' ' . $limitClause, $params);
+    $whereClause = 'status IS NULL OR status = "" OR status NOT IN (?, ?, ?)';
+    $params      = ['active', 'port-closed', 'dead'];
+    $orderBy     = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
+    return $this->db->select('proxies', '*', $whereClause, $params, $orderBy, $limit);
   }
 
   public function countDeadProxies()

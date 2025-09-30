@@ -53,9 +53,11 @@ abstract class BaseSQL
    * @param string $columns The columns to select.
    * @param string|null $where The WHERE clause.
    * @param array $params Parameters for the query.
+   * @param string|null $orderBy The ORDER BY clause (without "ORDER BY" keyword).
+   * @param int|null $limit The LIMIT value.
    * @return array
    */
-  abstract public function select($tableName, $columns = '*', $where = null, array $params = []);
+  abstract public function select($tableName, $columns = '*', $where = null, array $params = [], $orderBy = null, $limit = null);
 
   /**
    * Execute a custom SQL query.

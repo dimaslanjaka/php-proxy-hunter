@@ -118,13 +118,21 @@ class SQLiteHelper extends BaseSQL
    * @param string      $columns   The columns to select.
    * @param string|null $where     The WHERE clause.
    * @param array       $params    An array of parameters to bind to the query.
+   * @param string|null $orderBy   The ORDER BY clause (without "ORDER BY" keyword).
+   * @param int|null    $limit     The LIMIT value.
    * @return array An array containing the selected records.
    */
-  public function select($tableName, $columns = '*', $where = null, $params = [])
+  public function select($tableName, $columns = '*', $where = null, $params = [], $orderBy = null, $limit = null)
   {
     $sql = "SELECT $columns FROM $tableName";
     if ($where) {
       $sql .= " WHERE $where";
+    }
+    if ($orderBy) {
+      $sql .= " ORDER BY $orderBy";
+    }
+    if ($limit !== null) {
+      $sql .= " LIMIT $limit";
     }
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
