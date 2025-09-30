@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 require __DIR__ . '/proxyCheckerParallel-func.php';
 
-global $isCli, $isAdmin, $isCli;
+global $isCli, $isAdmin, $proxy_db;
 
 use PhpProxyHunter\Proxy;
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
 
-$db  = new ProxyDB();
+$db  = $proxy_db;
 $str = '';
 // default limit proxy to check
 $max = 100 + $db->countWorkingProxies();
@@ -18,7 +19,7 @@ $lockFile = __DIR__ . '/proxyChecker.lock';
 
 if (!$isCli) {
   // set output buffering to zero
-  ini_set('output_buffering', 0);
+  ini_set('output_buffering', '0');
   if (ob_get_level() == 0) {
     ob_start();
   }

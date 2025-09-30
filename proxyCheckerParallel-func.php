@@ -1,13 +1,13 @@
 <?php
 
-require __DIR__ . '/func-proxy.php';
+declare(strict_types=1);
 
-global $isCli, $isAdmin, $isCli;
+require __DIR__ . '/php_backend/shared.php';
 
 use PhpProxyHunter\Proxy;
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\GeoIpHelper;
+use PhpProxyHunter\ProxyDB;
 
 $str_to_remove = [];
 
@@ -17,9 +17,9 @@ $str_to_remove = [];
  * @param string|null $title_should_be
  * @return void
  */
-function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?bool $print_headers = true, ?string $custom_title_should_be = null)
+function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?bool $print_headers = true, ?string $custom_title_should_be = null): void
 {
-  global $isCli, $max, $str_to_remove, $lockFile;
+  global $isCli, $max, $str_to_remove, $lockFile, $proxy_db;
   $user_id         = getUserId();
   $config          = getConfig($user_id);
   $endpoint        = 'https://www.example.com';
@@ -47,7 +47,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
     echo "GET $endpoint" . PHP_EOL;
     echo implode(PHP_EOL, $headers) . PHP_EOL . PHP_EOL;
   }
-  $db         = new ProxyDB();
+  $db         = $proxy_db;
   $statusFile = __DIR__ . '/status.txt';
   Scheduler::register(function () use ($lockFile, $statusFile) {
     // release main lock files
@@ -218,7 +218,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
           ]);
         }
         // write working proxies
-        write_working();
+        write_working($db);
       } else {
         $db->updateStatus($item[0]->proxy, 'dead');
         echo "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} dead" . PHP_EOL;
@@ -249,7 +249,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
   }
 
   // write working proxies
-  write_working();
+  write_working($db);
 
   // End buffering and send the buffer
   if (ob_get_level() > 0) {
@@ -257,9 +257,10 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
   }
 }
 
-function write_working()
+function write_working(?ProxyDB $proxyDb = null): array
 {
-  $db = new ProxyDB();
+  global $proxy_db;
+  $db = $proxyDb ?? $proxy_db;
   echo '[CHECKER-PARALLEL] writing working proxies' . PHP_EOL;
   $data = parse_working_proxies($db);
   file_put_contents(__DIR__ . '/working.txt', $data['txt']);
@@ -268,7 +269,7 @@ function write_working()
   return $data;
 }
 
-function schedule_remover()
+function schedule_remover(): void
 {
   global $str_to_remove;
   if (!empty($str_to_remove)) {
@@ -299,7 +300,7 @@ function schedule_remover()
   }
 }
 
-function cleanUp()
+function cleanUp(): void
 {
   $directory = tmp() . '/runners/';
 
