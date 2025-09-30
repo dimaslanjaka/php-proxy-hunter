@@ -36,12 +36,11 @@
 
 // check open port and move to test file
 
-require_once __DIR__ . '/func-proxy.php';
+require_once __DIR__ . '/php_backend/shared.php';
 
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Server;
 
-global $isCli, $isWin;
+global $isCli, $isWin, $proxy_db;
 
 // validate lock files
 if (!$isCli) {
@@ -96,16 +95,28 @@ $maxExecutionTime = 120;
 if ($isAdmin) {
   $maxExecutionTime = 10 * 60;
 }
-$db  = new ProxyDB();
+$db  = $proxy_db;
 $pdo = $db->db->pdo;
 
 if ($isCli) {
-  $stmt = $pdo->prepare("SELECT *
+  $driver = $db->db->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+  if ($driver === 'sqlite') {
+    $stmt = $pdo->prepare("SELECT *
     FROM proxies
     WHERE (status = 'port-closed' OR status = 'dead')
     AND last_check < datetime('now', '-7 days')
     ORDER BY RANDOM()
     LIMIT 100");
+  } elseif ($driver === 'mysql') {
+    $stmt = $pdo->prepare("SELECT *
+    FROM proxies
+    WHERE (status = 'port-closed' OR status = 'dead')
+    AND last_check < DATE_SUB(NOW(), INTERVAL 7 DAY)
+    ORDER BY RAND()
+    LIMIT 100");
+  } else {
+    throw new \Exception('Unsupported database driver: ' . $driver);
+  }
   $stmt->execute();
   $proxies = $stmt->fetchAll(PDO::FETCH_ASSOC);
   foreach ($proxies as $item) {
