@@ -1,14 +1,8 @@
 <?php
 
-require_once __DIR__ . '/func-proxy.php';
+require_once __DIR__ . '/php_backend/shared.php';
 
-global $isCli, $isWin;
-
-use PhpProxyHunter\ProxyDB;
-
-if ($isCli) {
-  exit('CLI access disallowed');
-}
+global $proxy_db, $isCli, $isWin;
 
 // Set headers to inform the client and allow CORS (optional)
 header('Content-Type: application/json; charset=utf-8');
@@ -19,7 +13,7 @@ if (isset($_REQUEST['uid'])) {
   setUserId($_REQUEST['uid']);
 }
 // only allow user with Google Analytics cookie
-if (empty($_COOKIE['_ga']) || empty($_SESSION['user_id'])) {
+if (!is_cli() && (empty($_COOKIE['_ga']) || empty($_SESSION['user_id']))) {
   exit(json_encode(['error' => 'Access Denied']));
 }
 // check admin
@@ -56,7 +50,15 @@ if (!empty($parseQueries['format'])) {
 }
 $offset = ($page - 1) * $max;
 
-$db = new ProxyDB();
+$db = $proxy_db;
+
+// Check if proxy_db is available
+if (!$db) {
+  header('HTTP/1.1 500 Internal Server Error');
+  header('Content-Type: application/json');
+  echo json_encode(['error' => 'Database connection not available']);
+  exit;
+}
 
 $params      = [];
 $whereClause = '';
