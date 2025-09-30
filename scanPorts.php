@@ -1,13 +1,13 @@
 <?php
 
 require_once __DIR__ . '/func-proxy.php';
+require_once __DIR__ . '/php_backend/shared.php';
 
-global $isCli;
+global $isCli, $proxy_db;
 
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Server;
 
-$db = new ProxyDB();
+$db = $proxy_db;
 
 $str     = '';
 $isAdmin = false;
@@ -84,13 +84,13 @@ $background_running = 0;
 
 function execute_line($line, $line_index)
 {
-  global $background_running;
+  global $background_running, $db;
   if ($background_running > 30) {
     // skip iterate index 30
     return;
   }
   // extract IPs and generate ports
-  $proxies = extractProxies($line, null, false);
+  $proxies = extractProxies($line, $db, false);
   shuffle($proxies);
 
   // execute all proxies
