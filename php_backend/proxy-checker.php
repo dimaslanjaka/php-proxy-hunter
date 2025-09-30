@@ -5,9 +5,8 @@ declare(strict_types=1);
 include __DIR__ . '/shared.php';
 
 use PhpProxyHunter\AnsiColors;
-use PhpProxyHunter\ProxyDB;
 
-global $isAdmin, $isCli;
+global $isAdmin, $isCli, $proxy_db;
 
 /**
  * NOTE:
@@ -43,7 +42,7 @@ function build_proxy_details(array $proxyInfo): array
 
 /** ---------- bootstrap ---------- */
 
-$db = new ProxyDB(__DIR__ . '/../src/database.sqlite');
+$db = $proxy_db;
 
 $lockFilePath = tmp() . '/logs/user-' . getUserId() . '/proxyChecker.lock';
 ensure_dir(dirname($lockFilePath));
