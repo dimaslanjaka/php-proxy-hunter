@@ -1,5 +1,14 @@
 [
   {
+    "hash": "cc0776d0786b04fa0dfcf85d409b323e9c1dbc96",
+    "date": "2025-10-01T06:06:28+07:00",
+    "message": "feat(react): add Google Analytics 4 tracking integration\n\n- Add react-ga4 dependency to package.json\n- Initialize GA4 with tracking ID G-BG75CLNJZ1\n- Implement automatic pageview tracking with custom titles\n- Refactor main app into MainApp component for better organization\n- Track route changes and page navigation events",
+    "files": [
+      "package.json",
+      "src/react/index.tsx"
+    ]
+  },
+  {
     "hash": "33600d47e863a61f89e3ea03e4e9c56a75e042b1",
     "date": "2025-10-01T02:28:12+07:00",
     "message": "feat(mergeDB): add proxy authentication support for database operations\n\n- Modify SQL queries to fetch username and password fields\n- Build proxy strings with auth format (USER:PASS@IP:PORT) when credentials exist\n- Add deduplication with array_unique for both source and target proxies\n- Maintain backward compatibility for proxies without authentication",
