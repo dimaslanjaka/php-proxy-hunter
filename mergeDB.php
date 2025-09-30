@@ -27,6 +27,8 @@ try {
     return realpath($file) !== realpath($targetDbPath);
   });
 
+  $allSourceProxies = [];
+
   foreach ($sourceFiles as $sourceFile) {
     // Open the current source SQLite database
     $sourceDb = new PDO('sqlite:' . $sourceFile);
@@ -79,6 +81,32 @@ try {
         }
       } while (count($data) === $chunkSize);
     }
+
+    // Collect proxies from current source database
+    try {
+      $sourceProxies    = $sourceDb->query('SELECT proxy FROM proxies')->fetchAll(PDO::FETCH_COLUMN);
+      $allSourceProxies = array_merge($allSourceProxies, $sourceProxies);
+    } catch (Exception $e) {
+      // Table might not exist in this source database, continue
+      echo "Warning: Could not fetch proxies from $sourceFile - " . $e->getMessage() . PHP_EOL;
+    }
+  }
+
+  // Export table proxies content to text file
+  $outputFile = __DIR__ . '/assets/proxies/added-proxies-' . date('Ymd-His') . '.txt';
+
+  // Get proxies from target (merged) database
+  try {
+    $proxies = $targetDb->query('SELECT proxy FROM proxies')->fetchAll(PDO::FETCH_COLUMN);
+    file_put_contents($outputFile, implode(PHP_EOL, $proxies));
+  } catch (Exception $e) {
+    echo 'Warning: Could not fetch proxies from target database - ' . $e->getMessage() . PHP_EOL;
+    file_put_contents($outputFile, '');
+  }
+
+  // Append all source proxies
+  if (!empty($allSourceProxies)) {
+    file_put_contents($outputFile, PHP_EOL . implode(PHP_EOL, $allSourceProxies), FILE_APPEND);
   }
 
   echo 'Databases merged successfully!';
