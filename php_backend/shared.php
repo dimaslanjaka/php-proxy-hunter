@@ -41,3 +41,16 @@ $user_db = $core_db->user_db;
 $proxy_db = $core_db->proxy_db;
 /** @var \PhpProxyHunter\ActivityLog $log_db */
 $log_db = $core_db->log_db;
+
+/**
+ * Get current authenticated user data from the database.
+ *
+ * @return array|null Returns user data array if found, null otherwise
+ */
+function getCurrentUserData()
+{
+  global $user_db;
+  $email = !is_cli() ? ($_SESSION['authenticated_email'] ?? '') : '';
+  $user  = $user_db->select($email);
+  return !empty($user) ? $user : null;
+}
