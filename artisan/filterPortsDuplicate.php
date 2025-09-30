@@ -3,10 +3,10 @@
 // remove duplicate IP from database
 
 require __DIR__ . '/../func-proxy.php';
+require __DIR__ . '/../php_backend/shared.php';
 
-global $isCli;
+global $isCli, $proxy_db;
 
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
 
 if (!$isCli) {
@@ -60,6 +60,12 @@ if ($endless) {
 
 $statusFile = dirname(__DIR__) . '/status.txt';
 
+// Ensure the directory exists for the lock file
+$lockDir = dirname($lockFilePath);
+if (!is_dir($lockDir)) {
+  mkdir($lockDir, 0755, true);
+}
+
 // Check if the lock file exists
 if (file_exists($lockFilePath)) {
   if ($endless || !$isAdmin) {
@@ -74,17 +80,21 @@ if (file_exists($lockFilePath)) {
 }
 
 Scheduler::register(function () use ($lockFilePath, $statusFile) {
-  if (file_exists($lockFilePath)) {
+  if (file_exists($lockFilePath) && is_file($lockFilePath)) {
     unlink($lockFilePath);
   }
   file_put_contents($statusFile, 'idle');
 }, 'z_Exit_' . md5(__FILE__));
 
-$db = new ProxyDB();
+$db = $proxy_db;
 /**
  * @var PDO
  */
 $pdo = $db->db->pdo;
+
+// Determine database type using PDO getAttribute method
+$driver  = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+$isMySQL = $driver === 'mysql';
 
 // Step 1: Identify and process duplicates based on IP address in batches
 $batchSize    = 1000; // Adjust batch size as needed
@@ -92,21 +102,33 @@ $start        = 0;
 $duplicateIds = [];
 
 do {
+  // Set database-specific SQL syntax
+  if ($isMySQL) {
+    $substrFunction = "SUBSTRING_INDEX(proxy, ':', 1)";
+    $randomFunction = 'RAND()';
+  } else {
+    $substrFunction = "SUBSTR(proxy, 1, INSTR(proxy, ':') - 1)";
+    $randomFunction = 'RANDOM()';
+  }
+
   // Fetch a batch of duplicate proxies
   $stmt = $pdo->prepare("SELECT ip, COUNT(*) AS count_duplicates
   FROM (
-    SELECT SUBSTR(proxy, 0, INSTR(proxy, ':')) AS ip
+    SELECT $substrFunction AS ip
     FROM proxies
     WHERE status != 'active'
     AND status != 'untested'
-    AND last_check < datetime('now', '-7 days')
+    AND last_check < ?
   ) AS filtered_proxies
   GROUP BY ip
   HAVING COUNT(*) > 1
-  ORDER BY RANDOM()
-  LIMIT :start, :batchSize");
-  $stmt->bindParam(':start', $start, PDO::PARAM_INT);
-  $stmt->bindParam(':batchSize', $batchSize, PDO::PARAM_INT);
+  ORDER BY $randomFunction
+  LIMIT ? OFFSET ?");
+
+  $sevenDaysAgo = date('Y-m-d H:i:s', strtotime('-7 days'));
+  $stmt->bindParam(1, $sevenDaysAgo, PDO::PARAM_STR);
+  $stmt->bindParam(2, $batchSize, PDO::PARAM_INT);
+  $stmt->bindParam(3, $start, PDO::PARAM_INT);
   $stmt->execute();
   $duplicateIpCounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
   $startTime         = microtime(true);
@@ -129,11 +151,12 @@ do {
     // Re-count the same IP
     $stmt = $pdo->prepare("SELECT COUNT(*) as count
                        FROM proxies
-                       WHERE SUBSTR(proxy, 0, INSTR(proxy, ':')) = :ip
+                       WHERE $substrFunction = :ip
                        AND status != 'active'
                        AND status != 'untested'
-                       AND last_check < datetime('now', '-7 days')");
+                       AND last_check < :date");
     $stmt->bindParam(':ip', $ip, PDO::PARAM_STR);
+    $stmt->bindParam(':date', $sevenDaysAgo, PDO::PARAM_STR);
     $stmt->execute();
     $count = $stmt->fetchColumn();
 
@@ -144,13 +167,22 @@ do {
     echo "Count of proxies with IP $ip: $count\n";
     // Fetch all rows matching the IP address (including port)
     // Exclude active proxies
-    $stmt = $pdo->prepare("SELECT \"_rowid_\", * FROM \"main\".\"proxies\"
-                       WHERE SUBSTR(proxy, 0, INSTR(proxy, ':')) = :ip
+    if ($isMySQL) {
+      $selectClause = 'SELECT id, proxy, status, last_check, type, region, city, country, private, username, password';
+      $fromClause   = 'FROM proxies';
+    } else {
+      $selectClause = 'SELECT "_rowid_", *';
+      $fromClause   = 'FROM "main"."proxies"';
+    }
+
+    $stmt = $pdo->prepare("$selectClause $fromClause
+                       WHERE $substrFunction = :ip
                        AND status != 'active'
                        AND status != 'untested'
-                       AND last_check < datetime('now', '-7 days')
-                       ORDER BY RANDOM() LIMIT 0, 49999;");
+                       AND last_check < :date
+                       ORDER BY $randomFunction LIMIT 49999");
     $stmt->bindParam(':ip', $ip, PDO::PARAM_STR);
+    $stmt->bindParam(':date', $sevenDaysAgo, PDO::PARAM_STR);
     $stmt->execute();
     $ipRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -172,8 +204,13 @@ do {
         }
         if (!isValidProxy(trim($proxy))) {
           // Proxy is invalid, delete the row
-          $deleteStmt = $pdo->prepare('DELETE FROM proxies WHERE "_rowid_" = :id AND "proxy" = :proxy');
-          $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
+          if ($isMySQL) {
+            $deleteStmt = $pdo->prepare('DELETE FROM proxies WHERE id = :id AND proxy = :proxy');
+            $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
+          } else {
+            $deleteStmt = $pdo->prepare('DELETE FROM proxies WHERE "_rowid_" = :id AND "proxy" = :proxy');
+            $deleteStmt->bindParam(':id', $row['_rowid_'], PDO::PARAM_INT);
+          }
           $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
           $deleteStmt->execute();
 
