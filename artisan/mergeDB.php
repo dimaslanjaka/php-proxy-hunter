@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/func-proxy.php';
+require_once __DIR__ . '/../php_backend/shared.php';
 
 global $isCli;
 
@@ -12,8 +12,8 @@ ini_set('memory_limit', '1024M'); // Increase memory limit if needed
 
 // put *.sqlite in tmp/ folder
 
-$sourceDir    = __DIR__ . '/tmp/';
-$targetDbPath = __DIR__ . '/src/database.sqlite'; // $sourceDir . 'merged.sqlite';
+$sourceDir    = tmp();
+$targetDbPath = __DIR__ . '/../src/database.sqlite'; // $sourceDir . 'merged.sqlite';
 $chunkSize    = 1000; // Number of rows to process at a time
 
 try {
@@ -103,7 +103,7 @@ try {
   }
 
   // Export table proxies content to text file
-  $outputFile = __DIR__ . '/assets/proxies/added-proxies-' . date('Ymd-His') . '.txt';
+  $outputFile = __DIR__ . '/../assets/proxies/added-proxies-' . date('Ymd-His') . '.txt';
 
   // Get proxies from target (merged) database
   try {
