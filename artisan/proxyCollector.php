@@ -5,10 +5,10 @@
 // index all proxies into database
 
 require_once __DIR__ . '/../func-proxy.php';
+require_once __DIR__ . '/../php_backend/shared.php';
 
-global $isWin, $isCli;
+global $isWin, $isCli, $proxy_db;
 
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
 
 if (!$isCli) {
@@ -68,7 +68,7 @@ Scheduler::register(function () use ($lockFilePath, $statusFile) {
   file_put_contents($statusFile, 'idle');
 }, 'z_onExit' . basename(__FILE__));
 
-$db = new ProxyDB();
+$db = $proxy_db;
 
 $files  = [__DIR__ . '/../dead.txt', __DIR__ . '/../proxies.txt', __DIR__ . '/../proxies-all.txt'];
 $assets = array_filter(getFilesByExtension(__DIR__ . '/../assets/proxies'), function ($fn) {
