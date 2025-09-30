@@ -20,6 +20,12 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+OS=$(uname -s)
+# Apply crontab
+if [ "$OS" = "Linux" ] && [ $IS_VPS -eq 1 ]; then
+  sudo crontab -u "$USER" "$CWD/.crontab.txt"
+fi
+
 # Update submodules
 if [ -f "$CWD/.gitmodules" ]; then
   echo "Updating submodules..."
