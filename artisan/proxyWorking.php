@@ -5,9 +5,9 @@ declare(strict_types=1);
 // Define project root for reuse
 $projectRoot = dirname(__DIR__);
 
-require_once $projectRoot . '/func-proxy.php';
+require_once $projectRoot . '/php_backend/shared.php';
 
-use PhpProxyHunter\ProxyDB;
+global $proxy_db;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
@@ -41,7 +41,7 @@ function exitProcess(): void
 
 register_shutdown_function('exitProcess');
 
-$db   = new ProxyDB();
+$db   = $proxy_db;
 $data = parse_working_proxies($db);
 
 // write working proxies
