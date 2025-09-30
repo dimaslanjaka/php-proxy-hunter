@@ -33,13 +33,13 @@
 */
 
 require_once __DIR__ . '/proxyCheckerParallel-func.php';
+require_once __DIR__ . '/php_backend/shared.php';
 
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Proxy;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\GeoIpHelper;
 
-global $isCli;
+global $isCli, $proxy_db;
 
 if (!$isCli) {
   if (function_exists('header')) {
@@ -91,7 +91,7 @@ if (!$isCli) {
 
 /// FUNCTIONS (DO NOT EDIT)
 
-$db           = new ProxyDB(__DIR__ . '/src/database.sqlite');
+$db           = $proxy_db;
 $lockFilePath = __DIR__ . '/proxyChecker.lock';
 $statusFile   = __DIR__ . '/status.txt';
 $max_checks   = 50;
