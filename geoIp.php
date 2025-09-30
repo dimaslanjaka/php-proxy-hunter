@@ -1,10 +1,11 @@
 <?php
 
 require_once __DIR__ . '/func-proxy.php';
+require_once __DIR__ . '/php_backend/shared.php';
 
 use PhpProxyHunter\GeoIpHelper;
 
-global $isCli, $isWin;
+global $isCli, $isWin, $proxy_db;
 
 if (!$isCli) {
   exit('web server access disallowed');
@@ -25,7 +26,7 @@ if (function_exists('header') && !$isCli) {
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
-$db           = new \PhpProxyHunter\ProxyDB(__DIR__ . '/src/database.sqlite');
+$db           = $proxy_db;
 $lockFilePath = tmp() . '/runners/geoIp.lock';
 $statusFile   = __DIR__ . '/status.txt';
 $config       = getConfig(getUserId());
@@ -70,7 +71,7 @@ if (function_exists('header')) {
   header('Expires: ' . gmdate('D, d M Y H:i:s', time() + ($hour * 3600)) . ' GMT');
 }
 
-$extract = extractProxies($string_data);
+$extract = extractProxies($string_data, $db);
 shuffle($extract);
 
 foreach ($extract as $item) {
