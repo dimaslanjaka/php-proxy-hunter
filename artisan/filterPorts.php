@@ -5,12 +5,13 @@ declare(strict_types=1);
 // filter open ports only
 
 // Define project root for reuse
-const PROJECT_ROOT = __DIR__ !== null ? dirname(__DIR__) : '';
+$projectRoot = dirname(__DIR__);
 
-require PROJECT_ROOT . '/func-proxy.php';
+require $projectRoot . '/php_backend/shared.php';
 
 use PhpProxyHunter\Proxy;
-use PhpProxyHunter\ProxyDB;
+
+global $proxy_db;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 
@@ -51,8 +52,8 @@ if ($isCli) {
   }
 }
 
-$lockFilePath = PROJECT_ROOT . '/tmp/runners/' . basename(__FILE__, '.php') . '.lock';
-$statusFile   = PROJECT_ROOT . '/status.txt';
+$lockFilePath = $projectRoot . '/tmp/runners/' . basename(__FILE__, '.php') . '.lock';
+$statusFile   = $projectRoot . '/status.txt';
 
 if (file_exists($lockFilePath) && !is_debug()) {
   exit(date(DATE_RFC3339) . ' another process still running ' . basename(__FILE__, '.php') . PHP_EOL);
@@ -72,9 +73,9 @@ function exitProcess(): void
 
 register_shutdown_function('exitProcess');
 
-$db = new ProxyDB();
+$db = $proxy_db;
 
-$file = PROJECT_ROOT . '/proxies.txt';
+$file = $projectRoot . '/proxies.txt';
 
 // remove empty lines
 removeEmptyLinesFromFile($file);
@@ -134,14 +135,14 @@ try {
 
 function processProxy($proxy): void
 {
-  global $start_time, $file, $db, $maxExecutionTime;
+  global $start_time, $file, $db, $maxExecutionTime, $projectRoot;
   // Check if execution time exceeds [n] seconds
   if (microtime(true) - $start_time > $maxExecutionTime) {
     // echo "Execution time exceeded $maxExecutionTime seconds. Exiting loop." . PHP_EOL;
     return;
   }
   if (!isPortOpen($proxy)) {
-    removeStringAndMoveToFile($file, PROJECT_ROOT . '/dead.txt', $proxy);
+    removeStringAndMoveToFile($file, $projectRoot . '/dead.txt', $proxy);
     $db->updateData($proxy, ['status' => 'port-closed'], false);
     echo $proxy . ' port closed' . PHP_EOL;
   }
