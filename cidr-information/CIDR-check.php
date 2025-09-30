@@ -3,11 +3,11 @@
 // scan ports from generated ip ranges ports
 
 require_once __DIR__ . '/../func-proxy.php';
+require_once __DIR__ . '/../php_backend/shared.php';
 
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Scheduler;
 
-global $isCli;
+global $isCli, $proxy_db;
 
 // disallow web server access
 if (!$isCli) {
@@ -113,13 +113,13 @@ if (file_exists($filePath)) {
     exit("$filePath size 0");
   }
 
-  iterateBigFilesLineByLine([$filePath], $max, function (string $line) use (&$str_to_remove, $startTime, $filePath, $maxExecutionTime) {
+  iterateBigFilesLineByLine([$filePath], $max, function (string $line) use (&$str_to_remove, $startTime, $filePath, $maxExecutionTime, $proxy_db) {
     $timedout = time() - $startTime > $maxExecutionTime;
     if ($timedout) {
       // echo "Execution time exceeded. Stopping execution." . PHP_EOL;
       return;
     }
-    $db = new ProxyDB();
+    $db = $proxy_db;
     // echo $line . PHP_EOL;
     $proxies = extractProxies($line, null, false);
     for ($i = 0; $i < count($proxies); $i++) {
