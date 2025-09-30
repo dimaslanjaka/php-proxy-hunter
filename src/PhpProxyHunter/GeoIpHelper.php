@@ -26,7 +26,7 @@ class GeoIpHelper
       return;
     }
     if (empty($db)) {
-      $db = new ProxyDB();
+      throw new \InvalidArgumentException('ProxyDB instance is required');
     }
     list($ip, $port) = explode(':', $proxy);
     $geo_plugin      = new \PhpProxyHunter\GeoPlugin();
