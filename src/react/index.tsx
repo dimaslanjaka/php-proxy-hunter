@@ -19,6 +19,7 @@ import routes from './routes.js';
 import { SnackbarProvider } from './components/Snackbar';
 import SnackBarSample from './pages/examples/SnackBarSample';
 import SimpleFormSaverDemo from './pages/examples/SimpleFormSaverDemo';
+import ReactGA from 'react-ga4';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
@@ -46,34 +47,55 @@ window.addEventListener('keydown', function (e) {
   }
 });
 
+const MainApp = function () {
+  ReactGA.initialize([
+    {
+      trackingId: 'G-BG75CLNJZ1',
+      gaOptions: {},
+      gtagOptions: {}
+    }
+  ]);
+
+  React.useEffect(() => {
+    // Send pageview with a custom path
+    const currentMetaRoute = routes.find((data) => data.path === window.location.pathname);
+    const title = currentMetaRoute?.title || document.title;
+    ReactGA.send({ hitType: 'pageview', page: location.pathname, title });
+  });
+
+  return (
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <Navbar />
+      <Routes>
+        {routes.flatMap((CustomRoute) => {
+          if (!CustomRoute.Component) return null;
+          if (Array.isArray(CustomRoute.path)) {
+            return CustomRoute.path.map((p) =>
+              CustomRoute.Component ? <Route key={p} path={p} element={<CustomRoute.Component />} /> : null
+            );
+          }
+          return (
+            <Route
+              key={CustomRoute.path}
+              path={CustomRoute.path}
+              element={CustomRoute.Component ? <CustomRoute.Component /> : null}
+            />
+          );
+        })}
+        <Route path="/examples/snackbar" element={<SnackBarSample />} />
+        <Route path="/examples/form-saver" element={<SimpleFormSaverDemo />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Footer />
+    </BrowserRouter>
+  );
+};
+
 root.render(
   <React.StrictMode>
     <ThemeProvider>
       <SnackbarProvider stackable={true}>
-        <BrowserRouter basename={import.meta.env.BASE_URL}>
-          <Navbar />
-          <Routes>
-            {routes.flatMap((CustomRoute) => {
-              if (!CustomRoute.Component) return null;
-              if (Array.isArray(CustomRoute.path)) {
-                return CustomRoute.path.map((p) =>
-                  CustomRoute.Component ? <Route key={p} path={p} element={<CustomRoute.Component />} /> : null
-                );
-              }
-              return (
-                <Route
-                  key={CustomRoute.path}
-                  path={CustomRoute.path}
-                  element={CustomRoute.Component ? <CustomRoute.Component /> : null}
-                />
-              );
-            })}
-            <Route path="/examples/snackbar" element={<SnackBarSample />} />
-            <Route path="/examples/form-saver" element={<SimpleFormSaverDemo />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Footer />
-        </BrowserRouter>
+        <MainApp />
       </SnackbarProvider>
     </ThemeProvider>
   </React.StrictMode>
