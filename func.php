@@ -130,13 +130,10 @@ if (function_exists('set_time_limit')) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Session;
 
 $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
-
-$db = new ProxyDB();
 
 // keep running when user closed the connection (true)
 // ignore_user_abort(true);
