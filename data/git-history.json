@@ -1,16 +1,5 @@
 [
   {
-    "hash": "70f4395fabc1ac442e38e974ba8ac19f74ae98c8",
-    "date": "2025-10-01T15:08:36Z",
-    "message": "build(deps): bump actions/setup-node from 4 to 5\n\nBumps [actions/setup-node](https://github.com/actions/setup-node) from 4 to 5.\n- [Release notes](https://github.com/actions/setup-node/releases)\n- [Commits](https://github.com/actions/setup-node/compare/v4...v5)\n\n---\nupdated-dependencies:\n- dependency-name: actions/setup-node\n  dependency-version: '5'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
     "hash": "d170745c03da8fa7c5412b6784ab864dd71a3425",
     "date": "2025-10-01T18:41:39+07:00",
     "message": "feat(server): resolve public IP when REMOTE_ADDR is localhost and cache results\n\n- When `$_SERVER['REMOTE_ADDR']` is `127.0.0.1`, call `getPublicIP()` to obtain the machine's public IP\n- Add `getPublicIP()` with:\n  - in-memory and file caching (1 hour expiry)\n  - multiple fallback IP services with short timeouts for fast failover\n  - pre-configured cURL options for reliability\n- Add `parseIpResponse()` to handle text/json/trace responses and validate IPs\n- Add `cacheIp()` helper to persist IP to file and update in-memory cache\n\nThis improves accuracy for detecting client/server public IPs in local environments and reduces external calls via caching.",
@@ -8874,6 +8863,14 @@
     "message": "chore(taskfile): expand PATH to include local bin directories\n\nAdds node_modules/.bin, venv paths, and vendor/bin to PATH to ensure\nlocally installed CLI tools are discoverable during task execution.",
     "files": [
       "Taskfile.yml"
+    ]
+  },
+  {
+    "hash": "72b05828b460ea0101f625cb6f709a11d0527c08",
+    "date": "2025-06-27T15:56:13+07:00",
+    "message": "test(get_sms): add PHPUnit tests for GET and POST request handling",
+    "files": [
+      "tests/getSmsTest.php"
     ]
   }
 ]
