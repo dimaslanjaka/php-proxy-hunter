@@ -1,5 +1,59 @@
 [
   {
+    "hash": "c0c4b3bcca8cb4ad2a817f0f8478cd4c4c53a0b4",
+    "date": "2025-10-01T07:17:31+07:00",
+    "message": "fix(routes): update titles for admin and dashboard pages to reflect new branding",
+    "files": [
+      "src/react/routes.json"
+    ]
+  },
+  {
+    "hash": "d8a4d3a65308e191fe7c653fa601c924b60c66ec",
+    "date": "2025-10-01T07:16:45+07:00",
+    "message": "fix: update title assignment in pageview tracking to default to 'N/A'",
+    "files": [
+      "src/react/index.tsx"
+    ]
+  },
+  {
+    "hash": "a0a162531dcef15aec86b488aeb67ef6fc8b9d1d",
+    "date": "2025-10-01T06:16:10+07:00",
+    "message": "feat(husky): add crontab application for VPS in post-merge hook",
+    "files": []
+  },
+  {
+    "hash": "3533ba6c52853f4f8eb524ef2f0b1d8a449b6731",
+    "date": "2025-10-01T06:13:33+07:00",
+    "message": "fix(crontab): comment out send_curl.php execution in hourly job",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "e77f093e304821e041a1db629f5f1dda7f97bf41",
+    "date": "2025-10-01T06:12:52+07:00",
+    "message": "fix(crontab): remove redundant php command from hourly job",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "239bd268993442a1526ac40dea34a99f2b9a0a09",
+    "date": "2025-10-01T06:11:47+07:00",
+    "message": "refactor: move mergeDB.php to artisan directory and update paths\n\n- Move mergeDB.php from root to artisan/mergeDB.php\n- Update require path from func-proxy.php to shared.php in php_backend\n- Replace hardcoded source directory with tmp() function call\n- Fix relative paths for database.sqlite and output files\n- Maintain functionality while improving project structure",
+    "files": [
+      "artisan/mergeDB.php"
+    ]
+  },
+  {
+    "hash": "847763f5e4aced154e559cad82fe2ce02fe18da4",
+    "date": "2025-10-01T06:11:09+07:00",
+    "message": "feat(crontab): add proxyCollector script execution to hourly job",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
     "hash": "cc0776d0786b04fa0dfcf85d409b323e9c1dbc96",
     "date": "2025-10-01T06:06:28+07:00",
     "message": "feat(react): add Google Analytics 4 tracking integration\n\n- Add react-ga4 dependency to package.json\n- Initialize GA4 with tracking ID G-BG75CLNJZ1\n- Implement automatic pageview tracking with custom titles\n- Refactor main app into MainApp component for better organization\n- Track route changes and page navigation events",
