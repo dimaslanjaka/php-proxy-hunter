@@ -59,8 +59,11 @@ const MainApp = function () {
   React.useEffect(() => {
     // Send pageview with a custom path
     const currentMetaRoute = routes.find((data) => data.path === window.location.pathname);
-    const title = currentMetaRoute?.title || document.title;
+    const title = currentMetaRoute?.title || 'N/A';
     ReactGA.send({ hitType: 'pageview', page: location.pathname, title });
+    if (title !== 'N/A') {
+      document.title = title;
+    }
   });
 
   return (
