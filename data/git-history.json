@@ -1,5 +1,31 @@
 [
   {
+    "hash": "9b7d52060509b9764a665e78afa9538991e07cb8",
+    "date": "2025-10-01T12:01:37+07:00",
+    "message": "feat(dashboard/user-activity): make header responsive and show icon-only controls on mobile\n\n- make header title responsive (flex-1, min-w-0, truncate/break-words) to avoid overlap on small screens\n- pin title icon (flex-shrink-0) and prevent refresh button overflow (flex-shrink-0, ml-0 sm:ml-4)\n- refresh button: icon-only on mobile, text on desktop, add aria-label for accessibility\n- pagination Prev/Next: show chevrons on mobile and text on desktop, add aria-labels and small responsive spacing",
+    "files": [
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "e48d1436c7293f7a0b9f353e4df260f4c57be74d",
+    "date": "2025-10-01T09:57:42+07:00",
+    "message": "feat(dashboard): add manual refresh to user activity and shorten title\n\n- Add `isMountedRef` and `handleRefresh` to `UserActivityCard.tsx` to allow manual refresh of user logs and avoid state updates after unmount\n- Add a refresh button to the `UserActivityCard` header that calls `handleRefresh` (disabled while loading)\n- Shorten locale key `user_activity_title` in `src/react/locales/en.json` and `src/react/locales/id.json` to \"Activity — {{user}}\"",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "3df89117e5a900b661d7247e7751dd78b9ce5022",
+    "date": "2025-10-01T08:57:47+07:00",
+    "message": "feat(logs): include entries targeting user in user logs\n\nInclude log entries where `target_user_id` matches the authenticated user in addition to entries where `user_id` matches. This ensures actions performed on a user (for example by admins) are shown in that user's log view.",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
     "hash": "560fa10cc3401f89f0c6d586462793cca508a07a",
     "date": "2025-10-01T08:34:56+07:00",
     "message": "feat(admin): require admin role for Admin page\n\n- Add `isAdmin` state to `src/react/pages/Admin.tsx`.\n- Set `isAdmin` from backend response (`data.admin === true`) during auth check.\n- Only render Admin page when user is authenticated and has admin=true.\n- Preserve existing auth redirect and loading behavior.",
