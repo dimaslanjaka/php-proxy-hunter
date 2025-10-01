@@ -1,5 +1,5 @@
 import React from 'react';
-import { createUrl } from '../utils/url';
+import { getUserInfo } from '../utils/user';
 import DashboardContent from './dashboard/DashboardContent';
 import UserActivityCard from './dashboard/UserActivityCard';
 
@@ -8,22 +8,25 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
-    const $url = createUrl('/php_backend/user-info.php');
-    fetch($url)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error || !data.authenticated) {
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await getUserInfo();
+        if (!mounted) return;
+        if ((data as any).error || !data.authenticated) {
           window.location.href = '/login';
         } else {
           setIsAuthenticated(true);
         }
-      })
-      .catch(() => {
+      } catch (_err) {
         window.location.href = '/login';
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (isLoading) {
