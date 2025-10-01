@@ -46,8 +46,17 @@ export function gitHistoryToJson(options: GitHistoryOptions = {}) {
   if (options.since) rangeArgs += ` --since="${options.since}"`;
   if (options.until) rangeArgs += ` --until="${options.until}"`;
   if (options.last) rangeArgs += ` -n ${options.last}`;
+
+  // Set a default limit if no options are provided to prevent buffer overflow
+  if (!options.since && !options.until && !options.last) {
+    rangeArgs += ` -n 100`; // Default to last 100 commits
+  }
+
   // Add %cI (ISO 8601 commit date) after hash
-  const log = execSync(`git log${rangeArgs} --pretty=format:%H%n%cI%n%B%n${SEP} --name-only`, { encoding: 'utf8' });
+  const log = execSync(`git log${rangeArgs} --pretty=format:%H%n%cI%n%B%n${SEP} --name-only`, {
+    encoding: 'utf8',
+    maxBuffer: 50 * 1024 * 1024 // 50MB buffer limit
+  });
   const lines = log.split(/\r?\n/);
   const commits: Array<{ hash: string; date: string; message: string; files: string[] }> = [];
   let hash = '';

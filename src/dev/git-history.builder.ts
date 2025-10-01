@@ -3,7 +3,8 @@ import path from 'path';
 import { gitHistoryToJson } from './git-history-to-json';
 
 function main() {
-  const data = gitHistoryToJson();
+  // Get last 100 commits by default to avoid buffer issues
+  const data = gitHistoryToJson({ last: 100 });
   const outDir = path.join(process.cwd(), 'public', 'data');
   if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true });
