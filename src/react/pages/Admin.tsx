@@ -6,6 +6,7 @@ import ManagerPoint from './admin/ManagerPoint';
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [isAdmin, setIsAdmin] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     let mounted = true;
@@ -17,6 +18,7 @@ export default function Admin() {
           window.location.href = '/login';
         } else {
           setIsAuthenticated(true);
+          setIsAdmin(data.admin === true);
         }
       } catch (_err) {
         window.location.href = '/login';
@@ -37,7 +39,7 @@ export default function Admin() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !isAdmin) {
     return null;
   }
 
