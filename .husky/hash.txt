@@ -11,6 +11,23 @@
 │   ├── proxyFetcher.php [fffe09c2]
 │   ├── proxyWorking.php [7bd108ee]
 │   └── proxyWorkingBackground.php [390bf54e]
+├── assets/
+│   └── chrome-extensions/
+│       ├── consent-cookies/
+│       │   ├── assets/
+│       │   │   └── js/
+│       │   │       └── content.js [2338240d]
+│       │   └── background.js [082d744f]
+│       └── mock-timezone/
+│           ├── data/
+│           │   ├── inject/
+│           │   │   ├── isolated.js [6664135f]
+│           │   │   └── main.js [89f7d85d]
+│           │   ├── inject.js [535ebd4d]
+│           │   ├── offsets.js [52e4daed]
+│           │   └── options/
+│           │       └── index.js [67d1b113]
+│           └── worker.js [476153b7]
 ├── browser-json-cookies/
 │   └── cookies-merger.js [0cf8fd3d]
 ├── cidr-information/
@@ -54,16 +71,18 @@
 ├── gh-pages-builder.config.js [752f98b5]
 ├── github-actions-init.php [fed454dc]
 ├── github-actions-init.py [ee8130c1]
-├── index.js [6e20dd3f]
+├── index.js [0d56e808]
 ├── index.php [563e414f]
 ├── info.php [2956dffe]
 ├── js/
+│   ├── adsense-consent.js [fa4fdbc6]
 │   ├── general-site-script.js [80a2ca66]
-│   └── highlight.js [fe9d16c1]
+│   ├── highlight.js [fe9d16c1]
+│   └── scroll.js [ecc6f286]
 ├── list.php [fad7395b]
 ├── logout.php [95c6784c]
 ├── manage.py [d0538c5b]
-├── package.json [fe0cc933]
+├── package.json [ad5c1989]
 ├── php_backend/
 │   ├── check-https-proxy.php [05164e69]
 │   ├── get_sms.php [939c25d5]
@@ -73,7 +92,7 @@
 │   ├── list-user.php [4501e09c]
 │   ├── login.php [824e8961]
 │   ├── logout.php [60033189]
-│   ├── logs.php [aaddcb2a]
+│   ├── logs.php [cb3afcac]
 │   ├── proxy-add.php [bba041ed]
 │   ├── proxy-checker.php [b82802aa]
 │   ├── recaptcha.php [deb11abf]
@@ -879,6 +898,7 @@
 ├── proxyManager-src.js [f71a0536]
 ├── proxyManager.js [9d6b0bf3]
 ├── proxyManager.php [02c37769]
+├── proxyManagerHtml.js [0bff4b7b]
 ├── proxyRespawner.php [d202edb9]
 ├── proxyUpload.py [8e360fc1]
 ├── proxyWorking.py [40917347]
@@ -905,7 +925,7 @@
 │           ├── index.js [ddf6e4fe]
 │           ├── note.js [a8072de7]
 │           └── proxy.js [c6e2242f]
-├── requirements-dev.txt [00865cb3]
+├── requirements-dev.txt [5ccd1d08]
 ├── requirements.txt [87f6216b]
 ├── requirements_install.py [50654dca]
 ├── rollup.config.js [7cff03e4]
@@ -941,7 +961,7 @@
 │   │   ├── ProxyDB.php [4649fbf7]
 │   │   ├── SQLiteHelper.php [cc7dfd0c]
 │   │   ├── Scheduler.php [4f4ff69d]
-│   │   ├── Server.php [534022ff]
+│   │   ├── Server.php [dac718fe]
 │   │   ├── Session.php [46a7a3d9]
 │   │   ├── UserDB.php [84571a55]
 │   │   ├── const.php [12599b71]
@@ -979,7 +999,7 @@
 │   │   ├── ProxyChecker.js [c7e30921]
 │   │   ├── ProxyData.js [4d658932]
 │   │   ├── anonymity.js [947b3554]
-│   │   ├── extractor.js [f5949d0a]
+│   │   ├── extractor.js [f6a1895f]
 │   │   ├── filter.js [f979ac8e]
 │   │   ├── hunter.js [ff71be5d]
 │   │   ├── logger.js [76955837]
@@ -1019,7 +1039,7 @@
 │   │   │   └── stats.php [d66113eb]
 │   │   ├── file.js [3f4f5dfe]
 │   │   ├── file.py [0810dec8]
-│   │   ├── number.js [8e490113]
+│   │   ├── number.js [880357c5]
 │   │   ├── other.js [fb4ec1b1]
 │   │   ├── preferences.js [814c4328]
 │   │   ├── process.js [bae1bef9]

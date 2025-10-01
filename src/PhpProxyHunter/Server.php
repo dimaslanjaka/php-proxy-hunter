@@ -129,7 +129,139 @@ class Server
       $ipaddress = $_SERVER['REMOTE_ADDR'];
     }
 
+    if ($ipaddress === '127.0.0.1') {
+      // get the actual ip address
+      $ipaddress = self::getPublicIP();
+    }
+
     return $ipaddress;
+  }
+
+  public static function getPublicIP(): ?string
+  {
+    static $cachedIp  = null;
+    static $cacheTime = 0;
+
+    $cacheExpiry = 3600; // 1 hour in seconds
+
+    // Check in-memory cache first (fastest)
+    if ($cachedIp !== null && (time() - $cacheTime) < $cacheExpiry) {
+      return $cachedIp;
+    }
+
+    // Check file cache
+    $cacheFile = __DIR__ . '/tmp/public_ip_cache.txt';
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cacheExpiry) {
+      $fileIp = trim(file_get_contents($cacheFile));
+      if (filter_var($fileIp, FILTER_VALIDATE_IP)) {
+        $cachedIp  = $fileIp;
+        $cacheTime = time();
+        return $cachedIp;
+      }
+    }
+
+    // Optimized service list - fastest and most reliable first
+    $ipServices = [
+      ['url' => 'https://api.ipify.org', 'type' => 'text'],
+      ['url' => 'https://api64.ipify.org', 'type' => 'text'],
+      ['url' => 'https://ipinfo.io/ip', 'type' => 'text'],
+      ['url' => 'https://ident.me', 'type' => 'text'],
+      ['url' => 'https://ifconfig.me/ip', 'type' => 'text'],
+      ['url' => 'https://api.myip.com', 'type' => 'json', 'field' => 'ip'],
+      ['url' => 'https://httpbin.org/ip', 'type' => 'json', 'field' => 'origin'],
+      ['url' => 'https://cloudflare.com/cdn-cgi/trace', 'type' => 'trace'],
+    ];
+
+    // Pre-configure cURL options to avoid repetition
+    $defaultCurlOptions = [
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_TIMEOUT        => 3, // Reduced timeout for faster failover
+      CURLOPT_CONNECTTIMEOUT => 2,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_SSL_VERIFYHOST => false,
+      CURLOPT_SSL_VERIFYPEER => false,
+      CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      CURLOPT_HTTPHEADER     => [
+        'Accept: */*',
+        'Connection: close',
+      ],
+    ];
+
+    foreach ($ipServices as $service) {
+      $ch = curl_init($service['url']);
+      curl_setopt_array($ch, $defaultCurlOptions);
+
+      $response = curl_exec($ch);
+      $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      curl_close($ch);
+
+      if ($response === false || $httpCode !== 200) {
+        continue;
+      }
+
+      $ip = self::parseIpResponse($response, $service['type'], $service['field'] ?? null);
+      if ($ip !== null) {
+        return self::cacheIp($ip, $cacheFile, $cachedIp, $cacheTime);
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Parse IP response based on service type
+   */
+  private static function parseIpResponse(string $response, string $type, ?string $field = null): ?string
+  {
+    $response = trim($response);
+
+    switch ($type) {
+      case 'text':
+        if (filter_var($response, FILTER_VALIDATE_IP)) {
+          return $response;
+        }
+        break;
+
+      case 'json':
+        $data = json_decode($response, true);
+        if (json_last_error() === JSON_ERROR_NONE && isset($data[$field])) {
+          $ip = trim($data[$field]);
+          if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            return $ip;
+          }
+        }
+        break;
+
+      case 'trace':
+        if (preg_match('/ip=([^\n\r]+)/', $response, $matches)) {
+          $ip = trim($matches[1]);
+          if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            return $ip;
+          }
+        }
+        break;
+    }
+
+    return null;
+  }
+
+  /**
+   * Cache the IP address both in memory and file
+   */
+  private static function cacheIp(string $ip, string $cacheFile, ?string &$cachedIp, int &$cacheTime): string
+  {
+    // Cache in memory
+    $cachedIp  = $ip;
+    $cacheTime = time();
+
+    // Cache in file
+    $cacheDir = dirname($cacheFile);
+    if (!is_dir($cacheDir)) {
+      mkdir($cacheDir, 0755, true);
+    }
+    file_put_contents($cacheFile, $ip);
+
+    return $ip;
   }
 
   /**
