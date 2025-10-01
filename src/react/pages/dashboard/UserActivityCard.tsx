@@ -14,15 +14,18 @@ export default function UserActivityCard() {
   const [pageSize, setPageSize] = React.useState(10);
   const [total, setTotal] = React.useState<number | null>(null);
 
+  // mounted ref so manual refresh won't update state after unmount
+  const isMountedRef = React.useRef(true);
+
   React.useEffect(() => {
-    let isMounted = true;
+    isMountedRef.current = true;
     setLoading(true);
     getUserInfo().then((info) => {
-      if (isMounted) setUser(info.email || info.username || '');
+      if (isMountedRef.current) setUser(info.email || info.username || '');
     });
     getUserLogs(page, pageSize)
       .then((data) => {
-        if (isMounted) {
+        if (isMountedRef.current) {
           setLogs(data.logs || []);
           setTotal(
             typeof (data as any).count === 'number'
@@ -33,12 +36,33 @@ export default function UserActivityCard() {
           );
         }
       })
-      .catch(() => isMounted && setError(t('failed_to_fetch_activity')))
-      .finally(() => isMounted && setLoading(false));
+      .catch(() => isMountedRef.current && setError(t('failed_to_fetch_activity')))
+      .finally(() => isMountedRef.current && setLoading(false));
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
     };
   }, [t, page, pageSize]);
+
+  // Manual refresh handler to re-fetch logs for the current page/size
+  function handleRefresh() {
+    setLoading(true);
+    setError(null);
+    getUserLogs(page, pageSize)
+      .then((data) => {
+        if (isMountedRef.current) {
+          setLogs(data.logs || []);
+          setTotal(
+            typeof (data as any).count === 'number'
+              ? (data as any).count
+              : Array.isArray(data.logs)
+                ? data.logs.length
+                : null
+          );
+        }
+      })
+      .catch(() => isMountedRef.current && setError(t('failed_to_fetch_activity')))
+      .finally(() => isMountedRef.current && setLoading(false));
+  }
 
   const totalPages = total ? Math.ceil(total / pageSize) : null;
   const canPrev = page > 1;
@@ -104,10 +128,20 @@ export default function UserActivityCard() {
   return (
     <div className="flex flex-col items-center justify-center m-4 transition-colors">
       <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors dark:border dark:border-gray-700">
-        <h1 className="text-2xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300">
-          <i className="fa-duotone fa-list-check text-green-500 dark:text-green-400"></i>
-          {t('user_activity_title', { user })}
-        </h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-center flex items-center gap-2 text-blue-700 dark:text-blue-300">
+            <i className="fa-duotone fa-list-check text-green-500 dark:text-green-400"></i>
+            {t('user_activity_title', { user })}
+          </h1>
+          <button
+            className="ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1"
+            onClick={handleRefresh}
+            disabled={loading}
+            title={t('refresh_logs_now') || 'Refresh activity'}>
+            <i className="fa fa-refresh"></i>
+            <span className="hidden sm:inline">{t('refresh')}</span>
+          </button>
+        </div>
         {loading ? (
           <div className="text-center text-gray-500 dark:text-gray-400">{t('loading')}</div>
         ) : error ? (

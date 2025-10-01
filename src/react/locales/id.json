@@ -103,7 +103,7 @@
   "max_discount_helper": "Jumlah diskon maksimal yang dapat diterapkan (hanya untuk tipe 'percent'). Kosongkan jika tidak ada batas.",
   "usage_limit_helper": "Jumlah maksimal voucher dapat digunakan. Kosongkan atau isi 0 untuk tanpa batas.",
   "no_vouchers": "Tidak ada voucher",
-  "user_activity_title": "Aktivitas Pengguna untuk {{user}}",
+  "user_activity_title": "Aktivitas — {{user}}",
   "failed_to_fetch_activity": "Gagal mengambil aktivitas.",
   "no_activity_found": "Tidak ada aktivitas ditemukan.",
   "prev": "Sebelumnya",

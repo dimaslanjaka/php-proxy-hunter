@@ -103,7 +103,7 @@
   "max_discount_helper": "Maximum discount amount that can be applied (only relevant for 'percent' type). Leave blank for no limit.",
   "usage_limit_helper": "Maximum number of times this voucher can be used. Leave blank or 0 for unlimited.",
   "no_vouchers": "No vouchers available.",
-  "user_activity_title": "User Activity for {{user}}",
+  "user_activity_title": "Activity — {{user}}",
   "failed_to_fetch_activity": "Failed to fetch activity.",
   "no_activity_found": "No activity found.",
   "prev": "Previous",
