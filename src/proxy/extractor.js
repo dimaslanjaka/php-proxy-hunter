@@ -120,24 +120,6 @@ export function extractProxiesToObject(str) {
 }
 
 /**
- * Reads a file containing IP:PORT pairs and parses them.
- * @param {string} filename - The path to the file.
- * @returns {Promise<Proxy[]>} A list of parsed IP:PORT pairs.
- */
-export async function extractProxiesFromFile(filename) {
-  const fs = await import('fs/promises');
-  try {
-    const data = await fs.readFile(filename, 'utf-8');
-    const lines = data.split('\n');
-    const proxies = lines.flatMap((line) => extractProxies(line));
-    return proxies;
-  } catch (err) {
-    console.error(`Failed to open ${filename}: ${err.message}`);
-    return [];
-  }
-}
-
-/**
  * Extracts all unique IP addresses from a given string.
  * @param {string} s - The input string from which IP addresses will be extracted.
  * @returns {string[]} A list of unique IP addresses found in the string.
