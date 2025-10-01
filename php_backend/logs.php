@@ -55,7 +55,9 @@ if (isset($request['me'])) {
   // Get logs for this user from $log_db
   $allLogs  = $log_db->recent(1000);
   $userLogs = array_values(array_filter($allLogs, function ($log) use ($user) {
-    return isset($log['user_id']) && $log['user_id'] == $user['id'];
+    $isLogActionByUser  = isset($log['user_id'])        && $log['user_id']               == $user['id'];
+    $isLogActionByAdmin = isset($log['target_user_id']) && $log['target_user_id'] == $user['id'];
+    return $isLogActionByUser || $isLogActionByAdmin;
   }));
   echo json_encode([
     'authenticated' => true,
