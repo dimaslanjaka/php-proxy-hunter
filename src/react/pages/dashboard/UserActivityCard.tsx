@@ -128,17 +128,18 @@ export default function UserActivityCard() {
   return (
     <div className="flex flex-col items-center justify-center m-4 transition-colors">
       <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors dark:border dark:border-gray-700">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-center flex items-center gap-2 text-blue-700 dark:text-blue-300">
-            <i className="fa-duotone fa-list-check text-green-500 dark:text-green-400"></i>
-            {t('user_activity_title', { user })}
+        <div className="flex items-start justify-between mb-6 gap-3">
+          <h1 className="text-2xl font-bold flex-1 min-w-0 flex items-center gap-2 text-blue-700 dark:text-blue-300 break-words whitespace-normal">
+            <i className="fa-duotone fa-list-check text-green-500 dark:text-green-400 flex-shrink-0"></i>
+            <span className="truncate">{t('user_activity_title', { user })}</span>
           </h1>
           <button
-            className="ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1"
+            className="ml-0 sm:ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1 flex-shrink-0"
             onClick={handleRefresh}
             disabled={loading}
-            title={t('refresh_logs_now') || 'Refresh activity'}>
-            <i className="fa fa-refresh"></i>
+            title={t('refresh_logs_now') || 'Refresh activity'}
+            aria-label={t('refresh')}>
+            <i className="fa fa-refresh sm:hidden" aria-hidden="true"></i>
             <span className="hidden sm:inline">{t('refresh')}</span>
           </button>
         </div>
@@ -182,20 +183,24 @@ export default function UserActivityCard() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-4 gap-2">
               <div className="flex items-center gap-2">
                 <button
-                  className="px-3 py-1 rounded bg-primary-100 dark:bg-gray-900 text-primary-700 dark:text-white border border-primary-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500 focus:outline-none disabled:opacity-50"
+                  className="px-3 py-1 rounded bg-primary-100 dark:bg-gray-900 text-primary-700 dark:text-white border border-primary-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500 focus:outline-none disabled:opacity-50 flex items-center gap-1"
                   onClick={handlePrev}
-                  disabled={!canPrev}>
-                  {t('prev')}
+                  disabled={!canPrev}
+                  aria-label={t('prev')}>
+                  <i className="fa fa-chevron-left sm:hidden" aria-hidden="true"></i>
+                  <span className="hidden sm:inline">{t('prev')}</span>
                 </button>
                 <span className="mx-2 text-gray-700 dark:text-white">
                   {t('page')} {page}
                   {totalPages ? ` / ${totalPages}` : ''}
                 </span>
                 <button
-                  className="px-3 py-1 rounded bg-primary-100 dark:bg-gray-900 text-primary-700 dark:text-white border border-primary-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500 focus:outline-none disabled:opacity-50"
+                  className="px-3 py-1 rounded bg-primary-100 dark:bg-gray-900 text-primary-700 dark:text-white border border-primary-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500 focus:outline-none disabled:opacity-50 flex items-center gap-1"
                   onClick={handleNext}
-                  disabled={!canNext}>
-                  {t('next')}
+                  disabled={!canNext}
+                  aria-label={t('next')}>
+                  <i className="fa fa-chevron-right sm:hidden" aria-hidden="true"></i>
+                  <span className="hidden sm:inline">{t('next')}</span>
                 </button>
               </div>
               <div className="flex items-center gap-2">
