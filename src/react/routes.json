@@ -8,7 +8,7 @@
   },
   {
     "path": "/admin",
-    "title": "Admin | PHP Proxy Hunter",
+    "title": "Admin | DX",
     "description": "Admin panel to add saldo for users.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/admin"
@@ -50,7 +50,7 @@
   },
   {
     "path": "/dashboard",
-    "title": "Dashboard | PHP Proxy Hunter",
+    "title": "Dashboard | DX",
     "description": "View your dashboard and proxy statistics in PHP Proxy Hunter.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/dashboard"
