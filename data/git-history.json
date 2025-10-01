@@ -1,5 +1,31 @@
 [
   {
+    "hash": "560fa10cc3401f89f0c6d586462793cca508a07a",
+    "date": "2025-10-01T08:34:56+07:00",
+    "message": "feat(admin): require admin role for Admin page\n\n- Add `isAdmin` state to `src/react/pages/Admin.tsx`.\n- Set `isAdmin` from backend response (`data.admin === true`) during auth check.\n- Only render Admin page when user is authenticated and has admin=true.\n- Preserve existing auth redirect and loading behavior.",
+    "files": [
+      "src/react/pages/Admin.tsx"
+    ]
+  },
+  {
+    "hash": "5d7f487e813dca44f381ef6bf6bf5d4720245015",
+    "date": "2025-10-01T08:32:54+07:00",
+    "message": "refactor(auth): use getUserInfo helper for auth checks in Dashboard and Admin\n\n- Replace manual createUrl/fetch calls with centralized `getUserInfo()` (axios)\n  in `src/react/pages/Dashboard.tsx` and `src/react/pages/Admin.tsx`.\n- Use async/await IIFE with a `mounted` guard to avoid state updates after\n  unmounting.\n- Preserve redirect to `/login` and existing loading spinner behavior.\n- Rename unused catch param to `_err` and remove the now-unused `createUrl` import.",
+    "files": [
+      "src/react/pages/Admin.tsx",
+      "src/react/pages/Dashboard.tsx"
+    ]
+  },
+  {
+    "hash": "2c79355617171fe17bc8ef4f6334045f27d109a2",
+    "date": "2025-10-01T08:30:09+07:00",
+    "message": "feat(auth): add client-side auth guard + loading state to Admin and Dashboard\n\n- Add authentication check using `/php_backend/user-info.php` in\n  `src/react/pages/Admin.tsx` and `src/react/pages/Dashboard.tsx`.\n- Redirect unauthenticated users to `/login`.\n- Show a centered loading spinner while auth check is in progress.\n- Prevent rendering page content until authentication succeeds.\n\nThis ensures both pages enforce the same client-side access control and\nprovide a consistent UX while verifying user session.",
+    "files": [
+      "src/react/pages/Admin.tsx",
+      "src/react/pages/Dashboard.tsx"
+    ]
+  },
+  {
     "hash": "c0c4b3bcca8cb4ad2a817f0f8478cd4c4c53a0b4",
     "date": "2025-10-01T07:17:31+07:00",
     "message": "fix(routes): update titles for admin and dashboard pages to reflect new branding",
