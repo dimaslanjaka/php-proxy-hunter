@@ -167,7 +167,12 @@ export default function UserActivityCard() {
       case 'ip_address':
         return (log as any).ip_address || '-';
       case 'user_agent':
-        return (log as any).user_agent || '-';
+        if ((log as any).user_agent) {
+          return (
+            <DetailsCell raw={(log as any).user_agent} showCopy={false} previewLength={40} oneLinePreviewLength={40} />
+          );
+        }
+        return '-';
       default:
         return '-';
     }
@@ -217,11 +222,11 @@ export default function UserActivityCard() {
                   {logs.map((log) => (
                     <tr key={log.id}>
                       {columns.map((col) => {
-                        const isDetails = col.key === 'details';
-                        const tdClass = isDetails
+                        const isLongData = col.key === 'details' || col.key === 'user_agent';
+                        const tdClass = isLongData
                           ? 'px-2 py-1 align-top text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 max-w-[80ch]'
                           : 'px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700';
-                        const innerClass = isDetails ? 'break-words whitespace-pre-wrap' : '';
+                        const innerClass = isLongData ? 'break-words whitespace-pre-wrap' : '';
                         return (
                           <td key={col.key} className={tdClass}>
                             <div className={innerClass}>{getColumnValue(log, col.key)}</div>

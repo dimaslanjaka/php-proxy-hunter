@@ -125,7 +125,14 @@ export default function LogsSection() {
                         <td
                           key={key}
                           className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 max-w-[80ch]">
-                          {isObject ? (
+                          {key === 'user_agent' && value ? (
+                            <DetailsCell
+                              raw={String(value)}
+                              showCopy={false}
+                              previewLength={40}
+                              oneLinePreviewLength={40}
+                            />
+                          ) : isObject ? (
                             <DetailsCell raw={JSON.stringify(value)} />
                           ) : isLongString ? (
                             <DetailsCell raw={String(value)} />
