@@ -2,6 +2,7 @@ import React from 'react';
 import { createUrl } from '../../utils/url';
 import { LogEntry, LogsResponse } from '../../../../types/php_backend/logs';
 import { Pagination } from '../../components/Pagination';
+import DetailsCell from '../../components/DetailsCell';
 
 interface LogsResponseWithExtras extends LogsResponse {
   [key: string]: any;
@@ -116,17 +117,26 @@ export default function LogsSection() {
               ) : (
                 logs.map((log, idx) => (
                   <tr key={`${log.id ?? 'noid'}-${idx}`}>
-                    {allKeys.map((key) => (
-                      <td
-                        key={key}
-                        className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700">
-                        {typeof log[key] === 'object' && log[key] !== null
-                          ? JSON.stringify(log[key])
-                          : log[key] !== undefined && log[key] !== null
-                            ? String(log[key])
-                            : ''}
-                      </td>
-                    ))}
+                    {allKeys.map((key) => {
+                      const value = log[key];
+                      const isObject = typeof value === 'object' && value !== null;
+                      const isLongString = typeof value === 'string' && value.length > 120;
+                      return (
+                        <td
+                          key={key}
+                          className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 max-w-[80ch]">
+                          {isObject ? (
+                            <DetailsCell raw={JSON.stringify(value)} />
+                          ) : isLongString ? (
+                            <DetailsCell raw={String(value)} />
+                          ) : value !== undefined && value !== null ? (
+                            String(value)
+                          ) : (
+                            ''
+                          )}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))
               )}

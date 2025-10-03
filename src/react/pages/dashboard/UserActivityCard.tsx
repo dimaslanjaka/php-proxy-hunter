@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LogEntry } from '../../../../types/php_backend/logs';
 import { getUserInfo, getUserLogs } from '../../utils/user';
+import DetailsCell from '../../components/DetailsCell';
 
 export default function UserActivityCard() {
   const { t } = useTranslation();
@@ -110,10 +111,11 @@ export default function UserActivityCard() {
         }
         return '-';
       case 'details':
+        // Details may be long JSON or plain text. We'll render using a dedicated cell component below.
         if ('details' in log && typeof (log as any).details === 'string' && (log as any).details) {
-          return (log as any).details;
+          return <DetailsCell raw={(log as any).details} />;
         } else if ('extra_info' in log && typeof (log as any).extra_info === 'string' && (log as any).extra_info) {
-          return (log as any).extra_info;
+          return <DetailsCell raw={(log as any).extra_info} />;
         }
         return '-';
       case 'ip_address':
@@ -168,13 +170,18 @@ export default function UserActivityCard() {
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {logs.map((log) => (
                     <tr key={log.id}>
-                      {columns.map((col) => (
-                        <td
-                          key={col.key}
-                          className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700">
-                          {getColumnValue(log, col.key)}
-                        </td>
-                      ))}
+                      {columns.map((col) => {
+                        const isDetails = col.key === 'details';
+                        const tdClass = isDetails
+                          ? 'px-2 py-1 align-top text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 max-w-[80ch]'
+                          : 'px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700';
+                        const innerClass = isDetails ? 'break-words whitespace-pre-wrap' : '';
+                        return (
+                          <td key={col.key} className={tdClass}>
+                            <div className={innerClass}>{getColumnValue(log, col.key)}</div>
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>
