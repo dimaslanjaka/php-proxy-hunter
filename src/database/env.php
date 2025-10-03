@@ -116,7 +116,46 @@ function is_debug(): bool
     || is_debug_device();
 }
 
-function is_cli()
+/**
+ * Detect whether the current execution environment is the command line (CLI).
+ *
+ * This function uses several checks to be robust across environments:
+ * - php_sapi_name() === 'cli'
+ * - existence of the STDIN constant
+ * - absent web server variables and presence of argv
+ *
+ * @return bool True when running via CLI, false otherwise.
+ */
+function is_cli(): bool
 {
-  return (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+  return (
+    php_sapi_name() === 'cli'
+    || defined('STDIN')
+    || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && (!empty($_SERVER['argv']) && count($_SERVER['argv']) > 0))
+  );
+}
+
+/**
+ * Determine whether the current request/context has administrative privileges.
+ *
+ * Behavior differs depending on execution environment:
+ * - CLI: looks for an --admin option in command-line arguments.
+ * - Web: checks for a truthy `$_SESSION['admin']` and requires an active session.
+ *
+ * @throws RuntimeException If called in web context and no session has been started.
+ * @return bool True when admin privileges are present, false otherwise.
+ */
+function is_admin(): bool
+{
+  if (is_cli()) {
+    $options = getopt('', ['admin']);
+    return isset($options['admin']);
+  }
+
+  // Web context
+  if (session_status() !== PHP_SESSION_NONE) {
+    return !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
+  }
+
+  throw new RuntimeException('Session has not been started.');
 }
