@@ -1,5 +1,13 @@
 [
   {
+    "hash": "29c56ee3a848b608ab190861af72fc391918e575",
+    "date": "2025-10-03T18:08:25+07:00",
+    "message": "refactor(env): add PHPDoc and return types for is_cli and is_admin\n\n- Add detailed PHPDoc for `is_cli()` and `is_admin()` explaining behaviour and return values.\n- Add explicit `: bool` return type declarations.\n- Document that `is_admin()` throws `RuntimeException` if called in web context without a started session.\n- Improve CLI detection check to verify non-empty `$_SERVER['argv']`.",
+    "files": [
+      "src/database/env.php"
+    ]
+  },
+  {
     "hash": "35934a0bc9bcab6fbc93b6a51201a417ffb2e65f",
     "date": "2025-10-03T15:05:02+07:00",
     "message": "feat(details): make DetailsCell preview/copy configurable and use for user_agent\n\n- Add props to `DetailsCell`: `showCopy` (default true), `previewLength` (default 200),\n  and `oneLinePreviewLength` (default 120).\n- Replace hard-coded truncation with the configurable `previewLength` / `oneLinePreviewLength`.\n- Make copy buttons conditional on `showCopy`.\n- Render `user_agent` using `DetailsCell` (with `showCopy={false}` and shorter previewLength)\n  in `UserActivityCard` and `LogsSection` so UA values are expandable and wrapped.\n- Update table-cell logic to treat `user_agent` as long data (adjust classes/innerClass).\n\nNo breaking changes.",
@@ -8867,15 +8875,6 @@
     "message": "feat(updater): add static branch overrides and robust error handling to resolution updater\n\n- Introduced `specialPackageOverrides` to allow static mapping of packages to specific repo/branch (e.g., `sbg-utility`, `sbg-api`)\n- Replaced `getLatestCommitHash` with unified `getLatestCommit` for specific branches\n- Improved error handling in `fetchJson` for better GitHub API response diagnosis (status code, error messages)\n- Rewrote resolution update loop to use `Object.entries()` and `Promise.all()` for better concurrency\n- Renamed `replaceRawWithLastestHash` → `replaceRawWithLatestHash` for typo correction and clarity\n- Improved CLI output with colorized diffs for before/after resolution URLs\n- Ensured consistent GitHub API headers (including API versioning)\n- Eliminated unused or redundant functions for clarity and performance",
     "files": [
       "package-resolution-updater.js"
-    ]
-  },
-  {
-    "hash": "9d1365a1c85efc1755fb7205a1b23baf2aa27baf",
-    "date": "2025-06-27T20:26:02+07:00",
-    "message": "feat: add GitHub package resolution updater and update SHAs in package.json\n\n- Introduced `package-resolution-updater.js` to automate updating GitHub tarball URLs in `resolutions` to use the latest commit SHAs\n- Parsed GitHub URLs and resolved to latest commit across all branches using GitHub API\n- Replaced mutable branch-based URLs with immutable commit-specific URLs for deterministic builds\n- Updated all affected entries in `package.json` with new commit SHAs",
-    "files": [
-      "package-resolution-updater.js",
-      "package.json"
     ]
   }
 ]
