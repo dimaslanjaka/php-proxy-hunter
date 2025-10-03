@@ -1,5 +1,24 @@
 [
   {
+    "hash": "35934a0bc9bcab6fbc93b6a51201a417ffb2e65f",
+    "date": "2025-10-03T15:05:02+07:00",
+    "message": "feat(details): make DetailsCell preview/copy configurable and use for user_agent\n\n- Add props to `DetailsCell`: `showCopy` (default true), `previewLength` (default 200),\n  and `oneLinePreviewLength` (default 120).\n- Replace hard-coded truncation with the configurable `previewLength` / `oneLinePreviewLength`.\n- Make copy buttons conditional on `showCopy`.\n- Render `user_agent` using `DetailsCell` (with `showCopy={false}` and shorter previewLength)\n  in `UserActivityCard` and `LogsSection` so UA values are expandable and wrapped.\n- Update table-cell logic to treat `user_agent` as long data (adjust classes/innerClass).\n\nNo breaking changes.",
+    "files": [
+      "src/react/components/DetailsCell.tsx",
+      "src/react/pages/admin/LogsSection.tsx",
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "b02f927c1f8f2f97d8446f5265196f8e7e83899b",
+    "date": "2025-10-03T14:49:22+07:00",
+    "message": "refactor(admin-logs,user-activity): remove auto-polling, add explicit fetch handlers and helper for total extraction",
+    "files": [
+      "src/react/pages/admin/LogsSection.tsx",
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
     "hash": "2e3e96ea6de29f57a4df1f86604c7fb0cf51c68a",
     "date": "2025-10-03T12:09:15+07:00",
     "message": "feat(components): add reusable DetailsCell and wire into logs views\n\n- Add new component `src/react/components/DetailsCell.tsx`\n  - Safe JSON parse + pretty print\n  - Compact preview, expand/collapse, copy-to-clipboard\n  - Whitespace-preserving wrapping to avoid widening tables\n- Refactor admin logs table to use `DetailsCell` for objects and long strings\n  - `src/react/pages/admin/LogsSection.tsx` now imports and uses `DetailsCell`\n  - Constrain details column to prevent layout breakage\n- Refactor dashboard activity table to use `DetailsCell`\n  - `src/react/pages/dashboard/UserActivityCard.tsx` now imports and uses `DetailsCell`\n  - Removed duplicated local helpers / inline DetailsCell implementations\n\nNo breaking changes; purely UI/component refactor and behavior improvements.",
@@ -8857,22 +8876,6 @@
     "files": [
       "package-resolution-updater.js",
       "package.json"
-    ]
-  },
-  {
-    "hash": "5ab42c612c85540296ae3ec81b6bea3289347264",
-    "date": "2025-06-27T20:15:48+07:00",
-    "message": "feat(get_sms): add admin log viewer and improve structure\n\n- Introduced `$isAdmin` check to allow admin users to view SMS logs via `?read`\n- Added consistent section headers to improve code readability\n- Moved log file paths to reusable variables\n- Improved date formatting consistency (`$timestamp`)\n- Applied early exit for admin log display\n- Refactored JSON logging and OTP logging with better structure and naming\n- Minor formatting improvements and better output structure",
-    "files": [
-      "php_backend/get_sms.php"
-    ]
-  },
-  {
-    "hash": "5ec72b74af0f13da5c3fde221a03cc7a133d5d62",
-    "date": "2025-06-27T20:07:02+07:00",
-    "message": "chore(taskfile): expand PATH to include local bin directories\n\nAdds node_modules/.bin, venv paths, and vendor/bin to PATH to ensure\nlocally installed CLI tools are discoverable during task execution.",
-    "files": [
-      "Taskfile.yml"
     ]
   }
 ]
