@@ -39,17 +39,17 @@ export default function LogsSection() {
       });
   }, []);
 
+  // Fetch once on mount. Page changes will trigger fetch via `handlePageChange`.
   React.useEffect(() => {
     fetchLogs(page);
-  }, [page, fetchLogs]);
+  }, []);
 
-  // Fetch logs every 30 seconds
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      fetchLogs(page);
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [page, fetchLogs]);
+  // Automatic polling removed. Use manual Refresh button or pagination to fetch.
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchLogs(newPage);
+  };
 
   const logs = logsData?.logs || [];
 
@@ -147,7 +147,7 @@ export default function LogsSection() {
           page={logsData?.page || 1}
           perPage={logsData?.per_page || perPage}
           count={logsData?.count || 0}
-          onPageChange={setPage}
+          onPageChange={handlePageChange}
         />
       </div>
     </div>

@@ -15,6 +15,13 @@ export default function UserActivityCard() {
   const [pageSize, setPageSize] = React.useState(10);
   const [total, setTotal] = React.useState<number | null>(null);
 
+  // Helper to normalize total count from API response
+  const extractTotalFromData = (data: any): number | null => {
+    if (data && typeof data.count === 'number') return data.count;
+    if (data && Array.isArray(data.logs)) return data.logs.length;
+    return null;
+  };
+
   // mounted ref so manual refresh won't update state after unmount
   const isMountedRef = React.useRef(true);
 
@@ -24,17 +31,12 @@ export default function UserActivityCard() {
     getUserInfo().then((info) => {
       if (isMountedRef.current) setUser(info.email || info.username || '');
     });
+    // Fetch once on mount. Pagination and page size changes will trigger explicit fetches via handlers.
     getUserLogs(page, pageSize)
       .then((data) => {
         if (isMountedRef.current) {
           setLogs(data.logs || []);
-          setTotal(
-            typeof (data as any).count === 'number'
-              ? (data as any).count
-              : Array.isArray(data.logs)
-                ? data.logs.length
-                : null
-          );
+          setTotal(extractTotalFromData(data));
         }
       })
       .catch(() => isMountedRef.current && setError(t('failed_to_fetch_activity')))
@@ -42,7 +44,7 @@ export default function UserActivityCard() {
     return () => {
       isMountedRef.current = false;
     };
-  }, [t, page, pageSize]);
+  }, [t]);
 
   // Manual refresh handler to re-fetch logs for the current page/size
   function handleRefresh() {
@@ -52,13 +54,7 @@ export default function UserActivityCard() {
       .then((data) => {
         if (isMountedRef.current) {
           setLogs(data.logs || []);
-          setTotal(
-            typeof (data as any).count === 'number'
-              ? (data as any).count
-              : Array.isArray(data.logs)
-                ? data.logs.length
-                : null
-          );
+          setTotal(extractTotalFromData(data));
         }
       })
       .catch(() => isMountedRef.current && setError(t('failed_to_fetch_activity')))
@@ -70,14 +66,64 @@ export default function UserActivityCard() {
   const canNext = totalPages ? page < totalPages : logs.length === pageSize;
 
   function handlePrev() {
-    if (canPrev) setPage((p) => p - 1);
+    if (canPrev) {
+      const newPage = page - 1;
+      setPage(newPage);
+      setLoading(true);
+      getUserLogs(newPage, pageSize)
+        .then((data) => {
+          if (isMountedRef.current) {
+            setLogs(data.logs || []);
+            setTotal(
+              typeof (data as any).count === 'number'
+                ? (data as any).count
+                : Array.isArray(data.logs)
+                  ? data.logs.length
+                  : null
+            );
+          }
+        })
+        .catch(() => isMountedRef.current && setError(t('failed_to_fetch_activity')))
+        .finally(() => isMountedRef.current && setLoading(false));
+    }
   }
   function handleNext() {
-    if (canNext) setPage((p) => p + 1);
+    if (canNext) {
+      const newPage = page + 1;
+      setPage(newPage);
+      setLoading(true);
+      getUserLogs(newPage, pageSize)
+        .then((data) => {
+          if (isMountedRef.current) {
+            setLogs(data.logs || []);
+            setTotal(
+              typeof (data as any).count === 'number'
+                ? (data as any).count
+                : Array.isArray(data.logs)
+                  ? data.logs.length
+                  : null
+            );
+          }
+        })
+        .catch(() => isMountedRef.current && setError(t('failed_to_fetch_activity')))
+        .finally(() => isMountedRef.current && setLoading(false));
+    }
   }
   function handlePageSizeChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    setPageSize(Number(e.target.value));
+    const newSize = Number(e.target.value);
+    setPageSize(newSize);
+    // reset to page 1 and fetch for new page size
     setPage(1);
+    setLoading(true);
+    getUserLogs(1, newSize)
+      .then((data) => {
+        if (isMountedRef.current) {
+          setLogs(data.logs || []);
+          setTotal(extractTotalFromData(data));
+        }
+      })
+      .catch(() => isMountedRef.current && setError(t('failed_to_fetch_activity')))
+      .finally(() => isMountedRef.current && setLoading(false));
   }
 
   // Define columns for consistent header and body order
