@@ -117,6 +117,7 @@ if should_run_job "tmp/crontab/1-h" 1; then
     djm check_proxies --max=100
     djm filter_dups --max=100
     php artisan/proxyCollector.php
+    php artisan/proxyCollector2.php
 fi
 
 # run every 3 hours
