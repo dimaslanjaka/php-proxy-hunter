@@ -224,11 +224,16 @@ class ProxyDB
 
   /**
    * @param string|null $proxy
-   * @param bool $force
    */
-  public function add($proxy, $force = false)
+  public function add($proxy)
   {
-    $this->db->insert('proxies', ['proxy' => trim($proxy), 'status' => 'untested']);
+    $trimmed  = trim($proxy);
+    $inserted = $this->db->insert('proxies', ['proxy' => $trimmed, 'status' => 'untested'], true);
+    if ($inserted) {
+      // Also record in added_proxies so the proxy is treated as already added
+      // markAsAdded will avoid duplicate entries.
+      $this->markAsAdded($trimmed);
+    }
   }
 
   /**
