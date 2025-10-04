@@ -58,7 +58,7 @@ else
   echo "No submodules found, skipping update."
 fi
 
-# Run composer update or install
+# Decide whether to run Composer: only when composer.json or any .php files changed
 COMPOSER_LOCK="$CWD/composer.lock"
 COMPOSER_PHAR="$CWD/bin/composer.phar"
 COMPOSER_ARGS="--no-interaction"
@@ -69,26 +69,47 @@ if [ $IS_VPS -eq 1 ]; then
   COMPOSER_ARGS="--no-dev --no-interaction"
 fi
 
-# Composer install/update (output redirected for debugging)
-if command -v php >/dev/null 2>&1; then
-  # Check if the user exists
-  if id -u "$USER" >/dev/null 2>&1; then
-    # Run composer commands as the specified user
-    if [ ! -f "$COMPOSER_LOCK" ]; then
-      su -s /bin/sh -c "php $COMPOSER_PHAR install $COMPOSER_ARGS" "$USER"
-    else
-      su -s /bin/sh -c "php $COMPOSER_PHAR update $COMPOSER_ARGS" "$USER"
-    fi
-  else
-    # Run composer as current user if target user does not exist
-    if [ -f "$COMPOSER_LOCK" ]; then
-      php $COMPOSER_PHAR update $COMPOSER_ARGS
-    else
-      php $COMPOSER_PHAR install $COMPOSER_ARGS
-    fi
+# Determine previous ref to compare changes (prefer ORIG_HEAD, fallback to HEAD^)
+PREV_REF=$(git -C "$CWD" rev-parse --verify ORIG_HEAD 2>/dev/null || git -C "$CWD" rev-parse --verify HEAD^ 2>/dev/null || true)
+CUR_REF=$(git -C "$CWD" rev-parse --verify HEAD 2>/dev/null || true)
+RUN_COMPOSER=0
+if [ -n "$PREV_REF" ] && [ -n "$CUR_REF" ]; then
+  CHANGED_FILES=$(git -C "$CWD" diff --name-only "$PREV_REF" "$CUR_REF")
+  if echo "$CHANGED_FILES" | grep -qE '(^|/)composer\.json$|\.php$'; then
+    RUN_COMPOSER=1
   fi
 else
-  echo "Error: PHP is not installed. Skipping composer operations."
+  # If we can't determine previous ref, be conservative and run composer if composer.json exists
+  if [ -f "$CWD/composer.json" ]; then
+    RUN_COMPOSER=1
+  fi
+fi
+
+if [ "$RUN_COMPOSER" -eq 1 ]; then
+  echo "Composer-relevant changes detected, running composer..."
+  # Composer install/update (output redirected for debugging)
+  if command -v php >/dev/null 2>&1; then
+    # Check if the user exists
+    if id -u "$USER" >/dev/null 2>&1; then
+      # Run composer commands as the specified user
+      if [ ! -f "$COMPOSER_LOCK" ]; then
+        su -s /bin/sh -c "php $COMPOSER_PHAR install $COMPOSER_ARGS" "$USER"
+      else
+        su -s /bin/sh -c "php $COMPOSER_PHAR update $COMPOSER_ARGS" "$USER"
+      fi
+    else
+      # Run composer as current user if target user does not exist
+      if [ -f "$COMPOSER_LOCK" ]; then
+        php $COMPOSER_PHAR update $COMPOSER_ARGS
+      else
+        php $COMPOSER_PHAR install $COMPOSER_ARGS
+      fi
+    fi
+  else
+    echo "Error: PHP is not installed. Skipping composer operations."
+  fi
+else
+  echo "No composer.json or PHP file changes detected; skipping composer."
 fi
 
 # run commit history builder
