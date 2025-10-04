@@ -1,15 +1,32 @@
 #!/bin/sh
 
-# Check if Git LFS is installed
-command -v git-lfs >/dev/null 2>&1 || {
-  echo >&2 "\nThis repository is configured for Git LFS but 'git-lfs' was not found on your path. \
-If you no longer wish to use Git LFS, remove this hook by deleting the 'post-commit' file in the hooks directory \
-(set by 'core.hookspath'; usually '.git/hooks').\n"
-  exit 2
-}
+# Check if repository uses Git LFS by inspecting .gitattributes or `git lfs track`
+# If LFS is used, require git-lfs; otherwise only warn.
+REPO_USES_LFS=0
+if [ -f .gitattributes ]; then
+  if grep -qE "filter=lfs|\bLFS\b" .gitattributes; then
+    REPO_USES_LFS=1
+  fi
+fi
 
-# Run git LFS post-commit (optional)
-git lfs post-commit "$@"
+# Also consider `git lfs track` output (non-zero means git-lfs missing or no tracked files)
+if command -v git-lfs >/dev/null 2>&1; then
+  if git lfs track >/dev/null 2>&1 && [ -n "$(git lfs track)" ]; then
+    REPO_USES_LFS=1
+  fi
+fi
+
+if [ $REPO_USES_LFS -eq 1 ]; then
+  if ! command -v git-lfs >/dev/null 2>&1; then
+    echo >&2 "\nThis repository appears to use Git LFS but 'git-lfs' was not found on your PATH.\n"
+    echo >&2 "Please install Git LFS: https://git-lfs.com/ or configure the repository to not use LFS.\n"
+    exit 2
+  fi
+  # Run git LFS post-commit (optional)
+  git lfs post-commit "$@"
+else
+  echo "Note: Git LFS not detected in use for this repository; skipping git-lfs check."
+fi
 
 # Determine the current script directory and project directory
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
