@@ -78,9 +78,11 @@ function extractPorts($inputString)
  * @param ProxyDB|null $db An optional ProxyDB instance for database operations.
  * @param bool|null $write_database An optional flag to determine if the results should be written to the database.
  * @param int $limit The maximum number of results to return.
+ * @param bool $ignore_validation When true, skip calls to isValidProxy() and isValidIp() so the function
+ *        will return proxies/entries even if they would normally be considered invalid. Default: false.
  * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = false, $limit = 100)
+function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = false, $limit = 100, bool $ignore_validation = false)
 {
   if (!$string) {
     return [];
@@ -148,7 +150,7 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
       $proxy    = $match['proxy'];
       $username = $match['username'] ?? null;
       $password = $match['password'] ?? null;
-      if (isValidProxy($proxy)) {
+      if ($ignore_validation || isValidProxy($proxy)) {
         $result = new Proxy($proxy);
         if (!empty($username) && !empty($password)) {
           $result->username = $username;
@@ -165,12 +167,12 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
     }
     // legacy whitespace and json logic
     if ($matched_whitespaces && count($match) === 3) {
-      if (!isValidIp($match[1])) {
+      if (!$ignore_validation && !isValidIp($match[1])) {
         continue;
       }
       $proxy  = $match[1] . ':' . $match[2];
       $result = new Proxy($proxy);
-      if (isValidProxy($proxy)) {
+      if ($ignore_validation || isValidProxy($proxy)) {
         if (count($results) < $limit) {
           $results[] = $result;
         }
@@ -180,10 +182,10 @@ function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_datab
     if ($matched_json && count($match) === 3) {
       $ip   = $match[1];
       $port = $match[2];
-      if (isValidIp($ip)) {
+      if ($ignore_validation || isValidIp($ip)) {
         $proxy  = $ip . ':' . $port;
         $result = new Proxy($proxy);
-        if (isValidProxy($proxy)) {
+        if ($ignore_validation || isValidProxy($proxy)) {
           if (count($results) < $limit) {
             $results[] = $result;
           }
