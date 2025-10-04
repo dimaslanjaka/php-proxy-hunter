@@ -80,17 +80,35 @@ foreach ($extractProxies as $item) {
 $total_remove = $already_added_count + $invalid_count;
 echo sprintf('Found %d already-added and %d invalid proxies (total %d will be removed) in %s', $already_added_count, $invalid_count, $total_remove, $firstFile) . PHP_EOL;
 
-// simple: remove exact-match lines and write back in-place
-// read lines directly from the file to avoid relying on $fileContent for removal
-$lines   = file($firstFile, FILE_IGNORE_NEW_LINES);
-$out     = [];
-$removed = 0;
-foreach ($lines as $ln) {
+// stream: process line-by-line and write kept lines to a temp file, then
+// atomically replace the original file. This avoids loading large files
+// entirely into memory.
+$removed  = 0;
+$tempFile = $firstFile . '.tmp';
+$in       = fopen($firstFile, 'r');
+if ($in === false) {
+  exit('failed to open file for reading: ' . $firstFile);
+}
+$out = fopen($tempFile, 'w');
+if ($out === false) {
+  fclose($in);
+  exit('failed to open temp file for writing: ' . $tempFile);
+}
+
+// optional: build a lookup set for exact-match checks for O(1) lookups
+$lookup = [];
+foreach ($str_to_remove as $s) {
+  if ($s !== '') {
+    $lookup[$s] = true;
+  }
+}
+
+while (($ln = fgets($in)) !== false) {
   $trim         = trim($ln);
   $shouldRemove = false;
   if ($trim !== '') {
     // exact match
-    if (in_array($trim, $str_to_remove, true)) {
+    if (isset($lookup[$trim])) {
       $shouldRemove = true;
     } else {
       // or contains any of the proxies as substring (handles noise)
@@ -106,12 +124,26 @@ foreach ($lines as $ln) {
     $removed++;
     continue;
   }
-  $out[] = $ln;
+  // write the original line (preserve newline)
+  fwrite($out, rtrim($ln, "\r\n") . PHP_EOL);
 }
 
+fclose($in);
+fflush($out);
+fclose($out);
+
 if ($removed > 0) {
-  file_put_contents($firstFile, implode(PHP_EOL, $out) . PHP_EOL);
+  // atomic replace on same filesystem
+  if (!rename($tempFile, $firstFile)) {
+    // fallback: try copy+unlink
+    if (!copy($tempFile, $firstFile)) {
+      exit('failed to replace original file with temp file');
+    }
+    unlink($tempFile);
+  }
   echo "Removed $removed lines from " . $firstFile . PHP_EOL;
 } else {
+  // no changes: remove temp file
+  @unlink($tempFile);
   echo 'No lines removed from ' . $firstFile . PHP_EOL;
 }

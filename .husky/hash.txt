@@ -8,7 +8,7 @@
 │   ├── filterPortsDuplicate.php [096e37a6]
 │   ├── mergeDB.php [07781b1b]
 │   ├── proxyCollector.php [ecd7ddb2]
-│   ├── proxyCollector2.php [e97cad42]
+│   ├── proxyCollector2.php [8e867085]
 │   ├── proxyFetcher.php [fffe09c2]
 │   ├── proxyWorking.php [7bd108ee]
 │   └── proxyWorkingBackground.php [390bf54e]
@@ -1016,6 +1016,7 @@
 │   │   ├── file/
 │   │   │   ├── crud.php [3e0c5ee0]
 │   │   │   ├── index.php [7fbd7025]
+│   │   │   ├── reader.php [2574bcbc]
 │   │   │   ├── sanitizer.php [6466dacb]
 │   │   │   └── stats.php [d66113eb]
 │   │   ├── file.js [3f4f5dfe]
