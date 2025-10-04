@@ -32,7 +32,7 @@ if ($firstFile === false) {
   exit('no proxy file found');
 }
 
-$fileContent = read_file($firstFile);
+$fileContent = readFileChunk($firstFile, 20 * 1024); // read in KB
 if (is_string($fileContent) === false || trim($fileContent) === '') {
   // delete the empty file and exit
   delete_path($firstFile);
