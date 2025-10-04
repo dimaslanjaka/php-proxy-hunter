@@ -258,25 +258,35 @@ function restart_script()
 function blacklist_remover()
 {
   global $db;
-  $pdo         = $db->db->pdo;
+  $pdo    = $db->db->pdo;
+  $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+  if (!in_array($driver, ['sqlite', 'mysql'])) {
+    echo "[BLACKLIST] Unsupported database driver: $driver. Skipping blacklist removal.\n";
+    return;
+  }
   $r_blacklist = read_file(__DIR__ . '/../data/blacklist.conf');
   if ($r_blacklist) {
     $blacklist = extractIPs($r_blacklist);
     foreach ($blacklist as $ip) {
-      // Prepare the query
-      $query = 'DELETE FROM "main"."proxies" WHERE "proxy" LIKE :proxy AND status != "active"';
+      // Prepare a parameterized query compatible with SQLite and MySQL
+      // Use backticks for identifiers to be MySQL-friendly; SQLite accepts unquoted identifiers too.
+      $query = 'DELETE FROM proxies WHERE proxy LIKE :proxy AND status != :active_status';
       $stmt  = $pdo->prepare($query);
 
-      // Bind parameter (assuming you want to search for '%3.140.243.225%')
-      $proxy = "%$ip%";
+      // Bind parameters
+      $proxy        = "%$ip%";
+      $activeStatus = 'active';
       $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
+      $stmt->bindParam(':active_status', $activeStatus, PDO::PARAM_STR);
 
-      // Execute the query
-      $stmt->execute();
-
-      // Check affected rows if needed
-      $affectedRows = $stmt->rowCount();
-      echo "[BLACKLIST] $ip deleted $affectedRows row(s).\n";
+      // Execute the query and report affected rows
+      if ($stmt->execute()) {
+        $affectedRows = $stmt->rowCount();
+        echo "[BLACKLIST] $ip deleted $affectedRows row(s).\n";
+      } else {
+        $err = $stmt->errorInfo();
+        echo "[BLACKLIST] $ip failed to delete rows: " . json_encode($err) . "\n";
+      }
     }
   }
 }
