@@ -1062,9 +1062,18 @@ function runShellCommandLive($command)
  * - Uses Python virtual environment activation if available.
  * - Executes the script in the background.
  *
+ * By default this function does NOT redirect the script's stdout/stderr into a
+ * log file (redirecting is opt-in). When `$redirectOutput` is set to true the
+ * script's stdout/stderr will be redirected into a log file located under
+ * tmp/logs/<identifier>.txt. Callers that rely on capturing output should set
+ * `$redirectOutput` to true.
+ *
  * @param string $scriptPath  The path to the Bash (.sh) or Batch (.bat) script.
  * @param array $commandArgs  An associative array of arguments to pass to the script as --key=value.
  * @param string|null $identifier  Optional unique identifier used to name the runner and log files.
+ * @param bool $redirectOutput (optional) When true stdout/stderr of the spawned
+ *   script will be redirected into the log file. When false (default) the
+ *   script will be invoked without redirecting output.
  *
  * @return array{
  *   output: string,     // Full path to the output log file.
@@ -1075,7 +1084,7 @@ function runShellCommandLive($command)
  *   error: string       // Error message if script writing fails.
  * }
  */
-function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
+function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $redirectOutput = false)
 {
   global $isWin;
 
@@ -1110,10 +1119,22 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
   $venvCall = $isWin ? "call $venv" : "source $venv";
 
   $cmd = $venvCall;
-  if ($isWin) {
-    $cmd .= " && call $scriptPath";
+  // Optionally ensure output is redirected to the output file and no output is echoed
+  if ($redirectOutput) {
+    if ($isWin) {
+      // On Windows, call the script and redirect stdout/stderr to the log file
+      $cmd .= " && call $scriptPath > " . escapeshellarg($output_file) . ' 2>&1';
+    } else {
+      // On Unix, run the script with bash and redirect stdout/stderr to the log file
+      $cmd .= " && bash $scriptPath > " . escapeshellarg($output_file) . ' 2>&1';
+    }
   } else {
-    $cmd .= " && bash $scriptPath";
+    // Don't redirect output; just call the script normally
+    if ($isWin) {
+      $cmd .= " && call $scriptPath";
+    } else {
+      $cmd .= " && bash $scriptPath";
+    }
   }
   $cmd = trim($cmd);
 
@@ -1128,9 +1149,12 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null)
 
   // Execute the runner script
   if ($isWin) {
+    // Use start with redirect and /B to run without creating a new window
+    // Redirect is already handled inside runner script, ensure command is quoted
     $runner_win = 'start /B "window_name" ' . escapeshellarg(unixPath($runner));
     pclose(popen($runner_win, 'r'));
   } else {
+    // Execute the runner script in background; runner already redirects output
     exec('bash ' . escapeshellarg($runner) . ' > /dev/null 2>&1 &');
   }
 
