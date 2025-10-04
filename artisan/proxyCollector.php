@@ -203,7 +203,7 @@ if ($can_do_iterate) {
   append_content_with_lock($indicator_all, date(DATE_RFC3339));
 }
 
-blacklist_remover();
+blacklist_remover($db->db->pdo);
 
 if (!empty($str_to_remove)) {
   foreach ($files as $file) {
@@ -255,10 +255,40 @@ function restart_script()
   runShellCommandLive("php $currentScript $args");
 }
 
-function blacklist_remover($blacklistConf = null)
+/**
+ * Remove blacklisted IPs from the proxies database.
+ *
+ * This function reads a blacklist configuration file, extracts IPs from it,
+ * and removes any proxy records from the "proxies" table that match those IPs,
+ * except for rows whose status equals "active". The deletion is performed using
+ * a parameterized DELETE statement to avoid SQL injection.
+ *
+ * Behavior:
+ * - Supports PDO drivers "sqlite" and "mysql". If the PDO driver is not one of
+ *   these, the function logs a notice and returns without performing deletions.
+ * - The blacklist file path can be supplied via $blacklistConf; if not provided,
+ *   the default path is "../data/blacklist.conf" relative to this file.
+ * - The helper functions read_file() and extractIPs() are used to load and
+ *   parse the blacklist contents.
+ * - For each extracted IP, the function deletes rows where the "proxy" column
+ *   contains the IP (using LIKE '%IP%') and the status is not "active".
+ * - Each deletion is reported with the number of affected rows or the driver
+ *   error information if the deletion fails.
+ *
+ * Notes:
+ * - This function does not throw exceptions; database errors are reported via
+ *   echo and the PDO statement errorInfo() output.
+ *
+ * @param \PDO        $pdo           PDO instance connected to the proxies database.
+ * @param string|null $blacklistConf Optional path to a blacklist configuration file.
+ *                                   Defaults to __DIR__ . '/../data/blacklist.conf'.
+ * @return void
+ *
+ * @see read_file()
+ * @see extractIPs()
+ */
+function blacklist_remover($pdo, $blacklistConf = null)
 {
-  global $db;
-  $pdo    = $db->db->pdo;
   $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
   if (!in_array($driver, ['sqlite', 'mysql'])) {
     echo "[BLACKLIST] Unsupported database driver: $driver. Skipping blacklist removal.\n";
