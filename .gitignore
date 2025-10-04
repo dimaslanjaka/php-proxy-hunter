@@ -81,6 +81,7 @@ tmp/
 /output
 /error_logs
 .deploy_git/
+*.tmp
 
 # Python
 /data/script/
