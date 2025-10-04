@@ -255,7 +255,7 @@ function restart_script()
   runShellCommandLive("php $currentScript $args");
 }
 
-function blacklist_remover()
+function blacklist_remover($blacklistConf = null)
 {
   global $db;
   $pdo    = $db->db->pdo;
@@ -264,7 +264,7 @@ function blacklist_remover()
     echo "[BLACKLIST] Unsupported database driver: $driver. Skipping blacklist removal.\n";
     return;
   }
-  $r_blacklist = read_file(__DIR__ . '/../data/blacklist.conf');
+  $r_blacklist = read_file(!empty($blacklistConf) ? $blacklistConf : __DIR__ . '/../data/blacklist.conf');
   if ($r_blacklist) {
     $blacklist = extractIPs($r_blacklist);
     foreach ($blacklist as $ip) {
