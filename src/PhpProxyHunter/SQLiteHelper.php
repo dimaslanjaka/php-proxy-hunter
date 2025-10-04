@@ -89,12 +89,17 @@ class SQLiteHelper extends BaseSQL
    * @param string $tableName The name of the table to insert into.
    * @param array  $data      An associative array of column names and values.
    * @param bool   $insertOrIgnore Optional. Determines whether to use INSERT OR IGNORE or INSERT.
+   * @return bool True on success, false on failure.
    */
-  public function insert($tableName, $data, $insertOrIgnore = true)
+  public function insert($tableName, $data, $insertOrIgnore = true): bool
   {
     // Ensure the table name is valid (alphanumeric and underscores only)
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
       throw new \InvalidArgumentException('Invalid table name.');
+    }
+
+    if (empty($data) || !is_array($data)) {
+      return false;
     }
 
     $columns = implode(', ', array_keys($data));
@@ -105,9 +110,10 @@ class SQLiteHelper extends BaseSQL
     try {
       $stmt = $this->pdo->prepare($sql);
       $stmt->execute(array_values($data));
+      return true;
     } catch (\PDOException $e) {
-      // Handle error appropriately
-      throw new \RuntimeException('Failed to insert record: ' . $e->getMessage());
+      // Fail silently and return false to indicate failure
+      return false;
     }
   }
 

@@ -42,7 +42,7 @@ abstract class BaseSQL
    * @param string $tableName The target table.
    * @param array $data Associative array of column => value.
    * @param bool $insertOrIgnore Whether to use "INSERT OR IGNORE".
-   * @return void
+   * @return bool True on success, false on failure.
    */
   abstract public function insert($tableName, array $data, $insertOrIgnore = true);
 
