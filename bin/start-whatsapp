@@ -37,8 +37,8 @@ fi
 
 # Enable corepack
 # corepack enable yarn >nul 2>&1
-# Install dependencies
-yarn install
+# Install production dependencies
+yarn workspaces focus --production
 # Initialize required files
 mkdir -p "$CWD/tmp/logs"
 touch "$CWD/tmp/logs/whatsapp.log"
