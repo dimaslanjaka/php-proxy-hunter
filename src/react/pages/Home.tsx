@@ -31,14 +31,6 @@ const Home = () => (
                 <i className="fa-duotone fa-clock-rotate-left"></i>
                 Changelog
               </Link>
-              <Link
-                href="https://github.com/dimaslanjaka/php-proxy-hunter"
-                className="px-8 py-3 border rounded-md text-lg font-medium hover:bg-opacity-75 flex items-center gap-2
-                  bg-gray-100 text-gray-900 border-gray-300
-                  dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
-                {/* <i className="fab fa-github"></i> */}
-                Learn More
-              </Link>
             </div>
           </div>
         </div>
