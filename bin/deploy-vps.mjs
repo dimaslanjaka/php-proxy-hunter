@@ -159,17 +159,16 @@ export function gitPull() {
 }
 
 async function main() {
-  const { stdout = undefined } = (await gitPull()) || {};
-  if (/up to date/i.test(stdout || '')) {
-    // Set maintenance page
-    await uploadFile(path.join(__dirname, '/../index.maintenance.html'), `${remotePath}/index.html`);
-    // Build project
-    await spawnAsync('node', ['bin/build-project.mjs'], { stdio: 'inherit', shell: true });
-    await copyIndexToRoutes(path.join(__dirname, '/../dist/react'));
-    // Upload built files
-    await uploadDir(path.join(__dirname, '/../dist'), `${remotePath}/dist`);
-    await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
-  }
+  // Set maintenance page
+  await uploadFile(path.join(__dirname, '/../index.maintenance.html'), `${remotePath}/index.html`);
+  // Pull latest changes from git
+  await gitPull();
+  // Build project
+  await spawnAsync('node', ['bin/build-project.mjs'], { stdio: 'inherit', shell: true });
+  await copyIndexToRoutes(path.join(__dirname, '/../dist/react'));
+  // Upload built files
+  await uploadDir(path.join(__dirname, '/../dist'), `${remotePath}/dist`);
+  await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
 }
 
 main().catch(console.error);
