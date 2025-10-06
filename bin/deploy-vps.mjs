@@ -320,6 +320,16 @@ async function main() {
   // Build project
   await spawnAsync('node', ['bin/build-project.mjs'], { stdio: 'inherit', shell: true });
 
+  // Clear out old files but preserve certain directories
+  const pathsToDelete = [`${remotePath}/dist`, `${remotePath}/index.html`];
+  for (const p of pathsToDelete) {
+    try {
+      await deleteRemotePath(p);
+    } catch (err) {
+      console.warn(`Warning: Failed to delete ${p}:`, err.message || err);
+    }
+  }
+
   // Upload built files
   await uploadDir(path.join(__dirname, '/../dist'), `${remotePath}/dist`);
   await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
