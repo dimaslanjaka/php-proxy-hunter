@@ -71,13 +71,13 @@ done
 # --- Clean Composer cache ---
 if command -v composer >/dev/null; then
   echo "Cleaning Composer cache..."
-  composer clear-cache
+  composer clear-cache --no-interaction
   rm -rf ~/.composer/cache
   rm -rf ~/.cache/composer
   php artisan/cleaner.php
 elif [ -f composer.phar ]; then
   echo "Cleaning Composer cache using composer.phar..."
-  php bin/composer.phar clear-cache
+  php bin/composer.phar clear-cache --no-interaction
   rm -rf ~/.composer/cache
   rm -rf ~/.cache/composer
 fi
