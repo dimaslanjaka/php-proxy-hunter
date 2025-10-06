@@ -115,6 +115,32 @@ fi
 # run commit history builder
 node --no-warnings=ExperimentalWarning --loader ts-node/esm "$CWD/src/dev/git-history.builder.ts"
 
+# Run yarn
+ViteLockFile="$CWD/tmp/locks/.dev-server-lock"
+if command -v yarn >/dev/null 2>&1; then
+  touch "$CWD/yarn.lock"  # Create an empty yarn.lock if it doesn't exist
+  if [ $IS_VPS -eq 1 ]; then
+    echo "Detected VPS environment. Installing production dependencies only."
+    # Install production dependencies
+    yarn workspaces focus --production || {
+      echo "Yarn install failed."
+    }
+  else
+    # Install all dependencies
+    yarn install || {
+      echo "Yarn install failed."
+    }
+    # Run the build script when the lock file is not present
+    if [ ! -f "$ViteLockFile" ]; then
+      node "$CWD/bin/build-project.mjs" || {
+        echo "Build project failed."
+      }
+    fi
+  fi
+else
+  echo "Error: Yarn is not installed. Skipping yarn operations."
+fi
+
 # Fix permissions
 OS=$(uname -s)
 HOST=$(hostname)
