@@ -4,7 +4,6 @@ import { Client } from 'ssh2';
 import SftpClient from 'ssh2-sftp-client';
 import { fileURLToPath } from 'url';
 import sftpConfig from '../.vscode/sftp.json' with { type: 'json' };
-import { copyIndexToRoutes } from '../vite-gh-pages.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,6 +61,121 @@ export async function uploadDir(localDir, remoteDir, config = {}) {
     console.log('Upload complete.');
   } catch (err) {
     console.error('SFTP upload error:', err);
+    throw err;
+  } finally {
+    sftp.end();
+  }
+}
+
+/**
+ * Write contents (string or Buffer) to a remote file path via SFTP.
+ * Creates parent directories if they don't exist.
+ * @param {string} remoteFile - Remote file path to write to.
+ * @param {string|Buffer} contents - The contents to write.
+ * @param {object} [config] - Optional SFTP config override.
+ * @returns {Promise<void>}
+ */
+export async function writeRemoteFile(remoteFile, contents, config = {}) {
+  const sftp = new SftpClient();
+  const sftpOptions = {
+    host,
+    port,
+    username,
+    password,
+    ...config
+  };
+
+  // Normalize contents to Buffer for sftp.put
+  const data = Buffer.isBuffer(contents) ? contents : Buffer.from(String(contents), 'utf8');
+
+  try {
+    await sftp.connect(sftpOptions);
+    console.log(`Writing to remote file ${remoteFile} ...`);
+
+    // Ensure parent directory exists. ssh2-sftp-client doesn't provide a single recursive mkdir in all versions,
+    // but its mkdir(path, true) supports recursive creation. We'll attempt it and ignore if not supported.
+    const parentDir = path.posix.dirname(remoteFile.replace(/\\/g, '/'));
+    try {
+      await sftp.mkdir(parentDir, true);
+    } catch (e) {
+      // If mkdir fails, continue — the put may still succeed if parent exists.
+      // Log the error at debug level.
+      console.debug(`mkdir for ${parentDir} failed or already exists:`, e.message || e);
+    }
+
+    // Upload the buffer directly to the remote path
+    await sftp.put(data, remoteFile);
+    console.log('Remote file write complete.');
+  } catch (err) {
+    console.error('SFTP write remote file error:', err);
+    throw err;
+  } finally {
+    sftp.end();
+  }
+}
+
+/**
+ * Delete a remote file or directory. If the path is a directory, attempts recursive removal.
+ * @param {string} remotePathToDelete - Remote file or directory path to delete.
+ * @param {object} [config] - Optional SFTP config override.
+ * @returns {Promise<void>}
+ */
+export async function deleteRemotePath(remotePathToDelete, config = {}) {
+  const sftp = new SftpClient();
+  const sftpOptions = {
+    host,
+    port,
+    username,
+    password,
+    ...config
+  };
+
+  try {
+    await sftp.connect(sftpOptions);
+    console.log(`Deleting remote path ${remotePathToDelete} ...`);
+
+    // Try deleting as a file first
+    try {
+      await sftp.delete(remotePathToDelete);
+      console.log('Remote file deleted.');
+      return;
+    } catch (fileErr) {
+      // Not a file or delete failed; continue to attempt rmdir
+      console.debug('sftp.delete failed (may be a directory):', fileErr.message || fileErr);
+    }
+
+    // Attempt to remove directory. Many versions of ssh2-sftp-client support rmdir(path, true) for recursive.
+    try {
+      await sftp.rmdir(remotePathToDelete, true);
+      console.log('Remote directory removed.');
+      return;
+    } catch (dirErr) {
+      // As a fallback, try listing and removing children (recursive delete)
+      console.debug(
+        'sftp.rmdir failed or not supported, attempting manual recursive delete:',
+        dirErr.message || dirErr
+      );
+      try {
+        const list = await sftp.list(remotePathToDelete);
+        for (const item of list) {
+          const childPath = `${remotePathToDelete.replace(/\/$/, '')}/${item.name}`;
+          if (item.type === 'd') {
+            await deleteRemotePath(childPath, config);
+          } else {
+            await sftp.delete(childPath);
+          }
+        }
+        // After deleting children, remove the directory itself
+        await sftp.rmdir(remotePathToDelete);
+        console.log('Remote directory removed (manual).');
+        return;
+      } catch (manualErr) {
+        console.error('Failed to delete remote path:', manualErr);
+        throw manualErr;
+      }
+    }
+  } catch (err) {
+    console.error('SFTP delete remote path error:', err);
     throw err;
   } finally {
     sftp.end();
@@ -159,16 +273,24 @@ export function gitPull() {
 }
 
 async function main() {
-  // Set maintenance page
+  // Set maintenance
   await uploadFile(path.join(__dirname, '/../index.maintenance.html'), `${remotePath}/index.html`);
+  // Create a lightweight lock file so remote processes know a build is in progress
+  const lockContents = `build-start:${new Date().toISOString()} pid:${process.pid}\n`;
+  await writeRemoteFile(`${remotePath}/tmp/locks/.build-lock`, lockContents);
+
   // Pull latest changes from git
   await gitPull();
+
   // Build project
   await spawnAsync('node', ['bin/build-project.mjs'], { stdio: 'inherit', shell: true });
-  await copyIndexToRoutes(path.join(__dirname, '/../dist/react'));
+
   // Upload built files
   await uploadDir(path.join(__dirname, '/../dist'), `${remotePath}/dist`);
   await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
+
+  // Remove the build lock file to signal build completion
+  await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
 }
 
 main().catch(console.error);
