@@ -78,6 +78,19 @@ if (strpos($_SERVER['REQUEST_URI'], '/assets/') === 0 || strpos($_SERVER['REQUES
   exit;
 }
 
+// Handle php extension file not found
+if (strpos($_SERVER['REQUEST_URI'], '.php') !== false) {
+  $filePath = __DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+  if (!file_exists($filePath)) {
+    http_response_code(404);
+    if (!headers_sent()) {
+      header('Content-Type: text/plain');
+    }
+    echo '404 Not Found: The requested PHP file ' . htmlspecialchars($_SERVER['REQUEST_URI']) . ' was not found.';
+    exit;
+  }
+}
+
 // Maintenance mode check
 $maintenanceFile = __DIR__ . '/tmp/locks/.build-lock';
 if (file_exists($maintenanceFile)) {
