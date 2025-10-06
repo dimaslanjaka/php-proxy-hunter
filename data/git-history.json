@@ -1,5 +1,162 @@
 [
   {
+    "hash": "43e7f6890f5c9c71a686f3b0be1406d0fb373508",
+    "date": "2025-10-06T01:52:17Z",
+    "message": "build(deps): bump react-i18next from 15.7.4 to 16.0.0\n\nBumps [react-i18next](https://github.com/i18next/react-i18next) from 15.7.4 to 16.0.0.\n- [Changelog](https://github.com/i18next/react-i18next/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/i18next/react-i18next/compare/v15.7.4...v16.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: react-i18next\n  dependency-version: 16.0.0\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "332d784f9a64a4609ef40ce1a4db4da2eb5105c3",
+    "date": "2025-10-06T08:50:15+07:00",
+    "message": "fix(package): move i18next, nunjucks, and react to dev",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "46a69a361c9d8b8d6e701c1b9b349aecb3b7a9e1",
+    "date": "2025-10-06T08:34:03+07:00",
+    "message": "fix(package): move ssh2 and ssh2-sftp-client as dev dependencies",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "fb2e32a9a413b34252ed084c14771615aed7d887",
+    "date": "2025-10-06T08:27:58+07:00",
+    "message": "chore(husky): add yarn install and build steps to post-merge hook",
+    "files": []
+  },
+  {
+    "hash": "edc1fd4c9aee56902a51023370492999e5892adf",
+    "date": "2025-10-06T05:45:48+07:00",
+    "message": "refactor(post-merge): remove yarn installation and build steps",
+    "files": []
+  },
+  {
+    "hash": "fc28b68da3e1490469647c8b59eb1683b66bbca9",
+    "date": "2025-10-06T05:45:22+07:00",
+    "message": "fix(start-whatsapp): update dependency installation to use workspaces focus for production",
+    "files": [
+      "bin/start-whatsapp"
+    ]
+  },
+  {
+    "hash": "00f73957ad9ad158ed4f9218f4f40a5750644945",
+    "date": "2025-10-04T15:34:35+07:00",
+    "message": "refactor(artisan/proxyCollector): accept PDO in blacklist_remover and add PHPDoc\n\nPass `$db->db->pdo` to `blacklist_remover()` and change the function to accept a\n`\\PDO` parameter instead of relying on the global `$db`. Add a comprehensive\nPHPDoc block documenting behavior, parameters, supported drivers (sqlite/mysql),\nand safety notes. Removes global dependency and clarifies intent without\nchanging deletion semantics.",
+    "files": [
+      "artisan/proxyCollector.php"
+    ]
+  },
+  {
+    "hash": "fef1fda5e2ef494bfcc40ba9f31fcdd8d13c6d65",
+    "date": "2025-10-04T15:31:57+07:00",
+    "message": "feat(artisan/proxyCollector): update blacklist_remover to accept optional config path",
+    "files": [
+      "artisan/proxyCollector.php"
+    ]
+  },
+  {
+    "hash": "a6d791ccccfd6a9b717436d1e3c4bb42c33bf7ff",
+    "date": "2025-10-04T13:48:49+07:00",
+    "message": "feat(gitignore): add rule to ignore all .tmp files",
+    "files": [
+      ".gitignore"
+    ]
+  },
+  {
+    "hash": "c272d85576ad2ef85ff49a2f840f8d0a898c3e6a",
+    "date": "2025-10-04T13:46:39+07:00",
+    "message": "feat(file): add readFileChunk helper and update proxyCollector2 to use it\n\n- Introduced readFileChunk() in src/utils/file/reader.php for memory-friendly partial file reading\n- Updated proxyCollector2.php to read first 20KB instead of entire file content",
+    "files": [
+      "artisan/proxyCollector2.php",
+      "src/utils/file/reader.php"
+    ]
+  },
+  {
+    "hash": "53c015fba86ebedfb0785857f4711fc4a93f39c4",
+    "date": "2025-10-04T13:41:33+07:00",
+    "message": "refactor(artisan/proxyCollector2): stream file processing and replace in-memory read\n\nReplace the `file()` full-file read with line-by-line streaming (fopen/fgets),\nwrite-to-temp and atomic rename. Add an O(1) exact-match lookup and a\ncopy+unlink fallback for replace failures. Improves memory behavior for large\nproxy files while preserving existing behavior.",
+    "files": [
+      "artisan/proxyCollector2.php"
+    ]
+  },
+  {
+    "hash": "0b90b53925308311577d6ae3776e9fd1c83ef026",
+    "date": "2025-10-04T13:34:55+07:00",
+    "message": "feat(artisan): add proxyCollector2 and wire into crontab\n\nAdd a new `artisan/proxyCollector2.php` script that processes `assets/proxies/added-*`\nfiles, removes invalid/already-added proxies, and cleans up proxy files in-place.\nAlso update `.crontab.sh` to run `php artisan/proxyCollector2.php` alongside the\nexisting collector job. Includes logging and safe in-place file rewriting.",
+    "files": [
+      ".crontab.sh",
+      "artisan/proxyCollector2.php"
+    ]
+  },
+  {
+    "hash": "cb41d27429416762f1ef9a6d921822059c519bd2",
+    "date": "2025-10-04T13:31:38+07:00",
+    "message": "feat(extractor): add ignore_validation parameter to extractProxies\n\nAdd an optional boolean `$ignore_validation` (default: false) to `extractProxies()`\nand document it in the function docblock. When enabled the function skips calls to\n`isValidProxy()` and `isValidIp()` for user:pass, whitespace and JSON matches,\nallowing invalid-looking proxies to be returned. Backward-compatible (default\nbehavior unchanged).",
+    "files": [
+      "src/utils/proxy/extractor.php"
+    ]
+  },
+  {
+    "hash": "3eaed622abe72401aec25512acbe2990dd760d83",
+    "date": "2025-10-04T13:20:47+07:00",
+    "message": "feat(db): mark proxy as added only when insert succeeds; remove $force param\n\n- Remove unused $force parameter from `ProxyDB::add()` signature.\n- Trim proxy, call `$this->db->insert(...)` and check its boolean result.\n- Only call `markAsAdded()` when the insert returns true (avoid marking failed inserts).\n- Keeps behaviour clearer and prevents recording proxies that weren't actually persisted.\n\nBREAKING CHANGE: `ProxyDB::add($proxy, $force = false)` -> `ProxyDB::add($proxy)`; callers must be updated if they relied on the old signature.",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "bf9b311d622c8fe01e2689f36d8f772c6b1b585d",
+    "date": "2025-10-04T13:19:30+07:00",
+    "message": "refactor(db): make insert() return bool and handle failures gracefully\n\n- Update abstract signature in src/PhpProxyHunter/BaseSQL.php:\n  - change insert(...) to return bool and update docblock.\n\n- Update src/PhpProxyHunter/MySQLHelper.php:\n  - add return type bool, validate empty $data and return false.\n  - return true on successful execute; catch PDOException and return false.\n  - update docblock to reflect boolean return.\n\n- Update src/PhpProxyHunter/SQLiteHelper.php:\n  - add return type bool, validate empty $data and return false.\n  - return true on successful execute; catch PDOException and return false.\n  - update docblock to reflect boolean return.\n\nBREAKING CHANGE: The BaseSQL::insert signature now returns bool (true on success, false on failure).\nCallers must handle the boolean result and adjust any logic that previously relied on exceptions or a void return.",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/SQLiteHelper.php",
+      "tests/is-valid-proxy.php"
+    ]
+  },
+  {
+    "hash": "4ad887ec5440b0ba016151e6898fb974d311d68e",
+    "date": "2025-10-04T12:42:33+07:00",
+    "message": "fix(proxyCollector): improve blacklist removal query compatibility for SQLite and MySQL\n\n- Added database driver check to skip unsupported drivers\n- Updated DELETE query to be compatible with both SQLite and MySQL\n- Used parameterized query with bound parameters for `proxy` and `active` status\n- Added error handling to report failed deletions",
+    "files": [
+      "artisan/proxyCollector.php"
+    ]
+  },
+  {
+    "hash": "ba190ebefa957a4856edc5f6b3ca523371b7d8c2",
+    "date": "2025-10-04T12:18:59+07:00",
+    "message": "fix(husky): run composer only when composer.json or PHP files changed\n\nDetect changed files between the previous ref (prefer ORIG_HEAD, fallback to HEAD^) and HEAD,\nand only run Composer when `composer.json` or any `.php` files were modified. If the previous\nref can't be determined, conservatively run Composer when `composer.json` exists.\n\nPreserves existing behavior (install vs update, `--no-dev` on VPS, attempt to run as configured user)\nand prints a clear message when skipping Composer.",
+    "files": []
+  },
+  {
+    "hash": "96c1d84de82fee360536cee52a45e802bc6da96d",
+    "date": "2025-10-04T12:13:41+07:00",
+    "message": "fix(husky): require git-lfs only when repository uses LFS\n\nDetect LFS usage via `.gitattributes` and `git lfs track` and only fail the hook\nif the repo uses LFS and `git-lfs` is missing. Otherwise print a note and continue.\nRun `git lfs post-commit` only when LFS is in use.",
+    "files": []
+  },
+  {
+    "hash": "e0ba14b2269b418a2434d735d00016f089dd0fc5",
+    "date": "2025-10-04T10:48:54+07:00",
+    "message": "feat(func): make runBashOrBatch output redirection opt-in\n\nAdd a new optional parameter `$redirectOutput` (default: false) to\n`runBashOrBatch` and update the PHPDoc. When enabled the spawned script's\nstdout/stderr is redirected into `tmp/logs/<identifier>.txt`; when disabled the\nscript is invoked without redirection. Preserve platform-specific handling\n(Windows vs. Unix) and clarify runner/background execution with comments.\nMinor style tweaks to callback spacing.\n\nBREAKING CHANGE: default behavior changed from redirecting output to NOT\nredirecting it. Callers that expect logs must now pass `$redirectOutput = true`.",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
+    "hash": "d1b1890483be4beec00d916d86bfa2bacbc621eb",
+    "date": "2025-10-04T10:29:52+07:00",
+    "message": "feat(admin): add unauthenticated/unauthorized UI, dark-mode spinner and debug logs\n\n- show a \"Not signed in\" card with Sign in button when user is not authenticated\n- show an \"Access denied\" card for authenticated but non-admin users\n- update loading spinner with dark: variants (dark:border-blue-300, dark:bg-gray-800)\n- add mounted guard and console debug for getUserInfo response to aid troubleshooting\n- avoid rendering a blank page when admin access is missing\n\nNo breaking changes.",
+    "files": [
+      "src/react/pages/Admin.tsx"
+    ]
+  },
+  {
     "hash": "29c56ee3a848b608ab190861af72fc391918e575",
     "date": "2025-10-03T18:08:25+07:00",
     "message": "refactor(env): add PHPDoc and return types for is_cli and is_admin\n\n- Add detailed PHPDoc for `is_cli()` and `is_admin()` explaining behaviour and return values.\n- Add explicit `: bool` return type declarations.\n- Document that `is_admin()` throws `RuntimeException` if called in web context without a started session.\n- Improve CLI detection check to verify non-empty `$_SERVER['argv']`.",
@@ -8700,181 +8857,6 @@
     "message": "fix: handle optional InMemoryStore in waConnect class",
     "files": [
       "node_backend/waConnect.ts"
-    ]
-  },
-  {
-    "hash": "543348febda5317b9b27bd352405f3c343886ba5",
-    "date": "2025-06-28T16:26:18+07:00",
-    "message": "feat: improve log handling and handler loading in WhatsApp backend\n\n- Use fs.ensureDirSync to ensure log directory exists.\n- Reset log files asynchronously with Promise.all.\n- Refactor log file discovery for clarity.\n- Simplify and clarify console logging for incoming messages.\n- Refactor handler module loading to support .js, .ts, .cjs, .mjs files.\n- Improve error logging for handler loading.\n- Clean up and clarify active sender tracking logic.",
-    "files": [
-      "node_backend/index.ts"
-    ]
-  },
-  {
-    "hash": "f530282c112c158fbcb9b225876786c77839466c",
-    "date": "2025-06-28T16:22:42+07:00",
-    "message": "chore: update baileys API to latest",
-    "files": [
-      ".vscode/settings.json",
-      "node_backend/MemoryStore.ts",
-      "node_backend/index.ts",
-      "node_backend/waConnect.ts",
-      "node_backend/waConnect3.ts"
-    ]
-  },
-  {
-    "hash": "c0f94382cad98f0f78e32579297c8d96de791616",
-    "date": "2025-06-28T16:21:48+07:00",
-    "message": "docs: update README.md for improved clarity and structure",
-    "files": [
-      "readme.md"
-    ]
-  },
-  {
-    "hash": "f9032ab60c4024a7e1ad30304b2881dce6d44860",
-    "date": "2025-06-28T16:13:01+07:00",
-    "message": "refactor: split rollup config and add build tasks\n\n- Extracted main project Rollup config to rollup.project.js for modular builds.\n- Updated Taskfile.yml with new build-nodejs and build tasks for easier project builds.\n- Refactored rollup.config.js to dynamically load all rollup.*.js/cjs/mjs configs and improved error handling and logging.",
-    "files": [
-      "Taskfile.yml",
-      "readme.md",
-      "rollup.config.js",
-      "rollup.project.js"
-    ]
-  },
-  {
-    "hash": "0efe941f9414729e57d14e8ef560b143a0a6ef80",
-    "date": "2025-06-28T15:36:24+07:00",
-    "message": "fix: enhance configResolver to validate imported Rollup config exports",
-    "files": [
-      "rollup.config.js"
-    ]
-  },
-  {
-    "hash": "24e49bfb80635e7b250f12b35e7bc79862d5cec2",
-    "date": "2025-06-28T15:22:03+07:00",
-    "message": "refactor: dynamically include all rollup.*.js configs using globSync\n\nReplaces hardcoded dynamic config paths with globSync to automatically include all rollup.*.js files in the configuration.",
-    "files": [
-      "rollup.config.js"
-    ]
-  },
-  {
-    "hash": "46d1037c7fd78a2c2af9e6ea3f6e6de779b79ed6",
-    "date": "2025-06-28T14:01:07+07:00",
-    "message": "feat: add sendMessageWithTyping to send WhatsApp messages with simulated typing presence\n\n- Import AnyMessageContent and makeWASocket from @whiskeysockets/baileys\n- Import delay from sbg-utility\n- Implement sendMessageWithTyping to simulate typing before sending a message",
-    "files": [
-      "node_backend/Function.ts"
-    ]
-  },
-  {
-    "hash": "1a1b215944cbbd8990fc400815f477c0c9d624ba",
-    "date": "2025-06-28T13:22:30+07:00",
-    "message": "chore: update submodule reference for baileys",
-    "files": [
-      "package.json",
-      "packages/baileys"
-    ]
-  },
-  {
-    "hash": "0bb27e29281fbec65062955dd5aa9001c396ebc0",
-    "date": "2025-06-28T13:18:45+07:00",
-    "message": "feat(python): add diagnostic mode and source configuration for Pyright",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "ab2ffd42050501ef1fd5e48a5126f9e9ca4a51e5",
-    "date": "2025-06-28T13:15:45+07:00",
-    "message": "chore: update `binary-collections` and use submodule installer from it",
-    "files": [
-      "bin/submodule-install",
-      "bin/submodule-install.cjs",
-      "bin/submodule-install.cmd",
-      "package.json"
-    ]
-  },
-  {
-    "hash": "6cb9fa15f2e88aee3663445ee74ff7545401fedc",
-    "date": "2025-06-28T13:11:04+07:00",
-    "message": "feat: update dependencies and scripts\n\n- Add @hapi/boom and node-cache dependencies\n- Change baileys and sbg-utility versions to wildcard (*)\n- Update sbg-cli, sbg-server, sbg-utility, and static-blog-generator tarball URLs\n- Add update:sha script to package.json",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "a28390f21ff60b60c87ffde31d6e2f629ba686ea",
-    "date": "2025-06-28T11:56:33+07:00",
-    "message": "feat(clean-node): add script to clean node_modules",
-    "files": [
-      "bin/clean-node.cjs"
-    ]
-  },
-  {
-    "hash": "2f03d17283e9e7421dd3b9c3c4296533b7d2d40a",
-    "date": "2025-06-28T11:04:45+07:00",
-    "message": "feat: ignore symbolic links",
-    "files": [
-      "packages/.gitignore"
-    ]
-  },
-  {
-    "hash": "0eaa2c331b4a30823b2a9fc3e4ac391738120c71",
-    "date": "2025-06-28T11:01:42+07:00",
-    "message": "feat(package-resolution): add additional package overrides",
-    "files": [
-      "package-resolution-updater.js"
-    ]
-  },
-  {
-    "hash": "5c4f291b7e7feec96e86b6cae130bc7b8995b12e",
-    "date": "2025-06-28T08:53:16+07:00",
-    "message": "feat(sms): add password-protected access to SMS logs\n\n- Added `SMS_PASSWORD` to `.env_sample` for password-based access\n- `get_sms.php` now accepts a `password` parameter for log reading\n- Log read access granted to admins or users with correct password\n- Refactored request parsing for clarity and flexibility",
-    "files": [
-      ".env_sample",
-      "php_backend/get_sms.php"
-    ]
-  },
-  {
-    "hash": "9ea9fa135a2886a735c0909046aa2c3548c41162",
-    "date": "2025-06-28T03:49:55+07:00",
-    "message": "feat(submodule): add baileys submodule",
-    "files": [
-      ".gitmodules",
-      "packages/baileys"
-    ]
-  },
-  {
-    "hash": "4358b03e7f3e3ce70d1aede6d3f0e15d0e71ce97",
-    "date": "2025-06-28T03:45:06+07:00",
-    "message": "refactor(exec): rename and enhance executor script to `_exec`\n\n- Renamed `executor.sh` to `_exec` for better clarity and brevity\n- Improved cross-platform support:\n  - Detects Linux vs. Windows and activates virtualenv accordingly\n  - Conditionally runs as `www-data` if nginx is installed on Linux\n- Added clearer output for working directory and executed command\n- Preserved example usage",
-    "files": [
-      "bin/_exec",
-      "bin/executor.sh"
-    ]
-  },
-  {
-    "hash": "8e34daf0becde8039542408cf2cdfe7ec31e8343",
-    "date": "2025-06-28T03:35:40+07:00",
-    "message": "chore(deps): update custom tgz URLs and add baileys package\n\n- Bumped custom tarball dependencies for:\n  - `instant-indexing`\n  - `sbg-api`\n- Added `baileys@^6.7.18` to dependencies",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "b6a83197649f3226c96ed29b8fcf92635529de90",
-    "date": "2025-06-28T03:29:34+07:00",
-    "message": "feat(git-diff): add short options and improve help message\n\n- Added support for `-s` and `-S` as shorthand for `--staged-only`\n- Recognized `-h` as a shorthand for `--help` in both bash and Windows scripts\n- Improved output formatting and error messages for clarity\n- Ensured consistent behavior across bash (`git-diff`) and Windows CMD (`git-diff.cmd`) implementations",
-    "files": [
-      "bin/git-diff",
-      "bin/git-diff.cmd"
-    ]
-  },
-  {
-    "hash": "22417a78144e13c408624a07fabca7dfb1e85ec5",
-    "date": "2025-06-28T03:23:14+07:00",
-    "message": "feat(updater): add static branch overrides and robust error handling to resolution updater\n\n- Introduced `specialPackageOverrides` to allow static mapping of packages to specific repo/branch (e.g., `sbg-utility`, `sbg-api`)\n- Replaced `getLatestCommitHash` with unified `getLatestCommit` for specific branches\n- Improved error handling in `fetchJson` for better GitHub API response diagnosis (status code, error messages)\n- Rewrote resolution update loop to use `Object.entries()` and `Promise.all()` for better concurrency\n- Renamed `replaceRawWithLastestHash` → `replaceRawWithLatestHash` for typo correction and clarity\n- Improved CLI output with colorized diffs for before/after resolution URLs\n- Ensured consistent GitHub API headers (including API versioning)\n- Eliminated unused or redundant functions for clarity and performance",
-    "files": [
-      "package-resolution-updater.js"
     ]
   }
 ]
