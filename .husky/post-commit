@@ -4,8 +4,19 @@
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 PROJECT_DIR=$(dirname "$SCRIPT_DIR")
 
-# run commit history builder
-node --no-warnings=ExperimentalWarning --loader ts-node/esm "$PROJECT_DIR/src/dev/git-history.builder.ts"
+# Detect if running on a VPS or desktop
+IS_VPS=0
+if [ -f /sys/class/dmi/id/product_name ]; then
+  PRODUCT_NAME=$(cat /sys/class/dmi/id/product_name 2>/dev/null | tr '[:upper:]' '[:lower:]')
+  if echo "$PRODUCT_NAME" | grep -qE "vps|virtual|kvm|qemu|xen|vmware|hyper-v|cloud"; then
+    IS_VPS=1
+  fi
+fi
+
+# run commit history builder on non-VPS environments
+if [ $IS_VPS -eq 0 ]; then
+  node --no-warnings=ExperimentalWarning --loader ts-node/esm "$CWD/src/dev/git-history.builder.ts"
+fi
 
 command -v git-lfs >/dev/null 2>&1 || {
   echo >&2 "\nThis repository is configured for Git LFS but 'git-lfs' was not found on your path. If you no longer wish to use Git LFS, remove this hook by deleting the 'post-commit' file in the hooks directory (set by 'core.hookspath'; usually '.git/hooks').\n"

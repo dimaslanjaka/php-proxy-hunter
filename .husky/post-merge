@@ -112,8 +112,10 @@ else
   echo "No composer.json or PHP file changes detected; skipping composer."
 fi
 
-# run commit history builder
-node --no-warnings=ExperimentalWarning --loader ts-node/esm "$CWD/src/dev/git-history.builder.ts"
+# run commit history builder on non-VPS environments
+if [ $IS_VPS -eq 0 ]; then
+  node --no-warnings=ExperimentalWarning --loader ts-node/esm "$CWD/src/dev/git-history.builder.ts"
+fi
 
 # Run yarn
 ViteLockFile="$CWD/tmp/locks/.dev-server-lock"
