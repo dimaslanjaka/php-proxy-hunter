@@ -85,6 +85,22 @@ if (file_exists($maintenanceFile)) {
   exit;
 }
 
+if (php_sapi_name() === 'cli') {
+  $options = getopt('', ['set-maintenance', 'clear-maintenance']);
+  if (isset($options['set-maintenance'])) {
+    file_put_contents($maintenanceFile, 'Maintenance mode enabled at ' . date('Y-m-d H:i:s'));
+    echo "Maintenance mode enabled.\n";
+  } elseif (isset($options['clear-maintenance'])) {
+    if (file_exists($maintenanceFile)) {
+      unlink($maintenanceFile);
+      echo "Maintenance mode disabled.\n";
+    } else {
+      echo "Maintenance mode is not enabled.\n";
+    }
+  }
+  exit;
+}
+
 $indexFile = __DIR__ . '/index.html';
 if (file_exists($indexFile)) {
   readfile($indexFile);
