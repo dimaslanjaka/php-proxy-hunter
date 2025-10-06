@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+
+# delete venv directory if it exists
+if [ -d "venv" ]; then
+	rm -rf venv
+fi
+
+py -m venv venv
+. venv/bin/activate
+py -m pip install --upgrade pip
+py -m pip install requests
+py -m pip install -e packages/proxy-checker-python
+py -m pip install -e packages/proxy-hunter-python
+py -m pip install -e packages/rsa-utility
+
