@@ -184,13 +184,6 @@ export async function deleteRemotePath(remotePathToDelete, config = {}) {
 
 /**
  * Execute a command on the remote server with .bashrc loaded, streaming output live to the console.
- *
- * @param {import('ssh2').Client} conn - An active ssh2 Client connection.
- * @param {string} command - The shell command to execute remotely.
- * @returns {Promise<{stdout: string, stderr: string, code: number, signal: string}>} Resolves with command output and exit info.
- */
-/**
- * Execute a command on the remote server with .bashrc loaded, streaming output live to the console.
  * Always sources nvm from /usr/local/nvm/nvm.sh and sets node version.
  *
  * @param {import('ssh2').Client} conn - An active ssh2 Client connection.
@@ -272,6 +265,48 @@ export function gitPull() {
   });
 }
 
+/**
+ * Execute a command on the remote server via SSH and return the execution result.
+ *
+ * This helper establishes an ssh2 Client connection to the configured host and
+ * uses execWithBashrc to run the provided shell command (which sources ~/.bashrc
+ * and prepares nvm/corepack). The promise resolves with the same object that
+ * execWithBashrc returns: stdout, stderr, exit code and signal.
+ *
+ * Note: The function name is prefixed with an underscore to allow it to remain
+ * in the source even if not referenced elsewhere (matches allowed unused var pattern /^_/u).
+ *
+ * @param {string} command - The shell command to execute remotely.
+ * @returns {Promise<{stdout: string, stderr: string, code: number|null, signal: string|null}>}
+ *    Resolves with stdout, stderr, numeric exit code (or null), and signal (or null).
+ *    Rejects on SSH/connect or execution errors.
+ */
+export async function shell_exec(command, cwd = null) {
+  const conn = new Client();
+  return new Promise((resolve, reject) => {
+    conn
+      .on('ready', async () => {
+        try {
+          if (typeof cwd === 'string' && cwd.length > 0) {
+            command = `cd ${cwd} && ${command}`;
+          }
+          const result = await execWithBashrc(conn, command);
+          conn.end();
+          resolve(result);
+        } catch (err) {
+          conn.end();
+          reject(err);
+        }
+      })
+      .connect({
+        host,
+        port,
+        username,
+        password
+      });
+  });
+}
+
 async function main() {
   // Set maintenance
   await uploadFile(path.join(__dirname, '/../index.maintenance.html'), `${remotePath}/index.html`);
@@ -293,4 +328,14 @@ async function main() {
   await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
 }
 
-main().catch(console.error);
+if (process.argv.some((arg) => /deploy-vps(\.mjs)?$/u.test(arg))) {
+  main()
+    .then(() => {
+      console.log('Deployment complete.');
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('Deployment failed:', err);
+      process.exit(1);
+    });
+}
