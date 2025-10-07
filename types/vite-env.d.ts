@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_PORT?: string | number;
   readonly VITE_BACKEND_HOSTNAME_DEV?: string;
   readonly VITE_BACKEND_HOSTNAME_PROD?: string;
+  readonly VITE_G_RECAPTCHA_SITE_KEY?: string;
+  readonly VITE_G_RECAPTCHA_V2_SITE_KEY?: string;
 }
 
 interface ImportMeta {
