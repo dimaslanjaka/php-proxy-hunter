@@ -133,46 +133,62 @@ export async function deleteRemotePath(remotePathToDelete, config = {}) {
   try {
     await sftp.connect(sftpOptions);
     console.log(`Deleting remote path ${remotePathToDelete} ...`);
-
-    // Try deleting as a file first
+    // Prefer checking the remote type first to avoid a noisy "delete failed (may be a directory)" message.
+    // ssh2-sftp-client offers exists() which returns false | 'd' | '-' | 'l' (dir|file|link) in many versions.
+    let existsType = null;
     try {
-      await sftp.delete(remotePathToDelete);
-      console.log('Remote file deleted.');
-      return;
-    } catch (fileErr) {
-      // Not a file or delete failed; continue to attempt rmdir
-      console.debug('sftp.delete failed (may be a directory):', fileErr.message || fileErr);
+      existsType = await sftp.exists(remotePathToDelete);
+    } catch (e) {
+      console.debug('sftp.exists check failed, will attempt delete/rmdir fallbacks:', e.message || e);
     }
 
-    // Attempt to remove directory. Many versions of ssh2-sftp-client support rmdir(path, true) for recursive.
-    try {
-      await sftp.rmdir(remotePathToDelete, true);
-      console.log('Remote directory removed.');
+    if (existsType === false) {
+      console.log('Remote path does not exist, nothing to delete.');
       return;
-    } catch (dirErr) {
-      // As a fallback, try listing and removing children (recursive delete)
-      console.debug(
-        'sftp.rmdir failed or not supported, attempting manual recursive delete:',
-        dirErr.message || dirErr
-      );
+    }
+
+    if (existsType === 'd') {
+      // Path is a directory — try rmdir recursive if supported
       try {
-        const list = await sftp.list(remotePathToDelete);
-        for (const item of list) {
-          const childPath = `${remotePathToDelete.replace(/\/$/, '')}/${item.name}`;
-          if (item.type === 'd') {
-            await deleteRemotePath(childPath, config);
-          } else {
-            await sftp.delete(childPath);
-          }
-        }
-        // After deleting children, remove the directory itself
-        await sftp.rmdir(remotePathToDelete);
-        console.log('Remote directory removed (manual).');
+        await sftp.rmdir(remotePathToDelete, true);
+        console.log('Remote directory removed.');
         return;
-      } catch (manualErr) {
-        console.error('Failed to delete remote path:', manualErr);
-        throw manualErr;
+      } catch (dirErr) {
+        console.debug(
+          'sftp.rmdir failed or not supported, attempting manual recursive delete:',
+          dirErr.message || dirErr
+        );
       }
+    } else if (existsType === '-' || existsType === 'l' || existsType === null) {
+      // Treat as a file (or unknown): try delete first, then fall back to rmdir if that fails
+      try {
+        await sftp.delete(remotePathToDelete);
+        console.log('Remote file deleted.');
+        return;
+      } catch (fileErr) {
+        console.debug('sftp.delete failed, attempting rmdir/recursive fallback:', fileErr.message || fileErr);
+      }
+    }
+
+    // If we reached here, previous attempts failed — attempt manual recursive delete by listing children.
+    // This covers servers where rmdir(..., true) isn't supported.
+    try {
+      const list = await sftp.list(remotePathToDelete);
+      for (const item of list) {
+        const childPath = `${remotePathToDelete.replace(/\/$/, '')}/${item.name}`;
+        if (item.type === 'd') {
+          await deleteRemotePath(childPath, config);
+        } else {
+          await sftp.delete(childPath);
+        }
+      }
+      // After deleting children, remove the directory itself
+      await sftp.rmdir(remotePathToDelete);
+      console.log('Remote directory removed (manual).');
+      return;
+    } catch (manualErr) {
+      console.error('Failed to delete remote path:', manualErr);
+      throw manualErr;
     }
   } catch (err) {
     console.error('SFTP delete remote path error:', err);
