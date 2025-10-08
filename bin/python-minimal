@@ -10,7 +10,19 @@ py -m venv venv
 . venv/bin/activate
 py -m pip install --upgrade pip
 py -m pip install requests
-py -m pip install -e packages/proxy-checker-python
-py -m pip install -e packages/proxy-hunter-python
-py -m pip install -e packages/rsa-utility
+if [ -d "packages/proxy-checker-python" ]; then
+  py -m pip install -e packages/proxy-checker-python
+else
+  py -m pip install git+https://github.com/dimaslanjaka/proxy-checker-python.git@master
+fi
+if [ -d "packages/proxy-hunter-python" ]; then
+  py -m pip install -e packages/proxy-hunter-python
+else
+  py -m pip install git+https://github.com/dimaslanjaka/proxy-hunter-python.git@master#subdirectory=packages/proxy-hunter-python
+fi
+if [ -d "packages/rsa-utility" ]; then
+  py -m pip install -e packages/rsa-utility
+else
+  py -m pip install git+https://github.com/dimaslanjaka/php-proxy-hunter.git@master#subdirectory=packages/rsa-utility
+fi
 
