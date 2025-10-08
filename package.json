@@ -163,6 +163,7 @@
     "@types/selenium-webdriver": "^4",
     "@types/serve-favicon": "^2",
     "@types/ssh2": "^1",
+    "@types/ssh2-sftp-client": "^9.0.5",
     "@types/unzipper": "^0",
     "@types/which": "^3.0.4",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
