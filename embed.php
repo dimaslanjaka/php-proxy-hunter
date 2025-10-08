@@ -74,8 +74,13 @@ if ($forbidden) {
   exit(json_encode(['error' => 'unauthorized, try login first']));
 }
 
-$file = isset($_REQUEST['file']) ? rawurldecode(trim($_REQUEST['file'])) : 'proxies.txt';
-// Restrict file access using glob patterns (no secret or environment files)
+$request = parseQueryOrPostBody();
+$file    = isset($request['file']) ? rawurldecode(trim($request['file'])) : null;
+if (empty($file)) {
+  header('Content-Type: application/json; charset=utf-8');
+  http_response_code(400);
+  exit(json_encode(['error' => true, 'message' => 'Missing file parameter']));
+}
 
 // Exclude/ignore files matching these glob patterns (denylist)
 $excludedGlobs = ['*.env', '*.env.*', '*.php', '*.sh', '*.bat', '*.exe', '*.bak', '*.key', '*.pem', '*.crt', '*.htaccess', 'composer.*', 'package*.json', 'node_modules*', 'vendor*', '.git*', '*.bak', '*.lock', '*.zip', '*.tar*', '*.gz', '*.7z', '*.rar', '*.db', '*.sqlite', '*.py', '*.ts', '*.js', '*.cjs', '*.mjs', '*.md', '*.yml', '*.yaml', '*.log.bak'];
