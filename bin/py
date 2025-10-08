@@ -70,8 +70,6 @@ case "$OS" in
       echo "Creating virtual environment..."
       python3.exe -m venv "$VENV_PATH"
       echo "Virtual environment created."
-    else
-      echo "Virtual environment already exists."
     fi
 
     ensure_python3_shim_windows

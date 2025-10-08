@@ -27,8 +27,6 @@ if not exist "%VENV_PATH%" (
         exit /b 1
     )
     echo Virtual environment created.
-) else (
-    echo Virtual environment already exists.
 )
 
 REM Ensure python3.exe shim exists
