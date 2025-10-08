@@ -27,7 +27,10 @@ if not defined PY_CREATOR (
     exit /b 1
 )
 
-%PY_CREATOR% -m venv venv
+@REM create venv if not exists
+if not exist venv (
+  %PY_CREATOR% -m venv venv
+)
 call venv\Scripts\activate.bat
 py -m pip install --upgrade pip
 py -m pip install requests PySocks beautifulsoup4 lxml httpx
