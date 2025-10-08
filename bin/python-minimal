@@ -6,7 +6,16 @@ if [ -d "venv" ]; then
 	rm -rf venv
 fi
 
-py -m venv venv
+if command -v python3 &>/dev/null; then
+  python3 -m venv venv
+  python3 -m pip install --upgrade pip
+elif command -v python &>/dev/null; then
+  python -m venv venv
+  python -m pip install --upgrade pip
+else
+  echo "Python is not installed." >&2
+  exit 1
+fi
 . venv/bin/activate
 py -m pip install --upgrade pip
 py -m pip install requests PySocks beautifulsoup4 lxml httpx

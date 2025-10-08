@@ -1,13 +1,25 @@
+
 @echo off
 
-setlocal enabledelayedexpansion
+setlocal EnableDelayedExpansion
 
-@REM delete venv directory if it exists
+REM delete venv directory if it exists
 if exist venv (
     rmdir /s /q venv
 )
 
-py -m venv venv
+REM Try to find python executable to create the venv: prefer python3, then python
+set PY_CREATOR=
+for %%P in (python3 python) do (
+    where %%P >nul 2>nul && if not defined PY_CREATOR set PY_CREATOR=%%P
+)
+
+if not defined PY_CREATOR (
+    echo Python is not installed or not on PATH.& echo Please install Python 3 and retry.
+    exit /b 1
+)
+
+%PY_CREATOR% -m venv venv
 call venv\Scripts\activate.bat
 py -m pip install --upgrade pip
 py -m pip install requests PySocks beautifulsoup4 lxml httpx
@@ -29,3 +41,5 @@ if exist packages/rsa-utility (
 ) else (
     py -m pip install "git+https://github.com/dimaslanjaka/php-proxy-hunter.git@master#subdirectory=packages/rsa-utility"
 )
+
+endlocal
