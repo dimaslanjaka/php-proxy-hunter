@@ -93,7 +93,20 @@ if ($denied) {
   exit(json_encode(['error' => 'Access denied.']));
 }
 
-$real_file = realpath(__DIR__ . '/' . $baseFile);
+$real_file = false;
+// If the incoming path starts with a slash, interpret it as project-root
+// relative (do not treat it as a system absolute path). This lets the
+// frontend use "/tmp/..." to refer to the project's tmp folder, and also
+// allows other project-root paths like "/logs/..." to be resolved safely.
+if (strlen($file) > 0 && $file[0] === '/') {
+  // Remove leading slash and resolve under project dir
+  $mapped    = __DIR__ . '/' . ltrim($file, '/\\');
+  $real_file = realpath($mapped);
+} else {
+  // If no leading slash, try resolving as given (relative path) via basename fallback.
+  $real_file = realpath(__DIR__ . '/' . $baseFile);
+}
+
 if ($real_file && file_exists($real_file)) {
   // Determine the file extension
   $fileExtension = pathinfo($real_file, PATHINFO_EXTENSION);
