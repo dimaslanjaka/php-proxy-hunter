@@ -8,11 +8,6 @@ CWD="$(dirname "$SCRIPT_DIR")"
 # add bin to PATH
 export PATH="$CWD/bin:$PATH"
 
-# delete venv directory if it exists
-if [ -d "venv" ]; then
-	rm -rf venv
-fi
-
 if command -v python3 &>/dev/null; then
   python3 -m venv venv
   python3 -m pip install --upgrade pip

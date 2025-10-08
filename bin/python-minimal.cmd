@@ -16,11 +16,6 @@ set "CWD=%CWD:~0,-1%"
 REM add bin to PATH
 set "PATH=%CWD%\bin;%PATH%"
 
-REM delete venv directory if it exists
-if exist venv (
-    rmdir /s /q venv
-)
-
 REM Try to find python executable to create the venv: prefer python3, then python
 set PY_CREATOR=
 for %%P in (python3 python) do (
