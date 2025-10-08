@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
+# set variable
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+CWD="$(dirname "$SCRIPT_DIR")"
+
+# add bin to PATH
+export PATH="$CWD/bin:$PATH"
+
 # delete venv directory if it exists
 if [ -d "venv" ]; then
 	rm -rf venv

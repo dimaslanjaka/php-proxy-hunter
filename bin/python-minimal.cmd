@@ -3,6 +3,19 @@
 
 setlocal EnableDelayedExpansion
 
+REM Get the directory of the batch file
+set "SCRIPT_DIR=%~dp0"
+
+REM Remove the trailing backslash
+set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
+
+REM Move up one levels from the script directory
+for %%i in ("%SCRIPT_DIR%") do set "CWD=%%~dpi"
+set "CWD=%CWD:~0,-1%"
+
+REM add bin to PATH
+set "PATH=%CWD%\bin;%PATH%"
+
 REM delete venv directory if it exists
 if exist venv (
     rmdir /s /q venv
