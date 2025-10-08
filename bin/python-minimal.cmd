@@ -10,7 +10,7 @@ if exist venv (
 py -m venv venv
 call venv\Scripts\activate.bat
 py -m pip install --upgrade pip
-py -m pip install requests
+py -m pip install requests PySocks beautifulsoup4 lxml httpx
 
 if exist packages/proxy-checker-python (
     py -m pip install -e packages/proxy-checker-python

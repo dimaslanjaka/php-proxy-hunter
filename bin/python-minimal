@@ -9,7 +9,7 @@ fi
 py -m venv venv
 . venv/bin/activate
 py -m pip install --upgrade pip
-py -m pip install requests
+py -m pip install requests PySocks beautifulsoup4 lxml httpx
 if [ -d "packages/proxy-checker-python" ]; then
   py -m pip install -e packages/proxy-checker-python
 else
