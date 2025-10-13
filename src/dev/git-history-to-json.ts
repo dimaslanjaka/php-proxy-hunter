@@ -18,13 +18,7 @@ export interface GitHistoryOptions {
 }
 
 const bannedFiles = [/\.(husky|git)\//];
-const anonymizedFiles = {
-  '--isimple--': /\/isimple\//,
-  '--sidompul--': /\/sidompul\//,
-  '--im3--': /\/im3\//,
-  '--xl--': /\/xl\//,
-  '--axis--': /\/axis\//
-};
+// No anonymization: return raw repository paths for file lists.
 
 /**
  * Get git commit history with hash, date, message, and changed files.
@@ -74,19 +68,7 @@ export function gitHistoryToJson(options: GitHistoryOptions = {}) {
           hash,
           date,
           message: messageLines.join('\n').trim(),
-          files: array_unique(
-            files
-              .filter((f) => !bannedFiles.some((pattern) => pattern.test(f)))
-              .map((f) => {
-                // Anonymize file paths
-                for (const [key, pattern] of Object.entries(anonymizedFiles)) {
-                  if (pattern.test(f)) {
-                    return f.replace(pattern, key);
-                  }
-                }
-                return f;
-              })
-          )
+          files: array_unique(files.filter((f) => !bannedFiles.some((pattern) => pattern.test(f))))
         });
       }
       hash = line;
