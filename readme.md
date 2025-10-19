@@ -168,7 +168,7 @@ sudo crontab -u www-data -r # remove all
 
 ## 🛠️ Troubleshooting
 
-### Missing PHP Extension
+<!-- missing php extension -->
 
 ```bash
 sudo apt install php-fpm -y
