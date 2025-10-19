@@ -31,6 +31,12 @@ export default function DetailsCell({
   const [expanded, setExpanded] = React.useState(false);
   const parsed = React.useMemo(() => tryParseJson(raw), [raw]);
 
+  // If there's no content (empty or only whitespace), return a placeholder and don't show copy
+  const hasContent = !!raw && raw.trim() !== '';
+  if (!hasContent) {
+    return <span className="text-gray-500 dark:text-gray-400 text-xs">-</span>;
+  }
+
   const copy = React.useCallback(() => {
     const text = parsed ? prettyJson(parsed) : raw;
     if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
@@ -65,7 +71,7 @@ export default function DetailsCell({
               <span className="sr-only">{expanded ? 'Hide' : 'Show'}</span>
             </button>
           )}
-          {showCopy && (
+          {showCopy && hasContent && (
             <button onClick={copy} className="text-xs text-gray-600 dark:text-gray-300 p-1 rounded" aria-label="Copy">
               <i className="fa-solid fa-copy" aria-hidden="true" />
               <span className="sr-only">Copy</span>
@@ -94,7 +100,7 @@ export default function DetailsCell({
           <i className={expanded ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'} aria-hidden="true" />
           <span className="sr-only">{expanded ? 'Hide JSON' : 'Show JSON'}</span>
         </button>
-        {showCopy && (
+        {showCopy && hasContent && (
           <button
             onClick={copy}
             className="text-xs text-gray-600 dark:text-gray-300 p-1 rounded"
