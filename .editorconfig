@@ -43,6 +43,10 @@ indent_style = tab
 [*.bat]
 indent_style = tab
 
+# Kotlin
+[*.{kt, kts}]
+ij_kotlin_imports_layout = *
+
 # Bash and shell scripts
 [*.{sh,bash}]
 # like -i=4
