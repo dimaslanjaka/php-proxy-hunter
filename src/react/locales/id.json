@@ -112,5 +112,9 @@
   "rows_per_page": "Baris per halaman",
   "action": "Aksi",
   "timestamp": "Waktu",
-  "details": "Detail"
+  "details": "Detail",
+  "otp_request_success": "Permintaan OTP berhasil — silakan periksa kotak masuk SMS Anda.",
+  "otp_request_failed": "Gagal meminta OTP. Silakan coba lagi.",
+  "otp_verify_success": "OTP berhasil diverifikasi. Anda sekarang masuk.",
+  "otp_verify_failed": "Verifikasi OTP gagal. Silakan periksa kode dan coba lagi."
 }

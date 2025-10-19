@@ -112,5 +112,9 @@
   "rows_per_page": "Rows per page",
   "action": "Action",
   "timestamp": "Timestamp",
-  "details": "Details"
+  "details": "Details",
+  "otp_request_success": "OTP request successful — please check your SMS inbox.",
+  "otp_request_failed": "Failed to request OTP. Please try again.",
+  "otp_verify_success": "OTP verification successful. You are now logged in.",
+  "otp_verify_failed": "OTP verification failed. Please check the code and try again."
 }
