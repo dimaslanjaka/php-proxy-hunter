@@ -1,5 +1,31 @@
 [
   {
+    "hash": "bd8e7a953e3d9c84a2194f349c7df5eda6774132",
+    "date": "2025-10-23T09:41:00+07:00",
+    "message": "chore(pyproject): add project metadata and dependencies for proxy_hunter package\n\n- Define project name, version, description, authors, and classifiers\n- Add dependencies including MySQL, HTTP, and proxy-related libraries\n- Configure setuptools to include proxy_hunter packages and submodules\n- Add pytest configuration for test discovery",
+    "files": [
+      "packages/proxy-hunter-python/pyproject.toml"
+    ]
+  },
+  {
+    "hash": "988d62c783bd8c1b9e82ffec6273dfb7a3d60ab7",
+    "date": "2025-10-23T09:40:32+07:00",
+    "message": "fix(readme): update installation instructions",
+    "files": [
+      "packages/proxy-hunter-python/readme.md"
+    ]
+  },
+  {
+    "hash": "5d3ef63ed3b0c947279ac3fac10ebd96b645bdf0",
+    "date": "2025-10-23T09:39:56+07:00",
+    "message": "feat(config): add ConfigDB utility with SQLite and MySQL support\n\n- Introduce ConfigDB class for unified configuration storage using SQLite or MySQL\n- Implement CRUD operations with JSON serialization and dataclass reconstruction\n- Add tests for configuration persistence, updates, deletions, and dataclass restoration\n- Update setup.py to include mysql-connector-python dependency",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/utils/config.py",
+      "packages/proxy-hunter-python/setup.py",
+      "packages/proxy-hunter-python/tests/test_config_db.py"
+    ]
+  },
+  {
     "hash": "c8026bb2d080bb4fa83df500390f6993c21975c0",
     "date": "2025-10-19T14:16:17+07:00",
     "message": "feat(package): add postcss-cli and postcss-loader dependencies",
@@ -8820,36 +8846,6 @@
     "files": [
       "packages/gh-pages-builder/package.json",
       "packages/gh-pages-builder/rollup.config.js"
-    ]
-  },
-  {
-    "hash": "effdadd85bf0bda11fc4be909f5c5e42d1d0ca45",
-    "date": "2025-06-30T14:21:37+07:00",
-    "message": "refactor: migrate gh-pages-builder package to TypeScript\n\n- Rename source files from .js to .ts and add type annotations\n- Add @rollup/plugin-typescript and types dependencies to devDependencies\n- Update rollup.config.js for TypeScript input and plugin usage\n- Refactor config loading and default config with improved types\n- Add tsconfig.json for TypeScript compiler configuration\n- Add template-render.ts example for Nunjucks + Markdown rendering",
-    "files": [
-      "packages/gh-pages-builder/package.json",
-      "packages/gh-pages-builder/rollup.config.js",
-      "packages/gh-pages-builder/src/build-gh-pages.ts",
-      "packages/gh-pages-builder/src/config.ts",
-      "packages/gh-pages-builder/src/index.ts",
-      "packages/gh-pages-builder/src/template-render.ts",
-      "packages/gh-pages-builder/tsconfig.json"
-    ]
-  },
-  {
-    "hash": "37b9b47e7c4e9f80141a27cbd7e88f7b7c6a818d",
-    "date": "2025-06-30T13:43:40+07:00",
-    "message": "refactor: separate build/clean tasks and build before every test\n\n- build: no longer cleans automatically\n- clean: simplified to only clean dist\n- pretest: builds before all test",
-    "files": [
-      "packages/gh-pages-builder/package.json"
-    ]
-  },
-  {
-    "hash": "fb4d0e42ab48ad325fade5c8de1887981869a418",
-    "date": "2025-06-30T13:34:52+07:00",
-    "message": "fix(config): throw error if no config file is found instead of logging",
-    "files": [
-      "packages/gh-pages-builder/src/config.js"
     ]
   }
 ]
