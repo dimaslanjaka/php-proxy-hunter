@@ -119,3 +119,6 @@ class ConfigDB:
     def close(self):
         self.cur.close()
         self.conn.close()
+
+    def __del__(self):
+        self.close()
