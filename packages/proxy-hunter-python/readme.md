@@ -1,7 +1,7 @@
 # ProxyHunter v2
 
-Author: dimaslanjaka@gmail.com  
-Original Author: aaron.nelson805@gmail.com  
+Author: dimaslanjaka@gmail.com
+Original Author: aaron.nelson805@gmail.com
 Repository: https://github.com/xajnx/proxyhunter
 
 ---
@@ -17,21 +17,21 @@ git+https://github.com/dimaslanjaka/php-proxy-hunter.git#subdirectory=packages/p
 Then install:
 
 ```
-pip install -r requirements.txt
+pip install -r requirements.txt --force-reinstall
 ```
 
 ---
 
 ## Description
 
-ProxyHunter v2 is a CLI Python 3 script that uses the `ip_ranges_US.txt` list of US IP ranges to search for open Squid proxy servers.  
+ProxyHunter v2 is a CLI Python 3 script that uses the `ip_ranges_US.txt` list of US IP ranges to search for open Squid proxy servers.
 
-You can also scan for other countries by visiting:  
-http://www.ipaddresslocation.org/ip_ranges/get_ranges.php  
+You can also scan for other countries by visiting:
+http://www.ipaddresslocation.org/ip_ranges/get_ranges.php
 Select your country, choose **CIDR** format, and download the ranges to your `proxyhunter` directory.
 
-Unlike tools that rely on external proxy lists, ProxyHunter actively scans IP ranges.  
-By default, it randomly selects **2,500 IP ranges** and searches until it finds **25 open proxies**.  
+Unlike tools that rely on external proxy lists, ProxyHunter actively scans IP ranges.
+By default, it randomly selects **2,500 IP ranges** and searches until it finds **25 open proxies**.
 Optional MAC address spoofing is supported if your network adapter allows it (requires root access and an external script).
 
 ---
@@ -130,20 +130,18 @@ Checking host: 104.236.27.7
 
 ---
 
-## Optional Notes
 
-Force reinstall:
+## Develop
 
+to build:
+
+```bash
+pip install build
+pip -m build
 ```
-pip install -e . --force-reinstall
-# or
-pip install -r requirements.txt --force-reinstall
-```
 
-Normal install:
+to install locally:
 
-```
-pip install .
-# or
-pip install -r requirements.txt
+```bash
+pip install -e .
 ```
