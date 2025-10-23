@@ -1,3 +1,52 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "proxy_hunter"
+version = "1.0"
+description = "Proxy hunter utility in Python"
+readme = { file = "readme.md", content-type = "text/markdown" }
+authors = [
+    { name = "Dimas Lanjaka", email = "dimaslanjaka@gmail.com" }
+]
+keywords = ["proxy", "checker"]
+classifiers = [
+    "License :: OSI Approved :: MIT License"
+]
+dependencies = [
+    "pycurl",
+    "netaddr",
+    "colorama",
+    "chardet",
+    "requests",
+    "brotli",
+    "ipaddress",
+    "pytest",
+    "urlextract",
+    "filelock",
+    "asyncio",
+    "proxy-checker",
+    "beautifulsoup4",
+    "httpx",
+    "pySocks",
+    "mysql-connector-python"
+]
+
+[project.urls]
+"Source Code" = "https://github.com/dimaslanjaka/php-proxy-hunter/packages/proxy-hunter-python"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+    "proxy_hunter",
+    "proxy_hunter.curl",
+    "proxy_hunter.utils",
+    "proxy_hunter.scrappers"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
