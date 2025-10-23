@@ -1,11 +1,7 @@
 import sqlite3
 import json
 from typing import Any, Optional, Type, TypeVar
-
-try:
-    import mysql.connector
-except ImportError:
-    mysql = None
+import mysql.connector
 
 T = TypeVar("T")
 
@@ -20,8 +16,6 @@ class ConfigDB:
             self.conn.row_factory = sqlite3.Row
             self.cur = self.conn.cursor()
         elif self.driver == "mysql":
-            if mysql is None:
-                raise ImportError("Install mysql-connector-python for MySQL support")
             self.conn = mysql.connector.connect(
                 host=kwargs.get("host", "localhost"),
                 user=kwargs.get("user", "root"),
