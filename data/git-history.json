@@ -1,10 +1,289 @@
 [
   {
-    "hash": "43e7f6890f5c9c71a686f3b0be1406d0fb373508",
-    "date": "2025-10-06T01:52:17Z",
-    "message": "build(deps): bump react-i18next from 15.7.4 to 16.0.0\n\nBumps [react-i18next](https://github.com/i18next/react-i18next) from 15.7.4 to 16.0.0.\n- [Changelog](https://github.com/i18next/react-i18next/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/i18next/react-i18next/compare/v15.7.4...v16.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: react-i18next\n  dependency-version: 16.0.0\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "hash": "c8026bb2d080bb4fa83df500390f6993c21975c0",
+    "date": "2025-10-19T14:16:17+07:00",
+    "message": "feat(package): add postcss-cli and postcss-loader dependencies",
     "files": [
       "package.json"
+    ]
+  },
+  {
+    "hash": "260172db20b23dac31a1e18566bf14736354dc2a",
+    "date": "2025-10-19T14:15:42+07:00",
+    "message": "fix(readme): comment out missing PHP extension section",
+    "files": [
+      "readme.md"
+    ]
+  },
+  {
+    "hash": "8e17f1bfb6efc7490f2b10d5cee922e9d58d8033",
+    "date": "2025-10-19T14:14:33+07:00",
+    "message": "fix(ui): hide copy button and show placeholder for empty details\n\nWhen details are empty or whitespace-only, render a subtle placeholder (`-`)\nand avoid displaying the copy button in `src/react/components/DetailsCell.tsx`.\nThis prevents no-op copy actions and improves table readability.\n\n- Add `hasContent` guard to detect empty content\n- Return a Tailwind-styled placeholder when empty\n- Only render copy buttons when `hasContent` is true",
+    "files": [
+      "src/react/components/DetailsCell.tsx"
+    ]
+  },
+  {
+    "hash": "d41199e81d1b912f146360a258eff25c82a0b7db",
+    "date": "2025-10-19T14:13:08+07:00",
+    "message": "feat(editorconfig): add Kotlin support with import layout configuration",
+    "files": [
+      ".editorconfig"
+    ]
+  },
+  {
+    "hash": "fc4b4b1cea57319710efcb0b43a2db0b9bf8834d",
+    "date": "2025-10-19T14:12:09+07:00",
+    "message": "feat: custom certificate",
+    "files": [
+      "data/custom.pem"
+    ]
+  },
+  {
+    "hash": "29f69fc1931fdd8d08033cf1f97eb416c2a9fb04",
+    "date": "2025-10-19T14:11:39+07:00",
+    "message": "fix(gitignore): include /script directory in .gitignore",
+    "files": [
+      "data/.gitignore"
+    ]
+  },
+  {
+    "hash": "baac3b303033973df9e6faf9ac36f3eccbd58b32",
+    "date": "2025-10-19T14:10:59+07:00",
+    "message": "feat(locales): add OTP request and verification messages in English and Indonesian",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json"
+    ]
+  },
+  {
+    "hash": "2c4418160aa5096473807d6aeb1ad2bcd9f78117",
+    "date": "2025-10-19T14:10:25+07:00",
+    "message": "feat(eslint): add ESLint configuration file",
+    "files": [
+      ".idea/jsLinters/eslint.xml"
+    ]
+  },
+  {
+    "hash": "e8357a603d5bba82c9251422dcdf4999602cded1",
+    "date": "2025-10-13T12:01:00+07:00",
+    "message": "fix(git-history): remove path anonymization in git-history-to-json\n\nRemove the `anonymizedFiles` map and the replacement logic so the git history generator\nreturns raw repository file paths. This updates `src/dev/git-history-to-json.ts`\nto emit original paths in `git-history.json` (so the UI and consumers see accurate filenames\ninstead of anonymized tokens).\n\nBREAKING CHANGE: `git-history.json` now contains original file paths instead of anonymized tokens.",
+    "files": [
+      "src/dev/git-history-to-json.ts"
+    ]
+  },
+  {
+    "hash": "9538149d86e708bb809d92b58d47aa9da8ac969d",
+    "date": "2025-10-08T15:13:31+07:00",
+    "message": "fix(venv): ensure virtual environment is created only if it does not exist",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "36e4556d722204432c11e1ba4318326b5179afda",
+    "date": "2025-10-08T15:12:01+07:00",
+    "message": "fix(venv): remove redundant deletion of existing virtual environment",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "b5635a6ce4d7d765d901b3423a58719df90c6861",
+    "date": "2025-10-08T15:11:39+07:00",
+    "message": "fix(py): improve sudo command handling for non-interactive environments",
+    "files": [
+      "bin/py"
+    ]
+  },
+  {
+    "hash": "0d52ff7e042c7fa7eba26d20f57903475549d8bb",
+    "date": "2025-10-08T13:58:40+07:00",
+    "message": "chore(env): set script directory and add repo `bin` to PATH in setup scripts\n\n- Add `SCRIPT_DIR` and `CWD` detection to `bin/python-minimal` and export the repo `bin`\n  folder into `PATH` so local executables are preferred during environment setup.\n- Mirror the same logic in `bin/python-minimal.cmd` (compute `SCRIPT_DIR`, derive `CWD`,\n  normalize paths and prepend `%CWD%\\bin` to `%PATH%`).\n\nThis improves reliability when running the setup scripts from different working\ndirectories and ensures bundled tools in `bin/` are available during provisioning.",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "ef1392d8f321015c8eab6324a8e78483ce902263",
+    "date": "2025-10-08T13:50:03+07:00",
+    "message": "fix(py): ensure python3 is executed in all cases for Unix-based systems",
+    "files": [
+      "bin/py"
+    ]
+  },
+  {
+    "hash": "026c21e83908ff14e300bcd0a1ef26fea0c5cde1",
+    "date": "2025-10-08T13:44:53+07:00",
+    "message": "chore(env): detect python and improve venv creation for cross-platform setup\n\n- Add python detection to `bin/python-minimal` (prefer `python3`, fallback to `python`)\n  and run a pip upgrade with the chosen interpreter before activating the venv.\n- Implement equivalent logic in `bin/python-minimal.cmd`: detect `python3` or `python`\n  to create the virtualenv, activate via `venv\\Scripts\\activate.bat`, upgrade pip,\n  and install required packages.\n- Small housekeeping: use `EnableDelayedExpansion` and `endlocal` in the Windows script.\n\nThis makes the minimal Python environment setup more robust across different systems\nwhere `py` may not be available or `python3` is preferred.",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "288e3c5053a48dacc4c18320752a43a8e523000e",
+    "date": "2025-10-08T13:38:31+07:00",
+    "message": "fix(venv): remove redundant message for existing virtual environment",
+    "files": [
+      "bin/py",
+      "bin/py.cmd"
+    ]
+  },
+  {
+    "hash": "96f26261368642b1987af72af2d0532f0ac8f0d6",
+    "date": "2025-10-08T13:29:23+07:00",
+    "message": "fix(py): comment out the sudo command for requirements installation",
+    "files": [
+      "bin/py"
+    ]
+  },
+  {
+    "hash": "60a24e51d5cec5f78990a2aa63bcd26660f04f4d",
+    "date": "2025-10-08T13:19:10+07:00",
+    "message": "fix(install): include additional packages in pip install command",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "8d1bdd0823f82246e1f93f15fa9ecf24fa4c0a0b",
+    "date": "2025-10-08T13:17:51+07:00",
+    "message": "chore(dev-env): add conditional local-package installs with git fallbacks\n\nUpdate both `bin/python-minimal` (bash) and `bin/python-minimal.cmd` (Windows)\nto install local packages when present, and otherwise install them from their\nGitHub repositories. This makes the minimal Python environment setup more\nrobust when working either with local package directories or with the remote\nrepositories.\n\n- Check for `packages/proxy-checker-python`, `packages/proxy-hunter-python`,\n  and `packages/rsa-utility` and use `pip install -e` when available.\n- Fall back to `pip install git+https://...` (with `#subdirectory=...` where\n  required) when local directories are absent.\n\nNo functional changes to package versions; improves developer setup ergonomics.",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "7802e3635d3c6fbb811ba508b66043892b17167f",
+    "date": "2025-10-08T11:18:59+07:00",
+    "message": "feat(dependencies): add @types/ssh2-sftp-client for TypeScript support",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "9ee4cdae7f7e805287ae1691fa31969132f910f0",
+    "date": "2025-10-08T11:17:37+07:00",
+    "message": "fix(deploy-vps): make deleteRemotePath robust for files, dirs and sftp variants\n\n- use `sftp.exists()` to detect remote type and avoid noisy delete failures\n- treat non-existent paths as no-op and return early\n- prefer `rmdir(path, true)` for recursive remove, fallback to manual recursive delete when unsupported\n- try `delete()` for files and fall back to rmdir/listing when needed\n- improve debug/error messages and add explicit returns for each successful branch",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "ac45bed86d1c7269ccf8eaea79d3632bf63eec00",
+    "date": "2025-10-08T07:20:43+07:00",
+    "message": "fix(embed): handle missing file parameter and improve request parsing",
+    "files": [
+      "embed.php"
+    ]
+  },
+  {
+    "hash": "ccbdcb274d00083a832596866bb8e694176613cd",
+    "date": "2025-10-08T07:19:43+07:00",
+    "message": "fix(embed): resolve leading-slash file paths from project root\n\nTreat `file` params starting with `/` as project-root relative (e.g. `/tmp/logs/...` -> `__DIR__/tmp/logs/...`) so frontend-returned log paths are resolvable. Preserve basename fallback and existing denylist/extension checks.",
+    "files": [
+      "embed.php"
+    ]
+  },
+  {
+    "hash": "1727c9a37a9baa04092f94c41375ae527fb7572c",
+    "date": "2025-10-08T06:59:04+07:00",
+    "message": "feat(types): add reCAPTCHA site key definitions to ImportMetaEnv",
+    "files": [
+      "types/vite-env.d.ts"
+    ]
+  },
+  {
+    "hash": "56325f5f7e9a6ab59a100204dd58f64b9f9a164a",
+    "date": "2025-10-06T17:34:57+07:00",
+    "message": "feat(deploy): add functionality to clear old files before uploading new ones",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "e1b2ac8d571b60c5e4ba420f0abd57cd31c6dae5",
+    "date": "2025-10-06T17:34:01+07:00",
+    "message": "feat(deploy): add SSH helper and make CLI invocation explicit\n\nAdd `shell_exec` helper to `bin/deploy-vps.mjs` which establishes an ssh2\nClient connection and runs commands via `execWithBashrc`, returning stdout,\nstderr, exit code, and signal. This consolidates remote command execution\nbehaviour into a reusable async function.\n\nAlso:\n- Remove duplicate JSDoc block.\n- Change module's startup behaviour so `main()` runs only when the script is\n  invoked directly (detects `deploy-vps(.mjs)?` in process.argv), and provide\n  explicit success/failure logging with proper process exit codes.\n\nThese changes improve testability and make the deployment script safe to\nimport without immediately executing the deployment.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "d2b64a63f55ff96669bffc598f13e2d17e215f9e",
+    "date": "2025-10-06T17:27:30+07:00",
+    "message": "chore(bin): add minimal Python venv setup scripts\n\nAdd cross-platform helper scripts to create and initialize a minimal Python\nvirtual environment for local development.\n\n- Added `bin/python-minimal` (bash) and `bin/python-minimal.cmd` (Windows cmd).\n- Remove existing `venv` if present, create a new venv (`py -m venv venv`),\n  activate it, upgrade pip, and install required packages.\n- Installs `requests` and the following editable packages:\n  `packages/proxy-checker-python`, `packages/proxy-hunter-python`,\n  `packages/rsa-utility`.\n\nThese scripts simplify bootstrapping a minimal Python environment for the\nrepository. No runtime/application code changes.",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "b4d40af915cf017f27b139a725282e7db5700a4f",
+    "date": "2025-10-06T16:07:26+07:00",
+    "message": "fix(clear-caches): add --no-interaction flag to Composer cache cleanup commands",
+    "files": [
+      "bin/clear-caches"
+    ]
+  },
+  {
+    "hash": "2ad934c875ac45f52aca4eb72f87f47ea4979223",
+    "date": "2025-10-06T16:02:31+07:00",
+    "message": "fix(clear-caches): comment out requirements.txt installation in virtual environment setup",
+    "files": [
+      "bin/clear-caches"
+    ]
+  },
+  {
+    "hash": "a826cf131ac56c8afef5f6ef28bd6eb9af09323e",
+    "date": "2025-10-06T13:12:25+07:00",
+    "message": "feat(deploy): add SFTP write/delete helpers and build lock handling\n\nAdd exported `writeRemoteFile` and `deleteRemotePath` helpers to perform raw SFTP writes\n(and create parent directories) and to delete files/directories (with recursive fallback).\nCreate a timestamped lock file at `tmp/locks/.build-lock` before building and remove it\nafter upload to signal build in-progress/completion. Log operations and avoid failing the\ndeploy if lock creation/removal encounters non-fatal errors.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "a180159442a29a6128d26d1ba466c1f2fca619d4",
+    "date": "2025-10-06T12:26:18+07:00",
+    "message": "fix(deploy-vps): always set maintenance page, pull latest before build and upload dist\n\nRemove the conditional that skipped build/upload when git reported \"up to date\".\nNow the script unconditionally uploads `index.maintenance.html`, runs `gitPull()`,\nbuilds the project, copies route index files and uploads the `dist` directory.\n\nThis ensures the maintenance page is shown during deployment and the build\nruns against the latest repository state.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "a043c9b155097c216ed37f33406b6dbaa43be029",
+    "date": "2025-10-06T11:36:53+07:00",
+    "message": "fix(hooks): add VPS detection to commit history builder execution",
+    "files": []
+  },
+  {
+    "hash": "c77bc464f8c782537aa1d993aefd283fb0c39781",
+    "date": "2025-10-06T10:37:16+07:00",
+    "message": "fix(index.php): improve error handling for missing PHP files",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
+    "hash": "0a2dbf415b1553860db583909352a25c44c7396c",
+    "date": "2025-10-06T10:34:27+07:00",
+    "message": "fix(Home): remove unused 'Learn More' link from the Home page",
+    "files": [
+      "src/react/pages/Home.tsx"
+    ]
+  },
+  {
+    "hash": "eaa5e806a1c1025fc88de963c3677a78eab0141e",
+    "date": "2025-10-06T10:32:06+07:00",
+    "message": "feat(maintenance): add CLI options to toggle maintenance mode",
+    "files": [
+      "index.php"
     ]
   },
   {
@@ -8571,292 +8850,6 @@
     "message": "fix(config): throw error if no config file is found instead of logging",
     "files": [
       "packages/gh-pages-builder/src/config.js"
-    ]
-  },
-  {
-    "hash": "a1bfdd169267ad8b01368c16176037f32dd3d4c3",
-    "date": "2025-06-30T13:20:11+07:00",
-    "message": "feat: add gh-pages-builder package with multi-format config support\n\n- Add new workspace package for GitHub Pages documentation building\n- Support .cjs/.mjs/.js config files with sync/async function detection\n- Include Rollup build for dual ESM/CJS output and Jest testing\n- Add markdown processing with TOC generation and GitHub-style slugs\n- Configure binary executables (gh-pages-builder, gh-build)\n- Add comprehensive test fixtures and configuration",
-    "files": [
-      "gh-pages-builder.config.js",
-      "package.json",
-      "packages/gh-pages-builder/.gitignore",
-      "packages/gh-pages-builder/.prettierrc.json",
-      "packages/gh-pages-builder/bin/build-gh-pages.js",
-      "packages/gh-pages-builder/eslint.config.mjs",
-      "packages/gh-pages-builder/jest.config.js",
-      "packages/gh-pages-builder/package.json",
-      "packages/gh-pages-builder/readme.md",
-      "packages/gh-pages-builder/rollup.config.js",
-      "packages/gh-pages-builder/src/build-gh-pages.js",
-      "packages/gh-pages-builder/src/config.js",
-      "packages/gh-pages-builder/src/index.js",
-      "packages/gh-pages-builder/test/config.test.js",
-      "packages/gh-pages-builder/test/env.cjs",
-      "packages/gh-pages-builder/test/fixtures/.gitignore",
-      "packages/gh-pages-builder/test/fixtures/async-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/async-config.js",
-      "packages/gh-pages-builder/test/fixtures/generate-markdowns.js",
-      "packages/gh-pages-builder/test/fixtures/object-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/object-config.js",
-      "packages/gh-pages-builder/test/fixtures/package.json",
-      "packages/gh-pages-builder/test/fixtures/sync-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/sync-config.js"
-    ]
-  },
-  {
-    "hash": "ae484079fbfb7f512b6cff49d6ae640ede8d970b",
-    "date": "2025-06-30T07:04:57+07:00",
-    "message": "refactor(requirements): move numpy from requirements-base.txt to platform-specific installation in requirements_install.py",
-    "files": [
-      "requirements-base.txt",
-      "requirements_install.py"
-    ]
-  },
-  {
-    "hash": "2567f633e25877fb1a6d3f7d213029399084a9c7",
-    "date": "2025-06-30T06:54:12+07:00",
-    "message": "fix: adjust Django version handling for Docker environments\n\n- Commented out strict Django version pinning in requirements-base.txt.\n- Updated requirements_install.py to append unpinned 'django' when running in Docker, and 'django==5.0.*' otherwise.",
-    "files": [
-      "requirements-base.txt",
-      "requirements_install.py"
-    ]
-  },
-  {
-    "hash": "f558f4b312382b1c9acf2436a7f3b251bc65e269",
-    "date": "2025-06-30T06:51:37+07:00",
-    "message": "feat(utils): add Docker, GitHub Actions, and Codespaces environment detection functions",
-    "files": [
-      "src/utils/device.py"
-    ]
-  },
-  {
-    "hash": "51566af84045192b1e4616b3da9a45d2d22d4542",
-    "date": "2025-06-29T17:55:43+07:00",
-    "message": "feat(pip): skip mirror URLs when installing packages from GitHub\n\nWhen installing a package from a GitHub URL, do not append mirror index URLs to the pip install command. This avoids errors caused by incompatible index URLs with direct GitHub installations. The logic now checks for GitHub URLs and skips mirrors accordingly.",
-    "files": [
-      "requirements_install.py"
-    ]
-  },
-  {
-    "hash": "580498b8850c9e22fa6b004830e7e496b5633524",
-    "date": "2025-06-29T16:30:28+07:00",
-    "message": "fix: missing 'requests' for requirements_install.py",
-    "files": [
-      "Taskfile.yml"
-    ]
-  },
-  {
-    "hash": "28c1ba85910c33eba8cca90b8e106d902fe2e473",
-    "date": "2025-06-29T16:29:32+07:00",
-    "message": "fix(Taskfile): use requirements_install.py",
-    "files": [
-      "Taskfile.yml"
-    ]
-  },
-  {
-    "hash": "99568b8a2ba488f7393be72d0bb65d0aaf1aaba7",
-    "date": "2025-06-29T16:27:59+07:00",
-    "message": "feat: isort config",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "919ef38c3421b8793f5d806ffbc547bd240d3a4d",
-    "date": "2025-06-29T16:27:34+07:00",
-    "message": "feat(requirements): dynamically check and update working PyPI mirrors",
-    "files": [
-      "requirements_install.py"
-    ]
-  },
-  {
-    "hash": "31a34b9112e7febf565276663962548cd8d6c96a",
-    "date": "2025-06-29T16:00:37+07:00",
-    "message": "fix(requirements): update Django version constraint to allow minor updates",
-    "files": [
-      "requirements-base.txt"
-    ]
-  },
-  {
-    "hash": "d186c896b46a37ed3271b6805ccb689a8a921450",
-    "date": "2025-06-29T15:59:00+07:00",
-    "message": "fix(py): ensure virtual environment creation checks for activation file",
-    "files": [
-      "bin/py"
-    ]
-  },
-  {
-    "hash": "21f97b1c51e0adccaebb7818b4bf73caebaebc37",
-    "date": "2025-06-29T11:11:39+07:00",
-    "message": "Enhance MSVC detection to check common Visual Studio directories\n\n- Updated is_msvc_installed() to search for cl.exe in typical Visual Studio Build Tools installation paths in addition to PATH.\n- Improved reliability of MSVC detection on systems where cl.exe is not in PATH.\n- Added example usage in main block.",
-    "files": [
-      "src/utils/c.py"
-    ]
-  },
-  {
-    "hash": "381e423f79b84737df5a01960c426f0a2fb93ce2",
-    "date": "2025-06-29T09:09:28+07:00",
-    "message": "feat(c): add functions to check for MSVC and MinGW installations",
-    "files": [
-      "src/utils/c.py"
-    ]
-  },
-  {
-    "hash": "4fe825319807698777eeddf434a5d3a4a5626d50",
-    "date": "2025-06-29T08:42:51+07:00",
-    "message": "feat(string): add escapeshellarg function to safely escape shell arguments",
-    "files": [
-      "src/utils/string.py"
-    ]
-  },
-  {
-    "hash": "01239527eb29f64001e74b05955f8b0cb38a886f",
-    "date": "2025-06-29T06:40:00+07:00",
-    "message": "feat(device): add WSL version detection and improve import organization",
-    "files": [
-      "src/utils/device.py"
-    ]
-  },
-  {
-    "hash": "ac680468d674ec06df180927cbf0f783779067ce",
-    "date": "2025-06-29T06:15:15+07:00",
-    "message": "fix(settings): update NUITKA_CACHE_DIR path separator for consistency",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "4dceb0d73d913aa9a0a8c0749e159374985b6a7c",
-    "date": "2025-06-29T06:13:45+07:00",
-    "message": "chore: remove php.code-workspace configuration file",
-    "files": [
-      "php.code-workspace"
-    ]
-  },
-  {
-    "hash": "472fa2b8503a139b0dd2a748dfa1f80e80d6fb98",
-    "date": "2025-06-29T04:23:35+07:00",
-    "message": "fix(func): ensure all arguments are converted to strings in resolve_relative_path",
-    "files": [
-      "src/func.py"
-    ]
-  },
-  {
-    "hash": "c62ed2c3e38bbec71a43c2dd0f913f7a835f656b",
-    "date": "2025-06-29T03:29:13+07:00",
-    "message": "feat(husky): improve pre-commit hook compatibility and robustness\n\n- Switch shebang from bash to sh for broader compatibility.\n- Use POSIX-compliant shell syntax throughout.\n- Replace bash-specific [[ ... ]] with case/esac and [ ... ].\n- Add checks for script existence and executability before running create-file-hashes.\n- Improve staged PHP file detection and formatting with php-cs-fixer.\n- Add clearer logging and error handling.\n- Keep optional Python formatting commented for future use.",
-    "files": []
-  },
-  {
-    "hash": "5423152222760ddcf3660fdf3b8af4221f0e98b0",
-    "date": "2025-06-29T03:27:57+07:00",
-    "message": "feat(utils): enhance get_binary_path and add get_python_path\n\n- Updated get_binary_path to accept both Path and str for base_dir, improving flexibility.\n- Improved base_dir resolution logic for clarity.\n- Added get_python_path function to locate the Python interpreter, prioritizing project-local environments.",
-    "files": [
-      "src/utils/file.py"
-    ]
-  },
-  {
-    "hash": "859bcbc4ac95ffb2f17ca03e1dd1c6fb766b203e",
-    "date": "2025-06-29T03:10:19+07:00",
-    "message": "feat: move .env.build.json generation to .env.mjs\n\n- Refactored environment config object and .env.build.json file generation from bin/build-project.mjs to .env.mjs.\n- .env.mjs now creates and writes the environment config to .env.build.json using dotenvConfig values.\n- Removed redundant code from bin/build-project.mjs.",
-    "files": [
-      ".env.mjs",
-      "bin/build-project.mjs"
-    ]
-  },
-  {
-    "hash": "e66e2850431859ccb4fb2bf8cf29d870dded3ffe",
-    "date": "2025-06-29T03:04:45+07:00",
-    "message": "Improve OS and environment checks for permission fixing in Husky hooks\n\n- Add detection for WSL/WSL2 and Windows hostnames to skip permission fixes when appropriate.\n- Only run permission fix script if nginx is installed.\n- Refactor logic for clarity and consistency between post-merge and pre-merge-commit hooks.",
-    "files": []
-  },
-  {
-    "hash": "353281469e82af8445f75df6c786631872d7ef07",
-    "date": "2025-06-29T03:00:35+07:00",
-    "message": "fix: skip permission fix on WSL/WSL2",
-    "files": []
-  },
-  {
-    "hash": "f02808d41c4c4b497cd333c54eaa05352eec91ed",
-    "date": "2025-06-29T02:57:53+07:00",
-    "message": "fix: ignore fix permission when nginx not installed",
-    "files": []
-  },
-  {
-    "hash": "59403def9d2f06bc2864dbc00e10d69a8c138f6a",
-    "date": "2025-06-29T02:56:58+07:00",
-    "message": "fix: ignore fix perm on linux desktop",
-    "files": []
-  },
-  {
-    "hash": "f06712348ba59852ff0b4b0898d2fc2b9a995fe3",
-    "date": "2025-06-29T02:50:01+07:00",
-    "message": "improve composer GitHub token resolution and authentication\n\n- Enhance the logic to resolve RESOLVED_GITHUB_TOKEN by loading from .env if not set\n- Support fallback to GITHUB_TOKEN or ACCESS_TOKEN environment variables\n- Add validation and error handling for missing tokens\n- Automatically generate auth.json with the resolved token for Composer authentication\n- Improve output and debugging information",
-    "files": [
-      "Taskfile.yml"
-    ]
-  },
-  {
-    "hash": "8d38b9c2bdd7be085aee325c3f4836c308acbcd6",
-    "date": "2025-06-29T02:30:27+07:00",
-    "message": "feat: disable extension recommendations",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "f3e014f444806ebea4996fc74eb78cb8caba3e3b",
-    "date": "2025-06-29T02:20:36+07:00",
-    "message": "feat: specify uwsgi version with direct GitHub link in requirements for Linux",
-    "files": [
-      "requirements_install.py"
-    ]
-  },
-  {
-    "hash": "d859b73cd4c58da489577a06ea293261a39ddf58",
-    "date": "2025-06-29T02:17:22+07:00",
-    "message": "fix: add silent flag to all tasks",
-    "files": [
-      "Taskfile.yml"
-    ]
-  },
-  {
-    "hash": "463ed53b7657f325535fbd627ca64fe710381d06",
-    "date": "2025-06-29T02:08:57+07:00",
-    "message": "feat: add skip-lfs task to bypass Git LFS filters and update fix-perm dependencies",
-    "files": [
-      "Taskfile.yml"
-    ]
-  },
-  {
-    "hash": "443e6a17acc6b42c738d61e5b9d5e840ffa507b2",
-    "date": "2025-06-29T02:04:33+07:00",
-    "message": "feat: add task to manage file permissions on Linux",
-    "files": [
-      "Taskfile.yml"
-    ]
-  },
-  {
-    "hash": "a8aa467a42f85b0e70077d3e07b880823c7ad597",
-    "date": "2025-06-29T01:42:56+07:00",
-    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
-    "files": []
-  },
-  {
-    "hash": "72af01ff3493488555a31ef989a409d4b092ca3b",
-    "date": "2025-06-29T01:42:17+07:00",
-    "message": "chore(vscode): update search.exclude settings to ignore additional directories",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "d55c85d870ebf10795d871be8575bdbca6676864",
-    "date": "2025-06-28T16:28:18+07:00",
-    "message": "fix: handle optional InMemoryStore in waConnect class",
-    "files": [
-      "node_backend/waConnect.ts"
     ]
   }
 ]
