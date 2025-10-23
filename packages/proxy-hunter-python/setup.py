@@ -30,6 +30,7 @@ setuptools.setup(
         "beautifulsoup4",
         "httpx",
         "pySocks",
+        "mysql-connector-python",
     ],
     test_suite="tests",
     author="Dimas Lanjaka",
