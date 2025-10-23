@@ -1,0 +1,19 @@
+{
+  "name": "dimaslanjaka/proxy-hunter-php",
+  "description": "PHP utilities port of proxy-hunter (autoloads ProxyHunter namespace)",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": ">=7.0",
+    "ext-pdo": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "ProxyHunter\\": "proxy_hunter/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.5"
+  },
+  "minimum-stability": "stable"
+}
