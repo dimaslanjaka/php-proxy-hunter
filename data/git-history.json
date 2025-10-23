@@ -1,5 +1,31 @@
 [
   {
+    "hash": "532775fc2f60ddb1357c7a41a0021ff0fe8737e7",
+    "date": "2025-10-23T17:21:56+07:00",
+    "message": "refactor(config.py): import mysql.connector directly and remove lazy import checks\n\n- Remove try/except around `import mysql.connector` and the runtime `if mysql is None` check.\n- MySQL dependency is now required at module import time instead of raising when a MySQL connection is attempted.\n\nRationale:\n- Fails fast when the mysql-connector dependency is missing.\n- Simplifies code by removing the optional-import pattern.\n\nNote: This is a breaking change for consumers who relied on importing the module without having `mysql-connector-python` installed; add the dependency to your environment or restore the optional-import pattern if you need lazy availability.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/utils/config.py"
+    ]
+  },
+  {
+    "hash": "d928872ee9e2c10b0797d8258ec789ce44c501b1",
+    "date": "2025-10-23T17:19:55+07:00",
+    "message": "feat(proxy-hunter-php): add PHP ConfigDB, composer.json and sample tests\n\n- Add Composer manifest with PSR-4 autoload (ProxyHunter\\ -> proxy_hunter/), require PHP >= 7.0 and ext-pdo.\n- Introduce `ProxyHunter\\Utils\\ConfigDB` (proxy_hunter/utils/config.php): PDO-backed config storage supporting SQLite and MySQL, JSON encode/decode, set/get/delete/close, and mapping decoded arrays to model classes (includes stdClass handling).\n- Add a simple executable sample test (tests/configTest.php) demonstrating storing/retrieving arrays, stdClass, strings and delete.\n- Files added:\n  - packages/proxy-hunter-python/composer.json\n  - packages/proxy-hunter-python/proxy_hunter/utils/config.php\n  - packages/proxy-hunter-python/tests/configTest.php",
+    "files": [
+      "packages/proxy-hunter-python/composer.json",
+      "packages/proxy-hunter-python/proxy_hunter/utils/config.php",
+      "packages/proxy-hunter-python/tests/configTest.php"
+    ]
+  },
+  {
+    "hash": "ac79888fa0570ec8b252d38ecbaeee110ea29002",
+    "date": "2025-10-23T17:18:36+07:00",
+    "message": "fix(config): ensure resources are released by closing connections in destructor",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/utils/config.py"
+    ]
+  },
+  {
     "hash": "bd8e7a953e3d9c84a2194f349c7df5eda6774132",
     "date": "2025-10-23T09:41:00+07:00",
     "message": "chore(pyproject): add project metadata and dependencies for proxy_hunter package\n\n- Define project name, version, description, authors, and classifiers\n- Add dependencies including MySQL, HTTP, and proxy-related libraries\n- Configure setuptools to include proxy_hunter packages and submodules\n- Add pytest configuration for test discovery",
@@ -8820,32 +8846,6 @@
     "files": [
       "packages/gh-pages-builder/src/config.ts",
       "packages/gh-pages-builder/src/index.ts"
-    ]
-  },
-  {
-    "hash": "7cf49fb278e73d79191ddfd1191507c44bcb2620",
-    "date": "2025-06-30T15:33:53+07:00",
-    "message": "fix(loadConfigWithDefaults): ensure outputDir is an object",
-    "files": [
-      "packages/gh-pages-builder/src/config.ts"
-    ]
-  },
-  {
-    "hash": "2f7317ffdb4b1768a6f612f398f2064f603b75fb",
-    "date": "2025-06-30T14:59:17+07:00",
-    "message": "fix: update binary-collections resolution URL and add gh-pages-builder config to .gitignore",
-    "files": [
-      "package.json",
-      "packages/gh-pages-builder/test/fixtures/.gitignore"
-    ]
-  },
-  {
-    "hash": "2735ffe2f30893b8cbc9925851a836dfc9ce3aef",
-    "date": "2025-06-30T14:58:50+07:00",
-    "message": "feat: add nunjucks support and improve Rollup config\n\n- Add \"nunjucks\" and \"@types/nunjucks\" to dependencies and devDependencies\n- Add \"binary-collections\" and \"rollup-plugin-dts\" to devDependencies\n- Update Rollup config to:\n  - Include nunjucks in externals\n  - Use glob to dynamically include all TypeScript files in src as entry points\n  - Always generate declaration files for both ESM and CJS builds\n  - Refactor config for maintainability and clarity",
-    "files": [
-      "packages/gh-pages-builder/package.json",
-      "packages/gh-pages-builder/rollup.config.js"
     ]
   }
 ]
