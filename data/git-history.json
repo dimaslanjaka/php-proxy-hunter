@@ -1,5 +1,22 @@
 [
   {
+    "hash": "90292a4deeb6f2514349f472095ff9502e37b11a",
+    "date": "2025-10-24T08:04:14+07:00",
+    "message": "fix(proxy): avoid calling $db on null and make extractor PHP 7.0 compatible\n\n- Remove undefined `$db` capture from `artisan/proxyFetcher.php` exit closure\n  to prevent a PHP Notice when no DB instance is present.\n- Update `src/utils/proxy/extractor.php`:\n  - Return parsed results early when no `ProxyDB` is provided (avoid calling `$db->select()` on null).\n  - Remove unused `use PhpProxyHunter\\ProxyDB;` import.\n  - Change `extractProxies` signature to be PHP 7.0 compatible (remove nullable/scalar type hints).\n\nThis prevents the fatal error seen in CI and keeps backward-compatible behaviour\nwhen callers don't pass a DB instance.",
+    "files": [
+      "artisan/proxyFetcher.php",
+      "src/utils/proxy/extractor.php"
+    ]
+  },
+  {
+    "hash": "2391205c684689b691f162d03f4c6d9bc035c20c",
+    "date": "2025-10-24T03:30:38+07:00",
+    "message": "feat(composer): add local path repository and require local package\n\n- add path repository pointing to packages/proxy-hunter-python (symlink)\n- require local package dimaslanjaka/proxy-hunter-php:dev-master\n- add extra composer config: composer-exit-on-patch-failure",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
     "hash": "532775fc2f60ddb1357c7a41a0021ff0fe8737e7",
     "date": "2025-10-23T17:21:56+07:00",
     "message": "refactor(config.py): import mysql.connector directly and remove lazy import checks\n\n- Remove try/except around `import mysql.connector` and the runtime `if mysql is None` check.\n- MySQL dependency is now required at module import time instead of raising when a MySQL connection is attempted.\n\nRationale:\n- Fails fast when the mysql-connector dependency is missing.\n- Simplifies code by removing the optional-import pattern.\n\nNote: This is a breaking change for consumers who relied on importing the module without having `mysql-connector-python` installed; add the dependency to your environment or restore the optional-import pattern if you need lazy availability.",
@@ -8824,28 +8841,6 @@
     "message": "fix(build): clear existing output directory before processing markdown files",
     "files": [
       "packages/gh-pages-builder/src/build-gh-pages.ts"
-    ]
-  },
-  {
-    "hash": "008afc0479af3e00414a9e7178c66129e53a09ea",
-    "date": "2025-06-30T15:36:48+07:00",
-    "message": "fix(config): standardize outputDir structure to object format\n\nUpdate all config files to use { markdown: 'path', html: 'path' }\ninstead of string format. Add backward compatibility for legacy\nstring-based outputDir configurations.",
-    "files": [
-      "packages/gh-pages-builder/test/fixtures/async-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/async-config.js",
-      "packages/gh-pages-builder/test/fixtures/object-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/object-config.js",
-      "packages/gh-pages-builder/test/fixtures/sync-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/sync-config.js"
-    ]
-  },
-  {
-    "hash": "9e6da77b9f5543d79a383c90f25324e843886723",
-    "date": "2025-06-30T15:35:11+07:00",
-    "message": "refactor: remove loadConfigUniversal function from config module",
-    "files": [
-      "packages/gh-pages-builder/src/config.ts",
-      "packages/gh-pages-builder/src/index.ts"
     ]
   }
 ]
