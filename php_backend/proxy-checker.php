@@ -173,7 +173,8 @@ if (!$isCli) {
       $cmdParts[] = '--password=' . escapeshellarg($proxyInfo['password']);
     }
     $cmdParts[] = '--lockFile=' . escapeshellarg($lockFilePath);
-    $cmdParts[] = '--runner=' . escapeshellarg(__FILE__);
+    $runner     = __DIR__ . '/tmp/runners/proxyChecker' . ($isWin ? '.bat' : '');
+    $cmdParts[] = '--runner=' . escapeshellarg($runner);
 
     $output_file = __DIR__ . '/../proxyChecker.txt';
     $pid_file    = tmp() . '/runners/proxy-checker-' . getUserId() . '.pid';
@@ -183,8 +184,7 @@ if (!$isCli) {
     // run in background, record pid
     $cmdLine = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
 
-    $isWin  = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-    $runner = __DIR__ . '/tmp/runners/proxyChecker' . ($isWin ? '.bat' : '');
+    $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
     ensure_dir(dirname($runner));
 
     write_file($runner, $cmdLine);
