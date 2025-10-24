@@ -1,5 +1,29 @@
 [
   {
+    "hash": "962f2a5e0eea6270167a12e8002f846047e17f26",
+    "date": "2025-10-24T13:01:26+07:00",
+    "message": "Merge pull request #61 from dimaslanjaka/dependabot/npm_and_yarn/react-i18next-16.0.0\n\nbuild(deps): bump react-i18next from 15.7.4 to 16.0.0",
+    "files": []
+  },
+  {
+    "hash": "d3c17665beb0bb8162d56b91347660d43844b799",
+    "date": "2025-10-24T13:00:20+07:00",
+    "message": "Merge pull request #63 from dimaslanjaka/dependabot/composer/squizlabs/php_codesniffer-tw-3.0or-tw-4.0\n\nbuild(deps-dev): update squizlabs/php_codesniffer requirement from ^3.0 to ^3.0 || ^4.0",
+    "files": []
+  },
+  {
+    "hash": "8ac137efa4e2ba49d08c4056d6d2ed3001833af7",
+    "date": "2025-10-24T12:58:26+07:00",
+    "message": "Merge pull request #62 from dimaslanjaka/dependabot/npm_and_yarn/vite-7.1.7\n\nbuild(deps-dev): bump vite from 7.1.4 to 7.1.7",
+    "files": []
+  },
+  {
+    "hash": "cec7f747218426385c32d4c4b9722a48cd07c8f7",
+    "date": "2025-10-24T12:56:47+07:00",
+    "message": "Merge pull request #59 from dimaslanjaka/dependabot/github_actions/actions/setup-python-6\n\nbuild(deps): bump actions/setup-python from 5 to 6",
+    "files": []
+  },
+  {
     "hash": "4bf0c56d4ae8cfdf676391aaa5fc0fc8dda4961c",
     "date": "2025-10-24T12:56:36+07:00",
     "message": "Merge pull request #58 from dimaslanjaka/dependabot/github_actions/actions/setup-node-5\n\nbuild(deps): bump actions/setup-node from 4 to 5",
@@ -494,6 +518,14 @@
     ]
   },
   {
+    "hash": "43e7f6890f5c9c71a686f3b0be1406d0fb373508",
+    "date": "2025-10-06T01:52:17Z",
+    "message": "build(deps): bump react-i18next from 15.7.4 to 16.0.0\n\nBumps [react-i18next](https://github.com/i18next/react-i18next) from 15.7.4 to 16.0.0.\n- [Changelog](https://github.com/i18next/react-i18next/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/i18next/react-i18next/compare/v15.7.4...v16.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: react-i18next\n  dependency-version: 16.0.0\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
     "hash": "332d784f9a64a4609ef40ce1a4db4da2eb5105c3",
     "date": "2025-10-06T08:50:15+07:00",
     "message": "fix(package): move i18next, nunjucks, and react to dev",
@@ -677,6 +709,32 @@
       "src/react/components/DetailsCell.tsx",
       "src/react/pages/admin/LogsSection.tsx",
       "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "746d6a279788fdd5db617ee766d28ca30c2c8f95",
+    "date": "2025-10-01T15:09:54Z",
+    "message": "build(deps-dev): update squizlabs/php_codesniffer requirement || ^4.0\n\nUpdates the requirements on [squizlabs/php_codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer) to permit the latest version.\n- [Release notes](https://github.com/PHPCSStandards/PHP_CodeSniffer/releases)\n- [Changelog](https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/4.x/CHANGELOG-4.x.md)\n- [Commits](https://github.com/PHPCSStandards/PHP_CodeSniffer/compare/3.0.0...4.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: squizlabs/php_codesniffer\n  dependency-version: 4.0.0\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
+    "hash": "aa3de303130541608b27dcb6a37f335d34922eef",
+    "date": "2025-10-01T15:09:10Z",
+    "message": "build(deps-dev): bump vite from 7.1.4 to 7.1.7\n\nBumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) from 7.1.4 to 7.1.7.\n- [Release notes](https://github.com/vitejs/vite/releases)\n- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)\n- [Commits](https://github.com/vitejs/vite/commits/v7.1.7/packages/vite)\n\n---\nupdated-dependencies:\n- dependency-name: vite\n  dependency-version: 7.1.7\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "bce5220f502480dd3922ff1e503f0278f4628045",
+    "date": "2025-10-01T15:08:40Z",
+    "message": "build(deps): bump actions/setup-python from 5 to 6\n\nBumps [actions/setup-python](https://github.com/actions/setup-python) from 5 to 6.\n- [Release notes](https://github.com/actions/setup-python/releases)\n- [Commits](https://github.com/actions/setup-python/compare/v5...v6)\n\n---\nupdated-dependencies:\n- dependency-name: actions/setup-python\n  dependency-version: '6'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      ".github/workflows/clean-caches.yml"
     ]
   },
   {
@@ -8768,83 +8826,6 @@
       "packages/gh-pages-builder/test/fixtures/sync-config.js",
       "packages/gh-pages-builder/test/utils.js",
       "packages/gh-pages-builder/tsconfig.json"
-    ]
-  },
-  {
-    "hash": "613d885bbd42d81c172a3cb436f38e5e9adf7261",
-    "date": "2025-06-30T17:56:04+07:00",
-    "message": "feat: refactor markdown build logic into build-markdown module\n\n- Move all markdown file processing logic from build-gh-pages.ts to a new build-markdown.ts module.\n- Export buildMarkdowns, slugify, md, and renderTocFromMarkdown from build-markdown.ts.\n- Update build-gh-pages.ts to use buildMarkdowns for processing markdown files.\n- Update template-render.ts to import md from build-markdown.ts instead of build-gh-pages.ts.",
-    "files": [
-      "packages/gh-pages-builder/src/build-gh-pages.ts",
-      "packages/gh-pages-builder/src/build-markdown.ts",
-      "packages/gh-pages-builder/src/template-render.ts"
-    ]
-  },
-  {
-    "hash": "01d84fb9418419e2406ee181fa60de4dddeee224",
-    "date": "2025-06-30T17:46:04+07:00",
-    "message": "feat: add function to find all template files using glob",
-    "files": [
-      "packages/gh-pages-builder/src/config.ts"
-    ]
-  },
-  {
-    "hash": "76d834d9751c4396ec641aa4eb79b864cacef418",
-    "date": "2025-06-30T17:42:16+07:00",
-    "message": "feat: update ignore patterns to include 'tmp' directory in configuration files",
-    "files": [
-      "packages/gh-pages-builder/readme.md",
-      "packages/gh-pages-builder/src/config.ts",
-      "packages/gh-pages-builder/test/fixtures/async-config.js",
-      "packages/gh-pages-builder/test/fixtures/object-config.js",
-      "packages/gh-pages-builder/test/fixtures/sync-config.js"
-    ]
-  },
-  {
-    "hash": "6243ea0103955c89a786ddfba3d298f400f4eaf4",
-    "date": "2025-06-30T17:35:46+07:00",
-    "message": "feat: update rollup config and fixtures ignore, remove old test configs\n\n- Add CJS build config for test fixtures in rollup.config.js\n- Update .gitignore in test/fixtures to ignore generated CJS config files\n- Remove legacy async-config.cjs, object-config.cjs, and sync-config.cjs from test/fixtures",
-    "files": [
-      "packages/gh-pages-builder/rollup.config.js",
-      "packages/gh-pages-builder/test/fixtures/.gitignore",
-      "packages/gh-pages-builder/test/fixtures/async-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/object-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/sync-config.cjs"
-    ]
-  },
-  {
-    "hash": "096e32f11712243e47b8c5f7ee3f381f2d5693b1",
-    "date": "2025-06-30T17:28:45+07:00",
-    "message": "feat(test): refactor markdown population and test config handling\n\n- Move markdown repo cloning logic from generate-markdowns.js to a new utility function populateMarkdownFiles in test/utils.js.\n- Remove generate-markdowns.js and update config.test.js to use populateMarkdownFiles before tests.\n- Refactor test config file naming for clarity and consistency.\n- Export fixturesDir from env.cjs for reuse.",
-    "files": [
-      "packages/gh-pages-builder/test/config.test.js",
-      "packages/gh-pages-builder/test/env.cjs",
-      "packages/gh-pages-builder/test/fixtures/generate-markdowns.js",
-      "packages/gh-pages-builder/test/utils.js"
-    ]
-  },
-  {
-    "hash": "54686b1a201b1f01f80b793239bf706a53280e77",
-    "date": "2025-06-30T17:19:14+07:00",
-    "message": "fix: check for existing target directory before cloning repository",
-    "files": [
-      "packages/gh-pages-builder/test/fixtures/generate-markdowns.js"
-    ]
-  },
-  {
-    "hash": "2c69362bcb7f5f5b644068ee7a390c86172287c3",
-    "date": "2025-06-30T17:11:43+07:00",
-    "message": "fix: improve success message formatting in buildGitHubPages function",
-    "files": [
-      "packages/gh-pages-builder/src/build-gh-pages.ts"
-    ]
-  },
-  {
-    "hash": "8a059b36b3db8600731cb4393d6994788cdba1cb",
-    "date": "2025-06-30T17:02:13+07:00",
-    "message": "feat: add Node.js coding standards and preferences instructions",
-    "files": [
-      "packages/gh-pages-builder/.github/instructions/nodejs.instructions.md"
     ]
   }
 ]
