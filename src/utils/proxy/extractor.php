@@ -4,7 +4,6 @@ if (!class_exists('ProxyDB')) {
   require_once __DIR__ . '/../../../vendor/autoload.php';
 }
 
-use PhpProxyHunter\ProxyDB;
 use PhpProxyHunter\Proxy;
 
 /**
@@ -82,7 +81,7 @@ function extractPorts($inputString)
  *        will return proxies/entries even if they would normally be considered invalid. Default: false.
  * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies(?string $string, ?ProxyDB $db = null, ?bool $write_database = false, $limit = 100, bool $ignore_validation = false)
+function extractProxies($string, $db = null, $write_database = false, $limit = 100, $ignore_validation = false)
 {
   if (!$string) {
     return [];

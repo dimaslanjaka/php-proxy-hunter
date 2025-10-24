@@ -33,7 +33,7 @@ if (file_exists($lockFilePath) && !is_debug()) {
   file_put_contents($statusFile, 'fetching new proxies');
 }
 
-Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
+Scheduler::register(function () use ($lockFilePath, $statusFile) {
   echo 'releasing lock' . PHP_EOL;
   // clean lock files
   if (file_exists($lockFilePath)) {
