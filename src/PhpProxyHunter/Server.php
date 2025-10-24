@@ -291,4 +291,54 @@ class Server
 
     return $stripQuery ? strtok($url, '?') : $url;
   }
+
+  /**
+   * Enable Cross-Origin Resource Sharing (CORS) headers and handle preflight OPTIONS requests.
+   *
+   * This method:
+   *  - Returns early when running in CLI or when no HTTP context is available.
+   *  - Sets Access-Control-Allow-Origin to the request's Origin header when present, otherwise allows any origin.
+   *  - Sets Access-Control-Allow-Credentials and Access-Control-Max-Age headers.
+   *  - Handles OPTIONS preflight requests by setting allowed methods and headers, sending a 200 response code and exiting.
+   *
+   * Important:
+   *  - Must be invoked before any output is sent.
+   *  - May terminate execution (exit()) for preflight OPTIONS requests.
+   *
+   * @return void
+   */
+  public static function allowCors(): void
+  {
+    $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+    if ($isCli) {
+      return;
+    }
+
+    // CORS support: allow cross-origin requests and handle preflight OPTIONS
+    // This must run before any output is sent.
+    if (isset($_SERVER['HTTP_ORIGIN'])) {
+      // Allow the requesting origin. You can restrict this to a whitelist.
+      header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
+      header('Access-Control-Allow-Credentials: true');
+      header('Access-Control-Max-Age: 86400'); // cache for 1 day
+    } else {
+      // Fallback to allow any origin if HTTP_ORIGIN is not provided
+      header('Access-Control-Allow-Origin: *');
+    }
+
+    // Handle preflight requests
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+      if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
+      }
+
+      if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+        header('Access-Control-Allow-Headers: ' . $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
+      }
+
+      // Preflight response is empty but must be 200
+      http_response_code(200);
+      exit();
+    }
+  }
 }
