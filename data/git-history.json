@@ -1,5 +1,19 @@
 [
   {
+    "hash": "4bf0c56d4ae8cfdf676391aaa5fc0fc8dda4961c",
+    "date": "2025-10-24T12:56:36+07:00",
+    "message": "Merge pull request #58 from dimaslanjaka/dependabot/github_actions/actions/setup-node-5\n\nbuild(deps): bump actions/setup-node from 4 to 5",
+    "files": []
+  },
+  {
+    "hash": "6844fc9ecfea846ce54df683a6704350d282f5d3",
+    "date": "2025-10-24T12:40:30+07:00",
+    "message": "refactor(php_backend/proxy-checker.php): use $proxy_db directly instead of $db alias\n\n- Remove redundant assignment `$db = $proxy_db`.\n- Use global `$proxy_db` in the shutdown handler and `proxyChecker()` instead of `$db`.\n- Replace `$db->updateData(...)` with `$proxy_db->updateData(...)`.\n- Keeps behavior identical while removing an unnecessary variable and clarifying the source of the database object.",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "fc54daf50d6bc8704c3efcf0eb8510e1bef75bb3",
     "date": "2025-10-24T12:37:29+07:00",
     "message": "fix(php_backend): standardize and relocate proxy-checker lock file path\n\n- Updated `proxy-checker.php` to use a consistent lock file path under `tmp/locks/user-<id>/php_backend/`.\n- Modified `processes.php` to delete the specific proxy-checker lock file instead of clearing multiple tmp directories.",
@@ -663,6 +677,17 @@
       "src/react/components/DetailsCell.tsx",
       "src/react/pages/admin/LogsSection.tsx",
       "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "70f4395fabc1ac442e38e974ba8ac19f74ae98c8",
+    "date": "2025-10-01T15:08:36Z",
+    "message": "build(deps): bump actions/setup-node from 4 to 5\n\nBumps [actions/setup-node](https://github.com/actions/setup-node) from 4 to 5.\n- [Release notes](https://github.com/actions/setup-node/releases)\n- [Commits](https://github.com/actions/setup-node/compare/v4...v5)\n\n---\nupdated-dependencies:\n- dependency-name: actions/setup-node\n  dependency-version: '5'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/github-pages.yml"
     ]
   },
   {
@@ -8820,32 +8845,6 @@
     "message": "feat: add Node.js coding standards and preferences instructions",
     "files": [
       "packages/gh-pages-builder/.github/instructions/nodejs.instructions.md"
-    ]
-  },
-  {
-    "hash": "133776c54411ee2be9bb23e32e19fd42b7ac7e4a",
-    "date": "2025-06-30T16:58:53+07:00",
-    "message": "feat: streamline installation of required tools in CI workflows",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml"
-    ]
-  },
-  {
-    "hash": "720352f0e0248ec11448305d4d551e2e07f56d20",
-    "date": "2025-06-30T16:53:38+07:00",
-    "message": "feat: remove git-diff scripts for cleanup",
-    "files": [
-      "bin/git-diff",
-      "bin/git-diff.cmd"
-    ]
-  },
-  {
-    "hash": "c7ac9ba4ee497196969758f4cd30ecbc38221828",
-    "date": "2025-06-30T16:51:59+07:00",
-    "message": "feat: update build commands in README to use npm",
-    "files": [
-      "packages/gh-pages-builder/readme.md"
     ]
   }
 ]
