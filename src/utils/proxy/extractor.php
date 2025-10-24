@@ -231,6 +231,11 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
     // }
   }
 
+  // If no ProxyDB instance provided, return the parsed results directly.
+  if ($db === null) {
+    return $results;
+  }
+
   return array_map(function (Proxy $item) use ($db) {
     $select = $db->select($item->proxy);
     if (!empty($select)) {
