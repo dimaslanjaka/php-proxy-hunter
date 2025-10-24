@@ -1,5 +1,29 @@
 [
   {
+    "hash": "3c794620711a9f6cff2e5eb508ffdfffbefb6b16",
+    "date": "2025-10-24T15:25:31+07:00",
+    "message": "feat(dependencies): add sharp package version 0.32",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "cc6a9e92a0395fd3e9611d34f09583a2b2c8027b",
+    "date": "2025-10-24T15:24:03+07:00",
+    "message": "fix(dependencies): update i18next to 25.6.0 and react-i18next to 16.1.6",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "32d08bda2fe6b5b8246c4afed198f03e49a1a37e",
+    "date": "2025-10-24T15:00:13+07:00",
+    "message": "feat(scripts): add remote file size check and conditional Composer download\n\n- Introduced `getRemoteFileSize()` to retrieve remote Composer file size via HTTP HEAD request.\n- Updated installer logic to compare local and remote file sizes before downloading.\n- Skips Composer download if the local file matches the remote size.\n- Refactored main installation flow with `downloadAndInstall()` and `createShortcut()` helpers.",
+    "files": [
+      "scripts/composer-installer.js"
+    ]
+  },
+  {
     "hash": "962f2a5e0eea6270167a12e8002f846047e17f26",
     "date": "2025-10-24T13:01:26+07:00",
     "message": "Merge pull request #61 from dimaslanjaka/dependabot/npm_and_yarn/react-i18next-16.0.0\n\nbuild(deps): bump react-i18next from 15.7.4 to 16.0.0",
@@ -8774,58 +8798,6 @@
       "src/vps/readme.md",
       "src/vps/vps_connector.py",
       "src/vps/vps_manager.py"
-    ]
-  },
-  {
-    "hash": "feee5c7bf3d18642435d8983e5e09a242f8a6a3a",
-    "date": "2025-07-01T16:36:48+07:00",
-    "message": "feat: rename string util",
-    "files": [
-      "packages/gh-pages",
-      "src/utils/string_utils.py"
-    ]
-  },
-  {
-    "hash": "361317890a983e646cb5213e08dd5c9fef0db9b2",
-    "date": "2025-06-30T19:06:09+07:00",
-    "message": "feat: re-add github pages builder",
-    "files": [
-      ".gitmodules",
-      "packages/gh-pages"
-    ]
-  },
-  {
-    "hash": "476db1b50aa98b4b19caf768e8a1035fa1e36262",
-    "date": "2025-06-30T19:05:16+07:00",
-    "message": "move github pages builder to their own repository",
-    "files": [
-      "packages/baileys",
-      "packages/gh-pages-builder/.github/instructions/nodejs.instructions.md",
-      "packages/gh-pages-builder/.gitignore",
-      "packages/gh-pages-builder/.prettierrc.json",
-      "packages/gh-pages-builder/bin/build-gh-pages.js",
-      "packages/gh-pages-builder/eslint.config.mjs",
-      "packages/gh-pages-builder/jest.config.js",
-      "packages/gh-pages-builder/package.json",
-      "packages/gh-pages-builder/readme.md",
-      "packages/gh-pages-builder/rollup.config.js",
-      "packages/gh-pages-builder/src/build-gh-pages.ts",
-      "packages/gh-pages-builder/src/build-markdown.ts",
-      "packages/gh-pages-builder/src/config.ts",
-      "packages/gh-pages-builder/src/index.ts",
-      "packages/gh-pages-builder/src/init.ts",
-      "packages/gh-pages-builder/src/logger.ts",
-      "packages/gh-pages-builder/src/template-render.ts",
-      "packages/gh-pages-builder/src/utils.ts",
-      "packages/gh-pages-builder/test/config.test.js",
-      "packages/gh-pages-builder/test/env.cjs",
-      "packages/gh-pages-builder/test/fixtures/.gitignore",
-      "packages/gh-pages-builder/test/fixtures/async-config.js",
-      "packages/gh-pages-builder/test/fixtures/object-config.js",
-      "packages/gh-pages-builder/test/fixtures/package.json",
-      "packages/gh-pages-builder/test/fixtures/sync-config.js",
-      "packages/gh-pages-builder/test/utils.js",
-      "packages/gh-pages-builder/tsconfig.json"
     ]
   }
 ]
