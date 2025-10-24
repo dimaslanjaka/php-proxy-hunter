@@ -42,8 +42,6 @@ function build_proxy_details(array $proxyInfo): array
 
 /** ---------- bootstrap ---------- */
 
-$db = $proxy_db;
-
 $lockFilePath = tmp() . '/locks/user-' . getUserId() . '/php_backend/proxy-checker.lock';
 ensure_dir(dirname($lockFilePath));
 
@@ -249,8 +247,10 @@ if (!$isCli) {
   file_put_contents($lockFile, (string)getmypid(), LOCK_EX);
 
   // ensure lock file is always deleted when script ends
-  register_shutdown_function(function () use ($lockFile, $db, $proxyInfo) {
-    $working_proxies = parse_working_proxies($db);
+  register_shutdown_function(function () use ($lockFile, $proxyInfo) {
+    // Use the global $proxy_db inside shutdown handler via global keyword
+    global $proxy_db;
+    $working_proxies = parse_working_proxies($proxy_db);
     $projectRoot     = __DIR__ . '/..';
     // write working proxies
     write_file($projectRoot . '/working.txt', $working_proxies['txt']);
@@ -309,7 +309,7 @@ if (!$isCli) {
  */
 function proxyChecker($proxyInfo, $types = [])
 {
-  global $config, $db;
+  global $config, $proxy_db;
   $currentIp          = getServerIp();
   $isCurrentIpIsLocal = preg_match('/^(192\.168|127\.)/', $currentIp) === 1 || is_debug_device();
   if ($isCurrentIpIsLocal) {
@@ -406,7 +406,7 @@ function proxyChecker($proxyInfo, $types = [])
     addLog('Proxy test failed for all types.');
   } else {
     // save to database
-    $db->updateData($proxyInfo['proxy'], [
+    $proxy_db->updateData($proxyInfo['proxy'], [
       'type'       => implode('-', $workingTypes),
       'username'   => $proxyInfo['username'] ?? null,
       'password'   => $proxyInfo['password'] ?? null,
