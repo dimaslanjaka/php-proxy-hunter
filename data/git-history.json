@@ -1,5 +1,29 @@
 [
   {
+    "hash": "184687385e5bff68e759b9f14fe5c87b69943883",
+    "date": "2025-10-24T09:17:01+07:00",
+    "message": "fix(extractor): improve exception message for missing ProxyDB instance when writing to database",
+    "files": [
+      "src/utils/proxy/extractor.php"
+    ]
+  },
+  {
+    "hash": "d41e4e63bf40688bb3949bae51aeaa902cf46804",
+    "date": "2025-10-24T09:15:35+07:00",
+    "message": "fix(extractor): return parsed results directly if no ProxyDB instance is provided",
+    "files": [
+      "src/utils/proxy/extractor.php"
+    ]
+  },
+  {
+    "hash": "ebcb4e68b2ac8d02046c519fc19ce43ead1ed92a",
+    "date": "2025-10-24T09:11:03+07:00",
+    "message": "fix(proxy-checker): update runner path to use temporary directory for Windows compatibility",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "90292a4deeb6f2514349f472095ff9502e37b11a",
     "date": "2025-10-24T08:04:14+07:00",
     "message": "fix(proxy): avoid calling $db on null and make extractor PHP 7.0 compatible\n\n- Remove undefined `$db` capture from `artisan/proxyFetcher.php` exit closure\n  to prevent a PHP Notice when no DB instance is present.\n- Update `src/utils/proxy/extractor.php`:\n  - Return parsed results early when no `ProxyDB` is provided (avoid calling `$db->select()` on null).\n  - Remove unused `use PhpProxyHunter\\ProxyDB;` import.\n  - Change `extractProxies` signature to be PHP 7.0 compatible (remove nullable/scalar type hints).\n\nThis prevents the fatal error seen in CI and keeps backward-compatible behaviour\nwhen callers don't pass a DB instance.",
@@ -8815,32 +8839,6 @@
       "packages/gh-pages-builder/test/fixtures/object-config.js",
       "packages/gh-pages-builder/test/fixtures/sync-config.cjs",
       "packages/gh-pages-builder/test/fixtures/sync-config.js"
-    ]
-  },
-  {
-    "hash": "661cdac4e37975d73dcbaeb5171abb62943c7c49",
-    "date": "2025-06-30T15:47:40+07:00",
-    "message": "fix(build): replace fs.writeFileSync with sbg-utility's writefile for improved file handling",
-    "files": [
-      "packages/gh-pages-builder/package.json",
-      "packages/gh-pages-builder/rollup.config.js",
-      "packages/gh-pages-builder/src/build-gh-pages.ts"
-    ]
-  },
-  {
-    "hash": "2ce51747ab5caf9cb82bc2e3ef33825f3376e037",
-    "date": "2025-06-30T15:45:54+07:00",
-    "message": "fix(build): rename README to index.md if not already named index",
-    "files": [
-      "packages/gh-pages-builder/src/build-gh-pages.ts"
-    ]
-  },
-  {
-    "hash": "eda9ed77f145f356c893354d6bf9b8ae3575fd1c",
-    "date": "2025-06-30T15:41:36+07:00",
-    "message": "fix(build): clear existing output directory before processing markdown files",
-    "files": [
-      "packages/gh-pages-builder/src/build-gh-pages.ts"
     ]
   }
 ]
