@@ -2,6 +2,25 @@
 
 include __DIR__ . '/shared.php';
 
+global $isAdmin;
+
+// Per-session rate limit: allow this script to be accessed once per 60 seconds
+// for non-admin users. The session is started in shared.php. Admins are
+// identified by the existing $isAdmin variable (set in shared.php).
+if (!$isAdmin && !is_cli()) {
+  $key = 'processes_last_access';
+  $now = time();
+  if (!empty($_SESSION[$key]) && ($now - (int)$_SESSION[$key]) < 60) {
+    $wait = 60 - ($now - (int)$_SESSION[$key]);
+    http_response_code(429);
+    header('Content-Type: text/plain');
+    echo "Too many requests. Please wait {$wait} seconds before retrying." . PHP_EOL;
+    exit;
+  }
+  // mark access time
+  $_SESSION[$key] = $now;
+}
+
 if (!is_cli()) {
   // header text/plain
   header('Content-Type: text/plain');
