@@ -8,25 +8,13 @@ global $isCli, $isAdmin, $log_db;
 /**
  * Set CORS and response headers for API.
  */
-function setHeaders(): void
-{
-  header('Access-Control-Allow-Origin: *');
-  header('Access-Control-Allow-Headers: *');
-  header('Access-Control-Allow-Methods: *');
+if (!$isCli) {
+  PhpProxyHunter\Server::allowCors();
   header('Content-Type: application/json; charset=utf-8');
   header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
   header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
   header('Pragma: no-cache');
-}
-
-if (!$isCli) {
-  setHeaders();
   $isAdmin = !empty($_SESSION['admin']);
-  // Handle preflight OPTIONS request
-  if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-  }
 }
 
 $browserId = getUserId();

@@ -47,12 +47,9 @@ $db = $proxy_db;
 $lockFilePath = tmp() . '/logs/user-' . getUserId() . '/proxyChecker.lock';
 ensure_dir(dirname($lockFilePath));
 
-if (!$isCli) {
-  // Set CORS (Cross-Origin Resource Sharing) headers to allow requests from any origin
-  header('Access-Control-Allow-Origin: *');
-  header('Access-Control-Allow-Headers: *');
-  header('Access-Control-Allow-Methods: *');
+PhpProxyHunter\Server::allowCors();
 
+if (!$isCli) {
   // Ignore browser caching
   header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
   header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -265,6 +262,7 @@ if (!$isCli) {
     write_file($projectRoot . '/working.txt', $working_proxies['txt']);
     write_file($projectRoot . '/working.json', json_encode($working_proxies['array']));
     write_file($projectRoot . '/status.json', json_encode($working_proxies['counter']));
+    // remove lock file
     safe_unlink($lockFile);
     $proxyDetails = [];
     foreach (['proxy', 'type', 'username', 'password'] as $key) {

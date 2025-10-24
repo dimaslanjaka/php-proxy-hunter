@@ -8,9 +8,7 @@ $MAX_BYTES       = 5 * 1024 * 1024;
 $ALLOWED_HOSTS   = []; // restrict here if needed
 $DEFAULT_TIMEOUT = 10;
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: *');
-header('Access-Control-Allow-Methods: *');
+PhpProxyHunter\Server::allowCors();
 
 function send_error($code, $msg)
 {

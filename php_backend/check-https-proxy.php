@@ -18,11 +18,7 @@ if (!$isCli) {
   }
   ob_implicit_flush(true);
 
-  // Set CORS (Cross-Origin Resource Sharing) headers to allow requests from any origin
-  header('Access-Control-Allow-Origin: *');
-  header('Access-Control-Allow-Headers: *');
-  header('Access-Control-Allow-Methods: *');
-
+  PhpProxyHunter\Server::allowCors();
   // Set content type to plain text with UTF-8 encoding
   header('Content-Type: text/plain; charset=utf-8');
 

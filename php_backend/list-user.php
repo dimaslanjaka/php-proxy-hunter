@@ -6,12 +6,7 @@ include __DIR__ . '/shared.php';
 global $isCli;
 
 if (!$isCli) {
-  // Set CORS (Cross-Origin Resource Sharing) headers to allow requests from any origin
-  header('Access-Control-Allow-Origin: *');
-  header('Access-Control-Allow-Headers: *');
-  header('Access-Control-Allow-Methods: *');
-
-  // Set content type to JSON with UTF-8 encoding
+  PhpProxyHunter\Server::allowCors();
   header('Content-Type: application/json; charset=utf-8');
 
   // Ignore browser caching

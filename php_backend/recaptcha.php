@@ -14,15 +14,8 @@ require_once __DIR__ . '/../func.php';
 $isCli = (php_sapi_name() === 'cli');
 
 if (!$isCli) {
-  // Set CORS headers
-  header('Access-Control-Allow-Origin: *');
-  header('Access-Control-Allow-Headers: *');
-  header('Access-Control-Allow-Methods: *');
-
-  // Set content type to JSON with UTF-8 encoding
+  PhpProxyHunter\Server::allowCors();
   header('Content-Type: application/json; charset=utf-8');
-
-  // Ignore browser caching
   header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
   header('Cache-Control: no-store, no-cache, must-revalidate');
   header('Cache-Control: post-check=0, pre-check=0', false);

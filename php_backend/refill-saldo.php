@@ -2,15 +2,9 @@
 
 include __DIR__ . '/shared.php';
 
-global $isCli, $log_db, $user_db;
+PhpProxyHunter\Server::allowCors();
 
-if (!$isCli) {
-  // Allow from any origin
-  header('Access-Control-Allow-Origin: *');
-  header('Access-Control-Allow-Headers: *');
-  header('Access-Control-Allow-Methods: *');
-  header('Content-Type: application/json; charset=utf-8');
-}
+global $isCli, $log_db, $user_db;
 
 $is_admin = ($_SESSION['admin'] ?? false) === true && ($_SESSION['authenticated'] ?? false) === true;
 
