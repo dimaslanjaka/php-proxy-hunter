@@ -8,6 +8,7 @@ import ProxySubmission from './ProxyList/ProxySubmission';
 import ModifyCurl from './ProxyList/ModifyCurl';
 import { useSnackbar } from '../components/Snackbar';
 import { timeAgo } from '../../utils/date.js';
+import { noop } from '../../utils/other';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
@@ -178,8 +179,9 @@ function ProxyList() {
 
   const totalPages = Math.ceil(filteredProxies.length / rowsPerPage) || 1;
 
-  // On mount, check captcha status and fetch proxies if verified
+  // On mount
   React.useEffect(() => {
+    // Check captcha status
     const checkCaptchaStatus = async () => {
       try {
         const response = await fetch(createUrl('/php_backend/recaptcha.php'), {
@@ -201,6 +203,8 @@ function ProxyList() {
       }
     };
     checkCaptchaStatus();
+    // fetch processes.php
+    fetch(createUrl('/php_backend/processes.php')).catch(noop);
   }, [setProxies]);
 
   // Refresh proxy list every 1 minute
