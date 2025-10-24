@@ -4,10 +4,7 @@ include __DIR__ . '/shared.php';
 
 
 header('Content-Type: application/json; charset=utf-8');
-header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
-header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-header('Pragma: no-cache');
-PhpProxyHunter\Server::allowCors();
+PhpProxyHunter\Server::allowCors(true);
 
 // === Configuration ===
 $host            = $_SERVER['HTTP_HOST'];

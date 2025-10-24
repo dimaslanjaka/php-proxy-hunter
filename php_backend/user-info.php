@@ -9,11 +9,8 @@ global $isCli, $isAdmin, $log_db;
  * Set CORS and response headers for API.
  */
 if (!$isCli) {
-  PhpProxyHunter\Server::allowCors();
+  PhpProxyHunter\Server::allowCors(true);
   header('Content-Type: application/json; charset=utf-8');
-  header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
-  header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-  header('Pragma: no-cache');
   $isAdmin = !empty($_SESSION['admin']);
 }
 

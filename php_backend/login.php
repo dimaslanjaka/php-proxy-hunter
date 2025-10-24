@@ -3,19 +3,13 @@
 require_once __DIR__ . '/../func.php';
 include __DIR__ . '/shared.php';
 
-PhpProxyHunter\Server::allowCors();
+PhpProxyHunter\Server::allowCors(true);
 
 global $isCli;
 
 if (!$isCli) {
   // Set content type to JSON with UTF-8 encoding
   header('Content-Type: application/json; charset=utf-8');
-
-  // Ignore browser caching
-  header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
-  header('Cache-Control: no-store, no-cache, must-revalidate');
-  header('Cache-Control: post-check=0, pre-check=0', false);
-  header('Pragma: no-cache');
 }
 
 $request = !$isCli ? parsePostData(is_debug()) : getopt('', ['username:', 'password:']);

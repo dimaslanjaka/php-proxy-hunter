@@ -18,15 +18,10 @@ if (!$isCli) {
   }
   ob_implicit_flush(true);
 
-  PhpProxyHunter\Server::allowCors();
+  PhpProxyHunter\Server::allowCors(true);
+
   // Set content type to plain text with UTF-8 encoding
   header('Content-Type: text/plain; charset=utf-8');
-
-  // Disable browser caching
-  header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
-  header('Cache-Control: no-store, no-cache, must-revalidate');
-  header('Cache-Control: post-check=0, pre-check=0', false);
-  header('Pragma: no-cache');
 
   // Set user ID from request if available
   $req = parseQueryOrPostBody();

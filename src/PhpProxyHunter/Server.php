@@ -295,7 +295,7 @@ class Server
   /**
    * Enable Cross-Origin Resource Sharing (CORS) headers and handle preflight OPTIONS requests.
    *
-   * This method:
+   * Behavior:
    *  - Returns early when running in CLI or when no HTTP context is available.
    *  - Sets Access-Control-Allow-Origin to the request's Origin header when present, otherwise allows any origin.
    *  - Sets Access-Control-Allow-Credentials and Access-Control-Max-Age headers.
@@ -305,13 +305,24 @@ class Server
    *  - Must be invoked before any output is sent.
    *  - May terminate execution (exit()) for preflight OPTIONS requests.
    *
+   * @param bool $disableBrowserCache When true the method also emits headers to disable browser caching
+   *                                  (Expires, Cache-Control, Pragma). Default: false.
    * @return void
    */
-  public static function allowCors(): void
+  public static function allowCors($disableBrowserCache = false): void
   {
     $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
     if ($isCli) {
       return;
+    }
+
+    if ($disableBrowserCache) {
+      // Disable browser caching
+      header('Expires: Tue, 01 Jan 2000 00:00:00 GMT');
+      header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+      header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+      header('Cache-Control: post-check=0, pre-check=0', false);
+      header('Pragma: no-cache');
     }
 
     // CORS support: allow cross-origin requests and handle preflight OPTIONS
