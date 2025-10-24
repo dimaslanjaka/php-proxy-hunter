@@ -1,5 +1,56 @@
 [
   {
+    "hash": "b6b4fdba6f079b3474df36bb3b65c6909b0627ea",
+    "date": "2025-10-24T09:45:10+07:00",
+    "message": "refactor(cors): add disableBrowserCache flag to Server::allowCors and enable it in endpoints\n\nAdd a boolean parameter to `PhpProxyHunter\\Server::allowCors($disableBrowserCache = false)` that, when true,\nemits headers to disable browser caching (Expires, Last-Modified, Cache-Control, Pragma). Replace ad-hoc\nmanual cache header blocks in several endpoints by calling `Server::allowCors(true)` so CORS + cache-control\nare handled centrally.\n\nChanges:\n- Add `disableBrowserCache` parameter and cache-control behavior to `src/PhpProxyHunter/Server.php`\n- Update endpoint calls to use `PhpProxyHunter\\Server::allowCors(true)`:\n  - `php_backend/check-https-proxy.php`\n  - `php_backend/google-oauth.php`\n  - `php_backend/login.php`\n  - `php_backend/logout.php`\n  - `php_backend/proxy-checker.php`\n  - `php_backend/user-info.php`\n- Remove duplicated manual cache headers where the new centralized flag is used\n- Preserve per-endpoint Content-Type and other response headers\n\nWhy:\n- Centralizes CORS and cache-control behavior for consistency and easier maintenance.\n- Avoids duplicated header code and ensures preflight handling and cache disabling are applied uniformly.",
+    "files": [
+      "php_backend/check-https-proxy.php",
+      "php_backend/google-oauth.php",
+      "php_backend/login.php",
+      "php_backend/logout.php",
+      "php_backend/proxy-checker.php",
+      "php_backend/user-info.php",
+      "src/PhpProxyHunter/Server.php"
+    ]
+  },
+  {
+    "hash": "bc121f462d0bef3aaaf7c162db2d067991612394",
+    "date": "2025-10-24T09:40:57+07:00",
+    "message": "refactor(cors): centralize CORS handling via Server::allowCors()\n\nReplace ad-hoc Access-Control-* header blocks in multiple `php_backend` endpoints\nwith a single call to `PhpProxyHunter\\Server::allowCors()`. Preserve per-endpoint\nresponse headers (Content-Type, Expires/Cache-Control/Pragma) and rely on the\nserver helper for preflight handling.\n\nChanged files (examples):\n- php_backend/check-https-proxy.php\n- php_backend/get_sms.php\n- php_backend/google-oauth.php\n- php_backend/img.php\n- php_backend/list-user.php\n- php_backend/login.php\n- php_backend/logout.php\n- php_backend/logs.php\n- php_backend/proxy-checker.php\n- php_backend/recaptcha.php\n- php_backend/refill-saldo.php\n- php_backend/user-info.php\n- php_backend/useragent.php\n\nThis centralizes CORS logic for easier maintenance and consistent behavior.",
+    "files": [
+      "php_backend/check-https-proxy.php",
+      "php_backend/get_sms.php",
+      "php_backend/google-oauth.php",
+      "php_backend/img.php",
+      "php_backend/list-user.php",
+      "php_backend/login.php",
+      "php_backend/logout.php",
+      "php_backend/logs.php",
+      "php_backend/proxy-checker.php",
+      "php_backend/recaptcha.php",
+      "php_backend/refill-saldo.php",
+      "php_backend/user-info.php",
+      "php_backend/useragent.php"
+    ]
+  },
+  {
+    "hash": "99c3f8bb0d6b87964f8140a0e3eb436d543905cc",
+    "date": "2025-10-24T09:29:30+07:00",
+    "message": "refactor(server): move CORS handling into Server::allowCors()\n\nReplace inline CORS/preflight logic in `php_backend/proxy-add.php` with a single\ncall to `PhpProxyHunter\\Server::allowCors()`. Implement `allowCors()` in\n`src/PhpProxyHunter/Server.php` to centralize CORS support, include a CLI guard,\nand handle preflight OPTIONS requests (allowing common methods and headers,\nsetting Access-Control-Allow-Origin/Credentials/Max-Age).\n\nThis cleans up endpoint code and centralizes server-level behavior for easier\nmaintenance and reuse.",
+    "files": [
+      "php_backend/proxy-add.php",
+      "src/PhpProxyHunter/Server.php"
+    ]
+  },
+  {
+    "hash": "ba33aefc8e377044edfc4a9969cd3c7d946240df",
+    "date": "2025-10-24T09:25:48+07:00",
+    "message": "feat(proxy-add): implement CORS support and handle preflight OPTIONS requests",
+    "files": [
+      "php_backend/proxy-add.php"
+    ]
+  },
+  {
     "hash": "184687385e5bff68e759b9f14fe5c87b69943883",
     "date": "2025-10-24T09:17:01+07:00",
     "message": "fix(extractor): improve exception message for missing ProxyDB instance when writing to database",
@@ -8797,48 +8848,6 @@
     "files": [
       "packages/gh-pages-builder/src/logger.ts",
       "packages/gh-pages-builder/src/utils.ts"
-    ]
-  },
-  {
-    "hash": "1bb28eb1c25d32e10fce03ac452da8a9d0e8aeb7",
-    "date": "2025-06-30T16:17:49+07:00",
-    "message": "refactor: move printDirectory to utils and write output to file\n\n- Moved the printDirectory function from build-gh-pages.ts to a new utils.ts module.\n- Updated printDirectory to write the directory tree to tmp/directory-tree.txt instead of console.\n- Ensured the directory tree file is reset at startup.\n- Updated imports and usage in build-gh-pages.ts to use the new utils module and projectDir.",
-    "files": [
-      "packages/gh-pages-builder/src/build-gh-pages.ts",
-      "packages/gh-pages-builder/src/utils.ts"
-    ]
-  },
-  {
-    "hash": "4809181b6a977c9b453ab466923a0982a0389bfa",
-    "date": "2025-06-30T16:10:59+07:00",
-    "message": "feat(logging): add Logger class for improved logging functionality",
-    "files": [
-      "packages/gh-pages-builder/src/build-gh-pages.ts",
-      "packages/gh-pages-builder/src/config.ts",
-      "packages/gh-pages-builder/src/init.ts",
-      "packages/gh-pages-builder/src/logger.ts"
-    ]
-  },
-  {
-    "hash": "70ab6f34c5bc2694e10cd68a9325f7374cd69e2a",
-    "date": "2025-06-30T16:00:45+07:00",
-    "message": "fix(build): remove output directory clearing before processing markdown files",
-    "files": [
-      "packages/gh-pages-builder/src/build-gh-pages.ts"
-    ]
-  },
-  {
-    "hash": "6af81e1f8a2c5b84b59135e3ddd4439ce3157650",
-    "date": "2025-06-30T16:00:03+07:00",
-    "message": "feat(config): add `processing` and `theme` options to config schema\n\n- Introduced `processing` and `theme` sections to the config interface and default config.\n- Updated all config fixture files (sync/async/object, JS/CJS) to include the new options.\n- `processing` includes `generateToc`, `enableAnchors`, and `tocIndentSize`.\n- `theme` includes `name` and `engine` (supports nunjucks, handlebars, mustache, ejs).",
-    "files": [
-      "packages/gh-pages-builder/src/config.ts",
-      "packages/gh-pages-builder/test/fixtures/async-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/async-config.js",
-      "packages/gh-pages-builder/test/fixtures/object-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/object-config.js",
-      "packages/gh-pages-builder/test/fixtures/sync-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/sync-config.js"
     ]
   }
 ]
