@@ -1,5 +1,54 @@
 [
   {
+    "hash": "fc54daf50d6bc8704c3efcf0eb8510e1bef75bb3",
+    "date": "2025-10-24T12:37:29+07:00",
+    "message": "fix(php_backend): standardize and relocate proxy-checker lock file path\n\n- Updated `proxy-checker.php` to use a consistent lock file path under `tmp/locks/user-<id>/php_backend/`.\n- Modified `processes.php` to delete the specific proxy-checker lock file instead of clearing multiple tmp directories.",
+    "files": [
+      "php_backend/processes.php",
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "de8b1c9ce4135f20fda13edff789ebf45cc7da4e",
+    "date": "2025-10-24T12:34:38+07:00",
+    "message": "feat(proxy-list): add fetch processes on mount",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "25368bf0cb52541800da0293772d68d174629475",
+    "date": "2025-10-24T12:31:41+07:00",
+    "message": "feat(processes): add cleanup of temporary files for non-existent PHP/Python processes",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "1a743b6dc7f3fb19eb1fd83650a2c47602b1b5d7",
+    "date": "2025-10-24T12:28:21+07:00",
+    "message": "feat(processes): implement per-session rate limiting for non-admin users",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "04c10d0bf13fb20c57a022110166abd9ecf2d432",
+    "date": "2025-10-24T12:20:32+07:00",
+    "message": "feat(processes): implement process listing for PHP and Python by user ID",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "22d34be7b2d8ad8dcbf6fe046ce3e452d7b00ced",
+    "date": "2025-10-24T12:19:18+07:00",
+    "message": "fix(dotenv): make .env loading robust and non-fatal\n\nWrap Dotenv loading in a try/catch to avoid a fatal error when the .env\nfile is missing or dotenv throws. Catch `Dotenv\\Exception\\InvalidPathException`\nand silently skip loading (with a CLI notice), and catch other Throwables to\nlog a message to stdout. Preserve the existing `putenv` behavior when load\nsucceeds.",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
     "hash": "b6b4fdba6f079b3474df36bb3b65c6909b0627ea",
     "date": "2025-10-24T09:45:10+07:00",
     "message": "refactor(cors): add disableBrowserCache flag to Server::allowCors and enable it in endpoints\n\nAdd a boolean parameter to `PhpProxyHunter\\Server::allowCors($disableBrowserCache = false)` that, when true,\nemits headers to disable browser caching (Expires, Last-Modified, Cache-Control, Pragma). Replace ad-hoc\nmanual cache header blocks in several endpoints by calling `Server::allowCors(true)` so CORS + cache-control\nare handled centrally.\n\nChanges:\n- Add `disableBrowserCache` parameter and cache-control behavior to `src/PhpProxyHunter/Server.php`\n- Update endpoint calls to use `PhpProxyHunter\\Server::allowCors(true)`:\n  - `php_backend/check-https-proxy.php`\n  - `php_backend/google-oauth.php`\n  - `php_backend/login.php`\n  - `php_backend/logout.php`\n  - `php_backend/proxy-checker.php`\n  - `php_backend/user-info.php`\n- Remove duplicated manual cache headers where the new centralized flag is used\n- Preserve per-endpoint Content-Type and other response headers\n\nWhy:\n- Centralizes CORS and cache-control behavior for consistency and easier maintenance.\n- Avoids duplicated header code and ensures preflight handling and cache disabling are applied uniformly.",
@@ -8797,57 +8846,6 @@
     "message": "feat: update build commands in README to use npm",
     "files": [
       "packages/gh-pages-builder/readme.md"
-    ]
-  },
-  {
-    "hash": "82948dba75dd219d377442535ef9be80127f6904",
-    "date": "2025-06-30T16:48:36+07:00",
-    "message": "feat: remove dependencies section from README",
-    "files": [
-      "packages/gh-pages-builder/readme.md"
-    ]
-  },
-  {
-    "hash": "14e4db3a82259b932e3a221cd0df7ede52737292",
-    "date": "2025-06-30T16:46:30+07:00",
-    "message": "feat: enhance README with detailed features",
-    "files": [
-      "packages/gh-pages-builder/readme.md"
-    ]
-  },
-  {
-    "hash": "331f456dbd5470dd9eec10e875c10f588e5adbf5",
-    "date": "2025-06-30T16:36:14+07:00",
-    "message": "feat(config): complete Config interface in all fixture files\n\nAdd missing ignorePatterns, tocPlaceholder, and renameReadme\nproperties to CommonJS config fixtures. All config files now\nfully implement the TypeScript Config interface.",
-    "files": [
-      "packages/gh-pages-builder/test/fixtures/async-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/object-config.cjs",
-      "packages/gh-pages-builder/test/fixtures/sync-config.cjs"
-    ]
-  },
-  {
-    "hash": "bf1cbc2725b5870f19a4922d735f6cfeeca253a4",
-    "date": "2025-06-30T16:27:22+07:00",
-    "message": "feat: improve README to index renaming logic\n\n- Refactored markdown file processing to use `sourceFilePath` for clarity.\n- Added logic to check if the source directory already contains an index.md or index.html before renaming README to index.\n- Improved console logging for file operations.",
-    "files": [
-      "packages/gh-pages-builder/src/build-gh-pages.ts"
-    ]
-  },
-  {
-    "hash": "7afd5e17cdeeb3698a6019a4c17de33acca10762",
-    "date": "2025-06-30T16:22:33+07:00",
-    "message": "feat(utils): improve printDirectory formatting and logging\n\n- Add newline after each entry when writing to directoryTreeFile for better readability.\n- Add isRoot parameter to printDirectory to ensure log message is only printed once after the root call.\n- Update recursive calls to pass isRoot = false.",
-    "files": [
-      "packages/gh-pages-builder/src/utils.ts"
-    ]
-  },
-  {
-    "hash": "da585b825241729d4497695c17ce533c61781ded",
-    "date": "2025-06-30T16:19:56+07:00",
-    "message": "feat: add nodeConsole export and log directory structure writes\n\n- Exported `nodeConsole` from logger.ts for direct access to the native console.\n- Imported and used `nodeConsole` in utils.ts to log when the directory structure is written.",
-    "files": [
-      "packages/gh-pages-builder/src/logger.ts",
-      "packages/gh-pages-builder/src/utils.ts"
     ]
   }
 ]
