@@ -44,7 +44,7 @@ function build_proxy_details(array $proxyInfo): array
 
 $db = $proxy_db;
 
-$lockFilePath = tmp() . '/logs/user-' . getUserId() . '/proxyChecker.lock';
+$lockFilePath = tmp() . '/locks/user-' . getUserId() . '/php_backend/proxy-checker.lock';
 ensure_dir(dirname($lockFilePath));
 
 PhpProxyHunter\Server::allowCors(true);

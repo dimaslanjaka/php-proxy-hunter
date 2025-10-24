@@ -98,18 +98,9 @@ $processes = array_filter($processes, function ($proc) use ($userId) {
 
 if (empty($processes)) {
   echo "No running PHP/Python processes found for user ID: $userId" . PHP_EOL;
-  // Delete any files or folder that contain the user ID in the tmp directory
-  $tmpDirs = [__DIR__ . '/../tmp/logs/', __DIR__ . '/../tmp/runners/', __DIR__ . '/../tmp/locks/'];
-  foreach ($tmpDirs as $tmpDir) {
-    $tmpDir = realpath($tmpDir) . DIRECTORY_SEPARATOR;
-    if ($tmpDir === false) {
-      continue;
-    }
-    $files = glob($tmpDir . '*' . $userId . '*');
-    foreach ($files as $file) {
-      delete_path($file);
-    }
-  }
+  // Delete php_backend/proxy-checker.php lock file if it exists
+  $lockFilePath = tmp() . '/locks/user-' . getUserId() . '/php_backend/proxy-checker.lock';
+  delete_path($lockFilePath);
 } else {
   echo 'Found ' . count($processes) . " running PHP/Python processes for user ID: $userId" . PHP_EOL;
   echo str_repeat('=', 50) . PHP_EOL;
