@@ -38,6 +38,25 @@ function downloadComposer(url, dest, cb) {
 }
 
 /**
+ * Gets the size of the remote file without downloading it.
+ *
+ * @param {string} url - The URL of the file.
+ * @param {(err: Error|null, size: number|null) => void} cb - Callback with error or size.
+ */
+function getRemoteFileSize(url, cb) {
+  const req = https.request(url, { method: 'HEAD' }, (res) => {
+    if (res.statusCode !== 200) {
+      cb(new Error(`Failed to get file size: ${res.statusCode}`), null);
+      return;
+    }
+    const size = parseInt(res.headers['content-length'], 10);
+    cb(null, size);
+  });
+  req.on('error', (err) => cb(err, null));
+  req.end();
+}
+
+/**
  * Ensures that the bin directory exists. Creates it if it does not exist.
  */
 function ensureBinDir() {
@@ -67,13 +86,41 @@ function makeExecutable(filePath) {
  */
 function main() {
   ensureBinDir();
-  console.log('Downloading Composer to', composerPath);
-  downloadComposer(composerUrl, composerPath, (err) => {
-    if (err) {
-      console.error('Error downloading Composer:', err.message);
-      process.exit(1);
-    }
-    makeExecutable(composerPath);
+  if (fs.existsSync(composerPath)) {
+    const localSize = fs.statSync(composerPath).size;
+    console.log('Local Composer file exists, checking remote file size...');
+    getRemoteFileSize(composerUrl, (err, remoteSize) => {
+      if (err) {
+        console.error('Error getting remote file size:', err.message);
+        process.exit(1);
+      }
+      if (localSize === remoteSize) {
+        console.log('Local file size matches remote, skipping download.');
+        makeExecutable(composerPath);
+        createShortcut();
+        return;
+      } else {
+        console.log('Local file size differs, downloading new version.');
+      }
+      downloadAndInstall();
+    });
+  } else {
+    downloadAndInstall();
+  }
+
+  function downloadAndInstall() {
+    console.log('Downloading Composer to', composerPath);
+    downloadComposer(composerUrl, composerPath, (err) => {
+      if (err) {
+        console.error('Error downloading Composer:', err.message);
+        process.exit(1);
+      }
+      makeExecutable(composerPath);
+      createShortcut();
+    });
+  }
+
+  function createShortcut() {
     console.log('Composer installed at', composerPath);
     // Optionally, create a shortcut script for easier usage
     const shortcut = path.join(binDir, process.platform === 'win32' ? 'composer.cmd' : 'composer');
@@ -85,7 +132,7 @@ function main() {
     }
     fs.writeFileSync(shortcut, shortcutContent, { mode: 0o755 });
     console.log('Composer shortcut created at', shortcut);
-  });
+  }
 }
 
 main();
