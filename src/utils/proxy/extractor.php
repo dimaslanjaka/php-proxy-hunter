@@ -137,7 +137,7 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
   $matches = array_merge($matches, $matches2, $matches3);
 
   if (!$db && $write_database === true) {
-    throw new \Exception('ProxyDB instance is required');
+    throw new \Exception('A ProxyDB instance is required when $write_database is true. Provide a valid $db parameter.');
   }
 
   foreach ($matches as $match) {
