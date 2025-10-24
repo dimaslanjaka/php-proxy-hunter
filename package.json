@@ -212,6 +212,7 @@
     "rollup": "^4.48.1",
     "rollup-plugin-polyfill-node": "^0.13.0",
     "sass": "^1.91.0",
+    "sharp": "0.32",
     "ssh2": "^1.17.0",
     "ssh2-sftp-client": "^12.0.1",
     "tailwindcss": "^4.1.12",
