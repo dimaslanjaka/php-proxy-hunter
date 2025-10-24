@@ -10,13 +10,26 @@ if (basename(__FILE__) == basename($_SERVER['SCRIPT_FILENAME'])) {
   exit('Direct access not permitted.');
 }
 
-// Always load .env from project root
+// Always attempt to load .env from project root if Dotenv is available.
 if (class_exists('Dotenv\\Dotenv')) {
-  $dotenv = Dotenv\Dotenv::createUnsafeImmutable(dirname(__DIR__, 1));
-  $dotenv->load();
-  // For compatibility with libraries using getenv()
-  foreach ($_ENV as $key => $value) {
-    putenv("$key=$value");
+  try {
+    $dotenv = Dotenv\Dotenv::createUnsafeImmutable(dirname(__DIR__, 1));
+    $dotenv->load();
+    // For compatibility with libraries using getenv()
+    foreach ($_ENV as $key => $value) {
+      putenv("$key=$value");
+    }
+  } catch (Dotenv\Exception\InvalidPathException $e) {
+    // .env not found — continue with environment variables from server/CI.
+    if (is_cli()) {
+      echo '[dotenv] .env file not found, skipping load.' . PHP_EOL;
+    }
+  } catch (Throwable $e) {
+    // Any other dotenv-related error should not be fatal for scripts.
+    // Log to stdout for CI visibility.
+    if (is_cli()) {
+      echo '[dotenv] failed to load: ' . $e->getMessage() . PHP_EOL;
+    }
   }
 }
 
