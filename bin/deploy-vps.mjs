@@ -333,6 +333,13 @@ async function main() {
   // Pull latest changes from git
   await gitPull();
 
+  // Run `python-minimal` installation script on remote server to ensure dependencies are up to date
+  console.log('Ensuring python-minimal dependencies are installed on remote server...');
+  const { code: pyCode, signal: pySignal } = await shell_exec('bash bin/python-minimal', remotePath);
+  if (pyCode !== 0) {
+    throw new Error(`Remote python-minimal installation failed with code ${pyCode}, signal ${pySignal}`);
+  }
+
   // Build project
   await spawnAsync('node', ['bin/build-project.mjs'], { stdio: 'inherit', shell: true });
 
