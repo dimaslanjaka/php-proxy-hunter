@@ -1,62 +1,91 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { getUserInfo } from '../../utils/user';
+import { getUserInfo, SingleUserInfo } from '../../utils/user';
 
-const DashboardContent = () => {
+const DashboardContent: React.FC = () => {
   const { t } = useTranslation();
-  const [saldo, setSaldo] = React.useState<number | null>(null);
+  const [user, setUser] = React.useState<SingleUserInfo | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
 
   React.useEffect(() => {
+    let mounted = true;
     getUserInfo()
       .then((data) => {
-        if (typeof data.saldo === 'number') {
-          setSaldo(data.saldo);
-        }
+        if (!mounted) return;
+        setUser(data);
         setLoading(false);
       })
       .catch(() => {
+        if (!mounted) return;
         setError('Failed to load user info.');
         setLoading(false);
       });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const handleBuySaldo = () => {
-    // TODO: Integrate with payment/credit system
-    alert('Redirecting to buy saldo (credit)...');
-  };
+  const displayName = React.useMemo(() => {
+    if (!user) return '';
+    const nameParts = [user.first_name, user.last_name].filter(Boolean);
+    return nameParts.length ? nameParts.join(' ') : user.username || user.email || '—';
+  }, [user]);
 
   return (
     <div className="flex flex-col items-center justify-center m-4 transition-colors">
       <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors border border-gray-200 dark:border-gray-700 flex flex-col gap-10">
-        <div className="flex flex-wrap gap-8 justify-center">
-          {/* User Saldo Widget */}
-          <div className="flex-1 min-w-[260px] w-full bg-yellow-50 dark:bg-yellow-900/60 rounded-2xl p-8 flex flex-col items-center shadow-md border border-yellow-200 dark:border-yellow-800">
-            <span className="fa-solid fa-wallet text-yellow-600 dark:text-yellow-300 text-4xl mb-4"></span>
-            <div className="text-lg font-semibold text-yellow-700 dark:text-yellow-200 mb-1">{t('point', 'Point')}</div>
-            <div className="text-3xl font-bold text-yellow-800 dark:text-yellow-100">
-              {loading ? '...' : saldo !== null ? saldo : '—'}
+        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-6">Dashboard</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-yellow-50 dark:bg-yellow-900/60 rounded-2xl p-6 flex flex-col items-start shadow-md border border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-center gap-4 w-full">
+              <span className="fa-solid fa-wallet text-yellow-600 dark:text-yellow-300 text-3xl"></span>
+              <div>
+                <div className="text-sm font-medium text-yellow-700 dark:text-yellow-200">{t('points', 'Points')}</div>
+                <div className="text-3xl font-bold text-yellow-800 dark:text-yellow-100">
+                  {loading ? '...' : typeof user?.saldo === 'number' ? user!.saldo : '—'}
+                </div>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={handleBuySaldo}
-              className="mt-5 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 dark:focus:ring-yellow-600 transition-all duration-200">
-              {t('recharge_points', 'Recharge Points')}
-            </button>
           </div>
-          {/* Placeholder for transaction history */}
-          <div className="flex-1 min-w-[260px] w-full bg-gray-100 dark:bg-gray-700/70 rounded-2xl p-8 flex flex-col items-center shadow-md border border-gray-200 dark:border-gray-700 opacity-80 cursor-not-allowed">
-            <span className="fa-solid fa-clock-rotate-left text-gray-600 dark:text-gray-300 text-4xl mb-4"></span>
-            <div className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-1">Transaction History</div>
-            <div className="text-base text-gray-500 dark:text-gray-300">Coming soon...</div>
+
+          <div className="bg-gray-50 dark:bg-gray-900/60 rounded-2xl p-6 shadow-md border border-gray-200 dark:border-gray-700">
+            <div className="text-sm text-gray-500 dark:text-gray-300 mb-2">
+              {t('user_information', 'User Information')}
+            </div>
+            {loading ? (
+              <div className="text-gray-600 dark:text-gray-300">...</div>
+            ) : user ? (
+              <div className="space-y-2 text-gray-800 dark:text-gray-100">
+                <div>
+                  <span className="font-medium">{t('name', 'Name')}: </span>
+                  <span>{displayName}</span>
+                </div>
+                {user.email && (
+                  <div>
+                    <span className="font-medium">{t('email', 'Email')}: </span>
+                    <span>{user.email}</span>
+                  </div>
+                )}
+                {user.username && (
+                  <div>
+                    <span className="font-medium">{t('username', 'Username')}: </span>
+                    <span>{user.username}</span>
+                  </div>
+                )}
+                {user.phone && (
+                  <div>
+                    <span className="font-medium">{t('phone', 'Phone')}: </span>
+                    <span>{user.phone}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-red-500">{error || t('no_user_found', 'No user found')}</div>
+            )}
           </div>
         </div>
-        <div className="mt-10 text-gray-600 dark:text-gray-300 text-center text-lg flex items-center justify-center gap-2">
-          <span className="fa-regular fa-circle-info"></span>
-          <span>Welcome to your dashboard! More stats and widgets coming soon.</span>
-        </div>
-        {error && <div className="mt-4 text-red-500 text-center">{error}</div>}
       </div>
     </div>
   );
