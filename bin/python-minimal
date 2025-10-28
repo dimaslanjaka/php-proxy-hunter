@@ -10,20 +10,21 @@ export PATH="$CWD/bin:$PATH"
 
 # create venv if not exists
 if [ ! -d "venv" ]; then
-  if command -v python3 &>/dev/null; then
+  if command -v python3 &> /dev/null; then
     python3 -m venv venv
     python3 -m pip install --upgrade pip
-  elif command -v python &>/dev/null; then
+  elif command -v python &> /dev/null; then
     python -m venv venv
-  python -m pip install --upgrade pip
-else
-  echo "Python is not installed." >&2
-  exit 1
+    python -m pip install --upgrade pip
+  else
+    echo "Python is not installed." >&2
+    exit 1
+  fi
 fi
 
 . venv/bin/activate
 py -m pip install --upgrade pip || true
-py -m pip install requests PySocks beautifulsoup4 lxml httpx
+py -m pip install requests PySocks beautifulsoup4 lxml httpx pycryptodome
 if [ -d "packages/proxy-checker-python" ]; then
   py -m pip install -e packages/proxy-checker-python
 else
@@ -39,4 +40,3 @@ if [ -d "packages/rsa-utility" ]; then
 else
   py -m pip install git+https://github.com/dimaslanjaka/php-proxy-hunter.git@master#subdirectory=packages/rsa-utility
 fi
-
