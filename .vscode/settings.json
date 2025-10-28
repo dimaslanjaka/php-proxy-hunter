@@ -1,4 +1,9 @@
 {
+  "[shellscript]": {
+    "files.eol": "\n",
+    "editor.defaultColorDecorators": "never",
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
   "[html]": {
     "editor.codeActionsOnSave": {
       "source.fixAll": "never",
