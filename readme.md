@@ -203,42 +203,6 @@ python3 -m pip install -r requirements.txt
 
 ---
 
-## 📦 Production (Windows)
-
-- [Download PHP](https://windows.php.net/downloads/releases/archives/)
-- [Download Chrome & WebDriver](https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json)
-
-Place them in the following structure:
-
-```text
-assets/
-├── php/
-│   └── php.exe
-├── chrome/
-    ├── chrome.exe
-    └── chromedriver.exe
-```
-
-Update `php.ini`:
-
-```ini
-extension_dir = "ext"
-extension=pdo_sqlite
-extension=curl
-extension=openssl
-extension=mbstring
-extension=intl
-extension=xmlrpc
-extension=fileinfo
-extension=sockets
-extension=xsl
-extension=exif
-extension=gettext
-extension=ftp
-```
-
----
-
 ## 📄 License
 
 ```
