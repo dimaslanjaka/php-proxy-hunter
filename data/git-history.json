@@ -1,5 +1,70 @@
 [
   {
+    "hash": "9796294f46e5d446859f4d858e4347526204f76e",
+    "date": "2025-10-28T12:47:11+07:00",
+    "message": "fix: ensure python-minimal dependencies are installed on remote server during deployment",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "a4bd3e9c957356c51c22b12e5372a330491d8fd0",
+    "date": "2025-10-28T12:46:35+07:00",
+    "message": "chore(python-minimal): fix venv creation logic and add pycryptodome to dependencies",
+    "files": [
+      "bin/python-minimal"
+    ]
+  },
+  {
+    "hash": "639b685ee200d5c42533a798aebcafd8e00bd2af",
+    "date": "2025-10-28T12:44:21+07:00",
+    "message": "chore(prettier): add prettier-plugin-sh to configuration and dependencies",
+    "files": [
+      ".prettierrc.json",
+      "package.json"
+    ]
+  },
+  {
+    "hash": "47b8ff04ea309ceb34c5ab079282043a58875130",
+    "date": "2025-10-28T12:40:51+07:00",
+    "message": "fix: update shellscript settings in VSCode configuration",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "a498e35a6895ed1d66ba9ab56fb79245c7f5b8b9",
+    "date": "2025-10-28T12:01:37+07:00",
+    "message": "fix: ensure Windows CMD files use CRLF line endings in .editorconfig",
+    "files": [
+      ".editorconfig"
+    ]
+  },
+  {
+    "hash": "24cfad05daf2f0e88e746609a14dc8657246fc90",
+    "date": "2025-10-28T11:52:24+07:00",
+    "message": "fix: ensure pip commands are called correctly in the installation script",
+    "files": [
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "94f925fe2d5ffdc95dff85492e6a09a29b0e3aa2",
+    "date": "2025-10-28T11:50:31+07:00",
+    "message": "fix: replace 'py' with explicit path to Python executable in installation commands",
+    "files": [
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "b9b4c00b41ece4c8b893dc965b38782df3c0ba35",
+    "date": "2025-10-28T11:49:10+07:00",
+    "message": "fix: ensure pip upgrade command does not fail the script",
+    "files": [
+      "bin/python-minimal"
+    ]
+  },
+  {
     "hash": "0a8626f324627f0297eff94e2e3de3012ca7bf0a",
     "date": "2025-10-28T09:36:37+07:00",
     "message": "fix: update database type selection for GitHub CI environments",
@@ -8720,78 +8785,6 @@
       "pyproject.toml",
       "requirements-dev.txt",
       "tests/ProxyDB_Test.py"
-    ]
-  },
-  {
-    "hash": "3aaad4c2087ee9ce15669c2f65b4bdcced88f037",
-    "date": "2025-07-08T03:15:33+07:00",
-    "message": "docs(readme): improve setup instructions and add SQLite extension guidance\n\n- Added explicit steps to enable the SQLite extension in php.ini.\n- Broke setup into clearer sections: enabling SQLite, deploying files, configuring environment, initializing DB, and using the API.\n- Improved clarity and readability of setup process.",
-    "files": [
-      "cloud_sqlite/readme.md"
-    ]
-  },
-  {
-    "hash": "f7c5983cc1581291d2521aa65a6308a2be25dcf6",
-    "date": "2025-07-08T03:12:04+07:00",
-    "message": "test: add checks for empty file reads in func_console_test.py",
-    "files": [
-      "tests/func_console_test.py"
-    ]
-  },
-  {
-    "hash": "497079678c7f3ab631adf23c96eb69818d583674",
-    "date": "2025-07-08T03:00:47+07:00",
-    "message": "feat(sftp): improve feedback, error handling, and delete robustness\n\n- Align print statements with tabs for clearer output\n- Enhance error handling for remote deletions (ignore not found, print warnings)\n- Gracefully handle missing files/folders in local/remote delete logic\n- Add progress feedback for local deletions\n- Refactor _is_remote_dir and _delete_remote_folder for robustness\n- Update example usage to demonstrate new delete() method for local and remote files",
-    "files": [
-      "src/vps/vps_connector.py"
-    ]
-  },
-  {
-    "hash": "f565b1c89ce14944ad41debdcb2d0248a38628be",
-    "date": "2025-07-08T02:51:37+07:00",
-    "message": "refactor(file): rename delete method, add local deletion with progress\n\n- rename `delete` to `delete_remote` with type hints and docstring\n- add `delete_local` for local file deletion with progress feedback\n- update main usage to call both `delete_remote` and `delete_local`",
-    "files": [
-      "src/vps/vps_connector.py"
-    ]
-  },
-  {
-    "hash": "c4a5ec9ce7dd585be783082d92d7492f95400f4d",
-    "date": "2025-07-08T02:31:42+07:00",
-    "message": "docs: update setup instructions in README for environment file naming",
-    "files": [
-      "cloud_sqlite/readme.md"
-    ]
-  },
-  {
-    "hash": "be4bec8b17d0d0d50cd3857a0b5072c962c14231",
-    "date": "2025-07-08T02:29:52+07:00",
-    "message": "docs: update README to clarify authentication token usage and setup instructions",
-    "files": [
-      "cloud_sqlite/readme.md"
-    ]
-  },
-  {
-    "hash": "2ff7879778328164a678996aa0c06ba6b2119c14",
-    "date": "2025-07-07T17:45:54+07:00",
-    "message": "feat: add initial implementation of PHP SQLite Sync API with authentication and CRUD operations",
-    "files": [
-      ".env-sample",
-      "cloud_sqlite/.gitignore",
-      "cloud_sqlite/config.php",
-      "cloud_sqlite/delete.php",
-      "cloud_sqlite/fetch-updated.php",
-      "cloud_sqlite/fetch.php",
-      "cloud_sqlite/init.php",
-      "cloud_sqlite/readme.md",
-      "cloud_sqlite/sync.php"
-    ]
-  },
-  {
-    "hash": "b5c4a8241e8fa53c410c76250d623c5cdccb2cc8",
-    "date": "2025-07-03T02:49:20+07:00",
-    "message": "feat: update PHP coding standards and guidelines",
-    "files": [
-      ".github/instructions/php.instructions.md"
     ]
   }
 ]
