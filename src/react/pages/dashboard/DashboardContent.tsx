@@ -32,6 +32,12 @@ const DashboardContent: React.FC = () => {
     return nameParts.length ? nameParts.join(' ') : user.username || user.email || '—';
   }, [user]);
 
+  const handleTopUp = React.useCallback(() => {
+    // placeholder: integrate with payment/credit system
+    // keep simple for now; can be replaced with modal or redirect
+    alert(t('recharge_points', 'Recharge Points'));
+  }, [t]);
+
   return (
     <div className="flex flex-col items-center justify-center m-4 transition-colors">
       <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors border border-gray-200 dark:border-gray-700 flex flex-col gap-10">
@@ -46,6 +52,12 @@ const DashboardContent: React.FC = () => {
                 <div className="text-3xl font-bold text-yellow-800 dark:text-yellow-100">
                   {loading ? '...' : typeof user?.saldo === 'number' ? user!.saldo : '—'}
                 </div>
+                <button
+                  type="button"
+                  onClick={handleTopUp}
+                  className="mt-5 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 dark:focus:ring-yellow-600 transition-all duration-200">
+                  {t('recharge_points', 'Recharge Points')}
+                </button>
               </div>
             </div>
           </div>
