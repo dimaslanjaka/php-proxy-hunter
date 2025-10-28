@@ -1,5 +1,23 @@
 [
   {
+    "hash": "6f56194ad4486273fef159d97bf53f459668d696",
+    "date": "2025-10-28T13:52:07+07:00",
+    "message": "feat(dashboard): add top-up button and i18n keys\n\n- add `points`, `dashboard`, `user_information`, `email`, `username`, `phone`, `no_user_found` keys to English and Indonesian locales\n- add `handleTopUp` handler and \"Recharge Points\" button to `DashboardContent.tsx`\n- small UI wiring to show top-up action (placeholder alert)",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/dashboard/DashboardContent.tsx"
+    ]
+  },
+  {
+    "hash": "a4be0a4ccde8833b655c38c4239d32f5cea65cb8",
+    "date": "2025-10-28T13:49:18+07:00",
+    "message": "refactor(dashboard): show only user points and user information\n\n- replace local `saldo` state with typed `user: SingleUserInfo | null`\n- import and use `getUserInfo` to fetch full user info\n- add mounted guard to avoid state updates on unmounted component\n- compute `displayName` from first/last name with username/email fallback\n- simplify UI to two cards: Points and User Information\n- remove transaction history placeholder and recharge button\n- add `React.FC` typing and restore full-width container layout",
+    "files": [
+      "src/react/pages/dashboard/DashboardContent.tsx"
+    ]
+  },
+  {
     "hash": "9796294f46e5d446859f4d858e4347526204f76e",
     "date": "2025-10-28T12:47:11+07:00",
     "message": "fix: ensure python-minimal dependencies are installed on remote server during deployment",
@@ -8766,25 +8784,6 @@
     "files": [
       "bin/py",
       "bin/py.cmd"
-    ]
-  },
-  {
-    "hash": "2af38f37f5b79dfdb236b55f53ad716929ed6178",
-    "date": "2025-07-08T05:12:56+07:00",
-    "message": "chore(settings): update VSCode settings for improved development experience",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "414f2fa2f82db3b27cb63760d51730cc32fc219c",
-    "date": "2025-07-08T03:38:48+07:00",
-    "message": "feat(python): configure pytest as the testing framework",
-    "files": [
-      ".vscode/settings.json",
-      "pyproject.toml",
-      "requirements-dev.txt",
-      "tests/ProxyDB_Test.py"
     ]
   }
 ]
