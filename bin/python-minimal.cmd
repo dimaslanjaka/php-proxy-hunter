@@ -34,25 +34,25 @@ if not exist venv (
 call venv\Scripts\activate.bat
 
 set "PY=%CWD%\venv\Scripts\python.exe"
-%PY% -m pip install --upgrade pip
-%PY% -m pip install requests PySocks beautifulsoup4 lxml httpx
+call %PY% -m pip install --upgrade pip
+call %PY% -m pip install requests PySocks beautifulsoup4 lxml httpx
 
 if exist packages/proxy-checker-python (
-    %PY% -m pip install -e packages/proxy-checker-python
+    call %PY% -m pip install -e packages/proxy-checker-python
 ) else (
-    %PY% -m pip install git+https://github.com/dimaslanjaka/proxy-checker-python.git@master
+    call %PY% -m pip install git+https://github.com/dimaslanjaka/proxy-checker-python.git@master
 )
 
 if exist packages/proxy-hunter-python (
-    %PY% -m pip install -e packages/proxy-hunter-python
+    call %PY% -m pip install -e packages/proxy-hunter-python
 ) else (
-    %PY% -m pip install "git+https://github.com/dimaslanjaka/proxy-hunter-python.git@master#subdirectory=packages/proxy-hunter-python"
+    call %PY% -m pip install "git+https://github.com/dimaslanjaka/proxy-hunter-python.git@master#subdirectory=packages/proxy-hunter-python"
 )
 
 if exist packages/rsa-utility (
-    %PY% -m pip install -e packages/rsa-utility
+    call %PY% -m pip install -e packages/rsa-utility
 ) else (
-    %PY% -m pip install "git+https://github.com/dimaslanjaka/php-proxy-hunter.git@master#subdirectory=packages/rsa-utility"
+    call %PY% -m pip install "git+https://github.com/dimaslanjaka/php-proxy-hunter.git@master#subdirectory=packages/rsa-utility"
 )
 
 endlocal
