@@ -89,6 +89,30 @@ function is_debug_device()
 }
 
 /**
+ * Checks if the current environment is GitHub Codespaces.
+ *
+ * @return bool True if running in GitHub Codespaces, false otherwise.
+ */
+function is_github_codespaces(): bool
+{
+  $hostname = gethostname();
+  if (str_starts_with($hostname, 'codespaces-')) {
+    return true;
+  }
+  return getenv('CODESPACES') === 'true';
+}
+
+/**
+ * Checks if the current environment is GitHub CI.
+ *
+ * @return bool True if running in GitHub CI, false otherwise.
+ */
+function is_github_ci(): bool
+{
+  return getenv('CI') !== false && getenv('GITHUB_ACTIONS') === 'true';
+}
+
+/**
  * Determines whether the application is in debug mode. (DEVELOPMENT MODE)
  *
  * Debug mode is activated based on several conditions:
@@ -101,18 +125,8 @@ function is_debug_device()
  */
 function is_debug(): bool
 {
-  // GitHub CI environment
-  $isGitHubCI = getenv('CI') !== false && getenv('GITHUB_ACTIONS') === 'true';
-
-  // GitHub Codespaces
-  $isGitHubCodespaces = getenv('CODESPACES') === 'true';
-
-  // Hostname
-  $hostname = gethostname();
-
-  return $isGitHubCI
-    || $isGitHubCodespaces
-    || str_starts_with($hostname, 'codespaces-')
+  return is_github_ci()
+    || is_github_codespaces()
     || is_debug_device();
 }
 
