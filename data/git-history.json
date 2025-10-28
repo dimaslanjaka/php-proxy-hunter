@@ -1,5 +1,13 @@
 [
   {
+    "hash": "30e0f6cef6ea6e6a87f776e1cfc8754ccfb30757",
+    "date": "2025-10-28T07:49:25+07:00",
+    "message": "feat: enable dynamic database type selection for CI environments\n\n- Add $dbType variable to conditionally use 'sqlite' in debug mode (including GitHub CI) or 'mysql' otherwise\n- Update CoreDB constructor to use the dynamic $dbType instead of hardcoded 'mysql'",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
     "hash": "3c794620711a9f6cff2e5eb508ffdfffbefb6b16",
     "date": "2025-10-24T15:25:31+07:00",
     "message": "feat(dependencies): add sharp package version 0.32",
@@ -8785,19 +8793,6 @@
     "files": [
       ".github/instructions/nodejs.instructions.md",
       ".github/instructions/python.instructions.md"
-    ]
-  },
-  {
-    "hash": "9d724782efb2d28ca3cb3e5c2fff9a58d4936d83",
-    "date": "2025-07-01T17:08:40+07:00",
-    "message": "feat: add VPS management scripts with SFTP/SSH support and backup download\n\n- Add `vps_connector.py` for SFTP/SSH operations using paramiko (upload, download, delete, run commands).\n- Add `vps_manager.py` with dynamic menu system for VPS actions.\n- Add `download-backups.py` menu plugin to download the backups folder from the VPS.\n- Add Windows batch launcher `vps-mgr.cmd`.\n- Add `paramiko` to requirements-base.txt.",
-    "files": [
-      "bin/vps-mgr.cmd",
-      "requirements-base.txt",
-      "src/vps/menus/download-backups.py",
-      "src/vps/readme.md",
-      "src/vps/vps_connector.py",
-      "src/vps/vps_manager.py"
     ]
   }
 ]
