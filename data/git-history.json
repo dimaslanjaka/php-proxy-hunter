@@ -1,5 +1,42 @@
 [
   {
+    "hash": "4229ef3db8fc39d9e9c1def142b7200cd7f707f0",
+    "date": "2025-10-28T14:33:26+07:00",
+    "message": "fix(proxyFetcher): correct path to proxyFetcherSources.json",
+    "files": [
+      "proxyFetcher.py"
+    ]
+  },
+  {
+    "hash": "6a149451228b7f13238e4769895665e9d6905349",
+    "date": "2025-10-28T14:22:42+07:00",
+    "message": "fix(package): update chromedriver to version ^141.0.6",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "8399bbba7434575ac2ee9ed65857b017f667501a",
+    "date": "2025-10-28T14:22:02+07:00",
+    "message": "refactor(readme): remove Windows production setup instructions",
+    "files": [
+      "readme.md"
+    ]
+  },
+  {
+    "hash": "b9379ca35a415ba87a37071d100a89bab77f300e",
+    "date": "2025-10-28T14:13:28+07:00",
+    "message": "chore(ci): update actions/setup-node to v5 in GitHub workflows\n\n- Bump actions/setup-node from v4 to v5 in multiple workflow files\n- Add Yarn cache configuration to clean-caches.yml for improved dependency caching",
+    "files": [
+      ".github/workflows/checker-php.yml.txt",
+      ".github/workflows/checker.yml.txt",
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/nuitka-debug.yml.txt",
+      ".github/workflows/nuitka.yml.txt",
+      "packages/proxies-grabber"
+    ]
+  },
+  {
     "hash": "ddb1b54dca436daca51fabd48cdaf4908933b93d",
     "date": "2025-10-28T13:59:30+07:00",
     "message": "feat(dashboard): add tabbed UI for user information and activity\n\n- Add `activeTab` state to `Dashboard` to control tab switching.\n- Wrap `DashboardContent` and `UserActivityCard` in a React-controlled, accessible tabbed UI.\n- Add active/inactive styling and dark-mode support for tabs.\n- Uses React state for switching (no Flowbite JS dependency).",
@@ -8749,40 +8786,6 @@
       "src/vps/vps_connector.py",
       "src/vps/vps_manager.py",
       "tests/vps/test_vps_connector.py"
-    ]
-  },
-  {
-    "hash": "747a3eadf7fa86f2bd31668e501a1d86a716b3e7",
-    "date": "2025-07-08T05:32:33+07:00",
-    "message": "feat(create-file-hashes): enhance file hashing by processing unique files and including special files",
-    "files": [
-      "bin/create-file-hashes.cjs"
-    ]
-  },
-  {
-    "hash": "bceb387096e69fe0919cbfbad89a459222d875b5",
-    "date": "2025-07-08T05:27:11+07:00",
-    "message": "fix(create-file-hashes): normalize file paths to use forward slashes in hash output",
-    "files": [
-      "bin/create-file-hashes.cjs"
-    ]
-  },
-  {
-    "hash": "1bfaef02bd0667ed3ea6bd44f2950abb2107795c",
-    "date": "2025-07-08T05:18:29+07:00",
-    "message": "fix(proxydb): ensure self.db is always defined in the ProxyDB constructor",
-    "files": [
-      "src/ProxyDB.py"
-    ]
-  },
-  {
-    "hash": "3c4518c5948d953911b3b61fa5455d0b5b502442",
-    "date": "2025-07-08T05:15:30+07:00",
-    "message": "feat(tests): add coverage configuration and update pytest options",
-    "files": [
-      ".gitignore",
-      "pyproject.toml",
-      "requirements-dev.txt"
     ]
   }
 ]
