@@ -1,5 +1,13 @@
 [
   {
+    "hash": "ddb1b54dca436daca51fabd48cdaf4908933b93d",
+    "date": "2025-10-28T13:59:30+07:00",
+    "message": "feat(dashboard): add tabbed UI for user information and activity\n\n- Add `activeTab` state to `Dashboard` to control tab switching.\n- Wrap `DashboardContent` and `UserActivityCard` in a React-controlled, accessible tabbed UI.\n- Add active/inactive styling and dark-mode support for tabs.\n- Uses React state for switching (no Flowbite JS dependency).",
+    "files": [
+      "src/react/pages/Dashboard.tsx"
+    ]
+  },
+  {
     "hash": "6f56194ad4486273fef159d97bf53f459668d696",
     "date": "2025-10-28T13:52:07+07:00",
     "message": "feat(dashboard): add top-up button and i18n keys\n\n- add `points`, `dashboard`, `user_information`, `email`, `username`, `phone`, `no_user_found` keys to English and Indonesian locales\n- add `handleTopUp` handler and \"Recharge Points\" button to `DashboardContent.tsx`\n- small UI wiring to show top-up action (placeholder alert)",
@@ -8775,15 +8783,6 @@
       ".gitignore",
       "pyproject.toml",
       "requirements-dev.txt"
-    ]
-  },
-  {
-    "hash": "3bc053e4812bc255b621e1c6764775b198921f0e",
-    "date": "2025-07-08T05:14:01+07:00",
-    "message": "feat(venv): prefer .venv over venv for virtual environment path",
-    "files": [
-      "bin/py",
-      "bin/py.cmd"
     ]
   }
 ]
