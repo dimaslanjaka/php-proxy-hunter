@@ -39,7 +39,7 @@ $dbUser  = is_debug_device() ? ($_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER')) : (
 $dbPass  = is_debug_device() ? ($_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS')) : ($_ENV['MYSQL_PASS_PRODUCTION'] ?? getenv('MYSQL_PASS_PRODUCTION'));
 $dbHost  = is_debug_device() ? ($_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST')) : ($_ENV['MYSQL_HOST_PRODUCTION'] ?? getenv('MYSQL_HOST_PRODUCTION'));
 $dbFile  = is_debug() ? __DIR__ . '/../tmp/database_test.sqlite' : __DIR__ . '/../src/database.sqlite';
-$dbType  = is_debug() ? 'sqlite' : 'mysql';
+$dbType  = is_github_ci() ? 'sqlite' : 'mysql';
 $core_db = new CoreDB(
   $dbFile,
   $dbHost,
