@@ -17,7 +17,7 @@ from src.requests_cache import get_with_proxy
 
 
 def proxyFetcher():
-    read = read_file(get_relative_path("proxyFetcherSources.json"))
+    read = read_file(get_relative_path("data/proxyFetcherSources.json"))
     if not read:
         return
     urls = json.loads(read)
