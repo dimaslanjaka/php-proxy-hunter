@@ -1,5 +1,13 @@
 [
   {
+    "hash": "f21b11e9d1cde9d892b4fd392577686b09d3b857",
+    "date": "2025-10-29T10:54:40+07:00",
+    "message": "fix(py): remove redundant message for existing virtual environment",
+    "files": [
+      "bin/py"
+    ]
+  },
+  {
     "hash": "4229ef3db8fc39d9e9c1def142b7200cd7f707f0",
     "date": "2025-10-28T14:33:26+07:00",
     "message": "fix(proxyFetcher): correct path to proxyFetcherSources.json",
@@ -8776,16 +8784,6 @@
     "message": "feat: add recursive directory download support to VPSConnector\n\n- Enhanced the download method to support recursive downloading of directories from the remote server.\n- Improved _is_remote_dir for better remote directory detection.\n- Updated __main__ example to demonstrate downloading a backups directory.",
     "files": [
       "src/vps/vps_connector.py"
-    ]
-  },
-  {
-    "hash": "0d8bbe1cebf31fec688669093f9a02e1e987c44e",
-    "date": "2025-07-08T05:35:18+07:00",
-    "message": "refactor: add remote_path and local_path to VPSConnector, update usage, and add tests\n\n- Updated VPSConnector to require remote_path and local_path in constructor.\n- Updated all usages in vps_connector.py and vps_manager.py to use new parameters.\n- Replaced sftp_config[\"remote_path\"] with vps.remote_path in file operations.\n- Added tests/vps/test_vps_connector.py with basic constructor and local delete tests.",
-    "files": [
-      "src/vps/vps_connector.py",
-      "src/vps/vps_manager.py",
-      "tests/vps/test_vps_connector.py"
     ]
   }
 ]
