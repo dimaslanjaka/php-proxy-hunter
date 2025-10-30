@@ -1,5 +1,14 @@
 [
   {
+    "hash": "c07a4129cddb06b84a2e9ece0f6dfe377a3cf499",
+    "date": "2025-10-30T15:31:55+07:00",
+    "message": "fix(activity-log,migration): robust update params + ensure PAYMENT/REFUND enum\n\nReplace manual bindValue usage in ActivityLog::update with an associative\n$execParams passed to PDOStatement::execute(), JSON-encode the `details`\nfield, and log statement errorInfo when an UPDATE fails to make DB errors\nvisible and avoid silent failures.\n\nAlso update ActivityLogMigration to inspect the current MySQL `action_type`\ncolumn and ALTER the ENUM to include 'PAYMENT' and 'REFUND' only when\nmissing (no-op for SQLite). Mark the migration meta key after successful\nmigration.",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php",
+      "src/PhpProxyHunter/ActivityLogMigration.php"
+    ]
+  },
+  {
     "hash": "d4f06e02c1e6a7a0828f35bffe4a9c69b9717278",
     "date": "2025-10-30T13:27:23+07:00",
     "message": "feat(activity-log): add update(id, data) method and unit test\n\nAdd ActivityLog::update($id, array $data) to allow updating selected columns\n(user_id, target_user_id, action_type, target_id, target_type, details,\nip_address, user_agent) for an existing activity_log row. The method builds a\nparameterized UPDATE, JSON-encodes the `details` field, binds appropriate PDO\ntypes, logs PDO exceptions, and returns a boolean success flag.\n\nAlso add PHPUnit test ActivityLogTest::testUpdateModifiesRow which inserts a log,\ncalls update(), and asserts the action_type, JSON-encoded details and\nip_address are updated (covers both sqlite and MySQL test configurations).",
@@ -8774,17 +8783,6 @@
     "message": "refactor: update .gitignore to streamline ignored files and enhance organization",
     "files": [
       ".gitignore"
-    ]
-  },
-  {
-    "hash": "bb14c654b2754a99d18c8fb7b2af71d53b3accb4",
-    "date": "2025-07-08T06:19:19+07:00",
-    "message": "refactor: modularize VPS connector into SSH, SFTP, and config modules\n\n- Move SSH connection logic to src/vps/ssh_client.py (SSHClient)\n- Move SFTP upload/download/delete logic to src/vps/sftp_client.py (SFTPClient)\n- Move SFTP config loader to src/vps/config.py\n- Refactor src/vps/vps_connector.py to use new SSHClient and SFTPClient classes via inheritance\n- Simplify and clean up vps_connector.py, removing duplicate logic\n- Improve code organization and maintainability",
-    "files": [
-      "src/vps/config.py",
-      "src/vps/sftp_client.py",
-      "src/vps/ssh_client.py",
-      "src/vps/vps_connector.py"
     ]
   }
 ]
