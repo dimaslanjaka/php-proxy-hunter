@@ -324,9 +324,7 @@ export async function shell_exec(command, cwd = null) {
 }
 
 async function main() {
-  // Set maintenance
-  await uploadFile(path.join(__dirname, '/../index.maintenance.html'), `${remotePath}/index.html`);
-  // Create a lightweight lock file so remote processes know a build is in progress
+  // Set maintenance by creating a lightweight lock file so remote processes know a build is in progress
   const lockContents = `build-start:${new Date().toISOString()} pid:${process.pid}\n`;
   await writeRemoteFile(`${remotePath}/tmp/locks/.build-lock`, lockContents);
 
