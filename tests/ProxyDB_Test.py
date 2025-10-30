@@ -12,10 +12,14 @@ def proxy_db():
     db = ProxyDB(start=True)
     yield db
     # Teardown: close the ProxyDB connection after tests
-    if hasattr(db, "close"):
-        db.close()
-    elif hasattr(db, "db") and hasattr(db.db, "close"):
-        db.db.close()
+    try:
+        close_fn = getattr(db, "close", None) or getattr(
+            getattr(db, "db", None), "close", None
+        )
+        if callable(close_fn):
+            close_fn()
+    except Exception:
+        pass
 
 
 def test_vacuum(proxy_db):
