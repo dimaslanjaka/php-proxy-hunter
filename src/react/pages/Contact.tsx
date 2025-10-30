@@ -8,7 +8,7 @@ const Contact = () => (
         </p>
         <div className="w-full text-center text-sm text-gray-500 dark:text-gray-400">
           <div className="mb-1 font-semibold text-gray-900 dark:text-white">Author:</div>
-          <div className="mb-1 text-gray-900 dark:text-white">Dimas Lanjaka</div>
+          <div className="mb-1 text-gray-900 dark:text-white">L3n4r0x</div>
           <div className="mb-1">
             <a
               href="https://www.webmanajemen.com"
