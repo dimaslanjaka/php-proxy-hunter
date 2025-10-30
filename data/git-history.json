@@ -1,5 +1,22 @@
 [
   {
+    "hash": "d4f06e02c1e6a7a0828f35bffe4a9c69b9717278",
+    "date": "2025-10-30T13:27:23+07:00",
+    "message": "feat(activity-log): add update(id, data) method and unit test\n\nAdd ActivityLog::update($id, array $data) to allow updating selected columns\n(user_id, target_user_id, action_type, target_id, target_type, details,\nip_address, user_agent) for an existing activity_log row. The method builds a\nparameterized UPDATE, JSON-encodes the `details` field, binds appropriate PDO\ntypes, logs PDO exceptions, and returns a boolean success flag.\n\nAlso add PHPUnit test ActivityLogTest::testUpdateModifiesRow which inserts a log,\ncalls update(), and asserts the action_type, JSON-encoded details and\nip_address are updated (covers both sqlite and MySQL test configurations).",
+    "files": [
+      "src/PhpProxyHunter/ActivityLog.php",
+      "tests/PhpProxyHunter/ActivityLogTest.php"
+    ]
+  },
+  {
+    "hash": "925748deb11a0c36fd24ac2c60bdd48be94406eb",
+    "date": "2025-10-30T13:23:30+07:00",
+    "message": "test(PhpProxyHunter/ActivityLogTest): ensure MySQL test DB is created before connecting\n\nChange the MySQL test setup to use a dedicated database name `activity_log_test_db`.\nConnect to the MySQL server without a database to create the test database if missing,\nthen reconnect to the newly created database. This prevents \"Unknown database\" errors\nwhen running MySQL-backed tests.",
+    "files": [
+      "tests/PhpProxyHunter/ActivityLogTest.php"
+    ]
+  },
+  {
     "hash": "f21b11e9d1cde9d892b4fd392577686b09d3b857",
     "date": "2025-10-29T10:54:40+07:00",
     "message": "fix(py): remove redundant message for existing virtual environment",
@@ -8767,22 +8784,6 @@
       "src/vps/config.py",
       "src/vps/sftp_client.py",
       "src/vps/ssh_client.py",
-      "src/vps/vps_connector.py"
-    ]
-  },
-  {
-    "hash": "47891e18b4d27c57959753177b7940ca675dafde",
-    "date": "2025-07-08T05:56:52+07:00",
-    "message": "feat(vps_connector): add download progress indication for file transfers",
-    "files": [
-      "src/vps/vps_connector.py"
-    ]
-  },
-  {
-    "hash": "e358804dc1fc102ab029705773252d9d0b7f2431",
-    "date": "2025-07-08T05:54:29+07:00",
-    "message": "feat: add recursive directory download support to VPSConnector\n\n- Enhanced the download method to support recursive downloading of directories from the remote server.\n- Improved _is_remote_dir for better remote directory detection.\n- Updated __main__ example to demonstrate downloading a backups directory.",
-    "files": [
       "src/vps/vps_connector.py"
     ]
   }
