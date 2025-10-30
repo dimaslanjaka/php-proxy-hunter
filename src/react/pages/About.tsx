@@ -54,9 +54,9 @@ const About = () => (
           </div>
           <div>
             <a
-              href="mailto:dimaslanjaka@gmail.com"
+              href="mailto:superuser@webmanajemen.com"
               className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-200 transition-colors">
-              dimaslanjaka@gmail.com
+              superuser@webmanajemen.com
             </a>
           </div>
         </div>
