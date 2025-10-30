@@ -1,5 +1,51 @@
 [
   {
+    "hash": "d343f2e3cb812c354c94966371eb16a6def1056b",
+    "date": "2025-10-30T17:05:39+07:00",
+    "message": "fix: update author name to L3n4r0x in About and Contact pages",
+    "files": [
+      "src/react/pages/About.tsx",
+      "src/react/pages/Contact.tsx"
+    ]
+  },
+  {
+    "hash": "7cc87c8456883566906429f27bf4d05b4216f761",
+    "date": "2025-10-30T17:03:39+07:00",
+    "message": "fix: remove GitHub link from maintenance page and comment out social menu link in Navbar",
+    "files": [
+      "index.maintenance.html",
+      "src/react/components/Navbar.tsx"
+    ]
+  },
+  {
+    "hash": "cec020306b4864eceacb83ad4107c965048b970d",
+    "date": "2025-10-30T16:59:41+07:00",
+    "message": "fix: update contact email to superuser@webmanajemen.com in multiple files",
+    "files": [
+      "django_backend/apps/core/templates/base_generic.html",
+      "index.maintenance.html",
+      "readme.md",
+      "src/react/pages/About.tsx",
+      "src/react/pages/Contact.tsx"
+    ]
+  },
+  {
+    "hash": "1ffd262bd3c591cb728d6e7ce24a43b0f12fcbb9",
+    "date": "2025-10-30T16:55:30+07:00",
+    "message": "chore(vite): include timestamp and PID in lock file contents\n\n- Updated dev and build lock files to record start time and process ID\n- Improved traceability of Vite processes for debugging and monitoring",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "8e4b787c5f6b70c56285254ffbc57d73ce4eaadd",
+    "date": "2025-10-30T16:54:03+07:00",
+    "message": "chore(deploy): simplify maintenance step in VPS deployment script\n\n- Removed upload of `index.maintenance.html` during deployment\n- Updated comment to clarify maintenance handled via build lock file creation",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
     "hash": "c07a4129cddb06b84a2e9ece0f6dfe377a3cf499",
     "date": "2025-10-30T15:31:55+07:00",
     "message": "fix(activity-log,migration): robust update params + ensure PAYMENT/REFUND enum\n\nReplace manual bindValue usage in ActivityLog::update with an associative\n$execParams passed to PDOStatement::execute(), JSON-encode the `details`\nfield, and log statement errorInfo when an UPDATE fails to make DB errors\nvisible and avoid silent failures.\n\nAlso update ActivityLogMigration to inspect the current MySQL `action_type`\ncolumn and ALTER the ENUM to include 'PAYMENT' and 'REFUND' only when\nmissing (no-op for SQLite). Mark the migration meta key after successful\nmigration.",
@@ -8741,48 +8787,6 @@
       "tests/cloud_sqlite/FetchApiTest.php",
       "tests/cloud_sqlite/FetchUpdatedApiTest.php",
       "tests/cloud_sqlite/SyncApiTest.php"
-    ]
-  },
-  {
-    "hash": "8c5b9839d303c154f76a926be89ebc52731d714b",
-    "date": "2025-07-08T08:04:06+07:00",
-    "message": "refactor: enhance debug mode documentation and improve user agent handling",
-    "files": [
-      "func.php",
-      "tests/getSmsTest.php"
-    ]
-  },
-  {
-    "hash": "6871ee487b6d493f5b08b7fd1792f47cb258ddb1",
-    "date": "2025-07-08T07:54:22+07:00",
-    "message": "feat: add package-resolution-updater script and update package.json scripts",
-    "files": [
-      "package-resolution-updater.mjs",
-      "package.json"
-    ]
-  },
-  {
-    "hash": "8eaa05fc6f278c9d5ce6e2f673150a4870d071f7",
-    "date": "2025-07-08T07:04:25+07:00",
-    "message": "refactor: update .gitignore to include additional ignored files and reorganize sections",
-    "files": [
-      ".gitignore"
-    ]
-  },
-  {
-    "hash": "3c69942b3a1c596602cfdaf581bc1aaca7cafc62",
-    "date": "2025-07-08T06:48:27+07:00",
-    "message": "refactor: reorganize .gitignore for improved clarity and structure",
-    "files": [
-      ".gitignore"
-    ]
-  },
-  {
-    "hash": "31f5ebd600e8f123254580a9151c5aba810a1971",
-    "date": "2025-07-08T06:31:11+07:00",
-    "message": "refactor: update .gitignore to streamline ignored files and enhance organization",
-    "files": [
-      ".gitignore"
     ]
   }
 ]
