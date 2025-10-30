@@ -285,25 +285,23 @@ class ActivityLog
     try {
       $stmt = $this->db->prepare($sql);
 
-      // Bind params
+      // Prepare associative params for execute()
+      $execParams = [];
       foreach ($params as $k => $v) {
         if ($k === 'details') {
-          $val = $v !== null ? json_encode($v, JSON_UNESCAPED_UNICODE) : null;
-          $stmt->bindValue(':' . $k, $val);
-        } elseif (in_array($k, ['user_id', 'target_user_id', 'target_id'], true)) {
-          if ($v !== null) {
-            $stmt->bindValue(':' . $k, $v, PDO::PARAM_INT);
-          } else {
-            $stmt->bindValue(':' . $k, null, PDO::PARAM_NULL);
-          }
+          $execParams[$k] = $v !== null ? json_encode($v, JSON_UNESCAPED_UNICODE) : null;
         } else {
-          $stmt->bindValue(':' . $k, $v);
+          $execParams[$k] = $v;
         }
       }
+      $execParams['id'] = $id;
 
-      $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-
-      return $stmt->execute();
+      $res = $stmt->execute($execParams);
+      if ($res === false) {
+        $err = $stmt->errorInfo();
+        error_log('ActivityLog update failed: ' . json_encode(['sql' => $sql, 'params' => $execParams, 'error' => $err]));
+      }
+      return $res;
     } catch (PDOException $e) {
       error_log('ActivityLog update error: ' . $e->getMessage());
       return false;
