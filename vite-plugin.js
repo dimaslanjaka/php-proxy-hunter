@@ -221,10 +221,11 @@ export function prepareVitePlugins() {
       // Only set up lock file when conditions are met
       isDevServer = config.command === 'serve';
       isBuild = config.command === 'build';
+      const lockContents = `${config.command}-start:${new Date().toISOString()} pid:${process.pid}\n`;
       if (isDevServer) {
-        fs.writeFileSync(lockFilePath, 'lock');
+        fs.writeFileSync(lockFilePath, lockContents);
       } else if (isBuild) {
-        fs.writeFileSync(buildLockFilePath, 'lock');
+        fs.writeFileSync(buildLockFilePath, lockContents);
       }
     },
     handleHotUpdate() {
