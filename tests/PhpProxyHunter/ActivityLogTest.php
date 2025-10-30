@@ -29,15 +29,23 @@ class ActivityLogTest extends TestCase
     $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST');
     $this->mysqlUser = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
     $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS');
-    $this->mysqlDb   = 'php_proxy_hunter_test';
+    $this->mysqlDb   = 'activity_log_test_db';
   }
 
   protected function setUpDB(string $driver): void
   {
     if ($driver === 'mysql') {
+      // Connect without specifying database to allow creating it if it doesn't exist
+      $dsnNoDb  = sprintf('mysql:host=%s', $this->mysqlHost);
+      $this->db = new PDO($dsnNoDb, $this->mysqlUser, $this->mysqlPass);
+      $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      // create database if not exists
+      $this->db->exec("CREATE DATABASE IF NOT EXISTS `{$this->mysqlDb}`");
+      // reconnect to the newly created database
       $dsn      = sprintf('mysql:host=%s;dbname=%s', $this->mysqlHost, $this->mysqlDb);
       $this->db = new PDO($dsn, $this->mysqlUser, $this->mysqlPass);
       $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      // initialize ActivityLog
       $this->log = new ActivityLog($this->db);
       $this->db->exec('DELETE FROM activity_log');
     } else {
