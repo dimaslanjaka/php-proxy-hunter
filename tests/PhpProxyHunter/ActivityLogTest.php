@@ -101,4 +101,46 @@ class ActivityLogTest extends TestCase
     $this->assertIsArray($logs);
     $this->tearDownDB($driver);
   }
+
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testUpdateModifiesRow(string $driver): void
+  {
+    $this->setUpDB($driver);
+
+    // insert a record
+    $result = $this->log->log(
+      2,
+      'PACKAGE_CREATE',
+      10,
+      'package',
+      null,
+      ['points' => 50],
+      '10.0.0.1',
+      'UnitTestAgent'
+    );
+    $this->assertTrue($result);
+
+    $logs = $this->log->recent(1);
+    $this->assertCount(1, $logs);
+    $id = (int)$logs[0]['id'];
+
+    // perform update
+    $updateResult = $this->log->update($id, [
+      'action_type' => 'PACKAGE_UPDATE',
+      'details'     => ['points' => 75, 'note' => 'updated'],
+      'ip_address'  => '10.0.0.2',
+    ]);
+    $this->assertTrue($updateResult);
+
+    $updated = $this->log->recent(1);
+    $this->assertEquals('PACKAGE_UPDATE', $updated[0]['action_type']);
+    // details stored as JSON/text
+    $this->assertStringContainsString('updated', (string)$updated[0]['details']);
+    $this->assertEquals('10.0.0.2', $updated[0]['ip_address']);
+    $this->assertEquals(75, json_decode((string)$updated[0]['details'], true)['points']);
+
+    $this->tearDownDB($driver);
+  }
 }

@@ -245,6 +245,72 @@ class ActivityLog
   }
 
   /**
+   * Update an existing activity log row by id.
+   * Only allowed fields will be updated.
+   *
+   * @param int $id
+   * @param array $data  Associative array of columns to update (see allowed list)
+   * @return bool
+   */
+  public function update($id, array $data)
+  {
+    // Allowed updatable columns
+    $allowed = [
+      'user_id',
+      'target_user_id',
+      'action_type',
+      'target_id',
+      'target_type',
+      'details',
+      'ip_address',
+      'user_agent',
+    ];
+
+    $set    = [];
+    $params = [];
+    foreach ($allowed as $col) {
+      if (array_key_exists($col, $data)) {
+        $set[]        = "$col = :$col";
+        $params[$col] = $data[$col];
+      }
+    }
+
+    // Nothing to update
+    if (empty($set)) {
+      return false;
+    }
+
+    $sql = 'UPDATE activity_log SET ' . implode(', ', $set) . ' WHERE id = :id';
+
+    try {
+      $stmt = $this->db->prepare($sql);
+
+      // Bind params
+      foreach ($params as $k => $v) {
+        if ($k === 'details') {
+          $val = $v !== null ? json_encode($v, JSON_UNESCAPED_UNICODE) : null;
+          $stmt->bindValue(':' . $k, $val);
+        } elseif (in_array($k, ['user_id', 'target_user_id', 'target_id'], true)) {
+          if ($v !== null) {
+            $stmt->bindValue(':' . $k, $v, PDO::PARAM_INT);
+          } else {
+            $stmt->bindValue(':' . $k, null, PDO::PARAM_NULL);
+          }
+        } else {
+          $stmt->bindValue(':' . $k, $v);
+        }
+      }
+
+      $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+      return $stmt->execute();
+    } catch (PDOException $e) {
+      error_log('ActivityLog update error: ' . $e->getMessage());
+      return false;
+    }
+  }
+
+  /**
    * Destructor to ensure resources are released.
    */
   public function __destruct()
