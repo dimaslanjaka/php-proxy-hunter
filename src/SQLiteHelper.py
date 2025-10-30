@@ -372,4 +372,6 @@ class SQLiteHelper:
         self.close()
 
     def close(self):
-        self.conn.close()
+        if self.conn:
+            self.conn.cursor().close()
+            self.conn.close()
