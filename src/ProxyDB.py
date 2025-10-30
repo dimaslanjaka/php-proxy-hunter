@@ -98,6 +98,18 @@ class ProxyDB:
             except Exception as e:
                 print(f"cannot close database: {e}")
 
+    def get_db(self) -> SQLiteHelper:
+        """
+        Retrieves the SQLiteHelper database instance.
+
+        Returns:
+            SQLiteHelper: The database instance.
+        """
+        if not self.db:
+            self.start_connection()
+        assert self.db is not None
+        return self.db
+
     def get_meta_value(self, key: str) -> Optional[str]:
         """
         Retrieves a meta value from the database.
@@ -108,9 +120,7 @@ class ProxyDB:
         Returns:
             Optional[str]: The meta value associated with the key, or None if not found.
         """
-        if not self.db:
-            self.start_connection()
-        result = self.db.select("meta", "value", "key = ?", (key,))
+        result = self.get_db().select("meta", "value", "key = ?", (key,))
         return result[0]["value"] if result else None
 
     def set_meta_value(self, key: str, value: str) -> None:
@@ -121,10 +131,9 @@ class ProxyDB:
             key (str): The key to set.
             value (str): The value to set.
         """
-        if not self.db:
-            self.start_connection()
+
         sql = "REPLACE INTO meta (key, value) VALUES (?, ?)"
-        self.db.execute_query(sql, (key, value))
+        self.get_db().execute_query(sql, (key, value))
 
     def run_daily_vacuum(self):
         last_vacuum_time: Optional[str] = self.get_meta_value("last_vacuum_time")
@@ -134,32 +143,31 @@ class ProxyDB:
         if not last_vacuum_time or (
             current_time - int(last_vacuum_time) > one_day_in_seconds
         ):
-            self.db.execute_query("VACUUM")
+            self.get_db().execute_query("VACUUM")
             # https://stackoverflow.com/a/37865221/6404439
-            self.db.execute_query("PRAGMA wal_checkpoint(SQLITE_CHECKPOINT_TRUNCATE);")
+            self.get_db().execute_query(
+                "PRAGMA wal_checkpoint(SQLITE_CHECKPOINT_TRUNCATE);"
+            )
             self.set_meta_value("last_vacuum_time", str(current_time))
 
     def select(self, proxy: str):
-        if not self.db:
-            self.start_connection()
-        return self.db.select("proxies", "*", "proxy = ?", [proxy.strip()])
+
+        return self.get_db().select("proxies", "*", "proxy = ?", [proxy.strip()])
 
     def get_all_proxies(
         self, rand: Optional[bool] = False
     ) -> List[Dict[str, Union[str, None]]]:
-        if not self.db:
-            self.start_connection()
-        return self.db.select("proxies", "*", rand=rand)
+
+        return self.get_db().select("proxies", "*", rand=rand)
 
     def remove(self, proxy):
-        if not self.db:
-            self.start_connection()
-        self.db.delete("proxies", "proxy = ?", [proxy.strip()])
+
+        self.get_db().delete("proxies", "proxy = ?", [proxy.strip()])
 
     def add(self, proxy: str):
         sel = self.select(proxy)
         if len(sel) == 0:
-            self.db.insert("proxies", {"proxy": proxy.strip()})
+            self.get_db().insert("proxies", {"proxy": proxy.strip()})
         else:
             print(f"proxy {proxy} already exists")
         return self.select(proxy)
@@ -212,7 +220,7 @@ class ProxyDB:
             data = self.clean_type(data)
             data = self.fix_no_such_column(data)
             # print(data)
-            self.db.update("proxies", data, "proxy = ?", [proxy.strip()])
+            self.get_db().update("proxies", data, "proxy = ?", [proxy.strip()])
 
     def fix_no_such_column(self, item: Dict[str, Any]):
         """Fix no such table column"""
@@ -235,9 +243,8 @@ class ProxyDB:
     def get_working_proxies(
         self, auto_fix: bool = True
     ) -> List[Dict[str, Union[str, None]]]:
-        if not self.db:
-            self.start_connection()
-        result = self.db.select("proxies", "*", "status = ?", ["active"])
+
+        result = self.get_db().select("proxies", "*", "status = ?", ["active"])
         if auto_fix:
             return self.fix_empty_data(result)
         else:
@@ -277,9 +284,8 @@ class ProxyDB:
     ) -> List[Dict[str, Union[str, None]]]:
         if not limit:
             limit = sys.maxsize
-        if not self.db:
-            self.start_connection()
-        result = self.db.select(
+
+        result = self.get_db().select(
             "proxies",
             "*",
             f"status IS NULL OR status = ? OR status = ? ORDER BY RANDOM() LIMIT {limit}",
@@ -290,9 +296,8 @@ class ProxyDB:
         return result
 
     def get_private_proxies(self) -> List[Dict[str, Union[str, None]]]:
-        if not self.db:
-            self.start_connection()
-        result = self.db.select("proxies", "*", "status = ?", ["private"])
+
+        result = self.get_db().select("proxies", "*", "status = ?", ["private"])
         if not result:
             return []
         return result
@@ -302,9 +307,8 @@ class ProxyDB:
     ) -> List[Dict[str, Union[str, None]]]:
         if not limit:
             limit = sys.maxsize
-        if not self.db:
-            self.start_connection()
-        result = self.db.select(
+
+        result = self.get_db().select(
             "proxies",
             "*",
             f"status = ? or status = ? ORDER BY RANDOM() LIMIT {limit}",
