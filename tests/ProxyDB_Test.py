@@ -22,13 +22,14 @@ def proxy_db():
         pass
 
 
-def test_vacuum(proxy_db):
-    proxy_db.db.execute_query("PRAGMA journal_mode = WAL")
-    proxy_db.db.execute_query("PRAGMA wal_autocheckpoint = 100")
-    proxy_db.db.execute_query("PRAGMA auto_vacuum = FULL")
-    proxy_db.db.execute_query("VACUUM")
-    # https://stackoverflow.com/a/37865221/6404439
-    proxy_db.db.execute_query("PRAGMA wal_checkpoint(SQLITE_CHECKPOINT_TRUNCATE);")
+def test_vacuum(proxy_db: ProxyDB):
+    if proxy_db.db:
+        proxy_db.db.execute_query("PRAGMA journal_mode = WAL")
+        proxy_db.db.execute_query("PRAGMA wal_autocheckpoint = 100")
+        proxy_db.db.execute_query("PRAGMA auto_vacuum = FULL")
+        proxy_db.db.execute_query("VACUUM")
+        # https://stackoverflow.com/a/37865221/6404439
+        proxy_db.db.execute_query("PRAGMA wal_checkpoint(SQLITE_CHECKPOINT_TRUNCATE);")
 
 
 def test_get_all(proxy_db):
