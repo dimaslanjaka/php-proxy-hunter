@@ -16,8 +16,14 @@ if (php_sapi_name() !== 'cli') {
 }
 
 $short_opts = '';
-$long_opts  = ['proxy:'];
+$long_opts  = ['proxy:', 'lockFile:'];
 $opts       = getopt($short_opts, $long_opts);
+
+// Check for lock file to prevent concurrent runs for the same proxy
+if (file_exists($opts['lockFile'] ?? '')) {
+  echo 'Another instance is already running for this proxy. Exiting.' . PHP_EOL;
+  exit(5);
+}
 
 if (empty($opts['proxy'])) {
   echo 'Missing --proxy argument. Example: --proxy "1.2.3.4:8080" or --proxy "1.2.3.4:8080@user:pass"' . PHP_EOL;
@@ -56,6 +62,11 @@ global $proxy_db;
 if (!isset($proxy_db) || !$proxy_db instanceof ProxyDB) {
   echo 'Proxy DB not available.' . PHP_EOL;
   exit(4);
+}
+
+// Write lock file to prevent concurrent runs for the same proxy
+if (!empty($opts['lockFile'])) {
+  write_file($opts['lockFile'], (string)getmypid());
 }
 
 echo "Checking proxy: $raw" . PHP_EOL;
@@ -206,4 +217,9 @@ if (empty($anyWorking)) {
 }
 
 echo 'Done.' . PHP_EOL;
+
+// Release lock file if created
+if (file_exists($opts['lockFile'] ?? '')) {
+  unlink($opts['lockFile']);
+}
 exit(0);
