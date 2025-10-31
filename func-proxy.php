@@ -517,7 +517,7 @@ function get_anonymity($proxy, $type, $username = null, $password = null)
     $ch      = buildCurl($proxy, $type, $url, [], $username, $password);
     $content = curl_exec($ch);
     curl_close($ch);
-    if (is_string($content)) {
+    if ($content !== false && is_string($content)) {
       return $content;
     }
     return '';
@@ -526,7 +526,7 @@ function get_anonymity($proxy, $type, $username = null, $password = null)
     $ch      = buildCurl($proxy, $type, $url, [], $username, $password);
     $content = curl_exec($ch);
     curl_close($ch);
-    if ($content) {
+    if ($content !== false && is_string($content)) {
       return $content;
     }
     return '';
