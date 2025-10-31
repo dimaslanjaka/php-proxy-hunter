@@ -2,16 +2,15 @@
 
 require_once __DIR__ . '/../php_backend/shared.php';
 
+use PhpProxyHunter\Server;
+
 global $proxy_db;
 
 $isCli          = is_cli();
 $rootProjectDir = realpath(__DIR__ . '/..');
 
 if (!$isCli) {
-  // Allow from any origin
-  header('Access-Control-Allow-Origin: *');
-  header('Access-Control-Allow-Headers: *');
-  header('Access-Control-Allow-Methods: *');
+  Server::allowCors(true);
   header('Content-Type: text/plain; charset=utf-8');
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
