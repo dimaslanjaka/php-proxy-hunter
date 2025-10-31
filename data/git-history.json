@@ -1,5 +1,83 @@
 [
   {
+    "hash": "d442d2629083894aa73f1f605796c8c7097f7059",
+    "date": "2025-10-31T16:56:14+07:00",
+    "message": "fix(artisan): correct CLI access checks and headers for proxy scripts\n\n- Removed redundant `$isCli` conditional blocks in `filterPorts.php` and `proxyCollector.php`\n- Added missing CLI access check and header handling in `proxyCollector2.php`\n- Ensures consistent behavior and proper web access restriction across artisan scripts",
+    "files": [
+      "artisan/filterPorts.php",
+      "artisan/proxyCollector.php",
+      "artisan/proxyCollector2.php"
+    ]
+  },
+  {
+    "hash": "899ab04581dbd64843f2380282a2d0d8d4a4630c",
+    "date": "2025-10-31T16:38:29+07:00",
+    "message": "fix: import build_request in func_proxy_test for cookie handling",
+    "files": [
+      "tests/func_proxy_test.py"
+    ]
+  },
+  {
+    "hash": "06f6e65f21284e108cf1a483ceecfeed9454c399",
+    "date": "2025-10-31T13:12:00+07:00",
+    "message": "feat(mysql): add MySQLHelper class with CRUD utilities and integration tests\n\nAdd `src/MySQLHelper.py` implementing a MySQLConnection subclass and a\nMySQLHelper wrapper with typed CRUD methods (create_table, insert,\nselect, count, update, delete), utility methods (execute_query,\ntruncate_table, dump_database), context-manager support and proper\nclose handling. Includes a small example usage in the module docstring.\n\nAdd `tests/test_mysql_helper.py` — a pytest integration-style test that\nloads connection settings from the environment (supports .env), performs\nCRUD operations against a `testdb` database, and cleans up after itself.\nTest is skipped when MySQL credentials are not provided.\n\nNotes:\n- Requires `mysql-connector-python` (or compatible connector) and `mysqldump`\n  available on PATH for the dump functionality.\n- Non-breaking change; adds new functionality and tests.",
+    "files": [
+      "src/MySQLHelper.py",
+      "tests/test_mysql_helper.py"
+    ]
+  },
+  {
+    "hash": "42a67e1b11572d59a57c5ed9fd6422f6fa086e93",
+    "date": "2025-10-31T12:23:03+07:00",
+    "message": "fix: remove pymysql from installation in python-minimal scripts",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "102b86ddb4303edafc49c03e98f349d9bebd205b",
+    "date": "2025-10-31T11:59:52+07:00",
+    "message": "fix: add pymysql and python-dotenv to installation in python-minimal scripts",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "921293b95dc85066a0b0c83991b91d680746d001",
+    "date": "2025-10-30T17:43:54+07:00",
+    "message": "refactor(proxydb): centralize database access with get_db helper method\n\n- Added `get_db()` method to handle database initialization and retrieval\n- Replaced repetitive connection checks with unified `get_db()` usage\n- Simplified database operation methods for better readability and maintainability\n- Ensured consistent and safe database access across all ProxyDB methods",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "466b4939d53d2430f27d910623ec1904c8e181af",
+    "date": "2025-10-30T17:39:44+07:00",
+    "message": "fix: ensure cursor is closed before closing the database connection",
+    "files": [
+      "src/ProxyDB.py",
+      "src/SQLiteHelper.py"
+    ]
+  },
+  {
+    "hash": "2c6b1d30e39ae76d30f08969a0afff1918d61e80",
+    "date": "2025-10-30T17:34:59+07:00",
+    "message": "fix: add check for db existence in test_vacuum function",
+    "files": [
+      "tests/ProxyDB_Test.py"
+    ]
+  },
+  {
+    "hash": "c7c8e3822708de26780065e098729d7db862de37",
+    "date": "2025-10-30T17:34:08+07:00",
+    "message": "fix: improve teardown logic for ProxyDB connection in tests",
+    "files": [
+      "tests/ProxyDB_Test.py"
+    ]
+  },
+  {
     "hash": "d343f2e3cb812c354c94966371eb16a6def1056b",
     "date": "2025-10-30T17:05:39+07:00",
     "message": "fix: update author name to L3n4r0x in About and Contact pages",
@@ -8691,102 +8769,6 @@
     "files": [
       "src/ProxyDB.js",
       "tests/ProxyDB.test.js"
-    ]
-  },
-  {
-    "hash": "d4ac04f55f9babfd84d8a63e6422086345df123b",
-    "date": "2025-07-08T10:47:23+07:00",
-    "message": "chore(deps): update dependencies to latest versions for improved stability and security",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "5506ce45662d96c40c67e0338b32e0fd1acdf785",
-    "date": "2025-07-08T10:19:18+07:00",
-    "message": "feat(test): add Jest configuration and scripts for TypeScript testing\n\n- Added jest.config.ts with TypeScript and Babel support for ESM and CJS modules.\n- Updated package.json:\n     - Added test, test:coverage, test:watch, test:debug, and lint scripts.\n     - Added Jest and related dependencies.\n- Updated .vscode/settings.json to support *.test.{cjs,js,mjs,ts} file execution with npm test.\n- Changed pytest HTML coverage output directory.",
-    "files": [
-      ".vscode/settings.json",
-      "jest.config.ts",
-      "package.json"
-    ]
-  },
-  {
-    "hash": "de84198c161a5d6cad3aeea2e4374943d9bbc692",
-    "date": "2025-07-08T09:46:24+07:00",
-    "message": "refactor: migrate ProxyDB tests from unittest to pytest\n\n- Replace unittest.TestCase with standalone pytest test functions.\n- Add pytest fixture for ProxyDB setup and teardown.\n- Update assertions to use pytest's assert statement.\n- Remove unused variables and redundant imports.\n- Update test runner to use pytest.main.",
-    "files": [
-      "tests/ProxyDB_Test.py"
-    ]
-  },
-  {
-    "hash": "c6962f3b1ff99609e615ccc930312f806fd0e404",
-    "date": "2025-07-08T08:44:25+07:00",
-    "message": "refactor(ProxyDB): improve type hints, enhance SQL query safety, and streamline data cleaning",
-    "files": [
-      "src/ProxyDB.py"
-    ]
-  },
-  {
-    "hash": "ab46e1704db1b5047975eee0725e0b6f7de70d94",
-    "date": "2025-07-08T08:40:23+07:00",
-    "message": "refactor(instructions): remove redundant Node.js guidelines and clarify Python project standards",
-    "files": [
-      ".github/instructions/all.instructions.md",
-      ".github/instructions/python.instructions.md"
-    ]
-  },
-  {
-    "hash": "4b3ee858e8c01e9a77bebd156b2946a15ed9e35e",
-    "date": "2025-07-08T08:27:56+07:00",
-    "message": "refactor(instructions): update Node.js applyTo pattern and improve output directory guidance",
-    "files": [
-      ".github/instructions/all.instructions.md",
-      ".github/instructions/nodejs.instructions.md"
-    ]
-  },
-  {
-    "hash": "635d71088790adb7ee3b34fa56295996f0b31949",
-    "date": "2025-07-08T08:08:20+07:00",
-    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
-    "files": []
-  },
-  {
-    "hash": "0f9169da6b805ff22dc1fc7119b39e54bfa7028b",
-    "date": "2025-07-08T08:07:27+07:00",
-    "message": "refactor(cloud_sqlite): migrate to PDO, strict types, PSR-12, and centralized auth\n\n- refactor all PHP endpoints to use PDO instead of SQLite3, strict types, and PSR-12 coding standards\n- centralize authentication logic in config.php with isAuthenticated(); support Authorization header and POST field in production, ?auth= for development (is_debug)\n- update all endpoints (sync.php, fetch.php, fetch-updated.php, delete.php) to use new auth logic and PDO\n- improve database initialization in init.php with always-on schema creation and PDO\n- update README to document all supported authentication methods, clarify production vs. development auth, and show example usage for each endpoint\n- add and organize PHPUnit tests for all endpoints (SyncApiTest, FetchApiTest, FetchUpdatedApiTest, AuthTest)\n- add VSCode launch config for running PHPUnit tests",
-    "files": [
-      ".vscode/launch.json",
-      "cloud_sqlite/config.php",
-      "cloud_sqlite/delete.php",
-      "cloud_sqlite/fetch-updated.php",
-      "cloud_sqlite/fetch.php",
-      "cloud_sqlite/init.php",
-      "cloud_sqlite/readme.md",
-      "cloud_sqlite/sync.php",
-      "tests/cloud_sqlite/AuthTest.php",
-      "tests/cloud_sqlite/FetchApiTest.php",
-      "tests/cloud_sqlite/FetchUpdatedApiTest.php",
-      "tests/cloud_sqlite/SyncApiTest.php"
-    ]
-  },
-  {
-    "hash": "5d53911f1c958935570678cf878d721c24e84373",
-    "date": "2025-07-08T08:05:37+07:00",
-    "message": "refactor(cloud_sqlite): migrate to PDO, strict types, PSR-12, and centralized auth\n\n- refactor all PHP endpoints to use PDO instead of SQLite3, strict types, and PSR-12 coding standards\n- centralize authentication logic in config.php with isAuthenticated(); support Authorization header and POST field in production, ?auth= for development (is_debug)\n- update all endpoints (sync.php, fetch.php, fetch-updated.php, delete.php) to use new auth logic and PDO\n- improve database initialization in init.php with always-on schema creation and PDO\n- update README to document all supported authentication methods, clarify production vs. development auth, and show example usage for each endpoint\n- add and organize PHPUnit tests for all endpoints (SyncApiTest, FetchApiTest, FetchUpdatedApiTest, AuthTest)\n- add VSCode launch config for running PHPUnit tests",
-    "files": [
-      ".vscode/launch.json",
-      "cloud_sqlite/config.php",
-      "cloud_sqlite/delete.php",
-      "cloud_sqlite/fetch-updated.php",
-      "cloud_sqlite/fetch.php",
-      "cloud_sqlite/init.php",
-      "cloud_sqlite/readme.md",
-      "cloud_sqlite/sync.php",
-      "tests/cloud_sqlite/AuthTest.php",
-      "tests/cloud_sqlite/FetchApiTest.php",
-      "tests/cloud_sqlite/FetchUpdatedApiTest.php",
-      "tests/cloud_sqlite/SyncApiTest.php"
     ]
   }
 ]
