@@ -1,5 +1,63 @@
 [
   {
+    "hash": "3106d7323b45595f11e96e103691b2abf432e4e8",
+    "date": "2025-10-31T17:50:29+07:00",
+    "message": "fix(proxyCheckerStarter): use correct lock file path for validation",
+    "files": [
+      "artisan/proxyCheckerStarter.php"
+    ]
+  },
+  {
+    "hash": "b3f4ab54a8a881615f5d2233c7333009d4267afd",
+    "date": "2025-10-31T17:49:50+07:00",
+    "message": "feat(artisan): add proxyCheckerStarter to spawn background proxy checks\n\n- Add new `artisan/proxyCheckerStarter.php`.\n- Selects untested (or oldest tested) proxies, shuffles and slices the list.\n- Prepares per-proxy runner environment (pid, output, runner, lock file) and ensures directories/permissions.\n- Builds CLI command and launches detached background jobs (Windows `start /B` via popen; Unix `&` via exec).\n- Passes `--lockFile` to child processes to avoid concurrent checks and validates global lock.\n- Non-breaking, adds a helper entrypoint to distribute/dispatch proxyChecker work.",
+    "files": [
+      "artisan/proxyCheckerStarter.php"
+    ]
+  },
+  {
+    "hash": "5d705fff35f05d4454d67e364c4ceca99cf4fc8a",
+    "date": "2025-10-31T17:45:13+07:00",
+    "message": "feat(proxyChecker): add lockfile support to prevent concurrent runs\n\n- Add new CLI option `--lockFile` to `artisan/proxyChecker.php`.\n- If the lock file exists the script exits (code 5) to avoid duplicate runs.\n- Writes the current PID to the provided lock file at start and removes it on exit.\n- Small style/closure formatting cleanup (fn spacing).",
+    "files": [
+      "artisan/proxyChecker.php"
+    ]
+  },
+  {
+    "hash": "a49d53fa9c4bd3777578b8b5e5e07b6e3c75554f",
+    "date": "2025-10-31T17:27:33+07:00",
+    "message": "feat: add method to retrieve oldest tested proxies",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "0ea67cedd4ec4667694645a5077455aeb4e93756",
+    "date": "2025-10-31T17:11:24+07:00",
+    "message": "feat(artisan): add CLI proxyChecker to test HTTP/SOCKS proxies and update DB\n\nAdd new CLI script `artisan/proxyChecker.php` that accepts `--proxy \"IP:PORT\"` or\n`\"IP:PORT@user:pass\"` and performs protocol checks for `http`, `socks4`,\n`socks5`, `socks4a`, and `socks5h`. For each protocol the checker tries an HTTPS\nendpoint first and falls back to an HTTP endpoint. Results for all tested\nprotocols are aggregated and persisted to the project `ProxyDB`:\n\n- Adds `artisan/proxyChecker.php`.\n- CLI-only; exits if not run from CLI.\n- Parses optional proxy credentials in `IP:PORT@user:pass` form.\n- Tests protocols: `http`, `socks4`, `socks5`, `socks4a`, `socks5h`.\n- Tries endpoints per protocol: HTTPS first (https://www.example.com), then\n  HTTP fallback (http://httpforever.com/).\n- Aggregates working protocols into `type` (e.g. `socks4-socks5`), sets\n  `status = active`, stores best `latency` (min), `private` flag, and `https`\n  support. Records `anonymity` (when available) and invokes geoip lookup\n  best-effort.\n- Marks proxy as `port-closed` when port is unreachable or `dead` otherwise.\n- Reuses existing helpers from `php_backend/shared.php` and `func-proxy.php`\n  (`checkProxy`, `get_anonymity`, `GeoIpHelper`, `ProxyDB`).\n- Non-breaking addition; improves proxy validation coverage for multiple\n  proxy types and both SSL/non-SSL endpoints.\n\nNo breaking changes; purely additive CLI tooling.",
+    "files": [
+      "artisan/proxyChecker.php"
+    ]
+  },
+  {
+    "hash": "d0587c92d575e6121656aa81c78e8817f0d5d0da",
+    "date": "2025-10-31T17:10:53+07:00",
+    "message": "feat: add mysql-connector-python to requirements",
+    "files": [
+      "requirements-base.txt"
+    ]
+  },
+  {
+    "hash": "6689db85e8440894b78e889348e1de284fc43408",
+    "date": "2025-10-31T17:07:41+07:00",
+    "message": "chore: update Yarn version to 4.10.3 in .yarnrc.yml and package.json",
+    "files": [
+      ".yarn/releases/yarn-4.10.3.cjs",
+      ".yarnrc.yml",
+      "package.json"
+    ]
+  },
+  {
     "hash": "d442d2629083894aa73f1f605796c8c7097f7059",
     "date": "2025-10-31T16:56:14+07:00",
     "message": "fix(artisan): correct CLI access checks and headers for proxy scripts\n\n- Removed redundant `$isCli` conditional blocks in `filterPorts.php` and `proxyCollector.php`\n- Added missing CLI access check and header handling in `proxyCollector2.php`\n- Ensures consistent behavior and proper web access restriction across artisan scripts",
@@ -8705,70 +8763,6 @@
     "message": "refactor: clean up unused functions and improve code organization",
     "files": [
       "func-proxy.php"
-    ]
-  },
-  {
-    "hash": "fb4aaa50089cebf337339d419d129eae717cc2b3",
-    "date": "2025-07-08T11:39:59+07:00",
-    "message": "refactor(proxy): move geo IP logic to GeoIpHelper, restore utils, improve error handling\n\n- Refactored file processing and geo IP logic for reduced memory usage and maintainability.\n- Moved geo IP and locale/language functions to new class `GeoIpHelper` in `src/PhpProxyHunter/GeoIpHelper.php`.\n- Updated all usages in `geoIp.php`, `proxyChecker.php`, and `proxyCheckerParallel-func.php` to use `GeoIpHelper::getGeoIp`.\n- Restored utility functions: `extractIpPortFromFile`, `extractIpPortFromFileCallback`, `generateIPWithPorts`.\n- Restored and corrected `parse_working_proxies` to use new geo IP logic.\n- Removed legacy geo IP and locale functions from `func-proxy.php`.\n- Improved error handling in `processCheckProxy` for curl failures, empty/invalid responses, and azenv/raw header detection.\n- Applied PSR-12 and project conventions.",
-    "files": [
-      "func-proxy.php",
-      "geoIp.php",
-      "proxyChecker.php",
-      "proxyCheckerParallel-func.php",
-      "src/PhpProxyHunter/GeoIpHelper.php",
-      "src/PhpProxyHunter/locales.json"
-    ]
-  },
-  {
-    "hash": "56fc708ca4eea8b3590a3546201ed01d00437bad",
-    "date": "2025-07-08T11:16:12+07:00",
-    "message": "refactor: optimize filterIpPortLines to use streaming and temp file\n\n- Use file streaming instead of reading entire file into memory\n- Write filtered lines to a temporary file, then overwrite original if matches found\n- Improve error handling and resource management\n- Add strict_types declaration",
-    "files": [
-      "func-proxy.php"
-    ]
-  },
-  {
-    "hash": "a5aa0874d07ed24f011e9d40d68c46c5c638a1ae",
-    "date": "2025-07-08T11:12:08+07:00",
-    "message": "refactor(tests): migrate hasher tests to framework-based suites\n\n- Refactor JS hasher test to use Jest with proper test cases and assertions.\n- Refactor Python hasher test to use pytest with fixtures and assertions.\n- Refactor PHP hasher test to use PHPUnit, PSR-12, strict types, and assertions.\n- Remove Composer\\Factory usage from PHP hasher for compatibility.\n- All test files remain in the `tests` folder as per project convention.\n- Improves test isolation, maintainability, and cross-",
-    "files": [
-      "tests/hashers/CustomPasswordHasher.test.cjs",
-      "tests/hashers/CustomPasswordHasherTest.php",
-      "tests/hashers/CustomPasswordHasherTest.py"
-    ]
-  },
-  {
-    "hash": "19c7044cc1dcc069e46ff12093988e062e8737f2",
-    "date": "2025-07-08T11:10:27+07:00",
-    "message": "fix: correct project root path retrieval in CustomPasswordHasher",
-    "files": [
-      "src/hashers/CustomPasswordHasher.php"
-    ]
-  },
-  {
-    "hash": "be789a4fd34cd30a185e3bb7669c6fbd4fea855e",
-    "date": "2025-07-08T11:00:04+07:00",
-    "message": "feat: add Jest globals to ESLint configuration for improved testing support",
-    "files": [
-      "eslint.config.mjs"
-    ]
-  },
-  {
-    "hash": "15634da4466b28a7e3b9279bde2a0e9b5802c028",
-    "date": "2025-07-08T10:57:43+07:00",
-    "message": "refactor: output .husky/hash.txt as directory tree with short hashes\n\n- Changed hash output from flat file list to a directory/file tree format with short (8-char) hashes.\n- Updated hash generation to only use the first 8 characters of each SHA-256 hash.\n- Added logic to build and print a tree structure for easier visual inspection of file hashes.",
-    "files": [
-      "bin/create-file-hashes.cjs"
-    ]
-  },
-  {
-    "hash": "69e8aadd653b2c5974f0bef1bcf15158b73feddd",
-    "date": "2025-07-08T10:50:51+07:00",
-    "message": "feat: improve ProxyDB error logging and add comprehensive Jest tests\n\n- Refactor ProxyDB to use a persistent error log file, ensuring directory creation and synchronous appending.\n- Add a close() method to ProxyDB for proper test cleanup.\n- Rewrite and expand ProxyDB Jest tests:\n   - Use a temporary database for isolation.\n   - Add tests for all major ProxyDB methods, including error logging.\n   - Ensure cleanup of test data after each test.\n- Remove dependency on getFromProject in tests.",
-    "files": [
-      "src/ProxyDB.js",
-      "tests/ProxyDB.test.js"
     ]
   }
 ]
