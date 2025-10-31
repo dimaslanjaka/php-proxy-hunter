@@ -13,8 +13,6 @@ use PhpProxyHunter\Scheduler;
 
 if (!$isCli) {
   header('Content-Type:text/plain; charset=UTF-8');
-}
-if (!$isCli) {
   exit('web server access disallowed');
 }
 

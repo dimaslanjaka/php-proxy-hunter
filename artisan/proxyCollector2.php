@@ -5,6 +5,11 @@ require_once __DIR__ . '/../php_backend/shared.php';
 
 global $isCli, $proxy_db;
 
+if (!$isCli) {
+  header('Content-Type:text/plain; charset=UTF-8');
+  exit('web server access disallowed');
+}
+
 $assetDir = __DIR__ . '/../assets';
 $proxyDir = $assetDir . '/proxies';
 if (!is_dir($proxyDir)) {

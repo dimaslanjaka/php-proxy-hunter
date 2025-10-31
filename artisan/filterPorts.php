@@ -17,8 +17,6 @@ $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMO
 
 if (!$isCli) {
   header('Content-Type:text/plain; charset=UTF-8');
-}
-if (!$isCli) {
   exit('web server access disallowed');
 }
 
