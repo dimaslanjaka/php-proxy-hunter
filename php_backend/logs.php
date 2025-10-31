@@ -22,7 +22,8 @@ if ($perPage < 1 || $perPage > 500) {
 
 $hash = isset($request['hash']) ? $request['hash'] : '';
 if (!empty($hash)) {
-  $logData = $logsRepo->getLogsByHash($hash);
+  $logFile = tmp() . '/logs/' . $hash . '.txt';
+  $logData = file_get_contents($logFile);
   if ($logData) {
     echo $logData;
   } else {
