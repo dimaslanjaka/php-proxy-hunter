@@ -70,7 +70,7 @@ foreach ($proxiesToCheck as $proxy) {
   }
 
   // validate lock files
-  if (file_exists($rootProjectDir . '/proxyChecker.lock') && !is_debug()) {
+  if (file_exists($lockFile) && !is_debug()) {
     exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
   }
 
