@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.func_proxy import *
 from src.func import *
+from proxy_hunter import build_request
 
 proxy = "3.10.93.50:3128"
 
