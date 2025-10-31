@@ -40,6 +40,10 @@ shuffle($proxiesToCheck);
 $proxiesToCheck = array_slice($proxiesToCheck, 0, 5);
 
 foreach ($proxiesToCheck as $proxy) {
+  if (empty($proxy['proxy'])) {
+    continue;
+  }
+
   $proccessId = md5($proxy['proxy']);
   // Run a long-running process in the background
   $file        = realpath($rootProjectDir . '/artisan/proxyChecker.php');
