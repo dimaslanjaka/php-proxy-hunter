@@ -21,6 +21,18 @@ if (!$isCli) {
   }
 }
 
+$userId = getUserId();
+
+// Only allow user check proxies every 5 minutes
+if (!$isCli) {
+  $lastCheck = $_SESSION['lastProxyCheck-' . $userId] ?? 0;
+  $now       = time();
+  if ($now - $lastCheck < 300 && !$isCli) {
+    exit('Proxy check was run less than 5 minutes ago. Please wait.' . PHP_EOL);
+  }
+  $_SESSION['lastProxyCheck-' . $userId] = $now;
+}
+
 $proxiesToCheck = [];
 
 // Get untested proxies only
@@ -58,8 +70,7 @@ foreach ($proxiesToCheck as $proxy) {
   setMultiPermissions([$file, $output_file, $pid_file], true);
 
   $cmd = 'php ' . escapeshellarg($file);
-  $uid = getUserId();
-  $cmd .= ' --userId=' . escapeshellarg($uid);
+  $cmd .= ' --userId=' . escapeshellarg($userId);
   $cmd .= ' --pidFile=' . escapeshellarg($pid_file);
   $cmd .= ' --outputFile=' . escapeshellarg($output_file);
   $cmd .= ' --runnerFile=' . escapeshellarg($runner);
