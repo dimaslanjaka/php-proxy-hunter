@@ -44,7 +44,7 @@ $('#check-proxies').on('click', function () {
   let proxies = $('#data-proxies').val(); // Get the proxies list from the textarea
 
   // Split the proxies string into an array of individual lines
-  let lines = proxies.split('\n');
+  let lines = String(proxies).split('\n');
 
   // Remove any empty lines from the array
   lines = lines.filter((line) => line.trim() !== '');
