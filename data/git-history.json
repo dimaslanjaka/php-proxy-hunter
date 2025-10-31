@@ -1,5 +1,61 @@
 [
   {
+    "hash": "bc00e21a0b7ccd83e27589b2fc927fd86def0e4b",
+    "date": "2025-10-31T18:38:49+07:00",
+    "message": "feat(artisan): rate-limit proxyCheckerStarter to once per user per 5 minutes\n\n- store per-user timestamp in session under `lastProxyCheck-{userId}`\n- exit early when a non-CLI request triggers the starter within 5 minutes\n- compute and reuse `$userId` for child `--userId` flag\n- reduces duplicate background job launches and throttles user-triggered runs",
+    "files": [
+      "artisan/proxyCheckerStarter.php"
+    ]
+  },
+  {
+    "hash": "efc6db08285e078989aa2ecdc84a6773c75e4f09",
+    "date": "2025-10-31T18:35:20+07:00",
+    "message": "feat(react): start background proxy checker from ProxyList every 5 minutes\n\nCall `/artisan/proxyCheckerStarter.php` from `ProxyList.tsx` to kick off background proxy checks.\nRate-limit invocations with `localStorage` (`lastProxyCheckStart`) so the starter is requested at most once every 5 minutes.",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "4323183eeb482065321be937574121c97e301f07",
+    "date": "2025-10-31T18:00:50+07:00",
+    "message": "fix(proxyChecker): handle exceptions during anonymity check and improve error reporting",
+    "files": [
+      "artisan/proxyChecker.php"
+    ]
+  },
+  {
+    "hash": "e1996994bee910676388f702f4d952d42723e9b1",
+    "date": "2025-10-31T17:58:46+07:00",
+    "message": "refactor(get_anonymity): enhance documentation for proxy connectivity check",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
+    "hash": "aef682957a172997975fea935a724dfd41b4498c",
+    "date": "2025-10-31T17:57:23+07:00",
+    "message": "fix(get_anonymity): ensure content is valid before returning in case of curl failure",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
+    "hash": "9d4357f96d520c437b894f434bb1926f1bd55668",
+    "date": "2025-10-31T17:53:59+07:00",
+    "message": "fix(proxyCheckerStarter): skip empty proxies in the checking process",
+    "files": [
+      "artisan/proxyCheckerStarter.php"
+    ]
+  },
+  {
+    "hash": "e19cd4054e285e5756bfe5bb912f0ec7479c14f9",
+    "date": "2025-10-31T17:52:07+07:00",
+    "message": "refactor(proxyCheckerStarter): replace CORS headers with Server::allowCors method",
+    "files": [
+      "artisan/proxyCheckerStarter.php"
+    ]
+  },
+  {
     "hash": "3106d7323b45595f11e96e103691b2abf432e4e8",
     "date": "2025-10-31T17:50:29+07:00",
     "message": "fix(proxyCheckerStarter): use correct lock file path for validation",
@@ -8688,81 +8744,6 @@
       "fix-nginx-perm.sh",
       "geoIpBackground.php",
       "proxyManager-src.js"
-    ]
-  },
-  {
-    "hash": "dd1b94ddd27e8a7a71abc03b38f2951590ab1be7",
-    "date": "2025-07-08T13:50:38+07:00",
-    "message": "refactor: add missing use statements for ProxyDB and Proxy classes",
-    "files": [
-      "src/utils/proxy/extractor.php"
-    ]
-  },
-  {
-    "hash": "f9501ead816c0199cb1a88211a730c9bb6aa92f3",
-    "date": "2025-07-08T13:47:25+07:00",
-    "message": "refactor: replace PROJECT_ROOT with $projectRoot variable and add strict types\n\n- Introduced $projectRoot variable for consistent project root path usage.\n- Replaced all PROJECT_ROOT constants with $projectRoot.\n- Added declare(strict_types=1) for type safety.\n- Minor code cleanup and improved maintainability.",
-    "files": [
-      "artisan/proxyFetcher.php"
-    ]
-  },
-  {
-    "hash": "2097e21d11277e31f0ae1c00443c54ffaf4bceb2",
-    "date": "2025-07-08T13:36:15+07:00",
-    "message": "fix: ensure ProxyDB class is loaded before usage",
-    "files": [
-      "src/utils/proxy/extractor.php"
-    ]
-  },
-  {
-    "hash": "2f991d8dae9fc952d43f7524c915f9b3298ab86f",
-    "date": "2025-07-08T13:27:42+07:00",
-    "message": "refactor: move proxyWorking scripts to artisan directory and update paths\n\n- Moved proxyWorking.php and proxyWorkingBackground.php to artisan/ directory\n- Updated all file and directory references to use $projectDir and dirname(__DIR__)\n- Added strict_types declaration to PHP files\n- Fixed file paths in setMultiPermissions and write_file calls\n- Updated JS fetch path to new PHP script location",
-    "files": [
-      "artisan/proxyWorking.php",
-      "artisan/proxyWorkingBackground.php",
-      "proxyManager-src.js"
-    ]
-  },
-  {
-    "hash": "87bd5a8008cea2cf002fd004ac20481899d7b688",
-    "date": "2025-07-08T13:24:20+07:00",
-    "message": "docs: update instructions and ignore rules for file safety and coverage\n\n- Enhanced all.instructions.md with guidelines for careful file operations, backups, and path correctness.\n- Updated .gitignore to exclude .bak backup files.\n- Updated VSCode settings to hide hash.txt and coverage directory from the file explorer.",
-    "files": [
-      ".github/instructions/all.instructions.md",
-      ".gitignore",
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "f6c7c3341ad02065c337be50152c01052b576738",
-    "date": "2025-07-08T13:13:28+07:00",
-    "message": "refactor(utils): modularize file and proxy utilities\n\n- Split large utility files into smaller modules under `src/utils/file/`, `src/utils/proxy/`, and `src/utils/string/`\n- Move file CRUD, sanitizer, and stats functions to dedicated files\n- Move proxy CIDR, ports, extractor, and validator functions to dedicated files\n- Move string helpers and user agent generators to dedicated files\n- Update autoloader to recursively require all PHP files in subdirectories\n- Remove deleted files and update test and require paths accordingly",
-    "files": [
-      ".idea/htdocs.iml",
-      "func-cidr.php",
-      "func.php",
-      "src/utils/autoload.php",
-      "src/utils/file.php",
-      "src/utils/file/crud.php",
-      "src/utils/file/index.php",
-      "src/utils/file/sanitizer.php",
-      "src/utils/file/stats.php",
-      "src/utils/proxy/cidr.php",
-      "src/utils/proxy/extractor.php",
-      "src/utils/proxy/ports.php",
-      "src/utils/proxy/validator.php",
-      "src/utils/string/index.php",
-      "src/utils/string/useragent.php",
-      "tests/cidr-random-proxy.php"
-    ]
-  },
-  {
-    "hash": "4c41f6c510c49e77ed300d4976bd4a146839688e",
-    "date": "2025-07-08T11:41:50+07:00",
-    "message": "refactor: clean up unused functions and improve code organization",
-    "files": [
-      "func-proxy.php"
     ]
   }
 ]
