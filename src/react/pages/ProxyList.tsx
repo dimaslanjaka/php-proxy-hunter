@@ -122,7 +122,10 @@ function ProxyList() {
   const [countryFilter, setCountryFilter] = React.useState('');
   const [cityFilter, setCityFilter] = React.useState('');
   const [timezoneFilter, setTimezoneFilter] = React.useState('');
-  const [filterOpen, setFilterOpen] = React.useState(false);
+  const [regionFilter, setRegionFilter] = React.useState('');
+  // filters always shown (accordion removed)
+  const [loadingProxies, setLoadingProxies] = React.useState(false);
+  const isMountedRef = React.useRef(true);
 
   // Get ProxyDetails keys for table, reordering specific columns to the end
   const proxyKeys = React.useMemo(() => {
@@ -147,6 +150,10 @@ function ProxyList() {
     () => Array.from(new Set(proxies.map((p) => p.timezone).filter(Boolean))).sort(),
     [proxies]
   );
+  const uniqueRegions = React.useMemo(
+    () => Array.from(new Set(proxies.map((p) => p.region).filter(Boolean))).sort(),
+    [proxies]
+  );
 
   // Filtered and paginated proxies
   const filteredProxies = React.useMemo(() => {
@@ -159,6 +166,9 @@ function ProxyList() {
     }
     if (timezoneFilter) {
       filtered = filtered.filter((p) => String(p.timezone || '') === timezoneFilter);
+    }
+    if (regionFilter) {
+      filtered = filtered.filter((p) => String(p.region || '') === regionFilter);
     }
     if (typeFilter) {
       filtered = filtered.filter((p) => {
@@ -181,6 +191,19 @@ function ProxyList() {
 
   // On mount
   React.useEffect(() => {
+    // mounted flag for safe updates
+    isMountedRef.current = true;
+
+    // Helper to refresh proxies with loading state
+    const refreshProxies = async () => {
+      setLoadingProxies(true);
+      try {
+        await fetchAndSetProxies(setProxies, setShowModal);
+      } finally {
+        if (isMountedRef.current) setLoadingProxies(false);
+      }
+    };
+
     // Check captcha status
     const checkCaptchaStatus = async () => {
       try {
@@ -196,7 +219,8 @@ function ProxyList() {
           setShowModal(true);
         } else {
           setShowModal(false);
-          fetchAndSetProxies(setProxies, setShowModal);
+          // initial load
+          await refreshProxies();
         }
       } catch {
         setShowModal(true); // fallback: show modal if error
@@ -212,17 +236,36 @@ function ProxyList() {
       fetch(createUrl('/artisan/proxyCheckerStarter.php')).catch(noop);
       localStorage.setItem('lastProxyCheckStart', now.toString());
     }
+
+    return () => {
+      isMountedRef.current = false;
+    };
   }, [setProxies]);
 
   // Refresh proxy list every 1 minute
   React.useEffect(() => {
+    // periodic refresh using the same loader - avoid overlapping fetches
     const interval = setInterval(() => {
-      if (!showModal) {
-        fetchAndSetProxies(setProxies, setShowModal);
+      if (!showModal && !loadingProxies) {
+        setLoadingProxies(true);
+        fetchAndSetProxies(setProxies, setShowModal).finally(() => {
+          if (isMountedRef.current) setLoadingProxies(false);
+        });
       }
     }, 60000); // 60,000 ms = 1 min
     return () => clearInterval(interval);
-  }, [showModal, setProxies]);
+  }, [showModal, setProxies, loadingProxies]);
+
+  // Manual refresh handler exposed to UI
+  const handleRefresh = async () => {
+    if (loadingProxies) return;
+    setLoadingProxies(true);
+    try {
+      await fetchAndSetProxies(setProxies, setShowModal);
+    } finally {
+      if (isMountedRef.current) setLoadingProxies(false);
+    }
+  };
 
   const handleRecaptcha = async (token: string | null) => {
     if (token) {
@@ -279,21 +322,23 @@ function ProxyList() {
 
       {/* Main content */}
       <div className={showModal ? 'blur-sm pointer-events-none select-none' : ''}>
-        <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
-          <i className="fa-duotone fa-list-check"></i> Proxy List
-        </h1>
-        {/* Filter controls */}
-        <div className="mb-4 w-full">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <i className="fa-duotone fa-list-check"></i> Proxy List
+          </h1>
           <button
-            type="button"
-            className="flex items-center gap-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold w-full sm:w-auto"
-            onClick={() => setFilterOpen((open) => !open)}
-            aria-expanded={filterOpen}
-            aria-controls="proxy-filter-collapse">
-            <i className={`fa-duotone ${filterOpen ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-            {filterOpen ? 'Hide Filters' : 'Show Filters'}
+            className="ml-0 sm:ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1 flex-shrink-0"
+            onClick={handleRefresh}
+            disabled={loadingProxies}
+            title={'Refresh proxies'}
+            aria-label={'Refresh proxies'}>
+            <i className="fa fa-refresh sm:hidden" aria-hidden="true"></i>
+            <span className="hidden sm:inline">Refresh</span>
           </button>
-          <div id="proxy-filter-collapse" className={`${filterOpen ? 'block' : 'hidden'}`}>
+        </div>
+        {/* Filter controls (always visible) */}
+        <div className="mb-4 w-full">
+          <div className="block">
             <div className="flex flex-col sm:flex-row flex-wrap gap-x-4 gap-y-2 mt-4 items-center w-full">
               <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
                 <label className="text-gray-700 dark:text-gray-200 mb-1">Type:</label>
@@ -341,6 +386,23 @@ function ProxyList() {
                   {uniqueCities.map((city) => (
                     <option key={city} value={city}>
                       {city}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
+                <label className="text-gray-700 dark:text-gray-200 mb-1">Region:</label>
+                <select
+                  value={regionFilter}
+                  onChange={(e) => {
+                    setRegionFilter(e.target.value);
+                    setPage(1);
+                  }}
+                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
+                  <option value="">All Regions</option>
+                  {uniqueRegions.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
                     </option>
                   ))}
                 </select>
