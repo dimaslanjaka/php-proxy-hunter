@@ -1,5 +1,13 @@
 [
   {
+    "hash": "e789e0bed1be0e45867e346dc23f60766629d797",
+    "date": "2025-11-01T05:41:14+07:00",
+    "message": "fix(proxySubmission): update fetch URL in _checkProxy2 to use createUrl function",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
     "hash": "1e0fd038df8caf4bbb396e1ca70cdadb47b682e0",
     "date": "2025-11-01T05:38:44+07:00",
     "message": "feat(proxy-submission): add async HTTPS proxy checker and invoke after submission\n\n- Add `_checkProxy2(proxies: string)` to POST JSON to `check-https-proxy.php`, parse JSON/text responses, and log success or errors.\n- Call `_checkProxy2` in a `.finally()` block after the submission promise so the HTTPS check runs non-blocking after submit.\n- Improve error handling and diagnostic logging for proxy checks.",
@@ -8721,15 +8729,6 @@
       "packages/browser-with-fingerprints",
       "packages/selenium-stealth",
       "src/vps/vps_manager.py"
-    ]
-  },
-  {
-    "hash": "a928d45274f936863083f012cbad8db8592858f1",
-    "date": "2025-07-08T14:48:38+07:00",
-    "message": "refactor: clean up unused code and improve file structure",
-    "files": [
-      "proxyManager-src.js",
-      "rollup.project.js"
     ]
   }
 ]
