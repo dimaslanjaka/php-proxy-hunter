@@ -23,6 +23,29 @@ async function _checkProxy(proxyData: ProxyData, type?: string) {
   return data;
 }
 
+async function _checkProxy2(proxies: string) {
+  try {
+    const resp = await fetch('./check-https-proxy.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ proxy: proxies })
+    });
+
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => '');
+      console.error('Error:', resp.status, resp.statusText, text);
+      return;
+    }
+
+    const contentType = resp.headers.get('content-type') || '';
+    const data = contentType.includes('application/json') ? await resp.json() : await resp.text();
+    // handle the successful response if needed
+    console.log('Response:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
 export default function ProxySubmission() {
   const [logUrl, setLogUrl] = React.useState('');
   const [statusUrl, setStatusUrl] = React.useState('');
@@ -56,6 +79,9 @@ export default function ProxySubmission() {
       })
       .catch((err) => {
         console.error(err);
+      })
+      .finally(() => {
+        _checkProxy2(textarea);
       });
 
     // Split textarea into lines and extract proxies from each line
