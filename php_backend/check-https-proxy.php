@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../func.php';
-require_once __DIR__ . '/../func-proxy.php';
 include __DIR__ . '/shared.php';
 
 use PhpProxyHunter\Scheduler;
@@ -27,11 +25,6 @@ if (!$isCli) {
   $req = parseQueryOrPostBody();
   if (isset($req['uid'])) {
     setUserId($req['uid']);
-  }
-
-  // Deny access if Google Analytics cookie is not present
-  if (!isset($_COOKIE['_ga'])) {
-    exit('Access Denied');
   }
 
   // Check if the user has admin privileges
