@@ -375,6 +375,20 @@ class ProxyDB
     return $this->db->select('proxies', '*', $whereClause, $params, $orderBy, $limit);
   }
 
+  /**
+   * Get proxies that have been tested previously, ordered by oldest last_check first.
+   *
+   * @param int|null $limit
+   * @return array
+   */
+  public function getOldestTestedProxies($limit = null)
+  {
+    // Select proxies that have a last_check value and order ascending (oldest first)
+    $whereClause = 'last_check IS NOT NULL AND last_check != ""';
+    $orderBy     = 'last_check ASC';
+    return $this->db->select('proxies', '*', $whereClause, [], $orderBy, $limit) ?: [];
+  }
+
   public function countDeadProxies()
   {
     $closed = $this->db->count('proxies', 'status = ?', ['port-closed']);
