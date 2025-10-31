@@ -141,9 +141,13 @@ foreach ($types as $type) {
     }
 
     // try get anonymity (collect)
-    $an = get_anonymity($proxyStr, $type, $username, $password);
-    if (!empty($an)) {
-      $anonymities[] = strtolower($an);
+    try {
+      $an = get_anonymity($proxyStr, $type, $username, $password);
+      if (!empty($an)) {
+        $anonymities[] = strtolower($an);
+      }
+    } catch (Throwable $e) {
+      echo '-> anonymity check error: ' . $e->getMessage() . PHP_EOL;
     }
 
     // try geoip per protocol (best-effort)
