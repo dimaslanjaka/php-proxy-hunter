@@ -1,5 +1,21 @@
 [
   {
+    "hash": "3f68f778b38da9f155d83dec7b76eca8598c92d5",
+    "date": "2025-10-31T19:07:20+07:00",
+    "message": "fix(logs): read log file directly instead of using logs repository\n\nReplace call to $logsRepo->getLogsByHash($hash) with reading the\ntemporary file at tmp()/logs/<hash>.txt via file_get_contents.\nReturn raw log contents when present; preserve existing fallback\nbehavior when the file is missing or empty.",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
+    "hash": "beb3fd3ac521704929e554e0f7be14e198a163aa",
+    "date": "2025-10-31T19:04:08+07:00",
+    "message": "fix(proxyChecker): ensure proxies are treated as a string before splitting",
+    "files": [
+      "php_backend/index.js"
+    ]
+  },
+  {
     "hash": "bc00e21a0b7ccd83e27589b2fc927fd86def0e4b",
     "date": "2025-10-31T18:38:49+07:00",
     "message": "feat(artisan): rate-limit proxyCheckerStarter to once per user per 5 minutes\n\n- store per-user timestamp in session under `lastProxyCheck-{userId}`\n- exit early when a non-CLI request triggers the starter within 5 minutes\n- compute and reuse `$userId` for child `--userId` flag\n- reduces duplicate background job launches and throttles user-triggered runs",
@@ -8714,36 +8730,6 @@
     "message": "refactor: consolidate dynamic configuration file glob patterns",
     "files": [
       "rollup.config.js"
-    ]
-  },
-  {
-    "hash": "f3d9f39d8b6752862cd8a355480e68a7cf71d232",
-    "date": "2025-07-08T14:25:26+07:00",
-    "message": "refactor: improve type safety with TypeScript error handling and enhance project_base_url logic",
-    "files": [
-      "proxyManager-src.js"
-    ]
-  },
-  {
-    "hash": "23033585ee3b7aab08bd3d5eed89f3ff85049e37",
-    "date": "2025-07-08T14:00:05+07:00",
-    "message": "refactor: move filterPorts and related scripts to artisan directory\n\n- Moved filterPorts.php, filterPortsBackground.php, and filterPortsDuplicate.php to artisan/ directory for better organization.\n- Updated all references and scripts to use new artisan/ paths.\n- Refactored code to use PROJECT_ROOT or $projectRoot for consistent file path resolution.\n- Updated .github workflows, shell/batch scripts, and JS to use new paths.\n- Improved permission and lock file handling to match new structure.\n- Minor code cleanups and null checks in proxyManager-src.js.",
-    "files": [
-      ".crontab.sh",
-      ".github/workflows/checker-php.yml.txt",
-      ".github/workflows/checker.yml.txt",
-      "artisan/filterPorts.php",
-      "artisan/filterPortsBackground.php",
-      "artisan/filterPortsDuplicate.php",
-      "artisan/proxyWorking.php",
-      "artisan/proxyWorkingBackground.php",
-      "bin/check-proxy-parallel",
-      "bin/check-proxy-parallel.cmd",
-      "bin/filter-port.cmd",
-      "bin/run-php",
-      "fix-nginx-perm.sh",
-      "geoIpBackground.php",
-      "proxyManager-src.js"
     ]
   }
 ]
