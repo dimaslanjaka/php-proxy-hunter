@@ -1,5 +1,21 @@
 [
   {
+    "hash": "1e0fd038df8caf4bbb396e1ca70cdadb47b682e0",
+    "date": "2025-11-01T05:38:44+07:00",
+    "message": "feat(proxy-submission): add async HTTPS proxy checker and invoke after submission\n\n- Add `_checkProxy2(proxies: string)` to POST JSON to `check-https-proxy.php`, parse JSON/text responses, and log success or errors.\n- Call `_checkProxy2` in a `.finally()` block after the submission promise so the HTTPS check runs non-blocking after submit.\n- Improve error handling and diagnostic logging for proxy checks.",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "cea7118ee0cafa9727832d8b45134d556ddc4967",
+    "date": "2025-10-31T20:00:04+07:00",
+    "message": "feat(proxy-list): add region filter, show filters always, and add manual refresh\n\n- Add `regionFilter` state and `uniqueRegions` memo; include region filtering in the proxy list.\n- Remove accordion toggle (`filterOpen`) so filter controls are always visible.\n- Add `loadingProxies` and `isMountedRef` to manage fetch lifecycle safely.\n- Introduce `refreshProxies` helper and `handleRefresh` to enable manual refresh via a header button.\n- Prevent overlapping automatic refreshes by gating periodic refresh with `loadingProxies`.",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
     "hash": "3f68f778b38da9f155d83dec7b76eca8598c92d5",
     "date": "2025-10-31T19:07:20+07:00",
     "message": "fix(logs): read log file directly instead of using logs repository\n\nReplace call to $logsRepo->getLogsByHash($hash) with reading the\ntemporary file at tmp()/logs/<hash>.txt via file_get_contents.\nReturn raw log contents when present; preserve existing fallback\nbehavior when the file is missing or empty.",
@@ -8714,22 +8730,6 @@
     "files": [
       "proxyManager-src.js",
       "rollup.project.js"
-    ]
-  },
-  {
-    "hash": "5ae66d1d7d590f466c3eed6d18fa90be7e82f5fe",
-    "date": "2025-07-08T14:45:17+07:00",
-    "message": "refactor: improve dynamic config loading in rollup.config.js\n\n- Refactored dynamicConfigs to exclude the main config file and ensure uniqueness.\n- Removed unnecessary console.log statements for cleaner output.\n- Throw error immediately on dynamic config load failure.",
-    "files": [
-      "rollup.config.js"
-    ]
-  },
-  {
-    "hash": "b1bcaaed5bd7a09593010fa5e8bd00fd1d797f9d",
-    "date": "2025-07-08T14:27:07+07:00",
-    "message": "refactor: consolidate dynamic configuration file glob patterns",
-    "files": [
-      "rollup.config.js"
     ]
   }
 ]
