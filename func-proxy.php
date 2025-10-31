@@ -537,29 +537,31 @@ function get_anonymity($proxy, $type, $username = null, $password = null)
 /**
  * Check proxy connectivity.
  *
- * This function tests the connectivity of a given proxy by making a request to a specified endpoint.
+ * Tests the connectivity of a given proxy by making a request to a specified endpoint.
+ * Optionally supports authentication and multiple SSL verification modes.
  *
- * @param string $proxy The proxy address to test.
- * @param string $type (Optional) The type of proxy to use. Supported values: 'http', 'socks4', 'socks5', 'socks4a'.
- *                     Defaults to 'http' if not specified.
- * @param string $endpoint (Optional) The URL endpoint to test connectivity. Defaults to 'https://bing.com'.
- * @param array $headers (Optional) Additional HTTP headers to include in the request. Defaults to an empty array.
- * @return array An associative array containing the result of the proxy check:
- *               - 'result': Boolean indicating if the proxy check was successful.
- *               - 'latency': The latency (in milliseconds) of the proxy connection. If the connection failed, -1 is returned.
- *               - 'error': Error message if an error occurred during the connection attempt, null otherwise.
- *               - 'status': HTTP status code of the response.
- *               - 'private': Boolean indicating if the proxy is private.
- */
-/**
- * @param string $proxy
- * @param string $type
- * @param string $endpoint
- * @param array $headers
- * @param string|null $username
- * @param string|null $password
- * @param bool $multiSSL
- * @return array
+ * @param string      $proxy     The proxy address to test.
+ * @param string      $type      (Optional) The type of proxy to use.
+ *                               Supported values: 'http', 'socks4', 'socks5', 'socks4a'.
+ *                               Defaults to 'http' if not specified.
+ * @param string      $endpoint  (Optional) The URL endpoint to test connectivity.
+ *                               Defaults to 'https://bing.com'.
+ * @param array       $headers   (Optional) Additional HTTP headers to include in the request.
+ *                               Defaults to an empty array.
+ * @param string|null $username  (Optional) The username for proxy authentication. Defaults to null.
+ * @param string|null $password  (Optional) The password for proxy authentication. Defaults to null.
+ * @param bool        $multiSSL  (Optional) Whether to test multiple SSL configurations.
+ *                               Defaults to false.
+ *
+ * @return array An associative array containing the result(s) of the proxy check:
+ *               If `$multiSSL` is false:
+ *                 - 'result'  (bool):   Indicates if the proxy check was successful.
+ *                 - 'latency' (int):    Latency in milliseconds. Returns -1 on failure.
+ *                 - 'error'   (string): Error message if an error occurred, otherwise null.
+ *                 - 'status'  (int):    HTTP status code of the response.
+ *                 - 'private' (bool):   Indicates if the proxy is private.
+ *               If `$multiSSL` is true:
+ *                 Returns an array of results for each SSL variant tested.
  */
 function checkProxy(
   $proxy,
