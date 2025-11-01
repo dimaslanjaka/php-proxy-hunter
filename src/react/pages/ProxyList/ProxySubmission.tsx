@@ -64,10 +64,10 @@ export default function ProxySubmission() {
     });
 
     // auto save input,textarea,select elements
-    const elements = document.querySelectorAll('input,textarea,select');
+    // const elements = document.querySelectorAll('input,textarea,select');
     // debug to console.log
-    const show_debug = true;
-    if (show_debug) console.log(elements);
+    // const show_debug = true;
+    // if (show_debug) console.log(elements);
   }, []);
 
   function handleSubmit(e: React.FormEvent) {
