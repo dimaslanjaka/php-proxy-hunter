@@ -1,5 +1,37 @@
 [
   {
+    "hash": "60fedaca84b0e78c58a2c6cd3413c2d72119ac49",
+    "date": "2025-11-01T22:30:44+07:00",
+    "message": "feat(proxy-list): trigger proxyWorking artisan script before fetching working proxies\n\nAdded a pre-fetch request to `/artisan/proxyWorking.php` in `getWorkingProxies()` to ensure the latest proxy data is generated before retrieving `working.json`.\n\nThis improves data freshness and consistency in the proxy list display.",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "3f815a70360169000f24555fe5fd35f72a800c8b",
+    "date": "2025-11-01T22:29:11+07:00",
+    "message": "refactor(proxyWorking): simplify database usage by using global proxy_db instance\n\nUpdated `artisan/proxyWorking.php` to:\n- remove redundant `$db` variable assignment\n- directly use the global `$proxy_db` instance for parsing and retrieving working proxies\n\nAlso updated `.husky/hash.txt` to reflect new file hashes after code changes.",
+    "files": [
+      "artisan/proxyWorking.php"
+    ]
+  },
+  {
+    "hash": "54dba8808913770d879e7fb41bdbde57b7863186",
+    "date": "2025-11-01T22:23:18+07:00",
+    "message": "fix(proxy-checker): prevent proxy check when server IP is unavailable\n\nAdded a safeguard to exit early if `getServerIp()` returns an empty value, avoiding unnecessary proxy tests.\nAlso simplified IP comparison logic by removing redundant current IP check.\n\nThis prevents potential errors when the server IP cannot be determined.",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "b3b658514575a2786f520a0901071bb0c2d9f272",
+    "date": "2025-11-01T22:21:52+07:00",
+    "message": "feat(proxy-checker): detect high anonymous proxies and improve PHP 7.0 compatibility\n\nUpdated `proxy-checker.php` to:\n- add detection for high-anonymous proxies by comparing returned IP against proxy and current IP\n- log successful detection of high-anonymous proxies with clear output\n- remove strict typing declarations and return type hints for PHP 7.0 compatibility\n- clean up redundant PHPDoc return annotations\n\nThis enhances proxy classification and ensures compatibility with older PHP environments.",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "04c61921f09c7c77be934b53fb0441cac668511e",
     "date": "2025-11-01T22:13:41+07:00",
     "message": "fix(project-manager): simplify git pull command by removing intermediate script",
@@ -8666,40 +8698,6 @@
     "message": "refactor(user-handler): unify user DB usage and improve user creation flow\n\nReplaced multiple `UserDB` instantiations with a single instance and updated logic to:\n- Use `select` and `add` methods instead of legacy `getUserByEmail`/`createUser`.\n- Automatically mark certain emails as admin/superuser using environment variables.\n- Sanitize username creation from email using stricter regex.",
     "files": [
       "php_backend/user-handler.php"
-    ]
-  },
-  {
-    "hash": "b0c51ec1efd3039b78fefc56cb114a676d5e02f5",
-    "date": "2025-07-21T04:32:16+07:00",
-    "message": "chore(userdb): remove UserDB class and associated SQLite user management",
-    "files": [
-      "src/UserDB.php"
-    ]
-  },
-  {
-    "hash": "9a9e2921b453979ea4133ba41b23e38556b3fe3e",
-    "date": "2025-07-21T04:27:17+07:00",
-    "message": "chore(user-handler): move Google OAuth handling and user info retrieval",
-    "files": [
-      "php_backend/user-handler.php",
-      "views/assets/js/login.js"
-    ]
-  },
-  {
-    "hash": "e5300a337f83842e54a64700484dd637c4815104",
-    "date": "2025-07-21T04:25:06+07:00",
-    "message": "feat(login): implement Google OAuth callback handling and improve login flow",
-    "files": [
-      "views/assets/js/login.js",
-      "views/assets/js/utils/url.js"
-    ]
-  },
-  {
-    "hash": "dc44da9ddf724053bb49ac30eb294f93b538c410",
-    "date": "2025-07-21T04:09:37+07:00",
-    "message": "feat(user-handler): enhance user info retrieval and session management for OAuth",
-    "files": [
-      "data/user-handler.php"
     ]
   }
 ]
