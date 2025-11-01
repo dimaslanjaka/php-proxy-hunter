@@ -4,6 +4,7 @@ require_once __DIR__ . '/func-proxy.php';
 require_once __DIR__ . '/php_backend/shared.php';
 
 use PhpProxyHunter\GeoIpHelper;
+use PhpProxyHunter\Server;
 
 global $isCli, $isWin, $proxy_db;
 
@@ -14,20 +15,17 @@ if (!$isCli) {
 ini_set('memory_limit', '512M');
 
 if (function_exists('header') && !$isCli) {
-  header('Content-Type: application/json; charset=UTF-8');
+  Server::allowCors(true);
 
-  // Allow from any origin
-  header('Access-Control-Allow-Origin: *');
-  header('Access-Control-Allow-Headers: *');
-  header('Access-Control-Allow-Methods: *');
-  header('Content-Type: application/json; charset=utf-8');
+  // Set content type to plain text with UTF-8 encoding
+  header('Content-Type: text/plain; charset=utf-8');
 
   // check admin
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
 
 $db           = $proxy_db;
-$lockFilePath = tmp() . '/runners/geoIp.lock';
+$lockFilePath = tmp() . '/locks/geoIp.lock';
 $statusFile   = __DIR__ . '/status.txt';
 $config       = getConfig(getUserId());
 $options      = getopt('', ['str:']); // php geoIp.php --str "xsdsd dfdfd"
