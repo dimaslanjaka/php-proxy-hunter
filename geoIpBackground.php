@@ -4,7 +4,7 @@ require_once __DIR__ . '/func-proxy.php';
 
 use PhpProxyHunter\Server;
 
-if (function_exists('header')) {
+if (!is_cli()) {
   Server::allowCors(true);
 
   // Set content type to plain text with UTF-8 encoding
