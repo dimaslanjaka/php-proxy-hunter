@@ -42,7 +42,7 @@ if (isset($request['proxy'])) {
 }
 
 // validate lock files
-$lock_file    = tmp() . '/runners/geoIp.lock';
+$lock_file    = tmp() . '/locks/geoIp' . $uid . '.lock';
 $lock_files[] = $lock_file;
 if (file_exists($lock_file) && !$isAdmin) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
