@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace PhpProxyHunter;
 
 use Throwable;
@@ -19,15 +17,13 @@ class GeoIpHelper
    * @param ProxyDB|null $db
    * @return void
    */
-  public static function getGeoIp(string $the_proxy, string $proxy_type = 'http', ?ProxyDB $db = null): void
+  public static function getGeoIp($the_proxy, $proxy_type = 'http', $db = null)
   {
     $proxy = trim($the_proxy);
     if (empty($proxy)) {
       return;
     }
-    if (empty($db)) {
-      throw new \InvalidArgumentException('ProxyDB instance is required');
-    }
+    // $db is optional. If not provided, skip any database update operations.
     list($ip, $port) = explode(':', $proxy);
     $geo_plugin      = new \PhpProxyHunter\GeoPlugin();
     $geoUrl          = "https://ip-get-geolocation.com/api/json/$ip";
@@ -54,11 +50,11 @@ class GeoIpHelper
         try {
           $countries     = array_values(\Annexare\Countries\countries());
           $filterCountry = array_filter($countries, function ($country) use ($geoIp, $proxy) {
-            return trim(strtolower($country['name'])) == trim(strtolower($geoIp['country']));
+            return trim(strtolower($country['name'])) == trim(strtolower(isset($geoIp['country']) ? $geoIp['country'] : ''));
           });
           if (!empty($filterCountry)) {
             $lang = array_values($filterCountry)[0]['languages'][0];
-            if (!empty($lang)) {
+            if (!empty($lang) && !empty($db)) {
               $db->updateData($proxy, ['lang' => $lang]);
             }
           }
@@ -107,7 +103,9 @@ class GeoIpHelper
         $data['lang'] = $lang;
       }
     }
-    $db->updateData($proxy, $data);
+    if (!empty($db)) {
+      $db->updateData($proxy, $data);
+    }
   }
 
   /**
@@ -116,7 +114,7 @@ class GeoIpHelper
    * @param string $country The country code.
    * @return string|null The primary language code or null if not found.
    */
-  public static function extIntlGetLangCountryCode(string $country): ?string
+  public static function extIntlGetLangCountryCode($country)
   {
     if (empty($country)) {
       return null;
@@ -124,7 +122,7 @@ class GeoIpHelper
     try {
       $subtags = \ResourceBundle::create('likelySubtags', 'ICUDATA', false);
       $country = \Locale::canonicalize('und_' . $country);
-      if (($country[0] ?? null) === '_') {
+      if (isset($country[0]) && $country[0] === '_') {
         $country = 'und' . $country;
       }
       $locale = $subtags->get($country) ?: $subtags->get('und');
@@ -141,7 +139,7 @@ class GeoIpHelper
    * @param string $language_code ISO 639-1-alpha 2 language code (optional)
    * @return string|null A locale, formatted like en_US, or null if not found
    */
-  public static function countryCodeToLocale(string $country_code, string $language_code = ''): ?string
+  public static function countryCodeToLocale($country_code, $language_code = '')
   {
     if (empty($country_code)) {
       return null;
