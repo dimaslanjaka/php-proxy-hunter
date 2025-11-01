@@ -39,6 +39,11 @@ $cmd .= ' --userId=' . escapeshellarg($uid);
 $request = parseQueryOrPostBody();
 if (isset($request['proxy'])) {
   $cmd .= ' --str=' . escapeshellarg(rawurldecode($request['proxy']));
+} else {
+  $opt = getopt('', ['str:']);
+  if (isset($opt['str'])) {
+    $cmd .= ' --str=' . escapeshellarg(rawurldecode($opt['str']));
+  }
 }
 
 // validate lock files
@@ -50,12 +55,38 @@ if (file_exists($lock_file) && !$isAdmin) {
 
 echo $cmd . "\n\n";
 
-$cmd    = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
-$runner = __DIR__ . '/tmp/runners/' . basename(__FILE__, '.php') . ($isWin ? '.bat' : '');
-setMultiPermissions($runner);
-write_file($runner, $cmd);
+// Run command in background
 
-runBashOrBatch($runner);
+// prepare runner/output dirs and runner file
+$runner = tmp() . '/runners/geoIp' . $uid . ($isWin ? '.bat' : '.sh');
+ensure_dir(dirname($output_file));
+ensure_dir(dirname($pid_file));
+ensure_dir(dirname($lock_file));
+ensure_dir(dirname($runner));
+setMultiPermissions([$file, $output_file, $pid_file, $runner]);
+
+$cmd = trim($cmd);
+
+// create a small runner wrapper so the detached process can be started reliably
+if ($isWin) {
+  $runner_content = "@echo off\r\n" . $cmd . ' > ' . escapeshellarg($output_file) . " 2>&1\r\n";
+  @file_put_contents($runner, $runner_content);
+} else {
+  $runner_content = "#!/bin/sh\n" . $cmd . ' > ' . escapeshellarg($output_file) . " 2>&1\n";
+  @file_put_contents($runner, $runner_content);
+  @chmod($runner, 0755);
+}
+
+// run in background without waiting
+if ($isWin) {
+  // Windows: use cmd /C start "" /B to detach process
+  $background = 'cmd /C start "" /B ' . escapeshellarg($runner);
+  @pclose(@popen($background, 'r'));
+} else {
+  // Unix: execute runner script in background
+  $background = escapeshellarg($runner) . ' > /dev/null 2>&1 &';
+  @exec($background);
+}
 
 function exitProcess()
 {
