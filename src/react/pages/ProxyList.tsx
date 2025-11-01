@@ -64,6 +64,7 @@ let fetchingProxies = false;
 async function getWorkingProxies(setShowModal?: React.Dispatch<React.SetStateAction<boolean>>) {
   if (fetchingProxies) return [];
   fetchingProxies = true;
+  await fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
   let result: any = [];
   try {
     const res = await fetch(createUrl('/embed.php?file=working.json'), {
