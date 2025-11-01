@@ -115,7 +115,4 @@ if (empty($processes)) {
 }
 
 // Write working proxies
-$workingProxies = parse_working_proxies($proxy_db);
-file_put_contents($projectRoot . '/working.txt', $workingProxies['txt']);
-file_put_contents($projectRoot . '/working.json', json_encode($workingProxies['array']));
-file_put_contents($projectRoot . '/status.json', json_encode($workingProxies['counter']));
+writing_working_proxies_file($proxy_db);

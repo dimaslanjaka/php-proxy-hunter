@@ -7,7 +7,6 @@ require __DIR__ . '/php_backend/shared.php';
 use PhpProxyHunter\Proxy;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\GeoIpHelper;
-use PhpProxyHunter\ProxyDB;
 
 $str_to_remove = [];
 
@@ -218,7 +217,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
           ]);
         }
         // write working proxies
-        write_working($db);
+        writing_working_proxies_file($db);
       } else {
         $db->updateStatus($item[0]->proxy, 'dead');
         echo "[CHECKER-PARALLEL] $counter. {$item[0]->proxy} dead" . PHP_EOL;
@@ -249,24 +248,12 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
   }
 
   // write working proxies
-  write_working($db);
+  writing_working_proxies_file($db);
 
   // End buffering and send the buffer
   if (ob_get_level() > 0) {
     ob_end_flush();
   }
-}
-
-function write_working(?ProxyDB $proxyDb = null): array
-{
-  global $proxy_db;
-  $db = $proxyDb ?? $proxy_db;
-  echo '[CHECKER-PARALLEL] writing working proxies' . PHP_EOL;
-  $data = parse_working_proxies($db);
-  file_put_contents(__DIR__ . '/working.txt', $data['txt']);
-  file_put_contents(__DIR__ . '/working.json', json_encode($data['array']));
-  file_put_contents(__DIR__ . '/status.json', json_encode($data['counter']));
-  return $data;
 }
 
 function schedule_remover(): void

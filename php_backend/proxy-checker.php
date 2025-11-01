@@ -250,12 +250,7 @@ if (!$isCli) {
   register_shutdown_function(function () use ($lockFile, $proxyInfo) {
     // Use the global $proxy_db inside shutdown handler via global keyword
     global $proxy_db;
-    $working_proxies = parse_working_proxies($proxy_db);
-    $projectRoot     = __DIR__ . '/..';
-    // write working proxies
-    write_file($projectRoot . '/working.txt', $working_proxies['txt']);
-    write_file($projectRoot . '/working.json', json_encode($working_proxies['array']));
-    write_file($projectRoot . '/status.json', json_encode($working_proxies['counter']));
+    writing_working_proxies_file($proxy_db);
     // remove lock file
     safe_unlink($lockFile);
     $proxyDetails = [];

@@ -291,11 +291,6 @@ function wasCheckedThisWeek($pdo, $proxy)
 function write_working()
 {
   global $db;
-  $projectRoot = dirname(__DIR__);
   echo '[FILTER-PORT] writing working proxies' . PHP_EOL;
-  $data = parse_working_proxies($db);
-  file_put_contents($projectRoot . '/working.txt', $data['txt']);
-  file_put_contents($projectRoot . '/working.json', json_encode($data['array']));
-  file_put_contents($projectRoot . '/status.json', json_encode($data['counter']));
-  return $data;
+  return writing_working_proxies_file($db);
 }

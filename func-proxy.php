@@ -906,6 +906,21 @@ function parse_working_proxies($db)
   return ['txt' => $workingTxt, 'array' => $array_mapper, 'counter' => $count];
 }
 
+/**
+ * Writes working proxies data to files in both text and JSON formats.
+ *
+ * @param ProxyDB $db The ProxyDB object containing the working proxies data.
+ * @return array An array containing three elements:
+ */
+function writing_working_proxies_file($db)
+{
+  $projectRoot    = dirname(__DIR__);
+  $workingProxies = parse_working_proxies($db);
+  file_put_contents($projectRoot . '/working.txt', $workingProxies['txt']);
+  file_put_contents($projectRoot . '/working.json', json_encode($workingProxies['array']));
+  file_put_contents($projectRoot . '/status.json', json_encode($workingProxies['counter']));
+  return $workingProxies;
+}
 
 /**
  * Extracts IP:PORT combinations from a file and processes each match using a callback function.
