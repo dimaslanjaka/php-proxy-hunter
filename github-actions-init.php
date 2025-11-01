@@ -1,10 +1,9 @@
 <?php
 
 require_once __DIR__ . '/func-proxy.php';
+require_once __DIR__ . '/php_backend/shared.php';
 
-global $isCli;
-
-use PhpProxyHunter\ProxyDB;
+global $isCli, $proxy_db;
 
 if (!$isCli) {
   exit('Only CLI allowed');
@@ -52,9 +51,8 @@ $data       = [
 ];
 write_file($configPath, json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
-// Fetch and process working proxies
-$db        = new ProxyDB();
-$proxyData = parse_working_proxies($db);
+// Fetch and process working proxies using shared proxy DB
+$proxyData = parse_working_proxies($proxy_db);
 
 // Write proxy counts to GITHUB_OUTPUT if the environment variable exists
 $githubOutputPath = getenv('GITHUB_OUTPUT');
