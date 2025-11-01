@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 include __DIR__ . '/shared.php';
 
 use PhpProxyHunter\AnsiColors;
@@ -17,7 +15,7 @@ global $isAdmin, $isCli, $proxy_db;
  */
 
 /** Helper to get normalized request scheme/host/script dir */
-function get_self_base(): string
+function get_self_base()
 {
   $scheme = $_SERVER['REQUEST_SCHEME'] ?? (($_SERVER['HTTPS'] ?? '') === 'on' ? 'https' : 'http');
   $host   = $_SERVER['HTTP_HOST']      ?? 'localhost';
@@ -26,7 +24,7 @@ function get_self_base(): string
 }
 
 /** Small helper to return proxy details array and joined string to avoid repeating loops */
-function build_proxy_details(array $proxyInfo): array
+function build_proxy_details(array $proxyInfo)
 {
   $details = [];
   foreach (['proxy', 'type', 'username', 'password'] as $key) {
@@ -349,8 +347,16 @@ function proxyChecker($proxyInfo, $types = [])
         $isSSL          = true;
         $workingTypes[] = $type;
       } else {
-        addLog('Proxy SSL test ' . AnsiColors::colorize(['red'], 'failed') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (unexpected IP: ' . AnsiColors::colorize(['cyan'], $ip) . ').');
-        continue; // try next type
+        if ($ip !== $proxyIP && $ip !== $currentIp) {
+          // High anonymous proxy detected
+          addLog('Proxy SSL test ' . AnsiColors::colorize(['green'], 'succeeded') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (High anonymous, IP: ' . AnsiColors::colorize(['cyan'], $ip) . ').');
+          $foundWorking   = true;
+          $isSSL          = true;
+          $workingTypes[] = $type;
+        } else {
+          addLog('Proxy SSL test ' . AnsiColors::colorize(['red'], 'failed') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (unexpected IP: ' . AnsiColors::colorize(['cyan'], $ip) . ').');
+          continue; // try next type
+        }
       }
     }
     $isLast = ($type === end($types));
@@ -416,7 +422,6 @@ function proxyChecker($proxyInfo, $types = [])
  * Write a log entry for the current user.
  *
  * @param string $message
- * @return void
  */
 function addLog($message)
 {
@@ -437,7 +442,6 @@ function addLog($message)
 /**
  * Reset the log file for the current user.
  *
- * @return void
  */
 function resetLog()
 {
@@ -452,7 +456,6 @@ function resetLog()
 /**
  * Get the log file path for the current user.
  *
- * @return string
  */
 function getLogFile()
 {
