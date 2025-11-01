@@ -4,27 +4,15 @@ require_once __DIR__ . '/func-proxy.php';
 require_once __DIR__ . '/php_backend/shared.php';
 
 use PhpProxyHunter\GeoIpHelper;
-use PhpProxyHunter\Server;
 
 global $isCli, $isWin, $proxy_db;
+
+ini_set('memory_limit', '512M');
 
 if (!$isCli) {
   exit('web server access disallowed');
 }
 
-ini_set('memory_limit', '512M');
-
-if (function_exists('header') && !$isCli) {
-  Server::allowCors(true);
-
-  // Set content type to plain text with UTF-8 encoding
-  header('Content-Type: text/plain; charset=utf-8');
-
-  // check admin
-  $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
-}
-
-$db           = $proxy_db;
 $lockFilePath = tmp() . '/locks/geoIp.lock';
 $statusFile   = __DIR__ . '/status.txt';
 $config       = getConfig(getUserId());
@@ -52,7 +40,7 @@ if (file_exists($lockFilePath) && !$isAdmin) {
   write_file($statusFile, "geolocation $string_data");
 }
 
-\PhpProxyHunter\Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
+\PhpProxyHunter\Scheduler::register(function () use ($lockFilePath, $statusFile) {
   echo 'releasing lock' . PHP_EOL;
   // clean lock files
   if (file_exists($lockFilePath)) {
@@ -62,25 +50,32 @@ if (file_exists($lockFilePath) && !$isAdmin) {
   write_file($statusFile, 'idle');
 }, 'z_onExit' . basename(__FILE__));
 
-$extract = extractProxies($string_data, $db);
+$extract = extractProxies($string_data, $proxy_db);
 shuffle($extract);
 
 foreach ($extract as $item) {
+  echo 'Processing ' . $item->proxy . PHP_EOL;
   if (empty($item->lang) || empty($item->country) || empty($item->timezone) || empty($item->longitude) || empty($item->latitude)) {
-    GeoIpHelper::getGeoIp($item->proxy, 'http', $db);
+    GeoIpHelper::getGeoIp($item->proxy, 'http', $proxy_db);
+  } else {
+    echo $item->proxy . ' has geoip data, skip' . PHP_EOL;
   }
   if (empty($item->useragent)) {
     $item->useragent = randomWindowsUa();
-    $db->updateData($item->proxy, ['useragent' => $item->useragent]);
+    $proxy_db->updateData($item->proxy, ['useragent' => $item->useragent]);
     echo $item->proxy . ' missing useragent fix' . PHP_EOL;
+  } else {
+    echo $item->proxy . ' has useragent, skip' . PHP_EOL;
   }
   if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
     $webgl = random_webgl_data();
-    $db->updateData($item->proxy, [
+    $proxy_db->updateData($item->proxy, [
       'webgl_renderer' => $webgl->webgl_renderer,
       'webgl_vendor'   => $webgl->webgl_vendor,
       'browser_vendor' => $webgl->browser_vendor,
     ]);
     echo $item->proxy . ' missing WebGL fix' . PHP_EOL;
+  } else {
+    echo $item->proxy . ' has WebGL data, skip' . PHP_EOL;
   }
 }
