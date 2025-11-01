@@ -9,7 +9,7 @@ from src.vps.vps_connector import VPSConnector
 
 def pull_latest_code(vps: VPSConnector):
     """Pull the latest code from the git repository on the VPS, sourcing NVM environment first."""
-    cmd = 'bash -c "source src/vps/menus/load-nvm && bash -e bin/git-pull"'
+    cmd = 'bash -c "source src/vps/menus/load-nvm && git pull"'
     return vps.run_command_live(cmd, "/var/www/html")
 
 
