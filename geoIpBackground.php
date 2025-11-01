@@ -14,8 +14,7 @@ if (!is_cli()) {
     setUserId($_REQUEST['uid']);
   }
 
-  // only allow user with Google Analytics cookie
-  if (!isset($_COOKIE['_ga'])) {
+  if (empty($_SESSION['captcha'])) {
     exit('Access Denied');
   }
 

@@ -33,7 +33,7 @@ if (!$isCli) {
     setUserId($_REQUEST['uid']);
   }
   // only allow user with Google Analytics cookie
-  if (!isset($_COOKIE['_ga'])) {
+  if (empty($_SESSION['captcha'])) {
     exit('Access Denied');
   }
   // check admin
@@ -44,9 +44,35 @@ $parseData = parseQueryOrPostBody();
 
 $ips   = [];
 $ports = [
-  80, 81, 83, 88, 3128, 3129, 3654, 4444, 5800, 6588, 6666,
-  6800, 7004, 8080, 8081, 8082, 8083, 8088, 8118, 8123, 8888,
-  9000, 8084, 8085, 9999, 45454, 45554, 53281, 8443,
+  80,
+  81,
+  83,
+  88,
+  3128,
+  3129,
+  3654,
+  4444,
+  5800,
+  6588,
+  6666,
+  6800,
+  7004,
+  8080,
+  8081,
+  8082,
+  8083,
+  8088,
+  8118,
+  8123,
+  8888,
+  9000,
+  8084,
+  8085,
+  9999,
+  45454,
+  45554,
+  53281,
+  8443,
 ];
 
 if (!empty($parseData['ip'])) {
