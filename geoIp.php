@@ -79,3 +79,5 @@ foreach ($extract as $item) {
     echo $item->proxy . ' has WebGL data, skip' . PHP_EOL;
   }
 }
+
+writing_working_proxies_file($proxy_db);
