@@ -27,6 +27,11 @@ if (!$isCli) {
     setUserId($req['uid']);
   }
 
+  // only allow user with Google Analytics cookie
+  if (!isset($_COOKIE['_ga'])) {
+    exit('Access Denied');
+  }
+
   // Check if the user has admin privileges
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }

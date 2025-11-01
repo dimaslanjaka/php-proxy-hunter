@@ -2,17 +2,18 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
+use PhpProxyHunter\Server;
 
 if (function_exists('header')) {
-  // Allow from any origin
-  header('Access-Control-Allow-Origin: *');
-  header('Access-Control-Allow-Headers: *');
-  header('Access-Control-Allow-Methods: *');
-  header('Content-Type: application/json; charset=utf-8');
+  Server::allowCors(true);
+
+  // Set content type to plain text with UTF-8 encoding
+  header('Content-Type: text/plain; charset=utf-8');
 
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
   }
+
   // only allow user with Google Analytics cookie
   if (!isset($_COOKIE['_ga'])) {
     exit('Access Denied');
