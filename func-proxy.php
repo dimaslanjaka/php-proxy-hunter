@@ -914,11 +914,58 @@ function parse_working_proxies($db)
  */
 function writing_working_proxies_file($db)
 {
+  $lock_file      = __DIR__ . '/tmp/locks/writing-working-proxies.lock';
   $projectRoot    = dirname(__DIR__);
   $workingProxies = parse_working_proxies($db);
-  file_put_contents($projectRoot . '/working.txt', $workingProxies['txt']);
-  file_put_contents($projectRoot . '/working.json', json_encode($workingProxies['array']));
-  file_put_contents($projectRoot . '/status.json', json_encode($workingProxies['counter']));
+  // Ensure lock dir exists
+  $lockDir = dirname($lock_file);
+  if (!is_dir($lockDir)) {
+    @mkdir($lockDir, 0777, true);
+  }
+
+  // Acquire an exclusive lock to prevent concurrent writers
+  $fp = @fopen($lock_file, 'c');
+  if (!$fp) {
+    // Could not open lock file — skip writing
+    return $workingProxies;
+  }
+
+  // Try to acquire lock without blocking. If it's already locked, return immediately.
+  if (!flock($fp, LOCK_EX | LOCK_NB)) {
+    fclose($fp);
+    return $workingProxies;
+  }
+  $acquired = true;
+
+  try {
+    // Atomic writes: write to temp files and rename
+    $files = [
+      $projectRoot . '/working.txt'  => $workingProxies['txt'],
+      $projectRoot . '/working.json' => json_encode($workingProxies['array']),
+      $projectRoot . '/status.json'  => json_encode($workingProxies['counter']),
+    ];
+
+    foreach ($files as $path => $content) {
+      $tmp = $path . '.tmp';
+      if (@file_put_contents($tmp, $content, LOCK_EX) === false) {
+        if (file_exists($tmp)) {
+          @unlink($tmp);
+        }
+        // Writing failed — abort and return without throwing
+        return $workingProxies;
+      }
+      if (!@rename($tmp, $path)) {
+        @unlink($tmp);
+        // Rename failed — abort and return without throwing
+        return $workingProxies;
+      }
+    }
+  } finally {
+    if (!empty($acquired)) {
+      @flock($fp, LOCK_UN);
+    }
+    @fclose($fp);
+  }
   return $workingProxies;
 }
 
