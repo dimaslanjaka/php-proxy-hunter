@@ -13,10 +13,14 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
-$lockFilePath = tmp() . '/locks/geoIp.lock';
+$options = getopt('', ['str:', 'userId']); // php geoIp.php --str "xsdsd dfdfd"
+if (!empty($options['userId'])) {
+  setUserId($options['userId']);
+}
+$uid          = getUserId();
+$lockFilePath = tmp() . '/locks/geoIp-' . $uid . '.lock';
 $statusFile   = __DIR__ . '/status.txt';
-$config       = getConfig(getUserId());
-$options      = getopt('', ['str:']); // php geoIp.php --str "xsdsd dfdfd"
+$config       = getConfig($uid);
 
 $string_data = '89.58.45.94:45729';
 if ($isCli) {
