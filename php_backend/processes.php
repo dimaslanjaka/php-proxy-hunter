@@ -2,6 +2,8 @@
 
 include __DIR__ . '/shared.php';
 
+use PhpProxyHunter\Server;
+
 global $isAdmin, $proxy_db;
 
 $projectRoot = dirname(__DIR__);
@@ -10,11 +12,12 @@ $projectRoot = dirname(__DIR__);
 // for non-admin users. The session is started in shared.php. Admins are
 // identified by the existing $isAdmin variable (set in shared.php).
 if (!$isAdmin && !is_cli()) {
+  Server::allowCors(true);
   $key = 'processes_last_access';
   $now = time();
   if (!empty($_SESSION[$key]) && ($now - (int)$_SESSION[$key]) < 60) {
     $wait = 60 - ($now - (int)$_SESSION[$key]);
-    http_response_code(429);
+    // http_response_code(429);
     header('Content-Type: text/plain');
     echo "Too many requests. Please wait {$wait} seconds before retrying." . PHP_EOL;
     exit;
