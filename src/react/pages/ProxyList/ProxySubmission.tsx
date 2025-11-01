@@ -1,4 +1,5 @@
 import React from 'react';
+import { ReactFormSaver, ReactFormSaverRef } from 'jquery-form-saver/react';
 import { extractProxies } from '../../../proxy/extractor';
 import ProxyData from '../../../proxy/ProxyData';
 import { createUrl } from '../../utils/url';
@@ -52,6 +53,7 @@ export default function ProxySubmission() {
   const [statusUrl, setStatusUrl] = React.useState('');
   const [textarea, setTextarea] = React.useState('');
   const [proxyDatas, setProxyDatas] = React.useState<ProxyData[]>([]);
+  const formSaverRef = React.useRef<ReactFormSaverRef | null>(null);
 
   React.useEffect(() => {
     // On mount, fetch user id and set log URL
@@ -63,6 +65,13 @@ export default function ProxySubmission() {
         setStatusUrl(statusUrl);
       }
     });
+
+    // restore saved form values (sync DOM -> React state for controlled textarea)
+    formSaverRef.current?.restoreForm();
+    const ta = document.querySelector<HTMLTextAreaElement>('textarea[name="proxies"]');
+    if (ta && ta.value) {
+      setTextarea(ta.value);
+    }
 
     // auto save input,textarea,select elements
     // const elements = document.querySelectorAll('input,textarea,select');
@@ -170,7 +179,7 @@ export default function ProxySubmission() {
             </button>
           </div>
         </div>
-        <form className="mb-4" onSubmit={handleSubmit}>
+        <ReactFormSaver ref={formSaverRef} storagePrefix="proxy-submission" className="mb-4" onSubmit={handleSubmit}>
           <div className="mb-1">
             <label htmlFor="proxyTextarea" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mr-2">
               Proxies
@@ -190,7 +199,7 @@ export default function ProxySubmission() {
             className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
             <i className="fa-duotone fa-paper-plane"></i> Submit
           </button>
-        </form>
+        </ReactFormSaver>
         <div className="mb-2 text-xs text-gray-600 dark:text-gray-300 break-all">
           <span className="font-mono">{logUrl}</span>
         </div>
