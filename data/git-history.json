@@ -1,13 +1,44 @@
 [
   {
-    "hash": "aedf6450be1c65cb743337027f4e8e9842d9c20e",
-    "date": "2025-11-01T15:07:19Z",
-    "message": "chore(deps): bump actions/setup-node from 5 to 6\n\nBumps [actions/setup-node](https://github.com/actions/setup-node) from 5 to 6.\n- [Release notes](https://github.com/actions/setup-node/releases)\n- [Commits](https://github.com/actions/setup-node/compare/v5...v6)\n\n---\nupdated-dependencies:\n- dependency-name: actions/setup-node\n  dependency-version: '6'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "hash": "04c61921f09c7c77be934b53fb0441cac668511e",
+    "date": "2025-11-01T22:13:41+07:00",
+    "message": "fix(project-manager): simplify git pull command by removing intermediate script",
     "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/github-pages.yml"
+      "bin/git-pull",
+      "bin/git-pull-clean",
+      "bin/git-pull.cjs",
+      "src/vps/menus/project-manager.py"
+    ]
+  },
+  {
+    "hash": "a657aa8856dcf780d89962f470180a10466bfd06",
+    "date": "2025-11-01T22:08:19+07:00",
+    "message": "refactor(auth): replace GA cookie check with session captcha validation\n\nUpdated multiple backend scripts to:\n- remove reliance on Google Analytics `_ga` cookie for access control\n- use `$_SESSION['captcha']` validation instead for permission checks\n\nAffected files include:\n- artisan/filterPortsBackground.php\n- artisan/proxyCheckerStarter.php\n- artisan/proxyWorkingBackground.php\n- cidr-information/checkPorts.php\n- geoIpBackground.php\n- php_backend/check-https-proxy.php\n- proxyCheckerBackground.php\n- proxyRespawner.php\n\nThis improves authentication consistency and enhances privacy by removing cookie dependency.",
+    "files": [
+      "artisan/filterPortsBackground.php",
+      "artisan/proxyCheckerStarter.php",
+      "artisan/proxyWorkingBackground.php",
+      "cidr-information/checkPorts.php",
+      "geoIpBackground.php",
+      "php_backend/check-https-proxy.php",
+      "proxyCheckerBackground.php",
+      "proxyRespawner.php"
+    ]
+  },
+  {
+    "hash": "00327db238fc5aeaefcb362b60d19082edf75b87",
+    "date": "2025-11-01T22:07:41+07:00",
+    "message": "refactor(embed): replace manual CORS headers with Server::allowCors()\n\nUpdated `embed.php` to:\n- use `PhpProxyHunter\\Server::allowCors(true)` instead of manually setting CORS headers\n- import `Server` class via `use PhpProxyHunter\\Server`\n\nThis simplifies CORS handling and centralizes configuration within the Server utility.",
+    "files": [
+      "embed.php"
+    ]
+  },
+  {
+    "hash": "4f1e73700cf14853890422f8f72ad9a2558cb7d1",
+    "date": "2025-11-01T22:05:09+07:00",
+    "message": "refactor(github-actions-init): use shared proxy DB from php_backend/shared.php\n\n- Require `php_backend/shared.php` and use the exported `$proxy_db` instead of instantiating a new `ProxyDB`.\n- Replace local `$db = new ProxyDB()` with a direct call to `parse_working_proxies($proxy_db)`.\n- Update global declarations to include `$proxy_db`.\n\nThis centralizes DB configuration and ensures the script uses the shared backend connection.",
+    "files": [
+      "github-actions-init.php"
     ]
   },
   {
@@ -8669,30 +8700,6 @@
     "message": "feat(user-handler): enhance user info retrieval and session management for OAuth",
     "files": [
       "data/user-handler.php"
-    ]
-  },
-  {
-    "hash": "294f4eb69aa0d2b4b7b6d10921c1bff82a15dec6",
-    "date": "2025-07-21T04:02:00+07:00",
-    "message": "feat(user-handler): implement user authentication and session management with Google OAuth",
-    "files": [
-      "data/user-handler.php"
-    ]
-  },
-  {
-    "hash": "30cd5cfd5af3fde03aebb0404c26d217e434cb06",
-    "date": "2025-07-21T03:57:17+07:00",
-    "message": "feat(userdb): implement UserDB class for user management with SQLite",
-    "files": [
-      "src/UserDB.php"
-    ]
-  },
-  {
-    "hash": "04ef70a2b60e063cd1179b53e05be94abfdf0aec",
-    "date": "2025-07-21T03:56:54+07:00",
-    "message": "feat(proxydb): update project root initialization to use Composer's autoload path",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php"
     ]
   }
 ]
