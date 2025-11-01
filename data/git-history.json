@@ -1,5 +1,21 @@
 [
   {
+    "hash": "cfd738b57db165646ae1d4468d5608b5edacfbe4",
+    "date": "2025-11-01T07:39:29+07:00",
+    "message": "feat(log-viewer): add HTTPS check tab with auto-polling\n\n- use shared `getUserInfo()` instead of manual `/php_backend/user-info.php` fetch\n- add `fetchHttpsProxyCheckerResult(hash)` helper and auto-polling effect for HTTPS tab\n- add tabs (Checker Log / HTTPS check) and prefill https hash from user UID\n- ensure log and https panels have explicit dark-mode text colors\n\nNo breaking changes.",
+    "files": [
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
+    "hash": "bc3e73c9a6db7f769ba991b94aab434a8a6e2fd8",
+    "date": "2025-11-01T06:29:34+07:00",
+    "message": "fix(check-https-proxy): remove GA cookie gate and redundant includes\n\n- Remove `require_once` of `func.php` and `func-proxy.php` in favor of `shared.php`.\n- Remove strict Google Analytics cookie (`_ga`) check that returned \"Access Denied\" for requests without the cookie.\n\nThis allows the `/php_backend/check-https-proxy.php` endpoint to be accessed without relying on the `_ga` cookie (useful for API/client requests).",
+    "files": [
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
     "hash": "e789e0bed1be0e45867e346dc23f60766629d797",
     "date": "2025-11-01T05:41:14+07:00",
     "message": "fix(proxySubmission): update fetch URL in _checkProxy2 to use createUrl function",
@@ -8710,25 +8726,6 @@
     "files": [
       ".github/workflows/checker-php.yml",
       ".github/workflows/checker-python.yml"
-    ]
-  },
-  {
-    "hash": "71d91ad6fa6edc532394a7a055a3e62c272ef290",
-    "date": "2025-07-08T15:37:48+07:00",
-    "message": "feat: add live command execution with output streaming over SSH\n\n- Implement run_command_live in SSHClient to stream remote command output to local stdout/stderr in real time.\n- Update pull_latest_code to use run_command_live for live git pull feedback.",
-    "files": [
-      "src/vps/ssh_client.py",
-      "src/vps/vps_manager.py"
-    ]
-  },
-  {
-    "hash": "721ad7d0380cfec5cc7963d8b8c7aa2cc494c331",
-    "date": "2025-07-08T15:35:31+07:00",
-    "message": "fix: pull_latest_code() missing 1 required positional argument: 'g'",
-    "files": [
-      "packages/browser-with-fingerprints",
-      "packages/selenium-stealth",
-      "src/vps/vps_manager.py"
     ]
   }
 ]
