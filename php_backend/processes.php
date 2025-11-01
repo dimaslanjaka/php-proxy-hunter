@@ -2,7 +2,9 @@
 
 include __DIR__ . '/shared.php';
 
-global $isAdmin;
+global $isAdmin, $proxy_db;
+
+$projectRoot = dirname(__DIR__);
 
 // Per-session rate limit: allow this script to be accessed once per 60 seconds
 // for non-admin users. The session is started in shared.php. Admins are
@@ -108,3 +110,9 @@ if (empty($processes)) {
     echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, Command: {$proc['command']}" . PHP_EOL;
   }
 }
+
+// Write working proxies
+$workingProxies = parse_working_proxies($proxy_db);
+file_put_contents($projectRoot . '/working.txt', $workingProxies['txt']);
+file_put_contents($projectRoot . '/working.json', json_encode($workingProxies['array']));
+file_put_contents($projectRoot . '/status.json', json_encode($workingProxies['counter']));
