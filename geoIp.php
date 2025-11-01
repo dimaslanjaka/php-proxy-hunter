@@ -60,7 +60,17 @@ shuffle($extract);
 foreach ($extract as $item) {
   echo 'Processing ' . $item->proxy . PHP_EOL;
   if (empty($item->lang) || empty($item->country) || empty($item->timezone) || empty($item->longitude) || empty($item->latitude)) {
-    GeoIpHelper::getGeoIp($item->proxy, 'http', $proxy_db);
+    $httpFetch = false;
+    if (!empty($item->type)) {
+      $types     = explode('-', $item->type);
+      $httpFetch = in_array('http', $types);
+      foreach ($types as $type) {
+        GeoIpHelper::getGeoIp($item->proxy, strtolower($type), $proxy_db);
+      }
+    }
+    if (!$httpFetch) {
+      GeoIpHelper::getGeoIp($item->proxy, 'http', $proxy_db);
+    }
   } else {
     echo $item->proxy . ' has geoip data, skip' . PHP_EOL;
   }
@@ -81,6 +91,9 @@ foreach ($extract as $item) {
     echo $item->proxy . ' missing WebGL fix' . PHP_EOL;
   } else {
     echo $item->proxy . ' has WebGL data, skip' . PHP_EOL;
+  }
+  foreach ($item as $key => $value) {
+    echo "  $key: $value" . PHP_EOL;
   }
 }
 
