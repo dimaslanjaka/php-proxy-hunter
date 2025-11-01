@@ -1,5 +1,29 @@
 [
   {
+    "hash": "6032cb24efdc934d77371164e0a034f08d9234e9",
+    "date": "2025-11-01T21:50:06+07:00",
+    "message": "feat(proxy-list/proxy-submission): add autosave/restore for proxies textarea\n\n- import ReactFormSaver and ReactFormSaverRef from jquery-form-saver/react\n- add formSaverRef and call restoreForm() on mount to restore saved DOM values\n- synchronize restored textarea DOM value into React state for controlled input\n- wrap submission controls with ReactFormSaver (storagePrefix=\"proxy-submission\") and attach onSubmit\n\nAdds client-side autosave/restore for the proxy submission textarea to preserve input between visits.",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "80c626827c3bdccfb1bc1f87c1b0e8adb9e28b0e",
+    "date": "2025-11-01T21:48:50+07:00",
+    "message": "feat(types): expand and standardize HTTP method definitions in ajax scheduler\n\nUpdated `ajaxScheduler_.d.ts` to:\n- introduce new `AjaxHttpMethod` type supporting full HTTP method set\n  (`GET`, `POST`, `POST_JSON`, `POST_FORM`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS`)\n- replace loose string method types with strict `AjaxHttpMethod` in interfaces\n\nThis improves type safety and consistency for AJAX scheduling operations.",
+    "files": [
+      "src/utils/ajaxScheduler_.d.ts"
+    ]
+  },
+  {
+    "hash": "9aa2dcee11d267403b4bd2fd5c151893b8466b8f",
+    "date": "2025-11-01T21:48:15+07:00",
+    "message": "refactor(proxy-list): use POST form data for geoIP background requests\n\nUpdated `ProxyList.tsx` to:\n- switch from URL query parameters to POST form submission when scheduling geoIP updates\n- adjust `add_ajax_schedule` calls to include `method: 'POST_FORM'` and structured data payload\n\nThis change improves request consistency and better aligns with backend expectations for geoIP background processing.",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
     "hash": "6179c01fe2241b4fd411b28a053168778845d4fd",
     "date": "2025-11-01T21:10:51+07:00",
     "message": "feat(geoip): enhance proxy geoIP processing with multi-type support and detailed logging\n\nUpdated `geoIp.php` to:\n- process proxies by all available types (e.g., http, socks4, socks5)\n- ensure `http` geoIP fetch is always performed if not already included\n- add detailed per-proxy output logging of all proxy fields\n\nThis improves geoIP accuracy for multi-protocol proxies and provides better debugging visibility.",
@@ -8668,30 +8692,6 @@
       "composer.json",
       "src/autoload.php",
       "src/utils/autoload.php"
-    ]
-  },
-  {
-    "hash": "676a733b4174afa22ddea06573c94a572f974bf4",
-    "date": "2025-07-21T03:52:25+07:00",
-    "message": "refactor(session): remove FileSessionHandler class",
-    "files": [
-      "src/FileSessionHandler.php"
-    ]
-  },
-  {
-    "hash": "4560c664e54eed0b82755ad9ab417f397f94363f",
-    "date": "2025-07-21T02:12:33+07:00",
-    "message": "feat(session): implement FileSessionHandler for file-based session management",
-    "files": [
-      "src/FileSessionHandler.php"
-    ]
-  },
-  {
-    "hash": "01a4e6e2b9e214642e8127f099c6635383e40f03",
-    "date": "2025-07-21T02:11:51+07:00",
-    "message": "feat(func): add tmp function to retrieve temporary directory path",
-    "files": [
-      "src/func.py"
     ]
   }
 ]
