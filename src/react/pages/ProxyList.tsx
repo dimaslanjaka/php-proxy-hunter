@@ -9,6 +9,8 @@ import ModifyCurl from './ProxyList/ModifyCurl';
 import { useSnackbar } from '../components/Snackbar';
 import { timeAgo } from '../../utils/date.js';
 import { noop } from '../../utils/other';
+import { getUserInfo } from '../utils/user';
+import { add_ajax_schedule, run_ajax_schedule } from '../../utils/ajaxScheduler';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
@@ -123,6 +125,7 @@ function ProxyList() {
   const [cityFilter, setCityFilter] = React.useState('');
   const [timezoneFilter, setTimezoneFilter] = React.useState('');
   const [regionFilter, setRegionFilter] = React.useState('');
+  const [userId, setUserId] = React.useState<string | null>(null);
   // filters always shown (accordion removed)
   const [loadingProxies, setLoadingProxies] = React.useState(false);
   const isMountedRef = React.useRef(true);
@@ -242,6 +245,24 @@ function ProxyList() {
     };
   }, [setProxies]);
 
+  // Fetch user info once and store userId
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const info = await getUserInfo();
+        if (!mounted) return;
+        const uid = (info as any)?.uid || (info as any)?.user_id || null;
+        if (uid && mounted) setUserId(uid);
+      } catch (_err) {
+        // ignore
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   // Refresh proxy list every 1 minute
   React.useEffect(() => {
     // periodic refresh using the same loader - avoid overlapping fetches
@@ -286,6 +307,29 @@ function ProxyList() {
       }
     }
   };
+
+  // Enqueue proxies with missing timezone to the local AJAX scheduler
+  React.useEffect(() => {
+    if (proxies.length === 0) return;
+    if (!userId) return;
+    const updateGeoLocation = (uidToUse: string) => {
+      proxies.forEach((p) => {
+        try {
+          if (!p.timezone || String(p.timezone).trim().length === 0 || p.timezone === 'N/A' || p.timezone === '-') {
+            // use createUrl to build the backend URL (restore original behavior)
+            const url = createUrl(`/geoIpBackground.php?proxy=${encodeURIComponent(p.proxy)}&uid=${uidToUse}`);
+            add_ajax_schedule(url);
+            run_ajax_schedule();
+          }
+        } catch (_e) {
+          // ignore per-proxy errors
+          console.error('[ProxyList] error updating geoIp for proxy:', p.proxy, _e);
+        }
+      });
+    };
+
+    updateGeoLocation(userId);
+  }, [proxies, userId]);
 
   return (
     <div className="relative min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
