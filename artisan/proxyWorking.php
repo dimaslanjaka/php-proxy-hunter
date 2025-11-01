@@ -41,8 +41,8 @@ function exitProcess(): void
 
 register_shutdown_function('exitProcess');
 
-$db   = $proxy_db;
-$data = parse_working_proxies($db);
+// use the global proxy DB instance directly
+$data = parse_working_proxies($proxy_db);
 
 // write working proxies
 write_file($projectRoot . '/working.txt', $data['txt']);
@@ -52,7 +52,7 @@ write_file($projectRoot . '/status.json', json_encode($data['counter']));
 echo PHP_EOL;
 
 // print working proxies [protocols]://IP:PORT@username:password
-$proxies = $db->getWorkingProxies();
+$proxies = $proxy_db->getWorkingProxies();
 $proxies = array_map(function ($item) {
   $raw = $item['type'] . '://' . $item['proxy'];
   if (!empty($raw['username']) && !empty($raw['password'])) {
