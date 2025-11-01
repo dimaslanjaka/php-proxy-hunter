@@ -28,7 +28,8 @@ async function _checkProxy2(proxies: string) {
     const resp = await fetch(createUrl('/php_backend/check-https-proxy.php'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ proxy: proxies })
+      body: JSON.stringify({ proxy: proxies }),
+      credentials: 'include'
     });
 
     if (!resp.ok) {
