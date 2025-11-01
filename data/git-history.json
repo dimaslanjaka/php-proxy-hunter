@@ -1,5 +1,155 @@
 [
   {
+    "hash": "36e5079f7959ee6cc268db67355767b7e0af43ed",
+    "date": "2025-11-01T20:48:26+07:00",
+    "message": "feat(proxy-list): optimize timezone updates by limiting candidates to first 5 proxies",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "70e231de457046379feaa1f8c80ef00c0f833a21",
+    "date": "2025-11-01T20:47:21+07:00",
+    "message": "feat(proxy-list): auto-schedule geoIP updates for proxies missing timezone\n\nUpdated `ProxyList.tsx` to:\n- fetch and store the current user's ID using `getUserInfo()`\n- detect proxies with missing or invalid timezone values\n- enqueue background geoIP update requests via local AJAX scheduler (`add_ajax_schedule`, `run_ajax_schedule`)\n\nThis enhancement automates geoIP updates for incomplete proxy data, improving\ndata accuracy and user experience.",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "9145b844c3a43c65283a912df91b00886affc7ad",
+    "date": "2025-11-01T20:45:37+07:00",
+    "message": "feat(geoip): improve background runner execution and argument handling\n\nEnhanced `geoIpBackground.php` to:\n- support `--str` command-line option when `proxy` parameter is absent\n- create runner scripts dynamically for both Windows (.bat) and Unix (.sh)\n- ensure required directories exist before execution\n- use platform-specific methods to start background processes reliably\n\nThis update improves robustness, cross-platform compatibility, and reliability\nof geoIP background job execution.",
+    "files": [
+      "geoIpBackground.php"
+    ]
+  },
+  {
+    "hash": "16aa69c9ef6bb657b1626457eb9e53bd751f7d36",
+    "date": "2025-11-01T20:44:34+07:00",
+    "message": "feat(proxy): add file locking and atomic writes to working proxies writer\n\nEnhanced `writing_working_proxies_file()` to prevent concurrent writes and\nensure data integrity by introducing:\n- lock file mechanism (`tmp/locks/writing-working-proxies.lock`)\n- atomic writes using temporary files and renames\n- graceful handling of write and rename failures\n\nThis improves stability and avoids race conditions when multiple processes\nattempt to write working proxies simultaneously.",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
+    "hash": "a49f815d75362a4a1cf241cba0ab0b2e3b09311b",
+    "date": "2025-11-01T20:40:49+07:00",
+    "message": "fix(geoIp): ensure working proxies file is written after processing",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "e0f9ed8c13fcefeb5a8a7c203f8e612821389c47",
+    "date": "2025-11-01T20:38:00+07:00",
+    "message": "refactor(proxy): centralize working proxies file writing logic\n\nMoved repeated file-writing logic for working proxies into a new helper\nfunction `writing_working_proxies_file()` in `func-proxy.php`.\n\nReplaced multiple inline implementations and deprecated `write_working()` calls\nwith the new unified function across the following files:\n- artisan/filterPortsDuplicate.php\n- php_backend/processes.php\n- php_backend/proxy-checker.php\n- proxyCheckerParallel-func.php\n\nThis improves code reuse and maintainability.",
+    "files": [
+      "artisan/filterPortsDuplicate.php",
+      "func-proxy.php",
+      "php_backend/processes.php",
+      "php_backend/proxy-checker.php",
+      "proxyCheckerParallel-func.php"
+    ]
+  },
+  {
+    "hash": "a6fd071b22302eef781c67777fc15d4eba95f74a",
+    "date": "2025-11-01T20:25:59+07:00",
+    "message": "refactor(geoIp): use $proxy_db directly, remove Server/header handling and improve logging\n\n- Remove local $db assignment and replace all usages with $proxy_db.\n- Drop unused PhpProxyHunter\\Server import and CORS/content-type header block.\n- Update Scheduler closure use list to remove $db.\n- Add per-proxy processing logs and explicit skip messages for existing geoip/useragent/WebGL data.",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "c008e6ea34e264224ee1688534107f276e4342b1",
+    "date": "2025-11-01T20:22:22+07:00",
+    "message": "fix(geoIpBackground): update lock file path to include user ID for better process management",
+    "files": [
+      "geoIpBackground.php"
+    ]
+  },
+  {
+    "hash": "440045d311c6bb0c2a51ebcc3dc418f4c969e8fb",
+    "date": "2025-11-01T20:16:28+07:00",
+    "message": "fix(geoIp): remove cache control headers to prevent unintended caching",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "bf1b12f8f989fd7f5ec2a2936808ce742d9601d0",
+    "date": "2025-11-01T20:15:39+07:00",
+    "message": "fix(geoIpBackground): refactor proxy request handling to use parsed request data",
+    "files": [
+      "geoIpBackground.php"
+    ]
+  },
+  {
+    "hash": "176fe0f0cd4a9ae9aa0320d5c16bd605ee09f7b3",
+    "date": "2025-11-01T20:14:46+07:00",
+    "message": "fix(geoIp): update CORS handling and content type for non-CLI context",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "1778ffed16db22c87c7cff9dda5f0054151a58af",
+    "date": "2025-11-01T20:14:18+07:00",
+    "message": "fix(geoIpBackground): change header check to allow CORS only in non-CLI context",
+    "files": [
+      "geoIpBackground.php"
+    ]
+  },
+  {
+    "hash": "23b21d6d83aa1e520bec3d4b05a8896fa495757f",
+    "date": "2025-11-01T20:12:34+07:00",
+    "message": "feat(utils): add ajax scheduler with POST and credentials support\n\nAdd a new AJAX scheduler utility to queue and run HTTP requests.\n\n- Add `src/utils/ajaxScheduler.js`\n  - Queue accepts legacy string URLs or entry objects ({ url, method, data, includeCredentials }).\n  - Export `run_ajax_schedule(options)` which supports runner-level defaults and per-entry overrides.\n  - Supports methods: GET (default), POST_JSON (application/json), POST_FORM (application/x-www-form-urlencoded).\n  - Maps `includeCredentials` to axios `withCredentials`.\n  - Re-queues entries on network/timeout errors and preserves runner-level options when repeating.\n  - Deduplicates queued entries by a computed key (url|METHOD|JSON(data)|includeCredentials).\n- Add `src/utils/ajaxScheduler_.d.ts`\n  - Declares `AjaxScheduleEntry` and `AjaxScheduleOptions` interfaces and is imported via JSDoc typedefs.\n\nMaintains backward compatibility with string-only scheduled URLs.",
+    "files": [
+      "src/utils/ajaxScheduler.js",
+      "src/utils/ajaxScheduler_.d.ts"
+    ]
+  },
+  {
+    "hash": "4b4fbf16c4ab69ca51f3949717f0bf8df1745253",
+    "date": "2025-11-01T18:27:34+07:00",
+    "message": "fix(ProxySubmission): include credentials in fetch request for HTTPS proxy check",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "90d36ac7ca8bc28ea8bad5e12f7e6b2a870d382c",
+    "date": "2025-11-01T18:26:35+07:00",
+    "message": "feat(security): enforce GA cookie check and centralize CORS handling via Server::allowCors",
+    "files": [
+      "geoIpBackground.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "1839475aed524e0168dcef5d89da831d6cd8a6d2",
+    "date": "2025-11-01T17:48:27+07:00",
+    "message": "fix(ProxySubmission): comment out unused auto-save and debug code",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "07210d4dd7fc63af941c77c638267d02f4ab7fff",
+    "date": "2025-11-01T17:44:53+07:00",
+    "message": "feat(processes): enable CORS for non-admin users via Server::allowCors and comment out 429 response",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "090ab344109473edc490f8803d0ec4840c0982df",
+    "date": "2025-11-01T15:41:34+07:00",
+    "message": "feat(processes): add functionality to write working proxies to files",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
     "hash": "228f8f89ec27efae2e00cb840476569a2f84d923",
     "date": "2025-11-01T08:05:22+07:00",
     "message": "fix(log-viewer): remove HTTPS loading indicator\n\n- remove `httpsLoading` state and related `setHttpsLoading` calls\n- remove \"Fetching https result...\" placeholder from HTTPS panel\n- render HTTPS result only when `httpsLog` is present\n\nNo breaking changes.",
@@ -8546,185 +8696,6 @@
     "message": "feat(device): add cross-platform serial number and UUID generator\n\n- Implemented `get_serial_number()` to retrieve the system serial number on Windows, Linux, and macOS.\n- Added `get_serial_number_uuid()` to create a consistent UUID-style identifier using system info and MD5.\n- Includes `split_serial_number_md5()` to format MD5 hashes into UUID format.",
     "files": [
       "src/func_device.py"
-    ]
-  },
-  {
-    "hash": "00c0e5d3fab486966bee06b4e1e31b9a12443296",
-    "date": "2025-07-21T02:06:00+07:00",
-    "message": "feat(tests): add comprehensive proxy testing scripts and utilities",
-    "files": [
-      "tests/check_proxy_without_requests.py",
-      "tests/date.py",
-      "tests/db_test.py",
-      "tests/func_proxy_test.py",
-      "tests/geoIp.py",
-      "tests/get_locale.py",
-      "tests/get_useragent.py",
-      "tests/lib_proxy-checker.py",
-      "tests/proxyDB-parse-from-file.py",
-      "tests/read_proxy_by_line.py",
-      "tests/regex-test.py",
-      "tests/requests_test.py",
-      "tests/single-check-proxy.py"
-    ]
-  },
-  {
-    "hash": "c497a763594084e00b104f84b0c8383f451a5a5b",
-    "date": "2025-07-21T02:03:25+07:00",
-    "message": "feat(db): support parameterized SQL in execute_query and declare ProxyDB.db attribute\n\n- Added optional `params` argument to `SQLiteHelper.execute_query()` for safe parameterized SQL execution.\n- Declared `ProxyDB.db` as Optional[SQLiteHelper] to improve type clarity and tooling support.",
-    "files": [
-      "src/ProxyDB.py",
-      "src/SQLiteHelper.py"
-    ]
-  },
-  {
-    "hash": "649ef8d6cd7c1a5aea3d45c8bed38c2636c8f922",
-    "date": "2025-07-21T02:02:33+07:00",
-    "message": "feat(utils): add system Python resolver and improve local Python detection\n\n- Added `get_system_python_path()` to locate globally installed Python interpreters across platforms.\n- Enhanced `get_python_path()` to accept an optional directory for localized lookup.\n- Included CLI test code under `__main__` for easy debugging and verification.\n- Exposed `string_utils` from `utils/__init__.py`.",
-    "files": [
-      "src/utils/__init__.py",
-      "src/utils/file.py"
-    ]
-  },
-  {
-    "hash": "b8381da981d666deb24bfcf2e565b7c57b81ac1c",
-    "date": "2025-07-10T07:29:43+07:00",
-    "message": "refactor: replace global binary installation with rimraf for submodule cleanup",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-php.yml.txt",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/checker.yml.txt",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/nuitka-debug.yml.txt",
-      ".github/workflows/nuitka.yml.txt"
-    ]
-  },
-  {
-    "hash": "1ce2ad5a46d383221a333c0fef6081219d8ba5be",
-    "date": "2025-07-10T07:18:26+07:00",
-    "message": "refactor: replace curl command with npm install for submodule installation",
-    "files": [
-      ".github/workflows/checker-php.yml.txt",
-      ".github/workflows/checker.yml.txt",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/nuitka-debug.yml.txt",
-      ".github/workflows/nuitka.yml.txt"
-    ]
-  },
-  {
-    "hash": "795797225d42f7f812aae546c61a3a269753f0be",
-    "date": "2025-07-10T07:16:04+07:00",
-    "message": "refactor: remove redundant bin directory creation and switch to npx for submodule installation",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-php.yml.txt",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/checker.yml.txt",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/nuitka-debug.yml.txt",
-      ".github/workflows/nuitka.yml.txt"
-    ]
-  },
-  {
-    "hash": "e40f516e32a1f28c0f22f7a68b5d36ac3f96e482",
-    "date": "2025-07-10T07:06:03+07:00",
-    "message": "refactor: using binary collections to update submodules",
-    "files": [
-      ".github/workflows/clean-caches.yml"
-    ]
-  },
-  {
-    "hash": "27bbe53699324fd958a1510a445ad45e68753804",
-    "date": "2025-07-10T04:18:32+07:00",
-    "message": "refactor(ci): update submodule install step to use npm package\n\n- Replace curl/bash script with npm install of binary-collections from GitHub tarball\n- Use npx submodule-install instead of bash script\n- Move Node.js setup and corepack enable steps before submodule update\n- Apply changes to both PHP and Python workflow files",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml"
-    ]
-  },
-  {
-    "hash": "309353f7f618ded89810760670060e3664e37e69",
-    "date": "2025-07-09T19:47:06+07:00",
-    "message": "remove non-related folders",
-    "files": [
-      "packages/browser-with-fingerprints",
-      "packages/selenium-stealth"
-    ]
-  },
-  {
-    "hash": "87b4e206d9cf2ee0b4fdf1a82afc5e1350247fb4",
-    "date": "2025-07-08T16:52:39+07:00",
-    "message": "feat: add .nvmrc file to specify Node.js version 22.17.0",
-    "files": [
-      ".nvmrc"
-    ]
-  },
-  {
-    "hash": "03056b9a8efcf816c2daa0b027cdc5e6386e3ca1",
-    "date": "2025-07-08T16:43:29+07:00",
-    "message": "fix: update load-nvm script to return after sourcing nvm.sh instead of exiting",
-    "files": [
-      "src/vps/menus/load-nvm"
-    ]
-  },
-  {
-    "hash": "8b105af70e12c7c3cbb3a86d71dd549ee19e4113",
-    "date": "2025-07-08T16:28:38+07:00",
-    "message": "feat: add load-nvm script to source NVM for yarn installation",
-    "files": [
-      "src/vps/menus/load-nvm",
-      "src/vps/menus/project-manager.py"
-    ]
-  },
-  {
-    "hash": "9ee49155fd953a48d2d22e72a2f295a77eb4c86b",
-    "date": "2025-07-08T16:14:46+07:00",
-    "message": "fix: source .bashrc before running 'yarn install' to ensure environment variables (like NVM) are loaded",
-    "files": [
-      "src/vps/menus/project-manager.py"
-    ]
-  },
-  {
-    "hash": "1f1290a092c8966f27e9d76d4e5c86b320effe1b",
-    "date": "2025-07-08T15:59:42+07:00",
-    "message": "refactor: move project management actions to separate menu\n\n- Moved project management actions (git pull, composer update, yarn install, pip install) from vps_manager.py to new menu module project-manager.py.\n- Updated download-backups.py to reorder register() after action function.\n- vps_manager.py now loads menu items dynamically without hardcoded project actions.",
-    "files": [
-      "src/vps/menus/download-backups.py",
-      "src/vps/menus/project-manager.py",
-      "src/vps/vps_manager.py"
-    ]
-  },
-  {
-    "hash": "178ab74d23e3e191da66aa49750473084294916e",
-    "date": "2025-07-08T15:58:29+07:00",
-    "message": "feat: enhance run_command_live to support interactive input on Windows and Unix-like systems",
-    "files": [
-      "src/vps/ssh_client.py"
-    ]
-  },
-  {
-    "hash": "f84ab095508c0edb5d30c2c351a58eeb09b19cef",
-    "date": "2025-07-08T15:54:25+07:00",
-    "message": "docs: update instructions for file handling and backup procedures",
-    "files": [
-      ".github/instructions/all.instructions.md"
-    ]
-  },
-  {
-    "hash": "66639b340254d78ee34505019373503539f35ee3",
-    "date": "2025-07-08T15:49:38+07:00",
-    "message": "fix: ensure proper output streaming and add newline after command completion in run_command_live",
-    "files": [
-      "src/vps/ssh_client.py"
-    ]
-  },
-  {
-    "hash": "731e261c20af73001edf6258b459336faff41139",
-    "date": "2025-07-08T15:41:57+07:00",
-    "message": "feat: add path filter for PhpProxyHunter in PHP checker workflow",
-    "files": [
-      ".github/workflows/checker-php.yml"
     ]
   }
 ]
