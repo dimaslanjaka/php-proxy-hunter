@@ -313,19 +313,30 @@ function ProxyList() {
     if (proxies.length === 0) return;
     if (!userId) return;
     const updateGeoLocation = (uidToUse: string) => {
-      proxies.forEach((p) => {
+      // find proxies that need timezone and limit to first 5
+      const candidates = proxies
+        .filter(
+          (p) => !p.timezone || String(p.timezone).trim().length === 0 || p.timezone === 'N/A' || p.timezone === '-'
+        )
+        .slice(0, 5);
+
+      if (candidates.length === 0) return;
+
+      candidates.forEach((p) => {
         try {
-          if (!p.timezone || String(p.timezone).trim().length === 0 || p.timezone === 'N/A' || p.timezone === '-') {
-            // use createUrl to build the backend URL (restore original behavior)
-            const url = createUrl(`/geoIpBackground.php?proxy=${encodeURIComponent(p.proxy)}&uid=${uidToUse}`);
-            add_ajax_schedule(url);
-            run_ajax_schedule();
-          }
+          const url = createUrl(`/geoIpBackground.php?proxy=${encodeURIComponent(p.proxy)}&uid=${uidToUse}`);
+          add_ajax_schedule(url);
         } catch (_e) {
-          // ignore per-proxy errors
           console.error('[ProxyList] error updating geoIp for proxy:', p.proxy, _e);
         }
       });
+
+      // run scheduler once after enqueuing
+      try {
+        run_ajax_schedule();
+      } catch (e) {
+        console.error('[ProxyList] error running ajax scheduler', e);
+      }
     };
 
     updateGeoLocation(userId);
