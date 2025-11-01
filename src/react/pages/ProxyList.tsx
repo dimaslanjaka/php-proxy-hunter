@@ -1,16 +1,16 @@
 import React from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { ProxyDetails } from '../../../types/proxy';
-import { createUrl } from '../utils/url';
-import ApiUsage from './ProxyList/ApiUsage';
-import LogViewer from './ProxyList/LogViewer';
-import ProxySubmission from './ProxyList/ProxySubmission';
-import ModifyCurl from './ProxyList/ModifyCurl';
-import { useSnackbar } from '../components/Snackbar';
+import { add_ajax_schedule, run_ajax_schedule } from '../../utils/ajaxScheduler';
 import { timeAgo } from '../../utils/date.js';
 import { noop } from '../../utils/other';
+import { useSnackbar } from '../components/Snackbar';
+import { createUrl } from '../utils/url';
 import { getUserInfo } from '../utils/user';
-import { add_ajax_schedule, run_ajax_schedule } from '../../utils/ajaxScheduler';
+import ApiUsage from './ProxyList/ApiUsage';
+import LogViewer from './ProxyList/LogViewer';
+import ModifyCurl from './ProxyList/ModifyCurl';
+import ProxySubmission from './ProxyList/ProxySubmission';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
@@ -324,8 +324,8 @@ function ProxyList() {
 
       candidates.forEach((p) => {
         try {
-          const url = createUrl(`/geoIpBackground.php?proxy=${encodeURIComponent(p.proxy)}&uid=${uidToUse}`);
-          add_ajax_schedule(url);
+          const url = createUrl('/geoIpBackground.php');
+          add_ajax_schedule(url, { method: 'POST_FORM', data: { uid: uidToUse, proxy: p.proxy } });
         } catch (_e) {
           console.error('[ProxyList] error updating geoIp for proxy:', p.proxy, _e);
         }
