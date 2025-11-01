@@ -303,7 +303,10 @@ if (!$isCli) {
 function proxyChecker($proxyInfo, $types = [])
 {
   global $config, $proxy_db;
-  $currentIp          = getServerIp();
+  $currentIp = getServerIp();
+  if (empty($currentIp)) {
+    return;
+  }
   $isCurrentIpIsLocal = preg_match('/^(192\.168|127\.)/', $currentIp) === 1 || is_debug_device();
   if ($isCurrentIpIsLocal) {
     // Try to get public IP if current IP is a common router IP
@@ -337,7 +340,7 @@ function proxyChecker($proxyInfo, $types = [])
     if (empty($ip)) {
       addLog('Proxy SSL test ' . AnsiColors::colorize(['red'], 'failed') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (no IP returned).');
       continue; // try next type
-    } elseif (!empty($currentIp)) {
+    } else {
       if ($ip === $currentIp && $currentIp !== '127.0.0.1') {
         addLog('Proxy SSL test ' . AnsiColors::colorize(['red'], 'failed') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (IP matches current IP).');
         continue; // try next type
