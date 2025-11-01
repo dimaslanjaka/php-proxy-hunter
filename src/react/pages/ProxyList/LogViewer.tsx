@@ -30,7 +30,6 @@ const LogViewer: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<'log' | 'https'>('log');
   const [httpsHash, setHttpsHash] = React.useState('');
   const [httpsLog, setHttpsLog] = React.useState('');
-  const [httpsLoading, setHttpsLoading] = React.useState(false);
 
   // On mount, fetch user id and set log URL
   React.useEffect(() => {
@@ -82,7 +81,6 @@ const LogViewer: React.FC = () => {
     let interval: number | undefined;
     if (activeTab === 'https' && httpsHash) {
       const fetchHttps = async () => {
-        setHttpsLoading(true);
         try {
           const text = await fetchHttpsProxyCheckerResult(httpsHash);
           setHttpsLog((prev) => {
@@ -91,8 +89,6 @@ const LogViewer: React.FC = () => {
           });
         } catch {
           setHttpsLog('Failed to fetch https result.');
-        } finally {
-          setHttpsLoading(false);
         }
       };
       fetchHttps();
@@ -192,9 +188,7 @@ const LogViewer: React.FC = () => {
             <span className="font-mono text-sm text-gray-900 dark:text-gray-100">{httpsHash || '—'}</span>
           </div>
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
-            {httpsLoading ? (
-              <span className="text-gray-400 dark:text-gray-500">Fetching https result...</span>
-            ) : httpsLog ? (
+            {httpsLog ? (
               <span className="text-gray-800 dark:text-gray-100" style={{ whiteSpace: 'pre-wrap' }}>
                 {httpsLog}
               </span>
