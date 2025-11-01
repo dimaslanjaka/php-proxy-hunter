@@ -36,8 +36,9 @@ $cmd   = 'php ' . escapeshellarg($file);
 $uid = getUserId();
 $cmd .= ' --userId=' . escapeshellarg($uid);
 
-if (isset($_REQUEST['proxy'])) {
-  $cmd .= ' --str=' . escapeshellarg(rawurldecode($_REQUEST['proxy']));
+$request = parseQueryOrPostBody();
+if (isset($request['proxy'])) {
+  $cmd .= ' --str=' . escapeshellarg(rawurldecode($request['proxy']));
 }
 
 // validate lock files
