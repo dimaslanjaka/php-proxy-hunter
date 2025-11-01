@@ -2,16 +2,15 @@
 
 require_once __DIR__ . '/func.php';
 
+use PhpProxyHunter\Server;
+
 $forbidden = false;
 
 // Check if the X-User-Token and X-Serial-Number headers are set
 $userToken    = isset($_SERVER['HTTP_X_USER_TOKEN']) ? $_SERVER['HTTP_X_USER_TOKEN'] : null;
 $serialNumber = isset($_SERVER['HTTP_X_SERIAL_NUMBER']) ? $_SERVER['HTTP_X_SERIAL_NUMBER'] : null;
 
-// Set CORS (Cross-Origin Resource Sharing) headers to allow requests from any origin
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: *');
-header('Access-Control-Allow-Methods: *');
+Server::allowCors(true);
 
 if ($userToken && $serialNumber) {
   $userFile = __DIR__ . '/data/' . $userToken . '.json';
