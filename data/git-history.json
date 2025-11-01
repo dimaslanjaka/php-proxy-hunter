@@ -1,5 +1,16 @@
 [
   {
+    "hash": "aedf6450be1c65cb743337027f4e8e9842d9c20e",
+    "date": "2025-11-01T15:07:19Z",
+    "message": "chore(deps): bump actions/setup-node from 5 to 6\n\nBumps [actions/setup-node](https://github.com/actions/setup-node) from 5 to 6.\n- [Release notes](https://github.com/actions/setup-node/releases)\n- [Commits](https://github.com/actions/setup-node/compare/v5...v6)\n\n---\nupdated-dependencies:\n- dependency-name: actions/setup-node\n  dependency-version: '6'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
     "hash": "6032cb24efdc934d77371164e0a034f08d9234e9",
     "date": "2025-11-01T21:50:06+07:00",
     "message": "feat(proxy-list/proxy-submission): add autosave/restore for proxies textarea\n\n- import ReactFormSaver and ReactFormSaverRef from jquery-form-saver/react\n- add formSaverRef and call restoreForm() on mount to restore saved DOM values\n- synchronize restored textarea DOM value into React state for controlled input\n- wrap submission controls with ReactFormSaver (storagePrefix=\"proxy-submission\") and attach onSubmit\n\nAdds client-side autosave/restore for the proxy submission textarea to preserve input between visits.",
@@ -8682,16 +8693,6 @@
     "message": "feat(proxydb): update project root initialization to use Composer's autoload path",
     "files": [
       "src/PhpProxyHunter/ProxyDB.php"
-    ]
-  },
-  {
-    "hash": "b1c392006cc9aca1daf50c6a97439135760b8316",
-    "date": "2025-07-21T03:55:04+07:00",
-    "message": "feat(autoload): implement new autoloading mechanism with directory exclusion",
-    "files": [
-      "composer.json",
-      "src/autoload.php",
-      "src/utils/autoload.php"
     ]
   }
 ]
