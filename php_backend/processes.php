@@ -106,6 +106,9 @@ if (empty($processes)) {
   // Delete php_backend/proxy-checker.php lock file if it exists
   $lockFilePath = tmp() . '/locks/user-' . getUserId() . '/php_backend/proxy-checker.lock';
   delete_path($lockFilePath);
+  // Delete php_backend/geoIp.php lock file if it exists
+  $lockFilePath = tmp() . '/locks/user-' . getUserId() . '/geoIp.lock';
+  delete_path($lockFilePath);
 } else {
   echo 'Found ' . count($processes) . " running PHP/Python processes for user ID: $userId" . PHP_EOL;
   echo str_repeat('=', 50) . PHP_EOL;
