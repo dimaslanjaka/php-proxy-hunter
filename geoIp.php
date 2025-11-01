@@ -62,13 +62,6 @@ if (file_exists($lockFilePath) && !$isAdmin) {
   write_file($statusFile, 'idle');
 }, 'z_onExit' . basename(__FILE__));
 
-if (function_exists('header')) {
-  // Set cache control headers to instruct the browser to cache the content for [n] hour
-  $hour = 1;
-  header('Cache-Control: max-age=3600, must-revalidate');
-  header('Expires: ' . gmdate('D, d M Y H:i:s', time() + ($hour * 3600)) . ' GMT');
-}
-
 $extract = extractProxies($string_data, $db);
 shuffle($extract);
 
