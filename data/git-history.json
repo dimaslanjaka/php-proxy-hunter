@@ -1,5 +1,37 @@
 [
   {
+    "hash": "6179c01fe2241b4fd411b28a053168778845d4fd",
+    "date": "2025-11-01T21:10:51+07:00",
+    "message": "feat(geoip): enhance proxy geoIP processing with multi-type support and detailed logging\n\nUpdated `geoIp.php` to:\n- process proxies by all available types (e.g., http, socks4, socks5)\n- ensure `http` geoIP fetch is always performed if not already included\n- add detailed per-proxy output logging of all proxy fields\n\nThis improves geoIP accuracy for multi-protocol proxies and provides better debugging visibility.",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "9083e972b0be61c895c6d3d72cead98d88d933f5",
+    "date": "2025-11-01T21:10:05+07:00",
+    "message": "refactor(geoip-helper): make GeoIpHelper compatible with PHP 7.0 and optional DB\n\nUpdated `GeoIpHelper.php` to:\n- remove strict typing and scalar/nullable type hints for PHP 7.0 compatibility\n- allow `$db` parameter to be optional in `getGeoIp()`\n- add null checks before database update operations\n- replace null coalescing operator (`??`) with `isset()` for broader compatibility\n\nThis improves backward compatibility and flexibility when running without a database connection.",
+    "files": [
+      "src/PhpProxyHunter/GeoIpHelper.php"
+    ]
+  },
+  {
+    "hash": "602318ec6d86acd8348c01967b687c595cf51e31",
+    "date": "2025-11-01T20:53:36+07:00",
+    "message": "feat(geoip): support per-user lock files and userId CLI argument\n\nUpdated `geoIp.php` to:\n- accept `--userId` CLI argument and set user context dynamically\n- generate user-specific lock files (`geoIp-{uid}.lock`)\n- use the resolved user ID when loading configuration\n\nThis improves isolation and prevents conflicts between concurrent geoIP runs\nfor different users.",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "c783b9f243f40a183e4b0c7814324099b78e521e",
+    "date": "2025-11-01T20:52:36+07:00",
+    "message": "fix(processes): ensure geoIp lock file is deleted when no processes are found",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
     "hash": "36e5079f7959ee6cc268db67355767b7e0af43ed",
     "date": "2025-11-01T20:48:26+07:00",
     "message": "feat(proxy-list): optimize timezone updates by limiting candidates to first 5 proxies",
@@ -8660,42 +8692,6 @@
     "message": "feat(func): add tmp function to retrieve temporary directory path",
     "files": [
       "src/func.py"
-    ]
-  },
-  {
-    "hash": "2d9f9a1e0de9c5efa054527b4ddd5fe285072083",
-    "date": "2025-07-21T02:11:20+07:00",
-    "message": "feat(preferences): implement PreferencesHelper for managing user preferences in JSON",
-    "files": [
-      "src/preferences.py"
-    ]
-  },
-  {
-    "hash": "6821718ed12ec1d97e0798cfc858a212425d094f",
-    "date": "2025-07-21T02:10:56+07:00",
-    "message": "fix(request): handle JSON vs form data for POST/PUT/PATCH with dynamic timeout\n\nEnhanced the `build_request` function to:\n- Automatically send `post_data` as JSON if `Content-Type` is `application/json` and the data is a dict.\n- Allow dynamic `timeout` via kwargs, defaulting to 10 seconds.\n\nUpdated `tests/build_requests.py`:\n- Migrated to `pytest` from `unittest`.\n- Added tests for form-data and JSON POST requests.\n- Added parameterized tests for multiple proxy types (http, socks4, socks5) using `httpbin.org`.",
-    "files": [
-      "packages/proxy-hunter-python/proxy_hunter/curl/request_helper.py",
-      "packages/proxy-hunter-python/tests/build_requests.py"
-    ]
-  },
-  {
-    "hash": "4b7f1f06a3fe3c52407ef1c1ebdb3575e4f6b2a9",
-    "date": "2025-07-21T02:10:02+07:00",
-    "message": "test(utils): add dict_updater utility with case-insensitive update support\n\nIntroduced `dict_updater` in `proxy_hunter/utils/dict_helper.py` to update dictionary keys with case-insensitive matching.\nIt replaces existing values or adds new keys appropriately.\n\nAlso added `dict_helper_test.py` with comprehensive unit tests using `pytest` to verify behavior for:\n- updating existing keys with different casing\n- adding new keys\n- handling mixed-case scenarios\n- updating multiple keys at once",
-    "files": [
-      "packages/proxy-hunter-python/proxy_hunter/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/dict_helper.py",
-      "packages/proxy-hunter-python/tests/dict_helper_test.py"
-    ]
-  },
-  {
-    "hash": "14f3fa7044875e1976f670fd1dee17a2f6d46c76",
-    "date": "2025-07-21T02:07:11+07:00",
-    "message": "feat(device): add cross-platform serial number and UUID generator\n\n- Implemented `get_serial_number()` to retrieve the system serial number on Windows, Linux, and macOS.\n- Added `get_serial_number_uuid()` to create a consistent UUID-style identifier using system info and MD5.\n- Includes `split_serial_number_md5()` to format MD5 hashes into UUID format.",
-    "files": [
-      "src/func_device.py"
     ]
   }
 ]
