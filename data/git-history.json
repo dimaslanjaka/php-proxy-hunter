@@ -1,5 +1,13 @@
 [
   {
+    "hash": "228f8f89ec27efae2e00cb840476569a2f84d923",
+    "date": "2025-11-01T08:05:22+07:00",
+    "message": "fix(log-viewer): remove HTTPS loading indicator\n\n- remove `httpsLoading` state and related `setHttpsLoading` calls\n- remove \"Fetching https result...\" placeholder from HTTPS panel\n- render HTTPS result only when `httpsLog` is present\n\nNo breaking changes.",
+    "files": [
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
     "hash": "cfd738b57db165646ae1d4468d5608b5edacfbe4",
     "date": "2025-11-01T07:39:29+07:00",
     "message": "feat(log-viewer): add HTTPS check tab with auto-polling\n\n- use shared `getUserInfo()` instead of manual `/php_backend/user-info.php` fetch\n- add `fetchHttpsProxyCheckerResult(hash)` helper and auto-polling effect for HTTPS tab\n- add tabs (Checker Log / HTTPS check) and prefill https hash from user UID\n- ensure log and https panels have explicit dark-mode text colors\n\nNo breaking changes.",
@@ -8717,15 +8725,6 @@
     "message": "feat: add path filter for PhpProxyHunter in PHP checker workflow",
     "files": [
       ".github/workflows/checker-php.yml"
-    ]
-  },
-  {
-    "hash": "7b77ae580cab213a4b203640751aade686cfdcb2",
-    "date": "2025-07-08T15:40:43+07:00",
-    "message": "feat: add path filters for PHP and Python workflows on push events",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml"
     ]
   }
 ]
