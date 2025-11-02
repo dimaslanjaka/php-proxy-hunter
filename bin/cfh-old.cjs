@@ -68,25 +68,14 @@ const createFileHashesMain = async () => {
     extraFiles
   });
 
-  // Compute a single checksum for the parent project folder from the sorted file hashes.
-  // Join the sorted hash lines with a newline to create a stable input, then hash it.
-  const crypto = require('crypto');
-  const sorted = hashArray.slice().sort();
-  const joined = sorted.join('\n');
-  const folderHash = crypto.createHash('sha256').update(joined).digest('hex').slice(0, 16);
-
-  // Use the immediate parent folder name as the project key
-  const projectName = path.basename(projectDir);
-  const outputLine = `${projectName} ${folderHash}\n`;
-
-  // Ensure output directory exists
-  await fs.mkdir(path.dirname(outputFile), { recursive: true });
-  await fs.writeFile(outputFile, outputLine, 'utf-8');
+  // Write directory/file tree to the output file (hashes are included in the tree)
+  const fileTreeString = getFileTreeString(hashArray);
+  await fs.writeFile(outputFile, fileTreeString + '\n', 'utf-8');
 
   // Add the hash file to the commit
   execSync(`git add ${relativeOutputFile}`);
 
-  console.log(`Parent folder checksum saved to ${relativeOutputFile}`);
+  console.log(`Hashes saved to ${relativeOutputFile}`);
 };
 
 module.exports = {
