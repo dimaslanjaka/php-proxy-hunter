@@ -2,29 +2,41 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../php_backend/shared.php';
+require_once dirname(__DIR__) . '/src/utils/process.php';
+
+use PhpProxyHunter\Server;
+
+global $proxy_db, $isAdmin, $isCli;
+
 // Define project root for reuse
 $projectRoot = dirname(__DIR__);
 
-require_once $projectRoot . '/php_backend/shared.php';
-
-global $proxy_db;
-
-$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+$isCli = is_cli();
+$uid   = getUserId();
 
 if (!$isCli) {
+  Server::allowCors(true);
   header('Content-Type:text/plain; charset=UTF-8');
-}
-if (!$isCli) {
-  exit('web server access disallowed');
+
+  // Run this script in background using same PHP executable
+  $phpBin = defined('PHP_BINARY') ? PHP_BINARY : 'php';
+  $script = $projectRoot . '/artisan/proxyWorking.php';
+  $cmd    = $phpBin . ' ' . escapeshellarg($script);
+  $cmd .= ' --userId=' . escapeshellarg($uid);
+  $cmd .= ' --admin=' . escapeshellarg($isAdmin ? 'true' : 'false');
+  execInBackground($cmd);
+
+  exit;
 }
 
 if (file_exists($projectRoot . '/proxyChecker.lock') && !is_debug()) {
   exit('proxy checker process still running');
 }
 
-$lockFilePath = $projectRoot . '/proxyWorking.lock';
+$lockFilePath = tmp() . '/locks/proxyWorking' . $uid . '.lock';
 
-if (file_exists($lockFilePath) && !is_debug()) {
+if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
   exit();
 } else {
@@ -41,13 +53,7 @@ function exitProcess(): void
 
 register_shutdown_function('exitProcess');
 
-// use the global proxy DB instance directly
-$data = parse_working_proxies($proxy_db);
-
-// write working proxies
-write_file($projectRoot . '/working.txt', $data['txt']);
-write_file($projectRoot . '/working.json', json_encode($data['array']));
-write_file($projectRoot . '/status.json', json_encode($data['counter']));
+writing_working_proxies_file($proxy_db);
 
 echo PHP_EOL;
 
