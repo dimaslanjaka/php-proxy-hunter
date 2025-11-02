@@ -18,6 +18,7 @@ function execInBackground($cmd, $outputFile = null)
 
   // prepare redirection
   if (!empty($outputFile)) {
+    ensure_dir(dirname($outputFile));
     // Windows cmd/powershell will accept a file path; ensure proper quoting
     $redir = ' > ' . escapeshellarg($outputFile) . ' 2>&1';
   } else {
