@@ -1,5 +1,14 @@
 [
   {
+    "hash": "71c95ed185d0b8203b6c193a892a6d16853db933",
+    "date": "2025-11-02T12:45:54+07:00",
+    "message": "refactor(lock): unify and organize user-specific lock file paths\n\n- Updated artisan/proxyWorking.php to use consistent lock file structure:\n  `/locks/user-{uid}/artisan/proxyWorking.lock`\n- Refactored php_backend/processes.php to delete multiple lock files via array loop\n- Improved maintainability and readability of lock file cleanup logic",
+    "files": [
+      "artisan/proxyWorking.php",
+      "php_backend/processes.php"
+    ]
+  },
+  {
     "hash": "7f2978c0153ec11a58ea1ef18a3a4762f3c50bf7",
     "date": "2025-11-02T12:39:29+07:00",
     "message": "refactor(proxyWorking.php): improve CLI handling and background execution logic\n\n- Added imports for shared utilities and process functions\n- Replaced manual CLI detection with `is_cli()` helper\n- Introduced `$uid` from `getUserId()` and passed it to background process\n- Enabled CORS and background self-execution when accessed via web\n- Updated lock file path to use temporary directory and include user ID\n- Restricted concurrent execution for non-admin users\n- Replaced inline proxy writing logic with `writing_working_proxies_file()` helper",
@@ -8687,17 +8696,6 @@
     "message": "refactor(embed.php): improve security checks for file access and enhance error handling",
     "files": [
       "embed.php"
-    ]
-  },
-  {
-    "hash": "1c3ce81e91d0c9912c1df1d15471106bf42397bd",
-    "date": "2025-07-21T13:38:25+07:00",
-    "message": "refactor: Update PHP CS Fixer configuration and remove SQL dialect mappings\n\n- Added timeout setting to PhpCSFixerConfiguration in php.xml.\n- Introduced a new PhpCSFixerConfiguration with a comprehensive list of standards.\n- Removed the sqldialects.xml file as it is no longer needed.",
-    "files": [
-      ".idea/htdocs.iml",
-      ".idea/inspectionProfiles/Project_Default.xml",
-      ".idea/php.xml",
-      ".idea/sqldialects.xml"
     ]
   }
 ]
