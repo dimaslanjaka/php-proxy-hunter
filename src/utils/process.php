@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Execute a command in background (detached) on Windows and Unix.
  *
@@ -14,7 +12,7 @@ declare(strict_types=1);
  * @param string|null $outputFile Optional path to a file where stdout and stderr will be appended. If null, output is discarded.
  * @return void
  */
-function execInBackground(string $cmd, ?string $outputFile = null): void
+function execInBackground($cmd, $outputFile = null)
 {
   $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
