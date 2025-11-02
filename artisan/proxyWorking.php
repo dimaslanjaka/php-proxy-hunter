@@ -34,7 +34,7 @@ if (file_exists($projectRoot . '/proxyChecker.lock') && !is_debug()) {
   exit('proxy checker process still running');
 }
 
-$lockFilePath = tmp() . '/locks/proxyWorking' . $uid . '.lock';
+$lockFilePath = tmp() . '/locks/user-' . $uid . '/artisan/proxyWorking.lock';
 
 if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
