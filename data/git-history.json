@@ -1,5 +1,37 @@
 [
   {
+    "hash": "7f2978c0153ec11a58ea1ef18a3a4762f3c50bf7",
+    "date": "2025-11-02T12:39:29+07:00",
+    "message": "refactor(proxyWorking.php): improve CLI handling and background execution logic\n\n- Added imports for shared utilities and process functions\n- Replaced manual CLI detection with `is_cli()` helper\n- Introduced `$uid` from `getUserId()` and passed it to background process\n- Enabled CORS and background self-execution when accessed via web\n- Updated lock file path to use temporary directory and include user ID\n- Restricted concurrent execution for non-admin users\n- Replaced inline proxy writing logic with `writing_working_proxies_file()` helper",
+    "files": [
+      "artisan/proxyWorking.php"
+    ]
+  },
+  {
+    "hash": "e309773a39e663a056a7c3db97291d37f3604bc2",
+    "date": "2025-11-02T12:38:50+07:00",
+    "message": "fix(utils/process): make `execInBackground` PHP 7.0 compatible\n\nRemove `declare(strict_types=1)` and drop scalar/nullable/void type hints from\n`execInBackground($cmd, $outputFile = null)` to ensure compatibility with PHP 7.0.",
+    "files": [
+      "src/utils/process.php"
+    ]
+  },
+  {
+    "hash": "310c33db61b81b0f4c42fa9e848cde06ad2d3a27",
+    "date": "2025-11-02T12:37:59+07:00",
+    "message": "refactor(func.php): expand user ID assignment logic for clarity and flexibility\n\n- Expanded condition handling for CLI and non-CLI environments\n- Added explicit checks for session-based and CLI-provided user IDs\n- Introduced support for alternative CLI argument key `uid`\n- Improved code readability and inline documentation",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
+    "hash": "dd4bed98821e35a3ed48da4d60009fa460351601",
+    "date": "2025-11-02T12:36:09+07:00",
+    "message": "feat(process): add execInBackground function for executing commands in background on Windows and Unix",
+    "files": [
+      "src/utils/process.php"
+    ]
+  },
+  {
     "hash": "60fedaca84b0e78c58a2c6cd3413c2d72119ac49",
     "date": "2025-11-01T22:30:44+07:00",
     "message": "feat(proxy-list): trigger proxyWorking artisan script before fetching working proxies\n\nAdded a pre-fetch request to `/artisan/proxyWorking.php` in `getWorkingProxies()` to ensure the latest proxy data is generated before retrieving `working.json`.\n\nThis improves data freshness and consistency in the proxy list display.",
@@ -8666,38 +8698,6 @@
       ".idea/inspectionProfiles/Project_Default.xml",
       ".idea/php.xml",
       ".idea/sqldialects.xml"
-    ]
-  },
-  {
-    "hash": "b0941b5c661bc71b2f2f79d9703d829ae460cb66",
-    "date": "2025-07-21T05:34:37+07:00",
-    "message": "fix(profile-card): ensure saldo is displayed correctly with template literals",
-    "files": [
-      "views/assets/js/profile-card.js"
-    ]
-  },
-  {
-    "hash": "9b084eefa4e09933c8d37cc1a552330f8869b31d",
-    "date": "2025-07-21T05:34:18+07:00",
-    "message": "feat(user-handler): improve session management for authentication and admin status\n\nReplaced inline admin assignment with `$isAdmin` variable to simplify logic. Removed `$_SESSION['admin']` when user is not admin to avoid stale session state. Added `$_SESSION['authenticated']` and `$_SESSION['authenticated_email']` to explicitly track user login status.",
-    "files": [
-      "php_backend/user-handler.php"
-    ]
-  },
-  {
-    "hash": "4f33afe47b37d67c0c33114edd8991996e044c8b",
-    "date": "2025-07-21T05:33:42+07:00",
-    "message": "refactor(template.js): improve clipboard copy support and snackbar safety\n\nEnhanced `copyToClipboard` to always return a `Promise<boolean>` for consistent async behavior across browsers, including fallback for older browsers. Also added error handling when `#snackbar` element is not found to prevent runtime failures during `showSnackbar`.",
-    "files": [
-      "views/assets/js/template.js"
-    ]
-  },
-  {
-    "hash": "d0b3419b31fbc9259c71ee19c52292572ea6ef01",
-    "date": "2025-07-21T04:49:25+07:00",
-    "message": "refactor(user-handler): unify user DB usage and improve user creation flow\n\nReplaced multiple `UserDB` instantiations with a single instance and updated logic to:\n- Use `select` and `add` methods instead of legacy `getUserByEmail`/`createUser`.\n- Automatically mark certain emails as admin/superuser using environment variables.\n- Sanitize username creation from email using stricter regex.",
-    "files": [
-      "php_backend/user-handler.php"
     ]
   }
 ]
