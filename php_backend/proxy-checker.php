@@ -214,11 +214,11 @@ if (!$isCli) {
     setUserId($options['userId']);
   }
 
-  $userId     = getUserId();
-  $config     = getConfig($userId);
-  $statusFile = getUserStatusFile($userId);
-  $lockFile   = $options['lockFile'] ?? $lockFilePath;
-  $proxyInfo  = [
+  $userId       = getUserId();
+  $config       = getConfig($userId);
+  $statusFile   = getUserStatusFile($userId);
+  $lockFilePath = $options['lockFile'] ?? $lockFilePath;
+  $proxyInfo    = [
     'proxy'    => $options['proxy']    ?? null,
     'type'     => $options['type']     ?? null,
     'username' => $options['username'] ?? null,
@@ -226,7 +226,7 @@ if (!$isCli) {
   ];
   $timeout = $config['curl_timeout'] ?? 10;
 
-  if (file_exists($lockFile) && !$isAdmin) {
+  if (file_exists($lockFilePath) && !$isAdmin) {
     // another process still running
     $status = 'Another process is still running.';
     @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
@@ -242,15 +242,13 @@ if (!$isCli) {
   }
 
   // create lock file
-  file_put_contents($lockFile, (string)getmypid(), LOCK_EX);
+  file_put_contents($lockFilePath, (string)getmypid(), LOCK_EX);
 
   // ensure lock file is always deleted when script ends
-  register_shutdown_function(function () use ($lockFile, $proxyInfo) {
-    // Use the global $proxy_db inside shutdown handler via global keyword
-    global $proxy_db;
+  register_shutdown_function(function () use ($lockFilePath, $proxyInfo, $proxy_db) {
     writing_working_proxies_file($proxy_db);
     // remove lock file
-    safe_unlink($lockFile);
+    safe_unlink($lockFilePath);
     $proxyDetails = [];
     foreach (['proxy', 'type', 'username', 'password'] as $key) {
       if (!empty($proxyInfo[$key])) {
@@ -266,7 +264,7 @@ if (!$isCli) {
     ensure_dir(dirname($statusFile));
     $status = "'proxy' and 'type' parameters are required.";
     @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-    safe_unlink($lockFile);
+    safe_unlink($lockFilePath);
     exit($status . PHP_EOL);
   }
 
