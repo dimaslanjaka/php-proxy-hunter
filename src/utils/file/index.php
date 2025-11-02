@@ -996,11 +996,3 @@ function ensure_dir(string $dir): void
     @mkdir($dir, 0777, true);
   }
 }
-
-/** Small helper to safely unlink a file if it exists */
-function safe_unlink(string $file): void
-{
-  if (file_exists($file)) {
-    @unlink($file);
-  }
-}

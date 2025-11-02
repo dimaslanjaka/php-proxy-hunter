@@ -248,7 +248,7 @@ if (!$isCli) {
   register_shutdown_function(function () use ($lockFilePath, $proxyInfo, $proxy_db) {
     writing_working_proxies_file($proxy_db);
     // remove lock file
-    safe_unlink($lockFilePath);
+    delete_path($lockFilePath);
     $proxyDetails = [];
     foreach (['proxy', 'type', 'username', 'password'] as $key) {
       if (!empty($proxyInfo[$key])) {
