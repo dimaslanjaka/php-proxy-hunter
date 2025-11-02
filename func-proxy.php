@@ -921,8 +921,10 @@ function parse_working_proxies($db)
  */
 function writing_working_proxies_file($db, $lock_file = null)
 {
-  $lock_file      = $lock_file ?? (__DIR__ . '/tmp/locks/writing-working-proxies.lock');
-  $projectRoot    = dirname(__DIR__);
+  $lock_file = $lock_file ?? (__DIR__ . '/tmp/locks/writing-working-proxies.lock');
+  // func-proxy.php lives in project root, so __DIR__ is the project root.
+  // Use __DIR__ here instead of dirname(__DIR__) which points to the parent folder.
+  $projectRoot    = __DIR__;
   $workingProxies = parse_working_proxies($db);
   // Ensure lock dir exists
   $lockDir = dirname($lock_file);
