@@ -1,5 +1,31 @@
 [
   {
+    "hash": "e6de6dc9edaf0bbc009e50172371b18c065f0c64",
+    "date": "2025-11-02T16:04:58+07:00",
+    "message": "refactor(file): replace safe_unlink with delete_path for consistency\n\n- Removed deprecated safe_unlink helper from src/utils/file/index.php\n- Updated proxy-checker.php to use delete_path for lock file cleanup\n- Simplified file deletion logic for better maintainability",
+    "files": [
+      "php_backend/proxy-checker.php",
+      "src/utils/file/index.php"
+    ]
+  },
+  {
+    "hash": "e851d580896e9ca6edb5bc55db05eb75be183827",
+    "date": "2025-11-02T16:04:01+07:00",
+    "message": "refactor(proxy-checker): unify lock file variable usage for consistency",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "8f93d7fcd012282dd744ee07ea0991836a214b00",
+    "date": "2025-11-02T15:08:13+07:00",
+    "message": "refactor(bin/cfh): write single parent-folder checksum instead of directory tree\n\n- add `bin/cfh-old.cjs` (previous implementation preserved)\n- update `bin/cfh.cjs` to compute a SHA-256 over sorted file hashes and write one line\n  `projectName <hash>` to `.husky/hash.txt` instead of printing the full tree\n- keep existing excludeDirs/extraFiles behavior and `git add` the output file",
+    "files": [
+      "bin/cfh-old.cjs",
+      "bin/cfh.cjs"
+    ]
+  },
+  {
     "hash": "8cb54b00584d798cc70bb4b94c6eb3d30587c244",
     "date": "2025-11-02T15:00:32+07:00",
     "message": "refactor(proxyWorking): improve background execution and logging mechanism\n\n- Removed unused process.php import\n- Updated PHP binary detection for cross-platform compatibility\n- Added output and PID file handling for proxyWorking background process\n- Introduced runner script generation for bash/batch execution\n- Enhanced logging with user-specific log files\n- Updated variable naming for clarity (`workingData` instead of `data`)",
@@ -8673,30 +8699,6 @@
     "message": "test(UserDBTest): add unit tests for UserDB class functionality",
     "files": [
       "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "55673a153f56a77ab87d2fa8c388426c233c6bc8",
-    "date": "2025-07-21T14:44:03+07:00",
-    "message": "feat(UserDB): add destructor and close method to manage database connection lifecycle",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "d413de87b94adc6b18adb7ac4ce21b4be4172ec2",
-    "date": "2025-07-21T14:11:23+07:00",
-    "message": "docs(readme): add debugging instructions for twig views",
-    "files": [
-      "views/readme.md"
-    ]
-  },
-  {
-    "hash": "d774eff69b59c89576a810926726a4408cc38a5f",
-    "date": "2025-07-21T14:11:08+07:00",
-    "message": "feat(BaseController): implement parsePostData method for handling various Content-Types",
-    "files": [
-      "src/mvc/BaseController.php"
     ]
   }
 ]
