@@ -616,14 +616,40 @@ function parseArgs($args): array
 // Default user ID to "CLI" assuming the script is running from the command line
 $user_id = 'CLI';
 
+// Check if the script is running in CLI mode or not
 if (!$isCli) {
-  // If not running in CLI mode, generate a hashed user ID
-  // Use the session user ID if available; otherwise, fall back to the session ID
-  $user_id = md5($_SESSION['user_id'] ?? session_id());
-} elseif (!empty($parsedArgs = parseArgs($argv)) && !empty(trim($parsedArgs['userId'] ?? ''))) {
-  // If running in CLI mode and 'userId' is provided in arguments
-  // Trim the value to remove any surrounding whitespace
-  $user_id = trim($parsedArgs['userId']);
+  // --- Case 1: Not running in CLI mode (i.e., likely running via web server) ---
+
+  // Check if a user ID exists in the session
+  if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+    // If a session user ID exists, use it to generate a hashed user ID
+    $user_id_source = $_SESSION['user_id'];
+  } else {
+    // Otherwise, fall back to the PHP session ID
+    $user_id_source = session_id();
+  }
+
+  // Hash the chosen ID (session user ID or session ID) for privacy and consistency
+  $user_id = md5($user_id_source);
+} else {
+  // --- Case 2: Running in CLI mode ---
+
+  // Parse command-line arguments using a helper function
+  $parsedArgs = parseArgs($argv);
+
+  // Check if the parsed arguments array is not empty
+  if (!empty($parsedArgs)) {
+    // Extract the 'userId' argument if present
+    $cliUserId = $parsedArgs['userId'] ?? $parsedArgs['uid'] ?? '';
+
+    // Trim any whitespace around it
+    $cliUserId = trim($cliUserId);
+
+    // If a non-empty userId was provided via CLI
+    if (!empty($cliUserId)) {
+      $user_id = $cliUserId;
+    }
+  }
 }
 
 setUserId($user_id);
