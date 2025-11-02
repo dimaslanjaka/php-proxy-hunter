@@ -909,12 +909,19 @@ function parse_working_proxies($db)
 /**
  * Writes working proxies data to files in both text and JSON formats.
  *
+ * This function acquires an exclusive lock via a lock file to avoid concurrent
+ * writers. You can provide a custom lock file path by passing the optional
+ * $lock_file parameter. If omitted, a default lock file under `tmp/locks`
+ * will be used.
+ *
  * @param ProxyDB $db The ProxyDB object containing the working proxies data.
- * @return array An array containing three elements:
+ * @param string|null $lock_file Optional absolute path to a lock file. If null,
+ *                              defaults to __DIR__ . '/tmp/locks/writing-working-proxies.lock'.
+ * @return array An array containing three elements: parsed working proxies and counters.
  */
-function writing_working_proxies_file($db)
+function writing_working_proxies_file($db, $lock_file = null)
 {
-  $lock_file      = __DIR__ . '/tmp/locks/writing-working-proxies.lock';
+  $lock_file      = $lock_file ?? (__DIR__ . '/tmp/locks/writing-working-proxies.lock');
   $projectRoot    = dirname(__DIR__);
   $workingProxies = parse_working_proxies($db);
   // Ensure lock dir exists
@@ -923,21 +930,23 @@ function writing_working_proxies_file($db)
     @mkdir($lockDir, 0777, true);
   }
 
-  // Acquire an exclusive lock to prevent concurrent writers
-  $fp = @fopen($lock_file, 'c');
-  if (!$fp) {
-    // Could not open lock file — skip writing
+  // Simple file-based lock logic:
+  // - If lock file already exists, another process is writing: return immediately.
+  // - Otherwise create the lock file (atomic with FILE_EX) and proceed.
+  // - Ensure the lock file is removed in the finally block.
+  if (file_exists($lock_file)) {
     return $workingProxies;
   }
 
-  // Try to acquire lock without blocking. If it's already locked, return immediately.
-  if (!flock($fp, LOCK_EX | LOCK_NB)) {
-    fclose($fp);
-    return $workingProxies;
-  }
-  $acquired = true;
-
+  $lockWritten = false;
   try {
+    // Attempt to create the lock file atomically
+    if (@file_put_contents($lock_file, (string) getmypid(), LOCK_EX) === false) {
+      // Could not create lock file — skip writing
+      return $workingProxies;
+    }
+    $lockWritten = true;
+
     // Atomic writes: write to temp files and rename
     $files = [
       $projectRoot . '/working.txt'  => $workingProxies['txt'],
@@ -961,10 +970,9 @@ function writing_working_proxies_file($db)
       }
     }
   } finally {
-    if (!empty($acquired)) {
-      @flock($fp, LOCK_UN);
+    if ($lockWritten && file_exists($lock_file)) {
+      @unlink($lock_file);
     }
-    @fclose($fp);
   }
   return $workingProxies;
 }

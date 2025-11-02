@@ -111,6 +111,7 @@ if (empty($processes)) {
     tmp() . '/locks/user-' . $userId . '/geoIp.lock',
     // artisan/proxyWorking.php lock file
     tmp() . '/locks/user-' . $userId . '/artisan/proxyWorking.lock',
+    tmp() . '/locks/user-' . $userId . '/artisan/proxyWorking-writer.lock',
   ];
 
   // Delete each lock file if it exists

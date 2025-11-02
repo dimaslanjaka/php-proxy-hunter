@@ -27,7 +27,7 @@ if (!$isCli) {
   $cmd .= ' --admin=' . escapeshellarg($isAdmin ? 'true' : 'false');
   execInBackground($cmd);
 
-  exit;
+  exit('Started background process to update working proxies.' . PHP_EOL);
 }
 
 if (file_exists($projectRoot . '/proxyChecker.lock') && !is_debug()) {
@@ -53,7 +53,7 @@ function exitProcess(): void
 
 register_shutdown_function('exitProcess');
 
-writing_working_proxies_file($proxy_db);
+writing_working_proxies_file($proxy_db, tmp() . '/locks/user-' . $uid . '/artisan/proxyWorking-writer.lock');
 
 echo PHP_EOL;
 
