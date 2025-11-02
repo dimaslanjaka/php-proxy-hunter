@@ -1,5 +1,47 @@
 [
   {
+    "hash": "8cb54b00584d798cc70bb4b94c6eb3d30587c244",
+    "date": "2025-11-02T15:00:32+07:00",
+    "message": "refactor(proxyWorking): improve background execution and logging mechanism\n\n- Removed unused process.php import\n- Updated PHP binary detection for cross-platform compatibility\n- Added output and PID file handling for proxyWorking background process\n- Introduced runner script generation for bash/batch execution\n- Enhanced logging with user-specific log files\n- Updated variable naming for clarity (`workingData` instead of `data`)",
+    "files": [
+      "artisan/proxyWorking.php"
+    ]
+  },
+  {
+    "hash": "be62c6d1e5902cc230519a7dbff990a10626f74e",
+    "date": "2025-11-02T14:59:34+07:00",
+    "message": "refactor(func-proxy): simplify project root path determination in writing_working_proxies_file function",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
+    "hash": "13a2899b855493a4ee2cb2c907e987ab1c2ca11f",
+    "date": "2025-11-02T14:59:12+07:00",
+    "message": "refactor(process): remove unused execInBackground function",
+    "files": [
+      "src/utils/process.php"
+    ]
+  },
+  {
+    "hash": "d48eae3be310028e759558504f9ece336a303774",
+    "date": "2025-11-02T14:44:49+07:00",
+    "message": "fix(process): ensure directory exists before redirecting output in execInBackground",
+    "files": [
+      "src/utils/process.php"
+    ]
+  },
+  {
+    "hash": "6271287e352f254411d7c4eba48ec23b032fcf41",
+    "date": "2025-11-02T14:43:00+07:00",
+    "message": "feat(writer): add optional lock-file support and robust file-locking for writing working proxies\n\n- add optional $lock_file parameter to `writing_working_proxies_file` and update docblock\n- switch lock logic from flock-based locking to simple file-existence lock:\n  - return immediately if lock file already exists\n  - create lock file (PID written) before processing\n  - ensure lock file is removed in finally block\n- update `artisan/proxyWorking.php` to pass a per-user writer lock:\n  - `writing_working_proxies_file($proxy_db, tmp() . '/locks/user-' . $uid . '/artisan/proxyWorking-writer.lock')`\n- echo a human-friendly message when starting the background artisan process\n- add new lock path to `php_backend/processes.php` cleanup list:\n  - `tmp() . '/locks/user-' . $userId . '/artisan/proxyWorking-writer.lock'`\n\nThis change hardens concurrent writer behavior and enables per-user lock files for background writer processes.",
+    "files": [
+      "artisan/proxyWorking.php",
+      "func-proxy.php",
+      "php_backend/processes.php"
+    ]
+  },
+  {
     "hash": "71c95ed185d0b8203b6c193a892a6d16853db933",
     "date": "2025-11-02T12:45:54+07:00",
     "message": "refactor(lock): unify and organize user-specific lock file paths\n\n- Updated artisan/proxyWorking.php to use consistent lock file structure:\n  `/locks/user-{uid}/artisan/proxyWorking.lock`\n- Refactored php_backend/processes.php to delete multiple lock files via array loop\n- Improved maintainability and readability of lock file cleanup logic",
@@ -8655,47 +8697,6 @@
     "message": "feat(BaseController): implement parsePostData method for handling various Content-Types",
     "files": [
       "src/mvc/BaseController.php"
-    ]
-  },
-  {
-    "hash": "6638e6f831d4e64bae99169e9ad0a290b6b7f83e",
-    "date": "2025-07-21T13:59:39+07:00",
-    "message": "fix(dependencies): update URLs for git-command-helper and other packages",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "3d89c369474d4afdba1a332cc644701b3d3abd1d",
-    "date": "2025-07-21T13:58:47+07:00",
-    "message": "build(rollup): move PHP env build ID generation into plugin phase\n\nAdds a custom Rollup plugin named `build-php-env` that generates a unique build ID and writes it to `public/php/json/env.json` during the `buildStart` phase. Ensures directory creation and improves plugin execution clarity during builds.",
-    "files": [
-      "rollup.php.js"
-    ]
-  },
-  {
-    "hash": "75e4ba730d80ce9d27899c264b9c2b6d5a54d5d4",
-    "date": "2025-07-21T13:45:08+07:00",
-    "message": "refactor(oauth): rename user-handler.php to google-oauth.php and update references\n\nRenamed the backend script from `user-handler.php` to `google-oauth.php` for clarity and alignment with its purpose. Also updated all JavaScript references in `login.js` to use the new filename.",
-    "files": [
-      "php_backend/google-oauth.php",
-      "views/assets/js/login.js"
-    ]
-  },
-  {
-    "hash": "0a3ff1b563d9aa4fd33d4380e93dd8d860535c55",
-    "date": "2025-07-21T13:41:11+07:00",
-    "message": "feat(requirements): add nuitka to Linux package requirements",
-    "files": [
-      "requirements_install.py"
-    ]
-  },
-  {
-    "hash": "8fc2ae6b95c8b9472d82902b1d96e5d54e27e758",
-    "date": "2025-07-21T13:39:09+07:00",
-    "message": "refactor(embed.php): improve security checks for file access and enhance error handling",
-    "files": [
-      "embed.php"
     ]
   }
 ]
