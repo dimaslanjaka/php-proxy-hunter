@@ -280,7 +280,7 @@ if (!$isCli) {
   if ($type !== '' && !in_array($type, $allowedTypes, true)) {
     $status = 'Invalid proxy type. Supported types are http, https, socks4, socks5, socks5h.';
     @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-    delete_path($lockFile);
+    delete_path($lockFilePath);
     exit($status . PHP_EOL);
   }
 
