@@ -117,6 +117,7 @@ function ProxyList() {
   const [cityFilter, setCityFilter] = React.useState('');
   const [timezoneFilter, setTimezoneFilter] = React.useState('');
   const [regionFilter, setRegionFilter] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState('');
   const [userId, setUserId] = React.useState<string | null>(null);
   // filters always shown (accordion removed)
   const [loadingProxies, setLoadingProxies] = React.useState(false);
@@ -180,8 +181,19 @@ function ProxyList() {
         return typeStr.split('-').includes(typeFilter);
       });
     }
+    // apply search query filtering across all string fields
+    if (searchQuery && String(searchQuery).trim().length > 0) {
+      const q = String(searchQuery).toLowerCase().trim();
+      filtered = filtered.filter((p) =>
+        Object.values(p).some((v) =>
+          String(v ?? '')
+            .toLowerCase()
+            .includes(q)
+        )
+      );
+    }
     return filtered;
-  }, [proxies, countryFilter, cityFilter, timezoneFilter, typeFilter]);
+  }, [proxies, countryFilter, cityFilter, timezoneFilter, typeFilter, regionFilter, searchQuery]);
 
   const paginatedProxies = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -381,6 +393,20 @@ function ProxyList() {
         <div className="mb-4 w-full">
           <div className="block">
             <div className="flex flex-col sm:flex-row flex-wrap gap-x-4 gap-y-2 mt-4 items-center w-full">
+              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[200px]">
+                <label className="text-gray-700 dark:text-gray-200 mb-1">Search:</label>
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="Search proxies..."
+                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full"
+                />
+              </div>
+
               <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
                 <label className="text-gray-700 dark:text-gray-200 mb-1">Type:</label>
                 <select
