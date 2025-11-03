@@ -36,8 +36,14 @@ class AnsiColors
       'lightgreybg'   => 47,
     ];
     $formatMap = array_map(function ($v) use ($codes) {
-      return $codes[$v];
+      return isset($codes[$v]) ? $codes[$v] : null;
     }, $format);
+    $formatMap = array_values(array_filter($formatMap, function ($v) {
+      return $v !== null && $v !== '';
+    }));
+    if (empty($formatMap)) {
+      return $text;
+    }
     return "\033[" . implode(';', $formatMap) . 'm' . $text . "\033[0m";
   }
 
