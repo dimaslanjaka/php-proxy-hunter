@@ -61,7 +61,7 @@ const handleCopy = (proxy: ProxyDetails) => {
 };
 
 let fetchingProxies = false;
-async function getWorkingProxies(setShowModal?: React.Dispatch<React.SetStateAction<boolean>>) {
+async function getWorkingProxies() {
   if (fetchingProxies) return [];
   fetchingProxies = true;
   // trigger background get working proxies
@@ -72,13 +72,11 @@ async function getWorkingProxies(setShowModal?: React.Dispatch<React.SetStateAct
       signal: AbortSignal.timeout(5000)
     });
     if (res.status === 403) {
-      if (setShowModal) setShowModal(true);
       fetchingProxies = false;
       return [];
     }
     result = await res.json();
     if (!Array.isArray(result)) {
-      if (setShowModal) setShowModal(true);
       fetchingProxies = false;
       return [];
     }
@@ -104,14 +102,8 @@ async function getWorkingProxies(setShowModal?: React.Dispatch<React.SetStateAct
   return result;
 }
 
-// Helper to fetch and set proxies
-async function fetchAndSetProxies(
-  setProxies: React.Dispatch<React.SetStateAction<ProxyDetails[]>>,
-  setShowModal?: React.Dispatch<React.SetStateAction<boolean>>
-) {
-  const result = await getWorkingProxies(setShowModal);
-  if (Array.isArray(result)) setProxies(result);
-}
+// Helper to fetch proxies (kept at module level)
+// (fetchAndSetProxies moved into the component to use setProxies from closure)
 
 function ProxyList() {
   const { showSnackbar } = useSnackbar();
@@ -129,6 +121,12 @@ function ProxyList() {
   // filters always shown (accordion removed)
   const [loadingProxies, setLoadingProxies] = React.useState(false);
   const isMountedRef = React.useRef(true);
+
+  // Helper to fetch and set proxies using component's setProxies
+  const fetchAndSetProxies = async () => {
+    const result = await getWorkingProxies();
+    if (Array.isArray(result)) setProxies(result);
+  };
 
   // Get ProxyDetails keys for table, reordering specific columns to the end
   const proxyKeys = React.useMemo(() => {
@@ -201,7 +199,7 @@ function ProxyList() {
     const refreshProxies = async () => {
       setLoadingProxies(true);
       try {
-        await fetchAndSetProxies(setProxies, setShowModal);
+        await fetchAndSetProxies();
       } finally {
         if (isMountedRef.current) setLoadingProxies(false);
       }
@@ -263,26 +261,14 @@ function ProxyList() {
     };
   }, []);
 
-  // Refresh proxy list every 1 minute
-  React.useEffect(() => {
-    // periodic refresh using the same loader - avoid overlapping fetches
-    const interval = setInterval(() => {
-      if (!showModal && !loadingProxies) {
-        setLoadingProxies(true);
-        fetchAndSetProxies(setProxies, setShowModal).finally(() => {
-          if (isMountedRef.current) setLoadingProxies(false);
-        });
-      }
-    }, 60000); // 60,000 ms = 1 min
-    return () => clearInterval(interval);
-  }, [showModal, setProxies, loadingProxies]);
+  // Auto-refresh removed: manual refresh is available via the Refresh button
 
   // Manual refresh handler exposed to UI
   const handleRefresh = async () => {
     if (loadingProxies) return;
     setLoadingProxies(true);
     try {
-      await fetchAndSetProxies(setProxies, setShowModal);
+      await fetchAndSetProxies();
     } finally {
       if (isMountedRef.current) setLoadingProxies(false);
     }
@@ -301,7 +287,7 @@ function ProxyList() {
       const data = await response.json();
       if (data.success) {
         setShowModal(false);
-        fetchAndSetProxies(setProxies, setShowModal);
+        fetchAndSetProxies();
       } else {
         // handle error, e.g., show a message
       }
