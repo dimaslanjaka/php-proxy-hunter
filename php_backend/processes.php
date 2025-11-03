@@ -8,11 +8,12 @@ global $isAdmin, $proxy_db;
 
 $projectRoot = dirname(__DIR__);
 
+Server::allowCors(true);
+
 // Per-session rate limit: allow this script to be accessed once per 60 seconds
 // for non-admin users. The session is started in shared.php. Admins are
 // identified by the existing $isAdmin variable (set in shared.php).
 if (!$isAdmin && !is_cli()) {
-  Server::allowCors(true);
   $key = 'processes_last_access';
   $now = time();
   if (!empty($_SESSION[$key]) && ($now - (int)$_SESSION[$key]) < 60) {
