@@ -82,8 +82,6 @@ async function getWorkingProxies(setShowModal?: React.Dispatch<React.SetStateAct
       return [];
     }
   } catch {
-    // fallback: show recaptcha if error
-    if (setShowModal) setShowModal(true);
     fetchingProxies = false;
     return [];
   }
