@@ -308,6 +308,15 @@ if (!$isCli) {
 function proxyChecker($proxyInfo, $types = [])
 {
   global $config, $proxy_db;
+
+  // Skip proxy already checked as active under 4 hours
+  $last_check = $proxy_db->select($proxyInfo['proxy'])[0]['last_check'] ?? null;
+  if (!empty($last_check) && (strtotime($last_check) > (time() - 4 * 3600))) {
+    // Already checked recently
+    addLog('Skipping proxy check for ' . build_proxy_details($proxyInfo)['text'] . ' (already checked recently).');
+    return;
+  }
+
   $currentIp = getServerIp();
   if (empty($currentIp)) {
     return;
@@ -411,10 +420,12 @@ function proxyChecker($proxyInfo, $types = [])
       }
     }
   }
+
+  // save to database
   if (!$foundWorking) {
     addLog('Proxy test failed for all types.');
+    $proxy_db->updateStatus($proxyInfo['proxy'], 'dead');
   } else {
-    // save to database
     $proxy_db->updateData($proxyInfo['proxy'], [
       'type'       => implode('-', $workingTypes),
       'username'   => $proxyInfo['username'] ?? null,
