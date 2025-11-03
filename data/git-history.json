@@ -1,5 +1,29 @@
 [
   {
+    "hash": "ab84347b4524cac162f0bdcd1c587bc3100b55bd",
+    "date": "2025-11-03T16:48:37+07:00",
+    "message": "fix(proxy): remove unnecessary await to trigger background proxy fetch",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "b1199f089ec1d4ed1c25819cf13bf6fbeb11eb5b",
+    "date": "2025-11-03T16:47:05+07:00",
+    "message": "refactor(ProxyList): remove fallback to show recaptcha on fetch error",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "9d636edd245c5ebebc62c6f407814cd0fe880aec",
+    "date": "2025-11-03T16:46:30+07:00",
+    "message": "refactor(cmd-here): update CUSTOM_PATH to include Nox directories for improved environment setup",
+    "files": [
+      "cmd-here.bat"
+    ]
+  },
+  {
     "hash": "e6de6dc9edaf0bbc009e50172371b18c065f0c64",
     "date": "2025-11-02T16:04:58+07:00",
     "message": "refactor(file): replace safe_unlink with delete_path for consistency\n\n- Removed deprecated safe_unlink helper from src/utils/file/index.php\n- Updated proxy-checker.php to use delete_path for lock file cleanup\n- Simplified file deletion logic for better maintainability",
@@ -8675,30 +8699,6 @@
       "controllers/ProfileController.php",
       "views/assets/js/edit-profile.js",
       "views/profile/edit.twig"
-    ]
-  },
-  {
-    "hash": "eb39adbc79ecc8f39e7519d1571b8cc786b52f82",
-    "date": "2025-07-21T15:29:36+07:00",
-    "message": "fix(google-oauth): remove database path from UserDB instantiation",
-    "files": [
-      "php_backend/google-oauth.php"
-    ]
-  },
-  {
-    "hash": "001c6342e8dbd6fbcaf8aeb815bd88c5a346c6b9",
-    "date": "2025-07-21T14:47:24+07:00",
-    "message": "fix(settings): remove PHP executor mapping from code-runner configuration",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "ccc404bf816cc0548cdff639b2246fc3409fb455",
-    "date": "2025-07-21T14:47:06+07:00",
-    "message": "test(UserDBTest): add unit tests for UserDB class functionality",
-    "files": [
-      "tests/PhpProxyHunter/UserDBTest.php"
     ]
   }
 ]
