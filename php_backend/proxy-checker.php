@@ -184,12 +184,19 @@ if (!$isCli) {
     $statusEmbedUrl = $selfBase . '/proxy-checker.php?id=' . $id . '&type=status';
 
     // Return a response indicating that the check is in progress
-    send_json([
+    $res = [
       'error'          => false,
       'message'        => 'Proxy check is in progress. Please check back later.',
       'logEmbedUrl'    => $logEmbedUrl,
       'statusEmbedUrl' => $statusEmbedUrl,
-    ]);
+    ];
+    if ($isAdmin) {
+      $res['pidFile']    = $pid_file;
+      $res['outputFile'] = $output_file;
+      $res['lockFile']   = $lockFilePath;
+      $res['command']    = $cmd;
+    }
+    send_json($res);
     // Note: The actual proxy checking will be done in the background process.
   }
 } else {
