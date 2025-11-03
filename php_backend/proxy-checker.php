@@ -267,12 +267,16 @@ if (!$isCli) {
 
   // validate input before calling getPublicIP
   if (empty($proxyInfo['proxy']) && empty($proxyInfo['type'])) {
-    // Ensure the directory exists before writing the file
-    ensure_dir(dirname($statusFile));
-    $status = "'proxy' and 'type' parameters are required.";
-    @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
-    delete_path($lockFilePath);
-    exit($status . PHP_EOL);
+    // Get random proxy from database
+    $allProxies = $proxy_db->getUntestedProxies();
+    if (empty($allProxies)) {
+      $status = 'No untested proxies available in the database.';
+      write_file($statusFile, $status . PHP_EOL);
+      delete_path($lockFilePath);
+      exit($status . PHP_EOL);
+    }
+    $proxyInfo['proxy'] = $allProxies[array_rand($allProxies)];
+    $proxyInfo['type']  = null; // try all types
   }
 
   $type         = empty($proxyInfo['type']) ? '' : strtolower($proxyInfo['type']);
