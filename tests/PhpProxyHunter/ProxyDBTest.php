@@ -10,12 +10,17 @@ class ProxyDBTest extends TestCase
   /** @var ProxyDB|null */
   private $proxyDB = null;
   /** @var string */
-  private $testProxy          = '123.123.123.123:8080';
-  private ?string $testDbPath = null;
-  private ?string $mysqlHost  = null;
-  private ?string $mysqlUser  = null;
-  private ?string $mysqlPass  = null;
-  private ?string $mysqlDb    = null;
+  private $testProxy = '176.126.103.194:44214';
+  /** @var string|null */
+  private $testDbPath = null;
+  /** @var string|null */
+  private $mysqlHost = null;
+  /** @var string|null */
+  private $mysqlUser = null;
+  /** @var string|null */
+  private $mysqlPass = null;
+  /** @var string|null */
+  private $mysqlDb = null;
 
   public function dbProvider(): array
   {
