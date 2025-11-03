@@ -1,5 +1,101 @@
 [
   {
+    "hash": "631587dfffbc37b549e45c95130b075e8ef4974f",
+    "date": "2025-11-03T20:04:44+07:00",
+    "message": "feat(proxy-checker): auto-select random untested proxy when input is missing\n\nReplaced strict input validation with logic to automatically fetch a random untested proxy from the database if 'proxy' and 'type' parameters are not provided.\nImproves automation and ensures proxy checking continues without manual input.",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "cd6b0cad59f13e895edf871677022bed0e88783e",
+    "date": "2025-11-03T20:01:48+07:00",
+    "message": "feat(proxy-checker): skip recently checked proxies and update DB on failure\n\nAdded logic to skip proxy checks if the proxy was already verified as active within the last 4 hours.\nAlso ensured failed proxy checks are recorded in the database with status `dead`.",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "0e7334342b62bea853bb6d0ba3c50fdb2a2b5099",
+    "date": "2025-11-03T19:40:45+07:00",
+    "message": "feat(readme): add comprehensive Frida setup and usage guide",
+    "files": [
+      "readme-frida.md"
+    ]
+  },
+  {
+    "hash": "83852c5520edf66efc9af74225da12f1c85bb598",
+    "date": "2025-11-03T19:28:21+07:00",
+    "message": "feat(proxy): add HTTP-only proxy checker script\n\nAdd new file php_backend/check-http-proxy.php.\n\n- Copied and adapted logic from check-https-proxy.php to perform non-SSL (HTTP) proxy checks only.\n- Tests proxies against http://httpforever.com/ and expects the page title \"HTTP Forever\".\n- Supports CLI and web invocation, background runner, lockfile handling, logging, and scheduler cleanup.\n- Updates proxy_db with https='false', latency, last_check and sets status/type to 'active'/'http' when valid.\n- Keeps protocol checks for http, socks4, socks5 and preserves existing helper usage (buildCurl, extractProxies, etc.).\n- New file mode 100644.",
+    "files": [
+      "php_backend/check-http-proxy.php"
+    ]
+  },
+  {
+    "hash": "7d93cb7910085b70ee094037a3e710e986a3d055",
+    "date": "2025-11-03T17:48:45+07:00",
+    "message": "feat(ProxyList): add search functionality for filtering proxies",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "dca311362eba65d2054f0c6abe4506278ecd906b",
+    "date": "2025-11-03T17:45:29+07:00",
+    "message": "fix(processes): move CORS allowance to the top for consistency",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "ae97a6932aa5a0e64e207ddff36070e395681b57",
+    "date": "2025-11-03T17:37:32+07:00",
+    "message": "fix(tests/ProxyDBTest): make test class PHP 7.0 compatible\n\nReplace PHP 7.4 typed properties (e.g. `private ?string $testDbPath`) with untyped\nprivate properties and add `@var` docblocks. Update the test proxy value to\n`176.126.103.194:44214`. Method signatures and test behavior are preserved to\nkeep PHPUnit compatibility.",
+    "files": [
+      "tests/PhpProxyHunter/ProxyDBTest.php"
+    ]
+  },
+  {
+    "hash": "2fce21bcf6137dd0632b8c9518922e866cd07259",
+    "date": "2025-11-03T17:34:38+07:00",
+    "message": "fix(AnsiColors): handle undefined format codes and return original text if empty",
+    "files": [
+      "src/PhpProxyHunter/AnsiColors.php"
+    ]
+  },
+  {
+    "hash": "618d80891fa43fccd2afd9fbd3187e2459c473c4",
+    "date": "2025-11-03T17:21:10+07:00",
+    "message": "fix(proxy-checker): correct lock file path variable in error handling",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "1e47535e95cff314598e90395940928b86ffec5d",
+    "date": "2025-11-03T17:19:44+07:00",
+    "message": "refactor(proxy-checker): replace safe_unlink with delete_path for consistency",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "d1932c7238a9a607a7d8b016b33f7d861a7a7eb6",
+    "date": "2025-11-03T17:12:14+07:00",
+    "message": "feat(proxy-checker): include admin-only background process metadata\n\nReplace the inline send_json([...]) call with a built response array ($res)\nso admin-only fields can be conditionally added. When $isAdmin is true the\nresponse now includes pidFile, outputFile, lockFile, and command. Non-admin\nbehavior remains unchanged.",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "3eb337639402b5c99e3c099da0a8a7b7da3f513a",
+    "date": "2025-11-03T17:05:52+07:00",
+    "message": "refactor(ProxyList): remove setShowModal and simplify proxy fetching\n\n- remove optional `setShowModal` parameter from `getWorkingProxies`\n- move `fetchAndSetProxies` into `ProxyList` so it uses `setProxies` from closure\n- update all call sites to call `fetchAndSetProxies()` without arguments\n- remove periodic 1-minute auto-refresh useEffect; keep manual Refresh button\n- add clarifying comments about fetch helper placement",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
     "hash": "ab84347b4524cac162f0bdcd1c587bc3100b55bd",
     "date": "2025-11-03T16:48:37+07:00",
     "message": "fix(proxy): remove unnecessary await to trigger background proxy fetch",
@@ -8599,106 +8695,6 @@
     "files": [
       "php_backend/refill-saldo.php",
       "views/assets/js/refill-saldo.js"
-    ]
-  },
-  {
-    "hash": "e52ea8c85ff195f46e2c32064800328b21abeadc",
-    "date": "2025-07-21T16:41:46+07:00",
-    "message": "fix(languages): align language icon vertically in the dropdown\nfix(template): add margin-top to the container for better spacing",
-    "files": [
-      "views/_widgets/languages.twig",
-      "views/template.twig"
-    ]
-  },
-  {
-    "hash": "a479fe6db0e148e14c953e32fb3497eaba4a1ef6",
-    "date": "2025-07-21T16:37:56+07:00",
-    "message": "fix(list-user): prevent unauthorized access to user list\n\nAdded early exit with proper error message if the requester is not an admin. Ensures user data is only accessible by authenticated admins.",
-    "files": [
-      "php_backend/list-user.php"
-    ]
-  },
-  {
-    "hash": "853e17bf032635af87ccd443e3f305e041e99d61",
-    "date": "2025-07-21T16:37:25+07:00",
-    "message": "feat(template): add Font Awesome icons for navigation links",
-    "files": [
-      "views/template.twig"
-    ]
-  },
-  {
-    "hash": "40827416deda625420120b7c636bc2c7f27f24c2",
-    "date": "2025-07-21T16:35:33+07:00",
-    "message": "refactor(google-oauth): unify and extend CORS and cache control headers\n\nReplaced individual `Access-Control-Allow-*` headers with wildcard values and added content-type and cache-control headers for consistency across environments.",
-    "files": [
-      "php_backend/google-oauth.php"
-    ]
-  },
-  {
-    "hash": "40f76aebdd9f4ade8eaa4e39b67781fd2b0c9450",
-    "date": "2025-07-21T16:34:16+07:00",
-    "message": "refactor(user-info): simplify header handling and user data fetch\n\nMoved CORS and content-type headers to a reusable `setHeaders()` function, clarified user selection logic, and ensured saldo is initialized when missing.",
-    "files": [
-      "php_backend/user-info.php"
-    ]
-  },
-  {
-    "hash": "1849edfef5a2802a8f3c6e69d0b6f03eb2dd6280",
-    "date": "2025-07-21T16:29:37+07:00",
-    "message": "fix(profile): validate update result before returning success\n\nEnsured `ProfileController` checks whether `UserDB::update()` actually succeeded before returning a success response to avoid false positives.",
-    "files": [
-      "controllers/ProfileController.php"
-    ]
-  },
-  {
-    "hash": "c57da788da637f6ee3e540cce0f18baec0ab1fd5",
-    "date": "2025-07-21T16:29:02+07:00",
-    "message": "fix(userdb): support update by id, email, or username\n\nEnhanced `UserDB::update()` method to update users based on `id`, `email`, or `username`, whichever matches first. Added return value to indicate success. Extended `UserDBTest` to cover update scenarios by all identifiers and ensure proper data updates.",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php",
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "6d58145cd7412140e5ea4b30a581a63e9aad0ac9",
-    "date": "2025-07-21T16:01:31+07:00",
-    "message": "fix(profile-card): correct edit profile link in profile card component",
-    "files": [
-      "views/_partials/profile-card.twig"
-    ]
-  },
-  {
-    "hash": "75650c892491204550cd9275c52fbb51986f13d8",
-    "date": "2025-07-21T15:56:12+07:00",
-    "message": "feat(logout): implement LogoutController for session clearing and redirection",
-    "files": [
-      "controllers/LogoutController.php"
-    ]
-  },
-  {
-    "hash": "9424c29e887127b0835c85003d5d13b92db2d15e",
-    "date": "2025-07-21T15:55:51+07:00",
-    "message": "fix(user): add saldo property to UserListData interface",
-    "files": [
-      "types/user.d.ts"
-    ]
-  },
-  {
-    "hash": "3c09a63c0e1ef87cf27b790b3d5f3ed0b5e898db",
-    "date": "2025-07-21T15:54:48+07:00",
-    "message": "refactor(php): modularize google-oauth handler and cleanup logic\n\nRefactored `google-oauth.php` by extracting repeated logic into utility functions: `createGoogleClient`, `refreshAccessTokenIfNeeded`, and `finalizeUserSession`. Simplifies OAuth callback flow, improves readability, and centralizes session/user handling logic.",
-    "files": [
-      "php_backend/google-oauth.php"
-    ]
-  },
-  {
-    "hash": "61fede9f0209497bd0983715008d72a803705cdc",
-    "date": "2025-07-21T15:31:28+07:00",
-    "message": "feat(profile): implement profile editing functionality with validation and user feedback",
-    "files": [
-      "controllers/ProfileController.php",
-      "views/assets/js/edit-profile.js",
-      "views/profile/edit.twig"
     ]
   }
 ]
