@@ -3,6 +3,8 @@
 /** @noinspection PhpDefineCanBeReplacedWithConstInspection */
 /** @noinspection RegExpRedundantEscape */
 
+define('PHP_PROXY_HUNTER_PROJECT_ROOT', __DIR__);
+
 include __DIR__ . '/src/utils/shim/string.php';
 include __DIR__ . '/src/database/env.php';
 
