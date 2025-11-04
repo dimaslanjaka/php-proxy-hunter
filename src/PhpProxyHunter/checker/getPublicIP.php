@@ -95,6 +95,9 @@ function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonS
 
         $output   = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($debug) {
+          echo "cURL response code: $httpCode" . PHP_EOL;
+        }
 
         curl_close($ch);
 
