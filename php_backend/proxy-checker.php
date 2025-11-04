@@ -198,6 +198,11 @@ if (!$isCli) {
     }
     send_json($res);
     // Note: The actual proxy checking will be done in the background process.
+  } else {
+    send_json([
+      'error'   => true,
+      'message' => "'proxy' parameter is required.",
+    ]);
   }
 } else {
   $short_opts = 'p:m::';
