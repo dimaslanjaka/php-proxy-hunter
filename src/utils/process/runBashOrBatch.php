@@ -62,7 +62,7 @@ function createBatchOrBashRunner($filename, $command)
  */
 function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $redirectOutput = false)
 {
-  global $isWin;
+  $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
   // Convert arguments to command line string
   $commandArgsString = '';
@@ -113,28 +113,33 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   if ($redirectOutput) {
     $cmdParts[] = $invoke . ' > ' . $escapedOutput . ' 2>&1';
   } else {
-    $cmdParts[] = $invoke;
+    if ($isWin) {
+      $redirect_cmd = ' > NUL 2>&1';
+    } else {
+      $redirect_cmd = ' > /dev/null 2>&1 &';
+    }
+    $cmdParts[] = $invoke . $redirect_cmd;
   }
 
   $cmd = trim(implode(' && ', $cmdParts));
 
+  // Truncate existing files (auto create if missing)
   truncateFile($output_file);
   truncateFile($runner_file);
 
-  // Single write using project file utility (no fallback logic)
+  // Write command to runner file
   write_file($runner_file, $cmd);
 
   // Change current working directory
   chdir($cwd);
 
-  // Execute the runner script
+  // Execute the runner script in background; runner already redirects output
   if ($isWin) {
-    $runnerWin = str_replace('/', '\\', $runner_file);
-    // Use start to run the runner in background; keep invocation minimal and avoid debug output.
-    exec('start "" /B cmd /C "' . $runnerWin . '"');
+    $window_name = 'window_name';
+    $startCmd    = 'start /B "' . $window_name . '" ' . escapeshellarg(unixPath($runner_file));
+    exec($startCmd);
   } else {
-    // Execute the runner script in background; runner already redirects output
-    exec('bash ' . escapeshellarg($runner_file) . ' > /dev/null 2>&1 &');
+    exec('bash ' . escapeshellarg($runner_file));
   }
 
   return [
