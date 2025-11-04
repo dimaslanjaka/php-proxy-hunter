@@ -1,5 +1,9 @@
 <?php
 
+if (!function_exists('buildCurl')) {
+  require_once __DIR__ . '/buildCurl.php';
+}
+
 /**
  * Retrieve the public IP address using multiple external services, with optional proxy support and simple file caching.
  *
