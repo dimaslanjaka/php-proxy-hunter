@@ -12,7 +12,6 @@ $statusFile = __DIR__ . '/../../../logs/sample-error-status.txt';
 if (!is_dir(dirname($statusFile))) {
   mkdir(dirname($statusFile), 0777, true);
 }
-$statusFile = realpath($statusFile);
 
 // Write the exit code to a status file so the asynchronous test can verify
 // the script actually exited with the intended code.
