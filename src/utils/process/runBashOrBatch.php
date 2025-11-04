@@ -1,5 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * Create a batch (.bat) or bash (.sh) runner script file for the given filename and command.
+ *
+ * This utility will:
+ * - Detect the current OS and choose the proper extension (.bat for Windows, .sh for Unix).
+ * - Sanitize the provided filename.
+ * - Ensure the runners temporary directory is expressed in a Unix-style path.
+ * - Write the provided command content into the runner script file.
+ *
+ * Notes:
+ * - The function returns the full path to the created runner script.
+ * - It does not attempt to execute the script; it only creates/writes the runner file.
+ *
+ * @param string $filename A desired filename (will be sanitized and given an OS-appropriate extension).
+ * @param string $command  The command contents to write into the runner script file.
+ *
+ * @return string Full path to the created runner script.
+ */
+function createBatchOrBashRunner($filename, $command)
+{
+  $isWin      = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+  $runnerDir  = unixPath(tmp() . '/runners');
+  $filename   = sanitizeFilename($filename) . ($isWin ? '.bat' : '.sh');
+  $runnerPath = unixPath($runnerDir . "/$filename");
+  write_file($runnerPath, $command);
+  return $runnerPath;
+}
+
 /**
  * Executes a Bash or Batch script asynchronously with optional arguments.
  *
@@ -43,7 +73,7 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   $commandArgsString = trim($commandArgsString);
 
   // Determine paths and commands
-  $cwd = __DIR__;
+  $cwd = realpath(__DIR__ . '/../../..');
 
   if (!empty($identifier)) {
     $filename = sanitizeFilename($identifier);
@@ -53,55 +83,58 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
     $filename = sanitizeFilename($name . '-' . $hash);
   }
 
-  $runner      = unixPath(tmp() . "/runners/$filename" . ($isWin ? '.bat' : '.sh'));
-  $output_file = unixPath(tmp() . "/logs/$filename.txt");
-  $pid_file    = unixPath(tmp() . "/runners/$filename.pid");
-
-  // Truncate output file
-  truncateFile($output_file);
+  // Build runner and log paths without creating intermediate unused variables
+  $runner_file = unixPath(tmp() . "/runners/{$filename}-runBashOrBatch" . ($isWin ? '.bat' : '.sh'));
+  $output_file = unixPath(tmp() . "/logs/{$filename}-runBashOrBatch.txt");
 
   // Construct the command
-  $venv     = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
-  $venvCall = $isWin ? "call $venv" : "source $venv";
+  // Prefer the venv activation script if it exists; don't try to call a missing file
+  $venvPath = !$isWin ? "$cwd/venv/bin/activate" : "$cwd/venv/Scripts/activate";
+  $venv     = realpath($venvPath);
 
-  $cmd = $venvCall;
-  // Optionally ensure output is redirected to the output file and no output is echoed
-  if ($redirectOutput) {
-    if ($isWin) {
-      // On Windows, call the script and redirect stdout/stderr to the log file
-      $cmd .= " && call $scriptPath > " . escapeshellarg($output_file) . ' 2>&1';
-    } else {
-      // On Unix, run the script with bash and redirect stdout/stderr to the log file
-      $cmd .= " && bash $scriptPath > " . escapeshellarg($output_file) . ' 2>&1';
-    }
+  $cmdParts = [];
+  if ($venv) {
+    // Escape the venv path so it's safe for shells
+    $cmdParts[] = $isWin ? 'call ' . escapeshellarg($venv) : 'source ' . escapeshellarg($venv);
+  }
+
+  // Ensure output file is escaped
+  $escapedOutput = escapeshellarg($output_file);
+
+  // Decide how to invoke the target runner script.
+  // Always treat the provided $scriptPath as a runner script (bat/sh).
+  // On Windows we use `call` to run the .bat; on Unix we use `bash`.
+  if ($isWin) {
+    $invoke = 'call ' . escapeshellarg($scriptPath);
   } else {
-    // Don't redirect output; just call the script normally
-    if ($isWin) {
-      $cmd .= " && call $scriptPath";
-    } else {
-      $cmd .= " && bash $scriptPath";
-    }
+    $invoke = 'bash ' . escapeshellarg($scriptPath);
   }
-  $cmd = trim($cmd);
 
-  // Write command to runner script
-  $write = write_file($runner, $cmd);
-  if (!$write) {
-    return ['error' => true, 'message' => 'Failed writing shell script ' . $runner];
+  if ($redirectOutput) {
+    $cmdParts[] = $invoke . ' > ' . $escapedOutput . ' 2>&1';
+  } else {
+    $cmdParts[] = $invoke;
   }
+
+  $cmd = trim(implode(' && ', $cmdParts));
+
+  truncateFile($output_file);
+  truncateFile($runner_file);
+
+  // Single write using project file utility (no fallback logic)
+  write_file($runner_file, $cmd);
 
   // Change current working directory
   chdir($cwd);
 
   // Execute the runner script
   if ($isWin) {
-    // Use start with redirect and /B to run without creating a new window
-    // Redirect is already handled inside runner script, ensure command is quoted
-    $runner_win = 'start /B "window_name" ' . escapeshellarg(unixPath($runner));
-    pclose(popen($runner_win, 'r'));
+    $runnerWin = str_replace('/', '\\', $runner_file);
+    // Use start to run the runner in background; keep invocation minimal and avoid debug output.
+    exec('start "" /B cmd /C "' . $runnerWin . '"');
   } else {
     // Execute the runner script in background; runner already redirects output
-    exec('bash ' . escapeshellarg($runner) . ' > /dev/null 2>&1 &');
+    exec('bash ' . escapeshellarg($runner_file) . ' > /dev/null 2>&1 &');
   }
 
   return [
@@ -110,7 +143,8 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
       'output'   => unixPath($output_file),
       'cwd'      => unixPath($cwd),
       'relative' => str_replace(unixPath($cwd), '', unixPath($output_file)),
-      'runner'   => $runner,
-    ]),
+      'runner'   => $runner_file,
+      'command'  => $cmd,
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
   ];
 }
