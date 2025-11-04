@@ -106,7 +106,7 @@ function buildCurl(
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     curl_setopt($ch, CURLOPT_SSL_VERIFYSTATUS, 0);
-    curl_setopt($ch, CURLOPT_CAINFO, realpath(__DIR__ . '/data/cacert.pem'));
+    curl_setopt($ch, CURLOPT_CAINFO, realpath(__DIR__ . '/../data/cacert.pem'));
     if (!empty($proxy)) {
       if (defined('CURLOPT_PROXY_SSL_VERIFYPEER')) {
         curl_setopt($ch, CURLOPT_PROXY_SSL_VERIFYPEER, 0);
@@ -124,7 +124,7 @@ function buildCurl(
   // curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-  $cookies = __DIR__ . '/tmp/cookies/default.txt';
+  $cookies = get_project_root() . '/tmp/cookies/default.txt';
   if (!is_dir(dirname($cookies))) {
     mkdir(dirname($cookies), 0777, true);
   }
