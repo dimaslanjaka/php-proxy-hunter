@@ -1,5 +1,13 @@
 [
   {
+    "hash": "f2d76a04ea2df0244f88d13acbda436fe1c4a058",
+    "date": "2025-11-04T17:27:52+07:00",
+    "message": "chore(deps): update dependencies and devDependencies to latest versions\n\n- Bump core dependencies including `@whiskeysockets/baileys`, `axios`, `better-sqlite3`, and others\n- Update build tools and linters such as `eslint`, `rollup`, `vite`, and `@typescript-eslint` packages\n- Upgrade React ecosystem packages (`react`, `react-dom`, `react-router-dom`, `react-i18next`)\n- Refresh testing tools (`jest`, `vitest`, `ts-jest`) and style processors (`sass`, `tailwindcss`, `postcss-loader`)\n- Ensure consistency with latest minor and patch releases for stability and compatibility",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
     "hash": "abc6869a8fbf6dd8660efb720ef75ae36af8b3ab",
     "date": "2025-11-04T17:12:33+07:00",
     "message": "fix(utils/process): ensure runBashOrBatch runs in background on Windows and fix quoting\n\nAdd Windows-specific quoting helper `quoteWindowsArg()` and use Windows-aware quoting for venv, script and output paths to avoid cmd.exe quoting issues. Write batch runner files with CRLF endings, avoid blocking exec by invoking `start \"\" /B` via `popen`/`pclose`, and ensure Unix background invocation uses proper redirection. These changes prevent `runBashOrBatch` from hanging on Windows and improve path/argument escaping.",
@@ -8689,16 +8697,6 @@
       "eslint.config.mjs",
       "types/window-shim.d.ts",
       "views/assets/js/template.js"
-    ]
-  },
-  {
-    "hash": "4cde9ba5809a3d19640d9984b17e9878f133c9e8",
-    "date": "2025-07-21T18:28:52+07:00",
-    "message": "feat(recaptcha): integrate Google reCAPTCHA v2 and v3 dynamically\n\n- Added dynamic loading of reCAPTCHA v2 and v3 using site key from `/info.php`\n- Injected reCAPTCHA elements and scripts conditionally\n- Verified tokens via backend (`recaptcha.php`)\n- Added TypeScript types with `@types/grecaptcha`",
-    "files": [
-      "package.json",
-      "views/assets/js/template.js",
-      "views/template.twig"
     ]
   }
 ]
