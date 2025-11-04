@@ -1,5 +1,75 @@
 [
   {
+    "hash": "abc6869a8fbf6dd8660efb720ef75ae36af8b3ab",
+    "date": "2025-11-04T17:12:33+07:00",
+    "message": "fix(utils/process): ensure runBashOrBatch runs in background on Windows and fix quoting\n\nAdd Windows-specific quoting helper `quoteWindowsArg()` and use Windows-aware quoting for venv, script and output paths to avoid cmd.exe quoting issues. Write batch runner files with CRLF endings, avoid blocking exec by invoking `start \"\" /B` via `popen`/`pclose`, and ensure Unix background invocation uses proper redirection. These changes prevent `runBashOrBatch` from hanging on Windows and improve path/argument escaping.",
+    "files": [
+      "src/utils/process/runBashOrBatch.php"
+    ]
+  },
+  {
+    "hash": "2a8585b4516da20c8255e3deaa8bc8e0eaf49531",
+    "date": "2025-11-04T17:08:28+07:00",
+    "message": "refactor(tests): remove redundant realpath call for status file in sample-error.php",
+    "files": [
+      "tests/utils/process/sample-error.php"
+    ]
+  },
+  {
+    "hash": "af4edcb404dde78dd068ac8d5b1d7663d85ee34f",
+    "date": "2025-11-04T17:00:58+07:00",
+    "message": "fix(process): ensure correct platform detection and background execution behavior in runBashOrBatch\n\n- Replace global `$isWin` with inline OS detection using `PHP_OS`\n- Add platform-specific output redirection for background command execution\n- Update Windows runner execution to use `start /B` with proper escaping\n- Simplify Unix runner execution to rely on internal redirection handling",
+    "files": [
+      "src/utils/process/runBashOrBatch.php"
+    ]
+  },
+  {
+    "hash": "5a5e2d2a40624bf329a7788411a17c104090d8cd",
+    "date": "2025-11-04T16:51:20+07:00",
+    "message": "fix(proxy-checker): return error message when 'proxy' parameter is missing",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "c1114cf8e03cc0eb90304b5e7fd13b0cbcdb7840",
+    "date": "2025-11-04T16:34:11+07:00",
+    "message": "feat(utils/process): add runner helper and modernize runBashOrBatch\n\n- add strict types declaration to `runBashOrBatch.php`\n- introduce `createBatchOrBashRunner()` helper to create .bat/.sh runner files\n- change working dir resolution to project root via `realpath(__DIR__ . '/../../..')`\n- unify runner/log naming (append `-runBashOrBatch`) and use `tmp()/logs` for redirected output\n- prefer optional Python venv activation when present; build command in parts and escape paths\n- support OS-specific invocation: `call` for Windows, `bash` for Unix; run runner in background\n- truncate and write runner & output files safely, return structured JSON message including `command`\n- replace several ad-hoc behaviors with clearer variable names and safer escaping/quoting\n\ntest(utils/process): add PHPUnit tests and sample scripts\n\n- add `tests/utils/process/RunBashOrBatchTest.php` to validate stdout/stderr capture and exit status\n- add test helpers and sample scripts (`sample-error.php`, `sample-error.bat`, runners) to exercise both shells\n\nNo breaking changes intended; improves reliability and cross-platform behavior of background script execution and adds coverage via tests.",
+    "files": [
+      "src/utils/process/runBashOrBatch.php",
+      "tests/utils/process/RunBashOrBatchTest.php",
+      "tests/utils/process/runBashOrBatch.php",
+      "tests/utils/process/sample-error.bat",
+      "tests/utils/process/sample-error.php",
+      "tests/utils/process/windows-execute-in-background.php"
+    ]
+  },
+  {
+    "hash": "c104abf868605c20f396afce1ce134a309db980a",
+    "date": "2025-11-04T10:48:28+07:00",
+    "message": "refactor(process): change runBashOrBatch return shape to {error, message}\n\nChange runBashOrBatch to always return a boolean 'error' and a string 'message'.\n- Failure paths now return: { \"error\": true, \"message\": \"<error description>\" }\n- Success paths now return: { \"error\": false, \"message\": \"<json-encoded metadata>\" } where message contains output/cwd/relative/runner\n\nBREAKING CHANGE: callers expecting ['output','cwd','relative','runner'] must be updated to check the 'error' boolean and parse the 'message' payload on success.",
+    "files": [
+      "src/utils/process/runBashOrBatch.php"
+    ]
+  },
+  {
+    "hash": "b5d6378b2d657e2c095467029e5dbf8806af264a",
+    "date": "2025-11-04T10:40:55+07:00",
+    "message": "refactor(utils): move runBashOrBatch function to src/utils/process directory",
+    "files": [
+      "func.php",
+      "src/utils/process/runBashOrBatch.php"
+    ]
+  },
+  {
+    "hash": "65381db84f3b1c76795024f5aec321f142b1db6b",
+    "date": "2025-11-04T10:39:16+07:00",
+    "message": "fix(utils/file): make `src/utils/file/index.php` PHP 7.0 compatible\n\nReplace PHP 7.1+/7.4+ type hints and return types with PHP 7.0-compatible\nsignatures and add PHPDoc annotations. Removed nullable/scalar return type\nhints (e.g. `?string`, `: void`, `: bool`, `: array`) and replaced them with\n`@param`/`@return` docblocks where appropriate.\n\nUpdated functions include: is_file_locked, getProjectRoot, append_content_with_lock,\nremoveEmptyLinesFromFile, moveLinesToFile, removeStringFromFile, iterateLines,\niterateBigFilesLineByLine, removeDuplicateLinesFromSource, splitLargeFile,\ngetDuplicatedLines, getRandomFileFromFolder, filterUniqueLines, truncateFile,\nmoveContent, removeDuplicateLines, countNonEmptyLines, removeShortLines,\nread_first_lines, ensure_dir.\n\nBehavior preserved; changes are limited to signatures and docs to ensure\ncompatibility with PHP 7.0.",
+    "files": [
+      "src/utils/file/index.php"
+    ]
+  },
+  {
     "hash": "631587dfffbc37b549e45c95130b075e8ef4974f",
     "date": "2025-11-03T20:04:44+07:00",
     "message": "feat(proxy-checker): auto-select random untested proxy when input is missing\n\nReplaced strict input validation with logic to automatically fetch a random untested proxy from the database if 'proxy' and 'type' parameters are not provided.\nImproves automation and ensures proxy checking continues without manual input.",
@@ -8629,72 +8699,6 @@
       "package.json",
       "views/assets/js/template.js",
       "views/template.twig"
-    ]
-  },
-  {
-    "hash": "7bcb828e78d07cfb45b05eb58c5d74964c95ef0a",
-    "date": "2025-07-21T18:09:32+07:00",
-    "message": "feat(dashboard-menu): add dashboard menu to multiple views for consistent navigation",
-    "files": [
-      "views/_widgets/dashboard-menu.twig",
-      "views/admin/index.twig",
-      "views/dashboard/index.twig",
-      "views/profile/edit.twig",
-      "views/user/logs.twig"
-    ]
-  },
-  {
-    "hash": "40773dfa89f66cf12e66e7c1104bc39a0303dbfa",
-    "date": "2025-07-21T17:57:43+07:00",
-    "message": "fix(template): wrap body block in a section for improved layout",
-    "files": [
-      "views/template.twig"
-    ]
-  },
-  {
-    "hash": "41416a29f4439910d868349203106ac628f35465",
-    "date": "2025-07-21T17:52:05+07:00",
-    "message": "fix(edit-profile): update dark mode background color for form",
-    "files": [
-      "views/profile/edit.twig"
-    ]
-  },
-  {
-    "hash": "07f561d4e67fbea25edd22bfdc890cf58fecd8ce",
-    "date": "2025-07-21T17:51:48+07:00",
-    "message": "feat(navbar): toggle login/logout links based on authentication\n\nAdded dynamic login/logout visibility in navbar by checking user auth status via `/php_backend/user-info.php`. Uses `data-role` attributes for clean DOM manipulation.",
-    "files": [
-      "views/assets/js/template.js",
-      "views/template.twig"
-    ]
-  },
-  {
-    "hash": "e0d798336075f1aab580e3184b197d74dd767c9b",
-    "date": "2025-07-21T17:15:08+07:00",
-    "message": "refactor(post-merge): run composer, yarn, and rollup commands execution before fix permission",
-    "files": []
-  },
-  {
-    "hash": "4d275ae9bd24fe44d5928c808cab1d5f1eafbd61",
-    "date": "2025-07-21T17:08:48+07:00",
-    "message": "fix(package.json): update prepare script to use npx for husky",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "4338041b5aa16a948d030178d10f2468be397826",
-    "date": "2025-07-21T17:08:14+07:00",
-    "message": "feat(post-merge): add support for composer, yarn, and rollup commands",
-    "files": []
-  },
-  {
-    "hash": "d02ffb6e2c2067b616441baee624e2ec955403f2",
-    "date": "2025-07-21T16:50:31+07:00",
-    "message": "fix(refill-saldo): improve user selection handling and error management",
-    "files": [
-      "php_backend/refill-saldo.php",
-      "views/assets/js/refill-saldo.js"
     ]
   }
 ]
