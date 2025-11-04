@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Executes a Bash or Batch script asynchronously with optional arguments.
  *
@@ -88,7 +87,7 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   // Write command to runner script
   $write = write_file($runner, $cmd);
   if (!$write) {
-    return ['error' => 'Failed writing shell script ' . $runner];
+    return ['error' => true, 'message' => 'Failed writing shell script ' . $runner];
   }
 
   // Change current working directory
@@ -106,9 +105,12 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   }
 
   return [
-    'output'   => unixPath($output_file),
-    'cwd'      => unixPath($cwd),
-    'relative' => str_replace(unixPath($cwd), '', unixPath($output_file)),
-    'runner'   => $runner,
+    'error'   => false,
+    'message' => json_encode([
+      'output'   => unixPath($output_file),
+      'cwd'      => unixPath($cwd),
+      'relative' => str_replace(unixPath($cwd), '', unixPath($output_file)),
+      'runner'   => $runner,
+    ]),
   ];
 }
