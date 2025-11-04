@@ -6,6 +6,9 @@ if (!function_exists('extractProxies')) {
 if (!function_exists('get_project_root')) {
   require_once __DIR__ . '/../utils/path.php';
 }
+if (!function_exists('getServerIp')) {
+  require_once __DIR__ . '/../utils/getServerIp.php';
+}
 
 /**
  * Build a cURL handle for making HTTP requests.

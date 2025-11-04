@@ -1,7 +1,7 @@
 <?php
 
 if (!function_exists('buildCurl')) {
-  require_once __DIR__ . '/buildCurl.php';
+  require_once __DIR__ . '/../checker/buildCurl.php';
 }
 
 /**
