@@ -31,6 +31,17 @@ function createBatchOrBashRunner($filename, $command)
 }
 
 /**
+ * Quote an argument for Windows cmd.exe (double-quote and double internal quotes).
+ */
+function quoteWindowsArg(string $str): string
+{
+  // convert forward slashes to backslashes for Windows paths
+  $s = str_replace('/', '\\', $str);
+  // double any internal double-quotes and wrap in double-quotes
+  return '"' . str_replace('"', '""', $s) . '"';
+}
+
+/**
  * Executes a Bash or Batch script asynchronously with optional arguments.
  *
  * - Automatically builds a command line from provided arguments.
@@ -67,7 +78,11 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   // Convert arguments to command line string
   $commandArgsString = '';
   foreach ($commandArgs as $key => $value) {
-    $escapedValue = escapeshellarg($value);
+    if ($isWin) {
+      $escapedValue = quoteWindowsArg((string)$value);
+    } else {
+      $escapedValue = escapeshellarg((string)$value);
+    }
     $commandArgsString .= "--$key=$escapedValue ";
   }
   $commandArgsString = trim($commandArgsString);
@@ -95,17 +110,17 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   $cmdParts = [];
   if ($venv) {
     // Escape the venv path so it's safe for shells
-    $cmdParts[] = $isWin ? 'call ' . escapeshellarg($venv) : 'source ' . escapeshellarg($venv);
+    $cmdParts[] = $isWin ? 'call ' . quoteWindowsArg($venv) : 'source ' . escapeshellarg($venv);
   }
 
   // Ensure output file is escaped
-  $escapedOutput = escapeshellarg($output_file);
+  $escapedOutput = $isWin ? quoteWindowsArg($output_file) : escapeshellarg($output_file);
 
   // Decide how to invoke the target runner script.
   // Always treat the provided $scriptPath as a runner script (bat/sh).
   // On Windows we use `call` to run the .bat; on Unix we use `bash`.
   if ($isWin) {
-    $invoke = 'call ' . escapeshellarg($scriptPath);
+    $invoke = 'call ' . quoteWindowsArg($scriptPath);
   } else {
     $invoke = 'bash ' . escapeshellarg($scriptPath);
   }
@@ -113,12 +128,12 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   if ($redirectOutput) {
     $cmdParts[] = $invoke . ' > ' . $escapedOutput . ' 2>&1';
   } else {
-    if ($isWin) {
-      $redirect_cmd = ' > NUL 2>&1';
-    } else {
-      $redirect_cmd = ' > /dev/null 2>&1 &';
-    }
-    $cmdParts[] = $invoke . $redirect_cmd;
+    // if ($isWin) {
+    //   $redirect_cmd = ' > NUL 2>&1';
+    // } else {
+    //   $redirect_cmd = ' > /dev/null 2>&1 &';
+    // }
+    $cmdParts[] = $invoke; // . $redirect_cmd;
   }
 
   $cmd = trim(implode(' && ', $cmdParts));
@@ -127,19 +142,25 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   truncateFile($output_file);
   truncateFile($runner_file);
 
-  // Write command to runner file
-  write_file($runner_file, $cmd);
+  // Write command to runner file. On Windows prefer CRLF endings for batch files.
+  if ($isWin) {
+    $cmdToWrite = preg_replace("/\r?\n/", "\r\n", $cmd);
+  } else {
+    $cmdToWrite = $cmd;
+  }
+  write_file($runner_file, $cmdToWrite);
 
   // Change current working directory
   chdir($cwd);
 
   // Execute the runner script in background; runner already redirects output
   if ($isWin) {
-    $window_name = 'window_name';
-    $startCmd    = 'start /B "' . $window_name . '" ' . escapeshellarg(unixPath($runner_file));
-    exec($startCmd);
+    // Use empty title ("") so start doesn't treat the first quoted string as the title.
+    $startCmd = 'start "" /B ' . quoteWindowsArg(unixPath($runner_file));
+    // Use pclose popen to avoid waiting on exec on some PHP builds.
+    pclose(popen($startCmd, 'r'));
   } else {
-    exec('bash ' . escapeshellarg($runner_file));
+    exec('bash ' . escapeshellarg($runner_file) . ' > /dev/null 2>&1 &');
   }
 
   return [
