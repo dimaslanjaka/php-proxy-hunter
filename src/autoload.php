@@ -14,6 +14,9 @@ $excludeFolders = [
   '**/mvc/**',
   '**/__*/**',
 ];
+$excludeFilenames = [
+  'autoload.php',
+];
 
 $iterator = new RecursiveIteratorIterator(
   new RecursiveDirectoryIterator(__DIR__)
@@ -22,6 +25,10 @@ $loadedFiles = get_included_files();
 
 foreach ($iterator as $file) {
   if ($file->isDir() || $file->getExtension() !== 'php' || $file->getRealPath() === __FILE__) {
+    continue;
+  }
+  // Skip excluded filenames
+  if (in_array($file->getFilename(), $excludeFilenames, true)) {
     continue;
   }
   // Skip files in excluded folders using glob patterns
