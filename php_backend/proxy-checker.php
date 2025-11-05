@@ -401,7 +401,7 @@ function addLog($message) {
   }
   $timestamp = date(DATE_RFC3339);
   $logEntry  = "[$timestamp] $message" . PHP_EOL;
-  write_file($logFile, AnsiColors::ansiToHtml($logEntry), FILE_APPEND | LOCK_EX);
+  @file_put_contents($logFile, AnsiColors::ansiToHtml($logEntry), FILE_APPEND | LOCK_EX);
   if ($isCli) {
     echo $logEntry;
   }
