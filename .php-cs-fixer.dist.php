@@ -8,14 +8,27 @@ use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 
 $finder = Finder::create()
   ->in(__DIR__)
-  ->exclude(['vendor', 'node_modules', 'phpliteadmin', 'adminer', 'phpmyadmin'])
+  ->exclude(['vendor', 'node_modules', 'phpliteadmin', 'adminer', 'phpmyadmin', 'tmp', 'logs', 'backups'])
   ->name('*.php')
   ->ignoreDotFiles(true)
   ->ignoreVCS(true);
 
 $config = new Config();
-$config->setParallelConfig(ParallelConfigFactory::detect());
+
+// setParallelConfig was introduced in newer php-cs-fixer releases. Guard
+// the call so the config remains compatible with older installed versions.
+if (class_exists(ParallelConfigFactory::class) && method_exists($config, 'setParallelConfig')) {
+  try {
+    $config->setParallelConfig(ParallelConfigFactory::detect());
+  } catch (\Throwable $e) {
+    // keep going without parallel config if detection fails
+  }
+} else {
+  // do nothing, keep config compatible with older php-cs-fixer versions
+}
+
 $config->setIndent(str_pad('', 2));
+$config->setUsingCache(true);
 
 return $config->setRules([
   '@PSR12'                       => true,
