@@ -13,7 +13,8 @@
     },
     "files": [
       "data/webgl.php",
-      "src/autoload.php"
+      "src/autoload.php",
+      "src/PhpProxyHunter/utils/autoload.php"
     ]
   },
   "autoload-dev": {
