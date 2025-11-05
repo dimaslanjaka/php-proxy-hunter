@@ -16,11 +16,12 @@ if (php_sapi_name() !== 'cli') {
 }
 
 $short_opts = '';
-$long_opts  = ['proxy:', 'lockFile:'];
+$long_opts  = ['proxy:', 'lockFile:', 'admin:'];
 $opts       = getopt($short_opts, $long_opts);
+$isAdmin    = !empty($opts['admin']) && $opts['admin'] === 'true';
 
 // Check for lock file to prevent concurrent runs for the same proxy
-if (file_exists($opts['lockFile'] ?? '')) {
+if (file_exists($opts['lockFile'] ?? '') && !$isAdmin) {
   echo 'Another instance is already running for this proxy. Exiting.' . PHP_EOL;
   exit(5);
 }
