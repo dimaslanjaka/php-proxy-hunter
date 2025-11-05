@@ -1,5 +1,64 @@
 [
   {
+    "hash": "6370c7bed227dfc951d5d50761ddc7bb47c337ed",
+    "date": "2025-11-05T17:31:17+07:00",
+    "message": "refactor(proxy-checker): modularize proxy checking and add credential normalization\n\n- Added `normalize_credential()` helper to clean empty or hyphen credentials before processing.\n- Delegated proxy checking logic from `proxy-checker.php` to new autoloaded class `ProxyChecker1` under `PhpProxyHunter\\Checker`.\n- Introduced abstract base class `ProxyChecker` defining the check interface.\n- Simplified `proxyChecker()` function to use `ProxyChecker1::check()` with `CheckerOptions`.\n- Maintained existing logging, database update logic, and response handling.\n- Added test script `ProxyChecker1-test.php` for verifying the new checker class.",
+    "files": [
+      "php_backend/proxy-checker.php",
+      "src/PhpProxyHunter/checker/ProxyChecker.php",
+      "src/PhpProxyHunter/checker/ProxyChecker1-test.php",
+      "src/PhpProxyHunter/checker/ProxyChecker1.php"
+    ]
+  },
+  {
+    "hash": "6c519813677639b520728372900d6368895833c8",
+    "date": "2025-11-05T17:14:55+07:00",
+    "message": "feat(proxyChecker): add admin option",
+    "files": [
+      "artisan/proxyChecker.php"
+    ]
+  },
+  {
+    "hash": "0c41d48f2c5ee06537966efabc837285e53d5c0c",
+    "date": "2025-11-05T17:10:51+07:00",
+    "message": "feat(settings): add GitHub Copilot chat configuration options",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "4cea92dc71490f6df5a328a9784b534aad79238d",
+    "date": "2025-11-05T16:28:15+07:00",
+    "message": "fix(proxydb): add validation for empty or invalid proxy input in select method\n\n- Added input check to ensure $proxy is a non-empty string before querying the database.\n- Throws InvalidArgumentException when invalid proxy value is provided.",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "32150cd4c39ffc4a22d4e75a810c84ecd2164fb7",
+    "date": "2025-11-05T16:27:14+07:00",
+    "message": "chore(cs-fixer): enhance configuration compatibility and exclusions\n\n- Added tmp, logs, and backups directories to exclusion list.\n- Wrapped setParallelConfig in compatibility check to support older php-cs-fixer versions.\n- Enabled cache usage for improved performance.",
+    "files": [
+      ".php-cs-fixer.dist.php"
+    ]
+  },
+  {
+    "hash": "db62b8f44f22b04732cbfbe64200ba63edbcd974",
+    "date": "2025-11-05T16:26:35+07:00",
+    "message": "chore(composer): update autoload configuration for PhpProxyHunter\n\n- Simplified PSR-4 mapping for PhpProxyHunter namespace.\n- Added utils/autoload.php to the files autoload section for automatic loading of utility scripts.",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
+    "hash": "0b605a6a6de31033021865a349b710984dea7c7b",
+    "date": "2025-11-05T16:24:42+07:00",
+    "message": "refactor(proxy-checker): replace direct file_put_contents calls with write_file utility\n\n- Updated multiple file write operations to use write_file() for consistency and centralized file handling.\n- Fixed proxy selection to correctly access the 'proxy' key from the random proxy array.",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "4c7193a58b31e8008efa90391b456857e49e4dec",
     "date": "2025-11-05T16:01:50+07:00",
     "message": "feat(composer): add symfony/flex to allow-plugins configuration",
@@ -8643,64 +8702,6 @@
     "message": "fix: remove redundant backup instructions from project guidelines",
     "files": [
       ".github/instructions/all.instructions.md"
-    ]
-  },
-  {
-    "hash": "8d43e1a9c1432b6112881a6a3af10088140316b3",
-    "date": "2025-08-11T17:06:48+07:00",
-    "message": "feat: add ESLint configuration with TypeScript and Prettier integration",
-    "files": [
-      "eslint.config.js"
-    ]
-  },
-  {
-    "hash": "a4897c482bea1878722b378b7def7625731c9126",
-    "date": "2025-08-11T16:53:46+07:00",
-    "message": "feat: enhance MySQLHelper to create database if it doesn't exist on connection",
-    "files": [
-      "src/PhpProxyHunter/MySQLHelper.php"
-    ]
-  },
-  {
-    "hash": "5cb1a8c7a70580b1c868ceff239d27c37308149c",
-    "date": "2025-08-11T15:37:03+07:00",
-    "message": "fix: handle missing saldo records gracefully in UserDB\n\n- Ensure saldo defaults to 0 when creating a new user_fields entry.\n- Prevent undefined index errors by checking for existing saldo rows before accessing.\n- Update return values in update_saldo() and get_saldo() to provide safe defaults.",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "7291d59de8792da56efbbc51d5a03795cbddf9ce",
-    "date": "2025-08-11T15:36:35+07:00",
-    "message": "test: enhance UserDBSaldoArithmeticTest with MySQL database lifecycle management\n\n- Added createTestDatabase() to ensure the MySQL test database exists before running tests.\n- Added dropTestDatabase() to remove the MySQL test database after tests.\n- Integrated database creation at the start and cleanup at the end of MySQL saldo arithmetic tests.",
-    "files": [
-      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php"
-    ]
-  },
-  {
-    "hash": "b1701d249f4ab46dd1cde6da2f14f97d7e67cd39",
-    "date": "2025-08-11T15:31:45+07:00",
-    "message": "fix: update TypeScript configuration to include ES2022 library",
-    "files": [
-      "tsconfig.json"
-    ]
-  },
-  {
-    "hash": "7bca086a0513db2562e30bd070b46837a200ba2d",
-    "date": "2025-08-11T15:31:16+07:00",
-    "message": "fix: update package resolutions for various dependencies",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "14674b7fceb72c33e52824c8bb120e6f78148c16",
-    "date": "2025-08-11T15:30:20+07:00",
-    "message": "feat: add saldo arithmetic tests for SQLite and MySQL\n\n- Added UserDBSaldoArithmeticTest to verify saldo increment/decrement logic for both SQLite and MySQL backends.\n- Introduced MySQL connection config in .env-sample (MYSQL_USER, MYSQL_PASS, MYSQL_DBNAME, MYSQL_HOST).\n- Updated bootstrap.php to always load .env from project root.",
-    "files": [
-      ".env-sample",
-      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
-      "tests/bootstrap.php"
     ]
   }
 ]
