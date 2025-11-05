@@ -15,8 +15,7 @@ global $isAdmin, $isCli, $proxy_db;
  */
 
 /** Helper to get normalized request scheme/host/script dir */
-function get_self_base()
-{
+function get_self_base() {
   $scheme = $_SERVER['REQUEST_SCHEME'] ?? (($_SERVER['HTTPS'] ?? '') === 'on' ? 'https' : 'http');
   $host   = $_SERVER['HTTP_HOST']      ?? 'localhost';
   $script = dirname($_SERVER['SCRIPT_NAME'] ?? '/');
@@ -24,8 +23,7 @@ function get_self_base()
 }
 
 /** Small helper to return proxy details array and joined string to avoid repeating loops */
-function build_proxy_details(array $proxyInfo)
-{
+function build_proxy_details(array $proxyInfo) {
   $details = [];
   foreach (['proxy', 'type', 'username', 'password'] as $key) {
     if (!empty($proxyInfo[$key])) {
@@ -197,7 +195,7 @@ if (!$isCli) {
       $res['command']    = $cmd;
     }
     send_json($res);
-    // Note: The actual proxy checking will be done in the background process.
+  // Note: The actual proxy checking will be done in the background process.
   } else {
     send_json([
       'error'   => true,
@@ -231,8 +229,8 @@ if (!$isCli) {
   $statusFile   = getUserStatusFile($userId);
   $lockFilePath = $options['lockFile'] ?? $lockFilePath;
   $proxyInfo    = [
-    'proxy'    => $options['proxy']    ?? null,
-    'type'     => $options['type']     ?? null,
+    'proxy'    => $options['proxy'] ?? null,
+    'type'     => $options['type'] ?? null,
     'username' => $options['username'] ?? null,
     'password' => $options['password'] ?? null,
   ];
@@ -241,7 +239,7 @@ if (!$isCli) {
   if (file_exists($lockFilePath) && !$isAdmin) {
     // another process still running
     $status = 'Another process is still running.';
-    @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
+    write_file($statusFile, $status . PHP_EOL);
     exit($status . PHP_EOL);
   }
 
@@ -254,7 +252,7 @@ if (!$isCli) {
   }
 
   // create lock file
-  file_put_contents($lockFilePath, (string)getmypid(), LOCK_EX);
+  write_file($lockFilePath, (string)getmypid());
 
   // ensure lock file is always deleted when script ends
   register_shutdown_function(function () use ($lockFilePath, $proxyInfo, $proxy_db) {
@@ -280,7 +278,7 @@ if (!$isCli) {
       delete_path($lockFilePath);
       exit($status . PHP_EOL);
     }
-    $proxyInfo['proxy'] = $allProxies[array_rand($allProxies)];
+    $proxyInfo['proxy'] = $allProxies[array_rand($allProxies)]['proxy'];
     $proxyInfo['type']  = null; // try all types
   }
 
@@ -288,7 +286,7 @@ if (!$isCli) {
   $allowedTypes = ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
   if ($type !== '' && !in_array($type, $allowedTypes, true)) {
     $status = 'Invalid proxy type. Supported types are http, https, socks4, socks5, socks5h.';
-    @file_put_contents($statusFile, $status . PHP_EOL, LOCK_EX);
+    write_file($statusFile, $status . PHP_EOL);
     delete_path($lockFilePath);
     exit($status . PHP_EOL);
   }
@@ -314,8 +312,7 @@ if (!$isCli) {
  *
  * @return void
  */
-function proxyChecker($proxyInfo, $types = [])
-{
+function proxyChecker($proxyInfo, $types = []) {
   global $config, $proxy_db;
 
   // Skip proxy already checked as active under 4 hours
@@ -451,8 +448,7 @@ function proxyChecker($proxyInfo, $types = [])
  *
  * @param string $message
  */
-function addLog($message)
-{
+function addLog($message) {
   global $isCli;
   $logFile = getLogFile();
   $logDir  = dirname($logFile);
@@ -461,7 +457,7 @@ function addLog($message)
   }
   $timestamp = date(DATE_RFC3339);
   $logEntry  = "[$timestamp] $message" . PHP_EOL;
-  @file_put_contents($logFile, AnsiColors::ansiToHtml($logEntry), FILE_APPEND | LOCK_EX);
+  write_file($logFile, AnsiColors::ansiToHtml($logEntry), FILE_APPEND | LOCK_EX);
   if ($isCli) {
     echo $logEntry;
   }
@@ -471,13 +467,12 @@ function addLog($message)
  * Reset the log file for the current user.
  *
  */
-function resetLog()
-{
+function resetLog() {
   $logFile = getLogFile();
   if (file_exists($logFile)) {
     $timestamp = date(DATE_RFC3339);
     $logEntry  = "[$timestamp] Log reset" . PHP_EOL;
-    @file_put_contents($logFile, $logEntry, LOCK_EX);
+    write_file($logFile, $logEntry);
   }
 }
 
@@ -485,8 +480,7 @@ function resetLog()
  * Get the log file path for the current user.
  *
  */
-function getLogFile()
-{
+function getLogFile() {
   return tmp() . '/logs/user-' . getUserId() . '/proxy-checker.log';
 }
 
@@ -500,8 +494,7 @@ function getLogFile()
  * @param array $proxyInfo Proxy info (same as getPublicIP)
  * @return bool True if the page title matches, false otherwise
  */
-function getWebsiteTitle($url = null, $title = null, $cache = false, $cacheTimeout = 300, $proxyInfo = [])
-{
+function getWebsiteTitle($url = null, $title = null, $cache = false, $cacheTimeout = 300, $proxyInfo = []) {
   // Set default values if not provided
   if (!$url) {
     $url = 'https://support.mozilla.org/en-US/';
@@ -528,7 +521,7 @@ function getWebsiteTitle($url = null, $title = null, $cache = false, $cacheTimeo
 
   $ch = buildCurl(
     $proxyInfo['proxy'] ?? null,
-    $proxyInfo['type']  ?? 'http',
+    $proxyInfo['type'] ?? 'http',
     $url,
     ['User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0'],
     $proxyInfo['username'] ?? null,
@@ -564,22 +557,20 @@ function getWebsiteTitle($url = null, $title = null, $cache = false, $cacheTimeo
       'result'  => $result,
       'expires' => time() + $cacheTimeout,
     ];
-    @file_put_contents($cacheFile, json_encode($data));
+    write_file($cacheFile, json_encode($data));
   }
 
   return $result;
 }
 
 /** Helper to send JSON response and exit */
-function send_json($data)
-{
+function send_json($data) {
   header('Content-Type: application/json; charset=utf-8');
   echo json_encode($data);
   exit;
 }
 
-function send_text($text)
-{
+function send_text($text) {
   header('Content-Type: text/plain; charset=utf-8');
   echo $text;
   exit;
