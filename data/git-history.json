@@ -1,5 +1,116 @@
 [
   {
+    "hash": "4c7193a58b31e8008efa90391b456857e49e4dec",
+    "date": "2025-11-05T16:01:50+07:00",
+    "message": "feat(composer): add symfony/flex to allow-plugins configuration",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
+    "hash": "fcffdafd5e71c10cf3d60108c3207cc5686cb805",
+    "date": "2025-11-05T15:23:31+07:00",
+    "message": "feat(utils): add recursive autoloader and update includes to use it\n\n- Added new utils/autoload.php to automatically include all PHP files in utils and subdirectories.\n- Updated buildCurl.php and getServerIp.php to require autoload.php instead of individual utility files.",
+    "files": [
+      "src/PhpProxyHunter/checker/buildCurl.php",
+      "src/PhpProxyHunter/utils/autoload.php",
+      "src/PhpProxyHunter/utils/getServerIp.php"
+    ]
+  },
+  {
+    "hash": "47d999ecd636f476442f5069e7cb26ed36aca778",
+    "date": "2025-11-05T15:19:34+07:00",
+    "message": "fix(autoload): add exclusion for autoload.php in filename checks",
+    "files": [
+      "src/autoload.php"
+    ]
+  },
+  {
+    "hash": "d2231ee99e9d1cc16e13cae4b6aef40df8be49cf",
+    "date": "2025-11-05T15:09:58+07:00",
+    "message": "feat(composer): add phpdocumentor as a development dependency",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
+    "hash": "49cfab5f25c197885a8cbecb7fc55ada1ae907f0",
+    "date": "2025-11-05T15:09:15+07:00",
+    "message": "feat(checker): add CheckerResult and document CheckerOptions\n\nAdd new `CheckerResult` value object to represent proxy check outcomes\n(`isWorking`, `isSSL`, `workingTypes`). Improve PHPDoc on\n`CheckerOptions` (property descriptions and constructor `array<string,mixed>`\nannotation) to clarify usage and improve static analysis/tooling.\n\nNo functional behavior changes.",
+    "files": [
+      "src/PhpProxyHunter/checker/CheckerOptions.php",
+      "src/PhpProxyHunter/checker/CheckerResult.php"
+    ]
+  },
+  {
+    "hash": "2ed4b8b69fb69929684329cd77dc6861db2d407e",
+    "date": "2025-11-04T21:26:18+07:00",
+    "message": "refactor(proxy): move getServerIp to utils and introduce CheckerOptions class\n\n- Move getServerIp function from func-proxy.php to new utils/getServerIp.php\n- Update buildCurl to require getServerIp from utils\n- Relocate getPublicIP to utils directory for better structure\n- Add new CheckerOptions class for proxy checking configuration\n- Improve modularity and maintainability by organizing checker-related utilities",
+    "files": [
+      "func-proxy.php",
+      "src/PhpProxyHunter/checker/CheckerOptions.php",
+      "src/PhpProxyHunter/checker/buildCurl.php",
+      "src/PhpProxyHunter/utils/getPublicIP.php",
+      "src/PhpProxyHunter/utils/getServerIp.php"
+    ]
+  },
+  {
+    "hash": "2f1959948385b43d46c0c8273d0f1e6eb4d13c31",
+    "date": "2025-11-04T21:11:05+07:00",
+    "message": "fix(proxy): update CA certificate path and relocate cookie storage to project root\n\n- Correct CA certificate path in buildCurl to use ../data/cacert.pem\n- Change cookie file path to reference project root via get_project_root()\n- Add placeholder cacert.pem file under src/PhpProxyHunter/data/\n- Improve path handling consistency for secure requests and cookie management",
+    "files": [
+      "src/PhpProxyHunter/checker/buildCurl.php",
+      "src/PhpProxyHunter/data/cacert.pem"
+    ]
+  },
+  {
+    "hash": "1fa3ab83efd9366b285a1ed9f21178157de13084",
+    "date": "2025-11-04T21:02:10+07:00",
+    "message": "refactor(proxy): move buildCurl function to PhpProxyHunter checker module\n\n- Extract buildCurl implementation from func-proxy.php into new file src/PhpProxyHunter/checker/buildCurl.php\n- Ensure compatibility by requiring buildCurl in getPublicIP when missing\n- Improve structure by isolating proxy request logic within the PhpProxyHunter namespace\n- Add directory creation safeguard for cookie storage",
+    "files": [
+      "func-proxy.php",
+      "src/PhpProxyHunter/checker/buildCurl.php",
+      "src/PhpProxyHunter/checker/getPublicIP.php"
+    ]
+  },
+  {
+    "hash": "afdc01549a0cdbb304733e58e98e1bdaa7c0503a",
+    "date": "2025-11-04T21:01:23+07:00",
+    "message": "feat(core): add project root resolver utility and define root constant\n\n- Define `PHP_PROXY_HUNTER_PROJECT_ROOT` constant in func.php for consistent path resolution\n- Introduce new `get_project_root()` function in src/PhpProxyHunter/utils/path.php\n  - Resolves project root using constants, environment variables, Composer structure, or fallback detection\n- Update .husky hash for build consistency",
+    "files": [
+      "func.php",
+      "src/PhpProxyHunter/utils/path.php"
+    ]
+  },
+  {
+    "hash": "3b5d259e664ea8aab795440a7a10c1b10d26efbf",
+    "date": "2025-11-04T20:00:21+07:00",
+    "message": "fix(checker/getPublicIP): add debug output for cURL response code",
+    "files": [
+      "src/PhpProxyHunter/checker/getPublicIP.php"
+    ]
+  },
+  {
+    "hash": "b91603823f6c679d3337d8d1618d9783a7fb2841",
+    "date": "2025-11-04T19:59:32+07:00",
+    "message": "refactor(proxy): move getPublicIP function to PhpProxyHunter checker module\n\n- Extract getPublicIP implementation from func-proxy.php into new file src/PhpProxyHunter/checker/getPublicIP.php\n- Improve project structure by isolating proxy-related logic within the PhpProxyHunter namespace\n- Maintain full functionality including caching, proxy support, and debug options",
+    "files": [
+      "func-proxy.php",
+      "src/PhpProxyHunter/checker/getPublicIP.php"
+    ]
+  },
+  {
+    "hash": "6beb069c962ba65d2c82769991025033a1021786",
+    "date": "2025-11-04T19:58:53+07:00",
+    "message": "refactor(proxy): move proxy utility files into PhpProxyHunter namespace\n\n- Relocate `cidr.php`, `extractor.php`, `ports.php`, and `validator.php` from `src/utils/proxy/` to `src/PhpProxyHunter/utils/`\n- Improve project structure and organization by grouping related proxy utilities under `PhpProxyHunter`",
+    "files": [
+      "src/PhpProxyHunter/utils/cidr.php",
+      "src/PhpProxyHunter/utils/extractor.php",
+      "src/PhpProxyHunter/utils/ports.php",
+      "src/PhpProxyHunter/utils/validator.php"
+    ]
+  },
+  {
     "hash": "f2d76a04ea2df0244f88d13acbda436fe1c4a058",
     "date": "2025-11-04T17:27:52+07:00",
     "message": "chore(deps): update dependencies and devDependencies to latest versions\n\n- Bump core dependencies including `@whiskeysockets/baileys`, `axios`, `better-sqlite3`, and others\n- Update build tools and linters such as `eslint`, `rollup`, `vite`, and `@typescript-eslint` packages\n- Upgrade React ecosystem packages (`react`, `react-dom`, `react-router-dom`, `react-i18next`)\n- Refresh testing tools (`jest`, `vitest`, `ts-jest`) and style processors (`sass`, `tailwindcss`, `postcss-loader`)\n- Ensure consistency with latest minor and patch releases for stability and compatibility",
@@ -8590,113 +8701,6 @@
       ".env-sample",
       "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
       "tests/bootstrap.php"
-    ]
-  },
-  {
-    "hash": "a913c7e91899ba8ff86cc609de6130aa82fcf96f",
-    "date": "2025-08-11T15:24:08+07:00",
-    "message": "test: load .env before running PHPUnit tests\n\n- Added tests/bootstrap.php to require autoload and load .env using vlucas/phpdotenv.\n- Updated phpunit.xml to use tests/bootstrap.php as bootstrap file.",
-    "files": [
-      "phpunit.xml",
-      "tests/bootstrap.php"
-    ]
-  },
-  {
-    "hash": "e34180f573578ffa111e7659fd3521a6f67ab09d",
-    "date": "2025-08-11T15:01:24+07:00",
-    "message": "feat(php): add MySQL support alongside SQLite\n\n- Introduced MySQLHelper class for MySQL database interactions.\n- Added mysql-schema.sql for MySQL schema initialization.\n- Refactored UserDB to support both SQLite and MySQL backends.\n- Moved SQLite schema to sqlite-schema.sql and added sqlite-re-order-proxies.sql.\n- Updated UserDBTest to optionally run against MySQL using PHP_PROXY_HUNTER_TEST_MYSQL env var.",
-    "files": [
-      "src/PhpProxyHunter/MySQLHelper.php",
-      "src/PhpProxyHunter/UserDB.php",
-      "src/PhpProxyHunter/assets/mysql-schema.sql",
-      "src/PhpProxyHunter/assets/sqlite-re-order-proxies.sql",
-      "src/PhpProxyHunter/assets/sqlite-schema.sql",
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "f4fa319662020bc55aaf20596aa72c4f33b99c29",
-    "date": "2025-08-11T13:45:46+07:00",
-    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
-    "files": []
-  },
-  {
-    "hash": "0810364fd72b955cb0ed6625e8d101f4c34faf17",
-    "date": "2025-08-03T15:06:03+07:00",
-    "message": "refactor: documentation",
-    "files": [
-      "packages/proxy-hunter-python/readme.md"
-    ]
-  },
-  {
-    "hash": "1d50606a48d7e5bc286eab70e5432d245cd80b4d",
-    "date": "2025-08-01T15:33:11Z",
-    "message": "build(deps): update symfony/yaml requirement from ^5.4 to ^5.4 || ^7.0\n\nUpdates the requirements on [symfony/yaml](https://github.com/symfony/yaml) to permit the latest version.\n- [Release notes](https://github.com/symfony/yaml/releases)\n- [Changelog](https://github.com/symfony/yaml/blob/7.3/CHANGELOG.md)\n- [Commits](https://github.com/symfony/yaml/compare/v5.4.0...v7.3.2)\n\n---\nupdated-dependencies:\n- dependency-name: symfony/yaml\n  dependency-version: 7.3.2\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      "composer.json"
-    ]
-  },
-  {
-    "hash": "627e1f038e2bc4cc9d5adb8b3f99cfa24a0a4b84",
-    "date": "2025-08-01T15:32:55Z",
-    "message": "build(deps-dev): update phpunit/phpunit requirement || ^12.0\n\nUpdates the requirements on [phpunit/phpunit](https://github.com/sebastianbergmann/phpunit) to permit the latest version.\n- [Release notes](https://github.com/sebastianbergmann/phpunit/releases)\n- [Changelog](https://github.com/sebastianbergmann/phpunit/blob/12.3.0/ChangeLog-12.3.md)\n- [Commits](https://github.com/sebastianbergmann/phpunit/compare/9.6.0...12.3.0)\n\n---\nupdated-dependencies:\n- dependency-name: phpunit/phpunit\n  dependency-version: 12.3.0\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      "composer.json"
-    ]
-  },
-  {
-    "hash": "e10d7d79b40e84ff70c2ececfe86f460c8976b8b",
-    "date": "2025-07-27T07:23:02+07:00",
-    "message": "refactor(cleaner): move cleaner script to artisan/ and fix relative paths\n\n- Moved `cleaner.php` to `artisan/cleaner.php` for better structure\n- Updated all relative paths to reflect new location\n- Removed redundant `if (!$isCli)` block\n- Ensured script exits when accessed via web server",
-    "files": [
-      "artisan/cleaner.php"
-    ]
-  },
-  {
-    "hash": "6554e82f9a5ea63a3f489cca569ce9fadafab3b2",
-    "date": "2025-07-27T07:17:21+07:00",
-    "message": "fix(package): update package resolutions for various dependencies",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "36fc19b44d53c96428ff2d995ebb6f611bd6aac7",
-    "date": "2025-07-21T18:46:48+07:00",
-    "message": "fix(dashboard-menu): ensure dashboard menu element exists before processing menu data",
-    "files": [
-      "views/assets/js/_widget/dashboard-menu.js"
-    ]
-  },
-  {
-    "hash": "64d5631a16a5efa19f103bd75fa86067d73d1fe2",
-    "date": "2025-07-21T18:45:26+07:00",
-    "message": "refactor(dashboard): migrate menu source to JSONC and parse client-side\n\n- Renamed `dashboard-menu.json` to `dashboard-menu.jsonc` to allow comments/flexibility\n- Updated `dashboard-menu.js` to dynamically fetch and parse JSONC using `jsonc-parser`\n- Enhanced error handling for invalid or missing menu data\n- Rollup now copies `.jsonc` files to `public/php/json` during build\n- Removed `jsonc-parser` from devDependencies and added to production dependencies",
-    "files": [
-      "package.json",
-      "rollup.php.js",
-      "views/assets/js/_widget/dashboard-menu.js",
-      "views/assets/json/dashboard-menu.jsonc"
-    ]
-  },
-  {
-    "hash": "acc2600a245c11c3545054d8589f1b49e2487396",
-    "date": "2025-07-21T18:39:40+07:00",
-    "message": "refactor(widget): migrate dashboard menu to JSON-driven dynamic rendering\n\n- Removed hardcoded markup in `dashboard-menu.twig`\n- Introduced `dashboard-menu.json` as source of menu items\n- Added `dashboard-menu.js` to render menu dynamically based on JSON\n- Enables easier customization and localization of dashboard navigation",
-    "files": [
-      "views/_widgets/dashboard-menu.twig",
-      "views/assets/js/_widget/dashboard-menu.js",
-      "views/assets/json/dashboard-menu.json"
-    ]
-  },
-  {
-    "hash": "f168c97c0a6566d00e153dc03b7ff61f3435989b",
-    "date": "2025-07-21T18:34:00+07:00",
-    "message": "chore(eslint): update config and add typings for window.clipboardData\n\n- Disabled `@typescript-eslint/triple-slash-reference` for CommonJS and `.mjs` files\n- Introduced `types/window-shim.d.ts` to support `window.clipboardData` (IE compatibility)\n- Used reference path directive in `template.js` for IntelliSense and type support",
-    "files": [
-      "eslint.config.mjs",
-      "types/window-shim.d.ts",
-      "views/assets/js/template.js"
     ]
   }
 ]
