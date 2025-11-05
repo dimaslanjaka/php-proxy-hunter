@@ -1,5 +1,21 @@
 [
   {
+    "hash": "6a5246809fb566a927f484a83236991584c5fab2",
+    "date": "2025-11-05T18:22:15+07:00",
+    "message": "refactor(proxy-checker): format functions with PSR-12 style braces and improve readability\n\n- Updated function declarations to use PSR-12 brace placement\n- Adjusted indentation and spacing for consistency\n- Added `--force` CLI option to `proxyChecker` to bypass recent check skip logic\n- Improved comment alignment and code clarity",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "548d391b87b3e607864ebc193d9a5700c8190572",
+    "date": "2025-11-05T18:16:58+07:00",
+    "message": "fix(addLog): should be append content",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "6370c7bed227dfc951d5d50761ddc7bb47c337ed",
     "date": "2025-11-05T17:31:17+07:00",
     "message": "refactor(proxy-checker): modularize proxy checking and add credential normalization\n\n- Added `normalize_credential()` helper to clean empty or hyphen credentials before processing.\n- Delegated proxy checking logic from `proxy-checker.php` to new autoloaded class `ProxyChecker1` under `PhpProxyHunter\\Checker`.\n- Introduced abstract base class `ProxyChecker` defining the check interface.\n- Simplified `proxyChecker()` function to use `ProxyChecker1::check()` with `CheckerOptions`.\n- Maintained existing logging, database update logic, and response handling.\n- Added test script `ProxyChecker1-test.php` for verifying the new checker class.",
@@ -8686,22 +8702,6 @@
       "types/vite-env.d.ts",
       "vite-plugin.js",
       "vite.config.ts"
-    ]
-  },
-  {
-    "hash": "ccb84439535a85f9e14433529580c61598afaf2d",
-    "date": "2025-08-11T17:33:19+07:00",
-    "message": "refactor: remove commented-out runDevelopment task from tasks.json",
-    "files": [
-      ".vscode/tasks.json"
-    ]
-  },
-  {
-    "hash": "0b95df7d09cd215ad926953551d855b12d6a3907",
-    "date": "2025-08-11T17:33:04+07:00",
-    "message": "fix: remove redundant backup instructions from project guidelines",
-    "files": [
-      ".github/instructions/all.instructions.md"
     ]
   }
 ]
