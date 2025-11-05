@@ -329,12 +329,17 @@ if (!$isCli) {
 function proxyChecker($proxyInfo, $types = []) {
   global $config, $proxy_db;
 
-  // Skip proxy already checked as active under 4 hours
-  $last_check = $proxy_db->select($proxyInfo['proxy'])[0]['last_check'] ?? null;
-  if (!empty($last_check) && (strtotime($last_check) > (time() - 4 * 3600))) {
-    // Already checked recently
-    addLog('Skipping proxy check for ' . build_proxy_details($proxyInfo)['text'] . ' (already checked recently).');
-    return;
+  $opt        = getopt('', ['force:']);
+  $forceCheck = !empty($opt['force']) && in_array(strtolower($opt['force']), ['1', 'true', 'yes'], true);
+
+  if (!$forceCheck) {
+    // Skip proxy already checked as active under 4 hours
+    $last_check = $proxy_db->select($proxyInfo['proxy'])[0]['last_check'] ?? null;
+    if (!empty($last_check) && (strtotime($last_check) > (time() - 4 * 3600))) {
+      // Already checked recently
+      addLog('Skipping proxy check for ' . build_proxy_details($proxyInfo)['text'] . ' (already checked recently).');
+      return;
+    }
   }
 
   $currentIp = getServerIp();
