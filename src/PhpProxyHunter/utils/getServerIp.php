@@ -1,7 +1,7 @@
 <?php
 
 if (!function_exists('get_project_root')) {
-  require_once __DIR__ . '/path.php';
+  require_once __DIR__ . '/autoload.php';
 }
 
 /**

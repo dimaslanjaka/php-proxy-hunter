@@ -1,13 +1,7 @@
 <?php
 
 if (!function_exists('extractProxies')) {
-  require_once __DIR__ . '/../utils/extractor.php';
-}
-if (!function_exists('get_project_root')) {
-  require_once __DIR__ . '/../utils/path.php';
-}
-if (!function_exists('getServerIp')) {
-  require_once __DIR__ . '/../utils/getServerIp.php';
+  require_once __DIR__ . '/../utils/autoload.php';
 }
 
 /**
