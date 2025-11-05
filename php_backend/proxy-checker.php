@@ -36,6 +36,20 @@ function build_proxy_details(array $proxyInfo) {
   ];
 }
 
+/**
+ * Normalize credential values: return null for empty string or single hyphen '-'.
+ */
+function normalize_credential($val) {
+  if (!is_string($val)) {
+    return $val;
+  }
+  $t = trim($val);
+  if ($t === '' || $t === '-') {
+    return null;
+  }
+  return $val;
+}
+
 /** ---------- bootstrap ---------- */
 
 $lockFilePath = tmp() . '/locks/user-' . getUserId() . '/php_backend/proxy-checker.lock';
@@ -48,8 +62,8 @@ if (!$isCli) {
   $proxyInfo = [
     'proxy'    => isset($request['proxy']) ? urldecode($request['proxy']) : null,
     'type'     => isset($request['type']) ? urldecode($request['type']) : null,
-    'username' => isset($request['username']) ? urldecode($request['username']) : null,
-    'password' => isset($request['password']) ? urldecode($request['password']) : null,
+    'username' => normalize_credential(isset($request['username']) ? urldecode($request['username']) : null),
+    'password' => normalize_credential(isset($request['password']) ? urldecode($request['password']) : null),
   ];
 
   $userId     = getUserId();
@@ -231,8 +245,8 @@ if (!$isCli) {
   $proxyInfo    = [
     'proxy'    => $options['proxy'] ?? null,
     'type'     => $options['type'] ?? null,
-    'username' => $options['username'] ?? null,
-    'password' => $options['password'] ?? null,
+    'username' => normalize_credential($options['username'] ?? null),
+    'password' => normalize_credential($options['password'] ?? null),
   ];
   $timeout = $config['curl_timeout'] ?? 10;
 
@@ -342,101 +356,31 @@ function proxyChecker($proxyInfo, $types = []) {
   if (empty($types)) {
     $types = ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
   }
-  $foundWorking = false;
-  $isSSL        = false;
-  $workingTypes = [];
-  addLog('Starting ' . AnsiColors::colorize(['green', 'SSL']) . ' proxy check for ' . build_proxy_details($proxyInfo)['text']);
-  $proxyIP = extractIPs($proxyInfo['proxy'])[0] ?? null;
-  $timeout = $config['curl_timeout']            ?? 10;
-  // Test SSL first
-  foreach ($types as $type) {
-    $publicIP = getPublicIP(true, $timeout, [
-      'proxy'    => $proxyInfo['proxy'],
-      'type'     => $type,
-      'username' => $proxyInfo['username'],
-      'password' => $proxyInfo['password'],
-    ]);
-    $ip = extractIPs($publicIP)[0] ?? null;
-    if (empty($ip)) {
-      addLog('Proxy SSL test ' . AnsiColors::colorize(['red'], 'failed') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (no IP returned).');
-      continue; // try next type
-    } else {
-      if ($ip === $currentIp && $currentIp !== '127.0.0.1') {
-        addLog('Proxy SSL test ' . AnsiColors::colorize(['red'], 'failed') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (IP matches current IP).');
-        continue; // try next type
-      } elseif ($ip === $proxyIP) {
-        addLog('Proxy SSL test ' . AnsiColors::colorize(['green'], 'succeeded') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (IP: ' . AnsiColors::colorize(['cyan'], $ip) . ').');
-        $foundWorking   = true;
-        $isSSL          = true;
-        $workingTypes[] = $type;
-      } else {
-        if ($ip !== $proxyIP && $ip !== $currentIp) {
-          // High anonymous proxy detected
-          addLog('Proxy SSL test ' . AnsiColors::colorize(['green'], 'succeeded') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (High anonymous, IP: ' . AnsiColors::colorize(['cyan'], $ip) . ').');
-          $foundWorking   = true;
-          $isSSL          = true;
-          $workingTypes[] = $type;
-        } else {
-          addLog('Proxy SSL test ' . AnsiColors::colorize(['red'], 'failed') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (unexpected IP: ' . AnsiColors::colorize(['cyan'], $ip) . ').');
-          continue; // try next type
-        }
-      }
-    }
-    $isLast = ($type === end($types));
-    if ($isLast) {
-      if (!$foundWorking) {
-        addLog('Proxy SSL test failed for all types.');
-      }
-    }
-  }
-  // Test non-SSL only if SSL tests failed
-  if (!$foundWorking) {
-    foreach ($types as $type) {
-      $timeout = $config['curl_timeout'] ?? 10;
-      // Test non-SSL
-      $publicIP = getPublicIP(true, $timeout, [
-        'proxy'    => $proxyInfo['proxy'],
-        'type'     => $type,
-        'username' => $proxyInfo['username'],
-        'password' => $proxyInfo['password'],
-      ], true);
-      $ip = extractIPs($publicIP)[0] ?? null;
-      if (empty($ip)) {
-        addLog('Proxy non-SSL test ' . AnsiColors::colorize(['red'], 'failed') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (no IP returned).');
-        continue; // try next type
-      } elseif (!empty($currentIp)) {
-        if ($ip === $currentIp && $currentIp !== '127.0.0.1') {
-          addLog('Proxy non-SSL test ' . AnsiColors::colorize(['red'], 'failed') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (IP matches current IP).');
-          continue; // try next type
-        } elseif ($ip === $proxyIP) {
-          addLog('Proxy non-SSL test ' . AnsiColors::colorize(['green'], 'succeeded') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (IP: ' . AnsiColors::colorize(['cyan'], $ip) . ').');
-          $foundWorking   = true;
-          $isSSL          = false;
-          $workingTypes[] = $type;
-        } else {
-          addLog('Proxy non-SSL test ' . AnsiColors::colorize(['red'], 'failed') . ' for type ' . AnsiColors::colorize(['yellow'], $type) . ' (unexpected IP: ' . AnsiColors::colorize(['cyan'], $ip) . ').');
-          continue; // try next type
-        }
-      }
-      $isLast = ($type === end($types));
-      if ($isLast) {
-        if (!$foundWorking) {
-          addLog('Proxy non-SSL test failed for all types.');
-        }
-      }
-    }
-  }
+  // Delegate actual checking to composer-autoloaded ProxyChecker1
+  addLog('Starting proxy check for ' . build_proxy_details($proxyInfo)['text']);
+
+  $options = new \PhpProxyHunter\Checker\CheckerOptions([
+    'proxy'     => $proxyInfo['proxy'],
+    'username'  => $proxyInfo['username'] ?? '',
+    'password'  => $proxyInfo['password'] ?? '',
+    'protocols' => $types,
+    'timeout'   => $config['curl_timeout'] ?? 10,
+    'verbose'   => true,
+  ]);
+
+  // Use the composer-autoloaded checker class (no require_once)
+  $result = \PhpProxyHunter\Checker\ProxyChecker1::check($options);
 
   // save to database
-  if (!$foundWorking) {
+  if (!$result->isWorking) {
     addLog('Proxy test failed for all types.');
     $proxy_db->updateStatus($proxyInfo['proxy'], 'dead');
   } else {
     $proxy_db->updateData($proxyInfo['proxy'], [
-      'type'       => implode('-', $workingTypes),
+      'type'       => implode('-', $result->workingTypes),
       'username'   => $proxyInfo['username'] ?? null,
       'password'   => $proxyInfo['password'] ?? null,
-      'https'      => $isSSL ? 'true' : 'false',
+      'https'      => $result->isSSL ? 'true' : 'false',
       'last_check' => date(DATE_RFC3339),
       'status'     => 'active',
     ]);
