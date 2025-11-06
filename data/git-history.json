@@ -1,5 +1,71 @@
 [
   {
+    "hash": "96fde2baeb54cc2071bb6f22a33f7fac2883d290",
+    "date": "2025-11-06T16:03:29+07:00",
+    "message": "feat(recaptcha): mount invisible ReCAPTCHA and auto-run verification\n\nImport `ReCAPTCHA`, add a `recaptchaRef`, render an invisible widget in `MainApp`,\nand call `executeAsync()` on startup to obtain a token and forward it to\n`verifyRecaptcha`. Also reorder related imports and add a small `useEffect`\nhook to reference the recaptcha ref.",
+    "files": [
+      "src/react/index.tsx"
+    ]
+  },
+  {
+    "hash": "fc8ec11426d20f6755052be2c9b0e46caec2eaef",
+    "date": "2025-11-06T16:00:18+07:00",
+    "message": "refactor(recaptcha): rename checkRecaptchaStatus -> checkRecaptchaSessionExpired\n\nRename the helper to `checkRecaptchaSessionExpired` and update its TSDoc to\nclarify the boolean semantics (returns true when the reCAPTCHA session is\nexpired / a new token is required). Update imports and usages in\n`src/react/pages/ProxyList.tsx` and `src/react/index.tsx` to use the new name and\ninterpret the returned value as `expired`. Also adjusted error log text to\nmatch the new function name.",
+    "files": [
+      "src/react/pages/ProxyList.tsx",
+      "src/react/utils/recaptcha.ts"
+    ]
+  },
+  {
+    "hash": "279a2fb4ad76ba39492c6c5a4f2d67ba754008bd",
+    "date": "2025-11-06T15:55:32+07:00",
+    "message": "fix(recaptcha): avoid re-sending same token by caching and deduping in-flight requests\n\nAdd a module-level cache (`verifiedTokenCache`) to store boolean verification\nresults and an `inflightVerifications` map to share pending verification\npromises so concurrent calls with the same token reuse the same network request.\nCache success/failure results until page reload and ensure in-flight entries\nare removed when the request completes. Log and preserve false on network/error\nfailures to avoid repeated retries.\n\nNotes:\n- Tokens may be single-use on some backends; consider adjusting cache policy\n  if single-use tokens are used.\n- Affects `src/react/utils/recaptcha.ts`.",
+    "files": [
+      "src/react/utils/recaptcha.ts"
+    ]
+  },
+  {
+    "hash": "b2b552459f1b7ea644209eee38f636b66e9ef8e1",
+    "date": "2025-11-06T15:52:42+07:00",
+    "message": "feat(tailwind): hide Google reCAPTCHA badge",
+    "files": [
+      "tailwind.input.css"
+    ]
+  },
+  {
+    "hash": "f83a675de686a068e9308840b89ecbae76057faf",
+    "date": "2025-11-06T15:46:00+07:00",
+    "message": "fix(MainApp): set default document title to 'PHP Proxy Hunter'",
+    "files": [
+      "src/react/index.tsx"
+    ]
+  },
+  {
+    "hash": "91da4d9bb1e1c34d5d477a0b03c9cdc22a051595",
+    "date": "2025-11-06T15:34:20+07:00",
+    "message": "refactor(recaptcha): extract recaptcha helpers to shared util\n\nCreate `src/react/utils/recaptcha.ts` exporting `verifyRecaptcha` and\n`checkRecaptchaStatus`, and update `src/react/pages/ProxyList.tsx` to use\nthese shared helpers.\n\n- Added: `src/react/utils/recaptcha.ts` (verifyRecaptcha, checkRecaptchaStatus)\n- Updated: `src/react/pages/ProxyList.tsx`\n  - import `{ verifyRecaptcha, checkRecaptchaStatus }` from the new util\n  - removed inline `checkRecaptchaStatus` and `verifyRecaptchaToken` implementations\n  - replaced call site `verifyRecaptchaToken(...)` → `verifyRecaptcha(...)`\n\nNo behavior changes intended; this consolidates reCAPTCHA logic into a\nsingle reusable module.",
+    "files": [
+      "src/react/pages/ProxyList.tsx",
+      "src/react/utils/recaptcha.ts"
+    ]
+  },
+  {
+    "hash": "c12d770a0eb025f490a245ce8466c83e3894e3b2",
+    "date": "2025-11-06T15:27:41+07:00",
+    "message": "feat(proxy-list): add caching and scope getWorkingProxies inside component\n\n- Move `getWorkingProxies` into `ProxyList` as a `useCallback` and replace the module-level\n  `fetchingProxies` flag with a component `fetchingProxiesRef` to prevent re-entrant fetches.\n- Add a module-level `workingProxiesCache` and persist fetched proxies to `localStorage`\n  (`workingProxiesCache`) to show cached results immediately.\n- On mount, try module cache first, then `localStorage`, then refresh in background to get\n  the latest list. Fetched results are saved back to the cache; storage errors are ignored.\n- Keeps existing behavior while improving perceived load times and scoping fetch logic.",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "10721d329045e04a73e054c1f2cb7446cae96873",
+    "date": "2025-11-06T15:12:14+07:00",
+    "message": "feat(database): add CLI script to normalize and fix proxy entries in database",
+    "files": [
+      "artisan/database/fix-db.php"
+    ]
+  },
+  {
     "hash": "ba43c076908d33884471146bbd5a41ca5e5252ca",
     "date": "2025-11-06T14:52:27+07:00",
     "message": "feat(db): add OFFSET support and pagination; update select signatures and docs\n\n- Add optional `$offset` parameter to `BaseSQL::select` and propagate to helpers.\n- Implement `OFFSET`/`LIMIT` handling in `SQLiteHelper::select` and `MySQLHelper::select`\n  (including edge-case handling when offset is supplied without a limit).\n- Update `CoreDB::select` to accept a string `$columns` (default '*') and forward offset.\n- Add pagination to `ProxyDB::getAllProxies` via optional `$page` and `$perPage` parameters;\n  preserve backward-compatibility (legacy `$limit` and `$randomize` behavior retained).\n- Update PHPDoc for `select` across `BaseSQL`, `CoreDB`, `SQLiteHelper`, and `MySQLHelper`.\n- Minor style/formatting hygiene (brace placement and small refactors).\n\nNo breaking changes — existing call sites using the legacy single-argument limit or\nthe randomize flag continue to work.",
@@ -8614,77 +8680,6 @@
     "files": [
       "tailwind.config.js",
       "vite.config.ts"
-    ]
-  },
-  {
-    "hash": "044fbeb8c5cb29bdcfeb2e28df4c5c4d8667654b",
-    "date": "2025-08-13T15:35:21+07:00",
-    "message": "feat(dev): add options and tests for git history extraction\n\n- Add `GitHistoryOptions` interface with `since`, `until`, and `last` parameters for filtering git history.\n- Enhance `getGitHistory` to support date range and last N commits via options.\n- Add comprehensive TSDoc for both the function and options interface.\n- Create Jest test suite in `tests/dev/git-history.test.ts` to verify correct output, filtering, and file exclusion.",
-    "files": [
-      "src/dev/git-history-to-json.ts",
-      "tests/dev/git-history.test.ts"
-    ]
-  },
-  {
-    "hash": "b22d4579ecd654eff426b4cfec5ef6dcd49b0fcc",
-    "date": "2025-08-13T15:31:48+07:00",
-    "message": "fix: update tsconfig path for Jest configuration and include test files in compilation",
-    "files": [
-      ".vscode/settings.json",
-      "jest.config.ts",
-      "tsconfig.json"
-    ]
-  },
-  {
-    "hash": "489a7c434e00b718eabd48a37f7447c6136bde5d",
-    "date": "2025-08-13T15:23:57+07:00",
-    "message": "feat: implement git history retrieval and output to JSON file",
-    "files": [
-      "public/.gitignore",
-      "src/dev/git-history-to-json.ts",
-      "src/dev/git-history.ts"
-    ]
-  },
-  {
-    "hash": "3345d7ec7ce913cc8a0a56b221b48048e41187f6",
-    "date": "2025-08-13T15:10:38+07:00",
-    "message": "feat: add squizlabs/php_codesniffer as a development dependency",
-    "files": [
-      "composer.json",
-      "index.dev.html"
-    ]
-  },
-  {
-    "hash": "146575d0e20cfe9ce9f80bbb603c41cda4a01f0d",
-    "date": "2025-08-13T15:10:07+07:00",
-    "message": "feat: implement Dashboard page with saldo display and transaction history placeholder",
-    "files": [
-      "src/react/pages/Dashboard.tsx"
-    ]
-  },
-  {
-    "hash": "2628c365feb37acfd94c89d795cbb02edd552824",
-    "date": "2025-08-13T15:08:35+07:00",
-    "message": "feat: add PHP code style fixing to lint-staged configuration",
-    "files": [
-      ".lintstagedrc.json"
-    ]
-  },
-  {
-    "hash": "ec54b9c79b4f43709cd60ce2baf2070a8a7fa613",
-    "date": "2025-08-13T15:08:13+07:00",
-    "message": "feat: enhance user profile update functionality and improve CORS handling",
-    "files": [
-      "php_backend/user-info.php"
-    ]
-  },
-  {
-    "hash": "d9f865902cb698b04f7d43087fcab85107972ab6",
-    "date": "2025-08-13T14:58:31+07:00",
-    "message": "feat: implement user profile management in Settings page",
-    "files": [
-      "php_backend/user-info.php",
-      "src/react/pages/Settings.tsx"
     ]
   }
 ]
