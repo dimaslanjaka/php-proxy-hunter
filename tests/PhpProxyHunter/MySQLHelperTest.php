@@ -5,8 +5,7 @@ define('PHP_PROXY_HUNTER', true);
 use PHPUnit\Framework\TestCase;
 use PhpProxyHunter\MySQLHelper;
 
-class MySQLHelperTest extends TestCase
-{
+class MySQLHelperTest extends TestCase {
   private MySQLHelper $db;
   private string $mysqlHost;
   private string $mysqlUser;
@@ -14,12 +13,11 @@ class MySQLHelperTest extends TestCase
   private string $mysqlDb;
   private string $table = 'test_table';
 
-  protected function setUp(): void
-  {
+  protected function setUp(): void {
     $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST');
     $this->mysqlUser = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
     $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS');
-    $this->mysqlDb   = 'php_proxy_hunter_test';
+    $this->mysqlDb   = 'mysql_helper_test_db';
     $this->db        = new MySQLHelper(
       $this->mysqlHost,
       $this->mysqlDb,
@@ -37,15 +35,13 @@ class MySQLHelperTest extends TestCase
     );
   }
 
-  protected function tearDown(): void
-  {
+  protected function tearDown(): void {
     if (isset($this->db) && $this->db->pdo) {
       $this->db->pdo->exec("DROP TABLE IF EXISTS `{$this->table}`");
     }
   }
 
-  public function testCreateTable(): void
-  {
+  public function testCreateTable(): void {
     $table   = 'test_create_table';
     $columns = [
       'id INT AUTO_INCREMENT PRIMARY KEY',
@@ -56,14 +52,12 @@ class MySQLHelperTest extends TestCase
     $this->db->pdo->exec("DROP TABLE IF EXISTS `$table`");
   }
 
-  public function testClose(): void
-  {
+  public function testClose(): void {
     $this->db->close();
     $this->assertNull($this->db->pdo);
   }
 
-  public function testResetIncrement(): void
-  {
+  public function testResetIncrement(): void {
     $this->db->insert($this->table, ['name' => 'Reset', 'age' => 1]);
     $this->db->pdo->exec("DELETE FROM `{$this->table}`");
     $this->db->resetIncrement($this->table);
@@ -72,15 +66,13 @@ class MySQLHelperTest extends TestCase
     $this->assertSame(1, (int)$result[0]['id']);
   }
 
-  public function testGetTableColumns(): void
-  {
+  public function testGetTableColumns(): void {
     $columns = $this->db->getTableColumns($this->table);
     $this->assertContains('name', $columns);
     $this->assertContains('age', $columns);
   }
 
-  public function testAddColumnIfNotExistsAndColumnExists(): void
-  {
+  public function testAddColumnIfNotExistsAndColumnExists(): void {
     $col = 'new_col';
     $def = 'VARCHAR(20)';
     if ($this->db->columnExists($this->table, $col)) {
@@ -91,8 +83,7 @@ class MySQLHelperTest extends TestCase
     $this->assertTrue($this->db->columnExists($this->table, $col));
   }
 
-  public function testDropColumnIfExists(): void
-  {
+  public function testDropColumnIfExists(): void {
     $col = 'to_drop';
     $def = 'INT';
     if (!$this->db->columnExists($this->table, $col)) {
@@ -103,8 +94,7 @@ class MySQLHelperTest extends TestCase
     $this->assertFalse($this->db->columnExists($this->table, $col));
   }
 
-  public function testConstructorWithPDO(): void
-  {
+  public function testConstructorWithPDO(): void {
     $pdo = new PDO(
       "mysql:host={$this->mysqlHost};dbname={$this->mysqlDb};charset=utf8mb4",
       $this->mysqlUser,
@@ -117,8 +107,7 @@ class MySQLHelperTest extends TestCase
     $db2->pdo->exec('DROP TABLE IF EXISTS test_pdo');
   }
 
-  public function testInsertAndSelect(): void
-  {
+  public function testInsertAndSelect(): void {
     $this->db->insert($this->table, ['name' => 'Alice', 'age' => 30]);
     $results = $this->db->select($this->table);
 
@@ -127,15 +116,13 @@ class MySQLHelperTest extends TestCase
     $this->assertSame(30, (int)$results[0]['age']);
   }
 
-  public function testCount(): void
-  {
+  public function testCount(): void {
     $this->db->insert($this->table, ['name' => 'Bob', 'age' => 25]);
     $count = $this->db->count($this->table);
     $this->assertSame(1, $count);
   }
 
-  public function testUpdate(): void
-  {
+  public function testUpdate(): void {
     $this->db->insert($this->table, ['name' => 'Charlie', 'age' => 40]);
     $this->db->update($this->table, ['age' => 41], 'name = ?', ['Charlie']);
 
@@ -143,8 +130,7 @@ class MySQLHelperTest extends TestCase
     $this->assertSame(41, (int)$results[0]['age']);
   }
 
-  public function testDelete(): void
-  {
+  public function testDelete(): void {
     $this->db->insert($this->table, ['name' => 'Dave', 'age' => 50]);
     $this->db->delete($this->table, 'name = ?', ['Dave']);
 
@@ -152,16 +138,14 @@ class MySQLHelperTest extends TestCase
     $this->assertCount(0, $results);
   }
 
-  public function testExecute(): void
-  {
+  public function testExecute(): void {
     $this->db->insert($this->table, ['name' => 'Eve', 'age' => 22]);
     $stmt = $this->db->pdo->query("SELECT COUNT(*) as cnt FROM `{$this->table}` WHERE name = 'Eve'");
     $row  = $stmt->fetch();
     $this->assertSame(1, (int)$row['cnt']);
   }
 
-  public function testTransactionCommit(): void
-  {
+  public function testTransactionCommit(): void {
     $this->db->beginTransaction();
     $this->db->insert($this->table, ['name' => 'Frank', 'age' => 33]);
     $this->db->commit();
@@ -171,8 +155,7 @@ class MySQLHelperTest extends TestCase
     $this->assertSame('Frank', $results[0]['name']);
   }
 
-  public function testTransactionRollback(): void
-  {
+  public function testTransactionRollback(): void {
     $this->db->beginTransaction();
     $this->db->insert($this->table, ['name' => 'Grace', 'age' => 44]);
     $this->db->rollback();
