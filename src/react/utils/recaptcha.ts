@@ -114,9 +114,19 @@ export async function checkRecaptchaSessionExpired(): Promise<boolean> {
       body: 'status=1'
     });
     const data = await response.json();
-    // Backend's `success` indicates that checks are required; treat that as
-    // session expired/needs verification (true).
-    return !!(data && data.success);
+    // Backend's `success` field means the captcha/session is already verified
+    // (e.g. `{"message":"Captcha already verified","success":true}`).
+    // We should return `true` only when the session is expired / a new
+    // verification is required. That means we invert the backend `success`
+    // semantics here: when `data.success` is truthy the session is NOT expired
+    // (return false). When `data.success` is falsy we return true to indicate
+    // a new captcha token is required.
+    if (data && typeof data.success === 'boolean') {
+      return !data.success;
+    }
+    // If response shape is unexpected, conservatively treat it as not expired
+    // (do not show the modal) to avoid blocking users on malformed responses.
+    return false;
   } catch (e) {
     console.error('[ProxyList] checkRecaptchaSessionExpired error', e);
     return false;
