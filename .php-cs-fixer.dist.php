@@ -1,48 +1,99 @@
 <?php
 
-// composer exec php-cs-fixer fix
+/**
+ * PHP-CS-Fixer configuration file
+ *
+ * Run with:
+ *   composer exec php-cs-fixer fix
+ */
 
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
-use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 
+// ----------------------------------------------------------------------------
+// Finder setup: determines which files PHP-CS-Fixer will process
+// ----------------------------------------------------------------------------
 $finder = Finder::create()
-  ->in(__DIR__)
-  ->exclude(['vendor', 'node_modules', 'phpliteadmin', 'adminer', 'phpmyadmin', 'tmp', 'logs', 'backups'])
-  ->name('*.php')
-  ->ignoreDotFiles(true)
-  ->ignoreVCS(true);
+    ->in(__DIR__) // Scan the current directory recursively
+    ->exclude([
+      'vendor',        // Skip Composer dependencies
+      'node_modules',  // Skip frontend dependencies
+      'phpliteadmin',  // Skip bundled third-party tools
+      'adminer',
+      'phpmyadmin',
+      'tmp',           // Skip temporary directories
+      'logs',
+      'backups',       // Skip backups
+    ])
+    ->name('*.php')       // Only process PHP files
+    ->ignoreDotFiles(true) // Ignore hidden files like .env
+    ->ignoreVCS(true);     // Ignore version control folders (.git, etc.)
 
+// ----------------------------------------------------------------------------
+// Base configuration object
+// ----------------------------------------------------------------------------
 $config = new Config();
 
-// setParallelConfig was introduced in newer php-cs-fixer releases. Guard
-// the call so the config remains compatible with older installed versions.
-if (class_exists(ParallelConfigFactory::class) && method_exists($config, 'setParallelConfig')) {
+// ----------------------------------------------------------------------------
+// Optional: enable parallel execution when available (PHP-CS-Fixer >= 3.25)
+// ----------------------------------------------------------------------------
+// Guard to keep compatibility with older PHP-CS-Fixer versions.
+if (
+    class_exists('PhpCsFixer\\Runner\\Parallel\\ParallelConfigFactory') && method_exists($config, 'setParallelConfig')
+) {
   try {
-    $config->setParallelConfig(ParallelConfigFactory::detect());
+    // Automatically detect and apply optimal parallel configuration
+    $config->setParallelConfig(
+      PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect()
+    );
   } catch (\Throwable $e) {
-    // keep going without parallel config if detection fails
+    // Continue gracefully if parallel detection fails
   }
-} else {
-  // do nothing, keep config compatible with older php-cs-fixer versions
 }
 
-$config->setIndent(str_pad('', 2));
-$config->setUsingCache(true);
+// ----------------------------------------------------------------------------
+// Basic configuration settings
+// ----------------------------------------------------------------------------
+$config
+    ->setIndent(str_repeat(' ', 2))  // Use 2 spaces per indentation level
+    ->setUsingCache(true)            // Enable cache to speed up subsequent runs
+    ->setRiskyAllowed(true)          // Allow risky fixers (some change code meaning)
+    ->setCacheFile('tmp/locks/.php-cs-fixer.cache'); // Custom cache file path
 
+// ----------------------------------------------------------------------------
+// Coding standard rules
+// ----------------------------------------------------------------------------
 return $config->setRules([
-  '@PSR12'                       => true,
-  'array_syntax'                 => ['syntax' => 'short'],
-  'no_unused_imports'            => true,
-  'single_quote'                 => true,
-  'binary_operator_spaces'       => ['default' => 'align_single_space_minimal'],
-  'blank_line_after_opening_tag' => true, // ensures newline after <?php
-  'trailing_comma_in_multiline'  => ['elements' => ['arrays']],
-  'braces'                       => [
-    'allow_single_line_closure'                   => true,
-    'position_after_functions_and_oop_constructs' => 'same',
+  '@PSR12' => true, // Apply PSR-12 coding style standard
+
+  // Prefer short array syntax: []
+  'array_syntax' => ['syntax' => 'short'],
+
+  // Remove unused "use" statements
+  'no_unused_imports' => true,
+
+  // Prefer single quotes for strings where possible
+  'single_quote' => true,
+
+  // Align binary operators (e.g., =, =>) for readability
+  'binary_operator_spaces' => ['default' => 'align_single_space_minimal'],
+
+  // Ensure a blank line after "<?php" opening tag
+  'blank_line_after_opening_tag' => true,
+
+  // Add trailing commas in multiline arrays for cleaner diffs
+  'trailing_comma_in_multiline' => ['elements' => ['arrays']],
+
+  // Control brace placement and closure formatting
+  'braces' => [
+    'allow_single_line_closure'                   => true, // Allow one-line anonymous functions
+    'position_after_functions_and_oop_constructs' => 'same', // Keep opening brace on same line
   ],
+
+  // Enforce consistent array indentation
+  'array_indentation' => true,
+
+  // Ensure indentation consistency (spaces vs tabs)
+  'indentation_type' => true,
 ])
-  ->setFinder($finder)
-  ->setCacheFile('tmp/locks/.php-cs-fixer.cache')
-  ->setRiskyAllowed(true);
+->setFinder($finder);
