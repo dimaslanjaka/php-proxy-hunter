@@ -341,7 +341,7 @@ async function main() {
   // Run `composer install --no-dev --no-interaction` when `composer.lock` is not found otherwise `composer update --no-dev --no-interaction`
   console.log('Ensuring PHP dependencies are installed on remote server...');
   const { code: composerCode, signal: composerSignal } = await shell_exec(
-    `[ -f ${remotePath}/composer.lock ] && php ${remotePath}/bin/composer.phar install --no-dev --no-interaction || php ${remotePath}/bin/composer.phar update --no-dev --no-interaction`,
+    `export COMPOSER_ALLOW_SUPERUSER=1; if [ -f ${remotePath}/composer.lock ]; then php ${remotePath}/bin/composer.phar install --no-dev --no-interaction; else php ${remotePath}/bin/composer.phar update --no-dev --no-interaction; fi; echo "COMPOSER EXIT:" $?;`,
     remotePath
   );
   if (composerCode !== 0) {
