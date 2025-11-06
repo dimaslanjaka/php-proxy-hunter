@@ -60,53 +60,18 @@ const handleCopy = (proxy: ProxyDetails) => {
   }
 };
 
-let fetchingProxies = false;
-async function getWorkingProxies() {
-  if (fetchingProxies) return [];
-  fetchingProxies = true;
-  // trigger background get working proxies
-  fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
-  let result: any = [];
-  try {
-    const res = await fetch(createUrl('/embed.php?file=working.json'), {
-      signal: AbortSignal.timeout(5000)
-    });
-    if (res.status === 403) {
-      fetchingProxies = false;
-      return [];
-    }
-    result = await res.json();
-    if (!Array.isArray(result)) {
-      fetchingProxies = false;
-      return [];
-    }
-  } catch {
-    fetchingProxies = false;
-    return [];
-  }
-  fetchingProxies = false;
-  for (let i = 0; i < result.length; i++) {
-    const proxy = result[i];
-    if (proxy.https === 'true') {
-      proxy.type = proxy.type ? `${proxy.type}-SSL` : 'SSL';
-    }
-    delete (proxy as Partial<ProxyDetails>).https;
-    result[i] = proxy;
-  }
-  // Sort by last_check (date string), most recent first
-  result.sort((a, b) => {
-    const dateA = a.last_check ? new Date(a.last_check).getTime() : 0;
-    const dateB = b.last_check ? new Date(b.last_check).getTime() : 0;
-    return dateB - dateA;
-  });
-  return result;
-}
+// getWorkingProxies moved inside the component for easier access to state and refs
+
+// Module-level cache to avoid long waits between navigations
+let workingProxiesCache: any[] | null = null;
 
 // Helper to fetch proxies (kept at module level)
 // (fetchAndSetProxies moved into the component to use setProxies from closure)
 
 function ProxyList() {
   const { showSnackbar } = useSnackbar();
+  // ref to avoid re-entrant fetches
+  const fetchingProxiesRef = React.useRef(false);
   const [typeFilter, setTypeFilter] = React.useState('');
   const [proxies, setProxies] = React.useState<ProxyDetails[]>([]);
   const [showModal, setShowModal] = React.useState(false);
@@ -126,7 +91,15 @@ function ProxyList() {
   // Helper to fetch and set proxies using component's setProxies
   const fetchAndSetProxies = async () => {
     const result = await getWorkingProxies();
-    if (Array.isArray(result)) setProxies(result);
+    if (Array.isArray(result)) {
+      setProxies(result);
+      workingProxiesCache = result;
+      try {
+        localStorage.setItem('workingProxiesCache', JSON.stringify(result));
+      } catch {
+        // ignore storage errors
+      }
+    }
   };
 
   // Helper: check recaptcha status (returns boolean: true if verified)
@@ -164,6 +137,48 @@ function ProxyList() {
       return false;
     }
   };
+
+  // Fetch working proxies (scoped inside component) to use refs/state easily
+  const getWorkingProxies = React.useCallback(async () => {
+    if (fetchingProxiesRef.current) return [];
+    fetchingProxiesRef.current = true;
+    // refresh working.json
+    await fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
+    let result: any = [];
+    try {
+      const res = await fetch(createUrl('/embed.php?file=working.json'), {
+        signal: AbortSignal.timeout(5000)
+      });
+      if (res.status === 403) {
+        fetchingProxiesRef.current = false;
+        return [];
+      }
+      result = await res.json();
+      if (!Array.isArray(result)) {
+        fetchingProxiesRef.current = false;
+        return [];
+      }
+    } catch {
+      fetchingProxiesRef.current = false;
+      return [];
+    }
+    fetchingProxiesRef.current = false;
+    for (let i = 0; i < result.length; i++) {
+      const proxy = result[i];
+      if (proxy.https === 'true') {
+        proxy.type = proxy.type ? `${proxy.type}-SSL` : 'SSL';
+      }
+      delete (proxy as Partial<ProxyDetails>).https;
+      result[i] = proxy;
+    }
+    // Sort by last_check (date string), most recent first
+    result.sort((a, b) => {
+      const dateA = a.last_check ? new Date(a.last_check).getTime() : 0;
+      const dateB = b.last_check ? new Date(b.last_check).getTime() : 0;
+      return dateB - dateA;
+    });
+    return result;
+  }, []);
 
   // Get ProxyDetails keys for table, reordering specific columns to the end
   const proxyKeys = React.useMemo(() => {
@@ -260,7 +275,21 @@ function ProxyList() {
         setShowModal(true);
       } else {
         setShowModal(false);
-        // initial load
+        // initial load: first try module cache, then localStorage cache, then fetch
+        if (workingProxiesCache && Array.isArray(workingProxiesCache) && workingProxiesCache.length > 0) {
+          setProxies(workingProxiesCache);
+        } else {
+          try {
+            const cached = localStorage.getItem('workingProxiesCache');
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (Array.isArray(parsed) && parsed.length > 0) setProxies(parsed);
+            }
+          } catch {
+            // ignore parse errors
+          }
+        }
+        // always refresh in background to get latest list
         await refreshProxies();
       }
     })();
