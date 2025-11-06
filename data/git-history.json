@@ -1,5 +1,21 @@
 [
   {
+    "hash": "41b501e44b4afe85f9f7d8579b07c13dc68294f8",
+    "date": "2025-11-06T14:10:10+07:00",
+    "message": "refactor(process): improve runner hash and enhance PHP 7.0 compatibility\n\n- Replaced `realpath(__DIR__ . '/../../..')` with `get_project_root()` for clarity and maintainability.\n- Included script file contents (`file_get_contents($scriptPath)`) in the stable runner hash:\n  - Ensures hash changes when script content or arguments differ, avoiding stale runner collisions.\n- Removed `declare(strict_types=1)` and modern type hints for PHP 7.0 compatibility.\n- Replaced typed parameters and return types with PHPDoc annotations, keeping array return annotations.\n- Simplified and clarified path concatenations and command constructions.\n- Updated documentation for consistency and readability.\n\nMotivation: increase hash robustness, ensure compatibility with older PHP versions, and improve code clarity.",
+    "files": [
+      "src/utils/process/runBashOrBatch.php"
+    ]
+  },
+  {
+    "hash": "06902808c677bfd724279893f6978e0320075a8e",
+    "date": "2025-11-06T14:02:42+07:00",
+    "message": "refactor(utils): include hash in runner and log filenames for runBashOrBatch\n\n- Added `$hash` generation earlier for consistent use\n- Updated runner and log filenames to include the hash for uniqueness\n- Removed redundant hash assignment inside conditional block",
+    "files": [
+      "src/utils/process/runBashOrBatch.php"
+    ]
+  },
+  {
     "hash": "c0fe8fb5ac1973bbeea7196d82b92201961db6a8",
     "date": "2025-11-06T13:56:51+07:00",
     "message": "refactor(utils): consolidate autoloading and clean function guards\n\n- Remove per-file `function_exists` guards and inline require_once calls across utils and core files.\n- Simplify `utils/autoload.php` by defining `autoloadAllPHP()` without conditional wrapper.\n- Clean up formatting and standardized function signatures across utils:\n  - `extractIPs`, `extractPorts`, `extractProxies`, `getPublicIP`, `getServerIp`, `buildCurl`\n  - Minor whitespace and null-coalescing alignment fixes.\n- Remove redundant runtime autoload requires from `ProxyDB` and `ProxyChecker`.\n\nMotivation: centralize autoload behavior, reduce duplication, and tighten up utility implementations for better maintainability.",
@@ -8665,25 +8681,6 @@
     "files": [
       "index.dev.html",
       "tailwind.input.css"
-    ]
-  },
-  {
-    "hash": "279529f4ace3ab662a113a87a3bc078f7a38f0d2",
-    "date": "2025-08-13T14:26:28+07:00",
-    "message": "feat: add Vite configuration for hostname and port in .env-sample",
-    "files": [
-      ".env-sample",
-      "types/vite-env.d.ts"
-    ]
-  },
-  {
-    "hash": "c584fc2a7899b32b0342f826ff7f9bace4e0d0bc",
-    "date": "2025-08-13T14:25:09+07:00",
-    "message": "feat: add Contact page and update routing for contact route",
-    "files": [
-      "src/react/App.tsx",
-      "src/react/pages/Contact.tsx",
-      "vite-plugin.js"
     ]
   }
 ]
