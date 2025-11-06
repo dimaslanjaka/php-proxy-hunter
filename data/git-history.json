@@ -1,5 +1,27 @@
 [
   {
+    "hash": "c0fe8fb5ac1973bbeea7196d82b92201961db6a8",
+    "date": "2025-11-06T13:56:51+07:00",
+    "message": "refactor(utils): consolidate autoloading and clean function guards\n\n- Remove per-file `function_exists` guards and inline require_once calls across utils and core files.\n- Simplify `utils/autoload.php` by defining `autoloadAllPHP()` without conditional wrapper.\n- Clean up formatting and standardized function signatures across utils:\n  - `extractIPs`, `extractPorts`, `extractProxies`, `getPublicIP`, `getServerIp`, `buildCurl`\n  - Minor whitespace and null-coalescing alignment fixes.\n- Remove redundant runtime autoload requires from `ProxyDB` and `ProxyChecker`.\n\nMotivation: centralize autoload behavior, reduce duplication, and tighten up utility implementations for better maintainability.",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyChecker.php",
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/PhpProxyHunter/utils/autoload.php",
+      "src/PhpProxyHunter/utils/buildCurl.php",
+      "src/PhpProxyHunter/utils/extractor.php",
+      "src/PhpProxyHunter/utils/getPublicIP.php",
+      "src/PhpProxyHunter/utils/getServerIp.php"
+    ]
+  },
+  {
+    "hash": "55c75fcc05ea133f8496352734dcb9008f95f9a5",
+    "date": "2025-11-06T13:54:16+07:00",
+    "message": "refactor(tests): streamline MySQLHelperTest class structure and update database name",
+    "files": [
+      "tests/PhpProxyHunter/MySQLHelperTest.php"
+    ]
+  },
+  {
     "hash": "a179cbc98ec609b28139a05576cd701cb67c10f9",
     "date": "2025-11-06T13:46:35+07:00",
     "message": "refactor(db): centralize proxy normalization and require extractor\n\n- Add runtime guard to include `utils/autoload.php` when `extractProxies()` is not already defined.\n- Introduce `normalizeProxy()` to trim and validate proxy input using `extractProxies()`.\n  - Throws when input contains zero or multiple proxies.\n- Replace ad-hoc trimming with `normalizeProxy()` across methods: `select`, `remove`, `add`, and `isAlreadyAdded`.\n- Ensure added_proxies operations use the normalized proxy value.\n\nMotivation: improve input consistency, reduce duplicated trimming/validation logic, and ensure the extractor is available at runtime.",
@@ -8662,22 +8684,6 @@
       "src/react/App.tsx",
       "src/react/pages/Contact.tsx",
       "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "c64d1ba34662a94fa82a2a10d1a966c4a6b7350d",
-    "date": "2025-08-13T14:23:09+07:00",
-    "message": "feat: enhance About page with detailed information and navigation components",
-    "files": [
-      "src/react/pages/About.tsx"
-    ]
-  },
-  {
-    "hash": "27c384bf498d92a4cb67a1d1a6b800fe384a95cf",
-    "date": "2025-08-13T14:22:04+07:00",
-    "message": "feat: comment out console log in ThemeSwitcher button click handler",
-    "files": [
-      "src/react/components/ThemeSwitcher.tsx"
     ]
   }
 ]
