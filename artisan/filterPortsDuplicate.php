@@ -268,18 +268,47 @@ do {
 // Close connection
 $pdo = null;
 
-// Function to check if the proxy was checked this month
-function wasCheckedThisMonth(\PDO $pdo, string $proxy)
-{
-  $stmt = $pdo->prepare("SELECT COUNT(*) FROM proxies WHERE proxy = :proxy AND strftime('%Y-%m', last_check) = strftime('%Y-%m', 'now')");
+/**
+ * Check whether a proxy was checked in the current month.
+ *
+ * This inspects the `proxies` table for a row matching the provided proxy
+ * where the `last_check` timestamp falls within the current year-month.
+ * For MySQL the query uses DATE_FORMAT(last_check, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m').
+ * For other drivers (e.g. SQLite) it uses a prefix match on the ISO timestamp (YYYY-MM%).
+ *
+ * @param \PDO  $pdo   PDO connection used to query the proxies table.
+ * @param string $proxy Proxy string (example: "1.2.3.4:8080").
+ * @return bool True if the proxy has at least one `last_check` in the current month, false otherwise.
+ * @throws \PDOException If the query execution fails.
+ */
+function wasCheckedThisMonth(\PDO $pdo, string $proxy) {
+  // Determine driver and build a compatible SQL condition for "same month"
+  $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+  if ($driver === 'mysql') {
+    // MySQL: use DATE_FORMAT
+    $sql = "SELECT COUNT(*) FROM proxies WHERE proxy = :proxy AND DATE_FORMAT(last_check, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')";
+  } else {
+    // Fallback: compare YYYY-MM prefix (works for SQLite and other engines storing ISO timestamps)
+    $monthPrefix = date('Y-m');
+    $sql         = "SELECT COUNT(*) FROM proxies WHERE proxy = :proxy AND last_check LIKE :monthPrefix || '%'";
+  }
+
+  $stmt = $pdo->prepare($sql);
   $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
-  $stmt->execute();
+  if ($driver === 'mysql') {
+    $stmt->execute();
+  } else {
+    // For engines using || as concatenation (SQLite) the placeholder needs the prefix value
+    // Use bindValue to ensure correct value type
+    $stmt->bindValue(':monthPrefix', $monthPrefix, PDO::PARAM_STR);
+    $stmt->execute();
+  }
+
   return $stmt->fetchColumn() > 0;
 }
 
 // Function to check if the proxy was checked this week
-function wasCheckedThisWeek($pdo, $proxy)
-{
+function wasCheckedThisWeek($pdo, $proxy) {
   $startOfWeek = date('Y-m-d', strtotime('last sunday'));
   $stmt        = $pdo->prepare('SELECT COUNT(*) FROM proxies WHERE proxy = :proxy AND last_check >= :start_of_week');
   $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
@@ -288,8 +317,7 @@ function wasCheckedThisWeek($pdo, $proxy)
   return $stmt->fetchColumn() > 0;
 }
 
-function write_working()
-{
+function write_working() {
   global $db;
   echo '[FILTER-PORT] writing working proxies' . PHP_EOL;
   return writing_working_proxies_file($db);
