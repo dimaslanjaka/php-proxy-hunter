@@ -81,26 +81,30 @@ export async function verifyRecaptcha(token: string): Promise<boolean> {
 }
 
 /**
- * Check whether reCAPTCHA protection is currently enabled/active on the backend.
+ * Check whether the current reCAPTCHA session is expired/needs a new token.
  *
- * This helper posts a urlencoded `status=1` field to the same verification endpoint
- * used for token validation. The backend should respond with JSON containing a
- * `success` boolean indicating whether reCAPTCHA checks are required.
+ * The backend endpoint accepts a urlencoded `status=1` field and returns JSON
+ * that includes a `success` boolean. Historically this helper returned
+ * `true` when reCAPTCHA checks were required; after renaming it returns
+ * `true` when the session is expired (i.e. a new token should be requested).
  *
  * Behavior:
  * - Sends a POST request with Content-Type: application/x-www-form-urlencoded
- * - Parses the JSON response and returns true if `data.success` is truthy
- * - Logs errors and returns false on network or parsing failures
+ * - Parses the JSON response and returns true when the session is expired/needs
+ *   verification (the backend indicates that checks are required), otherwise
+ *   returns false.
+ * - Logs errors and returns false on network or parsing failures.
  *
- * @returns A Promise that resolves to true when reCAPTCHA is enabled/active, otherwise false.
+ * @returns A Promise that resolves to `true` when the reCAPTCHA session is
+ * expired (caller should request a new token), otherwise `false`.
  *
  * @example
- * const enabled = await checkRecaptchaStatus();
- * if (enabled) {
- *   // show captcha UI or enforce validation
+ * const expired = await checkRecaptchaSessionExpired();
+ * if (expired) {
+ *   // request a new token / show captcha UI
  * }
  */
-export async function checkRecaptchaStatus(): Promise<boolean> {
+export async function checkRecaptchaSessionExpired(): Promise<boolean> {
   try {
     const response = await fetch(createUrl('/php_backend/recaptcha.php'), {
       method: 'POST',
@@ -110,9 +114,11 @@ export async function checkRecaptchaStatus(): Promise<boolean> {
       body: 'status=1'
     });
     const data = await response.json();
+    // Backend's `success` indicates that checks are required; treat that as
+    // session expired/needs verification (true).
     return !!(data && data.success);
   } catch (e) {
-    console.error('[ProxyList] checkRecaptchaStatus error', e);
+    console.error('[ProxyList] checkRecaptchaSessionExpired error', e);
     return false;
   }
 }

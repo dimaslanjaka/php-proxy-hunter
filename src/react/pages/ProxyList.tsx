@@ -6,7 +6,7 @@ import { timeAgo } from '../../utils/date.js';
 import { noop } from '../../utils/other';
 import { useSnackbar } from '../components/Snackbar';
 import { createUrl } from '../utils/url';
-import { verifyRecaptcha, checkRecaptchaStatus } from '../utils/recaptcha';
+import { verifyRecaptcha, checkRecaptchaSessionExpired } from '../utils/recaptcha';
 import { getUserInfo } from '../utils/user';
 import ApiUsage from './ProxyList/ApiUsage';
 import LogViewer from './ProxyList/LogViewer';
@@ -233,10 +233,10 @@ function ProxyList() {
       }
     };
 
-    // Check captcha status using helper
+    // Check whether reCAPTCHA session is expired (needs a new token)
     (async () => {
-      const ok = await checkRecaptchaStatus();
-      if (!ok) {
+      const expired = await checkRecaptchaSessionExpired();
+      if (expired) {
         setShowModal(true);
       } else {
         setShowModal(false);
@@ -301,8 +301,8 @@ function ProxyList() {
       // Before fetching proxies, check captcha status on the backend.
       // If captcha is required, show the modal instead of fetching.
       try {
-        const ok = await checkRecaptchaStatus();
-        if (!ok) {
+        const expired = await checkRecaptchaSessionExpired();
+        if (expired) {
           setShowModal(true);
           return;
         }
