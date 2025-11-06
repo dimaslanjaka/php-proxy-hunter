@@ -11,8 +11,7 @@ namespace PhpProxyHunter\Checker;
  * Options may be supplied to the constructor as an associative array where keys
  * match the public property names and values replace the defaults.
  */
-class CheckerOptions
-{
+class CheckerOptions {
   /**
    * Enable verbose output for debugging.
    *
@@ -63,8 +62,7 @@ class CheckerOptions
    *
    * @param array<string,mixed> $options Associative array of option overrides.
    */
-  public function __construct(array $options = [])
-  {
+  public function __construct(array $options = []) {
     foreach ($options as $key => $value) {
       $this->$key = $value;
     }

@@ -1,7 +1,7 @@
 <?php
 
 if (!function_exists('extractProxies')) {
-  require_once __DIR__ . '/../utils/autoload.php';
+  require_once __DIR__ . '/autoload.php';
 }
 
 /**

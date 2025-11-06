@@ -7,12 +7,7 @@
   "autoload": {
     "psr-4": {
       "simplehtmldom\\": "src/simplehtmldom/",
-      "PhpProxyHunter\\": [
-        "src/PhpProxyHunter",
-        "src/PhpProxyHunter/checker",
-        "src/PhpProxyHunter/fetcher",
-        "src/PhpProxyHunter/utils"
-      ]
+      "PhpProxyHunter\\": "src/PhpProxyHunter/"
     },
     "files": [
       "data/webgl.php",

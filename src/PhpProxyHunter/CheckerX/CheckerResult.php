@@ -10,8 +10,7 @@ namespace PhpProxyHunter\Checker;
  * Contains flags indicating whether the proxy is working, whether it supports SSL,
  * and a list of working proxy types identified during the check.
  */
-class CheckerResult
-{
+class CheckerResult {
   /**
    * Whether the proxy is working.
    *
@@ -40,8 +39,7 @@ class CheckerResult
    * @param bool     $isSSL        True when the proxy supports SSL.
    * @param string[] $workingTypes Array of working proxy type names.
    */
-  public function __construct(bool $isWorking = false, bool $isSSL = false, array $workingTypes = [])
-  {
+  public function __construct(bool $isWorking = false, bool $isSSL = false, array $workingTypes = []) {
     $this->isWorking    = $isWorking;
     $this->isSSL        = $isSSL;
     $this->workingTypes = $workingTypes;
