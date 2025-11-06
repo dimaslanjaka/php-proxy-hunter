@@ -12,8 +12,7 @@ use PDO;
  * @package PhpProxyHunter
  */
 
-class SQLiteHelper extends BaseSQL
-{
+class SQLiteHelper extends BaseSQL {
   /** @var PDO|null $pdo */
   public $pdo;
 
@@ -32,8 +31,7 @@ class SQLiteHelper extends BaseSQL
    * @param string|PDO $dbPathOrPdo The path to the SQLite database file or a PDO instance.
    * @param bool $unique Whether to use a unique key based on caller location.
    */
-  public function __construct($dbPathOrPdo, $unique = false)
-  {
+  public function __construct($dbPathOrPdo, $unique = false) {
     $trace = debug_backtrace();
     // Unique key is based on the last caller if $unique is true
     $dbPathOrPdoIdentifier = is_string($dbPathOrPdo) ? $dbPathOrPdo : spl_object_hash($dbPathOrPdo);
@@ -62,8 +60,7 @@ class SQLiteHelper extends BaseSQL
   /**
    * Closes the database connection.
    */
-  public function close()
-  {
+  public function close() {
     unset(self::$databases[$this->uniqueKey]);
     $this->pdo = null;
   }
@@ -74,8 +71,7 @@ class SQLiteHelper extends BaseSQL
    * @param string $tableName The name of the table to create.
    * @param array  $columns   An array of column definitions.
    */
-  public function createTable($tableName, $columns)
-  {
+  public function createTable($tableName, $columns) {
     // Remove empty or whitespace-only columns to avoid syntax errors
     $columns       = array_filter(array_map('trim', $columns));
     $columnsString = implode(', ', $columns);
@@ -91,8 +87,7 @@ class SQLiteHelper extends BaseSQL
    * @param bool   $insertOrIgnore Optional. Determines whether to use INSERT OR IGNORE or INSERT.
    * @return bool True on success, false on failure.
    */
-  public function insert($tableName, $data, $insertOrIgnore = true): bool
-  {
+  public function insert($tableName, $data, $insertOrIgnore = true): bool {
     // Ensure the table name is valid (alphanumeric and underscores only)
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
       throw new \InvalidArgumentException('Invalid table name.');
@@ -120,16 +115,16 @@ class SQLiteHelper extends BaseSQL
   /**
    * Selects records from the specified table.
    *
-   * @param string      $tableName The name of the table to select from.
-   * @param string      $columns   The columns to select.
-   * @param string|null $where     The WHERE clause.
-   * @param array       $params    An array of parameters to bind to the query.
-   * @param string|null $orderBy   The ORDER BY clause (without "ORDER BY" keyword).
-   * @param int|null    $limit     The LIMIT value.
+   * @param string            $tableName The name of the table to select from.
+  * @param string            $columns   The columns to select (string).
+   * @param string|null       $where     The WHERE clause.
+   * @param array             $params    An array of parameters to bind to the query.
+   * @param string|null       $orderBy   The ORDER BY clause (without "ORDER BY" keyword).
+   * @param int|null          $limit     The LIMIT value.
+   * @param int|null          $offset    The OFFSET value.
    * @return array An array containing the selected records.
    */
-  public function select($tableName, $columns = '*', $where = null, $params = [], $orderBy = null, $limit = null)
-  {
+  public function select($tableName, $columns = '*', $where = null, $params = [], $orderBy = null, $limit = null, $offset = null) {
     $sql = "SELECT $columns FROM $tableName";
     if ($where) {
       $sql .= " WHERE $where";
@@ -139,6 +134,12 @@ class SQLiteHelper extends BaseSQL
     }
     if ($limit !== null) {
       $sql .= " LIMIT $limit";
+      if ($offset !== null) {
+        $sql .= " OFFSET $offset";
+      }
+    } elseif ($offset !== null) {
+      // If offset is provided without limit, still apply LIMIT -1 for SQLite to allow offset
+      $sql .= " LIMIT -1 OFFSET $offset";
     }
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
@@ -153,8 +154,7 @@ class SQLiteHelper extends BaseSQL
    * @param array  $params An array of parameters to bind to the query.
    * @return array The queried result.
    */
-  public function execute($sql, $params = [])
-  {
+  public function execute($sql, $params = []) {
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -169,8 +169,7 @@ class SQLiteHelper extends BaseSQL
    * @param array       $params    An array of parameters to bind to the query.
    * @return int The count of records.
    */
-  public function count($tableName, $where = null, $params = [])
-  {
+  public function count($tableName, $where = null, $params = []) {
     $sql = "SELECT COUNT(*) as count FROM $tableName";
     if ($where) {
       $sql .= " WHERE $where";
@@ -189,8 +188,7 @@ class SQLiteHelper extends BaseSQL
    * @param string $where     The WHERE clause.
    * @param array  $params    An array of parameters to bind to the query.
    */
-  public function update($tableName, $data, $where, $params = [])
-  {
+  public function update($tableName, $data, $where, $params = []) {
     $setValues = [];
     $setParams = [];
     foreach ($data as $key => $value) {
@@ -214,8 +212,7 @@ class SQLiteHelper extends BaseSQL
    * @param string $where     The WHERE clause.
    * @param array  $params    An array of parameters to bind to the query.
    */
-  public function delete($tableName, $where, $params = [])
-  {
+  public function delete($tableName, $where, $params = []) {
     $sql  = "DELETE FROM $tableName WHERE $where";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
@@ -226,8 +223,7 @@ class SQLiteHelper extends BaseSQL
    *
    * @return bool True if the database is locked, false otherwise.
    */
-  public function isDatabaseLocked()
-  {
+  public function isDatabaseLocked() {
     try {
       // Use a lightweight read query
       $this->pdo->query('SELECT 1');
@@ -242,8 +238,7 @@ class SQLiteHelper extends BaseSQL
     }
   }
 
-  public function getTableColumns($table)
-  {
+  public function getTableColumns($table) {
     $stmt    = $this->pdo->query("PRAGMA table_info($table)");
     $columns = [];
     foreach ($stmt as $row) {
@@ -252,8 +247,7 @@ class SQLiteHelper extends BaseSQL
     return $columns;
   }
 
-  public function addColumnIfNotExists($table, $column, $definition)
-  {
+  public function addColumnIfNotExists($table, $column, $definition) {
     $columns = $this->getTableColumns($table);
     if (!in_array($column, $columns, true)) {
       $this->pdo->exec("ALTER TABLE $table ADD COLUMN $column $definition");
@@ -262,14 +256,12 @@ class SQLiteHelper extends BaseSQL
     return false;
   }
 
-  public function columnExists($table, $column)
-  {
+  public function columnExists($table, $column) {
     $columns = $this->getTableColumns($table);
     return in_array($column, $columns, true);
   }
 
-  public function dropColumnIfExists($table, $column)
-  {
+  public function dropColumnIfExists($table, $column) {
     $columns = $this->getTableColumns($table);
     if (!in_array($column, $columns, true)) {
       return false;
@@ -330,8 +322,7 @@ class SQLiteHelper extends BaseSQL
     }
   }
 
-  public function modifyColumnIfExists($table, $column, $definition)
-  {
+  public function modifyColumnIfExists($table, $column, $definition) {
     $columns = $this->getTableColumns($table);
     if (!in_array($column, $columns, true)) {
       return false;
@@ -384,30 +375,25 @@ class SQLiteHelper extends BaseSQL
     }
   }
 
-  public function getTableSchema($table)
-  {
+  public function getTableSchema($table) {
     $stmt = $this->pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'");
     $row  = $stmt->fetch(PDO::FETCH_ASSOC);
     return $row ? $row['sql'] : null;
   }
 
-  public function beginTransaction()
-  {
+  public function beginTransaction() {
     return $this->pdo->beginTransaction();
   }
 
-  public function commit()
-  {
+  public function commit() {
     return $this->pdo->commit();
   }
 
-  public function rollback()
-  {
+  public function rollback() {
     return $this->pdo->rollBack();
   }
 
-  public function fixSQLiteSyntax($sql)
-  {
+  public function fixSQLiteSyntax($sql) {
     // Remove Comments
     $sql = preg_replace('/--.*$/m', '', $sql);
     // Remove multiple spaces
@@ -415,8 +401,7 @@ class SQLiteHelper extends BaseSQL
     return trim($sql);
   }
 
-  public function hasTable($table)
-  {
+  public function hasTable($table) {
     $stmt = $this->pdo->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?");
     $stmt->execute([$table]);
     return (bool)$stmt->fetchColumn();

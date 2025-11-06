@@ -12,8 +12,7 @@ namespace PhpProxyHunter;
  *
  * @package PhpProxyHunter
  */
-abstract class BaseSQL
-{
+abstract class BaseSQL {
   /** @var \PDO|null Database connection instance */
   protected $pdo;
 
@@ -50,14 +49,15 @@ abstract class BaseSQL
    * Select records from a table.
    *
    * @param string $tableName The target table.
-   * @param string $columns The columns to select.
+  * @param string $columns The columns to select (string).
    * @param string|null $where The WHERE clause.
    * @param array $params Parameters for the query.
    * @param string|null $orderBy The ORDER BY clause (without "ORDER BY" keyword).
-   * @param int|null $limit The LIMIT value.
+   * @param int|null $limit The LIMIT value (number of rows to return).
+   * @param int|null $offset The OFFSET value (number of rows to skip).
    * @return array
    */
-  abstract public function select($tableName, $columns = '*', $where = null, array $params = [], $orderBy = null, $limit = null);
+  abstract public function select($tableName, $columns = '*', $where = null, array $params = [], $orderBy = null, $limit = null, $offset = null);
 
   /**
    * Execute a custom SQL query.

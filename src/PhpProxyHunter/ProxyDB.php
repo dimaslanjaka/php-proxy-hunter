@@ -220,19 +220,36 @@ class ProxyDB {
   }
 
   /**
-   * @param int|null $limit
-   * @param bool|null $randomize When true, return results in random order. When false, return in default order. If null (default), preserve previous behaviour where providing a limit implied randomization.
+   * Get all proxies with optional randomization and pagination.
+   *
+   * Backwards-compatible: when only $limit is provided it behaves like before
+   * (providing a positive limit implies randomization unless $randomize is set).
+   *
+   * @param int|null $limit Legacy single-argument limit (kept for compatibility).
+   * @param bool|null $randomize When true, return results in random order. When false, return in default order. If null (default), preserve previous behaviour where providing a positive $limit implied randomization.
+   * @param int|null $page 1-based page number for pagination. If provided together with $perPage, it overrides legacy $limit.
+   * @param int|null $perPage Number of items per page for pagination.
    * @return array
    */
-  public function getAllProxies($limit = null, $randomize = null) {
-    // Maintain backward compatibility: if randomize is not provided, use previous behaviour
-    // where passing a positive limit would randomize results.
+  public function getAllProxies($limit = null, $randomize = null, $page = null, $perPage = null) {
+    // Determine ordering (random or not)
     if ($randomize === null) {
       $orderBy = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
     } else {
       $orderBy = ($randomize === true) ? $this->getRandomFunction() : null;
     }
-    return $this->db->select('proxies', '*', null, [], $orderBy, $limit);
+
+    // Pagination (page/perPage) takes precedence over legacy $limit
+    $offset     = null;
+    $finalLimit = $limit;
+    if ($page !== null && $perPage !== null) {
+      $page       = max(1, (int)$page);
+      $perPage    = max(0, (int)$perPage);
+      $offset     = ($page - 1) * $perPage;
+      $finalLimit = $perPage;
+    }
+
+    return $this->db->select('proxies', '*', null, [], $orderBy, $finalLimit, $offset);
   }
 
   /**

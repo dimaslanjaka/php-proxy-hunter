@@ -11,8 +11,7 @@ use PDO;
  *
  * @package PhpProxyHunter
  */
-class MySQLHelper extends BaseSQL
-{
+class MySQLHelper extends BaseSQL {
   /** @var PDO|null $pdo */
   public $pdo;
 
@@ -28,8 +27,7 @@ class MySQLHelper extends BaseSQL
    * @param string|null $password The MySQL password (ignored if PDO is provided).
    * @param bool $unique Whether to use a unique key based on caller location.
    */
-  public function __construct($hostOrPdo, $dbname = null, $username = null, $password = null, $unique = false)
-  {
+  public function __construct($hostOrPdo, $dbname = null, $username = null, $password = null, $unique = false) {
     $isPdo               = $hostOrPdo instanceof PDO;
     $hostOrPdoIdentifier = $isPdo ? spl_object_hash($hostOrPdo) : $hostOrPdo;
     $trace               = debug_backtrace();
@@ -107,8 +105,7 @@ class MySQLHelper extends BaseSQL
   /**
    * Closes the database connection.
    */
-  public function close()
-  {
+  public function close() {
     unset(self::$databases[$this->uniqueKey]);
     $this->pdo = null;
   }
@@ -119,8 +116,7 @@ class MySQLHelper extends BaseSQL
    * @param string $tableName The name of the table to create.
    * @param array $columns An array of column definitions.
    */
-  public function createTable($tableName, $columns)
-  {
+  public function createTable($tableName, $columns) {
     $columnsString = implode(', ', $columns);
     $sql           = "CREATE TABLE IF NOT EXISTS $tableName ($columnsString)";
     $this->pdo->exec($sql);
@@ -134,8 +130,7 @@ class MySQLHelper extends BaseSQL
    * @param bool $insertOrIgnore Determines whether to use INSERT IGNORE or INSERT.
    * @return bool True on success, false on failure.
    */
-  public function insert($tableName, $data, $insertOrIgnore = true): bool
-  {
+  public function insert($tableName, $data, $insertOrIgnore = true): bool {
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
       throw new \InvalidArgumentException('Invalid table name.');
     }
@@ -162,16 +157,16 @@ class MySQLHelper extends BaseSQL
   /**
    * Selects records from the specified table.
    *
-   * @param string $tableName The name of the table to select from.
-   * @param string $columns The columns to select.
-   * @param string|null $where The WHERE clause.
-   * @param array $params An array of parameters to bind to the query.
-   * @param string|null $orderBy The ORDER BY clause (without "ORDER BY" keyword).
-   * @param int|null $limit The LIMIT value.
+   * @param string            $tableName The name of the table to select from.
+  * @param string            $columns The columns to select (string).
+   * @param string|null       $where The WHERE clause.
+   * @param array             $params An array of parameters to bind to the query.
+   * @param string|null       $orderBy The ORDER BY clause (without "ORDER BY" keyword).
+   * @param int|null          $limit The LIMIT value.
+   * @param int|null          $offset The OFFSET value.
    * @return array An array containing the selected records.
    */
-  public function select($tableName, $columns = '*', $where = null, $params = [], $orderBy = null, $limit = null)
-  {
+  public function select($tableName, $columns = '*', $where = null, $params = [], $orderBy = null, $limit = null, $offset = null) {
     $sql = "SELECT $columns FROM $tableName";
     if ($where) {
       $sql .= " WHERE $where";
@@ -180,7 +175,15 @@ class MySQLHelper extends BaseSQL
       $sql .= " ORDER BY $orderBy";
     }
     if ($limit !== null) {
-      $sql .= " LIMIT $limit";
+      if ($offset !== null) {
+        // MySQL supports LIMIT offset, count
+        $sql .= " LIMIT $offset, $limit";
+      } else {
+        $sql .= " LIMIT $limit";
+      }
+    } elseif ($offset !== null) {
+      // If only offset provided, use large limit to allow offset
+      $sql .= " LIMIT 18446744073709551615 OFFSET $offset"; // MySQL max
     }
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
@@ -195,8 +198,7 @@ class MySQLHelper extends BaseSQL
    * @param array $params An array of parameters to bind to the query.
    * @return array The queried result.
    */
-  public function execute($sql, $params = [])
-  {
+  public function execute($sql, $params = []) {
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -211,8 +213,7 @@ class MySQLHelper extends BaseSQL
    * @param array $params An array of parameters to bind to the query.
    * @return int The count of records.
    */
-  public function count($tableName, $where = null, $params = [])
-  {
+  public function count($tableName, $where = null, $params = []) {
     $sql = "SELECT COUNT(*) as count FROM $tableName";
     if ($where) {
       $sql .= " WHERE $where";
@@ -231,8 +232,7 @@ class MySQLHelper extends BaseSQL
    * @param string $where The WHERE clause.
    * @param array $params An array of parameters to bind to the query.
    */
-  public function update($tableName, $data, $where, $params = [])
-  {
+  public function update($tableName, $data, $where, $params = []) {
     $setValues = [];
     $setParams = [];
     foreach ($data as $key => $value) {
@@ -256,8 +256,7 @@ class MySQLHelper extends BaseSQL
    * @param string $where The WHERE clause.
    * @param array $params An array of parameters to bind to the query.
    */
-  public function delete($tableName, $where, $params = [])
-  {
+  public function delete($tableName, $where, $params = []) {
     $sql  = "DELETE FROM $tableName WHERE $where";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute($params);
@@ -270,8 +269,7 @@ class MySQLHelper extends BaseSQL
    *
    * @throws \InvalidArgumentException If the table name is invalid.
    */
-  public function resetIncrement($tableName)
-  {
+  public function resetIncrement($tableName) {
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
       throw new \InvalidArgumentException('Invalid table name.');
     }
@@ -279,8 +277,7 @@ class MySQLHelper extends BaseSQL
     $this->pdo->exec($sql);
   }
 
-  public function getTableColumns($table)
-  {
+  public function getTableColumns($table) {
     $stmt    = $this->pdo->query("DESCRIBE `$table`");
     $columns = [];
     foreach ($stmt as $row) {
@@ -289,22 +286,19 @@ class MySQLHelper extends BaseSQL
     return $columns;
   }
 
-  public function addColumnIfNotExists($table, $column, $definition)
-  {
+  public function addColumnIfNotExists($table, $column, $definition) {
     $columns = $this->getTableColumns($table);
     if (!in_array($column, $columns, true)) {
       $this->pdo->exec("ALTER TABLE `$table` ADD COLUMN `$column` $definition");
     }
   }
 
-  public function columnExists($table, $column)
-  {
+  public function columnExists($table, $column) {
     $columns = $this->getTableColumns($table);
     return in_array($column, $columns, true);
   }
 
-  public function dropColumnIfExists($table, $column)
-  {
+  public function dropColumnIfExists($table, $column) {
     $columns = $this->getTableColumns($table);
     if (in_array($column, $columns, true)) {
       $this->pdo->exec("ALTER TABLE `$table` DROP COLUMN `$column`");
@@ -313,8 +307,7 @@ class MySQLHelper extends BaseSQL
     return false;
   }
 
-  public function modifyColumnIfExists($table, $column, $definition)
-  {
+  public function modifyColumnIfExists($table, $column, $definition) {
     $columns = $this->getTableColumns($table);
     if (in_array($column, $columns, true)) {
       $this->pdo->exec("ALTER TABLE `$table` MODIFY COLUMN `$column` $definition");
@@ -323,23 +316,19 @@ class MySQLHelper extends BaseSQL
     return false;
   }
 
-  public function beginTransaction()
-  {
+  public function beginTransaction() {
     return $this->pdo->beginTransaction();
   }
 
-  public function commit()
-  {
+  public function commit() {
     return $this->pdo->commit();
   }
 
-  public function rollback()
-  {
+  public function rollback() {
     return $this->pdo->rollBack();
   }
 
-  public function hasTable($table)
-  {
+  public function hasTable($table) {
     $stmt = $this->pdo->prepare('SHOW TABLES LIKE ?');
     $stmt->execute([$table]);
     return (bool)$stmt->fetchColumn();

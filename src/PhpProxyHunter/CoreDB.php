@@ -5,8 +5,7 @@ namespace PhpProxyHunter;
 use PDO;
 use RuntimeException;
 
-class CoreDB extends BaseSQL
-{
+class CoreDB extends BaseSQL {
   /**
    * Path to SQLite database file (if using SQLite) or null
    * @var string|null
@@ -125,8 +124,7 @@ class CoreDB extends BaseSQL
   /**
    * Initialize MySQL database connection and schema.
    */
-  private function initMySQL($host, $dbname, $username, $password, $unique = false)
-  {
+  private function initMySQL($host, $dbname, $username, $password, $unique = false) {
     $this->db       = new MySQLHelper($host, $dbname, $username, $password, $unique);
     $this->driver   = 'mysql';
     $this->user_db  = new UserDB($this->db);
@@ -139,8 +137,7 @@ class CoreDB extends BaseSQL
   /**
    * Initialize SQLite database connection and schema.
    */
-  private function initSQLite($dbLocation = null)
-  {
+  private function initSQLite($dbLocation = null) {
     if ($dbLocation === null) {
       $dbLocation = __DIR__ . '/../database.sqlite';
     }
@@ -170,8 +167,7 @@ class CoreDB extends BaseSQL
   /**
    * Load and execute schema file if exists.
    */
-  private function loadSchema($schemaPath)
-  {
+  private function loadSchema($schemaPath) {
     if (!is_file($schemaPath)) {
       return;
     }
@@ -186,8 +182,7 @@ class CoreDB extends BaseSQL
   /**
    * Close database connection.
    */
-  public function close()
-  {
+  public function close() {
     if ($this->db) {
       $this->db->close();
     }
@@ -203,21 +198,18 @@ class CoreDB extends BaseSQL
     $this->pdo      = null;
   }
 
-  public function __destruct()
-  {
+  public function __destruct() {
     $this->close();
   }
 
   /**
    * Execute custom SQL query.
    */
-  public function query($sql, $params = [])
-  {
+  public function query($sql, $params = []) {
     return $this->db->execute($sql, $params);
   }
 
-  public function showCreationTable($table)
-  {
+  public function showCreationTable($table) {
     if ($this->driver === 'mysql') {
       $result = $this->db->pdo->query("SHOW CREATE TABLE {$table}");
       $fetch  = $result->fetch(PDO::FETCH_ASSOC);
@@ -240,10 +232,19 @@ class CoreDB extends BaseSQL
 
   /**
    * Select from database.
+   *
+   * @param string $table Table name.
+   * @param string|array $columns Columns to select.
+   * @param string|null $where WHERE clause.
+   * @param array $params Parameters for the query.
+   * @param string|null $orderBy ORDER BY clause.
+   * @param int|null $limit LIMIT value.
+   * @param int|null $offset OFFSET value.
+   * @return array
    */
   public function select(
     $table,
-    $columns = ['*'],
+    $columns = '*',
     $where = [],
     $params = [],
     $orderBy = '',
@@ -253,64 +254,49 @@ class CoreDB extends BaseSQL
     return $this->db->select($table, $columns, $where, $params, $orderBy, $limit, $offset);
   }
 
-  public function createTable($tableName, array $columns)
-  {
+  public function createTable($tableName, array $columns) {
     return $this->db->createTable($tableName, $columns);
   }
-  public function insert($table, $data = [], $params = [])
-  {
+  public function insert($table, $data = [], $params = []) {
     return $this->db->insert($table, $data, $params);
   }
-  public function execute($sql, $params = [])
-  {
+  public function execute($sql, $params = []) {
     return $this->db->execute($sql, $params);
   }
-  public function count($table, $where = null, $params = [])
-  {
+  public function count($table, $where = null, $params = []) {
     return $this->db->count($table, $where, $params);
   }
-  public function update($table, array $data, $where = null, $params = [])
-  {
+  public function update($table, array $data, $where = null, $params = []) {
     return $this->db->update($table, $data, $where, $params);
   }
-  public function delete($table, $where = null, $params = [])
-  {
+  public function delete($table, $where = null, $params = []) {
     return $this->db->delete($table, $where, $params);
   }
-  public function addColumnIfNotExists($table, $column, $definition)
-  {
+  public function addColumnIfNotExists($table, $column, $definition) {
     return $this->db->addColumnIfNotExists($table, $column, $definition);
   }
-  public function columnExists($table, $column)
-  {
+  public function columnExists($table, $column) {
     return $this->db->columnExists($table, $column);
   }
-  public function dropColumnIfExists($table, $column)
-  {
+  public function dropColumnIfExists($table, $column) {
     return $this->db->dropColumnIfExists($table, $column);
   }
-  public function getTableColumns($table)
-  {
+  public function getTableColumns($table) {
     return $this->db->getTableColumns($table);
   }
-  public function modifyColumnIfExists($table, $column, $definition)
-  {
+  public function modifyColumnIfExists($table, $column, $definition) {
     return $this->db->modifyColumnIfExists($table, $column, $definition);
   }
-  public function beginTransaction()
-  {
+  public function beginTransaction() {
     return $this->db->beginTransaction();
   }
-  public function commit()
-  {
+  public function commit() {
     return $this->db->commit();
   }
-  public function rollback()
-  {
+  public function rollback() {
     return $this->db->rollback();
   }
-  public function hasTable($table)
-  {
+  public function hasTable($table) {
     return $this->db->hasTable($table);
   }
 }
