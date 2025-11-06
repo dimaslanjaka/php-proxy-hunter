@@ -24,3 +24,8 @@ input[type='button'],
 input[type='submit'] {
   @apply cursor-pointer;
 }
+
+/* hide google recaptcha badge */
+.grecaptcha-badge {
+  @apply hidden;
+}
