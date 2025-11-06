@@ -1,5 +1,13 @@
 [
   {
+    "hash": "5fd7fb03761b574c28294e084f22123c4f028ac1",
+    "date": "2025-11-06T13:09:09+07:00",
+    "message": "fix(artisan/filterPortsDuplicate): use DB-compatible month check instead of SQLite strftime\n\nReplace SQLite-only strftime(...) call in wasCheckedThisMonth() with a driver-aware SQL check.\n- Use DATE_FORMAT(...) = DATE_FORMAT(NOW(), ...) for MySQL.\n- Fallback to comparing the YYYY-MM prefix via LIKE for other drivers (e.g. SQLite).\n- Bind :monthPrefix for the fallback and avoid using SQLite-only functions in SQL.\n\nThis prevents PDOException on MySQL (FUNCTION ... strftime does not exist) and preserves behavior across DB engines.",
+    "files": [
+      "artisan/filterPortsDuplicate.php"
+    ]
+  },
+  {
     "hash": "5eace479ed152df970194db492fb01a54ef6b11b",
     "date": "2025-11-06T12:56:47+07:00",
     "message": "refactor(Checker): centralize autoload inclusion in ProxyChecker\n\n- Added autoload check and require statement to ProxyChecker\n- Removed redundant autoload inclusion from ProxyChecker1",
@@ -8679,14 +8687,6 @@
       "src/react/utils/index.ts",
       "src/react/utils/url.ts",
       "src/react/utils/user.ts"
-    ]
-  },
-  {
-    "hash": "fccdbb5a55cf98647eb977d400641debe991be15",
-    "date": "2025-08-12T05:46:50+07:00",
-    "message": "feat: update user role fields to use integer values and add normalization method",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php"
     ]
   }
 ]
