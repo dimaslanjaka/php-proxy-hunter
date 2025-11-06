@@ -132,6 +132,7 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
     $invoke = 'bash ' . escapeshellarg($scriptPath);
   }
 
+  // Redirect output if requested
   if ($redirectOutput) {
     $cmdParts[] = $invoke . ' > ' . $escapedOutput . ' 2>&1';
   } else {
@@ -171,6 +172,7 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
       'relative' => str_replace(unixPath($cwd), '', unixPath($output_file)),
       'runner'   => $runner_file,
       'command'  => $cmd,
+      'cmdParts' => $cmdParts,
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
   ];
 }
