@@ -1,5 +1,21 @@
 [
   {
+    "hash": "a179cbc98ec609b28139a05576cd701cb67c10f9",
+    "date": "2025-11-06T13:46:35+07:00",
+    "message": "refactor(db): centralize proxy normalization and require extractor\n\n- Add runtime guard to include `utils/autoload.php` when `extractProxies()` is not already defined.\n- Introduce `normalizeProxy()` to trim and validate proxy input using `extractProxies()`.\n  - Throws when input contains zero or multiple proxies.\n- Replace ad-hoc trimming with `normalizeProxy()` across methods: `select`, `remove`, `add`, and `isAlreadyAdded`.\n- Ensure added_proxies operations use the normalized proxy value.\n\nMotivation: improve input consistency, reduce duplicated trimming/validation logic, and ensure the extractor is available at runtime.",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "aa0d0ac0e8d054ed3e4add9d27c5fb8c242860ba",
+    "date": "2025-11-06T13:43:25+07:00",
+    "message": "refactor(autoload): wrap autoload function in a function_exists check to prevent redeclaration",
+    "files": [
+      "src/PhpProxyHunter/utils/autoload.php"
+    ]
+  },
+  {
     "hash": "5fd7fb03761b574c28294e084f22123c4f028ac1",
     "date": "2025-11-06T13:09:09+07:00",
     "message": "fix(artisan/filterPortsDuplicate): use DB-compatible month check instead of SQLite strftime\n\nReplace SQLite-only strftime(...) call in wasCheckedThisMonth() with a driver-aware SQL check.\n- Use DATE_FORMAT(...) = DATE_FORMAT(NOW(), ...) for MySQL.\n- Fallback to comparing the YYYY-MM prefix via LIKE for other drivers (e.g. SQLite).\n- Bind :monthPrefix for the fallback and avoid using SQLite-only functions in SQL.\n\nThis prevents PDOException on MySQL (FUNCTION ... strftime does not exist) and preserves behavior across DB engines.",
@@ -8662,31 +8678,6 @@
     "message": "feat: comment out console log in ThemeSwitcher button click handler",
     "files": [
       "src/react/components/ThemeSwitcher.tsx"
-    ]
-  },
-  {
-    "hash": "7e3dc87f7428af5ecbbf97626125b45ad0540819",
-    "date": "2025-08-13T14:12:04+07:00",
-    "message": "feat: expand devRoutes in indexHtmlReplacementPlugin for additional routes",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "895d8e10bbf9491de6c4bbd2a4d7b62480e27866",
-    "date": "2025-08-13T14:10:45+07:00",
-    "message": "feat: add Login and OauthHandler components for user authentication",
-    "files": [
-      "src/react/App.tsx",
-      "src/react/components/Link.tsx",
-      "src/react/components/Navbar.tsx",
-      "src/react/components/ThemeSwitcher.tsx",
-      "src/react/pages/Login.tsx",
-      "src/react/pages/OauthHandler.tsx",
-      "src/react/routes.json",
-      "src/react/utils/index.ts",
-      "src/react/utils/url.ts",
-      "src/react/utils/user.ts"
     ]
   }
 ]
