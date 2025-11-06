@@ -129,6 +129,42 @@ function ProxyList() {
     if (Array.isArray(result)) setProxies(result);
   };
 
+  // Helper: check recaptcha status (returns boolean: true if verified)
+  const checkRecaptchaStatus = async (): Promise<boolean> => {
+    try {
+      const response = await fetch(createUrl('/php_backend/recaptcha.php'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'status=1'
+      });
+      const data = await response.json();
+      return !!(data && data.success);
+    } catch (e) {
+      console.error('[ProxyList] checkRecaptchaStatus error', e);
+      return false;
+    }
+  };
+
+  // Helper: verify recaptcha token, returns boolean
+  const verifyRecaptchaToken = async (token: string): Promise<boolean> => {
+    try {
+      const response = await fetch(createUrl('/php_backend/recaptcha.php'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `g-recaptcha-response=${encodeURIComponent(token)}`
+      });
+      const data = await response.json();
+      return !!(data && data.success);
+    } catch (e) {
+      console.error('[ProxyList] verifyRecaptchaToken error', e);
+      return false;
+    }
+  };
+
   // Get ProxyDetails keys for table, reordering specific columns to the end
   const proxyKeys = React.useMemo(() => {
     if (!proxies[0]) return [];
@@ -217,29 +253,17 @@ function ProxyList() {
       }
     };
 
-    // Check captcha status
-    const checkCaptchaStatus = async () => {
-      try {
-        const response = await fetch(createUrl('/php_backend/recaptcha.php'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: 'status=1'
-        });
-        const data = await response.json();
-        if (!data.success) {
-          setShowModal(true);
-        } else {
-          setShowModal(false);
-          // initial load
-          await refreshProxies();
-        }
-      } catch {
-        setShowModal(true); // fallback: show modal if error
+    // Check captcha status using helper
+    (async () => {
+      const ok = await checkRecaptchaStatus();
+      if (!ok) {
+        setShowModal(true);
+      } else {
+        setShowModal(false);
+        // initial load
+        await refreshProxies();
       }
-    };
-    checkCaptchaStatus();
+    })();
     // fetch processes.php
     fetch(createUrl('/php_backend/processes.php')).catch(noop);
     // fetch artisan/proxyCheckerStarter.php to start background checks every 5 minutes
@@ -280,7 +304,19 @@ function ProxyList() {
     if (loadingProxies) return;
     setLoadingProxies(true);
     try {
-      await fetchAndSetProxies();
+      // Before fetching proxies, check captcha status on the backend.
+      // If captcha is required, show the modal instead of fetching.
+      try {
+        const ok = await checkRecaptchaStatus();
+        if (!ok) {
+          setShowModal(true);
+          return;
+        }
+        await fetchAndSetProxies();
+      } catch (e) {
+        console.error('[ProxyList] recaptcha status check failed', e);
+        setShowModal(true);
+      }
     } finally {
       if (isMountedRef.current) setLoadingProxies(false);
     }
@@ -288,18 +324,19 @@ function ProxyList() {
 
   const handleRecaptcha = async (token: string | null) => {
     if (token) {
-      // Send token to backend for verification
-      const response = await fetch(createUrl('/php_backend/recaptcha.php'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `g-recaptcha-response=${encodeURIComponent(token)}`
-      });
-      const data = await response.json();
-      if (data.success) {
+      // Verify token via helper
+      const ok = await verifyRecaptchaToken(token);
+      if (ok) {
         setShowModal(false);
-        fetchAndSetProxies();
+        // After successful verification, refresh proxies if not already loading
+        if (!loadingProxies) {
+          setLoadingProxies(true);
+          try {
+            await fetchAndSetProxies();
+          } finally {
+            if (isMountedRef.current) setLoadingProxies(false);
+          }
+        }
       } else {
         // handle error, e.g., show a message
       }
