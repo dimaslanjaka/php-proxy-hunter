@@ -27,5 +27,5 @@ input[type='submit'] {
 
 /* hide google recaptcha badge */
 .grecaptcha-badge {
-  @apply hidden;
+  visibility: hidden !important;
 }
