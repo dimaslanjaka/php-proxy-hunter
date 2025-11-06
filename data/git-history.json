@@ -1,5 +1,91 @@
 [
   {
+    "hash": "5eace479ed152df970194db492fb01a54ef6b11b",
+    "date": "2025-11-06T12:56:47+07:00",
+    "message": "refactor(Checker): centralize autoload inclusion in ProxyChecker\n\n- Added autoload check and require statement to ProxyChecker\n- Removed redundant autoload inclusion from ProxyChecker1",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyChecker.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker1.php"
+    ]
+  },
+  {
+    "hash": "4588d633c503ad66c17533c6aa49c1b1368da389",
+    "date": "2025-11-06T12:54:58+07:00",
+    "message": "refactor(PhpProxyHunter): rename CheckerX directory back to Checker\n\n- Moved all files from `CheckerX` to `Checker` for clearer naming consistency\n- No code changes, only directory structure adjustment",
+    "files": [
+      "src/PhpProxyHunter/Checker/CheckerOptions.php",
+      "src/PhpProxyHunter/Checker/CheckerResult.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker1-test.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker1.php"
+    ]
+  },
+  {
+    "hash": "22d102fde8dcc380665fcf66c804a422286b5b30",
+    "date": "2025-11-06T12:54:10+07:00",
+    "message": "refactor(PhpProxyHunter): simplify autoload mapping and reorganize checker files\n\n- Updated composer.json to use a single PSR-4 path for PhpProxyHunter\n- Renamed `checker` directory to `CheckerX` for temporarily\n- Moved `buildCurl.php` to `utils` and adjusted autoload path reference",
+    "files": [
+      "composer.json",
+      "src/PhpProxyHunter/CheckerX/CheckerOptions.php",
+      "src/PhpProxyHunter/CheckerX/CheckerResult.php",
+      "src/PhpProxyHunter/CheckerX/ProxyChecker.php",
+      "src/PhpProxyHunter/CheckerX/ProxyChecker1-test.php",
+      "src/PhpProxyHunter/CheckerX/ProxyChecker1.php",
+      "src/PhpProxyHunter/utils/buildCurl.php"
+    ]
+  },
+  {
+    "hash": "90eb8ff37f6a3f5b4c95242fef14cf78fe7607d9",
+    "date": "2025-11-06T12:35:46+07:00",
+    "message": "feat(composer): update autoload paths for PhpProxyHunter components",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
+    "hash": "b96db210e128ee700212e8aefc91a12bf0a286c0",
+    "date": "2025-11-06T12:34:06+07:00",
+    "message": "feat(deploy-vps): ensure PHP dependencies are installed on remote server",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "3a073bc8a5fe509b190ed97b77da60e1b96edb75",
+    "date": "2025-11-06T11:14:36+07:00",
+    "message": "fix(phpcs): disable PSR2 class brace-on-new-line rule to align with same-line brace style",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
+    "hash": "d5e7a1a74f92a04467be52caf69a671da293e7d2",
+    "date": "2025-11-06T11:12:43+07:00",
+    "message": "fix(phpcs): disable brace-on-new-line rule within PSR12 to allow same-line braces for functions, classes, and control structures",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
+    "hash": "6bff88582cf9d1e97121c80d46504ee4b5e64325",
+    "date": "2025-11-06T11:08:52+07:00",
+    "message": "feat(vscode,scripts): add php-cs-fixer support and installer\n\nAdd `scripts/php-cs-fixer-installer.js` to download php-cs-fixer.phar (streams to a\n`.tmp` file and renames atomically, uses HEAD/GET fallback, timeouts and no-agent\nrequests to avoid lingering sockets). Register the new installer in\n`scripts/postinstall.js`. Update VS Code config and recommendations: add the\n`junstyle.php-cs-fixer` extension, set the PHP default formatter to php-cs-fixer,\nand configure executable paths for both phar and Windows batch. Enable on-save\nformatting and PSR-12 rules.",
+    "files": [
+      ".vscode/extensions.json",
+      ".vscode/settings.json",
+      "scripts/php-cs-fixer-installer.js",
+      "scripts/postinstall.js"
+    ]
+  },
+  {
+    "hash": "3d54e408f1ebb416bf2fd1a6347c7e7e3a012bb5",
+    "date": "2025-11-06T10:44:33+07:00",
+    "message": "refactor(proxy-checker): update response structure",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "c7aa60cc6dd91752044664dc4e145b3570376cb4",
     "date": "2025-11-06T08:23:46+07:00",
     "message": "refactor(proxy-checker, runBashOrBatch): simplify logging and improve runner/output handling\n\n- Simplify `addLog()` to echo messages only (remove file I/O and ANSI conversion).\n- Add file-lock checks before reading log/status files; return JSON error when locked.\n- Use `read_file()` helper for safe file reads and avoid direct `file_get_contents`.\n- Derive runner and pid filenames using `sanitizeFilename()` to avoid unsafe names.\n- Use `getLogFile()` as the runner's output file and pass `--outputFile` to the background runner.\n- Call `runBashOrBatch()` with redirect enabled and return parsed run info in the API response.\n- Add CLI/GET option names: `force` and `outputFile`.\n- Normalize brace/formatting in multiple helper functions for consistency.\n- Update `send_text()` to decode ANSI to HTML before echoing.\n- Extend `runBashOrBatch()` signature with `$customOutputPath` and prefer it when `redirectOutput` is true.\n\nBREAKING CHANGE: `addLog()` no longer writes to per-user log files; code that relies on file-based logging must be updated to capture output or reintroduce file logging.",
@@ -8601,85 +8687,6 @@
     "message": "feat: update user role fields to use integer values and add normalization method",
     "files": [
       "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "6024950d9c49ef62b7322a20003858566bc99546",
-    "date": "2025-08-12T05:35:06+07:00",
-    "message": "feat: change user role fields from BOOL to INTEGER for better compatibility",
-    "files": [
-      "src/PhpProxyHunter/assets/sqlite-schema.sql"
-    ]
-  },
-  {
-    "hash": "bf530207176b55c53a2a5cb7c85c682fb788d092",
-    "date": "2025-08-12T05:32:08+07:00",
-    "message": "feat: add resetIncrement method to reset AUTO_INCREMENT value for specified table",
-    "files": [
-      "src/PhpProxyHunter/MySQLHelper.php"
-    ]
-  },
-  {
-    "hash": "4f79e98350e25e4cb6162f29e8afbc2c74698541",
-    "date": "2025-08-12T05:29:05+07:00",
-    "message": "feat: update user role assignment to use integer values for is_staff",
-    "files": [
-      "php_backend/google-oauth.php"
-    ]
-  },
-  {
-    "hash": "e0287f6675adb4551850c19cb9429ff6c6e7ca2f",
-    "date": "2025-08-12T05:21:47+07:00",
-    "message": "feat: update UserDB instantiation to use mysql",
-    "files": [
-      "php_backend/google-oauth.php",
-      "php_backend/list-user.php",
-      "php_backend/login.php",
-      "php_backend/refill-saldo.php",
-      "php_backend/user-info.php"
-    ]
-  },
-  {
-    "hash": "508b7fd6c72d941d3ed208f763618297d5f43e84",
-    "date": "2025-08-12T03:12:01+07:00",
-    "message": "feat(vite): add env-based host/port config and improve type support\n\n- Add `VITE_HOSTNAME` and `VITE_PORT` to `.env-sample` for environment-based configuration.\n- Update `vite.config.ts` to use `process.env.VITE_HOSTNAME` and `process.env.VITE_PORT` with fallback defaults.\n- Import `dotenv/config` in `vite.config.ts` to load environment variables.\n- Extend `types/vite-env.d.ts` to type `VITE_HOSTNAME` and `VITE_PORT` in `ImportMetaEnv`.\n- Include `./types/**/*.d.ts` in `tsconfig.json` `include` array for better type coverage.",
-    "files": [
-      ".env-sample",
-      "tsconfig.json",
-      "types/vite-env.d.ts",
-      "vite.config.ts"
-    ]
-  },
-  {
-    "hash": "a20c3131a6681b26f3a0601083c81282ae0c6ed4",
-    "date": "2025-08-12T02:43:42+07:00",
-    "message": "feat: customizable redirect URI",
-    "files": [
-      "php_backend/google-oauth.php"
-    ]
-  },
-  {
-    "hash": "61eb001a371bac8566e5a2d13853f902b603d950",
-    "date": "2025-08-12T02:37:54+07:00",
-    "message": "feat: replace anchor tags with Link component for improved routing",
-    "files": [
-      "src/react/pages/Home.tsx"
-    ]
-  },
-  {
-    "hash": "d7f5ce918ae5f17341bb946770bfc48f57b16e78",
-    "date": "2025-08-12T02:37:39+07:00",
-    "message": "feat: refactor Safelink instance to a shared export for improved reusability",
-    "files": [
-      "src/react/components/Link.tsx"
-    ]
-  },
-  {
-    "hash": "0cb9c8a30dcb4789506bd3894aa76d8ff9b22fdd",
-    "date": "2025-08-12T02:37:21+07:00",
-    "message": "feat: add Outbound redirect page for handling external links",
-    "files": [
-      "src/react/pages/Outbound.tsx"
     ]
   }
 ]
