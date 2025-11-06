@@ -11,15 +11,17 @@ import './fonts.scss';
 import './components/theme.css';
 
 // Import all components and pages
+import ReactGA from 'react-ga4';
+import ReCAPTCHA from 'react-google-recaptcha';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
+import { SnackbarProvider } from './components/Snackbar';
 import { ThemeProvider } from './components/ThemeContext';
+import SimpleFormSaverDemo from './pages/examples/SimpleFormSaverDemo';
+import SnackBarSample from './pages/examples/SnackBarSample';
 import NotFound from './pages/NotFound';
 import routes from './routes.js';
-import { SnackbarProvider } from './components/Snackbar';
-import SnackBarSample from './pages/examples/SnackBarSample';
-import SimpleFormSaverDemo from './pages/examples/SimpleFormSaverDemo';
-import ReactGA from 'react-ga4';
+import { verifyRecaptcha } from './utils/recaptcha';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
@@ -48,6 +50,8 @@ window.addEventListener('keydown', function (e) {
 });
 
 const MainApp = function () {
+  const recaptchaRef = React.useRef<ReCAPTCHA>(null);
+
   ReactGA.initialize([
     {
       trackingId: 'G-BG75CLNJZ1',
@@ -62,7 +66,15 @@ const MainApp = function () {
     const title = currentMetaRoute?.title || 'PHP Proxy Hunter';
     document.title = title;
     ReactGA.send({ hitType: 'pageview', page: location.pathname, title });
+
+    recaptchaRef.current?.executeAsync().then((token) => {
+      if (token) {
+        verifyRecaptcha(token);
+      }
+    });
   });
+
+  React.useEffect(() => {}, [recaptchaRef]);
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
@@ -88,6 +100,11 @@ const MainApp = function () {
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
+      <ReCAPTCHA
+        ref={recaptchaRef}
+        size="invisible"
+        sitekey={import.meta.env.VITE_G_RECAPTCHA_SITE_KEY || import.meta.env.VITE_G_RECAPTCHA_V3_SITE_KEY || ''}
+      />
     </BrowserRouter>
   );
 };
