@@ -353,25 +353,20 @@ function ProxyList() {
         .filter(
           (p) => !p.timezone || String(p.timezone).trim().length === 0 || p.timezone === 'N/A' || p.timezone === '-'
         )
-        .slice(0, 5);
+        .sort(() => Math.random() - 0.5) // randomize order
+        .slice(0, 5); // take first 5
 
       if (candidates.length === 0) return;
 
       candidates.forEach((p) => {
-        try {
-          const url = createUrl('/geoIpBackground.php');
-          add_ajax_schedule(url, { method: 'POST_FORM', data: { uid: uidToUse, proxy: p.proxy } });
-        } catch (_e) {
-          console.error('[ProxyList] error updating geoIp for proxy:', p.proxy, _e);
-        }
+        add_ajax_schedule(createUrl('/geoIpBackground.php'), {
+          method: 'POST_FORM',
+          data: { uid: uidToUse, proxy: p.proxy }
+        });
       });
 
       // run scheduler once after enqueuing
-      try {
-        run_ajax_schedule();
-      } catch (e) {
-        console.error('[ProxyList] error running ajax scheduler', e);
-      }
+      run_ajax_schedule();
     };
 
     updateGeoLocation(userId);
