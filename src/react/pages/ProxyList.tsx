@@ -6,6 +6,7 @@ import { timeAgo } from '../../utils/date.js';
 import { noop } from '../../utils/other';
 import { useSnackbar } from '../components/Snackbar';
 import { createUrl } from '../utils/url';
+import { verifyRecaptcha, checkRecaptchaStatus } from '../utils/recaptcha';
 import { getUserInfo } from '../utils/user';
 import ApiUsage from './ProxyList/ApiUsage';
 import LogViewer from './ProxyList/LogViewer';
@@ -99,42 +100,6 @@ function ProxyList() {
       } catch {
         // ignore storage errors
       }
-    }
-  };
-
-  // Helper: check recaptcha status (returns boolean: true if verified)
-  const checkRecaptchaStatus = async (): Promise<boolean> => {
-    try {
-      const response = await fetch(createUrl('/php_backend/recaptcha.php'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: 'status=1'
-      });
-      const data = await response.json();
-      return !!(data && data.success);
-    } catch (e) {
-      console.error('[ProxyList] checkRecaptchaStatus error', e);
-      return false;
-    }
-  };
-
-  // Helper: verify recaptcha token, returns boolean
-  const verifyRecaptchaToken = async (token: string): Promise<boolean> => {
-    try {
-      const response = await fetch(createUrl('/php_backend/recaptcha.php'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `g-recaptcha-response=${encodeURIComponent(token)}`
-      });
-      const data = await response.json();
-      return !!(data && data.success);
-    } catch (e) {
-      console.error('[ProxyList] verifyRecaptchaToken error', e);
-      return false;
     }
   };
 
@@ -353,8 +318,8 @@ function ProxyList() {
 
   const handleRecaptcha = async (token: string | null) => {
     if (token) {
-      // Verify token via helper
-      const ok = await verifyRecaptchaToken(token);
+      // Verify token via shared helper
+      const ok = await verifyRecaptcha(token);
       if (ok) {
         setShowModal(false);
         // After successful verification, refresh proxies if not already loading
