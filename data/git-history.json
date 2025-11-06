@@ -1,5 +1,38 @@
 [
   {
+    "hash": "c7aa60cc6dd91752044664dc4e145b3570376cb4",
+    "date": "2025-11-06T08:23:46+07:00",
+    "message": "refactor(proxy-checker, runBashOrBatch): simplify logging and improve runner/output handling\n\n- Simplify `addLog()` to echo messages only (remove file I/O and ANSI conversion).\n- Add file-lock checks before reading log/status files; return JSON error when locked.\n- Use `read_file()` helper for safe file reads and avoid direct `file_get_contents`.\n- Derive runner and pid filenames using `sanitizeFilename()` to avoid unsafe names.\n- Use `getLogFile()` as the runner's output file and pass `--outputFile` to the background runner.\n- Call `runBashOrBatch()` with redirect enabled and return parsed run info in the API response.\n- Add CLI/GET option names: `force` and `outputFile`.\n- Normalize brace/formatting in multiple helper functions for consistency.\n- Update `send_text()` to decode ANSI to HTML before echoing.\n- Extend `runBashOrBatch()` signature with `$customOutputPath` and prefer it when `redirectOutput` is true.\n\nBREAKING CHANGE: `addLog()` no longer writes to per-user log files; code that relies on file-based logging must be updated to capture output or reintroduce file logging.",
+    "files": [
+      "php_backend/proxy-checker.php",
+      "src/utils/process/runBashOrBatch.php"
+    ]
+  },
+  {
+    "hash": "1384e9724fe270cbdbfe8af1d179a5d7e8cd1b2c",
+    "date": "2025-11-06T08:14:00+07:00",
+    "message": "refactor(proxylist): randomize proxy selection before slicing and simplify geoIp update scheduling",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "75325e569a1a52978a592afd70cc31a699672c09",
+    "date": "2025-11-06T08:11:55+07:00",
+    "message": "refactor(proxy-list): DRY reCAPTCHA requests and require verification before refresh\n\n- Add helpers `checkRecaptchaStatus` and `verifyRecaptchaToken` to centralize calls\n  to `/php_backend/recaptcha.php`.\n- Replace duplicated inline fetches with the new helpers in the mount captcha\n  check, `handleRefresh`, and `handleRecaptcha`.\n- `handleRefresh` now validates reCAPTCHA status and opens the captcha modal\n  instead of fetching proxies when verification is required.\n- `handleRecaptcha` uses `verifyRecaptchaToken` and refreshes proxies after a\n  successful verification, with conservative error logging on failures.\n\nFiles:\n- src/react/pages/ProxyList.tsx",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "6655c6f62f04e50057d06f95434eb3b7200acbd0",
+    "date": "2025-11-06T08:05:57+07:00",
+    "message": "fix(logs): safely read log files and avoid warnings for missing/unreadable files\n\n- Check file existence and readability before reading log files to prevent PHP warnings.\n- Return clear messages for missing vs. unreadable logs.\n- Minor whitespace/format cleanup in user log filter.\n- Also update husky hash (chore: .husky/hash.txt).\n\nFiles changed: php_backend/logs.php, .husky/hash.txt",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
     "hash": "6a5246809fb566a927f484a83236991584c5fab2",
     "date": "2025-11-05T18:22:15+07:00",
     "message": "refactor(proxy-checker): format functions with PSR-12 style braces and improve readability\n\n- Updated function declarations to use PSR-12 brace placement\n- Adjusted indentation and spacing for consistency\n- Added `--force` CLI option to `proxyChecker` to bypass recent check skip logic\n- Improved comment alignment and code clarity",
@@ -8647,61 +8680,6 @@
     "message": "feat: add Outbound redirect page for handling external links",
     "files": [
       "src/react/pages/Outbound.tsx"
-    ]
-  },
-  {
-    "hash": "6e6f2ea22e14fcfa4825d49fc4ba4496ee71997f",
-    "date": "2025-08-12T02:28:02+07:00",
-    "message": "feat(vite-plugin): add JSDoc comments and enhance dev server index.html handling\n\n- Add comprehensive JSDoc comments to all plugin functions for better documentation and type safety.\n- Import `fs-extra` and use it to copy `index.dev.html` to `index.html` during development.\n- Update the dev server middleware to serve `index.dev.html` for additional routes (`/`, `/index.html`, `/outbound`, `/login`) to improve local development experience.",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "ca53146f291eeb6522ea50fa6b23c420a6f40b9c",
-    "date": "2025-08-12T02:27:12+07:00",
-    "message": "feat: ignore auto generated index.html",
-    "files": [
-      ".gitignore"
-    ]
-  },
-  {
-    "hash": "ac42d87ed64600f7b5c7d7828f937fadbb57499b",
-    "date": "2025-08-12T02:16:56+07:00",
-    "message": "feat: add Safelink Converter component for anonymizing external links",
-    "files": [
-      "package.json",
-      "src/react/components/Link.tsx",
-      "src/react/components/Navbar.tsx"
-    ]
-  },
-  {
-    "hash": "146a7c58eacddf8a55dbd7c74c2d913479e7952e",
-    "date": "2025-08-12T01:36:26+07:00",
-    "message": "chore: prepare migrate frontend using react",
-    "files": [
-      ".gitignore",
-      ".vscode/settings.json",
-      "index.dev.html",
-      "index.php",
-      "package.json",
-      "postcss.config.js",
-      "public/index.html",
-      "src/react/App.tsx",
-      "src/react/components/Footer.tsx",
-      "src/react/components/Navbar.tsx",
-      "src/react/components/ThemeContext.tsx",
-      "src/react/components/ThemeSwitcher.tsx",
-      "src/react/index.tsx",
-      "src/react/pages/About.tsx",
-      "src/react/pages/Contact.tsx",
-      "src/react/pages/Home.tsx",
-      "tailwind.config.js",
-      "tailwind.input.css",
-      "tsconfig.json",
-      "types/vite-env.d.ts",
-      "vite-plugin.js",
-      "vite.config.ts"
     ]
   }
 ]
