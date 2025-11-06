@@ -1,5 +1,34 @@
 [
   {
+    "hash": "ba43c076908d33884471146bbd5a41ca5e5252ca",
+    "date": "2025-11-06T14:52:27+07:00",
+    "message": "feat(db): add OFFSET support and pagination; update select signatures and docs\n\n- Add optional `$offset` parameter to `BaseSQL::select` and propagate to helpers.\n- Implement `OFFSET`/`LIMIT` handling in `SQLiteHelper::select` and `MySQLHelper::select`\n  (including edge-case handling when offset is supplied without a limit).\n- Update `CoreDB::select` to accept a string `$columns` (default '*') and forward offset.\n- Add pagination to `ProxyDB::getAllProxies` via optional `$page` and `$perPage` parameters;\n  preserve backward-compatibility (legacy `$limit` and `$randomize` behavior retained).\n- Update PHPDoc for `select` across `BaseSQL`, `CoreDB`, `SQLiteHelper`, and `MySQLHelper`.\n- Minor style/formatting hygiene (brace placement and small refactors).\n\nNo breaking changes — existing call sites using the legacy single-argument limit or\nthe randomize flag continue to work.",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/CoreDB.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/PhpProxyHunter/SQLiteHelper.php"
+    ]
+  },
+  {
+    "hash": "4e37ff058d152f5ad6568eddcd2b45c0e413c394",
+    "date": "2025-11-06T14:32:23+07:00",
+    "message": "feat(proxydb): add optional $randomize flag to getAllProxies\n\nAdd an optional boolean `$randomize` parameter to `ProxyDB::getAllProxies`\nto allow callers to explicitly request randomized ordering. When\n`$randomize` is `null` the previous behaviour is preserved: providing a\npositive `$limit` still implies randomization. Uses the existing\n`getRandomFunction()` to select the correct DB RANDOM function.\n\nNo breaking changes (backwards-compatible).",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "010433cef9586b33aff6e87e7caaf21394261112",
+    "date": "2025-11-06T14:21:39+07:00",
+    "message": "test(utils): add runner file existence check and shorten wait time in runBashOrBatch test\n\nfeat(utils): include cmdParts in runBashOrBatch output and add output redirection comment",
+    "files": [
+      "src/utils/process/runBashOrBatch.php",
+      "tests/utils/process/runBashOrBatch.php"
+    ]
+  },
+  {
     "hash": "41b501e44b4afe85f9f7d8579b07c13dc68294f8",
     "date": "2025-11-06T14:10:10+07:00",
     "message": "refactor(process): improve runner hash and enhance PHP 7.0 compatibility\n\n- Replaced `realpath(__DIR__ . '/../../..')` with `get_project_root()` for clarity and maintainability.\n- Included script file contents (`file_get_contents($scriptPath)`) in the stable runner hash:\n  - Ensures hash changes when script content or arguments differ, avoiding stale runner collisions.\n- Removed `declare(strict_types=1)` and modern type hints for PHP 7.0 compatibility.\n- Replaced typed parameters and return types with PHPDoc annotations, keeping array return annotations.\n- Simplified and clarified path concatenations and command constructions.\n- Updated documentation for consistency and readability.\n\nMotivation: increase hash robustness, ensure compatibility with older PHP versions, and improve code clarity.",
@@ -8656,31 +8685,6 @@
     "files": [
       "php_backend/user-info.php",
       "src/react/pages/Settings.tsx"
-    ]
-  },
-  {
-    "hash": "38e86477250392fe19433e99676fa262e4749e7a",
-    "date": "2025-08-13T14:29:05+07:00",
-    "message": "feat: add About and Contact links to Navbar component",
-    "files": [
-      "src/react/components/Navbar.tsx"
-    ]
-  },
-  {
-    "hash": "fb7552c117dd84db7cfac90d9c74ff48dd34f157",
-    "date": "2025-08-13T14:27:03+07:00",
-    "message": "feat: add Navbar and Footer components to Outbound page layout",
-    "files": [
-      "src/react/pages/Outbound.tsx"
-    ]
-  },
-  {
-    "hash": "2bff5c41c2977cc9164557e1b54e5c411e81234b",
-    "date": "2025-08-13T14:26:46+07:00",
-    "message": "feat: update body background color in index.dev.html and add disabled class styles in tailwind.input.css",
-    "files": [
-      "index.dev.html",
-      "tailwind.input.css"
     ]
   }
 ]
