@@ -89,7 +89,8 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   $commandArgsString = trim($commandArgsString);
 
   // Determine paths and commands
-  $cwd = realpath(__DIR__ . '/../../..');
+  $cwd  = realpath(__DIR__ . '/../../..');
+  $hash = md5("$scriptPath/$commandArgsString");
 
   // When redirecting output to a custom path, the identifier is irrelevant —
   // the caller explicitly controls the output location. Otherwise, derive a
@@ -97,7 +98,6 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   if ($redirectOutput && !empty($customOutputPath)) {
     // Use a stable filename derived from the script for the runner file but
     // do not let the identifier influence the output path.
-    $hash     = md5("$scriptPath/$commandArgsString");
     $name     = pathinfo($scriptPath, PATHINFO_FILENAME);
     $filename = sanitizeFilename($name . '-' . $hash);
   } else {
@@ -111,12 +111,12 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   }
 
   // Build runner and log paths without creating intermediate unused variables
-  $runner_file = unixPath(tmp() . "/runners/{$filename}-runBashOrBatch" . ($isWin ? '.bat' : '.sh'));
+  $runner_file = unixPath(tmp() . "/runners/{$filename}-runBashOrBatch-{$hash}" . ($isWin ? '.bat' : '.sh'));
   // If caller provided a custom output path and redirectOutput is true, prefer it.
   if ($redirectOutput && !empty($customOutputPath)) {
     $output_file = unixPath($customOutputPath);
   } else {
-    $output_file = unixPath(tmp() . "/logs/{$filename}-runBashOrBatch.txt");
+    $output_file = unixPath(tmp() . "/logs/{$filename}-runBashOrBatch-{$hash}.txt");
   }
 
   // Construct the command
