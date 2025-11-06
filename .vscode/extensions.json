@@ -15,6 +15,7 @@
     "mblode.twig-language",
     "shakram02.bash-beautify",
     "shevaua.phpcs",
-    "bmewburn.vscode-intelephense-client"
+    "bmewburn.vscode-intelephense-client",
+    "junstyle.php-cs-fixer"
   ]
 }
