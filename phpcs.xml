@@ -7,6 +7,7 @@
     <!-- Disable the brace-on-new-line rule for functions, classes, and interfaces -->
     <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
     <exclude name="Squiz.Classes.ClassDeclaration.OpenBraceNewLine"/>
+    <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
     <exclude name="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace"/>
     <exclude name="Generic.Classes.OpeningBraceSameLine"/>
   </rule>
