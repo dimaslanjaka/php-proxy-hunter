@@ -23,9 +23,19 @@ if ($perPage < 1 || $perPage > 500) {
 $hash = isset($request['hash']) ? $request['hash'] : '';
 if (!empty($hash)) {
   $logFile = tmp() . '/logs/' . $hash . '.txt';
-  $logData = file_get_contents($logFile);
-  if ($logData) {
-    echo $logData;
+  // Safely read the requested log file. Avoid PHP warnings if file is missing
+  // or not readable and provide distinct messages for each case.
+  if (file_exists($logFile)) {
+    if (is_readable($logFile)) {
+      $logData = @file_get_contents($logFile);
+      if ($logData !== false && $logData !== '') {
+        echo $logData;
+      } else {
+        echo "No logs found for {$hash}" . PHP_EOL;
+      }
+    } else {
+      echo "Log file exists but is not readable for {$hash}" . PHP_EOL;
+    }
   } else {
     echo "No logs found for {$hash}" . PHP_EOL;
   }
@@ -53,7 +63,7 @@ if (isset($request['me'])) {
   // Get logs for this user from $log_db
   $allLogs  = $log_db->recent(1000);
   $userLogs = array_values(array_filter($allLogs, function ($log) use ($user) {
-    $isLogActionByUser  = isset($log['user_id'])        && $log['user_id']        == $user['id'];
+    $isLogActionByUser = isset($log['user_id']) && $log['user_id'] == $user['id'];
     $isLogActionByAdmin = isset($log['target_user_id']) && $log['target_user_id'] == $user['id'];
     return $isLogActionByUser || $isLogActionByAdmin;
   }));
