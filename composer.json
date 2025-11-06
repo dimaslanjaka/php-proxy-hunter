@@ -8,7 +8,10 @@
     "psr-4": {
       "simplehtmldom\\": "src/simplehtmldom/",
       "PhpProxyHunter\\": [
-        "src/PhpProxyHunter"
+        "src/PhpProxyHunter",
+        "src/PhpProxyHunter/checker",
+        "src/PhpProxyHunter/fetcher",
+        "src/PhpProxyHunter/utils"
       ]
     },
     "files": [
