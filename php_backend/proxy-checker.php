@@ -197,7 +197,6 @@ if (!$isCli) {
     $cmdLine = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
 
     $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-    ensure_dir(dirname($runner));
 
     write_file($runner, $cmdLine);
     $run            = runBashOrBatch($runner, [], 'proxyChecker', true);
@@ -217,12 +216,11 @@ if (!$isCli) {
       'statusEmbedUrl' => $statusEmbedUrl,
     ];
     if ($isAdmin) {
-      $res['pidFile']     = $pid_file;
-      $res['outputFile']  = $output_file;
-      $res['lockFile']    = $lockFilePath;
-      $res['command']     = $cmd;
-      $res['commandLine'] = $cmdLine;
-      $res['runInfo']     = $run;
+      $res['pidFile']    = $pid_file;
+      $res['outputFile'] = $output_file;
+      $res['lockFile']   = $lockFilePath;
+      $res['command']    = ['originalContent' => $cmd, 'runner' => $runner, 'runnerContent' => $cmdLine];
+      $res['runInfo']    = $run;
     }
     send_json($res);
   // Note: The actual proxy checking will be done in the background process.
