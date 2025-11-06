@@ -6,10 +6,6 @@ namespace PhpProxyHunter\Checker;
 
 use PhpProxyHunter\AnsiColors;
 
-if (!function_exists('extractIPs')) {
-  require_once __DIR__ . '/../utils/autoload.php';
-}
-
 class ProxyChecker1 extends ProxyChecker {
   public static function check(CheckerOptions $options): CheckerResult {
     $proxy     = $options->proxy;
