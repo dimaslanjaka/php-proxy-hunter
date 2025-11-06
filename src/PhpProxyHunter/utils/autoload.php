@@ -7,37 +7,38 @@
 
 $directory = __DIR__;
 
-/**
- * Recursively include all PHP files in a directory
- *
- * @param string $dir
- * @return void
- */
-function autoloadAllPHP($dir)
-{
-  // Scan the directory
-  $files = scandir($dir);
+if (!function_exists('autoloadAllPHP')) {
+  /**
+   * Recursively include all PHP files in a directory
+   *
+   * @param string $dir
+   * @return void
+   */
+  function autoloadAllPHP($dir) {
+    // Scan the directory
+    $files = scandir($dir);
 
-  foreach ($files as $file) {
-    $path = $dir . DIRECTORY_SEPARATOR . $file;
+    foreach ($files as $file) {
+      $path = $dir . DIRECTORY_SEPARATOR . $file;
 
-    if ($file === '.' || $file === '..') {
-      continue;
-    }
+      if ($file === '.' || $file === '..') {
+        continue;
+      }
 
-    // Skip this autoload file to prevent infinite loops
-    if ($file === basename(__FILE__)) {
-      continue;
-    }
+      // Skip this autoload file to prevent infinite loops
+      if ($file === basename(__FILE__)) {
+        continue;
+      }
 
-    // echo "Autoloading file: " . $path . PHP_EOL;
+      // echo "Autoloading file: " . $path . PHP_EOL;
 
-    if (is_dir($path)) {
-      // Recurse into subdirectory
-      autoloadAllPHP($path);
-    } elseif (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
-      // Include PHP file
-      require_once $path;
+      if (is_dir($path)) {
+        // Recurse into subdirectory
+        autoloadAllPHP($path);
+      } elseif (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
+        // Include PHP file
+        require_once $path;
+      }
     }
   }
 }
