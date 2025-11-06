@@ -1,5 +1,14 @@
 [
   {
+    "hash": "1c10cde68e7ff3a0dc9e5b2b6dbb79fe2b816f42",
+    "date": "2025-11-06T16:31:16+07:00",
+    "message": "refactor(footer): make Footer responsive and prop-driven; hide reCAPTCHA badge\n\n- convert `src/react/components/Footer.tsx` to a typed React.FC with `FooterProps` (className, children, showRecaptchaBranding)\n- implement grid-based layout to support long content and place `LanguageSwitcher` right-aligned on large screens and stacked on mobile\n- make reCAPTCHA branding optional and add semantic `role=\"contentinfo\"`\n- update styles in `tailwind.input.css` to hide Google reCAPTCHA badge (`.grecaptcha-badge { visibility: hidden !important; }`)",
+    "files": [
+      "src/react/components/Footer.tsx",
+      "tailwind.input.css"
+    ]
+  },
+  {
     "hash": "96fde2baeb54cc2071bb6f22a33f7fac2883d290",
     "date": "2025-11-06T16:03:29+07:00",
     "message": "feat(recaptcha): mount invisible ReCAPTCHA and auto-run verification\n\nImport `ReCAPTCHA`, add a `recaptchaRef`, render an invisible widget in `MainApp`,\nand call `executeAsync()` on startup to obtain a token and forward it to\n`verifyRecaptcha`. Also reorder related imports and add a small `useEffect`\nhook to reference the recaptcha ref.",
@@ -8671,15 +8680,6 @@
       "src/react/App.tsx",
       "src/react/pages/GitHistory.tsx",
       "src/react/pages/Home.tsx"
-    ]
-  },
-  {
-    "hash": "ad0e21724b7eac13370941aaa61b5ee2e0f8fac3",
-    "date": "2025-08-13T16:06:33+07:00",
-    "message": "fix: update Tailwind CSS content paths for improved matching and enable polling in Vite config for reliability",
-    "files": [
-      "tailwind.config.js",
-      "vite.config.ts"
     ]
   }
 ]
