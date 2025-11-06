@@ -221,10 +221,17 @@ class ProxyDB {
 
   /**
    * @param int|null $limit
+   * @param bool|null $randomize When true, return results in random order. When false, return in default order. If null (default), preserve previous behaviour where providing a limit implied randomization.
    * @return array
    */
-  public function getAllProxies($limit = null) {
-    $orderBy = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
+  public function getAllProxies($limit = null, $randomize = null) {
+    // Maintain backward compatibility: if randomize is not provided, use previous behaviour
+    // where passing a positive limit would randomize results.
+    if ($randomize === null) {
+      $orderBy = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
+    } else {
+      $orderBy = ($randomize === true) ? $this->getRandomFunction() : null;
+    }
     return $this->db->select('proxies', '*', null, [], $orderBy, $limit);
   }
 
