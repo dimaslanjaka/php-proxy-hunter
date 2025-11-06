@@ -10,7 +10,7 @@ $forbidden = false;
 $userToken    = isset($_SERVER['HTTP_X_USER_TOKEN']) ? $_SERVER['HTTP_X_USER_TOKEN'] : null;
 $serialNumber = isset($_SERVER['HTTP_X_SERIAL_NUMBER']) ? $_SERVER['HTTP_X_SERIAL_NUMBER'] : null;
 
-Server::allowCors(true);
+Server::allowCors();
 
 if ($userToken && $serialNumber) {
   $userFile = __DIR__ . '/data/' . $userToken . '.json';
@@ -122,6 +122,24 @@ if ($real_file && file_exists($real_file)) {
 
     // Set the appropriate Content-Type header
     header("Content-Type: $contentType");
+
+
+    // Cached filename map with their expiration times in minutes
+    $cachedFilenameMap = [
+      'working.json' => 5,
+    ];
+
+    // Set caching headers if the file is in the cached filename map
+    if (array_key_exists($baseFile, $cachedFilenameMap)) {
+      $expirationMinutes = $cachedFilenameMap[$baseFile];
+      header('Cache-Control: public, max-age=' . ($expirationMinutes * 60));
+    } else {
+      // No caching for other files
+      header('Cache-Control: no-cache, no-store, must-revalidate');
+      header('Pragma: no-cache');
+      header('Expires: 0');
+    }
+
 
     // Read the file and echo its contents
     readfile($real_file);

@@ -10,9 +10,9 @@
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------
 // Finder setup: determines which files PHP-CS-Fixer will process
-// ----------------------------------------------------------------------------
+// ---------------------------------------------
 $finder = Finder::create()
     ->in(__DIR__) // Scan the current directory recursively
     ->exclude([
@@ -29,14 +29,14 @@ $finder = Finder::create()
     ->ignoreDotFiles(true) // Ignore hidden files like .env
     ->ignoreVCS(true);     // Ignore version control folders (.git, etc.)
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------
 // Base configuration object
-// ----------------------------------------------------------------------------
+// ---------------------------------------------
 $config = new Config();
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------
 // Optional: enable parallel execution when available (PHP-CS-Fixer >= 3.25)
-// ----------------------------------------------------------------------------
+// ---------------------------------------------
 // Guard to keep compatibility with older PHP-CS-Fixer versions.
 if (
     class_exists('PhpCsFixer\\Runner\\Parallel\\ParallelConfigFactory') && method_exists($config, 'setParallelConfig')
@@ -51,18 +51,18 @@ if (
   }
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------
 // Basic configuration settings
-// ----------------------------------------------------------------------------
+// ---------------------------------------------
 $config
     ->setIndent(str_repeat(' ', 2))  // Use 2 spaces per indentation level
     ->setUsingCache(true)            // Enable cache to speed up subsequent runs
     ->setRiskyAllowed(true)          // Allow risky fixers (some change code meaning)
     ->setCacheFile('tmp/locks/.php-cs-fixer.cache'); // Custom cache file path
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------
 // Coding standard rules
-// ----------------------------------------------------------------------------
+// ---------------------------------------------
 return $config->setRules([
   '@PSR12' => true, // Apply PSR-12 coding style standard
 
