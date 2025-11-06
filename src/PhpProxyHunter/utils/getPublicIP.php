@@ -1,9 +1,5 @@
 <?php
 
-if (!function_exists('buildCurl')) {
-  require_once __DIR__ . '/../checker/buildCurl.php';
-}
-
 /**
  * Retrieve the public IP address using multiple external services, with optional proxy support and simple file caching.
  *
@@ -21,8 +17,7 @@ if (!function_exists('buildCurl')) {
  *
  * @return string The detected public IP address, or an empty string if not found.
  */
-function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonSsl = false, $debug = false)
-{
+function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonSsl = false, $debug = false) {
   $ipServices = [
     'https://api64.ipify.org',
     'https://ipinfo.io/ip',
@@ -87,7 +82,7 @@ function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonS
         $proxyInfo['type'] = $type;
         $ch                = buildCurl(
           $proxyInfo['proxy'] ?? null,
-          $proxyInfo['type']  ?? null,
+          $proxyInfo['type'] ?? null,
           $url,
           ['User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0'],
           $proxyInfo['username'] ?? null,

@@ -1,9 +1,5 @@
 <?php
 
-if (!class_exists('ProxyDB')) {
-  require_once __DIR__ . '/../../../vendor/autoload.php';
-}
-
 use PhpProxyHunter\Proxy;
 
 /**
@@ -15,8 +11,7 @@ use PhpProxyHunter\Proxy;
  * @param string $string The input string potentially containing IP addresses.
  * @return string[] An array of matched IP addresses. Returns an empty array if none are found.
  */
-function extractIPs($string)
-{
+function extractIPs($string) {
   // Regular expression to match an IP address
   $ipPattern = '/\b(?:\d{1,3}\.){3}\d{1,3}\b/';
 
@@ -37,8 +32,7 @@ function extractIPs($string)
  * @param string $inputString The input string containing IP:PORT pairs or port numbers.
  * @return string[] An array of unique port numbers as strings.
  */
-function extractPorts($inputString)
-{
+function extractPorts($inputString) {
   $result = [];
 
   // Define the regular expression pattern to match IP:PORT format
@@ -81,8 +75,7 @@ function extractPorts($inputString)
  *        will return proxies/entries even if they would normally be considered invalid. Default: false.
  * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
-function extractProxies($string, $db = null, $write_database = false, $limit = 100, $ignore_validation = false)
-{
+function extractProxies($string, $db = null, $write_database = false, $limit = 100, $ignore_validation = false) {
   if (!$string) {
     return [];
   }

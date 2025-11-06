@@ -1,9 +1,5 @@
 <?php
 
-if (!function_exists('get_project_root')) {
-  require_once __DIR__ . '/autoload.php';
-}
-
 /**
  * Get the IP address of the server.
  *
@@ -15,8 +11,7 @@ if (!function_exists('get_project_root')) {
  *
  * @return string|false The IP address as a string if found, or false if not found.
  */
-function getServerIp()
-{
+function getServerIp() {
   $filePath = get_project_root() . '/tmp/locks/server-ip.txt';
   $result   = false;
 

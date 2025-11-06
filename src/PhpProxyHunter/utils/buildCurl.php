@@ -1,9 +1,5 @@
 <?php
 
-if (!function_exists('extractProxies')) {
-  require_once __DIR__ . '/autoload.php';
-}
-
 /**
  * Build a cURL handle for making HTTP requests.
  *

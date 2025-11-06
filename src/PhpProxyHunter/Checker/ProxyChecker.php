@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace PhpProxyHunter\Checker;
 
-if (!function_exists('extractIPs') || !function_exists('getServerIp') || !function_exists('buildCurl')) {
-  require_once __DIR__ . '/../utils/autoload.php';
-}
-
 abstract class ProxyChecker {
   /**
    * Check a proxy using a single CheckerOptions object.

@@ -5,10 +5,6 @@ namespace PhpProxyHunter;
 use PDO;
 use PDOException;
 
-if (!function_exists('extractProxies')) {
-  require_once __DIR__ . '/utils/autoload.php';
-}
-
 /**
  * Class ProxyDB
  *
