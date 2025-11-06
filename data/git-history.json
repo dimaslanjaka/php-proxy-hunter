@@ -1,5 +1,30 @@
 [
   {
+    "hash": "34c0ca7d0a93bc59d6ebc0457cba211f5cc17344",
+    "date": "2025-11-06T17:23:01+07:00",
+    "message": "fix(embed): adjust CORS handling and add cache-control headers for specific files",
+    "files": [
+      ".php-cs-fixer.dist.php",
+      "embed.php"
+    ]
+  },
+  {
+    "hash": "df8283354aeb18e2f975554c9da78723fae618ac",
+    "date": "2025-11-06T17:20:50+07:00",
+    "message": "chore(cs-fixer): improve parallel detection and enforce array indentation\n\n- Use fully-qualified class name in `class_exists()` check for `ParallelConfigFactory` to avoid undefined class issues on older installs.\n- Call `PhpCsFixer\\Runner\\Parallel\\ParallelConfigFactory::detect()` explicitly.\n- Add `array_indentation` and `indentation_type` rules to enforce consistent array formatting.\n\nNo behavioral changes; formatting/config fixes only.",
+    "files": [
+      ".php-cs-fixer.dist.php"
+    ]
+  },
+  {
+    "hash": "bd27c20e633c037eb1e17752e43e2e15d80737e5",
+    "date": "2025-11-06T17:10:03+07:00",
+    "message": "fix(recaptcha): invert session-expired logic so backend success means verified\n\nInterpret `/php_backend/recaptcha.php` responses correctly in `checkRecaptchaSessionExpired()`:\n- treat `success: true` as already-verified (return false → do not show modal)\n- treat `success: false` as expired/needs verification (return true)\n- add conservative fallback for unexpected response shapes (do not block users)",
+    "files": [
+      "src/react/utils/recaptcha.ts"
+    ]
+  },
+  {
     "hash": "1c10cde68e7ff3a0dc9e5b2b6dbb79fe2b816f42",
     "date": "2025-11-06T16:31:16+07:00",
     "message": "refactor(footer): make Footer responsive and prop-driven; hide reCAPTCHA badge\n\n- convert `src/react/components/Footer.tsx` to a typed React.FC with `FooterProps` (className, children, showRecaptchaBranding)\n- implement grid-based layout to support long content and place `LanguageSwitcher` right-aligned on large screens and stacked on mobile\n- make reCAPTCHA branding optional and add semantic `role=\"contentinfo\"`\n- update styles in `tailwind.input.css` to hide Google reCAPTCHA badge (`.grecaptcha-badge { visibility: hidden !important; }`)",
@@ -8652,34 +8677,6 @@
     "message": "feat(git-history): improve initial load speed with localStorage cache and loading state\n\n- Cache the first 30 git history items in localStorage for instant initial render.\n- Show a loading spinner while fetching the full git history, but keep displaying cached content until new data arrives.\n- Update the cache with the latest first 30 items after fetch.\n- Add loading state management and error handling for cache and fetch operations.",
     "files": [
       "src/react/pages/GitHistory.tsx"
-    ]
-  },
-  {
-    "hash": "2a86a843015e3b8d9ccab4efb556f62db1c35b54",
-    "date": "2025-08-13T16:25:04+07:00",
-    "message": "fix: enable polling in Vite config for improved file watching reliability",
-    "files": [
-      "vite.config.ts"
-    ]
-  },
-  {
-    "hash": "4976a08b5ee6e3bc641e0f112d486f775673d097",
-    "date": "2025-08-13T16:23:50+07:00",
-    "message": "fix: update tsconfig.json for improved type checking and module resolution",
-    "files": [
-      "tsconfig.json"
-    ]
-  },
-  {
-    "hash": "787c62434e3e35b4aa0a6aabb1ab908761d555b1",
-    "date": "2025-08-13T16:22:20+07:00",
-    "message": "feat: add changelog page with git commit history and update history retrieval\n\n- Renamed `getGitHistory` to `gitHistoryToJson` and added commit date to output\n- Updated `git log` command to include ISO 8601 commit date\n- Modified type definitions and parsing logic to store `date` field\n- Added `GitHistory` React page to display commits with pagination\n- Integrated changelog route (`/changelog`) into App routing\n- Linked changelog page from Home with new styled button",
-    "files": [
-      "src/dev/git-history-to-json.ts",
-      "src/dev/git-history.ts",
-      "src/react/App.tsx",
-      "src/react/pages/GitHistory.tsx",
-      "src/react/pages/Home.tsx"
     ]
   }
 ]
