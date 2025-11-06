@@ -75,7 +75,13 @@ if (!$isCli) {
     if ($request['type'] === 'log') {
       $logFile = getLogFile();
       if (file_exists($logFile)) {
-        send_text(file_get_contents($logFile));
+        if (is_file_locked($logFile)) {
+          send_json([
+            'error'   => true,
+            'message' => 'Log file is currently locked. Please try again later.',
+          ]);
+        }
+        send_text(read_file($logFile));
       }
       send_json([
         'error'   => true,
@@ -83,7 +89,13 @@ if (!$isCli) {
       ]);
     } elseif ($request['type'] === 'status') {
       if (file_exists($statusFile)) {
-        send_text(file_get_contents($statusFile));
+        if (is_file_locked($statusFile)) {
+          send_json([
+            'error'   => true,
+            'message' => 'Status file is currently locked. Please try again later.',
+          ]);
+        }
+        send_text(read_file($statusFile));
       }
       send_json([
         'error'   => true,
@@ -172,11 +184,12 @@ if (!$isCli) {
       $cmdParts[] = '--password=' . escapeshellarg($proxyInfo['password']);
     }
     $cmdParts[] = '--lockFile=' . escapeshellarg($lockFilePath);
-    $runner     = __DIR__ . '/tmp/runners/proxyChecker' . ($isWin ? '.bat' : '');
+    $runner     = __DIR__ . '/tmp/runners/proxyChecker-' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
     $cmdParts[] = '--runner=' . escapeshellarg($runner);
 
-    $output_file = __DIR__ . '/../proxyChecker.txt';
-    $pid_file    = tmp() . '/runners/proxy-checker-' . getUserId() . '.pid';
+    $output_file = getLogFile();
+    $cmdParts[]  = '--outputFile=' . escapeshellarg($output_file);
+    $pid_file    = tmp() . '/runners/proxy-checker-' . sanitizeFilename($proxyInfo['proxy']) . '.pid';
     ensure_dir(dirname($pid_file));
 
     $cmd = implode(' ', $cmdParts);
@@ -187,7 +200,8 @@ if (!$isCli) {
     ensure_dir(dirname($runner));
 
     write_file($runner, $cmdLine);
-    runBashOrBatch($runner);
+    $run            = runBashOrBatch($runner, [], 'proxyChecker', true);
+    $run['message'] = json_decode($run['message'], true);
 
     // Build embed URLs for log and status files
     $selfBase       = get_self_base();
@@ -203,10 +217,12 @@ if (!$isCli) {
       'statusEmbedUrl' => $statusEmbedUrl,
     ];
     if ($isAdmin) {
-      $res['pidFile']    = $pid_file;
-      $res['outputFile'] = $output_file;
-      $res['lockFile']   = $lockFilePath;
-      $res['command']    = $cmd;
+      $res['pidFile']     = $pid_file;
+      $res['outputFile']  = $output_file;
+      $res['lockFile']    = $lockFilePath;
+      $res['command']     = $cmd;
+      $res['commandLine'] = $cmdLine;
+      $res['runInfo']     = $run;
     }
     send_json($res);
   // Note: The actual proxy checking will be done in the background process.
@@ -228,6 +244,8 @@ if (!$isCli) {
     'type::',
     'username::',
     'password::',
+    'force::',
+    'outputFile::',
   ];
   $options = getopt($short_opts, $long_opts);
 
@@ -398,18 +416,9 @@ function proxyChecker($proxyInfo, $types = []) {
  * @param string $message
  */
 function addLog($message) {
-  global $isCli;
-  $logFile = getLogFile();
-  $logDir  = dirname($logFile);
-  if (!is_dir($logDir)) {
-    @mkdir($logDir, 0777, true);
-  }
-  $timestamp = date(DATE_RFC3339);
-  $logEntry  = "[$timestamp] $message" . PHP_EOL;
-  @file_put_contents($logFile, AnsiColors::ansiToHtml($logEntry), FILE_APPEND | LOCK_EX);
-  if ($isCli) {
-    echo $logEntry;
-  }
+  // Simplified logger: just echo messages (no file logging or ANSI conversion)
+  $logEntry = $message . PHP_EOL;
+  echo $logEntry;
 }
 
 /**
@@ -521,6 +530,7 @@ function send_json($data) {
 
 function send_text($text) {
   header('Content-Type: text/plain; charset=utf-8');
-  echo $text;
+  $decoded_ansi = AnsiColors::ansiToHtml($text);
+  echo $decoded_ansi;
   exit;
 }

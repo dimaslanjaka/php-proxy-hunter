@@ -20,8 +20,7 @@ declare(strict_types=1);
  *
  * @return string Full path to the created runner script.
  */
-function createBatchOrBashRunner($filename, $command)
-{
+function createBatchOrBashRunner($filename, $command) {
   $isWin      = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
   $runnerDir  = unixPath(tmp() . '/runners');
   $filename   = sanitizeFilename($filename) . ($isWin ? '.bat' : '.sh');
@@ -33,8 +32,7 @@ function createBatchOrBashRunner($filename, $command)
 /**
  * Quote an argument for Windows cmd.exe (double-quote and double internal quotes).
  */
-function quoteWindowsArg(string $str): string
-{
+function quoteWindowsArg(string $str): string {
   // convert forward slashes to backslashes for Windows paths
   $s = str_replace('/', '\\', $str);
   // double any internal double-quotes and wrap in double-quotes
@@ -61,6 +59,10 @@ function quoteWindowsArg(string $str): string
  * @param bool $redirectOutput (optional) When true stdout/stderr of the spawned
  *   script will be redirected into the log file. When false (default) the
  *   script will be invoked without redirecting output.
+ * @param string|null $customOutputPath Optional absolute path to use for the
+ *   redirected output file when `$redirectOutput` is true. When provided and
+ *   non-empty, the function will ignore `$identifier` and use this path for
+ *   the output file.
  *
  * @return array{
  *   output: string,     // Full path to the output log file.
@@ -71,8 +73,7 @@ function quoteWindowsArg(string $str): string
  *   error: string       // Error message if script writing fails.
  * }
  */
-function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $redirectOutput = false)
-{
+function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $redirectOutput = false, $customOutputPath = null) {
   $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
   // Convert arguments to command line string
@@ -90,17 +91,33 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   // Determine paths and commands
   $cwd = realpath(__DIR__ . '/../../..');
 
-  if (!empty($identifier)) {
-    $filename = sanitizeFilename($identifier);
-  } else {
+  // When redirecting output to a custom path, the identifier is irrelevant —
+  // the caller explicitly controls the output location. Otherwise, derive a
+  // filename for runner and default log file naming.
+  if ($redirectOutput && !empty($customOutputPath)) {
+    // Use a stable filename derived from the script for the runner file but
+    // do not let the identifier influence the output path.
     $hash     = md5("$scriptPath/$commandArgsString");
     $name     = pathinfo($scriptPath, PATHINFO_FILENAME);
     $filename = sanitizeFilename($name . '-' . $hash);
+  } else {
+    if (!empty($identifier)) {
+      $filename = sanitizeFilename($identifier);
+    } else {
+      $hash     = md5("$scriptPath/$commandArgsString");
+      $name     = pathinfo($scriptPath, PATHINFO_FILENAME);
+      $filename = sanitizeFilename($name . '-' . $hash);
+    }
   }
 
   // Build runner and log paths without creating intermediate unused variables
   $runner_file = unixPath(tmp() . "/runners/{$filename}-runBashOrBatch" . ($isWin ? '.bat' : '.sh'));
-  $output_file = unixPath(tmp() . "/logs/{$filename}-runBashOrBatch.txt");
+  // If caller provided a custom output path and redirectOutput is true, prefer it.
+  if ($redirectOutput && !empty($customOutputPath)) {
+    $output_file = unixPath($customOutputPath);
+  } else {
+    $output_file = unixPath(tmp() . "/logs/{$filename}-runBashOrBatch.txt");
+  }
 
   // Construct the command
   // Prefer the venv activation script if it exists; don't try to call a missing file
