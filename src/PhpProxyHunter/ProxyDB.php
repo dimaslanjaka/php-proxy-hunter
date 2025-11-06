@@ -5,6 +5,10 @@ namespace PhpProxyHunter;
 use PDO;
 use PDOException;
 
+if (!function_exists('extractProxies')) {
+  require_once __DIR__ . '/utils/autoload.php';
+}
+
 /**
  * Class ProxyDB
  *
@@ -181,14 +185,42 @@ class ProxyDB {
   }
 
   /**
+   * Normalize a proxy string into a canonical proxy representation.
+   *
+   * This method will:
+   * - Trim surrounding whitespace from the provided input.
+   * - Use the helper function extractProxies() to parse proxy entries from the input.
+   * - Return the single normalized proxy string if exactly one proxy is found.
+   *
+   * Notes:
+   * - If the input contains no valid proxies, the method returns null.
+   * - If the input contains more than one proxy, an InvalidArgumentException is thrown.
+   *
+   * @param string|null $proxy The proxy input to normalize (may be a raw string containing whitespace or other text).
+   * @return string|null The normalized proxy string, or null if no valid proxy could be extracted.
+   * @throws \InvalidArgumentException If the input contains more than one proxy.
+   */
+  public function normalizeProxy($proxy) {
+    $data    = trim($proxy);
+    $extract = extractProxies($data, null, false);
+    if (empty($extract)) {
+      throw new \InvalidArgumentException('Input does not contain any valid proxy.');
+    }
+    // throw when proxy more than one
+    if (count($extract) > 1) {
+      throw new \InvalidArgumentException('Input contains more than one proxy.');
+    }
+    $data = $extract[0]->proxy;
+    return $data;
+  }
+
+  /**
    * @param string $proxy
    * @return array
    */
   public function select($proxy) {
-    if (empty($proxy) || !$proxy || !is_string($proxy)) {
-      throw new \InvalidArgumentException('Proxy cannot be empty.');
-    }
-    return $this->db->select('proxies', '*', 'proxy = ?', [trim($proxy)]);
+    $proxy = $this->normalizeProxy($proxy);
+    return $this->db->select('proxies', '*', 'proxy = ?', [$proxy]);
   }
 
   /**
@@ -204,12 +236,12 @@ class ProxyDB {
    * @param string $proxy
    */
   public function remove($proxy) {
-    $trimmedProxy = trim($proxy);
-    $this->db->delete('proxies', 'proxy = ?', [$trimmedProxy]);
+    $proxy = $this->normalizeProxy($proxy);
+    $this->db->delete('proxies', 'proxy = ?', [$proxy]);
     // Also remove from added_proxies to keep state consistent
     if (isset($this->db->pdo)) {
       $stmt = $this->db->pdo->prepare('DELETE FROM added_proxies WHERE proxy = :proxy');
-      $stmt->bindParam(':proxy', $trimmedProxy, PDO::PARAM_STR);
+      $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
       $stmt->execute();
     }
   }
@@ -218,12 +250,12 @@ class ProxyDB {
    * @param string|null $proxy
    */
   public function add($proxy) {
-    $trimmed  = trim($proxy);
-    $inserted = $this->db->insert('proxies', ['proxy' => $trimmed, 'status' => 'untested'], true);
+    $proxy    = $this->normalizeProxy($proxy);
+    $inserted = $this->db->insert('proxies', ['proxy' => $proxy, 'status' => 'untested'], true);
     if ($inserted) {
       // Also record in added_proxies so the proxy is treated as already added
       // markAsAdded will avoid duplicate entries.
-      $this->markAsAdded($trimmed);
+      $this->markAsAdded($proxy);
     }
   }
 
@@ -232,10 +264,8 @@ class ProxyDB {
    * @return bool
    */
   public function isAlreadyAdded($proxy) {
-    if (empty($proxy)) {
-      return false;
-    }
-    $stmt = $this->db->pdo->prepare('SELECT COUNT(*) FROM added_proxies WHERE proxy = :proxy');
+    $proxy = $this->normalizeProxy($proxy);
+    $stmt  = $this->db->pdo->prepare('SELECT COUNT(*) FROM added_proxies WHERE proxy = :proxy');
     $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
     $stmt->execute();
     return $stmt->fetchColumn() > 0;
