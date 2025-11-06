@@ -59,11 +59,9 @@ const MainApp = function () {
   React.useEffect(() => {
     // Send pageview with a custom path
     const currentMetaRoute = routes.find((data) => data.path === window.location.pathname);
-    const title = currentMetaRoute?.title || 'N/A';
+    const title = currentMetaRoute?.title || 'PHP Proxy Hunter';
+    document.title = title;
     ReactGA.send({ hitType: 'pageview', page: location.pathname, title });
-    if (title !== 'N/A') {
-      document.title = title;
-    }
   });
 
   return (
