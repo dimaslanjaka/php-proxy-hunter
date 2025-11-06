@@ -338,6 +338,16 @@ async function main() {
     throw new Error(`Remote python-minimal installation failed with code ${pyCode}, signal ${pySignal}`);
   }
 
+  // Run `composer install --no-dev --no-interaction` when `composer.lock` is not found otherwise `composer update --no-dev --no-interaction`
+  console.log('Ensuring PHP dependencies are installed on remote server...');
+  const { code: composerCode, signal: composerSignal } = await shell_exec(
+    `[ -f ${remotePath}/composer.lock ] && php ${remotePath}/bin/composer.phar install --no-dev --no-interaction || php ${remotePath}/bin/composer.phar update --no-dev --no-interaction`,
+    remotePath
+  );
+  if (composerCode !== 0) {
+    throw new Error(`Remote composer installation failed with code ${composerCode}, signal ${composerSignal}`);
+  }
+
   // Build project
   await spawnAsync('node', ['bin/build-project.mjs'], { stdio: 'inherit', shell: true });
 
