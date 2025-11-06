@@ -365,6 +365,13 @@ async function main() {
   await uploadDir(path.join(__dirname, '/../dist'), `${remotePath}/dist`);
   await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
 
+  // Run `bash bin/fix-perm` on remote server to fix file permissions
+  console.log('Fixing file permissions on remote server...');
+  const { code: permCode, signal: permSignal } = await shell_exec('bash bin/fix-perm', remotePath);
+  if (permCode !== 0) {
+    throw new Error(`Remote fix-perm script failed with code ${permCode}, signal ${permSignal}`);
+  }
+
   // Remove the build lock file to signal build completion
   await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
 }
