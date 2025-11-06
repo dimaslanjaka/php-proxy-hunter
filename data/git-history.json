@@ -1,5 +1,21 @@
 [
   {
+    "hash": "959205c9d8297bd60007e6b9817a37953971d268",
+    "date": "2025-11-06T18:14:39+07:00",
+    "message": "fix(deploy): add remote script execution to fix file permissions after upload",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "62eb5876036cd3425a02d3fd50f73be245bbd011",
+    "date": "2025-11-06T18:13:59+07:00",
+    "message": "fix(deploy): set COMPOSER_ALLOW_SUPERUSER environment variable for composer execution",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
     "hash": "34c0ca7d0a93bc59d6ebc0457cba211f5cc17344",
     "date": "2025-11-06T17:23:01+07:00",
     "message": "fix(embed): adjust CORS handling and add cache-control headers for specific files",
@@ -8660,23 +8676,8 @@
     "date": "2025-08-13T16:47:39+07:00",
     "message": "chore(git): rename git-history.ts to git-history.builder.ts and update post-commit hook\n\n- Renamed `src/dev/git-history.ts` to `src/dev/git-history.builder.ts` for clarity.\n- Updated `.husky/post-commit` to run the builder script after each commit.",
     "files": [
+      ".husky/post-commit",
       "src/dev/git-history.builder.ts"
-    ]
-  },
-  {
-    "hash": "3697e5fbf47a9d24f2b98198f01f216bd9146ea1",
-    "date": "2025-08-13T16:44:55+07:00",
-    "message": "refactor(react): implement React.lazy for route components and add Font Awesome spinner to Suspense fallback\n\n- Replaced static imports of page components with React.lazy for code splitting and improved performance.\n- Updated Suspense fallback to use a Font Awesome spinner with Tailwind classes for a consistent loading indicator.",
-    "files": [
-      "src/react/App.tsx"
-    ]
-  },
-  {
-    "hash": "63ee7de2db2b32f7c6a23f2076f8332312983b41",
-    "date": "2025-08-13T16:34:29+07:00",
-    "message": "feat(git-history): improve initial load speed with localStorage cache and loading state\n\n- Cache the first 30 git history items in localStorage for instant initial render.\n- Show a loading spinner while fetching the full git history, but keep displaying cached content until new data arrives.\n- Update the cache with the latest first 30 items after fetch.\n- Add loading state management and error handling for cache and fetch operations.",
-    "files": [
-      "src/react/pages/GitHistory.tsx"
     ]
   }
 ]
