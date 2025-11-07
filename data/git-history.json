@@ -1,5 +1,13 @@
 [
   {
+    "hash": "17229f0c2e747213f45b9887f8a5939b02a216be",
+    "date": "2025-11-07T17:30:32+07:00",
+    "message": "feat(number-utils): add toNumber function for safe numeric conversion",
+    "files": [
+      "src/utils/string/number_utils.ts"
+    ]
+  },
+  {
     "hash": "959205c9d8297bd60007e6b9817a37953971d268",
     "date": "2025-11-06T18:14:39+07:00",
     "message": "fix(deploy): add remote script execution to fix file permissions after upload",
@@ -8669,15 +8677,6 @@
     "message": "feat(github-pages): add GitHub Actions workflow for deploying to GitHub Pages",
     "files": [
       ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "6426eceb3ca8ee634981616ca8779e56c3bf0aa1",
-    "date": "2025-08-13T16:47:39+07:00",
-    "message": "chore(git): rename git-history.ts to git-history.builder.ts and update post-commit hook\n\n- Renamed `src/dev/git-history.ts` to `src/dev/git-history.builder.ts` for clarity.\n- Updated `.husky/post-commit` to run the builder script after each commit.",
-    "files": [
-      ".husky/post-commit",
-      "src/dev/git-history.builder.ts"
     ]
   }
 ]
