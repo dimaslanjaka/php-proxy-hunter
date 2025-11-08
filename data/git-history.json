@@ -1,5 +1,34 @@
 [
   {
+    "hash": "54d499a18e4ea1fcd1a767b3f30db5939fbf5986",
+    "date": "2025-11-08T16:42:12+07:00",
+    "message": "feat(proxy-checker): log message when writing working proxies file on shutdown",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "adfe0d72cf3dc9c3cbbf7b28848674b1b1d27f0d",
+    "date": "2025-11-08T16:40:35+07:00",
+    "message": "chore(php): make PHP 7.0 compatible\n\n- Remove PHP 7.4+/8.0+ syntax to restore PHP 7.0 compatibility:\n  - Drop typed class properties and replace with untyped properties (types preserved in phpdoc).\n  - Remove/relax scalar parameter and return type hints not supported by PHP 7.0.\n  - Replace PHP 7.4 arrow functions (`fn`) with anonymous function closures.\n  - Remove `declare(strict_types=1)` where present and normalize small formatting differences.\n- Preserve existing phpdoc descriptions and ensure type information is retained in docblocks.\n\nFiles changed:\n- src/PhpProxyHunter/Checker/CheckerOptions.php\n- src/PhpProxyHunter/ExecutionTimer.php\n- src/PhpProxyHunter/Proxy.php\n- src/PhpProxyHunter/Scheduler.php\n- src/PhpProxyHunter/Server.php\n- src/utils/server/postdata.php\n\nBREAKING CHANGE:\nType declarations (typed properties, nullable/parameter/return hints) were removed or relaxed. Code that relied on PHP-level type enforcement may no longer trigger type errors and should validate inputs at runtime if strict type checks are required.",
+    "files": [
+      "src/PhpProxyHunter/Checker/CheckerOptions.php",
+      "src/PhpProxyHunter/ExecutionTimer.php",
+      "src/PhpProxyHunter/Proxy.php",
+      "src/PhpProxyHunter/Scheduler.php",
+      "src/PhpProxyHunter/Server.php",
+      "src/utils/server/postdata.php"
+    ]
+  },
+  {
+    "hash": "cfd14a55e04456e2b0e5141c050057b492a43ae5",
+    "date": "2025-11-08T16:30:52+07:00",
+    "message": "chore(phpcs): disable three PHPCS sniffs (multiline-brace / scope-closing-brace / same-line-statements)\n\nAdd exclusions and set severity=0 for these sniffs in `phpcs.xml`:\n- Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace\n- Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore\n- Generic.Formatting.DisallowMultipleStatements.SameLine\n\nRationale: suppress stylistic warnings for an intentional compact brace/statement style (affects src/PhpProxyHunter/Proxy.php).",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
     "hash": "601b2e15b439de556454949b2a21c3404f75f1c2",
     "date": "2025-11-08T15:40:09+07:00",
     "message": "fix(proxy-checker): initialize runner path and record latency/anonymity in DB\n\n- initialize `$isWin` before constructing `$runner` to avoid using an uninitialized variable\n- persist `latency` and `anonymity` into the proxy DB on successful checks\n- clear `latency`/`anonymity` and update `last_check`/`status` when marking a proxy dead",
@@ -8648,39 +8677,6 @@
     "files": [
       ".gitignore",
       "public/.gitignore"
-    ]
-  },
-  {
-    "hash": "6f7c13a95f255f9f8f40e0a7bc4d3edc28bdba52",
-    "date": "2025-08-13T17:19:08+07:00",
-    "message": "fix(ci): fallback to GITHUB_TOKEN if ACCESS_TOKEN is not set in workflows\n\n- Update all workflow files to use `${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}`\n- Ensures CI/CD does not fail if ACCESS_TOKEN is missing by falling back to GITHUB_TOKEN",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-php.yml.txt",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/checker.yml.txt",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/clean.yml",
-      ".github/workflows/github-pages.yml",
-      ".github/workflows/main.yml.txt",
-      ".github/workflows/nuitka-debug.yml.txt",
-      ".github/workflows/nuitka.yml.txt"
-    ]
-  },
-  {
-    "hash": "f2ac4b33c4cc19a0f2bc4617ed929e8a70c27e86",
-    "date": "2025-08-13T17:18:00+07:00",
-    "message": "fix(ci): use ACCESS_TOKEN secret for pushing to gh-pages branch in GitHub Actions\n\n- Add ACCESS_TOKEN environment variable to deployment step\n- Update git push command to use personal access token for authentication",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "a24d71605db18800f01b179c8f6845c4376b15f2",
-    "date": "2025-08-13T17:16:18+07:00",
-    "message": "fix(ci): update cache key format for Node.js dependencies in GitHub Actions workflow",
-    "files": [
-      ".github/workflows/github-pages.yml"
     ]
   }
 ]
