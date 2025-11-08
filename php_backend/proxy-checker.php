@@ -195,8 +195,8 @@ if (!$isCli) {
     $cmd = implode(' ', $cmdParts);
     // run in background, record pid
     $cmdLine = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
-
-    $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    $isWin   = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    $runner  = __DIR__ . '/tmp/runners/proxyChecker-' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
 
     write_file($runner, $cmdLine);
     $run            = runBashOrBatch($runner, [], 'proxyChecker', true);
@@ -395,13 +395,22 @@ function proxyChecker($proxyInfo, $types = []) {
   // save to database
   if (!$result->isWorking) {
     addLog('Proxy test failed for all types.');
+    // mark dead and clear latency/anonymity
     $proxy_db->updateStatus($proxyInfo['proxy'], 'dead');
+    $proxy_db->updateData($proxyInfo['proxy'], [
+      'latency'    => null,
+      'anonymity'  => null,
+      'last_check' => date(DATE_RFC3339),
+      'status'     => 'dead',
+    ]);
   } else {
     $proxy_db->updateData($proxyInfo['proxy'], [
       'type'       => implode('-', $result->workingTypes),
       'username'   => $proxyInfo['username'] ?? null,
       'password'   => $proxyInfo['password'] ?? null,
       'https'      => $result->isSSL ? 'true' : 'false',
+      'latency'    => is_numeric($result->latency) ? $result->latency : null,
+      'anonymity'  => $result->anonymity ?: null,
       'last_check' => date(DATE_RFC3339),
       'status'     => 'active',
     ]);
