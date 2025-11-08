@@ -1,5 +1,22 @@
 [
   {
+    "hash": "347a45e8715dba350c2ddf313b40351649090585",
+    "date": "2025-11-08T17:31:13+07:00",
+    "message": "refactor(proxyWorking): remove user-specific lock file paths and simplify lock handling\n\n- Changed lock file paths in `artisan/proxyWorking.php` to use global locks instead of user-specific ones.\n- Updated `php_backend/processes.php` to remove obsolete proxyWorking lock file references.\n- Added commented-out code for delayed lock removal to prevent potential race conditions.",
+    "files": [
+      "artisan/proxyWorking.php",
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "3a9dfb8d4aa2153d9ed51d4997a9807918d6fe66",
+    "date": "2025-11-08T17:28:02+07:00",
+    "message": "fix(proxy-working): correct script path reference and improve exit function formatting",
+    "files": [
+      "artisan/proxyWorking.php"
+    ]
+  },
+  {
     "hash": "54d499a18e4ea1fcd1a767b3f30db5939fbf5986",
     "date": "2025-11-08T16:42:12+07:00",
     "message": "feat(proxy-checker): log message when writing working proxies file on shutdown",
@@ -8660,23 +8677,6 @@
     "message": "chore(ci): add write permission for contents in github-pages workflow\n\n- Add `permissions: contents: write` to enable branch push in workflow",
     "files": [
       ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "b05b9dc4fe5ec6906a65b244cd1697cd99a114da",
-    "date": "2025-08-13T17:23:47+07:00",
-    "message": "fix(ci): update GitHub Actions workflow for deploying to gh-pages",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "ca5dcd7de76b8ca99484309a088fa4a589ad50fa",
-    "date": "2025-08-13T17:21:42+07:00",
-    "message": "chore(gitignore): move public ignore rules to root .gitignore and remove public/.gitignore\n\n- Add /public/php and /public/data/git-history* to root .gitignore\n- Remove redundant public/.gitignore file",
-    "files": [
-      ".gitignore",
-      "public/.gitignore"
     ]
   }
 ]
