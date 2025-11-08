@@ -29,7 +29,7 @@ class CheckerOptions {
    *
    * @var string[]
    */
-  public $protocols = ['http', 'https', 'socks4', 'socks5'];
+  public $protocols = ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
 
   /**
    * Optional username for authenticated proxies.
