@@ -286,6 +286,8 @@ if (!$isCli) {
 
   // ensure lock file is always deleted when script ends
   register_shutdown_function(function () use ($lockFilePath, $proxyInfo, $proxy_db) {
+    // write working proxies file
+    addLog('Writing working proxies file...');
     writing_working_proxies_file($proxy_db);
     // remove lock file
     delete_path($lockFilePath);
