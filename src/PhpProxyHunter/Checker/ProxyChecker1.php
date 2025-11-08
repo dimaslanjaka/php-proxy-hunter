@@ -20,12 +20,7 @@ class ProxyChecker1 extends ProxyChecker {
       return new CheckerResult(false, false, []);
     }
 
-    $proxyIP      = extractIPs($proxy)[0] ?? null;
-    $foundWorking = false;
-    $isSSL        = false;
-    $workingTypes = [];
-    $anonymity    = '';
-    $latency      = 0.0;
+    $proxyIP = extractIPs($proxy)[0] ?? null;
 
     // --- Try SSL then Non-SSL ---
     foreach ([true, false] as $useSSL) {
@@ -111,23 +106,27 @@ class ProxyChecker1 extends ProxyChecker {
         continue;
       }
 
+      // If the returned IP matches our current IP, the proxy leaked the client IP -> transparent
       if ($ip === $currentIp && $currentIp !== '127.0.0.1') {
         if ($debug) {
-          self::log('red', "Proxy {$label} test failed for type {$type} (IP matches current IP).");
+          self::log('red', "Proxy {$label} test failed for type {$type} (IP matches current IP - transparent).");
         }
+        $foundAnonymity = 'transparent';
         continue;
       }
 
+      // If the returned IP matches the proxy IP, client's IP is hidden but destination sees proxy -> anonymous
       if ($ip === $proxyIP) {
         if ($debug) {
-          self::log('green', "Proxy {$label} test succeeded for type {$type} (IP: {$ip}).");
+          self::log('green', "Proxy {$label} test succeeded for type {$type} (IP: {$ip} - anonymous).");
         }
         $foundWorking   = true;
         $workingTypes[] = $type;
-        $foundAnonymity = 'transparent';
+        $foundAnonymity = 'anonymous';
         break;
       }
 
+      // If the returned IP is neither the proxy nor the client, it's likely an elite/high-anonymous proxy
       if ($ip !== $proxyIP && $ip !== $currentIp) {
         if ($debug) {
           self::log('yellow', "Proxy {$label} test succeeded for type {$type} (High anonymous, IP: {$ip}).");
@@ -151,39 +150,45 @@ class ProxyChecker1 extends ProxyChecker {
   }
 
   private static function log(string $color, string $message): void {
-    // Only colorize specific parts: label (SSL/Non-SSL), type, IP addresses, the word 'Proxy',
-    // and success/fail keywords (succeeded/failed).
-    // We'll scan the message and replace those tokens with colored versions.
+    // Primary color is kept for whole message fallback. selectiveColorize will apply
+    // token-level colors (label, IPs, types, Proxy word, succeeded/failed).
     $colored = self::selectiveColorize($color, $message);
     echo $colored . PHP_EOL;
   }
 
   private static function selectiveColorize(string $color, string $message): string {
-    // Patterns to colorize
-    $patterns = [
-      // Label: SSL or Non-SSL (word boundaries)
-      '/\b(SSL|Non-SSL)\b/',
-      // Type names (e.g., HTTP, HTTPS, SOCKS4, SOCKS5) - conservative: uppercase words or words with digits
-      '/\b([A-Z0-9_-]{2,})\b/',
-      // IP addresses (IPv4)
-      '/\b(\d{1,3}(?:\.\d{1,3}){3})\b/',
-      // The literal word 'Proxy'
-      '/\b(Proxy)\b/i',
-      // success/fail keywords
-      '/\b(succeeded|failed)\b/i',
+    // We'll detect token types and apply specific colors for each token class.
+    // Priority: Label (SSL/Non-SSL) -> IP -> success/fail -> Proxy -> Type
+    // Define regexes with named token types for easier handling.
+    $tokenPatterns = [
+      'label'  => '/\b(SSL|Non-SSL)\b/',
+      'ip'     => '/\b(\d{1,3}(?:\.\d{1,3}){3})\b/',
+      'status' => '/\b(succeeded|failed)\b/i',
+      'proxy'  => '/\b(Proxy)\b/i',
+      // Type names (HTTP, HTTPS, SOCKS4, SOCKS5, etc.) - uppercase words or digits
+      'type' => '/\b([A-Z0-9_-]{2,})\b/',
     ];
 
-    // We'll iterate and replace matches with colored versions. To avoid recoloring already colored
-    // segments, we build the output progressively.
-    $offset = 0;
-    $result = '';
+    // Color map per token type. Use AnsiColors supported names.
+    $colorMap = [
+      'label'  => ['green', 'bold'],   // SSL default (Non-SSL handled below)
+      'ip'     => ['cyan'],            // IP addresses
+      'status' => ['green', 'bold'],   // succeeded (we'll switch to red if 'failed')
+      'proxy'  => ['red', 'bold'],     // the word 'Proxy'
+      'type'   => ['yellow'],          // protocol type
+    ];
 
-    // Find all matches from all patterns with positions
+    // Gather matches from all patterns with positions and types
     $matches = [];
-    foreach ($patterns as $p) {
-      if (preg_match_all($p, $message, $m, PREG_OFFSET_CAPTURE)) {
+    foreach ($tokenPatterns as $type => $pat) {
+      if (preg_match_all($pat, $message, $m, PREG_OFFSET_CAPTURE)) {
         foreach ($m[0] as $match) {
-          $matches[] = ['text' => $match[0], 'pos' => $match[1], 'len' => strlen($match[0])];
+          $matches[] = [
+            'text' => $match[0],
+            'pos'  => $match[1],
+            'len'  => strlen($match[0]),
+            'type' => $type,
+          ];
         }
       }
     }
@@ -204,22 +209,51 @@ class ProxyChecker1 extends ProxyChecker {
       }
     }
 
+    // Build result progressively
+    $offset = 0;
+    $result = '';
     foreach ($filtered as $m) {
-      $pos = $m['pos'];
-      $len = $m['len'];
-      // append text before match
+      $pos  = $m['pos'];
+      $len  = $m['len'];
+      $type = $m['type'];
+
       if ($offset < $pos) {
         $result .= substr($message, $offset, $pos - $offset);
       }
       $token = substr($message, (int)$pos, (int)$len);
-      // apply color
-      $result .= AnsiColors::colorize([$color], $token);
+
+      // Choose color for token type; allow dynamic adjustment for status token
+      $fmt = $colorMap[$type] ?? [$color];
+      if ($type === 'status') {
+        // If the token is 'failed' (case-insensitive), use red instead
+        if (preg_match('/failed/i', $token)) {
+          $fmt = ['red', 'bold'];
+        } else {
+          $fmt = ['green', 'bold'];
+        }
+      }
+
+      // For label, differentiate Non-SSL vs SSL: Non-SSL -> yellow, SSL -> green
+      if ($type === 'label') {
+        if (stripos($token, 'non-ssl') !== false) {
+          $fmt = ['yellow', 'bold'];
+        } else {
+          $fmt = ['green', 'bold'];
+        }
+      }
+
+      $result .= AnsiColors::colorize($fmt, $token);
       $offset = $pos + $len;
     }
 
     // append remainder
     if ($offset < strlen($message)) {
       $result .= substr($message, (int)$offset);
+    }
+
+    // If nothing was colored (no matches), fallback to coloring entire message with provided color
+    if ($result === '') {
+      return AnsiColors::colorize([$color], $message);
     }
 
     return $result;
