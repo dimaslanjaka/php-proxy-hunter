@@ -6,8 +6,7 @@
  * @param string $file The file path.
  * @return object An object containing file details: permissions, owner, and group.
  */
-function getFileInfo(string $file)
-{
+function getFileInfo(string $file) {
   if (!file_exists($file)) {
     return (object)[
       'error' => 'File does not exist.',
@@ -45,8 +44,7 @@ function getFileInfo(string $file)
  * @param string $path The file path to convert.
  * @return string The file path with Unix separators.
  */
-function unixPath($path)
-{
+function unixPath($path) {
   // Replace backslashes with forward slashes
   $unixPath = str_replace('\\', '/', $path);
 
@@ -66,8 +64,7 @@ function unixPath($path)
  * @param string $filePath
  * @return bool
  */
-function is_file_locked($filePath)
-{
+function is_file_locked($filePath) {
   // Check if the file exists
   if (!file_exists($filePath) || !is_readable($filePath) || !is_writable($filePath)) {
     return true;
@@ -105,8 +102,7 @@ function is_file_locked($filePath)
  * @return string
  * @throws \ReflectionException
  */
-function getProjectRoot()
-{
+function getProjectRoot() {
   $autoloadPath = (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName();
   return unixPath(dirname(dirname(dirname($autoloadPath))));
 }
@@ -114,10 +110,23 @@ function getProjectRoot()
 /**
  * Get project temp folder.
  *
- * @return string|false The temporary directory path or false on failure.
+ * Build and return the path to the project's temp directory. Additional
+ * path segments can be provided as variadic arguments and will be appended
+ * to the base tmp folder. The function will create the directory (recursively)
+ * if it does not exist and attempt to set safe permissions (0755).
+ *
+ * Example:
+ *   tmp('cache', 'session'); // => /path/to/project/tmp/cache/session
+ *
+ * @param string ...$args Optional path segments to append to the tmp directory.
+ * @return string|false Absolute path to the resulting temporary directory on success, or false on failure.
+ *
+ * Failure reasons:
+ * - getProjectRoot() throws or cannot be resolved.
+ * - Failed to create the directory (mkdir failure).
+ * - Failed to set permissions (chmod failure).
  */
-function tmp(...$args)
-{
+function tmp(...$args) {
   $projectRoot = getProjectRoot();
 
   // Base directory for temp folder
@@ -159,8 +168,7 @@ function tmp(...$args)
  * @param string $content_to_append
  * @return bool
  */
-function append_content_with_lock($file, $content_to_append)
-{
+function append_content_with_lock($file, $content_to_append) {
   createParentFolders($file);
   if (file_exists($file)) {
     if (is_file_locked($file)) {
@@ -209,8 +217,7 @@ function append_content_with_lock($file, $content_to_append)
  * @param string $filePath
  * @return void
  */
-function removeEmptyLinesFromFile($filePath)
-{
+function removeEmptyLinesFromFile($filePath) {
   // Check if the file exists and is readable
   if (!file_exists($filePath) || !is_writable($filePath)) {
     // echo "Error: The file '$filePath' does not exist or cannot be read." . PHP_EOL;
@@ -300,8 +307,7 @@ function removeEmptyLinesFromFile($filePath)
  * @param int $linesToMove
  * @return bool
  */
-function moveLinesToFile($sourceFile, $destinationFile, $linesToMove)
-{
+function moveLinesToFile($sourceFile, $destinationFile, $linesToMove) {
   // Open the source file for reading and writing
   $sourceHandle = @fopen($sourceFile, 'r+');
   if (!$sourceHandle) {
@@ -366,8 +372,7 @@ function moveLinesToFile($sourceFile, $destinationFile, $linesToMove)
  * @param string|array $string_to_remove
  * @return string
  */
-function removeStringFromFile($file_path, $string_to_remove)
-{
+function removeStringFromFile($file_path, $string_to_remove) {
   if (is_file_locked($file_path)) {
     return "$file_path locked";
   }
@@ -416,8 +421,7 @@ function removeStringFromFile($file_path, $string_to_remove)
  * @param callable|null $callback
  * @return void
  */
-function iterateLines($string, $shuffle_or_callback, $callback = null)
-{
+function iterateLines($string, $shuffle_or_callback, $callback = null) {
   // Normalize all newlines to LF (\n)
   $normalizedString = preg_replace('/\r?\n/', "\n", $string);
 
@@ -460,8 +464,7 @@ function iterateLines($string, $shuffle_or_callback, $callback = null)
  * @param callable|null $callback
  * @return void
  */
-function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MAX, $callback = null)
-{
+function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MAX, $callback = null) {
   foreach ($filePaths as $filePath) {
     if (!file_exists($filePath) || !is_readable($filePath)) {
       print("$filePath not found" . PHP_EOL);
@@ -532,8 +535,7 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
  * @param string $destinationFile
  * @return bool
  */
-function removeDuplicateLinesFromSource($sourceFile, $destinationFile)
-{
+function removeDuplicateLinesFromSource($sourceFile, $destinationFile) {
   // Open source file for reading
   $sourceHandle = @fopen($sourceFile, 'r');
   if (!$sourceHandle) {
@@ -610,8 +612,7 @@ function removeDuplicateLinesFromSource($sourceFile, $destinationFile)
  * @param string $outputDirectory
  * @return void
  */
-function splitLargeFile($largeFilePath, $maxLinesPerFile, $outputDirectory)
-{
+function splitLargeFile($largeFilePath, $maxLinesPerFile, $outputDirectory) {
   // Get the filename from the large file path
   $filename = pathinfo($largeFilePath, PATHINFO_FILENAME);
 
@@ -679,8 +680,7 @@ function splitLargeFile($largeFilePath, $maxLinesPerFile, $outputDirectory)
  * @param string $file2
  * @return array
  */
-function getDuplicatedLines($file1, $file2)
-{
+function getDuplicatedLines($file1, $file2) {
   // Open files for reading
   $handle1 = @fopen($file1, 'r');
   $handle2 = @fopen($file2, 'r');
@@ -720,8 +720,7 @@ function getDuplicatedLines($file1, $file2)
  * @param string|null $file_extension
  * @return string|null
  */
-function getRandomFileFromFolder($folder, $file_extension = null)
-{
+function getRandomFileFromFolder($folder, $file_extension = null) {
   if (!$folder || !file_exists($folder)) {
     return null;
   }
@@ -774,8 +773,7 @@ function getRandomFileFromFolder($folder, $file_extension = null)
  * @param string $inputFile
  * @return void
  */
-function filterUniqueLines($inputFile)
-{
+function filterUniqueLines($inputFile) {
   // Open input file for reading and writing
   $inputHandle = @fopen($inputFile, 'r+');
 
@@ -817,8 +815,7 @@ function filterUniqueLines($inputFile)
  * @param string $filePath
  * @return void
  */
-function truncateFile($filePath)
-{
+function truncateFile($filePath) {
   // Write an empty string to truncate the file
   write_file($filePath, '');
 }
@@ -836,8 +833,7 @@ function truncateFile($filePath)
  * @param string $destinationFile
  * @return string
  */
-function moveContent($sourceFile, $destinationFile)
-{
+function moveContent($sourceFile, $destinationFile) {
   // Check if source file is readable
   if (!is_readable($sourceFile)) {
     return "$sourceFile not readable";
@@ -905,8 +901,7 @@ function moveContent($sourceFile, $destinationFile)
  * @param string $inputFile
  * @return void
  */
-function removeDuplicateLines($inputFile)
-{
+function removeDuplicateLines($inputFile) {
   if (!file_exists($inputFile)) {
     echo "removeDuplicateLines: $inputFile is not found" . PHP_EOL;
     return;
@@ -962,8 +957,7 @@ function removeDuplicateLines($inputFile)
  * @param int $chunkSize
  * @return int|false
  */
-function countNonEmptyLines($filePath, $chunkSize = 4096)
-{
+function countNonEmptyLines($filePath, $chunkSize = 4096) {
   if (!file_exists($filePath)) {
     return 0;
   }
@@ -1010,8 +1004,7 @@ function countNonEmptyLines($filePath, $chunkSize = 4096)
  * @param int $minLength
  * @return string
  */
-function removeShortLines($inputStringOrFilePath, $minLength)
-{
+function removeShortLines($inputStringOrFilePath, $minLength) {
   if (is_file($inputStringOrFilePath)) {
     // If the input is a file, read its contents
     $inputString = read_file($inputStringOrFilePath);
@@ -1044,8 +1037,7 @@ function removeShortLines($inputStringOrFilePath, $minLength)
  * @param int $lines_to_read
  * @return array|false
  */
-function read_first_lines($filePath, $lines_to_read)
-{
+function read_first_lines($filePath, $lines_to_read) {
   if (is_file_locked($filePath)) {
     return false;
   }
@@ -1087,8 +1079,7 @@ function read_first_lines($filePath, $lines_to_read)
  * @param string $dir
  * @return void
  */
-function ensure_dir($dir)
-{
+function ensure_dir($dir) {
   if (!is_dir($dir)) {
     @mkdir($dir, 0777, true);
   }
