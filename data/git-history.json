@@ -1,5 +1,41 @@
 [
   {
+    "hash": "f46afddcc57dccc6bc406192768064ee19dbece4",
+    "date": "2025-11-08T12:36:56+07:00",
+    "message": "chore(checker): make CheckerResult and ProxyChecker1 PHP 7.0 compatible\n\nRemove typed class properties from `CheckerResult` (avoid PHP 7.4+ typed props),\ndrop nullable/strict return type hints from `ProxyChecker1::testProxyGroup`\nand rely on PHPDoc for nullability/return info, and replace the arrow `fn`\ncomparator in `usort` with a PHP 7.0-compatible anonymous function.\nAlso expand `testProxyGroup` PHPDoc for clarity.",
+    "files": [
+      "src/PhpProxyHunter/Checker/CheckerResult.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker1.php"
+    ]
+  },
+  {
+    "hash": "66ed295e742ea8106f6b73ab767175e9fcbd7aa4",
+    "date": "2025-11-08T09:15:30+07:00",
+    "message": "feat(checker): add anonymity & latency to CheckerResult; return CheckerResult from ProxyChecker1\n\nAdd new fields `anonymity` (string) and `latency` (float) to `CheckerResult` and\nupdate its constructor to accept and store these values. Update\n`ProxyChecker1::testProxyGroup` to measure request latency, determine a simple\nanonymity label (`transparent` or `elite`) for the first successful protocol,\nand return a `CheckerResult` instance instead of an array. Update `check()` to\nconsume the returned `CheckerResult`. Also improve logging colorization output\nin `ProxyChecker1::log`.\n\nBREAKING CHANGE: `ProxyChecker1::testProxyGroup` signature changed from `: array`\nto `: CheckerResult` and its return shape changed; callers must be updated\nto accept a `CheckerResult` object.",
+    "files": [
+      "src/PhpProxyHunter/Checker/CheckerResult.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker1.php"
+    ]
+  },
+  {
+    "hash": "c68767650c12293c70b0825d2b456ae20e308852",
+    "date": "2025-11-08T08:04:28+07:00",
+    "message": "fix(permissions): handle permission and ownership changes without exiting on failure",
+    "files": [
+      "bin/fix-perm"
+    ]
+  },
+  {
+    "hash": "e83093a4f1355141bc99f40202b474d291e4808b",
+    "date": "2025-11-08T08:03:57+07:00",
+    "message": "feat(build): skip redundant install/build steps and forward CLI args during deploy\n\n- Added console logs to skip yarn install/build when no changes detected in package.json or src files.\n- Updated deploy-vps script to forward CLI arguments to build-project.mjs and log build progress.\n- Updated baileys submodule to latest commit.",
+    "files": [
+      "bin/build-project.mjs",
+      "bin/deploy-vps.mjs",
+      "packages/baileys"
+    ]
+  },
+  {
     "hash": "17229f0c2e747213f45b9887f8a5939b02a216be",
     "date": "2025-11-07T17:30:32+07:00",
     "message": "feat(number-utils): add toNumber function for safe numeric conversion",
@@ -8643,38 +8679,6 @@
     "hash": "6c6b48ee6dfc08a6280bc596e18fdcd0ce8e686a",
     "date": "2025-08-13T17:12:44+07:00",
     "message": "fix(ci): update GitHub Pages workflow trigger to use path-based push and add workflow_dispatch\n\n- Changed push trigger to run only on changes in specific src and workflow files instead of all pushes to main.\n- Added workflow_dispatch for manual workflow runs.",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "95be9a867bc00395ecccc634725796c33d6607a7",
-    "date": "2025-08-13T17:10:16+07:00",
-    "message": "fix(ci): remove --no-suggest flag from composer install in PHP workflow\n\nThe workflow step for installing PHP dependencies no longer uses the --no-suggest flag with composer install, ensuring compatibility with newer Composer versions and simplifying the install command.",
-    "files": [
-      ".github/workflows/checker-php.yml"
-    ]
-  },
-  {
-    "hash": "32c914ae5ac17a976615e096cee64ce41cbbceec",
-    "date": "2025-08-13T17:09:15+07:00",
-    "message": "fix(ci): enhance composer install logic to handle missing vendor directory",
-    "files": [
-      ".github/workflows/checker-php.yml"
-    ]
-  },
-  {
-    "hash": "9f471bc671b21f411831cc202c841f02cd734cc6",
-    "date": "2025-08-13T17:07:36+07:00",
-    "message": "fix(ci): only run composer install if composer.lock is missing in PHP workflow\n\nThis change updates the GitHub Actions workflow to run `composer install` only when `composer.lock` does not exist, preventing unnecessary reinstalls and improving build efficiency.",
-    "files": [
-      ".github/workflows/checker-php.yml"
-    ]
-  },
-  {
-    "hash": "a423433fc906c5fc0da6d7374735832419d8b686",
-    "date": "2025-08-13T17:02:45+07:00",
-    "message": "feat(github-pages): add GitHub Actions workflow for deploying to GitHub Pages",
     "files": [
       ".github/workflows/github-pages.yml"
     ]
