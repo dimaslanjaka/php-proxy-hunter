@@ -1,5 +1,21 @@
 [
   {
+    "hash": "601b2e15b439de556454949b2a21c3404f75f1c2",
+    "date": "2025-11-08T15:40:09+07:00",
+    "message": "fix(proxy-checker): initialize runner path and record latency/anonymity in DB\n\n- initialize `$isWin` before constructing `$runner` to avoid using an uninitialized variable\n- persist `latency` and `anonymity` into the proxy DB on successful checks\n- clear `latency`/`anonymity` and update `last_check`/`status` when marking a proxy dead",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "9dcc40bd1fa05c122e3ad987315d31a5225e036c",
+    "date": "2025-11-08T15:35:37+07:00",
+    "message": "refactor(checker): improve log colorization and correct anonymity classification\n\n- Enhance `selectiveColorize` to apply per-token colors for labels, IPs, status, proxy and protocol types.\n  - Label colors: SSL -> green (bold), Non-SSL -> yellow (bold)\n  - IP -> cyan\n  - Status: succeeded -> green (bold), failed -> red (bold)\n  - Proxy -> red (bold), Type -> yellow\n- Fix anonymity logic and messages:\n  - returned IP == current IP -> transparent (leak)\n  - returned IP == proxy IP -> anonymous\n  - returned IP != proxy IP && != current IP -> elite (high-anonymous)\n- Minor cleanup: normalize `proxyIP` initialization/whitespace and update debug messages to reflect new labels.\n- No breaking API changes; only internal behavior and logging improvements.",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyChecker1.php"
+    ]
+  },
+  {
     "hash": "f46afddcc57dccc6bc406192768064ee19dbece4",
     "date": "2025-11-08T12:36:56+07:00",
     "message": "chore(checker): make CheckerResult and ProxyChecker1 PHP 7.0 compatible\n\nRemove typed class properties from `CheckerResult` (avoid PHP 7.4+ typed props),\ndrop nullable/strict return type hints from `ProxyChecker1::testProxyGroup`\nand rely on PHPDoc for nullability/return info, and replace the arrow `fn`\ncomparator in `usort` with a PHP 7.0-compatible anonymous function.\nAlso expand `testProxyGroup` PHPDoc for clarity.",
@@ -8663,22 +8679,6 @@
     "hash": "a24d71605db18800f01b179c8f6845c4376b15f2",
     "date": "2025-08-13T17:16:18+07:00",
     "message": "fix(ci): update cache key format for Node.js dependencies in GitHub Actions workflow",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "127085de487b5baaafabd4b86a0715ae50f8cb7f",
-    "date": "2025-08-13T17:15:35+07:00",
-    "message": "fix(ci): specify bash shell for PHP dependencies install step in workflow\n\nExplicitly sets the shell to bash for the Install PHP dependencies step to ensure consistent script execution across environments.",
-    "files": [
-      ".github/workflows/checker-php.yml"
-    ]
-  },
-  {
-    "hash": "6c6b48ee6dfc08a6280bc596e18fdcd0ce8e686a",
-    "date": "2025-08-13T17:12:44+07:00",
-    "message": "fix(ci): update GitHub Pages workflow trigger to use path-based push and add workflow_dispatch\n\n- Changed push trigger to run only on changes in specific src and workflow files instead of all pushes to main.\n- Added workflow_dispatch for manual workflow runs.",
     "files": [
       ".github/workflows/github-pages.yml"
     ]
