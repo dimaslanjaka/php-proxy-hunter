@@ -17,6 +17,30 @@
     <severity>0</severity>
   </rule>
 
+  <!-- Exclude rule that enforces no content after opening brace in multi-line function declarations -->
+  <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace"/>
+
+  <!-- Exclude rule that enforces no content before closing brace in a scope (like functions or classes) -->
+  <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore"/>
+
+  <!-- Exclude rule that disallows multiple statements on the same line -->
+  <exclude name="Generic.Formatting.DisallowMultipleStatements.SameLine"/>
+
+  <!-- Disable rule that enforces no content after opening brace in multi-line function declarations -->
+  <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace">
+    <severity>0</severity>
+  </rule>
+
+  <!-- Disable rule that enforces no content before closing brace in a scope -->
+  <rule ref="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore">
+    <severity>0</severity>
+  </rule>
+
+  <!-- Disable rule that prevents multiple statements being written on the same line -->
+  <rule ref="Generic.Formatting.DisallowMultipleStatements.SameLine">
+    <severity>0</severity>
+  </rule>
+
   <!-- Disable inline control structure rule -->
   <rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
     <severity>0</severity>
