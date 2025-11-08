@@ -20,7 +20,7 @@ if (!$isCli) {
 
   // Run this script in background using same PHP executable
   $phpBin = 'php' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? '.exe' : '');
-  $script = $projectRoot . '/artisan/proxyWorking.php';
+  $script = __FILE__;
   $cmd    = $phpBin . ' ' . escapeshellarg($script);
   $cmd .= ' --userId=' . escapeshellarg($uid);
   $cmd .= ' --admin=' . escapeshellarg($isAdmin ? 'true' : 'false');
@@ -53,8 +53,7 @@ if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
   file_put_contents($lockFilePath, date(DATE_RFC3339));
 }
 
-function exitProcess(): void
-{
+function exitProcess(): void {
   global $lockFilePath;
   if (file_exists($lockFilePath)) {
     unlink($lockFilePath);
