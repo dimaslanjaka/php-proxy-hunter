@@ -44,7 +44,7 @@ if (file_exists($projectRoot . '/proxyChecker.lock') && !is_debug()) {
   exit('proxy checker process still running');
 }
 
-$lockFilePath = tmp() . '/locks/user-' . $uid . '/artisan/proxyWorking.lock';
+$lockFilePath = tmp() . '/locks/proxyWorking.lock';
 
 if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
@@ -62,7 +62,7 @@ function exitProcess(): void {
 
 register_shutdown_function('exitProcess');
 
-$workingData = writing_working_proxies_file($proxy_db, tmp() . '/locks/user-' . $uid . '/artisan/proxyWorking-writer.lock');
+$workingData = writing_working_proxies_file($proxy_db, tmp() . '/locks/proxyWorking-writer.lock');
 
 echo PHP_EOL;
 
@@ -91,3 +91,7 @@ setMultiPermissions([
   $projectRoot . '/working.txt',
   $projectRoot . '/working.json',
 ]);
+
+// wait 10 seconds before removing lock file to avoid race condition
+// sleep(10);
+// exitProcess();
