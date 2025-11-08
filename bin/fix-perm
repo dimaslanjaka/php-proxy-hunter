@@ -45,13 +45,11 @@ Linux)
     # Change permissions (consider using a more restrictive mode as needed)
     chmod 755 "$DIR_PATH" || {
       echo "Failed to change permissions for $dir"
-      exit 1
     }
 
     # Change ownership
     chown -R "$USER":"$USER" "$DIR_PATH" || {
       echo "Failed to change ownership for $dir"
-      exit 1
     }
   done
 
