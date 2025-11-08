@@ -349,7 +349,14 @@ async function main() {
   }
 
   // Build project
-  await spawnAsync('node', ['bin/build-project.mjs'], { stdio: 'inherit', shell: true });
+  console.log('Building project locally...');
+  // Forward any CLI args passed to this script to the build script
+  const forwardedArgs = process.argv.slice(2);
+  if (forwardedArgs.length > 0) {
+    console.log('Forwarding CLI args to build-project.mjs:', forwardedArgs.join(' '));
+  }
+  const buildArgs = ['bin/build-project.mjs', ...forwardedArgs];
+  await spawnAsync('node', buildArgs, { stdio: 'inherit', shell: true });
 
   // Clear out old files but preserve certain directories
   const pathsToDelete = [`${remotePath}/dist`, `${remotePath}/index.html`];

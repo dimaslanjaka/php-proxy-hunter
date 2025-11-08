@@ -57,6 +57,8 @@ if (lastInstallChecksum !== currentInstallChecksum) {
     stdio: 'inherit'
   });
   fs.writeFileSync(checksumInstallFile, currentInstallChecksum, 'utf-8');
+} else {
+  console.log('No changes in package.json files. Skipping yarn install.');
 }
 
 // Run yarn build if src changed
@@ -67,4 +69,6 @@ if (lastBuildChecksum !== currentBuildChecksum) {
     stdio: 'inherit'
   });
   fs.writeFileSync(checksumBuildFile, currentBuildChecksum, 'utf-8');
+} else {
+  console.log('No changes in src files. Skipping build.');
 }
