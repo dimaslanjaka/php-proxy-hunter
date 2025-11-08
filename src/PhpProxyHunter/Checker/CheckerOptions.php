@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace PhpProxyHunter\Checker;
 
 /**
@@ -17,42 +15,42 @@ class CheckerOptions {
    *
    * @var bool
    */
-  public bool $verbose = false;
+  public $verbose = false;
 
   /**
    * Connection timeout in seconds.
    *
    * @var int
    */
-  public int $timeout = 10;
+  public $timeout = 10;
 
   /**
    * Protocols to try when checking a proxy (e.g. 'http', 'https', 'socks4', 'socks5').
    *
    * @var string[]
    */
-  public array $protocols = ['http', 'https', 'socks4', 'socks5'];
+  public $protocols = ['http', 'https', 'socks4', 'socks5'];
 
   /**
    * Optional username for authenticated proxies.
    *
    * @var string
    */
-  public string $username = '';
+  public $username = '';
 
   /**
    * Optional password for authenticated proxies.
    *
    * @var string
    */
-  public string $password = '';
+  public $password = '';
 
   /**
    * Fallback proxy to use for outgoing connections (host:port).
    *
    * @var string
    */
-  public string $proxy = '';
+  public $proxy = '';
 
   /**
    * Constructor.

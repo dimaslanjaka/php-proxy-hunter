@@ -9,8 +9,7 @@ $shutdown_functions = [];
 /**
  * Class Scheduler
  */
-class Scheduler
-{
+class Scheduler {
   public static $debug = true;
 
   /**
@@ -19,8 +18,7 @@ class Scheduler
    * @param callable $func The shutdown function to register.
    * @param string|null $identifier Optional. An identifier for the function. If provided, the identifier will be used as the key in the shutdown functions array. If not provided, a random key will be generated.
    */
-  public static function register(callable $func, ?string $identifier = null): void
-  {
+  public static function register(callable $func, $identifier = null) {
     global $shutdown_functions;
     /** @noinspection RegExpRedundantEscape */
     $id = preg_replace('/[^\w\-\._\s]/u', '', $identifier);
@@ -37,16 +35,14 @@ class Scheduler
    * @param int $length The length of the random string to generate.
    * @return string The generated random string.
    */
-  public static function randStr(int $length = 10): string
-  {
+  public static function randStr($length = 10) {
     return substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length / strlen($x)))), 1, $length);
   }
 
   /**
    * Executes all registered shutdown functions.
    */
-  public static function execute(): void
-  {
+  public static function execute() {
     global $shutdown_functions;
     // Ensure $shutdown_functions is always an array
     if (!isset($shutdown_functions) || !is_array($shutdown_functions)) {

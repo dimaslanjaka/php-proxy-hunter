@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Parse incoming POST request data based on Content-Type.
  *
@@ -8,8 +7,7 @@
  *
  * @return array The parsed POST data.
  */
-function parsePostData(bool $detect_get = false): ?array
-{
+function parsePostData(bool $detect_get = false): ?array {
   // Initialize an empty array to store the parsed data
   $result = [];
 
@@ -44,8 +42,7 @@ function parsePostData(bool $detect_get = false): ?array
  *
  * @return array The request parameters array.
  */
-function parseQueryOrPostBody(): array
-{
+function parseQueryOrPostBody(): array {
   global $isCli;
   if (!$isCli) {
     return array_merge(parsePostData(true), $_REQUEST, $_GET, $_POST);

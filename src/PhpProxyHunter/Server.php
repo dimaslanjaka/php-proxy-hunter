@@ -2,10 +2,8 @@
 
 namespace PhpProxyHunter;
 
-class Server
-{
-  public static function getRequestIP()
-  {
+class Server {
+  public static function getRequestIP() {
     $check = self::isCloudflare();
 
     if ($check) {
@@ -15,16 +13,14 @@ class Server
     }
   }
 
-  public static function isCloudflare(): bool
-  {
+  public static function isCloudflare() {
     $ipCheck      = self::cloudflareCheckIp($_SERVER['REMOTE_ADDR']);
     $requestCheck = self::cloudflareRequestsCheck();
 
     return $ipCheck && $requestCheck;
   }
 
-  public static function cloudflareCheckIp(?string $ip): bool
-  {
+  public static function cloudflareCheckIp($ip) {
     $cf_ips = [
       '199.27.128.0/21',
       '173.245.48.0/20',
@@ -63,8 +59,7 @@ class Server
    *
    * @return bool true if the ip is in this range / false if not
    */
-  public static function ipInRange(?string $ip, string $range): bool
-  {
+  public static function ipInRange($ip, $range) {
     if (!is_string($ip)) {
       return false;
     }
@@ -89,8 +84,7 @@ class Server
 
   // Use when handling ips
 
-  public static function cloudflareRequestsCheck(): bool
-  {
+  public static function cloudflareRequestsCheck() {
     $flag = true;
 
     if (!isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
@@ -109,8 +103,7 @@ class Server
     return $flag;
   }
 
-  public static function getClientIp()
-  {
+  public static function getClientIp() {
     $ipaddress = null;
     if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
       $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
@@ -137,8 +130,7 @@ class Server
     return $ipaddress;
   }
 
-  public static function getPublicIP(): ?string
-  {
+  public static function getPublicIP() {
     static $cachedIp  = null;
     static $cacheTime = 0;
 
@@ -211,8 +203,7 @@ class Server
   /**
    * Parse IP response based on service type
    */
-  private static function parseIpResponse(string $response, string $type, ?string $field = null): ?string
-  {
+  private static function parseIpResponse($response, $type, $field = null) {
     $response = trim($response);
 
     switch ($type) {
@@ -248,8 +239,7 @@ class Server
   /**
    * Cache the IP address both in memory and file
    */
-  private static function cacheIp(string $ip, string $cacheFile, ?string &$cachedIp, int &$cacheTime): string
-  {
+  private static function cacheIp($ip, $cacheFile, &$cachedIp, &$cacheTime) {
     // Cache in memory
     $cachedIp  = $ip;
     $cacheTime = time();
@@ -269,8 +259,7 @@ class Server
    *
    * @return string empty when $_SERVER['HTTP_USER_AGENT'] is not set/empty
    */
-  public static function useragent(): string
-  {
+  public static function useragent() {
     return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
   }
 
@@ -280,8 +269,7 @@ class Server
    * @param bool $stripQuery Whether to remove the query string from the URL.
    * @return string|null The current URL, or null in CLI mode.
    */
-  public static function getCurrentUrl(bool $stripQuery = false): ?string
-  {
+  public static function getCurrentUrl($stripQuery = false) {
     if (php_sapi_name() === 'cli') {
       return null;
     }
@@ -309,8 +297,7 @@ class Server
    *                                  (Expires, Cache-Control, Pragma). Default: false.
    * @return void
    */
-  public static function allowCors($disableBrowserCache = false): void
-  {
+  public static function allowCors($disableBrowserCache = false): void {
     $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
     if ($isCli) {
       return;

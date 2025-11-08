@@ -5,8 +5,7 @@ namespace PhpProxyHunter;
 /**
  * Proxy table data class
  */
-class Proxy
-{
+class Proxy {
   /** @var int|null */
   public $id = null;
 
@@ -153,11 +152,10 @@ class Proxy
    * @param bool $notEmpty If true, only includes properties that are not null or empty.
    * @return string        JSON encoded string representing the Proxy object.
    */
-  public function toJson($pretty = false, $notEmpty = false)
-  {
+  public function toJson($pretty = false, $notEmpty = false) {
     $data = get_object_vars($this);
     if ($notEmpty) {
-      $data = array_filter($data, fn ($value) => !is_null($value) && $value !== '');
+      $data = array_filter($data, function ($value) { return !is_null($value) && $value !== ''; });
     }
     if ($pretty) {
       return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
