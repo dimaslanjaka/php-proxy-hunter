@@ -16,35 +16,35 @@ class CheckerResult {
    *
    * @var bool
    */
-  public bool $isWorking = false;
+  public $isWorking = false;
 
   /**
    * Whether the proxy supports SSL.
    *
    * @var bool
    */
-  public bool $isSSL = false;
+  public $isSSL = false;
 
   /**
    * Anonymity level of the proxy (e.g. "transparent", "anonymous", "elite").
    *
    * @var string
    */
-  public string $anonymity = '';
+  public $anonymity = '';
 
   /**
    * Observed latency in milliseconds.
    *
    * @var float
    */
-  public float $latency = 0.0;
+  public $latency = 0.0;
 
   /**
    * List of working proxy types (e.g. "HTTP", "SOCKS5").
    *
    * @var string[]
    */
-  public array $workingTypes = [];
+  public $workingTypes = [];
 
   /**
    * Constructor.

@@ -50,19 +50,40 @@ class ProxyChecker1 extends ProxyChecker {
   }
 
   /**
-   * Test proxy across all protocols (either SSL or non-SSL)
+   * Test a proxy across a group of protocol types and return the aggregated result.
+   *
+   * This method iterates over the provided protocol types, attempts to fetch the public IP
+   * through the proxy (optionally using SSL), measures latency for each attempt, and determines
+   * whether the proxy is working and its anonymity level.
+   *
+   * @param string[]    $protocols Array of protocol type identifiers (e.g. 'HTTP', 'HTTPS', 'SOCKS5').
+   * @param string      $proxy     Proxy address (host[:port]).
+   * @param string|null $username  Optional proxy username.
+   * @param string|null $password  Optional proxy password.
+   * @param string      $currentIp The current machine/public IP to compare against.
+   * @param string|null $proxyIP   Optional extracted IP of the proxy itself.
+   * @param int         $timeout   Request timeout in seconds.
+   * @param bool        $debug     Whether to output debug logs.
+   * @param bool        $isSSL     Whether to force SSL (labeling only; toggles how getPublicIP is called).
+   *
+   * @return CheckerResult Returns a CheckerResult with:
+   *                        - isWorking: whether any protocol/type succeeded,
+   *                        - isSSL: whether the successful attempt was SSL,
+   *                        - workingTypes: list of protocol types that worked,
+   *                        - anonymity: 'transparent'|'elite'|'' depending on result,
+   *                        - latency: measured latency in milliseconds for the successful attempt (0.0 if none).
    */
   private static function testProxyGroup(
     array $protocols,
-    string $proxy,
-    ?string $username,
-    ?string $password,
-    string $currentIp,
-    ?string $proxyIP,
-    int $timeout,
-    bool $debug,
-    bool $isSSL
-  ): CheckerResult {
+    $proxy,
+    $username,
+    $password,
+    $currentIp,
+    $proxyIP,
+    $timeout,
+    $debug,
+    $isSSL
+  ) {
     $foundWorking   = false;
     $workingTypes   = [];
     $foundAnonymity = '';
@@ -168,7 +189,12 @@ class ProxyChecker1 extends ProxyChecker {
     }
 
     // Sort matches by position and remove overlaps (keep earlier match)
-    usort($matches, fn ($a, $b) => $a['pos'] <=> $b['pos']);
+    usort($matches, function ($a, $b) {
+      if ($a['pos'] == $b['pos']) {
+        return 0;
+      }
+      return ($a['pos'] < $b['pos']) ? -1 : 1;
+    });
     $filtered = [];
     $lastEnd  = -1;
     foreach ($matches as $m) {
