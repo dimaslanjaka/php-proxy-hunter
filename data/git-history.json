@@ -1,5 +1,64 @@
 [
   {
+    "hash": "d49beaac5fe6eeb59d9d22ae5a37bf09201068be",
+    "date": "2025-11-09T15:00:28+07:00",
+    "message": "fix(logs): align sticky header and preserve horizontal scrolling\n\nReplace wrapper's `overflow-x-auto` with `overflow-auto` so the sticky thead is confined to the scrollable container.\nUse `min-w-max` on the table and add `box-border` to stabilize column widths. Adjust `th`/`td` padding and set `td` max width to `80ch` with `break-words` to keep columns wide and scrollable while preventing body overflow on mobile.",
+    "files": [
+      "src/react/pages/admin/LogsSection.tsx"
+    ]
+  },
+  {
+    "hash": "6aedab7d7d68f90621b88b9a170c2bf16ce620e6",
+    "date": "2025-11-09T14:57:25+07:00",
+    "message": "style(tables): improve responsiveness and word wrapping\n\n- LogsSection: added `min-w-0` to container and table, enabled word wrapping for long table cells, removed unnecessary whitespace-nowrap from headers.\n- UserActivityCard: updated container and table classes for better responsiveness on small screens, added `min-w-0` and `break-words` for long content, adjusted padding and spacing for mobile-friendly layout.\n- Overall: ensures tables shrink properly on smaller screens and long text wraps instead of overflowing.",
+    "files": [
+      "src/react/pages/admin/LogsSection.tsx",
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "be09d2b1aba5cef022f23c7a4a01c78862ea6bf1",
+    "date": "2025-11-09T14:50:55+07:00",
+    "message": "fix(logs): add index signature to LogsResponse and LogEntry interfaces",
+    "files": [
+      "types/php_backend/logs.d.ts"
+    ]
+  },
+  {
+    "hash": "56118f5a967f48ce5972cd4ab4425773435dbba7",
+    "date": "2025-11-09T14:49:33+07:00",
+    "message": "feat(auth): protect Settings page with auth guard and loading state\n\n- Add `isAuthenticated` and `isLoading` state to `Settings` component.\n- Replace previous `getUserInfo` promise usage with an async effect that:\n  - checks authentication,\n  - redirects to `/login` on unauthenticated or error cases,\n  - guards against updates on unmounted components.\n- Show a centered loading spinner while auth is being verified.\n- Prevent rendering the Settings UI when the user is not authenticated.\n\nThis brings `Settings` in line with `Dashboard`'s access control and improves security/UX.",
+    "files": [
+      "src/react/pages/Settings.tsx"
+    ]
+  },
+  {
+    "hash": "2f8878f911701b18cbc90527958a883935ab1e41",
+    "date": "2025-11-09T14:44:20+07:00",
+    "message": "fix(url): update origin construction to use dynamic protocol for backend hostname",
+    "files": [
+      "src/react/utils/url.ts"
+    ]
+  },
+  {
+    "hash": "0114f3b50f2d9765528690793cc3052fbd23ec30",
+    "date": "2025-11-09T14:43:43+07:00",
+    "message": "chore(cloudflared): add ingress rule for Laragon PHP backend\n\n- Added a specific ingress rule for `php.webmanajemen.com` to route requests to the local Laragon server at `http://127.0.0.1:80`.\n- Ensures fallback `http_status:404` remains at the end to handle unmatched requests.",
+    "files": [
+      "cloudflared.config.yaml"
+    ]
+  },
+  {
+    "hash": "01f204a4b3810a5f115411be0fcac6ddd5d27708",
+    "date": "2025-11-09T14:28:25+07:00",
+    "message": "chore(devops): add cloudflared tunnel config for Vite dev server and documentation\n\n- Add `cloudflared.config.yaml` to route custom domain `tunnel.webmanajemen.com` to local Vite HTTPS server\n  - Skips TLS verification for local development\n  - Provides 404 fallback for all other requests\n- Add `cloudflared` dependency to `package.json`\n- Update `readme-nodejs.md` with instructions on accessing Vite dev server via LAN\n  - Includes commands for quick tunnel, custom domain setup, and tunnel management",
+    "files": [
+      "cloudflared.config.yaml",
+      "package.json",
+      "readme-nodejs.md"
+    ]
+  },
+  {
     "hash": "2d17d1a0349e4ba2f1991334549cd360f30f6c1c",
     "date": "2025-11-09T12:21:54+07:00",
     "message": "refactor(check-http-proxy): delegate HTTP checks to ProxyCheckerHttpOnly\n\n- Replace manual cURL/protocol loop and HTML title parsing with a call to\n  \\PhpProxyHunter\\Checker\\ProxyCheckerHttpOnly::check()\n- Build and pass a `CheckerOptions` instance (verbose, timeout, protocols, proxy,\n  and optional username/password)\n- Use `CheckerResult` fields (isWorking, isSSL, workingTypes, latency) to update DB\n- Normalize stored proxy type to lowercase\n- Minor whitespace/brace style tidy in the file",
@@ -8624,66 +8683,6 @@
     "message": "fix(plugin): add check for existence of index.html before copying in closeBundle",
     "files": [
       "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "42520c56a4ce2ee0d481f978ef0844cdccb66f06",
-    "date": "2025-08-13T19:53:17+07:00",
-    "message": "refactor(plugin): simplify configResolved by removing middlewareMode logic\n\n- Removed unnecessary middlewareMode enabling from configResolved in indexHtmlReplacementPlugin.\n- The plugin now only handles copying index.dev.html to index.html for development mode.",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "0ae6d67a081a889674d20a5988b4aa1ac2d09afc",
-    "date": "2025-08-13T19:50:24+07:00",
-    "message": "refactor(plugin): move index.dev.html to index.html copy logic to configResolved for dev mode\n\n- Moved the logic that copies index.dev.html to index.html from configureServer to configResolved in the indexHtmlReplacementPlugin.\n- Ensures index.html is always up-to-date with index.dev.html during development.\n- Added middlewareMode enabling for dev server when running in serve mode.\n- Prevents unnecessary file operations during production build.",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "a520b9a8d9cbba712f579c3c60db04e46bb06c49",
-    "date": "2025-08-13T19:47:16+07:00",
-    "message": "refactor(build): use dist/react/index.html as the source for route HTML copies and remove index.dev.html from production build process\n\n- Updated the Vite plugin to copy dist/react/index.html instead of dist/react/index.dev.html to specific routes after build.\n- Removed unnecessary copying of index.dev.html to index.html in production.\n- Cleaned up rollupOptions in vite.config.js by removing the custom input for index.dev.html.",
-    "files": [
-      "vite-plugin.js",
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "e7685f4a1c6fa1de303823fe711bee148c330186",
-    "date": "2025-08-13T19:22:34+07:00",
-    "message": "chore: update Vite config references in scripts and tasks\n\n- Change Vite commands in `dev:react` and `build:react` scripts to use default config instead of `vite.config.ts`\n- Update `.vscode/tasks.json` to match new Vite command usage",
-    "files": [
-      ".vscode/tasks.json",
-      "package.json"
-    ]
-  },
-  {
-    "hash": "ea1ac8df3545ef8b6b801b2b580bfba262433009",
-    "date": "2025-08-13T19:20:18+07:00",
-    "message": "feat: update GitHub Pages workflow and Vite config for deployment\n\n- Replace `yarn build:react` with `node vite-gh-pages.js` in GitHub Actions workflow\n- Add `vite-gh-pages.js` script to customize Vite build for GitHub Pages with correct base path\n- Rename `vite.config.ts` to `vite.config.js` for compatibility with the new build script",
-    "files": [
-      ".github/workflows/github-pages.yml",
-      "vite-gh-pages.js",
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "2d4ea573840b398110383b22d0badeabd5c18b4c",
-    "date": "2025-08-13T18:46:27+07:00",
-    "message": "fix(ci): add concurrency settings for GitHub Actions workflow",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "a240d2d5c78678efee41fab13431c9aaf3155476",
-    "date": "2025-08-13T18:44:13+07:00",
-    "message": "fix(ci): include additional paths for build triggers in GitHub Actions",
-    "files": [
-      ".github/workflows/github-pages.yml"
     ]
   }
 ]
