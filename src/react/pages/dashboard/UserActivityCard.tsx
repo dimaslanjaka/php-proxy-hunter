@@ -204,9 +204,11 @@ export default function UserActivityCard() {
           <div className="text-center text-gray-500 dark:text-gray-400">{t('no_activity_found')}</div>
         ) : (
           <>
-            <div className="w-full overflow-auto max-h-[350px]">
-              {/* ensure table can shrink on small screens and allow wrapping */}
-              <table className="w-full table-auto min-w-[0] divide-y divide-gray-200 dark:divide-gray-700">
+            <div
+              className="w-full max-w-full block relative overflow-x-auto max-h-[350px]"
+              style={{ WebkitOverflowScrolling: 'touch' }}>
+              {/* ensure table can grow and be horizontally scrolled inside the wrapper */}
+              <table className="inline-table table-auto divide-y divide-gray-200 dark:divide-gray-700">
                 <thead>
                   <tr>
                     {columns.map((col) => (

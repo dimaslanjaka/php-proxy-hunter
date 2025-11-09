@@ -82,8 +82,10 @@ export default function LogsSection() {
             <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
-        <div className="overflow-auto max-h-[350px]">
-          <table className="w-full table-auto min-w-max divide-y divide-gray-200 dark:divide-gray-700 box-border">
+        <div
+          className="w-full max-w-full block relative overflow-x-auto max-h-[350px]"
+          style={{ WebkitOverflowScrolling: 'touch' }}>
+          <table className="inline-table table-auto divide-y divide-gray-200 dark:divide-gray-700 box-border">
             <thead>
               <tr>
                 {allKeys.map((key) => (
