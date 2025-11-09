@@ -8,5 +8,9 @@ ingress:
     originRequest:
       noTLSVerify: true # skip TLS verification for local dev server
 
+  # Route your Laragon PHP backend
+  - hostname: php.webmanajemen.com
+    service: http://127.0.0.1:80
+
   # Fallback for all other requests
   - service: http_status:404
