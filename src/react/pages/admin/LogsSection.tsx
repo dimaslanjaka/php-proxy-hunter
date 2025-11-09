@@ -67,7 +67,7 @@ export default function LogsSection() {
 
   return (
     <div className="flex flex-col items-center justify-center m-4 transition-colors">
-      <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors">
+      <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors min-w-0">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-center flex items-center gap-2 text-blue-700 dark:text-blue-300">
             <i className="fa-duotone fa-clipboard-list text-green-500 dark:text-green-400"></i>
@@ -83,13 +83,13 @@ export default function LogsSection() {
           </button>
         </div>
         <div className="overflow-x-auto max-h-[350px]">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <table className="w-full table-auto min-w-0 divide-y divide-gray-200 dark:divide-gray-700">
             <thead>
               <tr>
                 {allKeys.map((key) => (
                   <th
                     key={key}
-                    className="sticky top-0 z-10 px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap"
+                    className="sticky top-0 z-10 px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700"
                     scope="col">
                     {key
                       .split('_')
@@ -124,7 +124,7 @@ export default function LogsSection() {
                       return (
                         <td
                           key={key}
-                          className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 max-w-[80ch]">
+                          className="px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 max-w-full break-words">
                           {key === 'user_agent' && value ? (
                             <DetailsCell
                               raw={String(value)}

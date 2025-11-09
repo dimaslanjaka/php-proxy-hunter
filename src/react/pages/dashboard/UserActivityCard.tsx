@@ -179,8 +179,8 @@ export default function UserActivityCard() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center m-4 transition-colors">
-      <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors dark:border dark:border-gray-700">
+    <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 transition-colors">
+      <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 transition-colors dark:border dark:border-gray-700 min-w-0">
         <div className="flex items-start justify-between mb-6 gap-3">
           <h1 className="text-2xl font-bold flex-1 min-w-0 flex items-center gap-2 text-blue-700 dark:text-blue-300 break-words whitespace-normal">
             <i className="fa-duotone fa-list-check text-green-500 dark:text-green-400 flex-shrink-0"></i>
@@ -204,15 +204,16 @@ export default function UserActivityCard() {
           <div className="text-center text-gray-500 dark:text-gray-400">{t('no_activity_found')}</div>
         ) : (
           <>
-            <div className="overflow-x-auto max-h-[350px]">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <div className="w-full overflow-auto max-h-[350px]">
+              {/* ensure table can shrink on small screens and allow wrapping */}
+              <table className="w-full table-auto min-w-[0] divide-y divide-gray-200 dark:divide-gray-700">
                 <thead>
                   <tr>
                     {columns.map((col) => (
                       <th
                         key={col.key}
                         scope="col"
-                        className="sticky top-0 z-10 px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap">
+                        className="sticky top-0 z-10 px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 text-left">
                         {col.label}
                       </th>
                     ))}
@@ -224,7 +225,7 @@ export default function UserActivityCard() {
                       {columns.map((col) => {
                         const isLongData = col.key === 'details' || col.key === 'user_agent';
                         const tdClass = isLongData
-                          ? 'px-2 py-1 align-top text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 max-w-[80ch]'
+                          ? 'px-2 py-1 align-top text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 max-w-full break-words'
                           : 'px-2 py-1 whitespace-pre-wrap text-xs text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700';
                         const innerClass = isLongData ? 'break-words whitespace-pre-wrap' : '';
                         return (
