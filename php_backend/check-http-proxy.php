@@ -185,8 +185,7 @@ if ($runAllowed) {
   delete_path($lockFilePath);
 }
 
-function get_log_file()
-{
+function get_log_file() {
   global $hashFilename;
   $_logFile = tmp() . "/logs/$hashFilename.txt";
   if (!file_exists($_logFile)) {
@@ -196,8 +195,7 @@ function get_log_file()
   return $_logFile;
 }
 
-function _log(...$args): void
-{
+function _log(...$args): void {
   global $isCli;
   $_logFile = get_log_file();
   $message  = join(' ', $args) . PHP_EOL;
@@ -215,8 +213,7 @@ function _log(...$args): void
  * @param string $url URL to test
  * @param string $webTitle Expected title for the webpage
  */
-function check(string $proxy, string $url, string $webTitle)
-{
+function check(string $proxy, string $url, string $webTitle) {
   global $proxy_db, $hashFilename, $currentScriptFilename, $isAdmin, $isCli;
   $proxies = extractProxies($proxy, $proxy_db, true);
   shuffle($proxies);
@@ -250,56 +247,33 @@ function check(string $proxy, string $url, string $webTitle)
       _log("[$no] Skipping proxy {$item->proxy}: Recently checked and non-SSL.");
       continue;
     }
-    $protocols = ['http', 'socks4', 'socks5'];
-    $latencies = [];
-    $http_ok   = false;
-    foreach ($protocols as $protocol) {
-      $curl = buildCurl($item->proxy, $protocol, $url, [
-        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0',
-      ]);
-      $result = curl_exec($curl);
-      $msg    = "[$no] $protocol://{$item->proxy} ";
+    // Use the Project's ProxyCheckerHttpOnly class to evaluate the proxy
+    $checkerOptions = new \PhpProxyHunter\Checker\CheckerOptions([
+      'verbose'   => $isCli ? true : false,
+      'timeout'   => 10,
+      'protocols' => ['http', 'https', 'socks4', 'socks5'],
+      'proxy'     => $item->proxy,
+    ]);
 
-      if ($result) {
-        $info = curl_getinfo($curl);
-        curl_close($curl);
-        if ($info['http_code'] == 200) {
-          $msg .= round($info['total_time'], 2) . 's ';
-          $latencies[] = round($info['total_time'] * 1000, 2);
-
-          if (checkRawHeadersKeywords($result)) {
-            $msg .= 'HTTP dead (Azenv). ';
-          } else {
-            preg_match("/<title>(.*?)<\/title>/is", $result, $matches);
-            if (!empty($matches)) {
-              $msg .= 'Title: ' . $matches[1];
-              if (strtolower($matches[1]) == strtolower($webTitle)) {
-                $msg .= ' (VALID) ';
-                $http_ok = true;
-              } else {
-                $msg .= ' (INVALID) ';
-              }
-            } else {
-              $msg .= 'Title: N/A ';
-            }
-          }
-        }
-      } else {
-        $msg .= 'HTTP dead ';
-      }
-
-      _log(trim($msg));
+    // Optionally include auth if present in DB item
+    if (!empty($item->username)) {
+      $checkerOptions->username = $item->username;
+    }
+    if (!empty($item->password)) {
+      $checkerOptions->password = $item->password;
     }
 
-    $data = ['https' => 'false', 'last_check' => date(DATE_RFC3339)];
-    if (!empty($latencies)) {
-      $data['latency'] = max($latencies);
+    $result = \PhpProxyHunter\Checker\ProxyCheckerHttpOnly::check($checkerOptions);
+
+    $data = ['https' => $result->isSSL ? 'true' : 'false', 'last_check' => date(DATE_RFC3339)];
+    if (!empty($result->latency)) {
+      $data['latency'] = $result->latency;
     }
 
-    // Set status active if any protocol returned a valid title matching the expected web title
-    if (!empty($http_ok)) {
+    if ($result->isWorking) {
       $data['status'] = 'active';
-      $data['type']   = 'http';
+      // workingTypes already normalized to lowercase elsewhere
+      $data['type'] = strtolower(implode(',', array_unique($result->workingTypes)));
     }
 
     $proxy_db->updateData($item->proxy, $data);
