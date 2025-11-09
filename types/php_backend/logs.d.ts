@@ -1,8 +1,10 @@
 export interface LogsResponse {
+  [key: string]: any;
   logs: LogEntry[];
 }
 
 export interface LogEntry {
+  [key: string]: any;
   id: number;
   user_id: number;
   target_user_id: number | null;
