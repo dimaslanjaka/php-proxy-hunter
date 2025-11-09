@@ -6,6 +6,7 @@ global $proxy_db;
 
 use PhpProxyHunter\Checker\ProxyChecker1;
 use PhpProxyHunter\Checker\ProxyCheckerHttpOnly;
+use PhpProxyHunter\Checker\ProxyCheckerGoogle;
 use PhpProxyHunter\Checker\CheckerOptions;
 
 $proxy = '72.206.74.126:4145';
@@ -21,6 +22,7 @@ $options = [
 $results = [
   'full_check' => ProxyChecker1::check(new CheckerOptions($options)),
   'http_only'  => ProxyCheckerHttpOnly::check(new CheckerOptions($options)),
+  'google'     => ProxyCheckerGoogle::check(new CheckerOptions($options)),
 ];
 
 // Output neatly
@@ -32,13 +34,16 @@ foreach ($results as $type => $result) {
 
 // Save to database
 // work when all result is working
+// Consider proxy working if any checker reports success
 if ($results['full_check']->isWorking || $results['http_only']->isWorking) {
+  $formattedTypes = strtolower(implode('-', array_unique(array_merge($results['full_check']->workingTypes, $results['http_only']->workingTypes, $results['google']->workingTypes))));
+  echo 'Working types: ' . $formattedTypes . "\n";
   $proxy_db->updateData($proxy, [
     'https'      => $results['full_check']->isSSL ? 'true' : 'false',
     'anonymity'  => $results['full_check']->anonymity ?: $results['http_only']->anonymity,
     'last_check' => date(DATE_RFC3339),
     'latency'    => max($results['full_check']->latency, $results['http_only']->latency),
-    'type'       => strtolower(implode(',', array_unique(array_merge($results['full_check']->workingTypes, $results['http_only']->workingTypes)))),
+    'type'       => $formattedTypes,
     'status'     => 'active',
   ]);
 } else {

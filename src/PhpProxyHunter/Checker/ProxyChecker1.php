@@ -121,7 +121,7 @@ class ProxyChecker1 extends ProxyChecker {
           self::log('green', "Proxy {$label} test succeeded for type {$type} (IP: {$ip} - anonymous).");
         }
         $foundWorking   = true;
-        $workingTypes[] = $type;
+        $workingTypes[] = strtolower($type);
         $foundAnonymity = 'anonymous';
         break;
       }
@@ -132,7 +132,7 @@ class ProxyChecker1 extends ProxyChecker {
           self::log('yellow', "Proxy {$label} test succeeded for type {$type} (High anonymous, IP: {$ip}).");
         }
         $foundWorking   = true;
-        $workingTypes[] = $type;
+        $workingTypes[] = strtolower($type);
         $foundAnonymity = 'elite';
         break;
       }
@@ -149,7 +149,14 @@ class ProxyChecker1 extends ProxyChecker {
     return new CheckerResult($foundWorking, $isSSL, $workingTypes, $foundAnonymity, $foundLatency);
   }
 
-  private static function log(string $color, string $message): void {
+  /**
+   * Output a colored log message.
+   *
+   * @param string $color Color name for formatting.
+   * @param string $message Message to log.
+   * @return void
+   */
+  private static function log(string $color, string $message) {
     // Primary color is kept for whole message fallback. selectiveColorize will apply
     // token-level colors (label, IPs, types, Proxy word, succeeded/failed).
     $colored = self::selectiveColorize($color, $message);

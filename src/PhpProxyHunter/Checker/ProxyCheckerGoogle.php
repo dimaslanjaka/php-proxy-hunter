@@ -2,50 +2,40 @@
 
 namespace PhpProxyHunter\Checker;
 
-class ProxyCheckerHttpOnly extends ProxyChecker {
+class ProxyCheckerGoogle extends ProxyChecker {
   /**
-   * Check the proxy for HTTP protocol.
+   * Check the proxy by fetching Google homepage title across provided protocols.
    *
-   * @param mixed $options
-   * @return mixed
-   * @throws \RuntimeException when not implemented
+   * @param CheckerOptions $options
+   * @return CheckerResult
    */
   public static function check(CheckerOptions $options): CheckerResult {
     $result = new CheckerResult();
 
-    // Ensure a proxy string was provided via options->proxy (host:port)
     if (empty($options->proxy)) {
       return $result;
     }
 
-    $testUrl       = 'http://httpforever.com/';
-    $expectedTitle = 'HTTP Forever';
+    $url           = 'https://www.google.com/';
+    $expectedTitle = 'Google';
 
     $protocols = isset($options->protocols) && is_array($options->protocols) && count($options->protocols) > 0
       ? $options->protocols
       : ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
 
     $latencies = [];
-    $http_ok   = false;
+    $found     = false;
 
     foreach ($protocols as $protocol) {
-      $urlToUse = $testUrl;
-      if (strtolower($protocol) === 'https') {
-        $urlToUse = preg_replace('#^http:#i', 'https:', $testUrl);
-      }
-
       $headers = [
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0',
       ];
-
-      // Build cURL handle using helper
-      $ch = \buildCurl($options->proxy, $protocol, $urlToUse, $headers, $options->username ?? null, $options->password ?? null, 'GET', null, 0);
-      // override timeouts to match options
+      $ch = \buildCurl($options->proxy, $protocol, $url, $headers, $options->username ?? null, $options->password ?? null, 'GET', null, 0);
       curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (int)$options->timeout);
       curl_setopt($ch, CURLOPT_TIMEOUT, (int)$options->timeout + 5);
 
       if ($options->verbose) {
-        echo sprintf("[CHECK] %s via %s\n", strtoupper($protocol), $urlToUse);
+        echo sprintf("[CHECK] %s via %s\n", strtoupper($protocol), $url);
       }
 
       $body    = curl_exec($ch);
@@ -54,18 +44,18 @@ class ProxyCheckerHttpOnly extends ProxyChecker {
 
       $msg = sprintf('[%s] %s ', strtoupper($protocol), $options->proxy);
 
-      if ($body !== false && isset($info['http_code']) && (int)$info['http_code'] === 200) {
+      if ($body !== false && isset($info['http_code']) && (int)$info['http_code'] >= 200 && (int)$info['http_code'] < 400) {
         if (!empty($info['total_time'])) {
           $latencies[] = round($info['total_time'] * 1000, 2);
           $msg .= round($info['total_time'], 2) . 's ';
         }
 
-        if (!empty($body) && preg_match('/<title>(.*?)<\/title>/is', $body, $m)) {
+        if (preg_match('/<title>(.*?)<\/title>/is', $body, $m)) {
           $title        = trim($m[1]);
           $normTitle    = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($title))));
           $normExpected = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($expectedTitle))));
           if (mb_strtolower($normTitle) === mb_strtolower($normExpected)) {
-            $http_ok                = true;
+            $found                  = true;
             $result->isWorking      = true;
             $result->workingTypes[] = strtolower($protocol);
             if (strtolower($protocol) === 'https') {
@@ -88,7 +78,7 @@ class ProxyCheckerHttpOnly extends ProxyChecker {
 
       curl_close($ch);
 
-      if ($http_ok) {
+      if ($found) {
         break;
       }
     }
