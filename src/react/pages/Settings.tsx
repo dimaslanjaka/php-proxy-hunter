@@ -16,21 +16,31 @@ const Settings = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   React.useEffect(() => {
-    getUserInfo()
-      .then((data) => {
-        if (data.authenticated) {
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await getUserInfo();
+        if (!mounted) return;
+        if ((data as any).error || !data.authenticated) {
+          window.location.href = '/login';
+        } else {
+          setIsAuthenticated(true);
           setUsername(data.username || '');
           setEmail(data.email || '');
-        } else {
-          setError(t('settings_must_login'));
         }
-      })
-      .catch((err) => {
-        console.error('Error fetching user info:', err);
-        setError(t('settings_failed_load_user'));
-      });
+      } catch (_err) {
+        window.location.href = '/login';
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
   }, [t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,6 +79,18 @@ const Settings = () => {
     // TODO: Integrate with payment/credit system
     alert(t('settings_redirect_buy_saldo'));
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <>
