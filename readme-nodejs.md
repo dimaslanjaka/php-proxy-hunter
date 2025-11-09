@@ -145,3 +145,41 @@ yarn -v
 ```
 
 > For more details, see the [NVM for Windows documentation](https://github.com/coreybutler/nvm-windows#installation--upgrades).
+
+## Access vite dev server from same LAN/Router
+
+Run below command after run `yarn dev:vite` on another terminal/cmd
+
+### Random domain
+
+```bash
+npx cloudflared tunnel --url https://localhost:5173 --no-tls-verify
+```
+
+### Custom domain
+
+> To get list of your tunnels, use `cloudflared tunnel list`
+
+Create **One dash zero trust** token
+
+```bash
+npx cloudflared service install <YOUR_CLOUDFLARED_TOKEN>
+npx cloudflared tunnel route dns <YOUR_TUNNEL_NAME> your.domain.com
+cloudflared tunnel --config cloudflared.config.yaml run <YOUR_TUNNEL_NAME> # dont forget to edit yaml file
+# or
+cloudflared tunnel run --token <YOUR_CLOUDFLARED_TOKEN>
+```
+
+when confused, try delete and create forcibly
+
+```bash
+cloudflared tunnel delete --force mytunnel
+cloudflared tunnel list # No tunnels were found for the given filter flags. You can use 'cloudflared tunnel create' to create a tunnel.
+cloudflared tunnel create mytunnel # Tunnel credentials written to C:\Users\<name>\.cloudflared\<tunnel-id>.json. cloudflared chose this file based on where your origin certificate was found. Keep this file secret. To revoke these credentials, delete the tunnel.
+cloudflared tunnel route dns mytunnel your.domain.com # when fail tunnel, try replace manual DNS CNAME for you domain with format <TUNNEL-ID>.cfargotunnel.com
+
+# now edit file cloudflared.config.yaml with your credential information
+# then run
+
+cloudflared tunnel --config cloudflared.config.yaml run mytunnel
+```

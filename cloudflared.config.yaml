@@ -1,0 +1,12 @@
+tunnel: mytunnel
+credentials-file: C:\Users\Dell\.cloudflared\7e85eef5-ef79-4e71-82a8-5e1db402929d.json
+
+ingress:
+  # Route your custom domain to local Vite HTTPS server
+  - hostname: tunnel.webmanajemen.com
+    service: https://localhost:5173
+    originRequest:
+      noTLSVerify: true # skip TLS verification for local dev server
+
+  # Fallback for all other requests
+  - service: http_status:404
