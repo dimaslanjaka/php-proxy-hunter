@@ -60,7 +60,7 @@ export function createUrl(
       );
       origin = `${window.location.protocol}//${window.location.hostname}`;
     } else {
-      origin = `https://${backendHostname}`; // Laragon, XAMPP, etc.
+      origin = `${window.location.protocol}//${backendHostname}`; // Laragon, XAMPP, etc.
     }
     base = '';
   }
