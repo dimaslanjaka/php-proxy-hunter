@@ -1,11 +1,13 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { createUrl } from '../utils/url';
 import Link from '../components/Link';
 import axios from 'axios';
 
 const OauthHandler = () => {
   const location = useLocation();
+  const { t } = useTranslation();
   const [result, setResult] = React.useState<null | { success: boolean; email?: string; error?: string }>(null);
   const [loading, setLoading] = React.useState(true);
 
@@ -18,7 +20,7 @@ const OauthHandler = () => {
     const code = params.get('code');
     const state = params.get('state');
     if (!code) {
-      setResult({ success: false, error: 'No OAuth code found. Please try again.' });
+      setResult({ success: false, error: t('no_oauth_code') });
       setLoading(false);
       return;
     }
@@ -34,7 +36,7 @@ const OauthHandler = () => {
         setLoading(false);
       })
       .catch(() => {
-        setResult({ success: false, error: 'OAuth failed. Please try again.' });
+        setResult({ success: false, error: t('oauth_failed') });
         setLoading(false);
       });
   }, [location]);
@@ -60,7 +62,7 @@ const OauthHandler = () => {
               ) : (
                 <>
                   <h2 className="text-2xl font-bold mb-6 text-red-600 dark:text-red-400">Login Failed</h2>
-                  <p className="text-gray-700 dark:text-gray-200 mb-2">{result?.error || 'Unknown error.'}</p>
+                  <p className="text-gray-700 dark:text-gray-200 mb-2">{result?.error || t('unknown_error')}</p>
                 </>
               )}
               <div className="flex flex-col gap-2 mt-4 sm:flex-row sm:justify-center sm:gap-4">

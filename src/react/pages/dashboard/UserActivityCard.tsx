@@ -131,8 +131,8 @@ export default function UserActivityCard() {
     { key: 'action', label: t('action') },
     { key: 'timestamp', label: t('timestamp') },
     { key: 'details', label: t('details') },
-    { key: 'ip_address', label: 'IP' },
-    { key: 'user_agent', label: 'UA' }
+    { key: 'ip_address', label: t('ip_address') },
+    { key: 'user_agent', label: t('user_agent') }
   ];
 
   // Helper to extract values for each column from a log entry
@@ -190,7 +190,7 @@ export default function UserActivityCard() {
             className="ml-0 sm:ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1 flex-shrink-0"
             onClick={handleRefresh}
             disabled={loading}
-            title={t('refresh_logs_now') || 'Refresh activity'}
+            title={t('refresh_logs_now')}
             aria-label={t('refresh')}>
             <i className="fa fa-refresh sm:hidden" aria-hidden="true"></i>
             <span className="hidden sm:inline">{t('refresh')}</span>

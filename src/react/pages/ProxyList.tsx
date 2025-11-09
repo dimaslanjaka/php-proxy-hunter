@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { ProxyDetails } from '../../../types/proxy';
 import { add_ajax_schedule, run_ajax_schedule } from '../../utils/ajaxScheduler';
@@ -70,6 +71,7 @@ let workingProxiesCache: any[] | null = null;
 // (fetchAndSetProxies moved into the component to use setProxies from closure)
 
 function ProxyList() {
+  const { t } = useTranslation();
   const { showSnackbar } = useSnackbar();
   // ref to avoid re-entrant fetches
   const fetchingProxiesRef = React.useRef(false);
@@ -542,13 +544,13 @@ function ProxyList() {
                 <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-2 py-1 text-xs whitespace-nowrap border-b border-gray-100 dark:border-gray-800 text-center">
                     <button
-                      title="Re-check proxy"
+                      title={t('recheck_proxy')}
                       className="inline-flex items-center justify-center p-1 rounded bg-yellow-100 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-600 mr-1"
                       onClick={() => handleRecheck(proxy, showSnackbar)}>
                       <i className="fa-duotone fa-rotate-right"></i>
                     </button>
                     <button
-                      title="Copy proxy"
+                      title={t('copy_proxy')}
                       className="inline-flex items-center justify-center p-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
                       onClick={() => handleCopy(proxy)}>
                       <i className="fa-duotone fa-copy"></i>

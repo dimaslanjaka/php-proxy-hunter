@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createUrl } from '../utils/url';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -67,7 +69,7 @@ const Login = () => {
       // window.open(googleAuthUrl, 'google', 'noopener,noreferrer')?.focus();
       window.location.href = googleAuthUrl; // Redirect to Google OAuth
     } else {
-      alert('Google login not available at the moment.');
+      alert(t('google_login_unavailable'));
     }
   };
 

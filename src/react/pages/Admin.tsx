@@ -2,6 +2,9 @@ import React from 'react';
 import { getUserInfo } from '../utils/user';
 import LogsSection from './admin/LogsSection';
 import ManagerPoint from './admin/ManagerPoint';
+import PackagesManager from './admin/PackagesManager';
+import RepositoryStats from './admin/RepositoryStats';
+import VoucherManager from './admin/VoucherManager';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
@@ -73,6 +76,9 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+      <RepositoryStats />
+      <PackagesManager />
+      <VoucherManager />
       <ManagerPoint />
       <LogsSection />
     </div>

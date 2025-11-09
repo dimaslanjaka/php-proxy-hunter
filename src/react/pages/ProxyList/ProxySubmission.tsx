@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ReactFormSaver, ReactFormSaverRef } from 'jquery-form-saver/react';
 import { extractProxies } from '../../../proxy/extractor';
 import ProxyData from '../../../proxy/ProxyData';
@@ -49,6 +50,7 @@ async function _checkProxy2(proxies: string) {
 }
 
 export default function ProxySubmission() {
+  const { t } = useTranslation();
   const [logUrl, setLogUrl] = React.useState('');
   const [statusUrl, setStatusUrl] = React.useState('');
   const [textarea, setTextarea] = React.useState('');
@@ -171,7 +173,7 @@ export default function ProxySubmission() {
             <button
               type="button"
               className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-200 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
-              title="Populate with sample proxies"
+              title={t('populate_with_sample_proxies')}
               onClick={() =>
                 setTextarea(`103.160.204.144:80\n103.160.204.144:80@username:password\nuser:pass@103.160.204.144:80`)
               }>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type gitHistoryToJson from '../../dev/git-history-to-json';
 import { createUrl } from '../utils/url';
 import ReactMarkdown from 'react-markdown';
@@ -12,6 +13,7 @@ type Commit = ReturnType<typeof gitHistoryToJson>[number];
 let gitHistoryCache: Commit[] | null = null;
 
 export default function Changelog() {
+  const { t } = useTranslation();
   const [commits, setCommits] = React.useState<Commit[] | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [page, setPage] = React.useState(1);
@@ -31,7 +33,7 @@ export default function Changelog() {
             setCommits(parsed);
           }
         } catch {
-          setError('Failed to parse cached git history');
+          setError(t('failed_parse_git_history'));
         }
       }
     }
@@ -66,7 +68,7 @@ export default function Changelog() {
           try {
             localStorage.setItem('gitHistoryFirstPage', JSON.stringify(commits.slice(0, COMMITS_PER_PAGE)));
           } catch {
-            setError('Failed to update git history cache');
+            setError(t('failed_update_git_history'));
           }
         }
       } catch (err: any) {
@@ -81,7 +83,7 @@ export default function Changelog() {
       try {
         localStorage.setItem('gitHistoryFirstPage', JSON.stringify(gitHistoryCache.slice(0, COMMITS_PER_PAGE)));
       } catch {
-        setError('Failed to update git history cache');
+        setError(t('failed_update_git_history'));
       }
       setIsLoading(false);
     } else {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createUrl } from '../../utils/url';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Section: How to Modify cURL Timeout in PHP
@@ -12,6 +13,7 @@ const ModifyCurl: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,10 +32,10 @@ const ModifyCurl: React.FC = () => {
       } else if (data && data.message) {
         setError(data.message);
       } else {
-        setError('Unknown response from server.');
+        setError(t('unknown_server_response'));
       }
     } catch (_err) {
-      setError('Failed to send request.');
+      setError(t('failed_send_request'));
     }
     setLoading(false);
   };
@@ -61,7 +63,7 @@ const ModifyCurl: React.FC = () => {
             type="submit"
             className="btn btn-primary px-4 py-2 rounded bg-blue-600 text-white font-semibold disabled:opacity-50"
             disabled={loading}>
-            {loading ? 'Saving...' : 'Set Timeout'}
+            {loading ? t('saving') : t('set_timeout')}
           </button>
         </form>
         {result && <div className="mt-4 text-green-700 dark:text-green-300 font-semibold">{result}</div>}

@@ -35,7 +35,7 @@ const DashboardContent: React.FC = () => {
   const handleTopUp = React.useCallback(() => {
     // placeholder: integrate with payment/credit system
     // keep simple for now; can be replaced with modal or redirect
-    alert(t('recharge_points', 'Recharge Points'));
+    alert(t('recharge_points'));
   }, [t]);
 
   return (
@@ -48,7 +48,7 @@ const DashboardContent: React.FC = () => {
             <div className="flex items-center gap-4 w-full">
               <span className="fa-solid fa-wallet text-yellow-600 dark:text-yellow-300 text-3xl"></span>
               <div>
-                <div className="text-sm font-medium text-yellow-700 dark:text-yellow-200">{t('points', 'Points')}</div>
+                <div className="text-sm font-medium text-yellow-700 dark:text-yellow-200">{t('points')}</div>
                 <div className="text-3xl font-bold text-yellow-800 dark:text-yellow-100">
                   {loading ? '...' : typeof user?.saldo === 'number' ? user!.saldo : '—'}
                 </div>
@@ -56,45 +56,43 @@ const DashboardContent: React.FC = () => {
                   type="button"
                   onClick={handleTopUp}
                   className="mt-5 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 dark:focus:ring-yellow-600 transition-all duration-200">
-                  {t('recharge_points', 'Recharge Points')}
+                  {t('recharge_points')}
                 </button>
               </div>
             </div>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-900/60 rounded-2xl p-6 shadow-md border border-gray-200 dark:border-gray-700">
-            <div className="text-sm text-gray-500 dark:text-gray-300 mb-2">
-              {t('user_information', 'User Information')}
-            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-300 mb-2">{t('user_information')}</div>
             {loading ? (
               <div className="text-gray-600 dark:text-gray-300">...</div>
             ) : user ? (
               <div className="space-y-2 text-gray-800 dark:text-gray-100">
                 <div>
-                  <span className="font-medium">{t('name', 'Name')}: </span>
+                  <span className="font-medium">{t('name')}: </span>
                   <span>{displayName}</span>
                 </div>
                 {user.email && (
                   <div>
-                    <span className="font-medium">{t('email', 'Email')}: </span>
+                    <span className="font-medium">{t('email')}: </span>
                     <span>{user.email}</span>
                   </div>
                 )}
                 {user.username && (
                   <div>
-                    <span className="font-medium">{t('username', 'Username')}: </span>
+                    <span className="font-medium">{t('username')}: </span>
                     <span>{user.username}</span>
                   </div>
                 )}
                 {user.phone && (
                   <div>
-                    <span className="font-medium">{t('phone', 'Phone')}: </span>
+                    <span className="font-medium">{t('phone')}: </span>
                     <span>{user.phone}</span>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="text-red-500">{error || t('no_user_found', 'No user found')}</div>
+              <div className="text-red-500">{error || t('no_user_found')}</div>
             )}
           </div>
         </div>

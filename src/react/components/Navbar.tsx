@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getUserInfo, SingleUserInfo } from '../utils/user';
 import Link from './Link';
+import { useTranslation } from 'react-i18next';
 import ThemeSwitcher from './ThemeSwitcher';
 
 interface NavbarState extends SingleUserInfo {
@@ -96,13 +97,14 @@ const Navbar: React.FC = () => {
 
   const socialOpen = state.socialOpen || false;
   const userMenuOpen = state.userMenuOpen || false;
+  const { t } = useTranslation();
 
   return (
     <>
       <nav className="w-full bg-white dark:bg-gray-900 shadow-md fixed top-0 left-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-blue-600 dark:text-white" title="Home">
+            <Link href="/" className="text-2xl font-bold text-blue-600 dark:text-white" title={t('home')}>
               DX
             </Link>
           </div>
@@ -110,8 +112,8 @@ const Navbar: React.FC = () => {
             <Link
               href="/proxy-list"
               className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
-              aria-label="Proxy Manager"
-              title="Proxy Manager">
+              aria-label={t('proxy_manager')}
+              title={t('proxy_manager')}>
               <i className="fal fa-network-wired text-2xl" aria-hidden="true"></i>
               <span className="sr-only">Proxy</span>
             </Link>
@@ -119,8 +121,8 @@ const Navbar: React.FC = () => {
             <div className="relative" ref={userMenuRef}>
               <button
                 className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none flex items-center gap-1"
-                aria-label="User Menu"
-                title="User Menu"
+                aria-label={t('user_menu')}
+                title={t('user_menu')}
                 onClick={handleUserMenuToggle}
                 type="button">
                 <i className="fal fa-user-cog text-2xl" aria-hidden="true"></i>
@@ -134,20 +136,20 @@ const Navbar: React.FC = () => {
                       <Link
                         href="/dashboard"
                         className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        title="Dashboard">
+                        title={t('dashboard')}>
                         <i className="fal fa-tachometer-alt mr-2"></i> Dashboard
                       </Link>
                       <Link
                         href="/settings"
                         className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        title="Settings">
+                        title={t('settings_title')}>
                         <i className="fal fa-cog mr-2"></i> Settings
                       </Link>
                       {state.admin && (
                         <Link
                           href="/admin"
                           className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          title="Admin">
+                          title={t('admin')}>
                           <i className="fal fa-user-shield mr-2"></i> Admin
                         </Link>
                       )}
@@ -162,7 +164,7 @@ const Navbar: React.FC = () => {
                     <Link
                       href="/login"
                       className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      title="Login">
+                      title={t('login')}>
                       <i className="fas fa-sign-in-alt mr-2"></i> Login
                     </Link>
                   )}
@@ -173,8 +175,8 @@ const Navbar: React.FC = () => {
             <div className="relative" ref={socialMenuRef}>
               <button
                 className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium focus:outline-none flex items-center gap-1"
-                aria-label="Social Media"
-                title="Social Media"
+                aria-label={t('social_media')}
+                title={t('social_media')}
                 onClick={handleSocialMenuToggle}
                 type="button">
                 <i className="fal fa-ellipsis-h text-2xl" aria-hidden="true"></i>
@@ -195,7 +197,7 @@ const Navbar: React.FC = () => {
                   <Link
                     href="/about"
                     className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    title="About">
+                    title={t('about')}>
                     <i className="fal fa-info-circle mr-2"></i> About
                   </Link>
                   <Link
