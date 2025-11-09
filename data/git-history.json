@@ -1,5 +1,14 @@
 [
   {
+    "hash": "18253ddb9b57759eded03f2b1d57441950677c70",
+    "date": "2025-11-09T15:40:19+07:00",
+    "message": "fix(ui): contain wide logs & activity tables in scroll wrappers\n\nWrap admin `LogsSection` and dashboard `UserActivityCard` tables in block-level `max-w-full` containers with `overflow-x-auto` (and `-webkit-overflow-scrolling: touch`) and switch tables to `inline-table` so they scroll inside their cards instead of expanding the page width on mobile (fixes Chrome mobile horizontal overflow).",
+    "files": [
+      "src/react/pages/admin/LogsSection.tsx",
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
     "hash": "d49beaac5fe6eeb59d9d22ae5a37bf09201068be",
     "date": "2025-11-09T15:00:28+07:00",
     "message": "fix(logs): align sticky header and preserve horizontal scrolling\n\nReplace wrapper's `overflow-x-auto` with `overflow-auto` so the sticky thead is confined to the scrollable container.\nUse `min-w-max` on the table and add `box-border` to stabilize column widths. Adjust `th`/`td` padding and set `td` max width to `80ch` with `break-words` to keep columns wide and scrollable while preventing body overflow on mobile.",
@@ -8673,14 +8682,6 @@
     "hash": "75f917c6f134be41abc6f3af276d85fbf5161b68",
     "date": "2025-08-13T19:58:48+07:00",
     "message": "feat(vite-plugin): run closeBundle logic only during build\n\n- Capture Vite command in configResolved and store in a variable.\n- Update closeBundle to skip execution unless running in build mode.\n- Prevents route HTML copying during dev server, ensuring correct behavior for production builds only.",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "76aa4ecaaf3b438dd40f188ae37c231cf9a4b238",
-    "date": "2025-08-13T19:54:06+07:00",
-    "message": "fix(plugin): add check for existence of index.html before copying in closeBundle",
     "files": [
       "vite-plugin.js"
     ]
