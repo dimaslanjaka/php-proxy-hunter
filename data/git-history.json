@@ -1,5 +1,52 @@
 [
   {
+    "hash": "2d17d1a0349e4ba2f1991334549cd360f30f6c1c",
+    "date": "2025-11-09T12:21:54+07:00",
+    "message": "refactor(check-http-proxy): delegate HTTP checks to ProxyCheckerHttpOnly\n\n- Replace manual cURL/protocol loop and HTML title parsing with a call to\n  \\PhpProxyHunter\\Checker\\ProxyCheckerHttpOnly::check()\n- Build and pass a `CheckerOptions` instance (verbose, timeout, protocols, proxy,\n  and optional username/password)\n- Use `CheckerResult` fields (isWorking, isSSL, workingTypes, latency) to update DB\n- Normalize stored proxy type to lowercase\n- Minor whitespace/brace style tidy in the file",
+    "files": [
+      "php_backend/check-http-proxy.php"
+    ]
+  },
+  {
+    "hash": "3b6133c7d40d50ba9d54be1d20bd1eecb4ac411f",
+    "date": "2025-11-09T11:59:31+07:00",
+    "message": "feat(checker): add Google checker and normalize workingTypes to lowercase\n\n- add `ProxyCheckerGoogle` to validate Google homepage title across protocols\n- include `ProxyCheckerGoogle` in `ProxyChecker-test.php` and aggregate/format working types for DB\n- normalize HTML title matching (collapse whitespace, decode entities, case-insensitive) and record latency\n- switch `ProxyCheckerHttpOnly` to use shared `buildCurl()` helper and realistic User-Agent\n- store protocol names as lowercase in `workingTypes` for `ProxyChecker1`, `ProxyCheckerHttpOnly`, and `ProxyCheckerGoogle`\n- add docblock for `log()` in `ProxyChecker1`",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyChecker-test.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker1.php",
+      "src/PhpProxyHunter/Checker/ProxyCheckerGoogle.php",
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
+    ]
+  },
+  {
+    "hash": "30821218df4e118f9d999001006595e513d2a6f2",
+    "date": "2025-11-08T18:11:51+07:00",
+    "message": "feat(core): add Symfony Mbstring polyfill and apply code style cleanup\n\n- Added `symfony/polyfill-mbstring` to composer dependencies for improved compatibility on systems without the mbstring extension.\n- Required the polyfill bootstrap in `func.php` for automatic multibyte string support.\n- Reformatted multiple function definitions to use single-line braces for consistent code style and readability.",
+    "files": [
+      "composer.json",
+      "func.php"
+    ]
+  },
+  {
+    "hash": "8aca92e7e883b1a8c447ab272fdd66a8eeec42ff",
+    "date": "2025-11-08T18:01:51+07:00",
+    "message": "feat(checker): add HTTP-only checker and support socks4a/socks5h\n\n- Add `src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php`: new HTTP-only checker that tests multiple protocols (http, https, socks4, socks5, socks4a, socks5h), validates page title (HTTP Forever), records latency and reports working types.\n- Extend `CheckerOptions::$protocols` to include `socks4a` and `socks5h`.\n- Add `src/PhpProxyHunter/Checker/ProxyChecker-test.php` test harness to run `ProxyChecker1` and `ProxyCheckerHttpOnly`, output results and update DB/file state.\n- Remove obsolete `src/PhpProxyHunter/Checker/ProxyChecker1-test.php`.\n\nNo breaking changes.",
+    "files": [
+      "src/PhpProxyHunter/Checker/CheckerOptions.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker-test.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker1-test.php",
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
+    ]
+  },
+  {
+    "hash": "e31b390ebb4ea585b7c684166d383266836be9fa",
+    "date": "2025-11-08T17:58:25+07:00",
+    "message": "feat(tmp): enhance tmp function to create directory and set permissions with detailed documentation",
+    "files": [
+      "src/utils/file/index.php"
+    ]
+  },
+  {
     "hash": "347a45e8715dba350c2ddf313b40351649090585",
     "date": "2025-11-08T17:31:13+07:00",
     "message": "refactor(proxyWorking): remove user-specific lock file paths and simplify lock handling\n\n- Changed lock file paths in `artisan/proxyWorking.php` to use global locks instead of user-specific ones.\n- Updated `php_backend/processes.php` to remove obsolete proxyWorking lock file references.\n- Added commented-out code for delayed lock removal to prevent potential race conditions.",
@@ -8635,46 +8682,6 @@
     "hash": "a240d2d5c78678efee41fab13431c9aaf3155476",
     "date": "2025-08-13T18:44:13+07:00",
     "message": "fix(ci): include additional paths for build triggers in GitHub Actions",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "93123b4f3e082d144f4e73267eff7ac0d645c916",
-    "date": "2025-08-13T17:47:19+07:00",
-    "message": "refactor(vite-plugin): use upath for path operations and improve HTML copying logic\n\n- Switch to using `upath` for consistent path handling across platforms.\n- Refactor Tailwind CSS build to use absolute paths via `process.cwd()` and `upath.join`.\n- Refactor dev server and build hooks to use absolute paths for HTML copying.\n- Add support for copying `index.dev.html` to multiple route-specific HTML files after build.\n- Log file copy operations using relative paths for clearer, shorter output.\n- Import routes from JSON for dynamic route handling in build step.",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "920433c4617cb82f5ee18e766d83be712790b906",
-    "date": "2025-08-13T17:32:04+07:00",
-    "message": "fix(ci): simplify commit message format for gh-pages deployment",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "d98863e825b82ee4f2de9b3968a016aedb897aaf",
-    "date": "2025-08-13T17:31:10+07:00",
-    "message": "fix(ci): remove non-github pages asset",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "9851e86d068a31f0d1bd0683fd9b7b93e035cda0",
-    "date": "2025-08-13T17:30:09+07:00",
-    "message": "feat(ci): add step build project",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "1af9794fe99ea906256936b04fff48c959b363b5",
-    "date": "2025-08-13T17:26:17+07:00",
-    "message": "chore(ci): add write permission for contents in github-pages workflow\n\n- Add `permissions: contents: write` to enable branch push in workflow",
     "files": [
       ".github/workflows/github-pages.yml"
     ]
