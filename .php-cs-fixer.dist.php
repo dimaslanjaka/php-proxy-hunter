@@ -95,5 +95,7 @@ return $config->setRules([
 
   // Ensure indentation consistency (spaces vs tabs)
   'indentation_type' => true,
+  // Enforce single space around string concatenation operator
+  'concat_space' => ['spacing' => 'one'],
 ])
 ->setFinder($finder);
