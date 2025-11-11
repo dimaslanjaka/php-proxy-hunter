@@ -1,5 +1,74 @@
 [
   {
+    "hash": "5cf2510d785587b6a795066fc36a1460238946a8",
+    "date": "2025-11-11T22:59:38+07:00",
+    "message": "refactor(Admin): remove unused components from the Admin page",
+    "files": [
+      "src/react/pages/Admin.tsx"
+    ]
+  },
+  {
+    "hash": "e17265d8a1962698a85812bd23dcd97c58af7046",
+    "date": "2025-11-11T22:55:14+07:00",
+    "message": "chore(config): enforce single space around concatenation in .php-cs-fixer.dist.php\n\nAdd the 'concat_space' => ['spacing' => 'one'] rule to the PHP-CS-Fixer config to require a single space around the string concatenation operator ('.').",
+    "files": [
+      ".php-cs-fixer.dist.php"
+    ]
+  },
+  {
+    "hash": "5353ceadd1132a0bba0a240bed403aa6fdbaa277",
+    "date": "2025-11-11T16:48:17+07:00",
+    "message": "feat(submodule): add jquery-form-saver submodule configuration",
+    "files": [
+      ".gitmodules"
+    ]
+  },
+  {
+    "hash": "80923935866d82265d2da4bd551941028b8d7e9a",
+    "date": "2025-11-11T16:47:29+07:00",
+    "message": "style(css): add global styles to disable elements with .disabled class or disabled attribute",
+    "files": [
+      "tailwind.input.css"
+    ]
+  },
+  {
+    "hash": "c2021dbd882531a3394e991ea7cef7a208753e8d",
+    "date": "2025-11-11T16:46:58+07:00",
+    "message": "fix: incompatible master branch content",
+    "files": [
+      "src/react/pages/Dashboard.tsx"
+    ]
+  },
+  {
+    "hash": "419fce678e5079a4c494506522567e2dc06ce56c",
+    "date": "2025-11-11T16:45:57+07:00",
+    "message": "fix(embed, proxy-list): handle forbidden response with error flag and prevent invalid proxy fetch",
+    "files": [
+      "embed.php",
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "02078dd31a36f3296bf24618d32092ed52fa3125",
+    "date": "2025-11-10T05:31:26+07:00",
+    "message": "feat(i18n): localize UI strings and add missing translations/hooks\n\n- Add `useTranslation` imports and `const { t } = useTranslation()` where needed across multiple components (Navbar, Changelog, Login, OauthHandler, ProxyList, ProxySubmission, ModifyCurl, DashboardContent, UserActivityCard, etc.).\n- Replace hard-coded UI text, title and aria-label attributes, alert/error messages, and t(...) fallbacks/defaultValue usages with `t('...')` calls.\n- Add many new locale keys to `src/react/locales/en.json` and `src/react/locales/id.json` (e.g. home, proxy_manager, user_menu, social_media, recheck_proxy, copy_proxy, populate_with_sample_proxies, google_login_unavailable, no_oauth_code, oauth_failed, unknown_error, refresh, refresh_logs_now, ip_address, user_agent, set_timeout, failed_parse_git_history, failed_update_git_history, failed_send_request, etc.).\n- Wire new admin dashboard components into `Admin` and include `RepositoryStats`, `PackagesManager`, and `VoucherManager` in the admin page layout.\n- Render dashboard tabs and include `PackageList` and `SimCardLoginWrapper` in the main `Dashboard` layout.\n- Ensure UI strings in `DashboardContent` and `UserActivityCard` use localized labels.\n\nNo behavior changes except replacing inline strings with translation keys and adding localization hooks; should be safe but recommend running TypeScript build and a runtime smoke test to confirm no missing keys or render issues.",
+    "files": [
+      "src/react/components/Navbar.tsx",
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/Admin.tsx",
+      "src/react/pages/Changelog.tsx",
+      "src/react/pages/Dashboard.tsx",
+      "src/react/pages/Login.tsx",
+      "src/react/pages/OauthHandler.tsx",
+      "src/react/pages/ProxyList.tsx",
+      "src/react/pages/ProxyList/ModifyCurl.tsx",
+      "src/react/pages/ProxyList/ProxySubmission.tsx",
+      "src/react/pages/dashboard/DashboardContent.tsx",
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
     "hash": "18253ddb9b57759eded03f2b1d57441950677c70",
     "date": "2025-11-09T15:40:19+07:00",
     "message": "fix(ui): contain wide logs & activity tables in scroll wrappers\n\nWrap admin `LogsSection` and dashboard `UserActivityCard` tables in block-level `max-w-full` containers with `overflow-x-auto` (and `-webkit-overflow-scrolling: touch`) and switch tables to `inline-table` so they scroll inside their cards instead of expanding the page width on mobile (fixes Chrome mobile horizontal overflow).",
@@ -8624,66 +8693,6 @@
     "files": [
       ".github/workflows/github-pages.yml",
       "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "688720f0f803c9d469d98355a0eb07d843284809",
-    "date": "2025-08-13T20:31:02+07:00",
-    "message": "feat(vite-gh-pages): add .no_jekyll file creation to prevent Jekyll processing",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "805937a11c7c17e4d50250bfce7086463098eee0",
-    "date": "2025-08-13T20:29:29+07:00",
-    "message": "refactor(html): replace node-html-parser with cheerio for HTML processing\n\n- Removed node-html-parser dependency from package.json.\n- Switched HTML parsing and serialization in vite-plugin.js to use cheerio.\n- Improved cache-busting logic for script and link tags to ensure version query is reliably added.\n- Updated code to use cheerio's API for DOM manipulation and serialization.",
-    "files": [
-      "package.json",
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "a52ef32124e132f116ec99bc9d6627e765116ddd",
-    "date": "2025-08-13T20:18:52+07:00",
-    "message": "feat(vite-plugin): add version query to script and link tags in index.html\n\n- Added `node-html-parser` as a dependency.\n- Modified the Vite plugin to parse `index.html` and append a `version` query parameter (using the latest git commit hash) to all script and link tags.\n- Ensures cache busting for static assets after each build.",
-    "files": [
-      "package.json",
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "a1cf996d03f5a8b7d9b9d76e233c38f915ef7c57",
-    "date": "2025-08-13T20:18:20+07:00",
-    "message": "feat(routes): add metadata for routes including titles, descriptions, thumbnails, and canonical URLs",
-    "files": [
-      "src/react/routes.json"
-    ]
-  },
-  {
-    "hash": "07d84dc838fe23d8c4934c0fc5891b618b14d774",
-    "date": "2025-08-13T20:08:33+07:00",
-    "message": "refactor(react): rename GitHistory to Changelog\n\n- Renamed `GitHistory` component and file to `Changelog` for clarity and consistency.\n- Updated all imports and route references from `GitHistory` to `Changelog`.\n- Updated `routes.json` to reflect the new component name and added missing route entries for consistency.",
-    "files": [
-      "src/react/App.tsx",
-      "src/react/pages/Changelog.tsx",
-      "src/react/routes.json"
-    ]
-  },
-  {
-    "hash": "63804a6c5d3de049af8dde93dadbc4fb9e0b4f70",
-    "date": "2025-08-13T20:01:49+07:00",
-    "message": "fix(App): set basename for Router to use environment variable",
-    "files": [
-      "src/react/App.tsx"
-    ]
-  },
-  {
-    "hash": "75f917c6f134be41abc6f3af276d85fbf5161b68",
-    "date": "2025-08-13T19:58:48+07:00",
-    "message": "feat(vite-plugin): run closeBundle logic only during build\n\n- Capture Vite command in configResolved and store in a variable.\n- Update closeBundle to skip execution unless running in build mode.\n- Prevents route HTML copying during dev server, ensuring correct behavior for production builds only.",
-    "files": [
-      "vite-plugin.js"
     ]
   }
 ]
