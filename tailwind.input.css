@@ -29,3 +29,10 @@ input[type='submit'] {
 .grecaptcha-badge {
   visibility: hidden !important;
 }
+
+/* Always disable .disabled class */
+.disabled,
+[disabled]:not([disabled='false']):not([disabled='false']) {
+  @apply opacity-50 cursor-not-allowed;
+  pointer-events: none !important;
+}
