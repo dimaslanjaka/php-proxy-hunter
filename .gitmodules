@@ -18,3 +18,7 @@
 	path = packages/proxies-grabber
 	url = https://github.com/dimaslanjaka/proxies-grabber.git
 	branch = master
+[submodule "packages/jquery-form-saver"]
+	path = packages/jquery-form-saver
+	url = https://github.com/dimaslanjaka/jquery-form-saver.git
+	branch = master
