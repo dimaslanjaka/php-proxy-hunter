@@ -70,7 +70,7 @@ if ($userToken && $serialNumber) {
 if ($forbidden) {
   header('Content-Type: application/json; charset=utf-8');
   http_response_code(403);
-  exit(json_encode(['error' => 'unauthorized, try login first']));
+  exit(json_encode(['error' => true, 'message' => 'Access forbidden']));
 }
 
 $request = parseQueryOrPostBody();

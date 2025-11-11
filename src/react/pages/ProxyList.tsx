@@ -121,6 +121,10 @@ function ProxyList() {
         return [];
       }
       result = await res.json();
+      if (result.error) {
+        fetchingProxiesRef.current = false;
+        return [];
+      }
       if (!Array.isArray(result)) {
         fetchingProxiesRef.current = false;
         return [];
