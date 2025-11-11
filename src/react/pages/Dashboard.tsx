@@ -1,8 +1,6 @@
 import React from 'react';
 import { getUserInfo } from '../utils/user';
 import DashboardContent from './dashboard/DashboardContent';
-import PackageList from './dashboard/PackageList';
-import SimCardLoginWrapper from './dashboard/SimCardLoginWrapper';
 import UserActivityCard from './dashboard/UserActivityCard';
 
 export default function Dashboard() {
@@ -101,8 +99,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <PackageList />
-      <SimCardLoginWrapper />
     </>
   );
 }
