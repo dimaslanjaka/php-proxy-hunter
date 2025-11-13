@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../func.php';
-include __DIR__ . '/shared.php';
+require_once __DIR__ . '/shared.php';
 
 global $isCli;
 

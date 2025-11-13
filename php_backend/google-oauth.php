@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . '/shared.php';
+require_once __DIR__ . '/shared.php';
 
 
 header('Content-Type: application/json; charset=utf-8');
@@ -101,8 +101,7 @@ jsonResponse($result);
  * @param string $redirectUri
  * @return Google\Client
  */
-function createGoogleClient($redirectUri)
-{
+function createGoogleClient($redirectUri) {
   $client = new Google\Client();
   $client->setClientId($_ENV['G_CLIENT_ID']);
   $client->setClientSecret($_ENV['G_CLIENT_SECRET']);
@@ -128,8 +127,7 @@ function createGoogleClient($redirectUri)
  * @param array $result
  * @return void
  */
-function refreshAccessTokenIfNeeded($client, $path, array &$result)
-{
+function refreshAccessTokenIfNeeded($client, $path, array &$result) {
   if ($client->isAccessTokenExpired()) {
     $refreshToken = $client->getRefreshToken();
     if ($refreshToken) {
@@ -148,8 +146,7 @@ function refreshAccessTokenIfNeeded($client, $path, array &$result)
  * @param \PhpProxyHunter\UserDB $user_db
  * @return void
  */
-function finalizeUserSession($email, $user_db)
-{
+function finalizeUserSession($email, $user_db) {
   global $log_db;
   $isEmailAdmin = in_array($email, getAdminEmails());
   $isAdmin      = $isEmailAdmin || $email === (isset($_ENV['DJANGO_SUPERUSER_EMAIL']) ? $_ENV['DJANGO_SUPERUSER_EMAIL'] : '');
@@ -200,8 +197,7 @@ function finalizeUserSession($email, $user_db)
  * @param int $status
  * @return void
  */
-function jsonResponse(array $data, $status = 200)
-{
+function jsonResponse(array $data, $status = 200) {
   http_response_code($status);
   header('Content-Type: application/json');
   echo json_encode($data);

@@ -16,8 +16,7 @@ $str_to_remove = [];
  * @param string|null $title_should_be
  * @return void
  */
-function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?bool $print_headers = true, ?string $custom_title_should_be = null): void
-{
+function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?bool $print_headers = true, ?string $custom_title_should_be = null): void {
   global $isCli, $max, $str_to_remove, $lockFile, $proxy_db;
   $user_id         = getUserId();
   $config          = getConfig($user_id);
@@ -256,13 +255,12 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
   }
 }
 
-function schedule_remover(): void
-{
+function schedule_remover(): void {
   global $str_to_remove;
   if (!empty($str_to_remove)) {
     // remove already indexed proxies
     Scheduler::register(function () use ($str_to_remove) {
-      $files  = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
+      $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
       $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
         return strpos($fn, 'added-') !== false;
       });
@@ -287,8 +285,7 @@ function schedule_remover(): void
   }
 }
 
-function cleanUp(): void
-{
+function cleanUp(): void {
   $directory = tmp() . '/runners/';
 
   // Get the current time

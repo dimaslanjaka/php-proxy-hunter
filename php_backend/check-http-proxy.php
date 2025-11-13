@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . '/shared.php';
+require_once __DIR__ . '/shared.php';
 
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;

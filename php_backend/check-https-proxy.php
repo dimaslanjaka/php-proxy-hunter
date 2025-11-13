@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . '/shared.php';
+require_once __DIR__ . '/shared.php';
 
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
@@ -227,8 +227,7 @@ if ($runAllowed) {
   delete_path($lockFilePath);
 }
 
-function get_log_file()
-{
+function get_log_file() {
   global $hashFilename;
   $_logFile = tmp() . "/logs/$hashFilename.txt";
   if (!file_exists($_logFile)) {
@@ -244,8 +243,7 @@ function get_log_file()
  * @param mixed ...$args List of arguments to be logged. They are concatenated into a single string.
  * @return void
  */
-function _log(...$args): void
-{
+function _log(...$args): void {
   global $isCli;
   $_logFile = get_log_file();
   $message  = join(' ', $args) . PHP_EOL;
@@ -262,8 +260,7 @@ function _log(...$args): void
  * Check if the proxy is working
  * @param string $proxy proxy string
  */
-function check(string $proxy)
-{
+function check(string $proxy) {
   global $proxy_db, $hashFilename, $currentScriptFilename, $isAdmin, $isCli;
   $proxies = extractProxies($proxy, $proxy_db, true);
   shuffle($proxies);

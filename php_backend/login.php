@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../func.php';
-include __DIR__ . '/shared.php';
+require_once __DIR__ . '/shared.php';
 
 PhpProxyHunter\Server::allowCors(true);
 
@@ -27,8 +27,7 @@ echo json_encode(do_login($username, $password));
  * @param string $password The password of the user attempting to log in.
  * @return array Returns an array containing the login result.
  */
-function do_login($username, $password)
-{
+function do_login($username, $password) {
   global $user_db;
 
   $response = [
@@ -79,8 +78,7 @@ function do_login($username, $password)
   return $response;
 }
 
-function verify($username, $password)
-{
+function verify($username, $password) {
   global $log_db, $user_db;
   $response = [
     'message' => '',
@@ -147,8 +145,7 @@ function verify($username, $password)
  * @param string|null $input The input string to sanitize.
  * @return string|null Returns the sanitized string or null if input is empty or invalid.
  */
-function sanitize_input($input)
-{
+function sanitize_input($input) {
   // Check if input is null or empty
   if (empty($input)) {
     return null;

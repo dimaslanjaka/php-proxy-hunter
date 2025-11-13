@@ -7,7 +7,7 @@ declare(strict_types=1);
 // Define project root for reuse
 $projectRoot = dirname(__DIR__);
 
-require $projectRoot . '/php_backend/shared.php';
+require_once $projectRoot . '/php_backend/shared.php';
 
 use PhpProxyHunter\Proxy;
 
@@ -60,8 +60,7 @@ if (file_exists($lockFilePath) && !is_debug()) {
   file_put_contents($statusFile, 'filter-ports');
 }
 
-function exitProcess(): void
-{
+function exitProcess(): void {
   global $lockFilePath, $statusFile;
   if (file_exists($lockFilePath)) {
     unlink($lockFilePath);
@@ -131,8 +130,7 @@ try {
   echo 'fail extracting proxies ' . $e->getMessage() . PHP_EOL;
 }
 
-function processProxy($proxy): void
-{
+function processProxy($proxy): void {
   global $start_time, $file, $db, $maxExecutionTime, $projectRoot;
   // Check if execution time exceeds [n] seconds
   if (microtime(true) - $start_time > $maxExecutionTime) {
