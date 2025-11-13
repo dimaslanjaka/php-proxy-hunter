@@ -381,6 +381,13 @@ async function main() {
 
   // Remove the build lock file to signal build completion
   await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
+
+  // Restore local vite by run `yarn prepare:vite` locally
+  console.log('Restoring local vite setup...');
+  await spawnAsync('yarn', ['prepare:vite'], {
+    stdio: 'inherit',
+    shell: true
+  });
 }
 
 if (process.argv.some((arg) => /deploy-vps(\.mjs)?$/u.test(arg))) {
