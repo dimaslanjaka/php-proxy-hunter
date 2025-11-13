@@ -2,7 +2,6 @@
 
 // remove duplicate IP from database
 
-require __DIR__ . '/../func-proxy.php';
 require_once __DIR__ . '/../php_backend/shared.php';
 
 global $isCli, $proxy_db;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/php_backend/shared.php';
+require_once __DIR__ . '/php_backend/shared.php';
 
 use PhpProxyHunter\Proxy;
 use PhpProxyHunter\Scheduler;
