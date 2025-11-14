@@ -11,11 +11,12 @@ header('Content-Type: text/plain; charset=utf-8');
 
 // $logsRepo instantiation removed
 $request = parsePostData(true);
-$page    = isset($request['page']) ? (int)$request['page'] : 1;
+// Allow GET query parameters to override when POST body doesn't provide them
+$page = isset($request['page']) ? (int)$request['page'] : (isset($_GET['page']) ? (int)$_GET['page'] : 1);
 if ($page < 1) {
   $page = 1;
 }
-$perPage = isset($request['per_page']) ? (int)$request['per_page'] : 50;
+$perPage = isset($request['per_page']) ? (int)$request['per_page'] : (isset($_GET['per_page']) ? (int)$_GET['per_page'] : 50);
 if ($perPage < 1 || $perPage > 500) {
   $perPage = 50;
 }
@@ -60,17 +61,43 @@ if (isset($request['me'])) {
     echo json_encode(['authenticated' => false, 'error' => true, 'message' => 'User not found'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     exit;
   }
-  // Get logs for this user from $log_db
+
+  // Respect pagination for 'me' requests
+  $offset = ($page - 1) * $perPage;
+
+  // Fetch a sufficiently large recent set and then filter by user
+  // Adjust the limit here if you expect more than 1000 entries per user
   $allLogs  = $log_db->recent(1000);
   $userLogs = array_values(array_filter($allLogs, function ($log) use ($user) {
     $isLogActionByUser = isset($log['user_id']) && $log['user_id'] == $user['id'];
     $isLogActionByAdmin = isset($log['target_user_id']) && $log['target_user_id'] == $user['id'];
     return $isLogActionByUser || $isLogActionByAdmin;
   }));
+
+  $total = count($userLogs);
+
+  // slice according to requested page/per_page; this will produce an empty array when offset beyond data
+  $pageLogs = $total > 0 ? array_slice($userLogs, $offset, $perPage) : [];
+  // decode details JSON for each log entry
+  $pageLogs = array_map(function ($log) {
+    if (isset($log['details']) && is_string($log['details'])) {
+      $decoded = json_decode($log['details'], true);
+      if (json_last_error() === JSON_ERROR_NONE) {
+        $log['details'] = $decoded;
+      }
+    }
+    return $log;
+  }, $pageLogs);
+
   echo json_encode([
     'authenticated' => true,
     'error'         => false,
-    'logs'          => $userLogs,
+    'logs'          => $pageLogs,
+    'page'          => $page,
+    'per_page'      => $perPage,
+    'offset'        => $offset,
+    'count'         => count($pageLogs),
+    'total'         => $total,
   ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   exit;
 }
@@ -78,18 +105,25 @@ if (isset($request['me'])) {
 
 if ($isAdmin) {
   header('Content-Type: application/json; charset=utf-8');
-  $allLogs = $log_db->recent($perPage);
-  $limit   = isset($_GET['limit']) ? max(1, intval($_GET['limit'])) : 50;
-  $offset  = isset($_GET['offset']) ? max(0, intval($_GET['offset'])) : 0;
-  $logs    = $log_db->recent($limit, $offset);
+  // Allow optional GET overrides for admin pagination
+  if (isset($_GET['page'])) {
+    $page = max(1, intval($_GET['page']));
+  }
+  if (isset($_GET['per_page'])) {
+    $perPage = max(1, min(500, intval($_GET['per_page'])));
+  }
 
-  // Optionally, include pagination info in the response
+  $offset = ($page - 1) * $perPage;
+  $logs   = $log_db->recent($perPage, $offset);
+
   $response = [
-    'logs'   => $logs,
-    'limit'  => $limit,
-    'offset' => $offset,
-    'count'  => count($logs),
+    'logs'     => $logs,
+    'page'     => $page,
+    'per_page' => $perPage,
+    'offset'   => $offset,
+    'count'    => count($logs),
   ];
+
   echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   exit;
 }
