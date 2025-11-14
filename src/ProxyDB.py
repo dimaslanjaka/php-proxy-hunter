@@ -496,23 +496,25 @@ class ProxyDB:
         return [self.clean_type(item) for item in data]
 
     def get_untested_proxies(
-        self, limit: Optional[int] = None
+        self, limit: Optional[int] = None, randomize: bool = True
     ) -> List[Dict[str, Union[str, None]]]:
         if not limit:
             limit = sys.maxsize
 
         if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+            order_clause = f" ORDER BY RAND()" if randomize else ""
             result = self.get_db().select(
                 "proxies",
                 "*",
-                f"status IS NULL OR status = %s OR status = %s ORDER BY RAND() LIMIT {limit}",
+                f"status IS NULL OR status = %s OR status = %s{order_clause} LIMIT {limit}",
                 ["untested", ""],
             )
         else:
+            order_clause = f" ORDER BY RANDOM()" if randomize else ""
             result = self.get_db().select(
                 "proxies",
                 "*",
-                f"status IS NULL OR status = ? OR status = ? ORDER BY RANDOM() LIMIT {limit}",
+                f"status IS NULL OR status = ? OR status = ?{order_clause} LIMIT {limit}",
                 ["untested", ""],
             )
         if not result:
