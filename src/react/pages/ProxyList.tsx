@@ -590,8 +590,8 @@ function ProxyList() {
                                     ' bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600';
                                 }
                                 return (
-                                  <span key={t} className={badgeClass}>
-                                    {t}
+                                  <span key={t + 'type' + badgeClass} className={badgeClass}>
+                                    {t.toUpperCase()}
                                   </span>
                                 );
                               })
