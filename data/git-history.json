@@ -1,5 +1,29 @@
 [
   {
+    "hash": "91d9b87c2023446f6306f042634bb7bd2b4c496d",
+    "date": "2025-11-14T16:49:29+07:00",
+    "message": "feat(proxydb): add debug option to extract_proxies for enhanced logging",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "427ed85411f88719c1d163e3d544ee74add6e934",
+    "date": "2025-11-14T16:45:33+07:00",
+    "message": "feat(config): add explicit sqlite/mysql connection parameters to ConfigDB constructor\n\n- Add explicit constructor parameters: `db_path`, `host`, `user`, `password`, `database` and wire them into sqlite/mysql connection logic.\n- Expand constructor docstring with parameter descriptions and usage examples.\n- Make dataclass encoding safer (only call `asdict` for instances) and make `_decode` tolerant of `bytes` and non-string DB values.\n- Make `get()` tolerant of both `sqlite3.Row` and mysql dict row shapes when reading `value`.\n\nPreserves backward compatibility: the existing `driver` kwarg is still supported (no breaking change).",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/utils/config.py"
+    ]
+  },
+  {
+    "hash": "80bd60a4eaea52a9e00b556fdb373517f0a758b2",
+    "date": "2025-11-14T16:09:15+07:00",
+    "message": "feat(proxydb): enhance get_untested_proxies to support randomization option",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
     "hash": "c365f79d308b6bbe85bcea0cb0c6401befbc2020",
     "date": "2025-11-14T16:05:26+07:00",
     "message": "feat(proxydb): add MySQL backend support and MySQL-only tests\n\n- Add MySQL support to `ProxyDB` via `MySQLHelper` and allow selecting backend with\n  new constructor args: `db_type`, `mysql_host`, `mysql_dbname`, `mysql_user`, `mysql_password`.\n- Accept helper instances directly (SQLiteHelper | MySQLHelper) and defer sqlite path\n  when using MySQL.\n- Initialize backend in `start_connection()`; load MySQL schema if `assets/mysql-schema.sql` exists.\n- Make SQL placeholder and random-function backend-aware:\n  use `%s` / `RAND()` for MySQL and `?` / `RANDOM()` for SQLite across methods\n  (meta/select/add/remove/update/get_untested/get_dead/get_private/get_working, etc.).\n- Add `is_already_added`, `mark_as_added`, `get_random_function`, `normalize_proxy`.\n- Extend `get_all_proxies()` to support `limit`, `randomize`, and pagination (`page`, `per_page`)\n  while remaining backwards-compatible for simple `limit` usage.\n- Minor typing fixes (use `cast` for sqlite path) to satisfy type checkers.\n- Add `tests/ProxyDB_MySQL_Test.py` (MySQL-only tests) and load `.env` in `tests/ProxyDB_Test.py`.\n\nBREAKING CHANGE:\n- `ProxyDB.__init__` signature changed (new positional/keyword params). Callers using positional arguments\n  should switch to keyword args for `db_type` and the MySQL connection params.\n- `get_all_proxies()` signature changed (now accepts `limit`, `randomize`, `page`, `per_page`);\n  update any callers that relied on the old `rand` positional parameter.",
@@ -8710,30 +8734,6 @@
     "message": "refactor(vite-gh-pages): streamline deploy logic and remove redundancy\n\n- Refactored ESM __dirname fix to concise comment.\n- Replaced promise chaining in buildForGithubPages with async/await and try/catch for clearer error handling.\n- Combined .deploy_git directory setup and update logic for clarity.\n- Unified asset and PHP cleanup into a single loop before copying build output.\n- Simplified cache busting logic: load HTML directly into Cheerio, declare relIndexHtml once, and use it for all logging.\n- Refactored route HTML copy logic: use deployGitPath for all routes, ensure directory, and handle errors with concise logging.\n- Removed redundant variable declarations and improved code readability.",
     "files": [
       "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "fe99a13eae6f464dd572cd6ac057e1e577e024d5",
-    "date": "2025-08-14T15:46:13+07:00",
-    "message": "chore(ci): fetch full git history in github-pages workflow\n\nSet fetch-depth: 0 for both repository and gh-pages branch checkout steps to ensure complete commit history is available during workflow execution.",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "abc65db7eaa754f7d5d95d6e3d46287ce0f936a6",
-    "date": "2025-08-14T15:44:35+07:00",
-    "message": "refactor(utils): simplify createUrl logic and debug output\n\n- Removed isViteDevServer import and related logic from createUrl.\n- Now always uses VITE_BACKEND_HOSTNAME for PHP file URLs.\n- Reduced and clarified debug logging in createUrl for easier tracing.",
-    "files": [
-      "src/react/utils/url.ts"
-    ]
-  },
-  {
-    "hash": "ea709e460f835d193c698c52150c9abac0525d5f",
-    "date": "2025-08-14T15:43:19+07:00",
-    "message": "refactor(react): remove React.lazy and Suspense, use static imports for all pages\n\n- Replaced all React.lazy dynamic imports with direct static imports for page components.\n- Removed Suspense wrapper and fallback from the main app layout.\n- This change resolves hydration issues and DOMException errors caused by mismatched fallback nodes during SSR/CSR hydration.",
-    "files": [
-      "src/react/index.tsx"
     ]
   }
 ]
