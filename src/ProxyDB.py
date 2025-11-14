@@ -455,16 +455,38 @@ class ProxyDB:
         self.update(proxy.strip(), latency=latency)
 
     def get_working_proxies(
-        self, auto_fix: bool = True
+        self,
+        auto_fix: bool = True,
+        limit: Optional[int] = None,
+        randomize: bool = True,
     ) -> List[Dict[str, Union[str, None]]]:
+        """
+        Retrieve working (active) proxies with optional limit and randomization.
+
+        Args:
+            auto_fix: If True, run `fix_empty_data` on results before returning.
+            limit: Optional maximum number of returned rows. None means no limit.
+            randomize: If True, order results randomly.
+        """
+        if limit is None:
+            limit = sys.maxsize
+
+        # Build backend-specific query
         if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
-            result = self.get_db().select("proxies", "*", "status = %s", ["active"])
+            order_clause = " ORDER BY RAND()" if randomize else ""
+            sql_where = f"status = %s{order_clause} LIMIT {int(limit)}"
+            result = self.get_db().select("proxies", "*", sql_where, ["active"])
         else:
-            result = self.get_db().select("proxies", "*", "status = ?", ["active"])
+            order_clause = " ORDER BY RANDOM()" if randomize else ""
+            sql_where = f"status = ?{order_clause} LIMIT {int(limit)}"
+            result = self.get_db().select("proxies", "*", sql_where, ["active"])
+
+        if not result:
+            return []
+
         if auto_fix:
             return self.fix_empty_data(result)
-        else:
-            return result
+        return result
 
     def clean_type(
         self, item: Dict[str, Union[str, None]]
