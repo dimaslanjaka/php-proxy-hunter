@@ -17,7 +17,7 @@ class MySQLHelperTest extends TestCase {
     $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST');
     $this->mysqlUser = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
     $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS');
-    $this->mysqlDb   = 'mysql_helper_test_db';
+    $this->mysqlDb   = 'phpunit_test_db';
     $this->db        = new MySQLHelper(
       $this->mysqlHost,
       $this->mysqlDb,

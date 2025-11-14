@@ -5,8 +5,7 @@ define('PHP_PROXY_HUNTER', true);
 use PHPUnit\Framework\TestCase;
 use PhpProxyHunter\ProxyDB;
 
-class ProxyDBTest extends TestCase
-{
+class ProxyDBTest extends TestCase {
   /** @var ProxyDB|null */
   private $proxyDB = null;
   /** @var string */
@@ -22,25 +21,22 @@ class ProxyDBTest extends TestCase
   /** @var string|null */
   private $mysqlDb = null;
 
-  public function dbProvider(): array
-  {
+  public function dbProvider(): array {
     return [
       'sqlite' => ['sqlite'],
       'mysql'  => ['mysql'],
     ];
   }
 
-  protected function setUp(): void
-  {
+  protected function setUp(): void {
     parent::setUp();
     $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST');
     $this->mysqlUser = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
     $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS');
-    $this->mysqlDb   = 'php_proxy_hunter_test';
+    $this->mysqlDb   = 'phpunit_test_db';
   }
 
-  protected function setUpDB(string $driver): void
-  {
+  protected function setUpDB(string $driver): void {
     if ($driver === 'mysql') {
       $this->proxyDB = new ProxyDB(
         null,
@@ -60,8 +56,7 @@ class ProxyDBTest extends TestCase
     }
   }
 
-  protected function tearDownDB(string $driver): void
-  {
+  protected function tearDownDB(string $driver): void {
     if ($this->proxyDB) {
       $this->proxyDB->remove($this->testProxy);
       $this->proxyDB->close();
@@ -76,8 +71,7 @@ class ProxyDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testAddAndSelectProxy(string $driver): void
-  {
+  public function testAddAndSelectProxy(string $driver): void {
     $this->setUpDB($driver);
     $this->proxyDB->add($this->testProxy);
     $result = $this->proxyDB->select($this->testProxy);
@@ -89,8 +83,7 @@ class ProxyDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testUpdateProxy(string $driver): void
-  {
+  public function testUpdateProxy(string $driver): void {
     $this->setUpDB($driver);
     $this->proxyDB->add($this->testProxy);
     $this->proxyDB->update(
@@ -113,8 +106,7 @@ class ProxyDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testRemoveProxy(string $driver): void
-  {
+  public function testRemoveProxy(string $driver): void {
     $this->setUpDB($driver);
     $this->proxyDB->add($this->testProxy);
     $this->proxyDB->remove($this->testProxy);
@@ -126,8 +118,7 @@ class ProxyDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testIsAlreadyAddedAndMarkAsAdded(string $driver): void
-  {
+  public function testIsAlreadyAddedAndMarkAsAdded(string $driver): void {
     $this->setUpDB($driver);
     $this->proxyDB->remove($this->testProxy);
     $this->assertFalse($this->proxyDB->isAlreadyAdded($this->testProxy));
@@ -140,8 +131,7 @@ class ProxyDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testGetAllProxies(string $driver): void
-  {
+  public function testGetAllProxies(string $driver): void {
     $this->setUpDB($driver);
     $this->proxyDB->add($this->testProxy);
     $proxies = $this->proxyDB->getAllProxies();

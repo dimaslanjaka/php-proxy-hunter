@@ -5,8 +5,7 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PhpProxyHunter\ActivityLog;
 
-class ActivityLogTest extends TestCase
-{
+class ActivityLogTest extends TestCase {
   private ?PDO $db          = null;
   private ?ActivityLog $log = null;
 
@@ -15,25 +14,22 @@ class ActivityLogTest extends TestCase
   private ?string $mysqlPass = null;
   private ?string $mysqlDb   = null;
 
-  public function dbProvider(): array
-  {
+  public function dbProvider(): array {
     return [
       'sqlite' => ['sqlite'],
       'mysql'  => ['mysql'],
     ];
   }
 
-  protected function setUp(): void
-  {
+  protected function setUp(): void {
     parent::setUp();
     $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST');
     $this->mysqlUser = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
     $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS');
-    $this->mysqlDb   = 'activity_log_test_db';
+    $this->mysqlDb   = 'phpunit_test_db';
   }
 
-  protected function setUpDB(string $driver): void
-  {
+  protected function setUpDB(string $driver): void {
     if ($driver === 'mysql') {
       // Connect without specifying database to allow creating it if it doesn't exist
       $dsnNoDb  = sprintf('mysql:host=%s', $this->mysqlHost);
@@ -59,8 +55,7 @@ class ActivityLogTest extends TestCase
     }
   }
 
-  protected function tearDownDB(string $driver): void
-  {
+  protected function tearDownDB(string $driver): void {
     $this->db  = null;
     $this->log = null;
     gc_collect_cycles();
@@ -70,8 +65,7 @@ class ActivityLogTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testLogEntryIsInserted(string $driver): void
-  {
+  public function testLogEntryIsInserted(string $driver): void {
     $this->setUpDB($driver);
     $result = $this->log->log(
       1,
@@ -94,8 +88,7 @@ class ActivityLogTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testRecentReturns(string $driver): void
-  {
+  public function testRecentReturns(string $driver): void {
     $this->setUpDB($driver);
     $logs = $this->log->recent();
     $this->assertIsArray($logs);
@@ -105,8 +98,7 @@ class ActivityLogTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testUpdateModifiesRow(string $driver): void
-  {
+  public function testUpdateModifiesRow(string $driver): void {
     $this->setUpDB($driver);
 
     // insert a record

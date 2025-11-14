@@ -9,8 +9,7 @@ use PhpProxyHunter\UserDB;
 /**
  * @covers \PhpProxyHunter\UserDB
  */
-class UserDBSaldoArithmeticTest extends TestCase
-{
+class UserDBSaldoArithmeticTest extends TestCase {
   private string $mysqlHost;
   private string $mysqlDb;
   private string $mysqlUser;
@@ -19,8 +18,7 @@ class UserDBSaldoArithmeticTest extends TestCase
   /**
    * Create the test database if it does not exist.
    */
-  private function createTestDatabase(): void
-  {
+  private function createTestDatabase(): void {
     $dsn = sprintf('mysql:host=%s', $this->mysqlHost);
     $pdo = new \PDO($dsn, $this->mysqlUser, $this->mysqlPass);
     $pdo->exec('CREATE DATABASE IF NOT EXISTS `' . $this->mysqlDb . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
@@ -29,18 +27,16 @@ class UserDBSaldoArithmeticTest extends TestCase
   /**
    * Drop the test database after tests.
    */
-  private function dropTestDatabase(): void
-  {
+  private function dropTestDatabase(): void {
     $dsn = sprintf('mysql:host=%s', $this->mysqlHost);
     $pdo = new \PDO($dsn, $this->mysqlUser, $this->mysqlPass);
     $pdo->exec('DROP DATABASE IF EXISTS `' . $this->mysqlDb . '`;');
   }
 
-  public function __construct(?string $name = null, array $data = [], $dataName = '')
-  {
+  public function __construct(?string $name = null, array $data = [], $dataName = '') {
     parent::__construct($name, $data, $dataName);
     $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? 'localhost';
-    $this->mysqlDb   = 'php_proxy_hunter_test';
+    $this->mysqlDb   = 'phpunit_test_db';
     $this->mysqlUser = $_ENV['MYSQL_USER'] ?? '';
     $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? '';
     // Assert that MySQL password is not empty for test safety
@@ -50,8 +46,7 @@ class UserDBSaldoArithmeticTest extends TestCase
   }
 
 
-  public function dbProvider(): array
-  {
+  public function dbProvider(): array {
     return [
       'sqlite' => ['sqlite'],
       'mysql'  => ['mysql'],
@@ -61,8 +56,7 @@ class UserDBSaldoArithmeticTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testSaldoArithmetic($driver): void
-  {
+  public function testSaldoArithmetic($driver): void {
     if ($driver === 'sqlite') {
       $testDbPath = __DIR__ . '/tmp/test_database_saldo.sqlite';
       if (file_exists($testDbPath)) {
@@ -91,8 +85,7 @@ class UserDBSaldoArithmeticTest extends TestCase
     }
   }
 
-  private function runSaldoArithmeticTest(UserDB $userDB): void
-  {
+  private function runSaldoArithmeticTest(UserDB $userDB): void {
     $userData = [
       'username' => 'arithuser',
       'password' => 'arithpass',

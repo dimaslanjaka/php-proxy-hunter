@@ -9,8 +9,7 @@ use PhpProxyHunter\CoreDB;
 /**
  * @covers \PhpProxyHunter\CoreDB
  */
-class CoreDBTest extends TestCase
-{
+class CoreDBTest extends TestCase {
   /** @var CoreDB|null */
   private $coreDB = null;
   /** @var string|null */
@@ -24,24 +23,21 @@ class CoreDBTest extends TestCase
   /** @var string|null */
   private $mysqlDb;
 
-  public function dbProvider(): array
-  {
+  public function dbProvider(): array {
     return [
       'sqlite' => ['sqlite'],
       'mysql'  => ['mysql'],
     ];
   }
 
-  protected function setUp(): void
-  {
+  protected function setUp(): void {
     $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? null;
     $this->mysqlUser = $_ENV['MYSQL_USER'] ?? null;
     $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? null;
-    $this->mysqlDb   = 'php_proxy_hunter_test';
+    $this->mysqlDb   = 'phpunit_test_db';
   }
 
-  protected function setUpDB(string $driver): void
-  {
+  protected function setUpDB(string $driver): void {
     if ($driver === 'mysql') {
       $this->coreDB = new CoreDB(
         null,
@@ -64,8 +60,7 @@ class CoreDBTest extends TestCase
     }
   }
 
-  protected function tearDownDB(string $driver): void
-  {
+  protected function tearDownDB(string $driver): void {
     if ($this->coreDB) {
       $this->coreDB->close();
       $this->coreDB = null;
@@ -80,8 +75,7 @@ class CoreDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testClassExists(string $driver): void
-  {
+  public function testClassExists(string $driver): void {
     $this->setUpDB($driver);
     try {
       $this->assertTrue(class_exists(CoreDB::class));
@@ -93,8 +87,7 @@ class CoreDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testConstructorAndDriver(string $driver): void
-  {
+  public function testConstructorAndDriver(string $driver): void {
     $this->setUpDB($driver);
     try {
       $this->assertInstanceOf(CoreDB::class, $this->coreDB);
@@ -107,8 +100,7 @@ class CoreDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testQueryAndSelect(string $driver): void
-  {
+  public function testQueryAndSelect(string $driver): void {
     $this->setUpDB($driver);
     try {
       // Insert a row into meta table
@@ -138,8 +130,7 @@ class CoreDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testHasTable($driver)
-  {
+  public function testHasTable($driver) {
     $this->setUpDB($driver);
     try {
       $this->assertTrue($this->coreDB->hasTable('meta'));

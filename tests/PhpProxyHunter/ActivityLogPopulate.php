@@ -7,7 +7,7 @@ use PhpProxyHunter\CoreDB;
 $mysqlHost = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST');
 $mysqlUser = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
 $mysqlPass = $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS');
-$mysqlDb   = 'php_proxy_hunter_test';
+$mysqlDb   = 'phpunit_test_db';
 $db        = new CoreDB(null, $mysqlHost, $mysqlDb, $mysqlUser, $mysqlPass, false);
 $log_db    = $db->log_db;
 $user_db   = $db->user_db;

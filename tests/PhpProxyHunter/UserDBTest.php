@@ -9,8 +9,7 @@ use PhpProxyHunter\UserDB;
 /**
  * @covers \PhpProxyHunter\UserDB
  */
-class UserDBTest extends TestCase
-{
+class UserDBTest extends TestCase {
   private ?UserDB $userDB     = null;
   private ?string $testDbPath = null;
 
@@ -19,25 +18,22 @@ class UserDBTest extends TestCase
   private ?string $mysqlPass = null;
   private ?string $mysqlDb   = null;
 
-  public function dbProvider(): array
-  {
+  public function dbProvider(): array {
     return [
       'sqlite' => ['sqlite'],
       'mysql'  => ['mysql'],
     ];
   }
 
-  protected function setUp(): void
-  {
+  protected function setUp(): void {
     parent::setUp();
     $this->mysqlHost = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST');
     $this->mysqlUser = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
     $this->mysqlPass = $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS');
-    $this->mysqlDb   = 'php_proxy_hunter_test';
+    $this->mysqlDb   = 'phpunit_test_db';
   }
 
-  protected function setUpDB(string $driver): void
-  {
+  protected function setUpDB(string $driver): void {
     if ($driver === 'mysql') {
       $this->userDB = new UserDB(
         null,
@@ -70,8 +66,7 @@ class UserDBTest extends TestCase
     }
   }
 
-  protected function tearDownDB(string $driver): void
-  {
+  protected function tearDownDB(string $driver): void {
     if ($this->userDB) {
       $this->userDB->close();
       $this->userDB = null;
@@ -85,8 +80,7 @@ class UserDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testAddAndSelectUser(string $driver): void
-  {
+  public function testAddAndSelectUser(string $driver): void {
     $this->setUpDB($driver);
 
     $userData = [
@@ -110,8 +104,7 @@ class UserDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testUpdateUser(string $driver): void
-  {
+  public function testUpdateUser(string $driver): void {
     $this->setUpDB($driver);
 
     $userData = [
@@ -151,8 +144,7 @@ class UserDBTest extends TestCase
   /**
    * @dataProvider dbProvider
    */
-  public function testSaldoOperations(string $driver): void
-  {
+  public function testSaldoOperations(string $driver): void {
     $this->setUpDB($driver);
 
     $userData = [
@@ -176,8 +168,7 @@ class UserDBTest extends TestCase
     $this->tearDownDB($driver);
   }
 
-  public function deleteUser($driver)
-  {
+  public function deleteUser($driver) {
     $this->setUpDB($driver);
 
     // Add test user to ensure they exist before deletion
