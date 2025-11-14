@@ -384,7 +384,7 @@ async function main() {
 
   // Restore local vite by run `yarn prepare:vite` locally
   console.log('Restoring local vite setup...');
-  await spawnAsync('yarn', ['prepare:vite'], {
+  await spawnAsync('yarn', ['prepare:react'], {
     stdio: 'inherit',
     shell: true
   });
