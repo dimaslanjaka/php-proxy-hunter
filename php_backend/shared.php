@@ -61,8 +61,7 @@ $log_db = $core_db->log_db;
  *
  * @return array|null Returns user data array if found, null otherwise
  */
-function getCurrentUserData()
-{
+function getCurrentUserData() {
   global $user_db;
   $email = !is_cli() ? ($_SESSION['authenticated_email'] ?? '') : '';
   $user  = $user_db->select($email);
