@@ -1,5 +1,43 @@
 [
   {
+    "hash": "2667f69b75904202413e02e22ee2c1b5a2998948",
+    "date": "2025-11-14T06:55:07+07:00",
+    "message": "fix(include): remove legacy require and use require_once for shared include\n\n- artisan/filterPortsDuplicate.php: remove obsolete `require __DIR__ . '/../func-proxy.php'`\n- proxyCheckerParallel-func.php: replace `require` with `require_once` for `php_backend/shared.php` to avoid double-includes\n\nRationale: cleans up an unused include and makes the shared bootstrap idempotent to reduce risk of re-declaration/side-effects.",
+    "files": [
+      "artisan/filterPortsDuplicate.php",
+      "proxyCheckerParallel-func.php"
+    ]
+  },
+  {
+    "hash": "6d7d1b634d5358af999422ff8553648b644273d8",
+    "date": "2025-11-14T06:49:49+07:00",
+    "message": "refactor: replace include with require_once for shared.php in multiple files",
+    "files": [
+      "artisan/filterPorts.php",
+      "artisan/filterPortsDuplicate.php",
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/google-oauth.php",
+      "php_backend/list-user.php",
+      "php_backend/login.php",
+      "php_backend/logs.php",
+      "php_backend/processes.php",
+      "php_backend/proxy-add.php",
+      "php_backend/proxy-checker.php",
+      "php_backend/refill-saldo.php",
+      "php_backend/user-info.php",
+      "proxyCheckerParallel-func.php"
+    ]
+  },
+  {
+    "hash": "f7d735e843cd0c8e3e30de118eaf3b751949299c",
+    "date": "2025-11-14T06:25:49+07:00",
+    "message": "chore(deploy): restore local Vite setup after remote build\n\nRun `yarn prepare:vite` locally at the end of `bin/deploy-vps.mjs` to restore the local Vite setup after the remote build completes (uses spawnAsync with stdio inherited and shell enabled). Adds a console log to indicate the restore step.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
     "hash": "5cf2510d785587b6a795066fc36a1460238946a8",
     "date": "2025-11-11T22:59:38+07:00",
     "message": "refactor(Admin): remove unused components from the Admin page",
@@ -8668,31 +8706,6 @@
       "src/react/pages/Changelog.tsx",
       "src/react/utils/url.ts",
       "vite.config.js"
-    ]
-  },
-  {
-    "hash": "bbedb106bef32b13704ab878b7abbc34edd4375c",
-    "date": "2025-08-13T20:51:40+07:00",
-    "message": "feat(workflow): add concurrency settings to clean GitHub Actions cache",
-    "files": [
-      ".github/workflows/clean-caches.yml"
-    ]
-  },
-  {
-    "hash": "c43817ef9231fb9053051d29103e3c4d04c9ae5f",
-    "date": "2025-08-13T20:49:26+07:00",
-    "message": "feat(vite-plugin): add git history builder execution in index HTML replacement plugin",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "232255353e788b65af8d53a679e6715c3f95da68",
-    "date": "2025-08-13T20:45:52+07:00",
-    "message": "refactor(ci): streamline GitHub Pages deployment and improve build script\n\n- Move gh-pages branch checkout before Node.js setup in workflow for better sequence.\n- Remove redundant checkout and manual copy steps; rely on updated build script for deployment.\n- Enhance `vite-gh-pages.js` with JSDoc comments and ESM compatibility.\n- Automate deployment: clone repo if needed, clean assets, copy build output, and remove PHP files.",
-    "files": [
-      ".github/workflows/github-pages.yml",
-      "vite-gh-pages.js"
     ]
   }
 ]
