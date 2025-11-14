@@ -11,7 +11,8 @@ include = [
   "data",
   "django_backend",
   "tests",
-  "xl"
+  "xl",
+  "bas"
 ]
 exclude = [
   "**/node_modules",
@@ -27,7 +28,11 @@ exclude = [
   "**/backups",
   "**/venv",
   "**/.cache",
-  "**/.pytest_cache"
+  "**/.pytest_cache",
+  "xl",
+  "src",
+  "data",
+  "django_backend"
 ]
 extraPaths = [
   "venv/Lib/site-packages",
