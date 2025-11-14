@@ -1,5 +1,13 @@
 [
   {
+    "hash": "241f783dae077316114e9e6ec254a66a629a5a84",
+    "date": "2025-11-14T16:56:16+07:00",
+    "message": "feat(proxydb): enhance get_working_proxies to support limit and randomization options",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
     "hash": "91d9b87c2023446f6306f042634bb7bd2b4c496d",
     "date": "2025-11-14T16:49:29+07:00",
     "message": "feat(proxydb): add debug option to extract_proxies for enhanced logging",
@@ -8724,14 +8732,6 @@
     "hash": "afda38b2237d7566bbc299eb6b88479bff1486a0",
     "date": "2025-08-14T16:21:17+07:00",
     "message": "refactor(vite-gh-pages): improve deploy asset handling and logging\n\n- Copy build output to .deploy_git before cleaning old directories.\n- Clean up old 'assets', 'php', and 'static' directories in .deploy_git with explicit logging.\n- Re-copy only the 'assets' directory from build output to .deploy_git after cleanup.\n- Add log messages for asset copy and directory removal actions.\n- Remove redundant route processing log in route copy loop.",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "a94dc1a8a83db0f3c96758a267b3ba0f679f4386",
-    "date": "2025-08-14T16:16:49+07:00",
-    "message": "refactor(vite-gh-pages): streamline deploy logic and remove redundancy\n\n- Refactored ESM __dirname fix to concise comment.\n- Replaced promise chaining in buildForGithubPages with async/await and try/catch for clearer error handling.\n- Combined .deploy_git directory setup and update logic for clarity.\n- Unified asset and PHP cleanup into a single loop before copying build output.\n- Simplified cache busting logic: load HTML directly into Cheerio, declare relIndexHtml once, and use it for all logging.\n- Refactored route HTML copy logic: use deployGitPath for all routes, ensure directory, and handle errors with concise logging.\n- Removed redundant variable declarations and improved code readability.",
     "files": [
       "vite-gh-pages.js"
     ]
