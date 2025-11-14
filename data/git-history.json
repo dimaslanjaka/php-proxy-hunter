@@ -1,5 +1,23 @@
 [
   {
+    "hash": "c365f79d308b6bbe85bcea0cb0c6401befbc2020",
+    "date": "2025-11-14T16:05:26+07:00",
+    "message": "feat(proxydb): add MySQL backend support and MySQL-only tests\n\n- Add MySQL support to `ProxyDB` via `MySQLHelper` and allow selecting backend with\n  new constructor args: `db_type`, `mysql_host`, `mysql_dbname`, `mysql_user`, `mysql_password`.\n- Accept helper instances directly (SQLiteHelper | MySQLHelper) and defer sqlite path\n  when using MySQL.\n- Initialize backend in `start_connection()`; load MySQL schema if `assets/mysql-schema.sql` exists.\n- Make SQL placeholder and random-function backend-aware:\n  use `%s` / `RAND()` for MySQL and `?` / `RANDOM()` for SQLite across methods\n  (meta/select/add/remove/update/get_untested/get_dead/get_private/get_working, etc.).\n- Add `is_already_added`, `mark_as_added`, `get_random_function`, `normalize_proxy`.\n- Extend `get_all_proxies()` to support `limit`, `randomize`, and pagination (`page`, `per_page`)\n  while remaining backwards-compatible for simple `limit` usage.\n- Minor typing fixes (use `cast` for sqlite path) to satisfy type checkers.\n- Add `tests/ProxyDB_MySQL_Test.py` (MySQL-only tests) and load `.env` in `tests/ProxyDB_Test.py`.\n\nBREAKING CHANGE:\n- `ProxyDB.__init__` signature changed (new positional/keyword params). Callers using positional arguments\n  should switch to keyword args for `db_type` and the MySQL connection params.\n- `get_all_proxies()` signature changed (now accepts `limit`, `randomize`, `page`, `per_page`);\n  update any callers that relied on the old `rand` positional parameter.",
+    "files": [
+      "src/ProxyDB.py",
+      "tests/ProxyDB_MySQL_Test.py",
+      "tests/ProxyDB_Test.py"
+    ]
+  },
+  {
+    "hash": "0165c340d59e42f66560ba388e6b7cd16e284b23",
+    "date": "2025-11-14T15:41:00+07:00",
+    "message": "feat(build): add --force flag to override checksum checks and force rebuild\n\n- Integrate `minimist` to parse CLI arguments.\n- Add `--force` option to bypass cached checksums.\n- Always run yarn install/build and rewrite checksum files when forced.\n- Refactor checksum loading logic to respect force mode.\n- Improve logging for forced and normal execution paths.",
+    "files": [
+      "bin/build-project.mjs"
+    ]
+  },
+  {
     "hash": "04e5e1689f745f86604ddf3dff6d2c11c29efc2a",
     "date": "2025-11-14T13:28:49+07:00",
     "message": "feat(dashboard): replace UserActivityCard with new UserPaymentLogs component\n\n- Add new `UserPaymentLogs` component with merged transaction view, collapsible sections, and multi-page log fetching\n- Render payment logs in Dashboard's activity tab and comment out deprecated `UserActivityCard`\n- Implement transaction grouping by tx ID, status extraction, and improved log display UI\n- Extend `LogEntry` type to support generic `details` instead of string-only",
@@ -8716,22 +8734,6 @@
     "message": "refactor(react): remove React.lazy and Suspense, use static imports for all pages\n\n- Replaced all React.lazy dynamic imports with direct static imports for page components.\n- Removed Suspense wrapper and fallback from the main app layout.\n- This change resolves hydration issues and DOMException errors caused by mismatched fallback nodes during SSR/CSR hydration.",
     "files": [
       "src/react/index.tsx"
-    ]
-  },
-  {
-    "hash": "5f2da1521cfccebfa04bed64dea6c02208a4e801",
-    "date": "2025-08-14T15:42:06+07:00",
-    "message": "fix(build): disable minification",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "fa3ae92bb2932f48cb397f30e8ebcd663e296ede",
-    "date": "2025-08-14T15:37:22+07:00",
-    "message": "refactor(vite-plugin): comment out configureServer function for future use",
-    "files": [
-      "vite-plugin.js"
     ]
   }
 ]
