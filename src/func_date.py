@@ -97,6 +97,54 @@ def convert_rfc3339_to_human_readable(rfc3339_date: str):
     return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
+def convert_rfc3339_to_datetime(dt_str: str) -> datetime:
+    """
+    Parse an RFC3339 / ISO-8601-like timestamp string into a datetime.
+
+    Behavior:
+    - Accepts strings like "2021-06-01T12:34:56Z", "2021-06-01T12:34:56+00:00",
+      or "2021-06-01T12:34:56" (no timezone).
+    - Converts a trailing 'Z' into '+00:00' because datetime.fromisoformat
+      does not accept 'Z' as a timezone designator.
+    - Uses datetime.fromisoformat first (returns timezone-aware datetime if
+      a timezone is present). Falls back to datetime.strptime for common
+      timezone-less format "%Y-%m-%dT%H:%M:%S".
+    - On invalid input or parsing errors, returns datetime.min so that these
+      values sort last when ordering datetimes.
+
+    Parameters:
+        dt_str (str): Timestamp string to parse.
+
+    Returns:
+        datetime: Parsed datetime object (aware if timezone provided).
+                  Returns datetime.min for invalid or missing inputs.
+
+    Examples:
+        >>> convert_rfc3339_to_datetime("2021-06-01T12:34:56Z")
+        datetime.datetime(2021, 6, 1, 12, 34, 56, tzinfo=datetime.timezone.utc)
+
+        >>> convert_rfc3339_to_datetime("2021-06-01T12:34:56")
+        datetime.datetime(2021, 6, 1, 12, 34, 56)
+
+    Notes:
+    - This function intentionally returns datetime.min for invalid values to
+      simplify sorting where invalid/missing timestamps should appear last.
+    """
+    if not dt_str or not isinstance(dt_str, str):
+        return datetime.min
+    try:
+        # datetime.fromisoformat doesn't accept a trailing 'Z', convert it to +00:00
+        if dt_str.endswith("Z"):
+            dt_str = dt_str[:-1] + "+00:00"
+        return datetime.fromisoformat(dt_str)
+    except Exception:
+        # Fallback: try common format without timezone
+        try:
+            return datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%S")
+        except Exception:
+            return datetime.min
+
+
 def get_system_timezone() -> str:
     """
     Get system timezone name.
