@@ -35,7 +35,7 @@ call venv\Scripts\activate.bat
 
 set "PY=%CWD%\venv\Scripts\python.exe"
 call %PY% -m pip install --upgrade pip
-call %PY% -m pip install requests PySocks beautifulsoup4 lxml httpx python-dotenv
+call %PY% -m pip install requests PySocks beautifulsoup4 lxml httpx pycryptodome python-dotenv
 
 if exist packages/proxy-checker-python (
     call %PY% -m pip install -e packages/proxy-checker-python
