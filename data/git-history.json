@@ -1,5 +1,167 @@
 [
   {
+    "hash": "a7e5b2f57165fb31b28587075dd0dc8c5067ec5d",
+    "date": "2025-11-14T10:10:37+07:00",
+    "message": "feat(utils): add isEmpty helper and improve isNotEmpty docs\n\n- Introduce `isEmpty(data)` to standardize emptiness checks across types:\n  - treats null/undefined, empty or whitespace-only strings, empty arrays,\n    and plain objects with no own enumerable keys as empty.\n  - notes caveat for non-plain object types (Map, Set, Date, etc).\n- Update `isNotEmpty` to delegate to `isEmpty` (returns the negation).\n- Expand and clarify JSDoc comments and examples for both functions.\n\nThis improves reuse and consistency when checking for empty values.",
+    "files": [
+      "src/utils/string.js"
+    ]
+  },
+  {
+    "hash": "5b1b10ef1ef5fd4d5cca444d01b9da6c4beb1324",
+    "date": "2025-11-14T10:08:59+07:00",
+    "message": "feat(data): add hideArrayData helper to recursively mask array values\n\n- Add `src/utils/data/hideArrayData.php`: a recursive utility to hide/mask values in nested arrays based on a user-provided callback.\n- Supports callbacks with 2 or 3 args (key, value[, parentKey]); uses reflection to detect and preserve backward compatibility.\n- Provides a default mask callback (stars for strings, \"[HIDDEN]\" otherwise).\n- Preserves parent context for object properties inside numeric lists (for sensible parentKey propagation).\n- Includes a CLI example demonstrating common sensitive-field masks and how to restore results.\n- No breaking changes; purely additive utility and examples.",
+    "files": [
+      "src/utils/data/hideArrayData.php"
+    ]
+  },
+  {
+    "hash": "b3ea41f7441867b6a89c8be426ac4a559a10895e",
+    "date": "2025-11-14T10:07:14+07:00",
+    "message": "feat(utils): add runtime type detection helpers\n\n- Add new file `src/utils/data/detection.ts` providing small, documented type-guard helpers:\n  `isObject`, `isArray`, `isString`, `isNumber`, `isBoolean`, `isFunction`.\n- Functions include JSDoc and use narrow type predicates to help runtime checks and TypeScript inference.\n\nNo behavioral changes; utility functions for safer type checks and clearer code.feat(utils): add runtime type detection helpers\n\n- Add new file `src/utils/data/detection.ts` providing small, documented type-guard helpers:\n  `isObject`, `isArray`, `isString`, `isNumber`, `isBoolean`, `isFunction`.\n- Functions include JSDoc and use narrow type predicates to help runtime checks and TypeScript inference.\n\nNo behavioral changes; utility functions for safer type checks and clearer code.",
+    "files": [
+      "src/utils/data/detection.ts"
+    ]
+  },
+  {
+    "hash": "b4953343b849dc44aaec4e3b9c3dcf9312ab274c",
+    "date": "2025-11-14T10:06:31+07:00",
+    "message": "chore(deps): bump many dev/prod dependencies and update resolutions\n\n- Bump multiple dependencies to newer patch/minor versions (notable: axios, chromedriver, jquery-form-saver, puppeteer, which, vite, vitest, rollup, sass, tailwindcss, terser).\n- Update dev tooling and types: @types/node, @typescript-eslint/*, @vitejs/plugin-react, autoprefixer, browserslist, etc.\n- Upgrade several frontend libs (react-i18next, react-router-dom, flowbite) and dev helpers (nodemon, i18next).\n- Refresh yarn resolutions for internal hosted packages (binary-collections, git-command-helper, markdown-it, sbg-utility) to new release digests.\n- packageManager remains yarn@4.10.3.\n\nNo application logic changes; only dependency/version updates and resolution pins.",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "1905f5b6910bb7be537d0e904080350121fbb9cc",
+    "date": "2025-11-14T10:04:14+07:00",
+    "message": "fix: php-cs-fixer",
+    "files": [
+      "func-proxy.php",
+      "src/FileSessionHandler.php",
+      "src/PhpProxyHunter/ActivityLog.php",
+      "src/PhpProxyHunter/ActivityLogMigration.php",
+      "src/PhpProxyHunter/AnsiColors.php",
+      "src/PhpProxyHunter/FileLockHelper.php",
+      "src/PhpProxyHunter/GeoIpHelper.php",
+      "src/PhpProxyHunter/GeoPlugin.php",
+      "src/PhpProxyHunter/GeoPlugin2.php",
+      "src/PhpProxyHunter/Meta.php",
+      "src/PhpProxyHunter/Session.php",
+      "src/PhpProxyHunter/UserDB.php",
+      "src/PhpProxyHunter/shim.php",
+      "src/PhpProxyHunter/utils/cidr.php",
+      "src/PhpProxyHunter/utils/path.php",
+      "src/PhpProxyHunter/utils/ports.php",
+      "src/PhpProxyHunter/utils/validator.php",
+      "src/database/env.php",
+      "src/hashers/CustomPasswordHasher.php",
+      "src/simplehtmldom/Debug.php",
+      "src/simplehtmldom/HtmlDocument.php",
+      "src/simplehtmldom/HtmlNode.php",
+      "src/simplehtmldom/HtmlWeb.php",
+      "src/simplehtmldom/example/example_callback.php",
+      "src/simplehtmldom/helper.php",
+      "src/simplehtmldom/simple_html_dom.php",
+      "src/utils/file/crud.php",
+      "src/utils/file/reader.php",
+      "src/utils/file/sanitizer.php",
+      "src/utils/file/stats.php",
+      "src/utils/shim/string.php",
+      "src/utils/string/index.php",
+      "src/utils/string/useragent.php",
+      "src/utils/utils.php"
+    ]
+  },
+  {
+    "hash": "4d255340d70d06acc2fd62129842ee4f6f6c2a3d",
+    "date": "2025-11-14T09:56:32+07:00",
+    "message": "test(tests): standardize test DB to `phpunit_test_db` and normalize test formatting\n\n- Replace various test-specific MySQL database names with `phpunit_test_db` across multiple test files.\n- Normalize PHPUnit test formatting/style (brace placement, spacing) for consistency.\n- Clean up test setup/teardown helpers and minor refactors to DB provider usage.\n\nFiles touched (selection): ActivityLogPopulate, ActivityLogTest, CoreDBTest, LogRepositoryMigrationsDebug, MySQLHelperTest, ProxyDBTest, UserDBSaldoArithmeticTest, UserDBTest, and related helpers.\n\nNo behavioral changes to production code; only test configuration and formatting updates.",
+    "files": [
+      "tests/PhpProxyHunter/ActivityLogPopulate.php",
+      "tests/PhpProxyHunter/ActivityLogTest.php",
+      "tests/PhpProxyHunter/CoreDBTest.php",
+      "tests/PhpProxyHunter/LogRepositoryMigrationsDebug.php",
+      "tests/PhpProxyHunter/MySQLHelperTest.php",
+      "tests/PhpProxyHunter/ProxyDBTest.php",
+      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
+      "tests/PhpProxyHunter/UserDBTest.php"
+    ]
+  },
+  {
+    "hash": "d6f0b492d23c24b85fee582bae0280298bc38b4f",
+    "date": "2025-11-14T09:53:27+07:00",
+    "message": "feat(types): add DeepPartial and DeepRequired utility types",
+    "files": [
+      "types/type.d.ts"
+    ]
+  },
+  {
+    "hash": "2207ece0df655d1401a5520fb10a2db0fb1c63af",
+    "date": "2025-11-14T09:52:23+07:00",
+    "message": "fix(deploy-vps): invalid yarn task",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "8838167b1c15aabca6bed558defa90c97c0f3732",
+    "date": "2025-11-14T09:51:46+07:00",
+    "message": "fix(python-minimal): add pycryptodome to pip install command",
+    "files": [
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "ab1621a3a8a5d33caa1db005b4af475060590046",
+    "date": "2025-11-14T09:51:18+07:00",
+    "message": "chore(pyproject): add 'bas' to include and expand exclude paths\n\n- Add \"bas\" to the package include list.\n- Expand `exclude` to ignore additional folders: \"xl\", \"src\", \"data\", \"django_backend\".\n- Normalize trailing commas in include/exclude arrays for consistency.\n\nReason: keep IDE/type-checker paths and packaging includes/excludes aligned to avoid scanning unintended source directories.",
+    "files": [
+      "pyproject.toml"
+    ]
+  },
+  {
+    "hash": "cec057290f9e929b9d9def20209f9e3341fff0eb",
+    "date": "2025-11-14T09:50:07+07:00",
+    "message": "fix(yarn): update yarn to version 4.11.0",
+    "files": [
+      ".yarn/releases/yarn-4.11.0.cjs",
+      ".yarnrc.yml"
+    ]
+  },
+  {
+    "hash": "8a3b80c3beb12cae3ae3d82d22548500e7ae796e",
+    "date": "2025-11-14T09:48:51+07:00",
+    "message": "feat(requirements): add isort to development dependencies",
+    "files": [
+      "requirements-dev.txt"
+    ]
+  },
+  {
+    "hash": "8dd452137d6c74ef30b9c9cd7f4de8c67d77167e",
+    "date": "2025-11-14T09:45:51+07:00",
+    "message": "feat(proxy-hunter-python): export ConfigDB from utils to package API\n\n- Add `ConfigDB` to `packages/proxy-hunter-python/proxy_hunter/utils/__init__.py`.\n- Re-export `ConfigDB` from the package root `packages/proxy-hunter-python/proxy_hunter/__init__.py`.\n\nThis makes `ConfigDB` available as part of the library's public API. No breaking changes.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/__init__.py"
+    ]
+  },
+  {
+    "hash": "00348d23924f29318d2a71570f2f5b661e54950e",
+    "date": "2025-11-14T09:28:41+07:00",
+    "message": "feat(types): add DEV and BASE_URL properties to ImportMetaEnv interface",
+    "files": [
+      "types/vite-env.d.ts"
+    ]
+  },
+  {
+    "hash": "248c06e02449621659efda6746e602fd817add5d",
+    "date": "2025-11-14T09:27:36+07:00",
+    "message": "chore(settings): update VSCode settings for improved editor behavior",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
     "hash": "2667f69b75904202413e02e22ee2c1b5a2998948",
     "date": "2025-11-14T06:55:07+07:00",
     "message": "fix(include): remove legacy require and use require_once for shared include\n\n- artisan/filterPortsDuplicate.php: remove obsolete `require __DIR__ . '/../func-proxy.php'`\n- proxyCheckerParallel-func.php: replace `require` with `require_once` for `php_backend/shared.php` to avoid double-includes\n\nRationale: cleans up an unused include and makes the shared bootstrap idempotent to reduce risk of re-declaration/side-effects.",
@@ -8569,143 +8731,6 @@
     "files": [
       "package.json",
       "packages/baileys"
-    ]
-  },
-  {
-    "hash": "3505d55ea39440c08977aa893dc79f160c343e3b",
-    "date": "2025-08-14T14:54:26+07:00",
-    "message": "chore(pre-commit): improve php-cs-fixer config usage and add yarn support for lint-staged\n\n- Specify php-cs-fixer config file in pre-commit hook for consistent formatting.\n- Add conditional logic to use `yarn dlx lint-staged` if Yarn and .yarnrc.yml are present, otherwise fallback to npx.\n- Enhance compatibility for projects using Yarn 2+.",
-    "files": []
-  },
-  {
-    "hash": "b6d2d71d9e24501badc4b036bc5c4466b803419b",
-    "date": "2025-08-14T14:51:47+07:00",
-    "message": "fix(yarn): update .yarnrc.yml configuration for improved caching and workspace handling",
-    "files": [
-      ".yarnrc.yml"
-    ]
-  },
-  {
-    "hash": "badaa740931108b73b6aa64508892d117dab6a25",
-    "date": "2025-08-14T08:33:58+07:00",
-    "message": "feat(docs): add MySQL setup guide",
-    "files": [
-      "readme-mysql.md"
-    ]
-  },
-  {
-    "hash": "c7138721a5df268984d2edb329e62fbe568812e3",
-    "date": "2025-08-14T07:56:23+07:00",
-    "message": "refactor(react): move routing and layout to index.tsx\n\n- Removed App.tsx and integrated its routing logic directly into index.tsx\n- Added global Navbar and Footer rendering in index.tsx to wrap all pages\n- Removed individual Navbar and Footer imports/usages from page components",
-    "files": [
-      "src/react/App.tsx",
-      "src/react/index.tsx",
-      "src/react/pages/About.tsx",
-      "src/react/pages/Changelog.tsx",
-      "src/react/pages/Contact.tsx",
-      "src/react/pages/Dashboard.tsx",
-      "src/react/pages/Home.tsx",
-      "src/react/pages/Login.tsx",
-      "src/react/pages/OauthHandler.tsx",
-      "src/react/pages/Outbound.tsx",
-      "src/react/pages/Settings.tsx"
-    ]
-  },
-  {
-    "hash": "c4e68e8fad3fc63d8254806d48ae81d73997d747",
-    "date": "2025-08-14T07:27:11+07:00",
-    "message": "feat(react): update router usage and add Backspace navigation handler\n\n- Replaced `Router` with `BrowserRouter` in `App.tsx` for clarity and consistency with React Router v6+.\n- Added a Backspace key navigation handler in `index.tsx` to allow users to navigate back in history when not focused on input fields, textareas, or contenteditable elements.\n- Switched from rendering `<App />` inside `<React.StrictMode>` to direct rendering for improved flexibility.",
-    "files": [
-      "src/react/App.tsx",
-      "src/react/index.tsx"
-    ]
-  },
-  {
-    "hash": "c736bc18fe05d9ee5f46ada639ee824d57166526",
-    "date": "2025-08-14T07:10:08+07:00",
-    "message": "fix(package.json): update SHA updater command to use binary-collections pkg-res-updater",
-    "files": [
-      "package-resolution-updater.mjs",
-      "package.json"
-    ]
-  },
-  {
-    "hash": "f0adf0147ea1e1b42527fca7fe314056d12cdd38",
-    "date": "2025-08-14T06:14:02+07:00",
-    "message": "fix(lint): specify config file for PHP CS Fixer in lint-staged configuration",
-    "files": [
-      ".lintstagedrc.json"
-    ]
-  },
-  {
-    "hash": "9c42bcef0969b2d34f1f24738c4940012dfb3dae",
-    "date": "2025-08-14T05:13:11+07:00",
-    "message": "feat(package.json): add dev script for gh-pages build and preview",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "6dad28603398b529fe5902d5f32025475d19a61e",
-    "date": "2025-08-14T05:01:31+07:00",
-    "message": "feat(build): add GitHub Pages config and preview support for Vite\n\n- Added `vite-gh-pages.config.js` to provide a Vite config with the correct base path for GitHub Pages deployments.\n- Updated `vite-gh-pages.js` to use the new config and removed inline config merging.\n- Modified `vite.config.js` to export both a named config (`viteConfig`) and a default function for Vite param detection.\n- Updated npm scripts in `package.json`:\n  - Changed `build:gh-pages` to run only the deploy script.\n  - Added `preview:gh-pages` for previewing the GitHub Pages build locally with the correct config.",
-    "files": [
-      "package.json",
-      "vite-gh-pages.config.js",
-      "vite-gh-pages.js",
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "4c9ce305d20d3b89357e5ebdf3b0a4625e78bff0",
-    "date": "2025-08-14T04:42:19+07:00",
-    "message": "fix(workflow): update cleanup script path to use artisan cleaner",
-    "files": [
-      ".github/workflows/checker-php.yml"
-    ]
-  },
-  {
-    "hash": "09429d235a4bc13b6f431855e1d3abdc6182540e",
-    "date": "2025-08-13T22:23:25+07:00",
-    "message": "refactor(build): move cache busting and route HTML generation from vite-plugin.js to vite-gh-pages.js\n\n- Moved cache busting logic and copying of index.html to route-specific HTML files from the Vite plugin (vite-plugin.js) to the deployment script (vite-gh-pages.js).\n- Simplified vite-plugin.js by removing unnecessary dependencies and the closeBundle hook.\n- Ensured cache busting and route HTML generation now occur only during deployment, improving build clarity and separation of concerns.",
-    "files": [
-      "vite-gh-pages.js",
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "1dec1aa7722ffec956697145086d1b182a895206",
-    "date": "2025-08-13T22:22:43+07:00",
-    "message": "feat(package.json): add preview and gh-pages build scripts for React",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "7cb565d87d08ed3fa685fed47e0a6965396790c0",
-    "date": "2025-08-13T22:14:04+07:00",
-    "message": "chore(github-pages): add cache paths for node_modules, tmp, and dist directories",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "6aeb16ab43389f09b203d52cfa774e782f976461",
-    "date": "2025-08-13T22:11:05+07:00",
-    "message": "chore(vite.config.js): remove unused code and clean up configuration",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "03bfbb0813c45d4e20490dad4baf9cb1d72309ca",
-    "date": "2025-08-13T22:05:16+07:00",
-    "message": "feat(react): sync createUrl with vite base url and improve changelog fetch\n\n- Updated `createUrl` in `src/react/utils/url.ts` to prepend the Vite base URL for non-PHP routes, handle edge cases, and add debug logs.\n- Refactored `Changelog.tsx` to use `createUrl` for fetching git history, ensuring correct path resolution with Vite base.\n- Added `.deploy_git/` to `.gitignore` to exclude deployment artifacts.\n- Updated `vite.config.js` to allow testing with a custom base path (commented example).",
-    "files": [
-      ".gitignore",
-      "src/react/pages/Changelog.tsx",
-      "src/react/utils/url.ts",
-      "vite.config.js"
     ]
   }
 ]
