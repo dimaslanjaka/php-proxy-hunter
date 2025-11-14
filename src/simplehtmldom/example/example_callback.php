@@ -6,8 +6,7 @@ include_once '../HtmlWeb.php';
 use simplehtmldom\HtmlWeb;
 
 // Write a callback function with one parameter for the element
-function my_callback($element)
-{
+function my_callback($element) {
   if ('a' === $element->tag) { // Invalidate all anchors
     $element->href = '#';
   }

@@ -7,8 +7,7 @@ namespace simplehtmldom;
  * disabled on demand. Debug messages are send to error_log by default but it
  * is also possible to register a custom debug handler.
  */
-class Debug
-{
+class Debug {
   private static $enabled      = false;
   private static $debugHandler = null;
   private static $callerLock   = [];
@@ -16,8 +15,7 @@ class Debug
   /**
    * Enables debug mode.
    */
-  public static function enable()
-  {
+  public static function enable() {
     self::$enabled = true;
     self::log('Debug mode has been enabled');
   }
@@ -28,8 +26,7 @@ class Debug
    *
    * @param string $text The message to add to error_log
    */
-  public static function log($message)
-  {
+  public static function log($message) {
     if (!self::isEnabled()) {
       return;
     }
@@ -43,8 +40,7 @@ class Debug
    *
    * @return bool true if debug mode is enabled, false otherwise
    */
-  public static function isEnabled()
-  {
+  public static function isEnabled() {
     return self::$enabled;
   }
 
@@ -52,8 +48,7 @@ class Debug
    * This is the actual log function. It allows to set a custom backtrace to
    * eliminate traces of this class.
    */
-  private static function log_trace($message, $backtrace)
-  {
+  private static function log_trace($message, $backtrace) {
     $idx          = 0;
     $debugmessage = '';
 
@@ -92,8 +87,7 @@ class Debug
   /**
    * Disables debug mode.
    */
-  public static function disable()
-  {
+  public static function disable() {
     self::log('Debug mode has been disabled');
     self::$enabled = false;
   }
@@ -103,8 +97,7 @@ class Debug
    *
    * `null`: error_log (default)
    */
-  public static function setDebugHandler($function = null)
-  {
+  public static function setDebugHandler($function = null) {
     if ($function === self::$debugHandler) {
       return;
     }
@@ -119,8 +112,7 @@ class Debug
    *
    * @param string $text The message to add to error_log
    */
-  public static function log_once($message)
-  {
+  public static function log_once($message) {
     if (!self::isEnabled()) {
       return;
     }

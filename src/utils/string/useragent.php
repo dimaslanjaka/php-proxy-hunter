@@ -5,8 +5,7 @@
  *
  * @return string Random user agent string.
  */
-function randomWindowsUa(): string
-{
+function randomWindowsUa(): string {
   // Array of Windows versions
   $windowsVersions = ['Windows 7', 'Windows 8', 'Windows 10', 'Windows 11'];
 
@@ -44,8 +43,7 @@ function randomWindowsUa(): string
  * @param string $type The type of browser user-agent to generate. Default is 'chrome'.
  * @return string The generated user-agent string.
  */
-function randomAndroidUa(string $type = 'chrome'): string
-{
+function randomAndroidUa(string $type = 'chrome'): string {
   // Android version array
   $androidVersions = [
     '10.0' => 'Android Q',
@@ -120,8 +118,7 @@ function randomAndroidUa(string $type = 'chrome'): string
  * @param string $type The type of browser user-agent to generate. Default is 'chrome'.
  * @return string The generated user-agent string.
  */
-function randomIosUa(string $type = 'chrome'): string
-{
+function randomIosUa(string $type = 'chrome'): string {
   $chrome_version = rand(70, 100);
   $ios_version    = rand(9, 15);
   $safari_version = rand(600, 700);

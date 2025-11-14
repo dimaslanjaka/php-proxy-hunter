@@ -12,13 +12,12 @@ use PhpProxyHunter\Proxy;
  * @param bool $validate_credential Whether to validate credentials if present.
  * @return bool True if the proxy is valid, false otherwise.
  */
-function isValidProxy(?string $proxy, bool $validate_credential = false): bool
-{
+function isValidProxy(?string $proxy, bool $validate_credential = false): bool {
   if (empty($proxy)) {
     return false;
   }
 
-  $username      = $password = null;
+  $username      = $password      = null;
   $hasCredential = strpos($proxy, '@') !== false;
 
   // Extract username and password if credentials are present
@@ -67,8 +66,7 @@ function isValidProxy(?string $proxy, bool $validate_credential = false): bool
  * @param mixed $proxy The proxy IP address to validate. Can be null.
  * @return bool True if the proxy IP address is valid, false otherwise.
  */
-function isValidIp($proxy): bool
-{
+function isValidIp($proxy): bool {
   if (!$proxy) {
     return false;
   }
@@ -90,8 +88,7 @@ function isValidIp($proxy): bool
  * @param int $timeout The timeout value in seconds (default is 10 seconds).
  * @return bool True if the port is open, false otherwise.
  */
-function isPortOpen(string $proxy, int $timeout = 10): bool
-{
+function isPortOpen(string $proxy, int $timeout = 10): bool {
   $proxy = trim($proxy);
 
   // disallow empty proxy

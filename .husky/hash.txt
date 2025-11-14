@@ -1,1 +1,1 @@
-php-proxy-hunter 6d2a9094788fd27f
+php-proxy-hunter 504a5ad9d724149f

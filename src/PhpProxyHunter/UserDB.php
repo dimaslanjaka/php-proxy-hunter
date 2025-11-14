@@ -9,8 +9,7 @@ namespace PhpProxyHunter;
  *
  * @package PhpProxyHunter
  */
-class UserDB
-{
+class UserDB {
   /**
    * @var SQLiteHelper|MySQLHelper $db Database helper instance (SQLite or MySQL)
    */
@@ -32,8 +31,7 @@ class UserDB
    * @param string $password MySQL password.
    * @param bool $unique Whether to enforce unique constraints (MySQL only).
    */
-  public function __construct($dbLocation = null, $dbType = 'sqlite', $host = 'localhost', $dbname = 'php_proxy_hunter', $username = 'root', $password = '', $unique = false)
-  {
+  public function __construct($dbLocation = null, $dbType = 'sqlite', $host = 'localhost', $dbname = 'php_proxy_hunter', $username = 'root', $password = '', $unique = false) {
     if ($dbLocation instanceof SQLiteHelper || $dbLocation instanceof MySQLHelper) {
       // $dbLocation is an instance of SQLiteHelper or MySQLHelper
       $this->db = $dbLocation;
@@ -101,8 +99,7 @@ class UserDB
    * @param string $password Password.
    * @param bool $unique Whether to enforce uniqueness.
    */
-  public function mysql($host, $dbname, $username, $password, $unique = false)
-  {
+  public function mysql($host, $dbname, $username, $password, $unique = false) {
     $this->db = new MySQLHelper($host, $dbname, $username, $password, $unique);
 
     $sqlFileContents = file_get_contents(__DIR__ . '/assets/mysql-schema.sql');
@@ -114,8 +111,7 @@ class UserDB
    *
    * @param string|null $dbLocation Path to the database file. Defaults to the project's database directory.
    */
-  public function sqlite($dbLocation = null)
-  {
+  public function sqlite($dbLocation = null) {
     if (!$dbLocation) {
       $dbLocation = __DIR__ . '/../database.sqlite';
     } elseif (!file_exists($dbLocation)) {
@@ -158,8 +154,7 @@ class UserDB
    *
    * @return bool Returns true if the user was successfully added, false otherwise.
    */
-  public function add($data)
-  {
+  public function add($data) {
     $data['username'] = isset($data['username']) ? $data['username'] : '';
     $data['password'] = isset($data['password']) ? $data['password'] : '';
     $data['email']    = isset($data['email']) ? $data['email'] : '';
@@ -193,8 +188,7 @@ class UserDB
    * @param mixed $id The email, username, or id of the user.
    * @return array The user data including additional fields, or an empty array if not found.
    */
-  public function select($id)
-  {
+  public function select($id) {
     $id         = is_string($id) ? trim($id) : $id;
     $conditions = ['email = ?', 'username = ?', 'id = ?'];
     $result     = [];
@@ -226,8 +220,7 @@ class UserDB
    * @param array $data The data to update.
    * @return bool True if update successful, false otherwise.
    */
-  public function update($id, array $data)
-  {
+  public function update($id, array $data) {
     $id         = is_string($id) ? trim($id) : $id;
     $conditions = ['email = ?', 'username = ?', 'id = ?'];
     $success    = false;
@@ -257,8 +250,7 @@ class UserDB
    *
    * @return array Returns an array with the updated saldo, e.g. ['saldo' => int].
    */
-  public function updatePoint($id, $amount, $log_source, $log_extra_info = '', $replace = false)
-  {
+  public function updatePoint($id, $amount, $log_source, $log_extra_info = '', $replace = false) {
     // Get current saldo (if exists)
     $saldo_row      = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
     $existing_saldo = isset($saldo_row[0]['saldo']) ? (int)$saldo_row[0]['saldo'] : 0;
@@ -299,8 +291,7 @@ class UserDB
    * @param int $id User ID.
    * @return int Current point (saldo) value.
    */
-  public function getPoint($id)
-  {
+  public function getPoint($id) {
     $saldo_row = $this->db->select('user_fields', 'saldo', 'user_id = ?', [$id]);
     return isset($saldo_row[0]['saldo']) ? $saldo_row[0]['saldo'] : 0;
   }
@@ -312,8 +303,7 @@ class UserDB
    * @param mixed $value
    * @return int
    */
-  private static function normalizeBoolToInt($value)
-  {
+  private static function normalizeBoolToInt($value) {
     if (is_bool($value)) {
       return $value ? 1 : 0;
     }
@@ -341,8 +331,7 @@ class UserDB
    * @param mixed $id The email, username, or id of the user to delete.
    * @return bool True if the user was found and deleted, false otherwise.
    */
-  public function delete($id)
-  {
+  public function delete($id) {
     $id         = is_string($id) ? trim($id) : $id;
     $conditions = ['email = ?', 'username = ?', 'id = ?'];
     $success    = false;
@@ -364,8 +353,7 @@ class UserDB
   /**
    * Destructor: closes DB connection.
    */
-  public function __destruct()
-  {
+  public function __destruct() {
     if ($this->db) {
       $this->db->close();
     }
@@ -375,8 +363,7 @@ class UserDB
   /**
    * Manually close DB connection.
    */
-  public function close()
-  {
+  public function close() {
     if ($this->db) {
       $this->db->close();
       $this->db = null;

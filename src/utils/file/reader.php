@@ -11,8 +11,7 @@
  *
  * @return string|false Returns the read data as a string, or false on failure.
  */
-function readFileChunk($filename, $length = 4096, $offset = 0)
-{
+function readFileChunk($filename, $length = 4096, $offset = 0) {
   if (!is_readable($filename)) {
     return false;
   }

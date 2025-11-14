@@ -7,8 +7,7 @@ use Throwable;
 /**
  * Helper class for GeoIP-related proxy operations.
  */
-class GeoIpHelper
-{
+class GeoIpHelper {
   /**
    * Get geo IP data for a proxy and update the database.
    *
@@ -17,8 +16,7 @@ class GeoIpHelper
    * @param ProxyDB|null $db
    * @return void
    */
-  public static function getGeoIp($the_proxy, $proxy_type = 'http', $db = null)
-  {
+  public static function getGeoIp($the_proxy, $proxy_type = 'http', $db = null) {
     $proxy = trim($the_proxy);
     if (empty($proxy)) {
       return;
@@ -114,8 +112,7 @@ class GeoIpHelper
    * @param string $country The country code.
    * @return string|null The primary language code or null if not found.
    */
-  public static function extIntlGetLangCountryCode($country)
-  {
+  public static function extIntlGetLangCountryCode($country) {
     if (empty($country)) {
       return null;
     }
@@ -139,8 +136,7 @@ class GeoIpHelper
    * @param string $language_code ISO 639-1-alpha 2 language code (optional)
    * @return string|null A locale, formatted like en_US, or null if not found
    */
-  public static function countryCodeToLocale($country_code, $language_code = '')
-  {
+  public static function countryCodeToLocale($country_code, $language_code = '') {
     if (empty($country_code)) {
       return null;
     }

@@ -2,8 +2,7 @@
 
 namespace PhpProxyHunter;
 
-class AnsiColors
-{
+class AnsiColors {
   /**
    * Colorize text with ANSI codes.
    *
@@ -11,8 +10,7 @@ class AnsiColors
    * @param string $text
    * @return string
    */
-  public static function colorize($format = [], $text = '')
-  {
+  public static function colorize($format = [], $text = '') {
     $codes = [
       'bold'          => 1,
       'italic'        => 3,
@@ -53,8 +51,7 @@ class AnsiColors
    * @param string $ansiText
    * @return string
    */
-  public static function ansiToHtml($ansiText)
-  {
+  public static function ansiToHtml($ansiText) {
     // Map ANSI codes to CSS styles
     $ansiMap = [
       1  => 'font-weight:bold;',

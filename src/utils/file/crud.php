@@ -7,8 +7,7 @@
  * @param int $chunkSize The size of each chunk to read in bytes. Default is 1 MB = 1048576 bytes.
  * @return string|false The content of the file or false on failure.
  */
-function read_file(string $inputFile, int $chunkSize = 1048576)
-{
+function read_file(string $inputFile, int $chunkSize = 1048576) {
   if (!file_exists($inputFile)) {
     return false;
   }
@@ -59,8 +58,7 @@ function read_file(string $inputFile, int $chunkSize = 1048576)
  * @param string $data The data to write to the file.
  * @return bool True on success, false on failure.
  */
-function write_file(string $inputFile, string $data): bool
-{
+function write_file(string $inputFile, string $data): bool {
   // skip writing locked file
   if (file_exists($inputFile) && is_file_locked($inputFile)) {
     return false;
@@ -98,8 +96,7 @@ function write_file(string $inputFile, string $data): bool
  * @param string|array $path The path(s) to the file(s) or directory(ies) to be deleted.
  * @return array An associative array with 'deleted' and 'errors' keys indicating the paths deleted and any errors encountered.
  */
-function delete_path($path): array
-{
+function delete_path($path): array {
   $result = [
     'deleted' => [],
     'errors'  => [],

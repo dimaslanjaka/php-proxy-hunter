@@ -25,8 +25,7 @@ namespace PhpProxyHunter;
 
 use GeoIp2\Database\Reader;
 
-class GeoPlugin2
-{
+class GeoPlugin2 {
   private $city;
   private $asn;
   private $country;
@@ -39,8 +38,7 @@ class GeoPlugin2
     'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb',
   ];
 
-  public function __construct()
-  {
+  public function __construct() {
     $filenames = [
       __DIR__ . '/../GeoLite2-ASN.mmdb',
       __DIR__ . '/../GeoLite2-City.mmdb',
@@ -68,8 +66,7 @@ class GeoPlugin2
     $this->country = new Reader(__DIR__ . '/../GeoLite2-Country.mmdb');
   }
 
-  private function downloadFile($url, $path)
-  {
+  private function downloadFile($url, $path) {
     // Helper to perform cURL with optional SSL verify
     $curl_head = function ($url, $verify = true) {
       $ch = curl_init($url);
@@ -145,8 +142,7 @@ class GeoPlugin2
     return true;
   }
 
-  public function locate(string $ip)
-  {
+  public function locate(string $ip) {
     try {
       $record = $this->city->city(trim($ip));
       $plugin = new GeoPlugin();

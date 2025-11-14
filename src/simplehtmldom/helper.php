@@ -18,8 +18,7 @@ if (!defined('HDOM_SMARTY_AS_TEXT')) {
   define('HDOM_SMARTY_AS_TEXT', 1);
 }
 
-class helper
-{
+class helper {
   /**
    * str_get_html.
    *

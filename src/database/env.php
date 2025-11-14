@@ -52,8 +52,7 @@ if (class_exists('Dotenv\\Dotenv')) {
   }
 }
 
-function getEnvPairs(): array
-{
+function getEnvPairs(): array {
   global $pairs;
   return $pairs;
 }
@@ -63,8 +62,7 @@ function getEnvPairs(): array
  *
  * @return string[] Array of trimmed admin email addresses.
  */
-function getAdminEmails(): array
-{
+function getAdminEmails(): array {
   $email       = isset($_ENV['ADMIN_EMAILS']) ? $_ENV['ADMIN_EMAILS'] : getenv('ADMIN_EMAILS');
   $adminEmails = $email ? explode(',', $email) : [];
   return array_map('trim', $adminEmails);
@@ -76,8 +74,7 @@ function getAdminEmails(): array
  *
  * @return bool True if the hostname matches a debug device, false otherwise.
  */
-function is_debug_device()
-{
+function is_debug_device() {
   $debug_devices_env = isset($_ENV['DEBUG_DEVICES']) ? $_ENV['DEBUG_DEVICES'] : getenv('DEBUG_DEVICES');
   if (empty($debug_devices_env)) {
     error_log('DEBUG_DEVICES environment variable is not set or empty.');
@@ -93,8 +90,7 @@ function is_debug_device()
  *
  * @return bool True if running in GitHub Codespaces, false otherwise.
  */
-function is_github_codespaces(): bool
-{
+function is_github_codespaces(): bool {
   $hostname = gethostname();
   if (str_starts_with($hostname, 'codespaces-')) {
     return true;
@@ -107,8 +103,7 @@ function is_github_codespaces(): bool
  *
  * @return bool True if running in GitHub CI, false otherwise.
  */
-function is_github_ci(): bool
-{
+function is_github_ci(): bool {
   return getenv('CI') !== false && getenv('GITHUB_ACTIONS') === 'true';
 }
 
@@ -123,8 +118,7 @@ function is_github_ci(): bool
  *
  * @return bool True if in debug mode, false otherwise.
  */
-function is_debug(): bool
-{
+function is_debug(): bool {
   return is_github_ci()
     || is_github_codespaces()
     || is_debug_device();
@@ -140,8 +134,7 @@ function is_debug(): bool
  *
  * @return bool True when running via CLI, false otherwise.
  */
-function is_cli(): bool
-{
+function is_cli(): bool {
   return (
     php_sapi_name() === 'cli'
     || defined('STDIN')
@@ -159,8 +152,7 @@ function is_cli(): bool
  * @throws RuntimeException If called in web context and no session has been started.
  * @return bool True when admin privileges are present, false otherwise.
  */
-function is_admin(): bool
-{
+function is_admin(): bool {
   if (is_cli()) {
     $options = getopt('', ['admin']);
     return isset($options['admin']);

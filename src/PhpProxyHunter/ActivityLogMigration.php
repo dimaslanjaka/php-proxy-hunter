@@ -13,8 +13,7 @@ use PDOException;
  */
 
 
-class ActivityLogMigration
-{
+class ActivityLogMigration {
   /**
    * @var PDO
    */
@@ -34,8 +33,7 @@ class ActivityLogMigration
    * ActivityLogMigration constructor.
    * @param PDO $pdo
    */
-  public function __construct($pdo)
-  {
+  public function __construct($pdo) {
     $this->pdo    = $pdo;
     $this->driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     $this->meta   = new Meta($pdo);
@@ -44,8 +42,7 @@ class ActivityLogMigration
   /**
    * Close the PDO connection.
    */
-  public function close()
-  {
+  public function close() {
     if ($this->meta) {
       $this->meta->close();
       $this->meta = null;
@@ -56,16 +53,14 @@ class ActivityLogMigration
   /**
    * Destructor to ensure PDO connection is closed.
    */
-  public function __destruct()
-  {
+  public function __destruct() {
     $this->close();
   }
 
   /**
    * Run the migrations.
    */
-  public function run()
-  {
+  public function run() {
     $this->migrateActionType();
   }
 
@@ -74,8 +69,7 @@ class ActivityLogMigration
    *
    * @param string $packageVersion
    */
-  public function migrateActionType()
-  {
+  public function migrateActionType() {
     $metaKey = 'activity_log_migrated_action_type_' . $this->driver . '_' . PACKAGE_VERSION;
     // Always inspect current column type and ensure required enum values exist.
     if ($this->driver === 'sqlite') {

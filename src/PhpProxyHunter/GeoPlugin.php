@@ -27,8 +27,7 @@ namespace PhpProxyHunter;
  * A PHP class that utilizes the GeoPlugin webservice (http://www.geoplugin.com/) to geolocate IP addresses
  * and retrieve geographical information and currency details.
  */
-class GeoPlugin implements \JsonSerializable
-{
+class GeoPlugin implements \JsonSerializable {
   /** @var string The GeoPlugin server URL */
   public $host = 'http://www.geoplugin.net/php.gp?ip={IP}&base_currency={CURRENCY}&lang={LANG}';
 
@@ -101,13 +100,11 @@ class GeoPlugin implements \JsonSerializable
   /**
    * Initialize GeoPlugin variables.
    */
-  public function __construct()
-  {
+  public function __construct() {
     //
   }
 
-  public function fromGeoIp2CityModel(\GeoIp2\Model\City $record = null)
-  {
+  public function fromGeoIp2CityModel(\GeoIp2\Model\City $record = null) {
     if ($record != null) {
       $this->city        = $record->city->name;
       $this->countryName = $record->country->name;
@@ -126,8 +123,7 @@ class GeoPlugin implements \JsonSerializable
     }
   }
 
-  public function jsonSerialize()
-  {
+  public function jsonSerialize() {
     return get_object_vars($this);
   }
 
@@ -136,8 +132,7 @@ class GeoPlugin implements \JsonSerializable
    *
    * @param string|null $ip The IP address to locate. If null, uses the remote IP address.
    */
-  public function locate($ip = null)
-  {
+  public function locate($ip = null) {
     global $_SERVER;
 
     if (is_null($ip)) {
@@ -199,8 +194,7 @@ class GeoPlugin implements \JsonSerializable
   /**
    * locate recursive, fallback to GeoPlugin2
    */
-  public function locate_recursive(string $ip)
-  {
+  public function locate_recursive(string $ip) {
     $geo         = $this->locate($ip);
     $decodedData = json_decode($geo, true);
     if ($decodedData !== null && json_last_error() === JSON_ERROR_NONE) {
@@ -234,8 +228,7 @@ class GeoPlugin implements \JsonSerializable
    * @param string $host The URL to fetch data from.
    * @return string|false The fetched data, or false on failure.
    */
-  public function fetch($host)
-  {
+  public function fetch($host) {
     $cacheDir        = getcwd() . '/.cache/';
     $this->cacheFile = $cacheDir . md5($host);
 
@@ -288,8 +281,7 @@ class GeoPlugin implements \JsonSerializable
    * @param bool $symbol Whether to include the currency symbol.
    * @return float|string The converted amount.
    */
-  public function convert($amount, $float = 2, $symbol = true)
-  {
+  public function convert($amount, $float = 2, $symbol = true) {
     // Easily convert amounts to geolocated currency.
     if (!is_numeric($this->currencyConverter) || $this->currencyConverter == 0) {
       trigger_error('GeoPlugin class Notice: currencyConverter has no value.', E_USER_NOTICE);
@@ -313,8 +305,7 @@ class GeoPlugin implements \JsonSerializable
    * @param int|null $limit The maximum number of results to return.
    * @return array The nearby locations.
    */
-  public function nearby($radius = 10, $limit = null)
-  {
+  public function nearby($radius = 10, $limit = null) {
     if (!is_numeric($this->latitude) || !is_numeric($this->longitude)) {
       trigger_error('GeoPlugin class Warning: Incorrect latitude or longitude values.', E_USER_NOTICE);
       return [[]];

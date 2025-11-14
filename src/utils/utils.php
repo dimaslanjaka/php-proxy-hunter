@@ -15,8 +15,7 @@
  * @param bool $asArray Whether to return an associative array instead of formatted string
  * @return string|array Caller info in string format or as an associative array
  */
-function getCallerInfo(string $format = '{class}-{function}-{line}-{char}', bool $asArray = false)
-{
+function getCallerInfo(string $format = '{class}-{function}-{line}-{char}', bool $asArray = false) {
   $trace  = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
   $caller = isset($trace[1]) ? $trace[1] : $trace[0];
 

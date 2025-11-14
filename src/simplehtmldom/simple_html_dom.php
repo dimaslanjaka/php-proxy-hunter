@@ -85,11 +85,11 @@ class_alias('\simplehtmldom\HtmlDocument', 'simple_html_dom', true);
  * @param string $str HTML string
  */
 class simple_html_dom // extends HtmlDocument
-{public $innertext;
+{
+  public $innertext;
   public $outertext;
 
-  public function __construct()
-  {
+  public function __construct() {
     //parent::__construct();
   }
 
@@ -201,7 +201,6 @@ class simple_html_dom // extends HtmlDocument
 }
 
 /** @codeCoverageIgnore */
-function dump_html_tree($node, $show_attr = true, $deep = 0)
-{
+function dump_html_tree($node, $show_attr = true, $deep = 0) {
   $node->dump($node);
 }

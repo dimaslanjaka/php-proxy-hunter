@@ -24,13 +24,11 @@ namespace simplehtmldom;
  */
 include_once __DIR__ . '/HtmlDocument.php';
 
-class HtmlWeb
-{
+class HtmlWeb {
   /**
    * @return HtmlDocument Returns the DOM for a webpage
    */
-  public function load($url)
-  {
+  public function load($url) {
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
       return null;
     }
@@ -59,8 +57,7 @@ class HtmlWeb
   /**
    * cURL implementation of load.
    */
-  private function load_curl($url)
-  {
+  private function load_curl($url) {
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -96,8 +93,7 @@ class HtmlWeb
   /**
    * fopen implementation of load.
    */
-  private function load_fopen($url)
-  {
+  private function load_fopen($url) {
     // There is no guarantee this request will be fulfilled
     $context = stream_context_create(['http' => [
       'header' => [

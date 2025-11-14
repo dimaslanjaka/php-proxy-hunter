@@ -6,8 +6,7 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 
-class Session
-{
+class Session {
   private $session_prefix_name = 'PHP_PROXY_HUNTER';
 
   /**
@@ -17,8 +16,7 @@ class Session
    * @param string|null $session_folder Optional custom folder for storing session files.
    * @throws Exception If session folder creation fails or session cannot be started.
    */
-  public function __construct(int $timeout, $session_folder = null)
-  {
+  public function __construct(int $timeout, $session_folder = null) {
     if (!empty($session_folder) && !file_exists($session_folder)) {
       mkdir($session_folder, 755, true);
     }
@@ -61,8 +59,7 @@ class Session
    *
    * @return bool Returns true if session is active, false otherwise.
    */
-  public function is_session_started(): bool
-  {
+  public function is_session_started(): bool {
     return PHP_SESSION_ACTIVE == session_status();
   }
 
@@ -71,8 +68,7 @@ class Session
    *
    * @return array An associative array containing session-related information.
    */
-  public static function dump(): array
-  {
+  public static function dump(): array {
     return [
       'sessions' => [
         'active'                  => PHP_SESSION_NONE == session_status(),
@@ -83,7 +79,7 @@ class Session
         'session.gc_probability'  => ini_get('session.gc_probability'),
         'session.gc_divisor'      => ini_get('session.gc_divisor'),
         'session.hash_function'   => ini_get('session.hash_function'),
-        'session.file'            => realpath(session_save_path() .'/sess_' . session_id()),
+        'session.file'            => realpath(session_save_path() . '/sess_' . session_id()),
       ],
       'cookies' => $_COOKIE,
     ];
@@ -95,8 +91,7 @@ class Session
    * @return DateTime The current date and time.
    * @throws Exception If the DateTime creation fails.
    */
-  public function now(): DateTime
-  {
+  public function now(): DateTime {
     return new DateTime('now', new DateTimeZone('Asia/Jakarta'));
   }
 
@@ -107,8 +102,7 @@ class Session
    *
    * @return void
    */
-  public static function clearCookies()
-  {
+  public static function clearCookies() {
     // Loop through the $_COOKIE array and delete each cookie
     foreach ($_COOKIE as $cookie_name => $cookie_value) {
       // Set cookies to expire in the past to delete them
@@ -125,8 +119,7 @@ class Session
    *
    * @return bool
    */
-  public static function clearSessions()
-  {
+  public static function clearSessions() {
     // Check if the session is started
     if (session_status() == PHP_SESSION_ACTIVE) {
       // Destroy session data

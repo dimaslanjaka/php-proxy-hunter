@@ -13,8 +13,7 @@ use PDOException;
  *
  * @package PhpProxyHunter
  */
-class ActivityLog
-{
+class ActivityLog {
   /**
    * MySQL schema for activity_log table
    * @var string
@@ -117,8 +116,7 @@ class ActivityLog
    *
    * @param PDO|SQLiteHelper|MySQLHelper|CoreDB $dbOrHelper
    */
-  public function __construct($dbOrHelper)
-  {
+  public function __construct($dbOrHelper) {
     // Resolve PDO instance from supported types
     if ($dbOrHelper instanceof PDO) {
       $pdo = $dbOrHelper;
@@ -222,8 +220,7 @@ class ActivityLog
    * @param int $offset Offset for pagination (default 0)
    * @return array
    */
-  public function recent($limit = 50, $offset = 0)
-  {
+  public function recent($limit = 50, $offset = 0) {
     $sql  = 'SELECT * FROM activity_log ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
     $stmt = $this->db->prepare($sql);
     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -235,8 +232,7 @@ class ActivityLog
   /**
    * Close the ActivityLog and release resources.
    */
-  public function close()
-  {
+  public function close() {
     $this->db = null;
     if ($this->migration) {
       $this->migration->close();
@@ -252,8 +248,7 @@ class ActivityLog
    * @param array $data  Associative array of columns to update (see allowed list)
    * @return bool
    */
-  public function update($id, array $data)
-  {
+  public function update($id, array $data) {
     // Allowed updatable columns
     $allowed = [
       'user_id',
@@ -311,8 +306,7 @@ class ActivityLog
   /**
    * Destructor to ensure resources are released.
    */
-  public function __destruct()
-  {
+  public function __destruct() {
     $this->close();
   }
 }

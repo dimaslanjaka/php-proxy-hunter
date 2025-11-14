@@ -5,8 +5,7 @@ namespace PhpProxyHunter;
 use Exception;
 use SessionHandlerInterface;
 
-class FileSessionHandler implements SessionHandlerInterface
-{
+class FileSessionHandler implements SessionHandlerInterface {
   protected $sess_path;
   protected $prefix;
   protected $postfix;
@@ -14,8 +13,7 @@ class FileSessionHandler implements SessionHandlerInterface
   /**
    * @throws Exception
    */
-  public function __construct($sess_path, $prefix = 'sess_', $postfix = '')
-  {
+  public function __construct($sess_path, $prefix = 'sess_', $postfix = '') {
     if (!is_dir($sess_path)) {
       throw new Exception("Cannot use FileSessionHandler, directory '{$sess_path}' not found", 1);
     }
@@ -29,28 +27,23 @@ class FileSessionHandler implements SessionHandlerInterface
     $this->postfix   = $postfix;
   }
 
-  public function open($save_path, $sess_name): bool
-  {
+  public function open($save_path, $sess_name): bool {
     return true;
   }
 
-  public function close(): bool
-  {
+  public function close(): bool {
     return true;
   }
 
-  public function read($sess_id): string
-  {
+  public function read($sess_id): string {
     return (string)@file_get_contents("{$this->sess_path}/{$this->prefix}{$sess_id}{$this->postfix}");
   }
 
-  public function write($sess_id, $data): bool
-  {
+  public function write($sess_id, $data): bool {
     return !(false === file_put_contents("{$this->sess_path}/{$this->prefix}{$sess_id}{$this->postfix}", $data));
   }
 
-  public function destroy($sess_id): bool
-  {
+  public function destroy($sess_id): bool {
     $file = "{$this->sess_path}/{$this->prefix}{$sess_id}{$this->postfix}";
 
     if (file_exists($file)) {
@@ -63,8 +56,7 @@ class FileSessionHandler implements SessionHandlerInterface
   /**
    * @inheritDoc
    */
-  public function gc($max_lifetime): int
-  {
+  public function gc($max_lifetime): int {
     $deleted = 0;
     foreach (glob("{$this->sess_path}/{$this->prefix}*") as $file) {
       if (file_exists($file)) {

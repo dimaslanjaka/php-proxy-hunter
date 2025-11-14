@@ -2,8 +2,7 @@
 
 namespace PhpProxyHunter;
 
-class FileLockHelper
-{
+class FileLockHelper {
   private string $filePath;
   private $handle;
   private int $lockType;
@@ -13,8 +12,7 @@ class FileLockHelper
    *
    * @param string $filePath Path to the lock file.
    */
-  public function __construct(string $filePath)
-  {
+  public function __construct(string $filePath) {
     $this->filePath = $filePath;
   }
 
@@ -24,8 +22,7 @@ class FileLockHelper
    * @param int $lockType Use LOCK_EX for exclusive, LOCK_SH for shared.
    * @return bool True on success, false on failure.
    */
-  public function lock(int $lockType = LOCK_EX): bool
-  {
+  public function lock(int $lockType = LOCK_EX): bool {
     // Ensure the directory exists before trying to open the file
     $dir = dirname($this->filePath);
     if (!is_dir($dir)) {
@@ -46,8 +43,7 @@ class FileLockHelper
    *
    * @return void
    */
-  public function unlock(): void
-  {
+  public function unlock(): void {
     if (is_resource($this->handle)) {
       flock($this->handle, LOCK_UN);
       fclose($this->handle);
@@ -60,8 +56,7 @@ class FileLockHelper
    *
    * @return bool
    */
-  public function isLocked(): bool
-  {
+  public function isLocked(): bool {
     return file_exists($this->filePath);
   }
 
@@ -70,8 +65,7 @@ class FileLockHelper
    *
    * @return bool True if locked by someone else, false otherwise.
    */
-  public function isLockedByAnotherProcess(): bool
-  {
+  public function isLockedByAnotherProcess(): bool {
     // Ensure the lock file's directory exists
     $dir = dirname($this->filePath);
     if (!is_dir($dir)) {
@@ -97,8 +91,7 @@ class FileLockHelper
   /**
    * Automatically unlock on destruction.
    */
-  public function __destruct()
-  {
+  public function __destruct() {
     $this->unlock();
   }
 }
@@ -128,7 +121,7 @@ if (php_sapi_name() === 'cli' && realpath(__FILE__) === realpath($_SERVER['argv'
     }
 
     echo "Work done. Releasing lock...\n";
-    // No need to manually call unlock() — __destruct will handle it
+  // No need to manually call unlock() — __destruct will handle it
   } else {
     echo "Another instance is already running. Exiting.\n";
     exit(1);

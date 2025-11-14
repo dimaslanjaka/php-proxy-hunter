@@ -22,8 +22,7 @@ declare(strict_types=1);
  *
  * @return string Absolute path to project root
  */
-function get_project_root(): string
-{
+function get_project_root(): string {
   // 1) Constant overrides (explicit)
   if (defined('PHP_PROXY_HUNTER_PROJECT_ROOT')) {
     return rtrim((string) constant('PHP_PROXY_HUNTER_PROJECT_ROOT'), DIRECTORY_SEPARATOR);

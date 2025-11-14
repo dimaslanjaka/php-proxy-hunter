@@ -36,8 +36,7 @@ include_once __DIR__ . '/Debug.php';
  * @property string|null $async
  * @property string|null $defer
  */
-class HtmlNode
-{
+class HtmlNode {
   public const HDOM_TYPE_ELEMENT = 1;
   public const HDOM_TYPE_COMMENT = 2;
   public const HDOM_TYPE_TEXT    = 3;
@@ -67,8 +66,7 @@ class HtmlNode
   public $_        = [];
   private $dom     = null;
 
-  public function __construct($dom)
-  {
+  public function __construct($dom) {
     if (null === $dom) {
       return $this;
     }
@@ -77,8 +75,7 @@ class HtmlNode
     $dom->nodes[] = $this;
   }
 
-  public function __call($func, $args)
-  {
+  public function __call($func, $args) {
     // Allow users to call methods with lower_case syntax
     switch ($func) {
       case 'children':
@@ -112,8 +109,7 @@ class HtmlNode
     return call_user_func_array([$this, $actual_function], $args);
   }
 
-  public function __debugInfo()
-  {
+  public function __debugInfo() {
     // Translate node type to human-readable form
     switch ($this->nodetype) {
       case self::HDOM_TYPE_ELEMENT:
@@ -144,13 +140,11 @@ class HtmlNode
     ];
   }
 
-  public function __toString()
-  {
+  public function __toString() {
     return $this->outertext();
   }
 
-  public function outertext()
-  {
+  public function outertext() {
     if ('root' === $this->tag) {
       return $this->innertext();
     }
@@ -194,8 +188,7 @@ class HtmlNode
     return $this->convert_text($ret);
   }
 
-  public function innertext()
-  {
+  public function innertext() {
     if (isset($this->_[self::HDOM_INFO_INNER])) {
       $ret = $this->_[self::HDOM_INFO_INNER];
     } elseif (isset($this->_[self::HDOM_INFO_TEXT])) {
@@ -211,8 +204,7 @@ class HtmlNode
     return $this->convert_text($ret);
   }
 
-  public function convert_text($text)
-  {
+  public function convert_text($text) {
     $converted_text = $text;
 
     $sourceCharset = '';
@@ -248,8 +240,7 @@ class HtmlNode
     return $converted_text;
   }
 
-  public static function is_utf8($str)
-  {
+  public static function is_utf8($str) {
     $c    = 0;
     $b    = 0;
     $bits = 0;
@@ -289,8 +280,7 @@ class HtmlNode
     return true;
   }
 
-  public function makeup()
-  {
+  public function makeup() {
     // text, comment, unknown
     if (isset($this->_[self::HDOM_INFO_TEXT])) {
       return $this->_[self::HDOM_INFO_TEXT];
@@ -351,15 +341,13 @@ class HtmlNode
     return $ret . '>';
   }
 
-  public function clear()
-  {
+  public function clear() {
     unset($this->dom, $this->parent); // Break link to origin
     // Break link to branch
   }
 
   /** @codeCoverageIgnore */
-  public function dump($show_attr = true, $depth = 0)
-  {
+  public function dump($show_attr = true, $depth = 0) {
     echo str_repeat("\t", $depth) . $this->tag;
 
     if ($show_attr && count($this->attr) > 0) {
@@ -380,8 +368,7 @@ class HtmlNode
   }
 
   /** @codeCoverageIgnore */
-  public function dump_node($echo = true)
-  {
+  public function dump_node($echo = true) {
     $string = $this->tag;
 
     if (count($this->attr) > 0) {
@@ -437,8 +424,7 @@ class HtmlNode
     }
   }
 
-  public function find_ancestor_tag($tag)
-  {
+  public function find_ancestor_tag($tag) {
     if (null === $this->parent) {
       return null;
     }
@@ -456,8 +442,7 @@ class HtmlNode
     return $ancestor;
   }
 
-  public function expect($selector, $idx = null, $lowercase = false)
-  {
+  public function expect($selector, $idx = null, $lowercase = false) {
     return $this->find($selector, $idx, $lowercase) ?: null;
   }
 
@@ -470,8 +455,7 @@ class HtmlNode
    *
    * @return HtmlNode
    */
-  public function find($selector, $idx = null, $lowercase = false)
-  {
+  public function find($selector, $idx = null, $lowercase = false) {
     $selectors = $this->parse_selector($selector);
     if (0 === ($count = count($selectors))) {
       return [];
@@ -537,8 +521,7 @@ class HtmlNode
     return (isset($found[$idx])) ? $found[$idx] : null;
   }
 
-  protected function parse_selector($selector_string)
-  {
+  protected function parse_selector($selector_string) {
     /**
      * Pattern of CSS selectors, modified from mootools (https://mootools.net/).
      *
@@ -688,8 +671,7 @@ class HtmlNode
     return $selectors;
   }
 
-  public function __get($name)
-  {
+  public function __get($name) {
     if (isset($this->attr[$name])) {
       return $this->convert_text($this->attr[$name]);
     }
@@ -708,8 +690,7 @@ class HtmlNode
     return false;
   }
 
-  public function __set($name, $value)
-  {
+  public function __set($name, $value) {
     switch ($name) {
       case 'outertext':
         $this->_[self::HDOM_INFO_OUTER] = $value;
@@ -725,8 +706,7 @@ class HtmlNode
     }
   }
 
-  public function text($trim = true)
-  {
+  public function text($trim = true) {
     $ret = '';
 
     if ('script' === strtolower($this->tag)) {
@@ -788,8 +768,7 @@ class HtmlNode
    *
    * @see https://www.w3resource.com/html/HTML-block-level-and-inline-elements.php
    */
-  protected function is_block_element($node)
-  {
+  protected function is_block_element($node) {
     // todo: When we have the utility class this should be moved there
     return in_array(strtolower($node->tag), [
       'p',
@@ -813,8 +792,7 @@ class HtmlNode
    *
    * @see https://www.w3resource.com/html/HTML-block-level-and-inline-elements.php
    */
-  protected function is_inline_element($node)
-  {
+  protected function is_inline_element($node) {
     // todo: When we have the utility class this should be moved there
     return in_array(strtolower($node->tag), [
       'b', 'big', 'i', 'small', 'tt',
@@ -824,8 +802,7 @@ class HtmlNode
     ]);
   }
 
-  public function xmltext()
-  {
+  public function xmltext() {
     $ret = $this->innertext();
     $ret = str_ireplace('<![CDATA[', '', $ret);
     $ret = str_replace(']]>', '', $ret);
@@ -833,8 +810,7 @@ class HtmlNode
     return $ret;
   }
 
-  public function __isset($name)
-  {
+  public function __isset($name) {
     switch ($name) {
       case 'outertext':
         return true;
@@ -847,15 +823,13 @@ class HtmlNode
     return isset($this->attr[$name]);
   }
 
-  public function __unset($name)
-  {
+  public function __unset($name) {
     if (isset($this->attr[$name])) {
       unset($this->attr[$name]);
     }
   }
 
-  public function get_display_size()
-  {
+  public function get_display_size() {
     $width  = -1;
     $height = -1;
 
@@ -936,8 +910,7 @@ class HtmlNode
     return $result;
   }
 
-  public function save($filepath = '')
-  {
+  public function save($filepath = '') {
     $ret = $this->outertext();
 
     if ('' !== $filepath) {
@@ -947,8 +920,7 @@ class HtmlNode
     return $ret;
   }
 
-  public function addClass($class)
-  {
+  public function addClass($class) {
     if (is_string($class)) {
       $class = explode(' ', $class);
     }
@@ -968,8 +940,7 @@ class HtmlNode
     }
   }
 
-  public function hasClass($class)
-  {
+  public function hasClass($class) {
     if (is_string($class)) {
       if (isset($this->class)) {
         return in_array($class, explode(' ', $this->class), true);
@@ -979,8 +950,7 @@ class HtmlNode
     return false;
   }
 
-  public function removeClass($class = null)
-  {
+  public function removeClass($class = null) {
     if (!isset($this->class)) {
       return;
     }
@@ -1005,40 +975,33 @@ class HtmlNode
     }
   }
 
-  public function removeAttribute($name)
-  {
+  public function removeAttribute($name) {
     unset($this->$name);
   }
 
-  public function getAllAttributes()
-  {
+  public function getAllAttributes() {
     return $this->attr;
   }
 
-  public function getAttribute($name)
-  {
+  public function getAttribute($name) {
     return $this->$name;
   }
 
-  public function setAttribute($name, $value)
-  {
+  public function setAttribute($name, $value) {
     $this->$name = $value;
   }
 
-  public function hasAttribute($name)
-  {
+  public function hasAttribute($name) {
     return isset($this->$name);
   }
 
-  public function remove()
-  {
+  public function remove() {
     if ($this->parent) {
       $this->parent->removeChild($this);
     }
   }
 
-  public function removeChild($node)
-  {
+  public function removeChild($node) {
     foreach ($node->children as $child) {
       $node->removeChild($child);
     }
@@ -1086,33 +1049,27 @@ class HtmlNode
     $node->clear();
   }
 
-  public function getElementById($id)
-  {
+  public function getElementById($id) {
     return $this->find("#$id", 0);
   }
 
-  public function getElementsById($id, $idx = null)
-  {
+  public function getElementsById($id, $idx = null) {
     return $this->find("#$id", $idx);
   }
 
-  public function getElementByTagName($name)
-  {
+  public function getElementByTagName($name) {
     return $this->find($name, 0);
   }
 
-  public function getElementsByTagName($name, $idx = null)
-  {
+  public function getElementsByTagName($name, $idx = null) {
     return $this->find($name, $idx);
   }
 
-  public function parentNode()
-  {
+  public function parentNode() {
     return $this->parent();
   }
 
-  public function parent($parent = null)
-  {
+  public function parent($parent = null) {
     // I am SURE that this doesn't work properly.
     // It fails to unset the current node from it's current parents nodes or
     // children list first.
@@ -1125,8 +1082,7 @@ class HtmlNode
     return $this->parent;
   }
 
-  public function childNodes($idx = -1)
-  {
+  public function childNodes($idx = -1) {
     if (-1 === $idx) {
       return $this->children;
     }
@@ -1138,8 +1094,7 @@ class HtmlNode
     return null;
   }
 
-  public function firstChild()
-  {
+  public function firstChild() {
     if (count($this->children) > 0) {
       return $this->children[0];
     }
@@ -1147,8 +1102,7 @@ class HtmlNode
     return null;
   }
 
-  public function lastChild()
-  {
+  public function lastChild() {
     if (count($this->children) > 0) {
       return end($this->children);
     }
@@ -1156,8 +1110,7 @@ class HtmlNode
     return null;
   }
 
-  public function nextSibling()
-  {
+  public function nextSibling() {
     if (null === $this->parent) {
       return null;
     }
@@ -1171,8 +1124,7 @@ class HtmlNode
     return null;
   }
 
-  public function previousSibling()
-  {
+  public function previousSibling() {
     if (null === $this->parent) {
       return null;
     }
@@ -1186,18 +1138,15 @@ class HtmlNode
     return null;
   }
 
-  public function hasChildNodes()
-  {
+  public function hasChildNodes() {
     return !empty($this->children);
   }
 
-  public function nodeName()
-  {
+  public function nodeName() {
     return $this->tag;
   }
 
-  public function appendChild($node)
-  {
+  public function appendChild($node) {
     $node->parent     = $this;
     $this->nodes[]    = $node;
     $this->children[] = $node;
@@ -1221,8 +1170,7 @@ class HtmlNode
     return $this;
   }
 
-  protected function seek($selector, &$ret, $parent_cmd, $lowercase = false)
-  {
+  protected function seek($selector, &$ret, $parent_cmd, $lowercase = false) {
     list($ps_selector, $tag, $ps_element, $id, $class, $attributes, $cmb) = $selector;
     $nodes                                                                = [];
 
@@ -1483,8 +1431,7 @@ class HtmlNode
     }
   }
 
-  protected function match($exp, $pattern, $value, $case_sensitivity)
-  {
+  protected function match($exp, $pattern, $value, $case_sensitivity) {
     if ('i' === $case_sensitivity) {
       $pattern = strtolower($pattern);
       $value   = strtolower($value);

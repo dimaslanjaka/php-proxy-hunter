@@ -12,8 +12,7 @@ require_once __DIR__ . '/func.php';
  * @param array $additionalHeaders The array of additional headers to merge.
  * @return array The merged array of headers with unique keys.
  */
-function mergeHeaders($defaultHeaders, $additionalHeaders)
-{
+function mergeHeaders($defaultHeaders, $additionalHeaders) {
   // Convert the arrays into associative arrays with header keys as keys
   $convertToAssocArray = function ($headers) {
     $assocArray = [];
@@ -47,8 +46,7 @@ function mergeHeaders($defaultHeaders, $additionalHeaders)
  * @param string $response_judges
  * @return string
  */
-function parse_anonymity($response_ip_info, $response_judges)
-{
+function parse_anonymity($response_ip_info, $response_judges) {
   if (empty(trim($response_ip_info)) || empty(trim($response_judges))) {
     return '';
   }
@@ -100,8 +98,7 @@ function parse_anonymity($response_ip_info, $response_judges)
  * @param string|null $password
  * @return string
  */
-function get_anonymity($proxy, $type, $username = null, $password = null)
-{
+function get_anonymity($proxy, $type, $username = null, $password = null) {
   $proxy_judges = [
     'https://wfuchs.de/azenv.php',
     'http://mojeip.net.pl/asdfa/azenv.php',
@@ -116,7 +113,7 @@ function get_anonymity($proxy, $type, $username = null, $password = null)
     'https://cloudflare.com/cdn-cgi/trace',
   ];
   $content_judges = array_map(function ($url) use ($proxy, $type, $username, $password) {
-    $ch      = buildCurl($proxy, $type, $url, [], $username, $password);
+    $ch = buildCurl($proxy, $type, $url, [], $username, $password);
     $content = curl_exec($ch);
     curl_close($ch);
     if ($content !== false && is_string($content)) {
@@ -125,7 +122,7 @@ function get_anonymity($proxy, $type, $username = null, $password = null)
     return '';
   }, $proxy_judges);
   $content_ip = array_map(function ($url) use ($proxy, $type, $username, $password) {
-    $ch      = buildCurl($proxy, $type, $url, [], $username, $password);
+    $ch = buildCurl($proxy, $type, $url, [], $username, $password);
     $content = curl_exec($ch);
     curl_close($ch);
     if ($content !== false && is_string($content)) {
@@ -197,8 +194,7 @@ function checkProxy(
  * @param string $password
  * @return array
  */
-function processCheckProxy($ch, $proxy, $type, $username, $password)
-{
+function processCheckProxy($ch, $proxy, $type, $username, $password) {
   $endpoint = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
   curl_setopt($ch, CURLINFO_HEADER_OUT, true);
   curl_setopt($ch, CURLOPT_HEADER, true);
@@ -328,8 +324,7 @@ function processCheckProxy($ch, $proxy, $type, $username, $password)
  * Check if the raw headers contain specific keywords like azenv.
  * @param string $input The raw string headers to check.
  */
-function checkRawHeadersKeywords($input)
-{
+function checkRawHeadersKeywords($input) {
   // Define the keywords to check for
   $keywords = [
     'REMOTE_ADDR =',
@@ -371,8 +366,7 @@ function checkRawHeadersKeywords($input)
  * @param string $inputFile
  * @return string
  */
-function filterIpPortLines($inputFile)
-{
+function filterIpPortLines($inputFile) {
   // Check if destination file is writable
   if (!is_writable($inputFile)) {
     return "$inputFile not writable";
@@ -420,8 +414,7 @@ function filterIpPortLines($inputFile)
 /**
  * @param string $file
  */
-function clean_proxies_file($file)
-{
+function clean_proxies_file($file) {
   echo "remove duplicate lines $file" . PHP_EOL;
 
   removeDuplicateLines($file);
@@ -456,8 +449,7 @@ function clean_proxies_file($file)
  * @param ProxyDB $db
  * @return array
  */
-function parse_working_proxies($db)
-{
+function parse_working_proxies($db) {
   // Retrieve working proxies from the provided ProxyDB object
   $working = $db->getWorkingProxies();
 
@@ -521,8 +513,7 @@ function parse_working_proxies($db)
  *                              defaults to __DIR__ . '/tmp/locks/writing-working-proxies.lock'.
  * @return array An array containing three elements: parsed working proxies and counters.
  */
-function writing_working_proxies_file($db, $lock_file = null)
-{
+function writing_working_proxies_file($db, $lock_file = null) {
   $lock_file = $lock_file ?? (__DIR__ . '/tmp/locks/writing-working-proxies.lock');
   // func-proxy.php lives in project root, so __DIR__ is the project root.
   // Use __DIR__ here instead of dirname(__DIR__) which points to the parent folder.
@@ -593,8 +584,7 @@ function writing_working_proxies_file($db, $lock_file = null)
  * @param callable $callback
  * @throws Exception
  */
-function extractIpPortFromFileCallback($filePath, $callback)
-{
+function extractIpPortFromFileCallback($filePath, $callback) {
   if (file_exists($filePath)) {
     // Open the file for reading in binary mode
     $fp = fopen($filePath, 'rb');
@@ -637,8 +627,7 @@ function extractIpPortFromFileCallback($filePath, $callback)
  * @param bool $unique
  * @return array
  */
-function extractIpPortFromFile($filePath, $unique = false)
-{
+function extractIpPortFromFile($filePath, $unique = false) {
   $ipPortList = [];
 
   if (file_exists($filePath)) {
@@ -678,8 +667,7 @@ function extractIpPortFromFile($filePath, $unique = false)
  * @param int $maxPort
  * @return array
  */
-function generateIPWithPorts($ip, $minPort = 10, $maxPort = 65535)
-{
+function generateIPWithPorts($ip, $minPort = 10, $maxPort = 65535) {
   // Initialize an empty array to hold the IP:PORT values
   $ipPorts = [];
 

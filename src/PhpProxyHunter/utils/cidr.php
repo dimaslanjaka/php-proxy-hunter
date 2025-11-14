@@ -1,7 +1,6 @@
 <?php
 
-function getIPRange(string $cidr): array
-{
+function getIPRange(string $cidr): array {
   list($ip, $mask) = explode('/', trim($cidr));
 
   $ipLong   = ip2long($ip);
@@ -29,8 +28,7 @@ function getIPRange(string $cidr): array
 //   echo $ip . "\n";
 // }
 
-function IPv6CIDRToRange($cidr): array
-{
+function IPv6CIDRToRange($cidr): array {
   list($ip, $prefix) = explode('/', $cidr);
   $range_start       = inet_pton($ip);
   $range_end         = $range_start;
@@ -62,8 +60,7 @@ function IPv6CIDRToRange($cidr): array
 //   return $ips;
 // }
 
-function IPv6CIDRToList($cidr): array
-{
+function IPv6CIDRToList($cidr): array {
   $range = IPv6CIDRToRange($cidr);
   $start = inet_pton($range['start']);
   $end   = inet_pton($range['end']);
@@ -97,8 +94,7 @@ function IPv6CIDRToList($cidr): array
  * @param string $cidr The CIDR range (e.g., "192.168.1.0/24").
  * @return string The random IP address.
  */
-function generateRandomIP(string $cidr): string
-{
+function generateRandomIP(string $cidr): string {
   list($ip, $subnet) = explode('/', $cidr);
 
   // Convert IP to binary format
@@ -119,7 +115,6 @@ function generateRandomIP(string $cidr): string
  *
  * @return int The random port number.
  */
-function generateRandomPort(): int
-{
+function generateRandomPort(): int {
   return mt_rand(1024, 65535);
 }

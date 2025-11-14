@@ -8,8 +8,7 @@
  * @param int $endPort The ending port of the range (default is 65535).
  * @return array An array containing the proxies found during scanning.
  */
-function scanRangePorts(string $ip, int $startPort = 1, int $endPort = 65535): array
-{
+function scanRangePorts(string $ip, int $startPort = 1, int $endPort = 65535): array {
   $proxies = [];
   for ($port = $startPort; $port <= $endPort; $port++) {
     if (scanPort($ip, $port)) {
@@ -26,8 +25,7 @@ function scanRangePorts(string $ip, int $startPort = 1, int $endPort = 65535): a
  * @param array $ports An array containing the ports to scan.
  * @return array An array containing the proxies found during scanning.
  */
-function scanArrayPorts(string $ip, array $ports): array
-{
+function scanArrayPorts(string $ip, array $ports): array {
   $proxies = [];
   foreach ($ports as $port) {
     if (scanPort($ip, $port)) {
@@ -44,8 +42,7 @@ function scanArrayPorts(string $ip, array $ports): array
  * @param int $port The port to scan.
  * @return bool Returns true if the port is open, false otherwise.
  */
-function scanPort(string $ip, int $port): bool
-{
+function scanPort(string $ip, int $port): bool {
   $ip = trim($ip);
   echo "Scanning port $ip:$port\n";
   $connection = @fsockopen($ip, $port, $errno, $error_string, 10);

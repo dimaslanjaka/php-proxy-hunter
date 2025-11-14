@@ -7,8 +7,7 @@
  * @param int $hours The number of hours ago to check against.
  * @return bool True if the file was created more than the specified number of hours ago, otherwise false.
  */
-function isFileCreatedMoreThanHours(string $filePath, int $hours): bool
-{
+function isFileCreatedMoreThanHours(string $filePath, int $hours): bool {
   // Check if the file exists
   if (!file_exists($filePath)) {
     return false;
