@@ -1,5 +1,23 @@
 [
   {
+    "hash": "04e5e1689f745f86604ddf3dff6d2c11c29efc2a",
+    "date": "2025-11-14T13:28:49+07:00",
+    "message": "feat(dashboard): replace UserActivityCard with new UserPaymentLogs component\n\n- Add new `UserPaymentLogs` component with merged transaction view, collapsible sections, and multi-page log fetching\n- Render payment logs in Dashboard's activity tab and comment out deprecated `UserActivityCard`\n- Implement transaction grouping by tx ID, status extraction, and improved log display UI\n- Extend `LogEntry` type to support generic `details` instead of string-only",
+    "files": [
+      "src/react/pages/Dashboard.tsx",
+      "src/react/pages/dashboard/UserPaymentLogs.tsx",
+      "types/php_backend/logs.d.ts"
+    ]
+  },
+  {
+    "hash": "dd9c40ec893670f9a8fe0c73e4bc4c2d07e94f7c",
+    "date": "2025-11-14T13:28:05+07:00",
+    "message": "feat(logs): add GET-based pagination overrides and structured pagination metadata\n\n- Allow GET parameters (`page`, `per_page`) to override POST values when missing\n- Add offset calculation and apply pagination to \"me\" user logs\n- Decode JSON `details` field per log entry before returning paginated results\n- Return detailed pagination metadata (`page`, `per_page`, `offset`, `count`, `total`)\n- Update admin logs endpoint to support GET overrides and unified pagination response structure",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
     "hash": "a7e5b2f57165fb31b28587075dd0dc8c5067ec5d",
     "date": "2025-11-14T10:10:37+07:00",
     "message": "feat(utils): add isEmpty helper and improve isNotEmpty docs\n\n- Introduce `isEmpty(data)` to standardize emptiness checks across types:\n  - treats null/undefined, empty or whitespace-only strings, empty arrays,\n    and plain objects with no own enumerable keys as empty.\n  - notes caveat for non-plain object types (Map, Set, Date, etc).\n- Update `isNotEmpty` to delegate to `isEmpty` (returns the negation).\n- Expand and clarify JSDoc comments and examples for both functions.\n\nThis improves reuse and consistency when checking for empty values.",
@@ -8714,23 +8732,6 @@
     "message": "refactor(vite-plugin): comment out configureServer function for future use",
     "files": [
       "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "5a5dfa316e4b30c479dc71fd318c578a3caa5445",
-    "date": "2025-08-14T15:36:11+07:00",
-    "message": "feat(debugger): add remove-node-child-detector utility for DOM operation debugging",
-    "files": [
-      "src/react/debugger/remove-node-child-detector.js"
-    ]
-  },
-  {
-    "hash": "db2678413b6909377ce65491672465582cc484e1",
-    "date": "2025-08-14T15:03:15+07:00",
-    "message": "chore(package): sort scripts alphabetically and update typescript version\n\n- Reordered the scripts section in package.json for better readability and maintainability.\n- Changed typescript devDependency version from ^5.9.2 to ~5.8.0 for compatibility.",
-    "files": [
-      "package.json",
-      "packages/baileys"
     ]
   }
 ]
