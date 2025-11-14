@@ -57,3 +57,4 @@ from .iterationHelper import IterationHelper
 from .list import flatten_and_clean
 from .regex_utils import find_substring_from_regex, is_matching_regex
 from .dict_helper import dict_updater
+from .config import ConfigDB
