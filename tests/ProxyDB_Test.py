@@ -4,7 +4,14 @@ import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.ProxyDB import ProxyDB
-import pytest
+from dotenv import find_dotenv, load_dotenv
+
+
+@pytest.fixture(scope="session", autouse=True)
+def load_env() -> None:
+    env_file = find_dotenv(filename=".env", usecwd=True)
+    print(f"Loading env file: {env_file}")
+    load_dotenv(env_file)
 
 
 @pytest.fixture(scope="module")
@@ -60,4 +67,4 @@ def test_update(proxy_db):
 
 
 if __name__ == "__main__":
-    pytest.main(["-vvv", __file__])
+    pytest.main(["-vvv", "-s", __file__])
