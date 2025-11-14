@@ -7,20 +7,38 @@ T = TypeVar("T")
 
 
 class ConfigDB:
-    def __init__(self, driver: str = "sqlite", **kwargs):
-        """Unified config database supporting SQLite and MySQL."""
+    def __init__(
+        self,
+        driver: str = "sqlite",
+        db_path: str = "config.db",
+        host: str = "localhost",
+        user: str = "root",
+        password: str = "",
+        database: str = "test",
+        **kwargs,
+    ):
+        """Unified config database supporting SQLite and MySQL.
+
+        Parameters:
+            driver: 'sqlite' (default) or 'mysql'.
+            db_path: path to sqlite database file (used with sqlite).
+            host,user,password,database: used with mysql.
+
+        The `driver` parameter is kept for backwards compatibility.
+        """
+
         self.driver = driver.lower()
 
         if self.driver == "sqlite":
-            self.conn = sqlite3.connect(kwargs.get("db_path", "config.db"))
+            self.conn = sqlite3.connect(db_path)
             self.conn.row_factory = sqlite3.Row
             self.cur = self.conn.cursor()
         elif self.driver == "mysql":
             self.conn = mysql.connector.connect(
-                host=kwargs.get("host", "localhost"),
-                user=kwargs.get("user", "root"),
-                password=kwargs.get("password", ""),
-                database=kwargs.get("database", "test"),
+                host=host,
+                user=user,
+                password=password,
+                database=database,
             )
             self.cur = self.conn.cursor(dictionary=True)
         else:
@@ -50,15 +68,24 @@ class ConfigDB:
     def _encode(self, value: Any) -> str:
         from dataclasses import asdict, is_dataclass
 
-        if is_dataclass(value):
-            return json.dumps(asdict(value))
+        # Only call asdict for dataclass instances (not dataclass types).
+        if is_dataclass(value) and not isinstance(value, type):
+            try:
+                return json.dumps(asdict(value))
+            except Exception:
+                # fallthrough to generic json encoding
+                pass
         try:
             return json.dumps(value)
         except Exception:
             return str(value)
 
-    def _decode(self, value: str) -> Any:
+    def _decode(self, value: Any) -> Any:
         try:
+            if isinstance(value, (bytes, bytearray)):
+                value = value.decode()
+            if not isinstance(value, str):
+                return value
             return json.loads(value)
         except Exception:
             return value
@@ -89,7 +116,16 @@ class ConfigDB:
         if not row:
             return None
 
-        raw = row["value"] if self.driver == "mysql" else row["value"]
+        # mysql cursor with dictionary=True returns a dict-like row; sqlite3
+        # returns a Row (indexable by 0) when selecting a single column.
+        from typing import Any as _Any
+
+        _row: _Any = row
+        if self.driver == "mysql":
+            raw = _row["value"]
+        else:
+            raw = _row[0]
+
         decoded = self._decode(raw)
 
         # reconstruct dataclass if model is provided
