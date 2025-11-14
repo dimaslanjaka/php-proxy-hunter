@@ -1,5 +1,21 @@
 [
   {
+    "hash": "d098e36a079ba431fa59c9a1ae831a9b027d66aa",
+    "date": "2025-11-14T17:31:31+07:00",
+    "message": "feat(proxylist): update badge key and format text to uppercase for better visibility",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "ac4ac0c77c046f35f2d00107d0ea9e130baf1ffb",
+    "date": "2025-11-14T17:15:13+07:00",
+    "message": "feat(func_date): add convert_rfc3339_to_datetime function for parsing RFC 3339 timestamps",
+    "files": [
+      "src/func_date.py"
+    ]
+  },
+  {
     "hash": "241f783dae077316114e9e6ec254a66a629a5a84",
     "date": "2025-11-14T16:56:16+07:00",
     "message": "feat(proxydb): enhance get_working_proxies to support limit and randomization options",
@@ -8718,22 +8734,6 @@
     "message": "fix(vite): Use Vite/Rollup default hashed filenames for cache busting",
     "files": [
       "vite.config.js"
-    ]
-  },
-  {
-    "hash": "fe95225a5cd58745b3644a29ac0a9d49d00efd19",
-    "date": "2025-08-14T16:29:05+07:00",
-    "message": "refactor(build): clean output directory before build and improve deploy asset handling\n\n- Clean the build output directory before starting the build process to ensure a fresh build.\n- Add existence check before removing old directories in the deploy step to prevent errors.\n- Improve asset copy log to show relative paths for better readability.\n- Handle build process errors with .catch for better error reporting.",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "afda38b2237d7566bbc299eb6b88479bff1486a0",
-    "date": "2025-08-14T16:21:17+07:00",
-    "message": "refactor(vite-gh-pages): improve deploy asset handling and logging\n\n- Copy build output to .deploy_git before cleaning old directories.\n- Clean up old 'assets', 'php', and 'static' directories in .deploy_git with explicit logging.\n- Re-copy only the 'assets' directory from build output to .deploy_git after cleanup.\n- Add log messages for asset copy and directory removal actions.\n- Remove redundant route processing log in route copy loop.",
-    "files": [
-      "vite-gh-pages.js"
     ]
   }
 ]
