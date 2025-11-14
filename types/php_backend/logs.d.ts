@@ -3,7 +3,7 @@ export interface LogsResponse {
   logs: LogEntry[];
 }
 
-export interface LogEntry {
+export interface LogEntry<T = any> {
   [key: string]: any;
   id: number;
   user_id: number;
@@ -11,8 +11,7 @@ export interface LogEntry {
   action_type: string;
   target_id: number | null;
   target_type: string;
-  /** JSON string, could parse into Details if needed */
-  details: string;
+  details: T;
   ip_address: string;
   user_agent: string;
   /** ISO datetime string */

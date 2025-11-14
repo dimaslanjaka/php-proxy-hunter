@@ -1,7 +1,7 @@
 import React from 'react';
 import { getUserInfo } from '../utils/user';
 import DashboardContent from './dashboard/DashboardContent';
-import UserActivityCard from './dashboard/UserActivityCard';
+import UserPaymentLogs from './dashboard/UserPaymentLogs';
 
 export default function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
@@ -95,7 +95,8 @@ export default function Dashboard() {
             role="tabpanel"
             aria-labelledby="user-activity"
             className={`${activeTab === 'activity' ? '' : 'hidden'}`}>
-            <UserActivityCard />
+            {/* <UserActivityCard /> */}
+            <UserPaymentLogs className="w-full px-2 sm:px-4 md:px-6 lg:px-8 transition-colors mt-4" />
           </div>
         </div>
       </div>
