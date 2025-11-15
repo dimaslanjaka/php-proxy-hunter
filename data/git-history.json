@@ -1,5 +1,14 @@
 [
   {
+    "hash": "5085c079418bafd1d32465a20a4e5e33e8b5ede7",
+    "date": "2025-11-15T05:56:06+07:00",
+    "message": "refactor(proxyWorking): improve structure, locking, and background execution handling\n\n- add CoreDB initialization and remove unused globals\n- reorganize script into clear init, CLI, locking, and execution sections\n- replace custom OS detection with PHP_OS_FAMILY\n- improve background command generation using sprintf\n- ensure lock directories exist and centralize lock paths\n- replace global shutdown cleanup with closure-based handler\n- clean up working proxies printing logic\n- unify file permission handling using consistent paths",
+    "files": [
+      "artisan/proxyWorking.php",
+      "php_backend/shared.php"
+    ]
+  },
+  {
     "hash": "d098e36a079ba431fa59c9a1ae831a9b027d66aa",
     "date": "2025-11-14T17:31:31+07:00",
     "message": "feat(proxylist): update badge key and format text to uppercase for better visibility",
@@ -8724,14 +8733,6 @@
     "hash": "3b7b4866974fc704781182f6e380d58e9241c324",
     "date": "2025-08-15T00:53:09+07:00",
     "message": "build(vite): use git commit hash in asset filenames and output structure\n\n- Add logic to retrieve the latest git commit hash at build time using child_process.\n- Update Vite/Rollup output config to include the git hash in JS, chunk, and asset filenames.\n- Change output directory structure to use `assets/` and `assets/chunks/` for JS, and `assets/<gitHash>/` for other assets.\n- Improves cache busting and traceability of build artifacts.",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "6cf492c61e8613f66f3d1345c002640b79fab6b2",
-    "date": "2025-08-14T16:32:10+07:00",
-    "message": "fix(vite): Use Vite/Rollup default hashed filenames for cache busting",
     "files": [
       "vite.config.js"
     ]
