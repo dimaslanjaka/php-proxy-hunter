@@ -1,35 +1,63 @@
 import hashlib
-import json
 import os
 import pickle
 import random
 import re
 import shutil
-import stat
 import string
 import sys
 import tempfile
-import time
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
-from pathlib import Path
 from filelock import FileLock
 from filelock import Timeout as FilelockTimeout
-from .ansi import remove_ansi
+from ..ansi import remove_ansi
+from .writer import write_file
+from ..md5 import md5
+from .folder import resolve_parent_folder
 
 
-def save_tuple_to_file(filename: str, data: Union[Tuple, List[Tuple]]) -> None:
+def save_tuple_to_file(
+    filename: str, data: Union[Tuple, List[Tuple], Dict[str, Tuple]]
+) -> None:
     """
-    Save a tuple to a file using pickle serialization.
+    Serialize tuple-like data to a file using pickle.
+
+    This function accepts a single tuple, a list of tuples, or a dictionary
+    whose values are tuples and writes the object to `filename` using
+    Python's pickle binary format.
 
     Args:
-        filename (str): The name of the file where the tuple will be stored.
-        data (Tuple): The tuple to be stored.
+        filename (str): Path to the output file. Parent directories will be
+            created if they do not already exist.
+        data (Union[Tuple, List[Tuple], Dict[str, Tuple]]): The object to
+            serialize. Supported types are a tuple, a list of tuples, or a
+            dict mapping strings to tuples.
 
-    Returns:
-        None
+    Raises:
+        TypeError: If `data` is not one of the supported types.
+        OSError: If there is an error creating parent directories or writing the file.
+        pickle.PicklingError: If the object cannot be pickled.
+
+    Examples:
+        >>> save_tuple_to_file("tmp/out.pkl", (1, 2))
+        >>> save_tuple_to_file("tmp/list.pkl", [(1, 2), (3, 4)])
+        >>> save_tuple_to_file("tmp/map.pkl", {"a": (1,), "b": (2,)})
+
+    Notes:
+        Uses pickle.HIGHEST_PROTOCOL for serialization.
     """
+    # Validate supported data types
+    if not isinstance(data, (tuple, list, dict)):
+        raise TypeError(
+            "data must be a tuple, list of tuples, or dict of string->tuple"
+        )
+
+    # Ensure parent directory exists and permissions are set
+    resolve_parent_folder(filename)
+
+    # Write using highest available pickle protocol
     with open(filename, "wb") as file:
-        pickle.dump(data, file)
+        pickle.dump(data, file, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def load_tuple_from_file(filename: str) -> Union[Tuple, List[Tuple]]:
@@ -46,155 +74,13 @@ def load_tuple_from_file(filename: str) -> Union[Tuple, List[Tuple]]:
         return pickle.load(file)
 
 
-def write_json(file_path: str, data: Any):
-    """
-    Write JSON data to a file. Creates parent directories if they do not exist.
-    """
-    if not data:
-        return
-
-    # Ensure parent directories exist
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-    with open(file_path, "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=2, ensure_ascii=False, default=serialize)
+# write_json moved to writer.py
 
 
-def copy_file(source_file: str, destination_file: str) -> None:
-    """
-    Copy a file from source to destination, overwriting if the destination file exists.
-
-    Parameters:
-    - source_file (str): Path to the source file.
-    - destination_file (str): Path to the destination file.
-
-    Returns:
-    - None
-    """
-    try:
-        # Copy file, overwriting destination if it exists
-        shutil.copyfile(source_file, destination_file)
-        print(f"File '{source_file}' copied to '{destination_file}'")
-    except FileNotFoundError:
-        print(f"Error: File '{source_file}' not found.")
-    except Exception as e:
-        print(f"Error: {e}")
+# get_random_folder moved to .folder
 
 
-def copy_folder(source_folder: str, destination_folder: str) -> None:
-    """
-    Copy a folder and its contents recursively from the source location to the destination location.
-
-    Args:
-        source_folder (str): The path to the source folder to be copied.
-        destination_folder (str): The path to the destination folder where the source folder will be copied.
-
-    Raises:
-        FileExistsError: If the destination folder already exists.
-        FileNotFoundError: If the source folder does not exist.
-
-    Returns:
-        None
-    """
-    # Ensure destination parent folder exists
-    os.makedirs(os.path.dirname(destination_folder), exist_ok=True)
-
-    shutil.copytree(source_folder, destination_folder, dirs_exist_ok=True)
-
-
-def get_random_folder(directory: str) -> str:
-    """
-    Return a randomly selected folder path inside the specified directory.
-
-    Args:
-        directory (str): The path to the directory.
-
-    Returns:
-        str: The full path of the randomly selected folder.
-
-    Raises:
-        ValueError: If the specified directory does not exist or if there are no subdirectories in it.
-    """
-    if not os.path.isdir(directory):
-        raise ValueError("The specified directory does not exist.")
-
-    folders: List[str] = [
-        os.path.join(directory, folder)
-        for folder in os.listdir(directory)
-        if os.path.isdir(os.path.join(directory, folder))
-    ]
-
-    if not folders:
-        raise ValueError("There are no subdirectories in the specified directory.")
-
-    return os.path.normpath(random.choice(folders))
-
-
-def delete_path_if_exists(path):
-    """
-    Delete a file or folder if it exists.
-
-    Parameters:
-        path (str): The path to the file or folder to be deleted.
-
-    Returns:
-        None
-
-    Raises:
-        None
-    """
-    try:
-        if os.path.exists(path):
-            if os.path.isfile(path):
-                os.remove(path)
-                print(f"File '{path}' deleted.")
-            elif os.path.isdir(path):
-                shutil.rmtree(path)
-                print(f"Folder '{path}' and its contents deleted.")
-        else:
-            print(f"'{path}' does not exist.")
-    except PermissionError as e:
-        print(f"Permission error: {e}")
-
-
-def read_file(file_path: str) -> Optional[str]:
-    """
-    Read content from a file.
-
-    Args:
-        file_path (str): The path to the file to read.
-
-    Returns:
-        Optional[str]: The content of the file if successful, None otherwise.
-    """
-    try:
-        with open(file_path, "r", encoding="utf-8") as file:
-            content = file.read()
-        return content
-    except FileNotFoundError:
-        print(f"Error: File '{file_path}' not found.")
-        return None
-    except Exception as e:
-        print(f"Error: An exception occurred - {e}")
-        return None
-
-
-def write_file(file_path: Optional[str], content: Optional[str]) -> None:
-    """
-    Write content to a file.
-
-    Args:
-        file_path (str): The path to the file to write.
-        content (str): The content to write to the file.
-    """
-    try:
-        if file_path:
-            resolve_parent_folder(file_path)
-            with open(file_path, "w", encoding="utf-8") as file:
-                file.write(content or "")
-            # print(f"File '{file_path}' has been successfully written.")
-    except Exception as e:
-        print(f"Error writing {file_path} - {e}")
+# write_file moved to writer.py
 
 
 def file_append_str(filename: str, string_to_add: str) -> None:
@@ -234,59 +120,10 @@ def file_exists(filepath: str) -> bool:
     return os.path.isfile(filepath)
 
 
-def fix_permissions(
-    path: str,
-    desired_permissions: int = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO,
-) -> None:
-    """
-    Fixes the permissions of a folder.
-
-    Args:
-        path (str): The path to the folder whose permissions need to be fixed.
-        desired_permissions (int): The desired permissions for the folder in octal format.
-
-    Returns:
-        None
-
-    Raises:
-        OSError: If there is an error changing the folder's permissions.
-    """
-    try:
-        # Change the folder permissions
-        os.chmod(path, desired_permissions)
-    except OSError as e:
-        print(f"Error fix perm {path}: {e}")
+# fix_permissions moved to .folder
 
 
-def resolve_folder(path: str) -> str:
-    resolve_parent_folder(path)
-    os.makedirs(path, exist_ok=True)
-    fix_permissions(path)
-    return path
-
-
-def delete_path(path: str) -> None:
-    """
-    Delete a folder or file specified by the path if it exists.
-
-    Args:
-        path (str): The path of the folder or file to delete.
-    """
-    if not os.path.exists(path):
-        print(f"Path '{path}' does not exist.")
-        return
-
-    try:
-        if os.path.isdir(path):
-            shutil.rmtree(path, ignore_errors=True)
-            print(f"Folder '{path}' and its contents deleted successfully.")
-        elif os.path.isfile(path):
-            os.remove(path)
-            print(f"File '{path}' deleted successfully.")
-        else:
-            print(f"Path '{path}' is neither a file nor a folder.")
-    except OSError as e:
-        print(f"Error deleting '{path}': {e}")
+# resolve_folder moved to .folder
 
 
 def sanitize_filename(filename: str, extra_chars: Optional[str] = None) -> str:
@@ -387,25 +224,7 @@ def file_move_lines(source_file: str, destination_file: str, n: int) -> None:
         source.writelines(lines[n:])
 
 
-def list_files_in_directory(directory: str) -> List[str]:
-    """
-    List all files in the given directory and return a list of their absolute paths.
-
-    Args:
-        directory (str): The directory to list files from.
-
-    Returns:
-        List[str]: A list of absolute paths to the files in the directory.
-    """
-    if not os.path.exists(directory):
-        return []
-
-    file_paths = []
-    for root, _, files in os.walk(directory):
-        for file in files:
-            file_paths.append(os.path.abspath(os.path.join(root, file)))
-
-    return file_paths
+# list_files_in_directory moved to .folder
 
 
 def count_lines_in_file(file_path: str) -> int:
@@ -433,21 +252,7 @@ def remove_non_ascii(input_string):
     return re.sub(r"[^\x00-\x7F]+", "", input_string)
 
 
-def resolve_parent_folder(path: str) -> str:
-    """
-    Resolves the parent folder of the given path and creates it if it doesn't exist.
-
-    Args:
-        path (str): The path string.
-
-    Returns:
-        str: The parent folder of the given path.
-    """
-    parent_folder = os.path.dirname(path)
-    if not os.path.exists(parent_folder):
-        os.makedirs(parent_folder)
-    fix_permissions(parent_folder)
-    return parent_folder
+# resolve_parent_folder moved to .folder
 
 
 def remove_string_from_file(
@@ -553,43 +358,10 @@ def file_remove_empty_lines(file_path: str) -> None:
         pass
 
 
-def md5(input_string):
-    md5_hash = hashlib.md5(input_string.encode()).hexdigest()
-    return md5_hash
+# md5 moved to proxy_hunter.utils.md5
 
 
-def is_directory_created_days_ago_or_more(directory_path: str, days: int) -> bool:
-    """
-    Check if the directory exists and if it was created 'days' days ago or more.
-
-    Args:
-        directory_path (str): The path to the directory.
-        days (int): Number of days ago to check against.
-
-    Returns:
-        bool: True if the directory exists and was created 'days' days ago or more, False otherwise.
-    """
-    # Check if the directory exists
-    if os.path.exists(directory_path):
-        # Get the modification time of the directory
-        mod_time = os.path.getmtime(directory_path)
-
-        # Get current time
-        current_time = time.time()
-
-        # Calculate the time difference
-        time_diff = current_time - mod_time
-
-        # Define 'days' days in seconds
-        days_seconds = days * 24 * 60 * 60
-
-        # Check if the directory was created 'days' days ago or more
-        if time_diff >= days_seconds:
-            return True
-        else:
-            return False
-    else:
-        return False
+# is_directory_created_days_ago_or_more moved to .folder
 
 
 def remove_duplicate_line_from_file(filename: str) -> None:
@@ -709,5 +481,4 @@ def move_string_between(
         return False
 
 
-def join_path(*segments: str) -> str:
-    return str(Path(*segments).resolve())
+# join_path moved to .folder

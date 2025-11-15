@@ -14,7 +14,6 @@ from .file import (
     is_file_larger_than_kb,
     list_files_in_directory,
     load_tuple_from_file,
-    md5,
     move_string_between,
     read_all_text_files,
     read_file,
@@ -33,6 +32,7 @@ from .file import (
     write_json,
     file_exists,
 )
+from .md5 import md5
 from .index_utils import (
     base64_decode,
     base64_encode,
@@ -49,7 +49,6 @@ from .index_utils import (
     is_valid_url,
     is_vps,
     keep_alphanumeric_and_remove_spaces,
-    md5,
     split_list_into_chunks,
     unique_non_empty_strings,
 )

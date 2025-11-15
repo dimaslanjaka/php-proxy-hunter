@@ -61,3 +61,6 @@ Thumbs.db
 
 # Allow specific file inside ignored folder
 !/proxy_hunter/ip_ranges_US.txt
+
+# Allow init python files
+!**/*/__init__.py
