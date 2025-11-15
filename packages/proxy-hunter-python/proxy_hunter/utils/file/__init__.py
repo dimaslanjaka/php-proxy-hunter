@@ -12,7 +12,6 @@ from .others import (
     read_all_text_files,
     serialize,
     truncate_file_content,
-    remove_non_ascii,
     remove_string_from_file,
     remove_trailing_hyphens,
     remove_duplicate_line_from_file,

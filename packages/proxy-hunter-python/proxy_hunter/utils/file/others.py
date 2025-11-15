@@ -10,7 +10,7 @@ import tempfile
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from filelock import FileLock
 from filelock import Timeout as FilelockTimeout
-from ..ansi import remove_ansi
+from ..ansi import remove_ansi, remove_non_ascii
 from .writer import write_file
 from ..md5 import md5
 from .folder import resolve_parent_folder
@@ -245,11 +245,7 @@ def count_lines_in_file(file_path: str) -> int:
     return line_count
 
 
-def remove_non_ascii(input_string):
-    """
-    Remove non-ASCII characters from the input string.
-    """
-    return re.sub(r"[^\x00-\x7F]+", "", input_string)
+# remove_non_ascii moved to ..ansi
 
 
 # resolve_parent_folder moved to .folder

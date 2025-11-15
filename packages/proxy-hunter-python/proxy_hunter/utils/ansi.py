@@ -31,3 +31,16 @@ def contains_ansi_codes(s: str) -> bool:
     # Regular expression to match ANSI escape codes
     ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
     return bool(ansi_escape.search(s))
+
+
+def remove_non_ascii(text: str) -> str:
+    """
+    Remove non-ASCII characters from the input string.
+
+    Args:
+        text (str): The input string which may contain non-ASCII characters.
+
+    Returns:
+        str: The input string with non-ASCII characters removed.
+    """
+    return re.sub(r"[^\x00-\x7F]+", "", text)

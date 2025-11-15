@@ -1,4 +1,4 @@
-from .ansi import contains_ansi_codes, remove_ansi
+from .ansi import contains_ansi_codes, remove_ansi, remove_non_ascii
 from .file import (
     copy_file,
     copy_folder,
@@ -18,7 +18,6 @@ from .file import (
     read_all_text_files,
     read_file,
     remove_duplicate_line_from_file,
-    remove_non_ascii,
     remove_string_from_file,
     remove_trailing_hyphens,
     resolve_folder,
