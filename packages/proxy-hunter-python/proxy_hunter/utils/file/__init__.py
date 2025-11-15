@@ -4,7 +4,6 @@ from .read import read_file
 from .others import (
     save_tuple_to_file,
     load_tuple_from_file,
-    count_lines_in_file,
     file_append_str,
     file_exists,
     file_move_lines,
@@ -17,9 +16,8 @@ from .others import (
     remove_duplicate_line_from_file,
     move_string_between,
     sanitize_filename,
-    is_file_larger_than_kb,
-    size_of_list_in_mb,
 )
+from .size import count_lines_in_file, size_of_list_in_mb, is_file_larger_than_kb
 from .folder import (
     resolve_folder,
     resolve_parent_folder,

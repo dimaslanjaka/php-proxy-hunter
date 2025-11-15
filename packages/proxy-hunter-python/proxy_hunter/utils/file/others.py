@@ -5,7 +5,6 @@ import random
 import re
 import shutil
 import string
-import sys
 import tempfile
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from filelock import FileLock
@@ -227,24 +226,6 @@ def file_move_lines(source_file: str, destination_file: str, n: int) -> None:
 # list_files_in_directory moved to .folder
 
 
-def count_lines_in_file(file_path: str) -> int:
-    """
-    Count the number of lines in a given file.
-
-    Args:
-        file_path (str): The path to the file to be counted.
-
-    Returns:
-        int: The total number of lines in the file.
-    """
-    # Open the file in read mode
-    with open(file_path, "r", encoding="utf-8") as file:
-        # Use a loop to iterate through each line and count them
-        line_count = sum(1 for line in file)
-
-    return line_count
-
-
 # remove_non_ascii moved to ..ansi
 
 
@@ -386,35 +367,7 @@ def remove_duplicate_line_from_file(filename: str) -> None:
 
     # Replace original file with cleaned content
     temp_filename = temp_file.name
-    import shutil
-
     shutil.move(temp_filename, filename)
-
-
-def size_of_list_in_mb(list_of_strings: List[str]) -> float:
-    """
-    Calculate the size of a list of strings in megabytes.
-
-    Args:
-    - list_of_strings (List[str]): The list of strings to calculate the size of.
-
-    Returns:
-    - float: The size of the list in megabytes.
-    """
-    total_size = sum(sys.getsizeof(string) for string in list_of_strings)
-    size_in_mb = total_size / (1024 * 1024)
-    return size_in_mb
-
-
-def is_file_larger_than_kb(file_path, size_in_kb=5):
-    # Get the size of the file in bytes
-    file_size_bytes = os.path.getsize(file_path)
-
-    # Convert bytes to kilobytes
-    file_size_kb = file_size_bytes / 1024
-
-    # Check if file size is greater than specified size
-    return file_size_kb > size_in_kb
 
 
 def move_string_between(
