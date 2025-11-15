@@ -110,7 +110,10 @@ class SQLiteHelper:
         self.conn = MyDatabaseConnection(db_path, check_same_thread=check_same_thread)
         self.conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign key support
         self.conn.row_factory = sqlite3.Row  # Access rows by column names
-        self.cursor = self.conn.cursor()
+
+    # Do not keep a shared cursor. Create cursors per-operation to avoid
+    # "Recursive use of cursors not allowed" when methods call each other
+    # or when accessed from multiple threads.
 
     def create_table(self, table_name: str, columns: List[str]) -> None:
         """
@@ -125,8 +128,12 @@ class SQLiteHelper:
         """
         columns_str = ", ".join(columns)
         sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_str})"
-        self.cursor.execute(sql)
-        self.conn.commit()
+        cur = self.conn.cursor()
+        try:
+            cur.execute(sql)
+            self.conn.commit()
+        finally:
+            cur.close()
 
     def insert(self, table_name: str, data: dict) -> None:
         """
@@ -142,8 +149,13 @@ class SQLiteHelper:
         columns = ", ".join(data.keys())
         placeholders = ", ".join("?" * len(data))
         sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-        self.cursor.execute(sql, list(data.values()))
-        self.conn.commit()
+        cur = self.conn.cursor()
+        try:
+            params = tuple(list(data.values()))
+            cur.execute(sql, params)
+            self.conn.commit()
+        finally:
+            cur.close()
 
     def select(
         self,
@@ -170,9 +182,30 @@ class SQLiteHelper:
             sql += f" WHERE {where}"
         if rand:
             sql += " ORDER BY RANDOM()"
-        self.cursor.execute(sql, params or ())
-        rows = self.cursor.fetchall()
-        return [dict(row) for row in rows]
+        cur = self.conn.cursor()
+        try:
+            exec_params = tuple(params) if params is not None else ()
+            try:
+                cur.execute(sql, exec_params)
+            except sqlite3.InterfaceError as ie:
+                # Debug info to help diagnose bad parameter misuse from callers
+                try:
+                    print("[SQLiteHelper.select] InterfaceError executing SQL:", sql)
+                    print("[SQLiteHelper.select] exec_params repr:", repr(exec_params))
+                    print("[SQLiteHelper.select] exec_params type:", type(exec_params))
+                    if isinstance(exec_params, (list, tuple)) and len(exec_params) > 0:
+                        print(
+                            "[SQLiteHelper.select] first param type:",
+                            type(exec_params[0]),
+                            repr(exec_params[0]),
+                        )
+                except Exception:
+                    pass
+                raise
+            rows = cur.fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            cur.close()
 
     def count(
         self,
@@ -194,9 +227,15 @@ class SQLiteHelper:
         sql = f"SELECT COUNT(*) as count FROM {table_name}"
         if where:
             sql += f" WHERE {where}"
-        self.cursor.execute(sql, params or ())
-        count = self.cursor.fetchone()["count"]
-        return count if count is not None else 0
+        cur = self.conn.cursor()
+        try:
+            exec_params = tuple(params) if params is not None else ()
+            cur.execute(sql, exec_params)
+            row = cur.fetchone()
+            count = row["count"] if row else 0
+            return count if count is not None else 0
+        finally:
+            cur.close()
 
     def update(
         self,
@@ -209,15 +248,25 @@ class SQLiteHelper:
         sql = f"UPDATE {table_name} SET {set_values} WHERE {where}"
 
         # Ensure None values are passed directly, and convert params to a list if necessary
-        self.cursor.execute(sql, list(data.values()) + list(params or []))
-        self.conn.commit()
+        cur = self.conn.cursor()
+        try:
+            combined = list(data.values()) + list(params or [])
+            cur.execute(sql, tuple(combined))
+            self.conn.commit()
+        finally:
+            cur.close()
 
     def delete(
         self, table_name: str, where: str, params: Optional[Union[tuple, list]] = None
     ) -> None:
         sql = f"DELETE FROM {table_name} WHERE {where}"
-        self.cursor.execute(sql, params or ())
-        self.conn.commit()
+        cur = self.conn.cursor()
+        try:
+            exec_params = tuple(params) if params is not None else ()
+            cur.execute(sql, exec_params)
+            self.conn.commit()
+        finally:
+            cur.close()
 
     def execute_query(
         self, sql: str, params: Optional[Union[tuple, list]] = None
@@ -232,16 +281,25 @@ class SQLiteHelper:
         Returns:
             None
         """
-        if params is not None and params != () and params != []:
-            self.cursor.execute(sql, params)
-        else:
-            self.cursor.execute(sql)
-        self.conn.commit()
+        cur = self.conn.cursor()
+        try:
+            if params is not None and params != () and params != []:
+                exec_params = tuple(params) if not isinstance(params, dict) else params
+                cur.execute(sql, exec_params)
+            else:
+                cur.execute(sql)
+            self.conn.commit()
+        finally:
+            cur.close()
 
     def truncate_table(self, table_name: str) -> None:
         sql = f"DELETE FROM {table_name}"
-        self.cursor.execute(sql)
-        self.conn.commit()
+        cur = self.conn.cursor()
+        try:
+            cur.execute(sql)
+            self.conn.commit()
+        finally:
+            cur.close()
 
     def backup_database(self, backup_path: str) -> None:
         """
@@ -290,46 +348,47 @@ class SQLiteHelper:
         with open(dump_path, "w", encoding="utf-8") as f:
             # Get a list of tables in the database
             cursor = self.conn.cursor()
-            cursor.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
-            )
-            tables = cursor.fetchall()
-
-            # Iterate over each table
-            for table in tables:
-                table_name = table[0]
-
-                # Skip the sqlite_sequence table
-                if table_name == "sqlite_sequence":
-                    continue
-
-                # Write DROP TABLE and CREATE TABLE statements for each table
+            try:
                 cursor.execute(
-                    f"SELECT sql FROM sqlite_master WHERE name='{table_name}';"
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
                 )
-                create_table_statement = cursor.fetchone()[0]
-                f.write(f'DROP TABLE IF EXISTS "{table_name}";\n')
-                f.write(f"{create_table_statement};\n")
+                tables = cursor.fetchall()
 
-                # Dump data from the table, excluding the 'id' column
-                cursor.execute(f'SELECT * FROM "{table_name}";')
-                rows = cursor.fetchall()
-                if rows:
-                    columns = [
-                        description[0]
-                        for description in cursor.description
-                        if description[0] != "id"
-                    ]
-                    for row in rows:
-                        values = [
-                            repr(row[column]) if row[column] is not None else "NULL"
-                            for column in columns
+                # Iterate over each table
+                for table in tables:
+                    table_name = table[0]
+
+                    # Skip the sqlite_sequence table
+                    if table_name == "sqlite_sequence":
+                        continue
+
+                    # Write DROP TABLE and CREATE TABLE statements for each table
+                    cursor.execute(
+                        f"SELECT sql FROM sqlite_master WHERE name='{table_name}';"
+                    )
+                    create_table_statement = cursor.fetchone()[0]
+                    f.write(f'DROP TABLE IF EXISTS "{table_name}";\n')
+                    f.write(f"{create_table_statement};\n")
+
+                    # Dump data from the table, excluding the 'id' column
+                    cursor.execute(f'SELECT * FROM "{table_name}";')
+                    rows = cursor.fetchall()
+                    if rows:
+                        columns = [
+                            description[0]
+                            for description in cursor.description
+                            if description[0] != "id"
                         ]
-                        f.write(
-                            f"INSERT INTO \"{table_name}\" ({', '.join(columns)}) VALUES ({', '.join(values)});\n"
-                        )
-
-        print(f"Dump successful to {dump_path}")
+                        for row in rows:
+                            values = [
+                                repr(row[column]) if row[column] is not None else "NULL"
+                                for column in columns
+                            ]
+                            f.write(
+                                f"INSERT INTO \"{table_name}\" ({', '.join(columns)}) VALUES ({', '.join(values)});\n"
+                            )
+            finally:
+                cursor.close()
 
     def create_new_database(self, new_db_path: str, dump_path: str) -> None:
         """
@@ -373,5 +432,8 @@ class SQLiteHelper:
 
     def close(self):
         if self.conn:
-            self.conn.cursor().close()
-            self.conn.close()
+            try:
+                # avoid creating a new cursor here; just close connection
+                self.conn.close()
+            except Exception:
+                pass
