@@ -1,5 +1,53 @@
 [
   {
+    "hash": "dff39056bab5b7fdae9570e004dcd04091d56994",
+    "date": "2025-11-15T17:43:15+07:00",
+    "message": "chore(scripts): add repo-root py.cmd wrapper to forward to bin\\py.cmd\n\nAdds `py.cmd` at the repository root which forwards execution to `bin\\py.cmd`.\nThis ensures running `py` from the project root uses the project's virtual environment\non Windows (forwards all arguments to the project venv launcher).",
+    "files": [
+      "py.cmd"
+    ]
+  },
+  {
+    "hash": "0afda856ccab67d908987c1f5648bc4d32b08834",
+    "date": "2025-11-15T16:39:03+07:00",
+    "message": "refactor(file): extract size utilities to file/size.py and clean exports\n\n- Move `count_lines_in_file`, `size_of_list_in_mb`, and `is_file_larger_than_kb`\n  from `packages/proxy-hunter-python/proxy_hunter/utils/file/others.py` to a new\n  module `packages/proxy-hunter-python/proxy_hunter/utils/file/size.py`.\n- Update `packages/proxy-hunter-python/proxy_hunter/utils/file/__init__.py` to\n  import these helpers from `.size` instead of `.others`.\n- Remove unused imports (e.g. `sys`) and duplicate `shutil` import from\n  `others.py`; tidy up remaining imports.\n- Internal refactor only — no behavior changes or breaking API changes.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/others.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/size.py"
+    ]
+  },
+  {
+    "hash": "9c7c69c787e0269a8c3d7d0d3eb4b6f5dbea9534",
+    "date": "2025-11-15T16:33:14+07:00",
+    "message": "refactor(utils): move `remove_non_ascii` to ansi module and update imports\n\n- Add `remove_non_ascii` implementation to `utils/ansi.py`\n- Remove duplicate implementations from `utils/file/others.py`\n- Update exports in `utils/__init__.py` and `utils/file/__init__.py`\n- Adjust imports to reference the new location\n- Clean up redundant definitions and comments",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/utils/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/ansi.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/others.py"
+    ]
+  },
+  {
+    "hash": "21683c5bbf9f9dae16f6948f73f1a6f21a9be631",
+    "date": "2025-11-15T08:38:33+07:00",
+    "message": "refactor(utils): reorganize file utilities into submodules\n\n- Split `proxy_hunter/utils/file` into a package with clear submodules:\n  - Added `file/__init__.py` (clean exports)\n  - Added `file/copy.py`, `file/delete.py`, `file/folder.py`, `file/permissions.py`, `file/read.py`, `file/writer.py`\n  - Renamed legacy `file.py` → `file/others.py` and kept non-moved helpers there\n- Extracted MD5 helper to `proxy_hunter/utils/md5.py` and updated top-level `utils` exports to import it\n- Moved JSON/file writer helpers to `file/writer.py`\n- Moved permission helpers to `file/permissions.py` and folder helpers to `file/folder.py`\n- Updated `proxy_hunter/utils/__init__.py` and `proxy_hunter/utils/file/__init__.py` to reflect new exports\n- Updated `.gitignore` to allow packaging of `__init__.py` files and preserve `proxy_hunter/ip_ranges_US.txt`\n- Added unit tests: `packages/proxy-hunter-python/tests/delete_path.py`\n\nReason: improve modularity, readability and testability of file-related utilities by splitting a large module into focused, importable submodules. No intended breaking changes (exports adjusted to remain available).",
+    "files": [
+      "packages/proxy-hunter-python/.gitignore",
+      "packages/proxy-hunter-python/proxy_hunter/utils/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/copy.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/delete.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/folder.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/others.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/permissions.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/read.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/writer.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/md5.py",
+      "packages/proxy-hunter-python/tests/delete_path.py"
+    ]
+  },
+  {
     "hash": "5085c079418bafd1d32465a20a4e5e33e8b5ede7",
     "date": "2025-11-15T05:56:06+07:00",
     "message": "refactor(proxyWorking): improve structure, locking, and background execution handling\n\n- add CoreDB initialization and remove unused globals\n- reorganize script into clear init, CLI, locking, and execution sections\n- replace custom OS detection with PHP_OS_FAMILY\n- improve background command generation using sprintf\n- ensure lock directories exist and centralize lock paths\n- replace global shutdown cleanup with closure-based handler\n- clean up working proxies printing logic\n- unify file permission handling using consistent paths",
@@ -8703,38 +8751,6 @@
       ".env-sample",
       "src/react/utils/url.ts",
       "types/vite-env.d.ts"
-    ]
-  },
-  {
-    "hash": "cfe2d9a2f9656a52ab93118cd7348a1444387c56",
-    "date": "2025-08-15T01:24:00+07:00",
-    "message": "fix(vite): remove git hash from asset filenames for consistent naming",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "e220265b9a2112427f6bd7d457804ce996265531",
-    "date": "2025-08-15T01:22:48+07:00",
-    "message": "fix(vite): enhance asset file naming by grouping assets and ensuring proper directory structure",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "8bef0253c9e8e6a8cfbe579e3f2df68113b79ec7",
-    "date": "2025-08-15T00:59:54+07:00",
-    "message": "build(vite): ensure unique and consistent hashed filenames for all assets\n\n- Update entry, chunk, and asset file naming patterns to include both the git commit hash and a content hash.\n- Output files now use the format: assets/<gitHash>/[name].[hash].js for JS and assets/<gitHash>/[name].[hash][extname] for other assets.\n- Prevents filename collisions and improves cache busting.",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "3b7b4866974fc704781182f6e380d58e9241c324",
-    "date": "2025-08-15T00:53:09+07:00",
-    "message": "build(vite): use git commit hash in asset filenames and output structure\n\n- Add logic to retrieve the latest git commit hash at build time using child_process.\n- Update Vite/Rollup output config to include the git hash in JS, chunk, and asset filenames.\n- Change output directory structure to use `assets/` and `assets/chunks/` for JS, and `assets/<gitHash>/` for other assets.\n- Improves cache busting and traceability of build artifacts.",
-    "files": [
-      "vite.config.js"
     ]
   }
 ]
