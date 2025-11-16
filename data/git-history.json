@@ -1,5 +1,37 @@
 [
   {
+    "hash": "c8d5d8e906b1d1449b463f7e6664019353c5626d",
+    "date": "2025-11-15T23:51:59+07:00",
+    "message": "feat(proxy-checker): implement ProxyChecker UI",
+    "files": [
+      "python_app/proxyCheckerGui.py"
+    ]
+  },
+  {
+    "hash": "3ce06f24bc41300029c95d93054c3fb914d17549",
+    "date": "2025-11-15T21:46:49+07:00",
+    "message": "fix(sqlitehelper): use per-operation cursors and normalize execute params\n\n- Remove shared `self.cursor`; create and close a local cursor for each DB\n  operation (create_table, insert, select, count, update, delete,\n  execute_query, truncate_table, dump_database_truncate).\n- Normalize parameters passed to `cursor.execute()` (convert lists to tuples)\n  to avoid sqlite3.InterfaceError / \"bad parameter or other API misuse\".\n- Add debug logging in `select` to print SQL and parameter shapes when an\n  InterfaceError occurs (helps diagnose bad param usage from callers).\n- Fix `dump_database_truncate` nesting/indentation and ensure cursor is\n  closed in a finally block.\n- Avoid creating/closing a cursor in `close()`; close the connection directly.\n\nNo functional change to SQL semantics; this hardens SQLiteHelper for\nmultithreaded use and prevents recursive cursor reuse errors.",
+    "files": [
+      "src/SQLiteHelper.py"
+    ]
+  },
+  {
+    "hash": "e3d7bf733d5c0b932009e9767a8452ef6cd1e642",
+    "date": "2025-11-15T19:03:47+07:00",
+    "message": "feat(settings): add save_text and load_text functions for QSettings management",
+    "files": [
+      "src/pyside6/utils/settings.py"
+    ]
+  },
+  {
+    "hash": "71d35d694441a55de603ab6e91342f145eb72a69",
+    "date": "2025-11-15T18:20:26+07:00",
+    "message": "feat(script): add python-pyside.cmd to fix PySide6 installation in existing venv",
+    "files": [
+      "bin/python-pyside.cmd"
+    ]
+  },
+  {
     "hash": "dff39056bab5b7fdae9570e004dcd04091d56994",
     "date": "2025-11-15T17:43:15+07:00",
     "message": "chore(scripts): add repo-root py.cmd wrapper to forward to bin\\py.cmd\n\nAdds `py.cmd` at the repository root which forwards execution to `bin\\py.cmd`.\nThis ensures running `py` from the project root uses the project's virtual environment\non Windows (forwards all arguments to the project venv launcher).",
@@ -8719,38 +8751,5 @@
     "date": "2025-08-15T02:44:16+07:00",
     "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
     "files": []
-  },
-  {
-    "hash": "ae8b9b0203f2396e4a09e71a4ccaeb11e63a6ec5",
-    "date": "2025-08-15T02:42:10+07:00",
-    "message": "Merge pull request #52 from dimaslanjaka/dependabot/composer/symfony/yaml-tw-5.4or-tw-7.0\n\nbuild(deps): update symfony/yaml requirement from ^5.4 to ^5.4 || ^7.0",
-    "files": []
-  },
-  {
-    "hash": "4c7c1e06fa57498fd4163b2e3d63daa0635b6852",
-    "date": "2025-08-15T02:41:43+07:00",
-    "message": "fix(scripts): update build script to include separate rollup and react builds",
-    "files": [
-      "package.json",
-      "packages/gh-pages"
-    ]
-  },
-  {
-    "hash": "228efab57b884e8a91e1ae2748f2906cb75d2f08",
-    "date": "2025-08-15T02:32:37+07:00",
-    "message": "fix(url): ensure backend hostname is defined before constructing URL",
-    "files": [
-      "src/react/utils/url.ts"
-    ]
-  },
-  {
-    "hash": "e4adf5aa8a6b7ac557e2d95a5d4f27cad649b1cc",
-    "date": "2025-08-15T02:28:57+07:00",
-    "message": "feat(env): split VITE_BACKEND_HOSTNAME into DEV and PROD variants\n\n- Updated `.env-sample` to replace `VITE_BACKEND_HOSTNAME` with `VITE_BACKEND_HOSTNAME_DEV` and `VITE_BACKEND_HOSTNAME_PROD` for clearer environment separation.\n- Modified `src/react/utils/url.ts` to select backend hostname based on dev or prod environment using `isViteDevServer`.\n- Updated type definitions in `types/vite-env.d.ts` to reflect new environment variables.",
-    "files": [
-      ".env-sample",
-      "src/react/utils/url.ts",
-      "types/vite-env.d.ts"
-    ]
   }
 ]
