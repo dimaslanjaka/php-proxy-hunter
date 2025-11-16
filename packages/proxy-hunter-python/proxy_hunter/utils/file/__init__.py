@@ -28,3 +28,4 @@ from .folder import (
 )
 from .permissions import fix_permissions
 from .writer import write_file, write_json
+from .path import realpath

@@ -45,6 +45,7 @@ from .utils import (
     file_move_lines,
     file_remove_empty_lines,
     find_substring_from_regex,
+    realpath,
     fix_permissions,
     flatten_and_clean,
     get_random_dict,

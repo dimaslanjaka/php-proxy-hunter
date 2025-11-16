@@ -30,6 +30,7 @@ from .file import (
     write_file,
     write_json,
     file_exists,
+    realpath,
 )
 from .md5 import md5
 from .index_utils import (
