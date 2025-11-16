@@ -1,5 +1,17 @@
 [
   {
+    "hash": "951f59eebc7f3cc6141d58e24af2f251c9dd4174",
+    "date": "2025-11-16T13:37:20+07:00",
+    "message": "feat(utils,curl): add realpath helper and enhance DebugSession logging\n\n- add file/path.py with realpath(path) -> Optional[str] and export it from utils.file and utils\n- enhance curl/DebugSession:\n  - add ZoneInfo (Asia/Jakarta) with fallback timezone\n  - prefix logs with RFC3339 timestamps\n  - add _write_output to print and persist logs via proxy_hunter.utils.file.writer.write_file\n  - cache DebugSession instances by normalized output_file to reuse sessions\n  - update example usage to demonstrate file+stdout logging\n- update utils exports to include realpath\n- tidy imports related to the above changes",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/curl/DebugSession.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/path.py"
+    ]
+  },
+  {
     "hash": "c8d5d8e906b1d1449b463f7e6664019353c5626d",
     "date": "2025-11-15T23:51:59+07:00",
     "message": "feat(proxy-checker): implement ProxyChecker UI",
@@ -8744,12 +8756,6 @@
     "hash": "cb42146a5db52815296532b9aed5cffb4a7833c6",
     "date": "2025-08-15T02:45:46+07:00",
     "message": "Merge branch 'master' into dependabot/composer/phpunit/phpunit-tw-9.6or-tw-12.0",
-    "files": []
-  },
-  {
-    "hash": "379299742ff387649f5f1452b103d122c03d69f9",
-    "date": "2025-08-15T02:44:16+07:00",
-    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
     "files": []
   }
 ]
