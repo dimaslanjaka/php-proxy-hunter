@@ -761,15 +761,6 @@ function setConfig($user_id, $data): array {
 }
 
 /**
- * Check if output buffering is active.
- *
- * @return bool Returns true if output buffering is active, false otherwise.
- */
-function is_output_buffering_active() {
-  return ob_get_length() !== false;
-}
-
-/**
  * Merges two shallow multidimensional arrays.
  *
  * This function merges two multidimensional arrays while preserving the structure.

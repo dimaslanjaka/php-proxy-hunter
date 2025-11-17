@@ -157,8 +157,8 @@ if (!$isCli) {
     while (!feof($process)) {
       $buffer = fgets($process);
       echo $buffer;
-      if (is_output_buffering_active()) {
-        // Flush the output buffer to ensure it is displayed immediately
+      if (ob_get_length() !== false) {
+        // Flush the output buffer to ensure it is displayed immediately when output buffering is enabled
         flush();
         ob_flush();
       }
@@ -171,8 +171,7 @@ if (!$isCli) {
   }
 }
 
-function checkIp($ip)
-{
+function checkIp($ip) {
   global $ports, $startTime, $maxExecutionTime, $db, $output_file;
   if (isValidIp($ip)) {
     foreach (array_unique($ports) as $port) {
@@ -205,8 +204,7 @@ function checkIp($ip)
 }
 
 // remove lock files on exit
-function exitProcess()
-{
+function exitProcess() {
   global $lock_files;
   foreach ($lock_files as $file) {
     delete_path($file);
