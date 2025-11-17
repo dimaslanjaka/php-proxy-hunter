@@ -85,7 +85,7 @@ export default function ProxySubmission() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     fetch(createUrl('/php_backend/proxy-add.php'), { method: 'POST', body: new URLSearchParams({ proxies: textarea }) })
-      .then((res) => res.json())
+      .then((res) => res.text())
       .then((data) => {
         console.log(data);
       })
