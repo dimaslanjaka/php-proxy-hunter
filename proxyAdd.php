@@ -34,14 +34,14 @@
 
 require_once __DIR__ . '/func-proxy.php';
 
+use PhpProxyHunter\Server;
+
+Server::allowCors(true);
+
 $isCli   = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
 $strings = '';
 
 if (!$isCli) {
-  // Allow from any origin
-  header('Access-Control-Allow-Origin: *');
-  header('Access-Control-Allow-Headers: *');
-  header('Access-Control-Allow-Methods: *');
   header('Content-Type: text/plain; charset=utf-8');
   // Check if the form was submitted
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {
