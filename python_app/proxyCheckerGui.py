@@ -88,6 +88,22 @@ class ProxyChecker(QWidget):
     # Proxy checker logic
     # --------------------
     def check_proxy(self, data: Proxy):
+        # Notify server
+        try:
+            build_request(
+                method="POST",
+                endpoint="https://sh.webmanajemen.com/php_backend/proxy-add.php",
+                post_data={"proxy": data.format()},
+                timeout=10,
+            )
+            build_request(
+                method="POST",
+                endpoint="https://sh.webmanajemen.com/php_backend/proxy-checker.php",
+                post_data={"proxy": data.format()},
+                timeout=10,
+            )
+        except:
+            pass
         db = ProxyDB(get_relative_path(".cache/database.sqlite"), True)
         try:
             proxy_types = ["http", "socks4", "socks5"]
