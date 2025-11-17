@@ -1,5 +1,13 @@
 [
   {
+    "hash": "c186c070c41dd39209cc3ec8f17b6753a9b2fdf7",
+    "date": "2025-11-17T11:14:09+07:00",
+    "message": "feat(proxy-check): notify server on proxy check",
+    "files": [
+      "python_app/proxyCheckerGui.py"
+    ]
+  },
+  {
     "hash": "9a669e1619b8f268b561d4286d3d077349e498f2",
     "date": "2025-11-17T10:57:30+07:00",
     "message": "feat(proxy-add): add robust locking, JSON errors and optional merge to proxies.txt\n\n- unify and refactor proxy add logic in `php_backend/proxy-add.php` and `proxyAdd.php`\n- return early with 400 + JSON when request body is empty\n- acquire `FileLockHelper` earlier and fail fast if lock can't be obtained\n- persist per-user `assets/proxies/added-<user>.txt`, append new proxies, then remove empty/duplicate lines\n- when `proxyChecker.lock` exists, also append new proxies into `proxies.txt` (merge/backup)\n- switch to consistent JSON responses and small code cleanup (shared include, clearer flow)",
@@ -8750,15 +8758,6 @@
     "hash": "ed8a8f555ce8441905a72104410d28ea4ee4967a",
     "date": "2025-08-15T03:13:55+07:00",
     "message": "fix(workflow): Standardize step names",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml"
-    ]
-  },
-  {
-    "hash": "b81d141fc4f6b78c54e3a6ba0229299f9ceebf40",
-    "date": "2025-08-15T03:11:34+07:00",
-    "message": "fix(workflow): Add cache-dependency-path for yarn",
     "files": [
       ".github/workflows/checker-php.yml",
       ".github/workflows/checker-python.yml"
