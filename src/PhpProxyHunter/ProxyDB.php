@@ -377,11 +377,40 @@ class ProxyDB {
     $this->update(trim($proxy), null, null, null, null, null, $latency);
   }
 
-  public function getWorkingProxies($limit = null) {
+  /**
+   * Get working proxies with optional randomization and pagination.
+   *
+   * Backwards-compatible: when only $limit is provided it behaves like before
+   * (providing a positive limit implies randomization unless $randomize is set).
+   *
+   * @param int|null $limit Legacy single-argument limit (kept for compatibility).
+   * @param bool|null $randomize When true, return results in random order. When false, sort by last_check DESC. If null (default), preserve previous behaviour where providing a positive $limit implied randomization.
+   * @param int|null $page 1-based page number for pagination. If provided together with $perPage, it overrides legacy $limit.
+   * @param int|null $perPage Number of items per page for pagination.
+   * @return array
+   */
+  public function getWorkingProxies($limit = null, $randomize = null, $page = null, $perPage = null) {
     $whereClause = 'status = ?';
     $params      = ['active'];
-    $orderBy     = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
-    $result      = $this->db->select('proxies', '*', $whereClause, $params, $orderBy, $limit);
+
+    // Determine ordering (random or last_check DESC)
+    if ($randomize === null) {
+      $orderBy = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
+    } else {
+      $orderBy = ($randomize === true) ? $this->getRandomFunction() : 'last_check DESC';
+    }
+
+    // Pagination (page/perPage) takes precedence over legacy $limit
+    $offset     = null;
+    $finalLimit = $limit;
+    if ($page !== null && $perPage !== null) {
+      $page       = max(1, (int)$page);
+      $perPage    = max(0, (int)$perPage);
+      $offset     = ($page - 1) * $perPage;
+      $finalLimit = $perPage;
+    }
+
+    $result = $this->db->select('proxies', '*', $whereClause, $params, $orderBy, $finalLimit, $offset);
     return $result ?: [];
   }
 

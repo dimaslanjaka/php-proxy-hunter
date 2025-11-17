@@ -93,7 +93,7 @@ function ProxyList() {
 
   // Helper to fetch and set proxies using component's setProxies
   const fetchAndSetProxies = async () => {
-    const result = await getWorkingProxies();
+    const result = await getWorkingProxies(page, rowsPerPage);
     if (Array.isArray(result)) {
       setProxies(result);
       workingProxiesCache = result;
@@ -106,50 +106,69 @@ function ProxyList() {
   };
 
   // Fetch working proxies (scoped inside component) to use refs/state easily
-  const getWorkingProxies = React.useCallback(async () => {
-    if (fetchingProxiesRef.current) return [];
-    fetchingProxiesRef.current = true;
-    // refresh working.json
-    await fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
-    let result: any = [];
-    try {
-      const res = await fetch(createUrl('/embed.php?file=working.json'), {
-        signal: AbortSignal.timeout(5000)
-      });
-      if (res.status === 403) {
+  const getWorkingProxies = React.useCallback(
+    async (pageArg?: number, perPageArg?: number) => {
+      if (fetchingProxiesRef.current) return [];
+      fetchingProxiesRef.current = true;
+
+      // refresh working JSON on the server (background)
+      // await fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
+
+      let result: any[] = [];
+      const usePage = pageArg ?? page;
+      const usePerPage = perPageArg ?? rowsPerPage;
+
+      try {
+        // Call the new paginated endpoint which returns { data: [...], meta: { ... } }
+        const params = new URLSearchParams();
+        // pass page and perPage for server-side pagination; randomize=false to sort by last_check DESC
+        params.set('page', String(usePage));
+        params.set('perPage', String(usePerPage));
+        params.set('randomize', 'false');
+        const url = createUrl(`/php_backend/proxy-working.php?${params.toString()}`);
+        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        if (res.status === 403) {
+          fetchingProxiesRef.current = false;
+          return [];
+        }
+        const json = await res.json();
+        if (!json || json.error) {
+          fetchingProxiesRef.current = false;
+          return [];
+        }
+        if (!Array.isArray(json.data)) {
+          fetchingProxiesRef.current = false;
+          return [];
+        }
+        result = json.data;
+        // optionally you could use json.meta for pagination UI if desired
+      } catch {
         fetchingProxiesRef.current = false;
         return [];
       }
-      result = await res.json();
-      if (result.error) {
-        fetchingProxiesRef.current = false;
-        return [];
-      }
-      if (!Array.isArray(result)) {
-        fetchingProxiesRef.current = false;
-        return [];
-      }
-    } catch {
+
       fetchingProxiesRef.current = false;
-      return [];
-    }
-    fetchingProxiesRef.current = false;
-    for (let i = 0; i < result.length; i++) {
-      const proxy = result[i];
-      if (proxy.https === 'true') {
-        proxy.type = proxy.type ? `${proxy.type}-SSL` : 'SSL';
+
+      for (let i = 0; i < result.length; i++) {
+        const proxy = result[i];
+        if (proxy.https === 'true') {
+          proxy.type = proxy.type ? `${proxy.type}-SSL` : 'SSL';
+        }
+        delete (proxy as Partial<ProxyDetails>).https;
+        result[i] = proxy;
       }
-      delete (proxy as Partial<ProxyDetails>).https;
-      result[i] = proxy;
-    }
-    // Sort by last_check (date string), most recent first
-    result.sort((a, b) => {
-      const dateA = a.last_check ? new Date(a.last_check).getTime() : 0;
-      const dateB = b.last_check ? new Date(b.last_check).getTime() : 0;
-      return dateB - dateA;
-    });
-    return result;
-  }, []);
+
+      // Sort by last_check (date string), most recent first
+      result.sort((a: any, b: any) => {
+        const dateA = a.last_check ? new Date(a.last_check).getTime() : 0;
+        const dateB = b.last_check ? new Date(b.last_check).getTime() : 0;
+        return dateB - dateA;
+      });
+
+      return result;
+    },
+    [page, rowsPerPage]
+  );
 
   // Get ProxyDetails keys for table, reordering specific columns to the end
   const proxyKeys = React.useMemo(() => {
