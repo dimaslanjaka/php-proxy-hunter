@@ -32,66 +32,69 @@
   Email: dimaslanjaka@gmail.com
 */
 
-require_once __DIR__ . '/func-proxy.php';
+require_once __DIR__ . '/php_backend/shared.php';
 
-use PhpProxyHunter\Server;
+use PhpProxyHunter\FileLockHelper;
 
-Server::allowCors(true);
+PhpProxyHunter\Server::allowCors(true);
 
-$isCli   = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
-$strings = '';
+header('Content-Type: application/json');
 
-if (!$isCli) {
-  header('Content-Type: text/plain; charset=utf-8');
-  // Check if the form was submitted
-  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['proxies'])) {
-      $strings = rawurldecode($_POST['proxies']);
-      if (isBase64Encoded($strings)) {
-        $strings = base64_decode($strings);
-      }
-    }
-  }
+$userId     = getUserId();
+$lock       = new FileLockHelper(tmp('locks/proxy-add-' . $userId . '.lock'));
+$projectDir = __DIR__;
+$filePath   = $projectDir . 'assets/proxies/added-' . $userId . '.txt';
+
+ensure_dir(dirname($filePath));
+
+$request = parseQueryOrPostBody();
+
+// No data provided → return early
+if (empty($request)) {
+  header('Content-Type: application/json', true, 400);
+  echo json_encode(['error' => true, 'message' => 'No data provided']);
+  exit;
 }
 
-$proxies = extractProxies($strings);
-$proxies = array_filter($proxies, function (\PhpProxyHunter\Proxy $item) {
-  if (empty($item->status)) {
-    return true;
-  }
-  if (empty($item->last_check)) {
-    return true;
-  }
-  return isDateRFC3339OlderThanHours($item->last_check, 5);
-});
-$proxies_txt_array = array_map(function (\PhpProxyHunter\Proxy $item) {
-  $raw_proxy = $item->proxy;
-  if (!empty($item->username) && !empty($item->password)) {
-    $raw_proxy .= '@' . $item->username . ':' . $item->password;
-  }
-  return $raw_proxy;
-}, $proxies);
-$proxies_txt = implode(PHP_EOL, $proxies_txt_array);
-
-$filePath = __DIR__ . '/proxies.txt';
-// write proxies into proxies.txt or proxies-backup.txt when checker still running
-if (file_exists(__DIR__ . '/proxyChecker.lock')) {
-  // lock exist, backup added proxies
-  if (!$isCli) {
-    $id = sanitizeFilename(\PhpProxyHunter\Server::useragent() . '-' . \PhpProxyHunter\Server::getRequestIP());
-  } else {
-    $id = 'CLI';
-  }
-  $output = __DIR__ . '/assets/proxies/added-' . $id . '.txt';
-  append_content_with_lock($output, PHP_EOL . $proxies_txt);
-  setMultiPermissions($output);
-} else {
-  append_content_with_lock(__DIR__ . '/proxies.txt', PHP_EOL . $proxies_txt);
+// Try lock
+if (!$lock->lock(LOCK_EX)) {
+  echo json_encode(['error' => true, 'message' => 'Another process is adding a proxy. Please try again later.']);
+  exit;
 }
 
-$count = count($proxies);
-if ($count > 0) {
-  echo $count . ' proxies added successfully.' . PHP_EOL;
-} else {
-  echo 'Proxy added successfully.' . PHP_EOL;
+// Lock acquired
+$json             = json_encode($request, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$extractedProxies = extractProxies($json);
+
+// No valid proxy
+if (count($extractedProxies) === 0) {
+  echo json_encode(['error' => true, 'message' => 'No valid proxy found in the provided data']);
+  $lock->release();
+  exit;
 }
+
+// Convert proxy objects to string
+$extractedProxiesAsString = array_map(function (\PhpProxyHunter\Proxy $item) {
+  return (string) $item;
+}, $extractedProxies);
+
+// append to file
+file_put_contents($filePath, implode(PHP_EOL, $extractedProxiesAsString) . PHP_EOL, FILE_APPEND | LOCK_EX);
+// remove empty lines
+removeEmptyLinesFromFile($filePath);
+// remove duplicate lines
+removeDuplicateLines($filePath);
+
+// If proxyChecker.lock exists, merge into proxies.txt
+$checkerLock = $projectDir . 'proxyChecker.lock';
+if (file_exists($checkerLock)) {
+  $newFilePath = $projectDir . '/proxies.txt';
+
+  file_put_contents($newFilePath, implode(PHP_EOL, $extractedProxiesAsString) . PHP_EOL, FILE_APPEND | LOCK_EX);
+  removeEmptyLinesFromFile($newFilePath);
+  removeDuplicateLines($newFilePath);
+}
+
+echo json_encode(['error' => false, 'message' => 'Proxy added successfully']);
+
+$lock->release();
