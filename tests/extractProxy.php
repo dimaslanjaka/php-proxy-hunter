@@ -37,10 +37,14 @@ $format = array_map(function (Proxy $item) {
   return $item->proxy;
 }, $extract);
 echo implode(PHP_EOL, $format);
+echo PHP_EOL . 'Total extracted proxies: ' . count($extract) . PHP_EOL;
+echo 'Transform class Proxy as JSON:' . PHP_EOL;
+echo $extract[0]->toJson(true, true) . PHP_EOL;
+echo 'Transform class Proxy as text:' . PHP_EOL;
+echo (string) $extract[0] . PHP_EOL;
 
 
-function get_ports()
-{
+function get_ports() {
   global $proxies;
   $ports = array_map(function ($proxy) {
     // Split the proxy string by ":" and get the port part

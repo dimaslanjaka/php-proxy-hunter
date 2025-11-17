@@ -162,4 +162,34 @@ class Proxy {
     }
     return json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
   }
+
+  /**
+   * Magic string conversion.
+   * Allows (string)$proxyObj and "class proxy: $proxyObj" to produce a useful string.
+   * We return a compact JSON of non-empty properties for readability.
+   *
+   * @return string
+   */
+  public function __toString() {
+    // Return in format: proxy@user:pass
+    // Omit parts that are empty: if no username, return just proxy; if no password, return proxy@user
+    $vars  = get_object_vars($this);
+    $proxy = isset($vars['proxy']) ? (string)$vars['proxy'] : '';
+    $user  = isset($vars['username']) && $vars['username'] !== null && $vars['username'] !== '' ? (string)$vars['username'] : null;
+    $pass  = isset($vars['password']) && $vars['password'] !== null && $vars['password'] !== '' ? (string)$vars['password'] : null;
+
+    if ($proxy === '' && $user === null && $pass === null) {
+      return '';
+    }
+
+    if ($user === null) {
+      return $proxy;
+    }
+
+    $out = $proxy . '@' . $user;
+    if ($pass !== null) {
+      $out .= ':' . $pass;
+    }
+    return $out;
+  }
 }
