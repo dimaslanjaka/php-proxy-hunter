@@ -34,6 +34,34 @@ $finder = Finder::create()
 // ---------------------------------------------
 $config = new Config();
 
+$cliArgs = $_SERVER['argv'] ?? [];
+
+// If the user passed explicit path arguments to the `php-cs-fixer fix` command
+// (for example: `php-cs-fixer fix path/to/file.php`), the CLI will override
+// the paths supplied by the configuration file and emit the warning:
+// "Paths from configuration file have been overridden by paths provided as
+// command arguments." To avoid that warning when the user intends to pass
+// paths, only set the Finder when no explicit (non-option) path arguments are
+// present.
+$hasPathArg = false;
+foreach ($cliArgs as $i => $arg) {
+  // Skip script and command name (indices 0 and 1)
+  if ($i < 2) {
+    continue;
+  }
+
+  // Treat any argument not starting with '-' as a path (options like --diff
+  // start with '-').
+  if (strpos($arg, '-') !== 0) {
+    $hasPathArg = true;
+    break;
+  }
+}
+
+if (!$hasPathArg) {
+  $config->setFinder($finder);
+}
+
 // ---------------------------------------------
 // Optional: enable parallel execution when available (PHP-CS-Fixer >= 3.25)
 // ---------------------------------------------
@@ -97,5 +125,4 @@ return $config->setRules([
   'indentation_type' => true,
   // Enforce single space around string concatenation operator
   'concat_space' => ['spacing' => 'one'],
-])
-->setFinder($finder);
+]);
