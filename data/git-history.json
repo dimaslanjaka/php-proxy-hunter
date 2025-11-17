@@ -1,5 +1,73 @@
 [
   {
+    "hash": "9a669e1619b8f268b561d4286d3d077349e498f2",
+    "date": "2025-11-17T10:57:30+07:00",
+    "message": "feat(proxy-add): add robust locking, JSON errors and optional merge to proxies.txt\n\n- unify and refactor proxy add logic in `php_backend/proxy-add.php` and `proxyAdd.php`\n- return early with 400 + JSON when request body is empty\n- acquire `FileLockHelper` earlier and fail fast if lock can't be obtained\n- persist per-user `assets/proxies/added-<user>.txt`, append new proxies, then remove empty/duplicate lines\n- when `proxyChecker.lock` exists, also append new proxies into `proxies.txt` (merge/backup)\n- switch to consistent JSON responses and small code cleanup (shared include, clearer flow)",
+    "files": [
+      "php_backend/proxy-add.php",
+      "proxyAdd.php"
+    ]
+  },
+  {
+    "hash": "919237cd057c74b9483d5adbdef260d3144df29a",
+    "date": "2025-11-17T10:46:12+07:00",
+    "message": "feat(proxy-add): add file locking, parse and normalize added proxies, return JSON responses\n\n- Add `FileLockHelper` usage and per-user lock file to prevent concurrent writes.\n- Return JSON responses and set `Content-Type: application/json` for API consistency.\n- Normalize incoming data by extracting valid proxies, converting `Proxy` objects to text\n  (using their string representation), appending them to per-user added file, and\n  cleaning the file by removing empty and duplicate lines.\n- Improve error handling: respond with informative JSON messages when no valid proxies\n  are found or when another process holds the lock.\n- Minor style/formatting: compact function declaration `function get_ports() {`.\n\nWhy:\n- Prevent race conditions when multiple requests add proxies simultaneously.\n- Ensure stored proxies are normalized and deduplicated.\n- Make API behavior clearer for clients with JSON responses.",
+    "files": [
+      "php_backend/proxy-add.php"
+    ]
+  },
+  {
+    "hash": "f04ba79181c1244b17e0b7768bb7b6c9ae970df2",
+    "date": "2025-11-17T10:42:28+07:00",
+    "message": "feat(proxy): add __toString to Proxy and enhance test output\n\n- Add magic __toString() to `src/PhpProxyHunter/Proxy.php` to return a compact\n  textual representation in the form `proxy@user:pass`. Omits empty username/\n  password parts (returns just `proxy` if username missing, empty string if all\n  fields empty).\n- Keep `toJson()` unchanged; __toString is safe and returns a string even on\n  failure.\n- Update `tests/extractProxy.php` to print additional debug/info output:\n  - Total extracted proxies count.\n  - Example JSON transformation via `toJson(true, true)`.\n  - Example text transformation via `(string) $extract[0]`.\n- Adjust function formatting in `tests/extractProxy.php` (`function get_ports() {`).\n\nWhy:\n- Improve developer ergonomics when casting `Proxy` objects to string or\n  concatenating them in logs/tests, and provide richer test output for manual\n  verification.\n\nNotes:\n- Behavior: (string)$proxy now yields one of:\n  - \"\" (if proxy, username, password all empty)\n  - \"proxy\" (if username missing)\n  - \"proxy@user\" (if password missing)\n  - \"proxy@user:pass\" (if both present)\n- No breaking changes to existing serialization (`toJson()`).",
+    "files": [
+      "src/PhpProxyHunter/Proxy.php",
+      "tests/extractProxy.php"
+    ]
+  },
+  {
+    "hash": "4ad55da1fec6b0f3da83e4136be282c3224bcbd1",
+    "date": "2025-11-17T10:32:58+07:00",
+    "message": "feat(proxyAdd): enable CORS support by using Server::allowCors method",
+    "files": [
+      "proxyAdd.php"
+    ]
+  },
+  {
+    "hash": "24d49c89d1c552b60e3fe9702573c4c1e22c6685",
+    "date": "2025-11-17T10:30:13+07:00",
+    "message": "feat(file-lock): add release() convenience method to FileLockHelper\n\nAdd a public `release(): void` method to `FileLockHelper` that delegates to\n`unlock()`. This provides a clearer, intention-revealing API for releasing\nlocks and improves readability for callers.",
+    "files": [
+      "src/PhpProxyHunter/FileLockHelper.php"
+    ]
+  },
+  {
+    "hash": "c4c64118d6b5f11f2908569056a50a5e259a1b22",
+    "date": "2025-11-17T10:28:52+07:00",
+    "message": "refactor(checkPorts): remove helper and use direct output buffering check\n\nRemove the `is_output_buffering_active()` helper from `func.php` and update\n`cidr-information/checkPorts.php` to call `ob_get_length() !== false`\ndirectly when deciding to flush output buffers. Also normalize function\nbrace formatting for `checkIp` and `exitProcess`.\n\nThis reduces indirection and slightly cleans up style without changing logic.",
+    "files": [
+      "cidr-information/checkPorts.php",
+      "func.php"
+    ]
+  },
+  {
+    "hash": "3a23a86b163ca03db7893152c15a87ac8086a164",
+    "date": "2025-11-17T10:26:23+07:00",
+    "message": "refactor(utils): move isDateRFC3339OlderThanHours from func.php to utils\n\nExtracted the isDateRFC3339OlderThanHours helper from `func.php` into a new\nutility file `src/PhpProxyHunter/utils/date_rfc_3339.php`.\n\nThis keeps core functions organized under `src/PhpProxyHunter/utils` and\nprepares the codebase for easier reuse and testing of date-related helpers.\n\nNo functional changes to the implementation were made.",
+    "files": [
+      "func.php",
+      "src/PhpProxyHunter/utils/date_rfc_3339.php"
+    ]
+  },
+  {
+    "hash": "481d2d6c510ede19488f27f2d4eae9eb4369964d",
+    "date": "2025-11-17T10:22:40+07:00",
+    "message": "fix(php-cs-fixer): avoid CLI-path override warning by setting Finder conditionally\n\nOnly set the PHP-CS-Fixer Finder from the configuration when no explicit\n(non-option) path arguments are provided on the command line. This prevents\nthe \"Paths from configuration file have been overridden by paths provided as\ncommand arguments.\" warning when running `php-cs-fixer fix <path>`.\n\n- detect non-option CLI args and skip $config->setFinder($finder) when present\n- keep existing rules and parallel-config guard unchanged",
+    "files": [
+      ".php-cs-fixer.dist.php"
+    ]
+  },
+  {
     "hash": "951f59eebc7f3cc6141d58e24af2f251c9dd4174",
     "date": "2025-11-16T13:37:20+07:00",
     "message": "feat(utils,curl): add realpath helper and enhance DebugSession logging\n\n- add file/path.py with realpath(path) -> Optional[str] and export it from utils.file and utils\n- enhance curl/DebugSession:\n  - add ZoneInfo (Asia/Jakarta) with fallback timezone\n  - prefix logs with RFC3339 timestamps\n  - add _write_output to print and persist logs via proxy_hunter.utils.file.writer.write_file\n  - cache DebugSession instances by normalized output_file to reuse sessions\n  - update example usage to demonstrate file+stdout logging\n- update utils exports to include realpath\n- tidy imports related to the above changes",
@@ -8695,67 +8763,5 @@
       ".github/workflows/checker-php.yml",
       ".github/workflows/checker-python.yml"
     ]
-  },
-  {
-    "hash": "b3e9a9f27e09dbb60385c4e67bb8855e8efc6862",
-    "date": "2025-08-15T03:08:10+07:00",
-    "message": "fix(workflow): Update Node.js version to 22.x and enable yarn caching",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml"
-    ]
-  },
-  {
-    "hash": "32ac6ae0815e987319e77412b2ad670277251d69",
-    "date": "2025-08-15T03:02:12+07:00",
-    "message": "fix(workflow): Update push paths",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml"
-    ]
-  },
-  {
-    "hash": "3e12a1bf51f212ef291f68ae253002c2c3a89875",
-    "date": "2025-08-15T02:59:57+07:00",
-    "message": "fix(workflow): Update cache paths to include subdirectories",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml"
-    ]
-  },
-  {
-    "hash": "cdefd22e41ef92d014349ef879da18c166afa7bd",
-    "date": "2025-08-15T02:54:23+07:00",
-    "message": "fix(task): Enhance yarn install command with error logging",
-    "files": [
-      "Taskfile.yml"
-    ]
-  },
-  {
-    "hash": "cf11dd59c217451f1acd86270f6d7b5f78a47d06",
-    "date": "2025-08-15T02:47:33+07:00",
-    "message": "fix(ci): Remove git lfs tracking for \"*.rar\" files in workflow configurations",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml"
-    ]
-  },
-  {
-    "hash": "51c56b9ccd9e4310615f142bf4634b4feae11a7a",
-    "date": "2025-08-15T02:46:55+07:00",
-    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
-    "files": []
-  },
-  {
-    "hash": "8f42c8c09976746c84e682affc6370148a870dbd",
-    "date": "2025-08-15T02:46:11+07:00",
-    "message": "Merge pull request #51 from dimaslanjaka/dependabot/composer/phpunit/phpunit-tw-9.6or-tw-12.0\n\nbuild(deps-dev): update phpunit/phpunit requirement from ^9.6 to ^9.6 || ^12.0",
-    "files": []
-  },
-  {
-    "hash": "cb42146a5db52815296532b9aed5cffb4a7833c6",
-    "date": "2025-08-15T02:45:46+07:00",
-    "message": "Merge branch 'master' into dependabot/composer/phpunit/phpunit-tw-9.6or-tw-12.0",
-    "files": []
   }
 ]
