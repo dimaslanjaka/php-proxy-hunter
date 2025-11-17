@@ -52,6 +52,15 @@ class FileLockHelper {
   }
 
   /**
+   * Release the lock.
+   *
+   * @return void
+   */
+  public function release(): void {
+    $this->unlock();
+  }
+
+  /**
    * Check if the lock file currently exists.
    *
    * @return bool
