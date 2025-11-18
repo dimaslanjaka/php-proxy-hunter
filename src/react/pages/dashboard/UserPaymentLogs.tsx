@@ -160,9 +160,25 @@ export default function UserPaymentLogs({ logs: initialLogs, maxItems = 50, clas
       {logs
         .filter((e) => e.package_buy || e.payment)
         .slice(0, maxItems)
+        .filter((entry) => {
+          const pkg = entry.package_buy;
+          const pay = entry.payment;
+          const package_type = pkg?.action_type.toUpperCase();
+          const payment_type = pay?.action_type.toUpperCase();
+          if (payment_type === 'PAYMENT') {
+            return true;
+          }
+          if (package_type === 'PACKAGE_BUY') {
+            return true;
+          }
+          return false;
+        })
         .map((entry, i) => {
           const pkg = entry.package_buy;
           const pay = entry.payment;
+          // const package_type = pkg?.action_type;
+          // const payment_type = pay?.action_type;
+          // console.log({ package_type, payment_type });
           // compute transaction status from payment or package buy details
           function getTxStatus(): string | null {
             const d = pay?.details ?? pkg?.details ?? pay ?? pkg ?? null;
