@@ -1,5 +1,29 @@
 [
   {
+    "hash": "233a66385b9171d0098167f80557b54260677b62",
+    "date": "2025-11-19T06:56:31+07:00",
+    "message": "feat(matcher): add case-insensitive string equality check function",
+    "files": [
+      "src/utils/string/matcher.ts"
+    ]
+  },
+  {
+    "hash": "02f66e653b4429597bbac6ff9a05e731696e3f2c",
+    "date": "2025-11-19T06:56:05+07:00",
+    "message": "feat(server): add unified response helpers for JSON, text, and HTML outputs\n\nIntroduced respond.php with utility functions:\n- respond_json() for JSON responses with proper headers\n- respond_text() for plain text responses\n- respond_html() for HTML responses\n\nEach function ensures correct Content-Type handling and terminates execution after output.",
+    "files": [
+      "src/utils/server/respond.php"
+    ]
+  },
+  {
+    "hash": "d86dd037363c5245cfef72af2fbe8188a4194c47",
+    "date": "2025-11-19T06:55:06+07:00",
+    "message": "feat(user-payment-logs): add explicit filtering logic for package and payment action types\n\nAdded a secondary filter to ensure only entries with valid `action_type` values are displayed.\nNow allows:\n- `payment.action_type === 'PAYMENT'`\n- `package_buy.action_type === 'PACKAGE_BUY'`\n\nAlso included commented debug variables for future inspection.",
+    "files": [
+      "src/react/pages/dashboard/UserPaymentLogs.tsx"
+    ]
+  },
+  {
     "hash": "232cb122b7b7d2fccecba124c4a6b2684fe02e6c",
     "date": "2025-11-19T05:25:20+07:00",
     "message": "fix(FileLockHelper): change filePath visibility to public and improve lock acquisition message",
@@ -8741,32 +8765,6 @@
     "message": "fix(settings): add source map resolution options for vite debugging",
     "files": [
       ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "4ed2e8ce70a74f1f7553299da5a569853a57e7bb",
-    "date": "2025-08-15T05:36:38+07:00",
-    "message": "ci(github-pages): add scheduled workflow to run every 6 hours\n\nAdded a cron schedule trigger to the GitHub Pages workflow for automatic deployment every 6 hours.",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "aaca32dc15e4df11747e90ff516b9b562d050b9a",
-    "date": "2025-08-15T05:34:43+07:00",
-    "message": "fix(workflows): remove architecture specification from Python setup in CI workflows",
-    "files": [
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/nuitka-debug.yml.txt",
-      ".github/workflows/nuitka.yml.txt"
-    ]
-  },
-  {
-    "hash": "204295f4d17342bc408586bdd83126e64c64d784",
-    "date": "2025-08-15T05:33:46+07:00",
-    "message": "fix(workflows): comment out submodule update steps in clean-caches.yml",
-    "files": [
-      ".github/workflows/clean-caches.yml"
     ]
   }
 ]
