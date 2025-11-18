@@ -1,5 +1,23 @@
 [
   {
+    "hash": "d5c8288532cc8936ce41be903ef4caa96bc110da",
+    "date": "2025-11-18T18:27:43+07:00",
+    "message": "fix(proxy-checker): use project tmp, ensure output dir and fix Windows runner\n\n- use `tmp()` for runner/pid paths (avoid `__DIR__/tmp`)\n- ensure output directory exists before redirecting (`ensure_dir(dirname($output_file))`)\n- write platform-specific runner command (use `start \"\" /B` on Windows, background+`echo $!` on Unix)\n- normalize runner identifier to `proxy-checker` for `runBashOrBatch`\n- prefer `venv/Scripts/activate.bat` on Windows in `runBashOrBatch` to correctly locate venv activation",
+    "files": [
+      "php_backend/proxy-checker.php",
+      "src/utils/process/runBashOrBatch.php"
+    ]
+  },
+  {
+    "hash": "920dbee0be87b6572617c0c9b616f0fa581aae53",
+    "date": "2025-11-18T17:59:49+07:00",
+    "message": "fix(proxy): limit large proxy result sets to prevent memory exhaustion\n\nLimit the number of rows fetched from the proxies table to avoid loading\nvery large result sets into PHP memory. Use a conservative sample size:\n- `getUntestedProxies(1000)` in `php_backend/proxy-checker.php`\n- `getWorkingProxies(5000)` in `func-proxy.php`\n\nThis prevents \"Allowed memory size exhausted\" errors on large databases\nwhile remaining a low-risk, backward-compatible change. Sizes are tunable\nif different sampling is desired.",
+    "files": [
+      "func-proxy.php",
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "8e94716d160921d996b6cfde7d83acf958a0d75d",
     "date": "2025-11-18T07:46:42+07:00",
     "message": "fix(proxy-list): conditionally start background checker based on processes.php output\n\n- Replace unconditional `processes.php` fetch with a text response check.\n- Only call `artisan/proxyCheckerStarter.php` when the response indicates \"no running\".\n- Preserve the 5-minute throttle using `lastProxyCheckStart` in localStorage.\n- Add error handling via `.catch(noop)` to keep behavior resilient.\n\nThis prevents unnecessary starter calls when the background checker is already running.",
@@ -8747,23 +8765,6 @@
     "message": "fix(readme): Add note about restarting installation steps and update package list command",
     "files": [
       "readme-php.md"
-    ]
-  },
-  {
-    "hash": "dfdd345a0b77a236781d03160541bbc1d9b4da0a",
-    "date": "2025-08-15T04:43:00+07:00",
-    "message": "fix(scripts): Replace submodule-update script with npx binary-collections submodule-install",
-    "files": [
-      "fix-django.sh",
-      "fix-nginx-perm.sh"
-    ]
-  },
-  {
-    "hash": "6b9a7761589652ffa8d09148cad6604d6c679ab2",
-    "date": "2025-08-15T04:37:37+07:00",
-    "message": "fix(composer): Add missing comma in require-dev section for phpunit",
-    "files": [
-      "composer.json"
     ]
   }
 ]
