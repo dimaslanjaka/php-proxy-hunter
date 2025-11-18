@@ -184,22 +184,31 @@ if (!$isCli) {
       $cmdParts[] = '--password=' . escapeshellarg($proxyInfo['password']);
     }
     $cmdParts[] = '--lockFile=' . escapeshellarg($lockFilePath);
-    $runner     = __DIR__ . '/tmp/runners/proxyChecker-' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
+    $runner     = tmp() . '/runners/proxy-checker-' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
     $cmdParts[] = '--runner=' . escapeshellarg($runner);
 
     $output_file = getLogFile();
-    $cmdParts[]  = '--outputFile=' . escapeshellarg($output_file);
-    $pid_file    = tmp() . '/runners/proxy-checker-' . sanitizeFilename($proxyInfo['proxy']) . '.pid';
+    ensure_dir(dirname($output_file));
+    $cmdParts[] = '--outputFile=' . escapeshellarg($output_file);
+    $pid_file   = tmp() . '/runners/proxy-checker-' . sanitizeFilename($proxyInfo['proxy']) . '.pid';
     ensure_dir(dirname($pid_file));
 
     $cmd = implode(' ', $cmdParts);
-    // run in background, record pid
-    $cmdLine = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
-    $isWin   = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-    $runner  = __DIR__ . '/tmp/runners/proxyChecker-' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
+    // run in background, record pid (platform-specific)
+    $isWin  = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    $runner = tmp() . '/runners/proxy-checker-' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
+
+    if ($isWin) {
+      // Windows: use start to run in background; not all environments can capture PID reliably
+      // use start /B to run without new window and redirect output to file
+      $cmdLine = sprintf('start "" /B %s > %s 2>&1', $cmd, escapeshellarg($output_file));
+    } else {
+      // Unix-like: run in background and record PID
+      $cmdLine = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
+    }
 
     write_file($runner, $cmdLine);
-    $run            = runBashOrBatch($runner, [], 'proxyChecker', true);
+    $run            = runBashOrBatch($runner, [], 'proxy-checker', true);
     $run['message'] = json_decode($run['message'], true);
 
     // Build embed URLs for log and status files

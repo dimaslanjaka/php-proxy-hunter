@@ -116,8 +116,14 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   }
 
   // Construct command
-  $venvPath = !$isWin ? $cwd . '/venv/bin/activate' : $cwd . '/venv/Scripts/activate';
-  $venv     = realpath($venvPath);
+  // Prefer activate.bat on Windows; fall back to activate if not present
+  if ($isWin) {
+    $venvPathBat = $cwd . '/venv/Scripts/activate.bat';
+    $venvPath    = file_exists($venvPathBat) ? $venvPathBat : $cwd . '/venv/Scripts/activate';
+  } else {
+    $venvPath = $cwd . '/venv/bin/activate';
+  }
+  $venv = realpath($venvPath);
 
   $cmdParts = [];
   if ($venv) {
