@@ -302,8 +302,9 @@ if (!$isCli) {
 
   // validate input before calling getPublicIP
   if (empty($proxyInfo['proxy']) && empty($proxyInfo['type'])) {
-    // Get random proxy from database
-    $allProxies = $proxy_db->getUntestedProxies();
+    // Get random proxy from database (limit to avoid loading entire DB into memory)
+    // Default to a reasonable sample size so the process doesn't exhaust PHP memory on large DBs.
+    $allProxies = $proxy_db->getUntestedProxies(1000);
     if (empty($allProxies)) {
       $status = 'No untested proxies available in the database.';
       write_file($statusFile, $status . PHP_EOL);

@@ -450,8 +450,10 @@ function clean_proxies_file($file) {
  * @return array
  */
 function parse_working_proxies($db) {
-  // Retrieve working proxies from the provided ProxyDB object
-  $working = $db->getWorkingProxies();
+  // Retrieve working proxies from the provided ProxyDB object.
+  // Limit the number of proxies fetched to avoid exhausting PHP memory on very large databases.
+  // Caller can change the number by modifying this value if necessary.
+  $working = $db->getWorkingProxies(5000);
 
   // Sort working proxies by the newest last_check column
   usort($working, function ($a, $b) {
