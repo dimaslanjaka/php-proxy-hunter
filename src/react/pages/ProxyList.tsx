@@ -290,14 +290,20 @@ function ProxyList() {
       }
     })();
     // fetch processes.php
-    fetch(createUrl('/php_backend/processes.php')).catch(noop);
-    // fetch artisan/proxyCheckerStarter.php to start background checks every 5 minutes
-    const lastCheck = localStorage.getItem('lastProxyCheckStart') || '0';
-    const now = Date.now();
-    if (now - parseInt(lastCheck, 10) > 5 * 60 * 1000) {
-      // fetch(createUrl('/artisan/proxyCheckerStarter.php')).catch(noop);
-      localStorage.setItem('lastProxyCheckStart', now.toString());
-    }
+    fetch(createUrl('/php_backend/processes.php'))
+      .then((res) => res.text())
+      .then((text) => {
+        if (/no running/i.test(text)) {
+          // fetch artisan/proxyCheckerStarter.php to start background checks every 5 minutes
+          const lastCheck = localStorage.getItem('lastProxyCheckStart') || '0';
+          const now = Date.now();
+          if (now - parseInt(lastCheck, 10) > 5 * 60 * 1000) {
+            fetch(createUrl('/artisan/proxyCheckerStarter.php')).catch(noop);
+            localStorage.setItem('lastProxyCheckStart', now.toString());
+          }
+        }
+      })
+      .catch(noop);
 
     return () => {
       isMountedRef.current = false;
