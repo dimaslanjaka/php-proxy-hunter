@@ -1,5 +1,13 @@
 [
   {
+    "hash": "232cb122b7b7d2fccecba124c4a6b2684fe02e6c",
+    "date": "2025-11-19T05:25:20+07:00",
+    "message": "fix(FileLockHelper): change filePath visibility to public and improve lock acquisition message",
+    "files": [
+      "src/PhpProxyHunter/FileLockHelper.php"
+    ]
+  },
+  {
     "hash": "fe2a1f47a283bc4c10f9920176507ea29bf9f978",
     "date": "2025-11-18T20:29:57+07:00",
     "message": "refactor(file): extract path and mkdir helpers; make ensure_dir variadic and add ensure_dirs\n\n- move `unixPath` into `src/utils/file/path.php`\n- move `ensure_dir` and new `ensure_dirs` helpers into `src/utils/file/mkdir.php`\n- remove the duplicated helper implementations from `src/utils/file/index.php`\n- `ensure_dir` now accepts variadic path segments, normalizes/join paths, preserves absolute roots,\n  creates directories recursively and returns the created path or false\n- `ensure_dirs` provides bulk creation, accepting strings or arrays of segments and returning an indexed map of results\n\nThis reorganizes utility functions for clearer separation of concerns and adds improved path handling and multi-directory creation.",
@@ -8759,14 +8767,6 @@
     "message": "fix(workflows): comment out submodule update steps in clean-caches.yml",
     "files": [
       ".github/workflows/clean-caches.yml"
-    ]
-  },
-  {
-    "hash": "094dcc0e4ddcff407be249e300bd1e9ae270a30a",
-    "date": "2025-08-15T05:32:15+07:00",
-    "message": "refactor(workflows): rename clean.yml to clean-logs.yml and add concurrency control\n\n- Renamed workflow file from `.github/workflows/clean.yml` to `.github/workflows/clean-logs.yml` for clarity.\n- Added `concurrency` group to prevent overlapping workflow runs.",
-    "files": [
-      ".github/workflows/clean-logs.yml"
     ]
   }
 ]
