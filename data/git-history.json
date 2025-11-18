@@ -1,5 +1,40 @@
 [
   {
+    "hash": "8e94716d160921d996b6cfde7d83acf958a0d75d",
+    "date": "2025-11-18T07:46:42+07:00",
+    "message": "fix(proxy-list): conditionally start background checker based on processes.php output\n\n- Replace unconditional `processes.php` fetch with a text response check.\n- Only call `artisan/proxyCheckerStarter.php` when the response indicates \"no running\".\n- Preserve the 5-minute throttle using `lastProxyCheckStart` in localStorage.\n- Add error handling via `.catch(noop)` to keep behavior resilient.\n\nThis prevents unnecessary starter calls when the background checker is already running.",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "f4e786261b65135a2f71760ec4c98bfd418f9ca4",
+    "date": "2025-11-18T07:43:34+07:00",
+    "message": "feat(proxy-list): switch to server-side pagination and return meta from getWorkingProxies\n\n- Add serverTotal and serverTotalPages state to track server-side totals.\n- Update fetchAndSetProxies to accept (page, per) and consume `{ data, meta }` from the backend; persist only the data in localStorage.\n- Change getWorkingProxies signature to return `{ data: any[], meta: any | null }` and handle page/perPage, meta, and 403/error cases.\n- Use server-provided totalPages for pagination (totalPages = serverTotalPages) and display serverTotal in the UI.\n- Replace client-side slice pagination with server-driven paging and add an effect to refetch when page or rowsPerPage change.\n- Refactor pagination UI into a responsive three-column layout: total (left), page controls (center), rows-per-page (right).\n\nNotes:\n- Preserves previous sorting (last_check desc) when randomize is false; prepared to accept backend `meta.total` and `meta.totalPages`.\n- Local caching now stores only the `data` array to avoid storing meta alongside results.",
+    "files": [
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "4fcd273e95a8cb4fd2781918372fb2f2a45bd9ae",
+    "date": "2025-11-17T22:46:00+07:00",
+    "message": "feat(proxy): add paginated proxy-working API and client parsing\n\n- Add `php_backend/proxy-working.php` endpoint that returns `{ data, meta }`\n  and supports pagination (page, perPage/limit), randomize flag, and safe\n  defaults/caps (DEFAULT_PER_PAGE=100, MAX_PER_PAGE=1000).\n- Extend `ProxyDB::getWorkingProxies()` to accept `randomize`, `page`, `perPage`\n  and to order by `last_check DESC` when `randomize=false`; preserves legacy\n  single-argument `$limit` behavior for backward compatibility.\n- Update React `ProxyList` to call `/php_backend/proxy-working.php` with\n  page/perPage/randomize parameters, parse the `{data,meta}` response, and\n  retain existing client-side transformations and caching.\n\nNotes: server enforces per-page caps and safe defaults to prevent large payloads.",
+    "files": [
+      "packages/proxy-checker-python",
+      "php_backend/proxy-working.php",
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/react/pages/ProxyList.tsx"
+    ]
+  },
+  {
+    "hash": "76bded297e4783fd8d5f72e3d5eb0c00ca4447dc",
+    "date": "2025-11-17T22:43:23+07:00",
+    "message": "feat(proxy-add): change response handling to process text instead of JSON",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
     "hash": "c186c070c41dd39209cc3ec8f17b6753a9b2fdf7",
     "date": "2025-11-17T11:14:09+07:00",
     "message": "feat(proxy-check): notify server on proxy check",
@@ -8729,38 +8764,6 @@
     "message": "fix(composer): Add missing comma in require-dev section for phpunit",
     "files": [
       "composer.json"
-    ]
-  },
-  {
-    "hash": "924ea846e7efc6d0b6fe08e8e9ef18fa1ba113cf",
-    "date": "2025-08-15T04:08:28+07:00",
-    "message": "refactor(bin): use default require for fs/path, replace forEach with for loops, improve error logging\n\n- Switched to default require style for child_process, fs, and path modules.\n- Replaced forEach with for loops for better control and clarity.\n- Updated error logging to include error messages for chmod, script execution, and .husky/hash.txt handling.\n- Used path.join for fix-perm script execution.",
-    "files": [
-      "bin/git-pull.cjs"
-    ]
-  },
-  {
-    "hash": "2a50634233b9fb6d0f76989a5f68f23c6fc75cc2",
-    "date": "2025-08-15T03:56:40+07:00",
-    "message": "fix(script): Add user existence check for www-data before proceeding",
-    "files": [
-      "fix-django.sh",
-      "fix-nginx-perm.sh"
-    ]
-  },
-  {
-    "hash": "e78d1fab426871fa1aef38bb0c0779ffed49d14a",
-    "date": "2025-08-15T03:49:21+07:00",
-    "message": "fix(workflow): Simplify yarn operations and remove rollup step",
-    "files": []
-  },
-  {
-    "hash": "ed8a8f555ce8441905a72104410d28ea4ee4967a",
-    "date": "2025-08-15T03:13:55+07:00",
-    "message": "fix(workflow): Standardize step names",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml"
     ]
   }
 ]
