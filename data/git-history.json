@@ -1,5 +1,23 @@
 [
   {
+    "hash": "fe2a1f47a283bc4c10f9920176507ea29bf9f978",
+    "date": "2025-11-18T20:29:57+07:00",
+    "message": "refactor(file): extract path and mkdir helpers; make ensure_dir variadic and add ensure_dirs\n\n- move `unixPath` into `src/utils/file/path.php`\n- move `ensure_dir` and new `ensure_dirs` helpers into `src/utils/file/mkdir.php`\n- remove the duplicated helper implementations from `src/utils/file/index.php`\n- `ensure_dir` now accepts variadic path segments, normalizes/join paths, preserves absolute roots,\n  creates directories recursively and returns the created path or false\n- `ensure_dirs` provides bulk creation, accepting strings or arrays of segments and returning an indexed map of results\n\nThis reorganizes utility functions for clearer separation of concerns and adds improved path handling and multi-directory creation.",
+    "files": [
+      "src/utils/file/index.php",
+      "src/utils/file/mkdir.php",
+      "src/utils/file/path.php"
+    ]
+  },
+  {
+    "hash": "89967fe2e4d938ac584054a22026533930963393",
+    "date": "2025-11-18T20:27:51+07:00",
+    "message": "feat(file): make ensure_dir accept variadic path segments and add ensure_dirs helper\n\n- update `ensure_dir` to accept variadic segments (`...$segments`), normalize and join\n  path segments, collapse duplicate separators, handle Windows/Unix roots, create the\n  directory recursively, and return the resulting path or false on failure.\n- add new `ensure_dirs(...$dirs)` helper to create multiple directories in one call.\n  Each argument may be a string path or an array of segments; returns an indexed map\n  of results (created path or false).\n\nThis improves path handling and convenience for creating one or many directories.",
+    "files": [
+      "src/utils/file/index.php"
+    ]
+  },
+  {
     "hash": "d5c8288532cc8936ce41be903ef4caa96bc110da",
     "date": "2025-11-18T18:27:43+07:00",
     "message": "fix(proxy-checker): use project tmp, ensure output dir and fix Windows runner\n\n- use `tmp()` for runner/pid paths (avoid `__DIR__/tmp`)\n- ensure output directory exists before redirecting (`ensure_dir(dirname($output_file))`)\n- write platform-specific runner command (use `start \"\" /B` on Windows, background+`echo $!` on Unix)\n- normalize runner identifier to `proxy-checker` for `runBashOrBatch`\n- prefer `venv/Scripts/activate.bat` on Windows in `runBashOrBatch` to correctly locate venv activation",
@@ -8749,22 +8767,6 @@
     "message": "refactor(workflows): rename clean.yml to clean-logs.yml and add concurrency control\n\n- Renamed workflow file from `.github/workflows/clean.yml` to `.github/workflows/clean-logs.yml` for clarity.\n- Added `concurrency` group to prevent overlapping workflow runs.",
     "files": [
       ".github/workflows/clean-logs.yml"
-    ]
-  },
-  {
-    "hash": "543bdf1c35324577e3673954fb04f1bc8cde8862",
-    "date": "2025-08-15T05:28:05+07:00",
-    "message": "fix(readme): Add NVM for Windows installation instructions and update library installation command",
-    "files": [
-      "readme-nodejs.md"
-    ]
-  },
-  {
-    "hash": "dfd4899f08489b89aeec6a5d2e78162bb552eb5d",
-    "date": "2025-08-15T05:12:48+07:00",
-    "message": "fix(readme): Add note about restarting installation steps and update package list command",
-    "files": [
-      "readme-php.md"
     ]
   }
 ]
