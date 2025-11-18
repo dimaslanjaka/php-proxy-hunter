@@ -3,7 +3,7 @@
 namespace PhpProxyHunter;
 
 class FileLockHelper {
-  private string $filePath;
+  public string $filePath;
   private $handle;
   private int $lockType;
 
@@ -111,7 +111,7 @@ if (php_sapi_name() === 'cli' && realpath(__FILE__) === realpath($_SERVER['argv'
   $lock     = new FileLockHelper($lockFile);
 
   if ($lock->lock(LOCK_EX)) {
-    echo "Lock acquired. Starting work...\n";
+    echo "Lock acquired {$lock->filePath}. Starting work...\n";
 
     // Simulate work loop with periodic output
     for ($i = 1; $i <= 5; $i++) {
