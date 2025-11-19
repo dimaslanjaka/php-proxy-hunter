@@ -10,7 +10,7 @@ import Changelog from './pages/Changelog.tsx';
 import Admin from './pages/Admin.tsx';
 import Logout from './pages/Logout.tsx';
 import routesMeta from './routes.json' assert { type: 'json' };
-import ProxyList from './pages/ProxyList.tsx';
+import ProxyList from './pages/ProxyList/index.tsx';
 
 // Compose the routes array by merging metadata with components
 const routes = routesMeta.map((meta) => {

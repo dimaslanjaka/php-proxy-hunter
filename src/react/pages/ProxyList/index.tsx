@@ -1,18 +1,18 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { ProxyDetails } from '../../../types/proxy';
-import { add_ajax_schedule, run_ajax_schedule } from '../../utils/ajaxScheduler';
-import { timeAgo } from '../../utils/date.js';
-import { noop } from '../../utils/other';
-import { useSnackbar } from '../components/Snackbar';
-import { createUrl } from '../utils/url';
-import { verifyRecaptcha, checkRecaptchaSessionExpired } from '../utils/recaptcha';
-import { getUserInfo } from '../utils/user';
-import ApiUsage from './ProxyList/ApiUsage';
-import LogViewer from './ProxyList/LogViewer';
-import ModifyCurl from './ProxyList/ModifyCurl';
-import ProxySubmission from './ProxyList/ProxySubmission';
+import { ProxyDetails } from '../../../../types/proxy';
+import { add_ajax_schedule, run_ajax_schedule } from '../../../utils/ajaxScheduler';
+import { timeAgo } from '../../../utils/date.js';
+import { noop } from '../../../utils/other';
+import { useSnackbar } from '../../components/Snackbar';
+import { createUrl } from '../../utils/url';
+import { verifyRecaptcha, checkRecaptchaSessionExpired } from '../../utils/recaptcha';
+import { getUserInfo } from '../../utils/user';
+import ApiUsage from './ApiUsage';
+import LogViewer from './LogViewer';
+import ModifyCurl from './ModifyCurl';
+import ProxySubmission from './ProxySubmission';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
