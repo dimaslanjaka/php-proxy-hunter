@@ -1,5 +1,39 @@
 [
   {
+    "hash": "2a4acfeea24448881e7da6aca06074044ab61520",
+    "date": "2025-11-19T08:07:11+07:00",
+    "message": "feat(recaptcha): check session expiry before executing recaptcha\n\n- Import `checkRecaptchaSessionExpired` and use it to verify whether the\n  recaptcha session has expired before calling `recaptchaRef.current?.executeAsync()`.\n- Prevent unnecessary recaptcha executions by only calling `verifyRecaptcha`\n  when the session is expired.\n\nThis reduces redundant recaptcha calls and centralizes session-expiry logic.",
+    "files": [
+      "src/react/index.tsx"
+    ]
+  },
+  {
+    "hash": "225ed33432c3a4d74fd85c5a17f6028cbbd22984",
+    "date": "2025-11-19T08:06:11+07:00",
+    "message": "fix(security): strictly validate captcha and block unauthorized access\n\n- Treat a false captcha session as unresolved in `embed.php` by changing the check\n  from `empty($_SESSION['captcha'])` to `empty($_SESSION['captcha']) || !$_SESSION['captcha']`.\n- Add an early server-side guard in `php_backend/proxy-working.php` that returns\n  a JSON error (\"Access denied\") when the captcha session is missing or falsy.\n\nThis prevents access bypass when `$_SESSION['captcha']` is present but false\nand enforces captcha validation for proxy-related endpoints.",
+    "files": [
+      "embed.php",
+      "php_backend/proxy-working.php"
+    ]
+  },
+  {
+    "hash": "b91d2de3358523a9819f241ddf36dc3861b0db05",
+    "date": "2025-11-19T08:00:43+07:00",
+    "message": "fix(router): use useLocation for SPA titles & analytics\n\nMove BrowserRouter to root so React Router hooks run inside a Router.\nImport and use useLocation in MainApp and make the pageview/title effect\ndepend on location.pathname. Support routes with array paths when resolving\ntitles, send GA pageviews with the SPA path, and simplify reCAPTCHA\ninvocation to call verifyRecaptcha directly. Remove the redundant hardcoded\n`document.title` in `src/react/pages/Login.tsx`.",
+    "files": [
+      "src/react/index.tsx",
+      "src/react/pages/Login.tsx"
+    ]
+  },
+  {
+    "hash": "4e3e9127028498f10f720f27b1a8856c3da0d2f8",
+    "date": "2025-11-19T07:52:48+07:00",
+    "message": "fix(recaptcha): make token parameter optional in verifyRecaptcha function",
+    "files": [
+      "src/react/utils/recaptcha.ts"
+    ]
+  },
+  {
     "hash": "34c850a41a21d0029d4d314bbd2966e69e15a773",
     "date": "2025-11-19T07:07:51+07:00",
     "message": "style(ui): add dark-mode shadows (dark:shadow-white) to components\n\nAdd `dark:shadow-white` alongside existing Tailwind `shadow*` utilities so UI shadows remain visible in dark mode.\nThis is a cosmetic styling change only — no runtime or API behavior modified.\n\nNotes:\n- Purpose: improve shadow contrast in dark theme for better visual clarity.\n- Verification: run the dev server and visually inspect key pages in dark mode.",
@@ -8744,42 +8778,6 @@
       "package.json",
       "tailwind.build.js",
       "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "3205937c9e1b6b00ef6c207b3fcf54b356aeb767",
-    "date": "2025-08-15T06:50:46+07:00",
-    "message": "fix(vite): wrap git commit hash in quotes for proper string definition",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "cae9b09753c5ff0b8a209f354f6dc96482034dd7",
-    "date": "2025-08-15T06:47:42+07:00",
-    "message": "feat(utils): allow dynamic backend hostname injection in createUrl and add tests\n\n- Refactor `createUrl` to accept optional `opts` parameter for backendDev and backendProd hostnames, enabling dynamic injection for testability.\n- Update JSDoc for `createUrl` to document new options and behavior.\n- Fallback to Vite env variables if options are not provided.\n- Add comprehensive Vitest test suite for `createUrl` covering:\n  - index.html appending for directory paths\n  - origin usage for non-PHP paths\n  - query parameter appending\n  - viteBaseUrl handling\n  - backend hostname selection for PHP files, with injected values for dev/prod",
-    "files": [
-      "src/react/utils/url.ts",
-      "tests/react/utils/url.vitest.ts"
-    ]
-  },
-  {
-    "hash": "a2d2cb7dd9c8a323b2c4124ca02059944f35c599",
-    "date": "2025-08-15T06:45:51+07:00",
-    "message": "test(vitest): integrate Vitest for unit testing\n\n- add `vitest` dependency to package.json\n- create `vitest.config.ts` reusing Vite configuration\n- configure test environment with jsdom and global support\n- simplify vite.config.js export for compatibility",
-    "files": [
-      "package.json",
-      "vite.config.js",
-      "vitest.config.ts"
-    ]
-  },
-  {
-    "hash": "43c55193625f768ab17edb1cd1381e6c2bf464fd",
-    "date": "2025-08-15T06:10:20+07:00",
-    "message": "feat(build): add git commit hash as cache buster for git history fetch\n\n- inject `VITE_GIT_COMMIT` into Vite config using current git commit hash\n- append commit hash as query param when fetching `/data/git-history.json`\n- prevents stale fetches by ensuring cache is invalidated per commit",
-    "files": [
-      "src/react/pages/Changelog.tsx",
-      "vite.config.js"
     ]
   }
 ]
