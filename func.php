@@ -179,35 +179,6 @@ function uniqueClassObjectsByProperty(array $array, string $property): array {
 }
 
 /**
- * Create parent folders for a file path if they don't exist.
- *
- * @param string $filePath The file path for which to create parent folders.
- *
- * @return bool True if all parent folders were created successfully or already exist, false otherwise.
- */
-function createParentFolders(string $filePath): bool {
-  $parentDir = dirname($filePath);
-
-  // Check if the parent directory already exists
-  if (!is_dir($parentDir)) {
-    // Attempt to create the parent directory and any necessary intermediate directories
-    if (!mkdir($parentDir, 0777, true)) {
-      // Failed to create the directory
-      error_log("Failed to create directory: $parentDir");
-      return false;
-    }
-
-    // Set permissions for the parent directory
-    if (!chmod($parentDir, 0777)) {
-      error_log("Failed to set permissions for directory: $parentDir");
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
  * Checks if a given string is base64 encoded.
  *
  * @param string|null $string The string to check.
