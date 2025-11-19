@@ -94,13 +94,30 @@ function ProxyList() {
   // Helper to fetch and set proxies using component's setProxies
   const fetchAndSetProxies = async () => {
     const result = await getWorkingProxies();
-    if (Array.isArray(result)) {
+    // Only replace caches when we have a valid non-empty array result.
+    // This prevents clearing the UI when embed.php returned invalid JSON or failed to parse.
+    if (Array.isArray(result) && result.length > 0) {
       setProxies(result);
       workingProxiesCache = result;
       try {
         localStorage.setItem('workingProxiesCache', JSON.stringify(result));
       } catch {
         // ignore storage errors
+      }
+    } else {
+      // If fetch failed or returned invalid data, try to reuse existing caches
+      if (workingProxiesCache && Array.isArray(workingProxiesCache) && workingProxiesCache.length > 0) {
+        setProxies(workingProxiesCache);
+      } else {
+        try {
+          const cached = localStorage.getItem('workingProxiesCache');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) setProxies(parsed);
+          }
+        } catch {
+          // ignore parse/storage errors
+        }
       }
     }
   };
