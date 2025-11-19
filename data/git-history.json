@@ -1,5 +1,13 @@
 [
   {
+    "hash": "ba8d26be609941611fd4d030827948c0fd101850",
+    "date": "2025-11-19T16:13:43+07:00",
+    "message": "fix(proxy-list): preserve cache on embed.php JSON parse failure\n\nOnly update the in-memory and localStorage caches when the fetched result is a valid, non-empty array.\nIf fetch or JSON parsing fails (or the response is empty/invalid), fall back to the existing module cache or localStorage\nso the UI doesn't get cleared when `embed.php` returns invalid JSON.",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
     "hash": "01a74e0e56bae4034d8aabc2af8a42197cb80fb3",
     "date": "2025-11-19T16:01:42+07:00",
     "message": "chore: restore old proxy list using static file",
@@ -8770,14 +8778,8 @@
     "hash": "87ee7902edc1d98d1498f21809233f31b0fb17aa",
     "date": "2025-08-15T13:55:16+07:00",
     "message": "fix(pre-commit): correct php-cs-fixer command syntax in pre-commit hook",
-    "files": []
-  },
-  {
-    "hash": "b6cce55c3eca4e735aba3acb4c4a6c57387b6df6",
-    "date": "2025-08-15T13:53:41+07:00",
-    "message": "feat(index.php): restrict /assets and /data routes to specific file types and improve MIME handling\n\n- Added a route to serve files from /assets and /data only if their extensions are in an allowed list (json, txt, images, xml, xsl, jsonc).\n- Automatically detects and sets the correct MIME type for allowed files.\n- Returns 403 Forbidden for disallowed file types and 404 Not Found for missing files.\n- Simplified index file serving logic.",
     "files": [
-      "index.php"
+      ".husky/pre-commit"
     ]
   }
 ]
