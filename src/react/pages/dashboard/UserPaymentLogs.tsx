@@ -219,7 +219,7 @@ export default function UserPaymentLogs({ logs: initialLogs, maxItems = 50, clas
             <div
               key={id}
               role="listitem"
-              className="mb-3 bg-white dark:bg-gray-800 rounded-md shadow-sm overflow-hidden">
+              className="mb-3 bg-white dark:bg-gray-800 rounded-md shadow-sm dark:shadow-white overflow-hidden">
               <div className="px-3 py-2 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="flex-shrink-0">

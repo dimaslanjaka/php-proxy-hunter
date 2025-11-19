@@ -44,7 +44,7 @@ const OauthHandler = () => {
   return (
     <>
       <div id="oauth-handler" className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-        <div className="bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md text-center">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded shadow-md dark:shadow-white w-full max-w-md text-center">
           {loading ? (
             <>
               <h2 className="text-2xl font-bold mb-6 text-blue-600 dark:text-white">Processing OAuth...</h2>
@@ -68,7 +68,7 @@ const OauthHandler = () => {
               <div className="flex flex-col gap-2 mt-4 sm:flex-row sm:justify-center sm:gap-4">
                 <Link
                   href="/dashboard"
-                  className={`w-full sm:w-48 flex items-center justify-center px-4 py-2 rounded font-semibold shadow transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50
+                  className={`w-full sm:w-48 flex items-center justify-center px-4 py-2 rounded font-semibold shadow dark:shadow-white transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50
                     ${
                       result && !result.success
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none dark:bg-gray-700 dark:text-gray-400'

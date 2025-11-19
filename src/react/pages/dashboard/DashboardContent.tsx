@@ -40,11 +40,11 @@ const DashboardContent: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center m-4 transition-colors">
-      <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors border border-gray-200 dark:border-gray-700 flex flex-col gap-10">
+      <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-white p-8 transition-colors border border-gray-200 dark:border-gray-700 flex flex-col gap-10">
         <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-6">Dashboard</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-yellow-50 dark:bg-yellow-900/60 rounded-2xl p-6 flex flex-col items-start shadow-md border border-yellow-200 dark:border-yellow-800">
+          <div className="bg-yellow-50 dark:bg-yellow-900/60 rounded-2xl p-6 flex flex-col items-start shadow-md dark:shadow-white border border-yellow-200 dark:border-yellow-800">
             <div className="flex items-center gap-4 w-full">
               <span className="fa-solid fa-wallet text-yellow-600 dark:text-yellow-300 text-3xl"></span>
               <div>
@@ -62,7 +62,7 @@ const DashboardContent: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-900/60 rounded-2xl p-6 shadow-md border border-gray-200 dark:border-gray-700">
+          <div className="bg-gray-50 dark:bg-gray-900/60 rounded-2xl p-6 shadow-md dark:shadow-white border border-gray-200 dark:border-gray-700">
             <div className="text-sm text-gray-500 dark:text-gray-300 mb-2">{t('user_information')}</div>
             {loading ? (
               <div className="text-gray-600 dark:text-gray-300">...</div>

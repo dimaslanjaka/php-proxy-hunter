@@ -413,7 +413,7 @@ function ProxyList() {
       {/* Modal for reCAPTCHA */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl p-8 max-w-md w-full relative animate-fade-in border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl dark:shadow-white p-8 max-w-md w-full relative animate-fade-in border border-gray-200 dark:border-gray-700">
             <div className="flex justify-center mb-4">
               <i className="fa-duotone fa-shield-halved text-4xl text-blue-600 dark:text-blue-400"></i>
             </div>
@@ -448,7 +448,7 @@ function ProxyList() {
             <i className="fa-duotone fa-list-check"></i> Proxy List
           </h1>
           <button
-            className="ml-0 sm:ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1 flex-shrink-0"
+            className="ml-0 sm:ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow dark:shadow-white transition-colors flex items-center gap-1 flex-shrink-0"
             onClick={handleRefresh}
             disabled={loadingProxies}
             title={'Refresh proxies'}
@@ -563,7 +563,7 @@ function ProxyList() {
           </div>
         </div>
         {/* Table */}
-        <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
+        <div className="overflow-x-auto rounded-lg shadow dark:shadow-white border border-gray-200 dark:border-gray-700">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-100 dark:bg-gray-800">
               <tr>

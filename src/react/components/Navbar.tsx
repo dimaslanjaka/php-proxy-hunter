@@ -101,7 +101,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav className="w-full bg-white dark:bg-gray-900 shadow-md fixed top-0 left-0 z-50">
+      <nav className="w-full bg-white dark:bg-gray-900 shadow-md dark:shadow-white fixed top-0 left-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="text-2xl font-bold text-blue-600 dark:text-white" title={t('home')}>
@@ -130,7 +130,7 @@ const Navbar: React.FC = () => {
                 <i className={`fal fa-chevron-${userMenuOpen ? 'up' : 'down'} ml-1 text-xs`} aria-hidden="true"></i>
               </button>
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg dark:shadow-white z-50">
                   {state.authenticated ? (
                     <>
                       <Link
@@ -184,7 +184,7 @@ const Navbar: React.FC = () => {
                 <i className={`fal fa-chevron-${socialOpen ? 'up' : 'down'} ml-1 text-xs`} aria-hidden="true"></i>
               </button>
               {socialOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg dark:shadow-white z-50">
                   {/* <a
                     href="https://github.com/dimaslanjaka/php-proxy-hunter"
                     className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"

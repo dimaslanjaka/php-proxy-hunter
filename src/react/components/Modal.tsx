@@ -67,7 +67,7 @@ const Modal: React.FC<ModalProps> = ({ show, onClose, title, children, actions, 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 overflow-y-auto">
       <div
         className={`relative w-full ${sizeClasses[size] || sizeClasses['xl']} mx-4 my-8 max-h-[90vh] flex items-center justify-center`}>
-        <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col w-full max-h-[90vh]">
+        <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-white flex flex-col w-full max-h-[90vh]">
           <div className="flex justify-between items-center border-b px-6 py-4 rounded-t-lg">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
             <button

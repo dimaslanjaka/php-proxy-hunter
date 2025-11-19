@@ -30,7 +30,7 @@ const LanguageSwitcher: React.FC = () => {
     <div className="flex items-center my-4">
       <i className="fa-solid fa-language mr-2 text-lg"></i>
       <select
-        className="block px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:focus:bg-gray-700 transition"
+        className="block px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm dark:shadow-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:focus:bg-gray-700 transition"
         value={i18n.language}
         onChange={(e) => changeLanguage(e.target.value)}
         aria-label="Select language">

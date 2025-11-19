@@ -95,7 +95,9 @@ const Settings = () => {
   return (
     <>
       <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 mt-4">
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-8 rounded shadow-md w-full max-w-md">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white dark:bg-gray-800 p-8 rounded shadow-md dark:shadow-white w-full max-w-md">
           <h2 className="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-white flex items-center justify-center">
             <span className="fa-light fa-user-gear mr-3 text-blue-500" style={{ fontSize: '1.5rem' }}></span>
             {t('settings_title')}

@@ -25,7 +25,7 @@ const Outbound: React.FC = () => {
   return (
     <>
       <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
-        <div className="max-w-lg w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-800">
+        <div className="max-w-lg w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg dark:shadow-white p-8 border border-gray-200 dark:border-gray-800">
           {isValid ? (
             <>
               <h1 className="text-3xl font-extrabold mb-4 text-blue-700 dark:text-blue-400">Leaving Site</h1>

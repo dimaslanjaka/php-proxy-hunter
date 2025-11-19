@@ -42,7 +42,7 @@ const ModifyCurl: React.FC = () => {
 
   return (
     <section className="my-8">
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-blue-200 dark:border-blue-700 p-6 transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-white border border-blue-200 dark:border-blue-700 p-6 transition-colors duration-300">
         <h2 className="text-lg font-bold text-blue-800 dark:text-blue-200 flex items-center gap-2 mb-2">
           <i className="fa-duotone fa-clock"></i> Modify cURL Timeout in PHP
         </h2>

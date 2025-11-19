@@ -14,7 +14,7 @@ function ApiUsage() {
     '{\n  "error": false,\n  "message": "Proxy check is in progress. Please check back later.",\n  "logEmbedUrl": "...",\n  "statusEmbedUrl": "..."\n}';
   return (
     <section className="my-8">
-      <div className="p-6 rounded-xl border border-blue-200 dark:border-blue-700 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/60 dark:to-gray-900 shadow-md transition-colors duration-300">
+      <div className="p-6 rounded-xl border border-blue-200 dark:border-blue-700 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/60 dark:to-gray-900 shadow-md dark:shadow-white transition-colors duration-300">
         <h2 className="flex items-center gap-2 text-lg font-bold mb-3 text-blue-800 dark:text-blue-200">
           <i className="fa-duotone fa-terminal"></i> Proxy Checker API Usage
         </h2>

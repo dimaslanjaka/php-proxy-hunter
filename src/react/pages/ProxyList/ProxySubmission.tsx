@@ -164,7 +164,7 @@ export default function ProxySubmission() {
 
   return (
     <section className="my-8">
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-blue-200 dark:border-blue-700 p-6 transition-colors duration-300 flowbite-modal">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-white border border-blue-200 dark:border-blue-700 p-6 transition-colors duration-300 flowbite-modal">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold text-blue-800 dark:text-blue-200 flex items-center gap-2">
             <i className="fa-duotone fa-paper-plane"></i> Proxy Submission

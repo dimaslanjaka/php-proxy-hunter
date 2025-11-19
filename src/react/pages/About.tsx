@@ -3,7 +3,7 @@ import Link from '../components/Link';
 const About = () => (
   <>
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto">
-      <section className="w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 md:p-10 border border-gray-200 dark:border-gray-700">
+      <section className="w-full bg-white dark:bg-gray-900 rounded-lg shadow-lg dark:shadow-white p-6 md:p-10 border border-gray-200 dark:border-gray-700">
         <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white text-center">About PHP Proxy Hunter</h2>
         <p className="mb-6 text-center text-gray-700 dark:text-gray-300">
           <span className="font-semibold text-gray-900 dark:text-white">PHP Proxy Hunter</span> is a cross-platform
