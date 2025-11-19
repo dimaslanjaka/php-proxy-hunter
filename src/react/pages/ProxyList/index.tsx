@@ -81,8 +81,6 @@ function ProxyList() {
   const recaptchaRef = React.useRef<ReCAPTCHA>(null);
   const [page, setPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [serverTotal, setServerTotal] = React.useState<number>(0);
-  const [serverTotalPages, setServerTotalPages] = React.useState<number>(1);
   const [countryFilter, setCountryFilter] = React.useState('');
   const [cityFilter, setCityFilter] = React.useState('');
   const [timezoneFilter, setTimezoneFilter] = React.useState('');
@@ -94,88 +92,64 @@ function ProxyList() {
   const isMountedRef = React.useRef(true);
 
   // Helper to fetch and set proxies using component's setProxies
-  const fetchAndSetProxies = async (p = page, per = rowsPerPage) => {
-    const result = await getWorkingProxies(p, per);
-    if (result && Array.isArray(result.data)) {
-      setProxies(result.data);
-      workingProxiesCache = result.data;
+  const fetchAndSetProxies = async () => {
+    const result = await getWorkingProxies();
+    if (Array.isArray(result)) {
+      setProxies(result);
+      workingProxiesCache = result;
       try {
-        localStorage.setItem('workingProxiesCache', JSON.stringify(result.data));
+        localStorage.setItem('workingProxiesCache', JSON.stringify(result));
       } catch {
         // ignore storage errors
       }
     }
-    if (result && result.meta) {
-      setServerTotal(result.meta.total ?? 0);
-      setServerTotalPages(result.meta.totalPages ?? 1);
-    }
   };
 
   // Fetch working proxies (scoped inside component) to use refs/state easily
-  const getWorkingProxies = React.useCallback(
-    async (pageArg?: number, perPageArg?: number): Promise<{ data: any[]; meta: any | null }> => {
-      if (fetchingProxiesRef.current) return { data: [], meta: null };
-      fetchingProxiesRef.current = true;
-
-      // refresh working JSON on the server (background)
-      // await fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
-
-      const usePage = pageArg ?? page;
-      const usePerPage = perPageArg ?? rowsPerPage;
-      let result: any[] = [];
-      let meta: any = null;
-
-      try {
-        // Call the new paginated endpoint which returns { data: [...], meta: { ... } }
-        const params = new URLSearchParams();
-        // pass page and perPage for server-side pagination; randomize=false to sort by last_check DESC
-        params.set('page', String(usePage));
-        params.set('perPage', String(usePerPage));
-        params.set('randomize', 'false');
-        const url = createUrl(`/php_backend/proxy-working.php?${params.toString()}`);
-        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-        if (res.status === 403) {
-          fetchingProxiesRef.current = false;
-          return { data: [], meta: null };
-        }
-        const json = await res.json();
-        if (!json || json.error) {
-          fetchingProxiesRef.current = false;
-          return { data: [], meta: null };
-        }
-        if (!Array.isArray(json.data)) {
-          fetchingProxiesRef.current = false;
-          return { data: [], meta: json.meta ?? null };
-        }
-        result = json.data;
-        meta = json.meta ?? null;
-      } catch {
-        fetchingProxiesRef.current = false;
-        return { data: [], meta: null };
-      }
-
-      fetchingProxiesRef.current = false;
-
-      for (let i = 0; i < result.length; i++) {
-        const proxy = result[i];
-        if (proxy.https === 'true') {
-          proxy.type = proxy.type ? `${proxy.type}-SSL` : 'SSL';
-        }
-        delete (proxy as Partial<ProxyDetails>).https;
-        result[i] = proxy;
-      }
-
-      // Sort by last_check (date string), most recent first
-      result.sort((a: any, b: any) => {
-        const dateA = a.last_check ? new Date(a.last_check).getTime() : 0;
-        const dateB = b.last_check ? new Date(b.last_check).getTime() : 0;
-        return dateB - dateA;
+  const getWorkingProxies = React.useCallback(async () => {
+    if (fetchingProxiesRef.current) return [];
+    fetchingProxiesRef.current = true;
+    // refresh working.json
+    await fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
+    let result: any = [];
+    try {
+      const res = await fetch(createUrl('/embed.php?file=working.json'), {
+        signal: AbortSignal.timeout(5000)
       });
-
-      return { data: result, meta };
-    },
-    [page, rowsPerPage]
-  );
+      if (res.status === 403) {
+        fetchingProxiesRef.current = false;
+        return [];
+      }
+      result = await res.json();
+      if (result.error) {
+        fetchingProxiesRef.current = false;
+        return [];
+      }
+      if (!Array.isArray(result)) {
+        fetchingProxiesRef.current = false;
+        return [];
+      }
+    } catch {
+      fetchingProxiesRef.current = false;
+      return [];
+    }
+    fetchingProxiesRef.current = false;
+    for (let i = 0; i < result.length; i++) {
+      const proxy = result[i];
+      if (proxy.https === 'true') {
+        proxy.type = proxy.type ? `${proxy.type}-SSL` : 'SSL';
+      }
+      delete (proxy as Partial<ProxyDetails>).https;
+      result[i] = proxy;
+    }
+    // Sort by last_check (date string), most recent first
+    result.sort((a, b) => {
+      const dateA = a.last_check ? new Date(a.last_check).getTime() : 0;
+      const dateB = b.last_check ? new Date(b.last_check).getTime() : 0;
+      return dateB - dateA;
+    });
+    return result;
+  }, []);
 
   // Get ProxyDetails keys for table, reordering specific columns to the end
   const proxyKeys = React.useMemo(() => {
@@ -243,11 +217,12 @@ function ProxyList() {
     return filtered;
   }, [proxies, countryFilter, cityFilter, timezoneFilter, typeFilter, regionFilter, searchQuery]);
 
-  // When using server-side pagination we display the server page (filtered locally)
-  const paginatedProxies = filteredProxies;
+  const paginatedProxies = React.useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    return filteredProxies.slice(start, start + rowsPerPage);
+  }, [filteredProxies, page, rowsPerPage]);
 
-  // Use server-provided total pages when available
-  const totalPages = serverTotalPages || 1;
+  const totalPages = Math.ceil(filteredProxies.length / rowsPerPage) || 1;
 
   // On mount
   React.useEffect(() => {
@@ -290,30 +265,19 @@ function ProxyList() {
       }
     })();
     // fetch processes.php
-    fetch(createUrl('/php_backend/processes.php'))
-      .then((res) => res.text())
-      .then((text) => {
-        if (/no running/i.test(text)) {
-          // fetch artisan/proxyCheckerStarter.php to start background checks every 5 minutes
-          const lastCheck = localStorage.getItem('lastProxyCheckStart') || '0';
-          const now = Date.now();
-          if (now - parseInt(lastCheck, 10) > 5 * 60 * 1000) {
-            fetch(createUrl('/artisan/proxyCheckerStarter.php')).catch(noop);
-            localStorage.setItem('lastProxyCheckStart', now.toString());
-          }
-        }
-      })
-      .catch(noop);
+    fetch(createUrl('/php_backend/processes.php')).catch(noop);
+    // fetch artisan/proxyCheckerStarter.php to start background checks every 5 minutes
+    const lastCheck = localStorage.getItem('lastProxyCheckStart') || '0';
+    const now = Date.now();
+    if (now - parseInt(lastCheck, 10) > 5 * 60 * 1000) {
+      fetch(createUrl('/artisan/proxyCheckerStarter.php')).catch(noop);
+      localStorage.setItem('lastProxyCheckStart', now.toString());
+    }
 
     return () => {
       isMountedRef.current = false;
     };
   }, [setProxies]);
-
-  // Fetch server page whenever page or rowsPerPage change
-  React.useEffect(() => {
-    fetchAndSetProxies(page, rowsPerPage);
-  }, [page, rowsPerPage]);
 
   // Fetch user info once and store userId
   React.useEffect(() => {
@@ -413,7 +377,7 @@ function ProxyList() {
       {/* Modal for reCAPTCHA */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl dark:shadow-white p-8 max-w-md w-full relative animate-fade-in border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl p-8 max-w-md w-full relative animate-fade-in border border-gray-200 dark:border-gray-700">
             <div className="flex justify-center mb-4">
               <i className="fa-duotone fa-shield-halved text-4xl text-blue-600 dark:text-blue-400"></i>
             </div>
@@ -448,7 +412,7 @@ function ProxyList() {
             <i className="fa-duotone fa-list-check"></i> Proxy List
           </h1>
           <button
-            className="ml-0 sm:ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded transition-colors flex items-center gap-1 flex-shrink-0"
+            className="ml-0 sm:ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1 flex-shrink-0"
             onClick={handleRefresh}
             disabled={loadingProxies}
             title={'Refresh proxies'}
@@ -563,7 +527,7 @@ function ProxyList() {
           </div>
         </div>
         {/* Table */}
-        <div className="overflow-x-auto rounded-lg shadow dark:shadow-white border border-gray-200 dark:border-gray-700">
+        <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-100 dark:bg-gray-800">
               <tr>
@@ -648,50 +612,40 @@ function ProxyList() {
             </tbody>
           </table>
         </div>
-
-        {/* Pagination: total (left) | page controls (center) | rows per page (right) */}
-        <div className="flex flex-col sm:flex-row items-center w-full gap-2 mt-4">
-          <div className="w-full sm:w-1/3 flex justify-center sm:justify-start">
-            <div className="text-xs text-gray-700 dark:text-gray-200">{serverTotal} total</div>
+        {/* Pagination */}
+        <div className="flex flex-col sm:flex-row gap-2 mt-4 items-center w-full justify-center text-center">
+          <div className="flex w-full sm:w-auto gap-1 justify-center whitespace-nowrap">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="btn btn-outline px-2 py-1 border rounded disabled:opacity-50 flex items-center gap-1 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 w-auto min-w-[64px] text-xs">
+              <i className="fa-duotone fa-chevron-left"></i> Prev
+            </button>
+            <span className="text-gray-700 dark:text-gray-200 flex items-center px-1 text-xs">
+              Page {page} of {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="btn btn-outline px-2 py-1 border rounded disabled:opacity-50 flex items-center gap-1 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 w-auto min-w-[64px] text-xs">
+              Next <i className="fa-duotone fa-chevron-right"></i>
+            </button>
           </div>
-
-          <div className="w-full sm:w-1/3 flex justify-center">
-            <div className="flex items-center gap-2 whitespace-nowrap">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="btn btn-outline px-2 py-1 border rounded disabled:opacity-50 flex items-center gap-1 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 w-auto min-w-[64px] text-xs">
-                <i className="fa-duotone fa-chevron-left"></i> Prev
-              </button>
-              <span className="text-gray-700 dark:text-gray-200 px-1 text-xs">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="btn btn-outline px-2 py-1 border rounded disabled:opacity-50 flex items-center gap-1 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 w-auto min-w-[64px] text-xs">
-                Next <i className="fa-duotone fa-chevron-right"></i>
-              </button>
-            </div>
-          </div>
-
-          <div className="w-full sm:w-1/3 flex justify-center sm:justify-end items-center">
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-gray-700 dark:text-gray-200">Rows per page:</span>
-              <select
-                value={rowsPerPage}
-                onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
-                  setPage(1);
-                }}
-                className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-700 w-auto min-w-[64px] text-xs">
-                {[10, 20, 50, 100].map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="flex w-full sm:w-auto gap-2 justify-center items-center mt-2 sm:mt-0 text-xs">
+            <span className="text-gray-700 dark:text-gray-200">Rows per page:</span>
+            <select
+              value={rowsPerPage}
+              onChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setPage(1);
+              }}
+              className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-700 w-auto min-w-[64px] text-xs">
+              {[10, 20, 50, 100].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
