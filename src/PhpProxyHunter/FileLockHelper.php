@@ -23,31 +23,13 @@ class FileLockHelper {
    * @return bool True on success, false on failure.
    */
   public function lock(int $lockType = LOCK_EX): bool {
-    // Ensure the directory exists before trying to open the file
-    $dir = dirname($this->filePath);
-    if (!is_dir($dir)) {
-      if (!@mkdir($dir, 0777, true) && !is_dir($dir)) {
-        // Failed to create directory (permissions or race) — cannot proceed
-        return false;
-      }
-    }
-
-    // Check writability where possible. On some Windows setups this may be limited,
-    // so we check and proceed to a safe fopen attempt.
-    if (!is_writable($dir)) {
-      // Directory exists but isn't writable for the PHP process
-      return false;
-    }
-
-    // Suppress warnings from fopen and handle failure explicitly to avoid PHP warnings
-    $this->handle = @fopen($this->filePath, 'c+');
+    $this->handle = $this->openLockHandle();
     if ($this->handle === false) {
       return false;
     }
 
     $this->lockType = $lockType;
     if (!flock($this->handle, $lockType)) {
-      // Could not acquire lock — close handle and return false
       fclose($this->handle);
       $this->handle = null;
       return false;
@@ -84,44 +66,50 @@ class FileLockHelper {
    * @return bool
    */
   public function isLocked(): bool {
-    return file_exists($this->filePath);
+    // Attempt an exclusive non-blocking lock. This will fail if any other
+    // process holds either a shared or exclusive lock on the file, so it
+    // conservatively indicates "locked by someone else".
+    $handle = $this->openLockHandle();
+    if ($handle === false) {
+      // Can't open the file — fall back to file existence check
+      return file_exists($this->filePath);
+    }
+
+    $isLocked = !flock($handle, LOCK_EX | LOCK_NB);
+    if (!$isLocked) {
+      // We acquired the exclusive lock; release it immediately
+      flock($handle, LOCK_UN);
+    }
+
+    fclose($handle);
+    return $isLocked;
   }
 
   /**
-   * Check if the lock file is currently locked by another process.
+   * Open the lock file handle, ensuring the directory exists and is writable.
+   * Returns a resource (handle) on success or false on failure.
    *
-   * @return bool True if locked by someone else, false otherwise.
+   * @return resource|false
    */
-  public function isLockedByAnotherProcess(): bool {
-    // Ensure the lock file's directory exists
+  private function openLockHandle() {
     $dir = dirname($this->filePath);
+
     if (!is_dir($dir)) {
       if (!@mkdir($dir, 0777, true) && !is_dir($dir)) {
-        // Can't ensure the directory — assume not locked (conservative)
         return false;
       }
     }
 
-    // If directory is not writable, we likely cannot create/open the lock file.
     if (!is_writable($dir)) {
       return false;
     }
 
-    // Suppress fopen warnings and handle failure explicitly
-    $tempHandle = @fopen($this->filePath, 'c+');
-    if ($tempHandle === false) {
-      return false; // Can't open the file; assume not locked
+    $handle = @fopen($this->filePath, 'c+');
+    if ($handle === false) {
+      return false;
     }
 
-    $locked = !flock($tempHandle, LOCK_EX | LOCK_NB);
-
-    if (!$locked) {
-      // Not locked — release immediately
-      flock($tempHandle, LOCK_UN);
-    }
-
-    fclose($tempHandle);
-    return $locked;
+    return $handle;
   }
 
   /**
@@ -143,7 +131,7 @@ if (php_sapi_name() === 'cli' && realpath(__FILE__) === realpath($_SERVER['argv'
     // Simulate work loop with periodic output
     for ($i = 1; $i <= 5; $i++) {
       echo "Working... step $i\n";
-      if ($lock->isLockedByAnotherProcess()) {
+      if ($lock->isLocked()) {
         echo "The lock file is in use by another process.\n";
       } else {
         echo "The lock file is free.\n";
