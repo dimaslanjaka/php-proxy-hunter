@@ -242,7 +242,7 @@ function setPermissions(string $filename, bool $autoCreate = false): bool {
       write_file($filename, '');
     }
     if (file_exists($filename) && is_readable($filename) && is_writable($filename)) {
-      return chmod($filename, 0777);
+      return @chmod($filename, 0777);
     }
   } catch (Throwable $th) {
     return false;

@@ -77,7 +77,7 @@ function write_file(string $inputFile, string $data): bool {
 
   try {
     // Write data to the file
-    if (file_put_contents($inputFile, $data) !== false) {
+    if (@file_put_contents($inputFile, $data) !== false) {
       setMultiPermissions($inputFile);
       // Successfully wrote the file
       return true;
