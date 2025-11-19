@@ -74,7 +74,7 @@ export default function LogsSection() {
             Log Activity
           </h1>
           <button
-            className="ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1"
+            className="ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded transition-colors flex items-center gap-1"
             onClick={() => fetchLogs(page)}
             disabled={loading}
             title="Refresh logs now">

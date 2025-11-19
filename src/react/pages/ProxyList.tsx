@@ -448,7 +448,7 @@ function ProxyList() {
             <i className="fa-duotone fa-list-check"></i> Proxy List
           </h1>
           <button
-            className="ml-0 sm:ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow dark:shadow-white transition-colors flex items-center gap-1 flex-shrink-0"
+            className="ml-0 sm:ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded transition-colors flex items-center gap-1 flex-shrink-0"
             onClick={handleRefresh}
             disabled={loadingProxies}
             title={'Refresh proxies'}

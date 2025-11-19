@@ -12,7 +12,7 @@ const NotFound: React.FC = () => (
       <p className="text-gray-500 dark:text-gray-400 mb-4">The page you are looking for does not exist.</p>
       <Link
         href="/"
-        className="inline-flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors font-medium shadow dark:shadow-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+        className="inline-flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-blue-400">
         <i className="fa-duotone fa-house"></i>
         Go to Home
       </Link>
