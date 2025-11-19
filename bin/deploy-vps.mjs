@@ -324,6 +324,47 @@ export async function shell_exec(command, cwd = null) {
 }
 
 async function main() {
+  const args = process.argv.slice(2);
+
+  const uiOnly = args.includes('--ui') || args.includes('--ui-only');
+
+  if (uiOnly) {
+    // UI-only deploy: build the React UI locally and upload only dist + index.html
+    console.log('UI-only deploy requested. Building local React bundle...');
+    await spawnAsync('yarn', ['build:react'], { stdio: 'inherit', shell: true });
+
+    // Remove remote dist/react (best-effort)
+    const pathsToDelete = [`${remotePath}/dist/react`, `${remotePath}/index.html`];
+    for (const p of pathsToDelete) {
+      try {
+        await deleteRemotePath(p);
+      } catch (err) {
+        console.warn(`Warning: Failed to delete ${p}:`, err.message || err);
+      }
+    }
+
+    // Set maintenance by creating a lightweight lock file so remote processes know a build is in progress
+    const lockContents = `build-start:${new Date().toISOString()} pid:${process.pid}\n`;
+    await writeRemoteFile(`${remotePath}/tmp/locks/.build-lock`, lockContents);
+
+    // Upload built files
+    await uploadDir(path.join(__dirname, '/../dist/react'), `${remotePath}/dist/react`);
+    await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
+
+    // Fix permissions on remote
+    console.log('Fixing file permissions on remote server (UI-only)...');
+    const { code: permCode, signal: permSignal } = await shell_exec('bash bin/fix-perm', remotePath);
+    if (permCode !== 0) {
+      throw new Error(`Remote fix-perm script failed with code ${permCode}, signal ${permSignal}`);
+    }
+
+    // Remove the build lock file to signal build completion
+    await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
+
+    console.log('UI-only deploy complete.');
+    return;
+  }
+
   // Set maintenance by creating a lightweight lock file so remote processes know a build is in progress
   const lockContents = `build-start:${new Date().toISOString()} pid:${process.pid}\n`;
   await writeRemoteFile(`${remotePath}/tmp/locks/.build-lock`, lockContents);
