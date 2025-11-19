@@ -15,7 +15,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'Login - PHP Proxy Hunter';
     // Get google oauth redirect URL from environment variable
     const googleRedirectUrl = import.meta.env.VITE_GOOGLE_REDIRECT_URL || createUrl('/oauth/google');
     if (!indicators.getAuthUrl) {

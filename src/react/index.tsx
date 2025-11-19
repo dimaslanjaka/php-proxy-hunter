@@ -3,7 +3,7 @@ import './i18n'; // Ensure i18n is initialized before rendering components
 // Import necessary React and ReactDOM libraries
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 
 // Import fonts
 import './fonts.scss';
@@ -51,6 +51,7 @@ window.addEventListener('keydown', function (e) {
 
 const MainApp = function () {
   const recaptchaRef = React.useRef<ReCAPTCHA>(null);
+  const location = useLocation();
 
   ReactGA.initialize([
     {
@@ -61,23 +62,20 @@ const MainApp = function () {
   ]);
 
   React.useEffect(() => {
-    // Send pageview with a custom path
-    const currentMetaRoute = routes.find((data) => data.path === window.location.pathname);
+    // Send pageview with a custom path when route changes
+    const currentMetaRoute = routes.find((data) => {
+      if (Array.isArray(data.path)) return data.path.includes(location.pathname);
+      return data.path === location.pathname;
+    });
     const title = currentMetaRoute?.title || 'PHP Proxy Hunter';
     document.title = title;
     ReactGA.send({ hitType: 'pageview', page: location.pathname, title });
 
-    recaptchaRef.current?.executeAsync().then((token) => {
-      if (token) {
-        verifyRecaptcha(token);
-      }
-    });
-  });
-
-  React.useEffect(() => {}, [recaptchaRef]);
+    recaptchaRef.current?.executeAsync().then(verifyRecaptcha);
+  }, [location.pathname]);
 
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <>
       <Navbar />
       <Routes>
         {routes.flatMap((CustomRoute) => {
@@ -105,7 +103,7 @@ const MainApp = function () {
         size="invisible"
         sitekey={import.meta.env.VITE_G_RECAPTCHA_SITE_KEY || import.meta.env.VITE_G_RECAPTCHA_V3_SITE_KEY || ''}
       />
-    </BrowserRouter>
+    </>
   );
 };
 
@@ -113,7 +111,9 @@ root.render(
   <React.StrictMode>
     <ThemeProvider>
       <SnackbarProvider stackable={true}>
-        <MainApp />
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <MainApp />
+        </BrowserRouter>
       </SnackbarProvider>
     </ThemeProvider>
   </React.StrictMode>
