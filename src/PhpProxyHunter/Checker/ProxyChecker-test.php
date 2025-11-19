@@ -55,4 +55,4 @@ if ($results['full_check']->isWorking || $results['http_only']->isWorking) {
 }
 
 // write worked proxy to file
-writing_working_proxies_file($proxy_db, tmp('locks/working_proxies.txt'));
+writing_working_proxies_file($proxy_db, tmp('locks') . '/working_proxies.txt');

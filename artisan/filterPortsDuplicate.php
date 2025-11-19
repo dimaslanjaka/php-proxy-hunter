@@ -52,9 +52,9 @@ if ($isAdmin || $endless) {
   set_time_limit(0);
 }
 
-$lockFilePath = tmp('/runners/' . basename(__FILE__, '.php') . '.lock');
+$lockFilePath = tmp() . '/runners/' . basename(__FILE__, '.php') . '.lock';
 if ($endless) {
-  $lockFilePath = tmp('/' . basename(__FILE__, '.php') . '-endless.lock');
+  $lockFilePath = tmp() . '/runners/' . basename(__FILE__, '.php') . '-endless.lock';
 }
 
 $statusFile = dirname(__DIR__) . '/status.txt';
