@@ -1,5 +1,45 @@
 [
   {
+    "hash": "50080b4ce7c67110bfb36a31e24059986b140c84",
+    "date": "2025-11-19T17:54:50+07:00",
+    "message": "fix(php): make codebase PHP 7.0 compatible and tidy function signatures\n\n- Remove PHP 7.1+/8.0-only type syntax (nullable `?type` and some return `: void`) so code runs on PHP 7.0.\n- Replace `str_starts_with` usage with `strpos(... ) === 0` for compatibility.\n- Remove `setCacheHeaders(5)` call in `artisan/proxyWorkingBackground.php` and normalize `exitProcess()` formatting.\n- Normalize function signatures and minor cleanup in:\n  - `func.php`\n  - `proxyCheckerParallel-func.php`\n  - `src/PhpProxyHunter/utils/validator.php`\n  - `src/utils/file/sanitizer.php`\n  - `src/utils/string/index.php`\n- Ensure no duplicate/malformed declarations remain; verified syntax with `php -l`.\n\nBREAKING CHANGE: Several function signatures had type hints removed (parameters/return types). Callers that relied on strict type enforcement should be reviewed.",
+    "files": [
+      "artisan/proxyWorkingBackground.php",
+      "func.php",
+      "proxyCheckerParallel-func.php",
+      "src/PhpProxyHunter/utils/validator.php",
+      "src/utils/file/sanitizer.php",
+      "src/utils/string/index.php"
+    ]
+  },
+  {
+    "hash": "b7f786b514d36558a894436f32ed0cc0ef46d24c",
+    "date": "2025-11-19T17:30:58+07:00",
+    "message": "refactor(file): move createParentFolders() to mkdir utils module\n\n- Remove createParentFolders() from func.php\n- Add createParentFolders() to src/utils/file/mkdir.php\n- No functional changes; improve file organization and modularity",
+    "files": [
+      "func.php",
+      "src/utils/file/mkdir.php"
+    ]
+  },
+  {
+    "hash": "99b4061e38ed6edd2e23a1af02140c412e29935d",
+    "date": "2025-11-19T17:26:15+07:00",
+    "message": "refactor(file): move permission helper functions to dedicated utils module\n\n- Remove setMultiPermissions() and setPermissions() from func.php\n- Add new file src/utils/file/permissions.php containing the extracted functions\n- No functional changes; code is reorganized for better structure and maintainability",
+    "files": [
+      "func.php",
+      "src/utils/file/permissions.php"
+    ]
+  },
+  {
+    "hash": "adb4370b65f4ea5368e0d84ee03ae3f9bd9e56f8",
+    "date": "2025-11-19T17:24:54+07:00",
+    "message": "fix: suppress warnings on file permission changes and file writes",
+    "files": [
+      "func.php",
+      "src/utils/file/crud.php"
+    ]
+  },
+  {
     "hash": "b2938a936279776b656ae2a38920380596f634a6",
     "date": "2025-11-19T17:24:01+07:00",
     "message": "fix(proxy-checker): organize runner and PID files into dedicated directories",
@@ -8752,35 +8792,6 @@
     "message": "fix(vite-plugin): update path handling for HTML files in indexHtmlReplacementPlugin",
     "files": [
       "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "76c5c7fe640d5b2fe913d6e801aff174ed14c2aa",
-    "date": "2025-08-15T15:38:28+07:00",
-    "message": "fix(vite-plugin): enhance closeBundle logic to check for source file existence before copying",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "41e438288edf64e1b83ffe69f1ba461da0e5b956",
-    "date": "2025-08-15T15:36:43+07:00",
-    "message": "fix(post-merge): enhance submodule update process with stashing and restoring changes",
-    "files": []
-  },
-  {
-    "hash": "06e4906112b6a8649d409070ee4b8fd93f70e3f8",
-    "date": "2025-08-15T15:31:30+07:00",
-    "message": "feat(post-merge): add submodule update functionality to post-merge hook",
-    "files": []
-  },
-  {
-    "hash": "2d4eb607948acf2f8c539c08df6e3244d7141d5b",
-    "date": "2025-08-15T15:28:06+07:00",
-    "message": "fix(package.json): add resolution for typescript to version ~5.8.0",
-    "files": [
-      "package.json",
-      "packages/baileys"
     ]
   }
 ]
