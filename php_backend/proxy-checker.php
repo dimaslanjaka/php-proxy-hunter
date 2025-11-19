@@ -184,19 +184,20 @@ if (!$isCli) {
       $cmdParts[] = '--password=' . escapeshellarg($proxyInfo['password']);
     }
     $cmdParts[] = '--lockFile=' . escapeshellarg($lockFilePath);
-    $runner     = tmp() . '/runners/proxy-checker-' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
+    $runner     = tmp() . '/runners/proxy-checker/' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
     $cmdParts[] = '--runner=' . escapeshellarg($runner);
 
     $output_file = getLogFile();
-    ensure_dir(dirname($output_file));
+    write_file($output_file, '[' . date('Y-m-d H:i:s') . "] Proxy Checker started\n");
     $cmdParts[] = '--outputFile=' . escapeshellarg($output_file);
-    $pid_file   = tmp() . '/runners/proxy-checker-' . sanitizeFilename($proxyInfo['proxy']) . '.pid';
-    ensure_dir(dirname($pid_file));
+    $pid_file   = tmp() . '/runners/proxy-checker/' . sanitizeFilename($proxyInfo['proxy']) . '.pid';
+    write_file($pid_file, '[' . date('Y-m-d H:i:s') . "] PID file created\n");
 
     $cmd = implode(' ', $cmdParts);
     // run in background, record pid (platform-specific)
     $isWin  = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-    $runner = tmp() . '/runners/proxy-checker-' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
+    $runner = tmp() . '/runners/proxy-checker/' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
+    write_file($runner, ''); // clear existing content
 
     if ($isWin) {
       // Windows: use start to run in background; not all environments can capture PID reliably
