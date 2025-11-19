@@ -1,5 +1,32 @@
 [
   {
+    "hash": "b00e1334a1370e6ffb53ca35ef6e5c19c939bc6a",
+    "date": "2025-11-20T03:58:59+07:00",
+    "message": "fix(geo): prevent concurrent GeoMMDB downloads in GeoPlugin2\n\n- add private static `$downloadingMap` to track active downloads\n- guard `downloadFile()` to skip if the target path is already being downloaded\n- mark path in `$downloadingMap` and register shutdown handler to clear it\n\nThis prevents duplicate concurrent downloads for the same GeoIP file.",
+    "files": [
+      "src/PhpProxyHunter/GeoPlugin2.php"
+    ]
+  },
+  {
+    "hash": "e9eb60243c2401236b08429b8e94bf5ed7fa9afd",
+    "date": "2025-11-20T03:49:14+07:00",
+    "message": "feat(scripts): add geoip-installer and update download logic\n\n- add `scripts/geoip-installer.js` to fetch GeoLite2 MMDB files:\n  - follows redirects for HEAD/GET, reads Content-Length\n  - downloads only when remote size is larger than local (or when local missing)\n  - writes to `tmp/download` then copies to `src/`\n  - robust error handling, cleans partial files and ensures process exits when done\n- include `geoip-installer.js` in `scripts/postinstall.js` to run after install\n- change download behavior in `src/PhpProxyHunter/GeoPlugin2.php` to only download when\n  remote size is greater than local (`$remoteFileSize > $localFileSize`)\n\nThis adds automatic GeoIP MMDB management and tightens update conditions to avoid unnecessary downloads.",
+    "files": [
+      "scripts/geoip-installer.js",
+      "scripts/postinstall.js",
+      "src/PhpProxyHunter/GeoPlugin2.php"
+    ]
+  },
+  {
+    "hash": "ce5eaf3ebc3a2e962c2007b9293d280c6bc8e9f3",
+    "date": "2025-11-19T21:10:20+07:00",
+    "message": "feat(timeago): add `simple` and `unitOnly` options; use compact output in ProxyList\n\nAdd optional parameters to `timeAgo(dateString, simple = false, unitOnly = false)`:\n- `simple=true` shortens output: when days > 0 show days and hours (hide minutes & seconds); when hours > 0 (and days === 0) hide seconds only.\n- Minutes-as-top-unit still include seconds (e.g. \"2 minutes 10 seconds\"), seconds-only unchanged.\n- `unitOnly=true` uses short unit labels (d/h/m/s), e.g. \"1d 3h ago\".\n\nUpdate `src/react/pages/ProxyList/index.tsx` to call `timeAgo(proxy.last_check, true, true)` so last-check times render in the compact form.\n\nNo breaking changes (defaults remain `false`).",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx",
+      "src/utils/date.js"
+    ]
+  },
+  {
     "hash": "50080b4ce7c67110bfb36a31e24059986b140c84",
     "date": "2025-11-19T17:54:50+07:00",
     "message": "fix(php): make codebase PHP 7.0 compatible and tidy function signatures\n\n- Remove PHP 7.1+/8.0-only type syntax (nullable `?type` and some return `: void`) so code runs on PHP 7.0.\n- Replace `str_starts_with` usage with `strpos(... ) === 0` for compatibility.\n- Remove `setCacheHeaders(5)` call in `artisan/proxyWorkingBackground.php` and normalize `exitProcess()` formatting.\n- Normalize function signatures and minor cleanup in:\n  - `func.php`\n  - `proxyCheckerParallel-func.php`\n  - `src/PhpProxyHunter/utils/validator.php`\n  - `src/utils/file/sanitizer.php`\n  - `src/utils/string/index.php`\n- Ensure no duplicate/malformed declarations remain; verified syntax with `php -l`.\n\nBREAKING CHANGE: Several function signatures had type hints removed (parameters/return types). Callers that relied on strict type enforcement should be reviewed.",
@@ -8770,28 +8797,6 @@
     "files": [
       ".editorconfig",
       ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "548b71a9b9c3fccfb8519396fc4c59d89897ba5d",
-    "date": "2025-08-15T16:09:15+07:00",
-    "message": "fix(post-merge): enhance composer installation logic to support VPS environments and user-specific execution",
-    "files": []
-  },
-  {
-    "hash": "79a62e4bad0672757319806ebe3cbb79bfd9b136",
-    "date": "2025-08-15T15:49:21+07:00",
-    "message": "fix(vite-plugin): simplify index.html copying logic in indexHtmlReplacementPlugin",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "01d4b4682578435d8f4f2ef762ed5cccd095fc2e",
-    "date": "2025-08-15T15:44:52+07:00",
-    "message": "fix(vite-plugin): update path handling for HTML files in indexHtmlReplacementPlugin",
-    "files": [
-      "vite-plugin.js"
     ]
   }
 ]
