@@ -7,8 +7,11 @@
  *   composer exec php-cs-fixer fix
  */
 
+require_once __DIR__ . '/src/dev/php-cs-fixer/GlobalOneLineFixer.php';
+
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
+use CustomFixer\GlobalOneLineFixer;
 
 // ---------------------------------------------
 // Finder setup: determines which files PHP-CS-Fixer will process
@@ -88,10 +91,7 @@ $config
     ->setRiskyAllowed(true)          // Allow risky fixers (some change code meaning)
     ->setCacheFile('tmp/locks/.php-cs-fixer.cache'); // Custom cache file path
 
-// ---------------------------------------------
-// Coding standard rules
-// ---------------------------------------------
-return $config->setRules([
+$rules = [
   '@PSR12' => true, // Apply PSR-12 coding style standard
 
   // Prefer short array syntax: []
@@ -125,4 +125,19 @@ return $config->setRules([
   'indentation_type' => true,
   // Enforce single space around string concatenation operator
   'concat_space' => ['spacing' => 'one'],
+];
+
+// ---------------------------------------------
+// Custom fixers
+// ---------------------------------------------
+
+$config->registerCustomFixers([
+  new GlobalOneLineFixer(),
 ]);
+$rules['Custom/global_one_line'] = true;
+
+// ---------------------------------------------
+// Coding standard rules
+// ---------------------------------------------
+
+return $config->setRules($rules);
