@@ -48,6 +48,8 @@ class FileLockHelper {
       flock($this->handle, LOCK_UN);
       fclose($this->handle);
       $this->handle = null;
+      // delete the lock file gracefully
+      @unlink($this->filePath);
     }
   }
 
