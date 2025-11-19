@@ -30,7 +30,7 @@ const inflightVerifications = new Map<string, Promise<boolean>>();
  *   // handle failed verification
  * }
  */
-export async function verifyRecaptcha(token: string): Promise<boolean> {
+export async function verifyRecaptcha(token?: Partial<string | null>): Promise<boolean> {
   if (!token) return false;
 
   // Return cached result when available.
