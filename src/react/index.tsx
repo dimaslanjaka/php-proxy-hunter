@@ -21,7 +21,7 @@ import SimpleFormSaverDemo from './pages/examples/SimpleFormSaverDemo';
 import SnackBarSample from './pages/examples/SnackBarSample';
 import NotFound from './pages/NotFound';
 import routes from './routes.js';
-import { verifyRecaptcha } from './utils/recaptcha';
+import { checkRecaptchaSessionExpired, verifyRecaptcha } from './utils/recaptcha';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
@@ -71,7 +71,11 @@ const MainApp = function () {
     document.title = title;
     ReactGA.send({ hitType: 'pageview', page: location.pathname, title });
 
-    recaptchaRef.current?.executeAsync().then(verifyRecaptcha);
+    checkRecaptchaSessionExpired().then((expired) => {
+      if (expired) {
+        recaptchaRef.current?.executeAsync().then(verifyRecaptcha);
+      }
+    });
   }, [location.pathname]);
 
   return (
