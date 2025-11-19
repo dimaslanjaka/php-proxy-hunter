@@ -1,5 +1,30 @@
 [
   {
+    "hash": "b2938a936279776b656ae2a38920380596f634a6",
+    "date": "2025-11-19T17:24:01+07:00",
+    "message": "fix(proxy-checker): organize runner and PID files into dedicated directories",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "3bfcb5d640bccf5732681db7c8659603b17e6a36",
+    "date": "2025-11-19T17:23:32+07:00",
+    "message": "fix(runBashOrBatch): organize runner and log file paths into dedicated directories",
+    "files": [
+      "src/utils/process/runBashOrBatch.php"
+    ]
+  },
+  {
+    "hash": "49fac5d65511292472e647fde448429586559157",
+    "date": "2025-11-19T17:04:33+07:00",
+    "message": "fix(bin): prefer venv over .venv when selecting/creating virtual environment\n\nPrefer `venv` by default and fall back to `.venv` in `bin/py` and `bin/py.cmd`.\nRetains existing venv creation, python3 shim, activation, and OS-specific behavior.\nFiles changed: bin/py, bin/py.cmd",
+    "files": [
+      "bin/py",
+      "bin/py.cmd"
+    ]
+  },
+  {
     "hash": "ba8d26be609941611fd4d030827948c0fd101850",
     "date": "2025-11-19T16:13:43+07:00",
     "message": "fix(proxy-list): preserve cache on embed.php JSON parse failure\n\nOnly update the in-memory and localStorage caches when the fetched result is a valid, non-empty array.\nIf fetch or JSON parsing fails (or the response is empty/invalid), fall back to the existing module cache or localStorage\nso the UI doesn't get cleared when `embed.php` returns invalid JSON.",
@@ -8756,30 +8781,6 @@
     "files": [
       "package.json",
       "packages/baileys"
-    ]
-  },
-  {
-    "hash": "fade172bca2c34eae4ecc230343d187cb512ef2a",
-    "date": "2025-08-15T14:29:04+07:00",
-    "message": "refactor(rollup.project.js): remove unused banner code and clarify return type in modifyOutputCode",
-    "files": [
-      "rollup.project.js"
-    ]
-  },
-  {
-    "hash": "53f667bfddb115d1bbcc056e0f5f115a1f86082f",
-    "date": "2025-08-15T13:59:49+07:00",
-    "message": "chore(composer.phar): update composer.phar binary to latest version",
-    "files": [
-      "composer.phar"
-    ]
-  },
-  {
-    "hash": "87ee7902edc1d98d1498f21809233f31b0fb17aa",
-    "date": "2025-08-15T13:55:16+07:00",
-    "message": "fix(pre-commit): correct php-cs-fixer command syntax in pre-commit hook",
-    "files": [
-      ".husky/pre-commit"
     ]
   }
 ]
