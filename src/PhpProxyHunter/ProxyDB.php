@@ -483,4 +483,67 @@ class ProxyDB {
   public function isDatabaseLocked() {
     return $this->db->isDatabaseLocked();
   }
+
+  public function __destruct() {
+    $this->close();
+  }
+
+  /**
+   * Find proxies matching given data fields with optional pagination.
+   *
+   * @param array $data Associative array of column => value to match. 'proxy' will do prefix matching when no port/wildcard provided.
+   * @param int|null $limit Optional legacy limit.
+   * @param int|null $page Optional 1-based page number when used with $perPage.
+   * @param int|null $perPage Optional items per page when used with $page.
+   * @param bool|null $randomize When true, randomize results using DB's random function.
+   * @return array List of matching rows (possibly empty).
+   */
+  public function findProxy(array $data, $limit = null, $page = null, $perPage = null, $randomize = null) {
+    if (empty($data)) {
+      return [];
+    }
+
+    // Build where clauses. For the 'proxy' key allow prefix matching when the
+    // provided value doesn't include a port or SQL wildcards. This lets users
+    // search for partial IPs like "54.19" and match entries such as
+    // "54.19.23.4:8080".
+    $whereClauses = [];
+    $params       = [];
+    foreach ($data as $key => $value) {
+      if ($key === 'proxy') {
+        $val = trim((string)$value);
+        // If user provided an explicit port or SQL wildcard, use exact match
+        if (strpos($val, ':') !== false || strpos($val, '%') !== false || strpos($val, '_') !== false) {
+          $whereClauses[] = "$key = ?";
+          $params[]       = $val;
+        } else {
+          // Partial/prefix match
+          $whereClauses[] = "$key LIKE ?";
+          $params[]       = $val . '%';
+        }
+      } else {
+        $whereClauses[] = "$key = ?";
+        $params[]       = $value;
+      }
+    }
+
+    // Determine ordering (randomize or default)
+    $orderBy = null;
+    if ($randomize === true) {
+      $orderBy = $this->getRandomFunction();
+    }
+
+    // Pagination (page/perPage) takes precedence over legacy $limit
+    $offset     = null;
+    $finalLimit = $limit;
+    if ($page !== null && $perPage !== null) {
+      $page       = max(1, (int)$page);
+      $perPage    = max(0, (int)$perPage);
+      $offset     = ($page - 1) * $perPage;
+      $finalLimit = $perPage;
+    }
+
+    $result = $this->db->select('proxies', '*', implode(' AND ', $whereClauses), $params, $orderBy, $finalLimit, $offset);
+    return $result ?: [];
+  }
 }
