@@ -1,6 +1,6 @@
 <?php
 
-namespace CustomFixer;
+namespace PhpCsFixerCustom;
 
 use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\Tokenizer\Tokens;
@@ -25,7 +25,9 @@ final class GlobalOneLineFixer extends AbstractFixer {
   }
 
   public function applyFix(\SplFileInfo $file, Tokens $tokens): void {
-    for ($i = 0; $i < $tokens->count(); $i++) {
+    for ($i = 0;
+$i < $tokens->count();
+$i++) {
       if (!$tokens[$i]->isGivenKind(T_GLOBAL)) {
         continue;
       }
@@ -38,7 +40,9 @@ final class GlobalOneLineFixer extends AbstractFixer {
 
       // collect variables (strip trailing commas and ignore empty/whitespace)
       $vars = [];
-      for ($j = $start + 1; $j < $end; $j++) {
+      for ($j = $start + 1;
+$j < $end;
+$j++) {
         $text = trim($tokens[$j]->getContent());
         $text = rtrim($text, ',');
         if ($text !== '' && $text !== "\n") {
