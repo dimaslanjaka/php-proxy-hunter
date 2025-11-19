@@ -9,7 +9,7 @@ PhpProxyHunter\Server::allowCors(true);
 header('Content-Type: application/json');
 
 $userId     = getUserId();
-$lock       = new FileLockHelper(tmp('locks/proxy-add-' . $userId . '.lock'));
+$lock       = new FileLockHelper(tmp() . '/locks/proxy-add-' . $userId . '.lock');
 $projectDir = __DIR__ . '/../';
 $filePath   = $projectDir . 'assets/proxies/added-' . $userId . '.txt';
 
