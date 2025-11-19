@@ -1,5 +1,107 @@
 [
   {
+    "hash": "01a74e0e56bae4034d8aabc2af8a42197cb80fb3",
+    "date": "2025-11-19T16:01:42+07:00",
+    "message": "chore: restore old proxy list using static file",
+    "files": [
+      "php_backend/proxy-working.php",
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "19e92e65ee197961155e2c9e1f648de37f637d99",
+    "date": "2025-11-19T15:59:12+07:00",
+    "message": "feat(ProxyDB): add findProxy method for flexible proxy searching with pagination",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "d1713077d170acff7d05f67c5d88affc90174b58",
+    "date": "2025-11-19T15:50:00+07:00",
+    "message": "fix(proxy-add): correct tmp() usage for lock file path",
+    "files": [
+      "php_backend/proxy-add.php"
+    ]
+  },
+  {
+    "hash": "f98b9eafbdf8de40533060dd167b5149fd1560f5",
+    "date": "2025-11-19T15:49:32+07:00",
+    "message": "refactor(utils/file): extract tmp() into dedicated temp.php\n\n- Move `tmp(...)` helper out of `src/utils/file/index.php` into new\n  `src/utils/file/temp.php`.\n- Keeps `index.php` focused on general file utilities and isolates temp\n  directory creation/permission logic in a single file.\n- No behavioral changes to `tmp(...)` (logic preserved).",
+    "files": [
+      "src/utils/file/index.php",
+      "src/utils/file/temp.php"
+    ]
+  },
+  {
+    "hash": "9b4792455a2a83d2cfd510f032800004577efe08",
+    "date": "2025-11-19T15:47:43+07:00",
+    "message": "fix(tmp): append filenames to tmp() result instead of passing them into tmp()\n\n- Avoid passing filename-like args into `tmp()` (it creates directories named like the file).\n- Use `tmp()` to obtain the directory and append the filename instead.\n\nReason: calling `tmp('locks/whatever.lock')` created a folder named `whatever.lock`, breaking lock-file behavior; this change ensures real lock files are used.",
+    "files": [
+      "artisan/filterPortsDuplicate.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker-test.php"
+    ]
+  },
+  {
+    "hash": "3b0bfb797733e8b8e30505badccbe6569de9c6f3",
+    "date": "2025-11-19T15:39:58+07:00",
+    "message": "fix(FileLockHelper): delete the lock file gracefully upon unlocking",
+    "files": [
+      "src/PhpProxyHunter/FileLockHelper.php"
+    ]
+  },
+  {
+    "hash": "67f5f13344c4a619663abcfb989d92b286f18d48",
+    "date": "2025-11-19T15:34:23+07:00",
+    "message": "fix(proxy-add): add early exit if the lock is already acquired to prevent concurrent proxy additions",
+    "files": [
+      "php_backend/proxy-add.php"
+    ]
+  },
+  {
+    "hash": "5434a4e3d4f4afb4c94dee736809016e6e1ff438",
+    "date": "2025-11-19T15:33:35+07:00",
+    "message": "refactor(PhpProxyHunter/FileLockHelper): centralize lock-file handling and unify lock checks\n\n- Add private `openLockHandle()` to ensure lock directory, check writability\n  and open the lock file (suppressing fopen warnings).\n- Refactor `lock()` to reuse the new helper and properly close handles on failure.\n- Replace `isLockedByAnotherProcess()` with a single `isLocked()` implementation\n  that attempts an exclusive non-blocking `flock` to detect active locks and\n  falls back to `file_exists()` when the file can't be opened.\n- Update CLI demo to call `isLocked()` and update unit tests to use the new API.\n- Improve error handling around directory creation/opening to avoid noisy PHP warnings.",
+    "files": [
+      "src/PhpProxyHunter/FileLockHelper.php",
+      "tests/PhpProxyHunter/FileLockHelperTest.php"
+    ]
+  },
+  {
+    "hash": "f822bf0741f00ea73d6fdee551bc15aed0b95eb1",
+    "date": "2025-11-19T15:21:49+07:00",
+    "message": "fix(FileLockHelper): improve directory creation and locking logic to handle errors gracefully",
+    "files": [
+      "src/PhpProxyHunter/FileLockHelper.php"
+    ]
+  },
+  {
+    "hash": "a55511707a08150e38ea06f9749e5ce551535dea",
+    "date": "2025-11-19T15:18:15+07:00",
+    "message": "refactor(proxyAdd): simplify proxy addition logic by including proxy-add.php directly",
+    "files": [
+      "proxyAdd.php"
+    ]
+  },
+  {
+    "hash": "882a79d8446b68c81f96407df132e45d5fd4c63e",
+    "date": "2025-11-19T13:49:41+07:00",
+    "message": "refactor(react): move ProxyList into its own folder and update imports\n\n- rename: src/react/pages/ProxyList.tsx -> src/react/pages/ProxyList/index.tsx\n- Adjust relative import paths to reflect new location (types, utils, components).\n- Update route import in `src/react/routes.js` to `./pages/ProxyList/index.tsx`.\n- Internal component imports updated to use local filenames (ApiUsage, LogViewer, ModifyCurl, ProxySubmission).\n- No functional or behavior changes intended; purely file structure / import path cleanup.",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx",
+      "src/react/routes.js"
+    ]
+  },
+  {
+    "hash": "3e1679cce50171e7c41ecfe2a49a6b6ca18092b4",
+    "date": "2025-11-19T13:32:17+07:00",
+    "message": "feat(deploy): add UI-only deploy flag and pass-through args for Windows script\n\n- Add passthrough of command-line arguments to `bin/deploy-vps.cmd` so forwarded args are available to the Node script.\n- Implement `--ui` / `--ui-only` handling in `bin/deploy-vps.mjs`:\n  - Build local React UI (`yarn build:react`) and upload `dist/react` + `index.html`.\n  - Remove remote `dist/react` and `index.html` (best-effort) before upload.\n  - Create and remove a lightweight build lock at `tmp/locks/.build-lock` to signal maintenance.\n  - Run remote permission fix (`bash bin/fix-perm`) and error on failure.\n  - Skip full deploy when UI-only flow completes.",
+    "files": [
+      "bin/deploy-vps.cmd",
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
     "hash": "e5ae2b8dfaa8ceb7447278291d4dd58d815e3bfb",
     "date": "2025-11-19T12:57:31+07:00",
     "message": "feat(codeblock): add Vite-safe on-demand highlight.js language loaders and demo\n\n- Add explicit Vite-compatible `languageLoaders` map and `loadLanguage` helper to dynamically import/register highlight.js languages (with common aliases).\n- Update `CodeBlock` to lazy-load only the requested language, use SSR guard and an `active` flag, avoid bulk preloads, and simplify DOM update logic; small classname tweak.\n- Add `src/react/pages/examples/HighlightJS.tsx` – example page rendering multiple `CodeBlock` samples (JS, TS, Python, Bash, PowerShell, Ruby, JSON, CSS, SCSS, HTML/XML, YAML, Markdown, DOS).\n- Include aliases such as sh/shell/zsh, tsx/mts/cts, ps/ps1, rb/gemspec/podspec/thor/irb, dos/bat/cmd.",
@@ -8676,111 +8778,6 @@
     "message": "feat(index.php): restrict /assets and /data routes to specific file types and improve MIME handling\n\n- Added a route to serve files from /assets and /data only if their extensions are in an allowed list (json, txt, images, xml, xsl, jsonc).\n- Automatically detects and sets the correct MIME type for allowed files.\n- Returns 403 Forbidden for disallowed file types and 404 Not Found for missing files.\n- Simplified index file serving logic.",
     "files": [
       "index.php"
-    ]
-  },
-  {
-    "hash": "1339410bc2cb55138523a1808d2e2e9c3d9092e8",
-    "date": "2025-08-15T13:40:59+07:00",
-    "message": "feat(vite-plugin): improve index.html handling for dev and production\n\n- Update `configResolved` to only copy `index.dev.html` to `index.html` in development mode (`serve` command).\n- Add `closeBundle` hook to copy the compiled `dist/react/index.html` to the project root for production builds.\n- Ensures correct index.html is used in both development and production environments.",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "2fadc0f5ea598988a223644840e9895fde18112b",
-    "date": "2025-08-15T13:04:28+07:00",
-    "message": "feat(php-fpm): add systemd service and config for generic PHP-FPM, update nginx and service scripts\n\n- Add `php-fpm.service`, `php-fpm-pool.ini`, and `php-conf.ini` to `assets/systemctl` for generic PHP-FPM management.\n- Update `.htaccess_nginx.conf` to use a generic `php-fpm.sock` instead of version-specific socket.\n- Update `bin/restart-server` and `bin/stop-server` scripts to handle both old versioned PHP-FPM services and the new generic `php-fpm` service, including improved service start/stop logic and config copying.\n- Add documentation for PHP 7.4 setup in `docs/readme-php7.4.md`.\n- Update `readme-php.md` to reference new generic PHP-FPM setup and troubleshooting steps.\n- Fix permission script to copy updated nginx config.",
-    "files": [
-      ".htaccess_nginx.conf",
-      "assets/systemctl/php-conf.ini",
-      "assets/systemctl/php-fpm-pool.ini",
-      "assets/systemctl/php-fpm.service",
-      "bin/restart-server",
-      "bin/stop-server",
-      "docs/readme-php7.4.md",
-      "fix-nginx-perm.sh",
-      "readme-php.md"
-    ]
-  },
-  {
-    "hash": "b1fa725260f478c6b0e7f31e59b448190bc20231",
-    "date": "2025-08-15T12:08:51+07:00",
-    "message": "refactor(CI): drop php build",
-    "files": [
-      ".github/workflows/build-php.yml.txt"
-    ]
-  },
-  {
-    "hash": "9ca588112ed5dadcc24e2bae0f495d934ce54c23",
-    "date": "2025-08-15T11:43:24+07:00",
-    "message": "fix(workflow): add concurrency settings to prevent overlapping PHP FPM builds",
-    "files": [
-      ".github/workflows/build-php.yml"
-    ]
-  },
-  {
-    "hash": "35478090bb4b8f03d05ecd18032af07d850a9a38",
-    "date": "2025-08-15T11:42:00+07:00",
-    "message": "fix(workflow): update build script to include additional dependencies and improve staging directory setup",
-    "files": [
-      ".github/workflows/build-php.yml"
-    ]
-  },
-  {
-    "hash": "dd1e75abaefa92fd753078c6a3b7fb8769563fcd",
-    "date": "2025-08-15T11:39:19+07:00",
-    "message": "fix(workflow): ensure staging directory for PHP installation is created before install",
-    "files": [
-      ".github/workflows/build-php.yml"
-    ]
-  },
-  {
-    "hash": "b70942f1c9da9bf9dd4905e7785f7aa9fe9c56c9",
-    "date": "2025-08-15T11:36:45+07:00",
-    "message": "fix(workflow): improve build process by adding cache setup and conditional checks for SQLite and PHP source",
-    "files": [
-      ".github/workflows/build-php.yml"
-    ]
-  },
-  {
-    "hash": "586729d7d5b1f9a7edf56fe6d1dc0796cd5e0187",
-    "date": "2025-08-15T11:28:48+07:00",
-    "message": "fix(workflow): add libonig-dev to build dependencies for PHP FPM",
-    "files": [
-      ".github/workflows/build-php.yml"
-    ]
-  },
-  {
-    "hash": "031688d3666725d5f37a565c4497910551c5e868",
-    "date": "2025-08-15T11:27:47+07:00",
-    "message": "fix(workflow): update cron schedule for PHP FPM build to run every 24 hours",
-    "files": [
-      ".github/workflows/build-php.yml"
-    ]
-  },
-  {
-    "hash": "ba7d6ab03c8c4e1580ff4473d491e856e23e6fe4",
-    "date": "2025-08-15T11:23:16+07:00",
-    "message": "feat(workflow): add GitHub Actions workflow for building PHP FPM with SQLite",
-    "files": [
-      ".github/workflows/build-php.yml"
-    ]
-  },
-  {
-    "hash": "edd63674b5c8dc79d69e275a8c184401eda1e83f",
-    "date": "2025-08-15T10:25:17+07:00",
-    "message": "fix(setup): check for user existence before script execution",
-    "files": [
-      "setup.sh"
-    ]
-  },
-  {
-    "hash": "42dd91fcb8bf417ef7528cc9ca2920c806e9f69d",
-    "date": "2025-08-15T09:37:50+07:00",
-    "message": "fix(php): update PHP version range",
-    "files": [
-      "bin/restart-server",
-      "bin/stop-server"
     ]
   }
 ]
