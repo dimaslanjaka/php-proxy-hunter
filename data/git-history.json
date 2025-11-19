@@ -1,5 +1,25 @@
 [
   {
+    "hash": "a84f48c134400a26903deefafbd65d309e5b3ae0",
+    "date": "2025-11-19T10:13:35+07:00",
+    "message": "style(buttons): remove shadow utilities from button classNames\n\nRemove Tailwind `shadow` and `dark:shadow-white` utilities from button and link\n`className` attributes to disable drop shadows while keeping other styles intact.",
+    "files": [
+      "src/react/pages/NotFound.tsx",
+      "src/react/pages/ProxyList.tsx",
+      "src/react/pages/admin/LogsSection.tsx",
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
+    "hash": "219eec7aa4f6a61cd286d648373e1b04fbd513b6",
+    "date": "2025-11-19T10:11:41+07:00",
+    "message": "fix(codeblock): replace react-syntax-highlighter with runtime highlight.js to fix prod build errors\n\n- remove `react-syntax-highlighter` and its types from `package.json`\n- replace static `react-syntax-highlighter` usage in `src/react/components/CodeBlock.tsx`\n  with a runtime/dynamic import of `highlight.js/lib/core` and language packs\n- register languages at runtime and set `code` element `textContent`, then call\n  `hljs.highlightElement` (avoids innerHTML/unescaped HTML and build-time lexical init issues)\n- switch markup back to a simple <pre><code ref=...> wrapper and import GitHub dark CSS\n- purpose: fix production bundling error (\"can't access lexical declaration ... before initialization\")\n  and prevent white/blank page on build\n\nBREAKING CHANGE: removed `react-syntax-highlighter` dependency — CI/devs should run installs and verify builds.",
+    "files": [
+      "package.json",
+      "src/react/components/CodeBlock.tsx"
+    ]
+  },
+  {
     "hash": "99d373a622f72beaa1a2faff98f8dd3ff4de10da",
     "date": "2025-11-19T09:03:54+07:00",
     "message": "feat(codeblock): replace manual highlight.js with react-syntax-highlighter\n\nReplace the previous manual hljs usage in `CodeBlock` with the\n`react-syntax-highlighter` Light build and `atomOneDark` HLJS theme.\nRegister multiple languages (javascript, jsx, html/xml, css, scss,\njava, python, typescript) and render code via <SyntaxHighlighter>\n(showLineNumbers, wrapLongLines). Remove the useRef/useEffect hljs\nhighlightElement flow and update markup from <pre><code> to the new\nSyntaxHighlighter wrapper.\n\nAdds dependencies:\n- react-syntax-highlighter@^16.1.0\n- @types/react-syntax-highlighter@^15.5.13\n\nNo breaking API changes expected.",
@@ -8760,23 +8780,6 @@
     "message": "feat(docs): add guide for building SQLite from source on Linux",
     "files": [
       "readme-sqlite.md"
-    ]
-  },
-  {
-    "hash": "39bb6dee3487f10c9411a3a5504f45ed37135267",
-    "date": "2025-08-15T07:32:24+07:00",
-    "message": "fix(Navbar): remove unused state properties and clean up component",
-    "files": [
-      "src/react/components/Navbar.tsx"
-    ]
-  },
-  {
-    "hash": "634f6bd3fc01fae7108b8cc7c7ccd2df83a32303",
-    "date": "2025-08-15T07:29:42+07:00",
-    "message": "feat(pages): add NotFound component for 404 error handling",
-    "files": [
-      "src/react/index.tsx",
-      "src/react/pages/NotFound.tsx"
     ]
   }
 ]
