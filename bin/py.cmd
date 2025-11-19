@@ -9,12 +9,14 @@ REM Move up one level to get <project> root
 for %%i in ("%SCRIPT_DIR%") do set "CWD=%%~dpi"
 set "CWD=%CWD:~0,-1%"
 
-REM Prefer .venv over venv for virtual environment path
-set ".VENV_DIR=%CWD%\.venv"
+REM Prefer venv over .venv for virtual environment path
 set "VENV_DIR=%CWD%\venv"
+set ".VENV_DIR=%CWD%\.venv"
 set "VENV_PATH=%VENV_DIR%"
-if exist "%CWD%\.venv" (
-    set "VENV_PATH=%CWD%\.venv"
+if not exist "%VENV_PATH%" (
+    if exist "%CWD%\.venv" (
+        set "VENV_PATH=%CWD%\.venv"
+    )
 )
 set "VENV_SCRIPTS=%VENV_PATH%\Scripts"
 
