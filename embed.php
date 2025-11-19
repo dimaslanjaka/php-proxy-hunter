@@ -42,8 +42,8 @@ if ($userToken && $serialNumber) {
     }
   }
 } else {
-  // Check if the captcha session is empty
-  if (empty($_SESSION['captcha'])) {
+  // Check if the captcha session is empty or false
+  if (empty($_SESSION['captcha']) || !$_SESSION['captcha']) {
     // Return 403 forbidden when captcha is not resolved
     $forbidden = true;
   } else {

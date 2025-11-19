@@ -9,6 +9,10 @@ global $isAdmin, $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType;
 
 Server::allowCors(true);
 
+if (empty($_SESSION['captcha']) || !$_SESSION['captcha']) {
+  respond_json(['error' => true, 'message' => 'Access denied']);
+}
+
 $core_db  = new CoreDB($dbFile, $dbHost, $dbName, $dbUser, $dbPass, false, $dbType);
 $proxy_db = $core_db->proxy_db;
 
