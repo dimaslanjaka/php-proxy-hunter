@@ -1,5 +1,28 @@
 [
   {
+    "hash": "34c850a41a21d0029d4d314bbd2966e69e15a773",
+    "date": "2025-11-19T07:07:51+07:00",
+    "message": "style(ui): add dark-mode shadows (dark:shadow-white) to components\n\nAdd `dark:shadow-white` alongside existing Tailwind `shadow*` utilities so UI shadows remain visible in dark mode.\nThis is a cosmetic styling change only — no runtime or API behavior modified.\n\nNotes:\n- Purpose: improve shadow contrast in dark theme for better visual clarity.\n- Verification: run the dev server and visually inspect key pages in dark mode.",
+    "files": [
+      "src/react/components/LanguageSwitcher.tsx",
+      "src/react/components/Modal.tsx",
+      "src/react/components/Navbar.tsx",
+      "src/react/pages/About.tsx",
+      "src/react/pages/Contact.tsx",
+      "src/react/pages/NotFound.tsx",
+      "src/react/pages/OauthHandler.tsx",
+      "src/react/pages/Outbound.tsx",
+      "src/react/pages/ProxyList.tsx",
+      "src/react/pages/ProxyList/ApiUsage.tsx",
+      "src/react/pages/ProxyList/LogViewer.tsx",
+      "src/react/pages/ProxyList/ModifyCurl.tsx",
+      "src/react/pages/ProxyList/ProxySubmission.tsx",
+      "src/react/pages/Settings.tsx",
+      "src/react/pages/dashboard/DashboardContent.tsx",
+      "src/react/pages/dashboard/UserPaymentLogs.tsx"
+    ]
+  },
+  {
     "hash": "233a66385b9171d0098167f80557b54260677b62",
     "date": "2025-11-19T06:56:31+07:00",
     "message": "feat(matcher): add case-insensitive string equality check function",
@@ -8757,14 +8780,6 @@
     "files": [
       "src/react/pages/Changelog.tsx",
       "vite.config.js"
-    ]
-  },
-  {
-    "hash": "4eeabe84a9bff17306c00b7b76b88451a51bc8c8",
-    "date": "2025-08-15T05:48:16+07:00",
-    "message": "fix(settings): add source map resolution options for vite debugging",
-    "files": [
-      ".vscode/settings.json"
     ]
   }
 ]
