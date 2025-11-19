@@ -26,16 +26,34 @@ class FileLockHelper {
     // Ensure the directory exists before trying to open the file
     $dir = dirname($this->filePath);
     if (!is_dir($dir)) {
-      mkdir($dir, 0777, true);
+      if (!@mkdir($dir, 0777, true) && !is_dir($dir)) {
+        // Failed to create directory (permissions or race) — cannot proceed
+        return false;
+      }
     }
 
-    $this->handle = fopen($this->filePath, 'c+');
-    if (!$this->handle) {
+    // Check writability where possible. On some Windows setups this may be limited,
+    // so we check and proceed to a safe fopen attempt.
+    if (!is_writable($dir)) {
+      // Directory exists but isn't writable for the PHP process
+      return false;
+    }
+
+    // Suppress warnings from fopen and handle failure explicitly to avoid PHP warnings
+    $this->handle = @fopen($this->filePath, 'c+');
+    if ($this->handle === false) {
       return false;
     }
 
     $this->lockType = $lockType;
-    return flock($this->handle, $lockType);
+    if (!flock($this->handle, $lockType)) {
+      // Could not acquire lock — close handle and return false
+      fclose($this->handle);
+      $this->handle = null;
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -78,11 +96,20 @@ class FileLockHelper {
     // Ensure the lock file's directory exists
     $dir = dirname($this->filePath);
     if (!is_dir($dir)) {
-      mkdir($dir, 0777, true);
+      if (!@mkdir($dir, 0777, true) && !is_dir($dir)) {
+        // Can't ensure the directory — assume not locked (conservative)
+        return false;
+      }
     }
 
-    $tempHandle = fopen($this->filePath, 'c+');
-    if (!$tempHandle) {
+    // If directory is not writable, we likely cannot create/open the lock file.
+    if (!is_writable($dir)) {
+      return false;
+    }
+
+    // Suppress fopen warnings and handle failure explicitly
+    $tempHandle = @fopen($this->filePath, 'c+');
+    if ($tempHandle === false) {
       return false; // Can't open the file; assume not locked
     }
 
