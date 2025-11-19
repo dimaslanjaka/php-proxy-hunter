@@ -37,6 +37,7 @@ class GeoPlugin2 {
     'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb',
     'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb',
   ];
+  private static $downloadingMap = [];
 
   public function __construct() {
     $filenames = [
@@ -67,6 +68,14 @@ class GeoPlugin2 {
   }
 
   private function downloadFile($url, $path) {
+    // Prevent concurrent downloads of the same file
+    if (isset(self::$downloadingMap[$path])) {
+      return false;
+    }
+    self::$downloadingMap[$path] = true;
+    register_shutdown_function(function () use ($path) {
+      unset(self::$downloadingMap[$path]);
+    });
     // Helper to perform cURL with optional SSL verify
     $curl_head = function ($url, $verify = true) {
       $ch = curl_init($url);
