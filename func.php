@@ -1,8 +1,5 @@
 <?php
 
-/** @noinspection PhpDefineCanBeReplacedWithConstInspection */
-/** @noinspection RegExpRedundantEscape */
-
 define('PHP_PROXY_HUNTER_PROJECT_ROOT', __DIR__);
 
 require_once __DIR__ . '/vendor/symfony/polyfill-mbstring/bootstrap.php';
@@ -184,7 +181,7 @@ function uniqueClassObjectsByProperty(array $array, string $property): array {
  * @param string|null $string The string to check.
  * @return bool True if the string is base64 encoded, false otherwise.
  */
-function isBase64Encoded(?string $string): bool {
+function isBase64Encoded($string): bool {
   if (empty($string)) {
     return false;
   }
@@ -214,7 +211,7 @@ function isBase64Encoded(?string $string): bool {
  * @param string|null $stringToRemove The string to remove from the source file.
  * @return string Message indicating success or failure.
  */
-function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFilePath, ?string $stringToRemove): string {
+function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFilePath, $stringToRemove): string {
   if (!file_exists($destinationFilePath)) {
     file_put_contents($destinationFilePath, '');
   }
@@ -319,7 +316,7 @@ function curlGetCache($url): string {
  * @param string $cacheDir The directory where cached responses will be stored. Defaults to './.cache/' in the current directory.
  * @return string|false The response content or false on failure.
  */
-function curlGetWithProxy(string $url, ?string $proxy = null, ?string $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/') {
+function curlGetWithProxy(string $url, $proxy = null, $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/') {
   // Generate cache file path based on URL
   if (!file_exists($cacheDir)) {
     mkdir($cacheDir);
@@ -451,7 +448,7 @@ function readFileLinesToArray(string $filename) {
  *
  * @return array An array containing full paths of files with the specified extension.
  */
-function getFilesByExtension(string $folder, ?string $extension = 'txt'): array {
+function getFilesByExtension(string $folder, $extension = 'txt'): array {
   if (!file_exists($folder)) {
     echo "$folder not exist" . PHP_EOL;
     return [];
@@ -766,7 +763,7 @@ function confirmAction(string $message = 'Are you sure? (y/n): '): bool {
  * @param callable|null $callback A callback function to be called for each item during iteration.
  * @return void
  */
-function iterateArray(array $array, int $limit = 50, ?callable $callback = null): void {
+function iterateArray(array $array, int $limit = 50, $callback = null) {
   $arrayLength = count($array);
   $limit       = min($arrayLength, $limit); // Get the minimum of array length and $limit
   for ($i = 0; $i < $limit; $i++) {
@@ -786,7 +783,7 @@ function iterateArray(array $array, int $limit = 50, ?callable $callback = null)
  * @param string $inputFile The path to the input file.
  * @return void
  */
-function fixFile(string $inputFile): void {
+function fixFile(string $inputFile) {
   if (!file_exists($inputFile)) {
     echo "fixFile: $inputFile is not found" . PHP_EOL;
     return;
@@ -1048,7 +1045,7 @@ function php_exec($cmd) {
  *
  * @return void
  */
-function remove_array_keys(array &$array, array $keysToRemove): void {
+function remove_array_keys(array &$array, array $keysToRemove) {
   foreach ($array as $key => &$value) {
     if (is_array($value)) {
       // Recursively apply the function to nested arrays

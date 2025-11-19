@@ -12,7 +12,7 @@
  * @param mixed $arg The value to convert.
  * @return string The string representation.
  */
-function stringify($arg): string {
+function stringify($arg) {
   if (is_string($arg) || is_int($arg) || is_float($arg)) {
     return (string) $arg;
   } elseif ($arg === true) {
@@ -51,7 +51,7 @@ function string_to_regex($input) {
  * @throws RuntimeException If headers are already sent
  * @return void
  */
-function outputUtf8Content($data): void {
+function outputUtf8Content($data) {
   if (headers_sent($file, $line)) {
     throw new RuntimeException("Cannot set headers. Headers already sent in $file on line $line.");
   }
@@ -81,7 +81,7 @@ function outputUtf8Content($data): void {
   }
 }
 
-function generateRandomString($length = 10): string {
+function generateRandomString($length = 10) {
   $characters   = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   $randomString = '';
   for ($i = 0; $i < $length; $i++) {
@@ -96,7 +96,7 @@ function generateRandomString($length = 10): string {
  * @param string|null $str The input string to split.
  * @return array An array of lines, or an empty array if the split fails.
  */
-function split_by_line(?string $str): array {
+function split_by_line($str) {
   if (!$str) {
     return [];
   }
@@ -117,7 +117,7 @@ function split_by_line(?string $str): array {
  * @param string|null $email The email address to anonymize.
  * @return string The anonymized email address.
  */
-function anonymizeEmail($email): string {
+function anonymizeEmail($email) {
   // Return same value when empty
   if (empty($email)) {
     return $email;

@@ -3,8 +3,6 @@
 /** @noinspection RegExpRedundantEscape */
 /** @noinspection RegExpUnnecessaryNonCapturingGroup */
 
-use PhpProxyHunter\Proxy;
-
 /**
  * Validates a proxy string.
  *
@@ -12,7 +10,7 @@ use PhpProxyHunter\Proxy;
  * @param bool $validate_credential Whether to validate credentials if present.
  * @return bool True if the proxy is valid, false otherwise.
  */
-function isValidProxy(?string $proxy, bool $validate_credential = false): bool {
+function isValidProxy($proxy, $validate_credential = false) {
   if (empty($proxy)) {
     return false;
   }
@@ -66,7 +64,7 @@ function isValidProxy(?string $proxy, bool $validate_credential = false): bool {
  * @param mixed $proxy The proxy IP address to validate. Can be null.
  * @return bool True if the proxy IP address is valid, false otherwise.
  */
-function isValidIp($proxy): bool {
+function isValidIp($proxy) {
   if (!$proxy) {
     return false;
   }
@@ -88,8 +86,8 @@ function isValidIp($proxy): bool {
  * @param int $timeout The timeout value in seconds (default is 10 seconds).
  * @return bool True if the port is open, false otherwise.
  */
-function isPortOpen(string $proxy, int $timeout = 10): bool {
-  $proxy = trim($proxy);
+function isPortOpen($proxy, $timeout = 10) {
+  $proxy = trim((string)$proxy);
 
   // disallow empty proxy
   if (empty($proxy) || strlen($proxy) < 7) {

@@ -16,7 +16,7 @@ $str_to_remove = [];
  * @param string|null $title_should_be
  * @return void
  */
-function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?bool $print_headers = true, ?string $custom_title_should_be = null): void {
+function checkProxyInParallel(array $proxies, $custom_endpoint = null, $print_headers = true, $custom_title_should_be = null) {
   global $isCli, $max, $str_to_remove, $lockFile, $proxy_db;
   $user_id         = getUserId();
   $config          = getConfig($user_id);
@@ -255,7 +255,7 @@ function checkProxyInParallel(array $proxies, ?string $custom_endpoint = null, ?
   }
 }
 
-function schedule_remover(): void {
+function schedule_remover() {
   global $str_to_remove;
   if (!empty($str_to_remove)) {
     // remove already indexed proxies
@@ -285,7 +285,7 @@ function schedule_remover(): void {
   }
 }
 
-function cleanUp(): void {
+function cleanUp() {
   $directory = tmp() . '/runners/';
 
   // Get the current time

@@ -11,7 +11,6 @@ $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMO
 
 if (!$isCli) {
   header('Content-Type: text/plain; charset=utf-8');
-  setCacheHeaders(5);
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
   }
@@ -49,8 +48,7 @@ write_file($runner, $cmd);
 
 runBashOrBatch($runner);
 
-function exitProcess(): void
-{
+function exitProcess(): void {
   global $pid_file;
   if (file_exists($pid_file)) {
     unlink($pid_file);
