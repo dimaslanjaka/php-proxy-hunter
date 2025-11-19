@@ -24,6 +24,12 @@ if (empty($request)) {
   exit;
 }
 
+// Stop if locked
+if ($lock->isLocked()) {
+  echo json_encode(['error' => true, 'message' => 'Another process is adding a proxy. Please try again later.']);
+  exit;
+}
+
 // Try lock
 if (!$lock->lock(LOCK_EX)) {
   echo json_encode(['error' => true, 'message' => 'Another process is adding a proxy. Please try again later.']);
