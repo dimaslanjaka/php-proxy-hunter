@@ -265,7 +265,7 @@ function check(string $proxy, string $url, string $webTitle) {
 
     $result = \PhpProxyHunter\Checker\ProxyCheckerHttpOnly::check($checkerOptions);
 
-    $data = ['https' => $result->isSSL ? 'true' : 'false', 'last_check' => date(DATE_RFC3339)];
+    $data = ['last_check' => date(DATE_RFC3339)];
     if (!empty($result->latency)) {
       $data['latency'] = $result->latency;
     }
