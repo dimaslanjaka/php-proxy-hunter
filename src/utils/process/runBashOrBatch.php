@@ -107,12 +107,12 @@ function runBashOrBatch($scriptPath, $commandArgs = [], $identifier = null, $red
   }
 
   // Build runner and log paths
-  $runner_file = unixPath(tmp() . '/runners/' . $filename . '-runBashOrBatch-' . $hash . ($isWin ? '.bat' : '.sh'));
+  $runner_file = unixPath(tmp() . '/runners/runBashOrBatch/' . $filename . '-' . $hash . ($isWin ? '.bat' : '.sh'));
 
   if ($redirectOutput && !empty($customOutputPath)) {
     $output_file = unixPath($customOutputPath);
   } else {
-    $output_file = unixPath(tmp() . '/logs/' . $filename . '-runBashOrBatch-' . $hash . '.txt');
+    $output_file = unixPath(tmp() . '/logs/runBashOrBatch/' . $filename . '-' . $hash . '.txt');
   }
 
   // Construct command
