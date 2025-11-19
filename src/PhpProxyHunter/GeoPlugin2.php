@@ -115,8 +115,8 @@ class GeoPlugin2 {
     // Get local file size
     $localFileSize = file_exists($path) ? filesize($path) : -1;
 
-    // Only download if sizes differ or local file does not exist
-    if ($httpCode == 200 && ($remoteFileSize != $localFileSize)) {
+    // Only download if sizes greater or local file does not exist
+    if ($httpCode == 200 && ($remoteFileSize > $localFileSize)) {
       $get = $curl_get($url, true);
       if ($get['code'] === 0 && strpos($get['error'], 'SSL certificate') !== false) {
         $get = $curl_get($url, false);

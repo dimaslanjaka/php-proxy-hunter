@@ -10,7 +10,8 @@ const CWD = path.resolve(__dirname, '..');
 const files = [
   path.join(__dirname, 'composer-installer.js'),
   path.join(__dirname, 'sqlite-installer.js'),
-  path.join(__dirname, 'php-cs-fixer-installer.js')
+  path.join(__dirname, 'php-cs-fixer-installer.js'),
+  path.join(__dirname, 'geoip-installer.js')
 ];
 
 async function main() {
