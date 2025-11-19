@@ -1,5 +1,23 @@
 [
   {
+    "hash": "99d373a622f72beaa1a2faff98f8dd3ff4de10da",
+    "date": "2025-11-19T09:03:54+07:00",
+    "message": "feat(codeblock): replace manual highlight.js with react-syntax-highlighter\n\nReplace the previous manual hljs usage in `CodeBlock` with the\n`react-syntax-highlighter` Light build and `atomOneDark` HLJS theme.\nRegister multiple languages (javascript, jsx, html/xml, css, scss,\njava, python, typescript) and render code via <SyntaxHighlighter>\n(showLineNumbers, wrapLongLines). Remove the useRef/useEffect hljs\nhighlightElement flow and update markup from <pre><code> to the new\nSyntaxHighlighter wrapper.\n\nAdds dependencies:\n- react-syntax-highlighter@^16.1.0\n- @types/react-syntax-highlighter@^15.5.13\n\nNo breaking API changes expected.",
+    "files": [
+      "package.json",
+      "src/react/components/CodeBlock.tsx"
+    ]
+  },
+  {
+    "hash": "aad5f4dd0c9a5790850dcd5d6ea8449f8120164d",
+    "date": "2025-11-19T08:23:21+07:00",
+    "message": "feat(react): add Highlight.js example page and route\n\nAdd a new example page `src/react/pages/examples/HighlightJS.tsx` that demonstrates the existing\n`CodeBlock` with highlight.js and dark/light-friendly styling. Register and import the new\ncomponent in `src/react/index.tsx` and add a route for `/examples/highlightjs`.",
+    "files": [
+      "src/react/index.tsx",
+      "src/react/pages/examples/HighlightJS.tsx"
+    ]
+  },
+  {
     "hash": "2a4acfeea24448881e7da6aca06074044ab61520",
     "date": "2025-11-19T08:07:11+07:00",
     "message": "feat(recaptcha): check session expiry before executing recaptcha\n\n- Import `checkRecaptchaSessionExpired` and use it to verify whether the\n  recaptcha session has expired before calling `recaptchaRef.current?.executeAsync()`.\n- Prevent unnecessary recaptcha executions by only calling `verifyRecaptcha`\n  when the session is expired.\n\nThis reduces redundant recaptcha calls and centralizes session-expiry logic.",
@@ -8759,25 +8777,6 @@
     "files": [
       "src/react/index.tsx",
       "src/react/pages/NotFound.tsx"
-    ]
-  },
-  {
-    "hash": "753107f1d4d5fa7936c9ae6aaee5c77bdfa379e4",
-    "date": "2025-08-15T07:22:08+07:00",
-    "message": "feat(styles): add custom font-face rules and font output category\n\n- Added @font-face declarations for Ubuntu, Cera Pro, and JetBrains Mono fonts in tailwind.input.css.\n- Applied Ubuntu font to body, Cera Pro to headings, and JetBrains Mono to code elements.\n- Updated Vite config to alias /assets/fonts and output font files to assets/fonts in build.",
-    "files": [
-      "tailwind.input.css",
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "9a2e7380fbcc39e799fd08df51579102629beb56",
-    "date": "2025-08-15T07:18:58+07:00",
-    "message": "feat(build): extract Tailwind CSS build logic to separate script and update usage\n\n- Moved Tailwind CSS build logic to new `tailwind.build.js` file with proper JSDoc and CLI support.\n- Updated `build:tailwind` npm script to use `node tailwind.build.js` instead of direct npx command.\n- Refactored `vite-plugin.js` to import and use the new `buildTailwind` function, improving code reuse and maintainability.",
-    "files": [
-      "package.json",
-      "tailwind.build.js",
-      "vite-plugin.js"
     ]
   }
 ]
