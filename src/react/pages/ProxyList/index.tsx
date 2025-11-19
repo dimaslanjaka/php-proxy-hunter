@@ -582,7 +582,7 @@ function ProxyList() {
                       key={key}
                       className="px-2 py-1 text-xs whitespace-nowrap border-b border-gray-100 dark:border-gray-800 text-gray-900 dark:text-gray-100">
                       {key === 'last_check' && proxy[key]
-                        ? timeAgo(proxy[key])
+                        ? timeAgo(proxy[key], true, true)
                         : key === 'type' && proxy[key]
                           ? String(proxy[key])
                               .split('-')
