@@ -1,5 +1,14 @@
 [
   {
+    "hash": "e5ae2b8dfaa8ceb7447278291d4dd58d815e3bfb",
+    "date": "2025-11-19T12:57:31+07:00",
+    "message": "feat(codeblock): add Vite-safe on-demand highlight.js language loaders and demo\n\n- Add explicit Vite-compatible `languageLoaders` map and `loadLanguage` helper to dynamically import/register highlight.js languages (with common aliases).\n- Update `CodeBlock` to lazy-load only the requested language, use SSR guard and an `active` flag, avoid bulk preloads, and simplify DOM update logic; small classname tweak.\n- Add `src/react/pages/examples/HighlightJS.tsx` – example page rendering multiple `CodeBlock` samples (JS, TS, Python, Bash, PowerShell, Ruby, JSON, CSS, SCSS, HTML/XML, YAML, Markdown, DOS).\n- Include aliases such as sh/shell/zsh, tsx/mts/cts, ps/ps1, rb/gemspec/podspec/thor/irb, dos/bat/cmd.",
+    "files": [
+      "src/react/components/CodeBlock.tsx",
+      "src/react/pages/examples/HighlightJS.tsx"
+    ]
+  },
+  {
     "hash": "a84f48c134400a26903deefafbd65d309e5b3ae0",
     "date": "2025-11-19T10:13:35+07:00",
     "message": "style(buttons): remove shadow utilities from button classNames\n\nRemove Tailwind `shadow` and `dark:shadow-white` utilities from button and link\n`className` attributes to disable drop shadows while keeping other styles intact.",
@@ -8772,14 +8781,6 @@
     "files": [
       "bin/restart-server",
       "bin/stop-server"
-    ]
-  },
-  {
-    "hash": "d28f7227c91f8e685d4ac05ed85229f8914a727b",
-    "date": "2025-08-15T09:33:35+07:00",
-    "message": "feat(docs): add guide for building SQLite from source on Linux",
-    "files": [
-      "readme-sqlite.md"
     ]
   }
 ]
