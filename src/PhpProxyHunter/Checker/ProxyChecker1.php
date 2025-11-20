@@ -84,6 +84,13 @@ class ProxyChecker1 extends ProxyChecker {
     $foundAnonymity = '';
     $foundLatency   = 0.0;
 
+    // Prioritize anonymity levels so if multiple types succeed we keep the "best" one
+    $anonymityPriority = [
+      'transparent' => 1,
+      'anonymous'   => 2,
+      'elite'       => 3,
+    ];
+
     foreach ($protocols as $type) {
       $tStart   = microtime(true);
       $publicIP = getPublicIP(true, $timeout, [
@@ -94,7 +101,7 @@ class ProxyChecker1 extends ProxyChecker {
       ], !$isSSL);
       $tEnd = microtime(true);
 
-      $foundLatency = round(($tEnd - $tStart) * 1000, 2);
+      $attemptLatency = round(($tEnd - $tStart) * 1000, 2);
       // ms
 
       $ip    = extractIPs($publicIP)[0] ?? null;
@@ -138,8 +145,17 @@ class ProxyChecker1 extends ProxyChecker {
           }
           $foundWorking   = true;
           $workingTypes[] = strtolower($type);
-          $foundAnonymity = 'transparent';
-          break;
+          // choose best anonymity seen so far
+          $newAnon = 'transparent';
+          if ($foundAnonymity === '' || $anonymityPriority[$newAnon] > $anonymityPriority[$foundAnonymity]) {
+            $foundAnonymity = $newAnon;
+          }
+          // record best (minimum) latency among successful attempts
+          if ($foundLatency === 0.0 || $attemptLatency < $foundLatency) {
+            $foundLatency = $attemptLatency;
+          }
+          // continue testing other types
+          continue;
         } else {
           if ($debug) {
             self::log('red', "Proxy {$label} test failed for type {$type} (transparent but cannot reach verification endpoint).");
@@ -156,8 +172,15 @@ class ProxyChecker1 extends ProxyChecker {
         }
         $foundWorking   = true;
         $workingTypes[] = strtolower($type);
-        $foundAnonymity = 'anonymous';
-        break;
+        $newAnon        = 'anonymous';
+        if ($foundAnonymity === '' || $anonymityPriority[$newAnon] > $anonymityPriority[$foundAnonymity]) {
+          $foundAnonymity = $newAnon;
+        }
+        if ($foundLatency === 0.0 || $attemptLatency < $foundLatency) {
+          $foundLatency = $attemptLatency;
+        }
+        // continue testing other types
+        continue;
       }
 
       // If the returned IP is neither the proxy nor the client, it's likely an elite/high-anonymous proxy
@@ -167,8 +190,15 @@ class ProxyChecker1 extends ProxyChecker {
         }
         $foundWorking   = true;
         $workingTypes[] = strtolower($type);
-        $foundAnonymity = 'elite';
-        break;
+        $newAnon        = 'elite';
+        if ($foundAnonymity === '' || $anonymityPriority[$newAnon] > $anonymityPriority[$foundAnonymity]) {
+          $foundAnonymity = $newAnon;
+        }
+        if ($foundLatency === 0.0 || $attemptLatency < $foundLatency) {
+          $foundLatency = $attemptLatency;
+        }
+        // continue testing other types
+        continue;
       }
 
       if ($debug) {
