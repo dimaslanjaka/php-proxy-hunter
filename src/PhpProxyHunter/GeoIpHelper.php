@@ -117,6 +117,7 @@ class GeoIpHelper {
     $data['latitude']  = $locate->latitude;
     $data['longitude'] = $locate->longitude;
     $data['timezone']  = $locate->timezone;
+    $data['lang']      = $locate->lang;
     $data['debug']     = $locate->jsonSerialize();
     return $data;
   }
