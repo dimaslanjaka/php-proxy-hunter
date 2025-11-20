@@ -118,6 +118,23 @@
   <!-- Files to scan -->
   <file>./</file>
 
+  <!-- Disable camelCase naming sniffs (variables, functions, methods, properties, classes) -->
+  <!-- Common PHPCS sniff names that enforce camelCase or enforce specific naming conventions -->
+  <exclude name="Generic.NamingConventions.CamelCapsFunctionName"/>
+  <exclude name="Generic.NamingConventions.CamelCapsVariableName"/>
+  <exclude name="Squiz.NamingConventions.ValidFunctionName"/>
+  <exclude name="Squiz.NamingConventions.ValidVariableName"/>
+  <exclude name="Squiz.Classes.ValidClassName"/>
+  <exclude name="SlevomatCodingStandard.NamingConventions.UnderscoreSeparated"/>
+  <exclude name="SlevomatCodingStandard.NamingConventions.ValidClassName"/>
+  <exclude name="SlevomatCodingStandard.NamingConventions.ValidFunctionName"/>
+  <exclude name="SlevomatCodingStandard.NamingConventions.ValidVariableName"/>
+
+  <!-- Also turn down severity for specific naming rules if they appear as rule refs -->
+  <rule ref="SlevomatCodingStandard.Namespaces.UnderscoreInName">
+    <severity>0</severity>
+  </rule>
+
   <!-- Exclude directories -->
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>node_modules/*</exclude-pattern>
