@@ -24,10 +24,11 @@ if (!file_exists(__DIR__ . '/executables.json')) {
  *
  * @return string|null Absolute path to the PHP executable, or null if not found.
  */
-function getPhpExecutable(): ?string {
-  $json = file_get_contents(__DIR__ . '/executables.json');
-  $data = json_decode($json, true);
-  return isset($data['php']) ? $data['php'] : null;
+function getPhpExecutable($escape = false) {
+  $json    = file_get_contents(__DIR__ . '/executables.json');
+  $data    = json_decode($json, true);
+  $phpPath = isset($data['php']) ? $data['php'] : null;
+  return $escape && $phpPath ? escapeshellcmd($phpPath) : $phpPath;
 }
 
 /**
@@ -42,8 +43,9 @@ function getPhpExecutable(): ?string {
  *
  * @return string|null Absolute path to the Python executable, or null if not found.
  */
-function getPythonExecutable(): ?string {
-  $json = file_get_contents(__DIR__ . '/executables.json');
-  $data = json_decode($json, true);
-  return isset($data['python']) ? $data['python'] : null;
+function getPythonExecutable($escape = false) {
+  $json       = file_get_contents(__DIR__ . '/executables.json');
+  $data       = json_decode($json, true);
+  $pythonPath = isset($data['python']) ? $data['python'] : null;
+  return $escape && $pythonPath ? escapeshellcmd($pythonPath) : $pythonPath;
 }

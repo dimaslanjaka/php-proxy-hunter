@@ -218,8 +218,7 @@ if (!empty($str_to_remove)) {
   echo 'No proxies to remove' . PHP_EOL;
 }
 
-function countFilesAndRepeatScriptIfNeeded()
-{
+function countFilesAndRepeatScriptIfNeeded() {
   $directory = __DIR__ . '/../assets/proxies';
   $fileCount = 0;
 
@@ -243,11 +242,11 @@ function countFilesAndRepeatScriptIfNeeded()
   echo "File count in directory '$directory': $fileCount\n";
 }
 
-function restart_script()
-{
+function restart_script() {
   global $argv;
   $currentScript = __FILE__;
-  $args          = implode(' ', array_slice($argv, 1)); // Get all arguments except the script name
+  $args          = implode(' ', array_slice($argv, 1));
+  // Get all arguments except the script name
 
   // Execute the command
   runShellCommandLive("php $currentScript $args");
@@ -285,8 +284,7 @@ function restart_script()
  * @see read_file()
  * @see extractIPs()
  */
-function blacklist_remover($pdo, $blacklistConf = null)
-{
+function blacklist_remover($pdo, $blacklistConf = null) {
   $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
   if (!in_array($driver, ['sqlite', 'mysql'])) {
     echo "[BLACKLIST] Unsupported database driver: $driver. Skipping blacklist removal.\n";
