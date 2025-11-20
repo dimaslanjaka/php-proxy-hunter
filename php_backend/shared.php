@@ -88,11 +88,19 @@ function getCurrentUserData() {
   * @global string $dbPass Database password
   * @global string $dbType Database type identifier ('sqlite' or 'mysql')
   * @global \PhpProxyHunter\CoreDB $core_db The CoreDB instance to re-create
+  * @global \PhpProxyHunter\UserDB|null $user_db The user DB wrapper (may be uninitialized)
+  * @global \PhpProxyHunter\ProxyDB|null $proxy_db The proxy DB wrapper (may be uninitialized)
+  * @global \PhpProxyHunter\ActivityLog|null $log_db The activity log wrapper (may be uninitialized)
   *
-  * @return void
+  * @return array{
+  *   core_db:\PhpProxyHunter\CoreDB,
+  *   user_db:\PhpProxyHunter\UserDB,
+  *   proxy_db:\PhpProxyHunter\ProxyDB,
+  *   log_db:\PhpProxyHunter\ActivityLog
+  * } Returns the newly created CoreDB instance and its DB wrappers.
   */
 function refreshDbConnections() {
-  global $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType, $core_db;
+  global $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType, $core_db, $user_db, $proxy_db, $log_db;
 
   // Clean up existing DB connections to avoid conflicts
   unset($core_db, $user_db, $proxy_db, $log_db);
@@ -113,4 +121,6 @@ function refreshDbConnections() {
   $proxy_db = $core_db->proxy_db;
   /** @var \PhpProxyHunter\ActivityLog $log_db */
   $log_db = $core_db->log_db;
+
+  return ['core_db' => $core_db, 'user_db' => $user_db, 'proxy_db' => $proxy_db, 'log_db' => $log_db];
 }
