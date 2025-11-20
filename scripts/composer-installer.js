@@ -24,16 +24,45 @@ function downloadComposer(url, dest, cb) {
   https
     .get(url, (response) => {
       if (response.statusCode !== 200) {
-        cb(new Error(`Failed to download composer: ${response.statusCode}`));
+        // Drain response and cleanup file then callback with error
+        response.resume();
+        file.close?.(() => fs.unlink(dest, () => cb(new Error(`Failed to download composer: ${response.statusCode}`))));
         return;
       }
+
       response.pipe(file);
+
+      // Handle stream errors
+      file.on('error', (err) => {
+        // close/destroy file and remove partial download
+        try {
+          file.destroy();
+        } catch (__) {
+          // ignore
+        }
+        fs.unlink(dest, () => cb(err));
+      });
+
+      response.on('error', (err) => {
+        try {
+          file.destroy();
+        } catch (__) {
+          // ignore
+        }
+        fs.unlink(dest, () => cb(err));
+      });
+
       file.on('finish', () => {
         file.close(cb);
       });
     })
     .on('error', (err) => {
-      fs.unlink(dest, () => cb(err));
+      try {
+        fs.unlinkSync(dest);
+      } catch (__) {
+        // ignore
+      }
+      cb(err);
     });
 }
 
@@ -45,11 +74,17 @@ function downloadComposer(url, dest, cb) {
  */
 function getRemoteFileSize(url, cb) {
   const req = https.request(url, { method: 'HEAD' }, (res) => {
+    // Ensure we always consume the response to allow the socket to close
     if (res.statusCode !== 200) {
+      res.resume();
       cb(new Error(`Failed to get file size: ${res.statusCode}`), null);
       return;
     }
-    const size = parseInt(res.headers['content-length'], 10);
+
+    const sizeHeader = res.headers['content-length'];
+    const size = sizeHeader ? parseInt(sizeHeader, 10) : null;
+    // consume and close the response
+    res.resume();
     cb(null, size);
   });
   req.on('error', (err) => cb(err, null));
@@ -132,6 +167,10 @@ function main() {
     }
     fs.writeFileSync(shortcut, shortcutContent, { mode: 0o755 });
     console.log('Composer shortcut created at', shortcut);
+    // Explicitly exit on success so the script doesn't hang due to any
+    // lingering handles (HTTP agents, etc.). Non-zero exits already used
+    // for error paths above.
+    process.exit(0);
   }
 }
 
