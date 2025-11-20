@@ -17,6 +17,7 @@ const files = [
 
 async function main() {
   for (const file of files) {
+    console.log(`\nExecuting post-install script: ${file}\n`);
     await spawnAsync('node', [file], { cwd: CWD, stdio: 'inherit' });
   }
 }
