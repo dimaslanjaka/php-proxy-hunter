@@ -135,11 +135,43 @@ class GeoPlugin2 {
       $curlError2 = $get['error'];
 
       if ($httpCode == 200 && $data) {
-        $result = @file_put_contents($path, $data);
-        if ($result === false) {
-          error_log("[GeoPlugin2] Failed to write file: $path");
+        // Write to a temporary file first, then move to the final destination
+        $tmpDir  = sys_get_temp_dir();
+        $tmpFile = tempnam($tmpDir, 'geoplugin_');
+        if ($tmpFile === false) {
+          error_log("[GeoPlugin2] Failed to create temp file for download: $path");
+          return false;
         }
-        return $result !== false;
+
+        $written = @file_put_contents($tmpFile, $data);
+        if ($written === false) {
+          error_log("[GeoPlugin2] Failed to write temp file: $tmpFile");
+          @unlink($tmpFile);
+          return false;
+        }
+
+        // Ensure destination directory exists
+        $destDir = dirname($path);
+        if (!is_dir($destDir)) {
+          @mkdir($destDir, 0755, true);
+        }
+
+        // Attempt atomic rename first, then fallback to copy+unlink
+        $moved = @rename($tmpFile, $path);
+        if ($moved === false) {
+          // Rename may fail across filesystems; try copy
+          $copied = @copy($tmpFile, $path);
+          if ($copied) {
+            @unlink($tmpFile);
+            return true;
+          } else {
+            error_log("[GeoPlugin2] Failed to move downloaded file to destination: $path");
+            @unlink($tmpFile);
+            return false;
+          }
+        }
+
+        return true;
       } else {
         error_log("[GeoPlugin2] Download failed for $url (HTTP $httpCode, CURL error: $curlError2)");
       }
