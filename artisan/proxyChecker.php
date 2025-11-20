@@ -153,7 +153,7 @@ foreach ($types as $type) {
 
     // try geoip per protocol (best-effort)
     try {
-      \PhpProxyHunter\GeoIpHelper::getGeoIp($proxyStr, $type, $proxy_db);
+      \PhpProxyHunter\GeoIpHelper::resolveGeoProxy($proxyStr, $type, $proxy_db);
     } catch (Throwable $e) {
       // ignore geoip errors
     }

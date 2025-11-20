@@ -200,7 +200,7 @@ function checkProxyInParallel(array $proxies, $custom_endpoint = null, $print_he
         }
         if (empty($item[0]->timezone) || empty($item[0]->country) || empty($item[0]->lang)) {
           foreach ($protocols as $protocol) {
-            GeoIpHelper::getGeoIp($item[0]->proxy, $protocol, $db);
+            GeoIpHelper::resolveGeoProxy($item[0]->proxy, $protocol, $db);
           }
         }
         if (empty($item[0]->useragent)) {

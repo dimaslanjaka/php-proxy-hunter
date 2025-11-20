@@ -13,7 +13,8 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
-$options = getopt('', ['str:', 'userId']); // php geoIp.php --str "xsdsd dfdfd"
+$options = getopt('', ['str:', 'userId']);
+// php geoIp.php --str "xsdsd dfdfd"
 if (!empty($options['userId'])) {
   setUserId($options['userId']);
 }
@@ -65,11 +66,11 @@ foreach ($extract as $item) {
       $types     = explode('-', $item->type);
       $httpFetch = in_array('http', $types);
       foreach ($types as $type) {
-        GeoIpHelper::getGeoIp($item->proxy, strtolower($type), $proxy_db);
+        GeoIpHelper::resolveGeoProxy($item->proxy, strtolower($type), $proxy_db);
       }
     }
     if (!$httpFetch) {
-      GeoIpHelper::getGeoIp($item->proxy, 'http', $proxy_db);
+      GeoIpHelper::resolveGeoProxy($item->proxy, 'http', $proxy_db);
     }
   } else {
     echo $item->proxy . ' has geoip data, skip' . PHP_EOL;

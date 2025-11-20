@@ -140,7 +140,7 @@ if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
 Scheduler::register(function () use ($lockFilePath, $statusFile, $db) {
   // clean proxies.txt
   // clean_proxies_file(__DIR__ . '/proxies.txt');
-  $data         = parse_working_proxies($db);
+  $data = parse_working_proxies($db);
   $countsString = implode("\n", array_map(function ($key, $value) {
     return "$key proxies $value";
   }, array_keys($data['counter']), $data['counter']));
@@ -261,8 +261,7 @@ echo PHP_EOL;
 
 execute_array_proxies();
 
-function execute_array_proxies()
-{
+function execute_array_proxies() {
   global $untested, $max_checks;
   // filter proxies and skip dead proxies when current minute can be divided by 3
   $proxies = filter_proxies($untested, date('i') % 3 == 0);
@@ -282,8 +281,7 @@ function execute_array_proxies()
  * @param bool $skip_dead_proxies
  * @return Proxy[]
  */
-function filter_proxies(array $proxies, bool $skip_dead_proxies = false)
-{
+function filter_proxies(array $proxies, bool $skip_dead_proxies = false) {
   global $db, $str_to_remove;
   if (empty($proxies)) {
     return [];
@@ -319,8 +317,7 @@ function filter_proxies(array $proxies, bool $skip_dead_proxies = false)
   return $proxies;
 }
 
-function execute_single_proxy(Proxy $item)
-{
+function execute_single_proxy(Proxy $item) {
   global $db, $headers, $endpoint, $startTime, $maxExecutionTime, $str_to_remove;
   // Check if execution time has exceeded the maximum allowed time
   $elapsedTime = microtime(true) - $startTime;
@@ -390,7 +387,7 @@ function execute_single_proxy(Proxy $item)
 
         if (empty($item->timezone) || empty($item->country) || empty($item->lang)) {
           foreach ($proxy_types as $type) {
-            GeoIpHelper::getGeoIp($item->proxy, $type, $db);
+            GeoIpHelper::resolveGeoProxy($item->proxy, $type, $db);
           }
         }
 

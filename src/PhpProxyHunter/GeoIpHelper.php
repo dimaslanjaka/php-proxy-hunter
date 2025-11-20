@@ -9,14 +9,16 @@ use Throwable;
  */
 class GeoIpHelper {
   /**
-   * Get geo IP data for a proxy and update the database.
+   * Resolve geo information for a proxy and update the database.
    *
-   * @param string $the_proxy
-   * @param string $proxy_type
-   * @param ProxyDB|null $db
+   * This was previously named `getGeoIp`.
+   *
+   * @param string $the_proxy Proxy string in the form "IP:PORT" or with auth
+   * @param string $proxy_type Protocol type (e.g. 'http', 'socks5')
+   * @param ProxyDB|null $db Optional ProxyDB instance to persist results
    * @return void
    */
-  public static function getGeoIp($the_proxy, $proxy_type = 'http', $db = null) {
+  public static function resolveGeoProxy($the_proxy, $proxy_type = 'http', $db = null) {
     $proxy = trim($the_proxy);
     if (empty($proxy)) {
       return;

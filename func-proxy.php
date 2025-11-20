@@ -198,11 +198,15 @@ function processCheckProxy($ch, $proxy, $type, $username, $password) {
   $endpoint = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
   curl_setopt($ch, CURLINFO_HEADER_OUT, true);
   curl_setopt($ch, CURLOPT_HEADER, true);
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60); // Timeout for connection phase in seconds
-  curl_setopt($ch, CURLOPT_TIMEOUT, 60); // Total timeout for the request in seconds
-  $start             = microtime(true); // Start time
-  $response          = curl_exec($ch);
-  $end               = microtime(true); // End time
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
+  // Timeout for connection phase in seconds
+  curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+  // Total timeout for the request in seconds
+  $start = microtime(true);
+  // Start time
+  $response = curl_exec($ch);
+  $end      = microtime(true);
+  // End time
   $request_headers   = curl_getinfo($ch, CURLINFO_HEADER_OUT);
   $isHttps           = strpos($endpoint, 'https') !== false;
   $header_size       = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
@@ -270,11 +274,12 @@ function processCheckProxy($ch, $proxy, $type, $username, $password) {
     $isPrivate        = $is_private_match !== false && $is_private_match > 0;
     // mark as private dead
     if ($is_private_match) {
-      $result['result']    = false;
-      $result['status']    = (string)$info['http_code'];
-      $result['error']     = 'Private proxy ' . json_encode($matches);
-      $result['private']   = true;
-      $result['https']     = true; // private proxy always support HTTPS
+      $result['result']  = false;
+      $result['status']  = (string)$info['http_code'];
+      $result['error']   = 'Private proxy ' . json_encode($matches);
+      $result['private'] = true;
+      $result['https']   = true;
+      // private proxy always support HTTPS
       $result['anonymity'] = null;
     }
   }
@@ -480,7 +485,7 @@ function parse_working_proxies($db) {
       $item['useragent'] = randomWindowsUa();
       $db->updateData($item['proxy'], $item);
       // Re-fetch geolocation IP
-      \PhpProxyHunter\GeoIpHelper::getGeoIp($item['proxy']);
+      \PhpProxyHunter\GeoIpHelper::resolveGeoProxy($item['proxy']);
     }
 
     return $item;
