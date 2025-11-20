@@ -367,6 +367,10 @@
   ],
   "php-cs-fixer.configFile": "./.php-cs-fixer.dist.php",
   "php-cs-fixer.executable": "./vendor/bin/php-cs-fixer.bat",
+  "php-cs-fixer.autoFixBySemicolon": false,
+  "php-cs-fixer.allowRisky": true,
+  "php-cs-fixer.autoFixByBracket": false,
+  "php-cs-fixer.ignorePHPVersion": true,
   // --- PHPCS (linting) ---
   "phpcs.enable": true,
   "phpcs.executablePath": "./vendor/bin/phpcs.bat",
