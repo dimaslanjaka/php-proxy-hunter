@@ -1,5 +1,109 @@
 [
   {
+    "hash": "0250ccfc39dc5aac13b67f4bce4917cabab2190e",
+    "date": "2025-11-20T16:17:15+07:00",
+    "message": "feat(checker): accept transparent proxies after verification\n\nTreat proxies that return the client's IP as \"transparent\" but still usable\nif they can successfully fetch a verification HTTP endpoint. The checker\nnow performs a lightweight cURL request through the same proxy/type/creds\nand accepts the proxy (anonymity='transparent') when the endpoint returns\na 2xx-3xx response. Debug logs updated to show verification attempts and\noutcomes. Also minor formatting tweak (move latency comment to its own line).",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyChecker1.php"
+    ]
+  },
+  {
+    "hash": "86b2807a4121423f0aca528c16eb726247255d38",
+    "date": "2025-11-20T15:41:57+07:00",
+    "message": "feat(startup): spawn post-check tasks (filterPorts, filterPortsDuplicate)\n\n- remove unused global FileLockHelper instantiation\n- after launching proxy checker processes, start `filterPorts.php` and `filterPortsDuplicate.php` in background\n- pass per-script lock file paths and silence output (NUL or /dev/null)\n- maintain Windows and POSIX-compatible background execution paths\n\nStarts automated post-processing of ports once proxy checks are dispatched.",
+    "files": [
+      "artisan/proxyCheckerStarter.php"
+    ]
+  },
+  {
+    "hash": "b0b9f0afe42d51d47ff8f4dff44bbe4bfe7c912d",
+    "date": "2025-11-20T15:29:25+07:00",
+    "message": "fix(proxyCheckerStarter): improve request parsing, captcha validation, proxy arg and add global lock\n\n- import and instantiate FileLockHelper to track a global proxy-checker lock\n- replace direct $_REQUEST usage with parseQueryOrPostBody() for safer request parsing\n- strengthen captcha check to reject falsy values (empty or false)\n- only include credentials in the --proxy argument when both username and password are non-empty (fall back to proxy string otherwise)\n\nThis prevents passing empty credentials, makes request handling more robust, and prepares for centralized locking of proxy checks.",
+    "files": [
+      "artisan/proxyCheckerStarter.php"
+    ]
+  },
+  {
+    "hash": "e27970ba560408034b3d95f80618a1a335c0d947",
+    "date": "2025-11-20T15:25:45+07:00",
+    "message": "refactor(filter-ports): simplify CLI detection, improve file handling, and streamline proxy processing\n\n- Replace manual CLI detection with `is_cli()` for clarity and reuse.\n- Normalize variable setup and reorganize admin/max settings logic.\n- Introduce `$scriptName` for cleaner lock file path generation.\n- Improve lock and status file handling using `write_file()` for consistency.\n- Rename shutdown function to `filterPortsExitProcess` to avoid collisions and improve clarity.\n- Simplify reading untested proxies and merging fallback proxy sources.\n- Replace redundant iterator setup with more concise conversion and iteration.\n- Improve proxy validation loop by reducing repeated array indexing.\n- Preserve all existing logic and behavior while improving readability and maintainability.",
+    "files": [
+      "artisan/filterPorts.php"
+    ]
+  },
+  {
+    "hash": "d400001d2ee82bb4be31652c190fecebe96c9bad",
+    "date": "2025-11-20T15:17:45+07:00",
+    "message": "refactor(filterPortsDuplicate): clean formatting and improve log messages\n\nSimplify whitespace and comment placement; replace terse reason tags with clear, human-readable log messages for deleted, kept, updated, and skipped proxies.",
+    "files": [
+      "artisan/filterPortsDuplicate.php"
+    ]
+  },
+  {
+    "hash": "fbc038feecf2ca13cc30fa2ef0205e1d1e2fcdd5",
+    "date": "2025-11-20T15:11:30+07:00",
+    "message": "refactor(geoIp): replace file_put_contents with write_file",
+    "files": [
+      "geoIpBackground.php"
+    ]
+  },
+  {
+    "hash": "a08165b69388bd2d24b9af8ebf57da362244ae10",
+    "date": "2025-11-20T15:10:54+07:00",
+    "message": "feat(proxy-checker): refactor starter script for clarity, session handling, and process management\n\n- Add minor formatting improvements and initialize Windows detection earlier.\n- Consolidate session key usage for proxy check cooldown logic.\n- Improve proxy selection flow with fallback to oldest tested proxies.\n- Simplify proxy extraction and variable usage (`$proxyStr`, `$processId`).\n- Reorganize runner, log, and lock directory paths for consistency.\n- Replace manual file preparation with `write_file()` and cleaner permission handling.\n- Build command using array-based parts for better readability and safety.\n- Improve background process execution logic for both Windows and Unix systems.",
+    "files": [
+      "artisan/proxyCheckerStarter.php"
+    ]
+  },
+  {
+    "hash": "ae432c95e14a0cb8fe759743e37f24fbbebb48a2",
+    "date": "2025-11-20T11:59:55+07:00",
+    "message": "refactor(proxy-checker): initialize CoreDB and rebuild DB connections to prevent conflicts\n\n- Introduce CoreDB usage and set up fresh instances for user_db, proxy_db, and log_db\n- Remove existing global DB handles and trigger garbage collection to avoid connection clashes\n- Update globals to include new DB-related variables\n- Minor formatting adjustments and comment clarifications in timeout refresh and file-writing sections",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "00ede910c53c135eb585b3a4a7e6a273da2f09fe",
+    "date": "2025-11-20T11:57:59+07:00",
+    "message": "refactor(proxy-list): optimize timezone-missing proxy selection with memoized candidates\n\n- Introduce `candidatesToUpdate` using `useMemo` to avoid recalculating filtered proxies\n- Replace inline filtering/sorting logic inside `useEffect`\n- Remove unnecessary early proxy length check and inner helper function\n- Simplify loop and enqueue logic before running scheduler",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "299280fdd237d070fae8289ec387ffdf830c8083",
+    "date": "2025-11-20T11:53:07+07:00",
+    "message": "feat(server): add cache headers and improve documentation for caching",
+    "files": [
+      "src/PhpProxyHunter/Server.php"
+    ]
+  },
+  {
+    "hash": "3f05c6570bf5f06903f5ef8715b0a5d4c5a872aa",
+    "date": "2025-11-20T09:45:30+07:00",
+    "message": "feat(geoip): improve robustness and return values for GeoIpHelper\n\n- Change `resolveGeoProxy` to always return an array; return `[]` on empty input.\n- Replace `list()` with safer parsing using `$parts` and null-coalescing behavior.\n- Ensure resolved geo data is returned at end of `resolveGeoProxy`.\n- Update docblocks with correct return type information.\n- Remove strict type hint from `getGeoIpSimple` to allow more flexible input.",
+    "files": [
+      "src/PhpProxyHunter/GeoIpHelper.php"
+    ]
+  },
+  {
+    "hash": "8868872bcedeb88d2940f46cfc2bc4fd203362cf",
+    "date": "2025-11-20T09:39:52+07:00",
+    "message": "chore(lint): remove non-existent Slevomat rule ref from phpcs.xml\n\nRemove the SlevomatCodingStandard.Namespaces.UnderscoreInName rule block which\ncould cause PHPCS to fail when the sniff is not installed. Keep naming-related\nexclusions but avoid referencing a sniff that may not exist in all environments.",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
+    "hash": "3e392f3b101a5eaac67eaa3a0479c7fe61d151af",
+    "date": "2025-11-20T09:36:05+07:00",
+    "message": "feat(geoip): enhance getGeoIpSimple() documentation and include city information in response",
+    "files": [
+      "src/PhpProxyHunter/GeoIpHelper.php"
+    ]
+  },
+  {
     "hash": "c49b5b88c0c450714ecd89c859b630b743c6b19d",
     "date": "2025-11-20T09:31:12+07:00",
     "message": "feat(geoip): include city information in getGeoIpSimple() response",
@@ -8627,147 +8731,6 @@
       "src/react/pages/Admin.tsx",
       "src/react/routes.js",
       "src/react/utils/url.ts"
-    ]
-  },
-  {
-    "hash": "d6d9b69706fc2707cbeb9e1fbc1f6cff04cff28f",
-    "date": "2025-08-17T13:24:29+07:00",
-    "message": "refactor(react): centralize route definitions and simplify routing\n\n- Removed individual route imports and static <Route> declarations from index.tsx.\n- Introduced a new src/react/routes.js file exporting an array of route objects with their respective components and metadata.\n- Updated index.tsx to dynamically generate <Route> elements from the centralized routes array.\n- Deleted the obsolete src/react/routes.json file.\n- Updated vite-gh-pages.js to import routes from routes.js instead of the removed JSON file.",
-    "files": [
-      "src/react/index.tsx",
-      "src/react/routes.js",
-      "src/react/routes.json",
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "48ebf139340021b6ef431d1f0c388da7f4c1c8ea",
-    "date": "2025-08-17T12:55:35+07:00",
-    "message": "fix(index.php): update allowed file extensions for asset routing and improve MIME type handling",
-    "files": [
-      "index.php"
-    ]
-  },
-  {
-    "hash": "ab6d3fd0983fe60de80fbdb37759341868f32bbf",
-    "date": "2025-08-17T12:48:51+07:00",
-    "message": "feat(css): add Ubuntu font-face and apply to body in Tailwind input\n\n- Added @font-face for 'Ubuntu' using UbuntuMono-R.ttf in tailwind.input.css\n- Set 'Ubuntu' as the default font-family for the body element",
-    "files": [
-      "assets/fonts/ubuntu/CONTRIBUTING.txt",
-      "assets/fonts/ubuntu/FONTLOG.txt",
-      "assets/fonts/ubuntu/LICENCE-FAQ.txt",
-      "assets/fonts/ubuntu/LICENCE.txt",
-      "assets/fonts/ubuntu/README.txt",
-      "assets/fonts/ubuntu/TRADEMARKS.txt",
-      "assets/fonts/ubuntu/Ubuntu-B.ttf",
-      "assets/fonts/ubuntu/Ubuntu-BI.ttf",
-      "assets/fonts/ubuntu/Ubuntu-C.ttf",
-      "assets/fonts/ubuntu/Ubuntu-L.ttf",
-      "assets/fonts/ubuntu/Ubuntu-LI.ttf",
-      "assets/fonts/ubuntu/Ubuntu-M.ttf",
-      "assets/fonts/ubuntu/Ubuntu-MI.ttf",
-      "assets/fonts/ubuntu/Ubuntu-R.ttf",
-      "assets/fonts/ubuntu/Ubuntu-RI.ttf",
-      "assets/fonts/ubuntu/Ubuntu-Th.ttf",
-      "assets/fonts/ubuntu/UbuntuMono-B.ttf",
-      "assets/fonts/ubuntu/UbuntuMono-BI.ttf",
-      "assets/fonts/ubuntu/UbuntuMono-R.ttf",
-      "assets/fonts/ubuntu/UbuntuMono-RI.ttf",
-      "assets/fonts/ubuntu/copyright.txt",
-      "tailwind.input.css",
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "0d230f0f8a0a9f24e921df04039600fb687214aa",
-    "date": "2025-08-17T12:22:35+07:00",
-    "message": "refactor(index.php): optimize static asset serving logic and remove redundancy\n\n- Removed redundant file path and extension handling for /assets and /data routes.\n- Unified file existence checks using a loop to try both the project root and /dist/react directories.\n- Centralized MIME type detection and response logic.\n- Ensured allowed extension rule is enforced before serving any file.",
-    "files": [
-      "index.php"
-    ]
-  },
-  {
-    "hash": "bf39bf8d10bc97176b5b8733162e62edcc0a3202",
-    "date": "2025-08-17T12:16:29+07:00",
-    "message": "chore(nginx): comment out static file location block for js, css, images, and icons\n\nThe location block handling static files with caching and logging settings has been commented out. This change allows requests for missing static files to be handled by the main try_files rule, enabling fallback to index.php.",
-    "files": [
-      ".htaccess_nginx.conf"
-    ]
-  },
-  {
-    "hash": "37846c1dc2a9a16de9d968d4a0d2b87440298ba9",
-    "date": "2025-08-17T12:12:46+07:00",
-    "message": "fix(tailwind): add local font reference for bold Ubuntu font",
-    "files": [
-      "tailwind.input.css"
-    ]
-  },
-  {
-    "hash": "7e3f68b141cb45b5bd607130aa3abd5d297acf0f",
-    "date": "2025-08-17T12:05:10+07:00",
-    "message": "fix(vite): exclude .deploy_git directory from watch list",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "b2559a0b637368a7438efcd7407638af69713855",
-    "date": "2025-08-17T12:04:04+07:00",
-    "message": "fix(github-pages): ensure job runs for both php-proxy-hunter and android-traffic-exchange repositories",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "1c2ace0cb99ab4836f6a2af726684600f354625a",
-    "date": "2025-08-17T12:00:55+07:00",
-    "message": "chore(husky): handle yarn install failure gracefully in post-merge hook\n\n- Updated `.husky/post-merge` to echo a message if `yarn install` fails, improving post-merge script robustness.",
-    "files": []
-  },
-  {
-    "hash": "98c3cbb8a2b4557c602764022f1e03aeafe61d4b",
-    "date": "2025-08-17T11:55:04+07:00",
-    "message": "feat(react): add streaming JSON utility with oboe.js and integrate in Changelog\n\n- Added `oboe` and `@types/oboe` dependencies to `package.json` for streaming JSON parsing.\n- Created `streamJsonFromUrl` async generator in `src/react/utils/json.ts` to stream large JSON files using oboe.js.\n- Refactored `Changelog` page to use the new streaming helper for loading git history, improving performance with large files.\n- Added integration test for `streamJsonFromUrl` in `tests/react/utils/json.test.ts` using a real public JSON endpoint.",
-    "files": [
-      "package.json",
-      "src/react/pages/Changelog.tsx",
-      "src/react/utils/json.ts",
-      "tests/react/utils/json.test.ts"
-    ]
-  },
-  {
-    "hash": "0ceb1bdebcc07dd36dad38a216ad6cbaec7a5cee",
-    "date": "2025-08-15T20:51:24+07:00",
-    "message": "refactor(proxy): update logger, test structure, and utility usage\n\n- Move logger implementation from node_browser/logger.js to src/proxy/logger.js and update imports accordingly.\n- Replace deprecated toMs utility with toMilliseconds from sbg-utility in ProxyChecker and hunter modules.\n- Remove src/proxy/filterTest.test.js and add tests/proxy/filterTest.direct.js for direct test execution.\n- Move and rename test files from src/proxy/*.test.js to tests/proxy/*.direct.js, updating import paths to use src/ structure.\n- Update tsconfig.json to include ./tests/**/* instead of ./test/**/* in the include section.\n- General code cleanup and modernization of proxy-related modules and tests.",
-    "files": [
-      "src/proxy/ProxyChecker.js",
-      "src/proxy/filterTest.test.js",
-      "src/proxy/hunter.js",
-      "src/proxy/logger.js",
-      "tests/proxy/ProxyChecker.direct.js",
-      "tests/proxy/filterTest.direct.js",
-      "tests/proxy/hunter.direct.js",
-      "tests/proxy/portOpen.direct.js",
-      "tests/proxy/proxyWorking.direct.js",
-      "tsconfig.json"
-    ]
-  },
-  {
-    "hash": "2238433158e48b8b687fec601168b6a2fed7d602",
-    "date": "2025-08-15T20:23:05+07:00",
-    "message": "fix(func.php): update parameter type for curlGetWithProxy function to allow nullable proxy",
-    "files": [
-      "func.php"
-    ]
-  },
-  {
-    "hash": "e919d40b3c6971c84ea7afa9cdc1a0dbde05ad69",
-    "date": "2025-08-15T20:13:56+07:00",
-    "message": "fix(systemd,php-fpm): improve PHP-FPM socket permissions, service config, and log handling\n\n- Uncomment listen.mode in php-fpm-pool.ini to explicitly set socket permissions to 0660.\n- Simplify php-fpm.service by removing unnecessary directives and comments for better compatibility.\n- Update restart-server script to ensure /var/log/php-fpm.log exists with correct permissions and ownership for www-data.\n- Add copying of nginx config to sites-available in restart-server for consistent deployment.",
-    "files": [
-      "assets/systemctl/php-fpm-pool.ini",
-      "assets/systemctl/php-fpm.service",
-      "bin/restart-server"
     ]
   }
 ]
