@@ -13,6 +13,8 @@
 @REM taskkill /f /im java.exe
 @REM taskkill /f /im javac.exe
 taskkill /f /im python.exe
+taskkill /F /IM php.exe
+taskkill /F /IM node.exe
 call wmic process where "name like 'chrome.exe'" delete
 call wmic process where "name like 'webdriver.exe'" delete
 call wmic process where "name like 'chromedriver.exe'" delete
