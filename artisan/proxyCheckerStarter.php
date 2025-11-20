@@ -2,22 +2,25 @@
 
 require_once __DIR__ . '/../php_backend/shared.php';
 
+use PhpProxyHunter\FileLockHelper;
 use PhpProxyHunter\Server;
 
 global $proxy_db;
 
 $isCli          = is_cli();
 $rootProjectDir = realpath(__DIR__ . '/..');
+$locker         = new FileLockHelper($rootProjectDir . '/tmp/locks/proxyCheckerGlobal.lock');
 
 if (!$isCli) {
   Server::allowCors(true);
   header('Content-Type: text/plain; charset=utf-8');
 
-  if (isset($_REQUEST['uid'])) {
-    setUserId($_REQUEST['uid']);
+  $request = parseQueryOrPostBody();
+  if (isset($request['uid'])) {
+    setUserId($request['uid']);
   }
 
-  if (empty($_SESSION['captcha'])) {
+  if (empty($_SESSION['captcha']) || !$_SESSION['captcha']) {
     exit('Access Denied');
   }
 }
@@ -96,7 +99,11 @@ foreach ($proxiesToCheck as $proxy) {
     $pass       = $proxy['password'];
     $cmdParts[] = '--username=' . escapeshellarg($user);
     $cmdParts[] = '--password=' . escapeshellarg($pass);
-    $cmdParts[] = '--proxy=' . escapeshellarg($proxyStr . '@' . $user . ':' . $pass);
+    if (!empty($user) && !empty($pass)) {
+      $cmdParts[] = '--proxy=' . escapeshellarg($proxyStr . '@' . $user . ':' . $pass);
+    } else {
+      $cmdParts[] = '--proxy=' . escapeshellarg($proxyStr);
+    }
   } else {
     $cmdParts[] = '--proxy=' . escapeshellarg($proxyStr);
   }
