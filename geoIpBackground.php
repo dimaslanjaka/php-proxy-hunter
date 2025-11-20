@@ -69,10 +69,10 @@ $cmd = trim($cmd);
 // create a small runner wrapper so the detached process can be started reliably
 if ($isWin) {
   $runner_content = "@echo off\r\n" . $cmd . ' > ' . escapeshellarg($output_file) . " 2>&1\r\n";
-  @file_put_contents($runner, $runner_content);
+  write_file($runner, $runner_content);
 } else {
   $runner_content = "#!/bin/sh\n" . $cmd . ' > ' . escapeshellarg($output_file) . " 2>&1\n";
-  @file_put_contents($runner, $runner_content);
+  write_file($runner, $runner_content);
   @chmod($runner, 0755);
 }
 
@@ -87,8 +87,7 @@ if ($isWin) {
   @exec($background);
 }
 
-function exitProcess()
-{
+function exitProcess() {
   global $lock_files;
   foreach ($lock_files as $file) {
     delete_path($file);
