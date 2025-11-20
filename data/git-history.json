@@ -1,5 +1,13 @@
 [
   {
+    "hash": "2c5611b608a9c91e7c0336b20989760afe0e3307",
+    "date": "2025-11-20T19:11:08+07:00",
+    "message": "feat(proxy-checker): test all protocol types and aggregate results\n\n- Continue testing all configured proxy protocols (HTTP, HTTPS, SOCKS4, SOCKS5, etc.) instead of stopping on first success.\n- Track and collect all successful `workingTypes`.\n- Introduce `anonymityPriority` and aggregate the best anonymity level seen (transparent < anonymous < elite).\n- Record the best (minimum) latency among successful attempts (`attemptLatency`) instead of overwriting on each loop.\n- Keep transparent verification step (HTTP endpoint check) but continue to evaluate remaining types.\n\nThis improves detection accuracy by aggregating multiple working protocol types and selecting the best anonymity/latency metrics.",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyChecker1.php"
+    ]
+  },
+  {
     "hash": "c884524be6f049428a1cf45e4a3e2151ac39dbf9",
     "date": "2025-11-20T18:45:13+07:00",
     "message": "fix(proxy-checker): use getPhpExecutable for PHP command",
@@ -8719,15 +8727,6 @@
     "message": "fix(ReferenceError): Cannot access 'productionEnv' before initialization",
     "files": [
       ".env.mjs"
-    ]
-  },
-  {
-    "hash": "19790c3a3a7a3a8082526b016c81c869e39f1a60",
-    "date": "2025-08-17T14:36:23+07:00",
-    "message": "feat(setup): run setup.js in prepare script and add setup.js for build steps\n\n- Update the \"prepare\" npm script to run both husky and setup.js.\n- Add new setup.js file to automate loading environment variables, building Tailwind CSS, and copying index.html.",
-    "files": [
-      "package.json",
-      "setup.js"
     ]
   }
 ]
