@@ -108,10 +108,31 @@ class GeoIpHelper {
     }
   }
 
-  public static function getGeoIpSimple($ip) {
+  /**
+   * Retrieve simplified GeoIP information for a given IP address.
+   *
+   * This helper method provides a compact array of common geolocation fields
+   * for the supplied IP using the GeoPlugin locator.
+   *
+   * Example return structure:
+   * [
+   *   'country'   => 'Country Name' | null,
+   *   'city'      => 'City Name'    | null,
+   *   'region'    => 'Region Name'  | null,
+   *   'latitude'  => float|null,
+   *   'longitude' => float|null,
+   *   'timezone'  => 'Timezone ID'  | null,
+   *   'lang'      => 'language_code'| null,
+   *   'debug'     => array|null  // serialized locate object for debugging
+   * ]
+   *
+   * @param string $ip IPv4 or IPv6 address to look up.
+   * @return array<string,mixed> Associative array with geo information; values may be null if unavailable.
+   */
+  public static function getGeoIpSimple(string $ip): array {
     $geo_plugin        = new \PhpProxyHunter\GeoPlugin();
     $locate            = $geo_plugin->locate_recursive($ip);
-    $data              = [ ];
+    $data              = [];
     $data['country']   = $locate->countryName;
     $data['city']      = $locate->city;
     $data['region']    = $locate->regionName;
