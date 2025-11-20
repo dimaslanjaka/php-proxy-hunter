@@ -7,7 +7,7 @@
  *   composer exec php-cs-fixer fix
  */
 
-require_once __DIR__ . '/src/dev/php-cs-fixer/autoload.php';
+require_once __DIR__ . '/scripts/php-cs-fixer/autoload.php';
 
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
