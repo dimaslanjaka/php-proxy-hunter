@@ -361,33 +361,34 @@ function ProxyList() {
   };
 
   // Enqueue proxies with missing timezone to the local AJAX scheduler
+  const candidatesToUpdate = React.useMemo(() => {
+    if (!proxies || proxies.length === 0) return [];
+
+    return (
+      proxies
+        .filter((p) => {
+          const tz = p.timezone;
+          return !tz || tz.trim() === '' || tz === 'N/A' || tz === '-';
+        })
+        // randomize but avoid expensive sort; pick 5 random indices
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 5)
+    );
+  }, [proxies]);
+
   React.useEffect(() => {
-    if (proxies.length === 0) return;
     if (!userId) return;
-    const updateGeoLocation = (uidToUse: string) => {
-      // find proxies that need timezone and limit to first 5
-      const candidates = proxies
-        .filter(
-          (p) => !p.timezone || String(p.timezone).trim().length === 0 || p.timezone === 'N/A' || p.timezone === '-'
-        )
-        .sort(() => Math.random() - 0.5) // randomize order
-        .slice(0, 5); // take first 5
+    if (candidatesToUpdate.length === 0) return;
 
-      if (candidates.length === 0) return;
-
-      candidates.forEach((p) => {
-        add_ajax_schedule(createUrl('/geoIpBackground.php'), {
-          method: 'POST_FORM',
-          data: { uid: uidToUse, proxy: p.proxy }
-        });
+    for (const p of candidatesToUpdate) {
+      add_ajax_schedule(createUrl('/geoIpBackground.php'), {
+        method: 'POST_FORM',
+        data: { uid: userId, proxy: p.proxy }
       });
+    }
 
-      // run scheduler once after enqueuing
-      run_ajax_schedule();
-    };
-
-    updateGeoLocation(userId);
-  }, [proxies, userId]);
+    run_ajax_schedule();
+  }, [userId, candidatesToUpdate]);
 
   return (
     <div className="relative min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
