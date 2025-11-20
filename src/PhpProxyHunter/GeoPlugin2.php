@@ -192,6 +192,9 @@ class GeoPlugin2 {
     } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
       // IP not found in database, return null or handle gracefully
       return null;
+    } catch (\Exception $e) {
+      // Handle other exceptions if necessary
+      return null;
     }
   }
 }
