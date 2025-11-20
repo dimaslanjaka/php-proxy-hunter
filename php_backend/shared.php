@@ -68,3 +68,49 @@ function getCurrentUserData() {
   $user  = $user_db->select($email);
   return !empty($user) ? $user : null;
 }
+
+ /**
+  * Refresh database connections by re-instantiating CoreDB and its DB wrappers.
+  *
+  * This function performs the following steps:
+  * - Declares the global variables that hold DB configuration and connection objects.
+  * - Unsets existing connection variables ($core_db, $user_db, $proxy_db, $log_db) to
+  *   ensure old connections are released.
+  * - Invokes garbage collection to free resources immediately.
+  * - Creates a new CoreDB instance with the current configuration and re-assigns
+  *   the wrapper properties ($user_db, $proxy_db, $log_db) from the new CoreDB.
+  *
+  * Globals used:
+  * @global string $dbFile Path to SQLite file or ignored for MySQL
+  * @global string $dbHost Database host
+  * @global string $dbName Database name
+  * @global string $dbUser Database username
+  * @global string $dbPass Database password
+  * @global string $dbType Database type identifier ('sqlite' or 'mysql')
+  * @global \PhpProxyHunter\CoreDB $core_db The CoreDB instance to re-create
+  *
+  * @return void
+  */
+function refreshDbConnections() {
+  global $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType, $core_db;
+
+  // Clean up existing DB connections to avoid conflicts
+  unset($core_db, $user_db, $proxy_db, $log_db);
+  gc_collect_cycles();
+
+  $core_db = new CoreDB(
+    $dbFile,
+    $dbHost,
+    $dbName,
+    $dbUser,
+    $dbPass,
+    false,
+    $dbType
+  );
+  /** @var \PhpProxyHunter\UserDB $user_db */
+  $user_db = $core_db->user_db;
+  /** @var \PhpProxyHunter\ProxyDB $proxy_db */
+  $proxy_db = $core_db->proxy_db;
+  /** @var \PhpProxyHunter\ActivityLog $log_db */
+  $log_db = $core_db->log_db;
+}
