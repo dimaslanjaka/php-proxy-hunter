@@ -13,65 +13,67 @@ use PhpProxyHunter\Proxy;
 
 global $proxy_db;
 
-$isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
+$isCli = is_cli();
 
 if (!$isCli) {
   header('Content-Type:text/plain; charset=UTF-8');
   exit('web server access disallowed');
 }
 
-$isAdmin          = false; // admin indicator
-$max_checks       = 500; // max proxies to be checked
-$maxExecutionTime = 120; // max 120s execution time
+$isAdmin = false;
+// admin indicator
+$max_checks = 500;
+// max proxies to be checked
+$maxExecutionTime = 120;
+// max 120s execution time
 
 if ($isCli) {
-  $short_opts = 'p:m::';
-  $long_opts  = [
+  $options = getopt('p:m::', [
     'proxy:',
     'max::',
     'userId::',
     'lockFile::',
     'runner::',
     'admin::',
-  ];
-  $options = getopt($short_opts, $long_opts);
+  ]);
+
   if (!empty($options['max'])) {
-    $max = intval($options['max']);
-    if ($max > 0) {
-      $max_checks = $max;
+    $m = intval($options['max']);
+    if ($m > 0) {
+      $max_checks = $m;
     }
   }
+
   if (!empty($options['admin']) && $options['admin'] !== 'false') {
-    $isAdmin = true;
-    // set time limit 10 minutes for admin
-    $maxExecutionTime = 10 * 60;
-    // disable execution limit
+    $isAdmin          = true;
+    $maxExecutionTime = 600;
     set_time_limit(0);
   }
 }
 
-$lockFilePath = $projectRoot . '/tmp/runners/' . basename(__FILE__, '.php') . '.lock';
+$scriptName   = basename(__FILE__, '.php');
+$lockFilePath = $projectRoot . '/tmp/runners/' . $scriptName . '.lock';
 $statusFile   = $projectRoot . '/status.txt';
 
 if (file_exists($lockFilePath) && !is_debug()) {
-  exit(date(DATE_RFC3339) . ' another process still running ' . basename(__FILE__, '.php') . PHP_EOL);
-} else {
-  file_put_contents($lockFilePath, date(DATE_RFC3339));
-  file_put_contents($statusFile, 'filter-ports');
+  exit(date(DATE_RFC3339) . " another process still running {$scriptName}" . PHP_EOL);
 }
 
-function exitProcess(): void {
+write_file($lockFilePath, date(DATE_RFC3339));
+write_file($statusFile, 'filter-ports');
+
+function filterPortsExitProcess(): void {
   global $lockFilePath, $statusFile;
+
   if (file_exists($lockFilePath)) {
     unlink($lockFilePath);
   }
-  file_put_contents($statusFile, 'idle');
+  write_file($statusFile, 'idle');
 }
 
-register_shutdown_function('exitProcess');
+register_shutdown_function('filterPortsExitProcess');
 
-$db = $proxy_db;
-
+$db   = $proxy_db;
 $file = $projectRoot . '/proxies.txt';
 
 // remove empty lines
@@ -81,26 +83,28 @@ removeEmptyLinesFromFile($file);
 $start_time = microtime(true);
 
 try {
-  $db_data     = $db->getUntestedProxies(100);
+  $db_data = $db->getUntestedProxies(100);
+
   $db_data_map = array_map(function ($item) {
     // transform array into Proxy instance same as extractProxies result
     $wrap = new Proxy($item['proxy']);
+
     foreach ($item as $key => $value) {
       if (property_exists($wrap, $key)) {
         $wrap->$key = $value;
       }
     }
+
     if (!empty($item['username']) && !empty($item['password'])) {
       $wrap->username = $item['username'];
       $wrap->password = $item['password'];
     }
+
     return $wrap;
   }, $db_data);
+
   if (empty($db_data_map)) {
-    $read = read_first_lines($file, $max_checks);
-    if (!$read) {
-      $read = [];
-    }
+    $read    = read_first_lines($file, $max_checks) ?: [];
     $proxies = extractProxies(implode("\n", $read), null, false);
     $proxies = array_merge($proxies, $db_data_map);
   } else {
@@ -110,18 +114,12 @@ try {
 
   shuffle($proxies);
 
-  // Convert the array of Proxy objects into an iterator
-  $proxyIterator = new ArrayIterator($proxies);
-
-  // Create a MultipleIterator
+  // Convert array to iterator
+  $proxyIterator    = new ArrayIterator($proxies);
   $multipleIterator = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
-
-  // Attach the Proxy iterator to the MultipleIterator
   $multipleIterator->attachIterator($proxyIterator);
 
-  // Iterate over the MultipleIterator
   foreach ($multipleIterator as $proxyInfo) {
-    // $proxyInfo is an array containing each Proxy object
     foreach ($proxyInfo as $proxy) {
       processProxy($proxy->proxy);
     }
@@ -132,11 +130,12 @@ try {
 
 function processProxy($proxy): void {
   global $start_time, $file, $db, $maxExecutionTime, $projectRoot;
+
   // Check if execution time exceeds [n] seconds
   if (microtime(true) - $start_time > $maxExecutionTime) {
-    // echo "Execution time exceeded $maxExecutionTime seconds. Exiting loop." . PHP_EOL;
     return;
   }
+
   if (!isPortOpen($proxy)) {
     removeStringAndMoveToFile($file, $projectRoot . '/dead.txt', $proxy);
     $db->updateData($proxy, ['status' => 'port-closed'], false);
@@ -147,10 +146,13 @@ function processProxy($proxy): void {
 // filter open port from untested proxies
 
 $all = $db->getUntestedProxies(500);
+
 foreach ($all as $data) {
-  if (!isValidProxy($data['proxy'])) {
-    $db->remove($data['proxy']);
+  $proxyVal = $data['proxy'];
+
+  if (!isValidProxy($proxyVal)) {
+    $db->remove($proxyVal);
   } else {
-    processProxy($data['proxy']);
+    processProxy($proxyVal);
   }
 }
