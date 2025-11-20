@@ -1,5 +1,159 @@
 [
   {
+    "hash": "4758b1233cfc458e411c4494e03da6e917b545bf",
+    "date": "2025-11-20T09:29:27+07:00",
+    "message": "feat(geoip): add language information to getGeoIpSimple() response",
+    "files": [
+      "src/PhpProxyHunter/GeoIpHelper.php"
+    ]
+  },
+  {
+    "hash": "2ee7deee22c675a4e5ba60473d9b32472a987857",
+    "date": "2025-11-20T09:11:32+07:00",
+    "message": "refactor(geoplugin): modernize class structure, docs, and data handling\n\n- Add updated class-level PHPDoc with clearer descriptions.\n- Improve property PHPDoc blocks and expand metadata coverage.\n- Refactor `locate()` to simplify flow, reduce duplication, and improve resilience.\n- Add early returns and safer fallbacks for JSON and serialized responses.\n- Enhance recursive lookup with cleaner GeoPlugin2 integration.\n- Modernize `fetch()` with clearer caching logic and consolidated cURL/fopen paths.\n- Improve error messages and maintain consistent formatting across methods.\n- Update convert(), nearby(), and fromGeoIp2CityModel() with stricter validation and reduced redundancy.",
+    "files": [
+      "src/PhpProxyHunter/GeoPlugin.php"
+    ]
+  },
+  {
+    "hash": "0d97679220304c55f1c550aa797b3148dd5d6d52",
+    "date": "2025-11-20T09:05:51+07:00",
+    "message": "chore(lint): disable camelCase naming sniffs in phpcs.xml\n\nAdd exclusions for Generic, Squiz and Slevomat naming sniffs to allow non-camelcase\nidentifiers (functions, variables, classes, properties). Also lower severity for\nSlevomatCodingStandard.Namespaces.UnderscoreInName.\n\n- Exclude Generic.NamingConventions.CamelCapsFunctionName\n- Exclude Generic.NamingConventions.CamelCapsVariableName\n- Exclude Squiz.NamingConventions.ValidFunctionName\n- Exclude Squiz.NamingConventions.ValidVariableName\n- Exclude Squiz.Classes.ValidClassName\n- Exclude SlevomatCodingStandard.NamingConventions.UnderscoreSeparated\n- Exclude SlevomatCodingStandard.NamingConventions.ValidClassName\n- Exclude SlevomatCodingStandard.NamingConventions.ValidFunctionName\n- Exclude SlevomatCodingStandard.NamingConventions.ValidVariableName\n- Set severity 0 for SlevomatCodingStandard.Namespaces.UnderscoreInName",
+    "files": [
+      "phpcs.xml"
+    ]
+  },
+  {
+    "hash": "5bcbbc13ef954a6bba1961ff066a3d47e8cf81ad",
+    "date": "2025-11-20T09:03:34+07:00",
+    "message": "feat(vscode): update PHP CS Fixer settings for enhanced configuration",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "f66c6a3ee33e24710458c34a63d2545986af417b",
+    "date": "2025-11-20T09:03:06+07:00",
+    "message": "fix(geo-plugin): handle generic exceptions in locate method",
+    "files": [
+      "src/PhpProxyHunter/GeoPlugin2.php"
+    ]
+  },
+  {
+    "hash": "23718205a2b93fc0f29e7fbf34322351d3a6309f",
+    "date": "2025-11-20T09:01:02+07:00",
+    "message": "refactor(geoip): simplify getGeoIpSimple() data extraction and add debug field\n\n- Remove conditional checks and assign fields directly from GeoPlugin result\n- Add `debug` field using jsonSerialize() for improved diagnostics",
+    "files": [
+      "src/PhpProxyHunter/GeoIpHelper.php"
+    ]
+  },
+  {
+    "hash": "9b292b7a796f3edd110bd9e0dc18382ec1221df6",
+    "date": "2025-11-20T08:57:30+07:00",
+    "message": "fix(geo-plugin): suppress JsonSerializable return type deprecation\n\nAdd #[\\ReturnTypeWillChange] attribute to GeoPlugin::jsonSerialize() to\ntemporarily silence the PHP deprecation notice about the JsonSerializable\nreturn type compatibility.",
+    "files": [
+      "src/PhpProxyHunter/GeoPlugin.php"
+    ]
+  },
+  {
+    "hash": "a4f5cabc57e70d8ac8403fc6e17c5636c140055b",
+    "date": "2025-11-20T08:52:51+07:00",
+    "message": "refactor(geoip): rename getGeoIp() to resolveGeoProxy() and update all call sites\n\n- Replace all usages of `GeoIpHelper::getGeoIp()` with `GeoIpHelper::resolveGeoProxy()`\n- Update method name and docblock in `GeoIpHelper`\n- Apply minor formatting and comment cleanups across proxy processing functions",
+    "files": [
+      "artisan/proxyChecker.php",
+      "func-proxy.php",
+      "geoIp.php",
+      "proxyChecker.php",
+      "proxyCheckerParallel-func.php",
+      "src/PhpProxyHunter/GeoIpHelper.php"
+    ]
+  },
+  {
+    "hash": "3112e1abe8765f38d3424599486cb528be2642e5",
+    "date": "2025-11-20T08:38:31+07:00",
+    "message": "feat(geo-plugin): add getGeoIpSimple method to retrieve basic geo information",
+    "files": [
+      "src/PhpProxyHunter/GeoIpHelper.php"
+    ]
+  },
+  {
+    "hash": "3db0b56223ddc758919e5f36958cb50e38490d3d",
+    "date": "2025-11-20T08:29:42+07:00",
+    "message": "fix(geo-plugin): write MMDB downloads to temp file and move atomically\n\nWrite downloaded GeoLite2 MMDB files to a temporary file first (using\nsys_get_temp_dir()/tempnam) and then move to the final destination to\navoid partial/corrupt files. Use atomic rename() with a copy+unlink\nfallback across filesystems, ensure destination directory exists, and\nimprove error logging. This prevents concurrent/partial-write issues.",
+    "files": [
+      "src/PhpProxyHunter/GeoPlugin2.php"
+    ]
+  },
+  {
+    "hash": "fb051388985bba4eb8472faf7dc341fd0c9aff58",
+    "date": "2025-11-20T08:28:36+07:00",
+    "message": "feat(server/respond): accept optional HTTP status in response helpers\n\n- Add optional int $status parameter (default 200) to respond_json(), respond_text(), and respond_html().\n- Use http_response_code($status) so helpers set the HTTP status; attempt to set code even if headers were already sent.\n- Add file-level doc comment documenting the new parameter and behavior.\n\nNo breaking changes — defaults preserve previous behavior (200).",
+    "files": [
+      "src/utils/server/respond.php"
+    ]
+  },
+  {
+    "hash": "cd791ee22718e0db5f2a38b27a9f912f310a93c9",
+    "date": "2025-11-20T08:12:55+07:00",
+    "message": "feat(php-cs-fixer): add dynamic custom fixer loading and introduce no-multiple-statements-per-line fallback\n\n- Replace direct GlobalOneLineFixer include with autoload loader\n- Add conditional registration of fixers based on availability in PhpCsFixer\n- Introduce CustomNoMultipleStatementsPerLineFixer with full logic for safe statement splitting\n- Update GlobalOneLineFixer formatting for cleaner loops\n- Add .gitignore for test input in php-cs-fixer directory\n- Add direct-test.cjs script for local debugging and validation of fixer behavior",
+    "files": [
+      ".php-cs-fixer.dist.php",
+      "src/dev/php-cs-fixer/.gitignore",
+      "src/dev/php-cs-fixer/CustomNoMultipleStatementsPerLineFixer.php",
+      "src/dev/php-cs-fixer/GlobalOneLineFixer.php",
+      "src/dev/php-cs-fixer/direct-test.cjs"
+    ]
+  },
+  {
+    "hash": "4a994168613809a69c3fd541fceb461cf9cd6449",
+    "date": "2025-11-20T07:31:50+07:00",
+    "message": "chore(kills.cmd): clean up php and node",
+    "files": [
+      "bin/kills.cmd"
+    ]
+  },
+  {
+    "hash": "191fb448baf062b9835cf8cb45cb7cd930d58958",
+    "date": "2025-11-20T06:36:12+07:00",
+    "message": "refactor(cs-fixer): rename GlobalOneLineFixer namespace to PhpCsFixerCustom\n\n- Change namespace from `CustomFixer` to `PhpCsFixerCustom` in `GlobalOneLineFixer.php`.\n- Update formatting in `applyFix` (loop headers reflowed across multiple lines).",
+    "files": [
+      "src/dev/php-cs-fixer/GlobalOneLineFixer.php"
+    ]
+  },
+  {
+    "hash": "fa1f1e5e9f8ebce4f9e068cd3f64d4b83bbda8d8",
+    "date": "2025-11-20T06:33:20+07:00",
+    "message": "feat(autoload): add autoload file to require custom fixer files",
+    "files": [
+      "src/dev/php-cs-fixer/autoload.php"
+    ]
+  },
+  {
+    "hash": "14ce41b6e61251ca37eb1270801eda4d5f59e6cf",
+    "date": "2025-11-20T05:49:15+07:00",
+    "message": "style(shared.php): format database connection variable declarations for consistency",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
+    "hash": "b754908a9ae9a7f0e6e6fcc9af5acc9b60233edb",
+    "date": "2025-11-20T05:45:26+07:00",
+    "message": "feat(cs-fixer): add GlobalOneLineFixer and enable rule\n\nAdd a new custom PHP-CS-Fixer (`Custom/global_one_line`) to convert\nmulti-line `global` statements into a single-line form.\n\n- Add `src/dev/php-cs-fixer/GlobalOneLineFixer.php` implementing token-based\n  conversion.\n- Require and register the fixer in `.php-cs-fixer.dist.php`.\n- Refactor config to build `$rules` and enable `'Custom/global_one_line' => true`.",
+    "files": [
+      ".php-cs-fixer.dist.php",
+      "src/dev/php-cs-fixer/GlobalOneLineFixer.php"
+    ]
+  },
+  {
+    "hash": "78754bc5a9833387d1fedd3410f92891d2fd75bf",
+    "date": "2025-11-20T05:22:16+07:00",
+    "message": "fix(check-http-proxy): remove unnecessary SSL data from response",
+    "files": [
+      "php_backend/check-http-proxy.php"
+    ]
+  },
+  {
     "hash": "b00e1334a1370e6ffb53ca35ef6e5c19c939bc6a",
     "date": "2025-11-20T03:58:59+07:00",
     "message": "fix(geo): prevent concurrent GeoMMDB downloads in GeoPlugin2\n\n- add private static `$downloadingMap` to track active downloads\n- guard `downloadFile()` to skip if the target path is already being downloaded\n- mark path in `$downloadingMap` and register shutdown handler to clear it\n\nThis prevents duplicate concurrent downloads for the same GeoIP file.",
@@ -8614,189 +8768,6 @@
     "message": "fix(HtmlDocument): ensure string input for document loading and improve noise handling",
     "files": [
       "src/simplehtmldom/HtmlDocument.php"
-    ]
-  },
-  {
-    "hash": "08d7b7a3344c65572f5627be052784da69ec7ae8",
-    "date": "2025-08-15T18:59:08+07:00",
-    "message": "fix: use file path without query string for file operations\n\nUpdate file_exists, finfo_file, and readfile to use the path without query parameters, ensuring correct file detection and serving when query strings are present.",
-    "files": [
-      "index.php"
-    ]
-  },
-  {
-    "hash": "44665bf889b9b9af909061bf90161aebac3cc392",
-    "date": "2025-08-15T18:57:21+07:00",
-    "message": "fix: correctly detect file extension by removing query string from file path\n\nUse parse_url to extract the path before checking the file extension, ensuring files with query parameters are handled properly.",
-    "files": [
-      "index.php"
-    ]
-  },
-  {
-    "hash": "84b077a4362821f78941dbddf9f37cc388b1abba",
-    "date": "2025-08-15T18:54:07+07:00",
-    "message": "fix(index.php): decode URL for asset and data routing to handle special characters",
-    "files": [
-      "index.php"
-    ]
-  },
-  {
-    "hash": "9f3d26414dab84e73e625d195871dd024a2618cb",
-    "date": "2025-08-15T18:44:19+07:00",
-    "message": "fix(index-html-replacement): improve file copy logic to handle empty source files",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "30441e22b445496b4cc2a6580424b9acb406309e",
-    "date": "2025-08-15T18:40:38+07:00",
-    "message": "refactor: extract and reuse copyIndexHtml utility for index.html copying\n\n- Move index.dev.html to index.html copy logic into a reusable copyIndexHtml function in vite-plugin.js.\n- Replace inline copy logic in vite-gh-pages.js and indexHtmlReplacementPlugin with the new utility.\n- Add JSDoc to copyIndexHtml for clarity and maintainability.",
-    "files": [
-      "vite-gh-pages.js",
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "48846a27e439d030d8735fd7f094895ca7726b79",
-    "date": "2025-08-15T18:32:54+07:00",
-    "message": "fix(post-merge): remove unnecessary --no-dev flag from composer arguments",
-    "files": []
-  },
-  {
-    "hash": "020723f7cdbf13f7e4fd8b9a7ac29bbcdf60077d",
-    "date": "2025-08-15T18:19:33+07:00",
-    "message": "fix(build): ensure index.dev.html is copied to index.html before building",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "0356600afb322e14a781a629d5a3c95b8b1d623c",
-    "date": "2025-08-15T18:12:51+07:00",
-    "message": "fix(post-merge): simplify submodule update logic by removing VPS condition",
-    "files": []
-  },
-  {
-    "hash": "eafa6adbababdc33357792b193e5ce7dda79928d",
-    "date": "2025-08-15T18:11:30+07:00",
-    "message": "fix(restart-server): enable PHP-FPM service if not already enabled before starting",
-    "files": [
-      "bin/restart-server"
-    ]
-  },
-  {
-    "hash": "fd97166618f5f35ea2f2f319f2e3dcf57a8f697c",
-    "date": "2025-08-15T17:59:26+07:00",
-    "message": "fix(php-fpm): change service type from forking to simple for better process management",
-    "files": [
-      "assets/systemctl/php-fpm.service"
-    ]
-  },
-  {
-    "hash": "ba89e7a812b161e1909a9426c5750aca97eb0d69",
-    "date": "2025-08-15T17:55:16+07:00",
-    "message": "fix(restart-server): ensure /run/php directory ownership is set for www-data user",
-    "files": [
-      "bin/restart-server"
-    ]
-  },
-  {
-    "hash": "1c35e1253d2cddbb81fd1c47cd48588a0db94f98",
-    "date": "2025-08-15T17:44:29+07:00",
-    "message": "feat(index): update CORS to allow all headers and methods, extend localhost list, support font assets, adjust asset path, and improve MIME handling for js/css",
-    "files": [
-      "index.php"
-    ]
-  },
-  {
-    "hash": "dcb508c768d3b473348183dc13ffb6b8321ce932",
-    "date": "2025-08-15T17:31:47+07:00",
-    "message": "fix(readme): add command to remove all crontab entries for www-data user",
-    "files": [
-      "readme.md"
-    ]
-  },
-  {
-    "hash": "f8168fdd57f6de775ed101d1578066a739d78f34",
-    "date": "2025-08-15T17:28:13+07:00",
-    "message": "fix(post-merge): update submodule installation command to use the latest version",
-    "files": []
-  },
-  {
-    "hash": "9119cdc4904e51377faee31acbdb0dcff51789bb",
-    "date": "2025-08-15T16:58:13+07:00",
-    "message": "feat(index): allow js and css assets, improve error messages for 403 and 404 responses",
-    "files": [
-      "index.php"
-    ]
-  },
-  {
-    "hash": "4de43eb267aec44eea65882226dd460bd14ec412",
-    "date": "2025-08-15T16:52:17+07:00",
-    "message": "refactor!: remove legacy MVC controllers, views, and translations\n\n- Remove all files in `controllers/`, `src/mvc/`, `views/`, and `translations/` related to the old PHP MVC and Twig-based frontend.\n- Update `.htaccess` and `.htaccess_nginx.conf` to block access to the `src` folder instead of the `views` folder.\n- Clean up `composer.json` autoload paths by removing references to `translations/ext` and `src/mvc`.\n- Update submodule `packages/baileys` to latest commit.\n\nBREAKING CHANGE: The legacy PHP MVC controllers, Twig templates, and translation files have been removed. All related routes and frontend features depending on these files are no longer available.",
-    "files": [
-      ".htaccess",
-      ".htaccess_nginx.conf",
-      "composer.json",
-      "controllers/CheckDuplicateProxyController.php",
-      "controllers/ListDuplicateProxyController.php",
-      "controllers/LogoutController.php",
-      "controllers/ProfileController.php",
-      "controllers/UserController.php",
-      "controllers/autoload.php",
-      "packages/baileys",
-      "src/mvc/BaseController.php",
-      "translations/ext/BooleanStringExtension.php",
-      "translations/ext/CountryCodeExtension.php",
-      "translations/ext/TranslationExtension.php",
-      "translations/messages.en.yaml",
-      "translations/messages.id.yaml",
-      "views/404.twig",
-      "views/_partials/landing.twig",
-      "views/_partials/login.twig",
-      "views/_partials/profile-card.twig",
-      "views/_widgets/dashboard-menu.twig",
-      "views/_widgets/history.twig",
-      "views/_widgets/languages.twig",
-      "views/admin/index.twig",
-      "views/admin/refill-saldo.twig",
-      "views/assets/css/template.scss",
-      "views/assets/js/_widget/dashboard-menu.js",
-      "views/assets/js/admin.js",
-      "views/assets/js/dashboard.js",
-      "views/assets/js/edit-profile.js",
-      "views/assets/js/languages.js",
-      "views/assets/js/login.js",
-      "views/assets/js/profile-card.js",
-      "views/assets/js/refill-saldo.js",
-      "views/assets/js/template.js",
-      "views/assets/js/user/logs.js",
-      "views/assets/js/utils/url.js",
-      "views/assets/json/dashboard-menu.jsonc",
-      "views/dashboard/index.twig",
-      "views/index.twig",
-      "views/list-duplicate-proxy/index.twig",
-      "views/login/index.twig",
-      "views/profile/edit.twig",
-      "views/readme.md",
-      "views/template.twig",
-      "views/user/logs.twig"
-    ]
-  },
-  {
-    "hash": "8816047a466a047de4d6aa765d7bb07d445d22ad",
-    "date": "2025-08-15T16:27:42+07:00",
-    "message": "fix(post-merge): enhance submodule update logic for VPS environments",
-    "files": []
-  },
-  {
-    "hash": "bf2bc8bab9b4c35a567208a2625eb2a2edab4deb",
-    "date": "2025-08-15T16:09:46+07:00",
-    "message": "fix(editorconfig): add Bash and shell script formatting rules to .editorconfig\nfix(vscode): enable ShellFormat and configure supported languages in settings.json",
-    "files": [
-      ".editorconfig",
-      ".vscode/settings.json"
     ]
   }
 ]
