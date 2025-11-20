@@ -3,8 +3,29 @@
 require_once __DIR__ . '/shared.php';
 
 use PhpProxyHunter\AnsiColors;
+use PhpProxyHunter\CoreDB;
 
-global $isAdmin, $isCli, $proxy_db;
+global $isAdmin, $isCli, $dbHost, $dbName, $dbUser, $dbPass, $dbFile, $core_db, $user_db, $proxy_db, $log_db;
+
+// Clean up existing DB connections to avoid conflicts
+unset($core_db, $user_db, $proxy_db, $log_db);
+gc_collect_cycles();
+
+$core_db = new CoreDB(
+  $dbFile,
+  $dbHost,
+  $dbName,
+  $dbUser,
+  $dbPass,
+  false,
+  $dbType
+);
+/** @var \PhpProxyHunter\UserDB $user_db */
+$user_db = $core_db->user_db;
+/** @var \PhpProxyHunter\ProxyDB $proxy_db */
+$proxy_db = $core_db->proxy_db;
+/** @var \PhpProxyHunter\ActivityLog $log_db */
+$log_db = $core_db->log_db;
 
 /**
  * NOTE:
@@ -124,7 +145,8 @@ if (!$isCli) {
     }
     $config['curl_timeout'] = $timeout;
     setConfig($userId, $config);
-    $config = getConfig($userId); // refresh
+    $config = getConfig($userId);
+// refresh
     send_json([
       'error'   => false,
       'message' => "cURL timeout set to $timeout seconds.",
@@ -197,7 +219,8 @@ if (!$isCli) {
     // run in background, record pid (platform-specific)
     $isWin  = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
     $runner = tmp() . '/runners/proxy-checker/' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
-    write_file($runner, ''); // clear existing content
+    write_file($runner, '');
+// clear existing content
 
     if ($isWin) {
       // Windows: use start to run in background; not all environments can capture PID reliably
@@ -322,7 +345,8 @@ if (!$isCli) {
       exit($status . PHP_EOL);
     }
     $proxyInfo['proxy'] = $allProxies[array_rand($allProxies)]['proxy'];
-    $proxyInfo['type']  = null; // try all types
+    $proxyInfo['type']  = null;
+// try all types
   }
 
   $type         = empty($proxyInfo['type']) ? '' : strtolower($proxyInfo['type']);
