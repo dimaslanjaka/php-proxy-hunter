@@ -94,7 +94,8 @@ class ProxyChecker1 extends ProxyChecker {
       ], !$isSSL);
       $tEnd = microtime(true);
 
-      $foundLatency = round(($tEnd - $tStart) * 1000, 2); // ms
+      $foundLatency = round(($tEnd - $tStart) * 1000, 2);
+      // ms
 
       $ip    = extractIPs($publicIP)[0] ?? null;
       $label = $isSSL ? 'SSL' : 'Non-SSL';
@@ -107,12 +108,45 @@ class ProxyChecker1 extends ProxyChecker {
       }
 
       // If the returned IP matches our current IP, the proxy leaked the client IP -> transparent
+      // Treat transparent proxies as working (they forward traffic) but mark anonymity accordingly.
       if ($ip === $currentIp && $currentIp !== '127.0.0.1') {
+        // Transparent proxy: it forwards traffic but leaks client IP.
+        // Before accepting it as working, validate that the proxy can fetch a known HTTP endpoint.
+        $testUrl = 'http://httpforever.com/';
         if ($debug) {
-          self::log('red', "Proxy {$label} test failed for type {$type} (IP matches current IP - transparent).");
+          self::log('yellow', "Proxy {$label} appears transparent for type {$type}; testing access to verification endpoint...");
         }
-        $foundAnonymity = 'transparent';
-        continue;
+
+        // Build a cURL handle using same proxy settings
+        $ch = buildCurl(
+          $proxy,
+          $type,
+          $testUrl,
+          ['User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0'],
+          $username,
+          $password
+        );
+        curl_setopt($ch, CURLOPT_TIMEOUT, max(5, (int)$timeout));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $out      = @curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($out !== false && $httpCode >= 200 && $httpCode < 400) {
+          if ($debug) {
+            self::log('green', "Proxy {$label} test succeeded for type {$type} (transparent but reachable).");
+          }
+          $foundWorking   = true;
+          $workingTypes[] = strtolower($type);
+          $foundAnonymity = 'transparent';
+          break;
+        } else {
+          if ($debug) {
+            self::log('red', "Proxy {$label} test failed for type {$type} (transparent but cannot reach verification endpoint).");
+          }
+          // treat as failed for this type and continue to next type
+          continue;
+        }
       }
 
       // If the returned IP matches the proxy IP, client's IP is hidden but destination sees proxy -> anonymous
