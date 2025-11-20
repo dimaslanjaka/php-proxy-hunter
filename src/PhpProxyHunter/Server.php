@@ -134,7 +134,8 @@ class Server {
     static $cachedIp  = null;
     static $cacheTime = 0;
 
-    $cacheExpiry = 3600; // 1 hour in seconds
+    $cacheExpiry = 3600;
+    // 1 hour in seconds
 
     // Check in-memory cache first (fastest)
     if ($cachedIp !== null && (time() - $cacheTime) < $cacheExpiry) {
@@ -318,7 +319,8 @@ class Server {
       // Allow the requesting origin. You can restrict this to a whitelist.
       header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
       header('Access-Control-Allow-Credentials: true');
-      header('Access-Control-Max-Age: 86400'); // cache for 1 day
+      header('Access-Control-Max-Age: 86400');
+    // cache for 1 day
     } else {
       // Fallback to allow any origin if HTTP_ORIGIN is not provided
       header('Access-Control-Allow-Origin: *');
@@ -338,5 +340,17 @@ class Server {
       http_response_code(200);
       exit();
     }
+  }
+
+  /**
+   * Sets HTTP cache headers for the response.
+   *
+   * @param int $seconds Duration (in seconds) for which the response should be cached. Defaults to 3600.
+   * @return void
+   */
+  public static function setCacheHeaders($seconds = 3600) {
+    header('Cache-Control: public, max-age=' . intval($seconds));
+    header('Pragma: public');
+    header('Expires: ' . gmdate('D, d M Y H:i:s', time() + intval($seconds)) . ' GMT');
   }
 }
