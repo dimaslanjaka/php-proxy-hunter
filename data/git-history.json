@@ -1,5 +1,13 @@
 [
   {
+    "hash": "b2637f63dcdc3f2747f4eed503d0fcf46f740d00",
+    "date": "2025-11-20T20:29:06+07:00",
+    "message": "fix(executables): add PHP fallback to generate executables.json when Node fails\n\nTry the Node.js `executables-finder.cjs` first; if Node is unavailable or the script fails,\ncall a new `generateExecutablesJson()` PHP fallback that probes `PHP_BINARY`, common system\nand virtualenv locations and uses `which`/`where` as a last resort to locate `php` and `python`.\nWrite `src/utils/process/executables.json` instead of throwing a RuntimeException, preventing\na fatal error when Node isn't installed or the script cannot run.",
+    "files": [
+      "src/utils/process/executables.php"
+    ]
+  },
+  {
     "hash": "1362aaae7f0aae34930b618a9e0f023154a95e6e",
     "date": "2025-11-20T19:13:42+07:00",
     "message": "refactor: move PHP-CS-Fixer scripts from src/dev to scripts directory\n\n- Updated .php-cs-fixer.dist.php to load autoload.php from new scripts path\n- Renamed src/dev/php-cs-fixer/ directory to scripts/php-cs-fixer/",
@@ -8719,19 +8727,6 @@
     "message": "fix(login): unify response structure and improve password verification logic\n\n- Ensure all login responses include 'message' and boolean 'error' keys for consistency.\n- Refactor do_login and verify to always return structured responses.\n- Add support for legacy raw password check and automatic rehashing if detected.\n- Improve admin login response and session handling.\n- Provide clearer error and success messages for all login scenarios.",
     "files": [
       "php_backend/login.php"
-    ]
-  },
-  {
-    "hash": "bffb0ceb368414a4be85d6298084c176b61dc4c7",
-    "date": "2025-08-17T14:41:57+07:00",
-    "message": "fix(hashers): improve robustness of password verification and add tests for invalid formats\n\n- Update password hasher implementations (Node.js, PHP, Python) to safely handle invalid encoded formats and avoid runtime errors.\n- Add comprehensive tests in all languages to ensure verify returns false for empty, malformed, or incomplete encoded strings.\n- Refactor Python hasher to use indexed access for split results, matching logic across implementations.",
-    "files": [
-      "src/hashers/CustomPasswordHasher.cjs",
-      "src/hashers/CustomPasswordHasher.php",
-      "src/hashers/CustomPasswordHasher.py",
-      "tests/hashers/CustomPasswordHasher.test.cjs",
-      "tests/hashers/CustomPasswordHasherTest.php",
-      "tests/hashers/CustomPasswordHasherTest.py"
     ]
   }
 ]
