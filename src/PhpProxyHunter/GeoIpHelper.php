@@ -113,6 +113,7 @@ class GeoIpHelper {
     $locate            = $geo_plugin->locate_recursive($ip);
     $data              = [ ];
     $data['country']   = $locate->countryName;
+    $data['city']      = $locate->city;
     $data['region']    = $locate->regionName;
     $data['latitude']  = $locate->latitude;
     $data['longitude'] = $locate->longitude;
