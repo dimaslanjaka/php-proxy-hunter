@@ -1,5 +1,73 @@
 [
   {
+    "hash": "c884524be6f049428a1cf45e4a3e2151ac39dbf9",
+    "date": "2025-11-20T18:45:13+07:00",
+    "message": "fix(proxy-checker): use getPhpExecutable for PHP command",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
+    "hash": "da87a823aab6cf81884ec3e955444aaafc4e63a5",
+    "date": "2025-11-20T18:43:42+07:00",
+    "message": "fix(src/utils/process): make executables functions PHP 7.0 compatible and add optional escaping\n\n- Remove nullable return type hints (?string) to support PHP 7.0.\n- Add optional $escape parameter to `getPhpExecutable()` and `getPythonExecutable()`.\n- When $escape is true, return an escaped path via `escapeshellcmd()`; otherwise preserve previous behavior.",
+    "files": [
+      "artisan/proxyCollector.php",
+      "src/utils/process/executables.php"
+    ]
+  },
+  {
+    "hash": "831bf21418ec7f8427e998986bb6989617d09838",
+    "date": "2025-11-20T18:34:25+07:00",
+    "message": "feat(process): implement runCmdInBackground function for cross-platform command execution",
+    "files": [
+      "src/utils/process/runCmdInBackground.php"
+    ]
+  },
+  {
+    "hash": "c5e690121eaa035bf488aa959605edc91f13ecab",
+    "date": "2025-11-20T18:33:54+07:00",
+    "message": "feat(shared): add refreshDbConnections function to re-instantiate CoreDB and manage DB connections",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
+    "hash": "aa4ee586622aeaaeed7f32c08715ce455226553d",
+    "date": "2025-11-20T18:28:16+07:00",
+    "message": "feat(postinstall): add logging for executed post-install scripts",
+    "files": [
+      "scripts/postinstall.js"
+    ]
+  },
+  {
+    "hash": "e153baeb362c73f6cd4b6ae190d312829f0b0a65",
+    "date": "2025-11-20T18:21:17+07:00",
+    "message": "fix(scripts/composer-installer): handle HTTP streams, cleanup partial downloads, and exit cleanly\n\n- Drain and consume non-200 responses to allow sockets to close.\n- Add error handlers on file and response streams to destroy streams and remove partial downloads.\n- Use robust HEAD handling: safely parse Content-Length (nullable) and consume the response.\n- Remove partial files on request errors (use fs.unlinkSync defensively).\n- Explicitly call process.exit(0) after successful install to prevent the Node process from hanging.",
+    "files": [
+      "scripts/composer-installer.js"
+    ]
+  },
+  {
+    "hash": "d4a2ada703bb0f8c6bcec9ff626bcc831a089343",
+    "date": "2025-11-20T18:17:35+07:00",
+    "message": "feat(process): add cross-platform executables finder for PHP and Python\n\n- Include new `executables-finder.cjs` in postinstall script\n- Add `.gitignore` entry for generated `executables.json`\n- Implement Node-based executable resolution with Windows/NIX support\n- Add PHP helper `executables.php` to load or generate executable paths",
+    "files": [
+      "scripts/postinstall.js",
+      "src/utils/process/.gitignore",
+      "src/utils/process/executables-finder.cjs",
+      "src/utils/process/executables.php"
+    ]
+  },
+  {
+    "hash": "20d62f0da65e56b031453a2cdaf3ce62ec666ade",
+    "date": "2025-11-20T16:18:28+07:00",
+    "message": "feat(geo-ip): add geo IP lookup functionality with proxy support",
+    "files": [
+      "php_backend/geo-ip.php"
+    ]
+  },
+  {
     "hash": "0250ccfc39dc5aac13b67f4bce4917cabab2190e",
     "date": "2025-11-20T16:17:15+07:00",
     "message": "feat(checker): accept transparent proxies after verification\n\nTreat proxies that return the client's IP as \"transparent\" but still usable\nif they can successfully fetch a verification HTTP endpoint. The checker\nnow performs a lightweight cURL request through the same proxy/type/creds\nand accepts the proxy (anonymity='transparent') when the endpoint returns\na 2xx-3xx response. Debug logs updated to show verification attempts and\noutcomes. Also minor formatting tweak (move latency comment to its own line).",
@@ -8660,77 +8728,6 @@
     "files": [
       "package.json",
       "setup.js"
-    ]
-  },
-  {
-    "hash": "4eb40c37cd1ee4b2aae2e1198a30fd47393e4e42",
-    "date": "2025-08-17T14:23:08+07:00",
-    "message": "feat(Logout): replace anchor tag with Link component for navigation",
-    "files": [
-      "src/react/pages/Logout.tsx"
-    ]
-  },
-  {
-    "hash": "318bb3fccdc94556b3525c2fea8ced741b5e27be",
-    "date": "2025-08-17T14:22:15+07:00",
-    "message": "feat(Link): export Link component as aLink and aHref for easier usage",
-    "files": [
-      "src/react/components/Link.tsx"
-    ]
-  },
-  {
-    "hash": "a7fdab22ec990071221bca96ecead7008210ae23",
-    "date": "2025-08-17T14:16:42+07:00",
-    "message": "feat(react): support multiple paths per route\n\n- Refactored route rendering in `index.tsx` to accept `path` as a string or array of strings, creating multiple `<Route />` elements when an array is provided.\n- Updated `/oauth` route in `routes.js` to support both `/oauth` and `/oauth/google` paths for the `OauthHandler` component.",
-    "files": [
-      "src/react/index.tsx",
-      "src/react/routes.js"
-    ]
-  },
-  {
-    "hash": "8f5f8725e45ffbbfb3d0f67acaf86579b36a7b4a",
-    "date": "2025-08-17T14:12:45+07:00",
-    "message": "feat(instructions): update applyTo pattern to include cjs and mjs file extensions",
-    "files": [
-      ".github/instructions/nodejs.instructions.md"
-    ]
-  },
-  {
-    "hash": "99d5916121f7d175653c01a85d4245c2f2089f4b",
-    "date": "2025-08-17T14:05:10+07:00",
-    "message": "feat(Admin): enhance dark mode support and improve styling for user selection and saldo input",
-    "files": [
-      "src/react/pages/Admin.tsx"
-    ]
-  },
-  {
-    "hash": "7254aee06defeed100278fdf67bbd0fc2ecca807",
-    "date": "2025-08-17T13:55:40+07:00",
-    "message": "feat(robots.txt, vite-plugin): disallow admin, tmp, and embed.php in robots.txt; automate robots.txt copying in build\n\n- Added Disallow rules for /admin, /tmp, and /embed.php in robots.txt to restrict crawler access.\n- Updated vite-plugin.js to automatically copy robots.txt to production directories if the file exists and is not empty.",
-    "files": [
-      "robots.txt",
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "b243bac5ad28e732598f29954201e6eaa98f2349",
-    "date": "2025-08-17T13:52:10+07:00",
-    "message": "feat(logout): add logout page, route, and user dropdown link with dark mode support\n\n- Added a new Logout page (`src/react/pages/Logout.tsx`) that calls the backend logout endpoint, handles the JSON response, and displays status messages with Font Awesome Pro icons.\n- Implemented dark mode support for the Logout page using Tailwind/Flowbite classes.\n- Added a `/logout` route to the app in `src/react/routes.js`.\n- Added a Logout link with icon to the user dropdown in the Navbar for authenticated users.",
-    "files": [
-      "src/react/components/Navbar.tsx",
-      "src/react/pages/Logout.tsx",
-      "src/react/routes.js"
-    ]
-  },
-  {
-    "hash": "8b9ef4d99e25154ea3fcf596f745d719176fec29",
-    "date": "2025-08-17T13:42:39+07:00",
-    "message": "feat(navbar, admin, routes): unify user dropdown, add admin page, and clean up imports\n\n- Refactored Navbar to use a single user dropdown for both authenticated and unauthenticated users, removing duplicate dropdown logic.\n- Added `userMenuOpen` state to Navbar for better dropdown control.\n- Implemented toggle handlers to ensure only one dropdown (user or social) is open at a time.\n- Added new `Admin` page (`src/react/pages/Admin.tsx`) with a form to add saldo for users.\n- Updated route imports in `src/react/routes.js` to use `.tsx` suffix and registered the new `/admin` route.",
-    "files": [
-      "src/react/components/Navbar.tsx",
-      "src/react/pages/Admin.tsx",
-      "src/react/routes.js",
-      "src/react/utils/url.ts"
     ]
   }
 ]
