@@ -109,24 +109,15 @@ class GeoIpHelper {
   }
 
   public static function getGeoIpSimple($ip) {
-    $geo_plugin = new \PhpProxyHunter\GeoPlugin();
-    $locate     = $geo_plugin->locate_recursive($ip);
-    $data       = [];
-    if (!empty($locate->countryName)) {
-      $data['country'] = $locate->countryName;
-    }
-    if (!empty($locate->regionName)) {
-      $data['region'] = $locate->regionName;
-    }
-    if (!empty($locate->latitude)) {
-      $data['latitude'] = $locate->latitude;
-    }
-    if (!empty($locate->longitude)) {
-      $data['longitude'] = $locate->longitude;
-    }
-    if (!empty($locate->timezone)) {
-      $data['timezone'] = $locate->timezone;
-    }
+    $geo_plugin        = new \PhpProxyHunter\GeoPlugin();
+    $locate            = $geo_plugin->locate_recursive($ip);
+    $data              = [ ];
+    $data['country']   = $locate->countryName;
+    $data['region']    = $locate->regionName;
+    $data['latitude']  = $locate->latitude;
+    $data['longitude'] = $locate->longitude;
+    $data['timezone']  = $locate->timezone;
+    $data['debug']     = $locate->jsonSerialize();
     return $data;
   }
 
