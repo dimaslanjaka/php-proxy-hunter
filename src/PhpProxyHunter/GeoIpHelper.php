@@ -16,18 +16,20 @@ class GeoIpHelper {
    * @param string $the_proxy Proxy string in the form "IP:PORT" or with auth
    * @param string $proxy_type Protocol type (e.g. 'http', 'socks5')
    * @param ProxyDB|null $db Optional ProxyDB instance to persist results
-   * @return void
+   * @return array<string,mixed> Associative array of geo data (may be empty)
    */
   public static function resolveGeoProxy($the_proxy, $proxy_type = 'http', $db = null) {
     $proxy = trim($the_proxy);
     if (empty($proxy)) {
-      return;
+      return [];
     }
     // $db is optional. If not provided, skip any database update operations.
-    list($ip, $port) = explode(':', $proxy);
-    $geo_plugin      = new \PhpProxyHunter\GeoPlugin();
-    $geoUrl          = "https://ip-get-geolocation.com/api/json/$ip";
-    $content         = curlGetWithProxy($geoUrl, $proxy, $proxy_type);
+    $parts      = explode(':', $proxy);
+    $ip         = isset($parts[0]) ? $parts[0] : '';
+    $port       = isset($parts[1]) ? $parts[1] : '';
+    $geo_plugin = new \PhpProxyHunter\GeoPlugin();
+    $geoUrl     = "https://ip-get-geolocation.com/api/json/$ip";
+    $content    = curlGetWithProxy($geoUrl, $proxy, $proxy_type);
     if (!$content) {
       $content = '';
     }
@@ -106,6 +108,7 @@ class GeoIpHelper {
     if (!empty($db)) {
       $db->updateData($proxy, $data);
     }
+    return $data;
   }
 
   /**
@@ -129,7 +132,7 @@ class GeoIpHelper {
    * @param string $ip IPv4 or IPv6 address to look up.
    * @return array<string,mixed> Associative array with geo information; values may be null if unavailable.
    */
-  public static function getGeoIpSimple(string $ip): array {
+  public static function getGeoIpSimple($ip) {
     $geo_plugin        = new \PhpProxyHunter\GeoPlugin();
     $locate            = $geo_plugin->locate_recursive($ip);
     $data              = [];
