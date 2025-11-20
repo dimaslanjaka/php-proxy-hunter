@@ -1,5 +1,18 @@
 [
   {
+    "hash": "1362aaae7f0aae34930b618a9e0f023154a95e6e",
+    "date": "2025-11-20T19:13:42+07:00",
+    "message": "refactor: move PHP-CS-Fixer scripts from src/dev to scripts directory\n\n- Updated .php-cs-fixer.dist.php to load autoload.php from new scripts path\n- Renamed src/dev/php-cs-fixer/ directory to scripts/php-cs-fixer/",
+    "files": [
+      ".php-cs-fixer.dist.php",
+      "scripts/php-cs-fixer/.gitignore",
+      "scripts/php-cs-fixer/CustomNoMultipleStatementsPerLineFixer.php",
+      "scripts/php-cs-fixer/GlobalOneLineFixer.php",
+      "scripts/php-cs-fixer/autoload.php",
+      "scripts/php-cs-fixer/direct-test.cjs"
+    ]
+  },
+  {
     "hash": "2c5611b608a9c91e7c0336b20989760afe0e3307",
     "date": "2025-11-20T19:11:08+07:00",
     "message": "feat(proxy-checker): test all protocol types and aggregate results\n\n- Continue testing all configured proxy protocols (HTTP, HTTPS, SOCKS4, SOCKS5, etc.) instead of stopping on first success.\n- Track and collect all successful `workingTypes`.\n- Introduce `anonymityPriority` and aggregate the best anonymity level seen (transparent < anonymous < elite).\n- Record the best (minimum) latency among successful attempts (`attemptLatency`) instead of overwriting on each loop.\n- Keep transparent verification step (HTTP endpoint check) but continue to evaluate remaining types.\n\nThis improves detection accuracy by aggregating multiple working protocol types and selecting the best anonymity/latency metrics.",
@@ -8719,14 +8732,6 @@
       "tests/hashers/CustomPasswordHasher.test.cjs",
       "tests/hashers/CustomPasswordHasherTest.php",
       "tests/hashers/CustomPasswordHasherTest.py"
-    ]
-  },
-  {
-    "hash": "6a2bd32de8314c9eec4701098df3ce92e82422e8",
-    "date": "2025-08-17T14:37:17+07:00",
-    "message": "fix(ReferenceError): Cannot access 'productionEnv' before initialization",
-    "files": [
-      ".env.mjs"
     ]
   }
 ]
