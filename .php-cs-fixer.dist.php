@@ -7,11 +7,10 @@
  *   composer exec php-cs-fixer fix
  */
 
-require_once __DIR__ . '/src/dev/php-cs-fixer/GlobalOneLineFixer.php';
+require_once __DIR__ . '/src/dev/php-cs-fixer/autoload.php';
 
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
-use CustomFixer\GlobalOneLineFixer;
 
 // ---------------------------------------------
 // Finder setup: determines which files PHP-CS-Fixer will process
@@ -30,7 +29,8 @@ $finder = Finder::create()
     ])
     ->name('*.php')       // Only process PHP files
     ->ignoreDotFiles(true) // Ignore hidden files like .env
-    ->ignoreVCS(true);     // Ignore version control folders (.git, etc.)
+    ->ignoreVCS(true);
+// Ignore version control folders (.git, etc.)
 
 // ---------------------------------------------
 // Base configuration object
@@ -89,7 +89,8 @@ $config
     ->setIndent(str_repeat(' ', 2))  // Use 2 spaces per indentation level
     ->setUsingCache(true)            // Enable cache to speed up subsequent runs
     ->setRiskyAllowed(true)          // Allow risky fixers (some change code meaning)
-    ->setCacheFile('tmp/locks/.php-cs-fixer.cache'); // Custom cache file path
+    ->setCacheFile('tmp/locks/.php-cs-fixer.cache');
+// Custom cache file path
 
 $rules = [
   '@PSR12' => true, // Apply PSR-12 coding style standard
@@ -128,13 +129,41 @@ $rules = [
 ];
 
 // ---------------------------------------------
-// Custom fixers
+// Custom fixers and conditional rules based on available fixers
 // ---------------------------------------------
 
-$config->registerCustomFixers([
-  new GlobalOneLineFixer(),
-]);
+$customFixers = [];
+
+// Enable custom global_one_line fixer
+$customFixers[]                  = new PhpCsFixerCustom\GlobalOneLineFixer();
 $rules['Custom/global_one_line'] = true;
+
+// Detect available fixer names (compatible with all PHP-CS-Fixer versions)
+$factory = new PhpCsFixer\FixerFactory();
+$factory->registerBuiltInFixers();
+
+$availableFixers = array_map(
+  fn ($fixer) => $fixer->getName(),
+  $factory->getFixers()
+);
+
+// Safe helper
+function fixer_exists(string $name, array $available): bool {
+  return in_array($name, $available, true);
+}
+
+// Force only one statement per physical line
+// Example: "unset(...); gc_collect_cycles();" → two separate lines
+if (fixer_exists('no_multiple_statements_per_line', $availableFixers)) {
+  $rules['no_multiple_statements_per_line'] = true;
+} else {
+  // Fallback: use custom fixer if built-in one is not available
+  $customFixers[]                                  = new PhpCsFixerCustom\CustomNoMultipleStatementsPerLineFixer();
+  $rules['Custom/no_multiple_statements_per_line'] = true;
+}
+
+// Register custom fixers
+$config->registerCustomFixers($customFixers);
 
 // ---------------------------------------------
 // Coding standard rules
