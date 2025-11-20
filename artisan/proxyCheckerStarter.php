@@ -2,14 +2,12 @@
 
 require_once __DIR__ . '/../php_backend/shared.php';
 
-use PhpProxyHunter\FileLockHelper;
 use PhpProxyHunter\Server;
 
 global $proxy_db;
 
 $isCli          = is_cli();
 $rootProjectDir = realpath(__DIR__ . '/..');
-$locker         = new FileLockHelper($rootProjectDir . '/tmp/locks/proxyCheckerGlobal.lock');
 
 if (!$isCli) {
   Server::allowCors(true);
@@ -117,4 +115,24 @@ foreach ($proxiesToCheck as $proxy) {
   } else {
     @exec($cmd . ' > ' . escapeshellarg($outputFile) . ' 2>&1 &');
   }
+}
+
+// Run filterPorts after starting proxy checks
+$filterPortsScript   = realpath(__DIR__ . '/filterPorts.php');
+$filterPortsLockFile = $rootProjectDir . '/tmp/runners/filterPorts.lock';
+if ($isWin) {
+  $background = 'cmd /C start "" /B php ' . escapeshellarg($filterPortsScript) . ' --lockFile=' . escapeshellarg($filterPortsLockFile) . ' > NUL 2>&1';
+  @pclose(@popen($background, 'r'));
+} else {
+  @exec('php ' . escapeshellarg($filterPortsScript) . ' --lockFile=' . escapeshellarg($filterPortsLockFile) . ' > /dev/null 2>&1 &');
+}
+
+// Run filterPortsDuplicates after starting proxy checks
+$filterPortsDupScript   = realpath(__DIR__ . '/filterPortsDuplicate.php');
+$filterPortsDupLockFile = $rootProjectDir . '/tmp/runners/filterPortsDuplicate.lock';
+if ($isWin) {
+  $background = 'cmd /C start "" /B php ' . escapeshellarg($filterPortsDupScript) . ' --lockFile=' . escapeshellarg($filterPortsDupLockFile) . ' > NUL 2>&1';
+  @pclose(@popen($background, 'r'));
+} else {
+  @exec('php ' . escapeshellarg($filterPortsDupScript) . ' --lockFile=' . escapeshellarg($filterPortsDupLockFile) . ' > /dev/null 2>&1 &');
 }
