@@ -146,7 +146,7 @@ if (!$isCli) {
     $config['curl_timeout'] = $timeout;
     setConfig($userId, $config);
     $config = getConfig($userId);
-// refresh
+    // refresh
     send_json([
       'error'   => false,
       'message' => "cURL timeout set to $timeout seconds.",
@@ -189,7 +189,7 @@ if (!$isCli) {
     // Run proxy check in background
     $script     = __FILE__;
     $cmdParts   = [];
-    $cmdParts[] = 'php';
+    $cmdParts[] = getPhpExecutable();
     $cmdParts[] = escapeshellarg($script);
     $cmdParts[] = '--userId=' . escapeshellarg($userId);
     if ($isAdmin) {
@@ -220,7 +220,7 @@ if (!$isCli) {
     $isWin  = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
     $runner = tmp() . '/runners/proxy-checker/' . sanitizeFilename($proxyInfo['proxy']) . ($isWin ? '.bat' : '');
     write_file($runner, '');
-// clear existing content
+    // clear existing content
 
     if ($isWin) {
       // Windows: use start to run in background; not all environments can capture PID reliably
@@ -346,7 +346,7 @@ if (!$isCli) {
     }
     $proxyInfo['proxy'] = $allProxies[array_rand($allProxies)]['proxy'];
     $proxyInfo['type']  = null;
-// try all types
+    // try all types
   }
 
   $type         = empty($proxyInfo['type']) ? '' : strtolower($proxyInfo['type']);
