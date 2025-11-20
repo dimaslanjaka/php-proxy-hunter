@@ -12,10 +12,12 @@ if (!$isCli) {
   exit('only CLI allowed');
 }
 
-$max_checks       = 500; // max proxies to be checked
-$maxExecutionTime = 120; // max 120s execution time
-$endless          = false;
-$perform_delete   = false;
+$max_checks = 500;
+// max proxies to be checked
+$maxExecutionTime = 120;
+// max 120s execution time
+$endless        = false;
+$perform_delete = false;
 
 if ($isCli) {
   $short_opts = 'p:m::';
@@ -30,7 +32,8 @@ if ($isCli) {
     'delete::',
   ];
   $options        = getopt($short_opts, $long_opts);
-  $perform_delete = !empty($options['delete']); // --delete=true
+  $perform_delete = !empty($options['delete']);
+  // --delete=true
   if (!empty($options['max'])) { // --max=100
     $max = intval($options['max']);
     if ($max > 0) {
@@ -96,7 +99,8 @@ $driver  = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 $isMySQL = $driver === 'mysql';
 
 // Step 1: Identify and process duplicates based on IP address in batches
-$batchSize    = 1000; // Adjust batch size as needed
+$batchSize = 1000;
+// Adjust batch size as needed
 $start        = 0;
 $duplicateIds = [];
 
@@ -213,7 +217,8 @@ do {
           $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
           $deleteStmt->execute();
 
-          $log = "[FILTER-PORT] $proxy invalid proxy [DELETED]\n";
+          // include reason in log
+          $log = sprintf("[FILTER-PORT] %s deleted — invalid proxy format\n", $proxy);
         } else {
           if (!$keepRow) {
             // initialize keep row
@@ -226,13 +231,16 @@ do {
               echo "$proxy port open\n";
               $db->updateData($proxy, ['status' => 'untested'], false);
               // Update the last_check timestamp
-              $lastCheck  = date(DATE_RFC3339); // Assign date to a variable
+              $lastCheck = date(DATE_RFC3339);
+              // Assign date to a variable
               $updateStmt = $pdo->prepare('UPDATE proxies SET last_check = :last_check WHERE proxy = :proxy');
-              $updateStmt->bindParam(':last_check', $lastCheck, PDO::PARAM_STR); // Use variable here
+              $updateStmt->bindParam(':last_check', $lastCheck, PDO::PARAM_STR);
+              // Use variable here
               $updateStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
               $updateStmt->execute();
               // keep open port
               $keepRow = $row;
+              $log     = sprintf("[FILTER-PORT] %s kept — port open\n", $proxy);
             } elseif ($keepRow['proxy'] !== $proxy) {
               if ($perform_delete || $isAlreadyDead) {
                 // Delete closed port
@@ -240,14 +248,21 @@ do {
                 $deleteStmt->bindParam(':id', $row['id'], PDO::PARAM_INT);
                 $deleteStmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
                 $deleteStmt->execute();
-                $log = "[FILTER-PORT] $proxy port closed [DELETED]" . PHP_EOL;
+                $log = $perform_delete
+                  ? sprintf("[FILTER-PORT] %s deleted — forced delete flag set\n", $proxy)
+                  : sprintf("[FILTER-PORT] %s deleted — port closed for a long time\n", $proxy);
               } else {
                 $db->updateData($proxy, ['status' => 'port-closed'], false);
-                $log = "[FILTER-PORT] $proxy port closed" . PHP_EOL;
+                $log = sprintf("[FILTER-PORT] %s updated — status set to port-closed\n", $proxy);
               }
             }
           } else {
-            $log = "[FILTER-PORT] $proxy [SKIPPED]" . PHP_EOL;
+            // determine skip reason
+            if ($perform_delete) {
+              $log = sprintf("[FILTER-PORT] %s skipped — perform_delete flag set (no action)\n", $proxy);
+            } else {
+              $log = sprintf("[FILTER-PORT] %s skipped — already checked this month\n", $proxy);
+            }
           }
         }
         if (!empty($log)) {
