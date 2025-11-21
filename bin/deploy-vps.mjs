@@ -5,209 +5,142 @@ import SftpClient from 'ssh2-sftp-client';
 import { fileURLToPath } from 'url';
 import sftpConfig from '../.vscode/sftp.json' with { type: 'json' };
 
+// Resolve dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const { host, port, username, password, remotePath } = sftpConfig;
 
-/**
- * Upload a single file to the remote server using ssh2-sftp-client.
- * @param {string} localFile - Local file path to upload.
- * @param {string} remoteFile - Remote file path to upload to.
- * @param {object} [config] - Optional SFTP config override.
- * @returns {Promise<void>}
- */
-export async function uploadFile(localFile, remoteFile, config = {}) {
+/* -------------------------------------------------------
+ *  SHARED UTILITIES
+ * ----------------------------------------------------- */
+
+/** Create new SFTP instance with merged config */
+function createSftp(config = {}) {
   const sftp = new SftpClient();
-  const sftpOptions = {
-    host,
-    port,
-    username,
-    password,
-    ...config
-  };
+  const opts = { host, port, username, password, ...config };
+  return { sftp, opts };
+}
+
+/** Safely connect + run + end SFTP */
+async function useSftp(config, fn) {
+  const { sftp, opts } = createSftp(config);
   try {
-    await sftp.connect(sftpOptions);
-    console.log(`Uploading file ${localFile} to ${remoteFile} ...`);
-    await sftp.put(localFile, remoteFile);
-    console.log('File upload complete.');
-  } catch (err) {
-    console.error('SFTP file upload error:', err);
-    throw err;
+    await sftp.connect(opts);
+    return await fn(sftp);
   } finally {
     sftp.end();
   }
 }
 
+/** Execute SSH with automatic connect/end */
+function withSSH(fn) {
+  const conn = new Client();
+  return new Promise((resolve, reject) => {
+    conn
+      .on('ready', () =>
+        fn(conn)
+          .then(resolve)
+          .catch(reject)
+          .finally(() => conn.end())
+      )
+      .connect({ host, port, username, password });
+  });
+}
+
+/* -------------------------------------------------------
+ *  SFTP OPERATIONS
+ * ----------------------------------------------------- */
+
 /**
- * Recursively upload a local directory to the remote server using ssh2-sftp-client.
- * @param {string} localDir - Local directory to upload.
- * @param {string} remoteDir - Remote directory to upload to.
- * @param {object} [config] - Optional SFTP config override.
- * @returns {Promise<void>}
+ * Upload a single file to the remote server using ssh2-sftp-client.
+ */
+export async function uploadFile(localFile, remoteFile, config = {}) {
+  return useSftp(config, async (sftp) => {
+    console.log(`Uploading file ${localFile} → ${remoteFile}`);
+    await sftp.put(localFile, remoteFile);
+  });
+}
+
+/**
+ * Recursively upload a directory using ssh2-sftp-client.
  */
 export async function uploadDir(localDir, remoteDir, config = {}) {
-  const sftp = new SftpClient();
-  const sftpOptions = {
-    host,
-    port,
-    username,
-    password,
-    ...config
-  };
-  try {
-    await sftp.connect(sftpOptions);
-    console.log(`Uploading ${localDir} to ${remoteDir} ...`);
+  return useSftp(config, async (sftp) => {
+    console.log(`Uploading ${localDir} → ${remoteDir}`);
     await sftp.uploadDir(localDir, remoteDir);
-    console.log('Upload complete.');
-  } catch (err) {
-    console.error('SFTP upload error:', err);
-    throw err;
-  } finally {
-    sftp.end();
-  }
+  });
 }
 
 /**
  * Write contents (string or Buffer) to a remote file path via SFTP.
- * Creates parent directories if they don't exist.
- * @param {string} remoteFile - Remote file path to write to.
- * @param {string|Buffer} contents - The contents to write.
- * @param {object} [config] - Optional SFTP config override.
- * @returns {Promise<void>}
  */
 export async function writeRemoteFile(remoteFile, contents, config = {}) {
-  const sftp = new SftpClient();
-  const sftpOptions = {
-    host,
-    port,
-    username,
-    password,
-    ...config
-  };
+  const data = Buffer.isBuffer(contents) ? contents : Buffer.from(String(contents));
 
-  // Normalize contents to Buffer for sftp.put
-  const data = Buffer.isBuffer(contents) ? contents : Buffer.from(String(contents), 'utf8');
+  return useSftp(config, async (sftp) => {
+    console.log(`Writing remote file ${remoteFile}`);
 
-  try {
-    await sftp.connect(sftpOptions);
-    console.log(`Writing to remote file ${remoteFile} ...`);
-
-    // Ensure parent directory exists. ssh2-sftp-client doesn't provide a single recursive mkdir in all versions,
-    // but its mkdir(path, true) supports recursive creation. We'll attempt it and ignore if not supported.
     const parentDir = path.posix.dirname(remoteFile.replace(/\\/g, '/'));
+
     try {
       await sftp.mkdir(parentDir, true);
     } catch (e) {
-      // If mkdir fails, continue — the put may still succeed if parent exists.
-      // Log the error at debug level.
-      console.debug(`mkdir for ${parentDir} failed or already exists:`, e.message || e);
+      console.debug(`mkdir ${parentDir} skipped:`, e.message || e);
     }
 
-    // Upload the buffer directly to the remote path
     await sftp.put(data, remoteFile);
-    console.log('Remote file write complete.');
-  } catch (err) {
-    console.error('SFTP write remote file error:', err);
-    throw err;
-  } finally {
-    sftp.end();
-  }
+  });
 }
 
 /**
- * Delete a remote file or directory. If the path is a directory, attempts recursive removal.
- * @param {string} remotePathToDelete - Remote file or directory path to delete.
- * @param {object} [config] - Optional SFTP config override.
- * @returns {Promise<void>}
+ * Delete a remote file or directory (recursive if needed).
  */
-export async function deleteRemotePath(remotePathToDelete, config = {}) {
-  const sftp = new SftpClient();
-  const sftpOptions = {
-    host,
-    port,
-    username,
-    password,
-    ...config
-  };
+export async function deleteRemotePath(target, config = {}) {
+  return useSftp(config, async (sftp) => {
+    console.log(`Deleting remote path ${target}`);
 
-  try {
-    await sftp.connect(sftpOptions);
-    console.log(`Deleting remote path ${remotePathToDelete} ...`);
-    // Prefer checking the remote type first to avoid a noisy "delete failed (may be a directory)" message.
-    // ssh2-sftp-client offers exists() which returns false | 'd' | '-' | 'l' (dir|file|link) in many versions.
     let existsType = null;
     try {
-      existsType = await sftp.exists(remotePathToDelete);
+      existsType = await sftp.exists(target);
     } catch (e) {
-      console.debug('sftp.exists check failed, will attempt delete/rmdir fallbacks:', e.message || e);
+      console.debug(`exists() failed:`, e.message || e);
     }
 
-    if (existsType === false) {
-      console.log('Remote path does not exist, nothing to delete.');
-      return;
-    }
+    if (!existsType) return;
 
     if (existsType === 'd') {
-      // Path is a directory — try rmdir recursive if supported
       try {
-        await sftp.rmdir(remotePathToDelete, true);
-        console.log('Remote directory removed.');
+        await sftp.rmdir(target, true);
         return;
-      } catch (dirErr) {
-        console.debug(
-          'sftp.rmdir failed or not supported, attempting manual recursive delete:',
-          dirErr.message || dirErr
-        );
-      }
-    } else if (existsType === '-' || existsType === 'l' || existsType === null) {
-      // Treat as a file (or unknown): try delete first, then fall back to rmdir if that fails
-      try {
-        await sftp.delete(remotePathToDelete);
-        console.log('Remote file deleted.');
-        return;
-      } catch (fileErr) {
-        console.debug('sftp.delete failed, attempting rmdir/recursive fallback:', fileErr.message || fileErr);
-      }
+      } catch (_) {}
     }
 
-    // If we reached here, previous attempts failed — attempt manual recursive delete by listing children.
-    // This covers servers where rmdir(..., true) isn't supported.
-    try {
-      const list = await sftp.list(remotePathToDelete);
-      for (const item of list) {
-        const childPath = `${remotePathToDelete.replace(/\/$/, '')}/${item.name}`;
-        if (item.type === 'd') {
-          await deleteRemotePath(childPath, config);
-        } else {
-          await sftp.delete(childPath);
-        }
-      }
-      // After deleting children, remove the directory itself
-      await sftp.rmdir(remotePathToDelete);
-      console.log('Remote directory removed (manual).');
-      return;
-    } catch (manualErr) {
-      console.error('Failed to delete remote path:', manualErr);
-      throw manualErr;
+    if (existsType === '-' || existsType === 'l' || existsType === null) {
+      try {
+        await sftp.delete(target);
+        return;
+      } catch (_) {}
     }
-  } catch (err) {
-    console.error('SFTP delete remote path error:', err);
-    throw err;
-  } finally {
-    sftp.end();
-  }
+
+    // Manual recursive removal fallback
+    const list = await sftp.list(target);
+    for (const item of list) {
+      const child = `${target.replace(/\/$/, '')}/${item.name}`;
+      if (item.type === 'd') {
+        await deleteRemotePath(child, config);
+      } else {
+        await sftp.delete(child);
+      }
+    }
+    await sftp.rmdir(target);
+  });
 }
 
-/**
- * Execute a command on the remote server with .bashrc loaded, streaming output live to the console.
- * Always sources nvm from /usr/local/nvm/nvm.sh and sets node version.
- *
- * @param {import('ssh2').Client} conn - An active ssh2 Client connection.
- * @param {string} command - The shell command to execute remotely.
- * @returns {Promise<{stdout: string, stderr: string, code: number, signal: string}>} Resolves with command output and exit info.
- */
+/* -------------------------------------------------------
+ *  SSH EXEC HELPERS
+ * ----------------------------------------------------- */
+
 export function execWithBashrc(conn, command) {
-  // Source .bashrc and nvm for maximum compatibility with interactive shell environments
   const wrapped = `
     source ~/.bashrc >/dev/null 2>&1;
     if [ -f /usr/local/nvm/nvm.sh ]; then
@@ -217,18 +150,16 @@ export function execWithBashrc(conn, command) {
     corepack enable;
     ${command}
   `;
+
   return new Promise((resolve, reject) => {
-    let stdout = '';
-    let stderr = '';
+    let stdout = '',
+      stderr = '';
+
     conn.exec(`bash -lc "${wrapped.replace(/"/g, '\\"')}"`, (err, stream) => {
-      if (err) {
-        reject(err);
-        return;
-      }
+      if (err) return reject(err);
+
       stream
-        .on('close', (code, signal) => {
-          resolve({ stdout, stderr, code, signal });
-        })
+        .on('close', (code, signal) => resolve({ stdout, stderr, code, signal }))
         .on('data', (data) => {
           stdout += data;
           process.stdout.write(data);
@@ -242,86 +173,25 @@ export function execWithBashrc(conn, command) {
 }
 
 /**
- * Connects to the remote server via SSH and performs a `git pull` in the specified remotePath.
- * Streams output live to the console and resolves with the command result.
- *
- * @returns {Promise<{code: number, signal: string, stdout: string, stderr: string}>}
- *   Resolves with the exit code, signal, stdout, and stderr of the git pull command.
- *   Rejects if the SSH connection or git pull fails.
+ * git pull via SSH
  */
 export function gitPull() {
-  const conn = new Client();
-  return new Promise((resolve, reject) => {
-    conn
-      .on('ready', async () => {
-        console.log('SSH Connection ready');
-        let code, signal, error, stdout, stderr;
-        try {
-          ({ code, signal, stdout, stderr } = await execWithBashrc(conn, `cd ${remotePath} && git pull`));
-        } catch (err) {
-          error = err;
-        }
-        conn.end();
-        if (error) {
-          reject(error);
-          return;
-        }
-        if (code === 0) {
-          resolve({ code, signal, stdout, stderr });
-        } else {
-          reject(new Error(`git pull failed with code ${code}, signal ${signal}`));
-        }
-      })
-      .connect({
-        host,
-        port,
-        username,
-        password
-      });
+  return withSSH(async (conn) => {
+    return execWithBashrc(conn, `cd ${remotePath} && git pull`);
   });
 }
 
 /**
- * Execute a command on the remote server via SSH and return the execution result.
- *
- * This helper establishes an ssh2 Client connection to the configured host and
- * uses execWithBashrc to run the provided shell command (which sources ~/.bashrc
- * and prepares nvm/corepack). The promise resolves with the same object that
- * execWithBashrc returns: stdout, stderr, exit code and signal.
- *
- * Note: The function name is prefixed with an underscore to allow it to remain
- * in the source even if not referenced elsewhere (matches allowed unused var pattern /^_/u).
- *
- * @param {string} command - The shell command to execute remotely.
- * @returns {Promise<{stdout: string, stderr: string, code: number|null, signal: string|null}>}
- *    Resolves with stdout, stderr, numeric exit code (or null), and signal (or null).
- *    Rejects on SSH/connect or execution errors.
+ * Execute a remote shell command through SSH
  */
-export async function shell_exec(command, cwd = null) {
-  const conn = new Client();
-  return new Promise((resolve, reject) => {
-    conn
-      .on('ready', async () => {
-        try {
-          if (typeof cwd === 'string' && cwd.length > 0) {
-            command = `cd ${cwd} && ${command}`;
-          }
-          const result = await execWithBashrc(conn, command);
-          conn.end();
-          resolve(result);
-        } catch (err) {
-          conn.end();
-          reject(err);
-        }
-      })
-      .connect({
-        host,
-        port,
-        username,
-        password
-      });
-  });
+export function shell_exec(command, cwd = null) {
+  if (cwd) command = `cd ${cwd} && ${command}`;
+  return withSSH((conn) => execWithBashrc(conn, command));
 }
+
+/* -------------------------------------------------------
+ *  MAIN DEPLOY LOGIC
+ * ----------------------------------------------------- */
 
 async function main() {
   const args = process.argv.slice(2);
@@ -329,129 +199,97 @@ async function main() {
   const uiOnly = args.includes('--ui') || args.includes('--ui-only');
   const backendOnly = args.includes('--backend') || args.includes('--backend-only');
 
+  /* === Shared lock file contents === */
+  const lockContents = `build-start:${new Date().toISOString()} pid:${process.pid}\n`;
+
+  /* -----------------------------
+   * UI ONLY DEPLOY
+   * --------------------------- */
   if (uiOnly) {
-    // UI-only deploy: build the React UI locally and upload only dist + index.html
-    console.log('UI-only deploy requested. Building local React bundle...');
+    console.log('UI-only deploy requested. Building...');
     await spawnAsync('yarn', ['build:react'], { stdio: 'inherit', shell: true });
 
-    // Remove remote dist/react (best-effort)
-    const pathsToDelete = [`${remotePath}/dist/react`, `${remotePath}/index.html`];
-    for (const p of pathsToDelete) {
+    const deletePaths = [`${remotePath}/dist/react`, `${remotePath}/index.html`];
+    for (const p of deletePaths) {
       try {
         await deleteRemotePath(p);
-      } catch (err) {
-        console.warn(`Warning: Failed to delete ${p}:`, err.message || err);
-      }
+      } catch (_) {}
     }
 
-    // Set maintenance by creating a lightweight lock file so remote processes know a build is in progress
-    const lockContents = `build-start:${new Date().toISOString()} pid:${process.pid}\n`;
     await writeRemoteFile(`${remotePath}/tmp/locks/.build-lock`, lockContents);
 
-    // Upload built files
     await uploadDir(path.join(__dirname, '/../dist/react'), `${remotePath}/dist/react`);
     await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
 
-    // Fix permissions on remote
-    console.log('Fixing file permissions on remote server (UI-only)...');
-    const { code: permCode, signal: permSignal } = await shell_exec('bash bin/fix-perm', remotePath);
-    if (permCode !== 0) {
-      throw new Error(`Remote fix-perm script failed with code ${permCode}, signal ${permSignal}`);
-    }
+    const { code } = await shell_exec('bash bin/fix-perm', remotePath);
+    if (code !== 0) throw new Error('fix-perm failed');
 
-    // Remove the build lock file to signal build completion
     await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
-
     console.log('UI-only deploy complete.');
     return;
   }
 
+  /* -----------------------------
+   * BACKEND ONLY DEPLOY
+   * --------------------------- */
   if (backendOnly) {
-    // Backend-only deploy: create lock file, run git pull and fix permissions, then remove lock
-    const lockContents = `build-start:${new Date().toISOString()} pid:${process.pid}\n`;
     await writeRemoteFile(`${remotePath}/tmp/locks/.build-lock`, lockContents);
 
-    // Only pull latest changes
     await gitPull();
 
-    // Fix permissions on remote
-    console.log('Fixing file permissions on remote server (backend-only)...');
-    const { code: permCode, signal: permSignal } = await shell_exec('bash bin/fix-perm', remotePath);
-    if (permCode !== 0) {
-      throw new Error(`Remote fix-perm script failed with code ${permCode}, signal ${permSignal}`);
-    }
+    const { code } = await shell_exec('bash bin/fix-perm', remotePath);
+    if (code !== 0) throw new Error('fix-perm failed');
 
-    // Remove the build lock file to signal completion
     await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
-
     console.log('Backend-only deploy complete.');
     return;
   }
 
-  // Set maintenance by creating a lightweight lock file so remote processes know a build is in progress
-  const lockContents = `build-start:${new Date().toISOString()} pid:${process.pid}\n`;
+  /* -----------------------------
+   * FULL DEPLOY
+   * --------------------------- */
+
   await writeRemoteFile(`${remotePath}/tmp/locks/.build-lock`, lockContents);
 
-  // Pull latest changes from git
   await gitPull();
 
-  // Run `python-minimal` installation script on remote server to ensure dependencies are up to date
-  console.log('Ensuring python-minimal dependencies are installed on remote server...');
-  const { code: pyCode, signal: pySignal } = await shell_exec('bash bin/python-minimal', remotePath);
-  if (pyCode !== 0) {
-    throw new Error(`Remote python-minimal installation failed with code ${pyCode}, signal ${pySignal}`);
-  }
+  console.log('Ensuring python-minimal...');
+  const { code: pyCode } = await shell_exec('bash bin/python-minimal', remotePath);
+  if (pyCode !== 0) throw new Error('python-minimal failed');
 
-  // Run `composer install --no-dev --no-interaction` when `composer.lock` is not found otherwise `composer update --no-dev --no-interaction`
-  console.log('Ensuring PHP dependencies are installed on remote server...');
-  const { code: composerCode, signal: composerSignal } = await shell_exec(
-    `export COMPOSER_ALLOW_SUPERUSER=1; if [ -f ${remotePath}/composer.lock ]; then php ${remotePath}/bin/composer.phar install --no-dev --no-interaction; else php ${remotePath}/bin/composer.phar update --no-dev --no-interaction; fi; echo "COMPOSER EXIT:" $?;`,
+  console.log('Ensuring PHP dependencies...');
+  const { code: composerCode } = await shell_exec(
+    `export COMPOSER_ALLOW_SUPERUSER=1; if [ -f ${remotePath}/composer.lock ];
+     then php ${remotePath}/bin/composer.phar install --no-dev --no-interaction;
+     else php ${remotePath}/bin/composer.phar update --no-dev --no-interaction; fi;`,
     remotePath
   );
-  if (composerCode !== 0) {
-    throw new Error(`Remote composer installation failed with code ${composerCode}, signal ${composerSignal}`);
-  }
+  if (composerCode !== 0) throw new Error('composer install/update failed');
 
-  // Build project
-  console.log('Building project locally...');
-  // Forward any CLI args passed to this script to the build script
-  const forwardedArgs = process.argv.slice(2);
-  if (forwardedArgs.length > 0) {
-    console.log('Forwarding CLI args to build-project.mjs:', forwardedArgs.join(' '));
-  }
-  const buildArgs = ['bin/build-project.mjs', ...forwardedArgs];
-  await spawnAsync('node', buildArgs, { stdio: 'inherit', shell: true });
-
-  // Clear out old files but preserve certain directories
-  const pathsToDelete = [`${remotePath}/dist`, `${remotePath}/index.html`];
-  for (const p of pathsToDelete) {
-    try {
-      await deleteRemotePath(p);
-    } catch (err) {
-      console.warn(`Warning: Failed to delete ${p}:`, err.message || err);
-    }
-  }
-
-  // Upload built files
-  await uploadDir(path.join(__dirname, '/../dist'), `${remotePath}/dist`);
-  await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
-
-  // Run `bash bin/fix-perm` on remote server to fix file permissions
-  console.log('Fixing file permissions on remote server...');
-  const { code: permCode, signal: permSignal } = await shell_exec('bash bin/fix-perm', remotePath);
-  if (permCode !== 0) {
-    throw new Error(`Remote fix-perm script failed with code ${permCode}, signal ${permSignal}`);
-  }
-
-  // Remove the build lock file to signal build completion
-  await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
-
-  // Restore local vite by run `yarn prepare:vite` locally
-  console.log('Restoring local vite setup...');
-  await spawnAsync('yarn', ['prepare:react'], {
+  console.log('Building project...');
+  const forwarded = process.argv.slice(2);
+  await spawnAsync('node', ['bin/build-project.mjs', ...forwarded], {
     stdio: 'inherit',
     shell: true
   });
+
+  const removeOld = [`${remotePath}/dist`, `${remotePath}/index.html`];
+  for (const p of removeOld) {
+    try {
+      await deleteRemotePath(p);
+    } catch (_) {}
+  }
+
+  await uploadDir(path.join(__dirname, '/../dist'), `${remotePath}/dist`);
+  await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
+
+  const { code: permCode } = await shell_exec('bash bin/fix-perm', remotePath);
+  if (permCode !== 0) throw new Error('fix-perm failed');
+
+  await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
+
+  console.log('Restoring local vite...');
+  await spawnAsync('yarn', ['prepare:react'], { stdio: 'inherit', shell: true });
 }
 
 if (process.argv.some((arg) => /deploy-vps(\.mjs)?$/u.test(arg))) {
