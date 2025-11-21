@@ -23,15 +23,12 @@ class ProxyCheckerHttpOnly extends ProxyChecker {
 
     $protocols = isset($options->protocols) && is_array($options->protocols) && count($options->protocols) > 0
       ? $options->protocols
-      : ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
+      : ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
 
     $latencies = [];
 
     foreach ($protocols as $protocol) {
       $urlToUse = $testUrl;
-      if (strtolower($protocol) === 'https') {
-        $urlToUse = preg_replace('#^http:#i', 'https:', $testUrl);
-      }
 
       $headers = [
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0',
@@ -66,9 +63,6 @@ class ProxyCheckerHttpOnly extends ProxyChecker {
           if (mb_strtolower($normTitle) === mb_strtolower($normExpected)) {
             $result->isWorking      = true;
             $result->workingTypes[] = strtolower($protocol);
-            if (strtolower($protocol) === 'https') {
-              $result->isSSL = true;
-            }
             $msg .= 'Title: ' . $title . ' (VALID)';
           } else {
             $msg .= 'Title: ' . $title . ' (INVALID)';
