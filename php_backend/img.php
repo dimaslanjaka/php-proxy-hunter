@@ -2,25 +2,27 @@
 
 // Simple image proxy with 1-day cache
 
-$CACHE_DIR       = __DIR__ . '/../tmp/image-cache';
-$CACHE_TTL       = 86400; // 24h
-$MAX_BYTES       = 5 * 1024 * 1024;
-$ALLOWED_HOSTS   = []; // restrict here if needed
+$CACHE_DIR = __DIR__ . '/../tmp/image-cache';
+$CACHE_TTL = 86400;
+// 24h
+$MAX_BYTES     = 5 * 1024 * 1024;
+$ALLOWED_HOSTS = [];
+// restrict here if needed
 $DEFAULT_TIMEOUT = 10;
 
 PhpProxyHunter\Server::allowCors();
 
-function send_error($code, $msg)
-{
-  http_response_code($code);
-  header('Content-Type: text/plain; charset=utf-8');
-  exit($msg);
-}
+$request = parseQueryOrPostBody();
+$raw     = $request['url'] ?? '';
+// match JS decodeURIComponent
+$url = rawurldecode($raw);
 
-if (!isset($_GET['url'])) {
+$isValidUrl = filter_var($url, FILTER_VALIDATE_URL) && preg_match('/^https?:\/\//i', $url);
+if (empty($url)) {
   send_error(400, 'Missing url');
+} elseif (!$isValidUrl) {
+  send_error(400, 'Invalid url');
 }
-$url = $_GET['url'];
 
 // Validate URL
 $parts = parse_url($url);
@@ -71,7 +73,7 @@ curl_setopt_array($ch, [
   CURLOPT_CONNECTTIMEOUT => 5,
   CURLOPT_BUFFERSIZE     => 8192,
   CURLOPT_HEADERFUNCTION => function ($ch, $header) use (&$headers) {
-    $len   = strlen($header);
+    $len = strlen($header);
     $parts = explode(':', $header, 2);
     if (count($parts) == 2) {
       $headers[strtolower(trim($parts[0]))] = trim($parts[1]);
@@ -125,3 +127,9 @@ header("Cache-Control: public, max-age=$CACHE_TTL");
 
 // flush content
 ob_end_flush();
+
+function send_error($code, $msg) {
+  http_response_code($code);
+  header('Content-Type: text/plain; charset=utf-8');
+  exit($msg);
+}
