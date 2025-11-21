@@ -40,9 +40,9 @@ class ProxyCheckerHttpOnly extends ProxyChecker {
       curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (int)$options->timeout);
       curl_setopt($ch, CURLOPT_TIMEOUT, (int)$options->timeout + 5);
 
-      if ($options->verbose) {
-        echo sprintf("[CHECK] %s via %s\n", strtoupper($protocol), $urlToUse);
-      }
+      // if ($options->verbose) {
+      //   echo sprintf("[CHECK] %s via %s\n", strtoupper($protocol), $urlToUse);
+      // }
 
       $body    = curl_exec($ch);
       $info    = curl_getinfo($ch);
