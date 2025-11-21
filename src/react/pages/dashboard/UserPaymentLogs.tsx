@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { LogEntry } from '../../../../types/php_backend/logs';
 import { isEmpty } from '../../../utils/string';
 import { getUserLogs } from '../../utils/user';
+import { brandIcons } from '../../utils/icons';
 
 interface Props {
   logs?: LogEntry[];
@@ -13,7 +14,18 @@ interface MergedLogEntry {
   tx?: string;
   created_at?: string;
   package_buy?: any;
-  payment?: any;
+  payment?: {
+    [key: string]: any;
+    details?: {
+      [key: string]: any;
+      package_id: number;
+      package_name: string;
+      package_desc: string;
+      package_isp: string;
+      status: 'missing' | 'pending' | 'successful' | 'error';
+      transaction_id: string;
+    };
+  };
 }
 
 export default function UserPaymentLogs({ logs: initialLogs, maxItems = 50, className = '' }: Props) {
@@ -214,6 +226,10 @@ export default function UserPaymentLogs({ logs: initialLogs, maxItems = 50, clas
 
           // stable string id for key and openSections (prefer tx, fall back to ids or index)
           const id = entry.tx ?? `${pkg?.id ?? pay?.id ?? `no-tx-${i}`}`;
+          // isp: axis, im3, unknown
+          const isp = String(pkg?.details?.package_isp ?? pay?.details?.package_isp ?? 'unknown');
+          // typed lookup to avoid TS indexing errors
+          const iconSrc = (brandIcons as Record<string, string>)[isp];
 
           return (
             <div
@@ -223,9 +239,15 @@ export default function UserPaymentLogs({ logs: initialLogs, maxItems = 50, clas
               <div className="px-3 py-2 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="flex-shrink-0">
-                    <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-600">
-                      TX
-                    </div>
+                    {iconSrc ? (
+                      <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
+                        <img src={iconSrc} alt={`${isp} logo`} className="h-full w-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-600">
+                        TX
+                      </div>
+                    )}
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{id}</p>
