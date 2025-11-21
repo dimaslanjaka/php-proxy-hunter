@@ -1,5 +1,72 @@
 [
   {
+    "hash": "a223e830e2b28ba7eea1640e06f70c53a733063f",
+    "date": "2025-11-21T15:37:24+07:00",
+    "message": "feat(ui): show ISP brand icons in UserPaymentLogs\n\n- add `src/react/utils/icons.ts` exporting `brandIcons` (im3, axis, unknown) and `statusIcons`\n- update `src/react/pages/dashboard/UserPaymentLogs.tsx` to:\n  - import `brandIcons` and compute `isp`/`iconSrc`\n  - render circular brand image when available, fall back to `TX` badge\n  - refine `payment.details` typing and use a typed lookup to avoid TS indexing errors",
+    "files": [
+      "src/react/pages/dashboard/UserPaymentLogs.tsx",
+      "src/react/utils/icons.ts"
+    ]
+  },
+  {
+    "hash": "83ab17b2299eafff7ea68219be75177e8403e200",
+    "date": "2025-11-21T15:33:03+07:00",
+    "message": "feat(img.php): add user-agent forwarding to cURL handle for improved request handling",
+    "files": [
+      "php_backend/img.php"
+    ]
+  },
+  {
+    "hash": "473a0d62ac84cd4511d08fe650b81297392aea2b",
+    "date": "2025-11-21T15:30:56+07:00",
+    "message": "refactor(img): use buildCurl helper for image proxy streaming\n\n- Replace manual curl_init + curl_setopt_array with shared buildCurl(...) helper to centralize cURL configuration.\n- Re-attach header and write callbacks to stream response to cache and client while enforcing MAX_BYTES.\n- Preserve existing behaviors (follow redirects, timeouts, buffer size) by overriding only necessary options.\n- Improve error reporting to include received byte count and requested URL for easier debugging.",
+    "files": [
+      "php_backend/img.php"
+    ]
+  },
+  {
+    "hash": "492474cf628830cab326e82e8b0937212054604f",
+    "date": "2025-11-21T14:51:57+07:00",
+    "message": "feat(security): expand sensitive file extension blocking in Apache and Nginx configs\n\n- Replace legacy Apache deny rules with `Require all denied`\n- Add additional sensitive extensions to `.htaccess` FilesMatch list\n- Update Nginx location block to match expanded sensitive extension set\n- Improve consistency of security rules across both configurations",
+    "files": [
+      ".htaccess",
+      ".htaccess_nginx.conf"
+    ]
+  },
+  {
+    "hash": "8b6141ece600e9a21a688ffe994261545b75b3c0",
+    "date": "2025-11-21T14:39:26+07:00",
+    "message": "feat(img.php): add shared.php requirement for improved functionality",
+    "files": [
+      "php_backend/img.php"
+    ]
+  },
+  {
+    "hash": "342a663731a71541d5a1d12bcca069b7db89edac",
+    "date": "2025-11-21T14:38:45+07:00",
+    "message": "refactor(img.php): improve URL handling and add base64 validation function",
+    "files": [
+      "php_backend/img.php"
+    ]
+  },
+  {
+    "hash": "39e1ec1237486d10e68fb731c2ef51f2fefef162",
+    "date": "2025-11-21T14:30:23+07:00",
+    "message": "feat(proxy): accept URL via POST/GET and preserve percent-encoding\n\n- Read request body or query using `parseQueryOrPostBody()` and decode URL with `rawurldecode`, matching JS decodeURIComponent behavior.\n- Validate the decoded URL with `filter_var` and a scheme check; return 400 for missing/invalid URLs.\n- Normalize minor formatting and whitespace (cache constants alignment, header length variable).\n- Move `send_error` implementation to the bottom to centralize error handling.\n\nThis adds support for percent-encoded URLs in both query and POST bodies and improves input validation.",
+    "files": [
+      "php_backend/img.php"
+    ]
+  },
+  {
+    "hash": "95414d4c26e0a4520096c60d2337aa21489d1af5",
+    "date": "2025-11-21T14:26:53+07:00",
+    "message": "refactor: replace ensure_dir calls with write_file for process logging",
+    "files": [
+      "artisan/proxyWorking.php",
+      "geoIpBackground.php"
+    ]
+  },
+  {
     "hash": "3d1f9610b11e9049a0f7e115fc426fa4112bf2d8",
     "date": "2025-11-21T10:45:16+07:00",
     "message": "refactor: remove strict_types declarations and improve coding standards\n\n- Remove `declare(strict_types=1)` from multiple PHP files\n- Add and adjust PHP-CS-Fixer rules (brace positioning, whitespace, array spacing, EOF newline)\n- Update variable names and formatting for consistency\n- Improve indentation and alignment across project\n- Add new proxy parsing test file\n- Update phpcs exclusion patterns\n- Minor code cleanup and comment alignment",
@@ -8693,74 +8760,6 @@
     "message": "refactor(list-user): improve error response structure for unauthorized access",
     "files": [
       "php_backend/list-user.php"
-    ]
-  },
-  {
-    "hash": "61a9204f07fa4b784b2830ef9818d3ff59ce06bc",
-    "date": "2025-08-17T16:45:00+07:00",
-    "message": "refactor(react): use PascalCase 'Component' prop for route mapping and JSX rendering\n\n- Updated route mapping logic to use 'Component' (PascalCase) instead of 'component' for consistency with React conventions.\n- Refactored route rendering in index.tsx to check for existence of 'Component' and render using JSX (<Component />) instead of string-based or lower-case component references.\n- Improved type safety and clarity in route definitions and rendering.",
-    "files": [
-      "packages/baileys",
-      "src/react/index.tsx",
-      "src/react/routes.js"
-    ]
-  },
-  {
-    "hash": "af454feed49d3b7ebccde5b20fbf9cf6bec314be",
-    "date": "2025-08-17T16:14:14+07:00",
-    "message": "chore(package): update build script order and remove postinstall\n\n- Updated the build script to run `build:packages` before `build:rollup` and `build:react` for proper dependency build order.\n- Removed the `postinstall` script that previously triggered `build:packages` after install.",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "83222a8a8abfa70f28c536d134c61db11e628c3e",
-    "date": "2025-08-17T16:13:02+07:00",
-    "message": "refactor(routes): move route metadata to routes.json and dynamically merge with components\n\n- Extracted all route metadata (path, title, description, thumbnail, canonical) from routes.js into a new routes.json file for better separation of concerns and easier reuse.\n- Updated routes.js to import metadata from routes.json and dynamically assign the correct React component to each route based on its path.\n- Updated vite-gh-pages.js to import routes from routes.json (as JSON) and refactored the route HTML generation logic to support both string and array paths, ensuring all route aliases are handled.",
-    "files": [
-      "src/react/routes.js",
-      "src/react/routes.json",
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "37755a143c12f08ce08bd810051aa42123e38c32",
-    "date": "2025-08-17T15:45:45+07:00",
-    "message": "feat(nginx): update access rules for /data and /assets file types",
-    "files": [
-      ".htaccess_nginx.conf"
-    ]
-  },
-  {
-    "hash": "3e7458f61961adee5de9824188940a429d923875",
-    "date": "2025-08-17T15:33:44+07:00",
-    "message": "feat(nginx): allow public access to /data/git-history.json",
-    "files": [
-      ".htaccess_nginx.conf"
-    ]
-  },
-  {
-    "hash": "09e5527948915715b5e49f5253cbd5b6afaf6c28",
-    "date": "2025-08-17T15:27:28+07:00",
-    "message": "fix(fix-perm): add user existence check before proceeding with permission changes",
-    "files": [
-      "bin/fix-perm"
-    ]
-  },
-  {
-    "hash": "28b5114aeac57745d70a14f1f7128c285288a281",
-    "date": "2025-08-17T15:12:24+07:00",
-    "message": "refactor(dashboard): replace axios with fetchUserInfo utility for user data retrieval",
-    "files": [
-      "src/react/pages/Dashboard.tsx"
-    ]
-  },
-  {
-    "hash": "3a4069c6c5e894e1e906635989019b0ac87ce1c7",
-    "date": "2025-08-17T15:09:20+07:00",
-    "message": "fix(navbar): close dropdowns when clicking outside\n\n- Add document event listener to detect clicks outside user and social dropdowns.\n- Use refs to track dropdown elements and close them when a click occurs outside.\n- Remove event listener on component unmount to prevent memory leaks.",
-    "files": [
-      "src/react/components/Navbar.tsx"
     ]
   }
 ]
