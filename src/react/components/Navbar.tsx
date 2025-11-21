@@ -219,7 +219,9 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </nav>
+      {/* Spacer to offset fixed navbar */}
       <div className="h-16" />
+      <div className="h-4" />
     </>
   );
 };
