@@ -208,7 +208,7 @@ export default function UserActivityCard() {
               className="w-full max-w-full block relative overflow-x-auto max-h-[350px]"
               style={{ WebkitOverflowScrolling: 'touch' }}>
               {/* ensure table can grow and be horizontally scrolled inside the wrapper */}
-              <table className="inline-table table-auto divide-y divide-gray-200 dark:divide-gray-700">
+              <table className="min-w-full table-auto divide-y divide-gray-200 dark:divide-gray-700">
                 <thead>
                   <tr>
                     {columns.map((col) => (
