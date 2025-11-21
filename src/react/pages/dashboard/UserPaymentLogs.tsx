@@ -175,8 +175,8 @@ export default function UserPaymentLogs({ logs: initialLogs, maxItems = 50, clas
         .filter((entry) => {
           const pkg = entry.package_buy;
           const pay = entry.payment;
-          const package_type = pkg?.action_type.toUpperCase();
-          const payment_type = pay?.action_type.toUpperCase();
+          const package_type = String(pkg?.action_type ?? '').toUpperCase();
+          const payment_type = String(pay?.action_type ?? '').toUpperCase();
           if (payment_type === 'PAYMENT') {
             return true;
           }
