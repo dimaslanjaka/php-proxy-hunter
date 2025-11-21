@@ -1,5 +1,21 @@
 [
   {
+    "hash": "b879401320fe876f295e76f1ced207bc27f73125",
+    "date": "2025-11-21T22:18:08+07:00",
+    "message": "refactor(proxy-submission): simplify _checkProxy2 by removing try/catch and adding http/https proxy checks",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "2a052035f1fb2350ae33d7c874ee2037e6c002c7",
+    "date": "2025-11-21T22:11:14+07:00",
+    "message": "fix(check): update proxy status to 'dead' when not active",
+    "files": [
+      "php_backend/check-http-proxy.php"
+    ]
+  },
+  {
     "hash": "6060023d6bfa7125d7137e96f97429ead56e83b6",
     "date": "2025-11-21T22:09:12+07:00",
     "message": "feat(proxy): unify per-proxy logging and adjust HTTP checker protocols\n\n- remove 'https' from protocols in `check-http-proxy.php` (keep http, socks4, socks5)\n- add a friendly per-proxy summary log line in `check-http-proxy.php`:\n  - includes status symbol ([OK]/[--]), protocols, and latency\n- add a consolidated per-proxy summary log line in `check-https-proxy.php`:\n  - includes status symbol ([OK]/[--]), protocols, and latency (uses max latency)\n- keep existing DB updates and behavior unchanged; logging improved for easier reading and tooling\n\nNotes:\n- Latency formatting printed in seconds (rounded to 2 decimals) to match existing log style.\n- Logging changes are cosmetic and intended to aid operators and automated parsers.",
@@ -8739,22 +8755,6 @@
     "message": "feat(admin): refactor saldo management UI with modular forms\n\n- Replace single saldo form with two modular components:\n  - AddSaldoForm for incrementing saldo\n  - EditSaldoForm for setting saldo directly\n- Remove inline saldo calculation helper\n- Remove global form submit button; each form now handles its own submission\n- Update layout with two-column grid for better user experience\n- Add placeholder `setSaldoToUser` function for future implementation",
     "files": [
       "src/react/pages/Admin.tsx"
-    ]
-  },
-  {
-    "hash": "15b7494307cd5e91739f2ae93164f10fe8a91bae",
-    "date": "2025-08-18T05:59:59+07:00",
-    "message": "fix(git-pull): add log message for no conflict detection during dry-run",
-    "files": [
-      "bin/git-pull.cjs"
-    ]
-  },
-  {
-    "hash": "327f6af7cc9397e1345c7be4cebf34bf5a7fffe8",
-    "date": "2025-08-18T05:57:20+07:00",
-    "message": "feat(setup): update setup.js to run browserslist-db update\n\n- Import spawnSync from 'child_process'\n- Add command to run 'npx --yes update-browserslist-db@latest' after build steps",
-    "files": [
-      "setup.js"
     ]
   }
 ]
