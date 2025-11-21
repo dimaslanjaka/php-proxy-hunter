@@ -167,175 +167,182 @@ export default function UserPaymentLogs({ logs: initialLogs, maxItems = 50, clas
   // -------------------------------------
   // RENDER
   // -------------------------------------
+  // compute visible entries once so we can show an empty-state if none match
+  const visibleEntries = (logs || [])
+    .filter((e) => e.package_buy || e.payment)
+    .slice(0, maxItems)
+    .filter((entry) => {
+      const pkg = entry.package_buy;
+      const pay = entry.payment;
+      const package_type = String(pkg?.action_type ?? '').toUpperCase();
+      const payment_type = String(pay?.action_type ?? '').toUpperCase();
+      if (payment_type === 'PAYMENT') {
+        return true;
+      }
+      if (package_type === 'PACKAGE_BUY') {
+        return true;
+      }
+      return false;
+    });
+
+  if (visibleEntries.length === 0)
+    return (
+      <div className={className}>
+        <p className="text-sm text-gray-500">No payment activity found.</p>
+      </div>
+    );
+
   return (
     <div className={`${className} w-full`} role="list" aria-label="User payment logs">
-      {logs
-        .filter((e) => e.package_buy || e.payment)
-        .slice(0, maxItems)
-        .filter((entry) => {
-          const pkg = entry.package_buy;
-          const pay = entry.payment;
-          const package_type = String(pkg?.action_type ?? '').toUpperCase();
-          const payment_type = String(pay?.action_type ?? '').toUpperCase();
-          if (payment_type === 'PAYMENT') {
-            return true;
-          }
-          if (package_type === 'PACKAGE_BUY') {
-            return true;
-          }
-          return false;
-        })
-        .map((entry, i) => {
-          const pkg = entry.package_buy;
-          const pay = entry.payment;
-          // const package_type = pkg?.action_type;
-          // const payment_type = pay?.action_type;
-          // console.log({ package_type, payment_type });
-          // compute transaction status from payment or package buy details
-          function getTxStatus(): string | null {
-            const d = pay?.details ?? pkg?.details ?? pay ?? pkg ?? null;
-            if (!d) return null;
+      {visibleEntries.map((entry, i) => {
+        const pkg = entry.package_buy;
+        const pay = entry.payment;
+        // const package_type = pkg?.action_type;
+        // const payment_type = pay?.action_type;
+        // console.log({ package_type, payment_type });
+        // compute transaction status from payment or package buy details
+        function getTxStatus(): string | null {
+          const d = pay?.details ?? pkg?.details ?? pay ?? pkg ?? null;
+          if (!d) return null;
 
-            // normalize if details is string
-            let details = d;
-            if (typeof details === 'string') {
-              try {
-                details = JSON.parse(details);
-              } catch {
-                // leave as-is
-              }
+          // normalize if details is string
+          let details = d;
+          if (typeof details === 'string') {
+            try {
+              details = JSON.parse(details);
+            } catch {
+              // leave as-is
             }
-
-            // common fields: status, payment_result.error, payment_result.message, error
-            if (typeof details === 'object') {
-              if (details.status) return String(details.status);
-              if (details.payment_result) {
-                const pr = details.payment_result;
-                if (pr.error === true) return 'error';
-                if (pr.error === false && pr.message) return String(pr.message);
-                if (pr.error === false) return 'successful';
-              }
-              if (details.error === true) return 'error';
-              if (details.error === false) return 'successful';
-            }
-
-            return null;
           }
-          const amount = pay?.amount ?? pkg?.amount ?? undefined;
-          const when = entry.created_at ?? pay?.created_at ?? pkg?.created_at;
 
-          // stable string id for key and openSections (prefer tx, fall back to ids or index)
-          const id = entry.tx ?? `${pkg?.id ?? pay?.id ?? `no-tx-${i}`}`;
-          // isp: axis, im3, unknown
-          const isp = String(pkg?.details?.package_isp ?? pay?.details?.package_isp ?? 'unknown');
-          // typed lookup to avoid TS indexing errors
-          const iconSrc = (brandIcons as Record<string, string>)[isp];
+          // common fields: status, payment_result.error, payment_result.message, error
+          if (typeof details === 'object') {
+            if (details.status) return String(details.status);
+            if (details.payment_result) {
+              const pr = details.payment_result;
+              if (pr.error === true) return 'error';
+              if (pr.error === false && pr.message) return String(pr.message);
+              if (pr.error === false) return 'successful';
+            }
+            if (details.error === true) return 'error';
+            if (details.error === false) return 'successful';
+          }
 
-          return (
-            <div
-              key={id}
-              role="listitem"
-              className="mb-3 bg-white dark:bg-gray-800 rounded-md shadow-sm dark:shadow-white overflow-hidden">
-              <div className="px-3 py-2 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex-shrink-0">
-                    {iconSrc ? (
-                      <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
-                        <img src={iconSrc} alt={`${isp} logo`} className="h-full w-full object-cover" />
-                      </div>
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-600">
-                        TX
-                      </div>
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{id}</p>
-                    {(() => {
-                      const status = getTxStatus();
-                      return status ? (
-                        <div className="mt-1 flex items-center gap-2">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">Status</span>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-200">
-                            {status}
-                          </span>
-                        </div>
-                      ) : null;
-                    })()}
-                  </div>
+          return null;
+        }
+        const amount = pay?.amount ?? pkg?.amount ?? undefined;
+        const when = entry.created_at ?? pay?.created_at ?? pkg?.created_at;
+
+        // stable string id for key and openSections (prefer tx, fall back to ids or index)
+        const id = entry.tx ?? `${pkg?.id ?? pay?.id ?? `no-tx-${i}`}`;
+        // isp: axis, im3, unknown
+        const isp = String(pkg?.details?.package_isp ?? pay?.details?.package_isp ?? 'unknown');
+        // typed lookup to avoid TS indexing errors
+        const iconSrc = (brandIcons as Record<string, string>)[isp];
+
+        return (
+          <div
+            key={id}
+            role="listitem"
+            className="mb-3 bg-white dark:bg-gray-800 rounded-md shadow-sm dark:shadow-white overflow-hidden">
+            <div className="px-3 py-2 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex-shrink-0">
+                  {iconSrc ? (
+                    <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
+                      <img src={iconSrc} alt={`${isp} logo`} className="h-full w-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-600">
+                      TX
+                    </div>
+                  )}
                 </div>
-
-                <div className="flex-shrink-0 text-right">
-                  {typeof amount === 'number' && (
-                    <p className="text-sm font-semibold text-green-600 dark:text-green-400">{Math.round(amount)}</p>
-                  )}
-                  {when && (
-                    <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(when).toLocaleString()}</p>
-                  )}
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{id}</p>
+                  {(() => {
+                    const status = getTxStatus();
+                    return status ? (
+                      <div className="mt-1 flex items-center gap-2">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Status</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-200">
+                          {status}
+                        </span>
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
               </div>
 
-              {/* Collapsible details section */}
-              <div className="px-3 pb-3">
-                <div className="flex items-center justify-between text-[10px] text-gray-400 dark:text-gray-500 mb-1">
-                  <div className="flex items-center gap-3">
-                    {pkg && (
-                      <div className="flex items-center gap-2">
-                        <span>PACKAGE_BUY</span>
-                        <button
-                          type="button"
-                          className="text-xs text-blue-600 dark:text-blue-400"
-                          onClick={() =>
-                            setOpenSections((s) => ({
-                              ...s,
-                              [id]: {
-                                pkg: !s[id]?.pkg,
-                                pay: s[id]?.pay ?? false
-                              }
-                            }))
-                          }>
-                          {openSections[id]?.pkg ? 'Hide' : 'Show'}
-                        </button>
-                      </div>
-                    )}
-
-                    {pay && (
-                      <div className="flex items-center gap-2">
-                        <span>PAYMENT</span>
-                        <button
-                          type="button"
-                          className="text-xs text-blue-600 dark:text-blue-400"
-                          onClick={() =>
-                            setOpenSections((s) => ({
-                              ...s,
-                              [id]: {
-                                pay: !s[id]?.pay,
-                                pkg: s[id]?.pkg ?? false
-                              }
-                            }))
-                          }>
-                          {openSections[id]?.pay ? 'Hide' : 'Show'}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {openSections[id]?.pkg && (
-                  <pre className="text-xs text-gray-500 dark:text-gray-400 overflow-auto bg-gray-50 dark:bg-gray-900 p-2 rounded w-full whitespace-pre-wrap max-h-60 mb-2">
-                    {JSON.stringify(pkg, null, 2)}
-                  </pre>
+              <div className="flex-shrink-0 text-right">
+                {typeof amount === 'number' && (
+                  <p className="text-sm font-semibold text-green-600 dark:text-green-400">{Math.round(amount)}</p>
                 )}
-
-                {openSections[id]?.pay && (
-                  <pre className="text-xs text-gray-500 dark:text-gray-400 overflow-auto bg-gray-50 dark:bg-gray-900 p-2 rounded w-full whitespace-pre-wrap max-h-60">
-                    {JSON.stringify(pay, null, 2)}
-                  </pre>
-                )}
+                {when && <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(when).toLocaleString()}</p>}
               </div>
             </div>
-          );
-        })}
+
+            {/* Collapsible details section */}
+            <div className="px-3 pb-3">
+              <div className="flex items-center justify-between text-[10px] text-gray-400 dark:text-gray-500 mb-1">
+                <div className="flex items-center gap-3">
+                  {pkg && (
+                    <div className="flex items-center gap-2">
+                      <span>PACKAGE_BUY</span>
+                      <button
+                        type="button"
+                        className="text-xs text-blue-600 dark:text-blue-400"
+                        onClick={() =>
+                          setOpenSections((s) => ({
+                            ...s,
+                            [id]: {
+                              pkg: !s[id]?.pkg,
+                              pay: s[id]?.pay ?? false
+                            }
+                          }))
+                        }>
+                        {openSections[id]?.pkg ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
+                  )}
+
+                  {pay && (
+                    <div className="flex items-center gap-2">
+                      <span>PAYMENT</span>
+                      <button
+                        type="button"
+                        className="text-xs text-blue-600 dark:text-blue-400"
+                        onClick={() =>
+                          setOpenSections((s) => ({
+                            ...s,
+                            [id]: {
+                              pay: !s[id]?.pay,
+                              pkg: s[id]?.pkg ?? false
+                            }
+                          }))
+                        }>
+                        {openSections[id]?.pay ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {openSections[id]?.pkg && (
+                <pre className="text-xs text-gray-500 dark:text-gray-400 overflow-auto bg-gray-50 dark:bg-gray-900 p-2 rounded w-full whitespace-pre-wrap max-h-60 mb-2">
+                  {JSON.stringify(pkg, null, 2)}
+                </pre>
+              )}
+
+              {openSections[id]?.pay && (
+                <pre className="text-xs text-gray-500 dark:text-gray-400 overflow-auto bg-gray-50 dark:bg-gray-900 p-2 rounded w-full whitespace-pre-wrap max-h-60">
+                  {JSON.stringify(pay, null, 2)}
+                </pre>
+              )}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
