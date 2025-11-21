@@ -246,7 +246,7 @@ function check(string $proxy) {
     $checkerOptions = new \PhpProxyHunter\Checker\CheckerOptions([
       'verbose'   => $isCli ? true : false,
       'timeout'   => 10,
-      'protocols' => ['http', 'https', 'socks4', 'socks5'],
+      'protocols' => ['http', 'socks4', 'socks5'],
       'proxy'     => $item->proxy,
     ]);
 
@@ -264,6 +264,21 @@ function check(string $proxy) {
     if (!empty($result->latency)) {
       $data['latency'] = $result->latency;
     }
+
+    // Build a friendly per-proxy log line
+    $statusSymbol = $result->isWorking ? '[OK]' : '[--]';
+    $protocols    = !empty($result->workingTypes) ? implode(',', $result->workingTypes) : '';
+    $latencyStr   = !empty($result->latency) ? (round($result->latency, 2) . 's') : '';
+
+    $lineParts = ["[$no]", $statusSymbol, $item->proxy];
+    if ($protocols !== '') {
+      $lineParts[] = 'protocols=' . $protocols;
+    }
+    if ($latencyStr !== '') {
+      $lineParts[] = 'latency=' . $latencyStr;
+    }
+
+    _log(implode(' ', $lineParts));
 
     if ($result->isWorking) {
       $data['status'] = 'active';

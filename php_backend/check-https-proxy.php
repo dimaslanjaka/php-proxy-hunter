@@ -392,6 +392,25 @@ function check(string $proxy) {
     // $date = new DateTime();
     // $date_rfc3339 = $date->format('Y-m-d\TH:i:sP');
     // write_file($lockProxyFile, $date_rfc3339);
+    // Build a friendly per-proxy log line (single summary)
+    $statusSymbol = (!empty($ssl_protocols) && count($ssl_protocols) > 0) ? '[OK]' : '[--]';
+    $protocolsStr = !empty($ssl_protocols) ? implode(',', $ssl_protocols) : '';
+    $latencyStr   = '';
+    if (!empty($latencies)) {
+      // Use max latency already stored in $data if available, otherwise compute
+      $lat        = isset($data['latency']) ? $data['latency'] : max($latencies);
+      $latencyStr = round($lat / 1000, 2) . 's';
+    }
+
+    $lineParts = ["[$no]", $statusSymbol, $item->proxy];
+    if ($protocolsStr !== '') {
+      $lineParts[] = 'protocols=' . $protocolsStr;
+    }
+    if ($latencyStr !== '') {
+      $lineParts[] = 'latency=' . $latencyStr;
+    }
+
+    _log(implode(' ', $lineParts));
   }
 
   _log('Done checking proxies.');
