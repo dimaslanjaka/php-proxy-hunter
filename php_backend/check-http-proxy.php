@@ -49,7 +49,7 @@ if (function_exists('set_time_limit')) {
 if (!$isCli) {
   if (isset($request['proxy'])) {
     $hashFilename  = "$currentScriptFilename/$userId";
-    $webServerLock = tmp() . "/runners/$hashFilename.proc";
+    $webServerLock = tmp() . "/locks/$hashFilename.lock";
 
     $proxy = $request['proxy'];
 

@@ -53,7 +53,7 @@ if (!$isCli) {
     $hashFilename = "$currentScriptFilename/$userId";
 
     // Web server setup and process lock
-    $webServerLock = tmp() . "/runners/$hashFilename.proc";
+    $webServerLock = tmp() . "/locks/$hashFilename.lock";
     // Define a lock file path
 
     // Handle proxy configuration
