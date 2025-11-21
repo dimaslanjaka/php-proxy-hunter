@@ -1,5 +1,37 @@
 [
   {
+    "hash": "d9fcba3fdff508b0ba8c2cd0dc813259a9d7ecf1",
+    "date": "2025-11-21T17:34:54+07:00",
+    "message": "refactor(deploy): consolidate SSH/SFTP helpers and add backend-only path\n\nRefactor `bin/deploy-vps.mjs` by extracting shared SSH/SFTP utilities (`createSftp`, `useSftp`, `withSSH`)\nand simplifying SFTP operations (`uploadFile`, `uploadDir`, `writeRemoteFile`, `deleteRemotePath`) to use them.\nStreamline `execWithBashrc`, `gitPull`, and `shell_exec` to reuse the SSH helper and reduce boilerplate.\n\nAlso:\n- Add a `--backend` / `--backend-only` deploy path that creates a remote lock, runs `git pull`, runs `bash bin/fix-perm`, and removes the lock.\n- Simplify and normalize error handling and logging across deploy steps (shorter error messages and truthy checks).\n- Clean up UI-only and full deploy flows (consistent lock handling, compact command invocations, and quieter delete fallbacks).\n\nThis change improves code reuse, reduces duplication, and makes backend-only deployments faster and safer.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "b235b7e42bf69e7394fff169a768d58ce2b8fd37",
+    "date": "2025-11-21T17:33:39+07:00",
+    "message": "refactor(eslint): improve clarity and structure of ESLint config comments\n\n- Rewrote all inline comments to appear above their corresponding rules\n- Expanded and clarified comment explanations throughout the config\n- Added descriptive section headers for ignored files, globals, overrides, and rules\n- Improved readability by restructuring comment placement without modifying logic\n- Added comments for Prettier loading, FlatCompat initialization, and ESLint rule sets",
+    "files": [
+      "eslint.config.js"
+    ]
+  },
+  {
+    "hash": "b6be91204dd578fe7ac28c988cdd6953fd28f4ad",
+    "date": "2025-11-21T17:30:53+07:00",
+    "message": "feat(eslint): allow empty catch blocks in ESLint configuration",
+    "files": [
+      "eslint.config.js"
+    ]
+  },
+  {
+    "hash": "8715f7caa94628bea36f1af710cb5809d716f18c",
+    "date": "2025-11-21T17:28:30+07:00",
+    "message": "feat(deploy): add --backend flag for backend-only deploy\n\nAdd support for `--backend` / `--backend-only` to `bin/deploy-vps.mjs`.\nWhen provided the script now:\n- creates the remote build lock (`tmp/locks/.build-lock`),\n- runs a `git pull` in the configured `remotePath`,\n- runs `bash bin/fix-perm` on the remote to fix permissions,\n- removes the lock and exits.\n\nReuses existing helpers (`gitPull`, `shell_exec`, `writeRemoteFile`, `deleteRemotePath`)\nand short-circuits the full UI/build/deploy flow so composer/build/uploads are skipped.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
     "hash": "7574f9176bb54424c99c4e565ff3d9ecaa243a84",
     "date": "2025-11-21T17:23:34+07:00",
     "message": "fix(logviewer): make log URL and HTTPS UID responsive\n\n- stack label and value on small screens (flex-col / sm:flex-row)\n- allow monospace values to wrap or scroll (break-words, max-w-full, overflow-auto)\n- prevents URL/UID text from overflowing the LogViewer panel on narrow viewports",
@@ -8722,41 +8754,6 @@
     "message": "feat(navbar): remove Twitter link from the navbar",
     "files": [
       "src/react/components/Navbar.tsx"
-    ]
-  },
-  {
-    "hash": "7fe81f76a197dd96d8fc4aad28cac3463a5bf2ac",
-    "date": "2025-08-18T04:45:09+07:00",
-    "message": "fix(git-pull): detect merge conflicts in both stdout and stderr\n\nPreviously, the script only checked stderr for merge conflict messages, which could cause false positives or missed conflicts depending on the Git version and environment. Now, it checks both stdout and stderr to reliably detect merge conflicts during dry-run merges.",
-    "files": [
-      "bin/git-pull.cjs"
-    ]
-  },
-  {
-    "hash": "6177494d58130cfc7e5574dbbb72e0dcf6bf398d",
-    "date": "2025-08-18T04:33:28+07:00",
-    "message": "feat(admin): add admin check and redirect using react-router-dom\n\n- Imported useNavigate and getUserInfo in Admin page.\n- Added effect to check if the current user is admin; if not, redirect to home using navigate('/').\n- Improved error handling for user info fetch failure.",
-    "files": [
-      "src/react/pages/Admin.tsx"
-    ]
-  },
-  {
-    "hash": "46c19c71c150a40be70e7aecc060b4429b4768ae",
-    "date": "2025-08-18T04:32:18+07:00",
-    "message": "refactor(user): rename fetchUserInfo to getUserInfo and update related usage\n\n- Renamed fetchUserInfo to getUserInfo in user utility module.\n- Updated all imports and usages in Navbar, Dashboard, and Settings components.\n- Changed UserInfo/SingleUserInfo usage to match new function and type signatures.\n- Made uid property in SingleUserInfo optional for improved type safety.",
-    "files": [
-      "src/react/components/Navbar.tsx",
-      "src/react/pages/Dashboard.tsx",
-      "src/react/pages/Settings.tsx",
-      "src/react/utils/user.ts"
-    ]
-  },
-  {
-    "hash": "348a810ab989daeba2c6534f70376d28135d7be2",
-    "date": "2025-08-18T03:35:16+07:00",
-    "message": "feat(vps): enhance project manager with NVM sourcing and yarn build support\n\n- Update `pull_latest_code` to source NVM environment and use custom git-pull script\n- Add `yarn_build` function to run `yarn build` with NVM environment sourced\n- Register new \"Run yarn build\" menu item\n- Update docstrings for clarity and accuracy",
-    "files": [
-      "src/vps/menus/project-manager.py"
     ]
   }
 ]
