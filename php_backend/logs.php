@@ -28,17 +28,20 @@ if (!empty($hash)) {
   // or not readable and provide distinct messages for each case.
   if (file_exists($logFile)) {
     if (is_readable($logFile)) {
-      $logData = @file_get_contents($logFile);
+      $logData = read_file($logFile);
       if ($logData !== false && $logData !== '') {
         echo $logData;
       } else {
-        echo "No logs found for {$hash}" . PHP_EOL;
+        echo "No logs found for {$hash}." . PHP_EOL;
+        echo "Log path: {$logFile}" . PHP_EOL;
       }
     } else {
-      echo "Log file exists but is not readable for {$hash}" . PHP_EOL;
+      echo "Log file exists but is not readable for {$hash}." . PHP_EOL;
+      echo "Log path: {$logFile}" . PHP_EOL;
     }
   } else {
-    echo "No logs found for {$hash}" . PHP_EOL;
+    echo "No logs found for {$hash}." . PHP_EOL;
+    echo "Log path: {$logFile}" . PHP_EOL;
   }
   exit;
 }
