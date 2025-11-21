@@ -71,32 +71,31 @@ if (!$fp) {
 $headers       = [];
 $bytesReceived = 0;
 
-$ch = curl_init($url);
-curl_setopt_array($ch, [
-  CURLOPT_FOLLOWLOCATION => true,
-  CURLOPT_RETURNTRANSFER => false,
-  CURLOPT_TIMEOUT        => $DEFAULT_TIMEOUT,
-  CURLOPT_CONNECTTIMEOUT => 5,
-  CURLOPT_BUFFERSIZE     => 8192,
-  CURLOPT_HEADERFUNCTION => function ($ch, $header) use (&$headers) {
-    $len = strlen($header);
-    $parts = explode(':', $header, 2);
-    if (count($parts) == 2) {
-      $headers[strtolower(trim($parts[0]))] = trim($parts[1]);
-    }
-    return $len;
-  },
-  CURLOPT_WRITEFUNCTION => function ($ch, $data) use (&$bytesReceived, $MAX_BYTES, $fp) {
-    $len = strlen($data);
-    $bytesReceived += $len;
-    if ($bytesReceived > $MAX_BYTES) {
-      return 0;
-    }
-    fwrite($fp, $data);
-    echo $data;
-    return $len;
-  },
-]);
+// Build the base cURL handle using shared helper, then attach streaming callbacks
+// buildCurl sets reasonable defaults (timeouts, headers, followlocation, etc.).
+$ch = buildCurl(null, 'http', $url, [], null, null, 'GET', null, 0);
+// override to stream output and capture headers incrementally
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+curl_setopt($ch, CURLOPT_BUFFERSIZE, 8192);
+curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$headers) {
+  $len = strlen($header);
+  $parts = explode(':', $header, 2);
+  if (count($parts) == 2) {
+    $headers[strtolower(trim($parts[0]))] = trim($parts[1]);
+  }
+  return $len;
+});
+curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) use (&$bytesReceived, $MAX_BYTES, $fp) {
+  $len = strlen($data);
+  $bytesReceived += $len;
+  if ($bytesReceived > $MAX_BYTES) {
+    return 0;
+    // abort
+  }
+  fwrite($fp, $data);
+  echo $data;
+  return $len;
+});
 
 // Send buffered output only after headers parsed
 ob_start();
@@ -110,7 +109,7 @@ if (!$ok || $http >= 400) {
   ob_end_clean();
   fclose($fp);
   @unlink($cacheFile . '.tmp');
-  send_error(502, "Fetch failed (HTTP $http, curl $err)");
+  send_error(502, "Fetch failed (HTTP $http, curl $err, received $bytesReceived bytes, url: $url)");
 }
 
 $contentType = isset($headers['content-type']) ? $headers['content-type'] : 'application/octet-stream';
