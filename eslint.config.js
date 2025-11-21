@@ -114,7 +114,9 @@ export default [
 
       // JavaScript arrow function rules
       'arrow-body-style': 'off', // Disable forcing arrow function bodies
-      'prefer-arrow-callback': 'off' // Disable enforcing arrow functions for callbacks
+      'prefer-arrow-callback': 'off', // Disable enforcing arrow functions for callbacks
+      // Allow empty catch blocks
+      'no-empty': ['error', { allowEmptyCatch: true }]
     }
   },
   {
