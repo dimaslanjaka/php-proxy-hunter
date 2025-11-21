@@ -74,6 +74,8 @@ $bytesReceived = 0;
 // Build the base cURL handle using shared helper, then attach streaming callbacks
 // buildCurl sets reasonable defaults (timeouts, headers, followlocation, etc.).
 $ch = buildCurl(null, 'http', $url, [], null, null, 'GET', null, 0);
+// forward user-agent?
+curl_setopt($ch, CURLOPT_USERAGENT, isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko');
 // override to stream output and capture headers incrementally
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
 curl_setopt($ch, CURLOPT_BUFFERSIZE, 8192);
