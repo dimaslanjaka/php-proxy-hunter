@@ -1,5 +1,37 @@
 [
   {
+    "hash": "7574f9176bb54424c99c4e565ff3d9ecaa243a84",
+    "date": "2025-11-21T17:23:34+07:00",
+    "message": "fix(logviewer): make log URL and HTTPS UID responsive\n\n- stack label and value on small screens (flex-col / sm:flex-row)\n- allow monospace values to wrap or scroll (break-words, max-w-full, overflow-auto)\n- prevents URL/UID text from overflowing the LogViewer panel on narrow viewports",
+    "files": [
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
+    "hash": "918972ba098f1c2c75f644c6f10440317948fb0b",
+    "date": "2025-11-21T17:19:53+07:00",
+    "message": "feat(dashboard): add empty state and optimize UserPaymentLogs rendering\n\nCompute visibleEntries once (filter + slice) and return a clear empty-state\nwhen no payment-related entries exist. Refactor mapping to use visibleEntries\nfor readability and to avoid repeated filtering. Minor layout/formatting cleanup.",
+    "files": [
+      "src/react/pages/dashboard/UserPaymentLogs.tsx"
+    ]
+  },
+  {
+    "hash": "f556f84ffcd409a7f264b2e7cf643c07d47cf5cf",
+    "date": "2025-11-21T17:18:30+07:00",
+    "message": "feat(dashboard): add Payment Activity tab and make header tabs scrollable on mobile\n\n- import and register `UserActivityCard`; extend `activeTab` union to include 'payment'\n- add new \"Payment Activity\" tab panel and move `UserPaymentLogs` into it\n- make tab header horizontally scrollable on small screens (wrap in overflow-x-auto, use flex-nowrap/whitespace-nowrap)\n- prevent tab buttons from shrinking (add flex-shrink-0) so tabs remain scrollable touch targets",
+    "files": [
+      "src/react/pages/Dashboard.tsx"
+    ]
+  },
+  {
+    "hash": "5d8d5a2cab0a77a7b224dac4ed6315cc76e2d45b",
+    "date": "2025-11-21T17:11:35+07:00",
+    "message": "fix(dashboard): make user activity table full-width to enable horizontal scrolling\n\nReplace `inline-table` with `min-w-full table-auto` in UserActivityCard so the\ntable expands to the container width and horizontal overflow/scrolling works\ncorrectly inside the activity panel.",
+    "files": [
+      "src/react/pages/dashboard/UserActivityCard.tsx"
+    ]
+  },
+  {
     "hash": "77136736f4912b7697d8420522b882fcf92cbc5c",
     "date": "2025-11-21T15:49:29+07:00",
     "message": "fix(UserPaymentLogs): ensure safe string conversion for action types",
@@ -8725,40 +8757,6 @@
     "message": "feat(vps): enhance project manager with NVM sourcing and yarn build support\n\n- Update `pull_latest_code` to source NVM environment and use custom git-pull script\n- Add `yarn_build` function to run `yarn build` with NVM environment sourced\n- Register new \"Run yarn build\" menu item\n- Update docstrings for clarity and accuracy",
     "files": [
       "src/vps/menus/project-manager.py"
-    ]
-  },
-  {
-    "hash": "fbc008d4066ccbf098db46a7163d8393633ead60",
-    "date": "2025-08-18T03:32:02+07:00",
-    "message": "feat(git-pull): auto-resolve .husky/hash.txt conflict during git pull\n\n- Detect if the only merge conflict is .husky/hash.txt during a dry-run merge before git pull\n- If so, automatically truncate and stage .husky/hash.txt, then continue the merge\n- Abort the pull as before if other files are conflicted or if resolution fails",
-    "files": [
-      "bin/git-pull.cjs"
-    ]
-  },
-  {
-    "hash": "c6ebf7b396901bf35c330ae95056fdb3b615c86d",
-    "date": "2025-08-18T03:28:22+07:00",
-    "message": "feat(git-pull): detect and prevent git pull if merge conflicts are expected\n\n- Add logic to fetch latest changes and perform a dry-run merge before running `git pull`\n- Abort the pull if a merge conflict is detected, preventing partial or broken updates\n- Ensure any changes from the dry-run are reset before proceeding with the actual pull",
-    "files": [
-      "bin/git-pull.cjs"
-    ]
-  },
-  {
-    "hash": "b11e9749abf5c9af25e2a106e4ba03fc18072c5a",
-    "date": "2025-08-18T02:53:13+07:00",
-    "message": "feat(admin): dynamic user list, saldo addition, and error handling\n\n- Refactor Admin page to fetch user list from server using getListOfUsers.\n- Remove static users array; use state for users, selectedUser, saldo, and error.\n- Add helper functions to get current and new saldo, and format as Rupiah.\n- Implement saldo addition with addSaldoToUser and refresh user list after submit.\n- Display current and new saldo inline with arrow icon.\n- Show error messages above the submit button if saldo addition or user refresh fails.\n- Update user select to handle loading and empty states.\n- Add new utility: toRupiah for formatting numbers as Indonesian Rupiah.\n- Update user types and API calls in utils/user.ts for better type safety and extensibility.",
-    "files": [
-      "src/react/pages/Admin.tsx",
-      "src/react/utils/user.ts",
-      "src/utils/number.js"
-    ]
-  },
-  {
-    "hash": "b36ec081ae294b0d24b632b9462a22f772e92271",
-    "date": "2025-08-18T01:55:33+07:00",
-    "message": "refactor(react): convert Navbar to function component with route-aware user info fetch\n\n- Refactored Navbar from a class component to a function component using React hooks.\n- Integrated useLocation from react-router-dom to detect route changes.\n- User info is now fetched on every location (route) change to keep the navbar state up-to-date.\n- Added useEffect for click-outside handling and state reset on logout.\n- Improved state management with useState and useRef for menu toggles.",
-    "files": [
-      "src/react/components/Navbar.tsx"
     ]
   }
 ]
