@@ -53,18 +53,25 @@ if (!$isCli) {
     $hashFilename = "$currentScriptFilename-" . $userId;
 
     // Web server setup and process lock
-    $webServerLock = tmp() . "/runners/$hashFilename.proc"; // Define a lock file path
+    $webServerLock = tmp() . "/runners/$hashFilename.proc";
+    // Define a lock file path
 
     // Handle proxy configuration
-    $proxy = $request['proxy']; // Extract proxy information from the request
+    $proxy = $request['proxy'];
+    // Extract proxy information from the request
 
-    $proxy_file = tmp() . "/proxies/$hashFilename.txt"; // Define the path for the proxy file
-    write_file($proxy_file, $proxy); // Save the proxy details to the file
+    $proxy_file = tmp() . "/proxies/$hashFilename.txt";
+    // Define the path for the proxy file
+    write_file($proxy_file, $proxy);
+    // Save the proxy details to the file
 
     // Prepare for a long-running background process
-    $file        = __FILE__; // Get the current script's filename
-    $output_file = tmp() . "/logs/$hashFilename.out"; // Define the path for the output log file
-    setMultiPermissions([$file, $output_file], true); // Set appropriate permissions for the script and log file
+    $file = __FILE__;
+    // Get the current script's filename
+    $output_file = tmp() . "/logs/$hashFilename.out";
+    // Define the path for the output log file
+    setMultiPermissions([$file, $output_file], true);
+    // Set appropriate permissions for the script and log file
 
     // Determine if the system is Windows
     $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
@@ -88,12 +95,15 @@ if (!$isCli) {
     $cmd = sprintf('%s > %s 2>&1', $cmd, escapeshellarg($output_file));
 
     // Create a runner script for the command
-    $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : ''); // Use .bat for Windows, no extension for others
-    write_file($runner, $cmd); // Write the command to the runner script
+    $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : '');
+    // Use .bat for Windows, no extension for others
+    write_file($runner, $cmd);
+    // Write the command to the runner script
 
     // Execute the runner script in the background
     runBashOrBatch($runner);
-    exit; // Exit the current script
+    exit;
+  // Exit the current script
   } else {
     // Direct access
     echo 'Usage:' . PHP_EOL;
@@ -122,7 +132,8 @@ if (!$isCli) {
 
     // Always schedule the removal of the lock file after the process completes
     Scheduler::register(function () use ($lockFile) {
-      delete_path($lockFile); // Remove the lock file
+      delete_path($lockFile);
+    // Remove the lock file
     }, 'release-cli-lock');
   }
 
