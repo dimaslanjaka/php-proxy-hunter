@@ -33,15 +33,21 @@ if (!empty($hash)) {
         echo $logData;
       } else {
         echo "No logs found for {$hash}." . PHP_EOL;
-        echo "Log path: {$logFile}" . PHP_EOL;
+        if ($isAdmin) {
+          echo "Log path: {$logFile}" . PHP_EOL;
+        }
       }
     } else {
       echo "Log file exists but is not readable for {$hash}." . PHP_EOL;
-      echo "Log path: {$logFile}" . PHP_EOL;
+      if ($isAdmin) {
+        echo "Log path: {$logFile}" . PHP_EOL;
+      }
     }
   } else {
     echo "No logs found for {$hash}." . PHP_EOL;
-    echo "Log path: {$logFile}" . PHP_EOL;
+    if ($isAdmin) {
+      echo "Log path: {$logFile}" . PHP_EOL;
+    }
   }
   exit;
 }
