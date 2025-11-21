@@ -327,6 +327,7 @@ async function main() {
   const args = process.argv.slice(2);
 
   const uiOnly = args.includes('--ui') || args.includes('--ui-only');
+  const backendOnly = args.includes('--backend') || args.includes('--backend-only');
 
   if (uiOnly) {
     // UI-only deploy: build the React UI locally and upload only dist + index.html
@@ -362,6 +363,28 @@ async function main() {
     await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
 
     console.log('UI-only deploy complete.');
+    return;
+  }
+
+  if (backendOnly) {
+    // Backend-only deploy: create lock file, run git pull and fix permissions, then remove lock
+    const lockContents = `build-start:${new Date().toISOString()} pid:${process.pid}\n`;
+    await writeRemoteFile(`${remotePath}/tmp/locks/.build-lock`, lockContents);
+
+    // Only pull latest changes
+    await gitPull();
+
+    // Fix permissions on remote
+    console.log('Fixing file permissions on remote server (backend-only)...');
+    const { code: permCode, signal: permSignal } = await shell_exec('bash bin/fix-perm', remotePath);
+    if (permCode !== 0) {
+      throw new Error(`Remote fix-perm script failed with code ${permCode}, signal ${permSignal}`);
+    }
+
+    // Remove the build lock file to signal completion
+    await deleteRemotePath(`${remotePath}/tmp/locks/.build-lock`);
+
+    console.log('Backend-only deploy complete.');
     return;
   }
 
