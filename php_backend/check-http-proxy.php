@@ -273,7 +273,7 @@ function check(string $proxy, string $url, string $webTitle) {
     if ($result->isWorking) {
       $data['status'] = 'active';
       // workingTypes already normalized to lowercase elsewhere
-      $data['type'] = strtolower(implode(',', array_unique($result->workingTypes)));
+      $data['type'] = strtolower(implode('-', array_unique($result->workingTypes)));
     }
 
     $proxy_db->updateData($item->proxy, $data);
