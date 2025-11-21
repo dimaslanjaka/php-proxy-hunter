@@ -167,8 +167,13 @@ const LogViewer: React.FC = () => {
 
         {/* Log panel */}
         <div className={`${activeTab === 'log' ? '' : 'hidden'}`}>
-          <div className="mb-2 text-xs text-gray-600 dark:text-gray-300 break-all">
-            <span className="font-mono text-xs text-gray-700 dark:text-gray-300">{url}</span>
+          <div className="mb-2 text-xs text-gray-600 dark:text-gray-300">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+              <span className="sr-only">Log URL</span>
+              <span className="font-mono text-xs text-gray-700 dark:text-gray-300 break-words max-w-full overflow-auto">
+                {url}
+              </span>
+            </div>
           </div>
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
             {loading ? (
@@ -183,9 +188,13 @@ const LogViewer: React.FC = () => {
 
         {/* HTTPS panel */}
         <div className={`${activeTab === 'https' ? '' : 'hidden'}`}>
-          <div className="mb-2 flex gap-2 items-center">
-            <span className="text-xs text-gray-500 dark:text-gray-400">Automatic HTTPS check for UID:</span>
-            <span className="font-mono text-sm text-gray-900 dark:text-gray-100">{httpsHash || '—'}</span>
+          <div className="mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Automatic HTTPS check for UID:</span>
+              <span className="font-mono text-sm text-gray-900 dark:text-gray-100 break-words max-w-full overflow-auto">
+                {httpsHash || '—'}
+              </span>
+            </div>
           </div>
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
             {httpsLog ? (
