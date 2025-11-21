@@ -1,5 +1,68 @@
 [
   {
+    "hash": "3d1f9610b11e9049a0f7e115fc426fa4112bf2d8",
+    "date": "2025-11-21T10:45:16+07:00",
+    "message": "refactor: remove strict_types declarations and improve coding standards\n\n- Remove `declare(strict_types=1)` from multiple PHP files\n- Add and adjust PHP-CS-Fixer rules (brace positioning, whitespace, array spacing, EOF newline)\n- Update variable names and formatting for consistency\n- Improve indentation and alignment across project\n- Add new proxy parsing test file\n- Update phpcs exclusion patterns\n- Minor code cleanup and comment alignment",
+    "files": [
+      ".github/instructions/php.instructions.md",
+      ".php-cs-fixer.dist.php",
+      "artisan/filterPorts.php",
+      "artisan/filterPortsBackground.php",
+      "artisan/proxyChecker.php",
+      "artisan/proxyFetcher.php",
+      "artisan/proxyWorking.php",
+      "artisan/proxyWorkingBackground.php",
+      "cloud_sqlite/config.php",
+      "cloud_sqlite/delete.php",
+      "cloud_sqlite/fetch-updated.php",
+      "cloud_sqlite/fetch.php",
+      "cloud_sqlite/init.php",
+      "cloud_sqlite/sync.php",
+      "data/azenv.php",
+      "data/browser.php",
+      "func-proxy.php",
+      "phpcs.xml",
+      "proxyCheckerParallel-func.php",
+      "proxyCheckerParallel.php",
+      "scripts/phpmyadmin-installer.js",
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/Checker/CheckerResult.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker1.php",
+      "src/PhpProxyHunter/utils/path.php",
+      "src/utils/server/respond.php",
+      "tests/PhpProxyHunter/ActivityLogTest.php",
+      "tests/PhpProxyHunter/CoreDBTest.php",
+      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
+      "tests/PhpProxyHunter/UserDBTest.php",
+      "tests/cloud_sqlite/AuthTest.php",
+      "tests/cloud_sqlite/FetchApiTest.php",
+      "tests/cloud_sqlite/FetchUpdatedApiTest.php",
+      "tests/cloud_sqlite/SyncApiTest.php",
+      "tests/proxy/getPublicIP.php",
+      "tests/proxy/parse_working_proxies.php"
+    ]
+  },
+  {
+    "hash": "f62f2bf86babeb21d32a612d000a7345fa18d7a6",
+    "date": "2025-11-21T10:16:52+07:00",
+    "message": "feat(date): restructure timeAgo utility and add PHP version\n\n- Updated JS imports to use new path `src/utils/date/timeAgo.js` in:\n  - proxyManager-src.js\n  - src/react/pages/ProxyList/index.tsx\n- Renamed `src/utils/date.js` to `src/utils/date/timeAgo.js`\n- Added new PHP implementation: `src/utils/date/timeAgo.php`",
+    "files": [
+      "proxyManager-src.js",
+      "src/react/pages/ProxyList/index.tsx",
+      "src/utils/date/timeAgo.js",
+      "src/utils/date/timeAgo.php"
+    ]
+  },
+  {
+    "hash": "82bd2dae013ad513781de8c50ad8788fb32ddaaa",
+    "date": "2025-11-20T21:57:04+07:00",
+    "message": "docs(shared.php): update PHPDoc and return value for refreshDbConnections\n\n- Expand PHPDoc for `refreshDbConnections` to document additional global DB wrappers:\n  `user_db`, `proxy_db`, and `log_db`.\n- Update return annotation to an array shape describing `core_db`, `user_db`,\n  `proxy_db`, and `log_db`.\n- Add missing globals to the function (`$user_db`, `$proxy_db`, `$log_db`) so\n  they are re-populated after re-instantiating `CoreDB`.\n- Return the new DB wrapper instances as an associative array.\n\nThis clarifies function behaviour and types for static analysis and callers.",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
     "hash": "b2637f63dcdc3f2747f4eed503d0fcf46f740d00",
     "date": "2025-11-20T20:29:06+07:00",
     "message": "fix(executables): add PHP fallback to generate executables.json when Node fails\n\nTry the Node.js `executables-finder.cjs` first; if Node is unavailable or the script fails,\ncall a new `generateExecutablesJson()` PHP fallback that probes `PHP_BINARY`, common system\nand virtualenv locations and uses `which`/`where` as a last resort to locate `php` and `python`.\nWrite `src/utils/process/executables.json` instead of throwing a RuntimeException, preventing\na fatal error when Node isn't installed or the script cannot run.",
@@ -8698,35 +8761,6 @@
     "message": "fix(navbar): close dropdowns when clicking outside\n\n- Add document event listener to detect clicks outside user and social dropdowns.\n- Use refs to track dropdown elements and close them when a click occurs outside.\n- Remove event listener on component unmount to prevent memory leaks.",
     "files": [
       "src/react/components/Navbar.tsx"
-    ]
-  },
-  {
-    "hash": "5bdf2b86a65c5c38676affbd6ee27e6ab719fb89",
-    "date": "2025-08-17T15:04:36+07:00",
-    "message": "refactor(react): migrate all fetch calls to axios in user and page components\n\n- Replaced all instances of fetch with axios for HTTP requests in the following files:\n  - src/react/pages/Dashboard.tsx\n  - src/react/pages/Login.tsx\n  - src/react/pages/Logout.tsx\n  - src/react/pages/OauthHandler.tsx\n  - src/react/pages/Settings.tsx\n  - src/react/utils/user.ts\n- Updated imports and usage to use axios for consistency and improved error handling.\n- Ensured all affected components handle axios response structure and errors appropriately.",
-    "files": [
-      "src/react/pages/Dashboard.tsx",
-      "src/react/pages/Login.tsx",
-      "src/react/pages/Logout.tsx",
-      "src/react/pages/OauthHandler.tsx",
-      "src/react/pages/Settings.tsx",
-      "src/react/utils/user.ts"
-    ]
-  },
-  {
-    "hash": "0653b3151d2d154722f5c70a845e69b2f5e07aa8",
-    "date": "2025-08-17T14:57:59+07:00",
-    "message": "feat(login): add login API integration and redirect on success\n\n- Integrate login form with backend API using fetch.\n- Use react-router-dom's useNavigate to redirect to /dashboard after successful login.\n- Display error messages for failed login attempts.",
-    "files": [
-      "src/react/pages/Login.tsx"
-    ]
-  },
-  {
-    "hash": "b4fb17d36eec57c3b2ef14e63cb927eb22cc3baa",
-    "date": "2025-08-17T14:47:31+07:00",
-    "message": "fix(login): unify response structure and improve password verification logic\n\n- Ensure all login responses include 'message' and boolean 'error' keys for consistency.\n- Refactor do_login and verify to always return structured responses.\n- Add support for legacy raw password check and automatic rehashing if detected.\n- Improve admin login response and session handling.\n- Provide clearer error and success messages for all login scenarios.",
-    "files": [
-      "php_backend/login.php"
     ]
   }
 ]
