@@ -16,9 +16,18 @@ export async function getUserProxyLogUrl() {
 
 async function fetchHttpsProxyCheckerResult(hash: string): Promise<string> {
   const url = createUrl('/php_backend/logs.php');
-  const res = await fetch(`${url}?hash=check-https-proxy-${encodeURIComponent(hash)}`);
+  const res = await fetch(`${url}?hash=check-https-proxy/${encodeURIComponent(hash)}`);
   if (!res.ok) {
     return `Failed to fetch https result: ${res.status} ${res.statusText}`;
+  }
+  return await res.text();
+}
+
+async function fetchHttpProxyCheckerResult(hash: string): Promise<string> {
+  const url = createUrl('/php_backend/logs.php');
+  const res = await fetch(`${url}?hash=check-http-proxy/${encodeURIComponent(hash)}`);
+  if (!res.ok) {
+    return `Failed to fetch http result: ${res.status} ${res.statusText}`;
   }
   return await res.text();
 }
@@ -27,9 +36,10 @@ const LogViewer: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
   const [log, setLog] = React.useState('');
   const [url, setUrl] = React.useState('');
-  const [activeTab, setActiveTab] = React.useState<'log' | 'https'>('log');
-  const [httpsHash, setHttpsHash] = React.useState('');
+  const [activeTab, setActiveTab] = React.useState<'log' | 'https' | 'http'>('log');
+  const [hash, setHash] = React.useState('');
   const [httpsLog, setHttpsLog] = React.useState('');
+  const [httpLog, setHttpLog] = React.useState('');
 
   // On mount, fetch user id and set log URL
   React.useEffect(() => {
@@ -38,7 +48,7 @@ const LogViewer: React.FC = () => {
         const data = await getUserInfo();
         if (data && (data as any).uid) {
           const uid = (data as any).uid;
-          setHttpsHash(uid);
+          setHash(uid);
           const logUrl = createUrl(`/php_backend/proxy-checker.php?id=${uid}&type=log`);
           setUrl(logUrl);
         } else {
@@ -79,10 +89,10 @@ const LogViewer: React.FC = () => {
   // Poll HTTPS result when httpsHash is available and https tab is active
   React.useEffect(() => {
     let interval: number | undefined;
-    if (activeTab === 'https' && httpsHash) {
+    if (activeTab === 'https' && hash) {
       const fetchHttps = async () => {
         try {
-          const text = await fetchHttpsProxyCheckerResult(httpsHash);
+          const text = await fetchHttpsProxyCheckerResult(hash);
           setHttpsLog((prev) => {
             if (prev.trim() === text.trim()) return prev;
             return text;
@@ -97,7 +107,30 @@ const LogViewer: React.FC = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [activeTab, httpsHash]);
+  }, [activeTab, hash]);
+
+  // Poll HTTP result when httpHash is available and http tab is active
+  React.useEffect(() => {
+    let interval: number | undefined;
+    if (activeTab === 'http' && hash) {
+      const fetchHttp = async () => {
+        try {
+          const text = await fetchHttpProxyCheckerResult(hash);
+          setHttpLog((prev) => {
+            if (prev.trim() === text.trim()) return prev;
+            return text;
+          });
+        } catch {
+          setHttpLog('Failed to fetch http result.');
+        }
+      };
+      fetchHttp();
+      interval = window.setInterval(fetchHttp, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [activeTab, hash]);
 
   // HTTPS polling handled by effect below (auto-fetch when https tab active)
 
@@ -162,6 +195,16 @@ const LogViewer: React.FC = () => {
                 HTTPS check
               </button>
             </li>
+            <li role="presentation">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'http'}
+                className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'http' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
+                onClick={() => setActiveTab('http')}>
+                HTTP check
+              </button>
+            </li>
           </ul>
         </div>
 
@@ -190,9 +233,9 @@ const LogViewer: React.FC = () => {
         <div className={`${activeTab === 'https' ? '' : 'hidden'}`}>
           <div className="mb-2">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Automatic HTTPS check for UID:</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Logs HTTPS check for UID:</span>
               <span className="font-mono text-sm text-gray-900 dark:text-gray-100 break-words max-w-full overflow-auto">
-                {httpsHash || '—'}
+                {hash || '—'}
               </span>
             </div>
           </div>
@@ -203,6 +246,27 @@ const LogViewer: React.FC = () => {
               </span>
             ) : (
               <span className="text-gray-400 dark:text-gray-500">No https result fetched yet.</span>
+            )}
+          </div>
+        </div>
+
+        {/* HTTP panel */}
+        <div className={`${activeTab === 'http' ? '' : 'hidden'}`}>
+          <div className="mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Logs HTTP check for UID:</span>
+              <span className="font-mono text-sm text-gray-900 dark:text-gray-100 break-words max-w-full overflow-auto">
+                {hash || '—'}
+              </span>
+            </div>
+          </div>
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
+            {httpLog ? (
+              <span className="text-gray-800 dark:text-gray-100" style={{ whiteSpace: 'pre-wrap' }}>
+                {httpLog}
+              </span>
+            ) : (
+              <span className="text-gray-400 dark:text-gray-500">No http result fetched yet.</span>
             )}
           </div>
         </div>

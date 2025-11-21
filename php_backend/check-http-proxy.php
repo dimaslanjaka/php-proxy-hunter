@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/shared.php';
+require_once __DIR__ . '/checker-runner.php';
 
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
@@ -48,7 +48,7 @@ if (function_exists('set_time_limit')) {
 
 if (!$isCli) {
   if (isset($request['proxy'])) {
-    $hashFilename  = "$currentScriptFilename-" . $userId;
+    $hashFilename  = "$currentScriptFilename/$userId";
     $webServerLock = tmp() . "/runners/$hashFilename.proc";
 
     $proxy = $request['proxy'];
@@ -92,7 +92,7 @@ if (!$isCli) {
 
     if (!$isAdmin && file_exists($lockFile)) {
       $lockedMsg = date(DATE_RFC3339) . " another process still running ({$lockFile} is locked) ";
-      _log($lockedMsg);
+      _log_shared($hashFilename ?? 'CLI', $lockedMsg);
       exit($lockedMsg);
     }
 
@@ -113,23 +113,7 @@ if (!$isCli) {
   $proxy = isset($options['p']) ? $options['p'] : (isset($options['proxy']) ? $options['proxy'] : null);
 
   if (!$file && !$proxy) {
-    _log('No proxy file provided. Searching for proxies in database.');
-
-    $proxiesDb = array_merge($proxy_db->getWorkingProxies(100), $proxy_db->getUntestedProxies(100));
-
-    // Filter proxies: keep dead or non-SSL (we only want HTTP testing)
-    $filteredArray = array_filter($proxiesDb, function ($item) {
-      if (strtolower($item['status']) != 'active') {
-        return true;
-      }
-      return strtolower($item['https']) != 'true';
-    });
-
-    $proxyArray = array_map(function ($item) {
-      return $item['proxy'];
-    }, $filteredArray);
-
-    $proxy = json_encode($proxyArray);
+    $proxy = load_proxies_for_mode($file, $proxy, 'http', $proxy_db);
   } elseif ($file) {
     $read = read_file($file);
     if ($read) {
@@ -145,7 +129,7 @@ $lockFolder   = unixPath(tmp() . '/runners/');
 $lockFilePath = unixPath($lockFolder . $hashFilename . '.lock');
 $lockFiles    = glob($lockFolder . "/$currentScriptFilename*.lock");
 if (count($lockFiles) > 2) {
-  _log("Proxy checker process limit reached: More than 2 instances of '$currentScriptFilename' are running. Terminating process.");
+  _log_shared($hashFilename ?? 'CLI', "Proxy checker process limit reached: More than 2 instances of '$currentScriptFilename' are running. Terminating process.");
   exit;
 }
 
@@ -157,22 +141,22 @@ if ($lockFile === false) {
 $runAllowed = false;
 
 if (flock($lockFile, LOCK_EX)) {
-  _log("$lockFilePath Lock acquired");
+  _log_shared($hashFilename ?? 'CLI', "$lockFilePath Lock acquired");
   $runAllowed = true;
 
   if (isset($proxy) && !empty($proxy)) {
-    truncateFile(get_log_file());
+    truncateFile(get_log_file_shared($hashFilename ?? 'CLI'));
     check($proxy);
   }
 
   flock($lockFile, LOCK_UN);
   if ($isAdmin) {
-    _log("$lockFilePath Lock released");
+    _log_shared($hashFilename ?? 'CLI', "$lockFilePath Lock released");
   } else {
-    _log('Lock released');
+    _log_shared($hashFilename ?? 'CLI', 'Lock released');
   }
 } else {
-  _log('Another process is still running');
+  _log_shared($hashFilename ?? 'CLI', 'Another process is still running');
   $runAllowed = false;
 }
 
@@ -182,27 +166,7 @@ if ($runAllowed) {
   delete_path($lockFilePath);
 }
 
-function get_log_file() {
-  global $hashFilename;
-  $_logFile = tmp() . "/logs/$hashFilename.txt";
-  if (!file_exists($_logFile)) {
-    file_put_contents($_logFile, '');
-  }
-  setMultiPermissions([$_logFile], true);
-  return $_logFile;
-}
-
-function _log(...$args): void {
-  global $isCli;
-  $_logFile = get_log_file();
-  $message  = join(' ', $args) . PHP_EOL;
-
-  append_content_with_lock($_logFile, $message);
-  echo $message;
-  if (!$isCli) {
-    flush();
-  }
-}
+// logging and log-file helpers are provided by checker-runner.php
 
 /**
  * Check if the proxy is working (HTTP only)
@@ -215,14 +179,14 @@ function check(string $proxy) {
 
   $count       = count($proxies);
   $logFilename = str_replace("$currentScriptFilename-", '', $hashFilename);
-  _log(trim('[' . ($isCli ? 'CLI' : 'WEB') . '][' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($logFilename, 0, 6) . " Checking $count proxies..."));
+  _log_shared($hashFilename ?? 'CLI', trim('[' . ($isCli ? 'CLI' : 'WEB') . '][' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($logFilename, 0, 6) . " Checking $count proxies..."));
 
   $startTime            = microtime(true);
   $limitSecs            = 120;
-  $isExecutionTimeLimit = function () use ($startTime, $limitSecs) {
+  $isExecutionTimeLimit = function () use ($startTime, $limitSecs, $hashFilename) {
     $elapsedTime = microtime(true) - $startTime;
     if ($elapsedTime > $limitSecs) {
-      _log("Proxy checker execution limit reached {$limitSecs}s.");
+      _log_shared($hashFilename ?? 'CLI', "Proxy checker execution limit reached {$limitSecs}s.");
       return true;
     }
     return false;
@@ -239,7 +203,7 @@ function check(string $proxy) {
     $expired = $item->last_check ? isDateRFC3339OlderThanHours($item->last_check, 5) : true;
 
     if ($item->status == 'active' && $item->https == 'false' && !$expired) {
-      _log("[$no] Skipping proxy {$item->proxy}: Recently checked and non-SSL.");
+      _log_shared($hashFilename ?? 'CLI', "[$no] Skipping proxy {$item->proxy}: Recently checked and non-SSL.");
       continue;
     }
     // Use the Project's ProxyCheckerHttpOnly class to evaluate the proxy
@@ -278,7 +242,7 @@ function check(string $proxy) {
       $lineParts[] = 'latency=' . $latencyStr;
     }
 
-    _log(implode(' ', $lineParts));
+    _log_shared($hashFilename ?? 'CLI', implode(' ', $lineParts));
 
     if ($result->isWorking) {
       $data['status'] = 'active';
@@ -293,5 +257,5 @@ function check(string $proxy) {
     $proxy_db->updateData($item->proxy, $data);
   }
 
-  _log('Done checking proxies.');
+  _log_shared($hashFilename ?? 'CLI', 'Done checking proxies.');
 }
