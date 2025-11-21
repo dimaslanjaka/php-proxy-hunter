@@ -95,7 +95,8 @@ if ($enable_debug) {
   ini_set('display_errors', 0);
   ini_set('display_startup_errors', 0);
 }
-ini_set('log_errors', 1); // Enable error logging
+ini_set('log_errors', 1);
+// Enable error logging
 $error_file = __DIR__ . '/tmp/logs/php-error.txt';
 if (!$isCli) {
   // Sanitize the user agent string
@@ -108,7 +109,8 @@ if (!$isCli) {
     $error_file = __DIR__ . '/tmp/logs/php-error-' . $user_agent . '.txt';
   }
 }
-ini_set('error_log', $error_file); // set error path
+ini_set('error_log', $error_file);
+// set error path
 
 if ($enable_debug) {
   error_reporting(E_ALL);
@@ -378,7 +380,8 @@ function rewriteIpPortFile(string $filename): bool {
   $tempFilename = tempnam(__DIR__ . '/tmp', 'rewriteIpPortFile');
   $tempFile     = @fopen($tempFilename, 'w');
   if (!$tempFile) {
-    fclose($file); // Close the original file
+    fclose($file);
+    // Close the original file
     echo "Error opening temporary ($tempFilename) file for writing";
     return false;
   }
@@ -455,7 +458,8 @@ function getFilesByExtension(string $folder, $extension = 'txt'): array {
   }
 
   $files  = [];
-  $folder = rtrim($folder, '/') . '/'; // Ensure folder path ends with a slash
+  $folder = rtrim($folder, '/') . '/';
+  // Ensure folder path ends with a slash
 
   // Open the directory
   if ($handle = opendir($folder)) {
@@ -488,9 +492,10 @@ function parseArgs($args): array {
   foreach ($args as $arg) {
     if (substr($arg, 0, 2) === '--') {
       // Argument is in the format --key=value
-      $parts            = explode('=', substr($arg, 2), 2);
-      $key              = $parts[0];
-      $value            = $parts[1] ?? true; // If value is not provided, set it to true
+      $parts = explode('=', substr($arg, 2), 2);
+      $key   = $parts[0];
+      $value = $parts[1] ?? true;
+      // If value is not provided, set it to true
       $parsedArgs[$key] = $value;
     }
   }
@@ -651,7 +656,8 @@ function getConfig(string $user_id): array {
   $jsonString = read_file($user_file);
 
   // Decode the JSON string into a PHP array
-  $data = json_decode($jsonString, true); // Use true for associative array, false or omit for object
+  $data = json_decode($jsonString, true);
+  // Use true for associative array, false or omit for object
 
   $defaults = [
     'endpoint' => 'https://google.com',
@@ -765,7 +771,8 @@ function confirmAction(string $message = 'Are you sure? (y/n): '): bool {
  */
 function iterateArray(array $array, int $limit = 50, $callback = null) {
   $arrayLength = count($array);
-  $limit       = min($arrayLength, $limit); // Get the minimum of array length and $limit
+  $limit       = min($arrayLength, $limit);
+  // Get the minimum of array length and $limit
   for ($i = 0; $i < $limit; $i++) {
     // Access array element at index $i and perform desired operations
     $item = $array[$i];
@@ -805,7 +812,8 @@ function fixFile(string $inputFile) {
     // Iterate through the file and remove NUL characters
     while (!feof($fileHandle)) {
       // Read a chunk of data
-      $chunk = fread($fileHandle, 1024 * 1024); // Read in 500KB chunks
+      $chunk = fread($fileHandle, 1024 * 1024);
+      // Read in 500KB chunks
       if (!$chunk) {
         continue;
       }
@@ -834,16 +842,19 @@ function fixFile(string $inputFile) {
 }
 
 function isCygwinInstalled() {
-  $cygwinExecutables = ['bash', 'ls']; // List of Cygwin executables to check
+  $cygwinExecutables = ['bash', 'ls'];
+  // List of Cygwin executables to check
 
   foreach ($cygwinExecutables as $executable) {
     $output = shell_exec("where $executable 2>&1");
     if (strpos($output, 'not found') === false) {
-      return true; // Found at least one Cygwin executable
+      return true;
+      // Found at least one Cygwin executable
     }
   }
 
-  return false; // None of the Cygwin executables found
+  return false;
+  // None of the Cygwin executables found
 }
 
 function runPythonInBackground($scriptPath, $commandArgs = [], $identifier = null) {
@@ -921,7 +932,8 @@ function runShellCommandLive($command) {
     // Read stdout line by line
     while (($line = fgets($stdout)) !== false) {
       echo htmlspecialchars($line) . "\n";
-      flush(); // Make sure the output is sent to the browser immediately
+      flush();
+      // Make sure the output is sent to the browser immediately
     }
 
     fclose($stdout);
@@ -936,36 +948,6 @@ function runShellCommandLive($command) {
   } else {
     throw new RuntimeException('Failed to open process');
   }
-}
-
-/**
- * Returns the path to the PHP binary executable.
- *
- * This function attempts to determine the path to the currently running PHP binary.
- * It first checks if the PHP_BINARY constant is defined and points to an executable file.
- * If not, it tries to locate the PHP binary using the system's 'which' (Unix) or 'where' (Windows) command.
- * If detection fails, it falls back to returning the string 'php'.
- *
- * @return string The full path to the PHP binary, or 'php' if detection fails.
- */
-function getPhpBinaryPath() {
-  // If running from CLI, PHP_BINARY is reliable
-  if (php_sapi_name() === 'cli' && is_executable(PHP_BINARY) && stripos(PHP_BINARY, 'php') !== false) {
-    return PHP_BINARY;
-  }
-
-  // Otherwise, try to detect it manually
-  $isWin     = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-  $finderCmd = $isWin ? 'where php' : 'which php';
-  $found     = trim(shell_exec($finderCmd));
-
-  // Validate the found path
-  if (is_executable($found) && stripos($found, 'php') !== false) {
-    return $found;
-  }
-
-  // Last resort
-  return 'php';
 }
 
 function safe_json_decode($json, $assoc = true) {
