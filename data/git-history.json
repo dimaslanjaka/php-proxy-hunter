@@ -1,5 +1,13 @@
 [
   {
+    "hash": "1910bf29a7b591a8f48f554a86023c2f26d98790",
+    "date": "2025-11-21T15:43:43+07:00",
+    "message": "feat(Navbar): add spacers to offset fixed navbar",
+    "files": [
+      "src/react/components/Navbar.tsx"
+    ]
+  },
+  {
     "hash": "a223e830e2b28ba7eea1640e06f70c53a733063f",
     "date": "2025-11-21T15:37:24+07:00",
     "message": "feat(ui): show ISP brand icons in UserPaymentLogs\n\n- add `src/react/utils/icons.ts` exporting `brandIcons` (im3, axis, unknown) and `statusIcons`\n- update `src/react/pages/dashboard/UserPaymentLogs.tsx` to:\n  - import `brandIcons` and compute `isp`/`iconSrc`\n  - render circular brand image when available, fall back to `TX` badge\n  - refine `payment.details` typing and use a typed lookup to avoid TS indexing errors",
@@ -8752,14 +8760,6 @@
     "files": [
       "src/react/components/Navbar.tsx",
       "src/react/utils/user.ts"
-    ]
-  },
-  {
-    "hash": "d1720261e98d97776f03c5850271881a9b2655d3",
-    "date": "2025-08-17T17:04:09+07:00",
-    "message": "refactor(list-user): improve error response structure for unauthorized access",
-    "files": [
-      "php_backend/list-user.php"
     ]
   }
 ]
