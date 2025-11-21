@@ -13,10 +13,9 @@ DirectoryIndex index.php index.html
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule . /index.php [L]
 
-    # Ignore access to specific file extensions
-    <FilesMatch "\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess|conf|sql|db|sqlite-whm|out|ts)$">
-        Order allow,deny
-        Deny from all
+    # Deny access to sensitive file extensions
+    <FilesMatch "\.(env|gitignore|gitattributes|gitmodules|sqlite|git|htaccess|conf|sql|db|sqlite-whm|out|ts|pem|py|crt|sock|key|sh|md|ini|bin|json)$">
+        Require all denied
     </FilesMatch>
 
     # Allow access to robots.txt and sitemap.txt
