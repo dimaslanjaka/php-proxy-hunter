@@ -1,5 +1,62 @@
 [
   {
+    "hash": "6060023d6bfa7125d7137e96f97429ead56e83b6",
+    "date": "2025-11-21T22:09:12+07:00",
+    "message": "feat(proxy): unify per-proxy logging and adjust HTTP checker protocols\n\n- remove 'https' from protocols in `check-http-proxy.php` (keep http, socks4, socks5)\n- add a friendly per-proxy summary log line in `check-http-proxy.php`:\n  - includes status symbol ([OK]/[--]), protocols, and latency\n- add a consolidated per-proxy summary log line in `check-https-proxy.php`:\n  - includes status symbol ([OK]/[--]), protocols, and latency (uses max latency)\n- keep existing DB updates and behavior unchanged; logging improved for easier reading and tooling\n\nNotes:\n- Latency formatting printed in seconds (rounded to 2 decimals) to match existing log style.\n- Logging changes are cosmetic and intended to aid operators and automated parsers.",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "c0d2c3fdbcec4c080aa3cc3c13cf205d3d0f26c6",
+    "date": "2025-11-21T21:57:45+07:00",
+    "message": "refactor(check-http-proxy): comment out starting verbose logging",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
+    ]
+  },
+  {
+    "hash": "f7a82c4e8dadfb3bb77ceedecf36755b534faf17",
+    "date": "2025-11-21T21:43:13+07:00",
+    "message": "refactor(php_backend): remove unused $url/$webTitle and simplify check() signature\n\n- Remove unused top-level variables `$url` and `$webTitle` from `php_backend/check-http-proxy.php`.\n- Update call site to invoke `check($proxy)` instead of `check($proxy, $url, $webTitle)`.\n- Change `check()` function signature and docblock to accept only `string $proxy`.\n- Cleanup only: no behavioral changes expected, just removal of unused parameters/vars to reduce warnings and improve clarity.",
+    "files": [
+      "php_backend/check-http-proxy.php"
+    ]
+  },
+  {
+    "hash": "2d8d8b96456268fac4e689224c0482b1402ac83a",
+    "date": "2025-11-21T21:39:21+07:00",
+    "message": "refactor(check-https-proxy): improve code clarity with comments for proxy handling and process setup",
+    "files": [
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "5e7599f8a932386af1eaf064ed0afd6a7c0fceb9",
+    "date": "2025-11-21T21:37:42+07:00",
+    "message": "fix(checker): remove HTTPS/SSL handling from ProxyCheckerHttpOnly\n\n- Exclude 'https' from the default protocols list.\n- Remove test URL scheme replacement for HTTPS.\n- Stop setting $result->isSSL for HTTPS responses.\n- Keep HTTP and SOCKS checking logic unchanged.\n\nFiles: src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
+    ]
+  },
+  {
+    "hash": "8eb77bba080bf7f3038a84a15debf3619233a92c",
+    "date": "2025-11-21T18:09:01+07:00",
+    "message": "fix(checker): test all proxy protocols instead of stopping at first success\n\nRemove the `$http_ok` flag and the early `break` so the checker continues\nthrough the full protocol list. This change allows collecting all\nworking protocol types (`workingTypes[]`) per proxy while preserving\nlatency aggregation.",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
+    ]
+  },
+  {
+    "hash": "16b1044d768db99b99444439f62a70767f717e97",
+    "date": "2025-11-21T18:04:04+07:00",
+    "message": "fix(check-http-proxy): change delimiter from comma to hyphen for workingTypes",
+    "files": [
+      "php_backend/check-http-proxy.php"
+    ]
+  },
+  {
     "hash": "d9fcba3fdff508b0ba8c2cd0dc813259a9d7ecf1",
     "date": "2025-11-21T17:34:54+07:00",
     "message": "refactor(deploy): consolidate SSH/SFTP helpers and add backend-only path\n\nRefactor `bin/deploy-vps.mjs` by extracting shared SSH/SFTP utilities (`createSftp`, `useSftp`, `withSSH`)\nand simplifying SFTP operations (`uploadFile`, `uploadDir`, `writeRemoteFile`, `deleteRemotePath`) to use them.\nStreamline `execWithBashrc`, `gitPull`, and `shell_exec` to reuse the SSH helper and reduce boilerplate.\n\nAlso:\n- Add a `--backend` / `--backend-only` deploy path that creates a remote lock, runs `git pull`, runs `bash bin/fix-perm`, and removes the lock.\n- Simplify and normalize error handling and logging across deploy steps (shorter error messages and truthy checks).\n- Clean up UI-only and full deploy flows (consistent lock handling, compact command invocations, and quieter delete fallbacks).\n\nThis change improves code reuse, reduces duplication, and makes backend-only deployments faster and safer.",
@@ -8698,62 +8755,6 @@
     "message": "feat(setup): update setup.js to run browserslist-db update\n\n- Import spawnSync from 'child_process'\n- Add command to run 'npx --yes update-browserslist-db@latest' after build steps",
     "files": [
       "setup.js"
-    ]
-  },
-  {
-    "hash": "3e6b7a8a40fbb84e5bc281f90de4fde9cab45e36",
-    "date": "2025-08-18T05:55:55+07:00",
-    "message": "refactor(cron): delegate MySQL and SQLite backup to bin/backup-db script and add cleanup\n\n- Move MySQL backup logic from .crontab.sh to bin/backup-db for better modularity and maintainability.\n- Enhance bin/backup-db to load .env, support both SQLite and MySQL backups, and use absolute paths.\n- Add automatic removal of old backup files older than 7 days in .crontab.sh to manage disk usage.\n- Improve backup script output and error handling for missing credentials.",
-    "files": [
-      ".crontab.sh",
-      "bin/backup-db"
-    ]
-  },
-  {
-    "hash": "afff74079b800a0ced09edcb4ed66f9c51829670",
-    "date": "2025-08-18T05:52:49+07:00",
-    "message": "refactor(backup): remove obsolete backup script",
-    "files": [
-      "backup.php"
-    ]
-  },
-  {
-    "hash": "246c584541bd6d0640f159a472b982204f74f29e",
-    "date": "2025-08-18T05:45:05+07:00",
-    "message": "fix(crontab): improve indentation and add MySQL backup functionality",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "5ae4e5c9c4775ee35600354c774511db3f68223f",
-    "date": "2025-08-18T05:44:05+07:00",
-    "message": "fix(extensions): remove shell-format extension and add bash-beautify",
-    "files": [
-      ".vscode/extensions.json"
-    ]
-  },
-  {
-    "hash": "861f5ea9711854a151b7005bea3442276e01e0f8",
-    "date": "2025-08-18T05:31:16+07:00",
-    "message": "feat(vite): add legacy plugin for broader browser compatibility\n\n- Added `@vitejs/plugin-legacy` and `terser` to devDependencies in package.json.\n- Updated `vite.config.js` to include the legacy plugin with targets for modern browsers (excluding IE 11).\n- This ensures the build outputs are compatible with a wider range of browsers.",
-    "files": [
-      "package.json",
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "c88379e2c34bd181c15522ee965b0af4bfcad580",
-    "date": "2025-08-18T05:21:06+07:00",
-    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
-    "files": []
-  },
-  {
-    "hash": "c528d3be15c5349eb74131dd79eb285be10748c8",
-    "date": "2025-08-18T05:20:12+07:00",
-    "message": "feat(navbar): remove Twitter link from the navbar",
-    "files": [
-      "src/react/components/Navbar.tsx"
     ]
   }
 ]
