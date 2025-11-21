@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 require __DIR__ . '/proxyCheckerParallel-func.php';
 
 global $isCli, $isAdmin, $proxy_db;

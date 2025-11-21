@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 require_once __DIR__ . '/../func.php';
 require_once __DIR__ . '/config.php';
 
@@ -10,8 +8,7 @@ require_once __DIR__ . '/config.php';
  *
  * @return PDO
  */
-function getPdoConnection(): PDO
-{
+function getPdoConnection(): PDO {
   $pdo = new PDO('sqlite:' . DB_FILE);
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   return $pdo;

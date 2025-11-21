@@ -22,7 +22,8 @@ $currentUrl = $home . $_SERVER['REQUEST_URI'];
   <meta name="twitter:image" content="https://yourwebsite.com/path/to/image.jpg">
   <meta name="robots" content="index, follow">
   <title>Your Browser Details Info - WMI</title>
-  <link rel="canonical" href="<?php echo $currentUrl; ?>">
+  <link rel="canonical" href="<?php echo $currentUrl;
+  ?>">
   <script src="//cdn.tailwindcss.com/3.4.3"></script>
   <script>
     tailwind.config = {
@@ -108,17 +109,17 @@ if (isset($_SERVER['HTTP_USER_AGENT'])) {
 <?php
 ##########################################################################
 #
-#	AZ Environment variables 1.04 � 2004 AZ
-#	Civil Liberties Advocacy Network
-#	http://clan.cyaccess.com   http://clanforum.cyaccess.com
+#   AZ Environment variables 1.04 � 2004 AZ
+#   Civil Liberties Advocacy Network
+#   http://clan.cyaccess.com   http://clanforum.cyaccess.com
 #
-#	AZenv is written in PHP & Perl. It is coded to be simple,
-#	fast and have negligible load on the server.
-#	AZenv is primarily aimed for programs using external scripts to
-#	verify the passed Environment variables.
-#	Only the absolutely necessary parameters are included.
-#	AZenv is free software; you can use and redistribute it freely.
-#	Please do not remove the copyright information.
+#   AZenv is written in PHP & Perl. It is coded to be simple,
+#   fast and have negligible load on the server.
+#   AZenv is primarily aimed for programs using external scripts to
+#   verify the passed Environment variables.
+#   Only the absolutely necessary parameters are included.
+#   AZenv is free software; you can use and redistribute it freely.
+#   Please do not remove the copyright information.
 #
 ##########################################################################
 

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 require_once __DIR__ . '/../../func-proxy.php';
 
 // Enable all error reporting for debugging purposes

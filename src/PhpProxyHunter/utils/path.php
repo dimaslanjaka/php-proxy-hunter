@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Return the project root directory for the consumer application.
  *
@@ -53,7 +51,8 @@ function get_project_root(): string {
   for ($i = 0; $i < $maxDepth; $i++) {
     $candidate = dirname($current);
     if ($candidate === $current) {
-      break; // reached filesystem root
+      break;
+      // reached filesystem root
     }
 
     if (file_exists($candidate . DIRECTORY_SEPARATOR . 'composer.json')) {

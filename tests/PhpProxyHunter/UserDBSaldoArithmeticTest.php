@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 define('PHP_PROXY_HUNTER', true);
 
 use PHPUnit\Framework\TestCase;
@@ -74,7 +73,8 @@ class UserDBSaldoArithmeticTest extends TestCase {
         $userDB = new UserDB(null, 'mysql', $this->mysqlHost, $this->mysqlDb, $this->mysqlUser, $this->mysqlPass, true);
         $pdo    = $userDB->db->pdo;
         foreach (['user_fields', 'auth_user', 'meta', 'added_proxies', 'processed_proxies', 'proxies'] as $table) {
-          $pdo->exec("TRUNCATE TABLE $table;");
+          $pdo->exec("TRUNCATE TABLE $table;
+          ");
         }
         $this->runSaldoArithmeticTest($userDB);
         $userDB->close();

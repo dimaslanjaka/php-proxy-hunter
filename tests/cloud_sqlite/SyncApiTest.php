@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Tests\CloudSqlite;
 
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
@@ -11,27 +9,25 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \cloud_sqlite
  */
-final class SyncApiTest extends TestCase
-{
+final class SyncApiTest extends TestCase {
   private static string $baseUrl = 'http://localhost:8000/cloud_sqlite';
 
-  public function testInsertOrUpdate(): void
-  {
+  public function testInsertOrUpdate(): void {
     // Insert
     $data = [
-        'id'    => 1,
-        'name'  => 'Device A',
-        'value' => 'Hello World',
+      'id'    => 1,
+      'name'  => 'Device A',
+      'value' => 'Hello World',
     ];
     $opts = [
-        'http' => [
-            'method' => 'POST',
-            'header' => [
-                'Authorization: Bearer lasjhdfjo',
-                'Content-Type: application/json',
-            ],
-            'content' => json_encode($data),
+      'http' => [
+        'method' => 'POST',
+        'header' => [
+          'Authorization: Bearer lasjhdfjo',
+          'Content-Type: application/json',
         ],
+        'content' => json_encode($data),
+      ],
     ];
     $context = stream_context_create($opts);
     $result  = file_get_contents(self::$baseUrl . '/sync.php', false, $context);
@@ -52,21 +48,20 @@ final class SyncApiTest extends TestCase
     $this->assertStringContainsString('ok', $result);
   }
 
-  public function testInsertWithAuthParam(): void
-  {
+  public function testInsertWithAuthParam(): void {
     $data = [
-        'id'    => 2,
-        'name'  => 'Device B',
-        'value' => 'With Auth Param',
+      'id'    => 2,
+      'name'  => 'Device B',
+      'value' => 'With Auth Param',
     ];
     $opts = [
-        'http' => [
-            'method' => 'POST',
-            'header' => [
-                'Content-Type: application/json',
-            ],
-            'content' => json_encode($data),
+      'http' => [
+        'method' => 'POST',
+        'header' => [
+          'Content-Type: application/json',
         ],
+        'content' => json_encode($data),
+      ],
     ];
     $context = stream_context_create($opts);
     $url     = self::$baseUrl . '/sync.php?auth=lasjhdfjo';
@@ -78,22 +73,21 @@ final class SyncApiTest extends TestCase
     $this->assertStringContainsString('ok', $result);
   }
 
-  public function testInsertWithAuthField(): void
-  {
+  public function testInsertWithAuthField(): void {
     $data = [
-        'id'    => 3,
-        'name'  => 'Device C',
-        'value' => 'With Auth Field',
-        'auth'  => 'lasjhdfjo',
+      'id'    => 3,
+      'name'  => 'Device C',
+      'value' => 'With Auth Field',
+      'auth'  => 'lasjhdfjo',
     ];
     $opts = [
-        'http' => [
-            'method' => 'POST',
-            'header' => [
-                'Content-Type: application/json',
-            ],
-            'content' => json_encode($data),
+      'http' => [
+        'method' => 'POST',
+        'header' => [
+          'Content-Type: application/json',
         ],
+        'content' => json_encode($data),
+      ],
     ];
     $context = stream_context_create($opts);
     $result  = file_get_contents(self::$baseUrl . '/sync.php', false, $context);

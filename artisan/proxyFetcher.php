@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // Define project root for reuse
 $projectRoot = dirname(__DIR__);
 
@@ -83,12 +81,12 @@ foreach ($chunks as $index => $chunk) {
 
     // Append content to output file
     Scheduler::register(function () use ($outputFile, $content, $url) {
-      $projectRoot   = dirname(__DIR__);
+      $projectRoot = dirname(__DIR__);
       $fallback_file = $projectRoot . '/assets/proxies/added-fetch-' . md5($url) . '.txt';
-      $append        = append_content_with_lock($outputFile, "\n" . $content . "\n");
+      $append = append_content_with_lock($outputFile, "\n" . $content . "\n");
       if (!$append) {
         $outputFile = $fallback_file;
-        $append     = append_content_with_lock($fallback_file, "\n" . $content . "\n");
+        $append = append_content_with_lock($fallback_file, "\n" . $content . "\n");
       }
       if ($append) {
         $filter = filterIpPortLines($outputFile);

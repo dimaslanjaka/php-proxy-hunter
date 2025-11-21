@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 define('PHP_PROXY_HUNTER', true);
 
 use PHPUnit\Framework\TestCase;

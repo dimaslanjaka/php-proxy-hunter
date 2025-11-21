@@ -117,6 +117,7 @@ $rules = [
   'braces' => [
     'allow_single_line_closure'                   => true, // Allow one-line anonymous functions
     'position_after_functions_and_oop_constructs' => 'same', // Keep opening brace on same line
+    'position_after_control_structures'           => 'same', // <-- add this
   ],
 
   // Enforce consistent array indentation
@@ -124,8 +125,13 @@ $rules = [
 
   // Ensure indentation consistency (spaces vs tabs)
   'indentation_type' => true,
+
   // Enforce single space around string concatenation operator
   'concat_space' => ['spacing' => 'one'],
+
+  'no_trailing_whitespace'   => true, // Remove trailing whitespace at end of lines
+  'trim_array_spaces'        => true, // Remove spaces inside array brackets
+  'single_blank_line_at_eof' => true, // Ensure single blank line at end of file
 ];
 
 // ---------------------------------------------

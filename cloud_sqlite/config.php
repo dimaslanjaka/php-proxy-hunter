@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 require_once __DIR__ . '/../func.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__), '.env');
@@ -20,8 +18,7 @@ define('DB_FILE', __DIR__ . '/db.sqlite');
  *
  * @return bool True if authenticated, false otherwise
  */
-function isAuthenticated(): bool
-{
+function isAuthenticated(): bool {
   $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
   $request    = function_exists('parsePostData') ? parsePostData(true) : [];
   $authParam  = $_GET['auth']    ?? null;

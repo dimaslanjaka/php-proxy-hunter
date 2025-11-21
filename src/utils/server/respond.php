@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Helper response functions in this file accept an optional integer $status
  * parameter (HTTP status code). The functions will set the response code via

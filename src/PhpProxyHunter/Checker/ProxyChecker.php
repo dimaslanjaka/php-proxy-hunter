@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace PhpProxyHunter\Checker;
 
 abstract class ProxyChecker {

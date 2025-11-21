@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // Define project root for reuse
 $projectRoot = dirname(__DIR__);
 

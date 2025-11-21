@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // filter open ports only
 
 // Define project root for reuse

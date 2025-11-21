@@ -1,6 +1,7 @@
 <?php
 
 /** @noinspection RegExpRedundantEscape */
+
 /** @noinspection RegExpUnnecessaryNonCapturingGroup */
 
 require_once __DIR__ . '/func.php';
@@ -451,14 +452,14 @@ function clean_proxies_file($file) {
  *               - 'counter': An array containing counts of different types of proxies in the database, including 'working', 'dead', 'untested', and 'private'.
  */
 /**
- * @param ProxyDB $db
+ * @param ProxyDB $proxy_db
  * @return array
  */
-function parse_working_proxies($db) {
+function parse_working_proxies($proxy_db) {
   // Retrieve working proxies from the provided ProxyDB object.
   // Limit the number of proxies fetched to avoid exhausting PHP memory on very large databases.
   // Caller can change the number by modifying this value if necessary.
-  $working = $db->getWorkingProxies(5000);
+  $working = $proxy_db->getWorkingProxies(5000);
 
   // Sort working proxies by the newest last_check column
   usort($working, function ($a, $b) {
@@ -466,7 +467,7 @@ function parse_working_proxies($db) {
   });
 
   // Map proxies data
-  $array_mapper = array_map(function ($item) use ($db) {
+  $array_mapper = array_map(function ($item) use ($proxy_db) {
     // Fill empty values with '-'
     foreach ($item as $key => $value) {
       if (empty($value)) {
@@ -483,7 +484,7 @@ function parse_working_proxies($db) {
     // Update metadata info
     if (empty($item['useragent']) && strlen(trim($item['useragent'])) <= 5) {
       $item['useragent'] = randomWindowsUa();
-      $db->updateData($item['proxy'], $item);
+      $proxy_db->updateData($item['proxy'], $item);
       // Re-fetch geolocation IP
       \PhpProxyHunter\GeoIpHelper::resolveGeoProxy($item['proxy']);
     }
@@ -497,11 +498,11 @@ function parse_working_proxies($db) {
   }, $array_mapper));
 
   $count = [
-    'working'  => $db->countWorkingProxies(),
-    'dead'     => $db->countDeadProxies(),
-    'untested' => $db->countUntestedProxies(),
-    'private'  => $db->countPrivateProxies(),
-    'all'      => $db->countAllProxies(),
+    'working'  => $proxy_db->countWorkingProxies(),
+    'dead'     => $proxy_db->countDeadProxies(),
+    'untested' => $proxy_db->countUntestedProxies(),
+    'private'  => $proxy_db->countPrivateProxies(),
+    'all'      => $proxy_db->countAllProxies(),
   ];
 
   return ['txt' => $workingTxt, 'array' => $array_mapper, 'counter' => $count];

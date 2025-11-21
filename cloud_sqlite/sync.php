@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 require_once __DIR__ . '/../func.php';
 require_once __DIR__ . '/init.php';
 require_once __DIR__ . '/config.php';
@@ -38,9 +36,9 @@ $stmt = $pdo->prepare('
         updated_at = CURRENT_TIMESTAMP
 ');
 $stmt->execute([
-    $data['id'],
-    $data['name'],
-    $data['value'],
+  $data['id'],
+  $data['name'],
+  $data['value'],
 ]);
 
 echo json_encode(['status' => 'ok']);

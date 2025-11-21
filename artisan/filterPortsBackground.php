@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // Define project root for reuse
 $projectRoot = dirname(__DIR__);
 
@@ -43,7 +41,7 @@ foreach ($files as $file) {
   $lock_file    = $projectRoot . '/tmp/runners/' . basename($file, '.php') . '.lock';
   $lock_files[] = $lock_file;
   if (file_exists($lock_file) && !is_debug()) {
-    echo date(DATE_RFC3339) . ' another process still running '  . basename($file, '.php') . PHP_EOL;
+    echo date(DATE_RFC3339) . ' another process still running ' . basename($file, '.php') . PHP_EOL;
     continue;
   }
 
@@ -58,8 +56,7 @@ foreach ($files as $file) {
   runBashOrBatch($runner);
 }
 
-function exitProcess()
-{
+function exitProcess() {
   global $lock_files;
   foreach ($lock_files as $file) {
     delete_path($file);

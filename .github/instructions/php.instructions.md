@@ -7,7 +7,6 @@ applyTo: '**/*.php'
 Coding standards, domain knowledge, and preferences that AI should follow.
 
 - Use PSR-12 coding standards for all PHP code.
-- Prefer strict types; always declare `declare(strict_types=1);` at the top of PHP files.
 - Use type hints for all function parameters and return types where possible.
 - Use namespaces appropriately to organize code.
 - Prefer short array syntax (`[]`) over `array()`.

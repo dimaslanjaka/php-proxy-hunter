@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 // CLI Proxy Checker
 // Usage: php artisan/proxyChecker.php --proxy "IP:PORT" or "IP:PORT@user:pass"
 
