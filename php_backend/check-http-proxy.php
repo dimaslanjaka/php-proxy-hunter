@@ -80,7 +80,7 @@ if (!$isCli) {
     exit;
   } else {
     echo 'Usage:' . PHP_EOL;
-    echo "\tcurl -X POST $full_url -d \"proxy=72.10.160.171:24049\"" . PHP_EOL;
+    respond_text("\tcurl -X POST $full_url -d \"proxy=72.10.160.171:24049\"");
     exit;
   }
 } else {
