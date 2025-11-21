@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { ProxyDetails } from '../../../../types/proxy';
 import { add_ajax_schedule, run_ajax_schedule } from '../../../utils/ajaxScheduler';
-import { timeAgo } from '../../../utils/date.js';
+import { timeAgo } from '../../../utils/date/timeAgo.js';
 import { noop } from '../../../utils/other';
 import { useSnackbar } from '../../components/Snackbar';
 import { createUrl } from '../../utils/url';

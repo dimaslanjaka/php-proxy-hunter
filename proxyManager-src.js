@@ -30,7 +30,7 @@
   Email: dimaslanjaka@gmail.com
 */
 
-import { timeAgo } from './src/utils/date.js';
+import { timeAgo } from './src/utils/date/timeAgo.js';
 
 /**
  * @type {Record<string, any>|undefined}
