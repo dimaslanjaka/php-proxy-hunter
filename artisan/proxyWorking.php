@@ -23,9 +23,6 @@ $lockDir      = tmp() . '/locks';
 $lockFilePath = "$lockDir/proxyWorking.lock";
 $writerLock   = "$lockDir/proxyWorking-writer.lock";
 
-// Ensure lock directory exists
-ensure_dir($lockDir);
-
 // -----------------------------------------------------------------------------
 // Non-CLI mode → Launch background worker
 // -----------------------------------------------------------------------------
@@ -41,8 +38,8 @@ if (!$isCli) {
   $pidFile    = "$projectRoot/tmp/runners/proxyWorking-$uid.pid";
   $runnerFile = "$projectRoot/tmp/runners/proxyWorking" . (PHP_OS_FAMILY === 'Windows' ? '.bat' : '');
 
-  ensure_dir(dirname($outputFile));
-  ensure_dir(dirname($pidFile));
+  write_file($outputFile, '[' . date('Y-m-d H:i:s') . "] Starting proxyWorking process...\n");
+  write_file($pidFile, '[' . date('Y-m-d H:i:s') . "] PID log for proxyWorking process:\n");
 
   $cmd = sprintf(
     '%s %s --userId=%s --admin=%s > %s 2>&1 & echo $! >> %s',

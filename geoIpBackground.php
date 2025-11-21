@@ -58,8 +58,8 @@ echo $cmd . "\n\n";
 
 // prepare runner/output dirs and runner file
 $runner = tmp() . '/runners/geoIp' . $uid . ($isWin ? '.bat' : '.sh');
-ensure_dir(dirname($output_file));
-ensure_dir(dirname($pid_file));
+write_file($output_file, '[' . date('Y-m-d H:i:s') . "] Starting geoIp background process...\n");
+write_file($pid_file, '[' . date('Y-m-d H:i:s') . "] PID log for geoIp background process:\n");
 ensure_dir(dirname($lock_file));
 ensure_dir(dirname($runner));
 setMultiPermissions([$file, $output_file, $pid_file, $runner]);
