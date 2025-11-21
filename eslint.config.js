@@ -9,131 +9,211 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Initialize FlatCompat to support older ESLint config compatibility
 const compat = new FlatCompat({
   baseDirectory: __dirname,
   recommendedConfig: js.configs.recommended,
   allConfig: js.configs.all
 });
+
+// Load and parse Prettier configuration from file
 const prettierrc = jsonc.parse(fs.readFileSync(path.resolve(__dirname, '.prettierrc.json'), 'utf-8'));
 
 export default [
   {
-    // Ignore certain files and directories from linting
+    // File paths and patterns to be completely ignored by ESLint
     ignores: [
-      '**/*.md', // Markdown files
-      '**/*.html', // HTML files
-      '**/*.py', // Python files
-      '**/*.txt', // Text files
-      '**/tmp/**', // Temporary files
-      '**/app/**', // Application-specific files
-      '**/dist/**', // Distribution/build files
-      '**/node_modules/**', // Node.js dependencies
-      '**/coverage/**', // Test coverage reports
-      '**/logs/**', // Log files
-      '**/vendor/**', // Third-party libraries
-      '**/min.*', // Minified files (e.g., min.js, min.css)
-      '**/*.lock', // Lock files (e.g., package-lock.json, yarn.lock)
-      '**/public/**', // Public/static assets
-      '**/.yarn/**' // Yarn folder
+      // Markdown files
+      '**/*.md',
+
+      // HTML templates or static HTML content
+      '**/*.html',
+
+      // Python files
+      '**/*.py',
+
+      // Plain text files
+      '**/*.txt',
+
+      // Temporary working directories
+      '**/tmp/**',
+
+      // Application-specific non-source directories
+      '**/app/**',
+
+      // Build output directories
+      '**/dist/**',
+
+      // Dependency directories
+      '**/node_modules/**',
+
+      // Code coverage reports
+      '**/coverage/**',
+
+      // Log storage directories
+      '**/logs/**',
+
+      // Third-party vendor scripts
+      '**/vendor/**',
+
+      // Minified files (e.g., *.min.js, *.min.css)
+      '**/min.*',
+
+      // Lock files for dependency managers
+      '**/*.lock',
+
+      // Public static assets
+      '**/public/**',
+
+      // Yarn internal folder
+      '**/.yarn/**'
     ]
   },
 
-  // Extend recommended ESLint rules, TypeScript plugin rules, and Prettier plugin rules
+  // Apply recommended rule sets from ESLint, TypeScript, and Prettier
   ...compat.extends(
-    'eslint:recommended', // Base ESLint recommended rules
-    'plugin:@typescript-eslint/eslint-recommended', // TypeScript-specific recommended rules
-    'plugin:@typescript-eslint/recommended', // Additional TypeScript rules
-    'plugin:prettier/recommended' // Integrate Prettier for code formatting
+    // ESLint core recommended rules
+    'eslint:recommended',
+
+    // TypeScript-enhanced ESLint recommended rules
+    'plugin:@typescript-eslint/eslint-recommended',
+
+    // Additional TypeScript best-practice rules
+    'plugin:@typescript-eslint/recommended',
+
+    // Prettier formatting + conflict resolution
+    'plugin:prettier/recommended'
   ),
 
   {
     linterOptions: {
-      reportUnusedDisableDirectives: true // Report unused ESLint disable comments
+      // Notify when ESLint disable comments are unnecessary
+      reportUnusedDisableDirectives: true
     },
 
     languageOptions: {
+      // Inject various global variables for browser, Node, AMD, Jest, etc.
       globals: {
-        ...globals.browser, // Browser global variables
-        ...globals.amd, // AMD module globals
-        ...globals.node, // Node.js global variables
-        ...globals.jest, // Jest testing globals
+        ...globals.browser,
+        ...globals.amd,
+        ...globals.node,
+        ...globals.jest,
+
+        // Google reCAPTCHA
         grecaptcha: 'readonly',
-        $: 'readonly', // jQuery object
-        jQuery: 'readonly', // jQuery object
-        adsbygoogle: 'writable', // Google Ads
-        hexo: 'readonly' // Hexo static site generator object
+
+        // jQuery globals
+        $: 'readonly',
+        jQuery: 'readonly',
+
+        // Google Ads global
+        adsbygoogle: 'writable',
+
+        // Hexo static site generator global
+        hexo: 'readonly'
       },
 
-      parser: tsParser, // Use TypeScript parser
-      ecmaVersion: 2020, // Specify ECMAScript version 2020
-      sourceType: 'module' // Enable ES6 modules
+      // TypeScript parser for ESLint
+      parser: tsParser,
+
+      // Enable ECMAScript 2020 syntax
+      ecmaVersion: 2020,
+
+      // Allow usage of ES modules
+      sourceType: 'module'
     },
 
     rules: {
-      // Prettier formatting rules
+      // Enforce Prettier formatting rules with custom overrides
       'prettier/prettier': [
         'error',
         Object.assign(prettierrc, {
-          // Override settings for specific file types
           overrides: [
             {
-              excludeFiles: ['*.min.js', '*.min.cjs', '*.min.css', '*.min.html', '*.min.scss'], // Skip minified files
-              files: ['*.js', '*.css', '*.sass', '*.html', '*.md', '*.ts'], // Target specific file types
-              options: { semi: true } // Always use semicolons
+              // Exclude minified files from formatting
+              excludeFiles: ['*.min.js', '*.min.cjs', '*.min.css', '*.min.html', '*.min.scss'],
+
+              // File types to apply Prettier formatting
+              files: ['*.js', '*.css', '*.sass', '*.html', '*.md', '*.ts'],
+
+              // Always require semicolons
+              options: { semi: true }
             },
             {
-              files: ['*.ejs', '*.njk', '*.html'], // Specific parser for templating and HTML files
+              // Use HTML parser for templating languages
+              files: ['*.ejs', '*.njk', '*.html'],
               options: { parser: 'html' }
             }
           ]
         })
       ],
 
-      // TypeScript-specific rules
-      '@typescript-eslint/explicit-function-return-type': 'off', // Disable enforcing return type on functions
-      'no-unused-vars': 'off', // Disable base rule (TypeScript has its own)
+      // Disable requirement for explicit return type on functions
+      '@typescript-eslint/explicit-function-return-type': 'off',
 
-      // Allow unused variables starting with _ (common convention for ignored variables)
+      // Disable the base JS unused-vars rule (use TS version instead)
+      'no-unused-vars': 'off',
+
+      // Allow intentionally unused variables and parameters if they start with "_"
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
-          argsIgnorePattern: '^_', // Ignore unused arguments starting with _
-          varsIgnorePattern: '^_', // Ignore unused variables starting with _
-          caughtErrorsIgnorePattern: '^_' // Ignore unused caught errors starting with _
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_'
         }
       ],
 
-      '@typescript-eslint/no-explicit-any': 'off', // Allow usage of 'any' type
+      // Allow the use of the `any` type
+      '@typescript-eslint/no-explicit-any': 'off',
+
+      // Configure restrictions and allowed names for aliasing `this`
       '@typescript-eslint/no-this-alias': [
         'error',
         {
-          allowDestructuring: false, // Disallow destructuring with aliasing
-          allowedNames: ['self', 'hexo'] // Allow specific aliases like 'self' and 'hexo'
+          // Disallow destructuring when aliasing `this`
+          allowDestructuring: false,
+
+          // Permit specific safe aliases
+          allowedNames: ['self', 'hexo']
         }
       ],
 
-      // JavaScript arrow function rules
-      'arrow-body-style': 'off', // Disable forcing arrow function bodies
-      'prefer-arrow-callback': 'off', // Disable enforcing arrow functions for callbacks
-      // Allow empty catch blocks
+      // Turn off stylistic enforcement on arrow function bodies
+      'arrow-body-style': 'off',
+
+      // Disable enforcement of arrow callbacks
+      'prefer-arrow-callback': 'off',
+
+      // Allow empty catch blocks (useful for intentional no-op error handling)
       'no-empty': ['error', { allowEmptyCatch: true }]
     }
   },
+
   {
-    // Specific rules for JavaScript and CommonJS files
+    // Overrides for plain JavaScript and CommonJS environments
     files: ['**/*.js', '**/*.cjs'],
 
     rules: {
-      '@typescript-eslint/no-var-requires': 'off', // Allow require() in CommonJS files
-      '@typescript-eslint/no-require-imports': 'off', // Allow require imports
-      '@typescript-eslint/triple-slash-reference': 'off' // Disable triple-slash-reference rule
+      // Allow use of require() in CommonJS files
+      '@typescript-eslint/no-var-requires': 'off',
+
+      // Allow require-style imports
+      '@typescript-eslint/no-require-imports': 'off',
+
+      // Disable restrictions on triple-slash directive references
+      '@typescript-eslint/triple-slash-reference': 'off'
     }
   },
+
   {
-    // Specific rules for ECMAScript modules
+    // Overrides for ECMAScript module files
     files: ['**/*.mjs'],
+
     rules: {
-      '@typescript-eslint/triple-slash-reference': 'off' // Disable triple-slash-reference rule
+      // Disable triple-slash reference restrictions for .mjs files
+      '@typescript-eslint/triple-slash-reference': 'off'
     }
   }
 ];
