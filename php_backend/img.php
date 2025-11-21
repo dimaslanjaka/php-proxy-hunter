@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/shared.php';
+
 // Simple image proxy with 1-day cache
 
 $CACHE_DIR = __DIR__ . '/../tmp/image-cache';
