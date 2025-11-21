@@ -189,7 +189,7 @@ use PhpProxyHunter\FileLockHelper;
 
 $runAllowed = false;
 $fileLock   = new FileLockHelper($lockFilePath);
-if ($fileLock->lock(LOCK_NB)) {
+if ($fileLock->lock()) {
   $runAllowed = true;
 
   if (isset($proxy) && !empty($proxy)) {
