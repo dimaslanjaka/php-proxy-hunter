@@ -62,7 +62,7 @@ if (!$isCli) {
 
     $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
-    $cmd = 'php ' . escapeshellarg($file);
+    $cmd = getPhpExecutable(true) . ' ' . escapeshellarg($file);
     $cmd .= ' --userId=' . escapeshellarg($userId);
     $cmd .= ' --file=' . escapeshellarg($proxy_file);
     $cmd .= ' --admin=' . escapeshellarg($isAdmin ? 'true' : 'false');
@@ -107,7 +107,7 @@ if (!$isCli) {
 
   $hashFilename = basename($file, '.txt');
   if ($hashFilename == '.txt' || empty($hashFilename)) {
-    $hashFilename = "$currentScriptFilename/cli.txt";
+    $hashFilename = "$currentScriptFilename/cli";
   }
 
   $proxy = isset($options['p']) ? $options['p'] : (isset($options['proxy']) ? $options['proxy'] : null);

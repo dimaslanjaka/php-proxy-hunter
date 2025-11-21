@@ -77,7 +77,7 @@ if (!$isCli) {
     $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
     // Build the base command to run the PHP script
-    $cmd = 'php ' . escapeshellarg($file);
+    $cmd = getPhpExecutable(true) . ' ' . escapeshellarg($file);
     // Add the user ID as a CLI argument
     $cmd .= ' --userId=' . escapeshellarg($userId);
     // Add the proxy file path as a CLI argument
@@ -145,7 +145,7 @@ if (!$isCli) {
 
   // Fallback filename if no valid file name is provided
   if ($hashFilename == '.txt' || empty($hashFilename)) {
-    $hashFilename = "$currentScriptFilename/cli.txt";
+    $hashFilename = "$currentScriptFilename/cli";
   }
 
   // Determine the proxy source from either -p or --proxy
