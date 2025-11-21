@@ -68,7 +68,7 @@ if (!$isCli) {
     // Prepare for a long-running background process
     $file = __FILE__;
     // Get the current script's filename
-    $output_file = tmp() . "/logs/$hashFilename.out";
+    $output_file = tmp() . "/logs/$hashFilename.txt";
     // Define the path for the output log file
     setMultiPermissions([$file, $output_file], true);
     // Set appropriate permissions for the script and log file
@@ -145,7 +145,7 @@ if (!$isCli) {
 
   // Fallback filename if no valid file name is provided
   if ($hashFilename == '.txt' || empty($hashFilename)) {
-    $hashFilename = "$currentScriptFilename-cli.txt";
+    $hashFilename = "$currentScriptFilename/cli.txt";
   }
 
   // Determine the proxy source from either -p or --proxy
@@ -224,12 +224,12 @@ if ($runAllowed) {
  * @param string $proxy proxy string
  */
 function check(string $proxy) {
-  global $proxy_db, $hashFilename, $currentScriptFilename, $isAdmin, $isCli;
+  global $proxy_db, $hashFilename, $isAdmin, $isCli;
   $proxies = extractProxies($proxy, $proxy_db, true);
   shuffle($proxies);
 
   $count       = count($proxies);
-  $logFilename = str_replace("$currentScriptFilename-", '', $hashFilename);
+  $logFilename = $hashFilename ?? 'CLI';
   _log_shared($hashFilename ?? 'CLI', trim('[' . ($isCli ? 'CLI' : 'WEB') . '][' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($logFilename, 0, 6) . " Checking $count proxies..."));
 
   // Record the start time

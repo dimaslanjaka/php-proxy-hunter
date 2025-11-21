@@ -57,7 +57,7 @@ if (!$isCli) {
     write_file($proxy_file, $proxy);
 
     $file        = __FILE__;
-    $output_file = tmp() . "/logs/$hashFilename.out";
+    $output_file = tmp() . "/logs/$hashFilename.txt";
     setMultiPermissions([$file, $output_file], true);
 
     $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
@@ -107,7 +107,7 @@ if (!$isCli) {
 
   $hashFilename = basename($file, '.txt');
   if ($hashFilename == '.txt' || empty($hashFilename)) {
-    $hashFilename = "$currentScriptFilename-cli.txt";
+    $hashFilename = "$currentScriptFilename/cli.txt";
   }
 
   $proxy = isset($options['p']) ? $options['p'] : (isset($options['proxy']) ? $options['proxy'] : null);
@@ -173,12 +173,12 @@ if ($runAllowed) {
  * @param string $proxy proxy string or JSON array
  */
 function check(string $proxy) {
-  global $proxy_db, $hashFilename, $currentScriptFilename, $isAdmin, $isCli;
+  global $proxy_db, $hashFilename, $isAdmin, $isCli;
   $proxies = extractProxies($proxy, $proxy_db, true);
   shuffle($proxies);
 
   $count       = count($proxies);
-  $logFilename = str_replace("$currentScriptFilename-", '', $hashFilename);
+  $logFilename = $hashFilename;
   _log_shared($hashFilename ?? 'CLI', trim('[' . ($isCli ? 'CLI' : 'WEB') . '][' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($logFilename, 0, 6) . " Checking $count proxies..."));
 
   $startTime            = microtime(true);
