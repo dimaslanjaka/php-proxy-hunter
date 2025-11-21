@@ -284,6 +284,10 @@ function check(string $proxy) {
       $data['status'] = 'active';
       // workingTypes already normalized to lowercase elsewhere
       $data['type'] = strtolower(implode('-', array_unique($result->workingTypes)));
+    } else {
+      // Mark as 'dead' if not working
+      // If proxy checked http only and failed, we consider it dead for our purposes
+      $data['status'] = 'dead';
     }
 
     $proxy_db->updateData($item->proxy, $data);
