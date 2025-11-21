@@ -1,5 +1,44 @@
 [
   {
+    "hash": "e218b39abcb9388f2810427682befef829c44329",
+    "date": "2025-11-22T06:54:29+07:00",
+    "message": "fix(lock): update FileLockHelper usage to remove non-blocking option",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "9faa72f9788888f367251104e10191c0fa558795",
+    "date": "2025-11-22T06:43:00+07:00",
+    "message": "fix(lock): make file locking non-blocking and update callers/tests\n\n- Use LOCK_NB in `src/PhpProxyHunter/FileLockHelper.php::lock()` so attempts to\n  acquire an already-held lock return false immediately instead of blocking.\n- Update backend callers to the non-blocking behavior:\n  - `php_backend/check-http-proxy.php` -> use `lock(LOCK_NB)` and remove redundant `_log_shared(...)`\n  - `php_backend/check-https-proxy.php` -> use `lock(LOCK_NB)`\n- Add tests in `tests/PhpProxyHunter/FileLockHelperTest.php`:\n  - `testLockFailsIfAlreadyLocked`\n  - `testLockFailsIfAlreadyExists`\n- Minor CLI demo comment/formatting tweak.\n\nNo breaking API changes expected; this prevents scripts/tests from hanging when locks are held.",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "src/PhpProxyHunter/FileLockHelper.php",
+      "tests/PhpProxyHunter/FileLockHelperTest.php"
+    ]
+  },
+  {
+    "hash": "2df7dacb172b0dcd71cd3a4acf467ea358b80469",
+    "date": "2025-11-22T06:23:32+07:00",
+    "message": "feat(checkers): use FileLockHelper, add stale-lock handling, ensure log dirs\n\n- Replace manual fopen/flock locking with Composer-autoloaded PhpProxyHunter\\FileLockHelper.\n- Detect and remove stale CLI lock files older than 1 hour; write PID/timestamp JSON to new lock files for diagnostics.\n- Ensure nested log directories are created (tmp/logs/{checker}/{hash}.txt) in get_log_file_shared.\n- Normalize request parsing, CORS, content-type, and explicit max execution time (300s).\n- Unify hash filename generation for web/CLI runs and redirect runner output to `.txt` logs for frontend consumption.\n- Misc: small refactors and clearer comments/messages in HTTP/HTTPS checker flows.\n\nThis reduces duplication, improves lock reliability, and makes logs discoverable by the frontend.",
+    "files": [
+      "artisan/cleaner.php",
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/checker-runner.php"
+    ]
+  },
+  {
+    "hash": "fa11b92e52c6478f0f63e4ec5b6f92072e327989",
+    "date": "2025-11-22T05:14:00+07:00",
+    "message": "refactor: replace echo with respond_text for usage output",
+    "files": [
+      "php_backend/check-http-proxy.php"
+    ]
+  },
+  {
     "hash": "146383b803f210a22fceb1ea828bfdcdd976255c",
     "date": "2025-11-22T04:53:44+07:00",
     "message": "refactor: update lock file paths to use '/locks/' directory",
@@ -8706,51 +8745,6 @@
       "package.json",
       "src/react/components/LanguageSwitcher.tsx",
       "src/react/i18n.ts"
-    ]
-  },
-  {
-    "hash": "0b65514ec1190d30cec7f3d198edda7db337cd0f",
-    "date": "2025-08-18T15:08:53+07:00",
-    "message": "refactor(i18n): persist selected language in localStorage and reuse across app\n\n- Added `getSelectedLanguage` and `setSelectedLanguage` helpers in `LanguageSwitcher`\n- Replaced direct `localStorage` access with helper functions for better reuse\n- Updated `i18n.ts` to initialize with saved language from localStorage instead of defaulting to English",
-    "files": [
-      "src/react/components/LanguageSwitcher.tsx",
-      "src/react/i18n.ts"
-    ]
-  },
-  {
-    "hash": "4b50eacc6d34321643aa43a60ee635080097ea3b",
-    "date": "2025-08-18T14:02:28+07:00",
-    "message": "refactor(utils): import isViteDevServer from utils and simplify test mocks\n\n- Imported `isViteDevServer` from `utils` in `i18n.ts`\n- Removed global declarations for `viteBaseUrl` and `isViteDevServer` in tests\n- Updated `url.vitest.ts` to reference and mock values directly from `utilsIndex`\n- Simplified test setup for `createUrl` by avoiding `globalThis` usage",
-    "files": [
-      "src/react/i18n.ts",
-      "tests/react/utils/url.vitest.ts"
-    ]
-  },
-  {
-    "hash": "9bf1a950f963a828ef59c107d6d790aff9c1a09f",
-    "date": "2025-08-18T13:59:01+07:00",
-    "message": "feat(i18n): add browser language detection for automatic locale selection\n\n- Installed `i18next-browser-languagedetector` dependency\n- Configured `i18n.ts` to use `LanguageDetector` before `initReactI18next`\n- Enabled automatic detection of user language with fallback to English\n- Added `debug` mode support for development environment",
-    "files": [
-      "package.json",
-      "src/react/i18n.ts"
-    ]
-  },
-  {
-    "hash": "7ac31afbb35496c2a90e7d867bafb6ca90101c42",
-    "date": "2025-08-18T13:56:18+07:00",
-    "message": "feat(i18n): add multilingual support with English and Indonesian translations\n\n- Added `i18next` and `react-i18next` dependencies\n- Created `i18n.ts` configuration with default and fallback language\n- Added locale files: `en.json` and `id.json`\n- Implemented `LanguageSwitcher` component with persistence via localStorage\n- Updated `Footer` to include language selector\n- Integrated translations in `Admin`, `AddSaldoForm`, `EditPasswordForm`, and `EditSaldoForm`\n- Replaced hardcoded text with `t()` and `<Trans />` for localization",
-    "files": [
-      "package.json",
-      "src/react/components/Footer.tsx",
-      "src/react/components/LanguageSwitcher.tsx",
-      "src/react/i18n.ts",
-      "src/react/index.tsx",
-      "src/react/locales/en.json",
-      "src/react/locales/id.json",
-      "src/react/pages/Admin.tsx",
-      "src/react/pages/admin/AddSaldoForm.tsx",
-      "src/react/pages/admin/EditPasswordForm.tsx",
-      "src/react/pages/admin/EditSaldoForm.tsx"
     ]
   }
 ]
