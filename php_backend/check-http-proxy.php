@@ -7,9 +7,6 @@ use PhpProxyHunter\Server;
 
 global $isCli;
 
-$url      = 'http://httpforever.com/';
-$webTitle = 'HTTP Forever';
-
 $isAdmin = $isCli;
 
 if (!$isCli) {
@@ -165,7 +162,7 @@ if (flock($lockFile, LOCK_EX)) {
 
   if (isset($proxy) && !empty($proxy)) {
     truncateFile(get_log_file());
-    check($proxy, $url, $webTitle);
+    check($proxy);
   }
 
   flock($lockFile, LOCK_UN);
@@ -210,10 +207,8 @@ function _log(...$args): void {
 /**
  * Check if the proxy is working (HTTP only)
  * @param string $proxy proxy string or JSON array
- * @param string $url URL to test
- * @param string $webTitle Expected title for the webpage
  */
-function check(string $proxy, string $url, string $webTitle) {
+function check(string $proxy) {
   global $proxy_db, $hashFilename, $currentScriptFilename, $isAdmin, $isCli;
   $proxies = extractProxies($proxy, $proxy_db, true);
   shuffle($proxies);
