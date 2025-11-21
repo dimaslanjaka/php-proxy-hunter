@@ -1,5 +1,13 @@
 [
   {
+    "hash": "77136736f4912b7697d8420522b882fcf92cbc5c",
+    "date": "2025-11-21T15:49:29+07:00",
+    "message": "fix(UserPaymentLogs): ensure safe string conversion for action types",
+    "files": [
+      "src/react/pages/dashboard/UserPaymentLogs.tsx"
+    ]
+  },
+  {
     "hash": "1910bf29a7b591a8f48f554a86023c2f26d98790",
     "date": "2025-11-21T15:43:43+07:00",
     "message": "feat(Navbar): add spacers to offset fixed navbar",
@@ -8751,15 +8759,6 @@
     "message": "refactor(react): convert Navbar to function component with route-aware user info fetch\n\n- Refactored Navbar from a class component to a function component using React hooks.\n- Integrated useLocation from react-router-dom to detect route changes.\n- User info is now fetched on every location (route) change to keep the navbar state up-to-date.\n- Added useEffect for click-outside handling and state reset on logout.\n- Improved state management with useState and useRef for menu toggles.",
     "files": [
       "src/react/components/Navbar.tsx"
-    ]
-  },
-  {
-    "hash": "fd387378f7a96a265e9e2e5ecfed2efc921d1ec9",
-    "date": "2025-08-17T17:22:49+07:00",
-    "message": "feat(navbar): hide admin menu for non-admin users\n\n- Add `admin` property to `UserInfo` interface and user state.\n- Only render the /admin link in the Navbar if the current user is an admin.",
-    "files": [
-      "src/react/components/Navbar.tsx",
-      "src/react/utils/user.ts"
     ]
   }
 ]
