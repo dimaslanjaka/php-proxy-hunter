@@ -13,9 +13,13 @@ $DEFAULT_TIMEOUT = 10;
 PhpProxyHunter\Server::allowCors();
 
 $request = parseQueryOrPostBody();
-$raw     = $request['url'] ?? '';
+$raw     = isset($request['url']) ? $request['url'] : '';
 // match JS decodeURIComponent
 $url = rawurldecode($raw);
+// check is base64
+if (isValidBase64($url)) {
+  $url = base64_decode($url);
+}
 
 $isValidUrl = filter_var($url, FILTER_VALIDATE_URL) && preg_match('/^https?:\/\//i', $url);
 if (empty($url)) {
@@ -107,7 +111,7 @@ if (!$ok || $http >= 400) {
   send_error(502, "Fetch failed (HTTP $http, curl $err)");
 }
 
-$contentType = $headers['content-type'] ?? 'application/octet-stream';
+$contentType = isset($headers['content-type']) ? $headers['content-type'] : 'application/octet-stream';
 if (stripos($contentType, 'image/') !== 0) {
   ob_end_clean();
   fclose($fp);
@@ -132,4 +136,9 @@ function send_error($code, $msg) {
   http_response_code($code);
   header('Content-Type: text/plain; charset=utf-8');
   exit($msg);
+}
+
+function isValidBase64($str) {
+  $decoded = base64_decode($str, true);
+  return ($decoded !== false && base64_encode($decoded) === $str) ? true : false;
 }
