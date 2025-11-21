@@ -180,8 +180,7 @@ use PhpProxyHunter\FileLockHelper;
 
 $runAllowed = false;
 $fileLock   = new FileLockHelper($lockFilePath);
-if ($fileLock->lock(LOCK_EX)) {
-  _log_shared($hashFilename ?? 'CLI', "$lockFilePath Lock acquired");
+if ($fileLock->lock(LOCK_NB)) {
   $runAllowed = true;
 
   if (isset($proxy) && !empty($proxy)) {

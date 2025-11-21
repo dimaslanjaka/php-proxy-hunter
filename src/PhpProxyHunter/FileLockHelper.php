@@ -29,7 +29,10 @@ class FileLockHelper {
     }
 
     $this->lockType = $lockType;
-    if (!flock($this->handle, $lockType)) {
+    // Use non-blocking lock so callers (and tests) don't hang waiting for the
+    // lock to be released by another process. Return false immediately if
+    // the lock can't be acquired.
+    if (!flock($this->handle, $lockType | LOCK_NB)) {
       fclose($this->handle);
       $this->handle = null;
       return false;
@@ -143,7 +146,8 @@ if (php_sapi_name() === 'cli' && realpath(__FILE__) === realpath($_SERVER['argv'
       } else {
         echo "The lock file does not exist.\n";
       }
-      sleep(1); // Simulate task delay
+      // Simulate task delay
+      sleep(1);
     }
 
     echo "Work done. Releasing lock...\n";

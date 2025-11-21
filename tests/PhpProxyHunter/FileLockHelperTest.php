@@ -68,9 +68,38 @@ class FileLockHelperTest extends TestCase {
     $lock1 = new FileLockHelper($this->lockFile);
     $this->assertTrue($lock1->lock());
 
-    unset($lock1); // triggers __destruct()
+    unset($lock1);
+    // triggers __destruct()
 
     $lock2 = new FileLockHelper($this->lockFile);
     $this->assertFalse($lock2->isLocked());
+  }
+
+  public function testLockFailsIfAlreadyLocked(): void {
+    $lock1 = new FileLockHelper($this->lockFile);
+    $this->assertTrue($lock1->lock());
+    $this->assertTrue($lock1->isLocked());
+
+    $lock2 = new FileLockHelper($this->lockFile);
+    $this->assertFalse(
+      $lock2->lock(),
+      'Lock 2 should fail to acquire the lock since Lock 1 holds it'
+    );
+
+    $lock1->unlock();
+  }
+
+  public function testLockFailsIfAlreadyExists(): void {
+    write_file($this->lockFile, 'test');
+
+    sleep(2);
+
+    $lock = new FileLockHelper($this->lockFile);
+    $this->assertTrue(
+      $lock->lock(),
+      'Lock should acquire the lock even if the file already exists'
+    );
+
+    $lock->unlock();
   }
 }
