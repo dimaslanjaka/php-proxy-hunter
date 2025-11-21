@@ -1,5 +1,77 @@
 [
   {
+    "hash": "146383b803f210a22fceb1ea828bfdcdd976255c",
+    "date": "2025-11-22T04:53:44+07:00",
+    "message": "refactor: update lock file paths to use '/locks/' directory",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "39211609f42b078729971d94fbac60f4b5b6f34e",
+    "date": "2025-11-22T04:51:53+07:00",
+    "message": "refactor(checker): use getPhpExecutable() for runner and normalize cli hashFilename\n\n- Use `getPhpExecutable(true)` instead of the hardcoded `'php'` when building the background runner command to improve portability (Windows/Env-specific PHP).\n- Normalize the fallback hash filename for CLI runs from `\"$currentScriptFilename/cli.txt\"` to `\"$currentScriptFilename/cli\"` (remove `.txt` suffix).\n- Files changed: `php_backend/check-http-proxy.php`, `php_backend/check-https-proxy.php`.\n\nNote: This is a maintenance/refactor change. The hash/filename format used for logs/runners has been adjusted — update any external tooling or integrations that depend on the previous `cli.txt` naming if needed.",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "a7423c721c098010944a5e140ac8e11b8945b0af",
+    "date": "2025-11-22T04:38:00+07:00",
+    "message": "refactor: move php_exec() to dedicated utility file\n\n- Removed php_exec() from func.php\n- Added new file src/utils/process/php_exec.php containing the function\n- Improved project structure by isolating process-related utilities",
+    "files": [
+      "func.php",
+      "src/utils/process/php_exec.php"
+    ]
+  },
+  {
+    "hash": "5a5e26f1132e0a154c6a5df03abcc67bffda5206",
+    "date": "2025-11-22T04:34:57+07:00",
+    "message": "refactor: remove getPhpBinaryPath() and normalize comment style\n\n- Deleted unused getPhpBinaryPath() function\n- Moved inline end-of-line comments onto their own lines for clarity\n- No behavioral changes to existing logic",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
+    "hash": "583af1a2aa20cd146669aebce6476453cd8a961f",
+    "date": "2025-11-22T04:31:04+07:00",
+    "message": "fix(logs): restrict log path visibility to admins only",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
+    "hash": "80ae6a1f9cbe97ca61f9e496d03a57c5cb3ddaeb",
+    "date": "2025-11-22T04:30:29+07:00",
+    "message": "refactor(checker): standardize log filenames to .txt and simplify shared helpers\n\n- Use `.txt` for output log files instead of `.out` (php_backend/check-http-proxy.php, check-https-proxy.php).\n- Normalize hash filename format (use \"$currentScriptFilename/$user\" and \"$currentScriptFilename/cli.txt\" fallback).\n- Use `$hashFilename` directly for log labels (remove string replace on `$currentScriptFilename`).\n- Adjust globals in check functions to remove unused `$currentScriptFilename`.\n- Simplify `checker-runner.php` helpers (streamline `get_log_file_shared` / `_log_shared` implementations; remove extra wrapper guards and minor formatting).\n- No changes to the proxy-checking algorithms; this is a maintenance/refactor change.\n\nNote: Update any external tooling or scripts that expect the old `.out` log filenames or the previous hash format (`-` style) if necessary. No breaking API changes expected.",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/checker-runner.php"
+    ]
+  },
+  {
+    "hash": "15c4db2278df4c18dd1afe38b962fa284c4ca199",
+    "date": "2025-11-22T04:29:02+07:00",
+    "message": "fix(logs): use read_file and improve missing/unreadable log diagnostics\n\n- Replace suppressed `@file_get_contents()` with `read_file()` for consistent file access and better error handling.\n- Print clearer messages when logs are missing or unreadable and include the log file path to aid debugging.\n- Normalize message punctuation for consistency.\n\nNo breaking changes.",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
+    "hash": "e881224c620918050db9586b9d941803694a8a3d",
+    "date": "2025-11-22T04:14:12+07:00",
+    "message": "feat(checker): extract shared checker-runner + add HTTP log viewer\n\n- Add: php_backend/checker-runner.php\n  - get_log_file_shared(string $hashFilename)\n  - _log_shared(string $hashFilename, ...$args)\n  - load_proxies_for_mode($file, $proxy, $mode, $proxy_db)\n- Update: php_backend/check-http-proxy.php\n  - require checker-runner, replace local get_log_file/_log with shared helpers\n  - use load_proxies_for_mode('http', ...)\n  - use get_log_file_shared/_log_shared\n- Update: php_backend/check-https-proxy.php\n  - require checker-runner, replace local get_log_file/_log with shared helpers\n  - use load_proxies_for_mode('https', ...)\n  - use get_log_file_shared/_log_shared\n- Update: src/react/pages/ProxyList/LogViewer.tsx\n  - change log fetch path to use `check-*-proxy/{hash}`\n  - add HTTP tab, polling, and fetchHttpProxyCheckerResult()\n\nBREAKING CHANGE: log URL/hash format changed from `check-*-proxy-<hash>` to `check-*-proxy/<hash>`. Update any external callers or integrations that rely on the old path.",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/checker-runner.php",
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
     "hash": "b879401320fe876f295e76f1ced207bc27f73125",
     "date": "2025-11-21T22:18:08+07:00",
     "message": "refactor(proxy-submission): simplify _checkProxy2 by removing try/catch and adding http/https proxy checks",
@@ -8679,82 +8751,6 @@
       "src/react/pages/admin/AddSaldoForm.tsx",
       "src/react/pages/admin/EditPasswordForm.tsx",
       "src/react/pages/admin/EditSaldoForm.tsx"
-    ]
-  },
-  {
-    "hash": "71b348b3dbc6dab133b222cf9503dd6bdaf0697a",
-    "date": "2025-08-18T13:11:53+07:00",
-    "message": "refactor(admin): modularize saldo management components\n\n- Extracted `AddSaldoForm` and `EditSaldoForm` into separate components\n- Updated `Admin.tsx` to use modular forms for better maintainability\n- Switched user selection to use `email` as unique identifier\n- Improved form UX with `autoComplete=\"off\"` and clearer helper texts\n- Added support for editing user passwords alongside saldo management",
-    "files": [
-      "src/react/pages/Admin.tsx",
-      "src/react/pages/admin/AddSaldoForm.tsx",
-      "src/react/pages/admin/EditSaldoForm.tsx"
-    ]
-  },
-  {
-    "hash": "9f1a797ee7370f10cddfea6b78072a98ad04a0d4",
-    "date": "2025-08-18T13:09:51+07:00",
-    "message": "feat(admin): allow admins to update user profiles and passwords\n\n- Updated `user-info.php` to support admin updates by email or username\n- Ensured normal users can only update their own account\n- Added JSON response with success/error messages\n- Changed `Settings.tsx` to check `data.success` instead of `data.authenticated`\n- Added new `EditPasswordForm` component for admin to set user passwords",
-    "files": [
-      "php_backend/user-info.php",
-      "src/react/pages/Settings.tsx",
-      "src/react/pages/admin/EditPasswordForm.tsx"
-    ]
-  },
-  {
-    "hash": "845fbfb6815a8678db6a776e2d38103257e9f02f",
-    "date": "2025-08-18T11:44:51+07:00",
-    "message": "feat(vite): add support for additional file extensions in alias configuration",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "c9d24484e21835664e67fa4e0b396a79761c3d69",
-    "date": "2025-08-18T11:42:20+07:00",
-    "message": "build(vite): add lightningcss with browserslist for CSS transforms and minification\n\n- Added `browserslist` and `lightningcss` dependencies\n- Configured Vite to use `lightningcss` for CSS transformation and minification\n- Integrated `browserslistToTargets` for target environments\n- Enabled terser for JS minification with comment removal",
-    "files": [
-      "package.json",
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "13d1ff4804d6a32c538eba06ae0869fe3352bfe1",
-    "date": "2025-08-18T08:38:41+07:00",
-    "message": "refactor(hashing): extract file hashing logic into separate module\n\n- move hashing and tree generation into new `bin/file-hasher.cjs`\n- add reusable `createFileHashes` and `getFileTreeString` functions\n- simplify `create-file-hashes.cjs` to use shared module\n- add dotenv for loading `.env` file\n- export `createFileHashesMain` for reuse by other scripts\n- update `git-pull.cjs` to use `createFileHashesMain` when resolving `.husky/hash.txt` conflicts\n- wrap main logic in async functions with proper error handling",
-    "files": [
-      "bin/create-file-hashes.cjs",
-      "bin/file-hasher.cjs",
-      "bin/git-pull.cjs"
-    ]
-  },
-  {
-    "hash": "4e39275107a556236372f49f62bbd123148e5157",
-    "date": "2025-08-18T08:26:42+07:00",
-    "message": "feat(git-pull): improve conflict detection and CLI handling\n\n- add `minimist` for parsing CLI args (--remote, --branch, or positional)\n- replace dry-run merge with real merge + conflict detection via `git status`\n- introduce `getConflictFiles` helper to detect and return conflicted files\n- handle `.husky/hash.txt` conflicts automatically by truncating and staging\n- abort merge safely when other conflicts are detected\n- restrict *.sh chmod and execution to Linux platforms\n- simplify fix-perm error handling\n- remove obsolete shebang and redundant .husky/hash.txt checks",
-    "files": [
-      "bin/git-pull.cjs"
-    ]
-  },
-  {
-    "hash": "5d00eaec2b67a30453c2fc9d61e10a5d0d116ec1",
-    "date": "2025-08-18T07:21:18+07:00",
-    "message": "feat(saldo): add ability to set saldo to exact value\n\n- Extended `update_saldo` method with `$replace` flag to support replacing saldo instead of incrementing\n- Updated `refill-saldo.php` to handle `set` parameter for saldo replacement\n- Implemented `setSaldoToUser` API function in frontend utils\n- Integrated saldo set functionality into Admin page\n- Added placeholder to AddSaldoForm input\n- Updated and expanded tests to cover saldo replacement scenario",
-    "files": [
-      "php_backend/refill-saldo.php",
-      "src/PhpProxyHunter/UserDB.php",
-      "src/react/pages/Admin.tsx",
-      "src/react/utils/user.ts",
-      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "aa9b912f2c87440546c4f5ac70ea0d4b79443645",
-    "date": "2025-08-18T06:59:14+07:00",
-    "message": "feat(admin): refactor saldo management UI with modular forms\n\n- Replace single saldo form with two modular components:\n  - AddSaldoForm for incrementing saldo\n  - EditSaldoForm for setting saldo directly\n- Remove inline saldo calculation helper\n- Remove global form submit button; each form now handles its own submission\n- Update layout with two-column grid for better user experience\n- Add placeholder `setSaldoToUser` function for future implementation",
-    "files": [
-      "src/react/pages/Admin.tsx"
     ]
   }
 ]
