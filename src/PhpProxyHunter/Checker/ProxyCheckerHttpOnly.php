@@ -26,7 +26,6 @@ class ProxyCheckerHttpOnly extends ProxyChecker {
       : ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
 
     $latencies = [];
-    $http_ok   = false;
 
     foreach ($protocols as $protocol) {
       $urlToUse = $testUrl;
@@ -65,7 +64,6 @@ class ProxyCheckerHttpOnly extends ProxyChecker {
           $normTitle    = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($title))));
           $normExpected = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($expectedTitle))));
           if (mb_strtolower($normTitle) === mb_strtolower($normExpected)) {
-            $http_ok                = true;
             $result->isWorking      = true;
             $result->workingTypes[] = strtolower($protocol);
             if (strtolower($protocol) === 'https') {
@@ -87,10 +85,6 @@ class ProxyCheckerHttpOnly extends ProxyChecker {
       }
 
       curl_close($ch);
-
-      if ($http_ok) {
-        break;
-      }
     }
 
     if (!empty($latencies)) {
