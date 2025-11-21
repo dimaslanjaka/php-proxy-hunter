@@ -10,6 +10,10 @@ require_once __DIR__ . '/shared.php';
  */
 function get_log_file_shared(string $hashFilename): string {
   $_logFile = tmp() . "/logs/{$hashFilename}.txt";
+  $dir      = dirname($_logFile);
+  if (!is_dir($dir)) {
+    @mkdir($dir, 0777, true);
+  }
   if (!file_exists($_logFile)) {
     file_put_contents($_logFile, '');
   }

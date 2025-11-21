@@ -4,15 +4,7 @@
 
 require_once __DIR__ . '/../func.php';
 
-$isCli = (
-  php_sapi_name() === 'cli'
-  || defined('STDIN')
-  || (
-    empty($_SERVER['REMOTE_ADDR'])
-    && !isset($_SERVER['HTTP_USER_AGENT'])
-    && count($_SERVER['argv']) > 0
-  )
-);
+$isCli = (php_sapi_name() === 'cli' || defined('STDIN'));
 
 if (!$isCli) {
   header('Content-Type:text/plain; charset=UTF-8');
@@ -53,7 +45,7 @@ foreach ($directories as $directory) {
       // skip database deletion
       $pattern = '/\.(db|sqlite|sqlite3|mmdb|.*-wal|.*-shm)$/i';
       if (preg_match($pattern, $filePath)) {
-        echo "$filePath excluded";
+        echo "$filePath excluded" . PHP_EOL;
         continue;
       }
 
