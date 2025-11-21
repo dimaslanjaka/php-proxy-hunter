@@ -5,6 +5,7 @@ import { extractProxies } from '../../../proxy/extractor';
 import ProxyData from '../../../proxy/ProxyData';
 import { createUrl } from '../../utils/url';
 import { getUserProxyLogUrl } from './LogViewer';
+import { noop } from '../../../utils/other';
 
 async function _checkProxy(proxyData: ProxyData, type?: string) {
   const url = createUrl('/php_backend/proxy-checker.php');
@@ -26,27 +27,18 @@ async function _checkProxy(proxyData: ProxyData, type?: string) {
 }
 
 async function _checkProxy2(proxies: string) {
-  try {
-    const resp = await fetch(createUrl('/php_backend/check-https-proxy.php'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ proxy: proxies }),
-      credentials: 'include'
-    });
-
-    if (!resp.ok) {
-      const text = await resp.text().catch(() => '');
-      console.error('Error:', resp.status, resp.statusText, text);
-      return;
-    }
-
-    const contentType = resp.headers.get('content-type') || '';
-    const data = contentType.includes('application/json') ? await resp.json() : await resp.text();
-    // handle the successful response if needed
-    console.log('Response:', data);
-  } catch (error) {
-    console.error('Error:', error);
-  }
+  await fetch(createUrl('/php_backend/check-https-proxy.php'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ proxy: proxies }),
+    credentials: 'include'
+  }).catch(noop);
+  await fetch(createUrl('/php_backend/check-http-proxy.php'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ proxy: proxies }),
+    credentials: 'include'
+  }).catch(noop);
 }
 
 export default function ProxySubmission() {
