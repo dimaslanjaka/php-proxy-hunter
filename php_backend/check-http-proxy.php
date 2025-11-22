@@ -272,10 +272,43 @@ function check(string $proxy) {
       $data['latency'] = $result->latency;
     }
 
+    // Update proxy status in database
+    $retestStatus = null;
+    if ($result->isWorking) {
+      $data['status'] = 'active';
+      $data['type']   = strtolower(implode('-', array_unique($result->workingTypes)));
+    } else {
+      // Re-test the proxy to confirm it's dead
+      $retestResults  = reTestProxy($item->proxy, 5);
+      $isAlive        = in_array(true, $retestResults, true);
+      $data['status'] = $isAlive ? 'active' : 'dead';
+      // Record a retest status for logging: alive, dead
+      $retestStatus = $isAlive ? 'alive' : 'dead';
+      // If alive on retest, update type and status accordingly
+      if ($isAlive) {
+        $workingTypes = [];
+        foreach ($retestResults as $type => $worked) {
+          if ($worked) {
+            $workingTypes[] = $type;
+          }
+        }
+        $data['type']         = strtolower(implode('-', array_unique($workingTypes)));
+        $data['status']       = 'active';
+        $result->isWorking    = true;
+        $result->workingTypes = $workingTypes;
+      }
+    }
+
+    $proxy_db->updateData($item->proxy, $data);
+
     // Build friendly per-proxy log line
     $statusSymbol = $result->isWorking ? '[OK]' : '[--]';
     $protocols    = !empty($result->workingTypes) ? implode(',', $result->workingTypes) : '';
     $latencyStr   = !empty($result->latency) ? (round($result->latency, 2) . 's') : '';
+    // Determine retest logging value: either set above when retest ran or 'not-performed'
+    if ($retestStatus === null) {
+      $retestStatus = 'not-performed';
+    }
 
     $lineParts = ["[$no]", $statusSymbol, $item->proxy];
     if ($protocols !== '') {
@@ -285,19 +318,55 @@ function check(string $proxy) {
       $lineParts[] = 'latency=' . $latencyStr;
     }
 
+    // Include retest status in log (alive|dead|not-performed)
+    $lineParts[] = 'retest=' . $retestStatus;
+
     _log_shared($hashFilename ?? 'CLI', implode(' ', $lineParts));
-
-    // Update proxy status in database
-    if ($result->isWorking) {
-      $data['status'] = 'active';
-      $data['type']   = strtolower(implode('-', array_unique($result->workingTypes)));
-    } else {
-      $data['status'] = 'dead';
-    }
-
-    $proxy_db->updateData($item->proxy, $data);
   }
 
   // Finished checking all proxies
   _log_shared($hashFilename ?? 'CLI', 'Done checking proxies.');
+}
+
+function reTestProxy(string $proxy, int $timeout = 5): array {
+  $tests = [
+    'http'   => CURLPROXY_HTTP,
+    'socks4' => CURLPROXY_SOCKS4,
+    'socks5' => CURLPROXY_SOCKS5,
+  ];
+
+  $results = [];
+
+  foreach ($tests as $name => $curlType) {
+    $ch = curl_init('http://httpbin.org/ip');
+    // Browser-like curl options to make the probe more realistic
+    $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+    curl_setopt_array($ch, [
+      CURLOPT_PROXY          => $proxy,
+      CURLOPT_PROXYTYPE      => $curlType,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HEADER         => false,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_MAXREDIRS      => 5,
+      CURLOPT_CONNECTTIMEOUT => 5,
+      CURLOPT_TIMEOUT        => $timeout,
+      CURLOPT_SSL_VERIFYPEER => false, // set to true if you want strict SSL checks
+      CURLOPT_SSL_VERIFYHOST => 0,
+      CURLOPT_ENCODING       => '', // accept all supported encodings
+      CURLOPT_USERAGENT      => $userAgent,
+      CURLOPT_HTTPHEADER     => [
+        'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language: en-US,en;q=0.9',
+        'Connection: keep-alive',
+      ],
+    ]);
+
+    $response = curl_exec($ch);
+    $err      = curl_errno($ch);
+    curl_close($ch);
+
+    $results[$name] = (!$err && !empty($response));
+  }
+
+  return $results;
 }
