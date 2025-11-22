@@ -1,5 +1,15 @@
 [
   {
+    "hash": "b4fa54ddf4847655779b4aab42bef0188f8895d5",
+    "date": "2025-11-22T07:09:33+07:00",
+    "message": "refactor(proxy-checker): rename ProxyChecker1 to ProxyCheckerPublicIP",
+    "files": [
+      "php_backend/proxy-checker.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker-test.php",
+      "src/PhpProxyHunter/Checker/ProxyCheckerPublicIP.php"
+    ]
+  },
+  {
     "hash": "e218b39abcb9388f2810427682befef829c44329",
     "date": "2025-11-22T06:54:29+07:00",
     "message": "fix(lock): update FileLockHelper usage to remove non-blocking option",
@@ -8735,16 +8745,6 @@
       "tailwind.input.css",
       "vite-plugin.js",
       "vite.config.js"
-    ]
-  },
-  {
-    "hash": "c4acc9865f4da5ce3abc5e91ebb3fd09ad4423bd",
-    "date": "2025-08-18T15:29:26+07:00",
-    "message": "feat(i18n): replace i18next-browser-languagedetector with custom language detection\n\n- Removed `i18next-browser-languagedetector` dependency\n- Added custom language detection using browser locale and multiple geolocation APIs (ipapi, ipinfo, ipwho.is, ip-api)\n- Implemented caching of geolocation results in localStorage for 1 hour\n- Moved `getSelectedLanguage` and `setSelectedLanguage` helpers to `i18n.ts`\n- Updated `LanguageSwitcher` to use new detection logic and helpers",
-    "files": [
-      "package.json",
-      "src/react/components/LanguageSwitcher.tsx",
-      "src/react/i18n.ts"
     ]
   }
 ]
