@@ -1,5 +1,42 @@
 [
   {
+    "hash": "6d3ad5cca544014a3461cb6fb16f4f56e9e47c4d",
+    "date": "2025-11-22T18:09:14+07:00",
+    "message": "feat(proxy-check): replace exit with respond_json and improve proxy check handling\n\n- Remove debug command output from HTTP/HTTPS proxy check scripts\n- Replace manual exit calls with respond_json (which exits internally)\n- Add clearer JSON messages for HTTP/HTTPS proxy check initiation\n- Improve frontend recheck logic with proper success/error message handling\n- Add typed proxy check response in React utils and merge HTTP/HTTPS messages",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "src/react/pages/ProxyList/index.tsx",
+      "src/react/utils/proxy.ts"
+    ]
+  },
+  {
+    "hash": "cd0bd0e76fddbe22a1124c7455db3329b9691b42",
+    "date": "2025-11-22T18:03:04+07:00",
+    "message": "fix(proxy): specify protocol in lock file error message for clarity",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "713f8087c3a446148affd1628822c36d4b37329d",
+    "date": "2025-11-22T17:57:44+07:00",
+    "message": "fix(proxy): prevent concurrent execution by checking for existing lock files",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "5a9437ceae2565a8c28004a6e4adf091bd3de4bc",
+    "date": "2025-11-22T17:51:39+07:00",
+    "message": "feat(check-http-proxy): add re-test probe & log retest status\n\nAdd a reTestProxy() helper that probes http/socks4/socks5 via httpbin\nusing browser-like curl options (UA, Accept headers, encoding, follow\nredirects, timeouts). On initial check failure the checker now calls\nreTestProxy(), updates DB status/type if the retest finds a working\nprotocol, and normalizes retest outcomes.\n\nInclude `retest=<alive|dead|not-performed>` in per-proxy log lines so\noperators can see whether a secondary probe ran and what it returned.\n\nNotes:\n- SSL verification is disabled by default for the probe (CURLOPT_SSL_VERIFYPEER=false)\n  to avoid false negatives with intercepting proxies; enable strict SSL\n  checks if desired.\n- No breaking changes to existing successful-check handling.",
+    "files": [
+      "php_backend/check-http-proxy.php"
+    ]
+  },
+  {
     "hash": "dbcb5f7945eddc335c5bc90d92fc595b3c841979",
     "date": "2025-11-22T14:18:03+07:00",
     "message": "fix(executables): avoid caret escapes on Windows by quoting executables\n\nWhen escaping executable paths for shell use, `escapeshellcmd` on Windows can\ninsert caret (`^`) characters which corrupt paths like\n`C:\\xampp\\php\\php.exe` (becoming `C:^\\xampp^\\php^\\php.exe`). Change the\nbehavior of `getPhpExecutable` and `getPythonExecutable` to return a safely\ndouble-quoted path on Windows when escaping is requested, and fall back to\n`escapeshellcmd` on non-Windows platforms.\n\nThis preserves correct quoting for `cmd.exe` while keeping existing escaping",
@@ -8712,38 +8749,6 @@
     "hash": "cec9b12f4d14b699ae97e6d9119d1e2171b1bd4c",
     "date": "2025-08-18T20:34:31+07:00",
     "message": "fix(github-pages): add step to clean dist and tmp directories before installation",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "e2e5b7228cae7ffa296f8dae9cdc62334fb58cff",
-    "date": "2025-08-18T20:33:16+07:00",
-    "message": "fix(url): handle missing backend hostname in GitHub Pages by falling back to current hostname",
-    "files": [
-      "src/react/utils/url.ts"
-    ]
-  },
-  {
-    "hash": "c11c4581a6a722b78c31adb552523d0f17f9ce6e",
-    "date": "2025-08-18T20:30:55+07:00",
-    "message": "fix(github-pages): update cache path for node_modules to ensure proper caching",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "3b215b1f8cc119e20d476a1355a321fde6430257",
-    "date": "2025-08-18T20:29:24+07:00",
-    "message": "feat(github-pages): add environment variables for VITE backend hostnames in build steps",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "238d0f58afc528d4de22f4baeae8a8a21cc62e17",
-    "date": "2025-08-18T20:27:37+07:00",
-    "message": "feat(github-pages): enhance VITE secrets check with conditional logging",
     "files": [
       ".github/workflows/github-pages.yml"
     ]
