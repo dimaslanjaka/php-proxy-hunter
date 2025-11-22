@@ -18,11 +18,6 @@ if (!$isCli) {
   // Parse request body or query parameters
   $req = parseQueryOrPostBody();
 
-  // Deny access if captcha is missing
-  if (empty($_SESSION['captcha'])) {
-    exit('Access Denied');
-  }
-
   // Check if the user has admin privileges
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }

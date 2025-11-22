@@ -19,11 +19,6 @@ if (!$isCli) {
   // Parse request body or query string
   $req = parseQueryOrPostBody();
 
-  // Deny access if captcha session is empty
-  if (empty($_SESSION['captcha'])) {
-    exit('Access Denied');
-  }
-
   // Determine if the user is admin
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
