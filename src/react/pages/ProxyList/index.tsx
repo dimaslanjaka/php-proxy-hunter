@@ -24,29 +24,37 @@ const handleRecheck = async (
   showSnackbar: (options: { message: string; type: 'success' | 'danger' }) => void
 ) => {
   try {
-    let body = `proxy=${encodeURIComponent(proxy.proxy)}`;
-    if (proxy.username) {
-      body += `&username=${encodeURIComponent(proxy.username)}`;
-    }
-    if (proxy.password) {
-      body += `&password=${encodeURIComponent(proxy.password)}`;
-    }
+    // Construct JSON body
+    const body: Record<string, any> = {
+      proxy: proxy.proxy
+    };
+
+    ['username', 'password'].forEach((key) => {
+      if (proxy[key]?.length) {
+        body[key] = proxy[key];
+      }
+    });
+
     const response = await fetch(createUrl('/php_backend/proxy-checker.php'), {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/json'
       },
-      body
+      body: JSON.stringify(body) // send JSON instead of URL-encoded string
     });
+
     const data = await response.json();
-    if (data && data.logEmbedUrl) {
+
+    if (data?.logEmbedUrl) {
       // removed setLogViewer usage
     }
-    if (data && data.message) {
+
+    if (data?.message) {
       showSnackbar({ message: data.message, type: 'success' });
     } else {
       showSnackbar({ message: 'Proxy re-check request sent.', type: 'success' });
     }
+
     // Optionally, you could refresh the proxy list here
     // fetchAndSetProxies(setProxies);
   } catch (err) {
