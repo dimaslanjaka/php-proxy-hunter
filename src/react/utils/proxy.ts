@@ -3,6 +3,7 @@ import { createUrl } from './url';
 interface CheckProxyResponse {
   error: boolean;
   message: string;
+  logFile: string | null;
 }
 
 export async function checkProxy(proxies: string) {
@@ -14,7 +15,7 @@ export async function checkProxy(proxies: string) {
   })
     .then((res) => res.json())
     .catch((e) => {
-      return { error: true, message: e.message };
+      return { error: true, message: e.message, logFile: null };
     });
   const _httpResponse: CheckProxyResponse = await fetch(createUrl('/php_backend/check-http-proxy.php'), {
     method: 'POST',
@@ -24,7 +25,7 @@ export async function checkProxy(proxies: string) {
   })
     .then((res) => res.json())
     .catch((e) => {
-      return { error: true, message: e.message };
+      return { error: true, message: e.message, logFile: null };
     });
   let buildMessage = 'Proxy check initiated\n';
   if (_httpsResponse?.message) {
