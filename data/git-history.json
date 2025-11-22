@@ -1,5 +1,127 @@
 [
   {
+    "hash": "b85afde62e52d674d5e3651d919e05fb7db7de4d",
+    "date": "2025-11-23T05:03:21+07:00",
+    "message": "feat(php): add return type declarations for PHP 7.0+ compatibility\n\nRemove PHP 7.1+ void return types and PHP 7.4 property type declarations\nfrom src/ directory to ensure PHP 7.0 compatibility while adding proper\ntype hints where supported by PHP 7.0.\n\nChanges:\n- Remove `: void` return type from functions (void introduced in PHP 7.1)\n- Remove property type declarations from FileLockHelper (PHP 7.4+ feature)\n- Add `: string`, `: bool`, `: array` return types (supported in PHP 7.0)\n- Add parameter type declarations (supported in PHP 7.0)\n- Update phpdoc array<key, value> type hints for better documentation\n- Remove duplicate phpdoc comments\n- Improve code formatting and consistency\n\nBREAKING CHANGE: All return type declarations are now stripped of `void`\ntype hint to maintain PHP 7.0 compatibility. Functions still return nothing\nbut without explicit type declaration.",
+    "files": [
+      "src/FileSessionHandler.php",
+      "src/PhpProxyHunter/FileLockHelper.php",
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/PhpProxyHunter/Server.php",
+      "src/database/env.php",
+      "src/utils/file/index.php",
+      "src/utils/file/mkdir.php",
+      "src/utils/file/path.php",
+      "src/utils/file/reader.php",
+      "src/utils/file/sanitizer.php",
+      "src/utils/server/respond.php",
+      "src/utils/string/index.php"
+    ]
+  },
+  {
+    "hash": "b248fc6b9e1bbd04c65259c63b574a77a7ca4e8e",
+    "date": "2025-11-23T04:51:35+07:00",
+    "message": "refactor: implement centralized captcha verification system\n\n- Add is_captcha_verified() and requires_captcha_verification() utility functions\n- Replace duplicate captcha verification checks with centralized function calls\n- Update multiple background scripts to use new captcha verification system\n- Improve code consistency and maintainability across access control points",
+    "files": [
+      "artisan/filterPortsBackground.php",
+      "artisan/proxyCheckerStarter.php",
+      "artisan/proxyWorkingBackground.php",
+      "cidr-information/checkPorts.php",
+      "geoIpBackground.php",
+      "proxyCheckerBackground.php",
+      "proxyRespawner.php",
+      "src/database/env.php"
+    ]
+  },
+  {
+    "hash": "f2ecd49fa8135362cc1d6cab0eba1120388dfaae",
+    "date": "2025-11-23T04:46:15+07:00",
+    "message": "feat: add maxRequests setting for GitHub Copilot chat agent",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "5884cfaf8a04fbf29553a87b9371b32d3a923289",
+    "date": "2025-11-23T04:39:07+07:00",
+    "message": "fix(proxy): remove captcha session check for improved access control",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "34564f78449d2fee8f08d4a8e3e76f562d68763a",
+    "date": "2025-11-23T04:38:26+07:00",
+    "message": "feat: add authentication and authorization utilities\n\n- Implement requires_admin() function for admin privilege validation\n- Add is_authenticated() function for user authentication checks\n- Implement requires_authentication() function for access control\n- Add comprehensive PHPDoc documentation for new functions\n- Refactor authentication checks to use new utility functions\n- Improve code formatting and comments in environment parser",
+    "files": [
+      "src/database/env.php",
+      "tests/run-python.php"
+    ]
+  },
+  {
+    "hash": "46bd4a80ae1cc3469b2d05b6742c6a05c0750d11",
+    "date": "2025-11-23T04:31:57+07:00",
+    "message": "feat: enhance user session management with email-based identification\n\n- Add fallback to session email for user ID generation when user_id is not available\n- Store both user ID and email in session during OAuth finalization\n- Implement email validation utility function\n- Improve session persistence across authentication flows",
+    "files": [
+      "func.php",
+      "php_backend/google-oauth.php",
+      "src/utils/string/validator.php"
+    ]
+  },
+  {
+    "hash": "1f872870893244de3bec94b050e628abe6d45981",
+    "date": "2025-11-23T04:31:07+07:00",
+    "message": "refactor(proxy): remove list.php for codebase cleanup and improved maintainability",
+    "files": [
+      "list.php"
+    ]
+  },
+  {
+    "hash": "69351c6b095a69eb8950c7ca9ed725d2e81032d2",
+    "date": "2025-11-23T04:23:23+07:00",
+    "message": "fix(proxy): remove user ID setting from request parsing for improved security",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "728b3a433d904c48737286be7512bbb954190152",
+    "date": "2025-11-23T04:22:33+07:00",
+    "message": "fix(proxy): enhance error messages with log file URLs for concurrent process checks",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "53b3465551da19944fb73ad23cb042dfcb41f5b2",
+    "date": "2025-11-23T04:16:22+07:00",
+    "message": "fix(proxy): improve error handling and message construction in checkProxy function",
+    "files": [
+      "src/react/utils/proxy.ts"
+    ]
+  },
+  {
+    "hash": "d4b7f9198b9e179b557ee12dc8f9de52e68f839c",
+    "date": "2025-11-23T04:14:06+07:00",
+    "message": "fix(proxyTypeColors): add missing HTTPS color class mapping",
+    "files": [
+      "src/react/utils/proxyTypeColors.ts"
+    ]
+  },
+  {
+    "hash": "d51d03adaba694b700a6cb6c51164b8111ae14cc",
+    "date": "2025-11-23T04:13:21+07:00",
+    "message": "feat(react): refactor proxy type badge colors and add Tailwind color palettes\n\n- Extract proxy type color mappings to dedicated utility module (proxyTypeColors.ts)\n- Refactor ProxyList badge rendering to use centralized color class helper\n- Simplify badge color assignment logic by removing long if-else chains\n- Add socks4a and socks5h proxy type color support with standard Tailwind colors\n- Expand all custom Tailwind colors to full 50-900 shade palettes\n- Colors: clifford, ocean, forest, sunset, sky, sand, berry, cyan, magenta, polkador, skip, silver, mutedGray, lightGray, amber\n\nBREAKING CHANGE: Custom color names (berry, sunset) now have proper Tailwind palettes",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx",
+      "src/react/utils/proxyTypeColors.ts",
+      "tailwind.config.js"
+    ]
+  },
+  {
     "hash": "082aaac233631200b6980df2b230517faaf072b7",
     "date": "2025-11-23T03:58:15+07:00",
     "message": "refactor: update reTestProxy to use object parameter and improve compatibility\n\n- Simplify function signature to accept Proxy object\n- Improve PHP 7.0 compatibility with array() syntax\n- Update calling code accordingly",
@@ -8655,103 +8777,6 @@
     "message": "fix(settings): update PATH variable to include local NVM and Git binaries",
     "files": [
       ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "109bb43f228dc673858c4a7c4f0ffb6e6583f49f",
-    "date": "2025-08-26T23:33:07+07:00",
-    "message": "feat(install_package): enhance installation logging with detailed package names and arguments",
-    "files": [
-      "requirements_install.py"
-    ]
-  },
-  {
-    "hash": "c5c27725ccc5888d85b8f5eebe3aab6e261ec26d",
-    "date": "2025-08-26T20:55:57+07:00",
-    "message": "refactor(requirements_install): inline is_docker function and remove external import\n\n- Removed import of is_docker from src.utils.device.\n- Added a local is_docker() implementation to detect Docker environment directly within the script.",
-    "files": [
-      "requirements_install.py"
-    ]
-  },
-  {
-    "hash": "862ce4b8f6c49c2d0de52b684bcdaca8b7837fc6",
-    "date": "2025-08-26T20:54:44+07:00",
-    "message": "refactor(requirements_install): replace requests with urllib for mirror checking\n\n- Removed the external 'requests' dependency.\n- Replaced HTTP HEAD requests for PyPI mirror checking with Python's built-in 'urllib.request'.\n- Maintains functionality without requiring additional packages.",
-    "files": [
-      "requirements_install.py"
-    ]
-  },
-  {
-    "hash": "f88ad0ea3a003bbf4dbe7668e01a94d68d5c4560",
-    "date": "2025-08-26T20:51:26+07:00",
-    "message": "feat(Taskfile): add echo statement for Python package installation",
-    "files": [
-      "Taskfile.yml"
-    ]
-  },
-  {
-    "hash": "e426ab91befd6863d68727d4a5431af364cbf090",
-    "date": "2025-08-26T19:58:14+07:00",
-    "message": "feat(set-timezone): add script to set system timezone with argument support",
-    "files": [
-      "bin/set-timezone"
-    ]
-  },
-  {
-    "hash": "0818b41c83e9fc229acfcb09dcdeb997073f98dd",
-    "date": "2025-08-26T19:53:51+07:00",
-    "message": "fix(clear-caches): remove 'env' from virtualenv cleanup",
-    "files": [
-      "bin/clear-caches"
-    ]
-  },
-  {
-    "hash": "ece8cb9063e8cfec2773bf42e475c4d520b25a24",
-    "date": "2025-08-26T19:53:06+07:00",
-    "message": "feat(requirements): improve Python executable detection for pip installs\n\n- Add get_python_executable() to prioritize .venv/venv Python executables before falling back to sys.executable.\n- Update install_package and install_requirements to use get_python_executable() for more reliable environment handling.",
-    "files": [
-      "requirements_install.py"
-    ]
-  },
-  {
-    "hash": "b5be32d4ccc9ed568dbb745f63907687c29f0239",
-    "date": "2025-08-26T19:02:18+07:00",
-    "message": "feat(scripts): enhance clear-caches script with extended cleanup tasks\n\n- Add detailed sections for cache, logs, tmp files, and trash cleanup\n- Improve log cleanup with journalctl rotation and removal of *.gz, *.old, *.log.* files\n- Add support for clearing tmp/logs, tmp/django_caches, and user trash\n- Include cleanup for apt, snap, pip, Python __pycache__, and virtualenvs\n- Add Composer cache clearing (global and local)\n- Add npm, yarn, nvm, and pnpm cache cleanup\n- Show disk and RAM usage after cleanup",
-    "files": [
-      "bin/clear-caches"
-    ]
-  },
-  {
-    "hash": "0da28125433234d5fb654a25a6e1cb2062c64da4",
-    "date": "2025-08-26T18:30:33+07:00",
-    "message": "docs(readme-nodejs): add system-wide nvm setup and node symlink instructions\n\nExpanded installation guide with:\n- alternative method to load nvm via `/etc/profile.d/nvm.sh`\n- additional option to source nvm using `source`\n- steps to compile & symlink Node, npm, npx, and corepack system-wide",
-    "files": [
-      "readme-nodejs.md"
-    ]
-  },
-  {
-    "hash": "861089b237cbb87421551ac7ba9e7b8615acb839",
-    "date": "2025-08-26T18:03:20+07:00",
-    "message": "chore(deps): bump dependencies in package.json\n\n- upgrade chromedriver to 139.0.2\n- upgrade i18next to ^25.4.2\n- upgrade proxies-grabber to ^1.1.4\n- upgrade puppeteer to 24.17\n- upgrade react-i18next to ^15.7.2\n- upgrade undici to ^7.15.0\n- upgrade @eslint/js to ^9.34.0\n- upgrade @types/jquery to ^3.5.33\n- upgrade @typescript-eslint/* to ^8.41.0\n- upgrade @vitejs/plugin-react to ^5.0.1\n- upgrade eslint to ^9.34.0\n- upgrade react-router-dom to ^7.8.2\n- upgrade rollup to ^4.48.1\n- upgrade sass to ^1.91.0\n- upgrade vite to 7.1.3\n- add proxies-grabber tarball dependency",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "81463eec579d6fac8c73118b1f55fb46e139a27d",
-    "date": "2025-08-26T17:56:42+07:00",
-    "message": "fix(package): update sbg-utility and resolutions for binary-collections and git-command-helper",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "0a3994cf58b44056eb53795fabe21c68898b8746",
-    "date": "2025-08-25T13:13:31+07:00",
-    "message": "feat(phpmyadmin-installer): add script to auto-download and extract phpMyAdmin with Node.js",
-    "files": [
-      ".gitignore",
-      "scripts/phpmyadmin-installer.js"
     ]
   }
 ]
