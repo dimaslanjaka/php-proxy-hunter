@@ -60,7 +60,7 @@ if (!$isCli) {
 
     // Stop if lock file exists (another process running)
     if (file_exists($webServerLock)) {
-      respond_json(['error' => true, 'message' => 'Another process is still running. Please try again later.']);
+      respond_json(['error' => true, 'message' => '[HTTPS] Another process is still running. Please try again later.']);
     }
 
     // Get proxy from the request
