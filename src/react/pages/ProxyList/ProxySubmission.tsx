@@ -5,27 +5,14 @@ import { extractProxies } from '../../../proxy/extractor';
 import ProxyData from '../../../proxy/ProxyData';
 import { checkProxy } from '../../utils/proxy';
 import { createUrl } from '../../utils/url';
-import { getUserProxyLogUrl } from './LogViewer';
 
 export default function ProxySubmission() {
   const { t } = useTranslation();
-  const [logUrl, setLogUrl] = React.useState('');
-  const [statusUrl, setStatusUrl] = React.useState('');
   const [textarea, setTextarea] = React.useState('');
   const [proxyDatas, setProxyDatas] = React.useState<ProxyData[]>([]);
   const formSaverRef = React.useRef<ReactFormSaverRef | null>(null);
 
   React.useEffect(() => {
-    // On mount, fetch user id and set log URL
-    getUserProxyLogUrl().then((url) => {
-      if (url) {
-        setLogUrl(url);
-        // Parse URL to change parameter 'type=log' to 'type=status'
-        const statusUrl = url.replace('type=log', 'type=status');
-        setStatusUrl(statusUrl);
-      }
-    });
-
     // restore saved form values (sync DOM -> React state for controlled textarea)
     formSaverRef.current?.restoreForm();
     const ta = document.querySelector<HTMLTextAreaElement>('textarea[name="proxies"]');
@@ -114,12 +101,7 @@ export default function ProxySubmission() {
             <i className="fa-duotone fa-paper-plane"></i> Submit
           </button>
         </ReactFormSaver>
-        <div className="mb-2 text-xs text-gray-600 dark:text-gray-300 break-all">
-          <span className="font-mono">{logUrl}</span>
-        </div>
-        <div className="mb-2 text-xs text-gray-600 dark:text-gray-300 break-all">
-          <span className="font-mono">{statusUrl}</span>
-        </div>
+        {/* Log and status URLs removed */}
         {/* Add more UI elements as needed */}
       </div>
     </section>
