@@ -17,8 +17,7 @@ import { checkProxy } from '../../utils/proxy';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
- * @param proxy ProxyDetails
- *
+ * @param proxy ProxyDetails object
  */
 const handleRecheck = async (
   proxy: ProxyDetails,

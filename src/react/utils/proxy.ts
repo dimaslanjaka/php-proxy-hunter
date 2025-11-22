@@ -14,4 +14,7 @@ export async function checkProxy(proxies: string) {
     body: JSON.stringify({ proxy: proxies }),
     credentials: 'include'
   }).catch(noop);
+  return {
+    message: 'Proxy check initiated'
+  };
 }
