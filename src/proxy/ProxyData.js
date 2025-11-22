@@ -130,7 +130,7 @@ export default class ProxyData {
 
   /**
    * Return a plain object representation (useful for JSON serialization).
-   * @returns {Object}
+   * @returns {Record<string, any>}
    */
   toObject() {
     return {
@@ -169,5 +169,18 @@ export default class ProxyData {
 
   toString() {
     return JSON.stringify(this.toObject());
+  }
+
+  /**
+   * Format proxy as a string, including auth if present.
+   * e.g. 'username:password@ip:port' or 'ip:port'
+   * @returns {string} Formatted proxy string
+   */
+  format() {
+    if (this.username && this.password) {
+      return `${this.username}:${this.password}@${this.proxy}`;
+    } else {
+      return this.proxy;
+    }
   }
 }
