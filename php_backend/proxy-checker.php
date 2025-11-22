@@ -414,7 +414,7 @@ function proxyChecker($proxyInfo, $types = []) {
   if (empty($types)) {
     $types = ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
   }
-  // Delegate actual checking to composer-autoloaded ProxyChecker1
+  // Delegate actual checking to composer-autoloaded ProxyCheckerPublicIP
   addLog('Starting proxy check for ' . build_proxy_details($proxyInfo)['text']);
 
   $options = new \PhpProxyHunter\Checker\CheckerOptions([
@@ -427,7 +427,7 @@ function proxyChecker($proxyInfo, $types = []) {
   ]);
 
   // Use the composer-autoloaded checker class (no require_once)
-  $result = \PhpProxyHunter\Checker\ProxyChecker1::check($options);
+  $result = \PhpProxyHunter\Checker\ProxyCheckerPublicIP::check($options);
 
   // save to database
   if (!$result->isWorking) {

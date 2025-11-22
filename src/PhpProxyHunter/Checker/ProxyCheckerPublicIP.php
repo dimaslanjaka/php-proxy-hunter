@@ -4,7 +4,7 @@ namespace PhpProxyHunter\Checker;
 
 use PhpProxyHunter\AnsiColors;
 
-class ProxyChecker1 extends ProxyChecker {
+class ProxyCheckerPublicIP extends ProxyChecker {
   public static function check(CheckerOptions $options): CheckerResult {
     $proxy     = $options->proxy;
     $username  = $options->username;

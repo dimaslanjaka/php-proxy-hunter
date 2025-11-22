@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../../php_backend/shared.php';
 
 global $proxy_db;
 
-use PhpProxyHunter\Checker\ProxyChecker1;
+use PhpProxyHunter\Checker\ProxyCheckerPublicIP;
 use PhpProxyHunter\Checker\ProxyCheckerHttpOnly;
 use PhpProxyHunter\Checker\ProxyCheckerGoogle;
 use PhpProxyHunter\Checker\CheckerOptions;
@@ -20,7 +20,7 @@ $options = [
 
 // Run both checkers with shared options
 $results = [
-  'full_check' => ProxyChecker1::check(new CheckerOptions($options)),
+  'full_check' => ProxyCheckerPublicIP::check(new CheckerOptions($options)),
   'http_only'  => ProxyCheckerHttpOnly::check(new CheckerOptions($options)),
   'google'     => ProxyCheckerGoogle::check(new CheckerOptions($options)),
 ];
