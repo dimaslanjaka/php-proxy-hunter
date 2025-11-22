@@ -131,7 +131,16 @@ function getPhpExecutable($escape = false) {
   $json    = file_get_contents(__DIR__ . '/executables.json');
   $data    = json_decode($json, true);
   $phpPath = isset($data['php']) ? $data['php'] : null;
-  return $escape && $phpPath ? escapeshellcmd($phpPath) : $phpPath;
+  if ($escape && $phpPath) {
+    // On Windows, escapeshellcmd can insert caret (^) escapes which corrupt
+    // executable paths like C:\xampp\php\php.exe (resulting in C:^\xampp^\php^\php.exe).
+    // Prefer returning a safely double-quoted path for cmd usage instead.
+    if (stripos(PHP_OS_FAMILY, 'Windows') === 0) {
+      return '"' . str_replace('"', '\\"', $phpPath) . '"';
+    }
+    return escapeshellcmd($phpPath);
+  }
+  return $phpPath;
 }
 
 /**
@@ -150,5 +159,11 @@ function getPythonExecutable($escape = false) {
   $json       = file_get_contents(__DIR__ . '/executables.json');
   $data       = json_decode($json, true);
   $pythonPath = isset($data['python']) ? $data['python'] : null;
-  return $escape && $pythonPath ? escapeshellcmd($pythonPath) : $pythonPath;
+  if ($escape && $pythonPath) {
+    if (stripos(PHP_OS_FAMILY, 'Windows') === 0) {
+      return '"' . str_replace('"', '\\"', $pythonPath) . '"';
+    }
+    return escapeshellcmd($pythonPath);
+  }
+  return $pythonPath;
 }
