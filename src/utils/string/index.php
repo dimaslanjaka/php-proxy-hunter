@@ -12,7 +12,7 @@
  * @param mixed $arg The value to convert.
  * @return string The string representation.
  */
-function stringify($arg) {
+function stringify($arg): string {
   if (is_string($arg) || is_int($arg) || is_float($arg)) {
     return (string) $arg;
   } elseif ($arg === true) {
@@ -30,7 +30,7 @@ function stringify($arg) {
  * Converts a string or an array of strings into regex patterns.
  *
  * @param string|array $input The input string or array of strings.
- * @return string|array The regex pattern(s) corresponding to the input.
+ * @return string|array<int, string> The regex pattern(s) corresponding to the input.
  */
 function string_to_regex($input) {
   // If $input is an array, process each string
@@ -81,7 +81,13 @@ function outputUtf8Content($data) {
   }
 }
 
-function generateRandomString($length = 10) {
+/**
+ * Generate a random string of specified length.
+ *
+ * @param int $length The length of the random string to generate. Default is 10.
+ * @return string The generated random string.
+ */
+function generateRandomString(int $length = 10): string {
   $characters   = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   $randomString = '';
   for ($i = 0; $i < $length; $i++) {

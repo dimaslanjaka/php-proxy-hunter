@@ -27,23 +27,23 @@ class FileSessionHandler implements SessionHandlerInterface {
     $this->postfix   = $postfix;
   }
 
-  public function open($save_path, $sess_name): bool {
+  public function open($save_path, $sess_name) {
     return true;
   }
 
-  public function close(): bool {
+  public function close() {
     return true;
   }
 
-  public function read($sess_id): string {
+  public function read($sess_id) {
     return (string)@file_get_contents("{$this->sess_path}/{$this->prefix}{$sess_id}{$this->postfix}");
   }
 
-  public function write($sess_id, $data): bool {
+  public function write($sess_id, $data) {
     return !(false === file_put_contents("{$this->sess_path}/{$this->prefix}{$sess_id}{$this->postfix}", $data));
   }
 
-  public function destroy($sess_id): bool {
+  public function destroy($sess_id) {
     $file = "{$this->sess_path}/{$this->prefix}{$sess_id}{$this->postfix}";
 
     if (file_exists($file)) {
@@ -56,7 +56,7 @@ class FileSessionHandler implements SessionHandlerInterface {
   /**
    * @inheritDoc
    */
-  public function gc($max_lifetime): int {
+  public function gc($max_lifetime) {
     $deleted = 0;
     foreach (glob("{$this->sess_path}/{$this->prefix}*") as $file) {
       if (file_exists($file)) {

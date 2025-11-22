@@ -239,7 +239,7 @@ function is_captcha_verified(): bool {
 }
 
 /** Requires captcha verification */
-function requires_captcha_verification(): void {
+function requires_captcha_verification() {
   if (!is_captcha_verified()) {
     http_response_code(403);
     header('Content-Type: application/json; charset=utf-8');

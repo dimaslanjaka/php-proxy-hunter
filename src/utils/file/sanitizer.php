@@ -6,7 +6,7 @@
  * @param string|null $filename The filename to sanitize.
  * @return string The sanitized filename.
  */
-function sanitizeFilename($filename) {
+function sanitizeFilename($filename): string {
   if (empty($filename)) {
     $filename = '';
   }
@@ -27,7 +27,7 @@ function sanitizeFilename($filename) {
  * @param string $fullPath The full path string containing the filename to sanitize.
  * @return string The full path with the sanitized filename.
  */
-function sanitizeFilePath($fullPath) {
+function sanitizeFilePath(string $fullPath): string {
   // Extract the directory path and filename
   $pathParts = pathinfo($fullPath);
 

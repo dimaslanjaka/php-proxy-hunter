@@ -19,7 +19,7 @@
  *
  * @return void
  */
-function respond_json(array $data, int $status = 200): void {
+function respond_json(array $data, int $status = 200) {
   if (headers_sent() === false) {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
@@ -43,7 +43,7 @@ function respond_json(array $data, int $status = 200): void {
  *
  * @return void
  */
-function respond_text(string $text, int $status = 200): void {
+function respond_text(string $text, int $status = 200) {
   if (headers_sent() === false) {
     http_response_code($status);
     header('Content-Type: text/plain; charset=utf-8');
@@ -66,7 +66,7 @@ function respond_text(string $text, int $status = 200): void {
  *
  * @return void
  */
-function respond_html(string $html, int $status = 200): void {
+function respond_html(string $html, int $status = 200) {
   if (headers_sent() === false) {
     http_response_code($status);
     header('Content-Type: text/html; charset=utf-8');

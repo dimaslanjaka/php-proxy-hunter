@@ -61,7 +61,7 @@ class ProxyDB {
   /**
    * Initialize MySQL database connection and schema.
    */
-  private function initMySQL(string $host, string $dbname, string $username, string $password, bool $unique = false): void {
+  private function initMySQL(string $host, string $dbname, string $username, string $password, bool $unique = false) {
     $this->db = new MySQLHelper($host, $dbname, $username, $password, $unique);
     $sqlFile  = __DIR__ . '/assets/mysql-schema.sql';
     if (!is_file($sqlFile)) {
@@ -77,7 +77,7 @@ class ProxyDB {
   /**
    * Initialize SQLite database connection and schema.
    */
-  private function initSQLite($dbLocation = null): void {
+  private function initSQLite($dbLocation = null) {
     $isInMemory = $dbLocation === ':memory:';
     $dbLocation = $isInMemory
       ? ':memory:'

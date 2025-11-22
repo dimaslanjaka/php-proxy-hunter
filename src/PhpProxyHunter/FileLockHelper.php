@@ -3,9 +3,9 @@
 namespace PhpProxyHunter;
 
 class FileLockHelper {
-  public string $filePath;
+  public $filePath;
   private $handle;
-  private int $lockType;
+  private $lockType;
 
   /**
    * Constructor.
@@ -46,7 +46,7 @@ class FileLockHelper {
    *
    * @return void
    */
-  public function unlock(): void {
+  public function unlock() {
     if (is_resource($this->handle)) {
       flock($this->handle, LOCK_UN);
       fclose($this->handle);
@@ -61,7 +61,7 @@ class FileLockHelper {
    *
    * @return void
    */
-  public function release(): void {
+  public function release() {
     $this->unlock();
   }
 

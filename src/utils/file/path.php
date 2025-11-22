@@ -9,7 +9,7 @@
  * @param string $path The file path to convert.
  * @return string The file path with Unix separators.
  */
-function unixPath($path) {
+function unixPath(string $path): string {
   // Replace backslashes with forward slashes
   $unixPath = str_replace('\\', '/', $path);
 

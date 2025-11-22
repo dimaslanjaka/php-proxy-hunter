@@ -71,15 +71,9 @@ function is_file_locked($filePath) {
  * then traverses up three directory levels to determine the root of the project.
  *
  * @return string The absolute path to the project root directory.
- *
  * @throws \ReflectionException If the Composer autoloader class cannot be found.
  */
-
-/**
- * @return string
- * @throws \ReflectionException
- */
-function getProjectRoot() {
+function getProjectRoot(): string {
   $autoloadPath = (new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName();
   return unixPath(dirname(dirname(dirname($autoloadPath))));
 }
@@ -91,12 +85,7 @@ function getProjectRoot() {
  * @param string $content_to_append The content to append.
  * @return bool True if the content was successfully appended, false otherwise.
  */
-/**
- * @param string $file
- * @param string $content_to_append
- * @return bool
- */
-function append_content_with_lock($file, $content_to_append) {
+function append_content_with_lock(string $file, string $content_to_append): bool {
   createParentFolders($file);
   if (file_exists($file)) {
     if (is_file_locked($file)) {
@@ -141,11 +130,7 @@ function append_content_with_lock($file, $content_to_append) {
  * @param string $filePath The path to the text file.
  * @return void
  */
-/**
- * @param string $filePath
- * @return void
- */
-function removeEmptyLinesFromFile($filePath) {
+function removeEmptyLinesFromFile(string $filePath) {
   // Check if the file exists and is readable
   if (!file_exists($filePath) || !is_writable($filePath)) {
     // echo "Error: The file '$filePath' does not exist or cannot be read." . PHP_EOL;
@@ -226,16 +211,9 @@ function removeEmptyLinesFromFile($filePath) {
  * @param string $sourceFile Path to the source file.
  * @param string $destinationFile Path to the destination file.
  * @param int $linesToMove Number of lines to move.
- *
  * @return bool True if lines are moved and removed successfully, false otherwise.
  */
-/**
- * @param string $sourceFile
- * @param string $destinationFile
- * @param int $linesToMove
- * @return bool
- */
-function moveLinesToFile($sourceFile, $destinationFile, $linesToMove) {
+function moveLinesToFile(string $sourceFile, string $destinationFile, int $linesToMove): bool {
   // Open the source file for reading and writing
   $sourceHandle = @fopen($sourceFile, 'r+');
   if (!$sourceHandle) {
@@ -275,7 +253,8 @@ function moveLinesToFile($sourceFile, $destinationFile, $linesToMove) {
   while (!feof($sourceHandle)) {
     $remainingContent .= fgets($sourceHandle);
   }
-  ftruncate($sourceHandle, 0); // Clear the file
+  ftruncate($sourceHandle, 0);
+  // Clear the file
   rewind($sourceHandle);
   if (!empty(trim($remainingContent))) {
     fwrite($sourceHandle, $remainingContent);
@@ -295,12 +274,7 @@ function moveLinesToFile($sourceFile, $destinationFile, $linesToMove) {
  * @param string|array $string_to_remove The string to remove from the file.
  * @return string Result message indicating success or failure.
  */
-/**
- * @param string $file_path
- * @param string|array $string_to_remove
- * @return string
- */
-function removeStringFromFile($file_path, $string_to_remove) {
+function removeStringFromFile(string $file_path, $string_to_remove): string {
   if (is_file_locked($file_path)) {
     return "$file_path locked";
   }
@@ -343,13 +317,7 @@ function removeStringFromFile($file_path, $string_to_remove) {
  * @param callable|null $callback The callback function to execute for each line.
  * @return void
  */
-/**
- * @param string $string
- * @param callable|bool $shuffle_or_callback
- * @param callable|null $callback
- * @return void
- */
-function iterateLines($string, $shuffle_or_callback, $callback = null) {
+function iterateLines(string $string, $shuffle_or_callback, $callback = null) {
   // Normalize all newlines to LF (\n)
   $normalizedString = preg_replace('/\r?\n/', "\n", $string);
 
@@ -385,11 +353,6 @@ function iterateLines($string, $shuffle_or_callback, $callback = null) {
  * @param array $filePaths Array of file paths to iterate over.
  * @param callable|int $callbackOrMax Callback function or maximum number of lines to read.
  * @param callable|null $callback Callback function to execute for each line.
- */
-/**
- * @param array $filePaths
- * @param callable|int $callbackOrMax
- * @param callable|null $callback
  * @return void
  */
 function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MAX, $callback = null) {
@@ -458,23 +421,20 @@ function iterateBigFilesLineByLine(array $filePaths, $callbackOrMax = PHP_INT_MA
  * @param string $destinationFile Path to the destination text file.
  * @return bool True if operation is successful, false otherwise.
  */
-/**
- * @param string $sourceFile
- * @param string $destinationFile
- * @return bool
- */
-function removeDuplicateLinesFromSource($sourceFile, $destinationFile) {
+function removeDuplicateLinesFromSource(string $sourceFile, string $destinationFile): bool {
   // Open source file for reading
   $sourceHandle = @fopen($sourceFile, 'r');
   if (!$sourceHandle) {
-    return false; // Unable to open source file
+    return false;
+    // Unable to open source file
   }
 
   // Open destination file for reading
   $destinationHandle = @fopen($destinationFile, 'r');
   if (!$destinationHandle) {
     fclose($sourceHandle);
-    return false; // Unable to open destination file
+    return false;
+    // Unable to open destination file
   }
 
   // Create a temporary file to store non-duplicated lines
@@ -482,7 +442,8 @@ function removeDuplicateLinesFromSource($sourceFile, $destinationFile) {
   if (!$tempFile) {
     fclose($sourceHandle);
     fclose($destinationHandle);
-    return false; // Unable to create temporary file
+    return false;
+    // Unable to create temporary file
   }
 
   // Store destination lines in a hash set for faster lookup
@@ -511,7 +472,8 @@ function removeDuplicateLinesFromSource($sourceFile, $destinationFile) {
   $sourceHandle = @fopen($sourceFile, 'w');
   if (!$sourceHandle) {
     fclose($tempFile);
-    return false; // Unable to open source file for writing
+    return false;
+    // Unable to open source file for writing
   }
 
   // Copy contents from the temporary file to the source file
@@ -534,13 +496,7 @@ function removeDuplicateLinesFromSource($sourceFile, $destinationFile) {
  * @param string $outputDirectory The directory where the small files will be stored.
  * @return void
  */
-/**
- * @param string $largeFilePath
- * @param int $maxLinesPerFile
- * @param string $outputDirectory
- * @return void
- */
-function splitLargeFile($largeFilePath, $maxLinesPerFile, $outputDirectory) {
+function splitLargeFile(string $largeFilePath, int $maxLinesPerFile, string $outputDirectory) {
   // Get the filename from the large file path
   $filename = pathinfo($largeFilePath, PATHINFO_FILENAME);
 
@@ -601,14 +557,9 @@ function splitLargeFile($largeFilePath, $maxLinesPerFile, $outputDirectory) {
  *
  * @param string $file1 Path to the first text file.
  * @param string $file2 Path to the second text file.
- * @return array An array containing the duplicated lines between the two files.
+ * @return array<int, string> An array containing the duplicated lines between the two files.
  */
-/**
- * @param string $file1
- * @param string $file2
- * @return array
- */
-function getDuplicatedLines($file1, $file2) {
+function getDuplicatedLines(string $file1, string $file2): array {
   // Open files for reading
   $handle1 = @fopen($file1, 'r');
   $handle2 = @fopen($file2, 'r');
@@ -643,12 +594,7 @@ function getDuplicatedLines($file1, $file2) {
  * @param string|null $file_extension The optional file extension without dot (.) to filter files by.
  * @return string|null The name of the randomly selected file, or null if no file found with the specified extension.
  */
-/**
- * @param string $folder
- * @param string|null $file_extension
- * @return string|null
- */
-function getRandomFileFromFolder($folder, $file_extension = null) {
+function getRandomFileFromFolder(string $folder, $file_extension = null): ?string {
   if (!$folder || !file_exists($folder)) {
     return null;
   }
@@ -676,7 +622,8 @@ function getRandomFileFromFolder($folder, $file_extension = null) {
 
   // Check if there are files with the specified extension
   if ($num_files === 0) {
-    return null; // No files found with the specified extension
+    return null;
+    // No files found with the specified extension
   }
 
   // Generate a random index
@@ -697,11 +644,7 @@ function getRandomFileFromFolder($folder, $file_extension = null) {
  * @param string $inputFile The path to the input file.
  * @return void
  */
-/**
- * @param string $inputFile
- * @return void
- */
-function filterUniqueLines($inputFile) {
+function filterUniqueLines(string $inputFile) {
   // Open input file for reading and writing
   $inputHandle = @fopen($inputFile, 'r+');
 
@@ -737,13 +680,12 @@ function filterUniqueLines($inputFile) {
 }
 
 /**
- * Function to truncate the content of a file
- */
-/**
- * @param string $filePath
+ * Function to truncate the content of a file.
+ *
+ * @param string $filePath The path to the file to truncate.
  * @return void
  */
-function truncateFile($filePath) {
+function truncateFile(string $filePath) {
   // Write an empty string to truncate the file
   write_file($filePath, '');
 }
@@ -753,15 +695,9 @@ function truncateFile($filePath) {
  *
  * @param string $sourceFile The path to the source file.
  * @param string $destinationFile The path to the destination file.
- *
  * @return string An error message if there's an issue, otherwise "success" for success.
  */
-/**
- * @param string $sourceFile
- * @param string $destinationFile
- * @return string
- */
-function moveContent($sourceFile, $destinationFile) {
+function moveContent(string $sourceFile, string $destinationFile): string {
   // Check if source file is readable
   if (!is_readable($sourceFile)) {
     return "$sourceFile not readable";
@@ -805,7 +741,8 @@ function moveContent($sourceFile, $destinationFile) {
     fclose($sourceHandle);
     fclose($destinationHandle);
 
-    return 'success'; // Success, so return "success"
+    return 'success';
+  // Success, so return "success"
   } else {
     // Close both files if they were opened
     if ($sourceHandle) {
@@ -815,7 +752,8 @@ function moveContent($sourceFile, $destinationFile) {
       fclose($destinationHandle);
     }
 
-    return 'Failed to move content'; // Indicate failure
+    return 'Failed to move content';
+    // Indicate failure
   }
 }
 
@@ -825,11 +763,7 @@ function moveContent($sourceFile, $destinationFile) {
  * @param string $inputFile The path to the file.
  * @return void
  */
-/**
- * @param string $inputFile
- * @return void
- */
-function removeDuplicateLines($inputFile) {
+function removeDuplicateLines(string $inputFile) {
   if (!file_exists($inputFile)) {
     echo "removeDuplicateLines: $inputFile is not found" . PHP_EOL;
     return;
@@ -850,10 +784,12 @@ function removeDuplicateLines($inputFile) {
   }
   if (flock($fd, LOCK_EX)) { // Acquire an exclusive lock
     while ($line = fgets($fd)) {
-      $line         = rtrim($line, "\r\n"); // ignore the newline
+      $line = rtrim($line, "\r\n");
+      // ignore the newline
       $lines[$line] = 1;
     }
-    flock($fd, LOCK_UN); // Release the lock
+    flock($fd, LOCK_UN);
+    // Release the lock
   }
   fclose($fd);
   $fd = @fopen($inputFile, 'w');
@@ -863,9 +799,11 @@ function removeDuplicateLines($inputFile) {
   }
   if (flock($fd, LOCK_EX)) { // Acquire an exclusive lock
     foreach ($lines as $line => $count) {
-      fputs($fd, "$line" . PHP_EOL); // add the newlines back
+      fputs($fd, "$line" . PHP_EOL);
+      // add the newlines back
     }
-    flock($fd, LOCK_UN); // Release the lock
+    flock($fd, LOCK_UN);
+    // Release the lock
   }
   fclose($fd);
 }
@@ -880,12 +818,7 @@ function removeDuplicateLines($inputFile) {
  * @param int $chunkSize Optional. The size of each chunk to read in bytes. Defaults to 4096.
  * @return int|false The number of non-empty lines in the file, or false if the file couldn't be opened.
  */
-/**
- * @param string $filePath
- * @param int $chunkSize
- * @return int|false
- */
-function countNonEmptyLines($filePath, $chunkSize = 4096) {
+function countNonEmptyLines(string $filePath, int $chunkSize = 4096) {
   if (!file_exists($filePath)) {
     return 0;
   }
@@ -897,7 +830,8 @@ function countNonEmptyLines($filePath, $chunkSize = 4096) {
   }
   $file = @fopen($filePath, 'r');
   if (!$file) {
-    return false; // File open failed
+    return false;
+    // File open failed
   }
 
   $count  = 0;
@@ -927,12 +861,7 @@ function countNonEmptyLines($filePath, $chunkSize = 4096) {
  * @param int $minLength The minimum length for lines to be retained.
  * @return string The resulting string with lines removed.
  */
-/**
- * @param string $inputStringOrFilePath
- * @param int $minLength
- * @return string
- */
-function removeShortLines($inputStringOrFilePath, $minLength) {
+function removeShortLines($inputStringOrFilePath, int $minLength): string {
   if (is_file($inputStringOrFilePath)) {
     // If the input is a file, read its contents
     $inputString = read_file($inputStringOrFilePath);
@@ -958,14 +887,9 @@ function removeShortLines($inputStringOrFilePath, $minLength) {
  *
  * @param string $filePath The path to the file.
  * @param int $lines_to_read The number of lines to read.
- * @return array|false An array containing the first N non-empty lines from the file, or false on failure.
+ * @return array<int, string>|false An array containing the first N non-empty lines from the file, or false on failure.
  */
-/**
- * @param string $filePath
- * @param int $lines_to_read
- * @return array|false
- */
-function read_first_lines($filePath, $lines_to_read) {
+function read_first_lines(string $filePath, int $lines_to_read) {
   if (is_file_locked($filePath)) {
     return false;
   }

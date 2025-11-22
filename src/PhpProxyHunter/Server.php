@@ -298,7 +298,7 @@ class Server {
    *                                  (Expires, Cache-Control, Pragma). Default: false.
    * @return void
    */
-  public static function allowCors($disableBrowserCache = false): void {
+  public static function allowCors($disableBrowserCache = false) {
     $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
     if ($isCli) {
       return;

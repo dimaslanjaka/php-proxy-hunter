@@ -8,10 +8,9 @@
  * @param string $filename Path to the file.
  * @param int    $length   Number of bytes to read (default: 4096 = 4KB).
  * @param int    $offset   Position in the file to start reading (default: 0).
- *
  * @return string|false Returns the read data as a string, or false on failure.
  */
-function readFileChunk($filename, $length = 4096, $offset = 0) {
+function readFileChunk(string $filename, int $length = 4096, int $offset = 0) {
   if (!is_readable($filename)) {
     return false;
   }

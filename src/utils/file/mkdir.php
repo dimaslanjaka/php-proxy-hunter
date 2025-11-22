@@ -72,9 +72,9 @@ function ensure_dir(...$segments) {
  *   ensure_dirs(['a','b'], 'c/d');
  *
  * @param mixed ...$dirs Variable list of directories. Each item can be a string or array of path segments.
- * @return array Associative array with keys as provided index and values as created path or false.
+ * @return array<int, string|false> Associative array with keys as provided index and values as created path or false.
  */
-function ensure_dirs(...$dirs) {
+function ensure_dirs(...$dirs): array {
   $results = [];
 
   foreach ($dirs as $idx => $dir) {
