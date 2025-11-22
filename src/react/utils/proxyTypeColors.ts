@@ -4,6 +4,7 @@
  */
 export const proxyTypeColorClasses: Record<string, string> = {
   http: 'bg-blue-200 text-blue-900 dark:bg-blue-400/20 dark:text-blue-100 border-blue-300 dark:border-blue-500',
+  https: 'bg-cyan-200 text-cyan-900 dark:bg-cyan-400/20 dark:text-cyan-100 border-cyan-300 dark:border-cyan-500',
   socks4:
     'bg-purple-200 text-purple-900 dark:bg-purple-400/20 dark:text-purple-100 border-purple-300 dark:border-purple-500',
   socks4a: 'bg-pink-200 text-pink-900 dark:bg-pink-400/20 dark:text-pink-100 border-pink-300 dark:border-pink-500',
