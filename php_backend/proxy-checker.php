@@ -432,13 +432,9 @@ function proxyChecker($proxyInfo, $types = []) {
   // save to database
   if (!$result->isWorking) {
     addLog('Proxy test failed for all types.');
-    // mark dead and clear latency/anonymity
-    $proxy_db->updateStatus($proxyInfo['proxy'], 'dead');
     $proxy_db->updateData($proxyInfo['proxy'], [
-      'latency'    => null,
-      'anonymity'  => null,
       'last_check' => date(DATE_RFC3339),
-      'status'     => 'dead',
+      'https'      => 'false',
     ]);
   } else {
     $proxy_db->updateData($proxyInfo['proxy'], [
