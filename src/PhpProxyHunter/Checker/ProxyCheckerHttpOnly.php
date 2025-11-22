@@ -71,7 +71,7 @@ class ProxyCheckerHttpOnly extends ProxyChecker {
           $msg .= 'Title: N/A';
         }
       } else {
-        $msg .= 'HTTP dead' . (!empty($curlErr) ? ' (' . $curlErr . ')' : '');
+        $msg .= 'connection failure' . (!empty($curlErr) ? ' (' . $curlErr . ')' : '');
       }
 
       if ($options->verbose) {

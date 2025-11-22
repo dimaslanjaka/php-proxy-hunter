@@ -35,7 +35,8 @@ function buildCurl(
   $ssl = 0
 ) {
   $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $endpoint); // URL to test connectivity
+  // URL to test connectivity
+  curl_setopt($ch, CURLOPT_URL, $endpoint);
 
   $default_headers = [
     'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -51,9 +52,11 @@ function buildCurl(
   $headers = preg_grep($pattern, $headers, PREG_GREP_INVERT);
 
   if (!empty($proxy)) {
-    curl_setopt($ch, CURLOPT_PROXY, $proxy); // Proxy address
+    curl_setopt($ch, CURLOPT_PROXY, $proxy);
+    // Proxy address
     if (!is_null($username) && !is_null($password)) {
-      curl_setopt($ch, CURLOPT_PROXYUSERPWD, "$username:$password"); // Set proxy authentication credentials
+      curl_setopt($ch, CURLOPT_PROXYUSERPWD, "$username:$password");
+      // Set proxy authentication credentials
     }
     // Determine the CURL proxy type based on the specified $type
     $proxy_type = CURLPROXY_HTTP;
@@ -79,20 +82,23 @@ function buildCurl(
     } elseif ($type_lc === 'socks4a') {
       $proxy_type = CURLPROXY_SOCKS4A;
     }
-    curl_setopt($ch, CURLOPT_PROXYTYPE, $proxy_type); // Specify proxy type
+    curl_setopt($ch, CURLOPT_PROXYTYPE, $proxy_type);
+    // Specify proxy type
   }
 
   if (strpos($endpoint, 'https') !== false) {
     // curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, 'TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-SHA');
     if (defined('CURL_SSLVERSION_TLSv1_3') && $ssl === 3) {
       // Check for TLS 1.3 support first (if available)
-      curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3); // CURL_SSLVERSION_TLSv1_3 = 7
+      curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3);
+    // CURL_SSLVERSION_TLSv1_3 = 7
     } elseif (defined('CURL_SSLVERSION_TLSv1_2') && $ssl === 2) {
       // Check for TLS 1.2 support
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
     } elseif (defined('CURL_SSLVERSION_TLSv1_0') && $ssl === 1) {
       // Check for TLS 1.0 support
-      curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_0); // CURL_SSLVERSION_TLSv1_0 = 4
+      curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_0);
+    // CURL_SSLVERSION_TLSv1_0 = 4
     } elseif (defined('CURL_SSLVERSION_MAX_DEFAULT')) {
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_DEFAULT);
     }
@@ -110,8 +116,10 @@ function buildCurl(
     }
   }
 
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Set maximum connection time
-  curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Set maximum response time
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+  // Set maximum connection time
+  curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+  // Set maximum response time
   // curl_setopt($ch, CURLOPT_VERBOSE, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   // curl_setopt($ch, CURLOPT_HEADER, true);
@@ -124,8 +132,10 @@ function buildCurl(
   if (!file_exists($cookies)) {
     write_file($cookies, '');
   }
-  curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies); // Save cookies to file
-  curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies); // Use cookies from file
+  curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
+  // Save cookies to file
+  curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
+  // Use cookies from file
 
   // Set a random Android User-Agent if none is specified
   $userAgent = randomAndroidUa();

@@ -254,7 +254,7 @@ function check(string $proxy) {
     $checkerOptions = new \PhpProxyHunter\Checker\CheckerOptions([
       'verbose'   => $isCli ? true : false,
       'timeout'   => 10,
-      'protocols' => ['http', 'socks4', 'socks5'],
+      'protocols' => ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'],
       'proxy'     => $item->proxy,
     ]);
 
@@ -282,7 +282,7 @@ function check(string $proxy) {
       $data['type']   = strtolower(implode('-', array_unique($result->workingTypes)));
     } else {
       // Re-test the proxy to confirm it's dead
-      $retestResults  = reTestProxy($item->proxy, 5);
+      $retestResults  = reTestProxy($item->proxy, 5, $item->username ?? null, $item->password ?? null);
       $isAlive        = in_array(true, $retestResults, true);
       $data['status'] = $isAlive ? 'active' : 'dead';
       // Record a retest status for logging: alive, dead
@@ -331,44 +331,41 @@ function check(string $proxy) {
   _log_shared($hashFilename ?? 'CLI', 'Done checking proxies.');
 }
 
-function reTestProxy(string $proxy, int $timeout = 5): array {
-  $tests = [
-    'http'   => CURLPROXY_HTTP,
-    'socks4' => CURLPROXY_SOCKS4,
-    'socks5' => CURLPROXY_SOCKS5,
-  ];
+function reTestProxy(
+  $proxy,
+  $timeout = 5,
+  $username = null,
+  $password = null
+) {
+
+  // Fixed list of proxy types to test
+  static $proxyTypes = ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
 
   $results = [];
 
-  foreach ($tests as $name => $curlType) {
-    $ch = curl_init('http://httpbin.org/ip');
-    // Browser-like curl options to make the probe more realistic
-    $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+  foreach ($proxyTypes as $type) {
+    // Build curl for this proxy type
+    $ch = buildCurl(
+      $proxy,
+      $type,
+      'http://httpbin.org/ip',
+      [],
+      $username,
+      $password,
+      'GET',
+      null,
+      0
+    );
+
+    // Faster, shared timeout configuration
     curl_setopt_array($ch, [
-      CURLOPT_PROXY          => $proxy,
-      CURLOPT_PROXYTYPE      => $curlType,
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_HEADER         => false,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_MAXREDIRS      => 5,
       CURLOPT_CONNECTTIMEOUT => 5,
       CURLOPT_TIMEOUT        => $timeout,
-      CURLOPT_SSL_VERIFYPEER => false, // set to true if you want strict SSL checks
-      CURLOPT_SSL_VERIFYHOST => 0,
-      CURLOPT_ENCODING       => '', // accept all supported encodings
-      CURLOPT_USERAGENT      => $userAgent,
-      CURLOPT_HTTPHEADER     => [
-        'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Language: en-US,en;q=0.9',
-        'Connection: keep-alive',
-      ],
     ]);
 
-    $response = curl_exec($ch);
-    $err      = curl_errno($ch);
+    $ok             = curl_exec($ch);
+    $results[$type] = $ok !== false && $ok !== '';
     curl_close($ch);
-
-    $results[$name] = (!$err && !empty($response));
   }
 
   return $results;
