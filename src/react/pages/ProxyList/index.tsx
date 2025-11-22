@@ -13,6 +13,7 @@ import ApiUsage from './ApiUsage';
 import LogViewer from './LogViewer';
 import ModifyCurl from './ModifyCurl';
 import ProxySubmission from './ProxySubmission';
+import { checkProxy } from '../../utils/proxy';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
@@ -24,31 +25,7 @@ const handleRecheck = async (
   showSnackbar: (options: { message: string; type: 'success' | 'danger' }) => void
 ) => {
   try {
-    // Construct JSON body
-    const body: Record<string, any> = {
-      proxy: proxy.proxy
-    };
-
-    ['username', 'password'].forEach((key) => {
-      if (proxy[key]?.length) {
-        body[key] = proxy[key];
-      }
-    });
-
-    const response = await fetch(createUrl('/php_backend/proxy-checker.php'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body) // send JSON instead of URL-encoded string
-    });
-
-    const data = await response.json();
-
-    if (data?.logEmbedUrl) {
-      // removed setLogViewer usage
-    }
-
+    const data = await checkProxy(proxy.proxy || '');
     if (data?.message) {
       showSnackbar({ message: data.message, type: 'success' });
     } else {

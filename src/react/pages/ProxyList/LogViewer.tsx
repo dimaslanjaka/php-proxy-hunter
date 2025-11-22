@@ -2,11 +2,14 @@ import React from 'react';
 import { createUrl } from '../../utils/url';
 import { getUserInfo } from '../../utils/user';
 
+// helper kept for compatibility if used elsewhere
 export async function getUserProxyLogUrl() {
   try {
     const data = await getUserInfo();
     if (data && (data as any).uid) {
-      const logUrl = createUrl(`/php_backend/proxy-checker.php?id=${(data as any).uid}&type=log`);
+      // previously pointed to php_backend/proxy-checker.php; return logs.php endpoint instead
+      const uid = (data as any).uid;
+      const logUrl = createUrl(`/php_backend/logs.php?hash=check-https-proxy/${encodeURIComponent(uid)}`);
       return logUrl;
     }
   } catch (_e) {
@@ -33,15 +36,13 @@ async function fetchHttpProxyCheckerResult(hash: string): Promise<string> {
 }
 
 const LogViewer: React.FC = () => {
-  const [loading, setLoading] = React.useState(false);
-  const [log, setLog] = React.useState('');
-  const [url, setUrl] = React.useState('');
-  const [activeTab, setActiveTab] = React.useState<'log' | 'https' | 'http'>('log');
+  // no longer using the proxy-checker.php log reset; only poll logs.php
+  const [activeTab, setActiveTab] = React.useState<'https' | 'http'>('https');
   const [hash, setHash] = React.useState('');
   const [httpsLog, setHttpsLog] = React.useState('');
   const [httpLog, setHttpLog] = React.useState('');
 
-  // On mount, fetch user id and set log URL
+  // On mount, fetch user id to use with logs endpoints
   React.useEffect(() => {
     (async () => {
       try {
@@ -49,42 +50,12 @@ const LogViewer: React.FC = () => {
         if (data && (data as any).uid) {
           const uid = (data as any).uid;
           setHash(uid);
-          const logUrl = createUrl(`/php_backend/proxy-checker.php?id=${uid}&type=log`);
-          setUrl(logUrl);
-        } else {
-          setLog('Failed to retrieve user ID for log.');
         }
       } catch (_e) {
-        setLog('Failed to retrieve user ID for log.');
+        // ignore
       }
     })();
   }, []);
-
-  // Poll log if url
-  React.useEffect(() => {
-    let interval: number | undefined;
-    if (url) {
-      const fetchLog = async () => {
-        try {
-          const res = await fetch(url);
-          const text = await res.text();
-          setLog((prev) => {
-            if (prev.trim() === text.trim()) {
-              return prev;
-            }
-            return text;
-          });
-        } catch {
-          setLog('Failed to fetch log.');
-        }
-      };
-      fetchLog();
-      interval = window.setInterval(fetchLog, 3000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [url]);
 
   // Poll HTTPS result when httpsHash is available and https tab is active
   React.useEffect(() => {
@@ -134,57 +105,17 @@ const LogViewer: React.FC = () => {
 
   // HTTPS polling handled by effect below (auto-fetch when https tab active)
 
-  const handleResetLog = async () => {
-    setLoading(true);
-    try {
-      await fetch(createUrl('/php_backend/proxy-checker.php'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'resetLog=1'
-      });
-      // Refetch log after reset
-      if (url) {
-        const res = await fetch(url);
-        const text = await res.text();
-        setLog(text);
-      }
-    } catch {
-      // Optionally show error
-    }
-    setLoading(false);
-  };
-
   return (
     <section className="my-8">
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-white border border-blue-200 dark:border-blue-700 p-6 transition-colors duration-300 flowbite-modal">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold text-blue-800 dark:text-blue-200 flex items-center gap-2">
-            <i className="fa-duotone fa-file-lines"></i> Proxy Check Log
+            <i className="fa-duotone fa-file-lines"></i> Proxy Check Results
           </h2>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-200 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition disabled:opacity-50"
-              onClick={handleResetLog}
-              aria-label="Reset log"
-              disabled={loading}>
-              <i className="fa-duotone fa-rotate-left"></i> Reset Log
-            </button>
-          </div>
         </div>
         {/* Tabs */}
         <div className="mb-3">
           <ul className="flex -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400" role="tablist">
-            <li className="mr-2" role="presentation">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === 'log'}
-                className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'log' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
-                onClick={() => setActiveTab('log')}>
-                Checker Log
-              </button>
-            </li>
             <li role="presentation">
               <button
                 type="button"
@@ -208,26 +139,7 @@ const LogViewer: React.FC = () => {
           </ul>
         </div>
 
-        {/* Log panel */}
-        <div className={`${activeTab === 'log' ? '' : 'hidden'}`}>
-          <div className="mb-2 text-xs text-gray-600 dark:text-gray-300">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-              <span className="sr-only">Log URL</span>
-              <span className="font-mono text-xs text-gray-700 dark:text-gray-300 break-words max-w-full overflow-auto">
-                {url}
-              </span>
-            </div>
-          </div>
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
-            {loading ? (
-              <span className="text-gray-400 dark:text-gray-500">Loading log...</span>
-            ) : log ? (
-              <span className="text-gray-800 dark:text-gray-100" dangerouslySetInnerHTML={{ __html: log }} />
-            ) : (
-              <span className="text-gray-400 dark:text-gray-500">No log output yet.</span>
-            )}
-          </div>
-        </div>
+        {/* The old 'Checker Log' tab was removed because php_backend/proxy-checker.php no longer exists. */}
 
         {/* HTTPS panel */}
         <div className={`${activeTab === 'https' ? '' : 'hidden'}`}>
