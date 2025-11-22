@@ -1,20 +1,40 @@
-import { noop } from '../../utils/other';
 import { createUrl } from './url';
 
+interface CheckProxyResponse {
+  error: boolean;
+  message: string;
+}
+
 export async function checkProxy(proxies: string) {
-  await fetch(createUrl('/php_backend/check-https-proxy.php'), {
+  const _httpsResponse: CheckProxyResponse = await fetch(createUrl('/php_backend/check-https-proxy.php'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ proxy: proxies }),
     credentials: 'include'
-  }).catch(noop);
-  await fetch(createUrl('/php_backend/check-http-proxy.php'), {
+  })
+    .then((res) => res.json())
+    .catch((e) => {
+      return { error: true, message: e.message };
+    });
+  const _httpResponse: CheckProxyResponse = await fetch(createUrl('/php_backend/check-http-proxy.php'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ proxy: proxies }),
     credentials: 'include'
-  }).catch(noop);
+  })
+    .then((res) => res.json())
+    .catch((e) => {
+      return { error: true, message: e.message };
+    });
+  let buildMessage = 'Proxy check initiated\n';
+  if (_httpsResponse?.message) {
+    buildMessage += `[HTTPS] ${_httpsResponse.message} \n`;
+  }
+  if (_httpResponse?.message) {
+    buildMessage += `[HTTP] ${_httpResponse.message}\n`;
+  }
   return {
-    message: 'Proxy check initiated'
+    error: _httpsResponse?.error || _httpResponse?.error || false,
+    message: buildMessage.trim()
   };
 }

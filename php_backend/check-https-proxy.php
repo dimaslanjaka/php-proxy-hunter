@@ -93,9 +93,6 @@ if (!$isCli) {
     // Trim whitespace from the command
     $cmd = trim($cmd);
 
-    // Output the command for debugging
-    echo $cmd . "\n\n";
-
     // Redirect output and errors to a log file
     $cmd = sprintf('%s > %s 2>&1', $cmd, escapeshellarg($output_file));
 
@@ -106,7 +103,8 @@ if (!$isCli) {
 
     // Execute the runner script in the background
     runBashOrBatch($runner);
-    exit;
+
+    respond_json(['error' => false, 'message' => '[HTTPS] Proxy check initiated.']);
   } else {
     // Show usage instructions for direct web access
     echo 'Usage:' . PHP_EOL;

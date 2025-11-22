@@ -83,9 +83,6 @@ if (!$isCli) {
     $cmd .= ' --lockFile=' . escapeshellarg(unixPath($webServerLock));
     $cmd = trim($cmd);
 
-    // Output command for debugging
-    echo $cmd . "\n\n";
-
     // Redirect stdout and stderr to log file
     $cmd = sprintf('%s > %s 2>&1', $cmd, escapeshellarg($output_file));
 
@@ -95,7 +92,8 @@ if (!$isCli) {
 
     // Execute the runner script in background
     runBashOrBatch($runner);
-    exit;
+
+    respond_json(['error' => false, 'message' => '[HTTP] Proxy check initiated.']);
   } else {
     // Show usage instructions for web access
     echo 'Usage:' . PHP_EOL;

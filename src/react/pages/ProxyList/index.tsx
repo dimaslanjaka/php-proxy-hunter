@@ -25,10 +25,10 @@ const handleRecheck = async (
 ) => {
   try {
     const data = await checkProxy(proxy.proxy || '');
-    if (data?.message) {
-      showSnackbar({ message: data.message, type: 'success' });
+    if (data.error) {
+      showSnackbar({ message: data.message || 'Failed to re-check proxy.', type: 'danger' });
     } else {
-      showSnackbar({ message: 'Proxy re-check request sent.', type: 'success' });
+      showSnackbar({ message: data.message || 'Proxy re-check initiated.', type: 'success' });
     }
 
     // Optionally, you could refresh the proxy list here
