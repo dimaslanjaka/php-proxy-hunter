@@ -15,9 +15,7 @@ if (!$isCli) {
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
   }
-  if (empty($_SESSION['captcha'])) {
-    exit('Access Denied');
-  }
+  requires_captcha_verification();
 }
 
 // Run a long-running process in the background

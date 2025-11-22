@@ -10,13 +10,7 @@ if (!is_cli()) {
   // Set content type to plain text with UTF-8 encoding
   header('Content-Type: text/plain; charset=utf-8');
 
-  if (isset($_REQUEST['uid'])) {
-    setUserId($_REQUEST['uid']);
-  }
-
-  if (empty($_SESSION['captcha'])) {
-    exit('Access Denied');
-  }
+  requires_captcha_verification();
 
   // check admin
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;

@@ -9,13 +9,7 @@ $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMO
 
 if (!$isCli) {
   header('Content-Type: text/plain; charset=utf-8');
-  if (isset($_REQUEST['uid'])) {
-    setUserId($_REQUEST['uid']);
-  }
-
-  if (empty($_SESSION['captcha'])) {
-    exit('Access Denied');
-  }
+  requires_captcha_verification();
 }
 
 // Run a long-running process in the background

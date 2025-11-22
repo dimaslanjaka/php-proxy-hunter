@@ -19,9 +19,11 @@ if (!$isCli) {
   }
 }
 
-$max              = 500; // default max proxies to be checked
-$maxExecutionTime = 2 * 60; // 2 mins
-$startTime        = time();
+$max = 500;
+// default max proxies to be checked
+$maxExecutionTime = 2 * 60;
+// 2 mins
+$startTime = time();
 
 if (!$isCli) {
   // Allow from any origin
@@ -29,13 +31,7 @@ if (!$isCli) {
   header('Access-Control-Allow-Headers: *');
   header('Access-Control-Allow-Methods: *');
   header('Content-Type: text/plain; charset=utf-8');
-  if (isset($_REQUEST['uid'])) {
-    setUserId($_REQUEST['uid']);
-  }
-  // only allow user with Google Analytics cookie
-  if (empty($_SESSION['captcha'])) {
-    exit('Access Denied');
-  }
+  requires_captcha_verification();
   // check admin
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }

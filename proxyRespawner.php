@@ -63,9 +63,7 @@ if (!$isCli) {
   if (isset($_REQUEST['uid'])) {
     setUserId($_REQUEST['uid']);
   }
-  if (empty($_SESSION['captcha'])) {
-    exit('Access Denied');
-  }
+  requires_captcha_verification();
   // check admin
   $isAdmin = !empty($_SESSION['admin']) && $_SESSION['admin'] === true;
 }
@@ -77,8 +75,7 @@ if (file_exists($lockFilePath) && !$isAdmin) {
   write_file($statusFile, 'respawn');
 }
 
-function exitProcess()
-{
+function exitProcess() {
   global $lockFilePath, $statusFile;
   if (file_exists($lockFilePath)) {
     unlink($lockFilePath);

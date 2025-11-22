@@ -179,7 +179,7 @@ function is_admin(): bool {
  * @return void Exits with code 1 if not an admin; returns normally if admin privileges are present.
  * @throws RuntimeException May throw if is_admin() throws in web context without active session.
  */
-function requires_admin(): void {
+function requires_admin() {
   if (!is_admin()) {
     http_response_code(403);
     header('Content-Type: application/json; charset=utf-8');
@@ -216,11 +216,34 @@ function is_authenticated(): bool {
  * @return void Exits with code 1 if not authenticated; returns normally if authenticated.
  * @throws RuntimeException May throw if is_authenticated() throws in web context without active session.
  */
-function requires_authentication(): void {
+function requires_authentication() {
   if (!is_authenticated()) {
     http_response_code(401);
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['error' => true, 'message' => 'Authentication required.']);
+    exit(1);
+  }
+}
+
+/** Check if the captcha is verified */
+function is_captcha_verified(): bool {
+  if (is_cli()) {
+    return true;
+  }
+
+  if (session_status() === PHP_SESSION_NONE) {
+    throw new RuntimeException('[is_captcha_verified] Session has not been started.');
+  }
+
+  return !empty($_SESSION['captcha']) && $_SESSION['captcha'] === true;
+}
+
+/** Requires captcha verification */
+function requires_captcha_verification(): void {
+  if (!is_captcha_verified()) {
+    http_response_code(403);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => true, 'message' => 'Captcha verification required.']);
     exit(1);
   }
 }
