@@ -282,7 +282,7 @@ function check(string $proxy) {
       $data['type']   = strtolower(implode('-', array_unique($result->workingTypes)));
     } else {
       // Re-test the proxy to confirm it's dead
-      $retestResults  = reTestProxy($item->proxy, 5, $item->username ?? null, $item->password ?? null);
+      $retestResults  = reTestProxy($item);
       $isAlive        = in_array(true, $retestResults, true);
       $data['status'] = $isAlive ? 'active' : 'dead';
       // Record a retest status for logging: alive, dead
@@ -331,15 +331,12 @@ function check(string $proxy) {
   _log_shared($hashFilename ?? 'CLI', 'Done checking proxies.');
 }
 
-function reTestProxy(
-  $proxy,
-  $timeout = 5,
-  $username = null,
-  $password = null
-) {
-
+function reTestProxy(\PhpProxyHunter\Proxy $checkerOptions, $timeout = 5) {
   // Fixed list of proxy types to test
   static $proxyTypes = ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
+  $proxy             = $checkerOptions->proxy;
+  $username          = $checkerOptions->username;
+  $password          = $checkerOptions->password;
 
   $results = [];
 
@@ -349,8 +346,8 @@ function reTestProxy(
       $proxy,
       $type,
       'http://httpbin.org/ip',
-      [],
-      $username,
+      [], // Use array() instead of []
+            $username,
       $password,
       'GET',
       null,
