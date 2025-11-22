@@ -1,5 +1,69 @@
 [
   {
+    "hash": "dbcb5f7945eddc335c5bc90d92fc595b3c841979",
+    "date": "2025-11-22T14:18:03+07:00",
+    "message": "fix(executables): avoid caret escapes on Windows by quoting executables\n\nWhen escaping executable paths for shell use, `escapeshellcmd` on Windows can\ninsert caret (`^`) characters which corrupt paths like\n`C:\\xampp\\php\\php.exe` (becoming `C:^\\xampp^\\php^\\php.exe`). Change the\nbehavior of `getPhpExecutable` and `getPythonExecutable` to return a safely\ndouble-quoted path on Windows when escaping is requested, and fall back to\n`escapeshellcmd` on non-Windows platforms.\n\nThis preserves correct quoting for `cmd.exe` while keeping existing escaping",
+    "files": [
+      "src/utils/process/executables.php"
+    ]
+  },
+  {
+    "hash": "a531294936a1091558a45183bda82667065ca776",
+    "date": "2025-11-22T13:11:23+07:00",
+    "message": "fix(proxy): ensure proxy check function returns a confirmation message",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx",
+      "src/react/utils/proxy.ts"
+    ]
+  },
+  {
+    "hash": "ec3cc0a51305bf8714fe5e4f667d0a98a3a32102",
+    "date": "2025-11-22T13:10:11+07:00",
+    "message": "chore(proxy): remove php_backend/proxy-checker.php and update React UI\n\n- delete: remove backend script `php_backend/proxy-checker.php`\n  - removes server-side proxy checking, log/status endpoints and related helper functions\n  - removes background runner/lock/pid logic and proxyChecker implementation\n\n- refactor(react/proxy-list): update LogViewer and recheck flow\n  - `src/react/pages/ProxyList/LogViewer.tsx`: remove \"Checker Log\" tab and reset action that referenced the deleted backend; keep HTTPS/HTTP log polling via `php_backend/logs.php`\n  - `src/react/pages/ProxyList/index.tsx`: replace direct fetch to `/php_backend/proxy-checker.php` with `checkProxy` utility call\n  - update `getUserProxyLogUrl()` to point to `php_backend/logs.php` for compatibility\n\nNotes:\n- This change removes the old PHP-based proxy-checker; ensure any clients or external scripts are migrated to the new `checkProxy` interface or alternate backend.\n- Update docs and API usage references if necessary.",
+    "files": [
+      "php_backend/proxy-checker.php",
+      "src/react/pages/ProxyList/LogViewer.tsx",
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "12ba05967ed519a7eb4cc2dceec30f5cbb613fe7",
+    "date": "2025-11-22T10:24:31+07:00",
+    "message": "refactor(proxy): update toObject return type and add format method for proxy string representation",
+    "files": [
+      "src/proxy/ProxyData.js"
+    ]
+  },
+  {
+    "hash": "3274505dc26b4310486349739b27840ed7dfd0f4",
+    "date": "2025-11-22T10:23:31+07:00",
+    "message": "refactor(proxy): return ProxyData[] from extractProxies and update call sites\n\n- import ProxyData and change `extractProxies` to return an array of `ProxyData` instances\n- improve JSDoc for `extractProxies` to document returned fields and supported formats\n- update `extractProxiesToObject` to consume `ProxyData` instances\n- update call sites to handle new shape:\n  - `src/proxy/hunter.js` — map returned ProxyData to `.proxy` for file I/O\n  - `src/react/pages/ProxyList/ProxySubmission.tsx` — accept/normalize ProxyData objects\n  - `src/react/utils/proxy.ts` — map ProxyData -> proxy string for checks\n  - `tests/proxy/ProxyChecker.direct.js`, `tests/proxy/portOpen.direct.js` — use `.proxy`/normalize before checks\n- keep deduplication and credential-priority behavior\n\nBREAKING CHANGE: `extractProxies` previously returned `string[]` (ip:port strings). It now returns `ProxyData[]`. Callers must read the `proxy` field (ip:port) or adapt to the new object shape.",
+    "files": [
+      "src/proxy/extractor.js",
+      "src/proxy/hunter.js",
+      "src/react/pages/ProxyList/ProxySubmission.tsx",
+      "tests/proxy/ProxyChecker.direct.js",
+      "tests/proxy/portOpen.direct.js"
+    ]
+  },
+  {
+    "hash": "295cc1e82c2dbbca79611009af574afa21b71cf5",
+    "date": "2025-11-22T07:35:33+07:00",
+    "message": "fix(proxy): update handleRecheck to send JSON body instead of URL-encoded string",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "28edf138f2256c6ecb57a8ee233ef6f54e4f29a3",
+    "date": "2025-11-22T07:30:42+07:00",
+    "message": "refactor(proxy): move proxy checking logic to utility function\n\n- Removed inline _checkProxy and _checkProxy2 functions from ProxySubmission.tsx\n- Added checkProxy function in src/react/utils/proxy.ts\n- Updated ProxySubmission to use checkProxy utility for re-checking proxies\n- Simplifies code and centralizes proxy checking logic",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx",
+      "src/react/utils/proxy.ts"
+    ]
+  },
+  {
     "hash": "0fe00f09714dbc7feff5b300fea44dbf32a0b929",
     "date": "2025-11-22T07:16:33+07:00",
     "message": "fix: dont treat as dead when SSL test failed",
@@ -8682,63 +8746,6 @@
     "message": "feat(github-pages): enhance VITE secrets check with conditional logging",
     "files": [
       ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "bf627415ad608117b71c195c7c4686433e5775e0",
-    "date": "2025-08-18T20:09:56+07:00",
-    "message": "feat(github-pages): add debug info for backend hostname environment variables",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "1b01329f1cb7af28b7f679469e555590cc016761",
-    "date": "2025-08-18T18:50:02+07:00",
-    "message": "ci(github-pages): add environment variables for build and deploy\n\n- set VITE_BACKEND_HOSTNAME_DEV and VITE_BACKEND_HOSTNAME_PROD from secrets\n- configure GITHUB_TOKEN to use ACCESS_TOKEN fallback",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "d11c446810ac5685386535018cfcd1f68ecb6e38",
-    "date": "2025-08-18T18:46:13+07:00",
-    "message": "feat(changelog): improve commit list and pagination UI\n\n- added comment markers for commit list and pagination sections\n- improved file list styling with overflow handling and word breaking\n- updated pagination:\n  - replaced previous/next buttons with first/last page buttons\n  - simplified page number display to show current ±1 only\n  - removed ellipsis display for skipped pages",
-    "files": [
-      "src/react/pages/Changelog.tsx"
-    ]
-  },
-  {
-    "hash": "cea6fc220500731da867240d123b9d0436232a14",
-    "date": "2025-08-18T17:20:44+07:00",
-    "message": "feat(Navbar): make navbar fixed at the top",
-    "files": [
-      "src/react/components/Navbar.tsx"
-    ]
-  },
-  {
-    "hash": "9fa768d0793fb8cbf918cc3c0077a4051c3df5b4",
-    "date": "2025-08-18T17:15:37+07:00",
-    "message": "refactor(admin): move password hint from Admin page to EditPasswordForm\n\nThe password hint paragraph was relocated from the Admin page to the EditPasswordForm component to improve component encapsulation and maintainability.",
-    "files": [
-      "src/react/pages/Admin.tsx",
-      "src/react/pages/admin/EditPasswordForm.tsx"
-    ]
-  },
-  {
-    "hash": "b86e6e6730a783f79b0572c77d7eb8dfd5dd99c1",
-    "date": "2025-08-18T17:10:50+07:00",
-    "message": "style(fonts): refine font usage for placeholders, small text, and buttons\n\n- exclude elements with Font Awesome classes from system font overrides\n- set default button font-family to use Cera Pro, Ubuntu, and fallbacks",
-    "files": [
-      "src/react/fonts.scss"
-    ]
-  },
-  {
-    "hash": "8903386501e822e58a7f37ee8f61da3ae6095f78",
-    "date": "2025-08-18T17:07:04+07:00",
-    "message": "feat(fonts): add system font stack for input placeholders and small text",
-    "files": [
-      "src/react/fonts.scss"
     ]
   }
 ]
