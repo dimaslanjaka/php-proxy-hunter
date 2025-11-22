@@ -1,64 +1,29 @@
 import { ReactFormSaver, ReactFormSaverRef } from 'jquery-form-saver/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { extractProxies } from '../../../proxy/extractor';
-import ProxyData from '../../../proxy/ProxyData';
 import { checkProxy } from '../../utils/proxy';
 import { createUrl } from '../../utils/url';
 
 export default function ProxySubmission() {
   const { t } = useTranslation();
   const [textarea, setTextarea] = React.useState('');
-  const [proxyDatas, setProxyDatas] = React.useState<ProxyData[]>([]);
   const formSaverRef = React.useRef<ReactFormSaverRef | null>(null);
 
-  React.useEffect(() => {
-    // restore saved form values (sync DOM -> React state for controlled textarea)
-    formSaverRef.current?.restoreForm();
-    const ta = document.querySelector<HTMLTextAreaElement>('textarea[name="proxies"]');
-    if (ta && ta.value) {
-      setTextarea(ta.value);
+  const onRestore = (element: HTMLElement, data: any) => {
+    if (element.id == 'proxyTextarea') {
+      setTextarea(data);
     }
-
-    // auto save input,textarea,select elements
-    // const elements = document.querySelectorAll('input,textarea,select');
-    // debug to console.log
-    // const show_debug = true;
-    // if (show_debug) console.log(elements);
-  }, []);
+  };
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    // Send proxies to backend for addition
     fetch(createUrl('/php_backend/proxy-add.php'), { method: 'POST', body: new URLSearchParams({ proxies: textarea }) })
-      .then((res) => res.text())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((err) => {
-        console.error(err);
-      })
+      .catch(console.error)
       .finally(() => {
         checkProxy(textarea);
       });
-
-    // Split textarea into lines and extract proxies from each line
-    // extractProxies returns ProxyData objects; normalize and type assert safely
-    const parsedAny = textarea.split(/\r?\n/).map(extractProxies).flat().filter(Boolean) as any[];
-    const parsed = parsedAny.map((pd) => {
-      if (typeof pd === 'string') return new ProxyData({ proxy: pd });
-      return pd;
-    }) as ProxyData[];
-    setProxyDatas(parsed);
-    handleProxyCheck();
-  }
-
-  function handleProxyCheck(type?: string) {
-    const data = proxyDatas.shift();
-    const types = type ? [type] : ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
-    if (data) {
-      // Perform proxy check with the extracted data
-      console.log(`Checking proxy: ${data}, Type: ${types.join(', ')}`);
-    }
   }
 
   return (
@@ -80,7 +45,12 @@ export default function ProxySubmission() {
             </button>
           </div>
         </div>
-        <ReactFormSaver ref={formSaverRef} storagePrefix="proxy-submission" className="mb-4" onSubmit={handleSubmit}>
+        <ReactFormSaver
+          ref={formSaverRef}
+          onRestore={onRestore}
+          storagePrefix="proxy-submission"
+          className="mb-4"
+          onSubmit={handleSubmit}>
           <div className="mb-1">
             <label htmlFor="proxyTextarea" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mr-2">
               Proxies
