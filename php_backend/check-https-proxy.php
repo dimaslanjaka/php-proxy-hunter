@@ -58,6 +58,11 @@ if (!$isCli) {
     // Define web server lock file path
     $webServerLock = tmp() . "/locks/$hashFilename.lock";
 
+    // Stop if lock file exists (another process running)
+    if (file_exists($webServerLock)) {
+      respond_json(['error' => true, 'message' => 'Another process is still running. Please try again later.']);
+    }
+
     // Get proxy from the request
     $proxy = $request['proxy'];
 

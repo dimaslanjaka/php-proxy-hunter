@@ -55,6 +55,10 @@ if (!$isCli) {
     $hashFilename = "$currentScriptFilename/$userId";
     // Lock file path for web server execution
     $webServerLock = tmp() . "/locks/$hashFilename.lock";
+    // Stop if lock file exists (another process running)
+    if (file_exists($webServerLock)) {
+      respond_json(['error' => true, 'message' => 'Another process is still running. Please try again later.']);
+    }
 
     // Get proxy string from request
     $proxy = $request['proxy'];
