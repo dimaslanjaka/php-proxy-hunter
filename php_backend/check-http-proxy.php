@@ -18,10 +18,6 @@ if (!$isCli) {
 
   // Parse request body or query string
   $req = parseQueryOrPostBody();
-  if (isset($req['uid'])) {
-    // Set user ID if provided
-    setUserId($req['uid']);
-  }
 
   // Deny access if captcha session is empty
   if (empty($_SESSION['captcha'])) {
