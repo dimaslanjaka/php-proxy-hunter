@@ -4,7 +4,9 @@ applyTo: '**/*.php'
 
 # GitHub Copilot Instructions — PHP
 
-Coding standards, domain knowledge, and preferences that AI should follow.
+This project uses `composer` for dependency management and follows modern PHP development practices.
+
+## Coding standards, domain knowledge, and preferences that AI should follow.
 
 - Use PSR-12 coding standards for all PHP code.
 - Use type hints for all function parameters and return types where possible.
