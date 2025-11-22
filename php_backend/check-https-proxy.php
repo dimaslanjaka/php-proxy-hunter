@@ -10,12 +10,6 @@ global $isCli;
 $isAdmin = $isCli;
 
 if (!$isCli) {
-  // Turn off output buffering
-  while (ob_get_level() > 0) {
-    ob_end_flush();
-  }
-  ob_implicit_flush(true);
-
   PhpProxyHunter\Server::allowCors(true);
 
   // Set content type to plain text with UTF-8 encoding
@@ -53,14 +47,16 @@ if (!$isCli) {
   if (isset($request['proxy'])) {
     // Generate a unique hash filename based on the script and user ID
     // do not use $file here (undefined); use current script name + user id
-    $hashFilename = "$currentScriptFilename/$userId";
+    $hashFilename   = "$currentScriptFilename/$userId";
+    $output_file    = tmp() . "/logs/$hashFilename.txt";
+    $embedOutputUrl = getFullUrl($output_file);
 
     // Define web server lock file path
     $webServerLock = tmp() . "/locks/$hashFilename.lock";
 
     // Stop if lock file exists (another process running)
     if (file_exists($webServerLock)) {
-      respond_json(['error' => true, 'message' => '[HTTPS] Another process is still running. Please try again later.']);
+      respond_json(['error' => true, 'message' => '[HTTPS] Another process is still running. Please try again later.', 'logFile' => $embedOutputUrl]);
     }
 
     // Get proxy from the request
@@ -72,8 +68,7 @@ if (!$isCli) {
     write_file($proxy_file, $proxy);
 
     // Prepare for long-running background process
-    $file        = __FILE__;
-    $output_file = tmp() . "/logs/$hashFilename.txt";
+    $file = __FILE__;
     // Set file permissions
     setMultiPermissions([$file, $output_file], true);
 
@@ -104,7 +99,6 @@ if (!$isCli) {
     // Execute the runner script in the background
     runBashOrBatch($runner);
 
-    $embedOutputUrl = getFullUrl($output_file);
     respond_json(['error' => false, 'message' => '[HTTPS] Proxy check initiated.', 'logFile' => $embedOutputUrl]);
   } else {
     // Show usage instructions for direct web access
