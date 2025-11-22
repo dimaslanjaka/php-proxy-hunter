@@ -1,5 +1,13 @@
 [
   {
+    "hash": "0fe00f09714dbc7feff5b300fea44dbf32a0b929",
+    "date": "2025-11-22T07:16:33+07:00",
+    "message": "fix: dont treat as dead when SSL test failed",
+    "files": [
+      "php_backend/proxy-checker.php"
+    ]
+  },
+  {
     "hash": "b4fa54ddf4847655779b4aab42bef0188f8895d5",
     "date": "2025-11-22T07:09:33+07:00",
     "message": "refactor(proxy-checker): rename ProxyChecker1 to ProxyCheckerPublicIP",
@@ -8731,20 +8739,6 @@
     "message": "feat(fonts): add system font stack for input placeholders and small text",
     "files": [
       "src/react/fonts.scss"
-    ]
-  },
-  {
-    "hash": "78ed455a0b218575aa3bf507790f19c1bacfcbee",
-    "date": "2025-08-18T17:02:17+07:00",
-    "message": "feat(fonts): add JetBrains Mono, Helvetica Neue, and Ubuntu font support\n\n- added multiple JetBrains Mono font weights/styles to assets\n- added Helvetica Neue LT Pro, Condensed Bold, Light, and Regular variants\n- extended Ubuntu fonts with UbuntuMono in stylesheet.css\n- created src/react/fonts.scss with Ubuntu, Cera Pro, JetBrains Mono, and global font usage\n- updated react entrypoint to import fonts.scss\n- removed redundant font-face definitions from tailwind.input.css\n- introduced fontsResolverPlugin in vite-plugin.js to serve fonts with correct MIME types\n- updated vite.config.js to register fontsResolverPlugin",
-    "files": [
-      "assets/fonts/index.scss",
-      "assets/fonts/ubuntu/stylesheet.css",
-      "src/react/fonts.scss",
-      "src/react/index.tsx",
-      "tailwind.input.css",
-      "vite-plugin.js",
-      "vite.config.js"
     ]
   }
 ]
