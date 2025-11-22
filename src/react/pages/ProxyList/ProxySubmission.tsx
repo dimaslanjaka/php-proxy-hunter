@@ -1,45 +1,11 @@
+import { ReactFormSaver, ReactFormSaverRef } from 'jquery-form-saver/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ReactFormSaver, ReactFormSaverRef } from 'jquery-form-saver/react';
 import { extractProxies } from '../../../proxy/extractor';
 import ProxyData from '../../../proxy/ProxyData';
+import { checkProxy } from '../../utils/proxy';
 import { createUrl } from '../../utils/url';
 import { getUserProxyLogUrl } from './LogViewer';
-import { noop } from '../../../utils/other';
-
-async function _checkProxy(proxyData: ProxyData, type?: string) {
-  const url = createUrl('/php_backend/proxy-checker.php');
-  const result = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: new URLSearchParams({
-      proxy: proxyData.proxy ?? '',
-      type: type ?? '',
-      username: proxyData.username ?? '',
-      password: proxyData.password ?? ''
-    })
-  });
-  const data = await result.json();
-  console.log(data);
-  return data;
-}
-
-async function _checkProxy2(proxies: string) {
-  await fetch(createUrl('/php_backend/check-https-proxy.php'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ proxy: proxies }),
-    credentials: 'include'
-  }).catch(noop);
-  await fetch(createUrl('/php_backend/check-http-proxy.php'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ proxy: proxies }),
-    credentials: 'include'
-  }).catch(noop);
-}
 
 export default function ProxySubmission() {
   const { t } = useTranslation();
@@ -85,7 +51,7 @@ export default function ProxySubmission() {
         console.error(err);
       })
       .finally(() => {
-        _checkProxy2(textarea);
+        checkProxy(textarea);
       });
 
     // Split textarea into lines and extract proxies from each line
