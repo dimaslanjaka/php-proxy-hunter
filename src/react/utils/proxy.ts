@@ -27,7 +27,8 @@ export async function checkProxy(proxies: string) {
     .catch((e) => {
       return { error: true, message: e.message, logFile: null };
     });
-  let buildMessage = 'Proxy check initiated\n';
+  const isError = _httpsResponse?.error || _httpResponse?.error || false;
+  let buildMessage = !isError ? 'Proxy check initiated\n' : 'Proxy check encountered errors:\n';
   if (_httpsResponse?.message) {
     buildMessage += `${_httpsResponse.message} \n`;
   }
@@ -35,7 +36,7 @@ export async function checkProxy(proxies: string) {
     buildMessage += `${_httpResponse.message}\n`;
   }
   return {
-    error: _httpsResponse?.error || _httpResponse?.error || false,
+    error: isError,
     message: buildMessage.trim()
   };
 }
