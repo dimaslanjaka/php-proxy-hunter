@@ -104,7 +104,8 @@ if (!$isCli) {
     // Execute the runner script in the background
     runBashOrBatch($runner);
 
-    respond_json(['error' => false, 'message' => '[HTTPS] Proxy check initiated.']);
+    $embedOutputUrl = getFullUrl($output_file);
+    respond_json(['error' => false, 'message' => '[HTTPS] Proxy check initiated.', 'logFile' => $embedOutputUrl]);
   } else {
     // Show usage instructions for direct web access
     echo 'Usage:' . PHP_EOL;
@@ -134,7 +135,7 @@ if (!$isCli) {
       } else {
         $lockedMsg = date(DATE_RFC3339) . " another process still running ({$lockFile} is locked) ";
         _log_shared($hashFilename ?? 'CLI', $lockedMsg);
-        exit($lockedMsg);
+        exit;
       }
     }
 
