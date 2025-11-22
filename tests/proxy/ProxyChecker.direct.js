@@ -19,22 +19,23 @@ checker.on('title', console.log);
 (async () => {
   for (let i = 0; i < chunks.length; i++) {
     const inner_chunks = chunks[i].map(async (proxyItem) => {
-      const { isValid, anonymity, isSSL, protocols } = await checker.checkProxyResult(proxyItem);
+      const proxyString = proxyItem.proxy || proxyItem;
+      const { isValid, anonymity, isSSL, protocols } = await checker.checkProxyResult(proxyString);
       const db_data = {
         status: isValid ? 'active' : 'dead',
         type: protocols.join('-'),
         https: isSSL ? 'true' : 'false',
         anonymity: anonymity || 'unknown'
       };
-      await db.updateData(proxyItem, db_data); // Pass signal if updateData supports cancellation
+      await db.updateData(proxyString, db_data); // Pass signal if updateData supports cancellation
 
       let message = ansiColors.redBright('dead');
       if (isValid) {
         message = `${ansiColors.greenBright('active')} ${isSSL ? ansiColors.greenBright('SSL') : ansiColors.yellowBright('non-SSL')} ${protocols}`;
       } else {
-        markProxyAsDead(proxyItem);
+        markProxyAsDead(proxyString);
       }
-      logProxy(`${proxyItem} ${message}`);
+      logProxy(`${proxyString} ${message}`);
     });
     await Promise.all(inner_chunks);
   }

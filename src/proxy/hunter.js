@@ -148,7 +148,7 @@ export class ProxyHunter extends TypedEmitter {
       }
 
       const read = await fs.readFile(file, 'utf-8');
-      const extract = extractProxies(read);
+      const extract = extractProxies(read).map((pd) => pd.proxy || '');
       await fs.writeFile(file, extract.join('\n'));
     }
   }

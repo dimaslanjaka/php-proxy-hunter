@@ -55,59 +55,13 @@ export default function ProxySubmission() {
       });
 
     // Split textarea into lines and extract proxies from each line
-    const parsed = textarea.split(/\r?\n/).map(extractProxies).flat().filter(Boolean);
-
-    const proxyDatas: ProxyData[] = [];
-    // parsed is an array of proxies:
-    // 103.160.204.144:80
-    // 103.160.204.144:80@username:password
-    // user:pass@103.160.204.144:80
-    for (const proxy of parsed) {
-      // Only support:
-      // 1. host:port
-      // 2. host:port@user:pass
-      // 3. user:pass@host:port
-      const icp = new ProxyData();
-      if (proxy.includes('@')) {
-        const [part1, part2] = proxy.split('@');
-        // Check if part1 is user:pass or host:port
-        if (/^\d+\.\d+\.\d+\.\d+:\d+$/.test(part1)) {
-          // host:port@user:pass
-          const [host, port] = part1.split(':');
-          icp.proxy = `${host}:${port}`;
-          if (part2.includes(':')) {
-            const [username, password] = part2.split(':');
-            icp.username = username;
-            icp.password = password;
-          } else {
-            icp.username = part2;
-          }
-        } else if (/^[^:]+:[^:]+$/.test(part1) && /^\d+\.\d+\.\d+\.\d+:\d+$/.test(part2)) {
-          // user:pass@host:port
-          const [username, password] = part1.split(':');
-          const [host, port] = part2.split(':');
-          icp.proxy = `${host}:${port}`;
-          icp.username = username;
-          icp.password = password;
-        } else {
-          // Invalid format, skip
-          continue;
-        }
-      } else {
-        // host:port
-        const parts = proxy.split(':');
-        if (parts.length === 2) {
-          const [host, port] = parts;
-          icp.proxy = `${host}:${port}`;
-        } else {
-          // Invalid format, skip
-          continue;
-        }
-      }
-      proxyDatas.push(icp);
-    }
-
-    setProxyDatas(proxyDatas);
+    // extractProxies returns ProxyData objects; normalize and type assert safely
+    const parsedAny = textarea.split(/\r?\n/).map(extractProxies).flat().filter(Boolean) as any[];
+    const parsed = parsedAny.map((pd) => {
+      if (typeof pd === 'string') return new ProxyData({ proxy: pd });
+      return pd;
+    }) as ProxyData[];
+    setProxyDatas(parsed);
     handleProxyCheck();
   }
 

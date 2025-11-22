@@ -36,7 +36,8 @@ const proxies = `
 `;
 
 Bluebird.all(
-  extractProxies(proxies).map(async (p) => {
+  extractProxies(proxies).map(async (pd) => {
+    const p = pd.proxy || pd;
     return { p: await isPortOpen(p) };
   })
 ).then(console.log);
