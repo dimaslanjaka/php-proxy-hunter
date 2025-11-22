@@ -24,7 +24,8 @@ if (class_exists('Dotenv\\Dotenv')) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
       if (str_starts_with(trim($line), '#')) {
-        continue; // Skip comments
+        continue;
+        // Skip comments
       }
       $parts = explode('=', $line, 2);
       if (count($parts) === 2) {
@@ -37,7 +38,8 @@ if (class_exists('Dotenv\\Dotenv')) {
         if ($value === 'true' || $value === 'false') {
           $value = $value === 'true' ? true : false;
         } elseif (is_numeric($value)) {
-          $value = $value + 0; // Convert to int or float
+          $value = $value + 0;
+        // Convert to int or float
         } elseif (preg_match('/^\[.*\]$/', $value)) {
           $arrayValue = json_decode($value, true);
           if (json_last_error() === JSON_ERROR_NONE) {
@@ -52,6 +54,11 @@ if (class_exists('Dotenv\\Dotenv')) {
   }
 }
 
+/**
+ * Retrieves the global environment variable pairs loaded from .env file or Dotenv.
+ *
+ * @return array<string, mixed> An associative array of environment variable key-value pairs.
+ */
 function getEnvPairs(): array {
   global $pairs;
   return $pairs;
@@ -164,4 +171,56 @@ function is_admin(): bool {
   }
 
   throw new RuntimeException('Session has not been started.');
+}
+
+/**
+ * Requires admin privileges; terminates with a 403 error if the user is not an admin.
+ *
+ * @return void Exits with code 1 if not an admin; returns normally if admin privileges are present.
+ * @throws RuntimeException May throw if is_admin() throws in web context without active session.
+ */
+function requires_admin(): void {
+  if (!is_admin()) {
+    http_response_code(403);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => true, 'message' => 'Admin privileges required.']);
+    exit(1);
+  }
+}
+
+/**
+ * Checks if the current user is authenticated.
+ *
+ * Behavior depends on execution context:
+ * - CLI: always returns true.
+ * - Web: checks for valid user_id and email in $_SESSION.
+ *
+ * @throws RuntimeException If called in web context without an active session.
+ * @return bool True if authenticated, false otherwise.
+ */
+function is_authenticated(): bool {
+  if (is_cli()) {
+    return true;
+  }
+
+  if (session_status() === PHP_SESSION_NONE) {
+    throw new RuntimeException('[is_authenticated] Session has not been started.');
+  }
+
+  return !empty($_SESSION['user_id']) && !empty($_SESSION['email']);
+}
+
+/**
+ * Requires authentication; terminates with a 401 error if the user is not authenticated.
+ *
+ * @return void Exits with code 1 if not authenticated; returns normally if authenticated.
+ * @throws RuntimeException May throw if is_authenticated() throws in web context without active session.
+ */
+function requires_authentication(): void {
+  if (!is_authenticated()) {
+    http_response_code(401);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => true, 'message' => 'Authentication required.']);
+    exit(1);
+  }
 }

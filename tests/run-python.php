@@ -16,9 +16,7 @@ if (!$isCli) {
     ob_start();
   }
   // Need user logged in
-  if (empty($_SESSION['user_id'])) {
-    exit(json_encode(['error' => 'Access denied']));
-  }
+  requires_authentication();
 }
 
 $parseQuery = parseQueryOrPostBody();
@@ -97,8 +95,7 @@ if ($isAdmin) {
 
 echo json_encode($result);
 
-function prefixZeroMsisdn($msisdn)
-{
+function prefixZeroMsisdn($msisdn) {
   // Remove any non-digit characters except '+'
   $msisdn = preg_replace('/[^0-9+]/', '', $msisdn);
   if (substr($msisdn, 0, 3) === '+62') {
