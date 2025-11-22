@@ -1,5 +1,31 @@
 [
   {
+    "hash": "92ac49f40f0d9bba7f436491db65731165701e38",
+    "date": "2025-11-22T19:19:22+07:00",
+    "message": "feat(php_backend): return logFile URL for HTTP/HTTPS proxy checks\n\n- Add `getFullUrl($output_file)` and include `'logFile' => $embedOutputUrl` in JSON responses for\n  `php_backend/check-http-proxy.php` and `php_backend/check-https-proxy.php` so callers receive the\n  generated log URL after initiating a proxy check.\n- Simplify lock handling by replacing `exit($lockedMsg)` with `exit` to avoid emitting the lock message\n  as the process exit payload.",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "ff170837143654e217c47e375e0ee93dbe4c5e88",
+    "date": "2025-11-22T19:16:49+07:00",
+    "message": "feat(utils/server): add getFullUrl helper and demo test\n\n- Add `src/utils/server/getFullUrl.php`\n  - Introduces `getFullUrl($path)` to build an absolute URL from a filesystem or URL path.\n  - Normalizes paths with `unixPath()`, maps paths relative to `PHP_PROXY_HUNTER_PROJECT_ROOT`, preserves absolute URLs, and returns protocol+host+relative.\n- Add `tests/api/getFullUrl.php`\n  - Simple demo script that prints the full URL for a non-absolute path and for the current file.\n\nThis provides a small utility for resolving project files to public URLs and a quick example script for verification.",
+    "files": [
+      "src/utils/server/getFullUrl.php",
+      "tests/api/getFullUrl.php"
+    ]
+  },
+  {
+    "hash": "6b062954b750b9055f99b86cfc330b2bf114300a",
+    "date": "2025-11-22T18:50:24+07:00",
+    "message": "docs(proxy-list): update Proxy Checker API usage (split HTTP/HTTPS, inline auth)",
+    "files": [
+      "src/react/pages/ProxyList/ApiUsage.tsx"
+    ]
+  },
+  {
     "hash": "6d3ad5cca544014a3461cb6fb16f4f56e9e47c4d",
     "date": "2025-11-22T18:09:14+07:00",
     "message": "feat(proxy-check): replace exit with respond_json and improve proxy check handling\n\n- Remove debug command output from HTTP/HTTPS proxy check scripts\n- Replace manual exit calls with respond_json (which exits internally)\n- Add clearer JSON messages for HTTP/HTTPS proxy check initiation\n- Improve frontend recheck logic with proper success/error message handling\n- Add typed proxy check response in React utils and merge HTTP/HTTPS messages",
@@ -8727,30 +8753,6 @@
     "message": "fix(dependencies): update various package versions for improved stability and performance",
     "files": [
       "package.json"
-    ]
-  },
-  {
-    "hash": "7e6085edeaf51a984404633d162dc38a000d1b2d",
-    "date": "2025-08-19T06:51:20+07:00",
-    "message": "fix(github-pages): add verification for build output and handle missing assets directory",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "7037d9508be205f2d8fab5743bd621d8d26c7ef8",
-    "date": "2025-08-19T02:40:01+07:00",
-    "message": "fix(github-pages): include yarn.lock in cache paths for improved dependency management",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "cec9b12f4d14b699ae97e6d9119d1e2171b1bd4c",
-    "date": "2025-08-18T20:34:31+07:00",
-    "message": "fix(github-pages): add step to clean dist and tmp directories before installation",
-    "files": [
-      ".github/workflows/github-pages.yml"
     ]
   }
 ]
