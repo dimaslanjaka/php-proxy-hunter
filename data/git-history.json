@@ -1,5 +1,13 @@
 [
   {
+    "hash": "803fa5c37f3695a8f01781e05ed3975f4c688f65",
+    "date": "2025-11-23T02:00:31+07:00",
+    "message": "refactor(ProxySubmission): remove log and status URL handling for cleaner UI",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
     "hash": "92ac49f40f0d9bba7f436491db65731165701e38",
     "date": "2025-11-22T19:19:22+07:00",
     "message": "feat(php_backend): return logFile URL for HTTP/HTTPS proxy checks\n\n- Add `getFullUrl($output_file)` and include `'logFile' => $embedOutputUrl` in JSON responses for\n  `php_backend/check-http-proxy.php` and `php_backend/check-https-proxy.php` so callers receive the\n  generated log URL after initiating a proxy check.\n- Simplify lock handling by replacing `exit($lockedMsg)` with `exit` to avoid emitting the lock message\n  as the process exit payload.",
@@ -8745,14 +8753,6 @@
     "message": "fix(vite.config): conditionally add legacy plugin for non-GitHub CI environments",
     "files": [
       "vite.config.js"
-    ]
-  },
-  {
-    "hash": "76a87d2e0ad3cda7215d84c1df4bfa2003dccdf5",
-    "date": "2025-08-19T06:53:43+07:00",
-    "message": "fix(dependencies): update various package versions for improved stability and performance",
-    "files": [
-      "package.json"
     ]
   }
 ]
