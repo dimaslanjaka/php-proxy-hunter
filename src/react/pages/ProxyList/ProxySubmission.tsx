@@ -2,12 +2,14 @@ import { ReactFormSaver, ReactFormSaverRef } from 'jquery-form-saver/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { checkProxy } from '../../utils/proxy';
+import { useSnackbar } from '../../components/Snackbar';
 import { createUrl } from '../../utils/url';
 
 export default function ProxySubmission() {
   const { t } = useTranslation();
   const [textarea, setTextarea] = React.useState('');
   const formSaverRef = React.useRef<ReactFormSaverRef | null>(null);
+  const { showSnackbar } = useSnackbar();
 
   const onRestore = (element: HTMLElement, data: any) => {
     if (element.id == 'proxyTextarea') {
@@ -20,9 +22,36 @@ export default function ProxySubmission() {
 
     // Send proxies to backend for addition
     fetch(createUrl('/php_backend/proxy-add.php'), { method: 'POST', body: new URLSearchParams({ proxies: textarea }) })
-      .catch(console.error)
+      .catch((_err) => {
+        console.error(_err);
+        try {
+          showSnackbar({ message: `Submit failed: ${String(_err)}`, type: 'danger' });
+        } catch {
+          /* ignore if snackbar not available */
+        }
+      })
       .finally(() => {
-        checkProxy(textarea);
+        checkProxy(textarea)
+          .then((res) => {
+            // res: { error?: boolean; message: string }
+            const isError = res?.error === true;
+            try {
+              showSnackbar({
+                message: res?.message || (isError ? 'Proxy check failed' : 'Proxies checked'),
+                type: isError ? 'danger' : 'success'
+              });
+            } catch {
+              /* ignore */
+            }
+          })
+          .catch((_err) => {
+            console.error(_err);
+            try {
+              showSnackbar({ message: `Proxy check failed: ${String(_err)}`, type: 'danger' });
+            } catch {
+              /* ignore */
+            }
+          });
       });
   }
 

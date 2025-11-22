@@ -29,10 +29,10 @@ export async function checkProxy(proxies: string) {
     });
   let buildMessage = 'Proxy check initiated\n';
   if (_httpsResponse?.message) {
-    buildMessage += `[HTTPS] ${_httpsResponse.message} \n`;
+    buildMessage += `${_httpsResponse.message} \n`;
   }
   if (_httpResponse?.message) {
-    buildMessage += `[HTTP] ${_httpResponse.message}\n`;
+    buildMessage += `${_httpResponse.message}\n`;
   }
   return {
     error: _httpsResponse?.error || _httpResponse?.error || false,
