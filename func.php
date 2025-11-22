@@ -514,6 +514,9 @@ if (!$isCli) {
   if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     // If a session user ID exists, use it to generate a hashed user ID
     $user_id_source = $_SESSION['user_id'];
+  } elseif (isset($_SESSION['email']) && isValidEmail($_SESSION['email'])) {
+    // If an email exists in the session, use it to generate a hashed user ID
+    $user_id_source = $_SESSION['email'];
   } else {
     // Otherwise, fall back to the PHP session ID
     $user_id_source = session_id();

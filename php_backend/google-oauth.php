@@ -44,7 +44,8 @@ if (!empty($request['google-oauth-callback'])) {
       $email        = isset($info->email) ? $info->email : null;
 
       if ($email) {
-        finalizeUserSession($email, $user_db); // create or update user
+        finalizeUserSession($email, $user_db);
+        // create or update user
         jsonResponse([
           'success' => true,
           'message' => 'Login successful',
@@ -170,7 +171,8 @@ function finalizeUserSession($email, $user_db) {
     $existingUser = $user_db->select($email);
   }
 
-  $_SESSION['user_id']             = $email;
+  $_SESSION['user_id']             = $existingUser['id'] ?? null;
+  $_SESSION['email']               = $email;
   $_SESSION['authenticated']       = true;
   $_SESSION['authenticated_email'] = $email;
   if ($isAdmin) {
