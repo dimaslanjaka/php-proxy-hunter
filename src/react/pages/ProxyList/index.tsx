@@ -581,9 +581,15 @@ function ProxyList() {
                                 } else if (t.toLowerCase() === 'socks4') {
                                   badgeClass +=
                                     ' bg-purple-200 text-purple-900 dark:bg-purple-400/20 dark:text-purple-100 border-purple-300 dark:border-purple-500';
+                                } else if (t.toLowerCase() === 'socks4a') {
+                                  badgeClass +=
+                                    ' bg-berry-200 text-berry-900 dark:bg-berry-400/20 dark:text-berry-100 border-berry-300 dark:border-berry-500';
                                 } else if (t.toLowerCase() === 'socks5') {
                                   badgeClass +=
                                     ' bg-orange-200 text-orange-900 dark:bg-orange-400/20 dark:text-orange-100 border-orange-300 dark:border-orange-500';
+                                } else if (t.toLowerCase() === 'socks5h') {
+                                  badgeClass +=
+                                    ' bg-sunset-200 text-sunset-900 dark:bg-sunset-400/20 dark:text-sunset-100 border-sunset-300 dark:border-sunset-500';
                                 } else if (t.toLowerCase() === 'ssl') {
                                   badgeClass +=
                                     ' bg-green-200 text-green-900 dark:bg-green-400/20 dark:text-green-100 border-green-300 dark:border-green-500';

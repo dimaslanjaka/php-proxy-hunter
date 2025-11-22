@@ -2,7 +2,7 @@ import flowbitePlugin from 'flowbite/plugin';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class', // Enables dark mode based on class
+  darkMode: 'class',
   content: [
     './src/**/*.{js,ts,jsx,tsx}',
     './*.html',
@@ -24,10 +24,11 @@ export default {
         cyan: '#00ffff',
         magenta: '#ff00ff',
         polkador: '#ff6347',
-        skip: '#d3d3d3', // light gray
+        skip: '#d3d3d3',
         silver: '#c0c0c0',
         mutedGray: '#b0b0b0',
-        lightGray: '#d3d3d3'
+        lightGray: '#d3d3d3',
+        amber: '#f59e0b'
       }
     }
   },
