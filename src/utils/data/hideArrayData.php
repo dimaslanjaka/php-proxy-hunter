@@ -28,7 +28,7 @@ declare(strict_types=1);
  *        forward the parent key. Callers should not set this value.
  * @return array The modified array with hidden data.
  */
-function hideArrayData(array $data, callable $shouldHide, callable $maskCallback = null, $parentKey = null) {
+function hideArrayData($data, $shouldHide, $maskCallback = null, $parentKey = null) {
   // Provide a default mask callback if none supplied.
   if ($maskCallback === null) {
     $maskCallback = function ($value) {
@@ -44,8 +44,10 @@ function hideArrayData(array $data, callable $shouldHide, callable $maskCallback
     if (is_array($shouldHide)) {
       $ref = new ReflectionMethod($shouldHide[0], $shouldHide[1]);
     } elseif (is_string($shouldHide) && strpos($shouldHide, '::') !== false) {
-      [$class, $method] = explode('::', $shouldHide, 2);
-      $ref              = new ReflectionMethod($class, $method);
+      $parts  = explode('::', $shouldHide, 2);
+      $class  = $parts[0];
+      $method = $parts[1];
+      $ref    = new ReflectionMethod($class, $method);
     } else {
       $ref = new ReflectionFunction($shouldHide);
     }
