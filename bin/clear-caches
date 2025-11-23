@@ -15,16 +15,6 @@ sudo find /var/log -type f -name "*.gz" -delete
 sudo find /var/log -type f -name "*.old" -delete
 sudo find /var/log -type f -name "*.log.*" -delete
 
-# --- Clear tmp logs if exist ---
-for dir in tmp/logs tmp/django_caches; do
-  if [ -d "$dir" ]; then
-    echo "Removing $dir..."
-    rm -rf "$dir"
-  else
-    echo "Directory $dir does not exist. Skipping."
-  fi
-done
-
 # --- Clear trash for all users ---
 for user in /home/*/; do
   rm -rf "$user/.local/share/Trash/"* 2>/dev/null
