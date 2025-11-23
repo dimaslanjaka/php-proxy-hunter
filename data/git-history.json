@@ -1,5 +1,15 @@
 [
   {
+    "hash": "83134f15aabd79635087b930b82e1cfefaf941c1",
+    "date": "2025-11-23T07:28:08+07:00",
+    "message": "refactor(session): centralize logout logic using Session::clearSessions and improve cookie clearing\n\n- Replace manual session/cookie cleanup in logout.php with Session::clearSessions(true)\n- Update HTML logout link to root path\n- Simplify php_backend/logout.php by using respond_json helper\n- Enhance Session::clearSessions to support optional cookie clearing and ensure session start\n- Improve overall consistency and reduce duplicated logout logic",
+    "files": [
+      "logout.php",
+      "php_backend/logout.php",
+      "src/PhpProxyHunter/Session.php"
+    ]
+  },
+  {
     "hash": "b755a3e831d361bfda55b8506e3ab10da42a5094",
     "date": "2025-11-23T07:20:49+07:00",
     "message": "fix(session): improve session folder permission handling",
@@ -8756,6 +8766,7 @@
       ".github/workflows/checker-php.yml.txt",
       ".github/workflows/checker.yml.txt",
       ".gitignore",
+      ".husky/pre-commit",
       "Taskfile.yml",
       "bin/clear-caches",
       "bin/fix-php",
@@ -8766,14 +8777,6 @@
       "github-actions-init.php",
       "scripts/composer-installer.js",
       "src/vps/menus/project-manager.py"
-    ]
-  },
-  {
-    "hash": "ee0e81045538783afe38ec54f7db4bfad0dc52f4",
-    "date": "2025-08-28T12:42:10+07:00",
-    "message": "fix(adminer-installer): update modify function to replace 'namespace Adminer;' with custom script",
-    "files": [
-      "scripts/adminer-installer.js"
     ]
   }
 ]
