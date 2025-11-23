@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Set current directory as working directory
-CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+# Use $0 instead of ${BASH_SOURCE[0]} for better compatibility
+CWD="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
 
 # Change to the directory stored in CWD
 cd "$CWD"
@@ -27,7 +28,7 @@ fi
 
 # Load .env file
 if [ -f "$CWD/.env" ]; then
-    source "$CWD/.env"
+    . "$CWD/.env"  # Use . instead of source for sh compatibility
 fi
 
 r_cmd() {
@@ -56,14 +57,13 @@ r_cmd() {
     if $is_running; then
         echo "$CWD/$FILE_PATH is still running."
     else
-        # Check if OS is Linux and nginx is installed
-        if [[ "$(uname)" == "Linux" && -x "$(command -v nginx)" ]]; then
+        if [ "$(uname)" = "Linux" ] && [ -x "$(command -v nginx)" ]; then
             USER="www-data"
-            COMMAND="source $CWD/venv/bin/activate && $COMMAND_RUNNER $FILE_PATH $COMMAND_ARGS"
+            COMMAND=". $CWD/venv/bin/activate && $COMMAND_RUNNER $FILE_PATH $COMMAND_ARGS"
             echo "Executing as $USER: $COMMAND"
             sudo -u "$USER" -H bash -c "$COMMAND"
         else
-            COMMAND="source $CWD/venv/Scripts/activate && $COMMAND_RUNNER $FILE_PATH $COMMAND_ARGS"
+            COMMAND=". $CWD/venv/Scripts/activate && $COMMAND_RUNNER $FILE_PATH $COMMAND_ARGS"
             echo "Executing: $COMMAND"
             eval "$COMMAND"
         fi
