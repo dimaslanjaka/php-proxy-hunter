@@ -32,7 +32,11 @@ class Session {
       }
 
       // set sessions folder permission
-      chmod($session_folder, 0777);
+      if (!is_writable($session_folder)) {
+        if (!chmod($session_folder, 0777)) {
+          throw new Exception('Unable to set session folder permission.');
+        }
+      }
       session_save_path($session_folder);
       session_set_cookie_params($timeout);
       ini_set('session.gc_maxlifetime', $timeout);
