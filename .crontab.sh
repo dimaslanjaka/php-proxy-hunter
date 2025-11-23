@@ -188,7 +188,7 @@ if should_run_job "tmp/crontab/24-h" 24; then
     # Backup database
     bash -e "$CWD/bin/backup-db"
     # Run php cleanup script
-    php "$CWD/artisan/cleaner.php"
+    log_command "tmp/logs/crontab/php-cleaner.log" php "$CWD/artisan/cleaner.php"
     # Remove old backups older than 7 days
     find "$CWD/backups" -type f -name "*.sql" -mtime +7 -exec rm -f {} \;
     echo "Old backups removed, keeping only the last 7 days."
