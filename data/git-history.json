@@ -1,5 +1,29 @@
 [
   {
+    "hash": "6d43336cd47f24eaf8a074291a76528685ae7353",
+    "date": "2025-11-23T07:18:55+07:00",
+    "message": "refactor: rename is_session_started method to isSessionStarted",
+    "files": [
+      "src/PhpProxyHunter/Session.php"
+    ]
+  },
+  {
+    "hash": "2a149df23e1ff343f13ba15845d84051d342ee0a",
+    "date": "2025-11-23T07:17:46+07:00",
+    "message": "refactor: remove FileSessionHandler class\n\nthese class cannot be applied between php 7.0 - 8.0",
+    "files": [
+      "src/FileSessionHandler.php"
+    ]
+  },
+  {
+    "hash": "fae3751d483ca1b5c1275627603303aca00ce1e1",
+    "date": "2025-11-23T07:13:26+07:00",
+    "message": "fix(instructions): remove guideline against using global variables",
+    "files": [
+      ".github/instructions/php.instructions.md"
+    ]
+  },
+  {
     "hash": "b85afde62e52d674d5e3651d919e05fb7db7de4d",
     "date": "2025-11-23T05:03:21+07:00",
     "message": "feat(php): add return type declarations for PHP 7.0+ compatibility\n\nRemove PHP 7.1+ void return types and PHP 7.4 property type declarations\nfrom src/ directory to ensure PHP 7.0 compatibility while adding proper\ntype hints where supported by PHP 7.0.\n\nChanges:\n- Remove `: void` return type from functions (void introduced in PHP 7.1)\n- Remove property type declarations from FileLockHelper (PHP 7.4+ feature)\n- Add `: string`, `: bool`, `: array` return types (supported in PHP 7.0)\n- Add parameter type declarations (supported in PHP 7.0)\n- Update phpdoc array<key, value> type hints for better documentation\n- Remove duplicate phpdoc comments\n- Improve code formatting and consistency\n\nBREAKING CHANGE: All return type declarations are now stripped of `void`\ntype hint to maintain PHP 7.0 compatibility. Functions still return nothing\nbut without explicit type declaration.",
@@ -8751,32 +8775,6 @@
     "files": [
       ".gitignore",
       "scripts/adminer-installer.js"
-    ]
-  },
-  {
-    "hash": "b836876b60b36c57685637df36034d90d81e6178",
-    "date": "2025-08-28T11:13:32+07:00",
-    "message": "refactor(phpliteadmin): rename phpliteadmin.php to index.php",
-    "files": [
-      "phpliteadmin/index.php"
-    ]
-  },
-  {
-    "hash": "3feb7163ac836135fe4e1e2abfc7bdbd628d52b2",
-    "date": "2025-08-28T11:00:29+07:00",
-    "message": "feat(installer): add unzipper-based extraction with progress for phpmyadmin and sqlite\n\n- Replace system-based zip extraction (unzip/Expand-Archive) with unzipper in both phpmyadmin-installer.js and sqlite-installer.js\n- Show extraction progress percentage and file count during zip extraction\n- Add @vitalets/google-translate-api and unzipper to dependencies\n- Add @types/unzipper to devDependencies\n- Improve downloadFile and extractZip with JSDoc comments and error handling\n- Update phpMyAdmin config: increase LoginCookieValidity and add LoginCookieStore to 1 week, output config.inc.php directly in phpmyadmin/\n- Always extract and create config for phpMyAdmin, even if zip is up to date",
-    "files": [
-      "package.json",
-      "scripts/phpmyadmin-installer.js",
-      "scripts/sqlite-installer.js"
-    ]
-  },
-  {
-    "hash": "64c9813a793e4bf1ff9c7c0bb7e7bb4957cac1fa",
-    "date": "2025-08-28T10:30:38+07:00",
-    "message": "fix(settings): update PATH variable to include local NVM and Git binaries",
-    "files": [
-      ".vscode/settings.json"
     ]
   }
 ]
