@@ -1,5 +1,13 @@
 [
   {
+    "hash": "0f9403584cd0e2fe69f35cde310933214db0e4ca",
+    "date": "2025-11-23T15:46:39+07:00",
+    "message": "fix(MySQLHelper): add automatic connection loss detection and recovery\n\nAdd resilient connection handling to prevent MySQL timeout errors (error 4031)\nduring long-running operations. Implements automatic reconnection with retry logic\nfor database operations.\n\nBREAKING CHANGE: None. Changes are backward compatible.\n\n- Store connection parameters for automatic reconnection\n- Add isConnectionAlive() to validate active connections\n- Add isConnectionLossError() to detect connection loss errors (4031, 2006, 2013, HY000, 08006, 08003)\n- Add reconnect() for automatic reconnection to MySQL\n- Add withConnectionRetry() wrapper for transparent operation retry\n- Wrap select(), update(), execute(), insert() with retry logic\n- Handle all major MySQL connection timeout scenarios\n\nFixes: SQLSTATE[HY000] error 4031 - \"Client disconnected by server due to inactivity\"\n\nAffected operations:\n- select(): Critical for proxy lookups\n- update(): Essential for saving proxy check results\n- execute(): Custom SQL queries\n- insert(): Adding new proxies\n\nPerformance impact: Zero overhead in normal operations, 50-200ms recovery on connection loss.",
+    "files": [
+      "src/PhpProxyHunter/MySQLHelper.php"
+    ]
+  },
+  {
     "hash": "0952c4909be7ca1bc9b28d51f0c5cc474d53c16a",
     "date": "2025-11-23T15:35:38+07:00",
     "message": "fix(instructions): update compatibility guidelines for PHP 7.0 regarding type hints",
@@ -8752,14 +8760,6 @@
     "message": "fix(adminer-installer): improve composer dependency management by adding conditional install/update logic",
     "files": [
       "packages/proxies-grabber",
-      "scripts/adminer-installer.js"
-    ]
-  },
-  {
-    "hash": "fefdf9e5628a56c4d5985bca83a9db590f52f907",
-    "date": "2025-08-28T13:17:02+07:00",
-    "message": "refactor(scripts): switch adminer-installer.js to git-based workflow and enhance security\n\n- Replace manual file downloads with git clone of the adminer repository.\n- Add submodule and composer dependency updates for adminer.\n- Automatically patch both adminer/index.php and editor/index.php to require the project's func.php using a relative path.\n- Inject admin-only access control logic into both files.\n- Remove legacy download and file modification logic in favor of a unified async workflow.",
-    "files": [
       "scripts/adminer-installer.js"
     ]
   }
