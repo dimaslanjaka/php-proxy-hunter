@@ -30,15 +30,37 @@ $current_time = time();
 // Calculate the timestamp for 1 week ago
 $oneWeekAgo = strtotime('-1 week');
 
-foreach ($directories as $directory) {
-  if (!file_exists($directory)) {
-    continue;
+/**
+ * Recursively clean files in a directory and its subdirectories
+ * @param string $directory The directory to clean
+ */
+function cleanDirectoryRecursive($directory) {
+  global $oneWeekAgo;
+
+  if (!file_exists($directory) || !is_dir($directory)) {
+    return;
   }
+
   // Open the directory
   if ($handle = opendir($directory)) {
     // Loop through each file in the directory
     while (false !== ($file = readdir($handle))) {
+      // Skip . and ..
+      if ($file === '.' || $file === '..') {
+        continue;
+      }
+
       $filePath = realpath($directory . '/' . $file);
+      if ($filePath === false) {
+        continue;
+      }
+
+      // Recursively process subdirectories
+      if (is_dir($filePath)) {
+        cleanDirectoryRecursive($filePath);
+        continue;
+      }
+
       if (!is_file($filePath)) {
         continue;
       }
@@ -99,4 +121,8 @@ foreach ($directories as $directory) {
     // Close the directory handle
     closedir($handle);
   }
+}
+
+foreach ($directories as $directory) {
+  cleanDirectoryRecursive($directory);
 }
