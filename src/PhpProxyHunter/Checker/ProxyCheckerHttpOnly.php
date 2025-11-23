@@ -48,7 +48,7 @@ class ProxyCheckerHttpOnly extends ProxyChecker {
       $info    = curl_getinfo($ch);
       $curlErr = curl_error($ch);
 
-      $msg = sprintf('[%s] %s ', strtoupper($protocol), $options->proxy);
+      $msg = sprintf('%s://%s ', strtolower($protocol), $options->proxy);
 
       if ($body !== false && isset($info['http_code']) && (int)$info['http_code'] === 200) {
         if (!empty($info['total_time'])) {
