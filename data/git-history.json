@@ -1,5 +1,21 @@
 [
   {
+    "hash": "0952c4909be7ca1bc9b28d51f0c5cc474d53c16a",
+    "date": "2025-11-23T15:35:38+07:00",
+    "message": "fix(instructions): update compatibility guidelines for PHP 7.0 regarding type hints",
+    "files": [
+      ".github/instructions/php.instructions.md"
+    ]
+  },
+  {
+    "hash": "aa84948034519c1e40f24025d8da8f846a5a6404",
+    "date": "2025-11-23T15:32:43+07:00",
+    "message": "fix(scheduler): remove type hint for callable in register method for compatibility",
+    "files": [
+      "src/PhpProxyHunter/Scheduler.php"
+    ]
+  },
+  {
     "hash": "5e4c6364081475ab1e21a22a519d0307797d0e30",
     "date": "2025-11-23T12:24:39+07:00",
     "message": "fix(hideArrayData): remove type hints and list unpacking for PHP 7.0 compatibility\n\n- Remove explicit type declarations (array, callable) from function parameters\n- Replace list unpacking syntax with traditional array index assignment\n- Keep type information in PHPDoc comments for IDE support\n- Ensures compatibility with PHP 7.0 while maintaining code documentation",
@@ -8745,23 +8761,6 @@
     "message": "refactor(scripts): switch adminer-installer.js to git-based workflow and enhance security\n\n- Replace manual file downloads with git clone of the adminer repository.\n- Add submodule and composer dependency updates for adminer.\n- Automatically patch both adminer/index.php and editor/index.php to require the project's func.php using a relative path.\n- Inject admin-only access control logic into both files.\n- Remove legacy download and file modification logic in favor of a unified async workflow.",
     "files": [
       "scripts/adminer-installer.js"
-    ]
-  },
-  {
-    "hash": "432a325bbab598b47b4271b30debc3773d7cc276",
-    "date": "2025-08-28T13:00:59+07:00",
-    "message": "chore(postinstall): clean up postinstall script structure",
-    "files": [
-      "scripts/postinstall.js"
-    ]
-  },
-  {
-    "hash": "2e4f35eff9c9e1c261c86fb8235fdb32e59f580a",
-    "date": "2025-08-28T13:00:18+07:00",
-    "message": "feat(postinstall): add postinstall script to run composer-installer",
-    "files": [
-      "package.json",
-      "scripts/postinstall.js"
     ]
   }
 ]
