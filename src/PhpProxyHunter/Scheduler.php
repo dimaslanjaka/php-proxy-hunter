@@ -18,7 +18,7 @@ class Scheduler {
    * @param callable $func The shutdown function to register.
    * @param string|null $identifier Optional. An identifier for the function. If provided, the identifier will be used as the key in the shutdown functions array. If not provided, a random key will be generated.
    */
-  public static function register(callable $func, $identifier = null) {
+  public static function register($func, $identifier = null) {
     global $shutdown_functions;
     /** @noinspection RegExpRedundantEscape */
     $id = preg_replace('/[^\w\-\._\s]/u', '', $identifier);
