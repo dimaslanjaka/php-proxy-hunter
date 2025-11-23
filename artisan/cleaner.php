@@ -115,7 +115,7 @@ function cleanDirectoryRecursive($directory) {
       // File was last modified (or created) more than 1 week ago.
       if ($fileDate !== false && $fileDate < $oneWeekAgo) {
         // Remove the file
-        echo "File $file removed (" . (unlink($filePath) ? 'success' : 'failed') . ')' . PHP_EOL;
+        echo "File $filePath removed (" . (@unlink($filePath) ? 'success' : 'failed') . ')' . PHP_EOL;
       }
     }
     // Close the directory handle
