@@ -15,5 +15,7 @@ This project uses `composer` for dependency management and follows modern PHP de
 - Prefer short array syntax (`[]`) over `array()`.
 - Use meaningful variable and function names.
 - Write PHPDoc comments for all public classes, methods, and properties.
-- Use dependency injection instead of creating new instances inside classes.
-- Write unit tests for all new features and bug fixes.
+- Dont use type hint for callable in register method for compatibility with PHP 7.0.
+- Dont use return type hint for methods that return mixed types or when compatibility with older PHP versions is required.
+- Dont use type hint for parameters for compatibility with PHP 7.0.
+- Instead of using type hints, use PHPDoc comments to indicate expected types for better compatibility with PHP 7.0.
