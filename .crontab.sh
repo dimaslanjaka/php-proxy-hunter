@@ -106,13 +106,33 @@ should_run_job() {
 
 mkdir -p tmp/crontab
 
+# Logging function to capture stdout/stderr with timestamp
+log_command() {
+    local log_file=$1
+    shift  # Remove first argument, rest is the command
+
+    # Auto create log directory if it doesn't exist
+    local log_dir=$(dirname "$log_file")
+    mkdir -p "$log_dir"
+
+    {
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Running: $@"
+        "$@"
+        local exit_code=$?
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Exit code: $exit_code"
+        echo ""
+        echo "===================="
+        echo ""
+    } >> "$log_file" 2>&1 || true
+}
+
 # run every hour
 if should_run_job "tmp/crontab/1-h" 1; then
     # php "$CWD/send_curl.php" --url=https://sh.webmanajemen.com:8443/proxy/check
-    djm check_proxies --max=100
-    djm filter_dups --max=100
-    php artisan/proxyCollector.php
-    php artisan/proxyCollector2.php
+    log_command "tmp/logs/crontab/djm_check_proxies.log" djm check_proxies --max=100
+    log_command "tmp/logs/crontab/djm_filter_dups.log" djm filter_dups --max=100
+    php artisan/proxyCollector.php || true
+    php artisan/proxyCollector2.php || true
 else
     echo "Skipping 1 hour job."
 fi
@@ -133,7 +153,7 @@ fi
 
 # run every 6 hours
 if should_run_job "tmp/crontab/6-h" 6; then
-    djm sync_proxies
+    log_command "tmp/logs/crontab/djm_sync_proxies.log" djm sync_proxies
 else
     echo "Skipping 6 hours job."
 fi
