@@ -77,11 +77,18 @@ function cleanDirectoryRecursive($directory) {
         continue;
       }
 
-      // skip spesific substrings
+      // skip spesific substrings      File D:\Repositories\php-proxy-hunter\tmp\cookies\list_packages.js.map removed (success)
       $pattern = '/(payment|axis|im3)/i';
       if (preg_match($pattern, $filePath)) {
-        echo "$filePath excluded" . PHP_EOL;
-        continue;
+        // continue deletion when matched pattern
+        $substringMatch = preg_match('/(get-balance|get-profile)/i', $filePath);
+        $extensionMatch = preg_match('/\.(pid|lock|sh|bat)$/i', $filePath);
+        if ($substringMatch || $extensionMatch) {
+          // continue deletion
+        } else {
+          echo "$filePath excluded" . PHP_EOL;
+          continue;
+        }
       }
 
       // Get the last modification time of the file, fallback to creation time if needed
