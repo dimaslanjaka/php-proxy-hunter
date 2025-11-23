@@ -12,5 +12,5 @@
 # backup database every day at midnight
 0 0 * * * /usr/local/bin/sqlite3 /var/www/html/src/database.sqlite .dump > /var/www/html/backups/php_database_backup_$(date +\%Y-\%m-\%d).sql
 0 0 * * * /usr/local/bin/sqlite3 /var/www/html/tmp/database.sqlite .dump > /var/www/html/backups/python_database_backup_$(date +\%Y-\%m-\%d).sql
-# run custom crontab script every hours
-0 * * * * bash /var/www/html/.crontab.sh > /var/www/html/proxyChecker.txt 2>&1
+# run custom crontab script every 30 mins
+*/30 * * * * bash /var/www/html/.crontab.sh > /var/www/html/proxyChecker.txt 2>&1
