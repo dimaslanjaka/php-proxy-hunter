@@ -18,6 +18,12 @@ class MySQLHelper extends BaseSQL {
   /** @var PDO[] Static property to hold PDO instances. */
   private static $databases = [];
 
+  /** @var string|null $connectionString Stored connection string for reconnection. */
+  private $connectionString;
+
+  /** @var array $connectionParams Stored connection parameters for reconnection. */
+  private $connectionParams = [];
+
   /**
    * MySQLHelper constructor.
    *
@@ -36,6 +42,16 @@ class MySQLHelper extends BaseSQL {
     $callerLine          = isset($caller['line']) ? $caller['line'] : 'unknown';
     $this->uniqueKey     = md5($hostOrPdoIdentifier . ($dbname ?: '') . ($username ?: '') . $callerFile . $callerLine);
 
+    // Store connection parameters for potential reconnection
+    if (!$isPdo) {
+      $this->connectionParams = [
+        'host'     => $hostOrPdo,
+        'dbname'   => $dbname,
+        'username' => $username,
+        'password' => $password,
+      ];
+    }
+
     if (isset(self::$databases[$this->uniqueKey])) {
       $this->pdo = self::$databases[$this->uniqueKey];
     } else {
@@ -43,7 +59,8 @@ class MySQLHelper extends BaseSQL {
         $this->pdo = $hostOrPdo;
       } else {
         // Try connecting to the database, if it fails due to unknown database, create it
-        $dsn = "mysql:host=$hostOrPdo;dbname=$dbname;charset=utf8mb4";
+        $dsn                    = "mysql:host=$hostOrPdo;dbname=$dbname;charset=utf8mb4";
+        $this->connectionString = $dsn;
         try {
           $this->pdo = new PDO($dsn, $username, $password);
         } catch (\PDOException $e) {
@@ -111,6 +128,110 @@ class MySQLHelper extends BaseSQL {
   }
 
   /**
+   * Check if the connection is still alive.
+   * @return bool True if connection is valid, false otherwise.
+   */
+  public function isConnectionAlive() {
+    try {
+      if (!$this->pdo) {
+        return false;
+      }
+      // Try a simple query to verify connection
+      $this->pdo->query('SELECT 1');
+      return true;
+    } catch (\PDOException $e) {
+      return false;
+    }
+  }
+
+  /**
+   * Check if a PDOException is a connection loss error and attempt to reconnect.
+   * @param \PDOException $e The exception to check.
+   * @return bool True if reconnection was successful, false otherwise.
+   */
+  private function isConnectionLossError(\PDOException $e) {
+    $msg = $e->getMessage();
+    // Check for common connection loss error codes/messages
+    $connectionLossPatterns = [
+      'disconnected by the server',  // Error 4031
+      'MySQL server has gone away',
+      'no connection to the server',
+      'lost connection',
+      'connection refused',
+      'Can\'t connect to MySQL server',
+    ];
+
+    foreach ($connectionLossPatterns as $pattern) {
+      if (stripos($msg, $pattern) !== false) {
+        return true;
+      }
+    }
+
+    // Check SQLSTATE code
+    if (isset($e->errorInfo[0])) {
+      // HY000 (General error) is often used for connection loss
+      if ($e->errorInfo[0] === 'HY000' || $e->errorInfo[0] === '08006' || $e->errorInfo[0] === '08003') {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Attempt to reconnect to the database.
+   * @return bool True if reconnection was successful, false otherwise.
+   */
+  private function reconnect() {
+    if (empty($this->connectionParams)) {
+      return false;
+    }
+
+    try {
+      $host     = $this->connectionParams['host'];
+      $dbname   = $this->connectionParams['dbname'];
+      $username = $this->connectionParams['username'];
+      $password = $this->connectionParams['password'];
+      $dsn      = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
+
+      $this->pdo = new PDO($dsn, $username, $password);
+      $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+      // Update the cached database instance
+      self::$databases[$this->uniqueKey] = $this->pdo;
+
+      return true;
+    } catch (\PDOException $e) {
+      return false;
+    }
+  }
+
+  /**
+   * Wrap a PDO operation with connection loss handling and automatic reconnection.
+   * @param callable $operation The operation to perform.
+   * @param string $operationName Name of the operation for logging.
+   * @return mixed The result of the operation.
+   */
+  private function withConnectionRetry(callable $operation, $operationName = 'database operation') {
+    try {
+      return call_user_func($operation);
+    } catch (\PDOException $e) {
+      if ($this->isConnectionLossError($e)) {
+        // Try to reconnect
+        if ($this->reconnect()) {
+          // Retry the operation once after reconnection
+          try {
+            return call_user_func($operation);
+          } catch (\PDOException $retryException) {
+            throw $retryException;
+          }
+        }
+      }
+      throw $e;
+    }
+  }
+
+  /**
    * Creates a table in the database.
    *
    * @param string $tableName The name of the table to create.
@@ -144,10 +265,14 @@ class MySQLHelper extends BaseSQL {
     $sql     = $insertOrIgnore ? 'INSERT IGNORE' : 'INSERT';
     $sql     = "$sql INTO $tableName ($columns) VALUES ($values)";
 
-    try {
+    $operation = function () use ($sql, $data) {
       $stmt = $this->pdo->prepare($sql);
       $stmt->execute(array_values($data));
       return true;
+    };
+
+    try {
+      return $this->withConnectionRetry($operation, 'insert');
     } catch (\PDOException $e) {
       // Do not throw; return false to indicate failure
       return false;
@@ -167,28 +292,33 @@ class MySQLHelper extends BaseSQL {
    * @return array An array containing the selected records.
    */
   public function select($tableName, $columns = '*', $where = null, $params = [], $orderBy = null, $limit = null, $offset = null) {
-    $sql = "SELECT $columns FROM $tableName";
-    if ($where) {
-      $sql .= " WHERE $where";
-    }
-    if ($orderBy) {
-      $sql .= " ORDER BY $orderBy";
-    }
-    if ($limit !== null) {
-      if ($offset !== null) {
-        // MySQL supports LIMIT offset, count
-        $sql .= " LIMIT $offset, $limit";
-      } else {
-        $sql .= " LIMIT $limit";
+    $operation = function () use ($tableName, $columns, $where, $params, $orderBy, $limit, $offset) {
+      $sql = "SELECT $columns FROM $tableName";
+      if ($where) {
+        $sql .= " WHERE $where";
       }
-    } elseif ($offset !== null) {
-      // If only offset provided, use large limit to allow offset
-      $sql .= " LIMIT 18446744073709551615 OFFSET $offset"; // MySQL max
-    }
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute($params);
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $result ? $result : [];
+      if ($orderBy) {
+        $sql .= " ORDER BY $orderBy";
+      }
+      if ($limit !== null) {
+        if ($offset !== null) {
+          // MySQL supports LIMIT offset, count
+          $sql .= " LIMIT $offset, $limit";
+        } else {
+          $sql .= " LIMIT $limit";
+        }
+      } elseif ($offset !== null) {
+        // If only offset provided, use large limit to allow offset
+        $sql .= " LIMIT 18446744073709551615 OFFSET $offset";
+        // MySQL max
+      }
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute($params);
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $result ? $result : [];
+    };
+
+    return $this->withConnectionRetry($operation, 'select');
   }
 
   /**
@@ -199,10 +329,14 @@ class MySQLHelper extends BaseSQL {
    * @return array The queried result.
    */
   public function execute($sql, $params = []) {
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute($params);
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $result ? $result : [];
+    $operation = function () use ($sql, $params) {
+      $stmt = $this->pdo->prepare($sql);
+      $stmt->execute($params);
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      return $result ? $result : [];
+    };
+
+    return $this->withConnectionRetry($operation, 'execute');
   }
 
   /**
@@ -233,20 +367,24 @@ class MySQLHelper extends BaseSQL {
    * @param array $params An array of parameters to bind to the query.
    */
   public function update($tableName, $data, $where, $params = []) {
-    $setValues = [];
-    $setParams = [];
-    foreach ($data as $key => $value) {
-      if (empty($value) && $value !== 0) {
-        $setValues[] = "$key = NULL";
-      } else {
-        $setValues[] = "$key = ?";
-        $setParams[] = $value;
+    $operation = function () use ($tableName, $data, $where, $params) {
+      $setValues = [];
+      $setParams = [];
+      foreach ($data as $key => $value) {
+        if (empty($value) && $value !== 0) {
+          $setValues[] = "$key = NULL";
+        } else {
+          $setValues[] = "$key = ?";
+          $setParams[] = $value;
+        }
       }
-    }
-    $setString = implode(', ', $setValues);
-    $sql       = "UPDATE $tableName SET $setString WHERE $where";
-    $stmt      = $this->pdo->prepare($sql);
-    $stmt->execute(array_merge($setParams, $params));
+      $setString = implode(', ', $setValues);
+      $sql       = "UPDATE $tableName SET $setString WHERE $where";
+      $stmt      = $this->pdo->prepare($sql);
+      $stmt->execute(array_merge($setParams, $params));
+    };
+
+    $this->withConnectionRetry($operation, 'update');
   }
 
   /**
