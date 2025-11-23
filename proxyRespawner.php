@@ -146,7 +146,7 @@ if ($isCli) {
   // lock file same as scanPorts.php
   $webLockFile = tmp() . '/runners/respawner-web-' . sanitizeFilename($id) . '.lock';
 
-  $runner = tmp() . '/runners/' . basename($webLockFile, '.lock') . ($isWin ? '.bat' : '');
+  $runner = tmp() . '/runners/' . basename($webLockFile, '.lock') . ($isWin ? '.bat' : '.sh');
   $uid    = getUserId();
   $cmd .= ' --userId=' . escapeshellarg($uid);
   $cmd .= ' --lockFile=' . escapeshellarg(unixPath($webLockFile));

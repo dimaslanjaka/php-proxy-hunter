@@ -36,7 +36,7 @@ if (!$isCli) {
 
   $outputFile = tmp() . "/logs/user-$uid/proxyWorking.log";
   $pidFile    = "$projectRoot/tmp/runners/proxyWorking-$uid.pid";
-  $runnerFile = "$projectRoot/tmp/runners/proxyWorking" . (PHP_OS_FAMILY === 'Windows' ? '.bat' : '');
+  $runnerFile = "$projectRoot/tmp/runners/proxyWorking" . (PHP_OS_FAMILY === 'Windows' ? '.bat' : '.sh');
 
   write_file($outputFile, '[' . date('Y-m-d H:i:s') . "] Starting proxyWorking process...\n");
   write_file($pidFile, '[' . date('Y-m-d H:i:s') . "] PID log for proxyWorking process:\n");

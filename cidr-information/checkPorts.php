@@ -139,7 +139,7 @@ echo $cmd . "\n\n";
 if (!$isCli) {
   $cmd = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
 
-  $runner = tmp() . '/runners/' . basename(__FILE__, '.php') . ($isWin ? '.bat' : '');
+  $runner = tmp() . '/runners/' . basename(__FILE__, '.php') . ($isWin ? '.bat' : '.sh');
   write_file($runner, $cmd);
   write_file($lock_file, '');
   runBashOrBatch($runner);

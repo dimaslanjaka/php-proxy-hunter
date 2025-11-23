@@ -73,7 +73,7 @@ if (!$isCli) {
     $cmd = sprintf('%s > %s 2>&1', $cmd, escapeshellarg($output_file));
 
     // Create a runner script for the command
-    $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : '');
+    $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : '.sh');
     write_file($runner, $cmd);
 
     // Execute the runner script in background

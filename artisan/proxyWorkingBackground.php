@@ -34,7 +34,7 @@ if (file_exists($projectRoot . '/proxyChecker.lock') && !is_debug()) {
 echo $cmd . "\n\n";
 
 $cmd    = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
-$runner = $projectRoot . '/tmp/runners/' . basename(__FILE__, '.php') . ($isWin ? '.bat' : '');
+$runner = $projectRoot . '/tmp/runners/' . basename(__FILE__, '.php') . ($isWin ? '.bat' : '.sh');
 
 write_file($runner, $cmd);
 

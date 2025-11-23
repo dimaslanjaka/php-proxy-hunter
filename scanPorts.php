@@ -82,8 +82,7 @@ iterateLines($str, true, 'execute_line');
 
 $background_running = 0;
 
-function execute_line($line, $line_index)
-{
+function execute_line($line, $line_index) {
   global $background_running, $db;
   if ($background_running > 30) {
     // skip iterate index 30
@@ -108,8 +107,7 @@ function execute_line($line, $line_index)
   // do_check($generatedProxies);
 }
 
-function do_check($filePath, $background = false)
-{
+function do_check($filePath, $background = false) {
   global $isCli, $isAdmin, $background_running;
   $file        = __DIR__ . '/cidr-information/CIDR-check.php';
   $isWin       = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
@@ -130,7 +128,7 @@ function do_check($filePath, $background = false)
       echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
       return;
     }
-    $runner = __DIR__ . '/tmp/runners/' . sanitizeFilename(basename($filePath, '.php') . '-' . basename($webLockFile, '.lock')) . ($isWin ? '.bat' : '');
+    $runner = __DIR__ . '/tmp/runners/' . sanitizeFilename(basename($filePath, '.php') . '-' . basename($webLockFile, '.lock')) . ($isWin ? '.bat' : '.sh');
     $uid    = getUserId();
     $cmd .= ' --userId=' . escapeshellarg($uid);
     $cmd .= ' --lockFile=' . escapeshellarg(unixPath($webLockFile));
@@ -162,8 +160,7 @@ function do_check($filePath, $background = false)
   runBashOrBatch($runner);
 }
 
-function saveRangePorts(string $ip)
-{
+function saveRangePorts(string $ip) {
   $explode    = explode(':', $ip);
   $ip         = $explode[0];
   $outputPath = tmp() . '/ips-ports/' . sanitizeFilename($ip) . '.txt';
@@ -186,8 +183,7 @@ function saveRangePorts(string $ip)
   return $outputPath;
 }
 
-function genRangePorts(string $ip)
-{
+function genRangePorts(string $ip) {
   $min_port = 10;
   $max_port = 65535;
 
