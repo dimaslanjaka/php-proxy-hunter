@@ -77,7 +77,7 @@ r_cmd() {
 # r_cmd "python" "artisan/filterPortsDuplicate.py" "--max=10"
 # r_cmd "python" "proxyCheckerReal.py" "--max=10"
 
-# Helper function to check if it's time to run a job
+# Helper function to check if it's time to run a job by timestamp file content comparison
 should_run_job() {
     local file_path=$1
     local interval_hours=$2
