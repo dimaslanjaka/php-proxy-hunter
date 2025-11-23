@@ -189,6 +189,9 @@ if should_run_job "tmp/crontab/24-h" 24; then
     # Remove old backups older than 7 days
     find "$CWD/backups" -type f -name "*.sql" -mtime +7 -exec rm -f {} \;
     echo "Old backups removed, keeping only the last 7 days."
+    # Remove old log files older than 30 days
+    find "$CWD/tmp/logs" -type f -name "*.log" -mtime +30 -exec rm -f {} \;
+    echo "Old log files removed, keeping only the last 30 days."
 else
     echo "Skipping 24 hours job."
 fi
