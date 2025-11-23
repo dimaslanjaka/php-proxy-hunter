@@ -126,13 +126,21 @@ log_command() {
     } >> "$log_file" 2>&1 || true
 }
 
+# run every 30 minutes
+if should_run_job "tmp/crontab/30-m" 0.5; then
+    # r_cmd "python" "artisan/filterPortsDuplicate.py" "--max=50"
+    # r_cmd "python" "proxyCheckerReal.py" "--max=50"
+    php artisan/proxyCollector.php || true
+    php artisan/proxyCollector2.php || true
+else
+    echo "Skipping 30 minutes job."
+fi
+
 # run every hour
 if should_run_job "tmp/crontab/1-h" 1; then
     # php "$CWD/send_curl.php" --url=https://sh.webmanajemen.com:8443/proxy/check
-    log_command "tmp/logs/crontab/djm_check_proxies.log" djm check_proxies --max=100
-    log_command "tmp/logs/crontab/djm_filter_dups.log" djm filter_dups --max=100
-    php artisan/proxyCollector.php || true
-    php artisan/proxyCollector2.php || true
+    # log_command "tmp/logs/crontab/djm_check_proxies.log" djm check_proxies --max=100
+    # log_command "tmp/logs/crontab/djm_filter_dups.log" djm filter_dups --max=100
 else
     echo "Skipping 1 hour job."
 fi
@@ -153,7 +161,7 @@ fi
 
 # run every 6 hours
 if should_run_job "tmp/crontab/6-h" 6; then
-    log_command "tmp/logs/crontab/djm_sync_proxies.log" djm sync_proxies
+    # log_command "tmp/logs/crontab/djm_sync_proxies.log" djm sync_proxies
 else
     echo "Skipping 6 hours job."
 fi
