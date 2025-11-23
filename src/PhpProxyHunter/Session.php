@@ -20,7 +20,7 @@ class Session {
     if (!empty($session_folder) && !file_exists($session_folder)) {
       mkdir($session_folder, 755, true);
     }
-    if (!$this->is_session_started()) {
+    if (!$this->isSessionStarted()) {
       $name = md5($this->session_prefix_name . $timeout . Server::getRequestIP() . Server::useragent());
       if (empty(trim($session_folder))) {
         $session_folder = __DIR__ . '/../../tmp/sessions';
@@ -59,7 +59,7 @@ class Session {
    *
    * @return bool Returns true if session is active, false otherwise.
    */
-  public function is_session_started(): bool {
+  public function isSessionStarted(): bool {
     return PHP_SESSION_ACTIVE == session_status();
   }
 
