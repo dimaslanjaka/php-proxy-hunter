@@ -1,5 +1,157 @@
 [
   {
+    "hash": "d02504931eb717ac58f53494bc74dbf46fd7cabc",
+    "date": "2025-11-23T17:27:02+07:00",
+    "message": "fix: update runner script extension to .sh for Unix systems",
+    "files": [
+      "artisan/filterPortsBackground.php",
+      "artisan/proxyWorking.php",
+      "artisan/proxyWorkingBackground.php",
+      "cidr-information/checkPorts.php",
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "proxyCheckerBackground.php",
+      "proxyRespawner.php",
+      "scanPorts.php"
+    ]
+  },
+  {
+    "hash": "08782abb9d64f7fab7bd43cd1af6a96c4cc63a1c",
+    "date": "2025-11-23T17:24:59+07:00",
+    "message": "fix(cleaner.php): update file exclusion logic to allow specific patterns while continuing deletion for others",
+    "files": [
+      "artisan/cleaner.php"
+    ]
+  },
+  {
+    "hash": "92944442dfa4b16fce10eeee5738572ace103c1c",
+    "date": "2025-11-23T17:09:32+07:00",
+    "message": "fix(.crontab.sh): log output of php cleaner script to a log file",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "66689cb51cd8f1cb721fb26a4200f7c7151dc37e",
+    "date": "2025-11-23T17:08:43+07:00",
+    "message": "fix(cleaner.php): suppress errors during file removal in cleanup process",
+    "files": [
+      "artisan/cleaner.php"
+    ]
+  },
+  {
+    "hash": "a9ef0d598502739e4dcd9977f84b461069cfedd3",
+    "date": "2025-11-23T17:06:24+07:00",
+    "message": "refactor(artisan): make cleaner.php iterate nested subdirectories recursively\n\n- Extract directory cleaning logic into cleanDirectoryRecursive() function\n- Add recursive traversal to process nested subdirectories\n- Use global $oneWeekAgo variable instead of function parameter\n- Improve directory validation with is_dir() check\n- Add proper handling for realpath() validation\n- Skip . and .. directory entries explicitly",
+    "files": [
+      "artisan/cleaner.php"
+    ]
+  },
+  {
+    "hash": "5d3df6220cd7e9bb290a1336846cfed27b4afc9f",
+    "date": "2025-11-23T17:03:50+07:00",
+    "message": "fix(cleaner.php): add checks to skip specific files and patterns during cleanup",
+    "files": [
+      "artisan/cleaner.php"
+    ]
+  },
+  {
+    "hash": "2c1b21b876549b4cf15de72f01e9fa80258f5fe2",
+    "date": "2025-11-23T17:00:37+07:00",
+    "message": "fix(.crontab.sh): add database backup and cleanup script execution for daily job",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "330ea6e24ee1f7aaea52db33155cfb44e23c76b1",
+    "date": "2025-11-23T16:59:09+07:00",
+    "message": "fix(.crontab.sh): add cleanup for old log files older than 30 days",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "1883c03456eb77e3b90df9f9ed62c41e56fea2c6",
+    "date": "2025-11-23T16:55:47+07:00",
+    "message": "fix(clear-caches): remove obsolete tmp logs cleanup section",
+    "files": [
+      "bin/clear-caches"
+    ]
+  },
+  {
+    "hash": "31639dbf28dbe5467bca55bb219bd30f2e1e02f9",
+    "date": "2025-11-23T16:52:28+07:00",
+    "message": "fix(proxyCollector): remove unnecessary require statement for func-proxy.php",
+    "files": [
+      "artisan/proxyCollector.php"
+    ]
+  },
+  {
+    "hash": "a76e42ae75e3a3cdd9d740d744ad8e6983e0175b",
+    "date": "2025-11-23T16:52:03+07:00",
+    "message": "fix(.crontab.sh): update 30-minute job to include proxyCollector calls and comment out logging for python jobs",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "6e01415f154022b972252823a779dff514a95265",
+    "date": "2025-11-23T16:49:33+07:00",
+    "message": "fix(crontab): update schedule for custom crontab script to run every 30 minutes",
+    "files": [
+      ".crontab.txt"
+    ]
+  },
+  {
+    "hash": "bb718aefe0704de5309a0b3cd879bb6e73c0fa39",
+    "date": "2025-11-23T16:45:12+07:00",
+    "message": "fix(ProxyCheckerHttpOnly): correct protocol formatting in log message",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
+    ]
+  },
+  {
+    "hash": "08b6aeda2a6d2c7431749869f5bb0ccd1570cd89",
+    "date": "2025-11-23T16:10:52+07:00",
+    "message": "feat(.crontab.sh): add logging and error suppression for cron jobs\n\n- Add log_command() function to capture stdout/stderr with timestamps\n- Auto-create log directories when logging commands\n- Log djm check_proxies, djm filter_dups, and djm sync_proxies commands\n- Suppress errors with || true for php artisan commands\n- Include exit codes in logs for debugging\n- Add blank line separators between log entries for better readability",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "e16c0ec3454cbfc79fde646b353dce7ddd4e0627",
+    "date": "2025-11-23T16:02:46+07:00",
+    "message": "fix(crontab): clarify helper function description for job scheduling",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "4d6c8886bcdedb1e7396091b359a38bf15873e82",
+    "date": "2025-11-23T15:59:54+07:00",
+    "message": "fix: improve shell compatibility in .crontab.sh script\n\n- Replace ${BASH_SOURCE[0]} with $0 for better sh compatibility\n- Change 'source' command to '.' for POSIX compliance\n- Replace [[ ]] with [ ] for improved portability\n- Update string comparison operators from == to = for sh compatibility\n\nFixes issues when running script with sh interpreter:\n- Bad substitution error on ${BASH_SOURCE[0]}\n- \"source: not found\" error",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "a4f4cacc023fb6a920e1484ee119a8e1e1b7fcb0",
+    "date": "2025-11-23T15:57:46+07:00",
+    "message": "fix(crontab): add skipping messages for scheduled jobs and reorder 6-hour job",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "2276733f0ee0f62142760e348ffd121f46b06745",
+    "date": "2025-11-23T15:53:06+07:00",
+    "message": "fix(composer): change minimum stability from beta to dev",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
     "hash": "0f9403584cd0e2fe69f35cde310933214db0e4ca",
     "date": "2025-11-23T15:46:39+07:00",
     "message": "fix(MySQLHelper): add automatic connection loss detection and recovery\n\nAdd resilient connection handling to prevent MySQL timeout errors (error 4031)\nduring long-running operations. Implements automatic reconnection with retry logic\nfor database operations.\n\nBREAKING CHANGE: None. Changes are backward compatible.\n\n- Store connection parameters for automatic reconnection\n- Add isConnectionAlive() to validate active connections\n- Add isConnectionLossError() to detect connection loss errors (4031, 2006, 2013, HY000, 08006, 08003)\n- Add reconnect() for automatic reconnection to MySQL\n- Add withConnectionRetry() wrapper for transparent operation retry\n- Wrap select(), update(), execute(), insert() with retry logic\n- Handle all major MySQL connection timeout scenarios\n\nFixes: SQLSTATE[HY000] error 4031 - \"Client disconnected by server due to inactivity\"\n\nAffected operations:\n- select(): Critical for proxy lookups\n- update(): Essential for saving proxy check results\n- execute(): Custom SQL queries\n- insert(): Adding new proxies\n\nPerformance impact: Zero overhead in normal operations, 50-200ms recovery on connection loss.",
@@ -8610,157 +8762,6 @@
     "message": "feat(Login): add show/hide password functionality in login form",
     "files": [
       "src/react/pages/Login.tsx"
-    ]
-  },
-  {
-    "hash": "2f280beacc6b0792bbd517a0a3b8a678947e18db",
-    "date": "2025-09-02T14:00:46+07:00",
-    "message": "refactor(workflows): reorganize dependency installation steps",
-    "files": [
-      ".github/workflows/checker-php.yml"
-    ]
-  },
-  {
-    "hash": "4b02d0e884e5e6741264b17749831b70ea4a8dc6",
-    "date": "2025-09-02T13:29:43+07:00",
-    "message": "fix(workflows): reorder dependencies installation",
-    "files": [
-      ".github/workflows/checker-php.yml"
-    ]
-  },
-  {
-    "hash": "5fdd7d40f104c634a9ad39c0b053ced94f4c1d95",
-    "date": "2025-09-02T12:53:21+07:00",
-    "message": "feat(workflows): include 'setup*' paths",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "df80ee53c0abfb2c84108763f566979c744d080b",
-    "date": "2025-09-02T12:52:28+07:00",
-    "message": "refactor(setup): move dependency imports inside isInstalled block\n\n- Relocate imports for fs-extra, sbg-utility, and upath to only load when dependencies are already installed.\n- Improves efficiency by avoiding unnecessary imports when not needed.",
-    "files": [
-      "setup.js"
-    ]
-  },
-  {
-    "hash": "94783bb1fe60347454167d801750f178b101800d",
-    "date": "2025-09-02T12:20:32+07:00",
-    "message": "fix(setup): improve dependency installation logic\n\n- Change dependency installation to run `yarn install` when not installed.\n- Reinstall dependencies if `package.json` checksum has changed.\n- Add error handling for failed `yarn install` command.",
-    "files": [
-      "setup.js"
-    ]
-  },
-  {
-    "hash": "510e07a8f251f4c5e3ae12885ec96d0f72fbf4b9",
-    "date": "2025-09-02T11:47:33+07:00",
-    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
-    "files": []
-  },
-  {
-    "hash": "8e1a9676e708236c0ae87fd1a6e4e0027cc3aafa",
-    "date": "2025-09-02T11:46:52+07:00",
-    "message": "Merge pull request #57 from dimaslanjaka/dependabot/github_actions/actions/checkout-5\n\nbuild(deps): bump actions/checkout from 4 to 5",
-    "files": []
-  },
-  {
-    "hash": "b97d347634b8a30f3d1fbb5989bd93a269cff005",
-    "date": "2025-09-02T11:41:15+07:00",
-    "message": "feat(types): improve ads typings and add Google-related type definitions\n\n- remove redundant `globals.d.ts` window declaration\n- extend `window-shim.d.ts` with `adsbygoogle` support\n- reference `window-shim.d.ts` in `general-site-script.js`\n- add type packages: google-ads-scripts, google-publisher-tag, google.maps, google IMA",
-    "files": [
-      "js/general-site-script.js",
-      "js/globals.d.ts",
-      "package.json",
-      "types/window-shim.d.ts"
-    ]
-  },
-  {
-    "hash": "cf370d56733d0a8cf8a9787fe9e483a547727f77",
-    "date": "2025-09-02T11:29:02+07:00",
-    "message": "docs(js/highlight): refine JSDoc types for callbacks and add param annotation\n\n- Updated callback type in `loadScript` to `(...args: any[]) => any`\n- Made `callback` optional in `loadStyles` with proper type annotation\n- Added JSDoc param annotation for `index` in `loadNext`",
-    "files": [
-      "js/highlight.js"
-    ]
-  },
-  {
-    "hash": "9e812916962f1c2ecc618c9684b11dabdbe83b87",
-    "date": "2025-09-02T04:13:50Z",
-    "message": "build(deps): bump actions/checkout from 4 to 5\n\nBumps [actions/checkout](https://github.com/actions/checkout) from 4 to 5.\n- [Release notes](https://github.com/actions/checkout/releases)\n- [Changelog](https://github.com/actions/checkout/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/actions/checkout/compare/v4...v5)\n\n---\nupdated-dependencies:\n- dependency-name: actions/checkout\n  dependency-version: '5'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "b624bacee9e62336f40763f9ae7eab4c4ecd0691",
-    "date": "2025-09-02T10:47:40+07:00",
-    "message": "feat(vite): add customStaticAssetsPlugin for proxyManager files and robots.txt\n\n- Introduced `customStaticAssetsPlugin` to serve `/assets` and `proxyManager.*` files in dev\n- Moved `robots.txt` copy logic into `customStaticAssetsPlugin`\n- Updated `vite.config.js` to register `customStaticAssetsPlugin`\n- Improved JSDoc for `fontsResolverPlugin`",
-    "files": [
-      "vite-plugin.js",
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "5f9f6a8943e3ea4b618d512b4cbcc8e732000fed",
-    "date": "2025-09-02T10:43:34+07:00",
-    "message": "docs(js/highlight): add JSDoc annotations and improve hljs type safety\n\n- Added JSDoc comments for functions (`startHighlighter`, `loadScript`, `loadScriptsSequentially`, `loadStyles`, `loadHljs`, `initHljs`)\n- Documented parameters and return types\n- Added `@ts-expect-error` for `hljs.highlightElement` to handle version differences",
-    "files": [
-      "js/highlight.js"
-    ]
-  },
-  {
-    "hash": "fa84cd2edc58652036523b6a974cbb2a6d9708c8",
-    "date": "2025-09-02T10:35:37+07:00",
-    "message": "fix(package.json): update sbg-utility URL to the latest version",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "b38788079e1111d0aa0322486c2c502aab081b28",
-    "date": "2025-09-02T02:55:27Z",
-    "message": "build(deps): bump chromedriver from 139.0.2 to 139.0.3\n\nBumps [chromedriver](https://github.com/giggio/node-chromedriver) from 139.0.2 to 139.0.3.\n- [Commits](https://github.com/giggio/node-chromedriver/compare/139.0.2...139.0.3)\n\n---\nupdated-dependencies:\n- dependency-name: chromedriver\n  dependency-version: 139.0.3\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "8bb842672728b06a3d6a7faf5a30e7eff07dba07",
-    "date": "2025-08-28T13:27:36+07:00",
-    "message": "fix(adminer-installer): update composer commands to use php with composer.phar path",
-    "files": [
-      "scripts/adminer-installer.js"
-    ]
-  },
-  {
-    "hash": "8af90ce411c56cfd56c6aa0bce76c79a60b3a7a8",
-    "date": "2025-08-28T13:25:05+07:00",
-    "message": "fix(scripts): update composer.phar path to use the bin directory",
-    "files": [
-      "fix-nginx-perm.sh",
-      "setup.sh"
-    ]
-  },
-  {
-    "hash": "2d1eb36236a0b61950160b3b833030f1ca689d09",
-    "date": "2025-08-28T13:23:16+07:00",
-    "message": "fix(scripts): add shell: true to all spawnAsync calls for Windows compatibility\n\n- Ensure all spawnAsync commands run in a shell environment by adding shell: true.\n- Fixes issues with command execution on Windows platforms.",
-    "files": [
-      "scripts/adminer-installer.js"
-    ]
-  },
-  {
-    "hash": "8b91011f33b5b27ff9e9a8a0cbfe4822adb12eca",
-    "date": "2025-08-28T13:18:30+07:00",
-    "message": "fix(adminer-installer): improve composer dependency management by adding conditional install/update logic",
-    "files": [
-      "packages/proxies-grabber",
-      "scripts/adminer-installer.js"
     ]
   }
 ]
