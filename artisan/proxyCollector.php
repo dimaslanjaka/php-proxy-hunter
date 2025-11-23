@@ -4,7 +4,6 @@
 
 // index all proxies into database
 
-require_once __DIR__ . '/../func-proxy.php';
 require_once __DIR__ . '/../php_backend/shared.php';
 
 global $isWin, $isCli, $proxy_db;
