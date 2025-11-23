@@ -1,5 +1,13 @@
 [
   {
+    "hash": "5e4c6364081475ab1e21a22a519d0307797d0e30",
+    "date": "2025-11-23T12:24:39+07:00",
+    "message": "fix(hideArrayData): remove type hints and list unpacking for PHP 7.0 compatibility\n\n- Remove explicit type declarations (array, callable) from function parameters\n- Replace list unpacking syntax with traditional array index assignment\n- Keep type information in PHPDoc comments for IDE support\n- Ensures compatibility with PHP 7.0 while maintaining code documentation",
+    "files": [
+      "src/utils/data/hideArrayData.php"
+    ]
+  },
+  {
     "hash": "83134f15aabd79635087b930b82e1cfefaf941c1",
     "date": "2025-11-23T07:28:08+07:00",
     "message": "refactor(session): centralize logout logic using Session::clearSessions and improve cookie clearing\n\n- Replace manual session/cookie cleanup in logout.php with Session::clearSessions(true)\n- Update HTML logout link to root path\n- Simplify php_backend/logout.php by using respond_json helper\n- Enhance Session::clearSessions to support optional cookie clearing and ensure session start\n- Improve overall consistency and reduce duplicated logout logic",
@@ -8754,29 +8762,6 @@
     "files": [
       "package.json",
       "scripts/postinstall.js"
-    ]
-  },
-  {
-    "hash": "4da464e9f0a27fd71b090de1bb4f3cac12633a5a",
-    "date": "2025-08-28T12:56:07+07:00",
-    "message": "refactor(composer): move composer.phar to bin directory and update references\n\n- Moved `composer.phar` from project root to `bin/composer.phar` for better organization.\n- Updated all scripts, workflow files, and documentation to reference `php bin/composer.phar` instead of `php composer.phar`.\n- Added `/bin/composer*` to `.gitignore` to exclude composer binaries from version control.\n- Removed the old `composer.phar` from the project root.\n- Added a new script `scripts/composer-installer.js` to automate downloading and setting up Composer in the `bin` directory.",
-    "files": [
-      ".devcontainer/devcontainer.json",
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-php.yml.txt",
-      ".github/workflows/checker.yml.txt",
-      ".gitignore",
-      ".husky/pre-commit",
-      "Taskfile.yml",
-      "bin/clear-caches",
-      "bin/fix-php",
-      "bin/fix-php.cmd",
-      "bin/kills",
-      "bin/kills.cmd",
-      "composer.phar",
-      "github-actions-init.php",
-      "scripts/composer-installer.js",
-      "src/vps/menus/project-manager.py"
     ]
   }
 ]
