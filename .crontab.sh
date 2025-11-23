@@ -106,11 +106,6 @@ should_run_job() {
 
 mkdir -p tmp/crontab
 
-# run every 6 hours
-if should_run_job "tmp/crontab/6-h" 6; then
-    djm sync_proxies
-fi
-
 # run every hour
 if should_run_job "tmp/crontab/1-h" 1; then
     # php "$CWD/send_curl.php" --url=https://sh.webmanajemen.com:8443/proxy/check
@@ -118,16 +113,29 @@ if should_run_job "tmp/crontab/1-h" 1; then
     djm filter_dups --max=100
     php artisan/proxyCollector.php
     php artisan/proxyCollector2.php
+else
+    echo "Skipping 1 hour job."
 fi
 
 # run every 3 hours
 if should_run_job "tmp/crontab/3-h" 3; then
     bash "$CWD/bin/check-proxy-parallel"
+else
+    echo "Skipping 3 hours job."
 fi
 
 # run every 4 hours
 if should_run_job "tmp/crontab/4-h" 4; then
     python "$CWD/proxyFetcher.py"
+else
+    echo "Skipping 4 hours job."
+fi
+
+# run every 6 hours
+if should_run_job "tmp/crontab/6-h" 6; then
+    djm sync_proxies
+else
+    echo "Skipping 6 hours job."
 fi
 
 # run every 12 hours
@@ -143,6 +151,8 @@ if should_run_job "tmp/crontab/12-h" 12; then
         sqlite3 "$CWD/src/database.sqlite" "PRAGMA wal_checkpoint(TRUNCATE);"
         echo "$CWD/src/database.sqlite WAL file truncated."
     fi
+else
+    echo "Skipping 12 hours job."
 fi
 
 # run every 24 hours
@@ -151,4 +161,6 @@ if should_run_job "tmp/crontab/24-h" 24; then
     # Remove old backups older than 7 days
     find "$CWD/backups" -type f -name "*.sql" -mtime +7 -exec rm -f {} \;
     echo "Old backups removed, keeping only the last 7 days."
+else
+    echo "Skipping 24 hours job."
 fi
