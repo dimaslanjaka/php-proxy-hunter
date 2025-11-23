@@ -42,8 +42,21 @@ foreach ($directories as $directory) {
       if (!is_file($filePath)) {
         continue;
       }
+
       // skip database deletion
       $pattern = '/\.(db|sqlite|sqlite3|mmdb|.*-wal|.*-shm)$/i';
+      if (preg_match($pattern, $filePath)) {
+        echo "$filePath excluded" . PHP_EOL;
+        continue;
+      }
+
+      // skip .gitignore and .htaccess
+      if (in_array($file, ['.gitignore', '.htaccess'], true)) {
+        continue;
+      }
+
+      // skip spesific substrings
+      $pattern = '/(payment|axis|im3)/i';
       if (preg_match($pattern, $filePath)) {
         echo "$filePath excluded" . PHP_EOL;
         continue;
