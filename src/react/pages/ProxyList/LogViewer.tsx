@@ -35,12 +35,22 @@ async function fetchHttpProxyCheckerResult(hash: string): Promise<string> {
   return await res.text();
 }
 
+async function fetchProxyTypeDetectionResult(hash: string): Promise<string> {
+  const url = createUrl('/php_backend/logs.php');
+  const res = await fetch(`${url}?hash=check-proxy-type/${encodeURIComponent(hash)}`);
+  if (!res.ok) {
+    return `Failed to fetch proxy type result: ${res.status} ${res.statusText}`;
+  }
+  return await res.text();
+}
+
 const LogViewer: React.FC = () => {
   // no longer using the proxy-checker.php log reset; only poll logs.php
-  const [activeTab, setActiveTab] = React.useState<'https' | 'http'>('https');
+  const [activeTab, setActiveTab] = React.useState<'https' | 'http' | 'type'>('https');
   const [hash, setHash] = React.useState('');
   const [httpsLog, setHttpsLog] = React.useState('');
   const [httpLog, setHttpLog] = React.useState('');
+  const [typeLog, setTypeLog] = React.useState('');
 
   // On mount, fetch user id to use with logs endpoints
   React.useEffect(() => {
@@ -103,7 +113,28 @@ const LogViewer: React.FC = () => {
     };
   }, [activeTab, hash]);
 
-  // HTTPS polling handled by effect below (auto-fetch when https tab active)
+  // Poll proxy type detection result when available and type tab is active
+  React.useEffect(() => {
+    let interval: number | undefined;
+    if (activeTab === 'type' && hash) {
+      const fetchType = async () => {
+        try {
+          const text = await fetchProxyTypeDetectionResult(hash);
+          setTypeLog((prev) => {
+            if (prev.trim() === text.trim()) return prev;
+            return text;
+          });
+        } catch {
+          setTypeLog('Failed to fetch proxy type result.');
+        }
+      };
+      fetchType();
+      interval = window.setInterval(fetchType, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [activeTab, hash]);
 
   return (
     <section className="my-8">
@@ -134,6 +165,16 @@ const LogViewer: React.FC = () => {
                 className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'http' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
                 onClick={() => setActiveTab('http')}>
                 HTTP check
+              </button>
+            </li>
+            <li role="presentation">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'type'}
+                className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'type' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
+                onClick={() => setActiveTab('type')}>
+                Type detection
               </button>
             </li>
           </ul>
@@ -179,6 +220,27 @@ const LogViewer: React.FC = () => {
               </span>
             ) : (
               <span className="text-gray-400 dark:text-gray-500">No http result fetched yet.</span>
+            )}
+          </div>
+        </div>
+
+        {/* Proxy type detection panel */}
+        <div className={`${activeTab === 'type' ? '' : 'hidden'}`}>
+          <div className="mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Logs proxy type detection for UID:</span>
+              <span className="font-mono text-sm text-gray-900 dark:text-gray-100 break-words max-w-full overflow-auto">
+                {hash || '—'}
+              </span>
+            </div>
+          </div>
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
+            {typeLog ? (
+              <span className="text-gray-800 dark:text-gray-100" style={{ whiteSpace: 'pre-wrap' }}>
+                {typeLog}
+              </span>
+            ) : (
+              <span className="text-gray-400 dark:text-gray-500">No proxy type result fetched yet.</span>
             )}
           </div>
         </div>
