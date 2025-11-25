@@ -1,5 +1,23 @@
 [
   {
+    "hash": "c27c03e1e0103582e9f59661d8e1012470facb16",
+    "date": "2025-11-25T16:20:05+07:00",
+    "message": "feat: add ProxyCheckerHttpsOnly class and refactor HTTPS proxy checking\n\n- Create new ProxyCheckerHttpsOnly class to check proxies for HTTPS protocol support\n  - Tests against https://www.mozilla.org/en-US/about/ with \"Learn about Mozilla\" title validation\n  - Supports multiple protocols (http, socks4, socks5, socks4a, socks5h)\n  - Measures latency and handles authentication\n\n- Refactor check-https-proxy.php to use ProxyCheckerHttpsOnly class\n  - Replace inline cURL logic with standardized checker pattern\n  - Simplify proxy skipping logic\n  - Add retest functionality to confirm dead proxies\n  - Include authentication support in checker options\n  - Improve logging with retest status (alive|dead|not-performed)\n  - Update reTestProxy function to test against new HTTPS URL\n\n- Update ProxyChecker-test.php to include HTTPS testing\n  - Add ProxyCheckerHttpsOnly import\n  - Rename 'full_check' to 'public_ip' for clarity\n  - Add 'https_only' checker to results\n  - Update working status conditions to include HTTPS results\n  - Include HTTPS results in latency calculation and working types merge",
+    "files": [
+      "php_backend/check-https-proxy.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker-test.php",
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpsOnly.php"
+    ]
+  },
+  {
+    "hash": "fb170c90e9d331e0ee9482ee7226c783ce89f7b8",
+    "date": "2025-11-25T16:06:59+07:00",
+    "message": "feat(check-https-proxy): add detailed failure reasons to proxy dead logs\n\nAdd specific failure reasons when proxies are marked as dead to improve\ndebugging and logging visibility. Each protocol test now logs the exact\nreason for failure (connection error, invalid response code, suspicious\nheaders, missing title, etc.).\n\nChanges:\n- Track failure reason for each protocol test attempt\n- Differentiate between Azenv detection and other SSL dead causes\n- Include HTTP response codes when available\n- Capture and log CURL error details with error numbers and messages\n- Add summary reason to final log line (no-valid-ssl-protocols or connection-failed)\n- Improve log output consistency with per-protocol and summary formats\n\nThis aligns with the logging patterns already used in check-http-proxy.php.",
+    "files": [
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
     "hash": "d02504931eb717ac58f53494bc74dbf46fd7cabc",
     "date": "2025-11-23T17:27:02+07:00",
     "message": "fix: update runner script extension to .sh for Unix systems",
@@ -8746,22 +8764,6 @@
     "message": "feat(Settings): add show/hide password functionality in settings form",
     "files": [
       "src/react/pages/Settings.tsx"
-    ]
-  },
-  {
-    "hash": "0480c9dd2c1655dc83d991d8eb1ff74eb2f834ac",
-    "date": "2025-09-02T14:16:22+07:00",
-    "message": "feat(EditPasswordForm): add show/hide password functionality",
-    "files": [
-      "src/react/pages/admin/EditPasswordForm.tsx"
-    ]
-  },
-  {
-    "hash": "6d7ba2886f7cda00c0b7769db7512cd80b362fb6",
-    "date": "2025-09-02T14:12:33+07:00",
-    "message": "feat(Login): add show/hide password functionality in login form",
-    "files": [
-      "src/react/pages/Login.tsx"
     ]
   }
 ]
