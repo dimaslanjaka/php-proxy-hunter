@@ -1,5 +1,23 @@
 [
   {
+    "hash": "55df31a17380ea84af3705fc0f295f7f80f9e844",
+    "date": "2025-11-25T18:49:49+07:00",
+    "message": "refactor: separate proxy check functions and add type detection\n\n- Extract checkProxyHttps() as private async function\n  * Isolate HTTPS proxy validation logic\n  * Add explicit Promise<CheckProxyResponse> return type\n\n- Extract checkProxyHttp() as private async function\n  * Isolate HTTP proxy validation logic\n  * Add explicit Promise<CheckProxyResponse> return type\n\n- Add checkProxyType() exported function\n  * New endpoint for proxy type detection\n  * Calls /php_backend/check-proxy-type.php\n  * Returns structured detection results\n\n- Refactor checkProxy() to compose individual checks\n  * Call all three check functions in sequence\n  * Aggregate error states from all responses\n  * Combine messages from all three checks\n  * Include type detection in error reporting\n\n- Improve code organization and reusability\n  * Each check can now be used independently\n  * Easier to test individual proxy validation methods\n  * Better separation of concerns",
+    "files": [
+      "src/react/utils/proxy.ts"
+    ]
+  },
+  {
+    "hash": "ed0cd5274785ad60bc2b7fd4bc21fd60a6413a22",
+    "date": "2025-11-25T18:46:55+07:00",
+    "message": "feat: add proxy type detection backend and improve proxy checker\n\n- Add ProxyTypeDetector class with multi-protocol detection support\n  * Detect HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, SOCKS5h protocols\n  * Support for proxy authentication (username/password)\n  * Robust error handling for unstable connections\n  * Return structured result array with validation details\n\n- Add check-proxy-type.php endpoint for CLI and web modes\n  * Support both HTTP API and command-line execution\n  * Implement process locking to prevent concurrent execution\n  * Add time limits for non-admin users (120 seconds)\n  * Provide detailed logging for all detection attempts\n  * Skip recently checked proxies (within 5 hours)\n\n- Improve proxy detection workflow\n  * Validate proxy format before socket operations\n  * Check port accessibility before protocol detection\n  * Return detailed detection results (protocol, port status, validity)\n  * Mark invalid/dead proxies for cleanup\n  * Update proxy status based on detection results\n\n- Enhance error resilience\n  * Suppress warnings on failed socket write operations\n  * Handle gracefully when remote host closes connection\n  * Continue testing next proxy type on connection failure",
+    "files": [
+      "php_backend/check-proxy-type.php",
+      "src/PhpProxyHunter/Checker/ProxyTypeDetector.php",
+      "src/utils/process/php_exec.php"
+    ]
+  },
+  {
     "hash": "396c79b289dfc1bcb12d2bccfbbe53aaec700270",
     "date": "2025-11-25T16:54:10+07:00",
     "message": "fix(ProxyCheckerGoogle): correct log message format for proxy checks",
@@ -8747,23 +8765,6 @@
       ".yarn/releases/yarn-4.9.4.cjs",
       ".yarnrc.yml",
       "package.json"
-    ]
-  },
-  {
-    "hash": "6280a08151ce1750f9fd7dfe2153322782008e24",
-    "date": "2025-09-02T14:29:33+07:00",
-    "message": "fix(Taskfile): improve yarn install error handling",
-    "files": [
-      "Taskfile.yml"
-    ]
-  },
-  {
-    "hash": "7aedf767ce27830c728e76a8648d7dd62bca914a",
-    "date": "2025-09-02T14:28:15+07:00",
-    "message": "feat(workflows): add Taskfile* to trigger paths in PHP and Python checkers",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml"
     ]
   }
 ]
