@@ -46,7 +46,7 @@ if (!$isCli) {
 
     // Stop if lock file exists (another process running)
     if (file_exists($webServerLock)) {
-      respond_json(['error' => true, 'message' => '[HTTPS] Another process is still running. Please try again later.', 'logFile' => $embedOutputUrl]);
+      respond_json(['error' => true, 'message' => '[TYPE] Another process is still running. Please try again later.', 'logFile' => $embedOutputUrl]);
     }
 
     // Get proxy from the request
@@ -89,7 +89,7 @@ if (!$isCli) {
     // Execute the runner script in the background
     runBashOrBatch($runner);
 
-    respond_json(['error' => false, 'message' => '[HTTPS] Proxy check initiated.', 'logFile' => $embedOutputUrl]);
+    respond_json(['error' => false, 'message' => '[TYPE] Proxy type detection initiated.', 'logFile' => $embedOutputUrl]);
   } else {
     // Show usage instructions for direct web access
     echo 'Usage:' . PHP_EOL;
