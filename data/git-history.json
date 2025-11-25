@@ -1,5 +1,23 @@
 [
   {
+    "hash": "7c581f7f8782bbc7ca0cec28c92d3bb55869b72b",
+    "date": "2025-11-26T05:07:53+07:00",
+    "message": "feat(LogViewer): add proxy type detection tab with polling support\n\n- Add fetchProxyTypeDetectionResult() function to fetch type detection logs\n- Extend activeTab state type to include 'type' option\n- Add typeLog state variable for storing type detection results\n- Implement useEffect hook for polling proxy type detection results (3s interval)\n- Add \"Type detection\" tab button to the tab navigation\n- Add type detection panel with log display and empty state messaging\n- Support concurrent polling for https, http, and type detection tabs",
+    "files": [
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
+    "hash": "f217221b406a21e2133564c898c3b7cb2d4a21e5",
+    "date": "2025-11-26T05:01:22+07:00",
+    "message": "fix: unify lock file management across all proxy checker endpoints\n\n- Implement stale lock detection in web mode (2-minute threshold)\n  * Check lock file age before blocking requests\n  * Allow stale locks to be automatically removed\n  * Prevent false \"another process running\" errors\n\n- Fix lock file path mismatch between web and CLI modes\n  * Web mode: /tmp/locks/check-*-proxy/userid.lock\n  * CLI mode: Use same lock path from --lockFile argument\n  * Fallback: Create lock at /tmp/locks/ for standalone CLI usage\n  * Result: Single unified lock file per request\n\n- Suppress scheduler cleanup logging\n  * Wrap delete_path() with error control operator (@)\n  * Prevents scheduler cleanup messages from appearing in user logs\n  * Maintains clean output for log viewer UI\n\n- Standardize lock directory across all checkers\n  * Changed from /tmp/runners/ to /tmp/locks/\n  * Consistent lock storage location\n  * Applies to: check-http-proxy.php, check-https-proxy.php, check-proxy-type.php\n\n- Improve lock management robustness\n  * Eliminate duplicate lock file creation\n  * Ensure CLI respects web mode lock file path\n  * Support both web-initiated and standalone CLI execution\n  * Better handling of concurrent process prevention",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/check-proxy-type.php"
+    ]
+  },
+  {
     "hash": "16dca9eb1c00cda8b33277be9bf42b82d725e379",
     "date": "2025-11-25T18:53:01+07:00",
     "message": "fix: update log messages to reflect proxy type detection",
@@ -8745,24 +8763,6 @@
       "packages/baileys",
       "packages/gh-pages",
       "scripts/browserlist-updater.js"
-    ]
-  },
-  {
-    "hash": "99529a15170e1d1e0d0983417f307a8b0202f53f",
-    "date": "2025-09-02T14:46:18+07:00",
-    "message": "feat(locales): add user settings translations in English and Indonesian",
-    "files": [
-      "src/react/locales/en.json",
-      "src/react/locales/id.json",
-      "src/react/pages/Settings.tsx"
-    ]
-  },
-  {
-    "hash": "5a910cdc6bd791c00d8c56743c613e2845d9f092",
-    "date": "2025-09-02T14:33:06+07:00",
-    "message": "feat(Taskfile): enable corepack",
-    "files": [
-      "Taskfile.yml"
     ]
   }
 ]
