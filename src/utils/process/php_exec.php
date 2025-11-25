@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Executes a shell command using the available PHP functions.
  *
