@@ -42,9 +42,17 @@ if (!$isCli) {
     $webServerLock  = tmp() . "/locks/$hashFilename.lock";
     $output_file    = tmp() . "/logs/$hashFilename.txt";
     $embedOutputUrl = getFullUrl($output_file);
-    // Stop if lock file exists (another process running)
+
+    // Stop if lock file exists AND is not stale (less than 2 minutes old)
     if (file_exists($webServerLock)) {
-      respond_json(['error' => true, 'message' => '[HTTP] Another process is still running. Please try again later.', 'logFile' => $embedOutputUrl]);
+      $mtime = filemtime($webServerLock);
+      $age   = time() - $mtime;
+      if ($age < 120) { // 2 minutes
+        respond_json(['error' => true, 'message' => '[HTTP] Another process is still running. Please try again later.', 'logFile' => $embedOutputUrl]);
+      } else {
+        // Lock is stale, remove it
+        @unlink($webServerLock);
+      }
     }
 
     // Get proxy string from request
@@ -116,9 +124,9 @@ if (!$isCli) {
     $lockInfo = json_encode(['pid' => getmypid(), 'ts' => date(DATE_RFC3339)]);
     write_file($lockFile, $lockInfo);
 
-    // Schedule lock file removal after process completion
+    // Schedule lock file removal after process completion (silent cleanup, no logging)
     Scheduler::register(function () use ($lockFile) {
-      delete_path($lockFile);
+      @delete_path($lockFile);
     }, 'release-cli-lock');
   }
 
@@ -152,10 +160,18 @@ if (empty($hashFilename)) {
   $hashFilename = 'CLI';
 }
 
+// Use the lock file from web mode if provided via CLI args, otherwise create one
+if (!empty($options['lockFile'])) {
+  // Web mode provided the lock file path via --lockFile argument
+  $lockFilePath = $options['lockFile'];
+} else {
+  // CLI mode without web request - create lock file path
+  $lockFilePath = unixPath(tmp() . '/locks/' . $hashFilename . '.lock');
+}
+
 // Define lock folder and file paths
-$lockFolder   = unixPath(tmp() . '/runners/');
-$lockFilePath = unixPath($lockFolder . $hashFilename . '.lock');
-$lockFiles    = glob($lockFolder . "/$currentScriptFilename*.lock");
+$lockFolder = unixPath(tmp() . '/locks/');
+$lockFiles  = glob($lockFolder . "/$currentScriptFilename*.lock");
 
 // Limit simultaneous processes to 2
 if (count($lockFiles) > 2) {
