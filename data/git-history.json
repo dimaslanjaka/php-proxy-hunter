@@ -1,5 +1,13 @@
 [
   {
+    "hash": "16dca9eb1c00cda8b33277be9bf42b82d725e379",
+    "date": "2025-11-25T18:53:01+07:00",
+    "message": "fix: update log messages to reflect proxy type detection",
+    "files": [
+      "php_backend/check-proxy-type.php"
+    ]
+  },
+  {
     "hash": "55df31a17380ea84af3705fc0f295f7f80f9e844",
     "date": "2025-11-25T18:49:49+07:00",
     "message": "refactor: separate proxy check functions and add type detection\n\n- Extract checkProxyHttps() as private async function\n  * Isolate HTTPS proxy validation logic\n  * Add explicit Promise<CheckProxyResponse> return type\n\n- Extract checkProxyHttp() as private async function\n  * Isolate HTTP proxy validation logic\n  * Add explicit Promise<CheckProxyResponse> return type\n\n- Add checkProxyType() exported function\n  * New endpoint for proxy type detection\n  * Calls /php_backend/check-proxy-type.php\n  * Returns structured detection results\n\n- Refactor checkProxy() to compose individual checks\n  * Call all three check functions in sequence\n  * Aggregate error states from all responses\n  * Combine messages from all three checks\n  * Include type detection in error reporting\n\n- Improve code organization and reusability\n  * Each check can now be used independently\n  * Easier to test individual proxy validation methods\n  * Better separation of concerns",
@@ -8755,16 +8763,6 @@
     "message": "feat(Taskfile): enable corepack",
     "files": [
       "Taskfile.yml"
-    ]
-  },
-  {
-    "hash": "8121898af193f2895f92e9bb9aed2f4883d0a16a",
-    "date": "2025-09-02T14:31:43+07:00",
-    "message": "chore: update Yarn version to 4.9.4",
-    "files": [
-      ".yarn/releases/yarn-4.9.4.cjs",
-      ".yarnrc.yml",
-      "package.json"
     ]
   }
 ]
