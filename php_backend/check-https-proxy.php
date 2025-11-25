@@ -274,6 +274,7 @@ function check(string $proxy) {
       ]);
       $result = curl_exec($curl);
       $msg    = "[$no] $protocol://{$item->proxy} ";
+      $reason = '';
 
       if ($result) {
         // Get HTTP info
@@ -286,7 +287,8 @@ function check(string $proxy) {
 
           // Check if SSL is dead
           if (checkRawHeadersKeywords($result)) {
-            $msg .= 'SSL dead (Azenv). ';
+            $reason = 'SSL dead (Azenv/suspicious headers detected)';
+            $msg .= $reason . '. ';
           } else {
             // Parse page title
             preg_match("/<title>(.*?)<\/title>/is", $result, $matches);
@@ -296,15 +298,24 @@ function check(string $proxy) {
                 $msg .= ' (VALID) ';
                 $ssl_protocols[] = $protocol;
               } else {
+                $reason = 'SSL dead (invalid page title)';
                 $msg .= ' (INVALID) ';
               }
             } else {
+              $reason = 'SSL dead (no page title found)';
               $msg .= 'Title: N/A ';
             }
           }
+        } else {
+          $reason = "SSL dead (HTTP {$info['http_code']} returned)";
+          $msg .= $reason . ' ';
         }
       } else {
-        $msg .= 'SSL dead ';
+        $curlError = curl_error($curl);
+        $curlErrno = curl_errno($curl);
+        $reason    = "SSL dead (CURL error: $curlErrno - $curlError)";
+        $msg .= $reason . ' ';
+        curl_close($curl);
       }
 
       // Log per-protocol result
@@ -335,6 +346,16 @@ function check(string $proxy) {
       $latencyStr = round($lat / 1000, 2) . 's';
     }
 
+    // Determine reason if proxy is dead
+    $reasonStr = '';
+    if (empty($ssl_protocols)) {
+      if (!empty($latencies)) {
+        $reasonStr = 'reason=no-valid-ssl-protocols';
+      } else {
+        $reasonStr = 'reason=connection-failed';
+      }
+    }
+
     // Build final log line
     $lineParts = ["[$no]", $statusSymbol, $item->proxy];
     if ($protocolsStr !== '') {
@@ -342,6 +363,9 @@ function check(string $proxy) {
     }
     if ($latencyStr !== '') {
       $lineParts[] = 'latency=' . $latencyStr;
+    }
+    if ($reasonStr !== '') {
+      $lineParts[] = $reasonStr;
     }
 
     // Log final summary for proxy
