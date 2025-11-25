@@ -1,5 +1,13 @@
 [
   {
+    "hash": "396c79b289dfc1bcb12d2bccfbbe53aaec700270",
+    "date": "2025-11-25T16:54:10+07:00",
+    "message": "fix(ProxyCheckerGoogle): correct log message format for proxy checks",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyCheckerGoogle.php"
+    ]
+  },
+  {
     "hash": "c27c03e1e0103582e9f59661d8e1012470facb16",
     "date": "2025-11-25T16:20:05+07:00",
     "message": "feat: add ProxyCheckerHttpsOnly class and refactor HTTPS proxy checking\n\n- Create new ProxyCheckerHttpsOnly class to check proxies for HTTPS protocol support\n  - Tests against https://www.mozilla.org/en-US/about/ with \"Learn about Mozilla\" title validation\n  - Supports multiple protocols (http, socks4, socks5, socks4a, socks5h)\n  - Measures latency and handles authentication\n\n- Refactor check-https-proxy.php to use ProxyCheckerHttpsOnly class\n  - Replace inline cURL logic with standardized checker pattern\n  - Simplify proxy skipping logic\n  - Add retest functionality to confirm dead proxies\n  - Include authentication support in checker options\n  - Improve logging with retest status (alive|dead|not-performed)\n  - Update reTestProxy function to test against new HTTPS URL\n\n- Update ProxyChecker-test.php to include HTTPS testing\n  - Add ProxyCheckerHttpsOnly import\n  - Rename 'full_check' to 'public_ip' for clarity\n  - Add 'https_only' checker to results\n  - Update working status conditions to include HTTPS results\n  - Include HTTPS results in latency calculation and working types merge",
@@ -8756,14 +8764,6 @@
     "files": [
       ".github/workflows/checker-php.yml",
       ".github/workflows/checker-python.yml"
-    ]
-  },
-  {
-    "hash": "f148439e6e1e56d37ae1ffab21aad46cf7edf7aa",
-    "date": "2025-09-02T14:18:41+07:00",
-    "message": "feat(Settings): add show/hide password functionality in settings form",
-    "files": [
-      "src/react/pages/Settings.tsx"
     ]
   }
 ]
