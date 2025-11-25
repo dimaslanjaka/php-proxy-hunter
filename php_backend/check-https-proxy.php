@@ -205,24 +205,24 @@ if ($fileLock->lock()) {
 // Logging and helper functions are provided by checker-runner.php
 
 /**
- * Check if the proxy is working
- * @param string $proxy proxy string
+ * Check if the proxy is working (HTTPS only)
+ * @param string $proxy proxy string or JSON array
  */
 function check(string $proxy) {
   global $proxy_db, $hashFilename, $isAdmin, $isCli;
-  // Extract proxies and shuffle order
+
+  // Extract proxies from string or array and shuffle
   $proxies = extractProxies($proxy, $proxy_db, true);
   shuffle($proxies);
 
   $count       = count($proxies);
-  $logFilename = $hashFilename ?? 'CLI';
+  $logFilename = $hashFilename;
   _log_shared($hashFilename ?? 'CLI', trim('[' . ($isCli ? 'CLI' : 'WEB') . '][' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($logFilename, 0, 6) . " Checking $count proxies..."));
 
-  // Record start time for execution limit check
-  $startTime            = microtime(true);
-  $limitSecs            = 120;
-  $isExecutionTimeLimit = function () use ($startTime, $limitSecs) {
-    // Return true if script exceeds time limit
+  $startTime = microtime(true);
+  $limitSecs = 120;
+  // Closure to check execution time limit
+  $isExecutionTimeLimit = function () use ($startTime, $limitSecs, $hashFilename) {
     $elapsedTime = microtime(true) - $startTime;
     if ($elapsedTime > $limitSecs) {
       _log_shared($hashFilename ?? 'CLI', "Proxy checker execution limit reached {$limitSecs}s.");
@@ -235,143 +235,136 @@ function check(string $proxy) {
     $no   = $i + 1;
     $item = $proxies[$i];
 
-    // Stop if execution time limit reached for non-admin
+    // Stop if time limit reached for non-admin
     if (!$isAdmin && $isExecutionTimeLimit()) {
       break;
     }
 
-    // Check if proxy last checked more than 5 hours ago
+    // Check if proxy was recently checked (within 5 hours)
     $expired = $item->last_check ? isDateRFC3339OlderThanHours($item->last_check, 5) : true;
 
-    // Skip proxy if already active and SSL enabled recently
-    if ($item->https == 'true' && $item->status == 'active' && !$expired) {
-      _log_shared($hashFilename ?? 'CLI', "[$no] Skipping proxy {$item->proxy}: Already supports SSL and is active.");
+    // Skip recently checked active SSL proxies
+    if ($item->status == 'active' && $item->https == 'true' && !$expired) {
+      _log_shared($hashFilename ?? 'CLI', "[$no] Skipping proxy {$item->proxy}: Recently checked and SSL-enabled.");
       continue;
-    } elseif ($item->last_check) {
-      // Skip dead or non-SSL proxies if recently checked
-      if ($item->status == 'dead') {
-        if ($item->last_check && !$expired) {
-          _log_shared($hashFilename ?? 'CLI', "[$no] Skipping proxy {$item->proxy}: Marked as dead, but was recently checked at {$item->last_check}.");
-          continue;
-        }
-      } elseif ($item->https == 'false' && $item->status != 'untested') {
-        if ($item->last_check && !$expired) {
-          _log_shared($hashFilename ?? 'CLI', "[$no] Skipping proxy {$item->proxy}: Does not support SSL, but was recently checked at {$item->last_check}.");
-          continue;
-        }
-      }
     }
 
-    // Initialize data containers
-    $ssl_protocols = [];
-    $protocols     = ['http', 'socks4', 'socks5'];
-    $latencies     = [];
+    // Configure checker options
+    $checkerOptions = new \PhpProxyHunter\Checker\CheckerOptions([
+      'verbose'   => $isCli ? true : false,
+      'timeout'   => 10,
+      'protocols' => ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'],
+      'proxy'     => $item->proxy,
+    ]);
 
-    // Test each protocol
-    foreach ($protocols as $protocol) {
-      $curl = buildCurl($item->proxy, $protocol, 'https://support.mozilla.org/en-US/', [
-        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0',
-      ]);
-      $result = curl_exec($curl);
-      $msg    = "[$no] $protocol://{$item->proxy} ";
-      $reason = '';
-
-      if ($result) {
-        // Get HTTP info
-        $info = curl_getinfo($curl);
-        curl_close($curl);
-        if ($info['http_code'] == 200) {
-          // Record total time
-          $msg .= round($info['total_time'], 2) . 's ';
-          $latencies[] = round($info['total_time'] * 1000, 2);
-
-          // Check if SSL is dead
-          if (checkRawHeadersKeywords($result)) {
-            $reason = 'SSL dead (Azenv/suspicious headers detected)';
-            $msg .= $reason . '. ';
-          } else {
-            // Parse page title
-            preg_match("/<title>(.*?)<\/title>/is", $result, $matches);
-            if (!empty($matches)) {
-              $msg .= 'Title: ' . $matches[1];
-              if (strtolower($matches[1]) == strtolower('Mozilla Support')) {
-                $msg .= ' (VALID) ';
-                $ssl_protocols[] = $protocol;
-              } else {
-                $reason = 'SSL dead (invalid page title)';
-                $msg .= ' (INVALID) ';
-              }
-            } else {
-              $reason = 'SSL dead (no page title found)';
-              $msg .= 'Title: N/A ';
-            }
-          }
-        } else {
-          $reason = "SSL dead (HTTP {$info['http_code']} returned)";
-          $msg .= $reason . ' ';
-        }
-      } else {
-        $curlError = curl_error($curl);
-        $curlErrno = curl_errno($curl);
-        $reason    = "SSL dead (CURL error: $curlErrno - $curlError)";
-        $msg .= $reason . ' ';
-        curl_close($curl);
-      }
-
-      // Log per-protocol result
-      _log_shared($hashFilename ?? 'CLI', trim($msg));
+    // Include authentication if available
+    if (!empty($item->username)) {
+      $checkerOptions->username = $item->username;
+    }
+    if (!empty($item->password)) {
+      $checkerOptions->password = $item->password;
     }
 
-    // Prepare base data for database update
-    $data = ['https' => !empty($ssl_protocols) ? 'true' : 'false', 'last_check' => date(DATE_RFC3339)];
+    // Run HTTPS-only proxy check
+    $result = \PhpProxyHunter\Checker\ProxyCheckerHttpsOnly::check($checkerOptions);
 
-    // Add SSL protocols and latency info if available
-    if (!empty($ssl_protocols)) {
-      $data['type']   = join('-', $ssl_protocols);
+    // Prepare data for database update
+    $data = ['last_check' => date(DATE_RFC3339)];
+    if (!empty($result->latency)) {
+      $data['latency'] = $result->latency;
+    }
+
+    // Update proxy status in database
+    $retestStatus = null;
+    if ($result->isWorking) {
+      $data['https']  = 'true';
       $data['status'] = 'active';
-      if (!empty($latencies)) {
-        $data['latency'] = max($latencies);
+      $data['type']   = strtolower(implode('-', array_unique($result->workingTypes)));
+    } else {
+      // Re-test the proxy to confirm it's dead
+      $retestResults  = reTestProxy($item);
+      $isAlive        = in_array(true, $retestResults, true);
+      $data['https']  = $isAlive ? 'true' : 'false';
+      $data['status'] = $isAlive ? 'active' : 'dead';
+      // Record a retest status for logging: alive, dead
+      $retestStatus = $isAlive ? 'alive' : 'dead';
+      // If alive on retest, update type and status accordingly
+      if ($isAlive) {
+        $workingTypes = [];
+        foreach ($retestResults as $type => $worked) {
+          if ($worked) {
+            $workingTypes[] = $type;
+          }
+        }
+        $data['type']         = strtolower(implode('-', array_unique($workingTypes)));
+        $data['status']       = 'active';
+        $result->isWorking    = true;
+        $result->workingTypes = $workingTypes;
       }
     }
 
-    // Update proxy info in database
     $proxy_db->updateData($item->proxy, $data);
 
-    // Prepare friendly log line for summary
-    $statusSymbol = (!empty($ssl_protocols) && count($ssl_protocols) > 0) ? '[OK]' : '[--]';
-    $protocolsStr = !empty($ssl_protocols) ? implode(',', $ssl_protocols) : '';
-    $latencyStr   = '';
-    if (!empty($latencies)) {
-      $lat        = isset($data['latency']) ? $data['latency'] : max($latencies);
-      $latencyStr = round($lat / 1000, 2) . 's';
+    // Build friendly per-proxy log line
+    $statusSymbol = $result->isWorking ? '[OK]' : '[--]';
+    $protocols    = !empty($result->workingTypes) ? implode(',', $result->workingTypes) : '';
+    $latencyStr   = !empty($result->latency) ? (round($result->latency, 2) . 's') : '';
+    // Determine retest logging value: either set above when retest ran or 'not-performed'
+    if ($retestStatus === null) {
+      $retestStatus = 'not-performed';
     }
 
-    // Determine reason if proxy is dead
-    $reasonStr = '';
-    if (empty($ssl_protocols)) {
-      if (!empty($latencies)) {
-        $reasonStr = 'reason=no-valid-ssl-protocols';
-      } else {
-        $reasonStr = 'reason=connection-failed';
-      }
-    }
-
-    // Build final log line
     $lineParts = ["[$no]", $statusSymbol, $item->proxy];
-    if ($protocolsStr !== '') {
-      $lineParts[] = 'protocols=' . $protocolsStr;
+    if ($protocols !== '') {
+      $lineParts[] = 'protocols=' . $protocols;
     }
     if ($latencyStr !== '') {
       $lineParts[] = 'latency=' . $latencyStr;
     }
-    if ($reasonStr !== '') {
-      $lineParts[] = $reasonStr;
-    }
 
-    // Log final summary for proxy
+    // Include retest status in log (alive|dead|not-performed)
+    $lineParts[] = 'retest=' . $retestStatus;
+
     _log_shared($hashFilename ?? 'CLI', implode(' ', $lineParts));
   }
 
-  // Done processing all proxies
+  // Finished checking all proxies
   _log_shared($hashFilename ?? 'CLI', 'Done checking proxies.');
+}
+
+function reTestProxy(\PhpProxyHunter\Proxy $checkerOptions, $timeout = 5) {
+  // Fixed list of proxy types to test
+  static $proxyTypes = ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
+  $proxy             = $checkerOptions->proxy;
+  $username          = $checkerOptions->username;
+  $password          = $checkerOptions->password;
+
+  $results = [];
+
+  foreach ($proxyTypes as $type) {
+    // Build curl for this proxy type
+    $ch = buildCurl(
+      $proxy,
+      $type,
+      'https://www.mozilla.org/en-US/about/',
+      [], // Use array() instead of []
+            $username,
+      $password,
+      'GET',
+      null,
+      0
+    );
+
+    // Faster, shared timeout configuration
+    curl_setopt_array($ch, [
+      CURLOPT_CONNECTTIMEOUT => 5,
+      CURLOPT_TIMEOUT        => $timeout,
+    ]);
+
+    $ok             = curl_exec($ch);
+    $results[$type] = $ok !== false && $ok !== '';
+    curl_close($ch);
+  }
+
+  return $results;
 }

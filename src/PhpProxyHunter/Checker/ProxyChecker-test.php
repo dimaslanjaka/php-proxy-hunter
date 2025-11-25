@@ -6,6 +6,7 @@ global $proxy_db;
 
 use PhpProxyHunter\Checker\ProxyCheckerPublicIP;
 use PhpProxyHunter\Checker\ProxyCheckerHttpOnly;
+use PhpProxyHunter\Checker\ProxyCheckerHttpsOnly;
 use PhpProxyHunter\Checker\ProxyCheckerGoogle;
 use PhpProxyHunter\Checker\CheckerOptions;
 
@@ -20,8 +21,9 @@ $options = [
 
 // Run both checkers with shared options
 $results = [
-  'full_check' => ProxyCheckerPublicIP::check(new CheckerOptions($options)),
+  'public_ip'  => ProxyCheckerPublicIP::check(new CheckerOptions($options)),
   'http_only'  => ProxyCheckerHttpOnly::check(new CheckerOptions($options)),
+  'https_only' => ProxyCheckerHttpsOnly::check(new CheckerOptions($options)),
   'google'     => ProxyCheckerGoogle::check(new CheckerOptions($options)),
 ];
 
@@ -35,14 +37,14 @@ foreach ($results as $type => $result) {
 // Save to database
 // work when all result is working
 // Consider proxy working if any checker reports success
-if ($results['full_check']->isWorking || $results['http_only']->isWorking) {
-  $formattedTypes = strtolower(implode('-', array_unique(array_merge($results['full_check']->workingTypes, $results['http_only']->workingTypes, $results['google']->workingTypes))));
+if ($results['public_ip']->isWorking || $results['http_only']->isWorking || $results['https_only']->isWorking) {
+  $formattedTypes = strtolower(implode('-', array_unique(array_merge($results['public_ip']->workingTypes, $results['http_only']->workingTypes, $results['https_only']->workingTypes, $results['google']->workingTypes))));
   echo 'Working types: ' . $formattedTypes . "\n";
   $proxy_db->updateData($proxy, [
-    'https'      => $results['full_check']->isSSL ? 'true' : 'false',
-    'anonymity'  => $results['full_check']->anonymity ?: $results['http_only']->anonymity,
+    'https'      => $results['public_ip']->isSSL ? 'true' : 'false',
+    'anonymity'  => $results['public_ip']->anonymity ?: $results['http_only']->anonymity,
     'last_check' => date(DATE_RFC3339),
-    'latency'    => max($results['full_check']->latency, $results['http_only']->latency),
+    'latency'    => max($results['public_ip']->latency, $results['http_only']->latency, $results['https_only']->latency),
     'type'       => $formattedTypes,
     'status'     => 'active',
   ]);
