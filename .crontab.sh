@@ -105,6 +105,7 @@ should_run_job() {
 }
 
 mkdir -p tmp/crontab
+mkdir -p tmp/logs/crontab
 
 # Logging function to capture stdout/stderr with timestamp - runs in background
 log_command() {
@@ -143,6 +144,9 @@ if should_run_job "tmp/crontab/1-h" 1; then
     # log_command "tmp/logs/crontab/djm_filter_dups.log" djm filter_dups --max=100
     log_command "tmp/logs/crontab/filter-ports.log" php artisan/filterPorts.php --max=100
     log_command "tmp/logs/crontab/filter-ports-background.log" php artisan/filterPortsDuplicate.php
+    log_command "tmp/logs/crontab/check-http-proxy.log" php php_backend/check-http-proxy.php
+    log_command "tmp/logs/crontab/check-https-proxy.log" php php_backend/check-https-proxy.php
+    log_command "tmp/logs/crontab/check-proxy-type.log" php php_backend/check-proxy-type.php
     echo "Running 1 hour job."
 else
     echo "Skipping 1 hour job."

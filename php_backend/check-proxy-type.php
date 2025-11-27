@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Proxy Type Detector
+ *
+ * Detects proxy protocol types (HTTP, SOCKS4, SOCKS5, etc) and validates
+ * port connectivity. Updates database with detected type and status.
+ *
+ * Supports both web (REST API) and CLI execution modes.
+ */
+
 require_once __DIR__ . '/checker-runner.php';
 
 use PhpProxyHunter\Checker\ProxyTypeDetector;

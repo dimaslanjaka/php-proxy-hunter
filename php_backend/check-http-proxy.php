@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * HTTP Proxy Checker
+ *
+ * Validates HTTP proxy functionality and updates database with working status,
+ * protocol types, latency, and geo-location information.
+ *
+ * Supports both web (REST API) and CLI execution modes.
+ */
+
 require_once __DIR__ . '/checker-runner.php';
 
 use PhpProxyHunter\Scheduler;
@@ -210,7 +219,7 @@ if ($fileLock->lock()) {
  * Check if the proxy is working (HTTP only)
  * @param string $proxy proxy string or JSON array
  */
-function check(string $proxy) {
+function check($proxy) {
   global $proxy_db, $hashFilename, $isAdmin, $isCli;
 
   // Extract proxies from string or array and shuffle
