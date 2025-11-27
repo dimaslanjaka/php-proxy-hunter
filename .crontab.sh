@@ -38,7 +38,7 @@ r_cmd() {
     is_running=false
 
     # check script is running
-    if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
+    if [ "$OSTYPE" = "cygwin" ] || [ "$OSTYPE" = "msys" ]; then
         # Use ps for Windows (Cygwin)
         if ps aux | grep -v grep | grep "$COMMAND_RUNNER $CWD/$FILE_PATH" >/dev/null; then
             is_running=true
@@ -83,7 +83,7 @@ should_run_job() {
     local interval_hours=$2
 
     current_time=$(date +%s)                       # Current timestamp in seconds
-    interval_seconds=$((interval_hours * 60 * 60)) # Convert hours to seconds
+    interval_seconds=$(awk -v h="$interval_hours" 'BEGIN {printf "%d\n", h * 60 * 60}')
 
     # Check if timestamp file exists
     if [ -f "$file_path" ]; then
@@ -118,7 +118,7 @@ log_command() {
     {
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] Running: $@"
         "$@"
-        local exit_code=$?
+        exit_code=$?
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] Exit code: $exit_code"
         echo ""
         echo "===================="
@@ -141,12 +141,14 @@ if should_run_job "tmp/crontab/1-h" 1; then
     # php "$CWD/send_curl.php" --url=https://sh.webmanajemen.com:8443/proxy/check
     # log_command "tmp/logs/crontab/djm_check_proxies.log" djm check_proxies --max=100
     # log_command "tmp/logs/crontab/djm_filter_dups.log" djm filter_dups --max=100
+    echo "Running 1 hour job."
 else
     echo "Skipping 1 hour job."
 fi
 
 # run every 3 hours
 if should_run_job "tmp/crontab/3-h" 3; then
+    echo "Running 3 hours job."
     bash "$CWD/bin/check-proxy-parallel"
 else
     echo "Skipping 3 hours job."
@@ -154,6 +156,7 @@ fi
 
 # run every 4 hours
 if should_run_job "tmp/crontab/4-h" 4; then
+    echo "Running 4 hours job."
     python "$CWD/proxyFetcher.py"
 else
     echo "Skipping 4 hours job."
@@ -162,12 +165,14 @@ fi
 # run every 6 hours
 if should_run_job "tmp/crontab/6-h" 6; then
     # log_command "tmp/logs/crontab/djm_sync_proxies.log" djm sync_proxies
+    echo "Running 6 hours job."
 else
     echo "Skipping 6 hours job."
 fi
 
 # run every 12 hours
 if should_run_job "tmp/crontab/12-h" 12; then
+    echo "Running 12 hours job."
     # Truncate WAL files for SQLite databases
     if [ -f "$CWD/tmp/database.sqlite-wal" ]; then
         echo "Checkpointing and truncating WAL file..."
@@ -185,6 +190,7 @@ fi
 
 # run every 24 hours
 if should_run_job "tmp/crontab/24-h" 24; then
+    echo "Running 24 hours job."
     # Backup database
     bash -e "$CWD/bin/backup-db"
     # Run php cleanup script
