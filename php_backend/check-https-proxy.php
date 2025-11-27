@@ -306,7 +306,6 @@ function check($proxy) {
       // Re-test the proxy to confirm it's dead
       $retestResults  = reTestProxy($item);
       $isAlive        = in_array(true, $retestResults, true);
-      $data['https']  = $isAlive ? 'true' : 'false';
       $data['status'] = $isAlive ? 'active' : 'dead';
       // Record a retest status for logging: alive, dead
       $retestStatus = $isAlive ? 'alive' : 'dead';
