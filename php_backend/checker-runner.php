@@ -78,3 +78,47 @@ function _log_shared(string $hashFilename, ...$args): void {
 
     return $proxy;
   }
+
+/**
+ * Re-test a proxy across multiple protocol types.
+ *
+ * @param \PhpProxyHunter\Proxy $checkerOptions The proxy object containing proxy, username, and password
+ * @param int $timeout The timeout in seconds for curl requests (default: 5)
+ * @return array An associative array of protocol types => boolean (true if working, false otherwise)
+ */
+function reTestProxy(\PhpProxyHunter\Proxy $checkerOptions, $timeout = 5) {
+  // Fixed list of proxy types to test
+  $proxyTypes = ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
+  $proxy      = $checkerOptions->proxy;
+  $username   = $checkerOptions->username;
+  $password   = $checkerOptions->password;
+
+  $results = [];
+
+  foreach ($proxyTypes as $type) {
+    // Build curl for this proxy type
+    $ch = buildCurl(
+      $proxy,
+      $type,
+      'http://httpbin.org/ip',
+      [],
+      $username,
+      $password,
+      'GET',
+      null,
+      0
+    );
+
+    // Faster, shared timeout configuration
+    curl_setopt_array($ch, [
+      CURLOPT_CONNECTTIMEOUT => 5,
+      CURLOPT_TIMEOUT        => $timeout,
+    ]);
+
+    $ok             = curl_exec($ch);
+    $results[$type] = $ok !== false && $ok !== '';
+    curl_close($ch);
+  }
+
+  return $results;
+}

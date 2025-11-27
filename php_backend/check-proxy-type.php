@@ -283,11 +283,26 @@ function check($proxy) {
       _log_shared($hashFilename ?? 'CLI', "[$no] [--] {$item->proxy} Removed invalid proxy");
       continue;
     } elseif ($portOpen === false) {
-      _log_shared($hashFilename ?? 'CLI', "[$no] [--] {$item->proxy} Port closed");
-      $proxy_db->updateData($item->proxy, [
-        'status'     => 'port-closed',
-        'last_check' => date(DATE_RFC3339),
-      ]);
+      // Re-test the proxy to confirm port is really closed
+      $retestResults = reTestProxy($item);
+      $isAlive       = in_array(true, $retestResults, true);
+      $retestStatus  = $isAlive ? 'alive' : 'dead';
+
+      if ($isAlive) {
+        // Port is actually open, mark as untested for later detection
+        $proxy_db->updateData($item->proxy, [
+          'status'     => 'untested',
+          'last_check' => date(DATE_RFC3339),
+        ]);
+        _log_shared($hashFilename ?? 'CLI', "[$no] [OK] {$item->proxy} status=untested retest=$retestStatus");
+      } else {
+        // Port is really closed after retest
+        _log_shared($hashFilename ?? 'CLI', "[$no] [--] {$item->proxy} Port closed retest=$retestStatus");
+        $proxy_db->updateData($item->proxy, [
+          'status'     => 'port-closed',
+          'last_check' => date(DATE_RFC3339),
+        ]);
+      }
       continue;
     } elseif ($type === 'unknown') {
       if ($portOpen === true && $isValid === true) {
