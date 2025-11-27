@@ -119,10 +119,11 @@
     "*.test.{cjs,js,mjs,ts}": "npm test --",
     "*Test.php": "phpunit --verbose --debug --testdox --colors=always",
     "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
-    "rollup.*.{js,cjs,mjs,ts}": "rollup -c"
+    "rollup.*.{js,cjs,mjs,ts}": "rollup -c",
+    "*.sh": "sh"
   },
   "code-runner.ignoreSelection": true,
-  "code-runner.respectShebang": true,
+  "code-runner.respectShebang": false,
   "code-runner.runInTerminal": true,
   "code-runner.saveAllFilesBeforeRun": true,
   "code-runner.saveFileBeforeRun": true,
