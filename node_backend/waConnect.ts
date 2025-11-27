@@ -119,7 +119,7 @@ export default class waConnect extends events.EventEmitter {
         const { connection, lastDisconnect, qr } = update;
         if (qr && qr.length > 0) {
           console.log('QR Code:', qr);
-          qrcode.generate(qr);
+          qrcode.generate(qr, { small: true });
         }
         if (connection === 'close') {
           if (lastDisconnect) {
