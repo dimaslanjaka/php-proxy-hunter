@@ -1,6 +1,9 @@
 <?php
 
-// filter open ports only
+/**
+ * Filter open ports from proxy list.
+ * Removes proxies with closed ports from working proxies and database.
+ */
 
 // Define project root for reuse
 $projectRoot = dirname(__DIR__);
@@ -14,7 +17,7 @@ global $proxy_db;
 $isCli = is_cli();
 
 if (!$isCli) {
-  header('Content-Type:text/plain; charset=UTF-8');
+  header('Content-Type: text/plain; charset=UTF-8');
   exit('web server access disallowed');
 }
 
@@ -60,7 +63,12 @@ if (file_exists($lockFilePath) && !is_debug()) {
 write_file($lockFilePath, date(DATE_RFC3339));
 write_file($statusFile, 'filter-ports');
 
-function filterPortsExitProcess(): void {
+/**
+ * Clean up lock file and reset status on script exit.
+ *
+ * @return void
+ */
+function filterPortsExitProcess() {
   global $lockFilePath, $statusFile;
 
   if (file_exists($lockFilePath)) {
@@ -71,7 +79,6 @@ function filterPortsExitProcess(): void {
 
 register_shutdown_function('filterPortsExitProcess');
 
-$db   = $proxy_db;
 $file = $projectRoot . '/proxies.txt';
 
 // remove empty lines
@@ -81,53 +88,52 @@ removeEmptyLinesFromFile($file);
 $start_time = microtime(true);
 
 try {
-  $db_data = $db->getUntestedProxies(100);
+  // Fetch untested proxies from database with higher limit to reduce file I/O
+  $db_data = $proxy_db->getUntestedProxies($max_checks);
 
-  $db_data_map = array_map(function ($item) {
-    // transform array into Proxy instance same as extractProxies result
-    $wrap = new Proxy($item['proxy']);
+  if (!empty($db_data)) {
+    // Transform database records to Proxy instances
+    foreach ($db_data as $item) {
+      $proxy = new Proxy($item['proxy']);
 
-    foreach ($item as $key => $value) {
-      if (property_exists($wrap, $key)) {
-        $wrap->$key = $value;
+      foreach ($item as $key => $value) {
+        if (property_exists($proxy, $key)) {
+          $proxy->$key = $value;
+        }
       }
+
+      if (!empty($item['username']) && !empty($item['password'])) {
+        $proxy->username = $item['username'];
+        $proxy->password = $item['password'];
+      }
+
+      processProxy($proxy->proxy);
     }
-
-    if (!empty($item['username']) && !empty($item['password'])) {
-      $wrap->username = $item['username'];
-      $wrap->password = $item['password'];
-    }
-
-    return $wrap;
-  }, $db_data);
-
-  if (empty($db_data_map)) {
+  } else {
+    // Fall back to file-based proxies if no untested proxies in database
     $read    = read_first_lines($file, $max_checks) ?: [];
     $proxies = extractProxies(implode("\n", $read), null, false);
-    $proxies = array_merge($proxies, $db_data_map);
-  } else {
-    // prioritize untested proxies from database
-    $proxies = $db_data_map;
-  }
 
-  shuffle($proxies);
-
-  // Convert array to iterator
-  $proxyIterator    = new ArrayIterator($proxies);
-  $multipleIterator = new MultipleIterator(MultipleIterator::MIT_NEED_ALL);
-  $multipleIterator->attachIterator($proxyIterator);
-
-  foreach ($multipleIterator as $proxyInfo) {
-    foreach ($proxyInfo as $proxy) {
-      processProxy($proxy->proxy);
+    if (!empty($proxies)) {
+      shuffle($proxies);
+      foreach ($proxies as $proxy) {
+        processProxy($proxy->proxy);
+      }
     }
   }
 } catch (Exception $e) {
   echo 'fail extracting proxies ' . $e->getMessage() . PHP_EOL;
 }
 
-function processProxy($proxy): void {
-  global $start_time, $file, $db, $maxExecutionTime, $projectRoot;
+/**
+ * Process a single proxy and check if its port is open.
+ * Removes proxies with closed ports and updates database status.
+ *
+ * @param string $proxy The proxy address to check
+ * @return void
+ */
+function processProxy($proxy) {
+  global $start_time, $file, $proxy_db, $maxExecutionTime, $projectRoot;
 
   // Check if execution time exceeds [n] seconds
   if (microtime(true) - $start_time > $maxExecutionTime) {
@@ -136,21 +142,7 @@ function processProxy($proxy): void {
 
   if (!isPortOpen($proxy)) {
     removeStringAndMoveToFile($file, $projectRoot . '/dead.txt', $proxy);
-    $db->updateData($proxy, ['status' => 'port-closed'], false);
+    $proxy_db->updateData($proxy, ['status' => 'port-closed'], false);
     echo $proxy . ' port closed' . PHP_EOL;
-  }
-}
-
-// filter open port from untested proxies
-
-$all = $db->getUntestedProxies(500);
-
-foreach ($all as $data) {
-  $proxyVal = $data['proxy'];
-
-  if (!isValidProxy($proxyVal)) {
-    $db->remove($proxyVal);
-  } else {
-    processProxy($proxyVal);
   }
 }
