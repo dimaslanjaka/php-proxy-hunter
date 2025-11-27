@@ -1,8 +1,14 @@
 <?php
 
-/** @noinspection PhpVariableIsUsedOnlyInClosureInspection */
+/**
+ * Proxy Collector and Indexer
+ *
+ * Collects proxies from multiple sources (files and assets), validates them,
+ * and indexes them into the database. Removes duplicates, invalid proxies,
+ * and blacklisted IPs.
+ */
 
-// index all proxies into database
+/** @noinspection PhpVariableIsUsedOnlyInClosureInspection */
 
 require_once __DIR__ . '/../php_backend/shared.php';
 
@@ -11,7 +17,7 @@ global $isWin, $isCli, $proxy_db;
 use PhpProxyHunter\Scheduler;
 
 if (!$isCli) {
-  header('Content-Type:text/plain; charset=UTF-8');
+  header('Content-Type: text/plain; charset=UTF-8');
   exit('web server access disallowed');
 }
 
@@ -49,9 +55,6 @@ if ($isCli) {
 
 if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
   echo date(DATE_RFC3339) . ' another process still running' . PHP_EOL;
-  // wait 30s before restart script
-  sleep(30);
-  restart_script();
   exit();
 } else {
   file_put_contents($lockFilePath, date(DATE_RFC3339));
@@ -64,8 +67,6 @@ Scheduler::register(function () use ($lockFilePath, $statusFile) {
   }
   file_put_contents($statusFile, 'idle');
 }, 'z_onExit' . basename(__FILE__));
-
-$db = $proxy_db;
 
 $files  = [__DIR__ . '/../dead.txt', __DIR__ . '/../proxies.txt', __DIR__ . '/../proxies-all.txt'];
 $assets = array_filter(getFilesByExtension(__DIR__ . '/../assets/proxies'), function ($fn) {
@@ -130,10 +131,10 @@ if (!empty($files_to_merge)) {
 
 $startTime = microtime(true);
 
-iterateBigFilesLineByLine($files, 500, function ($line) use ($db, $str_limit_to_remove, &$str_to_remove, $startTime, $maxExecutionTime) {
-  $items = extractProxies($line, $db, false);
+iterateBigFilesLineByLine($files, 500, function ($line) use ($proxy_db, $str_limit_to_remove, &$str_to_remove, $startTime, $maxExecutionTime) {
+  $items = extractProxies($line, $proxy_db, false);
   foreach ($items as $item) {
-    if (empty($item->proxy) || $db->isAlreadyAdded($item->proxy)) {
+    if (empty($item->proxy) || $proxy_db->isAlreadyAdded($item->proxy)) {
       continue;
     }
     // Check if execution time has exceeded the maximum allowed time
@@ -150,26 +151,26 @@ iterateBigFilesLineByLine($files, 500, function ($line) use ($db, $str_limit_to_
       echo $item->proxy . ' invalid' . PHP_EOL;
       continue;
     }
-    $sel = $db->select($item->proxy);
+    $sel = $proxy_db->select($item->proxy);
     if (empty($sel)) {
       echo 'add ' . $item->proxy . PHP_EOL;
       // add proxy
-      $db->add($item->proxy);
+      $proxy_db->add($item->proxy);
       // re-select proxy
-      $sel = $db->select($item->proxy);
+      $sel = $proxy_db->select($item->proxy);
     }
     if (empty($sel[0]['status'])) {
       echo 'treat as untested ' . $item->proxy . PHP_EOL;
-      $db->updateStatus($item->proxy, 'untested');
+      $proxy_db->updateStatus($item->proxy, 'untested');
     }
     // re-check if proxy already indexed
-    if (!empty($db->select($item->proxy))) {
+    if (!empty($proxy_db->select($item->proxy))) {
       if (count($str_to_remove) < $str_limit_to_remove) {
         $str_to_remove[] = $sel[0]['proxy'];
       }
     }
     // mark proxy as added
-    $db->markAsAdded($item->proxy);
+    $proxy_db->markAsAdded($item->proxy);
   }
 });
 
@@ -180,12 +181,12 @@ $can_do_iterate          = $indicator_all_not_found || $indicator_all_expired;
 
 if ($can_do_iterate) {
   echo 'iterating all proxies' . PHP_EOL;
-  $db->iterateAllProxies(function ($item) use ($db, $str_limit_to_remove, &$str_to_remove) {
+  $proxy_db->iterateAllProxies(function ($item) use ($proxy_db, $str_limit_to_remove, &$str_to_remove) {
     if (!empty($item['proxy'])) {
       if (!isValidProxy($item['proxy'])) {
         // remove invalid proxy from database
         echo '[SQLite] remove invalid proxy (' . $item['proxy'] . ')' . PHP_EOL;
-        $db->remove($item['proxy']);
+        $proxy_db->remove($item['proxy']);
       } else {
         // push indexed proxies to be removed from files
         if (count($str_to_remove) < $str_limit_to_remove) {
@@ -200,7 +201,7 @@ if ($can_do_iterate) {
   append_content_with_lock($indicator_all, date(DATE_RFC3339));
 }
 
-blacklist_remover($db->db->pdo);
+blacklist_remover($proxy_db->db->pdo);
 
 if (!empty($str_to_remove)) {
   foreach ($files as $file) {
@@ -215,40 +216,6 @@ if (!empty($str_to_remove)) {
   }
 } else {
   echo 'No proxies to remove' . PHP_EOL;
-}
-
-function countFilesAndRepeatScriptIfNeeded() {
-  $directory = __DIR__ . '/../assets/proxies';
-  $fileCount = 0;
-
-  // Open the directory
-  if ($handle = opendir($directory)) {
-    // Count the files in the directory
-    while (false !== ($entry = readdir($handle))) {
-      if ($entry != '.' && $entry != '..') {
-        $fileCount++;
-      }
-    }
-    closedir($handle);
-  }
-
-  // Check if the file count is greater than 5
-  if ($fileCount > 5) {
-    restart_script();
-    echo __FILE__ . " restarted\n";
-  }
-
-  echo "File count in directory '$directory': $fileCount\n";
-}
-
-function restart_script() {
-  global $argv;
-  $currentScript = __FILE__;
-  $args          = implode(' ', array_slice($argv, 1));
-  // Get all arguments except the script name
-
-  // Execute the command
-  runShellCommandLive("php $currentScript $args");
 }
 
 /**
@@ -275,13 +242,9 @@ function restart_script() {
  * - This function does not throw exceptions; database errors are reported via
  *   echo and the PDO statement errorInfo() output.
  *
- * @param \PDO        $pdo           PDO instance connected to the proxies database.
- * @param string|null $blacklistConf Optional path to a blacklist configuration file.
- *                                   Defaults to __DIR__ . '/../data/blacklist.conf'.
+ * @param PDO        $pdo           PDO instance connected to the proxies database
+ * @param string|null $blacklistConf Optional path to a blacklist configuration file
  * @return void
- *
- * @see read_file()
- * @see extractIPs()
  */
 function blacklist_remover($pdo, $blacklistConf = null) {
   $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
