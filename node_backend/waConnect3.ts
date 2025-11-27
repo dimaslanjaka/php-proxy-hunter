@@ -2,9 +2,11 @@ import { Boom } from '@hapi/boom';
 import * as baileys from '@whiskeysockets/baileys';
 import { deepmerge } from 'deepmerge-ts';
 import NodeCache from 'node-cache';
+import path from 'path';
 import pino from 'pino';
 import qrcode from 'qrcode-terminal';
 import readline from 'readline';
+import { FOLDER_CONFIG } from './Function.js';
 import { InMemoryStore } from './MemoryStore';
 
 const logger = pino({
@@ -23,11 +25,11 @@ const rl = readline.createInterface({
 const question = (text: string): Promise<string> => new Promise((resolve) => rl.question(text, resolve));
 
 const store = useStore ? new InMemoryStore() : undefined;
-store?.readFromFile('./baileys_auth_info/baileys_store_multi.json');
-setInterval(() => store?.writeToFile('./baileys_auth_info/baileys_store_multi.json'), 10000);
+store?.readFromFile(path.join(FOLDER_CONFIG, 'baileys_store_multi.json'));
+setInterval(() => store?.writeToFile(path.join(FOLDER_CONFIG, 'baileys_store_multi.json')), 10000);
 
 export async function connectSocket(config?: baileys.UserFacingSocketConfig): Promise<baileys.WASocket> {
-  const { state, saveCreds } = await baileys.useMultiFileAuthState('baileys_auth_info');
+  const { state, saveCreds } = await baileys.useMultiFileAuthState(FOLDER_CONFIG);
   const { version, isLatest } = await baileys.fetchLatestBaileysVersion();
   const defaultConfig: baileys.UserFacingSocketConfig = {
     version,

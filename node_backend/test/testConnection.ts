@@ -6,21 +6,21 @@ import NodeCache from 'node-cache';
 import path from 'path';
 import P from 'pino';
 import { writefile } from 'sbg-utility';
-import { baileyLogFile as console, initDir } from '../Function.js';
+import { baileyLogFile as console, initDir, FOLDER_CONFIG, FOLDER_LOG } from '../Function.js';
 
-initDir('./baileys_auth_info');
-initDir('./baileys_auth_info/log');
+initDir(FOLDER_CONFIG);
+initDir(FOLDER_LOG);
 
-if (fs.existsSync('./baileys_auth_info/error')) {
-  fs.rmSync('./baileys_auth_info', { recursive: true, force: true });
+if (fs.existsSync(path.join(FOLDER_CONFIG, 'error'))) {
+  fs.rmSync(FOLDER_CONFIG, { recursive: true, force: true });
 }
 
 const msgRetryCounterCache = new NodeCache();
 const logger = P().child({ level: 'silent', stream: 'store' }) as any;
 const store = baileys.makeInMemoryStore({ logger });
-store.readFromFile('./baileys_auth_info/baileys_store_multi.json');
+store.readFromFile(path.join(FOLDER_CONFIG, 'baileys_store_multi.json'));
 setInterval(() => {
-  store.writeToFile('./baileys_auth_info/baileys_store_multi.json');
+  store.writeToFile(path.join(FOLDER_CONFIG, 'baileys_store_multi.json'));
 }, 10000);
 
 async function connect() {
@@ -81,7 +81,7 @@ async function connect() {
           sock.ev.removeAllListeners('blocklist.set');
           sock.end(new Error('Connection closed. You are logged out.'));
           // delete folder
-          writefile(path.resolve('./baileys_auth_info/error'), 'true');
+          writefile(path.resolve(path.join(FOLDER_CONFIG, 'error')), 'true');
           // exit
           process.exit(1);
         }
