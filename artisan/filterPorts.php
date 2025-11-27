@@ -49,12 +49,12 @@ if ($isCli) {
   }
 }
 
-$scriptName   = basename(__FILE__, '.php');
-$lockFilePath = $projectRoot . '/tmp/runners/' . $scriptName . '.lock';
+$hash         = sanitizeFilename(basename(__FILE__, '.php') . '-' . getUserId());
+$lockFilePath = $projectRoot . '/tmp/locks/' . $hash . '.lock';
 $statusFile   = $projectRoot . '/status.txt';
 
 if (file_exists($lockFilePath) && !is_debug()) {
-  exit(date(DATE_RFC3339) . " another process still running {$scriptName}" . PHP_EOL);
+  exit(date(DATE_RFC3339) . " another process still running {$hash}" . PHP_EOL);
 }
 
 write_file($lockFilePath, date(DATE_RFC3339));
