@@ -1,5 +1,47 @@
 [
   {
+    "hash": "1abba466b06e2a4fd76d1a5d13c8cd851fe9b251",
+    "date": "2025-11-27T12:07:47+07:00",
+    "message": "ci(composer): ensure autoloader regeneration on every workflow run\n\n- Separate composer download into dedicated step that always runs\n- Remove cache condition from PHP dependencies installation\n- Add dump-autoload command to regenerate autoloader even when vendor exists\n- Fixes issue where buildCurl() function was undefined due to stale autoloader",
+    "files": [
+      ".github/workflows/checker-php.yml"
+    ]
+  },
+  {
+    "hash": "0bdb9847256caf9d65d09384706229d6577e5e02",
+    "date": "2025-11-27T11:47:58+07:00",
+    "message": "refactor: remove duplicate reTestProxy from check-https-proxy.php\n\n- Remove reTestProxy function from check-https-proxy.php to avoid code duplication\n- Use shared reTestProxy function from checker-runner.php instead\n- Consolidate proxy retesting logic across all proxy checker modules",
+    "files": [
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "bb6523a80f7235297bd94a4b990c7094aecc388d",
+    "date": "2025-11-27T11:38:33+07:00",
+    "message": "refactor: move reTestProxy to checker-runner and add port retest logic\n\n- Move reTestProxy function from check-http-proxy.php to checker-runner.php for code reuse\n- Add proxy retest logic to check-proxy-type.php when port detection returns false\n- Implement resilience against false positives by retesting closed ports\n- Update database with 'untested' status if port is actually open on retest\n- Log retest status (alive/dead) for better debugging and monitoring\n- Improve proxy validation workflow across HTTP and type detection checkers",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-proxy-type.php",
+      "php_backend/checker-runner.php"
+    ]
+  },
+  {
+    "hash": "bafa8252858ed12490312743b226c0d3cf3cee72",
+    "date": "2025-11-27T11:30:31+07:00",
+    "message": "fix(php_backend): align hash filename extraction with check-proxy-type.php\n\n- Simplify hash filename generation by removing intermediate $baseHash variable\n- Use basename($file, '.txt') directly as $hashFilename\n- Remove unnecessary concatenation with script name for non-empty hash values\n- Add fallback comment for clarity\n- Ensures consistent hash extraction across all proxy checker scripts",
+    "files": [
+      "php_backend/check-http-proxy.php"
+    ]
+  },
+  {
+    "hash": "7595686b546c4cfece5fda111654c04eed95143e",
+    "date": "2025-11-27T11:21:33+07:00",
+    "message": "fix(func.php): streamline CLI user ID validation by using empty check",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
     "hash": "cc2761a11b0ff274201d5131ed9ad8c1a99dce9e",
     "date": "2025-11-27T11:16:22+07:00",
     "message": "refactor(auth): prioritize email over user_id and simplify CLI user ID parsing\n\n- Update web-server branch to prioritize email → user_id → session_id\n- Clean up comments and improve readability\n- Replace null-coalescing operator with PHP 7–compatible checks\n- Simplify CLI argument extraction and validation\n- Add final call comment for setUserId()",
@@ -8721,51 +8763,6 @@
     "hash": "b5f78f0de718efeb06940beb5937ed8c73c22c1d",
     "date": "2025-09-03T14:45:49+07:00",
     "message": "fix(vite.config): increase file watching interval to 3000ms for improved reliability",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "b7f649ad85fd3ccfcf386d91713f4f8a611a52cc",
-    "date": "2025-09-03T14:43:39+07:00",
-    "message": "feat: add 'browser-with-fingerprints' to external dependencies in rollup configurations",
-    "files": [
-      "rollup.php.js",
-      "rollup.project.js",
-      "rollup.whatsapp.js"
-    ]
-  },
-  {
-    "hash": "9af3dcda32186f1b790754a9d6ae5a1a152e0cdf",
-    "date": "2025-09-03T14:40:28+07:00",
-    "message": "fix(vite.config): disable polling for file watching to improve performance",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "bcdc2c74888f4b8f015001f5fea404d6d903e112",
-    "date": "2025-09-03T14:36:16+07:00",
-    "message": "refactor(admin): extract saldo management logic to SaldoManager component\n\n- Moved all saldo management logic and UI from Admin.tsx to a new SaldoManager component.\n- Replaced the implementation in Admin.tsx with a simple wrapper that renders <SaldoManager />.\n- Created src/react/pages/admin/SaldoManager.tsx to encapsulate user saldo, password, and user management forms and logic.\n- Improves code organization and separation of concerns in the admin pages.",
-    "files": [
-      "src/react/pages/Admin.tsx",
-      "src/react/pages/admin/SaldoManager.tsx"
-    ]
-  },
-  {
-    "hash": "0ab3f4d3dc196c1bb1896e73a995f8eca837680e",
-    "date": "2025-09-02T20:11:07+07:00",
-    "message": "feat(changelog): render commit messages as markdown\n\n- Added `react-markdown` dependency\n- Updated `Changelog.tsx` to render commit messages using `ReactMarkdown`\n- Introduced `Changelog.module.scss` for link styling in light and dark mode",
-    "files": [
-      "package.json",
-      "src/react/pages/Changelog.module.scss",
-      "src/react/pages/Changelog.tsx"
-    ]
-  },
-  {
-    "hash": "1a36b9df77ccf34b257e5a13b16a4387e67a0da2",
-    "date": "2025-09-02T20:04:43+07:00",
-    "message": "fix(vite.config): update watch ignored patterns to exclude specific directories",
     "files": [
       "vite.config.js"
     ]
