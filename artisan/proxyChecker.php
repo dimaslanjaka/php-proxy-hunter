@@ -1,7 +1,13 @@
 <?php
 
-// CLI Proxy Checker
-// Usage: php artisan/proxyChecker.php --proxy "IP:PORT" or "IP:PORT@user:pass"
+/**
+ * CLI Proxy Checker
+ *
+ * Validates proxy functionality by testing against multiple protocols (http, socks4, socks5, etc).
+ * Updates proxy database with working status, type, latency, and geo-location information.
+ *
+ * Usage: php artisan/proxyChecker.php --proxy "IP:PORT" or "IP:PORT@user:pass"
+ */
 
 require_once __DIR__ . '/../php_backend/shared.php';
 require_once __DIR__ . '/../func-proxy.php';
@@ -35,10 +41,14 @@ $raw = trim($opts['proxy']);
 $username = null;
 $password = null;
 $proxyStr = $raw;
-if (str_contains($raw, '@')) {
-  [$proxyStr, $auth] = explode('@', $raw, 2);
-  if (str_contains($auth, ':')) {
-    [$username, $password] = explode(':', $auth, 2);
+if (strpos($raw, '@') !== false) {
+  $parts    = explode('@', $raw, 2);
+  $proxyStr = $parts[0];
+  $auth     = $parts[1];
+  if (strpos($auth, ':') !== false) {
+    $authParts = explode(':', $auth, 2);
+    $username  = $authParts[0];
+    $password  = $authParts[1];
   } else {
     $username = $auth;
   }
@@ -163,15 +173,20 @@ foreach ($types as $type) {
 }
 
 // After testing all protocols, aggregate results and update DB once
-$anyWorking = array_filter($results, fn ($v) => $v['result'] === true);
+$anyWorking = array_filter($results, function ($v) {
+  return $v['result'] === true;
+});
+
 if (!empty($anyWorking)) {
   $types_str   = implode('-', $working_types);
   $latency_val = !empty($working_latencies) ? (string)min($working_latencies) : null;
   // private is true only if all working results were private
-  $is_private = !empty($private_flags) && array_reduce($private_flags, fn ($carry, $item) => $carry && $item, true);
+  $is_private = !empty($private_flags) && array_reduce($private_flags, function ($carry, $item) {
+    return $carry && $item;
+  }, true);
   $https_flag = false;
   foreach ($tested_endpoints_agg as $ep) {
-    if (str_starts_with($ep, 'https')) {
+    if (strpos($ep, 'https') === 0) {
       $https_flag = true;
       break;
     }
@@ -206,7 +221,10 @@ if (!empty($anyWorking)) {
 }
 
 // If none worked mark dead or port-closed
-$anyWorking = array_filter($results, fn ($v) => $v['result'] === true);
+$anyWorking = array_filter($results, function ($v) {
+  return $v['result'] === true;
+});
+
 if (empty($anyWorking)) {
   // If basic port closed detection
   // Try a raw port open check
