@@ -282,10 +282,8 @@ function check($proxy) {
     ]);
 
     // Include authentication if available
-    if (!empty($item->username)) {
+    if (!empty($item->username) && !empty($item->password)) {
       $checkerOptions->username = $item->username;
-    }
-    if (!empty($item->password)) {
       $checkerOptions->password = $item->password;
     }
 
