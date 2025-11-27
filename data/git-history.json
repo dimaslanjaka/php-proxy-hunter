@@ -1,5 +1,136 @@
 [
   {
+    "hash": "cc2761a11b0ff274201d5131ed9ad8c1a99dce9e",
+    "date": "2025-11-27T11:16:22+07:00",
+    "message": "refactor(auth): prioritize email over user_id and simplify CLI user ID parsing\n\n- Update web-server branch to prioritize email → user_id → session_id\n- Clean up comments and improve readability\n- Replace null-coalescing operator with PHP 7–compatible checks\n- Simplify CLI argument extraction and validation\n- Add final call comment for setUserId()",
+    "files": [
+      "func.php"
+    ]
+  },
+  {
+    "hash": "1c38ac516c6c485f37004524c3b5352a17783c62",
+    "date": "2025-11-27T11:13:54+07:00",
+    "message": "fix(ProxyDB): implement chunked pagination in iterateAllProxies to prevent memory exhaustion\n\nRefactor iterateAllProxies() method to fetch proxies in configurable chunks (default 1000 rows per batch) instead of loading all results into memory at once. This prevents fatal memory exhaustion errors when iterating over large proxy databases.\n\n- Add $chunkSize parameter with default value of 1000\n- Use LIMIT and OFFSET to fetch data in batches\n- Process each batch immediately before fetching the next\n- Add comprehensive PHPDoc documentation\n- Improve loop termination logic with empty result check\n\nFixes memory exhaustion when proxies table contains millions of records.",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "60bc22aef2f5afd684d782dba568ace21aa742f5",
+    "date": "2025-11-27T11:12:04+07:00",
+    "message": "fix(php_backend): remove unused variable and fix hash prefix in http proxy log\n\n- Remove unnecessary $logFilename variable assignment\n- Use $hashFilename directly in substr() to correctly extract 6-char hash prefix\n- Align logging format with check-proxy-type.php and check-https-proxy.php\n- Fixes log output from \"[CLI][user] check-\" to \"[CLI][user] 6fc6f2\"",
+    "files": [
+      "php_backend/check-http-proxy.php"
+    ]
+  },
+  {
+    "hash": "9916d214c510fcb774c47b59733e5efb63000803",
+    "date": "2025-11-27T11:05:04+07:00",
+    "message": "refactor(artisan/proxyCollector.php): optimize and remove restart logic\n\n- Add comprehensive PHPDoc documentation explaining script purpose and functionality\n- Fix header spacing in Content-Type declaration\n- Remove auto-restart logic:\n  * Remove sleep(30) and restart_script() call when lock file exists\n  * Delete countFilesAndRepeatScriptIfNeeded() function\n  * Delete restart_script() function\n  * Simplify to direct exit when lock file exists\n- Remove redundant $db variable assignment, use $proxy_db directly (11 instances)\n- Update all closure parameter bindings to use $proxy_db instead of $db\n- Improve PHPDoc for blacklist_remover():\n  * Remove PHP 7.1+ type hints (\\PDO)\n  * Simplify parameter descriptions\n  * Remove @see references\n- Streamline code flow by eliminating restart loops\n- Reduce code complexity and improve maintainability",
+    "files": [
+      "artisan/proxyCollector.php"
+    ]
+  },
+  {
+    "hash": "7a014d7332e63c32f84840cb92dfec94ef98a8b5",
+    "date": "2025-11-27T11:01:40+07:00",
+    "message": "feat(crontab): update hourly job commands to include new parameters for enhanced functionality",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "2886fbf44253a5c1455242993be2a885f881c039",
+    "date": "2025-11-27T10:41:26+07:00",
+    "message": "feat(.crontab.sh, php_backend/*): add proxy checker scripts to hourly cron job and improve documentation\n\n- Add hourly cron scheduling for three proxy checker scripts:\n  * check-http-proxy.php: HTTP protocol validation\n  * check-https-proxy.php: HTTPS/SSL protocol validation\n  * check-proxy-type.php: Proxy type detection\n- Create tmp/logs/crontab directory for log output storage\n- Add comprehensive PHPDoc documentation to all three checker scripts\n- Remove PHP 7.1+ type hints (string $proxy) for PHP 7.0 compatibility\n- Improve code clarity with detailed function descriptions\n- Enable logging for proxy validation and type detection in cron jobs",
+    "files": [
+      ".crontab.sh",
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/check-proxy-type.php"
+    ]
+  },
+  {
+    "hash": "bae7df2052eccb1d97a996423c0ea2b9a573ba1b",
+    "date": "2025-11-27T10:38:17+07:00",
+    "message": "refactor(artisan/proxyChecker.php): optimize and ensure PHP 7.0 compatibility\n\n- Add comprehensive PHPDoc documentation for file and function usage\n- Replace PHP 8.0+ str_contains() with strpos() !== false\n- Replace PHP 8.0+ str_starts_with() with strpos($str, 'prefix') === 0\n- Replace PHP 7.4+ arrow functions (fn =>) with regular function closures\n- Replace array destructuring syntax with explicit array access for PHP 7.0 compatibility\n- Improve code readability with clear variable assignment\n- Maintain functionality while ensuring broad PHP version compatibility",
+    "files": [
+      "artisan/proxyChecker.php"
+    ]
+  },
+  {
+    "hash": "2cbaa703d53fcf327509d21335d755d15f00c73d",
+    "date": "2025-11-27T10:35:34+07:00",
+    "message": "feat(crontab): add logging for filterPorts and filterPortsDuplicate in hourly job",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "c370a1947c8cf612a86bc89dd10ed15a7108bf2a",
+    "date": "2025-11-27T10:34:02+07:00",
+    "message": "refactor(artisan/filterPortsDuplicate.php): optimize and ensure PHP 7.0 compatibility\n\n- Add comprehensive PHPDoc documentation for file and functions\n- Remove redundant variable assignment (`$db = $proxy_db`)\n- Use `$proxy_db` directly throughout code\n- Replace all `$db->` calls with `$proxy_db->` references\n- Remove PHP 7.1+ type hints from function parameters for PHP 7.0 compatibility\n- Update function signatures to remove parameter and return type declarations\n- Remove `@throws` PHPDoc tag as it's incompatible with PHP 7.0 approach\n- Add PHPDoc documentation to `write_working()` function\n- Improve code consistency and reduce unnecessary variable indirection",
+    "files": [
+      "artisan/filterPortsDuplicate.php"
+    ]
+  },
+  {
+    "hash": "c1067ddf767af514cd27bd5f5e73b61f02d7c921",
+    "date": "2025-11-27T10:30:55+07:00",
+    "message": "refactor(artisan/filterPorts.php): optimize and ensure PHP 7.0 compatibility\n\n- Add comprehensive PHPDoc comments for file, functions, and parameters\n- Remove PHP 7.1+ return type hints (`: void`) for PHP 7.0 compatibility\n- Fix header spacing in Content-Type\n- Replace hardcoded limit (100) with configurable `$max_checks` parameter\n- Remove unnecessary array_map() and MultipleIterator usage\n- Simplify proxy processing logic with direct foreach loops\n- Remove redundant variable assignment (`$db = $proxy_db`)\n- Use `$proxy_db` directly throughout code\n- Only clean empty lines from file when using file fallback (avoid unnecessary I/O)\n- Eliminate duplicate database calls and consolidate proxy processing\n- Remove unused `$isAdmin` variable assignment\n- Improve code efficiency and reduce memory footprint",
+    "files": [
+      "artisan/filterPorts.php"
+    ]
+  },
+  {
+    "hash": "b4f707601dbf4d6bec0e78464e06c105a6f95057",
+    "date": "2025-11-27T10:14:51+07:00",
+    "message": "fix(filterPorts): update lock file naming to include user ID for uniqueness",
+    "files": [
+      "artisan/filterPorts.php"
+    ]
+  },
+  {
+    "hash": "45a62668d12ff74aeb24085ecde90a8309167971",
+    "date": "2025-11-27T10:08:38+07:00",
+    "message": "refactor(crontab): run log_command in background with improved logging\n\n- Modify log_command function to execute commands asynchronously using & operator\n- Add inline comment explaining background execution behavior\n- Replace || true error suppression with & background operator\n- Wrap all 24-hour maintenance tasks with log_command for consistent logging:\n  - Database backup now logged to backup-db.log\n  - Old backups cleanup logged to cleanup-backups.log\n  - Old logs cleanup logged to cleanup-logs.log\n- Comment out check-proxy-parallel log_command for 3-hour job\n- Ensures cron script continues without blocking on long-running tasks",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "291297878ab025fc2f19ead4bc245c9afa8095f5",
+    "date": "2025-11-27T10:01:34+07:00",
+    "message": "fix(crontab): enhance logging for scheduled jobs in crontab script",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "278efdb1a67d503251d1ddd4a04d6e4a51f712b8",
+    "date": "2025-11-27T09:59:10+07:00",
+    "message": "fix: update shell script execution settings in code runner configuration",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "0435b39e00f9ca7bc8448c34c8913a697d1faaad",
+    "date": "2025-11-27T08:47:15+07:00",
+    "message": "feat: add Facebook App ID and secret to environment configuration",
+    "files": [
+      ".env.example"
+    ]
+  },
+  {
+    "hash": "398b457370bf27efb56fed3c696f51f44601b826",
+    "date": "2025-11-27T08:43:08+07:00",
+    "message": "fix(crontab): support fractional hours and improve sh compatibility\n\n- Replace bash-only [[ ]] syntax with POSIX [ ] for cross-shell compatibility\n- Use awk to handle fractional hour values (e.g., 0.5) in interval calculations\n- Remove local keyword from subshell to prevent parsing issues\n- Add status messages to cron jobs for better logging visibility",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
     "hash": "7c581f7f8782bbc7ca0cec28c92d3bb55869b72b",
     "date": "2025-11-26T05:07:53+07:00",
     "message": "feat(LogViewer): add proxy type detection tab with polling support\n\n- Add fetchProxyTypeDetectionResult() function to fetch type detection logs\n- Extend activeTab state type to include 'type' option\n- Add typeLog state variable for storing type detection results\n- Implement useEffect hook for polling proxy type detection results (3s interval)\n- Add \"Type detection\" tab button to the tab navigation\n- Add type detection panel with log display and empty state messaging\n- Support concurrent polling for https, http, and type detection tabs",
@@ -8637,132 +8768,6 @@
     "message": "fix(vite.config): update watch ignored patterns to exclude specific directories",
     "files": [
       "vite.config.js"
-    ]
-  },
-  {
-    "hash": "3dd91339d26fa09baedbae5c2e940c103af3e2ea",
-    "date": "2025-09-02T19:59:09+07:00",
-    "message": "feat(eslint): extend validation to include additional file types",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "61f19029c215fae5a54640cacc43db40a7c3bfb9",
-    "date": "2025-09-02T19:51:32+07:00",
-    "message": "feat(git-history): add unique file filtering and anonymization to commit history",
-    "files": [
-      "src/dev/git-history-to-json.ts"
-    ]
-  },
-  {
-    "hash": "0886fc1fe318f98c617f537b4989c3297543b658",
-    "date": "2025-09-02T19:50:18+07:00",
-    "message": "feat(git-history): add file anonymization and filtering for banned files",
-    "files": [
-      "src/dev/git-history-to-json.ts"
-    ]
-  },
-  {
-    "hash": "775cf836295d69540c6afde35038577da3a0cb55",
-    "date": "2025-09-02T19:43:09+07:00",
-    "message": "refactor(vite.config): enhance manual chunking logic for better module organization",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "cac01206c0c2bd8ecb447672879d07c8cf2cc66f",
-    "date": "2025-09-02T19:35:36+07:00",
-    "message": "fix(vite.config): set maxParallelFileOps to 2 for improved build performance",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "4892246a51166c622090706e5530020acf0b52d8",
-    "date": "2025-09-02T19:23:53+07:00",
-    "message": "refactor(vite.config): comment out watch configuration for clarity",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "f7198b503cc830a08f87338603a5240968a9d266",
-    "date": "2025-09-02T19:17:28+07:00",
-    "message": "refactor(vite.config): streamline file watching configuration and enhance manual chunking",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "3a95a72c53c1f9a27ac7a27f6fee2faadf672c5d",
-    "date": "2025-09-02T18:50:46+07:00",
-    "message": "fix(github-pages): set timeout 30 mins",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "6804732628c22616cf4cd7eafdb651a0338ae72e",
-    "date": "2025-09-02T18:49:18+07:00",
-    "message": "feat(vite.config): enhance manual chunking for better module organization",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "e8a66e011d3e193fafadb4d096363a305748f3f9",
-    "date": "2025-09-02T17:30:22+07:00",
-    "message": "feat(vite): restrict file watching to specific src extensions\n\nAdded `ignoredFiles` and `includedFiles` patterns to centralize watch configuration.\nConfigured `build.watch` to include only source file extensions while excluding unnecessary paths.\nUpdated `server.watch` to ignore all files except `.tsx`, `.jsx`, `.ts`, `.js`, `.cjs`, and `.mjs` under `src/` for stricter file watching.",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "b132942ba99ffb259cf9b72a96ef9248c49b26b1",
-    "date": "2025-09-02T17:15:24+07:00",
-    "message": "Merge pull request #55 from dimaslanjaka/dependabot/npm_and_yarn/chromedriver-139.0.3\n\nbuild(deps): bump chromedriver from 139.0.2 to 139.0.3",
-    "files": []
-  },
-  {
-    "hash": "8d85015581c089357f5bb9c2a7302e61a3af4600",
-    "date": "2025-09-02T17:15:13+07:00",
-    "message": "Merge pull request #56 from dimaslanjaka/dependabot/npm_and_yarn/vite-7.1.4\n\nbuild(deps-dev): bump vite from 7.1.3 to 7.1.4",
-    "files": []
-  },
-  {
-    "hash": "724475826e365f389ae3709895149c4fbe724aa5",
-    "date": "2025-09-02T10:12:11Z",
-    "message": "build(deps-dev): bump vite from 7.1.3 to 7.1.4\n\nBumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) from 7.1.3 to 7.1.4.\n- [Release notes](https://github.com/vitejs/vite/releases)\n- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)\n- [Commits](https://github.com/vitejs/vite/commits/v7.1.4/packages/vite)\n\n---\nupdated-dependencies:\n- dependency-name: vite\n  dependency-version: 7.1.4\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "0778a746d72bb3179851b78956c00f83e8e9c44b",
-    "date": "2025-09-02T17:10:05+07:00",
-    "message": "feat(vite.config): enable source maps and optimize chunking for better performance",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "6aa4cedeef0b5ceb5b7bc3518f6be4f10cd63cd2",
-    "date": "2025-09-02T17:01:51+07:00",
-    "message": "fix(build): increase memory limit and enable legacy OpenSSL provider for react build",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "cb7f7297a0d3a6f8ff0210f3b5ef524cf91bdfe5",
-    "date": "2025-09-02T16:55:42+07:00",
-    "message": "feat(browserlist): add script to update Browserslist database",
-    "files": [
-      "packages/baileys",
-      "packages/gh-pages",
-      "scripts/browserlist-updater.js"
     ]
   }
 ]
