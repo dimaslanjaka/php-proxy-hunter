@@ -508,21 +508,21 @@ $user_id = 'CLI';
 
 // Check if the script is running in CLI mode or not
 if (!$isCli) {
-  // --- Case 1: Not running in CLI mode (i.e., likely running via web server) ---
+  // --- Case 1: Running via web server ---
 
-  // Check if a user ID exists in the session
-  if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
-    // If a session user ID exists, use it to generate a hashed user ID
-    $user_id_source = $_SESSION['user_id'];
-  } elseif (isset($_SESSION['email']) && isValidEmail($_SESSION['email'])) {
-    // If an email exists in the session, use it to generate a hashed user ID
+  // Prioritize email → then user_id → then session_id
+  if (isset($_SESSION['email']) && isValidEmail($_SESSION['email'])) {
+    // Use valid session email first
     $user_id_source = $_SESSION['email'];
+  } elseif (!empty($_SESSION['user_id'])) {
+    // Use session user ID if available
+    $user_id_source = $_SESSION['user_id'];
   } else {
-    // Otherwise, fall back to the PHP session ID
+    // Fallback: use PHP session ID
     $user_id_source = session_id();
   }
 
-  // Hash the chosen ID (session user ID or session ID) for privacy and consistency
+  // Hash the chosen ID for privacy and consistency
   $user_id = md5($user_id_source);
 } else {
   // --- Case 2: Running in CLI mode ---
@@ -530,21 +530,26 @@ if (!$isCli) {
   // Parse command-line arguments using a helper function
   $parsedArgs = parseArgs($argv);
 
-  // Check if the parsed arguments array is not empty
+  // Extract CLI user ID if provided (userId or uid)
+  $cliUserId = '';
   if (!empty($parsedArgs)) {
-    // Extract the 'userId' argument if present
-    $cliUserId = $parsedArgs['userId'] ?? $parsedArgs['uid'] ?? '';
-
-    // Trim any whitespace around it
-    $cliUserId = trim($cliUserId);
-
-    // If a non-empty userId was provided via CLI
-    if (!empty($cliUserId)) {
-      $user_id = $cliUserId;
+    if (isset($parsedArgs['userId'])) {
+      $cliUserId = $parsedArgs['userId'];
+    } elseif (isset($parsedArgs['uid'])) {
+      $cliUserId = $parsedArgs['uid'];
     }
+  }
+
+  // Trim and validate CLI user ID
+  $cliUserId = trim($cliUserId);
+
+  // If CLI user ID is non-empty, override default "CLI"
+  if ($cliUserId !== '') {
+    $user_id = $cliUserId;
   }
 }
 
+// Set the resolved user ID in your system
 setUserId($user_id);
 
 /**
