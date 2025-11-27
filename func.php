@@ -540,11 +540,8 @@ if (!$isCli) {
     }
   }
 
-  // Trim and validate CLI user ID
-  $cliUserId = trim($cliUserId);
-
   // If CLI user ID is non-empty, override default "CLI"
-  if ($cliUserId !== '') {
+  if (!empty(trim($cliUserId))) {
     $user_id = $cliUserId;
   }
 }
