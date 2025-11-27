@@ -1,4 +1,5 @@
 import React from 'react';
+import Convert from 'ansi-to-html';
 import { createUrl } from '../../utils/url';
 import { getUserInfo } from '../../utils/user';
 
@@ -51,6 +52,18 @@ const LogViewer: React.FC = () => {
   const [httpsLog, setHttpsLog] = React.useState('');
   const [httpLog, setHttpLog] = React.useState('');
   const [typeLog, setTypeLog] = React.useState('');
+
+  // Convert ANSI codes to HTML
+  const convertAnsiToHtml = (ansiText: string): string => {
+    const converter = new Convert({ newline: true });
+    let html = converter.toHtml(ansiText);
+
+    // Fix dark blue (#00A or #0000AA) to be readable on dark backgrounds
+    html = html.replace(/style="color:#00A"/g, 'style="color:#0099ff"');
+    html = html.replace(/style="color:#0000AA"/g, 'style="color:#0099ff"');
+
+    return html;
+  };
 
   // On mount, fetch user id to use with logs endpoints
   React.useEffect(() => {
@@ -194,9 +207,11 @@ const LogViewer: React.FC = () => {
           </div>
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
             {httpsLog ? (
-              <span className="text-gray-800 dark:text-gray-100" style={{ whiteSpace: 'pre-wrap' }}>
-                {httpsLog}
-              </span>
+              <div
+                dangerouslySetInnerHTML={{ __html: convertAnsiToHtml(httpsLog) }}
+                className="text-gray-800 dark:text-gray-100"
+                style={{ whiteSpace: 'pre-wrap' }}
+              />
             ) : (
               <span className="text-gray-400 dark:text-gray-500">No https result fetched yet.</span>
             )}
@@ -215,9 +230,11 @@ const LogViewer: React.FC = () => {
           </div>
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
             {httpLog ? (
-              <span className="text-gray-800 dark:text-gray-100" style={{ whiteSpace: 'pre-wrap' }}>
-                {httpLog}
-              </span>
+              <div
+                dangerouslySetInnerHTML={{ __html: convertAnsiToHtml(httpLog) }}
+                className="text-gray-800 dark:text-gray-100"
+                style={{ whiteSpace: 'pre-wrap' }}
+              />
             ) : (
               <span className="text-gray-400 dark:text-gray-500">No http result fetched yet.</span>
             )}
@@ -236,9 +253,11 @@ const LogViewer: React.FC = () => {
           </div>
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
             {typeLog ? (
-              <span className="text-gray-800 dark:text-gray-100" style={{ whiteSpace: 'pre-wrap' }}>
-                {typeLog}
-              </span>
+              <div
+                dangerouslySetInnerHTML={{ __html: convertAnsiToHtml(typeLog) }}
+                className="text-gray-800 dark:text-gray-100"
+                style={{ whiteSpace: 'pre-wrap' }}
+              />
             ) : (
               <span className="text-gray-400 dark:text-gray-500">No proxy type result fetched yet.</span>
             )}
