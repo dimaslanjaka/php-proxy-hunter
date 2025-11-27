@@ -106,7 +106,7 @@ should_run_job() {
 
 mkdir -p tmp/crontab
 
-# Logging function to capture stdout/stderr with timestamp
+# Logging function to capture stdout/stderr with timestamp - runs in background
 log_command() {
     local log_file=$1
     shift  # Remove first argument, rest is the command
@@ -115,6 +115,7 @@ log_command() {
     local log_dir=$(dirname "$log_file")
     mkdir -p "$log_dir"
 
+    # Run command in background with logging
     {
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] Running: $@"
         "$@"
@@ -123,7 +124,7 @@ log_command() {
         echo ""
         echo "===================="
         echo ""
-    } >> "$log_file" 2>&1 || true
+    } >> "$log_file" 2>&1 &
 }
 
 # run every 30 minutes
@@ -149,7 +150,7 @@ fi
 # run every 3 hours
 if should_run_job "tmp/crontab/3-h" 3; then
     echo "Running 3 hours job."
-    log_command "tmp/logs/crontab/check-proxy-parallel.log" bash "$CWD/bin/check-proxy-parallel"
+    # log_command "tmp/logs/crontab/check-proxy-parallel.log" bash "$CWD/bin/check-proxy-parallel"
 else
     echo "Skipping 3 hours job."
 fi
@@ -192,14 +193,14 @@ fi
 if should_run_job "tmp/crontab/24-h" 24; then
     echo "Running 24 hours job."
     # Backup database
-    bash -e "$CWD/bin/backup-db"
+    log_command "tmp/logs/crontab/backup-db.log" bash -e "$CWD/bin/backup-db"
     # Run php cleanup script
     log_command "tmp/logs/crontab/php-cleaner.log" php "$CWD/artisan/cleaner.php"
     # Remove old backups older than 7 days
-    find "$CWD/backups" -type f -name "*.sql" -mtime +7 -exec rm -f {} \;
+    log_command "tmp/logs/crontab/cleanup-backups.log" find "$CWD/backups" -type f -name "*.sql" -mtime +7 -exec rm -f {} \;
     echo "Old backups removed, keeping only the last 7 days."
     # Remove old log files older than 30 days
-    find "$CWD/tmp/logs" -type f -name "*.log" -mtime +30 -exec rm -f {} \;
+    log_command "tmp/logs/crontab/cleanup-logs.log" find "$CWD/tmp/logs" -type f -name "*.log" -mtime +30 -exec rm -f {} \;
     echo "Old log files removed, keeping only the last 30 days."
 else
     echo "Skipping 24 hours job."
