@@ -31,7 +31,7 @@ if (!$isCli) {
   Server::allowCors(true);
   header('Content-Type: text/plain; charset=UTF-8');
 
-  $phpBinary = PHP_OS_FAMILY === 'Windows' ? 'php.exe' : 'php';
+  $phpBinary = getPhpExecutable(true);
   $script    = escapeshellarg(__FILE__);
 
   $outputFile = tmp() . "/logs/user-$uid/proxyWorking.log";
