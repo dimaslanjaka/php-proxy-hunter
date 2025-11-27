@@ -142,12 +142,11 @@ if (!$isCli) {
   // Determine file from CLI arguments
   $file = isset($options['f']) ? $options['f'] : (isset($options['file']) ? $options['file'] : null);
 
-  // Generate hash filename based on file
-  $baseHash = basename($file, '.txt');
-  if ($baseHash == '.txt' || empty($baseHash)) {
+  // Generate hash filename from file
+  $hashFilename = basename($file, '.txt');
+  if ($hashFilename == '.txt' || empty($hashFilename)) {
+    // Fallback hash filename
     $hashFilename = "$currentScriptFilename/cli";
-  } else {
-    $hashFilename = $currentScriptFilename . '/' . $baseHash;
   }
 
   // Determine proxy input from CLI arguments
