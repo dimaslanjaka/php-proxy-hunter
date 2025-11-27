@@ -226,9 +226,8 @@ function check($proxy) {
   $proxies = extractProxies($proxy, $proxy_db, true);
   shuffle($proxies);
 
-  $count       = count($proxies);
-  $logFilename = $hashFilename;
-  _log_shared($hashFilename ?? 'CLI', trim('[' . ($isCli ? 'CLI' : 'WEB') . '][' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($logFilename, 0, 6) . " Checking $count proxies..."));
+  $count = count($proxies);
+  _log_shared($hashFilename ?? 'CLI', trim('[' . ($isCli ? 'CLI' : 'WEB') . '][' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($hashFilename, 0, 6) . " Checking $count proxies..."));
 
   $startTime = microtime(true);
   $limitSecs = 120;
