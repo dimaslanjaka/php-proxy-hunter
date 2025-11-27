@@ -1,6 +1,9 @@
 <?php
 
-// remove duplicate IP from database
+/**
+ * Remove duplicate IP addresses from proxy database.
+ * Identifies duplicate proxies by IP and removes them based on status and age.
+ */
 
 require_once __DIR__ . '/../php_backend/shared.php';
 
@@ -88,11 +91,10 @@ Scheduler::register(function () use ($lockFilePath, $statusFile) {
   file_put_contents($statusFile, 'idle');
 }, 'z_Exit_' . md5(__FILE__));
 
-$db = $proxy_db;
 /**
  * @var PDO
  */
-$pdo = $db->db->pdo;
+$pdo = $proxy_db->db->pdo;
 
 // Determine database type using PDO getAttribute method
 $driver  = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
@@ -229,7 +231,7 @@ do {
           if (!wasCheckedThisMonth($pdo, $proxy) || $perform_delete) {
             if (isPortOpen($proxy)) {
               echo "$proxy port open\n";
-              $db->updateData($proxy, ['status' => 'untested'], false);
+              $proxy_db->updateData($proxy, ['status' => 'untested'], false);
               // Update the last_check timestamp
               $lastCheck = date(DATE_RFC3339);
               // Assign date to a variable
@@ -252,7 +254,7 @@ do {
                   ? sprintf("[FILTER-PORT] %s deleted — forced delete flag set\n", $proxy)
                   : sprintf("[FILTER-PORT] %s deleted — port closed for a long time\n", $proxy);
               } else {
-                $db->updateData($proxy, ['status' => 'port-closed'], false);
+                $proxy_db->updateData($proxy, ['status' => 'port-closed'], false);
                 $log = sprintf("[FILTER-PORT] %s updated — status set to port-closed\n", $proxy);
               }
             }
@@ -290,12 +292,11 @@ $pdo = null;
  * For MySQL the query uses DATE_FORMAT(last_check, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m').
  * For other drivers (e.g. SQLite) it uses a prefix match on the ISO timestamp (YYYY-MM%).
  *
- * @param \PDO  $pdo   PDO connection used to query the proxies table.
- * @param string $proxy Proxy string (example: "1.2.3.4:8080").
- * @return bool True if the proxy has at least one `last_check` in the current month, false otherwise.
- * @throws \PDOException If the query execution fails.
+ * @param PDO    $pdo   PDO connection used to query the proxies table
+ * @param string $proxy Proxy string (example: "1.2.3.4:8080")
+ * @return bool True if the proxy has at least one `last_check` in the current month, false otherwise
  */
-function wasCheckedThisMonth(\PDO $pdo, string $proxy) {
+function wasCheckedThisMonth($pdo, $proxy) {
   // Determine driver and build a compatible SQL condition for "same month"
   $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
   if ($driver === 'mysql') {
@@ -331,8 +332,13 @@ function wasCheckedThisWeek($pdo, $proxy) {
   return $stmt->fetchColumn() > 0;
 }
 
+/**
+ * Write working proxies to file.
+ *
+ * @return mixed
+ */
 function write_working() {
-  global $db;
+  global $proxy_db;
   echo '[FILTER-PORT] writing working proxies' . PHP_EOL;
-  return writing_working_proxies_file($db);
+  return writing_working_proxies_file($proxy_db);
 }
