@@ -166,14 +166,46 @@ class ProxyDB {
   }
 
   /**
-   * @param callable $callback
+   * Iterate over all proxies with pagination to avoid memory exhaustion.
+   *
+   * This method fetches proxies in chunks (default 1000 per batch) to prevent
+   * memory exhaustion on large databases. Each row is processed immediately
+   * via the callback before fetching the next batch.
+   *
+   * @param callable $callback Function to call for each proxy row
+   * @param int $chunkSize Number of rows to fetch per batch (default 1000)
    * @return void
    */
-  public function iterateAllProxies($callback) {
+  public function iterateAllProxies($callback, $chunkSize = 1000) {
     try {
-      $stmt = $this->db->pdo->query('SELECT * FROM proxies');
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        call_user_func($callback, $row);
+      $chunkSize = max(1, (int)$chunkSize);
+      $offset    = 0;
+
+      while (true) {
+        // Fetch a chunk of proxies
+        $stmt = $this->db->pdo->prepare('SELECT * FROM proxies LIMIT ? OFFSET ?');
+        $stmt->bindValue(1, $chunkSize, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // If no more rows, break the loop
+        if (empty($rows)) {
+          break;
+        }
+
+        // Process each row in the chunk
+        foreach ($rows as $row) {
+          call_user_func($callback, $row);
+        }
+
+        // If we got fewer rows than the chunk size, this was the last batch
+        if (count($rows) < $chunkSize) {
+          break;
+        }
+
+        $offset += $chunkSize;
       }
     } catch (PDOException $e) {
       echo 'Error: ' . $e->getMessage();
