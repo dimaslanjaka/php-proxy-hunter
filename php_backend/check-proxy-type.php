@@ -290,10 +290,7 @@ function check($proxy) {
 
       if ($isAlive) {
         // Port is actually open, mark as untested for later detection
-        $proxy_db->updateData($item->proxy, [
-          'status'     => 'untested',
-          'last_check' => date(DATE_RFC3339),
-        ]);
+        $proxy_db->updateStatus($item->proxy, 'untested');
         _log_shared($hashFilename ?? 'CLI', "[$no] [OK] {$item->proxy} status=untested retest=$retestStatus");
       } else {
         // Port is really closed after retest
