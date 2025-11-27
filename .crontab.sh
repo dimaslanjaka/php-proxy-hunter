@@ -130,8 +130,8 @@ log_command() {
 if should_run_job "tmp/crontab/30-m" 0.5; then
     # r_cmd "python" "artisan/filterPortsDuplicate.py" "--max=50"
     # r_cmd "python" "proxyCheckerReal.py" "--max=50"
-    php artisan/proxyCollector.php || true
-    php artisan/proxyCollector2.php || true
+    log_command "tmp/logs/crontab/proxy-collector.log" php artisan/proxyCollector.php || true
+    log_command "tmp/logs/crontab/proxy-collector2.log" php artisan/proxyCollector2.php || true
 else
     echo "Skipping 30 minutes job."
 fi
@@ -149,7 +149,7 @@ fi
 # run every 3 hours
 if should_run_job "tmp/crontab/3-h" 3; then
     echo "Running 3 hours job."
-    bash "$CWD/bin/check-proxy-parallel"
+    log_command "tmp/logs/crontab/check-proxy-parallel.log" bash "$CWD/bin/check-proxy-parallel"
 else
     echo "Skipping 3 hours job."
 fi
@@ -157,7 +157,7 @@ fi
 # run every 4 hours
 if should_run_job "tmp/crontab/4-h" 4; then
     echo "Running 4 hours job."
-    python "$CWD/proxyFetcher.py"
+    log_command "tmp/logs/crontab/proxy-fetcher.log" python "$CWD/proxyFetcher.py"
 else
     echo "Skipping 4 hours job."
 fi
