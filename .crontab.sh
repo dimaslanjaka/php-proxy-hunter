@@ -139,9 +139,10 @@ fi
 
 # run every hour
 if should_run_job "tmp/crontab/1-h" 1; then
-    # php "$CWD/send_curl.php" --url=https://sh.webmanajemen.com:8443/proxy/check
     # log_command "tmp/logs/crontab/djm_check_proxies.log" djm check_proxies --max=100
     # log_command "tmp/logs/crontab/djm_filter_dups.log" djm filter_dups --max=100
+    log_command "tmp/logs/crontab/filter-ports.log" php artisan/filterPorts.php --max=100
+    log_command "tmp/logs/crontab/filter-ports-background.log" php artisan/filterPortsDuplicate.php
     echo "Running 1 hour job."
 else
     echo "Skipping 1 hour job."
