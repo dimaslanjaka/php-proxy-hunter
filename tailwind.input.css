@@ -96,3 +96,55 @@ input[type='submit'] {
 .datatable-input {
   @apply px-3 py-2 text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500;
 }
+
+/* Datatable sorter buttons */
+.datatable-sorter {
+  @apply w-full text-left px-0 py-0 font-semibold bg-transparent border-0 cursor-pointer transition-colors;
+  color: #2563eb !important;
+}
+
+.dark .datatable-sorter {
+  color: #60a5fa !important;
+}
+
+.datatable-sorter:hover {
+  color: #1d4ed8 !important;
+}
+
+.dark .datatable-sorter:hover {
+  color: #93c5fd !important;
+}
+
+.datatable-sorter:focus {
+  @apply outline-none;
+}
+
+/* Datatable sorter arrows for dark theme */
+.dark .datatable-sorter::before,
+.dark .datatable-sorter::after {
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.dark .datatable-sorter::before {
+  border-top-color: #60a5fa;
+}
+
+.dark .datatable-sorter::after {
+  border-bottom-color: #60a5fa;
+  border-top-color: transparent;
+}
+
+/* Light theme sorter arrows - make them blue */
+.datatable-sorter::before {
+  border-top-color: #2563eb;
+}
+
+.datatable-sorter::after {
+  border-bottom-color: #2563eb;
+}
+
+/* Datatable header styling */
+th[data-sortable='true'] {
+  @apply bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600;
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import DefaultDataTable from './DefaultDataTable';
+import SortingDataTable from './SortingDataTable';
 
 const DataTablesExamples: React.FC = () => {
   return (
@@ -12,6 +13,10 @@ const DataTablesExamples: React.FC = () => {
 
         <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
           <DefaultDataTable />
+        </div>
+
+        <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+          <SortingDataTable />
         </div>
       </div>
     </main>
