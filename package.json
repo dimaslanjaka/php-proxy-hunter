@@ -29,11 +29,14 @@
     "build:react": "npm run build:tailwind && cross-env NODE_OPTIONS=\"--max_old_space_size=4096 --openssl-legacy-provider\" vite build",
     "build:rollup": "rollup -c rollup.config.js",
     "build:tailwind": "node tailwind.build.js",
+    "clean": "npm run clean:react",
+    "clean:react": "rimraf dist/react",
     "dev:gh-pages": "npm run build:gh-pages && vite --config vite-gh-pages.config.js",
     "dev:react": "vite",
     "lint": "eslint --ext .js,.ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
     "normal-rebuild": "npm rebuild",
+    "postinstall": "node scripts/postinstall.js",
     "prepare": "npx husky && node setup.js",
     "prepare:react": "node vite-plugin.js",
     "preview:gh-pages": "npm run build:gh-pages && vite preview --config vite-gh-pages.config.js",
@@ -44,8 +47,7 @@
     "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand --detectOpenHandles",
     "test:watch": "npm test -- --watch",
     "update:ncu": "npx npm-check-updates -u --reject='typescript,ts-node'",
-    "update:sha": "npx binary-collections pkg-res-updater",
-    "postinstall": "node scripts/postinstall.js"
+    "update:sha": "npx binary-collections pkg-res-updater"
   },
   "workspaces": {
     "packages": [
