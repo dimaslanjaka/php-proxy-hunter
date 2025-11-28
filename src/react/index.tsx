@@ -21,6 +21,9 @@ import SimpleFormSaverDemo from './pages/examples/SimpleFormSaverDemo';
 import SnackBarSample from './pages/examples/SnackBarSample';
 import HighlightJS from './pages/examples/HighlightJS';
 import DataTablesExamples from './pages/examples/tables';
+import DefaultDataTable from './pages/examples/tables/DefaultDataTable';
+import SortingDataTable from './pages/examples/tables/SortingDataTable';
+import SearchDataTable from './pages/examples/tables/SearchDataTable';
 import NotFound from './pages/NotFound';
 import routes from './routes.js';
 import { checkRecaptchaSessionExpired, verifyRecaptcha } from './utils/recaptcha';
@@ -103,6 +106,9 @@ const MainApp = function () {
         <Route path="/examples/form-saver" element={<SimpleFormSaverDemo />} />
         <Route path="/examples/highlightjs" element={<HighlightJS />} />
         <Route path="/examples/tables" element={<DataTablesExamples />} />
+        <Route path="/examples/tables/default" element={<DefaultDataTable />} />
+        <Route path="/examples/tables/sorting" element={<SortingDataTable />} />
+        <Route path="/examples/tables/search" element={<SearchDataTable />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />

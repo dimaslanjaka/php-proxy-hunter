@@ -74,27 +74,72 @@ input[type='submit'] {
 
 /* Datatable top section (dropdown and search) */
 .datatable-top {
-  @apply flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between;
+  @apply flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-6;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.dark .datatable-top {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-color: #334155;
 }
 
 .datatable-dropdown {
-  @apply flex items-center;
+  @apply flex items-center flex-shrink-0;
 }
 
 .datatable-dropdown label {
-  @apply flex items-center gap-2 text-gray-900 dark:text-gray-300;
+  @apply flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300;
+  cursor: pointer;
 }
 
 .datatable-selector {
-  @apply px-2 py-1 text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500;
+  @apply px-3 py-2 text-sm font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg transition-all duration-200;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.datatable-selector:hover {
+  @apply border-gray-400 dark:border-gray-500 shadow-md;
+  background-color: #f9fafb;
+}
+
+.dark .datatable-selector:hover {
+  background-color: #374151;
+}
+
+.datatable-selector:focus {
+  @apply outline-none ring-2 ring-blue-400 ring-offset-0 border-blue-400;
+}
+
+.dark .datatable-selector:focus {
+  @apply ring-blue-500;
 }
 
 .datatable-search {
-  @apply flex items-center;
+  @apply flex items-center flex-grow sm:flex-grow-0 sm:w-72;
 }
 
 .datatable-input {
-  @apply px-3 py-2 text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500;
+  @apply w-full px-4 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.datatable-input::placeholder {
+  @apply text-gray-400 dark:text-gray-500;
+}
+
+.datatable-input:hover {
+  @apply border-gray-400 dark:border-gray-500 shadow-md;
+}
+
+.datatable-input:focus {
+  @apply outline-none ring-2 ring-blue-400 ring-offset-0 border-blue-400 shadow-lg;
+}
+
+.dark .datatable-input:focus {
+  @apply ring-blue-500 border-blue-500;
 }
 
 /* Datatable sorter buttons */
