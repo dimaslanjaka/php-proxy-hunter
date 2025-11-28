@@ -73,29 +73,33 @@ class Proxy {
   public $https = 'false';
 
   /**
-   * Proxy constructor.
-   * @param string $proxy
-   * @param string|null $latency
-   * @param string|null $type
-   * @param string|null $region
-   * @param string|null $city
-   * @param string|null $country
-   * @param string|null $last_check
-   * @param string|null $anonymity
-   * @param string|null $status
-   * @param string|null $timezone
-   * @param string|null $longitude
-   * @param string|null $private
-   * @param string|null $latitude
-   * @param string|null $lang
-   * @param string|null $useragent
-   * @param string|null $webgl_vendor
-   * @param string|null $webgl_renderer
-   * @param string|null $browser_vendor
-   * @param string|null $username
-   * @param string|null $password
-   * @param int|null $id
-   * @param string|null $https
+   * Creates a Proxy object from either a proxy string or an associative array.
+   *
+   * If $proxy is a string, it becomes the proxy address directly.
+   * If $proxy is an array, all matching keys will be mapped to the object's properties.
+   *
+   * @param string|array $proxy          Proxy string (e.g. "1.2.3.4:8080") or array with proxy data.
+   * @param string|null  $latency        Proxy latency in ms.
+   * @param string|null  $type           Proxy type (HTTP, SOCKS4, SOCKS5, etc.).
+   * @param string|null  $region         Region of the proxy.
+   * @param string|null  $city           City of the proxy.
+   * @param string|null  $country        Country of the proxy.
+   * @param string|null  $last_check     Timestamp of the last check.
+   * @param string|null  $anonymity      Level of anonymity.
+   * @param string|null  $status         Status (e.g. "online", "offline").
+   * @param string|null  $timezone       Proxy timezone.
+   * @param string|null  $longitude      Longitude coordinate.
+   * @param string|null  $private        Private/public flag.
+   * @param string|null  $latitude       Latitude coordinate.
+   * @param string|null  $lang           Language code.
+   * @param string|null  $useragent      User-Agent string.
+   * @param string|null  $webgl_vendor   WebGL vendor fingerprint.
+   * @param string|null  $webgl_renderer WebGL renderer fingerprint.
+   * @param string|null  $browser_vendor Browser vendor fingerprint.
+   * @param string|null  $username       Username (if proxy has authentication).
+   * @param string|null  $password       Password (if proxy has authentication).
+   * @param int|null     $id             Internal database ID.
+   * @param string|null  $https          Whether proxy supports HTTPS ("true"/"false").
    */
   public function __construct(
     $proxy,
@@ -122,7 +126,6 @@ class Proxy {
     $https = 'false'
   ) {
     $this->id             = $id;
-    $this->proxy          = $proxy;
     $this->latency        = $latency;
     $this->type           = $type;
     $this->region         = $region;
@@ -143,6 +146,18 @@ class Proxy {
     $this->username       = $username;
     $this->password       = $password;
     $this->https          = $https;
+
+    if (is_string($proxy)) {
+      $this->proxy = $proxy;
+    } elseif (is_array($proxy) && isset($proxy['proxy'])) {
+      foreach ($proxy as $key => $value) {
+        if (property_exists($this, $key) && $key !== 'proxy') {
+          $this->$key = $value;
+        }
+      }
+    } else {
+      throw new \InvalidArgumentException('Proxy must be a string or an array with a "proxy" key.');
+    }
   }
 
   /**
@@ -155,7 +170,9 @@ class Proxy {
   public function toJson($pretty = false, $notEmpty = false) {
     $data = get_object_vars($this);
     if ($notEmpty) {
-      $data = array_filter($data, function ($value) { return !is_null($value) && $value !== ''; });
+      $data = array_filter($data, function ($value) {
+        return !is_null($value) && $value !== '';
+      });
     }
     if ($pretty) {
       return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
