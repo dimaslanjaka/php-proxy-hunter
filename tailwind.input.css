@@ -198,6 +198,18 @@ input[type='submit'] {
 .datatable-table td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid rgb(229 231 235);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+.datatable-table th {
+  padding: 0.75rem 1rem;
+  white-space: normal;
+  vertical-align: middle;
+  line-height: 1.4;
 }
 
 .dark .datatable-table td {
@@ -226,6 +238,7 @@ input[type='submit'] {
 .datatable-table {
   width: 100%;
   table-layout: auto;
+  border-collapse: collapse;
 }
 
 /* Responsive table on mobile */

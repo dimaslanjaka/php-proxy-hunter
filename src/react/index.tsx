@@ -24,6 +24,7 @@ import DataTablesExamples from './pages/examples/tables';
 import DefaultDataTable from './pages/examples/tables/DefaultDataTable';
 import SortingDataTable from './pages/examples/tables/SortingDataTable';
 import SearchDataTable from './pages/examples/tables/SearchDataTable';
+import AdvancedDataTable from './pages/examples/tables/AdvancedDataTable';
 import NotFound from './pages/NotFound';
 import routes from './routes.js';
 import { checkRecaptchaSessionExpired, verifyRecaptcha } from './utils/recaptcha';
@@ -109,6 +110,7 @@ const MainApp = function () {
         <Route path="/examples/tables/default" element={<DefaultDataTable />} />
         <Route path="/examples/tables/sorting" element={<SortingDataTable />} />
         <Route path="/examples/tables/search" element={<SearchDataTable />} />
+        <Route path="/examples/tables/advanced" element={<AdvancedDataTable />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />

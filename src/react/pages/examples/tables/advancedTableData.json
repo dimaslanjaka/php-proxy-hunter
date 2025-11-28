@@ -1,0 +1,140 @@
+{
+  "headings": ["Company Name", "Ticker", "Stock Price", "Market Cap", "PE Ratio", "Sector", "Description"],
+  "data": [
+    [
+      "Apple Inc.",
+      "AAPL",
+      "$192.58",
+      "$3.04T",
+      "28.5",
+      "Technology",
+      "Apple is a multinational technology company that designs, manufactures, and markets consumer electronics, computer software, and online services. Known for innovative products like iPhone, iPad, and Mac computers."
+    ],
+    [
+      "Microsoft Corporation",
+      "MSFT",
+      "$340.54",
+      "$2.56T",
+      "32.1",
+      "Technology",
+      "Microsoft is a leading software and cloud services company providing operating systems, productivity software, and cloud computing solutions through Azure, Office 365, and other enterprise products."
+    ],
+    [
+      "Alphabet Inc.",
+      "GOOGL",
+      "$134.12",
+      "$1.72T",
+      "22.3",
+      "Technology",
+      "Alphabet Inc. is the parent company of Google, operating the world's leading search engine and offering advertising services, cloud solutions, and diverse technology investments through its various subsidiaries."
+    ],
+    [
+      "Amazon.com Inc.",
+      "AMZN",
+      "$138.01",
+      "$1.42T",
+      "45.2",
+      "Consumer",
+      "Amazon is a multinational e-commerce and cloud computing company, operating the largest online marketplace globally and providing Amazon Web Services (AWS) for cloud infrastructure and computing."
+    ],
+    [
+      "NVIDIA Corporation",
+      "NVDA",
+      "$466.19",
+      "$1.16T",
+      "58.4",
+      "Technology",
+      "NVIDIA designs and manufactures graphics processing units (GPUs) and systems-on-a-chip units. The company is a leader in AI computing, gaming graphics, and data center solutions for artificial intelligence applications."
+    ],
+    [
+      "Tesla Inc.",
+      "TSLA",
+      "$255.98",
+      "$811.00B",
+      "85.6",
+      "Automotive",
+      "Tesla is an electric vehicle manufacturer and clean energy company specializing in the design, manufacturing, and sale of electric vehicles, batteries, and renewable energy products worldwide."
+    ],
+    [
+      "Meta Platforms Inc.",
+      "META",
+      "$311.71",
+      "$816.00B",
+      "24.1",
+      "Technology",
+      "Meta Platforms (formerly Facebook) operates social media platforms including Facebook, Instagram, and WhatsApp. The company also focuses on developing virtual and augmented reality technologies through its metaverse initiative."
+    ],
+    [
+      "Berkshire Hathaway Inc.",
+      "BRK.B",
+      "$354.08",
+      "$783.00B",
+      "9.2",
+      "Financial",
+      "Berkshire Hathaway is a diversified holding company that invests in insurance, utilities, transportation, and other industries. Led by Warren Buffett, it manages a significant investment portfolio and operates multiple subsidiary companies."
+    ],
+    [
+      "TSMC",
+      "TSM",
+      "$103.51",
+      "$538.00B",
+      "18.7",
+      "Technology",
+      "Taiwan Semiconductor Manufacturing Company (TSMC) is the world's largest dedicated independent semiconductor foundry, manufacturing advanced microchips for companies like Apple, NVIDIA, and AMD."
+    ],
+    [
+      "Johnson & Johnson",
+      "JNJ",
+      "$172.85",
+      "$452.00B",
+      "16.3",
+      "Healthcare",
+      "Johnson & Johnson is a diversified healthcare company engaged in the research and development, manufacture, and sale of pharmaceuticals, medical devices, and consumer packaged goods for healthcare."
+    ],
+    [
+      "JPMorgan Chase & Co.",
+      "JPM",
+      "$150.23",
+      "$431.00B",
+      "11.8",
+      "Financial",
+      "JPMorgan Chase is a multinational financial services company providing commercial banking, investment banking, and asset management services to corporations, institutions, and individuals worldwide."
+    ],
+    [
+      "Visa Inc.",
+      "V",
+      "$246.39",
+      "$519.00B",
+      "35.7",
+      "Financial",
+      "Visa is a global payments technology company that operates the world's largest payment processing network, facilitating digital and physical transactions for millions of merchants, financial institutions, and cardholders."
+    ],
+    [
+      "Eli Lilly and Company",
+      "LLY",
+      "$582.97",
+      "$552.00B",
+      "89.2",
+      "Healthcare",
+      "Eli Lilly is a pharmaceutical company focused on developing medicines in endocrinology, oncology, immunology, cardiovascular disease, and other therapeutic areas to address serious health conditions."
+    ],
+    [
+      "Walmart Inc.",
+      "WMT",
+      "$159.67",
+      "$429.00B",
+      "28.4",
+      "Consumer",
+      "Walmart is the world's largest retailer, operating a vast network of hypermarkets, supermarkets, and e-commerce platforms serving millions of customers globally with everyday low prices."
+    ],
+    [
+      "Procter & Gamble Co.",
+      "PG",
+      "$156.47",
+      "$366.00B",
+      "24.1",
+      "Consumer",
+      "Procter & Gamble is a multinational consumer goods corporation manufacturing and marketing a wide range of products including personal care, cleaning products, and health and beauty items globally."
+    ]
+  ]
+}

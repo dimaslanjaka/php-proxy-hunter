@@ -54,6 +54,21 @@ const DataTablesExamples: React.FC = () => {
           />
         </svg>
       )
+    },
+    {
+      title: 'Advanced DataTable',
+      description: 'Comprehensive data table with multiple columns and advanced filtering options',
+      path: '/examples/tables/advanced',
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 3v12m6-12v12m6-12v12M3 9h18M3 15h18"
+          />
+        </svg>
+      )
     }
   ];
 
@@ -67,7 +82,7 @@ const DataTablesExamples: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {tables.map((table) => (
             <Link
               key={table.path}
