@@ -11,6 +11,7 @@
 
 require_once __DIR__ . '/checker-runner.php';
 
+use PhpProxyHunter\AnsiColors;
 use PhpProxyHunter\Checker\ProxyTypeDetector;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
@@ -249,7 +250,7 @@ function check($proxy) {
   $isExecutionTimeLimit = function () use ($startTime, $limitSecs, $hashFilename) {
     $elapsedTime = microtime(true) - $startTime;
     if ($elapsedTime > $limitSecs) {
-      _log_shared($hashFilename ?? 'CLI', "Proxy checker execution limit reached {$limitSecs}s.");
+      _log_shared($hashFilename ?? 'CLI', AnsiColors::colorize(['red', 'bold'], "Proxy checker execution limit reached {$limitSecs}s."));
       return true;
     }
     return false;
@@ -268,7 +269,9 @@ function check($proxy) {
     $expired = $item->last_check ? isDateRFC3339OlderThanHours($item->last_check, 5) : true;
 
     if (!$expired) {
-      _log_shared($hashFilename ?? 'CLI', "[$no] [--] {$item->proxy} Skipped recently checked proxy");
+      $proxyPart = AnsiColors::colorize(['cyan'], $item->proxy);
+      $message   = "[$no] [" . AnsiColors::colorize(['blue'], '--') . '] ' . $proxyPart . ' Skipped (checked recently)';
+      _log_shared($hashFilename ?? 'CLI', $message);
       continue;
     }
 
@@ -280,7 +283,9 @@ function check($proxy) {
 
     if (!$isValid) {
       $proxy_db->remove($item->proxy);
-      _log_shared($hashFilename ?? 'CLI', "[$no] [--] {$item->proxy} Removed invalid proxy");
+      $proxyPart = AnsiColors::colorize(['cyan'], $item->proxy);
+      $message   = "[$no] [" . AnsiColors::colorize(['red', 'bold'], '--') . '] ' . $proxyPart . ' ' . AnsiColors::colorize(['red', 'bold'], 'Removed invalid proxy');
+      _log_shared($hashFilename ?? 'CLI', $message);
       continue;
     } elseif ($portOpen === false) {
       // Re-test the proxy to confirm port is really closed
@@ -291,10 +296,16 @@ function check($proxy) {
       if ($isAlive) {
         // Port is actually open, mark as untested for later detection
         $proxy_db->updateStatus($item->proxy, 'untested');
-        _log_shared($hashFilename ?? 'CLI', "[$no] [OK] {$item->proxy} status=untested retest=$retestStatus");
+        $proxyPart           = AnsiColors::colorize(['cyan'], $item->proxy);
+        $retestStatusColored = AnsiColors::colorize(['green', 'bold'], $retestStatus);
+        $message             = "[$no] [" . AnsiColors::colorize(['green', 'bold'], 'OK') . '] ' . $proxyPart . ' status=untested retest=' . $retestStatusColored;
+        _log_shared($hashFilename ?? 'CLI', $message);
       } else {
         // Port is really closed after retest
-        _log_shared($hashFilename ?? 'CLI', "[$no] [--] {$item->proxy} Port closed retest=$retestStatus");
+        $proxyPart           = AnsiColors::colorize(['cyan'], $item->proxy);
+        $retestStatusColored = AnsiColors::colorize(['red', 'bold'], $retestStatus);
+        $message             = "[$no] [" . AnsiColors::colorize(['red', 'bold'], '--') . '] ' . $proxyPart . ' ' . AnsiColors::colorize(['red', 'bold'], 'Port closed') . ' retest=' . $retestStatusColored;
+        _log_shared($hashFilename ?? 'CLI', $message);
         $proxy_db->updateData($item->proxy, [
           'status'     => 'port-closed',
           'last_check' => date(DATE_RFC3339),
@@ -309,13 +320,19 @@ function check($proxy) {
             'status'     => 'untested',
             'last_check' => date(DATE_RFC3339),
           ]);
-          _log_shared($hashFilename ?? 'CLI', "[$no] [--] {$item->proxy} type=unknown status=untested");
+          $proxyPart = AnsiColors::colorize(['cyan'], $item->proxy);
+          $message   = "[$no] [--] " . $proxyPart . ' type=unknown status=untested';
+          _log_shared($hashFilename ?? 'CLI', $message);
         } else {
-          _log_shared($hashFilename ?? 'CLI', "[$no] [--] {$item->proxy} type=unknown");
+          $proxyPart = AnsiColors::colorize(['cyan'], $item->proxy);
+          $message   = "[$no] [--] " . $proxyPart . ' type=unknown';
+          _log_shared($hashFilename ?? 'CLI', $message);
         }
       } else {
         // Should not reach here since portOpen and isValid are already checked
-        _log_shared($hashFilename ?? 'CLI', "[$no] [--] {$item->proxy} Unexpected state type=unknown");
+        $proxyPart = AnsiColors::colorize(['cyan'], $item->proxy);
+        $message   = "[$no] [--] " . $proxyPart . ' Unexpected state type=unknown';
+        _log_shared($hashFilename ?? 'CLI', $message);
       }
     } else {
       // Proxy is valid and port is open and type detected
@@ -325,13 +342,20 @@ function check($proxy) {
           'status' => 'untested',
           'type'   => $type,
         ]);
-        _log_shared($hashFilename ?? 'CLI', "[$no] [OK] {$item->proxy} type=$type status=untested");
+        $proxyPart  = AnsiColors::colorize(['cyan'], $item->proxy);
+        $typePart   = AnsiColors::colorize(['green'], $type);
+        $statusPart = AnsiColors::colorize(['magenta', 'bold'], 'untested');
+        $message    = "[$no] [" . AnsiColors::colorize(['green', 'bold'], 'OK') . '] ' . $proxyPart . ' type=' . $typePart . ' status=' . $statusPart;
+        _log_shared($hashFilename ?? 'CLI', $message);
       } else {
-        _log_shared($hashFilename ?? 'CLI', "[$no] [OK] {$item->proxy} type=$type");
+        $proxyPart = AnsiColors::colorize(['cyan'], $item->proxy);
+        $typePart  = AnsiColors::colorize(['green'], $type);
+        $message   = "[$no] [" . AnsiColors::colorize(['green', 'bold'], 'OK') . '] ' . $proxyPart . ' type=' . $typePart;
+        _log_shared($hashFilename ?? 'CLI', $message);
       }
     }
   }
 
   // Finished checking all proxies
-  _log_shared($hashFilename ?? 'CLI', 'Done detecting proxy types.');
+  _log_shared($hashFilename ?? 'CLI', AnsiColors::colorize(['green', 'bold'], 'Done detecting proxy types.'));
 }

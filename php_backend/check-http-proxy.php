@@ -11,6 +11,7 @@
 
 require_once __DIR__ . '/checker-runner.php';
 
+use PhpProxyHunter\AnsiColors;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
 
@@ -254,7 +255,8 @@ function check($proxy) {
 
     // Skip recently checked active non-SSL proxies
     if ($item->status == 'active' && $item->https == 'false' && !$expired) {
-      _log_shared($hashFilename ?? 'CLI', "[$no] Skipping proxy {$item->proxy}: Recently checked and non-SSL.");
+      $proxyPart = AnsiColors::colorize(['cyan'], $item->proxy);
+      _log_shared($hashFilename ?? 'CLI', "[$no] Skipped " . $proxyPart . ' (checked recently)');
       continue;
     }
 
@@ -311,7 +313,8 @@ function check($proxy) {
     $proxy_db->updateData($item->proxy, $data);
 
     // Build friendly per-proxy log line
-    $statusSymbol = $result->isWorking ? '[OK]' : '[--]';
+    $statusSymbol = $result->isWorking ? '[' . AnsiColors::colorize(['green', 'bold'], 'OK') . ']' : '[--]';
+    $proxyPart    = AnsiColors::colorize(['cyan'], $item->proxy);
     $protocols    = !empty($result->workingTypes) ? implode(',', $result->workingTypes) : '';
     $latencyStr   = !empty($result->latency) ? (round($result->latency, 2) . 's') : '';
     // Determine retest logging value: either set above when retest ran or 'not-performed'
@@ -319,7 +322,10 @@ function check($proxy) {
       $retestStatus = 'not-performed';
     }
 
-    $lineParts = ["[$no]", $statusSymbol, $item->proxy];
+    // Colorize retest status
+    $retestStatusColored = ($retestStatus === 'alive') ? AnsiColors::colorize(['green', 'bold'], $retestStatus) : ($retestStatus === 'dead' ? AnsiColors::colorize(['red', 'bold'], $retestStatus) : $retestStatus);
+
+    $lineParts = ["[$no]", $statusSymbol, $proxyPart];
     if ($protocols !== '') {
       $lineParts[] = 'protocols=' . $protocols;
     }
@@ -328,7 +334,7 @@ function check($proxy) {
     }
 
     // Include retest status in log (alive|dead|not-performed)
-    $lineParts[] = 'retest=' . $retestStatus;
+    $lineParts[] = 'retest=' . $retestStatusColored;
 
     _log_shared($hashFilename ?? 'CLI', implode(' ', $lineParts));
   }
