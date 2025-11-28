@@ -77,7 +77,7 @@ const createFileHashesMain = async () => {
 
   // Use the immediate parent folder name as the project key
   const projectName = path.basename(projectDir);
-  const outputLine = `${projectName} ${folderHash}\n`;
+  const outputLine = `${projectName} a${folderHash}\n`;
 
   // Ensure output directory exists
   await fs.mkdir(path.dirname(outputFile), { recursive: true });
