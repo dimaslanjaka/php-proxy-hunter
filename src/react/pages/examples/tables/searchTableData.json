@@ -1,0 +1,20 @@
+{
+  "headings": ["Company Name", "Ticker", "Stock Price", "Market Cap"],
+  "data": [
+    ["Apple Inc.", "AAPL", "$192.58", "$3.04T"],
+    ["Microsoft Corporation", "MSFT", "$340.54", "$2.56T"],
+    ["Alphabet Inc.", "GOOGL", "$134.12", "$1.72T"],
+    ["Amazon.com Inc.", "AMZN", "$138.01", "$1.42T"],
+    ["NVIDIA Corporation", "NVDA", "$466.19", "$1.16T"],
+    ["Tesla Inc.", "TSLA", "$255.98", "$811.00B"],
+    ["Meta Platforms Inc.", "META", "$311.71", "$816.00B"],
+    ["Berkshire Hathaway Inc.", "BRK.B", "$354.08", "$783.00B"],
+    ["TSMC", "TSM", "$103.51", "$538.00B"],
+    ["Johnson & Johnson", "JNJ", "$172.85", "$452.00B"],
+    ["JPMorgan Chase & Co.", "JPM", "$150.23", "$431.00B"],
+    ["Visa Inc.", "V", "$246.39", "$519.00B"],
+    ["Eli Lilly and Company", "LLY", "$582.97", "$552.00B"],
+    ["Walmart Inc.", "WMT", "$159.67", "$429.00B"],
+    ["Procter & Gamble Co.", "PG", "$156.47", "$366.00B"]
+  ]
+}
