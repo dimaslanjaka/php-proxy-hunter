@@ -1,5 +1,110 @@
 [
   {
+    "hash": "70debd168dfafdba6fe7bb3a133190abc228d7f6",
+    "date": "2025-11-28T10:56:48+07:00",
+    "message": "fix: update hash format in .husky/hash.txt and adjust output line in cfh.cjs",
+    "files": [
+      "bin/cfh.cjs"
+    ]
+  },
+  {
+    "hash": "c5a5ab4d5356f6eb4b5a4ac8b6726f5e9e97fd4b",
+    "date": "2025-11-28T10:55:28+07:00",
+    "message": "refactor: enhance proxy checker logs with ANSI color formatting\n\n- Add AnsiColors import to check-http-proxy.php, check-https-proxy.php, and check-proxy-type.php\n- Refactor skip messages to use cyan proxy IPs and concise format\n  - Changed from verbose \"Skipping proxy...\" to \"Skipped [cyan]proxy[/cyan] (checked recently)\"\n- Color-code status symbols with green bold for [OK] indicator\n- Add cyan colorization to all proxy IP addresses in log output\n- Implement retest status colorization\n  - Green bold for 'alive' status\n  - Red bold for 'dead' status\n  - Plain text for 'not-performed'\n- Add green/magenta colorization to type and status values\n  - Green for detected proxy types\n  - Magenta bold for 'untested' status\n- Colorize execution limit error message in red bold\n- Colorize \"Done detecting proxy types\" completion message in green bold\n- Improve log consistency across all three proxy checker files",
+    "files": [
+      "packages/baileys",
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/check-proxy-type.php"
+    ]
+  },
+  {
+    "hash": "4de2490026d46ea710cb57d1a70c30931413c371",
+    "date": "2025-11-28T08:33:30+07:00",
+    "message": "feat(ProxySubmission): enhance loading state management and button UI during submission",
+    "files": [
+      "php_backend/check-old-proxy.php",
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "93214c28512f440c5b7df25e70586f8c6fca39aa",
+    "date": "2025-11-28T08:30:04+07:00",
+    "message": "feat: implement check old proxies feature with background processing and ui integration\n\n- Add check-old-proxy.php backend script with background spawning pattern\n  - Supports both web (REST API) and CLI execution modes\n  - Validates proxies older than 7 days\n  - Checks port connectivity and runs HTTP/HTTPS tests\n  - Uses lock files to prevent concurrent execution\n  - Implements Scheduler for automatic cleanup\n  - Colored ANSI logging with cyan proxy IPs, magenta days, green/red status\n\n- Enhance LogViewer component with \"Check old proxies\" tab\n  - Add fetchCheckOldProxyResult() function for log polling\n  - Implement useEffect hook with 3-second polling interval\n  - Support dark mode with ANSI-to-HTML color conversion\n  - Display real-time logs in scrollable panel\n\n- Add \"Check Old Proxies\" button to ProxySubmission component\n  - Import checkOldProxy() utility function\n  - Implement handleCheckOldProxy() with snackbar feedback\n  - Add loading state with spinner icon\n  - Group buttons with flexbox layout\n\n- Create checkOldProxy() utility function in proxy.ts\n  - Make POST request to /php_backend/check-old-proxy.php\n  - Return CheckProxyResponse with error, message, logFile properties",
+    "files": [
+      "php_backend/check-old-proxy.php",
+      "src/react/pages/ProxyList/LogViewer.tsx",
+      "src/react/pages/ProxyList/ProxySubmission.tsx",
+      "src/react/utils/proxy.ts"
+    ]
+  },
+  {
+    "hash": "ee9f1786ecc0cba93adb08348aea5aefd2ccf677",
+    "date": "2025-11-28T07:55:44+07:00",
+    "message": "refactor(proxy): improve constructor phpdoc and enhance proxy initialization logic\n\nUpdated the Proxy constructor documentation for clarity and replaced direct proxy assignment with logic that supports both string and array inputs. Added validation and dynamic property mapping. Also improved formatting in toJson method.",
+    "files": [
+      "src/PhpProxyHunter/Proxy.php"
+    ]
+  },
+  {
+    "hash": "27e5450da27f802ae82e5375dab18615144b182d",
+    "date": "2025-11-28T06:55:34+07:00",
+    "message": "feat(LogViewer): add ANSI-to-HTML conversion for colored log display\n\n- Import ansi-to-html library for converting ANSI escape codes to HTML\n- Add convertAnsiToHtml() helper function with newline option enabled\n- Update HTTPS log panel to render HTML-converted ANSI colors via dangerouslySetInnerHTML\n- Update HTTP log panel to render HTML-converted ANSI colors via dangerouslySetInnerHTML\n- Update type detection log panel to render HTML-converted ANSI colors via dangerouslySetInnerHTML\n\nThis enables the LogViewer component to display colored proxy checker output\nwith proper HTML rendering while maintaining whitespace formatting.",
+    "files": [
+      "src/react/pages/ProxyList/LogViewer.tsx"
+    ]
+  },
+  {
+    "hash": "240bcd43e96029d6f0e117b563d39a7399c93b2d",
+    "date": "2025-11-28T06:40:25+07:00",
+    "message": "fix(check): simplify proxy status update logic in check function",
+    "files": [
+      "php_backend/check-proxy-type.php"
+    ]
+  },
+  {
+    "hash": "635c11c2fab324c286d0049a259abe115e270fdb",
+    "date": "2025-11-28T06:32:20+07:00",
+    "message": "fix(check): remove redundant HTTPS status assignment in proxy check",
+    "files": [
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "7adb96cb496b1752204093c3577ba4382cb110de",
+    "date": "2025-11-28T05:52:30+07:00",
+    "message": "fix: require both username and password for proxy authentication",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "e489f908575d4eaa9383251e9fc3e84b2f21fecb",
+    "date": "2025-11-28T05:24:07+07:00",
+    "message": "refactor: use getPhpExecutable function to determine PHP binary for cross-platform compatibility",
+    "files": [
+      "artisan/proxyWorking.php"
+    ]
+  },
+  {
+    "hash": "9f689312fd0000cf401794dfab4d349f03b9bb9a",
+    "date": "2025-11-27T22:01:28+07:00",
+    "message": "refactor: replace hardcoded paths with FOLDER_CONFIG constant in node_backend files\n\n- Import FOLDER_CONFIG and FOLDER_LOG constants from Function.ts in testConnection.ts\n- Replace all hardcoded './baileys_auth_info' paths with FOLDER_CONFIG constant\n- Replace all hardcoded './baileys_auth_info/log' paths with FOLDER_LOG constant\n- Use path.join() for constructing nested paths consistently\n- Apply same refactoring to waConnect3.ts for path consistency\n- Improve maintainability by centralizing folder path configuration",
+    "files": [
+      "node_backend/test/testConnection.ts",
+      "node_backend/waConnect3.ts"
+    ]
+  },
+  {
+    "hash": "4d6093a357a3f97874dffc18593bf0e3e77793b5",
+    "date": "2025-11-27T12:43:09+07:00",
+    "message": "fix(waConnect): generate smaller QR code for better display",
+    "files": [
+      "node_backend/waConnect.ts"
+    ]
+  },
+  {
     "hash": "1abba466b06e2a4fd76d1a5d13c8cd851fe9b251",
     "date": "2025-11-27T12:07:47+07:00",
     "message": "ci(composer): ensure autoloader regeneration on every workflow run\n\n- Separate composer download into dedicated step that always runs\n- Remove cache condition from PHP dependencies installation\n- Add dump-autoload command to regenerate autoloader even when vendor exists\n- Fixes issue where buildCurl() function was undefined due to stale autoloader",
@@ -8660,111 +8765,6 @@
     "message": "feat: add driver property to CoreDB for tracking database type",
     "files": [
       "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "efa0beaca04361522a3f0076f2912baff56f0daa",
-    "date": "2025-09-04T20:37:26+07:00",
-    "message": "feat: enhance CoreDB constructor to support direct SQLite and MySQL initialization",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "f7ea8e0d7d77f2b4e432e37d88eae8b8bf3721c1",
-    "date": "2025-09-04T19:08:31+07:00",
-    "message": "feat: implement CoreDB class for MySQL and SQLite database connections",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "9b5bf2911baf99997ad8828737f2758e2e921991",
-    "date": "2025-09-04T19:02:41+07:00",
-    "message": "fix: update script paths to include 'artisan' for proxyWorking.php",
-    "files": [
-      "bin/check-proxy.cmd",
-      "bin/loop-check-proxy.cmd"
-    ]
-  },
-  {
-    "hash": "970d1cc545f83b61b0cae587d035a9704b4ba878",
-    "date": "2025-09-04T19:00:36+07:00",
-    "message": "fix(geoip): handle missing IPs gracefully in geoPlugin2 and geoPlugin\n\n- Wrap GeoIP2 city lookup in geoPlugin2::locate() with try-catch to prevent fatal errors for missing IPs, returning null instead.\n- Update geoPlugin to check for null from geoPlugin2::locate() before assigning properties.\n- Minor constructor simplification in geoPlugin.",
-    "files": [
-      "src/PhpProxyHunter/geoPlugin.php",
-      "src/PhpProxyHunter/geoPlugin2.php"
-    ]
-  },
-  {
-    "hash": "e62dfd0855cb0a6a5abf4dd0cd0d61a7da200250",
-    "date": "2025-09-04T18:56:39+07:00",
-    "message": "refactor(github-pages): simplify paths for push events in workflow",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "61f8f572a754a75ac7f016e8c46fe4bf77a77104",
-    "date": "2025-09-04T18:55:17+07:00",
-    "message": "fix(geoPlugin): prevent array_keys warning on null country names\n\n- Added type check for $record->country->names before calling array_keys() in fromGeoIp2CityModel to avoid PHP warning when value is null.",
-    "files": [
-      "src/PhpProxyHunter/geoPlugin.php"
-    ]
-  },
-  {
-    "hash": "d0345d1d33b13afca3311abbdf947082113c5cec",
-    "date": "2025-09-04T18:20:34+07:00",
-    "message": "feat: add production database configuration to .env-sample",
-    "files": [
-      ".env-sample"
-    ]
-  },
-  {
-    "hash": "4b74c262bf82c3af3ec650650dfdba77971e93b5",
-    "date": "2025-09-04T18:11:32+07:00",
-    "message": "test: load MySQL config from environment variables in UserDBTest\n\n- Replace hardcoded MySQL connection values with environment-based config\n- Initialize MySQL credentials in setUp() from $_ENV\n- Use Dotenv::createUnsafeImmutable in bootstrap.php\n- Sync $_ENV values to getenv() for compatibility",
-    "files": [
-      "tests/PhpProxyHunter/UserDBTest.php",
-      "tests/bootstrap.php"
-    ]
-  },
-  {
-    "hash": "2e46e923464bd04b2d7343afcd2d9413ce752dc3",
-    "date": "2025-09-04T18:05:22+07:00",
-    "message": "test: refactor UserDBTest for multi-db support and cleanup\n\n- Refactored `UserDBTest` to support both SQLite and MySQL using a data provider.\n- Replaced `setUp`/`tearDown` with `setUpDB`/`tearDownDB` methods parameterized by driver.\n- Added `dbProvider` for running tests on both database types.\n- Cleaned up test database tables before each MySQL test using a loop.\n- Updated tests to use the new setup/teardown and accept the driver as a parameter.\n- Improved test clarity and reduced code duplication.",
-    "files": [
-      "tests/PhpProxyHunter/UserDBTest.php",
-      "tests/bootstrap.php"
-    ]
-  },
-  {
-    "hash": "5436b069de84dbeec57d6e5c3383498bbdf1a441",
-    "date": "2025-09-04T18:04:22+07:00",
-    "message": "refactor: PHP 7 compatible",
-    "files": [
-      "src/PhpProxyHunter/MySQLHelper.php",
-      "src/PhpProxyHunter/SQLiteHelper.php"
-    ]
-  },
-  {
-    "hash": "2e6b44b04e45408948dc3291ec46317b7422c75d",
-    "date": "2025-09-04T18:03:33+07:00",
-    "message": "feat: update deployment and configuration files for improved PHP environment setup",
-    "files": [
-      ".idea/deployment.xml",
-      ".idea/misc.xml",
-      ".idea/php-test-framework.xml",
-      ".idea/php.xml",
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "b5f78f0de718efeb06940beb5937ed8c73c22c1d",
-    "date": "2025-09-03T14:45:49+07:00",
-    "message": "fix(vite.config): increase file watching interval to 3000ms for improved reliability",
-    "files": [
-      "vite.config.js"
     ]
   }
 ]
