@@ -2,6 +2,7 @@
  * run `yarn dlx @tailwindcss/cli -i ./tailwind.input.css -o ./src/react/components/theme.css` to generate the CSS file
  */
 @import 'tailwindcss';
+@import './node_modules/simple-datatables/dist/style.css';
 
 /* theme switcher support by changing class to dark and light */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -35,4 +36,63 @@ input[type='submit'] {
 [disabled]:not([disabled='false']):not([disabled='false']) {
   @apply opacity-50 cursor-not-allowed;
   pointer-events: none !important;
+}
+
+/* simple-datatables dark theme fixes */
+.datatable-info {
+  @apply text-gray-900 dark:text-gray-300;
+}
+
+.datatable-container .datatable-pagination {
+  @apply text-gray-900 dark:text-gray-300;
+}
+
+.datatable-pagination button {
+  @apply text-gray-900 dark:text-gray-300;
+}
+
+.datatable-pagination button:hover {
+  @apply bg-gray-200 dark:bg-gray-600;
+}
+
+/* Pagination list styling */
+.datatable-pagination-list {
+  @apply flex gap-1;
+}
+
+.datatable-pagination-list-item {
+  @apply list-none;
+}
+
+.datatable-pagination-list-item-link {
+  @apply px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+}
+
+.datatable-pagination-list-item.datatable-active .datatable-pagination-list-item-link {
+  @apply bg-blue-600 dark:bg-blue-700 text-white border-blue-600 dark:border-blue-700;
+}
+
+/* Datatable top section (dropdown and search) */
+.datatable-top {
+  @apply flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between;
+}
+
+.datatable-dropdown {
+  @apply flex items-center;
+}
+
+.datatable-dropdown label {
+  @apply flex items-center gap-2 text-gray-900 dark:text-gray-300;
+}
+
+.datatable-selector {
+  @apply px-2 py-1 text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500;
+}
+
+.datatable-search {
+  @apply flex items-center;
+}
+
+.datatable-input {
+  @apply px-3 py-2 text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500;
 }
