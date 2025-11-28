@@ -1,5 +1,55 @@
 [
   {
+    "hash": "4b8bf2cf7344da4516d08982a58f6d8a3f7b0f81",
+    "date": "2025-11-28T19:01:30+07:00",
+    "message": "feat(ui): make SearchDataTable responsive for mobile devices\n\n- Improve table wrapper with negative margins for full-width scroll on mobile\n- Add inline-block container with min-w-full for proper table layout\n- Add responsive CSS rules for .datatable-container with touch scrolling support\n- Add mobile-optimized styles for table font size and padding (0.75rem)\n- Stack search and filter controls vertically on screens <= 768px\n- Make search input full-width on mobile devices\n- Reduce pagination font size on mobile for better space utilization\n- Set datatable to 100% width with auto table-layout for responsiveness",
+    "files": [
+      "src/react/pages/examples/tables/SearchDataTable.tsx",
+      "tailwind.input.css"
+    ]
+  },
+  {
+    "hash": "a3a45c72c51319d71282532f6fa2cd73bf69457c",
+    "date": "2025-11-28T18:52:28+07:00",
+    "message": "feat: add clean scripts and reorganize npm scripts\n\n- Add \"clean\" and \"clean:react\" scripts to remove dist/react directory\n- Reorganize scripts in alphabetical order for better maintainability\n- Move \"postinstall\" script to proper alphabetical position\n- Disable emptyOutDir in vite.config.js to preserve output directory during builds",
+    "files": [
+      "package.json",
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "172f71a9388784f974beadb59a8b0537b2ed75b6",
+    "date": "2025-11-28T18:02:56+07:00",
+    "message": "feat(index.php): add check to serve dist/react/index.html if it exists",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
+    "hash": "42208493c4f17febdd3fb4bd0466aa5334ba1f25",
+    "date": "2025-11-28T17:56:54+07:00",
+    "message": "feat(react): add separate routes for datatable examples with improved styling\n\n- Add individual routes for Default, Sorting, and Search DataTable pages\n- Import separate table components (DefaultDataTable, SortingDataTable, SearchDataTable)\n- Convert index.tsx to landing page with card-based navigation links\n- Update DataTable components to include full-page layout with headers and back buttons\n- Enable sorting and searching in DefaultDataTable component\n- Add interactive card links with icons and hover effects in tables index\n- Improve datatable controls styling with gradient backgrounds and enhanced focus states\n- Add smooth transitions and shadows to datatable input elements\n- Implement responsive design for datatable dropdown and search sections\n- Add dark mode support for all datatable UI elements",
+    "files": [
+      "src/react/index.tsx",
+      "src/react/pages/examples/tables/DefaultDataTable.tsx",
+      "src/react/pages/examples/tables/SearchDataTable.tsx",
+      "src/react/pages/examples/tables/SortingDataTable.tsx",
+      "src/react/pages/examples/tables/index.tsx",
+      "tailwind.input.css"
+    ]
+  },
+  {
+    "hash": "ab5f72b9cf602c3b5e290085da967a7e4f02c2ac",
+    "date": "2025-11-28T16:50:12+07:00",
+    "message": "feat(tables): add searchable DataTable component and related styling\n\n- Introduce `SearchDataTable` component using simple-datatables\n- Add `searchTableData.json` with sample company data\n- Register new example in tables index page\n- Enhance Tailwind datatable styles (header, cells, hover states)",
+    "files": [
+      "src/react/pages/examples/tables/SearchDataTable.tsx",
+      "src/react/pages/examples/tables/index.tsx",
+      "src/react/pages/examples/tables/searchTableData.json",
+      "tailwind.input.css"
+    ]
+  },
+  {
     "hash": "f00f4863ce4c6169965fd5bb9dd484b2e79aaca7",
     "date": "2025-11-28T16:07:28+07:00",
     "message": "feat(react): add sorting datatable example with blue sort indicators\n\n- Create SortingDataTable component with column sorting functionality\n- Add SortingDataTable to DataTables examples page\n- Implement blue-colored sort buttons and arrow indicators for visibility\n- Add datatable sorter CSS with light and dark theme support\n- Style sorter buttons with blue colors (#2563eb on light, #60a5fa on dark)\n- Add blue arrow indicators (::before and ::after pseudo-elements)\n- Style sortable table headers with proper background and border colors\n- Include responsive hover states for sort buttons in both themes",
@@ -8729,49 +8779,6 @@
     "files": [
       ".php-cs-fixer.dist.php",
       "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "4b3c970795c297ca7a8fd307a7f9b0f956f518a8",
-    "date": "2025-09-05T12:51:17+07:00",
-    "message": "refactor: try implement php linter and fixer",
-    "files": [
-      ".php-cs-fixer.dist.php",
-      ".vscode/settings.json",
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "bb16974385ffdd60b30a56c00a8726380a3b2d2e",
-    "date": "2025-09-05T04:28:38+07:00",
-    "message": "refactor(UserDBTest): remove redundant file deletion check for SQLite test database",
-    "files": [
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "0a6d961b91bebc316463ed1ad7196c0f882f772f",
-    "date": "2025-09-05T04:27:54+07:00",
-    "message": "feat(coredb): store constructor parameters and add getters for retrieval",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "c990ebb49a73cbdd2e7474fb100e7dc32c0c00ae",
-    "date": "2025-09-04T22:11:11+07:00",
-    "message": "refactor(admin): move page-level layout styling from SaldoManager to Admin\n\n- Wrapped `SaldoManager` with container in `Admin` for consistent layout\n- Removed redundant min-height and background styling from `SaldoManager`",
-    "files": [
-      "src/react/pages/Admin.tsx",
-      "src/react/pages/admin/SaldoManager.tsx"
-    ]
-  },
-  {
-    "hash": "e8d81a9c207f65c2872e8cfe476d5c72be21f534",
-    "date": "2025-09-04T21:29:18+07:00",
-    "message": "refactor(coredb): improve type safety and schema initialization\n\nAdded strict type hints, replaced `die()` with `RuntimeException`, and extracted schema loading into a reusable `loadSchema` method. Also refactored MySQL/SQLite initialization methods for clarity and maintainability.",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
     ]
   }
 ]
