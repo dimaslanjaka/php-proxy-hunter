@@ -30,6 +30,15 @@ const AdvancedDataTable: React.FC = () => {
             return table;
           }
           const tHead = table.childNodes?.[0];
+
+          // Modify all header cells to add data-sortable and min-width
+          tHead?.childNodes?.[0].childNodes?.forEach((th: any) => {
+            th.attributes = th.attributes || {};
+            th.attributes['data-sortable'] = 'true';
+            th.attributes.class = (th.attributes.class || '') + ' min-w-[200px]';
+            th.attributes.style = '';
+          });
+
           const filterHeaders = {
             nodeName: 'TR',
             attributes: { class: 'search-filtering-row' },
