@@ -114,6 +114,12 @@ if (php_sapi_name() === 'cli') {
   exit;
 }
 
+$distIndexFile = __DIR__ . '/dist/react/index.html';
+if (file_exists($distIndexFile)) {
+  readfile($distIndexFile);
+  exit;
+}
+
 $indexFile = __DIR__ . '/index.html';
 if (file_exists($indexFile)) {
   readfile($indexFile);
