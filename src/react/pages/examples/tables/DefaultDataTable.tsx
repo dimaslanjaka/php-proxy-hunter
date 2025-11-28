@@ -10,8 +10,8 @@ const DefaultDataTable: React.FC = () => {
         data: tableData,
         perPageSelect: [5, 10, 15, 20],
         perPage: 10,
-        sortable: true,
-        searchable: true
+        sortable: false,
+        searchable: false
       });
     }
   }, []);
