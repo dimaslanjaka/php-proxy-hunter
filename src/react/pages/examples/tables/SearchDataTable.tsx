@@ -30,8 +30,10 @@ const SearchDataTable: React.FC = () => {
               <p className="text-gray-600 dark:text-gray-400">Search across all columns to filter company data</p>
             </div>
 
-            <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-              <table id="search-table" className="w-full text-sm text-left text-gray-500 dark:text-gray-400" />
+            <div className="overflow-x-auto -mx-6 sm:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <table id="search-table" className="w-full text-sm text-left text-gray-500 dark:text-gray-400" />
+              </div>
             </div>
           </div>
         </div>

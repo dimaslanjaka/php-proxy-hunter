@@ -215,3 +215,46 @@ input[type='submit'] {
 .dark .datatable-table tbody tr:hover {
   background-color: rgb(31 41 55);
 }
+
+/* Responsive table wrapper */
+.datatable-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.datatable-table {
+  width: 100%;
+  table-layout: auto;
+}
+
+/* Responsive table on mobile */
+@media (max-width: 768px) {
+  .datatable-table {
+    font-size: 0.75rem;
+  }
+
+  .datatable-table th,
+  .datatable-table td {
+    padding: 0.5rem;
+  }
+
+  .datatable-top {
+    flex-direction: column;
+    gap: 0.5rem !important;
+  }
+
+  .datatable-search {
+    width: 100% !important;
+  }
+
+  .datatable-dropdown {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .datatable-pagination {
+    font-size: 0.75rem;
+  }
+}
