@@ -1,5 +1,36 @@
 [
   {
+    "hash": "f00f4863ce4c6169965fd5bb9dd484b2e79aaca7",
+    "date": "2025-11-28T16:07:28+07:00",
+    "message": "feat(react): add sorting datatable example with blue sort indicators\n\n- Create SortingDataTable component with column sorting functionality\n- Add SortingDataTable to DataTables examples page\n- Implement blue-colored sort buttons and arrow indicators for visibility\n- Add datatable sorter CSS with light and dark theme support\n- Style sorter buttons with blue colors (#2563eb on light, #60a5fa on dark)\n- Add blue arrow indicators (::before and ::after pseudo-elements)\n- Style sortable table headers with proper background and border colors\n- Include responsive hover states for sort buttons in both themes",
+    "files": [
+      "src/react/pages/examples/tables/SortingDataTable.tsx",
+      "src/react/pages/examples/tables/index.tsx",
+      "tailwind.input.css"
+    ]
+  },
+  {
+    "hash": "0b892d679687e825892205c0b974b66fc978cb7c",
+    "date": "2025-11-28T16:05:22+07:00",
+    "message": "fix(DefaultDataTable): disable sorting and searching functionality",
+    "files": [
+      "src/react/pages/examples/tables/DefaultDataTable.tsx"
+    ]
+  },
+  {
+    "hash": "d2dd73a3645074010081ca889a122de90f51332a",
+    "date": "2025-11-28T14:45:12+07:00",
+    "message": "feat(react): add datatable examples with dark theme support\n\n- Add simple-datatables package (v10.2.0) dependency\n- Create DataTables examples page at /examples/tables route\n- Implement DefaultDataTable component with sorting, pagination, and search\n- Add table data as JSON with 21 JavaScript framework entries\n- Import simple-datatables CSS in Tailwind config\n- Add comprehensive dark theme styling for all datatable elements:\n  - Table info text and pagination controls\n  - Pagination list items with active state styling\n  - Datatable top section (dropdown and search inputs)\n  - Proper color contrast and focus states for dark mode",
+    "files": [
+      "package.json",
+      "src/react/index.tsx",
+      "src/react/pages/examples/tables/DefaultDataTable.tsx",
+      "src/react/pages/examples/tables/defaultTableData.json",
+      "src/react/pages/examples/tables/index.tsx",
+      "tailwind.input.css"
+    ]
+  },
+  {
     "hash": "70debd168dfafdba6fe7bb3a133190abc228d7f6",
     "date": "2025-11-28T10:56:48+07:00",
     "message": "fix: update hash format in .husky/hash.txt and adjust output line in cfh.cjs",
@@ -8739,30 +8770,6 @@
     "hash": "e8d81a9c207f65c2872e8cfe476d5c72be21f534",
     "date": "2025-09-04T21:29:18+07:00",
     "message": "refactor(coredb): improve type safety and schema initialization\n\nAdded strict type hints, replaced `die()` with `RuntimeException`, and extracted schema loading into a reusable `loadSchema` method. Also refactored MySQL/SQLite initialization methods for clarity and maintainability.",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "81eb3c282b9c5446eecdd878f8aa3de6d3163b5a",
-    "date": "2025-09-04T21:27:53+07:00",
-    "message": "feat: add dbPath property to CoreDB for SQLite database file path",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "3112b39e6b4a66eb5ae611e36a8f7c49cd37883d",
-    "date": "2025-09-04T21:21:57+07:00",
-    "message": "fix: update phpunit version constraint to include version 6",
-    "files": [
-      "composer.json"
-    ]
-  },
-  {
-    "hash": "90480f5e5fd0904e7919dcedfa95bec324b8a733",
-    "date": "2025-09-04T20:56:05+07:00",
-    "message": "feat: add driver property to CoreDB for tracking database type",
     "files": [
       "src/PhpProxyHunter/CoreDB.php"
     ]
