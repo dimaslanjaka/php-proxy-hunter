@@ -125,7 +125,8 @@ $isExecutionTimeLimit = function () use ($startTime, $limitSecs, $hashFilename) 
 };
 
 // Log the start of the proxy age check
-_log_shared($hashFilename, trim('[' . ($isCli ? 'CLI' : 'WEB') . '][' . ($isAdmin ? 'admin' : 'user') . '] ' . substr($hashFilename, 0, 6) . ' Starting old proxy age check...'));
+$logHash = substr($userId, 0, 6);
+_log_shared($hashFilename, trim('[' . ($isCli ? 'CLI' : 'WEB') . '][' . ($isAdmin ? 'admin' : 'user') . '] ' . $logHash . ' Starting old proxy age check...'));
 
 $page  = 0;
 $limit = 100;

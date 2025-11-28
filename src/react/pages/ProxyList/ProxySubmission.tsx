@@ -20,6 +20,7 @@ export default function ProxySubmission() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setIsLoading(true);
 
     // Send proxies to backend for addition
     fetch(createUrl('/php_backend/proxy-add.php'), { method: 'POST', body: new URLSearchParams({ proxies: textarea }) })
@@ -52,6 +53,9 @@ export default function ProxySubmission() {
             } catch {
               /* ignore */
             }
+          })
+          .finally(() => {
+            setIsLoading(false);
           });
       });
   }
@@ -125,8 +129,10 @@ export default function ProxySubmission() {
           <div className="flex gap-2 flex-wrap">
             <button
               type="submit"
-              className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg transition-colors">
-              <i className="fa-duotone fa-paper-plane"></i> Submit
+              disabled={isLoading}
+              className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 active:bg-blue-800 rounded-lg transition-colors">
+              <i className={`fa-duotone fa-${isLoading ? 'hourglass-end' : 'paper-plane'}`}></i>
+              {isLoading ? 'Submitting...' : 'Submit'}
             </button>
             <button
               type="button"
