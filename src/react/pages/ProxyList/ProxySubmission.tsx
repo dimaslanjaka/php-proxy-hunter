@@ -1,13 +1,14 @@
 import { ReactFormSaver, ReactFormSaverRef } from 'jquery-form-saver/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { checkProxy } from '../../utils/proxy';
+import { checkProxy, checkOldProxy } from '../../utils/proxy';
 import { useSnackbar } from '../../components/Snackbar';
 import { createUrl } from '../../utils/url';
 
 export default function ProxySubmission() {
   const { t } = useTranslation();
   const [textarea, setTextarea] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
   const formSaverRef = React.useRef<ReactFormSaverRef | null>(null);
   const { showSnackbar } = useSnackbar();
 
@@ -55,6 +56,33 @@ export default function ProxySubmission() {
       });
   }
 
+  function handleCheckOldProxy() {
+    setIsLoading(true);
+    checkOldProxy()
+      .then((res) => {
+        const isError = res?.error === true;
+        try {
+          showSnackbar({
+            message: res?.message || (isError ? 'Check old proxy failed' : 'Old proxy check initiated'),
+            type: isError ? 'danger' : 'success'
+          });
+        } catch {
+          /* ignore */
+        }
+      })
+      .catch((_err) => {
+        console.error(_err);
+        try {
+          showSnackbar({ message: `Check old proxy failed: ${String(_err)}`, type: 'danger' });
+        } catch {
+          /* ignore */
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }
+
   return (
     <section className="my-8">
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-white border border-blue-200 dark:border-blue-700 p-6 transition-colors duration-300 flowbite-modal">
@@ -94,11 +122,21 @@ export default function ProxySubmission() {
             value={textarea}
             onChange={(e) => setTextarea(e.target.value)}
           />
-          <button
-            type="submit"
-            className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-            <i className="fa-duotone fa-paper-plane"></i> Submit
-          </button>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg transition-colors">
+              <i className="fa-duotone fa-paper-plane"></i> Submit
+            </button>
+            <button
+              type="button"
+              disabled={isLoading}
+              className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 active:bg-orange-800 rounded-lg transition-colors"
+              onClick={handleCheckOldProxy}>
+              <i className={`fa-duotone fa-${isLoading ? 'hourglass-end' : 'clock'}`}></i>
+              {isLoading ? 'Checking...' : 'Check Old Proxies'}
+            </button>
+          </div>
         </ReactFormSaver>
         {/* Log and status URLs removed */}
         {/* Add more UI elements as needed */}

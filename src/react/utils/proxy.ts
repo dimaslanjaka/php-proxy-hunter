@@ -45,6 +45,18 @@ export async function checkProxyType(proxies: string): Promise<CheckProxyRespons
     });
 }
 
+export async function checkOldProxy(): Promise<CheckProxyResponse> {
+  return await fetch(createUrl('/php_backend/check-old-proxy.php'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  })
+    .then((res) => res.json())
+    .catch((e) => {
+      return { error: true, message: e.message, logFile: null };
+    });
+}
+
 export async function checkProxy(proxies: string) {
   const _httpsResponse = await checkProxyHttps(proxies);
   const _httpResponse = await checkProxyHttp(proxies);

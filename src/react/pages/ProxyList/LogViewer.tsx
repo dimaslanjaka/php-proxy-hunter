@@ -45,13 +45,23 @@ async function fetchProxyTypeDetectionResult(hash: string): Promise<string> {
   return await res.text();
 }
 
+async function fetchCheckOldProxyResult(hash: string): Promise<string> {
+  const url = createUrl('/php_backend/logs.php');
+  const res = await fetch(`${url}?hash=check-old-proxy/${encodeURIComponent(hash)}`);
+  if (!res.ok) {
+    return `Failed to fetch check old proxy result: ${res.status} ${res.statusText}`;
+  }
+  return await res.text();
+}
+
 const LogViewer: React.FC = () => {
   // no longer using the proxy-checker.php log reset; only poll logs.php
-  const [activeTab, setActiveTab] = React.useState<'https' | 'http' | 'type'>('https');
+  const [activeTab, setActiveTab] = React.useState<'https' | 'http' | 'type' | 'old'>('https');
   const [hash, setHash] = React.useState('');
   const [httpsLog, setHttpsLog] = React.useState('');
   const [httpLog, setHttpLog] = React.useState('');
   const [typeLog, setTypeLog] = React.useState('');
+  const [oldLog, setOldLog] = React.useState('');
 
   // Convert ANSI codes to HTML
   const convertAnsiToHtml = (ansiText: string): string => {
@@ -149,6 +159,29 @@ const LogViewer: React.FC = () => {
     };
   }, [activeTab, hash]);
 
+  // Poll check old proxy result when available and old tab is active
+  React.useEffect(() => {
+    let interval: number | undefined;
+    if (activeTab === 'old' && hash) {
+      const fetchOld = async () => {
+        try {
+          const text = await fetchCheckOldProxyResult(hash);
+          setOldLog((prev) => {
+            if (prev.trim() === text.trim()) return prev;
+            return text;
+          });
+        } catch {
+          setOldLog('Failed to fetch check old proxy result.');
+        }
+      };
+      fetchOld();
+      interval = window.setInterval(fetchOld, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [activeTab, hash]);
+
   return (
     <section className="my-8">
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-white border border-blue-200 dark:border-blue-700 p-6 transition-colors duration-300 flowbite-modal">
@@ -188,6 +221,16 @@ const LogViewer: React.FC = () => {
                 className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'type' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
                 onClick={() => setActiveTab('type')}>
                 Type detection
+              </button>
+            </li>
+            <li role="presentation">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'old'}
+                className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'old' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
+                onClick={() => setActiveTab('old')}>
+                Check old proxy
               </button>
             </li>
           </ul>
@@ -260,6 +303,29 @@ const LogViewer: React.FC = () => {
               />
             ) : (
               <span className="text-gray-400 dark:text-gray-500">No proxy type result fetched yet.</span>
+            )}
+          </div>
+        </div>
+
+        {/* Check old proxy panel */}
+        <div className={`${activeTab === 'old' ? '' : 'hidden'}`}>
+          <div className="mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Logs check old proxy for UID:</span>
+              <span className="font-mono text-sm text-gray-900 dark:text-gray-100 break-words max-w-full overflow-auto">
+                {hash || '—'}
+              </span>
+            </div>
+          </div>
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
+            {oldLog ? (
+              <div
+                dangerouslySetInnerHTML={{ __html: convertAnsiToHtml(oldLog) }}
+                className="text-gray-800 dark:text-gray-100"
+                style={{ whiteSpace: 'pre-wrap' }}
+              />
+            ) : (
+              <span className="text-gray-400 dark:text-gray-500">No check old proxy result fetched yet.</span>
             )}
           </div>
         </div>
