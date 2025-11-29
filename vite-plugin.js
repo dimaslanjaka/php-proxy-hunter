@@ -10,6 +10,42 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
+ * Vite plugin to manually trigger HMR updates via HTTP endpoint.
+ * Allows programmatic/manual triggering of file change detection.
+ * This works by actually touching/modifying the file to trigger the file watcher.
+ * @returns {import('vite').Plugin}
+ */
+export function manualHmrPlugin() {
+  /** @type {import('vite').ViteDevServer} */
+  let server;
+  return {
+    name: 'manual-hmr-trigger',
+    configureServer(viteServer) {
+      server = viteServer;
+
+      viteServer.middlewares.use('/api/trigger-hmr', (req, res) => {
+        try {
+          // Trigger full reload for all modules
+          console.log(`[Manual HMR] Full reload triggered`);
+
+          server.ws.send({
+            type: 'full-reload'
+          });
+
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, message: 'Full reload triggered' }));
+          console.log(`[Manual HMR] Successfully triggered full reload`);
+        } catch (error) {
+          console.error(`[Manual HMR] Error:`, error);
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, message: `Error: ${error.message}` }));
+        }
+      });
+    }
+  };
+}
+
+/**
  * Vite plugin to build Tailwind CSS using the Tailwind CLI.
  * Runs the build process during Vite's config resolution.
  * @returns {import('vite').Plugin}

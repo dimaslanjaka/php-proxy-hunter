@@ -8,6 +8,7 @@ import {
   customStaticAssetsPlugin,
   fontsResolverPlugin,
   indexHtmlReplacementPlugin,
+  manualHmrPlugin,
   prepareVitePlugins,
   TailwindCSSBuildPlugin
 } from './vite-plugin.js';
@@ -72,6 +73,7 @@ export const viteConfig = defineConfig({
   // Register Vite plugins
   plugins: [
     prepareVitePlugins(),
+    manualHmrPlugin(),
     indexHtmlReplacementPlugin(),
     fontsResolverPlugin(),
     TailwindCSSBuildPlugin(),
@@ -238,7 +240,16 @@ export const viteConfig = defineConfig({
         '**/public/**',
         '**/tests/**',
         '**/test/**',
-        '**/.deploy_git/**'
+        '**/.deploy_git/**',
+        'src/**/*.js',
+        'src/**/*.jsx',
+        'src/**/*.ts',
+        'src/**/*.mjs',
+        'src/**/*.cjs',
+        '**/*.txt',
+        '**/*.py',
+        '**/*.php',
+        'packages/**'
       ],
       // enable polling is slower but reliable
       usePolling: false,
