@@ -96,7 +96,9 @@ class ProxyDB:
                 )
                 # load mysql schema if available
                 try:
-                    sql_file = get_nuitka_file("assets/mysql-schema.sql")
+                    sql_file = get_relative_path(
+                        "src/PhpProxyHunter/assets/mysql-schema.sql"
+                    )
                     contents = str(read_file(sql_file))
                     if contents:
                         # MySQLHelper exposes execute_query but uses %s params; execute as raw
