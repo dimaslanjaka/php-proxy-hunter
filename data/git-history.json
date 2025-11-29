@@ -1,5 +1,37 @@
 [
   {
+    "hash": "30492591003b67e65ddcdadae853f75a7057d8bd",
+    "date": "2025-11-29T10:30:24+07:00",
+    "message": "fix(crontab): correct log file name for check-old-proxy job",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "59053fd0e699daf5b716ca4ce0e7eda6c238b7c0",
+    "date": "2025-11-29T10:28:57+07:00",
+    "message": "feat(check-old-proxy): add type hint for HTTPS-only checker result",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
+    "hash": "d9eb58bd255224faff9e11b1b2121123445e89ca",
+    "date": "2025-11-29T10:27:00+07:00",
+    "message": "feat(crontab): add logging for 30 minutes job execution and enhance proxy collection",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "dda62ecf183fb866d93be8ac7ecd6f76f857110f",
+    "date": "2025-11-29T09:15:10+07:00",
+    "message": "refactor(php_backend): filter recently-checked proxies during categorization\n\nMove the age-based filtering logic from the main processing loop to the\nitem categorization phase. This prevents unnecessary iterations over\nproxies that were checked within the last day, improving performance by\neliminating redundant loop cycles.\n\n- Filter items with age < 1 day during categorization\n- Remove redundant age checks and logging from main loop\n- Simplify main loop by only processing items that need checking",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
     "hash": "9384d937c1bdd16db20302961987095f827de54b",
     "date": "2025-11-29T07:13:21+07:00",
     "message": "fix(waConnect): comment out browser and mobile options in socket configuration",
@@ -8637,39 +8669,6 @@
     "message": "fix(mysql): handle missing mysql_native_password plugin by attempting auto-install",
     "files": [
       "src/PhpProxyHunter/MySQLHelper.php"
-    ]
-  },
-  {
-    "hash": "0ee8c3cee2fc569babab147ece4b70cf1c062535",
-    "date": "2025-09-06T05:33:22+07:00",
-    "message": "refactor: add exclusion for incorrect exact indentation in phpcs.xml",
-    "files": [
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "bb76ab040e940e55f24537f4f758d4cde2493cfd",
-    "date": "2025-09-05T18:37:54+07:00",
-    "message": "refactor: update exclusion patterns in configuration files to improve code quality checks",
-    "files": [
-      ".php-cs-fixer.dist.php",
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "9ccee2234b8b7ec29a90a9f5ab8fbd19d2fe690c",
-    "date": "2025-09-05T18:35:35+07:00",
-    "message": "refactor: add rule to ensure newline after opening PHP tag",
-    "files": [
-      ".php-cs-fixer.dist.php"
-    ]
-  },
-  {
-    "hash": "a3f87413774dd7aca01e16ebc7cabe2265045666",
-    "date": "2025-09-05T18:24:29+07:00",
-    "message": "refactor: standardize indentation and formatting in phpcs.xml",
-    "files": [
-      "phpcs.xml"
     ]
   }
 ]
