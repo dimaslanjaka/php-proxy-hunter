@@ -1,5 +1,29 @@
 [
   {
+    "hash": "79151c1ceb7a7d27a97d975eb3c606609b77e854",
+    "date": "2025-11-29T17:37:50+07:00",
+    "message": "feat: upload generated sitemaps during VPS deployment\n\n- Add sitemap.txt and sitemap.xml upload to UI-only deploy flow\n- Add sitemap.txt and sitemap.xml upload to full deploy flow\n- Include error handling with graceful fallback if sitemaps are missing\n- Upload sitemaps from .deploy_git directory to remote server root",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "f36387e7cb9cba81f41bd9abb07a399b36404c7b",
+    "date": "2025-11-29T17:36:41+07:00",
+    "message": "feat: integrate sitemap generation into vite build plugin\n\n- Import generateSitemapTxt and generateSitemapXml from vite-gh-pages module\n- Generate both text and XML sitemaps during production build closeBundle hook\n- Pass __dirname as target directory for sitemap file output",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "28e6f40b5b7956c7e74b2845841c6cea6ce0bddb",
+    "date": "2025-11-29T17:36:00+07:00",
+    "message": "feat: add sitemap generation for SEO optimization\n\n- Add generateSitemapXml() function to create XML sitemap with canonical URLs\n- Add generateSitemapTxt() function to create plain text sitemap\n- Add escapeXml() helper function to safely escape XML special characters\n- Integrate sitemap generation into both buildForGithubPages() and deploy() flows\n- Generate sitemaps automatically during the build and deployment process\n- Support optional target directory parameter for flexible sitemap location",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
     "hash": "ee286f0d452624f3a31ff869e31c8c4f86377cd1",
     "date": "2025-11-29T16:20:19+07:00",
     "message": "ci(crontab): add Python proxy collector to cron schedule and deprecate PHP versions\n\n- Add new 5-minute cron job to run Python artisan/proxyCollector.py with batch-size=50\n- Comment out legacy PHP proxy collector jobs (proxyCollector.php and proxyCollector2.php)\n- Keep existing 30-minute job structure with check-old-proxy.php\n- Use proper cron interval calculation (0.0833 for 5 minutes) with should_run_job check",
@@ -8641,30 +8665,8 @@
     "hash": "6971ba6731a782cab8f36d37c384f624583665af",
     "date": "2025-09-06T16:29:27+07:00",
     "message": "chore(post-commit): add commit history builder execution to post-commit hook",
-    "files": []
-  },
-  {
-    "hash": "0cae8ee20fb16221f5c13c745633c0a9c5f5a6a6",
-    "date": "2025-09-06T16:02:04+07:00",
-    "message": "refactor(coredb): make constructor parameters public fields and remove getters\n\n- Changed all private constructor parameter fields to public properties with updated PHPDoc.\n- Removed redundant getter methods for constructor parameters.\n- Updated constructor to assign values directly to public fields.",
     "files": [
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "8df0774a57f19006bea328cea0bbb48c7f665fb5",
-    "date": "2025-09-06T15:59:31+07:00",
-    "message": "test: clean up related user_discount rows before deleting test users in UserDBTest",
-    "files": [
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "a63c28ff6cee95774e9a842d1909f495786ce717",
-    "date": "2025-09-06T15:56:27+07:00",
-    "message": "refactor(CoreDBTest): simplify database cleanup by removing unnecessary truncation",
-    "files": [
-      "tests/PhpProxyHunter/CoreDBTest.php"
+      ".husky/post-commit"
     ]
   }
 ]
