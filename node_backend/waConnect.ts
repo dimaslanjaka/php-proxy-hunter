@@ -85,10 +85,10 @@ export default class waConnect extends events.EventEmitter {
     console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`);
 
     this.sock = baileys.makeWASocket({
-      browser: baileys.Browsers.ubuntu('Desktop'),
+      // browser: baileys.Browsers.ubuntu('Desktop'),
       version,
       logger: this.logger,
-      mobile: false,
+      // mobile: false,
       auth: {
         creds: state.creds,
         /** caching makes the store faster to send/recv messages */
