@@ -128,13 +128,21 @@ log_command() {
     } >> "$log_file" 2>&1 &
 }
 
+# run every 5 minutes
+if should_run_job "tmp/crontab/5-m" 0.0833; then
+    echo "Running 5 minutes job."
+    log_command "tmp/logs/crontab/proxy-collector.log" "$CWD/bin/py" artisan/proxyCollector.py --batch-size=50
+else
+    echo "Skipping 5 minutes job."
+fi
+
 # run every 30 minutes
 if should_run_job "tmp/crontab/30-m" 0.5; then
     echo "Running 30 minutes job."
     # r_cmd "python" "artisan/filterPortsDuplicate.py" "--max=50"
     # r_cmd "python" "proxyCheckerReal.py" "--max=50"
-    log_command "tmp/logs/crontab/proxy-collector.log" php artisan/proxyCollector.php || true
-    log_command "tmp/logs/crontab/proxy-collector2.log" php artisan/proxyCollector2.php || true
+    # log_command "tmp/logs/crontab/proxy-collector.log" php artisan/proxyCollector.php || true
+    # log_command "tmp/logs/crontab/proxy-collector2.log" php artisan/proxyCollector2.php || true
     log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php --max=200 --admin=true --delete=true
 else
     echo "Skipping 30 minutes job."
