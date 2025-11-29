@@ -221,6 +221,18 @@ async function main() {
     await uploadDir(path.join(__dirname, '/../dist/react'), `${remotePath}/dist/react`);
     await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
 
+    // Upload sitemaps
+    try {
+      const sitemapTxtPath = path.join(__dirname, '/../.deploy_git/sitemap.txt');
+      const sitemapXmlPath = path.join(__dirname, '/../.deploy_git/sitemap.xml');
+      await uploadFile(sitemapTxtPath, `${remotePath}/sitemap.txt`);
+      console.log('Uploaded sitemap.txt');
+      await uploadFile(sitemapXmlPath, `${remotePath}/sitemap.xml`);
+      console.log('Uploaded sitemap.xml');
+    } catch (err) {
+      console.warn('Sitemap upload skipped:', err.message);
+    }
+
     const { code } = await shell_exec('bash bin/fix-perm', remotePath);
     if (code !== 0) throw new Error('fix-perm failed');
 
@@ -282,6 +294,18 @@ async function main() {
 
   await uploadDir(path.join(__dirname, '/../dist'), `${remotePath}/dist`);
   await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
+
+  // Upload sitemaps
+  try {
+    const sitemapTxtPath = path.join(__dirname, '/../.deploy_git/sitemap.txt');
+    const sitemapXmlPath = path.join(__dirname, '/../.deploy_git/sitemap.xml');
+    await uploadFile(sitemapTxtPath, `${remotePath}/sitemap.txt`);
+    console.log('Uploaded sitemap.txt');
+    await uploadFile(sitemapXmlPath, `${remotePath}/sitemap.xml`);
+    console.log('Uploaded sitemap.xml');
+  } catch (err) {
+    console.warn('Sitemap upload skipped:', err.message);
+  }
 
   const { code: permCode } = await shell_exec('bash bin/fix-perm', remotePath);
   if (permCode !== 0) throw new Error('fix-perm failed');
