@@ -211,6 +211,7 @@ while (true) {
       $message = '  -> ' . AnsiColors::colorize(['green', 'bold'], 'Proxy is active (HTTP)');
       _log_shared($hashFilename, $message);
     }
+    /** @var \PhpProxyHunter\Checker\CheckerResult $httpsOnly */
     $httpsOnly = \PhpProxyHunter\Checker\ProxyCheckerHttpsOnly::check($checkerOptions);
     if ($httpsOnly->isWorking) {
       $proxy_db->updateData($item['proxy'], ['https' => 'true', 'status' => 'active', 'last_check' => date(DATE_RFC3339)]);
