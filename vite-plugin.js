@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import path from 'upath';
 import { fileURLToPath } from 'url';
 import { buildTailwind } from './tailwind.build.js';
-import { copyIndexToRoutes } from './vite-gh-pages.js';
+import { copyIndexToRoutes, generateSitemapTxt, generateSitemapXml } from './vite-gh-pages.js';
 
 // Fixes __dirname for ESM modules
 const __filename = fileURLToPath(import.meta.url);
@@ -88,6 +88,8 @@ export function indexHtmlReplacementPlugin() {
     async closeBundle() {
       if (viteConfig.command === 'build') {
         await copyIndexForProduction();
+        generateSitemapTxt(__dirname);
+        generateSitemapXml(__dirname);
       }
     }
   };
