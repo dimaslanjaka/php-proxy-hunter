@@ -206,16 +206,44 @@ while (true) {
 
     /** @var \PhpProxyHunter\Checker\CheckerResult $httpOnly */
     $httpOnly = \PhpProxyHunter\Checker\ProxyCheckerHttpOnly::check($checkerOptions);
-    if ($httpOnly->isWorking) {
-      $proxy_db->updateData($item['proxy'], ['https' => 'false', 'status' => 'active', 'last_check' => date(DATE_RFC3339)]);
-      $message = '  -> ' . AnsiColors::colorize(['green', 'bold'], 'Proxy is active (HTTP)');
-      _log_shared($hashFilename, $message);
-    }
     /** @var \PhpProxyHunter\Checker\CheckerResult $httpsOnly */
     $httpsOnly = \PhpProxyHunter\Checker\ProxyCheckerHttpsOnly::check($checkerOptions);
+
+    // Merge working protocols from both HTTP and HTTPS checks
+    $mergedWorkingTypes = array_unique(array_merge(
+      $httpOnly->isWorking ? $httpOnly->workingTypes : [],
+      $httpsOnly->isWorking ? $httpsOnly->workingTypes : []
+    ));
+
+    if ($httpOnly->isWorking) {
+      $data = [
+        'https'      => 'false',
+        'status'     => 'active',
+        'last_check' => date(DATE_RFC3339),
+        'type'       => strtolower(implode('-', $mergedWorkingTypes)),
+      ];
+      $proxy_db->updateData($item['proxy'], $data);
+      $protocols = !empty($mergedWorkingTypes) ? implode(',', $mergedWorkingTypes) : '';
+      $message   = '  -> ' . AnsiColors::colorize(['green', 'bold'], 'Proxy is active (HTTP)');
+      if ($protocols !== '') {
+        $message .= ' protocols=' . $protocols;
+      }
+      _log_shared($hashFilename, $message);
+    }
+
     if ($httpsOnly->isWorking) {
-      $proxy_db->updateData($item['proxy'], ['https' => 'true', 'status' => 'active', 'last_check' => date(DATE_RFC3339)]);
-      $message = '  -> ' . AnsiColors::colorize(['green', 'bold'], 'Proxy is active (HTTPS)');
+      $data = [
+        'https'      => 'true',
+        'status'     => 'active',
+        'last_check' => date(DATE_RFC3339),
+        'type'       => strtolower(implode('-', $mergedWorkingTypes)),
+      ];
+      $proxy_db->updateData($item['proxy'], $data);
+      $protocols = !empty($mergedWorkingTypes) ? implode(',', $mergedWorkingTypes) : '';
+      $message   = '  -> ' . AnsiColors::colorize(['green', 'bold'], 'Proxy is active (HTTPS)');
+      if ($protocols !== '') {
+        $message .= ' protocols=' . $protocols;
+      }
       _log_shared($hashFilename, $message);
     }
 
