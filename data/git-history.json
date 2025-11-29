@@ -1,5 +1,13 @@
 [
   {
+    "hash": "9384d937c1bdd16db20302961987095f827de54b",
+    "date": "2025-11-29T07:13:21+07:00",
+    "message": "fix(waConnect): comment out browser and mobile options in socket configuration",
+    "files": [
+      "node_backend/waConnect.ts"
+    ]
+  },
+  {
     "hash": "955245f4abafcaba568b4072e3ee36f8ddba494f",
     "date": "2025-11-29T06:56:05+07:00",
     "message": "feat(react): add data-sortable and min-width styling to table headers\n\n- Modify all header cells to include data-sortable=\"true\" attribute\n- Apply min-w-[200px] class to all headers for consistent minimum width\n- Clear inline styles from headers for cleaner rendering\n- Improve table header appearance and sorting functionality",
@@ -8662,14 +8670,6 @@
     "message": "refactor: standardize indentation and formatting in phpcs.xml",
     "files": [
       "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "e314c2ea6da7f860989c819cdaac8da9604cca93",
-    "date": "2025-09-05T17:15:43+07:00",
-    "message": "refactor: improve readability of CLI check in cleaner.php",
-    "files": [
-      "artisan/cleaner.php"
     ]
   }
 ]
