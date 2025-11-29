@@ -438,6 +438,12 @@ class ProxyDB:
             else:
                 self.get_db().update("proxies", data, "proxy = ?", [proxy.strip()])
 
+        # Auto mark as added after updating
+        try:
+            self.mark_as_added(proxy)
+        except Exception:
+            pass
+
     def fix_no_such_column(self, item: Dict[str, Any]):
         """Fix no such table column"""
         if not item.get("country") and item.get("country_name"):
