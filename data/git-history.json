@@ -1,5 +1,77 @@
 [
   {
+    "hash": "ee286f0d452624f3a31ff869e31c8c4f86377cd1",
+    "date": "2025-11-29T16:20:19+07:00",
+    "message": "ci(crontab): add Python proxy collector to cron schedule and deprecate PHP versions\n\n- Add new 5-minute cron job to run Python artisan/proxyCollector.py with batch-size=50\n- Comment out legacy PHP proxy collector jobs (proxyCollector.php and proxyCollector2.php)\n- Keep existing 30-minute job structure with check-old-proxy.php\n- Use proper cron interval calculation (0.0833 for 5 minutes) with should_run_job check",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "6dfb60077ef0140b21b43ba32f58c37842adbba8",
+    "date": "2025-11-29T16:19:36+07:00",
+    "message": "feat(src): add shared.py module for database initialization\n\n- Create new shared.py module with init_db() function\n- Support both SQLite and MySQL database backends\n- Load environment configuration from .env file\n- Handle production database credentials with fallback to default config\n- Include helper function to initialize ProxyDB with proper connection settings\n- Add inline documentation and test example in __main__ block",
+    "files": [
+      "src/shared.py"
+    ]
+  },
+  {
+    "hash": "9f7cce0e28add7777b0c9fa16238f5acaf1afab2",
+    "date": "2025-11-29T16:15:25+07:00",
+    "message": "feat(artisan): add proxyCollector script with batch processing and CLI args\n\n- Create new proxyCollector.py script for processing proxy files\n- Implement batch processing of proxy lines (configurable via --batch-size)\n- Add support for random file selection with --random flag\n- Integrate FileLockHelper for concurrent execution prevention\n- Add graceful signal handling (CTRL+C, SIGTERM) with lock cleanup\n- Validate and filter username/password before database insertion\n- Support both file collection discovery and selective processing\n- Use global constants for lock and asset directory paths",
+    "files": [
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "7de7f200f8e8326df6d9d5451fc3444af0e5ea4a",
+    "date": "2025-11-29T16:12:23+07:00",
+    "message": "feat(file-lock): implement robust file-based locking for process synchronization",
+    "files": [
+      "src/utils/file/FileLockHelper.py"
+    ]
+  },
+  {
+    "hash": "1d10e7599f4a861a1e94e4e3cd85d4b3f2598b80",
+    "date": "2025-11-29T15:51:25+07:00",
+    "message": "fix(proxydb): auto mark proxy as added after update",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "d6780c5224ec7eecb4cb72bf9e8fd37551ab2903",
+    "date": "2025-11-29T15:17:06+07:00",
+    "message": "fix(proxydb): update path for MySQL schema file retrieval",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "2f3793e7647ddcdf2faff604b9f54b205bac3b43",
+    "date": "2025-11-29T15:16:40+07:00",
+    "message": "refactor(frontend): batch background requests with credential support\n\nRefactor ProxyList background scheduler to batch multiple proxy requests into single\nJSON calls and support proxy authentication credentials in IP:PORT@USER:PASS format.\n\nChanges:\n- Replace per-proxy POST_FORM requests with single batched POST_JSON request\n- Collect all candidates (up to 5) and send as JSON array in one call\n- Add IP:PORT@USER:PASS format support for both geoIpBackground and latency checks\n- Only include credentials if both username and password exist and are not \"-\"\n- Reduce backend request overhead by batching geo location updates\n- Add candidatesLatencyUpdate detection for proxies with missing latency values\n- Filter latency candidates: null, empty string, '0', 'N/A', or '-'\n- Integrate latency checker with same background scheduling pattern as geo updates\n- Maintain randomized selection of 5 candidates to prevent backend overload",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "f708aa50e76592fa027cf30604dc244252b29cc4",
+    "date": "2025-11-29T14:55:27+07:00",
+    "message": "feat(latency-checker): add new latency proxy checker with web and CLI support",
+    "files": [
+      "php_backend/check-latency-proxy.php"
+    ]
+  },
+  {
+    "hash": "eb7af5f2705597523164457efca883ec2316a303",
+    "date": "2025-11-29T14:03:23+07:00",
+    "message": "feat(proxy-checker): merge HTTP and HTTPS protocol detection results\n\n- Execute both HTTP and HTTPS proxy checks upfront\n- Merge working protocol types from both checks into a single set\n- Store merged protocols in database 'type' field for both HTTP and HTTPS results\n- Add protocol information to log messages for improved visibility\n- Refactor database updates to use structured data array for clarity\n\nThis ensures proxies are correctly tagged with all working protocols\nregardless of whether they work via HTTP, HTTPS, or both protocols.",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
     "hash": "30492591003b67e65ddcdadae853f75a7057d8bd",
     "date": "2025-11-29T10:30:24+07:00",
     "message": "fix(crontab): correct log file name for check-old-proxy job",
@@ -8593,82 +8665,6 @@
     "message": "refactor(CoreDBTest): simplify database cleanup by removing unnecessary truncation",
     "files": [
       "tests/PhpProxyHunter/CoreDBTest.php"
-    ]
-  },
-  {
-    "hash": "cce766c91c96158c6652faa657ac7391d0169fd3",
-    "date": "2025-09-06T15:54:51+07:00",
-    "message": "test(CoreDB): add unit tests for CoreDB class with MySQL and SQLite support",
-    "files": [
-      "tests/PhpProxyHunter/CoreDBTest.php"
-    ]
-  },
-  {
-    "hash": "844750b5b6582abb2a3773f1ec5499b7d724a674",
-    "date": "2025-09-06T15:50:26+07:00",
-    "message": "chore(phpcs): disable specific PSR-12 rules for CoreDBTest.php\n\n- Disabled `PSR12.Files.FileHeader.SpacingAfterBlock`\n- Disabled `PSR12.ControlStructures.ControlStructureSpacing.LineIndent`",
-    "files": [
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "0a62e5312292ea8814b607a96f571bcc494d7d13",
-    "date": "2025-09-06T15:45:19+07:00",
-    "message": "refactor(coredb): remove PHP 8+ type hints for PHP 7 compatibility\n\n- Replaced typed properties (?string, ?bool) with untyped properties\n- Removed typed parameters and return types from methods\n- Replaced `\\Throwable` with `\\Exception` in constructor try-catch\n- Replaced null coalescing assignment (`??=`) with explicit null check\n- Adjusted WAL mode check for compatibility with PHP 7",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "f5ba61640e64ad249323fc12080bea8b7b963834",
-    "date": "2025-09-06T15:43:52+07:00",
-    "message": "feat(CoreDB): initialize user_db instance in MySQL and SQLite constructors",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "d532e4e426848f58b00dc24083db372ac5a355fd",
-    "date": "2025-09-06T14:48:49+07:00",
-    "message": "chore(phpcs): disable Squiz.Functions.MultiLineFunctionDeclaration.Indent sniff\n\nSet severity to 0 for Squiz.Functions.MultiLineFunctionDeclaration.Indent in phpcs.xml to suppress multi-line function declaration indent errors.",
-    "files": [
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "ea2db919775073e9bc7dffb5e2b8f08e98985646",
-    "date": "2025-09-06T14:38:38+07:00",
-    "message": "fix(mysql): add fallback to switch user authentication to caching_sha2_password if mysql_native_password plugin auto-install fails",
-    "files": [
-      "src/PhpProxyHunter/MySQLHelper.php"
-    ]
-  },
-  {
-    "hash": "e4307cab0a509f3ff6f13efebeeeb9b9e7fbfe36",
-    "date": "2025-09-06T14:25:48+07:00",
-    "message": "refactor: remove redundant PHP_PROXY_HUNTER access checks from database and scheduler classes",
-    "files": [
-      "src/PhpProxyHunter/MySQLHelper.php",
-      "src/PhpProxyHunter/ProxyDB.php",
-      "src/PhpProxyHunter/SQLiteHelper.php",
-      "src/PhpProxyHunter/Scheduler.php",
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "d3c57e0d040d9e62d77935ca04091f15183c77a8",
-    "date": "2025-09-06T14:24:25+07:00",
-    "message": "refactor(mysql): rename static property $_databases to $databases for consistency",
-    "files": [
-      "src/PhpProxyHunter/MySQLHelper.php"
-    ]
-  },
-  {
-    "hash": "7efeafc96507da823f25084a174e3eb43b8d6c77",
-    "date": "2025-09-06T14:21:17+07:00",
-    "message": "fix(mysql): handle missing mysql_native_password plugin by attempting auto-install",
-    "files": [
-      "src/PhpProxyHunter/MySQLHelper.php"
     ]
   }
 ]
