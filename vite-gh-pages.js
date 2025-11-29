@@ -24,6 +24,9 @@ async function buildForGithubPages() {
   }
   // Copy index.dev.html to index.html
   copyIndexHtml();
+  // Generate sitemaps
+  generateSitemapXml();
+  generateSitemapTxt();
   // Build the project
   try {
     await build(viteConfig);
@@ -101,6 +104,10 @@ async function deploy() {
 
   // Copy index.html to each route in .deploy_git
   await copyIndexToRoutes();
+
+  // Generate sitemaps for SEO
+  generateSitemapXml();
+  generateSitemapTxt();
 }
 
 /**
@@ -309,6 +316,96 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
       }
     }
   }
+}
+
+/**
+ * Generates a sitemap.xml file for search engine optimization.
+ * Creates an XML sitemap with all canonical URLs from routes.json.
+ * @param {string} [targetDir] - Optional target directory to save sitemap.xml.
+ *   Defaults to the deployGitPath directory.
+ * @returns {void}
+ */
+export function generateSitemapXml(targetDir = undefined) {
+  const sitemapDir = targetDir || deployGitPath;
+  const sitemapPath = path.join(sitemapDir, 'sitemap.xml');
+  const relSitemapPath = path.relative(process.cwd(), sitemapPath);
+
+  // Build XML content
+  let xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n';
+  xmlContent += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+  for (const routeOrig of routes) {
+    let route = { ...routeOrig };
+    // Get canonical URL for the route
+    if (route.canonical) {
+      xmlContent += '  <url>\n';
+      xmlContent += `    <loc>${escapeXml(route.canonical)}</loc>\n`;
+      xmlContent += '    <changefreq>weekly</changefreq>\n';
+      xmlContent += '    <priority>0.8</priority>\n';
+      xmlContent += '  </url>\n';
+    }
+  }
+
+  xmlContent += '</urlset>';
+
+  // Ensure directory exists
+  fs.ensureDirSync(sitemapDir);
+
+  try {
+    fs.writeFileSync(sitemapPath, xmlContent, 'utf-8');
+    console.log(`Generated sitemap.xml: ${relSitemapPath}`);
+  } catch (err) {
+    console.error(`Error generating sitemap.xml at ${relSitemapPath}:`, err);
+  }
+}
+
+/**
+ * Generates a sitemap.txt file with all canonical URLs from routes.json.
+ * Creates a simple text file with one URL per line.
+ * @param {string} [targetDir] - Optional target directory to save sitemap.txt.
+ *   Defaults to the deployGitPath directory.
+ * @returns {void}
+ */
+export function generateSitemapTxt(targetDir = undefined) {
+  const sitemapDir = targetDir || deployGitPath;
+  const sitemapPath = path.join(sitemapDir, 'sitemap.txt');
+  const relSitemapPath = path.relative(process.cwd(), sitemapPath);
+
+  // Build text content with one URL per line
+  let txtContent = '';
+
+  for (const routeOrig of routes) {
+    let route = { ...routeOrig };
+    // Get canonical URL for the route
+    if (route.canonical) {
+      txtContent += route.canonical + '\n';
+    }
+  }
+
+  // Ensure directory exists
+  fs.ensureDirSync(sitemapDir);
+
+  try {
+    fs.writeFileSync(sitemapPath, txtContent.trim(), 'utf-8');
+    console.log(`Generated sitemap.txt: ${relSitemapPath}`);
+  } catch (err) {
+    console.error(`Error generating sitemap.txt at ${relSitemapPath}:`, err);
+  }
+}
+
+/**
+ * Escapes special XML characters to safely include user content in XML.
+ * @param {string} str - The string to escape.
+ * @returns {string} The escaped string safe for XML.
+ */
+function escapeXml(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 // Run the build and deploy process
