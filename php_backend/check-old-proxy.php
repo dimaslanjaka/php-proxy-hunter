@@ -146,6 +146,17 @@ while (true) {
   $activeItems   = [];
   $inactiveItems = [];
   foreach ($items as $item) {
+    $lastChecked = strtotime($item['last_check']);
+    // Filter out items checked recently (age < 1 day)
+    if ($lastChecked !== false) {
+      $ageInDays = round((time() - $lastChecked) / 86400);
+      if ($ageInDays < 1) {
+        _log_shared($hashFilename, '  -> Skipped (checked recently)');
+        continue;
+      }
+    }
+
+    // Categorize by status
     if ($item['status'] === 'active') {
       $activeItems[] = $item;
     } else {
@@ -161,27 +172,15 @@ while (true) {
   gc_collect_cycles();
 
   foreach ($prioritizedItems as $item) {
-    $lastChecked = strtotime($item['last_check']);
-    if ($lastChecked === false) {
-      continue;
-    }
-
     // Check execution time limit per item
     if (!$isAdmin && $isExecutionTimeLimit()) {
       break 2;
     }
 
-    $ageInDays = round((time() - $lastChecked) / 86400);
-
     $proxyPart = AnsiColors::colorize(['cyan'], $item['proxy']);
     $daysPart  = AnsiColors::colorize(['magenta', 'bold'], (string)$ageInDays);
     $message   = 'Checking ' . $proxyPart . ' last checked ' . $daysPart . ' days ago';
     _log_shared($hashFilename, $message);
-
-    if ($ageInDays < 7) {
-      _log_shared($hashFilename, '  -> Skipped (checked recently)');
-      continue;
-    }
 
     $isPortOpen = isPortOpen($item['proxy'], 30);
     if (!$isPortOpen) {
