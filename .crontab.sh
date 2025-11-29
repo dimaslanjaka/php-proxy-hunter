@@ -135,7 +135,7 @@ if should_run_job "tmp/crontab/30-m" 0.5; then
     # r_cmd "python" "proxyCheckerReal.py" "--max=50"
     log_command "tmp/logs/crontab/proxy-collector.log" php artisan/proxyCollector.php || true
     log_command "tmp/logs/crontab/proxy-collector2.log" php artisan/proxyCollector2.php || true
-    log_command "tmp/logs/crontab/check-old-proxies.log" php php_backend/check-old-proxies.php --max=200 --admin=true --delete=true
+    log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php --max=200 --admin=true --delete=true
 else
     echo "Skipping 30 minutes job."
 fi
