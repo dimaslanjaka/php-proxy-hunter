@@ -365,15 +365,65 @@ function ProxyList() {
     if (!userId) return;
     if (candidatesToUpdate.length === 0) return;
 
-    for (const p of candidatesToUpdate) {
-      add_ajax_schedule(createUrl('/geoIpBackground.php'), {
-        method: 'POST_FORM',
-        data: { uid: userId, proxy: p.proxy }
-      });
-    }
+    // Collect all candidates with credentials in IP:PORT@USER:PASS format
+    const proxyData = candidatesToUpdate.map((p) => {
+      let proxyStr = p.proxy || '';
+      // Add credentials only if both username and password exist and are not "-"
+      if (p.username && p.password && p.username !== '-' && p.password !== '-') {
+        proxyStr = `${proxyStr}@${p.username}:${p.password}`;
+      }
+      return proxyStr;
+    });
+    add_ajax_schedule(createUrl('/geoIpBackground.php'), {
+      method: 'POST_JSON',
+      data: { uid: userId, proxy: JSON.stringify(proxyData) }
+    });
 
     run_ajax_schedule();
   }, [userId, candidatesToUpdate]);
+
+  // Enqueue proxies with missing latency to the local AJAX scheduler
+  const candidatesLatencyUpdate = React.useMemo(() => {
+    if (!proxies || proxies.length === 0) return [];
+
+    return (
+      proxies
+        .filter((p) => {
+          const latency = p.latency;
+          return (
+            !latency ||
+            String(latency).trim() === '' ||
+            String(latency) === '0' ||
+            String(latency) === 'N/A' ||
+            String(latency) === '-'
+          );
+        })
+        // randomize but avoid expensive sort; pick 5 random indices
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 5)
+    );
+  }, [proxies]);
+
+  React.useEffect(() => {
+    if (!userId) return;
+    if (candidatesLatencyUpdate.length === 0) return;
+
+    // Collect all candidates with credentials in IP:PORT@USER:PASS format
+    const proxyData = candidatesLatencyUpdate.map((p) => {
+      let proxyStr = p.proxy || '';
+      // Add credentials only if both username and password exist and are not "-"
+      if (p.username && p.password && p.username !== '-' && p.password !== '-') {
+        proxyStr = `${proxyStr}@${p.username}:${p.password}`;
+      }
+      return proxyStr;
+    });
+    add_ajax_schedule(createUrl('/php_backend/check-latency-proxy.php'), {
+      method: 'POST_JSON',
+      data: { uid: userId, proxy: JSON.stringify(proxyData) }
+    });
+
+    run_ajax_schedule();
+  }, [userId, candidatesLatencyUpdate]);
 
   return (
     <div className="relative min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
