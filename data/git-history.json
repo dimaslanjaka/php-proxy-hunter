@@ -1,5 +1,22 @@
 [
   {
+    "hash": "d2a1d2cc961f0921e1eb18853c7579142d791350",
+    "date": "2025-11-29T19:52:37+07:00",
+    "message": "feat: add sitemap.xml to .gitignore",
+    "files": [
+      ".gitignore"
+    ]
+  },
+  {
+    "hash": "5fb1b63786b205618c6bd455037aec07715fff1c",
+    "date": "2025-11-29T19:52:07+07:00",
+    "message": "feat(vite): add manual HMR trigger and optimize file watching\n\n- Added `manualHmrPlugin` with `/api/trigger-hmr` endpoint for programmatic HMR\n- Limited Vite watcher to relevant TSX-related files\n- Ignored unrelated file types (JS/TS variants, text, Python, PHP)\n- Excluded `packages` directory from watching\n- Reduced watch scope to improve dev server performance",
+    "files": [
+      "vite-plugin.js",
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "79151c1ceb7a7d27a97d975eb3c606609b77e854",
     "date": "2025-11-29T17:37:50+07:00",
     "message": "feat: upload generated sitemaps during VPS deployment\n\n- Add sitemap.txt and sitemap.xml upload to UI-only deploy flow\n- Add sitemap.txt and sitemap.xml upload to full deploy flow\n- Include error handling with graceful fallback if sitemaps are missing\n- Upload sitemaps from .deploy_git directory to remote server root",
@@ -8651,22 +8668,6 @@
     "message": "refactor(Changelog): replace oboe streaming with native fetch for git-history.json\n\n- Removed usage of streamJsonFromUrl and oboe.js for streaming JSON.\n- Switched to native fetch with cache-busting and no-cache headers to always retrieve the latest git-history.json.\n- Added a refresh button to manually reload the changelog data.\n- Improved refresh logic by introducing a refreshKey state and resetting pagination on refresh.\n- Cleaned up legacy promise and streaming logic for clarity and reliability.",
     "files": [
       "src/react/pages/Changelog.tsx"
-    ]
-  },
-  {
-    "hash": "a2cac1f3d16de8ad3e27aa014dcb06e8c4542fba",
-    "date": "2025-09-06T16:49:46+07:00",
-    "message": "refactor(json): add no-cache headers to oboe request options",
-    "files": [
-      "src/react/utils/json.ts"
-    ]
-  },
-  {
-    "hash": "6971ba6731a782cab8f36d37c384f624583665af",
-    "date": "2025-09-06T16:29:27+07:00",
-    "message": "chore(post-commit): add commit history builder execution to post-commit hook",
-    "files": [
-      ".husky/post-commit"
     ]
   }
 ]
