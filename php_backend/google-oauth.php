@@ -7,7 +7,7 @@ header('Content-Type: application/json; charset=utf-8');
 PhpProxyHunter\Server::allowCors(true);
 
 // === Configuration ===
-$host            = $_SERVER['HTTP_HOST'];
+$host            = $_SERVER['HTTP_HOST'] ?? 'www.webmanajemen.com';
 $protocol        = 'https://';
 $request         = parsePostData(true);
 $redirectUri     = !empty($request['redirect_uri']) ? $request['redirect_uri'] : "{$protocol}{$host}/login";
