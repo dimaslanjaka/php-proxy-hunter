@@ -17,14 +17,14 @@ createParentFolders($credentialsPath);
 
 // Validate redirect URI
 if (!filter_var($redirectUri, FILTER_VALIDATE_URL)) {
-  jsonResponse(['error' => 'Invalid redirect URI'], 400);
+  respond_json(['error' => 'Invalid redirect URI'], 400);
 }
 
 $client = createGoogleClient($redirectUri);
 
 // === Handle Google Auth URL Request ===
 if (!empty($request['google-auth-uri'])) {
-  jsonResponse([
+  respond_json([
     'auth_uri'     => $client->createAuthUrl(),
     'redirect_uri' => $redirectUri,
   ]);
@@ -46,20 +46,20 @@ if (!empty($request['google-oauth-callback'])) {
       if ($email) {
         finalizeUserSession($email, $user_db);
         // create or update user
-        jsonResponse([
+        respond_json([
           'success' => true,
           'message' => 'Login successful',
           'email'   => $email,
         ]);
       } else {
-        jsonResponse(['error' => 'Unable to get user email from Google'], 400);
+        respond_json(['error' => 'Unable to get user email from Google'], 400);
       }
     } catch (\Google\Service\Exception $e) {
-      jsonResponse(['error' => $e->getMessage()], 400);
+      respond_json(['error' => $e->getMessage()], 400);
     }
   }
 
-  jsonResponse(['error' => 'Failed to fetch access token'], 400);
+  respond_json(['error' => 'Failed to fetch access token'], 400);
 }
 
 // === Initialize result ===
@@ -91,7 +91,7 @@ if ($client->getAccessToken()) {
   }
 }
 
-jsonResponse($result);
+respond_json($result);
 
 
 // === Utility Functions ===
@@ -190,18 +190,4 @@ function finalizeUserSession($email, $user_db) {
       ['email' => $email, 'oauth' => 'google']
     );
   }
-}
-
-/**
- * Send JSON response and exit.
- *
- * @param array $data
- * @param int $status
- * @return void
- */
-function jsonResponse(array $data, $status = 200) {
-  http_response_code($status);
-  header('Content-Type: application/json');
-  echo json_encode($data);
-  exit;
 }
