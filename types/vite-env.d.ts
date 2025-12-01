@@ -8,6 +8,8 @@ interface ImportMetaEnv {
   readonly VITE_BACKEND_HOSTNAME_PROD?: string;
   readonly VITE_G_RECAPTCHA_SITE_KEY?: string;
   readonly VITE_G_RECAPTCHA_V2_SITE_KEY?: string;
+  readonly VITE_FACEBOOK_APP_ID?: string;
+  readonly VITE_FACEBOOK_APP_SECRET?: string;
   readonly DEV?: boolean;
   readonly BASE_URL?: string;
 }

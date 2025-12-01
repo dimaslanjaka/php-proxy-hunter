@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { createUrl } from '../utils/url';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import FacebookLogin from 'react-facebook-login';
 
 const Login = () => {
   const { t } = useTranslation();
@@ -72,6 +73,21 @@ const Login = () => {
     }
   };
 
+  const componentClicked = () => {
+    console.log('Facebook button clicked');
+  };
+
+  const responseFacebook = (response: any) => {
+    console.log('Facebook response:', response);
+    // Example: if response contains an access token or id, proceed to backend auth
+    if (response?.accessToken || response?.id) {
+      // You can send `response` to your backend to create/login the user
+      // axios.post(createUrl('/php_backend/facebook-login.php'), { response })
+      //   .then(() => navigate('/dashboard'))
+      //   .catch((e) => setError('Facebook login failed'));
+    }
+  };
+
   return (
     <>
       <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
@@ -128,6 +144,29 @@ const Login = () => {
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring mb-4">
             Login
           </button>
+          <div style={{ marginTop: '8px' }}>
+            {import.meta.env.VITE_FACEBOOK_APP_ID ? (
+              <FacebookLogin
+                appId={import.meta.env.VITE_FACEBOOK_APP_ID}
+                autoLoad={false}
+                fields="name"
+                onClick={componentClicked}
+                callback={responseFacebook}
+                cssClass="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring"
+                icon="fa-facebook"
+                textButton="&nbsp;Login with Facebook"
+              />
+            ) : (
+              <button
+                type="button"
+                disabled
+                title="Facebook App ID not configured"
+                className="w-full flex items-center justify-center bg-gray-300 text-gray-600 font-semibold py-2 px-4 rounded">
+                <span className="w-5 h-5 mr-2 fa-brands fa-facebook" style={{ fontSize: '1.25rem' }}></span>
+                Facebook login (disabled)
+              </button>
+            )}
+          </div>
           <button
             id="google-login-button"
             disabled={!googleAuthUrl}
