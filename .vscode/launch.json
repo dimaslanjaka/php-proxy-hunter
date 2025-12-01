@@ -2,6 +2,22 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Run Proxy Checker GUI",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/python_app/proxyCheckerGui.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Run Port Finder GUI",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/python_app/PortFinderGui.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
       "command": "python main.py",
       "name": "app",
       "request": "launch",
