@@ -18,7 +18,9 @@ from PySide6.QtWidgets import (
     QLabel,
     QHBoxLayout,
     QSpinBox,
+    QLineEdit,
     QCheckBox,
+    QTabWidget,
 )
 from PySide6.QtCore import Qt, Signal
 from datetime import datetime, timedelta, timezone
@@ -66,24 +68,50 @@ class PortFinder(QWidget):
         # Auto-save on change
         self.proxy_text.textChanged.connect(self._autosave_text)
 
-        # Port range inputs
-        hbox = QHBoxLayout()
-        hbox.addWidget(QLabel("Port from:"))
+        # Port input mode: tabs for Range vs Custom
+        self.tab_widget = QTabWidget()
+
+        # Range tab
+        range_tab = QWidget()
+        range_layout = QHBoxLayout()
+        range_layout.addWidget(QLabel("Port from:"))
         self.port_from = QSpinBox()
         self.port_from.setRange(1, 65535)
         self.port_from.setValue(80)
-        hbox.addWidget(self.port_from)
+        range_layout.addWidget(self.port_from)
 
-        hbox.addWidget(QLabel("to:"))
+        range_layout.addWidget(QLabel("to:"))
         self.port_to = QSpinBox()
         self.port_to.setRange(1, 65535)
         self.port_to.setValue(65535)
-        hbox.addWidget(self.port_to)
+        range_layout.addWidget(self.port_to)
+        range_tab.setLayout(range_layout)
 
-        # Restore saved port values
-        saved_from = load_text("portfinder_from")
-        saved_to = load_text("portfinder_to")
+        # Custom tab
+        custom_tab = QWidget()
+        custom_layout = QHBoxLayout()
+        self.custom_ports = QLineEdit()
+        self.custom_ports.setPlaceholderText("Custom ports (e.g. 80,443,8000-8100)")
+        # Restore saved custom ports
         try:
+            saved_custom = load_text("portfinder_custom_ports")
+            if saved_custom:
+                self.custom_ports.setText(saved_custom)
+        except Exception:
+            pass
+        self.custom_ports.textChanged.connect(
+            lambda v: save_text("portfinder_custom_ports", v)
+        )
+        custom_layout.addWidget(self.custom_ports)
+        custom_tab.setLayout(custom_layout)
+
+        self.tab_widget.addTab(range_tab, "Range")
+        self.tab_widget.addTab(custom_tab, "Custom")
+
+        # Restore saved port values for Range tab
+        try:
+            saved_from = load_text("portfinder_from")
+            saved_to = load_text("portfinder_to")
             if saved_from:
                 self.port_from.setValue(int(saved_from))
             if saved_to:
@@ -97,7 +125,24 @@ class PortFinder(QWidget):
         )
         self.port_to.valueChanged.connect(lambda v: save_text("portfinder_to", str(v)))
 
-        layout.addLayout(hbox)
+        # Restore saved tab selection
+        try:
+            saved_tab = load_text("portfinder_port_mode")
+            if saved_tab is not None:
+                idx = int(saved_tab)
+                if 0 <= idx < self.tab_widget.count():
+                    self.tab_widget.setCurrentIndex(idx)
+        except Exception:
+            pass
+
+        def _on_tab_changed(i):
+            try:
+                save_text("portfinder_port_mode", str(i))
+            except Exception:
+                pass
+
+        self.tab_widget.currentChanged.connect(_on_tab_changed)
+        layout.addWidget(self.tab_widget)
 
         self.check_button = QPushButton("Scan Ports")
         self.check_button.clicked.connect(self.run_scan)
@@ -192,27 +237,53 @@ class PortFinder(QWidget):
         port_from = int(self.port_from.value())
         port_to = int(self.port_to.value())
 
-        # Setup progress tracking
-        self._total_tasks = len(ips) * (port_to - port_from + 1)
-        # progress bar removed; use textual status only
-        self._completed = 0
-        self._open_count = 0
-        # start time for ETA
-        try:
-            self._start_time = datetime.now(timezone.utc)
-        except Exception:
-            self._start_time = None
-        # Inform user about prepared scan
-        try:
-            self.status_signal.emit(
-                f"Preparing scan: {len(ips)} IP(s), ports {port_from}-{port_to} -> total {self._total_tasks} tasks"
-            )
-        except Exception:
-            pass
+        # Determine ports to scan. If custom ports input is provided, parse it
+        # (supports comma-separated values and ranges like 8000-8100). Otherwise
+        # use the spinbox range.
+        custom_spec = (
+            self.custom_ports.text().strip() if hasattr(self, "custom_ports") else ""
+        )
+        ports_list = []
+        if custom_spec:
+            try:
+                parts = [p.strip() for p in custom_spec.split(",") if p.strip()]
+                seen = set()
+                for part in parts:
+                    if "-" in part:
+                        a, b = (x.strip() for x in part.split("-", 1))
+                        try:
+                            a_i = int(a)
+                            b_i = int(b)
+                        except Exception:
+                            continue
+                        if a_i > b_i:
+                            a_i, b_i = b_i, a_i
+                        for port in range(max(1, a_i), min(65535, b_i) + 1):
+                            if port not in seen:
+                                seen.add(port)
+                                ports_list.append(port)
+                    else:
+                        try:
+                            p_i = int(part)
+                        except Exception:
+                            continue
+                        if 1 <= p_i <= 65535 and p_i not in seen:
+                            seen.add(p_i)
+                            ports_list.append(p_i)
+            except Exception:
+                ports_list = []
+        if not ports_list:
+            ports_list = list(range(port_from, port_to + 1))
+
+        self.status_signal.emit(
+            f"Preparing scan: {len(ips)} IP(s), ports {port_from}-{port_to} -> total {self._total_tasks} tasks"
+        )
 
         # Run background scanning
         threading.Thread(
-            target=self._scan_background, args=(ips, port_from, port_to), daemon=True
+            target=self._scan_background,
+            args=(ips, ports_list, port_from, port_to),
+            daemon=True,
         ).start()
         # enable abort button
         try:
@@ -220,7 +291,7 @@ class PortFinder(QWidget):
         except Exception:
             pass
 
-    def _scan_background(self, ips, port_from, port_to):
+    def _scan_background(self, ips, ports_list, port_from, port_to):
         # Cooperative cancellation: create an event and track futures/executor
         try:
             self._cancel_event = threading.Event()
@@ -248,7 +319,7 @@ class PortFinder(QWidget):
             for ip in ips:
                 if self._cancel_event.is_set():
                     break
-                for port in range(port_from, port_to + 1):
+                for port in ports_list:
                     if self._cancel_event.is_set():
                         break
                     addr = f"{ip}:{port}"
