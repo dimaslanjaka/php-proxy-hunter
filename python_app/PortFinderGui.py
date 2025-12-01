@@ -26,9 +26,9 @@ from PySide6.QtGui import QBrush, QColor, QIcon
 
 from src.pyside6.utils.settings import save_text, load_text
 from src.func import get_nuitka_file
-from proxy_hunter import extract_proxies, is_port_open
+from proxy_hunter import is_port_open, extract_ips
 import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 
 class PortFinder(QWidget):
@@ -167,27 +167,14 @@ class PortFinder(QWidget):
         save_text("portfinder_to", str(self.port_to.value()))
 
         text = self.proxy_text.toPlainText()
-        proxies = extract_proxies(text)
 
-        # Derive unique IPs from proxies
-        ips = []
-        for p in proxies:
-            try:
-                ip = p.proxy.split(":")[0]
-            except Exception:
-                continue
-            if ip not in ips:
-                ips.append(ip)
-
-        # If no proxies found, try to extract bare IPs using extractor helper (fallback)
-        if not ips:
-            # attempt to find IPs by simple regex from extractor module
-            try:
-                from proxy_hunter.extractor import extract_ips
-
-                ips = extract_ips(text)
-            except Exception:
-                ips = []
+        # Use extract_ips to find all unique IP addresses in the input text.
+        # This replaces the previous flow that parsed Proxy objects then
+        # extracted IPs; `extract_ips` returns a list of unique IP strings.
+        try:
+            ips = extract_ips(text)
+        except Exception:
+            ips = []
 
         # Clear table
         self.result_table.setRowCount(0)
