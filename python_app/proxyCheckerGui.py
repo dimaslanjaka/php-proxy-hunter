@@ -25,6 +25,7 @@ from PySide6.QtCore import Qt, Signal
 from src.pyside6.utils.settings import save_text, load_text
 from PySide6.QtGui import QIcon, QColor, QBrush
 from proxy_hunter import build_request, extract_proxies, Proxy
+from src.geoPlugin import get_geo_ip2
 import traceback
 
 
@@ -132,6 +133,25 @@ class ProxyChecker(QWidget):
                 except Exception as e:
                     print(f"Error updating status for proxy {data.proxy}: {e}")
                     traceback.print_exc()
+                # If country is missing or placeholder, attempt geolocation lookup.
+                try:
+                    current_country = getattr(data, "country", None)
+                    if not current_country or current_country in ("-", ""):
+                        proxy_username = getattr(data, "username", None)
+                        proxy_password = getattr(data, "password", None)
+                        geo = get_geo_ip2(data.proxy, proxy_username, proxy_password)
+                        if geo:
+                            # Only set fields the UI already expects (`country` and `city`).
+                            # Avoid assigning numeric fields or new unknown attributes
+                            # to the `Proxy` object to keep static type checkers happy.
+                            data.country = geo.country_name or getattr(
+                                data, "country", None
+                            )
+                            data.city = geo.city or getattr(data, "city", None)
+                except Exception as e:
+                    print(f"Geo lookup failed for {data.proxy}: {e}")
+                    traceback.print_exc()
+
                 return data
         except Exception as e:
             print(f"Error checking proxy {data.proxy}: {e}")
