@@ -60,7 +60,7 @@ jobs:
 
       # Checkout project and data repositories
       - name: Checkout Main Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: dimaslanjaka/php-proxy-hunter
           ref: master
@@ -68,7 +68,7 @@ jobs:
           lfs: true
 
       - name: Checkout Data Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: dimaslanjaka/data
           path: public
