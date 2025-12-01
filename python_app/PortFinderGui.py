@@ -7,30 +7,31 @@ _REPO_ROOT = str(Path(__file__).resolve().parent.parent)
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QVBoxLayout,
-    QPushButton,
-    QTextEdit,
-    QTableWidget,
-    QTableWidgetItem,
-    QLabel,
-    QHBoxLayout,
-    QSpinBox,
-    QLineEdit,
-    QCheckBox,
-    QTabWidget,
-)
-from PySide6.QtCore import Qt, Signal
-from datetime import datetime, timedelta, timezone
-from PySide6.QtGui import QBrush, QColor, QIcon
-
-from src.pyside6.utils.settings import save_text, load_text
-from src.func import get_nuitka_file
-from proxy_hunter import is_port_open, extract_ips
 import threading
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta, timezone
+
+from proxy_hunter import extract_ips, is_port_open
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QBrush, QColor, QIcon
+from PySide6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QSpinBox,
+    QTableWidget,
+    QTableWidgetItem,
+    QTabWidget,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
+
+from src.func import get_nuitka_file
+from src.pyside6.utils.settings import load_text, save_text
 
 
 class PortFinder(QWidget):
@@ -50,6 +51,12 @@ class PortFinder(QWidget):
         self.setMinimumSize(500, 400)
 
         layout = QVBoxLayout()
+        # Reduce outer margins/spacing so top/bottom padding isn't excessive when maximized
+        try:
+            layout.setContentsMargins(6, 6, 6, 6)
+            layout.setSpacing(6)
+        except Exception:
+            pass
 
         self.input_label = QLabel("Enter proxies/text (IPs or ip:port, one per line):")
         layout.addWidget(self.input_label)
@@ -74,6 +81,13 @@ class PortFinder(QWidget):
         # Range tab
         range_tab = QWidget()
         range_layout = QHBoxLayout()
+        # Keep inner layout compact vertically and add horizontal padding
+        try:
+            # left, top, right, bottom
+            range_layout.setContentsMargins(8, 2, 8, 2)
+            range_layout.setSpacing(6)
+        except Exception:
+            pass
         range_layout.addWidget(QLabel("Port from:"))
         self.port_from = QSpinBox()
         self.port_from.setRange(1, 65535)
@@ -90,6 +104,13 @@ class PortFinder(QWidget):
         # Custom tab
         custom_tab = QWidget()
         custom_layout = QHBoxLayout()
+        # Keep inner layout compact vertically and add horizontal padding
+        try:
+            # left, top, right, bottom
+            custom_layout.setContentsMargins(8, 2, 8, 2)
+            custom_layout.setSpacing(6)
+        except Exception:
+            pass
         self.custom_ports = QLineEdit()
         self.custom_ports.setPlaceholderText("Custom ports (e.g. 80,443,8000-8100)")
         # Restore saved custom ports
@@ -107,6 +128,11 @@ class PortFinder(QWidget):
 
         self.tab_widget.addTab(range_tab, "Range")
         self.tab_widget.addTab(custom_tab, "Custom")
+        # Limit tab widget height so its contents remain compact when window is maximized
+        try:
+            self.tab_widget.setMaximumHeight(80)
+        except Exception:
+            pass
 
         # Restore saved port values for Range tab
         try:
