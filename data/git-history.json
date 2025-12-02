@@ -1,5 +1,111 @@
 [
   {
+    "hash": "cd0fc5495288015b2f7f3a52e99d3f4ea694cb9d",
+    "date": "2025-12-02T07:23:02+07:00",
+    "message": "feat(PortFinderGui): integrate ProxyDB for persistent open port storage\n\n- Import ProxyDB and get_relative_path from src modules\n- Initialize shared ProxyDB instance with thread-safe lock in PortFinder.__init__\n- Store discovered open ports in DB with status \"port-open\" during scanning\n- Add thread-safe DB writes in _add_result when ports are detected as open\n- Check existing port entries to avoid duplicate status updates\n- Implement closeEvent to properly close DB connection on window exit\n- Include comprehensive error handling for DB operations in worker threads",
+    "files": [
+      "python_app/PortFinderGui.py"
+    ]
+  },
+  {
+    "hash": "a41e998d6cad57617b5f63002a9c60d3148d0258",
+    "date": "2025-12-02T07:19:58+07:00",
+    "message": "refactor(proxydb): rename `type_` to `proxy_type` and add kwargs support for type fields\n\n- Replace `type_` parameter with `proxy_type`\n- Add `**kwargs` handling for `type` and `type_` keys\n- Preserve backward compatibility for alternate type arguments",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "652b5bd98e972f9599ba1fbdc8d60ef5d673e286",
+    "date": "2025-12-02T06:12:06+07:00",
+    "message": "fix(portfinder): tighten tab layout spacing and cap tab height\n\n- Reduce outer `QVBoxLayout` margins/spacing to remove excessive top/bottom whitespace when window is maximized.\n- Add horizontal padding to Range and Custom tab layouts (`setContentsMargins(8,2,8,2)`) so controls do not sit against the tab border.\n- Limit the tab widget height (`setMaximumHeight(80)`) to keep the tab area compact on large windows.\n- Small defensiveness: wrap layout adjustments in try/except to avoid crashes on environments with differing Qt behavior.\n- Reorganize and add imports (threading, ThreadPoolExecutor, datetime, proxy_hunter imports and reordering of PySide6 imports) for clarity and to support background scanning code.",
+    "files": [
+      "python_app/PortFinderGui.py"
+    ]
+  },
+  {
+    "hash": "da6fb0086ae2090bd213e0d97362a9f7ca06becf",
+    "date": "2025-12-02T06:03:11+07:00",
+    "message": "feat(portfinder): add Range/Custom tab input and custom port parsing\n\n- Add `QTabWidget` with two tabs: `Range` (port_from / port_to spinboxes) and\n  `Custom` (single-line `custom_ports` input).\n- Persist and restore UI state: `portfinder_port_mode`, `portfinder_from`,\n  `portfinder_to`, and `portfinder_custom_ports`.\n- Implement custom ports parsing (comma-separated values and ranges like\n  `8000-8100`) to build a `ports_list`.\n- Pass `ports_list` into `_scan_background` and iterate over `ports_list`\n  instead of a spinbox-only range.\n- Restore autosave behavior for range spinboxes and improve status emission.\n\nBREAKING CHANGE: `_scan_background` signature changed to\n`(ips, ports_list, port_from, port_to)`.",
+    "files": [
+      "python_app/PortFinderGui.py"
+    ]
+  },
+  {
+    "hash": "29c4f14fd1f10581220fe8cd0218be6a1c01fca7",
+    "date": "2025-12-02T05:42:07+07:00",
+    "message": "refactor(portfinder): use extractor.extract_ips for direct IP parsing\n\n- import `extract_ips` and remove unused `extract_proxies` and `as_completed`\n- replace Proxy-object parsing with a direct `extract_ips(text)` call to obtain unique IPs\n- simplify input handling and reduce reliance on Proxy parsing logic; keep behavior on parse errors",
+    "files": [
+      "python_app/PortFinderGui.py"
+    ]
+  },
+  {
+    "hash": "7633529a0c320fa5567d325fb342dd9712840dd1",
+    "date": "2025-12-02T05:39:43+07:00",
+    "message": "feat(portfinder): add abort control, \"show only open\" option, and textual progress\n\n- add `QCheckBox` to toggle \"Show only open ports\" and persist state under\n  `portfinder_only_open`\n- replace numeric progress bar with a textual `progress_label`; add\n  `status_signal` and ETA/elapsed calculations using timezone-aware datetimes\n- implement cooperative cancellation:\n  - add `Abort` button (inline with Scan), `threading.Event` cancel token,\n    track `ThreadPoolExecutor` and `Future` list, attempt to cancel pending\n    futures on abort, skip processing callbacks when cancelled\n- change task submission to use per-task done callbacks (attach `add_done_callback`)\n  instead of collecting large futures dict + `as_completed` loop to reduce\n  memory/CPU pressure and avoid UI freezes\n- throttle UI status updates (update textual status every N results) to reduce\n  main-thread load\n- reset/track progress counters (`_total_tasks`, `_completed`, `_open_count`,\n  `_start_time`) and emit informative status messages while generating tasks\n  and during scanning\n- only insert rows into the result table when allowed by the \"only open\"\n  filter; always update progress counters so status remains accurate\n- keep autosave/restore behavior for inputs; set buttons inline layout\n\nNo API breaking changes; improves responsiveness and adds manual abort support.",
+    "files": [
+      "python_app/PortFinderGui.py"
+    ]
+  },
+  {
+    "hash": "f2811e32bb6327d18cbccb4c8710fa1b13c1eb5d",
+    "date": "2025-12-02T05:20:22+07:00",
+    "message": "feat(launch): add configurations for Proxy Checker and Port Finder GUIs",
+    "files": [
+      ".vscode/launch.json"
+    ]
+  },
+  {
+    "hash": "9d1e0743acb51bf75328cecb5521334b086e3cad",
+    "date": "2025-12-02T05:19:13+07:00",
+    "message": "feat(PortFinder): implement port scanning GUI",
+    "files": [
+      "python_app/PortFinderGui.py"
+    ]
+  },
+  {
+    "hash": "82bd9fcdba1c6734ffcbbfa73db5f9a7437c6146",
+    "date": "2025-12-02T05:06:33+07:00",
+    "message": "feat(proxy-checker): geolocate active proxies missing country\n\nImport `get_geo_ip2` from `src.geoPlugin` and call it when a proxy is marked\n`active` and its `country` field is empty or `\"-\"`. Map the returned\n`GeoIpResult` into the `Proxy` object only for the UI-expected fields\n(`country`, `city`) to avoid assigning numeric/unknown attributes (e.g.\nlatitude/longitude) that trigger static type checker warnings. Exceptions\nduring geo lookup are caught and logged.",
+    "files": [
+      "python_app/proxyCheckerGui.py"
+    ]
+  },
+  {
+    "hash": "b545135cf4ddef5c34edbd9675cc060d80dc625a",
+    "date": "2025-12-01T11:12:52+07:00",
+    "message": "feat(login): add Facebook login support\n\n- Add `react-facebook-login` and `@types/react-facebook-login` to `package.json`.\n- Integrate `FacebookLogin` component into `src/react/pages/Login.tsx`.\n  - Add `componentClicked` and `responseFacebook` handlers.\n  - Render Facebook login button when `import.meta.env.VITE_FACEBOOK_APP_ID` is set; show disabled fallback otherwise.\n  - Leave backend exchange as a commented placeholder (send response to `/php_backend/facebook-login.php`).\n- Expose `VITE_FACEBOOK_APP_ID` and `VITE_FACEBOOK_APP_SECRET` in `types/vite-env.d.ts`.\n\nNotes:\n- Set `VITE_FACEBOOK_APP_ID` in your `.env` (and restart Vite) to enable the button.",
+    "files": [
+      "package.json",
+      "src/react/pages/Login.tsx",
+      "types/vite-env.d.ts"
+    ]
+  },
+  {
+    "hash": "a4f826aad973eff078bf577d753a035dda0199f4",
+    "date": "2025-11-30T10:50:47+07:00",
+    "message": "feat: enable terminal shell integration and adjust suggestion settings",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "7c3b6afd5edb26b6b91ee5aeb048bb4ad545467c",
+    "date": "2025-11-30T10:19:08+07:00",
+    "message": "fix: ensure default host value is set correctly in google-oauth.php",
+    "files": [
+      "php_backend/google-oauth.php"
+    ]
+  },
+  {
+    "hash": "360ca601b01f8150441c4b6fe06a2a352a65ebeb",
+    "date": "2025-11-30T10:18:14+07:00",
+    "message": "refactor: replace jsonResponse with respond_json for consistency",
+    "files": [
+      "php_backend/google-oauth.php"
+    ]
+  },
+  {
     "hash": "d2a1d2cc961f0921e1eb18853c7579142d791350",
     "date": "2025-11-29T19:52:37+07:00",
     "message": "feat: add sitemap.xml to .gitignore",
@@ -8557,117 +8663,6 @@
     "message": "refactor(ProxyDB): optimize constructor to support helper instances and improve readability\n\n- Allow $dbLocation parameter to accept SQLiteHelper or MySQLHelper instances directly\n- Simplify database path normalization and in-memory detection\n- Replace die() with RuntimeException when directory creation fails\n- Streamline schema loading with clearer variable names\n- Add inline comments for clarity and maintain existing WAL and auto-vacuum setup\n- Keep daily vacuum maintenance call intact",
     "files": [
       "src/PhpProxyHunter/ProxyDB.php"
-    ]
-  },
-  {
-    "hash": "f84d84f45823ab34be540f008b68b29b4e9ba065",
-    "date": "2025-09-07T15:46:56+07:00",
-    "message": "refactor(proxydb): make ProxyDB compatible with PHP 7 by removing nullable and strict type hints",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php"
-    ]
-  },
-  {
-    "hash": "596e75d3f0b133893b6c0525d567fd77c16540c5",
-    "date": "2025-09-07T15:46:21+07:00",
-    "message": "fix(phpcs): disable inline control structure rule with severity 0",
-    "files": [
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "7bc2cc6efa4ad97c814b81fec77b24b62a885a48",
-    "date": "2025-09-07T15:41:07+07:00",
-    "message": "refactor(shared): unify database initialization and dotenv loading\n\n- Added dotenv loading to shared.php for consistent environment setup\n- Replaced direct UserDB instantiation with $core_db->user_db\n- Updated CoreDB initialization to use environment variables and sqlite path",
-    "files": [
-      "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "9a26b3098eb0589288f7fbe8af79b00b647b5413",
-    "date": "2025-09-07T15:33:34+07:00",
-    "message": "refactor(google-oauth): make PHP 7 compatible and improve phpdoc\n\n- Replaced null coalescing operators with isset checks\n- Removed scalar and return type hints for PHP 7 compatibility\n- Added detailed phpdoc blocks for utility functions:\n  - createGoogleClient\n  - refreshAccessTokenIfNeeded\n  - finalizeUserSession\n  - jsonResponse",
-    "files": [
-      "php_backend/google-oauth.php"
-    ]
-  },
-  {
-    "hash": "c6a406c3d4e339bdfa0b693692d936d7c7bf77e0",
-    "date": "2025-09-07T15:32:00+07:00",
-    "message": "refactor(php_backend): centralize DB initialization in shared.php\n\n- Added new `shared.php` to manage common DB connections (`UserDB`, `ProxyDB`, `CoreDB`)\n- Replaced direct `UserDB` and `ProxyDB` instantiations with shared variables\n- Updated `check-https-proxy.php`, `google-oauth.php`, `list-user.php`, `login.php`, `refill-saldo.php`, and `user-info.php` to include `shared.php`\n- Improved maintainability by preventing duplicate DB connection code",
-    "files": [
-      "php_backend/check-https-proxy.php",
-      "php_backend/google-oauth.php",
-      "php_backend/list-user.php",
-      "php_backend/login.php",
-      "php_backend/refill-saldo.php",
-      "php_backend/shared.php",
-      "php_backend/user-info.php"
-    ]
-  },
-  {
-    "hash": "27772c578ec3e6b1f7ca87a111d5d3a9969d9f47",
-    "date": "2025-09-07T14:04:00+07:00",
-    "message": "fix(phpcs): disable break indent error in switch-case",
-    "files": [
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "e7c3b00e2bbeaa56a19fa8580323dda27955305d",
-    "date": "2025-09-07T11:58:02+07:00",
-    "message": "refactor(core): allow UserDB to accept existing DB helper instance\n\n- Updated CoreDB to pass an existing SQLiteHelper or MySQLHelper instance to UserDB instead of connection parameters.\n- Modified UserDB constructor to accept a SQLiteHelper or MySQLHelper instance directly, enabling more flexible database management and reducing redundant connections.",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php",
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "48a9a8ecb598e2904fc0dc23dd00296255f23c0c",
-    "date": "2025-09-07T11:53:51+07:00",
-    "message": "refactor(userdb): make class PHP 7 compatible and improve phpdoc\n\n- Removed nullable and typed parameter hints for PHP 7 compatibility\n- Replaced null coalescing operator with isset checks\n- Adjusted return type hints to untyped for PHP 7\n- Added detailed phpdoc for constructor, mysql, sqlite, update, get_saldo, destructor, and close methods\n- Simplified conditions and removed redundant inline comments",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "50c3203320dc3fa03e9d0c94bfbed6682d5f1c2f",
-    "date": "2025-09-06T17:46:29+07:00",
-    "message": "feat(modal): add reusable Modal component for displaying dialogs and confirmations and custom content",
-    "files": [
-      "src/react/components/Modal.tsx"
-    ]
-  },
-  {
-    "hash": "191b0fa967a141ee9375ef1c193aedf8c5e9a678",
-    "date": "2025-09-06T17:05:26+07:00",
-    "message": "refactor(changelog): simplify fetch logic and cache-busting in dev mode\n\n- Consolidate URL creation by using shared params object\n- Add timestamp param only in dev to avoid stale data\n- Use single fetch call with conditional headers\n- Update comments for clarity",
-    "files": [
-      "src/react/pages/Changelog.tsx"
-    ]
-  },
-  {
-    "hash": "1d0bf8961f23011c4b45de63d4ed7d859eb6f847",
-    "date": "2025-09-06T17:02:33+07:00",
-    "message": "fix(Changelog): add timestamp to URL in development to prevent caching issues",
-    "files": [
-      "src/react/pages/Changelog.tsx"
-    ]
-  },
-  {
-    "hash": "fb88fdb5f10d7da182e2575d6e35c9a3e651e7c1",
-    "date": "2025-09-06T16:57:36+07:00",
-    "message": "feat(changelog): show placeholder when no files changed in commit\n\nDisplay a placeholder message \"No files changed in this commit.\" in the changelog UI when a commit has an empty or missing `files` array, improving clarity for users viewing the commit history.",
-    "files": [
-      "src/react/pages/Changelog.tsx"
-    ]
-  },
-  {
-    "hash": "229f3809e329588859f3b0249662377a2edc3b69",
-    "date": "2025-09-06T16:55:56+07:00",
-    "message": "refactor(Changelog): replace oboe streaming with native fetch for git-history.json\n\n- Removed usage of streamJsonFromUrl and oboe.js for streaming JSON.\n- Switched to native fetch with cache-busting and no-cache headers to always retrieve the latest git-history.json.\n- Added a refresh button to manually reload the changelog data.\n- Improved refresh logic by introducing a refreshKey state and resetting pagination on refresh.\n- Cleaned up legacy promise and streaming logic for clarity and reliability.",
-    "files": [
-      "src/react/pages/Changelog.tsx"
     ]
   }
 ]
