@@ -63,6 +63,7 @@ class CheckerWorkerThread(QThread):
                     break
 
                 try:
+                    self.checker.status_signal.emit(f"Checking proxy: {proxy.proxy}")
                     result = self.checker.check_proxy(proxy)
                     self.checker._completed += 1
                     # Emit signal to update UI
