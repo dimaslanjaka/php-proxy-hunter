@@ -30,7 +30,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.func import get_nuitka_file
+from src.func import get_nuitka_file, get_relative_path
+from src.ProxyDB import ProxyDB
 from src.pyside6.utils.settings import load_text, save_text
 
 
@@ -210,6 +211,16 @@ class PortFinder(QWidget):
         layout.addWidget(self.result_table)
 
         self.setLayout(layout)
+
+        # Initialize shared ProxyDB for other components to use.
+        # Keep a lock because scanning runs worker threads which may
+        # update the DB concurrently elsewhere in the app.
+        try:
+            self.db = ProxyDB(get_relative_path(".cache/database.sqlite"), True)
+            self.db_lock = threading.Lock()
+        except Exception:
+            self.db = None
+            self.db_lock = threading.Lock()
 
         # Connect signals
         self.result_signal.connect(self._add_result)
@@ -401,9 +412,32 @@ class PortFinder(QWidget):
         except Exception:
             pass
 
-        # Track open count
+        # Track open count and store in DB if open
         if data.get("open"):
             self._open_count += 1
+            print(f"Open port found: {data.get('ip')}:{data.get('port')}")
+            # Store open port in the DB with thread safety
+            try:
+                if self.db is not None and self.db_lock is not None:
+                    port_entry = f"{data.get('ip')}:{data.get('port')}"
+                    with self.db_lock:
+                        # Add or update the port entry as an active proxy
+                        try:
+                            existing = self.db.select(port_entry)
+                            # check if list is empty
+                            if not existing:
+                                self.db.update_status(port_entry, "port-open")
+                            else:
+                                existing_status = existing[0].get("status", "")
+                                if (
+                                    existing_status != "active"
+                                    and existing_status != "port-open"
+                                ):
+                                    self.db.update_status(port_entry, "port-open")
+                        except Exception as e:
+                            print(f"Error storing open port {port_entry} in DB: {e}")
+            except Exception as e:
+                print(f"Error accessing DB for open port: {e}")
 
         # Decide whether to show this row based on checkbox
         try:
@@ -508,6 +542,23 @@ class PortFinder(QWidget):
         try:
             self.progress_label.setText(text)
         except Exception:
+            pass
+
+    def closeEvent(self, event):
+        # Ensure DB is closed on application exit to flush resources.
+        try:
+            if self.db is not None:
+                with self.db_lock:
+                    try:
+                        self.db.close()
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+        try:
+            super().closeEvent(event)
+        except Exception:
+            # Some embed/run contexts may not expect a super call; ignore errors.
             pass
 
 
