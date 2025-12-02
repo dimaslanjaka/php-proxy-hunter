@@ -15,11 +15,13 @@ from PySide6.QtWidgets import (
     QApplication,
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QPushButton,
     QTextEdit,
     QTableWidget,
     QTableWidgetItem,
     QLabel,
+    QTabWidget,
 )
 from PySide6.QtCore import Qt, Signal
 from src.pyside6.utils.settings import save_text, load_text
@@ -49,14 +51,57 @@ class ProxyChecker(QWidget):
         self.input_label = QLabel("Enter proxies (one per line):")
         layout.addWidget(self.input_label)
 
-        self.proxy_text = QTextEdit()
-        self.proxy_text.setPlaceholderText("Example:\n123.45.67.89:8080\n10.0.0.2:3128")
-        layout.addWidget(self.proxy_text)
+        # Create tab widget with 3 tabs
+        self.tab_widget = QTabWidget()
 
-        # Load saved proxies from previous session (if any)
-        saved = load_text("proxy_text")
+        # Tab 1: Manual Input
+        manual_tab_widget = QWidget()
+        manual_tab_layout = QVBoxLayout()
+        self.tab_manual = QTextEdit()
+        self.tab_manual.setPlaceholderText("Example:\n123.45.67.89:8080\n10.0.0.2:3128")
+        # Load saved proxies from previous session
+        saved = load_text("proxy_text_manual")
         if saved:
-            self.proxy_text.setPlainText(saved)
+            self.tab_manual.setPlainText(saved)
+        manual_tab_layout.addWidget(self.tab_manual)
+        manual_tab_widget.setLayout(manual_tab_layout)
+        self.tab_widget.addTab(manual_tab_widget, "Manual Input")
+
+        # Tab 2: Untested Proxies
+        untested_tab_widget = QWidget()
+        untested_tab_layout = QVBoxLayout()
+        self.tab_untested = QTextEdit()
+        self.tab_untested.setPlaceholderText("Untested proxies will appear here...")
+        saved = load_text("proxy_text_untested")
+        if saved:
+            self.tab_untested.setPlainText(saved)
+        untested_tab_layout.addWidget(self.tab_untested)
+
+        self.fetch_untested_button = QPushButton("Get Untested Proxies")
+        self.fetch_untested_button.clicked.connect(self.fetch_untested_proxies)
+        untested_tab_layout.addWidget(self.fetch_untested_button)
+
+        untested_tab_widget.setLayout(untested_tab_layout)
+        self.tab_widget.addTab(untested_tab_widget, "Untested Proxies")
+
+        # Tab 3: Working Proxies
+        working_tab_widget = QWidget()
+        working_tab_layout = QVBoxLayout()
+        self.tab_working = QTextEdit()
+        self.tab_working.setPlaceholderText("Working proxies will appear here...")
+        saved = load_text("proxy_text_working")
+        if saved:
+            self.tab_working.setPlainText(saved)
+        working_tab_layout.addWidget(self.tab_working)
+
+        self.fetch_working_button = QPushButton("Get Working Proxies")
+        self.fetch_working_button.clicked.connect(self.fetch_working_proxies)
+        working_tab_layout.addWidget(self.fetch_working_button)
+
+        working_tab_widget.setLayout(working_tab_layout)
+        self.tab_widget.addTab(working_tab_widget, "Working Proxies")
+
+        layout.addWidget(self.tab_widget)
 
         self.check_button = QPushButton("Check Proxies")
         self.check_button.clicked.connect(self.run_checker)
@@ -84,6 +129,41 @@ class ProxyChecker(QWidget):
         # Connect background signals to UI slots
         self.result_signal.connect(self.add_result)
         self.finished_signal.connect(self._on_finished)
+
+    # --------------------
+    # Fetch proxies from database
+    # --------------------
+    def fetch_untested_proxies(self):
+        """Fetch untested proxies from database and populate the Untested tab"""
+        try:
+            self.fetch_untested_button.setEnabled(False)
+            proxies = self.db.get_untested_proxies(limit=100)
+            proxy_list = "\n".join(
+                [str(p.get("proxy", "")) for p in proxies if p.get("proxy")]
+            )
+            self.tab_untested.setPlainText(proxy_list)
+            save_text("proxy_text_untested", proxy_list)
+        except Exception as e:
+            print(f"Error fetching untested proxies: {e}")
+            traceback.print_exc()
+        finally:
+            self.fetch_untested_button.setEnabled(True)
+
+    def fetch_working_proxies(self):
+        """Fetch working proxies from database and populate the Working tab"""
+        try:
+            self.fetch_working_button.setEnabled(False)
+            proxies = self.db.get_working_proxies(limit=100)
+            proxy_list = "\n".join(
+                [str(p.get("proxy", "")) for p in proxies if p.get("proxy")]
+            )
+            self.tab_working.setPlainText(proxy_list)
+            save_text("proxy_text_working", proxy_list)
+        except Exception as e:
+            print(f"Error fetching working proxies: {e}")
+            traceback.print_exc()
+        finally:
+            self.fetch_working_button.setEnabled(True)
 
     # --------------------
     # Proxy checker logic
@@ -175,10 +255,25 @@ class ProxyChecker(QWidget):
     # Run checker
     # --------------------
     def run_checker(self):
-        # Save current textarea to persistent settings so it can be restored later
-        save_text("proxy_text", self.proxy_text.toPlainText())
+        # Get the active tab and save its content
+        active_tab_widget = self.tab_widget.currentWidget()
+        active_tab_index = self.tab_widget.currentIndex()
 
-        text = self.proxy_text.toPlainText()
+        # Cast to QTextEdit
+        if not isinstance(active_tab_widget, QTextEdit):
+            return
+
+        active_tab: QTextEdit = active_tab_widget
+
+        # Save current textarea to persistent settings based on active tab
+        if active_tab_index == 0:  # Manual Input
+            save_text("proxy_text_manual", active_tab.toPlainText())
+        elif active_tab_index == 1:  # Untested Proxies
+            save_text("proxy_text_untested", active_tab.toPlainText())
+        elif active_tab_index == 2:  # Working Proxies
+            save_text("proxy_text_working", active_tab.toPlainText())
+
+        text = active_tab.toPlainText()
         # Try to extract proxies using proxy_hunter.extract_proxies.
         # If extraction fails or returns an unexpected type, fall back to simple splitlines parsing.
         proxies = extract_proxies(text)
