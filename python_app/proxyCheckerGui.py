@@ -3,8 +3,8 @@ from pathlib import Path
 import threading
 import time
 import traceback
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import timedelta
+import os
 
 # Ensure repository root (parent of python_app) is on sys.path so repo imports work.
 # Idempotent: only insert if not already present.
@@ -26,11 +26,57 @@ from PySide6.QtWidgets import (
     QLabel,
     QTabWidget,
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QThread
 from PySide6.QtGui import QIcon, QColor, QBrush
 from src.pyside6.utils.settings import save_text, load_text
 from proxy_hunter import build_request, extract_proxies, Proxy
 from src.geoPlugin import get_geo_ip2
+
+
+class CheckerWorkerThread(QThread):
+    """Background worker thread for proxy checking"""
+
+    result_signal = Signal(object)
+    finished_signal = Signal()
+    status_signal = Signal(str)
+
+    def __init__(self, proxies, checker_instance):
+        super().__init__()
+        self.proxies = proxies
+        self.checker = checker_instance
+
+    def run(self):
+        """Run the check loop in background thread - sequentially, 1 by 1"""
+        # Lower thread priority to prevent audio interruptions
+        try:
+            if sys.platform != "win32" and hasattr(os, "nice"):
+                os.nice(10)  # Linux/Mac: lower priority
+        except:
+            pass
+
+        try:
+            self.checker._active_count = 1  # Only 1 proxy being checked at a time
+
+            for proxy in self.proxies:
+                # Check if cancel was requested
+                if self.checker._cancel_event and self.checker._cancel_event.is_set():
+                    break
+
+                try:
+                    result = self.checker.check_proxy(proxy)
+                    self.checker._completed += 1
+                    # Emit signal to update UI
+                    self.result_signal.emit(result)
+                    self.checker._update_progress()
+                except Exception as e:
+                    print(f"Error checking proxy: {e}")
+                    self.checker._completed += 1
+                    continue
+
+                # Small sleep to let other threads run (audio, UI, etc.)
+                time.sleep(0.05)
+        finally:
+            self.finished_signal.emit()
 
 
 class ProxyChecker(QWidget):
@@ -235,7 +281,7 @@ class ProxyChecker(QWidget):
     # Proxy checker logic
     # --------------------
     def check_proxy(self, data: Proxy):
-        # Notify server
+        # Notify server with reduced timeouts to prevent long blocking
         try:
             build_request(
                 method="POST",
@@ -243,6 +289,9 @@ class ProxyChecker(QWidget):
                 post_data={"proxy": data.format()},
                 timeout=10,
             )
+        except:
+            pass
+        try:
             build_request(
                 method="POST",
                 endpoint="https://sh.webmanajemen.com/php_backend/proxy-checker.php",
@@ -251,6 +300,8 @@ class ProxyChecker(QWidget):
             )
         except:
             pass
+
+        # Reuse database connection to reduce resource overhead
         db = ProxyDB(get_relative_path(".cache/database.sqlite"), True)
         try:
             proxy_types = ["http", "socks4", "socks5"]
@@ -321,7 +372,12 @@ class ProxyChecker(QWidget):
     # Run checker
     # --------------------
     def run_checker(self):
-        # Get the active tab and save its content
+        """Parse proxies and start background checking thread"""
+        # Disable button to prevent re-entrancy
+        self.check_button.setEnabled(False)
+        self.stop_button.setEnabled(True)
+
+        # Get the active tab
         active_tab_index = self.tab_widget.currentIndex()
 
         # Get the correct textarea based on active tab
@@ -332,26 +388,48 @@ class ProxyChecker(QWidget):
         elif active_tab_index == 2:  # Working Proxies
             active_tab = self.tab_working
         else:
+            self.check_button.setEnabled(True)
+            self.stop_button.setEnabled(False)
             return
 
-        # Save current textarea to persistent settings based on active tab
-        if active_tab_index == 0:  # Manual Input
+        # Save current textarea to persistent settings
+        if active_tab_index == 0:
             save_text("proxy_text_manual", active_tab.toPlainText())
-        elif active_tab_index == 1:  # Untested Proxies
+        elif active_tab_index == 1:
             save_text("proxy_text_untested", active_tab.toPlainText())
-        elif active_tab_index == 2:  # Working Proxies
+        elif active_tab_index == 2:
             save_text("proxy_text_working", active_tab.toPlainText())
 
         text = active_tab.toPlainText()
-        # Try to extract proxies using proxy_hunter.extract_proxies.
-        # If extraction fails or returns an unexpected type, fall back to simple splitlines parsing.
-        proxies = extract_proxies(text)
 
-        # Clear previous results
-        self.result_table.setRowCount(0)
+        # Extract proxies (this can be slow, so do it in background)
+        def parse_proxies():
+            self.status_signal.emit("Extracting proxies...")
+            try:
+                return extract_proxies(text)
+            except Exception as e:
+                print(f"Error extracting proxies: {e}")
+                return []
 
+        # Start parsing in background
+        parse_thread = threading.Thread(
+            target=self._parse_and_start_check, args=(parse_proxies,), daemon=True
+        )
+        parse_thread.start()
+
+    def _parse_and_start_check(self, parse_func):
+        """Parse proxies and start the checking process"""
+        proxies = parse_func()
+
+        # Update UI on main thread
         if not proxies:
+            self.check_button.setEnabled(True)
+            self.stop_button.setEnabled(False)
+            self.status_signal.emit("No proxies found")
             return
+
+        # Clear previous results (on main thread)
+        self.result_table.setRowCount(0)
 
         # Reset progress counters
         self._total_proxies = len(proxies)
@@ -360,43 +438,12 @@ class ProxyChecker(QWidget):
         self._start_time = time.time()
         self._cancel_event = threading.Event()
 
-        # Disable button to prevent re-entrancy while checking
-        self.check_button.setEnabled(False)
-        self.stop_button.setEnabled(True)
-
-        # Run the blocking check loop in a separate thread so the Qt event loop stays responsive.
-        threading.Thread(
-            target=self._run_checks_background, args=(proxies,), daemon=True
-        ).start()
-
-    def _run_checks_background(self, proxies):
-        self._executor = ThreadPoolExecutor(max_workers=20)
-        try:
-            futures = {self._executor.submit(self.check_proxy, p): p for p in proxies}
-            self._active_count = len(futures)
-
-            for f in as_completed(futures):
-                # Check if cancel was requested
-                if self._cancel_event and self._cancel_event.is_set():
-                    break
-
-                try:
-                    proxy = f.result()
-                    self._completed += 1
-                except Exception as e:
-                    # If a worker raises, skip. Keep UI responsive.
-                    print(f"Worker error: {e}")
-                    self._completed += 1
-                    continue
-                # Emit signal to update UI from the main thread with single Proxy object
-                self.result_signal.emit(proxy)
-                self._update_progress()
-        finally:
-            # Shutdown executor and cancel remaining tasks
-            if self._executor:
-                self._executor.shutdown(wait=False)
-            # Re-enable the button in the main thread when done
-            self.finished_signal.emit()
+        # Create and start worker thread
+        self.worker_thread = CheckerWorkerThread(proxies, self)
+        self.worker_thread.result_signal.connect(self.add_result)
+        self.worker_thread.finished_signal.connect(self._on_finished)
+        self.worker_thread.status_signal.connect(self._set_status_text)
+        self.worker_thread.start()
 
     # --------------------
     # Update UI with result
