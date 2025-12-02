@@ -541,16 +541,16 @@ class ProxyDB:
             result = self.get_db().select(
                 "proxies",
                 "*",
-                f"status IS NULL OR status = %s OR status = %s{order_clause} LIMIT {limit}",
-                ["untested", ""],
+                f"status IS NULL OR status = %s OR status = %s OR status = %s OR status = %s{order_clause} LIMIT {limit}",
+                ["untested", "", "port-open", "open-port"],
             )
         else:
             order_clause = f" ORDER BY RANDOM()" if randomize else ""
             result = self.get_db().select(
                 "proxies",
                 "*",
-                f"status IS NULL OR status = ? OR status = ?{order_clause} LIMIT {limit}",
-                ["untested", ""],
+                f"status IS NULL OR status = ? OR status = ? OR status = ? OR status = ?{order_clause} LIMIT {limit}",
+                ["untested", "", "port-open", "open-port"],
             )
         if not result:
             return []
