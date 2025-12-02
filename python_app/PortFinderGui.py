@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import traceback
 
 # Ensure repository root (parent of python_app) is on sys.path so repo imports work.
 # Idempotent: only insert if not already present.
@@ -62,19 +63,78 @@ class PortFinder(QWidget):
         self.input_label = QLabel("Enter proxies/text (IPs or ip:port, one per line):")
         layout.addWidget(self.input_label)
 
-        self.proxy_text = QTextEdit()
-        self.proxy_text.setPlaceholderText(
+        # Create tab widget for proxy input (Manual, Untested, Working)
+        self.input_tab_widget = QTabWidget()
+
+        # Tab 1: Manual Input
+        manual_tab_widget = QWidget()
+        manual_tab_layout = QVBoxLayout()
+        self.tab_manual = QTextEdit()
+        self.tab_manual.setPlaceholderText(
             "Example:\n123.45.67.89:8080\n10.0.0.2:3128\nor paste raw text to extract IPs"
         )
-        layout.addWidget(self.proxy_text)
-
-        # Restore saved textarea
-        saved = load_text("portfinder_proxy_text")
+        # Load saved proxies from previous session
+        saved = load_text("portfinder_proxy_text_manual")
         if saved:
-            self.proxy_text.setPlainText(saved)
+            self.tab_manual.setPlainText(saved)
+        self.tab_manual.textChanged.connect(self._autosave_manual_text)
+        manual_tab_layout.addWidget(self.tab_manual)
+        manual_tab_widget.setLayout(manual_tab_layout)
+        self.input_tab_widget.addTab(manual_tab_widget, "Manual Input")
 
-        # Auto-save on change
-        self.proxy_text.textChanged.connect(self._autosave_text)
+        # Tab 2: Untested Proxies
+        untested_tab_widget = QWidget()
+        untested_tab_layout = QVBoxLayout()
+        self.tab_untested = QTextEdit()
+        self.tab_untested.setPlaceholderText("Untested proxies will appear here...")
+        saved = load_text("portfinder_proxy_text_untested")
+        if saved:
+            self.tab_untested.setPlainText(saved)
+        untested_tab_layout.addWidget(self.tab_untested)
+
+        self.fetch_untested_button = QPushButton("Get Untested Proxies")
+        self.fetch_untested_button.clicked.connect(self.fetch_untested_proxies)
+        untested_tab_layout.addWidget(self.fetch_untested_button)
+
+        untested_tab_widget.setLayout(untested_tab_layout)
+        self.input_tab_widget.addTab(untested_tab_widget, "Untested Proxies")
+
+        # Tab 3: Working Proxies
+        working_tab_widget = QWidget()
+        working_tab_layout = QVBoxLayout()
+        self.tab_working = QTextEdit()
+        self.tab_working.setPlaceholderText("Working proxies will appear here...")
+        saved = load_text("portfinder_proxy_text_working")
+        if saved:
+            self.tab_working.setPlainText(saved)
+        working_tab_layout.addWidget(self.tab_working)
+
+        self.fetch_working_button = QPushButton("Get Working Proxies")
+        self.fetch_working_button.clicked.connect(self.fetch_working_proxies)
+        working_tab_layout.addWidget(self.fetch_working_button)
+
+        working_tab_widget.setLayout(working_tab_layout)
+        self.input_tab_widget.addTab(working_tab_widget, "Working Proxies")
+
+        layout.addWidget(self.input_tab_widget)
+
+        # Restore saved input tab selection
+        try:
+            saved_tab = load_text("portfinder_input_tab")
+            if saved_tab is not None:
+                idx = int(saved_tab)
+                if 0 <= idx < self.input_tab_widget.count():
+                    self.input_tab_widget.setCurrentIndex(idx)
+        except Exception:
+            pass
+
+        def _on_input_tab_changed(i):
+            try:
+                save_text("portfinder_input_tab", str(i))
+            except Exception:
+                pass
+
+        self.input_tab_widget.currentChanged.connect(_on_input_tab_changed)
 
         # Port input mode: tabs for Range vs Custom
         self.tab_widget = QTabWidget()
@@ -236,19 +296,74 @@ class PortFinder(QWidget):
         self._futures = None
         self._executor = None
 
-    def _autosave_text(self):
+    def _autosave_manual_text(self):
         try:
-            save_text("portfinder_proxy_text", self.proxy_text.toPlainText())
+            save_text("portfinder_proxy_text_manual", self.tab_manual.toPlainText())
         except Exception:
             pass
 
+    # --------------------
+    # Fetch proxies from database
+    # --------------------
+    def fetch_untested_proxies(self):
+        """Fetch untested proxies from database and populate the Untested tab"""
+        try:
+            self.fetch_untested_button.setEnabled(False)
+            proxies = self.db.get_untested_proxies(limit=100) if self.db else []
+            proxy_list = "\n".join(
+                [str(p.get("proxy", "")) for p in proxies if p.get("proxy")]
+            )
+            self.tab_untested.setPlainText(proxy_list)
+            save_text("portfinder_proxy_text_untested", proxy_list)
+        except Exception as e:
+            print(f"Error fetching untested proxies: {e}")
+            traceback.print_exc()
+        finally:
+            self.fetch_untested_button.setEnabled(True)
+
+    def fetch_working_proxies(self):
+        """Fetch working proxies from database and populate the Working tab"""
+        try:
+            self.fetch_working_button.setEnabled(False)
+            proxies = self.db.get_working_proxies(limit=100) if self.db else []
+            proxy_list = "\n".join(
+                [str(p.get("proxy", "")) for p in proxies if p.get("proxy")]
+            )
+            self.tab_working.setPlainText(proxy_list)
+            save_text("portfinder_proxy_text_working", proxy_list)
+        except Exception as e:
+            print(f"Error fetching working proxies: {e}")
+            traceback.print_exc()
+        finally:
+            self.fetch_working_button.setEnabled(True)
+
     def run_scan(self):
-        # Save current inputs
-        save_text("portfinder_proxy_text", self.proxy_text.toPlainText())
+        # Get the active input tab
+        active_tab_index = self.input_tab_widget.currentIndex()
+
+        # Get the correct textarea based on active tab
+        if active_tab_index == 0:  # Manual Input
+            active_tab = self.tab_manual
+        elif active_tab_index == 1:  # Untested Proxies
+            active_tab = self.tab_untested
+        elif active_tab_index == 2:  # Working Proxies
+            active_tab = self.tab_working
+        else:
+            return
+
+        # Save current textarea to persistent settings
+        if active_tab_index == 0:
+            save_text("portfinder_proxy_text_manual", active_tab.toPlainText())
+        elif active_tab_index == 1:
+            save_text("portfinder_proxy_text_untested", active_tab.toPlainText())
+        elif active_tab_index == 2:
+            save_text("portfinder_proxy_text_working", active_tab.toPlainText())
+
+        # Save port settings
         save_text("portfinder_from", str(self.port_from.value()))
         save_text("portfinder_to", str(self.port_to.value()))
 
-        text = self.proxy_text.toPlainText()
+        text = active_tab.toPlainText()
 
         # Use extract_ips to find all unique IP addresses in the input text.
         # This replaces the previous flow that parsed Proxy objects then
