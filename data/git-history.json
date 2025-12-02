@@ -1,5 +1,21 @@
 [
   {
+    "hash": "f9903d4edb90ba56111961364acdd34a85795ad4",
+    "date": "2025-12-02T13:19:07+07:00",
+    "message": "fix(proxyHandler): ensure replier is optional in help command response",
+    "files": [
+      "node_backend/whatsapp_handlers/proxy.ts"
+    ]
+  },
+  {
+    "hash": "3a8ff7139a506504f641f95edeee18dc88b860bf",
+    "date": "2025-12-02T13:17:52+07:00",
+    "message": "feat(PortFinderGui): add tabbed input interface for proxy management\n\n- Replace single textarea with tab widget containing three tabs:\n  * Manual Input: for entering proxies manually\n  * Untested Proxies: fetch untested proxies from database\n  * Working Proxies: fetch working proxies from database\n- Add fetch_untested_proxies() and fetch_working_proxies() methods\n- Update run_scan() to use active tab's data for port scanning\n- Implement tab persistence using settings (portfinder_input_tab)\n- Replace _autosave_text() with _autosave_manual_text()\n- Update all settings keys to reflect individual tab state\n- Add traceback import for error handling\n- Mirror proxyCheckerGui.py tab structure and behavior",
+    "files": [
+      "python_app/PortFinderGui.py"
+    ]
+  },
+  {
     "hash": "a86da0f7df63044b1aa9ca143fcbd4a45df01daa",
     "date": "2025-12-02T13:12:10+07:00",
     "message": "feat(proxyChecker): emit status updates during proxy checking",
@@ -8644,23 +8660,6 @@
     "message": "feat(db): use is_debug_device to load environment-specific DB credentials",
     "files": [
       "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "04fb2c005e94c8010a6c322709caf4c05110e4de",
-    "date": "2025-09-07T18:56:16+07:00",
-    "message": "refactor(debug): extract debug device check into is_debug_device and simplify is_debug logic",
-    "files": [
-      "func.php"
-    ]
-  },
-  {
-    "hash": "e21733447eae9e0fbcbaa97790beeb7e3f2ede20",
-    "date": "2025-09-07T17:17:35+07:00",
-    "message": "feat: add prepare:react script and automatic build steps in vite-plugin.js\n\n- Added `prepare:react` npm script to run `vite-plugin.js`.\n- Updated `vite-plugin.js` to automatically copy index.html, build Tailwind, and run `git-history.builder.ts` when executed directly.",
-    "files": [
-      "package.json",
-      "vite-plugin.js"
     ]
   }
 ]
