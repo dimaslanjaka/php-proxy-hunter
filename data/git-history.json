@@ -1,5 +1,45 @@
 [
   {
+    "hash": "a86da0f7df63044b1aa9ca143fcbd4a45df01daa",
+    "date": "2025-12-02T13:12:10+07:00",
+    "message": "feat(proxyChecker): emit status updates during proxy checking",
+    "files": [
+      "python_app/proxyCheckerGui.py"
+    ]
+  },
+  {
+    "hash": "e597d2deae2d91c74643bd6d6721fcf26306bfe6",
+    "date": "2025-12-02T13:11:18+07:00",
+    "message": "refactor(proxyCheckerGui): implement sequential proxy checking with QThread\n\n- Replace ThreadPoolExecutor (20 concurrent workers) with sequential QThread-based checking\n- Add CheckerWorkerThread class for proper PySide6 threading model\n- Move proxy extraction to background thread to prevent UI freezing\n- Reduce thread priority on Unix systems to prevent audio interruptions\n- Split request notifications into separate try-except blocks for better error handling\n- Create fresh database connection per proxy check to avoid connection issues\n- Add \"Extracting proxies...\" status message before parsing\n- Add \"No proxies found\" status message when extraction returns empty list\n- Refactor run_checker() into _parse_and_start_check() for better separation of concerns\n- Remove deprecated setDaemon() call\n- Add 50ms sleep between proxy checks to allow audio/UI thread execution\n- Improve code documentation with docstrings\n\nFixes: Audio interruptions during proxy checking, \"Cannot operate on a closed database\" errors",
+    "files": [
+      "python_app/proxyCheckerGui.py"
+    ]
+  },
+  {
+    "hash": "8407b7a0b759104729e83b554eb58c55347b3e91",
+    "date": "2025-12-02T13:01:08+07:00",
+    "message": "feat(ui): add tabbed proxy input with progress tracking and stop button\n\nAdd tabbed interface with three proxy input sources: Manual Input, Untested\nProxies, and Working Proxies. Each tab includes fetch buttons to populate\nfrom database.\n\nImplement real-time progress tracking with elapsed time and ETA display.\nAdd Stop button to cancel ongoing proxy checks with proper thread cleanup.\n\nReorganize imports to top-level per PEP 8. Add status_signal for UI updates\nfrom background threads. Fix tab widget handling to directly access textarea\nwidgets instead of container widgets.\n\nFeatures:\n- Inline Check/Stop buttons with proper enable/disable states\n- Progress label showing: checked/total, active threads, elapsed, ETA\n- Cancellable executor with immediate shutdown on stop\n- Tab-based proxy input with independent state persistence\n- Improved error handling and thread safety",
+    "files": [
+      "python_app/proxyCheckerGui.py"
+    ]
+  },
+  {
+    "hash": "459246849be94ff4d96901f2628d3a4c6a1aa3db",
+    "date": "2025-12-02T12:51:32+07:00",
+    "message": "feat(ui): add tabbed interface for proxy checker with database fetch buttons\n\nRefactor proxy input UI to use QTabWidget with three tabs:\n- Manual Input: for entering proxies manually\n- Untested Proxies: displays untested proxies from database with fetch button\n- Working Proxies: displays working proxies from database with fetch button\n\nAdd fetch_untested_proxies() and fetch_working_proxies() methods to populate\ntabs from database. Update run_checker() to process proxies from active tab\nonly and persist tab-specific state independently.\n\nIncludes QHBoxLayout and QTabWidget imports from PySide6.QtWidgets.",
+    "files": [
+      "python_app/proxyCheckerGui.py"
+    ]
+  },
+  {
+    "hash": "21bf133c4c229b0db6dde2e4c85900b91900c5de",
+    "date": "2025-12-02T12:50:56+07:00",
+    "message": "feat(proxy): expand untested proxy query to include port-open statuses\n\nInclude 'port-open' and 'open-port' status conditions in get_untested_proxies()\nquery alongside existing 'untested' and empty status checks. This allows the\nmethod to fetch proxies with additional status variants indicating open ports.",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
     "hash": "cd0fc5495288015b2f7f3a52e99d3f4ea694cb9d",
     "date": "2025-12-02T07:23:02+07:00",
     "message": "feat(PortFinderGui): integrate ProxyDB for persistent open port storage\n\n- Import ProxyDB and get_relative_path from src modules\n- Initialize shared ProxyDB instance with thread-safe lock in PortFinder.__init__\n- Store discovered open ports in DB with status \"port-open\" during scanning\n- Add thread-safe DB writes in _add_result when ports are detected as open\n- Check existing port entries to avoid duplicate status updates\n- Implement closeEvent to properly close DB connection on window exit\n- Include comprehensive error handling for DB operations in worker threads",
@@ -8621,48 +8661,6 @@
     "files": [
       "package.json",
       "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "f445e07e2aacebbc28cf242ae266eeddd1d49145",
-    "date": "2025-09-07T16:56:46+07:00",
-    "message": "feat(modal): add scrollable option and support for larger sizes\n\n- Added `scrollable` prop to allow modal body to scroll for long content.\n- Expanded `size` prop to support '2xl' and '3xl' modal sizes.\n- Updated default size to 'xl' fallback for safety.\n- Enhanced JSDoc comments for props and component usage examples.",
-    "files": [
-      "src/react/components/Modal.tsx"
-    ]
-  },
-  {
-    "hash": "32b67d98bdf15de9b38fece45e5f4ad83603b938",
-    "date": "2025-09-07T16:01:50+07:00",
-    "message": "feat(db): add MySQL support to ProxyDB and update tests\n\n- Extend ProxyDB to support both SQLite and MySQL databases.\n- Add new constructor parameters for MySQL connection: host, dbname, username, password, and unique constraints.\n- Implement `initMySQL()` method to initialize MySQL database and schema.\n- Refactor `initSQLite()` to separate SQLite initialization logic.\n- Update ProxyDBTest to support both SQLite and MySQL using a data provider.\n- Add setup and teardown methods for handling different database types in tests.\n- Ensure tests add, update, remove, and query proxies for both SQLite and MySQL.",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php",
-      "tests/PhpProxyHunter/ProxyDBTest.php"
-    ]
-  },
-  {
-    "hash": "b658b63bda3ea27d29ce50e843bde1d3bf97d4d1",
-    "date": "2025-09-07T15:59:16+07:00",
-    "message": "refactor(tests): update UserDBTest to use getenv for database credentials",
-    "files": [
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "0e6719032b2d268e05829d3b08a3b7adc74ad042",
-    "date": "2025-09-07T15:53:35+07:00",
-    "message": "refactor(core): move ProxyDB initialization into CoreDB\n\n- Removed direct instantiation of `ProxyDB` in `shared.php`.\n- Added `proxy_db` property to `CoreDB` and initialize it alongside `user_db`.\n- Updated `shared.php` to get `proxy_db` from `core_db`.",
-    "files": [
-      "php_backend/shared.php",
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "a38a499705675ded5e34d51fdcda01884a091f58",
-    "date": "2025-09-07T15:50:26+07:00",
-    "message": "refactor(ProxyDB): optimize constructor to support helper instances and improve readability\n\n- Allow $dbLocation parameter to accept SQLiteHelper or MySQLHelper instances directly\n- Simplify database path normalization and in-memory detection\n- Replace die() with RuntimeException when directory creation fails\n- Streamline schema loading with clearer variable names\n- Add inline comments for clarity and maintain existing WAL and auto-vacuum setup\n- Keep daily vacuum maintenance call intact",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php"
     ]
   }
 ]
