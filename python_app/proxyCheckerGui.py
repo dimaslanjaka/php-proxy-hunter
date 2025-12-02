@@ -1,5 +1,10 @@
 import sys
 from pathlib import Path
+import threading
+import time
+import traceback
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import timedelta
 
 # Ensure repository root (parent of python_app) is on sys.path so repo imports work.
 # Idempotent: only insert if not already present.
@@ -9,8 +14,6 @@ if _REPO_ROOT not in sys.path:
 
 from src.ProxyDB import ProxyDB
 from src.func import get_nuitka_file, get_relative_path
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import threading
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -24,17 +27,17 @@ from PySide6.QtWidgets import (
     QTabWidget,
 )
 from PySide6.QtCore import Qt, Signal
-from src.pyside6.utils.settings import save_text, load_text
 from PySide6.QtGui import QIcon, QColor, QBrush
+from src.pyside6.utils.settings import save_text, load_text
 from proxy_hunter import build_request, extract_proxies, Proxy
 from src.geoPlugin import get_geo_ip2
-import traceback
 
 
 class ProxyChecker(QWidget):
     # Emitted from background threads to update the UI safely. Now emits a single Proxy object.
     result_signal = Signal(object)
     finished_signal = Signal()
+    status_signal = Signal(str)
 
     def __init__(self):
         super().__init__()
@@ -103,9 +106,23 @@ class ProxyChecker(QWidget):
 
         layout.addWidget(self.tab_widget)
 
+        # Buttons layout for Check and Stop
+        buttons_layout = QHBoxLayout()
+
         self.check_button = QPushButton("Check Proxies")
         self.check_button.clicked.connect(self.run_checker)
-        layout.addWidget(self.check_button)
+        buttons_layout.addWidget(self.check_button)
+
+        self.stop_button = QPushButton("Stop")
+        self.stop_button.clicked.connect(self.stop_checker)
+        self.stop_button.setEnabled(False)
+        buttons_layout.addWidget(self.stop_button)
+
+        layout.addLayout(buttons_layout)
+
+        # Progress label
+        self.progress_label = QLabel("")
+        layout.addWidget(self.progress_label)
 
         # Show detailed proxy properties in the table
         self.result_table = QTableWidget(0, 8)
@@ -129,6 +146,55 @@ class ProxyChecker(QWidget):
         # Connect background signals to UI slots
         self.result_signal.connect(self.add_result)
         self.finished_signal.connect(self._on_finished)
+        self.status_signal.connect(self._set_status_text)
+
+        # Progress tracking
+        self._total_proxies = 0
+        self._completed = 0
+        self._active_count = 0
+        self._start_time = None
+        self._cancel_event = None
+        self._executor = None
+
+    # --------------------
+    # Status update
+    # --------------------
+    def stop_checker(self):
+        """Stop the checking process"""
+        self._cancel_event.set() if self._cancel_event else None
+        self.status_signal.emit("Stop requested — cancelling pending checks...")
+        self.stop_button.setEnabled(False)
+
+    def _set_status_text(self, text: str):
+        """Update progress label from background thread"""
+        try:
+            self.progress_label.setText(text)
+        except Exception:
+            pass
+
+    def _update_progress(self):
+        """Update progress display with current counters"""
+        try:
+            if self._start_time:
+                elapsed = time.time() - self._start_time
+                if self._total_proxies > 0 and elapsed > 0:
+                    rate = self._completed / elapsed
+                    remaining = (
+                        (self._total_proxies - self._completed) / rate
+                        if rate > 0
+                        else 0
+                    )
+
+                    eta = str(timedelta(seconds=int(remaining))) if rate > 0 else "?"
+                    elapsed_str = str(timedelta(seconds=int(elapsed)))
+                    status = f"Checking {self._completed} / {self._total_proxies} (active: {self._active_count}) — elapsed: {elapsed_str} ETA: {eta}"
+                else:
+                    status = f"Checking {self._completed} / {self._total_proxies} (active: {self._active_count})"
+            else:
+                status = f"Checking {self._completed} / {self._total_proxies} (active: {self._active_count})"
+            self.progress_label.setText(status)
+        except Exception:
+            pass
 
     # --------------------
     # Fetch proxies from database
@@ -256,14 +322,17 @@ class ProxyChecker(QWidget):
     # --------------------
     def run_checker(self):
         # Get the active tab and save its content
-        active_tab_widget = self.tab_widget.currentWidget()
         active_tab_index = self.tab_widget.currentIndex()
 
-        # Cast to QTextEdit
-        if not isinstance(active_tab_widget, QTextEdit):
+        # Get the correct textarea based on active tab
+        if active_tab_index == 0:  # Manual Input
+            active_tab = self.tab_manual
+        elif active_tab_index == 1:  # Untested Proxies
+            active_tab = self.tab_untested
+        elif active_tab_index == 2:  # Working Proxies
+            active_tab = self.tab_working
+        else:
             return
-
-        active_tab: QTextEdit = active_tab_widget
 
         # Save current textarea to persistent settings based on active tab
         if active_tab_index == 0:  # Manual Input
@@ -284,8 +353,16 @@ class ProxyChecker(QWidget):
         if not proxies:
             return
 
+        # Reset progress counters
+        self._total_proxies = len(proxies)
+        self._completed = 0
+        self._active_count = 0
+        self._start_time = time.time()
+        self._cancel_event = threading.Event()
+
         # Disable button to prevent re-entrancy while checking
         self.check_button.setEnabled(False)
+        self.stop_button.setEnabled(True)
 
         # Run the blocking check loop in a separate thread so the Qt event loop stays responsive.
         threading.Thread(
@@ -293,20 +370,31 @@ class ProxyChecker(QWidget):
         ).start()
 
     def _run_checks_background(self, proxies):
+        self._executor = ThreadPoolExecutor(max_workers=20)
         try:
-            with ThreadPoolExecutor(max_workers=20) as executor:
-                futures = {executor.submit(self.check_proxy, p): p for p in proxies}
+            futures = {self._executor.submit(self.check_proxy, p): p for p in proxies}
+            self._active_count = len(futures)
 
-                for f in as_completed(futures):
-                    try:
-                        proxy = f.result()
-                    except Exception as e:
-                        # If a worker raises, skip. Keep UI responsive.
-                        print(f"Worker error: {e}")
-                        continue
-                    # Emit signal to update UI from the main thread with single Proxy object
-                    self.result_signal.emit(proxy)
+            for f in as_completed(futures):
+                # Check if cancel was requested
+                if self._cancel_event and self._cancel_event.is_set():
+                    break
+
+                try:
+                    proxy = f.result()
+                    self._completed += 1
+                except Exception as e:
+                    # If a worker raises, skip. Keep UI responsive.
+                    print(f"Worker error: {e}")
+                    self._completed += 1
+                    continue
+                # Emit signal to update UI from the main thread with single Proxy object
+                self.result_signal.emit(proxy)
+                self._update_progress()
         finally:
+            # Shutdown executor and cancel remaining tasks
+            if self._executor:
+                self._executor.shutdown(wait=False)
             # Re-enable the button in the main thread when done
             self.finished_signal.emit()
 
@@ -361,6 +449,7 @@ class ProxyChecker(QWidget):
 
     def _on_finished(self):
         self.check_button.setEnabled(True)
+        self.stop_button.setEnabled(False)
 
 
 # --------------------
