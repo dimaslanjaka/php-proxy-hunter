@@ -387,13 +387,14 @@ class ProxyDB:
     def update(
         self,
         proxy,
-        type_=None,
+        proxy_type=None,
         region=None,
         city=None,
         country=None,
         status=None,
         latency=None,
         timezone=None,
+        **kwargs,
     ):
         if not self.select(proxy):
             self.add(proxy)
@@ -402,8 +403,12 @@ class ProxyDB:
             data["city"] = city
         if country:
             data["country"] = country
-        if type_:
-            data["type"] = type_
+        if proxy_type:
+            data["type"] = proxy_type
+        if kwargs.get("type"):
+            data["type"] = kwargs.get("type")
+        if kwargs.get("type_"):
+            data["type"] = kwargs.get("type_")
         if region:
             data["region"] = region
         if latency:
