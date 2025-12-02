@@ -38,7 +38,7 @@ export default async function proxyHandler(replier?: Replier) {
       }
     }
   } else if (text?.startsWith('/help')) {
-    replier.reply(`Proxy Utility\n\n- \`/working proxies\` - get working proxies`);
+    replier?.reply(`Proxy Utility\n\n- \`/working proxies\` - get working proxies`);
   }
 }
 
