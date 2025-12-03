@@ -143,7 +143,7 @@ if should_run_job "tmp/crontab/30-m" 0.5; then
     # r_cmd "python" "proxyCheckerReal.py" "--max=50"
     # log_command "tmp/logs/crontab/proxy-collector.log" php artisan/proxyCollector.php || true
     # log_command "tmp/logs/crontab/proxy-collector2.log" php artisan/proxyCollector2.php || true
-    log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php --max=200 --admin=true --delete=true
+    log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php
 else
     echo "Skipping 30 minutes job."
 fi
@@ -152,11 +152,11 @@ fi
 if should_run_job "tmp/crontab/1-h" 1; then
     # log_command "tmp/logs/crontab/djm_check_proxies.log" djm check_proxies --max=100
     # log_command "tmp/logs/crontab/djm_filter_dups.log" djm filter_dups --max=100
-    log_command "tmp/logs/crontab/filter-ports.log" php artisan/filterPorts.php --max=400 --admin=true --delete=true
-    log_command "tmp/logs/crontab/filter-ports-background.log" php artisan/filterPortsDuplicate.php --max=400 --admin=true --delete=true
-    log_command "tmp/logs/crontab/check-http-proxy.log" php php_backend/check-http-proxy.php --max=400 --admin=true --delete=true
-    log_command "tmp/logs/crontab/check-https-proxy.log" php php_backend/check-https-proxy.php --max=400 --admin=true --delete=true
-    log_command "tmp/logs/crontab/check-proxy-type.log" php php_backend/check-proxy-type.php --max=400 --admin=true --delete=true
+    log_command "tmp/logs/crontab/filter-ports.log" php artisan/filterPorts.php
+    log_command "tmp/logs/crontab/filter-ports-background.log" php artisan/filterPortsDuplicate.php
+    log_command "tmp/logs/crontab/check-http-proxy.log" php php_backend/check-http-proxy.php
+    log_command "tmp/logs/crontab/check-https-proxy.log" php php_backend/check-https-proxy.php
+    log_command "tmp/logs/crontab/check-proxy-type.log" php php_backend/check-proxy-type.php
     echo "Running 1 hour job."
 else
     echo "Skipping 1 hour job."
