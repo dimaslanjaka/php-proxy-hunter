@@ -1,5 +1,45 @@
 [
   {
+    "hash": "cf1c3bdd08714ff5888c55765777715a79cdc202",
+    "date": "2025-12-03T15:03:24+07:00",
+    "message": "feat(proxyListGui): adjust table column behavior for better width management",
+    "files": [
+      "python_app/proxyListGui.py"
+    ]
+  },
+  {
+    "hash": "9d868848c29ccd427339e3c3d52e358e5141608d",
+    "date": "2025-12-03T15:00:19+07:00",
+    "message": "feat(proxyListGui): implement ProxyList GUI for managing proxies with status filtering",
+    "files": [
+      "python_app/proxyListGui.py"
+    ]
+  },
+  {
+    "hash": "f0ce5ce21164c7d3d92ff02884bc00c2797e1b7b",
+    "date": "2025-12-03T14:52:32+07:00",
+    "message": "feat(time): extract time_ago into reusable util and reuse in templatetag\n\n- Extract time-ago formatting logic into `src/utils/date/timeAgo.py`.\n  - `time_ago` accepts `datetime` or string; tries `datetime.fromisoformat` then falls back to `dateutil.parser.parse` when available.\n  - Handles naive datetimes by using `settings.TIME_ZONE` when Django is configured, otherwise falls back to UTC.\n  - Returns human-readable strings like \"X days Y hours ago\", \"just now\", or \"-\" for empty input.\n  - Adds a `__main__` demo/test runner so the module can be executed standalone without Django.\n- Replace the inline implementation in `django_backend/apps/core/templatetags/time_filters.py`\n  with a thin template-filter wrapper that imports and calls the new `time_ago` util.\n- Add tests `tests/utils/date/timeAgo_test.py` (pytest) that use timezone-aware datetimes and\n  include a small sys.path helper so the test module can be run directly.\n- Improves code reuse, separates concerns, and makes the time-ago logic easier to test and maintain.",
+    "files": [
+      "django_backend/apps/core/templatetags/time_filters.py",
+      "src/utils/date/timeAgo.py",
+      "tests/utils/date/timeAgo_test.py"
+    ]
+  },
+  {
+    "hash": "88e34707a2ac84611d1725fe3315f6db7e79ec0a",
+    "date": "2025-12-03T14:33:15+07:00",
+    "message": "feat(python_app): add full Nuitka build pipeline and Python path resolver\n\n- Introduce new build scripts:\n  - PortFinderGui-build.js\n  - proxyCheckerGui-build.js\n  - build.js (generic proxyCheckerGui builder)\n- Add config.js for centralized project, venv, and metadata configuration\n- Add install.js to automate Nuitka installation (with version/tarball/git options)\n- Add prepare.js for copying assets and preparing build directories\n- Add pythonFinder.js implementing dynamic Python site-packages discovery and PYTHONPATH generation\n- Set up build environment variables, venv paths, cache directory, and Qt plugin inclusion\n- Support wildcard expansion and virtual environment detection for robust dependency resolution",
+    "files": [
+      "python_app/PortFinderGui-build.js",
+      "python_app/build.js",
+      "python_app/config.js",
+      "python_app/install.js",
+      "python_app/prepare.js",
+      "python_app/proxyCheckerGui-build.js",
+      "python_app/pythonFinder.js"
+    ]
+  },
+  {
     "hash": "66bdc135872ed710f3fc84f31442b87a95b7e953",
     "date": "2025-12-03T13:09:56+07:00",
     "message": "refactor(geo): only uses GeoLite2-City database file near executable folder",
@@ -8617,48 +8657,14 @@
     "message": "refactor(bin): rename create-file-hashes scripts to cfh\n\n- Rename all create-file-hashes scripts and references to cfh for brevity and consistency.\n- Update .gitattributes, .husky hooks, and documentation to use the new cfh script name.\n- Adjust merge driver configuration and related shell/cmd scripts to reference cfh.\n- Update internal imports and usage in supporting scripts.",
     "files": [
       ".gitattributes",
+      ".husky/pre-commit",
+      ".husky/pre-merge-commit",
       "bin/cfh",
       "bin/cfh.cjs",
       "bin/cfh.cmd",
       "bin/git-pull.cjs",
       "readme.md",
       "setup.sh"
-    ]
-  },
-  {
-    "hash": "e2d55dc24d615f496ae6ca2a2b9d8308ca2d3dcd",
-    "date": "2025-09-10T02:56:01+07:00",
-    "message": "refactor(sqlite-installer): improve platform binary selection and error handling\n\n- Add JSDoc to pickDownload for better documentation.\n- Refactor pickDownload to return undefined and log errors instead of throwing.\n- Update main logic to handle undefined return from pickDownload and log a clear message if no suitable binary is found.",
-    "files": [
-      "scripts/sqlite-installer.js"
-    ]
-  },
-  {
-    "hash": "14026ca27c3d9379a1858c33657392e917c7bc45",
-    "date": "2025-09-09T18:02:24+07:00",
-    "message": "chore(vscode): add recommended extensions in extensions.json",
-    "files": [
-      ".vscode/extensions.json"
-    ]
-  },
-  {
-    "hash": "855eb4ef2dfe3a545c1e520e5b7aa6d39e5c92aa",
-    "date": "2025-09-09T18:00:35+07:00",
-    "message": "fix(PHP_CodeSniffer): disable trailing comma rule severity in phpcs.xml",
-    "files": [
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "cacbaf3617bf46a6ae4a5ade0d1baf5cfdae9a7f",
-    "date": "2025-09-08T11:01:24+07:00",
-    "message": "refactor(i18n): migrate saldo to point terminology and enhance package translations\n\n- Changed all saldo-related translation keys and UI labels to point-related ones in AddSaldoForm, EditSaldoForm, and SaldoManager.\n- Added and updated point-related translation keys in both `en.json` and `id.json`.\n- Added and improved package manager related translation keys in both languages.\n- Updated icon in SaldoManager to a point-related icon (fa-duotone fa-coins).",
-    "files": [
-      "src/react/locales/en.json",
-      "src/react/locales/id.json",
-      "src/react/pages/admin/AddSaldoForm.tsx",
-      "src/react/pages/admin/EditSaldoForm.tsx",
-      "src/react/pages/admin/SaldoManager.tsx"
     ]
   }
 ]
