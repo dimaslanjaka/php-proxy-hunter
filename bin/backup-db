@@ -8,6 +8,10 @@ TMP_DB="$PROJECT_ROOT/tmp/database.sqlite"
 SRC_DB="$PROJECT_ROOT/src/database.sqlite"
 BACKUP_DIR="$PROJECT_ROOT/backups"
 
+# Ensure backup directory creation
+mkdir -p "$BACKUP_DIR"
+chmod 700 "$BACKUP_DIR" 2>/dev/null || true
+
 # Create .htaccess to protect backups directory
 if [ ! -f "$BACKUP_DIR/.htaccess" ]; then
     mkdir -p "$BACKUP_DIR"
