@@ -191,8 +191,7 @@
     "**/.venv": true,
     "**/.yarn": true,
     "**/node_modules": true,
-    "**/vendor": true,
-    "backups": true
+    "**/vendor": true
   },
   "files.readonlyInclude": {
     "**/*.sqlite*": true
@@ -270,27 +269,27 @@
   "sftp.debug": true,
   "sftp.printDebugLog": true,
   "search.exclude": {
-    "**/.DS_Store": true,
     "**/.cache/**": true,
+    "**/.DS_Store": true,
     "**/.git/**": true,
     "**/.hg/**": true,
     "**/.idea/**": true,
     "**/.svn/**": true,
-    "**/Thumbs.db": true,
+    "**/.venv/**": true,
+    "**/.yarn/**": true,
     "**/backups/**": true,
     "**/bas/**": true,
     "**/config/**": true,
+    "**/coverage/**": true,
     "**/data/**": true,
     "**/databases/**": true,
     "**/dist/**": true,
+    "**/hash.txt": true,
     "**/node_modules/**": true,
     "**/profiles/**": true,
+    "**/Thumbs.db": true,
     "**/vendor/**": true,
-    "**/venv/**": true,
-    "**/.venv/**": true,
-    "**/.yarn/**": true,
-    "**/hash.txt": true,
-    "**/coverage/**": true
+    "**/venv/**": true
   },
   "terminal.integrated.defaultProfile.windows": "Command Prompt",
   "terminal.integrated.env.linux": {
