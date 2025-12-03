@@ -1,5 +1,13 @@
 [
   {
+    "hash": "835c6fcfb7203cf7fa5a4295d5d538649bd6952e",
+    "date": "2025-12-03T22:14:07+07:00",
+    "message": "chore(crontab): remove obsolete flags from proxy and port filtering jobs\n\nCleaned up cron job commands by dropping deprecated/unused flags\n(--max, --admin, --delete) from various proxy and port checking scripts\nto streamline execution.",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
     "hash": "f5df6c8a44502be13e0b072307c7e3e3d1633c68",
     "date": "2025-12-03T22:05:38+07:00",
     "message": "fix(bin): make `bin/kills` robust and cross-platform\n\n- Rewrote `bin/kills` to detect Windows-like (CYGWIN/MINGW/MSYS) vs Unix-like\n  environments and handle each appropriately.\n- On Windows: use `taskkill /F /IM <proc>` with a `wmic` fallback for termination.\n- On Unix: prefer `pgrep -f` and fall back to `ps | awk` to collect PIDs, and only\n  call `kill -9` when PIDs are present (avoids invoking `kill` with no args).\n- Added helper functions (`kill_by_name_unix`, `kill_by_name_windows`), logging,\n  and safer error handling (`set -u`, ignore missing tools).\n- Removes fragile `ps | grep | xargs kill` usage that produced `kill` help output.\n\nPrevents accidental `kill` usage/help spam and makes process cleanup reliable\nacross environments.",
@@ -8646,14 +8654,6 @@
     "hash": "9a53741a57cdb244cd05b700ef3206b8518f8858",
     "date": "2025-09-10T04:50:43+07:00",
     "message": "refactor(deploy): extract deployGitPath and export copyIndexToRoutes for SPA routing\n\n- Move deployGitPath definition to module scope for reuse.\n- Export copyIndexToRoutes as a standalone function with improved JSDoc.\n- Allow copyIndexToRoutes to accept an optional targetDir for flexible deployment.\n- Refactor deploy to use the new copyIndexToRoutes signature.",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "2832ebd165be7b449b7fb11d50a5b91ed56ecef1",
-    "date": "2025-09-10T04:07:24+07:00",
-    "message": "fix: wrap buildForGithubPages call in conditional to ensure proper execution",
     "files": [
       "vite-gh-pages.js"
     ]
