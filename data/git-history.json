@@ -1,5 +1,48 @@
 [
   {
+    "hash": "66bdc135872ed710f3fc84f31442b87a95b7e953",
+    "date": "2025-12-03T13:09:56+07:00",
+    "message": "refactor(geo): only uses GeoLite2-City database file near executable folder",
+    "files": [
+      "src/geoPlugin.py"
+    ]
+  },
+  {
+    "hash": "b5019122db5e6a08f210dea2330e3339749cc1ee",
+    "date": "2025-12-03T13:08:47+07:00",
+    "message": "feat(dependencies): add cpy package for file copying functionality",
+    "files": [
+      "package.json",
+      "packages/baileys"
+    ]
+  },
+  {
+    "hash": "f7bf1300c21ffe97c1f23c9ac83ceef79b912fdc",
+    "date": "2025-12-03T13:08:16+07:00",
+    "message": "fix(settings): clean up exclude patterns in VSCode settings",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "0eea37a5343c753ba15c28812b43d97679004de7",
+    "date": "2025-12-03T13:06:30+07:00",
+    "message": "refactor(geo): remove MMDB downloader from GeoPlugin implementations\n\n- Remove downloader URLs, download loop and `downloadFile()` method from `src/PhpProxyHunter/GeoPlugin2.php`.\n- Remove `download_databases()` and related MMDB download logic from `src/geoPlugin.py`.\n- Retain GeoIP reader instantiation; code now expects local `.mmdb` files to be provided.\n\nBREAKING CHANGE: Automatic downloading of GeoLite2 MMDB files was removed. Ensure the required `.mmdb` files are present at the expected paths or update the code/configuration to point to their locations.",
+    "files": [
+      "src/PhpProxyHunter/GeoPlugin2.php",
+      "src/geoPlugin.py"
+    ]
+  },
+  {
+    "hash": "909e5abcbb5fa2ed18f4b7bc2e0f7cc7c338377a",
+    "date": "2025-12-03T10:38:21+07:00",
+    "message": "refactor: use shared.py init_db() for database initialization in GUI modules\n\nReplace direct ProxyDB instantiation with centralized init_db() function from\nsrc/shared.py across PortFinderGui.py and proxyCheckerGui.py. This ensures\nconsistent database configuration management and environment variable handling\nvia .env file.\n\n- Update PortFinderGui.py to use init_db(db_type=\"sqlite\")\n- Update proxyCheckerGui.py to use init_db(db_type=\"sqlite\") in two locations\n- Remove direct ProxyDB import in favor of shared.py init_db import",
+    "files": [
+      "python_app/PortFinderGui.py",
+      "python_app/proxyCheckerGui.py"
+    ]
+  },
+  {
     "hash": "f9903d4edb90ba56111961364acdd34a85795ad4",
     "date": "2025-12-02T13:19:07+07:00",
     "message": "fix(proxyHandler): ensure replier is optional in help command response",
@@ -8616,50 +8659,6 @@
       "src/react/pages/admin/AddSaldoForm.tsx",
       "src/react/pages/admin/EditSaldoForm.tsx",
       "src/react/pages/admin/SaldoManager.tsx"
-    ]
-  },
-  {
-    "hash": "bee7d6876e2c9e6b5f4f8b00339077f4d83a9b79",
-    "date": "2025-09-08T09:44:56+07:00",
-    "message": "refactor: remove toRupiah formatting for saldo in Dashboard, AddSaldoForm, and EditSaldoForm",
-    "files": [
-      "src/react/pages/Dashboard.tsx",
-      "src/react/pages/admin/AddSaldoForm.tsx",
-      "src/react/pages/admin/EditSaldoForm.tsx"
-    ]
-  },
-  {
-    "hash": "3687c10877f1c6ed25ab433cb6925131195bcdc2",
-    "date": "2025-09-08T09:44:16+07:00",
-    "message": "chore(UI): rename saldo to point",
-    "files": [
-      "src/react/locales/en.json",
-      "src/react/locales/id.json",
-      "src/react/pages/Dashboard.tsx"
-    ]
-  },
-  {
-    "hash": "ce1e356e6f779256142613da4a358a84f9473854",
-    "date": "2025-09-07T19:19:19+07:00",
-    "message": "fix(tailwind): ensure all buttons have pointer cursor for better UX",
-    "files": [
-      "tailwind.input.css"
-    ]
-  },
-  {
-    "hash": "161449de90b81b4c6b9961a6a4b3e1740b21a5ab",
-    "date": "2025-09-07T19:01:07+07:00",
-    "message": "docs(CoreDB): enhance constructor docblock with additional parameters for MySQL connection",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "7dbaa7c603b5fc96c6f1acf3c631efe50889f8b0",
-    "date": "2025-09-07T18:59:32+07:00",
-    "message": "feat(db): use is_debug_device to load environment-specific DB credentials",
-    "files": [
-      "php_backend/shared.php"
     ]
   }
 ]
