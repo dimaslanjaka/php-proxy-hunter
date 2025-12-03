@@ -1,13 +1,18 @@
 #!/bin/bash
 
-CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TMP_DB="$CWD/tmp/database.sqlite"
-SRC_DB="$CWD/src/database.sqlite"
-BACKUP_DIR="$CWD/backups"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Project root (one level up from script dir)
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# Use project-root locations for databases and backups
+TMP_DB="$PROJECT_ROOT/tmp/database.sqlite"
+SRC_DB="$PROJECT_ROOT/src/database.sqlite"
+BACKUP_DIR="$PROJECT_ROOT/backups"
 
-# Load .env file
-if [ -f "$CWD/.env" ]; then
-    source "$CWD/.env"
+# Load .env file (prefer project root `.env`, fallback to script dir)
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    source "$PROJECT_ROOT/.env"
+elif [ -f "$SCRIPT_DIR/.env" ]; then
+    source "$SCRIPT_DIR/.env"
 fi
 
 # Create backup directory if it doesn't exist
@@ -15,22 +20,79 @@ mkdir -p "$BACKUP_DIR"
 
 # Backup tmp database if it exists
 if [ -f "$TMP_DB" ]; then
-    sqlite3 "$TMP_DB" .dump > "$BACKUP_DIR/tmp_dump.sql"
-    echo "$TMP_DB -> $BACKUP_DIR/tmp_dump.sql"
+    sqlite3 "$TMP_DB" .dump > "$BACKUP_DIR/python_database_backup_$(date +%Y-%m-%d).sql"
+    echo "$TMP_DB -> $BACKUP_DIR/python_database_backup_$(date +%Y-%m-%d).sql"
 fi
 
 # Backup src database if it exists
 if [ -f "$SRC_DB" ]; then
-    sqlite3 "$SRC_DB" .dump > "$BACKUP_DIR/src_dump.sql"
-    echo "$SRC_DB -> $BACKUP_DIR/src_dump.sql"
+    sqlite3 "$SRC_DB" .dump > "$BACKUP_DIR/php_database_backup_$(date +%Y-%m-%d).sql"
+    echo "$SRC_DB -> $BACKUP_DIR/php_database_backup_$(date +%Y-%m-%d).sql"
 fi
 
 # Backup MySQL database
+# Normalize and fallback env var names:
+# - accept MYSQL_PASS -> MYSQL_PASSWORD
+# - accept MYSQL_DBNAME -> MYSQL_DATABASE
+# - accept production variants like MYSQL_USER_PRODUCTION when canonical vars are missing
+if [ -z "$MYSQL_PASSWORD" ] && [ -n "$MYSQL_PASS" ]; then
+    MYSQL_PASSWORD="$MYSQL_PASS"
+fi
+if [ -z "$MYSQL_DATABASE" ] && [ -n "$MYSQL_DBNAME" ]; then
+    MYSQL_DATABASE="$MYSQL_DBNAME"
+fi
+
+# Fallback to production-specific variables if canonical ones are not set
+if [ -z "$MYSQL_USER" ] && [ -n "$MYSQL_USER_PRODUCTION" ]; then
+    MYSQL_USER="$MYSQL_USER_PRODUCTION"
+fi
+if [ -z "$MYSQL_PASSWORD" ] && [ -n "$MYSQL_PASS_PRODUCTION" ]; then
+    MYSQL_PASSWORD="$MYSQL_PASS_PRODUCTION"
+fi
+if [ -z "$MYSQL_DATABASE" ] && [ -n "$MYSQL_DBNAME_PRODUCTION" ]; then
+    MYSQL_DATABASE="$MYSQL_DBNAME_PRODUCTION"
+fi
+if [ -z "$MYSQL_HOST" ] && [ -n "$MYSQL_HOST_PRODUCTION" ]; then
+    MYSQL_HOST="$MYSQL_HOST_PRODUCTION"
+fi
+
 if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ] && [ -n "$MYSQL_DATABASE" ]; then
     mkdir -p "$BACKUP_DIR"
-    BACKUP_FILE="$BACKUP_DIR/mysql-backup-$(date +%Y%m%d-%H%M%S).sql"
-    mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"
+    BACKUP_FILE="$BACKUP_DIR/mysql-backup-$(date +%Y-%m-%d).sql"
+    # Use a temporary defaults file to avoid passing the password on the command line
+    CREDFILE=""
+    if command -v mktemp >/dev/null 2>&1; then
+        CREDFILE=$(mktemp)
+    else
+        CREDFILE="${BACKUP_DIR}/.mysql-cred-$$.cnf"
+    fi
+    if [ -n "$CREDFILE" ]; then
+        chmod 600 "$CREDFILE" 2>/dev/null || true
+        {
+            echo "[client]"
+            echo "user=${MYSQL_USER}"
+            echo "password=${MYSQL_PASSWORD}"
+            if [ -n "$MYSQL_HOST" ]; then
+                echo "host=${MYSQL_HOST}"
+            fi
+        } > "$CREDFILE"
+        # ensure cleanup
+        trap 'rm -f "${CREDFILE}"' EXIT
+        # --defaults-extra-file must come first
+        mysqldump --defaults-extra-file="$CREDFILE" "$MYSQL_DATABASE" > "$BACKUP_FILE"
+        rm -f "$CREDFILE" || true
+        trap - EXIT
+    else
+        # fallback: include host argument when provided
+        if [ -n "$MYSQL_HOST" ]; then
+            mysqldump -h"$MYSQL_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"
+        else
+            mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"
+        fi
+    fi
     echo "MySQL backup saved to $BACKUP_FILE"
 else
     echo "MySQL credentials not set in .env"
+    echo "Required: one of MYSQL_USER or MYSQL_USER_PRODUCTION, and MYSQL_PASS/ MYSQL_PASS_PRODUCTION, and MYSQL_DBNAME or MYSQL_DBNAME_PRODUCTION (or set MYSQL_DATABASE)."
 fi
+
