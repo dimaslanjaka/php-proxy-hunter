@@ -82,7 +82,11 @@ class ProxyList(QWidget):
             ["Proxy", "Type", "Country", "City", "Timezone", "Last Check", "Status"]
         )
         header = self.table.horizontalHeader()
-        header.setStretchLastSection(True)
+        # Make all columns stretch to fill the available table width so
+        # the table remains full-width even when cells have little content.
+        for i in range(self.table.columnCount()):
+            # Use ResizeMode enum to keep type checkers happy
+            header.setSectionResizeMode(i, QHeaderView.ResizeMode.Stretch)
         layout.addWidget(self.table)
 
         self.status_label = QLabel("")
@@ -277,10 +281,11 @@ class ProxyList(QWidget):
                     item.setForeground(QBrush(QColor("red")))
                 self.table.setItem(row, 6, item)
             # Auto-size columns after filling rows so widths match content
-            try:
-                self.table.resizeColumnsToContents()
-            except Exception:
-                pass
+            # Keep columns stretched to the widget width instead of
+            # resizing to content so the table always uses full width.
+            # (Avoid calling `resizeColumnsToContents()` which shrinks
+            # columns when cell content is small.)
+            pass
         except Exception:
             traceback.print_exc()
 
