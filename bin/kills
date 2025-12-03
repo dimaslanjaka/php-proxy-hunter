@@ -1,39 +1,66 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Check the operating system type
-if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
-    echo "Running in Cygwin or MSYS environment"
-    # Terminate Windows processes using taskkill
-    taskkill //F //IM python.exe
-    wmic process where "name like '%chrome.exe%'" delete
-    wmic process where "name like '%webdriver.exe%'" delete
-    wmic process where "name like '%chromedriver.exe%'" delete
-    wmic process where "name like '%php.exe%'" delete
-    wmic process where "name like '%python.exe%'" delete
-    wmic process where "name like '%node.exe%'" delete
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    echo "Running in Linux environment"
-    # Terminate POSIX-compatible processes using ps and kill
-    # Example: terminate Python processes
-    ps -ef | grep python | grep -v grep | awk '{print $2}' | xargs kill -9
-    ps -ef | grep python3 | grep -v grep | awk '{print $2}' | xargs kill -9
+# Robust cross-platform kill script
+# - Uses taskkill on Windows (MSYS/Cygwin/MINGW)
+# - Uses pgrep/kil on Unix-like systems and falls back to ps/awk
 
-    # Example: terminate Chrome-related processes
-    ps -ef | grep chrome | grep -v grep | awk '{print $2}' | xargs kill -9
-    ps -ef | grep webdriver | grep -v grep | awk '{print $2}' | xargs kill -9
-    ps -ef | grep chromedriver | grep -v grep | awk '{print $2}' | xargs kill -9
+set -u
 
-    # Example: terminate PHP processes
-    ps -ef | grep php | grep -v grep | awk '{print $2}' | xargs kill -9
+echo "Running kills script (PID: $$)"
 
-    # Example: terminate Node.js processes
-    ps -ef | grep node | grep -v grep | awk '{print $2}' | xargs kill -9
+kill_by_name_unix() {
+    local name="$1"
+    local pids=""
+
+    if command -v pgrep >/dev/null 2>&1; then
+        pids=$(pgrep -f "$name" || true)
+    else
+        pids=$(ps -ef | grep -i "$name" | grep -v grep | awk '{print $2}' || true)
+    fi
+
+    if [ -n "$pids" ]; then
+        echo "Killing processes matching '$name': $pids"
+        # shellcheck disable=SC2086
+        kill -9 $pids 2>/dev/null || echo "Failed to kill some pids: $pids"
+    else
+        echo "No running processes found for '$name'"
+    fi
+}
+
+kill_by_name_windows() {
+    local proc="$1"
+    if command -v taskkill >/dev/null 2>&1; then
+        echo "Terminating $proc with taskkill"
+        taskkill /F /IM "$proc" 2>/dev/null || true
+    else
+        echo "taskkill not found, trying wmic for $proc"
+        # WMIC might be deprecated on some systems; ignore errors
+        wmic process where "name='$proc'" call terminate 2>/dev/null || true
+    fi
+}
+
+# Normalize OSTYPE/uname detection for common Windows bash environments
+case "$(uname -s 2>/dev/null || echo unknown)" in
+    CYGWIN*|MINGW*|MSYS*|Windows_NT)
+        echo "Detected Windows-like environment: $(uname -s)"
+        WINDOWS=true
+        ;;
+    *)
+        WINDOWS=false
+        ;;
+esac
+
+if [ "$WINDOWS" = true ]; then
+    for p in python.exe chrome.exe webdriver.exe chromedriver.exe php.exe node.exe; do
+        kill_by_name_windows "$p"
+    done
 else
-    echo "Unknown environment: $OSTYPE"
+    echo "Detected Unix-like environment"
+    for name in python python3 chrome webdriver chromedriver php node; do
+        kill_by_name_unix "$name"
+    done
 fi
 
-# Additional commands (commented out in original batch script)
-# rm -f *.lock
-# php bin/composer.phar install
-# touch yarn.lock
-# yarn install
+# Optional: cleanup commented out originally
+# rm -f *.lock || true
+# composer install
