@@ -180,6 +180,7 @@
     "binary-collections": "^2.0.10",
     "browserslist": "^4.28.0",
     "cloudflared": "^0.7.1",
+    "cpy": "^12.1.0",
     "cross-env": "^10.1.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
