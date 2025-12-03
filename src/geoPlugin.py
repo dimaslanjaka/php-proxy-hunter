@@ -377,52 +377,6 @@ def get_locale_from_country_code(country_code: str):
         return None  # or handle as needed
 
 
-def download_databases(folder: str):
-    """
-    download geolite2 .mmdb databases
-    """
-    if not folder:
-        return
-    # Ensure the folder exists
-    os.makedirs(folder, exist_ok=True)
-
-    urls = [
-        "https://git.io/GeoLite2-ASN.mmdb",
-        "https://git.io/GeoLite2-City.mmdb",
-        "https://git.io/GeoLite2-Country.mmdb",
-        "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-City.mmdb",
-        "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb",
-        "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb",
-    ]
-
-    for url in urls:
-        # Extract filename from the URL
-        filename = os.path.basename(urlparse(url).path)
-        file_path = os.path.join(folder, filename)
-
-        # Download the file
-        response = requests.get(url, stream=True)
-        if response.status_code == 200:
-            # Check the size of the downloaded file
-            downloaded_size = int(response.headers.get("content-length", 0))
-
-            # Check if the file already exists and get its size
-            if os.path.exists(file_path):
-                existing_size = os.path.getsize(file_path)
-            else:
-                existing_size = 0
-
-            # Overwrite if the downloaded file is larger
-            if downloaded_size > existing_size:
-                with open(file_path, "wb") as file:
-                    file.write(response.content)
-                print(f"Downloaded and saved {file_path}")
-            else:
-                print(f"Skipped {file_path}: Existing file is larger or equal in size.")
-        else:
-            print(f"Failed to download {url}")
-
-
 def get_timezones_by_country_code(country_code: str) -> Optional[List[str]]:
     """
     Get a list of timezones associated with a given country code.
@@ -471,4 +425,5 @@ def get_timezones_by_lat_lon(latitude: float, longitude: float) -> Optional[List
 
 
 if __name__ == "__main__":
-    download_databases(get_relative_path("src"))
+    locale_country_code = get_locale_from_country_code("ID")
+    print(f"")
