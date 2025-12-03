@@ -143,8 +143,6 @@ def get_geo_ip2(
 
     try:
         db_file = get_relative_path("src/GeoLite2-City.mmdb")
-        if not os.path.exists(db_file):
-            db_file = get_nuitka_file("src/GeoLite2-City.mmdb")
         with database.Reader(db_file) as reader:
             response = reader.city(ip)
             city = response.city.name
