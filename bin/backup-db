@@ -8,6 +8,23 @@ TMP_DB="$PROJECT_ROOT/tmp/database.sqlite"
 SRC_DB="$PROJECT_ROOT/src/database.sqlite"
 BACKUP_DIR="$PROJECT_ROOT/backups"
 
+# Create .htaccess to protect backups directory
+if [ ! -f "$BACKUP_DIR/.htaccess" ]; then
+    mkdir -p "$BACKUP_DIR"
+    {
+        echo "Order Allow,Deny"
+        echo "Deny from all"
+    } > "$BACKUP_DIR/.htaccess"
+fi
+
+# Create index.html to prevent directory listing
+if [ ! -f "$BACKUP_DIR/index.html" ]; then
+    {
+        echo "<!DOCTYPE html>"
+        echo "<html><head><meta charset=\"UTF-8\"><title>403 Forbidden</title></head><body><h1>403 Forbidden</h1><p>Access to this directory is forbidden.</p></body></html>"
+    } > "$BACKUP_DIR/index.html"
+fi
+
 # Load .env file (prefer project root `.env`, fallback to script dir)
 if [ -f "$PROJECT_ROOT/.env" ]; then
     source "$PROJECT_ROOT/.env"
