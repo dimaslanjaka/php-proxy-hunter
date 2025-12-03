@@ -1,5 +1,37 @@
 [
   {
+    "hash": "ab2934076ec91fd41af9032b2fb98c8f9817957e",
+    "date": "2025-12-03T16:14:16+07:00",
+    "message": "feat(backup-db): ensure backup directory creation with proper permissions",
+    "files": [
+      "bin/backup-db"
+    ]
+  },
+  {
+    "hash": "264307f9d49ee55832be877b425e44a5ea25a317",
+    "date": "2025-12-03T16:13:29+07:00",
+    "message": "feat(backup-db): add .htaccess and index.html for backup directory protection",
+    "files": [
+      "bin/backup-db"
+    ]
+  },
+  {
+    "hash": "f9d74b7278fca323d22a70deb6223d679c257dbf",
+    "date": "2025-12-03T16:12:22+07:00",
+    "message": "feat(bin/backup-db): prefer project-root env and secure MySQL backups\n\n- replace `CWD` with `SCRIPT_DIR` and introduce `PROJECT_ROOT` (use\n  project-root `tmp`, `src`, `backups`)\n- load `.env` from project root first, fallback to script dir\n- date-stamp sqlite dumps and add clear filenames:\n  `python_database_backup_YYYY-MM-DD.sql` and\n  `php_database_backup_YYYY-MM-DD.sql`\n- normalize MySQL env names (`MYSQL_PASS` -> `MYSQL_PASSWORD`,\n  `MYSQL_DBNAME` -> `MYSQL_DATABASE`)\n- add fallbacks to production variables (`*_PRODUCTION`) and pick\n  `MYSQL_HOST_PRODUCTION` when present\n- avoid exposing password on the command line by writing a temporary\n  MySQL defaults file and calling `mysqldump --defaults-extra-file=...`\n- change MySQL backup filename to `mysql-backup-YYYY-MM-DD.sql`\n- improve missing-vars message to list required env variables",
+    "files": [
+      "bin/backup-db"
+    ]
+  },
+  {
+    "hash": "6b9c3e1c23f36ef32753c5181a74bc98f542acba",
+    "date": "2025-12-03T15:46:27+07:00",
+    "message": "feat(proxyListGui): add buttons to open Proxy Checker and Port Finder\n\n- Add imports for `ProxyChecker` and `PortFinder`.\n- Add \"Open Proxy Checker\" and \"Open Port Finder\" buttons to the top row.\n- Implement `show_proxy_checker()` and `show_port_finder()` to lazily create and show windows.\n- Keep persistent window references (`_proxy_checker_window`, `_portfinder_window`) so child windows are not garbage-collected.",
+    "files": [
+      "python_app/proxyListGui.py"
+    ]
+  },
+  {
     "hash": "cf1c3bdd08714ff5888c55765777715a79cdc202",
     "date": "2025-12-03T15:03:24+07:00",
     "message": "feat(proxyListGui): adjust table column behavior for better width management",
@@ -8623,48 +8655,6 @@
     "files": [
       "bin/build-project.mjs",
       "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "fee6d25003cb88c1c1e612b6e73ec9ebe0ea3729",
-    "date": "2025-09-10T03:45:20+07:00",
-    "message": "feat(build): add checksum-based build caching and dependency install\n\n- Introduce checksum calculation for package.json and src files to detect changes.\n- Skip build and dependency install if no changes detected since last build.\n- Replace rollup config glob/build loop with conditional yarn install and npm build.\n- Store last build checksum in tmp/build/build-project-checksum.txt for future runs.",
-    "files": [
-      "bin/build-project.mjs"
-    ]
-  },
-  {
-    "hash": "c4f0f3bebe870ecec9b3695e50b56516c8e31698",
-    "date": "2025-09-10T03:37:49+07:00",
-    "message": "refactor: update checksum file path",
-    "files": [
-      "packages/proxies-grabber",
-      "setup.js"
-    ]
-  },
-  {
-    "hash": "32fea59ff46fabf42f663e19512eedd4494f2798",
-    "date": "2025-09-10T03:35:33+07:00",
-    "message": "feat(deploy): add deploy-vps script for remote deployment and git pull functionality",
-    "files": [
-      "bin/deploy-vps.cmd",
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "e4073136e10440115105a5664edac7dfce1557ab",
-    "date": "2025-09-10T02:59:25+07:00",
-    "message": "refactor(bin): rename create-file-hashes scripts to cfh\n\n- Rename all create-file-hashes scripts and references to cfh for brevity and consistency.\n- Update .gitattributes, .husky hooks, and documentation to use the new cfh script name.\n- Adjust merge driver configuration and related shell/cmd scripts to reference cfh.\n- Update internal imports and usage in supporting scripts.",
-    "files": [
-      ".gitattributes",
-      ".husky/pre-commit",
-      ".husky/pre-merge-commit",
-      "bin/cfh",
-      "bin/cfh.cjs",
-      "bin/cfh.cmd",
-      "bin/git-pull.cjs",
-      "readme.md",
-      "setup.sh"
     ]
   }
 ]
