@@ -1,7 +1,7 @@
 import axios from 'axios';
 import fs from 'fs';
 import { CookieJar } from 'tough-cookie';
-import { promisify } from 'util';
+// Note: don't promisify methods that already return Promises (tough-cookie v4+)
 import { isNotEmpty } from './string.js';
 
 /**
@@ -139,9 +139,9 @@ export const buildCurl = async (url, proxy = null, timeout = 60 * 1000, cookieFi
   const store = new FileCookieStore(cookieFilePath);
   const jar = new CookieJar(store);
 
-  // Promisify jar methods to handle async operations
-  const getCookieString = promisify(jar.getCookieString.bind(jar));
-  const setCookie = promisify(jar.setCookie.bind(jar));
+  // Use jar methods directly - they return Promises when no callback is provided
+  const getCookieString = jar.getCookieString.bind(jar);
+  const setCookie = jar.setCookie.bind(jar);
 
   // Get appropriate proxy agent based on protocol
   let agent = await getProxyAgent(proxy, timeout);
