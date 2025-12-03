@@ -1,5 +1,21 @@
 [
   {
+    "hash": "f5df6c8a44502be13e0b072307c7e3e3d1633c68",
+    "date": "2025-12-03T22:05:38+07:00",
+    "message": "fix(bin): make `bin/kills` robust and cross-platform\n\n- Rewrote `bin/kills` to detect Windows-like (CYGWIN/MINGW/MSYS) vs Unix-like\n  environments and handle each appropriately.\n- On Windows: use `taskkill /F /IM <proc>` with a `wmic` fallback for termination.\n- On Unix: prefer `pgrep -f` and fall back to `ps | awk` to collect PIDs, and only\n  call `kill -9` when PIDs are present (avoids invoking `kill` with no args).\n- Added helper functions (`kill_by_name_unix`, `kill_by_name_windows`), logging,\n  and safer error handling (`set -u`, ignore missing tools).\n- Removes fragile `ps | grep | xargs kill` usage that produced `kill` help output.\n\nPrevents accidental `kill` usage/help spam and makes process cleanup reliable\nacross environments.",
+    "files": [
+      "bin/kills"
+    ]
+  },
+  {
+    "hash": "c45556c39d165e11619502f5aded2e02d4c0ea40",
+    "date": "2025-12-03T22:04:32+07:00",
+    "message": "refactor(utils/curl): remove unnecessary promisify calls for tough-cookie v4+\n\ntough-cookie v4+ methods return Promises when no callback is supplied, so\nusing `promisify` is redundant. Updated `getCookieString` and `setCookie`\nto use bound methods directly and added clarifying comment.",
+    "files": [
+      "src/utils/curl.js"
+    ]
+  },
+  {
     "hash": "ab2934076ec91fd41af9032b2fb98c8f9817957e",
     "date": "2025-12-03T16:14:16+07:00",
     "message": "feat(backup-db): ensure backup directory creation with proper permissions",
@@ -8640,21 +8656,6 @@
     "message": "fix: wrap buildForGithubPages call in conditional to ensure proper execution",
     "files": [
       "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "4ebcea2ee3f33153d6acf07a705eb8a198d0a2f2",
-    "date": "2025-09-10T04:02:42+07:00",
-    "message": "fix(post-merge): replace yarn build with node script for project build",
-    "files": []
-  },
-  {
-    "hash": "dfb0f2efc43669046e028b2078cb0cbe63574291",
-    "date": "2025-09-10T03:53:02+07:00",
-    "message": "fix(build): ensure shell compatibility for spawnSync and update deploy script\n\n- Add `shell: true` to yarn and npm spawnSync calls in build-project.mjs for better cross-platform compatibility.\n- Update deploy-vps.mjs to use build-project.mjs via node instead of direct npm run build, ensuring",
-    "files": [
-      "bin/build-project.mjs",
-      "bin/deploy-vps.mjs"
     ]
   }
 ]
