@@ -12,7 +12,7 @@ _REPO_ROOT = str(Path(__file__).resolve().parent.parent)
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-from src.ProxyDB import ProxyDB
+from src.shared import init_db
 from src.func import get_nuitka_file, get_relative_path
 from PySide6.QtWidgets import (
     QApplication,
@@ -94,7 +94,7 @@ class ProxyChecker(QWidget):
         self.resize(800, 600)
         self.setMinimumSize(500, 400)
 
-        self.db = ProxyDB(get_relative_path(".cache/database.sqlite"), True)
+        self.db = init_db(db_type="sqlite")
 
         layout = QVBoxLayout()
 
@@ -303,7 +303,7 @@ class ProxyChecker(QWidget):
             pass
 
         # Reuse database connection to reduce resource overhead
-        db = ProxyDB(get_relative_path(".cache/database.sqlite"), True)
+        db = init_db(db_type="sqlite")
         try:
             proxy_types = ["http", "socks4", "socks5"]
             working_types = []

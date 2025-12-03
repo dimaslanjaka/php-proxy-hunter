@@ -32,7 +32,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.func import get_nuitka_file, get_relative_path
-from src.ProxyDB import ProxyDB
+from src.shared import init_db
 from src.pyside6.utils.settings import load_text, save_text
 
 
@@ -276,7 +276,7 @@ class PortFinder(QWidget):
         # Keep a lock because scanning runs worker threads which may
         # update the DB concurrently elsewhere in the app.
         try:
-            self.db = ProxyDB(get_relative_path(".cache/database.sqlite"), True)
+            self.db = init_db(db_type="sqlite")
             self.db_lock = threading.Lock()
         except Exception:
             self.db = None
