@@ -21,6 +21,8 @@
  *              - 1: Force TLS v1.0.
  *              - 2: Force TLS v1.2.
  *              - 3: Force TLS v1.3.
+ * @param int $connect_timeout Connection timeout in seconds. Default is 10.
+ * @param int $timeout        Maximum response time in seconds. Default is 10.
  * @return \CurlHandle|\resource Returns a cURL handle on success, false on failure.
  */
 function buildCurl(
@@ -32,7 +34,9 @@ function buildCurl(
   $password = null,
   $method = 'GET',
   $post_data = null,
-  $ssl = 0
+  $ssl = 0,
+  $connect_timeout = 10,
+  $timeout = 10
 ) {
   $ch = curl_init();
   // URL to test connectivity
@@ -127,10 +131,10 @@ function buildCurl(
     }
   }
 
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-  // Set maximum connection time
-  curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-  // Set maximum response time
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (int) $connect_timeout);
+  // Set maximum connection time (seconds)
+  curl_setopt($ch, CURLOPT_TIMEOUT, (int) $timeout);
+  // Set maximum response time (seconds)
   // curl_setopt($ch, CURLOPT_VERBOSE, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   // curl_setopt($ch, CURLOPT_HEADER, true);
@@ -196,6 +200,8 @@ function buildCurl(
  * @param string      $method       HTTP method: GET, POST, PUT, DELETE, etc.
  * @param mixed       $post_data    Data to send with POST/PUT requests.
  * @param int         $ssl          SSL verification mode (0 = off, 1 = on).
+ * @param int         $connect_timeout Connection timeout in seconds. Default is 10.
+ * @param int         $timeout        Maximum response time in seconds. Default is 10.
  *
  * @return array{
  *     result: mixed,
@@ -218,9 +224,11 @@ function executeCurl(
   $password = null,
   $method = 'GET',
   $post_data = null,
-  $ssl = 0
+  $ssl = 0,
+  $connect_timeout = 10,
+  $timeout = 10
 ) {
-  $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password, $method, $post_data, $ssl);
+  $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password, $method, $post_data, $ssl, $connect_timeout, $timeout);
 
   $start = microtime(true);
   // measure latency (start)
