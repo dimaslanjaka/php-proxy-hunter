@@ -212,7 +212,7 @@
   "git.autoStash": true,
   "git.useCommitInputAsStashMessage": true,
   "git.repositoryScanIgnoredFolders": ["node_modules", ".deploy_git", "tmp", ".cache"],
-  "intelephense.environment.phpVersion": "7.0",
+  "intelephense.environment.phpVersion": "8.2.0",
   "intelephense.diagnostics.enable": true,
   "intelephense.diagnostics.run": "onSave",
   // "intelephense.environment.documentRoot": "${workspaceFolder}",
