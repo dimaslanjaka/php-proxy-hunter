@@ -92,6 +92,10 @@ def merge_pem():
     # Write unique certificates to the combined PEM file
     write_unique_certificates(pem_files, output_pem)
 
+    # Write unique certificates for PHP as well
+    php_output_pem = get_nuitka_file("src/PhpProxyHunter/utils/cacert.pem")
+    write_unique_certificates(pem_files, php_output_pem)
+
 
 def main():
     merge_pem()
