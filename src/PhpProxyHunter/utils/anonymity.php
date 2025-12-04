@@ -1,30 +1,126 @@
 <?php
 
 /**
- * Functions to determine proxy anonymity.
+ * Extract IP addresses from arbitrary text or JSON.
+ *
+ * @param string $text
+ * @return array
  */
+function extract_ips_from_text($text) {
+  $ips = [];
+
+  if (!is_string($text)) {
+    return $ips;
+  }
+
+  $trim = trim($text);
+
+  // Try JSON first
+  $maybeJson = json_decode($trim, true);
+  if (is_array($maybeJson)) {
+    $iterator = function ($value) use (&$ips, &$iterator) {
+      if (is_array($value)) {
+        foreach ($value as $child) {
+          $iterator($child);
+        }
+      } elseif (is_string($value)) {
+        if (filter_var($value, FILTER_VALIDATE_IP)) {
+          $ips[] = $value;
+        }
+      }
+    };
+    $iterator($maybeJson);
+  }
+
+  // IPv4 regex
+  if (preg_match_all('/\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d)){3})\b/', $text, $m)) {
+    foreach ($m[0] as $ip) {
+      $ips[] = $ip;
+    }
+  }
+
+  // IPv6 rough extraction
+  if (preg_match_all('/\b([0-9a-fA-F:]{2,})\b/', $text, $m6)) {
+    foreach ($m6[1] as $cand) {
+      if (filter_var($cand, FILTER_VALIDATE_IP)) {
+        $ips[] = $cand;
+      }
+    }
+  }
+
+  return array_values(array_unique($ips));
+}
 
 /**
- * Obtain the anonymity of the proxy.
+ * Parse headers from judge responses (raw or JSON).
  *
- * @param string $response_ip_info The response containing IP information.
- * @param string $response_judges The response containing headers to judge anonymity.
- * @return string Anonymity level: Transparent, Anonymous, or Elite. Empty string on failure.
+ * @param string $content
+ * @return array
  */
-function parse_anonymity($response_ip_info, $response_judges) {
-  if (empty(trim($response_ip_info)) || empty(trim($response_judges))) {
+function parse_headers_from_judge($content) {
+  $headers = [];
+
+  if (!is_string($content)) {
+    return $headers;
+  }
+
+  // JSON?
+  $maybeJson = json_decode($content, true);
+  if (is_array($maybeJson)) {
+    if (isset($maybeJson['headers']) && is_array($maybeJson['headers'])) {
+      return $maybeJson['headers'];
+    }
+    return $maybeJson;
+  }
+
+  // Raw header parsing
+  $lines = preg_split('/\r?\n/', $content);
+  foreach ($lines as $line) {
+    $parts = explode(':', $line, 2);
+    if (count($parts) === 2) {
+      $headers[trim($parts[0])] = trim($parts[1]);
+    }
+  }
+
+  return $headers;
+}
+
+/**
+ * Determine proxy anonymity: Transparent / Anonymous / Elite
+ *
+ * @param array       $ipInfos
+ * @param array       $judgeInfos
+ * @param string|null $deviceIp Injected for tests (optional)
+ * @return string
+ */
+function parse_anonymity($ipInfos, $judgeInfos, $deviceIp = null) {
+  // Always available — no need to check
+  if ($deviceIp === null) {
+    $deviceIp = getServerIp();
+  }
+
+  if (!$deviceIp) {
     return '';
   }
-  $mergedResponse = $response_ip_info . $response_judges;
-  $deviceIp       = getServerIp();
-  if (empty($deviceIp) || $deviceIp === null || $deviceIp === false || $deviceIp === 0) {
-    throw new Exception('Device IP is empty, null, false, or 0');
+
+  // Collect proxy-reported IPs
+  $reportedIpsMap = [];
+  foreach ($ipInfos as $entry) {
+    $content = isset($entry['content']) ? $entry['content'] : '';
+    $ips     = extract_ips_from_text($content);
+    foreach ($ips as $ip) {
+      $reportedIpsMap[$ip] = true;
+    }
   }
-  if (strpos($mergedResponse, $deviceIp) !== false) {
+  $reportedIps = array_keys($reportedIpsMap);
+
+  // Transparent if device IP appears anywhere
+  if (in_array($deviceIp, $reportedIps, true)) {
     return 'Transparent';
   }
 
-  $privacy_headers = [
+  // Judge header detection
+  $privacyHeaders = [
     'VIA',
     'X-FORWARDED-FOR',
     'X-FORWARDED',
@@ -35,27 +131,51 @@ function parse_anonymity($response_ip_info, $response_judges) {
     'PROXY-CONNECTION',
   ];
 
-  foreach ($privacy_headers as $header) {
-    if (strpos($response_judges, $header) !== false) {
-      return 'Anonymous';
+  $foundPrivacyHeader = false;
+
+  foreach ($judgeInfos as $entry) {
+    $content = isset($entry['content']) ? $entry['content'] : '';
+    $headers = parse_headers_from_judge($content);
+
+    foreach ($headers as $name => $value) {
+      $upper = strtoupper(trim($name));
+
+      if (in_array($upper, $privacyHeaders, true)) {
+        $foundPrivacyHeader = true;
+      }
+
+      // Judge reveals real IP?
+      $valueIps = extract_ips_from_text($value);
+      if (in_array($deviceIp, $valueIps, true)) {
+        return 'Transparent';
+      }
     }
+  }
+
+  // If proxy IP seen and no real IP leaks
+  if (!empty($reportedIps)) {
+    return $foundPrivacyHeader ? 'Anonymous' : 'Elite';
+  }
+
+  // No reported IPs but privacy headers leaked
+  if ($foundPrivacyHeader) {
+    return 'Anonymous';
   }
 
   return 'Elite';
 }
 
-
 /**
- * Get the anonymity level of a proxy using multiple judgment sources.
+ * Fetch real anonymity through curl.
  *
- * @param string $proxy The proxy server address.
- * @param string $type The type of proxy (e.g., 'http', 'https').
- * @param string|null $username Optional username for proxy authentication.
- * @param string|null $password Optional password for proxy authentication.
- * @return string Anonymity level: Transparent, Anonymous, Elite, or Empty if failed.
+ * @param string      $proxy
+ * @param string      $type
+ * @param string|null $username
+ * @param string|null $password
+ * @return string
  */
 function get_anonymity($proxy, $type, $username = null, $password = null) {
-  $proxy_judges = [
+  $proxyJudges = [
     'https://wfuchs.de/azenv.php',
     'http://mojeip.net.pl/asdfa/azenv.php',
     'http://httpheader.net/azenv.php',
@@ -63,28 +183,36 @@ function get_anonymity($proxy, $type, $username = null, $password = null) {
     'https://www.cooleasy.com/azenv.php',
     'https://httpbin.org/headers',
   ];
-  $ip_infos = [
+
+  $ipInfos = [
     'https://api.ipify.org/',
     'https://httpbin.org/ip',
     'https://cloudflare.com/cdn-cgi/trace',
   ];
-  $content_judges = array_map(function ($url) use ($proxy, $type, $username, $password) {
-    $ch = buildCurl($proxy, $type, $url, [], $username, $password);
+
+  $judgeData = [];
+  foreach ($proxyJudges as $url) {
+    $ch      = buildCurl($proxy, $type, $url, [], $username, $password, 'GET', null, 0, 10, 10);
     $content = curl_exec($ch);
     curl_close($ch);
-    if ($content !== false && is_string($content)) {
-      return $content;
-    }
-    return '';
-  }, $proxy_judges);
-  $content_ip = array_map(function ($url) use ($proxy, $type, $username, $password) {
-    $ch = buildCurl($proxy, $type, $url, [], $username, $password);
+
+    $judgeData[] = [
+      'url'     => $url,
+      'content' => is_string($content) ? $content : '',
+    ];
+  }
+
+  $ipData = [];
+  foreach ($ipInfos as $url) {
+    $ch      = buildCurl($proxy, $type, $url, [], $username, $password, 'GET', null, 0, 10, 10);
     $content = curl_exec($ch);
     curl_close($ch);
-    if ($content !== false && is_string($content)) {
-      return $content;
-    }
-    return '';
-  }, $ip_infos);
-  return parse_anonymity(implode("\n", $content_ip), implode("\n", $content_judges));
+
+    $ipData[] = [
+      'url'     => $url,
+      'content' => is_string($content) ? $content : '',
+    ];
+  }
+
+  return parse_anonymity($ipData, $judgeData);
 }
