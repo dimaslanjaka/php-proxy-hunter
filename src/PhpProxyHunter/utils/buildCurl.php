@@ -47,6 +47,17 @@ function buildCurl(
 
   $headers = array_merge($default_headers, $headers);
 
+  // Make headers unique by header name
+  $unique = [];
+  foreach ($headers as $h) {
+    [$key, $value] = explode(':', $h, 2);
+    $key           = trim($key);
+    $value         = trim($value);
+    $unique[$key]  = $key . ': ' . $value;
+  }
+
+  $headers = array_values($unique);
+
   // Remove Accept-Encoding header
   $pattern = '/^(?:accept-?encoding:|Accept-?Encoding:).*/i';
   $headers = preg_grep($pattern, $headers, PREG_GREP_INVERT);
