@@ -183,3 +183,64 @@ function buildCurl(
 
   return $ch;
 }
+
+/**
+ * Executes a cURL request using the configuration provided by buildCurl().
+ *
+ * @param string|null $proxy        Optional proxy address (host:port).
+ * @param string      $type         Proxy type: e.g. "http", "socks4", "socks5".
+ * @param string      $endpoint     Target URL to call.
+ * @param array       $headers      Array of additional HTTP headers.
+ * @param string|null $username     Optional username for authentication.
+ * @param string|null $password     Optional password for authentication.
+ * @param string      $method       HTTP method: GET, POST, PUT, DELETE, etc.
+ * @param mixed       $post_data    Data to send with POST/PUT requests.
+ * @param int         $ssl          SSL verification mode (0 = off, 1 = on).
+ *
+ * @return array{
+ *     result: mixed,
+ *     latency_s: float,
+ *     latency_ms: float,
+ *     curl_info: array
+ * }
+ *     Returns an array containing:
+ *       - result:     The raw response body returned by curl_exec().
+ *       - latency_s:  Total request latency in seconds.
+ *       - latency_ms: Total request latency in milliseconds.
+ *       - curl_info:  Data from curl_getinfo() describing the request.
+ */
+function executeCurl(
+  $proxy = null,
+  $type = 'http',
+  $endpoint = 'https://bing.com',
+  $headers = [],
+  $username = null,
+  $password = null,
+  $method = 'GET',
+  $post_data = null,
+  $ssl = 0
+) {
+  $ch = buildCurl($proxy, $type, $endpoint, $headers, $username, $password, $method, $post_data, $ssl);
+
+  $start = microtime(true);
+  // measure latency (start)
+  $result = curl_exec($ch);
+  $end    = microtime(true);
+  // measure latency (end)
+
+  $latency = $end - $start;
+  // final latency in seconds
+  $latency_ms = round($latency * 1000, 2);
+  // milliseconds
+
+  $curl_info = curl_getinfo($ch);
+  // capture curl info before closing
+  curl_close($ch);
+
+  return [
+    'result'     => $result,
+    'latency_s'  => $latency,
+    'latency_ms' => $latency_ms,
+    'curl_info'  => $curl_info,
+  ];
+}
