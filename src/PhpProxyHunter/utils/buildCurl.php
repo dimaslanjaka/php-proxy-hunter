@@ -116,7 +116,7 @@ function buildCurl(
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     curl_setopt($ch, CURLOPT_SSL_VERIFYSTATUS, 0);
-    curl_setopt($ch, CURLOPT_CAINFO, realpath(__DIR__ . '/../data/cacert.pem'));
+    curl_setopt($ch, CURLOPT_CAINFO, realpath(__DIR__ . '/cacert.pem'));
     if (!empty($proxy)) {
       if (defined('CURLOPT_PROXY_SSL_VERIFYPEER')) {
         curl_setopt($ch, CURLOPT_PROXY_SSL_VERIFYPEER, 0);
