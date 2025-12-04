@@ -1,5 +1,90 @@
 [
   {
+    "hash": "723d26904d138e2ad5a6181cdd574f5df5fa3c74",
+    "date": "2025-12-04T20:16:25+07:00",
+    "message": "feat(check-anonymity-proxy): add new script for running anonymity checks on proxies with lock management",
+    "files": [
+      "php_backend/check-anonymity-proxy.php"
+    ]
+  },
+  {
+    "hash": "c021a7298f84f74ed83598f709d07f290266fee4",
+    "date": "2025-12-04T18:53:25+07:00",
+    "message": "refactor(utils/anonymity): rewrite anonymity parser, add IP/header extractors, and introduce full PHPUnit test suite\n\n- Replace old anonymity parser with structured functions:\n  - add extract_ips_from_text()\n  - add parse_headers_from_judge()\n  - fully rewrite parse_anonymity() to support JSON, multiple sources, and proper transparency/anonymous/elite detection\n- Refactor get_anonymity() to use new structured data arrays and improved curl handling\n- Add comprehensive PHPUnit tests for anonymity detection, IP extraction, and header parsing",
+    "files": [
+      "src/PhpProxyHunter/utils/anonymity.php",
+      "tests/utils/proxy/anonymityTest.php"
+    ]
+  },
+  {
+    "hash": "db153fddc82c3bee918907f51ed5800afbffef9f",
+    "date": "2025-12-04T13:49:20+07:00",
+    "message": "feat(buildCurl): make timeouts configurable\n\nAdd `$connect_timeout` and `$timeout` parameters to `buildCurl` (defaults: 10s)\nand use them for `CURLOPT_CONNECTTIMEOUT` and `CURLOPT_TIMEOUT`. Propagate the\nsame parameters to `executeCurl` and pass them through to `buildCurl`.\nUpdate docblocks to document the new parameters.",
+    "files": [
+      "src/PhpProxyHunter/utils/buildCurl.php"
+    ]
+  },
+  {
+    "hash": "15a8fd812303871e893fe3ac89ad9de460b2bfdc",
+    "date": "2025-12-04T13:34:46+07:00",
+    "message": "refactor: move proxy anonymity functions to dedicated utils module\n\n- Extract parse_anonymity() and get_anonymity() from func-proxy.php\n- Add new file src/PhpProxyHunter/utils/anonymity.php containing anonymity logic\n- Remove old implementations from func-proxy.php\n- Update docblocks and type hints (e.g., resource|\\CurlHandle)",
+    "files": [
+      "func-proxy.php",
+      "src/PhpProxyHunter/utils/anonymity.php"
+    ]
+  },
+  {
+    "hash": "e28e54ca65628fbc4ad7c73d636c9bf8afbec390",
+    "date": "2025-12-04T10:29:21+07:00",
+    "message": "fix(settings): update PHP version for Intelephense environment to 8.2.0",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "ae9bf4e671fde35274962aa3271d16945fb4d0d2",
+    "date": "2025-12-04T10:28:59+07:00",
+    "message": "fix(buildCurl): update CAINFO path to use relative directory for cacert.pem",
+    "files": [
+      "src/PhpProxyHunter/utils/buildCurl.php"
+    ]
+  },
+  {
+    "hash": "4389f062fc90a3c946fd2163c16f3f9b85a5344e",
+    "date": "2025-12-04T10:26:23+07:00",
+    "message": "feat: add functionality to write unique certificates for PHP in merge_pem function\n\n- Enhanced the merge_pem function to also generate a unique certificates file for PHP.\n- The new output file is located at src/PhpProxyHunter/utils/cacert.pem.",
+    "files": [
+      "data/cacert.pem",
+      "data/curlhaxx_cacert.pem",
+      "src/PhpProxyHunter/utils/cacert.pem",
+      "src/func_certificate.py"
+    ]
+  },
+  {
+    "hash": "69f1e9d119bd13afb86fd4bae8644de11cbcbfcb",
+    "date": "2025-12-04T10:24:21+07:00",
+    "message": "refactor(get-ca): rename create function to create_certificate for clarity",
+    "files": [
+      "data/get-ca.py"
+    ]
+  },
+  {
+    "hash": "bd789f66589ac5822346092f43cc997d8fff3a1b",
+    "date": "2025-12-04T09:54:43+07:00",
+    "message": "feat(proxy): record latency during proxy checks when available",
+    "files": [
+      "php_backend/check-proxy-type.php"
+    ]
+  },
+  {
+    "hash": "627c60e3ce70e1396b60cee07c841d434ea220c9",
+    "date": "2025-12-04T09:40:00+07:00",
+    "message": "fix(settings): update PHP version for Intelephense environment to 7.0",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
     "hash": "d2b0d464759a15a1de578a6302c5b7316dac1226",
     "date": "2025-12-04T09:37:16+07:00",
     "message": "feat(proxy): record latency for HTTP and HTTPS checks",
@@ -8567,95 +8652,6 @@
     "files": [
       "src/database/LogsRepository.php",
       "tests/database/LogsRepositoryTest.php"
-    ]
-  },
-  {
-    "hash": "945658e21d2ca69a9202c274f8f1582e02812002",
-    "date": "2025-09-10T08:36:40+07:00",
-    "message": "refactor(database): move user_logs and user_activity table creation into LogsRepository",
-    "files": [
-      "src/PhpProxyHunter/assets/mysql-schema.sql",
-      "src/PhpProxyHunter/assets/sqlite-schema.sql",
-      "src/database/LogsRepository.php"
-    ]
-  },
-  {
-    "hash": "109d504df12ab20cc6b8d97db1ced4d891a935cd",
-    "date": "2025-09-10T08:10:21+07:00",
-    "message": "feat(schema,logs): enhance user log and activity storage, add file log helpers\n\n- Updated MySQL and SQLite schemas:\n  - Added `id` as primary key to `user_logs` and `user_activity` tables.\n  - Changed `extra_info`/`details` columns to use JSON (MySQL) or TEXT (SQLite, for JSON1 compatibility).\n  - Added more descriptive comments and improved structure for both tables.\n- Refactored `LogsRepository`:\n  - Added PHPDoc and type annotations for properties.\n  - Added constructor to initialize PDO and driver.\n  - Added `addLogByHash` method to write log content to file, auto-encoding arrays/objects as JSON.\n  - Added `getLogFilePath` helper to resolve log file path by hash.\n  - Refactored `getLogsByHash` to use `getLogFilePath` and support file-based log retrieval.\n  - Ensured all file log helpers throw clear exceptions if required functions are missing.\n- Added PHPUnit test for `LogsRepository` covering DB and file-based log operations for both SQLite and MySQL.",
-    "files": [
-      "src/PhpProxyHunter/assets/mysql-schema.sql",
-      "src/PhpProxyHunter/assets/sqlite-schema.sql",
-      "src/database/LogsRepository.php",
-      "tests/database/LogsRepositoryTest.php"
-    ]
-  },
-  {
-    "hash": "81351f417fbf383e22ae3bb0cfb2585868d6bdf9",
-    "date": "2025-09-10T07:20:23+07:00",
-    "message": "feat(logs): refactor logs endpoint to use LogsRepository and shared DB\n\n- Refactored `php_backend/logs.php` to use a new `LogsRepository` class for fetching logs by hash.\n- Included `shared.php` for consistent database and utility function loading.\n- Added `src/database/LogsRepository.php` with a method to retrieve log content by hash, using helper functions for file access.\n- Improves maintainability and centralizes log file access logic.",
-    "files": [
-      "php_backend/logs.php",
-      "src/database/LogsRepository.php"
-    ]
-  },
-  {
-    "hash": "afd7868800698928f13bc46079f90c4d464e42db",
-    "date": "2025-09-10T07:12:16+07:00",
-    "message": "refactor(logs): streamline request handling and improve code structure",
-    "files": [
-      "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "5df3c92cfd944ef2f5b94674a8d2487da0dd4f84",
-    "date": "2025-09-10T07:03:24+07:00",
-    "message": "chore(Admin): replace saldo-related components to point-related",
-    "files": [
-      "src/react/pages/Admin.tsx",
-      "src/react/pages/admin/AddPointForm.tsx",
-      "src/react/pages/admin/ManagerPoint.tsx"
-    ]
-  },
-  {
-    "hash": "5be6854d8f8bef870132c00eb7cb54c3d1f78410",
-    "date": "2025-09-10T06:05:55+07:00",
-    "message": "feat(Dashboard): refactor to use DashboardContent component for improved structure",
-    "files": [
-      "src/react/pages/Dashboard.tsx",
-      "src/react/pages/dashboard/DashboardContent.tsx"
-    ]
-  },
-  {
-    "hash": "37136e4609607b217b2bbc5f177081cd98921d76",
-    "date": "2025-09-10T06:03:35+07:00",
-    "message": "fix(SaldoManager): adjust margin for improved layout consistency",
-    "files": [
-      "src/react/pages/admin/SaldoManager.tsx"
-    ]
-  },
-  {
-    "hash": "87dc4f055510678ac370f4c4784e8bfaeb5dac57",
-    "date": "2025-09-10T05:04:25+07:00",
-    "message": "fix(copyIndexToRoutes): prevent copying index.html to itself\n\n- Add check to skip copying when source and destination paths are identical\n- Log skipped action for clarity",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "d432a88394fd713856924eb769d67e8e92078744",
-    "date": "2025-09-10T05:01:26+07:00",
-    "message": "fix(deploy): use path.join for consistent file path handling in upload functions",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "cd53e2431a496f661590d5eb02fd039d5f691266",
-    "date": "2025-09-10T04:59:35+07:00",
-    "message": "fix(ReferenceError): __dirname is not defined",
-    "files": [
-      "bin/deploy-vps.mjs"
     ]
   }
 ]
