@@ -1,5 +1,30 @@
 [
   {
+    "hash": "d2b0d464759a15a1de578a6302c5b7316dac1226",
+    "date": "2025-12-04T09:37:16+07:00",
+    "message": "feat(proxy): record latency for HTTP and HTTPS checks",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
+    "hash": "4a43a031d1b7723b04b15124328e9eedbc8495f0",
+    "date": "2025-12-04T09:33:08+07:00",
+    "message": "feat(curl): add executeCurl function for executing cURL requests with latency measurement",
+    "files": [
+      "src/PhpProxyHunter/utils/buildCurl.php"
+    ]
+  },
+  {
+    "hash": "46592eae89b0970f04118d10cf665baddb6deea0",
+    "date": "2025-12-04T09:27:38+07:00",
+    "message": "feat(buildCurl): ensure unique HTTP headers by name in cURL requests",
+    "files": [
+      "src/PhpProxyHunter/utils/buildCurl.php"
+    ]
+  },
+  {
     "hash": "835c6fcfb7203cf7fa5a4295d5d538649bd6952e",
     "date": "2025-12-03T22:14:07+07:00",
     "message": "chore(crontab): remove obsolete flags from proxy and port filtering jobs\n\nCleaned up cron job commands by dropping deprecated/unused flags\n(--max, --admin, --delete) from various proxy and port checking scripts\nto streamline execution.",
@@ -8631,31 +8656,6 @@
     "message": "fix(ReferenceError): __dirname is not defined",
     "files": [
       "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "ae15d2845cd03b37cfae61a4895d750c77e4b5f0",
-    "date": "2025-09-10T04:58:35+07:00",
-    "message": "feat(deploy): use absolute maintenance page path and copy index to routes after build\n\n- Use `path.resolve` for maintenance page upload to ensure correct file path.\n- Import and call `copyIndexToRoutes` after building the project to update route indexes in the dist/react directory.",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "83b6ff26f6a746c3ab67d9ac299dfacc6a1733b8",
-    "date": "2025-09-10T04:55:38+07:00",
-    "message": "feat(deploy): add maintenance mode and file upload support\n\n- Introduce `uploadFile` function for single file SFTP uploads\n- Update deployment flow to:\n  - Upload `index.maintenance.html` as temporary maintenance page\n  - Build project\n  - Upload `dist` directory and final `index.html`\n- Add new `index.maintenance.html` page with Tailwind, Flowbite, and Font Awesome",
-    "files": [
-      "bin/deploy-vps.mjs",
-      "index.maintenance.html"
-    ]
-  },
-  {
-    "hash": "9a53741a57cdb244cd05b700ef3206b8518f8858",
-    "date": "2025-09-10T04:50:43+07:00",
-    "message": "refactor(deploy): extract deployGitPath and export copyIndexToRoutes for SPA routing\n\n- Move deployGitPath definition to module scope for reuse.\n- Export copyIndexToRoutes as a standalone function with improved JSDoc.\n- Allow copyIndexToRoutes to accept an optional targetDir for flexible deployment.\n- Refactor deploy to use the new copyIndexToRoutes signature.",
-    "files": [
-      "vite-gh-pages.js"
     ]
   }
 ]
