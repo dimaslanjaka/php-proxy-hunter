@@ -274,7 +274,7 @@ function check($proxy) {
       $checkerOptions->password = $item->password;
     }
 
-    // Run HTTP-only proxy check
+    /** @var \PhpProxyHunter\Checker\CheckerResult $result */
     $result = \PhpProxyHunter\Checker\ProxyCheckerHttpOnly::check($checkerOptions);
 
     // Prepare data for database update

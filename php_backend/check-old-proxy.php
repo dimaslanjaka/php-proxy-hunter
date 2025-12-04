@@ -222,6 +222,10 @@ while (true) {
         'last_check' => date(DATE_RFC3339),
         'type'       => strtolower(implode('-', $mergedWorkingTypes)),
       ];
+      // Record latency when available from the HTTP check
+      if (!empty($httpOnly->latency)) {
+        $data['latency'] = $httpOnly->latency;
+      }
       $proxy_db->updateData($item['proxy'], $data);
       $protocols = !empty($mergedWorkingTypes) ? implode(',', $mergedWorkingTypes) : '';
       $message   = '  -> ' . AnsiColors::colorize(['green', 'bold'], 'Proxy is active (HTTP)');
@@ -238,6 +242,10 @@ while (true) {
         'last_check' => date(DATE_RFC3339),
         'type'       => strtolower(implode('-', $mergedWorkingTypes)),
       ];
+      // Record latency when available from the HTTPS check
+      if (!empty($httpsOnly->latency)) {
+        $data['latency'] = $httpsOnly->latency;
+      }
       $proxy_db->updateData($item['proxy'], $data);
       $protocols = !empty($mergedWorkingTypes) ? implode(',', $mergedWorkingTypes) : '';
       $message   = '  -> ' . AnsiColors::colorize(['green', 'bold'], 'Proxy is active (HTTPS)');
