@@ -5,7 +5,7 @@ import subprocess
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def create(domain):
+def create_certificate(domain):
     with open(f"{SCRIPT_DIR}/{domain}.pem", "w") as pem_file:
         pem_file.write(f"{domain} Global Root GC CA\n===============================\n")
         result = subprocess.run(
@@ -25,11 +25,23 @@ def create(domain):
 
 # Remove specific .pem files if they exist
 for file in os.listdir(SCRIPT_DIR):
-    if file.endswith(".pem") and file not in ["cacert.pem", "isrgrootx1.pem", "curlhaxx_cacert.pem"]:
+    if file.endswith(".pem") and file not in [
+        "cacert.pem",
+        "isrgrootx1.pem",
+        "curlhaxx_cacert.pem",
+    ]:
         os.remove(os.path.join(SCRIPT_DIR, file))
 
 # Download curl.pem from https://curl.haxx.se/ca/cacert.pem
-subprocess.run(["curl", "-L", "--output", f"{SCRIPT_DIR}/curlhaxx_cacert.pem", "https://curl.haxx.se/ca/cacert.pem"])
+subprocess.run(
+    [
+        "curl",
+        "-L",
+        "--output",
+        f"{SCRIPT_DIR}/curlhaxx_cacert.pem",
+        "https://curl.haxx.se/ca/cacert.pem",
+    ]
+)
 
 # Create PEM files for each domain
 domains = [
@@ -52,23 +64,23 @@ domains = [
     "otp.api.axis.co.id",
     "nq.api.axis.co.id",
     "axis.co.id",
-    'aigo.api.axis.co.id',
-    'api.axis.co.id',
-    'm-assets.api.axis.co.id',
-    'profile.api.axis.co.id',
-    'go.axis.co.id',
-    'click.axis.co.id',
-    'trxpayments.api.axis.co.id',
-    'trxpackages.api.axis.co.id',
-    'products.api.axis.co.id',
-    'packages.api.axis.co.id',
-    'order.api.axis.co.id',
-    'games.axis.co.id'
+    "aigo.api.axis.co.id",
+    "api.axis.co.id",
+    "m-assets.api.axis.co.id",
+    "profile.api.axis.co.id",
+    "go.axis.co.id",
+    "click.axis.co.id",
+    "trxpayments.api.axis.co.id",
+    "trxpackages.api.axis.co.id",
+    "products.api.axis.co.id",
+    "packages.api.axis.co.id",
+    "order.api.axis.co.id",
+    "games.axis.co.id",
 ]
 unique_domains = list(set(domains))
 
 for domain in unique_domains:
-    create(domain)
+    create_certificate(domain)
 
 # Concatenate all *.pem files except cacert.pem into cacert.pem
 with open(f"{SCRIPT_DIR}/cacert.pem", "w") as cacert:
@@ -79,11 +91,17 @@ with open(f"{SCRIPT_DIR}/cacert.pem", "w") as cacert:
 
 # Remove all .pem files except specific ones
 for file in os.listdir(SCRIPT_DIR):
-    if file.endswith(".pem") and file not in ["cacert.pem", "isrgrootx1.pem", "curlhaxx_cacert.pem"]:
+    if file.endswith(".pem") and file not in [
+        "cacert.pem",
+        "isrgrootx1.pem",
+        "curlhaxx_cacert.pem",
+    ]:
         os.remove(os.path.join(SCRIPT_DIR, file))
 
 # Remove invalid certificate blocks from cacert.pem
-with open(f"{SCRIPT_DIR}/cacert.pem", "r") as cacert, open(f"{SCRIPT_DIR}/cacert_clean.pem", "w") as clean_cacert:
+with open(f"{SCRIPT_DIR}/cacert.pem", "r") as cacert, open(
+    f"{SCRIPT_DIR}/cacert_clean.pem", "w"
+) as clean_cacert:
     cert = ""
     in_cert = False
     for line in cacert:
@@ -94,7 +112,10 @@ with open(f"{SCRIPT_DIR}/cacert.pem", "r") as cacert, open(f"{SCRIPT_DIR}/cacert
             cert += line
         if "-----END CERTIFICATE-----" in line:
             in_cert = False
-            if "BEGIN RSA PRIVATE KEY" not in cert and "BEGIN DSA PRIVATE KEY" not in cert:
+            if (
+                "BEGIN RSA PRIVATE KEY" not in cert
+                and "BEGIN DSA PRIVATE KEY" not in cert
+            ):
                 clean_cacert.write(cert)
 
 if os.path.exists(f"{SCRIPT_DIR}/cacert.pem"):
@@ -102,7 +123,9 @@ if os.path.exists(f"{SCRIPT_DIR}/cacert.pem"):
 os.rename(f"{SCRIPT_DIR}/cacert_clean.pem", f"{SCRIPT_DIR}/cacert.pem")
 
 # Remove duplicate certificates
-with open(f"{SCRIPT_DIR}/cacert.pem", "r") as cacert, open(f"{SCRIPT_DIR}/cacert_clean.pem", "w") as clean_cacert:
+with open(f"{SCRIPT_DIR}/cacert.pem", "r") as cacert, open(
+    f"{SCRIPT_DIR}/cacert_clean.pem", "w"
+) as clean_cacert:
     cert = ""
     in_cert = False
     seen = set()
@@ -123,4 +146,6 @@ if os.path.exists(f"{SCRIPT_DIR}/cacert.pem"):
 os.rename(f"{SCRIPT_DIR}/cacert_clean.pem", f"{SCRIPT_DIR}/cacert.pem")
 
 # Validate merged certificate
-subprocess.run(["openssl", "x509", "-in", f"{SCRIPT_DIR}/cacert.pem", "-text", "-noout"])
+subprocess.run(
+    ["openssl", "x509", "-in", f"{SCRIPT_DIR}/cacert.pem", "-text", "-noout"]
+)
