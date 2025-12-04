@@ -310,6 +310,10 @@ function check($proxy) {
           'status'     => 'port-closed',
           'last_check' => date(DATE_RFC3339),
         ]);
+        // Record latency when available from detection
+        if (!empty($detection['latency'])) {
+          $proxy_db->updateData($item->proxy, ['latency' => $detection['latency']]);
+        }
       }
       continue;
     } elseif ($type === 'unknown') {
@@ -320,6 +324,10 @@ function check($proxy) {
             'status'     => 'untested',
             'last_check' => date(DATE_RFC3339),
           ]);
+          // Record latency when available from detection
+          if (!empty($detection['latency'])) {
+            $proxy_db->updateData($item->proxy, ['latency' => $detection['latency']]);
+          }
           $proxyPart = AnsiColors::colorize(['cyan'], $item->proxy);
           $message   = "[$no] [--] " . $proxyPart . ' type=unknown status=untested';
           _log_shared($hashFilename ?? 'CLI', $message);
@@ -342,6 +350,10 @@ function check($proxy) {
           'status' => 'untested',
           'type'   => $type,
         ]);
+        // Record latency when available from detection
+        if (!empty($detection['latency'])) {
+          $proxy_db->updateData($item->proxy, ['latency' => $detection['latency']]);
+        }
         $proxyPart  = AnsiColors::colorize(['cyan'], $item->proxy);
         $typePart   = AnsiColors::colorize(['green'], $type);
         $statusPart = AnsiColors::colorize(['magenta', 'bold'], 'untested');
