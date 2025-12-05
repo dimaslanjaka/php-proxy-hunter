@@ -217,7 +217,6 @@ while (true) {
 
     if ($httpOnly->isWorking) {
       $data = [
-        'https'      => 'false',
         'status'     => 'active',
         'last_check' => date(DATE_RFC3339),
         'type'       => strtolower(implode('-', $mergedWorkingTypes)),
@@ -237,7 +236,6 @@ while (true) {
 
     if ($httpsOnly->isWorking) {
       $data = [
-        'https'      => 'true',
         'status'     => 'active',
         'last_check' => date(DATE_RFC3339),
         'type'       => strtolower(implode('-', $mergedWorkingTypes)),
