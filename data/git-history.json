@@ -1,5 +1,13 @@
 [
   {
+    "hash": "09b068764c25c8a44c2c514c1afc734e3409c86f",
+    "date": "2025-12-05T14:19:59+07:00",
+    "message": "feat(localhostIP): add functions to check for local and private IP addresses",
+    "files": [
+      "src/PhpProxyHunter/utils/localhostIP.php"
+    ]
+  },
+  {
     "hash": "723d26904d138e2ad5a6181cdd574f5df5fa3c74",
     "date": "2025-12-04T20:16:25+07:00",
     "message": "feat(check-anonymity-proxy): add new script for running anonymity checks on proxies with lock management",
@@ -8643,15 +8651,6 @@
     "files": [
       "src/PhpProxyHunter/assets/mysql-schema.sql",
       "src/PhpProxyHunter/assets/sqlite-schema.sql"
-    ]
-  },
-  {
-    "hash": "5fd8ac47d1c66fceece7c6484823318d81a34b4f",
-    "date": "2025-09-10T08:39:15+07:00",
-    "message": "refactor(logs): decouple LogsRepository from CoreDB, accept PDO directly\n\n- Changed LogsRepository to accept a PDO instance in the constructor instead of CoreDB.\n- Updated driver detection to use PDO's getAttribute(PDO::ATTR_DRIVER_NAME).\n- Updated test setup to pass PDO instance from CoreDB to LogsRepository.",
-    "files": [
-      "src/database/LogsRepository.php",
-      "tests/database/LogsRepositoryTest.php"
     ]
   }
 ]
