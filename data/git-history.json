@@ -1,5 +1,21 @@
 [
   {
+    "hash": "cff4c949da4cf972b6ce6516e72cc332b6170539",
+    "date": "2025-12-05T17:50:55+07:00",
+    "message": "fix(anonymity): stricter device IP validation and handle non-responsive proxies\n\n- Treat invalid device IPs as missing: return empty when device IP is empty,\n  not a valid IP, or a local/private address.\n- Return empty string when both ip-info and judge responses contain no content\n  (proxy didn't return any responses). Previously such cases could be\n  classified as \"Elite\".\n- Add lightweight debug echoes to help diagnose presence of ip/judge content:\n  prints `hasIpContent=true` / `hasJudgeContent=true` when applicable.\n- Add unit test `testNotWorkingReturnsEmpty` to `tests/utils/proxy/anonymityTest.php`.\n- Add test helper script `tests/utils/proxy/get_anonymity.php` to exercise\n  `get_anonymity()` across protocols.\n\nFiles:\n- src/PhpProxyHunter/utils/anonymity.php     (validation + non-response handling)\n- tests/utils/proxy/anonymityTest.php       (added test for non-working proxy)\n- tests/utils/proxy/get_anonymity.php       (new CLI test script)\n\nBREAKING CHANGE: Non-responsive proxies now return an empty string from\n`get_anonymity()` / `parse_anonymity()` instead of being classified as \"Elite\".",
+    "files": [
+      "src/PhpProxyHunter/utils/anonymity.php",
+      "tests/utils/proxy/anonymityTest.php",
+      "tests/utils/proxy/get_anonymity.php"
+    ]
+  },
+  {
+    "hash": "adbb06e6852a2745dcc35cd2ad056dec089d8e12",
+    "date": "2025-12-05T14:34:05+07:00",
+    "message": "refactor: run yarn before composer",
+    "files": []
+  },
+  {
     "hash": "09b068764c25c8a44c2c514c1afc734e3409c86f",
     "date": "2025-12-05T14:19:59+07:00",
     "message": "feat(localhostIP): add functions to check for local and private IP addresses",
@@ -8634,23 +8650,6 @@
     "message": "refactor(userdb): optimize update_saldo to reduce queries and improve logging\n\nReplaced multiple select queries with a single saldo lookup, removed redundant\nfinal query by returning the calculated saldo, and ensured extra_info is\nproperly normalized before logging.",
     "files": [
       "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "c3f3b243335abd68d7923b02963a50019ba9b7eb",
-    "date": "2025-09-10T08:50:24+07:00",
-    "message": "fix(LogRepository): ensure valid JSON or null for extra_info in addLog\n\n- Updated addLog to handle empty or null extra_info values for MySQL JSON columns.\n- Prevents invalid JSON errors by inserting null when extra_info is empty or null, and encoding arrays/objects as JSON.",
-    "files": [
-      "src/database/LogsRepository.php"
-    ]
-  },
-  {
-    "hash": "5b8f5629cdc7eed41ec9be7b2c25a8fb1d2f14e1",
-    "date": "2025-09-10T08:40:49+07:00",
-    "message": "feat(schema): add user_logs and user_activity tables for enhanced logging and activity tracking",
-    "files": [
-      "src/PhpProxyHunter/assets/mysql-schema.sql",
-      "src/PhpProxyHunter/assets/sqlite-schema.sql"
     ]
   }
 ]
