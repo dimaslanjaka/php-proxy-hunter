@@ -405,16 +405,23 @@ function clean_proxies_file($file) {
  */
 /**
  * @param ProxyDB $proxy_db
+ * @param int $limit Optional maximum number of working proxies to fetch (default: 1000)
  * @return array
  */
-function parse_working_proxies($proxy_db) {
+function parse_working_proxies($proxy_db, $limit = 1000) {
   // Retrieve working proxies from the provided ProxyDB object.
   // Limit the number of proxies fetched to avoid exhausting PHP memory on very large databases.
-  // Caller can change the number by modifying this value if necessary.
-  $working = $proxy_db->getWorkingProxies(5000);
+  // Caller can override the default via the optional $limit parameter.
+  $working = $proxy_db->getWorkingProxies((int)$limit);
 
-  // Sort working proxies by the newest last_check column
+  // Sort working proxies by priority: HTTPS-enabled first, then newest `last_check`
   usort($working, function ($a, $b) {
+    $a_https = isset($a['https']) && $a['https'] === 'true' ? 1 : 0;
+    $b_https = isset($b['https']) && $b['https'] === 'true' ? 1 : 0;
+    if ($a_https !== $b_https) {
+      // return negative when $a should come before $b
+      return $b_https - $a_https;
+    }
     return strtotime($b['last_check']) - strtotime($a['last_check']);
   });
 
@@ -473,12 +480,12 @@ function parse_working_proxies($proxy_db) {
  *                              defaults to __DIR__ . '/tmp/locks/writing-working-proxies.lock'.
  * @return array An array containing three elements: parsed working proxies and counters.
  */
-function writing_working_proxies_file($db, $lock_file = null) {
+function writing_working_proxies_file($db, $lock_file = null, $limit = 1000) {
   $lock_file = $lock_file ?? (__DIR__ . '/tmp/locks/writing-working-proxies.lock');
   // func-proxy.php lives in project root, so __DIR__ is the project root.
   // Use __DIR__ here instead of dirname(__DIR__) which points to the parent folder.
   $projectRoot    = __DIR__;
-  $workingProxies = parse_working_proxies($db);
+  $workingProxies = parse_working_proxies($db, $limit);
   // Ensure lock dir exists
   $lockDir = dirname($lock_file);
   if (!is_dir($lockDir)) {
