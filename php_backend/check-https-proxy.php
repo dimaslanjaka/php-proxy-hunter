@@ -357,4 +357,6 @@ function check($proxy) {
 
   // Finished checking all proxies
   _log_shared($hashFilename ?? 'CLI', 'Done checking proxies.');
+  // Write working proxies to file
+  writing_working_proxies_file($proxy_db);
 }
