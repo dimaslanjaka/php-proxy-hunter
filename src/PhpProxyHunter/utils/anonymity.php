@@ -124,9 +124,6 @@ function parse_anonymity($ipInfos, $judgeInfos, $deviceIp = null) {
       break;
     }
   }
-  if ($hasIpContent) {
-    echo "hasIpContent=true\n";
-  }
   $hasJudgeContent = false;
   foreach ($judgeInfos as $entry) {
     if (!empty(trim(isset($entry['content']) ? $entry['content'] : ''))) {
@@ -134,10 +131,11 @@ function parse_anonymity($ipInfos, $judgeInfos, $deviceIp = null) {
       break;
     }
   }
-  if ($hasJudgeContent) {
-    echo "hasJudgeContent=true\n";
-  }
   if (!$hasIpContent && !$hasJudgeContent) {
+    return '';
+  } elseif (!$hasIpContent) {
+    // No ipInfos content but judgeInfos content exists
+    // Stop here to avoid false Transparent classification
     return '';
   }
 
