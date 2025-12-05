@@ -54,15 +54,33 @@ function mergeHeaders($defaultHeaders, $additionalHeaders) {
  * @param bool        $multiSSL  (Optional) Whether to test multiple SSL configurations.
  *                               Defaults to false.
  *
- * @return array An associative array containing the result(s) of the proxy check:
- *               If `$multiSSL` is false:
- *                 - 'result'  (bool):   Indicates if the proxy check was successful.
- *                 - 'latency' (int):    Latency in milliseconds. Returns -1 on failure.
- *                 - 'error'   (string): Error message if an error occurred, otherwise null.
- *                 - 'status'  (int):    HTTP status code of the response.
- *                 - 'private' (bool):   Indicates if the proxy is private.
- *               If `$multiSSL` is true:
- *                 Returns an array of results for each SSL variant tested.
+ * @return array<string,mixed>|array<int,array<string,mixed>>
+ *   When `$multiSSL` is false this returns an associative result array describing
+ *   the check. When `$multiSSL` is true this returns a numerically indexed
+ *   array of result arrays — one entry per SSL variant tested.
+ *
+ *   Each result array may contain the following keys (most are populated by
+ *   `processCheckProxy()`):
+ *     - result (bool):        true when the proxy check succeeded, false otherwise.
+ *     - latency (int):        Round-trip time in milliseconds, -1 on failure.
+ *     - duration (float):     Duration in seconds (fractional) for higher precision.
+ *     - executed_at (string): ISO8601 timestamp when the request was executed.
+ *     - error (string|null):  Error message when result is false, otherwise null.
+ *     - status (string):      HTTP status code as string.
+ *     - http_status_int (int): HTTP status code as integer.
+ *     - private (bool):       Whether the proxy appears to be a private/authenticated gateway.
+ *     - https (bool):         Whether the effective URL/scheme was HTTPS.
+ *     - anonymity (string|null): Detected anonymity level (e.g. 'transparent','anonymous','elite') or null.
+ *     - body (string|false):  Raw response body or false when execution failed.
+ *     - body_snippet (string): First N characters of the body for quick inspection.
+ *     - response-headers (string): Raw response headers.
+ *     - http_headers_parsed (array): Parsed response headers as associative array.
+ *     - request-headers (string):  Raw request headers sent (when available).
+ *     - curl_info (array):    Result of `curl_getinfo()` captured before closing the handle.
+ *     - effective_url (string): Final resolved URL after redirects.
+ *     - proxy (string):       The proxy that was tested.
+ *     - type (string):        The proxy type used for the request.
+ *     - ssl_variant (int|null): When `multiSSL` is used, the SSL variant index (0..3).
  */
 function checkProxy(
   $proxy,
@@ -84,21 +102,53 @@ function checkProxy(
       buildCurl($proxy, $type, $endpoint, $headers, $username, $password, 'GET', null, 2),
       buildCurl($proxy, $type, $endpoint, $headers, $username, $password, 'GET', null, 3),
     ];
-    return array_map('processCheckProxy', $chs);
+    $results = [];
+    foreach ($chs as $i => $ch) {
+      $res = processCheckProxy($ch, $proxy, $type, $username, $password);
+      if (is_array($res)) {
+        $res['ssl_variant'] = $i;
+      }
+      $results[] = $res;
+    }
+    return $results;
   }
 }
 
 /**
- * @param resource|\CurlHandle $ch
- * @param string $proxy
- * @param string $type
- * @param string $username
- * @param string $password
- * @return array
+ * Process the executed cURL handle and return a detailed result array.
+ *
+ * @param resource|\CurlHandle $ch      The initialized and executed cURL handle.
+ * @param string                $proxy  The proxy string used for the request (e.g. "1.2.3.4:8080").
+ * @param string                $type   Proxy type (e.g. "http", "socks5").
+ * @param string                $username Optional proxy username.
+ * @param string                $password Optional proxy password.
+ *
+ * @return array<string,mixed> Returns an associative array with the following keys:
+ *   - result (bool):        true when the proxy check succeeded, false otherwise.
+ *   - latency (int):        Round-trip time in milliseconds, -1 on failure.
+ *   - error (string|null):  Error message when result is false, otherwise null.
+ *   - status (string):      HTTP status code returned by the request (as string).
+ *   - private (bool):       Whether the proxy appears to be a private/authenticated gateway.
+ *   - https (bool):         Whether the effective URL/scheme was HTTPS.
+ *   - anonymity (string|null): Detected anonymity level (e.g. 'transparent','anonymous','elite') or null.
+ *   - body (string|false):  Raw response body or false when execution failed.
+ *   - response-headers (string): Raw response headers.
+ *   - request-headers (string):  Raw request headers sent (when available).
+ *   - proxy (string):       The proxy that was tested.
+ *   - type (string):        The proxy type that was used for the request.
+ *   - duration (float):     Duration in seconds (fractional) for higher precision.
+ *   - executed_at (string): ISO8601 timestamp when the request was executed.
+ *   - http_headers_parsed (array): Parsed response headers as associative array.
+ *   - curl_info (array):    Result of `curl_getinfo()` captured before closing the handle.
+ *   - effective_url (string): Final resolved URL after redirects.
+ *   - ssl_variant (int|null): SSL variant index (0..3) when applicable.
  */
 function processCheckProxy($ch, $proxy, $type, $username, $password) {
-  $endpoint = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-  curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+  $endpoint     = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+  $optHeaderOut = defined('CURLOPT_HEADER_OUT') ? constant('CURLOPT_HEADER_OUT') : null;
+  if ($optHeaderOut !== null) {
+    curl_setopt($ch, $optHeaderOut, true);
+  }
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
   // Timeout for connection phase in seconds
@@ -109,10 +159,28 @@ function processCheckProxy($ch, $proxy, $type, $username, $password) {
   $response = curl_exec($ch);
   $end      = microtime(true);
   // End time
-  $request_headers   = curl_getinfo($ch, CURLINFO_HEADER_OUT);
-  $isHttps           = strpos($endpoint, 'https') !== false;
-  $header_size       = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-  $http_status       = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+  // Get full curl info once and then extract pieces with fallbacks to avoid
+  // referencing constants that might be missing in some environments.
+  $info = curl_getinfo($ch);
+
+  // Request headers: prefer the CURLINFO_HEADER_OUT constant when present,
+  // otherwise try common keys from curl_getinfo() array, or fallback to empty.
+  $reqHeaderConst = defined('CURLINFO_HEADER_OUT') ? constant('CURLINFO_HEADER_OUT') : null;
+  if ($reqHeaderConst !== null) {
+    $request_headers = curl_getinfo($ch, $reqHeaderConst);
+  } elseif (isset($info['request_header'])) {
+    $request_headers = $info['request_header'];
+  } else {
+    $request_headers = '';
+  }
+
+  // Determine HTTPS by checking the effective URL first, then endpoint.
+  $effectiveUrl = isset($info['url']) ? $info['url'] : $endpoint;
+  $isHttps      = stripos($effectiveUrl, 'https://') === 0 || stripos($endpoint, 'https://') === 0;
+
+  $header_size       = isset($info['header_size']) ? $info['header_size'] : 0;
+  $http_status       = isset($info['http_code']) ? $info['http_code'] : 0;
   $http_status_valid = $http_status == 200 || $http_status == 201 || $http_status == 202 || $http_status == 204 || $http_status == 301 || $http_status == 302 || $http_status == 304;
   if ($response !== false) {
     $response_header = substr($response, 0, $header_size);
@@ -122,7 +190,6 @@ function processCheckProxy($ch, $proxy, $type, $username, $password) {
     $response_header = '';
     $body            = '';
   }
-  $info    = curl_getinfo($ch);
   $latency = -1;
 
   // is private proxy?
@@ -156,13 +223,18 @@ function processCheckProxy($ch, $proxy, $type, $username, $password) {
       $error_msg = 'Need credentials';
     }
     $result = array_merge($result, [
-      'result'    => false,
-      'latency'   => $latency,
-      'error'     => $error_msg,
-      'status'    => (string)$info['http_code'],
-      'private'   => $isPrivate,
-      'https'     => $isHttps,
-      'anonymity' => null,
+      'result'          => false,
+      'latency'         => $latency,
+      'duration'        => $end - $start,
+      'executed_at'     => gmdate(DATE_ATOM, (int)$start),
+      'error'           => $error_msg,
+      'status'          => (string)$info['http_code'],
+      'http_status_int' => (int)$http_status,
+      'private'         => $isPrivate,
+      'https'           => $isHttps,
+      'anonymity'       => null,
+      'curl_info'       => $info,
+      'effective_url'   => isset($info['url']) ? $info['url'] : $endpoint,
     ]);
   }
 
@@ -193,23 +265,31 @@ function processCheckProxy($ch, $proxy, $type, $username, $password) {
   //   }
   // }
 
-  $result['curl'] = $ch;
+  // capture curl info and close handle
+  $result['curl_info']     = $info;
+  $result['effective_url'] = isset($info['url']) ? $info['url'] : $endpoint;
 
   curl_close($ch);
 
   // Convert to milliseconds
-  $latency = round(($end - $start) * 1000);
+  $latency  = round(($end - $start) * 1000);
+  $duration = $end - $start;
 
   // result is empty = no error
   if (empty($result['error'])) {
     $result = array_merge($result, [
-      'result'    => true,
-      'latency'   => $latency,
-      'error'     => null,
-      'status'    => (string)$info['http_code'],
-      'private'   => $isPrivate,
-      'https'     => $isHttps,
-      'anonymity' => null,
+      'result'          => true,
+      'latency'         => $latency,
+      'duration'        => $duration,
+      'executed_at'     => gmdate(DATE_ATOM, (int)$start),
+      'error'           => null,
+      'status'          => (string)$info['http_code'],
+      'http_status_int' => (int)$http_status,
+      'private'         => $isPrivate,
+      'https'           => $isHttps,
+      'anonymity'       => null,
+      'curl_info'       => $info,
+      'effective_url'   => isset($info['url']) ? $info['url'] : $endpoint,
     ]);
     if (!$http_status_valid) {
       $result['result'] = false;
