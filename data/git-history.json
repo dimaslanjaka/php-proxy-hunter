@@ -1,5 +1,31 @@
 [
   {
+    "hash": "c7ad898f86dc6c840ddd608e7aa5c004d32dccf8",
+    "date": "2025-12-05T19:08:34+07:00",
+    "message": "refactor(utils): move and harden mergeHeaders into buildCurl\n\nMoved the `mergeHeaders` implementation from `func-proxy.php` into\n`src/PhpProxyHunter/utils/buildCurl.php` and replaced the previous\nfragile explode-based logic with a more robust implementation.\n\n- New behavior:\n  - Accepts headers in \"Key: Value\" or \"Key:Value\" forms.\n  - Trims keys and values.\n  - Case-insensitive header-name deduplication (last occurrence wins).\n  - Removes `Accept-Encoding` by default (preserves previous behavior).\n  - Returns an array of \"Key: Value\" strings compatible with CURLOPT_HTTPHEADER.\n\n- Changes made:\n  - `buildCurl()` now calls `mergeHeaders($default_headers, $headers)` and\n    no longer performs in-function header dedupe.\n  - Removed the old `mergeHeaders` from `func-proxy.php` to avoid duplication.\n\nNotes:\n- If other code relied on `mergeHeaders` being defined by including\n  `func-proxy.php`, ensure `src/PhpProxyHunter/utils/buildCurl.php` is included\n  where needed (or move the helper to a shared utilities file) to avoid\n  undefined-function errors.\n- To preserve `Accept-Encoding`, call `mergeHeaders($defaults, $additional, false)`.",
+    "files": [
+      "func-proxy.php",
+      "src/PhpProxyHunter/utils/buildCurl.php",
+      "tests/utils/proxy/get_anonymity.php"
+    ]
+  },
+  {
+    "hash": "6905f0bb9e9f1e0ae628677c3703cb3b9441abe8",
+    "date": "2025-12-05T18:24:09+07:00",
+    "message": "fix(anonymity): remove debug output and refine anonymity determination logic",
+    "files": [
+      "src/PhpProxyHunter/utils/anonymity.php"
+    ]
+  },
+  {
+    "hash": "cd152f95483f1d526cdc218d457aa669c6aeda7c",
+    "date": "2025-12-05T18:20:03+07:00",
+    "message": "feat(func-proxy): populate detailed result fields and fix multi-SSL handling\n\n- Add and document richer return data for proxy checks (duration, executed_at,\n  http_status_int, curl_info, effective_url, etc.) in `checkProxy()` and\n  `processCheckProxy()`.\n- Replace incorrect `array_map('processCheckProxy', $chs)` with an explicit\n  loop so each multi-SSL result includes an `ssl_variant` index.\n- Consolidate `curl_getinfo()` usage and capture `curl_info` before closing the\n  handle; stop returning a closed cURL handle.\n- Make request-header retrieval robust: avoid direct constant references by\n  resolving `CURLOPT_HEADER_OUT`/`CURLINFO_HEADER_OUT` dynamically and provide\n  fallbacks to keys from `curl_getinfo()` when constants are unavailable.\n- Keep all existing error/anonymity logic intact; changes are additive and aim\n  to improve observability and multi-SSL correctness.\n\nNotes:\n- This is an additive feature change (no breaking changes expected). If callers\n  rely on exact result shapes, they should tolerate the new additional keys.",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
     "hash": "cff4c949da4cf972b6ce6516e72cc332b6170539",
     "date": "2025-12-05T17:50:55+07:00",
     "message": "fix(anonymity): stricter device IP validation and handle non-responsive proxies\n\n- Treat invalid device IPs as missing: return empty when device IP is empty,\n  not a valid IP, or a local/private address.\n- Return empty string when both ip-info and judge responses contain no content\n  (proxy didn't return any responses). Previously such cases could be\n  classified as \"Elite\".\n- Add lightweight debug echoes to help diagnose presence of ip/judge content:\n  prints `hasIpContent=true` / `hasJudgeContent=true` when applicable.\n- Add unit test `testNotWorkingReturnsEmpty` to `tests/utils/proxy/anonymityTest.php`.\n- Add test helper script `tests/utils/proxy/get_anonymity.php` to exercise\n  `get_anonymity()` across protocols.\n\nFiles:\n- src/PhpProxyHunter/utils/anonymity.php     (validation + non-response handling)\n- tests/utils/proxy/anonymityTest.php       (added test for non-working proxy)\n- tests/utils/proxy/get_anonymity.php       (new CLI test script)\n\nBREAKING CHANGE: Non-responsive proxies now return an empty string from\n`get_anonymity()` / `parse_anonymity()` instead of being classified as \"Elite\".",
@@ -8625,31 +8651,6 @@
     "message": "test: enhance UserDBTest cleanup to remove related child records\n\nExpanded the cleanup logic to delete entries from user_logs and user_fields before removing users, and adjusted deletion from auth_user to target by user IDs instead of filtering by username or email. This ensures a more reliable and consistent database state during tests.",
     "files": [
       "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "3273b8b2a7b9dfc796f841aebaf9e7a2b2b6252c",
-    "date": "2025-09-10T09:27:35+07:00",
-    "message": "test: unify saldo arithmetic tests with data provider\n\n- replace separate SQLite and MySQL tests with single parameterized test using dbProvider\n- ensure SQLite database is properly created and removed after test\n- add MySQL setup and cleanup inside data-driven test\n- prevent duplicate user insertion by checking existence before adding",
-    "files": [
-      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php"
-    ]
-  },
-  {
-    "hash": "e4f3c3dbe5df9d1fb97328e8480fd812771ef0bb",
-    "date": "2025-09-10T09:24:45+07:00",
-    "message": "feat(schema): add user_discount table for managing user discounts and packages",
-    "files": [
-      "src/PhpProxyHunter/assets/mysql-schema.sql",
-      "src/PhpProxyHunter/assets/sqlite-schema.sql"
-    ]
-  },
-  {
-    "hash": "4e4c3cfa1e9706a196f5fd6c6385746ec0a436c6",
-    "date": "2025-09-10T09:16:02+07:00",
-    "message": "refactor(userdb): optimize update_saldo to reduce queries and improve logging\n\nReplaced multiple select queries with a single saldo lookup, removed redundant\nfinal query by returning the calculated saldo, and ensured extra_info is\nproperly normalized before logging.",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php"
     ]
   }
 ]
