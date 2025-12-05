@@ -113,4 +113,18 @@ class AnonymityTest extends TestCase {
     $this->assertArrayHasKey('Via', $headers);
     $this->assertArrayHasKey('Host', $headers);
   }
+
+  public function testNotWorkingReturnsEmpty() {
+    $ipInfos = [
+      ['content' => ''],
+    ];
+
+    $judgeInfos = [
+      ['content' => ''],
+    ];
+
+    $result = parse_anonymity($ipInfos, $judgeInfos, '123.123.123.123');
+
+    $this->assertSame('', $result);
+  }
 }

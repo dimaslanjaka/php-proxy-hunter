@@ -99,7 +99,7 @@ function parse_anonymity($ipInfos, $judgeInfos, $deviceIp = null) {
     $deviceIp = getServerIp();
   }
 
-  if (!$deviceIp) {
+  if (empty($deviceIp) || !filter_var($deviceIp, FILTER_VALIDATE_IP) || isLocalOrPrivateIP($deviceIp)) {
     return '';
   }
 
@@ -113,6 +113,33 @@ function parse_anonymity($ipInfos, $judgeInfos, $deviceIp = null) {
     }
   }
   $reportedIps = array_keys($reportedIpsMap);
+
+  // If both ipInfos and judgeInfos contain no content, the proxy likely
+  // didn't return any responses (not working). In that case return empty
+  // string to signal failure to determine anonymity.
+  $hasIpContent = false;
+  foreach ($ipInfos as $entry) {
+    if (!empty(trim(isset($entry['content']) ? $entry['content'] : ''))) {
+      $hasIpContent = true;
+      break;
+    }
+  }
+  if ($hasIpContent) {
+    echo "hasIpContent=true\n";
+  }
+  $hasJudgeContent = false;
+  foreach ($judgeInfos as $entry) {
+    if (!empty(trim(isset($entry['content']) ? $entry['content'] : ''))) {
+      $hasJudgeContent = true;
+      break;
+    }
+  }
+  if ($hasJudgeContent) {
+    echo "hasJudgeContent=true\n";
+  }
+  if (!$hasIpContent && !$hasJudgeContent) {
+    return '';
+  }
 
   // Transparent if device IP appears anywhere
   if (in_array($deviceIp, $reportedIps, true)) {
