@@ -7,35 +7,6 @@
 require_once __DIR__ . '/func.php';
 
 /**
- * Merge two arrays of HTTP headers while ensuring uniqueness based on the keys.
- *
- * @param array $defaultHeaders The array of default headers.
- * @param array $additionalHeaders The array of additional headers to merge.
- * @return array The merged array of headers with unique keys.
- */
-function mergeHeaders($defaultHeaders, $additionalHeaders) {
-  // Convert the arrays into associative arrays with header keys as keys
-  $convertToAssocArray = function ($headers) {
-    $assocArray = [];
-    foreach ($headers as $header) {
-      $parts                 = explode(': ', $header, 2);
-      $assocArray[$parts[0]] = isset($parts[1]) ? $parts[1] : '';
-    }
-    return $assocArray;
-  };
-
-  // Merge two associative arrays while overwriting duplicates
-  $mergedHeaders = array_merge($convertToAssocArray($defaultHeaders), $convertToAssocArray($additionalHeaders));
-
-  // Convert the merged associative array back into a sequential array
-  $finalHeaders = [];
-  foreach ($mergedHeaders as $key => $value) {
-    $finalHeaders[] = "$key: $value";
-  }
-  return $finalHeaders;
-}
-
-/**
  * Check proxy connectivity.
  *
  * Tests the connectivity of a given proxy by making a request to a specified endpoint.

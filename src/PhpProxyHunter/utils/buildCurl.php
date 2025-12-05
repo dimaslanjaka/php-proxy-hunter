@@ -1,6 +1,49 @@
 <?php
 
 /**
+ * Merge two arrays of HTTP headers while ensuring uniqueness based on the header name.
+ *
+ * This helper is tolerant: it accepts "Key: Value" or "Key:Value", trims
+ * whitespace, uses case-insensitive header names where the last occurrence
+ * wins, and by default removes `Accept-Encoding` (to avoid compressed bodies
+ * when the caller does not want them).
+ *
+ * @param array $defaultHeaders
+ * @param array $additionalHeaders
+ * @param bool $removeAcceptEncoding
+ * @return array
+ */
+function mergeHeaders($defaultHeaders, $additionalHeaders, $removeAcceptEncoding = true) {
+  $finalMap = [];
+  $all      = array_merge((array)$defaultHeaders, (array)$additionalHeaders);
+  foreach ($all as $header) {
+    if (!is_string($header)) {
+      continue;
+    }
+    $header = trim($header);
+    if ($header === '') {
+      continue;
+    }
+    $parts = preg_split('/:\s*/', $header, 2);
+    $key   = isset($parts[0]) ? trim($parts[0]) : '';
+    $value = isset($parts[1]) ? trim($parts[1]) : '';
+    if ($key === '') {
+      continue;
+    }
+    $lower            = strtolower($key);
+    $finalMap[$lower] = ['orig' => $key, 'value' => $value];
+  }
+  $result = [];
+  foreach ($finalMap as $lower => $pair) {
+    if ($removeAcceptEncoding && $lower === 'accept-encoding') {
+      continue;
+    }
+    $result[] = $pair['orig'] . ': ' . $pair['value'];
+  }
+  return $result;
+}
+
+/**
  * Build a cURL handle for making HTTP requests.
  *
  * @param string|null $proxy Proxy address. Default is null.
@@ -41,7 +84,6 @@ function buildCurl(
   $ch = curl_init();
   // URL to test connectivity
   curl_setopt($ch, CURLOPT_URL, $endpoint);
-
   $default_headers = [
     'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
     'Accept-Language: en-US,en;q=0.5',
@@ -49,22 +91,8 @@ function buildCurl(
     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0',
   ];
 
-  $headers = array_merge($default_headers, $headers);
-
-  // Make headers unique by header name
-  $unique = [];
-  foreach ($headers as $h) {
-    [$key, $value] = explode(':', $h, 2);
-    $key           = trim($key);
-    $value         = trim($value);
-    $unique[$key]  = $key . ': ' . $value;
-  }
-
-  $headers = array_values($unique);
-
-  // Remove Accept-Encoding header
-  $pattern = '/^(?:accept-?encoding:|Accept-?Encoding:).*/i';
-  $headers = preg_grep($pattern, $headers, PREG_GREP_INVERT);
+  // Use the shared helper to merge and deduplicate headers (last wins).
+  $headers = mergeHeaders($default_headers, $headers);
 
   if (!empty($proxy)) {
     curl_setopt($ch, CURLOPT_PROXY, $proxy);
