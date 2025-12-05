@@ -1,5 +1,21 @@
 [
   {
+    "hash": "8530b47a099bbf7852731dcf927ac75b0b29516e",
+    "date": "2025-12-05T19:25:20+07:00",
+    "message": "feat(func-proxy): make working-proxies limit configurable and prioritize HTTPS\n\nAdd an optional `$limit` parameter to `parse_working_proxies()` and\n`writing_working_proxies_file()` (default: 1000) and pass it through to\n`getWorkingProxies()`. This replaces the previous hardcoded fetch size and\nallows callers to override how many working proxies are retrieved.\n\nAlso update sorting to prioritize proxies with `https === 'true'` first,\nthen order by `last_check` descending so HTTPS-capable proxies appear at the\ntop of `working.txt`/`working.json`.\n\n- `parse_working_proxies($proxy_db, $limit = 1000)` uses `(int)$limit`\n  for `getWorkingProxies()`.\n- `writing_working_proxies_file($db, $lock_file = null, $limit = 1000)`\n  forwards the limit to `parse_working_proxies`.\n- Sorting comparator now places `https === 'true'` entries before others,\n  then sorts by newest `last_check`.\n\nMaintains backwards-compatibility (default behavior unchanged).",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
+    "hash": "43130bb8e5ab77297e99aa76598245809581beb9",
+    "date": "2025-12-05T19:19:15+07:00",
+    "message": "fix(check-old-proxy): stop writing `https` flag to proxy DB\n\nRemove the explicit `'https' => 'false'` and `'https' => 'true'` assignments from\n`php_backend/check-old-proxy.php` update payloads. This prevents the old-proxy\nchecker from overwriting the `https` property in the database and leaves\nprotocol/HTTPS detection to the dedicated HTTPS checker.",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
     "hash": "f2afb49014194946cfdcffe5b671c481b27ea93a",
     "date": "2025-12-05T19:12:17+07:00",
     "message": "feat(curl): add additional HTTP headers for enhanced request handling",
@@ -8634,22 +8650,6 @@
       "php_backend/logs.php",
       "src/PhpProxyHunter/LogsRepository.php",
       "tests/database/LogsRepositoryTest.php"
-    ]
-  },
-  {
-    "hash": "2d1bf4e20553726e90c89f1e68b0d1a2d804f93b",
-    "date": "2025-09-10T10:10:31+07:00",
-    "message": "test(database): use UserDB for user management in LogsRepositoryTest\n\n- Add UserDB as a dependency for managing test users in MySQL tests.\n- Add reusable test user info and userId as class properties.\n- Refactor MySQL test setup to create and clean up test users using UserDB.\n- Ensure consistent user management for addLog and addActivity tests.",
-    "files": [
-      "tests/database/LogsRepositoryTest.php"
-    ]
-  },
-  {
-    "hash": "cd5d4d955028079630c42ce5510467d3980bdfeb",
-    "date": "2025-09-10T10:01:19+07:00",
-    "message": "feat(UserDB): enhance delete method to remove related records from user_activity, user_discount, user_logs, and user_fields",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php"
     ]
   }
 ]
