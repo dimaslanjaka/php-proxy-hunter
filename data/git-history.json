@@ -1,5 +1,21 @@
 [
   {
+    "hash": "f2afb49014194946cfdcffe5b671c481b27ea93a",
+    "date": "2025-12-05T19:12:17+07:00",
+    "message": "feat(curl): add additional HTTP headers for enhanced request handling",
+    "files": [
+      "src/PhpProxyHunter/utils/buildCurl.php"
+    ]
+  },
+  {
+    "hash": "306d65087fbc7fd66e1cfb86393759f5da2d2d76",
+    "date": "2025-12-05T19:11:04+07:00",
+    "message": "fix(curl): update Referer header to include search query from endpoint",
+    "files": [
+      "src/PhpProxyHunter/utils/buildCurl.php"
+    ]
+  },
+  {
     "hash": "c7ad898f86dc6c840ddd608e7aa5c004d32dccf8",
     "date": "2025-12-05T19:08:34+07:00",
     "message": "refactor(utils): move and harden mergeHeaders into buildCurl\n\nMoved the `mergeHeaders` implementation from `func-proxy.php` into\n`src/PhpProxyHunter/utils/buildCurl.php` and replaced the previous\nfragile explode-based logic with a more robust implementation.\n\n- New behavior:\n  - Accepts headers in \"Key: Value\" or \"Key:Value\" forms.\n  - Trims keys and values.\n  - Case-insensitive header-name deduplication (last occurrence wins).\n  - Removes `Accept-Encoding` by default (preserves previous behavior).\n  - Returns an array of \"Key: Value\" strings compatible with CURLOPT_HTTPHEADER.\n\n- Changes made:\n  - `buildCurl()` now calls `mergeHeaders($default_headers, $headers)` and\n    no longer performs in-function header dedupe.\n  - Removed the old `mergeHeaders` from `func-proxy.php` to avoid duplication.\n\nNotes:\n- If other code relied on `mergeHeaders` being defined by including\n  `func-proxy.php`, ensure `src/PhpProxyHunter/utils/buildCurl.php` is included\n  where needed (or move the helper to a shared utilities file) to avoid\n  undefined-function errors.\n- To preserve `Accept-Encoding`, call `mergeHeaders($defaults, $additional, false)`.",
@@ -8634,23 +8650,6 @@
     "message": "feat(UserDB): enhance delete method to remove related records from user_activity, user_discount, user_logs, and user_fields",
     "files": [
       "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "6ac46935ce0aa3b0eebe8e14c34f4c6e0975e947",
-    "date": "2025-09-10T09:47:56+07:00",
-    "message": "feat(UserDB): add delete method to remove users and related records",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php",
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "756ea33cd469d6c1ec33923d2003cfedc97154be",
-    "date": "2025-09-10T09:39:33+07:00",
-    "message": "test: enhance UserDBTest cleanup to remove related child records\n\nExpanded the cleanup logic to delete entries from user_logs and user_fields before removing users, and adjusted deletion from auth_user to target by user IDs instead of filtering by username or email. This ensures a more reliable and consistent database state during tests.",
-    "files": [
-      "tests/PhpProxyHunter/UserDBTest.php"
     ]
   }
 ]
