@@ -1,5 +1,13 @@
 [
   {
+    "hash": "3a37802cdc63ff6f9987fc900726b74d7a6f1fed",
+    "date": "2025-12-05T19:33:27+07:00",
+    "message": "feat(check-https-proxy): add functionality to write working proxies to file",
+    "files": [
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
     "hash": "8530b47a099bbf7852731dcf927ac75b0b29516e",
     "date": "2025-12-05T19:25:20+07:00",
     "message": "feat(func-proxy): make working-proxies limit configurable and prioritize HTTPS\n\nAdd an optional `$limit` parameter to `parse_working_proxies()` and\n`writing_working_proxies_file()` (default: 1000) and pass it through to\n`getWorkingProxies()`. This replaces the previous hardcoded fetch size and\nallows callers to override how many working proxies are retrieved.\n\nAlso update sorting to prioritize proxies with `https === 'true'` first,\nthen order by `last_check` descending so HTTPS-capable proxies appear at the\ntop of `working.txt`/`working.json`.\n\n- `parse_working_proxies($proxy_db, $limit = 1000)` uses `(int)$limit`\n  for `getWorkingProxies()`.\n- `writing_working_proxies_file($db, $lock_file = null, $limit = 1000)`\n  forwards the limit to `parse_working_proxies`.\n- Sorting comparator now places `https === 'true'` entries before others,\n  then sorts by newest `last_check`.\n\nMaintains backwards-compatibility (default behavior unchanged).",
@@ -8640,16 +8648,6 @@
     "message": "feat(CoreDB): initialize LogsRepository instance in constructor",
     "files": [
       "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "d3d351d7cfb4d186812d87d9788e8e43c497a5df",
-    "date": "2025-09-10T10:25:20+07:00",
-    "message": "refactor: move LogsRepository to PhpProxyHunter namespace and update imports",
-    "files": [
-      "php_backend/logs.php",
-      "src/PhpProxyHunter/LogsRepository.php",
-      "tests/database/LogsRepositoryTest.php"
     ]
   }
 ]
