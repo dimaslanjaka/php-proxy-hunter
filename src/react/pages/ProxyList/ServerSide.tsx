@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { createUrl } from '../../utils/url';
 import { timeAgo } from '../../../utils/date/timeAgo.js';
 import { noop } from '../../../utils/other';
+import { getProxyTypeColorClass } from '../../utils/proxyTypeColors';
 
 type ProxyRow = Record<string, any>;
 
@@ -12,8 +13,9 @@ export default function ServerSide() {
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(10);
   const [search, setSearch] = React.useState('');
-  const [statuses, setStatuses] = React.useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = React.useState('');
+  // Default to 'active' so initial view shows active proxies
+  const [statuses, setStatuses] = React.useState<string[]>(['active']);
+  const [statusFilter, setStatusFilter] = React.useState('active');
   const [draw, setDraw] = React.useState(0);
   const [recordsTotal, setRecordsTotal] = React.useState(0);
   const [recordsFiltered, setRecordsFiltered] = React.useState(0);
@@ -160,13 +162,13 @@ export default function ServerSide() {
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
             <thead>
               <tr>
-                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Proxy</th>
-                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Type</th>
-                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Country</th>
-                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">City</th>
-                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Status</th>
-                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Latency</th>
-                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Last Check</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Proxy</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Status</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Type</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Country</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">City</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Latency</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Last Check</th>
               </tr>
             </thead>
             <tbody>
@@ -183,14 +185,10 @@ export default function ServerSide() {
               ) : (
                 rows.map((r, i) => (
                   <tr key={i} className="odd:bg-gray-50 dark:odd:bg-gray-800">
-                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{r.proxy}</td>
-                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{r.type}</td>
-                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{r.country}</td>
-                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{r.city}</td>
-                    <td className="px-2 py-1">
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.proxy}</td>
+                    <td className="px-2 py-1 whitespace-nowrap">
                       {(() => {
                         const s = String(r.status || '').toLowerCase();
-                        // Use bordered-only badges: transparent background, colored border + text
                         let cls =
                           'border border-gray-300 text-gray-800 dark:border-gray-700 dark:text-gray-200 bg-transparent';
                         if (s === 'dead' || s === 'port-closed') {
@@ -210,8 +208,30 @@ export default function ServerSide() {
                         );
                       })()}
                     </td>
-                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{formatLatency(r.latency)}</td>
-                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                      {r.type
+                        ? String(r.type)
+                            .split('-')
+                            .filter(Boolean)
+                            .map((t) => {
+                              const baseClass =
+                                'inline-block rounded px-2 py-0.5 mx-0.5 mb-0.5 text-xxs font-semibold align-middle border mr-1';
+                              const colorClass = getProxyTypeColorClass(t);
+                              const badgeClass = `${baseClass} ${colorClass}`;
+                              return (
+                                <span key={t + badgeClass} className={badgeClass}>
+                                  {t.toUpperCase()}
+                                </span>
+                              );
+                            })
+                        : '-'}
+                    </td>
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.country}</td>
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.city}</td>
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                      {formatLatency(r.latency)}
+                    </td>
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
                       {r.last_check ? timeAgo(r.last_check) : '-'}
                     </td>
                   </tr>

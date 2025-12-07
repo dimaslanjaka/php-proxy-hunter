@@ -50,6 +50,20 @@ try {
     $search = trim((string)$request['proxy']);
   }
 
+  // Optional status filter
+  $statusFilter = '';
+  if (isset($request['status'])) {
+    $statusFilter = trim((string)$request['status']);
+  }
+
+  // Special action: return distinct statuses when requested
+  if (isset($request['get_statuses']) && $request['get_statuses']) {
+    $stmt     = $proxy_db->db->pdo->query('SELECT DISTINCT status FROM proxies ORDER BY status');
+    $statuses = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    echo json_encode(['statuses' => $statuses], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+  }
+
   // Ordering: DataTables sends `order[0][column]` and `order[0][dir]` and `columns[i][data]`
   $orderBy = null;
   if (isset($request['order']) && is_array($request['order']) && isset($request['order'][0]['column'])) {
@@ -80,24 +94,39 @@ try {
     // ProxyDB will perform prefix matching behavior
   }
 
-  // recordsFiltered: if search present, count matching rows; else equals total
-  if (!empty($filter)) {
-    // search by proxy prefix
-    $searchParam = $filter['proxy'] . '%';
-    $stmt        = $pdo->prepare('SELECT COUNT(*) as cnt FROM proxies WHERE proxy LIKE :search');
-    $stmt->execute([':search' => $searchParam]);
+  // recordsFiltered: count matching rows according to active filters
+  $recordsFiltered = $recordsTotal;
+  $whereParts      = [];
+  $countParams     = [];
+  if ($search !== '') {
+    $whereParts[]           = 'proxy LIKE :search';
+    $countParams[':search'] = $search . '%';
+  }
+  if ($statusFilter !== '') {
+    $whereParts[]           = 'status = :status';
+    $countParams[':status'] = $statusFilter;
+  }
+  if (!empty($whereParts)) {
+    $countSql = 'SELECT COUNT(*) as cnt FROM proxies WHERE ' . implode(' AND ', $whereParts);
+    $stmt     = $pdo->prepare($countSql);
+    $stmt->execute($countParams);
     $recordsFiltered = (int)$stmt->fetch(PDO::FETCH_ASSOC)['cnt'];
-  } else {
-    $recordsFiltered = $recordsTotal;
   }
 
   // Fetch rows with pagination and ordering
   // Build SQL query
   $where  = '';
   $params = [];
-  if (!empty($filter)) {
-    $where             = 'WHERE proxy LIKE :search';
-    $params[':search'] = $filter['proxy'] . '%';
+  if ($search !== '') {
+    $whereParts[]      = 'proxy LIKE :search';
+    $params[':search'] = $search . '%';
+  }
+  if ($statusFilter !== '') {
+    $whereParts[]      = 'status = :status';
+    $params[':status'] = $statusFilter;
+  }
+  if (!empty($whereParts)) {
+    $where = 'WHERE ' . implode(' AND ', $whereParts);
   }
 
   $orderSql = '';
