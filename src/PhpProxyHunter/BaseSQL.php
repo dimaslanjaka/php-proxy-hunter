@@ -171,4 +171,17 @@ abstract class BaseSQL {
    * @return bool True if the table exists, false otherwise.
    */
   abstract public function hasTable($table);
+
+  /**
+   * Calculate a deterministic checksum for the table.
+   *
+   * The actual implementation differs per driver:
+   * - MySQL  : may use CHECKSUM TABLE or SHA/GROUP_CONCAT hashing
+   * - SQLite : must hash sorted rows manually
+   *
+   * @param string $table The table name.
+   * @param array|null $columns Optional list of columns to include. If null, include all columns.
+   * @return string|null Returns the checksum string, or null on failure.
+   */
+  abstract public function calculateChecksum($table, array $columns = null);
 }

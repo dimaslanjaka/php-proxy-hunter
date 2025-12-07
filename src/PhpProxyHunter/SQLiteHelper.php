@@ -47,7 +47,8 @@ class SQLiteHelper extends BaseSQL {
       if ($dbPathOrPdo instanceof PDO) {
         $this->pdo = $dbPathOrPdo;
       } else {
-        $this->pdo = new PDO('sqlite:' . $dbPathOrPdo); // ;busyTimeout=10000
+        $this->pdo = new PDO('sqlite:' . $dbPathOrPdo);
+        // ;busyTimeout=10000
         // Set how long (in seconds) SQLite will wait if the database is locked
         $this->pdo->setAttribute(PDO::ATTR_TIMEOUT, 10);
         // Enable exceptions for error handling
@@ -125,6 +126,14 @@ class SQLiteHelper extends BaseSQL {
    * @return array An array containing the selected records.
    */
   public function select($tableName, $columns = '*', $where = null, $params = [], $orderBy = null, $limit = null, $offset = null) {
+    // Allow passing columns as an array of column names
+    if (is_array($columns)) {
+      $quote = function ($identifier) {
+        return '`' . str_replace('`', '``', $identifier) . '`';
+      };
+      $columns = implode(', ', array_map($quote, $columns));
+    }
+
     $sql = "SELECT $columns FROM $tableName";
     if ($where) {
       $sql .= " WHERE $where";
@@ -142,6 +151,18 @@ class SQLiteHelper extends BaseSQL {
       $sql .= " LIMIT -1 OFFSET $offset";
     }
     $stmt = $this->pdo->prepare($sql);
+    // Normalize params: PDO prefers keys without leading ':' in execute()
+    if (is_array($params)) {
+      $normalized = [];
+      foreach ($params as $k => $v) {
+        if (is_string($k) && strlen($k) > 0 && $k[0] === ':') {
+          $normalized[ltrim($k, ':')] = $v;
+        } else {
+          $normalized[$k] = $v;
+        }
+      }
+      $params = $normalized;
+    }
     $stmt->execute($params);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $result ? $result : [];
@@ -156,6 +177,17 @@ class SQLiteHelper extends BaseSQL {
    */
   public function execute($sql, $params = []) {
     $stmt = $this->pdo->prepare($sql);
+    if (is_array($params)) {
+      $normalized = [];
+      foreach ($params as $k => $v) {
+        if (is_string($k) && strlen($k) > 0 && $k[0] === ':') {
+          $normalized[ltrim($k, ':')] = $v;
+        } else {
+          $normalized[$k] = $v;
+        }
+      }
+      $params = $normalized;
+    }
     $stmt->execute($params);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $result ? $result : [];
@@ -399,6 +431,60 @@ class SQLiteHelper extends BaseSQL {
     // Remove multiple spaces
     $sql = preg_replace('/\s+/', ' ', $sql);
     return trim($sql);
+  }
+
+  /**
+   * Calculate a deterministic checksum for a table.
+   *
+   * This implementation selects the requested columns (or all columns when
+   * none specified), orders rows deterministically by the requested columns,
+   * JSON-encodes each row with sorted keys, concatenates them and returns an
+   * MD5 hash of the result.
+   *
+   * @param string $table
+   * @param array|null $columns
+   * @return string|null
+   */
+  public function calculateChecksum($table, array $columns = null) {
+    if (!$this->hasTable($table)) {
+      return null;
+    }
+    try {
+      if ($columns === null) {
+        $columns = $this->getTableColumns($table);
+      }
+
+      if (empty($columns)) {
+        return hash('sha256', '');
+      }
+
+      // Quote identifiers with backticks for SQLite
+      $quote = function ($identifier) {
+        return '`' . str_replace('`', '``', $identifier) . '`';
+      };
+      $colsQuoted = array_map($quote, $columns);
+      $colsSelect = implode(', ', $colsQuoted);
+      $orderBy    = $colsQuoted[0] ?? $colsSelect;
+
+      $tableQuoted = $quote($table);
+      $sql         = "SELECT $colsSelect FROM $tableQuoted ORDER BY $orderBy";
+      $stmt        = $this->pdo->prepare($sql);
+      $stmt->execute();
+      $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      if (empty($rows)) {
+        return hash('sha256', '');
+      }
+
+      $buffer = '';
+      foreach ($rows as $row) {
+        $buffer .= implode('|', array_map('strval', $row)) . "\n";
+      }
+
+      return hash('sha256', $buffer);
+    } catch (\Exception $e) {
+      return null;
+    }
   }
 
   public function hasTable($table) {

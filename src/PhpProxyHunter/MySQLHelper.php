@@ -293,6 +293,14 @@ class MySQLHelper extends BaseSQL {
    */
   public function select($tableName, $columns = '*', $where = null, $params = [], $orderBy = null, $limit = null, $offset = null) {
     $operation = function () use ($tableName, $columns, $where, $params, $orderBy, $limit, $offset) {
+      // Allow passing columns as an array of column names
+      if (is_array($columns)) {
+        $quote = function ($identifier) {
+          return '`' . str_replace('`', '``', $identifier) . '`';
+        };
+        $columns = implode(', ', array_map($quote, $columns));
+      }
+
       $sql = "SELECT $columns FROM $tableName";
       if ($where) {
         $sql .= " WHERE $where";
@@ -313,6 +321,18 @@ class MySQLHelper extends BaseSQL {
         // MySQL max
       }
       $stmt = $this->pdo->prepare($sql);
+      // Normalize params: strip leading ':' from named keys for execute()
+      if (is_array($params)) {
+        $normalized = [];
+        foreach ($params as $k => $v) {
+          if (is_string($k) && strlen($k) > 0 && $k[0] === ':') {
+            $normalized[ltrim($k, ':')] = $v;
+          } else {
+            $normalized[$k] = $v;
+          }
+        }
+        $params = $normalized;
+      }
       $stmt->execute($params);
       $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $result ? $result : [];
@@ -331,6 +351,17 @@ class MySQLHelper extends BaseSQL {
   public function execute($sql, $params = []) {
     $operation = function () use ($sql, $params) {
       $stmt = $this->pdo->prepare($sql);
+      if (is_array($params)) {
+        $normalized = [];
+        foreach ($params as $k => $v) {
+          if (is_string($k) && strlen($k) > 0 && $k[0] === ':') {
+            $normalized[ltrim($k, ':')] = $v;
+          } else {
+            $normalized[$k] = $v;
+          }
+        }
+        $params = $normalized;
+      }
       $stmt->execute($params);
       $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $result ? $result : [];
@@ -422,6 +453,50 @@ class MySQLHelper extends BaseSQL {
       $columns[] = $row['Field'];
     }
     return $columns;
+  }
+
+  /**
+   * Calculate a deterministic checksum for a table (MySQL).
+   *
+   * Tries `CHECKSUM TABLE` first; if unavailable falls back to computing
+   * per-row SHA2 hashes, concatenating them ordered, then SHA2 the result.
+   *
+   * @param string $table
+   * @param array|null $columns
+   * @return string|null
+   */
+  public function calculateChecksum($table, array $columns = null) {
+    if ($columns === null) {
+      $columns = $this->getTableColumns($table);
+    }
+
+    if (empty($columns)) {
+      return null;
+    }
+
+    // Quote columns and table
+    $quote = function ($identifier) {
+      return '`' . str_replace('`', '``', $identifier) . '`';
+    };
+    $escapedCols = array_map($quote, $columns);
+    $concatExpr  = 'CONCAT_WS(\'|\',' . implode(',', $escapedCols) . ')';
+
+    // Try CHECKSUM TABLE
+    try {
+      $result = $this->execute('CHECKSUM TABLE `' . str_replace('`', '``', $table) . '`');
+      if (!empty($result) && isset($result[0]['Checksum'])) {
+        return (string)$result[0]['Checksum'];
+      }
+    } catch (\Throwable $e) {
+      // ignore and fallback
+    }
+
+    // Fallback: SHA2 of grouped per-row hashes
+    $orderCol = $escapedCols[0];
+    $sql      = "SELECT SHA2(GROUP_CONCAT(row_hash ORDER BY row_hash SEPARATOR '\n'), 256) AS checksum FROM (SELECT SHA2($concatExpr, 256) AS row_hash FROM `" . str_replace('`', '``', $table) . '` ORDER BY ' . $orderCol . ') AS t';
+
+    $result = $this->execute($sql);
+    return $result[0]['checksum'] ?? null;
   }
 
   public function addColumnIfNotExists($table, $column, $definition) {

@@ -104,11 +104,13 @@ class CoreDBTest extends TestCase {
     try {
       // Insert a row into meta table
       if ($driver === 'mysql') {
-        $insertSql     = 'INSERT INTO meta (`key`, value) VALUES (:key, :value)';
+        // Use upsert to avoid duplicate-key errors between test runs
+        $insertSql     = 'INSERT INTO meta (`key`, value) VALUES (:key, :value) ON DUPLICATE KEY UPDATE value = VALUES(value)';
         $selectColumns = '`key`, value';
         $where         = '`key` = :key';
       } else {
-        $insertSql     = 'INSERT INTO meta ("key", value) VALUES (:key, :value)';
+        // SQLite: use INSERT OR REPLACE to avoid duplicate primary key errors
+        $insertSql     = 'INSERT OR REPLACE INTO meta ("key", value) VALUES (:key, :value)';
         $selectColumns = 'key, value';
         $where         = 'key = :key';
       }
@@ -134,6 +136,33 @@ class CoreDBTest extends TestCase {
     try {
       $this->assertTrue($this->coreDB->hasTable('meta'));
       $this->assertFalse($this->coreDB->hasTable('non_existent_table'));
+    } finally {
+      $this->tearDownDB($driver);
+    }
+  }
+
+  /**
+   * @dataProvider dbProvider
+   */
+  public function testCalculateChecksum(string $driver) {
+    $this->setUpDB($driver);
+    try {
+      // Insert some rows into the "meta" table
+      if ($driver === 'mysql') {
+        $insertSql = 'INSERT INTO meta (`key`, value) VALUES (:key, :value) ON DUPLICATE KEY UPDATE value = VALUES(value)';
+      } else {
+        $insertSql = 'INSERT OR REPLACE INTO meta ("key", value) VALUES (:key, :value)';
+      }
+
+      $this->coreDB->query($insertSql, [':key' => 'ck1', ':value' => 'abc']);
+      $this->coreDB->query($insertSql, [':key' => 'ck2', ':value' => 'xyz']);
+
+      // Run checksum
+      $checksum = $this->coreDB->calculateChecksum('meta');
+
+      // Assertions
+      $this->assertIsString($checksum, 'Checksum should be a string');
+      $this->assertNotEmpty($checksum, 'Checksum should not be empty');
     } finally {
       $this->tearDownDB($driver);
     }

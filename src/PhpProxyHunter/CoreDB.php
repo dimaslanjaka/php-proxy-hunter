@@ -245,11 +245,11 @@ class CoreDB extends BaseSQL {
   public function select(
     $table,
     $columns = '*',
-    $where = [],
+    $where = null,
     $params = [],
-    $orderBy = '',
-    $limit = 0,
-    $offset = 0
+    $orderBy = null,
+    $limit = null,
+    $offset = null
   ) {
     return $this->db->select($table, $columns, $where, $params, $orderBy, $limit, $offset);
   }
@@ -298,5 +298,8 @@ class CoreDB extends BaseSQL {
   }
   public function hasTable($table) {
     return $this->db->hasTable($table);
+  }
+  public function calculateChecksum($table, $columns = null) {
+    return $this->db->calculateChecksum($table, $columns);
   }
 }
