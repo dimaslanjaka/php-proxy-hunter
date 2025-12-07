@@ -169,5 +169,14 @@
   "failed_refresh_user_list": "Failed to refresh user list.",
   "set_timeout": "Set Timeout",
   "otp_package": "OTP Package",
-  "direct_package": "Direct Package"
+  "direct_package": "Direct Package",
+  "proxy_list_server": "Proxy List (Server)",
+  "search_proxies": "Search proxies",
+  "recaptcha_v2_example": "reCAPTCHA v2 Example",
+  "captcha_verified": "Captcha verified",
+  "captcha_verification_failed": "Captcha verification failed",
+  "verifying": "Verifying...",
+  "please_complete_captcha": "Please complete the captcha",
+  "reset": "Reset",
+  "recaptcha_v2_site_key_missing": "reCAPTCHA V2 site key is not configured."
 }
