@@ -13,6 +13,7 @@ use PDOException;
 class ProxyDB {
   /** @var SQLiteHelper|MySQLHelper $db */
   public $db;
+
   /**
    * @var string The root directory of the project.
    */

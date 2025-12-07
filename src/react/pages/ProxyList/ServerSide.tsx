@@ -1,0 +1,228 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { createUrl } from '../../utils/url';
+import { timeAgo } from '../../../utils/date/timeAgo.js';
+import { noop } from '../../../utils/other';
+
+type ProxyRow = Record<string, any>;
+
+export default function ServerSide() {
+  const { t } = useTranslation();
+  const [rows, setRows] = React.useState<ProxyRow[]>([]);
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(10);
+  const [search, setSearch] = React.useState('');
+  const [draw, setDraw] = React.useState(0);
+  const [recordsTotal, setRecordsTotal] = React.useState(0);
+  const [recordsFiltered, setRecordsFiltered] = React.useState(0);
+  const [loading, setLoading] = React.useState(false);
+
+  const fetchData = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const start = (page - 1) * perPage;
+
+      // Use POST to avoid URL-length or nested param parsing issues
+      const body = new URLSearchParams();
+      body.append('draw', String(draw + 1));
+      body.append('start', String(start));
+      body.append('length', String(perPage));
+      if (search && search.length > 0) {
+        // DataTables nested param name
+        body.append('search[value]', search);
+      }
+
+      const url = createUrl('/php_backend/proxy-list.php');
+      const res = await fetch(url, { method: 'POST', body, cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data?.error) {
+        console.error('Backend error', data.error, data);
+        // show empty rows but surface the error in console
+        setRows([]);
+        setRecordsTotal(0);
+        setRecordsFiltered(0);
+      } else {
+        setDraw((d) => d + 1);
+        setRows(Array.isArray(data.data) ? data.data : []);
+        setRecordsTotal(Number(data.recordsTotal) || 0);
+        setRecordsFiltered(Number(data.recordsFiltered) || 0);
+      }
+    } catch (err) {
+      console.error('Failed to fetch proxy list', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, perPage, search]);
+
+  React.useEffect(() => {
+    fetchData().catch(noop);
+  }, [fetchData]);
+
+  const totalPages = perPage > 0 ? Math.max(1, Math.ceil(recordsFiltered / perPage)) : 1;
+
+  return (
+    <section className="my-6">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-4 border border-blue-200 dark:border-blue-700 flowbite-modal">
+        <div className="flex items-center justify-between mb-3 gap-3">
+          <h2 className="text-lg font-semibold text-blue-800 dark:text-blue-200">{t('Proxy List (Server)')}</h2>
+          <div className="flex items-center gap-2">
+            <input
+              type="search"
+              placeholder={t('Search proxies') as string}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1); // reset to first page when search changes
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') setPage(1);
+              }}
+              className="px-2 py-1 border rounded-md text-sm"
+            />
+            <select
+              value={perPage}
+              onChange={(e) => {
+                setPerPage(Number(e.target.value));
+                setPage(1);
+              }}
+              className="px-2 py-1 border rounded-md text-sm">
+              {[10, 25, 50, 100].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => {
+                setPage(1);
+                fetchData().catch(noop);
+              }}
+              className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">
+              {loading ? 'Loading...' : t('Refresh')}
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+            <thead>
+              <tr>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Proxy</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Type</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Country</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">City</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Status</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Latency</th>
+                <th className="px-2 py-1 text-gray-700 dark:text-gray-200">Last Check</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-2 py-4 text-center text-gray-500 dark:text-gray-400">
+                    {loading ? (
+                      <span className="text-gray-700 dark:text-gray-200">Loading...</span>
+                    ) : (
+                      <span className="text-gray-700 dark:text-gray-200">No proxies</span>
+                    )}
+                  </td>
+                </tr>
+              ) : (
+                rows.map((r, i) => (
+                  <tr key={i} className="odd:bg-gray-50 dark:odd:bg-gray-800">
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{r.proxy}</td>
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{r.type}</td>
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{r.country}</td>
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{r.city}</td>
+                    <td className="px-2 py-1">
+                      {(() => {
+                        const s = String(r.status || '').toLowerCase();
+                        // Use bordered-only badges: transparent background, colored border + text
+                        let cls =
+                          'border border-gray-300 text-gray-800 dark:border-gray-700 dark:text-gray-200 bg-transparent';
+                        if (s === 'dead' || s === 'port-closed') {
+                          cls =
+                            'border border-red-500 text-red-600 dark:border-red-400 dark:text-red-400 bg-transparent';
+                        } else if (s === 'active') {
+                          cls =
+                            'border border-green-500 text-green-600 dark:border-green-400 dark:text-green-400 bg-transparent';
+                        } else if (s === 'port-open' || s === 'untested') {
+                          cls =
+                            'border border-yellow-500 text-yellow-700 dark:border-yellow-400 dark:text-yellow-300 bg-transparent';
+                        }
+                        return (
+                          <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${cls}`}>
+                            {r.status || '-'}
+                          </span>
+                        );
+                      })()}
+                    </td>
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{r.latency}</td>
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">
+                      {r.last_check ? timeAgo(r.last_check) : '-'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex items-center justify-between mt-3">
+          <div className="text-sm text-gray-600">{`Showing ${rows.length} of ${recordsFiltered} filtered (${recordsTotal} total)`}</div>
+          <div className="flex items-center gap-2">
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage(1)}
+              className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700">
+              First
+            </button>
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700">
+              Prev
+            </button>
+
+            {/* Numeric page buttons (compact window) */}
+            <div className="flex items-center gap-1">
+              {(() => {
+                const maxButtons = 7;
+                const pages: number[] = [];
+                let start = Math.max(1, page - Math.floor(maxButtons / 2));
+                let end = start + maxButtons - 1;
+                if (end > totalPages) {
+                  end = totalPages;
+                  start = Math.max(1, end - maxButtons + 1);
+                }
+                for (let p = start; p <= end; p++) pages.push(p);
+                return pages.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`px-2 py-1 rounded border ${p === page ? 'bg-blue-600 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700'}`}>
+                    {p}
+                  </button>
+                ));
+              })()}
+            </div>
+
+            <button
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700">
+              Next
+            </button>
+            <button
+              disabled={page >= totalPages}
+              onClick={() => setPage(totalPages)}
+              className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700">
+              Last
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
