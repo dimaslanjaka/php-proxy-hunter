@@ -1,5 +1,58 @@
 [
   {
+    "hash": "18f60ddab130b70ba411b51d2732787b6920a1cb",
+    "date": "2025-12-07T14:50:14+07:00",
+    "message": "feat(db): add deterministic table checksum API and implement for MySQL/SQLite\n\n- Add abstract `calculateChecksum($table, array $columns = null)` to `src/PhpProxyHunter/BaseSQL.php`.\n- Delegate checksum calls from `CoreDB::calculateChecksum()` to the underlying helper.\n- Fix `CoreDB::select()` defaults to use `null` for `where/orderBy/limit/offset` (prevents accidental `LIMIT 0`).\n- MySQLHelper:\n  - Accept `$columns` as an array (safely quote identifiers).\n  - Normalize named params (strip leading `:`) before execute.\n  - Implement `calculateChecksum()`:\n    - Try `CHECKSUM TABLE` first; fallback to per-row SHA2 hashing + GROUP_CONCAT then SHA2.\n- SQLiteHelper:\n  - Accept `$columns` as an array (safely quote identifiers).\n  - Normalize named params (strip leading `:`) before execute.\n  - Implement `calculateChecksum()`:\n    - Select rows deterministically and compute SHA-256 of pipe-separated row values.\n- Tests:\n  - Update `tests/PhpProxyHunter/CoreDBTest.php` to use upsert semantics:\n    - MySQL: `ON DUPLICATE KEY UPDATE value = VALUES(value)`\n    - SQLite: `INSERT OR REPLACE`\n- Minor: small PDO/formatting tweak in SQLite helper (reposition comment).\n\nBREAKING CHANGE: Adding the abstract `calculateChecksum` to `BaseSQL` requires all custom DB helper implementations to implement `calculateChecksum`. The repository's included `MySQLHelper` and `SQLiteHelper` now implement it, but third-party or legacy drivers must be updated.",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/CoreDB.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/SQLiteHelper.php",
+      "tests/PhpProxyHunter/CoreDBTest.php"
+    ]
+  },
+  {
+    "hash": "adeacbe0a7e652a2ced07dc5db81bce2e51d2955",
+    "date": "2025-12-07T14:25:20+07:00",
+    "message": "fix(proxy-list): make `type=ssl` filter match proxies with `https` flag\n\nWhen filtering by `type=ssl` the server now matches rows where the `type`\ncolumn contains \"ssl\" OR the `https` flag is set (accepts 'true', '1', or 1).\nThis fixes the case where SSL proxies were recorded via the `https` column\nand therefore weren't returned when selecting the SSL filter.\n\n- Update server-side filtering (count + data queries) to special-case `ssl`\n  and bind `:https_true`, `:https_one`, `:https_int`.\n- File changed: `php_backend/proxy-list.php`",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
+    "hash": "d06dcecf8d56c4aebbc5a2e945d70bcedff904e2",
+    "date": "2025-12-07T14:21:54+07:00",
+    "message": "feat(proxy-list): add proxy type filter (http/https/socks4/socks4a/socks5/socks5h/ssl)\n\n- Add `typeFilter` dropdown to `src/react/pages/ProxyList/ServerSide.tsx` with options:\n  `http`, `https`, `socks4`, `socks4a`, `socks5`, `socks5h`, `ssl`.\n- Include `type` in the POST body when fetching the server-side list and add `typeFilter`\n  state to fetch dependencies so changing the filter refreshes results.\n- Server-side: accept optional `type` parameter in `php_backend/proxy-list.php` and apply\n  `type LIKE :type` to both the count and rows queries (binds `%<type>%`), which allows\n  matching combined type strings (e.g. `http-SSL`).\n- Keeps pagination/counts accurate while enabling server-side filtering by type.",
+    "files": [
+      "php_backend/proxy-list.php",
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "1d5396c0143a078b82b896b6bb40cf797afc8f96",
+    "date": "2025-12-07T14:14:49+07:00",
+    "message": "feat(proxy-list): display SSL badge for HTTPS proxies\n\nShow an inline \"SSL\" badge next to proxy type badges when a proxy's\n`https` property is truthy (or the string \"true\"). The badge uses the\nexisting `getProxyTypeColorClass('ssl')` style so it matches other type\nbadges.\n\n- Adds conditional SSL badge rendering in `ServerSide.tsx`\n- Keeps styling consistent with other proxy type badges",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "22fa6c57fc363b5cd80cb24098c141d6ad6370b0",
+    "date": "2025-12-07T14:11:18+07:00",
+    "message": "feat(proxy-list): add unified loading overlay and simplify refresh button\n\n- Always display the refresh label (remove loading text swap on button)\n- Make table wrapper `relative` so overlays can be positioned correctly\n- Replace in-table/mobile-only spinner with a full-size absolute overlay spinner (centers over table and blocks interactions while loading)\n- Wrap row rendering in a fragment to support the overlay insertion\n- Improve mobile visibility for loading state",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "eb124ef518406c4ddf2635850b4861bdd835df55",
+    "date": "2025-12-07T13:56:20+07:00",
+    "message": "feat(proxy-list): default to recent `last_check` ordering when no client order\n\nAdd a server-side default ORDER BY so that, when the client does not supply an\nordering parameter, rows with a valid `last_check` are prioritized and the\nresults are sorted newest-first.\n\n- Uses a CASE expression to prefer non-empty/non-`-` `last_check` values, then\n  orders by `last_check` DESC.\n- Assumes `last_check` is stored as an RFC3339/ISO datetime string for correct\n  lexicographic ordering; malformed or empty values are pushed to the end.",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
     "hash": "fec7ce55fae4e0800be1cd1a329ea9b14f7848ff",
     "date": "2025-12-07T13:49:06+07:00",
     "message": "feat(i18n, proxy-list): add extend_session translation; move reCAPTCHA, submission and logs to page root\n\n- Add `extend_session` key to `src/react/locales/en.json` and `src/react/locales/id.json`.\n- Move reCAPTCHA UI out of `ServerSide.tsx` and render it at page root (`src/react/pages/ProxyList/index.tsx`).\n- Remove reCAPTCHA imports, modal and verification logic from `src/react/pages/ProxyList/WorkingJson.tsx`.\n- Move `ProxySubmission` and `LogViewer` from `WorkingJson.tsx` into `src/react/pages/ProxyList/index.tsx`.\n- Simplify `ServerSide.tsx` by removing the embedded recaptcha block and minor layout class adjustment.",
@@ -8592,64 +8645,6 @@
     "message": "test(SQLiteHelperTest): add unit tests for modifyColumnIfExists method",
     "files": [
       "tests/PhpProxyHunter/SQLiteHelperTest.php"
-    ]
-  },
-  {
-    "hash": "6b2c9cc4d2ee5d5ded2e50ae72e0155a677a807b",
-    "date": "2025-09-10T15:58:17+07:00",
-    "message": "feat(database): implement modifyColumnIfExists method for dynamic column modification",
-    "files": [
-      "src/PhpProxyHunter/BaseSQL.php",
-      "src/PhpProxyHunter/MySQLHelper.php",
-      "src/PhpProxyHunter/SQLiteHelper.php",
-      "tests/PhpProxyHunter/SQLiteHelperDebug.php"
-    ]
-  },
-  {
-    "hash": "ddc19f85b6d41c8af0cc22de14c42e82dabbf8f0",
-    "date": "2025-09-10T15:57:22+07:00",
-    "message": "feat(LogsRepository): update user_activity details column type for MySQL and SQLite",
-    "files": [
-      "src/PhpProxyHunter/LogsRepositoryMigrations.php"
-    ]
-  },
-  {
-    "hash": "591ada30eac5ff7ca8e311d2929eb2bf0f8cda88",
-    "date": "2025-09-10T15:35:27+07:00",
-    "message": "feat(LogsRepository): add migration handling for log repository schema changes",
-    "files": [
-      "src/PhpProxyHunter/LogsRepository.php",
-      "src/PhpProxyHunter/LogsRepositoryMigrations.php"
-    ]
-  },
-  {
-    "hash": "7f461ba93b5b66b029cea8e366170b24aceec736",
-    "date": "2025-09-10T15:30:14+07:00",
-    "message": "fix(LogsRepository): add missing use statement for PDO",
-    "files": [
-      "src/PhpProxyHunter/LogsRepository.php"
-    ]
-  },
-  {
-    "hash": "9cc479e64509cf27c98519ebc6607358b015c589",
-    "date": "2025-09-10T15:24:05+07:00",
-    "message": "feat(db): support PDO injection in MySQLHelper and SQLiteHelper constructors\n\n- Updated MySQLHelper to accept either host credentials or an existing PDO instance\n- Updated SQLiteHelper to accept either database path or an existing PDO instance\n- Improved unique key generation to handle PDO-based connections\n- Enhanced SQLiteHelper::dropColumnIfExists to rebuild table schema safely\n- Added new test cases for constructor with PDO, table operations, and column management\n- Introduced SQLiteHelperDebug for debugging schema changes",
-    "files": [
-      "src/PhpProxyHunter/MySQLHelper.php",
-      "src/PhpProxyHunter/SQLiteHelper.php",
-      "tests/PhpProxyHunter/MySQLHelperTest.php",
-      "tests/PhpProxyHunter/SQLiteHelperDebug.php",
-      "tests/PhpProxyHunter/SQLiteHelperTest.php"
-    ]
-  },
-  {
-    "hash": "3795620398aff715014f87a52247a3b988f57e52",
-    "date": "2025-09-10T14:26:30+07:00",
-    "message": "feat(sql): add schema management methods for MySQL and SQLite helpers\n\n- Added abstract methods in BaseSQL for column and table schema operations:\n  - addColumnIfNotExists\n  - columnExists\n  - dropColumnIfExists\n  - getTableColumns\n- Implemented schema management in MySQLHelper using DESCRIBE and ALTER TABLE\n- Implemented schema management in SQLiteHelper using PRAGMA and ALTER TABLE\n- Updated PHPDoc and type hints for stricter definitions\n- Enabled strict typing across BaseSQL",
-    "files": [
-      "src/PhpProxyHunter/BaseSQL.php",
-      "src/PhpProxyHunter/MySQLHelper.php",
-      "src/PhpProxyHunter/SQLiteHelper.php"
     ]
   }
 ]
