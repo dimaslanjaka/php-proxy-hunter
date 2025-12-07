@@ -1,5 +1,13 @@
 [
   {
+    "hash": "eca16f99a78dff50cf6fdad8183380d30e0c25ca",
+    "date": "2025-12-07T18:06:20+07:00",
+    "message": "feat(ads): integrate AdSense related content",
+    "files": [
+      "src/react/index.tsx"
+    ]
+  },
+  {
     "hash": "b7d4095541c151a555546a82e09383d6f8bcbb74",
     "date": "2025-12-07T17:58:08+07:00",
     "message": "feat(ads): add AdSense component, trigger, and ad definitions\n\nAdd a reusable `AdSense` React component (`src/react/components/AdSense.tsx`)\nthat renders `<ins class=\"adsbygoogle\">` with typed props (client, slot,\nformat, layout, fullWidthResponsive, style) and invokes an async trigger to\ninitialize/load ads on mount. The component enables `data-adtest=on` in\ndevelopment-like environments.\n\nIntroduce `adsense-trigger.ts` (`src/react/components/adsense-trigger.ts`)\nwhich scans existing `ins.adsbygoogle` nodes, applies a placeholder background,\napplies `data-adtest` on dev/local, and robustly decides whether to call\n`window.adsbygoogle.push()` for a slot. Detection includes checks for:\n- iframe child\n- Google host div (`aswift_*`)\n- `data-adsbygoogle-status=\"done\"`\n- `data-load-complete=\"true\"`\n\nUse a global Set (`window.__adsenseHandledSlots`) to avoid duplicate pushes\nacross multiple trigger runs. The trigger safely queues pushes via\n`window.adsbygoogle?.push()`.\n\nAdd `src/react/components/adsense-ads.json` containing extracted AdSense unit\ndefinitions found across the project (client, slot, format, sources, raw).\n\nWire the component into `ProxyList` by importing and rendering an AdSense\ninstance in `src/react/pages/ProxyList/index.tsx`.\n\nFiles added:\n- src/react/components/AdSense.tsx\n- src/react/components/adsense-trigger.ts\n- src/react/components/adsense-ads.json\n\nFile modified:\n- src/react/pages/ProxyList/index.tsx (import + usage)\n\nNo breaking changes.",
@@ -8634,12 +8642,6 @@
     "hash": "bb55e8e80dae34a0c36452f4fc4aac1966b98531",
     "date": "2025-09-15T09:52:13+07:00",
     "message": "fix(post-merge): remove unsupported OS check in post-merge script",
-    "files": []
-  },
-  {
-    "hash": "1b455a65c9e020d28a255c755f5468c023ef8526",
-    "date": "2025-09-15T09:50:16+07:00",
-    "message": "fix(post-merge): correct variable reference for commit history builder script",
     "files": [
       ".husky/post-merge"
     ]
