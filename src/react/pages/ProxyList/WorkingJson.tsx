@@ -8,7 +8,6 @@ import { useSnackbar } from '../../components/Snackbar';
 import { createUrl } from '../../utils/url';
 import { getUserInfo } from '../../utils/user';
 import { getProxyTypeColorClass } from '../../utils/proxyColors';
-import ApiUsage from './ApiUsage';
 import ModifyCurl from './ModifyCurl';
 import { checkProxy } from '../../utils/proxy';
 import copyToClipboard from '../../../utils/data/copyToClipboard.js';
@@ -634,8 +633,7 @@ function WorkingJson() {
       {/* Section: How to Modify cURL Timeout in PHP */}
       <ModifyCurl />
 
-      {/* API Usage Section (moved after proxy list) */}
-      <ApiUsage />
+      {/* API Usage moved to the page index */}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import ServerSide from './ServerSide';
+import ApiUsage from './ApiUsage';
 import { useTranslation } from 'react-i18next';
 import RecaptchaV2 from '../../components/RecaptchaV2';
 import ProxySubmission from './ProxySubmission';
@@ -47,6 +48,8 @@ export default function ProxyList() {
       </section>
 
       <ServerSide />
+
+      <ApiUsage />
 
       <ProxySubmission />
 
