@@ -12,6 +12,8 @@ export default function ServerSide() {
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(10);
   const [search, setSearch] = React.useState('');
+  const [statuses, setStatuses] = React.useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = React.useState('');
   const [draw, setDraw] = React.useState(0);
   const [recordsTotal, setRecordsTotal] = React.useState(0);
   const [recordsFiltered, setRecordsFiltered] = React.useState(0);
@@ -30,6 +32,9 @@ export default function ServerSide() {
       if (search && search.length > 0) {
         // DataTables nested param name
         body.append('search[value]', search);
+      }
+      if (statusFilter && statusFilter.length > 0) {
+        body.append('status', statusFilter);
       }
 
       const url = createUrl('/php_backend/proxy-list.php');
@@ -53,11 +58,32 @@ export default function ServerSide() {
     } finally {
       setLoading(false);
     }
-  }, [page, perPage, search]);
+  }, [page, perPage, search, statusFilter]);
 
   React.useEffect(() => {
     fetchData().catch(noop);
   }, [fetchData]);
+
+  // Fetch available distinct statuses for filter dropdown
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const body = new URLSearchParams();
+        body.append('get_statuses', '1');
+        const res = await fetch(createUrl('/php_backend/proxy-list.php'), { method: 'POST', body });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!mounted) return;
+        if (Array.isArray(data.statuses)) setStatuses(data.statuses.filter(Boolean));
+      } catch (_e) {
+        // ignore
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const totalPages = perPage > 0 ? Math.max(1, Math.ceil(recordsFiltered / perPage)) : 1;
 
@@ -72,11 +98,11 @@ export default function ServerSide() {
   }
 
   return (
-    <section className="my-6">
+    <section className="my-6 mx-2">
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-4 border border-blue-200 dark:border-blue-700 flowbite-modal">
-        <div className="flex items-center justify-between mb-3 gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-3">
           <h2 className="text-lg font-semibold text-blue-800 dark:text-blue-200">{t('Proxy List (Server)')}</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
             <input
               type="search"
               placeholder={t('Search proxies') as string}
@@ -88,29 +114,45 @@ export default function ServerSide() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter') setPage(1);
               }}
-              className="px-2 py-1 border rounded-md text-sm"
+              className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto"
             />
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[120px]">
+              <option value="">All statuses</option>
+              {statuses.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
             <select
               value={perPage}
               onChange={(e) => {
                 setPerPage(Number(e.target.value));
                 setPage(1);
               }}
-              className="px-2 py-1 border rounded-md text-sm">
+              className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[80px]">
               {[10, 25, 50, 100].map((n) => (
                 <option key={n} value={n}>
                   {n}
                 </option>
               ))}
             </select>
-            <button
-              onClick={() => {
-                setPage(1);
-                fetchData().catch(noop);
-              }}
-              className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">
-              {loading ? 'Loading...' : t('Refresh')}
-            </button>
+            <div className="w-full sm:w-auto">
+              <button
+                onClick={() => {
+                  setPage(1);
+                  fetchData().catch(noop);
+                }}
+                className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm w-full sm:w-auto">
+                {loading ? 'Loading...' : t('Refresh')}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -179,9 +221,9 @@ export default function ServerSide() {
           </table>
         </div>
 
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 gap-2">
           <div className="text-sm text-gray-600 dark:text-gray-400">{`Showing ${rows.length} of ${recordsFiltered} filtered (${recordsTotal} total)`}</div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               disabled={page <= 1}
               onClick={() => setPage(1)}
@@ -195,8 +237,8 @@ export default function ServerSide() {
               Prev
             </button>
 
-            {/* Numeric page buttons (compact window) */}
-            <div className="flex items-center gap-1">
+            {/* Numeric page buttons (compact window) - hide on xs */}
+            <div className="hidden sm:flex items-center gap-1">
               {(() => {
                 const maxButtons = 7;
                 const pages: number[] = [];
