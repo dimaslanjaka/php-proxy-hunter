@@ -63,6 +63,11 @@ try {
   if (isset($request['status'])) {
     $statusFilter = trim((string)$request['status']);
   }
+  // Optional type filter (http, https, socks4, socks5, ssl)
+  $typeFilter = '';
+  if (isset($request['type'])) {
+    $typeFilter = trim((string)$request['type']);
+  }
 
   // Special action: return distinct statuses when requested
   if (isset($request['get_statuses']) && $request['get_statuses']) {
@@ -114,6 +119,10 @@ try {
     $whereParts[]           = 'status = :status';
     $countParams[':status'] = $statusFilter;
   }
+  if ($typeFilter !== '') {
+    $whereParts[]         = 'type LIKE :type';
+    $countParams[':type'] = '%' . $typeFilter . '%';
+  }
   if (!empty($whereParts)) {
     $countSql = 'SELECT COUNT(*) as cnt FROM proxies WHERE ' . implode(' AND ', $whereParts);
     $stmt     = $pdo->prepare($countSql);
@@ -132,6 +141,10 @@ try {
   if ($statusFilter !== '') {
     $whereParts[]      = 'status = :status';
     $params[':status'] = $statusFilter;
+  }
+  if ($typeFilter !== '') {
+    $whereParts[]    = 'type LIKE :type';
+    $params[':type'] = '%' . $typeFilter . '%';
   }
   if (!empty($whereParts)) {
     $where = 'WHERE ' . implode(' AND ', $whereParts);

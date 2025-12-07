@@ -18,6 +18,7 @@ export default function ServerSide() {
   // Default to 'active' so initial view shows active proxies
   const [statuses, setStatuses] = React.useState<string[]>(['active']);
   const [statusFilter, setStatusFilter] = React.useState('active');
+  const [typeFilter, setTypeFilter] = React.useState('');
   const [draw, setDraw] = React.useState(0);
   const [recordsTotal, setRecordsTotal] = React.useState(0);
   const [recordsFiltered, setRecordsFiltered] = React.useState(0);
@@ -39,6 +40,9 @@ export default function ServerSide() {
       }
       if (statusFilter && statusFilter.length > 0) {
         body.append('status', statusFilter);
+      }
+      if (typeFilter && typeFilter.length > 0) {
+        body.append('type', typeFilter);
       }
 
       const url = createUrl('/php_backend/proxy-list.php');
@@ -67,7 +71,7 @@ export default function ServerSide() {
     } finally {
       setLoading(false);
     }
-  }, [page, perPage, search, statusFilter]);
+  }, [page, perPage, search, statusFilter, typeFilter]);
 
   React.useEffect(() => {
     fetchData().catch(noop);
@@ -129,6 +133,22 @@ export default function ServerSide() {
                     {s}
                   </option>
                 ))}
+              </select>
+              <select
+                value={typeFilter}
+                onChange={(e) => {
+                  setTypeFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[120px]">
+                <option value="">All types</option>
+                <option value="http">HTTP</option>
+                <option value="https">HTTPS</option>
+                <option value="socks4">SOCKS4</option>
+                <option value="socks4a">SOCKS4A</option>
+                <option value="socks5">SOCKS5</option>
+                <option value="socks5h">SOCKS5H</option>
+                <option value="ssl">SSL</option>
               </select>
               <select
                 value={perPage}
