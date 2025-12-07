@@ -1,5 +1,17 @@
 [
   {
+    "hash": "fec7ce55fae4e0800be1cd1a329ea9b14f7848ff",
+    "date": "2025-12-07T13:49:06+07:00",
+    "message": "feat(i18n, proxy-list): add extend_session translation; move reCAPTCHA, submission and logs to page root\n\n- Add `extend_session` key to `src/react/locales/en.json` and `src/react/locales/id.json`.\n- Move reCAPTCHA UI out of `ServerSide.tsx` and render it at page root (`src/react/pages/ProxyList/index.tsx`).\n- Remove reCAPTCHA imports, modal and verification logic from `src/react/pages/ProxyList/WorkingJson.tsx`.\n- Move `ProxySubmission` and `LogViewer` from `WorkingJson.tsx` into `src/react/pages/ProxyList/index.tsx`.\n- Simplify `ServerSide.tsx` by removing the embedded recaptcha block and minor layout class adjustment.",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/WorkingJson.tsx",
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
     "hash": "4c55640481bdcc63381faa1f9f3002e469869a45",
     "date": "2025-12-07T13:35:31+07:00",
     "message": "feat(proxy-list): adjust badge styling for improved readability",
@@ -8634,16 +8646,6 @@
     "hash": "3795620398aff715014f87a52247a3b988f57e52",
     "date": "2025-09-10T14:26:30+07:00",
     "message": "feat(sql): add schema management methods for MySQL and SQLite helpers\n\n- Added abstract methods in BaseSQL for column and table schema operations:\n  - addColumnIfNotExists\n  - columnExists\n  - dropColumnIfExists\n  - getTableColumns\n- Implemented schema management in MySQLHelper using DESCRIBE and ALTER TABLE\n- Implemented schema management in SQLiteHelper using PRAGMA and ALTER TABLE\n- Updated PHPDoc and type hints for stricter definitions\n- Enabled strict typing across BaseSQL",
-    "files": [
-      "src/PhpProxyHunter/BaseSQL.php",
-      "src/PhpProxyHunter/MySQLHelper.php",
-      "src/PhpProxyHunter/SQLiteHelper.php"
-    ]
-  },
-  {
-    "hash": "9a6bba2d6cd9bc93e9a75c4b60a53e6c1b3523fa",
-    "date": "2025-09-10T14:19:04+07:00",
-    "message": "refactor(sql): introduce BaseSQL abstract class and extend MySQLHelper, SQLiteHelper from it",
     "files": [
       "src/PhpProxyHunter/BaseSQL.php",
       "src/PhpProxyHunter/MySQLHelper.php",
