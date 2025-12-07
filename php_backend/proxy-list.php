@@ -9,7 +9,15 @@ require_once __DIR__ . '/shared.php';
 
 use PhpProxyHunter\Server;
 
+// Allow CORS
 Server::allowCors(true);
+
+// Only allow if captcha passed
+if (empty($_SESSION['captcha'])) {
+  http_response_code(403);
+  echo json_encode(['error' => true, 'message' => 'Captcha not verified']);
+  exit;
+}
 
 $refresh = refreshDbConnections();
 /** @var \PhpProxyHunter\CoreDB $core_db */
@@ -150,6 +158,7 @@ try {
   $rows = $rows ?: [];
 
   $response = [
+    'error'           => false,
     'draw'            => $draw,
     'recordsTotal'    => $recordsTotal,
     'recordsFiltered' => $recordsFiltered,

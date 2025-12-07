@@ -178,5 +178,6 @@
   "verifying": "Memverifikasi...",
   "please_complete_captcha": "Silakan selesaikan captcha",
   "reset": "Atur Ulang",
-  "recaptcha_v2_site_key_missing": "Kunci situs reCAPTCHA V2 belum dikonfigurasi."
+  "recaptcha_v2_site_key_missing": "Kunci situs reCAPTCHA V2 belum dikonfigurasi.",
+  "recaptcha_session_expired_note": "Jika sesi reCAPTCHA kedaluwarsa, server mungkin meminta verifikasi sebelum mengembalikan hasil lengkap. Verifikasi captcha di bawah ketika diminta."
 }
