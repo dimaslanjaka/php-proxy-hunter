@@ -1,0 +1,49 @@
+[
+  {
+    "id": 1,
+    "type": "ins",
+    "element": "ins.adsbygoogle mb-3",
+    "data-ad-client": "ca-pub-2188063137129806",
+    "data-ad-slot": "6233018586",
+    "data-ad-format": "auto",
+    "data-full-width-responsive": "true",
+    "style": "display: block",
+    "sources": ["proxyManager.html", "public/proxyManager.html"],
+    "raw": "<ins class=\"adsbygoogle mb-3\" data-ad-client=\"ca-pub-2188063137129806\" data-ad-format=\"auto\" data-ad-slot=\"6233018586\" data-full-width-responsive=\"true\" style=\"display: block\"></ins>"
+  },
+  {
+    "id": 2,
+    "type": "ins",
+    "element": "ins.adsbygoogle mb-2",
+    "data-ad-client": "ca-pub-2188063137129806",
+    "data-ad-slot": "6873696468",
+    "data-ad-format": "auto",
+    "data-full-width-responsive": "true",
+    "style": "display: block",
+    "sources": ["proxyManager.html", "public/proxyManager.html"],
+    "raw": "<ins class=\"adsbygoogle mb-2\" data-ad-client=\"ca-pub-2188063137129806\" data-ad-format=\"auto\" data-ad-slot=\"6873696468\" data-full-width-responsive=\"true\" style=\"display: block\"></ins>"
+  },
+  {
+    "id": 3,
+    "type": "ins",
+    "element": "ins.adsbygoogle",
+    "data-ad-client": "ca-pub-2188063137129806",
+    "data-ad-slot": "6077317677",
+    "data-ad-format": "auto",
+    "data-full-width-responsive": "true",
+    "style": "display: block",
+    "sources": ["proxyManager.html", "public/proxyManager.html"],
+    "raw": "<ins class=\"adsbygoogle\" data-ad-client=\"ca-pub-2188063137129806\" data-ad-format=\"auto\" data-ad-slot=\"6077317677\" data-full-width-responsive=\"true\" style=\"display: block\"></ins>"
+  },
+  {
+    "id": 4,
+    "type": "ins",
+    "element": "ins.adsbygoogle",
+    "data-ad-client": "ca-pub-2188063137129806",
+    "data-ad-slot": "5041245242",
+    "data-ad-format": "autorelaxed",
+    "style": "display: block",
+    "sources": ["proxyManager.html", "public/proxyManager.html", "php_backend/index.html"],
+    "raw": "<ins class=\"adsbygoogle\" data-ad-client=\"ca-pub-2188063137129806\" data-ad-format=\"autorelaxed\" data-ad-slot=\"5041245242\" style=\"display: block\"></ins>"
+  }
+]

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import RecaptchaV2 from '../../components/RecaptchaV2';
 import ProxySubmission from './ProxySubmission';
 import LogViewer from './LogViewer';
+import AdSense from '../../components/AdSense';
 
 export default function ProxyList() {
   const { t } = useTranslation();
@@ -46,6 +47,13 @@ export default function ProxyList() {
           </div>
         </div>
       </section>
+
+      <AdSense
+        client="ca-pub-2188063137129806"
+        slot="6233018586"
+        style={{ display: 'block' }}
+        fullWidthResponsive={true}
+      />
 
       <ServerSide />
 
