@@ -150,13 +150,13 @@ export default function ServerSide() {
                     fetchData().catch(noop);
                   }}
                   className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm w-full sm:w-auto">
-                  {loading ? t('loading') : t('refresh')}
+                  {t('refresh')}
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             {errorMsg && (
               <div className="mb-3 p-3 rounded bg-red-50 dark:bg-red-900 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700 flex justify-between items-start gap-3">
                 <div className="text-sm">{errorMsg}</div>
@@ -193,62 +193,75 @@ export default function ServerSide() {
                     </td>
                   </tr>
                 ) : (
-                  rows.map((r, i) => (
-                    <tr key={i} className="odd:bg-gray-50 dark:odd:bg-gray-800">
-                      <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.proxy}</td>
-                      <td className="px-2 py-1 whitespace-nowrap">
-                        {(() => {
-                          const s = String(r.status || '').toLowerCase();
-                          let cls =
-                            'border border-gray-300 text-gray-800 dark:border-gray-700 dark:text-gray-200 bg-transparent';
-                          if (s === 'dead' || s === 'port-closed') {
-                            cls =
-                              'border border-red-500 text-red-600 dark:border-red-400 dark:text-red-400 bg-transparent';
-                          } else if (s === 'active') {
-                            cls =
-                              'border border-green-500 text-green-600 dark:border-green-400 dark:text-green-400 bg-transparent';
-                          } else if (s === 'port-open' || s === 'untested') {
-                            cls =
-                              'border border-yellow-500 text-yellow-700 dark:border-yellow-400 dark:text-yellow-300 bg-transparent';
-                          }
-                          return (
-                            <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${cls}`}>
-                              {r.status || '-'}
-                            </span>
-                          );
-                        })()}
-                      </td>
-                      <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                        {r.type
-                          ? String(r.type)
-                              .split('-')
-                              .filter(Boolean)
-                              .map((t) => {
-                                const baseClass =
-                                  'inline-block rounded px-1 py-0.5 mx-0.5 mb-0.5 text-xs font-semibold align-middle border mr-1';
-                                const colorClass = getProxyTypeColorClass(t);
-                                const badgeClass = `${baseClass} ${colorClass}`;
-                                return (
-                                  <span key={t + badgeClass} className={badgeClass}>
-                                    {t.toUpperCase()}
-                                  </span>
-                                );
-                              })
-                          : '-'}
-                      </td>
-                      <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.country}</td>
-                      <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.city}</td>
-                      <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                        {formatLatency(r.latency)}
-                      </td>
-                      <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                        {r.last_check ? timeAgo(r.last_check) : '-'}
-                      </td>
-                    </tr>
-                  ))
+                  <>
+                    {rows.map((r, i) => (
+                      <tr key={i} className="odd:bg-gray-50 dark:odd:bg-gray-800">
+                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.proxy}</td>
+                        <td className="px-2 py-1 whitespace-nowrap">
+                          {(() => {
+                            const s = String(r.status || '').toLowerCase();
+                            let cls =
+                              'border border-gray-300 text-gray-800 dark:border-gray-700 dark:text-gray-200 bg-transparent';
+                            if (s === 'dead' || s === 'port-closed') {
+                              cls =
+                                'border border-red-500 text-red-600 dark:border-red-400 dark:text-red-400 bg-transparent';
+                            } else if (s === 'active') {
+                              cls =
+                                'border border-green-500 text-green-600 dark:border-green-400 dark:text-green-400 bg-transparent';
+                            } else if (s === 'port-open' || s === 'untested') {
+                              cls =
+                                'border border-yellow-500 text-yellow-700 dark:border-yellow-400 dark:text-yellow-300 bg-transparent';
+                            }
+                            return (
+                              <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${cls}`}>
+                                {r.status || '-'}
+                              </span>
+                            );
+                          })()}
+                        </td>
+                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                          {r.type
+                            ? String(r.type)
+                                .split('-')
+                                .filter(Boolean)
+                                .map((t) => {
+                                  const baseClass =
+                                    'inline-block rounded px-1 py-0.5 mx-0.5 mb-0.5 text-xs font-semibold align-middle border mr-1';
+                                  const colorClass = getProxyTypeColorClass(t);
+                                  const badgeClass = `${baseClass} ${colorClass}`;
+                                  return (
+                                    <span key={t + badgeClass} className={badgeClass}>
+                                      {t.toUpperCase()}
+                                    </span>
+                                  );
+                                })
+                            : '-'}
+                        </td>
+                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.country}</td>
+                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.city}</td>
+                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                          {formatLatency(r.latency)}
+                        </td>
+                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                          {r.last_check ? timeAgo(r.last_check) : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </>
                 )}
               </tbody>
             </table>
+            {loading && (
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-sm pointer-events-auto">
+                <div className="px-4 py-3 rounded-lg shadow bg-white dark:bg-gray-900/80 flex items-center gap-3">
+                  <i
+                    className="fa-duotone fa-spinner fa-spin text-2xl text-gray-700 dark:text-gray-200"
+                    aria-hidden="true"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-200">Loading...</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 gap-2">
