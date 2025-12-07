@@ -6,7 +6,7 @@ interface CheckProxyResponse {
   logFile: string | null;
 }
 
-async function checkProxyHttps(proxies: string): Promise<CheckProxyResponse> {
+export async function checkProxyHttps(proxies: string): Promise<CheckProxyResponse> {
   return await fetch(createUrl('/php_backend/check-https-proxy.php'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -19,7 +19,7 @@ async function checkProxyHttps(proxies: string): Promise<CheckProxyResponse> {
     });
 }
 
-async function checkProxyHttp(proxies: string): Promise<CheckProxyResponse> {
+export async function checkProxyHttp(proxies: string): Promise<CheckProxyResponse> {
   return await fetch(createUrl('/php_backend/check-http-proxy.php'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
