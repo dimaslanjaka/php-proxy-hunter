@@ -31,6 +31,10 @@
 */
 
 import { timeAgo } from './src/utils/date/timeAgo.js';
+import * as copyModule from './src/utils/data/copyToClipboard.cjs';
+
+// Initialize copyToClipboard function from the imported module
+const copyToClipboard = copyModule.copyToClipboard;
 
 /**
  * @type {Record<string, any>|undefined}
@@ -797,55 +801,6 @@ function showSnackbar(...messages) {
   setTimeout(function () {
     snackbar.classList.remove('show');
   }, 3000);
-}
-
-/**
- * Copies a string to the clipboard. Must be called from within an
- * event handler such as click. May return false if it failed, but
- * this is not always possible. Browser support for Chrome 43+,
- * Firefox 42+, Safari 10+, Edge and Internet Explorer 10+.
- * Internet Explorer: The clipboard feature may be disabled by
- * an administrator. By default, a prompt is shown the first
- * time the clipboard is used (per session).
- * @param {string} text - The text to be copied to the clipboard.
- * @returns {boolean} - Returns true if the operation succeeds, otherwise returns false.
- */
-function copyToClipboard(text) {
-  try {
-    if (navigator.clipboard) {
-      return navigator.clipboard
-        .writeText(text)
-        .then(() => true)
-        .catch((err) => {
-          showSnackbar('Error copying to clipboard:', err);
-          return false;
-        });
-    } else if (window.clipboardData && window.clipboardData.setData) {
-      // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
-
-      return window.clipboardData.setData('Text', text);
-    } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
-      const textarea = document.createElement('textarea');
-      textarea.textContent = text;
-      textarea.style.position = 'fixed'; // Prevent scrolling to bottom of page in Microsoft Edge.
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        return document.execCommand('copy'); // Security exception may be thrown by some browsers.
-      } catch (ex) {
-        showSnackbar('Copy to clipboard failed.', ex);
-        return false;
-      } finally {
-        document.body.removeChild(textarea);
-      }
-    } else {
-      showSnackbar('Copying to clipboard not supported.');
-      return false;
-    }
-  } catch (err) {
-    showSnackbar('Error copying to clipboard:', err);
-    return false;
-  }
 }
 
 /**
