@@ -30,7 +30,9 @@ const sampleCfg = dotenv.config({ path: path.resolve(__dirname, '.env.example') 
 const dotCfg = dotenv.config({ override: true });
 const isGithubCI = process.env.GITHUB_ACTIONS === 'true';
 
-// Prepare VITE_ prefixed env variables for define
+/** Prepare VITE_ prefixed env variables for define
+ * @type {Record<string, string>}
+ */
 const viteEnv = {
   'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(gitCommitHash),
   VITE_GIT_COMMIT: JSON.stringify(gitCommitHash)
@@ -96,9 +98,20 @@ export const viteConfig = defineConfig({
       targets: browserslistToTargets(browserslist('>= 0.25%'))
     }
   },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'lodash', 'moment']
+  },
   // Build configuration
   build: {
     outDir: distPath,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      // Include node_modules and all .cjs files under src so Vite's
+      // CommonJS transformer picks them up automatically.
+      include: [/node_modules/, /src\/.*\.cjs$/]
+    },
+    sourcemap: false,
     // watch: {
     //   include: ['src/**/*.cjs', 'src/**/*.jsx', 'src/**/*.js', 'src/**/*.mjs', 'src/**/*.tsx', 'src/**/*.ts'],
     //   exclude: [
@@ -182,6 +195,7 @@ export const viteConfig = defineConfig({
         chunkFileNames: `assets/[name].[hash].js`,
         assetFileNames: (assetInfo) => {
           // Group assets by type: fonts, json, images, css, other
+          /** @type {string[]} */
           let names = [];
           if (Array.isArray(assetInfo.names) && assetInfo.names.length > 0) {
             names = assetInfo.names;
@@ -259,7 +273,7 @@ export const viteConfig = defineConfig({
   }
 });
 
-if (!isGithubCI) {
+if (!isGithubCI && viteConfig.plugins) {
   viteConfig.plugins.push(
     legacy({
       targets: ['defaults', 'not IE 11']
