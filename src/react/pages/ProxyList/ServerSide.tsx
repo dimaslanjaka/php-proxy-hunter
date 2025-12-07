@@ -236,6 +236,12 @@ export default function ServerSide() {
                                   );
                                 })
                             : '-'}
+                          {(r.https === true || String(r.https) === 'true') && (
+                            <span
+                              className={`inline-block rounded px-1 py-0.5 ml-1 text-xs font-semibold align-middle border ${getProxyTypeColorClass('ssl')}`}>
+                              SSL
+                            </span>
+                          )}
                         </td>
                         <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.country}</td>
                         <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.city}</td>
