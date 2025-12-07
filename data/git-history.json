@@ -1,5 +1,47 @@
 [
   {
+    "hash": "7c3e1f7a3c90d03fac24fdde20852ce1f87c2920",
+    "date": "2025-12-07T15:49:32+07:00",
+    "message": "feat(proxy-submission): add single-check buttons and overlay loading state\n\nAdd UI buttons to trigger individual proxy checks: \"Check Type\", \"Check HTTP\",\nand \"Check HTTPS\" and introduce a `runSingleCheck` helper to call those\nendpoints with unified snackbar feedback.\n\nRefactor loading UX:\n- Replace per-button loading labels/icons with a single overlay spinner.\n- Add `aria-busy` and `relative` container to show an absolute overlay while\n  checks are running.\n- Keep buttons disabled during loading to prevent duplicate actions.\n\nOther changes:\n- Rename main submit action label to \"Check All\".\n- Export `checkProxyHttp` and `checkProxyHttps` from `src/react/utils/proxy.ts`\n  so the UI can call HTTP/HTTPS checks directly.",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "f0fff56d588873c99159f3afbbe5462bb769d4d0",
+    "date": "2025-12-07T15:45:16+07:00",
+    "message": "feat(proxy-submission): add single-check buttons and export HTTP/HTTPS check helpers\n\nAdd UI buttons to trigger individual proxy checks: \"Check Type\", \"Check HTTP\",\nand \"Check HTTPS\". Introduce a `runSingleCheck` helper that invokes\n`checkProxyType`, `checkProxyHttp`, or `checkProxyHttps` and provides unified\nloading state and snackbar feedback. Buttons are disabled while loading or when\nthe textarea is empty.\n\nRename the main submit action label from \"Submit\" to \"Check All\" and update the\nloading text to \"Checking...\".\n\nAlso export `checkProxyHttp` and `checkProxyHttps` from\n`src/react/utils/proxy.ts` so the UI can call these checks directly.",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx",
+      "src/react/utils/proxy.ts"
+    ]
+  },
+  {
+    "hash": "51b706ea7beea1a2148542f812705a8dee468518",
+    "date": "2025-12-07T15:40:30+07:00",
+    "message": "style(pagination): replace pagination text with Font Awesome icons\n\nReplace textual pagination controls (\"First\", \"Prev\", \"Next\", \"Last\")\nin `src/react/pages/ProxyList/ServerSide.tsx` with Font Awesome 6 Pro icon\nelements (`fa-angle-double-left`, `fa-angle-left`, `fa-angle-right`,\n`fa-angle-double-right`). Add `title` attributes and visually-hidden\n`<span class=\"sr-only\">` labels for improved accessibility.\n\nNotes:\n- Uses `fa-duotone` classes; ensure the Font Awesome Pro duotone kit is\n  included in the app. If Pro/duotone is unavailable, consider switching\n  to `fa-solid` classes for broader compatibility.",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "b9ba19cc7dd5f1b1b99b7be622d4cc6fe0b15b76",
+    "date": "2025-12-07T15:35:19+07:00",
+    "message": "fix(proxy-list): move ApiUsage component to render after ProxySubmission",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "74ed0695090168e077025b43d8a7192268b32419",
+    "date": "2025-12-07T15:32:04+07:00",
+    "message": "refactor(proxy-list): move ApiUsage from WorkingJson to page index\n\n- Remove `ApiUsage` import and rendering from `WorkingJson.tsx`.\n- Add `ApiUsage` to `src/react/pages/ProxyList/index.tsx` and render it after `ServerSide`.\n- Keeps the API usage UI visible on the Proxy List page but centralizes layout responsibility in the page index component.",
+    "files": [
+      "src/react/pages/ProxyList/WorkingJson.tsx",
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
     "hash": "734a8d21410bdb59064414499bbfb936b6abc4ee",
     "date": "2025-12-07T15:29:49+07:00",
     "message": "fix(proxy-list): pass full row to copy handler and prevent form submit\n\n- Change copy button to `type=\"button\"` to avoid triggering form submission.\n- Pass the full `row` object to `handleCopy` (was passing just `r.proxy`) so credentials (`username`/`password`) can be included when copying.\n- Ensures copy action constructs `IP:PORT@USER:PASS` when credentials exist and provides consistent behavior.",
@@ -8593,49 +8635,6 @@
     "message": "feat(img): add image proxy with caching and validation\n\n- introduced php_backend/img.php\n- fetches remote images via cURL with 10s timeout and max size of 5MB\n- caches responses for 24h in tmp/image-cache with metadata\n- supports cache bypass with `refresh=1`\n- validates URL scheme and optional allowed hosts\n- streams content while writing to cache\n- ensures only valid image content-types are served",
     "files": [
       "php_backend/img.php"
-    ]
-  },
-  {
-    "hash": "d6dec570a171295857b1cfb7c885ba2e17c3f9cd",
-    "date": "2025-09-15T09:27:03+07:00",
-    "message": "feat(userdb): auto-create auth_user table based on driver type\n\n- auto-detects database driver (mysql/sqlite) when initialized with DB helper\n- ensures `auth_user` table exists with driver-specific schema\n- added console output to indicate table creation and driver type\n- updated UserDBTest to use dedicated tmp path for sqlite tests",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php",
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "a8c274dfe821953a6352610bf2d1fa84bf4a5eda",
-    "date": "2025-09-15T09:26:19+07:00",
-    "message": "fix(tests): update lock file paths to use local directory instead of system temp dir",
-    "files": [
-      "tests/PhpProxyHunter/FileLockHelperTest.php",
-      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php"
-    ]
-  },
-  {
-    "hash": "ff5c2c167a6f0c46903fc96892a4dd1279e6323a",
-    "date": "2025-09-15T09:25:38+07:00",
-    "message": "feat(session): add FileSessionHandler for filesystem-based session management\n\n- implemented FileSessionHandler class using SessionHandlerInterface\n- supports configurable session file path, prefix, and postfix\n- handles reading, writing, destroying, and garbage collection of session files\n- validates directory existence and writability on initialization",
-    "files": [
-      "src/FileSessionHandler.php"
-    ]
-  },
-  {
-    "hash": "7450899c4ff424960afec3ea779ae11c9de386b2",
-    "date": "2025-09-15T09:24:50+07:00",
-    "message": "fix(proxydb): ensure proxies are removed from added_proxies table\n\n- ProxyDB::remove now deletes from both `proxies` and `added_proxies` to maintain consistency\n- updated ProxyDBTest:\n  - use dedicated tmp path for sqlite tests\n  - added cleanup calls to remove test proxy in isAlreadyAdded/markAsAdded test",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php",
-      "tests/PhpProxyHunter/ProxyDBTest.php"
-    ]
-  },
-  {
-    "hash": "d69a164130b7cefe46cd3b7b1c0bc0484b56491b",
-    "date": "2025-09-15T09:23:43+07:00",
-    "message": "feat(sqlite): improve table creation and schema modification debugging\n\n- createTable: filter out empty or whitespace-only columns to prevent syntax errors\n- modifyColumn:\n  - wrapped CREATE TABLE execution in try/catch with debug logging to file and error log\n  - added var_dump outputs for generated SQL during modification\n- getTable definition: applied fixSQLiteSyntax to clean up SQL before parsing\n- introduced fixSQLiteSyntax helper:\n  - strips comments\n  - normalizes whitespace",
-    "files": [
-      "src/PhpProxyHunter/SQLiteHelper.php"
     ]
   }
 ]
