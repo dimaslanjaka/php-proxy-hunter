@@ -5,13 +5,11 @@ import { timeAgo } from '../../../utils/date/timeAgo.js';
 import { noop } from '../../../utils/other';
 import { getProxyTypeColorClass } from '../../utils/proxyColors';
 import { formatLatency } from './utils';
-import RecaptchaV2 from '../../components/RecaptchaV2';
 
 type ProxyRow = Record<string, any>;
 
 export default function ServerSide() {
   const { t } = useTranslation();
-  const [recaptchaOpen, setRecaptchaOpen] = React.useState(false);
   const [rows, setRows] = React.useState<ProxyRow[]>([]);
   const [errorMsg, setErrorMsg] = React.useState<string>('');
   const [page, setPage] = React.useState(1);
@@ -100,42 +98,7 @@ export default function ServerSide() {
 
   return (
     <>
-      <section className="my-4 mx-2">
-        <div className="w-full">
-          <h2 id="recaptcha-heading">
-            <button
-              type="button"
-              onClick={() => setRecaptchaOpen((v) => !v)}
-              className="flex items-center justify-between w-full p-4 font-medium text-left text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 rounded-md border border-gray-200 dark:border-gray-700 focus:outline-none"
-              aria-expanded={recaptchaOpen}
-              aria-controls="recaptcha-body">
-              <span className="text-sm font-semibold">Extend Session</span>
-              <i
-                className={`fa-duotone fa-chevron-down w-6 h-6 shrink-0 transform transition-transform text-gray-700 dark:text-gray-200 ${
-                  recaptchaOpen ? 'rotate-180' : ''
-                }`}
-                aria-hidden="true"
-              />
-            </button>
-          </h2>
-
-          <div
-            id="recaptcha-body"
-            className={`${recaptchaOpen ? 'block' : 'hidden'}`}
-            aria-labelledby="recaptcha-heading">
-            <div className="p-4 border border-t-0 border-gray-200 dark:border-gray-700 rounded-b-md bg-white dark:bg-gray-900">
-              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 text-center">
-                {t('recaptcha_session_expired_note')}
-              </p>
-              <div className="flex justify-center">
-                <RecaptchaV2 />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="my-6 mx-2">
+      <section className="my-6">
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-4 border border-blue-200 dark:border-blue-700 flowbite-modal">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-3">
             <h2 className="text-lg font-semibold text-blue-800 dark:text-blue-200">{t('proxy_list_server')}</h2>

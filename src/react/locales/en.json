@@ -179,5 +179,6 @@
   "please_complete_captcha": "Please complete the captcha",
   "reset": "Reset",
   "recaptcha_v2_site_key_missing": "reCAPTCHA V2 site key is not configured.",
+  "extend_session": "Extend Session",
   "recaptcha_session_expired_note": "If the reCAPTCHA session is expired the server may require verification before returning full results. Verify the captcha below when prompted."
 }

@@ -1,19 +1,17 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { ProxyDetails } from '../../../../types/proxy';
 import { add_ajax_schedule, run_ajax_schedule } from '../../../utils/ajaxScheduler';
 import { timeAgo } from '../../../utils/date/timeAgo.js';
 import { noop } from '../../../utils/other';
 import { useSnackbar } from '../../components/Snackbar';
 import { createUrl } from '../../utils/url';
-import { verifyRecaptcha, checkRecaptchaSessionExpired } from '../../utils/recaptcha';
+
 import { getUserInfo } from '../../utils/user';
 import { getProxyTypeColorClass } from '../../utils/proxyColors';
 import ApiUsage from './ApiUsage';
-import LogViewer from './LogViewer';
+
 import ModifyCurl from './ModifyCurl';
-import ProxySubmission from './ProxySubmission';
 import { checkProxy } from '../../utils/proxy';
 
 /**
@@ -62,8 +60,7 @@ function WorkingJson() {
   const fetchingProxiesRef = React.useRef(false);
   const [typeFilter, setTypeFilter] = React.useState('');
   const [proxies, setProxies] = React.useState<ProxyDetails[]>([]);
-  const [showModal, setShowModal] = React.useState(false);
-  const recaptchaRef = React.useRef<ReCAPTCHA>(null);
+
   const [page, setPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [countryFilter, setCountryFilter] = React.useState('');
@@ -241,30 +238,23 @@ function WorkingJson() {
       }
     };
 
-    // Check whether reCAPTCHA session is expired (needs a new token)
+    // initial load: first try module cache, then localStorage cache, then fetch
     (async () => {
-      const expired = await checkRecaptchaSessionExpired();
-      if (expired) {
-        setShowModal(true);
+      if (workingProxiesCache && Array.isArray(workingProxiesCache) && workingProxiesCache.length > 0) {
+        setProxies(workingProxiesCache);
       } else {
-        setShowModal(false);
-        // initial load: first try module cache, then localStorage cache, then fetch
-        if (workingProxiesCache && Array.isArray(workingProxiesCache) && workingProxiesCache.length > 0) {
-          setProxies(workingProxiesCache);
-        } else {
-          try {
-            const cached = localStorage.getItem('workingProxiesCache');
-            if (cached) {
-              const parsed = JSON.parse(cached);
-              if (Array.isArray(parsed) && parsed.length > 0) setProxies(parsed);
-            }
-          } catch {
-            // ignore parse errors
+        try {
+          const cached = localStorage.getItem('workingProxiesCache');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) setProxies(parsed);
           }
+        } catch {
+          // ignore parse errors
         }
-        // always refresh in background to get latest list
-        await refreshProxies();
       }
+      // always refresh in background to get latest list
+      await refreshProxies();
     })();
     // fetch processes.php
     fetch(createUrl('/php_backend/processes.php')).catch(noop);
@@ -306,42 +296,9 @@ function WorkingJson() {
     if (loadingProxies) return;
     setLoadingProxies(true);
     try {
-      // Before fetching proxies, check captcha status on the backend.
-      // If captcha is required, show the modal instead of fetching.
-      try {
-        const expired = await checkRecaptchaSessionExpired();
-        if (expired) {
-          setShowModal(true);
-          return;
-        }
-        await fetchAndSetProxies();
-      } catch (e) {
-        console.error('[ProxyList] recaptcha status check failed', e);
-        setShowModal(true);
-      }
+      await fetchAndSetProxies();
     } finally {
       if (isMountedRef.current) setLoadingProxies(false);
-    }
-  };
-
-  const handleRecaptcha = async (token: string | null) => {
-    if (token) {
-      // Verify token via shared helper
-      const ok = await verifyRecaptcha(token);
-      if (ok) {
-        setShowModal(false);
-        // After successful verification, refresh proxies if not already loading
-        if (!loadingProxies) {
-          setLoadingProxies(true);
-          try {
-            await fetchAndSetProxies();
-          } finally {
-            if (isMountedRef.current) setLoadingProxies(false);
-          }
-        }
-      } else {
-        // handle error, e.g., show a message
-      }
     }
   };
 
@@ -427,39 +384,8 @@ function WorkingJson() {
 
   return (
     <div className="relative min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
-      {/* Modal for reCAPTCHA */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl p-8 max-w-md w-full relative animate-fade-in border border-gray-200 dark:border-gray-700">
-            <div className="flex justify-center mb-4">
-              <i className="fa-duotone fa-shield-halved text-4xl text-blue-600 dark:text-blue-400"></i>
-            </div>
-            <h2 className="text-xl font-bold mb-2 text-center text-gray-900 dark:text-gray-100">
-              Verify you are human
-            </h2>
-            <p className="mb-4 text-center text-gray-600 dark:text-gray-300">
-              Please complete the reCAPTCHA to access the proxy list.
-            </p>
-            <div className="flex justify-center mb-4">
-              <ReCAPTCHA
-                sitekey={import.meta.env.VITE_G_RECAPTCHA_V2_SITE_KEY || 'undefined site key'}
-                ref={recaptchaRef}
-                onChange={handleRecaptcha}
-              />
-            </div>
-            <div className="flex justify-center">
-              <button
-                className="btn btn-disabled bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded disabled:opacity-50 flex items-center gap-2"
-                disabled>
-                <i className="fa-duotone fa-spinner fa-spin"></i> Continue
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Main content */}
-      <div className={showModal ? 'blur-sm pointer-events-none select-none' : ''}>
+      <div>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <i className="fa-duotone fa-list-check"></i> Proxy List
@@ -689,12 +615,6 @@ function WorkingJson() {
           </div>
         </div>
       </div>
-
-      {/* Proxy Submission Section */}
-      <ProxySubmission />
-
-      {/* Log Viewer Section (always visible) */}
-      <LogViewer />
 
       {/* Section: How to Modify cURL Timeout in PHP */}
       <ModifyCurl />
