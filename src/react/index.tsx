@@ -28,6 +28,7 @@ import AdvancedDataTable from './pages/examples/tables/AdvancedDataTable';
 import NotFound from './pages/NotFound';
 import routes from './routes.js';
 import { checkRecaptchaSessionExpired, verifyRecaptcha } from './utils/recaptcha';
+import AdSense from './components/AdSense';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
@@ -113,6 +114,15 @@ const MainApp = function () {
         <Route path="/examples/tables/advanced" element={<AdvancedDataTable />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <div>
+        <AdSense
+          client="ca-pub-2188063137129806"
+          slot="5041245242"
+          style={{ display: 'block' }}
+          format="autorelaxed"
+          fullWidthResponsive={true}
+        />
+      </div>
       <Footer />
       <ReCAPTCHA
         ref={recaptchaRef}
