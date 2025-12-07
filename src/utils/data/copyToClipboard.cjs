@@ -7,17 +7,17 @@
  * an administrator. By default, a prompt is shown the first
  * time the clipboard is used (per session).
  * @param {string} text - The text to be copied to the clipboard.
- * @param {function(string):void} [showSnackbar] - Optional snackbar function for user feedback.
+ * @param {function(string):void} [callback] - Optional callback for user feedback.
  * @returns {boolean|Promise<boolean>} - Returns true/Promise resolving to true if the operation succeeds, otherwise false.
  */
-function copyToClipboard(text, showSnackbar) {
+function copyToClipboard(text, callback) {
   try {
     if (navigator.clipboard) {
       return navigator.clipboard
         .writeText(text)
         .then(() => true)
         .catch((err) => {
-          if (typeof showSnackbar === 'function') showSnackbar('Error copying to clipboard: ' + err);
+          if (typeof callback === 'function') callback('Error copying to clipboard: ' + err);
           return false;
         });
     } else if (window.clipboardData && window.clipboardData.setData) {
@@ -31,17 +31,17 @@ function copyToClipboard(text, showSnackbar) {
       try {
         return document.execCommand('copy');
       } catch (ex) {
-        if (typeof showSnackbar === 'function') showSnackbar('Copy to clipboard failed. ' + ex);
+        if (typeof callback === 'function') callback('Copy to clipboard failed. ' + ex);
         return false;
       } finally {
         document.body.removeChild(textarea);
       }
     } else {
-      if (typeof showSnackbar === 'function') showSnackbar('Copying to clipboard not supported.');
+      if (typeof callback === 'function') callback('Copying to clipboard not supported.');
       return false;
     }
   } catch (err) {
-    if (typeof showSnackbar === 'function') showSnackbar('Error copying to clipboard: ' + err);
+    if (typeof callback === 'function') callback('Error copying to clipboard: ' + err);
     return false;
   }
 }
