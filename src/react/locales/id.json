@@ -167,5 +167,7 @@
   "unknown_server_response": "Respon tidak dikenal dari server.",
   "failed_send_request": "Gagal mengirim permintaan.",
   "failed_refresh_user_list": "Gagal memperbarui daftar pengguna.",
-  "set_timeout": "Set Timeout"
+  "set_timeout": "Set Timeout",
+  "otp_package": "Paket OTP",
+  "direct_package": "Paket Direct"
 }

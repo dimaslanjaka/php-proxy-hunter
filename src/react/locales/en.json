@@ -167,5 +167,7 @@
   "unknown_server_response": "Unknown response from server.",
   "failed_send_request": "Failed to send request.",
   "failed_refresh_user_list": "Failed to refresh user list.",
-  "set_timeout": "Set Timeout"
+  "set_timeout": "Set Timeout",
+  "otp_package": "OTP Package",
+  "direct_package": "Direct Package"
 }
