@@ -244,8 +244,9 @@ export default function ServerSide() {
                           <div className="flex items-center gap-2">
                             <span className="truncate max-w-[18rem] block">{r.proxy}</span>
                             <button
+                              type="button"
                               title="Copy proxy"
-                              onClick={() => handleCopy(r.proxy, i)}
+                              onClick={() => handleCopy(r, i)}
                               className="inline-flex items-center justify-center p-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">
                               <i className="fa-duotone fa-copy" />
                             </button>
