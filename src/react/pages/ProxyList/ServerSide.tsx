@@ -334,14 +334,18 @@ export default function ServerSide() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage(1)}
-                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700">
-                First
+                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700"
+                title="First">
+                <i className="fa-duotone fa-angle-double-left" aria-hidden="true" />
+                <span className="sr-only">First</span>
               </button>
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700">
-                Prev
+                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700"
+                title="Previous">
+                <i className="fa-duotone fa-angle-left" aria-hidden="true" />
+                <span className="sr-only">Previous</span>
               </button>
 
               {/* Numeric page buttons (compact window) - hide on xs */}
@@ -370,14 +374,18 @@ export default function ServerSide() {
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700">
-                Next
+                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700"
+                title="Next">
+                <i className="fa-duotone fa-angle-right" aria-hidden="true" />
+                <span className="sr-only">Next</span>
               </button>
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage(totalPages)}
-                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700">
-                Last
+                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700"
+                title="Last">
+                <i className="fa-duotone fa-angle-double-right" aria-hidden="true" />
+                <span className="sr-only">Last</span>
               </button>
             </div>
           </div>
