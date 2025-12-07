@@ -9,7 +9,7 @@ import { useSnackbar } from '../../components/Snackbar';
 import { createUrl } from '../../utils/url';
 import { verifyRecaptcha, checkRecaptchaSessionExpired } from '../../utils/recaptcha';
 import { getUserInfo } from '../../utils/user';
-import { getProxyTypeColorClass } from '../../utils/proxyTypeColors';
+import { getProxyTypeColorClass } from '../../utils/proxyColors';
 import ApiUsage from './ApiUsage';
 import LogViewer from './LogViewer';
 import ModifyCurl from './ModifyCurl';
