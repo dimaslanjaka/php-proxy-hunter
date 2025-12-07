@@ -61,6 +61,16 @@ export default function ServerSide() {
 
   const totalPages = perPage > 0 ? Math.max(1, Math.ceil(recordsFiltered / perPage)) : 1;
 
+  function formatLatency(value: any) {
+    if (value === null || value === undefined) return '-';
+    const s = String(value).trim();
+    if (s === '' || s === '-' || s.toLowerCase() === 'n/a') return '-';
+    // replace comma decimal separator with dot, then parse
+    const parsed = Number(s.replace(/,/g, '.'));
+    if (Number.isNaN(parsed)) return s;
+    return `${Math.round(parsed)} ms`;
+  }
+
   return (
     <section className="my-6">
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-4 border border-blue-200 dark:border-blue-700 flowbite-modal">
@@ -158,7 +168,7 @@ export default function ServerSide() {
                         );
                       })()}
                     </td>
-                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{r.latency}</td>
+                    <td className="px-2 py-1 text-gray-900 dark:text-gray-100">{formatLatency(r.latency)}</td>
                     <td className="px-2 py-1 text-gray-900 dark:text-gray-100">
                       {r.last_check ? timeAgo(r.last_check) : '-'}
                     </td>
