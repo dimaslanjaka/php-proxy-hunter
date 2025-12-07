@@ -120,8 +120,17 @@ try {
     $countParams[':status'] = $statusFilter;
   }
   if ($typeFilter !== '') {
-    $whereParts[]         = 'type LIKE :type';
-    $countParams[':type'] = '%' . $typeFilter . '%';
+    // If filtering for SSL, match either the type column or the https flag
+    if (strtolower($typeFilter) === 'ssl') {
+      $whereParts[]               = '(type LIKE :type OR https = :https_true OR https = :https_one OR https = :https_int)';
+      $countParams[':type']       = '%' . $typeFilter . '%';
+      $countParams[':https_true'] = 'true';
+      $countParams[':https_one']  = '1';
+      $countParams[':https_int']  = 1;
+    } else {
+      $whereParts[]         = 'type LIKE :type';
+      $countParams[':type'] = '%' . $typeFilter . '%';
+    }
   }
   if (!empty($whereParts)) {
     $countSql = 'SELECT COUNT(*) as cnt FROM proxies WHERE ' . implode(' AND ', $whereParts);
@@ -143,8 +152,16 @@ try {
     $params[':status'] = $statusFilter;
   }
   if ($typeFilter !== '') {
-    $whereParts[]    = 'type LIKE :type';
-    $params[':type'] = '%' . $typeFilter . '%';
+    if (strtolower($typeFilter) === 'ssl') {
+      $whereParts[]          = '(type LIKE :type OR https = :https_true OR https = :https_one OR https = :https_int)';
+      $params[':type']       = '%' . $typeFilter . '%';
+      $params[':https_true'] = 'true';
+      $params[':https_one']  = '1';
+      $params[':https_int']  = 1;
+    } else {
+      $whereParts[]    = 'type LIKE :type';
+      $params[':type'] = '%' . $typeFilter . '%';
+    }
   }
   if (!empty($whereParts)) {
     $where = 'WHERE ' . implode(' AND ', $whereParts);
