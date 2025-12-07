@@ -49,11 +49,11 @@ export default function ProxyList() {
 
       <ServerSide />
 
-      <ApiUsage />
-
       <ProxySubmission />
 
       <LogViewer />
+
+      <ApiUsage />
     </div>
   );
 }
