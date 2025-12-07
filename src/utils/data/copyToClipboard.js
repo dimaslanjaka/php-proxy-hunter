@@ -46,12 +46,9 @@ function copyToClipboard(text, callback) {
   }
 }
 
+// Attach to window for direct browser usage as a fallback
 if (typeof window !== 'undefined') {
-  // Attach as a global fallback
   window.copyToClipboard = copyToClipboard;
 }
 
-// Prefer CommonJS export. If not present, attach to window for browser usage.
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-  module.exports = copyToClipboard;
-}
+export default copyToClipboard;

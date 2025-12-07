@@ -5,6 +5,7 @@ import { timeAgo } from '../../../utils/date/timeAgo.js';
 import { noop } from '../../../utils/other';
 import { getProxyTypeColorClass } from '../../utils/proxyColors';
 import { formatLatency } from './utils';
+import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 
 type ProxyRow = Record<string, any>;
 
@@ -23,6 +24,7 @@ export default function ServerSide() {
   const [recordsTotal, setRecordsTotal] = React.useState(0);
   const [recordsFiltered, setRecordsFiltered] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
+  const [copiedIndex, setCopiedIndex] = React.useState<number | null>(null);
 
   const fetchData = React.useCallback(async () => {
     setLoading(true);
@@ -76,6 +78,28 @@ export default function ServerSide() {
   React.useEffect(() => {
     fetchData().catch(noop);
   }, [fetchData]);
+
+  const handleCopy = async (row: ProxyRow, idx: number) => {
+    try {
+      let proxyStr = String(row.proxy || '');
+      const username = row.username;
+      const password = row.password;
+      if (username && password && username !== '-' && password !== '-') {
+        proxyStr = `${proxyStr}@${username}:${password}`;
+      }
+      if (!proxyStr) return;
+      // Use shared helper when available; fallback to navigator
+      if (copyToClipboard) {
+        await copyToClipboard(proxyStr);
+      } else {
+        await navigator.clipboard.writeText(proxyStr);
+      }
+      setCopiedIndex(idx);
+      setTimeout(() => setCopiedIndex((cur) => (cur === idx ? null : cur)), 2000);
+    } catch (err) {
+      console.error('Copy failed', err);
+    }
+  };
 
   // Fetch available distinct statuses for filter dropdown
   React.useEffect(() => {
@@ -216,7 +240,20 @@ export default function ServerSide() {
                   <>
                     {rows.map((r, i) => (
                       <tr key={i} className="odd:bg-gray-50 dark:odd:bg-gray-800">
-                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.proxy}</td>
+                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className="truncate max-w-[18rem] block">{r.proxy}</span>
+                            <button
+                              title="Copy proxy"
+                              onClick={() => handleCopy(r.proxy, i)}
+                              className="inline-flex items-center justify-center p-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">
+                              <i className="fa-duotone fa-copy" />
+                            </button>
+                            {copiedIndex === i && (
+                              <span className="text-xs text-green-600 dark:text-green-300">Copied</span>
+                            )}
+                          </div>
+                        </td>
                         <td className="px-2 py-1 whitespace-nowrap">
                           {(() => {
                             const s = String(r.status || '').toLowerCase();

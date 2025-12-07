@@ -1,4 +1,5 @@
 import React from 'react';
+import copyToClipboard from '../../utils/data/copyToClipboard.js';
 
 // Small utility: safely parse JSON, return null if not JSON
 function tryParseJson(raw: string): any | null {
@@ -39,6 +40,17 @@ export default function DetailsCell({
 
   const copy = React.useCallback(() => {
     const text = parsed ? prettyJson(parsed) : raw;
+    try {
+      // prefer shared helper; fallback to navigator if module isn't available
+      if (copyToClipboard) {
+        // copyToClipboard may return a Promise or boolean; ignore result here
+        copyToClipboard(text);
+        return;
+      }
+    } catch (_) {
+      // ignore and fallback
+    }
+
     if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
       navigator.clipboard.writeText(text);
       return;

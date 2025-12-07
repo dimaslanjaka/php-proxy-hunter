@@ -31,10 +31,7 @@
 */
 
 import { timeAgo } from './src/utils/date/timeAgo.js';
-import * as copyModule from './src/utils/data/copyToClipboard.cjs';
-
-// Initialize copyToClipboard function from the imported module
-const copyToClipboard = copyModule.copyToClipboard;
+import copyToClipboard from './src/utils/data/copyToClipboard.js';
 
 /**
  * @type {Record<string, any>|undefined}

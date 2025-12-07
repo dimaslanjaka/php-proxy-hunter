@@ -6,13 +6,12 @@ import { timeAgo } from '../../../utils/date/timeAgo.js';
 import { noop } from '../../../utils/other';
 import { useSnackbar } from '../../components/Snackbar';
 import { createUrl } from '../../utils/url';
-
 import { getUserInfo } from '../../utils/user';
 import { getProxyTypeColorClass } from '../../utils/proxyColors';
 import ApiUsage from './ApiUsage';
-
 import ModifyCurl from './ModifyCurl';
 import { checkProxy } from '../../utils/proxy';
+import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
@@ -38,10 +37,26 @@ const handleRecheck = async (
   }
 };
 
-// Handler to copy proxy string to clipboard
-const handleCopy = (proxy: ProxyDetails) => {
-  if (proxy.proxy) {
-    navigator.clipboard.writeText(proxy.proxy);
+// Handler to copy proxy string to clipboard (includes credentials when present)
+const handleCopy = async (proxy: ProxyDetails, showSnackbar?: any) => {
+  if (!proxy || !proxy.proxy) return;
+  let proxyStr = String(proxy.proxy || '');
+  if (proxy.username && proxy.password && proxy.username !== '-' && proxy.password !== '-') {
+    proxyStr = `${proxyStr}@${proxy.username}:${proxy.password}`;
+  }
+  try {
+    // copyToClipboard may be a Promise or boolean-returning function
+    const res = copyToClipboard ? await copyToClipboard(proxyStr) : null;
+    if (showSnackbar && typeof showSnackbar === 'function') {
+      showSnackbar({ message: 'Copied', type: 'success' });
+    }
+    return res;
+  } catch (err) {
+    if (showSnackbar && typeof showSnackbar === 'function') {
+      showSnackbar({ message: 'Copy failed', type: 'danger' });
+    }
+    console.error('Copy failed', err);
+    return false;
   }
 };
 
