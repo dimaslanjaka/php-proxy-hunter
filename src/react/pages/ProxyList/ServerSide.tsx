@@ -262,7 +262,7 @@ export default function ServerSide() {
                               .filter(Boolean)
                               .map((t) => {
                                 const baseClass =
-                                  'inline-block rounded px-2 py-0.5 mx-0.5 mb-0.5 text-xxs font-semibold align-middle border mr-1';
+                                  'inline-block rounded px-1 py-0.5 mx-0.5 mb-0.5 text-xs font-semibold align-middle border mr-1';
                                 const colorClass = getProxyTypeColorClass(t);
                                 const badgeClass = `${baseClass} ${colorClass}`;
                                 return (
