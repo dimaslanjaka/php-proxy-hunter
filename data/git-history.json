@@ -1,5 +1,13 @@
 [
   {
+    "hash": "4c55640481bdcc63381faa1f9f3002e469869a45",
+    "date": "2025-12-07T13:35:31+07:00",
+    "message": "feat(proxy-list): adjust badge styling for improved readability",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
     "hash": "222fa0f0d78e13f0302aa19286fdd75c312189b3",
     "date": "2025-12-07T13:31:14+07:00",
     "message": "feat(proxy-list): require captcha verification and improve UI error handling\n\n- php_backend/proxy-list.php\n  - Allow CORS.\n  - Enforce captcha session: respond with HTTP 403 and JSON { error: true, message: 'Captcha not verified' } when captcha not present.\n  - Include explicit 'error': false in successful response payload.\n\n- src/react/locales/{en,id}.json\n  - Add translation key `recaptcha_session_expired_note` (english + indonesian).\n\n- src/react/pages/ProxyList/ServerSide.tsx\n  - Refactor UI to separate reCAPTCHA section (accordion) from the proxy list.\n  - Import and render `RecaptchaV2` component.\n  - Add `recaptchaOpen` state for a React-controlled accordion (works without Flowbite JS).\n  - Add `errorMsg` state and surface backend/network errors as:\n    - a dismissible error banner above the table, and\n    - an inline table message when rows are empty.\n  - Improve dark-mode support for the accordion header and icon; replace inline SVG with Font Awesome icon.\n  - Use translation keys instead of long literal strings.\n  - Adjust imports (proxyColors, formatLatency from new utils).\n\n- src/react/pages/ProxyList/utils.ts\n  - New helper: extract `formatLatency` for reuse.\n\n- src/react/components/RecaptchaV2.tsx\n  - Restore/create reCAPTCHA component (v2) used by the page (dark-mode compatible reset button; uses Vite env var for site key).\n\nWhy\n- Backend now requires captcha verification for proxy-list requests; the frontend must surface server errors clearly so users know when verification is needed.\n- Extracting `formatLatency` and moving the reCAPTCHA into a dedicated component improves reuse and readability.\n- The React-controlled accordion ensures the UI works even without Flowbite JS and supports dark mode.\n\nBREAKING CHANGE:\n- `php_backend/proxy-list.php` will return HTTP 403 and JSON error when the captcha session is missing/not verified. Clients calling this endpoint must handle the 403/error response and provide a valid captcha token (or trigger verification) before retrying.\n- Frontend expects `VITE_G_RECAPTCHA_V2_SITE_KEY` (or equivalent) to be provided for the reCAPTCHA widget to render.",
@@ -8640,14 +8648,6 @@
       "src/PhpProxyHunter/BaseSQL.php",
       "src/PhpProxyHunter/MySQLHelper.php",
       "src/PhpProxyHunter/SQLiteHelper.php"
-    ]
-  },
-  {
-    "hash": "fb33865f24a21b48ebf75a23cc56630b09c29479",
-    "date": "2025-09-10T14:12:55+07:00",
-    "message": "refactor(UserDBTest): simplify user deletion logic in test cases",
-    "files": [
-      "tests/PhpProxyHunter/UserDBTest.php"
     ]
   }
 ]
