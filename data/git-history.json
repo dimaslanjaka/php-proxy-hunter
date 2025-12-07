@@ -1,5 +1,105 @@
 [
   {
+    "hash": "222fa0f0d78e13f0302aa19286fdd75c312189b3",
+    "date": "2025-12-07T13:31:14+07:00",
+    "message": "feat(proxy-list): require captcha verification and improve UI error handling\n\n- php_backend/proxy-list.php\n  - Allow CORS.\n  - Enforce captcha session: respond with HTTP 403 and JSON { error: true, message: 'Captcha not verified' } when captcha not present.\n  - Include explicit 'error': false in successful response payload.\n\n- src/react/locales/{en,id}.json\n  - Add translation key `recaptcha_session_expired_note` (english + indonesian).\n\n- src/react/pages/ProxyList/ServerSide.tsx\n  - Refactor UI to separate reCAPTCHA section (accordion) from the proxy list.\n  - Import and render `RecaptchaV2` component.\n  - Add `recaptchaOpen` state for a React-controlled accordion (works without Flowbite JS).\n  - Add `errorMsg` state and surface backend/network errors as:\n    - a dismissible error banner above the table, and\n    - an inline table message when rows are empty.\n  - Improve dark-mode support for the accordion header and icon; replace inline SVG with Font Awesome icon.\n  - Use translation keys instead of long literal strings.\n  - Adjust imports (proxyColors, formatLatency from new utils).\n\n- src/react/pages/ProxyList/utils.ts\n  - New helper: extract `formatLatency` for reuse.\n\n- src/react/components/RecaptchaV2.tsx\n  - Restore/create reCAPTCHA component (v2) used by the page (dark-mode compatible reset button; uses Vite env var for site key).\n\nWhy\n- Backend now requires captcha verification for proxy-list requests; the frontend must surface server errors clearly so users know when verification is needed.\n- Extracting `formatLatency` and moving the reCAPTCHA into a dedicated component improves reuse and readability.\n- The React-controlled accordion ensures the UI works even without Flowbite JS and supports dark mode.\n\nBREAKING CHANGE:\n- `php_backend/proxy-list.php` will return HTTP 403 and JSON error when the captcha session is missing/not verified. Clients calling this endpoint must handle the 403/error response and provide a valid captcha token (or trigger verification) before retrying.\n- Frontend expects `VITE_G_RECAPTCHA_V2_SITE_KEY` (or equivalent) to be provided for the reCAPTCHA widget to render.",
+    "files": [
+      "php_backend/proxy-list.php",
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/utils.ts"
+    ]
+  },
+  {
+    "hash": "d6d5b82e103480274e194d6a17c4b2692d6dab20",
+    "date": "2025-12-07T13:06:19+07:00",
+    "message": "feat(recaptcha): add reCAPTCHA v2 component and localization entries\n\n- Introduce new `RecaptchaV2` React component with verification handling\n- Add related i18n strings to `en.json` and `id.json`",
+    "files": [
+      "src/react/components/RecaptchaV2.tsx",
+      "src/react/locales/en.json",
+      "src/react/locales/id.json"
+    ]
+  },
+  {
+    "hash": "c4409f5812f02b13c1a408201b5d78341623528f",
+    "date": "2025-12-07T12:59:57+07:00",
+    "message": "feat(proxy-colors): add proxy type to Tailwind color class mappings",
+    "files": [
+      "src/react/pages/ProxyList/WorkingJson.tsx",
+      "src/react/utils/proxyColors.ts"
+    ]
+  },
+  {
+    "hash": "1d24c2d370d4e2d4df3328d0e78045893e56e9c9",
+    "date": "2025-12-07T12:33:29+07:00",
+    "message": "feat(locales): add OTP and Direct package translations",
+    "files": [
+      "src/react/locales/en.json",
+      "src/react/locales/id.json"
+    ]
+  },
+  {
+    "hash": "823ea98a93a9bb427f6983fd7cc66ee4b7cbb0d5",
+    "date": "2025-12-07T12:22:41+07:00",
+    "message": "feat(proxy-list): add server-side status filter and responsive client UI\n\n- Backend (`php_backend/proxy-list.php`):\n  - Add optional `status` filter parameter and use it in WHERE clauses.\n  - Add `get_statuses` action to return distinct statuses for dropdown population.\n  - Update recordsFiltered counting and main SELECT to combine `proxy` prefix and `status` filters.\n\n- Frontend (`src/react/pages/ProxyList/ServerSide.tsx`):\n  - Add status dropdown, fetch available statuses, and include `status` in POST requests.\n  - Default `statusFilter` to `active` for initial view.\n  - Move Status column to appear after Proxy; render proxy Type as colored badges (reusing `getProxyTypeColorClass`).\n  - Prevent word-wrapping in table (`whitespace-nowrap`) and adjust layout to be responsive (stack filters on mobile, keep horizontal scroll).\n\nNotes:\n- Preserves existing DataTables-like request shape; non-breaking for clients that don't send `status`.\n- Improves mobile UX and enables server-driven status filtering.",
+    "files": [
+      "php_backend/proxy-list.php",
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "c2cdb77733f69c89aba7179367af91499e50c12e",
+    "date": "2025-12-07T12:10:02+07:00",
+    "message": "feat(proxy-list): add status filter and make table responsive\n\n- Add status filter state (`statuses`, `statusFilter`) and include `status`\n  in server requests (POST body) so server-side filtering works.\n- Include `statusFilter` in `fetchData` dependencies to trigger refetch\n  when status changes.\n- Add a new effect to fetch distinct statuses from the backend\n  (`get_statuses=1`) and populate the filter dropdown.\n- Make the filter controls responsive:\n  - Controls stack vertically on small screens and display inline on `sm+`.\n  - Inputs/selects use `w-full sm:w-auto` so they expand on mobile.\n  - `Refresh` button becomes full-width on mobile for easier tapping.\n  - Add small horizontal margin to container (`mx-2`) for better spacing.\n- Improve pagination responsiveness:\n  - Pager layout is responsive (`flex-col sm:flex-row`) and wraps on small screens.\n  - Numeric page buttons are hidden on extra-small screens (`hidden sm:flex`),\n    keeping First/Prev/Next/Last visible for compact navigation.\n- Misc: adjust `min-w` on selects to keep reasonable sizing on wider screens.\n\nNotes:\n- No breaking changes to API or existing data; frontend now sends an extra\n  `status` param when a status is selected and requests `statuses` when\n  populating the dropdown.\n- Test mobile and dark-mode UI to confirm readability and layout.",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "89695a03282a0f086be3153c82758b2ce8ca41ad",
+    "date": "2025-12-07T11:35:56+07:00",
+    "message": "feat(settings): increase max requests for chat agent and disable conversation history summarization",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "5468e8ec0be6fcd91696065fae01444c58a5d394",
+    "date": "2025-12-07T11:35:22+07:00",
+    "message": "feat(ServerSide): add formatLatency function to display latency in a user-friendly format",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "d3a5b8c1feb14837d69da03313658b6684b668d5",
+    "date": "2025-12-07T11:33:56+07:00",
+    "message": "fix(ServerSide): improve text color for better visibility in dark mode",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "f668f853daf93709af7666320b006c62b5d449f5",
+    "date": "2025-12-07T11:31:57+07:00",
+    "message": "feat: Implement server-side proxy list with DataTables integration\n\n- Added `proxy-list.php` to handle server-side logic for fetching proxies.\n- Implemented pagination, searching, and ordering for proxy data.\n- Created `ServerSide.tsx` component to manage state and UI for displaying proxies.\n- Integrated API calls to fetch proxy data and handle user interactions.\n- Updated `index.tsx` to use the new `ServerSide` component for rendering the proxy list.",
+    "files": [
+      "php_backend/proxy-list.php",
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "8a2c9c51014efcaa0ae2c13b60f6221fd5db8576",
+    "date": "2025-12-07T10:13:05+07:00",
+    "message": "feat(proxy-list): implement WorkingJson component for managing and displaying proxies\nmigrated from src\\react\\pages\\ProxyList\\index.tsx",
+    "files": [
+      "src/react/pages/ProxyList/WorkingJson.tsx"
+    ]
+  },
+  {
     "hash": "3a37802cdc63ff6f9987fc900726b74d7a6f1fed",
     "date": "2025-12-05T19:33:27+07:00",
     "message": "feat(check-https-proxy): add functionality to write working proxies to file",
@@ -8548,106 +8648,6 @@
     "message": "refactor(UserDBTest): simplify user deletion logic in test cases",
     "files": [
       "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "e6820b659f5f3b4336f8ff547c8075b0d1c298f0",
-    "date": "2025-09-10T14:04:41+07:00",
-    "message": "test(MySQLHelper): add unit tests for MySQLHelper class",
-    "files": [
-      "tests/PhpProxyHunter/MySQLHelperTest.php"
-    ]
-  },
-  {
-    "hash": "c398eed066289c04ac6fd469d7f3bd015ea524fd",
-    "date": "2025-09-10T13:50:56+07:00",
-    "message": "refactor(SQLiteHelper): rename static property $_databases to $databases",
-    "files": [
-      "src/PhpProxyHunter/SQLiteHelper.php"
-    ]
-  },
-  {
-    "hash": "66d5f7f6d4fdeb4994f0c7a96a0ac66fec718909",
-    "date": "2025-09-10T13:22:19+07:00",
-    "message": "feat: add mariadb support and proxy translation script\n\n- add `mariadb` dependency to package.json\n- add new script `src/react/i18n-translator.ts` for proxy translation and MySQL/MariaDB CRUD operations\n  - uses mariadb for database connection and schema setup\n  - implements proxy translation, proxy checking, and saving results to the database\n  - uses RFC3339 date format for processed proxies\n  - shuffles proxies before checking\n- add new test/debug script `tests/database/mysql-native-password-debug.ts` for managing MySQL user authentication plugin and printing user plugin info",
-    "files": [
-      "package.json",
-      "src/react/i18n-translator.ts",
-      "tests/database/mysql-native-password-debug.ts"
-    ]
-  },
-  {
-    "hash": "de718104c8c2bdd2574b064ccabb5dc27f1ba030",
-    "date": "2025-09-10T11:44:57+07:00",
-    "message": "fix(package): update proxies-grabber package URL to the latest version",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "81f6e4fd076766bc5d071d0fdbbe6dea2f448dd9",
-    "date": "2025-09-10T11:39:47+07:00",
-    "message": "chore: update locales",
-    "files": [
-      "src/react/locales/en.json",
-      "src/react/locales/id.json"
-    ]
-  },
-  {
-    "hash": "1cdb9047abdc752206b1e622186de478ee7dd9c7",
-    "date": "2025-09-10T10:38:02+07:00",
-    "message": "feat(UserActivity): add UserActivityCard component and integrate user activity fetching",
-    "files": [
-      "src/react/locales/en.json",
-      "src/react/locales/id.json",
-      "src/react/pages/Dashboard.tsx",
-      "src/react/pages/components/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "79f92d2b21533c11373fe62a94122e99d47aa6f7",
-    "date": "2025-09-10T10:37:08+07:00",
-    "message": "refactor(userdb): rename get_saldo to getPoint and update all usages\n\n- Renamed the UserDB method `get_saldo` to `getPoint` for consistency with point-based terminology.\n- Updated all references to `get_saldo` in backend PHP files and tests.\n- Improved PHPDoc to reflect the new method name and clarify the return value.",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php",
-      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "976dfc8c0eade23c1303e19d9c0c07f639b2a951",
-    "date": "2025-09-10T10:33:06+07:00",
-    "message": "refactor(userdb): rename update_saldo to updatePoint and update all usages\n\n- Renamed the UserDB method `update_saldo` to `updatePoint` for improved clarity and consistency.\n- Updated all references to `update_saldo` in backend PHP files and tests.\n- Enhanced the PHPDoc for the method to clarify parameters, return value, and logging side effects.",
-    "files": [
-      "php_backend/refill-saldo.php",
-      "php_backend/user-info.php",
-      "src/PhpProxyHunter/UserDB.php",
-      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "a8afe25fd8bc7c80a4e27eb844d353bc6d29d655",
-    "date": "2025-09-10T10:28:35+07:00",
-    "message": "feat(UserDB): replace direct database log insertion with logsRepository method",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "225827396c5c96ba173253e9a8c0fe206b97f4c9",
-    "date": "2025-09-10T10:27:28+07:00",
-    "message": "feat(UserDB): add logsRepository property and initialize in constructor",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "1e305bda741f55ba4930cf98ad1919aa42230de8",
-    "date": "2025-09-10T10:26:32+07:00",
-    "message": "feat(CoreDB): initialize LogsRepository instance in constructor",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
     ]
   }
 ]
