@@ -95,6 +95,8 @@ try {
 
   // Prefer using existing PDO instance from $proxy_db to reuse connections and helpers
   $pdo = $proxy_db->db->pdo;
+  // Get driver name "mysql", "sqlite".
+  $driver = $core_db->driver;
 
   // total records
   $stmtTotal    = $pdo->query('SELECT COUNT(*) as cnt FROM proxies');
@@ -112,8 +114,10 @@ try {
   $whereParts      = [];
   $countParams     = [];
   if ($search !== '') {
-    $whereParts[]           = 'proxy LIKE :search';
-    $countParams[':search'] = $search . '%';
+    $whereParts[] = 'proxy LIKE :search';
+    // Escape SQL LIKE wildcard characters to perform literal substring search
+    $esc                    = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
+    $countParams[':search'] = '%' . $esc . '%';
   }
   if ($statusFilter !== '') {
     $whereParts[]           = 'status = :status';
@@ -144,8 +148,10 @@ try {
   $where  = '';
   $params = [];
   if ($search !== '') {
-    $whereParts[]      = 'proxy LIKE :search';
-    $params[':search'] = $search . '%';
+    $whereParts[] = 'proxy LIKE :search';
+    // Escape SQL LIKE wildcard characters to perform literal substring search
+    $esc               = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
+    $params[':search'] = '%' . $esc . '%';
   }
   if ($statusFilter !== '') {
     $whereParts[]      = 'status = :status';
@@ -199,6 +205,9 @@ try {
     'recordsTotal'    => $recordsTotal,
     'recordsFiltered' => $recordsFiltered,
     'data'            => array_values($rows),
+    'driver'          => $driver,
+    'page'            => $page,
+    'perPage'         => $perPage,
   ];
 
   echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
