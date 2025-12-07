@@ -141,6 +141,12 @@ try {
   if (!empty($orderBy)) {
     // orderBy already sanitized earlier to `col DIR`
     $orderSql = 'ORDER BY ' . $orderBy;
+  } else {
+    // Default ordering when client didn't request one:
+    // - Prefer rows with a valid last_check (non-empty and not '-')
+    // - Then sort by last_check descending so most-recent checks appear first
+    // Note: this assumes last_check is stored as an RFC3339/ISO datetime string
+    $orderSql = "ORDER BY (CASE WHEN last_check IS NULL OR last_check = '' OR last_check = '-' THEN 0 ELSE 1 END) DESC, last_check DESC";
   }
 
   $limitSql = '';
