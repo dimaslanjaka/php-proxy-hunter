@@ -170,7 +170,7 @@ export default function ServerSide() {
         </div>
 
         <div className="flex items-center justify-between mt-3">
-          <div className="text-sm text-gray-600">{`Showing ${rows.length} of ${recordsFiltered} filtered (${recordsTotal} total)`}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">{`Showing ${rows.length} of ${recordsFiltered} filtered (${recordsTotal} total)`}</div>
           <div className="flex items-center gap-2">
             <button
               disabled={page <= 1}
