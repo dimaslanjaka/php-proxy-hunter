@@ -25,6 +25,9 @@ export default function ServerSide() {
   const [recordsFiltered, setRecordsFiltered] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
   const [copiedIndex, setCopiedIndex] = React.useState<number | null>(null);
+  const [serverDriver, setServerDriver] = React.useState<string>('');
+  const [serverPage, setServerPage] = React.useState<number | null>(null);
+  const [serverPerPage, setServerPerPage] = React.useState<number | null>(null);
 
   const fetchData = React.useCallback(async () => {
     setLoading(true);
@@ -66,6 +69,9 @@ export default function ServerSide() {
         setRows(Array.isArray(data.data) ? data.data : []);
         setRecordsTotal(Number(data.recordsTotal) || 0);
         setRecordsFiltered(Number(data.recordsFiltered) || 0);
+        setServerDriver(typeof data.driver === 'string' ? data.driver : '');
+        setServerPage(Number.isFinite(Number(data.page)) ? Number(data.page) : null);
+        setServerPerPage(Number.isFinite(Number(data.perPage)) ? Number(data.perPage) : null);
       }
     } catch (err) {
       console.error('Failed to fetch proxy list', err);
@@ -329,7 +335,16 @@ export default function ServerSide() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 gap-2">
-            <div className="text-sm text-gray-600 dark:text-gray-400">{`Showing ${rows.length} of ${recordsFiltered} filtered (${recordsTotal} total)`}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <div>{`Showing ${rows.length} of ${recordsFiltered} filtered (${recordsTotal} total)`}</div>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  {serverDriver ? <span>{`Driver: ${serverDriver}`}</span> : null}
+                  {serverDriver ? <span className="mx-1">·</span> : null}
+                  <span>{`Page: ${serverPage ?? page}/${totalPages || 1} · Per page: ${serverPerPage ?? perPage}`}</span>
+                </div>
+              </div>
+            </div>
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 disabled={page <= 1}
@@ -348,7 +363,7 @@ export default function ServerSide() {
                 <span className="sr-only">Previous</span>
               </button>
 
-              {/* Numeric page buttons (compact window) - hide on xs */}
+              {/* Numeric page buttons - full on desktop, compact on mobile */}
               <div className="hidden sm:flex items-center gap-1">
                 {(() => {
                   const maxButtons = 7;
@@ -365,6 +380,24 @@ export default function ServerSide() {
                       key={p}
                       onClick={() => setPage(p)}
                       className={`px-2 py-1 rounded border ${p === page ? 'bg-blue-600 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700'}`}>
+                      {p}
+                    </button>
+                  ));
+                })()}
+              </div>
+
+              {/* Compact numeric page buttons for mobile (current ±1) */}
+              <div className="flex sm:hidden items-center gap-1">
+                {(() => {
+                  const pages: number[] = [];
+                  const start = Math.max(1, page - 1);
+                  const end = Math.min(totalPages, page + 1);
+                  for (let p = start; p <= end; p++) pages.push(p);
+                  return pages.map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`px-2 py-1 rounded border text-xs ${p === page ? 'bg-blue-600 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700'}`}>
                       {p}
                     </button>
                   ));
