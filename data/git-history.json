@@ -1,5 +1,29 @@
 [
   {
+    "hash": "7cc7965cd51e74dc826aabdb7e09a75b197c70e2",
+    "date": "2025-12-07T16:35:15+07:00",
+    "message": "feat(proxy-list): show server metadata and improve pagination UX\n\n- Add server metadata state (`serverDriver`, `serverPage`, `serverPerPage`)\n  and populate from `proxy-list` response.\n- Display compact footer metadata: \"Driver: <driver> · Page X/Y · Per page: N\".\n  Prefer server-provided values and fallback to local state.\n- Improve pagination for mobile:\n  - Keep full numeric page buttons on desktop (up to 7).\n  - Add compact numeric controls on mobile showing current ±1 for easier navigation.\n- Small comment/markup tidy: clarify numeric pagination behavior.\n\nThis makes it easier to see which DB driver the server uses and gives a\nmobile-friendly pagination experience without changing server-side APIs.",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "d769574a2320dffa00d25754ebe97cafa5935007",
+    "date": "2025-12-07T16:29:06+07:00",
+    "message": "refactor(git-history): replace fs with sbg-utility for file writing",
+    "files": [
+      "src/dev/git-history.builder.ts"
+    ]
+  },
+  {
+    "hash": "c07883de3a4ba2c4b2f41be8de75e2c57009b111",
+    "date": "2025-12-07T16:24:59+07:00",
+    "message": "fix(proxy-list): use escaped substring search and include metadata in response\n\nChange server-side proxy filtering to perform literal substring matching instead\nof prefix-only searches. Escape SQL LIKE wildcards (`%`, `_`, `\\`) in the\nuser-provided search term and bind it as `%<escaped>%` so queries match anywhere\nin the `proxy` column while treating literal `%`/`_` correctly.\n\nAlso:\n- Read and return the DB `driver` (`mysql`/`sqlite`) from `$core_db->driver`.\n- Add `driver`, `page`, and `perPage` to the JSON response payload.\n\nThis fixes cases where partial IP fragments (e.g. searching `8.188.141` for a\nstored `18.188.141.177:1145`) didn't return results and keeps behavior working\nfor both MySQL and SQLite.",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
     "hash": "7c3e1f7a3c90d03fac24fdde20852ce1f87c2920",
     "date": "2025-12-07T15:49:32+07:00",
     "message": "feat(proxy-submission): add single-check buttons and overlay loading state\n\nAdd UI buttons to trigger individual proxy checks: \"Check Type\", \"Check HTTP\",\nand \"Check HTTPS\" and introduce a `runSingleCheck` helper to call those\nendpoints with unified snackbar feedback.\n\nRefactor loading UX:\n- Replace per-button loading labels/icons with a single overlay spinner.\n- Add `aria-busy` and `relative` container to show an absolute overlay while\n  checks are running.\n- Keep buttons disabled during loading to prevent duplicate actions.\n\nOther changes:\n- Rename main submit action label to \"Check All\".\n- Export `checkProxyHttp` and `checkProxyHttps` from `src/react/utils/proxy.ts`\n  so the UI can call HTTP/HTTPS checks directly.",
@@ -8611,30 +8635,8 @@
     "hash": "293458dc0e84ce943182e79b5dc8b149e00efa63",
     "date": "2025-09-15T09:48:27+07:00",
     "message": "feat(post-merge): add commit history builder script execution",
-    "files": []
-  },
-  {
-    "hash": "2515aef60d2b01ab2702dcb8c8b8aec4e27ace46",
-    "date": "2025-09-15T09:43:57+07:00",
-    "message": "fix(LogsRepository): update constructor to accept CoreDB instance and throw exception for invalid types",
     "files": [
-      "src/PhpProxyHunter/LogsRepository.php"
-    ]
-  },
-  {
-    "hash": "1167a827df5afd058f41dd8bf4e78a76c8b6607b",
-    "date": "2025-09-15T09:37:19+07:00",
-    "message": "fix(userdb): remove debug echo for auth_user table creation",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "8ad39ad34be87b292ce105f65e765f2da06aa1ab",
-    "date": "2025-09-15T09:27:51+07:00",
-    "message": "feat(img): add image proxy with caching and validation\n\n- introduced php_backend/img.php\n- fetches remote images via cURL with 10s timeout and max size of 5MB\n- caches responses for 24h in tmp/image-cache with metadata\n- supports cache bypass with `refresh=1`\n- validates URL scheme and optional allowed hosts\n- streams content while writing to cache\n- ensures only valid image content-types are served",
-    "files": [
-      "php_backend/img.php"
+      ".husky/post-merge"
     ]
   }
 ]
