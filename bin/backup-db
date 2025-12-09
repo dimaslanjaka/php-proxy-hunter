@@ -64,10 +64,11 @@ if [ -f "$SRC_DB" ]; then
 fi
 
 # Backup MySQL database
-# Normalize and fallback env var names:
+# Normalize env var aliases and prefer production-specific variables when present
 # - accept MYSQL_PASS -> MYSQL_PASSWORD
 # - accept MYSQL_DBNAME -> MYSQL_DATABASE
-# - accept production variants like MYSQL_USER_PRODUCTION when canonical vars are missing
+# - prefer *_PRODUCTION values over canonical ones when available
+# Map legacy aliases if canonical vars are absent (will be overridden by production vars if set)
 if [ -z "$MYSQL_PASSWORD" ] && [ -n "$MYSQL_PASS" ]; then
     MYSQL_PASSWORD="$MYSQL_PASS"
 fi
@@ -75,18 +76,16 @@ if [ -z "$MYSQL_DATABASE" ] && [ -n "$MYSQL_DBNAME" ]; then
     MYSQL_DATABASE="$MYSQL_DBNAME"
 fi
 
-# Fallback to production-specific variables if canonical ones are not set
-if [ -z "$MYSQL_USER" ] && [ -n "$MYSQL_USER_PRODUCTION" ]; then
+# Prefer production-specific variables when provided. Only override canonical
+# credentials when the production set includes at least user, password and host.
+if [ -n "$MYSQL_USER_PRODUCTION" ] && [ -n "$MYSQL_PASS_PRODUCTION" ] && [ -n "$MYSQL_HOST_PRODUCTION" ]; then
     MYSQL_USER="$MYSQL_USER_PRODUCTION"
-fi
-if [ -z "$MYSQL_PASSWORD" ] && [ -n "$MYSQL_PASS_PRODUCTION" ]; then
     MYSQL_PASSWORD="$MYSQL_PASS_PRODUCTION"
-fi
-if [ -z "$MYSQL_DATABASE" ] && [ -n "$MYSQL_DBNAME_PRODUCTION" ]; then
-    MYSQL_DATABASE="$MYSQL_DBNAME_PRODUCTION"
-fi
-if [ -z "$MYSQL_HOST" ] && [ -n "$MYSQL_HOST_PRODUCTION" ]; then
     MYSQL_HOST="$MYSQL_HOST_PRODUCTION"
+    # Optionally override database name if provided in production vars
+    if [ -n "$MYSQL_DBNAME_PRODUCTION" ]; then
+        MYSQL_DATABASE="$MYSQL_DBNAME_PRODUCTION"
+    fi
 fi
 
 if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ]; then
