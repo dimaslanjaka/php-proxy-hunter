@@ -72,7 +72,6 @@ tmp/
 !/robots.txt
 /working.json
 !/.crontab.txt
-/backups
 !**/*.php.txt
 !**/*.py.txt
 /sitemap.txt
