@@ -1,5 +1,34 @@
 [
   {
+    "hash": "98b6ce579fcbee5505ffdade66a634f039ba9081",
+    "date": "2025-12-09T21:17:51+07:00",
+    "message": "chore(deps): delegate common runtime deps to requirements-minimal and apply pins\n\n- Add `-r requirements-minimal.txt` to `requirements-base.txt` to delegate commonly used runtime dependencies.\n- Remove duplicated runtime packages from `requirements-base.txt` (now provided by the minimal file).\n- Update `requirements-minimal.txt`: deduplicate, alphabetize, use one package per line, and apply version pins:\n  - `pycountry==24.6.1`\n  - `timezonefinder==6.0.1 --only-binary :all:`\n\nFiles:\n- modified: `requirements-base.txt` (include minimal file, removed duplicates)\n- modified: `requirements-minimal.txt` (normalized list, applied pins)\n\nNotes:\n- No other version pins were changed; consider pinning additional packages in `requirements-minimal.txt` for reproducible installs.",
+    "files": [
+      "requirements-base.txt",
+      "requirements-minimal.txt"
+    ]
+  },
+  {
+    "hash": "e14d5ec76d8ffdfc45394f92dea697f535610a30",
+    "date": "2025-12-09T21:13:09+07:00",
+    "message": "chore(deps): install minimal Python deps from requirements-minimal.txt\n\n- Replace inline pip install commands in `bin/python-minimal` and `bin/python-minimal.cmd`\n  with `pip install -r \"<CWD>/requirements-minimal.txt\"` to source deps from a single file.\n- Add/normalize `requirements-minimal.txt`: deduplicated, alphabetized, one package per line\n  (added `lxml`, `pycryptodome`, reordered entries).\n- Purpose: centralize minimal runtime dependencies for consistent, repeatable installs across envs.",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd",
+      "requirements-minimal.txt"
+    ]
+  },
+  {
+    "hash": "d03b780a0a084056836bba22bd3c0ef4e2db7cac",
+    "date": "2025-12-09T21:10:40+07:00",
+    "message": "chore(deps): add requirements-minimal.txt and install in backup script\n\n- Add `requirements-minimal.txt` containing a minimal, deduplicated list of third-party\n  packages required by `backups/backup-proxies.py`.\n- Update `.gitignore` to ensure `requirements-minimal.txt` is tracked (`!/requirements-minimal.txt`).\n- Update `bin/backup-db` to run `pip install -r \"$PROJECT_ROOT/requirements-minimal.txt\"` before\n  invoking the backup script.\n\nReason: make the backup script's Python dependencies explicit and ensure they are installed\nwhen running the bundled backup helper. No version pins included — consider pinning for\nreproducible installs if desired.",
+    "files": [
+      ".gitignore",
+      "bin/backup-db",
+      "requirements-minimal.txt"
+    ]
+  },
+  {
     "hash": "011e56e125f43770e0932f663379b7221e47c1d6",
     "date": "2025-12-09T19:30:11+07:00",
     "message": "feat(backups): add proxies chunked JSON exporter and integrate into backup\n\nAdd `backups/backup-proxies.py` — a streaming exporter that writes the\n`proxies` table to numbered JSON chunk files (e.g. `proxies_chunk_0001.json`)\nto avoid loading the entire dataset into memory. Uses id-based pagination\n(SELECT ... WHERE id > last_id LIMIT ...) with a fallback to LIMIT/OFFSET.\nProvides CLI options: `--db-type`, `--chunk-size`, `--out-dir`. Default chunk\nsize is 10000 rows.\n\nUpdate `backups/.gitignore` to ignore the `proxies/` output directory.\n\nIntegrate the exporter into the backup process by updating `bin/backup-db`:\ndefine `PYTHON_CMD` and invoke the new `backups/backup-proxies.py` during backup.\n\nReason: prevent high memory usage when exporting large proxy datasets and\nproduce consumable, chunked JSON files for downstream processing.",
@@ -8619,30 +8648,6 @@
     "message": "feat(func.php): add functions to manage user log files",
     "files": [
       "func.php"
-    ]
-  },
-  {
-    "hash": "c50f5bd5ba5b6a9cb8967e93a0c6540bcefbe843",
-    "date": "2025-09-15T15:03:54+07:00",
-    "message": "feat(func.php): add getUserStatusFile function to retrieve user status",
-    "files": [
-      "func.php"
-    ]
-  },
-  {
-    "hash": "404d0f73226b4b981c8760702b3a18e58166ee29",
-    "date": "2025-09-15T15:00:20+07:00",
-    "message": "refactor(shared.php): update require statement to load func-proxy.php",
-    "files": [
-      "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "467beae6d98c51f35c825b87985cff4738316335",
-    "date": "2025-09-15T14:59:43+07:00",
-    "message": "refactor(php): improve PHP 7 compatibility and code clarity\n\n- Remove strict_types declaration for broader compatibility.\n- Remove unused imports of Proxy and ProxyDB.\n- Replace PHP 7+ type hints and return types with PHP 5/7 compatible docblocks.\n- Refactor function signatures to remove union and nullable types, using docblocks for type information.\n- Use short array syntax for all arrays.\n- Add or update docblocks for all functions to clarify parameter and return types.\n- Improve inline comments for SSL version selection and array handling.\n- Minor whitespace and formatting adjustments for consistency.",
-    "files": [
-      "func-proxy.php"
     ]
   }
 ]
