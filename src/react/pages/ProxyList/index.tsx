@@ -48,12 +48,14 @@ export default function ProxyList() {
         </div>
       </section>
 
-      <AdSense
-        client="ca-pub-2188063137129806"
-        slot="6233018586"
-        style={{ display: 'block' }}
-        fullWidthResponsive={true}
-      />
+      <div className="flex justify-center my-4">
+        <AdSense
+          client="ca-pub-2188063137129806"
+          slot="6233018586"
+          style={{ display: 'block' }}
+          fullWidthResponsive={true}
+        />
+      </div>
 
       <ServerSide />
 

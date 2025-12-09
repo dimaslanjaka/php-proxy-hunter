@@ -114,7 +114,7 @@ const MainApp = function () {
         <Route path="/examples/tables/advanced" element={<AdvancedDataTable />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <div>
+      <div className="flex justify-center my-4">
         <AdSense
           client="ca-pub-2188063137129806"
           slot="5041245242"
