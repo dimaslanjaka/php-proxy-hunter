@@ -1,5 +1,23 @@
 [
   {
+    "hash": "8d356fd7707bc2556058644efb9d7848da2c15b7",
+    "date": "2025-12-09T17:36:17+07:00",
+    "message": "feat(backups): add .gitignore and .htaccess to secure backup directory",
+    "files": [
+      ".gitignore",
+      "backups/.gitignore",
+      "backups/.htaccess"
+    ]
+  },
+  {
+    "hash": "f191850c9bf07b9045a08883fc2ea86671562ac6",
+    "date": "2025-12-09T17:26:20+07:00",
+    "message": "fix(adsense): wrap ad `<ins>` in responsive container to avoid zero-width error\n\nWrap the AdSense `<ins>` element in a `div` with `w-full min-h-[50px] min-w-[300px] max-w-full overflow-hidden` so the ad container has a measurable (non-zero) width when the AdSense script runs. This prevents the \"width 0\" console error while keeping the ad responsive and reducing horizontal overflow on small screens.",
+    "files": [
+      "src/react/components/AdSense.tsx"
+    ]
+  },
+  {
     "hash": "a1d92ba7999a7643253371b94beb1e5e0df7ad7e",
     "date": "2025-12-09T17:09:36+07:00",
     "message": "Merge pull request #64 from dimaslanjaka/dependabot/github_actions/actions/setup-node-6\n\nchore(deps): bump actions/setup-node from 5 to 6",
@@ -8631,22 +8649,6 @@
       "bin/run-php",
       "fix-nginx-perm.sh",
       "readme.md"
-    ]
-  },
-  {
-    "hash": "8a4cd2bc7f80dcdba8fbdce96b4127af5a5b8781",
-    "date": "2025-09-15T13:35:24+07:00",
-    "message": "fix(phpcs): disable multi-line control structure spacing rules",
-    "files": [
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "a79199230a27aebd605bed5f9d38c4e913f71562",
-    "date": "2025-09-15T11:26:07+07:00",
-    "message": "chore: update baileys v7",
-    "files": [
-      "packages/baileys"
     ]
   }
 ]
