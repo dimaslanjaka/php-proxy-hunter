@@ -1,10 +1,11 @@
 # django @ https://github.com/django/django/archive/refs/tags/5.0.8.zip
 # huey[backends]
+# Include minimal requirements file (delegates commonly used runtime deps)
+-r requirements-minimal.txt
 ansi2html
 asyncio
 autopep8
 babel
-beautifulsoup4
 black
 chromedriver-autoinstaller @ https://github.com/yeongbin-jo/python-chromedriver-autoinstaller/archive/cd9d19512240f3c4b1833ce9f2e591f68d64d019.zip
 daphne
@@ -19,8 +20,6 @@ django-phonenumber-field[phonenumbers]
 # django>=5.0,<5.1
 djangorestframework
 djangorestframework_simplejwt
-filelock
-geoip2
 geopy
 gevent
 html5lib
@@ -29,25 +28,16 @@ huey @ https://github.com/coleifer/huey/archive/5da909af52455ede879b42342891f7bf
 ipaddress
 joblib
 maxminddb
-mysql-connector-python
 oauthlib
 Pillow
 pycodestyle
-pycountry==24.6.1
-pycryptodome
 pycurl
-python-dateutil
-python-dotenv
-pytz
 pyyaml
 rarfile
-requests
 requests_cache
 selenium==4.*
 six
 sqlalchemy
-timezonefinder==6.0.1 --only-binary :all:
-tzlocal
 urllib3
 watchdog
 webdriver-manager @ https://github.com/SergeyPirogov/webdriver_manager/archive/1c59212c6dae5335d2aead14b119307084b44293.zip

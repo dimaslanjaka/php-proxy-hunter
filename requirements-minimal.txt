@@ -12,12 +12,12 @@ lxml
 mysql-connector-python
 netaddr
 pycryptodome
-pycountry
+pycountry==24.6.1
 PySocks
 python-dateutil
 python-dotenv
 pytz
 requests
-timezonefinder
+timezonefinder==6.0.1 --only-binary :all:
 tzlocal
 urlextract
