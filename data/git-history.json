@@ -1,5 +1,14 @@
 [
   {
+    "hash": "f2667b6e34eab9f9254bcf1124fc79e5de33ef9b",
+    "date": "2025-12-09T17:01:47+07:00",
+    "message": "style(proxy-list): center AdSense component with flexbox",
+    "files": [
+      "src/react/index.tsx",
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
     "hash": "eca16f99a78dff50cf6fdad8183380d30e0c25ca",
     "date": "2025-12-07T18:06:20+07:00",
     "message": "feat(ads): integrate AdSense related content",
@@ -8636,14 +8645,6 @@
     "message": "build(dev): update git-history builder to write output to multiple locations\n\n- switched to using full `fs` and `path` modules instead of destructured imports\n- now writes `git-history.json` to both:\n  - `public/data`\n  - `dist/react`\n- added log message for each output file",
     "files": [
       "src/dev/git-history.builder.ts"
-    ]
-  },
-  {
-    "hash": "bb55e8e80dae34a0c36452f4fc4aac1966b98531",
-    "date": "2025-09-15T09:52:13+07:00",
-    "message": "fix(post-merge): remove unsupported OS check in post-merge script",
-    "files": [
-      ".husky/post-merge"
     ]
   }
 ]
