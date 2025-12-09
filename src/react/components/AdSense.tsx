@@ -57,7 +57,11 @@ function AdSense({
     insProps['data-adtest'] = 'on';
   }
 
-  return <ins {...(insProps as any)} ref={adRef} />;
+  return (
+    <div className="w-full min-h-[50px] min-w-[300px] max-w-full overflow-hidden">
+      <ins {...(insProps as any)} ref={adRef} />
+    </div>
+  );
 }
 
 export default AdSense;
