@@ -1,20 +1,23 @@
-# Minimal external dependencies required to run backups/backup-proxies.py and its imports script
-python-dotenv
-requests
-python-dateutil
-tzlocal
-geoip2
-pycountry
-pytz
-timezonefinder
-mysql-connector-python
+# Minimal external dependencies required to run backups/backup-proxies.py and its imports
+# One package per line, deduplicated and alphabetically sorted.
 beautifulsoup4
-urlextract
-filelock
 brotli
-chardet
 certifi
-httpx
-netaddr
+chardet
 colorama
+filelock
+geoip2
+httpx
+lxml
+mysql-connector-python
+netaddr
+pycryptodome
+pycountry
 PySocks
+python-dateutil
+python-dotenv
+pytz
+requests
+timezonefinder
+tzlocal
+urlextract
