@@ -89,6 +89,7 @@ tmp/
 !/adspower.txt
 !/requirements-base.txt
 !/requirements-dev.txt
+!/requirements-minimal.txt
 /requirements.txt
 /profiles
 /profiles.json

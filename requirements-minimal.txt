@@ -1,0 +1,20 @@
+# Minimal external dependencies required to run backups/backup-proxies.py and its imports script
+python-dotenv
+requests
+python-dateutil
+tzlocal
+geoip2
+pycountry
+pytz
+timezonefinder
+mysql-connector-python
+beautifulsoup4
+urlextract
+filelock
+brotli
+chardet
+certifi
+httpx
+netaddr
+colorama
+PySocks
