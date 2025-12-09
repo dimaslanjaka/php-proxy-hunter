@@ -19,12 +19,9 @@ else
     VENV_BIN="$CWD/venv/Scripts"
 fi
 
-# Check if PATH is set
-if [ -z "$PATH" ]; then
-    export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
-else
-    export PATH=$PATH:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN
-fi
+# Ensure essential system bin dirs are first in PATH, then project bins, then existing PATH
+# This guarantees commands like `sqlite3` and `mysqldump` are found when run from cron
+export PATH="/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/bin:$CWD/bin:$CWD/node_modules/.bin:$CWD/vendor/bin:$VENV_BIN${PATH:+:$PATH}"
 
 # Load .env file
 if [ -f "$CWD/.env" ]; then

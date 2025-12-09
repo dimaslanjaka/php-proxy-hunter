@@ -8,6 +8,10 @@ TMP_DB="$PROJECT_ROOT/tmp/database.sqlite"
 SRC_DB="$PROJECT_ROOT/src/database.sqlite"
 BACKUP_DIR="$PROJECT_ROOT/backups"
 
+# Ensure system bin dirs are searched first so scripts find `sqlite3` and `mysqldump`
+# when run from limited environments (cron, systemd). Project bins follow, then existing PATH.
+export PATH="/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/bin:$PROJECT_ROOT/bin:$PROJECT_ROOT/node_modules/.bin:$PROJECT_ROOT/vendor/bin${PATH:+:$PATH}"
+
 # Ensure backup directory creation
 mkdir -p "$BACKUP_DIR"
 chmod 700 "$BACKUP_DIR" 2>/dev/null || true
@@ -41,14 +45,22 @@ mkdir -p "$BACKUP_DIR"
 
 # Backup tmp database if it exists
 if [ -f "$TMP_DB" ]; then
-    sqlite3 "$TMP_DB" .dump > "$BACKUP_DIR/python_database_backup_$(date +%Y-%m-%d).sql"
-    echo "$TMP_DB -> $BACKUP_DIR/python_database_backup_$(date +%Y-%m-%d).sql"
+    if command -v sqlite3 >/dev/null 2>&1; then
+        sqlite3 "$TMP_DB" .dump > "$BACKUP_DIR/python_database_backup_$(date +%Y-%m-%d).sql"
+        echo "$TMP_DB -> $BACKUP_DIR/python_database_backup_$(date +%Y-%m-%d).sql"
+    else
+        echo "sqlite3 not installed; skipping backup of $TMP_DB"
+    fi
 fi
 
 # Backup src database if it exists
 if [ -f "$SRC_DB" ]; then
-    sqlite3 "$SRC_DB" .dump > "$BACKUP_DIR/php_database_backup_$(date +%Y-%m-%d).sql"
-    echo "$SRC_DB -> $BACKUP_DIR/php_database_backup_$(date +%Y-%m-%d).sql"
+    if command -v sqlite3 >/dev/null 2>&1; then
+        sqlite3 "$SRC_DB" .dump > "$BACKUP_DIR/php_database_backup_$(date +%Y-%m-%d).sql"
+        echo "$SRC_DB -> $BACKUP_DIR/php_database_backup_$(date +%Y-%m-%d).sql"
+    else
+        echo "sqlite3 not installed; skipping backup of $SRC_DB"
+    fi
 fi
 
 # Backup MySQL database
@@ -78,40 +90,58 @@ if [ -z "$MYSQL_HOST" ] && [ -n "$MYSQL_HOST_PRODUCTION" ]; then
 fi
 
 if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ] && [ -n "$MYSQL_DATABASE" ]; then
-    mkdir -p "$BACKUP_DIR"
-    BACKUP_FILE="$BACKUP_DIR/mysql-backup-$(date +%Y-%m-%d).sql"
-    # Use a temporary defaults file to avoid passing the password on the command line
-    CREDFILE=""
-    if command -v mktemp >/dev/null 2>&1; then
-        CREDFILE=$(mktemp)
+    if ! command -v mysqldump >/dev/null 2>&1; then
+        echo "mysqldump not installed; skipping MySQL backup"
     else
-        CREDFILE="${BACKUP_DIR}/.mysql-cred-$$.cnf"
-    fi
-    if [ -n "$CREDFILE" ]; then
-        chmod 600 "$CREDFILE" 2>/dev/null || true
-        {
-            echo "[client]"
-            echo "user=${MYSQL_USER}"
-            echo "password=${MYSQL_PASSWORD}"
-            if [ -n "$MYSQL_HOST" ]; then
-                echo "host=${MYSQL_HOST}"
-            fi
-        } > "$CREDFILE"
-        # ensure cleanup
-        trap 'rm -f "${CREDFILE}"' EXIT
-        # --defaults-extra-file must come first
-        mysqldump --defaults-extra-file="$CREDFILE" "$MYSQL_DATABASE" > "$BACKUP_FILE"
-        rm -f "$CREDFILE" || true
-        trap - EXIT
-    else
-        # fallback: include host argument when provided
-        if [ -n "$MYSQL_HOST" ]; then
-            mysqldump -h"$MYSQL_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"
+        mkdir -p "$BACKUP_DIR"
+        BACKUP_FILE="$BACKUP_DIR/mysql-backup-$(date +%Y-%m-%d).sql"
+        # Use a temporary defaults file to avoid passing the password on the command line
+        CREDFILE=""
+        if command -v mktemp >/dev/null 2>&1; then
+            CREDFILE=$(mktemp)
         else
-            mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"
+            CREDFILE="${BACKUP_DIR}/.mysql-cred-$$.cnf"
+        fi
+        if [ -n "$CREDFILE" ]; then
+            chmod 600 "$CREDFILE" 2>/dev/null || true
+            {
+                echo "[client]"
+                echo "user=${MYSQL_USER}"
+                echo "password=${MYSQL_PASSWORD}"
+                if [ -n "$MYSQL_HOST" ]; then
+                    echo "host=${MYSQL_HOST}"
+                fi
+            } > "$CREDFILE"
+            # ensure cleanup
+            trap 'rm -f "${CREDFILE}"' EXIT
+            # --defaults-extra-file must come first; wrap call to capture failures safely
+            if mysqldump --defaults-extra-file="$CREDFILE" "$MYSQL_DATABASE" > "$BACKUP_FILE"; then
+                echo "MySQL backup saved to $BACKUP_FILE"
+            else
+                status=$?
+                echo "mysqldump failed with exit code $status"
+            fi
+            rm -f "$CREDFILE" || true
+            trap - EXIT
+        else
+            # fallback: include host argument when provided; capture exit code safely
+            if [ -n "$MYSQL_HOST" ]; then
+                if mysqldump -h"$MYSQL_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"; then
+                    echo "MySQL backup saved to $BACKUP_FILE"
+                else
+                    status=$?
+                    echo "mysqldump failed with exit code $status"
+                fi
+            else
+                if mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"; then
+                    echo "MySQL backup saved to $BACKUP_FILE"
+                else
+                    status=$?
+                    echo "mysqldump failed with exit code $status"
+                fi
+            fi
         fi
     fi
-    echo "MySQL backup saved to $BACKUP_FILE"
 else
     echo "MySQL credentials not set in .env"
     echo "Required: one of MYSQL_USER or MYSQL_USER_PRODUCTION, and MYSQL_PASS/ MYSQL_PASS_PRODUCTION, and MYSQL_DBNAME or MYSQL_DBNAME_PRODUCTION (or set MYSQL_DATABASE)."
