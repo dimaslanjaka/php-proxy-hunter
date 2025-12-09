@@ -183,5 +183,5 @@ abstract class BaseSQL {
    * @param array|null $columns Optional list of columns to include. If null, include all columns.
    * @return string|null Returns the checksum string, or null on failure.
    */
-  abstract public function calculateChecksum($table, array $columns = null);
+  abstract public function calculateChecksum($table, $columns);
 }

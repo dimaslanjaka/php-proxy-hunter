@@ -465,7 +465,7 @@ class MySQLHelper extends BaseSQL {
    * @param array|null $columns
    * @return string|null
    */
-  public function calculateChecksum($table, array $columns = null) {
+  public function calculateChecksum($table, $columns = null) {
     if ($columns === null) {
       $columns = $this->getTableColumns($table);
     }

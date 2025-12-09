@@ -445,7 +445,7 @@ class SQLiteHelper extends BaseSQL {
    * @param array|null $columns
    * @return string|null
    */
-  public function calculateChecksum($table, array $columns = null) {
+  public function calculateChecksum($table, $columns = null) {
     if (!$this->hasTable($table)) {
       return null;
     }
