@@ -1,5 +1,40 @@
 [
   {
+    "hash": "4c148cd50033ac2bb21b16d499d9ab94c4dfd181",
+    "date": "2025-12-09T19:04:07+07:00",
+    "message": "fix(php): make calculateChecksum signatures PHP 7.0 compatible\n\n- Remove typed nullable parameter `array $columns = null` from `calculateChecksum`\n  signatures.\n- Update signatures to use untyped `$columns` / `$columns = null` in:\n  - `src/PhpProxyHunter/BaseSQL.php` (abstract)\n  - `src/PhpProxyHunter/MySQLHelper.php`\n  - `src/PhpProxyHunter/SQLiteHelper.php`\n- Preserve `@param array|null $columns` docblocks to document intended type.\n\nReason: avoid PHP 7.1+ nullable type syntax (`?array`) and eliminate deprecation\nwarnings caused by implicitly nullable typed parameters while keeping PHP 7.0\ncompatibility.",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/SQLiteHelper.php"
+    ]
+  },
+  {
+    "hash": "a588db79a627a6a99ac94f12e89516b0e35dbb0f",
+    "date": "2025-12-09T18:54:00+07:00",
+    "message": "refactor(bin/backup-db): prefer production MySQL creds only when user+pass+host provided\n\n- Clarify env var normalization and priorities in comments.\n- Keep legacy alias mapping (`MYSQL_PASS` -> `MYSQL_PASSWORD`, `MYSQL_DBNAME` -> `MYSQL_DATABASE`).\n- Prefer `*_PRODUCTION` values over canonical ones, but only override credentials when\n  `MYSQL_USER_PRODUCTION`, `MYSQL_PASS_PRODUCTION` and `MYSQL_HOST_PRODUCTION` are all set.\n- Still optionally apply `MYSQL_DBNAME_PRODUCTION` if provided.\n- Improve safety and predictability of credential selection; no change when production vars are absent.",
+    "files": [
+      "bin/backup-db"
+    ]
+  },
+  {
+    "hash": "f5969cc1efbaa1ee86c3d910f2ab3262d1d9fcd4",
+    "date": "2025-12-09T18:50:45+07:00",
+    "message": "feat(bin/backup-db): backup multiple MySQL databases with verification & per-db filenames\n\n- Back up the configured `MYSQL_DATABASE` (if set) plus `myproject` and `php_proxy_hunter_test`.\n- Verify each database exists before dumping: prefer `mysql` + information_schema query, fallback to\n  `mysqldump --no-data --databases <name>` when `mysql` is unavailable.\n- Use a single temporary credentials file (secure perms) for all operations and ensure cleanup via `trap`.\n- Produce per-database output files named `<dbname>-backup-YYYY-MM-DD.sql` and skip inaccessible/missing DBs.\n- Relaxed env requirement: script now requires `MYSQL_USER` and `MYSQL_PASSWORD` (no longer mandates `MYSQL_DATABASE`).\n- Improves logging for success/failure and removes the previous single aggregated mysql backup file.\n\nNo breaking changes; behaviour is additive and skips databases that are not present or accessible.",
+    "files": [
+      "bin/backup-db"
+    ]
+  },
+  {
+    "hash": "5578aa8246c6fe1d3798700c1da1900b5d2f0b05",
+    "date": "2025-12-09T17:50:03+07:00",
+    "message": "fix(backup): ensure PATH and handle missing sqlite3/mysqldump\n\n- Prepend common system bin directories to `PATH` in `.crontab.sh` and `bin/backup-db`\n  so cron and limited shells find `/usr/local/bin` and `/usr/bin` before project bins.\n- Add runtime checks for `sqlite3` and skip SQLite dumps when `sqlite3` is not available.\n- Verify `mysqldump` is present before attempting MySQL backups; capture and log\n  mysqldump exit codes and avoid failing the whole script with exit code 127.\n- Improve credential-file handling and ensure temporary credential files are cleaned up.",
+    "files": [
+      ".crontab.sh",
+      "bin/backup-db"
+    ]
+  },
+  {
     "hash": "8d356fd7707bc2556058644efb9d7848da2c15b7",
     "date": "2025-12-09T17:36:17+07:00",
     "message": "feat(backups): add .gitignore and .htaccess to secure backup directory",
@@ -8606,49 +8641,6 @@
     "message": "feat(proxydb): add support for CoreDB instance in constructor\n\n- Updated constructor docblock to include `CoreDB`\n- Allow passing `CoreDB` to ProxyDB constructor and use its `$db` property\n- Clarified MySQL-specific parameter descriptions in docblock",
     "files": [
       "src/PhpProxyHunter/ProxyDB.php"
-    ]
-  },
-  {
-    "hash": "545ca628a3757e28a195cedc934adc3e73189f34",
-    "date": "2025-09-15T14:27:39+07:00",
-    "message": "docs: remove deprecated UI preview images",
-    "files": [
-      "readme.md"
-    ]
-  },
-  {
-    "hash": "e6fd8349d17d83668f9af11a01f6012ff7bfc54c",
-    "date": "2025-09-15T14:22:50+07:00",
-    "message": "docs: add image for proxy checker parallel in README",
-    "files": [
-      "readme.md"
-    ]
-  },
-  {
-    "hash": "ddd4908837f97384c7036d12bb3bca18769fbf20",
-    "date": "2025-09-15T14:06:10+07:00",
-    "message": "refactor: update references from proxies-all.php to proxyCollector.php\n\n- Replaced `artisan/proxies-all.php` with `artisan/proxyCollector.php` in GitHub workflows\n- Updated script references in `bin/run-php` and `fix-nginx-perm.sh`\n- Adjusted documentation in `readme.md` to reflect new script name",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-php.yml.txt",
-      ".github/workflows/checker.yml.txt",
-      "bin/run-php",
-      "fix-nginx-perm.sh",
-      "readme.md"
-    ]
-  },
-  {
-    "hash": "c30e9454779d5f75830b0562346b19f5c2ab5868",
-    "date": "2025-09-15T14:05:01+07:00",
-    "message": "refactor: move proxies-all.php to artisan/proxyCollector.php and update references\n\n- Renamed `proxies-all.php` to `artisan/proxyCollector.php`\n- Updated all workflow scripts, shell scripts, and documentation to use new path\n- Adjusted file includes and paths inside `proxyCollector.php` for correct relative references",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-php.yml.txt",
-      ".github/workflows/checker.yml.txt",
-      "artisan/proxyCollector.php",
-      "bin/run-php",
-      "fix-nginx-perm.sh",
-      "readme.md"
     ]
   }
 ]
