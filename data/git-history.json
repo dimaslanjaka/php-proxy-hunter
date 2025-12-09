@@ -1,5 +1,11 @@
 [
   {
+    "hash": "a1d92ba7999a7643253371b94beb1e5e0df7ad7e",
+    "date": "2025-12-09T17:09:36+07:00",
+    "message": "Merge pull request #64 from dimaslanjaka/dependabot/github_actions/actions/setup-node-6\n\nchore(deps): bump actions/setup-node from 5 to 6",
+    "files": []
+  },
+  {
     "hash": "8d3c6d9ebc6aa1fa08c7f6fdfb4ab3b65f88182f",
     "date": "2025-12-09T17:09:23+07:00",
     "message": "Merge pull request #71 from dimaslanjaka/dependabot/github_actions/actions/checkout-6\n\nbuild(deps): bump actions/checkout from 5 to 6",
@@ -4813,6 +4819,17 @@
     ]
   },
   {
+    "hash": "aedf6450be1c65cb743337027f4e8e9842d9c20e",
+    "date": "2025-11-01T15:07:19Z",
+    "message": "chore(deps): bump actions/setup-node from 5 to 6\n\nBumps [actions/setup-node](https://github.com/actions/setup-node) from 5 to 6.\n- [Release notes](https://github.com/actions/setup-node/releases)\n- [Commits](https://github.com/actions/setup-node/compare/v5...v6)\n\n---\nupdated-dependencies:\n- dependency-name: actions/setup-node\n  dependency-version: '6'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
     "hash": "4f1e73700cf14853890422f8f72ad9a2558cb7d1",
     "date": "2025-11-01T22:05:09+07:00",
     "message": "refactor(github-actions-init): use shared proxy DB from php_backend/shared.php\n\n- Require `php_backend/shared.php` and use the exported `$proxy_db` instead of instantiating a new `ProxyDB`.\n- Replace local `$db = new ProxyDB()` with a direct call to `parse_working_proxies($proxy_db)`.\n- Update global declarations to include `$proxy_db`.\n\nThis centralizes DB configuration and ensures the script uses the shared backend connection.",
@@ -8630,22 +8647,6 @@
     "message": "chore: update baileys v7",
     "files": [
       "packages/baileys"
-    ]
-  },
-  {
-    "hash": "89b6dfd7e878c45512c44caab7016479c3cb37e2",
-    "date": "2025-09-15T10:50:50+07:00",
-    "message": "fix(checker-php): add execution of composer-installer script before composer config",
-    "files": [
-      ".github/workflows/checker-php.yml"
-    ]
-  },
-  {
-    "hash": "c22114c9ad1aecb82744c27e2ce2aae0e441ded4",
-    "date": "2025-09-15T10:49:45+07:00",
-    "message": "docs(composer-installer): add JSDoc comments for functions in the script",
-    "files": [
-      "scripts/composer-installer.js"
     ]
   }
 ]
