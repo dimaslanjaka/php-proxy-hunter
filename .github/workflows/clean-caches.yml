@@ -30,7 +30,7 @@ jobs:
       YARN_CHECKSUM_BEHAVIOR: update
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: 'dimaslanjaka/php-proxy-hunter'
           ref: master
