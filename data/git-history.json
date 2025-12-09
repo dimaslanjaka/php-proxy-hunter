@@ -1,5 +1,15 @@
 [
   {
+    "hash": "011e56e125f43770e0932f663379b7221e47c1d6",
+    "date": "2025-12-09T19:30:11+07:00",
+    "message": "feat(backups): add proxies chunked JSON exporter and integrate into backup\n\nAdd `backups/backup-proxies.py` — a streaming exporter that writes the\n`proxies` table to numbered JSON chunk files (e.g. `proxies_chunk_0001.json`)\nto avoid loading the entire dataset into memory. Uses id-based pagination\n(SELECT ... WHERE id > last_id LIMIT ...) with a fallback to LIMIT/OFFSET.\nProvides CLI options: `--db-type`, `--chunk-size`, `--out-dir`. Default chunk\nsize is 10000 rows.\n\nUpdate `backups/.gitignore` to ignore the `proxies/` output directory.\n\nIntegrate the exporter into the backup process by updating `bin/backup-db`:\ndefine `PYTHON_CMD` and invoke the new `backups/backup-proxies.py` during backup.\n\nReason: prevent high memory usage when exporting large proxy datasets and\nproduce consumable, chunked JSON files for downstream processing.",
+    "files": [
+      "backups/.gitignore",
+      "backups/backup-proxies.py",
+      "bin/backup-db"
+    ]
+  },
+  {
     "hash": "4c148cd50033ac2bb21b16d499d9ab94c4dfd181",
     "date": "2025-12-09T19:04:07+07:00",
     "message": "fix(php): make calculateChecksum signatures PHP 7.0 compatible\n\n- Remove typed nullable parameter `array $columns = null` from `calculateChecksum`\n  signatures.\n- Update signatures to use untyped `$columns` / `$columns = null` in:\n  - `src/PhpProxyHunter/BaseSQL.php` (abstract)\n  - `src/PhpProxyHunter/MySQLHelper.php`\n  - `src/PhpProxyHunter/SQLiteHelper.php`\n- Preserve `@param array|null $columns` docblocks to document intended type.\n\nReason: avoid PHP 7.1+ nullable type syntax (`?array`) and eliminate deprecation\nwarnings caused by implicitly nullable typed parameters while keeping PHP 7.0\ncompatibility.",
@@ -8633,14 +8643,6 @@
     "message": "refactor(php): improve PHP 7 compatibility and code clarity\n\n- Remove strict_types declaration for broader compatibility.\n- Remove unused imports of Proxy and ProxyDB.\n- Replace PHP 7+ type hints and return types with PHP 5/7 compatible docblocks.\n- Refactor function signatures to remove union and nullable types, using docblocks for type information.\n- Use short array syntax for all arrays.\n- Add or update docblocks for all functions to clarify parameter and return types.\n- Improve inline comments for SSL version selection and array handling.\n- Minor whitespace and formatting adjustments for consistency.",
     "files": [
       "func-proxy.php"
-    ]
-  },
-  {
-    "hash": "ead8d1215c6a8fdd70fd18d3804b33fadafc8b4a",
-    "date": "2025-09-15T14:53:10+07:00",
-    "message": "feat(proxydb): add support for CoreDB instance in constructor\n\n- Updated constructor docblock to include `CoreDB`\n- Allow passing `CoreDB` to ProxyDB constructor and use its `$db` property\n- Clarified MySQL-specific parameter descriptions in docblock",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php"
     ]
   }
 ]
