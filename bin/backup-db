@@ -89,13 +89,21 @@ if [ -z "$MYSQL_HOST" ] && [ -n "$MYSQL_HOST_PRODUCTION" ]; then
     MYSQL_HOST="$MYSQL_HOST_PRODUCTION"
 fi
 
-if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ] && [ -n "$MYSQL_DATABASE" ]; then
+if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ]; then
     if ! command -v mysqldump >/dev/null 2>&1; then
         echo "mysqldump not installed; skipping MySQL backup"
     else
         mkdir -p "$BACKUP_DIR"
-        BACKUP_FILE="$BACKUP_DIR/mysql-backup-$(date +%Y-%m-%d).sql"
-        # Use a temporary defaults file to avoid passing the password on the command line
+
+        # Build list of databases to backup: include configured MYSQL_DATABASE plus extras
+        DBS_TO_BACKUP=()
+        if [ -n "$MYSQL_DATABASE" ]; then
+            DBS_TO_BACKUP+=("$MYSQL_DATABASE")
+        fi
+        # Add the extra DBs requested by the user
+        DBS_TO_BACKUP+=("myproject" "php_proxy_hunter_test")
+
+        # Create a temporary credentials file to avoid exposing password on command line
         CREDFILE=""
         if command -v mktemp >/dev/null 2>&1; then
             CREDFILE=$(mktemp)
@@ -112,38 +120,55 @@ if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ] && [ -n "$MYSQL_DATABASE" ];
                     echo "host=${MYSQL_HOST}"
                 fi
             } > "$CREDFILE"
-            # ensure cleanup
             trap 'rm -f "${CREDFILE}"' EXIT
-            # --defaults-extra-file must come first; wrap call to capture failures safely
-            if mysqldump --defaults-extra-file="$CREDFILE" "$MYSQL_DATABASE" > "$BACKUP_FILE"; then
-                echo "MySQL backup saved to $BACKUP_FILE"
-            else
-                status=$?
-                echo "mysqldump failed with exit code $status"
-            fi
+
+            # Helper to check if a database exists
+            db_exists() {
+                local dbname="$1"
+                if command -v mysql >/dev/null 2>&1; then
+                    if mysql --defaults-extra-file="$CREDFILE" -N -s -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='${dbname}'" | grep -q "${dbname}"; then
+                        return 0
+                    else
+                        return 1
+                    fi
+                else
+                    # Fallback: attempt a harmless mysqldump header to test existence
+                    if mysqldump --defaults-extra-file="$CREDFILE" --no-data --databases "${dbname}" >/dev/null 2>&1; then
+                        return 0
+                    else
+                        return 1
+                    fi
+                fi
+            }
+
+            for DBNAME in "${DBS_TO_BACKUP[@]}"; do
+                # skip empty names and duplicates
+                if [ -z "$DBNAME" ]; then
+                    continue
+                fi
+                if db_exists "$DBNAME"; then
+                    BACKUP_FILE="$BACKUP_DIR/${DBNAME}-backup-$(date +%Y-%m-%d).sql"
+                    echo "Backing up database '$DBNAME' to $BACKUP_FILE"
+                    if mysqldump --defaults-extra-file="$CREDFILE" "$DBNAME" > "$BACKUP_FILE"; then
+                        echo "MySQL backup saved to $BACKUP_FILE"
+                    else
+                        status=$?
+                        echo "mysqldump for database '$DBNAME' failed with exit code $status"
+                        rm -f "$BACKUP_FILE" >/dev/null 2>&1 || true
+                    fi
+                else
+                    echo "Database '$DBNAME' does not exist or is not accessible; skipping."
+                fi
+            done
+
             rm -f "$CREDFILE" || true
             trap - EXIT
         else
-            # fallback: include host argument when provided; capture exit code safely
-            if [ -n "$MYSQL_HOST" ]; then
-                if mysqldump -h"$MYSQL_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"; then
-                    echo "MySQL backup saved to $BACKUP_FILE"
-                else
-                    status=$?
-                    echo "mysqldump failed with exit code $status"
-                fi
-            else
-                if mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" > "$BACKUP_FILE"; then
-                    echo "MySQL backup saved to $BACKUP_FILE"
-                else
-                    status=$?
-                    echo "mysqldump failed with exit code $status"
-                fi
-            fi
+            echo "Failed to create temporary credentials file; aborting MySQL backups"
         fi
     fi
 else
     echo "MySQL credentials not set in .env"
-    echo "Required: one of MYSQL_USER or MYSQL_USER_PRODUCTION, and MYSQL_PASS/ MYSQL_PASS_PRODUCTION, and MYSQL_DBNAME or MYSQL_DBNAME_PRODUCTION (or set MYSQL_DATABASE)."
+    echo "Required: MYSQL_USER and MYSQL_PASSWORD (or production variants)."
 fi
 
