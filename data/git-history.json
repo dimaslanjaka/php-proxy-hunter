@@ -1,5 +1,11 @@
 [
   {
+    "hash": "8d3c6d9ebc6aa1fa08c7f6fdfb4ab3b65f88182f",
+    "date": "2025-12-09T17:09:23+07:00",
+    "message": "Merge pull request #71 from dimaslanjaka/dependabot/github_actions/actions/checkout-6\n\nbuild(deps): bump actions/checkout from 5 to 6",
+    "files": []
+  },
+  {
     "hash": "f2667b6e34eab9f9254bcf1124fc79e5de33ef9b",
     "date": "2025-12-09T17:01:47+07:00",
     "message": "style(proxy-list): center AdSense component with flexbox",
@@ -785,6 +791,17 @@
     "message": "feat(proxy-checker): geolocate active proxies missing country\n\nImport `get_geo_ip2` from `src.geoPlugin` and call it when a proxy is marked\n`active` and its `country` field is empty or `\"-\"`. Map the returned\n`GeoIpResult` into the `Proxy` object only for the UI-expected fields\n(`country`, `city`) to avoid assigning numeric/unknown attributes (e.g.\nlatitude/longitude) that trigger static type checker warnings. Exceptions\nduring geo lookup are caught and logged.",
     "files": [
       "python_app/proxyCheckerGui.py"
+    ]
+  },
+  {
+    "hash": "579c166607e1d992c06a1a1ae846f4c7e2c61dea",
+    "date": "2025-12-01T17:10:34Z",
+    "message": "build(deps): bump actions/checkout from 5 to 6\n\nBumps [actions/checkout](https://github.com/actions/checkout) from 5 to 6.\n- [Release notes](https://github.com/actions/checkout/releases)\n- [Changelog](https://github.com/actions/checkout/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/actions/checkout/compare/v5...v6)\n\n---\nupdated-dependencies:\n- dependency-name: actions/checkout\n  dependency-version: '6'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/github-pages.yml"
     ]
   },
   {
@@ -8629,22 +8646,6 @@
     "message": "docs(composer-installer): add JSDoc comments for functions in the script",
     "files": [
       "scripts/composer-installer.js"
-    ]
-  },
-  {
-    "hash": "6f5fce7fd106c8ad054f1c09a14544d884ec75d6",
-    "date": "2025-09-15T10:03:32+07:00",
-    "message": "fix(git-history.builder): correct output file path for git history JSON",
-    "files": [
-      "src/dev/git-history.builder.ts"
-    ]
-  },
-  {
-    "hash": "6aca2a7d79ec8be41914567313863e4ff64486fb",
-    "date": "2025-09-15T09:59:10+07:00",
-    "message": "build(dev): update git-history builder to write output to multiple locations\n\n- switched to using full `fs` and `path` modules instead of destructured imports\n- now writes `git-history.json` to both:\n  - `public/data`\n  - `dist/react`\n- added log message for each output file",
-    "files": [
-      "src/dev/git-history.builder.ts"
     ]
   }
 ]
