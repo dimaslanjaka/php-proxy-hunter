@@ -4,6 +4,8 @@ import os
 import stat
 import sys
 import shutil
+import fnmatch
+import posixpath
 
 
 class SFTPClient:
@@ -69,6 +71,58 @@ class SFTPClient:
     def download(self, remote_path: str, local_path: str) -> None:
         if self.sftp is None:
             raise RuntimeError("SFTP client not initialized.")
+        # If remote_path contains glob characters, expand them and download each match.
+        if any(ch in remote_path for ch in "*?["):
+            matches = self._remote_glob(remote_path)
+            if not matches:
+                print(f"⚠️\tNo remote matches for pattern: {remote_path}")
+                return
+            # If multiple matches or local_path is a directory, place matches inside local_path directory
+            multiple = len(matches) > 1
+            if multiple:
+                if not os.path.exists(local_path):
+                    os.makedirs(local_path, exist_ok=True)
+                base_dir = local_path
+            else:
+                # single match: behave like original download (allow file target)
+                base_dir = local_path
+
+            for m in matches:
+                # For each match, if it's a directory, download recursively into a subfolder
+                if self._is_remote_dir(m):
+                    target_local = (
+                        os.path.join(base_dir, posixpath.basename(m))
+                        if multiple or os.path.isdir(base_dir)
+                        else base_dir
+                    )
+                    if not os.path.exists(target_local):
+                        os.makedirs(target_local, exist_ok=True)
+                    self.download(m, target_local)
+                else:
+                    # file: determine local filename
+                    if os.path.isdir(base_dir) or multiple:
+                        local_file = os.path.join(base_dir, posixpath.basename(m))
+                    else:
+                        local_file = base_dir
+                    try:
+                        remote_stat = self.sftp.stat(m)
+                        file_size = remote_stat.st_size
+                    except Exception:
+                        file_size = None
+                    if file_size:
+                        self.sftp.get(
+                            m,
+                            local_file,
+                            callback=lambda received, total=file_size, f=posixpath.basename(
+                                m
+                            ): self._print_download_progress(
+                                f, total, received
+                            ),
+                        )
+                        print()
+                    else:
+                        self.sftp.get(m, local_file)
+            return
         if self._is_remote_dir(remote_path):
             if not os.path.exists(local_path):
                 os.makedirs(local_path)
@@ -120,6 +174,75 @@ class SFTPClient:
             return False
         except Exception:
             return False
+
+    def _remote_glob(self, pattern: str) -> list:
+        """
+        Expand a shell-style glob pattern on the remote SFTP server and return a list
+        of matching remote paths. Supports standard glob tokens: '*', '?', and character
+        classes like '[a-z]'. Does not implement recursive '**'.
+        """
+        if self.sftp is None:
+            raise RuntimeError("SFTP client not initialized.")
+        sftp = self.sftp
+        # Normalize pattern and split into components using posix semantics
+        comps = pattern.split("/")
+        # Determine starting prefix and index to start matching components
+        if comps and comps[0] == "":
+            start_prefix = "/"
+            start_idx = 1
+        else:
+            start_prefix = "."
+            start_idx = 0
+
+        matches: list[str] = []
+
+        def _recurse(prefix: str, idx: int) -> None:
+            if idx >= len(comps):
+                # reached end, add prefix as match
+                matches.append(prefix if prefix != "" else "/")
+                return
+            comp = comps[idx]
+            # if component is empty (possible with trailing '/'), treat literally
+            if comp == "":
+                next_prefix = prefix if prefix != "/" else "/"
+                _recurse(next_prefix, idx + 1)
+                return
+
+            has_glob = any(ch in comp for ch in "*?[")
+
+            # List entries in prefix directory for glob matching
+            if has_glob:
+                try:
+                    entries = sftp.listdir_attr(prefix)
+                except Exception:
+                    return
+                for e in entries:
+                    name = e.filename
+                    if fnmatch.fnmatchcase(name, comp):
+                        next_path = (
+                            posixpath.join(prefix, name) if prefix != "." else name
+                        )
+                        _recurse(next_path, idx + 1)
+            else:
+                # literal component: ensure it exists then continue
+                next_path = posixpath.join(prefix, comp) if prefix != "." else comp
+                try:
+                    sftp.stat(next_path)
+                except Exception:
+                    return
+                _recurse(next_path, idx + 1)
+
+        _recurse(start_prefix, start_idx)
+        # Normalize matches to absolute-like posix paths
+        normalized = [
+            (
+                m
+                if m.startswith("/") or m.startswith(".")
+                else ("/" + m if pattern.startswith("/") else m)
+            )
+            for m in matches
+        ]
+        return normalized
 
     def close(self) -> None:
         if self.sftp:
