@@ -1,5 +1,62 @@
 [
   {
+    "hash": "d24aa551a1e7bafddf5f09f8aee074f3b1df2fae",
+    "date": "2025-12-11T18:14:35+07:00",
+    "message": "fix(proxy): replace init_db with init_readonly_db for read-only database access",
+    "files": [
+      "python_app/proxyCheckerGui.py",
+      "python_app/proxyListGui.py"
+    ]
+  },
+  {
+    "hash": "4c30df0f574692bec8277c5792a1122971187f62",
+    "date": "2025-12-11T18:12:46+07:00",
+    "message": "feat(shared): add init_readonly_db function for read-only ProxyDB instance",
+    "files": [
+      "src/shared.py"
+    ]
+  },
+  {
+    "hash": "03966be2bdab0b24d715babc74e604dc2f485eac",
+    "date": "2025-12-11T18:12:04+07:00",
+    "message": "fix(readme): update MySQL user creation instructions for broader host access and specific table permissions",
+    "files": [
+      "readme-mysql.md"
+    ]
+  },
+  {
+    "hash": "3b518d56b71dbedb023684e77260edcf672f57a6",
+    "date": "2025-12-11T18:08:51+07:00",
+    "message": "fix(readme): update MySQL user creation instructions to include user deletion if needed",
+    "files": [
+      "readme-mysql.md"
+    ]
+  },
+  {
+    "hash": "7f64637f7fd199d1dbebe3d718978a3f637a5143",
+    "date": "2025-12-11T17:58:19+07:00",
+    "message": "feat(readme): add guide for creating MySQL user with limited table access",
+    "files": [
+      "readme-mysql.md"
+    ]
+  },
+  {
+    "hash": "0cc47109bb02c3e83f9aa4f7cf1286bed1fd0d3e",
+    "date": "2025-12-11T17:46:11+07:00",
+    "message": "fix(proxyList): remove redundant label for status combo box",
+    "files": [
+      "python_app/proxyListGui.py"
+    ]
+  },
+  {
+    "hash": "a88a127d58f7928d0a5aae3e9accdb4937ac8bab",
+    "date": "2025-12-11T17:44:53+07:00",
+    "message": "fix(proxyList): update default status filter to 'active' and refresh data on change",
+    "files": [
+      "python_app/proxyListGui.py"
+    ]
+  },
+  {
     "hash": "7351c0ee34002113a5319a3fa276f0288f55ba91",
     "date": "2025-12-11T14:22:57+07:00",
     "message": "feat(sftp): add remote->local sync command and menu\n\n- Add `src/vps/sftp_sync.py` implementing `sync_remote_to_local`:\n  - Walks remote tree and builds (mtime,size) map.\n  - Downloads missing or newer files to local paths.\n  - Supports `compare` modes (`mtime`, `size`, `mtime+size`), `delete_extra`, `dry_run`, and `time_tolerance`.\n  - Reuses existing `sftp_helpers` and `sftp_transfer` utilities.\n\n- Expose sync on the client:\n  - Add `SFTPClient.sync_remote_to_local(...)` which delegates to the new sync function.\n  - Import `sftp_sync` in `sftp_client.py`.\n\n- Add menu entry:\n  - Create `src/vps/menus/sync-backups.py` with action `Sync Backups Folder (remote→local)` that calls the connector to sync the remote `backups` folder into local `backups` (safe default: `delete_extra=False`).\n\n- Minor cleanup:\n  - Adjust imports in `sftp_client.py` to reflect delegated responsibilities.\n\nNo breaking API changes — existing `SFTPClient` methods remain available; this adds new sync functionality and a menu command for backups.",
@@ -8592,62 +8649,6 @@
       "src/react/pages/ProxyList.tsx",
       "src/react/routes.js",
       "src/react/routes.json"
-    ]
-  },
-  {
-    "hash": "54d9f3f31e51a72167fc6a1cefd000ffdde4d4cf",
-    "date": "2025-09-17T06:57:03+07:00",
-    "message": "fix(recaptcha): refactor request handling to use parsed query data for reCAPTCHA verification\n- add status check endpoint and unify request parsing",
-    "files": [
-      "php_backend/recaptcha.php"
-    ]
-  },
-  {
-    "hash": "bb99a78e3e372f87f844b95848b956bde3d67a48",
-    "date": "2025-09-17T06:43:00+07:00",
-    "message": "feat(embed): add CORS headers to allow cross-origin requests",
-    "files": [
-      "embed.php"
-    ]
-  },
-  {
-    "hash": "521e0748c2921d1ac1b55f5f933a0ed85faa4328",
-    "date": "2025-09-15T23:15:27+07:00",
-    "message": "feat(proxy-checker): implement proxy checking functionality with CORS support and logging",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "7647b1c5ac9c8272a14580cbe89d287736a1c72a",
-    "date": "2025-09-15T22:00:42+07:00",
-    "message": "feat(clean-caches): add clean-caches.cmd script to execute php artisan cleaner for windows",
-    "files": [
-      "bin/clean-caches.cmd"
-    ]
-  },
-  {
-    "hash": "764feb5b1335d38195b581c8bcdb856c7fefd4ef",
-    "date": "2025-09-15T21:59:44+07:00",
-    "message": "fix(cleaner): enhance file date retrieval with exec fallback for unsupported cases",
-    "files": [
-      "artisan/cleaner.php"
-    ]
-  },
-  {
-    "hash": "963c972524fc560eefb717170e065bbbac5f1f1a",
-    "date": "2025-09-15T21:58:17+07:00",
-    "message": "fix(cleaner): fallback to file creation time if modification time unavailable",
-    "files": [
-      "artisan/cleaner.php"
-    ]
-  },
-  {
-    "hash": "c2fe2a8404e6fb17f282cd2709aeddec679a9de3",
-    "date": "2025-09-15T21:53:49+07:00",
-    "message": "feat(clear-caches): add php artisan cleaner command to Composer cache cleanup",
-    "files": [
-      "bin/clear-caches"
     ]
   }
 ]
