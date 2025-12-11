@@ -12,7 +12,7 @@ from src.func import get_relative_path
 
 def download_backups(vps: VPSConnector):
     local_backup_dir = get_relative_path("backups")
-    remote_backup_dir = "/var/www/html/backups/"
+    remote_backup_dir = "/var/www/html/backups/**/*.{sql,json,zip,gz,tgz,tar,db}"
     vps.download(remote_backup_dir, local_backup_dir)
     print("Backups folder downloaded.")
 
