@@ -30,24 +30,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIcon, QBrush, QColor
 
-# Try to import the other GUI window classes by module name. Avoid loading by
-# file path because bundled/compiled binaries (Nuitka) won't have loose .py files.
-try:
-    from python_app.proxyCheckerGui import ProxyChecker
-except Exception:
-    try:
-        from proxyCheckerGui import ProxyChecker
-    except Exception:
-        ProxyChecker = None
-
-try:
-    from python_app.PortFinderGui import PortFinder
-except Exception:
-    try:
-        from PortFinderGui import PortFinder
-    except Exception:
-        PortFinder = None
-
 
 class ProxyList(QWidget):
     status_signal = Signal(str)
@@ -99,6 +81,12 @@ class ProxyList(QWidget):
         self.open_portfinder_button = QPushButton("Open Port Finder")
         self.open_portfinder_button.clicked.connect(self.show_port_finder)
         top_row.addWidget(self.open_portfinder_button)
+
+        self.open_parallel_checker_button = QPushButton("Open Parallel Checker")
+        self.open_parallel_checker_button.clicked.connect(
+            self.show_parallel_proxy_checker
+        )
+        top_row.addWidget(self.open_parallel_checker_button)
         layout.addLayout(top_row)
 
         # Table showing working proxies (add Timezone and Last Check columns)
@@ -127,6 +115,7 @@ class ProxyList(QWidget):
         # persist and aren't garbage-collected when shown.
         self._proxy_checker_window = None
         self._portfinder_window = None
+        self._parallel_checker_window = None
 
         # initial load
         self.refresh_working()
@@ -237,9 +226,8 @@ class ProxyList(QWidget):
 
     def show_proxy_checker(self):
         """Create (if needed) and show the ProxyChecker window."""
-        if ProxyChecker is None:
-            self._set_status("Proxy Checker not available")
-            return
+        from python_app.proxyCheckerGui import ProxyChecker
+
         try:
             if self._proxy_checker_window is None:
                 self._proxy_checker_window = ProxyChecker()
@@ -255,9 +243,8 @@ class ProxyList(QWidget):
 
     def show_port_finder(self):
         """Create (if needed) and show the PortFinder window."""
-        if PortFinder is None:
-            self._set_status("Port Finder not available")
-            return
+        from python_app.PortFinderGui import PortFinder
+
         try:
             if self._portfinder_window is None:
                 self._portfinder_window = PortFinder()
@@ -271,6 +258,23 @@ class ProxyList(QWidget):
             traceback.print_exc()
             self._set_status("Error opening Port Finder")
             self._set_status("Error fetching proxies")
+
+    def show_parallel_proxy_checker(self):
+        """Create (if needed) and show the ParallelProxyChecker window."""
+        from python_app.parallelProxyCheckerGui import ParallelProxyChecker
+
+        try:
+            if self._parallel_checker_window is None:
+                self._parallel_checker_window = ParallelProxyChecker()
+            self._parallel_checker_window.show()
+            try:
+                self._parallel_checker_window.raise_()
+                self._parallel_checker_window.activateWindow()
+            except Exception:
+                pass
+        except Exception:
+            traceback.print_exc()
+            self._set_status("Error opening Parallel Proxy Checker")
 
     def _populate_table(self, records, filter_text: str = ""):
         try:
