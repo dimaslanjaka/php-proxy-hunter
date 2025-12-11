@@ -2,10 +2,8 @@ from typing import Optional
 import paramiko
 import os
 import stat
-import sys
-import shutil
-import fnmatch
 import posixpath
+from . import sftp_helpers as helpers
 
 
 class SFTPClient:
@@ -20,14 +18,10 @@ class SFTPClient:
         self.sftp: Optional[paramiko.SFTPClient] = ssh_client.open_sftp()
 
     def _print_upload_progress(self, filename: str, size: int, sent: int) -> None:
-        percent = float(sent) / float(size) * 100 if size else 100
-        sys.stdout.write(f"\r📤\tUploading {filename}: {percent:.2f}%")
-        sys.stdout.flush()
+        return helpers.print_upload_progress(filename, size, sent)
 
     def _print_download_progress(self, filename: str, size: int, received: int) -> None:
-        percent = float(received) / float(size) * 100 if size else 100
-        sys.stdout.write(f"\r⬇️\tDownloading {filename}: {percent:.2f}%")
-        sys.stdout.flush()
+        return helpers.print_download_progress(filename, size, received)
 
     def upload(self, local_path: str, remote_path: str) -> None:
         if self.sftp is None:
@@ -165,15 +159,7 @@ class SFTPClient:
                 self.sftp.get(remote_path, local_path)
 
     def _is_remote_dir(self, remote_path: str) -> bool:
-        if self.sftp is None:
-            return False
-        try:
-            remote_stat = self.sftp.stat(remote_path)
-            if remote_stat is not None and remote_stat.st_mode is not None:
-                return stat.S_ISDIR(remote_stat.st_mode)
-            return False
-        except Exception:
-            return False
+        return helpers.is_remote_dir(self.sftp, remote_path)
 
     def _remote_glob(self, pattern: str) -> list:
         """
@@ -181,68 +167,7 @@ class SFTPClient:
         of matching remote paths. Supports standard glob tokens: '*', '?', and character
         classes like '[a-z]'. Does not implement recursive '**'.
         """
-        if self.sftp is None:
-            raise RuntimeError("SFTP client not initialized.")
-        sftp = self.sftp
-        # Normalize pattern and split into components using posix semantics
-        comps = pattern.split("/")
-        # Determine starting prefix and index to start matching components
-        if comps and comps[0] == "":
-            start_prefix = "/"
-            start_idx = 1
-        else:
-            start_prefix = "."
-            start_idx = 0
-
-        matches: list[str] = []
-
-        def _recurse(prefix: str, idx: int) -> None:
-            if idx >= len(comps):
-                # reached end, add prefix as match
-                matches.append(prefix if prefix != "" else "/")
-                return
-            comp = comps[idx]
-            # if component is empty (possible with trailing '/'), treat literally
-            if comp == "":
-                next_prefix = prefix if prefix != "/" else "/"
-                _recurse(next_prefix, idx + 1)
-                return
-
-            has_glob = any(ch in comp for ch in "*?[")
-
-            # List entries in prefix directory for glob matching
-            if has_glob:
-                try:
-                    entries = sftp.listdir_attr(prefix)
-                except Exception:
-                    return
-                for e in entries:
-                    name = e.filename
-                    if fnmatch.fnmatchcase(name, comp):
-                        next_path = (
-                            posixpath.join(prefix, name) if prefix != "." else name
-                        )
-                        _recurse(next_path, idx + 1)
-            else:
-                # literal component: ensure it exists then continue
-                next_path = posixpath.join(prefix, comp) if prefix != "." else comp
-                try:
-                    sftp.stat(next_path)
-                except Exception:
-                    return
-                _recurse(next_path, idx + 1)
-
-        _recurse(start_prefix, start_idx)
-        # Normalize matches to absolute-like posix paths
-        normalized = [
-            (
-                m
-                if m.startswith("/") or m.startswith(".")
-                else ("/" + m if pattern.startswith("/") else m)
-            )
-            for m in matches
-        ]
-        return normalized
+        return helpers.remote_glob(self.sftp, pattern)
 
     def close(self) -> None:
         if self.sftp:
@@ -253,100 +178,25 @@ class SFTPClient:
         """
         Delete a file on the remote server via SFTP. Ignores if file does not exist.
         """
-        if self.sftp is None:
-            raise RuntimeError("SFTP client not initialized.")
-        try:
-            self.sftp.remove(remote_path)
-            print(f"✅\tRemote file deleted: {remote_path}")
-        except FileNotFoundError:
-            print(f"⚠️\tRemote file not found: {remote_path}")
-        except IOError as e:
-            import errno
-
-            if hasattr(e, "errno") and e.errno == errno.ENOENT:
-                print(f"⚠️\tRemote file not found: {remote_path}")
-            else:
-                raise
+        return helpers.delete_remote(self.sftp, remote_path)
 
     def delete_local(self, local_path: str) -> None:
         """
         Delete a local file with progress feedback.
         """
-        if not os.path.exists(local_path):
-            print(f"❌\tLocal file not found: {local_path}")
-            return
-        file_size = os.path.getsize(local_path)
-        print(f"🗑️\tDeleting local file: {local_path} ({file_size} bytes)")
-        # Simulate progress for large files
-        if file_size > 1024 * 1024:  # >1MB, show progress
-            deleted = 0
-            chunk = 1024 * 1024  # 1MB
-            while deleted < file_size:
-                percent = min(100, (deleted / file_size) * 100)
-                sys.stdout.write(f"\r🗑️\tDeleting: {percent:.2f}%")
-                sys.stdout.flush()
-                deleted += chunk
-            sys.stdout.write("\r🗑️\tDeleting: 100.00%\n")
-        os.remove(local_path)
-        print("✅\tLocal file deleted.")
+        return helpers.delete_local(local_path)
 
     def _delete_remote_folder(self, remote_folder: str) -> None:
         """
         Recursively delete a folder on the remote server. Ignores if folder does not exist.
         """
-        if self.sftp is None:
-            raise RuntimeError("SFTP client not initialized.")
-        try:
-            entries = self.sftp.listdir_attr(remote_folder)
-        except FileNotFoundError:
-            print(f"⚠️\tRemote folder not found: {remote_folder}")
-            return
-        except IOError as e:
-            import errno
-
-            if hasattr(e, "errno") and e.errno == errno.ENOENT:
-                print(f"⚠️\tRemote folder not found: {remote_folder}")
-                return
-            else:
-                raise
-        for entry in entries:
-            remote_path = os.path.join(remote_folder, entry.filename).replace("\\", "/")
-            if entry.st_mode is not None and stat.S_ISDIR(entry.st_mode):
-                self._delete_remote_folder(remote_path)
-            else:
-                self.delete_remote(remote_path)
-        print(f"Deleting remote folder {remote_folder}...")
-        try:
-            self.sftp.rmdir(remote_folder)
-            print(f"✅\tRemote folder deleted: {remote_folder}")
-        except FileNotFoundError:
-            print(f"⚠️\tRemote folder not found: {remote_folder}")
-        except IOError as e:
-            import errno
-
-            if hasattr(e, "errno") and e.errno == errno.ENOENT:
-                print(f"⚠️\tRemote folder not found: {remote_folder}")
-            else:
-                raise
+        return helpers.delete_remote_folder(self.sftp, remote_folder)
 
     def _delete_local_folder(self, local_folder: str) -> None:
         """
         Recursively delete a local folder with progress.
         """
-        total_files = sum(len(files) for _, _, files in os.walk(local_folder))
-        deleted = 0
-        print(f"Deleting local folder: {local_folder}")
-        for root, _, files in os.walk(local_folder):
-            for file in files:
-                file_path = os.path.join(root, file)
-                self.delete_local(file_path)
-                deleted += 1
-                percent = (deleted / total_files) * 100 if total_files else 100
-                sys.stdout.write(f"\r🗑️\tDeleting files: {percent:.2f}%")
-                sys.stdout.flush()
-        shutil.rmtree(local_folder)
-        sys.stdout.write("\r🗑️\tDeleting files: 100.00%\n")
-        print("✅\tLocal folder deleted.")
+        return helpers.delete_local_folder(local_folder)
 
     def delete(self, path: str, remote: bool = True, local: bool = True) -> None:
         """
