@@ -1,10 +1,8 @@
 from typing import Optional
 import paramiko
-import os
-import stat
-import posixpath
 from . import sftp_helpers as helpers
 from . import sftp_transfer as transfer
+from . import sftp_sync as sync
 
 
 class SFTPClient:
@@ -77,3 +75,26 @@ class SFTPClient:
         If local is True, delete on local filesystem.
         """
         return helpers.delete(self.sftp, path, remote=remote, local=local)
+
+    def sync_remote_to_local(
+        self,
+        remote_root: str,
+        local_root: str,
+        delete_extra: bool = False,
+        compare: str = "mtime",
+        dry_run: bool = False,
+        time_tolerance: float = 1.0,
+    ) -> None:
+        """Sync a remote path into the given local directory.
+
+        Delegates to `src.vps.sftp_sync.sync_remote_to_local`.
+        """
+        return sync.sync_remote_to_local(
+            self.sftp,
+            remote_root,
+            local_root,
+            delete_extra=delete_extra,
+            compare=compare,
+            dry_run=dry_run,
+            time_tolerance=time_tolerance,
+        )
