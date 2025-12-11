@@ -101,7 +101,8 @@ This guide explains how to create a MySQL user with limited permissions on speci
 Useful when you want an application or script to access only certain data without exposing the entire database.
 
 ```sql
--- 1. Create user
+-- 1. Create user (delete old one if needed)
+DROP USER IF EXISTS 'proxyuser'@'localhost';
 CREATE USER 'proxyuser'@'localhost' IDENTIFIED BY 'proxypassword';
 
 -- 2. Revoke any default privileges
