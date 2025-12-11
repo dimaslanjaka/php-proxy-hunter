@@ -1,11 +1,16 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import pkg from '../package.json' assert { type: 'json' };
+import fs from 'fs';
 
 // Base paths
 const __filename = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(__filename);
 const PROJECT_DIR = path.resolve(SCRIPT_DIR, '..');
+
+// Load package.json
+const packageJsonPath = path.join(PROJECT_DIR, 'package.json');
+/** @type {import('../package.json')} */
+const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
 
 // Venv paths
 const VENV_DIR = path.join(PROJECT_DIR, 'venv');
