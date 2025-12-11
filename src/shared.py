@@ -79,8 +79,31 @@ def init_db(db_type: str = "sqlite"):
     return proxy_db
 
 
+def init_readonly_db():
+    """
+    Initialize a read-only ProxyDB instance.
+
+    Returns:
+        ProxyDB: Read-only database instance
+    """
+    proxy_db = ProxyDB(
+        start=True,
+        db_type="mysql",
+        mysql_dbname="myproject",
+        mysql_host="23.94.85.180",
+        mysql_user="proxyuser",
+        mysql_password="proxypassword",
+    )
+
+    return proxy_db
+
+
 if __name__ == "__main__":
     # Specify database type manually here
-    proxy_db = init_db(db_type="mysql")
-    working = proxy_db.get_working_proxies(False, 10)
+    # proxy_db = init_db(db_type="mysql")
+    # working = proxy_db.get_working_proxies(False, 10)
+    # print(working)
+
+    readonly_db = init_readonly_db()
+    working = readonly_db.get_working_proxies(False, 10)
     print(working)
