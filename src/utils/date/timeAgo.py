@@ -1,12 +1,7 @@
 from typing import Optional, Union
 from datetime import datetime, timedelta
-
 import pytz
-
-try:
-    from dateutil.parser import parse as _parse_date
-except Exception:  # pragma: no cover - dateutil may not be available in some contexts
-    _parse_date = None
+from dateutil.parser import parse as _parse_date
 
 
 def time_ago(value: Optional[Union[str, datetime]] = None) -> str:
