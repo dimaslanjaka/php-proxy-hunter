@@ -8,7 +8,7 @@ _REPO_ROOT = str(Path(__file__).resolve().parent.parent)
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-from src.shared import init_db
+from src.shared import init_readonly_db
 from src.func import get_nuitka_file
 from src.pyside6.utils.settings import save_text, load_text
 from src.utils.date.timeAgo import time_ago as time_ago_util
@@ -64,7 +64,7 @@ class ProxyList(QWidget):
 
         self.db = None
         try:
-            self.db = init_db(db_type="sqlite")
+            self.db = init_readonly_db()
         except Exception:
             self.db = None
 
@@ -160,7 +160,7 @@ class ProxyList(QWidget):
             self._set_status(f"Fetching {status_label} proxies...")
             if self.db is None:
                 try:
-                    self.db = init_db(db_type="sqlite")
+                    self.db = init_readonly_db()
                 except Exception:
                     self.db = None
 
