@@ -88,7 +88,7 @@ class ProxyList(QWidget):
         ]
         for label, _val in self._status_items:
             self.status_combo.addItem(label)
-        self.status_combo.setCurrentIndex(0)
+        self.status_combo.setCurrentIndex(1)
         self.status_combo.currentIndexChanged.connect(self._on_status_changed)
         top_row.addWidget(QLabel("Status:"))
         top_row.addWidget(self.status_combo)
@@ -122,7 +122,7 @@ class ProxyList(QWidget):
 
         self._proxies_cache = []
         self._lock = threading.Lock()
-        self._current_status_filter = "all"
+        self._current_status_filter = "active"
 
         # Child window references (lazy-created). Keep as attributes so they
         # persist and aren't garbage-collected when shown.
@@ -147,13 +147,8 @@ class ProxyList(QWidget):
         except Exception:
             self._current_status_filter = "all"
 
-        # Re-populate table from cache with new status filter
-        try:
-            with self._lock:
-                records = list(self._proxies_cache)
-            self._populate_table(records, filter_text="")
-        except Exception:
-            pass
+        # Fetch fresh data for the new status filter
+        self.refresh_working()
 
     def refresh_working(self):
         threading.Thread(target=self._fetch_working, daemon=True).start()
