@@ -90,7 +90,6 @@ class ProxyList(QWidget):
             self.status_combo.addItem(label)
         self.status_combo.setCurrentIndex(1)
         self.status_combo.currentIndexChanged.connect(self._on_status_changed)
-        top_row.addWidget(QLabel("Status:"))
         top_row.addWidget(self.status_combo)
         # Buttons to open other windows (keep references so they aren't GC'd)
         self.open_checker_button = QPushButton("Open Proxy Checker")
