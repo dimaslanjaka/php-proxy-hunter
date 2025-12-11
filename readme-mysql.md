@@ -101,17 +101,16 @@ This guide explains how to create a MySQL user with limited permissions on speci
 Useful when you want an application or script to access only certain data without exposing the entire database.
 
 ```sql
--- 1. Create user (delete old one if needed)
-DROP USER IF EXISTS 'proxyuser'@'localhost';
-CREATE USER 'proxyuser'@'localhost' IDENTIFIED BY 'proxypassword';
+-- 1. Remove previous user version (if exists)
+DROP USER IF EXISTS 'proxyuser'@'%';
 
--- 2. Revoke any default privileges
-REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'proxyuser'@'localhost';
+-- 2. Create user that can connect from any host
+CREATE USER 'proxyuser'@'%' IDENTIFIED BY 'proxypassword';
 
--- 3. Grant SELECT, INSERT, UPDATE to specific tables
-GRANT SELECT, INSERT, UPDATE ON mydb.proxies        TO 'proxyuser'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON mydb.added_proxies TO 'proxyuser'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON mydb.meta          TO 'proxyuser'@'localhost';
+-- 3. Grant SELECT, INSERT, UPDATE permissions ONLY on specific tables
+GRANT SELECT, INSERT, UPDATE ON myproject.proxies        TO 'proxyuser'@'%';
+GRANT SELECT, INSERT, UPDATE ON myproject.added_proxies TO 'proxyuser'@'%';
+GRANT SELECT, INSERT, UPDATE ON myproject.meta          TO 'proxyuser'@'%';
 
 -- 4. Apply changes
 FLUSH PRIVILEGES;
