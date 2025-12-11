@@ -1,5 +1,50 @@
 [
   {
+    "hash": "7351c0ee34002113a5319a3fa276f0288f55ba91",
+    "date": "2025-12-11T14:22:57+07:00",
+    "message": "feat(sftp): add remote->local sync command and menu\n\n- Add `src/vps/sftp_sync.py` implementing `sync_remote_to_local`:\n  - Walks remote tree and builds (mtime,size) map.\n  - Downloads missing or newer files to local paths.\n  - Supports `compare` modes (`mtime`, `size`, `mtime+size`), `delete_extra`, `dry_run`, and `time_tolerance`.\n  - Reuses existing `sftp_helpers` and `sftp_transfer` utilities.\n\n- Expose sync on the client:\n  - Add `SFTPClient.sync_remote_to_local(...)` which delegates to the new sync function.\n  - Import `sftp_sync` in `sftp_client.py`.\n\n- Add menu entry:\n  - Create `src/vps/menus/sync-backups.py` with action `Sync Backups Folder (remote→local)` that calls the connector to sync the remote `backups` folder into local `backups` (safe default: `delete_extra=False`).\n\n- Minor cleanup:\n  - Adjust imports in `sftp_client.py` to reflect delegated responsibilities.\n\nNo breaking API changes — existing `SFTPClient` methods remain available; this adds new sync functionality and a menu command for backups.",
+    "files": [
+      "src/vps/menus/sync-backups.py",
+      "src/vps/sftp_client.py",
+      "src/vps/sftp_sync.py"
+    ]
+  },
+  {
+    "hash": "f173d51f1e58a9b9f41beb712c08143bc829d568",
+    "date": "2025-12-11T14:15:20+07:00",
+    "message": "feat(download-backups): update remote backup directory to support multiple file types",
+    "files": [
+      "src/vps/menus/download-backups.py"
+    ]
+  },
+  {
+    "hash": "7b502f055d1a697d7de9c41eb96f20dc202471f2",
+    "date": "2025-12-11T14:14:56+07:00",
+    "message": "refactor(sftp): extract transfer logic and delegate delete to helpers\n\n- Add `src/vps/sftp_transfer.py` containing `upload`/`download` implementations and internal recursive helpers.\n- Move upload/download logic out of `SFTPClient` and delegate to `sftp_transfer.upload` / `sftp_transfer.download`.\n- Extract delete orchestration into `sftp_helpers.delete` and have `SFTPClient.delete` delegate to it.\n- Keep `SFTPClient` public API unchanged; functionality preserved, code modularized for easier testing and reuse.",
+    "files": [
+      "src/vps/sftp_client.py",
+      "src/vps/sftp_helpers.py",
+      "src/vps/sftp_transfer.py"
+    ]
+  },
+  {
+    "hash": "0a6476e5dae332a6df98c22115980c2684198e95",
+    "date": "2025-12-11T14:09:36+07:00",
+    "message": "refactor(sftp): extract helper functions to `src/vps/sftp_helpers.py`\n\n- Add new `src/vps/sftp_helpers.py` with standalone helpers:\n  - `print_upload_progress`, `print_download_progress`\n  - `is_remote_dir`, `remote_glob`\n  - `delete_remote`, `delete_remote_folder`\n  - `delete_local`, `delete_local_folder`\n  - Add `paramiko` typing (`Optional[paramiko.SFTPClient]`) and guard `st_mode` with an `int` check.\n- Update `src/vps/sftp_client.py` to import `sftp_helpers as helpers` and delegate previous internal helper logic to the new module (keep thin wrapper methods).\n- Remove duplicate/localized imports from `sftp_client.py` where helpers are now used.\n\nNo functional changes or breaking API changes — purely a modularization and typing/clarity improvement.",
+    "files": [
+      "src/vps/sftp_client.py",
+      "src/vps/sftp_helpers.py"
+    ]
+  },
+  {
+    "hash": "3177dbaeae447828542d68806e1673cdff964820",
+    "date": "2025-12-11T00:44:16+07:00",
+    "message": "feat(vps/sftp_client): add remote glob support to download\n\nAdd shell-style glob expansion for remote paths in `download()` so callers\ncan use patterns like `*.log`, `file-?.txt`, or `[a-z]*.csv` to fetch\nmultiple remote files or directories.\n\n- Added helper `_remote_glob(pattern: str) -> list` to expand glob patterns\n  by listing remote directories and matching components with `fnmatch`.\n- Imported `fnmatch` and `posixpath`.\n- `download()` now detects glob characters and:\n  - Expands the pattern and downloads each match.\n  - Preserves single-match semantics (allows `local_path` as a target filename).\n  - For multiple matches, ensures `local_path` exists and places matches inside it.\n  - Recursively downloads directory matches using existing logic.\n- Emits a friendly warning when no remote matches are found.\n- Does not implement recursive `**` globs (only per-component `*`, `?`, `[...]`).\n\nExamples:\n- `download(\"/var/logs/*.log\", \"local_logs/\")` — download all log files into `local_logs/`\n- `download(\"/home/user/data/report-2025-*.csv\", \"reports/\")` — download matching CSVs\n\nNotes:\n- Large remote directories may be slower due to remote listing.\n- No additional tests added in this commit.",
+    "files": [
+      "src/vps/sftp_client.py"
+    ]
+  },
+  {
     "hash": "98b6ce579fcbee5505ffdade66a634f039ba9081",
     "date": "2025-12-09T21:17:51+07:00",
     "message": "chore(deps): delegate common runtime deps to requirements-minimal and apply pins\n\n- Add `-r requirements-minimal.txt` to `requirements-base.txt` to delegate commonly used runtime dependencies.\n- Remove duplicated runtime packages from `requirements-base.txt` (now provided by the minimal file).\n- Update `requirements-minimal.txt`: deduplicate, alphabetize, use one package per line, and apply version pins:\n  - `pycountry==24.6.1`\n  - `timezonefinder==6.0.1 --only-binary :all:`\n\nFiles:\n- modified: `requirements-base.txt` (include minimal file, removed duplicates)\n- modified: `requirements-minimal.txt` (normalized list, applied pins)\n\nNotes:\n- No other version pins were changed; consider pinning additional packages in `requirements-minimal.txt` for reproducible installs.",
@@ -8603,51 +8648,6 @@
     "message": "feat(clear-caches): add php artisan cleaner command to Composer cache cleanup",
     "files": [
       "bin/clear-caches"
-    ]
-  },
-  {
-    "hash": "c025d4fb359b5a1c74aba68c3dfd3eb57698c9e6",
-    "date": "2025-09-15T17:33:58+07:00",
-    "message": "refactor: rename geoPlugin to GeoPlugin for PSR compliance\n\n- Rename file `geoPlugin.php` to `GeoPlugin.php`\n- Update class name from `geoPlugin` to `GeoPlugin`\n- Update references in `GeoIpHelper` and `GeoPlugin2` to use `GeoPlugin`\n- Standardize docblocks, comments, user agent string, and error messages to `GeoPlugin`",
-    "files": [
-      "src/PhpProxyHunter/GeoIpHelper.php",
-      "src/PhpProxyHunter/GeoPlugin.php",
-      "src/PhpProxyHunter/GeoPlugin2.php"
-    ]
-  },
-  {
-    "hash": "47ba0a1925f828dc3ba9877ad53bcf400dc30db5",
-    "date": "2025-09-15T17:32:00+07:00",
-    "message": "refactor: rename geoPlugin2 to GeoPlugin2 for PSR compliance\n\n- Rename file `geoPlugin2.php` to `GeoPlugin2.php`\n- Update class name from `geoPlugin2` to `GeoPlugin2`\n- Adjust error log messages to use updated class name\n- Update `geoPlugin` to reference `GeoPlugin2` instead of `geoPlugin2`",
-    "files": [
-      "src/PhpProxyHunter/GeoPlugin2.php",
-      "src/PhpProxyHunter/geoPlugin.php"
-    ]
-  },
-  {
-    "hash": "9fd85496a4b4eae02023deb8b7641c661dc53a7b",
-    "date": "2025-09-15T17:30:04+07:00",
-    "message": "fix(extractor.php): reduce default limit in extractProxies function from 1000 to 100",
-    "files": [
-      "src/utils/proxy/extractor.php"
-    ]
-  },
-  {
-    "hash": "4e0cb7e92c01093d779c756500caf838866a0c71",
-    "date": "2025-09-15T17:29:19+07:00",
-    "message": "feat(geoPlugin2): add automatic GeoLite2 database download with fallback URLs\n\n- Introduce `$url_downloads` list with multiple sources for ASN, City, and Country databases\n- Implement constructor logic to check and download missing or outdated database files\n- Add `downloadFile` helper with cURL for robust file fetching, including SSL fallback and error logging\n- Ensure local databases are kept up to date before initializing MaxMind Reader instances",
-    "files": [
-      "geoIp.php",
-      "src/PhpProxyHunter/geoPlugin.php",
-      "src/PhpProxyHunter/geoPlugin2.php"
-    ]
-  },
-  {
-    "hash": "d7166e9555f8df2451e84ff77244561d82a307b6",
-    "date": "2025-09-15T15:37:46+07:00",
-    "message": "feat(func.php): add functions to manage user log files",
-    "files": [
-      "func.php"
     ]
   }
 ]
