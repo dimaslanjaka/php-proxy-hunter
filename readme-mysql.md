@@ -92,3 +92,26 @@ mysql -u myuser -p mydb < mydb_backup.sql
 
 ---
 For more details, see the [MySQL documentation](https://dev.mysql.com/doc/).
+
+---
+
+## Create User With Access to Specific Tables in MySQL
+
+This guide explains how to create a MySQL user with limited permissions on specific tables only.
+Useful when you want an application or script to access only certain data without exposing the entire database.
+
+```sql
+-- 1. Create user
+CREATE USER 'proxyuser'@'localhost' IDENTIFIED BY 'proxypassword';
+
+-- 2. Revoke any default privileges
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'proxyuser'@'localhost';
+
+-- 3. Grant SELECT, INSERT, UPDATE to specific tables
+GRANT SELECT, INSERT, UPDATE ON mydb.proxies        TO 'proxyuser'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON mydb.added_proxies TO 'proxyuser'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON mydb.meta          TO 'proxyuser'@'localhost';
+
+-- 4. Apply changes
+FLUSH PRIVILEGES;
+```
