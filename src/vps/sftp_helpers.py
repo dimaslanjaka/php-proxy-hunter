@@ -178,3 +178,32 @@ def delete_local_folder(local_folder: str) -> None:
     shutil.rmtree(local_folder)
     sys.stdout.write("\r🗑️\tDeleting files: 100.00%\n")
     print("✅\tLocal folder deleted.")
+
+
+def delete(
+    sftp: Optional[paramiko.SFTPClient],
+    path: str,
+    remote: bool = True,
+    local: bool = True,
+) -> None:
+    """
+    Delete a file or folder both locally and/or remotely.
+    If `remote` is True, delete on remote SFTP server using provided `sftp` client.
+    If `local` is True, delete on local filesystem.
+    """
+    if remote:
+        if sftp:
+            if is_remote_dir(sftp, path):
+                delete_remote_folder(sftp, path)
+            else:
+                delete_remote(sftp, path)
+        else:
+            print("❌\tSFTP client not initialized. Cannot delete remote.")
+    if local:
+        if os.path.exists(path):
+            if os.path.isdir(path):
+                delete_local_folder(path)
+            else:
+                delete_local(path)
+        else:
+            print(f"❌\tLocal path not found: {path}")
