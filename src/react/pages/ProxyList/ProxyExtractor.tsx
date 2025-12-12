@@ -79,7 +79,8 @@ export default function ProxyExtractor() {
         aria-busy={isLoading}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold text-blue-800 dark:text-blue-200 flex items-center gap-2">
-            <i className="fa-duotone fa-magnifying-glass"></i> Proxy Extractor
+            <i className="fa-duotone fa-solid fa-filter mr-1 text-gray-700 dark:text-gray-200" aria-hidden="true"></i>
+            Proxy Extractor
           </h2>
           <div className="flex gap-2">
             <button

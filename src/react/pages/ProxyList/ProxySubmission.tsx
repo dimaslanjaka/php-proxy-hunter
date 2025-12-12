@@ -121,7 +121,8 @@ export default function ProxySubmission() {
         aria-busy={isLoading}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-bold text-blue-800 dark:text-blue-200 flex items-center gap-2">
-            <i className="fa-duotone fa-paper-plane"></i> Proxy Submission
+            <i className="fa-duotone fa-magnifying-glass mr-1 text-gray-700 dark:text-gray-200" aria-hidden="true"></i>
+            Proxy Submission
           </h2>
           <div className="flex gap-2">
             <button
@@ -161,7 +162,7 @@ export default function ProxySubmission() {
               disabled={isLoading || !textarea}
               className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 active:bg-emerald-800 rounded-lg transition-colors"
               onClick={() => runSingleCheck(checkProxyType, 'Type check initiated', 'Check type failed')}>
-              <i className="fa-duotone fa-filter"></i>
+              <i className="fa-duotone fa-solid fa-filter" aria-hidden="true"></i>
               Check Type
             </button>
             <button
