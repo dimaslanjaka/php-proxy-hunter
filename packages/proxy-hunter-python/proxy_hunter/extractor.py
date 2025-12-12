@@ -97,11 +97,25 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
             continue
 
         if "@" in match:
-            proxy, login = match.split("@")
+            parts = match.split("@", 1)
+            left = parts[0]
+            right = parts[1]
             # print("has username and password")
-            if is_valid_proxy(proxy):
-                username, password = (login.split(":") + [None, None])[:2]
-                result = Proxy(proxy=proxy, username=username, password=password)
+            # Case 1: ip:port@user:pass
+            if is_valid_proxy(left):
+                ip_port = left
+                username, password = (right.split(":") + [None, None])[:2]
+                result = Proxy(proxy=ip_port, username=username, password=password)
+                results.append(result)
+            # Case 2: user:pass@ip:port
+            elif is_valid_proxy(right):
+                ip_port = right
+                username, password = (left.split(":") + [None, None])[:2]
+                result = Proxy(proxy=ip_port, username=username, password=password)
+                results.append(result)
+            else:
+                # Fallback: treat whole match as proxy string
+                result = Proxy(match)
                 results.append(result)
         else:
             result = Proxy(match)
