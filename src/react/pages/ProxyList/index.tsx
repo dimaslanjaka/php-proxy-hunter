@@ -6,6 +6,7 @@ import RecaptchaV2 from '../../components/RecaptchaV2';
 import ProxySubmission from './ProxySubmission';
 import LogViewer from './LogViewer';
 import AdSense from '../../components/AdSense';
+import ProxyExtractor from './ProxyExtractor';
 
 export default function ProxyList() {
   const { t } = useTranslation();
@@ -60,6 +61,7 @@ export default function ProxyList() {
       <ServerSide />
 
       <ProxySubmission />
+      <ProxyExtractor />
 
       <LogViewer />
 
