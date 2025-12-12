@@ -63,20 +63,20 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
     re_whitespace = r"((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+((?!0)\d{2,5})"
     matches2 = re.findall(re_whitespace, string)
     matched_whitespaces = bool(matches2)
+    # Normalize whitespace matches to "ip:port" strings
+    matches2 = [f"{ip}:{port}" for ip, port in matches2]
 
     # Perform the matching IP PORT (json) to match "ip":"x.x.x.x","port":"xxxxx"
-    pattern_json = (
-        r'"ip":"((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})".*?"port":"((?!0)\d{2,5})'
-    )
+    pattern_json = r'"ip"\s*:\s*"((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"\s*,\s*"port"\s*:\s*"((?!0)\d{2,5})"'
     matches3 = re.findall(pattern_json, string)
     matched_json = bool(matches3)
+    # Normalize json matches to "ip:port" strings
+    matches3 = [f"{ip}:{port}" for ip, port in matches3]
 
-    # Merge matches
+    # Merge matches (all items are strings formatted as "ip:port" or proxy forms)
     matches = matches1 + matches2 + matches3
 
     for match in matches:
-        if isinstance(match, tuple):
-            match = match[0]
 
         if matched_whitespaces and len(match.split(":")) == 2:
             # print("matches whitespaces")
