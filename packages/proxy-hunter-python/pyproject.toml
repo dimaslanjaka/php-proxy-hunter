@@ -25,7 +25,6 @@ dependencies = [
     "pytest",
     "urlextract",
     "filelock",
-    "asyncio",
     "proxy-checker",
     "beautifulsoup4",
     "httpx",

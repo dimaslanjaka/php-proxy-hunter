@@ -9,14 +9,14 @@ class Scraper:
     def get_url(self, **kwargs):
         return self._url.format(**kwargs, method=self.method)
 
-    async def get_response(self, client):
-        return await client.get(self.get_url())
+    def get_response(self, client):
+        return client.get(self.get_url())
 
-    async def handle(self, response):
+    def handle(self, response):
         return response.text
 
-    async def scrape(self, client):
-        response = await self.get_response(client)
-        proxies = await self.handle(response)
+    def scrape(self, client):
+        response = self.get_response(client)
+        proxies = self.handle(response)
         pattern = re.compile(r"\d{1,3}(?:\.\d{1,3}){3}(?::\d{1,5})?")
         return re.findall(pattern, proxies)

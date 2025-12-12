@@ -23,7 +23,6 @@ setuptools.setup(
         "pytest",
         "urlextract",
         "filelock",
-        "asyncio",
         "brotli",
         "chardet",
         "proxy-checker",

@@ -4,15 +4,16 @@ from proxy_hunter.scrappers.scrapper_base import Scraper
 
 # For websites using div in html
 class GeneralDivScraper(Scraper):
-
-    async def handle(self, response):
+    def handle(self, response):
         soup = BeautifulSoup(response.text, "html.parser")
         proxies = set()
         table = soup.find("div", attrs={"class": "list"})
-        for row in table.findAll("div"):
+        if not table:
+            return ""
+        for row in table.find_all("div"):
             count = 0
             proxy = ""
-            for cell in row.findAll("div", attrs={"class": "td"}):
+            for cell in row.find_all("div", attrs={"class": "td"}):
                 if count == 2:
                     break
                 proxy += cell.text + ":"
@@ -24,17 +25,18 @@ class GeneralDivScraper(Scraper):
 
 # For websites using table in html
 class GeneralTableScraper(Scraper):
-
-    async def handle(self, response):
+    def handle(self, response):
         soup = BeautifulSoup(response.text, "html.parser")
         proxies = set()
         table = soup.find(
             "table", attrs={"class": "table table-striped table-bordered"}
         )
-        for row in table.findAll("tr"):
+        if not table:
+            return ""
+        for row in table.find_all("tr"):
             count = 0
             proxy = ""
-            for cell in row.findAll("td"):
+            for cell in row.find_all("td"):
                 if count == 1:
                     proxy += ":" + cell.text.replace("&nbsp;", "")
                     proxies.add(proxy)

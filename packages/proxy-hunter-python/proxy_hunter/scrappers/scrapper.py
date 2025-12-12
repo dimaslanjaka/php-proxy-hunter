@@ -1,5 +1,5 @@
 import time
-import asyncio
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import httpx
 from proxy_hunter.scrappers.github import GitHubScraper
 from proxy_hunter.scrappers.html_parser import GeneralTableScraper, GeneralDivScraper
@@ -65,7 +65,7 @@ scrapers = [
 ]
 
 
-async def scrape(method, output, verbose):
+def scrape(method, output, verbose, max_workers=10):
     now = time.time()
     methods = [method]
     if method == "socks":
@@ -77,22 +77,26 @@ async def scrape(method, output, verbose):
 
     verbose_print(verbose, "Scraping proxies...")
     proxies = []
-    tasks = []
 
-    client = httpx.AsyncClient(follow_redirects=True)
+    client = httpx.Client(follow_redirects=True)
 
-    async def scrape_scraper(_scraper):
+    def scrape_scraper(_scraper):
         try:
             verbose_print(verbose, f"Looking {_scraper.get_url()}...")
-            proxies.extend(await _scraper.scrape(client))
+            return _scraper.scrape(client)
         except Exception:
-            pass
+            return []
 
-    for scraper in proxy_scrapers:
-        tasks.append(asyncio.ensure_future(scrape_scraper(scraper)))
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(scrape_scraper, s) for s in proxy_scrapers]
+        for fut in as_completed(futures):
+            try:
+                result = fut.result()
+                proxies.extend(result)
+            except Exception:
+                pass
 
-    await asyncio.gather(*tasks)
-    await client.aclose()
+    client.close()
 
     proxies_set = set(proxies)
     verbose_print(verbose, f"Writing {len(proxies_set)} proxies to file...")

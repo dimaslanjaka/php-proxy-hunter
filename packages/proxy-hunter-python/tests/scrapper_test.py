@@ -1,5 +1,4 @@
 import argparse
-import asyncio
 
 from proxy_hunter.scrappers.scrapper import scrape, scrapers
 
@@ -27,28 +26,11 @@ def modular():
     )
     args = parser.parse_args()
 
-    coro = scrape(args.proxy, args.output, args.verbose)
-
-    try:
-        asyncio.run(coro)
-    except RuntimeError:
-        # Fallback for Windows or if already inside a running event loop
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(coro)
-        loop.close()
+    scrape(args.proxy, args.output, args.verbose)
 
 
 def main():
-    coro = scrape("http", "tmp/output.txt", True)
-    try:
-        asyncio.run(coro)
-    except RuntimeError:
-        # Fallback for Windows or if already inside a running event loop
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(coro)
-        loop.close()
+    scrape("http", "tmp/output.txt", True)
 
 
 if __name__ == "__main__":
