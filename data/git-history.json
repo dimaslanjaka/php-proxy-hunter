@@ -1,5 +1,36 @@
 [
   {
+    "hash": "f3d1139d4f099ffd20b004646b86c0c6b6e2fdef",
+    "date": "2025-12-12T16:08:55+07:00",
+    "message": "fix(hooks): prefer project venv python & invoke Black via python -m\n\nPrepend the project's virtualenv `venv/Scripts` or `venv/bin` to `PATH` in `.husky/pre-commit`\nso hooks use the project Python interpreter. Update `.lintstagedrc.json` to run\n`python -m black` for `*.py` files instead of calling `black` directly. This prevents\npre-commit failures when Black is installed only in the project's venv (Windows/venv cases).",
+    "files": [
+      ".lintstagedrc.json"
+    ]
+  },
+  {
+    "hash": "71d604516dc313468cee568a24c1099652f7308f",
+    "date": "2025-12-12T16:07:04+07:00",
+    "message": "refactor(scrappers): make scrapers synchronous and use ThreadPoolExecutor\n\n- Convert scraper base and handler methods from async to sync (scrapper_base.py).\n- Replace asyncio orchestration with ThreadPoolExecutor and httpx.Client (scrapper.py).\n- Update HTML and GitHub scrapers to synchronous `handle()` and add defensive null checks in html_parser.py.\n- Update tests to call the synchronous `scrape()` directly and remove asyncio usage.\n- Remove `asyncio` from package metadata (pyproject.toml, setup.py).\n\nBREAKING CHANGE: `scrape()` is now synchronous (was an `async def`). Consumers must call it directly instead of awaiting or running it in an event loop.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/scrappers/github.py",
+      "packages/proxy-hunter-python/proxy_hunter/scrappers/html_parser.py",
+      "packages/proxy-hunter-python/proxy_hunter/scrappers/scrapper.py",
+      "packages/proxy-hunter-python/proxy_hunter/scrappers/scrapper_base.py",
+      "packages/proxy-hunter-python/pyproject.toml",
+      "packages/proxy-hunter-python/setup.py",
+      "packages/proxy-hunter-python/tests/scrapper_test.py"
+    ]
+  },
+  {
+    "hash": "601509d590c7d822faefcbb28313373f545e5661",
+    "date": "2025-12-12T14:11:16+07:00",
+    "message": "fix(proxy-hunter-python): keep proxies as list and use asyncio.run in test\n\n- Keep `proxies` as a list during scraping and create `proxies_set` for deduplication before writing to file in `packages/proxy-hunter-python/proxy_hunter/scrappers/scrapper.py` to avoid Pylance warning about `extend` on a set.\n- Replace deprecated `asyncio.get_event_loop()` with `asyncio.run()` and add a `new_event_loop()` fallback in `packages/proxy-hunter-python/tests/scrapper_test.py` (renamed from `packages/proxy-hunter-python/proxy_hunter/scrappers/direct.test.py`).\n- Remove unused `platform` and `sys` imports from the test file.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/scrappers/scrapper.py",
+      "packages/proxy-hunter-python/tests/scrapper_test.py"
+    ]
+  },
+  {
     "hash": "3409d804b9923d56ecb5a2ae215284a2841480dc",
     "date": "2025-12-12T12:42:46+07:00",
     "message": "fix(sftp_sync): update default comparison mode to 'size' and enhance parameter documentation",
@@ -8627,30 +8658,6 @@
     "message": "fix(proxy-checker): update proxy status to 'unknown' when IP mismatch or unreachable",
     "files": [
       "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "e3ad362d1bdfaee89379ab5218c503c61cb21f7c",
-    "date": "2025-09-17T10:53:26+07:00",
-    "message": "fix(proxy-checker): add last_check timestamp to active proxy updates",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "460eefc3553fc37773a868cc0dc4be5cf75e8ff3",
-    "date": "2025-09-17T10:49:27+07:00",
-    "message": "refactor(proxy-list): remove sslFilter state and integrate SSL option into typeFilter",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "f5354f9d4fc7d1dcbe57f989d0457626c7582f4b",
-    "date": "2025-09-17T10:42:42+07:00",
-    "message": "fix(deps): remove proxies-grabber dependency resolutions",
-    "files": [
-      "package.json"
     ]
   }
 ]
