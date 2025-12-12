@@ -3,7 +3,6 @@
 # Include minimal requirements file (delegates commonly used runtime deps)
 -r requirements-minimal.txt
 ansi2html
-asyncio
 autopep8
 babel
 black
