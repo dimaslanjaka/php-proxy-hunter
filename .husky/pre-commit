@@ -78,6 +78,14 @@ fi
 
 # Run lint-staged
 if command -v yarn >/dev/null 2>&1; then
+  # If a project virtualenv exists, prefer its Python by prepending its scripts to PATH
+  if [ -x "$PROJECT_DIR/venv/Scripts/python.exe" ]; then
+    export PATH="$PROJECT_DIR/venv/Scripts:$PATH"
+    echo "Using venv Python from $PROJECT_DIR/venv/Scripts"
+  elif [ -x "$PROJECT_DIR/venv/bin/python" ]; then
+    export PATH="$PROJECT_DIR/venv/bin:$PATH"
+    echo "Using venv Python from $PROJECT_DIR/venv/bin"
+  fi
   if [ -f "$PROJECT_DIR/.yarnrc.yml" ]; then
     yarn dlx lint-staged || {
       echo "Lint-staged failed"
