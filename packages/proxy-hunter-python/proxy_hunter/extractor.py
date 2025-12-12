@@ -93,7 +93,17 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
             if is_valid_ip(ip):
                 proxy = f"{ip}:{port}"
                 if is_valid_proxy(proxy):
-                    results.append(Proxy(proxy))
+                    # Try to extract username/password from surrounding JSON if present
+                    user_m = re.search(r'"user"\s*:\s*"([^"]+)"', string)
+                    pass_m = re.search(r'"pass"\s*:\s*"([^"]+)"', string)
+                    if user_m and pass_m:
+                        username = user_m.group(1)
+                        password = pass_m.group(1)
+                        results.append(
+                            Proxy(proxy=proxy, username=username, password=password)
+                        )
+                    else:
+                        results.append(Proxy(proxy))
             continue
 
         if "@" in match:

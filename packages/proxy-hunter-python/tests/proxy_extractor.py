@@ -40,7 +40,7 @@ def test_extract_proxies_with_auth_prefix():
     assert p.password == "ProxyPass"
 
 
-def test_extract_proxies_json_format1():
+def test_extract_proxies_json_ip_port():
     input_str = '{"ip": "147.75.68.200","port":"10098"}'
     result = extract_proxies(input_str)
     assert isinstance(
@@ -49,6 +49,21 @@ def test_extract_proxies_json_format1():
     assert any(p.proxy == "147.75.68.200:10098" for p in result)
     # No credentials expected for plain ip:port in JSON
     assert all(not p.has_credentials() for p in result)
+
+
+def test_extract_proxies_json_ip_port_auth():
+    input_str = (
+        '{"ip": "147.75.68.200","port":"10098", "user":"ProxyUser", "pass":"ProxyPass"}'
+    )
+    result = extract_proxies(input_str)
+    assert isinstance(
+        result, (list, tuple)
+    ), "extract_proxies should return a list or tuple"
+    # Expect proxy and credentials extracted from JSON user/pass fields
+    assert any(p.proxy == "147.75.68.200:10098" and p.has_credentials() for p in result)
+    p = next(p for p in result if p.proxy == "147.75.68.200:10098")
+    assert p.username == "ProxyUser"
+    assert p.password == "ProxyPass"
 
 
 def test_extract_proxies_json_format2():
