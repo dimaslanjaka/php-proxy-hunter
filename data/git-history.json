@@ -1,5 +1,50 @@
 [
   {
+    "hash": "e3ed2af44032a8c3411bf75376dca72cbf0d52cb",
+    "date": "2025-12-12T08:28:30+07:00",
+    "message": "fix(proxy-extractor): normalize matches, extract JSON creds, support auth formats, add tests\n\n- Normalize whitespace and JSON regex matches into canonical `ip:port` entries.\n- Extract JSON `\"user\"` / `\"pass\"` fields and attach credentials to parsed proxies.\n- Support both `ip:port@user:pass` and `user:pass@ip:port` formats.\n- Deduplicate results, preferring entries that include credentials.\n- Add Jest tests (`tests/proxy/extractProxies.test.js`) covering plain, auth-suffix, auth-prefix, and JSON formats.",
+    "files": [
+      "src/proxy/extractor.js",
+      "tests/proxy/extractProxies.test.js"
+    ]
+  },
+  {
+    "hash": "25623e806aca2684ca2c21a9efa1e546d10d6250",
+    "date": "2025-12-12T08:23:34+07:00",
+    "message": "fix(php-extractor): normalize matches, extract JSON user/pass, prioritize credentials\n\n- Normalize whitespace and JSON regex matches into canonical `proxy` entries (ip:port).\n- Capture JSON `\"user\"` / `\"pass\"` fields and attach credentials to parsed `Proxy` objects.\n- Merge normalized matches and deduplicate results, prioritizing entries that include credentials.\n- Relax JSON ip/port regex spacing and normalize match output to a unified shape.\n- Minor test/comment whitespace cleanups.",
+    "files": [
+      "src/PhpProxyHunter/utils/extractor.php",
+      "tests/extractProxy.php"
+    ]
+  },
+  {
+    "hash": "8fbda5eebe760dfff28508b980a6d8f7b26fbd7a",
+    "date": "2025-12-12T07:48:12+07:00",
+    "message": "fix(proxy-hunter-python): extract JSON user/pass for ip:port entries and add tests\n\n- When parsing JSON-formatted `{\"ip\":\"x.x.x.x\",\"port\":\"yyyy\"}` entries, detect\n  surrounding `\"user\"`/`\"pass\"` fields and attach credentials to the resulting\n  `Proxy` object.\n- Add `test_extract_proxies_json_ip_port_auth` and adjust/rename JSON-related\n  tests to cover ip/port, proxy field, and JSON auth cases.\n\nFiles changed:\n- packages/proxy-hunter-python/proxy_hunter/extractor.py: extract JSON `user`/`pass`\n  and create `Proxy(proxy, username, password)` when present.\n- packages/proxy-hunter-python/tests/proxy_extractor.py: add/rename tests for JSON\n  ip/port and JSON ip+auth scenarios.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/extractor.py",
+      "packages/proxy-hunter-python/tests/proxy_extractor.py"
+    ]
+  },
+  {
+    "hash": "fdd8fbf36c2e93dfaedfe7080e66368a4272ae46",
+    "date": "2025-12-12T07:46:31+07:00",
+    "message": "fix(proxy-hunter-python): normalize regex matches and handle auth formats; add tests\n\n- Normalize whitespace and JSON regex matches to canonical \"ip:port\" strings so\n  JSON and whitespace-formatted proxies are detected reliably.\n- Relax and clarify JSON IP/port regex (allow optional spaces) and convert regex\n  tuples into normalized strings before processing.\n- Replace tuple unpacking with indexed split and handle both auth forms:\n  `ip:port@user:pass` and `user:pass@ip:port`; add fallback for unknown formats.\n- Add unit tests covering plain `ip:port`, auth-suffix, auth-prefix, and JSON\n  probe formats (`\"ip\"/\"port\"` and `\"proxy\"` fields).\n- Prioritize proxies that include credentials when deduplicating results.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/extractor.py",
+      "packages/proxy-hunter-python/tests/proxy_extractor.py"
+    ]
+  },
+  {
+    "hash": "4fa182cc9152e23bd3bbc2d52694030871dc844d",
+    "date": "2025-12-12T07:39:08+07:00",
+    "message": "fix(proxy-hunter-python): parse auth-prefixed and auth-suffixed proxy strings\n\n- Use indexed split (avoid tuple unpacking) and determine which side of \"@\"\n  is the `ip:port`.\n- Correctly extract `username`/`password` for both `ip:port@user:pass` and\n  `user:pass@ip:port` forms; add fallback to treat the whole match as proxy\n  when neither side validates.\n- Add unit tests (`packages/proxy-hunter-python/tests/proxy_extractor.py`)\n  covering plain `ip:port`, `ip:port@user:pass`, and `user:pass@ip:port`.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/extractor.py",
+      "packages/proxy-hunter-python/tests/proxy_extractor.py"
+    ]
+  },
+  {
     "hash": "2998a40f01762572cd3af11033e0d714e50b1946",
     "date": "2025-12-11T19:31:36+07:00",
     "message": "feat(build): implement nuitka build process for proxyListGui",
@@ -8605,47 +8650,6 @@
     "message": "build(script): split checksum tracking into install and build steps in build-project.mjs",
     "files": [
       "bin/build-project.mjs"
-    ]
-  },
-  {
-    "hash": "9f7eec9dd21fc891a87ff09875a77bb4e2973151",
-    "date": "2025-09-17T09:51:57+07:00",
-    "message": "build(vite): load `.env.example` in GitHub CI and ensure VITE_ variables are properly injected",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "86b698dab21b093700e762a0fbd9ef0a4fca6206",
-    "date": "2025-09-17T09:46:49+07:00",
-    "message": "refactor(env): rename `.env-sample` to `.env.example` and update documentation references",
-    "files": [
-      ".env.example",
-      "cloud_sqlite/readme.md"
-    ]
-  },
-  {
-    "hash": "d13835b6b6a0aed7b73a3d8c45812dafb38c8e70",
-    "date": "2025-09-17T09:44:58+07:00",
-    "message": "fix(vite): enable overriding of environment variables when loading .env file",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "098f0c451169d04213f13804f23974f949f2ede7",
-    "date": "2025-09-17T09:43:19+07:00",
-    "message": "build(vite): use dotenv parsed config instead of process.env for VITE_ variables",
-    "files": [
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "d30360a706301155ccc2cd10d7f32ce639c459c0",
-    "date": "2025-09-17T09:42:29+07:00",
-    "message": "chore(husky): run commit history builder earlier in post-merge hook",
-    "files": [
-      ".husky/post-merge"
     ]
   }
 ]
