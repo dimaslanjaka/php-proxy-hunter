@@ -1,17 +1,25 @@
-from typing import Optional, Union
+from typing import Optional, Union, Any
 from datetime import datetime, timedelta
 import pytz
 from dateutil.parser import parse as _parse_date
 
 
-def time_ago(value: Optional[Union[str, datetime]] = None) -> str:
+def time_ago(
+    value: Optional[Union[str, datetime]] = None, tz: Optional[Union[str, Any]] = None
+) -> str:
     """
     Convert a datetime or ISO-like date string to a human-readable "time ago" string.
 
     Accepts either a `datetime` or a string. If a string can't be parsed with
     `datetime.fromisoformat`, falls back to `dateutil.parser.parse` if available.
 
-    Returns '-' when `value` is falsy.
+        Optional `tz` parameter controls timezone handling for naive datetimes:
+        - If `tz` is None and `value` is naive, uses a naive `now()` (no timezone).
+        - If `tz` is a string, it is passed to `pytz.timezone()` and used to
+            localize naive datetimes.
+        - If `tz` is a tzinfo-like object, it will be used to localize naive datetimes.
+
+        Returns '-' when `value` is falsy.
     """
     if not value:
         return "-"
@@ -32,36 +40,42 @@ def time_ago(value: Optional[Union[str, datetime]] = None) -> str:
             else:
                 return str(value)
 
-    # Try to use Django timezone/settings if available, otherwise fall back to UTC
-    # Only use Django timezone/settings when Django is installed and configured.
-    try:
-        from django.conf import settings as _dj_settings  # type: ignore
-    except Exception:
-        _dj_settings = None
-
-    settings_configured = bool(getattr(_dj_settings, "configured", False))
-
-    if settings_configured:
-        try:
-            from django.utils import timezone as _dj_timezone  # type: ignore
-        except Exception:
-            _dj_timezone = None
-    else:
-        _dj_timezone = None
-
-    # If date is naive (no tz), assume Django TIME_ZONE when available, else UTC
+    # Framework-agnostic timezone handling.
+    # If the parsed `date` is naive, use the optional `tz` argument to
+    # localize it; otherwise, keep it as-is and compute `now` with the same
+    # tz-awareness as `date`.
     if date.tzinfo is None:
-        tz_name = (
-            getattr(_dj_settings, "TIME_ZONE", "UTC") if settings_configured else "UTC"
-        )
-        local_tz = pytz.timezone(tz_name)
-        date = local_tz.localize(date)
+        if tz is None:
+            # keep naive: compare with naive now
+            now = datetime.now()
+        else:
+            # resolve tz parameter to a tzinfo
+            if isinstance(tz, str):
+                tzinfo = pytz.timezone(tz)
+            else:
+                tzinfo = tz
 
-    now = (
-        _dj_timezone.now()
-        if (_dj_timezone and settings_configured)
-        else datetime.now(pytz.UTC)
-    )
+            # localize naive date to tzinfo
+            try:
+                if hasattr(tzinfo, "localize"):
+                    date = tzinfo.localize(date)
+                else:
+                    date = date.replace(tzinfo=tzinfo)
+            except Exception:
+                date = date.replace(tzinfo=tzinfo)
+
+            # now in same tz
+            try:
+                now = datetime.now(tzinfo)
+            except Exception:
+                now = datetime.now(pytz.UTC).astimezone(tzinfo)
+    else:
+        # aware datetime: compute now in the same timezone
+        try:
+            now = datetime.now(date.tzinfo)
+        except Exception:
+            now = datetime.now(pytz.UTC).astimezone(date.tzinfo)
+
     diff = now - date
 
     seconds = diff.total_seconds()
