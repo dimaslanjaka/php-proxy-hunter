@@ -94,8 +94,8 @@ async def scrape(method, output, verbose):
     await asyncio.gather(*tasks)
     await client.aclose()
 
-    proxies = set(proxies)
-    verbose_print(verbose, f"Writing {len(proxies)} proxies to file...")
-    write_file(output, "\n".join(proxies))
+    proxies_set = set(proxies)
+    verbose_print(verbose, f"Writing {len(proxies_set)} proxies to file...")
+    write_file(output, "\n".join(proxies_set))
     verbose_print(verbose, "Done!")
     verbose_print(verbose, f"Took {time.time() - now} seconds")

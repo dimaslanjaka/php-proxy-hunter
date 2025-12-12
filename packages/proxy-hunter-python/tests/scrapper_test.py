@@ -1,7 +1,5 @@
 import argparse
 import asyncio
-import platform
-import sys
 
 from proxy_hunter.scrappers.scrapper import scrape, scrapers
 
@@ -42,8 +40,15 @@ def modular():
 
 
 def main():
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(scrape("http", "tmp/output.txt", True))
+    coro = scrape("http", "tmp/output.txt", True)
+    try:
+        asyncio.run(coro)
+    except RuntimeError:
+        # Fallback for Windows or if already inside a running event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(coro)
+        loop.close()
 
 
 if __name__ == "__main__":
