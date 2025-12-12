@@ -49,7 +49,8 @@ function get_ports() {
   $ports = array_map(function ($proxy) {
     // Split the proxy string by ":" and get the port part
     $parts = explode(':', $proxy);
-    return end($parts); // Get the last element of the array which is the port
+    return end($parts);
+  // Get the last element of the array which is the port
   }, $proxies);
 
   $unique_ports = array_unique($ports);

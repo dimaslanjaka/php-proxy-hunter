@@ -17,9 +17,11 @@ function extractIPs($string) {
 
   // Use preg_match_all to find all IP addresses in the string
   if (preg_match_all($ipPattern, $string, $matches)) {
-    return $matches[0]; // Return all matched IP addresses
+    return $matches[0];
+  // Return all matched IP addresses
   } else {
-    return []; // Return empty array if no IP addresses are found
+    return [];
+    // Return empty array if no IP addresses are found
   }
 }
 
@@ -102,11 +104,39 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
   $re = '/((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+((?!0)\d{2,5})/m';
   preg_match_all($re, $string, $matches2, PREG_SET_ORDER);
   $matched_whitespaces = !empty($matches2);
+  // Normalize whitespace matches into canonical ['proxy'=>..., 'username'=>..., 'password'=>...]
+  $matches2_norm = [];
+  foreach ($matches2 as $m) {
+    if (isset($m[1]) && isset($m[2])) {
+      $matches2_norm[] = ['proxy' => $m[1] . ':' . $m[2], 'username' => null, 'password' => null];
+    }
+  }
 
-  // Perform the matching IP PORT (json) to match "ip":"x.x.x.x","port":"xxxxx"
-  $pattern_json = '/"ip":"((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})".*?"port":"((?!0)\d{2,5})/m';
+  // Perform the matching IP PORT (json) to match "ip": "x.x.x.x", "port": "xxxxx"
+  $pattern_json = '/"ip"\s*:\s*"((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"\s*,\s*"port"\s*:\s*"((?!0)\d{2,5})"/m';
   preg_match_all($pattern_json, $string, $matches3, PREG_SET_ORDER);
   $matched_json = !empty($matches3);
+
+  // Try to capture JSON user/pass fields if present
+  $user_m = null;
+  $pass_m = null;
+  if (preg_match('/"user"\s*:\s*"([^"]+)"/', $string, $um)) {
+    $user_m = $um[1];
+  }
+  if (preg_match('/"pass"\s*:\s*"([^"]+)"/', $string, $pm)) {
+    $pass_m = $pm[1];
+  }
+
+  $matches3_norm = [];
+  foreach ($matches3 as $m) {
+    if (isset($m[1]) && isset($m[2])) {
+      $matches3_norm[] = [
+        'proxy'    => $m[1] . ':' . $m[2],
+        'username' => $user_m ?? null,
+        'password' => $pass_m ?? null,
+      ];
+    }
+  }
 
   $matches = [];
   // Add user:pass@ip:port
@@ -126,8 +156,8 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
       $matches[] = ['proxy' => $m[1], 'username' => null, 'password' => null];
     }
   }
-  // Add whitespace and json matches as before
-  $matches = array_merge($matches, $matches2, $matches3);
+  // Add normalized whitespace and json matches
+  $matches = array_merge($matches, $matches2_norm, $matches3_norm);
 
   if (!$db && $write_database === true) {
     throw new \Exception('A ProxyDB instance is required when $write_database is true. Provide a valid $db parameter.');
@@ -223,6 +253,22 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
     //   }
     // }
   }
+
+  // Deduplicate proxies: prioritize entries that include credentials
+  $unique_map = [];
+  foreach ($results as $r) {
+    $key = $r->proxy;
+    if (isset($unique_map[$key])) {
+      $existing = $unique_map[$key];
+      // Replace existing if new one has credentials
+      if (!empty($r->username) && !empty($r->password)) {
+        $unique_map[$key] = $r;
+      }
+    } else {
+      $unique_map[$key] = $r;
+    }
+  }
+  $results = array_values($unique_map);
 
   // If no ProxyDB instance provided, return the parsed results directly.
   if ($db === null) {
