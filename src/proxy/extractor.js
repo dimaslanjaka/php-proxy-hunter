@@ -40,8 +40,8 @@ export function extractUrl(string) {
  */
 export function extractProxies(string) {
   if (!string || !string.trim()) return [];
-
-  const results = [];
+  // We'll build normalized entries with shape: { proxy: 'ip:port', username?: 'u', password?: 'p' }
+  const entries = [];
 
   const ipPortPattern =
     /((?:(?:\d{1,3}\.){3}\d{1,3}):\d{2,5}(?:@\w+:\w+)?|(?:\w+:\w+@(?:\d{1,3}\.){3}\d{1,3}:\d{2,5}))/g;
@@ -50,68 +50,77 @@ export function extractProxies(string) {
   const ipPortWhitespacePattern = /((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+((?!0)\d{2,5})/g;
   const matches2 = Array.from(string.matchAll(ipPortWhitespacePattern));
 
-  const ipPortJsonPattern = /"ip":"((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})".*?"port":"((?!0)\d{2,5})"/g;
+  const ipPortJsonPattern =
+    /"ip"\s*:\s*"((?!0)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"\s*,\s*"port"\s*:\s*"((?!0)\d{2,5})"/g;
   const matches3 = Array.from(string.matchAll(ipPortJsonPattern));
 
-  const matches = [...matches1, ...matches2, ...matches3];
+  // Extract potential user/pass from surrounding JSON
+  const userMatch = string.match(/"user"\s*:\s*"([^"]+)"/);
+  const passMatch = string.match(/"pass"\s*:\s*"([^"]+)"/);
+  const jsonUser = userMatch ? userMatch[1] : undefined;
+  const jsonPass = passMatch ? passMatch[1] : undefined;
 
-  matches.forEach((match) => {
-    if (typeof match === 'object' && match.length === 2) {
-      const [ip, port] = match;
-      const proxy = `${ip}:${port}`;
-      if (isValidProxy(proxy)) results.push(proxy);
-    } else if (typeof match === 'string') {
-      results.push(match);
-    }
-  });
-
-  // Handle unique proxies and prioritize those with credentials
-  const uniqueProxies = {};
-
-  results.forEach((proxy) => {
-    if (proxy.includes('@')) {
-      const [left, right] = proxy.split('@');
-      // normalize: store address (IP:PORT) as key, keep original with credentials as value
-      const address = left.includes(':') && left.indexOf('.') !== -1 ? left : right;
-      uniqueProxies[address] = proxy;
-    } else if (!uniqueProxies[proxy]) {
-      uniqueProxies[proxy] = proxy;
-    }
-  });
-
-  // Map to ProxyData instances
-  return Object.values(uniqueProxies).map((p) => {
-    // p could be: 'ip:port', 'ip:port@user:pass', 'user:pass@ip:port'
-    const pd = new ProxyData();
-    if (p.includes('@')) {
-      const [left, right] = p.split('@');
-      if (/^\d+\.\d+\.\d+\.\d+:\d+$/.test(left)) {
+  // process matches1 (strings)
+  matches1.forEach((m) => {
+    if (m.includes('@')) {
+      const parts = m.split('@');
+      const left = parts[0];
+      const right = parts[1];
+      if (isValidProxy(left)) {
         // ip:port@user:pass
-        pd.proxy = left;
-        if (right.includes(':')) {
-          const [username, password] = right.split(':');
-          pd.username = username;
-          pd.password = password;
-        } else {
-          pd.username = right;
-        }
-      } else if (/^\d+\.\d+\.\d+\.\d+:\d+$/.test(right)) {
+        const [username, password] = right.split(':');
+        entries.push({ proxy: left, username, password });
+      } else if (isValidProxy(right)) {
         // user:pass@ip:port
-        pd.proxy = right;
-        if (left.includes(':')) {
-          const [username, password] = left.split(':');
-          pd.username = username;
-          pd.password = password;
-        } else {
-          pd.username = left;
-        }
+        const [username, password] = left.split(':');
+        entries.push({ proxy: right, username, password });
       } else {
-        // unknown, put raw
-        pd.proxy = p;
+        entries.push({ proxy: m });
       }
     } else {
-      pd.proxy = p;
+      entries.push({ proxy: m });
     }
+  });
+
+  // process whitespace matches
+  matches2.forEach((m) => {
+    // m[1] = ip, m[2] = port
+    if (m && m[1] && m[2]) {
+      entries.push({ proxy: `${m[1]}:${m[2]}` });
+    }
+  });
+
+  // process json matches and attach json user/pass if present
+  matches3.forEach((m) => {
+    if (m && m[1] && m[2]) {
+      entries.push({ proxy: `${m[1]}:${m[2]}`, username: jsonUser, password: jsonPass });
+    }
+  });
+
+  // Deduplicate, prioritizing entries that have credentials
+  const map = new Map();
+  entries.forEach((e) => {
+    const key = e.proxy;
+    if (!key) return;
+    if (!isValidProxy(key)) return;
+    const existing = map.get(key);
+    if (!existing) {
+      map.set(key, e);
+    } else {
+      const existingHasCreds = existing.username && existing.password;
+      const newHasCreds = e.username && e.password;
+      if (!existingHasCreds && newHasCreds) {
+        map.set(key, e);
+      }
+    }
+  });
+
+  // Convert to ProxyData instances
+  return Array.from(map.values()).map((e) => {
+    const pd = new ProxyData();
+    pd.proxy = e.proxy;
+    if (e.username) pd.username = e.username;
+    if (e.password) pd.password = e.password;
     return pd;
   });
 }
