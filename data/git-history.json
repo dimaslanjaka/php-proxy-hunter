@@ -1,5 +1,24 @@
 [
   {
+    "hash": "9a7b2239e2e030d9170da7c8d91d47c49577268c",
+    "date": "2025-12-12T09:20:30+07:00",
+    "message": "feat(proxy-list): add two-column tabs for ProxySubmission and ProxyExtractor; use duotone icons\n\n- Add `subTab` React state and replace stacked `ProxySubmission` / `ProxyExtractor` render with a full-width 2-column tab header (50% / 50%) and tab panels.\n- Implement tablist markup (ul/li) with aria attributes (`role=\"tablist\"`, `role=\"tab\"`, `aria-controls`, `aria-current`) and panel ids to improve accessibility.\n- Panels are kept mounted and visibility toggled via `hidden` class (Flowbite-like behavior).\n- Update styling for active/inactive states and dark mode (text/border hover + `dark:` classes).\n- Unify icons to Font Awesome duotone:\n  - Tab headers: magnifying glass for \"Proxy checker\" and duotone/solid filter for \"Proxy extractor\".\n  - Component headers: `ProxySubmission` and `ProxyExtractor` now use matching duotone icons.\n  - Replace the \"Check Type\" button icon with the duotone filter icon.\n- Minor whitespace/formatting adjustments around the recaptcha block.\n\nNo breaking changes.",
+    "files": [
+      "src/react/pages/ProxyList/ProxyExtractor.tsx",
+      "src/react/pages/ProxyList/ProxySubmission.tsx",
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "f5be9da2ee572d470441713de572dcc2065b05f5",
+    "date": "2025-12-12T08:46:41+07:00",
+    "message": "feat(proxy-list): add ProxyExtractor component and wire into ProxyList\n\n- Add new component `src/react/pages/ProxyList/ProxyExtractor.tsx`\n  - Textarea input with `Populate` sample data and `Extract` action\n  - Autosave/restore using `ReactFormSaver` (`storagePrefix=\"proxy-extractor\"`)\n  - Uses `src/proxy/extractor.js` (`extractProxiesToObject`) to parse proxies\n  - Formats results as unique lines `IP:PORT@USER:PASS` (deduplicated, preserves order)\n  - Displays read-only results textarea and a count badge when > 0\n  - Replaced button icon with `fa-magnifying-glass` and removed the Clear button\n  - Minor JSX/lint formatting fixes\n\n- Wire `ProxyExtractor` into `src/react/pages/ProxyList/index.tsx`\n\nNo breaking changes.",
+    "files": [
+      "src/react/pages/ProxyList/ProxyExtractor.tsx",
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
     "hash": "e3ed2af44032a8c3411bf75376dca72cbf0d52cb",
     "date": "2025-12-12T08:28:30+07:00",
     "message": "fix(proxy-extractor): normalize matches, extract JSON creds, support auth formats, add tests\n\n- Normalize whitespace and JSON regex matches into canonical `ip:port` entries.\n- Extract JSON `\"user\"` / `\"pass\"` fields and attach credentials to parsed proxies.\n- Support both `ip:port@user:pass` and `user:pass@ip:port` formats.\n- Deduplicate results, preferring entries that include credentials.\n- Add Jest tests (`tests/proxy/extractProxies.test.js`) covering plain, auth-suffix, auth-prefix, and JSON formats.",
@@ -8632,22 +8651,6 @@
     "hash": "83d8c4153150a7d9f1da47beef3a860d0b49bfbd",
     "date": "2025-09-17T10:27:41+07:00",
     "message": "fix(build): include additional file extensions in source file checksum calculation",
-    "files": [
-      "bin/build-project.mjs"
-    ]
-  },
-  {
-    "hash": "cfa8dd168b85d3ff1839e77cb27a576618a3129f",
-    "date": "2025-09-17T09:55:33+07:00",
-    "message": "fix(build): update checksum calculation to include all package.json files in the project",
-    "files": [
-      "bin/build-project.mjs"
-    ]
-  },
-  {
-    "hash": "b054fbb325906de48b754269337cfc1839411e01",
-    "date": "2025-09-17T09:53:20+07:00",
-    "message": "build(script): split checksum tracking into install and build steps in build-project.mjs",
     "files": [
       "bin/build-project.mjs"
     ]
