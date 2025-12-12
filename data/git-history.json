@@ -1,5 +1,30 @@
 [
   {
+    "hash": "3409d804b9923d56ecb5a2ae215284a2841480dc",
+    "date": "2025-12-12T12:42:46+07:00",
+    "message": "fix(sftp_sync): update default comparison mode to 'size' and enhance parameter documentation",
+    "files": [
+      "src/vps/sftp_sync.py"
+    ]
+  },
+  {
+    "hash": "0a022499b7288787d384dd2f38d68168adb900df",
+    "date": "2025-12-12T10:02:15+07:00",
+    "message": "chore(index.dev.html): switch Font Awesome to official site-assets v7 CSS\n\n- Comment out previous rawcdn.githack.com `all.min.css` link.\n- Add official Font Awesome v7 site-assets CSS links:\n  - all.css\n  - sharp-solid.css\n  - sharp-regular.css\n  - sharp-light.css\n  - duotone.css\n\nReason: use official CDN assets and include specific style packs.",
+    "files": [
+      "index.dev.html"
+    ]
+  },
+  {
+    "hash": "9df36f64c1da969dd49b453dee413bcb19fbf0bf",
+    "date": "2025-12-12T10:00:59+07:00",
+    "message": "feat(node_browser): add web asset capture and mirror scripts\n\nAdd two new utilities to `node_browser/`:\n\n- `crawl.js` — Puppeteer-based asset capturer that:\n  - captures network requests/responses (images, fonts, CSS, JS, XHR, etc.)\n  - DOM-sweeps for static links (img, script, link, source, video, audio, iframe, a)\n  - writes discovered URLs to `assets.txt` and embedded font sources to `embedded-fonts.txt`\n\n- `httrack.js` — lightweight HTTrack-like downloader using `undici` + `cheerio` that:\n  - mirrors pages and assets, rewrites links for local browsing\n  - parses CSS `url(...)` references to enqueue/download fonts and images\n  - appends saved URLs to `downloaded_urls.txt`\n  - defaults to `https://fontawesome.com/icons/filter?f=duotone&s=du` (env override via `HTTRACK_START`)\n  - defaults output folder to `tmp/mirror` and supports CLI flags `-o`, `-c`, and `--same-origin`\n\nIncludes basic deduping (visited set) and concurrency control. Dependencies: `puppeteer`, `undici`, `cheerio`.",
+    "files": [
+      "node_browser/crawl.js",
+      "node_browser/httrack.js"
+    ]
+  },
+  {
     "hash": "9a7b2239e2e030d9170da7c8d91d47c49577268c",
     "date": "2025-12-12T09:20:30+07:00",
     "message": "feat(proxy-list): add two-column tabs for ProxySubmission and ProxyExtractor; use duotone icons\n\n- Add `subTab` React state and replace stacked `ProxySubmission` / `ProxyExtractor` render with a full-width 2-column tab header (50% / 50%) and tab panels.\n- Implement tablist markup (ul/li) with aria attributes (`role=\"tablist\"`, `role=\"tab\"`, `aria-controls`, `aria-current`) and panel ids to improve accessibility.\n- Panels are kept mounted and visibility toggled via `hidden` class (Flowbite-like behavior).\n- Update styling for active/inactive states and dark mode (text/border hover + `dark:` classes).\n- Unify icons to Font Awesome duotone:\n  - Tab headers: magnifying glass for \"Proxy checker\" and duotone/solid filter for \"Proxy extractor\".\n  - Component headers: `ProxySubmission` and `ProxyExtractor` now use matching duotone icons.\n  - Replace the \"Check Type\" button icon with the duotone filter icon.\n- Minor whitespace/formatting adjustments around the recaptcha block.\n\nNo breaking changes.",
@@ -8626,33 +8651,6 @@
     "message": "fix(deps): remove proxies-grabber dependency resolutions",
     "files": [
       "package.json"
-    ]
-  },
-  {
-    "hash": "ffa4559a999f9cf81f835ecdf482a84dc9cb07b8",
-    "date": "2025-09-17T10:40:14+07:00",
-    "message": "fix(deps): add puppeteer and selenium with fingerprints to external dependencies",
-    "files": [
-      "rollup.php.js",
-      "rollup.project.js",
-      "rollup.whatsapp.js"
-    ]
-  },
-  {
-    "hash": "1489feae51b06db44d8fb0ff579fba76ede4cb9d",
-    "date": "2025-09-17T10:39:37+07:00",
-    "message": "fix(deps): update typescript to version 5.8.3",
-    "files": [
-      "packages/baileys",
-      "packages/proxies-grabber"
-    ]
-  },
-  {
-    "hash": "83d8c4153150a7d9f1da47beef3a860d0b49bfbd",
-    "date": "2025-09-17T10:27:41+07:00",
-    "message": "fix(build): include additional file extensions in source file checksum calculation",
-    "files": [
-      "bin/build-project.mjs"
     ]
   }
 ]
