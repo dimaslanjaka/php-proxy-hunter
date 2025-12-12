@@ -57,15 +57,25 @@ def sync_remote_to_local(
     remote_root: str,
     local_root: str,
     delete_extra: bool = False,
-    compare: str = "mtime",
+    compare: str = "size",
     dry_run: bool = False,
     time_tolerance: float = 1.0,
 ) -> None:
     """Sync remote -> local.
 
-    - compare: "mtime" (default), "size", or "mtime+size".
+    Parameters
+    - sftp: an active Paramiko SFTPClient.
+    - remote_root: remote file or directory root on the server.
+    - local_root: destination local directory.
     - delete_extra: if True, remove local files not present remotely.
-    - dry_run: if True, only print planned actions.
+    - compare: comparison mode controlling when files are downloaded:
+        * "mtime": download when remote modification time is newer than local by more than `time_tolerance` seconds.
+        * "size": download when the remote and local file sizes differ.
+        * "mtime+size": download when either size differs or remote mtime is newer than local by more than `time_tolerance`.
+        The default is "size".
+    - dry_run: if True, only print planned actions without performing them.
+    - time_tolerance: float number of seconds used to tolerate small mtime
+        differences when using "mtime" or "mtime+size".
     """
     if sftp is None:
         raise RuntimeError("SFTP client not initialized.")
