@@ -1,5 +1,0 @@
-#!/bin/bash
-
-python3 packages/proxy-hunter-python/setup.py develop
-python3 packages/proxy-checker-python/setup.py develop
-python3 packages/rsa-utility/setup.py develop

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+"$SCRIPT_DIR/py" -m pip install -r "$SCRIPT_DIR/../requirements-dev.txt"
+"$SCRIPT_DIR/py" packages/proxy-hunter-python/setup.py develop
+"$SCRIPT_DIR/py" packages/proxy-checker-python/setup.py develop
+"$SCRIPT_DIR/py" packages/rsa-utility/setup.py develop

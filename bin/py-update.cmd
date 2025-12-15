@@ -1,5 +1,0 @@
-@echo off
-
-python packages/proxy-hunter-python/setup.py develop
-python packages/proxy-checker-python/setup.py develop
-python packages/rsa-utility/setup.py develop
