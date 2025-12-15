@@ -58,4 +58,4 @@ post-commit     text eol=lf
 
 # Special cases, run this
 # git config merge.resolve_hash.driver "node bin/cfh.cjs %O %A %B"
-.husky/hash.txt text eol=lf merge=ours driver=resolve_hash
+.husky/hash.txt text eol=lf merge=resolve_hash
