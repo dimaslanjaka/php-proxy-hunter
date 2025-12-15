@@ -1,5 +1,21 @@
 [
   {
+    "hash": "f0f5691a6d17feeeb7b9d4d63d3ee1ac88eb2796",
+    "date": "2025-12-15T13:29:46+07:00",
+    "message": "feat(proxy-submission): add \"Check Untested\" button and handler\n\nFetch untested proxies from `/php_backend/proxy-list.php` (via `createUrl`) with a capped `length=1000`,\nbuild a newline-separated proxy list and reuse `runSingleCheck` by wrapping `checkProxyHttps`.\nShow appropriate snackbars for no-results and error cases.\n\nPrevents the frontend from requesting \"show all\" while reusing existing check logic.",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "d4459aed98346a9f79049d87d4a6e3b8095b2cae",
+    "date": "2025-12-15T13:28:58+07:00",
+    "message": "fix(proxy-list): disallow show-all (-1) and cap per-page results\n\nTreat `length = -1` as a request for many rows and cap it to `$MAX_PER_PAGE` (1000).\nClamp `length` to the range `[1, $MAX_PER_PAGE]` to prevent excessive memory/CPU usage.\nPrevents expensive \"show all\" queries from overloading small VPS instances.",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
     "hash": "41f0a8141b6bbc7dee13d4febae7f777c0ed5c05",
     "date": "2025-12-15T13:15:06+07:00",
     "message": "fix(proxy-extractor): send extracted proxies to backend on submit",
@@ -8647,22 +8663,6 @@
     "message": "fix(CodeBlock): prevent warning by unsetting previous highlight before re-highlighting",
     "files": [
       "src/react/components/CodeBlock.tsx"
-    ]
-  },
-  {
-    "hash": "203f4265498161d8a0713d11c113eaa9a3f2539f",
-    "date": "2025-09-17T11:28:53+07:00",
-    "message": "feat(ProxyList): implement proxy re-check functionality with API call support",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "298437950f971d4513cc11d4b3a90b2770aa0a89",
-    "date": "2025-09-17T11:26:09+07:00",
-    "message": "fix(proxy-checker): decode URL-encoded request parameters for proxy authentication",
-    "files": [
-      "php_backend/proxy-checker.php"
     ]
   }
 ]
