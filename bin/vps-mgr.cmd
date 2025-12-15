@@ -1,2 +1,3 @@
 @echo off
-python "%~dp0..\src\vps\vps_manager.py"
+
+"%~dp0py.cmd" "%~dp0..\src\vps\vps_manager.py"
