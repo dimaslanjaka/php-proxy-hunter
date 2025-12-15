@@ -2,8 +2,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactFormSaver, ReactFormSaverRef } from 'jquery-form-saver/react';
 import { useSnackbar } from '../../components/Snackbar';
+import { createUrl } from '../../utils/url';
 import * as extractor from '../../../proxy/extractor';
 import { isEmpty } from '../../../utils/string';
+import { noop } from '../../../utils/other';
 
 export default function ProxyExtractor() {
   const { t } = useTranslation();
@@ -63,6 +65,14 @@ export default function ProxyExtractor() {
       const objs = (extractor as any).extractProxiesToObject(textarea || '');
       setResults(objs || []);
       showSnackbar?.({ message: `Extracted ${objs?.length || 0} proxies`, type: 'success' });
+      // Send the raw textarea content to backend (no parsing).
+      const submitBody = textarea || '';
+      if (!isEmpty(submitBody)) {
+        fetch(createUrl('/php_backend/proxy-add.php'), {
+          method: 'POST',
+          body: new URLSearchParams({ proxies: submitBody })
+        }).catch(noop);
+      }
     } catch (err) {
       console.error(err);
       showSnackbar?.({ message: `Extraction failed: ${String(err)}`, type: 'danger' });
