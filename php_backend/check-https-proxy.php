@@ -293,7 +293,7 @@ function check($proxy) {
     $result = \PhpProxyHunter\Checker\ProxyCheckerHttpsOnly::check($checkerOptions);
 
     // Prepare data for database update
-    $data = ['last_check' => date(DATE_RFC3339)];
+    $data = ['last_check' => date(DATE_RFC3339), 'https' => 'false'];
     if (!empty($result->latency)) {
       $data['latency'] = $result->latency;
     }
