@@ -151,7 +151,7 @@ while (true) {
     if ($lastChecked !== false) {
       $ageInDays = round((time() - $lastChecked) / 86400);
       if ($ageInDays < 1) {
-        _log_shared($hashFilename, '  -> Skipped (checked recently)');
+        // _log_shared($hashFilename, '  -> Skipped (checked recently)');
         continue;
       }
     }
