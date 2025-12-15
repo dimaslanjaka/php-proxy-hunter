@@ -146,6 +146,11 @@ while (true) {
   $activeItems   = [];
   $inactiveItems = [];
   foreach ($items as $item) {
+    // Skip items with transient/open statuses that should not be re-checked now
+    if (!empty($item['status']) && in_array(strtolower($item['status']), ['untested', 'port-open', 'open-port'], true)) {
+      continue;
+    }
+
     $lastChecked = strtotime($item['last_check']);
     // Filter out items checked recently (age < 1 day)
     if ($lastChecked !== false) {
