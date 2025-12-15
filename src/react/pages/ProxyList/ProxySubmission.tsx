@@ -87,6 +87,51 @@ export default function ProxySubmission() {
       });
   }
 
+  function handleCheckUntestedHttps() {
+    // Fetch untested proxies from backend, then run HTTPS check on them
+    // Request a capped number of untested proxies instead of asking for "all" (-1)
+    const url = createUrl('/php_backend/proxy-list.php', { status: 'untested', length: 1000 });
+    setIsLoading(true);
+    fetch(url, { method: 'POST' })
+      .then((r) => r.json())
+      .then((json) => {
+        if (!json || !json.data || !Array.isArray(json.data) || json.data.length === 0) {
+          try {
+            showSnackbar({ message: 'No untested proxies found', type: 'danger' });
+          } catch {
+            /* ignore */
+          }
+          return;
+        }
+        const proxies = json.data
+          .map((row: any) => row.proxy)
+          .filter(Boolean)
+          .join('\n');
+        if (!proxies) {
+          try {
+            showSnackbar({ message: 'No proxy entries available to check', type: 'danger' });
+          } catch {
+            /* ignore */
+          }
+          return;
+        }
+
+        // Reuse runSingleCheck: wrap checkProxyHttps to ignore textarea and use fetched proxies
+        runSingleCheck(() => checkProxyHttps(proxies), 'Untested HTTPS check initiated', 'Check untested HTTPS failed');
+      })
+      .catch((err) => {
+        console.error(err);
+        try {
+          showSnackbar({ message: `Failed to fetch untested proxies: ${String(err)}`, type: 'danger' });
+        } catch {
+          /* ignore */
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }
+
   function runSingleCheck(fn: (proxies: string) => Promise<any>, successLabel: string, failLabel: string) {
     setIsLoading(true);
     fn(textarea)
@@ -180,6 +225,14 @@ export default function ProxySubmission() {
               onClick={() => runSingleCheck(checkProxyHttps, 'HTTPS check initiated', 'Check HTTPS failed')}>
               <i className="fa-duotone fa-lock"></i>
               Check HTTPS
+            </button>
+            <button
+              type="button"
+              disabled={isLoading}
+              className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 active:bg-rose-800 rounded-lg transition-colors"
+              onClick={handleCheckUntestedHttps}>
+              <i className="fa-duotone fa-circle-question"></i>
+              Check Untested
             </button>
             <button
               type="submit"
