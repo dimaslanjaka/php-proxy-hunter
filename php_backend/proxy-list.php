@@ -41,10 +41,15 @@ try {
   // Paging: DataTables uses `start` and `length`
   $start  = isset($request['start']) ? max(0, (int)$request['start']) : 0;
   $length = isset($request['length']) ? (int)$request['length'] : 10;
+  // Disallow "show all" (-1) to avoid excessive memory/CPU usage on small VPSes.
+  // Instead, cap to a safe maximum number of rows per page.
+  $MAX_PER_PAGE = 1000;
   if ($length === -1) {
-    // -1 means show all
-    $length = null;
+    // Treat -1 as request for many rows; cap to a safe maximum instead of returning everything.
+    $length = $MAX_PER_PAGE;
   }
+  // Clamp length to a sane range to avoid abuse and accidental overloads.
+  $length  = max(1, min($length, $MAX_PER_PAGE));
   $page    = ($length && $length > 0) ? (int)floor($start / $length) + 1 : 1;
   $perPage = $length;
 
