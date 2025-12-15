@@ -122,7 +122,7 @@ log_command() {
         echo ""
         echo "===================="
         echo ""
-    } >> "$log_file" 2>&1 &
+    } > "$log_file" 2>&1 &
 }
 
 # run every 5 minutes
