@@ -115,8 +115,17 @@ function reTestProxy(\PhpProxyHunter\Proxy $checkerOptions, $timeout = 5) {
       CURLOPT_TIMEOUT        => $timeout,
     ]);
 
-    $ok             = curl_exec($ch);
-    $results[$type] = $ok !== false && $ok !== '';
+    $body = curl_exec($ch);
+
+    $isOk = false;
+    if ($body !== false && $body !== '') {
+      $decoded = json_decode($body, true);
+      if (json_last_error() === JSON_ERROR_NONE && isset($decoded['origin']) && $decoded['origin'] !== '') {
+        $isOk = true;
+      }
+    }
+
+    $results[$type] = $isOk;
     curl_close($ch);
   }
 
