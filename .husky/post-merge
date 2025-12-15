@@ -13,10 +13,15 @@ if [ -f /sys/class/dmi/id/product_name ]; then
   fi
 fi
 
-# Set CWD to the root directory of the Git repository
-CWD=$(git rev-parse --show-toplevel)
-if [ $? -ne 0 ]; then
-  echo "Error: Not in a Git repository"
+# Set CWD to the parent directory of this script directory
+# Use realpath to resolve the parent; if that's not a git repo,
+# fall back to using git's repository root detection.
+CWD=$(realpath "$SCRIPT_DIR/.." 2>/dev/null || true)
+if [ -z "$CWD" ] || ! git -C "$CWD" rev-parse --show-toplevel >/dev/null 2>&1; then
+  CWD=$(git rev-parse --show-toplevel 2>/dev/null || true)
+fi
+if [ -z "$CWD" ]; then
+  echo "Error: Unable to determine repository root"
   exit 1
 fi
 
