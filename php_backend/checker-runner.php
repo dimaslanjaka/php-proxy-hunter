@@ -120,7 +120,7 @@ function reTestProxy(\PhpProxyHunter\Proxy $checkerOptions, $timeout = 5) {
     $isOk = false;
     if ($body !== false && $body !== '') {
       $decoded = json_decode($body, true);
-      if (json_last_error() === JSON_ERROR_NONE && isset($decoded['origin']) && $decoded['origin'] !== '') {
+      if (json_last_error() === JSON_ERROR_NONE && isset($decoded['origin'])) {
         $isOk = true;
       }
     }
