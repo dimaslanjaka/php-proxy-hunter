@@ -1,5 +1,38 @@
 [
   {
+    "hash": "41f0a8141b6bbc7dee13d4febae7f777c0ed5c05",
+    "date": "2025-12-15T13:15:06+07:00",
+    "message": "fix(proxy-extractor): send extracted proxies to backend on submit",
+    "files": [
+      "bin/check-proxy-parallel.cmd",
+      "src/react/pages/ProxyList/ProxyExtractor.tsx"
+    ]
+  },
+  {
+    "hash": "2053c976b99fab878e1c13cc869c9234e3cd946e",
+    "date": "2025-12-15T12:47:07+07:00",
+    "message": "fix(crontab): redirect log output to file correctly",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "d4393d80b987cdafd9e7e0fd0834daa9769961e0",
+    "date": "2025-12-15T12:40:43+07:00",
+    "message": "fix(check-old-proxy): skip re-checking items with transient/open statuses",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
+    "hash": "bc759af64e744669a25a1a741f4e037d0c896744",
+    "date": "2025-12-15T12:37:28+07:00",
+    "message": "fix(check-old-proxy): comment out skipped log message for recently checked proxies",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
     "hash": "bb653fa2fe51cf959c3b1374029f2f33fcf9d5bd",
     "date": "2025-12-15T12:30:45+07:00",
     "message": "chore(bin): rename py-update to py-dev and use repo-local Python launcher\n\nRename `bin/py-update`/`bin/py-update.cmd` to `bin/py-dev`/`bin/py-dev.cmd`.\nStandardize both scripts to invoke the repository-local Python launcher from\nthe script directory (`$SCRIPT_DIR/py` / `%~dp0py.cmd`), install the project's\n`requirements-dev.txt` from the repo root, and run `setup.py develop` for the\nthree local packages.\n\n- Renamed: bin/py-update -> bin/py-dev (POSIX)\n- Renamed: bin/py-update.cmd -> bin/py-dev.cmd (Windows)\n- Scripts now: install `requirements-dev.txt` from project root and run package dev installs",
@@ -8630,38 +8663,6 @@
     "message": "fix(proxy-checker): decode URL-encoded request parameters for proxy authentication",
     "files": [
       "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "9ae19e58722444c23a6018dd09f2f7a19ddedeac",
-    "date": "2025-09-17T11:21:57+07:00",
-    "message": "refactor(proxy-list): replace <pre> blocks with CodeBlock component for API usage examples",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "aa97f30f4ff05b12b64651c273be458b115147ef",
-    "date": "2025-09-17T11:18:32+07:00",
-    "message": "feat(CodeBlock): add CodeBlock component for syntax highlighting",
-    "files": [
-      "src/react/components/CodeBlock.tsx"
-    ]
-  },
-  {
-    "hash": "edd4abbc2424a14ac5e80648a1da78a8550f40d4",
-    "date": "2025-09-17T11:10:28+07:00",
-    "message": "feat(ProxyList): add API usage section with examples for proxy checking",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "33a2d29b6441c058c1ecdce03d063fef54bc5968",
-    "date": "2025-09-17T11:05:24+07:00",
-    "message": "fix(Navbar): update proxy manager link to point to /proxy-list",
-    "files": [
-      "src/react/components/Navbar.tsx"
     ]
   }
 ]
