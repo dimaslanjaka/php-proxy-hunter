@@ -57,5 +57,10 @@ post-commit     text eol=lf
 *.sqlite        filter=lfs diff=lfs merge=lfs -text
 
 # Special cases, run this to set up the merge driver:
-# git config --local merge.resolve_hash.driver 'node bin/cfh.cjs %O %A %B'
+# bash: git config --local merge.resolve_hash.driver 'node bin/cfh.cjs %O %A %B'
+# powershell: git config --local merge.resolve_hash.driver 'node bin/cfh.cjs %O %A %B'
+# cmd.exe: git config --local merge.resolve_hash.driver "node bin/cfh.cjs %%O %%A %%B"
+# To verify, run:
+# git config --local --get-regexp '^merge'
+# git check-attr --all -- .husky/hash.txt
 .husky/hash.txt text eol=lf merge=resolve_hash
