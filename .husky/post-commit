@@ -18,11 +18,11 @@ if [ $IS_VPS -eq 0 ]; then
   node --no-warnings=ExperimentalWarning --loader ts-node/esm "$CWD/src/dev/git-history.builder.ts"
 fi
 
-command -v git-lfs >/dev/null 2>&1 || {
-  echo >&2 "\nThis repository is configured for Git LFS but 'git-lfs' was not found on your path. If you no longer wish to use Git LFS, remove this hook by deleting the 'post-commit' file in the hooks directory (set by 'core.hookspath'; usually '.git/hooks').\n"
-  exit 2
-}
-git lfs post-commit "$@"
+if command -v git-lfs >/dev/null 2>&1; then
+  git lfs post-commit "$@"
+else
+  echo >&2 "Warning: Git LFS is not installed; skipping git lfs post-commit hook."
+fi
 
 # configure local git merge driver for `.husky/hash.txt` after commit
 git config --local merge.resolve_hash.name "Resolve .husky/hash.txt with custom script" || true
