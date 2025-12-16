@@ -1,5 +1,96 @@
 [
   {
+    "hash": "80aea237fe5c5fbc238b18e9c760df34b9ced56a",
+    "date": "2025-12-16T07:27:35+07:00",
+    "message": "feat(cfh): implement git merge driver functionality for hash generation",
+    "files": [
+      "bin/cfh.cjs"
+    ]
+  },
+  {
+    "hash": "b3cf779812a23ceb5541d9ca4fb03461cafc635b",
+    "date": "2025-12-16T07:11:54+07:00",
+    "message": "fix(gitattributes): enhance large file support with additional file types for Git LFS",
+    "files": [
+      ".gitattributes"
+    ]
+  },
+  {
+    "hash": "6fcb7f807c8f188b8b347ac74341ba200aeec4fd",
+    "date": "2025-12-16T07:10:58+07:00",
+    "message": "fix(post-commit): improve Git LFS detection and warning message",
+    "files": []
+  },
+  {
+    "hash": "ac41e9369acfbc5d903dd4d41d45f8b68fedf6ce",
+    "date": "2025-12-16T07:10:14+07:00",
+    "message": "chore(hooks): configure merge.resolve_hash in post-commit hook\n\nAdd commands to `.husky/post-commit` to set `merge.resolve_hash.name` and\n`merge.resolve_hash.driver` in the local git config after commits. This helps\nensure the custom merge driver (`node bin/cfh.cjs`) is available locally so\nfuture merges of `.husky/hash.txt` use the configured resolver.",
+    "files": []
+  },
+  {
+    "hash": "b62ea9c7e59b3e7019974de2c1286b805f0bef80",
+    "date": "2025-12-16T07:01:59+07:00",
+    "message": "chore(git): document merge-driver setup and add setup-merge-driver task\n\nAdd a note to `.gitattributes` describing the `merge.resolve_hash.name` setting\nand shell-specific driver command examples. Add `setup-merge-driver` task to\n`Taskfile.yml` to configure `merge.resolve_hash` locally and verify file\nattributes, making it easier for collaborators to enable the custom merge\ndriver for `.husky/hash.txt`.",
+    "files": [
+      ".gitattributes",
+      "Taskfile.yml"
+    ]
+  },
+  {
+    "hash": "3d73f71f54633b2c18702e8eb42f8a95b862d89e",
+    "date": "2025-12-16T06:57:38+07:00",
+    "message": "docs(gitattributes): clarify merge-driver setup and verification\n\nAdd platform-specific examples for configuring the `merge.resolve_hash` driver\n(bash, PowerShell, cmd.exe) and include verification commands to check the\nlocal git merge config and file attributes. This makes it easier for\ncollaborators to configure the custom merge driver correctly across shells.",
+    "files": [
+      ".gitattributes"
+    ]
+  },
+  {
+    "hash": "774a1c750d95ab4c1f4f39a1dacb78766d722cc8",
+    "date": "2025-12-16T06:51:22+07:00",
+    "message": "fix(gitattributes): clarify instructions for setting up merge driver",
+    "files": [
+      ".gitattributes"
+    ]
+  },
+  {
+    "hash": "f532479c355274c23c3365069967b8343a1111c2",
+    "date": "2025-12-16T06:50:12+07:00",
+    "message": "fix(post-merge): improve CWD detection and error handling for Git repository root",
+    "files": []
+  },
+  {
+    "hash": "2164dc5bace02701358a3dd600e2c76290316b30",
+    "date": "2025-12-16T06:47:19+07:00",
+    "message": "Use resolve_hash merge driver for .husky/hash.txt",
+    "files": [
+      ".gitattributes"
+    ]
+  },
+  {
+    "hash": "031778c50005e50a55687d5b2e494de5cc42840d",
+    "date": "2025-12-16T06:42:45+07:00",
+    "message": "fix(checker-runner): accept valid JSON response even if origin is empty",
+    "files": [
+      "php_backend/checker-runner.php"
+    ]
+  },
+  {
+    "hash": "3d3686d1ccaf4b40e8a86b57b315259c76330288",
+    "date": "2025-12-16T06:40:55+07:00",
+    "message": "fix(checker-runner): validate JSON `origin` in `reTestProxy`\n\nDecode the response from httpbin.org/ip and ensure it's valid JSON.\nRequire a non-empty `origin` field before marking a proxy as working.\nThis prevents false positives when the response is non-JSON or missing `origin`.",
+    "files": [
+      "php_backend/checker-runner.php"
+    ]
+  },
+  {
+    "hash": "2a1b1b69007425bf8b98c0456d8d6e849625f233",
+    "date": "2025-12-16T06:17:25+07:00",
+    "message": "fix(check-https-proxy): add 'https' field to last check data",
+    "files": [
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
     "hash": "f0f5691a6d17feeeb7b9d4d63d3ee1ac88eb2796",
     "date": "2025-12-15T13:29:46+07:00",
     "message": "feat(proxy-submission): add \"Check Untested\" button and handler\n\nFetch untested proxies from `/php_backend/proxy-list.php` (via `createUrl`) with a capped `length=1000`,\nbuild a newline-separated proxy list and reuse `runSingleCheck` by wrapping `checkProxyHttps`.\nShow appropriate snackbars for no-results and error cases.\n\nPrevents the frontend from requesting \"show all\" while reusing existing check logic.",
@@ -8565,104 +8656,6 @@
     "message": "fix(proxy-checker): improve logging and status file handling during proxy checks",
     "files": [
       "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "98239c4cf993355f38aa2f7f84159e48b1393ab3",
-    "date": "2025-09-17T12:43:19+07:00",
-    "message": "fix(proxy-checker): log attempts to access IP services with proxy details",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "e6479af806472195974371363a7f9b60b2be70d2",
-    "date": "2025-09-17T12:37:16+07:00",
-    "message": "refactor(proxy-checker): extract proxy details formatting to helper\n\n- Introduced `build_proxy_details` function to generate proxy details array and string, reducing code duplication.\n- Replaced repeated proxy details formatting logic with calls to the new helper throughout proxy checking flow.\n- Improved maintainability and readability by centralizing proxy details construction.",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "18b09bfab9bc900d972b1ab94a5bfb4831af9a3a",
-    "date": "2025-09-17T12:36:02+07:00",
-    "message": "feat(proxy-list): add automatic refresh of proxy list every minute",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "343ff5211866abd578f9b521362b2ddd8970339c",
-    "date": "2025-09-17T12:31:48+07:00",
-    "message": "fix(proxy-checker): enhance shutdown logging with proxy details and ensure lock file removal",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "693edd68ee206e58db8d10a7f1c4e1911eacec2c",
-    "date": "2025-09-17T12:26:12+07:00",
-    "message": "refactor(react): extract log viewer section to LogViewer component\n\n- Moved the log viewer UI from ProxyList.tsx into a new dedicated component, ProxyList/LogViewer.tsx, for improved modularity and code organization.\n- Updated ProxyList.tsx to use the new <LogViewer /> component.",
-    "files": [
-      "src/react/pages/ProxyList.tsx",
-      "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "173f24638cd348568da9dfc8f4d11edaa5429467",
-    "date": "2025-09-17T12:17:21+07:00",
-    "message": "refactor(react): move ProxyCheckerApiUsage to separate ApiUsage component\n\n- Extracted the ProxyCheckerApiUsage section from ProxyList.tsx into a new file, ProxyList/ApiUsage.tsx, for better modularity and maintainability.\n- Updated ProxyList.tsx to import and use the new ApiUsage component.\n- Replaced all local useMemo/useState imports with React namespace usage for consistency.",
-    "files": [
-      "src/react/pages/ProxyList.tsx",
-      "src/react/pages/ProxyList/ApiUsage.tsx"
-    ]
-  },
-  {
-    "hash": "4d4d3cbcfd3b42a0127014441ac94df3ba0e155f",
-    "date": "2025-09-17T12:02:53+07:00",
-    "message": "fix(proxy-checker): ensure working proxies are saved to JSON on shutdown",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "4905dfe01ef84d872c62881022dbdee7ad89c82b",
-    "date": "2025-09-17T11:56:23+07:00",
-    "message": "feat(proxy-list): add always-visible log viewer with polling and improved recheck UX\n\n- Introduce `LogViewerState` type and state to manage log viewer UI and polling.\n- Refactor `handleRecheck` to accept `setLogViewer` and update log viewer state on recheck.\n- On mount, auto-fetch user ID and set log/status URLs for log viewer.\n- Implement polling logic to fetch and update logs every 3 seconds, only updating UI if log content changes.\n- Remove unnecessary console.log from proxy processing.\n- Add always-visible log viewer section styled for dark/light mode and Flowbite compatibility.\n- Update recheck button to trigger new `handleRecheck` signature.\n- Improve user feedback and log loading state.",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "b8852ff4630c86859796b6ac79448a70fc4769a8",
-    "date": "2025-09-17T11:54:26+07:00",
-    "message": "feat(proxy-checker): add detailed logging of proxy details before performing checks",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "f8df8752998e95a6e839e74128ffe3cef74c552e",
-    "date": "2025-09-17T11:49:32+07:00",
-    "message": "fix(proxy-checker): improve dead and active proxy messages with detailed proxy information",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "8218cab83b98fecbfe8b527363e3659f38fe8b8c",
-    "date": "2025-09-17T11:46:49+07:00",
-    "message": "fix(proxy-checker): enhance dead proxy messages with detailed proxy information",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "95145941c39eb34c88705af0e4a218d5420f327e",
-    "date": "2025-09-17T11:30:50+07:00",
-    "message": "fix(CodeBlock): prevent warning by unsetting previous highlight before re-highlighting",
-    "files": [
-      "src/react/components/CodeBlock.tsx"
     ]
   }
 ]
