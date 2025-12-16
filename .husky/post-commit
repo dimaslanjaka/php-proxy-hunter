@@ -23,3 +23,7 @@ command -v git-lfs >/dev/null 2>&1 || {
   exit 2
 }
 git lfs post-commit "$@"
+
+# configure local git merge driver for `.husky/hash.txt` after commit
+git config --local merge.resolve_hash.name "Resolve .husky/hash.txt with custom script" || true
+git config --local merge.resolve_hash.driver "node bin/cfh.cjs %O %A %B" || true
