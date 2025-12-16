@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const { createFileHashes, getFileTreeString } = require('./file-hasher.cjs');
 const dotenv = require('dotenv');
+const crypto = require('crypto');
 
 // Determine the current script directory and project directory
 const scriptDir = path.dirname(__filename);
@@ -16,7 +17,7 @@ if (require('fs').existsSync(envPath)) {
 }
 
 const createFileHashesMain = async () => {
-  // Define the output file
+  // Define the default output file (used when run normally)
   const relativeOutputFile = '.husky/hash.txt';
   const outputFile = path.join(projectDir, relativeOutputFile);
 
@@ -60,6 +61,31 @@ const createFileHashesMain = async () => {
     path.join(projectDir, 'requirements-dev.txt')
   ];
 
+  // If invoked as a git merge driver, Git will call this script with three
+  // positional arguments: %O (ancestor), %A (current/ours temp file), %B (theirs).
+  // In that mode we must write the merged result into the file at %A and
+  // exit with code 0 so Git treats the file as resolved. Detect that mode
+  // and write to the provided %A path instead of the tracked file.
+  if (process.argv.length >= 5) {
+    const _ancestorPath = process.argv[2];
+    const ourPath = process.argv[3];
+    const _theirPath = process.argv[4];
+
+    // Compute the same outputLine as below, then write it to the
+    // temp file Git provided as %A.
+    const sorted = (await createFileHashes({ projectDir, extensions, excludeDirs, extraFiles })).slice().sort();
+    const joined = sorted.join('\n');
+    const folderHash = crypto.createHash('sha256').update(joined).digest('hex').slice(0, 16);
+    const projectName = path.basename(projectDir);
+    const outputLine = `${projectName} a${folderHash}\n`;
+
+    await fs.mkdir(path.dirname(ourPath), { recursive: true }).catch(() => {});
+    await fs.writeFile(ourPath, outputLine, 'utf8');
+    // Successful merge driver must exit 0 and leave the result in %A.
+    console.log(`Merge driver: wrote merged hash to ${ourPath}`);
+    process.exit(0);
+  }
+
   // Generate hashes
   const hashArray = await createFileHashes({
     projectDir,
@@ -70,7 +96,6 @@ const createFileHashesMain = async () => {
 
   // Compute a single checksum for the parent project folder from the sorted file hashes.
   // Join the sorted hash lines with a newline to create a stable input, then hash it.
-  const crypto = require('crypto');
   const sorted = hashArray.slice().sort();
   const joined = sorted.join('\n');
   const folderHash = crypto.createHash('sha256').update(joined).digest('hex').slice(0, 16);
@@ -79,12 +104,16 @@ const createFileHashesMain = async () => {
   const projectName = path.basename(projectDir);
   const outputLine = `${projectName} a${folderHash}\n`;
 
-  // Ensure output directory exists
+  // Ensure output directory exists and write the file when run normally
   await fs.mkdir(path.dirname(outputFile), { recursive: true });
   await fs.writeFile(outputFile, outputLine, 'utf-8');
 
-  // Add the hash file to the commit
-  execSync(`git add ${relativeOutputFile}`);
+  // Add the hash file to the commit (only for normal runs)
+  try {
+    execSync(`git add ${relativeOutputFile}`);
+  } catch (_err) {
+    // ignore git add failures in environments where git isn't available
+  }
 
   console.log(`Parent folder checksum saved to ${relativeOutputFile}`);
 };
