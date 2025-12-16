@@ -176,3 +176,16 @@ tasks:
       - |
         git config --global filter.lfs.process "git-lfs filter-process --skip"
         git config --global filter.lfs.smudge "git-lfs smudge --skip -- %f"
+
+  setup-merge-driver:
+    desc: Setup custom Git merge driver for .husky/hash.txt
+    silent: true
+    cmds:
+      - git config --local merge.resolve_hash.name "Resolve .husky/hash.txt with custom script"
+      - git config --local merge.resolve_hash.driver 'node bin/cfh.cjs %O %A %B'
+      - |
+        echo "Configured merge driver:"
+        git config --local --get-regexp '^merge'
+      - |
+        echo "Verifying .husky/hash.txt attributes:"
+        git check-attr --all -- .husky/hash.txt
