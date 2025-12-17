@@ -49,6 +49,29 @@ if ($assertionId !== $storedCred['id']) {
 // For now, accept and mark user as authenticated
 $_SESSION['authenticated'] = true;
 // store the idKey (email preferred) as authenticated_email for later flows
-$_SESSION['authenticated_email'] = $idKey;
+$_SESSION['authenticated_email'] = strtolower($idKey);
 
-respond_json(['error' => false, 'message' => 'authenticated']);
+// Determine admin emails: merge ADMIN_EMAILS (comma-separated) and DJANGO_SUPERUSER_EMAIL
+$admin_emails = [];
+if (!empty($_ENV['ADMIN_EMAILS'])) {
+  $admin_emails = array_map('trim', explode(',', (string)$_ENV['ADMIN_EMAILS']));
+}
+if (!empty($_ENV['DJANGO_SUPERUSER_EMAIL'])) {
+  $admin_emails[] = trim((string)$_ENV['DJANGO_SUPERUSER_EMAIL']);
+}
+// Keep only valid email addresses
+$admin_emails = array_filter($admin_emails, function ($e) {
+  return !empty($e) && filter_var($e, FILTER_VALIDATE_EMAIL);
+});
+$admin_list = array_unique(array_map('strtolower', $admin_emails));
+$isAdmin    = in_array($_SESSION['authenticated_email'], $admin_list, true);
+
+if ($isAdmin) {
+  $_SESSION['admin'] = true;
+} else {
+  if (isset($_SESSION['admin'])) {
+    unset($_SESSION['admin']);
+  }
+}
+
+respond_json(['error' => false, 'message' => ($isAdmin ? 'authenticated (admin)' : 'authenticated'), 'admin' => $isAdmin]);
