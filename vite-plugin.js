@@ -38,7 +38,8 @@ export function manualHmrPlugin() {
         } catch (error) {
           console.error(`[Manual HMR] Error:`, error);
           res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ success: false, message: `Error: ${error.message}` }));
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          res.end(JSON.stringify({ success: false, message: `Error: ${errorMessage}` }));
         }
       });
     }
@@ -144,7 +145,8 @@ export async function copyIndexForProduction() {
     // Copy index.html to all route destinations in dist/react
     await copyIndexToRoutes(src, path.join(__dirname, 'dist/react'));
   } catch (err) {
-    console.warn(err.message || err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.warn(errorMessage);
   }
 }
 
@@ -162,7 +164,7 @@ export function fontsResolverPlugin() {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         // Serve fonts from the /assets/fonts directory
-        if (req.url.startsWith('/assets/fonts/')) {
+        if (req.url && req.url.startsWith('/assets/fonts/')) {
           // Decode URI to handle spaces and special characters in filenames
           const fontFile = decodeURIComponent(req.url.replace('/assets/fonts/', ''));
           const fontPath = path.join(__dirname, 'assets/fonts', fontFile);
