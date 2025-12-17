@@ -68,8 +68,9 @@ if (!$isCli) {
     // Get proxy string from request
     $proxy = $request['proxy'];
 
-    // Save proxy to a temporary file
-    $proxy_file = tmp() . "/proxies/$hashFilename.txt";
+    // Save proxy to assets/proxies for background processing
+    $proxyFilename = 'added-' . basename(__FILE__, '.php') . "-$hashFilename.txt";
+    $proxy_file    = __DIR__ . "/../assets/proxies/$proxyFilename";
     write_file($proxy_file, $proxy);
 
     // Prepare output file and set permissions

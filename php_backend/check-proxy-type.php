@@ -69,8 +69,9 @@ if (!$isCli) {
     // Get proxy from the request
     $proxy = $request['proxy'];
 
-    // Define path for proxy file
-    $proxy_file = tmp() . "/proxies/$hashFilename.txt";
+    // Define path for proxy file in assets/proxies
+    $proxyFilename = 'added-' . basename(__FILE__, '.php') . "-$hashFilename.txt";
+    $proxy_file    = __DIR__ . "/../assets/proxies/$proxyFilename";
     // Save proxy details to the file
     write_file($proxy_file, $proxy);
 

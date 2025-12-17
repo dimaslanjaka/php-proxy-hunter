@@ -41,7 +41,8 @@ if (!$isCli) {
 
     $proxy = $req['proxy'];
 
-    $proxy_file = tmp() . "/proxies/$hashFilename.txt";
+    $proxyFilename = 'added-' . basename(__FILE__, '.php') . "-$hashFilename.txt";
+    $proxy_file    = __DIR__ . "/../assets/proxies/$proxyFilename";
     write_file($proxy_file, $proxy);
 
     $file = __FILE__;
