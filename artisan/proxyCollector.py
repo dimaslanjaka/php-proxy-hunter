@@ -16,13 +16,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.ProxyDB import ProxyDB
 from src.shared import init_db
 from src.func import get_relative_path
-from proxy_hunter import extract_proxies, Proxy
+from proxy_hunter import extract_proxies
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.utils.process.count_running_files import count_running_files
 
 # Global constants
 LOCK_FILE_PATH = get_relative_path("tmp/locks/proxyCollector.lock")
 ASSETS_PROXIES_DIR = get_relative_path("assets/proxies")
+LOCKS_DIR = get_relative_path("tmp/locks")
 
 # Global lock reference for signal handler
 _global_file_lock = None
@@ -234,13 +235,6 @@ def main():
     try:
         proxy_db = init_db(db_type="mysql")
 
-        # Ensure locks directory exists and use it for per-file locks
-        locks_dir = get_relative_path("tmp/locks")
-        try:
-            os.makedirs(locks_dir, exist_ok=True)
-        except Exception:
-            pass
-
         # Get added proxy files
         added_files = get_added_proxy_files()
         print(f"Found {len(added_files)} added proxy files")
@@ -270,7 +264,7 @@ def main():
             print(f"Attempting to process random file: {file_path}")
 
             lock_name = os.path.basename(file_path) + ".lock"
-            per_lock_path = os.path.join(locks_dir, lock_name)
+            per_lock_path = os.path.join(LOCKS_DIR, lock_name)
             per_lock = FileLockHelper(per_lock_path)
             _global_file_lock = per_lock
 
@@ -295,7 +289,7 @@ def main():
                 print(f"  - {file_path}")
 
                 lock_name = os.path.basename(file_path) + ".lock"
-                per_lock_path = os.path.join(locks_dir, lock_name)
+                per_lock_path = os.path.join(LOCKS_DIR, lock_name)
                 per_lock = FileLockHelper(per_lock_path)
                 _global_file_lock = per_lock
 
