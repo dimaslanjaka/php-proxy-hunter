@@ -128,7 +128,7 @@ log_command() {
 # run every 5 minutes
 if should_run_job "tmp/crontab/5-m" 0.0833; then
     echo "Running 5 minutes job."
-    log_command "tmp/logs/crontab/proxy-collector.log" "$CWD/bin/py" artisan/proxyCollector.py --batch-size=50
+    log_command "tmp/logs/crontab/proxy-collector.log" "$CWD/bin/py" artisan/proxyCollector.py --batch-size=50 --shuffle
 else
     echo "Skipping 5 minutes job."
 fi

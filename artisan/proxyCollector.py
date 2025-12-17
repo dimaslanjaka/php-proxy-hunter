@@ -188,6 +188,11 @@ def main():
         help="Pick a single random file instead of processing all files",
     )
     parser.add_argument(
+        "--shuffle",
+        action="store_true",
+        help="Shuffle discovered added-*.txt files before processing",
+    )
+    parser.add_argument(
         "--batch-size",
         type=int,
         default=10,
@@ -216,6 +221,11 @@ def main():
         # Get added proxy files
         added_files = get_added_proxy_files()
         print(f"Found {len(added_files)} added proxy files")
+
+        # Optionally shuffle file processing order to reduce contention
+        if getattr(args, "shuffle", False):
+            random.shuffle(added_files)
+            print("Shuffled processing order for added proxy files")
 
         if not added_files:
             print("No proxy files to process")
