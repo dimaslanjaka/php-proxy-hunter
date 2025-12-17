@@ -4,7 +4,6 @@ namespace PhpProxyHunter;
 
 use DateTime;
 use DateTimeZone;
-use Exception;
 
 class Session {
   private $session_prefix_name = 'PHP_PROXY_HUNTER';
@@ -18,25 +17,31 @@ class Session {
    */
   public function __construct(int $timeout, $session_folder = null) {
     if (!empty($session_folder) && !file_exists($session_folder)) {
-      mkdir($session_folder, 755, true);
+      @mkdir($session_folder, 0755, true);
     }
     if (!$this->isSessionStarted()) {
       $name = md5($this->session_prefix_name . $timeout . Server::getRequestIP() . Server::useragent());
       if (empty(trim($session_folder))) {
         $session_folder = __DIR__ . '/../../tmp/sessions';
-        if (!file_exists($session_folder)) {
-          if (!mkdir($session_folder, 0755, true)) {
-            throw new Exception('Unable to create session folder.');
-          }
-        }
       }
 
-      // set sessions folder permission
-      if (!is_writable($session_folder)) {
-        if (!chmod($session_folder, 0777)) {
-          throw new Exception('Unable to set session folder permission.');
-        }
+      // Normalize and ensure the session folder exists. If creation or permissions fail,
+      // fall back to the system temp directory to avoid permission-denied errors (Windows-safe).
+      $session_folder = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $session_folder);
+      if (!file_exists($session_folder)) {
+        @mkdir($session_folder, 0755, true);
       }
+
+      if (!is_dir($session_folder) || !is_writable($session_folder)) {
+        $fallback = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'php_proxy_hunter_sessions';
+        if (!file_exists($fallback)) {
+          @mkdir($fallback, 0755, true);
+        }
+        $session_folder = $fallback;
+      }
+
+      // Try to set permissive permissions but don't throw on failure (chmod is unreliable on Windows).
+      @chmod($session_folder, 0777);
       session_save_path($session_folder);
       session_set_cookie_params($timeout);
       ini_set('session.gc_maxlifetime', $timeout);
