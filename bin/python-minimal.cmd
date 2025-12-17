@@ -35,6 +35,7 @@ call venv\Scripts\activate.bat
 
 set "PY=%CWD%\venv\Scripts\python.exe"
 call %PY% -m pip install --upgrade pip
+call %PY% -m pip install -r "%CWD%\requirements-base.txt"
 call %PY% -m pip install -r "%CWD%\requirements-minimal.txt"
 
 if exist packages/proxy-checker-python (

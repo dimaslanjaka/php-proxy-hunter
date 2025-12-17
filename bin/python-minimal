@@ -24,6 +24,7 @@ fi
 
 . venv/bin/activate
 py -m pip install --upgrade pip || true
+py -m pip install -r "$CWD/requirements-base.txt"
 py -m pip install -r "$CWD/requirements-minimal.txt"
 if [ -d "packages/proxy-checker-python" ]; then
   py -m pip install -e packages/proxy-checker-python
