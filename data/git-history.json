@@ -1,5 +1,37 @@
 [
   {
+    "hash": "6aab4ae22d43656468b0548a9829086c49a831fd",
+    "date": "2025-12-17T23:20:12+07:00",
+    "message": "feat(deploy-vps): add checks for sitemap existence before upload",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "926b5b7e62e6bc660599c13f2d5fe0846d6b9457",
+    "date": "2025-12-17T23:17:23+07:00",
+    "message": "fix(vite-plugin): normalize error messages and guard req.url\n\n- Use `error instanceof Error ? error.message : String(error)` when serializing errors to avoid accessing undefined `.message`.\n- Normalize catch logging in `copyIndexForProduction` to print a safe string.\n- Guard `req.url` (check for truthiness) before calling `startsWith` to prevent runtime exceptions.",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "72b1b36e938b4a9d29c9a793a7496a8242c420c1",
+    "date": "2025-12-17T23:15:30+07:00",
+    "message": "refactor(bin/deploy-vps): improve SFTP/SSH utilities, add JSDoc, and harden error handling\n\n- Add comprehensive JSDoc for SFTP/SSH helpers (`createSftp`, `useSftp`, `withSSH`, `uploadFile`, `uploadDir`, `writeRemoteFile`, `deleteRemotePath`, `execWithBashrc`, `gitPull`, `shell_exec`)\n- Change `useSftp` signature to `useSftp(fn, config?)` so required callback comes first; update all call sites\n- Ensure `sftp.end()` is awaited safely in `finally` and failures are swallowed to avoid leaking connections\n- Normalize error logging (use `err instanceof Error ? err.message : String(err)`) to avoid undefined `.message`\n- Add more precise return/type annotations and stream data typing for `execWithBashrc`\n- Propagate optional `config` through `useSftp` calls and improve small runtime checks",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "8c5e4a219ef02e45644811e3557b63e788b01ab0",
+    "date": "2025-12-17T23:13:51+07:00",
+    "message": "fix(vite-gh-pages): guard against undefined viteConfig.build and use fallback\n\n- Add `buildOutDir` fallback: `viteConfig?.build?.outDir || path.join(__dirname, 'dist/react')`.\n- Replace direct `viteConfig.build.outDir` usages with `buildOutDir` (clean, .no_jekyll, index.html, copy/publish assets, cache-bust, copyIndexToRoutes).\n- Add `// @ts-expect-error` comments before Cheerio instance reassignment to silence TypeScript and allow GC hint.",
+    "files": [
+      "vite-gh-pages.js"
+    ]
+  },
+  {
     "hash": "7233a2eef0d132906f5e4ce41d2685f69db25a54",
     "date": "2025-12-17T22:36:17+07:00",
     "message": "feat(vite): enable output directory cleanup before each build",
@@ -8621,43 +8653,6 @@
       "proxyManager-src.js",
       "src/react/pages/ProxyList.tsx",
       "src/utils/date.js"
-    ]
-  },
-  {
-    "hash": "c6f8fe327e13956fb6e53570c3be57c0c34b1c0e",
-    "date": "2025-09-17T18:43:12+07:00",
-    "message": "refactor: standardize string quotes to single quotes across JavaScript files",
-    "files": [
-      "django_backend/apps/core/statics/js/base_script.js",
-      "django_backend/apps/proxy/statics/checker_result.js",
-      "django_backend/apps/proxy/statics/proxy_index.js"
-    ]
-  },
-  {
-    "hash": "6a947768313157c3070e75ada88aa144b72a1692",
-    "date": "2025-09-17T18:20:03+07:00",
-    "message": "feat(logs): dynamic table rendering for logs with flexible columns\n\n- strip raw `timestamp` and `created_at` fields, keep only `log_time`\n- introduce dynamic header generation based on log keys\n- exclude internal fields (ids, log_level, log_type) from display\n- render logs in a generic key/value table with JSON stringification for objects",
-    "files": [
-      "src/PhpProxyHunter/LogsRepository.php",
-      "src/react/pages/admin/LogsSection.tsx"
-    ]
-  },
-  {
-    "hash": "18b73e6c9f54b7ebc42e0e871da0e1e0c0b5c58d",
-    "date": "2025-09-17T17:49:33+07:00",
-    "message": "feat(types): add stub type definition for 'php_backend'",
-    "files": [
-      "types/php_backend.d.ts"
-    ]
-  },
-  {
-    "hash": "867b0524c5650f4e7efdfd22b669f1b34bcde63c",
-    "date": "2025-09-17T17:39:45+07:00",
-    "message": "feat(logs): enhance logs with user and package details\n\n- join user_logs with auth_user to include username and email\n- join package_logs with packages to include package name\n- update types to reflect new fields for user and package logs\n- improve LogsSection UI: scrollable table, smaller text, and richer log display",
-    "files": [
-      "src/PhpProxyHunter/LogsRepository.php",
-      "src/react/pages/admin/LogsSection.tsx",
-      "types/php_backend/logs.d.ts"
     ]
   }
 ]
