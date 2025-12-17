@@ -183,7 +183,7 @@ def main():
     # Parse CLI arguments
     parser = argparse.ArgumentParser(description="Proxy Collector and Indexer")
     parser.add_argument(
-        "--random",
+        "--single",
         action="store_true",
         help="Pick a single random file instead of processing all files",
     )
@@ -222,7 +222,7 @@ def main():
             return
 
         # Process files based on CLI args
-        if args.random:
+        if args.single:
             # Pick a single random file
             file_path = random.choice(added_files)
             print(f"Attempting to process random file: {file_path}")
