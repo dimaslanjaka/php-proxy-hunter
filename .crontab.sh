@@ -141,6 +141,7 @@ if should_run_job "tmp/crontab/30-m" 0.5; then
     # log_command "tmp/logs/crontab/proxy-collector.log" php artisan/proxyCollector.php || true
     # log_command "tmp/logs/crontab/proxy-collector2.log" php artisan/proxyCollector2.php || true
     log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php
+    log_command "tmp/logs/crontab/proxy-collector2.log" "$CWD/bin/py" artisan/proxyCollector2.py
 else
     echo "Skipping 30 minutes job."
 fi
