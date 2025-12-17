@@ -1,5 +1,40 @@
 [
   {
+    "hash": "ab35a6d8c4be594544f110fdc89f496d85b930b6",
+    "date": "2025-12-17T14:46:52+07:00",
+    "message": "feat(webauthn): add WebAuthn registration & authentication (server + client)\n\n- add WEBAUTHN_RP_ID and explanatory comments to .env.example\n- add PHP WebAuthn backend endpoints:\n  - php_backend/webauthn/register_options.php\n  - php_backend/webauthn/register_verify.php\n  - php_backend/webauthn/auth_options.php\n  - php_backend/webauthn/auth_verify.php\n  These endpoints issue/verify challenges, store credentials under tmp/webauthn, and return standardized JSON `{ error: bool, message: string, ... }`.\n- update frontend flows:\n  - src/react/pages/Settings.tsx — add security-key registration using `@simplewebauthn/browser`\n  - src/react/pages/Login.tsx — add login with security-key UI and verify flow\n- add i18n keys for registration messages:\n  - src/react/locales/en.json\n  - src/react/locales/id.json\n- add dependencies:\n  - composer.json: add `web-auth/webauthn-lib` (PHP server-side library available)\n  - package.json: add `@simplewebauthn/browser` (browser helper)\n  - bump yarn `packageManager` to `yarn@4.12.0`\n- ensure responses use `respond_json` format (error/message) for consistent client handling\n\nNotes:\n- Current server-side checks are minimal (challenge matching + credential-id check). For production, enable full cryptographic signature verification using the added `web-auth/webauthn-lib` and consider storing credentials in the DB rather than JSON files.",
+    "files": [
+      ".env.example",
+      "composer.json",
+      "package.json",
+      "php_backend/webauthn/auth_options.php",
+      "php_backend/webauthn/auth_verify.php",
+      "php_backend/webauthn/register_options.php",
+      "php_backend/webauthn/register_verify.php",
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/Login.tsx",
+      "src/react/pages/Settings.tsx"
+    ]
+  },
+  {
+    "hash": "943e597fdf90752772f17d065b32d471dc0e74b4",
+    "date": "2025-12-17T14:41:32+07:00",
+    "message": "fix(session): make session folder creation and permissions resilient on Windows\n\n- use suppressed mkdir with correct octal mode (0755)\n- normalize path separators before creating/checking folder\n- fall back to sys_get_temp_dir()/php_proxy_hunter_sessions if target folder is missing or not writable\n- attempt permissive chmod but don't throw on failure (avoid Windows ACL issues)\n- remove unused Exception import",
+    "files": [
+      "src/PhpProxyHunter/Session.php"
+    ]
+  },
+  {
+    "hash": "5024955a746cb29889b28adbc76f7fdbaccfc488",
+    "date": "2025-12-17T13:38:25+07:00",
+    "message": "chore: update yarn version to 4.12.0 in .yarnrc.yml",
+    "files": [
+      ".yarn/releases/yarn-4.12.0.cjs",
+      ".yarnrc.yml"
+    ]
+  },
+  {
     "hash": "03b8a52cea11bab8e13bc313a44146a5e60f4f0e",
     "date": "2025-12-17T12:58:33+07:00",
     "message": "feat(python-minimal): add installation of requirements-base.txt in setup scripts",
@@ -8631,30 +8666,6 @@
       "src/PhpProxyHunter/UserDB.php",
       "src/PhpProxyHunter/assets/mysql-schema.sql",
       "src/PhpProxyHunter/assets/sqlite-schema.sql"
-    ]
-  },
-  {
-    "hash": "636a00018b7a1f30a411460065354505354d3233",
-    "date": "2025-09-17T16:26:36+07:00",
-    "message": "fix(SQLiteHelper): comment out debug var_dump statements in modifyColumn method",
-    "files": [
-      "src/PhpProxyHunter/SQLiteHelper.php"
-    ]
-  },
-  {
-    "hash": "cbbe366d676d4344c775327a2b8d84e89e61ca23",
-    "date": "2025-09-17T16:16:28+07:00",
-    "message": "fix(logs): add namespace prefix to json_validate function call in addLog method",
-    "files": [
-      "src/PhpProxyHunter/LogsRepository.php"
-    ]
-  },
-  {
-    "hash": "15e9c47510ab21a28b46d1ce385113935e55e6e1",
-    "date": "2025-09-17T15:51:56+07:00",
-    "message": "fix(logs): correct require_once placement for shim.php in LogsRepository",
-    "files": [
-      "src/PhpProxyHunter/LogsRepository.php"
     ]
   }
 ]
