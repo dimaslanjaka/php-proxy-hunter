@@ -1,5 +1,13 @@
 [
   {
+    "hash": "7233a2eef0d132906f5e4ce41d2685f69db25a54",
+    "date": "2025-12-17T22:36:17+07:00",
+    "message": "feat(vite): enable output directory cleanup before each build",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "08ab1f0c128f7e96df2ce502c96885967535edf8",
     "date": "2025-12-17T17:12:57+07:00",
     "message": "feat(auth): normalize authenticated_email and derive admin list from env\n\n- store `authenticated_email` as lowercase for consistent checks\n- merge `ADMIN_EMAILS` (comma-separated) and `DJANGO_SUPERUSER_EMAIL` into a single admin list\n- validate, trim, deduplicate and lowercase admin emails before matching\n- set/unset `$_SESSION['admin']` based on the merged admin list\n- include `admin` flag and admin-specific message in `respond_json` result",
@@ -8648,16 +8656,6 @@
     "message": "feat(logs): enhance logs with user and package details\n\n- join user_logs with auth_user to include username and email\n- join package_logs with packages to include package name\n- update types to reflect new fields for user and package logs\n- improve LogsSection UI: scrollable table, smaller text, and richer log display",
     "files": [
       "src/PhpProxyHunter/LogsRepository.php",
-      "src/react/pages/admin/LogsSection.tsx",
-      "types/php_backend/logs.d.ts"
-    ]
-  },
-  {
-    "hash": "80796166b204a9bd3790509a13945a31a9767c69",
-    "date": "2025-09-17T17:24:08+07:00",
-    "message": "feat(admin): add logs pagination and fetch from backend\n\n- create reusable Pagination component\n- add LogsResponse, UserLog, and PackageLog types\n- update LogsSection to fetch logs from backend with pagination\n- handle loading and empty states",
-    "files": [
-      "src/react/components/Pagination.tsx",
       "src/react/pages/admin/LogsSection.tsx",
       "types/php_backend/logs.d.ts"
     ]
