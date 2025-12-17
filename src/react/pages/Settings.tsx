@@ -113,22 +113,21 @@ const Settings = () => {
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
   return (
-    <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 mt-4">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white dark:bg-gray-800 p-8 rounded shadow-md dark:shadow-white w-full max-w-md">
-          <h2 className="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-white flex items-center justify-center">
+    <div className="min-h-screen flex items-start md:items-center justify-center bg-gray-100 dark:bg-gray-900 px-4 py-8">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded shadow-md overflow-hidden flex flex-col md:flex-row">
+        <div className="p-6 md:p-12 md:w-1/2">
+          <h2 className="text-2xl font-bold mb-6 text-blue-600 dark:text-white flex items-center">
             <span className="fa-light fa-user-gear mr-3 text-blue-500" style={{ fontSize: '1.5rem' }}></span>
             {t('settings_title')}
           </h2>
           {error && <div className="mb-4 text-red-500">{error}</div>}
           {success && <div className="mb-4 text-green-500">{success}</div>}
+
           <div className="mb-4">
             <label className="block mb-1 text-gray-700 dark:text-gray-200" htmlFor="username">
               {t('settings_username_label')}
@@ -143,6 +142,7 @@ const Settings = () => {
               autoComplete="username"
             />
           </div>
+
           <div className="mb-4">
             <label className="block mb-1 text-gray-700 dark:text-gray-200" htmlFor="email">
               {t('settings_email_label')}
@@ -157,11 +157,12 @@ const Settings = () => {
               autoComplete="email"
             />
           </div>
+
           <div className="mb-6">
             <label className="block mb-1 text-gray-700 dark:text-gray-200" htmlFor="password">
               {t('settings_password_label')}
             </label>
-            <div style={{ position: 'relative' }}>
+            <div className="relative">
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
@@ -173,33 +174,33 @@ const Settings = () => {
                 placeholder={t('settings_password_placeholder')}
                 style={{ paddingRight: '2rem' }}
               />
-              <span
+              <button
+                type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '0.5rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  cursor: 'pointer',
-                  color: '#888',
-                  zIndex: 2
-                }}>
-                <i
-                  className={showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'}
-                  aria-hidden="true"
-                  style={{ fontSize: '1.2rem' }}></i>
-              </span>
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500">
+                <i className={showPassword ? 'fa-duotone fa-eye-slash' : 'fa-duotone fa-eye'} aria-hidden="true"></i>
+              </button>
             </div>
           </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring mb-4">
-            {t('settings_save_changes')}
-          </button>
+
+          <div className="mt-4">
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring">
+              {t('settings_save_changes')}
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6 md:p-12 md:w-1/2 bg-gray-50 dark:bg-gray-700 flex flex-col items-stretch md:justify-center justify-start gap-3">
           <button
             type="button"
             onClick={handleBuySaldo}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring mb-3">
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring">
+            <span className="mr-2">
+              <i className="fa-duotone fa-wallet" aria-hidden="true"></i>
+            </span>
             {t('settings_buy_saldo')}
           </button>
 
@@ -207,11 +208,14 @@ const Settings = () => {
             type="button"
             onClick={handleWebAuthnRegister}
             className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring">
+            <span className="mr-2">
+              <i className="fa-duotone fa-key" aria-hidden="true"></i>
+            </span>
             Register Security Key (for login)
           </button>
-        </form>
-      </div>
-    </>
+        </div>
+      </form>
+    </div>
   );
 };
 
