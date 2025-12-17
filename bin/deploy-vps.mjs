@@ -14,25 +14,44 @@ const { host, port, username, password, remotePath } = sftpConfig;
  *  SHARED UTILITIES
  * ----------------------------------------------------- */
 
-/** Create new SFTP instance with merged config */
+/**
+ * Create a new SFTP client and combined connection options.
+ * @param {object} [config={}] - Additional connection options to merge over the default config.
+ * @returns {{ sftp: import('ssh2-sftp-client'), opts: object }}
+ */
 function createSftp(config = {}) {
   const sftp = new SftpClient();
   const opts = { host, port, username, password, ...config };
   return { sftp, opts };
 }
 
-/** Safely connect + run + end SFTP */
-async function useSftp(config, fn) {
+/**
+ * Safely connect to an SFTP server, execute the provided async callback, and ensure the
+ * SFTP connection is closed regardless of success or failure.
+ * @template T
+ * @param {(sftp: import('ssh2-sftp-client')) => Promise<T>} fn - Function executed with a connected SFTP client.
+ * @param {object} [config={}] - Additional connection options passed to `createSftp`.
+ * @returns {Promise<T>} The value returned by `fn`.
+ */
+async function useSftp(fn, config = {}) {
   const { sftp, opts } = createSftp(config);
   try {
     await sftp.connect(opts);
     return await fn(sftp);
   } finally {
-    sftp.end();
+    // Ensure client is closed; `end()` is safe to call even if connect failed.
+    try {
+      await sftp.end();
+    } catch (_) {}
   }
 }
 
-/** Execute SSH with automatic connect/end */
+/**
+ * Execute a function with an SSH connection. The connection is opened, the provided
+ * async function is executed, and the connection is closed afterwards.
+ * @param {(conn: import('ssh2').Client) => Promise<any>} fn - Async function that receives the connected Client.
+ * @returns {Promise<any>} Resolves/rejects with the result of `fn`.
+ */
 function withSSH(fn) {
   const conn = new Client();
   return new Promise((resolve, reject) => {
@@ -52,32 +71,47 @@ function withSSH(fn) {
  * ----------------------------------------------------- */
 
 /**
- * Upload a single file to the remote server using ssh2-sftp-client.
+ * Upload a single local file to the remote server using ssh2-sftp-client.
+ * Ensures the SFTP connection is opened and closed via `useSftp`.
+ * @param {string} localFile - Local filesystem path to upload.
+ * @param {string} remoteFile - Destination path on the remote server (POSIX-style recommended).
+ * @param {object} [config={}] - Optional connection overrides passed to `createSftp`.
+ * @returns {Promise<void>}
  */
 export async function uploadFile(localFile, remoteFile, config = {}) {
-  return useSftp(config, async (sftp) => {
+  return useSftp(async (sftp) => {
     console.log(`Uploading file ${localFile} → ${remoteFile}`);
     await sftp.put(localFile, remoteFile);
-  });
+  }, config);
 }
 
 /**
- * Recursively upload a directory using ssh2-sftp-client.
+ * Recursively upload a directory to the remote server.
+ * Uses `ssh2-sftp-client`'s `uploadDir` helper and ensures connection lifecycle via `useSftp`.
+ * @param {string} localDir - Local directory path to upload.
+ * @param {string} remoteDir - Destination directory on the remote server (POSIX-style recommended).
+ * @param {object} [config={}] - Optional connection overrides passed to `createSftp`.
+ * @returns {Promise<void>}
  */
 export async function uploadDir(localDir, remoteDir, config = {}) {
-  return useSftp(config, async (sftp) => {
+  return useSftp(async (sftp) => {
     console.log(`Uploading ${localDir} → ${remoteDir}`);
     await sftp.uploadDir(localDir, remoteDir);
-  });
+  }, config);
 }
 
 /**
  * Write contents (string or Buffer) to a remote file path via SFTP.
+ * Creates parent directories if necessary.
+ * @param {string} remoteFile - Destination path on the remote server.
+ * @param {string|Buffer} contents - Data to write to the remote file.
+ * @param {object} [config={}] - Optional connection overrides passed to `createSftp`.
+ * @returns {Promise<void>}
  */
 export async function writeRemoteFile(remoteFile, contents, config = {}) {
   const data = Buffer.isBuffer(contents) ? contents : Buffer.from(String(contents));
 
-  return useSftp(config, async (sftp) => {
+  return useSftp(async (sftp) => {
     console.log(`Writing remote file ${remoteFile}`);
 
     const parentDir = path.posix.dirname(remoteFile.replace(/\\/g, '/'));
@@ -85,25 +119,31 @@ export async function writeRemoteFile(remoteFile, contents, config = {}) {
     try {
       await sftp.mkdir(parentDir, true);
     } catch (e) {
-      console.debug(`mkdir ${parentDir} skipped:`, e.message || e);
+      const err = e instanceof Error ? e : new Error(String(e));
+      console.debug(`mkdir ${parentDir} skipped:`, err.message || err);
     }
 
     await sftp.put(data, remoteFile);
-  });
+  }, config);
 }
 
 /**
- * Delete a remote file or directory (recursive if needed).
+ * Delete a remote file or directory. Performs recursive removal for directories.
+ * Attempts efficient removal first, falling back to a manual recursive traversal when necessary.
+ * @param {string} target - Remote path to delete.
+ * @param {object} [config={}] - Optional connection overrides passed to `createSftp`.
+ * @returns {Promise<void>}
  */
 export async function deleteRemotePath(target, config = {}) {
-  return useSftp(config, async (sftp) => {
+  return useSftp(async (sftp) => {
     console.log(`Deleting remote path ${target}`);
 
     let existsType = null;
     try {
       existsType = await sftp.exists(target);
     } catch (e) {
-      console.debug(`exists() failed:`, e.message || e);
+      const err = e instanceof Error ? e : new Error(String(e));
+      console.debug(`exists() failed:`, err.message || err);
     }
 
     if (!existsType) return;
@@ -133,13 +173,21 @@ export async function deleteRemotePath(target, config = {}) {
       }
     }
     await sftp.rmdir(target);
-  });
+  }, config);
 }
 
 /* -------------------------------------------------------
  *  SSH EXEC HELPERS
  * ----------------------------------------------------- */
 
+/**
+ * Execute a shell command on the remote host wrapped with common environment setup.
+ * The command is executed with `bash -lc` so shell features like `&&` and environment
+ * sourcing work as expected. Standard output/stderr are captured and streamed locally.
+ * @param {import('ssh2').Client} conn - An active SSH2 `Client` instance.
+ * @param {string} command - Shell command to run on the remote host.
+ * @returns {Promise<{stdout: string, stderr: string, code: number, signal: string}>}
+ */
 export function execWithBashrc(conn, command) {
   const wrapped = `
     source ~/.bashrc >/dev/null 2>&1;
@@ -159,12 +207,12 @@ export function execWithBashrc(conn, command) {
       if (err) return reject(err);
 
       stream
-        .on('close', (code, signal) => resolve({ stdout, stderr, code, signal }))
-        .on('data', (data) => {
+        .on('close', (/** @type {any} */ code, /** @type {any} */ signal) => resolve({ stdout, stderr, code, signal }))
+        .on('data', (/** @type {string | Uint8Array<ArrayBufferLike>} */ data) => {
           stdout += data;
           process.stdout.write(data);
         })
-        .stderr.on('data', (data) => {
+        .stderr.on('data', (/** @type {string | Uint8Array<ArrayBufferLike>} */ data) => {
           stderr += data;
           process.stderr.write(data);
         });
@@ -173,7 +221,8 @@ export function execWithBashrc(conn, command) {
 }
 
 /**
- * git pull via SSH
+ * Perform `git pull` in the project repository on the remote host via SSH.
+ * @returns {Promise<{stdout: string, stderr: string, code: number, signal: string}>}
  */
 export function gitPull() {
   return withSSH(async (conn) => {
@@ -182,7 +231,11 @@ export function gitPull() {
 }
 
 /**
- * Execute a remote shell command through SSH
+ * Execute a shell command on the remote host via SSH. Optionally run the command from a
+ * specific working directory.
+ * @param {string} command - Shell command to execute on the remote host.
+ * @param {string|null} [cwd=null] - Optional working directory on the remote host.
+ * @returns {Promise<{stdout: string, stderr: string, code: number, signal: string}>}
  */
 export function shell_exec(command, cwd = null) {
   if (cwd) command = `cd ${cwd} && ${command}`;
@@ -230,7 +283,8 @@ async function main() {
       await uploadFile(sitemapXmlPath, `${remotePath}/sitemap.xml`);
       console.log('Uploaded sitemap.xml');
     } catch (err) {
-      console.warn('Sitemap upload skipped:', err.message);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      console.warn('Sitemap upload skipped:', errMsg);
     }
 
     const { code } = await shell_exec('bash bin/fix-perm', remotePath);
@@ -304,7 +358,8 @@ async function main() {
     await uploadFile(sitemapXmlPath, `${remotePath}/sitemap.xml`);
     console.log('Uploaded sitemap.xml');
   } catch (err) {
-    console.warn('Sitemap upload skipped:', err.message);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.warn('Sitemap upload skipped:', errMsg);
   }
 
   const { code: permCode } = await shell_exec('bash bin/fix-perm', remotePath);
