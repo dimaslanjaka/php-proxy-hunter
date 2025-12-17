@@ -12,15 +12,18 @@ import { copyIndexHtml } from './vite-plugin.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Safely resolve the Vite build output directory; provide a sensible default
+const buildOutDir = (viteConfig && viteConfig.build && viteConfig.build.outDir) || path.join(__dirname, 'dist/react');
+
 /**
  * Builds the project for GitHub Pages and deploys it.
  * @returns {Promise<void>}
  */
 async function buildForGithubPages() {
   // Clean the output directory
-  if (fs.existsSync(viteConfig.build.outDir)) {
-    fs.rmSync(viteConfig.build.outDir, { recursive: true, force: true });
-    console.log(`Cleaned output directory: ${viteConfig.build.outDir}`);
+  if (fs.existsSync(buildOutDir)) {
+    fs.rmSync(buildOutDir, { recursive: true, force: true });
+    console.log(`Cleaned output directory: ${buildOutDir}`);
   }
   // Copy index.dev.html to index.html
   copyIndexHtml();
@@ -35,14 +38,14 @@ async function buildForGithubPages() {
     console.error('Build failed:', err);
     return;
   }
-  const noJekyllPath = path.join(viteConfig.build.outDir, '.no_jekyll');
+  const noJekyllPath = path.join(buildOutDir, '.no_jekyll');
   if (!fs.existsSync(noJekyllPath)) {
     fs.writeFileSync(noJekyllPath, '');
     console.log('.no_jekyll file created to prevent Jekyll processing');
   }
 
   // Verify the build output
-  const indexHtml = path.join(viteConfig.build.outDir, 'index.html');
+  const indexHtml = path.join(buildOutDir, 'index.html');
   if (!fs.existsSync(indexHtml)) {
     throw new Error(`Build failed: ${indexHtml} does not exist.`);
   }
@@ -74,7 +77,7 @@ async function deploy() {
   }
 
   // Copy build output to .deploy_git
-  fs.copySync(viteConfig.build.outDir, deployGitPath, { overwrite: true, dereference: true });
+  fs.copySync(buildOutDir, deployGitPath, { overwrite: true, dereference: true });
   console.log(`Copied build output to ${deployGitPath}`);
 
   // Clean and copy build output
@@ -87,7 +90,7 @@ async function deploy() {
   }
 
   // Re-copy build assets
-  const source = path.join(viteConfig.build.outDir, 'assets');
+  const source = path.join(buildOutDir, 'assets');
   const target = path.join(deployGitPath, 'assets');
   if (fs.existsSync(source)) {
     fs.copySync(source, target, { overwrite: true, dereference: true });
@@ -99,7 +102,7 @@ async function deploy() {
   }
 
   // Cache busting for index.html
-  const indexHtml = path.join(viteConfig.build.outDir, 'index.html');
+  const indexHtml = path.join(buildOutDir, 'index.html');
   cacheBustHtml(indexHtml);
 
   // Copy index.html to each route in .deploy_git
@@ -150,6 +153,7 @@ export function cacheBustHtml(htmlFilePath, version) {
   });
   const relHtml = path.relative(process.cwd(), htmlFilePath);
   fs.writeFileSync(htmlFilePath, $.html());
+  // @ts-expect-error Cheerio instance reassignment for garbage collection
   $ = null; // Help GC
   console.log(`Updated ${relHtml} with version query parameters.`);
 }
@@ -169,7 +173,7 @@ export function cacheBustHtml(htmlFilePath, version) {
  * @returns {Promise<void>} Resolves when all index.html files have been copied for all routes.
  */
 export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = undefined) {
-  if (!sourceHtml) sourceHtml = path.join(viteConfig.build.outDir, 'index.html');
+  if (!sourceHtml) sourceHtml = path.join(buildOutDir, 'index.html');
   const relIndexHtml = path.relative(process.cwd(), sourceHtml);
   // Read the HTML content once for reuse in each route
   const htmlContent = fs.readFileSync(sourceHtml, 'utf-8');
@@ -302,6 +306,7 @@ export async function copyIndexToRoutes(sourceHtml = undefined, targetDir = unde
       try {
         // Write the modified HTML to the route's HTML file
         fs.writeFileSync(routeHtml, $.html());
+        // @ts-expect-error Cheerio instance reassignment for garbage collection
         $ = null; // Help GC
         if (!fs.existsSync(routeHtml)) {
           // Check if file was written successfully
