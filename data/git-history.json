@@ -1,5 +1,39 @@
 [
   {
+    "hash": "03b8a52cea11bab8e13bc313a44146a5e60f4f0e",
+    "date": "2025-12-17T12:58:33+07:00",
+    "message": "feat(python-minimal): add installation of requirements-base.txt in setup scripts",
+    "files": [
+      "bin/python-minimal",
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "1e97467be345d2640fc83001cf35f0ed73a79036",
+    "date": "2025-12-17T12:57:02+07:00",
+    "message": "fix(sync-backups): add comparison by size during backup sync",
+    "files": [
+      "src/vps/menus/sync-backups.py"
+    ]
+  },
+  {
+    "hash": "5b1cd6178c708d0390767cd96e1035060f111074",
+    "date": "2025-12-17T12:55:58+07:00",
+    "message": "feat(artisan): add proxyCollector2 and schedule it in .crontab.sh\n\n- Add `artisan/proxyCollector2.py`: a lightweight proxy-collector script that\n  - reuses `LOCKS_DIR` and `FileLockHelper` for per-file locking and safe concurrent runs\n  - filters discovered `added-*.txt` files to those < 800 KB and selects the smallest file\n  - extracts proxies, updates DB, and deletes the processed file on success\n  - registers signal handlers and ensures locks are released on interrupt/terminate\n- Register `artisan/proxyCollector2.py` in `.crontab.sh` (30-minute job), logging to `tmp/logs/crontab/proxy-collector2.log`\n\nThis adds a resilient, small-file-first collector and schedules it for periodic execution.",
+    "files": [
+      ".crontab.sh",
+      "artisan/proxyCollector2.py"
+    ]
+  },
+  {
+    "hash": "c56e620052866494f0c7e4ad7127b159b31ac95e",
+    "date": "2025-12-17T12:48:42+07:00",
+    "message": "refactor(artisan/proxyCollector): expose LOCKS_DIR and remove explicit lock-dir creation\n\n- Add `LOCKS_DIR = get_relative_path(\"tmp/locks\")` for reusable lock directory path.\n- Remove explicit `os.makedirs(...locks_dir...)` — rely on `FileLockHelper` to create the directory.\n- Update per-file lock paths to use `LOCKS_DIR`.\n- Remove unused `Proxy` import from `proxy_hunter`.\n\nThis centralizes lock-dir configuration and avoids redundant directory creation.",
+    "files": [
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
     "hash": "1c333e8102488a598ee2c85fa59d4210a1023c15",
     "date": "2025-12-17T11:51:04+07:00",
     "message": "feat(artisan): add merge_proxies utility and integrate into proxyCollector\n\nAdd `artisan/merge_proxies.py` to consolidate small `added-*.txt` proxy files\n(<= 10KB) into a single timestamped merged file (`added-merged-YYYYMMDD-HHMMSS.txt`)\nand archive the original source files into `assets/proxies/merged-backup/`\n(with timestamped names) to avoid reprocessing duplicates.\n\nIntegrate the new utility into `artisan/proxyCollector.py`:\n- add `--no-merge` CLI flag to opt out of pre-processing merge step\n- import and call `artisan.merge_proxies.main()` before collecting proxies,\n  skipping the merge if the module is not importable\n\nThis reduces file clutter, deduplicates proxy lines, and prevents repeated\nprocessing of many tiny `added-*.txt` files.",
@@ -8621,39 +8655,6 @@
     "message": "fix(logs): correct require_once placement for shim.php in LogsRepository",
     "files": [
       "src/PhpProxyHunter/LogsRepository.php"
-    ]
-  },
-  {
-    "hash": "39cc0a6857c61c33fd221b08d6c38dfab1f5246a",
-    "date": "2025-09-17T15:47:43+07:00",
-    "message": "feat(shim): add PHP 8 compatibility shims for removed/deprecated functions\n\nAdded fallback implementations for functions removed in PHP 8:\n- get_magic_quotes_gpc()\n- get_magic_quotes_runtime()\n- set_magic_quotes_runtime()\n- create_function()\n- each()\n- get_html_translation_table_compat()\n\nThese shims ensure legacy code can run without modification under PHP 8.",
-    "files": [
-      "src/PhpProxyHunter/shim.php"
-    ]
-  },
-  {
-    "hash": "ac42fbc88974c218c51854bc5f719a6f1217999d",
-    "date": "2025-09-17T15:45:57+07:00",
-    "message": "fix(shim): update json_validate function to match PHP 8.3 polyfill specifications",
-    "files": [
-      "src/PhpProxyHunter/shim.php"
-    ]
-  },
-  {
-    "hash": "08e6a28eec13eb6b05718b26e08e01a1f222e9cf",
-    "date": "2025-09-17T15:44:37+07:00",
-    "message": "fix(logs): ensure proper JSON validation and fallback encoding\n\n- Added `shim.php` with polyfill for `json_validate` when not available\n- Updated `LogsRepository` to use `json_validate` for `$extraInfo` when storing logs\n- Fallback to `json_encode` with `JSON_UNESCAPED_UNICODE` if not valid JSON",
-    "files": [
-      "src/PhpProxyHunter/LogsRepository.php",
-      "src/PhpProxyHunter/shim.php"
-    ]
-  },
-  {
-    "hash": "c1eed74c7c022164224b1fd0cc3cbc14e081414d",
-    "date": "2025-09-17T15:01:08+07:00",
-    "message": "fix(recaptcha): ensure reCAPTCHA secret key is configured before verification",
-    "files": [
-      "php_backend/recaptcha.php"
     ]
   }
 ]
