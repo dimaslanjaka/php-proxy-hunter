@@ -1,5 +1,21 @@
 [
   {
+    "hash": "800fc459eba4fd24d38f6e0ba5aae4060bfe2550",
+    "date": "2025-12-17T16:24:02+07:00",
+    "message": "feat(settings): responsive two-column layout, duotone icons, accessibility\n\n- convert Settings page to responsive two-column layout (top-aligned on mobile)\n- move action buttons (Buy saldo, Register Security Key) to the right column\n- replace password show/hide span with accessible button and Font Awesome duotone eye icon\n- add Font Awesome duotone wallet icon to Buy button and duotone key icon to Register button\n- simplify loading/authenticated early returns and clean up markup/formatting\n\nNo breaking changes.",
+    "files": [
+      "src/react/pages/Settings.tsx"
+    ]
+  },
+  {
+    "hash": "ac2caadd0158162b00faa7bf0637f8011abde7ed",
+    "date": "2025-12-17T16:01:48+07:00",
+    "message": "feat(login): simplify auth flows, improve UI and accessibility\n\n- convert component signature to `React.FC` and remove `useTranslation` usage\n- simplify Google OAuth fetch (no DOM toggles), fix `useEffect` deps\n- streamline login/webAuthn error handling and promise catches\n- restore Facebook login integration with lightweight handlers\n- change layout to responsive two-column form (dark-mode Tailwind classes)\n- move primary Login button under inputs; keep social/security buttons in right column\n- top-align form on small screens to reduce empty space\n- replace show/hide text with Font Awesome duotone eye icon; add duotone key icon for Security Key\n- remove debug console logs and redundant code paths\n\nBREAKING CHANGE: removed `t()` translation calls from this component — update callers or reintroduce i18n if translations are required.",
+    "files": [
+      "src/react/pages/Login.tsx"
+    ]
+  },
+  {
     "hash": "ab35a6d8c4be594544f110fdc89f496d85b930b6",
     "date": "2025-12-17T14:46:52+07:00",
     "message": "feat(webauthn): add WebAuthn registration & authentication (server + client)\n\n- add WEBAUTHN_RP_ID and explanatory comments to .env.example\n- add PHP WebAuthn backend endpoints:\n  - php_backend/webauthn/register_options.php\n  - php_backend/webauthn/register_verify.php\n  - php_backend/webauthn/auth_options.php\n  - php_backend/webauthn/auth_verify.php\n  These endpoints issue/verify challenges, store credentials under tmp/webauthn, and return standardized JSON `{ error: bool, message: string, ... }`.\n- update frontend flows:\n  - src/react/pages/Settings.tsx — add security-key registration using `@simplewebauthn/browser`\n  - src/react/pages/Login.tsx — add login with security-key UI and verify flow\n- add i18n keys for registration messages:\n  - src/react/locales/en.json\n  - src/react/locales/id.json\n- add dependencies:\n  - composer.json: add `web-auth/webauthn-lib` (PHP server-side library available)\n  - package.json: add `@simplewebauthn/browser` (browser helper)\n  - bump yarn `packageManager` to `yarn@4.12.0`\n- ensure responses use `respond_json` format (error/message) for consistent client handling\n\nNotes:\n- Current server-side checks are minimal (challenge matching + credential-id check). For production, enable full cryptographic signature verification using the added `web-auth/webauthn-lib` and consider storing credentials in the DB rather than JSON files.",
@@ -8645,27 +8661,6 @@
     "message": "feat(logs): allow admins to fetch all logs in JSON format\n\n- Add global $isAdmin check in logs.php\n- Return logs from database as JSON when user is admin\n- Preserve existing hash-based log retrieval",
     "files": [
       "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "739865bec6f812c922b82773b12393e125c2683e",
-    "date": "2025-09-17T16:39:37+07:00",
-    "message": "feat(Admin): add LogsSection component to display log activity",
-    "files": [
-      "src/react/pages/Admin.tsx",
-      "src/react/pages/admin/LogsSection.tsx"
-    ]
-  },
-  {
-    "hash": "b6920644e272a39ac5e2fb7d973ee7d458900cb5",
-    "date": "2025-09-17T16:35:47+07:00",
-    "message": "refactor(logs): remove user_activity table and related methods\n\n- Drop user_activity table definitions from MySQL and SQLite schemas\n- Remove creation and migration logic for user_activity\n- Delete addActivity() and getActivities() methods from LogsRepository\n- Clean up UserDB to no longer delete from user_activity",
-    "files": [
-      "src/PhpProxyHunter/LogsRepository.php",
-      "src/PhpProxyHunter/LogsRepositoryMigrations.php",
-      "src/PhpProxyHunter/UserDB.php",
-      "src/PhpProxyHunter/assets/mysql-schema.sql",
-      "src/PhpProxyHunter/assets/sqlite-schema.sql"
     ]
   }
 ]
