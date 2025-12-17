@@ -37,6 +37,8 @@
   "settings_failed_load_user": "Failed to load user information.",
   "settings_fill_all_fields": "Please fill in all fields.",
   "settings_profile_updated": "Profile updated successfully!",
+  "settings_webauthn_registered": "Security key registered successfully.",
+  "settings_enter_username_for_webauthn": "Please set a username before registering a security key.",
   "settings_failed_update_profile": "Failed to update profile.",
   "settings_redirect_buy_saldo": "Redirecting to buy saldo (credit)...",
   "settings_username_label": "Username",

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { createUrl } from '../utils/url';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { startAuthentication } from '@simplewebauthn/browser';
 import FacebookLogin from 'react-facebook-login';
 
 const Login = () => {
@@ -70,6 +71,28 @@ const Login = () => {
       window.location.href = googleAuthUrl; // Redirect to Google OAuth
     } else {
       alert(t('google_login_unavailable'));
+    }
+  };
+
+  // Registration is handled from Settings page; not available on Login
+
+  const handleWebAuthnLogin = async () => {
+    try {
+      const url = createUrl('/php_backend/webauthn/auth_options.php');
+      const res = await axios.post(url, { username });
+      if (res.data && res.data.error === false && res.data.publicKey) {
+        const assertion = await startAuthentication(res.data.publicKey);
+        const verifyUrl = createUrl('/php_backend/webauthn/auth_verify.php');
+        const verifyRes = await axios.post(verifyUrl, { username, assertion });
+        if (verifyRes.data && verifyRes.data.error === false) {
+          navigate('/dashboard');
+        } else {
+          setError(verifyRes.data?.message || 'Authentication failed');
+        }
+      }
+    } catch (e: any) {
+      console.error('WebAuthn login error', e);
+      setError(e?.response?.data?.message || e.message || 'WebAuthn login failed');
     }
   };
 
@@ -181,6 +204,16 @@ const Login = () => {
             <span className="w-5 h-5 mr-2 fa-brands fa-google" style={{ fontSize: '1.25rem' }}></span>
             Login with Google
           </button>
+          <div style={{ marginTop: '8px' }}>
+            {/* Registration moved to Settings; only login with security key allowed here. */}
+            <button
+              type="button"
+              onClick={handleWebAuthnLogin}
+              className="w-full flex items-center justify-center bg-gray-900 hover:bg-black text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring"
+              style={{ marginTop: '8px' }}>
+              Login with Security Key
+            </button>
+          </div>
         </form>
       </div>
     </>

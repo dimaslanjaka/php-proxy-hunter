@@ -58,7 +58,8 @@
     "ramsey/uuid": "^4.0",
     "php-curl-class/php-curl-class": "^9.19 || ^11.0",
     "erusev/parsedown": "^1.7",
-    "symfony/polyfill-mbstring": "^1.32"
+    "symfony/polyfill-mbstring": "^1.32",
+    "web-auth/webauthn-lib": "^3.0"
   },
   "extra": {
     "composer-exit-on-patch-failure": true

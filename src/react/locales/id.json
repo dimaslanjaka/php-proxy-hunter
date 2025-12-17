@@ -36,6 +36,8 @@
   "settings_failed_load_user": "Gagal memuat informasi pengguna.",
   "settings_fill_all_fields": "Silakan isi semua kolom.",
   "settings_profile_updated": "Profil berhasil diperbarui!",
+  "settings_webauthn_registered": "Kunci keamanan berhasil didaftarkan.",
+  "settings_enter_username_for_webauthn": "Silakan atur nama pengguna sebelum mendaftarkan kunci keamanan.",
   "settings_failed_update_profile": "Gagal memperbarui profil.",
   "settings_redirect_buy_saldo": "Mengalihkan ke pembelian saldo...",
   "settings_username_label": "Nama Pengguna",

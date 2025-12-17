@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createUrl } from '../utils/url';
 import axios from 'axios';
+import { startRegistration } from '@simplewebauthn/browser';
 import { getUserInfo } from '../utils/user';
 
 // Settings page for user profile management
@@ -78,6 +79,30 @@ const Settings = () => {
   const handleBuySaldo = () => {
     // TODO: Integrate with payment/credit system
     alert(t('settings_redirect_buy_saldo'));
+  };
+
+  const handleWebAuthnRegister = async () => {
+    setError('');
+    setSuccess('');
+
+    try {
+      const url = createUrl('/php_backend/webauthn/register_options.php');
+      // Server uses session authenticated email; no username/email should be sent from client.
+      const res = await axios.post(url);
+      if (res.data && res.data.error === false && res.data.publicKey) {
+        const credential = await startRegistration(res.data.publicKey);
+        const verifyUrl = createUrl('/php_backend/webauthn/register_verify.php');
+        const verifyRes = await axios.post(verifyUrl, { credential });
+        if (verifyRes.data && verifyRes.data.error === false) {
+          setSuccess(t('settings_webauthn_registered') || 'Security key registered');
+        } else {
+          setError(verifyRes.data?.message || 'Registration failed');
+        }
+      }
+    } catch (e: any) {
+      console.error('WebAuthn register error', e);
+      setError(e?.response?.data?.message || e.message || 'WebAuthn register failed');
+    }
   };
 
   if (isLoading) {
@@ -174,8 +199,15 @@ const Settings = () => {
           <button
             type="button"
             onClick={handleBuySaldo}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring">
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring mb-3">
             {t('settings_buy_saldo')}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleWebAuthnRegister}
+            className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring">
+            Register Security Key (for login)
           </button>
         </form>
       </div>
