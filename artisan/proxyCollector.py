@@ -195,25 +195,23 @@ def main():
     )
     args = parser.parse_args()
 
+    # Use a single global declaration for the per-file lock variable
+    global _global_file_lock
+
     # Set up signal handlers for graceful cleanup
     signal.signal(signal.SIGINT, cleanup_and_exit)  # CTRL+C
     signal.signal(signal.SIGTERM, cleanup_and_exit)  # Termination signal
 
-    # Create file lock instance
-    file_lock = FileLockHelper(LOCK_FILE_PATH)
-
-    # Store global reference for signal handler
-    global _global_file_lock
-    _global_file_lock = file_lock
-
-    # Acquire lock to prevent concurrent execution
-    if not file_lock.lock():
-        print(f"Process already running (lock file exists: {LOCK_FILE_PATH})")
-        return
-
+    # Process files using per-file locks (avoid a single global lock)
     try:
-        print(f"Lock acquired: {LOCK_FILE_PATH}")
         proxy_db = init_db(db_type="mysql")
+
+        # Ensure locks directory exists and use it for per-file locks
+        locks_dir = get_relative_path("tmp/locks")
+        try:
+            os.makedirs(locks_dir, exist_ok=True)
+        except Exception:
+            pass
 
         # Get added proxy files
         added_files = get_added_proxy_files()
@@ -227,19 +225,57 @@ def main():
         if args.random:
             # Pick a single random file
             file_path = random.choice(added_files)
-            print(f"Processing random file: {file_path}")
-            process_file(file_path, proxy_db, args.batch_size)
+            print(f"Attempting to process random file: {file_path}")
+
+            lock_name = os.path.basename(file_path) + ".lock"
+            per_lock_path = os.path.join(locks_dir, lock_name)
+            per_lock = FileLockHelper(per_lock_path)
+            _global_file_lock = per_lock
+
+            if not per_lock.lock():
+                print(f"Skipping {file_path}: locked by another process")
+                _global_file_lock = None
+            else:
+                try:
+                    print(f"Processing locked file: {file_path}")
+                    process_file(file_path, proxy_db, args.batch_size)
+                finally:
+                    try:
+                        per_lock.release()
+                        print(f"Lock released: {per_lock.file_path}")
+                    except Exception as e:
+                        print(f"Error releasing lock for {file_path}: {e}")
+                    _global_file_lock = None
         else:
-            # Process all files
+            # Process all files, skipping those locked by other processes
             print(f"Processing all {len(added_files)} files:")
             for file_path in added_files:
                 print(f"  - {file_path}")
-                process_file(file_path, proxy_db, args.batch_size)
+
+                lock_name = os.path.basename(file_path) + ".lock"
+                per_lock_path = os.path.join(locks_dir, lock_name)
+                per_lock = FileLockHelper(per_lock_path)
+                _global_file_lock = per_lock
+
+                if not per_lock.lock():
+                    print(f"    Skipping (locked by another process)")
+                    _global_file_lock = None
+                    continue
+
+                try:
+                    print(f"    Processing locked file")
+                    process_file(file_path, proxy_db, args.batch_size)
+                finally:
+                    try:
+                        per_lock.release()
+                        print(f"    Lock released: {per_lock.file_path}")
+                    except Exception as e:
+                        print(f"    Error releasing lock for {file_path}: {e}")
+                    _global_file_lock = None
 
     finally:
-        # Always release lock when done
-        file_lock.release()
-        print(f"Lock released: {LOCK_FILE_PATH}")
+        # Nothing global to release here; per-file locks are released after each file.
+        pass
 
 
 if __name__ == "__main__":
