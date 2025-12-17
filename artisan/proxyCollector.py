@@ -188,6 +188,11 @@ def main():
         help="Pick a single random file instead of processing all files",
     )
     parser.add_argument(
+        "--no-merge",
+        action="store_true",
+        help="Skip merging small added-*.txt files before processing",
+    )
+    parser.add_argument(
         "--shuffle",
         action="store_true",
         help="Shuffle discovered added-*.txt files before processing",
@@ -212,6 +217,18 @@ def main():
     # Set up signal handlers for graceful cleanup
     signal.signal(signal.SIGINT, cleanup_and_exit)  # CTRL+C
     signal.signal(signal.SIGTERM, cleanup_and_exit)  # Termination signal
+
+    # Optionally run merge script for small added-*.txt files before processing
+    if not getattr(args, "no_merge", False):
+        try:
+            from artisan.merge_proxies import main as merge_main  # type: ignore
+
+            try:
+                merge_main()
+            except Exception as e:
+                print(f"merge_proxies failed: {e}")
+        except Exception:
+            print("artisan.merge_proxies not importable; skipping merge step")
 
     # Process files using per-file locks (avoid a single global lock)
     try:
