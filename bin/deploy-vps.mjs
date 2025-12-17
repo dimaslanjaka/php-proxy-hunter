@@ -1,5 +1,6 @@
 import { spawnAsync } from 'cross-spawn';
 import path from 'path';
+import fs from 'fs-extra';
 import { Client } from 'ssh2';
 import SftpClient from 'ssh2-sftp-client';
 import { fileURLToPath } from 'url';
@@ -274,14 +275,22 @@ async function main() {
     await uploadDir(path.join(__dirname, '/../dist/react'), `${remotePath}/dist/react`);
     await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
 
-    // Upload sitemaps
+    // Upload sitemaps only if they exist
     try {
-      const sitemapTxtPath = path.join(__dirname, '/../.deploy_git/sitemap.txt');
-      const sitemapXmlPath = path.join(__dirname, '/../.deploy_git/sitemap.xml');
-      await uploadFile(sitemapTxtPath, `${remotePath}/sitemap.txt`);
-      console.log('Uploaded sitemap.txt');
-      await uploadFile(sitemapXmlPath, `${remotePath}/sitemap.xml`);
-      console.log('Uploaded sitemap.xml');
+      const sitemapTxtPath = path.join(__dirname, '/../sitemap.txt');
+      const sitemapXmlPath = path.join(__dirname, '/../sitemap.xml');
+      if (fs.existsSync(sitemapTxtPath)) {
+        await uploadFile(sitemapTxtPath, `${remotePath}/sitemap.txt`);
+        console.log('Uploaded sitemap.txt');
+      } else {
+        console.debug(`Sitemap TXT not found, skipping: ${sitemapTxtPath}`);
+      }
+      if (fs.existsSync(sitemapXmlPath)) {
+        await uploadFile(sitemapXmlPath, `${remotePath}/sitemap.xml`);
+        console.log('Uploaded sitemap.xml');
+      } else {
+        console.debug(`Sitemap XML not found, skipping: ${sitemapXmlPath}`);
+      }
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
       console.warn('Sitemap upload skipped:', errMsg);
@@ -349,14 +358,22 @@ async function main() {
   await uploadDir(path.join(__dirname, '/../dist'), `${remotePath}/dist`);
   await uploadFile(path.join(__dirname, '/../dist/react/index.html'), `${remotePath}/index.html`);
 
-  // Upload sitemaps
+  // Upload sitemaps only if they exist
   try {
     const sitemapTxtPath = path.join(__dirname, '/../.deploy_git/sitemap.txt');
     const sitemapXmlPath = path.join(__dirname, '/../.deploy_git/sitemap.xml');
-    await uploadFile(sitemapTxtPath, `${remotePath}/sitemap.txt`);
-    console.log('Uploaded sitemap.txt');
-    await uploadFile(sitemapXmlPath, `${remotePath}/sitemap.xml`);
-    console.log('Uploaded sitemap.xml');
+    if (fs.existsSync(sitemapTxtPath)) {
+      await uploadFile(sitemapTxtPath, `${remotePath}/sitemap.txt`);
+      console.log('Uploaded sitemap.txt');
+    } else {
+      console.debug(`Sitemap TXT not found, skipping: ${sitemapTxtPath}`);
+    }
+    if (fs.existsSync(sitemapXmlPath)) {
+      await uploadFile(sitemapXmlPath, `${remotePath}/sitemap.xml`);
+      console.log('Uploaded sitemap.xml');
+    } else {
+      console.debug(`Sitemap XML not found, skipping: ${sitemapXmlPath}`);
+    }
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     console.warn('Sitemap upload skipped:', errMsg);
