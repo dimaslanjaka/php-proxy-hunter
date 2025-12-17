@@ -136,7 +136,8 @@ export const viteConfig = defineConfig({
     //     '**/.deploy_git/**'
     //   ]
     // },
-    emptyOutDir: false,
+    // Clean the output directory before each build
+    emptyOutDir: true,
     minify: 'terser',
     // Remove all comments from minified JS and CSS
     terserOptions: {
