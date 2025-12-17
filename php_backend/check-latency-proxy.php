@@ -70,7 +70,9 @@ if (!$isCli) {
     $proxy = $request['proxy'];
 
     // Save proxy to assets/proxies for background processing
-    $proxyFilename = 'added-' . basename(__FILE__, '.php') . "-$hashFilename.txt";
+    // Use short 8-character MD5 hash for concise identifiers/filenames
+    $checksum      = substr(md5($proxy), 0, 8);
+    $proxyFilename = 'added-' . basename(__FILE__, '.php') . "-$hashFilename-$checksum.txt";
     $proxy_file    = __DIR__ . "/../assets/proxies/$proxyFilename";
     write_file($proxy_file, $proxy);
 
