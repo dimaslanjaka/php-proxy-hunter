@@ -9,7 +9,6 @@ import signal
 import argparse
 import random
 from pathlib import Path
-from typing import Optional
 
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -19,6 +18,7 @@ from src.shared import init_db
 from src.func import get_relative_path
 from proxy_hunter import extract_proxies, Proxy
 from src.utils.file.FileLockHelper import FileLockHelper
+from src.utils.process.count_running_files import count_running_files
 
 # Global constants
 LOCK_FILE_PATH = get_relative_path("tmp/locks/proxyCollector.lock")
@@ -198,6 +198,12 @@ def main():
         default=10,
         help="Number of lines to process per file run (default: 10)",
     )
+    parser.add_argument(
+        "--max-instances",
+        type=int,
+        default=3,
+        help="Max concurrent proxyCollector processes allowed (exit early when reached)",
+    )
     args = parser.parse_args()
 
     # Use a single global declaration for the per-file lock variable
@@ -221,6 +227,15 @@ def main():
         # Get added proxy files
         added_files = get_added_proxy_files()
         print(f"Found {len(added_files)} added proxy files")
+
+        # Early exit if there are already too many running instances
+        # Count only instances running from the project venv using absolute script path
+        existing = count_running_files(os.path.abspath(__file__), venv_only=True)
+        if existing > args.max_instances:
+            print(
+                f"Too many instances running ({existing}), exiting (max {args.max_instances})."
+            )
+            return
 
         # Optionally shuffle file processing order to reduce contention
         if getattr(args, "shuffle", False):
