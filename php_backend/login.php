@@ -89,7 +89,8 @@ function verify($username, $password) {
     $verify = CustomPasswordHasher::verify($password, $select['password']);
     // Fix raw password check
     if (!$verify && $select['password'] === $password) {
-      $select['password'] = CustomPasswordHasher::hash($password); // Rehash the password
+      $select['password'] = CustomPasswordHasher::hash($password);
+      // Rehash the password
       // Re-verify the password with the new hash
       $verify = CustomPasswordHasher::verify($password, $select['password']);
     }
@@ -98,7 +99,23 @@ function verify($username, $password) {
       // Login success
       $_SESSION['authenticated']       = true;
       $_SESSION['authenticated_email'] = strtolower($select['email']);
-      if (strtolower($select['email']) == strtolower($_ENV['DJANGO_SUPERUSER_EMAIL'] ?? '')) {
+
+      // Determine admin emails: merge ADMIN_EMAILS (comma-separated) and DJANGO_SUPERUSER_EMAIL
+      $admin_emails = [];
+      if (!empty($_ENV['ADMIN_EMAILS'])) {
+        $admin_emails = array_map('trim', explode(',', (string)$_ENV['ADMIN_EMAILS']));
+      }
+      if (!empty($_ENV['DJANGO_SUPERUSER_EMAIL'])) {
+        $admin_emails[] = trim((string)$_ENV['DJANGO_SUPERUSER_EMAIL']);
+      }
+      // Keep only valid email addresses
+      $admin_emails = array_filter($admin_emails, function ($e) {
+        return !empty($e) && filter_var($e, FILTER_VALIDATE_EMAIL);
+      });
+      $admin_list = array_unique(array_map('strtolower', $admin_emails));
+      $isAdmin    = in_array(strtolower($select['email']), $admin_list, true);
+
+      if ($isAdmin) {
         $_SESSION['admin']   = true;
         $response['success'] = true;
         $response['admin']   = true;
