@@ -41,18 +41,13 @@ def cleanup_and_exit(signum=None, frame=None):
 
 
 def get_added_proxy_files():
-    """Get all added-*.txt files from assets/proxies folder"""
-    if not os.path.exists(ASSETS_PROXIES_DIR):
+    """Get all added-*.txt files from assets/proxies folder (recursive)."""
+    p = Path(ASSETS_PROXIES_DIR)
+    if not p.exists():
         return []
 
-    added_files = []
-    for filename in os.listdir(ASSETS_PROXIES_DIR):
-        if filename.startswith("added-") and filename.endswith(".txt"):
-            file_path = os.path.join(ASSETS_PROXIES_DIR, filename)
-            if os.path.isfile(file_path):
-                added_files.append(file_path)
-
-    return added_files
+    # Use rglob to search recursively for files named added-*.txt
+    return [str(fp) for fp in sorted(p.rglob("added-*.txt")) if fp.is_file()]
 
 
 def process_file(file_path, proxy_db, batch_size=10):
