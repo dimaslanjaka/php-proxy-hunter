@@ -1,5 +1,33 @@
 [
   {
+    "hash": "08ab1f0c128f7e96df2ce502c96885967535edf8",
+    "date": "2025-12-17T17:12:57+07:00",
+    "message": "feat(auth): normalize authenticated_email and derive admin list from env\n\n- store `authenticated_email` as lowercase for consistent checks\n- merge `ADMIN_EMAILS` (comma-separated) and `DJANGO_SUPERUSER_EMAIL` into a single admin list\n- validate, trim, deduplicate and lowercase admin emails before matching\n- set/unset `$_SESSION['admin']` based on the merged admin list\n- include `admin` flag and admin-specific message in `respond_json` result",
+    "files": [
+      "php_backend/webauthn/auth_verify.php"
+    ]
+  },
+  {
+    "hash": "7ed11331f1cead89b8562ecd65ba101b1c6e6342",
+    "date": "2025-12-17T17:11:38+07:00",
+    "message": "feat(auth): merge ADMIN_EMAILS and DJANGO_SUPERUSER_EMAIL for admin checks\n\n- Merge `ADMIN_EMAILS` (comma-separated) and `DJANGO_SUPERUSER_EMAIL` into a single admin list during login verification.\n- Trim, lowercase, deduplicate and keep only valid email addresses (`FILTER_VALIDATE_EMAIL`) before checking membership.\n- Use the merged list to set/unset `$_SESSION['admin']` when a user authenticates.\n- Minor tidy: clarify rehash comment placement when upgrading raw passwords to hashed form.\n\nNotes:\n- Add `ADMIN_EMAILS` to your environment (comma-separated) if you want multiple admin accounts, e.g.:\n  ADMIN_EMAILS=admin1@example.com,admin2@example.com",
+    "files": [
+      "php_backend/login.php"
+    ]
+  },
+  {
+    "hash": "308b4ed391bc6a45337c2ebd41b9f86fd3b992d7",
+    "date": "2025-12-17T17:01:19+07:00",
+    "message": "feat(php_backend): include short 8-char MD5 checksum in proxy filenames\n\nInclude a short 8-character MD5 hash of the proxy when creating proxy files for background processing.\nThis produces concise, deterministic filenames and helps avoid collisions when multiple users/scripts add proxies.\n\nFilename format: added-<script>-<hashFilename>-<8char_checksum>.txt",
+    "files": [
+      "php_backend/check-anonymity-proxy.php",
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/check-latency-proxy.php",
+      "php_backend/check-proxy-type.php"
+    ]
+  },
+  {
     "hash": "800fc459eba4fd24d38f6e0ba5aae4060bfe2550",
     "date": "2025-12-17T16:24:02+07:00",
     "message": "feat(settings): responsive two-column layout, duotone icons, accessibility\n\n- convert Settings page to responsive two-column layout (top-aligned on mobile)\n- move action buttons (Buy saldo, Register Security Key) to the right column\n- replace password show/hide span with accessible button and Font Awesome duotone eye icon\n- add Font Awesome duotone wallet icon to Buy button and duotone key icon to Register button\n- simplify loading/authenticated early returns and clean up markup/formatting\n\nNo breaking changes.",
@@ -8632,35 +8660,6 @@
       "src/react/components/Pagination.tsx",
       "src/react/pages/admin/LogsSection.tsx",
       "types/php_backend/logs.d.ts"
-    ]
-  },
-  {
-    "hash": "684a7cf07bb42f2127c17753bcff3791efa9e2b9",
-    "date": "2025-09-17T17:09:22+07:00",
-    "message": "feat(logs): add pagination and merge logs from user_logs and package_logs\n\n- Support page and per_page parameters in logs.php with validation\n- Extend LogsRepository to detect driver and use helper for table checks\n- Update getLogsFromDb() to fetch logs from both user_logs and package_logs\n- Combine, sort, and paginate logs by timestamp\n- Return structured JSON response including page, per_page, logs, and count",
-    "files": [
-      "php_backend/logs.php",
-      "src/PhpProxyHunter/LogsRepository.php"
-    ]
-  },
-  {
-    "hash": "510302b96f074105a8d28b8a7bc4fd0bac7301e7",
-    "date": "2025-09-17T17:03:36+07:00",
-    "message": "feat(db): add hasTable() method to check table existence\n\n- Add abstract hasTable() method to BaseSQL\n- Implement hasTable() in CoreDB, MySQLHelper, and SQLiteHelper\n- Add tests in CoreDBTest to verify table existence detection",
-    "files": [
-      "src/PhpProxyHunter/BaseSQL.php",
-      "src/PhpProxyHunter/CoreDB.php",
-      "src/PhpProxyHunter/MySQLHelper.php",
-      "src/PhpProxyHunter/SQLiteHelper.php",
-      "tests/PhpProxyHunter/CoreDBTest.php"
-    ]
-  },
-  {
-    "hash": "f1c72b11a440be2036a84e459bf71423877c3d6d",
-    "date": "2025-09-17T16:44:31+07:00",
-    "message": "feat(logs): allow admins to fetch all logs in JSON format\n\n- Add global $isAdmin check in logs.php\n- Return logs from database as JSON when user is admin\n- Preserve existing hash-based log retrieval",
-    "files": [
-      "php_backend/logs.php"
     ]
   }
 ]
