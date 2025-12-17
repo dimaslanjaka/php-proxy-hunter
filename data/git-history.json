@@ -1,5 +1,92 @@
 [
   {
+    "hash": "1c333e8102488a598ee2c85fa59d4210a1023c15",
+    "date": "2025-12-17T11:51:04+07:00",
+    "message": "feat(artisan): add merge_proxies utility and integrate into proxyCollector\n\nAdd `artisan/merge_proxies.py` to consolidate small `added-*.txt` proxy files\n(<= 10KB) into a single timestamped merged file (`added-merged-YYYYMMDD-HHMMSS.txt`)\nand archive the original source files into `assets/proxies/merged-backup/`\n(with timestamped names) to avoid reprocessing duplicates.\n\nIntegrate the new utility into `artisan/proxyCollector.py`:\n- add `--no-merge` CLI flag to opt out of pre-processing merge step\n- import and call `artisan.merge_proxies.main()` before collecting proxies,\n  skipping the merge if the module is not importable\n\nThis reduces file clutter, deduplicates proxy lines, and prevents repeated\nprocessing of many tiny `added-*.txt` files.",
+    "files": [
+      "artisan/merge_proxies.py",
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "2764c534fcb18b7276116cb8ba2fa8a46bd75a49",
+    "date": "2025-12-17T11:34:32+07:00",
+    "message": "feat(proxyCollector): add --max-instances guard using venv-aware counter\n\nAdd `--max-instances` CLI option (default 3) and use a venv-aware process\ncounter to avoid false positives from system Python launchers. Import\n`count_running_files` and call `count_running_files(os.path.abspath(__file__), venv_only=True)`\nto early-exit when too many collector instances are detected.",
+    "files": [
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "01ebb279006b83db30bc17acda37e179ec759cb9",
+    "date": "2025-12-17T11:33:22+07:00",
+    "message": "feat(process): add count_running_files helper\n\nAdd `src/utils/process/count_running_files.py` — a psutil-based helper that\ncounts running instances of a target script (default `proxyCollector.py`).\nSupports `verbose` and `venv_only` modes to avoid false positives from\nsystem/python launchers by restricting matches to the project virtualenv.\nIncludes a simple `__main__` demo invocation.",
+    "files": [
+      "src/utils/process/count_running_files.py"
+    ]
+  },
+  {
+    "hash": "4baac46a2d84ed2e05d0928aee640231fdc98254",
+    "date": "2025-12-17T10:52:30+07:00",
+    "message": "fix(py): normalize OS detection and add MSYS/Windows support\n\nNormalize uname-based OS detection into a platform abstraction and extend support to MSYS environments. This refactors the script to use a single platform switch (linux, macos, windows), updates venv activation checks for Windows, adds shellcheck annotations, and improves readability with clearer sectioning. Also keeps optional Linux permissions handling scoped correctly to the normalized platform.",
+    "files": [
+      "bin/py"
+    ]
+  },
+  {
+    "hash": "b1066eaf5155aa8cd45ea867c69f1a55d0adceba",
+    "date": "2025-12-17T10:41:50+07:00",
+    "message": "feat: add bash and batch scripts to run proxyCollector from project root",
+    "files": [
+      "bin/collect-proxies",
+      "bin/collect-proxies.cmd"
+    ]
+  },
+  {
+    "hash": "44a49b82486c280a86bdf76e80d5d6e301235acb",
+    "date": "2025-12-17T10:32:11+07:00",
+    "message": "feat(proxyCollector): add --shuffle flag and update crontab to use it\n\nAdd a `--shuffle` CLI option to `artisan/proxyCollector.py` that randomizes\nthe order of discovered `added-*.txt` files (`random.shuffle`) before\nprocessing to reduce contention across concurrent/crontab runs. Print a\nmessage when shuffling is enabled.\n\nAlso update `.crontab.sh` to pass `--shuffle` when invoking the proxy\ncollector (`--batch-size=50 --shuffle`) so scheduled runs process files\nin a randomized order.",
+    "files": [
+      ".crontab.sh",
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "7482434445d563959f27f754bd66bb4565007cfe",
+    "date": "2025-12-17T10:28:23+07:00",
+    "message": "refactor(proxyCollector): rename CLI flag --random to --single\n\nReplace the `--random` option and `args.random` usage with `--single`\nand `args.single` to make the intent clearer when picking a single random\nfile for processing.\n\nBREAKING CHANGE: the command-line flag has been renamed. Update any\nscripts or automation that used `--random` to use `--single` instead.",
+    "files": [
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "1da4188e13425e8b96cd6b08018e132c78220523",
+    "date": "2025-12-17T10:27:17+07:00",
+    "message": "refactor(proxyCollector): replace global lock with per-file locks in tmp/locks\n\nRemove the single global lock and switch to per-file locking using lock files\nstored in tmp/locks/<basename>.lock. Ensure the locks directory exists, attempt\nto acquire a per-file lock before processing each `added-*.txt`, skip files\nlocked by another process, and release the per-file lock in a finally block.\nPreserve signal cleanup by storing the current per-file lock in\n`_global_file_lock` while a file is being processed.\n\n- Use `Path.rglob` for recursive discovery of `added-*.txt`.\n- Create `tmp/locks` if missing and name locks by source filename.\n- Skip locked files instead of blocking the whole process.\n- Keep per-file locks local to each file and release them immediately after use.",
+    "files": [
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "ac9f534bead707289774b82afd27409eb1513eb9",
+    "date": "2025-12-17T10:20:10+07:00",
+    "message": "refactor(proxyCollector): simplify get_added_proxy_files function to use pathlib for recursive file search",
+    "files": [
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "b6423c6698d11644110e71af223b3b2a05fe605b",
+    "date": "2025-12-17T10:00:32+07:00",
+    "message": "refactor(php_backend): store web-submitted proxy files in assets/proxies\n\nReplaced temporary `tmp()/proxies/*.txt` usage with persistent `assets/proxies/added-<script>-<hash>.txt`\nfiles for background runner processing.\n\nRationale:\nCentralize proxy input files under `assets/proxies` and standardize filename pattern (`added-<script>-<hash>.txt`)\nso background runners have consistent, persistent paths to read and process.",
+    "files": [
+      "php_backend/check-anonymity-proxy.php",
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/check-latency-proxy.php",
+      "php_backend/check-proxy-type.php"
+    ]
+  },
+  {
     "hash": "80aea237fe5c5fbc238b18e9c760df34b9ced56a",
     "date": "2025-12-16T07:27:35+07:00",
     "message": "feat(cfh): implement git merge driver functionality for hash generation",
@@ -8567,95 +8654,6 @@
     "message": "fix(recaptcha): ensure reCAPTCHA secret key is configured before verification",
     "files": [
       "php_backend/recaptcha.php"
-    ]
-  },
-  {
-    "hash": "3e032d5fa3a28504f09166b57f8c63b3b8c6d993",
-    "date": "2025-09-17T15:00:22+07:00",
-    "message": "refactor(recaptcha): improve code structure and enhance reCAPTCHA verification logic",
-    "files": [
-      "php_backend/recaptcha.php"
-    ]
-  },
-  {
-    "hash": "136f4d04989b7ef402aa8f092a56d38916e588bb",
-    "date": "2025-09-17T14:54:43+07:00",
-    "message": "feat(proxy): use createUrl utility for fetching cURL timeout in PHP",
-    "files": [
-      "src/react/pages/ProxyList/ModifyCurl.tsx"
-    ]
-  },
-  {
-    "hash": "77dc966969fb28ee51b7d271a8f1e48e2732dc2e",
-    "date": "2025-09-17T14:52:50+07:00",
-    "message": "feat(proxy): add configurable cURL timeout setting via UI and backend\n\n- Added backend support in `proxy-checker.php` to handle `set_curl_timeout` requests\n  - Validates timeout range (1–300 seconds)\n  - Updates and persists user config\n  - Applies custom timeout in `getPublicIP` and `getWebsiteTitle`\n- Updated `ProxyList.tsx` to include new `ModifyCurl` section\n- Implemented `ModifyCurl.tsx` React component\n  - Allows users to set cURL timeout via form\n  - Displays success or error messages",
-    "files": [
-      "php_backend/proxy-checker.php",
-      "src/react/pages/ProxyList.tsx",
-      "src/react/pages/ProxyList/ModifyCurl.tsx"
-    ]
-  },
-  {
-    "hash": "62a5b51457102b24fec74fa9b5a8089ef8ea14d0",
-    "date": "2025-09-17T14:31:47+07:00",
-    "message": "feat(ci): load .env.example and set VITE_ variables in GitHub Actions\n\n- Add dotenv import and load .env.example in vite-gh-pages.config.js\n- In GitHub CI, ensure all variables from .env.example are set as environment variables, prefixed with VITE_ if needed\n- Improves environment consistency for Vite builds on GitHub Pages",
-    "files": [
-      "vite-gh-pages.config.js"
-    ]
-  },
-  {
-    "hash": "99f6da5fd03634f5fb7d24d06939484515e6864f",
-    "date": "2025-09-17T14:26:47+07:00",
-    "message": "refactor(react): decouple log viewer state and improve proxy fetch error handling\n\n- Refactored `LogViewer` to manage its own state and polling logic internally, removing the need to pass `logViewer` and `setLogViewer` props from `ProxyList`.\n- Updated `handleRecheck` to remove all `setLogViewer` usage and related state updates.\n- Enhanced `getWorkingProxies` and `fetchAndSetProxies` to accept an optional `setShowModal` callback. If the proxy fetch returns a 403 Forbidden or a non-array result, the reCAPTCHA modal is shown automatically.\n- Updated all usages of `fetchAndSetProxies` to pass `setShowModal` for consistent error handling.\n- Removed the unused close button from the `LogViewer` UI.\n- Cleaned up legacy state and effect code related to log viewer management in `ProxyList`.",
-    "files": [
-      "src/react/pages/ProxyList.tsx",
-      "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "57bd5f5d0a34fec51c208e53872a55ed57769acd",
-    "date": "2025-09-17T14:03:49+07:00",
-    "message": "feat(log-viewer): add reset log functionality in UI and backend\n\n- Added `resetLog` handling in `proxy-checker.php` to clear the log file on request\n- Updated `LogViewer` component to include a \"Reset Log\" button\n- Implemented API call to reset log and refetch updated log content\n- Improved state handling for loading, log content, and URL updates",
-    "files": [
-      "php_backend/proxy-checker.php",
-      "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "4ad04b511aa3bed1c82fc2dc0cecec42e09ae281",
-    "date": "2025-09-17T13:42:02+07:00",
-    "message": "docs(snackbar): add TSDoc comments and usage examples\n\n- Documented `SnackbarType`, `SnackbarOptions`, `SnackbarProviderProps`, and `SnackbarContextProps`\n- Added examples for `showSnackbar` usage and provider setup\n- Improved clarity of prop descriptions and default values",
-    "files": [
-      "src/react/components/Snackbar.tsx"
-    ]
-  },
-  {
-    "hash": "d90fcf69179f60bd8677a61df7fcca2fbe915c31",
-    "date": "2025-09-17T13:39:19+07:00",
-    "message": "feat(snackbar): add stackable notifications with configurable max count\n\n- Introduced `stackable` and `maxSnackbars` props in `SnackbarProvider`\n- Support multiple concurrent snackbars when stackable is enabled\n- Updated close handling for individual stacked snackbars\n- Enabled `stackable` mode in `index.tsx`\n- Added stackable demo button in `SnackBarSample`",
-    "files": [
-      "src/react/components/Snackbar.tsx",
-      "src/react/index.tsx",
-      "src/react/pages/samples/SnackBarSample.tsx"
-    ]
-  },
-  {
-    "hash": "b7a8a48eb83e206dda7e526a2c130fc5fca1ebf5",
-    "date": "2025-09-17T13:30:22+07:00",
-    "message": "feat(react): add Snackbar component and integrate notifications\n\n- Introduced `Snackbar` context and provider for global toast-style notifications\n- Added `useSnackbar` hook for triggering messages\n- Integrated Snackbar into `ProxyList` for proxy re-check feedback\n- Wrapped app in `SnackbarProvider` in `index.tsx`\n- Added `/examples/snackbar` route with `SnackBarSample` demo page",
-    "files": [
-      "src/react/components/Snackbar.tsx",
-      "src/react/index.tsx",
-      "src/react/pages/ProxyList.tsx",
-      "src/react/pages/samples/SnackBarSample.tsx"
-    ]
-  },
-  {
-    "hash": "615e4aeb20c36c21940abb152a86d57ddd10f919",
-    "date": "2025-09-17T13:02:19+07:00",
-    "message": "fix(proxy-checker): improve logging and status file handling during proxy checks",
-    "files": [
-      "php_backend/proxy-checker.php"
     ]
   }
 ]
