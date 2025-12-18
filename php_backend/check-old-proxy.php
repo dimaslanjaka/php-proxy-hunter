@@ -266,10 +266,27 @@ while (true) {
       $retestResults = reTestProxy(new \PhpProxyHunter\Proxy($item['proxy'], $item['username'], $item['password']));
       $isAlive       = in_array(true, $retestResults, true);
       $retestStatus  = $isAlive ? AnsiColors::colorize(['green', 'bold'], 'active') : AnsiColors::colorize(['red', 'bold'], 'dead');
+      // Log retest results
+      _log_shared($hashFilename, '  -> Retest results: ' . json_encode($retestResults));
       if ($isAlive) {
-        // Port is actually open, mark as untested for later detection
-        $proxy_db->updateStatus($item['proxy'], 'untested');
-        $message = '  -> ' . AnsiColors::colorize(['yellow', 'bold'], 'Proxy marked as untested') . ' retest=' . $retestStatus;
+        // Record which protocols came back alive
+        $workingProtocols = [];
+        foreach ($retestResults as $proto => $val) {
+          if ($val === true) {
+            $workingProtocols[] = $proto;
+          }
+        }
+        $type = !empty($workingProtocols) ? strtolower(implode('-', $workingProtocols)) : '';
+        $data = [
+          'status'     => 'active',
+          'last_check' => date(DATE_RFC3339),
+          'type'       => $type,
+        ];
+        $proxy_db->updateData($item['proxy'], $data);
+        $message = '  -> ' . AnsiColors::colorize(['green', 'bold'], 'Proxy marked as active') . ' retest=' . $retestStatus;
+        if ($type !== '') {
+          $message .= ' protocols=' . $type;
+        }
         _log_shared($hashFilename, $message);
       } else {
         $proxy_db->updateStatus($item['proxy'], 'dead');
