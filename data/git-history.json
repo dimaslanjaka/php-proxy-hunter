@@ -1,5 +1,37 @@
 [
   {
+    "hash": "3b4f595020649955e5aba0d433607041ad650140",
+    "date": "2025-12-18T14:34:44+07:00",
+    "message": "fix(check-old-proxy): save working protocols and log re-test results\n\n- Replace var_dump with structured logging of re-test results.\n- When reTestProxy finds any working protocol, store `status`, `last_check`, and `type` (joined protocols) via `updateData` instead of marking as untested.\n- Keep existing behavior for dead proxies (mark as `dead`).",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
+    "hash": "4a09137acfde1c50ad9b9ed816453a40b0bca8e2",
+    "date": "2025-12-18T13:50:24+07:00",
+    "message": "fix(check-old-proxy): set HTTPS status",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
+    "hash": "61f192e45144c972fe394035b2caa7bd2d7be004",
+    "date": "2025-12-18T13:43:04+07:00",
+    "message": "fix(crontab): update logging for hourly job execution",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "1aaf2f00d51c1474b0cbd8a99004716718cd7037",
+    "date": "2025-12-18T13:39:31+07:00",
+    "message": "fix(crontab): remove redundant check-proxy-type log command from hourly job",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
     "hash": "4ddbfe74ab05d418e0267b43f1dcc9ffc81d3ddd",
     "date": "2025-12-18T13:07:51+07:00",
     "message": "refactor: move psutil to minimal requirements\n\nShift psutil from platform-specific and general installation scripts to requirements-minimal.txt to ensure it is available across all environments.",
@@ -8618,42 +8650,6 @@
     "message": "fix(user): handle optional id on user insert\n\n- Use provided `id` if not empty when inserting into `auth_user`\n- Remove empty `id` to allow database auto-increment",
     "files": [
       "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "474bf24e0132b1382a8576d05048c55ee9184a90",
-    "date": "2025-09-19T18:23:54+07:00",
-    "message": "feat(logs): include payment logs and add log_table field to all log types\n\n- Add `log_table` field for user, package, and payment logs to identify source table\n- Extend log collection to include `package_payment` records with related user and package info\n- Update cleanup step to also remove `purchased_at` while keeping `log_time`",
-    "files": [
-      "src/PhpProxyHunter/LogsRepository.php"
-    ]
-  },
-  {
-    "hash": "6d6a939aa2e86b0c91ce7b6b07507e3ae0b1c559",
-    "date": "2025-09-19T18:20:12+07:00",
-    "message": "feat(CoreDB): ensure proper closure of database connections in destructor",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "e0ce6a7422cfb9fd5e3ad0be35967464d891dd4e",
-    "date": "2025-09-19T11:17:23+07:00",
-    "message": "chore(tmp): move cache, build, and state files into tmp/locks directory",
-    "files": [
-      ".php-cs-fixer.dist.php",
-      "artisan/cleaner.php",
-      "bin/build-project.mjs",
-      "func-proxy.php",
-      "setup.js"
-    ]
-  },
-  {
-    "hash": "8edf38b98782d32394408b8b028b6e5ea579c7f0",
-    "date": "2025-09-19T11:11:43+07:00",
-    "message": "feat(post-merge): conditionally run build script based on dev server lock file presence",
-    "files": [
-      ".husky/post-merge"
     ]
   }
 ]
