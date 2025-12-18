@@ -61,31 +61,6 @@ const createFileHashesMain = async () => {
     path.join(projectDir, 'requirements-dev.txt')
   ];
 
-  // If invoked as a git merge driver, Git will call this script with three
-  // positional arguments: %O (ancestor), %A (current/ours temp file), %B (theirs).
-  // In that mode we must write the merged result into the file at %A and
-  // exit with code 0 so Git treats the file as resolved. Detect that mode
-  // and write to the provided %A path instead of the tracked file.
-  if (process.argv.length >= 5) {
-    const _ancestorPath = process.argv[2];
-    const ourPath = process.argv[3];
-    const _theirPath = process.argv[4];
-
-    // Compute the same outputLine as below, then write it to the
-    // temp file Git provided as %A.
-    const sorted = (await createFileHashes({ projectDir, extensions, excludeDirs, extraFiles })).slice().sort();
-    const joined = sorted.join('\n');
-    const folderHash = crypto.createHash('sha256').update(joined).digest('hex').slice(0, 16);
-    const projectName = path.basename(projectDir);
-    const outputLine = `${projectName} a${folderHash}\n`;
-
-    await fs.mkdir(path.dirname(ourPath), { recursive: true }).catch(() => {});
-    await fs.writeFile(ourPath, outputLine, 'utf8');
-    // Successful merge driver must exit 0 and leave the result in %A.
-    console.log(`Merge driver: wrote merged hash to ${ourPath}`);
-    process.exit(0);
-  }
-
   // Generate hashes
   const hashArray = await createFileHashes({
     projectDir,
