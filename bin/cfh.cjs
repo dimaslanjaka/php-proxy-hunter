@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 const path = require('path');
 const fs = require('fs').promises;
 const { createFileHashes, getFileTreeString } = require('./file-hasher.cjs');
@@ -85,7 +85,10 @@ const createFileHashesMain = async () => {
 
   // Add the hash file to the commit (only for normal runs)
   try {
-    execSync(`git add ${relativeOutputFile}`);
+    const result = spawnSync('git', ['add', relativeOutputFile], { cwd: projectDir, stdio: 'ignore' });
+    if (result && result.error) throw result.error;
+    if (typeof result.status === 'number' && result.status !== 0)
+      throw new Error(`git add exited with code ${result.status}`);
   } catch (_err) {
     // ignore git add failures in environments where git isn't available
   }
