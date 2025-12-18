@@ -154,7 +154,6 @@ if should_run_job "tmp/crontab/1-h" 1; then
     log_command "tmp/logs/crontab/filter-ports-background.log" php artisan/filterPortsDuplicate.php
     log_command "tmp/logs/crontab/check-http-proxy.log" php php_backend/check-http-proxy.php
     log_command "tmp/logs/crontab/check-https-proxy.log" php php_backend/check-https-proxy.php
-    log_command "tmp/logs/crontab/check-proxy-type.log" php php_backend/check-proxy-type.php
     echo "Running 1 hour job."
 else
     echo "Skipping 1 hour job."
