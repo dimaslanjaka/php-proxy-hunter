@@ -148,6 +148,7 @@ while (true) {
   foreach ($items as $item) {
     // Skip items with transient/open statuses that should not be re-checked now
     if (!empty($item['status']) && in_array(strtolower($item['status']), ['untested', 'port-open', 'open-port'], true)) {
+      // _log_shared($hashFilename, '  -> Skipped (status=' . $item['status'] . ')');
       continue;
     }
 
@@ -225,6 +226,7 @@ while (true) {
         'status'     => 'active',
         'last_check' => date(DATE_RFC3339),
         'type'       => strtolower(implode('-', $mergedWorkingTypes)),
+        'https'      => 'false',
       ];
       // Record latency when available from the HTTP check
       if (!empty($httpOnly->latency)) {
@@ -244,6 +246,7 @@ while (true) {
         'status'     => 'active',
         'last_check' => date(DATE_RFC3339),
         'type'       => strtolower(implode('-', $mergedWorkingTypes)),
+        'https'      => 'true',
       ];
       // Record latency when available from the HTTPS check
       if (!empty($httpsOnly->latency)) {
@@ -264,7 +267,7 @@ while (true) {
       $isAlive       = in_array(true, $retestResults, true);
       $retestStatus  = $isAlive ? AnsiColors::colorize(['green', 'bold'], 'active') : AnsiColors::colorize(['red', 'bold'], 'dead');
       if ($isAlive) {
-        /// Port is actually open, mark as untested for later detection
+        // Port is actually open, mark as untested for later detection
         $proxy_db->updateStatus($item['proxy'], 'untested');
         $message = '  -> ' . AnsiColors::colorize(['yellow', 'bold'], 'Proxy marked as untested') . ' retest=' . $retestStatus;
         _log_shared($hashFilename, $message);
