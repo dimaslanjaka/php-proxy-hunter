@@ -66,7 +66,6 @@ fi
 # Run yarn
 ViteLockFile="$CWD/tmp/locks/.dev-server-lock"
 if command -v yarn >/dev/null 2>&1; then
-  touch "$CWD/yarn.lock"  # Create an empty yarn.lock if it doesn't exist
   if [ $IS_VPS -eq 1 ]; then
     echo "Detected VPS environment. Installing production dependencies only."
     # Install production dependencies
