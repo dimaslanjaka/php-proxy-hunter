@@ -128,7 +128,8 @@ log_command() {
 # run every 5 minutes
 if should_run_job "tmp/crontab/5-m" 0.0833; then
     echo "Running 5 minutes job."
-    log_command "tmp/logs/crontab/proxy-collector.log" "$CWD/bin/py" artisan/proxyCollector.py --batch-size=50 --shuffle
+    log_command "tmp/logs/crontab/proxyCollector2.log" "$CWD/bin/py" artisan/proxyCollector2.py --batch-size=500 --shuffle
+    log_command "tmp/logs/crontab/proxyCollector.log" "$CWD/bin/py" artisan/proxyCollector.py --batch-size=500 --shuffle
 else
     echo "Skipping 5 minutes job."
 fi
@@ -141,7 +142,6 @@ if should_run_job "tmp/crontab/30-m" 0.5; then
     # log_command "tmp/logs/crontab/proxy-collector.log" php artisan/proxyCollector.php || true
     # log_command "tmp/logs/crontab/proxy-collector2.log" php artisan/proxyCollector2.php || true
     log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php
-    log_command "tmp/logs/crontab/proxy-collector2.log" "$CWD/bin/py" artisan/proxyCollector2.py
 else
     echo "Skipping 30 minutes job."
 fi
