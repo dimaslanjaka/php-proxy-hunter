@@ -1,5 +1,32 @@
 [
   {
+    "hash": "fcde862d8ffa80bdee268541612c9232ca79e71f",
+    "date": "2025-12-18T11:19:45+07:00",
+    "message": "fix(backup-db): comment out pip install command for minimal requirements",
+    "files": [
+      "bin/backup-db"
+    ]
+  },
+  {
+    "hash": "9abc624b3febf96b254b07ca923411df33ca03c2",
+    "date": "2025-12-18T11:19:08+07:00",
+    "message": "feat: add executables module for PHP and Python detection",
+    "files": [
+      "src/utils/process/__init__.py",
+      "src/utils/process/executables.py"
+    ]
+  },
+  {
+    "hash": "7b457113de6fb5a8a8f5ad0cc7ad44459e378dcc",
+    "date": "2025-12-18T11:14:24+07:00",
+    "message": "feat: allow __init__.py files",
+    "files": [
+      ".gitignore",
+      "artisan/__init__.py",
+      "src/utils/file/__init__.py"
+    ]
+  },
+  {
     "hash": "6aab4ae22d43656468b0548a9829086c49a831fd",
     "date": "2025-12-17T23:20:12+07:00",
     "message": "feat(deploy-vps): add checks for sitemap existence before upload",
@@ -8626,33 +8653,6 @@
     "message": "feat(CoreDB): add showCreationTable method for retrieving table creation SQL",
     "files": [
       "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "ca786a4918e06d9af4c82af5872e0154c120d339",
-    "date": "2025-09-19T10:28:39+07:00",
-    "message": "feat(auth): add support for configurable admin emails via .env\n\n- Introduce ADMIN_EMAILS variable in .env.example to allow specifying multiple admin emails.\n- Add getAdminEmails() helper in google-oauth.php to retrieve and parse admin emails from environment.\n- Update finalizeUserSession to check admin status against ADMIN_EMAILS list, improving flexibility and maintainability.",
-    "files": [
-      ".env.example",
-      "php_backend/google-oauth.php"
-    ]
-  },
-  {
-    "hash": "16084fd45eb08d9615c44cfc68c5e4fac0f01077",
-    "date": "2025-09-19T10:22:30+07:00",
-    "message": "refactor(ProxyList): simplify timeAgo import statement",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "8b63bd96dd39904dc50bc3891fbdec3eba7454e7",
-    "date": "2025-09-17T19:09:27+07:00",
-    "message": "refactor(date): centralize timeAgo utility\n\n- move timeAgo implementation into new src/utils/date.js module\n- remove duplicate timeAgo functions from proxyManager-src.js and ProxyList.tsx\n- import shared utility in affected files",
-    "files": [
-      "proxyManager-src.js",
-      "src/react/pages/ProxyList.tsx",
-      "src/utils/date.js"
     ]
   }
 ]
