@@ -96,6 +96,7 @@ tmp/
 /build
 /local_storage.json
 **/__*
+!**/__init__.py
 .venv/
 venv/
 .conda/
