@@ -1,5 +1,37 @@
 [
   {
+    "hash": "4ddbfe74ab05d418e0267b43f1dcc9ffc81d3ddd",
+    "date": "2025-12-18T13:07:51+07:00",
+    "message": "refactor: move psutil to minimal requirements\n\nShift psutil from platform-specific and general installation scripts to requirements-minimal.txt to ensure it is available across all environments.",
+    "files": [
+      "github-actions-init.py",
+      "requirements-minimal.txt",
+      "requirements_install.py"
+    ]
+  },
+  {
+    "hash": "1b4fafe0a8a97d617ac37b16e3d8552d1f988286",
+    "date": "2025-12-18T11:41:45+07:00",
+    "message": "fix: replace execSync with spawnSync for git add command",
+    "files": [
+      "bin/cfh.cjs"
+    ]
+  },
+  {
+    "hash": "0e043834c6043dfb6283d05638fa1c449899bd48",
+    "date": "2025-12-18T11:38:06+07:00",
+    "message": "refactor: remove unused git merge driver logic from createFileHashesMain",
+    "files": [
+      "bin/cfh.cjs"
+    ]
+  },
+  {
+    "hash": "023f342ccf82db4c8741e12b4fcef70a9d373aa5",
+    "date": "2025-12-18T11:31:45+07:00",
+    "message": "fix(post-merge): remove creation of empty yarn.lock file",
+    "files": []
+  },
+  {
     "hash": "fcde862d8ffa80bdee268541612c9232ca79e71f",
     "date": "2025-12-18T11:19:45+07:00",
     "message": "fix(backup-db): comment out pip install command for minimal requirements",
@@ -8620,39 +8652,8 @@
     "hash": "8edf38b98782d32394408b8b028b6e5ea579c7f0",
     "date": "2025-09-19T11:11:43+07:00",
     "message": "feat(post-merge): conditionally run build script based on dev server lock file presence",
-    "files": []
-  },
-  {
-    "hash": "567788b25e2bd03c1cd2bdbbfd8dddded044bf78",
-    "date": "2025-09-19T11:09:58+07:00",
-    "message": "feat(vite): add dev server lock file handling and prepareVitePlugins integration",
     "files": [
-      "vite-plugin.js",
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "3ace59ca36980c01b6ce16ec43e65c03e8c1e4eb",
-    "date": "2025-09-19T11:00:29+07:00",
-    "message": "feat(logs): add endpoint to fetch authenticated user's logs and update admin logs query",
-    "files": [
-      "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "aff7f2831ad8b40eeb6e2c3f2482837164ab88c7",
-    "date": "2025-09-19T10:59:19+07:00",
-    "message": "feat(logs): add filtering by user_id and package_id to getLogsFromDb",
-    "files": [
-      "src/PhpProxyHunter/LogsRepository.php"
-    ]
-  },
-  {
-    "hash": "65e0fb003687eb7f597dab1ad2654aaf09239893",
-    "date": "2025-09-19T10:44:34+07:00",
-    "message": "feat(CoreDB): add showCreationTable method for retrieving table creation SQL",
-    "files": [
-      "src/PhpProxyHunter/CoreDB.php"
+      ".husky/post-merge"
     ]
   }
 ]
