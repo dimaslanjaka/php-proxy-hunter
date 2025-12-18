@@ -92,7 +92,6 @@ def generate_requirements() -> bool:
             "pyinstaller",
             "pyqtgraph",
             "pyqtdarktheme",
-            "psutil",
             "pynput",
             "numpy==2.1.0",
         ],

@@ -59,7 +59,7 @@ packages = ["pycountry", "django", "requests", "pytz", "timezonefinder"]
 
 # Add Windows-specific packages if needed
 if platform.system() == "Windows" and is_git_repo_and_on_branch("python"):
-    packages.extend(["PySide6", "psutil", "wmi", "qtawesome", "nuitka"])
+    packages.extend(["PySide6", "wmi", "qtawesome", "nuitka"])
 
 # Check for missing packages
 missing_packages = [pkg for pkg in packages if not check_package(pkg)]
