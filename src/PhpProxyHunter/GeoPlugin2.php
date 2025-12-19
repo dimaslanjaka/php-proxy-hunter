@@ -31,13 +31,24 @@ class GeoPlugin2 {
   private $country;
 
   public function __construct() {
-    $this->city    = new Reader(__DIR__ . '/../GeoLite2-City.mmdb');
-    $this->asn     = new Reader(__DIR__ . '/../GeoLite2-ASN.mmdb');
-    $this->country = new Reader(__DIR__ . '/../GeoLite2-Country.mmdb');
+    $cityFile    = __DIR__ . '/../GeoLite2-City.mmdb';
+    $asnFile     = __DIR__ . '/../GeoLite2-ASN.mmdb';
+    $countryFile = __DIR__ . '/../GeoLite2-Country.mmdb';
+    try {
+      $this->city    = file_exists($cityFile) ? new Reader($cityFile) : null;
+      $this->asn     = file_exists($asnFile) ? new Reader($asnFile) : null;
+      $this->country = file_exists($countryFile) ? new Reader($countryFile) : null;
+    } catch (\Throwable $e) {
+      // If the MMDB files are missing or unreadable, don't throw — leave readers null
+      $this->city = $this->asn = $this->country = null;
+    }
   }
 
   public function locate(string $ip) {
     try {
+      if (empty($this->city)) {
+        return null;
+      }
       $record = $this->city->city(trim($ip));
       $plugin = new GeoPlugin();
       $plugin->fromGeoIp2CityModel($record);
