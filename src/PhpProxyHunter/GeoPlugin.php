@@ -299,29 +299,76 @@ class GeoPlugin implements \JsonSerializable {
    */
   public function locate_recursive(string $ip) {
     $geo     = $this->locate($ip);
-    $decoded = json_decode($geo, true);
-
-    if ($decoded !== null && json_last_error() === JSON_ERROR_NONE) {
-      if (
-        ($decoded['geoplugin_status'] ?? null) == 429 && strpos($decoded['geoplugin_message'] ?? '', 'too many request') !== false && file_exists($this->cacheFile)
-      ) {
-        unlink($this->cacheFile);
-      }
-
-      $geo2 = (new GeoPlugin2())->locate($ip);
-      if ($geo2) {
-        $this->lang        = $geo2->lang;
-        $this->latitude    = $geo2->latitude;
-        $this->longitude   = $geo2->longitude;
-        $this->timezone    = $geo2->timezone;
-        $this->city        = $geo2->city;
-        $this->countryName = $geo2->countryName;
-        $this->countryCode = $geo2->countryCode;
-        $this->regionName  = $geo2->regionName;
-        $this->region      = $geo2->region;
-        $this->regionCode  = $geo2->regionCode;
+    $decoded = null;
+    if ($geo !== false) {
+      $decoded = json_decode($geo, true);
+      if ($decoded !== null && json_last_error() === JSON_ERROR_NONE) {
+        if (
+          ($decoded['geoplugin_status'] ?? null) == 429 && strpos($decoded['geoplugin_message'] ?? '', 'too many request') !== false && file_exists($this->cacheFile)
+        ) {
+          unlink($this->cacheFile);
+        }
+        // Populate fields from decoded geoplugin response when available
+        if (!empty($decoded['geoplugin_countryName'])) {
+          $this->countryName = $decoded['geoplugin_countryName'];
+        }
+        if (!empty($decoded['geoplugin_countryCode'])) {
+          $this->countryCode = $decoded['geoplugin_countryCode'];
+        }
+        if (!empty($decoded['geoplugin_regionName'])) {
+          $this->regionName = $decoded['geoplugin_regionName'];
+        }
+        if (!empty($decoded['geoplugin_latitude'])) {
+          $this->latitude = $decoded['geoplugin_latitude'];
+        }
+        if (!empty($decoded['geoplugin_longitude'])) {
+          $this->longitude = $decoded['geoplugin_longitude'];
+        }
+        if (!empty($decoded['geoplugin_timezone'])) {
+          $this->timezone = $decoded['geoplugin_timezone'];
+        }
       }
     }
+
+    // Always attempt GeoLite2 MMDB lookup as a fallback or supplement.
+    try {
+      $geo2 = (new GeoPlugin2())->locate($ip);
+      if ($geo2) {
+        if (empty($this->lang) && !empty($geo2->lang)) {
+          $this->lang = $geo2->lang;
+        }
+        if (empty($this->latitude) && !empty($geo2->latitude)) {
+          $this->latitude = $geo2->latitude;
+        }
+        if (empty($this->longitude) && !empty($geo2->longitude)) {
+          $this->longitude = $geo2->longitude;
+        }
+        if (empty($this->timezone) && !empty($geo2->timezone)) {
+          $this->timezone = $geo2->timezone;
+        }
+        if (empty($this->city) && !empty($geo2->city)) {
+          $this->city = $geo2->city;
+        }
+        if (empty($this->countryName) && !empty($geo2->countryName)) {
+          $this->countryName = $geo2->countryName;
+        }
+        if (empty($this->countryCode) && !empty($geo2->countryCode)) {
+          $this->countryCode = $geo2->countryCode;
+        }
+        if (empty($this->regionName) && !empty($geo2->regionName)) {
+          $this->regionName = $geo2->regionName;
+        }
+        if (empty($this->region) && !empty($geo2->region)) {
+          $this->region = $geo2->region;
+        }
+        if (empty($this->regionCode) && !empty($geo2->regionCode)) {
+          $this->regionCode = $geo2->regionCode;
+        }
+      }
+    } catch (\Throwable $e) {
+      // swallow any errors from MMDB lookup and return what we have
+    }
+
     return $this;
   }
 
