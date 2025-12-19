@@ -42,13 +42,35 @@ def cleanup_and_exit(signum=None, frame=None):
 
 
 def get_added_proxy_files():
-    """Get all added-*.txt files from assets/proxies folder (recursive)."""
-    p = Path(ASSETS_PROXIES_DIR)
-    if not p.exists():
-        return []
+    """Get all added-*.txt files from assets/proxies folder (recursive).
 
-    # Use rglob to search recursively for files named added-*.txt
-    return [str(fp) for fp in sorted(p.rglob("added-*.txt")) if fp.is_file()]
+    Also include project-root files `dead.txt` and `proxies.txt` when present.
+    Returns a deduplicated, sorted list of file paths as strings.
+    """
+    files = []
+
+    # Search assets/proxies for added-*.txt recursively (if folder exists)
+    p = Path(ASSETS_PROXIES_DIR)
+    if p.exists():
+        files.extend([fp for fp in sorted(p.rglob("added-*.txt")) if fp.is_file()])
+
+    # Also include root-level files if they exist
+    for name in ("dead.txt", "proxies.txt"):
+        root_fp = Path(get_relative_path(name))
+        if root_fp.exists() and root_fp.is_file():
+            files.append(root_fp)
+
+    # Deduplicate while preserving determinism, then return sorted string paths
+    unique_paths = []
+    seen = set()
+    for fp in files:
+        s = str(fp)
+        if s not in seen:
+            seen.add(s)
+            unique_paths.append(s)
+
+    unique_paths.sort()
+    return unique_paths
 
 
 def process_file(file_path, proxy_db, batch_size=10):
