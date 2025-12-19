@@ -131,10 +131,11 @@ class GeoIpHelper {
    *   'debug'     => array|null  // serialized locate object for debugging
    * ]
    *
-   * @param string $ip IPv4 or IPv6 address to look up.
+  * @param string $ip IPv4 or IPv6 address to look up.
+  * @param ProxyDB|null $db Optional ProxyDB instance to persist results
    * @return array<string,mixed> Associative array with geo information; values may be null if unavailable.
    */
-  public static function getGeoIpSimple($ip) {
+  public static function getGeoIpSimple($ip, $db = null) {
     $geo_plugin        = new \PhpProxyHunter\GeoPlugin();
     $locate            = $geo_plugin->locate_recursive($ip);
     $data              = [];
@@ -146,6 +147,17 @@ class GeoIpHelper {
     $data['timezone']  = $locate->timezone;
     $data['lang']      = $locate->lang;
     $data['debug']     = $locate->jsonSerialize();
+    if (!empty($db)) {
+      try {
+        $persist = $data;
+        if (isset($persist['debug'])) {
+          unset($persist['debug']);
+        }
+        $db->updateData($ip, $persist);
+      } catch (Throwable $th) {
+        // swallow DB errors to keep behavior identical when DB unavailable
+      }
+    }
     return $data;
   }
 
