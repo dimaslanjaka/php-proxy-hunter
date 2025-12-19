@@ -316,9 +316,11 @@ function curlGetCache($url): string {
  * @param string|null $proxyType The type of proxy. Can be 'http', 'socks4', or 'socks5'. Defaults to 'http'.
  * @param float|int $cacheTime The cache expiration time in seconds. Set to 0 to disable caching. Defaults to 1 year (86400 * 360 seconds).
  * @param string $cacheDir The directory where cached responses will be stored. Defaults to './.cache/' in the current directory.
+ * @param string|null $username Optional proxy username to use for proxy authentication.
+ * @param string|null $password Optional proxy password to use for proxy authentication.
  * @return string|false The response content or false on failure.
  */
-function curlGetWithProxy(string $url, $proxy = null, $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/') {
+function curlGetWithProxy(string $url, $proxy = null, $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/', $username = null, $password = null) {
   // Generate cache file path based on URL
   if (!file_exists($cacheDir)) {
     mkdir($cacheDir);
@@ -331,8 +333,9 @@ function curlGetWithProxy(string $url, $proxy = null, $proxyType = 'http', $cach
     return read_file($cacheFile);
   }
 
-  // Initialize cURL session
-  $ch = buildCurl($proxy, $proxyType, $url);
+  // Initialize cURL session (forward optional proxy credentials to buildCurl)
+  // buildCurl signature: buildCurl($proxy, $type, $endpoint, $headers = [], $username = null, $password = null, ...)
+  $ch = buildCurl($proxy, $proxyType, $url, [], $username, $password);
   if ($ch) {
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
   }

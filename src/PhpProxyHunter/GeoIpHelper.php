@@ -13,12 +13,14 @@ class GeoIpHelper {
    *
    * This was previously named `getGeoIp`.
    *
-   * @param string $the_proxy Proxy string in the form "IP:PORT" or with auth
-   * @param string $proxy_type Protocol type (e.g. 'http', 'socks5')
-   * @param ProxyDB|null $db Optional ProxyDB instance to persist results
+  * @param string $the_proxy Proxy string in the form "IP:PORT"
+  * @param string $proxy_type Protocol type (e.g. 'http', 'socks5')
+  * @param ProxyDB|null $db Optional ProxyDB instance to persist results
+  * @param string|null $username Optional proxy username for authenticated proxies
+  * @param string|null $password Optional proxy password for authenticated proxies
    * @return array<string,mixed> Associative array of geo data (may be empty)
    */
-  public static function resolveGeoProxy($the_proxy, $proxy_type = 'http', $db = null) {
+  public static function resolveGeoProxy($the_proxy, $proxy_type = 'http', $db = null, $username = null, $password = null) {
     $proxy = trim($the_proxy);
     if (empty($proxy)) {
       return [];
@@ -29,7 +31,7 @@ class GeoIpHelper {
     $port       = isset($parts[1]) ? $parts[1] : '';
     $geo_plugin = new \PhpProxyHunter\GeoPlugin();
     $geoUrl     = "https://ip-get-geolocation.com/api/json/$ip";
-    $content    = curlGetWithProxy($geoUrl, $proxy, $proxy_type);
+    $content    = curlGetWithProxy($geoUrl, $proxy, $proxy_type, 86400 * 360, getcwd() . '/.cache/', $username, $password);
     if (!$content) {
       $content = '';
     }
