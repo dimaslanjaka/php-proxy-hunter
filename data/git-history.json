@@ -1,5 +1,95 @@
 [
   {
+    "hash": "10c08cc0bf48c047523183f9bc7882569718fd04",
+    "date": "2025-12-25T08:47:24+07:00",
+    "message": "fix(cron): add geoIp script execution to 30-minute job for missing geo information",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "df81a3486e7ce486636a1b62a851928d23fef0c2",
+    "date": "2025-12-25T08:46:55+07:00",
+    "message": "fix(geo): enhance proxy processing output with index and total count",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "5cdc8ae5274f3a940fe8193dbc3b458464725288",
+    "date": "2025-12-25T08:45:07+07:00",
+    "message": "feat(geoip): add robust multi-stage geo resolution with safe MMDB fallback\n\n- Replace type-based geo lookup with prioritized protocol probing\n- Add detailed logging for each protocol resolution attempt\n- Introduce simple IP-based geo lookup as secondary fallback\n- Add local GeoLite2 MMDB lookup as final fallback\n- Make MMDB parsing PHP 7.0–safe with explicit isset checks\n- Persist only non-empty geo fields when resolving via MMDB\n- Handle MMDB exceptions gracefully and log errors\n- Refactor WebGL missing checks into a readable flag\n- Limit verbose output to cases where geo or WebGL data was updated",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "7625852eec349ecf54fcb023d1596e6a5a15bb92",
+    "date": "2025-12-19T13:43:36+07:00",
+    "message": "fix(geo): robustly fallback to GeoLite2 MMDB in `locate_recursive`\n\n- Only parse JSON if the web fetch returned a value.\n- Populate available fields from the GeoPlugin JSON response.\n- Always attempt GeoLite2 (MMDB) lookup as a fallback/supplement.\n- Only fill missing properties from the MMDB results (do not overwrite existing values).\n- Catch and ignore MMDB lookup errors so `locate_recursive` returns gracefully.\n\nThis makes geolocation resolution more resilient when the remote service fails or MMDB files are missing/corrupt.",
+    "files": [
+      "src/PhpProxyHunter/GeoPlugin.php"
+    ]
+  },
+  {
+    "hash": "d83d83c5d7931416b27d9e4507488261e4d64280",
+    "date": "2025-12-19T13:38:29+07:00",
+    "message": "fix(geo): handle missing/unreadable GeoLite2 MMDB files in GeoPlugin2\n\nEnsure MMDB readers are only created when files exist and catch errors\nduring initialization to avoid throwing on missing/corrupt DB files.\nAlso return null early from `locate()` when the city reader is not\navailable so callers (fallbacks) can proceed safely.",
+    "files": [
+      "src/PhpProxyHunter/GeoPlugin2.php"
+    ]
+  },
+  {
+    "hash": "bbc86ced298f46f26f8b7bdbef7c53bb1e015fc7",
+    "date": "2025-12-19T13:14:42+07:00",
+    "message": "feat(geo): accept optional ProxyDB in getGeoIpSimple and persist results\n\n- Add optional `ProxyDB|null $db` parameter to `getGeoIpSimple($ip, $db = null)`.\n- Persist geo data to the provided DB via `$db->updateData($ip, $data)` when available.\n- Do not persist the `debug` field (removed before update) to avoid schema mismatch.\n- Catch and swallow DB errors to preserve previous behavior when DB is unavailable.",
+    "files": [
+      "src/PhpProxyHunter/GeoIpHelper.php",
+      "tests/proxy/geoIpHelper.test.php"
+    ]
+  },
+  {
+    "hash": "80c25a2cf608bfcbe617219b9865ae8100bd2441",
+    "date": "2025-12-19T13:10:49+07:00",
+    "message": "fix(geoIp): split `$item->type` on commas or hyphens and trim/filter parts\n\nReplace `explode('-', $item->type)` with `preg_split('/\\s*[,\\\\-]\\s*/', $item->type)` and normalize using `array_map('trim')` + `array_filter()` to handle comma- or hyphen-separated values and remove empty tokens. Remove the `$httpFetch` fallback that forced an extra `'http'` resolution.",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "b33ba33e4c516e0d2f1427e94aa1d89092cecd60",
+    "date": "2025-12-19T13:02:52+07:00",
+    "message": "feat(proxy): add optional proxy auth to curlGetWithProxy and GeoIpHelper\n\n- Add optional `$username` and `$password` parameters to `curlGetWithProxy`\n  and update its docblock. Forward credentials to `buildCurl`.\n- Update `GeoIpHelper::resolveGeoProxy` signature to accept optional\n  `$username` and `$password` and pass them through to `curlGetWithProxy`.\n- Keep parameters optional to remain backward compatible.\n\nThis enables authenticated proxy usage while preserving existing calls.",
+    "files": [
+      "func.php",
+      "src/PhpProxyHunter/GeoIpHelper.php"
+    ]
+  },
+  {
+    "hash": "f12242cf4e24c7240006d204df1480d878acbe89",
+    "date": "2025-12-19T12:24:10+07:00",
+    "message": "feat(crontab): add geoIp script execution to hourly job for proxy geo information",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "a8a88817c721b097af4e26450fe3c4286d66d93c",
+    "date": "2025-12-19T12:17:50+07:00",
+    "message": "feat(geoip): fetch up to 100 proxies from DB (prefer active) and include credentials\n\n- Use `refreshDbConnections()` / `ProxyDB->db->select()` to fetch proxies with missing geo info.\n- Prefer `status = 'active'` rows first, then fill up to 100 with non-active entries.\n- Build input entries as `IP:PORT@USER:PASS` when `username`/`password` exist.\n- Replace previous CLI/file input flow with DB-driven batching.\n- Minor cleanup: interpolate lock file path and remove unused require.",
+    "files": [
+      "geoIp.php"
+    ]
+  },
+  {
+    "hash": "bc96172b4b350ecfbbc4605b9fe90e7c16f7c3fd",
+    "date": "2025-12-19T12:03:18+07:00",
+    "message": "feat(proxyCollector): include project-root `dead.txt` and `proxies.txt` in discovery\n\nSearch `assets/proxies` for `added-*.txt` as before, and also include root-level\nfiles `dead.txt` and `proxies.txt` when present. Deduplicate results and return\na deterministically sorted list of file paths (strings).",
+    "files": [
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
     "hash": "3b4f595020649955e5aba0d433607041ad650140",
     "date": "2025-12-18T14:34:44+07:00",
     "message": "fix(check-old-proxy): save working protocols and log re-test results\n\n- Replace var_dump with structured logging of re-test results.\n- When reTestProxy finds any working protocol, store `status`, `last_check`, and `type` (joined protocols) via `updateData` instead of marking as untested.\n- Keep existing behavior for dead proxies (mark as `dead`).",
@@ -8551,104 +8641,6 @@
     "message": "fix(ProxyDB, UserDB): ensure safe closure of database connections in close and destructor methods",
     "files": [
       "src/PhpProxyHunter/ProxyDB.php",
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "3834c6ae8c123dead99a169fa0bffc43d73d9e57",
-    "date": "2025-09-21T15:04:35+07:00",
-    "message": "feat(ActivityLogTest): add unit tests for ActivityLog class with SQLite and MySQL support",
-    "files": [
-      "tests/PhpProxyHunter/ActivityLogTest.php"
-    ]
-  },
-  {
-    "hash": "edd14eb8eba3ae2a67e8fbcc05dbaab269b26cf6",
-    "date": "2025-09-21T15:02:31+07:00",
-    "message": "feat(ActivityLog): add SQLite schema for activity log table and update constructor to ensure table creation",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php"
-    ]
-  },
-  {
-    "hash": "8fda16b50750483c775fd5c05ee82718291ed277",
-    "date": "2025-09-21T14:58:52+07:00",
-    "message": "feat(ActivityLog): implement activity logging with structured database table and methods",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php"
-    ]
-  },
-  {
-    "hash": "ab1cc1b8be6bf89eb305f0d4d8759076d93c50f7",
-    "date": "2025-09-21T14:55:28+07:00",
-    "message": "refactor(BaseSQL): change close method to abstract for consistency in subclasses",
-    "files": [
-      "src/PhpProxyHunter/BaseSQL.php"
-    ]
-  },
-  {
-    "hash": "05233e372c44ba050d45604a6f745525d8eba09c",
-    "date": "2025-09-20T21:00:17+07:00",
-    "message": "refactor!: remove LogsRepository and user_logs table\n\n- Deleted LogsRepository and LogsRepositoryMigrations classes\n- Removed user_logs table from create.sql, mysql-schema.sql, and sqlite-schema.sql\n- Removed references to LogsRepository in CoreDB, UserDB, and logs.php\n- Adjusted UserDB methods to no longer log saldo operations or delete from user_logs\n- Simplified tests by removing truncation and references to user_logs\n- Deleted LogsRepositoryTest\n\nBREAKING CHANGE: user activity and saldo operations are no longer logged in user_logs, and LogsRepository has been removed.",
-    "files": [
-      "assets/database/create.sql",
-      "php_backend/logs.php",
-      "src/PhpProxyHunter/CoreDB.php",
-      "src/PhpProxyHunter/LogsRepository.php",
-      "src/PhpProxyHunter/LogsRepositoryMigrations.php",
-      "src/PhpProxyHunter/UserDB.php",
-      "src/PhpProxyHunter/assets/mysql-schema.sql",
-      "src/PhpProxyHunter/assets/sqlite-schema.sql",
-      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
-      "tests/database/LogsRepositoryTest.php"
-    ]
-  },
-  {
-    "hash": "58c6c75d3d05358958ad284d761f1c27d5cffc53",
-    "date": "2025-09-20T06:32:37+07:00",
-    "message": "fix(LogsSection): prevent duplicate log entries by checking previous logs before updating state",
-    "files": [
-      "src/react/pages/admin/LogsSection.tsx"
-    ]
-  },
-  {
-    "hash": "730120ddb918879e12f23af54fdbc6d306932125",
-    "date": "2025-09-20T06:09:19+07:00",
-    "message": "fix(admin/logs): ensure unique React keys for log rows and prevent concurrent fetches\n\n- Fix duplicate key warning in log table by using a combination of log.id and index for the <tr> key.\n- Add isFetching flag to prevent concurrent fetchLogs calls and ensure proper state reset.",
-    "files": [
-      "src/react/pages/admin/LogsSection.tsx"
-    ]
-  },
-  {
-    "hash": "9c4ff5918c312c7d6d3338c9ea7f10b943ca8a7d",
-    "date": "2025-09-20T06:00:14+07:00",
-    "message": "feat(LogsSection): implement periodic log fetching every 30 seconds",
-    "files": [
-      "src/react/pages/admin/LogsSection.tsx"
-    ]
-  },
-  {
-    "hash": "f335b7be4dc3b11cad95a56c7cbe7125e1366630",
-    "date": "2025-09-19T23:26:23+07:00",
-    "message": "fix(UserDB): enhance log action messages for saldo updates based on conditions",
-    "files": [
-      "packages/proxies-grabber",
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "39b780e1b6f4df8800fd2d772ec7476849645a68",
-    "date": "2025-09-19T18:30:07+07:00",
-    "message": "fix(logs): improve user authentication error handling in logs retrieval",
-    "files": [
-      "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "e0d9765c781bc044ea9adf2709acd7d358e04f46",
-    "date": "2025-09-19T18:27:38+07:00",
-    "message": "fix(user): handle optional id on user insert\n\n- Use provided `id` if not empty when inserting into `auth_user`\n- Remove empty `id` to allow database auto-increment",
-    "files": [
       "src/PhpProxyHunter/UserDB.php"
     ]
   }
