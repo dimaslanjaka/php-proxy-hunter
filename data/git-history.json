@@ -1,5 +1,14 @@
 [
   {
+    "hash": "2bae266929855dafc6c817902eb79792b60acfa6",
+    "date": "2025-12-25T12:39:59+07:00",
+    "message": "feat(backups): add cleanup script and schedule 3-day job in .crontab.sh\n\nAdd a new `backups/cleanups.py` CLI script to remove `.sql` files older than a configurable\nnumber of days (default: 2). The script supports `--days`, `--path` and `--dry-run` options\nand prints/logs deletions.\n\nRegister the script to run every 72 hours in `.crontab.sh` using `log_command`, logging to\n`tmp/logs/crontab/cleanup-backups-3d.log`.\n\nNo breaking changes.",
+    "files": [
+      ".crontab.sh",
+      "backups/cleanups.py"
+    ]
+  },
+  {
     "hash": "81d1efcf391eceb6115b774e1a9257365e72cfea",
     "date": "2025-12-25T12:01:42+07:00",
     "message": "feat(vps/sync): add `exclude` glob support to remote→local sync\n\nAdd an `exclude` parameter (str | List[str] | None) to `sync_remote_to_local`\nand forward it from `SFTPClient.sync_remote_to_local`. Excluded patterns\n(use shell-style globs via `fnmatch`) are skipped during download and are\nnot considered for deletion when `delete_extra=True`. Preserve existing\nbehavior and `dry_run` output.\n\nChanges:\n- src/vps/sftp_sync.py: add `exclude` param, normalize patterns, add\n  `_is_excluded()` helper, import `fnmatch`, skip excluded remote files and\n  exclude them from deletion list; update docstring.\n- src/vps/sftp_client.py: add typing (`Union`, `List`) and forward new\n  `exclude` argument.\n- src/vps/menus/sync-backups.py: pass `exclude=\"*.py\"` to avoid syncing\n  Python files.\n\nNo breaking changes — `delete_extra` remains supported for backwards compatibility.",
@@ -8634,14 +8643,6 @@
     "hash": "0318d9932e953cd4675f0b2d8def3a993ac8cd9d",
     "date": "2025-09-21T16:47:19+07:00",
     "message": "fix(logs): prevent unauthenticated access to own logs with JSON error response",
-    "files": [
-      "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "ce8e2e5c56a8833541a986e4c772b5941f4d517a",
-    "date": "2025-09-21T16:45:31+07:00",
-    "message": "feat(logs): update user log retrieval and add pagination support for admin logs",
     "files": [
       "php_backend/logs.php"
     ]
