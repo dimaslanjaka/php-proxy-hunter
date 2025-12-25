@@ -1,5 +1,13 @@
 [
   {
+    "hash": "46fb0f8fde173fc5d52be287e655221e6c114b18",
+    "date": "2025-12-25T08:48:06+07:00",
+    "message": "fix(geo): ensure successful GeoIP resolution message is displayed for simple method",
+    "files": [
+      "tests/proxy/geoIpHelper.test.php"
+    ]
+  },
+  {
     "hash": "10c08cc0bf48c047523183f9bc7882569718fd04",
     "date": "2025-12-25T08:47:24+07:00",
     "message": "fix(cron): add geoIp script execution to 30-minute job for missing geo information",
@@ -8633,15 +8641,6 @@
     "message": "feat(ActivityLog): enhance constructor to support SQLiteHelper and MySQLHelper, and improve error handling",
     "files": [
       "src/PhpProxyHunter/ActivityLog.php"
-    ]
-  },
-  {
-    "hash": "90ac467dcb285edd2924e58e43eaa1855f28c548",
-    "date": "2025-09-21T15:05:16+07:00",
-    "message": "fix(ProxyDB, UserDB): ensure safe closure of database connections in close and destructor methods",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php",
-      "src/PhpProxyHunter/UserDB.php"
     ]
   }
 ]
