@@ -18,7 +18,7 @@ use PhpProxyHunter\Server;
 
 global $isCli;
 
-$isAdmin = $isCli;
+$isAdmin = is_debug();
 
 if (!$isCli) {
   // Allow cross-origin requests

@@ -8,7 +8,7 @@ use PhpProxyHunter\Scheduler;
 
 global $isCli, $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType;
 
-$isAdmin  = $isCli;
+$isAdmin  = is_debug();
 $core_db  = new CoreDB($dbFile, $dbHost, $dbName, $dbUser, $dbPass, false, $dbType);
 $proxy_db = $core_db->proxy_db;
 

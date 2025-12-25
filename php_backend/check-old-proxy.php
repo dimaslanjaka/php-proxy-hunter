@@ -7,7 +7,7 @@ use PhpProxyHunter\CoreDB;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
 
-global $isAdmin, $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType;
+global $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType;
 
 // Set maximum execution time to 300 seconds
 ini_set('max_execution_time', 300);
@@ -18,7 +18,7 @@ if (function_exists('set_time_limit')) {
 $isCli           = is_cli();
 $userId          = getUserId();
 $currentFileName = basename(__FILE__, '.php');
-$isAdmin         = $isCli;
+$isAdmin         = is_debug();
 $hashFilename    = "$currentFileName/$userId";
 
 if (!$isCli) {
