@@ -148,7 +148,21 @@ while (true) {
   foreach ($items as $item) {
     // Skip items with transient/open statuses that should not be re-checked now
     if (!empty($item['status']) && in_array(strtolower($item['status']), ['untested', 'port-open', 'open-port'], true)) {
-      // _log_shared($hashFilename, '  -> Skipped (status=' . $item['status'] . ')');
+      // $statusKey   = 'status=';
+      // $statusLower = strtolower((string)$item['status']);
+      // $map         = [
+      //   'dead'        => ['red', 'bold'],
+      //   'active'      => ['green', 'bold'],
+      //   'untested'    => ['yellow'],
+      //   'port-open'   => ['yellow'],
+      //   'open-port'   => ['yellow'],
+      //   'port-closed' => ['red'],
+      //   'closed-port' => ['red'],
+      //   'unknown'     => ['cyan'],
+      // ];
+      // $style         = isset($map[$statusLower]) ? $map[$statusLower] : ['magenta'];
+      // $coloredStatus = AnsiColors::colorize($style, $item['status']);
+      // _log_shared($hashFilename, $item['proxy'] . ' -> Skipped (' . $statusKey . $coloredStatus . ')');
       continue;
     }
 
@@ -157,7 +171,8 @@ while (true) {
     if ($lastChecked !== false) {
       $ageInDays = round((time() - $lastChecked) / 86400);
       if ($ageInDays < 1) {
-        // _log_shared($hashFilename, '  -> Skipped (checked recently)');
+        // $reasonLabel = AnsiColors::colorize(['magenta'], 'checked recently');
+        // _log_shared($hashFilename, $item['proxy'] . ' -> Skipped (' . $reasonLabel . ')');
         continue;
       }
     }
@@ -183,15 +198,30 @@ while (true) {
       break 2;
     }
 
-    $proxyPart = AnsiColors::colorize(['cyan'], $item['proxy']);
-    $daysPart  = AnsiColors::colorize(['magenta', 'bold'], (string)$ageInDays);
-    $message   = 'Checking ' . $proxyPart . ' last checked ' . $daysPart . ' days ago';
+    $coloredProxy = AnsiColors::colorize(['cyan'], $item['proxy']);
+    // Log a processing line with colored status
+    $statusKey   = 'status=';
+    $statusLower = strtolower((string)($item['status'] ?? 'unknown'));
+    $map         = [
+      'dead'        => ['red', 'bold'],
+      'active'      => ['green', 'bold'],
+      'untested'    => ['yellow'],
+      'port-open'   => ['yellow'],
+      'open-port'   => ['yellow'],
+      'port-closed' => ['red'],
+      'closed-port' => ['red'],
+      'unknown'     => ['cyan'],
+    ];
+    $style         = isset($map[$statusLower]) ? $map[$statusLower] : ['magenta'];
+    $coloredStatus = AnsiColors::colorize($style, $item['status'] ?? 'unknown');
+    $daysPart      = AnsiColors::colorize(['magenta', 'bold'], (string)$ageInDays);
+    $message       = 'Checking ' . $coloredProxy . ' last checked ' . $daysPart . ' days ago' . ' ' . $statusKey . $coloredStatus;
     _log_shared($hashFilename, $message);
 
     $isPortOpen = isPortOpen($item['proxy'], 30);
     if (!$isPortOpen) {
-      $proxyPart = AnsiColors::colorize(['cyan'], $item['proxy']);
-      $message   = '  -> ' . AnsiColors::colorize(['red', 'bold'], 'Port is closed');
+      $coloredProxy = AnsiColors::colorize(['cyan'], $item['proxy']);
+      $message      = '  -> ' . AnsiColors::colorize(['red', 'bold'], 'Port is closed');
       _log_shared($hashFilename, $message);
       $proxy_db->updateStatus($item['proxy'], 'port-closed');
       continue;
