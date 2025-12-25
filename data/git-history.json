@@ -1,5 +1,66 @@
 [
   {
+    "hash": "81d1efcf391eceb6115b774e1a9257365e72cfea",
+    "date": "2025-12-25T12:01:42+07:00",
+    "message": "feat(vps/sync): add `exclude` glob support to remote→local sync\n\nAdd an `exclude` parameter (str | List[str] | None) to `sync_remote_to_local`\nand forward it from `SFTPClient.sync_remote_to_local`. Excluded patterns\n(use shell-style globs via `fnmatch`) are skipped during download and are\nnot considered for deletion when `delete_extra=True`. Preserve existing\nbehavior and `dry_run` output.\n\nChanges:\n- src/vps/sftp_sync.py: add `exclude` param, normalize patterns, add\n  `_is_excluded()` helper, import `fnmatch`, skip excluded remote files and\n  exclude them from deletion list; update docstring.\n- src/vps/sftp_client.py: add typing (`Union`, `List`) and forward new\n  `exclude` argument.\n- src/vps/menus/sync-backups.py: pass `exclude=\"*.py\"` to avoid syncing\n  Python files.\n\nNo breaking changes — `delete_extra` remains supported for backwards compatibility.",
+    "files": [
+      "src/vps/menus/sync-backups.py",
+      "src/vps/sftp_client.py",
+      "src/vps/sftp_sync.py"
+    ]
+  },
+  {
+    "hash": "70f2506028b6e0e509cf9a2f60d4664cf0469790",
+    "date": "2025-12-25T11:57:13+07:00",
+    "message": "fix(sync-backups): enable deletion of extra local files during backup sync",
+    "files": [
+      "src/vps/menus/sync-backups.py"
+    ]
+  },
+  {
+    "hash": "91915ac10d4c9b0be1ada0be487b6f364a08e9f5",
+    "date": "2025-12-25T11:51:46+07:00",
+    "message": "feat(backups): add restore-proxies.py to restore chunked JSON backups\n\nAdd `backups/restore-proxies.py` — a CLI tool that reads chunked JSON files\n(`proxies_chunk_*.json`) and restores proxies into the database via `ProxyDB`.\n\n- Supports flags: `--db-type`, `--in-dir`, `--dry-run`, `--limit`, `--skip-errors`, `--overwrite` (default: true)\n- Uses `ProxyDB.update_data()` for upsert behavior; when `--overwrite=false` the script:\n  - skips updating existing proxies\n  - ignores JSON null values so existing DB values are preserved\n- Prints inline per-record progress while processing chunks\n- Handles large exports by processing chunk files one-by-one (memory-friendly)\n\nNo behavioural changes to existing DB helpers; safe dry-run available for previews.",
+    "files": [
+      "backups/restore-proxies.py"
+    ]
+  },
+  {
+    "hash": "b2f80c9ae42e2868958adca080d1ddfe052b0b32",
+    "date": "2025-12-25T11:16:38+07:00",
+    "message": "feat(check-old-proxy): improve logging with colored status and clearer context\n\nEnhance proxy check logs by adding colorized status output, standardized\nstatus-to-color mapping, and more informative messages showing last-checked\nage and current status. Refactor variable naming for clarity without changing\ncore logic.",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
+    "hash": "79f7778cdf63dbf8938feb441020dbbff08bf9be",
+    "date": "2025-12-25T10:57:29+07:00",
+    "message": "fix(check-old-proxy): update admin flag initialization to use is_debug() instead of CLI check",
+    "files": [
+      "php_backend/check-anonymity-proxy.php",
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/check-latency-proxy.php",
+      "php_backend/check-old-proxy.php",
+      "php_backend/check-proxy-type.php"
+    ]
+  },
+  {
+    "hash": "293d856a5f3d94827eeaea137420e2290ff9ae91",
+    "date": "2025-12-25T10:44:34+07:00",
+    "message": "fix(check-old-proxy): prefer HTTPS working types when available\n\n- When HTTPS check succeeds, use its `workingTypes` as the authoritative protocol list.\n- Fall back to HTTP `workingTypes` only if HTTPS is not working.\n- Rename variable `$mergedWorkingTypes` to `$working_protocols` for clarity.",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
+    "hash": "a95bb19891aedec741c4b0501fe611c6f37ab1f9",
+    "date": "2025-12-25T09:41:53+07:00",
+    "message": "Merge pull request #70 from dimaslanjaka/dependabot/npm_and_yarn/vite-7.2.6\n\nbuild(deps-dev): bump vite from 7.2.2 to 7.2.6",
+    "files": []
+  },
+  {
     "hash": "7fd430f5609f3fbf712ed9ed3d2220e81ad297e5",
     "date": "2025-12-25T02:28:04Z",
     "message": "build(deps-dev): bump vite from 7.2.2 to 7.2.6\n\nBumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) from 7.2.2 to 7.2.6.\n- [Release notes](https://github.com/vitejs/vite/releases)\n- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)\n- [Commits](https://github.com/vitejs/vite/commits/v7.2.6/packages/vite)\n\n---\nupdated-dependencies:\n- dependency-name: vite\n  dependency-version: 7.2.6\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
@@ -8583,64 +8644,6 @@
     "message": "feat(logs): update user log retrieval and add pagination support for admin logs",
     "files": [
       "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "0773a8f600258de4fb1311ca7b5382adf0a508c9",
-    "date": "2025-09-21T16:43:53+07:00",
-    "message": "feat(ActivityLog): enhance recent logs method to support pagination",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php"
-    ]
-  },
-  {
-    "hash": "48d7902bc43a899431c098db46c830eb6d7eb5f9",
-    "date": "2025-09-21T15:35:52+07:00",
-    "message": "feat(login): integrate logging of successful login attempts with IP and user agent",
-    "files": [
-      "php_backend/google-oauth.php",
-      "php_backend/login.php"
-    ]
-  },
-  {
-    "hash": "4ab0df38d1cf42f926d34bca9dbc4499d9c84768",
-    "date": "2025-09-21T15:28:31+07:00",
-    "message": "feat(ActivityLog): auto-detect IP and user agent in log method if not provided",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php"
-    ]
-  },
-  {
-    "hash": "8a2fd1e2ca308574958507d3b39b49bd7882ed38",
-    "date": "2025-09-21T15:25:35+07:00",
-    "message": "refactor(Server): rename methods to use camelCase convention",
-    "files": [
-      "src/PhpProxyHunter/Server.php"
-    ]
-  },
-  {
-    "hash": "b7b5b3b99f905eb48b6c08e515b51117e586f475",
-    "date": "2025-09-21T15:19:30+07:00",
-    "message": "feat(CoreDB): add ActivityLog instance to CoreDB\n\n- Add public property `$log_db` to CoreDB for activity log database helper.\n- Instantiate `ActivityLog` in MySQL initialization and assign to `$log_db`.\n- Expose `$log_db` in `php_backend/shared.php` for easier access to activity logging.",
-    "files": [
-      "php_backend/shared.php",
-      "src/PhpProxyHunter/CoreDB.php"
-    ]
-  },
-  {
-    "hash": "31fc4e13d25b65b4c98304f428e9622290f6c864",
-    "date": "2025-09-21T15:15:09+07:00",
-    "message": "refactor(ActivityLog): remove redundant comments in constructor and method definitions",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php"
-    ]
-  },
-  {
-    "hash": "fdf279a92c3a847445d3ed6d349927a28ca16a29",
-    "date": "2025-09-21T15:13:48+07:00",
-    "message": "refactor(ActivityLog): optimize constructor to reduce redundancy\n\n- Centralize PDO extraction from supported types (PDO, SQLiteHelper, MySQLHelper, CoreDB) into a single variable.\n- Assign PDO instance and driver only once after type resolution.\n- Improves readability and maintainability of the constructor logic.",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php"
     ]
   }
 ]
