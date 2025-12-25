@@ -97,8 +97,8 @@ if (file_exists($lockFilePath) && !$isAdmin) {
 $extract = extractProxies($string_data, $proxy_db);
 shuffle($extract);
 
-foreach ($extract as $item) {
-  echo 'Processing ' . $item->proxy . PHP_EOL;
+foreach ($extract as $idx => $item) {
+  echo 'Processing ' . ($idx + 1) . '/' . count($extract) . ' ' . $item->proxy . PHP_EOL;
   if (empty($item->lang) || empty($item->country) || empty($item->timezone) || empty($item->longitude) || empty($item->latitude)) {
     $protocols = ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
     $fetched   = false;
