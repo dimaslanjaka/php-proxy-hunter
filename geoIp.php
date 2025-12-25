@@ -100,12 +100,113 @@ shuffle($extract);
 foreach ($extract as $item) {
   echo 'Processing ' . $item->proxy . PHP_EOL;
   if (empty($item->lang) || empty($item->country) || empty($item->timezone) || empty($item->longitude) || empty($item->latitude)) {
-    if (!empty($item->type)) {
-      // split by comma or hyphen, allow optional surrounding spaces, trim and remove empty parts
-      $types = preg_split('/\s*[,\\-]\s*/', $item->type);
-      $types = array_filter(array_map('trim', $types));
-      foreach ($types as $type) {
-        GeoIpHelper::resolveGeoProxy($item->proxy, strtolower($type), $proxy_db);
+    $protocols = ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
+    $fetched   = false;
+    foreach ($protocols as $protocol) {
+      $result = GeoIpHelper::resolveGeoProxy($item->proxy, strtolower($protocol), $proxy_db);
+      if (!empty($result) && !empty($result['country'])) {
+        echo $item->proxy . ' geoip resolved using protocol ' . $protocol . PHP_EOL;
+        $fetched = true;
+        break;
+      } else {
+        echo $item->proxy . ' failed to resolve geoip using protocol ' . $protocol . PHP_EOL;
+      }
+    }
+    // use simple method
+    if (!$fetched) {
+      $ip     = extractIPs($item->proxy)[0];
+      $result = GeoIpHelper::getGeoIpSimple($ip, $proxy_db);
+      if (!empty($result) && !empty($result['country'])) {
+        $fetched = true;
+        echo $item->proxy . ' geoip resolved using simple method' . PHP_EOL;
+      } else {
+        echo $item->proxy . ' failed to resolve geoip' . PHP_EOL;
+      }
+    }
+    // use local mmdb as last resort
+    if (!$fetched) {
+      $ip       = extractIPs($item->proxy)[0];
+      $mmdbPath = __DIR__ . '/src/GeoLite2-City.mmdb';
+      if (file_exists($mmdbPath)) {
+        // try to use local mmdb
+        $reader = new \GeoIp2\Database\Reader($mmdbPath);
+        try {
+          $record = $reader->city($ip);
+
+          // Build result using isset checks to avoid property access on null (PHP 7.0 safe)
+          $country = null;
+          if (isset($record->country) && isset($record->country->name) && $record->country->name !== '') {
+            $country = $record->country->name;
+          }
+
+          $timezone = null;
+          if (isset($record->location) && isset($record->location->timeZone) && $record->location->timeZone !== '') {
+            $timezone = $record->location->timeZone;
+          }
+
+          $longitude = null;
+          if (isset($record->location) && isset($record->location->longitude) && $record->location->longitude !== '') {
+            $longitude = $record->location->longitude;
+          }
+
+          $latitude = null;
+          if (isset($record->location) && isset($record->location->latitude) && $record->location->latitude !== '') {
+            $latitude = $record->location->latitude;
+          }
+
+          $city = null;
+          if (isset($record->city) && isset($record->city->name) && $record->city->name !== '') {
+            $city = $record->city->name;
+          }
+
+          $lang = null;
+          if (isset($record->country) && isset($record->country->names) && is_array($record->country->names) && isset($record->country->names['en']) && $record->country->names['en'] !== '') {
+            $lang = $record->country->names['en'];
+          } elseif ($country !== null) {
+            $lang = $country;
+          }
+
+          $result = [
+            'country'   => $country,
+            'timezone'  => $timezone,
+            'longitude' => $longitude,
+            'latitude'  => $latitude,
+            'city'      => $city,
+            'lang'      => $lang,
+          ];
+
+          if (!empty($result['country'])) {
+            $fetched = true;
+            // Only save fields that are not empty strings;
+            $toSave = [];
+            foreach ($result as $k => $v) {
+              if (!empty($v)) {
+                $toSave[$k] = $v;
+              }
+            }
+            if (!empty($toSave)) {
+              $proxy_db->updateData($item->proxy, $toSave);
+            }
+            echo $item->proxy . ' geoip resolved using local mmdb' . PHP_EOL;
+          } else {
+            echo $item->proxy . ' failed to resolve geoip using local mmdb' . PHP_EOL;
+            // debug
+            // if (!empty($record)) {
+            //   exit(var_dump($record));
+            // }
+          }
+        } catch (Exception $e) {
+          echo $item->proxy . ' exception using local mmdb: ' . $e->getMessage() . PHP_EOL;
+        }
+
+        $reader->close();
+      } else {
+        echo $item->proxy . ' mmdb file not found' . PHP_EOL;
+      }
+    }
+    if ($fetched) {
+      foreach ($result as $key => $value) {
+        $item->$key = $value;
       }
     }
   } else {
@@ -118,7 +219,8 @@ foreach ($extract as $item) {
   } else {
     echo $item->proxy . ' has useragent, skip' . PHP_EOL;
   }
-  if (empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor)) {
+  $webgl_missing = empty($item->webgl_renderer) || empty($item->browser_vendor) || empty($item->webgl_vendor);
+  if ($webgl_missing) {
     $webgl = random_webgl_data();
     $proxy_db->updateData($item->proxy, [
       'webgl_renderer' => $webgl->webgl_renderer,
@@ -129,8 +231,13 @@ foreach ($extract as $item) {
   } else {
     echo $item->proxy . ' has WebGL data, skip' . PHP_EOL;
   }
-  foreach ($item as $key => $value) {
-    echo "  $key: $value" . PHP_EOL;
+
+  if ($webgl_missing || $fetched) {
+    // Output result
+    $itemArray = $proxy_db->select($item->proxy)[0];
+    foreach ($itemArray as $key => $value) {
+      echo "  $key: $value" . PHP_EOL;
+    }
   }
 }
 
