@@ -142,6 +142,8 @@ if should_run_job "tmp/crontab/30-m" 0.5; then
     # log_command "tmp/logs/crontab/proxy-collector.log" php artisan/proxyCollector.php || true
     # log_command "tmp/logs/crontab/proxy-collector2.log" php artisan/proxyCollector2.php || true
     log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php
+    # Run geoIp script to resolve missing geo information for proxies
+    log_command "tmp/logs/crontab/geoip.log" php geoIp.php
 else
     echo "Skipping 30 minutes job."
 fi
@@ -154,8 +156,6 @@ if should_run_job "tmp/crontab/1-h" 1; then
     log_command "tmp/logs/crontab/filter-ports-background.log" php artisan/filterPortsDuplicate.php
     log_command "tmp/logs/crontab/check-http-proxy.log" php php_backend/check-http-proxy.php
     log_command "tmp/logs/crontab/check-https-proxy.log" php php_backend/check-https-proxy.php
-    # Run geoIp script to resolve missing geo information for proxies (up to 1h cadence)
-    log_command "tmp/logs/crontab/geoip.log" php geoIp.php
     echo "Running 1 hour job."
 else
     echo "Skipping 1 hour job."
