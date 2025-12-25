@@ -1,5 +1,21 @@
 [
   {
+    "hash": "7fd430f5609f3fbf712ed9ed3d2220e81ad297e5",
+    "date": "2025-12-25T02:28:04Z",
+    "message": "build(deps-dev): bump vite from 7.2.2 to 7.2.6\n\nBumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) from 7.2.2 to 7.2.6.\n- [Release notes](https://github.com/vitejs/vite/releases)\n- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)\n- [Commits](https://github.com/vitejs/vite/commits/v7.2.6/packages/vite)\n\n---\nupdated-dependencies:\n- dependency-name: vite\n  dependency-version: 7.2.6\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "b453189fa73b31386eadbd80b40b6321c9f0856d",
+    "date": "2025-12-25T09:06:23+07:00",
+    "message": "fix(deps): update vite to version 7.2.6 and vitest to version 4.0.16",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
     "hash": "46fb0f8fde173fc5d52be287e655221e6c114b18",
     "date": "2025-12-25T08:48:06+07:00",
     "message": "fix(geo): ensure successful GeoIP resolution message is displayed for simple method",
@@ -8623,22 +8639,6 @@
     "hash": "fdf279a92c3a847445d3ed6d349927a28ca16a29",
     "date": "2025-09-21T15:13:48+07:00",
     "message": "refactor(ActivityLog): optimize constructor to reduce redundancy\n\n- Centralize PDO extraction from supported types (PDO, SQLiteHelper, MySQLHelper, CoreDB) into a single variable.\n- Assign PDO instance and driver only once after type resolution.\n- Improves readability and maintainability of the constructor logic.",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php"
-    ]
-  },
-  {
-    "hash": "c2f274d1575b7ce8b056323700a5e178f0f1cd4d",
-    "date": "2025-09-21T15:11:40+07:00",
-    "message": "refactor(ActivityLog): make class PHP 7 compatible\n\n- Remove strict_types declaration for broader compatibility.\n- Remove typed properties and parameter/return type hints; use PHPDoc for type annotations.\n- Add PHPDoc blocks for class properties and methods.\n- Update constructor and methods to use PHP 7 compatible signatures.\n- Replace nullable and typed parameters with untyped, default-null parameters.\n- Add explicit null checks for parameter binding in log() method.\n- Minor formatting and doc improvements for clarity and compatibility.",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php"
-    ]
-  },
-  {
-    "hash": "7c1ac56f264c1aa67b149cf4fe3879a1650bffef",
-    "date": "2025-09-21T15:09:23+07:00",
-    "message": "feat(ActivityLog): enhance constructor to support SQLiteHelper and MySQLHelper, and improve error handling",
     "files": [
       "src/PhpProxyHunter/ActivityLog.php"
     ]
