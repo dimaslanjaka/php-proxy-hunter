@@ -215,17 +215,21 @@ while (true) {
     /** @var \PhpProxyHunter\Checker\CheckerResult $httpsOnly */
     $httpsOnly = \PhpProxyHunter\Checker\ProxyCheckerHttpsOnly::check($checkerOptions);
 
-    // Merge working protocols from both HTTP and HTTPS checks
-    $mergedWorkingTypes = array_unique(array_merge(
-      $httpOnly->isWorking ? $httpOnly->workingTypes : [],
-      $httpsOnly->isWorking ? $httpsOnly->workingTypes : []
-    ));
+    // Choose working protocols: prefer HTTPS-only types when HTTPS is working;
+    // otherwise use HTTP working types (or empty if none).
+    if ($httpsOnly->isWorking) {
+      $working_protocols = is_array($httpsOnly->workingTypes) ? $httpsOnly->workingTypes : [];
+    } elseif ($httpOnly->isWorking) {
+      $working_protocols = is_array($httpOnly->workingTypes) ? $httpOnly->workingTypes : [];
+    } else {
+      $working_protocols = [];
+    }
 
     if ($httpOnly->isWorking) {
       $data = [
         'status'     => 'active',
         'last_check' => date(DATE_RFC3339),
-        'type'       => strtolower(implode('-', $mergedWorkingTypes)),
+        'type'       => strtolower(implode('-', $working_protocols)),
         'https'      => 'false',
       ];
       // Record latency when available from the HTTP check
@@ -233,7 +237,7 @@ while (true) {
         $data['latency'] = $httpOnly->latency;
       }
       $proxy_db->updateData($item['proxy'], $data);
-      $protocols = !empty($mergedWorkingTypes) ? implode(',', $mergedWorkingTypes) : '';
+      $protocols = !empty($working_protocols) ? implode(',', $working_protocols) : '';
       $message   = '  -> ' . AnsiColors::colorize(['green', 'bold'], 'Proxy is active (HTTP)');
       if ($protocols !== '') {
         $message .= ' protocols=' . $protocols;
@@ -245,7 +249,7 @@ while (true) {
       $data = [
         'status'     => 'active',
         'last_check' => date(DATE_RFC3339),
-        'type'       => strtolower(implode('-', $mergedWorkingTypes)),
+        'type'       => strtolower(implode('-', $working_protocols)),
         'https'      => 'true',
       ];
       // Record latency when available from the HTTPS check
@@ -253,7 +257,7 @@ while (true) {
         $data['latency'] = $httpsOnly->latency;
       }
       $proxy_db->updateData($item['proxy'], $data);
-      $protocols = !empty($mergedWorkingTypes) ? implode(',', $mergedWorkingTypes) : '';
+      $protocols = !empty($working_protocols) ? implode(',', $working_protocols) : '';
       $message   = '  -> ' . AnsiColors::colorize(['green', 'bold'], 'Proxy is active (HTTPS)');
       if ($protocols !== '') {
         $message .= ' protocols=' . $protocols;
