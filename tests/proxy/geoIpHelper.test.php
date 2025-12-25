@@ -30,7 +30,11 @@ foreach ($protocols as $protocol) {
 if (!$hasWorked) {
   $ip     = explode(':', $ipPort)[0];
   $result = GeoIpHelper::getGeoIpSimple($ip, $proxy_db);
-  var_dump($result);
+  if (!empty($result) && !empty($result['country'])) {
+    echo "GeoIP resolved successfully using simple method\n";
+    var_dump($result);
+    $hasWorked = true;
+  }
 }
 if (!$hasWorked) {
   echo "Failed to resolve GeoIP for proxy: $ipPort\n";
