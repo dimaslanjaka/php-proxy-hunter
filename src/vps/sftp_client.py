@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union, List
 import paramiko
 from . import sftp_helpers as helpers
 from . import sftp_transfer as transfer
@@ -81,6 +81,7 @@ class SFTPClient:
         remote_root: str,
         local_root: str,
         delete_extra: bool = False,
+        exclude: Optional[Union[str, List[str]]] = None,
         compare: str = "mtime",
         dry_run: bool = False,
         time_tolerance: float = 1.0,
@@ -94,6 +95,7 @@ class SFTPClient:
             remote_root,
             local_root,
             delete_extra=delete_extra,
+            exclude=exclude,
             compare=compare,
             dry_run=dry_run,
             time_tolerance=time_tolerance,

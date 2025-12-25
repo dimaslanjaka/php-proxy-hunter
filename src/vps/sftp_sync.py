@@ -1,4 +1,5 @@
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, List, Union
+import fnmatch
 import os
 import posixpath
 import stat
@@ -57,6 +58,7 @@ def sync_remote_to_local(
     remote_root: str,
     local_root: str,
     delete_extra: bool = False,
+    exclude: Optional[Union[str, List[str]]] = None,
     compare: str = "size",
     dry_run: bool = False,
     time_tolerance: float = 1.0,
@@ -68,6 +70,10 @@ def sync_remote_to_local(
     - remote_root: remote file or directory root on the server.
     - local_root: destination local directory.
     - delete_extra: if True, remove local files not present remotely.
+    - exclude: optional glob pattern or list of glob patterns. Any remote
+        relative path matching an exclude pattern will be ignored (not
+        downloaded) and will not be deleted from local filesystem when
+        `delete_extra` is True. Patterns use shell-style wildcards (fnmatch).
     - compare: comparison mode controlling when files are downloaded:
         * "mtime": download when remote modification time is newer than local by more than `time_tolerance` seconds.
         * "size": download when the remote and local file sizes differ.
@@ -79,6 +85,24 @@ def sync_remote_to_local(
     """
     if sftp is None:
         raise RuntimeError("SFTP client not initialized.")
+
+    # Normalize exclude patterns to a list
+    patterns: List[str] = []
+    if exclude:
+        if isinstance(exclude, str):
+            patterns = [exclude]
+        else:
+            patterns = list(exclude)
+
+    def _is_excluded(rel: str) -> bool:
+        if not patterns:
+            return False
+        # Test both OS-native rel and posix-style rel for convenience
+        rel_posix = rel.replace(os.sep, "/")
+        for p in patterns:
+            if fnmatch.fnmatch(rel, p) or fnmatch.fnmatch(rel_posix, p):
+                return True
+        return False
 
     # Normalize local root
     local_root = os.path.abspath(local_root)
@@ -92,6 +116,11 @@ def sync_remote_to_local(
 
     # Download or update files
     for rel, (r_mtime, r_size) in remote_files.items():
+        # Skip excluded remote paths
+        if _is_excluded(rel):
+            if dry_run:
+                print(f"DRY RUN: would skip excluded remote path: {rel}")
+            continue
         local_path = os.path.join(local_root, rel)
         local_dir = os.path.dirname(local_path)
         if not os.path.exists(local_dir):
@@ -142,6 +171,9 @@ def sync_remote_to_local(
             for f in files:
                 full = os.path.join(root, f)
                 rel = os.path.relpath(full, local_root)
+                # Skip local files that match exclude patterns
+                if _is_excluded(rel):
+                    continue
                 local_files.add(rel)
 
         remote_set = set(remote_files.keys())

@@ -16,7 +16,11 @@ def sync_backups(vps: VPSConnector):
     remote_backup_dir = f"{vps.remote_path.rstrip('/')}/backups"
     # Perform sync: remote -> local (delete extra local files by default)
     vps.sync_remote_to_local(
-        remote_backup_dir, local_backup_dir, delete_extra=True, compare="size"
+        remote_backup_dir,
+        local_backup_dir,
+        delete_extra=True,
+        exclude="*.py",
+        compare="size",
     )
     print("Backups folder synced (remote -> local).")
 
