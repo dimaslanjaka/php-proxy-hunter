@@ -14,9 +14,9 @@ def sync_backups(vps: VPSConnector):
     local_backup_dir = get_relative_path("backups")
     # Use connector's remote_path to find backups folder on server
     remote_backup_dir = f"{vps.remote_path.rstrip('/')}/backups"
-    # Perform sync: remote -> local (do not delete extra local files by default)
+    # Perform sync: remote -> local (delete extra local files by default)
     vps.sync_remote_to_local(
-        remote_backup_dir, local_backup_dir, delete_extra=False, compare="size"
+        remote_backup_dir, local_backup_dir, delete_extra=True, compare="size"
     )
     print("Backups folder synced (remote -> local).")
 
