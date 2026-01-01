@@ -84,7 +84,7 @@ jobs:
         run: echo "pip_cache_dir=$(pip cache dir)" >> $GITHUB_ENV
 
       - name: Cache Dependencies and Outputs
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/pip
