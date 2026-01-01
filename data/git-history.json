@@ -1,16 +1,5 @@
 [
   {
-    "hash": "2aaa9194e40578617880f54964bda03e36252dcd",
-    "date": "2026-01-01T15:06:20Z",
-    "message": "build(deps): bump actions/cache from 4 to 5\n\nBumps [actions/cache](https://github.com/actions/cache) from 4 to 5.\n- [Release notes](https://github.com/actions/cache/releases)\n- [Changelog](https://github.com/actions/cache/blob/main/RELEASES.md)\n- [Commits](https://github.com/actions/cache/compare/v4...v5)\n\n---\nupdated-dependencies:\n- dependency-name: actions/cache\n  dependency-version: '5'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
     "hash": "2bae266929855dafc6c817902eb79792b60acfa6",
     "date": "2025-12-25T12:39:59+07:00",
     "message": "feat(backups): add cleanup script and schedule 3-day job in .crontab.sh\n\nAdd a new `backups/cleanups.py` CLI script to remove `.sql` files older than a configurable\nnumber of days (default: 2). The script supports `--days`, `--path` and `--dry-run` options\nand prints/logs deletions.\n\nRegister the script to run every 72 hours in `.crontab.sh` using `log_command`, logging to\n`tmp/logs/crontab/cleanup-backups-3d.log`.\n\nNo breaking changes.",
@@ -8648,6 +8637,14 @@
     "files": [
       "src/react/utils/user.ts",
       "types/php_backend/user.d.ts"
+    ]
+  },
+  {
+    "hash": "0318d9932e953cd4675f0b2d8def3a993ac8cd9d",
+    "date": "2025-09-21T16:47:19+07:00",
+    "message": "fix(logs): prevent unauthenticated access to own logs with JSON error response",
+    "files": [
+      "php_backend/logs.php"
     ]
   }
 ]
