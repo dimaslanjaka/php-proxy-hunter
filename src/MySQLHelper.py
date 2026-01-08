@@ -1,6 +1,6 @@
 import mysql.connector
 from mysql.connector import Error
-from typing import List, Optional, Union, Dict
+from typing import Any, List, Optional, Union, Dict, Sequence, cast
 
 
 class MySQLConnection(mysql.connector.connection.MySQLConnection):
@@ -40,6 +40,12 @@ class MySQLHelper:
         )
         self.conn.autocommit = autocommit
         self.cursor = self.conn.cursor(dictionary=True)
+        self.mysql_version = self.conn.get_server_info()
+        self.mysql_username = user
+        self.mysql_password = password
+        self.mysql_host = host
+        self.mysql_port = port
+        self.mysql_database = database
 
     # ---------- Core CRUD ----------
 
@@ -48,7 +54,7 @@ class MySQLHelper:
         sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_str})"
         self.cursor.execute(sql)
 
-    def insert(self, table_name: str, data: Dict[str, any]) -> None:
+    def insert(self, table_name: str, data: Dict[str, Any]) -> None:
         columns = ", ".join(data.keys())
         placeholders = ", ".join(["%s"] * len(data))
         sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
@@ -63,7 +69,7 @@ class MySQLHelper:
         params: Optional[Union[tuple, list]] = None,
         rand: Optional[bool] = False,
         limit: Optional[int] = None,
-    ) -> List[dict]:
+    ) -> Sequence[Dict[str, Any]]:
         sql = f"SELECT {columns} FROM {table_name}"
         if where:
             sql += f" WHERE {where}"
@@ -72,7 +78,8 @@ class MySQLHelper:
         if limit:
             sql += f" LIMIT {limit}"
         self.cursor.execute(sql, params or ())
-        return self.cursor.fetchall()
+        rows = self.cursor.fetchall()
+        return cast(Sequence[Dict[str, Any]], rows)
 
     def count(
         self,
@@ -85,12 +92,26 @@ class MySQLHelper:
             sql += f" WHERE {where}"
         self.cursor.execute(sql, params or ())
         result = self.cursor.fetchone()
-        return result["count"] if result and result["count"] is not None else 0
+        if not result:
+            return 0
+        # `fetchone()` may return a dict (with `dictionary=True`) or a sequence/tuple.
+        if isinstance(result, dict):
+            val: Any = result.get("count")
+            try:
+                return int(val) if val is not None else 0
+            except Exception:
+                return 0
+        # fallback: assume first column is the count; coerce safely
+        try:
+            first: Any = result[0] if result and len(result) > 0 else None
+            return int(first) if first is not None else 0
+        except Exception:
+            return 0
 
     def update(
         self,
         table_name: str,
-        data: Dict[str, any],
+        data: Dict[str, Any],
         where: str,
         params: Optional[Union[tuple, list]] = None,
     ) -> None:
@@ -139,10 +160,10 @@ class MySQLHelper:
 
         cmd = [
             "mysqldump",
-            f"--host={self.conn.server_host}",
-            f"--user={self.conn.user}",
-            f"--password={self.conn.password}",
-            self.conn.database,
+            f"--host={self.mysql_host}",
+            f"--user={self.mysql_username}",
+            f"--password={self.mysql_password}",
+            self.mysql_database,
         ]
         with open(dump_path, "w", encoding="utf-8") as f:
             subprocess.run(cmd, stdout=f, check=True)
