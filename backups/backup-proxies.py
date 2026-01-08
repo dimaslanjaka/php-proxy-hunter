@@ -9,6 +9,8 @@ sys.path.insert(0, ROOT)
 
 from src.shared import init_db
 from src.func import get_relative_path
+from src.ProxyDB import ProxyDB
+from src.MySQLHelper import MySQLHelper
 
 
 def dict_from_sqlite_row(row) -> Dict[str, Any]:
@@ -19,7 +21,7 @@ def dict_from_sqlite_row(row) -> Dict[str, Any]:
         return {str(k): row[k] for k in range(len(row))}
 
 
-def export_in_chunks(proxy_db, out_dir: str, chunk_size: int = 10000):
+def export_in_chunks(proxy_db: ProxyDB, out_dir: str, chunk_size: int = 10000):
     db = proxy_db.get_db()
     out_path = Path(out_dir)
     out_path.mkdir(parents=True, exist_ok=True)
@@ -36,9 +38,8 @@ def export_in_chunks(proxy_db, out_dir: str, chunk_size: int = 10000):
         if use_id_pagination:
             try:
                 if (
-                    hasattr(db, "cursor")
-                    and getattr(db, "cursor") is not None
-                    and db.__class__.__name__ == "MySQLHelper"
+                    isinstance(db, MySQLHelper)
+                    and getattr(db, "cursor", None) is not None
                 ):
                     # MySQL: use server cursor via existing cursor
                     sql = "SELECT * FROM proxies WHERE id > %s ORDER BY id ASC LIMIT %s"
@@ -68,7 +69,10 @@ def export_in_chunks(proxy_db, out_dir: str, chunk_size: int = 10000):
             # fallback to offset pagination
             offset = (chunk_index - 1) * chunk_size
             try:
-                if hasattr(db, "cursor") and db.__class__.__name__ == "MySQLHelper":
+                if (
+                    isinstance(db, MySQLHelper)
+                    and getattr(db, "cursor", None) is not None
+                ):
                     sql = "SELECT * FROM proxies LIMIT %s OFFSET %s"
                     db.cursor.execute(sql, (chunk_size, offset))
                     rows = db.cursor.fetchall() or []
