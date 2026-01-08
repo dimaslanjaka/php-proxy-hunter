@@ -1,5 +1,21 @@
 [
   {
+    "hash": "1f8bb1b1a2ae1b65f09ed0b7d8f00eae1ed273f0",
+    "date": "2026-01-08T12:04:14+07:00",
+    "message": "refactor(export): enhance type hints and improve MySQL pagination checks",
+    "files": [
+      "backups/backup-proxies.py"
+    ]
+  },
+  {
+    "hash": "f9df5bc59f6ab265181b580957907967e9171045",
+    "date": "2026-01-08T11:58:07+07:00",
+    "message": "refactor(mysql): improve MySQLHelper typing, safety and metadata\n\n- return `Sequence[Dict[str, Any]]` from `select` and cast `fetchall()` for type-safety\n- make `count()` robust to `fetchone()` returning dict or sequence and safely coerce to int\n- normalize typing to `Dict[str, Any]`\n- add connection metadata fields (`mysql_version`, `mysql_username`, `mysql_password`, `mysql_host`, `mysql_port`, `mysql_database`)\n- use stored connection attributes for `mysqldump` invocation",
+    "files": [
+      "src/MySQLHelper.py"
+    ]
+  },
+  {
     "hash": "2bae266929855dafc6c817902eb79792b60acfa6",
     "date": "2025-12-25T12:39:59+07:00",
     "message": "feat(backups): add cleanup script and schedule 3-day job in .crontab.sh\n\nAdd a new `backups/cleanups.py` CLI script to remove `.sql` files older than a configurable\nnumber of days (default: 2). The script supports `--days`, `--path` and `--dry-run` options\nand prints/logs deletions.\n\nRegister the script to run every 72 hours in `.crontab.sh` using `log_command`, logging to\n`tmp/logs/crontab/cleanup-backups-3d.log`.\n\nNo breaking changes.",
@@ -8628,23 +8644,6 @@
     "files": [
       "src/react/utils/user.ts",
       "types/php_backend/logs.d.ts"
-    ]
-  },
-  {
-    "hash": "ad6bc421af5d0aef52b5f348d9ea3c23bb2a0ea1",
-    "date": "2025-09-21T16:57:40+07:00",
-    "message": "refactor(user): move UserInfo interface to a separate type definition file",
-    "files": [
-      "src/react/utils/user.ts",
-      "types/php_backend/user.d.ts"
-    ]
-  },
-  {
-    "hash": "0318d9932e953cd4675f0b2d8def3a993ac8cd9d",
-    "date": "2025-09-21T16:47:19+07:00",
-    "message": "fix(logs): prevent unauthenticated access to own logs with JSON error response",
-    "files": [
-      "php_backend/logs.php"
     ]
   }
 ]
