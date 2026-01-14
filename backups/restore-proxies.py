@@ -51,7 +51,7 @@ def restore_from_chunks(
     processed = 0
     restored = 0
 
-    for f in files:
+    for idx, f in enumerate(files, start=1):
         items = load_json(f)
         print(f"Processing {f} ({len(items)} items)")
         for item in items:
@@ -87,14 +87,14 @@ def restore_from_chunks(
                     if not overwrite and exists:
                         action = "skip"
                         print(
-                            f"\r{processed+1}/{total_files} {proxy} -> {action}",
+                            f"\r{processed+1} [{idx}/{total_files}] {proxy} -> {action}",
                             end="",
                             flush=True,
                         )
                     else:
                         action = "update"
                         print(
-                            f"\r{processed+1}/{total_files} {proxy} -> {action}",
+                            f"\r{processed+1} [{idx}/{total_files}] {proxy} -> {action}",
                             end="",
                             flush=True,
                         )
@@ -108,7 +108,7 @@ def restore_from_chunks(
                         proxy_db.update_data(proxy, data)
                         restored += 1
                     print(
-                        f"\r{processed+1}/{total_files} {proxy} -> {action}            ",
+                        f"\r{processed+1} [{idx}/{total_files}] {proxy} -> {action}            ",
                         end="",
                         flush=True,
                     )
