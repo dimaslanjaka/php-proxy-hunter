@@ -1,5 +1,29 @@
 [
   {
+    "hash": "b9cd8b6cc11865f98f73e94db83cad94ef123e7b",
+    "date": "2026-01-14T17:35:00+07:00",
+    "message": "refactor(backups/restore-proxies): show current chunk index in progress logs\n\nReplace plain file loop with `enumerate(files, start=1)` and update inline\nprogress prints to include both the current chunk index and total files\n(e.g. `{processed+1} [{idx}/{total_files}] {proxy} -> {action}`). Applies to\nboth dry-run and actual run outputs to improve visibility when restoring from\nchunked backups.",
+    "files": [
+      "backups/restore-proxies.py"
+    ]
+  },
+  {
+    "hash": "754e4bb5be66b922f3bc67c2ce9847fbe9fde52e",
+    "date": "2026-01-14T17:29:22+07:00",
+    "message": "feat(backups/restore-proxies): add --db-target and enforce production-only DB creds\n\n- Add `--db-target` CLI option (choices: `local` | `production`) and interactive TTY prompt fallback.\n- Introduce explicit local/production variables for `db_host`, `db_user`, `db_pass`, and `db_name`.\n- Export chosen credentials to environment before initializing `ProxyDB`.\n- Enforce production-only mode: if `production` is selected the script exits when any required production env var is missing (no fallback to local).\n- Support `--db-type=sqlite` by initializing `ProxyDB` with the sqlite file; otherwise initialize MySQL `ProxyDB` directly with chosen creds.\n- Replace implicit `or` fallbacks with explicit checks and remove dependency on `init_db()` import.\n- Use a local test DB name `php_proxy_hunter_test` when target is `local`.\n\nBREAKING CHANGE: Running with `--db-target production` now requires `MYSQL_HOST_PRODUCTION`, `MYSQL_USER_PRODUCTION`, and `MYSQL_PASS_PRODUCTION` to be defined; the script will exit if they are missing.",
+    "files": [
+      "backups/restore-proxies.py"
+    ]
+  },
+  {
+    "hash": "7335c2e30bd5e3262b42576c587a57116dd63af6",
+    "date": "2026-01-14T15:25:38+07:00",
+    "message": "fix(backup): address numpy installation issues in backup script",
+    "files": [
+      "bin/backup-db"
+    ]
+  },
+  {
     "hash": "1f8bb1b1a2ae1b65f09ed0b7d8f00eae1ed273f0",
     "date": "2026-01-08T12:04:14+07:00",
     "message": "refactor(export): enhance type hints and improve MySQL pagination checks",
@@ -8618,32 +8642,6 @@
     "message": "feat(instructions): add i18next framework details for internationalization",
     "files": [
       ".github/instructions/react.instruction.md"
-    ]
-  },
-  {
-    "hash": "e1e1fbd2ac5f19626d1907d9bc24b71be162a70d",
-    "date": "2025-09-21T17:19:23+07:00",
-    "message": "feat(instructions): add GitHub Copilot guidelines for React components with Tailwind and Flowbite",
-    "files": [
-      ".github/instructions/react.instruction.md"
-    ]
-  },
-  {
-    "hash": "f807e48890de723eac395fffb93008fa221411ec",
-    "date": "2025-09-21T17:05:27+07:00",
-    "message": "refactor(user-activity-card): move component to dashboard directory",
-    "files": [
-      "src/react/pages/Dashboard.tsx",
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "d8817f332bb7322e3bce8a79294f47d6b1cb9be8",
-    "date": "2025-09-21T17:04:00+07:00",
-    "message": "feat(user): add getUserLogs function with pagination support\n\n- Introduced `getUserLogs` in `src/react/utils/user.ts` to fetch current user logs\n  with page and pageSize parameters.\n- Added new type definitions in `types/php_backend/logs.d.ts`:\n  - `LogEntry`\n  - `UserLogResponse`",
-    "files": [
-      "src/react/utils/user.ts",
-      "types/php_backend/logs.d.ts"
     ]
   }
 ]
