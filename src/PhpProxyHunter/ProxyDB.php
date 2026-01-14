@@ -506,6 +506,10 @@ class ProxyDB {
     return $this->db->count('proxies');
   }
 
+  public function countHttpsProxies() {
+    return $this->db->count('proxies', 'https = ?', ['true']);
+  }
+
   public function close() {
     if ($this->db) {
       $this->db->close();
