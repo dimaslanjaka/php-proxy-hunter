@@ -173,5 +173,12 @@ else
     echo "Required: MYSQL_USER and MYSQL_PASSWORD (or production variants)."
 fi
 
+# Fix numpy installation to avoid issues during backup script execution
+# "$PYTHON_CMD" -m pip uninstall -y numpy
+# install build deps first (example for Debian/Ubuntu)
+# apt update -y && apt install -y build-essential libatlas-base-dev gfortran
+# "$PYTHON_CMD" -m pip install --no-binary :all: numpy===2.1.0
+# "$PYTHON_CMD" -m pip install numpy===2.1.0 --force-reinstall
+
 # "$PYTHON_CMD" -m pip install -r "$PROJECT_ROOT/requirements-minimal.txt"
 "$PYTHON_CMD" -u "$PROJECT_ROOT/backups/backup-proxies.py"
