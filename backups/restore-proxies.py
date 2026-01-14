@@ -1,13 +1,12 @@
 import argparse
 import json
-import sys
+import sys, os
 from pathlib import Path
 from typing import Any, Dict, List
 
 ROOT = str(Path(__file__).parent.parent)
 sys.path.insert(0, ROOT)
 
-from src.shared import init_db
 from src.func import get_relative_path
 from src.ProxyDB import ProxyDB
 
@@ -152,11 +151,99 @@ def main():
         default="true",
         help="Whether to overwrite existing DB values with backup values (true|false). Default: true",
     )
+    parser.add_argument(
+        "--db-target",
+        choices=("local", "production"),
+        help="Choose database target: local or production (prompts if not provided)",
+    )
     # verbose logging is always enabled
 
     args = parser.parse_args()
 
-    proxy_db: ProxyDB = init_db(db_type=args.db_type)
+    local_dbhost = os.getenv("MYSQL_HOST", "localhost")
+    production_dbhost = os.getenv("MYSQL_HOST_PRODUCTION")
+
+    db_name_local = "php_proxy_hunter_test"
+    db_name_production = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
+
+    db_user_production = os.getenv("MYSQL_USER_PRODUCTION")
+    db_user_local = os.getenv("MYSQL_USER", "root")
+
+    db_pass_production = os.getenv("MYSQL_PASS_PRODUCTION")
+    db_pass_local = os.getenv("MYSQL_PASS", "")
+
+    # Determine target: CLI override > interactive prompt (if TTY) > default 'local'
+    target = args.db_target
+    if not target:
+        try:
+            if sys.stdin.isatty():
+                choice = input(
+                    "Select database target ('local' or 'production') [local]: "
+                )
+                target = choice.strip().lower() or "local"
+            else:
+                target = "local"
+        except Exception:
+            target = "local"
+
+    if target not in ("local", "production"):
+        print(f"Unknown target '{target}', defaulting to 'local'")
+        target = "local"
+
+    if target == "production":
+        # Enforce production-only values; fail if required production vars are not set
+        if production_dbhost is None or production_dbhost == "":
+            print(
+                "Error: MYSQL_HOST_PRODUCTION is not set; cannot use production target"
+            )
+            sys.exit(1)
+        db_host = production_dbhost
+
+        if db_user_production is None or db_user_production == "":
+            print(
+                "Error: MYSQL_USER_PRODUCTION is not set; cannot use production target"
+            )
+            sys.exit(1)
+        db_user = db_user_production
+
+        # Allow empty production password but it must be defined (not None)
+        if db_pass_production is None:
+            print(
+                "Error: MYSQL_PASS_PRODUCTION is not set; cannot use production target"
+            )
+            sys.exit(1)
+        db_pass = db_pass_production
+        db_name = db_name_production
+    else:
+        db_host = local_dbhost
+        db_user = db_user_local
+        db_pass = db_pass_local
+        db_name = db_name_local
+
+    # Export chosen credentials so another functions picks them up from environment
+    os.environ["MYSQL_HOST"] = db_host
+    os.environ["MYSQL_USER"] = db_user
+    os.environ["MYSQL_PASS"] = db_pass
+    os.environ["MYSQL_DBNAME"] = db_name
+
+    if args.db_type == "sqlite":
+        db_file = get_relative_path("src/database.sqlite")
+        proxy_db = ProxyDB(
+            db_location=db_file,
+            start=True,
+            db_type="sqlite",
+        )
+    else:
+        proxy_db = ProxyDB(
+            None,
+            start=True,
+            db_type="mysql",
+            mysql_host=db_host,
+            mysql_dbname=db_name,
+            mysql_user=db_user,
+            mysql_password=db_pass,
+        )
+
     if proxy_db.db is None:
         print("Database not initialized")
         return
