@@ -1,5 +1,22 @@
 [
   {
+    "hash": "22174b898f1e68af9ec67cb6707397f75fbe82b2",
+    "date": "2026-01-15T04:14:25+07:00",
+    "message": "feat(sftp): add SFTP boilerplate configuration file",
+    "files": [
+      ".vscode/sftp-boilerplate.jsonc"
+    ]
+  },
+  {
+    "hash": "23210fe66c0c43b2b36e23ea74f960122f679bfa",
+    "date": "2026-01-15T04:11:26+07:00",
+    "message": "feat(vps): add SFTP speed test CLI and menu\n\n- Add `src/vps/sftp_speed_test.py`: CLI utility to measure SFTP\n  upload/download speed (uses `load_sftp_config`). Creates fixed\n  files under `tmp/` via `get_relative_path`, measures upload and\n  download Mbps, and always cleans up local and remote test files.\n- Add `src/vps/menus/speed-test.py`: menu wrapper invoking\n  `run_speed_test()` for integration with the VPS manager.\n- Use `SFTPClient`/`SSHClient` helpers and provide `--size-mb` and\n  `--remote-file` options for configurable testing.",
+    "files": [
+      "src/vps/menus/speed-test.py",
+      "src/vps/sftp_speed_test.py"
+    ]
+  },
+  {
     "hash": "b9cd8b6cc11865f98f73e94db83cad94ef123e7b",
     "date": "2026-01-14T17:35:00+07:00",
     "message": "refactor(backups/restore-proxies): show current chunk index in progress logs\n\nReplace plain file loop with `enumerate(files, start=1)` and update inline\nprogress prints to include both the current chunk index and total files\n(e.g. `{processed+1} [{idx}/{total_files}] {proxy} -> {action}`). Applies to\nboth dry-run and actual run outputs to improve visibility when restoring from\nchunked backups.",
@@ -8624,24 +8641,6 @@
     "files": [
       "src/react/pages/admin/LogsSection.tsx",
       "types/php_backend/logs.d.ts"
-    ]
-  },
-  {
-    "hash": "41ae3c20e7dad46388cf762506d595fd420693e9",
-    "date": "2025-09-21T17:29:58+07:00",
-    "message": "feat(ui): add pagination and localization to UserActivityCard\n\n- Refactored `UserActivityCard.tsx` to support paginated log fetching, including page navigation and page size selection.\n- Added new translation keys for pagination and table headers to `en.json` and `id.json`:\n  - prev, next, page, rows_per_page, action, timestamp, details\n- Updated UI to use a table for activity logs with full dark mode support.\n- Removed old dummy data and fetch logic, now uses real API and types.",
-    "files": [
-      "src/react/locales/en.json",
-      "src/react/locales/id.json",
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "c7d5dc6240a9c57e3315d5112090b10501ac5d23",
-    "date": "2025-09-21T17:24:45+07:00",
-    "message": "feat(instructions): add i18next framework details for internationalization",
-    "files": [
-      ".github/instructions/react.instruction.md"
     ]
   }
 ]
