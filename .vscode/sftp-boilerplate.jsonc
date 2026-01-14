@@ -1,0 +1,18 @@
+// SFTP Boilerplate Configuration File For src/vps/vps_manager.py (bin/vps-mgr)
+// Create .vscode/sftp.json from this file and fill in your server details.
+{
+  "name": "YOUR_SERVER_NAME",
+  "host": "SERVER_HOST_OR_IP",
+  "protocol": "sftp",
+  "port": 22,
+  "username": "SERVER_USERNAME",
+  "password": "SERVER_PASSWORD",
+  "remotePath": "/path/to/remote",
+  "uploadOnSave": false,
+  "useTempFile": false,
+  "openSsh": false,
+  "syncOption": {
+    "delete": true,
+    "update": true
+  }
+}
