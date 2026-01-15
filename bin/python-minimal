@@ -8,7 +8,7 @@ CWD="$(dirname "$SCRIPT_DIR")"
 # add bin to PATH
 export PATH="$CWD/bin:$PATH"
 
-# create venv if not exists
+# create venv if not exists and install dependencies
 if [ ! -d "venv" ]; then
   if command -v python3 &> /dev/null; then
     python3 -m venv venv

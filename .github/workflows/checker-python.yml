@@ -135,8 +135,8 @@ jobs:
 
       - name: Install Python Minimal Dependencies (if cache missed)
         if: steps.cache.outputs.cache-hit != 'true'
-        shell: bash
-        run: bash bin/python-minimal
+        shell: cmd
+        run: .\bin\python-minimal.cmd
 
       - name: Initialize Project Scripts
         id: php-github-actions-init
