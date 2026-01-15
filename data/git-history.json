@@ -1,5 +1,13 @@
 [
   {
+    "hash": "8233a6ebb58d450bd69eafc42ec209b838dd3244",
+    "date": "2026-01-16T06:33:11+07:00",
+    "message": "fix(proxydb): cast DB select() results to annotated list\n\nCast `self.get_db().select()` outputs to `List[Dict[str, Union[str, None]]]`\nto satisfy static type checkers (pyright/mypy). Introduce intermediate\n`result` variables and `cast(...)` returns in the following methods of\n`src/ProxyDB.py`: `get_all_proxies`, `get_working_proxies`,\n`get_untested_proxies`, `get_private_proxies`, and `get_dead_proxies`.\n\nNo runtime behavior changes — this is a static typing / linting fix.",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
     "hash": "4017611e397420c42b628bf7207b65703ecfe0b6",
     "date": "2026-01-16T06:28:31+07:00",
     "message": "refactor(dev): use get_relative_path and unify project root resolution\n\n- Use get_relative_path() to resolve default backups directory in backup-cleaner\n- Standardize sys.path setup in restore-proxies to match other dev scripts",
@@ -8640,15 +8648,6 @@
     "message": "refactor(proxy-checker): extract helpers and reduce duplicated proxy check logic\n\nIntroduced helper functions `$markStatus`, `$processResult`, and `$checkProxy` to centralize status updates, proxy result handling, and proxy checking. Simplified concurrency handling, input validation, and shutdown cleanup while preserving original log messages and database updates. This reduces code duplication and improves maintainability in `php_backend/proxy-checker.php`.",
     "files": [
       "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "9ff1aa635074aa720fc40646ec08328f4f42f451",
-    "date": "2025-09-25T09:14:01+07:00",
-    "message": "feat(AnsiColors): add ANSI colorization and HTML conversion functionality",
-    "files": [
-      "src/PhpProxyHunter/AnsiColors.php",
-      "tests/console/color.php"
     ]
   }
 ]
