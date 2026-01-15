@@ -566,23 +566,33 @@ class ProxyDB:
         return result
 
     def get_dead_proxies(
-        self, limit: Optional[int] = None
+        self, limit: Optional[int] = None, randomize: bool = True
     ) -> List[Dict[str, Union[str, None]]]:
+        """Return dead or port-closed proxies.
+
+        Args:
+            limit: maximum number of results to return.
+            randomize: when True include a random ordering clause in the SQL.
+        """
         if not limit:
             limit = sys.maxsize
 
         if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+            order_clause = " ORDER BY RAND()" if randomize else ""
+            sql = f"status = %s or status = %s{order_clause} LIMIT {limit}"
             result = self.get_db().select(
                 "proxies",
                 "*",
-                f"status = %s or status = %s ORDER BY RAND() LIMIT {limit}",
+                sql,
                 ["dead", "port-closed"],
             )
         else:
+            order_clause = " ORDER BY RANDOM()" if randomize else ""
+            sql = f"status = ? or status = ?{order_clause} LIMIT {limit}"
             result = self.get_db().select(
                 "proxies",
                 "*",
-                f"status = ? or status = ? ORDER BY RANDOM() LIMIT {limit}",
+                sql,
                 ["dead", "port-closed"],
             )
         if not isinstance(result, list):
