@@ -18,8 +18,11 @@ if [ -f ".env" ]; then
   export $(egrep -v '^#' .env | xargs)
 fi
 
-ORIGIN="https://$ACCESS_TOKEN@github.com/dimaslanjaka/php-proxy-hunter"
-PRIVATE="https://$ACCESS_TOKEN@github.com/dimaslanjaka/traffic-generator"
+ORIGIN="https://dimaslanjaka:$ACCESS_TOKEN@github.com/dimaslanjaka/php-proxy-hunter"
+PRIVATE="https://dimaslanjaka:$ACCESS_TOKEN@github.com/dimaslanjaka/traffic-generator"
+
+echo "Generated remote origin: $ORIGIN"
+echo "Generated remote private: $PRIVATE"
 
 git remote add origin $ORIGIN || true
 git remote set-url origin $ORIGIN || true
