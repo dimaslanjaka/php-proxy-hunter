@@ -1,5 +1,21 @@
 [
   {
+    "hash": "234bd6fd69584f735a186d1af6e0e9978bd1e614",
+    "date": "2026-01-16T03:25:31+07:00",
+    "message": "chore(cfh): always stage generated hash file regardless of git hook context",
+    "files": [
+      "bin/cfh.cjs"
+    ]
+  },
+  {
+    "hash": "c77789472a40db2e5ba788cb5929a9bada660a28",
+    "date": "2026-01-16T03:19:50+07:00",
+    "message": "feat(proxy-list): improve proxy counters UI\n\n- Replace inline badge spans with a responsive grid of iconified counter cards in `src/react/pages/ProxyList/ServerSide.tsx`.\n- Add `counterList` configuration (label, icon, bg/text classes) and map it to consistent rounded cards showing label + count.\n- Use Font Awesome icons for each counter and apply small layout tweaks (`mb-3` on table container, adjusted pagination spacing).",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
     "hash": "d223efad20db172eadddd79cd91b0e0a8fca92ad",
     "date": "2026-01-16T00:46:38+07:00",
     "message": "fix(deps): update php-cs-fixer version constraint to include 3.75",
@@ -8616,23 +8632,6 @@
     "hash": "edaf0b6358773781012fdf157f34b62a442c5097",
     "date": "2025-09-23T17:02:28+07:00",
     "message": "feat(meta): add driver detection and auto-create meta table\n\nAdds `$driver` property to store the database driver name.\nMeta constructor now ensures the `meta` table exists by executing\nthe appropriate schema for SQLite or MySQL.",
-    "files": [
-      "src/PhpProxyHunter/Meta.php"
-    ]
-  },
-  {
-    "hash": "034789183a5e43332f739fe294c45483ba374d92",
-    "date": "2025-09-23T17:01:10+07:00",
-    "message": "feat(activity-log): add migration support for action_type column\n\nIntroduces `ActivityLogMigration` class to handle schema changes\nfor the `activity_log` table, specifically the `action_type` column.\n- Integrates migration execution into `ActivityLog` constructor.\n- Ensures migration is tracked using the `Meta` table.\n- Closes migration resources on shutdown.",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php",
-      "src/PhpProxyHunter/ActivityLogMigration.php"
-    ]
-  },
-  {
-    "hash": "19abb05f02cd11ff408cf532051d07f2fd99cc1f",
-    "date": "2025-09-23T17:00:08+07:00",
-    "message": "fix(meta): escape key in SQL queries for consistency",
     "files": [
       "src/PhpProxyHunter/Meta.php"
     ]
