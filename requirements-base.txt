@@ -43,3 +43,5 @@ webdriver-manager @ https://github.com/SergeyPirogov/webdriver_manager/archive/1
 werkzeug
 zstandard
 paramiko
+httpx
+httpx-socks
