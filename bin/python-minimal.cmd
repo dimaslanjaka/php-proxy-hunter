@@ -29,9 +29,11 @@ if not defined PY_CREATOR (
 
 @REM create venv if not exists
 if not exist venv (
-  %PY_CREATOR% -m venv venv
+  	%PY_CREATOR% -m venv venv
 )
-call venv\Scripts\activate.bat
+if exist venv\Scripts\activate.bat (
+		call venv\Scripts\activate.bat
+)
 
 set "PY=%CWD%\venv\Scripts\python.exe"
 call %PY% -m pip install --upgrade pip
