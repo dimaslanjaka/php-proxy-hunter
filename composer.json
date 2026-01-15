@@ -75,9 +75,11 @@
     "allow-plugins": {
       "brightnucleus/country-codes": true,
       "dealerdirect/phpcodesniffer-composer-installer": true,
-      "symfony/flex": true
+      "symfony/flex": true,
+      "symfony/thanks": true
     }
   },
   "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "scripts": {}
 }
