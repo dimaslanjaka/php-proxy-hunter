@@ -224,7 +224,7 @@ fi
 if should_run_job "tmp/crontab/72-h" 72; then
     echo "Running 72 hours job."
     # Run backups cleanup script every 3 days
-    log_command "tmp/logs/crontab/cleanup-backups-3d.log" "$CWD/bin/py" "$CWD/backups/cleanups.py"
+    log_command "tmp/logs/crontab/cleanup-backups-3d.log" "$CWD/bin/py" "$CWD/src/dev/backup-cleaner.py"
 else
     echo "Skipping 72 hours job."
 fi

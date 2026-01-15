@@ -17,10 +17,14 @@ Options:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import time
 from pathlib import Path
 from typing import Tuple
+
+PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+sys.path.append(PROJECT_DIR)
 
 
 def find_old_sql_files(path: Path, days: int) -> list[Path]:
@@ -78,8 +82,8 @@ def main() -> int:
     if args.path:
         folder = Path(args.path)
     else:
-        # default to the folder where this script lives
-        folder = Path(__file__).resolve().parent
+        # default to the project backups folder
+        folder = Path(PROJECT_DIR, "backups").resolve()
 
     if not folder.exists() or not folder.is_dir():
         print(
