@@ -4,6 +4,7 @@ set -e
 # set variable
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 CWD="$(dirname "$SCRIPT_DIR")"
+PY="$CWD/bin/py"
 
 # add bin to PATH
 export PATH="$CWD/bin:$PATH"
@@ -22,22 +23,25 @@ if [ ! -d "venv" ]; then
   fi
 fi
 
-. venv/bin/activate
-py -m pip install --upgrade pip || true
-py -m pip install -r "$CWD/requirements-base.txt"
-py -m pip install -r "$CWD/requirements-minimal.txt"
+if [ -f "venv/bin/activate" ]; then
+  . venv/bin/activate
+fi
+
+"$PY" -m pip install --upgrade pip || true
+"$PY" -m pip install -r "$CWD/requirements-base.txt"
+"$PY" -m pip install -r "$CWD/requirements-minimal.txt"
 if [ -d "packages/proxy-checker-python" ]; then
-  py -m pip install -e packages/proxy-checker-python
+  "$PY" -m pip install -e packages/proxy-checker-python
 else
-  py -m pip install git+https://github.com/dimaslanjaka/proxy-checker-python.git@master
+  "$PY" -m pip install git+https://github.com/dimaslanjaka/proxy-checker-python.git@master
 fi
 if [ -d "packages/proxy-hunter-python" ]; then
-  py -m pip install -e packages/proxy-hunter-python
+  "$PY" -m pip install -e packages/proxy-hunter-python
 else
-  py -m pip install git+https://github.com/dimaslanjaka/proxy-hunter-python.git@master#subdirectory=packages/proxy-hunter-python
+  "$PY" -m pip install git+https://github.com/dimaslanjaka/proxy-hunter-python.git@master#subdirectory=packages/proxy-hunter-python
 fi
 if [ -d "packages/rsa-utility" ]; then
-  py -m pip install -e packages/rsa-utility
+  "$PY" -m pip install -e packages/rsa-utility
 else
-  py -m pip install git+https://github.com/dimaslanjaka/php-proxy-hunter.git@master#subdirectory=packages/rsa-utility
+  "$PY" -m pip install git+https://github.com/dimaslanjaka/php-proxy-hunter.git@master#subdirectory=packages/rsa-utility
 fi
