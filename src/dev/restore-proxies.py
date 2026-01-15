@@ -4,8 +4,7 @@ import sys, os
 from pathlib import Path
 from typing import Any, Dict, List
 
-ROOT = str(Path(__file__).parent.parent)
-sys.path.insert(0, ROOT)
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 from src.func import get_relative_path
 from src.ProxyDB import ProxyDB

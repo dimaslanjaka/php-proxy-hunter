@@ -26,6 +26,8 @@ from typing import Tuple
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.append(PROJECT_DIR)
 
+from src.func import get_relative_path
+
 
 def find_old_sql_files(path: Path, days: int) -> list[Path]:
     now = time.time()
@@ -83,7 +85,7 @@ def main() -> int:
         folder = Path(args.path)
     else:
         # default to the project backups folder
-        folder = Path(PROJECT_DIR, "backups").resolve()
+        folder = Path(get_relative_path("backups")).resolve()
 
     if not folder.exists() or not folder.is_dir():
         print(
