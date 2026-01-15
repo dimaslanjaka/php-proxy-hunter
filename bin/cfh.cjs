@@ -83,14 +83,17 @@ const createFileHashesMain = async () => {
   await fs.mkdir(path.dirname(outputFile), { recursive: true });
   await fs.writeFile(outputFile, outputLine, 'utf-8');
 
-  // Add the hash file to the commit (only for normal runs)
-  try {
-    const result = spawnSync('git', ['add', relativeOutputFile], { cwd: projectDir, stdio: 'ignore' });
-    if (result && result.error) throw result.error;
-    if (typeof result.status === 'number' && result.status !== 0)
-      throw new Error(`git add exited with code ${result.status}`);
-  } catch (_err) {
-    // ignore git add failures in environments where git isn't available
+  const isGitHook = !!process.env.GIT_INDEX_FILE;
+  if (!isGitHook) {
+    // Add the hash file to the commit (only for normal runs)
+    try {
+      const result = spawnSync('git', ['add', relativeOutputFile], { cwd: projectDir, stdio: 'ignore' });
+      if (result && result.error) throw result.error;
+      if (typeof result.status === 'number' && result.status !== 0)
+        throw new Error(`git add exited with code ${result.status}`);
+    } catch (_err) {
+      // ignore git add failures in environments where git isn't available
+    }
   }
 
   console.log(`Parent folder checksum saved to ${relativeOutputFile}`);
