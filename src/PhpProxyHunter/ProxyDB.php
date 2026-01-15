@@ -525,8 +525,17 @@ class ProxyDB
     ]);
   }
 
-  public function countPrivateProxies()
+  /**
+   * Count private proxies.
+   *
+   * @param bool $onlyActive When true, count only proxies with status 'active'.
+   * @return int
+   */
+  public function countPrivateProxies($onlyActive = false)
   {
+    if ($onlyActive) {
+      return $this->db->count('proxies', 'private = ? AND status = ?', ['true', 'active']);
+    }
     return $this->db->count('proxies', 'private = ?', ['true']);
   }
 
