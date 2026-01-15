@@ -70,10 +70,12 @@ fi
 
 # Run php-cs-fixer if PHP files were changed
 if [ "$PHP_FILES_FOUND" -eq 1 ]; then
+  export PHP_CS_FIXER_IGNORE_ENV=1
   git status --porcelain | grep -e '^[AM].*\.php$' | cut -c 4- | while read -r line; do
     php "$PROJECT_DIR/bin/composer.phar" exec -- php-cs-fixer fix --config="$PROJECT_DIR/.php-cs-fixer.dist.php" --verbose "$line"
     git add "$line"
   done
+  unset PHP_CS_FIXER_IGNORE_ENV
 fi
 
 # Run lint-staged
