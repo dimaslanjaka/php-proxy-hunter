@@ -329,10 +329,14 @@ class ProxyDB:
         # MySQLHelper.select signature supports orderBy, limit, offset as extra args maybe
         try:
             # prefer keyword-style where supported
-            return self.get_db().select("proxies", "*", None, [], order_by, final_limit, offset)  # type: ignore[arg-type]
+            result = self.get_db().select(
+                "proxies", "*", None, [], order_by, final_limit, offset  # type: ignore[arg-type]
+            )
+            return cast(List[Dict[str, Union[str, None]]], result)
         except TypeError:
             # fallback to simple select without pagination/order
-            return self.get_db().select("proxies", "*")
+            result = self.get_db().select("proxies", "*")
+            return cast(List[Dict[str, Union[str, None]]], result)
 
     def remove(self, proxy):
         proxy = self.normalize_proxy(proxy)
@@ -497,6 +501,8 @@ class ProxyDB:
         if not result:
             return []
 
+        result = cast(List[Dict[str, Union[str, None]]], result)
+
         if auto_fix:
             return self.fix_empty_data(result)
         return result
@@ -554,7 +560,7 @@ class ProxyDB:
             )
         if not result:
             return []
-        return result
+        return cast(List[Dict[str, Union[str, None]]], result)
 
     def get_private_proxies(self) -> List[Dict[str, Union[str, None]]]:
         if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
@@ -563,7 +569,7 @@ class ProxyDB:
             result = self.get_db().select("proxies", "*", "status = ?", ["private"])
         if not result:
             return []
-        return result
+        return cast(List[Dict[str, Union[str, None]]], result)
 
     def get_dead_proxies(
         self, limit: Optional[int] = None, randomize: bool = True
@@ -597,7 +603,7 @@ class ProxyDB:
             )
         if not isinstance(result, list):
             result = []
-        return result
+        return cast(List[Dict[str, Union[str, None]]], result)
 
     def fix_empty_data(self, results: List[Dict[str, Union[str, None]]]):
         if not results:
