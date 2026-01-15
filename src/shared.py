@@ -27,12 +27,13 @@ from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 
 
-def init_db(db_type: str = "sqlite"):
+def init_db(db_type: str = "sqlite", production: bool = False):
     """
     Initialize ProxyDB with environment configuration.
 
     Args:
         db_type (str): Database type - 'sqlite' or 'mysql' (default: sqlite)
+        production (bool): When True, force use of production MySQL configuration.
 
     Environment variables:
     - MYSQL_HOST: MySQL host (default: localhost)
@@ -46,16 +47,29 @@ def init_db(db_type: str = "sqlite"):
     Returns:
         ProxyDB: Initialized database instance
     """
+    if production:
+        db_type = "mysql"
+
     db_type = db_type.lower()
 
     if db_type == "mysql":
         # MySQL configuration
-        db_host = os.getenv("MYSQL_HOST_PRODUCTION") or os.getenv(
-            "MYSQL_HOST", "localhost"
-        )
-        db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
-        db_user = os.getenv("MYSQL_USER_PRODUCTION") or os.getenv("MYSQL_USER", "root")
-        db_pass = os.getenv("MYSQL_PASS_PRODUCTION") or os.getenv("MYSQL_PASS", "")
+        if production:
+            db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
+        else:
+            db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter_test")
+        if production:
+            db_host = os.getenv(
+                "MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost")
+            )
+            db_user = os.getenv(
+                "MYSQL_USER_PRODUCTION", os.getenv("MYSQL_USER", "root")
+            )
+            db_pass = os.getenv("MYSQL_PASS_PRODUCTION", os.getenv("MYSQL_PASS", ""))
+        else:
+            db_host = os.getenv("MYSQL_HOST", "localhost")
+            db_user = os.getenv("MYSQL_USER", "root")
+            db_pass = os.getenv("MYSQL_PASS", "")
 
         proxy_db = ProxyDB(
             db_location=db_name,
