@@ -172,12 +172,3 @@ elif [ "$OS" = "Linux" ]; then
     fi
   fi
 fi
-
-# Auto generate hash and add .husky/hash.txt
-if [ "$1" = "0" ]; then  # not a squash
-  bash "$CWD/bin/cfh" || {
-    echo "Failed to create file hashes"
-    exit 1
-  }
-  git commit --amend --no-edit
-fi
