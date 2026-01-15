@@ -78,6 +78,46 @@ if [ "$PHP_FILES_FOUND" -eq 1 ]; then
   unset PHP_CS_FIXER_IGNORE_ENV
 fi
 
+# Run python black formatter
+if [ "$PYTHON_FILES_FOUND" -eq 1 ]; then
+  # Prefer black from a project venv (Windows or Unix), then PATH, then python -m black
+  BLACK_CMD=""
+  if [ -x "$PROJECT_DIR/venv/Scripts/black.exe" ]; then
+    BLACK_CMD="$PROJECT_DIR/venv/Scripts/black.exe"
+    echo "Using venv black from $PROJECT_DIR/venv/Scripts"
+  elif [ -x "$PROJECT_DIR/venv/bin/black" ]; then
+    BLACK_CMD="$PROJECT_DIR/venv/bin/black"
+    echo "Using venv black from $PROJECT_DIR/venv/bin"
+  elif command -v black >/dev/null 2>&1; then
+    BLACK_CMD="black"
+  elif command -v python >/dev/null 2>&1; then
+    if python -c "import importlib,sys; importlib.import_module('black')" >/dev/null 2>&1; then
+      BLACK_CMD="python -m black"
+      echo "Using system python -m black"
+    fi
+  elif command -v python3 >/dev/null 2>&1; then
+    if python3 -c "import importlib,sys; importlib.import_module('black')" >/dev/null 2>&1; then
+      BLACK_CMD="python3 -m black"
+      echo "Using system python3 -m black"
+    fi
+  fi
+
+  if [ -n "$BLACK_CMD" ]; then
+    # Format staged python files and re-add them
+    git diff --cached --name-only --diff-filter=ACM | grep -E '\.py$' | while read -r pyfile; do
+      if [ -f "$pyfile" ]; then
+        $BLACK_CMD "$pyfile" || {
+          echo "Black failed for $pyfile"
+          exit 1
+        }
+        git add "$pyfile"
+      fi
+    done
+  else
+    echo "Black not found; skipping Python formatting"
+  fi
+fi
+
 # Run lint-staged
 if command -v yarn >/dev/null 2>&1; then
   # If a project virtualenv exists, prefer its Python by prepending its scripts to PATH

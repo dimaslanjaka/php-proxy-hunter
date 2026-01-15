@@ -11,6 +11,5 @@
   "*.less": "prettier --list-different --write",
   "*.yml": "prettier --list-different --write",
   "*.yaml": "prettier --list-different --write",
-  "*.sql": "prettier --list-different --write",
-  "*.py": "python -m black"
+  "*.sql": "prettier --list-different --write"
 }
