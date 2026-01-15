@@ -1,5 +1,63 @@
 [
   {
+    "hash": "4d4889b10972a468e0c36c694d4b845c977d5e36",
+    "date": "2026-01-15T15:11:18+07:00",
+    "message": "chore(deps): widen web-auth/webauthn-lib version constraint to include ^4.0 and ^5.0\n\nUpdate `composer.json` to allow newer major releases of `web-auth/webauthn-lib`.\nChange: `\"web-auth/webauthn-lib\": \"^3.0\"` → `\"web-auth/webauthn-lib\": \"^3.0 || ^4.0 || ^5.0\"`\n\nThis permits installing v4/v5 while remaining compatible with v3. Run `composer update web-auth/webauthn-lib` to apply.",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
+    "hash": "0d4f5384ba462ad70d2b3c64fd814eaf89d38e9d",
+    "date": "2026-01-15T15:01:36+07:00",
+    "message": "fix(autoload): suppress PHP 8.4 deprecation notices for implicit nullable params",
+    "files": [
+      "func.php",
+      "src/autoload.php"
+    ]
+  },
+  {
+    "hash": "31d4f4ff9836ef37a595dce4d0bda43c117caba0",
+    "date": "2026-01-15T14:53:38+07:00",
+    "message": "chore(editorconfig): standardize defaults and add language-specific overrides\n\n- Unify base settings (UTF-8, LF, insert final newline, trim trailing whitespace, default 2-space indent, `tab_width`, increase `max_line_length` to 120).\n- Add language-specific overrides: Python (4 spaces, 119 cols), PHP (4 spaces), JS/TS/JSON/HTML/CSS (2 spaces), YAML (2), Markdown (preserve trailing whitespace), Makefile (tabs), shell scripts (2 spaces), Windows batch (CRLF).\n- Exclude minified files and common vendor/build directories from automatic edits.\n- Remove obsolete and inconsistent entries; simplify and reorder rules for clarity.",
+    "files": [
+      ".editorconfig"
+    ]
+  },
+  {
+    "hash": "e4f49c1342754cef280321ca5be194b08e3ae0f7",
+    "date": "2026-01-15T14:34:18+07:00",
+    "message": "fix(bin/python-minimal): correct venv creation and activation logic",
+    "files": [
+      "bin/python-minimal.cmd"
+    ]
+  },
+  {
+    "hash": "e19851c0d07d516b4686025a02c8d0d45bd293f5",
+    "date": "2026-01-15T14:32:34+07:00",
+    "message": "fix(bin/python-minimal): use explicit PY wrapper and conditional venv activation\n\nAdd `PY=\"$CWD/bin/py\"` and use `\"$PY\"` for all pip invocations instead of the bare\n`py` command. Only source `venv/bin/activate` when it exists to avoid errors on\nenvironments without an activated venv. This makes the script more robust and\nensures the intended Python interpreter is used for installing dependencies.",
+    "files": [
+      "bin/python-minimal"
+    ]
+  },
+  {
+    "hash": "d38a2cf58cef5173aafcc3be16776fa7a2c5d705",
+    "date": "2026-01-15T14:29:27+07:00",
+    "message": "fix(ci): run batch script instead of bash on windows",
+    "files": [
+      ".github/workflows/checker-python.yml",
+      "bin/python-minimal"
+    ]
+  },
+  {
+    "hash": "f235f33a38561dc6723d83e4606916ad1b88fc9d",
+    "date": "2026-01-15T14:01:15+07:00",
+    "message": "fix(git): conditionally add hash file to commit only if not in a git hook",
+    "files": [
+      "bin/cfh.cjs"
+    ]
+  },
+  {
     "hash": "af359794e62bd06feea683a3c6df221c86bcc39f",
     "date": "2026-01-15T11:31:11+07:00",
     "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
@@ -8579,67 +8637,6 @@
     "message": "refactor(dashboard): simplify and modularize UserActivityCard table rendering\n\n- Remove inline fallback comment for total count assignment.\n- Introduce a `columns` array to define table headers and their order.\n- Add a `getColumnValue` helper function to extract and normalize log values for each column.\n- Refactor table rendering to use `columns.map` for both headers and body cells, ensuring consistent order and easier maintenance.\n- Replace previous manual row rendering logic with a more modular and DRY approach.\n- Move scrollable area to the table wrapper and apply consistent sticky header and cell styling.",
     "files": [
       "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "debfde1283f62161d8056167a29272ec81a3806f",
-    "date": "2025-09-22T16:51:46+07:00",
-    "message": "refactor(UserActivityCard): make activity table body scrollable with sticky header\n\n- Refactored the user activity table to separate the header and body, enabling only the table content (tbody) to be scrollable while keeping the header fixed.\n- Applied Tailwind CSS classes for sticky header and scrollable body for better UX and consistency with LogsSection.",
-    "files": [
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "1d05c48d73d2dd1ae849dfcb7a0042e104794f91",
-    "date": "2025-09-22T16:50:36+07:00",
-    "message": "feat(ActivityLog): add script to populate activity log with sample admin actions",
-    "files": [
-      "tests/PhpProxyHunter/ActivityLogPopulate.php"
-    ]
-  },
-  {
-    "hash": "dafe38afc3682a9f94f1683d9d2b51efd1739828",
-    "date": "2025-09-22T16:40:44+07:00",
-    "message": "fix(config): ensure CLOUD_SQLITE_SECRET is retrieved from $_ENV if available",
-    "files": [
-      "cloud_sqlite/config.php"
-    ]
-  },
-  {
-    "hash": "09d891b46a14b421a83a671037872ef0834ef21e",
-    "date": "2025-09-22T16:40:04+07:00",
-    "message": "refactor(env): move getAdminEmails helper to dedicated env.php\n\n- remove getAdminEmails definition from google-oauth.php\n- create src/database/env.php to centralize environment variable helpers\n- keep same functionality: parse ADMIN_EMAILS from env and trim values",
-    "files": [
-      "php_backend/google-oauth.php",
-      "src/database/env.php"
-    ]
-  },
-  {
-    "hash": "c08792583947c0734d47a4199b6de2f087f947e4",
-    "date": "2025-09-22T16:24:44+07:00",
-    "message": "refactor(LogsSection): make table body scrollable with fixed header\n\n- Refactored the logs table to separate the header and body, enabling only the table content (tbody) to be scrollable while keeping the header fixed.\n- Applied Tailwind CSS classes for sticky header and scrollable body.\n- Improved accessibility by adding scope=\"col\" to table headers.",
-    "files": [
-      "src/react/pages/admin/LogsSection.tsx"
-    ]
-  },
-  {
-    "hash": "f9234c17818647c4fa9372b29b9cc1d3daeb2025",
-    "date": "2025-09-22T15:16:55+07:00",
-    "message": "feat(instructions): update and expand guidelines for GitHub Copilot usage across various languages",
-    "files": [
-      ".github/instructions/all.instructions.md",
-      ".github/instructions/nodejs.instructions.md",
-      ".github/instructions/php.instructions.md",
-      ".github/instructions/python.instructions.md",
-      ".github/instructions/react.instruction.md"
-    ]
-  },
-  {
-    "hash": "b3236b45c71a500fbff35a91f9904bb2cdf2e876",
-    "date": "2025-09-22T13:50:05+07:00",
-    "message": "feat(tailwind): enable dark mode and extend custom color palette",
-    "files": [
-      "tailwind.config.js"
     ]
   }
 ]
