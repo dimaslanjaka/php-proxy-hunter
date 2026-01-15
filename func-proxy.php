@@ -404,7 +404,7 @@ function clean_proxies_file($file) {
  *               - 'counter': An array containing counts of different types of proxies in the database, including 'working', 'dead', 'untested', and 'private'.
  */
 /**
- * @param ProxyDB $proxy_db
+ * @param \PhpProxyHunter\ProxyDB $proxy_db
  * @param int $limit Optional maximum number of working proxies to fetch (default: 1000)
  * @return array
  */
