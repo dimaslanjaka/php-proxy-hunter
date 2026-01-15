@@ -13,5 +13,5 @@
   "*.yaml": "prettier --list-different --write",
   "*.sql": "prettier --list-different --write",
   "*.py": "python -m black",
-  "*.php": "php-cs-fixer fix --config=.php-cs-fixer.dist.php"
+  "*.php": "cross-env PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --config=.php-cs-fixer.dist.php"
 }

@@ -296,13 +296,15 @@
     "DEBUG_PKG": "1",
     "ESLINT_USE_FLAT_CONFIG": "true",
     "NUITKA_CACHE_DIR": "${workspaceFolder}/tmp/nuitka-cache",
-    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:${workspaceFolder}/bin:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/vendor/bin"
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:${workspaceFolder}/bin:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/vendor/bin",
+    "PHP_CS_FIXER_IGNORE_ENV": "1"
   },
   "terminal.integrated.env.windows": {
     "DEBUG_PKG": "1",
     "ESLINT_USE_FLAT_CONFIG": "true",
     "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
-    "PATH": "${env:LOCALAPPDATA}\\nvm;C:\\nvm4w\\nodejs;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\usr\\bin;${env:PATH};${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\bin;${workspaceFolder}\\vendor\\bin"
+    "PATH": "${env:LOCALAPPDATA}\\nvm;C:\\nvm4w\\nodejs;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\usr\\bin;${env:PATH};${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\bin;${workspaceFolder}\\vendor\\bin",
+    "PHP_CS_FIXER_IGNORE_ENV": "1"
   },
   "terminal.integrated.profiles.windows": {
     "Cygwin": {
@@ -405,5 +407,6 @@
   "github.copilot.chat.summarizeAgentConversationHistory.enabled": false,
   "terminal.integrated.shellIntegration.enabled": true,
   "terminal.integrated.suggest.enabled": false,
-  "terminal.integrated.shellIntegration.quickFixEnabled": true
+  "terminal.integrated.shellIntegration.quickFixEnabled": true,
+  "git.allowNoVerifyCommit": false
 }
