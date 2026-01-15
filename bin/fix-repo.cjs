@@ -8,7 +8,7 @@ async function fixRemotes() {
   await gch
     .spawnAsync(
       'git',
-      ['remote', 'add', 'origin', `https://dimaslanjaka:${GH_TOKEN}@github.com/dimaslanjaka/php-proxy-hunter.git`],
+      ['remote', 'add', 'origin', `https://${GH_TOKEN}@github.com/dimaslanjaka/php-proxy-hunter.git`],
       { stdio: 'inherit' }
     )
     .then(noop)
@@ -16,7 +16,7 @@ async function fixRemotes() {
   await gch
     .spawnAsync(
       'git',
-      ['remote', 'set-url', 'origin', `https://dimaslanjaka:${GH_TOKEN}@github.com/dimaslanjaka/php-proxy-hunter.git`],
+      ['remote', 'set-url', 'origin', `https://${GH_TOKEN}@github.com/dimaslanjaka/php-proxy-hunter.git`],
       { stdio: 'inherit' }
     )
     .then(noop)
@@ -24,7 +24,7 @@ async function fixRemotes() {
   await gch
     .spawnAsync(
       'git',
-      ['remote', 'add', 'private', `https://dimaslanjaka:${GH_TOKEN}@github.com/dimaslanjaka/traffic-generator.git`],
+      ['remote', 'add', 'private', `https://${GH_TOKEN}@github.com/dimaslanjaka/traffic-generator.git`],
       { stdio: 'inherit' }
     )
     .then(noop)
@@ -32,12 +32,7 @@ async function fixRemotes() {
   await gch
     .spawnAsync(
       'git',
-      [
-        'remote',
-        'set-url',
-        'private',
-        `https://dimaslanjaka:${GH_TOKEN}@github.com/dimaslanjaka/traffic-generator.git`
-      ],
+      ['remote', 'set-url', 'private', `https://${GH_TOKEN}@github.com/dimaslanjaka/traffic-generator.git`],
       { stdio: 'inherit' }
     )
     .then(noop)
