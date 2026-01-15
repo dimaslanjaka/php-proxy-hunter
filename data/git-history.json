@@ -1,5 +1,55 @@
 [
   {
+    "hash": "03b0ac374c67c5d539b11e9574a7e0fca15a953b",
+    "date": "2026-01-15T11:02:00+07:00",
+    "message": "feat(settings): enable allowNoVerifyCommit in git settings",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "7a5a308fd785baaf1448bbc48245dcf15f7e5463",
+    "date": "2026-01-15T11:01:40+07:00",
+    "message": "fix(doc): update parameter type hint for ProxyDB in clean_proxies_file function",
+    "files": [
+      "func-proxy.php"
+    ]
+  },
+  {
+    "hash": "9e661e7ea96af75d0aeaee31e9fd50b5f2aacc1c",
+    "date": "2026-01-15T10:56:54+07:00",
+    "message": "feat(composer): add symfony/thanks to allow-plugins and update scripts section",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
+    "hash": "a421663f25fc6dd384aeb6fef998fc4cee25b08f",
+    "date": "2026-01-15T09:57:48+07:00",
+    "message": "feat(linting): add PHP_CS_FIXER_IGNORE_ENV to environment variables for PHP CS Fixer",
+    "files": [
+      ".lintstagedrc.json",
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "ca1a5ee8d8c665eee409131e6ed3fa8a939a6cad",
+    "date": "2026-01-15T09:57:01+07:00",
+    "message": "feat(proxy-list): expose proxy counters and show them in ServerSide UI\n\n- php_backend/proxy-list.php: add `counter_proxies` to the JSON response containing\n  counts: `total_proxies`, `working_proxies`, `private_proxies`, `https_proxies`,\n  `untested_proxies`, and `dead_proxies`.\n- src/react/pages/ProxyList/ServerSide.tsx: add `CounterProxies` type and `counters`\n  state; populate from `data.counter_proxies` in the fetch response; render a compact\n  counters summary (Total, Alive, HTTPS, Private, Untested, Dead) above the proxy table.\n\nProvides a quick overview of proxy status counts in the server-side proxy list.",
+    "files": [
+      "php_backend/proxy-list.php",
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "4d2514d012d989e0277828ef8d9d2d5764fda8d8",
+    "date": "2026-01-15T04:20:40+07:00",
+    "message": "feat(proxy): add method to count HTTPS proxies",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
     "hash": "22174b898f1e68af9ec67cb6707397f75fbe82b2",
     "date": "2026-01-15T04:14:25+07:00",
     "message": "feat(sftp): add SFTP boilerplate configuration file",
@@ -8592,55 +8642,6 @@
     "files": [
       "src/PhpProxyHunter/ActivityLog.php",
       "tests/PhpProxyHunter/ActivityLogTest.php"
-    ]
-  },
-  {
-    "hash": "88017791c59af6b83318417c058f1cf97fc8fced",
-    "date": "2025-09-22T11:09:23+07:00",
-    "message": "test: update ActivityLogTest to remove empty assertion in recent logs test\n\n- Renamed testRecentReturnsEmptyInitially to testRecentReturns for clarity.\n- Removed assertion that expected zero logs, allowing for flexible initial state.",
-    "files": [
-      "tests/PhpProxyHunter/ActivityLogTest.php"
-    ]
-  },
-  {
-    "hash": "02d1e01edc53c58c55c0fac254fdd9239cf363da",
-    "date": "2025-09-22T11:05:33+07:00",
-    "message": "test(activity-log): use file-based SQLite database with tmp directory instead of in-memory DB",
-    "files": [
-      "tests/PhpProxyHunter/ActivityLogTest.php"
-    ]
-  },
-  {
-    "hash": "47e4cc97db442ae0cb4fa3d98e91dbf968356154",
-    "date": "2025-09-22T11:03:09+07:00",
-    "message": "fix(activity-log): handle CLI execution by setting default IP and user agent to \"CLI\"",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php"
-    ]
-  },
-  {
-    "hash": "4988fe34bd28e7c0299a8f154db30f31a8abb649",
-    "date": "2025-09-21T18:46:42+07:00",
-    "message": "feat(ActivityLog): add close method and destructor for resource management",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php"
-    ]
-  },
-  {
-    "hash": "2336f5afaf3934bebf382ddb5a6053ee6399b65a",
-    "date": "2025-09-21T18:37:10+07:00",
-    "message": "refactor(phpcs): disable severity for space after class keyword in anonymous classes",
-    "files": [
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "09e06ecac2f6b1b6b03656ffe789a4011d8327f1",
-    "date": "2025-09-21T18:09:58+07:00",
-    "message": "refactor(logs): simplify LogsResponse and LogEntry interfaces",
-    "files": [
-      "src/react/pages/admin/LogsSection.tsx",
-      "types/php_backend/logs.d.ts"
     ]
   }
 ]
