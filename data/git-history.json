@@ -1,5 +1,11 @@
 [
   {
+    "hash": "1d22e038068c71ba9e2cc9adc7a028a3b9782eb0",
+    "date": "2026-01-15T11:23:15+07:00",
+    "message": "Merge pull request #73 from dimaslanjaka/dependabot/github_actions/actions/cache-5\n\nbuild(deps): bump actions/cache from 4 to 5",
+    "files": []
+  },
+  {
     "hash": "03b0ac374c67c5d539b11e9574a7e0fca15a953b",
     "date": "2026-01-15T11:02:00+07:00",
     "message": "feat(settings): enable allowNoVerifyCommit in git settings",
@@ -104,6 +110,17 @@
     "message": "refactor(mysql): improve MySQLHelper typing, safety and metadata\n\n- return `Sequence[Dict[str, Any]]` from `select` and cast `fetchall()` for type-safety\n- make `count()` robust to `fetchone()` returning dict or sequence and safely coerce to int\n- normalize typing to `Dict[str, Any]`\n- add connection metadata fields (`mysql_version`, `mysql_username`, `mysql_password`, `mysql_host`, `mysql_port`, `mysql_database`)\n- use stored connection attributes for `mysqldump` invocation",
     "files": [
       "src/MySQLHelper.py"
+    ]
+  },
+  {
+    "hash": "2aaa9194e40578617880f54964bda03e36252dcd",
+    "date": "2026-01-01T15:06:20Z",
+    "message": "build(deps): bump actions/cache from 4 to 5\n\nBumps [actions/cache](https://github.com/actions/cache) from 4 to 5.\n- [Release notes](https://github.com/actions/cache/releases)\n- [Changelog](https://github.com/actions/cache/blob/main/RELEASES.md)\n- [Commits](https://github.com/actions/cache/compare/v4...v5)\n\n---\nupdated-dependencies:\n- dependency-name: actions/cache\n  dependency-version: '5'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/github-pages.yml"
     ]
   },
   {
@@ -8625,23 +8642,6 @@
     "message": "feat(admin/logs): add refresh button to reload logs manually",
     "files": [
       "src/react/pages/admin/LogsSection.tsx"
-    ]
-  },
-  {
-    "hash": "dc9fe9958870ca3c669c80ab40086eb0b10cca1e",
-    "date": "2025-09-22T11:24:22+07:00",
-    "message": "fix(UserDB): ensure database connection is properly closed and set to null",
-    "files": [
-      "src/PhpProxyHunter/UserDB.php"
-    ]
-  },
-  {
-    "hash": "575a226e2595dff8d1479cb9782aa8944b7f25f0",
-    "date": "2025-09-22T11:10:39+07:00",
-    "message": "fix(sqlite): prevent index creation error by using IF NOT EXISTS\n\n- Updated SQLite schema to use CREATE INDEX IF NOT EXISTS for all activity_log indexes.\n- This avoids errors when indexes already exist during repeated schema initialization.",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php",
-      "tests/PhpProxyHunter/ActivityLogTest.php"
     ]
   }
 ]
