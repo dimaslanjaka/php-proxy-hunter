@@ -408,5 +408,5 @@
   "terminal.integrated.shellIntegration.enabled": true,
   "terminal.integrated.suggest.enabled": false,
   "terminal.integrated.shellIntegration.quickFixEnabled": true,
-  "git.allowNoVerifyCommit": false
+  "git.allowNoVerifyCommit": true
 }
