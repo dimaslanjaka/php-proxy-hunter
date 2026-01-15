@@ -11,6 +11,9 @@ from src.func import get_relative_path
 
 
 def sync_backups(vps: VPSConnector):
+    # Run remote backup-db first
+    remote_backup_bash = f"{vps.remote_path.rstrip('/')}/bin/backup-db"
+    vps.run_command(remote_backup_bash, vps.remote_path)
     local_backup_dir = get_relative_path("backups")
     # Use connector's remote_path to find backups folder on server
     remote_backup_dir = f"{vps.remote_path.rstrip('/')}/backups"
