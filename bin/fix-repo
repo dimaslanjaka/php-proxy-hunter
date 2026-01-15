@@ -21,10 +21,12 @@ fi
 ORIGIN="https://$ACCESS_TOKEN@github.com/dimaslanjaka/php-proxy-hunter"
 PRIVATE="https://$ACCESS_TOKEN@github.com/dimaslanjaka/traffic-generator"
 
-git remote add origin $ORIGIN
-git remote set-url origin $ORIGIN
-git remote add origin $PRIVATE
-git remote set-url origin $PRIVATE
+git remote add origin $ORIGIN || true
+git remote set-url origin $ORIGIN || true
+git remote add python $PRIVATE || true
+git remote set-url python $PRIVATE || true
+git remote add private $PRIVATE || true
+git remote set-url private $PRIVATE || true
 
 if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
   echo "Permission not applied on windows"
@@ -38,5 +40,3 @@ else
   find node_modules/.bin -type f -exec chmod +x {} +
   find venv/bin -type f -exec chmod +x {} +
 fi
-
-node "$REPO_PATH/bin/fix-repo.cjs"
