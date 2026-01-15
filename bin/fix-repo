@@ -38,3 +38,5 @@ else
   find node_modules/.bin -type f -exec chmod +x {} +
   find venv/bin -type f -exec chmod +x {} +
 fi
+
+node "$REPO_PATH/bin/fix-repo.cjs"
