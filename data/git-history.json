@@ -1,5 +1,30 @@
 [
   {
+    "hash": "a0a9b3ac9641a19b69c919df874df4bd60acc2d2",
+    "date": "2026-01-16T00:40:48+07:00",
+    "message": "chore(pre-commit): run Black on staged Python files\n\nAdd a Black formatting step to `.husky/pre-commit` that prefers a project\nvenv (Windows/Unix), falls back to `black` on PATH or `python -m black`,\nformats staged `.py` files and re-adds them to the index.\n\nRemove the `*.py: \"python -m black\"` entry from `.lintstagedrc.json` to\navoid duplicate formatting runs.",
+    "files": [
+      ".lintstagedrc.json"
+    ]
+  },
+  {
+    "hash": "c4aa2709adbb1c7b34679e65dd6a5dd8d0c5aad5",
+    "date": "2026-01-16T00:37:20+07:00",
+    "message": "chore(pre-commit): export PHP_CS_FIXER_IGNORE_ENV and remove php-cs-fixer lint-staged entry\n\nEnsure `php-cs-fixer` sees `PHP_CS_FIXER_IGNORE_ENV=1` when run from the Husky pre-commit hook by exporting the variable in `.husky/pre-commit` and unsetting it afterwards. Also remove the `php-cs-fixer` entry from `.lintstagedrc.json` to avoid portability issues and duplicate invocation.\n\nFiles changed:\n- .husky/pre-commit: export/unset `PHP_CS_FIXER_IGNORE_ENV` around php-cs-fixer execution\n- .lintstagedrc.json: remove `*.php` lint-staged entry",
+    "files": [
+      ".lintstagedrc.json"
+    ]
+  },
+  {
+    "hash": "cb9c82bfa1c460e11903f82e32d55e25683eca9f",
+    "date": "2026-01-16T00:35:36+07:00",
+    "message": "fix: adjust PHP 8.4 deprecation handling and normalize function brace style\n\n- Apply PHP 8.4 deprecation suppression only in debug mode on non-debug devices\n- Remove global deprecation suppression from autoloader",
+    "files": [
+      "func.php",
+      "src/autoload.php"
+    ]
+  },
+  {
     "hash": "4d4889b10972a468e0c36c694d4b845c977d5e36",
     "date": "2026-01-15T15:11:18+07:00",
     "message": "chore(deps): widen web-auth/webauthn-lib version constraint to include ^4.0 and ^5.0\n\nUpdate `composer.json` to allow newer major releases of `web-auth/webauthn-lib`.\nChange: `\"web-auth/webauthn-lib\": \"^3.0\"` → `\"web-auth/webauthn-lib\": \"^3.0 || ^4.0 || ^5.0\"`\n\nThis permits installing v4/v5 while remaining compatible with v3. Run `composer update web-auth/webauthn-lib` to apply.",
@@ -8612,31 +8637,6 @@
     "message": "feat(const): add PACKAGE_VERSION constant for versioning",
     "files": [
       "src/PhpProxyHunter/const.php"
-    ]
-  },
-  {
-    "hash": "672b9944369d64ba08f9444f2011c61580edcec3",
-    "date": "2025-09-23T16:31:01+07:00",
-    "message": "feat(user-info): log user profile updates to activity log",
-    "files": [
-      "php_backend/user-info.php"
-    ]
-  },
-  {
-    "hash": "46fa5f2b00094b722f1160d516f312b0badb86fc",
-    "date": "2025-09-23T16:20:34+07:00",
-    "message": "refactor(ui): unify table structure and styles for LogsSection and UserActivityCard\n\n- Merged table header and body into a single table in LogsSection to ensure column alignment.\n- Applied consistent scroll container and sticky header approach.\n- Updated UserActivityCard table to use the same padding, border, and header classes as LogsSection.\n- Ensured both components use `px-2 py-1` for th/td, consistent text sizing, and sticky header styles.\n- Removed redundant table wrappers and extra classes for a cleaner, unified UI.",
-    "files": [
-      "src/react/pages/admin/LogsSection.tsx",
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "18e04a6b96f24444a045481da9667868e3c77c1d",
-    "date": "2025-09-22T17:09:47+07:00",
-    "message": "refactor(dashboard): simplify and modularize UserActivityCard table rendering\n\n- Remove inline fallback comment for total count assignment.\n- Introduce a `columns` array to define table headers and their order.\n- Add a `getColumnValue` helper function to extract and normalize log values for each column.\n- Refactor table rendering to use `columns.map` for both headers and body cells, ensuring consistent order and easier maintenance.\n- Replace previous manual row rendering logic with a more modular and DRY approach.\n- Move scrollable area to the table wrapper and apply consistent sticky header and cell styling.",
-    "files": [
-      "src/react/pages/dashboard/UserActivityCard.tsx"
     ]
   }
 ]
