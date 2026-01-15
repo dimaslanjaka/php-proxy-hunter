@@ -1,5 +1,14 @@
 [
   {
+    "hash": "4017611e397420c42b628bf7207b65703ecfe0b6",
+    "date": "2026-01-16T06:28:31+07:00",
+    "message": "refactor(dev): use get_relative_path and unify project root resolution\n\n- Use get_relative_path() to resolve default backups directory in backup-cleaner\n- Standardize sys.path setup in restore-proxies to match other dev scripts",
+    "files": [
+      "src/dev/backup-cleaner.py",
+      "src/dev/restore-proxies.py"
+    ]
+  },
+  {
     "hash": "39415280a955734b4876d3729a86d10b486bc98a",
     "date": "2026-01-16T06:23:18+07:00",
     "message": "refactor(backup): move backup and cleanup scripts to src/dev and update cron paths\n\n- Relocate backup-proxies and restore-proxies scripts under src/dev\n- Rename and move cleanup script to src/dev/backup-cleaner.py\n- Update crontab and backup runner to use new script locations\n- Improve backup-proxies implementation with unified DB access and pagination\n- Adjust default cleanup path to project backups directory\n- Add src/dev package initializer",
@@ -8640,14 +8649,6 @@
     "files": [
       "src/PhpProxyHunter/AnsiColors.php",
       "tests/console/color.php"
-    ]
-  },
-  {
-    "hash": "f40fb9af39eb2882bd8b967139939319dc808a95",
-    "date": "2025-09-25T08:28:36+07:00",
-    "message": "feat(proxy-checker): enhance proxy status logging and add non-SSL testing for public IP detection",
-    "files": [
-      "php_backend/proxy-checker.php"
     ]
   }
 ]
