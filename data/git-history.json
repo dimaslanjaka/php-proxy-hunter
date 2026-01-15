@@ -1,5 +1,138 @@
 [
   {
+    "hash": "39415280a955734b4876d3729a86d10b486bc98a",
+    "date": "2026-01-16T06:23:18+07:00",
+    "message": "refactor(backup): move backup and cleanup scripts to src/dev and update cron paths\n\n- Relocate backup-proxies and restore-proxies scripts under src/dev\n- Rename and move cleanup script to src/dev/backup-cleaner.py\n- Update crontab and backup runner to use new script locations\n- Improve backup-proxies implementation with unified DB access and pagination\n- Adjust default cleanup path to project backups directory\n- Add src/dev package initializer",
+    "files": [
+      ".crontab.sh",
+      "backups/backup-proxies.py",
+      "bin/backup-db",
+      "src/dev/__init__.py",
+      "src/dev/backup-cleaner.py",
+      "src/dev/backup-proxies.py",
+      "src/dev/restore-proxies.py"
+    ]
+  },
+  {
+    "hash": "3816873552f0a845d91b3219442b4f4151a5f66d",
+    "date": "2026-01-16T06:22:08+07:00",
+    "message": "fix(db): hardcode test database name instead of reading from env\n\nEnsure the non-production MySQL database consistently uses\n`php_proxy_hunter_test` by removing the environment variable fallback.\nThis avoids accidental connection to an unexpected database when\n`MYSQL_DBNAME` is set in the environment.",
+    "files": [
+      "src/shared.py"
+    ]
+  },
+  {
+    "hash": "7cf6b55e8864714de13bb355029b3314e51c0bbe",
+    "date": "2026-01-16T06:05:48+07:00",
+    "message": "feat(proxy-checker): add async multi-protocol proxy checker with SSL detection\n\nIntroduce a new HTTPX-based proxy checker supporting HTTP, SOCKS4, SOCKS5, and SOCKS5h with remote DNS.\nThe checker validates both HTTP and HTTPS endpoints, measures latency, detects SSL capability,\nand updates proxy status in the database with preferred SSL-capable protocols.\n\nIncludes:\n- Async proxy testing using httpx and httpx-socks\n- SOCKS4a, SOCKS5, and SOCKS5h (rdns) support\n- HTTP and HTTPS endpoint validation\n- Latency measurement and best-protocol selection\n- File locking to prevent concurrent runs\n- Automatic database status and capability updates\n\nDependencies added:\n- httpx\n- httpx-socks",
+    "files": [
+      "artisan/proxy-checker-httpx.py",
+      "requirements-base.txt"
+    ]
+  },
+  {
+    "hash": "ea9d99d8462375bbe08c1d61e5ed91b312071fa8",
+    "date": "2026-01-16T05:28:59+07:00",
+    "message": "feat(src/ProxyDB): add `randomize` option to `get_dead_proxies`\n\nAdd a `randomize: bool = True` parameter to `get_dead_proxies` in `src/ProxyDB.py`.\nWhen `randomize` is true the SQL includes `ORDER BY RAND()` (MySQL) or\n`ORDER BY RANDOM()` (SQLite); when false the ordering clause is omitted to\nallow deterministic results. Also add a short docstring describing `limit`\nand `randomize`. Default behavior remains unchanged (randomized).",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "5e14d2d2f1c4d732e14ab86ead3b311d789299c2",
+    "date": "2026-01-16T05:23:48+07:00",
+    "message": "feat(shared): add `production` flag to `init_db` and select prod/test MySQL configs\n\nAdd a `production: bool` parameter to `init_db` in `src/shared.py`.\nWhen `production=True` the function forces `db_type='mysql'` and prefers\n`MYSQL_*_PRODUCTION` env vars (with fallbacks to non-production vars).\nWhen `production=False` the default MySQL database name becomes\n`php_proxy_hunter_test` and non-production `MYSQL_*` env vars are used.\nKeeps existing sqlite behavior and preserves env var overrides. No breaking changes.",
+    "files": [
+      "src/shared.py"
+    ]
+  },
+  {
+    "hash": "c0c566ac30eb491a3afb5746cbd277bcb65648a0",
+    "date": "2026-01-16T05:06:35+07:00",
+    "message": "feat(domains): add httpbin.org and www.httpbin.org to the certificate generation list",
+    "files": [
+      "data/cacert.pem",
+      "data/get-ca.py",
+      "data/get-ca.sh"
+    ]
+  },
+  {
+    "hash": "7d3a4276f4ce699161e993ee2840b79bd2d3ec02",
+    "date": "2026-01-16T04:25:23+07:00",
+    "message": "fix(sync-backups): add command to run remote backup before syncing",
+    "files": [
+      "src/vps/menus/sync-backups.py"
+    ]
+  },
+  {
+    "hash": "a65a98be80f9d11356154e0b20a7ad76108d7463",
+    "date": "2026-01-16T04:21:37+07:00",
+    "message": "refactor: rename SSH and SFTP client attributes for consistency",
+    "files": [
+      "src/vps/sftp_client.py",
+      "src/vps/sftp_speed_test.py",
+      "src/vps/ssh_client.py",
+      "src/vps/vps_connector.py"
+    ]
+  },
+  {
+    "hash": "c8164ead1ea8a51ceba1b92ddb69b6a1d82f244d",
+    "date": "2026-01-16T04:09:41+07:00",
+    "message": "fix(bin): update remote URL format to include username for clarity",
+    "files": [
+      "bin/fix-repo"
+    ]
+  },
+  {
+    "hash": "31281ae72c0a03cc9b69bbd9adefb229059785b1",
+    "date": "2026-01-16T04:06:33+07:00",
+    "message": "fix(bin): update OS type check to include mingw* for permission handling",
+    "files": [
+      "bin/fix-repo"
+    ]
+  },
+  {
+    "hash": "dfe6a851bc7ff001a95305b083310b065a9d5978",
+    "date": "2026-01-16T04:02:22+07:00",
+    "message": "chore(bin): make `fix-repo` idempotent and remove `fix-repo.cjs`\n\n- add `|| true` to `git remote` commands to avoid errors when remotes exist\n- add and set `python` and `private` remotes (`git remote add/set-url ... || true`)\n- remove final `node \"$REPO_PATH/bin/fix-repo.cjs\"` invocation from `bin/fix-repo`\n- delete `bin/fix-repo.cjs` (remove Node-based fixRemotes implementation)",
+    "files": [
+      "bin/fix-repo",
+      "bin/fix-repo.cjs"
+    ]
+  },
+  {
+    "hash": "6d2d3ae5c9115a335c201ddb81a7fdad1c36d1c3",
+    "date": "2026-01-16T04:00:25+07:00",
+    "message": "fix(bin): remove hardcoded username from remote URLs in fixRemotes function",
+    "files": [
+      "bin/fix-repo.cjs"
+    ]
+  },
+  {
+    "hash": "55c0a7460016bdbcc953f024f2626570d7e5965a",
+    "date": "2026-01-16T03:59:24+07:00",
+    "message": "chore(bin): add Node-based fix-repo and remove legacy git-merge scripts\n\n- add `bin/fix-repo.cjs` implementing `fixRemotes()` with `git-command-helper.spawnAsync`\n- update `bin/fix-repo` to invoke `node \"$REPO_PATH/bin/fix-repo.cjs\"`\n- remove legacy wrapper/scripts: `bin/git-merge`, `bin/git-merge.cjs`, `bin/git-merge.cmd`\n\nCentralizes repository remote fixes in a Node script and removes outdated shell/Windows wrappers.",
+    "files": [
+      "bin/fix-repo",
+      "bin/fix-repo.cjs",
+      "bin/git-merge",
+      "bin/git-merge.cjs",
+      "bin/git-merge.cmd"
+    ]
+  },
+  {
+    "hash": "ff4c3e224016c39c012f1c06affad1227b5168f0",
+    "date": "2026-01-16T03:52:02+07:00",
+    "message": "chore(husky): remove auto hash generation and commit amendment from post-merge hook",
+    "files": []
+  },
+  {
+    "hash": "22c787212ac5513d9c64a932d15af8add80b7e07",
+    "date": "2026-01-16T03:47:01+07:00",
+    "message": "chore(husky): generate hash on post-merge and amend merge commit\n\nRun the cfh script after successful merges (non-squash) and amend the\nresulting merge commit to include the generated .husky/hash.txt.\n\nAlso remove automatic staging of the hash file from the pre-commit hook,\nsince merge commits cannot reliably add new paths at that stage.",
+    "files": []
+  },
+  {
     "hash": "0191e484bd3929a1773a9d30089fcd09a19e52a0",
     "date": "2026-01-16T03:31:58+07:00",
     "message": "feat(db): add active-only flag to countPrivateProxies\n\n- Add optional parameter `$onlyActive` to `ProxyDB::countPrivateProxies()` (default: false)\n  so callers can count only private proxies with `status = 'active'`.\n- Update query to include `AND status = 'active'` when the flag is true.\n- Backwards-compatible: existing callers without the flag keep previous behaviour.",
@@ -8515,126 +8648,6 @@
     "message": "feat(proxy-checker): enhance proxy status logging and add non-SSL testing for public IP detection",
     "files": [
       "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "004e025a3b851a6be34ebfebd1cffd9752acb54b",
-    "date": "2025-09-25T08:08:50+07:00",
-    "message": "feat(proxy-checker): enhance shutdown function to write additional proxy details and status",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "c70802335982c489337f34ec089d758f90f5d7a9",
-    "date": "2025-09-25T08:07:00+07:00",
-    "message": "refactor(useragent): move to php_backend directory and add script name metadata",
-    "files": [
-      "php_backend/useragent.php"
-    ]
-  },
-  {
-    "hash": "110eec14687f1a1624afb70e42645309ba295c39",
-    "date": "2025-09-25T08:05:43+07:00",
-    "message": "chore(update.php): remove obsolete update script",
-    "files": [
-      "update.php"
-    ]
-  },
-  {
-    "hash": "f06cefefbfa88275c4d35f805962f7b911a13ea9",
-    "date": "2025-09-25T07:59:18+07:00",
-    "message": "feat(ci): set global env for all jobs in github-pages workflow\n\n- Move all environment variable mappings from individual job and step env blocks to a top-level env block.\n- Remove redundant env blocks from build-and-deploy job and steps.\n- Simplify workflow by ensuring all secrets and environment variables are available globally to all jobs and steps.",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "2395849f94916fd822f5bcce9fae626556280bd4",
-    "date": "2025-09-25T07:53:29+07:00",
-    "message": "feat(github-pages): add additional environment variables for build process",
-    "files": [
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "7f828e98d3cfe85ffe37548b8ac180cbeb8651ce",
-    "date": "2025-09-25T07:46:55+07:00",
-    "message": "fix(vite-plugin): ensure lock file is created and updated only during dev server",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "3abbd656e323185be20d2f6bffe3362b3b1bd574",
-    "date": "2025-09-25T07:44:50+07:00",
-    "message": "fix(ProxyList): reset page to 1 when filter selection changes",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "68d60eb8355d0a8860ca414f6e53199efe8b31ad",
-    "date": "2025-09-25T07:41:02+07:00",
-    "message": "refactor(vite-gh-pages): optimize Cheerio memory usage and clarify comments\n\n- Change Cheerio instance `$` from const to let in `cacheBustHtml` and set to null after use to help garbage collection.\n- In `copyIndexToRoutes`, read HTML content once and use a local Cheerio instance for each route to avoid memory leaks.\n- Add and clarify comments for route handling, Cheerio usage, and debugging.\n- Remove redundant or unclear comments, replacing them with concise, meaningful explanations.",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "b1a26b880c62d7f44a07050f53ca04793265029d",
-    "date": "2025-09-25T07:32:32+07:00",
-    "message": "refactor(vite-gh-pages): remove redundant check for identical source and destination in copyIndexToRoutes",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "a8cd5fb7c115868d1c733a4bafb1a2618ac80e1f",
-    "date": "2025-09-25T07:31:52+07:00",
-    "message": "feat(vite-gh-pages): add support for canonical and social meta tags in route HTML",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "c2d4308412b4cfbb027ccc2c9354ba0d9f92c0cf",
-    "date": "2025-09-25T07:26:33+07:00",
-    "message": "feat(vite-gh-pages): add support for dynamic meta thumbnails in route HTML",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "48baaff69aeaae8fd06dd4bb7d2fd31cf8d164e8",
-    "date": "2025-09-25T07:24:23+07:00",
-    "message": "refactor(vite-plugin): extract and optimize index.html production copy logic\n\n- Move index.html production copy logic to a new async function `copyIndexForProduction`\n- Use `copyIndexToRoutes` to copy index.html to all route destinations in dist/react\n- Replace inline copy logic in `indexHtmlReplacementPlugin` with call to `copyIndexForProduction`\n- Improve error handling and code clarity",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "b3cf65ad11a1d1483ff70088a03b7e2b7b761bc5",
-    "date": "2025-09-24T13:39:57+07:00",
-    "message": "feat(vite-gh-pages): enhance SPA route HTML with SEO and social meta tags\n\n- Dynamically update <title> for each route based on route.title\n- Add or update meta[property=\"og:title\"] and meta[name=\"twitter:title\"] for each route\n- Add or update meta[name=\"description\"], meta[property=\"og:description\"], and meta[name=\"twitter:description\"] for each route\n- Write modified HTML to each route's index.html for proper SPA routing and improved SEO/social sharing",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "10e20cc7fdd5e2045eb03d9027dc714d50d6fd81",
-    "date": "2025-09-24T13:29:57+07:00",
-    "message": "refactor(vite-gh-pages): add sourceHtml param to copyIndexToRoutes\n\n- Add optional `sourceHtml` parameter to `copyIndexToRoutes` for specifying the source index.html file\n- Update logic to use `sourceHtml` instead of hardcoded build output path\n- Improve flexibility for copying index.html to route destinations\n- Update JSDoc to document new parameter",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "ed034f2094509f061c222e9036f1fd9d3e5b1be6",
-    "date": "2025-09-24T13:27:23+07:00",
-    "message": "refactor(vite-gh-pages): extract cache busting logic to reusable function\n\n- Move cache busting logic for index.html into a new exportable function `cacheBustHtml`\n- Replace inline cache busting in `deploy` with a call to `cacheBustHtml`\n- Allow cache busting to be reused for other HTML files and support optional version parameter\n- Improve code clarity and maintainability",
-    "files": [
-      "vite-gh-pages.js"
     ]
   }
 ]
