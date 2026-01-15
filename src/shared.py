@@ -57,7 +57,8 @@ def init_db(db_type: str = "sqlite", production: bool = False):
         if production:
             db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
         else:
-            db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter_test")
+            # db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter_test")
+            db_name = "php_proxy_hunter_test"
         if production:
             db_host = os.getenv(
                 "MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost")
