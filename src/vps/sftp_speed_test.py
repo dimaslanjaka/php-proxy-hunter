@@ -72,11 +72,11 @@ def run_speed_test(size_mb: int = 10, remote_file: str | None = None) -> int:
     ssh = SSHClient(host, port, username, password, key_path)
     ssh.connect()
 
-    if not ssh.client:
+    if not ssh.ssh_client:
         print("Failed to establish SSH connection", file=sys.stderr)
         return 1
 
-    sftp = SFTPClient(ssh.client)
+    sftp = SFTPClient(ssh.ssh_client)
 
     size_bytes = int(size_mb * 1024 * 1024)
 

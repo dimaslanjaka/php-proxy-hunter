@@ -17,8 +17,8 @@ class VPSConnector(SSHClient, SFTPClient):
     Inherits from SSHClient and SFTPClient so all methods are available directly.
     """
 
-    client: Optional[paramiko.SSHClient]
-    sftp: Optional[paramiko.SFTPClient]
+    ssh_client: Optional[paramiko.SSHClient]
+    sftp_client: Optional[paramiko.SFTPClient]
 
     def __init__(
         self,
@@ -36,7 +36,7 @@ class VPSConnector(SSHClient, SFTPClient):
         super().__init__(host, port, username, password, key_path)
         self.remote_path = remote_path
         self.local_path = local_path
-        self.sftp = None  # Will be initialized after SSH connect
+        self.sftp_client = None  # Will be initialized after SSH connect
 
     def connect(self) -> None:
         """
@@ -44,18 +44,18 @@ class VPSConnector(SSHClient, SFTPClient):
         """
         print(f"Connecting to {self.host}...")
         super().connect()
-        if self.client is None:
+        if self.ssh_client is None:
             raise RuntimeError("SSH connection failed: client is None.")
-        self.sftp = self.client.open_sftp()
+        self.sftp_client = self.ssh_client.open_sftp()
         print("🟢\tConnected.")
 
     def close(self) -> None:
         """
         Close SFTP and SSH connections.
         """
-        if self.sftp:
-            self.sftp.close()
-            self.sftp = None
+        if self.sftp_client:
+            self.sftp_client.close()
+            self.sftp_client = None
         super().close()
         print("🔴\tConnection closed.")
 

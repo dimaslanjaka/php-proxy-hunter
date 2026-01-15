@@ -8,13 +8,13 @@ from . import sftp_sync as sync
 class SFTPClient:
     """Handles SFTP upload, download, and file/folder operations."""
 
-    sftp: Optional[paramiko.SFTPClient]
+    sftp_client: Optional[paramiko.SFTPClient]
 
     def __init__(self, ssh_client: paramiko.SSHClient):
         """
         Initialize SFTPClient with a connected paramiko.SSHClient.
         """
-        self.sftp: Optional[paramiko.SFTPClient] = ssh_client.open_sftp()
+        self.sftp_client: Optional[paramiko.SFTPClient] = ssh_client.open_sftp()
 
     def _print_upload_progress(self, filename: str, size: int, sent: int) -> None:
         return helpers.print_upload_progress(filename, size, sent)
@@ -23,13 +23,13 @@ class SFTPClient:
         return helpers.print_download_progress(filename, size, received)
 
     def upload(self, local_path: str, remote_path: str) -> None:
-        return transfer.upload(self.sftp, local_path, remote_path)
+        return transfer.upload(self.sftp_client, local_path, remote_path)
 
     def download(self, remote_path: str, local_path: str) -> None:
-        return transfer.download(self.sftp, remote_path, local_path)
+        return transfer.download(self.sftp_client, remote_path, local_path)
 
     def _is_remote_dir(self, remote_path: str) -> bool:
-        return helpers.is_remote_dir(self.sftp, remote_path)
+        return helpers.is_remote_dir(self.sftp_client, remote_path)
 
     def _remote_glob(self, pattern: str) -> list:
         """
@@ -37,18 +37,18 @@ class SFTPClient:
         of matching remote paths. Supports standard glob tokens: '*', '?', and character
         classes like '[a-z]'. Does not implement recursive '**'.
         """
-        return helpers.remote_glob(self.sftp, pattern)
+        return helpers.remote_glob(self.sftp_client, pattern)
 
     def close(self) -> None:
-        if self.sftp:
-            self.sftp.close()
-            self.sftp = None
+        if self.sftp_client:
+            self.sftp_client.close()
+            self.sftp_client = None
 
     def delete_remote(self, remote_path: str) -> None:
         """
         Delete a file on the remote server via SFTP. Ignores if file does not exist.
         """
-        return helpers.delete_remote(self.sftp, remote_path)
+        return helpers.delete_remote(self.sftp_client, remote_path)
 
     def delete_local(self, local_path: str) -> None:
         """
@@ -60,7 +60,7 @@ class SFTPClient:
         """
         Recursively delete a folder on the remote server. Ignores if folder does not exist.
         """
-        return helpers.delete_remote_folder(self.sftp, remote_folder)
+        return helpers.delete_remote_folder(self.sftp_client, remote_folder)
 
     def _delete_local_folder(self, local_folder: str) -> None:
         """
@@ -74,7 +74,7 @@ class SFTPClient:
         If remote is True, delete on remote SFTP server.
         If local is True, delete on local filesystem.
         """
-        return helpers.delete(self.sftp, path, remote=remote, local=local)
+        return helpers.delete(self.sftp_client, path, remote=remote, local=local)
 
     def sync_remote_to_local(
         self,
@@ -91,7 +91,7 @@ class SFTPClient:
         Delegates to `src.vps.sftp_sync.sync_remote_to_local`.
         """
         return sync.sync_remote_to_local(
-            self.sftp,
+            self.sftp_client,
             remote_root,
             local_root,
             delete_extra=delete_extra,

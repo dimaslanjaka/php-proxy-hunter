@@ -10,7 +10,7 @@ class SSHClient:
     Handles SSH connection and command execution.
     """
 
-    client: Optional[paramiko.SSHClient]
+    ssh_client: Optional[paramiko.SSHClient]
 
     def __init__(
         self,
@@ -28,19 +28,19 @@ class SSHClient:
         self.username = username
         self.password = password
         self.key_path = key_path
-        self.client = None
+        self.ssh_client = None
 
     def connect(self) -> None:
         """
         Establish SSH connection.
         """
-        self.client = paramiko.SSHClient()
-        self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.ssh_client = paramiko.SSHClient()
+        self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         if self.key_path:
             key = paramiko.RSAKey.from_private_key_file(self.key_path)
-            self.client.connect(self.host, self.port, self.username, pkey=key)
+            self.ssh_client.connect(self.host, self.port, self.username, pkey=key)
         else:
-            self.client.connect(
+            self.ssh_client.connect(
                 self.host, self.port, self.username, password=self.password
             )
 
@@ -49,11 +49,11 @@ class SSHClient:
         Run a command on the remote server. Optionally specify a working directory.
         Returns (stdout, stderr).
         """
-        if not self.client:
+        if not self.ssh_client:
             raise RuntimeError("SSH client not connected.")
         if cwd:
             command = f"cd {cwd} && {command}"
-        stdin, stdout, stderr = self.client.exec_command(command)
+        stdin, stdout, stderr = self.ssh_client.exec_command(command)
         output = stdout.read().decode()
         error = stderr.read().decode()
         return output, error
@@ -91,11 +91,11 @@ class SSHClient:
         Supports both Windows and Unix-like systems.
         Returns the exit status of the command.
         """
-        if not self.client:
+        if not self.ssh_client:
             raise RuntimeError("SSH client not connected.")
         if cwd:
             command = f"cd {cwd} && {command}"
-        transport = self.client.get_transport()
+        transport = self.ssh_client.get_transport()
         if transport is None:
             raise RuntimeError("SSH transport not available.")
         channel = transport.open_session()
@@ -139,6 +139,6 @@ class SSHClient:
         """
         Close the SSH connection.
         """
-        if self.client:
-            self.client.close()
-            self.client = None
+        if self.ssh_client:
+            self.ssh_client.close()
+            self.ssh_client = None
