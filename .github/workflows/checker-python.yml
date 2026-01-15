@@ -133,6 +133,11 @@ jobs:
         shell: bash
         run: task install-python
 
+      - name: Install Python Minimal Dependencies (if cache missed)
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: bash bin/python-minimal
+
       - name: Initialize Project Scripts
         id: php-github-actions-init
         env:
