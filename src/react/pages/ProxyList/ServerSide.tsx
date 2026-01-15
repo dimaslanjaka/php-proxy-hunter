@@ -9,6 +9,15 @@ import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 
 type ProxyRow = Record<string, any>;
 
+type CounterProxies = {
+  total_proxies?: number;
+  working_proxies?: number;
+  private_proxies?: number;
+  https_proxies?: number;
+  untested_proxies?: number;
+  dead_proxies?: number;
+};
+
 export default function ServerSide() {
   const { t } = useTranslation();
   const [rows, setRows] = React.useState<ProxyRow[]>([]);
@@ -23,6 +32,7 @@ export default function ServerSide() {
   const [draw, setDraw] = React.useState(0);
   const [recordsTotal, setRecordsTotal] = React.useState(0);
   const [recordsFiltered, setRecordsFiltered] = React.useState(0);
+  const [counters, setCounters] = React.useState<CounterProxies>({});
   const [loading, setLoading] = React.useState(false);
   const [copiedIndex, setCopiedIndex] = React.useState<number | null>(null);
   const [serverDriver, setServerDriver] = React.useState<string>('');
@@ -72,6 +82,18 @@ export default function ServerSide() {
         setServerDriver(typeof data.driver === 'string' ? data.driver : '');
         setServerPage(Number.isFinite(Number(data.page)) ? Number(data.page) : null);
         setServerPerPage(Number.isFinite(Number(data.perPage)) ? Number(data.perPage) : null);
+        if (data.counter_proxies && typeof data.counter_proxies === 'object') {
+          setCounters({
+            total_proxies: Number(data.counter_proxies.total_proxies) || 0,
+            working_proxies: Number(data.counter_proxies.working_proxies) || 0,
+            private_proxies: Number(data.counter_proxies.private_proxies) || 0,
+            https_proxies: Number(data.counter_proxies.https_proxies) || 0,
+            untested_proxies: Number(data.counter_proxies.untested_proxies) || 0,
+            dead_proxies: Number(data.counter_proxies.dead_proxies) || 0
+          });
+        } else {
+          setCounters({});
+        }
       }
     } catch (err) {
       console.error('Failed to fetch proxy list', err);
@@ -420,6 +442,36 @@ export default function ServerSide() {
                 <i className="fa-duotone fa-angle-double-right" aria-hidden="true" />
                 <span className="sr-only">Last</span>
               </button>
+            </div>
+          </div>
+
+          {/* Proxy counters summary */}
+          <div className="mb-3">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-gray-50 dark:bg-gray-800 text-sm">
+                Total
+                <span className="ml-2 font-medium">{counters.total_proxies ?? '-'}</span>
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-green-50 dark:bg-green-900 text-sm">
+                Alive
+                <span className="ml-2 font-medium">{counters.working_proxies ?? '-'}</span>
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-blue-50 dark:bg-blue-900 text-sm">
+                HTTPS
+                <span className="ml-2 font-medium">{counters.https_proxies ?? '-'}</span>
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-purple-50 dark:bg-purple-900 text-sm">
+                Private
+                <span className="ml-2 font-medium">{counters.private_proxies ?? '-'}</span>
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-yellow-50 dark:bg-yellow-900 text-sm">
+                Untested
+                <span className="ml-2 font-medium">{counters.untested_proxies ?? '-'}</span>
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-red-50 dark:bg-red-900 text-sm">
+                Dead
+                <span className="ml-2 font-medium">{counters.dead_proxies ?? '-'}</span>
+              </span>
             </div>
           </div>
         </div>
