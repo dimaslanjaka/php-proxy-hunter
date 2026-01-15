@@ -28,7 +28,7 @@ git remote set-url python $PRIVATE || true
 git remote add private $PRIVATE || true
 git remote set-url private $PRIVATE || true
 
-if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
+if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || $OSTYPE == mingw* ]]; then
   echo "Permission not applied on windows"
 else
   chmod +x bin/*
