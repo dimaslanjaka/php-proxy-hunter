@@ -62,6 +62,7 @@ if [ "$PYTHON_FILES_FOUND" -eq 1 ] || [ "$PHP_FILES_FOUND" -eq 1 ]; then
       echo "Failed to create file hashes"
       exit 1
     }
+    git add ".husky/hash.txt" || true
   else
     echo "cfh script not found or not executable: $HASH_SCRIPT"
     exit 1
