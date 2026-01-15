@@ -1,69 +1,71 @@
-# EditorConfig helps developers define and maintain consistent
-# coding styles between different editors and IDEs
-# http://editorconfig.org
-# https://github.com/editorconfig/editorconfig/wiki/EditorConfig-Properties
+# EditorConfig — optimized for a polyglot repository
+# https://editorconfig.org
 
 root = true
 
+# ---------- Default (applies to all files) ----------
 [*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
-max_line_length = 80
+tab_width = 2
+max_line_length = 120
 
-# Docstrings and comments use max_line_length = 79
+# ---------- Language-specific overrides ----------
+
+# Python: 4 spaces, PEP8-compatible line length
 [*.py]
-max_line_length = 119
 indent_size = 4
+tab_width = 4
+max_line_length = 119
 
-[*.{twig,njk}]
+# PHP (common projects use 4 spaces)
+[*.php]
+indent_size = 4
+tab_width = 4
+
+# JavaScript / TypeScript / JSON / HTML / CSS — 2 spaces
+[*.{js,ts,jsx,tsx,json,html,css,scss,vue}]
 indent_size = 2
+tab_width = 2
 
-# The JSON files contain newlines inconsistently
-[*.json]
-insert_final_newline = ignore
+# YAML
+[*.{yml,yaml}]
+indent_size = 2
+tab_width = 2
 
-[**/{vendor,tmp,node_modules,dist,build}/**]
-indent_style = ignore
-indent_size = ignore
+# Markdown: preserve trailing whitespace (used for hard line breaks)
+[*.md]
+trim_trailing_whitespace = false
 
-# Minified files shouldn't be changed
-[**.min.{js,css}]
-indent_style = ignore
-insert_final_newline = ignore
-
-# Makefiles always use tabs for indentation
+# Makefiles use tabs
 [Makefile]
 indent_style = tab
+trim_trailing_whitespace = false
 
-# Batch files use tabs for indentation
-[*.bat]
-indent_style = tab
+# Windows batch files use CRLF and keep trailing whitespace
+[*.{bat,cmd}]
 end_of_line = crlf
+trim_trailing_whitespace = false
 
-# Kotlin
-[*.{kt, kts}]
-ij_kotlin_imports_layout = *
+# Minified and generated files: avoid editing them
+[**.min.{js,css}]
+trim_trailing_whitespace = false
+insert_final_newline = false
 
-# Windows CMD files should use CRLF line endings
-[*.cmd]
-indent_style = tab
-end_of_line = crlf
+# Avoid modifying files in common vendor/build directories
+[**/{vendor,tmp,node_modules,dist,build}/**]
+trim_trailing_whitespace = false
+insert_final_newline = false
 
-# Bash and shell scripts
+# Shell scripts: use 2 spaces (project-specific choice)
 [*.{sh,bash}]
-# like -i=4
-indent_style = space
-indent_size = 4
+indent_size = 2
+tab_width = 2
+end_of_line = lf
 
-shell_variant      = posix # like -ln=posix
-binary_next_line   = true  # like -bn
-switch_case_indent = true  # like -ci
-space_redirects    = true  # like -sr
-keep_padding       = true  # like -kp
-function_next_line = true  # like -fn
-never_split        = true  # like -ns
+# --------- End of file ---------
 
