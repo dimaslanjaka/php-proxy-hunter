@@ -76,6 +76,8 @@ domains = [
     "packages.api.axis.co.id",
     "order.api.axis.co.id",
     "games.axis.co.id",
+    "httpbin.org",
+    "www.httpbin.org",
 ]
 unique_domains = list(set(domains))
 
