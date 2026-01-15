@@ -1,5 +1,22 @@
 [
   {
+    "hash": "0191e484bd3929a1773a9d30089fcd09a19e52a0",
+    "date": "2026-01-16T03:31:58+07:00",
+    "message": "feat(db): add active-only flag to countPrivateProxies\n\n- Add optional parameter `$onlyActive` to `ProxyDB::countPrivateProxies()` (default: false)\n  so callers can count only private proxies with `status = 'active'`.\n- Update query to include `AND status = 'active'` when the flag is true.\n- Backwards-compatible: existing callers without the flag keep previous behaviour.",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
+    "hash": "2439520e9d4885932a2d9470e8bdca2370d2ab2c",
+    "date": "2026-01-16T03:29:24+07:00",
+    "message": "feat(db): add active-only flag to countHttpsProxies and use it in proxy-list\n\n- Add optional parameter `$onlyActive` to `ProxyDB::countHttpsProxies()` (default: false)\n  so callers can count only HTTPS proxies with `status = 'active'`.\n- Update `php_backend/proxy-list.php` to call `countHttpsProxies(true)` so the\n  dashboard reports active HTTPS proxies.\n\nThis is backwards-compatible and preserves the previous behavior when the flag\nis not provided.",
+    "files": [
+      "php_backend/proxy-list.php",
+      "src/PhpProxyHunter/ProxyDB.php"
+    ]
+  },
+  {
     "hash": "234bd6fd69584f735a186d1af6e0e9978bd1e614",
     "date": "2026-01-16T03:25:31+07:00",
     "message": "chore(cfh): always stage generated hash file regardless of git hook context",
@@ -8618,22 +8635,6 @@
     "message": "refactor(vite-gh-pages): extract cache busting logic to reusable function\n\n- Move cache busting logic for index.html into a new exportable function `cacheBustHtml`\n- Replace inline cache busting in `deploy` with a call to `cacheBustHtml`\n- Allow cache busting to be reused for other HTML files and support optional version parameter\n- Improve code clarity and maintainability",
     "files": [
       "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "811cb5f2b1add6e5ed6142702c9fb86c648c2f91",
-    "date": "2025-09-23T17:19:31+07:00",
-    "message": "fix(meta): escape reserved column name \"key\" in meta table schema\n\n- Add quotes to \"key\" in SQLite schema and backticks to `key` in MySQL schema to prevent SQL syntax errors due to reserved word usage.",
-    "files": [
-      "src/PhpProxyHunter/Meta.php"
-    ]
-  },
-  {
-    "hash": "edaf0b6358773781012fdf157f34b62a442c5097",
-    "date": "2025-09-23T17:02:28+07:00",
-    "message": "feat(meta): add driver detection and auto-create meta table\n\nAdds `$driver` property to store the database driver name.\nMeta constructor now ensures the `meta` table exists by executing\nthe appropriate schema for SQLite or MySQL.",
-    "files": [
-      "src/PhpProxyHunter/Meta.php"
     ]
   }
 ]
