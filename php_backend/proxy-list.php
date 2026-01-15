@@ -217,7 +217,7 @@ try {
       'total_proxies'    => $proxy_db->countAllProxies(),
       'working_proxies'  => $proxy_db->countWorkingProxies(),
       'private_proxies'  => $proxy_db->countPrivateProxies(),
-      'https_proxies'    => $proxy_db->countHttpsProxies(),
+      'https_proxies'    => $proxy_db->countHttpsProxies(true),
       'untested_proxies' => $proxy_db->countUntestedProxies(),
       'dead_proxies'     => $proxy_db->countDeadProxies(),
     ],

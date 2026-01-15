@@ -10,7 +10,8 @@ use PDOException;
  *
  * @package PhpProxyHunter
  */
-class ProxyDB {
+class ProxyDB
+{
   /** @var SQLiteHelper|MySQLHelper $db */
   public $db;
 
@@ -62,7 +63,8 @@ class ProxyDB {
   /**
    * Initialize MySQL database connection and schema.
    */
-  private function initMySQL(string $host, string $dbname, string $username, string $password, bool $unique = false) {
+  private function initMySQL(string $host, string $dbname, string $username, string $password, bool $unique = false)
+  {
     $this->db = new MySQLHelper($host, $dbname, $username, $password, $unique);
     $sqlFile  = __DIR__ . '/assets/mysql-schema.sql';
     if (!is_file($sqlFile)) {
@@ -78,7 +80,8 @@ class ProxyDB {
   /**
    * Initialize SQLite database connection and schema.
    */
-  private function initSQLite($dbLocation = null) {
+  private function initSQLite($dbLocation = null)
+  {
     $isInMemory = $dbLocation === ':memory:';
     $dbLocation = $isInMemory
       ? ':memory:'
@@ -125,7 +128,8 @@ class ProxyDB {
    * @param string $key
    * @return string|null
    */
-  private function getMetaValue($key) {
+  private function getMetaValue($key)
+  {
     $stmt = $this->db->pdo->prepare('SELECT value FROM meta WHERE key = :key');
     $stmt->execute(['key' => $key]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -138,7 +142,8 @@ class ProxyDB {
    * @param string $key
    * @param string $value
    */
-  private function setMetaValue($key, $value) {
+  private function setMetaValue($key, $value)
+  {
     $stmt = $this->db->pdo->prepare('REPLACE INTO meta (key, value) VALUES (:key, :value)');
     $stmt->execute(['key' => $key, 'value' => $value]);
   }
@@ -146,7 +151,8 @@ class ProxyDB {
   /**
    * Run VACUUM if it has not been run in the last 24 hours.
    */
-  private function runDailyVacuum() {
+  private function runDailyVacuum()
+  {
     $lastVacuumTime  = $this->getMetaValue('last_vacuum_time');
     $currentTime     = time();
     $oneDayInSeconds = 86400;
@@ -162,7 +168,8 @@ class ProxyDB {
    * Get the appropriate RANDOM function based on database type
    * @return string
    */
-  private function getRandomFunction() {
+  private function getRandomFunction()
+  {
     return $this->db instanceof MySQLHelper ? 'RAND()' : 'RANDOM()';
   }
 
@@ -177,7 +184,8 @@ class ProxyDB {
    * @param int $chunkSize Number of rows to fetch per batch (default 1000)
    * @return void
    */
-  public function iterateAllProxies($callback, $chunkSize = 1000) {
+  public function iterateAllProxies($callback, $chunkSize = 1000)
+  {
     try {
       $chunkSize = max(1, (int)$chunkSize);
       $offset    = 0;
@@ -229,7 +237,8 @@ class ProxyDB {
    * @return string|null The normalized proxy string, or null if no valid proxy could be extracted.
    * @throws \InvalidArgumentException If the input contains more than one proxy.
    */
-  public function normalizeProxy($proxy) {
+  public function normalizeProxy($proxy)
+  {
     $data    = trim($proxy);
     $extract = extractProxies($data, null, false);
     if (empty($extract)) {
@@ -247,7 +256,8 @@ class ProxyDB {
    * @param string $proxy
    * @return array
    */
-  public function select($proxy) {
+  public function select($proxy)
+  {
     $proxy = $this->normalizeProxy($proxy);
     return $this->db->select('proxies', '*', 'proxy = ?', [$proxy]);
   }
@@ -264,7 +274,8 @@ class ProxyDB {
    * @param int|null $perPage Number of items per page for pagination.
    * @return array
    */
-  public function getAllProxies($limit = null, $randomize = null, $page = null, $perPage = null) {
+  public function getAllProxies($limit = null, $randomize = null, $page = null, $perPage = null)
+  {
     // Determine ordering (random or not)
     if ($randomize === null) {
       $orderBy = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
@@ -288,7 +299,8 @@ class ProxyDB {
   /**
    * @param string $proxy
    */
-  public function remove($proxy) {
+  public function remove($proxy)
+  {
     $proxy = $this->normalizeProxy($proxy);
     $this->db->delete('proxies', 'proxy = ?', [$proxy]);
     // Also remove from added_proxies to keep state consistent
@@ -302,7 +314,8 @@ class ProxyDB {
   /**
    * @param string|null $proxy
    */
-  public function add($proxy) {
+  public function add($proxy)
+  {
     $proxy    = $this->normalizeProxy($proxy);
     $inserted = $this->db->insert('proxies', ['proxy' => $proxy, 'status' => 'untested'], true);
     if ($inserted) {
@@ -316,7 +329,8 @@ class ProxyDB {
    * @param string|null $proxy
    * @return bool
    */
-  public function isAlreadyAdded($proxy) {
+  public function isAlreadyAdded($proxy)
+  {
     $proxy = $this->normalizeProxy($proxy);
     $stmt  = $this->db->pdo->prepare('SELECT COUNT(*) FROM added_proxies WHERE proxy = :proxy');
     $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
@@ -327,7 +341,8 @@ class ProxyDB {
   /**
    * @param string|null $proxy
    */
-  public function markAsAdded($proxy) {
+  public function markAsAdded($proxy)
+  {
     if ($this->isAlreadyAdded($proxy)) {
       return;
     }
@@ -346,7 +361,8 @@ class ProxyDB {
    * @param string|null $latency
    * @param string|null $timezone
    */
-  public function update($proxy, $type = null, $region = null, $city = null, $country = null, $status = null, $latency = null, $timezone = null) {
+  public function update($proxy, $type = null, $region = null, $city = null, $country = null, $status = null, $latency = null, $timezone = null)
+  {
     if (empty($this->select($proxy))) {
       $this->add($proxy);
     }
@@ -382,7 +398,8 @@ class ProxyDB {
    * @param array $data
    * @param bool $update_time
    */
-  public function updateData($proxy, $data = [], $update_time = true) {
+  public function updateData($proxy, $data = [], $update_time = true)
+  {
     if (empty($this->select($proxy))) {
       $this->add($proxy);
     }
@@ -402,11 +419,13 @@ class ProxyDB {
     }
   }
 
-  public function updateStatus($proxy, $status) {
+  public function updateStatus($proxy, $status)
+  {
     $this->update(trim($proxy), null, null, null, null, $status, null);
   }
 
-  public function updateLatency($proxy, $latency) {
+  public function updateLatency($proxy, $latency)
+  {
     $this->update(trim($proxy), null, null, null, null, null, $latency);
   }
 
@@ -422,7 +441,8 @@ class ProxyDB {
    * @param int|null $perPage Number of items per page for pagination.
    * @return array
    */
-  public function getWorkingProxies($limit = null, $randomize = null, $page = null, $perPage = null) {
+  public function getWorkingProxies($limit = null, $randomize = null, $page = null, $perPage = null)
+  {
     $whereClause = 'status = ?';
     $params      = ['active'];
 
@@ -447,21 +467,24 @@ class ProxyDB {
     return $result ?: [];
   }
 
-  public function getPrivateProxies($limit = null) {
+  public function getPrivateProxies($limit = null)
+  {
     $whereClause = 'status = ? OR private = ?';
     $params      = ['private', 'true'];
     $orderBy     = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
     return $this->db->select('proxies', '*', $whereClause, $params, $orderBy, $limit);
   }
 
-  public function getDeadProxies($limit = null) {
+  public function getDeadProxies($limit = null)
+  {
     $whereClause = 'status = ? OR status = ?';
     $params      = ['dead', 'port-closed'];
     $orderBy     = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
     return $this->db->select('proxies', '*', $whereClause, $params, $orderBy, $limit);
   }
 
-  public function getUntestedProxies($limit = null) {
+  public function getUntestedProxies($limit = null)
+  {
     $whereClause = 'status IS NULL OR status = "" OR status NOT IN (?, ?, ?)';
     $params      = ['active', 'port-closed', 'dead'];
     $orderBy     = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
@@ -474,54 +497,73 @@ class ProxyDB {
    * @param int|null $limit
    * @return array
    */
-  public function getOldestTestedProxies($limit = null) {
+  public function getOldestTestedProxies($limit = null)
+  {
     // Select proxies that have a last_check value and order ascending (oldest first)
     $whereClause = 'last_check IS NOT NULL AND last_check != ""';
     $orderBy     = 'last_check ASC';
     return $this->db->select('proxies', '*', $whereClause, [], $orderBy, $limit) ?: [];
   }
 
-  public function countDeadProxies() {
+  public function countDeadProxies()
+  {
     $closed = $this->db->count('proxies', 'status = ?', ['port-closed']);
     $dead   = $this->db->count('proxies', 'status = ?', ['dead']);
     return $closed + $dead;
   }
 
-  public function countUntestedProxies() {
+  public function countUntestedProxies()
+  {
     return $this->db->count('proxies', 'status = ? OR status IS NULL OR status = "" OR status = "untested"', ['']);
   }
 
-  public function countWorkingProxies() {
+  public function countWorkingProxies()
+  {
     return $this->db->count('proxies', "(status = ?) AND (private = ? OR private IS NULL OR private = '')", [
       'active',
       'false',
     ]);
   }
 
-  public function countPrivateProxies() {
+  public function countPrivateProxies()
+  {
     return $this->db->count('proxies', 'private = ?', ['true']);
   }
 
-  public function countAllProxies() {
+  public function countAllProxies()
+  {
     return $this->db->count('proxies');
   }
 
-  public function countHttpsProxies() {
+  /**
+   * Count HTTPS proxies.
+   *
+   * @param bool $onlyActive When true, count only proxies with status 'active'.
+   * @return int
+   */
+  public function countHttpsProxies($onlyActive = false)
+  {
+    if ($onlyActive) {
+      return $this->db->count('proxies', 'https = ? AND status = ?', ['true', 'active']);
+    }
     return $this->db->count('proxies', 'https = ?', ['true']);
   }
 
-  public function close() {
+  public function close()
+  {
     if ($this->db) {
       $this->db->close();
     }
     $this->db = null;
   }
 
-  public function isDatabaseLocked() {
+  public function isDatabaseLocked()
+  {
     return $this->db->isDatabaseLocked();
   }
 
-  public function __destruct() {
+  public function __destruct()
+  {
     $this->close();
   }
 
@@ -535,7 +577,8 @@ class ProxyDB {
    * @param bool|null $randomize When true, randomize results using DB's random function.
    * @return array List of matching rows (possibly empty).
    */
-  public function findProxy(array $data, $limit = null, $page = null, $perPage = null, $randomize = null) {
+  public function findProxy(array $data, $limit = null, $page = null, $perPage = null, $randomize = null)
+  {
     if (empty($data)) {
       return [];
     }
