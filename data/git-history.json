@@ -1,5 +1,19 @@
 [
   {
+    "hash": "d223efad20db172eadddd79cd91b0e0a8fca92ad",
+    "date": "2026-01-16T00:46:38+07:00",
+    "message": "fix(deps): update php-cs-fixer version constraint to include 3.75",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
+    "hash": "9caab8d83570c7633c545767fb8943411974e06d",
+    "date": "2026-01-16T00:42:53+07:00",
+    "message": "fix(pre-commit): ensure hash.txt is added after creating file hashes",
+    "files": []
+  },
+  {
     "hash": "a0a9b3ac9641a19b69c919df874df4bd60acc2d2",
     "date": "2026-01-16T00:40:48+07:00",
     "message": "chore(pre-commit): run Black on staged Python files\n\nAdd a Black formatting step to `.husky/pre-commit` that prefers a project\nvenv (Windows/Unix), falls back to `black` on PATH or `python -m black`,\nformats staged `.py` files and re-adds them to the index.\n\nRemove the `*.py: \"python -m black\"` entry from `.lintstagedrc.json` to\navoid duplicate formatting runs.",
@@ -8621,22 +8635,6 @@
     "message": "fix(meta): escape key in SQL queries for consistency",
     "files": [
       "src/PhpProxyHunter/Meta.php"
-    ]
-  },
-  {
-    "hash": "59b129ed5e3bf22279cdec7090d15ef8c6448e0b",
-    "date": "2025-09-23T16:44:37+07:00",
-    "message": "feat(meta): add Meta class for handling database meta information\n\nIntroduces a new `Meta` class that manages meta information schema\nfor SQLite and MySQL databases. Includes methods to check, get,\nand set key-value pairs in the `meta` table, along with schema\ndefinitions and lifecycle handling.",
-    "files": [
-      "src/PhpProxyHunter/Meta.php"
-    ]
-  },
-  {
-    "hash": "23d3d4548737c9b98fdceb09292aa934ccda5e63",
-    "date": "2025-09-23T16:43:38+07:00",
-    "message": "feat(const): add PACKAGE_VERSION constant for versioning",
-    "files": [
-      "src/PhpProxyHunter/const.php"
     ]
   }
 ]
