@@ -152,6 +152,51 @@ export default function ServerSide() {
 
   const totalPages = perPage > 0 ? Math.max(1, Math.ceil(recordsFiltered / perPage)) : 1;
 
+  // Counter items configuration for rendering the summary grid
+  const counterList = [
+    {
+      key: 'total_proxies',
+      label: 'Total',
+      icon: 'fa-duotone fa-list',
+      bg: 'bg-gray-50 dark:bg-gray-800',
+      text: 'text-gray-800 dark:text-gray-200'
+    },
+    {
+      key: 'working_proxies',
+      label: 'Alive',
+      icon: 'fa-duotone fa-heart-pulse',
+      bg: 'bg-green-50 dark:bg-green-900',
+      text: 'text-green-700 dark:text-green-300'
+    },
+    {
+      key: 'https_proxies',
+      label: 'HTTPS',
+      icon: 'fa-duotone fa-lock',
+      bg: 'bg-blue-50 dark:bg-blue-900',
+      text: 'text-blue-700 dark:text-blue-300'
+    },
+    {
+      key: 'private_proxies',
+      label: 'Private',
+      icon: 'fa-duotone fa-user-secret',
+      bg: 'bg-purple-50 dark:bg-purple-900',
+      text: 'text-purple-700 dark:text-purple-300'
+    },
+    {
+      key: 'untested_proxies',
+      label: 'Untested',
+      icon: 'fa-duotone fa-eye-slash',
+      bg: 'bg-yellow-50 dark:bg-yellow-900',
+      text: 'text-yellow-700 dark:text-yellow-300'
+    },
+    {
+      key: 'dead_proxies',
+      label: 'Dead',
+      icon: 'fa-duotone fa-skull',
+      bg: 'bg-red-50 dark:bg-red-900',
+      text: 'text-red-700 dark:text-red-300'
+    }
+  ];
   return (
     <>
       <section className="my-6">
@@ -228,7 +273,7 @@ export default function ServerSide() {
             </div>
           </div>
 
-          <div className="relative overflow-x-auto">
+          <div className="relative overflow-x-auto mb-3">
             {errorMsg && (
               <div className="mb-3 p-3 rounded bg-red-50 dark:bg-red-900 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700 flex justify-between items-start gap-3">
                 <div className="text-sm">{errorMsg}</div>
@@ -356,7 +401,7 @@ export default function ServerSide() {
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <div>{`Showing ${rows.length} of ${recordsFiltered} filtered (${recordsTotal} total)`}</div>
@@ -447,31 +492,20 @@ export default function ServerSide() {
 
           {/* Proxy counters summary */}
           <div className="mb-3">
-            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-gray-50 dark:bg-gray-800 text-sm">
-                Total
-                <span className="ml-2 font-medium">{counters.total_proxies ?? '-'}</span>
-              </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-green-50 dark:bg-green-900 text-sm">
-                Alive
-                <span className="ml-2 font-medium">{counters.working_proxies ?? '-'}</span>
-              </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-blue-50 dark:bg-blue-900 text-sm">
-                HTTPS
-                <span className="ml-2 font-medium">{counters.https_proxies ?? '-'}</span>
-              </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-purple-50 dark:bg-purple-900 text-sm">
-                Private
-                <span className="ml-2 font-medium">{counters.private_proxies ?? '-'}</span>
-              </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-yellow-50 dark:bg-yellow-900 text-sm">
-                Untested
-                <span className="ml-2 font-medium">{counters.untested_proxies ?? '-'}</span>
-              </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded border bg-red-50 dark:bg-red-900 text-sm">
-                Dead
-                <span className="ml-2 font-medium">{counters.dead_proxies ?? '-'}</span>
-              </span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+              {counterList.map((item) => (
+                <div
+                  key={item.key}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg border ${item.bg} ${item.text} shadow-sm`}>
+                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/60 dark:bg-black/40 border border-gray-200 dark:border-gray-700 text-sm">
+                    <i className={`${item.icon} text-lg`} aria-hidden="true" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs text-gray-600 dark:text-gray-400">{item.label}</span>
+                    <span className="text-sm font-semibold">{(counters as any)[item.key] ?? '-'}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
