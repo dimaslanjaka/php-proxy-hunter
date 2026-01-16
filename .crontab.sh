@@ -144,6 +144,7 @@ if should_run_job "tmp/crontab/30-m" 0.5; then
     log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php
     # Run geoIp script to resolve missing geo information for proxies
     log_command "tmp/logs/crontab/geoip.log" php geoIp.php
+    log_command "tmp/logs/crontab/proxy-classifier-lookup.log" "$CWD/bin/py" "$CWD/artisan/proxy-classifier-lookup.py" --max=1000
 else
     echo "Skipping 30 minutes job."
 fi
@@ -165,6 +166,7 @@ fi
 if should_run_job "tmp/crontab/3-h" 3; then
     echo "Running 3 hours job."
     # log_command "tmp/logs/crontab/check-proxy-parallel.log" bash "$CWD/bin/check-proxy-parallel"
+    log_command "tmp/logs/crontab/proxy-checker-httpx.log" "$CWD/bin/py" "$CWD/artisan/proxy-checker-httpx.py" --max=1000
 else
     echo "Skipping 3 hours job."
 fi
