@@ -64,6 +64,7 @@ def main():
         _process_ips(proxyData)
     finally:
         asn_lookup.close()
+        db.close()
 
 
 if __name__ == "__main__":
