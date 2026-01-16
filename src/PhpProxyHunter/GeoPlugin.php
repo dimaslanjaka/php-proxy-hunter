@@ -32,7 +32,8 @@ namespace PhpProxyHunter;
  * @author     Your Name
  * @since      1.0.0
  */
-class GeoPlugin implements \JsonSerializable {
+class GeoPlugin implements \JsonSerializable
+{
   /**
    * Base URL for the GeoPlugin API.
    *
@@ -197,7 +198,8 @@ class GeoPlugin implements \JsonSerializable {
   /**
    * Constructor.
    */
-  public function __construct() {
+  public function __construct()
+  {
   }
 
   /**
@@ -205,7 +207,8 @@ class GeoPlugin implements \JsonSerializable {
    *
    * @param \GeoIp2\Model\City|null $record GeoIp2 City model record.
    */
-  public function fromGeoIp2CityModel(\GeoIp2\Model\City $record = null) {
+  public function fromGeoIp2CityModel($record)
+  {
     if (!$record) {
       return;
     }
@@ -227,7 +230,8 @@ class GeoPlugin implements \JsonSerializable {
   }
 
   #[\ReturnTypeWillChange]
-  public function jsonSerialize() {
+  public function jsonSerialize()
+  {
     return get_object_vars($this);
   }
 
@@ -238,7 +242,8 @@ class GeoPlugin implements \JsonSerializable {
    *
    * @return string|false JSON response from the GeoPlugin API or false on failure.
    */
-  public function locate($ip = null) {
+  public function locate($ip = null)
+  {
     $ip       = $ip ?? ($_SERVER['REMOTE_ADDR'] ?? null);
     $this->ip = $ip;
 
@@ -297,7 +302,8 @@ class GeoPlugin implements \JsonSerializable {
    *
    * @return $this
    */
-  public function locate_recursive(string $ip) {
+  public function locate_recursive(string $ip)
+  {
     $geo     = $this->locate($ip);
     $decoded = null;
     if ($geo !== false) {
@@ -379,7 +385,8 @@ class GeoPlugin implements \JsonSerializable {
    *
    * @return string|false Response data or false on failure.
    */
-  public function fetch($host) {
+  public function fetch($host)
+  {
     $cacheDir = getcwd() . '/.cache/';
 
     if (!is_dir($cacheDir)) {
@@ -430,7 +437,8 @@ class GeoPlugin implements \JsonSerializable {
    *
    * @return float|string Converted amount.
    */
-  public function convert($amount, $float = 2, $symbol = true) {
+  public function convert($amount, $float = 2, $symbol = true)
+  {
     if (!is_numeric($this->currencyConverter) || $this->currencyConverter == 0) {
       trigger_error('GeoPlugin Notice: currencyConverter has no value.', E_USER_NOTICE);
       return $amount;
@@ -453,7 +461,8 @@ class GeoPlugin implements \JsonSerializable {
    *
    * @return array<int, array<string, mixed>> List of nearby locations.
    */
-  public function nearby($radius = 10, $limit = null) {
+  public function nearby($radius = 10, $limit = null)
+  {
     if (!is_numeric($this->latitude) || !is_numeric($this->longitude)) {
       trigger_error('GeoPlugin Warning: Incorrect latitude / longitude.', E_USER_NOTICE);
       return [[]];
