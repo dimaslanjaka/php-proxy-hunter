@@ -142,6 +142,30 @@ class MySQLHelper:
             self.cursor.execute(sql)
         self.conn.commit()
 
+    def column_exists(self, table_name: str, column_name: str) -> bool:
+        """
+        Check whether a column exists in a given table for MySQL.
+
+        Uses information_schema.columns to determine existence.
+        """
+        db_name = self.mysql_database or getattr(self.conn, "database", None)
+        if not db_name:
+            return False
+        sql = (
+            "SELECT COUNT(*) AS cnt FROM information_schema.columns "
+            "WHERE table_schema = %s AND table_name = %s AND column_name = %s"
+        )
+        self.cursor.execute(sql, (db_name, table_name, column_name))
+        res = self.cursor.fetchone()
+        if not res:
+            return False
+        # fetchone() returns a dict because cursor was created with dictionary=True
+        try:
+            cnt = res.get("cnt") if isinstance(res, dict) else res[0]
+            return int(cast(Any, cnt)) > 0
+        except Exception:
+            return False
+
     def truncate_table(self, table_name: str) -> None:
         sql = f"TRUNCATE TABLE {table_name}"
         self.cursor.execute(sql)

@@ -11,12 +11,13 @@ MIGRATION_NUMBER = 1
 
 
 def migrate(db: Union[SQLiteHelper, MySQLHelper]):
-    # Add column 'classification' to 'proxies' table
-    if isinstance(db, SQLiteHelper):
-        db.execute_query(
-            "ALTER TABLE proxies ADD COLUMN classification TEXT DEFAULT ''"
-        )
-    elif isinstance(db, MySQLHelper):
-        db.execute_query(
-            "ALTER TABLE proxies ADD COLUMN classification VARCHAR(255) DEFAULT ''"
-        )
+    # Add column 'classification' to 'proxies' table when not exists
+    if not db.column_exists("proxies", "classification"):
+        if isinstance(db, SQLiteHelper):
+            db.execute_query(
+                "ALTER TABLE proxies ADD COLUMN classification TEXT DEFAULT ''"
+            )
+        elif isinstance(db, MySQLHelper):
+            db.execute_query(
+                "ALTER TABLE proxies ADD COLUMN classification VARCHAR(255) DEFAULT ''"
+            )

@@ -292,6 +292,32 @@ class SQLiteHelper:
         finally:
             cur.close()
 
+    def column_exists(self, table_name: str, column_name: str) -> bool:
+        """
+        Check whether a column exists in a given table for SQLite.
+
+        Returns True if the column exists, False otherwise.
+        """
+        cur = self.conn.cursor()
+        try:
+            try:
+                cur.execute(f"PRAGMA table_info({table_name})")
+            except Exception:
+                # If table does not exist or invalid name, treat as not existing
+                return False
+            rows = cur.fetchall()
+            for row in rows:
+                # sqlite3.Row supports name access or index 1 is the column name
+                try:
+                    name = row["name"]
+                except Exception:
+                    name = row[1] if len(row) > 1 else None
+                if name == column_name:
+                    return True
+            return False
+        finally:
+            cur.close()
+
     def truncate_table(self, table_name: str) -> None:
         sql = f"DELETE FROM {table_name}"
         cur = self.conn.cursor()
