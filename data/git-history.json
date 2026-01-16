@@ -1,5 +1,57 @@
 [
   {
+    "hash": "989a621229e2d6b54a652426248f2adf5591888e",
+    "date": "2026-01-16T13:23:11+07:00",
+    "message": "feat(check-proxy): update private flag in check methods for HTTP and HTTPS proxies",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "30249c6fa7ecb68397500696838d7c55e447d99a",
+    "date": "2026-01-16T13:20:06+07:00",
+    "message": "feat(ProxyCheckers): add private proxy detection in check methods",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyCheckerGoogle.php",
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php",
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpsOnly.php"
+    ]
+  },
+  {
+    "hash": "dc52c608ed5c233cd6b1438162aa7873b253a411",
+    "date": "2026-01-16T13:17:40+07:00",
+    "message": "feat(PrivateProxyDetection): add class to identify private proxy titles with regex patterns",
+    "files": [
+      "src/PhpProxyHunter/Checker/CheckerOptions.php",
+      "src/PhpProxyHunter/Checker/PrivateProxyDetection.php"
+    ]
+  },
+  {
+    "hash": "2f160cd7f0b9d40ed53a4c05419b17a51a3c8831",
+    "date": "2026-01-16T13:12:56+07:00",
+    "message": "fix(CheckerResult): add private property",
+    "files": [
+      "src/PhpProxyHunter/Checker/CheckerResult.php"
+    ]
+  },
+  {
+    "hash": "20a7b02b648f670429fcedeabc3474c6dcab0947",
+    "date": "2026-01-16T13:08:28+07:00",
+    "message": "fix(check-old-proxy): guard strtotime against null input\n\nEnsure `$item['last_check']` is checked before calling `strtotime`\nand initialize `$lastChecked = false` when missing. This prevents\nthe PHP deprecation warning \"Passing null to parameter #1 ($datetime)\nof type string is deprecated\" on newer PHP versions.",
+    "files": [
+      "php_backend/check-old-proxy.php"
+    ]
+  },
+  {
+    "hash": "0253402587f4f2e66a368e4e840b544a6d7cb2f8",
+    "date": "2026-01-16T13:05:05+07:00",
+    "message": "fix(ServerSide): update unknown protocol display in proxy list",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
     "hash": "a4bfbb458d46dd2f4099b0912c7885994212540c",
     "date": "2026-01-16T12:57:23+07:00",
     "message": "feat(classification): add badge color classes for proxy classifications in ServerSide component",
@@ -8600,57 +8652,6 @@
     "files": [
       "src/PhpProxyHunter/Scheduler.php",
       "tests/hashers/CustomPasswordHasherTest.php"
-    ]
-  },
-  {
-    "hash": "77e057b34b5ea8deb0321205be8ade0b025ad4c3",
-    "date": "2025-09-26T11:20:49+07:00",
-    "message": "refactor: move file helper functions to utils\n\n- relocated ensure_dir() and safe_unlink() from php_backend/proxy-checker.php to src/utils/file/index.php\n- centralizes file-related utilities for reuse and reduces duplication",
-    "files": [
-      "php_backend/proxy-checker.php",
-      "src/utils/file/index.php"
-    ]
-  },
-  {
-    "hash": "7dfa7573508454d2f78954fbd56c553a462031aa",
-    "date": "2025-09-26T11:04:06+07:00",
-    "message": "refactor: move getPublicIP to func-proxy.php and improve getServerIp resolution\n\n- relocated getPublicIP() implementation from php_backend/proxy-checker.php to func-proxy.php for reuse\n- updated getServerIp() to:\n  - use a $result variable instead of multiple early returns\n  - check and replace local/private IPs (127.x / 192.168.x) with detected public IP\n  - ensure fallback logic works consistently across Windows and Linux\n- added optional caching and proxy support in getPublicIP()",
-    "files": [
-      "func-proxy.php",
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "787e0e62a1293ee95edd7ff561a58a43fc9e5c75",
-    "date": "2025-09-26T10:59:35+07:00",
-    "message": "feat(env): load dotenv from project root and sync variables to getenv",
-    "files": [
-      "src/database/env.php"
-    ]
-  },
-  {
-    "hash": "049667d6306529389d4c46a95577f37b86b16725",
-    "date": "2025-09-26T10:56:23+07:00",
-    "message": "refactor(env): move is_debug_device function from func.php to src/database/env.php",
-    "files": [
-      "func.php",
-      "src/database/env.php"
-    ]
-  },
-  {
-    "hash": "0666adeacdc38f5eb8a6f03b30f3f043461e6e71",
-    "date": "2025-09-26T10:54:57+07:00",
-    "message": "refactor(env): use environment variable for debug device detection\n\nRefactored the is_debug_device function to use the DEBUG_DEVICES environment variable (via $_ENV or getenv) instead of manually reading the .env file. This improves compatibility with dotenv and centralizes environment configuration. Added error logging if the variable is not set or empty.",
-    "files": [
-      "func.php"
-    ]
-  },
-  {
-    "hash": "86d1998db4e29d4ee8c0c455866deea37604bdd5",
-    "date": "2025-09-26T10:49:19+07:00",
-    "message": "docs(proxyChecker): enhance function documentation with detailed parameter descriptions and usage",
-    "files": [
-      "php_backend/proxy-checker.php"
     ]
   }
 ]
