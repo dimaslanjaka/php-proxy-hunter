@@ -54,7 +54,9 @@ class ProxyDB:
         self.check_same_thread = check_same_thread
         self.db_location = db_location
         self.db: Optional[Union[SQLiteHelper, MySQLHelper]] = None
-        self.db_type = db_type.lower() if db_type else "sqlite"
+        # keep parameter name `db_type` for backward compatibility
+        # expose instance attribute as `driver` per new naming
+        self.driver = db_type.lower() if db_type else "sqlite"
         self.mysql_host = mysql_host
         self.mysql_dbname = mysql_dbname
         self.mysql_user = mysql_user
@@ -65,7 +67,7 @@ class ProxyDB:
             return
         if db_location is None:
             # only default to sqlite file when not using MySQL backend
-            if self.db_type != "mysql":
+            if self.driver != "mysql":
                 self.db_location = get_relative_path("src/database.sqlite")
             else:
                 self.db_location = None
@@ -76,7 +78,7 @@ class ProxyDB:
         """Establishes a connection to the SQLite database and sets up initial configurations."""
         try:
             # Decide backend
-            if self.db_type == "mysql":
+            if self.driver == "mysql":
                 # Initialize MySQL helper
                 # db_location may be used to override dbname
                 # If db_location is a path to sqlite, prefer mysql_dbname
@@ -131,7 +133,7 @@ class ProxyDB:
                             self.db.execute_query(command)
 
             # SQLite-specific pragmas
-            if self.db_type != "mysql":
+            if self.driver != "mysql":
                 wal_enabled = self.get_meta_value("wal_enabled")
                 if not wal_enabled:
                     try:
@@ -184,7 +186,7 @@ class ProxyDB:
         Returns:
             Optional[str]: The meta value associated with the key, or None if not found.
         """
-        if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+        if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             result = self.get_db().select("meta", "value", "key = %s", (key,))
         else:
             result = self.get_db().select("meta", "value", "key = ?", (key,))
@@ -199,7 +201,7 @@ class ProxyDB:
             value (str): The value to set.
         """
 
-        if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+        if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             sql = "REPLACE INTO meta (key, value) VALUES (%s, %s)"
         else:
             sql = "REPLACE INTO meta (key, value) VALUES (?, ?)"
@@ -223,7 +225,7 @@ class ProxyDB:
     def select(self, proxy: str):
         proxy = self.normalize_proxy(proxy)
         # both helpers accept select(table, columns, where, params, rand, limit, offset) loosely
-        if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+        if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             return self.get_db().select("proxies", "*", "proxy = %s", [proxy.strip()])
         else:
             return self.get_db().select("proxies", "*", "proxy = ?", [proxy.strip()])
@@ -231,7 +233,7 @@ class ProxyDB:
     def is_already_added(self, proxy: Optional[str]) -> bool:
         proxy = self.normalize_proxy(proxy)
         try:
-            if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+            if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
                 res = self.get_db().select(
                     "added_proxies", "count(*) as c", "proxy = %s", [proxy.strip()]
                 )
@@ -263,7 +265,7 @@ class ProxyDB:
         if self.is_already_added(proxy):
             return
         try:
-            if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+            if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
                 self.get_db().execute_query(
                     "INSERT INTO added_proxies (proxy) VALUES (%s)", [proxy.strip()]
                 )
@@ -340,13 +342,13 @@ class ProxyDB:
 
     def remove(self, proxy):
         proxy = self.normalize_proxy(proxy)
-        if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+        if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             self.get_db().delete("proxies", "proxy = %s", [proxy.strip()])
         else:
             self.get_db().delete("proxies", "proxy = ?", [proxy.strip()])
         # also remove from added_proxies if table exists
         try:
-            if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+            if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
                 self.get_db().execute_query(
                     "DELETE FROM added_proxies WHERE proxy = %s", [proxy.strip()]
                 )
@@ -442,7 +444,7 @@ class ProxyDB:
             data = self.fix_no_such_column(data)
             # print(data)
             # use correct placeholder depending on backend
-            if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+            if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
                 self.get_db().update("proxies", data, "proxy = %s", [proxy.strip()])
             else:
                 self.get_db().update("proxies", data, "proxy = ?", [proxy.strip()])
@@ -489,7 +491,7 @@ class ProxyDB:
             limit = sys.maxsize
 
         # Build backend-specific query
-        if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+        if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             order_clause = " ORDER BY RAND()" if randomize else ""
             sql_where = f"status = %s{order_clause} LIMIT {int(limit)}"
             result = self.get_db().select("proxies", "*", sql_where, ["active"])
@@ -542,7 +544,7 @@ class ProxyDB:
         if not limit:
             limit = sys.maxsize
 
-        if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+        if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             order_clause = f" ORDER BY RAND()" if randomize else ""
             result = self.get_db().select(
                 "proxies",
@@ -563,7 +565,7 @@ class ProxyDB:
         return cast(List[Dict[str, Union[str, None]]], result)
 
     def get_private_proxies(self) -> List[Dict[str, Union[str, None]]]:
-        if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+        if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             result = self.get_db().select("proxies", "*", "status = %s", ["private"])
         else:
             result = self.get_db().select("proxies", "*", "status = ?", ["private"])
@@ -583,7 +585,7 @@ class ProxyDB:
         if not limit:
             limit = sys.maxsize
 
-        if isinstance(self.db, MySQLHelper) or self.db_type == "mysql":
+        if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             order_clause = " ORDER BY RAND()" if randomize else ""
             sql = f"status = %s or status = %s{order_clause} LIMIT {limit}"
             result = self.get_db().select(
