@@ -172,3 +172,6 @@ elif [ "$OS" = "Linux" ]; then
     fi
   fi
 fi
+
+# Run database migrations
+"$CWD/bin/py" "src/migrations/migrate.py"
