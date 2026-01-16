@@ -31,7 +31,7 @@ def main():
                     "classification": classification,
                 },
             )
-            print(f"IP: {ip}")
+            print(f"Proxy: {proxy_str} ({ip})")
             print(f"ASN Info: {info}")
             print(f"Classification: {classification}")
             print("-----")
