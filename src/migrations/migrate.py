@@ -2,6 +2,10 @@ import glob
 import importlib.util
 import os
 import sys
+from types import ModuleType
+from typing import List, Tuple, Callable, cast
+
+from attr import dataclass
 
 # Ensure project root and `src` folder are on sys.path so migration modules
 # can import project modules as plain module names (e.g. `ProxyDB`).
@@ -11,9 +15,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 from src.shared import init_db
 
 
+@dataclass
+class MigrationScript(ModuleType):
+    migrate: Callable
+
+
 def load_migrations():
     """Dynamically load migration scripts from the migrations directory."""
-    migration_scripts = []
+    migration_scripts: List[Tuple[MigrationScript, str]] = []
     # name of this file so we avoid loading it as a migration
     current_filename = os.path.splitext(os.path.basename(__file__))[0]
     for file_path in glob.glob(os.path.join(os.path.dirname(__file__), "*.py")):
@@ -27,7 +36,7 @@ def load_migrations():
             spec.loader.exec_module(module)
             # return both the loaded module and the source file path so callers
             # can report where the migration came from.
-            migration_scripts.append((module, file_path))
+            migration_scripts.append((cast(MigrationScript, module), file_path))
     # sort by the module's MIGRATION_NUMBER (first element of tuple)
     return sorted(migration_scripts, key=lambda x: x[0].MIGRATION_NUMBER)
 
