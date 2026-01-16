@@ -378,22 +378,26 @@ export default function ServerSide() {
                           })()}
                         </td>
                         <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                          {r.type
-                            ? String(r.type)
-                                .split('-')
-                                .filter(Boolean)
-                                .map((t) => {
-                                  const baseClass =
-                                    'inline-block rounded px-1 py-0.5 mx-0.5 mb-0.5 text-xs font-semibold align-middle border mr-1';
-                                  const colorClass = getProxyTypeColorClass(t);
-                                  const badgeClass = `${baseClass} ${colorClass}`;
-                                  return (
-                                    <span key={t + badgeClass} className={badgeClass}>
-                                      {t.toUpperCase()}
-                                    </span>
-                                  );
-                                })
-                            : '-'}
+                          {r.type ? (
+                            String(r.type)
+                              .split('-')
+                              .filter(Boolean)
+                              .map((t) => {
+                                const baseClass =
+                                  'inline-block rounded px-1 py-0.5 mx-0.5 mb-0.5 text-xs font-semibold align-middle border mr-1';
+                                const colorClass = getProxyTypeColorClass(t);
+                                const badgeClass = `${baseClass} ${colorClass}`;
+                                return (
+                                  <span key={t + badgeClass} className={badgeClass}>
+                                    {t.toUpperCase()}
+                                  </span>
+                                );
+                              })
+                          ) : (
+                            <span className="inline-block rounded px-1 py-0.5 mx-0.5 mb-0.5 text-xs font-semibold align-middle border mr-1 bg-gray-50 text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
+                              [unknown protocol]
+                            </span>
+                          )}
                           {String(r.https) === 'true' && (
                             <span
                               className={`inline-block rounded px-1 py-0.5 ml-1 text-xs font-semibold align-middle border ${getProxyTypeColorClass('ssl')}`}>
