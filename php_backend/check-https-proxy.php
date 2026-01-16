@@ -328,6 +328,8 @@ function check($proxy)
         $result->workingTypes = $workingTypes;
       }
     }
+    // Update private flag
+    $data['private'] = $result->private ? 'true' : 'false';
 
     $proxy_db->updateData($item->proxy, $data);
 

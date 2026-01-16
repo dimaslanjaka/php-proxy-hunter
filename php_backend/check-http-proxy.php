@@ -222,7 +222,8 @@ if ($fileLock->lock()) {
  * Check if the proxy is working (HTTP only)
  * @param string $proxy proxy string or JSON array
  */
-function check($proxy) {
+function check($proxy)
+{
   global $proxy_db, $hashFilename, $isAdmin, $isCli;
 
   // Extract proxies from string or array and shuffle
@@ -312,6 +313,8 @@ function check($proxy) {
         $result->workingTypes = $workingTypes;
       }
     }
+    // Update private flag
+    $data['private'] = $result->private ? 'true' : 'false';
 
     $proxy_db->updateData($item->proxy, $data);
 
