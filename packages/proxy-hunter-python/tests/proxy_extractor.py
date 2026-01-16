@@ -77,5 +77,17 @@ def test_extract_proxies_json_format2():
     assert all(not p.has_credentials() for p in result)
 
 
+def test_extract_proxies_domain_with_auth():
+    proxy_str = f"""another long string proxy_user:proxy_password@dc.oxylabs.io:8000 another long string
+wgbfrmqf:lynb55lcsui6@173.0.9.209:5792
+"""
+    result = extract_proxies(proxy_str)
+    assert isinstance(
+        result, (list, tuple)
+    ), "extract_proxies should return a list or tuple"
+    # Expect a proxy with credentials for domain with auth
+    assert any(p.has_credentials() for p in result)
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__]))

@@ -54,7 +54,7 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
     results: List[Proxy] = []
 
     # Regular expression pattern to match IP:PORT pairs along with optional username and password
-    pattern = r"((?:(?:\d{1,3}\.){3}\d{1,3})\:\d{2,5}(?:@\w+:\w+)?|(?:(?:\w+)\:\w+@\d{1,3}(?:\.\d{1,3}){3}\:\d{2,5}))"
+    pattern = r"((?:(?:\d{1,3}\.){3}\d{1,3})\:\d{2,5}(?:@\w+:\w+)?|(?:(?:\w+)\:\w+@(?:\d{1,3}(?:\.\d{1,3}){3}|[\w\.-]+)\:\d{2,5}))"
 
     # Perform the matching IP:PORT
     matches1 = re.findall(pattern, string)
@@ -119,6 +119,12 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
                 results.append(result)
             # Case 2: user:pass@ip:port
             elif is_valid_proxy(right):
+                ip_port = right
+                username, password = (left.split(":") + [None, None])[:2]
+                result = Proxy(proxy=ip_port, username=username, password=password)
+                results.append(result)
+            # Case 3: hostname:port (domain) with credentials, e.g., user:pass@dc.example.io:8000
+            elif re.match(r"^[\w\.-]+\:\d{2,5}$", right):
                 ip_port = right
                 username, password = (left.split(":") + [None, None])[:2]
                 result = Proxy(proxy=ip_port, username=username, password=password)
