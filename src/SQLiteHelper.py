@@ -164,6 +164,7 @@ class SQLiteHelper:
         where: Optional[str] = None,
         params: Optional[Union[tuple, list]] = None,
         rand: Optional[bool] = False,
+        limit: Optional[int] = None,
     ) -> List[dict]:
         """
         Selects rows from the table based on the given conditions.
@@ -182,12 +183,21 @@ class SQLiteHelper:
             sql += f" WHERE {where}"
         if rand:
             sql += " ORDER BY RANDOM()"
+        # If a limit is provided, use a parameter placeholder so it is passed
+        # safely through the DB-API rather than interpolating into SQL.
+        use_limit_param = limit is not None
+        if use_limit_param:
+            sql += " LIMIT ?"
+
         cur = self.conn.cursor()
         try:
-            exec_params = tuple(params) if params is not None else ()
+            exec_params_list = list(params) if params is not None else []
+            if use_limit_param:
+                exec_params_list.append(limit)
+            exec_params = tuple(exec_params_list)
             try:
                 cur.execute(sql, exec_params)
-            except sqlite3.InterfaceError as ie:
+            except sqlite3.InterfaceError:
                 # Debug info to help diagnose bad parameter misuse from callers
                 try:
                     print("[SQLiteHelper.select] InterfaceError executing SQL:", sql)

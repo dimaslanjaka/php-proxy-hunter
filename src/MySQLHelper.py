@@ -75,9 +75,16 @@ class MySQLHelper:
             sql += f" WHERE {where}"
         if rand:
             sql += " ORDER BY RAND()"
-        if limit:
-            sql += f" LIMIT {limit}"
-        self.cursor.execute(sql, params or ())
+        use_limit_param = limit is not None
+        if use_limit_param:
+            sql += " LIMIT %s"
+
+        exec_params_list = list(params) if params is not None else []
+        if use_limit_param:
+            exec_params_list.append(limit)
+
+        exec_params = tuple(exec_params_list)
+        self.cursor.execute(sql, exec_params)
         rows = self.cursor.fetchall()
         return cast(Sequence[Dict[str, Any]], rows)
 
