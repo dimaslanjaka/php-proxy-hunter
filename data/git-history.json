@@ -1,5 +1,13 @@
 [
   {
+    "hash": "a4bfbb458d46dd2f4099b0912c7885994212540c",
+    "date": "2026-01-16T12:57:23+07:00",
+    "message": "feat(classification): add badge color classes for proxy classifications in ServerSide component",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
     "hash": "7a5ce3272bdc13e01a372bbe4fef14fb54821f8e",
     "date": "2026-01-16T12:46:44+07:00",
     "message": "feat(crontab): run proxy fetcher in background for 4-hour job",
@@ -8643,15 +8651,6 @@
     "message": "docs(proxyChecker): enhance function documentation with detailed parameter descriptions and usage",
     "files": [
       "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "94942c7f3a70a93790ba8a4e36f4bedb3234eb94",
-    "date": "2025-09-26T09:59:23+07:00",
-    "message": "refactor(proxy): improve proxy extraction logic and add comprehensive tests\n\n- Refactored `extractProxies` to use separate regex patterns for:\n  - `user:pass@ip:port`\n  - `ip:port@user:pass`\n  - plain `ip:port`\n  - whitespace-separated and JSON-formatted proxies\n- Ensured username and password are always set on the Proxy object, regardless of database write flag\n- Removed legacy parsing logic for mixed credential/proxy formats\n- Added PHPUnit tests for:\n  - JSON string extraction\n  - `user:pass@ip:port` format\n  - `ip:port@user:pass` format\n  - plain `ip:port` format\n  - extraction from long text containing a proxy",
-    "files": [
-      "src/utils/proxy/extractor.php",
-      "tests/utils/proxy/ExtractProxiesTest.php"
     ]
   }
 ]
