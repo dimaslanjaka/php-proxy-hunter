@@ -166,7 +166,7 @@ fi
 if should_run_job "tmp/crontab/3-h" 3; then
     echo "Running 3 hours job."
     # log_command "tmp/logs/crontab/check-proxy-parallel.log" bash "$CWD/bin/check-proxy-parallel"
-    log_command "tmp/logs/crontab/proxy-checker-httpx.log" "$CWD/bin/py" "$CWD/artisan/proxy-checker-httpx.py" --max=1000
+    log_command "tmp/logs/crontab/proxy_checker_httpx.log" "$CWD/bin/py" "$CWD/artisan/proxy_checker_httpx.py" --max=1000
 else
     echo "Skipping 3 hours job."
 fi
