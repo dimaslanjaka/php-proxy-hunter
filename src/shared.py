@@ -7,6 +7,7 @@ Similar to php_backend/shared.php - handles .env loading and database setup.
 
 import os
 import sys
+from typing import Optional
 
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -27,13 +28,20 @@ from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 
 
-def init_db(db_type: str = "sqlite", production: bool = False):
+def init_db(
+    db_type: str = "sqlite",
+    production: bool = False,
+    custom_db_name: Optional[str] = None,
+):
     """
     Initialize ProxyDB with environment configuration.
 
     Args:
         db_type (str): Database type - 'sqlite' or 'mysql' (default: sqlite)
         production (bool): When True, force use of production MySQL configuration.
+        custom_db_name (Optional[str]): If provided, enforce using this database name
+            (for MySQL) or file/path (for SQLite). If a relative path is given for
+            SQLite, it will be resolved with `get_relative_path`.
 
     Environment variables:
     - MYSQL_HOST: MySQL host (default: localhost)
@@ -54,11 +62,14 @@ def init_db(db_type: str = "sqlite", production: bool = False):
 
     if db_type == "mysql":
         # MySQL configuration
-        if production:
-            db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
+        if custom_db_name:
+            db_name = custom_db_name
         else:
-            # db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter_test")
-            db_name = "php_proxy_hunter_test"
+            if production:
+                db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
+            else:
+                # db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter_test")
+                db_name = "php_proxy_hunter_test"
         if production:
             db_host = os.getenv(
                 "MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost")
@@ -83,7 +94,15 @@ def init_db(db_type: str = "sqlite", production: bool = False):
         )
     else:
         # SQLite configuration (default)
-        db_file = get_relative_path("src/database.sqlite")
+        if custom_db_name:
+            # Use absolute path as-is; resolve relative paths against project
+            db_file = (
+                custom_db_name
+                if os.path.isabs(custom_db_name)
+                else get_relative_path(custom_db_name)
+            )
+        else:
+            db_file = get_relative_path("src/database.sqlite")
 
         proxy_db = ProxyDB(
             db_location=db_file,
