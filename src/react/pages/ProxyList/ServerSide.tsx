@@ -7,8 +7,9 @@ import { noop } from '../../../utils/other';
 import { getProxyTypeColorClass } from '../../utils/proxyColors';
 import { createUrl } from '../../utils/url';
 import { formatLatency } from './utils';
+import ProxyData from '../../../proxy/ProxyData.js';
 
-type ProxyRow = Record<string, any>;
+type ProxyRow = ProxyData;
 
 type CounterProxies = {
   total_proxies?: number;
@@ -368,7 +369,7 @@ export default function ServerSide() {
                                   );
                                 })
                             : '-'}
-                          {(r.https === true || String(r.https) === 'true') && (
+                          {String(r.https) === 'true' && (
                             <span
                               className={`inline-block rounded px-1 py-0.5 ml-1 text-xs font-semibold align-middle border ${getProxyTypeColorClass('ssl')}`}>
                               SSL
