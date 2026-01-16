@@ -8,7 +8,8 @@ namespace PhpProxyHunter\Checker;
  * Contains flags indicating whether the proxy is working, whether it supports SSL,
  * and a list of working proxy types identified during the check.
  */
-class CheckerResult {
+class CheckerResult
+{
   /**
    * Whether the proxy is working.
    *
@@ -45,6 +46,13 @@ class CheckerResult {
   public $workingTypes = [];
 
   /**
+   * Whether the proxy is private.
+   *
+   * @var bool
+   */
+  public $private = false;
+
+  /**
    * Constructor.
    *
    * @param bool     $isWorking    True when the proxy is working.
@@ -53,7 +61,8 @@ class CheckerResult {
    * @param string   $anonymity    Anonymity level name.
    * @param float    $latency      Observed latency in milliseconds.
    */
-  public function __construct(bool $isWorking = false, bool $isSSL = false, array $workingTypes = [], string $anonymity = '', float $latency = 0.0) {
+  public function __construct(bool $isWorking = false, bool $isSSL = false, array $workingTypes = [], string $anonymity = '', float $latency = 0.0)
+  {
     $this->isWorking    = $isWorking;
     $this->isSSL        = $isSSL;
     $this->workingTypes = $workingTypes;
