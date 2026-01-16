@@ -11,6 +11,21 @@ import ProxyData from '../../../proxy/ProxyData.js';
 
 type ProxyRow = ProxyData;
 
+// Return badge classes for known classification values
+const getClassificationBadgeClass = (c?: string) => {
+  const v = String(c || '').trim();
+  switch (v) {
+    case 'residential':
+      return 'border border-indigo-300 text-indigo-700 dark:border-indigo-400 dark:text-indigo-100 bg-indigo-50 dark:bg-indigo-700';
+    case 'mobile':
+      return 'border border-yellow-300 text-yellow-700 dark:border-yellow-600 dark:text-yellow-100 bg-yellow-50 dark:bg-yellow-700';
+    case 'datacenter':
+      return 'border border-gray-300 text-gray-800 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 dark:text-gray-200';
+    default:
+      return 'border border-gray-300 text-gray-800 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 dark:text-gray-200';
+  }
+};
+
 type CounterProxies = {
   total_proxies?: number;
   working_proxies?: number;
@@ -350,8 +365,11 @@ export default function ServerSide() {
                                 <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${cls}`}>
                                   {r.status || '-'}
                                 </span>
-                                {r.classification && r.classification !== 'unknown' ? (
-                                  <span className="inline-block px-1 py-0.5 text-xs font-medium rounded border bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
+                                {r.classification && String(r.classification).trim() !== 'unknown' ? (
+                                  <span
+                                    className={`inline-block px-1 py-0.5 text-xs font-medium rounded ${getClassificationBadgeClass(
+                                      r.classification
+                                    )}`}>
                                     {String(r.classification)}
                                   </span>
                                 ) : null}
