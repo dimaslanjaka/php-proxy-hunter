@@ -80,11 +80,14 @@ def test_extract_proxies_json_format2():
 def test_extract_proxies_domain_with_auth():
     proxy_str = f"""another long string proxy_user:proxy_password@dc.oxylabs.io:8000 another long string
 wgbfrmqf:lynb55lcsui6@173.0.9.209:5792
+custom_proxy: http://dimaslanjaka_JD93N:myProxyCredentials=008@dc.oxylabs.io:8000
 """
     result = extract_proxies(proxy_str)
     assert isinstance(
         result, (list, tuple)
     ), "extract_proxies should return a list or tuple"
+    # Proxy count check
+    assert len(result) == 3, f"Expected 3 proxies, got {len(result)}"
     # Expect a proxy with credentials for domain with auth
     assert any(p.has_credentials() for p in result)
 
