@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.func import get_relative_path
-from src.shared import init_readonly_db
+from src.shared import init_db
 from src.func_date import get_current_rfc3339_time
 from src.utils.file.FileLockHelper import FileLockHelper
 
@@ -184,7 +184,7 @@ def process_result(res: Dict[str, ProxyTestResult]) -> None:
     latencies = [info.latency for info in working.values() if info.latency is not None]
     best_latency = int(min(latencies)) if latencies else None
 
-    db = init_readonly_db()
+    db = init_db("mysql", False)
     # Update database record
     # Prefer SSL-capable protocols for type field
     db.update_data(
@@ -210,7 +210,7 @@ def process_result(res: Dict[str, ProxyTestResult]) -> None:
 
 
 async def main():
-    db = init_readonly_db()
+    db = init_db("mysql", False)
     untested_proxies = db.get_untested_proxies(limit=1000)
 
     # If fewer than 1000 untested proxies, fill the remainder with dead proxies
