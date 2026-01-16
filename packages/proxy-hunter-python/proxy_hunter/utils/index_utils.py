@@ -77,6 +77,27 @@ def is_valid_ip(proxy: Optional[str]) -> bool:
     return is_ip_valid and not ip.startswith("0")
 
 
+def is_valid_hostname(host: str) -> bool:
+    """
+    Validate a hostname/domain name according to RFC-like rules.
+
+    Args:
+        host (str): Hostname to validate.
+
+    Returns:
+        bool: True if hostname appears valid.
+    """
+    if not host or len(host) > 255:
+        return False
+    if host.endswith("."):
+        host = host[:-1]
+    label_re = re.compile(r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$")
+    labels = host.split(".")
+    if any(len(lbl) == 0 for lbl in labels):
+        return False
+    return all(label_re.match(lbl) for lbl in labels)
+
+
 def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bool:
     """
     Validates a proxy string.
@@ -102,15 +123,15 @@ def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bo
         except ValueError:
             return False  # Invalid credentials format
 
-    # Extract IP address and port
+    # Extract host (IP or domain) and port
     parts = proxy.strip().split(":", 1)
     if len(parts) != 2:
         return False
 
     ip, port = parts
 
-    # Validate IP address (using provided function)
-    if not is_valid_ip(ip):
+    # Accept either a valid IPv4 address or a valid hostname/domain
+    if not (is_valid_ip(ip) or is_valid_hostname(ip)):
         return False
 
     # Validate port number
@@ -121,9 +142,9 @@ def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bo
     except ValueError:
         return False
 
-    # Check if the proxy string length is appropriate (if applicable)
+    # Check if the proxy string length is appropriate
     proxy_length = len(proxy)
-    if not (7 <= proxy_length <= 21):  # Adjust based on valid range
+    if not (3 <= proxy_length <= 255):
         return False
 
     return True

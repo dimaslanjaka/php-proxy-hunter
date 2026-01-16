@@ -57,6 +57,7 @@ from .utils import (
     is_file_larger_than_kb,
     is_matching_regex,
     is_valid_ip,
+    is_valid_hostname,
     is_valid_ip_connection,
     is_valid_proxy,
     is_valid_url,

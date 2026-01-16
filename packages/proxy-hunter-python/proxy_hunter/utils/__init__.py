@@ -47,6 +47,7 @@ from .index_utils import (
     is_valid_ip_connection,
     is_valid_proxy,
     is_valid_url,
+    is_valid_hostname,
     is_vps,
     keep_alphanumeric_and_remove_spaces,
     split_list_into_chunks,
