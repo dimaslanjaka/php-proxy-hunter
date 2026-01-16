@@ -1,14 +1,21 @@
+import argparse
 import os
 import sys
-import argparse
 from typing import List, Tuple
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
-from src.ASNLookup import ASNLookup
 from proxy_hunter import extract_proxies
+from src.ASNLookup import ASNLookup
+from src.func import get_relative_path
 from src.shared import init_db
+from src.utils.file.FileLockHelper import FileLockHelper
+
+locker = FileLockHelper(get_relative_path("tmp/locks/proxy-classifier-lookup.lock"))
+if not locker.lock():
+    print("Another instance is running. Exiting.")
+    sys.exit(0)
 
 
 def main():
