@@ -172,7 +172,8 @@ fi
 # run every 4 hours
 if should_run_job "tmp/crontab/4-h" 4; then
     echo "Running 4 hours job."
-    log_command "tmp/logs/crontab/proxy-fetcher.log" python "$CWD/proxyFetcher.py"
+    # run proxy fetcher in background
+    python "$CWD/proxyFetcher.py" > "tmp/logs/crontab/proxy-fetcher.log" 2>&1 &
 else
     echo "Skipping 4 hours job."
 fi
