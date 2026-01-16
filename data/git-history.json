@@ -1,5 +1,29 @@
 [
   {
+    "hash": "d6741dd9b1a017e06dba76e191edce199349a2ee",
+    "date": "2026-01-16T12:20:08+07:00",
+    "message": "feat(proxy-list): enhance status display with classification label",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "621f6d30396580bc28b50220fe4a795f2ef6cc24",
+    "date": "2026-01-16T12:15:42+07:00",
+    "message": "feat(proxy-row): update ProxyRow type to use ProxyData for better type safety",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "9d212ec545e6ed87909e847e8caa04cb8ad22e96",
+    "date": "2026-01-16T12:14:53+07:00",
+    "message": "feat(proxy-data): add classification parameter to ProxyData constructor",
+    "files": [
+      "src/proxy/ProxyData.js"
+    ]
+  },
+  {
     "hash": "311120153c075f4d34a7468ef56e8e2c8d2956a0",
     "date": "2026-01-16T12:06:36+07:00",
     "message": "feat(ui): format proxy counters with thousand separators\n\n- Add formatNumberWithThousandSeparators utility for en-US number formatting\n- Display formatted counter values in ProxyList server-side view\n- Reorder imports to include new number formatting helper",
@@ -8626,34 +8650,6 @@
     "message": "feat(proxy-checker): enhance local IP detection to include localhost addresses",
     "files": [
       "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "59ab3d58468f8841c7bf65a3f160a627e22db3e4",
-    "date": "2025-09-25T12:27:47+07:00",
-    "message": "feat(proxy-checker): resolve external IP when server IP is local network\n\n- Detects if current server IP is in local range (192.168.*) or debug device\n- Falls back to getPublicIP() to retrieve external IP for accurate proxy validation\n- Added logging of detected server IP with AnsiColors",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "46a9a6f3cb8c82400168620ea763832fbe88c8e1",
-    "date": "2025-09-25T12:23:33+07:00",
-    "message": "feat(info): resolve public IP when request IP is localhost\n\n- Added fallback to fetch external IP from api.ipify.org if detected IP is 127.0.0.1\n- Ensures accurate client IP detection for local requests",
-    "files": [
-      "info.php"
-    ]
-  },
-  {
-    "hash": "7595620dba50964d68b2db48d35f942c84491e20",
-    "date": "2025-09-25T12:13:02+07:00",
-    "message": "refactor(proxy): move validation functions into dedicated validator module\n\n- Created validator.js with isValidProxy, isValidIp, and isValidPort\n- Updated extractor.js, hunter.js, and proxyWorking.js to import isValidProxy from validator.js\n- Updated utils.js to import validation helpers from validator.js and removed inline implementations\n- Cleaned up default export in utils.js to exclude removed functions",
-    "files": [
-      "src/proxy/extractor.js",
-      "src/proxy/hunter.js",
-      "src/proxy/proxyWorking.js",
-      "src/proxy/utils.js",
-      "src/proxy/validator.js"
     ]
   }
 ]
