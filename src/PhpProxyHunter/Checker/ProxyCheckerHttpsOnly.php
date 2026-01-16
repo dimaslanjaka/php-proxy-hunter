@@ -2,7 +2,8 @@
 
 namespace PhpProxyHunter\Checker;
 
-class ProxyCheckerHttpsOnly extends ProxyChecker {
+class ProxyCheckerHttpsOnly extends ProxyChecker
+{
   /**
    * Check the proxy for HTTPS protocol.
    *
@@ -10,7 +11,8 @@ class ProxyCheckerHttpsOnly extends ProxyChecker {
    * @return mixed
    * @throws \RuntimeException when not implemented
    */
-  public static function check(CheckerOptions $options): CheckerResult {
+  public static function check(CheckerOptions $options): CheckerResult
+  {
     $result = new CheckerResult();
 
     // Ensure a proxy string was provided via options->proxy (host:port)
@@ -20,6 +22,7 @@ class ProxyCheckerHttpsOnly extends ProxyChecker {
 
     $testUrl       = 'https://www.mozilla.org/en-US/about/';
     $expectedTitle = 'Learn about Mozilla';
+
 
     $protocols = isset($options->protocols) && is_array($options->protocols) && count($options->protocols) > 0
       ? $options->protocols
@@ -66,6 +69,10 @@ class ProxyCheckerHttpsOnly extends ProxyChecker {
             $msg .= 'Title: ' . $title . ' (VALID)';
           } else {
             $msg .= 'Title: ' . $title . ' (INVALID)';
+            // Check for private proxy titles
+            if (PrivateProxyDetection::isPrivateProxyByTitle($title, $options->privateProxyTitlePatterns)) {
+              $result->private = true;
+            }
           }
         } else {
           $msg .= 'Title: N/A';

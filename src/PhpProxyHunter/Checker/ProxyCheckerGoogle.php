@@ -2,14 +2,16 @@
 
 namespace PhpProxyHunter\Checker;
 
-class ProxyCheckerGoogle extends ProxyChecker {
+class ProxyCheckerGoogle extends ProxyChecker
+{
   /**
    * Check the proxy by fetching Google homepage title across provided protocols.
    *
    * @param CheckerOptions $options
    * @return CheckerResult
    */
-  public static function check(CheckerOptions $options): CheckerResult {
+  public static function check(CheckerOptions $options): CheckerResult
+  {
     $result = new CheckerResult();
 
     if (empty($options->proxy)) {
@@ -64,6 +66,10 @@ class ProxyCheckerGoogle extends ProxyChecker {
             $msg .= 'Title: ' . $title . ' (VALID)';
           } else {
             $msg .= 'Title: ' . $title . ' (INVALID)';
+            // Check for private proxy titles
+            if (PrivateProxyDetection::isPrivateProxyByTitle($title, $options->privateProxyTitlePatterns)) {
+              $result->private = true;
+            }
           }
         } else {
           $msg .= 'Title: N/A';
