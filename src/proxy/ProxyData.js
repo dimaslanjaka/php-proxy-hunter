@@ -33,6 +33,7 @@ export default class ProxyData {
    * @param {string|null} [params.password=null]
    * @param {number|null} [params.id=null]
    * @param {string|null} [params.https='false'] - kept as string to mirror original PHP value
+   * @param {string|null} [params.classification=null] - proxy classification (e.g. 'residential', 'datacenter', 'mobile', etc.)
    */
   constructor({
     proxy = null,
@@ -56,7 +57,8 @@ export default class ProxyData {
     username = null,
     password = null,
     id = null,
-    https = 'false'
+    https = 'false',
+    classification = null
   } = {}) {
     /** @type {number|null} */
     this.id = id;
@@ -126,6 +128,9 @@ export default class ProxyData {
 
     /** @type {string|null} */
     this.https = https;
+
+    /** @type {string|null} */
+    this.classification = classification;
   }
 
   /**
