@@ -46,9 +46,21 @@ def main():
             for proxy in proxies:
                 ip = proxy.proxy.split(":")[0]
                 proxyData.append((proxy.proxy, ip))
+        elif db.db:
+            proxies_db = db.db.select(
+                "proxies",
+                columns="proxy",
+                where="classification = %s OR classification IS NULL AND status = %s LIMIT 1000",
+                params=("", "active"),
+            )
+            for row in proxies_db:
+                proxy_str = row["proxy"]
+                ip = proxy_str.split(":")[0]
+                proxyData.append((proxy_str, ip))
         else:
             # Default test data
             proxyData = [("115.114.77.133:9090", "115.114.77.133")]
+
         _process_ips(proxyData)
     finally:
         asn_lookup.close()
