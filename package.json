@@ -47,7 +47,8 @@
     "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand --detectOpenHandles",
     "test:watch": "npm test -- --watch",
     "update:ncu": "npx npm-check-updates -u --reject='typescript,ts-node'",
-    "update:sha": "npx binary-collections pkg-res-updater"
+    "update:sha": "npx binary-collections pkg-res-updater",
+    "migrate:db": "py src/migrations/migrate.py"
   },
   "workspaces": {
     "packages": [
