@@ -157,7 +157,7 @@ if (!$isCli) {
   $file = isset($options['f']) ? $options['f'] : (isset($options['file']) ? $options['file'] : null);
 
   // Generate hash filename from file
-  $hashFilename = basename($file, '.txt');
+  $hashFilename = basename(is_string($file) ? $file : '', '.txt');
   if ($hashFilename == '.txt' || empty($hashFilename)) {
     // Fallback hash filename
     $hashFilename = "$currentScriptFilename/cli";
@@ -235,7 +235,8 @@ if ($fileLock->lock()) {
  * Check if the proxy is working (HTTPS only)
  * @param string $proxy proxy string or JSON array
  */
-function check($proxy) {
+function check($proxy)
+{
   global $proxy_db, $hashFilename, $isAdmin, $isCli;
 
   // Extract proxies from string or array and shuffle

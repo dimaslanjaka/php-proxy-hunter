@@ -8,7 +8,8 @@ require_once __DIR__ . '/shared.php';
  * Extracted from check-http-proxy.php and check-https-proxy.php to
  * reduce duplication for logging, proxy loading and simple runner utilities.
  */
-function get_log_file_shared(string $hashFilename): string {
+function get_log_file_shared(string $hashFilename): string
+{
   $_logFile = tmp() . "/logs/{$hashFilename}.txt";
   $dir      = dirname($_logFile);
   if (!is_dir($dir)) {
@@ -21,7 +22,8 @@ function get_log_file_shared(string $hashFilename): string {
   return $_logFile;
 }
 
-function _log_shared(string $hashFilename, ...$args): void {
+function _log_shared(string $hashFilename, ...$args): void
+{
   global $isCli;
   $_logFile = get_log_file_shared($hashFilename);
   $message  = join(' ', $args) . PHP_EOL;
@@ -40,44 +42,45 @@ function _log_shared(string $hashFilename, ...$args): void {
    * Mode is a string 'http' or 'https' to let caller apply simple filtering logic.
    * Returns raw content suitable to pass to the script's check() function.
    */
-  function load_proxies_for_mode($file, $proxy, $mode, $proxy_db) {
-    if (!$file && !$proxy) {
-      // Merge working and untested proxies
-      $proxiesDb = array_merge($proxy_db->getWorkingProxies(100), $proxy_db->getUntestedProxies(100));
+function load_proxies_for_mode($file, $proxy, $mode, $proxy_db)
+{
+  if (!$file && !$proxy) {
+    // Merge working and untested proxies
+    $proxiesDb = array_merge($proxy_db->getWorkingProxies(100), $proxy_db->getUntestedProxies(100));
 
-      if ($mode === 'http') {
-        // keep dead or non-SSL (we only want HTTP testing)
-        $filteredArray = array_filter($proxiesDb, function ($item) {
-          if (strtolower($item['status']) != 'active') {
-            return true;
-          }
-          return strtolower($item['https']) != 'true';
-        });
-      } else {
-        // https mode: keep non-active or non-https (slightly different in original)
-        $filteredArray = array_filter($proxiesDb, function ($item) {
-          if (strtolower($item['status']) != 'active') {
-            return true;
-          }
-          return strtolower($item['https']) != 'true';
-        });
-      }
-
-      $proxyArray = array_map(function ($item) {
-        return $item['proxy'];
-      }, $filteredArray);
-
-      return json_encode($proxyArray);
-    } elseif ($file) {
-      $read = read_file($file);
-      if ($read) {
-        return $read;
-      }
-      return null;
+    if ($mode === 'http') {
+      // keep dead or non-SSL (we only want HTTP testing)
+      $filteredArray = array_filter($proxiesDb, function ($item) {
+        if (strtolower($item['status']) != 'active') {
+          return true;
+        }
+        return strtolower(is_string($item['https']) ? $item['https'] : '') != 'true';
+      });
+    } else {
+      // https mode: keep non-active or non-https (slightly different in original)
+      $filteredArray = array_filter($proxiesDb, function ($item) {
+        if (strtolower($item['status']) != 'active') {
+          return true;
+        }
+        return strtolower(is_string($item['https']) ? $item['https'] : '') != 'true';
+      });
     }
 
-    return $proxy;
+    $proxyArray = array_map(function ($item) {
+      return $item['proxy'];
+    }, $filteredArray);
+
+    return json_encode($proxyArray);
+  } elseif ($file) {
+    $read = read_file($file);
+    if ($read) {
+      return $read;
+    }
+    return null;
   }
+
+  return $proxy;
+}
 
 /**
  * Re-test a proxy across multiple protocol types.
@@ -86,7 +89,8 @@ function _log_shared(string $hashFilename, ...$args): void {
  * @param int $timeout The timeout in seconds for curl requests (default: 5)
  * @return array An associative array of protocol types => boolean (true if working, false otherwise)
  */
-function reTestProxy(\PhpProxyHunter\Proxy $checkerOptions, $timeout = 5) {
+function reTestProxy(\PhpProxyHunter\Proxy $checkerOptions, $timeout = 5)
+{
   // Fixed list of proxy types to test
   $proxyTypes = ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
   $proxy      = $checkerOptions->proxy;
