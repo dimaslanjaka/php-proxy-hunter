@@ -1,5 +1,38 @@
 [
   {
+    "hash": "311120153c075f4d34a7468ef56e8e2c8d2956a0",
+    "date": "2026-01-16T12:06:36+07:00",
+    "message": "feat(ui): format proxy counters with thousand separators\n\n- Add formatNumberWithThousandSeparators utility for en-US number formatting\n- Display formatted counter values in ProxyList server-side view\n- Reorder imports to include new number formatting helper",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/utils/number.js"
+    ]
+  },
+  {
+    "hash": "7d8ca901c8e5b8197ea7b36169db3c5bcc770ea7",
+    "date": "2026-01-16T10:26:43+07:00",
+    "message": "feat(artisan/proxy-asn-lookup): load unclassified active proxies from DB\n\nWhen no `--proxy` argument is provided, query the `proxies` table for rows\nwhere `classification` is empty or NULL and `status` is \"active\" (limit 1000),\nthen extract the IPs and append `(proxy, ip)` tuples to `proxyData` for ASN\nlookup. This prevents the script from only using test data and adds DB-driven\nprocessing for unclassified active proxies.",
+    "files": [
+      "artisan/proxy-asn-lookup.py"
+    ]
+  },
+  {
+    "hash": "d2824b749339b955da0cedab75647133d45afe6e",
+    "date": "2026-01-16T09:42:22+07:00",
+    "message": "feat(proxy-asn-lookup): store proxy classification in DB and refactor IP extraction\n\n- Replace extract_ips with extract_proxies to handle full proxy strings\n- Initialize database connection and persist ASN classification per proxy\n- Add typing for proxy/IP tuples\n- Update processing logic to work with (proxy, ip) pairs\n- Provide default test proxy when no argument is supplied",
+    "files": [
+      "artisan/proxy-asn-lookup.py"
+    ]
+  },
+  {
+    "hash": "4d0b3ae346ed488e2c639c74dce4cb6cb27feaa3",
+    "date": "2026-01-16T09:33:22+07:00",
+    "message": "feat(migrations): run database migrations in post-merge hook",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
     "hash": "e37608b4f9da269b806874e042cf3eb99fe0ff84",
     "date": "2026-01-16T09:25:44+07:00",
     "message": "feat(migrations): add migrate:db script to package.json for database migration",
@@ -8621,38 +8654,6 @@
       "src/proxy/proxyWorking.js",
       "src/proxy/utils.js",
       "src/proxy/validator.js"
-    ]
-  },
-  {
-    "hash": "ec27d20b949d68089cddda21a458ada559ca6b5b",
-    "date": "2025-09-25T11:56:26+07:00",
-    "message": "refactor(log-viewer): export getUserProxyLogUrl function for external usage",
-    "files": [
-      "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "9fc1027bd0d4aba174544f1c9f045421feff52d8",
-    "date": "2025-09-25T11:46:11+07:00",
-    "message": "refactor(log-viewer): extract user proxy log URL fetch into helper\n\n- Moved user-info fetch logic into getUserProxyLogUrl() helper\n- Updated effect to use helper and handle failure with user-friendly message",
-    "files": [
-      "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "12bb06b448335899186b38cc73ea777efcfd3860",
-    "date": "2025-09-25T11:37:53+07:00",
-    "message": "fix(proxy-checker): correct error message and align database field name\n\n- Updated validation message to only require 'proxy' parameter\n- Renamed 'last_checked' to 'last_check' to match database schema",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "f9dea91f2e7e7251c04b491e356069c009bd33e9",
-    "date": "2025-09-25T11:36:09+07:00",
-    "message": "refactor(proxy-checker): extract proxyChecker function and improve type validation\n\n- Added proxyChecker() function to handle SSL and non-SSL proxy testing logic\n- Improved validation for supported proxy types (http, https, socks4, socks5, socks5h)\n- Enhanced logging with AnsiColors for clearer CLI and log outputs\n- Updated log writing to convert ANSI codes to HTML for consistency\n- Simplified getPublicIP logging by commenting out redundant service checks",
-    "files": [
-      "php_backend/proxy-checker.php"
     ]
   }
 ]
