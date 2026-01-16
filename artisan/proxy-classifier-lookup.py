@@ -11,6 +11,7 @@ from src.ASNLookup import ASNLookup
 from src.func import get_relative_path
 from src.shared import init_db
 from src.utils.file.FileLockHelper import FileLockHelper
+from src.func_platform import is_debug
 
 locker = FileLockHelper(get_relative_path("tmp/locks/proxy-classifier-lookup.lock"))
 if not locker.lock():
@@ -24,7 +25,7 @@ def main():
     )
     parser.add_argument("--proxy", help="Proxy string to parse into IP(s)")
     args = parser.parse_args()
-    db = init_db("mysql", False)
+    db = init_db("mysql", not is_debug())
     asn_lookup = ASNLookup()
 
     def _process_ips(datas: List[Tuple[str, str]]):

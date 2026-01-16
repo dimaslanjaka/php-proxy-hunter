@@ -17,6 +17,7 @@ from src.func import get_relative_path
 from src.shared import init_db
 from src.func_date import get_current_rfc3339_time
 from src.utils.file.FileLockHelper import FileLockHelper
+from src.func_platform import is_debug
 
 locker = FileLockHelper(get_relative_path("tmp/locks/proxy-checker-httpx.lock"))
 if not locker.lock():
@@ -184,7 +185,7 @@ def process_result(res: Dict[str, ProxyTestResult]) -> None:
     latencies = [info.latency for info in working.values() if info.latency is not None]
     best_latency = int(min(latencies)) if latencies else None
 
-    db = init_db("mysql", False)
+    db = init_db("mysql", not is_debug())
     # Update database record
     # Prefer SSL-capable protocols for type field
     db.update_data(
@@ -210,7 +211,7 @@ def process_result(res: Dict[str, ProxyTestResult]) -> None:
 
 
 async def main():
-    db = init_db("mysql", False)
+    db = init_db("mysql", not is_debug())
     untested_proxies = db.get_untested_proxies(limit=1000)
 
     # If fewer than 1000 untested proxies, fill the remainder with dead proxies

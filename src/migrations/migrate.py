@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 from src.MySQLHelper import MySQLHelper
 from src.SQLiteHelper import SQLiteHelper
 from src.shared import init_db
+from src.func_platform import is_debug
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -49,7 +50,7 @@ def load_migrations():
 
 if __name__ == "__main__":
     migrations = load_migrations()
-    db = init_db("mysql", False)
+    db = init_db("mysql", not is_debug())
     if not db.db:
         print("Failed to initialize database connection.")
         sys.exit(1)
