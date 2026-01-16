@@ -3,6 +3,7 @@ import os
 import ssl
 import sys
 import json
+import re
 import time
 import httpx
 from httpx_socks import AsyncProxyTransport
@@ -56,6 +57,8 @@ class EndpointResult:
     "True if the request succeeded"
     latency: Optional[float] = None
     "latency in milliseconds"
+    private: bool = False
+    "True if the endpoint reported a private/internal IP or otherwise marked private"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -65,6 +68,7 @@ class EndpointResult:
             "ip": self.ip,
             "ok": self.ok,
             "latency": self.latency,
+            "private": self.private,
         }
 
 
@@ -84,12 +88,15 @@ class ProxyTestResult:
     "Host:port string of the tested proxy"
     latency: Optional[float] = None
     "average latency across available endpoint measurements in milliseconds"
+    private: bool = False
+    "True if any endpoint for this proxy is marked private"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "http": self.http.to_dict(),
             "https": self.https.to_dict(),
             "ssl": self.ssl,
+            "private": self.private,
             "proxy": self.proxy,
             "latency": self.latency,
         }
@@ -127,6 +134,10 @@ async def test_proxy(proxy_string: str) -> Dict[str, ProxyTestResult]:
                 result.http.ip = r.json().get("origin")
             except Exception as e:
                 result.http.error = str(e)
+                if re.search(
+                    r"No acceptable authentication methods were offered", str(e), re.I
+                ):
+                    result.http.private = True
 
             # HTTPS / SSL test
             try:
@@ -141,6 +152,10 @@ async def test_proxy(proxy_string: str) -> Dict[str, ProxyTestResult]:
                 result.https.ip = r.json().get("origin")
             except Exception as e:
                 result.https.error = str(e)
+                if re.search(
+                    r"No acceptable authentication methods were offered", str(e), re.I
+                ):
+                    result.https.private = True
 
         # Overall proxy status
         result.ok = result.http.ok or result.https.ok
@@ -153,7 +168,10 @@ async def test_proxy(proxy_string: str) -> Dict[str, ProxyTestResult]:
             )
             if x is not None
         ]
+        # Determine average latency
         result.latency = sum(_latencies) / len(_latencies) if _latencies else None
+        # Determine if proxy is private if any endpoint is private
+        result.private = bool(result.http.private or result.https.private)
         # Store result
         results[proto] = result
 
