@@ -346,9 +346,16 @@ export default function ServerSide() {
                                 'border border-yellow-500 text-yellow-700 dark:border-yellow-400 dark:text-yellow-300 bg-transparent';
                             }
                             return (
-                              <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${cls}`}>
-                                {r.status || '-'}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${cls}`}>
+                                  {r.status || '-'}
+                                </span>
+                                {r.classification && r.classification !== 'unknown' ? (
+                                  <span className="inline-block px-1 py-0.5 text-xs font-medium rounded border bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
+                                    {String(r.classification)}
+                                  </span>
+                                ) : null}
+                              </div>
                             );
                           })()}
                         </td>
