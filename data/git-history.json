@@ -1,5 +1,66 @@
 [
   {
+    "hash": "e37608b4f9da269b806874e042cf3eb99fe0ff84",
+    "date": "2026-01-16T09:25:44+07:00",
+    "message": "feat(migrations): add migrate:db script to package.json for database migration",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "1dea99680635261dfe1b2ed10be3a9db9676c121",
+    "date": "2026-01-16T07:45:59+07:00",
+    "message": "refactor(migrate): enhance type safety with ParamSpec and Union for migration handlers",
+    "files": [
+      "src/migrations/migrate.py"
+    ]
+  },
+  {
+    "hash": "92414d7c62fd30929f38c1e5367790c8cb707264",
+    "date": "2026-01-16T07:41:52+07:00",
+    "message": "refactor(migrations): add typed MigrationScript and type annotations to loader\n\n- Import `ModuleType`, typing helpers (`List`, `Tuple`, `Callable`, `cast`) and `attr.dataclass`.\n- Introduce `@dataclass class MigrationScript(ModuleType)` with a `migrate: Callable` attribute.\n- Annotate `migration_scripts` as `List[Tuple[MigrationScript, str]]` and cast loaded modules to `MigrationScript`.\n- Improves type-safety and static checking for dynamic migration loading.",
+    "files": [
+      "src/migrations/migrate.py"
+    ]
+  },
+  {
+    "hash": "1ccbcba2c9e15c7fdeab8fde5c7c013728a943a2",
+    "date": "2026-01-16T07:40:58+07:00",
+    "message": "feat(db): add column existence checks and make migration idempotent\n\nIntroduce column_exists helpers for both MySQL and SQLite to detect whether a column is present in a table. Update the ProxyDB migration to only add the `classification` column to the `proxies` table when it does not already exist, preventing errors on repeated runs and making the migration idempotent.",
+    "files": [
+      "src/MySQLHelper.py",
+      "src/SQLiteHelper.py",
+      "src/migrations/ProxyDB_migration.py"
+    ]
+  },
+  {
+    "hash": "82b3d5ab7dfcddaebcd71a0928ec444c532da17a",
+    "date": "2026-01-16T07:24:03+07:00",
+    "message": "feat(migrations): add migration framework and classification migration\n\nAdd a lightweight migration system under `src/migrations`:\n\n- Add `src/migrations/migrate.py`: migration loader that discovers migration modules\n  (skips itself and `__init__.py`), returns (module, path), sorts by\n  `MIGRATION_NUMBER`, and runs migrations via `init_db`.\n  Ensures project `src` root is on `sys.path` so migrations can import helpers.\n\n- Add `src/migrations/ProxyDB_migration.py`: `MIGRATION_NUMBER = 1` migration that\n  adds a `classification` column to the `proxies` table for both SQLite and MySQL.\n\n- Add `src/migrations/__init__.py` to mark the migrations package.\n\nThis enables ordered, numbered migrations and adds the initial schema change\nto store a proxy classification.",
+    "files": [
+      "src/migrations/ProxyDB_migration.py",
+      "src/migrations/__init__.py",
+      "src/migrations/migrate.py"
+    ]
+  },
+  {
+    "hash": "7410a9e88f60c0078d806c0c2274323072537029",
+    "date": "2026-01-16T07:10:46+07:00",
+    "message": "refactor(proxydb): rename db_type to driver for clarity and backward compatibility",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "d55fb130881bfb6a02fbde7bce32ce66906f005c",
+    "date": "2026-01-16T07:05:03+07:00",
+    "message": "feat(asn): add ASN lookup and proxy classification using MaxMind MMDB\n\nIntroduce ASNLookup utility backed by GeoLite2 ASN database to resolve\nautonomous system information and classify IPs as datacenter, mobile,\nor residential based on organization keywords. Add a CLI tool\n(proxy-asn-lookup.py) to parse proxy strings, extract IPs, perform ASN\nlookups, and print classification results for each IP.",
+    "files": [
+      "artisan/proxy-asn-lookup.py",
+      "src/ASNLookup.py"
+    ]
+  },
+  {
     "hash": "8233a6ebb58d450bd69eafc42ec209b838dd3244",
     "date": "2026-01-16T06:33:11+07:00",
     "message": "fix(proxydb): cast DB select() results to annotated list\n\nCast `self.get_db().select()` outputs to `List[Dict[str, Union[str, None]]]`\nto satisfy static type checkers (pyright/mypy). Introduce intermediate\n`result` variables and `cast(...)` returns in the following methods of\n`src/ProxyDB.py`: `get_all_proxies`, `get_working_proxies`,\n`get_untested_proxies`, `get_private_proxies`, and `get_dead_proxies`.\n\nNo runtime behavior changes — this is a static typing / linting fix.",
@@ -8590,62 +8651,6 @@
     "hash": "f9dea91f2e7e7251c04b491e356069c009bd33e9",
     "date": "2025-09-25T11:36:09+07:00",
     "message": "refactor(proxy-checker): extract proxyChecker function and improve type validation\n\n- Added proxyChecker() function to handle SSL and non-SSL proxy testing logic\n- Improved validation for supported proxy types (http, https, socks4, socks5, socks5h)\n- Enhanced logging with AnsiColors for clearer CLI and log outputs\n- Updated log writing to convert ANSI codes to HTML for consistency\n- Simplified getPublicIP logging by commenting out redundant service checks",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "06ebcb291827ab91ed89c1194b633c8dd7d0b2a1",
-    "date": "2025-09-25T11:24:21+07:00",
-    "message": "fix(proxydb): filter out null, false, and empty values before updating record in proxies table\n\nAdded array_filter to clean $data before database update, ensuring only meaningful values (including 0 and '0') are stored.",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php"
-    ]
-  },
-  {
-    "hash": "3917218a0e6f4faabb51482831548874155fa5ad",
-    "date": "2025-09-25T10:50:41+07:00",
-    "message": "feat(getServerIp): delete cached IP file if older than 5 minutes on debug devices",
-    "files": [
-      "func-proxy.php"
-    ]
-  },
-  {
-    "hash": "127357eb4bdcb05ba1097a89266d6dbe057dc4df",
-    "date": "2025-09-25T10:39:13+07:00",
-    "message": "feat(log-viewer): render log output as HTML\n\nUse dangerouslySetInnerHTML to render log content, allowing HTML entities and colored spans to display correctly in the ProxyList LogViewer.",
-    "files": [
-      "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "3991127329afe3668b00b289985ea689696b34e7",
-    "date": "2025-09-25T10:22:15+07:00",
-    "message": "refactor(php7): make Proxy class compatible with PHP 7\n\n- Removed typed properties and nullable type hints from all class properties.\n- Updated constructor to remove type hints and nullable types from parameters.\n- Ensured all type information is preserved in PHPDoc comments for IDE and static analysis support.\n- This change improves compatibility with PHP 7 environments.",
-    "files": [
-      "src/PhpProxyHunter/Proxy.php"
-    ]
-  },
-  {
-    "hash": "72432e2597a77a1180ee7ba56cdd921d34766eb6",
-    "date": "2025-09-25T10:09:19+07:00",
-    "message": "refactor: revert f40fb9af39eb2882bd8b967139939319dc808a95",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "1232511d97626da47e722c99c1f7236e6d524267",
-    "date": "2025-09-25T10:02:04+07:00",
-    "message": "feat(proxy-checker): enhance IP detection logic to compare detected IP with current client IP",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "3be9445c6d5c8618f110ac5372442ce84092941d",
-    "date": "2025-09-25T09:30:00+07:00",
-    "message": "refactor(proxy-checker): extract helpers and reduce duplicated proxy check logic\n\nIntroduced helper functions `$markStatus`, `$processResult`, and `$checkProxy` to centralize status updates, proxy result handling, and proxy checking. Simplified concurrency handling, input validation, and shutdown cleanup while preserving original log messages and database updates. This reduces code duplication and improves maintainability in `php_backend/proxy-checker.php`.",
     "files": [
       "php_backend/proxy-checker.php"
     ]
