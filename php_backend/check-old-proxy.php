@@ -166,7 +166,11 @@ while (true) {
       continue;
     }
 
-    $lastChecked = strtotime($item['last_check']);
+    // Ensure we don't pass null to strtotime (deprecated in newer PHP)
+    $lastChecked = false;
+    if (!empty($item['last_check'])) {
+      $lastChecked = strtotime((string)$item['last_check']);
+    }
     // Filter out items checked recently (age < 1 day)
     if ($lastChecked !== false) {
       $ageInDays = round((time() - $lastChecked) / 86400);
