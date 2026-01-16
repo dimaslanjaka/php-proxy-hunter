@@ -3,21 +3,27 @@ import importlib.util
 import os
 import sys
 from types import ModuleType
-from typing import List, Tuple, Callable, cast
+from typing import Concatenate, List, ParamSpec, Tuple, Callable, TypeVar, Union, cast
 
 from attr import dataclass
 
-# Ensure project root and `src` folder are on sys.path so migration modules
-# can import project modules as plain module names (e.g. `ProxyDB`).
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Ensure project root on sys.path so migration modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
+from src.MySQLHelper import MySQLHelper
+from src.SQLiteHelper import SQLiteHelper
 from src.shared import init_db
+
+P = ParamSpec("P")
+R = TypeVar("R")
+DB = Union[SQLiteHelper, MySQLHelper]
+
+Handler = Callable[Concatenate[DB, P], R]
 
 
 @dataclass
 class MigrationScript(ModuleType):
-    migrate: Callable
+    migrate: Handler
 
 
 def load_migrations():
@@ -44,6 +50,9 @@ def load_migrations():
 if __name__ == "__main__":
     migrations = load_migrations()
     db = init_db("mysql", False)
+    if not db.db:
+        print("Failed to initialize database connection.")
+        sys.exit(1)
     for module, path in migrations:
         print(f"Applying migration: {module.MIGRATION_NUMBER} ({path})")
         module.migrate(db.db)
