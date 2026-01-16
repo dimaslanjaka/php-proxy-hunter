@@ -47,12 +47,24 @@ def main():
                 ip = proxy.proxy.split(":")[0]
                 proxyData.append((proxy.proxy, ip))
         elif db.db:
+            limit = 1000
+            # Select proxies without classification to update
             proxies_db = db.db.select(
                 "proxies",
                 columns="proxy",
-                where="classification = %s OR classification IS NULL AND status = %s LIMIT 1000",
+                where="classification = %s OR classification IS NULL AND status = %s",
                 params=("", "active"),
+                limit=limit,
             )
+            if not proxies_db:
+                # Select proxies with unknown classification to update
+                proxies_db = db.db.select(
+                    "proxies",
+                    columns="proxy",
+                    where="classification IS NULL AND status = %s",
+                    params=("active",),
+                    limit=limit,
+                )
             for row in proxies_db:
                 proxy_str = row["proxy"]
                 ip = proxy_str.split(":")[0]
