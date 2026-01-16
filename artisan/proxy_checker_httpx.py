@@ -9,6 +9,7 @@ import httpx
 from httpx_socks import AsyncProxyTransport
 from proxy_hunter import extract_proxies
 from typing import Dict, Any, Optional
+import urllib.parse
 from dataclasses import dataclass, field
 
 # Add parent directory to path
@@ -107,10 +108,25 @@ class ProxyTestResult:
 
 async def test_proxy(proxy_string: str) -> Dict[str, ProxyTestResult]:
     results: Dict[str, ProxyTestResult] = {}
-    host, port = extract_proxies(proxy_string)[0].proxy.split(":")
+    proxy_data = extract_proxies(proxy_string)[0]
+
+    host, port = proxy_data.proxy.split(":")
+    username = proxy_data.username
+    password = proxy_data.password
+
+    # URL-encode credentials
+    if username:
+        username = urllib.parse.quote(username)
+    if password:
+        password = urllib.parse.quote(password)
 
     for proto, fmt in PROTOCOLS.items():
+        # Build proxy URL
         proxy_url = fmt.format(host=host, port=port)
+        if username and password:
+            proto_prefix = proxy_url.split("://")[0]
+            proxy_url = f"{proto_prefix}://{username}:{password}@{host}:{port}"
+
         result = ProxyTestResult()
         result.proxy = f"{host}:{port}"
 
@@ -122,12 +138,13 @@ async def test_proxy(proxy_string: str) -> Dict[str, ProxyTestResult]:
             verify=ssl_ctx,  # trust your CA bundle
         ) as client:
 
-            # HTTP test
+            # --- HTTP test ---
             try:
                 t0 = time.monotonic()
                 r = await client.get(TEST_HTTP)
                 t1 = time.monotonic()
-                result.http.latency = (t1 - t0) * 1000.0
+
+                result.http.latency = int(round((t1 - t0) * 1000.0))
                 result.http.ok = True
                 result.http.status = r.status_code
                 result.http.response = r.text
@@ -139,12 +156,13 @@ async def test_proxy(proxy_string: str) -> Dict[str, ProxyTestResult]:
                 ):
                     result.http.private = True
 
-            # HTTPS / SSL test
+            # --- HTTPS / SSL test ---
             try:
                 t0 = time.monotonic()
                 r = await client.get(TEST_HTTPS)
                 t1 = time.monotonic()
-                result.https.latency = (t1 - t0) * 1000.0
+
+                result.https.latency = int(round((t1 - t0) * 1000.0))
                 result.https.ok = True
                 result.ssl = True
                 result.https.status = r.status_code
@@ -159,19 +177,19 @@ async def test_proxy(proxy_string: str) -> Dict[str, ProxyTestResult]:
 
         # Overall proxy status
         result.ok = result.http.ok or result.https.ok
-        # Compute average latency (ms) from available endpoint latencies
-        _latencies = [
-            x
-            for x in (
-                result.http.latency,
-                result.https.latency,
-            )
-            if x is not None
+
+        # Average latency
+        latencies = [
+            x for x in (result.http.latency, result.https.latency) if x is not None
         ]
-        # Determine average latency
-        result.latency = sum(_latencies) / len(_latencies) if _latencies else None
-        # Determine if proxy is private if any endpoint is private
+        if latencies:
+            result.latency = int(round(sum(latencies) / len(latencies)))
+        else:
+            result.latency = None
+
+        # Mark proxy as private if any endpoint is private
         result.private = bool(result.http.private or result.https.private)
+
         # Store result
         results[proto] = result
 
@@ -257,4 +275,12 @@ async def main():
         process_result(res)
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    if is_debug():
+        asyncio.run(main())
+    else:
+        try:
+            asyncio.run(main())
+        except Exception as e:
+            print(f"Unhandled exception: {e}")
+    locker.unlock()
