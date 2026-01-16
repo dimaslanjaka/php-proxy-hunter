@@ -1,5 +1,47 @@
 [
   {
+    "hash": "e9380f693213e3a7719f07be19de80649047d697",
+    "date": "2026-01-16T12:35:03+07:00",
+    "message": "refactor(php-backend): safely handle non-string input",
+    "files": [
+      "php_backend/check-https-proxy.php",
+      "php_backend/checker-runner.php"
+    ]
+  },
+  {
+    "hash": "229f0b92dfdd79760651c87e8e290c75fdf5bb7b",
+    "date": "2026-01-16T12:31:32+07:00",
+    "message": "feat(proxy-asn-lookup): fetch unclassified active proxies from DB with limit\n\n- Add logic to select up to 1000 proxies without classification for ASN lookup\n- Fallback to select proxies with null classification if none match initial query\n- Ensure only active proxies are considered for classification updates",
+    "files": [
+      "artisan/proxy-asn-lookup.py"
+    ]
+  },
+  {
+    "hash": "e61e748fcffb12de469d0ced370795f1cc071ac9",
+    "date": "2026-01-16T12:28:57+07:00",
+    "message": "feat(db.select): add support for parameterized limit in select method",
+    "files": [
+      "src/MySQLHelper.py",
+      "src/SQLiteHelper.py"
+    ]
+  },
+  {
+    "hash": "2959178a09642465352834d0fd47d5f059c5a141",
+    "date": "2026-01-16T12:25:42+07:00",
+    "message": "fix(proxy-asn-lookup): update log message format to include proxy string with IP",
+    "files": [
+      "artisan/proxy-asn-lookup.py"
+    ]
+  },
+  {
+    "hash": "b41d77c00864cfbd254e867857b9fe072d3dc697",
+    "date": "2026-01-16T12:21:53+07:00",
+    "message": "fix(proxy-asn-lookup): ensure database connection is closed in all scenarios",
+    "files": [
+      "artisan/proxy-asn-lookup.py"
+    ]
+  },
+  {
     "hash": "d6741dd9b1a017e06dba76e191edce199349a2ee",
     "date": "2026-01-16T12:20:08+07:00",
     "message": "feat(proxy-list): enhance status display with classification label",
@@ -8610,46 +8652,6 @@
     "message": "feat(proxy): add toJson method for JSON representation of Proxy object",
     "files": [
       "src/PhpProxyHunter/Proxy.php"
-    ]
-  },
-  {
-    "hash": "4bdbe93e6f44a0a3e81d5814fe6472d4b6669bf6",
-    "date": "2025-09-26T09:33:37+07:00",
-    "message": "fix(vite-plugin): only remove dev server lock file on exit if running in dev mode\n\n- Move isDevServer flag to module scope for global access.\n- Update exit handler to check isDevServer before deleting lock file.\n- Prevents lock file removal when not running the dev server.",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "700a07dbec31034709c19ea93919f082c3438b32",
-    "date": "2025-09-25T12:56:50+07:00",
-    "message": "fix(proxy-checker): set username and password to null if empty",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "6a2e13a44bad65b16ddb345f0f890b414ca072f5",
-    "date": "2025-09-25T12:48:09+07:00",
-    "message": "fix(proxy): update ProxyData constructor to handle null values for proxy parameter",
-    "files": [
-      "src/proxy/ProxyData.js"
-    ]
-  },
-  {
-    "hash": "29e6f1198f77bb0af915b3298c0d7b5557e32831",
-    "date": "2025-09-25T12:41:40+07:00",
-    "message": "feat(proxy): add ProxyData class for managing proxy table data",
-    "files": [
-      "src/proxy/ProxyData.js"
-    ]
-  },
-  {
-    "hash": "1bf4ac0224b8dbc8f906dc39953e51ab9992a078",
-    "date": "2025-09-25T12:28:37+07:00",
-    "message": "feat(proxy-checker): enhance local IP detection to include localhost addresses",
-    "files": [
-      "php_backend/proxy-checker.php"
     ]
   }
 ]
