@@ -185,7 +185,7 @@ def process_result(res: Dict[str, ProxyTestResult]) -> None:
     latencies = [info.latency for info in working.values() if info.latency is not None]
     best_latency = int(min(latencies)) if latencies else None
 
-    db = init_db("mysql", not is_debug())
+    db = init_db("mysql")
     # Update database record
     # Prefer SSL-capable protocols for type field
     db.update_data(
@@ -211,7 +211,7 @@ def process_result(res: Dict[str, ProxyTestResult]) -> None:
 
 
 async def main():
-    db = init_db("mysql", not is_debug())
+    db = init_db("mysql")
     untested_proxies = db.get_untested_proxies(limit=1000)
 
     # If fewer than 1000 untested proxies, fill the remainder with dead proxies

@@ -25,7 +25,7 @@ def main():
     )
     parser.add_argument("--proxy", help="Proxy string to parse into IP(s)")
     args = parser.parse_args()
-    db = init_db("mysql", not is_debug())
+    db = init_db("mysql")
     asn_lookup = ASNLookup()
 
     def _process_ips(datas: List[Tuple[str, str]]):

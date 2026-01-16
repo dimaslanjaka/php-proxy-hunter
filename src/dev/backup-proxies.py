@@ -98,7 +98,7 @@ def main():
 
     args = parser.parse_args()
 
-    proxy_db = init_db(args.db_type, not is_debug())
+    proxy_db = init_db(args.db_type)
     if not proxy_db.db:
         print("Database not initialized")
         return

@@ -50,7 +50,7 @@ def load_migrations():
 
 if __name__ == "__main__":
     migrations = load_migrations()
-    db = init_db("mysql", not is_debug())
+    db = init_db("mysql")
     if not db.db:
         print("Failed to initialize database connection.")
         sys.exit(1)

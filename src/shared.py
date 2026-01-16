@@ -26,11 +26,11 @@ except Exception as e:
 
 from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
+from src.func_platform import is_debug
 
 
 def init_db(
     db_type: str = "sqlite",
-    production: bool = False,
     custom_db_name: Optional[str] = None,
 ):
     """
@@ -38,7 +38,6 @@ def init_db(
 
     Args:
         db_type (str): Database type - 'sqlite' or 'mysql' (default: sqlite)
-        production (bool): When True, force use of production MySQL configuration.
         custom_db_name (Optional[str]): If provided, enforce using this database name
             (for MySQL) or file/path (for SQLite). If a relative path is given for
             SQLite, it will be resolved with `get_relative_path`.
@@ -55,22 +54,20 @@ def init_db(
     Returns:
         ProxyDB: Initialized database instance
     """
-    if production:
-        db_type = "mysql"
-
     db_type = db_type.lower()
+    is_debug_flag = is_debug()
 
     if db_type == "mysql":
         # MySQL configuration
         if custom_db_name:
             db_name = custom_db_name
         else:
-            if production:
+            if not is_debug_flag:
                 db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
             else:
                 # db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter_test")
                 db_name = "php_proxy_hunter_test"
-        if production:
+        if not is_debug_flag:
             db_host = os.getenv(
                 "MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost")
             )
