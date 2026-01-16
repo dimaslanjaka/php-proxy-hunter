@@ -1,5 +1,48 @@
 [
   {
+    "hash": "ad53e1ca3a40e4c747ee661a8b9ada5dcd784f86",
+    "date": "2026-01-16T16:02:00+07:00",
+    "message": "fix(init-db): update database initialization to respect debug mode",
+    "files": [
+      "artisan/proxy-checker-httpx.py",
+      "artisan/proxy-classifier-lookup.py",
+      "src/dev/backup-proxies.py",
+      "src/migrations/migrate.py"
+    ]
+  },
+  {
+    "hash": "503230ba558a2332fc0db42ba3f4ff7f6bcbed08",
+    "date": "2026-01-16T14:12:36+07:00",
+    "message": "feat(crontab): add job for proxy classifier and checker scripts",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "7e95a1e760581638c5e4bf71ec04f3d43ee853a0",
+    "date": "2026-01-16T14:09:04+07:00",
+    "message": "fix(proxy-checker-httpx): replace init_readonly_db with init_db for database initialization",
+    "files": [
+      "artisan/proxy-checker-httpx.py"
+    ]
+  },
+  {
+    "hash": "22be21b0b89a73f59fbd23f7415cfcae14e17ac7",
+    "date": "2026-01-16T14:07:40+07:00",
+    "message": "feat(proxy-classifier-lookup): add proxy classification and ASN lookup functionality",
+    "files": [
+      "artisan/proxy-classifier-lookup.py"
+    ]
+  },
+  {
+    "hash": "b0d1ae0ea1db740cf08424fdbfae6898ffecf22c",
+    "date": "2026-01-16T14:06:59+07:00",
+    "message": "feat(proxy-asn-lookup): file locking mechanism",
+    "files": [
+      "artisan/proxy-asn-lookup.py"
+    ]
+  },
+  {
     "hash": "989a621229e2d6b54a652426248f2adf5591888e",
     "date": "2026-01-16T13:23:11+07:00",
     "message": "feat(check-proxy): update private flag in check methods for HTTP and HTTPS proxies",
@@ -8611,47 +8654,6 @@
     "message": "refactor(autoload): add check for AUTOLOADER_INCLUDED to prevent multiple inclusions",
     "files": [
       "src/autoload.php"
-    ]
-  },
-  {
-    "hash": "5acdcfb6bda6920b027d4f958a555e3224b4f5e8",
-    "date": "2025-09-26T11:45:55+07:00",
-    "message": "refactor(autoload): optimize file loading by checking for previously loaded files",
-    "files": [
-      "src/autoload.php"
-    ]
-  },
-  {
-    "hash": "0d56737d215e7ece4c9cca2377e41deb42f9349d",
-    "date": "2025-09-26T11:44:27+07:00",
-    "message": "refactor(autoload): replace str_replace with preg_replace for file path normalization",
-    "files": [
-      "src/autoload.php"
-    ]
-  },
-  {
-    "hash": "e38be6f5feee17850973f0c4578ac47d489b95fb",
-    "date": "2025-09-26T11:43:13+07:00",
-    "message": "refactor(composer): remove CustomPasswordHasher.php from autoload files\n\n`src/autoload.php` will automated load it",
-    "files": [
-      "composer.json"
-    ]
-  },
-  {
-    "hash": "636e75545bed8239e5f6971fb69ceb4d05536a90",
-    "date": "2025-09-26T11:30:33+07:00",
-    "message": "refactor(Scheduler): correct method name from rand_str to randStr for consistency",
-    "files": [
-      "src/PhpProxyHunter/Scheduler.php"
-    ]
-  },
-  {
-    "hash": "8ef04af6e988080feb324629d11e63a442126001",
-    "date": "2025-09-26T11:28:10+07:00",
-    "message": "refactor(Scheduler): ensure $shutdown_functions is initialized as an array in execute method",
-    "files": [
-      "src/PhpProxyHunter/Scheduler.php",
-      "tests/hashers/CustomPasswordHasherTest.php"
     ]
   }
 ]
