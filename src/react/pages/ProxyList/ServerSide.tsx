@@ -1,11 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { createUrl } from '../../utils/url';
+import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 import { timeAgo } from '../../../utils/date/timeAgo.js';
+import { formatNumberWithThousandSeparators } from '../../../utils/number';
 import { noop } from '../../../utils/other';
 import { getProxyTypeColorClass } from '../../utils/proxyColors';
+import { createUrl } from '../../utils/url';
 import { formatLatency } from './utils';
-import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 
 type ProxyRow = Record<string, any>;
 
@@ -502,7 +503,9 @@ export default function ServerSide() {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs text-gray-600 dark:text-gray-400">{item.label}</span>
-                    <span className="text-sm font-semibold">{(counters as any)[item.key] ?? '-'}</span>
+                    <span className="text-sm font-semibold">
+                      {formatNumberWithThousandSeparators((counters as any)[item.key]) ?? '-'}
+                    </span>
                   </div>
                 </div>
               ))}

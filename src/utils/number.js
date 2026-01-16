@@ -14,6 +14,30 @@ export function toRupiah(value) {
 }
 
 /**
+ * Format a number with comma thousand separators using the en-US locale.
+ *
+ * - Returns the numeric value formatted with commas for thousands separators.
+ * - Returns the string "0" for null/undefined or when the value cannot be parsed as a number.
+ *
+ * Examples:
+ *   formatNumberWithThousandSeparators(1234567)    // "1,234,567"
+ *   formatNumberWithThousandSeparators('1234.5')  // "1,234.5"
+ *   formatNumberWithThousandSeparators(null)      // "0"
+ *
+ * @param {number|string|null|undefined} value - Number or numeric string to format.
+ * @returns {string} Formatted number with commas, or "0" for invalid/empty input.
+ */
+export function formatNumberWithThousandSeparators(value) {
+  if (value === null || value === undefined) return '0';
+  let num = value;
+  if (typeof value === 'string') {
+    num = parseFloat(value.replace(/[^\d.-]/g, ''));
+  }
+  if (typeof num !== 'number' || isNaN(num)) return '0';
+  return num.toLocaleString('en-US');
+}
+
+/**
  * Normalize and clean a phone number.
  *
  * - Returns an empty string for null or undefined.
