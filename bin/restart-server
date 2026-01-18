@@ -106,3 +106,25 @@ fi
 #     sudo systemctl start spring
 #     echo "Started Spring Boot"
 # fi
+
+# _____MySQL/MariaDB Service Handling_____
+# Try common service names and start/restart the first one found
+mysql_candidates=("mysql" "mysqld" "mariadb")
+found_mysql=false
+for svc in "${mysql_candidates[@]}"; do
+    if systemctl list-unit-files | grep -q "^${svc}\.service"; then
+        found_mysql=true
+        if systemctl is-active --quiet "${svc}"; then
+            sudo systemctl restart "${svc}"
+            echo "Restarted ${svc} service"
+        else
+            sudo systemctl start "${svc}"
+            echo "Started ${svc} service"
+        fi
+        break
+    fi
+done
+
+if [ "$found_mysql" = false ]; then
+    echo "No MySQL/MariaDB service found (checked: mysql, mysqld, mariadb)."
+fi
