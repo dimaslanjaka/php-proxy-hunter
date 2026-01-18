@@ -28,6 +28,8 @@ if [ -f "venv/bin/activate" ]; then
 fi
 
 "$PY" -m pip install --upgrade pip || true
+"$PY" -m pip install --upgrade setuptools wheel || true
+"$PY" -m pip install "numpy==2.1.0" || true
 "$PY" -m pip install -r "$CWD/requirements-base.txt"
 "$PY" -m pip install -r "$CWD/requirements-minimal.txt"
 if [ -d "packages/proxy-checker-python" ]; then

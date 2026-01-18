@@ -99,7 +99,7 @@ def generate_requirements() -> bool:
             "uwsgi @ https://github.com/unbit/uwsgi/archive/f931938.zip",
             "gunicorn",
             "nuitka",
-            "numpy",
+            "numpy<2",
         ],
     }
 
