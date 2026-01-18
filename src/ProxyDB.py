@@ -475,7 +475,7 @@ class ProxyDB:
 
     def get_working_proxies(
         self,
-        auto_fix: bool = True,
+        auto_fix: bool = False,
         limit: Optional[int] = None,
         randomize: bool = True,
     ) -> List[Dict[str, Union[str, None]]]:
