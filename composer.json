@@ -41,7 +41,6 @@
   ],
   "require": {
     "dimaslanjaka/proxy-hunter-php": "dev-master",
-    "brightnucleus/country-codes": "dev-master",
     "composer-plugin-api": "^2.3",
     "annexare/countries-list": "^3.1",
     "geoip2/geoip2": "^2.13",
@@ -73,7 +72,6 @@
   },
   "config": {
     "allow-plugins": {
-      "brightnucleus/country-codes": true,
       "dealerdirect/phpcodesniffer-composer-installer": true,
       "symfony/flex": true,
       "symfony/thanks": true
