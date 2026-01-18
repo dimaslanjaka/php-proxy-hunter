@@ -128,7 +128,7 @@ log_command() {
 # run every 5 minutes
 if should_run_job "tmp/crontab/5-m" 0.0833; then
   echo "Running 5 minutes job."
-  "$CWD/bin/py" "$CWD/artisan/proxy-classifier-lookup.py" --max=1000 > "tmp/logs/crontab/proxy-classifier-lookup.log" 2>&1
+  "$CWD/bin/py" "$CWD/artisan/proxy-classifier-lookup.py" --limit=1000 > "tmp/logs/crontab/proxy-classifier-lookup.log" 2>&1
   "$CWD/bin/py" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000 --include-untested > "tmp/logs/crontab/filter-duplicate-ips.log" 2>&1
 else
   echo "Skipping 5 minutes job."

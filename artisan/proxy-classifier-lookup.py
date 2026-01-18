@@ -30,6 +30,12 @@ def main():
         action="store_true",
         help="Use readonly production database (init_readonly_db)",
     )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=1000,
+        help="Limit number of proxies to process when looking up classification",
+    )
     args = parser.parse_args()
     db = init_readonly_db() if args.production else init_db("mysql")
     asn_lookup = ASNLookup()
@@ -61,7 +67,7 @@ def main():
                 ip = proxy.proxy.split(":")[0]
                 proxyData.append((proxy.proxy, ip))
         elif db.db:
-            limit = 1000
+            limit = args.limit
             # Select proxies without classification to update
             proxies_db = db.db.select(
                 "proxies",
