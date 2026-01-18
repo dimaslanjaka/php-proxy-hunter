@@ -128,7 +128,8 @@ log_command() {
 # run every 5 minutes
 if should_run_job "tmp/crontab/5-m" 0.0833; then
     echo "Running 5 minutes job."
-    log_command "tmp/logs/crontab/proxy-classifier-lookup.log" "$CWD/bin/py" "$CWD/artisan/proxy-classifier-lookup.py" --max=1000
+    "$CWD/bin/py" "$CWD/artisan/proxy-classifier-lookup.py" --max=1000 > "tmp/logs/crontab/proxy-classifier-lookup.log" 2>&1
+    "$CWD/bin/py" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000 > "tmp/logs/crontab/filter-duplicate-ips.log" 2>&1
 else
     echo "Skipping 5 minutes job."
 fi
@@ -167,7 +168,6 @@ if should_run_job "tmp/crontab/3-h" 3; then
     echo "Running 3 hours job."
     # log_command "tmp/logs/crontab/check-proxy-parallel.log" bash "$CWD/bin/check-proxy-parallel"
     log_command "tmp/logs/crontab/proxy_checker_httpx.log" "$CWD/bin/py" "$CWD/artisan/proxy_checker_httpx.py"
-    "$CWD/bin/py" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000
 else
     echo "Skipping 3 hours job."
 fi
