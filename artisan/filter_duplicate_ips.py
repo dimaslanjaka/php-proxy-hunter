@@ -122,7 +122,7 @@ if isinstance(res, list):
 
         # Fetch all proxies with this IP that match status filter
         sql_proxies_with_ip = f"""
-        SELECT id, proxy
+        SELECT id, proxy, status, https
         FROM proxies
         WHERE {substrFunction} = {ph}
         {status_filter_trailing}
@@ -136,13 +136,28 @@ if isinstance(res, list):
             for idx, proxy_entry in enumerate(proxies_with_ip):
                 proxy_id = proxy_entry["id"]
                 proxy_str = proxy_entry["proxy"]
+                proxy_status = proxy_entry["status"]
                 print(yellow(f"  [{idx+1}] ID: {proxy_id}, Proxy: {proxy_str}"))
                 if is_port_open(proxy_str):
-                    print(
-                        green(
-                            f"    Port is open for proxy {proxy_str}, skipping deletion."
+                    if (
+                        proxy_status != "active"
+                        and proxy_status != "untested"
+                        and proxy_status != "port-open"
+                        and proxy_status != "open-port"
+                    ):
+                        # Update status to 'untested' since port is open
+                        db.update_status(proxy_str, "untested")
+                        print(
+                            green(
+                                f"    Port is open for proxy {proxy_str}, status set to 'untested'."
+                            )
                         )
-                    )
+                    else:
+                        print(
+                            green(
+                                f"    Port is open for proxy {proxy_str}, skipping deletion."
+                            )
+                        )
                 else:
                     proxies_to_delete.append(proxy_str)
                     print(
