@@ -63,29 +63,55 @@ else
   echo "No submodules found, skipping update."
 fi
 
-# Run yarn
+# Run yarn only when relevant (package.json present or JS/TS files changed)
 ViteLockFile="$CWD/tmp/locks/.dev-server-lock"
-if command -v yarn >/dev/null 2>&1; then
-  if [ $IS_VPS -eq 1 ]; then
-    echo "Detected VPS environment. Installing production dependencies only."
-    # Install production dependencies
-    yarn workspaces focus --production || {
-      echo "Yarn install failed."
-    }
+
+# Decide whether to run yarn based on git changes or presence of package.json
+PREV_REF=$(git -C "$CWD" rev-parse --verify ORIG_HEAD 2>/dev/null || git -C "$CWD" rev-parse --verify HEAD^ 2>/dev/null || true)
+CUR_REF=$(git -C "$CWD" rev-parse --verify HEAD 2>/dev/null || true)
+RUN_YARN=0
+if [ -n "$PREV_REF" ] && [ -n "$CUR_REF" ]; then
+  CHANGED_FILES=$(git -C "$CWD" diff --name-only "$PREV_REF" "$CUR_REF")
+  if echo "$CHANGED_FILES" | grep -qE '(^|/)package\.json$|\.ts$|\.tsx$|\.js$|\.mjs$|\.cjs$'; then
+    RUN_YARN=1
+  fi
+else
+  # fallback: if we can't get previous ref, run only if package.json exists
+  if [ -f "$CWD/package.json" ]; then
+    RUN_YARN=1
+  fi
+fi
+
+if [ "$RUN_YARN" -eq 1 ]; then
+  if command -v yarn >/dev/null 2>&1; then
+    if [ $IS_VPS -eq 1 ]; then
+      echo "Installing production dependencies only for VPS."
+      yarn workspaces focus --production || {
+        echo "Yarn install failed."
+      }
+    else
+      echo "Installing all dependencies."
+      yarn install || {
+        echo "Yarn install failed."
+      }
+    fi
   else
-    # Install all dependencies
-    yarn install || {
-      echo "Yarn install failed."
-    }
+    echo "Error: Yarn is not installed. Skipping yarn operations."
+  fi
+else
+  echo "No package.json or JS/TS changes detected; skipping yarn."
+fi
+
+if command -v yarn >/dev/null 2>&1; then
+  if [ $IS_VPS -eq 0 ]; then
     # Run the build script when the lock file is not present
     if [ ! -f "$ViteLockFile" ]; then
+      echo "Vite lock not present; running build script."
       node "$CWD/bin/build-project.mjs" || {
         echo "Build project failed."
       }
     fi
   fi
-else
-  echo "Error: Yarn is not installed. Skipping yarn operations."
 fi
 
 # Decide whether to run Composer: only when composer.json or any .php files changed
