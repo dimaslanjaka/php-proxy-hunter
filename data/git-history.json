@@ -1,5 +1,35 @@
 [
   {
+    "hash": "14b0cdc45a21dc1b15b3084bc858afe921a8d048",
+    "date": "2026-01-18T16:06:36+07:00",
+    "message": "fix(build): refine Rollup manualChunks in vite.config.js\n\n- split combined ui-lib into ui-lib-tailwind (Tailwind + Flowbite) and ui-lib-bootstrap (Bootstrap + Popper)\n- add explicit chunks for lodash, chartjs, and codemirror\n- remove manual chunking for application code (components/pages/utils-helpers) so Rollup can auto-chunk and avoid circular chunk warnings",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "853246e8f6906430b1f5097c0193e1a99fcdd5ba",
+    "date": "2026-01-18T15:52:59+07:00",
+    "message": "fix(bin/deploy-vps): treat --frontend / --frontend-only as UI-only flags\n\nTreat `--frontend` and `--frontend-only` as aliases for UI-only deploy in `bin/deploy-vps.mjs`\nso passing `--frontend` triggers the UI-only path (previously fell through to full deploy).\nAlso add a clear deployment-mode log line for easier debugging.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "e232490d92ddfc8126a0c29545dface677155033",
+    "date": "2026-01-18T15:50:09+07:00",
+    "message": "chore(husky): run yarn only when JS/TS or package.json changed\n\nAdd detection logic to `.husky/post-merge` to run `yarn` only if\n`package.json` or frontend files (`.ts`, `.tsx`, `.js`, `.mjs`, `.cjs`)\nwere changed between the previous ref and `HEAD` (with a fallback that\nruns yarn if `package.json` exists when the previous ref can't be\ndetermined). Move the Vite build (`bin/build-project.mjs`) outside of the\nyarn conditional so the project build runs independently when the Vite\nlock file is absent. Improve VPS messaging and handle missing `yarn`\ngracefully.",
+    "files": []
+  },
+  {
+    "hash": "a5d433cc238af3db87d2b7792d3546ef514f83ce",
+    "date": "2026-01-18T15:08:57+07:00",
+    "message": "chore(composer): remove brightnucleus/country-codes dependency and related config",
+    "files": [
+      "composer.json"
+    ]
+  },
+  {
     "hash": "62c1cb6f6c495522fb5a8080232550686a33884e",
     "date": "2026-01-16T19:03:51+07:00",
     "message": "feat(proxy-checker): add HTTPX proxy authentication support and improve latency handling\n\n- Added support for username/password in proxy URLs using URL-encoding.\n- Construct proxy URLs dynamically for HTTPX with credentials when available.\n- Updated latency computation to round values and compute average from available endpoints.\n- Mark proxies as private if any endpoint is private.\n- Added improved exception handling in main entry point with debug mode support.\n- Added test script for verifying proxy extraction and HTTPX proxy testing with auth.",
@@ -8634,40 +8664,6 @@
     "message": "docs: update readme with TODO section for proxy parsing",
     "files": [
       "userscripts/readme.md"
-    ]
-  },
-  {
-    "hash": "9f7d11a027086749a65ba04451b672a9e2d0e8f9",
-    "date": "2025-09-26T18:28:24+07:00",
-    "message": "feat: enhance getPublicIP function with proxy type rotation and debug support\n\n- Add debug parameter to enable connection attempt logging\n- Implement proxy type rotation to automatically try different proxy protocols (http, socks4, socks5, etc.)\n- Separate proxy and non-proxy request handling logic for better reliability\n- Remove duplicate PHPDoc comments for cleaner code documentation\n- Improve proxy connection resilience by testing multiple proxy types",
-    "files": [
-      "func-proxy.php",
-      "tests/proxy/getPublicIP.php"
-    ]
-  },
-  {
-    "hash": "29b9836d48dea3b3b93a0b4be60f966424eea88c",
-    "date": "2025-09-26T18:17:45+07:00",
-    "message": "feat: improve environment variable loading with enhanced type conversion\n\n- Add string shim include for PHP compatibility with str_starts_with()\n- Remove conditional dotenv loading to ensure consistent environment setup\n- Enhance manual .env parser with automatic type conversion for booleans, numbers, and JSON arrays\n- Improve .env file parsing robustness and data type handling",
-    "files": [
-      "src/database/env.php"
-    ]
-  },
-  {
-    "hash": "60a1a90f5848c3e898fec4e1eb8fb4e905231d99",
-    "date": "2025-09-26T18:12:13+07:00",
-    "message": "refactor: extract CLI detection logic into reusable function\n\n- Move CLI detection logic from func.php to new is_cli() function in src/database/env.php\n- Replace inline CLI detection with function call in func.php\n- Improves code reusability and maintainability",
-    "files": [
-      "func.php",
-      "src/database/env.php"
-    ]
-  },
-  {
-    "hash": "0e62cbfe2649b2f663fdae83d127be0b250319eb",
-    "date": "2025-09-26T17:43:15+07:00",
-    "message": "feat(cmd-here): add script to set up custom PATH and workspace directory",
-    "files": [
-      "cmd-here.bat"
     ]
   }
 ]
