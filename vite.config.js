@@ -169,8 +169,11 @@ export const viteConfig = defineConfig({
             if (id.startsWith('nik')) {
               return 'nik';
             }
-            if (/tailwind|flowbite|bootstrap|popperjs/.test(id)) {
-              return 'ui-lib';
+            if (/tailwind|flowbite/.test(id)) {
+              return 'ui-lib-tailwind';
+            }
+            if (/bootstrap|popperjs/.test(id)) {
+              return 'ui-lib-bootstrap';
             }
             if (/highlight|prism/.test(id)) {
               return 'syntax-highlighter';
@@ -178,18 +181,20 @@ export const viteConfig = defineConfig({
             if (/proxy|proxies/.test(id)) {
               return 'proxy';
             }
+            if (/lodash/.test(id)) {
+              return 'lodash';
+            }
+            if (/chartjs|chart\.js/.test(id)) {
+              return 'chartjs';
+            }
+            if (/codemirror/.test(id)) {
+              return 'codemirror';
+            }
             // Other vendor libraries
             return 'vendor';
           }
-          if (id.includes('components')) {
-            return 'components';
-          }
-          if (/pages?/.test(id)) {
-            return 'pages';
-          }
-          if (/helpers?|utils/.test(id)) {
-            return 'utils-helpers';
-          }
+          // Avoid manually chunking application code (components/pages/utils)
+          // letting Rollup decide to prevent circular chunk references.
           // Let Rollup handle other modules automatically by returning undefined
         },
         entryFileNames: `assets/[name].[hash].js`,
