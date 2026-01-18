@@ -8,6 +8,7 @@ sys.path.append(PROJECT_ROOT)
 
 from proxy_hunter import extract_proxies
 from src.ASNLookup import ASNLookup
+from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 from src.shared import init_db, init_readonly_db
 from src.utils.file.FileLockHelper import FileLockHelper
@@ -28,6 +29,11 @@ def main():
     parser.add_argument(
         "--production",
         action="store_true",
+        help="Use production database (write-enabled; may perform destructive operations)",
+    )
+    parser.add_argument(
+        "--readonly",
+        action="store_true",
         help="Use readonly production database (init_readonly_db)",
     )
     parser.add_argument(
@@ -37,7 +43,25 @@ def main():
         help="Limit number of proxies to process when looking up classification",
     )
     args = parser.parse_args()
-    db = init_readonly_db() if args.production else init_db("mysql")
+    if args.readonly:
+        db = init_readonly_db()
+    elif args.production:
+        db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
+        db_host = os.getenv(
+            "MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost")
+        )
+        db_user = os.getenv("MYSQL_USER_PRODUCTION", os.getenv("MYSQL_USER", "root"))
+        db_pass = os.getenv("MYSQL_PASS_PRODUCTION", os.getenv("MYSQL_PASS", ""))
+        db = ProxyDB(
+            start=True,
+            db_type="mysql",
+            mysql_host=db_host,
+            mysql_dbname=db_name,
+            mysql_user=db_user,
+            mysql_password=db_pass,
+        )
+    else:
+        db = init_db("mysql")
     asn_lookup = ASNLookup()
 
     def _process_ips(datas: List[Tuple[str, str]]):
