@@ -149,6 +149,34 @@ class MySQLHelper:
             self.cursor.execute(sql)
         self.conn.commit()
 
+    def execute_query_fetch(
+        self, sql: str, params: Optional[Union[tuple, list]] = None
+    ) -> Union[List[Dict[str, Any]], int]:
+        """
+        Executes a custom SQL query and returns results when available.
+
+        - For SELECT-like queries returns a list of dictionaries (column->value).
+        - For non-SELECT queries returns the integer affected row count.
+        """
+        cur = self.conn.cursor(dictionary=True)
+        try:
+            if params:
+                cur.execute(sql, params)
+            else:
+                cur.execute(sql)
+
+            # If cursor.description is populated, there are rows to fetch
+            if cur.description:
+                rows = cur.fetchall()
+                # rows are dicts because cursor was created with dictionary=True
+                return cast(List[Dict[str, Any]], rows)
+
+            # No resultset: commit and return affected rowcount
+            self.conn.commit()
+            return cur.rowcount
+        finally:
+            cur.close()
+
     def column_exists(self, table_name: str, column_name: str) -> bool:
         """
         Check whether a column exists in a given table for MySQL.

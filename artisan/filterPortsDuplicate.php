@@ -296,7 +296,8 @@ $pdo = null;
  * @param string $proxy Proxy string (example: "1.2.3.4:8080")
  * @return bool True if the proxy has at least one `last_check` in the current month, false otherwise
  */
-function wasCheckedThisMonth($pdo, $proxy) {
+function wasCheckedThisMonth($pdo, $proxy)
+{
   // Determine driver and build a compatible SQL condition for "same month"
   $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
   if ($driver === 'mysql') {
@@ -323,7 +324,8 @@ function wasCheckedThisMonth($pdo, $proxy) {
 }
 
 // Function to check if the proxy was checked this week
-function wasCheckedThisWeek($pdo, $proxy) {
+function wasCheckedThisWeek($pdo, $proxy)
+{
   $startOfWeek = date('Y-m-d', strtotime('last sunday'));
   $stmt        = $pdo->prepare('SELECT COUNT(*) FROM proxies WHERE proxy = :proxy AND last_check >= :start_of_week');
   $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
@@ -337,7 +339,8 @@ function wasCheckedThisWeek($pdo, $proxy) {
  *
  * @return mixed
  */
-function write_working() {
+function write_working()
+{
   global $proxy_db;
   echo '[FILTER-PORT] writing working proxies' . PHP_EOL;
   return writing_working_proxies_file($proxy_db);

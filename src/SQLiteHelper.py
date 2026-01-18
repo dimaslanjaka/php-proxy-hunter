@@ -1,7 +1,7 @@
 import os
 import sqlite3
 import sys
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict, Any
 
 from proxy_hunter import copy_file, delete_path
 
@@ -299,6 +299,54 @@ class SQLiteHelper:
             else:
                 cur.execute(sql)
             self.conn.commit()
+        finally:
+            cur.close()
+
+    def execute_query_fetch(
+        self, sql: str, params: Optional[Union[tuple, list]] = None
+    ) -> Union[List[Dict[str, Any]], int]:
+        """
+        Executes a custom SQL query and returns results when available.
+
+        - For SELECT-like queries (cursor.description present) returns a list of
+          dictionaries where keys are column names.
+        - For non-SELECT queries returns the cursor rowcount (int).
+
+        Args:
+            sql (str): The SQL query to execute.
+            params (Optional[Union[tuple, list]]): Parameters to substitute in the query.
+
+        Returns:
+            Union[List[Dict[str, Any]], int]: List of row dicts for queries that return rows,
+            otherwise the integer affected row count.
+        """
+        cur = self.conn.cursor()
+        try:
+            exec_params = tuple(params) if params is not None else ()
+            if exec_params:
+                cur.execute(sql, exec_params)
+            else:
+                cur.execute(sql)
+
+            # If the cursor has a description, there are columns to fetch
+            if cur.description:
+                cols = [d[0] for d in cur.description]
+                rows = cur.fetchall()
+                result = []
+                for r in rows:
+                    if isinstance(r, sqlite3.Row):
+                        result.append(dict(r))
+                    elif isinstance(r, (list, tuple)):
+                        result.append({cols[i]: r[i] for i in range(len(cols))})
+                    elif isinstance(r, dict):
+                        result.append(r)
+                    else:
+                        result.append(r)
+                return result
+
+            # No description -> no rows (e.g., INSERT/UPDATE/DELETE)
+            self.conn.commit()
+            return cur.rowcount
         finally:
             cur.close()
 
