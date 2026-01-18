@@ -1,5 +1,103 @@
 [
   {
+    "hash": "94733abd3855bd8d24531e4e2e61e6b892a7b970",
+    "date": "2026-01-18T19:27:43+07:00",
+    "message": "fix(ProxyDB): set default auto_fix to False in get_working_proxies method",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "dd7384bd48288921ce5f904a2ef4537a06704556",
+    "date": "2026-01-18T19:16:49+07:00",
+    "message": "feat(filter_duplicate_ips): select status and https; mark open ports 'untested'\n\nSelect `status` and `https` when fetching proxies in `artisan/filter_duplicate_ips.py`.\nWhen a proxy's port is open and its current `status` is not one of\n`active`, `untested`, `port-open`, or `open-port`, update the proxy's status\nto `untested` instead of deleting it. This prevents removing functional\nproxies and preserves HTTPS metadata for further processing.\n\nNo breaking changes to DB schema, but callers should ensure `ProxyDB.update_status`\nis available to persist the status update.",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "e4063dde58d2edb847df9919600dc1d5b9c05d2d",
+    "date": "2026-01-18T19:07:18+07:00",
+    "message": "feat(artisan): add --readonly and production DB init for scripts\n\n- import ProxyDB and add `--readonly` flag to enable readonly DB access\n- clarify `--production` help text as write-enabled (may perform destructive ops)\n- implement DB initialization branching:\n  - `--readonly` -> `init_readonly_db()`\n  - `--production` -> `ProxyDB(...)` using MYSQL_*_PRODUCTION env vars\n  - otherwise -> `init_db(\"mysql\")`\n- applied to artisan/filter_duplicate_ips.py and artisan/proxy-classifier-lookup.py\n\nAllows safe readonly runs and explicit production write mode.",
+    "files": [
+      "artisan/filter_duplicate_ips.py",
+      "artisan/proxy-classifier-lookup.py"
+    ]
+  },
+  {
+    "hash": "eccac58342489fbd04e19a316131ac31ba1a36b6",
+    "date": "2026-01-18T18:53:56+07:00",
+    "message": "refactor(check-https-proxy): add type hint for CheckerResult in HTTPS proxy check",
+    "files": [
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "236c932cb492a0c1999e69d836197bbbb7acdab1",
+    "date": "2026-01-18T18:40:31+07:00",
+    "message": "feat(proxy-classifier-lookup): add --limit option to control number of proxies processed",
+    "files": [
+      ".crontab.sh",
+      "artisan/proxy-classifier-lookup.py"
+    ]
+  },
+  {
+    "hash": "e502088170bde7bb5e692cdcec4c19037110f470",
+    "date": "2026-01-18T18:38:52+07:00",
+    "message": "feat(proxy-classifier-lookup): add CLI option for readonly DB support",
+    "files": [
+      "artisan/proxy-classifier-lookup.py"
+    ]
+  },
+  {
+    "hash": "dcef98b2053e13f9b1ee95ebf4fc5bc3e89a8902",
+    "date": "2026-01-18T18:29:48+07:00",
+    "message": "feat(filter_duplicate_ips): add CLI option for readonly DB and include untested proxies",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "1494ac953cb39f6354a0b3f23e56e9f0ca013976",
+    "date": "2026-01-18T18:27:38+07:00",
+    "message": "fix(filter_duplicate_ips): pass batch size to query for fetching proxies with IP",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "25554735c46e30b5c7a4ea1d4f9dfde8ba7c5d20",
+    "date": "2026-01-18T18:05:59+07:00",
+    "message": "chore(cron): normalize shell formatting and extend duplicate-IP cleanup options\n\n- Normalize spacing, redirections, and indentation in .crontab.sh for POSIX style consistency.\n- Add --include-untested flag to the 5-minute duplicate IP filter job.\n- Keep cron logic and execution flow unchanged while improving readability and maintainability.",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "3f17e1983433f60ff3f7f92da26f631dbf24daef",
+    "date": "2026-01-18T18:05:09+07:00",
+    "message": "refactor(artisan/filter_duplicate_ips): delete duplicate proxies by proxy string using ProxyDB.remove\n\n- Replace raw SQL deletion by id with calls to db.remove(proxy) to delete by proxy string.\n- Let `ProxyDB.remove` handle backend-specific deletion (proxies and added_proxies) and placeholder differences.\n- Preserve behavior to keep at least one proxy per IP when all candidates have closed ports.\n- Improves compatibility and avoids inline SQL/placeholder issues.",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "6ee616bf0ed4fc1580da73dd33bbf9490f58410e",
+    "date": "2026-01-18T17:52:04+07:00",
+    "message": "chore(cron): run duplicate IP filter in 5-min job and redirect logs explicitly\n\n- Replace log_command wrapper with direct stdout/stderr redirection for proxy-classifier-lookup\n- Add filter_duplicate_ips execution to 5-minute schedule with its own log file\n- Remove filter_duplicate_ips from 3-hour job to avoid duplicate runs",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "d3d62f54745dc412d463b639f7bbea770ea6b009",
+    "date": "2026-01-18T17:50:28+07:00",
+    "message": "refactor(cron): reschedule proxy collectors and move duplicate IP cleanup to 3h job\n\n- Move proxyCollector and proxyCollector2 from 5-min to 30-min interval\n- Disable old PHP check-old-proxy and geoip cron tasks\n- Restore background duplicate port filter in 1-hour job\n- Disable HTTP/HTTPS proxy checks in 1-hour job\n- Run new filter_duplicate_ips Python script in 3-hour job\n- Remove max limit from proxy_checker_httpx cron invocation",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
     "hash": "07bdb3cb51d481d61ced23a85f0e0258299ce0fb",
     "date": "2026-01-18T17:47:35+07:00",
     "message": "feat(cron,proxies): replace duplicate IP cleanup with new Python script and remove legacy tool\n\n- Disable old filterPortsDuplicate cron job\n- Add artisan/filter_duplicate_ips.py to detect and delete duplicate proxy IPs with closed ports\n- Integrate new script into 1-hour cron with configurable limit and status filtering\n- Remove deprecated filterPortsDuplicate.py implementation",
@@ -8568,109 +8666,6 @@
     "files": [
       ".htaccess",
       ".htaccess_nginx.conf"
-    ]
-  },
-  {
-    "hash": "b696c955a201c3f2cef4dacd8daa87faea5c37f1",
-    "date": "2025-09-28T17:58:43+07:00",
-    "message": "feat(changelog): restrict file changes visibility to admin users only\n\n- Add admin role checking with getUserInfo integration\n- Implement conditional rendering for commit file changes\n- Show placeholder message for non-admin users with lock icon\n- Add Nullable type import for improved type safety\n- Maintain existing functionality while adding access control layer",
-    "files": [
-      "src/react/pages/Changelog.tsx"
-    ]
-  },
-  {
-    "hash": "33b71b54941d725367721e237569e31eff9960da",
-    "date": "2025-09-28T17:53:01+07:00",
-    "message": "feat: add maintenance mode during build process\n\n- Add maintenance mode check in index.php that serves maintenance page when build lock exists\n- Create build lock file during Vite build process to trigger maintenance mode\n- Ensure lock directories are created before writing lock files\n- Clean up build lock file on process exit\n- Refactor lock file setup to handle both dev server and build scenarios",
-    "files": [
-      "index.php",
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "cb31bd580046039a109dc7e50aedf420c69b672d",
-    "date": "2025-09-28T17:47:57+07:00",
-    "message": "feat: add ssh2 and ssh2-sftp-client dependencies with type definitions",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "4090ea8d29feabb36ecc5273b6883f75fb3b09e6",
-    "date": "2025-09-28T17:33:51+07:00",
-    "message": "feat: load additional autoload.php files from xl subdirectories",
-    "files": [
-      "src/autoload.php"
-    ]
-  },
-  {
-    "hash": "76e604020713f4e7331852ca56498a80b4ab1b20",
-    "date": "2025-09-28T17:27:49+07:00",
-    "message": "feat(php_backend): add audit logging and admin validation to refill-saldo\n\n- Remove redundant func.php include (functionality moved to shared.php)\n- Add log_db and user_db to global scope\n- Add current admin user validation with exception handling\n- Implement comprehensive audit logging for topup operations\n- Log both 'set' and 'add' saldo operations with detailed metadata\n- Include amount, method, operation type, and existing saldo in logs",
-    "files": [
-      "php_backend/refill-saldo.php"
-    ]
-  },
-  {
-    "hash": "1cc8e5db02350a7e5a7d2ede2b64e02f84cb5720",
-    "date": "2025-09-28T09:35:15+07:00",
-    "message": "feat: add proxy submission endpoint with React integration\n\n- Add new PHP backend endpoint at php_backend/proxy-add.php to handle proxy submissions\n- Integrate fetch API call in ProxySubmission component to send proxy data to backend\n- Backend saves submitted proxies to user-specific files in assets/proxies directory\n- Add proper JSON response handling with status codes and error messages",
-    "files": [
-      "php_backend/proxy-add.php",
-      "src/react/pages/ProxyList/ProxySubmission.tsx"
-    ]
-  },
-  {
-    "hash": "3d7ff3826a958d148ad5bccecb9052aa0ec5152d",
-    "date": "2025-09-27T16:17:40+07:00",
-    "message": "refactor: move SimpleFormSaverDemo to examples directory\n\n- Move src/react/pages/SimpleFormSaverDemo.tsx to src/react/pages/examples/SimpleFormSaverDemo.tsx\n- Update import path in src/react/index.tsx to reflect new location\n- Fix relative import path for CleanFormSaverExamples within the moved file",
-    "files": [
-      "src/react/index.tsx",
-      "src/react/pages/examples/SimpleFormSaverDemo.tsx"
-    ]
-  },
-  {
-    "hash": "fbafdbd4c475110829a63f385fcd3054548042f7",
-    "date": "2025-09-27T16:16:49+07:00",
-    "message": "refactor: move SnackBarSample from samples to examples directory\n\n- Move src/react/pages/samples/SnackBarSample.tsx to src/react/pages/examples/SnackBarSample.tsx\n- Update import path in src/react/index.tsx to reflect new location",
-    "files": [
-      "src/react/index.tsx",
-      "src/react/pages/examples/SnackBarSample.tsx"
-    ]
-  },
-  {
-    "hash": "2e4920a4132e561670e06831c20d963914f949fb",
-    "date": "2025-09-27T16:03:57+07:00",
-    "message": "feat: add jquery-form-saver integration with React demo pages\n\n- Add jquery-form-saver dependency to package.json\n- Create SimpleFormSaverDemo page with three example implementations\n- Add CleanFormSaverExamples component with settings, contact, and dynamic form demos\n- Add new route /examples/form-saver for form saver demonstrations\n- Implement ReactFormSaver component wrapper and useFormSaver hook examples",
-    "files": [
-      "package.json",
-      "src/react/index.tsx",
-      "src/react/pages/SimpleFormSaverDemo.tsx",
-      "src/react/pages/examples/CleanFormSaverExamples.tsx"
-    ]
-  },
-  {
-    "hash": "c901a2937d9582d3f730f69f2328f6175e154461",
-    "date": "2025-09-27T16:02:57+07:00",
-    "message": "fix(tsconfig): restore moduleResolution setting to 'node'",
-    "files": [
-      "tsconfig.whatsapp.json"
-    ]
-  },
-  {
-    "hash": "e748a1efe334ed66149ada1a77a1ef655ac0a54f",
-    "date": "2025-09-27T16:01:46+07:00",
-    "message": "fix(tsconfig): change moduleResolution from 'node' to 'bundler'",
-    "files": [
-      "tsconfig.json"
-    ]
-  },
-  {
-    "hash": "18a480e7b606e60e931aab48433b2e34f6e7cf65",
-    "date": "2025-09-27T14:38:18+07:00",
-    "message": "feat: add ignored folders for git repository scanning",
-    "files": [
-      ".vscode/settings.json"
     ]
   }
 ]
