@@ -154,9 +154,10 @@ if should_run_job "tmp/crontab/1-h" 1; then
     # log_command "tmp/logs/crontab/djm_check_proxies.log" djm check_proxies --max=100
     # log_command "tmp/logs/crontab/djm_filter_dups.log" djm filter_dups --max=100
     log_command "tmp/logs/crontab/filter-ports.log" php artisan/filterPorts.php
-    log_command "tmp/logs/crontab/filter-ports-background.log" php artisan/filterPortsDuplicate.php
+    # log_command "tmp/logs/crontab/filter-ports-duplicate.log" php artisan/filterPortsDuplicate.php
     log_command "tmp/logs/crontab/check-http-proxy.log" php php_backend/check-http-proxy.php
     log_command "tmp/logs/crontab/check-https-proxy.log" php php_backend/check-https-proxy.php
+    "$CWD/bin/py" "$CWD/artisan/filter_duplicate_ips.py.py" --limit=1000
     echo "Running 1 hour job."
 else
     echo "Skipping 1 hour job."
