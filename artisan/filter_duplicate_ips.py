@@ -9,7 +9,7 @@ sys.path.append(PROJECT_ROOT)
 from proxy_hunter import extract_proxies, is_port_open
 from src.ASNLookup import ASNLookup
 from src.func import get_relative_path
-from src.shared import init_db
+from src.shared import init_db, init_readonly_db
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.func_platform import is_debug
 from src.func_console import ConsoleColor, red, green, yellow, magenta
@@ -20,7 +20,27 @@ if not locker.lock():
     print(red("Another instance is running. Exiting."))
     sys.exit(0)
 
-db = init_db()
+# CLI args: include --production to use readonly DB, plus other flags
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--production",
+    action="store_true",
+    help="Use readonly production database (init_readonly_db)",
+)
+parser.add_argument(
+    "--include-untested",
+    action="store_true",
+    help="Include untested proxies when selecting duplicates",
+)
+parser.add_argument(
+    "--limit",
+    type=int,
+    default=None,
+    help="Limit number of duplicate IPs to fetch (overrides default batch)",
+)
+args = parser.parse_args()
+
+db = init_readonly_db() if args.production else init_db()
 is_mysql = db.driver == "mysql"
 if not db.db:
     print(red("Database not initialized. Exiting."))
@@ -37,19 +57,6 @@ else:
 ph = "%s" if is_mysql else "?"
 
 # Build status filter depending on CLI flag
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--include-untested",
-    action="store_true",
-    help="Include untested proxies when selecting duplicates",
-)
-parser.add_argument(
-    "--limit",
-    type=int,
-    default=None,
-    help="Limit number of duplicate IPs to fetch (overrides default batch)",
-)
-args = parser.parse_args()
 include_untested = args.include_untested
 
 status_filter_inner = (
