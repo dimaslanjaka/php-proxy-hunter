@@ -98,8 +98,9 @@ if isinstance(res, list):
         WHERE {substrFunction} = {ph}
         {status_filter_trailing}
         ORDER BY {randomFunction}
+        LIMIT {ph}
         """
-        proxies_with_ip = db.db.execute_query_fetch(sql_proxies_with_ip, (ip,))
+        proxies_with_ip = db.db.execute_query_fetch(sql_proxies_with_ip, (ip, batch))
         if isinstance(proxies_with_ip, list):
             # Keep one random proxy, delete the rest (by proxy string) only if their ports are closed
             proxies_to_delete = []
