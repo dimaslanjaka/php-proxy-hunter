@@ -250,8 +250,13 @@ export function shell_exec(command, cwd = null) {
 async function main() {
   const args = process.argv.slice(2);
 
-  const uiOnly = args.includes('--ui') || args.includes('--ui-only');
+  const uiOnly =
+    args.includes('--ui') ||
+    args.includes('--ui-only') ||
+    args.includes('--frontend') ||
+    args.includes('--frontend-only');
   const backendOnly = args.includes('--backend') || args.includes('--backend-only');
+  console.log(`Deployment mode: ${uiOnly ? 'UI only' : backendOnly ? 'Backend only' : 'Full deploy'}`);
 
   /* === Shared lock file contents === */
   const lockContents = `build-start:${new Date().toISOString()} pid:${process.pid}\n`;
