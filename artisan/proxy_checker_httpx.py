@@ -21,7 +21,8 @@ from src.func_date import get_current_rfc3339_time
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.func_platform import is_debug
 
-locker = FileLockHelper(get_relative_path("tmp/locks/proxy_checker_httpx.lock"))
+current_filename = os.path.basename(__file__)
+locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
 if not locker.lock():
     print("Another instance is running. Exiting.")
     sys.exit(0)
