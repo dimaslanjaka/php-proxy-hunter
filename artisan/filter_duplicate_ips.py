@@ -101,8 +101,8 @@ if isinstance(res, list):
         """
         proxies_with_ip = db.db.execute_query_fetch(sql_proxies_with_ip, (ip,))
         if isinstance(proxies_with_ip, list):
-            # Keep one random proxy, delete the rest, but only if their ports are closed
-            ids_to_delete = []
+            # Keep one random proxy, delete the rest (by proxy string) only if their ports are closed
+            proxies_to_delete = []
             for idx, proxy_entry in enumerate(proxies_with_ip):
                 proxy_id = proxy_entry["id"]
                 proxy_str = proxy_entry["proxy"]
@@ -114,36 +114,40 @@ if isinstance(res, list):
                         )
                     )
                 else:
-                    ids_to_delete.append(proxy_id)
+                    proxies_to_delete.append(proxy_str)
                     print(
                         red(
                             f"    Port is closed for proxy {proxy_str}, marked for deletion."
                         )
                     )
 
-            is_ids_total_same_as_duplicates = len(ids_to_delete) == count_duplicates
-            if is_ids_total_same_as_duplicates and len(ids_to_delete) > 0:
+            is_proxies_total_same_as_duplicates = (
+                len(proxies_to_delete) == count_duplicates
+            )
+            if is_proxies_total_same_as_duplicates and len(proxies_to_delete) > 0:
                 # Ensure at least one proxy remains if all are to be deleted
-                ids_to_delete.pop()
+                proxies_to_delete.pop()
                 print(
                     yellow(
                         "    All proxies had closed ports; kept one to avoid deleting all."
                     )
                 )
 
-            if len(ids_to_delete) > 0:
+            if len(proxies_to_delete) > 0:
                 print(
                     yellow(
-                        f"Would delete {len(ids_to_delete)} duplicate proxies for IP {ip}."
+                        f"Would delete {len(proxies_to_delete)} duplicate proxies for IP {ip}."
                     )
                 )
-                print(yellow(f"IDs to delete: {ids_to_delete}"))
-                # Delete the duplicates
-                sql_delete_proxies = f"""
-                DELETE FROM proxies
-                WHERE id IN ({', '.join([ph] * len(ids_to_delete))})
-                """
-                db.db.execute_query(sql_delete_proxies, tuple(ids_to_delete))
-                print(green(f"    Deleted {len(ids_to_delete)} proxies for IP {ip}."))
+                print(yellow(f"Proxies to delete: {proxies_to_delete}"))
+                # Delete the duplicates using ProxyDB.remove(proxy)
+                deleted_count = 0
+                for proxy_val in proxies_to_delete:
+                    try:
+                        db.remove(proxy_val)
+                        deleted_count += 1
+                    except Exception as e:
+                        print(red(f"    Failed to delete proxy {proxy_val}: {e}"))
+                print(green(f"    Deleted {deleted_count} proxies for IP {ip}."))
             else:
                 print(yellow(f"    No proxies to delete for IP {ip}."))
