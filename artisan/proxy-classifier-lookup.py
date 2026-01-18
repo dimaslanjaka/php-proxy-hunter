@@ -9,7 +9,7 @@ sys.path.append(PROJECT_ROOT)
 from proxy_hunter import extract_proxies
 from src.ASNLookup import ASNLookup
 from src.func import get_relative_path
-from src.shared import init_db
+from src.shared import init_db, init_readonly_db
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.func_platform import is_debug
 
@@ -25,8 +25,13 @@ def main():
         description="Lookup ASN and classification for IPs or a proxy string"
     )
     parser.add_argument("--proxy", help="Proxy string to parse into IP(s)")
+    parser.add_argument(
+        "--production",
+        action="store_true",
+        help="Use readonly production database (init_readonly_db)",
+    )
     args = parser.parse_args()
-    db = init_db("mysql")
+    db = init_readonly_db() if args.production else init_db("mysql")
     asn_lookup = ASNLookup()
 
     def _process_ips(datas: List[Tuple[str, str]]):
