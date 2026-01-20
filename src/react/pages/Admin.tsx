@@ -2,6 +2,7 @@ import React from 'react';
 import { getUserInfo } from '../utils/user';
 import LogsSection from './admin/LogsSection';
 import ManagerPoint from './admin/ManagerPoint';
+import BackupDatabase from './admin/BackupDatabase';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
@@ -75,6 +76,7 @@ export default function Admin() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <ManagerPoint />
       <LogsSection />
+      <BackupDatabase />
     </div>
   );
 }
