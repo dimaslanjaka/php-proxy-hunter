@@ -10,6 +10,17 @@ cd "$CWD"
 # Set www-data user for subsequent commands
 USER="www-data"
 
+PYTHON_BIN="$CWD/bin/py"
+if [ ! -f "$PYTHON_BIN" ]; then
+  PYTHON_BIN="$CWD/venv/bin/python"
+fi
+if [ ! -f "$PYTHON_BIN" ]; then
+  PYTHON_BIN="$CWD/.venv/bin/python"
+fi
+if [ ! -f "$PYTHON_BIN" ]; then
+  PYTHON_BIN="python3"
+fi
+
 # Detect python virtual bin by operating system
 if [ "$(uname -s)" = "Darwin" ] || [ "$(uname -s)" = "Linux" ]; then
   # Unix-based systems (Linux, macOS)
@@ -128,8 +139,8 @@ log_command() {
 # run every 5 minutes
 if should_run_job "tmp/crontab/5-m" 0.0833; then
   echo "Running 5 minutes job."
-  "$CWD/bin/py" "$CWD/artisan/proxy-classifier-lookup.py" --limit=1000 > "tmp/logs/crontab/proxy-classifier-lookup.log" 2>&1
-  "$CWD/bin/py" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000 --include-untested > "tmp/logs/crontab/filter-duplicate-ips.log" 2>&1
+  "$PYTHON_BIN" "$CWD/artisan/proxy-classifier-lookup.py" --limit=1000 > "tmp/logs/crontab/proxy-classifier-lookup.log" 2>&1
+  "$PYTHON_BIN" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000 --include-untested > "tmp/logs/crontab/filter-duplicate-ips.log" 2>&1
 else
   echo "Skipping 5 minutes job."
 fi
@@ -144,8 +155,8 @@ if should_run_job "tmp/crontab/30-m" 0.5; then
   # log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php
   # Run geoIp script to resolve missing geo information for proxies
   # log_command "tmp/logs/crontab/geoip.log" php geoIp.php
-  log_command "tmp/logs/crontab/proxyCollector2.log" "$CWD/bin/py" artisan/proxyCollector2.py --batch-size=500 --shuffle
-  log_command "tmp/logs/crontab/proxyCollector.log" "$CWD/bin/py" artisan/proxyCollector.py --batch-size=500 --shuffle
+  log_command "tmp/logs/crontab/proxyCollector2.log" "$PYTHON_BIN" artisan/proxyCollector2.py --batch-size=500 --shuffle
+  log_command "tmp/logs/crontab/proxyCollector.log" "$PYTHON_BIN" artisan/proxyCollector.py --batch-size=500 --shuffle
 else
   echo "Skipping 30 minutes job."
 fi
@@ -155,7 +166,7 @@ if should_run_job "tmp/crontab/1-h" 1; then
   # log_command "tmp/logs/crontab/djm_check_proxies.log" djm check_proxies --max=100
   # log_command "tmp/logs/crontab/djm_filter_dups.log" djm filter_dups --max=100
   log_command "tmp/logs/crontab/filter-ports.log" php artisan/filterPorts.php
-  log_command "tmp/logs/crontab/filter-ports-background.log" php artisan/filterPortsDuplicate.php
+  php artisan/filterPortsDuplicate.php --admin=true --max=1000 > "tmp/logs/crontab/filter-ports-background.log" 2>&1
   # log_command "tmp/logs/crontab/check-http-proxy.log" php php_backend/check-http-proxy.php
   # log_command "tmp/logs/crontab/check-https-proxy.log" php php_backend/check-https-proxy.php
   echo "Running 1 hour job."
@@ -167,7 +178,7 @@ fi
 if should_run_job "tmp/crontab/3-h" 3; then
   echo "Running 3 hours job."
   # log_command "tmp/logs/crontab/check-proxy-parallel.log" bash "$CWD/bin/check-proxy-parallel"
-  log_command "tmp/logs/crontab/proxy_checker_httpx.log" "$CWD/bin/py" "$CWD/artisan/proxy_checker_httpx.py"
+  log_command "tmp/logs/crontab/proxy_checker_httpx.log" "$PYTHON_BIN" "$CWD/artisan/proxy_checker_httpx.py"
 else
   echo "Skipping 3 hours job."
 fi
@@ -228,7 +239,7 @@ fi
 if should_run_job "tmp/crontab/72-h" 72; then
   echo "Running 72 hours job."
   # Run backups cleanup script every 3 days
-  log_command "tmp/logs/crontab/cleanup-backups-3d.log" "$CWD/bin/py" "$CWD/src/dev/backup-cleaner.py"
+  log_command "tmp/logs/crontab/cleanup-backups-3d.log" "$PYTHON_BIN" "$CWD/src/dev/backup-cleaner.py"
 else
   echo "Skipping 72 hours job."
 fi
