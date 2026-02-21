@@ -1,5 +1,31 @@
 [
   {
+    "hash": "a1f4ad836996c1538bd1241edbfef4cf8d5b25e2",
+    "date": "2026-02-21T14:45:41+07:00",
+    "message": "fix(proxy_checkers): enhance title validation messages with color coding for better visibility",
+    "files": [
+      "src/PhpProxyHunter/Checker/ProxyCheckerGoogle.php",
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php",
+      "src/PhpProxyHunter/Checker/ProxyCheckerHttpsOnly.php"
+    ]
+  },
+  {
+    "hash": "6c813cbbba91b6cd1a0aa2f1ad92c4aaf0db0fe7",
+    "date": "2026-02-21T14:33:36+07:00",
+    "message": "feat(proxy_ssl_test): add proxy testing tool with SSL support and various checks",
+    "files": [
+      "artisan/proxy_ssl_test.py"
+    ]
+  },
+  {
+    "hash": "6175cd6c8f616fcd27e6fc9964ca2aa85acab9c8",
+    "date": "2026-02-21T14:06:06+07:00",
+    "message": "fix(curl): normalize HttpOnly rest value and add typing guards for cookie handling\n\n- Set `rest={\"HttpOnly\": \"\"}` instead of `None` when generating Netscape cookie jar entries\n- Add `# type: ignore` to urllib3 warning suppression and cookie rest assignments\n- Guard access to `cookie._rest`/`cookie.rest` with `hasattr` checks in `lwp_cookie_str`\n- Add typing ignore comments where accessing dynamic cookie attributes",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/request_helper.py"
+    ]
+  },
+  {
     "hash": "302347634fefe864e50feb7e697466b76a8a2731",
     "date": "2026-02-21T13:21:32+07:00",
     "message": "feat(proxy_checker): add --readonly, --non-ssl and --uid CLI flags; defer file lock; update runner\n\n- Add argparse flags: --readonly (use init_readonly_db), --non-ssl (use only non-SSL working proxies), --uid (override lock filename).\n- Refactor main(db, non_ssl=False) to accept a DB instance and non-SSL selection; choose proxies_to_test from untested or non-SSL working proxies and fill with dead proxies to 1000.\n- Defer file-lock creation until after CLI parsing so --uid can override the lock filename; make locker optional and unlock conditionally.\n- Use init_readonly_db when --readonly is passed; pass selected db and flags into main().\n- Update bin/check-proxy.cmd to activate the project's venv and run artisan/proxy_checker_httpx.py with Python.",
@@ -8644,30 +8670,6 @@
     "message": "feat: add function to retrieve current authenticated user data",
     "files": [
       "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "d03a47d5fcfdf62d6b749d612c2de109bb0f8c79",
-    "date": "2025-09-30T20:57:36+07:00",
-    "message": "fix: use shared ProxyDB instance in scanPorts.php\n\n- Use shared ProxyDB instance from php_backend/shared.php instead of creating new instance\n- Pass ProxyDB instance to extractProxies function to prevent null reference error\n- Add required global variables to access shared database connection",
-    "files": [
-      "scanPorts.php"
-    ]
-  },
-  {
-    "hash": "6c2fe30cc5acb2f4d72547fa1d3cf0a37181f78a",
-    "date": "2025-09-30T20:54:26+07:00",
-    "message": "refactor: replace ProxyDB instantiation with shared instance in proxyChecker\n\n- Add dependency on shared.php for centralized database access\n- Replace new ProxyDB() with shared $proxy_db variable\n- Remove unused ProxyDB import\n- Add $proxy_db to global variable declaration",
-    "files": [
-      "proxyChecker.php"
-    ]
-  },
-  {
-    "hash": "3ea976924f63df122bff7c4825b4b902f836c63c",
-    "date": "2025-09-30T20:52:23+07:00",
-    "message": "refactor: replace ProxyDB instantiation with shared instance in CIDR-check\n\n- Add dependency on shared.php for centralized database access\n- Replace new ProxyDB() with shared $proxy_db variable\n- Remove unused ProxyDB import\n- Add $proxy_db to global variable declaration and closure use statement",
-    "files": [
-      "cidr-information/CIDR-check.php"
     ]
   }
 ]
