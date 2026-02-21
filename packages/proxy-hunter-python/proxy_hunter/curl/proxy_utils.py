@@ -155,7 +155,11 @@ def check_proxy(
         try:
             checker = ProxyChecker()
             lib_result = checker.check_proxy(proxy)
-            if lib_result and proxy_type in lib_result["protocols"]:
+            if (
+                lib_result
+                and hasattr(lib_result, "protocols")
+                and proxy_type in lib_result.protocols
+            ):
                 result = True
         except Exception:
             pass
