@@ -2,6 +2,8 @@
 
 namespace PhpProxyHunter\Checker;
 
+use PhpProxyHunter\AnsiColors;
+
 class ProxyCheckerHttpsOnly extends ProxyChecker
 {
   /**
@@ -25,8 +27,8 @@ class ProxyCheckerHttpsOnly extends ProxyChecker
 
 
     $protocols = isset($options->protocols) && is_array($options->protocols) && count($options->protocols) > 0
-      ? $options->protocols
-      : ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
+        ? $options->protocols
+        : ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
 
     $latencies = [];
 

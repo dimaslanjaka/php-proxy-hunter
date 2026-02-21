@@ -2,6 +2,8 @@
 
 namespace PhpProxyHunter\Checker;
 
+use PhpProxyHunter\AnsiColors;
+
 class ProxyCheckerGoogle extends ProxyChecker
 {
   /**
@@ -22,8 +24,8 @@ class ProxyCheckerGoogle extends ProxyChecker
     $expectedTitle = 'Google';
 
     $protocols = isset($options->protocols) && is_array($options->protocols) && count($options->protocols) > 0
-      ? $options->protocols
-      : ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
+        ? $options->protocols
+        : ['http', 'https', 'socks4', 'socks5', 'socks4a', 'socks5h'];
 
     $latencies = [];
     $found     = false;
