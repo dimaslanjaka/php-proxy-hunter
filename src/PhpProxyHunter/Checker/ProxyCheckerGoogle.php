@@ -63,9 +63,9 @@ class ProxyCheckerGoogle extends ProxyChecker
             if (strtolower($protocol) === 'https') {
               $result->isSSL = true;
             }
-            $msg .= 'Title: ' . $title . ' (VALID)';
+            $msg .= 'Title: ' . $title . AnsiColors::colorize(' (VALID)', 'green');
           } else {
-            $msg .= 'Title: ' . $title . ' (INVALID)';
+            $msg .= 'Title: ' . $title . AnsiColors::colorize(' (INVALID)', 'red');
             // Check for private proxy titles
             if (PrivateProxyDetection::isPrivateProxyByTitle($title, $options->privateProxyTitlePatterns)) {
               $result->private = true;

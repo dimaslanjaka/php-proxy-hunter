@@ -65,9 +65,9 @@ class ProxyCheckerHttpOnly extends ProxyChecker
           if (mb_strtolower($normTitle) === mb_strtolower($normExpected)) {
             $result->isWorking      = true;
             $result->workingTypes[] = strtolower($protocol);
-            $msg .= 'Title: ' . $title . ' (VALID)';
+            $msg .= 'Title: ' . $title . AnsiColors::colorize(' (VALID)', 'green');
           } else {
-            $msg .= 'Title: ' . $title . ' (INVALID)';
+            $msg .= 'Title: ' . $title . AnsiColors::colorize(' (INVALID)', 'red');
             // Check for private proxy titles
             if (PrivateProxyDetection::isPrivateProxyByTitle($title, $options->privateProxyTitlePatterns)) {
               $result->private = true;
