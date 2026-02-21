@@ -1,5 +1,55 @@
 [
   {
+    "hash": "302347634fefe864e50feb7e697466b76a8a2731",
+    "date": "2026-02-21T13:21:32+07:00",
+    "message": "feat(proxy_checker): add --readonly, --non-ssl and --uid CLI flags; defer file lock; update runner\n\n- Add argparse flags: --readonly (use init_readonly_db), --non-ssl (use only non-SSL working proxies), --uid (override lock filename).\n- Refactor main(db, non_ssl=False) to accept a DB instance and non-SSL selection; choose proxies_to_test from untested or non-SSL working proxies and fill with dead proxies to 1000.\n- Defer file-lock creation until after CLI parsing so --uid can override the lock filename; make locker optional and unlock conditionally.\n- Use init_readonly_db when --readonly is passed; pass selected db and flags into main().\n- Update bin/check-proxy.cmd to activate the project's venv and run artisan/proxy_checker_httpx.py with Python.",
+    "files": [
+      "artisan/proxy_checker_httpx.py",
+      "bin/check-proxy.cmd"
+    ]
+  },
+  {
+    "hash": "a5529c6f876c77f03ce7e573953c015f54b68127",
+    "date": "2026-02-21T13:13:55+07:00",
+    "message": "feat(proxydb): add `ssl` filter to get_working_proxies and improve query handling\n\n- Add optional `ssl: Optional[bool]` parameter to `get_working_proxies`\n  (True => SSL-only, False => non-SSL only, None => no filter).\n- Implement robust `https` checks accepting common text/numeric forms\n  (e.g. \"true\"/\"1\" for SSL; NULL/\"\"/\"false\"/\"0\" for non-SSL), case-insensitive.\n- Use backend-aware placeholders and parameter binding (SQLite uses `?`, MySQL `%s`).\n- For SQLite pass `rand` and `limit` via `SQLiteHelper.select()` where possible;\n  for MySQL embed `LIMIT` in the SQL string.\n- When `randomize=False` prefer most-recent rows so newly added/updated proxies\n  appear in limited results (SQLite: `ORDER BY rowid DESC`, MySQL: `ORDER BY id DESC`).\n- Update `get_working_proxies` docstring to document `ssl`, ordering, parameters,\n  return type, and backend notes.\n- Add `tests/test_get_working_proxies.py` with parametrized fixture for `sqlite`\n  and `mysql` (MySQL tests skipped when backend unavailable) to cover SSL/non-SSL/no-filter.",
+    "files": [
+      "src/ProxyDB.py",
+      "tests/test_get_working_proxies.py"
+    ]
+  },
+  {
+    "hash": "66640476b99e74b3c202c290bcba9a9a116983a8",
+    "date": "2026-02-21T13:10:00+07:00",
+    "message": "fix(MySQLHelper): improve MySQL version retrieval with fallback for compatibility",
+    "files": [
+      "src/MySQLHelper.py"
+    ]
+  },
+  {
+    "hash": "b9f62c9661c6629591469f374c00c7315d553fbe",
+    "date": "2026-02-21T12:54:19+07:00",
+    "message": "fix(tests): add type hints for proxy_db fixture parameters",
+    "files": [
+      "tests/ProxyDB_Test.py"
+    ]
+  },
+  {
+    "hash": "72a68e8df853ec41887b270f76b4f8ffa4c33b3f",
+    "date": "2026-02-21T12:44:08+07:00",
+    "message": "feat(proxy_checker): add --readonly CLI flag and readonly DB support\n\n- Add `argparse` parsing for a `--readonly` flag.\n- Import and use `init_readonly_db` when `--readonly` is set.\n- Add `ProxyDB` typing and refactor `main()` to accept a `db` parameter.\n- Pass the selected `db` (readonly or read/write) into `main()` when running.\n- Keep existing debug/exception handling and file lock behavior unchanged.",
+    "files": [
+      "artisan/proxy_checker_httpx.py"
+    ]
+  },
+  {
+    "hash": "8d873b148459e9f4b0cb1a2135a8e2ea835f8e5d",
+    "date": "2026-01-26T20:10:08+07:00",
+    "message": "fix(crontab): detect python binary and use `PYTHON_BIN` in scheduled jobs\n\n- Add `PYTHON_BIN` detection (tries `$CWD/bin/py`, `$CWD/venv/bin/python`, `$CWD/.venv/bin/python`, falls back to `python3`).\n- Replace hardcoded `\"$CWD/bin/py\"` calls with `\"$PYTHON_BIN\"` for artisan/python scripts.\n- Run `php artisan/filterPortsDuplicate.php` with `--admin=true --max=1000` and redirect output to `tmp/logs/crontab/filter-ports-background.log` (instead of previous `log_command` invocation).\n- Improves portability across virtualenv layouts and ensures background jobs log correctly.",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
     "hash": "ee6a453b943a185196236fa06abe71afb4ef9cfb",
     "date": "2026-01-20T13:33:09+07:00",
     "message": "feat(admin): add backup download listing and secure server endpoint\n\n- Add PHP endpoint to list and securely download SQL/JSON backups (admin-only)\n- Validate paths, prevent traversal, and stream files with proper headers\n- Add React admin page section to display backups with size, modified time, and download action\n- Wire new BackupDatabase component into Admin dashboard",
@@ -8618,54 +8668,6 @@
     "message": "refactor: replace ProxyDB instantiation with shared instance in CIDR-check\n\n- Add dependency on shared.php for centralized database access\n- Replace new ProxyDB() with shared $proxy_db variable\n- Remove unused ProxyDB import\n- Add $proxy_db to global variable declaration and closure use statement",
     "files": [
       "cidr-information/CIDR-check.php"
-    ]
-  },
-  {
-    "hash": "347e338d7684d83c70485b07972d4df491e62e55",
-    "date": "2025-09-30T20:50:34+07:00",
-    "message": "refactor(proxyCollector): use shared ProxyDB instance\n\n- Included shared.php to access global $proxy_db.\n- Replaced direct instantiation of ProxyDB with shared instance.\n- Extended globals to include $proxy_db alongside $isWin and $isCli.",
-    "files": [
-      "artisan/proxyCollector.php"
-    ]
-  },
-  {
-    "hash": "7b87bc162620c345ac728d12dd6ecc247420cb4f",
-    "date": "2025-09-30T20:49:22+07:00",
-    "message": "refactor(proxyWorking): use global ProxyDB instance instead of instantiation",
-    "files": [
-      "artisan/proxyWorking.php"
-    ]
-  },
-  {
-    "hash": "5e430ca6e6dea20cb988cf2621cc7cf97c78ae33",
-    "date": "2025-09-30T20:42:17+07:00",
-    "message": "refactor(list): use shared ProxyDB instance and improve access checks\n\n- Replaced direct inclusion of func-proxy.php with shared.php.\n- Introduced global $proxy_db for database access instead of creating a new instance.\n- Added explicit error handling when ProxyDB instance is not available.\n- Updated access control to allow CLI while enforcing cookie/session checks for web requests.",
-    "files": [
-      "list.php"
-    ]
-  },
-  {
-    "hash": "a42dfeccf743f77ae1a8548eed906591897081d0",
-    "date": "2025-09-30T20:40:54+07:00",
-    "message": "fix(geoip): throw exception when ProxyDB instance is missing\n\n- Replaced silent ProxyDB instantiation with InvalidArgumentException to enforce explicit dependency.",
-    "files": [
-      "src/PhpProxyHunter/GeoIpHelper.php"
-    ]
-  },
-  {
-    "hash": "09b4b57d2a2c1a30612ccb57522c5adb76b4b160",
-    "date": "2025-09-30T20:39:13+07:00",
-    "message": "fix(proxy): require ProxyDB instance when write_database is true\n\n- Changed default value of `write_database` from `true` to `false` in `extractProxies`.\n- Added explicit exception when `write_database` is true but no ProxyDB instance is provided.",
-    "files": [
-      "src/utils/proxy/extractor.php"
-    ]
-  },
-  {
-    "hash": "ab73d292e4c76ef9dac7c462d902563dd0e3b34d",
-    "date": "2025-09-30T20:35:12+07:00",
-    "message": "refactor: replace ProxyDB instantiation with shared instance in proxy-checker\n\n- Remove unused ProxyDB import\n- Add proxy_db to global declaration\n- Replace new ProxyDB() with shared $proxy_db variable\n- Improve memory efficiency by reusing existing database connection",
-    "files": [
-      "php_backend/proxy-checker.php"
     ]
   }
 ]
