@@ -3,7 +3,9 @@ import random
 import sys
 from typing import Union
 
+import certifi
 import requests
+from proxy_hunter.curl.certificates import last_merged_certificates_path
 from proxy_hunter.utils.file import read_file
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -40,7 +42,20 @@ def get_pc_useragent() -> Union[str, None]:
     #     if driver is not None:
     #         driver.quit()
     # return result
-    headers = requests.get("https://www.example.com").headers
+    # Prefer the project merged certificate bundle when available
+    verify_path = (
+        str(last_merged_certificates_path)
+        if last_merged_certificates_path.exists()
+        else certifi.where()
+    )
+
+    try:
+        headers = requests.get("http://httpforever.com/", verify=verify_path).headers
+    except Exception:
+        # Fallback to certifi bundle if any SSL issues occur
+        headers = requests.get(
+            "http://httpforever.com/", verify=certifi.where()
+        ).headers
     user_agent = headers.get("User-Agent")
     default_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     return user_agent or default_user_agent
