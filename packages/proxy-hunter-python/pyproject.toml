@@ -29,7 +29,9 @@ dependencies = [
     "beautifulsoup4",
     "httpx",
     "pySocks",
-    "mysql-connector-python"
+    "mysql-connector-python",
+    "cryptography",
+    "certifi"
 ]
 
 [project.urls]

@@ -30,6 +30,8 @@ setuptools.setup(
         "httpx",
         "pySocks",
         "mysql-connector-python",
+        "cryptography",
+        "certifi",
     ],
     test_suite="tests",
     author="Dimas Lanjaka",
