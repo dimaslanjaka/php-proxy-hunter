@@ -25,7 +25,7 @@ ssl._create_default_https_context = lambda: ssl.create_default_context(
 )
 
 # Suppress InsecureRequestWarning
-requests.packages.urllib3.disable_warnings()
+requests.packages.urllib3.disable_warnings()  # type: ignore
 urllib3.disable_warnings()
 
 
@@ -239,7 +239,7 @@ def generate_netscape_cookie_jar(file_path):
         discard=True,
         comment=None,
         comment_url=None,
-        rest={"HttpOnly": None},  # Optional: Set non-standard attribute
+        rest={"HttpOnly": ""},  # Optional: Set non-standard attribute
         rfc2109=False,
     )
     cookie_jar.set_cookie(cookie1)
@@ -260,7 +260,7 @@ def generate_netscape_cookie_jar(file_path):
         discard=True,
         comment=None,
         comment_url=None,
-        rest={"HttpOnly": None},  # Optional: Set non-standard attribute
+        rest={"HttpOnly": ""},  # Optional: Set non-standard attribute
         rfc2109=False,
     )
     cookie_jar.set_cookie(cookie2)
@@ -293,7 +293,7 @@ def update_cookie_jar(
 
                 # Check if the cookie has 'rest' attribute
                 if hasattr(cookie, "rest"):
-                    cookie_dict[cookie.name].rest = cookie.rest
+                    cookie_dict[cookie.name].rest = cookie.rest  # type: ignore
 
         else:
             # If cookie does not exist, add it to the cookie jar
@@ -353,9 +353,10 @@ def lwp_cookie_str(cookie: Cookie):
     if cookie.comment_url:
         h.append(("commenturl", cookie.comment_url))
 
-    keys = sorted(cookie._rest.keys())
-    for k in keys:
-        h.append((k, str(cookie._rest[k])))
+    if hasattr(cookie, "_rest") or hasattr(cookie, "rest"):
+        keys = sorted(cookie._rest.keys())  # type: ignore
+        for k in keys:
+            h.append((k, str(cookie._rest[k])))  # type: ignore
 
     h.append(("version", str(cookie.version)))
 
