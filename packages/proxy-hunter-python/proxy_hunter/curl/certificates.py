@@ -3,15 +3,32 @@ import certifi
 import re
 import warnings
 import logging
+import requests
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.utils import CryptographyDeprecationWarning
 
-# Default location used by your curl layer
+
+# ------------------------------------------------------------------------------
+# Configuration
+# ------------------------------------------------------------------------------
+
 last_merged_certificates_path = Path("tmp/certificates/merged_certificates.pem")
 
-# Regex to extract individual PEM certificate blocks
+download_links = [
+    "https://curl.se/ca/cacert.pem",
+    "https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt",
+]
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+# ------------------------------------------------------------------------------
+# PEM Parsing Utilities
+# ------------------------------------------------------------------------------
+
 PEM_CERT_PATTERN = re.compile(
     rb"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----",
     re.DOTALL,
@@ -25,41 +42,35 @@ def extract_certificates_from_pem(data: bytes) -> list[bytes]:
 
 def fingerprint_certificate(pem_block: bytes) -> bytes:
     """Return SHA256 fingerprint of a PEM certificate."""
-    try:
-        # Suppress the specific Cryptography deprecation warning while loading
-        # so we can gracefully handle certificates that will become invalid
-        # in future cryptography releases. We still validate the serial
-        # number after loading and raise on non-positive values. Keep the
-        # serial-number access inside the suppressed warnings context because
-        # cryptography may emit the deprecation when parsing the serial.
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning)
-            cert = x509.load_pem_x509_certificate(pem_block)
-            serial = getattr(cert, "serial_number", 0)
-            if serial <= 0:
-                raise ValueError("Certificate has non-positive serial number")
-    except Exception:
-        raise
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning)
+        cert = x509.load_pem_x509_certificate(pem_block)
+
+        # Reject non-positive serial numbers
+        serial = getattr(cert, "serial_number", 0)
+        if serial <= 0:
+            raise ValueError("Certificate has non-positive serial number")
+
     return cert.fingerprint(hashes.SHA256())
 
 
-def merge_certificates(folder_path: str | Path, output_path: str | Path) -> Path:
+# ------------------------------------------------------------------------------
+# Core Merge Logic
+# ------------------------------------------------------------------------------
+
+
+def merge_certificates(
+    folders: list[Path],
+    output_path: str | Path,
+) -> Path:
     """
-    Merge certifi CA bundle with all .pem and .crt files
-    found inside `folder_path`.
+    Merge certifi bundle with certificates from multiple folders
+    and external download sources.
 
     Deduplicates certificates using SHA256 fingerprint.
-
-    Returns the output bundle path.
     """
-    folder = Path(folder_path)
     output = Path(output_path)
-
-    if not folder.exists() or not folder.is_dir():
-        raise ValueError(f"Invalid folder path: {folder}")
-
     certifi_bundle = Path(certifi.where())
-    cert_files = list(folder.glob("*.pem")) + list(folder.glob("*.crt"))
 
     seen_fingerprints: set[bytes] = set()
     merged_cert_blocks: list[bytes] = []
@@ -71,22 +82,46 @@ def merge_certificates(folder_path: str | Path, output_path: str | Path) -> Path
                 seen_fingerprints.add(fp)
                 merged_cert_blocks.append(pem_block.strip())
         except Exception as e:
-            # Ignore invalid/corrupted cert blocks or certs with
-            # non-positive serial numbers. Log at debug level so
-            # callers can enable visibility if desired.
-            logger = logging.getLogger(__name__)
             logger.debug("Skipping certificate block: %s", e)
 
-    # 1️⃣ Load certifi bundle certificates first
+    # --------------------------------------------------------------------------
+    # 1️⃣ Load certifi bundle first
+    # --------------------------------------------------------------------------
     for block in extract_certificates_from_pem(certifi_bundle.read_bytes()):
         add_certificate(block)
 
-    # 2️⃣ Load custom certificates
-    for cert_file in cert_files:
-        data = cert_file.read_bytes()
-        for block in extract_certificates_from_pem(data):
-            add_certificate(block)
+    # --------------------------------------------------------------------------
+    # 2️⃣ Load certificates from provided folders
+    # --------------------------------------------------------------------------
+    for folder in folders:
+        if not folder.exists() or not folder.is_dir():
+            continue
 
+        cert_files = list(folder.glob("*.pem")) + list(folder.glob("*.crt"))
+        for cert_file in cert_files:
+            data = cert_file.read_bytes()
+            for block in extract_certificates_from_pem(data):
+                add_certificate(block)
+
+    # --------------------------------------------------------------------------
+    # 3️⃣ Download and merge external CA bundles
+    # --------------------------------------------------------------------------
+    for url in download_links:
+        try:
+            response = requests.get(url, timeout=15, verify=certifi.where())
+            response.raise_for_status()
+
+            for block in extract_certificates_from_pem(response.content):
+                add_certificate(block)
+
+            logger.info("Downloaded and merged: %s", url)
+
+        except Exception as e:
+            logger.warning("Failed to download %s: %s", url, e)
+
+    # --------------------------------------------------------------------------
+    # 4️⃣ Write merged bundle
+    # --------------------------------------------------------------------------
     if not merged_cert_blocks:
         raise ValueError("No valid certificates found.")
 
@@ -97,49 +132,41 @@ def merge_certificates(folder_path: str | Path, output_path: str | Path) -> Path
             outfile.write(block)
             outfile.write(b"\n")
 
-    print(f"Merged bundle created: {output}")
-    print(f"Total unique certificates: {len(merged_cert_blocks)}")
+    logger.info("Merged bundle created: %s", output)
+    logger.info("Total unique certificates: %d", len(merged_cert_blocks))
 
     return output
+
+
+# ------------------------------------------------------------------------------
+# Initialization Logic
+# ------------------------------------------------------------------------------
 
 
 def initialize_default_bundle(candidate_folders: list[Path]) -> Path:
     """
     Create default merged bundle at last_merged_certificates_path.
 
-    Searches for custom certs in candidate folders.
-    Falls back to certifi-only bundle if none found.
+    - Searches for certificates in candidate folders
+    - Always includes certifi bundle
+    - Includes external downloads
+    - Avoids filename overwrite issues
     """
     last_merged_certificates_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Collect all cert files from candidate folders
-    all_cert_files: list[Path] = []
-    for folder in candidate_folders:
-        if folder.exists() and folder.is_dir():
-            all_cert_files.extend(
-                list(folder.glob("*.pem")) + list(folder.glob("*.crt"))
-            )
+    valid_folders = [
+        folder for folder in candidate_folders if folder.exists() and folder.is_dir()
+    ]
 
-    if not all_cert_files:
-        # No custom certs → use certifi bundle only
-        certifi_bundle = Path(certifi.where())
-        last_merged_certificates_path.write_bytes(certifi_bundle.read_bytes())
-        print(
-            f"Created default merged bundle from certifi: {last_merged_certificates_path}"
-        )
-        return last_merged_certificates_path
-
-    # Temporary folder to merge from collected files
-    temp_folder = Path("tmp/certificates/_collected_certs")
-    temp_folder.mkdir(parents=True, exist_ok=True)
-
-    for cert_file in all_cert_files:
-        target = temp_folder / cert_file.name
-        target.write_bytes(cert_file.read_bytes())
-
-    return merge_certificates(temp_folder, last_merged_certificates_path)
+    return merge_certificates(
+        valid_folders,
+        last_merged_certificates_path,
+    )
 
 
-# Auto-initialize bundle on first run
+# ------------------------------------------------------------------------------
+# Auto Initialization
+# ------------------------------------------------------------------------------
+
 if not last_merged_certificates_path.exists() or __name__ == "__main__":
     initialize_default_bundle([Path("certificates"), Path("data")])
