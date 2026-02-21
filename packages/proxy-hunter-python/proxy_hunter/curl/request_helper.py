@@ -12,7 +12,7 @@ import requests
 import urllib3
 from requests.adapters import HTTPAdapter
 from requests.cookies import RequestsCookieJar
-
+from proxy_hunter.Proxy import Proxy
 from proxy_hunter.utils import read_file, write_file
 
 # Set the certificate file in environment variables
@@ -30,8 +30,10 @@ urllib3.disable_warnings()
 
 
 def build_request(
-    proxy: Optional[str] = None,
+    proxy: Optional[str | Proxy] = None,
     proxy_type: Optional[str] = None,
+    proxy_username: Optional[str] = None,
+    proxy_password: Optional[str] = None,
     method: str = "GET",
     post_data: Optional[Union[Dict[str, str], str]] = None,
     endpoint: str = "https://bing.com",
@@ -46,8 +48,10 @@ def build_request(
     Builds and sends an HTTP request using the provided settings.
 
     Args:
-        proxy (Optional[str]): The proxy address in the format IP:PORT. Defaults to None.
+        proxy (Optional[str]): The proxy address in the format IP:PORT or a proxy URL. Defaults to None.
         proxy_type (Optional[str]): Type of proxy ('http', 'socks4', or 'socks5'). Defaults to None.
+        proxy_username (Optional[str]): Username for proxy authentication. Defaults to None.
+        proxy_password (Optional[str]): Password for proxy authentication. Defaults to None.
         method (str): HTTP method ('GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'). Defaults to 'GET'.
         post_data (Optional[Union[Dict[str, str], str]]): Data to send in a POST, PUT, or PATCH request. Can be dict or str. Defaults to None.
         endpoint (str): The endpoint URL for the request. Defaults to 'https://bing.com'.
@@ -65,6 +69,7 @@ def build_request(
         ValueError: If an invalid proxy type is specified or if an unsupported HTTP method is used.
     """
     verify_certificate = kwargs.pop("verify", False)
+
     # Create a new session if one is not provided
     if session is None:
         session = requests.Session()
@@ -78,19 +83,63 @@ def build_request(
         else:
             endpoint += "?" + unique_param
 
+    # Parse proxy if it's a Proxy object
+    if isinstance(proxy, Proxy):
+        if not proxy_type:
+            proxy_type = proxy.type
+        if not proxy_username:
+            proxy_username = proxy.username
+        if not proxy_password:
+            proxy_password = proxy.password
+        proxy = proxy.proxy
+
     if proxy_type is not None and proxy is not None:
+        # Helper to insert credentials when provided and when missing from proxy
+        def insert_creds(scheme: str, hostpart: str) -> str:
+            if proxy_username and proxy_password and "@" not in hostpart:
+                return f"{scheme}{proxy_username}:{proxy_password}@{hostpart}"
+            return f"{scheme}{hostpart}"
+
         if proxy_type.lower() == "http":
-            session.proxies = {"http": proxy, "https": proxy}
+            # If proxy already includes a scheme, preserve it; otherwise add http://
+            if proxy.startswith("http://") or proxy.startswith("https://"):
+                m = re.match(r"^(https?://)(.*)$", proxy)
+                if m:
+                    scheme = m.group(1)
+                    hostpart = m.group(2)
+                else:
+                    scheme, _, hostpart = proxy.partition("://")
+                    scheme = f"{scheme}://" if hostpart else ""
+                proxy_url = insert_creds(scheme, hostpart)
+            else:
+                proxy_url = insert_creds("http://", proxy)
+            session.proxies = {"http": proxy_url, "https": proxy_url}
         elif proxy_type.lower() == "socks4":
-            session.proxies = {
-                "http": f"socks4://{proxy}",
-                "https": f"socks4://{proxy}",
-            }
+            if proxy.startswith("socks4://"):
+                m = re.match(r"^(socks4://)(.*)$", proxy)
+                if m:
+                    scheme = m.group(1)
+                    hostpart = m.group(2)
+                else:
+                    scheme, _, hostpart = proxy.partition("://")
+                    scheme = f"{scheme}://" if hostpart else ""
+                proxy_url = insert_creds(scheme, hostpart)
+            else:
+                proxy_url = insert_creds("socks4://", proxy)
+            session.proxies = {"http": proxy_url, "https": proxy_url}
         elif proxy_type.lower() == "socks5":
-            session.proxies = {
-                "http": f"socks5://{proxy}",
-                "https": f"socks5://{proxy}",
-            }
+            if proxy.startswith("socks5://"):
+                m = re.match(r"^(socks5://)(.*)$", proxy)
+                if m:
+                    scheme = m.group(1)
+                    hostpart = m.group(2)
+                else:
+                    scheme, _, hostpart = proxy.partition("://")
+                    scheme = f"{scheme}://" if hostpart else ""
+                proxy_url = insert_creds(scheme, hostpart)
+            else:
+                proxy_url = insert_creds("socks5://", proxy)
+            session.proxies = {"http": proxy_url, "https": proxy_url}
         else:
             raise ValueError(
                 "Invalid proxy type. Supported types are 'http', 'socks4', and 'socks5'."
