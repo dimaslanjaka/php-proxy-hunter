@@ -40,7 +40,14 @@ class MySQLHelper:
         )
         self.conn.autocommit = autocommit
         self.cursor = self.conn.cursor(dictionary=True)
-        self.mysql_version = self.conn.get_server_info()
+        # Prefer the `server_info` property if available (newer mysql-connector-python),
+        # otherwise fall back to the deprecated `get_server_info()` method.
+        try:
+            self.mysql_version = getattr(self.conn, "server_info", None)
+            if not self.mysql_version and hasattr(self.conn, "get_server_info"):
+                self.mysql_version = self.conn.get_server_info()
+        except Exception:
+            self.mysql_version = None
         self.mysql_username = user
         self.mysql_password = password
         self.mysql_host = host
