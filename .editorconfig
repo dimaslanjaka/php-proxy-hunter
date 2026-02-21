@@ -22,10 +22,10 @@ indent_size = 4
 tab_width = 4
 max_line_length = 119
 
-# PHP (common projects use 4 spaces)
+# PHP (use 2 spaces)
 [*.php]
-indent_size = 4
-tab_width = 4
+indent_size = 2
+tab_width = 2
 
 # JavaScript / TypeScript / JSON / HTML / CSS — 2 spaces
 [*.{js,ts,jsx,tsx,json,html,css,scss,vue}]
