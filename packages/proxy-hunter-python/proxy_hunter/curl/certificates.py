@@ -2,7 +2,6 @@ from pathlib import Path
 import certifi
 import re
 import warnings
-import logging
 import requests
 
 from cryptography import x509
@@ -21,8 +20,7 @@ download_links = [
     "https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt",
 ]
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Using print statements instead of logging to keep output simple
 
 
 # ------------------------------------------------------------------------------
@@ -82,7 +80,7 @@ def merge_certificates(
                 seen_fingerprints.add(fp)
                 merged_cert_blocks.append(pem_block.strip())
         except Exception as e:
-            logger.debug("Skipping certificate block: %s", e)
+            print(f"Skipping certificate block: {e}")
 
     # --------------------------------------------------------------------------
     # 1️⃣ Load certifi bundle first
@@ -114,10 +112,10 @@ def merge_certificates(
             for block in extract_certificates_from_pem(response.content):
                 add_certificate(block)
 
-            logger.info("Downloaded and merged: %s", url)
+            print(f"Downloaded and merged: {url}")
 
         except Exception as e:
-            logger.warning("Failed to download %s: %s", url, e)
+            print(f"Failed to download {url}: {e}")
 
     # --------------------------------------------------------------------------
     # 4️⃣ Write merged bundle
@@ -132,8 +130,8 @@ def merge_certificates(
             outfile.write(block)
             outfile.write(b"\n")
 
-    logger.info("Merged bundle created: %s", output)
-    logger.info("Total unique certificates: %d", len(merged_cert_blocks))
+    print(f"Merged bundle created: {output}")
+    print(f"Total unique certificates: {len(merged_cert_blocks)}")
 
     return output
 
