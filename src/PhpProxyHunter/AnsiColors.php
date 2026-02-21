@@ -2,15 +2,22 @@
 
 namespace PhpProxyHunter;
 
-class AnsiColors {
+class AnsiColors
+{
   /**
    * Colorize text with ANSI codes.
    *
-   * @param array $format
-   * @param string $text
+   * Accepts `$format` as an array of format names (e.g. ['red','underline'])
+   * or as a string (e.g. 'red,underline' or 'red underline'). For convenience
+   * the method also detects and swaps arguments when callers provide the
+   * `$text` first and the `$format` second.
+   *
+   * @param array|string $format Format names or comma/space separated string.
+   * @param string|array $text   Text to colorize, or an array when args are swapped.
    * @return string
    */
-  public static function colorize($format = [], $text = '') {
+  public static function colorize($format = [], $text = '')
+  {
     $codes = [
       'bold'          => 1,
       'italic'        => 3,
@@ -33,9 +40,33 @@ class AnsiColors {
       'cyanbg'        => 46,
       'lightgreybg'   => 47,
     ];
+    // Allow callers to pass arguments in either order: colorize($format, $text)
+    // or the common mistaken usage colorize($text, $format).
+    if ((!is_array($format) && !empty($format)) || is_string($format)) {
+      // Normalize when the second argument looks like a format (color names)
+      $maybeFormat = is_array($text) ? $text : [$text];
+      $allAreCodes = true;
+      foreach ($maybeFormat as $m) {
+        if (!isset($codes[$m])) {
+          $allAreCodes = false;
+          break;
+        }
+      }
+      if ($allAreCodes) {
+        $tmp    = $format;
+        $format = $text;
+        $text   = $tmp;
+      }
+    }
+
+    // Normalize format to array (accept strings like 'red' or 'red,underline')
+    if (is_string($format)) {
+      $format = preg_split('/[,|\s]+/', trim($format));
+    }
+
     $formatMap = array_map(function ($v) use ($codes) {
       return isset($codes[$v]) ? $codes[$v] : null;
-    }, $format);
+    }, is_array($format) ? $format : []);
     $formatMap = array_values(array_filter($formatMap, function ($v) {
       return $v !== null && $v !== '';
     }));
@@ -51,7 +82,8 @@ class AnsiColors {
    * @param string $ansiText
    * @return string
    */
-  public static function ansiToHtml($ansiText) {
+  public static function ansiToHtml($ansiText)
+  {
     // Map ANSI codes to CSS styles
     $ansiMap = [
       1  => 'font-weight:bold;',
