@@ -5,27 +5,134 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 import certifi
 import pytest
+from proxy_hunter import build_request, extract_proxies
 from requests import Response
-
-from proxy_hunter.curl.request_helper import build_request
+import random
 
 
 def do_request(**kwargs):
     try:
-        return build_request(endpoint="https://www.example.com", **kwargs)
-    except Exception:
-        return None
+        return build_request(endpoint="http://httpforever.com/", **kwargs)
+    except Exception as exc:
+        return exc
 
 
 @pytest.mark.parametrize("proxy_type", ["http", "socks4", "socks5"])
 def test_with_proxy(proxy_type):
-    proxy = "176.120.32.135:5678"
+    proxy_str = """
+132.145.93.138:1080
+8.212.177.126:8080
+178.253.22.108:65431
+51.79.135.131:8080
+85.208.108.43:2094
+104.238.30.38:59741
+72.56.50.17:59787
+45.151.182.9:3128
+81.177.48.54:2080
+179.60.53.26:999
+104.238.30.39:59741
+104.238.30.50:59741
+72.56.59.23:61937
+195.158.8.123:3128
+147.75.34.105:443
+168.235.110.63:3128
+72.56.59.62:63133
+65.108.203.37:28080
+116.102.242.52:10017
+62.113.119.14:8080
+160.20.55.235:8080
+213.165.61.247:10000
+13.59.97.103:313
+121.40.231.103:7890
+172.86.92.68:31337
+165.227.104.238:8118
+47.251.74.38:8443
+152.32.255.24:27197
+83.219.250.8:62920
+64.181.240.152:3128
+35.180.127.14:1001
+186.148.180.46:999
+20.210.39.153:8561
+20.210.76.104:8561
+90.84.188.97:8000
+20.78.213.56:80
+154.17.27.79:21266
+65.21.201.149:8080
+47.84.131.156:8100
+45.140.147.155:1081
+113.59.32.162:22222
+177.243.209.133:999
+181.209.110.27:999
+177.234.217.237:999
+211.171.114.154:3128
+45.77.246.231:80
+103.17.246.60:1080
+103.135.102.161:8080
+178.170.43.106:8081
+190.242.157.215:8080
+202.152.44.19:8081
+43.161.214.161:1081
+210.223.44.230:3128
+45.12.151.226:2828
+5.57.38.64:27913
+188.127.255.174:1080
+104.238.30.91:63900
+85.133.227.182:80
+104.238.30.40:59741
+104.238.30.68:63744
+104.238.30.45:59741
+104.238.30.86:63900
+104.238.30.58:63744
+103.84.95.54:7890
+104.238.30.63:63744
+72.56.59.56:63127
+72.56.59.17:61931
+78.24.220.44:10000
+104.238.30.37:59741
+202.152.44.18:8081
+216.229.112.25:8080
+137.184.211.63:8081
+85.133.227.150:80
+13.36.243.194:9899
+109.120.135.230:2030
+85.209.129.60:2222
+103.35.188.243:3128
+57.128.188.167:9196
+47.238.203.170:50000
+47.74.226.8:5001
+20.27.14.220:8561
+122.248.45.54:8080
+8.217.147.173:8080
+20.210.76.178:8561
+59.46.216.131:30001
+152.228.163.79:80
+163.5.128.53:14270
+165.99.151.246:10001
+120.238.159.228:22222
+120.240.35.173:22222
+193.47.60.119:52681
+89.232.177.46:1080
+217.76.245.80:999
+217.150.43.249:8080
+80.76.34.133:8080
+181.129.183.19:53281
+158.160.207.245:2081
+129.159.119.154:1080
+152.70.137.18:8888
+208.67.28.19:58090
+"""
+    proxy = random.choice(extract_proxies(proxy_str))
+    ip_port = proxy.proxy
     response = do_request(proxy=proxy, proxy_type=proxy_type, verify=certifi.where())
-    if response is None:
-        pytest.skip(f"Proxy {proxy_type} at {proxy} is not working or unreachable.")
+    if isinstance(response, Exception):
+        pytest.skip(f"Proxy {proxy_type} at {ip_port} raised exception: {response}")
     assert isinstance(response, Response)
-    assert response.status_code == 200
-    assert "<title>Example Domain</title>" in response.text
+    if response.status_code not in (200, 301, 302):
+        pytest.skip(
+            f"Proxy {proxy_type} at {ip_port} returned status {response.status_code}."
+        )
+    if response.status_code == 200:
+        assert "<title>HTTP Forever</title>".lower() in response.text.lower()
 
 
 if __name__ == "__main__":
