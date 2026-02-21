@@ -6,7 +6,7 @@ from typing import List, Sequence, Dict, Any
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
-from proxy_hunter import extract_proxies, is_port_open
+from proxy_hunter import extract_proxies, is_port_open, check_proxy
 from src.ASNLookup import ASNLookup
 from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
@@ -14,6 +14,7 @@ from src.shared import init_db, init_readonly_db
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.func_platform import is_debug
 from src.func_console import ConsoleColor, red, green, yellow, magenta
+from src.func_date import get_current_rfc3339_time
 
 current_filename = os.path.basename(__file__)
 locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
@@ -135,27 +136,54 @@ if isinstance(res, list):
             proxies_to_delete = []
             for idx, proxy_entry in enumerate(proxies_with_ip):
                 proxy_id = proxy_entry["id"]
+                proxy_username = proxy_entry.get("username")
+                proxy_password = proxy_entry.get("password")
                 proxy_str = proxy_entry["proxy"]
                 proxy_status = proxy_entry["status"]
                 print(yellow(f"  [{idx+1}] ID: {proxy_id}, Proxy: {proxy_str}"))
                 if is_port_open(proxy_str):
-                    if (
-                        proxy_status != "active"
-                        and proxy_status != "untested"
-                        and proxy_status != "port-open"
-                        and proxy_status != "open-port"
-                    ):
-                        # Update status to 'untested' since port is open
-                        db.update_status(proxy_str, "untested")
+                    checks = {
+                        "http": check_proxy(
+                            proxy=proxy_str,
+                            proxy_type="http",
+                            endpoint="http://httpforever.com/",
+                        ),
+                        "socks4": check_proxy(
+                            proxy=proxy_str,
+                            proxy_type="socks4",
+                            endpoint="http://httpforever.com/",
+                        ),
+                        "socks5": check_proxy(
+                            proxy=proxy_str,
+                            proxy_type="socks5",
+                            endpoint="http://httpforever.com/",
+                        ),
+                    }
+                    working_protocols = [
+                        getattr(check, "type", proto)
+                        for proto, check in checks.items()
+                        if check.result
+                    ]
+                    working = len(working_protocols) > 0
+                    if working:
                         print(
                             green(
-                                f"    Port is open for proxy {proxy_str}, status set to 'untested'."
+                                f"    Port is open for proxy {proxy_str}, working protocols: {working_protocols}. Keeping this proxy."
                             )
                         )
+                        db.update_data(
+                            proxy=proxy_str,
+                            data={
+                                "status": "active",
+                                "type": "-".join(working_protocols),
+                                "last_check": get_current_rfc3339_time(),
+                            },
+                        )
                     else:
+                        proxies_to_delete.append(proxy_str)
                         print(
-                            green(
-                                f"    Port is open for proxy {proxy_str}, skipping deletion."
+                            red(
+                                f"    Port is open for proxy {proxy_str} but no protocols work, marked for deletion."
                             )
                         )
                 else:
