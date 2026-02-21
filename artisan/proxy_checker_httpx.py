@@ -6,6 +6,7 @@ import json
 import re
 import time
 import httpx
+import argparse
 from httpx_socks import AsyncProxyTransport
 from proxy_hunter import extract_proxies
 from typing import Dict, Any, Optional
@@ -16,9 +17,10 @@ from dataclasses import dataclass, field
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.func import get_relative_path
-from src.shared import init_db
+from src.shared import init_db, init_readonly_db
 from src.func_date import get_current_rfc3339_time
 from src.utils.file.FileLockHelper import FileLockHelper
+from src.ProxyDB import ProxyDB
 from src.func_platform import is_debug
 
 current_filename = os.path.basename(__file__)
@@ -247,8 +249,7 @@ def process_result(res: Dict[str, ProxyTestResult]) -> None:
     )
 
 
-async def main():
-    db = init_db("mysql")
+async def main(db: ProxyDB) -> None:
     untested_proxies = db.get_untested_proxies(limit=1000)
 
     # If fewer than 1000 untested proxies, fill the remainder with dead proxies
@@ -277,11 +278,19 @@ async def main():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Proxy checker (httpx).")
+    parser.add_argument(
+        "--readonly", action="store_true", help="Use readonly DB connection"
+    )
+    args = parser.parse_args()
+
+    db = init_readonly_db() if args.readonly else init_db("mysql")
+
     if is_debug():
-        asyncio.run(main())
+        asyncio.run(main(db))
     else:
         try:
-            asyncio.run(main())
+            asyncio.run(main(db))
         except Exception as e:
             print(f"Unhandled exception: {e}")
     locker.unlock()
