@@ -13,6 +13,7 @@ from .curl import (
     is_prox,
     join_header_words,
     lwp_cookie_str,
+    merge_certificates,
     random_windows_ua,
     time2isoz,
     update_cookie_jar,

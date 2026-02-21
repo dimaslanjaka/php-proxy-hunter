@@ -16,3 +16,4 @@ from .request_helper import (
     update_cookie_jar,
 )
 from .DebugSession import DebugSession
+from .certificates import merge_certificates
