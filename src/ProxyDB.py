@@ -478,27 +478,82 @@ class ProxyDB:
         auto_fix: bool = False,
         limit: Optional[int] = None,
         randomize: bool = True,
+        ssl: Optional[bool] = None,
     ) -> List[Dict[str, Union[str, None]]]:
         """
-        Retrieve working (active) proxies with optional limit and randomization.
+        Retrieve working (active) proxies with optional limit, ordering and SSL filter.
 
-        Args:
-            auto_fix: If True, run `fix_empty_data` on results before returning.
-            limit: Optional maximum number of returned rows. None means no limit.
-            randomize: If True, order results randomly.
+        Parameters
+        - auto_fix (bool): If True, run `fix_empty_data()` on the results before
+            returning to populate missing geo/webgl/useragent data.
+        - limit (Optional[int]): Maximum number of rows to return. `None` means
+            no explicit limit (internally uses a large integer).
+        - randomize (bool): When True results are ordered randomly. When False
+            results prefer most-recent rows (`ORDER BY rowid DESC` for SQLite,
+            `ORDER BY id DESC` for MySQL) so recently added/updated proxies
+            appear in limited result sets.
+        - ssl (Optional[bool]): Filter by the `https` column:
+                - `True`  => return only proxies where `https` represents SSL
+                    (accepted values: "true", "1" — case-insensitive).
+                - `False` => return only non-SSL proxies (NULL, empty string,
+                    "false", "0").
+                - `None`  => no https/ssl filtering (default).
+
+        Returns
+        - List[Dict[str, Union[str, None]]]: List of proxy rows as dictionaries.
+
+        Notes
+        - The `https` column is stored as TEXT and may contain different
+            string representations; the method compares lowercase text and
+            common numeric values to be robust.
+        - MySQL and SQLite use different placeholder styles; callers should
+            not need to format SQL themselves — use this method's `ssl`
+            argument instead of manual WHERE building.
         """
         if limit is None:
             limit = sys.maxsize
 
-        # Build backend-specific query
+        # Build backend-specific query and params
+        params: List[Union[str, int]] = ["active"]
         if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
-            order_clause = " ORDER BY RAND()" if randomize else ""
-            sql_where = f"status = %s{order_clause} LIMIT {int(limit)}"
-            result = self.get_db().select("proxies", "*", sql_where, ["active"])
+            placeholder = "%s"
+            # For MySQL: when randomize use RAND(), otherwise prefer most-recent rows
+            order_clause = " ORDER BY RAND()" if randomize else " ORDER BY id DESC"
         else:
+            placeholder = "?"
             order_clause = " ORDER BY RANDOM()" if randomize else ""
-            sql_where = f"status = ?{order_clause} LIMIT {int(limit)}"
-            result = self.get_db().select("proxies", "*", sql_where, ["active"])
+
+        where_clause = f"status = {placeholder}"
+
+        # SSL filtering: accept several stored representations
+        # True -> only https values representing true ("true", "1")
+        # False -> non-ssl (NULL, empty string, "false", "0")
+        if ssl is True:
+            # check lowercase and numeric 1
+            where_clause += (
+                f" AND (LOWER(https) = {placeholder} OR https = {placeholder})"
+            )
+            params.extend(["true", "1"])
+        elif ssl is False:
+            where_clause += f" AND (https IS NULL OR https = {placeholder} OR LOWER(https) = {placeholder} OR https = {placeholder})"
+            params.extend(["", "false", "0"])
+
+        # For SQLiteHelper we can pass rand and limit separately to avoid
+        # embedding LIMIT into the where string. For MySQL keep previous behavior.
+        try:
+            if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
+                sql_where = f"{where_clause}{order_clause} LIMIT {int(limit)}"
+                result = self.get_db().select("proxies", "*", sql_where, params)
+            else:
+                # sqlite: when not randomizing, prefer most-recent rows so newly
+                # added/updated proxies appear in the limited result set.
+                if not randomize:
+                    where_clause = f"{where_clause} ORDER BY rowid DESC"
+                result = self.get_db().select(
+                    "proxies", "*", where_clause, params, randomize, int(limit)
+                )
+        except Exception:
+            result = []
 
         if not result:
             return []
