@@ -148,17 +148,25 @@ if [ "$RUN_COMPOSER" -eq 1 ]; then
     # Check if the user exists
     if id -u "$USER" >/dev/null 2>&1; then
       # Run composer commands as the specified user
-      if [ ! -f "$COMPOSER_LOCK" ]; then
-        su -s /bin/sh -c "php $COMPOSER_PHAR install $COMPOSER_ARGS" "$USER"
+      if [ -f "$COMPOSER_PHAR" ]; then
+        if [ ! -f "$COMPOSER_LOCK" ]; then
+          su -s /bin/sh -c "php $COMPOSER_PHAR install $COMPOSER_ARGS" "$USER" || true
+        else
+          su -s /bin/sh -c "php $COMPOSER_PHAR update $COMPOSER_ARGS" "$USER" || true
+        fi
       else
-        su -s /bin/sh -c "php $COMPOSER_PHAR update $COMPOSER_ARGS" "$USER"
+        echo "Composer PHAR not found at $COMPOSER_PHAR; skipping composer as $USER"
       fi
     else
       # Run composer as current user if target user does not exist
       if [ -f "$COMPOSER_LOCK" ]; then
-        php $COMPOSER_PHAR update $COMPOSER_ARGS
+        php $COMPOSER_PHAR update $COMPOSER_ARGS || {
+          echo "Composer update failed."
+        }
       else
-        php $COMPOSER_PHAR install $COMPOSER_ARGS
+        php $COMPOSER_PHAR install $COMPOSER_ARGS || {
+          echo "Composer install failed."
+        }
       fi
     fi
   else
