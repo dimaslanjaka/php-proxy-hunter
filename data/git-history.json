@@ -1,5 +1,104 @@
 [
   {
+    "hash": "03bfe8c56bfed8b3aa57e96eb79172b6dda99387",
+    "date": "2026-02-21T17:25:37+07:00",
+    "message": "feat(filter_duplicate_ips): verify proxy protocols before keeping port-open proxies\n\n- Import `check_proxy` and `get_current_rfc3339_time`\n- For port-open proxies, validate http, socks4, and socks5 protocols via `check_proxy`\n- Determine working protocols dynamically and mark proxy as `active` if any succeed\n- Update proxy `type` and `last_check` timestamp when active\n- Mark proxies for deletion if port is open but no protocols work\n- Improve logging messages to reflect protocol validation results",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "d664c64511ebd6ae83845a84bd62d1461001d5ba",
+    "date": "2026-02-21T17:20:35+07:00",
+    "message": "refactor(curl): replace logging with print statements for simpler output",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/certificates.py"
+    ]
+  },
+  {
+    "hash": "ebf6dc5296c0ab9df00ce4139d270f4ed0e14249",
+    "date": "2026-02-21T17:14:58+07:00",
+    "message": "feat(curl): refactor certificate merge to support multi-folder input and external CA downloads\n\nRefactor merge_certificates to accept multiple folders instead of a\nsingle path and integrate external CA bundle downloads into the merge\nprocess. Always include certifi base bundle and deduplicate certificates\nusing SHA256 fingerprints.\n\nAdd configurable download_links and structured logging. Replace print\nstatements with logger usage and reorganize module into clear sections\n(configuration, parsing utilities, core logic, initialization).\n\nSimplify initialize_default_bundle to avoid temporary folders and\nfilename overwrite risks by delegating directly to the new multi-folder\nmerge implementation.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/certificates.py"
+    ]
+  },
+  {
+    "hash": "01898809d0a01773c65c7a5049d31c038bccaef1",
+    "date": "2026-02-21T17:00:58+07:00",
+    "message": "feat(curl): add certificate parsing, deduplication, and auto-initialization\n\nEnhance certificates module to properly parse and deduplicate PEM/CRT\nfiles using cryptography with SHA256 fingerprints. Extract multiple\ncertificate blocks per file, suppress cryptography deprecation warnings\nduring load, and skip invalid or non-positive serial certificates with\ndebug logging.\n\nRefactor merge_certificates to:\n- Deduplicate against certifi bundle and custom certs\n- Remove naive file concatenation\n- Remove implicit file replacement side effects\n- Improve validation and error handling\n\nIntroduce initialize_default_bundle to bootstrap merged certificate\nbundle from candidate folders with certifi fallback, and add automatic\ninitialization on first run.\n\nAdd cryptography and certifi as project dependencies.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/certificates.py",
+      "packages/proxy-hunter-python/pyproject.toml",
+      "packages/proxy-hunter-python/setup.py"
+    ]
+  },
+  {
+    "hash": "ee0c6b6eb28d68922b01207de48d7f4745a1fdb5",
+    "date": "2026-02-21T16:50:31+07:00",
+    "message": "fix(curl): initialize merged CA bundle and merge custom certs on import\n\n- Add `last_merged_certificates_path` (`tmp/certificates/merged_certificates.pem`).\n- After merging, copy the output to `last_merged_certificates_path`.\n- On import, if the merged bundle is missing, scan `certificates` and `data` for `.pem`/`.crt` files and merge them with the certifi CA bundle.\n- If no custom certs found, write the certifi bundle as a fallback.\n\nPrevents import-time ValueError when a `certificates` folder is absent and avoids SSL verification failures by ensuring a usable CA bundle is always available.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/certificates.py"
+    ]
+  },
+  {
+    "hash": "03cd8c46d252a3bdda531cdc81e46ca53ab67e5c",
+    "date": "2026-02-21T16:49:47+07:00",
+    "message": "fix(curl): prefer project merged CA bundle for requests verification\n\nImport `certifi` and `last_merged_certificates_path` and use them in\n`get_pc_useragent()` to build a `verify` path for `requests.get()`:\n- prefer the project's merged certificate bundle when present\n- fall back to `certifi.where()` on error\n\nAlso change the header retrieval URL to `http://httpforever.com/`.\n\nThis prevents SSL verification failures (SSLCertVerificationError)\nwhen a custom CA bundle is used by the project.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/func_useragent.py"
+    ]
+  },
+  {
+    "hash": "54df961adc0f92df59255f29814aefd97d5af0ab",
+    "date": "2026-02-21T16:39:53+07:00",
+    "message": "feat(curl): add merge_certificates utility to combine certifi bundle with custom CAs\n\nIntroduce a new merge_certificates function under curl.certificates\nthat merges the default certifi CA bundle with all .pem and .crt files\nfrom a specified folder into a single output bundle.\n\nRe-export merge_certificates from curl and package root to make it\npublicly accessible.\n\nThis enables easier integration of custom root certificates (e.g.\ncorporate proxy CAs) while preserving the default trusted certifi\nbundle.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/curl/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/curl/certificates.py"
+    ]
+  },
+  {
+    "hash": "c91802233f1191da0bf87ee9a047f769f6b4dc83",
+    "date": "2026-02-21T16:24:01+07:00",
+    "message": "test(build_request): enhance proxy integration test with dynamic proxy pool and robust handling\n\n- Import `build_request` and `extract_proxies` from top-level package\n- Replace static proxy with randomized proxy selected from large proxy list\n- Switch test endpoint to http://httpforever.com/\n- Return raised exceptions instead of None in helper to improve diagnostics\n- Skip test when proxy raises exception or returns unexpected status\n- Accept 200, 301, and 302 status codes for unstable public proxies\n- Validate response body only when status is 200\n- Improve skip messages with proxy IP:PORT and error details",
+    "files": [
+      "packages/proxy-hunter-python/tests/build_request_proxy.py"
+    ]
+  },
+  {
+    "hash": "561ac686c72037397b3ac8ebecee213289a3ac27",
+    "date": "2026-02-21T16:20:24+07:00",
+    "message": "feat(request_helper): support Proxy object and proxy authentication credentials\n\n- Allow `proxy` parameter to accept `str | Proxy`\n- Add `proxy_username` and `proxy_password` arguments for proxy authentication\n- Automatically extract type, username, and password when `Proxy` object is provided\n- Preserve existing proxy scheme if present (http/https/socks4/socks5)\n- Inject credentials into proxy URL when provided and not already included\n- Refactor proxy URL construction for http, socks4, and socks5 types\n- Update docstring to reflect new proxy capabilities",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/request_helper.py"
+    ]
+  },
+  {
+    "hash": "e1b3f1bba3d2443f809c4fc94b616d2f4ecdede6",
+    "date": "2026-02-21T16:10:12+07:00",
+    "message": "test(proxy-hunter-python): add dedicated proxy integration test for build_request\n\n- Add new build_request_proxy.py test module covering proxy support\n- Parametrize tests for http, socks4, and socks5 proxy types\n- Skip test when proxy is unreachable or not working\n- Assert Response type, 200 status, and expected HTML content\n- Remove proxy-related test from build_requests.py\n- Clean up and reorder imports in build_requests.py",
+    "files": [
+      "packages/proxy-hunter-python/tests/build_request_proxy.py",
+      "packages/proxy-hunter-python/tests/build_requests.py"
+    ]
+  },
+  {
+    "hash": "b922971a3bb0d645f43f7a28073e92ae4e067d46",
+    "date": "2026-02-21T15:46:51+07:00",
+    "message": "fix(proxy): ensure protocols attribute exists before checking proxy type",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/proxy_utils.py"
+    ]
+  },
+  {
+    "hash": "c096f7466909582fa79c5cb3d720fa29465b38c4",
+    "date": "2026-02-21T15:46:18+07:00",
+    "message": "fix(post-merge): improve composer command handling and error reporting",
+    "files": []
+  },
+  {
     "hash": "848db161eaf96985d9e1647f9f83c4beae1edf50",
     "date": "2026-02-21T14:58:34+07:00",
     "message": "fix(ansi): allow AnsiColors::colorize to accept string formats and swapped args\n\n- Normalize `$format` when passed as a string (e.g. \"red,underline\" or \"red underline\").\n- Detect and swap arguments when callers provide the `$text` first and `$format` second.\n- Avoid passing a string to `array_map()` (prevents TypeError).\n- Update phpdoc to reflect accepted types and behavior.",
@@ -8571,108 +8670,8 @@
     "hash": "a0a162531dcef15aec86b488aeb67ef6fc8b9d1d",
     "date": "2025-10-01T06:16:10+07:00",
     "message": "feat(husky): add crontab application for VPS in post-merge hook",
-    "files": []
-  },
-  {
-    "hash": "3533ba6c52853f4f8eb524ef2f0b1d8a449b6731",
-    "date": "2025-10-01T06:13:33+07:00",
-    "message": "fix(crontab): comment out send_curl.php execution in hourly job",
     "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "e77f093e304821e041a1db629f5f1dda7f97bf41",
-    "date": "2025-10-01T06:12:52+07:00",
-    "message": "fix(crontab): remove redundant php command from hourly job",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "239bd268993442a1526ac40dea34a99f2b9a0a09",
-    "date": "2025-10-01T06:11:47+07:00",
-    "message": "refactor: move mergeDB.php to artisan directory and update paths\n\n- Move mergeDB.php from root to artisan/mergeDB.php\n- Update require path from func-proxy.php to shared.php in php_backend\n- Replace hardcoded source directory with tmp() function call\n- Fix relative paths for database.sqlite and output files\n- Maintain functionality while improving project structure",
-    "files": [
-      "artisan/mergeDB.php"
-    ]
-  },
-  {
-    "hash": "847763f5e4aced154e559cad82fe2ce02fe18da4",
-    "date": "2025-10-01T06:11:09+07:00",
-    "message": "feat(crontab): add proxyCollector script execution to hourly job",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "cc0776d0786b04fa0dfcf85d409b323e9c1dbc96",
-    "date": "2025-10-01T06:06:28+07:00",
-    "message": "feat(react): add Google Analytics 4 tracking integration\n\n- Add react-ga4 dependency to package.json\n- Initialize GA4 with tracking ID G-BG75CLNJZ1\n- Implement automatic pageview tracking with custom titles\n- Refactor main app into MainApp component for better organization\n- Track route changes and page navigation events",
-    "files": [
-      "package.json",
-      "src/react/index.tsx"
-    ]
-  },
-  {
-    "hash": "33600d47e863a61f89e3ea03e4e9c56a75e042b1",
-    "date": "2025-10-01T02:28:12+07:00",
-    "message": "feat(mergeDB): add proxy authentication support for database operations\n\n- Modify SQL queries to fetch username and password fields\n- Build proxy strings with auth format (USER:PASS@IP:PORT) when credentials exist\n- Add deduplication with array_unique for both source and target proxies\n- Maintain backward compatibility for proxies without authentication",
-    "files": [
-      "mergeDB.php"
-    ]
-  },
-  {
-    "hash": "d10ab1a51d82b5998e1b0815fe4ff6d2823e67cf",
-    "date": "2025-10-01T02:23:39+07:00",
-    "message": "fix(database): resolve undefined variable error in mergeDB script\n\n- Add $allSourceProxies array to collect proxy data during loop iteration\n- Move proxy collection logic inside foreach loop where $sourceDb is in scope\n- Implement proper error handling for proxy export operations\n- Replace broken post-loop $sourceDb access with collected proxy data\n- Add warning messages for databases without proxies table\n- Ensure proxy export works even when target database is empty\n\nFixes fatal error: \"Call to a member function query() on null\" caused by accessing $sourceDb outside its scope",
-    "files": [
-      "mergeDB.php",
-      "proxyManager.php"
-    ]
-  },
-  {
-    "hash": "7aa810c92f21929e528bf383420d356f37965562",
-    "date": "2025-10-01T02:14:46+07:00",
-    "message": "fix(database): add cross-database compatibility to filterPortsDuplicate\n\n- Add shared database instance support via php_backend/shared.php\n- Implement PDO driver detection using getAttribute method\n- Replace hardcoded SQLite syntax with database-specific SQL functions\n- Fix MySQL compatibility issues with SUBSTR, datetime, and RANDOM functions\n- Update DELETE statements to handle different row ID fields (id vs _rowid_)\n- Improve lock file handling with directory creation and file validation\n- Replace ProxyDB instantiation with global $proxy_db instance\n- Standardize date parameter binding for better SQL injection prevention",
-    "files": [
-      "artisan/filterPortsDuplicate.php"
-    ]
-  },
-  {
-    "hash": "bcd562201e0d37da7fcd8770e36ec65b9298aea7",
-    "date": "2025-10-01T01:59:18+07:00",
-    "message": "refactor(proxy-checker): migrate to shared database and strict types\n\n- Add strict type declarations to both files\n- Switch from func-proxy.php to php_backend/shared.php for better modularity\n- Replace ProxyDB instantiation with global $proxy_db instance\n- Add return type annotations to functions (void, array)\n- Update write_working function to accept optional ProxyDB parameter\n- Pass database instance to write_working calls for consistency\n- Fix duplicate global variable declaration\n- Reorder use statements for better organization\n- Fix ini_set parameter to use string value for type safety",
-    "files": [
-      "proxyCheckerParallel-func.php",
-      "proxyCheckerParallel.php"
-    ]
-  },
-  {
-    "hash": "4cbf75fc37c42ea45b1a0aff82c9bf8e194ef3d8",
-    "date": "2025-10-01T01:57:55+07:00",
-    "message": "refactor(artisan): update filterPorts.php to use shared database and project root\n\n- Replace PROJECT_ROOT constant with $projectRoot variable\n- Switch from func-proxy.php to php_backend/shared.php for better modularity\n- Remove ProxyDB import and use global $proxy_db instance\n- Update all PROJECT_ROOT references to use $projectRoot variable\n- Add $projectRoot to processProxy function globals for consistency",
-    "files": [
-      "artisan/filterPorts.php"
-    ]
-  },
-  {
-    "hash": "e8fb8c888f59d0426681bba7db40eec6974485ef",
-    "date": "2025-10-01T01:55:35+07:00",
-    "message": "fix(database): enhance select method with ORDER BY and LIMIT support\n\n- Add orderBy and limit parameters to BaseSQL abstract select method\n- Implement ORDER BY and LIMIT clauses in MySQLHelper and SQLiteHelper select methods\n- Add getRandomFunction() helper in ProxyDB to handle database-specific RANDOM functions\n- Refactor proxy retrieval methods to use new select method signature\n- Fix SQL syntax errors caused by concatenating ORDER BY and LIMIT to WHERE clauses\n- Improve code maintainability by centralizing query building logic\n\nBREAKING CHANGE: select method signature now includes additional optional parameters for orderBy and limit",
-    "files": [
-      "src/PhpProxyHunter/BaseSQL.php",
-      "src/PhpProxyHunter/MySQLHelper.php",
-      "src/PhpProxyHunter/ProxyDB.php",
-      "src/PhpProxyHunter/SQLiteHelper.php"
-    ]
-  },
-  {
-    "hash": "a1e28bed98c73154ebbe978410fa9cea17f21a49",
-    "date": "2025-09-30T21:18:05+07:00",
-    "message": "feat(proxyRespawner): use shared database and add multi-database support\n\n- Replace direct ProxyDB instantiation with shared $proxy_db instance\n- Include shared.php instead of func-proxy.php for better dependency management\n- Add database driver detection for SQLite and MySQL compatibility\n- Implement driver-specific SQL queries for date operations and random ordering\n- Add exception handling for unsupported database drivers",
-    "files": [
-      "proxyRespawner.php"
+      ".husky/post-merge"
     ]
   }
 ]
