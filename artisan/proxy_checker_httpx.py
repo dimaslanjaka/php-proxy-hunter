@@ -24,10 +24,7 @@ from src.ProxyDB import ProxyDB
 from src.func_platform import is_debug
 
 current_filename = os.path.basename(__file__)
-locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
-if not locker.lock():
-    print("Another instance is running. Exiting.")
-    sys.exit(0)
+locker: Optional[FileLockHelper] = None
 
 TEST_HTTP = "http://httpbin.org/ip"
 TEST_HTTPS = "https://httpbin.org/ip"
@@ -249,23 +246,28 @@ def process_result(res: Dict[str, ProxyTestResult]) -> None:
     )
 
 
-async def main(db: ProxyDB) -> None:
+async def main(db: ProxyDB, non_ssl: bool = False) -> None:
+    # Fetch proxies from database
     untested_proxies = db.get_untested_proxies(limit=1000)
+    non_ssl_proxies = db.get_working_proxies(limit=1000, ssl=False)
 
-    # If fewer than 1000 untested proxies, fill the remainder with dead proxies
-    if len(untested_proxies) < 1000:
-        needed = 1000 - len(untested_proxies)
+    # Choose source list based on CLI flag: default to untested, or non-SSL when requested
+    proxies_to_test = non_ssl_proxies if non_ssl else untested_proxies
+
+    # If fewer than 1000 proxies, fill the remainder with dead proxies
+    if len(proxies_to_test) < 1000:
+        needed = 1000 - len(proxies_to_test)
         dead_proxies = db.get_dead_proxies(limit=needed)
         # Combine and trim to ensure exactly 1000 entries maximum
-        untested_proxies = (untested_proxies + dead_proxies)[:1000]
+        proxies_to_test = (proxies_to_test + dead_proxies)[:1000]
 
     # If no proxies available, exit gracefully
-    if not untested_proxies:
+    if not proxies_to_test:
         print("No proxies available for testing.")
         return
 
     # For now test the first proxy from the assembled list
-    for data in untested_proxies:
+    for data in proxies_to_test:
         proxy = data["proxy"]
         if not proxy:
             print(
@@ -282,15 +284,29 @@ if __name__ == "__main__":
     parser.add_argument(
         "--readonly", action="store_true", help="Use readonly DB connection"
     )
+    parser.add_argument(
+        "--non-ssl", action="store_true", help="Use only non-SSL working proxies"
+    )
+    parser.add_argument("--uid", type=str, help="Override lock filename (unique id)")
     args = parser.parse_args()
+
+    # Apply optional UID override for the lock filename
+    current_filename = args.uid if args.uid else os.path.basename(__file__)
+
+    # Create and acquire file lock after CLI parsing to allow overrides
+    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+    if not locker.lock():
+        print("Another instance is running. Exiting.")
+        sys.exit(0)
 
     db = init_readonly_db() if args.readonly else init_db("mysql")
 
     if is_debug():
-        asyncio.run(main(db))
+        asyncio.run(main(db, args.non_ssl))
     else:
         try:
-            asyncio.run(main(db))
+            asyncio.run(main(db, args.non_ssl))
         except Exception as e:
             print(f"Unhandled exception: {e}")
-    locker.unlock()
+    if locker:
+        locker.unlock()
