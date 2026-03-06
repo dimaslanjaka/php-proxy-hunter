@@ -139,8 +139,6 @@ log_command() {
 # run every 5 minutes
 if should_run_job "tmp/crontab/5-m" 0.0833; then
   echo "Running 5 minutes job."
-  log_command "tmp/logs/crontab/proxy-classifier-lookup.log" "$PYTHON_BIN" "$CWD/artisan/proxy-classifier-lookup.py" --limit=1000
-  log_command "tmp/logs/crontab/filter-duplicate-ips.log" "$PYTHON_BIN" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000 --include-untested
 else
   echo "Skipping 5 minutes job."
 fi
@@ -169,6 +167,8 @@ if should_run_job "tmp/crontab/1-h" 1; then
   log_command "tmp/logs/crontab/filter-ports-background.log" php artisan/filterPortsDuplicate.php --admin=true --max=1000
   # log_command "tmp/logs/crontab/check-http-proxy.log" php php_backend/check-http-proxy.php
   # log_command "tmp/logs/crontab/check-https-proxy.log" php php_backend/check-https-proxy.php
+  log_command "tmp/logs/crontab/proxy-classifier-lookup.log" "$PYTHON_BIN" "$CWD/artisan/proxy-classifier-lookup.py" --limit=1000
+  log_command "tmp/logs/crontab/filter-duplicate-ips.log" "$PYTHON_BIN" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000 --include-untested
   echo "Running 1 hour job."
 else
   echo "Skipping 1 hour job."
