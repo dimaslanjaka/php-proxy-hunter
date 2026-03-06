@@ -1,5 +1,13 @@
 [
   {
+    "hash": "717555a705f5c462f91b4cbe1978186054e49951",
+    "date": "2026-03-06T14:07:22+07:00",
+    "message": "feat(proxy-list): add \"re-check displayed\" action and icon-only controls\n\n- Add `useSnackbar` and `checkProxyHttps` imports and use `showSnackbar` to surface results.\n- Implement `handleRecheckDisplayed()` which gathers proxies currently shown in the table,\n  calls `checkProxyHttps()` to trigger backend checks, shows success/error notifications,\n  and toggles the loading indicator.\n- Replace textual \"Refresh\" and \"Re-check displayed\" buttons with Font Awesome icon buttons\n  and set `title` attributes to the translated strings for accessibility.\n- Add/adjust `ProxyData` import ordering.",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
     "hash": "c385ffd92266139ea83b7fc91230936ad5620715",
     "date": "2026-03-06T13:52:20+07:00",
     "message": "feat(package): add Tailscale script to package.json",
@@ -8710,15 +8718,6 @@
     "message": "feat(admin): require admin role for Admin page\n\n- Add `isAdmin` state to `src/react/pages/Admin.tsx`.\n- Set `isAdmin` from backend response (`data.admin === true`) during auth check.\n- Only render Admin page when user is authenticated and has admin=true.\n- Preserve existing auth redirect and loading behavior.",
     "files": [
       "src/react/pages/Admin.tsx"
-    ]
-  },
-  {
-    "hash": "5d7f487e813dca44f381ef6bf6bf5d4720245015",
-    "date": "2025-10-01T08:32:54+07:00",
-    "message": "refactor(auth): use getUserInfo helper for auth checks in Dashboard and Admin\n\n- Replace manual createUrl/fetch calls with centralized `getUserInfo()` (axios)\n  in `src/react/pages/Dashboard.tsx` and `src/react/pages/Admin.tsx`.\n- Use async/await IIFE with a `mounted` guard to avoid state updates after\n  unmounting.\n- Preserve redirect to `/login` and existing loading spinner behavior.\n- Rename unused catch param to `_err` and remove the now-unused `createUrl` import.",
-    "files": [
-      "src/react/pages/Admin.tsx",
-      "src/react/pages/Dashboard.tsx"
     ]
   }
 ]
