@@ -15,15 +15,18 @@ from src.utils.file.FileLockHelper import FileLockHelper
 from src.func_platform import is_debug
 
 current_filename = os.path.basename(__file__)
-locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
-if not locker.lock():
-    print("Another instance is running. Exiting.")
-    sys.exit(0)
+locker = None
 
 
 def main():
+    global locker
     parser = argparse.ArgumentParser(
         description="Lookup ASN and classification for IPs or a proxy string"
+    )
+    parser.add_argument(
+        "--uid",
+        type=str,
+        help="Override lock filename (unique id)",
     )
     parser.add_argument("--proxy", help="Proxy string to parse into IP(s)")
     parser.add_argument(
@@ -43,6 +46,16 @@ def main():
         help="Limit number of proxies to process when looking up classification",
     )
     args = parser.parse_args()
+    # Apply optional UID override for the lock filename
+    current_lock_name = (
+        args.uid if getattr(args, "uid", None) else os.path.basename(__file__)
+    )
+
+    # Create and acquire file lock after CLI parsing to allow overrides
+    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_lock_name}.lock"))
+    if not locker.lock():
+        print("Another instance is running. Exiting.")
+        sys.exit(0)
     if args.readonly:
         db = init_readonly_db()
     elif args.production:
@@ -121,6 +134,11 @@ def main():
     finally:
         asn_lookup.close()
         db.close()
+        if locker:
+            try:
+                locker.unlock()
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

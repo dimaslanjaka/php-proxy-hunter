@@ -17,13 +17,14 @@ from src.func_console import ConsoleColor, red, green, yellow, magenta
 from src.func_date import get_current_rfc3339_time
 
 current_filename = os.path.basename(__file__)
-locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
-if not locker.lock():
-    print(red("Another instance is running. Exiting."))
-    sys.exit(0)
 
 # CLI args: include --production to use readonly DB, plus other flags
 parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--uid",
+    type=str,
+    help="Override lock filename (unique id)",
+)
 parser.add_argument(
     "--production",
     action="store_true",
@@ -46,6 +47,15 @@ parser.add_argument(
     help="Limit number of duplicate IPs to fetch (overrides default batch)",
 )
 args = parser.parse_args()
+
+# Apply optional UID override for the lock filename
+current_filename = args.uid if args.uid else os.path.basename(__file__)
+
+# Create and acquire file lock after CLI parsing to allow overrides
+locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+if not locker.lock():
+    print(red("Another instance is running. Exiting."))
+    sys.exit(0)
 
 if args.readonly:
     db = init_readonly_db()
