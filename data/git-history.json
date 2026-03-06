@@ -1,5 +1,77 @@
 [
   {
+    "hash": "ca8512c9882055557e722300463c193a289ea7fc",
+    "date": "2026-03-06T13:47:26+07:00",
+    "message": "feat(tailscale): add Tailscale helpers, JSON endpoint, MySQL test and docs\n\n- Add `tailscale/utils.py` with helpers to run `tailscale status --json`:\n  - `save_tailscale_status()` — save status JSON to `tmp/data/tailscale.json` (or given local path)\n  - `get_tailscale_status()` — return parsed JSON\n  - `get_tailscale_ipv4()` — return first IPv4 from status (accepts local path or live query)\n  - `upload_tailscale_status()` — upload saved JSON to SFTP under `<SFTP_PATH>/tmp/data/<filename>` (defaults to `/var/www/html/tmp/data/tailscale.json`), allows empty `SFTP_PASS` (for key auth), returns boolean on success\n\n- Add `tailscale/index.php` — HTTP JSON endpoint that returns an envelope `{ \"error\": boolean, \"data\": ... }` (and error message on failure).\n\n- Add `tailscale/mysql-test.py` — small script that saves/uploads tailscale status, resolves the Tailscale IPv4, and attempts a MySQL connection using `src.shared.get_db_config()`.\n\n- Add `tailscale/mysql-readme.md` — guide for exposing a home MySQL server via Tailscale and connecting from a VPS.",
+    "files": [
+      "tailscale/index.php",
+      "tailscale/mysql-readme.md",
+      "tailscale/mysql-test.py",
+      "tailscale/utils.py"
+    ]
+  },
+  {
+    "hash": "1067823fdf47b56249278a84c6b44ecb87319ed2",
+    "date": "2026-03-06T13:12:27+07:00",
+    "message": "feat(shared): add production database configuration support in get_db_config",
+    "files": [
+      "src/shared.py"
+    ]
+  },
+  {
+    "hash": "5c1a0bf0edae65aa653e3df636edaa3966817820",
+    "date": "2026-03-06T11:40:43+07:00",
+    "message": "feat(android_app): add Android \"Proxy Hunter\" module\n\nAdd a new `android_app` Gradle module implementing the Proxy Hunter Android client:\n- Project and Gradle files: `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`, wrapper, `libs.versions.toml`\n- App module: `app/build.gradle.kts`, `proguard-rules.pro`, `.gitignore`\n- App source: Compose UI (`MainActivity.kt`, theme), data models and managers (`ProxyItem`, `ProxyManager`, `ProxyDB`, `MySQLHelper`), network checker (`ProxyChecker`), and background `ProxyCheckService`\n- Android resources: manifest, strings, colors, themes, icons (vector + webp mipmaps), XML rules (`backup_rules.xml`, `data_extraction_rules.xml`)\n- Tests: example unit + instrumented tests\n- Misc: launcher adaptive icons and drawable assets\n\nNotes:\n- Initial implementation includes a default `ProxyDB` configuration with placeholder DB host/user/password (replace before production).\n- This is an initial add of the Android client; further refinements (sensitive config extraction, CI, and docs) recommended.",
+    "files": [
+      "android_app/.gitignore",
+      "android_app/app/.gitignore",
+      "android_app/app/build.gradle.kts",
+      "android_app/app/proguard-rules.pro",
+      "android_app/app/src/androidTest/java/com/dimaslanjaka/proxyhunter/ExampleInstrumentedTest.kt",
+      "android_app/app/src/main/AndroidManifest.xml",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/MainActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/checker/ProxyChecker.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/MySQLHelper.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyDB.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyItem.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyList.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyManager.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/ProxyCheckService.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ui/theme/Color.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ui/theme/Theme.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ui/theme/Type.kt",
+      "android_app/app/src/main/res/drawable/ic_launcher_background.xml",
+      "android_app/app/src/main/res/drawable/ic_launcher_foreground.xml",
+      "android_app/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "android_app/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "android_app/app/src/main/res/mipmap-hdpi/ic_launcher.webp",
+      "android_app/app/src/main/res/mipmap-hdpi/ic_launcher_round.webp",
+      "android_app/app/src/main/res/mipmap-mdpi/ic_launcher.webp",
+      "android_app/app/src/main/res/mipmap-mdpi/ic_launcher_round.webp",
+      "android_app/app/src/main/res/mipmap-xhdpi/ic_launcher.webp",
+      "android_app/app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp",
+      "android_app/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp",
+      "android_app/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp",
+      "android_app/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp",
+      "android_app/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp",
+      "android_app/app/src/main/res/values/colors.xml",
+      "android_app/app/src/main/res/values/strings.xml",
+      "android_app/app/src/main/res/values/themes.xml",
+      "android_app/app/src/main/res/xml/backup_rules.xml",
+      "android_app/app/src/main/res/xml/data_extraction_rules.xml",
+      "android_app/app/src/test/java/com/dimaslanjaka/proxyhunter/ExampleUnitTest.kt",
+      "android_app/build.gradle.kts",
+      "android_app/gradle.properties",
+      "android_app/gradle/gradle-daemon-jvm.properties",
+      "android_app/gradle/libs.versions.toml",
+      "android_app/gradle/wrapper/gradle-wrapper.jar",
+      "android_app/gradle/wrapper/gradle-wrapper.properties",
+      "android_app/gradlew",
+      "android_app/gradlew.bat",
+      "android_app/settings.gradle.kts"
+    ]
+  },
+  {
     "hash": "03bfe8c56bfed8b3aa57e96eb79172b6dda99387",
     "date": "2026-02-21T17:25:37+07:00",
     "message": "feat(filter_duplicate_ips): verify proxy protocols before keeping port-open proxies\n\n- Import `check_proxy` and `get_current_rfc3339_time`\n- For port-open proxies, validate http, socks4, and socks5 protocols via `check_proxy`\n- Determine working protocols dynamically and mark proxy as `active` if any succeed\n- Update proxy `type` and `last_check` timestamp when active\n- Mark proxies for deletion if port is open but no protocols work\n- Improve logging messages to reflect protocol validation results",
@@ -8648,30 +8720,6 @@
     "files": [
       "src/react/pages/Admin.tsx",
       "src/react/pages/Dashboard.tsx"
-    ]
-  },
-  {
-    "hash": "c0c4b3bcca8cb4ad2a817f0f8478cd4c4c53a0b4",
-    "date": "2025-10-01T07:17:31+07:00",
-    "message": "fix(routes): update titles for admin and dashboard pages to reflect new branding",
-    "files": [
-      "src/react/routes.json"
-    ]
-  },
-  {
-    "hash": "d8a4d3a65308e191fe7c653fa601c924b60c66ec",
-    "date": "2025-10-01T07:16:45+07:00",
-    "message": "fix: update title assignment in pageview tracking to default to 'N/A'",
-    "files": [
-      "src/react/index.tsx"
-    ]
-  },
-  {
-    "hash": "a0a162531dcef15aec86b488aeb67ef6fc8b9d1d",
-    "date": "2025-10-01T06:16:10+07:00",
-    "message": "feat(husky): add crontab application for VPS in post-merge hook",
-    "files": [
-      ".husky/post-merge"
     ]
   }
 ]
