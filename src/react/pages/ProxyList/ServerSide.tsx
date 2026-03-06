@@ -1,13 +1,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import ProxyData from '../../../proxy/ProxyData.js';
 import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 import { timeAgo } from '../../../utils/date/timeAgo.js';
 import { formatNumberWithThousandSeparators } from '../../../utils/number';
 import { noop } from '../../../utils/other';
+import { useSnackbar } from '../../components/Snackbar';
+import { checkProxyHttps } from '../../utils/proxy';
 import { getProxyTypeColorClass } from '../../utils/proxyColors';
 import { createUrl } from '../../utils/url';
 import { formatLatency } from './utils';
-import ProxyData from '../../../proxy/ProxyData.js';
 
 type ProxyRow = ProxyData;
 
@@ -37,6 +39,7 @@ type CounterProxies = {
 
 export default function ServerSide() {
   const { t } = useTranslation();
+  const { showSnackbar } = useSnackbar();
   const [rows, setRows] = React.useState<ProxyRow[]>([]);
   const [errorMsg, setErrorMsg] = React.useState<string>('');
   const [page, setPage] = React.useState(1);
@@ -143,6 +146,31 @@ export default function ServerSide() {
       setTimeout(() => setCopiedIndex((cur) => (cur === idx ? null : cur)), 2000);
     } catch (err) {
       console.error('Copy failed', err);
+    }
+  };
+
+  // Re-check all proxies currently displayed in the table
+  const handleRecheckDisplayed = async () => {
+    if (!rows || rows.length === 0) {
+      showSnackbar({ message: (t('No proxies to re-check') as string) || 'No proxies to re-check', type: 'danger' });
+      return;
+    }
+    try {
+      setLoading(true);
+      const proxies = rows
+        .map((r) => String(r.proxy || ''))
+        .filter(Boolean)
+        .join('\n');
+      const data = await checkProxyHttps(proxies);
+      showSnackbar({
+        message: data.message || (data.error ? 'Failed to re-check proxies' : 'Re-check initiated'),
+        type: data.error ? 'danger' : 'success'
+      });
+    } catch (err) {
+      console.error('Failed to re-check displayed proxies', err);
+      showSnackbar({ message: 'Failed to re-check proxies', type: 'danger' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -279,12 +307,22 @@ export default function ServerSide() {
               </select>
               <div className="w-full sm:w-auto">
                 <button
+                  title={t('refresh')}
                   onClick={() => {
                     setPage(1);
                     fetchData().catch(noop);
                   }}
                   className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm w-full sm:w-auto">
-                  {t('refresh')}
+                  <i className="fa-duotone fa-arrows-rotate" aria-hidden="true" />
+                </button>
+              </div>
+              <div className="w-full sm:w-auto">
+                <button
+                  disabled={loading || rows.length === 0}
+                  onClick={() => handleRecheckDisplayed()}
+                  title={t('recheck_proxy')}
+                  className="px-3 py-1 bg-green-600 text-white rounded-md text-sm w-full sm:w-auto disabled:opacity-50">
+                  <i className="fa-duotone fa-recycle" aria-hidden="true" />
                 </button>
               </div>
             </div>
