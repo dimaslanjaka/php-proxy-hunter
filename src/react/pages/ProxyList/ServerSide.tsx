@@ -9,6 +9,8 @@ import { useSnackbar } from '../../components/Snackbar';
 import { checkProxyHttps } from '../../utils/proxy';
 import { getProxyTypeColorClass } from '../../utils/proxyColors';
 import { createUrl } from '../../utils/url';
+import { add_ajax_schedule, run_ajax_schedule } from '../../../utils/ajaxScheduler';
+import { getUserInfo } from '../../utils/user';
 import { formatLatency } from './utils';
 
 type ProxyRow = ProxyData;
@@ -58,6 +60,7 @@ export default function ServerSide() {
   const [serverDriver, setServerDriver] = React.useState<string>('');
   const [serverPage, setServerPage] = React.useState<number | null>(null);
   const [serverPerPage, setServerPerPage] = React.useState<number | null>(null);
+  const [userId, setUserId] = React.useState<string | null>(null);
 
   const fetchData = React.useCallback(async () => {
     setLoading(true);
@@ -204,7 +207,57 @@ export default function ServerSide() {
     };
   }, []);
 
+  // Fetch user info to get UID for background geoIP scheduling
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const info = await getUserInfo();
+        if (!mounted) return;
+        const uid = (info as any)?.uid || (info as any)?.user_id || null;
+        if (uid && mounted) setUserId(uid);
+      } catch (_err) {
+        // ignore
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const totalPages = perPage > 0 ? Math.max(1, Math.ceil(recordsFiltered / perPage)) : 1;
+
+  // Enqueue proxies missing `country` for background GeoIP lookup (limit to 5)
+  const candidatesGeoIp = React.useMemo(() => {
+    if (!rows || rows.length === 0) return [];
+    return rows
+      .filter((r) => {
+        const c = r.country;
+        return !c || String(c).trim() === '' || String(c) === 'N/A' || String(c) === '-';
+      })
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 5);
+  }, [rows]);
+
+  React.useEffect(() => {
+    if (!userId) return;
+    if (!candidatesGeoIp || candidatesGeoIp.length === 0) return;
+
+    const proxyData = candidatesGeoIp.map((p) => {
+      let proxyStr = String(p.proxy || '');
+      if (p.username && p.password && p.username !== '-' && p.password !== '-') {
+        proxyStr = `${proxyStr}@${p.username}:${p.password}`;
+      }
+      return proxyStr;
+    });
+
+    add_ajax_schedule(createUrl('/geoIpBackground.php'), {
+      method: 'POST_JSON',
+      data: { uid: userId, proxy: JSON.stringify(proxyData) }
+    });
+
+    run_ajax_schedule();
+  }, [userId, candidatesGeoIp]);
 
   // Counter items configuration for rendering the summary grid
   const counterList = [
