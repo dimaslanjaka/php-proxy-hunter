@@ -1,5 +1,21 @@
 [
   {
+    "hash": "eb85a226533267cb50512f6d3fdd3c07ccf6b588",
+    "date": "2026-03-06T14:28:48+07:00",
+    "message": "feat(proxy-list/server-side): enqueue missing-country proxies for background GeoIP\n\n- import `add_ajax_schedule`, `run_ajax_schedule` and `getUserInfo`\n- add `userId` state and effect to fetch current user UID\n- compute up to 5 candidate proxies missing `country` from server rows\n- schedule a `POST_JSON` job to `/geoIpBackground.php` with `{ uid, proxy: JSON.stringify([...]) }`\n- run the AJAX scheduler to process background GeoIP lookups",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "8c83e4e3ebb09021359832dd433f1bd607a650c4",
+    "date": "2026-03-06T14:21:07+07:00",
+    "message": "fix(proxy-list): preserve current page on refresh and sync server page after fetch\n\n- Remove forced `setPage(1)` on the refresh button so refreshing does not reset UI to page 1.\n- Read and store server `page`/`perPage` into `serverPage`/`serverPerPage`.\n- After a successful fetch, update local `page` from the server-reported page so the UI reflects the fetched data and avoids stale-state when changing page then fetching.",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
     "hash": "717555a705f5c462f91b4cbe1978186054e49951",
     "date": "2026-03-06T14:07:22+07:00",
     "message": "feat(proxy-list): add \"re-check displayed\" action and icon-only controls\n\n- Add `useSnackbar` and `checkProxyHttps` imports and use `showSnackbar` to surface results.\n- Implement `handleRecheckDisplayed()` which gathers proxies currently shown in the table,\n  calls `checkProxyHttps()` to trigger backend checks, shows success/error notifications,\n  and toggles the loading indicator.\n- Replace textual \"Refresh\" and \"Re-check displayed\" buttons with Font Awesome icon buttons\n  and set `title` attributes to the translated strings for accessibility.\n- Add/adjust `ProxyData` import ordering.",
@@ -8702,22 +8718,6 @@
       "src/react/locales/en.json",
       "src/react/locales/id.json",
       "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "3df89117e5a900b661d7247e7751dd78b9ce5022",
-    "date": "2025-10-01T08:57:47+07:00",
-    "message": "feat(logs): include entries targeting user in user logs\n\nInclude log entries where `target_user_id` matches the authenticated user in addition to entries where `user_id` matches. This ensures actions performed on a user (for example by admins) are shown in that user's log view.",
-    "files": [
-      "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "560fa10cc3401f89f0c6d586462793cca508a07a",
-    "date": "2025-10-01T08:34:56+07:00",
-    "message": "feat(admin): require admin role for Admin page\n\n- Add `isAdmin` state to `src/react/pages/Admin.tsx`.\n- Set `isAdmin` from backend response (`data.admin === true`) during auth check.\n- Only render Admin page when user is authenticated and has admin=true.\n- Preserve existing auth redirect and loading behavior.",
-    "files": [
-      "src/react/pages/Admin.tsx"
     ]
   }
 ]
