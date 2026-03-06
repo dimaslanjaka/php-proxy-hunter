@@ -29,6 +29,34 @@ from src.func import get_relative_path
 from src.func_platform import is_debug
 
 
+def get_db_config(production: bool = False) -> dict:
+    """Get database configuration from environment variables."""
+    db_type = os.getenv("DB_TYPE", "sqlite").lower()
+    if production:
+        mysql_host = os.getenv(
+            "MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost")
+        )
+        mysql_dbname = os.getenv(
+            "MYSQL_DBNAME_PRODUCTION", os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
+        )
+        mysql_user = os.getenv("MYSQL_USER_PRODUCTION", os.getenv("MYSQL_USER", "root"))
+        mysql_pass = os.getenv("MYSQL_PASS_PRODUCTION", os.getenv("MYSQL_PASS", ""))
+    else:
+        mysql_host = os.getenv("MYSQL_HOST", "localhost")
+        mysql_dbname = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
+        mysql_user = os.getenv("MYSQL_USER", "root")
+        mysql_pass = os.getenv("MYSQL_PASS", "")
+
+    db_config = {
+        "db_type": db_type,
+        "mysql_host": mysql_host,
+        "mysql_dbname": mysql_dbname,
+        "mysql_user": mysql_user,
+        "mysql_pass": mysql_pass,
+    }
+    return db_config
+
+
 def init_db(
     db_type: str = "sqlite",
     custom_db_name: Optional[str] = None,
