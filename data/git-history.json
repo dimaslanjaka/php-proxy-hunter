@@ -1,5 +1,14 @@
 [
   {
+    "hash": "d679018df9353c802b86ee2fa6e6382df5e2f788",
+    "date": "2026-03-06T14:45:17+07:00",
+    "message": "fix(geoip): guard ResourceBundle usage and initialize $fetched\n\n- Initialize `$fetched` at start of processing loop in `geoIp.php` to avoid \"Undefined variable\" warnings.\n- Guard against `ResourceBundle::create()` returning null in `src/PhpProxyHunter/GeoIpHelper.php` and avoid calling `get()` on a null object.\n- Fall back to the 'und' entry when needed and return `null` if no locale found.\n- Catch `\\Throwable` instead of `\\Exception` to prevent fatal errors when ext-intl / ICU data are unavailable.",
+    "files": [
+      "geoIp.php",
+      "src/PhpProxyHunter/GeoIpHelper.php"
+    ]
+  },
+  {
     "hash": "eb85a226533267cb50512f6d3fdd3c07ccf6b588",
     "date": "2026-03-06T14:28:48+07:00",
     "message": "feat(proxy-list/server-side): enqueue missing-country proxies for background GeoIP\n\n- import `add_ajax_schedule`, `run_ajax_schedule` and `getUserInfo`\n- add `userId` state and effect to fetch current user UID\n- compute up to 5 candidate proxies missing `country` from server rows\n- schedule a `POST_JSON` job to `/geoIpBackground.php` with `{ uid, proxy: JSON.stringify([...]) }`\n- run the AJAX scheduler to process background GeoIP lookups",
@@ -8707,16 +8716,6 @@
     "date": "2025-10-01T12:01:37+07:00",
     "message": "feat(dashboard/user-activity): make header responsive and show icon-only controls on mobile\n\n- make header title responsive (flex-1, min-w-0, truncate/break-words) to avoid overlap on small screens\n- pin title icon (flex-shrink-0) and prevent refresh button overflow (flex-shrink-0, ml-0 sm:ml-4)\n- refresh button: icon-only on mobile, text on desktop, add aria-label for accessibility\n- pagination Prev/Next: show chevrons on mobile and text on desktop, add aria-labels and small responsive spacing",
     "files": [
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "e48d1436c7293f7a0b9f353e4df260f4c57be74d",
-    "date": "2025-10-01T09:57:42+07:00",
-    "message": "feat(dashboard): add manual refresh to user activity and shorten title\n\n- Add `isMountedRef` and `handleRefresh` to `UserActivityCard.tsx` to allow manual refresh of user logs and avoid state updates after unmount\n- Add a refresh button to the `UserActivityCard` header that calls `handleRefresh` (disabled while loading)\n- Shorten locale key `user_activity_title` in `src/react/locales/en.json` and `src/react/locales/id.json` to \"Activity — {{user}}\"",
-    "files": [
-      "src/react/locales/en.json",
-      "src/react/locales/id.json",
       "src/react/pages/dashboard/UserActivityCard.tsx"
     ]
   }
