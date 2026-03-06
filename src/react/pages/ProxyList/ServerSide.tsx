@@ -100,8 +100,17 @@ export default function ServerSide() {
         setRecordsTotal(Number(data.recordsTotal) || 0);
         setRecordsFiltered(Number(data.recordsFiltered) || 0);
         setServerDriver(typeof data.driver === 'string' ? data.driver : '');
-        setServerPage(Number.isFinite(Number(data.page)) ? Number(data.page) : null);
-        setServerPerPage(Number.isFinite(Number(data.perPage)) ? Number(data.perPage) : null);
+        const srvPage = Number.isFinite(Number(data.page)) ? Number(data.page) : null;
+        const srvPerPage = Number.isFinite(Number(data.perPage)) ? Number(data.perPage) : null;
+        setServerPage(srvPage);
+        setServerPerPage(srvPerPage);
+        // After a successful fetch, sync the local `page` to the server's
+        // reported page. This follows the pattern: fetch data first, then
+        // update the UI page so immediate fetches use the requested page
+        // (avoids stale state when calling setPage() then fetchData()).
+        if (srvPage !== null && srvPage !== page) {
+          setPage(srvPage);
+        }
         if (data.counter_proxies && typeof data.counter_proxies === 'object') {
           setCounters({
             total_proxies: Number(data.counter_proxies.total_proxies) || 0,
@@ -308,10 +317,7 @@ export default function ServerSide() {
               <div className="w-full sm:w-auto">
                 <button
                   title={t('refresh')}
-                  onClick={() => {
-                    setPage(1);
-                    fetchData().catch(noop);
-                  }}
+                  onClick={() => fetchData().catch(noop)}
                   className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm w-full sm:w-auto">
                   <i className="fa-duotone fa-arrows-rotate" aria-hidden="true" />
                 </button>
