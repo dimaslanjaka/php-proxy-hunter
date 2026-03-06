@@ -7,7 +7,8 @@ use Throwable;
 /**
  * Helper class for GeoIP-related proxy operations.
  */
-class GeoIpHelper {
+class GeoIpHelper
+{
   /**
    * Resolve geo information for a proxy and update the database.
    *
@@ -20,7 +21,8 @@ class GeoIpHelper {
   * @param string|null $password Optional proxy password for authenticated proxies
    * @return array<string,mixed> Associative array of geo data (may be empty)
    */
-  public static function resolveGeoProxy($the_proxy, $proxy_type = 'http', $db = null, $username = null, $password = null) {
+  public static function resolveGeoProxy($the_proxy, $proxy_type = 'http', $db = null, $username = null, $password = null)
+  {
     $proxy = trim($the_proxy);
     if (empty($proxy)) {
       return [];
@@ -135,7 +137,8 @@ class GeoIpHelper {
   * @param ProxyDB|null $db Optional ProxyDB instance to persist results
    * @return array<string,mixed> Associative array with geo information; values may be null if unavailable.
    */
-  public static function getGeoIpSimple($ip, $db = null) {
+  public static function getGeoIpSimple($ip, $db = null)
+  {
     $geo_plugin        = new \PhpProxyHunter\GeoPlugin();
     $locate            = $geo_plugin->locate_recursive($ip);
     $data              = [];
@@ -167,19 +170,28 @@ class GeoIpHelper {
    * @param string $country The country code.
    * @return string|null The primary language code or null if not found.
    */
-  public static function extIntlGetLangCountryCode($country) {
+  public static function extIntlGetLangCountryCode($country)
+  {
     if (empty($country)) {
       return null;
     }
     try {
       $subtags = \ResourceBundle::create('likelySubtags', 'ICUDATA', false);
+      if (!$subtags) {
+        // ResourceBundle unavailable or failed to load
+        return null;
+      }
       $country = \Locale::canonicalize('und_' . $country);
       if (isset($country[0]) && $country[0] === '_') {
         $country = 'und' . $country;
       }
-      $locale = $subtags->get($country) ?: $subtags->get('und');
-      return \Locale::getPrimaryLanguage($locale);
-    } catch (\Exception $e) {
+      // protect against unexpected null from get()
+      $locale = $subtags->get($country);
+      if (!$locale) {
+        $locale = $subtags->get('und');
+      }
+      return $locale ? \Locale::getPrimaryLanguage($locale) : null;
+    } catch (\Throwable $e) {
       return null;
     }
   }
@@ -191,7 +203,8 @@ class GeoIpHelper {
    * @param string $language_code ISO 639-1-alpha 2 language code (optional)
    * @return string|null A locale, formatted like en_US, or null if not found
    */
-  public static function countryCodeToLocale($country_code, $language_code = '') {
+  public static function countryCodeToLocale($country_code, $language_code = '')
+  {
     if (empty($country_code)) {
       return null;
     }
