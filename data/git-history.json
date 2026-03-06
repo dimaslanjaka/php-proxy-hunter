@@ -1,5 +1,29 @@
 [
   {
+    "hash": "3ec4a24b31c6fce974c8d443e2548d6f6d5c13da",
+    "date": "2026-03-06T21:02:17+07:00",
+    "message": "Merge pull request #76 from dimaslanjaka/dependabot/npm_and_yarn/vite-7.3.1\n\nchore(deps-dev): bump vite from 7.3.0 to 7.3.1",
+    "files": []
+  },
+  {
+    "hash": "1d55bdb46128500b05390bf842dd15a4f32d0878",
+    "date": "2026-03-06T20:33:20+07:00",
+    "message": "ci(clean-logs): add input types, defaults and scheduled fallbacks\n\nAdd explicit `type` fields and defaults for workflow inputs and fix descriptions/capitalization.\nMake `dry_run` required with a default of `false`. Replace `github.event.inputs` usages with\n`inputs` and provide safe fallback values for scheduled runs. Ensure boolean handling avoids\nstring-truthiness issues.",
+    "files": [
+      ".github/workflows/clean-logs.yml",
+      "packages/proxies-grabber"
+    ]
+  },
+  {
+    "hash": "8e3b75cbd14270ab974860090f6d85f45fee4e7c",
+    "date": "2026-03-06T20:30:13+07:00",
+    "message": "feat(artisan): add --uid CLI option and defer lock creation\n\n- Add `--uid` CLI argument to allow overriding the lock filename for artisan scripts.\n- Defer creation/acquisition of the file lock until after CLI parsing so `--uid` can take effect.\n- Update `artisan/filter_duplicate_ips.py` and `artisan/proxy-classifier-lookup.py`:\n  - `filter_duplicate_ips.py`: accept `--uid` and create the lock after parsing.\n  - `proxy-classifier-lookup.py`: accept `--uid`, initialize `locker` safely, create lock after parsing, and ensure unlock in `finally`.\n- `artisan/proxy_checker_httpx.py` already supported `--uid` and was verified.\n\nRationale: allows running multiple instances with unique lock names and enables programmatic/CI overrides.",
+    "files": [
+      "artisan/filter_duplicate_ips.py",
+      "artisan/proxy-classifier-lookup.py"
+    ]
+  },
+  {
     "hash": "66502d01b90534d7016ac5160d4fe41637c80600",
     "date": "2026-03-06T14:52:21+07:00",
     "message": "fix(crontab): restore logging for proxy classifier and duplicate IPs in hourly job",
@@ -320,6 +344,14 @@
     "message": "feat(proxy_checker): add --readonly CLI flag and readonly DB support\n\n- Add `argparse` parsing for a `--readonly` flag.\n- Import and use `init_readonly_db` when `--readonly` is set.\n- Add `ProxyDB` typing and refactor `main()` to accept a `db` parameter.\n- Pass the selected `db` (readonly or read/write) into `main()` when running.\n- Keep existing debug/exception handling and file lock behavior unchanged.",
     "files": [
       "artisan/proxy_checker_httpx.py"
+    ]
+  },
+  {
+    "hash": "8588853843c53cd53de8330daa90ce160d5e1d3d",
+    "date": "2026-02-01T15:24:57Z",
+    "message": "chore(deps-dev): bump vite from 7.3.0 to 7.3.1\n\nBumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) from 7.3.0 to 7.3.1.\n- [Release notes](https://github.com/vitejs/vite/releases)\n- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)\n- [Commits](https://github.com/vitejs/vite/commits/v7.3.1/packages/vite)\n\n---\nupdated-dependencies:\n- dependency-name: vite\n  dependency-version: 7.3.1\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      "package.json"
     ]
   },
   {
@@ -8683,39 +8715,6 @@
       ".github/workflows/checker-python.yml",
       ".github/workflows/clean-caches.yml",
       ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "d170745c03da8fa7c5412b6784ab864dd71a3425",
-    "date": "2025-10-01T18:41:39+07:00",
-    "message": "feat(server): resolve public IP when REMOTE_ADDR is localhost and cache results\n\n- When `$_SERVER['REMOTE_ADDR']` is `127.0.0.1`, call `getPublicIP()` to obtain the machine's public IP\n- Add `getPublicIP()` with:\n  - in-memory and file caching (1 hour expiry)\n  - multiple fallback IP services with short timeouts for fast failover\n  - pre-configured cURL options for reliability\n- Add `parseIpResponse()` to handle text/json/trace responses and validate IPs\n- Add `cacheIp()` helper to persist IP to file and update in-memory cache\n\nThis improves accuracy for detecting client/server public IPs in local environments and reduces external calls via caching.",
-    "files": [
-      "src/PhpProxyHunter/Server.php"
-    ]
-  },
-  {
-    "hash": "e3ced70fd76d74ac3fa60771e801a85e3e1b7043",
-    "date": "2025-10-01T16:53:46+07:00",
-    "message": "feat(utils/number): add fixPhoneNumber and comprehensive tests\n\n- Add `fixPhoneNumber` to `src/utils/number.js` to normalize and clean phone numbers:\n  - Handles null/undefined -> '' and numeric 0 -> '0'\n  - Converts numeric inputs to strings and strips all non-digit characters\n  - Includes examples and clear JSDoc\n- Add extensive unit tests in `tests/utils/fixPhoneNumber.test.js` covering:\n  - Various formatting styles, international formats, special characters, edge cases, numeric inputs, and malformed inputs\n\nTests: new file `tests/utils/fixPhoneNumber.test.js`",
-    "files": [
-      "src/utils/number.js",
-      "tests/utils/fixPhoneNumber.test.js"
-    ]
-  },
-  {
-    "hash": "0bd1e3eb7bfc9c53ca28b74e5bed090c97cc5f6f",
-    "date": "2025-10-01T16:51:39+07:00",
-    "message": "refactor(proxy/extractor): remove unused extractProxiesFromFile helper\n\n- Delete obsolete `extractProxiesFromFile` function that read and parsed IP:PORT lines from a file\n- Reduce code size and surface area; proxy extraction now relies on existing extraction utilities\n\nBREAKING CHANGE: If any external code depended on `extractProxiesFromFile`, update callers to use `extractProxiesToObject` or inline file reading logic.",
-    "files": [
-      "src/proxy/extractor.js"
-    ]
-  },
-  {
-    "hash": "5639cf2405d678946ba425ea05c9fb4a615bb267",
-    "date": "2025-10-01T16:50:25+07:00",
-    "message": "fix(git-history): increase default commit limit from 100 to 1000 to prevent buffer issues",
-    "files": [
-      "src/dev/git-history.builder.ts"
     ]
   }
 ]
