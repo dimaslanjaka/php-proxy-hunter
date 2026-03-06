@@ -7,15 +7,21 @@ on:
         description: 'Number of days.'
         required: true
         default: 1
+        type: number
+
       minimum_runs:
         description: 'The minimum runs to keep for each workflow.'
         required: true
         default: 0
+        type: number
+
       delete_workflow_pattern:
-        description: 'The name or filename of the workflow. if not set then it will target all workflows.'
+        description: 'The name or filename of the workflow. If not set then it will target all workflows.'
         required: false
+        type: string
+
       delete_workflow_by_state_pattern:
-        description: 'Remove workflow by state: active, deleted, disabled_fork, disabled_inactivity, disabled_manually'
+        description: 'Remove workflow by state.'
         required: true
         default: 'All'
         type: choice
@@ -25,8 +31,9 @@ on:
           - deleted
           - disabled_inactivity
           - disabled_manually
+
       delete_run_by_conclusion_pattern:
-        description: 'Remove workflow by conclusion: action_required, cancelled, failure, skipped, success'
+        description: 'Remove workflow by conclusion.'
         required: true
         default: 'All'
         type: choice
@@ -37,11 +44,15 @@ on:
           - failure
           - skipped
           - success
+
       dry_run:
         description: 'Only log actions, do not perform any delete operations.'
-        required: false
+        required: true
+        default: false
+        type: boolean
+
   schedule:
-    - cron: '0 0 * * *' # This cron expression triggers the workflow once a day at midnight UTC
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -50,15 +61,20 @@ concurrency:
 jobs:
   del_runs:
     runs-on: ubuntu-latest
+
     steps:
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2
         with:
           token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
-          retain_days: ${{ github.event.inputs.days }}
-          keep_minimum_runs: ${{ github.event.inputs.minimum_runs }}
-          delete_workflow_pattern: ${{ github.event.inputs.delete_workflow_pattern }}
-          delete_workflow_by_state_pattern: ${{ github.event.inputs.delete_workflow_by_state_pattern }}
-          delete_run_by_conclusion_pattern: ${{ github.event.inputs.delete_run_by_conclusion_pattern }}
-          dry_run: ${{ github.event.inputs.dry_run }}
+
+          # Safe fallbacks for scheduled runs (since schedule has no inputs)
+          retain_days: ${{ inputs.days || 1 }}
+          keep_minimum_runs: ${{ inputs.minimum_runs || 0 }}
+          delete_workflow_pattern: ${{ inputs.delete_workflow_pattern }}
+          delete_workflow_by_state_pattern: ${{ inputs.delete_workflow_by_state_pattern || 'All' }}
+          delete_run_by_conclusion_pattern: ${{ inputs.delete_run_by_conclusion_pattern || 'All' }}
+
+          # Proper boolean handling (NO string truthiness issue)
+          dry_run: ${{ inputs.dry_run || false }}
