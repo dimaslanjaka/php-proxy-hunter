@@ -32,9 +32,32 @@ android {
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+    isCoreLibraryDesugaringEnabled = true
   }
   buildFeatures {
     compose = true
+  }
+  packaging {
+    jniLibs {
+      useLegacyPackaging = true
+    }
+    resources {
+      excludes += listOf(
+        "DebugProbesKt.bin",
+        "**/*.ignore",
+        "**/*.ignored",
+        "META-INF/DEPENDENCIES",
+        "META-INF/LICENSE",
+        "META-INF/license.txt",
+        "META-INF/NOTICE.txt",
+        "META-INF/notice.txt",
+        "META-INF/ASL2.0",
+        "META-INF/*.kotlin_module",
+        "mozilla/public-suffix-list.txt",
+        "/META-INF/INDEX.LIST"
+      )
+      merges += listOf("**/LICENSE.txt", "**/NOTICE.txt")
+    }
   }
 }
 
@@ -44,7 +67,18 @@ kotlin {
   }
 }
 
+// Global exclusions to resolve duplicate class errors with powertunnel-release.aar
+// We exclude from runtime/implementation to avoid duplicates in the APK,
+// but keep them for compilation to avoid compiler errors.
+configurations.all {
+  if (name.contains("implementation", ignoreCase = true) || name.contains("runtime", ignoreCase = true)) {
+    exclude(group = "org.jetbrains", module = "annotations")
+    exclude(group = "com.google.code.gson", module = "gson")
+  }
+}
+
 dependencies {
+  coreLibraryDesugaring(libs.desugar.jdk.libs)
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.activity.compose)
@@ -55,6 +89,7 @@ dependencies {
   implementation(libs.androidx.material3)
   implementation(libs.androidx.material.icons.core)
   implementation(libs.androidx.material.icons.extended)
+  implementation(libs.androidx.preference.ktx)
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
   androidTestImplementation(libs.androidx.espresso.core)
@@ -65,4 +100,18 @@ dependencies {
 
   implementation(libs.okhttp)
   implementation(libs.mysql.connector)
+  implementation(libs.timber)
+
+  // Provide annotations to the compiler but don't package them
+  compileOnly("org.jetbrains:annotations:23.0.0")
+  compileOnly("com.google.code.gson:gson:2.10.1")
+
+  // Register all .jar and .aar files from the specified directory
+  // Exclude annotations and gson jars as they are already bundled in powertunnel-release.aar
+  implementation(fileTree("D:\\Repositories\\android-traffic\\releases") {
+    include("*.jar")
+    include("*.aar")
+    exclude("annotations-*.jar")
+    exclude("gson-*.jar")
+  })
 }

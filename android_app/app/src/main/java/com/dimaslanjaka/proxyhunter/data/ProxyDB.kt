@@ -31,15 +31,97 @@ class ProxyDB(
         }
     }
 
-    fun getWorkingProxies(limit: Int = 100): Future<List<ProxyItem>> {
-        val sql = "SELECT * FROM proxies WHERE status = 'active' ORDER BY last_check DESC LIMIT ?"
+    fun getWorkingProxies(
+        limit: Int = 100,
+        offset: Int = 0,
+        country: String? = null,
+        city: String? = null,
+        classification: String? = null
+    ): Future<List<ProxyItem>> {
+        var sql = "SELECT * FROM proxies WHERE status = 'active'"
+        val params = mutableListOf<Any>()
+
+        if (!country.isNullOrBlank()) {
+            sql += " AND country = ?"
+            params.add(country)
+        }
+        if (!city.isNullOrBlank()) {
+            sql += " AND city = ?"
+            params.add(city)
+        }
+        if (!classification.isNullOrBlank()) {
+            sql += " AND classification = ?"
+            params.add(classification)
+        }
+
+        sql += " ORDER BY last_check DESC LIMIT ? OFFSET ?"
+        params.add(limit)
+        params.add(offset)
+
         return db.execute { conn ->
             val stmt = conn.prepareStatement(sql)
-            stmt.setInt(1, limit)
+            params.forEachIndexed { index, param ->
+                stmt.setObject(index + 1, param)
+            }
             val rs = stmt.executeQuery()
             val list = mutableListOf<ProxyItem>()
             while (rs.next()) {
                 list.add(mapResultSetToProxyItem(rs))
+            }
+            rs.close()
+            stmt.close()
+            list
+        }
+    }
+
+    fun getUniqueCountries(): Future<List<String>> {
+        val sql = "SELECT DISTINCT country FROM proxies WHERE status = 'active' AND country IS NOT NULL AND country != '' ORDER BY country ASC"
+        return db.execute { conn ->
+            val stmt = conn.prepareStatement(sql)
+            val rs = stmt.executeQuery()
+            val list = mutableListOf<String>()
+            while (rs.next()) {
+                list.add(rs.getString("country"))
+            }
+            rs.close()
+            stmt.close()
+            list
+        }
+    }
+
+    fun getUniqueCities(country: String? = null): Future<List<String>> {
+        var sql = "SELECT DISTINCT city FROM proxies WHERE status = 'active' AND city IS NOT NULL AND city != ''"
+        val params = mutableListOf<Any>()
+        if (!country.isNullOrBlank()) {
+            sql += " AND country = ?"
+            params.add(country)
+        }
+        sql += " ORDER BY city ASC"
+
+        return db.execute { conn ->
+            val stmt = conn.prepareStatement(sql)
+            params.forEachIndexed { index, param ->
+                stmt.setObject(index + 1, param)
+            }
+            val rs = stmt.executeQuery()
+            val list = mutableListOf<String>()
+            while (rs.next()) {
+                list.add(rs.getString("city"))
+            }
+            rs.close()
+            stmt.close()
+            list
+        }
+    }
+
+    fun getUniqueClassifications(): Future<List<String>> {
+        val sql = "SELECT DISTINCT classification FROM proxies WHERE status = 'active' AND classification IS NOT NULL AND classification != '' ORDER BY classification ASC"
+        return db.execute { conn ->
+            val stmt = conn.prepareStatement(sql)
+            val rs = stmt.executeQuery()
+            val list = mutableListOf<String>()
+            while (rs.next()) {
+                list.add(rs.getString("classification"))
             }
             rs.close()
             stmt.close()
@@ -98,7 +180,8 @@ class ProxyDB(
             webglRenderer = rs.getString("webgl_renderer"),
             browserVendor = rs.getString("browser_vendor"),
             username = rs.getString("username"),
-            password = rs.getString("password")
+            password = rs.getString("password"),
+            classification = try { rs.getString("classification") } catch (e: Exception) { null }
         )
     }
 

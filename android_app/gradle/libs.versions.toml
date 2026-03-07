@@ -10,6 +10,9 @@ lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 mysqlConnector = "5.1.49"
 okhttpVersion = "5.1.0"
+timber = "5.0.1"
+desugar_jdk_libs = "2.1.5"
+preferenceKtx = "1.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -28,8 +31,11 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
 mysql-connector = { group = "mysql", name = "mysql-connector-java", version.ref = "mysqlConnector" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpVersion" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
