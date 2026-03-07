@@ -3,6 +3,7 @@
 **/build/
 local.properties
 .env
+**/.cache/
 
 # IDE
 .idea/
