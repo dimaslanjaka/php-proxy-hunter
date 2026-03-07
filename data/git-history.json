@@ -1,5 +1,28 @@
 [
   {
+    "hash": "577464951879939017e56004a54cd83bb962d7a0",
+    "date": "2026-03-07T11:28:13+07:00",
+    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
+    "files": []
+  },
+  {
+    "hash": "a35ad99520d80516fcc3ff2491be37e9f616d61e",
+    "date": "2026-03-07T11:27:21+07:00",
+    "message": "feat(android): add Tun2Socks VPN, UI filters/pagination, and build/runtime fixes\n\n- Add Tun2SocksVpnService and Tun2SocksVpnStarter to start/stop a tun2socks-based VPN using a SOCKS5 proxy.\n- Add `LocalSharedPrefs` to persist selected proxy for the VPN.\n- Integrate VPN starter into `MainActivity` and replace Log calls with Timber.\n- Refactor Compose UI:\n  - `ProxyListScreen` and `ProxyRow` rewritten with filters (country, city, classification), dropdowns, previews, infinite scroll/pagination, unique list keys, and improved connect/disconnect button and layouts.\n  - Add previews for `ProxyRow` and `ProxyListScreen`.\n- Data layer enhancements:\n  - `ProxyDB`: add `getWorkingProxies` pagination/filters (limit/offset/country/city/classification) and methods `getUniqueCountries`, `getUniqueCities`, `getUniqueClassifications`.\n  - `ProxyItem`: add `classification`, credential helpers, improved `toString()` and factory overload.\n- Build and dependency changes:\n  - Enable core library desugaring and add `coreLibraryDesugaring(libs.desugar.jdk.libs)`.\n  - Add `timber`, `desugar_jdk_libs`, and `preferenceKtx` to `libs.versions.toml`.\n  - Add `implementation(fileTree(...))` to include local .jar/.aar releases while excluding annotation/gson jars.\n  - Add `compileOnly` for `org.jetbrains:annotations` and `com.google.code.gson:gson` to provide annotations at compile-time only.\n  - Configure global `configurations.all` exclusions for runtime/implementation duplicates (annotations, gson) to avoid duplicate-class conflicts.\n  - Add packaging exclusions/merges and set `jniLibs.useLegacyPackaging = true`.\n  - Set `android.experimental.suppressExtractNativeLibsWarnings=true` in `gradle.properties`.\n- AndroidManifest: register `Tun2SocksVpnService` (non-exported, bound to `BIND_VPN_SERVICE`) and add intent-filter for `android.net.VpnService`.\n\nNotes:\n- The configurations exclusion and `compileOnly` usage intentionally keep annotations/gson available at compile time while preventing duplicate packaging at runtime (resolves conflicts with bundled `powertunnel-release.aar`).\n- New dependencies and desugaring are required for runtime compatibility; ensure Gradle sync to apply them.",
+    "files": [
+      "android_app/app/build.gradle.kts",
+      "android_app/app/src/main/AndroidManifest.xml",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/MainActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyDB.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyItem.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/LocalSharedPrefs.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/Tun2SocksVpnService.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/Tun2SocksVpnStarter.kt",
+      "android_app/gradle.properties",
+      "android_app/gradle/libs.versions.toml"
+    ]
+  },
+  {
     "hash": "3ec4a24b31c6fce974c8d443e2548d6f6d5c13da",
     "date": "2026-03-06T21:02:17+07:00",
     "message": "Merge pull request #76 from dimaslanjaka/dependabot/npm_and_yarn/vite-7.3.1\n\nchore(deps-dev): bump vite from 7.3.0 to 7.3.1",
@@ -8694,27 +8717,6 @@
     "message": "build(deps-dev): bump vite from 7.1.4 to 7.1.7\n\nBumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) from 7.1.4 to 7.1.7.\n- [Release notes](https://github.com/vitejs/vite/releases)\n- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)\n- [Commits](https://github.com/vitejs/vite/commits/v7.1.7/packages/vite)\n\n---\nupdated-dependencies:\n- dependency-name: vite\n  dependency-version: 7.1.7\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
     "files": [
       "package.json"
-    ]
-  },
-  {
-    "hash": "bce5220f502480dd3922ff1e503f0278f4628045",
-    "date": "2025-10-01T15:08:40Z",
-    "message": "build(deps): bump actions/setup-python from 5 to 6\n\nBumps [actions/setup-python](https://github.com/actions/setup-python) from 5 to 6.\n- [Release notes](https://github.com/actions/setup-python/releases)\n- [Commits](https://github.com/actions/setup-python/compare/v5...v6)\n\n---\nupdated-dependencies:\n- dependency-name: actions/setup-python\n  dependency-version: '6'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/clean-caches.yml"
-    ]
-  },
-  {
-    "hash": "70f4395fabc1ac442e38e974ba8ac19f74ae98c8",
-    "date": "2025-10-01T15:08:36Z",
-    "message": "build(deps): bump actions/setup-node from 4 to 5\n\nBumps [actions/setup-node](https://github.com/actions/setup-node) from 4 to 5.\n- [Release notes](https://github.com/actions/setup-node/releases)\n- [Commits](https://github.com/actions/setup-node/compare/v4...v5)\n\n---\nupdated-dependencies:\n- dependency-name: actions/setup-node\n  dependency-version: '5'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/github-pages.yml"
     ]
   }
 ]
