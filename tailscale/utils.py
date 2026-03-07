@@ -16,8 +16,8 @@ import ipaddress
 from typing import Any, Dict, Optional, Union
 import posixpath
 import paramiko
-
-from src.vps.sftp_transfer import upload as sftp_upload
+import firebase_admin
+from firebase_admin import credentials, db
 
 # ensure repo root is importable (match pattern used in mysql-test.py)
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -25,6 +25,7 @@ sys.path.insert(0, ROOT)
 
 from src.func import get_relative_path
 from proxy_hunter import write_file
+from src.vps.sftp_transfer import upload as sftp_upload
 
 
 def save_tailscale_status(
@@ -173,3 +174,32 @@ def upload_tailscale_status(
         raise
 
     return True
+
+
+def save_firebase_database(input_data: Optional[Dict[str, Any]] = None) -> None:
+    url = "https://android-008-default-rtdb.firebaseio.com/"
+    cred = credentials.Certificate(
+        get_relative_path("tailscale/firebase-adminsdk.json")
+    )
+    try:
+        firebase_admin.get_app()
+    except ValueError:
+        firebase_admin.initialize_app(cred, {"databaseURL": url})
+
+    ref = db.reference("tailscale_status")
+
+    # build payload, letting `input_data` overwrite the default ip if present
+    payload: Dict[str, Any] = {"ip": get_tailscale_ipv4()}
+    if input_data:
+        payload.update(input_data)
+
+    # Overwrite the `tailscale_status` node with a single record.
+    # This replaces any previous data under `tailscale_status` in realtime database.
+    try:
+        ref.set(payload)
+    except Exception:
+        # fall back to push if set() fails for any reason
+        ref.push(payload)
+
+    data = ref.get()
+    print(data)

@@ -22,6 +22,7 @@ from tailscale.utils import (
     get_tailscale_ipv4,
     save_tailscale_status,
     upload_tailscale_status,
+    save_firebase_database,
 )
 
 
@@ -34,10 +35,19 @@ def run() -> int:
         print("Failed to upload Tailscale status")
     host = get_tailscale_ipv4()  # Get the Tailscale IPv4 address to connect to
     print("Tailscale IPv4:", host)
+
     db_info = get_db_config()
     port = 3306
     user = db_info.get("mysql_user", "root")
     password = db_info.get("mysql_pass", "")
+
+    # Save Tailscale status to Firebase Realtime Database
+    payload = {
+        "ip": host,
+    }
+    payload.update(db_info)  # Include MySQL credentials in the payload for debugging
+    save_firebase_database(payload)
+
     if is_debug():
         print(f"Attempting MySQL connection to {host}:{port} with {user=}, {password=}")
     try:
