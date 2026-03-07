@@ -3,6 +3,7 @@ package com.dimaslanjaka.proxyhunter.service
 import android.content.Intent
 import android.net.VpnService
 import android.os.ParcelFileDescriptor
+import com.dimaslanjaka.prefs.LocalSharedPrefs
 import engine.Engine
 import engine.Key
 import timber.log.Timber

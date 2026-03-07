@@ -5,6 +5,7 @@ import android.net.VpnService
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import com.dimaslanjaka.prefs.LocalSharedPrefs
 import timber.log.Timber
 
 /**
@@ -33,7 +34,7 @@ class Tun2SocksVpnStarter(private val activity: ComponentActivity) {
         val proxyUrl = if (ipHost.startsWith("socks5://")) ipHost else "socks5://$ipHost"
         Timber.i("Preparing to start VPN with proxy: %s", proxyUrl)
 
-        pref.putString("socks", proxyUrl)
+        pref.put("socks", proxyUrl)
 
         val intent = VpnService.prepare(activity)
         if (intent != null) {
