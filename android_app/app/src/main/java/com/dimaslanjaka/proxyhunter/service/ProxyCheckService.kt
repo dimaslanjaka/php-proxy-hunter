@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.IBinder
 import timber.log.Timber
 import androidx.core.app.NotificationCompat
+import com.dimaslanjaka.prefs.LocalSharedPrefs
 import com.dimaslanjaka.proxyhunter.ProxyCheckerActivity
 import com.dimaslanjaka.proxyhunter.checker.ProxyChecker
 import com.dimaslanjaka.proxyhunter.data.ProxyDB
@@ -29,44 +30,69 @@ class ProxyCheckService : Service() {
   private var db: ProxyDB? = null
   private val checkedCount = AtomicInteger(0)
   private var totalCount = 0
+  private lateinit var prefs: LocalSharedPrefs
 
   override fun onCreate() {
     super.onCreate()
     ProxyManager.setRunning(true)
     db = ProxyDB()
+    prefs = LocalSharedPrefs.initialize(this, "proxy_checker_prefs")
     createNotificationChannel()
   }
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-    ProxyManager.setRunning(true)
+    val isPriority = intent?.getBooleanExtra(EXTRA_PRIORITY, false) ?: false
 
-    if (checkJob?.isActive == true) {
-      sendProgressBroadcast("", false, null, null, checkedCount.get(), totalCount)
+    if (isPriority) {
+      Timber.d("Priority check requested, cancelling current job if any")
+      checkJob?.cancel()
+    } else if (checkJob?.isActive == true) {
+      Timber.d("Service already running, ignoring non-priority start request")
       return START_STICKY
     }
 
-    val proxies = ProxyManager.get()
-    if (proxies.isEmpty()) {
-      finishService()
-      return START_NOT_STICKY
-    }
-
-    totalCount = proxies.size
-    checkedCount.set(0)
-
-    startForeground(NOTIFICATION_ID, createNotification(0, totalCount))
+    ProxyManager.setRunning(true)
 
     checkJob = serviceScope.launch {
       try {
+        var proxies = ProxyManager.get()
+
+        // If no proxies provided and auto-check is enabled, fetch from DB
+        if (proxies.isEmpty() && prefs.getBoolean("auto_check_proxies", false)) {
+          Timber.d("No proxies in manager, fetching untested proxies for auto-check")
+          proxies = db?.getUntestedProxies(100)?.get() ?: emptyList()
+          if (proxies.isNotEmpty()) {
+            ProxyManager.set(proxies)
+          }
+        }
+
+        if (proxies.isEmpty()) {
+          Timber.d("No proxies to check, finishing service")
+          withContext(Dispatchers.Main) {
+            finishService()
+          }
+          return@launch
+        }
+
+        totalCount = proxies.size
+        checkedCount.set(0)
+
+        withContext(Dispatchers.Main) {
+          startForeground(NOTIFICATION_ID, createNotification(0, totalCount))
+        }
+
         for (proxy in proxies) {
-          if (!isActive) break
+          if (!isActive) {
+            Timber.d("Check job cancelled/inactive, stopping loop")
+            break
+          }
 
           val proxyStr = proxy.toString()
           ProxyManager.setCurrentProxy(proxyStr)
 
           // Notify that we started checking this specific proxy
           sendBroadcast(Intent(ACTION_PROXY_CHECK_STARTED).apply {
-              putExtra(EXTRA_PROXY, proxyStr)
+            putExtra(EXTRA_PROXY, proxyStr)
           })
 
           val result = try {
@@ -94,11 +120,15 @@ class ProxyCheckService : Service() {
           updateNotification(currentChecked, totalCount)
           sendProgressBroadcast(proxyStr, result.isWorking, result.type, result.title, currentChecked, totalCount)
         }
+      } catch (e: CancellationException) {
+        Timber.d("CheckJob was cancelled")
       } catch (e: Exception) {
         Timber.e(e, "CheckJob failed")
       } finally {
         withContext(NonCancellable) {
-          finishService()
+          withContext(Dispatchers.Main) {
+            finishService()
+          }
         }
       }
     }
@@ -107,6 +137,29 @@ class ProxyCheckService : Service() {
   }
 
   private fun finishService() {
+    val autoCheckEnabled = prefs.getBoolean("auto_check_proxies", false)
+
+    if (autoCheckEnabled && checkJob?.isCancelled != true) {
+      // If auto-check is enabled and we weren't cancelled (e.g. by priority)
+      // then try to fetch more proxies and continue.
+      serviceScope.launch {
+        val untested = db?.getUntestedProxies(100)?.get() ?: emptyList()
+        if (untested.isNotEmpty()) {
+          Timber.d("Auto-check continuing with ${untested.size} more proxies")
+          ProxyManager.set(untested)
+          val intent = Intent(this@ProxyCheckService, ProxyCheckService::class.java)
+          startService(intent)
+        } else {
+          Timber.d("No more untested proxies, stopping service")
+          actuallyStopService()
+        }
+      }
+    } else {
+      actuallyStopService()
+    }
+  }
+
+  private fun actuallyStopService() {
     ProxyManager.setRunning(false)
     ProxyManager.setCurrentProxy(null)
     sendBroadcast(Intent(ACTION_PROXY_CHECK_FINISHED))
@@ -187,5 +240,6 @@ class ProxyCheckService : Service() {
     const val EXTRA_TITLE = "extra_title"
     const val EXTRA_CHECKED = "extra_checked"
     const val EXTRA_TOTAL = "extra_total"
+    const val EXTRA_PRIORITY = "extra_priority"
   }
 }

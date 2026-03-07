@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.dimaslanjaka.proxyhunter.data.ProxyDB
+import com.dimaslanjaka.prefs.LocalSharedPrefs
 import com.dimaslanjaka.proxyhunter.data.ProxyManager
 import com.dimaslanjaka.proxyhunter.service.ProxyCheckService
 import com.dimaslanjaka.proxyhunter.ui.theme.ProxyHunterTheme
@@ -51,20 +51,15 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Permission is granted. Continue the action or workflow in your app.
-            fetchUntestedAndStartService()
+            checkAndStartService()
         } else {
-            // Explain to the user that the feature is unavailable because the
-            // features requires a permission that the user has denied.
             Toast.makeText(this, "Notification permission is required for background checking", Toast.LENGTH_LONG).show()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         checkNotificationPermission()
-
         enableEdgeToEdge()
         setContent {
             ProxyHunterTheme {
@@ -87,42 +82,33 @@ class MainActivity : ComponentActivity() {
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED -> {
-                    // You can use the API that requires the permission.
-                    fetchUntestedAndStartService()
+                    checkAndStartService()
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
-                    // In an educational UI, explain to the user why your app requires this
-                    // permission for a specific feature to behave as expected.
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
                 else -> {
-                    // You can directly ask for the permission.
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
         } else {
-            fetchUntestedAndStartService()
+            checkAndStartService()
         }
     }
 
-    private fun fetchUntestedAndStartService() {
-        val proxyDB = ProxyDB()
-        Thread {
-            try {
-                Timber.tag("ProxyHunter").d("Checking for untested proxies to start service...")
-                val proxies = proxyDB.getUntestedProxies(limit = 100).get()
-                if (proxies.isNotEmpty()) {
-                    Timber.tag("ProxyHunter").d("Found ${proxies.size} untested proxies. Starting service.")
-                    ProxyManager.set(proxies)
-                    val intent = Intent(this, ProxyCheckService::class.java)
-                    ContextCompat.startForegroundService(this, intent)
-                }
-            } catch (e: Exception) {
-                Timber.tag("ProxyHunter").e(e, "Service initialization failed")
-            } finally {
-                proxyDB.close()
+    private fun checkAndStartService() {
+        val prefs = LocalSharedPrefs.initialize(this, "proxy_checker_prefs")
+        val autoCheckEnabled = prefs.getBoolean("auto_check_proxies", false)
+
+        if (autoCheckEnabled && !ProxyManager.isRunningFlow.value) {
+            Timber.d("Auto-check enabled in MainActivity, starting service")
+            val intent = Intent(this, ProxyCheckService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ContextCompat.startForegroundService(this, intent)
+            } else {
+                startService(intent)
             }
-        }.start()
+        }
     }
 }
 

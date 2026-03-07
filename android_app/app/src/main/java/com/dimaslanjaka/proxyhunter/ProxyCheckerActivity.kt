@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -130,6 +132,7 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
   val gson = remember { Gson() }
   var inputText by rememberSaveable { mutableStateOf(prefs.getString("last_input", "") ?: "") }
   var limitInput by rememberSaveable { mutableStateOf(prefs.getString("limit_input", "50") ?: "50") }
+  var autoCheckProxies by rememberSaveable { mutableStateOf(prefs.getBoolean("auto_check_proxies", false)) }
   val results = remember { mutableStateListOf<CheckResult>() }
 
   // Use StateFlow from ProxyManager for reliable service status
@@ -294,12 +297,53 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
 
       Spacer(modifier = Modifier.height(16.dp))
 
+      // Checker Category
       Row(
         modifier = Modifier
           .fillMaxWidth()
           .horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically
       ) {
+        // Auto Checking Proxy Checkbox inline
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          modifier = Modifier
+            .clickable {
+              val newValue = !autoCheckProxies
+              autoCheckProxies = newValue
+              prefs.put("auto_check_proxies", newValue)
+              if (newValue && !isCheckingAll) {
+                // Trigger auto-check if enabled and service idle
+                val serviceIntent = Intent(context, ProxyCheckService::class.java)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                  context.startForegroundService(serviceIntent)
+                } else {
+                  context.startService(serviceIntent)
+                }
+              }
+            }
+            .padding(end = 8.dp)
+        ) {
+          Checkbox(
+            checked = autoCheckProxies,
+            onCheckedChange = {
+              autoCheckProxies = it
+              prefs.put("auto_check_proxies", it)
+              if (it && !isCheckingAll) {
+                val serviceIntent = Intent(context, ProxyCheckService::class.java)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                  context.startForegroundService(serviceIntent)
+                } else {
+                  context.startService(serviceIntent)
+                }
+              }
+            }
+          )
+          Text("Auto Checking Proxy", fontSize = 12.sp)
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
         Button(
           onClick = {
             if (isCheckingAll) {
@@ -340,7 +384,9 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
                   if (idx != -1) results[idx] = results[idx].copy(isChecking = true)
                 }
 
-                val serviceIntent = Intent(context, ProxyCheckService::class.java)
+                val serviceIntent = Intent(context, ProxyCheckService::class.java).apply {
+                  putExtra(ProxyCheckService.EXTRA_PRIORITY, true)
+                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                   context.startForegroundService(serviceIntent)
                 } else {
@@ -364,9 +410,15 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
             Text("Check All", fontSize = 12.sp)
           }
         }
+      }
 
-        Spacer(modifier = Modifier.width(8.dp))
-
+      // Fetcher Category
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically
+      ) {
         OutlinedTextField(
           value = limitInput,
           onValueChange = {
@@ -388,7 +440,7 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
           textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp)
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         OutlinedButton(
           onClick = {
