@@ -1,5 +1,77 @@
 [
   {
+    "hash": "02e079519c589592d95835d9e863c34f3f2ee0d3",
+    "date": "2026-03-07T15:59:18+07:00",
+    "message": "feat(android_app/checker): add ProxyCheckerActivity with Compose UI for proxy validation\n\n- introduce `ProxyCheckerActivity` to provide a dedicated proxy checking screen\n- implement Jetpack Compose UI with input field, fetch button, and results list\n- support manual proxy input (`host:port` and `user:pass@host:port`)\n- add proxy list fetching from public GitHub sources (socks5, socks4, http)\n- extract and randomize proxies using `ProxyExtractor`\n- perform sequential proxy checks using `ProxyChecker` with coroutine support\n- display real-time status indicators (checking, success, failure)\n- show protocol badge (SOCKS5, SOCKS4, HTTP) for working proxies\n- persist last input and results using `LocalSharedPrefs`\n- restore previous session results on activity launch\n- allow canceling active checks and clearing results\n- store working proxies into `ProxyDB` with active status\n- implement responsive UI with loading indicators for fetching and checking",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyCheckerActivity.kt"
+    ]
+  },
+  {
+    "hash": "d9b750a59a7257621ee1d3635d5449947291f44d",
+    "date": "2026-03-07T15:58:19+07:00",
+    "message": "feat(android): add WorkingProxyList activity with proxy browsing and VPN controls\n\n- Introduce WorkingProxyList activity to display working proxies\n- Implement ProxyListScreen with filtering (country, city, classification)\n- Add infinite scroll pagination for proxy list\n- Add VPN connect/disconnect controls using Tun2SocksVpnStarter\n- Display proxy metadata including status, latency, protocol type, and location\n- Add refresh action and back navigation in the top app bar\n- Implement reusable UI components: FilterDropdown and ProxyRow\n- Add relative time formatting for last proxy check\n- Include Compose previews for ProxyRow and ProxyListScreen",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/WorkingProxyListActivity.kt"
+    ]
+  },
+  {
+    "hash": "43254a1156eb7d353545a79b6fa42047c2015e7b",
+    "date": "2026-03-07T15:57:47+07:00",
+    "message": "feat(android): add main menu and separate activities for proxy features\n\n- Add WorkingProxyList and ProxyCheckerActivity to AndroidManifest\n- Replace ProxyListScreen in MainActivity with a simplified MainMenuScreen\n- Introduce navigation to \"Working Proxies\" and \"Proxy Checker\" screens\n- Remove embedded proxy list UI, filters, and connection controls from MainActivity\n- Add MenuItem model and reusable MenuListItem composable\n- Simplify UI to a menu-based entry point for proxy-related features",
+    "files": [
+      "android_app/app/src/main/AndroidManifest.xml",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/MainActivity.kt"
+    ]
+  },
+  {
+    "hash": "90bbe90166aecedd2763c4ba5f8e63f18cee4c19",
+    "date": "2026-03-07T15:56:32+07:00",
+    "message": "feat(android_app/checker): enhance ProxyChecker with protocol detection, auth, and title validation\n\n- replace simple boolean `check(proxyItem)` with `check(proxyItem, options): CheckResult`\n- add `Options` and `CheckResult` data classes for configuration and structured results\n- detect proxy protocols: `socks5` (with optional auth), `socks4`, and `http`\n- implement low-level SOCKS4 and SOCKS5 detection using raw socket handshakes\n- add SOCKS5 username/password authentication support\n- support HTTP proxy authentication using OkHttp `Proxy-Authorization`\n- fetch target URL and parse `<title>` to validate proxy using `expectedTitle`\n- return detailed result including `isWorking`, `type`, and detected `title`\n- improve validation reliability by combining protocol probing and HTTP request verification\n- remove previous simplistic implementation\n\nBREAKING CHANGE: `ProxyChecker.check` API changed. It now requires `Options` and returns `CheckResult` instead of `Boolean`.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/checker/ProxyChecker.kt"
+    ]
+  },
+  {
+    "hash": "33810861a71047805d948dbcedb56a8171fa629f",
+    "date": "2026-03-07T15:54:44+07:00",
+    "message": "feat(android_app/data): add upsertProxy to ProxyDB\n\n- add `upsertProxy(proxy: String, type: String, status: String)` to `android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyDB.kt`\n- use `INSERT ... ON DUPLICATE KEY UPDATE` to insert or update `proxies`, updating `type`, `status`, and `last_check`\n- return `Future<Boolean>` indicating whether the operation affected rows",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyDB.kt"
+    ]
+  },
+  {
+    "hash": "5bccc5870318cc24cbecc81394649f1d4a7a3ead",
+    "date": "2026-03-07T14:52:09+07:00",
+    "message": "build(android_app): enable multidex, add releaseDebug variant, genDict task, and update repos\n\n- add `**/.cache/` to `android_app/.gitignore`\n- enable `multiDexEnabled = true` in `android_app/app/build.gradle.kts`\n- add `releaseDebug` build type (created with `create(\"releaseDebug\")` and `initWith(getByName(\"release\"))`) and retain ProGuard/minify settings\n- add `genDict` task in `android_app/build.gradle.kts` and make `assembleRelease` depend on it\n- update `android_app/settings.gradle.kts` to include `mavenLocal()` and adjust plugin/repository configuration\n- include `mavenLocal()` in dependencyResolutionManagement repositories\n\nNo breaking changes.",
+    "files": [
+      "android_app/.gitignore",
+      "android_app/app/build.gradle.kts",
+      "android_app/build.gradle.kts",
+      "android_app/settings.gradle.kts"
+    ]
+  },
+  {
+    "hash": "32ec0bc4805c205e8290ba1336f4943c4f692990",
+    "date": "2026-03-07T14:50:23+07:00",
+    "message": "refactor(android_app): replace service LocalSharedPrefs with new prefs package\n\n- remove android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/LocalSharedPrefs.kt\n- update imports in Tun2SocksVpnService and Tun2SocksVpnStarter to use com.dimaslanjaka.prefs.LocalSharedPrefs\n- adapt call site: replace `putString(\"socks\", ...)` with `put(\"socks\", ...)`\n\nBREAKING CHANGE: `LocalSharedPrefs` API changed (method renamed `putString` -> `put`) and its package moved to `com.dimaslanjaka.prefs`.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/LocalSharedPrefs.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/Tun2SocksVpnService.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/Tun2SocksVpnStarter.kt"
+    ]
+  },
+  {
+    "hash": "4c4ed476a68c69f59a9693cc083d2b2e4bf7376f",
+    "date": "2026-03-07T11:42:01+07:00",
+    "message": "build(android_app): enable ProGuard for debug and add debug rules\n\nEnable R8/ProGuard for the debug buildType and include shared and debug-specific\nproguard files. This adds `proguard-debug.pro` (preserves SourceFile and\nLineNumberTable attributes for better debug stack traces) and expands the\nproject `proguard-rules.pro` with additional keep, dontwarn, and optimization\nsettings for libraries like OkHttp, Gson, ViewBinding, geckoview, and more.\n\nChanges:\n- android_app/app/build.gradle.kts: enable `isMinifyEnabled = true` for `debug`\n  and include `proguard-rules.pro` and `proguard-debug.pro` in `proguardFiles`.\n- android_app/app/proguard-debug.pro: new file to keep SourceFile and line numbers.\n- android_app/app/proguard-rules.pro: updated with extended ProGuard/R8 rules.\n\nNo behavior changes to the `release` build; this affects debug-only build\nconfiguration to improve stacktrace fidelity and apply the same shared rules\nduring debug builds.",
+    "files": [
+      "android_app/app/build.gradle.kts",
+      "android_app/app/proguard-debug.pro",
+      "android_app/app/proguard-rules.pro"
+    ]
+  },
+  {
     "hash": "577464951879939017e56004a54cd83bb962d7a0",
     "date": "2026-03-07T11:28:13+07:00",
     "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
@@ -8648,75 +8720,8 @@
     "hash": "96c1d84de82fee360536cee52a45e802bc6da96d",
     "date": "2025-10-04T12:13:41+07:00",
     "message": "fix(husky): require git-lfs only when repository uses LFS\n\nDetect LFS usage via `.gitattributes` and `git lfs track` and only fail the hook\nif the repo uses LFS and `git-lfs` is missing. Otherwise print a note and continue.\nRun `git lfs post-commit` only when LFS is in use.",
-    "files": []
-  },
-  {
-    "hash": "e0ba14b2269b418a2434d735d00016f089dd0fc5",
-    "date": "2025-10-04T10:48:54+07:00",
-    "message": "feat(func): make runBashOrBatch output redirection opt-in\n\nAdd a new optional parameter `$redirectOutput` (default: false) to\n`runBashOrBatch` and update the PHPDoc. When enabled the spawned script's\nstdout/stderr is redirected into `tmp/logs/<identifier>.txt`; when disabled the\nscript is invoked without redirection. Preserve platform-specific handling\n(Windows vs. Unix) and clarify runner/background execution with comments.\nMinor style tweaks to callback spacing.\n\nBREAKING CHANGE: default behavior changed from redirecting output to NOT\nredirecting it. Callers that expect logs must now pass `$redirectOutput = true`.",
     "files": [
-      "func.php"
-    ]
-  },
-  {
-    "hash": "d1b1890483be4beec00d916d86bfa2bacbc621eb",
-    "date": "2025-10-04T10:29:52+07:00",
-    "message": "feat(admin): add unauthenticated/unauthorized UI, dark-mode spinner and debug logs\n\n- show a \"Not signed in\" card with Sign in button when user is not authenticated\n- show an \"Access denied\" card for authenticated but non-admin users\n- update loading spinner with dark: variants (dark:border-blue-300, dark:bg-gray-800)\n- add mounted guard and console debug for getUserInfo response to aid troubleshooting\n- avoid rendering a blank page when admin access is missing\n\nNo breaking changes.",
-    "files": [
-      "src/react/pages/Admin.tsx"
-    ]
-  },
-  {
-    "hash": "29c56ee3a848b608ab190861af72fc391918e575",
-    "date": "2025-10-03T18:08:25+07:00",
-    "message": "refactor(env): add PHPDoc and return types for is_cli and is_admin\n\n- Add detailed PHPDoc for `is_cli()` and `is_admin()` explaining behaviour and return values.\n- Add explicit `: bool` return type declarations.\n- Document that `is_admin()` throws `RuntimeException` if called in web context without a started session.\n- Improve CLI detection check to verify non-empty `$_SERVER['argv']`.",
-    "files": [
-      "src/database/env.php"
-    ]
-  },
-  {
-    "hash": "35934a0bc9bcab6fbc93b6a51201a417ffb2e65f",
-    "date": "2025-10-03T15:05:02+07:00",
-    "message": "feat(details): make DetailsCell preview/copy configurable and use for user_agent\n\n- Add props to `DetailsCell`: `showCopy` (default true), `previewLength` (default 200),\n  and `oneLinePreviewLength` (default 120).\n- Replace hard-coded truncation with the configurable `previewLength` / `oneLinePreviewLength`.\n- Make copy buttons conditional on `showCopy`.\n- Render `user_agent` using `DetailsCell` (with `showCopy={false}` and shorter previewLength)\n  in `UserActivityCard` and `LogsSection` so UA values are expandable and wrapped.\n- Update table-cell logic to treat `user_agent` as long data (adjust classes/innerClass).\n\nNo breaking changes.",
-    "files": [
-      "src/react/components/DetailsCell.tsx",
-      "src/react/pages/admin/LogsSection.tsx",
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "b02f927c1f8f2f97d8446f5265196f8e7e83899b",
-    "date": "2025-10-03T14:49:22+07:00",
-    "message": "refactor(admin-logs,user-activity): remove auto-polling, add explicit fetch handlers and helper for total extraction",
-    "files": [
-      "src/react/pages/admin/LogsSection.tsx",
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "2e3e96ea6de29f57a4df1f86604c7fb0cf51c68a",
-    "date": "2025-10-03T12:09:15+07:00",
-    "message": "feat(components): add reusable DetailsCell and wire into logs views\n\n- Add new component `src/react/components/DetailsCell.tsx`\n  - Safe JSON parse + pretty print\n  - Compact preview, expand/collapse, copy-to-clipboard\n  - Whitespace-preserving wrapping to avoid widening tables\n- Refactor admin logs table to use `DetailsCell` for objects and long strings\n  - `src/react/pages/admin/LogsSection.tsx` now imports and uses `DetailsCell`\n  - Constrain details column to prevent layout breakage\n- Refactor dashboard activity table to use `DetailsCell`\n  - `src/react/pages/dashboard/UserActivityCard.tsx` now imports and uses `DetailsCell`\n  - Removed duplicated local helpers / inline DetailsCell implementations\n\nNo breaking changes; purely UI/component refactor and behavior improvements.",
-    "files": [
-      "src/react/components/DetailsCell.tsx",
-      "src/react/pages/admin/LogsSection.tsx",
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "746d6a279788fdd5db617ee766d28ca30c2c8f95",
-    "date": "2025-10-01T15:09:54Z",
-    "message": "build(deps-dev): update squizlabs/php_codesniffer requirement || ^4.0\n\nUpdates the requirements on [squizlabs/php_codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer) to permit the latest version.\n- [Release notes](https://github.com/PHPCSStandards/PHP_CodeSniffer/releases)\n- [Changelog](https://github.com/PHPCSStandards/PHP_CodeSniffer/blob/4.x/CHANGELOG-4.x.md)\n- [Commits](https://github.com/PHPCSStandards/PHP_CodeSniffer/compare/3.0.0...4.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: squizlabs/php_codesniffer\n  dependency-version: 4.0.0\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      "composer.json"
-    ]
-  },
-  {
-    "hash": "aa3de303130541608b27dcb6a37f335d34922eef",
-    "date": "2025-10-01T15:09:10Z",
-    "message": "build(deps-dev): bump vite from 7.1.4 to 7.1.7\n\nBumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) from 7.1.4 to 7.1.7.\n- [Release notes](https://github.com/vitejs/vite/releases)\n- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)\n- [Commits](https://github.com/vitejs/vite/commits/v7.1.7/packages/vite)\n\n---\nupdated-dependencies:\n- dependency-name: vite\n  dependency-version: 7.1.7\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      "package.json"
+      ".husky/pre-commit"
     ]
   }
 ]
