@@ -41,19 +41,22 @@ def run() -> int:
     user = db_info.get("mysql_user", "root")
     password = db_info.get("mysql_pass", "")
 
-    # Save Tailscale status to Firebase Realtime Database
-    payload = {
-        "ip": host,
-    }
-    payload.update(db_info)  # Include MySQL credentials in the payload for debugging
-    save_firebase_database(payload)
-
     if is_debug():
         print(f"Attempting MySQL connection to {host}:{port} with {user=}, {password=}")
     try:
         db = MySQLHelper(host=host, user=user, password=password, port=port)
         print("Connection successful")
         print("Server version:", db.mysql_version)
+
+        # Save Tailscale status to Firebase Realtime Database
+        payload = {
+            "ip": host,
+        }
+        payload.update(
+            db_info
+        )  # Include MySQL credentials in the payload for debugging
+        save_firebase_database(payload)
+
         db.close()
         return 0
     except Exception as exc:  # pragma: no cover - simple script
