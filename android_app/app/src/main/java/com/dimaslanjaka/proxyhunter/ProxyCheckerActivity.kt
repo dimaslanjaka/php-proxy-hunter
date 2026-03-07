@@ -385,7 +385,7 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
           modifier = Modifier.width(80.dp),
           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
           singleLine = true,
-          textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp)
+          textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
