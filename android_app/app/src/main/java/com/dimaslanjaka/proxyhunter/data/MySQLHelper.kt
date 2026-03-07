@@ -1,6 +1,6 @@
 package com.dimaslanjaka.proxyhunter.data
 
-import android.util.Log
+import timber.log.Timber
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
@@ -16,27 +16,48 @@ class MySQLHelper(
     private val port: Int = 3306
 ) {
     private var connection: Connection? = null
-    private val executor = Executors.newSingleThreadExecutor()
+    private val executor = Executors.newFixedThreadPool(5) // Increased pool size for concurrent updates
 
+    @Synchronized
     private fun connect(): Connection? {
-        return try {
-            if (connection == null || connection!!.isClosed) {
-                // Using MySQL driver which is more compatible with Android
+        try {
+            if (connection == null || connection!!.isClosed || !isConnectionValid()) {
+                Timber.d("Connecting to $host...")
                 Class.forName("com.mysql.jdbc.Driver")
-                val url = "jdbc:mysql://$host:$port/$dbName?useSSL=false&allowPublicKeyRetrieval=true"
+                // Added autoReconnect and longer timeouts
+                val url = "jdbc:mysql://$host:$port/$dbName?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true&connectTimeout=5000&socketTimeout=30000"
                 connection = DriverManager.getConnection(url, user, pass)
             }
-            connection
+            return connection
         } catch (e: Exception) {
-            Log.e("MySQLHelper", "Connection failed: ${e.message}", e)
-            null
+            Timber.e(e, "Connection failed: ${e.message}")
+            return null
+        }
+    }
+
+    private fun isConnectionValid(): Boolean {
+        return try {
+            connection?.isValid(2) ?: false
+        } catch (e: Exception) {
+            false
         }
     }
 
     fun <T> execute(task: (Connection) -> T): Future<T> {
         return executor.submit(Callable {
             val conn = connect() ?: throw SQLException("Could not establish connection to $host")
-            task(conn)
+            try {
+                task(conn)
+            } catch (e: SQLException) {
+                // If operation fails due to closed connection, try one more time
+                if (e.message?.contains("connection closed", ignoreCase = true) == true) {
+                    Timber.w("Connection lost, retrying...")
+                    val retryConn = connect() ?: throw e
+                    task(retryConn)
+                } else {
+                    throw e
+                }
+            }
         })
     }
 
@@ -80,7 +101,7 @@ class MySQLHelper(
         try {
             connection?.close()
         } catch (e: SQLException) {
-            Log.e("MySQLHelper", "Error closing connection", e)
+            Timber.e(e, "Error closing connection")
         }
     }
 }

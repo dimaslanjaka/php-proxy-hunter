@@ -207,4 +207,13 @@
 
 ## missing
 -dontwarn java.beans.*
-
+-dontwarn com.badoo.mobile.util.WeakHandler
+-dontwarn com.google.common.**
+-dontwarn com.jcraft.jzlib.**
+-dontwarn java.lang.management.**
+-dontwarn java.rmi.**
+-dontwarn javax.management.**
+-dontwarn org.apache.log4j.**
+-dontwarn org.apache.logging.log4j.**
+-dontwarn org.slf4j.impl.StaticLoggerBinder
+-dontwarn pub.devrel.easypermissions.**
