@@ -28,6 +28,18 @@
       </intent-filter>
     </activity>
 
+    <activity
+      android:name=".WorkingProxyList"
+      android:exported="true"
+      android:label="Working Proxies"
+      android:theme="@style/Theme.ProxyHunter" />
+
+    <activity
+      android:name=".ProxyCheckerActivity"
+      android:exported="true"
+      android:label="Proxy Checker"
+      android:theme="@style/Theme.ProxyHunter" />
+
     <service
       android:name=".service.ProxyCheckService"
       android:enabled="true"
