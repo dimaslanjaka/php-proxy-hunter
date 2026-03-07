@@ -1,5 +1,26 @@
 [
   {
+    "hash": "a66fde8c714f135da9ac8c59ed2e8aedf0b484a8",
+    "date": "2026-03-07T22:10:19+07:00",
+    "message": "feat(proxy-checker): add database source and limit control to checker UI\n\n- Add \"From DB\" button to fetch untested proxies from the database.\n- Add a numeric input field to set a limit for fetching/loading proxies (max 1000).\n- Update the \"Fetch List\" action to respect the user-defined limit.\n- Implement a horizontally scrollable action row for better accessibility.\n- Reorder actions and refine button styles for a more compact layout.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyCheckerActivity.kt"
+    ]
+  },
+  {
+    "hash": "b297a76fafd6d789d31cbdce6fff3ed69f0088df",
+    "date": "2026-03-07T21:35:08+07:00",
+    "message": "feat: overhaul proxy checker service and improve UI synchronization\n\n- Implement POST_NOTIFICATIONS runtime permission handling in MainActivity\n- Rewrite ProxyCheckService using Coroutines and integrated status broadcasting\n- Update ProxyManager with StateFlow for real-time tracking of results and service status\n- Refactor ProxyCheckerActivity to sync with background service and enhance result UI\n- Enhance MySQLHelper with connection validation, retry logic, and better concurrency\n- Add ProGuard rules to suppress warnings from various third-party libraries\n- Standardize logging across the app by replacing standard Log with Timber",
+    "files": [
+      "android_app/app/proguard-rules.pro",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/MainActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyCheckerActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/MySQLHelper.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyManager.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/ProxyCheckService.kt"
+    ]
+  },
+  {
     "hash": "02e079519c589592d95835d9e863c34f3f2ee0d3",
     "date": "2026-03-07T15:59:18+07:00",
     "message": "feat(android_app/checker): add ProxyCheckerActivity with Compose UI for proxy validation\n\n- introduce `ProxyCheckerActivity` to provide a dedicated proxy checking screen\n- implement Jetpack Compose UI with input field, fetch button, and results list\n- support manual proxy input (`host:port` and `user:pass@host:port`)\n- add proxy list fetching from public GitHub sources (socks5, socks4, http)\n- extract and randomize proxies using `ProxyExtractor`\n- perform sequential proxy checks using `ProxyChecker` with coroutine support\n- display real-time status indicators (checking, success, failure)\n- show protocol badge (SOCKS5, SOCKS4, HTTP) for working proxies\n- persist last input and results using `LocalSharedPrefs`\n- restore previous session results on activity launch\n- allow canceling active checks and clearing results\n- store working proxies into `ProxyDB` with active status\n- implement responsive UI with loading indicators for fetching and checking",
@@ -8708,20 +8729,6 @@
     "message": "fix(proxyCollector): improve blacklist removal query compatibility for SQLite and MySQL\n\n- Added database driver check to skip unsupported drivers\n- Updated DELETE query to be compatible with both SQLite and MySQL\n- Used parameterized query with bound parameters for `proxy` and `active` status\n- Added error handling to report failed deletions",
     "files": [
       "artisan/proxyCollector.php"
-    ]
-  },
-  {
-    "hash": "ba190ebefa957a4856edc5f6b3ca523371b7d8c2",
-    "date": "2025-10-04T12:18:59+07:00",
-    "message": "fix(husky): run composer only when composer.json or PHP files changed\n\nDetect changed files between the previous ref (prefer ORIG_HEAD, fallback to HEAD^) and HEAD,\nand only run Composer when `composer.json` or any `.php` files were modified. If the previous\nref can't be determined, conservatively run Composer when `composer.json` exists.\n\nPreserves existing behavior (install vs update, `--no-dev` on VPS, attempt to run as configured user)\nand prints a clear message when skipping Composer.",
-    "files": []
-  },
-  {
-    "hash": "96c1d84de82fee360536cee52a45e802bc6da96d",
-    "date": "2025-10-04T12:13:41+07:00",
-    "message": "fix(husky): require git-lfs only when repository uses LFS\n\nDetect LFS usage via `.gitattributes` and `git lfs track` and only fail the hook\nif the repo uses LFS and `git-lfs` is missing. Otherwise print a note and continue.\nRun `git lfs post-commit` only when LFS is in use.",
-    "files": [
-      ".husky/pre-commit"
     ]
   }
 ]
