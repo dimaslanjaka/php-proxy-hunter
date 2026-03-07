@@ -1,10 +1,16 @@
 package com.dimaslanjaka.proxyhunter.data
 
+import android.content.Context
+import com.dimaslanjaka.prefs.LocalSharedPrefs
 import com.dimaslanjaka.proxyhunter.checker.ProxyChecker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 object ProxyManager {
+    private var _prefs: LocalSharedPrefs? = null
+    val prefs: LocalSharedPrefs
+        get() = _prefs ?: throw IllegalStateException("ProxyManager not initialized. Call initialize(context) first.")
+
     private var proxies: List<ProxyItem> = emptyList()
 
     // Results mapping: proxy string -> CheckResult
@@ -18,6 +24,13 @@ object ProxyManager {
     // Current proxy being checked
     private val _currentProxyFlow = MutableStateFlow<String?>(null)
     val currentProxyFlow = _currentProxyFlow.asStateFlow()
+
+    @JvmStatic
+    fun initialize(context: Context) {
+        if (_prefs == null) {
+            _prefs = LocalSharedPrefs.initialize(context.applicationContext, "proxy_checker_prefs")
+        }
+    }
 
     @JvmStatic
     fun set(list: List<ProxyItem>) {

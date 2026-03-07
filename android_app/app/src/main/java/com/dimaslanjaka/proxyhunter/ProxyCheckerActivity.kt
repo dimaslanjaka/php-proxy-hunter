@@ -98,19 +98,18 @@ data class CheckResult(
 )
 
 class ProxyCheckerActivity : ComponentActivity() {
-  private lateinit var prefs: LocalSharedPrefs
   private lateinit var db: ProxyDB
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    prefs = LocalSharedPrefs.initialize(this, "proxy_checker_prefs")
+    ProxyManager.initialize(this)
     db = ProxyDB()
     enableEdgeToEdge()
     setContent {
       ProxyHunterTheme {
         ProxyCheckerScreen(
           onBack = { finish() },
-          prefs = prefs,
+          prefs = ProxyManager.prefs,
           db = db
         )
       }

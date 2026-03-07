@@ -10,7 +10,6 @@ import android.os.Build
 import android.os.IBinder
 import timber.log.Timber
 import androidx.core.app.NotificationCompat
-import com.dimaslanjaka.prefs.LocalSharedPrefs
 import com.dimaslanjaka.proxyhunter.ProxyCheckerActivity
 import com.dimaslanjaka.proxyhunter.checker.ProxyChecker
 import com.dimaslanjaka.proxyhunter.data.ProxyDB
@@ -30,13 +29,12 @@ class ProxyCheckService : Service() {
   private var db: ProxyDB? = null
   private val checkedCount = AtomicInteger(0)
   private var totalCount = 0
-  private lateinit var prefs: LocalSharedPrefs
 
   override fun onCreate() {
     super.onCreate()
     ProxyManager.setRunning(true)
+    ProxyManager.initialize(this)
     db = ProxyDB()
-    prefs = LocalSharedPrefs.initialize(this, "proxy_checker_prefs")
     createNotificationChannel()
   }
 
@@ -58,7 +56,7 @@ class ProxyCheckService : Service() {
         var proxies = ProxyManager.get()
 
         // If no proxies provided and auto-check is enabled, fetch from DB
-        if (proxies.isEmpty() && prefs.getBoolean("auto_check_proxies", false)) {
+        if (proxies.isEmpty() && ProxyManager.prefs.getBoolean("auto_check_proxies", false)) {
           Timber.d("No proxies in manager, fetching untested proxies for auto-check")
           proxies = db?.getUntestedProxies(100)?.get() ?: emptyList()
           if (proxies.isNotEmpty()) {
@@ -137,7 +135,7 @@ class ProxyCheckService : Service() {
   }
 
   private fun finishService() {
-    val autoCheckEnabled = prefs.getBoolean("auto_check_proxies", false)
+    val autoCheckEnabled = ProxyManager.prefs.getBoolean("auto_check_proxies", false)
 
     if (autoCheckEnabled && checkJob?.isCancelled != true) {
       // If auto-check is enabled and we weren't cancelled (e.g. by priority)

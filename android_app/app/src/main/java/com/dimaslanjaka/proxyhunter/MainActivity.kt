@@ -39,7 +39,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.dimaslanjaka.prefs.LocalSharedPrefs
 import com.dimaslanjaka.proxyhunter.data.ProxyManager
 import com.dimaslanjaka.proxyhunter.service.ProxyCheckService
 import com.dimaslanjaka.proxyhunter.ui.theme.ProxyHunterTheme
@@ -59,6 +58,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ProxyManager.initialize(this)
         checkNotificationPermission()
         enableEdgeToEdge()
         setContent {
@@ -97,8 +97,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkAndStartService() {
-        val prefs = LocalSharedPrefs.initialize(this, "proxy_checker_prefs")
-        val autoCheckEnabled = prefs.getBoolean("auto_check_proxies", false)
+        val autoCheckEnabled = ProxyManager.prefs.getBoolean("auto_check_proxies", false)
 
         if (autoCheckEnabled && !ProxyManager.isRunningFlow.value) {
             Timber.d("Auto-check enabled in MainActivity, starting service")
