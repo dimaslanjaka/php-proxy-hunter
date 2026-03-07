@@ -10,8 +10,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +25,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
@@ -31,6 +36,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -61,6 +67,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,7 +108,8 @@ class ProxyCheckerActivity : ComponentActivity() {
       ProxyHunterTheme {
         ProxyCheckerScreen(
           onBack = { finish() },
-          prefs = prefs
+          prefs = prefs,
+          db = db
         )
       }
     }
@@ -117,10 +125,11 @@ class ProxyCheckerActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs) {
+fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB) {
   val context = LocalContext.current
   val gson = remember { Gson() }
   var inputText by rememberSaveable { mutableStateOf(prefs.getString("last_input", "") ?: "") }
+  var limitInput by rememberSaveable { mutableStateOf(prefs.getString("limit_input", "50") ?: "50") }
   val results = remember { mutableStateListOf<CheckResult>() }
 
   // Use StateFlow from ProxyManager for reliable service status
@@ -285,63 +294,12 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs) {
 
       Spacer(modifier = Modifier.height(16.dp))
 
-      Row(modifier = Modifier.fillMaxWidth()) {
-        OutlinedButton(
-          onClick = {
-            scope.launch {
-              isFetching = true
-              val urls = listOf(
-                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/socks5.txt",
-                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/socks4.txt",
-                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/http.txt"
-              )
-              val client = OkHttpClient()
-              val allContent = StringBuilder()
-
-              withContext(Dispatchers.IO) {
-                urls.forEach { url ->
-                  try {
-                    val request = Request.Builder().url(url).build()
-                    client.newCall(request).execute().use { response ->
-                      if (response.isSuccessful) {
-                        response.body.let { body ->
-                          allContent.append(body.string()).append("\n")
-                        }
-                      }
-                    }
-                  } catch (e: Exception) {
-                    Timber.e(e, "Fetch failed for $url")
-                  }
-                }
-              }
-
-              val extracted = ProxyExtractor.extract(allContent.toString())
-              val randomProxyList = extracted.shuffled().take(10).joinToString("\n")
-              inputText = randomProxyList
-              prefs.put("last_input", randomProxyList)
-              isFetching = false
-            }
-          },
-          modifier = Modifier.weight(1f),
-          enabled = !isFetching && !isCheckingAll
-        ) {
-          if (isFetching) {
-            CircularProgressIndicator(
-              modifier = Modifier.size(18.dp),
-              strokeWidth = 2.dp,
-              color = LocalContentColor.current
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Fetching...")
-          } else {
-            Icon(Icons.Default.Download, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Fetch List")
-          }
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically
+      ) {
         Button(
           onClick = {
             if (isCheckingAll) {
@@ -391,18 +349,135 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs) {
               }
             }
           },
-          modifier = Modifier.weight(1f),
+          modifier = Modifier.height(36.dp),
+          contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
           enabled = !isFetching && (isCheckingAll || inputText.isNotBlank() || results.any { it.checkerResult == null }),
           colors = if (isCheckingAll) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error) else ButtonDefaults.buttonColors()
         ) {
           if (isCheckingAll) {
-            Icon(Icons.Default.Stop, contentDescription = null)
+            Icon(Icons.Default.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Stop")
+            Text("Stop", fontSize = 12.sp)
           } else {
-            Icon(Icons.Default.PlayArrow, contentDescription = null)
+            Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Check All")
+            Text("Check All", fontSize = 12.sp)
+          }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        OutlinedTextField(
+          value = limitInput,
+          onValueChange = {
+            if (it.isEmpty()) {
+              limitInput = it
+              prefs.put("limit_input", it)
+            } else if (it.all { char -> char.isDigit() }) {
+              val num = it.toLongOrNull() ?: 0
+              if (num <= 1000) {
+                limitInput = it
+                prefs.put("limit_input", it)
+              }
+            }
+          },
+          label = { Text("Limit", fontSize = 10.sp) },
+          modifier = Modifier.width(80.dp),
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+          singleLine = true,
+          textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        OutlinedButton(
+          onClick = {
+            scope.launch {
+              isFetching = true
+              val urls = listOf(
+                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/socks5.txt",
+                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/socks4.txt",
+                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/http.txt"
+              )
+              val client = OkHttpClient()
+              val allContent = StringBuilder()
+
+              withContext(Dispatchers.IO) {
+                urls.forEach { url ->
+                  try {
+                    val request = Request.Builder().url(url).build()
+                    client.newCall(request).execute().use { response ->
+                      if (response.isSuccessful) {
+                        response.body.let { body ->
+                          allContent.append(body.string()).append("\n")
+                        }
+                      }
+                    }
+                  } catch (e: Exception) {
+                    Timber.e(e, "Fetch failed for $url")
+                  }
+                }
+              }
+
+              val extracted = ProxyExtractor.extract(allContent.toString())
+              val limit = limitInput.toIntOrNull() ?: 10
+              val randomProxyList = extracted.shuffled().take(limit).joinToString("\n")
+              inputText = randomProxyList
+              prefs.put("last_input", randomProxyList)
+              isFetching = false
+            }
+          },
+          modifier = Modifier.height(36.dp),
+          contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+          enabled = !isFetching && !isCheckingAll
+        ) {
+          if (isFetching) {
+            CircularProgressIndicator(
+              modifier = Modifier.size(18.dp),
+              strokeWidth = 2.dp,
+              color = LocalContentColor.current
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Fetching...", fontSize = 12.sp)
+          } else {
+            Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Fetch List", fontSize = 12.sp)
+          }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        OutlinedButton(
+          onClick = {
+            scope.launch {
+              isFetching = true
+              val limit = limitInput.toIntOrNull() ?: 50
+              val untested = withContext(Dispatchers.IO) {
+                db.getUntestedProxies(limit).get()
+              }
+              val untestedStr = untested.joinToString("\n") { it.toString() }
+              inputText = untestedStr
+              prefs.put("last_input", untestedStr)
+              isFetching = false
+            }
+          },
+          modifier = Modifier.height(36.dp),
+          contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+          enabled = !isFetching && !isCheckingAll
+        ) {
+          if (isFetching) {
+            CircularProgressIndicator(
+              modifier = Modifier.size(18.dp),
+              strokeWidth = 2.dp,
+              color = LocalContentColor.current
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Loading...", fontSize = 12.sp)
+          } else {
+            Icon(Icons.Default.Storage, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("From DB", fontSize = 12.sp)
           }
         }
       }
