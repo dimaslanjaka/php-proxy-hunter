@@ -14,6 +14,7 @@ auth.json
 /phpmyadmin
 /adminer
 /bin/composer*
+**/firebase-adminsdk*.json
 
 # PHP
 /php-obfuscator
