@@ -157,6 +157,22 @@ class ProxyDB(
         return db.update(sql, listOf(status, proxy))
     }
 
+    /**
+     * Records a proxy with its detected type and status.
+     * If the proxy doesn't exist, it will be inserted.
+     */
+    fun upsertProxy(proxy: String, type: String, status: String): Future<Boolean> {
+        val sql = """
+            INSERT INTO proxies (proxy, type, status, last_check)
+            VALUES (?, ?, ?, NOW())
+            ON DUPLICATE KEY UPDATE
+            type = ?, status = ?, last_check = NOW()
+        """.trimIndent()
+        return db.update(sql, listOf(proxy, type, status, type, status)).let { future ->
+            db.execute { future.get() > 0 }
+        }
+    }
+
     private fun mapResultSetToProxyItem(rs: java.sql.ResultSet): ProxyItem {
         return ProxyItem(
             id = rs.getInt("id"),
