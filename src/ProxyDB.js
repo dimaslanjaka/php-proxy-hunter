@@ -171,9 +171,12 @@ class ProxyDB {
     return this.db.select('proxies', '*', '', [], rand, limit);
   }
 
-  async remove(proxy) {
+  async remove(proxy, deleteFromAdded = false) {
     if (!this.db) await this.startConnection();
     this.db.delete('proxies', 'proxy = ?', [proxy.trim()]);
+    if (deleteFromAdded) {
+      this.db.delete('added_proxies', 'proxy = ?', [proxy.trim()]);
+    }
   }
 
   async updateData(proxy, data = {}) {

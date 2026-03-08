@@ -340,30 +340,31 @@ class ProxyDB:
             result = self.get_db().select("proxies", "*")
             return cast(List[Dict[str, Union[str, None]]], result)
 
-    def remove(self, proxy):
+    def remove(self, proxy, delete_from_added: bool = False):
         proxy = self.normalize_proxy(proxy)
         if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             self.get_db().delete("proxies", "proxy = %s", [proxy.strip()])
         else:
             self.get_db().delete("proxies", "proxy = ?", [proxy.strip()])
-        # also remove from added_proxies if table exists
-        try:
-            if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
-                self.get_db().execute_query(
-                    "DELETE FROM added_proxies WHERE proxy = %s", [proxy.strip()]
-                )
-            else:
-                self.get_db().execute_query(
-                    "DELETE FROM added_proxies WHERE proxy = ?", [proxy.strip()]
-                )
-        except Exception:
-            # MySQL may use different placeholders; try with %s
+        # also remove from added_proxies to allow re-adding if needed
+        if delete_from_added:
             try:
-                self.get_db().execute_query(
-                    "DELETE FROM added_proxies WHERE proxy = %s", [proxy.strip()]
-                )
+                if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
+                    self.get_db().execute_query(
+                        "DELETE FROM added_proxies WHERE proxy = %s", [proxy.strip()]
+                    )
+                else:
+                    self.get_db().execute_query(
+                        "DELETE FROM added_proxies WHERE proxy = ?", [proxy.strip()]
+                    )
             except Exception:
-                pass
+                # MySQL may use different placeholders; try with %s
+                try:
+                    self.get_db().execute_query(
+                        "DELETE FROM added_proxies WHERE proxy = %s", [proxy.strip()]
+                    )
+                except Exception:
+                    pass
 
     def add(self, proxy: str):
         proxy = self.normalize_proxy(proxy)

@@ -299,12 +299,12 @@ class ProxyDB
   /**
    * @param string $proxy
    */
-  public function remove($proxy)
+  public function remove($proxy, bool $deleteFromAdded = false)
   {
     $proxy = $this->normalizeProxy($proxy);
     $this->db->delete('proxies', 'proxy = ?', [$proxy]);
     // Also remove from added_proxies to keep state consistent
-    if (isset($this->db->pdo)) {
+    if (isset($this->db->pdo) && $deleteFromAdded) {
       $stmt = $this->db->pdo->prepare('DELETE FROM added_proxies WHERE proxy = :proxy');
       $stmt->bindParam(':proxy', $proxy, PDO::PARAM_STR);
       $stmt->execute();
