@@ -1,5 +1,96 @@
 [
   {
+    "hash": "81d13d1f157a3997ad1490070aaa2df5d6fb2928",
+    "date": "2026-03-08T07:20:23+07:00",
+    "message": "chore: ignore Google Services JSON files",
+    "files": [
+      "android_app/.gitignore"
+    ]
+  },
+  {
+    "hash": "bc993c079780201d73ee270c5b7d2da8935367a0",
+    "date": "2026-03-08T07:16:50+07:00",
+    "message": "feat: implement BootReceiver, Firebase integration, and auto-start logic for ProxyCheckService",
+    "files": [
+      "android_app/app/build.gradle.kts",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyHunterApp.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/receiver/BootReceiver.kt",
+      "android_app/build.gradle.kts",
+      "android_app/gradle/libs.versions.toml"
+    ]
+  },
+  {
+    "hash": "260f1a1dfda7a744d6f0a3185e338aad216be66a",
+    "date": "2026-03-08T06:56:17+07:00",
+    "message": "docs: add README for Tailscale utilities and scripts",
+    "files": [
+      "tailscale/readme.md"
+    ]
+  },
+  {
+    "hash": "8e713c35bb2b28a5d06b669ebe83fd413f1fbbb4",
+    "date": "2026-03-08T06:53:49+07:00",
+    "message": "refactor: move Firebase status saving logic to after MySQL connection success",
+    "files": [
+      "tailscale/mysql-test.py"
+    ]
+  },
+  {
+    "hash": "b09531808a671b98d5c74e922199c847d6840cb6",
+    "date": "2026-03-08T06:46:48+07:00",
+    "message": "feat(tailscale): add Firebase realtime save and wire into mysql-test\n\n- Add `save_firebase_database()` to `tailscale/utils.py`:\n  - initialize Firebase app if needed and load service account.\n  - build payload using `get_tailscale_ipv4()` and merge optional `input_data`.\n  - overwrite the `tailscale_status` node with `ref.set(payload)` (fallback to `push()`).\n  - import `firebase_admin`, `credentials`, and `db` and adjust imports.\n- Update `tailscale/mysql-test.py` to call `save_firebase_database(payload)` with `ip` plus `db_info` before attempting MySQL connection.\n\nThis persists the current Tailscale + DB info in the Realtime Database as a single record (replacing prior entries).",
+    "files": [
+      "tailscale/mysql-test.py",
+      "tailscale/utils.py"
+    ]
+  },
+  {
+    "hash": "ece976a71b2a06261b28f54ad0abc5167ee5b6de",
+    "date": "2026-03-08T06:24:49+07:00",
+    "message": "chore: add firebase admin SDK JSON files to .gitignore",
+    "files": [
+      ".gitignore"
+    ]
+  },
+  {
+    "hash": "1109a2dcfc1f06864954d7fe026f5a58fb430c4f",
+    "date": "2026-03-07T23:08:14+07:00",
+    "message": "refactor: centralize LocalSharedPrefs initialization and access in ProxyManager",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/MainActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyCheckerActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyManager.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/ProxyCheckService.kt"
+    ]
+  },
+  {
+    "hash": "da903e642fd438f7866b14830d058fd9b322eaea",
+    "date": "2026-03-07T23:01:21+07:00",
+    "message": "feat: implement auto-checking and priority tasks in ProxyCheckService\n\n- Add `auto_check_proxies` preference to automatically fetch and verify untested proxies from the database.\n- Introduce `EXTRA_PRIORITY` to allow new check requests to cancel and override active jobs.\n- Implement `BootReceiver` to resume the proxy checking service on device startup.\n- Update `ProxyCheckerActivity` UI with a checkbox for auto-check and integrate priority flags.\n- Refactor service lifecycle management to support continuous background checking.",
+    "files": [
+      "android_app/app/src/main/AndroidManifest.xml",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/MainActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyCheckerActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/ProxyCheckService.kt"
+    ]
+  },
+  {
+    "hash": "b5b43e3075f6533e2cb01c265e79b38c82f2224f",
+    "date": "2026-03-07T22:20:58+07:00",
+    "message": "feat: add randomization support to getUntestedProxies in ProxyDB",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyDB.kt"
+    ]
+  },
+  {
+    "hash": "5d3e7aa1da795f674cbeb8f93cdb478253aa9aa7",
+    "date": "2026-03-07T22:12:36+07:00",
+    "message": "style: increase font size for proxy checker limit input field",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyCheckerActivity.kt"
+    ]
+  },
+  {
     "hash": "a66fde8c714f135da9ac8c59ed2e8aedf0b484a8",
     "date": "2026-03-07T22:10:19+07:00",
     "message": "feat(proxy-checker): add database source and limit control to checker UI\n\n- Add \"From DB\" button to fetch untested proxies from the database.\n- Add a numeric input field to set a limit for fetching/loading proxies (max 1000).\n- Update the \"Fetch List\" action to respect the user-defined limit.\n- Implement a horizontally scrollable action row for better accessibility.\n- Reorder actions and refine button styles for a more compact layout.",
@@ -8644,91 +8735,6 @@
     "message": "fix(start-whatsapp): update dependency installation to use workspaces focus for production",
     "files": [
       "bin/start-whatsapp"
-    ]
-  },
-  {
-    "hash": "00f73957ad9ad158ed4f9218f4f40a5750644945",
-    "date": "2025-10-04T15:34:35+07:00",
-    "message": "refactor(artisan/proxyCollector): accept PDO in blacklist_remover and add PHPDoc\n\nPass `$db->db->pdo` to `blacklist_remover()` and change the function to accept a\n`\\PDO` parameter instead of relying on the global `$db`. Add a comprehensive\nPHPDoc block documenting behavior, parameters, supported drivers (sqlite/mysql),\nand safety notes. Removes global dependency and clarifies intent without\nchanging deletion semantics.",
-    "files": [
-      "artisan/proxyCollector.php"
-    ]
-  },
-  {
-    "hash": "fef1fda5e2ef494bfcc40ba9f31fcdd8d13c6d65",
-    "date": "2025-10-04T15:31:57+07:00",
-    "message": "feat(artisan/proxyCollector): update blacklist_remover to accept optional config path",
-    "files": [
-      "artisan/proxyCollector.php"
-    ]
-  },
-  {
-    "hash": "a6d791ccccfd6a9b717436d1e3c4bb42c33bf7ff",
-    "date": "2025-10-04T13:48:49+07:00",
-    "message": "feat(gitignore): add rule to ignore all .tmp files",
-    "files": [
-      ".gitignore"
-    ]
-  },
-  {
-    "hash": "c272d85576ad2ef85ff49a2f840f8d0a898c3e6a",
-    "date": "2025-10-04T13:46:39+07:00",
-    "message": "feat(file): add readFileChunk helper and update proxyCollector2 to use it\n\n- Introduced readFileChunk() in src/utils/file/reader.php for memory-friendly partial file reading\n- Updated proxyCollector2.php to read first 20KB instead of entire file content",
-    "files": [
-      "artisan/proxyCollector2.php",
-      "src/utils/file/reader.php"
-    ]
-  },
-  {
-    "hash": "53c015fba86ebedfb0785857f4711fc4a93f39c4",
-    "date": "2025-10-04T13:41:33+07:00",
-    "message": "refactor(artisan/proxyCollector2): stream file processing and replace in-memory read\n\nReplace the `file()` full-file read with line-by-line streaming (fopen/fgets),\nwrite-to-temp and atomic rename. Add an O(1) exact-match lookup and a\ncopy+unlink fallback for replace failures. Improves memory behavior for large\nproxy files while preserving existing behavior.",
-    "files": [
-      "artisan/proxyCollector2.php"
-    ]
-  },
-  {
-    "hash": "0b90b53925308311577d6ae3776e9fd1c83ef026",
-    "date": "2025-10-04T13:34:55+07:00",
-    "message": "feat(artisan): add proxyCollector2 and wire into crontab\n\nAdd a new `artisan/proxyCollector2.php` script that processes `assets/proxies/added-*`\nfiles, removes invalid/already-added proxies, and cleans up proxy files in-place.\nAlso update `.crontab.sh` to run `php artisan/proxyCollector2.php` alongside the\nexisting collector job. Includes logging and safe in-place file rewriting.",
-    "files": [
-      ".crontab.sh",
-      "artisan/proxyCollector2.php"
-    ]
-  },
-  {
-    "hash": "cb41d27429416762f1ef9a6d921822059c519bd2",
-    "date": "2025-10-04T13:31:38+07:00",
-    "message": "feat(extractor): add ignore_validation parameter to extractProxies\n\nAdd an optional boolean `$ignore_validation` (default: false) to `extractProxies()`\nand document it in the function docblock. When enabled the function skips calls to\n`isValidProxy()` and `isValidIp()` for user:pass, whitespace and JSON matches,\nallowing invalid-looking proxies to be returned. Backward-compatible (default\nbehavior unchanged).",
-    "files": [
-      "src/utils/proxy/extractor.php"
-    ]
-  },
-  {
-    "hash": "3eaed622abe72401aec25512acbe2990dd760d83",
-    "date": "2025-10-04T13:20:47+07:00",
-    "message": "feat(db): mark proxy as added only when insert succeeds; remove $force param\n\n- Remove unused $force parameter from `ProxyDB::add()` signature.\n- Trim proxy, call `$this->db->insert(...)` and check its boolean result.\n- Only call `markAsAdded()` when the insert returns true (avoid marking failed inserts).\n- Keeps behaviour clearer and prevents recording proxies that weren't actually persisted.\n\nBREAKING CHANGE: `ProxyDB::add($proxy, $force = false)` -> `ProxyDB::add($proxy)`; callers must be updated if they relied on the old signature.",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php"
-    ]
-  },
-  {
-    "hash": "bf9b311d622c8fe01e2689f36d8f772c6b1b585d",
-    "date": "2025-10-04T13:19:30+07:00",
-    "message": "refactor(db): make insert() return bool and handle failures gracefully\n\n- Update abstract signature in src/PhpProxyHunter/BaseSQL.php:\n  - change insert(...) to return bool and update docblock.\n\n- Update src/PhpProxyHunter/MySQLHelper.php:\n  - add return type bool, validate empty $data and return false.\n  - return true on successful execute; catch PDOException and return false.\n  - update docblock to reflect boolean return.\n\n- Update src/PhpProxyHunter/SQLiteHelper.php:\n  - add return type bool, validate empty $data and return false.\n  - return true on successful execute; catch PDOException and return false.\n  - update docblock to reflect boolean return.\n\nBREAKING CHANGE: The BaseSQL::insert signature now returns bool (true on success, false on failure).\nCallers must handle the boolean result and adjust any logic that previously relied on exceptions or a void return.",
-    "files": [
-      "src/PhpProxyHunter/BaseSQL.php",
-      "src/PhpProxyHunter/MySQLHelper.php",
-      "src/PhpProxyHunter/SQLiteHelper.php",
-      "tests/is-valid-proxy.php"
-    ]
-  },
-  {
-    "hash": "4ad887ec5440b0ba016151e6898fb974d311d68e",
-    "date": "2025-10-04T12:42:33+07:00",
-    "message": "fix(proxyCollector): improve blacklist removal query compatibility for SQLite and MySQL\n\n- Added database driver check to skip unsupported drivers\n- Updated DELETE query to be compatible with both SQLite and MySQL\n- Used parameterized query with bound parameters for `proxy` and `active` status\n- Added error handling to report failed deletions",
-    "files": [
-      "artisan/proxyCollector.php"
     ]
   }
 ]
