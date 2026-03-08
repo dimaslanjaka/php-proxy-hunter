@@ -1,5 +1,23 @@
 [
   {
+    "hash": "1b75535282b15b50cbff9722994b033bec89c411",
+    "date": "2026-03-08T10:50:53+07:00",
+    "message": "fix(proxy-db): avoid adding proxies already present in added_proxies\n\n- Use `await isAlreadyAdded(trimmed)` in `add()` to skip inserting when proxy is recorded in `added_proxies`.\n- Call `await markAsAdded(trimmed)` after a successful `proxies` insert to keep state consistent.\n- Add `isAlreadyAdded()` and `markAsAdded()` helper methods (tolerant of missing table/errors).\n- Minor comment/update tweaks around added_proxies checks.",
+    "files": [
+      "src/ProxyDB.js"
+    ]
+  },
+  {
+    "hash": "948621b1d9638b691e4e3e9f81a451a9928bf8bc",
+    "date": "2026-03-08T10:47:47+07:00",
+    "message": "fix(proxy-db): skip adding proxies already present in added_proxies\n\n- Add pre-insert check in `add()` to skip insertion when the proxy exists in `added_proxies`.\n- Applied to: `src/PhpProxyHunter/ProxyDB.php`, `src/ProxyDB.py`, `src/ProxyDB.js`.\n- JS: also attempt to insert into `added_proxies` after a successful `proxies` insert to keep state consistent.\n- Preserves existing behavior of marking proxies as added when an insert succeeds and prevents duplicate additions/re-processing.",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/ProxyDB.js",
+      "src/ProxyDB.py"
+    ]
+  },
+  {
     "hash": "326e20eaa46b3d12a1099825f2ee446374baf310",
     "date": "2026-03-08T09:41:51+07:00",
     "message": "feat(proxy-db): add optional flag to remove() to control deletion from added_proxies\n\n- Add optional parameter to `remove` across implementations:\n  - PHP (src/PhpProxyHunter/ProxyDB.php): `remove($proxy, bool $deleteFromAdded = false)` — only deletes from `added_proxies` when flag is true.\n  - JS (src/ProxyDB.js): `async remove(proxy, deleteFromAdded = false)` — conditional deletion of `added_proxies`.\n  - Python (src/ProxyDB.py): `def remove(self, proxy, delete_from_added: bool = False)` — conditional deletion with a MySQL-placeholder fallback and exception handling.\n- Note: Previously `remove()` attempted to delete from `added_proxies` unconditionally; this change makes that behavior opt-in while keeping the function signatures backward-compatible.",
@@ -8733,22 +8751,6 @@
     "message": "feat(maintenance): add CLI options to toggle maintenance mode",
     "files": [
       "index.php"
-    ]
-  },
-  {
-    "hash": "43e7f6890f5c9c71a686f3b0be1406d0fb373508",
-    "date": "2025-10-06T01:52:17Z",
-    "message": "build(deps): bump react-i18next from 15.7.4 to 16.0.0\n\nBumps [react-i18next](https://github.com/i18next/react-i18next) from 15.7.4 to 16.0.0.\n- [Changelog](https://github.com/i18next/react-i18next/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/i18next/react-i18next/compare/v15.7.4...v16.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: react-i18next\n  dependency-version: 16.0.0\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "332d784f9a64a4609ef40ce1a4db4da2eb5105c3",
-    "date": "2025-10-06T08:50:15+07:00",
-    "message": "fix(package): move i18next, nunjucks, and react to dev",
-    "files": [
-      "package.json"
     ]
   }
 ]
