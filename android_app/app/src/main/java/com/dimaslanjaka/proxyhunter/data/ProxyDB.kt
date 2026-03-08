@@ -36,7 +36,8 @@ class ProxyDB(
     offset: Int = 0,
     country: String? = null,
     city: String? = null,
-    classification: String? = null
+    classification: String? = null,
+    type: String? = null
   ): Future<List<ProxyItem>> {
     var sql = "SELECT * FROM proxies WHERE status = 'active'"
     val params = mutableListOf<Any>()
@@ -52,6 +53,17 @@ class ProxyDB(
     if (!classification.isNullOrBlank()) {
       sql += " AND classification = ?"
       params.add(classification)
+    }
+    if (!type.isNullOrBlank()) {
+      if (type.equals("SSL", ignoreCase = true)) {
+        sql += " AND https = 'true'"
+      } else {
+        // Use REGEXP for more robust matching of types within delimited strings
+        sql += " AND type REGEXP ?"
+        // Regex matches the type at start, after a delimiter, or at end/before a delimiter
+        // Delimiters handled: -, ,, space
+        params.add("(^|[-, ])" + type + "($|[-, ])")
+      }
     }
 
     sql += " ORDER BY last_check DESC LIMIT ? OFFSET ?"
@@ -128,6 +140,37 @@ class ProxyDB(
       rs.close()
       stmt.close()
       list
+    }
+  }
+
+  fun getUniqueTypes(): Future<List<String>> {
+    val sql = "SELECT DISTINCT type, https FROM proxies WHERE status = 'active'"
+    return db.execute { conn ->
+      val stmt = conn.prepareStatement(sql)
+      val rs = stmt.executeQuery()
+      val typeSet = mutableSetOf<String>()
+      while (rs.next()) {
+        val rawType = rs.getString("type")
+        val isHttps = rs.getString("https")?.lowercase() == "true"
+
+        if (isHttps) typeSet.add("SSL")
+
+        if (rawType != null) {
+          rawType.split(",", "-", " ").forEach {
+            val trimmed = it.trim().uppercase()
+            if (trimmed.isNotEmpty()) typeSet.add(trimmed)
+          }
+        }
+      }
+      rs.close()
+      stmt.close()
+
+      val preferredOrder = listOf("SSL", "SOCKS4", "SOCKS5", "SOCKS4A", "SOCKS5H")
+      val result = preferredOrder.filter { it in typeSet }.toMutableList()
+      val others = typeSet.filter { it !in preferredOrder }.sorted()
+      result.addAll(others)
+
+      result
     }
   }
 

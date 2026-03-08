@@ -119,9 +119,11 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
     var countries by remember { mutableStateOf(listOf<String>()) }
     var cities by remember { mutableStateOf(listOf<String>()) }
     var classifications by remember { mutableStateOf(listOf<String>()) }
+    var types by remember { mutableStateOf(listOf<String>()) }
     var selectedCountry by remember { mutableStateOf<String?>(null) }
     var selectedCity by remember { mutableStateOf<String?>(null) }
     var selectedClassification by remember { mutableStateOf<String?>(null) }
+    var selectedType by remember { mutableStateOf<String?>(null) }
 
     val pageSize = 20
     var offset by remember { mutableIntStateOf(0) }
@@ -147,7 +149,8 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
                             offset = currentOffset,
                             country = selectedCountry,
                             city = selectedCity,
-                            classification = selectedClassification
+                            classification = selectedClassification,
+                            type = selectedType
                         ).get()
                     }
 
@@ -194,6 +197,7 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
         try {
             countries = withContext(Dispatchers.IO) { db.getUniqueCountries().get() }
             classifications = withContext(Dispatchers.IO) { db.getUniqueClassifications().get() }
+            types = withContext(Dispatchers.IO) { db.getUniqueTypes().get() }
         } catch (e: Exception) {
             Timber.tag("ProxyHunter").e(e, "Failed to fetch filters")
         }
@@ -211,8 +215,8 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
         loadProxies(false)
     }
 
-    // Refresh when city or classification changes
-    LaunchedEffect(selectedCity, selectedClassification) {
+    // Refresh when city, classification or type changes
+    LaunchedEffect(selectedCity, selectedClassification, selectedType) {
         loadProxies(false)
     }
 
@@ -257,6 +261,14 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
                         options = cities,
                         selectedOption = selectedCity,
                         onOptionSelected = { selectedCity = it },
+                        modifier = Modifier.width(150.dp).fillMaxHeight()
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    FilterDropdown(
+                        label = "Type",
+                        options = types,
+                        selectedOption = selectedType,
+                        onOptionSelected = { selectedType = it },
                         modifier = Modifier.width(150.dp).fillMaxHeight()
                     )
                     Spacer(modifier = Modifier.size(8.dp))
