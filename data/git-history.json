@@ -1,5 +1,39 @@
 [
   {
+    "hash": "b383d4ed27c05e748fce15dc4891a51291f53b0a",
+    "date": "2026-03-08T22:07:13+07:00",
+    "message": "fix: add tools:ignore for VpnServicePolicy in Tun2SocksVpnService",
+    "files": [
+      "android_app/app/src/main/AndroidManifest.xml"
+    ]
+  },
+  {
+    "hash": "17a58cfe0b9db289e8b3621080298b7a3d2e7270",
+    "date": "2026-03-08T22:03:38+07:00",
+    "message": "refactor: remove Tailscale status observation and simplify ProxyDB initialization in ProxyManager",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyManager.kt"
+    ]
+  },
+  {
+    "hash": "10328430e36bf9ad05d025807c65431e00f18128",
+    "date": "2026-03-08T21:49:29+07:00",
+    "message": "fix(vpn): stop not working fixed\n\n- Refactor `Tun2SocksVpnService` to use `onCreate` for initialization and implement an explicit `ACTION_STOP` intent handler.\n- Update `Tun2SocksVpnStarter` to stop the service via an intent action instead of `stopService()`.\n- Adjust VPN configuration to include `ROUTE`, `MTU`, and additional disallowed applications.\n- Clean up resource management for the TUN descriptor and executor service.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/Tun2SocksVpnService.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/Tun2SocksVpnStarter.kt"
+    ]
+  },
+  {
+    "hash": "a7017f15e0858e487ba8e1b4838ecb4d500f2741",
+    "date": "2026-03-08T11:56:59+07:00",
+    "message": "feat(proxy-list): add filter by proxy type\n\n- Implement type filtering in ProxyDB using SQL REGEXP to handle delimited strings\n- Add special handling for SSL filter based on the https database column\n- Add dynamic Type filter dropdown to WorkingProxyListActivity\n- Implement getUniqueTypes to fetch and parse available protocols from the database",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/WorkingProxyListActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyDB.kt"
+    ]
+  },
+  {
     "hash": "2d34ed676cd1ce1596dc2afe78173e0be459bc3f",
     "date": "2026-03-08T11:14:58+07:00",
     "message": "feat(webauthn): store credentials in DB instead of JSON file\n\n- add php_backend/webauthn/db.php with table bootstrap and db_get/db_save helpers\n- update auth_options.php to load allowCredentials from DB\n- update auth_verify.php to validate credential id against DB\n- update register_verify.php to persist new credentials to DB\n- remove tmp/webauthn/webauthn_credentials.json file-based storage\n\nchore(deps): bump @simplewebauthn/browser to ^13.2.2",
@@ -8723,36 +8757,6 @@
     "message": "fix(clear-caches): comment out requirements.txt installation in virtual environment setup",
     "files": [
       "bin/clear-caches"
-    ]
-  },
-  {
-    "hash": "a826cf131ac56c8afef5f6ef28bd6eb9af09323e",
-    "date": "2025-10-06T13:12:25+07:00",
-    "message": "feat(deploy): add SFTP write/delete helpers and build lock handling\n\nAdd exported `writeRemoteFile` and `deleteRemotePath` helpers to perform raw SFTP writes\n(and create parent directories) and to delete files/directories (with recursive fallback).\nCreate a timestamped lock file at `tmp/locks/.build-lock` before building and remove it\nafter upload to signal build in-progress/completion. Log operations and avoid failing the\ndeploy if lock creation/removal encounters non-fatal errors.",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "a180159442a29a6128d26d1ba466c1f2fca619d4",
-    "date": "2025-10-06T12:26:18+07:00",
-    "message": "fix(deploy-vps): always set maintenance page, pull latest before build and upload dist\n\nRemove the conditional that skipped build/upload when git reported \"up to date\".\nNow the script unconditionally uploads `index.maintenance.html`, runs `gitPull()`,\nbuilds the project, copies route index files and uploads the `dist` directory.\n\nThis ensures the maintenance page is shown during deployment and the build\nruns against the latest repository state.",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "a043c9b155097c216ed37f33406b6dbaa43be029",
-    "date": "2025-10-06T11:36:53+07:00",
-    "message": "fix(hooks): add VPS detection to commit history builder execution",
-    "files": []
-  },
-  {
-    "hash": "c77bc464f8c782537aa1d993aefd283fb0c39781",
-    "date": "2025-10-06T10:37:16+07:00",
-    "message": "fix(index.php): improve error handling for missing PHP files",
-    "files": [
-      "index.php"
     ]
   }
 ]
