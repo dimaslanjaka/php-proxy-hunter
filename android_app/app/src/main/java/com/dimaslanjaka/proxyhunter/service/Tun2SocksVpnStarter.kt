@@ -10,7 +10,6 @@ import timber.log.Timber
 
 /**
  * Helper class to handle VPN permission requests and start the [Tun2SocksVpnService].
- * Must be initialized in [ComponentActivity.onCreate] or as a property initializer.
  */
 class Tun2SocksVpnStarter(private val activity: ComponentActivity) {
 
@@ -26,33 +25,27 @@ class Tun2SocksVpnStarter(private val activity: ComponentActivity) {
             }
         }
 
-    /**
-     * Starts the VPN service. Requests permission from the user if necessary.
-     * @param ipHost The SOCKS5 proxy host/ip and port (e.g., "1.2.3.4:8080")
-     */
     fun startVpn(ipHost: String) {
         val proxyUrl = if (ipHost.startsWith("socks5://")) ipHost else "socks5://$ipHost"
-        Timber.i("Preparing to start VPN with proxy: %s", proxyUrl)
+        Timber.i("Starting VPN with proxy: %s", proxyUrl)
 
         pref.put("socks", proxyUrl)
 
         val intent = VpnService.prepare(activity)
         if (intent != null) {
-            Timber.d("Requesting VPN permission")
             vpnPermissionLauncher.launch(intent)
         } else {
-            Timber.d("VPN permission already granted, starting service directly")
             launchService()
         }
     }
 
-    /**
-     * Stops the VPN service.
-     */
     fun stopVpn() {
-        Timber.i("Stopping VPN service")
-        val intent = Intent(activity, Tun2SocksVpnService::class.java)
-        activity.stopService(intent)
+        Timber.i("Stopping VPN service action")
+        pref.remove("socks")
+        val intent = Intent(activity, Tun2SocksVpnService::class.java).apply {
+            action = Tun2SocksVpnService.ACTION_STOP
+        }
+        activity.startService(intent)
     }
 
     private fun launchService() {
@@ -60,7 +53,7 @@ class Tun2SocksVpnStarter(private val activity: ComponentActivity) {
             val intent = Intent(activity, Tun2SocksVpnService::class.java)
             activity.startService(intent)
         } catch (e: Exception) {
-            Timber.e(e, "Failed to start Tun2SocksVpnService")
+            Timber.e(e, "Failed to start Tun2SocksVpnServiceOfficial")
         }
     }
 }

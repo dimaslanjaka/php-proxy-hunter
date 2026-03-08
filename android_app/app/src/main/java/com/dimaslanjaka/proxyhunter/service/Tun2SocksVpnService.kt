@@ -1,7 +1,9 @@
 package com.dimaslanjaka.proxyhunter.service
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.VpnService
+import android.os.Build
 import android.os.ParcelFileDescriptor
 import com.dimaslanjaka.prefs.LocalSharedPrefs
 import engine.Engine
@@ -10,145 +12,128 @@ import timber.log.Timber
 import java.io.IOException
 import java.net.InetAddress
 import java.net.UnknownHostException
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-/**
- * A VPN Service that uses the tun2socks engine to route traffic through a SOCKS5 proxy.
- */
 class Tun2SocksVpnService : VpnService() {
+  private val executors = Executors.newFixedThreadPool(1)
+  private var tun: ParcelFileDescriptor? = null
 
-    private var executor: ExecutorService? = null
-    private var tunDescriptor: ParcelFileDescriptor? = null
+  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    if (intent?.action == ACTION_STOP) {
+      Timber.tag(TAG).i("Received ACTION_STOP")
+      stopService()
+      return START_NOT_STICKY
+    }
+    return super.onStartCommand(intent, flags, startId)
+  }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Timber.tag(TAG).i("VPN Service starting...")
-        startVpn()
-        return START_STICKY
+  private fun stopService() {
+    try {
+      tun?.close()
+      Timber.tag(TAG).i("TUN descriptor closed")
+    } catch (e: IOException) {
+      Timber.tag(TAG).e(e, "Error closing TUN descriptor")
+    } finally {
+      tun = null
     }
 
-    private fun startVpn() {
-        if (tunDescriptor != null) {
-            Timber.tag(TAG).d("VPN is already running, skipping start")
-            return
+    try {
+      executors?.shutdownNow()
+    } catch (e: Exception) {
+      Timber.tag(TAG).e(e, "Error shutting down executor")
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      stopForeground(STOP_FOREGROUND_REMOVE)
+    } else {
+      @Suppress("DEPRECATION")
+      stopForeground(true)
+    }
+    stopSelf()
+  }
+
+  override fun onCreate() {
+    super.onCreate()
+    if (tun == null) {
+      tun = try {
+        val builder: Builder = Builder().addAddress(ADDRESS, 24)
+          .addRoute(ROUTE, 0)
+          .setMtu(MTU)
+          .addDnsServer(DNS).addDisallowedApplication(this.application.packageName)
+          .addDisallowedApplication("com.netease.yysls")
+          .setSession(TAG)
+
+        // let DNS queries bypass VPN if SOCKS server does not support UDP bind
+        addRoutesExcept(builder, DNS, 32)
+        builder.establish()
+      } catch (e: PackageManager.NameNotFoundException) {
+        throw RuntimeException(e)
+      }
+    }
+    if (tun != null) {
+      val key = Key()
+      key.mark = 0
+      key.mtu = 0
+      key.device = "fd://" + tun!!.fd
+      key.setInterface("")
+      key.logLevel = "debug"
+      val proxy = savedProxy
+      Timber.tag(TAG).d("using proxy %s", proxy)
+      key.proxy = proxy
+      key.restAPI = ""
+      key.tcpSendBufferSize = ""
+      key.tcpReceiveBufferSize = ""
+      key.tcpModerateReceiveBuffer = false
+      Engine.insert(key)
+      executors!!.submit { Engine.start() }
+    }
+  }
+
+  private val savedProxy: String?
+    get() {
+      val pref = LocalSharedPrefs.initialize(applicationContext, "proxy")
+      return pref.getString("socks", SOCKS5)
+    }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    executors?.shutdownNow()
+    tun?.close()
+    tun = null
+  }
+
+  /**
+   * Computes the inverted subnet, routing all traffic except to the specified subnet. Use prefixLength
+   * of 32 or 128 for a single address.
+   *
+   * @see [](https://stackoverflow.com/a/41289228)
+   */
+  private fun addRoutesExcept(builder: Builder, address: String, prefixLength: Int) {
+    try {
+      val bytes = InetAddress.getByName(address).address
+      for (i in 0 until prefixLength) { // each entry
+        val res = ByteArray(bytes.size)
+        for (j in 0..i) { // each prefix bit
+          res[j / 8] = (res[j / 8].toInt() or (bytes[j / 8].toInt() and (1 shl 7 - j % 8))).toByte()
         }
-
-        try {
-            val proxyUrl = getSavedProxy()
-            Timber.tag(TAG).i("Establishing VPN with proxy: %s", proxyUrl)
-
-            val builder = Builder()
-                .addAddress(ADDRESS, 24)
-                .addDnsServer(DNS)
-                .addDisallowedApplication(packageName)
-                .setSession(TAG)
-
-            // Route all traffic except DNS to allow DNS queries to bypass VPN if SOCKS server doesn't support UDP
-            addRoutesExcept(builder, DNS, 32)
-
-            tunDescriptor = builder.establish()
-            if (tunDescriptor == null) {
-                Timber.tag(TAG).e("Failed to establish VPN: Builder.establish() returned null")
-                stopSelf()
-                return
-            }
-
-            val key = Key().apply {
-                mark = 0
-                mtu = 0
-                device = "fd://${tunDescriptor!!.fd}"
-                setInterface("")
-                logLevel = "debug"
-                proxy = proxyUrl
-                restAPI = ""
-                tcpSendBufferSize = ""
-                tcpReceiveBufferSize = ""
-                tcpModerateReceiveBuffer = false
-            }
-
-            Engine.insert(key)
-
-            executor = Executors.newSingleThreadExecutor()
-            executor?.submit {
-                try {
-                    Timber.tag(TAG).i("Starting tun2socks engine...")
-                    Engine.start()
-                    Timber.tag(TAG).i("Engine execution finished")
-                } catch (e: Exception) {
-                    Timber.tag(TAG).e(e, "Engine execution failed")
-                }
-            }
-
-        } catch (e: Exception) {
-            Timber.tag(TAG).e(e, "Unexpected error during VPN startup")
-            cleanup()
-            stopSelf()
-        }
+        res[i / 8] = (res[i / 8].toInt() xor (1 shl 7 - i % 8)).toByte()
+        builder.addRoute(InetAddress.getByAddress(res), i + 1)
+      }
+    } catch (e: UnknownHostException) {
+      throw RuntimeException(e)
     }
+  }
 
-    private fun getSavedProxy(): String {
-        return try {
-            val pref = LocalSharedPrefs.initialize(applicationContext, "proxy")
-            pref.getString("socks", DEFAULT_SOCKS5) ?: DEFAULT_SOCKS5
-        } catch (e: Exception) {
-            Timber.tag(TAG).w(e, "Could not load saved proxy, falling back to default")
-            DEFAULT_SOCKS5
-        }
-    }
-
-    private fun cleanup() {
-        Timber.tag(TAG).i("Cleaning up VPN resources")
-        try {
-            // Engine.stop() // Uncomment if the engine library provides a stop method
-            tunDescriptor?.close()
-        } catch (e: IOException) {
-            Timber.tag(TAG).e(e, "Error closing TUN descriptor")
-        } finally {
-            tunDescriptor = null
-            executor?.shutdownNow()
-            executor = null
-        }
-    }
-
-    override fun onDestroy() {
-        cleanup()
-        super.onDestroy()
-    }
-
-    /**
-     * Configures the VPN to route all traffic EXCEPT for the specified address.
-     * Useful for allowing DNS traffic to bypass the VPN.
-     * @see <a href="https://stackoverflow.com/a/41289228">StackOverflow Source</a>
-     */
-    private fun addRoutesExcept(builder: Builder, address: String, prefixLength: Int) {
-        try {
-            val bytes = InetAddress.getByName(address).address
-            for (i in 0 until prefixLength) {
-                val res = ByteArray(bytes.size)
-                // Copy prefix bits
-                for (j in 0..i) {
-                    val byteIdx = j / 8
-                    val bitOffset = 7 - (j % 8)
-                    res[byteIdx] = (res[byteIdx].toInt() or (bytes[byteIdx].toInt() and (1 shl bitOffset))).toByte()
-                }
-                // Flip the current bit to create the excluded route
-                val currentByteIdx = i / 8
-                val currentBitOffset = 7 - (i % 8)
-                res[currentByteIdx] = (res[currentByteIdx].toInt() xor (1 shl currentBitOffset)).toByte()
-
-                builder.addRoute(InetAddress.getByAddress(res), i + 1)
-            }
-        } catch (e: UnknownHostException) {
-            Timber.tag(TAG).e(e, "Invalid host for exception route: %s", address)
-        } catch (e: Exception) {
-            Timber.tag(TAG).e(e, "Failed to add exception routes for %s", address)
-        }
-    }
-
-    companion object {
-        private const val TAG = "Tun2SocksVpn"
-        private const val ADDRESS = "10.0.0.2"
-        private const val DNS = "1.1.1.1"
-        private const val DEFAULT_SOCKS5 = "socks5://10.88.111.24:8080"
-    }
+  companion object {
+    const val ACTION_STOP = "com.dimaslanjaka.proxyhunter.STOP"
+    private const val TAG = "Tun2SocksVpnService"
+    private const val ETAG = "ServiceException"
+    private const val ADDRESS = "10.0.0.2"
+    private const val ROUTE = "0.0.0.0"
+    private const val DNS = "1.1.1.1"
+    private const val MTU = 1500
+    private const val SOCKS5 = "socks5://10.88.111.24:8080" // Your SOCKS5 server
+    // You could spin up a local SOCK5 server on your workstation with:
+    // ssh -ND "*:8080" -q -C -N <username>@<remote-host>
+  }
 }
