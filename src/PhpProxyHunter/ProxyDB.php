@@ -316,7 +316,12 @@ class ProxyDB
    */
   public function add($proxy)
   {
-    $proxy    = $this->normalizeProxy($proxy);
+    $proxy = $this->normalizeProxy($proxy);
+    // If proxy is already present in added_proxies, do not add it again
+    if ($this->isAlreadyAdded($proxy)) {
+      return;
+    }
+
     $inserted = $this->db->insert('proxies', ['proxy' => $proxy, 'status' => 'untested'], true);
     if ($inserted) {
       // Also record in added_proxies so the proxy is treated as already added

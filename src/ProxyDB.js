@@ -146,9 +146,28 @@ class ProxyDB {
   }
 
   async add(proxy) {
+    const trimmed = proxy.trim();
+    if (!this.db) await this.startConnection();
+
+    // If present in added_proxies, do not add again
+    try {
+      const added = this.db.select('added_proxies', '*', 'proxy = ?', [trimmed]);
+      if (added && added.length) {
+        return this.select(proxy);
+      }
+    } catch {
+      // ignore errors querying added_proxies and continue
+    }
+
     const sel = await this.select(proxy);
     if (sel.length === 0) {
-      this.db.insert('proxies', { proxy: proxy.trim() });
+      this.db.insert('proxies', { proxy: trimmed });
+      try {
+        // Attempt to mark as added for future checks
+        this.db.insert('added_proxies', { proxy: trimmed });
+      } catch {
+        // ignore if table doesn't exist or insert fails
+      }
     } else {
       console.log(`Proxy ${proxy} already exists`);
     }

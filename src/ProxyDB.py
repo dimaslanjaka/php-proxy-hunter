@@ -368,6 +368,14 @@ class ProxyDB:
 
     def add(self, proxy: str):
         proxy = self.normalize_proxy(proxy)
+        # Do not add if present in added_proxies
+        try:
+            if self.is_already_added(proxy):
+                return self.select(proxy)
+        except Exception:
+            # If the check fails for any reason, continue with normal flow
+            pass
+
         sel = self.select(proxy)
         if not sel:
             # try to insert with default status
