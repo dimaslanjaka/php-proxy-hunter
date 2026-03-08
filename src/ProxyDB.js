@@ -151,12 +151,11 @@ class ProxyDB {
 
     // If present in added_proxies, do not add again
     try {
-      const added = this.db.select('added_proxies', '*', 'proxy = ?', [trimmed]);
-      if (added && added.length) {
+      if (await this.isAlreadyAdded(trimmed)) {
         return this.select(proxy);
       }
     } catch {
-      // ignore errors querying added_proxies and continue
+      // ignore errors checking added_proxies and continue
     }
 
     const sel = await this.select(proxy);
@@ -164,7 +163,7 @@ class ProxyDB {
       this.db.insert('proxies', { proxy: trimmed });
       try {
         // Attempt to mark as added for future checks
-        this.db.insert('added_proxies', { proxy: trimmed });
+        await this.markAsAdded(trimmed);
       } catch {
         // ignore if table doesn't exist or insert fails
       }
@@ -177,6 +176,27 @@ class ProxyDB {
   async select(proxy) {
     if (!this.db) await this.startConnection();
     return this.db.select('proxies', '*', 'proxy = ?', [proxy.trim()]);
+  }
+
+  async isAlreadyAdded(proxy) {
+    const trimmed = proxy.trim();
+    if (!this.db) await this.startConnection();
+    try {
+      const res = this.db.select('added_proxies', '*', 'proxy = ?', [trimmed]);
+      return !!(res && res.length);
+    } catch {
+      return false;
+    }
+  }
+
+  async markAsAdded(proxy) {
+    const trimmed = proxy.trim();
+    if (await this.isAlreadyAdded(trimmed)) return;
+    try {
+      this.db.insert('added_proxies', { proxy: trimmed });
+    } catch {
+      // ignore failures (table missing, constraint, etc.)
+    }
   }
 
   /**
