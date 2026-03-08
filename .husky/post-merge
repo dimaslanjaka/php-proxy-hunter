@@ -117,12 +117,12 @@ fi
 # Decide whether to run Composer: only when composer.json or any .php files changed
 COMPOSER_LOCK="$CWD/composer.lock"
 COMPOSER_PHAR="$CWD/bin/composer.phar"
-COMPOSER_ARGS="--no-interaction"
+COMPOSER_ARGS="--no-interaction --no-audit"
 
 if [ $IS_VPS -eq 1 ]; then
   # only install production dependencies on VPS
   echo "Detected VPS environment. Installing production dependencies only."
-  COMPOSER_ARGS="--no-dev --no-interaction"
+  COMPOSER_ARGS="--no-dev --no-interaction --no-audit"
 fi
 
 # Determine previous ref to compare changes (prefer ORIG_HEAD, fallback to HEAD^)
