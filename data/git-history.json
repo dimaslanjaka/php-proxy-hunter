@@ -1,5 +1,47 @@
 [
   {
+    "hash": "326e20eaa46b3d12a1099825f2ee446374baf310",
+    "date": "2026-03-08T09:41:51+07:00",
+    "message": "feat(proxy-db): add optional flag to remove() to control deletion from added_proxies\n\n- Add optional parameter to `remove` across implementations:\n  - PHP (src/PhpProxyHunter/ProxyDB.php): `remove($proxy, bool $deleteFromAdded = false)` — only deletes from `added_proxies` when flag is true.\n  - JS (src/ProxyDB.js): `async remove(proxy, deleteFromAdded = false)` — conditional deletion of `added_proxies`.\n  - Python (src/ProxyDB.py): `def remove(self, proxy, delete_from_added: bool = False)` — conditional deletion with a MySQL-placeholder fallback and exception handling.\n- Note: Previously `remove()` attempted to delete from `added_proxies` unconditionally; this change makes that behavior opt-in while keeping the function signatures backward-compatible.",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/ProxyDB.js",
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "90e9c02ef055de324beb10f25fcaa40f7801972b",
+    "date": "2026-03-08T09:18:55+07:00",
+    "message": "chore(env): update VS Code Python settings and extend PATH in cmd-here\n\n- comment out `python.defaultInterpreterPath` / `python.pythonPath` in `.vscode/settings.json`\n- enable `python.useEnvironmentsExtension` in `.vscode/settings.json`\n- append Laragon MySQL bin to `PATH` in `.vscode/settings.json`\n- extend `CUSTOM_PATH` in `cmd-here.bat` to include Laragon binaries (mysql, php, git, python, memcached)\n\nNo functional changes; updates development environment configuration.",
+    "files": [
+      ".vscode/settings.json",
+      "cmd-here.bat"
+    ]
+  },
+  {
+    "hash": "789e38d279349f829940ffdb12034c5453035a66",
+    "date": "2026-03-08T08:52:24+07:00",
+    "message": "feat: add network security configuration and enable cleartext traffic support",
+    "files": [
+      "android_app/app/src/main/AndroidManifest.xml",
+      "android_app/app/src/main/res/xml/network_security_config.xml"
+    ]
+  },
+  {
+    "hash": "0d10e3be6d1f46c3850ea9856affe8dbc92dd17d",
+    "date": "2026-03-08T08:23:11+07:00",
+    "message": "refactor: centralize database management and implement dynamic Tailscale connection fallback\n\n- Refactor `WorkingProxyListActivity`, `ProxyCheckService`, and `ProxyCheckerActivity` to use a singleton `ProxyDB` instance managed by `ProxyManager`.\n- Implement dynamic database connection switching in `ProxyManager` based on Tailscale status from Firebase.\n- Add a fallback mechanism to a primary server if the Tailscale connection fails.\n- Rename `WorkingProxyList` to `WorkingProxyListActivity` for consistency.\n- Add `testConnection` method to `ProxyDB` and improve connection logging in `MySQLHelper`.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/MainActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyCheckerActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/WorkingProxyListActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/MySQLHelper.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyDB.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyManager.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/ProxyCheckService.kt"
+    ]
+  },
+  {
     "hash": "81d13d1f157a3997ad1490070aaa2df5d6fb2928",
     "date": "2026-03-08T07:20:23+07:00",
     "message": "chore: ignore Google Services JSON files",
@@ -8707,34 +8749,6 @@
     "message": "fix(package): move i18next, nunjucks, and react to dev",
     "files": [
       "package.json"
-    ]
-  },
-  {
-    "hash": "46a69a361c9d8b8d6e701c1b9b349aecb3b7a9e1",
-    "date": "2025-10-06T08:34:03+07:00",
-    "message": "fix(package): move ssh2 and ssh2-sftp-client as dev dependencies",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "fb2e32a9a413b34252ed084c14771615aed7d887",
-    "date": "2025-10-06T08:27:58+07:00",
-    "message": "chore(husky): add yarn install and build steps to post-merge hook",
-    "files": []
-  },
-  {
-    "hash": "edc1fd4c9aee56902a51023370492999e5892adf",
-    "date": "2025-10-06T05:45:48+07:00",
-    "message": "refactor(post-merge): remove yarn installation and build steps",
-    "files": []
-  },
-  {
-    "hash": "fc28b68da3e1490469647c8b59eb1683b66bbca9",
-    "date": "2025-10-06T05:45:22+07:00",
-    "message": "fix(start-whatsapp): update dependency installation to use workspaces focus for production",
-    "files": [
-      "bin/start-whatsapp"
     ]
   }
 ]
