@@ -1,5 +1,23 @@
 [
   {
+    "hash": "2d34ed676cd1ce1596dc2afe78173e0be459bc3f",
+    "date": "2026-03-08T11:14:58+07:00",
+    "message": "feat(webauthn): store credentials in DB instead of JSON file\n\n- add php_backend/webauthn/db.php with table bootstrap and db_get/db_save helpers\n- update auth_options.php to load allowCredentials from DB\n- update auth_verify.php to validate credential id against DB\n- update register_verify.php to persist new credentials to DB\n- remove tmp/webauthn/webauthn_credentials.json file-based storage\n\nchore(deps): bump @simplewebauthn/browser to ^13.2.2",
+    "files": [
+      "package.json",
+      "php_backend/webauthn/auth_options.php",
+      "php_backend/webauthn/auth_verify.php",
+      "php_backend/webauthn/db.php",
+      "php_backend/webauthn/register_verify.php"
+    ]
+  },
+  {
+    "hash": "0e974d2f8b48e0ef759b0090b0122d1137489418",
+    "date": "2026-03-08T11:08:25+07:00",
+    "message": "fix(post-merge): add --no-audit flag to Composer arguments",
+    "files": []
+  },
+  {
     "hash": "1b75535282b15b50cbff9722994b033bec89c411",
     "date": "2026-03-08T10:50:53+07:00",
     "message": "fix(proxy-db): avoid adding proxies already present in added_proxies\n\n- Use `await isAlreadyAdded(trimmed)` in `add()` to skip inserting when proxy is recorded in `added_proxies`.\n- Call `await markAsAdded(trimmed)` after a successful `proxies` insert to keep state consistent.\n- Add `isAlreadyAdded()` and `markAsAdded()` helper methods (tolerant of missing table/errors).\n- Minor comment/update tweaks around added_proxies checks.",
@@ -8733,22 +8751,6 @@
     "hash": "c77bc464f8c782537aa1d993aefd283fb0c39781",
     "date": "2025-10-06T10:37:16+07:00",
     "message": "fix(index.php): improve error handling for missing PHP files",
-    "files": [
-      "index.php"
-    ]
-  },
-  {
-    "hash": "0a2dbf415b1553860db583909352a25c44c7396c",
-    "date": "2025-10-06T10:34:27+07:00",
-    "message": "fix(Home): remove unused 'Learn More' link from the Home page",
-    "files": [
-      "src/react/pages/Home.tsx"
-    ]
-  },
-  {
-    "hash": "eaa5e806a1c1025fc88de963c3677a78eab0141e",
-    "date": "2025-10-06T10:32:06+07:00",
-    "message": "feat(maintenance): add CLI options to toggle maintenance mode",
     "files": [
       "index.php"
     ]
