@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../shared.php';
+require_once __DIR__ . '/db.php';
 
 \PhpProxyHunter\Server::allowCors(true);
 
@@ -27,26 +28,13 @@ if ($receivedChallenge !== $storedChallenge) {
   respond_json(['error' => true, 'message' => 'challenge mismatch'], 400);
 }
 
-// Persist credential for user (simple JSON file storage)
-$storeDir  = tmp('webauthn');
-$storeFile = $storeDir . '/webauthn_credentials.json';
-$all       = [];
-if (file_exists($storeFile)) {
-  $all = json_decode(file_get_contents($storeFile), true) ?: [];
-}
+// Persist credential for user (DB storage)
 
-$credId      = $credential['id'] ?? ($credential['rawId'] ?? '');
-$all[$idKey] = [
-  'id'            => $credId,
-  'rawId'         => $credential['rawId'] ?? null,
-  'type'          => $credential['type'] ?? 'public-key',
-  'response'      => $credential['response'] ?? null,
-  'registered_at' => date('c'),
-];
+$credId = $credential['id'] ?? ($credential['rawId'] ?? '');
+// Save credential to DB (store full credential JSON for later verification)
+db_save_webauthn_credential($idKey, $credId, $credential, 0);
 
 // Clean used challenge
-file_put_contents($storeFile, json_encode($all, JSON_PRETTY_PRINT));
-
 unset($_SESSION['webauthn_challenge_' . $idKey]);
 
 respond_json(['error' => false, 'message' => 'registered']);

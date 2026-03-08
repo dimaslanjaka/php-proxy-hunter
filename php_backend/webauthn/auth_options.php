@@ -1,6 +1,9 @@
 <?php
 
 require_once __DIR__ . '/../shared.php';
+require_once __DIR__ . '/db.php';
+
+global $user_db;
 
 \PhpProxyHunter\Server::allowCors(true);
 
@@ -19,16 +22,10 @@ $challenge_b64 = rtrim(strtr(base64_encode($challenge), '+/', '-_'), '=');
 
 $_SESSION['webauthn_assertion_challenge_' . $idKey] = $challenge_b64;
 
-$storeDir  = tmp('webauthn');
-$storeFile = $storeDir . '/webauthn_credentials.json';
-$all       = [];
-if (file_exists($storeFile)) {
-  $all = json_decode(file_get_contents($storeFile), true) ?: [];
-}
-
-$allow = [];
-if (isset($all[$idKey])) {
-  $allow[] = ['type' => 'public-key', 'id' => $all[$idKey]['id']];
+$allow  = [];
+$stored = db_get_webauthn_credential($idKey);
+if ($stored) {
+  $allow[] = ['type' => 'public-key', 'id' => $stored['credential_id']];
 } else {
   // No credential registered for this account — don't allow generic assertion prompt
   respond_json(['error' => true, 'message' => 'no credentials registered for this account'], 400);

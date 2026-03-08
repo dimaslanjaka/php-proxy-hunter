@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../shared.php';
+require_once __DIR__ . '/db.php';
 
 \PhpProxyHunter\Server::allowCors(true);
 
@@ -21,13 +22,8 @@ if (!$storedChallenge) {
 }
 
 // Load stored credential for this idKey and ensure the assertion is from that credential
-$storeDir  = tmp('webauthn');
-$storeFile = $storeDir . '/webauthn_credentials.json';
-$all       = [];
-if (file_exists($storeFile)) {
-  $all = json_decode(file_get_contents($storeFile), true) ?: [];
-}
-$storedCred = $all[$idKey] ?? null;
+$storedCred = null;
+$storedCred = db_get_webauthn_credential($idKey);
 if (!$storedCred) {
   respond_json(['error' => true, 'message' => 'no registered credential for this account'], 400);
 }
@@ -41,7 +37,8 @@ if ($receivedChallenge !== $storedChallenge) {
 
 // Ensure assertion's credential id matches stored credential id for this account
 $assertionId = $assertion['id'] ?? ($assertion['rawId'] ?? '');
-if ($assertionId !== $storedCred['id']) {
+$storedId    = isset($storedCred['credential_id']) ? $storedCred['credential_id'] : ($storedCred['id'] ?? '');
+if ($assertionId !== $storedId) {
   respond_json(['error' => true, 'message' => 'credential id mismatch'], 400);
 }
 
