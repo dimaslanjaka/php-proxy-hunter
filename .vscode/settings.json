@@ -241,7 +241,8 @@
   "python.analysis.diagnosticsSource": "Pyright",
   "python.analysis.inlayHints.pytestParameters": true,
   "python.createEnvironment.contentButton": "show",
-  "python.defaultInterpreterPath": "${workspaceFolder}/bin/py.cmd",
+  // "python.defaultInterpreterPath": "\\venv\\Scripts\\python.exe",
+  // "python.pythonPath": ".\\venv\\Scripts\\python.exe",
   "python.envFile": "${workspaceFolder}/.env",
   "python.terminal.activateEnvInCurrentTerminal": true,
   "python.testing.autoTestDiscoverOnSaveEnabled": false,
@@ -249,6 +250,7 @@
   "python.testing.cwd": "${workspaceFolder}",
   "python.testing.debugPort": 8467,
   "python.testing.promptToConfigure": true,
+  "python.useEnvironmentsExtension": true,
   "python.testing.pytestArgs": [
     "-ra",
     "-v",
@@ -303,7 +305,7 @@
     "DEBUG_PKG": "1",
     "ESLINT_USE_FLAT_CONFIG": "true",
     "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
-    "PATH": "${env:LOCALAPPDATA}\\nvm;C:\\nvm4w\\nodejs;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\usr\\bin;${env:PATH};${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\bin;${workspaceFolder}\\vendor\\bin",
+    "PATH": "${env:LOCALAPPDATA}\\nvm;C:\\nvm4w\\nodejs;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\usr\\bin;${env:PATH};${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\bin;${workspaceFolder}\\vendor\\bin;C:\\laragon\\bin\\mysql\\mysql-8.4.3-winx64\\bin",
     "PHP_CS_FIXER_IGNORE_ENV": "1"
   },
   "terminal.integrated.profiles.windows": {
