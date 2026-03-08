@@ -181,6 +181,15 @@ class ProxyDB(
     }
   }
 
+  fun testConnection(): Boolean {
+    return try {
+      getUniqueCountries().get()
+      true
+    } catch (e: Exception) {
+      false
+    }
+  }
+
   private fun mapResultSetToProxyItem(rs: java.sql.ResultSet): ProxyItem {
     return ProxyItem(
       id = rs.getInt("id"),

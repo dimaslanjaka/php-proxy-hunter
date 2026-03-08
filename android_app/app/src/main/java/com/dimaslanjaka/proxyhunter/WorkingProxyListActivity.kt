@@ -66,9 +66,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dimaslanjaka.prefs.LocalSharedPrefs
 import com.dimaslanjaka.proxyhunter.data.ProxyDB
 import com.dimaslanjaka.proxyhunter.data.ProxyItem
-import com.dimaslanjaka.prefs.LocalSharedPrefs
+import com.dimaslanjaka.proxyhunter.data.ProxyManager
 import com.dimaslanjaka.proxyhunter.service.Tun2SocksVpnStarter
 import com.dimaslanjaka.proxyhunter.ui.theme.ProxyHunterTheme
 import kotlinx.coroutines.Dispatchers
@@ -79,12 +80,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class WorkingProxyList : ComponentActivity() {
+class WorkingProxyListActivity : ComponentActivity() {
     private lateinit var vpnStarter: Tun2SocksVpnStarter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        ProxyManager.initialize(this)
         vpnStarter = Tun2SocksVpnStarter(this)
 
         enableEdgeToEdge()
@@ -127,6 +128,7 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
     var canLoadMore by remember { mutableStateOf(true) }
 
     val listState = rememberLazyListState()
+    val db = ProxyManager.db
 
     val loadProxies = { isNextPage: Boolean ->
         if (!isLoading && (isNextPage && canLoadMore || !isNextPage)) {
@@ -137,7 +139,6 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
                     canLoadMore = true
                 }
 
-                val db = ProxyDB()
                 try {
                     val currentOffset = if (isNextPage) offset else 0
                     val result = withContext(Dispatchers.IO) {
@@ -165,7 +166,6 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
                 } catch (e: Exception) {
                     Timber.tag("ProxyHunter").e(e, "UI Load failed")
                 } finally {
-                    db.close()
                     isLoading = false
                 }
             }
@@ -191,14 +191,11 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
         val pref = try { LocalSharedPrefs.initialize(context, "proxy") } catch (_: Exception) { null }
         connectedProxyUrl = pref?.getString("socks", null)
 
-        val db = ProxyDB()
         try {
             countries = withContext(Dispatchers.IO) { db.getUniqueCountries().get() }
             classifications = withContext(Dispatchers.IO) { db.getUniqueClassifications().get() }
         } catch (e: Exception) {
             Timber.tag("ProxyHunter").e(e, "Failed to fetch filters")
-        } finally {
-            db.close()
         }
         loadProxies(false)
     }
@@ -206,13 +203,10 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
     // Load cities when country changes
     LaunchedEffect(selectedCountry) {
         selectedCity = null
-        val db = ProxyDB()
         try {
             cities = withContext(Dispatchers.IO) { db.getUniqueCities(selectedCountry).get() }
         } catch (e: Exception) {
             Timber.tag("ProxyHunter").e(e, "Failed to fetch cities")
-        } finally {
-            db.close()
         }
         loadProxies(false)
     }

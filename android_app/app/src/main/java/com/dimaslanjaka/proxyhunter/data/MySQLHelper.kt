@@ -30,7 +30,7 @@ class MySQLHelper(
             }
             return connection
         } catch (e: Exception) {
-            Timber.e(e, "Connection failed: ${e.message}")
+            Timber.e(e, "Connection failed to $host for user $user: ${e.message}")
             return null
         }
     }

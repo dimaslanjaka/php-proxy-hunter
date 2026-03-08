@@ -12,7 +12,6 @@ import timber.log.Timber
 import androidx.core.app.NotificationCompat
 import com.dimaslanjaka.proxyhunter.ProxyCheckerActivity
 import com.dimaslanjaka.proxyhunter.checker.ProxyChecker
-import com.dimaslanjaka.proxyhunter.data.ProxyDB
 import com.dimaslanjaka.proxyhunter.data.ProxyManager
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -26,7 +25,6 @@ class ProxyCheckService : Service() {
   private val CHANNEL_ID = "proxy_checker_channel"
   private val NOTIFICATION_ID = 1
 
-  private var db: ProxyDB? = null
   private val checkedCount = AtomicInteger(0)
   private var totalCount = 0
 
@@ -34,7 +32,6 @@ class ProxyCheckService : Service() {
     super.onCreate()
     ProxyManager.setRunning(true)
     ProxyManager.initialize(this)
-    db = ProxyDB()
     createNotificationChannel()
   }
 
@@ -54,11 +51,12 @@ class ProxyCheckService : Service() {
     checkJob = serviceScope.launch {
       try {
         var proxies = ProxyManager.get()
+        val db = ProxyManager.db
 
         // If no proxies provided and auto-check is enabled, fetch from DB
         if (proxies.isEmpty() && ProxyManager.prefs.getBoolean("auto_check_proxies", false)) {
           Timber.d("No proxies in manager, fetching untested proxies for auto-check")
-          proxies = db?.getUntestedProxies(100)?.get() ?: emptyList()
+          proxies = db.getUntestedProxies(100).get()
           if (proxies.isNotEmpty()) {
             ProxyManager.set(proxies)
           }
@@ -109,7 +107,7 @@ class ProxyCheckService : Service() {
 
           if (result.isWorking && result.type != null) {
             try {
-              db?.upsertProxy(proxyStr, result.type, "active")?.get()
+              db.upsertProxy(proxyStr, result.type, "active").get()
             } catch (e: Exception) {
               Timber.e(e, "DB update failed")
             }
@@ -141,7 +139,7 @@ class ProxyCheckService : Service() {
       // If auto-check is enabled and we weren't cancelled (e.g. by priority)
       // then try to fetch more proxies and continue.
       serviceScope.launch {
-        val untested = db?.getUntestedProxies(100)?.get() ?: emptyList()
+        val untested = ProxyManager.db.getUntestedProxies(100).get()
         if (untested.isNotEmpty()) {
           Timber.d("Auto-check continuing with ${untested.size} more proxies")
           ProxyManager.set(untested)
@@ -224,7 +222,6 @@ class ProxyCheckService : Service() {
     ProxyManager.setRunning(false)
     ProxyManager.setCurrentProxy(null)
     serviceJob.cancel()
-    db?.close()
     super.onDestroy()
   }
 

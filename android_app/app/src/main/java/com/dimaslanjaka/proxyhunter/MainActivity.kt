@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
             ProxyHunterTheme {
                 MainMenuScreen(
                     onNavigateToWorkingProxies = {
-                        startActivity(Intent(this, WorkingProxyList::class.java))
+                        startActivity(Intent(this, WorkingProxyListActivity::class.java))
                     },
                     onNavigateToProxyChecker = {
                         startActivity(Intent(this, ProxyCheckerActivity::class.java))

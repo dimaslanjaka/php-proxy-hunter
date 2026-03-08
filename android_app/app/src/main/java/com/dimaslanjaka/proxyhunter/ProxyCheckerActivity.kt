@@ -14,7 +14,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -98,28 +97,18 @@ data class CheckResult(
 )
 
 class ProxyCheckerActivity : ComponentActivity() {
-  private lateinit var db: ProxyDB
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     ProxyManager.initialize(this)
-    db = ProxyDB()
     enableEdgeToEdge()
     setContent {
       ProxyHunterTheme {
         ProxyCheckerScreen(
           onBack = { finish() },
           prefs = ProxyManager.prefs,
-          db = db
+          db = ProxyManager.db
         )
       }
-    }
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-    if (::db.isInitialized) {
-      db.close()
     }
   }
 }
