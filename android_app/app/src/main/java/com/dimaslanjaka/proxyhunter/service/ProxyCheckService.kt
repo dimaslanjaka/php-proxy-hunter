@@ -30,9 +30,12 @@ class ProxyCheckService : Service() {
 
   override fun onCreate() {
     super.onCreate()
+    createNotificationChannel()
+    // Call startForeground immediately in onCreate to satisfy Android 12+ requirements
+    startForeground(NOTIFICATION_ID, createNotification(0, 0, "Initializing..."))
+
     ProxyManager.setRunning(true)
     ProxyManager.initialize(this)
-    createNotificationChannel()
   }
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -73,9 +76,8 @@ class ProxyCheckService : Service() {
         totalCount = proxies.size
         checkedCount.set(0)
 
-        withContext(Dispatchers.Main) {
-          startForeground(NOTIFICATION_ID, createNotification(0, totalCount))
-        }
+        // Update notification now that we have the count
+        updateNotification(0, totalCount)
 
         for (proxy in proxies) {
           if (!isActive) {
@@ -139,15 +141,20 @@ class ProxyCheckService : Service() {
       // If auto-check is enabled and we weren't cancelled (e.g. by priority)
       // then try to fetch more proxies and continue.
       serviceScope.launch {
-        val untested = ProxyManager.db.getUntestedProxies(100).get()
-        if (untested.isNotEmpty()) {
-          Timber.d("Auto-check continuing with ${untested.size} more proxies")
-          ProxyManager.set(untested)
-          val intent = Intent(this@ProxyCheckService, ProxyCheckService::class.java)
-          startService(intent)
-        } else {
-          Timber.d("No more untested proxies, stopping service")
-          actuallyStopService()
+        try {
+            val untested = ProxyManager.db.getUntestedProxies(100).get()
+            if (untested.isNotEmpty()) {
+              Timber.d("Auto-check continuing with ${untested.size} more proxies")
+              ProxyManager.set(untested)
+              val intent = Intent(this@ProxyCheckService, ProxyCheckService::class.java)
+              startService(intent)
+            } else {
+              Timber.d("No more untested proxies, stopping service")
+              actuallyStopService()
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to fetch more proxies for auto-check")
+            actuallyStopService()
         }
       }
     } else {
