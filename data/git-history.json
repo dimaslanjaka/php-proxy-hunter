@@ -1,5 +1,13 @@
 [
   {
+    "hash": "ddeaef51eb172b38bc71a003015b584a409afd93",
+    "date": "2026-03-09T09:34:32+07:00",
+    "message": "feat: add IP address to spam blacklist",
+    "files": [
+      "data/blacklist.conf"
+    ]
+  },
+  {
     "hash": "b383d4ed27c05e748fce15dc4891a51291f53b0a",
     "date": "2026-03-08T22:07:13+07:00",
     "message": "fix: add tools:ignore for VpnServicePolicy in Tun2SocksVpnService",
@@ -8747,14 +8755,6 @@
     "hash": "b4d40af915cf017f27b139a725282e7db5700a4f",
     "date": "2025-10-06T16:07:26+07:00",
     "message": "fix(clear-caches): add --no-interaction flag to Composer cache cleanup commands",
-    "files": [
-      "bin/clear-caches"
-    ]
-  },
-  {
-    "hash": "2ad934c875ac45f52aca4eb72f87f47ea4979223",
-    "date": "2025-10-06T16:02:31+07:00",
-    "message": "fix(clear-caches): comment out requirements.txt installation in virtual environment setup",
     "files": [
       "bin/clear-caches"
     ]
