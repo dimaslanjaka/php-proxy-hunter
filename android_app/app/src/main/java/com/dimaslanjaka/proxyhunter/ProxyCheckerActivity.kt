@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -121,17 +122,24 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
   var inputText by rememberSaveable { mutableStateOf(prefs.getString("last_input", "") ?: "") }
   var limitInput by rememberSaveable { mutableStateOf(prefs.getString("limit_input", "50") ?: "50") }
   var autoCheckProxies by rememberSaveable { mutableStateOf(prefs.getBoolean("auto_check_proxies", false)) }
+  var autoScrollResults by rememberSaveable { mutableStateOf(prefs.getBoolean("auto_scroll_results", true)) }
+  val listState = rememberLazyListState()
   val results = remember { mutableStateListOf<CheckResult>() }
 
   val isCheckingAll by ProxyManager.isRunningFlow.collectAsState()
+  val sessionResults by ProxyManager.resultsFlow.collectAsState()
+  val currentProxy by ProxyManager.currentProxyFlow.collectAsState()
+
   var isFetching by rememberSaveable { mutableStateOf(false) }
   val scope = rememberCoroutineScope()
 
-  // Load results from SQLite on launch and refresh periodically or on finish
+  // Load unique results from SQLite on launch
   fun loadLocalResults() {
     scope.launch(Dispatchers.IO) {
       try {
-        val localResults = ProxyManager.getAllLocalResults().get()
+        // Query to get only the most recent result for each proxy to prevent list bloating
+        val sql = "SELECT * FROM proxy_results WHERE id IN (SELECT MAX(id) FROM proxy_results GROUP BY proxy) ORDER BY timestamp DESC"
+        val localResults = ProxyManager.localDb.query(sql).get()
         val mapped = localResults.map { row ->
           CheckResult(
             proxy = row["proxy"] as String,
@@ -156,14 +164,59 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
     loadLocalResults()
   }
 
-  // Refresh results when checking finishes
+  // Auto-scroll to top when a new proxy starts checking
+  LaunchedEffect(currentProxy) {
+      if (autoScrollResults && currentProxy != null) {
+          scope.launch {
+              listState.animateScrollToItem(0)
+          }
+      }
+  }
+
+  // Real-time UI Sync with ProxyManager Flows
+  LaunchedEffect(sessionResults, currentProxy) {
+    // 1. Reset checking state for items no longer being checked
+    for (i in results.indices) {
+        if (results[i].isChecking && results[i].proxy != currentProxy) {
+            results[i] = results[i].copy(isChecking = false)
+        }
+    }
+
+    // 2. Sync session results (results found in the current run)
+    sessionResults.forEach { (proxyStr, res) ->
+      val index = results.indexOfFirst { it.proxy == proxyStr }
+      if (index != -1) {
+        // Update existing item and stop spinner
+        if (results[index].checkerResult != res || results[index].isChecking) {
+          results[index] = results[index].copy(checkerResult = res, isChecking = false)
+        }
+      } else {
+        // Add new results to the top
+        results.add(0, CheckResult(proxyStr, res, isChecking = false))
+      }
+    }
+
+    // 3. Update the currently checking spinner
+    if (currentProxy != null) {
+        val index = results.indexOfFirst { it.proxy == currentProxy }
+        if (index != -1) {
+            if (!results[index].isChecking) {
+                results[index] = results[index].copy(isChecking = true)
+            }
+        } else {
+            results.add(0, CheckResult(currentProxy!!, isChecking = true))
+        }
+    }
+  }
+
+  // Refresh results when checking finishes to ensure everything is saved to DB
   LaunchedEffect(isCheckingAll) {
     if (!isCheckingAll) {
       loadLocalResults()
     }
   }
 
-  // Broadcast Receiver to listen for real-time progress
+  // Broadcast Receiver to listen for real-time progress (Backup mechanism)
   DisposableEffect(context) {
     val receiver = object : BroadcastReceiver() {
       override fun onReceive(context: Context?, intent: Intent?) {
@@ -371,6 +424,27 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
             Text("Check All", fontSize = 12.sp)
           }
         }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Auto Scroll Checkbox moved to the right of "Check All" button
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          modifier = Modifier.clickable {
+              val newValue = !autoScrollResults
+              autoScrollResults = newValue
+              prefs.put("auto_scroll_results", newValue)
+            }.padding(end = 8.dp)
+        ) {
+          Checkbox(
+            checked = autoScrollResults,
+            onCheckedChange = {
+              autoScrollResults = it
+              prefs.put("auto_scroll_results", it)
+            }
+          )
+          Text("Auto Scroll", fontSize = 12.sp)
+        }
       }
 
       // Fetcher Category
@@ -497,7 +571,10 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
 
       Spacer(modifier = Modifier.height(16.dp))
 
-      LazyColumn(modifier = Modifier.fillMaxSize()) {
+      LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize()
+      ) {
         items(results, key = { it.proxy }) { result ->
           ProxyResultItem(result)
           HorizontalDivider()

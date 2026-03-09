@@ -21,6 +21,7 @@ class ProxyCheckService : Service() {
   private val serviceJob = SupervisorJob()
   private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
   private var checkJob: Job? = null
+  private var isPriorityMode = false
 
   private val CHANNEL_ID = "proxy_checker_channel"
   private val NOTIFICATION_ID = 1
@@ -44,9 +45,12 @@ class ProxyCheckService : Service() {
     if (isPriority) {
       Timber.d("Priority check requested, cancelling current job if any")
       checkJob?.cancel()
+      isPriorityMode = true
     } else if (checkJob?.isActive == true) {
-      Timber.d("Service already running, ignoring non-priority start request")
+      Timber.d("Service already running, ignoring start request")
       return START_STICKY
+    } else {
+      isPriorityMode = false
     }
 
     ProxyManager.setRunning(true)
@@ -56,8 +60,8 @@ class ProxyCheckService : Service() {
         var proxies = ProxyManager.get()
         val db = ProxyManager.db
 
-        // If no proxies provided and auto-check is enabled, fetch from DB
-        if (proxies.isEmpty() && ProxyManager.prefs.getBoolean("auto_check_proxies", false)) {
+        // If no proxies provided and auto-check is enabled AND we are not in priority mode, fetch from DB
+        if (proxies.isEmpty() && ProxyManager.prefs.getBoolean("auto_check_proxies", false) && !isPriorityMode) {
           Timber.d("No proxies in manager, fetching untested proxies for auto-check")
           proxies = db.getUntestedProxies(100).get()
           if (proxies.isNotEmpty()) {
@@ -107,6 +111,9 @@ class ProxyCheckService : Service() {
           // Store result to ProxyManager for UI observation
           ProxyManager.addResult(proxyStr, result)
 
+          // Clear current proxy after result is added
+          ProxyManager.setCurrentProxy(null)
+
           if (result.isWorking && result.type != null) {
             try {
               db.upsertProxy(proxyStr, result.type, "active").get()
@@ -137,7 +144,8 @@ class ProxyCheckService : Service() {
   private fun finishService() {
     val autoCheckEnabled = ProxyManager.prefs.getBoolean("auto_check_proxies", false)
 
-    if (autoCheckEnabled && checkJob?.isCancelled != true) {
+    // Only continue auto-check if we were NOT in priority (manual) mode
+    if (autoCheckEnabled && !isPriorityMode && checkJob?.isCancelled != true) {
       // If auto-check is enabled and we weren't cancelled (e.g. by priority)
       // then try to fetch more proxies and continue.
       serviceScope.launch {
