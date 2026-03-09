@@ -2,6 +2,7 @@ package com.dimaslanjaka.proxyhunter
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -89,6 +90,7 @@ class WorkingProxyListActivity : ComponentActivity() {
         vpnStarter = Tun2SocksVpnStarter(this)
 
         enableEdgeToEdge()
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContent {
             ProxyHunterTheme {
                 ProxyListScreen(
