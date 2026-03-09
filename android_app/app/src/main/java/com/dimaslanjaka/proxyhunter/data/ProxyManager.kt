@@ -5,7 +5,8 @@ import com.dimaslanjaka.prefs.LocalSharedPrefs
 import com.dimaslanjaka.proxyhunter.checker.ProxyChecker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import timber.log.Timber
+import java.io.File
+import java.util.concurrent.Future
 
 object ProxyManager {
     private var _prefs: LocalSharedPrefs? = null
@@ -18,9 +19,13 @@ object ProxyManager {
             _db ?: ProxyDB().also { _db = it }
         }
 
+    private var _localDb: SQLiteHelper? = null
+    val localDb: SQLiteHelper
+        get() = _localDb ?: throw IllegalStateException("ProxyManager not initialized. Call initialize(context) first.")
+
     private var proxies: List<ProxyItem> = emptyList()
 
-    // Results mapping: proxy string -> CheckResult
+    // Results mapping: proxy string -> CheckResult (current session)
     private val _resultsFlow = MutableStateFlow<Map<String, ProxyChecker.CheckResult>>(emptyMap())
     val resultsFlow = _resultsFlow.asStateFlow()
 
@@ -32,20 +37,29 @@ object ProxyManager {
     private val _currentProxyFlow = MutableStateFlow<String?>(null)
     val currentProxyFlow = _currentProxyFlow.asStateFlow()
 
-
-
     @JvmStatic
     fun initialize(context: Context) {
         if (_prefs == null) {
             _prefs = LocalSharedPrefs.initialize(context.applicationContext, "proxy_checker_prefs")
+            val dbFile = File(context.filesDir, "proxy_results.db")
+            _localDb = SQLiteHelper(context.applicationContext, dbFile.absolutePath)
+
+            // Initialize results table if it doesn't exist
+            _localDb?.update("CREATE TABLE IF NOT EXISTS proxy_results (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "proxy TEXT, " +
+                "is_working INTEGER, " +
+                "type TEXT, " +
+                "title TEXT, " +
+                "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP" +
+                ")")
+
             synchronized(this) {
                 _db?.close()
                 _db = ProxyDB()
             }
         }
     }
-
-    // Tailscale logic removed: always use the configured default DB
 
     @JvmStatic
     fun set(list: List<ProxyItem>) {
@@ -64,6 +78,21 @@ object ProxyManager {
         val currentMap = _resultsFlow.value.toMutableMap()
         currentMap[proxy] = result
         _resultsFlow.value = currentMap
+
+        // Store result to SQLite
+        localDb.update("INSERT INTO proxy_results (proxy, is_working, type, title) VALUES (?, ?, ?, ?)",
+            listOf(proxy, if (result.isWorking) 1 else 0, result.type ?: "", result.title ?: ""))
+    }
+
+    @JvmStatic
+    fun getAllLocalResults(): Future<List<Map<String, Any?>>> {
+        return localDb.query("SELECT * FROM proxy_results ORDER BY timestamp DESC")
+    }
+
+    @JvmStatic
+    fun clearResults() {
+        _resultsFlow.value = emptyMap()
+        localDb.update("DELETE FROM proxy_results")
     }
 
     @JvmStatic

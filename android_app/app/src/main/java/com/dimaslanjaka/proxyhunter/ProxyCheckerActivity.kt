@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -81,8 +82,6 @@ import com.dimaslanjaka.proxyhunter.data.ProxyManager
 import com.dimaslanjaka.proxyhunter.service.ProxyCheckService
 import com.dimaslanjaka.proxyhunter.ui.theme.ProxyHunterTheme
 import com.dimaslanjaka.utils.ProxyExtractor
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -91,7 +90,7 @@ import okhttp3.Request
 import timber.log.Timber
 
 data class CheckResult(
-  val proxyItem: ProxyItem,
+  val proxy: String,
   val checkerResult: ProxyChecker.CheckResult? = null,
   val isChecking: Boolean = false
 )
@@ -101,6 +100,8 @@ class ProxyCheckerActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     ProxyManager.initialize(this)
     enableEdgeToEdge()
+    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
     setContent {
       ProxyHunterTheme {
         ProxyCheckerScreen(
@@ -117,32 +118,52 @@ class ProxyCheckerActivity : ComponentActivity() {
 @Composable
 fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB) {
   val context = LocalContext.current
-  val gson = remember { Gson() }
   var inputText by rememberSaveable { mutableStateOf(prefs.getString("last_input", "") ?: "") }
   var limitInput by rememberSaveable { mutableStateOf(prefs.getString("limit_input", "50") ?: "50") }
   var autoCheckProxies by rememberSaveable { mutableStateOf(prefs.getBoolean("auto_check_proxies", false)) }
   val results = remember { mutableStateListOf<CheckResult>() }
 
-  // Use StateFlow from ProxyManager for reliable service status
   val isCheckingAll by ProxyManager.isRunningFlow.collectAsState()
   var isFetching by rememberSaveable { mutableStateOf(false) }
   val scope = rememberCoroutineScope()
 
-  val managerResults by ProxyManager.resultsFlow.collectAsState()
-
-  // Sync results with ProxyManager Flow
-  LaunchedEffect(managerResults) {
-    managerResults.forEach { (proxyStr, res) ->
-      val index = results.indexOfFirst { it.proxyItem.toString() == proxyStr }
-      if (index != -1) {
-        if (results[index].checkerResult != res || results[index].isChecking) {
-          results[index] = results[index].copy(checkerResult = res, isChecking = false)
+  // Load results from SQLite on launch and refresh periodically or on finish
+  fun loadLocalResults() {
+    scope.launch(Dispatchers.IO) {
+      try {
+        val localResults = ProxyManager.getAllLocalResults().get()
+        val mapped = localResults.map { row ->
+          CheckResult(
+            proxy = row["proxy"] as String,
+            checkerResult = ProxyChecker.CheckResult(
+              isWorking = (row["is_working"] as Long) == 1L,
+              type = row["type"] as? String,
+              title = row["title"] as? String
+            )
+          )
         }
+        withContext(Dispatchers.Main) {
+          results.clear()
+          results.addAll(mapped)
+        }
+      } catch (e: Exception) {
+        Timber.e(e, "Failed to load local results")
       }
     }
   }
 
-  // Broadcast Receiver to listen for status changes
+  LaunchedEffect(Unit) {
+    loadLocalResults()
+  }
+
+  // Refresh results when checking finishes
+  LaunchedEffect(isCheckingAll) {
+    if (!isCheckingAll) {
+      loadLocalResults()
+    }
+  }
+
+  // Broadcast Receiver to listen for real-time progress
   DisposableEffect(context) {
     val receiver = object : BroadcastReceiver() {
       override fun onReceive(context: Context?, intent: Intent?) {
@@ -150,9 +171,11 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
           ProxyCheckService.ACTION_PROXY_CHECK_STARTED -> {
             val proxyStr = intent.getStringExtra(ProxyCheckService.EXTRA_PROXY) ?: ""
             if (proxyStr.isNotEmpty()) {
-              val index = results.indexOfFirst { it.proxyItem.toString() == proxyStr }
+              val index = results.indexOfFirst { it.proxy == proxyStr }
               if (index != -1) {
                 results[index] = results[index].copy(isChecking = true)
+              } else {
+                results.add(0, CheckResult(proxyStr, isChecking = true))
               }
             }
           }
@@ -164,22 +187,22 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
             val title = intent.getStringExtra(ProxyCheckService.EXTRA_TITLE)
 
             if (proxyStr.isNotEmpty()) {
-              val index = results.indexOfFirst { it.proxyItem.toString() == proxyStr }
+              val index = results.indexOfFirst { it.proxy == proxyStr }
+              val res = CheckResult(
+                proxyStr,
+                ProxyChecker.CheckResult(isWorking, type, title),
+                isChecking = false
+              )
               if (index != -1) {
-                results[index] = results[index].copy(
-                  checkerResult = ProxyChecker.CheckResult(isWorking, type, title),
-                  isChecking = false
-                )
+                results[index] = res
+              } else {
+                results.add(0, res)
               }
             }
           }
 
           ProxyCheckService.ACTION_PROXY_CHECK_FINISHED -> {
-            for (i in results.indices) {
-              if (results[i].isChecking) {
-                results[i] = results[i].copy(isChecking = false)
-              }
-            }
+             loadLocalResults()
           }
         }
       }
@@ -202,40 +225,6 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
     }
   }
 
-  // Restore results on first launch and sync with running service
-  LaunchedEffect(Unit) {
-    val savedResultsJson = prefs.getString("last_results", null)
-    if (!savedResultsJson.isNullOrBlank()) {
-      try {
-        val type = object : TypeToken<List<CheckResult>>() {}.type
-        val savedResults: List<CheckResult> = gson.fromJson(savedResultsJson, type)
-        results.clear()
-        results.addAll(savedResults.map { it.copy(isChecking = false) })
-      } catch (e: Exception) {
-        Timber.e(e, "Failed to restore results")
-      }
-    }
-
-    if (isCheckingAll) {
-      val current = ProxyManager.currentProxyFlow.value
-      val queue = ProxyManager.get().map { it.toString() }.toSet()
-      for (i in results.indices) {
-        val proxyStr = results[i].proxyItem.toString()
-        if (proxyStr == current || (queue.contains(proxyStr) && results[i].checkerResult == null)) {
-          results[i] = results[i].copy(isChecking = true)
-        }
-      }
-    }
-  }
-
-  // Save results whenever they change and checking is finished
-  LaunchedEffect(results.toList(), isCheckingAll) {
-    if (!isCheckingAll && results.isNotEmpty()) {
-      val json = gson.toJson(results.toList())
-      prefs.put("last_results", json)
-    }
-  }
-
   Scaffold(
     topBar = {
       TopAppBar(
@@ -253,12 +242,12 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
                 context.stopService(serviceIntent)
                 ProxyManager.setRunning(false)
               }
+              ProxyManager.clearResults()
               results.clear()
-              prefs.put("last_results", "")
             },
             enabled = results.isNotEmpty() || isCheckingAll
           ) {
-            Icon(Icons.Default.Delete, contentDescription = "Clear all")
+            Icon(Icons.Default.Delete, contentDescription = "Clear all results from database")
           }
         }
       )
@@ -301,7 +290,6 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
               autoCheckProxies = newValue
               prefs.put("auto_check_proxies", newValue)
               if (newValue && !isCheckingAll) {
-                // Trigger auto-check if enabled and service idle
                 val serviceIntent = Intent(context, ProxyCheckService::class.java)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                   context.startForegroundService(serviceIntent)
@@ -338,7 +326,6 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
               val serviceIntent = Intent(context, ProxyCheckService::class.java)
               context.stopService(serviceIntent)
               ProxyManager.setRunning(false)
-              // Broadcast receiver will handle setting isChecking to false for all items
             } else {
               val extractedStrings = ProxyExtractor.extract(inputText)
               val proxies = extractedStrings.map { raw ->
@@ -356,22 +343,8 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
                 }
               }
 
-              proxies.forEach { proxyItem ->
-                val proxyStr = proxyItem.toString()
-                if (results.none { it.proxyItem.toString() == proxyStr }) {
-                  results.add(CheckResult(proxyItem, null))
-                }
-              }
-
-              val unfinished = results.filter { it.checkerResult == null }
-              if (unfinished.isNotEmpty()) {
-                ProxyManager.set(unfinished.map { it.proxyItem })
-
-                for (u in unfinished) {
-                  val idx = results.indexOfFirst { it.proxyItem.toString() == u.proxyItem.toString() }
-                  if (idx != -1) results[idx] = results[idx].copy(isChecking = true)
-                }
-
+              if (proxies.isNotEmpty()) {
+                ProxyManager.set(proxies)
                 val serviceIntent = Intent(context, ProxyCheckService::class.java).apply {
                   putExtra(ProxyCheckService.EXTRA_PRIORITY, true)
                 }
@@ -385,7 +358,7 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
           },
           modifier = Modifier.height(36.dp),
           contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-          enabled = !isFetching && (isCheckingAll || inputText.isNotBlank() || results.any { it.checkerResult == null }),
+          enabled = !isFetching && (isCheckingAll || inputText.isNotBlank()),
           colors = if (isCheckingAll) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error) else ButtonDefaults.buttonColors()
         ) {
           if (isCheckingAll) {
@@ -525,7 +498,7 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
       Spacer(modifier = Modifier.height(16.dp))
 
       LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(results, key = { it.proxyItem.toString() }) { result ->
+        items(results, key = { it.proxy }) { result ->
           ProxyResultItem(result)
           HorizontalDivider()
         }
@@ -544,7 +517,7 @@ fun ProxyResultItem(result: CheckResult) {
   ) {
     Column(modifier = Modifier.weight(1f)) {
       Text(
-        text = result.proxyItem.toString(),
+        text = result.proxy,
         style = MaterialTheme.typography.bodyLarge.copy(
           fontWeight = FontWeight.Bold,
           fontSize = 16.sp
