@@ -1,10 +1,52 @@
 [
   {
+    "hash": "30b1d3af8e28703e1701d2c0052bede2df5d46e4",
+    "date": "2026-03-09T10:09:50+07:00",
+    "message": "feat(checker): enhance real-time UI reactivity and add auto-scroll\n\n- Refactor ProxyCheckerActivity to sync with StateFlows (resultsFlow, currentProxyFlow) for instant UI updates.\n- Implement \"Auto Scroll\" functionality to keep the currently checking proxy at the top of the list.\n- Optimize SQLite query to fetch only the latest result per proxy, preventing list bloating.\n- Update ProxyCheckService with isPriorityMode to prevent auto-checks from interrupting manual sessions.\n- Improve state management by clearing the current proxy in ProxyManager after each check cycle.\n- Relocate UI controls for better accessibility, moving the Auto Scroll toggle next to the primary action button.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyCheckerActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/ProxyCheckService.kt"
+    ]
+  },
+  {
+    "hash": "3cf35a829c9ae79b945c0cca106c66e5492b2467",
+    "date": "2026-03-09T09:38:39+07:00",
+    "message": "Merge remote-tracking branch 'origin/master'",
+    "files": []
+  },
+  {
+    "hash": "9baad4549ae818beb8e4ad1d08117d5f85010314",
+    "date": "2026-03-09T09:37:34+07:00",
+    "message": "feat(checker): migrate results to SQLite and keep screen on\n\n- Implement SQLiteHelper for asynchronous local database operations.\n- Refactor ProxyManager to persist check results in a local SQLite database (proxy_results.db) instead of SharedPreferences.\n- Update ProxyCheckerActivity to load results from the local database and handle real-time progress via broadcasts.\n- Add FLAG_KEEP_SCREEN_ON to ProxyCheckerActivity to prevent display sleep during proxy checks.\n- Remove Gson-based JSON serialization for result persistence.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyCheckerActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyManager.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/SQLiteHelper.kt"
+    ]
+  },
+  {
+    "hash": "a9be1c5884fcc2b39cc2b6cb1ea7e470a5fac57b",
+    "date": "2026-03-09T09:35:16+07:00",
+    "message": "feat: prevent screen timeout in MainActivity and WorkingProxyListActivity",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/MainActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/WorkingProxyListActivity.kt"
+    ]
+  },
+  {
     "hash": "ddeaef51eb172b38bc71a003015b584a409afd93",
     "date": "2026-03-09T09:34:32+07:00",
     "message": "feat: add IP address to spam blacklist",
     "files": [
       "data/blacklist.conf"
+    ]
+  },
+  {
+    "hash": "4baf461c37caabf9d0f8a300728e585a9a21fa1b",
+    "date": "2026-03-09T09:14:22+07:00",
+    "message": "fix: ensure foreground service starts immediately to meet Android 12+ requirements and improve auto-check error handling",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/ProxyCheckService.kt"
     ]
   },
   {
@@ -8716,47 +8758,6 @@
     "message": "fix(embed): resolve leading-slash file paths from project root\n\nTreat `file` params starting with `/` as project-root relative (e.g. `/tmp/logs/...` -> `__DIR__/tmp/logs/...`) so frontend-returned log paths are resolvable. Preserve basename fallback and existing denylist/extension checks.",
     "files": [
       "embed.php"
-    ]
-  },
-  {
-    "hash": "1727c9a37a9baa04092f94c41375ae527fb7572c",
-    "date": "2025-10-08T06:59:04+07:00",
-    "message": "feat(types): add reCAPTCHA site key definitions to ImportMetaEnv",
-    "files": [
-      "types/vite-env.d.ts"
-    ]
-  },
-  {
-    "hash": "56325f5f7e9a6ab59a100204dd58f64b9f9a164a",
-    "date": "2025-10-06T17:34:57+07:00",
-    "message": "feat(deploy): add functionality to clear old files before uploading new ones",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "e1b2ac8d571b60c5e4ba420f0abd57cd31c6dae5",
-    "date": "2025-10-06T17:34:01+07:00",
-    "message": "feat(deploy): add SSH helper and make CLI invocation explicit\n\nAdd `shell_exec` helper to `bin/deploy-vps.mjs` which establishes an ssh2\nClient connection and runs commands via `execWithBashrc`, returning stdout,\nstderr, exit code, and signal. This consolidates remote command execution\nbehaviour into a reusable async function.\n\nAlso:\n- Remove duplicate JSDoc block.\n- Change module's startup behaviour so `main()` runs only when the script is\n  invoked directly (detects `deploy-vps(.mjs)?` in process.argv), and provide\n  explicit success/failure logging with proper process exit codes.\n\nThese changes improve testability and make the deployment script safe to\nimport without immediately executing the deployment.",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "d2b64a63f55ff96669bffc598f13e2d17e215f9e",
-    "date": "2025-10-06T17:27:30+07:00",
-    "message": "chore(bin): add minimal Python venv setup scripts\n\nAdd cross-platform helper scripts to create and initialize a minimal Python\nvirtual environment for local development.\n\n- Added `bin/python-minimal` (bash) and `bin/python-minimal.cmd` (Windows cmd).\n- Remove existing `venv` if present, create a new venv (`py -m venv venv`),\n  activate it, upgrade pip, and install required packages.\n- Installs `requests` and the following editable packages:\n  `packages/proxy-checker-python`, `packages/proxy-hunter-python`,\n  `packages/rsa-utility`.\n\nThese scripts simplify bootstrapping a minimal Python environment for the\nrepository. No runtime/application code changes.",
-    "files": [
-      "bin/python-minimal",
-      "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "b4d40af915cf017f27b139a725282e7db5700a4f",
-    "date": "2025-10-06T16:07:26+07:00",
-    "message": "fix(clear-caches): add --no-interaction flag to Composer cache cleanup commands",
-    "files": [
-      "bin/clear-caches"
     ]
   }
 ]
