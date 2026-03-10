@@ -47,6 +47,7 @@ android {
   }
   buildFeatures {
     compose = true
+    buildConfig = true
   }
   packaging {
     jniLibs {
@@ -109,7 +110,8 @@ dependencies {
   debugImplementation(libs.androidx.ui.tooling)
   debugImplementation(libs.androidx.ui.test.manifest)
 
-  implementation(libs.okhttp)
+  implementation(platform(libs.okhttp))
+  implementation(libs.okhttp.lib)
   implementation(libs.mysql.connector)
   implementation(libs.timber)
 
@@ -119,14 +121,23 @@ dependencies {
 
   // Provide annotations to the compiler but don't package them
   compileOnly("org.jetbrains:annotations:23.0.0")
-  compileOnly("com.google.code.gson:gson:2.10.1")
+
+  // JSON
+  implementation("com.google.code.gson:gson:2.10.1")
+
+  // Release required
+  implementation("com.github.badoo:android-weak-handler:1.3")
 
   // Register all .jar and .aar files from the specified directory
   // Exclude annotations and gson jars as they are already bundled in powertunnel-release.aar
   implementation(fileTree("D:\\Repositories\\android-traffic\\releases") {
     include("*.jar")
     include("*.aar")
-    exclude("annotations-*.jar")
-    exclude("gson-*.jar")
+    exclude("gson*.jar")
+    exclude("annotation-*.jar")
+    exclude("tun2socks-lib-release.aar")
   })
+//  implementation(project(":library"))
+//  implementation(project(":library-jvm"))
+//  implementation(project(":tun2socks"))
 }

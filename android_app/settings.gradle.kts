@@ -37,3 +37,21 @@ dependencyResolutionManagement {
 
 rootProject.name = "Proxy Hunter"
 include(":app")
+
+//include(":library-jvm")
+//project(":library-jvm").projectDir = file("D:/Repositories/android-traffic/library-jvm")
+//
+//include(":library")
+//project(":library").projectDir = file("D:/Repositories/android-traffic/library")
+//
+//include(":library-vpn")
+//project(":library-vpn").projectDir = file("D:/Repositories/android-traffic/library-vpn")
+//
+//include(":tun2socks")
+//project(":tun2socks").projectDir = file("D:/Repositories/android-traffic/tun2socks")
+//
+//include(":powertunnel")
+//project(":powertunnel").projectDir = file("D:/Repositories/android-traffic/powertunnel")
+//
+//include(":theme")
+//project(":theme").projectDir = file("D:/Repositories/android-traffic/theme")

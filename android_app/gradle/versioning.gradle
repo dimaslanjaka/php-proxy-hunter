@@ -1,0 +1,82 @@
+// apply version enviroment variable
+def props = new Properties()
+def propFile = file("${rootProject.projectDir}/version.properties")
+propFile.withInputStream { props.load(it) }
+def versionName = "${props.major}.${props.minor}.${props.patch}"
+
+subprojects {
+  ext.versionName = versionName
+  ext.rev_hash = props["${project.projectDir.name}_hash"] == null ? "undefined" : props["${project.projectDir.name}_hash"]
+  ext.rev_date = props["${project.projectDir.name}_date"] == null ? 0 : props["${project.projectDir.name}_date"]
+
+  tasks.register("gitRev") {
+    doLast {
+      String lastGitHash = "git rev-parse --short HEAD:${project.projectDir.name}".execute().text.trim()
+      String lastGitDate = "git log -1 --format=%ct -- ${project.projectDir.name}".execute().text.trim()
+      if (!lastGitHash.isEmpty()) {
+        props.setProperty("${project.projectDir.name}_hash", lastGitHash)
+        props.setProperty("${project.projectDir.name}_date", lastGitDate)
+        lastGitHash = "git rev-parse --short HEAD".execute().text.trim()
+        lastGitDate = "git log -1 --format=%ct".execute().text.trim()
+        props.setProperty("rev_hash", lastGitHash)
+        props.setProperty("rev_date", lastGitDate)
+        props.store(propFile.newWriter(), null)
+      }
+    }
+  }
+
+  afterEvaluate {
+    boolean isAndroid = project.hasProperty("android")
+    if (isAndroid) {
+      android {
+        buildTypes.all {
+          buildConfigField "long", "BUILD_TIME", "${project.ext.rev_date}"
+          buildConfigField "String", "BUILD_HASH", "\"${project.ext.rev_hash}\""
+          resValue "string", "BUILD_HASH", "${project.ext.rev_hash}"
+          buildConfigField("int", "VERSION_CODE", "1")
+          buildConfigField("String","VERSION_NAME","\"${versionName}\"")
+        }
+      }
+    }
+  }
+}
+
+// declare updater task
+tasks.register("versionPatch") {
+  doLast {
+    // https://docs.gradle.org/current/javadoc/org/gradle/util/VersionNumber.html
+    def ori = props.patch as Integer
+    def sum = ori + 1
+    props.setProperty("patch", sum as String)
+    // save to propFile
+    props.store(propFile.newWriter(), null)
+  }
+}
+
+tasks.register("versionMinor") {
+  doLast {
+    // https://docs.gradle.org/current/javadoc/org/gradle/util/VersionNumber.html
+    def ori = props.minor as Integer
+    def sum = ori + 1
+    props.setProperty("minor", sum as String)
+    // reset patch version
+    props.setProperty("patch", "0")
+    // save to propFile
+    props.store(propFile.newWriter(), null)
+  }
+}
+
+tasks.register("versionMajor") {
+  doLast {
+    // https://docs.gradle.org/current/javadoc/org/gradle/util/VersionNumber.html
+    def ori = props.major as Integer
+    def sum = ori + 1
+    props.setProperty("major", sum as String)
+    // reset minor version
+    props.setProperty("minor", "0")
+    // reset patch version
+    props.setProperty("patch", "0")
+    // save to propFile
+    props.store(propFile.newWriter(), null)
+  }
+}
