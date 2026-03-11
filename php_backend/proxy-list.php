@@ -22,12 +22,8 @@ if (empty($_SESSION['captcha'])) {
 $refresh = refreshDbConnections();
 /** @var \PhpProxyHunter\CoreDB $core_db */
 $core_db = $refresh['core_db'];
-/** @var \PhpProxyHunter\UserDB $user_db */
-$user_db = $refresh['user_db'];
 /** @var \PhpProxyHunter\ProxyDB $proxy_db */
 $proxy_db = $refresh['proxy_db'];
-/** @var \PhpProxyHunter\ActivityLog $log_db */
-$log_db = $refresh['log_db'];
 
 // helper to parse incoming payload if needed
 $request = parseQueryOrPostBody();
@@ -106,13 +102,6 @@ try {
   // total records
   $stmtTotal    = $pdo->query('SELECT COUNT(*) as cnt FROM proxies');
   $recordsTotal = (int)$stmtTotal->fetch(PDO::FETCH_ASSOC)['cnt'];
-
-  // build filter
-  $filter = [];
-  if ($search !== '') {
-    $filter['proxy'] = $search;
-    // ProxyDB will perform prefix matching behavior
-  }
 
   // recordsFiltered: count matching rows according to active filters
   $recordsFiltered = $recordsTotal;
