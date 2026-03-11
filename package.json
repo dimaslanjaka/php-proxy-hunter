@@ -85,7 +85,7 @@
     "heic-convert": "^2.1.0",
     "highlight.js": "^11.11.1",
     "https-proxy-agent": "^7.0.6",
-    "jquery": "^3.7.1",
+    "jquery": "^4.0.0",
     "jquery-form-saver": "1.2.4",
     "js-levenshtein": "^1.1.6",
     "jsonc-parser": "^3.3.1",
