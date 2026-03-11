@@ -30,9 +30,10 @@ function get_blacklist($blacklistConf = null)
  * Extracts the IP portion and checks it against the blacklist entries.
  *
  * @param string $proxy Proxy string (IP or IP:PORT or [IPv6]:PORT)
+ * @param string|null $blacklistConf Optional path to a blacklist configuration file
  * @return bool True if the extracted IP is present in the blacklist
  */
-function is_blacklist($proxy)
+function is_blacklist($proxy, $blacklistConf = null)
 {
   if (empty($proxy) || !is_string($proxy)) {
     return false;
@@ -64,7 +65,7 @@ function is_blacklist($proxy)
     return false;
   }
 
-  $blacklist = get_blacklist(null);
+  $blacklist = get_blacklist($blacklistConf);
   if (empty($blacklist) || !is_array($blacklist)) {
     return false;
   }
