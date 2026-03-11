@@ -1,5 +1,14 @@
 [
   {
+    "hash": "aedcbc52799d8a1103f83ce6614ceddfc6bac137",
+    "date": "2026-03-11T14:21:51+07:00",
+    "message": "feat(blacklist): allow custom blacklist config path for is_blacklist\n\n- Add optional `$blacklistConf` parameter to `is_blacklist()` and pass it to `get_blacklist()`, allowing callers to specify a custom blacklist file.\n- Update PHPDoc for `is_blacklist()` to document the new parameter.\n- Update `tests/proxy/BlacklistTest.php` to create a test-only `data/blacklist.conf`, pass its path to `is_blacklist()` in assertions, and simplify setup/teardown by removing backup/restore logic.",
+    "files": [
+      "src/blacklist.php",
+      "tests/proxy/BlacklistTest.php"
+    ]
+  },
+  {
     "hash": "7bb83812ffff31da67d3c2f7570ca01e3dd0a9a7",
     "date": "2026-03-11T13:46:47+07:00",
     "message": "feat(blacklist): extract blacklist helpers, add is_blacklist and tests\n\n- Move `get_blacklist()` and `blacklist_remover()` out of `artisan/proxyCollector.php` into `src/blacklist.php`.\n- Add `is_blacklist($proxy)` to extract IP (from IP, IP:PORT, [IPv6]:PORT, raw IPv6) and check against blacklist.\n- Add PHPUnit tests `tests/proxy/BlacklistTest.php` covering IPv4/IPv6 and invalid inputs.\n- Add sample blacklist entries to `data/blacklist.conf`.\n- Tweak VS Code task: remove deprecated `--verbose` flag from PHPUnit command in `.vscode/settings.json`.",
@@ -8764,15 +8773,6 @@
     "message": "fix(py): ensure python3 is executed in all cases for Unix-based systems",
     "files": [
       "bin/py"
-    ]
-  },
-  {
-    "hash": "026c21e83908ff14e300bcd0a1ef26fea0c5cde1",
-    "date": "2025-10-08T13:44:53+07:00",
-    "message": "chore(env): detect python and improve venv creation for cross-platform setup\n\n- Add python detection to `bin/python-minimal` (prefer `python3`, fallback to `python`)\n  and run a pip upgrade with the chosen interpreter before activating the venv.\n- Implement equivalent logic in `bin/python-minimal.cmd`: detect `python3` or `python`\n  to create the virtualenv, activate via `venv\\Scripts\\activate.bat`, upgrade pip,\n  and install required packages.\n- Small housekeeping: use `EnableDelayedExpansion` and `endlocal` in the Windows script.\n\nThis makes the minimal Python environment setup more robust across different systems\nwhere `py` may not be available or `python3` is preferred.",
-    "files": [
-      "bin/python-minimal",
-      "bin/python-minimal.cmd"
     ]
   }
 ]
