@@ -1,5 +1,17 @@
 [
   {
+    "hash": "7bb83812ffff31da67d3c2f7570ca01e3dd0a9a7",
+    "date": "2026-03-11T13:46:47+07:00",
+    "message": "feat(blacklist): extract blacklist helpers, add is_blacklist and tests\n\n- Move `get_blacklist()` and `blacklist_remover()` out of `artisan/proxyCollector.php` into `src/blacklist.php`.\n- Add `is_blacklist($proxy)` to extract IP (from IP, IP:PORT, [IPv6]:PORT, raw IPv6) and check against blacklist.\n- Add PHPUnit tests `tests/proxy/BlacklistTest.php` covering IPv4/IPv6 and invalid inputs.\n- Add sample blacklist entries to `data/blacklist.conf`.\n- Tweak VS Code task: remove deprecated `--verbose` flag from PHPUnit command in `.vscode/settings.json`.",
+    "files": [
+      ".vscode/settings.json",
+      "artisan/proxyCollector.php",
+      "data/blacklist.conf",
+      "src/blacklist.php",
+      "tests/proxy/BlacklistTest.php"
+    ]
+  },
+  {
     "hash": "9031688d9a95e19829da7f674f937ad91973d637",
     "date": "2026-03-11T13:31:39+07:00",
     "message": "feat(api): add proxy-delete endpoint with aggregated deletion errors\n\n- Add `php_backend/proxy-delete.php` endpoint to remove one or more proxies.\n- Enforces captcha and token-based authentication (`is_authenticated(true, $core_db->user_db)`).\n- Parses request payload, extracts proxies, and attempts removal via `ProxyDB`.\n- Collects per-proxy deletion failures into a `details` array and returns a single JSON error response (HTTP 500) when some deletions fail.\n- Returns appropriate HTTP statuses and JSON responses for missing parameters (400), auth/captcha failures (403), and server errors (500).",
@@ -8761,15 +8773,6 @@
     "files": [
       "bin/python-minimal",
       "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "288e3c5053a48dacc4c18320752a43a8e523000e",
-    "date": "2025-10-08T13:38:31+07:00",
-    "message": "fix(venv): remove redundant message for existing virtual environment",
-    "files": [
-      "bin/py",
-      "bin/py.cmd"
     ]
   }
 ]
