@@ -43,7 +43,7 @@
       "source.organizeImports": "never"
     },
     "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "editor.insertSpaces": true,
     "editor.tabSize": 4
   },
@@ -354,7 +354,7 @@
   // --- PHP CS Fixer (auto-formatting) ---
   "php-cs-fixer.executablePath": "${workspaceFolder}/vendor/bin/php-cs-fixer.phar",
   "php-cs-fixer.executablePathWindows": "${workspaceFolder}/vendor/bin/php-cs-fixer.bat",
-  "php-cs-fixer.onsave": true,
+  "php-cs-fixer.onsave": false,
   "php-cs-fixer.rules": "@PSR12",
   "php-cs-fixer.config": ".php-cs-fixer.php;.php-cs-fixer.dist.php;.php_cs;.php_cs.dist",
   "php-cs-fixer.exclude": [
@@ -410,5 +410,7 @@
   "terminal.integrated.shellIntegration.enabled": true,
   "terminal.integrated.suggest.enabled": false,
   "terminal.integrated.shellIntegration.quickFixEnabled": true,
-  "git.allowNoVerifyCommit": true
+  "git.allowNoVerifyCommit": true,
+  "intelephense.format.braces": "allman",
+  "intelephense.format.enable": false
 }
