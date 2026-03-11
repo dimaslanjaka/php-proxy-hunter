@@ -20,6 +20,9 @@ class ProxyDB
    */
   public $projectRoot;
 
+  /** @var ProxyDBMigration|null */
+  private $migration;
+
   /**
    * ProxyDB constructor.
    *
@@ -58,6 +61,10 @@ class ProxyDB
     } else {
       $this->initSQLite($dbLocation);
     }
+
+    // Run migrations for proxy DB (e.g., add tun2socks column)
+    $this->migration = new ProxyDBMigration($this->db->pdo);
+    $this->migration->run();
   }
 
   /**
