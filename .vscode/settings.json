@@ -117,7 +117,7 @@
     "*.mjs": "node --no-warnings=ExperimentalWarning",
     "*.py": "py -u",
     "*.test.{cjs,js,mjs,ts}": "npm test --",
-    "*Test.php": "phpunit --verbose --debug --testdox --colors=always",
+    "*Test.php": "phpunit --debug --testdox --colors=always",
     "electron-*.ts": "cross-env-shell NODE_ENV=development electron -r ts-node/register",
     "rollup.*.{js,cjs,mjs,ts}": "rollup -c",
     "*.sh": "sh"
