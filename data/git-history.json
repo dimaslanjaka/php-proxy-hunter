@@ -1,5 +1,15 @@
 [
   {
+    "hash": "7294b128a9abb3fefda24a6477e56fc5833ba317",
+    "date": "2026-03-11T14:28:46+07:00",
+    "message": "feat(db): add ProxyDB migration for tun2socks column\n\n- create ProxyDBMigration to add `tun2socks` to `proxies` table for SQLite and MySQL\n- register migration execution in ProxyDB constructor\n- add migration state tracking via meta key with PACKAGE_VERSION\n- bump PACKAGE_VERSION from 1.0.1 to 1.0.2",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/PhpProxyHunter/ProxyDBMigration.php",
+      "src/PhpProxyHunter/const.php"
+    ]
+  },
+  {
     "hash": "aedcbc52799d8a1103f83ce6614ceddfc6bac137",
     "date": "2026-03-11T14:21:51+07:00",
     "message": "feat(blacklist): allow custom blacklist config path for is_blacklist\n\n- Add optional `$blacklistConf` parameter to `is_blacklist()` and pass it to `get_blacklist()`, allowing callers to specify a custom blacklist file.\n- Update PHPDoc for `is_blacklist()` to document the new parameter.\n- Update `tests/proxy/BlacklistTest.php` to create a test-only `data/blacklist.conf`, pass its path to `is_blacklist()` in assertions, and simplify setup/teardown by removing backup/restore logic.",
@@ -8765,14 +8775,6 @@
     "files": [
       "bin/python-minimal",
       "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "ef1392d8f321015c8eab6324a8e78483ce902263",
-    "date": "2025-10-08T13:50:03+07:00",
-    "message": "fix(py): ensure python3 is executed in all cases for Unix-based systems",
-    "files": [
-      "bin/py"
     ]
   }
 ]
