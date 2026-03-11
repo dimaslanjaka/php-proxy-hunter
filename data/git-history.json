@@ -1,5 +1,75 @@
 [
   {
+    "hash": "9031688d9a95e19829da7f674f937ad91973d637",
+    "date": "2026-03-11T13:31:39+07:00",
+    "message": "feat(api): add proxy-delete endpoint with aggregated deletion errors\n\n- Add `php_backend/proxy-delete.php` endpoint to remove one or more proxies.\n- Enforces captcha and token-based authentication (`is_authenticated(true, $core_db->user_db)`).\n- Parses request payload, extracts proxies, and attempts removal via `ProxyDB`.\n- Collects per-proxy deletion failures into a `details` array and returns a single JSON error response (HTTP 500) when some deletions fail.\n- Returns appropriate HTTP statuses and JSON responses for missing parameters (400), auth/captcha failures (403), and server errors (500).",
+    "files": [
+      "php_backend/proxy-delete.php"
+    ]
+  },
+  {
+    "hash": "6f836900c298054249dd03c6cce5f4aa689cd780",
+    "date": "2026-03-11T13:29:40+07:00",
+    "message": "fix(dependencies): update URLs for hexo, binary-collections, git-command-helper, hexo-util, and sbg-utility resolutions",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "a4649994b573bd0c536749f1cd11c1b732e85cd2",
+    "date": "2026-03-11T13:28:21+07:00",
+    "message": "chore(vscode): disable auto-format-on-save and intelephense formatting\n\nDisable automatic formatting in the workspace to avoid unintended edits:\n- set `\"[python]\".editor.formatOnSave` to `false`\n- set `php-cs-fixer.onsave` to `false`\n- add `intelephense.format.braces = \"allman\"` and `intelephense.format.enable = false`",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "f8286945814e7b7bd075a7272de7c672b76bd829",
+    "date": "2026-03-11T13:16:02+07:00",
+    "message": "feat(auth): add API token support, validation, and UI display\n\n- Add `UserDBMigration` to add `auth_user.token` column and backfill missing tokens (SQLite/MySQL).\n- Run migration from `UserDB` constructor and manage migration lifecycle.\n- Add `UserDB::validateToken(string)` for centralized token lookup.\n- Expose `token` in the `/php_backend/user-info.php` response for authenticated users.\n- Update TypeScript types: add `token?: string` to `types/php_backend/user.d.ts`.\n- Update `is_authenticated()` in `src/database/env.php` to `is_authenticated(bool $validateToken = false, $userDb = null)` and validate Bearer tokens via a provided `UserDB` instance when requested.\n- Update React settings page (`src/react/pages/Settings.tsx`) to show the current user's token and add a copy button that shows a snackbar on success/failure.\n- Add locale keys for copy button and notifications (`settings_api_token_label`, `settings_copy`, `settings_copy_success`, `settings_copy_failed`) in `src/react/locales/{en,id}.json`.\n- Bump package version constant `PACKAGE_VERSION` to `1.0.1`.\n\nBREAKING CHANGE: `is_authenticated()` signature changed; callers depending on the old signature must be updated to the new parameters (pass a `UserDB` instance when using token validation).",
+    "files": [
+      "php_backend/user-info.php",
+      "src/PhpProxyHunter/UserDB.php",
+      "src/PhpProxyHunter/UserDBMigration.php",
+      "src/PhpProxyHunter/const.php",
+      "src/database/env.php",
+      "src/react/locales/en.json",
+      "src/react/locales/id.json",
+      "src/react/pages/Settings.tsx",
+      "types/php_backend/user.d.ts"
+    ]
+  },
+  {
+    "hash": "b3f777254688268d6c2c71479908a2e539307aff",
+    "date": "2026-03-11T10:44:09+07:00",
+    "message": "refactor(proxy-list): remove unused variables and redundant filter\n\n- Remove unused `$user_db` and `$log_db` assignments from `php_backend/proxy-list.php`.\n- Remove unused `$filter` array and related comment; search is handled via SQL LIKE.\n- Minor cleanup to reduce dead code and potential warnings.",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
+    "hash": "c021248ff253a74ae5aed413832e34850f13f5a2",
+    "date": "2026-03-10T08:34:34+07:00",
+    "message": "build: implement automated versioning and expand dependency catalog\n\n* Introduce `versioning.gradle` and `version.properties` to manage project versioning and Git metadata via Gradle tasks.\n* Significantly expand `libs.versions.toml` with a comprehensive list of common Android, Firebase, and third-party library definitions.\n* Optimize `gradle.properties` by reducing JVM memory allocation and disabling parallel execution for lower resource footprints.\n* Update `app/build.gradle.kts` to enable `buildConfig`, refine OkHttp and Gson dependencies, and update file tree exclusions.\n* Apply the new versioning script to the root project and register additional Kotlin and Android library plugins.",
+    "files": [
+      "android_app/app/build.gradle.kts",
+      "android_app/build.gradle.kts",
+      "android_app/gradle.properties",
+      "android_app/gradle/libs.versions.toml",
+      "android_app/gradle/versioning.gradle",
+      "android_app/settings.gradle.kts",
+      "android_app/version.properties"
+    ]
+  },
+  {
+    "hash": "6b32bb0902274a688b1ff89979074a3384a46a2c",
+    "date": "2026-03-09T15:21:55+07:00",
+    "message": "build: add Sonatype, JitPack, and Mozilla repositories to settings.gradle.kts",
+    "files": [
+      "android_app/settings.gradle.kts"
+    ]
+  },
+  {
     "hash": "30b1d3af8e28703e1701d2c0052bede2df5d46e4",
     "date": "2026-03-09T10:09:50+07:00",
     "message": "feat(checker): enhance real-time UI reactivity and add auto-scroll\n\n- Refactor ProxyCheckerActivity to sync with StateFlows (resultsFlow, currentProxyFlow) for instant UI updates.\n- Implement \"Auto Scroll\" functionality to keep the currently checking proxy at the top of the list.\n- Optimize SQLite query to fetch only the latest result per proxy, preventing list bloating.\n- Update ProxyCheckService with isPriorityMode to prevent auto-checks from interrupting manual sessions.\n- Improve state management by clearing the current proxy in ProxyManager after each check cycle.\n- Relocate UI controls for better accessibility, moving the Auto Scroll toggle next to the primary action button.",
@@ -8700,64 +8770,6 @@
     "files": [
       "bin/py",
       "bin/py.cmd"
-    ]
-  },
-  {
-    "hash": "96f26261368642b1987af72af2d0532f0ac8f0d6",
-    "date": "2025-10-08T13:29:23+07:00",
-    "message": "fix(py): comment out the sudo command for requirements installation",
-    "files": [
-      "bin/py"
-    ]
-  },
-  {
-    "hash": "60a24e51d5cec5f78990a2aa63bcd26660f04f4d",
-    "date": "2025-10-08T13:19:10+07:00",
-    "message": "fix(install): include additional packages in pip install command",
-    "files": [
-      "bin/python-minimal",
-      "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "8d1bdd0823f82246e1f93f15fa9ecf24fa4c0a0b",
-    "date": "2025-10-08T13:17:51+07:00",
-    "message": "chore(dev-env): add conditional local-package installs with git fallbacks\n\nUpdate both `bin/python-minimal` (bash) and `bin/python-minimal.cmd` (Windows)\nto install local packages when present, and otherwise install them from their\nGitHub repositories. This makes the minimal Python environment setup more\nrobust when working either with local package directories or with the remote\nrepositories.\n\n- Check for `packages/proxy-checker-python`, `packages/proxy-hunter-python`,\n  and `packages/rsa-utility` and use `pip install -e` when available.\n- Fall back to `pip install git+https://...` (with `#subdirectory=...` where\n  required) when local directories are absent.\n\nNo functional changes to package versions; improves developer setup ergonomics.",
-    "files": [
-      "bin/python-minimal",
-      "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "7802e3635d3c6fbb811ba508b66043892b17167f",
-    "date": "2025-10-08T11:18:59+07:00",
-    "message": "feat(dependencies): add @types/ssh2-sftp-client for TypeScript support",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "9ee4cdae7f7e805287ae1691fa31969132f910f0",
-    "date": "2025-10-08T11:17:37+07:00",
-    "message": "fix(deploy-vps): make deleteRemotePath robust for files, dirs and sftp variants\n\n- use `sftp.exists()` to detect remote type and avoid noisy delete failures\n- treat non-existent paths as no-op and return early\n- prefer `rmdir(path, true)` for recursive remove, fallback to manual recursive delete when unsupported\n- try `delete()` for files and fall back to rmdir/listing when needed\n- improve debug/error messages and add explicit returns for each successful branch",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "ac45bed86d1c7269ccf8eaea79d3632bf63eec00",
-    "date": "2025-10-08T07:20:43+07:00",
-    "message": "fix(embed): handle missing file parameter and improve request parsing",
-    "files": [
-      "embed.php"
-    ]
-  },
-  {
-    "hash": "ccbdcb274d00083a832596866bb8e694176613cd",
-    "date": "2025-10-08T07:19:43+07:00",
-    "message": "fix(embed): resolve leading-slash file paths from project root\n\nTreat `file` params starting with `/` as project-root relative (e.g. `/tmp/logs/...` -> `__DIR__/tmp/logs/...`) so frontend-returned log paths are resolvable. Preserve basename fallback and existing denylist/extension checks.",
-    "files": [
-      "embed.php"
     ]
   }
 ]
