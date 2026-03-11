@@ -39,7 +39,7 @@ if (class_exists('Dotenv\\Dotenv')) {
           $value = $value === 'true' ? true : false;
         } elseif (is_numeric($value)) {
           $value = $value + 0;
-        // Convert to int or float
+          // Convert to int or float
         } elseif (preg_match('/^\[.*\]$/', $value)) {
           $arrayValue = json_decode($value, true);
           if (json_last_error() === JSON_ERROR_NONE) {
@@ -59,7 +59,8 @@ if (class_exists('Dotenv\\Dotenv')) {
  *
  * @return array<string, mixed> An associative array of environment variable key-value pairs.
  */
-function getEnvPairs(): array {
+function getEnvPairs(): array
+{
   global $pairs;
   return $pairs;
 }
@@ -69,7 +70,8 @@ function getEnvPairs(): array {
  *
  * @return string[] Array of trimmed admin email addresses.
  */
-function getAdminEmails(): array {
+function getAdminEmails(): array
+{
   $email       = isset($_ENV['ADMIN_EMAILS']) ? $_ENV['ADMIN_EMAILS'] : getenv('ADMIN_EMAILS');
   $adminEmails = $email ? explode(',', $email) : [];
   return array_map('trim', $adminEmails);
@@ -81,7 +83,8 @@ function getAdminEmails(): array {
  *
  * @return bool True if the hostname matches a debug device, false otherwise.
  */
-function is_debug_device() {
+function is_debug_device()
+{
   $debug_devices_env = isset($_ENV['DEBUG_DEVICES']) ? $_ENV['DEBUG_DEVICES'] : getenv('DEBUG_DEVICES');
   if (empty($debug_devices_env)) {
     error_log('DEBUG_DEVICES environment variable is not set or empty.');
@@ -97,7 +100,8 @@ function is_debug_device() {
  *
  * @return bool True if running in GitHub Codespaces, false otherwise.
  */
-function is_github_codespaces(): bool {
+function is_github_codespaces(): bool
+{
   $hostname = gethostname();
   if (str_starts_with($hostname, 'codespaces-')) {
     return true;
@@ -110,7 +114,8 @@ function is_github_codespaces(): bool {
  *
  * @return bool True if running in GitHub CI, false otherwise.
  */
-function is_github_ci(): bool {
+function is_github_ci(): bool
+{
   return getenv('CI') !== false && getenv('GITHUB_ACTIONS') === 'true';
 }
 
@@ -125,7 +130,8 @@ function is_github_ci(): bool {
  *
  * @return bool True if in debug mode, false otherwise.
  */
-function is_debug(): bool {
+function is_debug(): bool
+{
   return is_github_ci()
     || is_github_codespaces()
     || is_debug_device();
@@ -141,7 +147,8 @@ function is_debug(): bool {
  *
  * @return bool True when running via CLI, false otherwise.
  */
-function is_cli(): bool {
+function is_cli(): bool
+{
   return (
     php_sapi_name() === 'cli'
     || defined('STDIN')
@@ -159,7 +166,8 @@ function is_cli(): bool {
  * @throws RuntimeException If called in web context and no session has been started.
  * @return bool True when admin privileges are present, false otherwise.
  */
-function is_admin(): bool {
+function is_admin(): bool
+{
   if (is_cli()) {
     $options = getopt('', ['admin']);
     return isset($options['admin']);
@@ -179,7 +187,8 @@ function is_admin(): bool {
  * @return void Exits with code 1 if not an admin; returns normally if admin privileges are present.
  * @throws RuntimeException May throw if is_admin() throws in web context without active session.
  */
-function requires_admin() {
+function requires_admin()
+{
   if (!is_admin()) {
     http_response_code(403);
     header('Content-Type: application/json; charset=utf-8');
@@ -193,14 +202,73 @@ function requires_admin() {
  *
  * Behavior depends on execution context:
  * - CLI: always returns true.
- * - Web: checks for valid user_id and email in $_SESSION.
+ * - Web: checks for valid `user_id` and `email` in `$_SESSION` unless
+ *   token validation is requested.
  *
- * @throws RuntimeException If called in web context without an active session.
- * @return bool True if authenticated, false otherwise.
+ * When `$validateToken` is true, a `$userDb` instance implementing
+ * `validateToken(string $token)` must be provided; the function will
+ * validate a Bearer token from the `Authorization` header using that
+ * method and return true only if the token corresponds to an active user.
+ *
+ * @param bool $validateToken When true, validate an Authorization Bearer token via `$userDb`.
+ * @param \PhpProxyHunter\UserDB|null $userDb Optional `UserDB` instance used for token validation.
+ * @throws RuntimeException If called in web context without an active session or when
+ *                         token validation is requested but `$userDb` is not provided.
+ * @return bool True if authenticated (session or valid token), false otherwise.
  */
-function is_authenticated(): bool {
+function is_authenticated(bool $validateToken = false, $userDb = null): bool
+{
   if (is_cli()) {
     return true;
+  }
+
+  // If token validation requested, require a UserDB instance
+  if ($validateToken) {
+    if ($userDb === null || !is_object($userDb) || !method_exists($userDb, 'validateToken')) {
+      throw new RuntimeException('[is_authenticated] UserDB instance with validateToken() required when token validation is enabled.');
+    }
+
+    // Extract Authorization header
+    $authHeader = null;
+    if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+      $authHeader = trim($_SERVER['HTTP_AUTHORIZATION']);
+    } elseif (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+      $authHeader = trim($_SERVER['REDIRECT_HTTP_AUTHORIZATION']);
+    } elseif (function_exists('apache_request_headers')) {
+      $headers = apache_request_headers();
+      if (!empty($headers)) {
+        foreach ($headers as $k => $v) {
+          if (strtolower($k) === 'authorization') {
+            $authHeader = trim($v);
+            break;
+          }
+        }
+      }
+    }
+
+    if (!empty($authHeader) && preg_match('/^Bearer\\s+(?<token>[A-Za-z0-9\\-_.]+)$/', $authHeader, $m)) {
+      $token = $m['token'];
+      try {
+        $row = $userDb->validateToken($token);
+        if ($row) {
+          $active = true;
+          if (isset($row['is_active'])) {
+            $active = (int)$row['is_active'] === 1 || $row['is_active'] === '1' || $row['is_active'] === true;
+          }
+          if ($active) {
+            if (session_status() !== PHP_SESSION_NONE) {
+              $_SESSION['user_id'] = $row['id'];
+              $_SESSION['email']   = $row['email'] ?? '';
+            }
+            return true;
+          }
+        }
+      } catch (Throwable $e) {
+        error_log('[is_authenticated] token validation error: ' . $e->getMessage());
+      }
+    }
+
+    return false;
   }
 
   if (session_status() === PHP_SESSION_NONE) {
@@ -216,7 +284,8 @@ function is_authenticated(): bool {
  * @return void Exits with code 1 if not authenticated; returns normally if authenticated.
  * @throws RuntimeException May throw if is_authenticated() throws in web context without active session.
  */
-function requires_authentication() {
+function requires_authentication()
+{
   if (!is_authenticated()) {
     http_response_code(401);
     header('Content-Type: application/json; charset=utf-8');
@@ -226,7 +295,8 @@ function requires_authentication() {
 }
 
 /** Check if the captcha is verified */
-function is_captcha_verified(): bool {
+function is_captcha_verified(): bool
+{
   if (is_cli()) {
     return true;
   }
@@ -239,7 +309,8 @@ function is_captcha_verified(): bool {
 }
 
 /** Requires captcha verification */
-function requires_captcha_verification() {
+function requires_captcha_verification()
+{
   if (!is_captcha_verified()) {
     http_response_code(403);
     header('Content-Type: application/json; charset=utf-8');

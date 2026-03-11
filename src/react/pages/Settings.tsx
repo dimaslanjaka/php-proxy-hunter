@@ -4,6 +4,7 @@ import { createUrl } from '../utils/url';
 import axios from 'axios';
 import { startRegistration } from '@simplewebauthn/browser';
 import { getUserInfo } from '../utils/user';
+import { useSnackbar } from '../components/Snackbar';
 
 // Settings page for user profile management
 // Backends:
@@ -11,9 +12,11 @@ import { getUserInfo } from '../utils/user';
 
 const Settings = () => {
   const { t } = useTranslation();
+  const { showSnackbar } = useSnackbar();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [token, setToken] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -32,6 +35,7 @@ const Settings = () => {
           setIsAuthenticated(true);
           setUsername(data.username || '');
           setEmail(data.email || '');
+          setToken(data.token || '');
         }
       } catch (_err) {
         window.location.href = '/login';
@@ -156,6 +160,35 @@ const Settings = () => {
               className="w-full px-3 py-2 border rounded bg-gray-200 dark:bg-gray-700 dark:text-white cursor-not-allowed opacity-70"
               autoComplete="email"
             />
+          </div>
+
+          <div className="mb-4">
+            <label className="block mb-1 text-gray-700 dark:text-gray-200" htmlFor="token">
+              {t('settings_api_token_label') || 'API Token'}
+            </label>
+            <div className="relative flex items-center">
+              <input
+                id="token"
+                type="text"
+                value={token}
+                readOnly
+                className="w-full px-3 py-2 border rounded bg-gray-100 dark:bg-gray-800 dark:text-white cursor-text"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const text = token || '';
+                  if (!text) return;
+                  navigator.clipboard
+                    ?.writeText(text)
+                    .then(() => showSnackbar({ message: t('settings_copy_success') || 'Copied!', type: 'success' }))
+                    .catch(() => showSnackbar({ message: t('settings_copy_failed') || 'Copy failed', type: 'danger' }));
+                }}
+                className="ml-2 inline-flex items-center px-3 py-2 bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-white rounded hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring"
+                title={t('settings_copy') || 'Copy'}>
+                <i className="fa-duotone fa-copy" aria-hidden="true"></i>
+              </button>
+            </div>
           </div>
 
           <div className="mb-6">

@@ -10,4 +10,5 @@ export interface UserInfo {
   username?: string;
   phone?: string;
   id?: number;
+  token?: string;
 }

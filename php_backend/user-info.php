@@ -89,12 +89,12 @@ if ($isAdmin && !isset($request['update']) && (isset($request['email']) || isset
       'uid'           => $userData['id'],
       'email'         => $userData['email'],
       'saldo'         => (int)($userData['saldo'] ?? 0),
-      'username'      => $userData['username'] ?? '',
+      'username'      => $userData['username']   ?? '',
       'first_name'    => $userData['first_name'] ?? '',
-      'last_name'     => $userData['last_name'] ?? '',
+      'last_name'     => $userData['last_name']  ?? '',
       'admin'         => $userData['is_superuser'] == 1,
-      'staff'         => $userData['is_staff'] == 1,
-      'active'        => $userData['is_active'] == 1,
+      'staff'         => $userData['is_staff']     == 1,
+      'active'        => $userData['is_active']    == 1,
     ];
   } else {
     $result += [
@@ -126,9 +126,10 @@ $result += [
   'uid'           => $browserId,
   'email'         => $email,
   'saldo'         => (int)($userData['saldo'] ?? 0),
-  'username'      => $userData['username'] ?? '',
+  'username'      => $userData['username']   ?? '',
   'first_name'    => $userData['first_name'] ?? '',
-  'last_name'     => $userData['last_name'] ?? '',
+  'last_name'     => $userData['last_name']  ?? '',
+  'token'         => $userData['token']      ?? '',
 ];
 if (!empty($isAdmin)) {
   $result['admin'] = true;
