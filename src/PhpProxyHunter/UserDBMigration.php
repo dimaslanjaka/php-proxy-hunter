@@ -95,6 +95,7 @@ class UserDBMigration
         $this->meta->set($metaKey, '1');
       }
     } catch (PDOException $e) {
+      $this->meta->delete($metaKey);
       error_log('UserDB migration error: ' . $e->getMessage());
     }
   }

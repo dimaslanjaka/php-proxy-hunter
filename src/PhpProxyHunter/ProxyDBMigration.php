@@ -81,6 +81,7 @@ class ProxyDBMigration
         $this->meta->set($metaKey, '1');
       }
     } catch (PDOException $e) {
+      $this->meta->delete($metaKey);
       error_log('ProxyDB migration error: ' . $e->getMessage());
     }
   }
