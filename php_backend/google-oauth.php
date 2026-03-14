@@ -102,7 +102,8 @@ respond_json($result);
  * @param string $redirectUri
  * @return Google\Client
  */
-function createGoogleClient($redirectUri) {
+function createGoogleClient($redirectUri)
+{
   $client = new Google\Client();
   $client->setClientId($_ENV['G_CLIENT_ID']);
   $client->setClientSecret($_ENV['G_CLIENT_SECRET']);
@@ -128,7 +129,8 @@ function createGoogleClient($redirectUri) {
  * @param array $result
  * @return void
  */
-function refreshAccessTokenIfNeeded($client, $path, array &$result) {
+function refreshAccessTokenIfNeeded($client, $path, array &$result)
+{
   if ($client->isAccessTokenExpired()) {
     $refreshToken = $client->getRefreshToken();
     if ($refreshToken) {
@@ -147,10 +149,14 @@ function refreshAccessTokenIfNeeded($client, $path, array &$result) {
  * @param \PhpProxyHunter\UserDB $user_db
  * @return void
  */
-function finalizeUserSession($email, $user_db) {
+function finalizeUserSession($email, $user_db)
+{
   global $log_db;
   $isEmailAdmin = in_array($email, getAdminEmails());
   $isAdmin      = $isEmailAdmin || $email === (isset($_ENV['DJANGO_SUPERUSER_EMAIL']) ? $_ENV['DJANGO_SUPERUSER_EMAIL'] : '');
+
+  // Always regenerate session ID after successful Google login to prevent fixation.
+  session_regenerate_id(true);
 
   if (!$isAdmin && isset($_SESSION['admin'])) {
     unset($_SESSION['admin']);

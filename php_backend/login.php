@@ -27,7 +27,8 @@ echo json_encode(do_login($username, $password));
  * @param string $password The password of the user attempting to log in.
  * @return array Returns an array containing the login result.
  */
-function do_login($username, $password) {
+function do_login($username, $password)
+{
   global $user_db;
 
   $response = [
@@ -78,7 +79,8 @@ function do_login($username, $password) {
   return $response;
 }
 
-function verify($username, $password) {
+function verify($username, $password)
+{
   global $log_db, $user_db;
   $response = [
     'message' => '',
@@ -96,6 +98,9 @@ function verify($username, $password) {
     }
     // If password matches, set session variables
     if ($verify) {
+      // Regenerate session ID on successful authentication to prevent fixation.
+      session_regenerate_id(true);
+
       // Login success
       $_SESSION['authenticated']       = true;
       $_SESSION['authenticated_email'] = strtolower($select['email']);
@@ -162,7 +167,8 @@ function verify($username, $password) {
  * @param string|null $input The input string to sanitize.
  * @return string|null Returns the sanitized string or null if input is empty or invalid.
  */
-function sanitize_input($input) {
+function sanitize_input($input)
+{
   // Check if input is null or empty
   if (empty($input)) {
     return null;
