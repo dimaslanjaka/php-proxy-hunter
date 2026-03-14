@@ -1,5 +1,33 @@
 [
   {
+    "hash": "f72f0d34558489f0d7b0b9c740990d7b5c148c60",
+    "date": "2026-03-15T05:54:36+07:00",
+    "message": "refactor(session): make session checks static and add session rotation\n\n- convert isSessionStarted() to static and update internal calls to self::isSessionStarted()\n- invoke rotateSession() from constructor to rotate session IDs during active requests\n- add rotateSession() method with periodic ID regeneration and last_regen tracking\n- update clearSessions() to use static session checks consistently\n- guard session file deletion with !empty($session_file) before file_exists()",
+    "files": [
+      "src/PhpProxyHunter/Session.php"
+    ]
+  },
+  {
+    "hash": "54ac3d59197091a1dc5b6c3337972443d7201d89",
+    "date": "2026-03-15T05:47:21+07:00",
+    "message": "fix(auth): regenerate session ID after successful login\n\nRotate PHP session IDs on successful authentication to mitigate session fixation risks.\n\n- add session_regenerate_id(true) in php_backend/login.php after credential verification succeeds\n- add session_regenerate_id(true) in php_backend/google-oauth.php during Google OAuth session finalization",
+    "files": [
+      "php_backend/google-oauth.php",
+      "php_backend/login.php"
+    ]
+  },
+  {
+    "hash": "7b9295ffed00e2950504bb41afbbed0da39be7c6",
+    "date": "2026-03-15T05:38:26+07:00",
+    "message": "fix(migrations): clear meta keys when migration execution fails\n\nRemove stored migration meta values in the migration error path so failed\nmigrations can be retried cleanly on the next run.",
+    "files": [
+      "src/PhpProxyHunter/ActivityLogMigration.php",
+      "src/PhpProxyHunter/Meta.php",
+      "src/PhpProxyHunter/ProxyDBMigration.php",
+      "src/PhpProxyHunter/UserDBMigration.php"
+    ]
+  },
+  {
     "hash": "7294b128a9abb3fefda24a6477e56fc5833ba317",
     "date": "2026-03-11T14:28:46+07:00",
     "message": "feat(db): add ProxyDB migration for tun2socks column\n\n- create ProxyDBMigration to add `tun2socks` to `proxies` table for SQLite and MySQL\n- register migration execution in ProxyDB constructor\n- add migration state tracking via meta key with PACKAGE_VERSION\n- bump PACKAGE_VERSION from 1.0.1 to 1.0.2",
@@ -8746,32 +8774,6 @@
     "hash": "9538149d86e708bb809d92b58d47aa9da8ac969d",
     "date": "2025-10-08T15:13:31+07:00",
     "message": "fix(venv): ensure virtual environment is created only if it does not exist",
-    "files": [
-      "bin/python-minimal",
-      "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "36e4556d722204432c11e1ba4318326b5179afda",
-    "date": "2025-10-08T15:12:01+07:00",
-    "message": "fix(venv): remove redundant deletion of existing virtual environment",
-    "files": [
-      "bin/python-minimal",
-      "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "b5635a6ce4d7d765d901b3423a58719df90c6861",
-    "date": "2025-10-08T15:11:39+07:00",
-    "message": "fix(py): improve sudo command handling for non-interactive environments",
-    "files": [
-      "bin/py"
-    ]
-  },
-  {
-    "hash": "0d52ff7e042c7fa7eba26d20f57903475549d8bb",
-    "date": "2025-10-08T13:58:40+07:00",
-    "message": "chore(env): set script directory and add repo `bin` to PATH in setup scripts\n\n- Add `SCRIPT_DIR` and `CWD` detection to `bin/python-minimal` and export the repo `bin`\n  folder into `PATH` so local executables are preferred during environment setup.\n- Mirror the same logic in `bin/python-minimal.cmd` (compute `SCRIPT_DIR`, derive `CWD`,\n  normalize paths and prepend `%CWD%\\bin` to `%PATH%`).\n\nThis improves reliability when running the setup scripts from different working\ndirectories and ensures bundled tools in `bin/` are available during provisioning.",
     "files": [
       "bin/python-minimal",
       "bin/python-minimal.cmd"
