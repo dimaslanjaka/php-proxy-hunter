@@ -50,7 +50,11 @@ class Session
       ini_set('session.cookie_lifetime', $timeout);
       ini_set('session.gc_probability', 100);
       ini_set('session.gc_divisor', 100);
-      session_id($name);
+      // Only seed an initial session id when there is no incoming session cookie.
+      // For existing sessions, let PHP continue using the client-provided id.
+      if (!isset($_COOKIE[session_name()]) && empty(session_id())) {
+        session_id($name);
+      }
       session_start();
       $path = ini_get('session.save_path');
       if (!file_exists($path . '/.htaccess')) {
@@ -113,9 +117,10 @@ class Session
 
   public function rotateSession()
   {
-    if (self::isSessionStarted()) {
-      session_regenerate_id(true);
+    if (!self::isSessionStarted()) {
+      return;
     }
+
     if (!isset($_SESSION['last_regen'])) {
       $_SESSION['last_regen'] = time();
     }
