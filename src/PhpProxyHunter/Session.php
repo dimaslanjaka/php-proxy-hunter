@@ -22,7 +22,7 @@ class Session
       @mkdir($session_folder, 0755, true);
     }
     if (!self::isSessionStarted()) {
-      $name = md5($this->session_prefix_name . $timeout . Server::getRequestIP() . Server::useragent());
+      $name = md5($this->session_prefix_name . $timeout . Server::fingerprint(true));
       if (empty(trim($session_folder))) {
         $session_folder = __DIR__ . '/../../tmp/sessions';
       }
@@ -67,8 +67,6 @@ class Session
         $_SESSION['id']              = session_id();
       }
     }
-    // Rotate session ID on each request to mitigate fixation risks.
-    $this->rotateSession();
   }
 
   /**
@@ -121,15 +119,24 @@ class Session
       return;
     }
 
+    // Do not rotate anonymous sessions; this avoids resetting pre-login state (captcha, etc.).
+    $isAuthenticated = isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true;
+    if (!$isAuthenticated) {
+      return;
+    }
+
     if (!isset($_SESSION['last_regen'])) {
       $_SESSION['last_regen'] = time();
+      return;
     }
 
     // Regenerate session ID every 5 minutes to mitigate fixation risks.
     if (time() - $_SESSION['last_regen'] > 300) {
-      session_regenerate_id(true);
-      $_SESSION['last_regen'] = time();
-      $_SESSION['id']         = session_id();
+      // Keep old session temporarily to reduce race conditions with concurrent requests.
+      if (session_regenerate_id(false)) {
+        $_SESSION['last_regen'] = time();
+        $_SESSION['id']         = session_id();
+      }
     }
   }
 

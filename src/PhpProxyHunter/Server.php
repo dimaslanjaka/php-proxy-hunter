@@ -2,8 +2,10 @@
 
 namespace PhpProxyHunter;
 
-class Server {
-  public static function getRequestIP() {
+class Server
+{
+  public static function getRequestIP()
+  {
     $check = self::isCloudflare();
 
     if ($check) {
@@ -13,14 +15,16 @@ class Server {
     }
   }
 
-  public static function isCloudflare() {
+  public static function isCloudflare()
+  {
     $ipCheck      = self::cloudflareCheckIp($_SERVER['REMOTE_ADDR']);
     $requestCheck = self::cloudflareRequestsCheck();
 
     return $ipCheck && $requestCheck;
   }
 
-  public static function cloudflareCheckIp($ip) {
+  public static function cloudflareCheckIp($ip)
+  {
     $cf_ips = [
       '199.27.128.0/21',
       '173.245.48.0/20',
@@ -59,7 +63,8 @@ class Server {
    *
    * @return bool true if the ip is in this range / false if not
    */
-  public static function ipInRange($ip, $range) {
+  public static function ipInRange($ip, $range)
+  {
     if (!is_string($ip)) {
       return false;
     }
@@ -84,7 +89,8 @@ class Server {
 
   // Use when handling ips
 
-  public static function cloudflareRequestsCheck() {
+  public static function cloudflareRequestsCheck()
+  {
     $flag = true;
 
     if (!isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
@@ -103,7 +109,8 @@ class Server {
     return $flag;
   }
 
-  public static function getClientIp() {
+  public static function getClientIp()
+  {
     $ipaddress = null;
     if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
       $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
@@ -130,7 +137,8 @@ class Server {
     return $ipaddress;
   }
 
-  public static function getPublicIP() {
+  public static function getPublicIP()
+  {
     static $cachedIp  = null;
     static $cacheTime = 0;
 
@@ -204,7 +212,8 @@ class Server {
   /**
    * Parse IP response based on service type
    */
-  private static function parseIpResponse($response, $type, $field = null) {
+  private static function parseIpResponse($response, $type, $field = null)
+  {
     $response = trim($response);
 
     switch ($type) {
@@ -240,7 +249,8 @@ class Server {
   /**
    * Cache the IP address both in memory and file
    */
-  private static function cacheIp($ip, $cacheFile, &$cachedIp, &$cacheTime) {
+  private static function cacheIp($ip, $cacheFile, &$cachedIp, &$cacheTime)
+  {
     // Cache in memory
     $cachedIp  = $ip;
     $cacheTime = time();
@@ -260,8 +270,23 @@ class Server {
    *
    * @return string empty when $_SERVER['HTTP_USER_AGENT'] is not set/empty
    */
-  public static function useragent() {
+  public static function useragent()
+  {
     return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+  }
+
+  /**
+   * Generate a fingerprint based on the user agent and accept language.
+   *
+   * @return string The generated fingerprint.
+   */
+  public static function fingerprint($includeIP = false)
+  {
+    $fingerprint = $_SERVER['HTTP_USER_AGENT'] . $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+    if ($includeIP) {
+      $fingerprint .= self::getRequestIP();
+    }
+    return hash('sha256', $fingerprint);
   }
 
   /**
@@ -270,7 +295,8 @@ class Server {
    * @param bool $stripQuery Whether to remove the query string from the URL.
    * @return string|null The current URL, or null in CLI mode.
    */
-  public static function getCurrentUrl($stripQuery = false) {
+  public static function getCurrentUrl($stripQuery = false)
+  {
     if (php_sapi_name() === 'cli') {
       return null;
     }
@@ -298,7 +324,8 @@ class Server {
    *                                  (Expires, Cache-Control, Pragma). Default: false.
    * @return void
    */
-  public static function allowCors($disableBrowserCache = false) {
+  public static function allowCors($disableBrowserCache = false)
+  {
     $isCli = (php_sapi_name() === 'cli' || defined('STDIN') || (empty($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['HTTP_USER_AGENT']) && count($_SERVER['argv']) > 0));
     if ($isCli) {
       return;
@@ -320,7 +347,7 @@ class Server {
       header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
       header('Access-Control-Allow-Credentials: true');
       header('Access-Control-Max-Age: 86400');
-    // cache for 1 day
+      // cache for 1 day
     } else {
       // Fallback to allow any origin if HTTP_ORIGIN is not provided
       header('Access-Control-Allow-Origin: *');
@@ -348,7 +375,8 @@ class Server {
    * @param int $seconds Duration (in seconds) for which the response should be cached. Defaults to 3600.
    * @return void
    */
-  public static function setCacheHeaders($seconds = 3600) {
+  public static function setCacheHeaders($seconds = 3600)
+  {
     header('Cache-Control: public, max-age=' . intval($seconds));
     header('Pragma: public');
     header('Expires: ' . gmdate('D, d M Y H:i:s', time() + intval($seconds)) . ' GMT');
