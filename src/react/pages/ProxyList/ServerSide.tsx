@@ -85,13 +85,16 @@ export default function ServerSide() {
 
       const url = createUrl('/php_backend/proxy-list.php');
       const res = await fetch(url, { method: 'POST', body, cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data?.error) {
-        // Surface backend error to the UI
-        const msg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error);
+      const data = await res.json().catch(() => null);
+      if (!res.ok || data?.error) {
+        // Prefer the human-readable `message` field the backend may include
+        // (e.g. 'Captcha not verified') over a raw error value.
+        const msg =
+          (data && typeof data.message === 'string' && data.message) ||
+          (data && typeof data.error === 'string' && data.error) ||
+          `HTTP ${res.status}`;
         console.error('Backend error', msg, data);
-        setErrorMsg(msg || 'Server returned an error');
+        setErrorMsg(msg);
         // show empty rows
         setRows([]);
         setRecordsTotal(0);
