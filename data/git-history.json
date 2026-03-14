@@ -1,5 +1,13 @@
 [
   {
+    "hash": "101991fe5c0460fce37520dcb18c003714b818e2",
+    "date": "2026-03-15T06:13:37+07:00",
+    "message": "fix(session): preserve existing session id and avoid premature rotation\n\nPrevent session persistence issues by respecting client session cookies and only rotating when a session is active.\n\n- only call session_id($name) when no session cookie exists and no session id is set\n- return early in rotateSession() when session is not started",
+    "files": [
+      "src/PhpProxyHunter/Session.php"
+    ]
+  },
+  {
     "hash": "f72f0d34558489f0d7b0b9c740990d7b5c148c60",
     "date": "2026-03-15T05:54:36+07:00",
     "message": "refactor(session): make session checks static and add session rotation\n\n- convert isSessionStarted() to static and update internal calls to self::isSessionStarted()\n- invoke rotateSession() from constructor to rotate session IDs during active requests\n- add rotateSession() method with periodic ID regeneration and last_regen tracking\n- update clearSessions() to use static session checks consistently\n- guard session file deletion with !empty($session_file) before file_exists()",
@@ -8768,15 +8776,6 @@
     "message": "fix(git-history): remove path anonymization in git-history-to-json\n\nRemove the `anonymizedFiles` map and the replacement logic so the git history generator\nreturns raw repository file paths. This updates `src/dev/git-history-to-json.ts`\nto emit original paths in `git-history.json` (so the UI and consumers see accurate filenames\ninstead of anonymized tokens).\n\nBREAKING CHANGE: `git-history.json` now contains original file paths instead of anonymized tokens.",
     "files": [
       "src/dev/git-history-to-json.ts"
-    ]
-  },
-  {
-    "hash": "9538149d86e708bb809d92b58d47aa9da8ac969d",
-    "date": "2025-10-08T15:13:31+07:00",
-    "message": "fix(venv): ensure virtual environment is created only if it does not exist",
-    "files": [
-      "bin/python-minimal",
-      "bin/python-minimal.cmd"
     ]
   }
 ]
