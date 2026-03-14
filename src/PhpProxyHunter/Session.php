@@ -5,7 +5,8 @@ namespace PhpProxyHunter;
 use DateTime;
 use DateTimeZone;
 
-class Session {
+class Session
+{
   private $session_prefix_name = 'PHP_PROXY_HUNTER';
 
   /**
@@ -15,11 +16,12 @@ class Session {
    * @param string|null $session_folder Optional custom folder for storing session files.
    * @throws Exception If session folder creation fails or session cannot be started.
    */
-  public function __construct(int $timeout, $session_folder = null) {
+  public function __construct(int $timeout, $session_folder = null)
+  {
     if (!empty($session_folder) && !file_exists($session_folder)) {
       @mkdir($session_folder, 0755, true);
     }
-    if (!$this->isSessionStarted()) {
+    if (!self::isSessionStarted()) {
       $name = md5($this->session_prefix_name . $timeout . Server::getRequestIP() . Server::useragent());
       if (empty(trim($session_folder))) {
         $session_folder = __DIR__ . '/../../tmp/sessions';
@@ -61,6 +63,8 @@ class Session {
         $_SESSION['id']              = session_id();
       }
     }
+    // Rotate session ID on each request to mitigate fixation risks.
+    $this->rotateSession();
   }
 
   /**
@@ -68,7 +72,8 @@ class Session {
    *
    * @return bool Returns true if session is active, false otherwise.
    */
-  public function isSessionStarted(): bool {
+  public static function isSessionStarted(): bool
+  {
     return PHP_SESSION_ACTIVE == session_status();
   }
 
@@ -77,7 +82,8 @@ class Session {
    *
    * @return array An associative array containing session-related information.
    */
-  public static function dump(): array {
+  public static function dump(): array
+  {
     return [
       'sessions' => [
         'active'                  => PHP_SESSION_NONE == session_status(),
@@ -100,8 +106,26 @@ class Session {
    * @return DateTime The current date and time.
    * @throws Exception If the DateTime creation fails.
    */
-  public function now(): DateTime {
+  public function now(): DateTime
+  {
     return new DateTime('now', new DateTimeZone('Asia/Jakarta'));
+  }
+
+  public function rotateSession()
+  {
+    if (self::isSessionStarted()) {
+      session_regenerate_id(true);
+    }
+    if (!isset($_SESSION['last_regen'])) {
+      $_SESSION['last_regen'] = time();
+    }
+
+    // Regenerate session ID every 5 minutes to mitigate fixation risks.
+    if (time() - $_SESSION['last_regen'] > 300) {
+      session_regenerate_id(true);
+      $_SESSION['last_regen'] = time();
+      $_SESSION['id']         = session_id();
+    }
   }
 
   /**
@@ -111,7 +135,8 @@ class Session {
    *
    * @return void
    */
-  public static function clearCookies() {
+  public static function clearCookies()
+  {
     // Loop through the $_COOKIE array and delete each cookie
     foreach ($_COOKIE as $cookie_name => $cookie_value) {
       // Set cookies to expire in the past to delete them
@@ -128,13 +153,14 @@ class Session {
    *
    * @return bool
    */
-  public static function clearSessions($clearCookies = true) {
+  public static function clearSessions($clearCookies = true)
+  {
     // Start the session if not already started
-    if (session_status() == PHP_SESSION_NONE) {
+    if (!self::isSessionStarted()) {
       session_start();
     }
     // Check if the session is started
-    if (session_status() == PHP_SESSION_ACTIVE) {
+    if (self::isSessionStarted()) {
       // Destroy session data
       $GLOBALS['_SESSION'] = [];
       session_unset();
@@ -169,7 +195,7 @@ class Session {
       // Remove existing session file
       $session_attr = self::dump();
       $session_file = $session_attr['sessions']['session.file'];
-      if ($session_file && file_exists($session_file)) {
+      if (!empty($session_file) && file_exists($session_file)) {
         unlink($session_file);
       }
       return true;
