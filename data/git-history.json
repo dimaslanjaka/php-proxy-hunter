@@ -1,5 +1,49 @@
 [
   {
+    "hash": "646e429a3e73098fa167ad941993d50f53999894",
+    "date": "2026-03-15T07:29:19+07:00",
+    "message": "feat(proxy-list): add displayed-proxy recheck and normalize auth proxy formatting\n\n- add `formatProxyWithOptionalAuth` in ServerSide to consistently format proxies\n  as `username:password@ip:port` only when credentials are valid\n- update copy and recheck flows in ServerSide to use the new formatter\n- add displayed-row recheck action to UniqueIpList using `checkProxyHttps`\n  with snackbar success/error feedback\n- add mobile-friendly toolbar behavior in UniqueIpList by hiding button labels\n  on small screens (icon-only for Refresh and Re-check)",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/UniqueIpList.tsx"
+    ]
+  },
+  {
+    "hash": "a24a24ae1b2878da33a6eca54d1cce538682c49f",
+    "date": "2026-03-15T07:23:40+07:00",
+    "message": "feat(proxy-list): add unique IP view with server endpoint and advanced filtering\n\n- add new backend endpoint to serve proxies grouped by unique IP with pagination\n- implement memory-safe streamed aggregation/counting for large datasets\n- support filtering by search, status, type, country, and city\n- add new UniqueIpList React page with:\n  - debounced search/country/city filters\n  - port collapsing/expansion for large port sets\n  - per-port copy + copy-all actions\n  - improved location rendering and copy feedback text\n  - status-based row border coloring and inline proxy count badge\n- add list mode switch in ProxyList page to toggle Standard vs Unique IP list\n- persist selected list mode in localStorage",
+    "files": [
+      "php_backend/proxy-list-unique-ip.php",
+      "src/react/pages/ProxyList/UniqueIpList.tsx",
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "7ede3cd0b5dcfe7c607e325b62546881ca18122a",
+    "date": "2026-03-15T07:12:41+07:00",
+    "message": "fix(ServerSide): implement debounced search to optimize data fetching\n\nAdd a debounced search state in ServerSide to delay fetch calls by 400ms\nafter user input stops. Use debouncedSearch in request payload and\nuseCallback dependencies to reduce request frequency and bandwidth usage\nwhile typing.",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
+    "hash": "b1cfa96120507e1d27956d73adbd977d146f3cc0",
+    "date": "2026-03-15T06:57:13+07:00",
+    "message": "fix(session): stabilize session persistence and harden rotation behavior\n\n- switch session seed input from getRequestIP()+useragent() to Server::fingerprint(true)\n- remove automatic rotateSession() invocation from Session constructor\n- update rotateSession() to skip anonymous sessions and initialize last_regen safely\n- change periodic regeneration to session_regenerate_id(false) to reduce race-condition logouts\n- add Server::fingerprint() helper for consistent request fingerprint generation",
+    "files": [
+      "src/PhpProxyHunter/Server.php",
+      "src/PhpProxyHunter/Session.php"
+    ]
+  },
+  {
+    "hash": "6a88f57dc69c12a8aa4bd69fa303c667837eb947",
+    "date": "2026-03-15T06:40:26+07:00",
+    "message": "fix(ServerSide): improve error handling for fetch response and display user-friendly messages",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx"
+    ]
+  },
+  {
     "hash": "101991fe5c0460fce37520dcb18c003714b818e2",
     "date": "2026-03-15T06:13:37+07:00",
     "message": "fix(session): preserve existing session id and avoid premature rotation\n\nPrevent session persistence issues by respecting client session cookies and only rotating when a session is active.\n\n- only call session_id($name) when no session cookie exists and no session id is set\n- return early in rotateSession() when session is not started",
@@ -8735,47 +8779,6 @@
     "message": "feat(editorconfig): add Kotlin support with import layout configuration",
     "files": [
       ".editorconfig"
-    ]
-  },
-  {
-    "hash": "fc4b4b1cea57319710efcb0b43a2db0b9bf8834d",
-    "date": "2025-10-19T14:12:09+07:00",
-    "message": "feat: custom certificate",
-    "files": [
-      "data/custom.pem"
-    ]
-  },
-  {
-    "hash": "29f69fc1931fdd8d08033cf1f97eb416c2a9fb04",
-    "date": "2025-10-19T14:11:39+07:00",
-    "message": "fix(gitignore): include /script directory in .gitignore",
-    "files": [
-      "data/.gitignore"
-    ]
-  },
-  {
-    "hash": "baac3b303033973df9e6faf9ac36f3eccbd58b32",
-    "date": "2025-10-19T14:10:59+07:00",
-    "message": "feat(locales): add OTP request and verification messages in English and Indonesian",
-    "files": [
-      "src/react/locales/en.json",
-      "src/react/locales/id.json"
-    ]
-  },
-  {
-    "hash": "2c4418160aa5096473807d6aeb1ad2bcd9f78117",
-    "date": "2025-10-19T14:10:25+07:00",
-    "message": "feat(eslint): add ESLint configuration file",
-    "files": [
-      ".idea/jsLinters/eslint.xml"
-    ]
-  },
-  {
-    "hash": "e8357a603d5bba82c9251422dcdf4999602cded1",
-    "date": "2025-10-13T12:01:00+07:00",
-    "message": "fix(git-history): remove path anonymization in git-history-to-json\n\nRemove the `anonymizedFiles` map and the replacement logic so the git history generator\nreturns raw repository file paths. This updates `src/dev/git-history-to-json.ts`\nto emit original paths in `git-history.json` (so the UI and consumers see accurate filenames\ninstead of anonymized tokens).\n\nBREAKING CHANGE: `git-history.json` now contains original file paths instead of anonymized tokens.",
-    "files": [
-      "src/dev/git-history-to-json.ts"
     ]
   }
 ]
