@@ -63,6 +63,23 @@ export default function ServerSide() {
   const [serverPerPage, setServerPerPage] = React.useState<number | null>(null);
   const [userId, setUserId] = React.useState<string | null>(null);
 
+  const formatProxyWithOptionalAuth = React.useCallback((row: ProxyRow) => {
+    const proxy = String(row.proxy || '').trim();
+    if (!proxy) return '';
+
+    const username = String(row.username || '').trim();
+    const password = String(row.password || '').trim();
+    const hasValidAuth =
+      username !== '' &&
+      password !== '' &&
+      username !== '-' &&
+      password !== '-' &&
+      username !== '_' &&
+      password !== '_';
+
+    return hasValidAuth ? `${username}:${password}@${proxy}` : proxy;
+  }, []);
+
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -152,12 +169,7 @@ export default function ServerSide() {
 
   const handleCopy = async (row: ProxyRow, idx: number) => {
     try {
-      let proxyStr = String(row.proxy || '');
-      const username = row.username;
-      const password = row.password;
-      if (username && password && username !== '-' && password !== '-') {
-        proxyStr = `${proxyStr}@${username}:${password}`;
-      }
+      const proxyStr = formatProxyWithOptionalAuth(row);
       if (!proxyStr) return;
       // Use shared helper when available; fallback to navigator
       if (copyToClipboard) {
@@ -181,7 +193,7 @@ export default function ServerSide() {
     try {
       setLoading(true);
       const proxies = rows
-        .map((r) => String(r.proxy || ''))
+        .map((r) => formatProxyWithOptionalAuth(r))
         .filter(Boolean)
         .join('\n');
       const data = await checkProxyHttps(proxies);

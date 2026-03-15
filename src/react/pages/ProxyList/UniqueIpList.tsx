@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 import { timeAgo } from '../../../utils/date/timeAgo.js';
 import { noop } from '../../../utils/other';
+import { useSnackbar } from '../../components/Snackbar';
+import { checkProxyHttps } from '../../utils/proxy';
 import { createUrl } from '../../utils/url';
 
 type UniqueIpRow = {
@@ -19,6 +21,7 @@ type UniqueIpRow = {
 
 export default function UniqueIpList() {
   const { t } = useTranslation();
+  const { showSnackbar } = useSnackbar();
   const [rows, setRows] = React.useState<UniqueIpRow[]>([]);
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(10);
@@ -218,6 +221,54 @@ export default function UniqueIpList() {
     }
   };
 
+  // Re-check all proxies currently displayed in the table
+  const handleRecheckDisplayed = async () => {
+    if (!rows || rows.length === 0) {
+      showSnackbar({ message: (t('No proxies to re-check') as string) || 'No proxies to re-check', type: 'danger' });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const proxySet = new Set<string>();
+
+      rows.forEach((row) => {
+        const fromList = Array.isArray(row.proxy_list) ? row.proxy_list : [];
+        fromList.forEach((item) => {
+          const value = String(item || '').trim();
+          if (value) proxySet.add(value);
+        });
+
+        // Fallback when proxy_list is missing
+        if (fromList.length === 0) {
+          const ip = String(row.ip || '').trim();
+          const ports = Array.isArray(row.ports) ? row.ports : [];
+          ports.forEach((p) => {
+            const port = String(p || '').trim();
+            if (ip && port) proxySet.add(`${ip}:${port}`);
+          });
+        }
+      });
+
+      const proxies = Array.from(proxySet).join('\n');
+      if (!proxies) {
+        showSnackbar({ message: (t('No proxies to re-check') as string) || 'No proxies to re-check', type: 'danger' });
+        return;
+      }
+
+      const data = await checkProxyHttps(proxies);
+      showSnackbar({
+        message: data.message || (data.error ? 'Failed to re-check proxies' : 'Re-check initiated'),
+        type: data.error ? 'danger' : 'success'
+      });
+    } catch (err) {
+      console.error('Failed to re-check displayed proxies', err);
+      showSnackbar({ message: 'Failed to re-check proxies', type: 'danger' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="my-6">
       <div className="relative overflow-hidden rounded-2xl border border-cyan-200/70 dark:border-cyan-900/60 bg-gradient-to-br from-white via-cyan-50/70 to-amber-50/60 dark:from-gray-900 dark:via-cyan-950/40 dark:to-amber-950/30 shadow-xl">
@@ -241,7 +292,15 @@ export default function UniqueIpList() {
                 onClick={() => fetchData().catch(noop)}
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-cyan-700 text-white text-sm hover:bg-cyan-600">
                 <i className="fa-duotone fa-arrows-rotate" aria-hidden="true" />
-                <span>Refresh</span>
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
+              <button
+                disabled={loading || rows.length === 0}
+                onClick={() => handleRecheckDisplayed()}
+                title={t('recheck_proxy') as string}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-700 text-white text-sm hover:bg-emerald-600 disabled:opacity-50">
+                <i className="fa-duotone fa-recycle" aria-hidden="true" />
+                <span className="hidden sm:inline">Re-check displayed</span>
               </button>
             </div>
           </div>
