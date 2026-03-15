@@ -7,11 +7,20 @@ import ProxySubmission from './ProxySubmission';
 import LogViewer from './LogViewer';
 import AdSense from '../../components/AdSense';
 import ProxyExtractor from './ProxyExtractor';
+import UniqueIpList from './UniqueIpList';
 
 export default function ProxyList() {
   const { t } = useTranslation();
   const [recaptchaOpen, setRecaptchaOpen] = React.useState(false);
   const [subTab, setSubTab] = React.useState('submit');
+  const [listTab, setListTab] = React.useState<'server' | 'unique-ip'>(() => {
+    const saved = localStorage.getItem('proxyList_listTab');
+    return saved === 'unique-ip' ? 'unique-ip' : 'server';
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('proxyList_listTab', listTab);
+  }, [listTab]);
 
   return (
     <div className="mx-2">
@@ -58,7 +67,35 @@ export default function ProxyList() {
         />
       </div>
 
-      <ServerSide />
+      <div className="my-4">
+        <div className="inline-flex items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-1 gap-1">
+          <button
+            type="button"
+            onClick={() => setListTab('server')}
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              listTab === 'server'
+                ? 'bg-indigo-600 text-white'
+                : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}>
+            <i className="fa-duotone fa-table-list mr-2" aria-hidden="true" />
+            Standard list
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setListTab('unique-ip')}
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              listTab === 'unique-ip'
+                ? 'bg-cyan-700 text-white'
+                : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}>
+            <i className="fa-duotone fa-network-wired mr-2" aria-hidden="true" />
+            Unique IP list
+          </button>
+        </div>
+      </div>
+
+      {listTab === 'server' ? <ServerSide /> : <UniqueIpList />}
 
       <div className="my-4">
         <div className="border-b border-gray-200 dark:border-gray-700">
