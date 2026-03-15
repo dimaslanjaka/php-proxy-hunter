@@ -113,7 +113,29 @@ class Session
     return new DateTime('now', new DateTimeZone('Asia/Jakarta'));
   }
 
-  public function rotateSession()
+  /**
+   * Regenerate session ID after successful authentication.
+   *
+   * Uses non-destructive regeneration to reduce race conditions with concurrent requests.
+   *
+   * @return bool True when regeneration succeeds, false otherwise.
+   */
+  public static function rotateNow(): bool
+  {
+    if (!self::isSessionStarted()) {
+      return false;
+    }
+
+    if (session_regenerate_id(false)) {
+      $_SESSION['last_regen'] = time();
+      $_SESSION['id']         = session_id();
+      return true;
+    }
+
+    return false;
+  }
+
+  public function rotateSession($validateAuthenticated = true)
   {
     if (!self::isSessionStarted()) {
       return;
@@ -121,7 +143,7 @@ class Session
 
     // Do not rotate anonymous sessions; this avoids resetting pre-login state (captcha, etc.).
     $isAuthenticated = isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true;
-    if (!$isAuthenticated) {
+    if ($validateAuthenticated && !$isAuthenticated) {
       return;
     }
 
@@ -132,11 +154,7 @@ class Session
 
     // Regenerate session ID every 5 minutes to mitigate fixation risks.
     if (time() - $_SESSION['last_regen'] > 300) {
-      // Keep old session temporarily to reduce race conditions with concurrent requests.
-      if (session_regenerate_id(false)) {
-        $_SESSION['last_regen'] = time();
-        $_SESSION['id']         = session_id();
-      }
+      self::rotateNow();
     }
   }
 

@@ -155,8 +155,8 @@ function finalizeUserSession($email, $user_db)
   $isEmailAdmin = in_array($email, getAdminEmails());
   $isAdmin      = $isEmailAdmin || $email === (isset($_ENV['DJANGO_SUPERUSER_EMAIL']) ? $_ENV['DJANGO_SUPERUSER_EMAIL'] : '');
 
-  // Always regenerate session ID after successful Google login to prevent fixation.
-  session_regenerate_id(true);
+  // Regenerate session ID after successful Google login to prevent fixation.
+  \PhpProxyHunter\Session::rotateNow();
 
   if (!$isAdmin && isset($_SESSION['admin'])) {
     unset($_SESSION['admin']);

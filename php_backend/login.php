@@ -99,7 +99,7 @@ function verify($username, $password)
     // If password matches, set session variables
     if ($verify) {
       // Regenerate session ID on successful authentication to prevent fixation.
-      session_regenerate_id(true);
+      \PhpProxyHunter\Session::rotateNow();
 
       // Login success
       $_SESSION['authenticated']       = true;
