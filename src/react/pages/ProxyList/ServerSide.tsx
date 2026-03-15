@@ -47,6 +47,7 @@ export default function ServerSide() {
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(10);
   const [search, setSearch] = React.useState('');
+  const [debouncedSearch, setDebouncedSearch] = React.useState('');
   // Default to 'active' so initial view shows active proxies
   const [statuses, setStatuses] = React.useState<string[]>(['active']);
   const [statusFilter, setStatusFilter] = React.useState('active');
@@ -62,6 +63,13 @@ export default function ServerSide() {
   const [serverPerPage, setServerPerPage] = React.useState<number | null>(null);
   const [userId, setUserId] = React.useState<string | null>(null);
 
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const fetchData = React.useCallback(async () => {
     setLoading(true);
     try {
@@ -72,9 +80,9 @@ export default function ServerSide() {
       body.append('draw', String(draw + 1));
       body.append('start', String(start));
       body.append('length', String(perPage));
-      if (search && search.length > 0) {
+      if (debouncedSearch && debouncedSearch.length > 0) {
         // DataTables nested param name
-        body.append('search[value]', search);
+        body.append('search[value]', debouncedSearch);
       }
       if (statusFilter && statusFilter.length > 0) {
         body.append('status', statusFilter);
@@ -136,7 +144,7 @@ export default function ServerSide() {
     } finally {
       setLoading(false);
     }
-  }, [page, perPage, search, statusFilter, typeFilter]);
+  }, [page, perPage, debouncedSearch, statusFilter, typeFilter]);
 
   React.useEffect(() => {
     fetchData().catch(noop);
