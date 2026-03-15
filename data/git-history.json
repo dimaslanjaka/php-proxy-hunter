@@ -1,5 +1,23 @@
 [
   {
+    "hash": "8ee912282864d1326b0f1982a92a2f06c3258012",
+    "date": "2026-03-15T07:43:13+07:00",
+    "message": "refactor(session): unify session ID rotation with Session::rotateNow\n\n- replace direct session_regenerate_id(true) calls in login and Google OAuth flows with Session::rotateNow()\n- add Session::rotateNow() as a shared, non-destructive post-auth session regeneration API\n- update rotateSession() to support optional auth validation and delegate regeneration to rotateNow()\n- keep session metadata (last_regen, id) updates centralized in Session class",
+    "files": [
+      "php_backend/google-oauth.php",
+      "php_backend/login.php",
+      "src/PhpProxyHunter/Session.php"
+    ]
+  },
+  {
+    "hash": "fd467dd4420f7b78b2d5b27507a0a62dedec7fef",
+    "date": "2026-03-15T07:34:21+07:00",
+    "message": "feat(UniqueIpList): implement user info fetching and background GeoIP scheduling for missing locations proxies\n\nAdd background GeoIP scheduling to UniqueIpList for rows missing both\ncountry and city values. Fetch user UID via getUserInfo, collect up to\n5 candidate proxies, and enqueue geoIpBackground.php requests using\najaxScheduler (POST_JSON), then run scheduled jobs.",
+    "files": [
+      "src/react/pages/ProxyList/UniqueIpList.tsx"
+    ]
+  },
+  {
     "hash": "646e429a3e73098fa167ad941993d50f53999894",
     "date": "2026-03-15T07:29:19+07:00",
     "message": "feat(proxy-list): add displayed-proxy recheck and normalize auth proxy formatting\n\n- add `formatProxyWithOptionalAuth` in ServerSide to consistently format proxies\n  as `username:password@ip:port` only when credentials are valid\n- update copy and recheck flows in ServerSide to use the new formatter\n- add displayed-row recheck action to UniqueIpList using `checkProxyHttps`\n  with snackbar success/error feedback\n- add mobile-friendly toolbar behavior in UniqueIpList by hiding button labels\n  on small screens (icon-only for Refresh and Re-check)",
@@ -8763,22 +8781,6 @@
     "message": "fix(readme): comment out missing PHP extension section",
     "files": [
       "readme.md"
-    ]
-  },
-  {
-    "hash": "8e17f1bfb6efc7490f2b10d5cee922e9d58d8033",
-    "date": "2025-10-19T14:14:33+07:00",
-    "message": "fix(ui): hide copy button and show placeholder for empty details\n\nWhen details are empty or whitespace-only, render a subtle placeholder (`-`)\nand avoid displaying the copy button in `src/react/components/DetailsCell.tsx`.\nThis prevents no-op copy actions and improves table readability.\n\n- Add `hasContent` guard to detect empty content\n- Return a Tailwind-styled placeholder when empty\n- Only render copy buttons when `hasContent` is true",
-    "files": [
-      "src/react/components/DetailsCell.tsx"
-    ]
-  },
-  {
-    "hash": "d41199e81d1b912f146360a258eff25c82a0b7db",
-    "date": "2025-10-19T14:13:08+07:00",
-    "message": "feat(editorconfig): add Kotlin support with import layout configuration",
-    "files": [
-      ".editorconfig"
     ]
   }
 ]
