@@ -3,8 +3,10 @@ import { useTranslation } from 'react-i18next';
 import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 import { timeAgo } from '../../../utils/date/timeAgo.js';
 import { noop } from '../../../utils/other';
+import { add_ajax_schedule, run_ajax_schedule } from '../../../utils/ajaxScheduler';
 import { useSnackbar } from '../../components/Snackbar';
 import { checkProxyHttps } from '../../utils/proxy';
+import { getUserInfo } from '../../utils/user';
 import { createUrl } from '../../utils/url';
 
 type UniqueIpRow = {
@@ -43,6 +45,7 @@ export default function UniqueIpList() {
   const [errorMsg, setErrorMsg] = React.useState('');
   const [serverPage, setServerPage] = React.useState<number | null>(null);
   const [serverPerPage, setServerPerPage] = React.useState<number | null>(null);
+  const [userId, setUserId] = React.useState<string | null>(null);
   const [copiedProxyInfo, setCopiedProxyInfo] = React.useState<{ idx: number; value: string } | null>(null);
   const [copiedListIndex, setCopiedListIndex] = React.useState<number | null>(null);
   const [expandedPorts, setExpandedPorts] = React.useState<Set<number>>(new Set());
@@ -172,6 +175,63 @@ export default function UniqueIpList() {
       mounted = false;
     };
   }, []);
+
+  // Fetch user info to get UID for background geoIP scheduling
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const info = await getUserInfo();
+        if (!mounted) return;
+        const uid = (info as any)?.uid || (info as any)?.user_id || null;
+        if (uid && mounted) setUserId(uid);
+      } catch (_err) {
+        // ignore
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Enqueue proxies missing both country and city for background GeoIP lookup
+  const candidatesGeoIp = React.useMemo(() => {
+    const normalizeGeoValue = (value: unknown) => {
+      const v = String(value || '').trim();
+      return !v || v === '-' || v.toUpperCase() === 'N/A';
+    };
+
+    if (!rows || rows.length === 0) return [];
+
+    return rows
+      .filter((r) => normalizeGeoValue(r.country) && normalizeGeoValue(r.city))
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 5);
+  }, [rows]);
+
+  React.useEffect(() => {
+    if (!userId) return;
+    if (!candidatesGeoIp || candidatesGeoIp.length === 0) return;
+
+    const proxyData = candidatesGeoIp
+      .map((r) => {
+        const fromList = Array.isArray(r.proxy_list) ? r.proxy_list : [];
+        if (fromList.length > 0) return String(fromList[0] || '').trim();
+        const ip = String(r.ip || '').trim();
+        const firstPort = Array.isArray(r.ports) && r.ports.length > 0 ? String(r.ports[0] || '').trim() : '';
+        return ip && firstPort ? `${ip}:${firstPort}` : '';
+      })
+      .filter(Boolean);
+
+    if (proxyData.length === 0) return;
+
+    add_ajax_schedule(createUrl('/geoIpBackground.php'), {
+      method: 'POST_JSON',
+      data: { uid: userId, proxy: JSON.stringify(proxyData) }
+    });
+
+    run_ajax_schedule();
+  }, [userId, candidatesGeoIp]);
 
   const totalPages = perPage > 0 ? Math.max(1, Math.ceil(recordsFiltered / perPage)) : 1;
 
