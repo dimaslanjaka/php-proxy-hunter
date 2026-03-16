@@ -11,7 +11,7 @@
  */
 function get_blacklist($blacklistConf = null)
 {
-  $path        = !empty($blacklistConf) ? $blacklistConf : __DIR__ . '/../data/blacklist.conf';
+  $path        = !empty($blacklistConf) ? $blacklistConf : __DIR__ . '/../../data/blacklist.conf';
   $r_blacklist = read_file($path);
   if (!$r_blacklist) {
     return [];
