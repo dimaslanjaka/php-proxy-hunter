@@ -1,5 +1,46 @@
 [
   {
+    "hash": "acbb1bf4bc8980ac6acae2fb19014174a9cecc59",
+    "date": "2026-03-17T06:53:02+07:00",
+    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
+    "files": []
+  },
+  {
+    "hash": "cfdb36dbf227ff82eaa018087532e60d2c7ad01b",
+    "date": "2026-03-17T06:48:28+07:00",
+    "message": "refactor(cidr): migrate CIDR utilities to namespaced static class\n\nMove CIDR helper functions into new PhpProxyHunter\\CIDR class and\nupdate call sites to use static methods.\n\n- add src/PhpProxyHunter/CIDR.php with IPv4/IPv6 range helpers\n- update cidr-information/CIDR-ranges.php to use CIDR::getIPRange()\n- update tests/cidr-random-proxy.php to use CIDR::generateRandomIP() and CIDR::generateRandomPort()\n- remove legacy global-function file src/PhpProxyHunter/utils/cidr.php\n\nBREAKING CHANGE: global CIDR helper functions are removed; use PhpProxyHunter\\CIDR static methods instead.",
+    "files": [
+      "cidr-information/CIDR-ranges.php",
+      "src/PhpProxyHunter/CIDR.php",
+      "src/PhpProxyHunter/utils/cidr.php",
+      "tests/cidr-random-proxy.php"
+    ]
+  },
+  {
+    "hash": "acb18139a23d6b5abe2e476ba27ae8d34f40f937",
+    "date": "2026-03-17T06:35:53+07:00",
+    "message": "feat(blacklist): implement functions for loading, checking, and removing blacklisted IPs",
+    "files": [
+      "src/blacklist/blacklist.php"
+    ]
+  },
+  {
+    "hash": "b131177cf0e5dc509ab98fff08c26bc5b8f8818a",
+    "date": "2026-03-17T06:30:03+07:00",
+    "message": "Add private DNS entry to blacklist.conf",
+    "files": [
+      "data/blacklist.conf"
+    ]
+  },
+  {
+    "hash": "f2144a97d1d6e9e41084cf8bf04e3a8123f52037",
+    "date": "2026-03-17T06:28:23+07:00",
+    "message": "Replace specific IP with CIDR range in blacklist\n\nadded chinese spam proxy",
+    "files": [
+      "data/blacklist.conf"
+    ]
+  },
+  {
     "hash": "8ee912282864d1326b0f1982a92a2f06c3258012",
     "date": "2026-03-15T07:43:13+07:00",
     "message": "refactor(session): unify session ID rotation with Session::rotateNow\n\n- replace direct session_regenerate_id(true) calls in login and Google OAuth flows with Session::rotateNow()\n- add Session::rotateNow() as a shared, non-destructive post-auth session regeneration API\n- update rotateSession() to support optional auth validation and delegate regeneration to rotateNow()\n- keep session metadata (last_regen, id) updates centralized in Session class",
@@ -8739,48 +8780,6 @@
     "message": "fix(config): ensure resources are released by closing connections in destructor",
     "files": [
       "packages/proxy-hunter-python/proxy_hunter/utils/config.py"
-    ]
-  },
-  {
-    "hash": "bd8e7a953e3d9c84a2194f349c7df5eda6774132",
-    "date": "2025-10-23T09:41:00+07:00",
-    "message": "chore(pyproject): add project metadata and dependencies for proxy_hunter package\n\n- Define project name, version, description, authors, and classifiers\n- Add dependencies including MySQL, HTTP, and proxy-related libraries\n- Configure setuptools to include proxy_hunter packages and submodules\n- Add pytest configuration for test discovery",
-    "files": [
-      "packages/proxy-hunter-python/pyproject.toml"
-    ]
-  },
-  {
-    "hash": "988d62c783bd8c1b9e82ffec6273dfb7a3d60ab7",
-    "date": "2025-10-23T09:40:32+07:00",
-    "message": "fix(readme): update installation instructions",
-    "files": [
-      "packages/proxy-hunter-python/readme.md"
-    ]
-  },
-  {
-    "hash": "5d3ef63ed3b0c947279ac3fac10ebd96b645bdf0",
-    "date": "2025-10-23T09:39:56+07:00",
-    "message": "feat(config): add ConfigDB utility with SQLite and MySQL support\n\n- Introduce ConfigDB class for unified configuration storage using SQLite or MySQL\n- Implement CRUD operations with JSON serialization and dataclass reconstruction\n- Add tests for configuration persistence, updates, deletions, and dataclass restoration\n- Update setup.py to include mysql-connector-python dependency",
-    "files": [
-      "packages/proxy-hunter-python/proxy_hunter/utils/config.py",
-      "packages/proxy-hunter-python/setup.py",
-      "packages/proxy-hunter-python/tests/test_config_db.py"
-    ]
-  },
-  {
-    "hash": "c8026bb2d080bb4fa83df500390f6993c21975c0",
-    "date": "2025-10-19T14:16:17+07:00",
-    "message": "feat(package): add postcss-cli and postcss-loader dependencies",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "260172db20b23dac31a1e18566bf14736354dc2a",
-    "date": "2025-10-19T14:15:42+07:00",
-    "message": "fix(readme): comment out missing PHP extension section",
-    "files": [
-      "readme.md"
     ]
   }
 ]
