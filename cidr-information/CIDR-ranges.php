@@ -4,6 +4,8 @@
 
 require_once __DIR__ . '/../func-proxy.php';
 
+use PhpProxyHunter\CIDR;
+
 // disallow web server access
 if (php_sapi_name() !== 'cli') {
   // Redirect the user away or show an error message
@@ -26,7 +28,7 @@ foreach ($lines as $cidr) {
   $output = $outputDir . '/' . sanitizeFilename($cidr) . '.txt';
   if (!file_exists($output)) {
     // write the ip ranges when file output not exist
-    $ipList = getIPRange($cidr);
+    $ipList = CIDR::getIPRange($cidr);
     write_file($output, implode(PHP_EOL, $ipList));
   }
 }
