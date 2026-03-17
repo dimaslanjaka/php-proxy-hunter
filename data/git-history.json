@@ -1,5 +1,13 @@
 [
   {
+    "hash": "38a85a869a7323d390f1fc01cb0ef0a16a7b395c",
+    "date": "2026-03-17T07:01:24+07:00",
+    "message": "refactor(blacklist): stream blacklist parsing and cap CIDR expansion\n\nRewrite get_blacklist() to use low-memory line-by-line file reading and\nset-based deduplication instead of loading the full file with read_file()\nand extractIPs().\n\n- validate blacklist path readability before parsing\n- parse file via fopen()/fgets() to reduce memory usage\n- support direct IP entries and IPv4 CIDR entries\n- add strict CIDR parsing/validation (IPv4 + mask 0..32)\n- add max CIDR expansion limit (65536) to skip very large ranges\n- return unique blacklist IPs using array_keys($results)",
+    "files": [
+      "src/blacklist/blacklist.php"
+    ]
+  },
+  {
     "hash": "acbb1bf4bc8980ac6acae2fb19014174a9cecc59",
     "date": "2026-03-17T06:53:02+07:00",
     "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
@@ -8772,14 +8780,6 @@
       "packages/proxy-hunter-python/composer.json",
       "packages/proxy-hunter-python/proxy_hunter/utils/config.php",
       "packages/proxy-hunter-python/tests/configTest.php"
-    ]
-  },
-  {
-    "hash": "ac79888fa0570ec8b252d38ecbaeee110ea29002",
-    "date": "2025-10-23T17:18:36+07:00",
-    "message": "fix(config): ensure resources are released by closing connections in destructor",
-    "files": [
-      "packages/proxy-hunter-python/proxy_hunter/utils/config.py"
     ]
   }
 ]
