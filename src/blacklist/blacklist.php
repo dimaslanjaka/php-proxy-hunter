@@ -11,16 +11,85 @@
  */
 function get_blacklist($blacklistConf = null)
 {
-  $path        = !empty($blacklistConf) ? $blacklistConf : __DIR__ . '/../../data/blacklist.conf';
-  $r_blacklist = read_file($path);
-  if (!$r_blacklist) {
+  $path = !empty($blacklistConf) ? $blacklistConf : __DIR__ . '/../../data/blacklist.conf';
+  if (!is_string($path) || !is_file($path) || !is_readable($path)) {
     return [];
   }
-  $blacklist = extractIPs($r_blacklist);
-  if (!is_array($blacklist)) {
+
+  $maxCidrExpansion = 65536;
+  $results          = [];
+  $handle           = fopen($path, 'rb');
+  if ($handle === false) {
     return [];
   }
-  return $blacklist;
+
+  while (($line = fgets($handle)) !== false) {
+    $line = trim($line);
+    if (empty($line) || strpos($line, '#') === 0) {
+      continue;
+    }
+
+    // check if line is CIDR notation
+    if (strpos($line, '/') !== false) {
+      // Only expand IPv4 CIDR here; IPv6 CIDR expansion can be too large.
+      if (preg_match('/^(?:\d{1,3}\.){3}\d{1,3}\/(?:[0-9]|[12][0-9]|3[0-2])$/', $line) === 1) {
+        $cidrParts = explode('/', $line, 2);
+        if (!is_array($cidrParts) || count($cidrParts) !== 2) {
+          continue;
+        }
+
+        $cidrIp   = trim($cidrParts[0]);
+        $cidrMask = trim($cidrParts[1]);
+        if (!filter_var($cidrIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+          continue;
+        }
+        if (!is_numeric($cidrMask)) {
+          continue;
+        }
+
+        $cidrMaskInt = (int) $cidrMask;
+        if ($cidrMaskInt < 0 || $cidrMaskInt > 32) {
+          continue;
+        }
+
+        $cidrExpansionSize = (int) pow(2, (32 - $cidrMaskInt));
+        if ($cidrExpansionSize > $maxCidrExpansion) {
+          continue;
+        }
+
+        $packedIp = inet_pton($cidrIp);
+        if ($packedIp !== false) {
+          $unpacked = unpack('N', $packedIp);
+          if (is_array($unpacked) && isset($unpacked[1])) {
+            $ipInt = (int) $unpacked[1];
+            $mask  = $cidrMaskInt;
+
+            $maskInt = $mask === 0 ? 0 : ((0xFFFFFFFF << (32 - $mask)) & 0xFFFFFFFF);
+            $start   = $ipInt & $maskInt;
+            $end     = $start | (~$maskInt & 0xFFFFFFFF);
+
+            for ($current = $start; $current <= $end; $current++) {
+              $ip = long2ip((int) $current);
+              if (is_string($ip) && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $results[$ip] = true;
+              }
+              if ($current === 0xFFFFFFFF) {
+                break;
+              }
+            }
+          }
+        }
+      }
+    } else {
+      // check if line is a valid IP
+      if (filter_var($line, FILTER_VALIDATE_IP)) {
+        $results[$line] = true;
+      }
+    }
+  }
+  fclose($handle);
+
+  return array_keys($results);
 }
 
 /**
