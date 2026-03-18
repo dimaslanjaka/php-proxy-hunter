@@ -10,6 +10,11 @@ import fs from 'fs-extra';
 import { execSync } from 'child_process';
 
 // === Fetch download page and extract CSV ===
+/**
+ * Fetches SQLite download metadata and returns the embedded CSV rows.
+ *
+ * @returns {Promise<string[]>} CSV lines extracted from the download page.
+ */
 async function fetchDownloadCSV() {
   return new Promise((resolve, reject) => {
     https
@@ -38,32 +43,81 @@ function pickDownload(csvLines) {
   const platform = os.platform();
   const arch = os.arch();
 
-  let target;
-  if (platform === 'win32') {
-    target = arch === 'x64' ? 'win-x64' : 'win-x86';
-  } else if (platform === 'darwin') {
-    target = arch === 'arm64' ? 'osx-arm64' : 'osx-x86';
-  } else if (platform === 'linux') {
-    target = arch === 'arm64' ? 'linux-aarch64' : 'linux-x86_64';
-  } else {
-    console.error(`Unsupported platform: ${platform} ${arch}`);
+  let platformTokens;
+  switch (platform) {
+    case 'win32':
+      platformTokens = ['win'];
+      break;
+    case 'darwin':
+      platformTokens = ['osx', 'mac'];
+      break;
+    case 'linux':
+      platformTokens = ['linux'];
+      break;
+    default:
+      console.error(`Unsupported platform: ${platform} ${arch}`);
+      return undefined;
+  }
+
+  let archTokens;
+  switch (arch) {
+    case 'x64':
+      archTokens = ['x64', 'x86_64', 'amd64'];
+      break;
+    case 'ia32':
+      archTokens = ['x86', 'i386'];
+      break;
+    case 'arm64':
+      archTokens = ['arm64', 'aarch64'];
+      break;
+    case 'arm':
+      archTokens = ['armv7', 'arm'];
+      break;
+    default:
+      archTokens = [arch.toLowerCase()];
+      break;
+  }
+
+  const toolPaths = csvLines
+    .map((line) => line.split(','))
+    .map((parts) => parts[2]?.trim().replace(/^"|"$/g, ''))
+    .filter(Boolean)
+    .filter((relative) => path.basename(relative).toLowerCase().startsWith('sqlite-tools-'));
+
+  const rankedTools = toolPaths
+    .map((relative) => {
+      const name = path.basename(relative).toLowerCase();
+      const platformScore = platformTokens.some((token) => name.includes(token)) ? 2 : 0;
+      const archScore = archTokens.some((token) => name.includes(token)) ? 1 : 0;
+      return { relative, platformScore, archScore, score: platformScore + archScore };
+    })
+    .filter((entry) => entry.platformScore > 0)
+    .sort((a, b) => b.score - a.score);
+
+  const selected = rankedTools[0];
+  if (!selected) {
+    console.error(`No sqlite-tools found for ${platform}-${arch}`);
     return undefined;
   }
 
-  const tool = csvLines.map((line) => line.split(',')).find((f) => f[2] && f[2].includes(`sqlite-tools-${target}`));
-
-  if (!tool) {
-    console.error(`No sqlite-tools found for ${target}`);
-    return undefined;
+  if (selected.archScore === 0) {
+    console.warn(`No exact arch match for ${platform}-${arch}; using ${path.basename(selected.relative)}`);
   }
 
   return {
-    relative: tool[2],
-    filename: path.basename(tool[2])
+    relative: selected.relative,
+    filename: path.basename(selected.relative)
   };
 }
 
 // === Download helper ===
+/**
+ * Downloads a remote file to a local destination path.
+ *
+ * @param {string} url - Absolute URL of the file to download.
+ * @param {string} dest - Absolute or relative destination file path.
+ * @returns {Promise<void>} Resolves after the file is fully written.
+ */
 async function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest);
@@ -74,20 +128,27 @@ async function downloadFile(url, dest) {
           return;
         }
         res.pipe(file);
-        file.on('finish', () => file.close(resolve));
+        file.on('finish', () => file.close(() => resolve()));
       })
       .on('error', reject);
   });
 }
 
 // === Check if download is needed ===
+/**
+ * Checks whether the remote file should be downloaded by comparing file sizes.
+ *
+ * @param {string} url - Absolute URL of the remote file.
+ * @param {string} local - Local file path to compare against.
+ * @returns {Promise<boolean>} True when download is needed, otherwise false.
+ */
 async function shouldDownload(url, local) {
   if (!fs.existsSync(local)) return true;
   const localSize = fs.statSync(local).size;
   return new Promise((resolve, reject) => {
     https
       .get(url, { method: 'HEAD' }, (res) => {
-        const remoteSize = parseInt(res.headers['content-length'], 10);
+        const remoteSize = parseInt(res.headers['content-length'] || '0', 10);
         if (!remoteSize || isNaN(remoteSize)) {
           return resolve(true);
         }
@@ -169,7 +230,7 @@ async function shouldDownload(url, local) {
           })
           .on('close', () => {
             process.stdout.write('\nExtraction complete. Total files: ' + count + '\n');
-            resolve();
+            resolve(undefined);
           })
           .on('error', reject);
       });
@@ -188,6 +249,7 @@ async function shouldDownload(url, local) {
     console.log('✅ SQLite installed in ./bin/');
     console.log('Run ./bin/sqlite3[.exe] --version to verify.');
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('❌ Error:', message);
   }
 })();
