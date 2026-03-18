@@ -22,4 +22,4 @@ timezonefinder==6.0.1 --only-binary :all:
 tzlocal
 urlextract
 psutil
-
+pycountry
