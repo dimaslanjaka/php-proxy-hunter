@@ -106,7 +106,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: '8.1'
           extensions: mbstring, intl, pecl_http, curl, pdo_mysql, pdo_sqlite, dom, zip, fileinfo, json, redis
           ini-values: post_max_size=256M, max_execution_time=180
           tools: php-cs-fixer, phpunit, composer:v2
