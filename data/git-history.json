@@ -1,5 +1,106 @@
 [
   {
+    "hash": "3b96003f73806f556958edf3d637ad7504d52be9",
+    "date": "2026-03-18T08:58:23+07:00",
+    "message": "fix: update libsignal resolution to use git URL",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "422c231fbd40a6bd654820acd91f37a734b0ee16",
+    "date": "2026-03-18T08:55:08+07:00",
+    "message": "chore: update Yarn version to 4.13.0",
+    "files": [
+      ".yarn/releases/yarn-4.12.0.cjs",
+      ".yarn/releases/yarn-4.13.0.cjs",
+      ".yarnrc.yml",
+      "package.json"
+    ]
+  },
+  {
+    "hash": "e7c36eb79d292aae82a8fff82c8d7e02636e8963",
+    "date": "2026-03-18T08:53:32+07:00",
+    "message": "fix(scripts): improve sqlite installer platform/arch matching\n\n- replace hardcoded target selection with platform/arch token scoring\n- support filename aliases (x64/x86_64/amd64, arm64/aarch64, x86/i386)\n- add fallback warning when no exact arch build is found\n- add JSDoc for fetchDownloadCSV, downloadFile, and shouldDownload\n- harden type-safety in stream close callback, Promise resolution, and unknown error handling\n- make HEAD content-length parsing resilient when the header is missing",
+    "files": [
+      "scripts/sqlite-installer.js"
+    ]
+  },
+  {
+    "hash": "aacc4f8aa6e2752664bd79d5099f74614bdb8b56",
+    "date": "2026-03-18T08:45:29+07:00",
+    "message": "docs(php): add PHP 8.1 docs and align version guidance\n\n- raise the documented minimum PHP version to 8.1 in project instructions\n- add a dedicated PHP 8.1 installation guide while preserving legacy guidance\n- create a backup copy of the previous PHP documentation before refactoring\n- update PHP troubleshooting and service examples from PHP 7.x to PHP 8.1\n- refresh restart command examples to use php8.1-fpm",
+    "files": [
+      ".github/instructions/php.instructions.md",
+      "docs/readme-old-php-7.4.md",
+      "docs/readme-php8.1.md",
+      "readme-php.md",
+      "readme.md"
+    ]
+  },
+  {
+    "hash": "0df7650f78ae0a4d91e1fe1f29fcccc330531295",
+    "date": "2026-03-18T08:39:59+07:00",
+    "message": "fix: add resolution for libsignal dependency",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "4939330949db3d0d637794f477bb4241b43d9f67",
+    "date": "2026-03-18T08:28:42+07:00",
+    "message": "fix: enable inline builds for Yarn in cache workflow",
+    "files": [
+      ".github/workflows/clean-caches.yml"
+    ]
+  },
+  {
+    "hash": "71d05868683e5fb9c81259f3853b0db33c2ac3a8",
+    "date": "2026-03-18T08:21:08+07:00",
+    "message": "fix: update PHP version to 8.1 in workflow configuration",
+    "files": [
+      ".github/workflows/checker-php.yml"
+    ]
+  },
+  {
+    "hash": "57195c3b942338dbe8efc90cd389aed1f17cafd4",
+    "date": "2026-03-18T08:20:27+07:00",
+    "message": "fix: missing pycountry entry from requirements",
+    "files": [
+      "requirements-minimal.txt"
+    ]
+  },
+  {
+    "hash": "d3fdd681fb8f2eba4bcdb6d6d1f86a161b126928",
+    "date": "2026-03-18T08:13:57+07:00",
+    "message": "fix: disable global Yarn cache and set cache folder",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      "Taskfile.yml"
+    ]
+  },
+  {
+    "hash": "ce2cb0e2d6d5a8444f24fb9ab5cfc98932837716",
+    "date": "2026-03-18T07:50:32+07:00",
+    "message": "ci: skip browser downloads for Puppeteer/Playwright installs\n\nSet PUPPETEER_SKIP_DOWNLOAD, PUPPETEER_SKIP_CHROMIUM_DOWNLOAD, and\nPLAYWRIGHT_SKIP_BROWSER_DOWNLOAD in CI workflows, Taskfile install-nodejs,\nand devcontainer containerEnv.\n\nAlso harden yarn install failure diagnostics by searching temp directories for\nxfs build.log files instead of relying on /tmp/xfs-* globs, improving\ncross-platform (including Windows runners) log output.",
+    "files": [
+      ".devcontainer/devcontainer.json",
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      "Taskfile.yml"
+    ]
+  },
+  {
+    "hash": "93c1d9e89c6420ce704844a46a9dd5a40d2613dd",
+    "date": "2026-03-18T07:33:13+07:00",
+    "message": "fix(devcontainer): align Node.js to v22 and harden postCreateCommand\n\nUpgrade NodeSource setup from 18.x to 22.x to match .nvmrc and dependency requirements.\nImprove postCreateCommand reliability by enabling fail-fast execution, adding a Composer fallback when bin/composer.phar is missing, and guarding chmod calls for optional bin directories.",
+    "files": [
+      ".devcontainer/Dockerfile",
+      ".devcontainer/devcontainer.json"
+    ]
+  },
+  {
     "hash": "38a85a869a7323d390f1fc01cb0ef0a16a7b395c",
     "date": "2026-03-17T07:01:24+07:00",
     "message": "refactor(blacklist): stream blacklist parsing and cap CIDR expansion\n\nRewrite get_blacklist() to use low-memory line-by-line file reading and\nset-based deduplication instead of loading the full file with read_file()\nand extractIPs().\n\n- validate blacklist path readability before parsing\n- parse file via fopen()/fgets() to reduce memory usage\n- support direct IP entries and IPv4 CIDR entries\n- add strict CIDR parsing/validation (IPv4 + mask 0..32)\n- add max CIDR expansion limit (65536) to skip very large ranges\n- return unique blacklist IPs using array_keys($results)",
@@ -8670,116 +8771,6 @@
     "message": "fix(dotenv): make .env loading robust and non-fatal\n\nWrap Dotenv loading in a try/catch to avoid a fatal error when the .env\nfile is missing or dotenv throws. Catch `Dotenv\\Exception\\InvalidPathException`\nand silently skip loading (with a CLI notice), and catch other Throwables to\nlog a message to stdout. Preserve the existing `putenv` behavior when load\nsucceeds.",
     "files": [
       "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "b6b4fdba6f079b3474df36bb3b65c6909b0627ea",
-    "date": "2025-10-24T09:45:10+07:00",
-    "message": "refactor(cors): add disableBrowserCache flag to Server::allowCors and enable it in endpoints\n\nAdd a boolean parameter to `PhpProxyHunter\\Server::allowCors($disableBrowserCache = false)` that, when true,\nemits headers to disable browser caching (Expires, Last-Modified, Cache-Control, Pragma). Replace ad-hoc\nmanual cache header blocks in several endpoints by calling `Server::allowCors(true)` so CORS + cache-control\nare handled centrally.\n\nChanges:\n- Add `disableBrowserCache` parameter and cache-control behavior to `src/PhpProxyHunter/Server.php`\n- Update endpoint calls to use `PhpProxyHunter\\Server::allowCors(true)`:\n  - `php_backend/check-https-proxy.php`\n  - `php_backend/google-oauth.php`\n  - `php_backend/login.php`\n  - `php_backend/logout.php`\n  - `php_backend/proxy-checker.php`\n  - `php_backend/user-info.php`\n- Remove duplicated manual cache headers where the new centralized flag is used\n- Preserve per-endpoint Content-Type and other response headers\n\nWhy:\n- Centralizes CORS and cache-control behavior for consistency and easier maintenance.\n- Avoids duplicated header code and ensures preflight handling and cache disabling are applied uniformly.",
-    "files": [
-      "php_backend/check-https-proxy.php",
-      "php_backend/google-oauth.php",
-      "php_backend/login.php",
-      "php_backend/logout.php",
-      "php_backend/proxy-checker.php",
-      "php_backend/user-info.php",
-      "src/PhpProxyHunter/Server.php"
-    ]
-  },
-  {
-    "hash": "bc121f462d0bef3aaaf7c162db2d067991612394",
-    "date": "2025-10-24T09:40:57+07:00",
-    "message": "refactor(cors): centralize CORS handling via Server::allowCors()\n\nReplace ad-hoc Access-Control-* header blocks in multiple `php_backend` endpoints\nwith a single call to `PhpProxyHunter\\Server::allowCors()`. Preserve per-endpoint\nresponse headers (Content-Type, Expires/Cache-Control/Pragma) and rely on the\nserver helper for preflight handling.\n\nChanged files (examples):\n- php_backend/check-https-proxy.php\n- php_backend/get_sms.php\n- php_backend/google-oauth.php\n- php_backend/img.php\n- php_backend/list-user.php\n- php_backend/login.php\n- php_backend/logout.php\n- php_backend/logs.php\n- php_backend/proxy-checker.php\n- php_backend/recaptcha.php\n- php_backend/refill-saldo.php\n- php_backend/user-info.php\n- php_backend/useragent.php\n\nThis centralizes CORS logic for easier maintenance and consistent behavior.",
-    "files": [
-      "php_backend/check-https-proxy.php",
-      "php_backend/get_sms.php",
-      "php_backend/google-oauth.php",
-      "php_backend/img.php",
-      "php_backend/list-user.php",
-      "php_backend/login.php",
-      "php_backend/logout.php",
-      "php_backend/logs.php",
-      "php_backend/proxy-checker.php",
-      "php_backend/recaptcha.php",
-      "php_backend/refill-saldo.php",
-      "php_backend/user-info.php",
-      "php_backend/useragent.php"
-    ]
-  },
-  {
-    "hash": "99c3f8bb0d6b87964f8140a0e3eb436d543905cc",
-    "date": "2025-10-24T09:29:30+07:00",
-    "message": "refactor(server): move CORS handling into Server::allowCors()\n\nReplace inline CORS/preflight logic in `php_backend/proxy-add.php` with a single\ncall to `PhpProxyHunter\\Server::allowCors()`. Implement `allowCors()` in\n`src/PhpProxyHunter/Server.php` to centralize CORS support, include a CLI guard,\nand handle preflight OPTIONS requests (allowing common methods and headers,\nsetting Access-Control-Allow-Origin/Credentials/Max-Age).\n\nThis cleans up endpoint code and centralizes server-level behavior for easier\nmaintenance and reuse.",
-    "files": [
-      "php_backend/proxy-add.php",
-      "src/PhpProxyHunter/Server.php"
-    ]
-  },
-  {
-    "hash": "ba33aefc8e377044edfc4a9969cd3c7d946240df",
-    "date": "2025-10-24T09:25:48+07:00",
-    "message": "feat(proxy-add): implement CORS support and handle preflight OPTIONS requests",
-    "files": [
-      "php_backend/proxy-add.php"
-    ]
-  },
-  {
-    "hash": "184687385e5bff68e759b9f14fe5c87b69943883",
-    "date": "2025-10-24T09:17:01+07:00",
-    "message": "fix(extractor): improve exception message for missing ProxyDB instance when writing to database",
-    "files": [
-      "src/utils/proxy/extractor.php"
-    ]
-  },
-  {
-    "hash": "d41e4e63bf40688bb3949bae51aeaa902cf46804",
-    "date": "2025-10-24T09:15:35+07:00",
-    "message": "fix(extractor): return parsed results directly if no ProxyDB instance is provided",
-    "files": [
-      "src/utils/proxy/extractor.php"
-    ]
-  },
-  {
-    "hash": "ebcb4e68b2ac8d02046c519fc19ce43ead1ed92a",
-    "date": "2025-10-24T09:11:03+07:00",
-    "message": "fix(proxy-checker): update runner path to use temporary directory for Windows compatibility",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "90292a4deeb6f2514349f472095ff9502e37b11a",
-    "date": "2025-10-24T08:04:14+07:00",
-    "message": "fix(proxy): avoid calling $db on null and make extractor PHP 7.0 compatible\n\n- Remove undefined `$db` capture from `artisan/proxyFetcher.php` exit closure\n  to prevent a PHP Notice when no DB instance is present.\n- Update `src/utils/proxy/extractor.php`:\n  - Return parsed results early when no `ProxyDB` is provided (avoid calling `$db->select()` on null).\n  - Remove unused `use PhpProxyHunter\\ProxyDB;` import.\n  - Change `extractProxies` signature to be PHP 7.0 compatible (remove nullable/scalar type hints).\n\nThis prevents the fatal error seen in CI and keeps backward-compatible behaviour\nwhen callers don't pass a DB instance.",
-    "files": [
-      "artisan/proxyFetcher.php",
-      "src/utils/proxy/extractor.php"
-    ]
-  },
-  {
-    "hash": "2391205c684689b691f162d03f4c6d9bc035c20c",
-    "date": "2025-10-24T03:30:38+07:00",
-    "message": "feat(composer): add local path repository and require local package\n\n- add path repository pointing to packages/proxy-hunter-python (symlink)\n- require local package dimaslanjaka/proxy-hunter-php:dev-master\n- add extra composer config: composer-exit-on-patch-failure",
-    "files": [
-      "composer.json"
-    ]
-  },
-  {
-    "hash": "532775fc2f60ddb1357c7a41a0021ff0fe8737e7",
-    "date": "2025-10-23T17:21:56+07:00",
-    "message": "refactor(config.py): import mysql.connector directly and remove lazy import checks\n\n- Remove try/except around `import mysql.connector` and the runtime `if mysql is None` check.\n- MySQL dependency is now required at module import time instead of raising when a MySQL connection is attempted.\n\nRationale:\n- Fails fast when the mysql-connector dependency is missing.\n- Simplifies code by removing the optional-import pattern.\n\nNote: This is a breaking change for consumers who relied on importing the module without having `mysql-connector-python` installed; add the dependency to your environment or restore the optional-import pattern if you need lazy availability.",
-    "files": [
-      "packages/proxy-hunter-python/proxy_hunter/utils/config.py"
-    ]
-  },
-  {
-    "hash": "d928872ee9e2c10b0797d8258ec789ce44c501b1",
-    "date": "2025-10-23T17:19:55+07:00",
-    "message": "feat(proxy-hunter-php): add PHP ConfigDB, composer.json and sample tests\n\n- Add Composer manifest with PSR-4 autoload (ProxyHunter\\ -> proxy_hunter/), require PHP >= 7.0 and ext-pdo.\n- Introduce `ProxyHunter\\Utils\\ConfigDB` (proxy_hunter/utils/config.php): PDO-backed config storage supporting SQLite and MySQL, JSON encode/decode, set/get/delete/close, and mapping decoded arrays to model classes (includes stdClass handling).\n- Add a simple executable sample test (tests/configTest.php) demonstrating storing/retrieving arrays, stdClass, strings and delete.\n- Files added:\n  - packages/proxy-hunter-python/composer.json\n  - packages/proxy-hunter-python/proxy_hunter/utils/config.php\n  - packages/proxy-hunter-python/tests/configTest.php",
-    "files": [
-      "packages/proxy-hunter-python/composer.json",
-      "packages/proxy-hunter-python/proxy_hunter/utils/config.php",
-      "packages/proxy-hunter-python/tests/configTest.php"
     ]
   }
 ]
