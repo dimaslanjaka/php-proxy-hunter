@@ -1,5 +1,13 @@
 [
   {
+    "hash": "ac284e73150597bf2911c0f9c783c37321164722",
+    "date": "2026-03-18T11:55:42+07:00",
+    "message": "fix: Remove SVG from LFS",
+    "files": [
+      ".gitattributes"
+    ]
+  },
+  {
     "hash": "3b96003f73806f556958edf3d637ad7504d52be9",
     "date": "2026-03-18T08:58:23+07:00",
     "message": "fix: update libsignal resolution to use git URL",
@@ -8763,14 +8771,6 @@
     "message": "feat(processes): implement process listing for PHP and Python by user ID",
     "files": [
       "php_backend/processes.php"
-    ]
-  },
-  {
-    "hash": "22d34be7b2d8ad8dcbf6fe046ce3e452d7b00ced",
-    "date": "2025-10-24T12:19:18+07:00",
-    "message": "fix(dotenv): make .env loading robust and non-fatal\n\nWrap Dotenv loading in a try/catch to avoid a fatal error when the .env\nfile is missing or dotenv throws. Catch `Dotenv\\Exception\\InvalidPathException`\nand silently skip loading (with a CLI notice), and catch other Throwables to\nlog a message to stdout. Preserve the existing `putenv` behavior when load\nsucceeds.",
-    "files": [
-      "php_backend/shared.php"
     ]
   }
 ]
