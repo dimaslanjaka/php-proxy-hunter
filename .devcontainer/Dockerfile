@@ -43,8 +43,8 @@ RUN add-apt-repository -y ppa:ondrej/php \
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install Node.js 18
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+# Install Node.js 22 (matches .nvmrc and dependency requirements)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && npm uninstall -g yarn pnpm \
     && npm install -g corepack \
