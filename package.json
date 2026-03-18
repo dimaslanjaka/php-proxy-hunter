@@ -237,6 +237,7 @@
   },
   "resolutions": {
     "typescript": "~5.8.0",
+    "libsignal": "https://github.com/WhiskeySockets/libsignal-node/archive/master.zip",
     "@types/hexo": "https://github.com/dimaslanjaka/hexo/raw/b5bd2de2fa426736c835be191c1d2a761673d2a0/releases/hexo.tgz",
     "binary-collections": "https://github.com/dimaslanjaka/bin/raw/5ee32b920457e16579927707e810d27f8c850a7e/releases/bin.tgz",
     "cross-spawn": "https://github.com/dimaslanjaka/node-cross-spawn/raw/80999ac7a7031a81e11ddb5fab0f8ba433041c98/release/cross-spawn.tgz",
