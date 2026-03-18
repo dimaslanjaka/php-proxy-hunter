@@ -28,6 +28,7 @@ jobs:
       ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
       GH_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
       YARN_CHECKSUM_BEHAVIOR: update
+      YARN_ENABLE_INLINE_BUILDS: 1
 
     steps:
       - uses: actions/checkout@v6
