@@ -18,6 +18,11 @@
     // 	"version": "18"
     // }
   },
+  "containerEnv": {
+    "PUPPETEER_SKIP_DOWNLOAD": "true",
+    "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "true",
+    "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
+  },
   "remoteEnv": {
     // set timezone to Asia/Jakarta
     "TZ": "Asia/Jakarta"

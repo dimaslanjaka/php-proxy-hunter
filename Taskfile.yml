@@ -123,12 +123,21 @@ tasks:
   install-nodejs:
     desc: Install NodeJS dependencies
     silent: true
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
     cmds:
       - corepack enable
       - touch yarn.lock
       - |
         yarn install || {
-          cat /tmp/xfs-*/build.log
+          echo "yarn install failed. Trying to print Yarn xfs build logs..."
+          for candidate in "${TMPDIR:-}" "${RUNNER_TEMP:-}" "${TEMP:-}" "${TMP:-}" "/tmp"; do
+            [ -n "$candidate" ] || continue
+            [ -d "$candidate" ] || continue
+            find "$candidate" -type f -path "*/xfs-*/build.log" -print -exec cat "{}" \; 2>/dev/null || true
+          done
           exit 1
         }
 

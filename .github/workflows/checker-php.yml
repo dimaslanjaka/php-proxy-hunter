@@ -44,6 +44,9 @@ jobs:
       NUITKA_CACHE_DIR: ${{ github.workspace }}/project/tmp/nuitka-cache
       NODE_OPTIONS: --max_old_space_size=4096
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
       ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
       GH_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
       YARN_CHECKSUM_BEHAVIOR: update
