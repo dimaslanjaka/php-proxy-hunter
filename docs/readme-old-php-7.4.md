@@ -1,9 +1,8 @@
 # Documentation for PHP Proxy Hunter
 
-> Installation guides:
+> Old version:
 >
-> [PHP 8.1 installation guide](./docs/readme-php8.1.md)
-> [PHP 7.4 installation guide](./docs/readme-php7.4.md) (legacy)
+> [PHP 7.4 installation guide](./docs/readme-php7.4.md)
 
 ## Requirement PHP extensions
 
@@ -30,7 +29,7 @@ export CPPFLAGS="-I/usr/local/include"
 export LDFLAGS="-L/usr/local/lib"
 export LD_LIBRARY_PATH="/usr/local/lib"
 
-git clone https://github.com/php/php-src.git --depth 1 --branch php-8.1.33
+git clone https://github.com/php/php-src.git --depth 1 --branch php-8.4.11
 cd php-src
 
 # cleanup builds
@@ -122,7 +121,7 @@ If you see an error like:
 
 ```text
 /usr/bin/ld: ext/pdo_sqlite/.libs/sqlite_statement.o: in function `pdo_sqlite_stmt_col_meta':
-/usr/local/src/php-src-php-8.1.33/ext/pdo_sqlite/sqlite_statement.c:379: undefined reference to `sqlite3_column_table_name'
+/usr/local/src/php-src-php-7.4.33/ext/pdo_sqlite/sqlite_statement.c:379: undefined reference to `sqlite3_column_table_name'
 collect2: error: ld returned 1 exit status
 make: *** [Makefile:288: sapi/cli/php] Error 1
 ```
@@ -147,7 +146,7 @@ This means PHP is not linking against the correct (new) SQLite library. To fix:
    make clean
    make distclean
    ./buildconf --force
-   ./configure --prefix=/usr/local/php ...your options...
+   ./configure --prefix=/usr/local/php7.4 ...your options...
    make -j$(nproc)
    ```
 4. Check linkage:
@@ -171,20 +170,21 @@ sudo make install
 ```
 
 another sqlite versions:
+
 - https://sqlite.org/2025/sqlite-src-3500400.zip
 
 ### Troubleshoot pdo_sqlite.so error
 
-> change **php-8.1.33** to your php version (`php -v`)
+> change **php-7.2.24** to your php version (`php -v`)
 
 1. rebuild
 
 ```bash
 mkdir ~/php-src
 cd ~/php-src
-wget https://www.php.net/distributions/php-8.1.33.tar.gz
-tar -zxvf php-8.1.33.tar.gz
-cd php-8.1.33
+wget https://www.php.net/distributions/php-7.2.24.tar.gz
+tar -zxvf php-7.2.24.tar.gz
+cd php-7.2.24
 cd ext/pdo_sqlite
 phpize
 ./configure
@@ -201,26 +201,26 @@ php -i | grep "extension_dir"
 
 3. copy extension
 
-copy the destination folder. eg: **/usr/lib/php/20210902/**
+copy the destination folder. eg: **/usr/lib/php/20170718/**
 
 ```bash
-cd ~/php-src/php-8.1.33/ext/pdo_sqlite/modules/
-sudo cp pdo_sqlite.so /usr/lib/php/20210902/
+cd ~/php-src/php-7.2.24/ext/pdo_sqlite/modules/
+sudo cp pdo_sqlite.so /usr/lib/php/20170718/
 ```
 
 4. restart
 
 ```bash
-ls -l /usr/lib/php/20210902/pdo_sqlite.so
-sudo systemctl restart php8.1-fpm  # Replace with your PHP-FPM version
-sudo systemctl restart nginx # for nginx
+ls -l /usr/lib/php/20170718/pdo_sqlite.so
+sudo systemctl restart php7.2-fpm # Replace with your PHP-FPM version
+sudo systemctl restart nginx      # for nginx
 ```
 
 ### Troubleshoot php-fpm immediate restart
 
 > when your php-fpm immediately shutdown you can fix with this
 
-Edit `/etc/php/8.1/fpm/php-fpm.conf` or `/etc/php/8.1/fpm/pool.d/www.conf`:
+Edit `/etc/php/7.2/fpm/php-fpm.conf` or `/etc/php/7.2/fpm/pool.d/www.conf`:
 
 ```ini
 emergency_restart_threshold = 10
@@ -237,8 +237,8 @@ emergency_restart_interval = 1m
 location ~ \.php$ {
     include snippets/fastcgi-php.conf;
 
-   # change path value from `/etc/php/8.1/fpm/php-fpm.conf` or `/etc/php/8.1/fpm/pool.d/www.conf`
-   fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+    # changa path value from `/etc/php/7.2/fpm/php-fpm.conf` or `/etc/php/7.2/fpm/pool.d/www.conf`
+    fastcgi_pass unix:/run/php/php7.2-fpm.sock;
 }
 ```
 

@@ -189,7 +189,7 @@ GIT_LFS_SKIP_SMUDGE=1
 ### Restart PHP/Nginx
 
 ```bash
-systemctl restart php7.2-fpm
+systemctl restart php8.1-fpm
 systemctl restart nginx
 ```
 
