@@ -44,6 +44,8 @@ jobs:
       NUITKA_CACHE_DIR: ${{ github.workspace }}/project/tmp/nuitka-cache
       NODE_OPTIONS: --max_old_space_size=4096
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
+      YARN_ENABLE_GLOBAL_CACHE: false
+      YARN_CACHE_FOLDER: ${{ github.workspace }}/tmp/yarn-cache
       PUPPETEER_SKIP_DOWNLOAD: 'true'
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'

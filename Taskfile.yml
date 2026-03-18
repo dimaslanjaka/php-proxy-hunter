@@ -127,9 +127,13 @@ tasks:
       PUPPETEER_SKIP_DOWNLOAD: 'true'
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      YARN_ENABLE_GLOBAL_CACHE: 'false'
+      YARN_CACHE_FOLDER: '{{.PROJECT_DIR}}/tmp/yarn-cache'
     cmds:
       - corepack enable
       - touch yarn.lock
+      - mkdir -p "{{.PROJECT_DIR}}/tmp/yarn-cache"
+      - yarn cache clean --all || yarn cache clean || true
       - |
         yarn install || {
           echo "yarn install failed. Trying to print Yarn xfs build logs..."
