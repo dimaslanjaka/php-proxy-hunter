@@ -252,5 +252,5 @@
     "sbg-utility": "https://github.com/dimaslanjaka/static-blog-generator/raw/3f36c7384fa414d0207460e00c0d7d362dba995f/packages/sbg-utility/release/sbg-utility.tgz",
     "static-blog-generator": "https://github.com/dimaslanjaka/static-blog-generator/raw/8c0f903cb1643add882c32d7a2180d2b99e1154f/packages/static-blog-generator/release/static-blog-generator.tgz"
   },
-  "packageManager": "yarn@4.12.0"
+  "packageManager": "yarn@4.13.0"
 }
