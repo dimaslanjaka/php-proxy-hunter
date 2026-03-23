@@ -1,5 +1,29 @@
 [
   {
+    "hash": "deac5db660e5a58d7c420cb52b36ec27add4331c",
+    "date": "2026-03-24T06:56:41+07:00",
+    "message": "fix(mysql): auto-reconnect and retry queries on idle disconnects\n\nAdd resilient MySQL execution handling to recover from server-side inactivity timeouts\n(e.g. error 4031) and other common disconnect scenarios.\n\n- add `DISCONNECT_ERRNOS` for known connection-loss codes\n- add `_is_disconnect_error`, `_reconnect`, `_reset_cursor`, and `_execute_with_retry`\n- route CRUD and utility query paths through retry wrapper\n- update `execute_query_fetch` to safely handle optional cursor cleanup\n- harden `close()` to ignore cleanup exceptions\n\nThis prevents long-running jobs from failing when the MySQL server drops idle clients.",
+    "files": [
+      "src/MySQLHelper.py"
+    ]
+  },
+  {
+    "hash": "ab24d9f7004c0023488cc67b1fd18de8480b6648",
+    "date": "2026-03-24T06:47:12+07:00",
+    "message": "fix: refactor Puppeteer configuration\n- skip download",
+    "files": [
+      ".puppeteerrc.cjs"
+    ]
+  },
+  {
+    "hash": "03c4ea50c9b248b7e86005af5815e3fb5f74eb3d",
+    "date": "2026-03-24T06:46:13+07:00",
+    "message": "fix: specify versions for external dependencies in requirements-minimal.txt",
+    "files": [
+      "requirements-minimal.txt"
+    ]
+  },
+  {
     "hash": "ac284e73150597bf2911c0f9c783c37321164722",
     "date": "2026-03-18T11:55:42+07:00",
     "message": "fix: Remove SVG from LFS",
@@ -8747,30 +8771,6 @@
     "message": "feat(proxy-list): add fetch processes on mount",
     "files": [
       "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "25368bf0cb52541800da0293772d68d174629475",
-    "date": "2025-10-24T12:31:41+07:00",
-    "message": "feat(processes): add cleanup of temporary files for non-existent PHP/Python processes",
-    "files": [
-      "php_backend/processes.php"
-    ]
-  },
-  {
-    "hash": "1a743b6dc7f3fb19eb1fd83650a2c47602b1b5d7",
-    "date": "2025-10-24T12:28:21+07:00",
-    "message": "feat(processes): implement per-session rate limiting for non-admin users",
-    "files": [
-      "php_backend/processes.php"
-    ]
-  },
-  {
-    "hash": "04c10d0bf13fb20c57a022110166abd9ecf2d432",
-    "date": "2025-10-24T12:20:32+07:00",
-    "message": "feat(processes): implement process listing for PHP and Python by user ID",
-    "files": [
-      "php_backend/processes.php"
     ]
   }
 ]
