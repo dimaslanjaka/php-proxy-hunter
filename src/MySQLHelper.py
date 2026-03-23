@@ -3,6 +3,9 @@ from mysql.connector import Error
 from typing import Any, List, Optional, Union, Dict, Sequence, cast
 
 
+DISCONNECT_ERRNOS = {2006, 2013, 2055, 4031}
+
+
 class MySQLConnection(mysql.connector.connection.MySQLConnection):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,18 +57,89 @@ class MySQLHelper:
         self.mysql_port = port
         self.mysql_database = database
 
+    def _reset_cursor(self) -> None:
+        try:
+            if getattr(self, "cursor", None):
+                self.cursor.close()
+        except Exception:
+            pass
+        self.cursor = self.conn.cursor(dictionary=True)
+
+    def _is_disconnect_error(self, err: Exception) -> bool:
+        if not isinstance(err, Error):
+            return False
+        errno = getattr(err, "errno", None)
+        if errno in DISCONNECT_ERRNOS:
+            return True
+        msg = str(err).lower()
+        return (
+            "server has gone away" in msg
+            or "lost connection" in msg
+            or "disconnected by the server" in msg
+        )
+
+    def _reconnect(self) -> None:
+        try:
+            self.conn.reconnect(attempts=3, delay=1)
+        except Exception:
+            # Recreate connection as a fallback when reconnect is unavailable/failed.
+            self.conn = MySQLConnection(
+                host=self.mysql_host,
+                user=self.mysql_username,
+                password=self.mysql_password,
+                database=self.mysql_database,
+                port=self.mysql_port,
+            )
+            self.conn.autocommit = True
+        self._reset_cursor()
+
+    def _execute_with_retry(
+        self,
+        sql: str,
+        params: Optional[Union[tuple, list]] = None,
+        *,
+        use_main_cursor: bool = True,
+        dictionary_cursor: bool = True,
+    ):
+        attempt = 0
+        while True:
+            cursor = (
+                self.cursor
+                if use_main_cursor
+                else self.conn.cursor(dictionary=dictionary_cursor)
+            )
+            try:
+                cursor.execute(sql, params or ())
+                return cursor
+            except Exception as err:
+                if self._is_disconnect_error(err) and attempt < 1:
+                    attempt += 1
+                    try:
+                        if not use_main_cursor:
+                            cursor.close()
+                    except Exception:
+                        pass
+                    self._reconnect()
+                    continue
+                try:
+                    if not use_main_cursor:
+                        cursor.close()
+                except Exception:
+                    pass
+                raise
+
     # ---------- Core CRUD ----------
 
     def create_table(self, table_name: str, columns: List[str]) -> None:
         columns_str = ", ".join(columns)
         sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_str})"
-        self.cursor.execute(sql)
+        self._execute_with_retry(sql)
 
     def insert(self, table_name: str, data: Dict[str, Any]) -> None:
         columns = ", ".join(data.keys())
         placeholders = ", ".join(["%s"] * len(data))
         sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-        self.cursor.execute(sql, tuple(data.values()))
+        self._execute_with_retry(sql, tuple(data.values()))
         self.conn.commit()
 
     def select(
@@ -91,7 +165,7 @@ class MySQLHelper:
             exec_params_list.append(limit)
 
         exec_params = tuple(exec_params_list)
-        self.cursor.execute(sql, exec_params)
+        self._execute_with_retry(sql, exec_params)
         rows = self.cursor.fetchall()
         return cast(Sequence[Dict[str, Any]], rows)
 
@@ -104,7 +178,7 @@ class MySQLHelper:
         sql = f"SELECT COUNT(*) AS count FROM {table_name}"
         if where:
             sql += f" WHERE {where}"
-        self.cursor.execute(sql, params or ())
+        self._execute_with_retry(sql, params)
         result = self.cursor.fetchone()
         if not result:
             return 0
@@ -132,7 +206,7 @@ class MySQLHelper:
         set_values = ", ".join(f"{key}=%s" for key in data)
         sql = f"UPDATE {table_name} SET {set_values} WHERE {where}"
         values = list(data.values()) + list(params or [])
-        self.cursor.execute(sql, values)
+        self._execute_with_retry(sql, values)
         self.conn.commit()
 
     def delete(
@@ -142,7 +216,7 @@ class MySQLHelper:
         params: Optional[Union[tuple, list]] = None,
     ) -> None:
         sql = f"DELETE FROM {table_name} WHERE {where}"
-        self.cursor.execute(sql, params or ())
+        self._execute_with_retry(sql, params)
         self.conn.commit()
 
     # ---------- Utility Methods ----------
@@ -150,10 +224,7 @@ class MySQLHelper:
     def execute_query(
         self, sql: str, params: Optional[Union[tuple, list]] = None
     ) -> None:
-        if params:
-            self.cursor.execute(sql, params)
-        else:
-            self.cursor.execute(sql)
+        self._execute_with_retry(sql, params)
         self.conn.commit()
 
     def execute_query_fetch(
@@ -165,12 +236,14 @@ class MySQLHelper:
         - For SELECT-like queries returns a list of dictionaries (column->value).
         - For non-SELECT queries returns the integer affected row count.
         """
-        cur = self.conn.cursor(dictionary=True)
+        cur = None
         try:
-            if params:
-                cur.execute(sql, params)
-            else:
-                cur.execute(sql)
+            cur = self._execute_with_retry(
+                sql,
+                params,
+                use_main_cursor=False,
+                dictionary_cursor=True,
+            )
 
             # If cursor.description is populated, there are rows to fetch
             if cur.description:
@@ -182,7 +255,8 @@ class MySQLHelper:
             self.conn.commit()
             return cur.rowcount
         finally:
-            cur.close()
+            if cur is not None:
+                cur.close()
 
     def column_exists(self, table_name: str, column_name: str) -> bool:
         """
@@ -197,7 +271,7 @@ class MySQLHelper:
             "SELECT COUNT(*) AS cnt FROM information_schema.columns "
             "WHERE table_schema = %s AND table_name = %s AND column_name = %s"
         )
-        self.cursor.execute(sql, (db_name, table_name, column_name))
+        self._execute_with_retry(sql, (db_name, table_name, column_name))
         res = self.cursor.fetchone()
         if not res:
             return False
@@ -210,7 +284,7 @@ class MySQLHelper:
 
     def truncate_table(self, table_name: str) -> None:
         sql = f"TRUNCATE TABLE {table_name}"
-        self.cursor.execute(sql)
+        self._execute_with_retry(sql)
         self.conn.commit()
 
     def dump_database(self, dump_path: str) -> None:
@@ -242,7 +316,13 @@ class MySQLHelper:
         self.close()
 
     def close(self):
-        if self.cursor:
-            self.cursor.close()
-        if self.conn:
-            self.conn.close()
+        try:
+            if self.cursor:
+                self.cursor.close()
+        except Exception:
+            pass
+        try:
+            if self.conn:
+                self.conn.close()
+        except Exception:
+            pass
