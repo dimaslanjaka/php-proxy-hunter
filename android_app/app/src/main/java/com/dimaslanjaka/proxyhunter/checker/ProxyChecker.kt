@@ -18,7 +18,7 @@ object ProxyChecker {
     val timeoutSeconds: Long = 10
   )
 
-  data class CheckResult(
+  data class Result(
     val isWorking: Boolean,
     val type: String? = null,
     val title: String? = null
@@ -33,7 +33,7 @@ object ProxyChecker {
   fun check(
     proxyItem: ProxyItem,
     options: Options = Options()
-  ): CheckResult {
+  ): Result {
 
     val host = proxyItem.host
     val port = proxyItem.port
@@ -71,9 +71,9 @@ object ProxyChecker {
     }
 
     return if (workingTypes.isNotEmpty()) {
-      CheckResult(true, workingTypes.joinToString("-"), lastTitle)
+      Result(true, workingTypes.joinToString("-"), lastTitle)
     } else {
-      CheckResult(false)
+      Result(false)
     }
   }
 
@@ -81,7 +81,7 @@ object ProxyChecker {
     proxyItem: ProxyItem,
     type: String,
     options: Options
-  ): CheckResult {
+  ): Result {
 
     val proxyType = if (type == "http") Proxy.Type.HTTP else Proxy.Type.SOCKS
 
@@ -111,9 +111,7 @@ object ProxyChecker {
         }
 
         builder.proxyAuthenticator(proxyAuthenticator)
-
       } else {
-
         System.setProperty("java.net.socks.username", proxyItem.username)
         System.setProperty("java.net.socks.password", proxyItem.password)
       }
@@ -136,7 +134,7 @@ object ProxyChecker {
       client.newCall(request).execute().use { response ->
 
         if (!response.isSuccessful) {
-          return CheckResult(false, type)
+          return Result(false, type)
         }
 
         val body = response.body.string()
@@ -153,7 +151,7 @@ object ProxyChecker {
           ignoreCase = true
         )
 
-        CheckResult(
+        Result(
           isWorking,
           type,
           if (isWorking) title else null
@@ -161,7 +159,7 @@ object ProxyChecker {
       }
 
     } catch (e: Exception) {
-      CheckResult(false, type)
+      Result(false, type)
     }
   }
 
