@@ -86,7 +86,6 @@ class WorkingProxyListActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ProxyManager.initialize(this)
         vpnStarter = Tun2SocksVpnStarter(this)
 
         enableEdgeToEdge()

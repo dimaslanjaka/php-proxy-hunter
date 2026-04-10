@@ -46,7 +46,6 @@ class Tun2socksCompatibilityTestService : Service() {
             startForeground(NOTIFICATION_ID, createNotification(0, 0, "Initializing..."))
         }
 
-        ProxyManager.initialize(this)
         ProxyManager.setRunning(SERVICE_NAME, true)
     }
 

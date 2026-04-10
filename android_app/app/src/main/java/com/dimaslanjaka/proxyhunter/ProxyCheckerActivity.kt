@@ -4,12 +4,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -36,6 +36,8 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Storage
@@ -80,7 +82,10 @@ import com.dimaslanjaka.proxyhunter.checker.ProxyChecker
 import com.dimaslanjaka.proxyhunter.data.ProxyDB
 import com.dimaslanjaka.proxyhunter.data.ProxyItem
 import com.dimaslanjaka.proxyhunter.data.ProxyManager
+import com.dimaslanjaka.proxyhunter.service.ProxyCheckerServiceOptions
+import com.dimaslanjaka.proxyhunter.service.ProxyCheckerServiceStarter
 import com.dimaslanjaka.proxyhunter.service.ProxyCheckService
+import com.dimaslanjaka.proxyhunter.service.Tun2socksCompatibilityTestService
 import com.dimaslanjaka.proxyhunter.ui.theme.ProxyHunterTheme
 import com.dimaslanjaka.utils.ProxyExtractor
 import kotlinx.coroutines.Dispatchers
@@ -92,14 +97,14 @@ import timber.log.Timber
 
 data class CheckResult(
   val proxy: String,
-  val checkerResult: ProxyChecker.CheckResult? = null,
-  val isChecking: Boolean = false
+  val checkerResult: ProxyChecker.Result? = null,
+  val isChecking: Boolean = false,
+  val checkingService: String? = null
 )
 
 class ProxyCheckerActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    ProxyManager.initialize(this)
     enableEdgeToEdge()
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -119,19 +124,41 @@ class ProxyCheckerActivity : ComponentActivity() {
 @Composable
 fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB) {
   val context = LocalContext.current
+  val serviceStarter = remember(context) { ProxyCheckerServiceStarter(context) }
   var inputText by rememberSaveable { mutableStateOf(prefs.getString("last_input", "") ?: "") }
   var limitInput by rememberSaveable { mutableStateOf(prefs.getString("limit_input", "50") ?: "50") }
   var autoCheckProxies by rememberSaveable { mutableStateOf(prefs.getBoolean("auto_check_proxies", false)) }
   var autoScrollResults by rememberSaveable { mutableStateOf(prefs.getBoolean("auto_scroll_results", true)) }
+  var requireUDP by rememberSaveable { mutableStateOf(prefs.getBoolean("require_udp", true)) }
+  var requireDNS by rememberSaveable { mutableStateOf(prefs.getBoolean("require_dns", true)) }
+  var strictCheck by rememberSaveable { mutableStateOf(prefs.getBoolean("strict_check", true)) }
+  var useTun2SocksService by rememberSaveable { mutableStateOf(prefs.getBoolean("use_tun2socks_service", true)) }
+  var useProxyCheckService by rememberSaveable { mutableStateOf(prefs.getBoolean("use_proxy_check_service", true)) }
+  var useCheckerHttpService by rememberSaveable { mutableStateOf(prefs.getBoolean("use_checker_http_service", false)) }
+  var inputSectionExpanded by rememberSaveable {
+    mutableStateOf(prefs.getBoolean("input_section_expanded", true))
+  }
+  var optionsSectionExpanded by rememberSaveable {
+    mutableStateOf(prefs.getBoolean("options_section_expanded", true))
+  }
+
   val listState = rememberLazyListState()
   val results = remember { mutableStateListOf<CheckResult>() }
 
   val isCheckingAll by ProxyManager.isRunningFlow.collectAsState()
   val sessionResults by ProxyManager.resultsFlow.collectAsState()
-  val currentProxy by ProxyManager.currentProxyFlow.collectAsState()
+  val checkingProxies by ProxyManager.checkingProxiesFlow.collectAsState()
 
   var isFetching by rememberSaveable { mutableStateOf(false) }
   val scope = rememberCoroutineScope()
+
+  fun currentServiceOptions(): ProxyCheckerServiceOptions {
+    return ProxyCheckerServiceOptions(
+      useProxyCheckService = useProxyCheckService,
+      useTun2SocksService = useTun2SocksService,
+      useCheckerHttpService = useCheckerHttpService
+    )
+  }
 
   // Load unique results from SQLite on launch
   fun loadLocalResults() {
@@ -143,7 +170,7 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
         val mapped = localResults.map { row ->
           CheckResult(
             proxy = row["proxy"] as String,
-            checkerResult = ProxyChecker.CheckResult(
+            checkerResult = ProxyChecker.Result(
               isWorking = (row["is_working"] as Long) == 1L,
               type = row["type"] as? String,
               title = row["title"] as? String
@@ -165,8 +192,8 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
   }
 
   // Auto-scroll to top when a new proxy starts checking
-  LaunchedEffect(currentProxy) {
-      if (autoScrollResults && currentProxy != null) {
+  LaunchedEffect(checkingProxies) {
+      if (autoScrollResults && checkingProxies.isNotEmpty()) {
           scope.launch {
               listState.animateScrollToItem(0)
           }
@@ -174,11 +201,17 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
   }
 
   // Real-time UI Sync with ProxyManager Flows
-  LaunchedEffect(sessionResults, currentProxy) {
-    // 1. Reset checking state for items no longer being checked
+  LaunchedEffect(sessionResults, checkingProxies) {
+    // 1. Reset checking state and sync current checking services
     for (i in results.indices) {
-        if (results[i].isChecking && results[i].proxy != currentProxy) {
-            results[i] = results[i].copy(isChecking = false)
+        val proxy = results[i].proxy
+        val service = checkingProxies[proxy]
+        if (service != null) {
+            if (!results[i].isChecking || results[i].checkingService != service) {
+                results[i] = results[i].copy(isChecking = true, checkingService = service)
+            }
+        } else if (results[i].isChecking) {
+            results[i] = results[i].copy(isChecking = false, checkingService = null)
         }
     }
 
@@ -186,25 +219,29 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
     sessionResults.forEach { (proxyStr, res) ->
       val index = results.indexOfFirst { it.proxy == proxyStr }
       if (index != -1) {
-        // Update existing item and stop spinner
-        if (results[index].checkerResult != res || results[index].isChecking) {
-          results[index] = results[index].copy(checkerResult = res, isChecking = false)
+        // Update existing item and stop spinner if not checking by another service
+        if (results[index].checkerResult != res || (results[index].isChecking && !checkingProxies.containsKey(proxyStr))) {
+          results[index] = results[index].copy(
+              checkerResult = res as? ProxyChecker.Result ?: (res as? com.dimaslanjaka.proxyhunter.checker.CheckerHttp.Result)?.let {
+                  ProxyChecker.Result(it.httpOk || it.httpsOk, if (it.httpsOk) "https" else if (it.httpOk) "http" else null, it.error)
+              },
+              isChecking = checkingProxies.containsKey(proxyStr),
+              checkingService = checkingProxies[proxyStr]
+          )
         }
       } else {
         // Add new results to the top
-        results.add(0, CheckResult(proxyStr, res, isChecking = false))
+        val mappedRes = res as? ProxyChecker.Result ?: (res as? com.dimaslanjaka.proxyhunter.checker.CheckerHttp.Result)?.let {
+            ProxyChecker.Result(it.httpOk || it.httpsOk, if (it.httpsOk) "https" else if (it.httpOk) "http" else null, it.error)
+        }
+        results.add(0, CheckResult(proxyStr, mappedRes, isChecking = checkingProxies.containsKey(proxyStr), checkingService = checkingProxies[proxyStr]))
       }
     }
 
-    // 3. Update the currently checking spinner
-    if (currentProxy != null) {
-        val index = results.indexOfFirst { it.proxy == currentProxy }
-        if (index != -1) {
-            if (!results[index].isChecking) {
-                results[index] = results[index].copy(isChecking = true)
-            }
-        } else {
-            results.add(0, CheckResult(currentProxy!!, isChecking = true))
+    // 3. Add new proxies that started checking but have no results yet
+    checkingProxies.forEach { (proxy, service) ->
+        if (results.none { it.proxy == proxy }) {
+            results.add(0, CheckResult(proxy, isChecking = true, checkingService = service))
         }
     }
   }
@@ -220,31 +257,40 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
   DisposableEffect(context) {
     val receiver = object : BroadcastReceiver() {
       override fun onReceive(context: Context?, intent: Intent?) {
-        when (intent?.action) {
-          ProxyCheckService.ACTION_PROXY_CHECK_STARTED -> {
-            val proxyStr = intent.getStringExtra(ProxyCheckService.EXTRA_PROXY) ?: ""
+        val action = intent?.action ?: return
+        when (action) {
+          ProxyCheckService.ACTION_PROXY_CHECK_STARTED,
+          Tun2socksCompatibilityTestService.ACTION_COMPATIBILITY_CHECK_STARTED -> {
+            val proxyStr = intent.getStringExtra(ProxyCheckService.EXTRA_PROXY) ?:
+                           intent.getStringExtra(Tun2socksCompatibilityTestService.EXTRA_PROXY) ?: ""
+            val serviceName = if (action == ProxyCheckService.ACTION_PROXY_CHECK_STARTED) "ProxyCheckService" else "Tun2socksCompatibilityTestService"
             if (proxyStr.isNotEmpty()) {
               val index = results.indexOfFirst { it.proxy == proxyStr }
               if (index != -1) {
-                results[index] = results[index].copy(isChecking = true)
+                results[index] = results[index].copy(isChecking = true, checkingService = serviceName)
               } else {
-                results.add(0, CheckResult(proxyStr, isChecking = true))
+                results.add(0, CheckResult(proxyStr, isChecking = true, checkingService = serviceName))
               }
             }
           }
 
-          ProxyCheckService.ACTION_PROXY_CHECK_PROGRESS -> {
-            val proxyStr = intent.getStringExtra(ProxyCheckService.EXTRA_PROXY) ?: ""
+          ProxyCheckService.ACTION_PROXY_CHECK_PROGRESS,
+          Tun2socksCompatibilityTestService.ACTION_COMPATIBILITY_CHECK_PROGRESS -> {
+            val proxyStr = intent.getStringExtra(ProxyCheckService.EXTRA_PROXY) ?:
+                           intent.getStringExtra(Tun2socksCompatibilityTestService.EXTRA_PROXY) ?: ""
             val isWorking = intent.getBooleanExtra(ProxyCheckService.EXTRA_IS_WORKING, false)
-            val type = intent.getStringExtra(ProxyCheckService.EXTRA_TYPE)
-            val title = intent.getStringExtra(ProxyCheckService.EXTRA_TITLE)
+            val type = intent.getStringExtra(ProxyCheckService.EXTRA_TYPE) ?:
+                       intent.getStringExtra(Tun2socksCompatibilityTestService.EXTRA_TYPE)
+            val title = intent.getStringExtra(ProxyCheckService.EXTRA_TITLE) ?:
+                        intent.getStringExtra(Tun2socksCompatibilityTestService.EXTRA_TITLE)
 
             if (proxyStr.isNotEmpty()) {
               val index = results.indexOfFirst { it.proxy == proxyStr }
               val res = CheckResult(
                 proxyStr,
-                ProxyChecker.CheckResult(isWorking, type, title),
-                isChecking = false
+                ProxyChecker.Result(isWorking, type, title),
+                isChecking = checkingProxies.containsKey(proxyStr),
+                checkingService = checkingProxies[proxyStr]
               )
               if (index != -1) {
                 results[index] = res
@@ -254,7 +300,8 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
             }
           }
 
-          ProxyCheckService.ACTION_PROXY_CHECK_FINISHED -> {
+          ProxyCheckService.ACTION_PROXY_CHECK_FINISHED,
+          Tun2socksCompatibilityTestService.ACTION_COMPATIBILITY_CHECK_FINISHED -> {
              loadLocalResults()
           }
         }
@@ -264,6 +311,9 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
       addAction(ProxyCheckService.ACTION_PROXY_CHECK_STARTED)
       addAction(ProxyCheckService.ACTION_PROXY_CHECK_PROGRESS)
       addAction(ProxyCheckService.ACTION_PROXY_CHECK_FINISHED)
+      addAction(Tun2socksCompatibilityTestService.ACTION_COMPATIBILITY_CHECK_STARTED)
+      addAction(Tun2socksCompatibilityTestService.ACTION_COMPATIBILITY_CHECK_PROGRESS)
+      addAction(Tun2socksCompatibilityTestService.ACTION_COMPATIBILITY_CHECK_FINISHED)
     }
 
     ContextCompat.registerReceiver(
@@ -291,9 +341,7 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
           IconButton(
             onClick = {
               if (isCheckingAll) {
-                val serviceIntent = Intent(context, ProxyCheckService::class.java)
-                context.stopService(serviceIntent)
-                ProxyManager.setRunning(false)
+                serviceStarter.stopAll()
               }
               ProxyManager.clearResults()
               results.clear()
@@ -312,264 +360,414 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
         .padding(innerPadding)
         .padding(16.dp)
     ) {
-      OutlinedTextField(
-        value = inputText,
-        onValueChange = {
-          inputText = it
-          prefs.put("last_input", it)
-        },
-        label = { Text("Enter proxies (host:port or user:pass@host:port)") },
-        modifier = Modifier
-          .fillMaxWidth()
-          .height(150.dp),
-        placeholder = { Text("127.0.0.1:8080\nuser:pass@1.2.3.4:1080") }
-      )
-
-      Spacer(modifier = Modifier.height(16.dp))
-
-      // Checker Category
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .horizontalScroll(rememberScrollState()),
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        // Auto Checking Proxy Checkbox inline
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier
-            .clickable {
-              val newValue = !autoCheckProxies
-              autoCheckProxies = newValue
-              prefs.put("auto_check_proxies", newValue)
-              if (newValue && !isCheckingAll) {
-                val serviceIntent = Intent(context, ProxyCheckService::class.java)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                  context.startForegroundService(serviceIntent)
-                } else {
-                  context.startService(serviceIntent)
-                }
-              }
-            }
-            .padding(end = 8.dp)
-        ) {
-          Checkbox(
-            checked = autoCheckProxies,
-            onCheckedChange = {
-              autoCheckProxies = it
-              prefs.put("auto_check_proxies", it)
-              if (it && !isCheckingAll) {
-                val serviceIntent = Intent(context, ProxyCheckService::class.java)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                  context.startForegroundService(serviceIntent)
-                } else {
-                  context.startService(serviceIntent)
-                }
-              }
-            }
-          )
-          Text("Auto Checking Proxy", fontSize = 12.sp)
+      CollapsibleSection(
+        title = "Proxy Input",
+        expanded = inputSectionExpanded,
+        onExpandedChange = {
+          inputSectionExpanded = it
+          prefs.put("input_section_expanded", it)
         }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Button(
-          onClick = {
-            if (isCheckingAll) {
-              val serviceIntent = Intent(context, ProxyCheckService::class.java)
-              context.stopService(serviceIntent)
-              ProxyManager.setRunning(false)
-            } else {
-              val extractedStrings = ProxyExtractor.extract(inputText)
-              val proxies = extractedStrings.map { raw ->
-                if (raw.contains("@")) {
-                  val parts = raw.split("@")
-                  val auth = parts[0].split(":")
-                  val hostPort = parts[1]
-                  ProxyItem(
-                    proxy = hostPort,
-                    username = auth.getOrNull(0),
-                    password = auth.getOrNull(1)
-                  )
-                } else {
-                  ProxyItem(proxy = raw)
-                }
-              }
-
-              if (proxies.isNotEmpty()) {
-                ProxyManager.set(proxies)
-                val serviceIntent = Intent(context, ProxyCheckService::class.java).apply {
-                  putExtra(ProxyCheckService.EXTRA_PRIORITY, true)
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                  context.startForegroundService(serviceIntent)
-                } else {
-                  context.startService(serviceIntent)
-                }
-              }
-            }
-          },
-          modifier = Modifier.height(36.dp),
-          contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-          enabled = !isFetching && (isCheckingAll || inputText.isNotBlank()),
-          colors = if (isCheckingAll) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error) else ButtonDefaults.buttonColors()
-        ) {
-          if (isCheckingAll) {
-            Icon(Icons.Default.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Stop", fontSize = 12.sp)
-          } else {
-            Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Check All", fontSize = 12.sp)
-          }
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // Auto Scroll Checkbox moved to the right of "Check All" button
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier.clickable {
-              val newValue = !autoScrollResults
-              autoScrollResults = newValue
-              prefs.put("auto_scroll_results", newValue)
-            }.padding(end = 8.dp)
-        ) {
-          Checkbox(
-            checked = autoScrollResults,
-            onCheckedChange = {
-              autoScrollResults = it
-              prefs.put("auto_scroll_results", it)
-            }
-          )
-          Text("Auto Scroll", fontSize = 12.sp)
-        }
-      }
-
-      // Fetcher Category
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .horizontalScroll(rememberScrollState()),
-        verticalAlignment = Alignment.CenterVertically
       ) {
         OutlinedTextField(
-          value = limitInput,
+          value = inputText,
           onValueChange = {
-            if (it.isEmpty()) {
-              limitInput = it
-              prefs.put("limit_input", it)
-            } else if (it.all { char -> char.isDigit() }) {
-              val num = it.toLongOrNull() ?: 0
-              if (num <= 1000) {
-                limitInput = it
-                prefs.put("limit_input", it)
-              }
-            }
+            inputText = it
+            prefs.put("last_input", it)
           },
-          label = { Text("Limit", fontSize = 10.sp) },
-          modifier = Modifier.width(80.dp),
-          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-          singleLine = true,
-          textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp)
+          label = { Text("Enter proxies (host:port or user:pass@host:port)") },
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp),
+          placeholder = { Text("127.0.0.1:8080\nuser:pass@1.2.3.4:1080") }
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedButton(
-          onClick = {
-            scope.launch {
-              isFetching = true
-              val urls = listOf(
-                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/socks5.txt",
-                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/socks4.txt",
-                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/http.txt"
-              )
-              val client = OkHttpClient()
-              val allContent = StringBuilder()
-
-              withContext(Dispatchers.IO) {
-                urls.forEach { url ->
-                  try {
-                    val request = Request.Builder().url(url).build()
-                    client.newCall(request).execute().use { response ->
-                      if (response.isSuccessful) {
-                        response.body.let { body ->
-                          allContent.append(body.string()).append("\n")
-                        }
-                      }
-                    }
-                  } catch (e: Exception) {
-                    Timber.e(e, "Fetch failed for $url")
-                  }
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          OutlinedTextField(
+            value = limitInput,
+            onValueChange = {
+              if (it.isEmpty()) {
+                limitInput = it
+                prefs.put("limit_input", it)
+              } else if (it.all { char -> char.isDigit() }) {
+                val num = it.toLongOrNull() ?: 0
+                if (num <= 1000) {
+                  limitInput = it
+                  prefs.put("limit_input", it)
                 }
               }
+            },
+            label = { Text("Limit", fontSize = 10.sp) },
+            modifier = Modifier.width(80.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp)
+          )
 
-              val extracted = ProxyExtractor.extract(allContent.toString())
-              val limit = limitInput.toIntOrNull() ?: 10
-              val randomProxyList = extracted.shuffled().take(limit).joinToString("\n")
-              inputText = randomProxyList
-              prefs.put("last_input", randomProxyList)
-              isFetching = false
-            }
-          },
-          modifier = Modifier.height(36.dp),
-          contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-          enabled = !isFetching && !isCheckingAll
-        ) {
-          if (isFetching) {
-            CircularProgressIndicator(
-              modifier = Modifier.size(18.dp),
-              strokeWidth = 2.dp,
-              color = LocalContentColor.current
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Fetching...", fontSize = 12.sp)
-          } else {
-            Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Fetch List", fontSize = 12.sp)
-          }
-        }
+          Spacer(modifier = Modifier.width(12.dp))
 
-        Spacer(modifier = Modifier.width(8.dp))
+          OutlinedButton(
+            onClick = {
+              scope.launch {
+                isFetching = true
+                val urls = listOf(
+                  "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/socks5.txt",
+                  "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/socks4.txt",
+                  "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/http.txt"
+                )
+                val client = OkHttpClient()
+                val allContent = StringBuilder()
 
-        OutlinedButton(
-          onClick = {
-            scope.launch {
-              isFetching = true
-              val limit = limitInput.toIntOrNull() ?: 50
-              val untested = withContext(Dispatchers.IO) {
-                db.getUntestedProxies(limit).get()
+                withContext(Dispatchers.IO) {
+                  urls.forEach { url ->
+                    try {
+                      val request = Request.Builder().url(url).build()
+                      client.newCall(request).execute().use { response ->
+                        if (response.isSuccessful) {
+                          response.body.let { body ->
+                            allContent.append(body.string()).append("\n")
+                          }
+                        }
+                      }
+                    } catch (e: Exception) {
+                      Timber.e(e, "Fetch failed for $url")
+                    }
+                  }
+                }
+
+                val extracted = ProxyExtractor.extract(allContent.toString())
+                val limit = limitInput.toIntOrNull() ?: 10
+                val randomProxyList = extracted.shuffled().take(limit).joinToString("\n")
+                inputText = randomProxyList
+                prefs.put("last_input", randomProxyList)
+                isFetching = false
               }
-              val untestedStr = untested.joinToString("\n") { it.toString() }
-              inputText = untestedStr
-              prefs.put("last_input", untestedStr)
-              isFetching = false
+            },
+            modifier = Modifier.height(36.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+            enabled = !isFetching && !isCheckingAll
+          ) {
+            if (isFetching) {
+              CircularProgressIndicator(
+                modifier = Modifier.size(18.dp),
+                strokeWidth = 2.dp,
+                color = LocalContentColor.current
+              )
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("Fetching...", fontSize = 12.sp)
+            } else {
+              Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("Fetch List", fontSize = 12.sp)
             }
-          },
-          modifier = Modifier.height(36.dp),
-          contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-          enabled = !isFetching && !isCheckingAll
-        ) {
-          if (isFetching) {
-            CircularProgressIndicator(
-              modifier = Modifier.size(18.dp),
-              strokeWidth = 2.dp,
-              color = LocalContentColor.current
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Loading...", fontSize = 12.sp)
-          } else {
-            Icon(Icons.Default.Storage, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("From DB", fontSize = 12.sp)
+          }
+
+          Spacer(modifier = Modifier.width(8.dp))
+
+          OutlinedButton(
+            onClick = {
+              scope.launch {
+                isFetching = true
+                val limit = limitInput.toIntOrNull() ?: 50
+                val untested = withContext(Dispatchers.IO) {
+                  db.getUntestedProxies(limit).get()
+                }
+                val untestedStr = untested.joinToString("\n") { it.toString() }
+                inputText = untestedStr
+                prefs.put("last_input", untestedStr)
+                isFetching = false
+              }
+            },
+            modifier = Modifier.height(36.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+            enabled = !isFetching && !isCheckingAll
+          ) {
+            if (isFetching) {
+              CircularProgressIndicator(
+                modifier = Modifier.size(18.dp),
+                strokeWidth = 2.dp,
+                color = LocalContentColor.current
+              )
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("Loading...", fontSize = 12.sp)
+            } else {
+              Icon(Icons.Default.Storage, contentDescription = null, modifier = Modifier.size(18.dp))
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("From DB", fontSize = 12.sp)
+            }
           }
         }
       }
 
-      Spacer(modifier = Modifier.height(16.dp))
+      Spacer(modifier = Modifier.height(8.dp))
+
+      CollapsibleSection(
+        title = "Checker Options",
+        expanded = optionsSectionExpanded,
+        onExpandedChange = {
+          optionsSectionExpanded = it
+          prefs.put("options_section_expanded", it)
+        }
+      ) {
+        Column(
+          modifier = Modifier.fillMaxWidth()
+        ) {
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .clickable {
+                  val newValue = !autoCheckProxies
+                  autoCheckProxies = newValue
+                  prefs.put("auto_check_proxies", newValue)
+                  if (newValue && !isCheckingAll) {
+                    serviceStarter.start(currentServiceOptions())
+                  }
+                }
+                .padding(end = 8.dp)
+            ) {
+              Checkbox(
+                checked = autoCheckProxies,
+                onCheckedChange = {
+                  autoCheckProxies = it
+                  prefs.put("auto_check_proxies", it)
+                  if (it && !isCheckingAll) {
+                    serviceStarter.start(currentServiceOptions())
+                  }
+                }
+              )
+              Text("Auto Check", fontSize = 12.sp)
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .clickable {
+                  val newValue = !useProxyCheckService
+                  useProxyCheckService = newValue
+                  prefs.put("use_proxy_check_service", newValue)
+                }
+                .padding(end = 8.dp)
+            ) {
+              Checkbox(
+                checked = useProxyCheckService,
+                onCheckedChange = {
+                  useProxyCheckService = it
+                  prefs.put("use_proxy_check_service", it)
+                }
+              )
+              Text("Standard", fontSize = 12.sp)
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .clickable {
+                  val newValue = !useTun2SocksService
+                  useTun2SocksService = newValue
+                  prefs.put("use_tun2socks_service", newValue)
+                }
+                .padding(end = 8.dp)
+            ) {
+              Checkbox(
+                checked = useTun2SocksService,
+                onCheckedChange = {
+                  useTun2SocksService = it
+                  prefs.put("use_tun2socks_service", it)
+                }
+              )
+              Text("Tun2Socks", fontSize = 12.sp)
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .clickable {
+                  val newValue = !useCheckerHttpService
+                  useCheckerHttpService = newValue
+                  prefs.put("use_checker_http_service", newValue)
+                }
+                .padding(end = 8.dp)
+            ) {
+              Checkbox(
+                checked = useCheckerHttpService,
+                onCheckedChange = {
+                  useCheckerHttpService = it
+                  prefs.put("use_checker_http_service", it)
+                }
+              )
+              Text("HTTP Check", fontSize = 12.sp)
+            }
+          }
+
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .clickable {
+                  val newValue = !strictCheck
+                  strictCheck = newValue
+                  prefs.put("strict_check", newValue)
+                }
+                .padding(end = 8.dp)
+            ) {
+              Checkbox(
+                checked = strictCheck,
+                onCheckedChange = {
+                  strictCheck = it
+                  prefs.put("strict_check", it)
+                }
+              )
+              Text("Strict Check", fontSize = 12.sp)
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .clickable(enabled = strictCheck) {
+                  val newValue = !requireUDP
+                  requireUDP = newValue
+                  prefs.put("require_udp", newValue)
+                }
+                .padding(end = 8.dp)
+            ) {
+              Checkbox(
+                checked = requireUDP,
+                onCheckedChange = {
+                  requireUDP = it
+                  prefs.put("require_udp", it)
+                },
+                enabled = strictCheck
+              )
+              Text("Require UDP", fontSize = 12.sp, color = if (strictCheck) Color.Unspecified else Color.Gray)
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .clickable(enabled = strictCheck) {
+                  val newValue = !requireDNS
+                  requireDNS = newValue
+                  prefs.put("require_dns", newValue)
+                }
+                .padding(end = 8.dp)
+            ) {
+              Checkbox(
+                checked = requireDNS,
+                onCheckedChange = {
+                  requireDNS = it
+                  prefs.put("require_dns", it)
+                },
+                enabled = strictCheck
+              )
+              Text("Require DNS", fontSize = 12.sp, color = if (strictCheck) Color.Unspecified else Color.Gray)
+            }
+          }
+
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Button(
+              onClick = {
+                if (isCheckingAll) {
+                  serviceStarter.stopAll()
+                } else {
+                  val extractedStrings = ProxyExtractor.extract(inputText)
+                  val proxies = extractedStrings.map { raw ->
+                    if (raw.contains("@")) {
+                      val parts = raw.split("@")
+                      val auth = parts[0].split(":")
+                      val hostPort = parts[1]
+                      ProxyItem(
+                        proxy = hostPort,
+                        username = auth.getOrNull(0),
+                        password = auth.getOrNull(1)
+                      )
+                    } else {
+                      ProxyItem(proxy = raw)
+                    }
+                  }
+
+                  if (proxies.isNotEmpty()) {
+                    serviceStarter.start(
+                      options = currentServiceOptions(),
+                      proxies = proxies,
+                      isPriority = true
+                    )
+                  }
+                }
+              },
+              modifier = Modifier.height(36.dp),
+              contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+              enabled = !isFetching && (isCheckingAll || inputText.isNotBlank()),
+              colors = if (isCheckingAll) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error) else ButtonDefaults.buttonColors()
+            ) {
+              if (isCheckingAll) {
+                Icon(Icons.Default.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Stop", fontSize = 12.sp)
+              } else {
+                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Check All", fontSize = 12.sp)
+              }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .clickable {
+                  val newValue = !autoScrollResults
+                  autoScrollResults = newValue
+                  prefs.put("auto_scroll_results", newValue)
+                }
+                .padding(end = 8.dp)
+            ) {
+              Checkbox(
+                checked = autoScrollResults,
+                onCheckedChange = {
+                  autoScrollResults = it
+                  prefs.put("auto_scroll_results", it)
+                }
+              )
+              Text("Auto Scroll", fontSize = 12.sp)
+            }
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(12.dp))
 
       LazyColumn(
         state = listState,
@@ -579,6 +777,40 @@ fun ProxyCheckerScreen(onBack: () -> Unit, prefs: LocalSharedPrefs, db: ProxyDB)
           ProxyResultItem(result)
           HorizontalDivider()
         }
+      }
+    }
+  }
+}
+
+@Composable
+fun CollapsibleSection(
+  title: String,
+  expanded: Boolean,
+  onExpandedChange: (Boolean) -> Unit,
+  content: @Composable () -> Unit
+) {
+  Column(modifier = Modifier.fillMaxWidth()) {
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .clickable { onExpandedChange(!expanded) }
+        .padding(vertical = 6.dp),
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.weight(1f)
+      )
+      Icon(
+        imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+        contentDescription = if (expanded) "Collapse $title" else "Expand $title"
+      )
+    }
+
+    AnimatedVisibility(visible = expanded) {
+      Column {
+        content()
       }
     }
   }
@@ -643,10 +875,16 @@ fun ProxyResultItem(result: CheckResult) {
     Spacer(modifier = Modifier.width(16.dp))
 
     if (result.isChecking) {
+      val indicatorColor = when (result.checkingService) {
+          "Tun2socksCompatibilityTestService" -> Color.Yellow
+          "ProxyCheckService" -> Color.Blue
+          "CheckerHttpService" -> Color(0xFF8E24AA) // Purple
+          else -> MaterialTheme.colorScheme.primary
+      }
       CircularProgressIndicator(
         modifier = Modifier.size(24.dp),
         strokeWidth = 3.dp,
-        color = MaterialTheme.colorScheme.primary
+        color = indicatorColor
       )
     } else if (result.checkerResult != null) {
       Icon(

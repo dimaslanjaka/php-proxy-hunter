@@ -40,10 +40,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.dimaslanjaka.proxyhunter.data.ProxyManager
-import com.dimaslanjaka.proxyhunter.service.ProxyCheckService
 import com.dimaslanjaka.proxyhunter.ui.theme.ProxyHunterTheme
-import timber.log.Timber
 
 class MainActivity : ComponentActivity() {
 
@@ -51,7 +48,7 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            checkAndStartService()
+            AutoCheckStarter.maybeStart(this, "notification-permission-granted")
         } else {
             Toast.makeText(this, "Notification permission is required for background checking", Toast.LENGTH_LONG).show()
         }
@@ -59,7 +56,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ProxyManager.initialize(this)
         checkNotificationPermission()
         enableEdgeToEdge()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -84,7 +80,7 @@ class MainActivity : ComponentActivity() {
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED -> {
-                    checkAndStartService()
+                    AutoCheckStarter.maybeStart(this, "main-activity-launch")
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -94,21 +90,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         } else {
-            checkAndStartService()
-        }
-    }
-
-    private fun checkAndStartService() {
-        val autoCheckEnabled = ProxyManager.prefs.getBoolean("auto_check_proxies", false)
-
-        if (autoCheckEnabled && !ProxyManager.isRunningFlow.value) {
-            Timber.d("Auto-check enabled in MainActivity, starting service")
-            val intent = Intent(this, ProxyCheckService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ContextCompat.startForegroundService(this, intent)
-            } else {
-                startService(intent)
-            }
+            AutoCheckStarter.maybeStart(this, "main-activity-launch")
         }
     }
 }
