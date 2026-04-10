@@ -6,7 +6,9 @@ import com.dimaslanjaka.proxyhunter.checker.CheckerHttp
 import com.dimaslanjaka.proxyhunter.checker.ProxyChecker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.io.File
+import java.util.Collections
 import java.util.concurrent.Future
 
 object ProxyManager {
@@ -26,7 +28,7 @@ object ProxyManager {
 
     private var proxies: List<ProxyItem> = emptyList()
 
-    // Results mapping: proxy string -> CheckResult (current session)
+    // Results mapping: proxy string -> Result (current session)
     private val _resultsFlow = MutableStateFlow<Map<String, Any>>(emptyMap())
     val resultsFlow = _resultsFlow.asStateFlow()
 
@@ -34,9 +36,11 @@ object ProxyManager {
     private val _isRunningFlow = MutableStateFlow(false)
     val isRunningFlow = _isRunningFlow.asStateFlow()
 
-    // Current proxy being checked
-    private val _currentProxyFlow = MutableStateFlow<String?>(null)
-    val currentProxyFlow = _currentProxyFlow.asStateFlow()
+    private val runningServices = Collections.synchronizedSet(mutableSetOf<String>())
+
+    // Map of proxy string to service name currently checking it
+    private val _checkingProxiesFlow = MutableStateFlow<Map<String, String>>(emptyMap())
+    val checkingProxiesFlow = _checkingProxiesFlow.asStateFlow()
 
     @JvmStatic
     fun initialize(context: Context) {
@@ -147,7 +151,7 @@ object ProxyManager {
     fun set(list: List<ProxyItem>) {
         proxies = list
         _resultsFlow.value = emptyMap()
-        _currentProxyFlow.value = null
+        _checkingProxiesFlow.value = emptyMap()
     }
 
     @JvmStatic
@@ -227,12 +231,51 @@ object ProxyManager {
     }
 
     @JvmStatic
-    fun setRunning(running: Boolean) {
-        _isRunningFlow.value = running
+    fun setRunning(serviceName: String, running: Boolean) {
+        if (running) {
+            runningServices.add(serviceName)
+        } else {
+            runningServices.remove(serviceName)
+            // Remove all proxies associated with this service from checking list
+            val currentChecking = _checkingProxiesFlow.value.toMutableMap()
+            val toRemove = currentChecking.filter { it.value == serviceName }.keys
+            if (toRemove.isNotEmpty()) {
+                toRemove.forEach { currentChecking.remove(it) }
+                _checkingProxiesFlow.value = currentChecking
+            }
+        }
+        _isRunningFlow.value = runningServices.isNotEmpty()
     }
 
     @JvmStatic
-    fun setCurrentProxy(proxy: String?) {
-        _currentProxyFlow.value = proxy
+    fun stopAllServices() {
+        runningServices.clear()
+        _isRunningFlow.value = false
+        _checkingProxiesFlow.value = emptyMap()
+    }
+
+    @JvmStatic
+    fun setCheckingProxy(proxy: String?, serviceName: String) {
+        _checkingProxiesFlow.update { currentMap ->
+            val mutableMap = currentMap.toMutableMap()
+            if (proxy == null) {
+                val keysToRemove = mutableMap.filter { it.value == serviceName }.keys
+                keysToRemove.forEach { mutableMap.remove(it) }
+            } else {
+                mutableMap[proxy] = serviceName
+            }
+            mutableMap
+        }
+    }
+
+    @JvmStatic
+    fun clearCheckingProxy(proxy: String, serviceName: String) {
+        _checkingProxiesFlow.update { currentMap ->
+            val mutableMap = currentMap.toMutableMap()
+            if (mutableMap[proxy] == serviceName) {
+                mutableMap.remove(proxy)
+            }
+            mutableMap
+        }
     }
 }
