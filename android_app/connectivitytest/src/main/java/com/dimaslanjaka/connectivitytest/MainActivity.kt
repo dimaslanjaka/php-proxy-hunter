@@ -6,17 +6,13 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.webkit.WebViewClient
+import android.webkit.WebView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.dimaslanjaka.connectivitytest.ui.theme.ProxyHunterTheme
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -28,6 +24,8 @@ import java.net.URL
 
 class MainActivity : ComponentActivity() {
   private var testCompleted = false
+  private lateinit var webView: WebView
+  private lateinit var progressBar: ProgressBar
 
   object Contract {
     const val ACTION_RUN_CONNECTIVITY_TEST = "com.dimaslanjaka.connectivitytest.action.RUN_CONNECTIVITY_TEST"
@@ -44,30 +42,97 @@ class MainActivity : ComponentActivity() {
       return
     }
 
-    enableEdgeToEdge()
-    setContent {
-      ProxyHunterTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          Greeting(
-            name = "Android",
-            modifier = Modifier.padding(innerPadding)
-          )
+    // Create a LinearLayout container
+    val mainLayout = LinearLayout(this).apply {
+      layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.MATCH_PARENT
+      )
+      orientation = LinearLayout.VERTICAL
+    }
+
+    // Create and configure ProgressBar
+    progressBar = ProgressBar(this, null, android.R.attr.progressBarStyle).apply {
+      layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+      )
+      isIndeterminate = true
+      visibility = android.view.View.VISIBLE
+    }
+
+    // Create and configure WebView
+    webView = WebView(this).apply {
+      layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        1f
+      )
+      settings.apply {
+        javaScriptEnabled = true
+        domStorageEnabled = true
+        mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+      }
+      webViewClient = object : WebViewClient() {
+        override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+          super.onPageStarted(view, url, favicon)
+          progressBar.visibility = android.view.View.VISIBLE
+        }
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+          super.onPageFinished(view, url)
+          progressBar.visibility = android.view.View.GONE
         }
       }
     }
+
+    // Add views to layout
+    mainLayout.addView(progressBar)
+    mainLayout.addView(webView)
+
+    setContentView(mainLayout)
+
+    // Apply edge-to-edge insets
+    ViewCompat.setOnApplyWindowInsetsListener(mainLayout) { v, insets ->
+      val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+      v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+      insets
+    }
+
+    // Load the WebView
+    webView.loadUrl("http://sh.webmanajemen.com")
   }
 
   private fun runConnectivityTestAndFinish() {
-    setContent {
-      ProxyHunterTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          Text(
-            text = "Checking connectivity...",
-            modifier = Modifier.padding(innerPadding)
-          )
-        }
-      }
+    val mainLayout = LinearLayout(this).apply {
+      layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.MATCH_PARENT
+      )
+      orientation = LinearLayout.VERTICAL
     }
+
+    val progressBar = ProgressBar(this, null, android.R.attr.progressBarStyle).apply {
+      layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+      )
+      isIndeterminate = true
+    }
+
+    val statusText = android.widget.TextView(this).apply {
+      layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+      )
+      text = "Checking connectivity..."
+      textSize = 16f
+      setPadding(16, 16, 16, 16)
+    }
+
+    mainLayout.addView(progressBar)
+    mainLayout.addView(statusText)
+    setContentView(mainLayout)
 
     lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -129,18 +194,3 @@ class MainActivity : ComponentActivity() {
   }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-  Text(
-    text = "Hello $name!",
-    modifier = modifier
-  )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-  ProxyHunterTheme {
-    Greeting("Android")
-  }
-}
