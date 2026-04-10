@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import timber.log.Timber
@@ -25,6 +26,7 @@ class ProxyCheckService : Service() {
 
   private val CHANNEL_ID = "proxy_checker_channel"
   private val NOTIFICATION_ID = 1
+  private val SERVICE_NAME = "ProxyCheckService"
 
   private val checkedCount = AtomicInteger(0)
   private var totalCount = 0
@@ -33,10 +35,18 @@ class ProxyCheckService : Service() {
     super.onCreate()
     createNotificationChannel()
     // Call startForeground immediately in onCreate to satisfy Android 12+ requirements
-    startForeground(NOTIFICATION_ID, createNotification(0, 0, "Initializing..."))
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      startForeground(
+        NOTIFICATION_ID,
+        createNotification(0, 0, "Initializing..."),
+        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+      )
+    } else {
+      startForeground(NOTIFICATION_ID, createNotification(0, 0, "Initializing..."))
+    }
 
-    ProxyManager.setRunning(true)
     ProxyManager.initialize(this)
+    ProxyManager.setRunning(SERVICE_NAME, true)
   }
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -53,7 +63,7 @@ class ProxyCheckService : Service() {
       isPriorityMode = false
     }
 
-    ProxyManager.setRunning(true)
+    ProxyManager.setRunning(SERVICE_NAME, true)
 
     checkJob = serviceScope.launch {
       try {
@@ -90,7 +100,7 @@ class ProxyCheckService : Service() {
           }
 
           val proxyStr = proxy.toString()
-          ProxyManager.setCurrentProxy(proxyStr)
+          ProxyManager.setCheckingProxy(proxyStr, SERVICE_NAME)
 
           // Notify that we started checking this specific proxy
           sendBroadcast(Intent(ACTION_PROXY_CHECK_STARTED).apply {
@@ -100,10 +110,10 @@ class ProxyCheckService : Service() {
           val result = try {
             withTimeoutOrNull(35000) {
               ProxyChecker.check(proxy)
-            } ?: ProxyChecker.CheckResult(false)
+            } ?: ProxyChecker.Result(false)
           } catch (e: Exception) {
             Timber.e(e, "Check failed for $proxy")
-            ProxyChecker.CheckResult(false)
+            ProxyChecker.Result(false)
           }
 
           val currentChecked = checkedCount.incrementAndGet()
@@ -112,7 +122,7 @@ class ProxyCheckService : Service() {
           ProxyManager.addResult(proxyStr, result)
 
           // Clear current proxy after result is added
-          ProxyManager.setCurrentProxy(null)
+          ProxyManager.clearCheckingProxy(proxyStr, SERVICE_NAME)
 
           if (result.isWorking && result.type != null) {
             try {
@@ -171,8 +181,8 @@ class ProxyCheckService : Service() {
   }
 
   private fun actuallyStopService() {
-    ProxyManager.setRunning(false)
-    ProxyManager.setCurrentProxy(null)
+    ProxyManager.setCheckingProxy(null, SERVICE_NAME)
+    ProxyManager.setRunning(SERVICE_NAME, false)
     sendBroadcast(Intent(ACTION_PROXY_CHECK_FINISHED))
     stopForeground(STOP_FOREGROUND_REMOVE)
     stopSelf()
@@ -234,8 +244,8 @@ class ProxyCheckService : Service() {
   override fun onBind(intent: Intent?): IBinder? = null
 
   override fun onDestroy() {
-    ProxyManager.setRunning(false)
-    ProxyManager.setCurrentProxy(null)
+    ProxyManager.setCheckingProxy(null, SERVICE_NAME)
+    ProxyManager.setRunning(SERVICE_NAME, false)
     serviceJob.cancel()
     super.onDestroy()
   }
