@@ -31,6 +31,8 @@ class CheckerHttpService : Service() {
     } else {
       startForeground(1, createNotification("Initializing..."))
     }
+
+    ProxyManager.initialize(this)
     ProxyManager.setRunning(SERVICE_NAME, true)
   }
 
