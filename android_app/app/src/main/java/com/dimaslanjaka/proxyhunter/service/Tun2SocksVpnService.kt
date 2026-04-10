@@ -61,6 +61,7 @@ class Tun2SocksVpnService : VpnService() {
           .setMtu(MTU)
           .addDnsServer(DNS).addDisallowedApplication(this.application.packageName)
           .addDisallowedApplication("com.netease.yysls")
+          .addDisallowedApplication("com.wemade.nightcrowsglobal")
           .setSession(TAG)
 
         // let DNS queries bypass VPN if SOCKS server does not support UDP bind
