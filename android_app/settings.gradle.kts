@@ -55,3 +55,4 @@ include(":app")
 //
 //include(":theme")
 //project(":theme").projectDir = file("D:/Repositories/android-traffic/theme")
+include(":connectivitytest")

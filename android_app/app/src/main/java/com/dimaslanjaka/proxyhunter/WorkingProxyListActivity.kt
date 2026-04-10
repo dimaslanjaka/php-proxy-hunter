@@ -1,11 +1,22 @@
 package com.dimaslanjaka.proxyhunter
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -73,9 +84,11 @@ import com.dimaslanjaka.proxyhunter.data.ProxyItem
 import com.dimaslanjaka.proxyhunter.data.ProxyManager
 import com.dimaslanjaka.proxyhunter.service.Tun2SocksVpnStarter
 import com.dimaslanjaka.proxyhunter.ui.theme.ProxyHunterTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -83,6 +96,28 @@ import java.util.Locale
 
 class WorkingProxyListActivity : ComponentActivity() {
     private lateinit var vpnStarter: Tun2SocksVpnStarter
+
+    private val connectivityTestLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val success = result.data?.getBooleanExtra(ConnectivityTestContract.EXTRA_SUCCESS, false) == true
+            val message = result.data?.getStringExtra(ConnectivityTestContract.EXTRA_MESSAGE)
+                ?: if (success) "VPN connected and internet is reachable" else "VPN connected but connectivity test failed"
+            handleConnectivityTestResult(success, message)
+        }
+
+    companion object {
+        private const val CONNECTIVITY_TEST_PACKAGE = "com.dimaslanjaka.connectivitytest"
+        private const val CONNECTIVITY_TEST_ACTIVITY = "com.dimaslanjaka.connectivitytest.MainActivity"
+        private const val CONNECTIVITY_NOTIFICATION_CHANNEL_ID = "vpn_connectivity_result"
+        private const val CONNECTIVITY_NOTIFICATION_ID = 701
+    }
+
+    private object ConnectivityTestContract {
+        const val ACTION_RUN_CONNECTIVITY_TEST = "com.dimaslanjaka.connectivitytest.action.RUN_CONNECTIVITY_TEST"
+        const val EXTRA_PROXY = "extra_proxy"
+        const val EXTRA_SUCCESS = "extra_success"
+        const val EXTRA_MESSAGE = "extra_message"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,7 +129,7 @@ class WorkingProxyListActivity : ComponentActivity() {
             ProxyHunterTheme {
                 ProxyListScreen(
                     onConnect = { proxy ->
-                        vpnStarter.startVpn(proxy.proxy)
+                        startVpnAndTriggerConnectivityTest(proxy)
                     },
                     onDisconnect = {
                         vpnStarter.stopVpn()
@@ -105,6 +140,74 @@ class WorkingProxyListActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private fun startVpnAndTriggerConnectivityTest(proxy: ProxyItem) {
+        vpnStarter.startVpn(proxy.proxy) {
+            lifecycleScope.launch {
+                // Give VPN service a moment to apply routes before probing connectivity.
+                delay(1500)
+                launchConnectivityTest(proxy.proxy)
+            }
+        }
+    }
+
+    private fun launchConnectivityTest(proxy: String) {
+        val intent = Intent(ConnectivityTestContract.ACTION_RUN_CONNECTIVITY_TEST).apply {
+            setClassName(CONNECTIVITY_TEST_PACKAGE, CONNECTIVITY_TEST_ACTIVITY)
+            putExtra(ConnectivityTestContract.EXTRA_PROXY, proxy)
+        }
+
+        try {
+            connectivityTestLauncher.launch(intent)
+        } catch (e: Exception) {
+            Timber.tag("ProxyHunter").e(e, "Failed to launch connectivity test app")
+            handleConnectivityTestResult(false, "Connectivity test app is not available")
+        }
+    }
+
+    private fun handleConnectivityTestResult(success: Boolean, message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        showConnectivityNotification(success, message)
+    }
+
+    private fun showConnectivityNotification(success: Boolean, message: String) {
+        ensureNotificationChannel()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Timber.tag("ProxyHunter").w("POST_NOTIFICATIONS permission not granted; skipping connectivity notification")
+            return
+        }
+
+        val title = if (success) "Connectivity test passed" else "Connectivity test failed"
+        val icon = if (success) android.R.drawable.stat_sys_download_done else android.R.drawable.stat_sys_warning
+        val notification = NotificationCompat.Builder(this, CONNECTIVITY_NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(icon)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .build()
+
+        NotificationManagerCompat.from(this).notify(CONNECTIVITY_NOTIFICATION_ID, notification)
+    }
+
+    private fun ensureNotificationChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val manager = getSystemService(NotificationManager::class.java) ?: return
+        val existing = manager.getNotificationChannel(CONNECTIVITY_NOTIFICATION_CHANNEL_ID)
+        if (existing != null) return
+        val channel = NotificationChannel(
+            CONNECTIVITY_NOTIFICATION_CHANNEL_ID,
+            "VPN Connectivity",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Shows VPN connectivity check result after connection"
+        }
+        manager.createNotificationChannel(channel)
     }
 }
 
