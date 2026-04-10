@@ -1,6 +1,7 @@
 package com.dimaslanjaka.proxyhunter.data
 
 import android.content.Context
+import timber.log.Timber
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -33,11 +34,18 @@ class ProxyDB {
 
   private val isSQLite: Boolean get() = sqlite != null
 
-  private fun query(sql: String, params: List<Any> = emptyList()): Future<List<Map<String, Any?>>> {
+  private fun logSql(operation: String, sql: String, params: List<Any>) {
+    val driver = if (isSQLite) "SQLite" else "MySQL"
+    Timber.tag("ProxyDB").d("[%s][%s] %s || %s", driver, operation, sql, params)
+  }
+
+  private fun query(operation: String, sql: String, params: List<Any> = emptyList()): Future<List<Map<String, Any?>>> {
+    logSql(operation, sql, params)
     return mysql?.query(sql, params) ?: sqlite!!.query(sql, params)
   }
 
-  private fun update(sql: String, params: List<Any> = emptyList()): Future<Int> {
+  private fun update(operation: String, sql: String, params: List<Any> = emptyList()): Future<Int> {
+    logSql(operation, sql, params)
     return mysql?.update(sql, params) ?: sqlite!!.update(sql, params)
   }
 
@@ -50,7 +58,7 @@ class ProxyDB {
     val params = if (limit != null) listOf(limit) else emptyList()
 
     return executor.submit(Callable {
-      query(sql, params).get().map { mapRowToProxyItem(it) }
+      query("getAllProxies", sql, params).get().map { mapRowToProxyItem(it) }
     })
   }
 
@@ -78,17 +86,17 @@ class ProxyDB {
       params.add(classification)
     }
     if (!type.isNullOrBlank()) {
-      if (type.equals("SSL", ignoreCase = true)) {
-        sql += " AND https = 'true'"
+      val normalizedType = type.trim().lowercase()
+      if (normalizedType == "ssl") {
+        sql += " AND LOWER(COALESCE(https, '')) = 'true'"
       } else {
         if (isSQLite) {
-          sql += " AND type LIKE ?"
-          params.add("%$type%")
+          // Match full token only, so socks4 does not match socks4a (and similar collisions).
+          sql += " AND INSTR(',' || REPLACE(REPLACE(LOWER(COALESCE(type, '')), '-', ','), ' ', ',') || ',', ',' || ? || ',') > 0"
+          params.add(normalizedType)
         } else {
-          // Use REGEXP for more robust matching of types within delimited strings
-          sql += " AND type REGEXP ?"
-          // Regex matches the type at start, after a delimiter, or at end/before a delimiter
-          params.add("(^|[-, ])" + type + "($|[-, ])")
+          sql += " AND LOWER(COALESCE(type, '')) REGEXP ?"
+          params.add("(^|[-, ])" + Regex.escape(normalizedType) + "($|[-, ])")
         }
       }
     }
@@ -98,14 +106,14 @@ class ProxyDB {
     params.add(offset)
 
     return executor.submit(Callable {
-      query(sql, params).get().map { mapRowToProxyItem(it) }
+      query("getWorkingProxies", sql, params).get().map { mapRowToProxyItem(it) }
     })
   }
 
   fun getDeadProxies(limit: Int = 100, offset: Int = 0): Future<List<ProxyItem>> {
     val sql = "SELECT * FROM proxies WHERE status = 'dead' ORDER BY last_check DESC LIMIT ? OFFSET ?"
     return executor.submit(Callable {
-      query(sql, listOf(limit, offset)).get().map { mapRowToProxyItem(it) }
+      query("getDeadProxies", sql, listOf(limit, offset)).get().map { mapRowToProxyItem(it) }
     })
   }
 
@@ -113,7 +121,7 @@ class ProxyDB {
     val sql =
       "SELECT DISTINCT country FROM proxies WHERE status = 'active' AND country IS NOT NULL AND country != '' ORDER BY country ASC"
     return executor.submit(Callable {
-      query(sql).get().mapNotNull { it["country"]?.toString() }
+      query("getUniqueCountries", sql).get().mapNotNull { it["country"]?.toString() }
     })
   }
 
@@ -127,7 +135,7 @@ class ProxyDB {
     sql += " ORDER BY city ASC"
 
     return executor.submit(Callable {
-      query(sql, params).get().mapNotNull { it["city"]?.toString() }
+      query("getUniqueCities", sql, params).get().mapNotNull { it["city"]?.toString() }
     })
   }
 
@@ -135,14 +143,14 @@ class ProxyDB {
     val sql =
       "SELECT DISTINCT classification FROM proxies WHERE status = 'active' AND classification IS NOT NULL AND classification != '' ORDER BY classification ASC"
     return executor.submit(Callable {
-      query(sql).get().mapNotNull { it["classification"]?.toString() }
+      query("getUniqueClassifications", sql).get().mapNotNull { it["classification"]?.toString() }
     })
   }
 
   fun getUniqueTypes(): Future<List<String>> {
     val sql = "SELECT DISTINCT type, https FROM proxies WHERE status = 'active'"
     return executor.submit(Callable {
-      val rows = query(sql).get()
+      val rows = query("getUniqueTypes", sql).get()
       val typeSet = mutableSetOf<String>()
       for (row in rows) {
         val rawType = row["type"] as? String
@@ -176,20 +184,20 @@ class ProxyDB {
 
     sql += " LIMIT ?"
     return executor.submit(Callable {
-      query(sql, listOf(limit)).get().map { mapRowToProxyItem(it) }
+      query("getUntestedProxies", sql, listOf(limit)).get().map { mapRowToProxyItem(it) }
     })
   }
 
   fun addProxy(proxy: String): Future<Boolean> {
     val sql = "${insertIgnore()} INTO proxies (proxy, status) VALUES (?, ?)"
     return executor.submit(Callable {
-      update(sql, listOf(proxy, "untested")).get() > 0
+      update("addProxy", sql, listOf(proxy, "untested")).get() > 0
     })
   }
 
   fun updateStatus(proxy: String, status: String): Future<Int> {
     val sql = "UPDATE proxies SET status = ?, last_check = ${now()} WHERE proxy = ?"
-    return update(sql, listOf(status, proxy))
+    return update("updateStatus", sql, listOf(status, proxy))
   }
 
   /**
@@ -213,7 +221,7 @@ class ProxyDB {
         """.trimIndent()
     }
     return executor.submit(Callable {
-      update(sql, listOf(proxy, type, status, type, status)).get() > 0
+      update("upsertProxy", sql, listOf(proxy, type, status, type, status)).get() > 0
     })
   }
 

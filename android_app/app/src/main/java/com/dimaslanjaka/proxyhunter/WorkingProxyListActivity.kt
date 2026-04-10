@@ -223,7 +223,9 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
     var countries by remember { mutableStateOf(listOf<String>()) }
     var cities by remember { mutableStateOf(listOf<String>()) }
     var classifications by remember { mutableStateOf(listOf<String>()) }
-    var types by remember { mutableStateOf(listOf<String>()) }
+    val typeOptions = remember {
+        listOf("HTTP", "SOCKS4", "SOCKS5", "SOCKS4A", "SOCKS5H", "SSL")
+    }
     var selectedCountry by remember { mutableStateOf<String?>(null) }
     var selectedCity by remember { mutableStateOf<String?>(null) }
     var selectedClassification by remember { mutableStateOf<String?>(null) }
@@ -301,7 +303,6 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
         try {
             countries = withContext(Dispatchers.IO) { db.getUniqueCountries().get() }
             classifications = withContext(Dispatchers.IO) { db.getUniqueClassifications().get() }
-            types = withContext(Dispatchers.IO) { db.getUniqueTypes().get() }
         } catch (e: Exception) {
             Timber.tag("ProxyHunter").e(e, "Failed to fetch filters")
         }
@@ -370,7 +371,7 @@ fun ProxyListScreen(onConnect: (ProxyItem) -> Unit, onDisconnect: () -> Unit, on
                     Spacer(modifier = Modifier.size(8.dp))
                     FilterDropdown(
                         label = "Type",
-                        options = types,
+                        options = typeOptions,
                         selectedOption = selectedType,
                         onOptionSelected = { selectedType = it },
                         modifier = Modifier.width(150.dp).fillMaxHeight()
