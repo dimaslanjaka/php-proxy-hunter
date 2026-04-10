@@ -8,10 +8,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.io.File
+import java.net.InetSocketAddress
+import java.net.Socket
 import java.util.Collections
 import java.util.concurrent.Future
+import java.util.concurrent.Executors
+import timber.log.Timber
 
 object ProxyManager {
+    private const val MYSQL_HOST = "23.94.85.180"
+    private const val MYSQL_PORT = 3306
+    private const val MYSQL_CONNECT_TIMEOUT_MS = 60000
+    private val backendExecutor = Executors.newSingleThreadExecutor()
+
+    @Volatile
+    private var _initializing = false
+    val initializing: Boolean
+        get() = _initializing
+
     private var _prefs: LocalSharedPrefs? = null
     val prefs: LocalSharedPrefs
         get() = _prefs ?: throw IllegalStateException("ProxyManager not initialized. Call initialize(context) first.")
@@ -43,15 +57,17 @@ object ProxyManager {
     val checkingProxiesFlow = _checkingProxiesFlow.asStateFlow()
 
     @JvmStatic
-    fun initialize(context: Context) {
+    fun initialize(context: Context, onInitialized: (() -> Unit)? = null) {
         if (_prefs == null) {
-            _prefs = LocalSharedPrefs.initialize(context.applicationContext, "proxy_checker_prefs")
-            val dbFile = File(context.filesDir, "local_proxy.db")
-            val sqliteHelper = SQLiteHelper(context.applicationContext, dbFile.absolutePath)
-            _localDb = sqliteHelper
+            _initializing = true
+            try {
+                _prefs = LocalSharedPrefs.initialize(context.applicationContext, "proxy_checker_prefs")
+                val dbFile = File(context.filesDir, "local_proxy.db")
+                val sqliteHelper = SQLiteHelper(context.applicationContext, dbFile.absolutePath)
+                _localDb = sqliteHelper
 
-            // Initialize proxies table
-            sqliteHelper.update("""
+                // Always keep the local SQLite database available for history and fallback.
+                sqliteHelper.update("""
                 CREATE TABLE IF NOT EXISTS proxies (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     proxy TEXT UNIQUE,
@@ -79,8 +95,7 @@ object ProxyManager {
                 )
             """.trimIndent()).get()
 
-            // Initialize results table if it doesn't exist
-            sqliteHelper.update("""
+                sqliteHelper.update("""
                 CREATE TABLE IF NOT EXISTS proxy_results (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     proxy TEXT,
@@ -95,13 +110,68 @@ object ProxyManager {
                 )
             """.trimIndent()).get()
 
-            // Run migrations
-            migrate(sqliteHelper)
+                migrate(sqliteHelper)
 
-            synchronized(this) {
-                _db?.close()
-                _db = ProxyDB(sqliteHelper)
+                synchronized(this) {
+                    _db?.close()
+                    _db = ProxyDB(sqliteHelper)
+                    Timber.d("Selected database backend: SQLite (initial)")
+                }
+
+                onInitialized?.invoke()
+
+                backendExecutor.execute {
+                    try {
+                        val useMySql = isMySqlReachable(MYSQL_HOST, MYSQL_PORT)
+                        Timber.d(
+                            "isMySqlReachable(%s:%d) = %s",
+                            MYSQL_HOST,
+                            MYSQL_PORT,
+                            useMySql
+                        )
+
+                        if (!useMySql) {
+                            Timber.i("MySQL backend is not reachable on %s:%d; staying on local SQLite", MYSQL_HOST, MYSQL_PORT)
+                            return@execute
+                        }
+
+                        var mysqlDb: ProxyDB? = null
+                        try {
+                            mysqlDb = ProxyDB()
+                            if (mysqlDb.testConnection()) {
+                                synchronized(this) {
+                                    _db?.close()
+                                    _db = mysqlDb
+                                }
+                                Timber.i("Selected database backend: MySQL")
+                            } else {
+                                Timber.w("MySQL backend is reachable but failed connection test; staying on SQLite")
+                                mysqlDb.close()
+                            }
+                        } catch (e: Exception) {
+                            Timber.e(e, "MySQL backend initialization failed; staying on SQLite")
+                            mysqlDb?.close()
+                        }
+                    } finally {
+                        _initializing = false
+                    }
+                }
+            } catch (e: Exception) {
+                _initializing = false
+                throw e
             }
+        }
+    }
+
+    private fun isMySqlReachable(host: String, port: Int, timeoutMs: Int = MYSQL_CONNECT_TIMEOUT_MS): Boolean {
+        return try {
+            Socket().use { socket ->
+                socket.connect(InetSocketAddress(host, port), timeoutMs)
+            }
+            true
+        } catch (e: Exception) {
+            Timber.d(e, "MySQL port probe failed for %s:%d", host, port)
+            false
         }
     }
 
@@ -175,7 +245,7 @@ object ProxyManager {
         db.upsertProxy(proxy, type, status)
 
         // Store result to SQLite history
-        localDb.update("INSERT INTO proxy_results (proxy, is_working, type, title, http, tcp, ssl, latency) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        _localDb?.update("INSERT INTO proxy_results (proxy, is_working, type, title, http, tcp, ssl, latency) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             listOf(
                 proxy,
                 if (result.isWorking) 1 else 0,
@@ -206,7 +276,7 @@ object ProxyManager {
         db.upsertProxy(proxy, type, status)
 
         // Store result to SQLite history
-        localDb.update("INSERT INTO proxy_results (proxy, is_working, type, title, http, tcp, ssl, latency) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        _localDb?.update("INSERT INTO proxy_results (proxy, is_working, type, title, http, tcp, ssl, latency) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             listOf(
                 proxy,
                 if (isWorking) 1 else 0,
@@ -221,13 +291,14 @@ object ProxyManager {
 
     @JvmStatic
     fun getAllLocalResults(): Future<List<Map<String, Any?>>> {
-        return localDb.query("SELECT * FROM proxy_results ORDER BY timestamp DESC")
+        return _localDb?.query("SELECT * FROM proxy_results ORDER BY timestamp DESC")
+            ?: throw IllegalStateException("ProxyManager not initialized. Call initialize(context) first.")
     }
 
     @JvmStatic
     fun clearResults() {
         _resultsFlow.value = emptyMap()
-        localDb.update("DELETE FROM proxy_results")
+        _localDb?.update("DELETE FROM proxy_results")
     }
 
     @JvmStatic
