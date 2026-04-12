@@ -1,5 +1,38 @@
 [
   {
+    "hash": "7556c9f4362f5cc22546ee3d7fb24af97873f6f0",
+    "date": "2026-04-12T14:55:02+07:00",
+    "message": "fix(rollup): improve error logging for dynamic config loading failures",
+    "files": [
+      "rollup.config.js"
+    ]
+  },
+  {
+    "hash": "2bb72e6d8901c297d89d129d45e6b1108bc14ffc",
+    "date": "2026-04-12T14:54:36+07:00",
+    "message": "feat(proxy-submission): add fetch-proxy tab with default source URLs\n\n- add default proxy list URLs (socks4, socks5, http) and prefill fetch URL input\n- add dedicated \"Fetch Proxies\" tab and tab state for submit/fetch workflows\n- implement URL-based proxy retrieval via backend proxy endpoint\n- replace proxy textarea content with fetched results and sync with form saver\n- keep existing submit/check actions in separate tab with updated layout\n- refine loading overlay styling for tabbed container",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "805304debb159fd69f9e8fddbc9076f0febfb8c6",
+    "date": "2026-04-12T14:34:21+07:00",
+    "message": "feat(php_backend): add general-purpose asset proxy and unify cache directory\n\n- Add proxy.php for CORS bypass on JS, CSS, TXT, JSON and other assets\n- Consolidate image and asset caching to shared tmp/asset-cache directory\n- Implement Content-Type validation with whitelist\n- Support base64 URL encoding and cache refresh parameter\n- Include proper error handling and streaming response",
+    "files": [
+      "php_backend/img.php",
+      "php_backend/proxy.php"
+    ]
+  },
+  {
+    "hash": "ee776bcc6914892cdab54ad2d8545e3918c83310",
+    "date": "2026-04-12T14:33:36+07:00",
+    "message": "fix(requirements): update selenium and urllib3 version constraints",
+    "files": [
+      "requirements-base.txt"
+    ]
+  },
+  {
     "hash": "55a93f51d169b13d62a83a7cdf64e4b19ac85e78",
     "date": "2026-04-12T14:12:28+07:00",
     "message": "refactor: extract proxy summary to dedicated component and endpoint\n\n- Remove declare(strict_types=1) from all PHP backend files\n- Create new php_backend/proxy-summary.php endpoint for counter statistics\n- Extract counter_proxies logic from proxy-list.php response\n- Create Summary.tsx component with independent AJAX data fetching\n- Move Summary component from ServerSide to ProxyList index page\n- Remove counter state and rendering logic from ServerSide.tsx\n- Summary component now manages its own counter data lifecycle",
@@ -8800,43 +8833,6 @@
     "message": "fix(py): remove redundant message for existing virtual environment",
     "files": [
       "bin/py"
-    ]
-  },
-  {
-    "hash": "4229ef3db8fc39d9e9c1def142b7200cd7f707f0",
-    "date": "2025-10-28T14:33:26+07:00",
-    "message": "fix(proxyFetcher): correct path to proxyFetcherSources.json",
-    "files": [
-      "proxyFetcher.py"
-    ]
-  },
-  {
-    "hash": "6a149451228b7f13238e4769895665e9d6905349",
-    "date": "2025-10-28T14:22:42+07:00",
-    "message": "fix(package): update chromedriver to version ^141.0.6",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "8399bbba7434575ac2ee9ed65857b017f667501a",
-    "date": "2025-10-28T14:22:02+07:00",
-    "message": "refactor(readme): remove Windows production setup instructions",
-    "files": [
-      "readme.md"
-    ]
-  },
-  {
-    "hash": "b9379ca35a415ba87a37071d100a89bab77f300e",
-    "date": "2025-10-28T14:13:28+07:00",
-    "message": "chore(ci): update actions/setup-node to v5 in GitHub workflows\n\n- Bump actions/setup-node from v4 to v5 in multiple workflow files\n- Add Yarn cache configuration to clean-caches.yml for improved dependency caching",
-    "files": [
-      ".github/workflows/checker-php.yml.txt",
-      ".github/workflows/checker.yml.txt",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/nuitka-debug.yml.txt",
-      ".github/workflows/nuitka.yml.txt",
-      "packages/proxies-grabber"
     ]
   }
 ]
